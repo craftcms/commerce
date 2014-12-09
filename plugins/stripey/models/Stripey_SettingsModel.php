@@ -9,7 +9,8 @@ class Stripey_SettingsModel extends BaseModel{
     {
         return array(
             'secretKey'      => AttributeType::String,
-            'publishableKey' => AttributeType::String
+            'publishableKey' => AttributeType::String,
+            'defaultCurrency' => AttributeType::String
         );
     }
 
@@ -17,7 +18,8 @@ class Stripey_SettingsModel extends BaseModel{
     {
         return array(
           array('secretKey','required'),
-          array('publishableKey','required')
+          array('publishableKey','required'),
+          array('defaultCurrency','required')
         );
     }
 } 

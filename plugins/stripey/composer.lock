@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "997c0e4061cd291bf58ed901d0f45878",
+    "hash": "75f38bbdd39d89b85781f07d155ad4b8",
     "packages": [
         {
             "name": "cartalyst/stripe",
@@ -22,7 +22,6 @@
             },
             "require": {
                 "guzzle/guzzle": "3.9.*",
-                "illuminate/support": "~4.1|~5.0",
                 "php": ">=5.4.0"
             },
             "require-dev": {
@@ -96,12 +95,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/guzzle3.git",
-                "reference": "3c0ca2255751631f1dd64eb16bbe3b9440258297"
+                "reference": "5e6fb7097efac7180bd75006079144025255eb63"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle3/zipball/3c0ca2255751631f1dd64eb16bbe3b9440258297",
-                "reference": "3c0ca2255751631f1dd64eb16bbe3b9440258297",
+                "url": "https://api.github.com/repos/guzzle/guzzle3/zipball/5e6fb7097efac7180bd75006079144025255eb63",
+                "reference": "5e6fb7097efac7180bd75006079144025255eb63",
                 "shasum": ""
             },
             "require": {
@@ -180,20 +179,20 @@
                 "rest",
                 "web service"
             ],
-            "time": "2014-10-15 19:36:56"
+            "time": "2014-10-29 23:08:23"
         },
         {
             "name": "guzzlehttp/guzzle",
-            "version": "5.0.1",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/guzzle.git",
-                "reference": "9e806208d9b418a58ec86c49078aa94385e64bbd"
+                "reference": "f4088880c57718a1c805dfa184ea8a97a6afed15"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/9e806208d9b418a58ec86c49078aa94385e64bbd",
-                "reference": "9e806208d9b418a58ec86c49078aa94385e64bbd",
+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/f4088880c57718a1c805dfa184ea8a97a6afed15",
+                "reference": "f4088880c57718a1c805dfa184ea8a97a6afed15",
                 "shasum": ""
             },
             "require": {
@@ -208,7 +207,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-ring": "5.0-dev"
+                    "dev-master": "5.0-dev"
                 }
             },
             "autoload": {
@@ -238,7 +237,7 @@
                 "rest",
                 "web service"
             ],
-            "time": "2014-10-16 18:00:41"
+            "time": "2014-12-04 21:55:33"
         },
         {
             "name": "guzzlehttp/ringphp",
@@ -246,12 +245,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/RingPHP.git",
-                "reference": "00353a2df0d6c549d446daf18d434eb101f8bec0"
+                "reference": "533acf7c20e840b2299920b89032ec52e571c0f0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/RingPHP/zipball/00353a2df0d6c549d446daf18d434eb101f8bec0",
-                "reference": "00353a2df0d6c549d446daf18d434eb101f8bec0",
+                "url": "https://api.github.com/repos/guzzle/RingPHP/zipball/533acf7c20e840b2299920b89032ec52e571c0f0",
+                "reference": "533acf7c20e840b2299920b89032ec52e571c0f0",
                 "shasum": ""
             },
             "require": {
@@ -288,7 +287,7 @@
                     "homepage": "https://github.com/mtdowling"
                 }
             ],
-            "time": "2014-10-20 02:16:50"
+            "time": "2014-12-08 06:57:13"
         },
         {
             "name": "guzzlehttp/streams",
@@ -346,12 +345,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/contracts.git",
-                "reference": "d88d39ab386250c6b38e4429fb0502a44ad4c067"
+                "reference": "62b754375fab82e8be25c618aaae1ab2915bb119"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/contracts/zipball/d88d39ab386250c6b38e4429fb0502a44ad4c067",
-                "reference": "d88d39ab386250c6b38e4429fb0502a44ad4c067",
+                "url": "https://api.github.com/repos/illuminate/contracts/zipball/62b754375fab82e8be25c618aaae1ab2915bb119",
+                "reference": "62b754375fab82e8be25c618aaae1ab2915bb119",
                 "shasum": ""
             },
             "require": {
@@ -378,7 +377,8 @@
                     "email": "taylorotwell@gmail.com"
                 }
             ],
-            "time": "2014-10-20 20:16:41"
+            "description": "The Illuminate Contracts package.",
+            "time": "2014-12-04 19:25:03"
         },
         {
             "name": "illuminate/support",
@@ -386,12 +386,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/support.git",
-                "reference": "fa9b8d7e9f2083b38d19fbad29f4d398bbb5bcf3"
+                "reference": "bd4ff56cded2d63dfebe9c2ae18bb59d82bc563e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/support/zipball/fa9b8d7e9f2083b38d19fbad29f4d398bbb5bcf3",
-                "reference": "fa9b8d7e9f2083b38d19fbad29f4d398bbb5bcf3",
+                "url": "https://api.github.com/repos/illuminate/support/zipball/bd4ff56cded2d63dfebe9c2ae18bb59d82bc563e",
+                "reference": "bd4ff56cded2d63dfebe9c2ae18bb59d82bc563e",
                 "shasum": ""
             },
             "require": {
@@ -426,55 +426,8 @@
                     "email": "taylorotwell@gmail.com"
                 }
             ],
-            "time": "2014-10-20 16:13:57"
-        },
-        {
-            "name": "paypal/rest-api-sdk-php",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/paypal/rest-api-sdk-php.git",
-                "reference": "6fb6508f9cbacf5c4d579536291bbc98dd710a59"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/paypal/rest-api-sdk-php/zipball/6fb6508f9cbacf5c4d579536291bbc98dd710a59",
-                "reference": "6fb6508f9cbacf5c4d579536291bbc98dd710a59",
-                "shasum": ""
-            },
-            "require": {
-                "ext-curl": "*",
-                "ext-json": "*",
-                "php": ">=5.3.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "3.7.*"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "PayPal": "lib/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "Apache2"
-            ],
-            "authors": [
-                {
-                    "name": "PayPal",
-                    "homepage": "https://github.com/paypal/rest-api-sdk-php/contributors"
-                }
-            ],
-            "description": "PayPal's PHP SDK for REST APIs",
-            "homepage": "https://github.com/paypal/rest-api-sdk-php",
-            "keywords": [
-                "payments",
-                "paypal",
-                "rest",
-                "sdk"
-            ],
-            "time": "2014-10-20 20:54:09"
+            "description": "The Illuminate Support package.",
+            "time": "2014-12-05 05:03:58"
         },
         {
             "name": "react/promise",
@@ -522,17 +475,17 @@
         },
         {
             "name": "symfony/event-dispatcher",
-            "version": "dev-master",
+            "version": "2.7.x-dev",
             "target-dir": "Symfony/Component/EventDispatcher",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/EventDispatcher.git",
-                "reference": "e133748fd9165e24f8e9498ef5862f8bd37004e5"
+                "reference": "fb44a3acc6b9788106a2b91ab71b889ce313ac60"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/EventDispatcher/zipball/e133748fd9165e24f8e9498ef5862f8bd37004e5",
-                "reference": "e133748fd9165e24f8e9498ef5862f8bd37004e5",
+                "url": "https://api.github.com/repos/symfony/EventDispatcher/zipball/fb44a3acc6b9788106a2b91ab71b889ce313ac60",
+                "reference": "fb44a3acc6b9788106a2b91ab71b889ce313ac60",
                 "shasum": ""
             },
             "require": {
@@ -552,7 +505,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.6-dev"
+                    "dev-master": "2.7-dev"
                 }
             },
             "autoload": {
@@ -576,7 +529,7 @@
             ],
             "description": "Symfony EventDispatcher Component",
             "homepage": "http://symfony.com",
-            "time": "2014-10-04 06:08:58"
+            "time": "2014-12-08 08:43:57"
         }
     ],
     "packages-dev": [],

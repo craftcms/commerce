@@ -1,0 +1,163 @@
+<?php
+namespace Craft;
+
+
+class Stripey_ChargeElementType extends BaseElementType
+{
+    /**
+     * Returns the element type name.
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return Craft::t('Charges');
+    }
+
+    /**
+     * Returns whether this element type has content.
+     *
+     * @return bool
+     */
+    public function hasContent()
+    {
+        return false;
+    }
+
+    /**
+     * Returns whether this element type has titles.
+     *
+     * @return bool
+     */
+    public function hasTitles()
+    {
+        return false;
+    }
+
+    /**
+     * Returns whether this element type can have statuses.
+     *
+     * @return bool
+     */
+    public function hasStatuses()
+    {
+        return false;
+    }
+
+    /**
+     * Returns this element type's sources.
+     *
+     * @param string|null $context
+     *
+     * @return array|false
+     */
+    public function getSources($context = null)
+    {
+        $sources = array(
+            '*' => array(
+                'label' => Craft::t('All Charges'),
+            )
+        );
+
+        return $sources;
+    }
+
+    /**
+     * Returns the attributes that can be shown/sorted by in table views.
+     *
+     * @param string|null $source
+     *
+     * @return array
+     */
+    public function defineTableAttributes($source = null)
+    {
+        return array(
+            'stripeId' => Craft::t('Stripe Charge Id'),
+            'amount'   => Craft::t('Amount'),
+        );
+    }
+
+    /**
+     * Returns attributes available to search
+     *
+     * @return array
+     */
+    public function defineSearchableAttributes()
+    {
+        return array('stripeId');
+    }
+
+    /**
+     * Sortable by
+     *
+     * @return array
+     */
+    public function defineSortableAttributes()
+    {
+        return array(
+            'stripeId' => Craft::t('Stripe Charge Id'),
+        );
+    }
+
+    /**
+     * Defines any custom element criteria attributes for this element type.
+     *
+     * @return array
+     */
+    public function defineCriteriaAttributes()
+    {
+        return array(
+            'stripeId' => AttributeType::Mixed,
+        );
+    }
+
+    /**
+     * Modifies an element query targeting elements of this type.
+     *
+     * @param DbCommand            $query
+     * @param ElementCriteriaModel $criteria
+     *
+     * @return mixed
+     */
+    public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
+    {
+        $query
+            ->addSelect("charges.stripeId,charges.amount")
+            ->join('stripey_charges charges', 'charges.id = elements.id');
+
+        if ($criteria->stripeId) {
+            $query->andWhere(DbHelper::parseParam('charges.stripeId', $criteria->stripeId, $query->params));
+        }
+    }
+
+    /**
+     * Populates an element model based on a query result.
+     *
+     * @param array $row
+     *
+     * @return array
+     */
+    public function populateElementModel($row)
+    {
+        return Stripey_ChargeModel::populateModel($row);
+    }
+
+    /**
+     * Returns the HTML for an editor HUD for the given element.
+     *
+     * @param BaseElementModel $element
+     *
+     * @return string
+     */
+    public function getEditorHtml(BaseElementModel $element)
+    {
+
+        $html = craft()->templates->render('charges/_edit', array(
+            'element' => $element,
+        ));
+
+        $html .= parent::getEditorHtml($element);
+
+        return $html;
+    }
+} 

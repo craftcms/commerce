@@ -216,4 +216,46 @@ class PoolTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(1, $result);
         $this->assertInstanceOf('GuzzleHttp\Exception\ClientException', $result[0]);
     }
+
+    public function testHasSendMethod()
+    {
+        $client = new Client();
+        $responses = [new Response(404)];
+        $history = new History();
+        $client->getEmitter()->attach($history);
+        $client->getEmitter()->attach(new Mock($responses));
+        $requests = [$client->createRequest('GET', 'http://foo.com/baz')];
+        Pool::send($client, $requests);
+        $this->assertCount(1, $history);
+    }
+
+    public function testDoesNotInfinitelyRecurse()
+    {
+        $client = new Client(['handler' => function () {
+            throw new \RuntimeException('No network access');
+        }]);
+
+        $last = null;
+        $client->getEmitter()->on(
+            'before',
+            function (BeforeEvent $e) use (&$last) {
+                $e->intercept(new Response(200));
+                if (function_exists('xdebug_get_stack_depth')) {
+                    if ($last) {
+                        $this->assertEquals($last, xdebug_get_stack_depth());
+                    } else {
+                        $last = xdebug_get_stack_depth();
+                    }
+                }
+            }
+        );
+
+        $requests = [];
+        for ($i = 0; $i < 100; $i++) {
+            $requests[] = $client->createRequest('GET', 'http://foo.com');
+        }
+
+        $pool = new Pool($client, $requests);
+        $pool->wait();
+    }
 }

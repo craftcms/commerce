@@ -2,10 +2,22 @@
 
 namespace Craft;
 
+use Stripey\Cart\CartItemCollection;
+
 require 'vendor/autoload.php';
+require 'Stripey.php';
+
 
 class StripeyPlugin extends BasePlugin
 {
+    /**
+     *
+     */
+    public function init()
+    {
+
+    }
+
     /**
      * Returns the Name of the Plugin.
      *
@@ -70,8 +82,11 @@ class StripeyPlugin extends BasePlugin
     {
         return array(
             'secretKey'      => AttributeType::String,
-            'publishableKey' => AttributeType::String
+            'publishableKey' => AttributeType::String,
+            //TODO: Fill currency enum values dynamically based on https://support.stripe.com/questions/which-currencies-does-stripe-support
+            'defaultCurrency' => AttributeType::String
         );
     }
 
 }
+

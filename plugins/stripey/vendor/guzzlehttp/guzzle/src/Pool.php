@@ -9,7 +9,9 @@ use GuzzleHttp\Ring\Future\FutureInterface;
 use GuzzleHttp\Event\ListenerAttacherTrait;
 use GuzzleHttp\Event\EndEvent;
 use React\Promise\Deferred;
+use React\Promise\FulfilledPromise;
 use React\Promise\PromiseInterface;
+use React\Promise\RejectedPromise;
 
 /**
  * Sends and iterator of requests concurrently using a capped pool size.
@@ -127,6 +129,22 @@ class Pool implements FutureInterface
         return new BatchResults($hash);
     }
 
+    /**
+     * Creates a Pool and immediately sends the requests.
+     *
+     * @param ClientInterface $client   Client used to send the requests
+     * @param array|\Iterator $requests Requests to send in parallel
+     * @param array           $options  Passes through the options available in
+     *                                  {@see GuzzleHttp\Pool::__construct}
+     */
+    public static function send(
+        ClientInterface $client,
+        $requests,
+        array $options = []
+    ) {
+        (new self($client, $requests, $options))->wait();
+    }
+
     public function wait()
     {
         if ($this->isRealized) {
@@ -225,6 +243,8 @@ class Pool implements FutureInterface
      */
     private function addNextRequest()
     {
+        add_next:
+
         if ($this->isRealized || !$this->iter || !$this->iter->valid()) {
             return false;
         }
@@ -246,19 +266,37 @@ class Pool implements FutureInterface
         $response = $this->client->send($request);
         $hash = spl_object_hash($request);
         $this->waitQueue[$hash] = $response;
+        $promise = $response->promise();
+
+        // Don't recursively call itself for completed or rejected responses.
+        if ($promise instanceof FulfilledPromise
+            || $promise instanceof RejectedPromise
+        ) {
+            try {
+                $this->finishResponse($request, $response->wait(), $hash);
+            } catch (\Exception $e) {
+                $this->finishResponse($request, $e, $hash);
+            }
+            goto add_next;
+        }
 
         // Use this function for both resolution and rejection.
-        $fn = function ($value) use ($request, $hash) {
-            unset($this->waitQueue[$hash]);
-            $result = $value instanceof ResponseInterface
-                ? ['request' => $request, 'response' => $value, 'error' => null]
-                : ['request' => $request, 'response' => null, 'error' => $value];
-            $this->deferred->progress($result);
+        $thenFn = function ($value) use ($request, $hash) {
+            $this->finishResponse($request, $value, $hash);
             $this->addNextRequest();
         };
 
-        $response->then($fn, $fn);
+        $promise->then($thenFn, $thenFn);
 
         return true;
+    }
+
+    private function finishResponse($request, $value, $hash)
+    {
+        unset($this->waitQueue[$hash]);
+        $result = $value instanceof ResponseInterface
+            ? ['request' => $request, 'response' => $value, 'error' => null]
+            : ['request' => $request, 'response' => null, 'error' => $value];
+        $this->deferred->progress($result);
     }
 }

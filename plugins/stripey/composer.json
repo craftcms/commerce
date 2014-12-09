@@ -7,13 +7,17 @@
         }
     ],
     "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "Stripey\\": "Stripey"
+        }
+    },
     "require": {
-
-    }
-    "require": {
-        "paypal/rest-api-sdk-php" : "*",
         "cartalyst/stripe": "1.0.*",
         "guzzlehttp/guzzle": "~5.0"
+    },
+    "require-dev": {
+
     },
     "repositories": [
         {

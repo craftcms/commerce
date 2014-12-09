@@ -31,8 +31,18 @@
         value: (settings.publishableKey is defined ? settings.publishableKey : null),
         errors: (settings is defined ? settings.getErrors('publishableKey') : null),
         required: true,
-        autofocus: true
         }) }}
+
+        {{ forms.textField({
+        label: "Default Currency"|t,
+        instructions: "Default Charge Currency."|t,
+        id: 'defaultCurrency',
+        name: 'settings[defaultCurrency]',
+        value: (settings.defaultCurrency is defined ? settings.defaultCurrency : null),
+        errors: (settings is defined ? settings.getErrors('defaultCurrency') : null),
+        required: true,
+        }) }}
+        <!-- TODO: Make dropdown and popular with a currency helper -->
         <input type="submit" class="btn" value="Save"/>
     </form>
 

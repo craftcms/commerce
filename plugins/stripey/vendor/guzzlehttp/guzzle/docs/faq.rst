@@ -64,7 +64,7 @@ an HTTP response into a more meaningful model object.
 - `Guzzle Command <https://github.com/guzzle/command>`_: Provides the building
   blocks for service description abstraction.
 - `Guzzle Services <https://github.com/guzzle/guzzle-services>`_: Provides an
-  implementation of "Guzzle Command" that utlizes Guzzle's service description
+  implementation of "Guzzle Command" that utilizes Guzzle's service description
   format.
 
 Does Guzzle require cURL?
@@ -91,13 +91,13 @@ Can Guzzle send asynchronous requests?
 Yes. Pass the ``future`` true request option to a request to send it
 asynchronously. Guzzle will then return a ``GuzzleHttp\Message\FutureResponse``
 object that can be used synchronously by accessing the response object like a
-normal response, and it can be used asynchronoulsy using a promise that is
+normal response, and it can be used asynchronously using a promise that is
 notified when the response is resolved with a real response or rejected with an
 exception.
 
 .. code-block:: php
 
-    $request = $client->createRequest('GET', ['future' => true']);
+    $request = $client->createRequest('GET', ['future' => true]);
     $client->send($request)->then(function ($response) {
         echo 'Got a response! ' . $response;
     });
@@ -107,7 +107,7 @@ of a response.
 
 .. code-block:: php
 
-    $request = $client->createRequest('GET', ['future' => true']);
+    $request = $client->createRequest('GET', ['future' => true]);
     $futureResponse = $client->send($request);
     $futureResponse->wait();
 

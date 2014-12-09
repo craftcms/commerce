@@ -2,7 +2,7 @@
 
 namespace Craft;
 
-class Stripey_DashboardController extends BaseController{
+class Stripey_DashboardController extends Stripey_BaseController{
 
     public function actionIndex()
     {
