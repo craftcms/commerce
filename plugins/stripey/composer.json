@@ -1,0 +1,24 @@
+{
+    "name": "lukeholder/craft-stripey",
+    "authors": [
+        {
+            "name": "Luke Holder",
+            "email": "lukemh@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+
+    }
+    "require": {
+        "paypal/rest-api-sdk-php" : "*",
+        "cartalyst/stripe": "1.0.*",
+        "guzzlehttp/guzzle": "~5.0"
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://packages.cartalyst.com"
+        }
+    ]
+}

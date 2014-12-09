@@ -1,0 +1,13 @@
+{% extends "_layouts/cp" %}
+
+
+{% set crumbs = [
+{ label: "Settings"|t, url: url('settings') }
+] %}
+
+{% set tabs = {
+dashboard: { label: "Dashboard"|t, url: url('stripey') },
+plans: { label: "Plans"|t, url: url('stripey/plans') },
+settings: { label: "Settings"|t, url: url('stripey/settings') }
+} %}
+
