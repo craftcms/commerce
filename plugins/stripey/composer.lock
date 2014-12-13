@@ -4,24 +4,25 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "75f38bbdd39d89b85781f07d155ad4b8",
+    "hash": "ac28e33fe065748103698a721b59c4b6",
     "packages": [
         {
             "name": "cartalyst/stripe",
-            "version": "dev-master",
+            "version": "v0.1.1",
             "source": {
                 "type": "git",
                 "url": "git@github.com:cartalyst/stripe.git",
-                "reference": "c8c13892b3d977c21a852bd4712f6cf89a27f936"
+                "reference": "104b2fedf66e884075a43021c1781de29cd81a86"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cartalyst/stripe/zipball/c8c13892b3d977c21a852bd4712f6cf89a27f936",
-                "reference": "c8c13892b3d977c21a852bd4712f6cf89a27f936",
+                "url": "https://api.github.com/repos/cartalyst/stripe/zipball/104b2fedf66e884075a43021c1781de29cd81a86",
+                "reference": "104b2fedf66e884075a43021c1781de29cd81a86",
                 "shasum": ""
             },
             "require": {
                 "guzzle/guzzle": "3.9.*",
+                "illuminate/support": "~4.1|~5.0",
                 "php": ">=5.4.0"
             },
             "require-dev": {
@@ -39,7 +40,7 @@
             "extra": {
                 "component": "package",
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev"
+                    "dev-master": "0.2.x-dev"
                 }
             },
             "autoload": {
@@ -84,10 +85,10 @@
                 "stripe"
             ],
             "support": {
-                "source": "https://github.com/cartalyst/stripe/tree/master",
+                "source": "https://github.com/cartalyst/stripe/tree/v0.1.1",
                 "issues": "https://github.com/cartalyst/stripe/issues"
             },
-            "time": "2014-10-17 22:20:14"
+            "time": "2014-11-14 02:19:42"
         },
         {
             "name": "guzzle/guzzle",
@@ -95,12 +96,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/guzzle3.git",
-                "reference": "5e6fb7097efac7180bd75006079144025255eb63"
+                "reference": "eaadef477c9f7fdece3120cd68c38143c0cd4db4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle3/zipball/5e6fb7097efac7180bd75006079144025255eb63",
-                "reference": "5e6fb7097efac7180bd75006079144025255eb63",
+                "url": "https://api.github.com/repos/guzzle/guzzle3/zipball/eaadef477c9f7fdece3120cd68c38143c0cd4db4",
+                "reference": "eaadef477c9f7fdece3120cd68c38143c0cd4db4",
                 "shasum": ""
             },
             "require": {
@@ -179,7 +180,7 @@
                 "rest",
                 "web service"
             ],
-            "time": "2014-10-29 23:08:23"
+            "time": "2014-12-11 05:46:03"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -187,12 +188,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/guzzle.git",
-                "reference": "f4088880c57718a1c805dfa184ea8a97a6afed15"
+                "reference": "4b96b9207544eca5b66376a51ce7bbc99666c75a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/f4088880c57718a1c805dfa184ea8a97a6afed15",
-                "reference": "f4088880c57718a1c805dfa184ea8a97a6afed15",
+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/4b96b9207544eca5b66376a51ce7bbc99666c75a",
+                "reference": "4b96b9207544eca5b66376a51ce7bbc99666c75a",
                 "shasum": ""
             },
             "require": {
@@ -237,7 +238,7 @@
                 "rest",
                 "web service"
             ],
-            "time": "2014-12-04 21:55:33"
+            "time": "2014-12-10 22:52:17"
         },
         {
             "name": "guzzlehttp/ringphp",
@@ -245,12 +246,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/RingPHP.git",
-                "reference": "533acf7c20e840b2299920b89032ec52e571c0f0"
+                "reference": "a903f51b692427318bc813217c0e6505287e79a4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/RingPHP/zipball/533acf7c20e840b2299920b89032ec52e571c0f0",
-                "reference": "533acf7c20e840b2299920b89032ec52e571c0f0",
+                "url": "https://api.github.com/repos/guzzle/RingPHP/zipball/a903f51b692427318bc813217c0e6505287e79a4",
+                "reference": "a903f51b692427318bc813217c0e6505287e79a4",
                 "shasum": ""
             },
             "require": {
@@ -287,7 +288,7 @@
                     "homepage": "https://github.com/mtdowling"
                 }
             ],
-            "time": "2014-12-08 06:57:13"
+            "time": "2014-12-11 05:50:32"
         },
         {
             "name": "guzzlehttp/streams",
@@ -430,6 +431,52 @@
             "time": "2014-12-05 05:03:58"
         },
         {
+            "name": "pimple/pimple",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/silexphp/Pimple.git",
+                "reference": "08502c02fc490678847f733e0a0b784628033b3a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/silexphp/Pimple/zipball/08502c02fc490678847f733e0a0b784628033b3a",
+                "reference": "08502c02fc490678847f733e0a0b784628033b3a",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Pimple": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                }
+            ],
+            "description": "Pimple is a simple Dependency Injection Container for PHP 5.3",
+            "homepage": "http://pimple.sensiolabs.org",
+            "keywords": [
+                "container",
+                "dependency injection"
+            ],
+            "time": "2014-11-09 08:04:37"
+        },
+        {
             "name": "react/promise",
             "version": "v2.1.0",
             "source": {
@@ -535,7 +582,9 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "pimple/pimple": 20
+    },
     "prefer-stable": false,
     "platform": [],
     "platform-dev": []

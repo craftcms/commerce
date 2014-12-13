@@ -2,20 +2,21 @@
 
 namespace Craft;
 
-use Stripey\Cart\CartItemCollection;
+use Stripey\Stripey;
+use Stripey\Api\Stripe;
+
 
 require 'vendor/autoload.php';
-require 'Stripey.php';
 
 
 class StripeyPlugin extends BasePlugin
 {
-    /**
-     *
-     */
-    public function init()
+    function __construct()
     {
-
+        Stripey::app()["stripe"] = function ($c) {
+            $key = $this->getSettings()->secretKey;
+            return new Stripe($key);
+        };
     }
 
     /**
@@ -72,7 +73,13 @@ class StripeyPlugin extends BasePlugin
      */
     public function registerCpRoutes()
     {
-        return @require_once('config/routes.php');
+        return array(
+            'stripey' => array('action' => 'stripey/dashboard/index'),
+            'stripey/plans' => array('action' => 'stripey/plans/index'),
+            'stripey/charges' => 'stripey/charges/index',
+            'stripey/charges/(?P<chargeId>\d+)' => array('action' => 'stripey/charge/editCharge'),
+            'stripey/settings' => array('action' => 'stripey/settings/edit')
+        );
     }
 
     /**

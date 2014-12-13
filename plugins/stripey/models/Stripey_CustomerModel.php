@@ -10,10 +10,10 @@ namespace Craft;
  * @package Craft
  *
  */
-class Stripey_ChargeModel extends BaseElementModel
+class Stripey_CustomerModel extends BaseElementModel
 {
-    protected $elementType = 'Stripey_Charge';
-    protected $modelRecord = 'Stripey_ChargeRecord';
+    protected $elementType = 'Stripey_Customer';
+    protected $modelRecord = 'Stripey_CustomerRecord';
 
     private $_apiData = null;
 
@@ -43,11 +43,35 @@ class Stripey_ChargeModel extends BaseElementModel
      */
     public function getCpEditUrl()
     {
-        return UrlHelper::getCpUrl('stripey/charges/' . $this->id);
+        return UrlHelper::getCpUrl('stripey/customer/' . $this->id);
+    }
+
+    public function getData()
+    {
+        if ($this->_apiData == null) {
+            $this->_loadStripeData();
+        }
+
+        return $this;
+    }
+
+    private function _loadStripeData()
+    {
+        $this->_apiData = \Stripey\Stripey::app()['stripe']->customers()->find(array(
+            'id' => $this->stripeId
+        ));
+
+        foreach ($this->_apiData as $key => $val) {
+            if (in_array($key, $this->attributeNames()) && $key != 'id') {
+                $this->$key = $val;
+            }
+        }
+
     }
 
     /**
      * Charge Model Attributes
+     *
      * @inheritDoc BaseRecord::defineAttributes()
      *
      * @return array
@@ -89,66 +113,12 @@ class Stripey_ChargeModel extends BaseElementModel
             'balance_transaction'   => AttributeType::String,
             'failure_message'       => AttributeType::String,
             'failure_code'          => AttributeType::String,
-            'fraud_details' => AttributeType::Mixed,
+            'fraud_details'         => AttributeType::Mixed,
             'invoice'               => AttributeType::String,
             'dispute'               => AttributeType::Mixed,
             'receipt_number'        => AttributeType::String,
             'livemode'              => AttributeType::Bool,
         ));
-    }
-
-    public function getCardFontCode(){
-        $this->getData();
-        $brand = "";
-        switch ($this->card['brand']) {
-            case "Visa":
-                $brand = "fa-cc-visa";
-                break;
-            case "American Express":
-                $brand = "fa-cc-amex";
-                break;
-            case "MasterCard":
-                $brand = "fa-cc-mastercard";
-                break;
-            case "Discover":
-                $brand = "fa-cc-discover";
-                break;
-            case "JCB":
-                $brand = "fa-credit-card";
-                break;
-            case "Diners Club":
-                $brand = "fa-credit-card";
-                break;
-            case "Unknown":
-                $brand = "fa-credit-card";
-                break;
-            default:
-                $brand = "fa-credit-card";
-        }
-        return $brand;
-    }
-
-    public function getData()
-    {
-        if ($this->_apiData == null) {
-            $this->_loadStripeData();
-        }
-        return $this;
-    }
-
-
-    private function _loadStripeData()
-    {
-        $this->_apiData = \Stripey\Stripey::app()['stripe']->charges()->find(array(
-            'id' => $this->stripeId
-        ));
-
-        foreach ($this->_apiData as $key => $val) {
-            if (in_array($key,$this->attributeNames()) && $key != 'id') {
-                $this->$key = $val;
-            }
-        }
-
     }
 
 

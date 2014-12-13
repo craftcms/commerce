@@ -72,6 +72,7 @@ class Stripey_ChargeElementType extends BaseElementType
     public function defineTableAttributes($source = null)
     {
         return array(
+            'id'       => Craft::t('Craft Id'),
             'stripeId' => Craft::t('Stripe Charge Id'),
             'amount'   => Craft::t('Amount'),
         );
@@ -85,6 +86,16 @@ class Stripey_ChargeElementType extends BaseElementType
     public function defineSearchableAttributes()
     {
         return array('stripeId');
+    }
+
+
+    public function getTableAttributeHtml(BaseElementModel $element, $attribute)
+    {
+        switch ($attribute) {
+            case 'mode': {
+                return ucwords($element->mode);
+            }
+        }
     }
 
     /**
@@ -122,7 +133,7 @@ class Stripey_ChargeElementType extends BaseElementType
     public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
     {
         $query
-            ->addSelect("charges.stripeId,charges.amount")
+            ->addSelect("charges.id,charges.stripeId,charges.amount")
             ->join('stripey_charges charges', 'charges.id = elements.id');
 
         if ($criteria->stripeId) {

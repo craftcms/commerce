@@ -20,7 +20,7 @@ class StripeyVariable
      */
     public function config()
     {
-        return stripey()->settings->getSettings();
+        return craft()->stripey_settings->getSettings();
     }
 
     /**

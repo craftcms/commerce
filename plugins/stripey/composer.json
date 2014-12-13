@@ -13,8 +13,9 @@
         }
     },
     "require": {
-        "cartalyst/stripe": "1.0.*",
-        "guzzlehttp/guzzle": "~5.0"
+        "cartalyst/stripe": "0.1.*",
+        "guzzlehttp/guzzle": "~5.0",
+        "pimple/pimple": "~3.0@dev"
     },
     "require-dev": {
 

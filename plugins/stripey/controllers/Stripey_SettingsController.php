@@ -10,11 +10,11 @@ class Stripey_SettingsController extends Stripey_BaseController
      */
     public function actionEdit()
     {
-        $settings = stripey()->settings->getSettings();
+        $settings = craft()->stripey_settings->getSettings();
         $settings = Stripey_SettingsModel::populateModel($settings);
 
         $this->renderTemplate('stripey/settings', array(
-            'settings' => stripey()->settings->getSettings()
+            'settings' => craft()->stripey_settings->getSettings()
         ));
     }
 
@@ -30,7 +30,7 @@ class Stripey_SettingsController extends Stripey_BaseController
                 'settings' => $settings
             ));
         } else {
-            stripey()->settings->setSettings($settings);
+            craft()->stripey_settings->setSettings($settings);
             craft()->userSession->setNotice(Craft::t('Success, Stripey settings saved.'));
             $this->redirectToPostedUrl();
         }

@@ -1,22 +1,20 @@
 <?php
-namespace Craft;
+namespace Stripey;
 /**
  * Class Stripey
- * @package Craft
+ * @package Stripey
  */
 
-/**
- * @property Stripey_PlansService $plans Stripey Plans Service
- * @property Stripey_SettingsService $settings Stripey Settings Service
- * @property Stripey_ApiService $api Stripey Stripe Api Service
- * @property Stripey_ChargeService $charge Stripey Charge Service
- */
-class Stripey {
+use Pimple\Container;
+use Craft\Craft;
+
+
+class Stripey extends Container{
 
     public function __get($memberName)
     {
         $craftName = 'stripey_' . strtolower($memberName);
-        return craft()->$craftName;
+        return Craft::app()->$craftName;
     }
 
     /**
@@ -27,7 +25,7 @@ class Stripey {
     {
         static $inst = null;
         if ( $inst === null) {
-            $inst = new Stripey();
+            $inst = new self();
         }
         return $inst;
     }
@@ -42,5 +40,5 @@ class Stripey {
  */
 function stripey()
 {
-    return Stripey::app();
+    return \Stripey\Stripey::app();
 }

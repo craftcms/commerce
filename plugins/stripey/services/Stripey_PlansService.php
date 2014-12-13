@@ -14,7 +14,7 @@ class Stripey_PlansService extends BaseApplicationComponent{
      */
     public function getPlans()
     {
-        $plans = stripey()->api->stripe->plans()->all();
+        $plans = \Stripey\Stripey::app()['stripe']->plans()->all();
         return $plans['data'];
     }
 } 

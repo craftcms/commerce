@@ -1,59 +1,94 @@
 <?php
 namespace Stripey\Charge;
 
-use Craft\Craft;
 use Cartalyst\Stripe\Api\Exception\StripeException;
-use Craft\Stripey;
+use Craft\Stripey_ChargeRecord as ChargeRecord;
 
 class Creator
 {
+    /** @var $listener callback object */
     protected $listener;
 
+    /** @var \CModel $_charge */
+    private $_charge;
+
+    /**
+     * The creator of a change will let the listener
+     * know if a charge failed or succeeded
+     *
+     * @param $listener
+     */
     function __construct($listener)
     {
         $this->listener = $listener;
     }
 
-    public function create(\CModel $charge)
+    /**
+     * Creator of Stripe Charges.
+     * This accepts a Yii CModel that responds to the following
+     * attributes: card (stripeToken), currency, amount
+     *
+     * @param \CModel $charge
+     *
+     * @return mixed
+     * @throws \Stripey\Exception\BaseException
+     */
+    public function save(\CModel $charge)
     {
-        $isNewCharge = !$charge->id;
+        $this->_charge = $charge;
+        $isNewCharge   = !$charge->id;
 
-        if (!$isNewCharge) {
-//            return $this->listener->updateCharge($charge);
+        try {
+            if ($isNewCharge) {
+                $this->createNew();
+            }else{
+
+            }
+        } catch (StripeException $e) {
+            $error = $e->getMessage();
+            $charge->addError('stripe', $error);
+
+            return $this->listener->chargeFailed($this->_charge);
         }
 
-        $card       = $charge->card;
-        $currency   = $charge->currency;
-        $amount     = $charge->amount;
+        return $this->listener->chargeSucceeded($this->_charge);
+    }
+
+
+    /**
+     *
+     */
+    private function createNew()
+    {
+        if (\Craft\craft()->elements->saveElement($this->_charge)) {
+            $chargeRequest           = $this->buildChargeRequestWithDefaults();
+            $stripeCharge            = \Stripey\stripey()['stripe']->charges()->create($chargeRequest);
+            $this->_charge->stripeId = $stripeCharge['id'];
+            $chargeRecord            = new ChargeRecord();
+            $chargeRecord->id        = $this->_charge->id;
+            $chargeRecord->stripeId  = $this->_charge->stripeId;
+            $chargeRecord->amount    = $this->_charge->amount;
+            //TODO: Set other attributes like customer/user etc
+            $chargeRecord->save();
+        } else {
+            // Fail loudly if we cannot make an element from this Model
+            throw new \Stripey\Exception\BaseException("Could not save element");
+        }
+    }
+
+    /**
+     * Builds a Stripe array for the create request
+     *
+     * @return array
+     */
+    private function buildChargeRequestWithDefaults()
+    {
+        $card       = $this->_charge->card;
+        $currency   = $this->_charge->currency;
+        $amount     = $this->_charge->amount;
         $capture    = true;
         $chargeData = compact('card', 'currency', 'amount', 'capture');
 
-        try {
-            $newCharge        = Stripey::app()->api->stripe->charges()->create($chargeData);
-//            $newCharge        = array("id"=>"sk_test_8Lvmi5qDkbHRLCsyexhvOGuj");
-            $charge->stripeId = $newCharge['id'];
-            $chargeRecord     = new \Craft\Stripey_ChargeRecord();
-
-            if (Craft::app()->elements->saveElement($charge)) {
-                if ($isNewCharge) {
-                    $chargeRecord->id = $charge->id;
-                }
-            }
-
-            $chargeRecord->stripeId = $charge->stripeId;
-            $chargeRecord->amount = $charge->amount;
-
-            //TODO: Check if user logged in and set to customer/user
-            //$chargeRecord->userId = craft()->userSession->getUser()->id;
-            $chargeRecord->save();
-
-        } catch (StripeException $e) {
-            $error = $e->getMessage();
-            $charge->addError('carddsafdsa', $error);
-
-            return false;
-        }
-
-        return true;
+        return $chargeData;
     }
 }
