@@ -61,6 +61,7 @@ class Creator
         }
 
         if (\Craft\craft()->elements->saveElement($this->_product)) {
+
             $productRecord->availableOn = $this->_product->availableOn;
             $productRecord->expiresOn   = $this->_product->expiresOn;
             $productRecord->typeId      = $this->_product->typeId;

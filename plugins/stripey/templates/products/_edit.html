@@ -35,8 +35,8 @@ errors:    product.getErrors(attribute),
 {{ forms.field({
 id:       attribute,
 label:    label,
-first:    (attribute == 'startDate'),
-required: true
+first:    (attribute == 'availableOn'),
+required: false
 }, input) }}
 
 {% endmacro %}
@@ -74,8 +74,8 @@ required: true
         maxlength: 255
         }) }}
 
-        {{ dateTimeField(product, 'availableOn', "Available On"|t, true) }}
-        {{ dateTimeField(product, 'expiresOn', "Expires On"|t, false) }}
+        {{ dateTimeField(product, 'availableOn', "Available On"|t) }}
+        {{ dateTimeField(product, 'expiresOn', "Expires On"|t) }}
 
         <div>
             {% for tab in productType.getFieldLayout().getTabs() %}
