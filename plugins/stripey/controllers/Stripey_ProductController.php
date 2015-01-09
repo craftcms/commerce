@@ -9,9 +9,13 @@ namespace Craft;
 
 class Stripey_ProductController extends Stripey_BaseController
 {
+
+    /** @var bool All product changes should be by a logged in user */
     protected $allowAnonymous = false;
 
-
+    /**
+     * Index of products
+     */
     public function actionProductIndex()
     {
         $variables['productTypes'] = craft()->stripey_productType->getAllProductTypes();
@@ -19,7 +23,7 @@ class Stripey_ProductController extends Stripey_BaseController
     }
 
     /**
-     * The public Charge creation action.
+     * Save a new or existing product.
      */
     public function actionSaveProduct()
     {
@@ -27,17 +31,13 @@ class Stripey_ProductController extends Stripey_BaseController
 
         $productId = craft()->request->getPost('productId');
 
-        if ($productId)
-        {
+        if ($productId) {
             $product = craft()->stripey_product->getProductById($productId);
 
-            if (!$product)
-            {
+            if (!$product) {
                 throw new Exception(Craft::t('No event product with the ID “{id}”', array('id' => $productId)));
             }
-        }
-        else
-        {
+        } else {
             $product = new Stripey_ProductModel();
         }
 
@@ -62,17 +62,21 @@ class Stripey_ProductController extends Stripey_BaseController
         }
     }
 
+
+    /**
+     * Prepare screen to edit a product.
+     *
+     * @param array $variables
+     *
+     * @throws HttpException
+     */
     public function actionEditProduct(array $variables = array())
     {
         $variables['brandNewProduct'] = false;
 
-
-        if (!empty($variables['productTypeHandle']))
-        {
+        if (!empty($variables['productTypeHandle'])) {
             $variables['productType'] = craft()->stripey_productType->getProductTypeByHandle($variables['productTypeHandle']);
-        }
-        else if (!empty($variables['productTypeId']))
-        {
+        } else if (!empty($variables['productTypeId'])) {
             $variables['productType'] = craft()->stripey_productType->getProductTypeById($variables['productTypeId']);
         }
 
@@ -83,16 +87,15 @@ class Stripey_ProductController extends Stripey_BaseController
 
             $variables['product'] = craft()->stripey_product->getProductById($productId);
 
-            if (!$variables['product'])
-            {
+            if (!$variables['product']) {
                 throw new HttpException(404);
             }
 
             $variables['title'] = $variables['product']->title;
 
-        }else{
-            if (empty($variables['product'])){
-                $variables['product'] = new Stripey_ProductModel();
+        } else {
+            if (empty($variables['product'])) {
+                $variables['product']         = new Stripey_ProductModel();
                 $variables['product']->typeId = $variables['productType']->id;
                 $variables['brandNewProduct'] = true;
             }
@@ -106,63 +109,23 @@ class Stripey_ProductController extends Stripey_BaseController
         $this->renderTemplate('stripey/products/_edit', $variables);
     }
 
-    public function actionDeleteProduct()
-    {
-        $this->requirePostRequest();
-
-        $productId = craft()->request->getRequiredPost('productId');
-        $product = craft()->stripey_product->getProductById($productId);
-
-        if (!$product)
-        {
-            throw new Exception(Craft::t('No product exists with the ID “{id}”.', array('id' => $productId)));
-        }
-
-        if (craft()->stripey_product->deleteProduct($product))
-        {
-            if (craft()->request->isAjaxRequest())
-            {
-                $this->returnJson(array('success' => true));
-            }
-            else
-            {
-                craft()->userSession->setNotice(Craft::t('Product deleted.'));
-                $this->redirectToPostedUrl($product);
-            }
-        }
-        else
-        {
-            if (craft()->request->isAjaxRequest())
-            {
-                $this->returnJson(array('success' => false));
-            }
-            else
-            {
-                craft()->userSession->setError(Craft::t('Couldn’t delete product.'));
-
-                craft()->urlManager->setRouteVariables(array(
-                    'product' => $product
-                ));
-            }
-        }
-    }
-
-
+    /**
+     *
+     * Modifies the variables of the request.
+     *
+     * @param $variables
+     */
     private function prepVariables(&$variables)
     {
         $variables['tabs'] = array();
 
-        foreach ($variables['productType']->getFieldLayout()->getTabs() as $index => $tab)
-        {
+        foreach ($variables['productType']->getFieldLayout()->getTabs() as $index => $tab) {
             // Do any of the fields on this tab have errors?
             $hasErrors = false;
 
-            if ($variables['product']->hasErrors())
-            {
-                foreach ($tab->getFields() as $field)
-                {
-                    if ($variables['product']->getErrors($field->getField()->handle))
-                    {
+            if ($variables['product']->hasErrors()) {
+                foreach ($tab->getFields() as $field) {
+                    if ($variables['product']->getErrors($field->getField()->handle)) {
                         $hasErrors = true;
                         break;
                     }
@@ -171,9 +134,45 @@ class Stripey_ProductController extends Stripey_BaseController
 
             $variables['tabs'][] = array(
                 'label' => Craft::t($tab->name),
-                'url'   => '#tab'.($index+1),
+                'url'   => '#tab' . ($index + 1),
                 'class' => ($hasErrors ? 'error' : null)
             );
+        }
+    }
+
+    /**
+     * Deletes a product.
+     *
+     * @throws Exception if you try to edit a non existing Id.
+     */
+    public function actionDeleteProduct()
+    {
+        $this->requirePostRequest();
+
+        $productId = craft()->request->getRequiredPost('productId');
+        $product   = craft()->stripey_product->getProductById($productId);
+
+        if (!$product) {
+            throw new Exception(Craft::t('No product exists with the ID “{id}”.', array('id' => $productId)));
+        }
+
+        if (craft()->stripey_product->deleteProduct($product)) {
+            if (craft()->request->isAjaxRequest()) {
+                $this->returnJson(array('success' => true));
+            } else {
+                craft()->userSession->setNotice(Craft::t('Product deleted.'));
+                $this->redirectToPostedUrl($product);
+            }
+        } else {
+            if (craft()->request->isAjaxRequest()) {
+                $this->returnJson(array('success' => false));
+            } else {
+                craft()->userSession->setError(Craft::t('Couldn’t delete product.'));
+
+                craft()->urlManager->setRouteVariables(array(
+                    'product' => $product
+                ));
+            }
         }
     }
 

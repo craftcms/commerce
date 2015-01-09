@@ -1,7 +1,6 @@
 <?php
 namespace Craft;
 
-
 class Stripey_ProductElementType extends BaseElementType
 {
 
@@ -122,8 +121,7 @@ class Stripey_ProductElementType extends BaseElementType
             $query->andWhere(DbHelper::parseDateParam('products.expiresOn', $criteria->expiryDate, $query->params));
         }
 
-        if ($criteria->typeId)
-        {
+        if ($criteria->typeId) {
             $query->andWhere(DbHelper::parseParam('products.typeId', $criteria->typeId, $query->params));
         }
     }

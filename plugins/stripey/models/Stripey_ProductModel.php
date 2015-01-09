@@ -35,6 +35,10 @@ class Stripey_ProductModel extends BaseElementModel
         return UrlHelper::getCpUrl('stripey/products/' . $productType->handle . '/' . $this->id);
     }
 
+    public function getProductType()
+    {
+        return craft()->stripey_productType->getProductTypeById($this->typeId);
+    }
 
     public function getFieldLayout()
     {
@@ -42,12 +46,6 @@ class Stripey_ProductModel extends BaseElementModel
             return $this->productType->getFieldLayout();
         }
     }
-
-    public function getProductType()
-    {
-        return craft()->stripey_productType->getProductTypeById($this->typeId);
-    }
-
 
     protected function defineAttributes()
     {

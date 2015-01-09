@@ -55,8 +55,8 @@ class Stripey_ProductRecord extends BaseRecord
     protected function defineAttributes()
     {
         return array(
-            'availableOn'   => AttributeType::DateTime,
-            'expiresOn' => AttributeType::DateTime,
+            'availableOn' => AttributeType::DateTime,
+            'expiresOn'   => AttributeType::DateTime,
         );
     }
 

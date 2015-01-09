@@ -2,7 +2,8 @@
 namespace Craft;
 
 
-class Stripey_ProductTypeRecord extends BaseRecord{
+class Stripey_ProductTypeRecord extends BaseRecord
+{
 
     /**
      * @inheritDoc BaseRecord::getTableName()
@@ -38,8 +39,8 @@ class Stripey_ProductTypeRecord extends BaseRecord{
     protected function defineAttributes()
     {
         return array(
-            'name'          => array(AttributeType::Name, 'required' => true),
-            'handle'        => array(AttributeType::Handle, 'required' => true)
+            'name'   => array(AttributeType::Name, 'required' => true),
+            'handle' => array(AttributeType::Handle, 'required' => true)
         );
     }
 

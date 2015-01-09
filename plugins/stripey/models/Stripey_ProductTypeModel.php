@@ -16,6 +16,12 @@ class Stripey_ProductTypeModel extends BaseModel
         return UrlHelper::getCpUrl('stripey/settings/producttypes/' . $this->id);
     }
 
+    public function behaviors()
+    {
+        return array(
+            'fieldLayout' => new FieldLayoutBehavior('Stripey_Product'),
+        );
+    }
 
     protected function defineAttributes()
     {
@@ -24,14 +30,6 @@ class Stripey_ProductTypeModel extends BaseModel
             'name'          => AttributeType::String,
             'handle'        => AttributeType::String,
             'fieldLayoutId' => AttributeType::Number
-        );
-    }
-
-
-    public function behaviors()
-    {
-        return array(
-            'fieldLayout' => new FieldLayoutBehavior('Stripey_Product'),
         );
     }
 
