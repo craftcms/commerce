@@ -5,6 +5,15 @@ namespace Craft;
 
 class Stripey_ProductModel extends BaseElementModel
 {
+
+    // Constants
+    // =========================================================================
+
+    const LIVE = 'live';
+    const PENDING = 'pending';
+    const EXPIRED = 'expired';
+
+
     protected $elementType = 'Stripey_Product';
     protected $modelRecord = 'Stripey_ProductRecord';
 
@@ -38,6 +47,32 @@ class Stripey_ProductModel extends BaseElementModel
     public function getProductType()
     {
         return craft()->stripey_productType->getProductTypeById($this->typeId);
+    }
+
+    /**
+     * @inheritDoc BaseElementModel::getStatus()
+     *
+     * @return string|null
+     */
+    public function getStatus()
+    {
+        $status = parent::getStatus();
+
+        if ($status == static::ENABLED && $this->availableOn) {
+            $currentTime = DateTimeHelper::currentTimeStamp();
+            $availableOn = $this->availableOn->getTimestamp();
+            $expiresOn   = ($this->expiresOn ? $this->expiresOn->getTimestamp() : null);
+
+            if ($availableOn <= $currentTime && (!$expiresOn || $expiresOn > $currentTime)) {
+                return static::LIVE;
+            } else if ($availableOn > $currentTime) {
+                return static::PENDING;
+            } else {
+                return static::EXPIRED;
+            }
+        }
+
+        return $status;
     }
 
     public function getFieldLayout()

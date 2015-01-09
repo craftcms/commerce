@@ -24,12 +24,6 @@ class Stripey_ProductElementType extends BaseElementType
         return true;
     }
 
-    public function getStatuses()
-    {
-        //TODO: implement statuses
-        return array('Active', 'Disabled');
-    }
-
     public function getSources($context = null)
     {
 
@@ -86,6 +80,23 @@ class Stripey_ProductElementType extends BaseElementType
         );
     }
 
+
+    /**
+     * @inheritDoc IElementType::getStatuses()
+     *
+     * @return array|null
+     */
+    public function getStatuses()
+    {
+        return array(
+            Stripey_ProductModel::LIVE    => Craft::t('Live'),
+            Stripey_ProductModel::PENDING => Craft::t('Pending'),
+            Stripey_ProductModel::EXPIRED => Craft::t('Expired'),
+            BaseElementModel::DISABLED    => Craft::t('Disabled')
+        );
+    }
+
+
     public function defineCriteriaAttributes()
     {
         return array(
@@ -97,6 +108,48 @@ class Stripey_ProductElementType extends BaseElementType
             'before'      => AttributeType::Mixed,
         );
     }
+
+    /**
+     * @inheritDoc IElementType::getElementQueryStatusCondition()
+     *
+     * @param DbCommand $query
+     * @param string    $status
+     *
+     * @return array|false|string|void
+     */
+    public function getElementQueryStatusCondition(DbCommand $query, $status)
+    {
+        $currentTimeDb = DateTimeHelper::currentTimeForDb();
+
+        switch ($status) {
+            case Stripey_ProductModel::LIVE: {
+                return array('and',
+                    'elements.enabled = 1',
+                    'elements_i18n.enabled = 1',
+                    "products.availableOn <= '{$currentTimeDb}'",
+                    array('or', 'products.expiresOn is null', "products.expiresOn > '{$currentTimeDb}'")
+                );
+            }
+
+            case Stripey_ProductModel::PENDING: {
+                return array('and',
+                    'elements.enabled = 1',
+                    'elements_i18n.enabled = 1',
+                    "products.availableOn > '{$currentTimeDb}'"
+                );
+            }
+
+            case Stripey_ProductModel::EXPIRED: {
+                return array('and',
+                    'elements.enabled = 1',
+                    'elements_i18n.enabled = 1',
+                    'products.expiresOn is not null',
+                    "products.expiresOn <= '{$currentTimeDb}'"
+                );
+            }
+        }
+    }
+
 
     public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
     {

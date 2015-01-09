@@ -44,6 +44,7 @@ class Stripey_ProductController extends Stripey_BaseController
         $product->availableOn = (($availableOn = craft()->request->getPost('availableOn')) ? DateTime::createFromString($availableOn, craft()->timezone) : $product->availableOn);
         $product->expiresOn   = (($expiresOn = craft()->request->getPost('expiresOn')) ? DateTime::createFromString($expiresOn, craft()->timezone) : null);
         $product->typeId      = craft()->request->getPost('typeId');
+        $product->enabled     = craft()->request->getPost('enabled');
 
         if (!$product->availableOn) {
             $product->availableOn = new DateTime();
