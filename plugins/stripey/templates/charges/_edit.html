@@ -8,7 +8,7 @@
 
 {% set content %}
 {% set charge = craft.stripey.charges.id(chargeId).first() %}
-<a class="right" target="_blank" href="https://dashboard.stripe.com/test/payments/{{charge.stripeId}}"><span style="font-size:1.5em;"><i title="View Charge on stripe.com" class="fa fa-cc-stripe"></i>&nbsp;</span></a>
+<a style="text-decoration: none;" class="right" target="_blank" href="https://dashboard.stripe.com/test/payments/{{charge.stripeId}}"><span style="font-size:1.5em;"><i title="View Charge on stripe.com" class="fa fa-cc-stripe"></i>&nbsp;</span><i class="fa fa-link"></i></a>
 <table id="charges" class="data fullwidth collapsible">
     <thead>
     <tr><th scope="col"></th>
@@ -38,7 +38,7 @@
     </tr>
     <tr>
         <th>Card</th>
-        <td><span style="font-size:2em;"><i title="{{charge.data.card.brand}}" class="fa {{charge.cardFontCode}}"></i></span>&nbsp; ···· ···· ···· {{charge.data.card.last4}}</td>
+        <td><span style="font-size:2em;"><i title="{{charge.data.card.brand}}" class="fa {{charge.cardFontCode}}"></i></span>&nbsp; ···· ···· ···· {{charge.data.card.last4}} <span style="color:#E7E7E7">{{charge.data.card.funding|title}} Card</span></td>
     </tr>
     <tr>
         <th></th>
@@ -47,10 +47,6 @@
     <tr>
         <th></th>
         <td><strong>Country</strong> {{charge.data.card.country}}</td>
-    </tr>
-    <tr>
-        <th></th>
-        <td><strong>Funding</strong> {{charge.data.card.funding}}</td>
     </tr>
     <tr>
         <th></th>

@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "cartalyst/stripe",
-            "version": "v0.1.1",
+            "version": "0.1.x-dev",
             "source": {
                 "type": "git",
                 "url": "git@github.com:cartalyst/stripe.git",
-                "reference": "104b2fedf66e884075a43021c1781de29cd81a86"
+                "reference": "9bbcbd3f45c76ac9f59aa4f93b5b98c81b72fd6f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cartalyst/stripe/zipball/104b2fedf66e884075a43021c1781de29cd81a86",
-                "reference": "104b2fedf66e884075a43021c1781de29cd81a86",
+                "url": "https://api.github.com/repos/cartalyst/stripe/zipball/9bbcbd3f45c76ac9f59aa4f93b5b98c81b72fd6f",
+                "reference": "9bbcbd3f45c76ac9f59aa4f93b5b98c81b72fd6f",
                 "shasum": ""
             },
             "require": {
@@ -85,10 +85,10 @@
                 "stripe"
             ],
             "support": {
-                "source": "https://github.com/cartalyst/stripe/tree/v0.1.1",
+                "source": "https://github.com/cartalyst/stripe/tree/v0.1.2",
                 "issues": "https://github.com/cartalyst/stripe/issues"
             },
-            "time": "2014-11-14 02:19:42"
+            "time": "2014-12-27 04:45:11"
         },
         {
             "name": "guzzle/guzzle",
@@ -96,12 +96,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/guzzle3.git",
-                "reference": "eaadef477c9f7fdece3120cd68c38143c0cd4db4"
+                "reference": "5e9f5528619bde654375c012ac172fb199f43dda"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle3/zipball/eaadef477c9f7fdece3120cd68c38143c0cd4db4",
-                "reference": "eaadef477c9f7fdece3120cd68c38143c0cd4db4",
+                "url": "https://api.github.com/repos/guzzle/guzzle3/zipball/5e9f5528619bde654375c012ac172fb199f43dda",
+                "reference": "5e9f5528619bde654375c012ac172fb199f43dda",
                 "shasum": ""
             },
             "require": {
@@ -180,20 +180,20 @@
                 "rest",
                 "web service"
             ],
-            "time": "2014-12-11 05:46:03"
+            "time": "2014-12-18 23:26:35"
         },
         {
             "name": "guzzlehttp/guzzle",
-            "version": "dev-master",
+            "version": "5.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/guzzle.git",
-                "reference": "4b96b9207544eca5b66376a51ce7bbc99666c75a"
+                "reference": "f1085bb4e023766a66b7b051914ec73bdf7202b5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/4b96b9207544eca5b66376a51ce7bbc99666c75a",
-                "reference": "4b96b9207544eca5b66376a51ce7bbc99666c75a",
+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/f1085bb4e023766a66b7b051914ec73bdf7202b5",
+                "reference": "f1085bb4e023766a66b7b051914ec73bdf7202b5",
                 "shasum": ""
             },
             "require": {
@@ -238,7 +238,7 @@
                 "rest",
                 "web service"
             ],
-            "time": "2014-12-10 22:52:17"
+            "time": "2014-12-19 20:27:15"
         },
         {
             "name": "guzzlehttp/ringphp",
@@ -346,12 +346,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/contracts.git",
-                "reference": "62b754375fab82e8be25c618aaae1ab2915bb119"
+                "reference": "cfc1b8f353b99561304ef5a4c02c5069c72e2563"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/contracts/zipball/62b754375fab82e8be25c618aaae1ab2915bb119",
-                "reference": "62b754375fab82e8be25c618aaae1ab2915bb119",
+                "url": "https://api.github.com/repos/illuminate/contracts/zipball/cfc1b8f353b99561304ef5a4c02c5069c72e2563",
+                "reference": "cfc1b8f353b99561304ef5a4c02c5069c72e2563",
                 "shasum": ""
             },
             "require": {
@@ -379,7 +379,7 @@
                 }
             ],
             "description": "The Illuminate Contracts package.",
-            "time": "2014-12-04 19:25:03"
+            "time": "2014-12-27 21:44:05"
         },
         {
             "name": "illuminate/support",
@@ -387,21 +387,21 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/support.git",
-                "reference": "bd4ff56cded2d63dfebe9c2ae18bb59d82bc563e"
+                "reference": "02cb2173a1f2e4b4afea96765eb51520e957632c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/support/zipball/bd4ff56cded2d63dfebe9c2ae18bb59d82bc563e",
-                "reference": "bd4ff56cded2d63dfebe9c2ae18bb59d82bc563e",
+                "url": "https://api.github.com/repos/illuminate/support/zipball/02cb2173a1f2e4b4afea96765eb51520e957632c",
+                "reference": "02cb2173a1f2e4b4afea96765eb51520e957632c",
                 "shasum": ""
             },
             "require": {
                 "illuminate/contracts": "5.0.*",
+                "patchwork/utf8": "~1.1",
                 "php": ">=5.4.0"
             },
             "require-dev": {
-                "jeremeamia/superclosure": "~1.0.1",
-                "patchwork/utf8": "~1.1"
+                "jeremeamia/superclosure": "~1.0.1"
             },
             "type": "library",
             "extra": {
@@ -428,7 +428,63 @@
                 }
             ],
             "description": "The Illuminate Support package.",
-            "time": "2014-12-05 05:03:58"
+            "time": "2014-12-31 22:54:01"
+        },
+        {
+            "name": "patchwork/utf8",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/tchwork/utf8.git",
+                "reference": "3024ee72d0ce7fc4bf87421f2954f956d3ad2ee5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/tchwork/utf8/zipball/3024ee72d0ce7fc4bf87421f2954f956d3ad2ee5",
+                "reference": "3024ee72d0ce7fc4bf87421f2954f956d3ad2ee5",
+                "shasum": ""
+            },
+            "require": {
+                "lib-pcre": ">=7.3",
+                "php": ">=5.3.0"
+            },
+            "suggest": {
+                "ext-iconv": "Use iconv for best performance",
+                "ext-intl": "Use Intl for best performance",
+                "ext-mbstring": "Use Mbstring for best performance"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.2-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Patchwork": "class/",
+                    "Normalizer": "class/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "(Apache-2.0 or GPL-2.0)"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                }
+            ],
+            "description": "Portable and performant UTF-8, Unicode and Grapheme Clusters for PHP",
+            "homepage": "https://github.com/tchwork/utf8",
+            "keywords": [
+                "grapheme",
+                "i18n",
+                "unicode",
+                "utf-8",
+                "utf8"
+            ],
+            "time": "2014-11-10 16:16:54"
         },
         {
             "name": "pimple/pimple",
@@ -478,16 +534,16 @@
         },
         {
             "name": "react/promise",
-            "version": "v2.1.0",
+            "version": "v2.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/reactphp/promise.git",
-                "reference": "937b04f1b0ee8f6d180e75a0830aac778ca4bcd6"
+                "reference": "365fcee430dfa4ace1fbc75737ca60ceea7eeeef"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/reactphp/promise/zipball/937b04f1b0ee8f6d180e75a0830aac778ca4bcd6",
-                "reference": "937b04f1b0ee8f6d180e75a0830aac778ca4bcd6",
+                "url": "https://api.github.com/repos/reactphp/promise/zipball/365fcee430dfa4ace1fbc75737ca60ceea7eeeef",
+                "reference": "365fcee430dfa4ace1fbc75737ca60ceea7eeeef",
                 "shasum": ""
             },
             "require": {
@@ -504,7 +560,7 @@
                     "React\\Promise\\": "src/"
                 },
                 "files": [
-                    "src/functions.php"
+                    "src/functions_include.php"
                 ]
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -518,7 +574,7 @@
                 }
             ],
             "description": "A lightweight implementation of CommonJS Promises/A for PHP",
-            "time": "2014-10-15 20:05:57"
+            "time": "2014-12-30 13:32:42"
         },
         {
             "name": "symfony/event-dispatcher",
@@ -527,12 +583,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/EventDispatcher.git",
-                "reference": "fb44a3acc6b9788106a2b91ab71b889ce313ac60"
+                "reference": "fb1e482e75cca7eb24e6ed4a8c0b75756fcd3e5a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/EventDispatcher/zipball/fb44a3acc6b9788106a2b91ab71b889ce313ac60",
-                "reference": "fb44a3acc6b9788106a2b91ab71b889ce313ac60",
+                "url": "https://api.github.com/repos/symfony/EventDispatcher/zipball/fb1e482e75cca7eb24e6ed4a8c0b75756fcd3e5a",
+                "reference": "fb1e482e75cca7eb24e6ed4a8c0b75756fcd3e5a",
                 "shasum": ""
             },
             "require": {
@@ -540,10 +596,10 @@
             },
             "require-dev": {
                 "psr/log": "~1.0",
-                "symfony/config": "~2.0",
-                "symfony/dependency-injection": "~2.6",
-                "symfony/expression-language": "~2.6",
-                "symfony/stopwatch": "~2.2"
+                "symfony/config": "~2.0,>=2.0.5|~3.0.0",
+                "symfony/dependency-injection": "~2.6|~3.0.0",
+                "symfony/expression-language": "~2.6|~3.0.0",
+                "symfony/stopwatch": "~2.3|~3.0.0"
             },
             "suggest": {
                 "symfony/dependency-injection": "",
@@ -576,7 +632,7 @@
             ],
             "description": "Symfony EventDispatcher Component",
             "homepage": "http://symfony.com",
-            "time": "2014-12-08 08:43:57"
+            "time": "2014-12-27 11:44:51"
         }
     ],
     "packages-dev": [],

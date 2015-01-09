@@ -32,4 +32,14 @@ class StripeyVariable
     {
             return craft()->elements->getCriteria('Stripey_Charge', $criteria);
     }
+
+    /**
+     * @param array|null $criteria
+     *
+     * @return ElementCriteriaModel|null
+     */
+    public function products($criteria = null)
+    {
+        return craft()->elements->getCriteria('Stripey_Product', $criteria);
+    }
 }

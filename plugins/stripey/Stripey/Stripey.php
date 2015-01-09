@@ -1,13 +1,8 @@
 <?php
 namespace Stripey;
-/**
- * Class Stripey
- * @package Stripey
- */
 
 use Pimple\Container;
 use Craft\Craft;
-
 
 class Stripey extends Container{
 
@@ -18,7 +13,7 @@ class Stripey extends Container{
     }
 
     /**
-     * Return singleton instance of the Stripey service manager
+     * Return singleton instance of the Stripey Container
      * @return Stripey
      */
     public static function app()

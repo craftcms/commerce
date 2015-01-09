@@ -1,11 +1,34 @@
 {% extends "stripey/_layouts/cp" %}
 {% set title = "Stripey"|t %}
 
-{% set selectedTab = 'settings' %}
+{% set crumbs = [
+{ label: "Stripey"|t, url: url('stripey') },
+{ label: "Settings"|t, url: url('stripey/settings') }
+] %}
 
+
+{% set tabs = {
+dashboard: { label: "Dashboard"|t, url: url('stripey') },
+products: { label: "Products"|t, url: url('stripey/products') },
+charges: { label: "Charges"|t, url: url('stripey/charges') },
+plans: { label: "Plans"|t, url: url('stripey/plans') },
+settings: { label: "Settings"|t, url: url('stripey/settings') }
+} %}
+
+
+{% set selectedTab = 'settings' %}
 {% import "_includes/forms" as forms %}
 
 {% set content %}
+<h2>General</h2>
+
+<ul class="icons">
+    <li><a href="#" data-icon="general">Stripe Gateway</a></li>
+    <li><a href="{{url('stripey/settings/producttypes')}}" data-icon="general">Product Types</a></li>
+</ul>
+
+<hr>
+
 
 <h2>{{ "Stripey Settings"|t }}</h2>
 

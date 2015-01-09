@@ -9,7 +9,6 @@ namespace Craft;
 
 class Stripey_ChargeController extends Stripey_BaseController
 {
-
     protected $allowAnonymous = array('actionNewCharge');
 
     /**
@@ -25,12 +24,20 @@ class Stripey_ChargeController extends Stripey_BaseController
         $charge->currency    = craft()->request->getPost('currency', $defaultCurrency);
         $charge->card        = craft()->request->getPost('stripeToken');
         $charge->description = craft()->request->getPost('description');
-
+        $charge->metadata    = craft()->request->getPost('metadata');
         //or TODO: make it possible to pass a customer with a default card on file
         //$charge->customer = 'cus_5GW06HEnx9t8pC';
 
-        $chargeCreator = new \Stripey\Charge\Creator($this);
-        $chargeCreator->save($charge);
+        $chargeCreator = new \Stripey\Charge\Creator;
+        $charge        = $chargeCreator->create($charge);
+
+        if ($charge->hasErrors()) {
+            craft()->urlManager->setRouteVariables(array(
+                'charge' => $charge
+            ));
+        } else {
+            $this->redirectToPostedUrl($charge);
+        }
     }
 
     public function actionEditCharge(array $variables = array())
@@ -42,20 +49,5 @@ class Stripey_ChargeController extends Stripey_BaseController
     public function actionRefundCharge(array $variables = array())
     {
 
-    }
-
-
-
-
-    public function chargeFailed(Stripey_ChargeModel $charge)
-    {
-        craft()->urlManager->setRouteVariables(array(
-            'charge' => $charge
-        ));
-    }
-
-    public function chargeSucceeded(Stripey_ChargeModel $charge)
-    {
-        $this->redirectToPostedUrl($charge);
     }
 } 

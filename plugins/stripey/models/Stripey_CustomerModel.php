@@ -46,6 +46,7 @@ class Stripey_CustomerModel extends BaseElementModel
         return UrlHelper::getCpUrl('stripey/customer/' . $this->id);
     }
 
+
     public function getData()
     {
         if ($this->_apiData == null) {
@@ -83,41 +84,26 @@ class Stripey_CustomerModel extends BaseElementModel
             /**
              * Required fields on new charge
              */
-            'stripeId'              => AttributeType::String,
-            'amount'                => AttributeType::Number,
+            'stripeId'        => AttributeType::String,
+            'amount'          => AttributeType::Number,
             //TODO: Fill currency enum values dynamically based on https://support.stripe.com/questions/which-currencies-does-stripe-support
-            'currency'              => array(AttributeType::Enum, 'values' => "AUD,USD"),
-            'card'                  => AttributeType::String, // or customer
-            'customer'              => AttributeType::String, // or card
-            'capture'               => AttributeType::Bool,
+            'currency'        => array(AttributeType::Enum, 'values' => "AUD,USD"),
 
             /**
              * Optional fields on new charge
              */
-            'description'           => AttributeType::String,
-            'metadata'              => AttributeType::Mixed,
-            'statement_description' => AttributeType::String,
-            'receipt_email'         => AttributeType::String,
-            // Application fee not applicable unless we use sub stripe accounts w/ oauth
-            // 'application_fee' => AttributeType::Number,
+            'description'     => AttributeType::String,
+            'email'           => AttributeType::String,
+            'metadata'        => AttributeType::Mixed,
 
             /**
-             * Only exist on a saved charge
+             * Only exist on a saved customer
              */
-            'created'               => AttributeType::DateTime,
-            'paid'                  => AttributeType::Bool,
-            'captured'              => AttributeType::Bool,
-            'refunded'              => AttributeType::Bool,
-            'refunds'               => AttributeType::Mixed,
-            'amount_refunded'       => AttributeType::Number,
-            'balance_transaction'   => AttributeType::String,
-            'failure_message'       => AttributeType::String,
-            'failure_code'          => AttributeType::String,
-            'fraud_details'         => AttributeType::Mixed,
-            'invoice'               => AttributeType::String,
-            'dispute'               => AttributeType::Mixed,
-            'receipt_number'        => AttributeType::String,
-            'livemode'              => AttributeType::Bool,
+            'created'         => AttributeType::DateTime,
+            'discount'        => AttributeType::Mixed,
+            'account_balance' => AttributeType::Number,
+            'delinquent'      => AttributeType::String,
+            'livemode'        => AttributeType::Bool,
         ));
     }
 

@@ -15,70 +15,57 @@ class StripeyPlugin extends BasePlugin
     {
         Stripey::app()["stripe"] = function ($c) {
             $key = $this->getSettings()->secretKey;
+
             return new Stripe($key);
         };
     }
 
-    /**
-     * Returns the Name of the Plugin.
-     *
-     * @return string
-     */
     public function getName()
     {
         return "Stripey";
     }
 
-    /**
-     * Returns the plugin’s version.
-     *
-     * @return string
-     */
     public function getVersion()
     {
         return "0.0.1";
     }
 
-    /**
-     * Returns the plugin developer's name.
-     *
-     * @return string
-     */
     public function getDeveloper()
     {
-        return "Luke Holder (HOLPAC)";
+        return "Make with Morph (Luke Holder)";
     }
 
-    /**
-     * Returns the plugin developer's URL.
-     *
-     * @return string
-     */
     public function getDeveloperUrl()
     {
-        return "http://holpac.com";
+        return "http://makewithmorph.com";
     }
 
-    /**
-     * @return bool
-     */
     public function hasCpSection()
     {
         return true;
     }
 
 
-    /**
-     * @return mixed
-     */
     public function registerCpRoutes()
     {
         return array(
-            'stripey' => array('action' => 'stripey/dashboard/index'),
-            'stripey/plans' => array('action' => 'stripey/plans/index'),
-            'stripey/charges' => 'stripey/charges/index',
-            'stripey/charges/(?P<chargeId>\d+)' => array('action' => 'stripey/charge/editCharge'),
-            'stripey/settings' => array('action' => 'stripey/settings/edit')
+            'stripey'                                                             => array('action' => 'stripey/dashboard/index'),
+
+            'stripey/settings'                                                    => 'stripey/settings/index',
+
+            'stripey/settings/producttypes'                                       => array('action' => 'stripey/productType/index'),
+            'stripey/settings/producttypes/(?P<productTypeId>\d+)'                => array('action' => 'stripey/productType/editProductType'),
+            'stripey/settings/producttypes/new'                                   => array('action' => 'stripey/productType/editProductType'),
+
+            'stripey/products'                                                    => array('action' => 'stripey/product/productIndex'),
+            'stripey/products/(?P<productTypeHandle>{handle})/new'                => array('action' => 'stripey/product/editProduct'),
+            'stripey/products/(?P<productTypeHandle>{handle})/(?P<productId>\d+)' => array('action' => 'stripey/product/editProduct'),
+
+            'stripey/plans'                                                       => array('action' => 'stripey/plans/index'),
+            'stripey/charges'                                                     => 'stripey/charges/index',
+            'stripey/charges/(?P<chargeId>\d+)'                                   => array('action' => 'stripey/charge/editCharge'),
+
+            'stripey/settings'                                                    => array('action' => 'stripey/settings/edit')
         );
     }
 
@@ -88,12 +75,27 @@ class StripeyPlugin extends BasePlugin
     protected function defineSettings()
     {
         return array(
-            'secretKey'      => AttributeType::String,
-            'publishableKey' => AttributeType::String,
+            'secretKey'       => AttributeType::String,
+            'publishableKey'  => AttributeType::String,
             //TODO: Fill currency enum values dynamically based on https://support.stripe.com/questions/which-currencies-does-stripe-support
             'defaultCurrency' => AttributeType::String
         );
     }
+
+    public function onAfterInstall()
+    {
+//        $fieldLayout = array('type' => 'Stripey_Charge');
+//        $fieldLayout = FieldLayoutModel::populateModel($fieldLayout);
+//        craft()->fields->saveLayout($fieldLayout);
+    }
+
+    public function onBeforeUninstall()
+    {
+//        $fieldLayout = array('type' => 'Stripey_Charge');
+//        $fieldLayout = FieldLayoutModel::populateModel($fieldLayout);
+//        craft()->fields->saveLayout($fieldLayout);
+    }
+
 
 }
 

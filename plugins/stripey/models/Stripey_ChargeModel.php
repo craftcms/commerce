@@ -65,7 +65,7 @@ class Stripey_ChargeModel extends BaseElementModel
             'currency'              => array(AttributeType::Enum, 'values' => "AUD,USD"),
             'card'                  => AttributeType::String, // or customer
             'customer'              => AttributeType::String, // or card
-            'capture'               => AttributeType::Bool,
+            'capture'               => array(AttributeType::Bool,'default' => true),
 
             /**
              * Optional fields on new charge
@@ -78,7 +78,7 @@ class Stripey_ChargeModel extends BaseElementModel
             // 'application_fee' => AttributeType::Number,
 
             /**
-             * Only exist on a saved charge
+             * These attributes only exist on a saved charge
              */
             'created'               => AttributeType::DateTime,
             'paid'                  => AttributeType::Bool,
@@ -136,6 +136,10 @@ class Stripey_ChargeModel extends BaseElementModel
         return $this;
     }
 
+    public function getCreated(){
+        $this->_loadStripeData();
+        return $this->created;
+    }
 
     private function _loadStripeData()
     {
@@ -151,5 +155,15 @@ class Stripey_ChargeModel extends BaseElementModel
 
     }
 
+
+    /**
+     * Returns the field layout used by this element.
+     *
+     * @return FieldLayoutModel|null
+     */
+    public function getFieldLayout()
+    {
+        //return $calendar->getFieldLayout();
+    }
 
 }
