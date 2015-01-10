@@ -6,13 +6,9 @@ namespace Craft;
 class Stripey_ProductModel extends BaseElementModel
 {
 
-    // Constants
-    // =========================================================================
-
     const LIVE = 'live';
     const PENDING = 'pending';
     const EXPIRED = 'expired';
-
 
     protected $elementType = 'Stripey_Product';
     protected $modelRecord = 'Stripey_ProductRecord';
@@ -32,11 +28,6 @@ class Stripey_ProductModel extends BaseElementModel
         return $this->title;
     }
 
-//    public function getType()
-//    {
-//        return $this->getProductType();
-//    }
-
     public function getCpEditUrl()
     {
         $productType = $this->getProductType();
@@ -49,11 +40,11 @@ class Stripey_ProductModel extends BaseElementModel
         return craft()->stripey_productType->getProductTypeById($this->typeId);
     }
 
-    /**
-     * @inheritDoc BaseElementModel::getStatus()
-     *
-     * @return string|null
-     */
+    public function getType()
+    {
+        return $this->getProductType();
+    }
+
     public function getStatus()
     {
         $status = parent::getStatus();

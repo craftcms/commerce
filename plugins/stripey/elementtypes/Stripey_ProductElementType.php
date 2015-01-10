@@ -106,6 +106,7 @@ class Stripey_ProductElementType extends BaseElementType
             'expiresOn'   => AttributeType::Mixed,
             'after'       => AttributeType::Mixed,
             'before'      => AttributeType::Mixed,
+            'status'      => array(AttributeType::String, 'default' => Stripey_ProductModel::LIVE),
         );
     }
 
@@ -156,7 +157,8 @@ class Stripey_ProductElementType extends BaseElementType
 
         $query
             ->addSelect("products.id, products.typeId, products.availableOn, products.expiresOn")
-            ->join('stripey_products products', 'products.id = elements.id');
+            ->join('stripey_products products', 'products.id = elements.id')
+            ->join('stripey_producttypes producttypes', 'producttypes.id = products.typeId');
 
         if ($criteria->availableOn) {
             $query->andWhere(DbHelper::parseDateParam('products.availableOn', $criteria->postDate, $query->params));
@@ -172,6 +174,16 @@ class Stripey_ProductElementType extends BaseElementType
 
         if ($criteria->expiresOn) {
             $query->andWhere(DbHelper::parseDateParam('products.expiresOn', $criteria->expiryDate, $query->params));
+        }
+
+
+        if ($criteria->type) {
+            if ($criteria->type instanceof Stripey_ProductTypeModel) {
+                $criteria->typeId = $criteria->type->id;
+                $criteria->type   = null;
+            } else {
+                $query->andWhere(DbHelper::parseParam('producttypes.handle', $criteria->type, $query->params));
+            }
         }
 
         if ($criteria->typeId) {
