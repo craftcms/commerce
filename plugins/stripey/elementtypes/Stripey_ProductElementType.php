@@ -154,7 +154,6 @@ class Stripey_ProductElementType extends BaseElementType
 
     public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
     {
-
         $query
             ->addSelect("products.id, products.typeId, products.availableOn, products.expiresOn")
             ->join('stripey_products products', 'products.id = elements.id')

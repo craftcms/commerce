@@ -12,6 +12,7 @@ class Stripey_ProductModel extends BaseElementModel
 
     protected $elementType = 'Stripey_Product';
     protected $modelRecord = 'Stripey_ProductRecord';
+    protected $_variants = null;
 
     public function isEditable()
     {
@@ -66,6 +67,18 @@ class Stripey_ProductModel extends BaseElementModel
         return $status;
     }
 
+    private function getVariants()
+    {
+        if ($this->_variants == null){
+            $this->_variants = craft()->stripey_variant->getVariantsByProductId($this->id);
+        }
+        return $this->_variants;
+    }
+
+    public function master(){
+        return craft()->stripey_variant->getMasterVariantByProductId($this->id);
+    }
+
     public function getFieldLayout()
     {
         if ($this->getProductType()) {
@@ -82,4 +95,6 @@ class Stripey_ProductModel extends BaseElementModel
             'expiresOn'   => AttributeType::DateTime,
         ));
     }
+
+
 }

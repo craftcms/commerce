@@ -6,13 +6,15 @@ use Stripey\Stripey;
 use Stripey\Api\Stripe;
 
 
-require 'vendor/autoload.php';
+
 
 
 class StripeyPlugin extends BasePlugin
 {
-    function __construct()
+    function init()
     {
+        require 'vendor/autoload.php';
+
         Stripey::app()["stripe"] = function ($c) {
             $key = $this->getSettings()->secretKey;
 

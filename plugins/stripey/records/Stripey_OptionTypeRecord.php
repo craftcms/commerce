@@ -3,7 +3,7 @@
 namespace Craft;
 
 
-class Stripey_ProductRecord extends BaseRecord
+class Stripey_OptionTypeRecord extends BaseRecord
 {
 
     /**
@@ -13,7 +13,7 @@ class Stripey_ProductRecord extends BaseRecord
      */
     public function getTableName()
     {
-        return 'stripey_products';
+        return 'stripey_optiontypes';
     }
 
     /**
@@ -25,11 +25,7 @@ class Stripey_ProductRecord extends BaseRecord
     {
         return array(
             'element' => array(static::BELONGS_TO, 'ElementRecord', 'id', 'required' => true, 'onDelete' => static::CASCADE),
-            'type'    => array(static::BELONGS_TO, 'Stripey_ProductTypeRecord', 'onDelete' => static::CASCADE),
-            'author'  => array(static::BELONGS_TO, 'UserRecord', 'onDelete' => static::CASCADE),
-            'master' => array(static::HAS_ONE,'Stripey_VariantRecord','productId','condition'=>'master.isMaster = 1'),
-            'variants' => array(static::HAS_MANY,'Stripey_VariantRecord','productId','condition'=>'master.isMaster = 0'),
-            'variantsWithMaster' => array(static::HAS_MANY,'Stripey_VariantRecord','productId')
+            'optionValues' => array(static::HAS_MANY,'Stripey_OptionValuesRecord','optionTypeId'),
         );
     }
 

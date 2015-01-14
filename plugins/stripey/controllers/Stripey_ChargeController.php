@@ -20,7 +20,8 @@ class Stripey_ChargeController extends Stripey_BaseController
         $charge = new Stripey_ChargeModel();
 
         $defaultCurrency     = craft()->stripey_settings->getSettings()->defaultCurrency;
-        $charge->amount      = craft()->request->getPost('amount', 100);
+        $amount = craft()->request->getPost('amount',100);
+        $charge->amount      = $amount;
         $charge->currency    = craft()->request->getPost('currency', $defaultCurrency);
         $charge->card        = craft()->request->getPost('stripeToken');
         $charge->description = craft()->request->getPost('description');
