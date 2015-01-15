@@ -31,7 +31,7 @@ settings: { label: "Settings"|t, url: url('stripey/settings') }
     {{ forms.textField({
         first: true,
         label: "Name"|t,
-        instructions: "What this product type will be called."|t,
+        instructions: "What this option type will be called."|t,
         id: 'name',
         name: 'name',
         value: optionType.name,
@@ -43,7 +43,7 @@ settings: { label: "Settings"|t, url: url('stripey/settings') }
 
     {{ forms.textField({
         label: "Handle"|t,
-        instructions: "How you’ll refer to this product type in code or templates."|t,
+        instructions: "How you’ll refer to this option type in code or templates."|t,
         id: 'handle',
         class: 'code',
         name: 'handle',
@@ -53,6 +53,37 @@ settings: { label: "Settings"|t, url: url('stripey/settings') }
     }) }}
 
     <hr>
+
+    <div class="field" id="optiontypes-field">
+        <div class="heading">
+            <label for="types-Table-defaults">Option Values</label>
+            <div class="instructions"><p>Define the values for this Option Type.</p>
+            </div>
+        </div>
+        <div class="input">
+            <table id="types-Table-defaults" class="editable shadow-box">
+                <thead>
+                <tr>
+                    <th scope="col" class="header">Display Name</th>
+                    <th scope="col" class="header">Name</th><th class="header" colspan="2"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr data-id="row1">
+                    <td class="textual " width="">
+                        <textarea style="min-height: 30px;" name="types[Table][defaults][row1][col1]" rows="1"></textarea>
+                    </td><td class="textual " width="">
+                        <textarea style="min-height: 30px;" name="types[Table][defaults][row1][col2]" rows="1"></textarea>
+                    </td>
+                    <td class="thin action"><a class="delete icon" title="Delete"></a>
+                    </td>
+                </tr>
+                </tbody></table>
+            <div tabindex="0" class="btn add icon">Add a value</div>
+        </div>
+    </div>
+
+
 
     <div class="buttons">
         <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
