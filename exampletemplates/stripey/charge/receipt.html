@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html class="no-js">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" />
+    {{craft.dbug.renderHead|raw}}
+</head>
+<body>
+<div class="row row-centered">
+    <div class="col-md-4 col-md-offset-4">
+        <h2 class="">Success</h2>
+
+        {% set stripeId = craft.request.getSegment(4) %}
+
+        {% set charge = craft.stripey.charges.stripeId(stripeId).first() %}
+        <ul>
+            <li><strong>Stripe id:</strong> {{charge.stripeId}}</li>
+            <li><strong>Amount:</strong> {{charge.amount}}</li>
+        </ul>
+    </div>
+</div>
+
+CSRF: {{craft.config.enableCsrfProtection}}
+
+{{craft.dbug.render|raw}}
+</body>
+</html>

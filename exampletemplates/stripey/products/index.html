@@ -1,0 +1,9 @@
+{% set products = craft.stripey.products.find() %}
+{% for product in products %}
+<h2>{{product.title}}</h2>
+<ul>
+    <li>Title: {{product.title}}</li>
+    <li>Available On: {{product.availableOn}}</li>
+    <li>Expires On: {{product.expiresOn}}</li>
+</ul>
+{% endfor %}
