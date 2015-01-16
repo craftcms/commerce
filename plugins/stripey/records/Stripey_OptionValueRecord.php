@@ -6,12 +6,10 @@ namespace Craft;
 class Stripey_OptionValueRecord extends BaseRecord
 {
 
-
     public function getTableName()
     {
         return 'stripey_optionvalues';
     }
-
 
     public function defineRelations()
     {

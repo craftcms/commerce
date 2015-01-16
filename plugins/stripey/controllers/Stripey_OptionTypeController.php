@@ -39,6 +39,33 @@ class Stripey_OptionTypeController extends Stripey_BaseController
 
         };
 
+        /**
+         * Start of Option Value Table
+         */
+
+        $cols = array(
+            array('heading'=>'Name',
+                  'type'=>'singleline',
+                  'width'=>'50%'
+            ),
+            array('heading'=>'Display Name',
+                  'type'=>'singleline',
+                  'width'=>'50%'
+            ),
+        );
+        $variables['optionValuesTable'] = craft()->templates->render('_includes/forms/editableTable', array(
+            'id'     => 'optionValues',
+            'name'   => 'optionValues',
+            'cols'   => $cols,
+            'rows'   => array(array("","")),
+            'static' => array()
+        ));
+
+        /**
+         * End of Option Value Table
+         */
+
+
         $this->renderTemplate('stripey/settings/optiontypes/_edit', $variables);
     }
 

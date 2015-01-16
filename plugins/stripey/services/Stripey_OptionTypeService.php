@@ -34,7 +34,7 @@ class Stripey_OptionTypeService extends BaseApplicationComponent
 
             if (!$optionTypeRecord)
             {
-                throw new Exception(Craft::t('No calendar exists with the ID “{id}”', array('id' => $optionType->id)));
+                throw new Exception(Craft::t('No option type exists with the ID “{id}”', array('id' => $optionType->id)));
             }
 
             $oldOptionType = Stripey_OptionTypeModel::populateModel($optionTypeRecord);
@@ -60,7 +60,7 @@ class Stripey_OptionTypeService extends BaseApplicationComponent
                 // Save it!
                 $optionTypeRecord->save(false);
 
-                // Now that we have a calendar ID, save it on the model
+                // Now that we have a optionType ID, save it on the model
                 if (!$optionType->id)
                 {
                     $optionType->id = $optionTypeRecord->id;

@@ -6,9 +6,6 @@ use Stripey\Stripey;
 use Stripey\Api\Stripe;
 
 
-
-
-
 class StripeyPlugin extends BasePlugin
 {
     function init()
@@ -60,10 +57,9 @@ class StripeyPlugin extends BasePlugin
             'stripey/settings/producttypes/new'                                   => array('action' => 'stripey/productType/editProductType'),
 
 
-            'stripey/settings/optiontypes'                                       => array('action' => 'stripey/optionType/index'),
-            'stripey/settings/optiontypes/(?P<optionTypeId>\d+)'                => array('action' => 'stripey/optionType/editOptionType'),
-            'stripey/settings/optiontypes/new'                                   => array('action' => 'stripey/optionType/editOptionType'),
-
+            'stripey/settings/optiontypes'                                        => array('action' => 'stripey/optionType/index'),
+            'stripey/settings/optiontypes/(?P<optionTypeId>\d+)'                  => array('action' => 'stripey/optionType/editOptionType'),
+            'stripey/settings/optiontypes/new'                                    => array('action' => 'stripey/optionType/editOptionType'),
 
 
             'stripey/products'                                                    => array('action' => 'stripey/product/productIndex'),
