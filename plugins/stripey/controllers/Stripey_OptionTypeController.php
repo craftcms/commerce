@@ -9,7 +9,6 @@ class Stripey_OptionTypeController extends Stripey_BaseController
     {
         $optionTypes = craft()->stripey_optionType->getAllOptionTypes();
         $this->renderTemplate('stripey/settings/optiontypes/index', compact('optionTypes'));
-
     }
 
     public function actionEditOptionType(array $variables = array())
@@ -22,22 +21,35 @@ class Stripey_OptionTypeController extends Stripey_BaseController
 
             $variables['optionType'] = craft()->stripey_optionType->getOptionTypeById($optionTypeId);
 
-            if (!$variables['optionType'])
-            {
+            if (!$variables['optionType']) {
                 throw new HttpException(404);
             }
-
             $variables['title'] = $variables['optionType']->name;
-
-        }else{
-            if (empty($variables['optionType'])){
-                $variables['optionType'] = new Stripey_OptionTypeModel();
+        } else {
+            if (empty($variables['optionType'])) {
+                $variables['optionType']         = new Stripey_OptionTypeModel();
                 $variables['brandNewOptionType'] = true;
             }
-
             $variables['title'] = Craft::t('Create a Option Type');
-
         };
+
+        /**
+         * Start of Option Value Table*/
+        $cols = Stripey_OptionValueModel::editableColumns();
+        $rows = $variables['optionType']->getOptionValues();
+//        $rows = array_map(function ($value) {
+//            return $value->toEditableRow();
+//        }, $rows);
+
+        $variables['optionValuesTable'] = craft()->templates->render('stripey/_includes/forms/editableTable', array(
+            'id'     => 'optionValues',
+            'name'   => 'optionValues',
+            'cols'   => $cols,
+            'rows'   => $rows,
+            'static' => false
+        ));
+        /**End of Option Value Table
+         */
 
         $this->renderTemplate('stripey/settings/optiontypes/_edit', $variables);
     }
@@ -46,21 +58,18 @@ class Stripey_OptionTypeController extends Stripey_BaseController
     {
         $this->requirePostRequest();
 
-        $optionType = new Stripey_OptionTypeModel();
+        // Build OptionType from Post
+        $optionType = $this->_prepareOptionTypeModel();
 
-        // Shared attributes
-        $optionType->id         = craft()->request->getPost('optionTypeId');
-        $optionType->name       = craft()->request->getPost('name');
-        $optionType->handle     = craft()->request->getPost('handle');
+        //Do we have optionValues and build OptionValues from post
+        $optionValues = $this->_prepareOptionValueModels();
 
         // Save it
-        if (craft()->stripey_optionType->saveOptionType($optionType))
-        {
-            craft()->userSession->setNotice(Craft::t('Option Type saved.'));
+        if (craft()->stripey_optionType->saveOptionType($optionType)) {
+            craft()->stripey_optionValue->saveOptionValuesForOptionType($optionType, $optionValues);
+            craft()->userSession->setNotice(Craft::t('Option Type and Values saved.'));
             $this->redirectToPostedUrl($optionType);
-        }
-        else
-        {
+        } else {
             craft()->userSession->setError(Craft::t('Couldn’t save Option Type.'));
         }
 
@@ -70,6 +79,41 @@ class Stripey_OptionTypeController extends Stripey_BaseController
         ));
     }
 
+    /**
+     * @return Stripey_OptionTypeModel
+     */
+    private function _prepareOptionTypeModel()
+    {
+        $optionType         = new Stripey_OptionTypeModel();
+        $optionType->id     = craft()->request->getPost('optionTypeId');
+        $optionType->name   = craft()->request->getPost('name');
+        $optionType->handle = craft()->request->getPost('handle');
+
+        return $optionType;
+    }
+
+    /**
+     * @return array
+     */
+    private function _prepareOptionValueModels()
+    {
+        $optionValues    = craft()->request->getPost('optionValues');
+        $hasOptionValues = (bool)$optionValues;
+        $optionValues    = array();
+        if ($hasOptionValues) {
+            $position = 0;
+            foreach (craft()->request->getPost('optionValues') as $optionValue) {
+                $position++;
+                $id             = isset($optionValue['current']) ? $optionValue['current'] : null;
+                $name           = isset($optionValue['name']) ? $optionValue['name'] : null;
+                $displayName    = isset($optionValue['displayName']) ? $optionValue['displayName'] : null;
+                $data           = compact('id', 'name', 'displayName', 'position');
+                $optionValues[] = Stripey_OptionValueModel::populateModel($data);
+            }
+        }
+
+        return $optionValues;
+    }
 
     public function actionDeleteOptionType()
     {
@@ -82,4 +126,4 @@ class Stripey_OptionTypeController extends Stripey_BaseController
         $this->returnJson(array('success' => true));
     }
 
-} 
+}
