@@ -31,6 +31,8 @@ class Stripey_ProductController extends Stripey_BaseController
 
         $productId = craft()->request->getPost('productId');
 
+        dd(craft()->request->getPost('optionTypes'));
+
         if ($productId) {
             $product = craft()->stripey_product->getProductById($productId);
 

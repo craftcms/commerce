@@ -12,12 +12,30 @@
 
 {% import "_includes/forms" as forms %}
 
+{% macro multiSelectField(options, values, attribute, label) %}
+
+    {% import "_includes/forms" as forms %}
+    {% set multiSelectInput %}
+    {{ forms.multiselect({
+        id:        attribute,
+        name:      attribute,
+        options:   options,
+        values:    values,
+        errors:    product.getErrors(attribute),
+    }) }}
+    {% endset %}
+
+    {{ forms.field({
+        id:       attribute,
+        label:    label
+    }, multiSelectInput) }}
+
+{%  endmacro %}
+
 
 {% macro dateTimeField(product, attribute, label) %}
 
 {% import "_includes/forms" as forms %}
-
-
 
 {% set dateTimeInput %}
 {{ forms.date({
@@ -66,26 +84,21 @@ required: false
                 {% set static = static is defined ? static : false %}
 
                 {{ textField({
-                label: "Name"|t,
-                locale: product.locale,
-                id: 'title',
-                name: 'title',
-                value: product.title,
-                errors: (not static ? product.getErrors('title')),
-                first: true,
-                autofocus: true,
-                required: (not static),
-                disabled: static,
-                maxlength: 255
+                    label: "Name"|t,
+                    locale: product.locale,
+                    id: 'title',
+                    name: 'title',
+                    value: product.title,
+                    errors: (not static ? product.getErrors('title')),
+                    first: true,
+                    autofocus: true,
+                    required: (not static),
+                    disabled: static,
+                    maxlength: 255
                 }) }}
 
 
-                <div class="field" id="fields-body-field">
-                <div class="heading">
-                    <label for="fields-body">Master Variant</label>
-                </div>
-                <div class="input">
-
+                {% set masterVariant %}
                 <table id="" class="shadow-box editable">
                     <thead>
                     <tr>
@@ -116,8 +129,13 @@ required: false
                     </tr>
                     </tbody>
                 </table>
-                </div>
-                </div>
+                {% endset %}
+
+                {{ forms.field({
+                    id:       'masterVariant',
+                    label:    'Master Variant'
+                }, masterVariant) }}
+
 
 
 
@@ -132,14 +150,27 @@ required: false
                 {% endfor %}
 
 
-
             </div>{# end pane#}
 
         </div>
         <div class="item" data-position="right" data-colspan="1">
 
-
             <div class="pane">
+
+
+                {% set variantsTable %}
+                <select class="optionTypeSelect" multiple name="optionTypes[]">
+                    {% for optionType in craft.stripey.optiontypes %}
+                        <option value="{{ optionType.id}}">{{ optionType.name }}</option>
+                    {% endfor  %}
+                </select>
+                {% endset %}
+
+                {{ forms.field({
+                    id:       'variantsTable',
+                    label:    'Variants'
+                }, variantsTable) }}
+
 
                 <table class="data fullwidth">
                     <thead>
@@ -205,9 +236,18 @@ required: false
         </div>
 
         </div>
-    </div>
+
 
 
 </form>
+
+    {% set js %}
+        $(function() {
+            $('select').selectize({
+            }
+    );
+        });
+    {% endset %}
+    {% includeJs js %}
 
 {% endblock %}

@@ -42,4 +42,15 @@ class StripeyVariable
     {
         return craft()->elements->getCriteria('Stripey_Product', $criteria);
     }
+
+    /**
+     * @param array|null $criteria
+     *
+     * @return ElementCriteriaModel|null
+     */
+    public function optionTypes()
+    {
+        return craft()->stripey_optionType->getAllOptionTypes();
+    }
+
 }
