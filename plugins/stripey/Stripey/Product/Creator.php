@@ -17,7 +17,6 @@ class Creator
 
     }
 
-
     public function save(BaseElementModel $product)
     {
         $this->_product      = $product;

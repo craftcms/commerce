@@ -16,12 +16,17 @@ class Stripey_OptionTypeModel extends BaseModel
         return UrlHelper::getCpUrl('stripey/settings/optiontypes/' . $this->id);
     }
 
+    public function getOptionValues()
+    {
+        return craft()->stripey_optionValue->getAllOptionValuesByOptionTypeId($this->id);
+    }
+
     protected function defineAttributes()
     {
         return array(
-            'id'            => AttributeType::Number,
-            'name'          => AttributeType::String,
-            'handle'        => AttributeType::String
+            'id'     => AttributeType::Number,
+            'name'   => AttributeType::String,
+            'handle' => AttributeType::String
         );
     }
 

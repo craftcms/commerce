@@ -8,7 +8,7 @@ class Stripey_OptionValueService extends BaseApplicationComponent
     public function getAllOptionValuesByOptionTypeId($id)
     {
         $find = array('optionTypeId'=>$id);
-        $optionValueRecords = Stripey_OptionValueRecord::model()->findByAttributes($find);
+        $optionValueRecords = Stripey_OptionValueRecord::model()->findAllByAttributes($find);
         return Stripey_OptionValueModel::populateModels($optionValueRecords);
     }
 
@@ -18,9 +18,28 @@ class Stripey_OptionValueService extends BaseApplicationComponent
         return Stripey_OptionValueModel::populateModel($optionValueRecord);
     }
 
-    public function saveOptionValue(Stripey_OptionValueModel $optionValue)
+    public function saveOptionValuesForOptionType($optionType, $optionValues)
     {
-        if ($optionValue->id)
+
+        // If no optionValues are passed, just let the optionType know all is good.
+        if (count($optionValues) < 1) {
+            return true;
+        }
+
+        // Check for a real optionType
+        if (!$optionType->id){
+            throw new Exception(Craft::t('No Option Type exists with the ID “{id}”', array('id' => $id)));
+        }
+
+        dd($optionValues);
+        $ids = array_map(function($optionValue){
+            return $optionValue['id'];
+        },$optionValues);
+        $ids = array_filter($ids);
+
+        dd($ids);
+
+        if ($optionValues)
         {
             $optionValueRecord = Stripey_OptionValueRecord::model()->findById($optionValue->id);
 
