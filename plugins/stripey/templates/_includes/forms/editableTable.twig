@@ -51,11 +51,16 @@
 {% endif %}
 
 {% if not static and (initJs is not defined or initJs) %}
+
+    {% includeJsResource "stripey/StripeyRecordTable.js" %}
     {% set js %}
-    new Craft.EditableTable(
+    new Craft.Stripey.EditableTable(
     "{{ id   | namespaceInputId   | e('js') }}",
     "{{ name | namespaceInputName | e('js') }}",
-    {{ cols|json_encode|raw }});
+    {{ cols|json_encode|raw }},
+    {
+
+    });
     {% endset %}
 
     {% includeJs js %}

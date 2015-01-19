@@ -23,11 +23,6 @@ class Stripey_OptionValueService extends BaseApplicationComponent
     public function saveOptionValuesForOptionType($optionType, $optionValues)
     {
 
-        // If no optionValues are passed, just let the optionType know all is good.
-        if (count($optionValues) < 1) {
-            return true;
-        }
-
         // Check for a real optionType
         if (!craft()->stripey_optionType->getOptionTypeById($optionType->id)) {
             throw new Exception(Craft::t('No Option Type exists with the ID “{id}”', array('id' => $id)));

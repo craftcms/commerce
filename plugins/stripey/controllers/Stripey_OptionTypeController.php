@@ -37,9 +37,6 @@ class Stripey_OptionTypeController extends Stripey_BaseController
          * Start of Option Value Table*/
         $cols = Stripey_OptionValueModel::editableColumns();
         $rows = $variables['optionType']->getOptionValues();
-//        $rows = array_map(function ($value) {
-//            return $value->toEditableRow();
-//        }, $rows);
 
         $variables['optionValuesTable'] = craft()->templates->render('stripey/_includes/forms/editableTable', array(
             'id'     => 'optionValues',
@@ -97,19 +94,18 @@ class Stripey_OptionTypeController extends Stripey_BaseController
      */
     private function _prepareOptionValueModels()
     {
-        $optionValues    = craft()->request->getPost('optionValues');
-        $hasOptionValues = (bool)$optionValues;
-        $optionValues    = array();
-        if ($hasOptionValues) {
-            $position = 0;
-            foreach (craft()->request->getPost('optionValues') as $optionValue) {
-                $position++;
-                $id             = isset($optionValue['current']) ? $optionValue['current'] : null;
-                $name           = isset($optionValue['name']) ? $optionValue['name'] : null;
-                $displayName    = isset($optionValue['displayName']) ? $optionValue['displayName'] : null;
-                $data           = compact('id', 'name', 'displayName', 'position');
-                $optionValues[] = Stripey_OptionValueModel::populateModel($data);
-            }
+        $optionValues = array();
+        $position = 0;
+        if (!craft()->request->getPost('optionValues')){
+            return $optionValues;
+        }
+        foreach (craft()->request->getPost('optionValues') as $optionValue) {
+            $position++;
+            $id             = isset($optionValue['current']) ? $optionValue['current'] : null;
+            $name           = isset($optionValue['name']) ? $optionValue['name'] : null;
+            $displayName    = isset($optionValue['displayName']) ? $optionValue['displayName'] : null;
+            $data           = compact('id', 'name', 'displayName', 'position');
+            $optionValues[] = Stripey_OptionValueModel::populateModel($data);
         }
 
         return $optionValues;
