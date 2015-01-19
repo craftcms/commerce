@@ -40,11 +40,6 @@ class Stripey_OptionValueModel extends BaseModel
         return craft()->stripey_optionType->getOptionTypeById($this->optionTypeId);
     }
 
-    public function toEditableRow()
-    {
-        return array($this->name, $this->displayName    );
-    }
-
     protected function defineAttributes()
     {
         return array(

@@ -11,6 +11,13 @@ class Stripey_OptionValueRecord extends BaseRecord
         return 'stripey_optionvalues';
     }
 
+    public function defaultScope()
+    {
+        return array(
+            'order'=>'position',
+        );
+    }
+
     public function defineRelations()
     {
         return array(

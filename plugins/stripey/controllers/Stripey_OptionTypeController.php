@@ -37,9 +37,9 @@ class Stripey_OptionTypeController extends Stripey_BaseController
          * Start of Option Value Table*/
         $cols = Stripey_OptionValueModel::editableColumns();
         $rows = $variables['optionType']->getOptionValues();
-        $rows = array_map(function ($value) {
-            return $value->toEditableRow();
-        }, $rows);
+//        $rows = array_map(function ($value) {
+//            return $value->toEditableRow();
+//        }, $rows);
 
         $variables['optionValuesTable'] = craft()->templates->render('stripey/_includes/forms/editableTable', array(
             'id'     => 'optionValues',
@@ -102,12 +102,11 @@ class Stripey_OptionTypeController extends Stripey_BaseController
         $optionValues    = array();
         if ($hasOptionValues) {
             $position = 0;
-
             foreach (craft()->request->getPost('optionValues') as $optionValue) {
                 $position++;
-                $id             = isset($optionValue['id']) ? $optionValue['id'] : null;
-                $name           = $optionValue[0];
-                $displayName    = $optionValue[1];
+                $id             = isset($optionValue['current']) ? $optionValue['current'] : null;
+                $name           = isset($optionValue['name']) ? $optionValue['name'] : null;
+                $displayName    = isset($optionValue['displayName']) ? $optionValue['displayName'] : null;
                 $data           = compact('id', 'name', 'displayName', 'position');
                 $optionValues[] = Stripey_OptionValueModel::populateModel($data);
             }
