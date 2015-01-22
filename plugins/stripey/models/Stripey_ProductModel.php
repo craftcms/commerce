@@ -86,6 +86,19 @@ class Stripey_ProductModel extends BaseElementModel
         }
     }
 
+    public function getOptionTypes(){
+        return craft()->stripey_product->getOptionTypesForProduct($this->id);
+    }
+
+    public function getOptionTypesIds(){
+        if (!$this->id){
+            return array();
+        }
+        return array_map(function($optionType){
+            return $optionType->id;
+        },$this->getOptionTypes());
+    }
+
     protected function defineAttributes()
     {
         return array_merge(parent::defineAttributes(), array(

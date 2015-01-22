@@ -16,10 +16,15 @@ class Stripey_OptionTypeRecord extends BaseRecord
     public function defineRelations()
     {
         return array(
-//            'productOptionTypes' => array(static::HAS_MANY,'Stripey_ProductOptionTypes','optionTypeId'),
-//            'product' => array(static::HAS_MANY,array('user_id'=>'id'),'through'=>'roles'),
+            'product' => array(static::MANY_MANY, 'Stripey_ProductRecord','stripey_product_optiontypes(productId, optionTypeId)'),
             'optionValues' => array(static::HAS_MANY,'Stripey_OptionValueRecord','optionTypeId'),
         );
+    }
+
+    public function beforeDelete()
+    {
+        Stripey_OptionValueRecord::model()->deleteAllByAttributes(array('optionTypeId' => $this->id));
+        return parent::beforeDelete();
     }
 
     public function defineIndexes()

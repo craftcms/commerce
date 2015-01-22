@@ -31,8 +31,6 @@ class Stripey_ProductController extends Stripey_BaseController
 
         $productId = craft()->request->getPost('productId');
 
-        dd(craft()->request->getPost('optionTypes'));
-
         if ($productId) {
             $product = craft()->stripey_product->getProductById($productId);
 
@@ -58,6 +56,10 @@ class Stripey_ProductController extends Stripey_BaseController
         $chargeCreator = new \Stripey\Product\Creator;
 
         if ($chargeCreator->save($product)) {
+
+            $optionTypes = craft()->request->getPost('optionTypes');
+            craft()->stripey_optionType->assignProductToOptionTypes($product->id, $optionTypes);
+
             craft()->userSession->setNotice(Craft::t('Product saved.'));
             $this->redirectToPostedUrl($product);
         } else {

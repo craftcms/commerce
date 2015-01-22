@@ -54,8 +54,8 @@ var adminTable = new Craft.AdminTable({
 tableSelector: '#optiontypes',
 noObjectsSelector: '#nooptiontypes',
 newObjectBtnSelector: '#newoptionTypecontainer',
-deleteAction: 'stripey/optionType/deleteProductType',
-confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}” and all its products? Please make sure you have a backup of your database before before peforming this desctruction action"|t }}'
+deleteAction: 'stripey/optionType/deleteOptionType',
+confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”? This will make all Option Types disappear from related Variants and Products. Please make sure you have a backup of your database before before peforming this desctruction action"|t }}'
 });
 {% endset %}
 {% includeJs js %}

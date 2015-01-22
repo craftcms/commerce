@@ -157,19 +157,18 @@ required: false
 
             <div class="pane">
 
-
-                {% set variantsTable %}
+                {% set optionTypeFields %}
                 <select class="optionTypeSelect" multiple name="optionTypes[]">
                     {% for optionType in craft.stripey.optiontypes %}
-                        <option value="{{ optionType.id}}">{{ optionType.name }}</option>
+                        <option value="{{ optionType.id}}" {% if optionType.id in product.optionTypesIds %}selected{% endif %}>{{ optionType.name }}</option>
                     {% endfor  %}
                 </select>
                 {% endset %}
 
                 {{ forms.field({
-                    id:       'variantsTable',
-                    label:    'Variants'
-                }, variantsTable) }}
+                    id:       'optionTypes',
+                    label:    'Option Types'
+                }, optionTypeFields) }}
 
 
                 <table class="data fullwidth">
