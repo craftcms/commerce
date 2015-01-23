@@ -30,7 +30,7 @@ class Stripey_ProductRecord extends BaseRecord
             'optionTypes' => array(static::MANY_MANY, 'Stripey_OptionTypeRecord','stripey_product_optiontypes(productId, optionTypeId)'),
             'master' => array(static::HAS_ONE,'Stripey_VariantRecord','productId','condition'=>'master.isMaster = 1'),
             'variants' => array(static::HAS_MANY,'Stripey_VariantRecord','productId','condition'=>'master.isMaster = 0'),
-            'variantsWithMaster' => array(static::HAS_MANY,'Stripey_VariantRecord','productId')
+            'variantsWithMaster' => array(static::HAS_MANY,'Stripey_VariantRecord','productId','onDelete'=>static::CASCADE)
         );
     }
 

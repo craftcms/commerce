@@ -26,4 +26,11 @@ class Stripey_ProductService extends BaseApplicationComponent
         return Stripey_OptionTypeModel::populateModels($product->optionTypes);
     }
 
+    public function getMasterVariantForProduct($productId)
+    {
+        $product = Stripey_ProductRecord::model()->findById($productId);
+
+        return Stripey_VariantModel::populateModel($product->master);
+    }
+
 }

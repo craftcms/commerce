@@ -27,15 +27,6 @@ class Stripey_OptionTypeRecord extends BaseRecord
         return parent::beforeDelete();
     }
 
-    public function defineIndexes()
-    {
-        return array(
-//            array('columns' => array('typeId')),
-//            array('columns' => array('availableOn')),
-//            array('columns' => array('expiresOn')),
-        );
-    }
-
     protected function defineAttributes()
     {
         return array(

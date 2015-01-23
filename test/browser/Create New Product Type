@@ -24,7 +24,12 @@
 <tr>
 	<td>type</td>
 	<td>id=name</td>
-	<td>Normal Product ${KEY_TAB}</td>
+	<td>Normal Product</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=handle</td>
+	<td>normalProduct</td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
