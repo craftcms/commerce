@@ -8,8 +8,10 @@
 <body>
 <table id="suiteTable" cellpadding="1" cellspacing="1" border="1" class="selenium"><tbody>
 <tr><td><b>Test Suite</b></td></tr>
-<tr><td><a href="createCharge">createCharge</a></td></tr>
-<tr><td><a href="onAfterInstall">onAfterInstall</a></td></tr>
+<tr><td><a href="Set up Stripe Config">Set up Stripe Config</a></td></tr>
+<tr><td><a href="Create a Charge">Create a Charge</a></td></tr>
+<tr><td><a href="Create New Product Type">Create New Product Type</a></td></tr>
+<tr><td><a href="Create a Option Type">Create a Option Type</a></td></tr>
 </tbody></table>
 </body>
 </html>

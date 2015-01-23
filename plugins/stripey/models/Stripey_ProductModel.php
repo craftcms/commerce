@@ -75,15 +75,31 @@ class Stripey_ProductModel extends BaseElementModel
         return $this->_variants;
     }
 
-    public function master(){
-        return craft()->stripey_variant->getMasterVariantByProductId($this->id);
-    }
-
     public function getFieldLayout()
     {
         if ($this->getProductType()) {
             return $this->productType->getFieldLayout();
         }
+    }
+
+    public function getMasterVariant(){
+        if (!$this->id){
+            return new Stripey_VariantModel();
+        }
+        return craft()->stripey_product->getMasterVariantForProduct($this->id);
+    }
+
+    public function getOptionTypes(){
+        return craft()->stripey_product->getOptionTypesForProduct($this->id);
+    }
+
+    public function getOptionTypesIds(){
+        if (!$this->id){
+            return array();
+        }
+        return array_map(function($optionType){
+            return $optionType->id;
+        },$this->getOptionTypes());
     }
 
     protected function defineAttributes()

@@ -29,35 +29,16 @@ class Stripey_ProductController extends Stripey_BaseController
     {
         $this->requirePostRequest();
 
-        $productId = craft()->request->getPost('productId');
+        $product = $this->_setProductFromPost();
+        $this->_setContentfromPost($product);
 
-        dd(craft()->request->getPost('optionTypes'));
+        $productCreator = new \Stripey\Product\Creator;
 
-        if ($productId) {
-            $product = craft()->stripey_product->getProductById($productId);
+        if ($productCreator->save($product)) {
 
-            if (!$product) {
-                throw new Exception(Craft::t('No event product with the ID “{id}”', array('id' => $productId)));
-            }
-        } else {
-            $product = new Stripey_ProductModel();
-        }
+            $this->_saveOptionTypes($product);
+            $this->_saveMasterVariant($product);
 
-        $product->availableOn = (($availableOn = craft()->request->getPost('availableOn')) ? DateTime::createFromString($availableOn, craft()->timezone) : $product->availableOn);
-        $product->expiresOn   = (($expiresOn = craft()->request->getPost('expiresOn')) ? DateTime::createFromString($expiresOn, craft()->timezone) : null);
-        $product->typeId      = craft()->request->getPost('typeId');
-        $product->enabled     = craft()->request->getPost('enabled');
-
-        if (!$product->availableOn) {
-            $product->availableOn = new DateTime();
-        }
-
-        $product->getContent()->title = craft()->request->getPost('title', $product->title);
-        $product->setContentFromPost('fields');
-
-        $chargeCreator = new \Stripey\Product\Creator;
-
-        if ($chargeCreator->save($product)) {
             craft()->userSession->setNotice(Craft::t('Product saved.'));
             $this->redirectToPostedUrl($product);
         } else {
@@ -181,6 +162,71 @@ class Stripey_ProductController extends Stripey_BaseController
                 ));
             }
         }
+    }
+
+    /**
+     * @param $product
+     */
+    private function _saveMasterVariant($product)
+    {
+        // Now save master variant
+        $masterVariant            = craft()->request->getPost('masterVariant');
+        $masterVariant            = Stripey_VariantModel::populateModel($masterVariant);
+        $masterVariant->isMaster  = true;
+        $masterVariant->productId = $product->id;
+        craft()->stripey_variant->saveVariant($masterVariant);
+    }
+
+    /**
+     * @param $product
+     */
+    private function _saveOptionTypes($product)
+    {
+        // Now save option types
+        $optionTypes = craft()->request->getPost('optionTypes');
+        craft()->stripey_optionType->assignProductToOptionTypes($product->id, $optionTypes);
+    }
+
+    /**
+     * @return Stripey_ProductModel
+     * @throws Exception
+     */
+    private function _setProductFromPost()
+    {
+        $productId = craft()->request->getPost('productId');
+
+        if ($productId) {
+            $product = craft()->stripey_product->getProductById($productId);
+
+            if (!$product) {
+                throw new Exception(Craft::t('No event product with the ID “{id}”', array('id' => $productId)));
+            }
+        } else {
+            $product = new Stripey_ProductModel();
+        }
+
+        $product->availableOn = (($availableOn = craft()->request->getPost('availableOn')) ? DateTime::createFromString($availableOn, craft()->timezone) : $product->availableOn);
+        $product->expiresOn   = (($expiresOn = craft()->request->getPost('expiresOn')) ? DateTime::createFromString($expiresOn, craft()->timezone) : null);
+        $product->typeId      = craft()->request->getPost('typeId');
+        $product->enabled     = craft()->request->getPost('enabled');
+        $product->authorId    = craft()->userSession->id;
+
+        if (!$product->availableOn) {
+            $product->availableOn = new DateTime();
+
+            return $product;
+        }
+
+        return $product;
+    }
+
+    /**
+     * @param $product
+     */
+    private function _setContentfromPost($product)
+    {
+        $product->getContent()->title = craft()->request->getPost('title', $product->title);
+        $product->setContentFromPost('fields');
     }
 
 } 

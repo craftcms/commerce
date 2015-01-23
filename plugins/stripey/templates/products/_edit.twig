@@ -99,6 +99,7 @@ required: false
 
 
                 {% set masterVariant %}
+
                 <table id="" class="shadow-box editable">
                     <thead>
                     <tr>
@@ -106,25 +107,29 @@ required: false
                         <th scope="col" class="header">Price</th>
                         <th scope="col" class="header">Width</th>
                         <th scope="col" class="header">Height</th>
+                        <th scope="col" class="header">Length</th>
                         <th scope="col" class="header">Weight</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr data-id="0">
                         <td class="textual " width="">
-                            <textarea type="number" name="masterVariant[sku]" rows="1"></textarea>
+                            <textarea type="number" name="masterVariant[sku]" rows="1">{{ product.masterVariant.sku }}</textarea>
                         </td>
                         <td class="textual " width="">
-                            <textarea type="number" step="0.01" name="masterVariant[price]" rows="1"></textarea>
+                            <textarea type="number" step="0.01" name="masterVariant[price]" rows="1">{{ product.masterVariant.price }}</textarea>
                         </td>
                         <td class="textual " width="">
-                            <textarea name="masterVariant[width]" rows="1"></textarea>
+                            <textarea name="masterVariant[width]" rows="1">{{ product.masterVariant.width }}</textarea>
                         </td>
                         <td class="textual " width="">
-                            <textarea name="masterVariant[height]" rows="1"></textarea>
+                            <textarea name="masterVariant[height]" rows="1">{{ product.masterVariant.height }}</textarea>
                         </td>
                         <td class="textual " width="">
-                            <textarea name="masterVariant[weight]" rows="1"></textarea>
+                            <textarea name="masterVariant[length]" rows="1">{{ product.masterVariant.length }}</textarea>
+                        </td>
+                        <td class="textual " width="">
+                            <textarea name="masterVariant[weight]" rows="1">{{ product.masterVariant.weight }}</textarea>
                         </td>
                     </tr>
                     </tbody>
@@ -135,8 +140,6 @@ required: false
                     id:       'masterVariant',
                     label:    'Master Variant'
                 }, masterVariant) }}
-
-
 
 
                 {% for tab in productType.getFieldLayout().getTabs() %}
@@ -157,19 +160,18 @@ required: false
 
             <div class="pane">
 
-
-                {% set variantsTable %}
+                {% set optionTypeFields %}
                 <select class="optionTypeSelect" multiple name="optionTypes[]">
                     {% for optionType in craft.stripey.optiontypes %}
-                        <option value="{{ optionType.id}}">{{ optionType.name }}</option>
+                        <option value="{{ optionType.id}}" {% if optionType.id in product.optionTypesIds %}selected{% endif %}>{{ optionType.name }}</option>
                     {% endfor  %}
                 </select>
                 {% endset %}
 
                 {{ forms.field({
-                    id:       'variantsTable',
-                    label:    'Variants'
-                }, variantsTable) }}
+                    id:       'optionTypes',
+                    label:    'Option Types'
+                }, optionTypeFields) }}
 
 
                 <table class="data fullwidth">
