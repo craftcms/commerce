@@ -11,7 +11,7 @@ class Stripey_TaxCategoryService extends BaseApplicationComponent
     /**
      * @return Stripey_TaxCategoryModel[]
      */
-    public function getAllTaxCategories()
+    public function getAll()
     {
         $records = Stripey_TaxCategoryRecord::model()->findAll();
         return Stripey_TaxCategoryModel::populateModels($records);
@@ -21,7 +21,7 @@ class Stripey_TaxCategoryService extends BaseApplicationComponent
      * @param int $id
      * @return Stripey_TaxCategoryModel
      */
-    public function getTaxCategoryById($id)
+    public function getById($id)
     {
         $record = Stripey_TaxCategoryRecord::model()->findById($id);
         return Stripey_TaxCategoryModel::populateModel($record);

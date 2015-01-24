@@ -8,7 +8,7 @@ class Stripey_TaxCategoryController extends Stripey_BaseController
      */
     public function actionIndex()
     {
-        $taxCategories = craft()->stripey_taxCategory->getAllTaxCategories();
+        $taxCategories = craft()->stripey_taxCategory->getAll();
         $this->renderTemplate('stripey/settings/taxcategories/index', compact('taxCategories'));
     }
 
@@ -22,7 +22,7 @@ class Stripey_TaxCategoryController extends Stripey_BaseController
     {
         if (!empty($variables['id'])) {
             $id = $variables['id'];
-            $variables['taxCategory'] = craft()->stripey_taxCategory->getTaxCategoryById($id);
+            $variables['taxCategory'] = craft()->stripey_taxCategory->getById($id);
 
             if (!$variables['taxCategory']) {
                 throw new HttpException(404);

@@ -50,8 +50,6 @@ class StripeyPlugin extends BasePlugin
         return array(
             'stripey'                                                             => array('action' => 'stripey/dashboard/index'),
 
-            'stripey/settings'                                                    => 'stripey/settings/index',
-
             'stripey/settings/producttypes'                                       => array('action' => 'stripey/productType/index'),
             'stripey/settings/producttypes/(?P<productTypeId>\d+)'                => array('action' => 'stripey/productType/editProductType'),
             'stripey/settings/producttypes/new'                                   => array('action' => 'stripey/productType/editProductType'),
@@ -64,6 +62,10 @@ class StripeyPlugin extends BasePlugin
             'stripey/settings/taxcategories'                                      => array('action' => 'stripey/taxCategory/index'),
             'stripey/settings/taxcategories/new'                                  => array('action' => 'stripey/taxCategory/edit'),
             'stripey/settings/taxcategories/(?P<id>\d+)'                          => array('action' => 'stripey/taxCategory/edit'),
+
+            'stripey/settings/countries'                                          => array('action' => 'stripey/country/index'),
+            'stripey/settings/countries/new'                                      => array('action' => 'stripey/country/edit'),
+            'stripey/settings/countries/(?P<id>\d+)'                              => array('action' => 'stripey/country/edit'),
 
             'stripey/products'                                                    => array('action' => 'stripey/product/productIndex'),
             'stripey/products/(?P<productTypeHandle>{handle})/new'                => array('action' => 'stripey/product/editProduct'),
