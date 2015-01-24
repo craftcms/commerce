@@ -39,13 +39,13 @@ class Stripey_VariantService extends BaseApplicationComponent
 
     public function saveVariant(Stripey_VariantModel $variant)
     {
-        $isNewVariant = !$variant->productId;
 
-        if ($isNewVariant) {
+        $variantRecord = Stripey_VariantRecord::model()->findByAttributes(array('productId' => $variant->productId));
+
+        if(!$variantRecord){
             $variantRecord = new Stripey_VariantRecord();
-        } else {
-            $variantRecord = Stripey_VariantRecord::model()->findByAttributes(array('productId' => $variant->productId));
         }
+
         $variantRecord->isMaster  = $variant->isMaster;
         $variantRecord->productId  = $variant->productId;
         $variantRecord->sku       = $variant->sku;
