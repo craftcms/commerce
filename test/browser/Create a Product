@@ -71,6 +71,11 @@
 	<td>css=input.btn.submit</td>
 	<td></td>
 </tr>
+<tr>
+	<td>assertText</td>
+	<td>//div[@id='notifications']/div</td>
+	<td>Product Saved</td>
+</tr>
 
 </tbody></table>
 </body>
