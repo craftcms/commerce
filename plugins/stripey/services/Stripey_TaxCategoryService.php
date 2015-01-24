@@ -55,26 +55,11 @@ class Stripey_TaxCategoryService extends BaseApplicationComponent
         $model->addErrors($record->getErrors());
 
         if (!$model->hasErrors()) {
-            $transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
-            try {
-                // Save it!
-                $record->save(false);
+            // Save it!
+            $record->save(false);
 
-                // Now that we have a calendar ID, save it on the model
-                if (!$model->id) {
-                    $model->id = $record->id;
-                }
-
-                if ($transaction !== null) {
-                    $transaction->commit();
-                }
-            } catch (\Exception $e) {
-                if ($transaction !== null) {
-                    $transaction->rollback();
-                }
-
-                throw $e;
-            }
+            // Now that we have a record ID, save it on the model
+            $model->id = $record->id;
 
             return true;
         } else {
