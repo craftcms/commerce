@@ -2,6 +2,15 @@
 
 namespace Craft;
 
+/**
+ * Class Stripey_ProductTypeModel
+ *
+ * @property int $id
+ * @property string $name
+ * @property string $handle
+ * @property int $fieldLayoutId
+ * @package Craft
+ */
 class Stripey_ProductTypeModel extends BaseModel
 {
     protected $modelRecord = 'Stripey_ProductTypeRecord';

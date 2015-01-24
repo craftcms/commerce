@@ -30,7 +30,7 @@ class Stripey_OptionTypeController extends Stripey_BaseController
                 $variables['optionType']         = new Stripey_OptionTypeModel();
                 $variables['brandNewOptionType'] = true;
             }
-            $variables['title'] = Craft::t('Create a Option Type');
+            $variables['title'] = Craft::t('Create an Option Type');
         };
 
         /**

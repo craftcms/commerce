@@ -1,0 +1,61 @@
+{% extends "stripey/_layouts/cp" %}
+
+{% set title = "Stripey"|t %}
+
+{% set crumbs = [
+{ label: "Stripey"|t, url: url('stripey') },
+{ label: "Settings"|t, url: url('stripey/settings') },
+{ label: "Tax Categories"|t, url: url('stripey/settings/taxcategories') }
+] %}
+
+
+{% set tabs = {
+dashboard: { label: "Dashboard"|t, url: url('stripey') },
+products: { label: "Products"|t, url: url('stripey/products') },
+charges: { label: "Charges"|t, url: url('stripey/charges') },
+plans: { label: "Plans"|t, url: url('stripey/plans') },
+settings: { label: "Settings"|t, url: url('stripey/settings') }
+} %}
+
+{% set selectedTab = 'settings' %}
+
+{% set content %}
+
+
+    <table id="taxcategories" class="data fullwidth collapsible">
+        <thead>
+        <tr><th scope="col">Name</th>
+            <th scope="col">Code</th>
+            <th scope="col">Description</th>
+            <th scope="col">Is Default?</th>
+            <td class="thin"></td>
+        </tr></thead>
+        <tbody>
+        {% for taxCategory in taxCategories %}
+        <tr data-id="{{taxCategory.id}}" data-name="{{taxCategory.name}}">
+            <th scope="row" data-title="Name"><a href="{{url('stripey/settings/taxcategories/'~taxCategory.id)}}">{{taxCategory.name}}</a></th>
+            <td data-title="Code">{{taxCategory.code}}</td>
+            <td data-title="Description">{{taxCategory.description}}</td>
+            <td data-title="Is Default?">{{taxCategory.default ? 'Yes'|t : 'No'|t}}</td>
+            <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
+        </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+    <br/>
+    <div class="btngroup submit first">
+    <a href="{{url('stripey/settings/taxcategories/new')}}" class="btn submit" >New Tax Category</a>
+    </div>
+</form>
+{% endset %}
+
+
+{% set js %}
+var adminTable = new Craft.AdminTable({
+    tableSelector: '#taxcategories',
+    deleteAction: 'stripey/taxCategory/delete',
+    confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
+});
+{% endset %}
+{% includeJs js %}
