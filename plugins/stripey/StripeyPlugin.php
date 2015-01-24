@@ -50,7 +50,7 @@ class StripeyPlugin extends BasePlugin
         return array(
             'stripey'                                                             => array('action' => 'stripey/dashboard/index'),
 
-            'stripey/settings'                                                    => 'stripey/settings/index',
+            'stripey/settings'                                                    => array('action' => 'stripey/settings/edit'),
 
             'stripey/settings/producttypes'                                       => array('action' => 'stripey/productType/index'),
             'stripey/settings/producttypes/(?P<productTypeId>\d+)'                => array('action' => 'stripey/productType/editProductType'),
@@ -70,7 +70,6 @@ class StripeyPlugin extends BasePlugin
             'stripey/charges'                                                     => 'stripey/charges/index',
             'stripey/charges/(?P<chargeId>\d+)'                                   => array('action' => 'stripey/charge/editCharge'),
 
-            'stripey/settings'                                                    => array('action' => 'stripey/settings/edit')
         );
     }
 
