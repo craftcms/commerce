@@ -15,23 +15,25 @@ class Stripey_OptionTypeController extends Stripey_BaseController
     {
         $variables['brandNewOptionType'] = false;
 
-        if (!empty($variables['optionTypeId'])) {
+        if (empty($variables['optionType'])) {
+            if (!empty($variables['optionTypeId'])) {
+                $optionTypeId = $variables['optionTypeId'];
+                $variables['optionType'] = craft()->stripey_optionType->getOptionTypeById($optionTypeId);
 
-            $optionTypeId = $variables['optionTypeId'];
-
-            $variables['optionType'] = craft()->stripey_optionType->getOptionTypeById($optionTypeId);
-
-            if (!$variables['optionType']) {
-                throw new HttpException(404);
-            }
-            $variables['title'] = $variables['optionType']->name;
-        } else {
-            if (empty($variables['optionType'])) {
+                if (!$variables['optionType']) {
+                    throw new HttpException(404);
+                }
+            } else {
                 $variables['optionType']         = new Stripey_OptionTypeModel();
                 $variables['brandNewOptionType'] = true;
-            }
+            };
+        }
+
+        if (!empty($variables['optionTypeId'])) {
+            $variables['title'] = $variables['optionType']->name;
+        } else {
             $variables['title'] = Craft::t('Create an Option Type');
-        };
+        }
 
         /**
          * Start of Option Value Table*/

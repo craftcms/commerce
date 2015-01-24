@@ -67,6 +67,10 @@ class StripeyPlugin extends BasePlugin
             'stripey/settings/countries/new'                                      => array('action' => 'stripey/country/edit'),
             'stripey/settings/countries/(?P<id>\d+)'                              => array('action' => 'stripey/country/edit'),
 
+            'stripey/settings/states'                                          => array('action' => 'stripey/state/index'),
+            'stripey/settings/states/new'                                      => array('action' => 'stripey/state/edit'),
+            'stripey/settings/states/(?P<id>\d+)'                              => array('action' => 'stripey/state/edit'),
+
             'stripey/products'                                                    => array('action' => 'stripey/product/productIndex'),
             'stripey/products/(?P<productTypeHandle>{handle})/new'                => array('action' => 'stripey/product/editProduct'),
             'stripey/products/(?P<productTypeHandle>{handle})/(?P<productId>\d+)' => array('action' => 'stripey/product/editProduct'),

@@ -20,20 +20,24 @@ class Stripey_TaxCategoryController extends Stripey_BaseController
      */
     public function actionEdit(array $variables = array())
     {
-        if (!empty($variables['id'])) {
-            $id = $variables['id'];
-            $variables['taxCategory'] = craft()->stripey_taxCategory->getById($id);
+        if (empty($variables['taxCategory'])) {
+            if (!empty($variables['id'])) {
+                $id = $variables['id'];
+                $variables['taxCategory'] = craft()->stripey_taxCategory->getById($id);
 
-            if (!$variables['taxCategory']) {
-                throw new HttpException(404);
-            }
+                if (!$variables['taxCategory']) {
+                    throw new HttpException(404);
+                }
+            } else {
+                $variables['taxCategory'] = new Stripey_TaxCategoryModel();
+            };
+        }
+
+        if (!empty($variables['id'])) {
             $variables['title'] = $variables['taxCategory']->name;
         } else {
-            if (empty($variables['taxCategory'])) {
-                $variables['taxCategory']         = new Stripey_TaxCategoryModel();
-            }
             $variables['title'] = Craft::t('Create a Tax Category');
-        };
+        }
 
         $this->renderTemplate('stripey/settings/taxcategories/_edit', $variables);
     }

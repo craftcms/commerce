@@ -20,20 +20,24 @@ class Stripey_CountryController extends Stripey_BaseController
      */
     public function actionEdit(array $variables = array())
     {
-        if (!empty($variables['id'])) {
-            $id = $variables['id'];
-            $variables['country'] = craft()->stripey_country->getById($id);
+        if (empty($variables['country'])) {
+            if (!empty($variables['id'])) {
+                $id = $variables['id'];
+                $variables['country'] = craft()->stripey_country->getById($id);
 
-            if (!$variables['country']) {
-                throw new HttpException(404);
-            }
+                if (!$variables['country']) {
+                    throw new HttpException(404);
+                }
+            } else {
+                $variables['country'] = new Stripey_CountryModel();
+            };
+        }
+
+        if (!empty($variables['id'])) {
             $variables['title'] = $variables['country']->name;
         } else {
-            if (empty($variables['country'])) {
-                $variables['country']         = new Stripey_CountryModel();
-            }
             $variables['title'] = Craft::t('Create a Country');
-        };
+        }
 
         $this->renderTemplate('stripey/settings/countries/_edit', $variables);
     }
