@@ -12,6 +12,7 @@
 <tr><td><a href="Create a Charge">Create a Charge</a></td></tr>
 <tr><td><a href="Create New Product Type">Create New Product Type</a></td></tr>
 <tr><td><a href="Create a Option Type">Create a Option Type</a></td></tr>
+<tr><td><a href="Validate an Option Type with Errors">Validate an Option Type with Errors</a></td></tr>
 </tbody></table>
 </body>
 </html>
