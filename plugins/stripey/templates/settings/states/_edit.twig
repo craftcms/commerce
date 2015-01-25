@@ -71,8 +71,9 @@ settings: { label: "Settings"|t, url: url('stripey/settings') }
 
 {% set js %}
     $(function() {
-        $('.pane').css('overflow', 'visible'); //don't crop the list
-        $('#countryId').selectize();
+        $('#countryId').selectize({
+            dropdownParent: 'body'
+        });
     });
 {% endset %}
 {% includeJs js %}

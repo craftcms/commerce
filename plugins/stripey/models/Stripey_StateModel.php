@@ -41,4 +41,9 @@ class Stripey_StateModel extends BaseModel
 
         return $model;
     }
+
+    public function formatName()
+    {
+        return $this->name . ' (' . $this->countryName . ')';
+    }
 }
