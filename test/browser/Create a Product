@@ -24,12 +24,57 @@
 <tr>
 	<td>type</td>
 	<td>id=title</td>
-	<td>product</td>
+	<td>Shirt</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name=masterVariant[sku]</td>
+	<td>AAA</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name=masterVariant[price]</td>
+	<td>1</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name=masterVariant[width]</td>
+	<td>1</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name=masterVariant[height]</td>
+	<td>1</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name=masterVariant[length]</td>
+	<td>1</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name=masterVariant[weight]</td>
+	<td>1</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>xpath=(//input[@type='text'])[2]</td>
+	<td>Size</td>
+</tr>
+<tr>
+	<td>sendKeys</td>
+	<td>xpath=(//input[@type='text'])[2]</td>
+	<td>${KEY_DOWN}${KEY_ENTER}</td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
 	<td>css=input.btn.submit</td>
 	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>//div[@id='notifications']/div</td>
+	<td>Product Saved</td>
 </tr>
 
 </tbody></table>
