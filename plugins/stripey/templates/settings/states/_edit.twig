@@ -56,7 +56,8 @@ settings: { label: "Settings"|t, url: url('stripey/settings') }
         value: state.countryId,
         errors: state.getErrors('countryId'),
         required: true,
-        options: countries
+        options: countries,
+        class: 'select-wide',
     }) }}
 
     <hr>
@@ -67,3 +68,11 @@ settings: { label: "Settings"|t, url: url('stripey/settings') }
 </form>
 
 {% endset %}
+
+{% set js %}
+    $(function() {
+        $('.pane').css('overflow', 'visible'); //don't crop the list
+        $('#countryId').selectize();
+    });
+{% endset %}
+{% includeJs js %}
