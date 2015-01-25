@@ -30,9 +30,16 @@
 </style>
 {% set js %}
 $(document).ready(function(){
-$('#stripey-nav .btn').click(function(){
-$('#stripey-nav .stripey-navcontent').toggle();
-});
+    $('#stripey-nav').click(function(e){
+        e.stopPropagation();
+    });
+    $('#stripey-nav .btn').click(function(e){
+        e.stopPropagation();
+        $('#stripey-nav .stripey-navcontent').toggle();
+    });
+    $('html').click(function() {
+        $('#stripey-nav .stripey-navcontent').hide();
+    });
 });
 {% endset %}
 {% includeJs js %}
