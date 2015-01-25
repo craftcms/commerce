@@ -12,6 +12,12 @@ class Stripey_OptionTypeRecord extends BaseRecord
         return 'stripey_optiontypes';
     }
 
+    public function rules()
+    {
+        return array_merge(parent::rules(),array(
+
+        ));
+    }
 
     public function defineRelations()
     {
@@ -30,8 +36,8 @@ class Stripey_OptionTypeRecord extends BaseRecord
     protected function defineAttributes()
     {
         return array(
-            'name' => AttributeType::String,
-            'handle'   => AttributeType::String,
+            'name'   => array(AttributeType::Name, 'required' => true),
+            'handle' => array(AttributeType::Handle, 'required' => true)
         );
     }
 
