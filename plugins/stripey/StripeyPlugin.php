@@ -49,8 +49,8 @@ class StripeyPlugin extends BasePlugin
     {
         return array(
             'stripey'                                                             => array('action' => 'stripey/dashboard/index'),
-
-            'stripey/settings'                                                    => 'stripey/settings/index',
+            
+            'stripey/settings/global'                                             => array('action' => 'stripey/settings/edit'),
 
             'stripey/settings/producttypes'                                       => array('action' => 'stripey/productType/index'),
             'stripey/settings/producttypes/(?P<productTypeId>\d+)'                => array('action' => 'stripey/productType/editProductType'),
@@ -70,20 +70,7 @@ class StripeyPlugin extends BasePlugin
             'stripey/charges'                                                     => 'stripey/charges/index',
             'stripey/charges/(?P<chargeId>\d+)'                                   => array('action' => 'stripey/charge/editCharge'),
 
-            'stripey/settings'                                                    => array('action' => 'stripey/settings/edit')
-        );
-    }
 
-    /**
-     * @return array
-     */
-    protected function defineSettings()
-    {
-        return array(
-            'secretKey'       => AttributeType::String,
-            'publishableKey'  => AttributeType::String,
-            //TODO: Fill currency enum values dynamically based on https://support.stripe.com/questions/which-currencies-does-stripe-support
-            'defaultCurrency' => AttributeType::String
         );
     }
 
@@ -99,6 +86,19 @@ class StripeyPlugin extends BasePlugin
 //        $fieldLayout = array('type' => 'Stripey_Charge');
 //        $fieldLayout = FieldLayoutModel::populateModel($fieldLayout);
 //        craft()->fields->saveLayout($fieldLayout);
+    }
+
+    /**
+     * @return array
+     */
+    protected function defineSettings()
+    {
+        return array(
+            'secretKey'       => AttributeType::String,
+            'publishableKey'  => AttributeType::String,
+            //TODO: Fill currency enum values dynamically based on https://support.stripe.com/questions/which-currencies-does-stripe-support
+            'defaultCurrency' => AttributeType::String
+        );
     }
 
 

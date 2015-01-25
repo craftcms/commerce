@@ -1,19 +1,14 @@
 {% extends "stripey/_layouts/cp" %}
 {% set title = "Stripey"|t %}
 
+{% set sidebar %}
 
-{% set tabs = {
-dashboard: { label: "Dashboard"|t, url: url('stripey') },
-products: { label: "Products"|t, url: url('stripey/products') },
-charges: { label: "Charges"|t, url: url('stripey/charges') },
-plans: { label: "Plans"|t, url: url('stripey/plans') },
-settings: { label: "Settings"|t, url: url('stripey/settings') }
-} %}
+{% include "stripey/_includes/nav.twig" %}
 
+{% endset %}
 
-
-{% set selectedTab = 'dashboard' %}
 
 {% set content %}
-{{ craft.stripey.config.publishableKey }}
+
+
 {% endset %}
