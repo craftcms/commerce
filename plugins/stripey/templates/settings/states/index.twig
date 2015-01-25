@@ -32,7 +32,7 @@ settings: { label: "Settings"|t, url: url('stripey/settings') }
         <tr data-id="{{state.id}}" data-name="{{state.name}}">
             <th scope="row" data-title="Name"><a href="{{url('stripey/settings/states/'~state.id)}}">{{state.name}}</a></th>
             <td data-title="ISO">{{state.abbreviation}}</td>
-            <td data-title="State required?">{{ state.countryName}}</td>
+            <td data-title="Country Name">{{ state.countryName}}</td>
             <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
         </tr>
         {% endfor %}

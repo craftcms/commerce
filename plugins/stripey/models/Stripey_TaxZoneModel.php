@@ -30,7 +30,7 @@ class Stripey_TaxZoneModel extends BaseModel
             'id'   => AttributeType::Number,
             'name' => AttributeType::String,
             'description' => AttributeType::String,
-            'countryBased' => AttributeType::Bool,
+            'countryBased' => array(AttributeType::Bool, 'default' => 1),
         );
     }
 

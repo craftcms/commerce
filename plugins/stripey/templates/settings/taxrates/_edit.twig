@@ -1,0 +1,105 @@
+{% extends "stripey/_layouts/cp" %}
+
+{% set crumbs = [
+{ label: "Stripey"|t, url: url('stripey') },
+{ label: "Settings"|t, url: url('stripey/settings') },
+{ label: "Tax Rates"|t, url: url('stripey/settings/taxrates') },
+] %}
+
+{% set tabs = {
+dashboard: { label: "Dashboard"|t, url: url('stripey') },
+products: { label: "Products"|t, url: url('stripey/products') },
+charges: { label: "Charges"|t, url: url('stripey/charges') },
+plans: { label: "Plans"|t, url: url('stripey/plans') },
+settings: { label: "Settings"|t, url: url('stripey/settings') }
+} %}
+
+{% set selectedTab = 'settings' %}
+{% import "_includes/forms" as forms %}
+
+{% set content %}
+<form method="post" accept-charset="UTF-8" data-saveshortcut>
+    <input type="hidden" name="action" value="stripey/taxRate/save">
+    <input type="hidden" name="redirect" value="stripey/settings/taxrates">
+
+    {{ getCsrfInput() }}
+    {% if taxRate.id %}<input type="hidden" name="taxRateId" value="{{ taxRate.id }}">{% endif %}
+
+    {{ forms.textField({
+        first: true,
+        label: "Name"|t,
+        instructions: "What this tax rate will be called in the CP."|t,
+        name: 'name',
+        value: taxRate.name,
+        errors: taxRate.getErrors('name'),
+        autofocus: true,
+        required: true,
+        translatable: true
+    }) }}
+
+    {{ forms.textField({
+        label: "Rate"|t,
+        instructions: "Tax rates are a decimal amount to aid in calculations, (i.e. if the tax rate is 5% then enter 0.05)."|t,
+        name: 'rate',
+        value: taxRate.rate|number_format(5),
+        errors: taxRate.getErrors('rate'),
+        required: true,
+    }) }}
+
+    {{ forms.checkboxField({
+        label: "Include in Price"|t,
+        name: 'include',
+        value: 1,
+        checked: taxRate.include,
+        errors: taxRate.getErrors('include'),
+    }) }}
+
+    {{ forms.checkboxField({
+        label: "Show in Label"|t,
+        name: 'showInLabel',
+        value: 1,
+        checked: taxRate.showInLabel,
+        errors: taxRate.getErrors('showInLabel'),
+    }) }}
+
+    {{ forms.selectField({
+        label: "Tax Zone"|t,
+        instructions: "Select a tax zone."|t,
+        id: 'taxZoneId',
+        name: 'taxZoneId',
+        value: taxRate.taxZoneId,
+        errors: taxRate.getErrors('taxZoneId'),
+        required: true,
+        options: taxZones,
+        class: 'select-wide',
+    }) }}
+
+    {{ forms.selectField({
+        label: "Tax Category"|t,
+        instructions: "Select a tax category."|t,
+        id: 'taxCategoryId',
+        name: 'taxCategoryId',
+        value: taxRate.taxCategoryId,
+        errors: taxRate.getErrors('taxCategoryId'),
+        required: true,
+        options: taxCategories,
+        class: 'select-wide',
+    }) }}
+
+    <hr>
+
+    <div class="buttons">
+        <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
+    </div>
+</form>
+
+{% endset %}
+
+{% set js %}
+    $(function() {
+        $('#taxZoneId, #taxCategoryId').selectize({
+            dropdownParent: 'body'
+        });
+    });
+{% endset %}
+{% includeJs js %}

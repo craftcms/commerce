@@ -9,11 +9,13 @@ namespace Craft;
 class Stripey_TaxZoneService extends BaseApplicationComponent
 {
     /**
+     * @param bool $withRelations
      * @return Stripey_TaxZoneModel[]
      */
-    public function getAll()
+    public function getAll($withRelations = true)
     {
-        $records = Stripey_TaxZoneRecord::model()->with(array('countries', 'states', 'states.country'))->findAll(array('order' => 't.name'));
+        $with = $withRelations ? array('countries', 'states', 'states.country') : array();
+        $records = Stripey_TaxZoneRecord::model()->with($with)->findAll(array('order' => 't.name'));
         return Stripey_TaxZoneModel::populateModels($records);
     }
 
@@ -85,36 +87,49 @@ class Stripey_TaxZoneService extends BaseApplicationComponent
 
         //saving
         if (!$model->hasErrors()) {
-            // Save it!
-            $record->save(false);
+            $transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
+            try {
+                // Save it!
+                $record->save(false);
 
-            //deleting old links
-            if($deleteOldCountries) {
-                Stripey_TaxZoneCountryRecord::model()->deleteAll('taxZoneId = ?', array($record->id));
+                // Now that we have a record ID, save it on the model
+                $model->id = $record->id;
+
+                //deleting old links
+                if ($deleteOldCountries) {
+                    Stripey_TaxZoneCountryRecord::model()->deleteAll('taxZoneId = ?', array($record->id));
+                }
+
+                if ($deleteOldStates) {
+                    Stripey_TaxZoneStateRecord::model()->deleteAll('taxZoneId = ?', array($record->id));
+                }
+
+                //saving new links
+                if ($model->countryBased) {
+                    $rows = array_map(function ($id) use ($model) {
+                        return array($id, $model->id);
+                    }, $countriesIds);
+                    $cols = array('countryId', 'taxZoneId');
+                    $table = Stripey_TaxZoneCountryRecord::model()->getTableName();
+                } else {
+                    $rows = array_map(function ($id) use ($model) {
+                        return array($id, $model->id);
+                    }, $statesIds);
+                    $cols = array('stateId', 'taxZoneId');
+                    $table = Stripey_TaxZoneStateRecord::model()->getTableName();
+                }
+                craft()->db->createCommand()->insertAll($table, $cols, $rows);
+
+                if ($transaction !== null) {
+                    $transaction->commit();
+                }
+            } catch (\Exception $e) {
+                if ($transaction !== null) {
+                    $transaction->rollback();
+                }
+
+                throw $e;
             }
-
-            if($deleteOldStates) {
-                Stripey_TaxZoneStateRecord::model()->deleteAll('taxZoneId = ?', array($record->id));
-            }
-
-            //saving new links
-            if($model->countryBased) {
-                $rows = array_map(function($id) use($model) {
-                    return array($id, $model->id);
-                }, $countriesIds);
-                $cols = array('countryId', 'taxZoneId');
-                $table = Stripey_TaxZoneCountryRecord::model()->getTableName();
-            } else {
-                $rows = array_map(function($id) use($model) {
-                    return array($id, $model->id);
-                }, $statesIds);
-                $cols = array('stateId', 'taxZoneId');
-                $table = Stripey_TaxZoneStateRecord::model()->getTableName();
-            }
-            craft()->db->createCommand()->insertAll($table, $cols, $rows);
-
-            // Now that we have a record ID, save it on the model
-            $model->id = $record->id;
 
             return true;
         } else {

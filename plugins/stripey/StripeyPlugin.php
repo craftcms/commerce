@@ -77,6 +77,10 @@ class StripeyPlugin extends BasePlugin
             'stripey/settings/taxzones/new'                                       => array('action' => 'stripey/taxZone/edit'),
             'stripey/settings/taxzones/(?P<id>\d+)'                               => array('action' => 'stripey/taxZone/edit'),
 
+            'stripey/settings/taxrates'                                           => array('action' => 'stripey/taxRate/index'),
+            'stripey/settings/taxrates/new'                                       => array('action' => 'stripey/taxRate/edit'),
+            'stripey/settings/taxrates/(?P<id>\d+)'                               => array('action' => 'stripey/taxRate/edit'),
+
             'stripey/products'                                                    => array('action' => 'stripey/product/productIndex'),
             'stripey/products/(?P<productTypeHandle>{handle})/new'                => array('action' => 'stripey/product/editProduct'),
             'stripey/products/(?P<productTypeHandle>{handle})/(?P<productId>\d+)' => array('action' => 'stripey/product/editProduct'),
