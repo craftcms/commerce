@@ -11,10 +11,10 @@
         display: inline;
         float:right;
     }
-    #stripey-nav .stripey-navcontent{
-        position:fixed;
-        background-color:white;
-        background: #fff;
+    .stripey-navcontent{
+        position: absolute;
+        z-index: 1000;
+        background-color: white;
         -webkit-box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05), 0 2px 8px -2px rgba(0, 0, 0, 0.1);
         -moz-box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05), 0 2px 8px -2px rgba(0, 0, 0, 0.1);
         box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05), 0 2px 8px -2px rgba(0, 0, 0, 0.1);
@@ -29,10 +29,15 @@
     }
 </style>
 {% set js %}
-$(document).ready(function(){
-$('#stripey-nav .btn').click(function(){
-$('#stripey-nav .stripey-navcontent').toggle();
-});
+$(function(){
+    var menubtn = $('#stripey-nav .btn'),
+        position = menubtn.offset();
+
+    $('.stripey-navcontent').css({top: Math.round(position.top + menubtn.outerHeight()) + 'px', left: Math.round(position.left) + 'px'}).appendTo('body');
+
+    menubtn.click(function(){
+        $('.stripey-navcontent').toggle();
+    });
 });
 {% endset %}
 {% includeJs js %}
