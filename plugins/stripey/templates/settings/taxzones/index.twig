@@ -1,0 +1,49 @@
+{% extends "stripey/_layouts/cp" %}
+
+{% set title = "Stripey"|t %}
+
+{% set crumbs = [
+{ label: "Stripey"|t, url: url('stripey') },
+{ label: "Settings"|t, url: url('stripey/settings') },
+{ label: "Tax Zones"|t, url: url('stripey/settings/taxzones') }
+] %}
+
+{% set content %}
+
+    <table id="taxZones" class="data fullwidth collapsible">
+        <thead>
+        <tr><th scope="col">Name</th>
+            <th scope="col">Description</th>
+            <th scope="col">Type</th>
+            <th scope="col">Countries / States</th>
+            <td class="thin"></td>
+        </tr></thead>
+        <tbody>
+        {% for taxZone in taxZones %}
+        <tr data-id="{{taxZone.id}}" data-name="{{taxZone.name}}">
+            <td scope="row" data-title="Name"><a href="{{url('stripey/settings/taxzones/'~taxZone.id)}}">{{taxZone.name}}</a></td>
+            <td data-title="Description">{{taxZone.description}}</td>
+            <td data-title="Type">{{ taxZone.countryBased ? 'Country Based'|t : 'State Based'|t }}</td>
+            <td data-title="Type">{{ taxZone.getCountriesNames()|join(', ') }}{{ taxZone.getStatesNames()|join(', ') }}</td>
+            <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
+        </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+    <br/>
+    <div class="btngroup submit first">
+    <a href="{{url('stripey/settings/taxzones/new')}}" class="btn submit" >New Tax Zone</a>
+    </div>
+
+{% endset %}
+
+
+{% set js %}
+var adminTable = new Craft.AdminTable({
+    tableSelector: '#taxZones',
+    deleteAction: 'stripey/taxZone/delete',
+    confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
+});
+{% endset %}
+{% includeJs js %}

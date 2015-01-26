@@ -68,30 +68,26 @@ class Stripey_ProductController extends Stripey_BaseController
             $variables['productType'] = craft()->stripey_productType->getProductTypeById($variables['productTypeId']);
         }
 
+        if (empty($variables['product'])) {
+            if (!empty($variables['productId'])) {
+                $productId = $variables['productId'];
+                $variables['product'] = craft()->stripey_product->getProductById($productId);
 
-        if (!empty($variables['productId'])) {
-
-            $productId = $variables['productId'];
-
-            $variables['product'] = craft()->stripey_product->getProductById($productId);
-
-            if (!$variables['product']) {
-                throw new HttpException(404);
-            }
-
-            $variables['title'] = $variables['product']->title;
-
-        } else {
-            if (empty($variables['product'])) {
+                if (!$variables['product']) {
+                    throw new HttpException(404);
+                }
+            } else {
                 $variables['product']         = new Stripey_ProductModel();
                 $variables['product']->typeId = $variables['productType']->id;
                 $variables['brandNewProduct'] = true;
-            }
+            };
+        }
 
+        if (!empty($variables['productId'])) {
+            $variables['title'] = $variables['product']->title;
+        } else {
             $variables['title'] = Craft::t('Create a new Product');
-
-        };
-
+        }
         $this->prepVariables($variables);
 
         $this->renderTemplate('stripey/products/_edit', $variables);

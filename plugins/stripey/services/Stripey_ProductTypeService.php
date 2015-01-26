@@ -34,7 +34,7 @@ class Stripey_ProductTypeService extends BaseApplicationComponent
 
             if (!$productTypeRecord)
             {
-                throw new Exception(Craft::t('No calendar exists with the ID “{id}”', array('id' => $productType->id)));
+                throw new Exception(Craft::t('No product type exists with the ID “{id}”', array('id' => $productType->id)));
             }
 
             $oldProductType = Stripey_ProductTypeModel::populateModel($productTypeRecord);

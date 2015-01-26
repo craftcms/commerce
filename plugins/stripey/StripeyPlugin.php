@@ -61,6 +61,25 @@ class StripeyPlugin extends BasePlugin
             'stripey/settings/optiontypes/(?P<optionTypeId>\d+)'                  => array('action' => 'stripey/optionType/editOptionType'),
             'stripey/settings/optiontypes/new'                                    => array('action' => 'stripey/optionType/editOptionType'),
 
+            'stripey/settings/taxcategories'                                      => array('action' => 'stripey/taxCategory/index'),
+            'stripey/settings/taxcategories/new'                                  => array('action' => 'stripey/taxCategory/edit'),
+            'stripey/settings/taxcategories/(?P<id>\d+)'                          => array('action' => 'stripey/taxCategory/edit'),
+
+            'stripey/settings/countries'                                          => array('action' => 'stripey/country/index'),
+            'stripey/settings/countries/new'                                      => array('action' => 'stripey/country/edit'),
+            'stripey/settings/countries/(?P<id>\d+)'                              => array('action' => 'stripey/country/edit'),
+
+            'stripey/settings/states'                                             => array('action' => 'stripey/state/index'),
+            'stripey/settings/states/new'                                         => array('action' => 'stripey/state/edit'),
+            'stripey/settings/states/(?P<id>\d+)'                                 => array('action' => 'stripey/state/edit'),
+
+            'stripey/settings/taxzones'                                           => array('action' => 'stripey/taxZone/index'),
+            'stripey/settings/taxzones/new'                                       => array('action' => 'stripey/taxZone/edit'),
+            'stripey/settings/taxzones/(?P<id>\d+)'                               => array('action' => 'stripey/taxZone/edit'),
+
+            'stripey/settings/taxrates'                                           => array('action' => 'stripey/taxRate/index'),
+            'stripey/settings/taxrates/new'                                       => array('action' => 'stripey/taxRate/edit'),
+            'stripey/settings/taxrates/(?P<id>\d+)'                               => array('action' => 'stripey/taxRate/edit'),
 
             'stripey/products'                                                    => array('action' => 'stripey/product/productIndex'),
             'stripey/products/(?P<productTypeHandle>{handle})/new'                => array('action' => 'stripey/product/editProduct'),
