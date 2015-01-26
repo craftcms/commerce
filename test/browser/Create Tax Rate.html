@@ -42,9 +42,29 @@
 	<td></td>
 </tr>
 <tr>
+	<td>sendKeys</td>
+	<td>//div[@id='taxZoneId-field']//input</td>
+	<td>${KEY_BACKSPACE}Test${KEY_ENTER}</td>
+</tr>
+<tr>
+	<td>sendKeys</td>
+	<td>//div[@id='taxCategoryId-field']//input</td>
+	<td>${KEY_BACKSPACE}Clot${KEY_ENTER}</td>
+</tr>
+<tr>
 	<td>clickAndWait</td>
 	<td>css=input.btn.submit</td>
 	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>//table[@id='taxRates']/tbody/tr[th/a = 'test tax rate']/td[5]</td>
+	<td>Clothes</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>//table[@id='taxRates']/tbody/tr[th/a = 'test tax rate']/td[4]</td>
+	<td>Test Tax Zone</td>
 </tr>
 </tbody></table>
 </body>
