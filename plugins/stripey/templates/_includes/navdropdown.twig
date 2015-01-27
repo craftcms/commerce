@@ -34,17 +34,20 @@ $(function(){
     var menubtn = $('#stripey-nav .btn'),
         position = menubtn.offset();
 
-    $('.stripey-navcontent').css({top: Math.round(position.top + menubtn.outerHeight()) + 'px', left: Math.round(position.left) + 'px'}).appendTo('body');
+    $('.stripey-navcontent').css({
+        top: Math.round(position.top + menubtn.outerHeight()) + 'px',
+        left: Math.round(position.left) + 'px'}).appendTo('body');
 
-    menubtn.click(function(){
+    menubtn.click(function(e){
+        e.stopPropagation();
         $('.stripey-navcontent').toggle();
     });
 
     $('html').click(function() {
-        $('#stripey-nav .stripey-navcontent').hide();
+        $('.stripey-navcontent').hide();
     });
 
-    $('#stripey-nav').click(function(e){
+    $('.stripey-navcontent').click(function(e){
         e.stopPropagation();
     });
 });
