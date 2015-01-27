@@ -1,0 +1,44 @@
+{% extends "_layouts/cp" %}
+
+{% set title = "Payment Methods" %}
+
+{% set crumbs = [
+    { label: "Cellar"|t, url: url('cellar') },
+    { label: "Settings"|t, url: url('cellar/settings') }
+] %}
+
+{% set content %}
+
+	<table class="data">
+		<thead>
+			<tr>
+				<th>{{"Gateway"|t}}</th>
+				<th>{{"Class"|t}}</th>
+				<th>{{"Status"|t}}</th>
+			</tr>
+		</thead>
+
+		<tbody>
+
+			{% for paymentMethod in paymentMethods %}
+				<tr>
+					<td><a href="{{url('cellar/settings/payment/'~paymentMethod.class)}}">{{paymentMethod.name}}</a></td>
+					<td>{{paymentMethod.class}}</td>
+					<td>
+
+						{% if paymentMethod.enabled %}
+							<div class="status on"></div>
+							{{"Enabled"|t}}
+						{% else %}
+							<div class="status off"></div>
+							{{"Disabled"|t}}
+						{% endif %}
+
+					</td>
+				</tr>
+			{% endfor %}
+
+		</tbody>
+	</table>
+
+{% endset %}
