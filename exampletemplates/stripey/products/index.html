@@ -1,24 +1,35 @@
+{% extends "stripey/_layouts/commerce" %}
+{% block title %}Main{% endblock %}
+{% block head %}
+{{ parent() }}
+{% endblock %}
+{% block content %}
+<h2>Products</h2>
+
 {% set products = craft.stripey.products.find() %}
 {% for product in products %}
 <div style="border:1px #000080 solid;padding:10px;">
-<h2>{{product.title}}</h2>
-<ul>
-    <li>Title: {{product.title}}</li>
-    <li>Available On: {{product.availableOn}}</li>
-    <li>Expires On: {{product.expiresOn}}</li>
-    <li>Option Types: {{product.expiresOn}}</li>
+    <h2>{{product.title}}</h2>
     <ul>
-        {% for optionType in product.optionTypes %}
-        <li>{{optionType.name}}</li>
-        <li>Option Values</li>
+        <li>Title: {{product.title}}</li>
+        <li>Available On: {{product.availableOn}}</li>
+        <li>Expires On: {{product.expiresOn}}</li>
+        <li>Option Types:</li>
         <ul>
-            {% for optionValue in optionType.optionValues %}
-            <li>{{optionValue.name}}</li>
+            {% for optionType in product.optionTypes %}
+            <li>{{optionType.name}}</li>
+            <li>Option Values</li>
+            <ul>
+                {% for optionValue in optionType.optionValues %}
+                <li>{{optionValue.name}}</li>
+                {% endfor %}
+            </ul>
             {% endfor %}
-        </ul>
-        {% endfor %}
 
+        </ul>
     </ul>
-</ul>
 </div>
 {% endfor %}
+
+
+{% endblock %}

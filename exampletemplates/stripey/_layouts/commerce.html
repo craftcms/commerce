@@ -1,0 +1,27 @@
+<!doctype html>
+<html class="no-js" lang="">
+<head>
+    {% block head %}
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>{% block title %}Commerce{% endblock %}</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% endblock %}
+</head>
+<body>
+<!--[if lt IE 8]>
+<p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+<![endif]-->
+<h1>Commerce Plugin</h1>
+<ul>
+    <li><a href="{{url('stripey/products')}}">Products</a></li>
+    <li><a href="{{url('stripey/cart')}}">Cart</a></li>
+    <li><a href="{{url('stripey/charge')}}">Charge</a></li>
+
+</ul>
+{% block content %}
+{% endblock %}
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+</body>
+</html>
