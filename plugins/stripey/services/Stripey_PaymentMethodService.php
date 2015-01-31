@@ -10,16 +10,15 @@ class Stripey_PaymentMethodService extends BaseApplicationComponent
     const CP_ENABLED = 'cpEnabled';
     const FRONTEND_ENABLED = 'frontendEnabled';
 
-//    public function getTransactions()
-//    {
-//        $records = Cellar_TransactionRecord::model()->findAll();
-//
-//        if ($records) {
-//            return Cellar_TransactionModel::populateModels($records);
-//        }
-//
-//        return null;
-//    }
+    /**
+     * @param int $id
+     * @return Stripey_PaymentMethodModel
+     */
+    public function getById($id)
+    {
+        $record = Stripey_PaymentMethodRecord::model()->findById($id);
+        return Stripey_PaymentMethodModel::populateModel($record);
+    }
 
     /**
      * @param string $class

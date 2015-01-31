@@ -1,12 +1,12 @@
 <?php
 namespace Craft;
 
+use Omnipay\Common\AbstractGateway;
 use Omnipay\Common\GatewayFactory;
-use Omnipay\Common\GatewayInterface;
 
 class Stripey_GatewayService extends BaseApplicationComponent
 {
-    /** @var GatewayInterface[] */
+    /** @var AbstractGateway[] */
     private $gateways;
     /** @var GatewayFactory */
     private $factory;
@@ -29,7 +29,7 @@ class Stripey_GatewayService extends BaseApplicationComponent
 
     /**
      * @param string $shortName
-     * @return GatewayInterface
+     * @return AbstractGateway
      */
     public function getGateway($shortName)
     {
@@ -37,7 +37,7 @@ class Stripey_GatewayService extends BaseApplicationComponent
     }
 
     /**
-     * @return GatewayInterface[]
+     * @return AbstractGateway[]
      */
     public function getGateways()
     {
