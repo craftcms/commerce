@@ -81,6 +81,9 @@ class StripeyPlugin extends BasePlugin
             'stripey/settings/taxrates/new'                                       => array('action' => 'stripey/taxRate/edit'),
             'stripey/settings/taxrates/(?P<id>\d+)'                               => array('action' => 'stripey/taxRate/edit'),
 
+            'stripey/settings/paymentmethods'                                     => array('action' => 'stripey/paymentMethod/index'),
+            'stripey/settings/paymentmethods/(?P<class>\w+)'                      => array('action' => 'stripey/paymentMethod/edit'),
+
             'stripey/products'                                                    => array('action' => 'stripey/product/productIndex'),
             'stripey/products/(?P<productTypeHandle>{handle})/new'                => array('action' => 'stripey/product/editProduct'),
             'stripey/products/(?P<productTypeHandle>{handle})/(?P<productId>\d+)' => array('action' => 'stripey/product/editProduct'),
@@ -88,8 +91,6 @@ class StripeyPlugin extends BasePlugin
             'stripey/plans'                                                       => array('action' => 'stripey/plans/index'),
             'stripey/charges'                                                     => 'stripey/charges/index',
             'stripey/charges/(?P<chargeId>\d+)'                                   => array('action' => 'stripey/charge/editCharge'),
-
-
         );
     }
 
