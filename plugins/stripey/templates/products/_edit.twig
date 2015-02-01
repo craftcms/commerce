@@ -126,6 +126,16 @@ required: false
                             <input type="number" name="masterVariant[weight]" value="{{ masterVariant.weight }}">
                         </td>
                     </tr>
+                    {% if masterVariant.hasErrors() %}
+                        <tr>
+                            <td><span class="error">{{ masterVariant.getErrors('sku')|join }}</span> </td>
+                            <td><span class="error">{{ masterVariant.getErrors('price')|join }}</span> </td>
+                            <td><span class="error">{{ masterVariant.getErrors('width')|join }}</span> </td>
+                            <td><span class="error">{{ masterVariant.getErrors('height')|join }}</span> </td>
+                            <td><span class="error">{{ masterVariant.getErrors('length')|join }}</span> </td>
+                            <td><span class="error">{{ masterVariant.getErrors('weight')|join }}</span> </td>
+                        </tr>
+                    {% endif %}
                     </tbody>
                 </table>
                 {% endset %}
@@ -168,22 +178,23 @@ required: false
                 }, optionTypeFields) }}
 
 
-                <table class="data fullwidth">
+                <table class="data fullwidth" id="variants">
                     <thead>
                     <tr>
-                        <th scope="col">Variants</th>
-                        <td class="thin text-right">
-                            <a class="btn small formsubmit" data-param="redirectToVariant" data-value="1">{{ 'Save & Add variant'|t }}</a>
-                        </td>
+                        <th scope="col" colspan="2">
+                            Variants
+                            <a class="btn small formsubmit right" data-param="redirectToVariant" data-value="1">{{ 'Save & Add variant'|t }}</a>
+                        </th>
                     </tr>
                     </thead>
                     <tbody>
+                    <tr style="display: none"></tr> {#hack for Craft.adminTable to not to hide this table #}
                     {% for variant in product.variants %}
-                    <tr>
+                    <tr data-id="{{variant.id}}" data-name="{{ variant.sku }}">
                         <td title="">
                             <a class="formsubmit" data-redirect="{{ variant.cpEditUrl }}">{{ variant.sku }}</a>
                         </td>
-                        <td></td>
+                        <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
                     </tr>
                     {% endfor %}
                 </table>
@@ -239,13 +250,19 @@ required: false
 
 </form>
 
-    {% set js %}
-        $(function() {
-            $('select').selectize({
-            }
-    );
-        });
-    {% endset %}
-    {% includeJs js %}
+{% set js %}
+    $(function() {
+        $('select').selectize({});
+    });
+
+    var adminTable = new Craft.AdminTable({
+        tableSelector: '#variants',
+        minObjects: 0,
+        deleteAction: 'stripey/variant/delete',
+        confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
+    });
+
+{% endset %}
+{% includeJs js %}
 
 {% endblock %}

@@ -75,20 +75,26 @@ class Stripey_ProductController extends Stripey_BaseController
 
         $productCreator = new Creator;
 
+        $transaction = craft()->db->beginTransaction();
+
         if ($productCreator->save($product)) {
             $masterVariant->productId = $product->id;
 
             if (craft()->stripey_variant->save($masterVariant)) {
                 craft()->stripey_product->setOptionTypes($product->id, $optionTypes);
+                $transaction->commit();
+
                 craft()->userSession->setNotice(Craft::t('Product saved.'));
 
-                if(craft()->request->getPost('redirectToVariant')) {
+                if (craft()->request->getPost('redirectToVariant')) {
                     $this->redirect($product->getCpEditUrl() . '/variants/new');
                 } else {
                     $this->redirectToPostedUrl($product);
                 }
             }
         }
+
+        $transaction->rollback();
 
         craft()->userSession->setNotice(Craft::t("Couldn't save product."));
         craft()->urlManager->setRouteVariables(array(

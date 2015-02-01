@@ -43,7 +43,7 @@ class Stripey_OptionTypeModel extends BaseModel
     {
         $values = $this->getOptionValues();
 
-        $result = array();
+        $result = array('' => '');
         foreach($values as $value) {
             $result[$value->id] = $value->displayName;
         }

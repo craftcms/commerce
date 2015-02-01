@@ -63,8 +63,15 @@ class Stripey_VariantController extends Stripey_BaseController
             $variant->$param = craft()->request->getPost($param);
         }
 
+        $optionValues = craft()->request->getPost('optionValues');
+
         // Save it
         if (craft()->stripey_variant->save($variant)) {
+            $optionValuesFiltered = array_filter($optionValues);
+            if($optionValuesFiltered) {
+                craft()->stripey_variant->setOptionValues($variant->id, $optionValuesFiltered);
+            }
+
             craft()->userSession->setNotice(Craft::t('Variant saved.'));
             $this->redirectToPostedUrl($variant);
         } else {
@@ -73,7 +80,8 @@ class Stripey_VariantController extends Stripey_BaseController
 
         // Send the model back to the template
         craft()->urlManager->setRouteVariables(array(
-            'variant' => $variant
+            'variant' => $variant,
+            'optionValues' => $optionValues,
         ));
     }
 
@@ -87,7 +95,7 @@ class Stripey_VariantController extends Stripey_BaseController
 
         $id = craft()->request->getRequiredPost('id');
 
-        craft()->stripey_state->deleteById($id);
+        craft()->stripey_variant->deleteById($id);
         $this->returnJson(array('success' => true));
     }
 

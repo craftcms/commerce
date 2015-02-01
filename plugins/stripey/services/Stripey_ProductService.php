@@ -27,7 +27,6 @@ class Stripey_ProductService extends BaseApplicationComponent
         }else{
             return false;
         }
-
     }
 
     public function getOptionTypesForProduct($productId)

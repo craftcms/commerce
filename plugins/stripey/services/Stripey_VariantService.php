@@ -5,30 +5,45 @@ namespace Craft;
 
 class Stripey_VariantService extends BaseApplicationComponent
 {
+    /**
+     * @param int $id
+     * @return Stripey_VariantModel
+     */
     public function getById($id)
     {
-
         $product = Stripey_VariantRecord::model()->findById($id);
-
         return Stripey_VariantModel::populateModel($product);
-
     }
 
-    public function deleteVariant($variant)
+    /**
+     * @param int $id
+     */
+    public function deleteById($id)
+    {
+        $this->unsetOptionValues($id);
+        Stripey_VariantRecord::model()->deleteByPk($id);
+    }
+
+    /**
+     * @param $variant
+     */
+    public function disableVariant($variant)
     {
         $variant = Stripey_ProductRecord::model()->findById($variant->id);
         $variant->deletedAt = DateTimeHelper::currentTimeForDb();
-        return $variant->save();
+        $variant->saveAttributes(array('deletedAt'));
     }
 
-    public function deleteAllVariants($variants)
+    /**
+     * @param int $productId
+     */
+    public function disableAllByProductId($productId)
     {
-        foreach ($variants as$variant){
-            $this->deleteVariant($variant);
+        $variants = $this->getAllByProductId($productId);
+        foreach ($variants as $variant){
+            $this->disableVariant($variant);
         }
-        return true;
     }
-
 
     /**
      * @param int $id
@@ -44,14 +59,6 @@ class Stripey_VariantService extends BaseApplicationComponent
 
         $variants = Stripey_VariantRecord::model()->findAllByAttributes($conditions);
         return Stripey_VariantModel::populateModels($variants);
-    }
-
-    public function getMasterVariantByProductId($id)
-    {
-        $conditions = array('productId' => $id, 'isMaster' => true);
-        $variant    = Stripey_VariantRecord::model()->master()->findByAttributes($conditions);
-
-        return Stripey_VariantModel::populateModel($variant);
     }
 
     /**
@@ -97,5 +104,42 @@ class Stripey_VariantService extends BaseApplicationComponent
         } else {
             return false;
         }
+    }
+
+    /**
+     * Set option values to a variant
+     *
+     * @param int $variantId
+     * @param int[] $optionValueIds
+     * @return bool
+     */
+    public function setOptionValues($variantId, $optionValueIds)
+    {
+        $this->unsetOptionValues($variantId);
+
+        if ($optionValueIds) {
+            if (!is_array($optionValueIds)) {
+                $optionValueIds = array($optionValueIds);
+            }
+
+            $values = array();
+            foreach ($optionValueIds as $optionValueId) {
+                $values[] = array($optionValueId, $variantId);
+            }
+
+            craft()->db->createCommand()->insertAll('stripey_variant_optionvalues', array('optionValueId', 'variantId'), $values);
+        }
+
+        return true;
+    }
+
+    /**
+     * Delete all variant-optionValue relations by variant id
+     *
+     * @param int $variantId
+     */
+    public function unsetOptionValues($variantId)
+    {
+        Stripey_VariantOptionValueRecord::model()->deleteAllByAttributes(array('variantId' => $variantId));
     }
 }

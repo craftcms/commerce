@@ -35,7 +35,7 @@ class Stripey_VariantRecord extends BaseRecord
     public function defineRelations()
     {
         return array(
-            'product'  => array(self::BELONGS_TO, 'Stripey_ProductRecord', 'required' => true, 'onDelete' => self::RESTRICT, 'onUpdate' => self::CASCADE),
+            'product'  => array(self::BELONGS_TO, 'Stripey_ProductRecord', 'onDelete' => self::SET_NULL, 'onUpdate' => self::CASCADE),
         );
     }
 

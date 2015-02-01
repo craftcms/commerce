@@ -72,9 +72,10 @@
     {% for optionType in product.optionTypes %}
         {{ forms.selectField({
             label: optionType.name,
-            name: 'optionTypes[' ~ optionType.id ~ ']',
+            name: 'optionValues[' ~ optionType.id ~ ']',
+            value: optionValues[optionType.id] is defined ? optionValues[optionType.id] : variant.getOptionValue(optionType.id).id,
             required: false,
-            options: {'' : ''}|merge(optionType.selectValues),
+            options: optionType.selectValues,
         }) }}
     {% endfor %}
 
