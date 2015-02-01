@@ -91,7 +91,8 @@ class StripeyPlugin extends BasePlugin
             'stripey/charges'                                                                          => 'stripey/charges/index',
             'stripey/charges/(?P<chargeId>\d+)'                                                        => array('action' => 'stripey/charge/editCharge'),
 
-
+            'stripey/settings/paymentmethods'                                                          => array('action' => 'stripey/paymentMethod/index'),
+            'stripey/settings/paymentmethods/(?P<class>\w+)'                                           => array('action' => 'stripey/paymentMethod/edit'),
         );
     }
 

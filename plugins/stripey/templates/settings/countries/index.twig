@@ -3,14 +3,12 @@
 {% set title = "Stripey"|t %}
 
 {% set crumbs = [
-{ label: "Stripey"|t, url: url('stripey') },
-{ label: "Settings"|t, url: url('stripey/settings') },
-{ label: "Countries"|t, url: url('stripey/settings/countries') }
+    { label: "Stripey"|t, url: url('stripey') },
+    { label: "Settings"|t, url: url('stripey/settings') },
+    { label: "Countries"|t, url: url('stripey/settings/countries') }
 ] %}
 
 {% set content %}
-
-
     <table id="countries" class="data fullwidth collapsible">
         <thead>
         <tr><th scope="col">Name</th>
@@ -32,9 +30,8 @@
     </table>
     <br/>
     <div class="btngroup submit first">
-    <a href="{{url('stripey/settings/countries/new')}}" class="btn submit" >New Country</a>
+        <a href="{{url('stripey/settings/countries/new')}}" class="btn submit" >New Country</a>
     </div>
-</form>
 {% endset %}
 
 
