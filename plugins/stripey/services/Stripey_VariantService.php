@@ -5,7 +5,7 @@ namespace Craft;
 
 class Stripey_VariantService extends BaseApplicationComponent
 {
-    public function getVariantById($id)
+    public function getById($id)
     {
 
         $product = Stripey_VariantRecord::model()->findById($id);
@@ -30,11 +30,19 @@ class Stripey_VariantService extends BaseApplicationComponent
     }
 
 
-
-    public function getVariantsByProductId($id)
+    /**
+     * @param int $id
+     * @param bool $isMaster null / true / false. All by default
+     * @return Stripey_VariantModel[]
+     */
+    public function getAllByProductId($id, $isMaster = null)
     {
         $conditions = array('productId' => $id);
-        $variants    = Stripey_VariantRecord::model()->findAllByAttributes($conditions);
+        if(!is_null($isMaster)) {
+            $conditions['isMaster'] = $isMaster;
+        }
+
+        $variants = Stripey_VariantRecord::model()->findAllByAttributes($conditions);
         return Stripey_VariantModel::populateModels($variants);
     }
 
@@ -46,56 +54,48 @@ class Stripey_VariantService extends BaseApplicationComponent
         return Stripey_VariantModel::populateModel($variant);
     }
 
-    public function saveVariant(Stripey_VariantModel $variant)
+    /**
+     * Save a model into DB
+     *
+     * @param Stripey_VariantModel $model
+     * @return bool
+     * @throws \CDbException
+     * @throws \Exception
+     */
+    public function save(Stripey_VariantModel $model)
     {
+        if($model->id) {
+            $record = Stripey_VariantRecord::model()->findById($model->id);
 
-        $variantRecord = Stripey_VariantRecord::model()->findByAttributes(array('productId' => $variant->productId));
-
-        if (!$variantRecord) {
-            $variantRecord = new Stripey_VariantRecord();
+            if(!$record) {
+                throw new HttpException(404);
+            }
+        } else {
+            $record = new Stripey_VariantRecord();
         }
 
-        $variantRecord->isMaster  = $variant->isMaster;
-        $variantRecord->productId = $variant->productId;
-        $variantRecord->sku       = $variant->sku;
-        $variantRecord->price     = $variant->price;
-        $variantRecord->width     = $variant->width;
-        $variantRecord->height    = $variant->height;
-        $variantRecord->length    = $variant->length;
-        $variantRecord->weight    = $variant->weight;
+        $record->isMaster  = $model->isMaster;
+        $record->productId = $model->productId;
+        $record->sku       = $model->sku;
+        $record->price     = $model->price;
+        $record->width     = $model->width;
+        $record->height    = $model->height;
+        $record->length    = $model->length;
+        $record->weight    = $model->weight;
 
-        $variantRecord->validate();
-        $variant->addErrors($variantRecord->getErrors());
+        $record->validate();
+        $model->addErrors($record->getErrors());
 
-        if (!$variant->hasErrors()) {
-            $transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
-            try {
-                // Save it!
-                $variantRecord->save(false);
+        if (!$model->hasErrors()) {
+            // Save it!
+            $record->save(false);
 
-                // Now that we have a  ID, save it on the model
-                if (!$variant->id) {
-                    $variant->id = $variantRecord->id;
-                }
-
-                if ($transaction !== null) {
-                    $transaction->commit();
-                }
-            } catch (\Exception $e) {
-                if ($transaction !== null) {
-                    $transaction->rollback();
-                }
-
-                throw $e;
-            }
+            // Now that we have a ID, save it on the model
+            $model->id = $record->id;
 
             return true;
         } else {
             return false;
         }
-
-
     }
-
-
 }

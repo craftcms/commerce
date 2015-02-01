@@ -1,14 +1,8 @@
 {% extends "stripey/_layouts/cp" %}
 {% set crumbs = [
-{ label: "Stripey"|t, url: url('stripey') },
-{ label: "Products"|t, url: url('stripey/products') }
+    { label: "Stripey"|t, url: url('stripey') },
+    { label: "Products"|t, url: url('stripey/products') }
 ] %}
-
-{% set extraPageHeaderHtml %}
-
-
-{% endset %}
-
 
 {% import "_includes/forms" as forms %}
 
@@ -112,24 +106,24 @@ required: false
                     </tr>
                     </thead>
                     <tbody>
-                    <tr data-id="0">
-                        <td class="textual " width="">
-                            <textarea type="number" name="masterVariant[sku]" rows="1">{{ masterVariant.sku }}</textarea>
+                    <tr>
+                        <td class="textual">
+                            <input name="masterVariant[sku]" value="{{ masterVariant.sku }}">
                         </td>
-                        <td class="textual " width="">
-                            <textarea type="number" step="0.01" name="masterVariant[price]" rows="1">{{ masterVariant.price }}</textarea>
+                        <td class="textual">
+                            <input type="number" step="0.01" name="masterVariant[price]" value="{{ masterVariant.price }}">
                         </td>
-                        <td class="textual " width="">
-                            <textarea name="masterVariant[width]" rows="1">{{ masterVariant.width }}</textarea>
+                        <td class="textual">
+                            <input type="number" name="masterVariant[width]" value="{{ masterVariant.width }}">
                         </td>
-                        <td class="textual " width="">
-                            <textarea name="masterVariant[height]" rows="1">{{ masterVariant.height }}</textarea>
+                        <td class="textual">
+                            <input type="number" name="masterVariant[height]" value="{{ masterVariant.height }}">
                         </td>
-                        <td class="textual " width="">
-                            <textarea name="masterVariant[length]" rows="1">{{ masterVariant.length }}</textarea>
+                        <td class="textual">
+                            <input type="number" name="masterVariant[length]" value="{{ masterVariant.length }}">
                         </td>
-                        <td class="textual " width="">
-                            <textarea name="masterVariant[weight]" rows="1">{{ masterVariant.weight }}</textarea>
+                        <td class="textual">
+                            <input type="number" name="masterVariant[weight]" value="{{ masterVariant.weight }}">
                         </td>
                     </tr>
                     </tbody>
@@ -140,7 +134,6 @@ required: false
                     id:       'masterVariant',
                     label:    'Master Variant'
                 }, masterVariant) }}
-
 
                 {% for tab in productType.getFieldLayout().getTabs() %}
                 <div id="tab{{ loop.index }}" {% if not loop.first %} class="hidden" {% endif %}>
@@ -158,6 +151,7 @@ required: false
         </div>
         <div class="item" data-position="right" data-colspan="1">
 
+            {% if productId is defined %}
             <div class="pane">
 
                 {% set optionTypeFields %}
@@ -178,19 +172,25 @@ required: false
                     <thead>
                     <tr>
                         <th scope="col">Variants</th>
-                        <td class="thin"></td>
+                        <td class="thin text-right">
+                            <a class="btn small formsubmit" data-param="redirectToVariant" data-value="1">{{ 'Save & Add variant'|t }}</a>
+                        </td>
                     </tr>
                     </thead>
                     <tbody>
                     {% for variant in product.variants %}
-                    <tr><td title="">{{ variant.id }}</td><td><a href="{{ variant.cpEditUrl }}" class="btn small right">Edit</a></td></tr>
+                    <tr>
+                        <td title="">
+                            <a class="formsubmit" data-redirect="{{ variant.cpEditUrl }}">{{ variant.sku }}</a>
+                        </td>
+                        <td></td>
+                    </tr>
                     {% endfor %}
                 </table>
-            </div>{#END PANE#}
+            </div>
+            {% endif %}
 
             <div class="pane">
-
-
                 {{ dateTimeField(product, 'availableOn', "Available On"|t) }}
                 {{ dateTimeField(product, 'expiresOn', "Expires On"|t) }}
 
@@ -205,7 +205,7 @@ required: false
                 }) }}
                 </div>
                 <div class="right">
-                {% if not brandNewProduct %}
+                {% if productId is defined %}
                     <div class="btngroup">
                         <input type="button" class="btn small formsubmit" value="{{ 'Delete'|t }}"
                                data-action="stripey/product/deleteProduct"
@@ -225,11 +225,9 @@ required: false
             </div>{#END PANE#}
 
 
-            <div class="buttons">
-                <div class="btngroup submit first">
-                    <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
-                </div>
-
+            <div class="buttons first">
+                <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
+                <a class="btn submit formsubmit" data-param="redirectToVariant" data-value="1">{{ 'Save & Add variant'|t }}</a>
             </div>
 
 

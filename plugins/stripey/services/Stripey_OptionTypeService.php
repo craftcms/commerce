@@ -28,27 +28,6 @@ class Stripey_OptionTypeService extends BaseApplicationComponent
         return Stripey_OptionTypeModel::populateModel($optionTypeRecord);
     }
 
-    public function assignProductToOptionTypes($productId, $optionTypeIds)
-    {
-        craft()->db->createCommand()
-            ->delete('stripey_product_optiontypes', array('productId' => $productId));
-
-        if ($optionTypeIds) {
-            if (!is_array($optionTypeIds)) {
-                $optionTypeIds = array($optionTypeIds);
-            }
-
-            foreach ($optionTypeIds as $optionTypeId) {
-                $values[] = array($optionTypeId, $productId);
-            }
-
-            craft()->db->createCommand()->insertAll('stripey_product_optiontypes', array('optionTypeId', 'productId'), $values);
-        }
-
-        return true;
-
-    }
-
     public function saveOptionType(Stripey_OptionTypeModel $optionType)
     {
         if ($optionType->id) {

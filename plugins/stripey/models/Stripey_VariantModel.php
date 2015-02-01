@@ -2,7 +2,21 @@
 
 namespace Craft;
 
-
+/**
+ * Class Stripey_VariantModel
+ * @property int id
+ * @property int productId
+ * @property bool isMaster
+ * @property string sku
+ * @property float price
+ * @property float width
+ * @property float height
+ * @property float length
+ * @property float weight
+ * @property float stock
+ * @property DateTime deletedAt
+ * @package Craft
+ */
 class Stripey_VariantModel extends BaseModel
 {
 
@@ -26,7 +40,7 @@ class Stripey_VariantModel extends BaseModel
 
     public function getProduct()
     {
-        return craft()->stripey_product->getProductById($this->productId);
+        return craft()->stripey_product->getById($this->productId);
     }
 
     protected function defineAttributes()

@@ -5,15 +5,17 @@ namespace Craft;
 
 class Stripey_OptionValueService extends BaseApplicationComponent
 {
-    public function getAllOptionValuesByOptionTypeId($id)
+    /**
+     * @param int $id
+     * @return Stripey_OptionValueModel[]
+     */
+    public function getAllByOptionTypeId($id)
     {
-        $find               = array('optionTypeId' => $id);
-        $optionValueRecords = Stripey_OptionValueRecord::model()->findAllByAttributes($find);
-
+        $optionValueRecords = Stripey_OptionValueRecord::model()->findAllByAttributes(array('optionTypeId' => $id));
         return Stripey_OptionValueModel::populateModels($optionValueRecords);
     }
 
-    public function getOptionValueById($id)
+    public function getById($id)
     {
         $optionValueRecord = Stripey_OptionValueRecord::model()->findById($id);
 

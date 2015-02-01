@@ -2,6 +2,15 @@
 
 namespace Craft;
 
+/**
+ * Class Stripey_OptionValueModel
+ * @property int id
+ * @property string name
+ * @property string displayName
+ * @property int position
+ * @property int optionTypeId
+ * @package Craft
+ */
 class Stripey_OptionValueModel extends BaseModel
 {
     protected $modelRecord = 'Stripey_OptionValueRecord';
