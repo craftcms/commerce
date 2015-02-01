@@ -13,8 +13,6 @@ namespace Craft;
  */
 class Stripey_ProductTypeModel extends BaseModel
 {
-    protected $modelRecord = 'Stripey_ProductTypeRecord';
-
     function __toString()
     {
         return Craft::t($this->handle);

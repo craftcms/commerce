@@ -2,23 +2,29 @@
 
 namespace Craft;
 
-
+/**
+ * Class Stripey_ProductService
+ * @package Craft
+ */
 class Stripey_ProductService extends BaseApplicationComponent
 {
     /**
-     * @param $id
+     * @param int $id
      * @return Stripey_ProductModel
      */
     public function getById($id)
     {
-
         $product = Stripey_ProductRecord::model()->findById($id);
-
         return Stripey_ProductModel::populateModel($product);
 
     }
 
-    public function deleteProduct($product)
+    /**
+     * @param Stripey_ProductModel $product
+     * @return bool
+     * @throws \CDbException
+     */
+    public function delete($product)
     {
         $product = Stripey_ProductRecord::model()->findById($product->id);
         if ($product->delete()){
@@ -29,7 +35,11 @@ class Stripey_ProductService extends BaseApplicationComponent
         }
     }
 
-    public function getOptionTypesForProduct($productId)
+    /**
+     * @param int $productId
+     * @return Stripey_OptionTypeModel[]
+     */
+    public function getOptionTypes($productId)
     {
         $product = Stripey_ProductRecord::model()->with('optionTypes')->findById($productId);
         return Stripey_OptionTypeModel::populateModels($product->optionTypes);
@@ -69,7 +79,5 @@ class Stripey_ProductService extends BaseApplicationComponent
 
             craft()->db->createCommand()->insertAll('stripey_product_optiontypes', array('optionTypeId', 'productId'), $values);
         }
-
-        return true;
     }
 }

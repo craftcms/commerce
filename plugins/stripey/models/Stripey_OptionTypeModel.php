@@ -11,8 +11,6 @@ namespace Craft;
  */
 class Stripey_OptionTypeModel extends BaseModel
 {
-    protected $modelRecord = 'Stripey_OptionTypeRecord';
-
     function __toString()
     {
         return Craft::t($this->handle);

@@ -2,46 +2,59 @@
 
 namespace Craft;
 
-
+/**
+ * Class Stripey_ProductTypeService
+ * @package Craft
+ */
 class Stripey_ProductTypeService extends BaseApplicationComponent
 {
-    public function getAllProductTypes()
+    /**
+     * @return Stripey_ProductTypeModel[]
+     */
+    public function getAll()
     {
         $productTypeRecords = Stripey_ProductTypeRecord::model()->findAll();
         return Stripey_ProductTypeModel::populateModels($productTypeRecords);
     }
 
-    public function getProductTypeById($id)
+    /**
+     * @param int $id
+     * @return Stripey_ProductTypeModel
+     */
+    public function getById($id)
     {
         $productTypeRecord = Stripey_ProductTypeRecord::model()->findById($id);
         return Stripey_ProductTypeModel::populateModel($productTypeRecord);
     }
 
-    public function getProductTypeByHandle($handle)
+    /**
+     * @param string $handle
+     * @return Stripey_ProductTypeModel
+     */
+    public function getByHandle($handle)
     {
-        $productTypeRecord = Stripey_ProductTypeRecord::model()->findByAttributes(array(
-            'handle' => $handle
-        ));
+        $productTypeRecord = Stripey_ProductTypeRecord::model()->findByAttributes(array('handle' => $handle));
         return Stripey_ProductTypeModel::populateModel($productTypeRecord);
     }
 
-
-    public function saveProductType(Stripey_ProductTypeModel $productType)
+    /**
+     * @param Stripey_ProductTypeModel $productType
+     * @return bool
+     * @throws Exception
+     * @throws \CDbException
+     * @throws \Exception
+     */
+    public function save(Stripey_ProductTypeModel $productType)
     {
-        if ($productType->id)
-        {
+        if ($productType->id) {
             $productTypeRecord = Stripey_ProductTypeRecord::model()->findById($productType->id);
-
-            if (!$productTypeRecord)
-            {
+            if (!$productTypeRecord) {
                 throw new Exception(Craft::t('No product type exists with the ID “{id}”', array('id' => $productType->id)));
             }
 
             $oldProductType = Stripey_ProductTypeModel::populateModel($productTypeRecord);
             $isNewProductType = false;
-        }
-        else
-        {
+        } else {
             $productTypeRecord = new Stripey_ProductTypeRecord();
             $isNewProductType = true;
         }
@@ -52,13 +65,10 @@ class Stripey_ProductTypeService extends BaseApplicationComponent
         $productTypeRecord->validate();
         $productType->addErrors($productTypeRecord->getErrors());
 
-        if (!$productType->hasErrors())
-        {
+        if (!$productType->hasErrors()) {
             $transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
-            try
-            {
-                if (!$isNewProductType && $oldProductType->fieldLayoutId)
-                {
+            try {
+                if (!$isNewProductType && $oldProductType->fieldLayoutId) {
                     // Drop the old field layout
                     craft()->fields->deleteLayoutById($oldProductType->fieldLayoutId);
                 }
@@ -75,20 +85,16 @@ class Stripey_ProductTypeService extends BaseApplicationComponent
                 $productTypeRecord->save(false);
 
                 // Now that we have a calendar ID, save it on the model
-                if (!$productType->id)
-                {
+                if (!$productType->id) {
                     $productType->id = $productTypeRecord->id;
                 }
 
-                if ($transaction !== null)
-                {
+                if ($transaction !== null) {
                     $transaction->commit();
                 }
             }
-            catch (\Exception $e)
-            {
-                if ($transaction !== null)
-                {
+            catch (\Exception $e) {
+                if ($transaction !== null) {
                     $transaction->rollback();
                 }
 
@@ -96,15 +102,16 @@ class Stripey_ProductTypeService extends BaseApplicationComponent
             }
 
             return true;
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
 
-    public function deleteProductTypeById($id)
-    {
+    /**
+     * @param int $id
+     * @throws \CDbException
+     */
+    public function deleteById($id) {
         $productType = Stripey_ProductTypeRecord::model()->findById($id);
         $productType->delete();
     }

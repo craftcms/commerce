@@ -17,7 +17,7 @@ class Stripey_ProductController extends Stripey_BaseController
      */
     public function actionProductIndex()
     {
-        $variables['productTypes'] = craft()->stripey_productType->getAllProductTypes();
+        $variables['productTypes'] = craft()->stripey_productType->getAll();
         $this->renderTemplate('stripey/products/_index', $variables);
     }
 
@@ -30,7 +30,7 @@ class Stripey_ProductController extends Stripey_BaseController
     public function actionEditProduct(array $variables = array())
     {
         if (!empty($variables['productTypeHandle'])) {
-            $variables['productType'] = craft()->stripey_productType->getProductTypeByHandle($variables['productTypeHandle']);
+            $variables['productType'] = craft()->stripey_productType->getByHandle($variables['productTypeHandle']);
         }
 
         if(empty($variables['productType'])) {
@@ -151,7 +151,7 @@ class Stripey_ProductController extends Stripey_BaseController
             throw new Exception(Craft::t('No product exists with the ID “{id}”.', array('id' => $productId)));
         }
 
-        if (craft()->stripey_product->deleteProduct($product)) {
+        if (craft()->stripey_product->delete($product)) {
             if (craft()->request->isAjaxRequest()) {
                 $this->returnJson(array('success' => true));
             } else {

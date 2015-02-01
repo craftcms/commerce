@@ -33,7 +33,7 @@ class Stripey_ProductElementType extends BaseElementType
             )
         );
 
-        foreach (craft()->stripey_productType->getAllProductTypes() as $productType) {
+        foreach (craft()->stripey_productType->getAll() as $productType) {
             $key = 'productType:' . $productType->id;
 
             $sources[$key] = array(

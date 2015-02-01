@@ -51,7 +51,7 @@ class Stripey_ProductModel extends BaseElementModel
 
     public function getProductType()
     {
-        return craft()->stripey_productType->getProductTypeById($this->typeId);
+        return craft()->stripey_productType->getById($this->typeId);
     }
 
     public function getType()
@@ -116,7 +116,7 @@ class Stripey_ProductModel extends BaseElementModel
     }
 
     public function getOptionTypes(){
-        return craft()->stripey_product->getOptionTypesForProduct($this->id);
+        return craft()->stripey_product->getOptionTypes($this->id);
     }
 
     public function getOptionTypesIds(){

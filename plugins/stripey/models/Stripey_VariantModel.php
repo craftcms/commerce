@@ -19,9 +19,6 @@ namespace Craft;
  */
 class Stripey_VariantModel extends BaseModel
 {
-
-    protected $modelRecord = 'Stripey_VariantRecord';
-
     public function isLocalized()
     {
         return false;

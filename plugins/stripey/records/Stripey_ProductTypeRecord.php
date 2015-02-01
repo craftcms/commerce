@@ -1,7 +1,16 @@
 <?php
 namespace Craft;
 
-
+/**
+ * Class Stripey_ProductTypeRecord
+ * @property int id
+ * @property string name
+ * @property string handle
+ * @property int fieldLayoutId
+ *
+ * @property FieldLayoutRecord fieldLayout
+ * @package Craft
+ */
 class Stripey_ProductTypeRecord extends BaseRecord
 {
 
