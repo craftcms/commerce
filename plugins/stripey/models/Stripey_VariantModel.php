@@ -20,8 +20,7 @@ class Stripey_VariantModel extends BaseModel
 
     public function getCpEditUrl()
     {
-        $productType = $this->getProductType();
-
+        $product = $this->getProduct();
         return UrlHelper::getCpUrl('stripey/products/' . $product->productType->handle .'/'.$product->id.'/variants/' . $this->id);
     }
 

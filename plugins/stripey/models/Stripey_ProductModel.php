@@ -67,11 +67,9 @@ class Stripey_ProductModel extends BaseElementModel
         return $status;
     }
 
-    private function getVariants()
+    public function getVariants()
     {
-        if ($this->_variants == null){
-            $this->_variants = craft()->stripey_variant->getVariantsByProductId($this->id);
-        }
+        $this->_variants = craft()->stripey_variant->getVariantsByProductId($this->id);
         return $this->_variants;
     }
 
@@ -108,7 +106,7 @@ class Stripey_ProductModel extends BaseElementModel
             'typeId'      => AttributeType::Number,
             'authorId'    => AttributeType::Number,
             'availableOn' => AttributeType::DateTime,
-            'expiresOn'   => AttributeType::DateTime,
+            'expiresOn'   => AttributeType::DateTime
         ));
     }
 

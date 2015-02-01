@@ -11,6 +11,13 @@ class Stripey_VariantRecord extends BaseRecord
         return 'stripey_variants';
     }
 
+    public function defaultScope()
+    {
+        return array(
+            'condition'=>"deletedAt=NULL",
+        );
+    }
+
 
     public function scopes()
     {
@@ -21,22 +28,12 @@ class Stripey_VariantRecord extends BaseRecord
         );
     }
 
-
     public function defineRelations()
     {
         return array(
             'product'  => array(static::BELONGS_TO, 'Stripey_ProductRecord'),
         );
     }
-
-//    public function defineIndexes()
-//    {
-//        return array(
-//            array('columns' => array('typeId')),
-//            array('columns' => array('availableOn')),
-//            array('columns' => array('expiresOn')),
-//        );
-//    }
 
     protected function defineAttributes()
     {
@@ -49,7 +46,7 @@ class Stripey_VariantRecord extends BaseRecord
             'length'    => array(AttributeType::Number, 'decimals' => 4),
             'weight'    => array(AttributeType::Number, 'decimals' => 4),
             'stock'     => array(AttributeType::Number),
-            'isDeleted' => array(AttributeType::Bool)
+            'deletedAt' => array(AttributeType::DateTime)
         );
     }
 

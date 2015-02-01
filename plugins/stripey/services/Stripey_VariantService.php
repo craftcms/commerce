@@ -17,21 +17,30 @@ class Stripey_VariantService extends BaseApplicationComponent
     public function deleteVariant($variant)
     {
         $variant = Stripey_ProductRecord::model()->findById($variant->id);
-
-        return $variant->delete();
+        $variant->deletedAt = DateTimeHelper::currentTimeForDb();
+        return $variant->save();
     }
+
+    public function deleteAllVariants($variants)
+    {
+        foreach ($variants as$variant){
+            $this->deleteVariant($variant);
+        }
+        return true;
+    }
+
+
 
     public function getVariantsByProductId($id)
     {
         $conditions = array('productId' => $id);
-        $variant    = Stripey_VariantRecord::model()->findByAttributes($conditions);
-
-        return Stripey_VariantModel::populateModel($variant);
+        $variants    = Stripey_VariantRecord::model()->findAllByAttributes($conditions);
+        return Stripey_VariantModel::populateModels($variants);
     }
 
     public function getMasterVariantByProductId($id)
     {
-        $conditions = array('productId' => $id);
+        $conditions = array('productId' => $id, 'isMaster' => true);
         $variant    = Stripey_VariantRecord::model()->master()->findByAttributes($conditions);
 
         return Stripey_VariantModel::populateModel($variant);
@@ -42,12 +51,12 @@ class Stripey_VariantService extends BaseApplicationComponent
 
         $variantRecord = Stripey_VariantRecord::model()->findByAttributes(array('productId' => $variant->productId));
 
-        if(!$variantRecord){
+        if (!$variantRecord) {
             $variantRecord = new Stripey_VariantRecord();
         }
 
         $variantRecord->isMaster  = $variant->isMaster;
-        $variantRecord->productId  = $variant->productId;
+        $variantRecord->productId = $variant->productId;
         $variantRecord->sku       = $variant->sku;
         $variantRecord->price     = $variant->price;
         $variantRecord->width     = $variant->width;

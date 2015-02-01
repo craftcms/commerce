@@ -13,6 +13,8 @@ class Stripey_ProductController extends Stripey_BaseController
     /** @var bool All product changes should be by a logged in user */
     protected $allowAnonymous = false;
 
+    public $_masterVariant;
+
     /**
      * Index of products
      */
@@ -35,19 +37,19 @@ class Stripey_ProductController extends Stripey_BaseController
         $productCreator = new \Stripey\Product\Creator;
 
         if ($productCreator->save($product)) {
-
-            $this->_saveOptionTypes($product);
-            $this->_saveMasterVariant($product);
-
-            craft()->userSession->setNotice(Craft::t('Product saved.'));
-            $this->redirectToPostedUrl($product);
-        } else {
-
-            craft()->userSession->setNotice(Craft::t("Couldn't save product."));
-            craft()->urlManager->setRouteVariables(array(
-                'product' => $product
-            ));
+            if ($this->_saveOptionTypes($product)){
+                if ($this->_saveMasterVariant($product)){
+                    craft()->userSession->setNotice(Craft::t('Product saved.'));
+                    $this->redirectToPostedUrl($product);
+                };
+            }
         }
+
+        craft()->userSession->setNotice(Craft::t("Couldn't save product."));
+        craft()->urlManager->setRouteVariables(array(
+            'product' => $product,
+            'masterVariant' => $this->_masterVariant
+        ));
     }
 
 
@@ -68,11 +70,13 @@ class Stripey_ProductController extends Stripey_BaseController
             $variables['productType'] = craft()->stripey_productType->getProductTypeById($variables['productTypeId']);
         }
 
+
         if (empty($variables['product'])) {
             if (!empty($variables['productId'])) {
                 $productId = $variables['productId'];
                 $variables['product'] = craft()->stripey_product->getProductById($productId);
-
+                $variables['masterVariant'] = $variables['product']->masterVariant;
+                $v = $variables['product']->variants;
                 if (!$variables['product']) {
                     throw new HttpException(404);
                 }
@@ -102,6 +106,8 @@ class Stripey_ProductController extends Stripey_BaseController
     private function prepVariables(&$variables)
     {
         $variables['tabs'] = array();
+
+        $variables['masterVariant'] = $variables['product']->masterVariant;
 
         foreach ($variables['productType']->getFieldLayout()->getTabs() as $index => $tab) {
             // Do any of the fields on this tab have errors?
@@ -155,6 +161,7 @@ class Stripey_ProductController extends Stripey_BaseController
 
                 craft()->urlManager->setRouteVariables(array(
                     'product' => $product
+
                 ));
             }
         }
@@ -165,12 +172,11 @@ class Stripey_ProductController extends Stripey_BaseController
      */
     private function _saveMasterVariant($product)
     {
-        // Now save master variant
-        $masterVariant            = craft()->request->getPost('masterVariant');
-        $masterVariant            = Stripey_VariantModel::populateModel($masterVariant);
-        $masterVariant->isMaster  = true;
-        $masterVariant->productId = $product->id;
-        craft()->stripey_variant->saveVariant($masterVariant);
+        $this->_masterVariant            = craft()->request->getPost('masterVariant');
+        $this->_masterVariant            = Stripey_VariantModel::populateModel($this->_masterVariant);
+        $this->_masterVariant->isMaster  = true;
+        $this->_masterVariant->productId = $product->id;
+        return craft()->stripey_variant->saveVariant($this->_masterVariant);
     }
 
     /**
@@ -180,7 +186,7 @@ class Stripey_ProductController extends Stripey_BaseController
     {
         // Now save option types
         $optionTypes = craft()->request->getPost('optionTypes');
-        craft()->stripey_optionType->assignProductToOptionTypes($product->id, $optionTypes);
+        return craft()->stripey_optionType->assignProductToOptionTypes($product->id, $optionTypes);
     }
 
     /**

@@ -48,46 +48,48 @@ class StripeyPlugin extends BasePlugin
     public function registerCpRoutes()
     {
         return array(
-            'stripey'                                                             => array('action' => 'stripey/dashboard/index'),
-            
-            'stripey/settings/global'                                             => array('action' => 'stripey/settings/edit'),
+            'stripey'                                                                                  => array('action' => 'stripey/dashboard/index'),
 
-            'stripey/settings/producttypes'                                       => array('action' => 'stripey/productType/index'),
-            'stripey/settings/producttypes/(?P<productTypeId>\d+)'                => array('action' => 'stripey/productType/editProductType'),
-            'stripey/settings/producttypes/new'                                   => array('action' => 'stripey/productType/editProductType'),
+            'stripey/settings/global'                                                                  => array('action' => 'stripey/settings/edit'),
+
+            'stripey/settings/producttypes'                                                            => array('action' => 'stripey/productType/index'),
+            'stripey/settings/producttypes/(?P<productTypeId>\d+)'                                     => array('action' => 'stripey/productType/editProductType'),
+            'stripey/settings/producttypes/new'                                                        => array('action' => 'stripey/productType/editProductType'),
 
 
-            'stripey/settings/optiontypes'                                        => array('action' => 'stripey/optionType/index'),
-            'stripey/settings/optiontypes/(?P<optionTypeId>\d+)'                  => array('action' => 'stripey/optionType/editOptionType'),
-            'stripey/settings/optiontypes/new'                                    => array('action' => 'stripey/optionType/editOptionType'),
+            'stripey/settings/optiontypes'                                                             => array('action' => 'stripey/optionType/index'),
+            'stripey/settings/optiontypes/(?P<optionTypeId>\d+)'                                       => array('action' => 'stripey/optionType/editOptionType'),
+            'stripey/settings/optiontypes/new'                                                         => array('action' => 'stripey/optionType/editOptionType'),
 
-            'stripey/settings/taxcategories'                                      => array('action' => 'stripey/taxCategory/index'),
-            'stripey/settings/taxcategories/new'                                  => array('action' => 'stripey/taxCategory/edit'),
-            'stripey/settings/taxcategories/(?P<id>\d+)'                          => array('action' => 'stripey/taxCategory/edit'),
+            'stripey/settings/taxcategories'                                                           => array('action' => 'stripey/taxCategory/index'),
+            'stripey/settings/taxcategories/new'                                                       => array('action' => 'stripey/taxCategory/edit'),
+            'stripey/settings/taxcategories/(?P<id>\d+)'                                               => array('action' => 'stripey/taxCategory/edit'),
 
-            'stripey/settings/countries'                                          => array('action' => 'stripey/country/index'),
-            'stripey/settings/countries/new'                                      => array('action' => 'stripey/country/edit'),
-            'stripey/settings/countries/(?P<id>\d+)'                              => array('action' => 'stripey/country/edit'),
+            'stripey/settings/countries'                                                               => array('action' => 'stripey/country/index'),
+            'stripey/settings/countries/new'                                                           => array('action' => 'stripey/country/edit'),
+            'stripey/settings/countries/(?P<id>\d+)'                                                   => array('action' => 'stripey/country/edit'),
 
-            'stripey/settings/states'                                             => array('action' => 'stripey/state/index'),
-            'stripey/settings/states/new'                                         => array('action' => 'stripey/state/edit'),
-            'stripey/settings/states/(?P<id>\d+)'                                 => array('action' => 'stripey/state/edit'),
+            'stripey/settings/states'                                                                  => array('action' => 'stripey/state/index'),
+            'stripey/settings/states/new'                                                              => array('action' => 'stripey/state/edit'),
+            'stripey/settings/states/(?P<id>\d+)'                                                      => array('action' => 'stripey/state/edit'),
 
-            'stripey/settings/taxzones'                                           => array('action' => 'stripey/taxZone/index'),
-            'stripey/settings/taxzones/new'                                       => array('action' => 'stripey/taxZone/edit'),
-            'stripey/settings/taxzones/(?P<id>\d+)'                               => array('action' => 'stripey/taxZone/edit'),
+            'stripey/settings/taxzones'                                                                => array('action' => 'stripey/taxZone/index'),
+            'stripey/settings/taxzones/new'                                                            => array('action' => 'stripey/taxZone/edit'),
+            'stripey/settings/taxzones/(?P<id>\d+)'                                                    => array('action' => 'stripey/taxZone/edit'),
 
-            'stripey/settings/taxrates'                                           => array('action' => 'stripey/taxRate/index'),
-            'stripey/settings/taxrates/new'                                       => array('action' => 'stripey/taxRate/edit'),
-            'stripey/settings/taxrates/(?P<id>\d+)'                               => array('action' => 'stripey/taxRate/edit'),
+            'stripey/settings/taxrates'                                                                => array('action' => 'stripey/taxRate/index'),
+            'stripey/settings/taxrates/new'                                                            => array('action' => 'stripey/taxRate/edit'),
+            'stripey/settings/taxrates/(?P<id>\d+)'                                                    => array('action' => 'stripey/taxRate/edit'),
 
-            'stripey/products'                                                    => array('action' => 'stripey/product/productIndex'),
-            'stripey/products/(?P<productTypeHandle>{handle})/new'                => array('action' => 'stripey/product/editProduct'),
-            'stripey/products/(?P<productTypeHandle>{handle})/(?P<productId>\d+)' => array('action' => 'stripey/product/editProduct'),
+            'stripey/products'                                                                         => array('action' => 'stripey/product/productIndex'),
+            'stripey/products/(?P<productTypeHandle>{handle})/new'                                     => array('action' => 'stripey/product/editProduct'),
+            'stripey/products/(?P<productTypeHandle>{handle})/(?P<productId>\d+)'                      => array('action' => 'stripey/product/editProduct'),
+            'stripey/products/(?P<productTypeHandle>{handle})/(?P<productId>\d+)/variants/new'         => array('action' => 'stripey/variant/edit'),
+            'stripey/products/(?P<productTypeHandle>{handle})/(?P<productId>\d+)/variants/(?P<id>\d+)' => array('action' => 'stripey/variant/edit'),
 
-            'stripey/plans'                                                       => array('action' => 'stripey/plans/index'),
-            'stripey/charges'                                                     => 'stripey/charges/index',
-            'stripey/charges/(?P<chargeId>\d+)'                                   => array('action' => 'stripey/charge/editCharge'),
+            'stripey/plans'                                                                            => array('action' => 'stripey/plans/index'),
+            'stripey/charges'                                                                          => 'stripey/charges/index',
+            'stripey/charges/(?P<chargeId>\d+)'                                                        => array('action' => 'stripey/charge/editCharge'),
 
 
         );

@@ -1,0 +1,67 @@
+{% extends "stripey/_layouts/cp" %}
+
+{% set crumbs = [
+{ label: "Stripey"|t, url: url('stripey') },
+{ label: "Products"|t, url: url('stripey/products') },
+] %}
+
+{% import "_includes/forms" as forms %}
+
+{% set content %}
+<form method="post" accept-charset="UTF-8" data-saveshortcut>
+    <input type="hidden" name="action" value="stripey/variants/save">
+    <input type="hidden" name="redirect" value="stripey/products">
+
+    {{ getCsrfInput() }}
+    {% if variant.product.id %}<input type="hidden" name="productId" value="{{ variant.product.id }}">{% endif %}
+
+    {% set masterVariant %}
+
+    <table id="" class="shadow-box editable">
+        <thead>
+        <tr>
+            <th scope="col" class="header">SKU</th>
+            <th scope="col" class="header">Price</th>
+            <th scope="col" class="header">Width</th>
+            <th scope="col" class="header">Height</th>
+            <th scope="col" class="header">Length</th>
+            <th scope="col" class="header">Weight</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr data-id="0">
+            <td class="textual " width="">
+                <textarea type="number" name="sku" rows="1">{{ variant.sku }}</textarea>
+            </td>
+            <td class="textual " width="">
+                <textarea type="number" step="0.01" name="price" rows="1">{{ variant.price }}</textarea>
+            </td>
+            <td class="textual " width="">
+                <textarea name="width" rows="1">{{ variant.width }}</textarea>
+            </td>
+            <td class="textual " width="">
+                <textarea name="height" rows="1">{{ variant.height }}</textarea>
+            </td>
+            <td class="textual " width="">
+                <textarea name="length" rows="1">{{ variant.length }}</textarea>
+            </td>
+            <td class="textual " width="">
+                <textarea name="weight" rows="1">{{ variant.weight }}</textarea>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    {% endset %}
+
+    {{ forms.field({
+        id:       'variant',
+        label:    'Variant'
+    }, masterVariant) }}
+
+
+    <div class="buttons">
+        <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
+    </div>
+</form>
+
+{% endset %}

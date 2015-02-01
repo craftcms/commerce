@@ -17,7 +17,13 @@ class Stripey_ProductService extends BaseApplicationComponent
     public function deleteProduct($product)
     {
         $product = Stripey_ProductRecord::model()->findById($product->id);
-        return $product->delete();
+        if ($product->delete()){
+            craft()->stripey_variant->disableAllByProductId($product->id);
+            return true;
+        }else{
+            return false;
+        }
+
     }
 
     public function getOptionTypesForProduct($productId)
@@ -29,7 +35,6 @@ class Stripey_ProductService extends BaseApplicationComponent
     public function getMasterVariantForProduct($productId)
     {
         $product = Stripey_ProductRecord::model()->findById($productId);
-
         return Stripey_VariantModel::populateModel($product->master);
     }
 

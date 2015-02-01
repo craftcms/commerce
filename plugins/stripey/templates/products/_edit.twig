@@ -103,8 +103,8 @@ required: false
                 <table id="" class="shadow-box editable">
                     <thead>
                     <tr>
-                        <th scope="col" class="header">SKU</th>
-                        <th scope="col" class="header">Price</th>
+                        <th scope="col" class="header"><span class="required">SKU</span></th>
+                        <th scope="col" class="header"><span class="required">Price</span></th>
                         <th scope="col" class="header">Width</th>
                         <th scope="col" class="header">Height</th>
                         <th scope="col" class="header">Length</th>
@@ -114,22 +114,22 @@ required: false
                     <tbody>
                     <tr data-id="0">
                         <td class="textual " width="">
-                            <textarea type="number" name="masterVariant[sku]" rows="1">{{ product.masterVariant.sku }}</textarea>
+                            <textarea type="number" name="masterVariant[sku]" rows="1">{{ masterVariant.sku }}</textarea>
                         </td>
                         <td class="textual " width="">
-                            <textarea type="number" step="0.01" name="masterVariant[price]" rows="1">{{ product.masterVariant.price }}</textarea>
+                            <textarea type="number" step="0.01" name="masterVariant[price]" rows="1">{{ masterVariant.price }}</textarea>
                         </td>
                         <td class="textual " width="">
-                            <textarea name="masterVariant[width]" rows="1">{{ product.masterVariant.width }}</textarea>
+                            <textarea name="masterVariant[width]" rows="1">{{ masterVariant.width }}</textarea>
                         </td>
                         <td class="textual " width="">
-                            <textarea name="masterVariant[height]" rows="1">{{ product.masterVariant.height }}</textarea>
+                            <textarea name="masterVariant[height]" rows="1">{{ masterVariant.height }}</textarea>
                         </td>
                         <td class="textual " width="">
-                            <textarea name="masterVariant[length]" rows="1">{{ product.masterVariant.length }}</textarea>
+                            <textarea name="masterVariant[length]" rows="1">{{ masterVariant.length }}</textarea>
                         </td>
                         <td class="textual " width="">
-                            <textarea name="masterVariant[weight]" rows="1">{{ product.masterVariant.weight }}</textarea>
+                            <textarea name="masterVariant[weight]" rows="1">{{ masterVariant.weight }}</textarea>
                         </td>
                     </tr>
                     </tbody>
@@ -182,11 +182,9 @@ required: false
                     </tr>
                     </thead>
                     <tbody>
-                    <tr><td title="Color:Red, Size:XL">Color:Red, Siz...</td><td><a href="#" class="btn small right">Edit</a></td></tr>
-                    <tr><td>Color:Red, Size:L</td><td><a href="#" class="btn small right">Edit</a></td></tr>
-                    <tr><td>Color:Red, Size:M</td><td><a href="#" class="btn small right">Edit</a></td></tr>
-                    <tr><td>Color:Red, Size:S</td><td><a href="#" class="btn small right">Edit</a></td></tr>
-
+                    {% for variant in product.variants %}
+                    <tr><td title="">{{ variant.id }}</td><td><a href="{{ variant.cpEditUrl }}" class="btn small right">Edit</a></td></tr>
+                    {% endfor %}
                 </table>
             </div>{#END PANE#}
 
