@@ -91,12 +91,11 @@ class Stripey_VariantController extends Stripey_BaseController
     public function actionDelete()
     {
         $this->requirePostRequest();
-        $this->requireAjaxRequest();
 
         $id = craft()->request->getRequiredPost('id');
 
         craft()->stripey_variant->deleteById($id);
-        $this->returnJson(array('success' => true));
+        $this->redirectToPostedUrl();
     }
 
 }
