@@ -56,7 +56,6 @@ class StripeyPlugin extends BasePlugin
             'stripey/settings/producttypes/(?P<productTypeId>\d+)'                                     => array('action' => 'stripey/productType/editProductType'),
             'stripey/settings/producttypes/new'                                                        => array('action' => 'stripey/productType/editProductType'),
 
-
             'stripey/settings/optiontypes'                                                             => array('action' => 'stripey/optionType/index'),
             'stripey/settings/optiontypes/(?P<optionTypeId>\d+)'                                       => array('action' => 'stripey/optionType/editOptionType'),
             'stripey/settings/optiontypes/new'                                                         => array('action' => 'stripey/optionType/editOptionType'),

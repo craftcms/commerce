@@ -46,7 +46,7 @@ class Stripey_VariantRecord extends BaseRecord
             'length'    => array(AttributeType::Number, 'decimals' => 4),
             'weight'    => array(AttributeType::Number, 'decimals' => 4),
             'stock'     => array(AttributeType::Number),
-            'deletedAt' => array(AttributeType::DateTime)
+            'deletedAt' => array(AttributeType::DateTime,'default' => NULL)
         );
     }
 
