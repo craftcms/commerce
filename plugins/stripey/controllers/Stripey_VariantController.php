@@ -11,23 +11,38 @@ class Stripey_VariantController extends Stripey_BaseController
      */
     public function actionEdit(array $variables = array())
     {
+        //getting related product
+        if(empty($variables['productId'])) {
+            throw new HttpException(400);
+        }
+
+        $variables['product'] = craft()->stripey_product->getById($variables['productId']);
+        if(!$variables['product']) {
+            throw new HttpException(404, craft::t('Product not found'));
+        }
+
+        //getting variant model
         if (empty($variables['variant'])) {
             if (!empty($variables['id'])) {
-                $id = $variables['id'];
-                $variables['variant'] = craft()->stripey_variant->getVariantById($id);
+                $variables['variant'] = craft()->stripey_variant->getById($variables['id']);
 
                 if (!$variables['variant']) {
                     throw new HttpException(404);
                 }
             } else {
                 $variables['variant'] = new Stripey_VariantModel();
+                $variables['variant']->price = $variables['product']->masterVariant->price;
+                $variables['variant']->width = $variables['product']->masterVariant->width;
+                $variables['variant']->height = $variables['product']->masterVariant->height;
+                $variables['variant']->length = $variables['product']->masterVariant->length;
+                $variables['variant']->weight = $variables['product']->masterVariant->weight;
             };
         }
 
         if (!empty($variables['variant']->id)) {
-            $variables['title'] = $variables['variant']->product->getContent()->title;
+            $variables['title'] = Craft::t('Variant for {product}', array('product' => $variables['product']));
         } else {
-            $variables['title'] = Craft::t('Create a Variant');
+            $variables['title'] = Craft::t('Create a Variant for {product}', array('product' => $variables['product']));
         }
 
         $this->renderTemplate('stripey/products/variants/_edit', $variables);
@@ -40,25 +55,33 @@ class Stripey_VariantController extends Stripey_BaseController
     {
         $this->requirePostRequest();
 
-        $state = new Stripey_StateModel();
+        $variant = new Stripey_VariantModel();
 
         // Shared attributes
-        $state->id   = craft()->request->getPost('stateId');
-        $state->name = craft()->request->getPost('name');
-        $state->abbreviation  = craft()->request->getPost('abbreviation');
-        $state->countryId  = craft()->request->getPost('countryId');
+        $params = array('id', 'productId', 'sku', 'price', 'width', 'height', 'length', 'weight');
+        foreach($params as $param) {
+            $variant->$param = craft()->request->getPost($param);
+        }
+
+        $optionValues = craft()->request->getPost('optionValues');
 
         // Save it
-        if (craft()->stripey_state->save($state)) {
-            craft()->userSession->setNotice(Craft::t('State saved.'));
-            $this->redirectToPostedUrl($state);
+        if (craft()->stripey_variant->save($variant)) {
+            $optionValuesFiltered = array_filter($optionValues);
+            if($optionValuesFiltered) {
+                craft()->stripey_variant->setOptionValues($variant->id, $optionValuesFiltered);
+            }
+
+            craft()->userSession->setNotice(Craft::t('Variant saved.'));
+            $this->redirectToPostedUrl($variant);
         } else {
-            craft()->userSession->setError(Craft::t('Couldn’t save state.'));
+            craft()->userSession->setError(Craft::t('Couldn’t save variant.'));
         }
 
         // Send the model back to the template
         craft()->urlManager->setRouteVariables(array(
-            'state' => $state
+            'variant' => $variant,
+            'optionValues' => $optionValues,
         ));
     }
 
@@ -68,12 +91,11 @@ class Stripey_VariantController extends Stripey_BaseController
     public function actionDelete()
     {
         $this->requirePostRequest();
-        $this->requireAjaxRequest();
 
         $id = craft()->request->getRequiredPost('id');
 
-        craft()->stripey_state->deleteById($id);
-        $this->returnJson(array('success' => true));
+        craft()->stripey_variant->deleteById($id);
+        $this->redirectToPostedUrl();
     }
 
 }

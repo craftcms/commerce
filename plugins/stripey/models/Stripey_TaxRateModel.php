@@ -16,7 +16,6 @@ namespace Craft;
  */
 class Stripey_TaxRateModel extends BaseModel
 {
-    protected $modelRecord = 'Stripey_TaxRateRecord';
     /** @var Stripey_TaxZoneModel */
     public $taxZone;
     /** @var Stripey_TaxCategoryModel */

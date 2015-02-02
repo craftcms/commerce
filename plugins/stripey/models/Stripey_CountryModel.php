@@ -13,8 +13,6 @@ namespace Craft;
  */
 class Stripey_CountryModel extends BaseModel
 {
-    protected $modelRecord = 'Stripey_CountryRecord';
-
     public function getCpEditUrl()
     {
         return UrlHelper::getCpUrl('stripey/settings/countries/' . $this->id);

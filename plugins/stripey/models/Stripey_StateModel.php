@@ -14,7 +14,6 @@ namespace Craft;
  */
 class Stripey_StateModel extends BaseModel
 {
-    protected $modelRecord = 'Stripey_StateRecord';
     public $countryName;
 
     public function getCpEditUrl()

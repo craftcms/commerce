@@ -22,7 +22,7 @@ class Stripey_LineItemModel extends BaseModel
 
     public function getVariant()
     {
-        return craft()->stripey_variant->getVariantById($this->variantId);
+        return craft()->stripey_variant->getById($this->variantId);
     }
 
     public function getProduct()

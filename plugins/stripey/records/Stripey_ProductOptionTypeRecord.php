@@ -1,7 +1,15 @@
 <?php
 namespace Craft;
 
-
+/**
+ * Class Stripey_ProductOptionTypeRecord
+ * @property int productId
+ * @property int optionTypeId
+ *
+ * @property Stripey_ProductRecord product
+ * @property Stripey_OptionTypeRecord optionType
+ * @package Craft
+ */
 class Stripey_ProductOptionTypeRecord extends BaseRecord
 {
 
@@ -9,33 +17,15 @@ class Stripey_ProductOptionTypeRecord extends BaseRecord
     {
         return "stripey_product_optiontypes";
     }
-    // Protected Methods
-    // =========================================================================
 
     /**
-     * @inheritDoc BaseRecord::defineAttributes()
-     *
-     * @return array
-     */
-    protected function defineAttributes()
-    {
-        return array(
-            'optionTypeId' => AttributeType::Number,
-            'productId'    => AttributeType::Number,
-        );
-    }
-
-
-    /**
-     * @inheritDoc BaseRecord::defineRelations()
-     *
      * @return array
      */
     public function defineRelations()
     {
         return array(
-            'product'     => array(static::BELONGS_TO, 'Stripey_ProductRecord'),
-            'optionType'        => array(static::BELONGS_TO, 'Stripey_OptionTypeRecord'),
+            'product'    => array(static::BELONGS_TO, 'Stripey_ProductRecord'),
+            'optionType' => array(static::BELONGS_TO, 'Stripey_OptionTypeRecord'),
         );
     }
 

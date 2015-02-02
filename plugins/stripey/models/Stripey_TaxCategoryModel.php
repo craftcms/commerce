@@ -14,8 +14,6 @@ namespace Craft;
  */
 class Stripey_TaxCategoryModel extends BaseModel
 {
-    protected $modelRecord = 'Stripey_TaxCategoryRecord';
-
     public function getCpEditUrl()
     {
         return UrlHelper::getCpUrl('stripey/settings/taxcategories/' . $this->id);

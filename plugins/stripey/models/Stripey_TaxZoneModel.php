@@ -13,7 +13,6 @@ namespace Craft;
  */
 class Stripey_TaxZoneModel extends BaseModel
 {
-    protected $modelRecord = 'Stripey_TaxZoneRecord';
     /** @var Stripey_CountryModel[] */
     private $countries = [];
     /** @var Stripey_StateModel[] */

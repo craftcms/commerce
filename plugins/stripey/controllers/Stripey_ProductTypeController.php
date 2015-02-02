@@ -7,7 +7,7 @@ class Stripey_ProductTypeController extends Stripey_BaseController
 
     public function actionIndex()
     {
-        $productTypes = craft()->stripey_productType->getAllProductTypes();
+        $productTypes = craft()->stripey_productType->getAll();
         $this->renderTemplate('stripey/settings/producttypes/index', compact('productTypes'));
 
     }
@@ -19,7 +19,7 @@ class Stripey_ProductTypeController extends Stripey_BaseController
         if (empty($variables['productType'])){
             if (!empty($variables['productTypeId'])) {
                 $productTypeId = $variables['productTypeId'];
-                $variables['productType'] = craft()->stripey_productType->getProductTypeById($productTypeId);
+                $variables['productType'] = craft()->stripey_productType->getById($productTypeId);
 
                 if (!$variables['productType']) {
                     throw new HttpException(404);
@@ -56,7 +56,7 @@ class Stripey_ProductTypeController extends Stripey_BaseController
         $productType->setFieldLayout($fieldLayout);
 
         // Save it
-        if (craft()->stripey_productType->saveProductType($productType))
+        if (craft()->stripey_productType->save($productType))
         {
             craft()->userSession->setNotice(Craft::t('Product type saved.'));
             $this->redirectToPostedUrl($productType);
@@ -81,7 +81,7 @@ class Stripey_ProductTypeController extends Stripey_BaseController
 
         $productTypeId = craft()->request->getRequiredPost('id');
 
-        craft()->stripey_productType->deleteProductTypeById($productTypeId);
+        craft()->stripey_productType->deleteById($productTypeId);
         $this->returnJson(array('success' => true));
     }
 

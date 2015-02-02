@@ -1,14 +1,8 @@
 {% extends "stripey/_layouts/cp" %}
 {% set crumbs = [
-{ label: "Stripey"|t, url: url('stripey') },
-{ label: "Products"|t, url: url('stripey/products') }
+    { label: "Stripey"|t, url: url('stripey') },
+    { label: "Products"|t, url: url('stripey/products') }
 ] %}
-
-{% set extraPageHeaderHtml %}
-
-
-{% endset %}
-
 
 {% import "_includes/forms" as forms %}
 
@@ -97,50 +91,60 @@ required: false
                     maxlength: 255
                 }) }}
 
+                {% if product.variants is empty %}
+                    {% set masterVariant %}
 
-                {% set masterVariant %}
+                    <table id="" class="shadow-box editable">
+                        <thead>
+                        <tr>
+                            <th scope="col" class="header"><span class="required">SKU</span></th>
+                            <th scope="col" class="header"><span class="required">Price</span></th>
+                            <th scope="col" class="header">Width</th>
+                            <th scope="col" class="header">Height</th>
+                            <th scope="col" class="header">Length</th>
+                            <th scope="col" class="header">Weight</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td class="textual">
+                                <input name="masterVariant[sku]" value="{{ masterVariant.sku }}">
+                            </td>
+                            <td class="textual">
+                                <input type="number" step="0.01" name="masterVariant[price]" value="{{ masterVariant.price }}">
+                            </td>
+                            <td class="textual">
+                                <input type="number" name="masterVariant[width]" value="{{ masterVariant.width }}">
+                            </td>
+                            <td class="textual">
+                                <input type="number" name="masterVariant[height]" value="{{ masterVariant.height }}">
+                            </td>
+                            <td class="textual">
+                                <input type="number" name="masterVariant[length]" value="{{ masterVariant.length }}">
+                            </td>
+                            <td class="textual">
+                                <input type="number" name="masterVariant[weight]" value="{{ masterVariant.weight }}">
+                            </td>
+                        </tr>
+                        {% if masterVariant.hasErrors() %}
+                            <tr>
+                                <td><span class="error">{{ masterVariant.getErrors('sku')|join }}</span> </td>
+                                <td><span class="error">{{ masterVariant.getErrors('price')|join }}</span> </td>
+                                <td><span class="error">{{ masterVariant.getErrors('width')|join }}</span> </td>
+                                <td><span class="error">{{ masterVariant.getErrors('height')|join }}</span> </td>
+                                <td><span class="error">{{ masterVariant.getErrors('length')|join }}</span> </td>
+                                <td><span class="error">{{ masterVariant.getErrors('weight')|join }}</span> </td>
+                            </tr>
+                        {% endif %}
+                        </tbody>
+                    </table>
+                    {% endset %}
 
-                <table id="" class="shadow-box editable">
-                    <thead>
-                    <tr>
-                        <th scope="col" class="header"><span class="required">SKU</span></th>
-                        <th scope="col" class="header"><span class="required">Price</span></th>
-                        <th scope="col" class="header">Width</th>
-                        <th scope="col" class="header">Height</th>
-                        <th scope="col" class="header">Length</th>
-                        <th scope="col" class="header">Weight</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr data-id="0">
-                        <td class="textual " width="">
-                            <textarea type="number" name="masterVariant[sku]" rows="1">{{ masterVariant.sku }}</textarea>
-                        </td>
-                        <td class="textual " width="">
-                            <textarea type="number" step="0.01" name="masterVariant[price]" rows="1">{{ masterVariant.price }}</textarea>
-                        </td>
-                        <td class="textual " width="">
-                            <textarea name="masterVariant[width]" rows="1">{{ masterVariant.width }}</textarea>
-                        </td>
-                        <td class="textual " width="">
-                            <textarea name="masterVariant[height]" rows="1">{{ masterVariant.height }}</textarea>
-                        </td>
-                        <td class="textual " width="">
-                            <textarea name="masterVariant[length]" rows="1">{{ masterVariant.length }}</textarea>
-                        </td>
-                        <td class="textual " width="">
-                            <textarea name="masterVariant[weight]" rows="1">{{ masterVariant.weight }}</textarea>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-                {% endset %}
-
-                {{ forms.field({
-                    id:       'masterVariant',
-                    label:    'Master Variant'
-                }, masterVariant) }}
-
+                    {{ forms.field({
+                        id:       'masterVariant',
+                        label:    'Master Variant'
+                    }, masterVariant) }}
+                {% endif %}
 
                 {% for tab in productType.getFieldLayout().getTabs() %}
                 <div id="tab{{ loop.index }}" {% if not loop.first %} class="hidden" {% endif %}>
@@ -158,6 +162,7 @@ required: false
         </div>
         <div class="item" data-position="right" data-colspan="1">
 
+            {% if productId is defined %}
             <div class="pane">
 
                 {% set optionTypeFields %}
@@ -177,20 +182,33 @@ required: false
                 <table class="data fullwidth">
                     <thead>
                     <tr>
-                        <th scope="col">Variants</th>
-                        <td class="thin"></td>
+                        <th scope="col" colspan="2">
+                            Variants
+                            <a class="btn small formsubmit right" data-param="redirectToVariant" data-value="1">{{ 'Save & Add variant'|t }}</a>
+                        </th>
                     </tr>
                     </thead>
                     <tbody>
                     {% for variant in product.variants %}
-                    <tr><td title="">{{ variant.id }}</td><td><a href="{{ variant.cpEditUrl }}" class="btn small right">Edit</a></td></tr>
+                    <tr>
+                        <td title="">
+                            <a class="formsubmit" data-redirect="{{ variant.cpEditUrl }}">{{ variant.sku }}</a>
+                        </td>
+                        <td class="thin">
+                            <a class="delete icon formsubmit" role="button" value="{{ 'Delete'|t }}"
+                                   data-action="stripey/variant/delete"
+                                   data-confirm="{{ 'Are you sure you want to delete this variant?'|t }}"
+                                   data-redirect="{{ product.cpEditUrl }}"
+                                   data-param="id"
+                                   data-value="{{ variant.id }}"></a>
+                        </td>
+                    </tr>
                     {% endfor %}
                 </table>
-            </div>{#END PANE#}
+            </div>
+            {% endif %}
 
             <div class="pane">
-
-
                 {{ dateTimeField(product, 'availableOn', "Available On"|t) }}
                 {{ dateTimeField(product, 'expiresOn', "Expires On"|t) }}
 
@@ -205,7 +223,7 @@ required: false
                 }) }}
                 </div>
                 <div class="right">
-                {% if not brandNewProduct %}
+                {% if productId is defined %}
                     <div class="btngroup">
                         <input type="button" class="btn small formsubmit" value="{{ 'Delete'|t }}"
                                data-action="stripey/product/deleteProduct"
@@ -225,11 +243,9 @@ required: false
             </div>{#END PANE#}
 
 
-            <div class="buttons">
-                <div class="btngroup submit first">
-                    <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
-                </div>
-
+            <div class="buttons first">
+                <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
+                <a class="btn submit formsubmit" data-param="redirectToVariant" data-value="1">{{ 'Save & Add variant'|t }}</a>
             </div>
 
 
@@ -241,13 +257,11 @@ required: false
 
 </form>
 
-    {% set js %}
-        $(function() {
-            $('select').selectize({
-            }
-    );
-        });
-    {% endset %}
-    {% includeJs js %}
+{% set js %}
+    $(function() {
+        $('select').selectize({});
+    });
+{% endset %}
+{% includeJs js %}
 
 {% endblock %}
