@@ -2,7 +2,18 @@
 
 namespace Craft;
 
-
+/**
+ * Class Stripey_ProductModel
+ * @property int $id
+ * @property DateTime $availableOn
+ * @property DateTime $expiresOn
+ * @property int typeId
+ * @property int authorId
+ * @property bool enabled
+ *
+ * @property Stripey_VariantModel $masterVariant
+ * @package Craft
+ */
 class Stripey_ProductModel extends BaseElementModel
 {
 
@@ -13,6 +24,8 @@ class Stripey_ProductModel extends BaseElementModel
     protected $elementType = 'Stripey_Product';
     protected $modelRecord = 'Stripey_ProductRecord';
     protected $_variants = null;
+
+    private $_masterVariant;
 
     public function isEditable()
     {
@@ -38,7 +51,7 @@ class Stripey_ProductModel extends BaseElementModel
 
     public function getProductType()
     {
-        return craft()->stripey_productType->getProductTypeById($this->typeId);
+        return craft()->stripey_productType->getById($this->typeId);
     }
 
     public function getType()
@@ -67,10 +80,13 @@ class Stripey_ProductModel extends BaseElementModel
         return $status;
     }
 
-    private function getVariants()
+    /**
+     * @return Stripey_VariantModel[]
+     */
+    public function getVariants()
     {
-        if ($this->_variants == null){
-            $this->_variants = craft()->stripey_variant->getVariantsByProductId($this->id);
+        if(is_null($this->_variants)) {
+            $this->_variants = craft()->stripey_variant->getAllByProductId($this->id, false);
         }
         return $this->_variants;
     }
@@ -82,15 +98,25 @@ class Stripey_ProductModel extends BaseElementModel
         }
     }
 
-    public function getMasterVariant(){
-        if (!$this->id){
-            return new Stripey_VariantModel();
+    /**
+     * @return BaseModel|Stripey_VariantModel
+     */
+    public function getMasterVariant()
+    {
+        if(!$this->_masterVariant) {
+            if ($this->id) {
+                $this->_masterVariant = craft()->stripey_product->getMasterVariant($this->id);
+            }
+            if(!$this->_masterVariant) {
+                $this->_masterVariant = new Stripey_VariantModel();
+            }
         }
-        return craft()->stripey_product->getMasterVariantForProduct($this->id);
+
+        return $this->_masterVariant;
     }
 
     public function getOptionTypes(){
-        return craft()->stripey_product->getOptionTypesForProduct($this->id);
+        return craft()->stripey_product->getOptionTypes($this->id);
     }
 
     public function getOptionTypesIds(){
@@ -99,7 +125,7 @@ class Stripey_ProductModel extends BaseElementModel
         }
         return array_map(function($optionType){
             return $optionType->id;
-        },$this->getOptionTypes());
+        }, $this->getOptionTypes());
     }
 
     protected function defineAttributes()
@@ -108,7 +134,7 @@ class Stripey_ProductModel extends BaseElementModel
             'typeId'      => AttributeType::Number,
             'authorId'    => AttributeType::Number,
             'availableOn' => AttributeType::DateTime,
-            'expiresOn'   => AttributeType::DateTime,
+            'expiresOn'   => AttributeType::DateTime
         ));
     }
 

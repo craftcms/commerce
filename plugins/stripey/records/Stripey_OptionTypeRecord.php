@@ -2,27 +2,27 @@
 
 namespace Craft;
 
-
+/**
+ * Class Stripey_OptionTypeRecord
+ * @property int id
+ * @property string name
+ * @property string handle
+ *
+ * @property Stripey_ProductRecord[] $products
+ * @property Stripey_OptionValueRecord[] optionValues
+ * @package Craft
+ */
 class Stripey_OptionTypeRecord extends BaseRecord
 {
-
-
     public function getTableName()
     {
         return 'stripey_optiontypes';
     }
 
-    public function rules()
-    {
-        return array_merge(parent::rules(),array(
-
-        ));
-    }
-
     public function defineRelations()
     {
         return array(
-            'product' => array(static::MANY_MANY, 'Stripey_ProductRecord','stripey_product_optiontypes(productId, optionTypeId)'),
+            'products' => array(static::MANY_MANY, 'Stripey_ProductRecord','stripey_product_optiontypes(productId, optionTypeId)'),
             'optionValues' => array(static::HAS_MANY,'Stripey_OptionValueRecord','optionTypeId'),
         );
     }

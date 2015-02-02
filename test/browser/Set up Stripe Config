@@ -13,7 +13,7 @@
 </thead><tbody>
 <tr>
 	<td>open</td>
-	<td>/admin/stripey/settings</td>
+	<td>/admin/stripey/settings/global</td>
 	<td></td>
 </tr>
 <tr>
@@ -46,7 +46,6 @@
 	<td>//div[@id='notifications']/div</td>
 	<td>Success, Stripey settings saved.</td>
 </tr>
-
 </tbody></table>
 </body>
 </html>

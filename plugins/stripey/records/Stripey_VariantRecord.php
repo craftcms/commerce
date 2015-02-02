@@ -2,7 +2,21 @@
 
 namespace Craft;
 
-
+/**
+ * Class Stripey_VariantRecord
+ * @property int id
+ * @property int productId
+ * @property bool isMaster
+ * @property string sku
+ * @property float price
+ * @property float width
+ * @property float height
+ * @property float length
+ * @property float weight
+ * @property float stock
+ * @property DateTime deletedAt
+ * @package Craft
+ */
 class Stripey_VariantRecord extends BaseRecord
 {
 
@@ -11,37 +25,24 @@ class Stripey_VariantRecord extends BaseRecord
         return 'stripey_variants';
     }
 
-
-    public function scopes()
+    public function defaultScope()
     {
         return array(
-            'master'=>array(
-                'condition'=>'isMaster=1',
-            )
+            'condition' => 'deletedAt IS NULL',
         );
     }
-
 
     public function defineRelations()
     {
         return array(
-            'product'  => array(static::BELONGS_TO, 'Stripey_ProductRecord'),
+            'product'  => array(self::BELONGS_TO, 'Stripey_ProductRecord', 'onDelete' => self::SET_NULL, 'onUpdate' => self::CASCADE),
         );
     }
-
-//    public function defineIndexes()
-//    {
-//        return array(
-//            array('columns' => array('typeId')),
-//            array('columns' => array('availableOn')),
-//            array('columns' => array('expiresOn')),
-//        );
-//    }
 
     protected function defineAttributes()
     {
         return array(
-            'isMaster'  => AttributeType::Bool,
+            'isMaster'  => array(AttributeType::Bool, 'default' => 0, 'required' => true),
             'sku'       => array(AttributeType::String, 'required' => true),
             'price'     => array(AttributeType::Number, 'decimals' => 4, 'required' => true),
             'width'     => array(AttributeType::Number, 'decimals' => 4),
@@ -49,7 +50,7 @@ class Stripey_VariantRecord extends BaseRecord
             'length'    => array(AttributeType::Number, 'decimals' => 4),
             'weight'    => array(AttributeType::Number, 'decimals' => 4),
             'stock'     => array(AttributeType::Number),
-            'isDeleted' => array(AttributeType::Bool)
+            'deletedAt' => array(AttributeType::DateTime)
         );
     }
 

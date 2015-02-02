@@ -2,7 +2,17 @@
 
 namespace Craft;
 
-
+/**
+ * Class Stripey_OptionValueRecord
+ * @property int id
+ * @property string name
+ * @property string displayName
+ * @property int optionTypeId
+ * @property int position
+ *
+ * @property Stripey_OptionTypeRecord optionType
+ * @package Craft
+ */
 class Stripey_OptionValueRecord extends BaseRecord
 {
 
@@ -14,7 +24,7 @@ class Stripey_OptionValueRecord extends BaseRecord
     public function defaultScope()
     {
         return array(
-            'order'=>'position',
+            'order' => 'position',
         );
     }
 
@@ -42,7 +52,6 @@ class Stripey_OptionValueRecord extends BaseRecord
             'name'         => AttributeType::String,
             'displayName'  => AttributeType::String,
             'position'     => AttributeType::Number,
-            'optionTypeId' => AttributeType::Number
         );
     }
 

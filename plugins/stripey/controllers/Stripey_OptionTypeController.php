@@ -7,7 +7,7 @@ class Stripey_OptionTypeController extends Stripey_BaseController
 
     public function actionIndex()
     {
-        $optionTypes = craft()->stripey_optionType->getAllOptionTypes();
+        $optionTypes = craft()->stripey_optionType->getAll();
         $this->renderTemplate('stripey/settings/optiontypes/index', compact('optionTypes'));
     }
 
@@ -18,7 +18,7 @@ class Stripey_OptionTypeController extends Stripey_BaseController
         if (empty($variables['optionType'])) {
             if (!empty($variables['optionTypeId'])) {
                 $optionTypeId = $variables['optionTypeId'];
-                $variables['optionType'] = craft()->stripey_optionType->getOptionTypeById($optionTypeId);
+                $variables['optionType'] = craft()->stripey_optionType->getById($optionTypeId);
 
                 if (!$variables['optionType']) {
                     throw new HttpException(404);
@@ -64,7 +64,7 @@ class Stripey_OptionTypeController extends Stripey_BaseController
         $optionValues = $this->_prepareOptionValueModels();
 
         // Save it
-        if (craft()->stripey_optionType->saveOptionType($optionType)) {
+        if (craft()->stripey_optionType->save($optionType)) {
             craft()->stripey_optionValue->saveOptionValuesForOptionType($optionType, $optionValues);
             craft()->userSession->setNotice(Craft::t('Option Type and Values saved.'));
             $this->redirectToPostedUrl($optionType);
@@ -120,7 +120,7 @@ class Stripey_OptionTypeController extends Stripey_BaseController
 
         $optionTypeId = craft()->request->getRequiredPost('id');
 
-        craft()->stripey_optionType->deleteOptionTypeById($optionTypeId);
+        craft()->stripey_optionType->deleteById($optionTypeId);
         $this->returnJson(array('success' => true));
     }
 

@@ -21,8 +21,6 @@ namespace Craft;
  */
 class Stripey_AddressModel extends BaseModel
 {
-    protected $modelRecord = 'Stripey_AddressRecord';
-
     /** @var Stripey_CountryModel */
     public $country;
     /** @var Stripey_StateModel */

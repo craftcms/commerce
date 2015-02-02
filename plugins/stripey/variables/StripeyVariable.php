@@ -50,7 +50,7 @@ class StripeyVariable
      */
     public function optionTypes()
     {
-        return craft()->stripey_optionType->getAllOptionTypes();
+        return craft()->stripey_optionType->getAll();
     }
 
 }

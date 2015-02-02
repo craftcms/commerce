@@ -2,10 +2,17 @@
 
 namespace Craft;
 
+/**
+ * Class Stripey_OptionValueModel
+ * @property int id
+ * @property string name
+ * @property string displayName
+ * @property int position
+ * @property int optionTypeId
+ * @package Craft
+ */
 class Stripey_OptionValueModel extends BaseModel
 {
-    protected $modelRecord = 'Stripey_OptionValueRecord';
-
     /** Required for Stripey Editable Table
      * Useful to also lookup editable table order to attribute mapping
      */
@@ -37,7 +44,7 @@ class Stripey_OptionValueModel extends BaseModel
 
     public function getOptionType()
     {
-        return craft()->stripey_optionType->getOptionTypeById($this->optionTypeId);
+        return craft()->stripey_optionType->getById($this->optionTypeId);
     }
 
     protected function defineAttributes()

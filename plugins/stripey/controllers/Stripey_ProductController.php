@@ -1,15 +1,14 @@
 <?php
 namespace Craft;
+use Stripey\Product\Creator;
 
 /**
  * Class Stripey_ProductController
  *
  * @package Craft
  */
-
 class Stripey_ProductController extends Stripey_BaseController
 {
-
     /** @var bool All product changes should be by a logged in user */
     protected $allowAnonymous = false;
 
@@ -18,60 +17,30 @@ class Stripey_ProductController extends Stripey_BaseController
      */
     public function actionProductIndex()
     {
-        $variables['productTypes'] = craft()->stripey_productType->getAllProductTypes();
+        $variables['productTypes'] = craft()->stripey_productType->getAll();
         $this->renderTemplate('stripey/products/_index', $variables);
     }
-
-    /**
-     * Save a new or existing product.
-     */
-    public function actionSaveProduct()
-    {
-        $this->requirePostRequest();
-
-        $product = $this->_setProductFromPost();
-        $this->_setContentfromPost($product);
-
-        $productCreator = new \Stripey\Product\Creator;
-
-        if ($productCreator->save($product)) {
-
-            $this->_saveOptionTypes($product);
-            $this->_saveMasterVariant($product);
-
-            craft()->userSession->setNotice(Craft::t('Product saved.'));
-            $this->redirectToPostedUrl($product);
-        } else {
-
-            craft()->userSession->setNotice(Craft::t("Couldn't save product."));
-            craft()->urlManager->setRouteVariables(array(
-                'product' => $product
-            ));
-        }
-    }
-
 
     /**
      * Prepare screen to edit a product.
      *
      * @param array $variables
-     *
      * @throws HttpException
      */
     public function actionEditProduct(array $variables = array())
     {
-        $variables['brandNewProduct'] = false;
-
         if (!empty($variables['productTypeHandle'])) {
-            $variables['productType'] = craft()->stripey_productType->getProductTypeByHandle($variables['productTypeHandle']);
-        } else if (!empty($variables['productTypeId'])) {
-            $variables['productType'] = craft()->stripey_productType->getProductTypeById($variables['productTypeId']);
+            $variables['productType'] = craft()->stripey_productType->getByHandle($variables['productTypeHandle']);
+        }
+
+        if(empty($variables['productType'])) {
+            throw new HttpException(400, craft::t('Wrong product type specified'));
         }
 
         if (empty($variables['product'])) {
             if (!empty($variables['productId'])) {
-                $productId = $variables['productId'];
-                $variables['product'] = craft()->stripey_product->getProductById($productId);
+                $variables['product'] = craft()->stripey_product->getById($variables['productId']);
+                $variables['masterVariant'] = $variables['product']->masterVariant;
 
                 if (!$variables['product']) {
                     throw new HttpException(404);
@@ -79,7 +48,6 @@ class Stripey_ProductController extends Stripey_BaseController
             } else {
                 $variables['product']         = new Stripey_ProductModel();
                 $variables['product']->typeId = $variables['productType']->id;
-                $variables['brandNewProduct'] = true;
             };
         }
 
@@ -94,7 +62,48 @@ class Stripey_ProductController extends Stripey_BaseController
     }
 
     /**
-     *
+     * Save a new or existing product.
+     */
+    public function actionSaveProduct()
+    {
+        $this->requirePostRequest();
+
+        $product = $this->_setProductFromPost();
+        $this->_setContentFromPost($product);
+        $masterVariant = $this->_setMasterVariantFromPost($product);
+        $optionTypes = craft()->request->getPost('optionTypes');
+
+        $productCreator = new Creator;
+
+        $transaction = craft()->db->beginTransaction();
+
+        if ($productCreator->save($product)) {
+            $masterVariant->productId = $product->id;
+
+            if (craft()->stripey_variant->save($masterVariant)) {
+                craft()->stripey_product->setOptionTypes($product->id, $optionTypes);
+                $transaction->commit();
+
+                craft()->userSession->setNotice(Craft::t('Product saved.'));
+
+                if (craft()->request->getPost('redirectToVariant')) {
+                    $this->redirect($product->getCpEditUrl() . '/variants/new');
+                } else {
+                    $this->redirectToPostedUrl($product);
+                }
+            }
+        }
+
+        $transaction->rollback();
+
+        craft()->userSession->setNotice(Craft::t("Couldn't save product."));
+        craft()->urlManager->setRouteVariables(array(
+            'product' => $product,
+            'masterVariant' => $masterVariant
+        ));
+    }
+
+    /**
      * Modifies the variables of the request.
      *
      * @param $variables
@@ -102,6 +111,8 @@ class Stripey_ProductController extends Stripey_BaseController
     private function prepVariables(&$variables)
     {
         $variables['tabs'] = array();
+
+        $variables['masterVariant'] = $variables['product']->masterVariant;
 
         foreach ($variables['productType']->getFieldLayout()->getTabs() as $index => $tab) {
             // Do any of the fields on this tab have errors?
@@ -134,13 +145,13 @@ class Stripey_ProductController extends Stripey_BaseController
         $this->requirePostRequest();
 
         $productId = craft()->request->getRequiredPost('productId');
-        $product   = craft()->stripey_product->getProductById($productId);
+        $product   = craft()->stripey_product->getById($productId);
 
         if (!$product) {
             throw new Exception(Craft::t('No product exists with the ID “{id}”.', array('id' => $productId)));
         }
 
-        if (craft()->stripey_product->deleteProduct($product)) {
+        if (craft()->stripey_product->delete($product)) {
             if (craft()->request->isAjaxRequest()) {
                 $this->returnJson(array('success' => true));
             } else {
@@ -155,32 +166,24 @@ class Stripey_ProductController extends Stripey_BaseController
 
                 craft()->urlManager->setRouteVariables(array(
                     'product' => $product
+
                 ));
             }
         }
     }
 
     /**
-     * @param $product
+     * @param Stripey_ProductModel $product
+     * @return Stripey_VariantModel
      */
-    private function _saveMasterVariant($product)
+    private function _setMasterVariantFromPost($product)
     {
-        // Now save master variant
-        $masterVariant            = craft()->request->getPost('masterVariant');
-        $masterVariant            = Stripey_VariantModel::populateModel($masterVariant);
-        $masterVariant->isMaster  = true;
-        $masterVariant->productId = $product->id;
-        craft()->stripey_variant->saveVariant($masterVariant);
-    }
+        $attributes = craft()->request->getPost('masterVariant');
 
-    /**
-     * @param $product
-     */
-    private function _saveOptionTypes($product)
-    {
-        // Now save option types
-        $optionTypes = craft()->request->getPost('optionTypes');
-        craft()->stripey_optionType->assignProductToOptionTypes($product->id, $optionTypes);
+        $masterVariant = $product->masterVariant;
+        $masterVariant->setAttributes($attributes);
+        $masterVariant->isMaster = true;
+        return $masterVariant;
     }
 
     /**
@@ -192,34 +195,32 @@ class Stripey_ProductController extends Stripey_BaseController
         $productId = craft()->request->getPost('productId');
 
         if ($productId) {
-            $product = craft()->stripey_product->getProductById($productId);
+            $product = craft()->stripey_product->getById($productId);
 
             if (!$product) {
-                throw new Exception(Craft::t('No event product with the ID “{id}”', array('id' => $productId)));
+                throw new Exception(Craft::t('No product with the ID “{id}”', array('id' => $productId)));
             }
         } else {
             $product = new Stripey_ProductModel();
         }
 
-        $product->availableOn = (($availableOn = craft()->request->getPost('availableOn')) ? DateTime::createFromString($availableOn, craft()->timezone) : $product->availableOn);
-        $product->expiresOn   = (($expiresOn = craft()->request->getPost('expiresOn')) ? DateTime::createFromString($expiresOn, craft()->timezone) : null);
+        $product->availableOn = ($availableOn = craft()->request->getPost('availableOn')) ? DateTime::createFromString($availableOn, craft()->timezone) : $product->availableOn;
+        $product->expiresOn   = ($expiresOn = craft()->request->getPost('expiresOn')) ? DateTime::createFromString($expiresOn, craft()->timezone) : null;
         $product->typeId      = craft()->request->getPost('typeId');
         $product->enabled     = craft()->request->getPost('enabled');
         $product->authorId    = craft()->userSession->id;
 
         if (!$product->availableOn) {
             $product->availableOn = new DateTime();
-
-            return $product;
         }
 
         return $product;
     }
 
     /**
-     * @param $product
+     * @param Stripey_ProductModel $product
      */
-    private function _setContentfromPost($product)
+    private function _setContentFromPost($product)
     {
         $product->getContent()->title = craft()->request->getPost('title', $product->title);
         $product->setContentFromPost('fields');
