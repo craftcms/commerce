@@ -36,12 +36,4 @@ class Market_CountryRecord extends BaseRecord
 			'stateRequired' => array(AttributeType::Bool, 'required' => true, 'default' => 0),
 		);
 	}
-
-	protected function beforeSave()
-	{
-		$this->iso = strtoupper($this->iso);
-
-		return parent::beforeSave();
-	}
-
 }

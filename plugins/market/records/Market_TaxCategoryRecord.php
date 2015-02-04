@@ -30,13 +30,4 @@ class Market_TaxCategoryRecord extends BaseRecord
 		);
 	}
 
-	protected function afterSave()
-	{
-		//only one default category is allowed
-		if ($this->default) {
-			self::updateAll(array('default' => 0), 'id != ?', array($this->id));
-		}
-		parent::afterSave();
-	}
-
 }
