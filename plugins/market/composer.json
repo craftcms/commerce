@@ -1,0 +1,30 @@
+{
+    "name": "lukeholder/craft-market",
+    "authors": [
+        {
+            "name": "Luke Holder",
+            "email": "lukemh@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "Market\\": "Market"
+        }
+    },
+    "require": {
+        "cartalyst/stripe": "0.1.*",
+        "guzzlehttp/guzzle": "~5.0",
+        "pimple/pimple": "~3.0@dev",
+        "omnipay/omnipay": "~2.0@dev"
+    },
+    "require-dev": {
+
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://packages.cartalyst.com"
+        }
+    ]
+}
