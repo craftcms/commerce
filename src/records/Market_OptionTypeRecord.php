@@ -28,13 +28,6 @@ class Market_OptionTypeRecord extends BaseRecord
 		);
 	}
 
-	public function beforeDelete()
-	{
-		Market_OptionValueRecord::model()->deleteAllByAttributes(array('optionTypeId' => $this->id));
-
-		return parent::beforeDelete();
-	}
-
 	protected function defineAttributes()
 	{
 		return array(

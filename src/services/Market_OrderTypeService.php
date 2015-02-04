@@ -118,7 +118,7 @@ class Market_OrderTypeService extends BaseApplicationComponent
 		$transaction = craft()->db->getCurrentTransaction() === NULL ? craft()->db->beginTransaction() : NULL;
 		try {
 			$orderType = Market_OrderTypeRecord::model()->findById($id);
-
+			
 			$query    = craft()->db->createCommand()
 				->select('id')
 				->from('market_orders')
@@ -127,6 +127,7 @@ class Market_OrderTypeService extends BaseApplicationComponent
 
 			craft()->elements->deleteElementById($orderIds);
 			craft()->fields->deleteLayoutById($orderType->fieldLayoutId);
+			Market_OptionValueRecord::model()->deleteAllByAttributes(array('optionTypeId' => $orderType->id));
 
 			$affectedRows = $orderType->delete();
 

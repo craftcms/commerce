@@ -52,7 +52,7 @@ class Market_CountryService extends BaseApplicationComponent
 		}
 
 		$record->name          = $model->name;
-		$record->iso           = $model->iso;
+		$record->iso           = strtoupper($model->iso);
 		$record->stateRequired = $model->stateRequired;
 
 		$record->validate();

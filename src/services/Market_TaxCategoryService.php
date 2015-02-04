@@ -66,6 +66,12 @@ class Market_TaxCategoryService extends BaseApplicationComponent
 			// Now that we have a record ID, save it on the model
 			$model->id = $record->id;
 
+			//If this was the default make all others not the default.
+			if ($this->default) {
+				Market_TaxCategoryRecord::model()->updateAll(array('default' => 0), 'id != ?', array($record->id));
+			}
+
+
 			return true;
 		} else {
 			return false;
