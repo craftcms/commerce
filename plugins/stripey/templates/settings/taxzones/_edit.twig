@@ -75,30 +75,30 @@
 {% endset %}
 
 {% set js %}
-    $(function() {
-        $('#countries, #states').selectize({
-            plugins: ['remove_button'],
-            dropdownParent: 'body'
-        });
+$(function() {
+$('#countries, #states').selectize({
+plugins: ['remove_button'],
+dropdownParent: 'body'
+});
 
-        $('[name=countryBased]').change(function(){
-            if(!$(this).is(':checked')) {
-                return;
-            }
-            if($(this).val() * 1) {
-                $('#countries')[0].selectize.enable();
-                $('#states')[0].selectize.disable();
-                $('#countries-field').show();
-                $('#states-field').hide();
-            } else {
-                $('#countries')[0].selectize.disable();
-                $('#states')[0].selectize.enable();
-                $('#countries-field').hide();
-                $('#states-field').show();
-            }
-        });
+$('[name=countryBased]').change(function(){
+if(!$(this).is(':checked')) {
+return;
+}
+if($(this).val() * 1) {
+$('#countries')[0].selectize.enable();
+$('#states')[0].selectize.disable();
+$('#countries-field').show();
+$('#states-field').hide();
+} else {
+$('#countries')[0].selectize.disable();
+$('#states')[0].selectize.enable();
+$('#countries-field').hide();
+$('#states-field').show();
+}
+});
 
-        $('[name=countryBased]:checked').trigger('change');
-    });
+$('[name=countryBased]:checked').trigger('change');
+});
 {% endset %}
 {% includeJs js %}

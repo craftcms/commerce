@@ -2,17 +2,18 @@
 
 namespace Craft;
 
-class Stripey_DashboardController extends Stripey_BaseController{
+class Stripey_DashboardController extends Stripey_BaseController
+{
 
-    public function actionIndex()
-    {
-        $variables = array();
-        $this->renderTemplate('stripey/index', $variables);
-    }
+	public function actionIndex()
+	{
+		$variables = array();
+		$this->renderTemplate('stripey/index', $variables);
+	}
 
-    public function actionSetup()
-    {
-        $variables = array();
-        $this->renderTemplate('stripey/setup', $variables);
-    }
+	public function actionSetup()
+	{
+		$variables = array();
+		$this->renderTemplate('stripey/setup', $variables);
+	}
 } 

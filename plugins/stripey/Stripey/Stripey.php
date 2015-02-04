@@ -1,29 +1,33 @@
 <?php
 namespace Stripey;
 
-use Pimple\Container;
 use Craft\Craft;
+use Pimple\Container;
 
-class Stripey extends Container{
+class Stripey extends Container
+{
 
-    public function __get($memberName)
-    {
-        $craftName = 'stripey_' . strtolower($memberName);
-        return Craft::app()->$craftName;
-    }
+	public function __get($memberName)
+	{
+		$craftName = 'stripey_' . strtolower($memberName);
 
-    /**
-     * Return singleton instance of the Stripey Container
-     * @return Stripey
-     */
-    public static function app()
-    {
-        static $inst = null;
-        if ( $inst === null) {
-            $inst = new self();
-        }
-        return $inst;
-    }
+		return Craft::app()->$craftName;
+	}
+
+	/**
+	 * Return singleton instance of the Stripey Container
+	 *
+	 * @return Stripey
+	 */
+	public static function app()
+	{
+		static $inst = NULL;
+		if ($inst === NULL) {
+			$inst = new self();
+		}
+
+		return $inst;
+	}
 
 }
 
@@ -35,5 +39,5 @@ class Stripey extends Container{
  */
 function stripey()
 {
-    return \Stripey\Stripey::app();
+	return \Stripey\Stripey::app();
 }

@@ -4,76 +4,82 @@ namespace Craft;
 
 /**
  * Class Stripey_TaxCategoryService
+ *
  * @package Craft
  */
 class Stripey_TaxCategoryService extends BaseApplicationComponent
 {
-    /**
-     * @return Stripey_TaxCategoryModel[]
-     */
-    public function getAll()
-    {
-        $records = Stripey_TaxCategoryRecord::model()->findAll();
-        return Stripey_TaxCategoryModel::populateModels($records);
-    }
+	/**
+	 * @return Stripey_TaxCategoryModel[]
+	 */
+	public function getAll()
+	{
+		$records = Stripey_TaxCategoryRecord::model()->findAll();
 
-    /**
-     * @param int $id
-     * @return Stripey_TaxCategoryModel
-     */
-    public function getById($id)
-    {
-        $record = Stripey_TaxCategoryRecord::model()->findById($id);
-        return Stripey_TaxCategoryModel::populateModel($record);
-    }
+		return Stripey_TaxCategoryModel::populateModels($records);
+	}
 
-    /**
-     * @param Stripey_TaxCategoryModel $model
-     * @return bool
-     * @throws Exception
-     * @throws \CDbException
-     * @throws \Exception
-     */    
-    public function save(Stripey_TaxCategoryModel $model)
-    {
-        if ($model->id) {
-            $record = Stripey_TaxCategoryRecord::model()->findById($model->id);
+	/**
+	 * @param int $id
+	 *
+	 * @return Stripey_TaxCategoryModel
+	 */
+	public function getById($id)
+	{
+		$record = Stripey_TaxCategoryRecord::model()->findById($id);
 
-            if (!$record) {
-                throw new Exception(Craft::t('No tax category exists with the ID “{id}”', array('id' => $model->id)));
-            }
-        } else {
-            $record = new Stripey_TaxCategoryRecord();
-        }
+		return Stripey_TaxCategoryModel::populateModel($record);
+	}
 
-        $record->name = $model->name;
-        $record->code = $model->code;
-        $record->description = $model->description;
-        $record->default = $model->default;
+	/**
+	 * @param Stripey_TaxCategoryModel $model
+	 *
+	 * @return bool
+	 * @throws Exception
+	 * @throws \CDbException
+	 * @throws \Exception
+	 */
+	public function save(Stripey_TaxCategoryModel $model)
+	{
+		if ($model->id) {
+			$record = Stripey_TaxCategoryRecord::model()->findById($model->id);
 
-        $record->validate();
-        $model->addErrors($record->getErrors());
+			if (!$record) {
+				throw new Exception(Craft::t('No tax category exists with the ID “{id}”', array('id' => $model->id)));
+			}
+		} else {
+			$record = new Stripey_TaxCategoryRecord();
+		}
 
-        if (!$model->hasErrors()) {
-            // Save it!
-            $record->save(false);
+		$record->name        = $model->name;
+		$record->code        = $model->code;
+		$record->description = $model->description;
+		$record->default     = $model->default;
 
-            // Now that we have a record ID, save it on the model
-            $model->id = $record->id;
+		$record->validate();
+		$model->addErrors($record->getErrors());
 
-            return true;
-        } else {
-            return false;
-        }
-    }
+		if (!$model->hasErrors()) {
+			// Save it!
+			$record->save(false);
 
-    /**
-     * @param int $id
-     * @throws \CDbException
-     */
-    public function deleteById($id)
-    {
-        $taxCategory = Stripey_TaxCategoryRecord::model()->findById($id);
-        $taxCategory->delete();
-    }
+			// Now that we have a record ID, save it on the model
+			$model->id = $record->id;
+
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * @param int $id
+	 *
+	 * @throws \CDbException
+	 */
+	public function deleteById($id)
+	{
+		$taxCategory = Stripey_TaxCategoryRecord::model()->findById($id);
+		$taxCategory->delete();
+	}
 }

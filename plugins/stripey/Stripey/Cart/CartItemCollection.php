@@ -10,12 +10,12 @@ use Clist;
  */
 class CartItemCollection extends CList
 {
-    /**
-     *
-     */
-    public function __construct()
-    {
+	/**
+	 *
+	 */
+	public function __construct()
+	{
 //        TODO: Make Cart :)
-    }
+	}
 
 }

@@ -3,117 +3,125 @@ namespace Craft;
 
 /**
  * Class Stripey_PaymentMethodService
+ *
  * @package Craft
  */
 class Stripey_PaymentMethodService extends BaseApplicationComponent
 {
-    const CP_ENABLED = 'cpEnabled';
-    const FRONTEND_ENABLED = 'frontendEnabled';
+	const CP_ENABLED = 'cpEnabled';
+	const FRONTEND_ENABLED = 'frontendEnabled';
 
-    /**
-     * @param int $id
-     * @return Stripey_PaymentMethodModel
-     */
-    public function getById($id)
-    {
-        $record = Stripey_PaymentMethodRecord::model()->findById($id);
-        return Stripey_PaymentMethodModel::populateModel($record);
-    }
+	/**
+	 * @param int $id
+	 *
+	 * @return Stripey_PaymentMethodModel
+	 */
+	public function getById($id)
+	{
+		$record = Stripey_PaymentMethodRecord::model()->findById($id);
 
-    /**
-     * @param string $class
-     * @param string $enabled CP_ENABLED | FRONTEND_ENABLED
-     * @return Stripey_PaymentMethodModel
-     */
-    public function getByClass($class, $enabled = '')
-    {
-        $record = Stripey_PaymentMethodRecord::model()->findByAttributes(array('class' => $class));
+		return Stripey_PaymentMethodModel::populateModel($record);
+	}
 
-        $this->filterEnabled($enabled);
-        if ($enabled && (!$record || !$record->$enabled)) {
-            return null;
-        }
+	/**
+	 * @param string $enabled CP_ENABLED | FRONTEND_ENABLED
+	 *
+	 * @return Stripey_PaymentMethodModel[]
+	 */
+	public function getAll($enabled = '')
+	{
+		$this->filterEnabled($enabled);
+		if ($enabled) {
+			$records        = Stripey_PaymentMethodRecord::model()->findAllByAttributes(array($enabled => true));
+			$paymentMethods = Stripey_PaymentMethodModel::populateModels($records);
+		} else {
+			$paymentMethods = array();
+			$gateways       = craft()->stripey_gateway->getGateways();
 
-        if($record) {
-            $model = Stripey_PaymentMethodModel::populateModel($record);
-        } else {
-            $gateway = craft()->stripey_gateway->getGateway($class);
+			foreach ($gateways as $gateway) {
+				$paymentMethods[] = $this->getByClass($gateway->getShortName());
+			}
+		}
 
-            $model = new Stripey_PaymentMethodModel;
-            $model->class = $gateway->getShortName();
-            $model->name = $gateway->getName();
-            $model->settings = $gateway->getDefaultParameters();
-        }
+		return $paymentMethods;
+	}
 
-        return $model;
-    }
+	/**
+	 * @param string $enabled
+	 */
+	private function filterEnabled(&$enabled)
+	{
+		if (!in_array($enabled, array(self::CP_ENABLED, self::FRONTEND_ENABLED), true)) {
+			$enabled = '';
+		}
+	}
 
-    /**
-     * @param string $enabled CP_ENABLED | FRONTEND_ENABLED
-     * @return Stripey_PaymentMethodModel[]
-     */
-    public function getAll($enabled = '')
-    {
-        $this->filterEnabled($enabled);
-        if ($enabled) {
-            $records = Stripey_PaymentMethodRecord::model()->findAllByAttributes(array($enabled => true));
-            $paymentMethods = Stripey_PaymentMethodModel::populateModels($records);
-        } else {
-            $paymentMethods = array();
-            $gateways = craft()->stripey_gateway->getGateways();
+	/**
+	 * @param string $class
+	 * @param string $enabled CP_ENABLED | FRONTEND_ENABLED
+	 *
+	 * @return Stripey_PaymentMethodModel
+	 */
+	public function getByClass($class, $enabled = '')
+	{
+		$record = Stripey_PaymentMethodRecord::model()->findByAttributes(array('class' => $class));
 
-            foreach ($gateways as $gateway) {
-                $paymentMethods[] = $this->getByClass($gateway->getShortName());
-            }
-        }
+		$this->filterEnabled($enabled);
+		if ($enabled && (!$record || !$record->$enabled)) {
+			return NULL;
+		}
 
-        return $paymentMethods;
-    }
+		if ($record) {
+			$model = Stripey_PaymentMethodModel::populateModel($record);
+		} else {
+			$gateway = craft()->stripey_gateway->getGateway($class);
 
-    /**
-     * @param Stripey_PaymentMethodModel $model
-     * @return bool
-     * @throws Exception
-     */
-    public function save(Stripey_PaymentMethodModel $model) {
-        $record = Stripey_PaymentMethodRecord::model()->findByAttributes(array('class' => $model->class));
-        if (!$record) {
-            $gateway = craft()->stripey_gateway->getGateway($model->class);
+			$model           = new Stripey_PaymentMethodModel;
+			$model->class    = $gateway->getShortName();
+			$model->name     = $gateway->getName();
+			$model->settings = $gateway->getDefaultParameters();
+		}
 
-            if(!$gateway) {
-                throw new Exception(Craft::t('No gateway exists with the class name “{class}”', array('class' => $model->class)));
-            }
-            $record = new Stripey_PaymentMethodRecord();
-            $record->name = $gateway->getName();
-        }
+		return $model;
+	}
 
-        $record->class = $model->class;
-        $record->settings = $model->settings;
-        $record->cpEnabled = $model->cpEnabled;
-        $record->frontendEnabled = $model->frontendEnabled;
+	/**
+	 * @param Stripey_PaymentMethodModel $model
+	 *
+	 * @return bool
+	 * @throws Exception
+	 */
+	public function save(Stripey_PaymentMethodModel $model)
+	{
+		$record = Stripey_PaymentMethodRecord::model()->findByAttributes(array('class' => $model->class));
+		if (!$record) {
+			$gateway = craft()->stripey_gateway->getGateway($model->class);
 
-        $record->validate();
-        $model->addErrors($record->getErrors());
+			if (!$gateway) {
+				throw new Exception(Craft::t('No gateway exists with the class name “{class}”', array('class' => $model->class)));
+			}
+			$record       = new Stripey_PaymentMethodRecord();
+			$record->name = $gateway->getName();
+		}
 
-        if (!$model->hasErrors()) {
-            // Save it!
-            $record->save(false);
+		$record->class           = $model->class;
+		$record->settings        = $model->settings;
+		$record->cpEnabled       = $model->cpEnabled;
+		$record->frontendEnabled = $model->frontendEnabled;
 
-            // Now that we have a record ID, save it on the model
-            $model->id = $record->id;
+		$record->validate();
+		$model->addErrors($record->getErrors());
 
-            return true;
-        } else {
-            return false;
-        }
-    }
+		if (!$model->hasErrors()) {
+			// Save it!
+			$record->save(false);
 
-    /**
-     * @param string $enabled
-     */
-    private function filterEnabled(&$enabled) {
-        if(!in_array($enabled, array(self::CP_ENABLED, self::FRONTEND_ENABLED), true)) {
-            $enabled = '';
-        }
-    }
+			// Now that we have a record ID, save it on the model
+			$model->id = $record->id;
+
+			return true;
+		} else {
+			return false;
+		}
+	}
 }

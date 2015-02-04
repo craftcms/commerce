@@ -13,10 +13,10 @@
 {% set content %}
 <h2>Global</h2>
 
-    <form action="" method="post" accept-charset="UTF-8">
-        <input type="hidden" name="action" value="stripey/settings/saveSettings" />
-        <input type="hidden" name="redirect" value="stripey/settings" />
-        {{ forms.textField({
+<form action="" method="post" accept-charset="UTF-8">
+    <input type="hidden" name="action" value="stripey/settings/saveSettings"/>
+    <input type="hidden" name="redirect" value="stripey/settings"/>
+    {{ forms.textField({
         label: "Secret Key"|t,
         instructions: "Your Stripe secret key. Test or Live."|t,
         id: 'secretKey',
@@ -25,9 +25,9 @@
         errors: (settings is defined ? settings.getErrors('secretKey') : null),
         required: true,
         autofocus: true
-        }) }}
+    }) }}
 
-        {{ forms.textField({
+    {{ forms.textField({
         label: "Publishable Key"|t,
         instructions: "Your Stripe publishable key. Test or Live."|t,
         id: 'publishableKey',
@@ -35,9 +35,9 @@
         value: (settings.publishableKey is defined ? settings.publishableKey : null),
         errors: (settings is defined ? settings.getErrors('publishableKey') : null),
         required: true,
-        }) }}
+    }) }}
 
-        {{ forms.textField({
+    {{ forms.textField({
         label: "Default Currency"|t,
         instructions: "Default Charge Currency."|t,
         id: 'defaultCurrency',
@@ -45,11 +45,10 @@
         value: (settings.defaultCurrency is defined ? settings.defaultCurrency : null),
         errors: (settings is defined ? settings.getErrors('defaultCurrency') : null),
         required: true,
-        }) }}
-        <!-- TODO: Make dropdown and popular with a currency helper -->
-        <input type="submit" class="btn" value="Save"/>
-    </form>
-
+    }) }}
+    <!-- TODO: Make dropdown and popular with a currency helper -->
+    <input type="submit" class="btn" value="Save"/>
+</form>
 
 
 {% endset %}

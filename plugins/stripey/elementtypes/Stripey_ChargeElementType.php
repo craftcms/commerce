@@ -1,7 +1,6 @@
 <?php
 namespace Craft;
 
-
 class Stripey_ChargeElementType extends BaseElementType
 {
 	/**
@@ -51,7 +50,7 @@ class Stripey_ChargeElementType extends BaseElementType
 	 *
 	 * @return array|false
 	 */
-	public function getSources($context = null)
+	public function getSources($context = NULL)
 	{
 		$sources = array(
 			'*' => array(
@@ -69,12 +68,12 @@ class Stripey_ChargeElementType extends BaseElementType
 	 *
 	 * @return array
 	 */
-	public function defineTableAttributes($source = null)
+	public function defineTableAttributes($source = NULL)
 	{
 		return array(
-			'id' => Craft::t('Craft Id'),
+			'id'       => Craft::t('Craft Id'),
 			'stripeId' => Craft::t('Stripe Charge Id'),
-			'amount' => Craft::t('Amount'),
+			'amount'   => Craft::t('Amount'),
 		);
 	}
 
@@ -93,8 +92,8 @@ class Stripey_ChargeElementType extends BaseElementType
 	{
 		switch ($attribute) {
 			case 'amount': {
-                return "$ ".$element->amount;
-            }
+				return "$ " . $element->amount;
+			}
 			default: {
 				return parent::getTableAttributeHtml($element, $attribute);
 			}
@@ -110,7 +109,7 @@ class Stripey_ChargeElementType extends BaseElementType
 	{
 		return array(
 			'stripeId' => Craft::t('Stripe ID'),
-			'amount' => Craft::t('Amount')
+			'amount'   => Craft::t('Amount')
 		);
 	}
 
@@ -129,7 +128,7 @@ class Stripey_ChargeElementType extends BaseElementType
 	/**
 	 * Modifies an element query targeting elements of this type.
 	 *
-	 * @param DbCommand $query
+	 * @param DbCommand            $query
 	 * @param ElementCriteriaModel $criteria
 	 *
 	 * @return mixed

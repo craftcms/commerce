@@ -14,15 +14,18 @@
 
 <table id="optiontypes" class="data fullwidth collapsible">
     <thead>
-    <tr><th scope="col">Name</th>
+    <tr>
+        <th scope="col">Name</th>
         <th scope="col">Handle</th>
         <td class="thin"></td>
-    </tr></thead>
+    </tr>
+    </thead>
     <tbody>
     {% for optionType in optionTypes %}
-        <tr data-id="{{optionType.id}}" data-name="{{optionType.name}}">
-            <th scope="row" data-title="Name"><a href="{{url('stripey/settings/optiontypes/'~optionType.id)}}">{{optionType.name}}</a></th>
-            <td data-title="Handle"><code>{{optionType.handle}}</code></td>
+        <tr data-id="{{ optionType.id }}" data-name="{{ optionType.name }}">
+            <th scope="row" data-title="Name"><a
+                        href="{{ url('stripey/settings/optiontypes/'~optionType.id) }}">{{ optionType.name }}</a></th>
+            <td data-title="Handle"><code>{{ optionType.handle }}</code></td>
             <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
         </tr>
     {% endfor %}
@@ -31,7 +34,7 @@
 </table>
 <br/>
 <div class="btngroup submit first">
-    <a href="{{url('stripey/settings/optiontypes/new')}}" class="btn submit" >New Option Type</a>
+    <a href="{{ url('stripey/settings/optiontypes/new') }}" class="btn submit">New Option Type</a>
 </div>
 </form>
 {% endset %}

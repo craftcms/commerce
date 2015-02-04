@@ -12,41 +12,41 @@
 
 
 {% set content %}
-        <table class="data fullwidth collapsible">
-            <thead>
-            <tr>
-            <th>Name</th>
-            <th>ID</th>
-            <th>Interval</th>
-            <th>created</th>
-            <th>amount</th>
-            <th>currency</th>
+<table class="data fullwidth collapsible">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>ID</th>
+        <th>Interval</th>
+        <th>created</th>
+        <th>amount</th>
+        <th>currency</th>
 
-            <th>livemode</th>
-            <th>interval_count</th>
-            <th>trial_period_days</th>
-            <tr>
+        <th>livemode</th>
+        <th>interval_count</th>
+        <th>trial_period_days</th>
+    <tr>
 
-            </thead>
+    </thead>
 
-<tbody>
-{% for plan in plans %}
-<tr>
-    <td>{{plan.name}}</td>
-    <td><strong>{{plan.id}}</strong></td>
-<td>{{plan.interval}}</td>
+    <tbody>
+    {% for plan in plans %}
+        <tr>
+            <td>{{ plan.name }}</td>
+            <td><strong>{{ plan.id }}</strong></td>
+            <td>{{ plan.interval }}</td>
 
-<td>{{plan.created|date('d M Y')}}</td>
-<td>{{plan.amount}}</td>
-<td>{{plan.currency}}</td>
+            <td>{{ plan.created|date('d M Y') }}</td>
+            <td>{{ plan.amount }}</td>
+            <td>{{ plan.currency }}</td>
 
-<td>{{plan.livemode}}</td>
-<td>{{plan.interval_count}}</td>
-<td>{{plan.trial_period_days}}</td>
-</tr>
+            <td>{{ plan.livemode }}</td>
+            <td>{{ plan.interval_count }}</td>
+            <td>{{ plan.trial_period_days }}</td>
+        </tr>
 
-{% endfor %}
-</tbody>
+    {% endfor %}
+    </tbody>
 </table>
 
 

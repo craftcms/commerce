@@ -17,12 +17,12 @@ class m150124_124600_stripey_States extends BaseMigration
 			'AU' => array(
 				'ACT' => 'Australian Capital Territory',
 				'NSW' => 'New South Wales',
-				'NT' => 'Northern Territory',
+				'NT'  => 'Northern Territory',
 				'QLD' => 'Queensland',
-				'SA' => 'South Australia',
+				'SA'  => 'South Australia',
 				'TAS' => 'Tasmania',
 				'VIC' => 'Victoria',
-				'WA' => 'Western Australia',
+				'WA'  => 'Western Australia',
 			),
 			'CA' => array(
 				'AB' => 'Alberta',
@@ -97,14 +97,14 @@ class m150124_124600_stripey_States extends BaseMigration
 		$criteria = new \CDbCriteria();
 		$criteria->addInCondition('iso', array_keys($states));
 		$countries = Stripey_CountryRecord::model()->findAll($criteria);
-		$code2id = array();
-		foreach($countries as $record) {
+		$code2id   = array();
+		foreach ($countries as $record) {
 			$code2id[$record->iso] = $record->id;
 		}
 
 		$rows = array();
-		foreach($states as $iso => $list) {
-			foreach($list as $abbr => $name) {
+		foreach ($states as $iso => $list) {
+			foreach ($list as $abbr => $name) {
 				$rows[] = array($code2id[$iso], $abbr, $name);
 			}
 		}

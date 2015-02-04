@@ -25,31 +25,31 @@ namespace Craft;
 class Stripey_AddressRecord extends BaseRecord
 {
 
-    public function getTableName()
-    {
-        return 'stripey_addresses';
-    }
+	public function getTableName()
+	{
+		return 'stripey_addresses';
+	}
 
-    public function defineRelations()
-    {
-        return array(
-            'country' => array(static::BELONGS_TO, 'Stripey_CountryRecord', 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE, 'required' => true),
-            'state'   => array(static::BELONGS_TO, 'Stripey_StateRecord', 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE),
-        );
-    }
+	public function defineRelations()
+	{
+		return array(
+			'country' => array(static::BELONGS_TO, 'Stripey_CountryRecord', 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE, 'required' => true),
+			'state'   => array(static::BELONGS_TO, 'Stripey_StateRecord', 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE),
+		);
+	}
 
-    protected function defineAttributes()
-    {
-        return array(
-            'firstName'        => array(AttributeType::String, 'required' => true),
-            'lastName'         => array(AttributeType::String, 'required' => true),
-            'address1'         => AttributeType::String,
-            'address2'         => AttributeType::String,
-            'zipCode'          => AttributeType::String,
-            'phone'            => AttributeType::String,
-            'alternativePhone' => AttributeType::String,
-            'company'          => AttributeType::String,
-            'stateName'        => AttributeType::String,
-        );
-    }
+	protected function defineAttributes()
+	{
+		return array(
+			'firstName'        => array(AttributeType::String, 'required' => true),
+			'lastName'         => array(AttributeType::String, 'required' => true),
+			'address1'         => AttributeType::String,
+			'address2'         => AttributeType::String,
+			'zipCode'          => AttributeType::String,
+			'phone'            => AttributeType::String,
+			'alternativePhone' => AttributeType::String,
+			'company'          => AttributeType::String,
+			'stateName'        => AttributeType::String,
+		);
+	}
 }

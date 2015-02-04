@@ -2,10 +2,10 @@
 
 namespace Stripey\Charge;
 
+class Refunder
+{
 
-class Refunder {
-
-	public function __construct($charge,$amount,$reason = "")
+	public function __construct($charge, $amount, $reason = "")
 	{
 
 	}

@@ -2,105 +2,108 @@
 
 namespace Craft;
 
-
 class Stripey_OptionValueService extends BaseApplicationComponent
 {
-    /**
-     * @param int $id
-     * @return Stripey_OptionValueModel[]
-     */
-    public function getAllByOptionTypeId($id)
-    {
-        $optionValueRecords = Stripey_OptionValueRecord::model()->findAllByAttributes(array('optionTypeId' => $id));
-        return Stripey_OptionValueModel::populateModels($optionValueRecords);
-    }
+	/**
+	 * @param int $id
+	 *
+	 * @return Stripey_OptionValueModel[]
+	 */
+	public function getAllByOptionTypeId($id)
+	{
+		$optionValueRecords = Stripey_OptionValueRecord::model()->findAllByAttributes(array('optionTypeId' => $id));
 
-    /**
-     * @param int $id
-     * @return Stripey_OptionValueModel
-     */
-    public function getById($id)
-    {
-        $optionValueRecord = Stripey_OptionValueRecord::model()->findById($id);
+		return Stripey_OptionValueModel::populateModels($optionValueRecords);
+	}
 
-        return Stripey_OptionValueModel::populateModel($optionValueRecord);
-    }
+	/**
+	 * @param int $id
+	 *
+	 * @return Stripey_OptionValueModel
+	 */
+	public function getById($id)
+	{
+		$optionValueRecord = Stripey_OptionValueRecord::model()->findById($id);
 
-    /**
-     * @param Stripey_OptionTypeModel $optionType
-     * @param Stripey_OptionValueModel[] $optionValues
-     * @return bool
-     * @throws Exception
-     * @throws \CDbException
-     * @throws \Exception
-     */
-    public function saveOptionValuesForOptionType($optionType, $optionValues)
-    {
-        // Check for a real optionType
-        if (!craft()->stripey_optionType->getById($optionType->id)) {
-            throw new Exception(Craft::t('No Option Type exists with the ID “{id}”', array('id' => $id)));
-        }
+		return Stripey_OptionValueModel::populateModel($optionValueRecord);
+	}
 
-        // Delete all optionValues that were removed
-        $this->_deleteOptionValuesRemoved($optionType, $optionValues);
+	/**
+	 * @param Stripey_OptionTypeModel    $optionType
+	 * @param Stripey_OptionValueModel[] $optionValues
+	 *
+	 * @return bool
+	 * @throws Exception
+	 * @throws \CDbException
+	 * @throws \Exception
+	 */
+	public function saveOptionValuesForOptionType($optionType, $optionValues)
+	{
+		// Check for a real optionType
+		if (!craft()->stripey_optionType->getById($optionType->id)) {
+			throw new Exception(Craft::t('No Option Type exists with the ID “{id}”', array('id' => $id)));
+		}
 
-        $transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
-        try {
-            foreach ($optionValues as $optionValue) {
-                $optionValueRecord = Stripey_OptionValueRecord::model()->findByAttributes(array(
-                    'id' => $optionValue->id,
-                    'optionTypeId' => $optionType->id
-                ));
+		// Delete all optionValues that were removed
+		$this->_deleteOptionValuesRemoved($optionType, $optionValues);
 
-                if (!$optionValueRecord) {
-                    $optionValueRecord = new Stripey_OptionValueRecord();
-                }
+		$transaction = craft()->db->getCurrentTransaction() === NULL ? craft()->db->beginTransaction() : NULL;
+		try {
+			foreach ($optionValues as $optionValue) {
+				$optionValueRecord = Stripey_OptionValueRecord::model()->findByAttributes(array(
+					'id'           => $optionValue->id,
+					'optionTypeId' => $optionType->id
+				));
 
-                $optionValueRecord->name            = $optionValue->name;
-                $optionValueRecord->displayName     = $optionValue->displayName;
-                $optionValueRecord->position        = $optionValue->position;
-                $optionValueRecord->optionTypeId    = $optionType->id;
-                $optionValueRecord->save(false);
-            }
+				if (!$optionValueRecord) {
+					$optionValueRecord = new Stripey_OptionValueRecord();
+				}
 
-            if ($transaction !== null) {
-                $transaction->commit();
-            }
-        } catch (\Exception $e) {
-            if ($transaction !== null) {
-                $transaction->rollback();
-            }
+				$optionValueRecord->name         = $optionValue->name;
+				$optionValueRecord->displayName  = $optionValue->displayName;
+				$optionValueRecord->position     = $optionValue->position;
+				$optionValueRecord->optionTypeId = $optionType->id;
+				$optionValueRecord->save(false);
+			}
 
-            throw $e;
-        }
+			if ($transaction !== NULL) {
+				$transaction->commit();
+			}
+		} catch (\Exception $e) {
+			if ($transaction !== NULL) {
+				$transaction->rollback();
+			}
 
-        return true;
-    }
+			throw $e;
+		}
 
-    /**
-     * @param Stripey_OptionTypeModel $optionType
-     * @param Stripey_OptionValueModel[] $optionValues
-     */
-    private function _deleteOptionValuesRemoved($optionType, $optionValues)
-    {
-        $newIds = array_filter(array_map(function ($optionValue) {
-            return $optionValue['id'];
-        }, $optionValues));
-        $criteria = new \CDbCriteria();
-        $criteria->addColumnCondition(array('optionTypeId' => $optionType->id));
-        $criteria->addNotInCondition("id", $newIds);
-        Stripey_OptionValueRecord::model()->deleteAll($criteria);
-    }
+		return true;
+	}
 
-    /**
-     * @param int $id
-     * @throws \CDbException
-     */
-    public function deleteById($id)
-    {
-        $optionType = Stripey_OptionTypeRecord::model()->findById($id);
-        $optionType->delete();
-    }
+	/**
+	 * @param Stripey_OptionTypeModel    $optionType
+	 * @param Stripey_OptionValueModel[] $optionValues
+	 */
+	private function _deleteOptionValuesRemoved($optionType, $optionValues)
+	{
+		$newIds   = array_filter(array_map(function ($optionValue) {
+			return $optionValue['id'];
+		}, $optionValues));
+		$criteria = new \CDbCriteria();
+		$criteria->addColumnCondition(array('optionTypeId' => $optionType->id));
+		$criteria->addNotInCondition("id", $newIds);
+		Stripey_OptionValueRecord::model()->deleteAll($criteria);
+	}
 
+	/**
+	 * @param int $id
+	 *
+	 * @throws \CDbException
+	 */
+	public function deleteById($id)
+	{
+		$optionType = Stripey_OptionTypeRecord::model()->findById($id);
+		$optionType->delete();
+	}
 
 }

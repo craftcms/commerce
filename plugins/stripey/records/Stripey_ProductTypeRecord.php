@@ -3,10 +3,11 @@ namespace Craft;
 
 /**
  * Class Stripey_ProductTypeRecord
- * @property int id
- * @property string name
- * @property string handle
- * @property int fieldLayoutId
+ *
+ * @property int               id
+ * @property string            name
+ * @property string            handle
+ * @property int               fieldLayoutId
  *
  * @property FieldLayoutRecord fieldLayout
  * @package Craft
@@ -14,43 +15,44 @@ namespace Craft;
 class Stripey_ProductTypeRecord extends BaseRecord
 {
 
-    /**
-     * @inheritDoc BaseRecord::getTableName()
-     *
-     * @return string
-     */
-    public function getTableName()
-    {
-        return 'stripey_producttypes';
-    }
+	/**
+	 * @inheritDoc BaseRecord::getTableName()
+	 *
+	 * @return string
+	 */
+	public function getTableName()
+	{
+		return 'stripey_producttypes';
+	}
 
-    /**
-     * @inheritDoc BaseRecord::defineRelations()
-     *
-     * @return array
-     */
-    public function defineRelations()
-    {
-        return array(
-            'fieldLayout' => array(static::BELONGS_TO, 'FieldLayoutRecord', 'onDelete' => static::SET_NULL),
-        );
-    }
+	/**
+	 * @inheritDoc BaseRecord::defineRelations()
+	 *
+	 * @return array
+	 */
+	public function defineRelations()
+	{
+		return array(
+			'fieldLayout' => array(static::BELONGS_TO, 'FieldLayoutRecord', 'onDelete' => static::SET_NULL),
+		);
+	}
 
 
-    // Protected Methods
-    // =========================================================================
+	// Protected Methods
+	// =========================================================================
 
-    /**
-     * @inheritDoc BaseRecord::defineAttributes()
-     *
-     * @return array
-     */
-    protected function defineAttributes()
-    {
-        return array(
-            'name'   => array(AttributeType::Name, 'required' => true),
-            'handle' => array(AttributeType::Handle, 'required' => true)
-        );
-    }
+	/**
+	 * @inheritDoc BaseRecord::defineAttributes()
+	 *
+	 * @return array
+	 */
+	protected function defineAttributes()
+	{
+		return array(
+			'name'          => array(AttributeType::Name, 'required' => true),
+			'handle'        => array(AttributeType::Handle, 'required' => true),
+			'fieldLayoutId' => AttributeType::Number,
+		);
+	}
 
 }

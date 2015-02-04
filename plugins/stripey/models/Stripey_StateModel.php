@@ -5,44 +5,44 @@ namespace Craft;
 /**
  * Class Stripey_StateModel
  *
- * @property int $id
+ * @property int    $id
  * @property string $name
  * @property string $abbreviation
- * @property int $countryId
+ * @property int    $countryId
  * @property string $countryName
  * @package Craft
  */
 class Stripey_StateModel extends BaseModel
 {
-    public $countryName;
+	public $countryName;
 
-    public function getCpEditUrl()
-    {
-        return UrlHelper::getCpUrl('stripey/settings/states/' . $this->id);
-    }
+	public function getCpEditUrl()
+	{
+		return UrlHelper::getCpUrl('stripey/settings/states/' . $this->id);
+	}
 
-    protected function defineAttributes()
-    {
-        return array(
-            'id'            => AttributeType::Number,
-            'name'          => AttributeType::String,
-            'abbreviation'  => AttributeType::String,
-            'countryId'     => AttributeType::Number,
-        );
-    }
+	public function formatName()
+	{
+		return $this->name . ' (' . $this->countryName . ')';
+	}
 
-    public static function populateModel($values)
-    {
-        $model = parent::populateModel($values);
-        if(is_object($values)) {
-            $model->countryName = $values->country->name;
-        }
+	protected function defineAttributes()
+	{
+		return array(
+			'id'           => AttributeType::Number,
+			'name'         => AttributeType::String,
+			'abbreviation' => AttributeType::String,
+			'countryId'    => AttributeType::Number,
+		);
+	}
 
-        return $model;
-    }
+	public static function populateModel($values)
+	{
+		$model = parent::populateModel($values);
+		if (is_object($values)) {
+			$model->countryName = $values->country->name;
+		}
 
-    public function formatName()
-    {
-        return $this->name . ' (' . $this->countryName . ')';
-    }
+		return $model;
+	}
 }

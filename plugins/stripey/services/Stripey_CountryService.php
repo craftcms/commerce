@@ -4,75 +4,81 @@ namespace Craft;
 
 /**
  * Class Stripey_CountryService
+ *
  * @package Craft
  */
 class Stripey_CountryService extends BaseApplicationComponent
 {
-    /**
-     * @return Stripey_CountryModel[]
-     */
-    public function getAll()
-    {
-        $records = Stripey_CountryRecord::model()->findAll(array('order' => 'name'));
-        return Stripey_CountryModel::populateModels($records);
-    }
+	/**
+	 * @return Stripey_CountryModel[]
+	 */
+	public function getAll()
+	{
+		$records = Stripey_CountryRecord::model()->findAll(array('order' => 'name'));
 
-    /**
-     * @param int $id
-     * @return Stripey_CountryModel
-     */
-    public function getById($id)
-    {
-        $record = Stripey_CountryRecord::model()->findById($id);
-        return Stripey_CountryModel::populateModel($record);
-    }
+		return Stripey_CountryModel::populateModels($records);
+	}
 
-    /**
-     * @param Stripey_CountryModel $model
-     * @return bool
-     * @throws Exception
-     * @throws \CDbException
-     * @throws \Exception
-     */    
-    public function save(Stripey_CountryModel $model)
-    {
-        if ($model->id) {
-            $record = Stripey_CountryRecord::model()->findById($model->id);
+	/**
+	 * @param int $id
+	 *
+	 * @return Stripey_CountryModel
+	 */
+	public function getById($id)
+	{
+		$record = Stripey_CountryRecord::model()->findById($id);
 
-            if (!$record) {
-                throw new Exception(Craft::t('No country exists with the ID “{id}”', array('id' => $model->id)));
-            }
-        } else {
-            $record = new Stripey_CountryRecord();
-        }
+		return Stripey_CountryModel::populateModel($record);
+	}
 
-        $record->name = $model->name;
-        $record->iso = $model->iso;
-        $record->stateRequired = $model->stateRequired;
+	/**
+	 * @param Stripey_CountryModel $model
+	 *
+	 * @return bool
+	 * @throws Exception
+	 * @throws \CDbException
+	 * @throws \Exception
+	 */
+	public function save(Stripey_CountryModel $model)
+	{
+		if ($model->id) {
+			$record = Stripey_CountryRecord::model()->findById($model->id);
 
-        $record->validate();
-        $model->addErrors($record->getErrors());
+			if (!$record) {
+				throw new Exception(Craft::t('No country exists with the ID “{id}”', array('id' => $model->id)));
+			}
+		} else {
+			$record = new Stripey_CountryRecord();
+		}
 
-        if (!$model->hasErrors()) {
-            // Save it!
-            $record->save(false);
+		$record->name          = $model->name;
+		$record->iso           = $model->iso;
+		$record->stateRequired = $model->stateRequired;
 
-            // Now that we have a record ID, save it on the model
-            $model->id = $record->id;
+		$record->validate();
+		$model->addErrors($record->getErrors());
 
-            return true;
-        } else {
-            return false;
-        }
-    }
+		if (!$model->hasErrors()) {
+			// Save it!
+			$record->save(false);
 
-    /**
-     * @param int $id
-     * @throws \CDbException
-     */
-    public function deleteById($id)
-    {
-        $Country = Stripey_CountryRecord::model()->findById($id);
-        $Country->delete();
-    }
+			// Now that we have a record ID, save it on the model
+			$model->id = $record->id;
+
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * @param int $id
+	 *
+	 * @throws \CDbException
+	 */
+	public function deleteById($id)
+	{
+		$Country = Stripey_CountryRecord::model()->findById($id);
+		$Country->delete();
+	}
 }

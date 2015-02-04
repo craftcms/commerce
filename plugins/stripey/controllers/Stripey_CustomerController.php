@@ -1,8 +1,8 @@
 <?php
 namespace Craft;
 
-
-class Stripey_CustomerController extends BaseController{
+class Stripey_CustomerController extends BaseController
+{
 
 	protected $allowAnonymous = array('actionNewCustomer');
 

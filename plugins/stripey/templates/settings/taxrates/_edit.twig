@@ -87,10 +87,10 @@
 {% endset %}
 
 {% set js %}
-    $(function() {
-        $('#taxZoneId, #taxCategoryId').selectize({
-            dropdownParent: 'body'
-        });
-    });
+$(function() {
+$('#taxZoneId, #taxCategoryId').selectize({
+dropdownParent: 'body'
+});
+});
 {% endset %}
 {% includeJs js %}

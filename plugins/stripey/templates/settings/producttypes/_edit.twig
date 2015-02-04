@@ -20,27 +20,27 @@
     {% if productType.id %}<input type="hidden" name="productTypeId" value="{{ productType.id }}">{% endif %}
 
     {{ forms.textField({
-    first: true,
-    label: "Name"|t,
-    instructions: "What this product type will be called in the CP."|t,
-    id: 'name',
-    name: 'name',
-    value: productType.name,
-    errors: productType.getErrors('name'),
-    autofocus: true,
-    required: true,
-    translatable: true
+        first: true,
+        label: "Name"|t,
+        instructions: "What this product type will be called in the CP."|t,
+        id: 'name',
+        name: 'name',
+        value: productType.name,
+        errors: productType.getErrors('name'),
+        autofocus: true,
+        required: true,
+        translatable: true
     }) }}
 
     {{ forms.textField({
-    label: "Handle"|t,
-    instructions: "How you’ll refer to this product type in code or templates."|t,
-    id: 'handle',
-    class: 'code',
-    name: 'handle',
-    value: productType.handle,
-    errors: productType.getErrors('handle'),
-    required: true
+        label: "Handle"|t,
+        instructions: "How you’ll refer to this product type in code or templates."|t,
+        id: 'handle',
+        class: 'code',
+        name: 'handle',
+        value: productType.handle,
+        errors: productType.getErrors('handle'),
+        required: true
     }) }}
 
     {% include "_includes/fieldlayoutdesigner" with {

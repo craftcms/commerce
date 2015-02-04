@@ -1,9 +1,9 @@
 {% extends "stripey/_layouts/cp" %}
 
 {% set crumbs = [
-    { label: "Stripey"|t, url: url('stripey') },
-    { label: "Products"|t, url: url('stripey/products') },
-    { label: product.title, url: url(product.cpEditUrl) },
+{ label: "Stripey"|t, url: url('stripey') },
+{ label: "products"|t, url: url('stripey/products') },
+{ label: product.title, url: url(product.cpEditUrl) },
 ] %}
 
 {% import "_includes/forms" as forms %}
@@ -21,14 +21,14 @@
 
     <table id="" class="shadow-box editable">
         <thead>
-            <tr>
-                <th scope="col" class="header"><span class="required">SKU</span></th>
-                <th scope="col" class="header"><span class="required">Price</span></th>
-                <th scope="col" class="header">Width</th>
-                <th scope="col" class="header">Height</th>
-                <th scope="col" class="header">Length</th>
-                <th scope="col" class="header">Weight</th>
-            </tr>
+        <tr>
+            <th scope="col" class="header"><span class="required">SKU</span></th>
+            <th scope="col" class="header"><span class="required">Price</span></th>
+            <th scope="col" class="header">Width</th>
+            <th scope="col" class="header">Height</th>
+            <th scope="col" class="header">Length</th>
+            <th scope="col" class="header">Weight</th>
+        </tr>
         <tbody>
         <tr>
             <td class="textual">
@@ -51,14 +51,14 @@
             </td>
         </tr>
         {% if variant.hasErrors() %}
-        <tr>
-            <td><span class="error">{{ variant.getErrors('sku')|join }}</span> </td>
-            <td><span class="error">{{ variant.getErrors('price')|join }}</span> </td>
-            <td><span class="error">{{ variant.getErrors('width')|join }}</span> </td>
-            <td><span class="error">{{ variant.getErrors('height')|join }}</span> </td>
-            <td><span class="error">{{ variant.getErrors('length')|join }}</span> </td>
-            <td><span class="error">{{ variant.getErrors('weight')|join }}</span> </td>
-        </tr>
+            <tr>
+                <td><span class="error">{{ variant.getErrors('sku')|join }}</span></td>
+                <td><span class="error">{{ variant.getErrors('price')|join }}</span></td>
+                <td><span class="error">{{ variant.getErrors('width')|join }}</span></td>
+                <td><span class="error">{{ variant.getErrors('height')|join }}</span></td>
+                <td><span class="error">{{ variant.getErrors('length')|join }}</span></td>
+                <td><span class="error">{{ variant.getErrors('weight')|join }}</span></td>
+            </tr>
         {% endif %}
         </tbody>
     </table>
@@ -84,5 +84,14 @@
         <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
     </div>
 </form>
+
+{% set js %}
+$(function() {
+$('select').selectize({
+allowEmptyOption:true
+});
+});
+{% endset %}
+{% includeJs js %}
 
 {% endset %}

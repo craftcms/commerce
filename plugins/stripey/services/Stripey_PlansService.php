@@ -6,15 +6,17 @@ namespace Craft;
  *
  * @package Craft
  */
-class Stripey_PlansService extends BaseApplicationComponent{
+class Stripey_PlansService extends BaseApplicationComponent
+{
 
-    /**
-     *
-     * @return mixed
-     */
-    public function getPlans()
-    {
-        $plans = \Stripey\Stripey::app()['stripe']->plans()->all();
-        return $plans['data'];
-    }
+	/**
+	 *
+	 * @return mixed
+	 */
+	public function getPlans()
+	{
+		$plans = \Stripey\Stripey::app()['stripe']->plans()->all();
+
+		return $plans['data'];
+	}
 } 

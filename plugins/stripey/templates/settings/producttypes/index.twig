@@ -11,27 +11,31 @@
 {% set selectedTab = 'settings' %}
 
 {% set content %}
-    <table id="producttypes" class="data fullwidth collapsible">
-        <thead>
-        <tr><th scope="col">Name</th>
-            <th scope="col">Handle</th>
-            <td class="thin"></td>
-        </tr></thead>
-        <tbody>
-        {% for productType in productTypes %}
-        <tr data-id="{{productType.id}}" data-name="{{productType.name}}">
-            <th scope="row" data-title="Name"><a href="{{url('stripey/settings/producttypes/'~productType.id)}}">{{productType.name}}</a></th>
-            <td data-title="Handle"><code>{{productType.handle}}</code></td>
+<table id="producttypes" class="data fullwidth collapsible">
+    <thead>
+    <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Handle</th>
+        <td class="thin"></td>
+    </tr>
+    </thead>
+    <tbody>
+    {% for productType in productTypes %}
+        <tr data-id="{{ productType.id }}" data-name="{{ productType.name }}">
+            <th scope="row" data-title="Name"><a
+                        href="{{ url('stripey/settings/producttypes/'~productType.id) }}">{{ productType.name }}</a>
+            </th>
+            <td data-title="Handle"><code>{{ productType.handle }}</code></td>
             <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
         </tr>
-        {% endfor %}
+    {% endfor %}
 
-        </tbody>
-    </table>
-    <br/>
-    <div class="btngroup submit first">
-    <a href="{{url('stripey/settings/producttypes/new')}}" class="btn submit" >New Product Type</a>
-    </div>
+    </tbody>
+</table>
+<br/>
+<div class="btngroup submit first">
+    <a href="{{ url('stripey/settings/producttypes/new') }}" class="btn submit">New Product Type</a>
+</div>
 {% endset %}
 
 

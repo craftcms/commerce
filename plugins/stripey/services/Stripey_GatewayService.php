@@ -6,57 +6,59 @@ use Omnipay\Common\GatewayFactory;
 
 class Stripey_GatewayService extends BaseApplicationComponent
 {
-    /** @var AbstractGateway[] */
-    private $gateways;
-    /** @var GatewayFactory */
-    private $factory;
+	/** @var AbstractGateway[] */
+	private $gateways;
+	/** @var GatewayFactory */
+	private $factory;
 
-    public function __construct()
-    {
-        $this->_loadGateways();
-    }
+	public function __construct()
+	{
+		$this->_loadGateways();
+	}
 
-    /**
-     * @return GatewayFactory
-     */
-    private function getFactory()
-    {
-        if(!$this->factory) {
-            $this->factory = new GatewayFactory();
-        }
-        return $this->factory;
-    }
+	/**
+	 * @return GatewayFactory
+	 */
+	private function getFactory()
+	{
+		if (!$this->factory) {
+			$this->factory = new GatewayFactory();
+		}
 
-    /**
-     * @param string $shortName
-     * @return AbstractGateway
-     */
-    public function getGateway($shortName)
-    {
-        return $this->getFactory()-> create($shortName);
-    }
+		return $this->factory;
+	}
 
-    /**
-     * @return AbstractGateway[]
-     */
-    public function getGateways()
-    {
-        return $this->gateways;
-    }
+	/**
+	 * @param string $shortName
+	 *
+	 * @return AbstractGateway
+	 */
+	public function getGateway($shortName)
+	{
+		return $this->getFactory()->create($shortName);
+	}
 
-    /**
-     * Pre-load all gateways
-     */
-    public function _loadGateways()
-    {
-        $gateways = array();
+	/**
+	 * @return AbstractGateway[]
+	 */
+	public function getGateways()
+	{
+		return $this->gateways;
+	}
 
-        $supportedGateways = $this->getFactory()->find();
+	/**
+	 * Pre-load all gateways
+	 */
+	public function _loadGateways()
+	{
+		$gateways = array();
 
-        foreach ($supportedGateways as $shortName) {
-            $gateways[] = $this->getGateway($shortName);
-        }
+		$supportedGateways = $this->getFactory()->find();
 
-        $this->gateways = $gateways;
-    }
+		foreach ($supportedGateways as $shortName) {
+			$gateways[] = $this->getGateway($shortName);
+		}
+
+		$this->gateways = $gateways;
+	}
 }

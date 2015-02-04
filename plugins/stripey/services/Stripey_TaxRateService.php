@@ -4,78 +4,84 @@ namespace Craft;
 
 /**
  * Class Stripey_TaxRateService
+ *
  * @package Craft
  */
 class Stripey_TaxRateService extends BaseApplicationComponent
 {
-    /**
-     * @return Stripey_TaxRateModel[]
-     */
-    public function getAll()
-    {
-        $records = Stripey_TaxRateRecord::model()->with(array('taxZone', 'taxCategory'))->findAll(array('order' => 't.name'));
-        return Stripey_TaxRateModel::populateModels($records);
-    }
+	/**
+	 * @return Stripey_TaxRateModel[]
+	 */
+	public function getAll()
+	{
+		$records = Stripey_TaxRateRecord::model()->with(array('taxZone', 'taxCategory'))->findAll(array('order' => 't.name'));
 
-    /**
-     * @param int $id
-     * @return Stripey_TaxRateModel
-     */
-    public function getById($id)
-    {
-        $record = Stripey_TaxRateRecord::model()->findById($id);
-        return Stripey_TaxRateModel::populateModel($record);
-    }
+		return Stripey_TaxRateModel::populateModels($records);
+	}
 
-    /**
-     * @param Stripey_TaxRateModel $model
-     * @return bool
-     * @throws Exception
-     * @throws \CDbException
-     * @throws \Exception
-     */    
-    public function save(Stripey_TaxRateModel $model)
-    {
-        if ($model->id) {
-            $record = Stripey_TaxRateRecord::model()->findById($model->id);
+	/**
+	 * @param int $id
+	 *
+	 * @return Stripey_TaxRateModel
+	 */
+	public function getById($id)
+	{
+		$record = Stripey_TaxRateRecord::model()->findById($id);
 
-            if (!$record) {
-                throw new Exception(Craft::t('No tax rate exists with the ID “{id}”', array('id' => $model->id)));
-            }
-        } else {
-            $record = new Stripey_TaxRateRecord();
-        }
+		return Stripey_TaxRateModel::populateModel($record);
+	}
 
-        $record->name = $model->name;
-        $record->rate = $model->rate;
-        $record->include = $model->include;
-        $record->showInLabel = $model->showInLabel;
-        $record->taxCategoryId = $model->taxCategoryId;
-        $record->taxZoneId = $model->taxZoneId;
+	/**
+	 * @param Stripey_TaxRateModel $model
+	 *
+	 * @return bool
+	 * @throws Exception
+	 * @throws \CDbException
+	 * @throws \Exception
+	 */
+	public function save(Stripey_TaxRateModel $model)
+	{
+		if ($model->id) {
+			$record = Stripey_TaxRateRecord::model()->findById($model->id);
 
-        $record->validate();
-        $model->addErrors($record->getErrors());
+			if (!$record) {
+				throw new Exception(Craft::t('No tax rate exists with the ID “{id}”', array('id' => $model->id)));
+			}
+		} else {
+			$record = new Stripey_TaxRateRecord();
+		}
 
-        if (!$model->hasErrors()) {
-            // Save it!
-            $record->save(false);
+		$record->name          = $model->name;
+		$record->rate          = $model->rate;
+		$record->include       = $model->include;
+		$record->showInLabel   = $model->showInLabel;
+		$record->taxCategoryId = $model->taxCategoryId;
+		$record->taxZoneId     = $model->taxZoneId;
 
-            // Now that we have a record ID, save it on the model
-            $model->id = $record->id;
+		$record->validate();
+		$model->addErrors($record->getErrors());
 
-            return true;
-        } else {
-            return false;
-        }
-    }
+		if (!$model->hasErrors()) {
+			// Save it!
+			$record->save(false);
 
-    /**
-     * @param int $id
-     * @throws \CDbException
-     */
-    public function deleteById($id)
-    {
-        $TaxRate = Stripey_TaxRateRecord::model()->findById($id);
-        $TaxRate->delete();
-    }
+			// Now that we have a record ID, save it on the model
+			$model->id = $record->id;
+
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * @param int $id
+	 *
+	 * @throws \CDbException
+	 */
+	public function deleteById($id)
+	{
+		$TaxRate = Stripey_TaxRateRecord::model()->findById($id);
+		$TaxRate->delete();
+	}
 }

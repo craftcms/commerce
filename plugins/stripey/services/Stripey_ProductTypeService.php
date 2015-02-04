@@ -4,117 +4,149 @@ namespace Craft;
 
 /**
  * Class Stripey_ProductTypeService
+ *
  * @package Craft
  */
 class Stripey_ProductTypeService extends BaseApplicationComponent
 {
-    /**
-     * @return Stripey_ProductTypeModel[]
-     */
-    public function getAll()
-    {
-        $productTypeRecords = Stripey_ProductTypeRecord::model()->findAll();
-        return Stripey_ProductTypeModel::populateModels($productTypeRecords);
-    }
+	/**
+	 * @return Stripey_ProductTypeModel[]
+	 */
+	public function getAll()
+	{
+		$productTypeRecords = Stripey_ProductTypeRecord::model()->findAll();
 
-    /**
-     * @param int $id
-     * @return Stripey_ProductTypeModel
-     */
-    public function getById($id)
-    {
-        $productTypeRecord = Stripey_ProductTypeRecord::model()->findById($id);
-        return Stripey_ProductTypeModel::populateModel($productTypeRecord);
-    }
+		return Stripey_ProductTypeModel::populateModels($productTypeRecords);
+	}
 
-    /**
-     * @param string $handle
-     * @return Stripey_ProductTypeModel
-     */
-    public function getByHandle($handle)
-    {
-        $productTypeRecord = Stripey_ProductTypeRecord::model()->findByAttributes(array('handle' => $handle));
-        return Stripey_ProductTypeModel::populateModel($productTypeRecord);
-    }
+	/**
+	 * @param int $id
+	 *
+	 * @return Stripey_ProductTypeModel
+	 */
+	public function getById($id)
+	{
+		$productTypeRecord = Stripey_ProductTypeRecord::model()->findById($id);
 
-    /**
-     * @param Stripey_ProductTypeModel $productType
-     * @return bool
-     * @throws Exception
-     * @throws \CDbException
-     * @throws \Exception
-     */
-    public function save(Stripey_ProductTypeModel $productType)
-    {
-        if ($productType->id) {
-            $productTypeRecord = Stripey_ProductTypeRecord::model()->findById($productType->id);
-            if (!$productTypeRecord) {
-                throw new Exception(Craft::t('No product type exists with the ID “{id}”', array('id' => $productType->id)));
-            }
+		return Stripey_ProductTypeModel::populateModel($productTypeRecord);
+	}
 
-            $oldProductType = Stripey_ProductTypeModel::populateModel($productTypeRecord);
-            $isNewProductType = false;
-        } else {
-            $productTypeRecord = new Stripey_ProductTypeRecord();
-            $isNewProductType = true;
-        }
+	/**
+	 * @param string $handle
+	 *
+	 * @return Stripey_ProductTypeModel
+	 */
+	public function getByHandle($handle)
+	{
+		$productTypeRecord = Stripey_ProductTypeRecord::model()->findByAttributes(array('handle' => $handle));
 
-        $productTypeRecord->name       = $productType->name;
-        $productTypeRecord->handle     = $productType->handle;
+		return Stripey_ProductTypeModel::populateModel($productTypeRecord);
+	}
 
-        $productTypeRecord->validate();
-        $productType->addErrors($productTypeRecord->getErrors());
+	/**
+	 * @param Stripey_ProductTypeModel $productType
+	 *
+	 * @return bool
+	 * @throws Exception
+	 * @throws \CDbException
+	 * @throws \Exception
+	 */
+	public function save(Stripey_ProductTypeModel $productType)
+	{
+		if ($productType->id) {
+			$productTypeRecord = Stripey_ProductTypeRecord::model()->findById($productType->id);
+			if (!$productTypeRecord) {
+				throw new Exception(Craft::t('No product type exists with the ID “{id}”', array('id' => $productType->id)));
+			}
 
-        if (!$productType->hasErrors()) {
-            $transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
-            try {
-                if (!$isNewProductType && $oldProductType->fieldLayoutId) {
-                    // Drop the old field layout
-                    craft()->fields->deleteLayoutById($oldProductType->fieldLayoutId);
-                }
+			$oldProductType   = Stripey_ProductTypeModel::populateModel($productTypeRecord);
+			$isNewProductType = false;
+		} else {
+			$productTypeRecord = new Stripey_ProductTypeRecord();
+			$isNewProductType  = true;
+		}
 
-                // Save the new one
-                $fieldLayout = $productType->getFieldLayout();
-                craft()->fields->saveLayout($fieldLayout);
+		$productTypeRecord->name   = $productType->name;
+		$productTypeRecord->handle = $productType->handle;
 
-                // Update the calendar record/model with the new layout ID
-                $productType->fieldLayoutId = $fieldLayout->id;
-                $productTypeRecord->fieldLayoutId = $fieldLayout->id;
+		$productTypeRecord->validate();
+		$productType->addErrors($productTypeRecord->getErrors());
 
-                // Save it!
-                $productTypeRecord->save(false);
+		if (!$productType->hasErrors()) {
+			$transaction = craft()->db->getCurrentTransaction() === NULL ? craft()->db->beginTransaction() : NULL;
+			try {
+				if (!$isNewProductType && $oldProductType->fieldLayoutId) {
+					// Drop the old field layout
+					craft()->fields->deleteLayoutById($oldProductType->fieldLayoutId);
+				}
 
-                // Now that we have a calendar ID, save it on the model
-                if (!$productType->id) {
-                    $productType->id = $productTypeRecord->id;
-                }
+				// Save the new one
+				$fieldLayout = $productType->getFieldLayout();
+				craft()->fields->saveLayout($fieldLayout);
 
-                if ($transaction !== null) {
-                    $transaction->commit();
-                }
-            }
-            catch (\Exception $e) {
-                if ($transaction !== null) {
-                    $transaction->rollback();
-                }
+				// Update the calendar record/model with the new layout ID
+				$productType->fieldLayoutId       = $fieldLayout->id;
+				$productTypeRecord->fieldLayoutId = $fieldLayout->id;
 
-                throw $e;
-            }
+				// Save it!
+				$productTypeRecord->save(false);
 
-            return true;
-        } else {
-            return false;
-        }
-    }
+				// Now that we have a calendar ID, save it on the model
+				if (!$productType->id) {
+					$productType->id = $productTypeRecord->id;
+				}
 
-    /**
-     * @param int $id
-     * @throws \CDbException
-     */
-    public function deleteById($id) {
-        $productType = Stripey_ProductTypeRecord::model()->findById($id);
-        $productType->delete();
-    }
+				if ($transaction !== NULL) {
+					$transaction->commit();
+				}
+			} catch (\Exception $e) {
+				if ($transaction !== NULL) {
+					$transaction->rollback();
+				}
 
+				throw $e;
+			}
+
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * @param int $id
+	 *
+	 * @throws \CDbException
+	 */
+	public function deleteById($id)
+	{
+		$transaction = craft()->db->getCurrentTransaction() === NULL ? craft()->db->beginTransaction() : NULL;
+		try {
+			$productType = Stripey_ProductTypeRecord::model()->findById($id);
+
+			$query      = craft()->db->createCommand()
+				->select('id')
+				->from('stripey_products')
+				->where(array('typeId' => $productType->id));
+			$productIds = $query->queryColumn();
+
+			craft()->elements->deleteElementById($productIds);
+			craft()->fields->deleteLayoutById($productType->fieldLayoutId);
+
+			$affectedRows = $productType->delete();
+
+			if ($transaction !== NULL) {
+				$transaction->commit();
+			}
+
+			return (bool)$affectedRows;
+		} catch (\Exception $e) {
+			if ($transaction !== NULL) {
+				$transaction->rollback();
+			}
+
+			throw $e;
+		}
+	}
 
 }

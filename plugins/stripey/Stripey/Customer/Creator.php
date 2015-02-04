@@ -2,7 +2,6 @@
 namespace Stripey\Charge;
 
 use Cartalyst\Stripe\Api\Exception\StripeException;
-use Craft\Stripey_CustomerRecord as CustomerRecord;
 
 class Creator
 {
@@ -36,7 +35,7 @@ class Creator
 	public function create(\CModel $customer)
 	{
 		$this->_customer = $customer;
-		$isNewCharge   = !$customer->id;
+		$isNewCharge     = !$customer->id;
 
 		try {
 			if ($isNewCustomer) {
@@ -61,13 +60,13 @@ class Creator
 	private function createNew()
 	{
 		if (\Craft\craft()->elements->saveElement($this->_customer)) {
-			$req           = $this->buildStripeRequestWithDefaults();
+			$req                     = $this->buildStripeRequestWithDefaults();
 			$stripeCharge            = \Stripey\stripey()['stripe']->customers()->create($req);
-			$record            = new ChargeRecord();
+			$record                  = new ChargeRecord();
 			$this->_charge->stripeId = $stripeCharge['id'];
-			$record->id        = $this->_customer->id;
-			$record->stripeId  = $this->_customer->stripeId;
-			$record->amount    = $this->_customer->amount;
+			$record->id              = $this->_customer->id;
+			$record->stripeId        = $this->_customer->stripeId;
+			$record->amount          = $this->_customer->amount;
 			//TODO: Set other attributes like customer/user etc
 			$record->save();
 		} else {

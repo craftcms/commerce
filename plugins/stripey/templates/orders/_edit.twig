@@ -1,0 +1,74 @@
+{% extends "stripey/_layouts/cp" %}
+{% set crumbs = [
+{ label: "Stripey"|t, url: url('stripey') },
+{ label: "Orders"|t, url: url('stripey/orders') }
+] %}
+
+{% import "_includes/forms" as forms %}
+
+
+{% block main %}
+
+    <form id="order-form" method="post" accept-charset="UTF-8">
+        <input type="hidden" name="action" value="stripey/order/saveOrder">
+        <input type="hidden" name="redirect" value="stripey/orders">
+        <input type="hidden" name="typeId" value="{{ orderType.id }}">
+        {{ getCsrfInput() }}
+        {% if order.id %}<input type="hidden" name="orderId" value="{{ order.id }}">{% endif %}
+
+        <div class="grid first">
+            <div class="item" data-position="left" data-min-colspan="2" data-max-colspan="3">
+
+                <div id="fields" class="pane">
+                    {% include "_includes/tabs" %}
+
+                    {% from "_includes/forms" import textField %}
+                    {% set static = static is defined ? static : false %}
+
+
+                    {% for tab in orderType.getFieldLayout().getTabs() %}
+                        <div id="tab{{ loop.index }}" {% if not loop.first %} class="hidden" {% endif %}>
+                            {% include "_includes/fields" with {
+                            fields: tab.getFields(),
+                            element: order,
+                            static: (static is defined ? static : false)
+                            } only %}
+                        </div>
+                    {% endfor %}
+
+
+                </div>{# end pane#}
+
+            </div>
+            <div class="item" data-position="right" data-colspan="1">
+
+
+                <div class="pane">
+
+
+                    {% if orderId is defined %}
+                        <div class="btngroup">
+                            <input type="button" class="btn small formsubmit" value="{{ 'Delete'|t }}"
+                                   data-action="stripey/order/deleteOrder"
+                                   data-confirm="{{ 'Are you sure you want to delete this order?'|t }}"
+                                   data-redirect="stripey/orders">
+                        </div>
+                    {% endif %}
+
+                </div>{#END PANE#}
+
+
+                <div class="buttons first">
+                    <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+    </form>
+
+
+{% endblock %}

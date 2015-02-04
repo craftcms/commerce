@@ -8,7 +8,7 @@
 
 namespace Craft;
 
-
-class Stripey_RefundModel {
+class Stripey_RefundModel
+{
 
 }

@@ -9,37 +9,40 @@
 ] %}
 
 {% set content %}
-    <table id="states" class="data fullwidth collapsible">
-        <thead>
-        <tr><th scope="col">Name</th>
-            <th scope="col">Abbreviation</th>
-            <th scope="col">Country Name</th>
-            <td class="thin"></td>
-        </tr></thead>
-        <tbody>
-        {% for state in states %}
-        <tr data-id="{{state.id}}" data-name="{{state.name}}">
-            <th scope="row" data-title="Name"><a href="{{url('stripey/settings/states/'~state.id)}}">{{state.name}}</a></th>
-            <td data-title="ISO">{{state.abbreviation}}</td>
-            <td data-title="Country Name">{{ state.countryName}}</td>
+<table id="states" class="data fullwidth collapsible">
+    <thead>
+    <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Abbreviation</th>
+        <th scope="col">Country Name</th>
+        <td class="thin"></td>
+    </tr>
+    </thead>
+    <tbody>
+    {% for state in states %}
+        <tr data-id="{{ state.id }}" data-name="{{ state.name }}">
+            <th scope="row" data-title="Name"><a
+                        href="{{ url('stripey/settings/states/'~state.id) }}">{{ state.name }}</a></th>
+            <td data-title="ISO">{{ state.abbreviation }}</td>
+            <td data-title="Country Name">{{ state.countryName }}</td>
             <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
         </tr>
-        {% endfor %}
+    {% endfor %}
 
-        </tbody>
-    </table>
-    <br/>
-    <div class="btngroup submit first">
-    <a href="{{url('stripey/settings/states/new')}}" class="btn submit" >New State</a>
-    </div>
+    </tbody>
+</table>
+<br/>
+<div class="btngroup submit first">
+    <a href="{{ url('stripey/settings/states/new') }}" class="btn submit">New State</a>
+</div>
 {% endset %}
 
 
 {% set js %}
 var adminTable = new Craft.AdminTable({
-    tableSelector: '#states',
-    deleteAction: 'stripey/state/delete',
-    confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
+tableSelector: '#states',
+deleteAction: 'stripey/state/delete',
+confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
 });
 {% endset %}
 {% includeJs js %}

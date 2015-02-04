@@ -9,9 +9,10 @@
     #stripey-nav {
         margin-left: 10px;
         display: inline;
-        float:right;
+        float: right;
     }
-    .stripey-navcontent{
+
+    .stripey-navcontent {
         position: absolute;
         z-index: 1000;
         background-color: white;
@@ -31,25 +32,25 @@
 {% set js %}
 
 $(function(){
-    var menubtn = $('#stripey-nav .btn'),
-        position = menubtn.offset();
+var menubtn = $('#stripey-nav .btn'),
+position = menubtn.offset();
 
-    $('.stripey-navcontent').css({
-        top: Math.round(position.top + menubtn.outerHeight()) + 'px',
-        left: Math.round(position.left) + 'px'}).appendTo('body');
+$('.stripey-navcontent').css({
+top: Math.round(position.top + menubtn.outerHeight()) + 'px',
+left: Math.round(position.left) + 'px'}).appendTo('body');
 
-    menubtn.click(function(e){
-        e.stopPropagation();
-        $('.stripey-navcontent').toggle();
-    });
+menubtn.click(function(e){
+e.stopPropagation();
+$('.stripey-navcontent').toggle();
+});
 
-    $('html').click(function() {
-        $('.stripey-navcontent').hide();
-    });
+$('html').click(function() {
+$('.stripey-navcontent').hide();
+});
 
-    $('.stripey-navcontent').click(function(e){
-        e.stopPropagation();
-    });
+$('.stripey-navcontent').click(function(e){
+e.stopPropagation();
+});
 });
 {% endset %}
 {% includeJs js %}

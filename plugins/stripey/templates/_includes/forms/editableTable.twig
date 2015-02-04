@@ -32,9 +32,11 @@
                         } only %}
                     {%- elseif col.type == 'checkbox' -%}
                         <input type="hidden" name="{{ cellName }}">
-                        <input type="checkbox" name="{{ cellName }}" value="1"{% if value %} checked{% endif %}{% if static %} disabled{% endif %}>
+                        <input type="checkbox" name="{{ cellName }}"
+                               value="1"{% if value %} checked{% endif %}{% if static %} disabled{% endif %}>
                     {%- else -%}
-                        <textarea name="{{ cellName }}" rows="1"{% if static %} disabled{% endif %}>{{ value }}</textarea>
+                        <textarea name="{{ cellName }}"
+                                  rows="1"{% if static %} disabled{% endif %}>{{ value }}</textarea>
                     {%- endif -%}
                 </td>
             {% endfor %}

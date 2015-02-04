@@ -13,7 +13,7 @@ class m150124_100100_stripey_Countries extends BaseMigration
 	 */
 	public function safeUp()
 	{
-		$table = Stripey_CountryRecord::model()->getTableName();
+		$table     = Stripey_CountryRecord::model()->getTableName();
 		$countries = array(
 			array('AD', 'Andorra'),
 			array('AE', 'United Arab Emirates'),
@@ -267,6 +267,7 @@ class m150124_100100_stripey_Countries extends BaseMigration
 		);
 
 		craft()->db->createCommand()->insertAll($table, array('iso', 'name'), $countries);
+
 		return true;
 	}
 }

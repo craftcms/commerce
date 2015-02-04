@@ -8,49 +8,58 @@
 
 {% set content %}
 {% set charge = craft.stripey.charges.id(chargeId).first() %}
-<a style="text-decoration: none;" class="right" target="_blank" href="https://dashboard.stripe.com/test/payments/{{charge.stripeId}}"><span style="font-size:1.5em;"><i title="View Charge on stripe.com" class="fa fa-cc-stripe"></i>&nbsp;</span><i class="fa fa-link"></i></a>
+<a style="text-decoration: none;" class="right" target="_blank"
+   href="https://dashboard.stripe.com/test/payments/{{ charge.stripeId }}"><span style="font-size:1.5em;"><i
+                title="View Charge on stripe.com" class="fa fa-cc-stripe"></i>&nbsp;</span><i
+            class="fa fa-link"></i></a>
 <table id="charges" class="data fullwidth collapsible">
     <thead>
-    <tr><th scope="col"></th>
+    <tr>
         <th scope="col"></th>
-    </tr></thead>
+        <th scope="col"></th>
+    </tr>
+    </thead>
     <tbody>
     <tr>
     <tr>
         <th>ID</th>
-        <td>{{charge.id}}</td>
+        <td>{{ charge.id }}</td>
     </tr>
     <tr>
         <th>Stripe id</th>
-        <td>{{charge.stripeId}} </td>
+        <td>{{ charge.stripeId }} </td>
     </tr>
     <tr>
         <th>Created</th>
-        <td>{{charge.data.created|date('Y-M-d')}}</td>
+        <td>{{ charge.data.created|date('Y-M-d') }}</td>
     </tr>
     <tr>
-        <th >Amount</th>
-        <td>{{charge.amount}} {{charge.currency}}</td>
+        <th>Amount</th>
+        <td>{{ charge.amount }} {{ charge.currency }}</td>
     </tr>
     <tr>
         <th>Refunded</th>
-        <td>{{charge.data.refunded ? 'Yes' : 'No'}} <a class="btn refund-button" data-stripeId='{{charge.stripeId}}' href="">Refund ...</a></td>
+        <td>{{ charge.data.refunded ? 'Yes' : 'No' }} <a class="btn refund-button" data-stripeId='{{ charge.stripeId }}'
+                                                         href="">Refund ...</a></td>
     </tr>
     <tr>
         <th>Card</th>
-        <td><span style="font-size:2em;"><i title="{{charge.data.card.brand}}" class="fa {{charge.cardFontCode}}"></i></span>&nbsp; ···· ···· ···· {{charge.data.card.last4}} <span style="color:#E7E7E7">{{charge.data.card.funding|title}} Card</span></td>
+        <td><span style="font-size:2em;"><i title="{{ charge.data.card.brand }}"
+                                            class="fa {{ charge.cardFontCode }}"></i></span>&nbsp; ···· ····
+            ···· {{ charge.data.card.last4 }} <span style="color:#E7E7E7">{{ charge.data.card.funding|title }}
+                Card</span></td>
     </tr>
     <tr>
         <th></th>
-        <td><strong>Name</strong> {{charge.data.card.name}}</td>
+        <td><strong>Name</strong> {{ charge.data.card.name }}</td>
     </tr>
     <tr>
         <th></th>
-        <td><strong>Country</strong> {{charge.data.card.country}}</td>
+        <td><strong>Country</strong> {{ charge.data.card.country }}</td>
     </tr>
     <tr>
         <th></th>
-        <td><strong>Expiry</strong> {{charge.data.card.exp_month}} / {{charge.data.card.exp_year}}</td>
+        <td><strong>Expiry</strong> {{ charge.data.card.exp_month }} / {{ charge.data.card.exp_year }}</td>
     </tr>
     </tbody>
 
@@ -61,56 +70,54 @@
 <script>
     {% set myJs %}
     StripeyRefundChargeModal = Garnish.Modal.extend(
-    {
-        id: null,
-        userId: null,
+            {
+                id: null,
+                userId: null,
 
-        $deleteActionRadios: null,
-        $refundSpinner: null,
+                $deleteActionRadios: null,
+                $refundSpinner: null,
 
-        currentPasswordModal: null,
-        _deleting: false,
+                currentPasswordModal: null,
+                _deleting: false,
 
-        init: function(stripeId, settings)
-        {
-            this.id = Math.floor(Math.random()*1000000000);
-            this.stripeId = stripeId;
-            settings = $.extend(StripeyRefundChargeModal.defaults, settings);
+                init: function (stripeId, settings) {
+                    this.id = Math.floor(Math.random() * 1000000000);
+                    this.stripeId = stripeId;
+                    settings = $.extend(StripeyRefundChargeModal.defaults, settings);
 
-            var $form = $(
-                            '<form class="modal fitted chargerefund" method="post" accept-charset="UTF-8">' +
-                            Craft.getCsrfInput() +
-                            '<input type="hidden" name="action" value="stripey/charges/refundCharge"/>' +
-                            '<input type="hidden" name="stripeId" value="'+this.stripeId+'"/>' +
-                            '<input type="hidden" name="redirect" value="stripey/charges"/>' +
-                            '</form>'
-                    ).appendTo(Garnish.$bod),
-                    $body = $(
-                            '<div class="body"><h2>'+Craft.t('Stripey Refund')+'</h2>' +
-                            '<p>'+Craft.t('Refunds take 10-15 days to appear on the persons card.')+'</p>' +
-                            '<div class="options">' +
-                            '<div class="field"><div class="heading"></div><label class="required" for="amount">'+Craft.t('Refund Amount:') +'</label><input class="text fullwidth" type="text" name="amount" value="10"/></div> '+
-                            '<div class="field"><div class="heading"><label for="reason">'+Craft.t('Reason:') +'</label><input class="text fullwidth" type="text" name="reason" value="" placeholder="e.g Im nice"/></div> ' +
-                            '</div>' +
-                            '</div>'
-                    ).appendTo($form),
-                    $buttons = $('<div class="buttons right"/>').appendTo($body),
-                    $cancelBtn = $('<div class="btn">'+Craft.t('Cancel')+'</div>').appendTo($buttons);
+                    var $form = $(
+                                    '<form class="modal fitted chargerefund" method="post" accept-charset="UTF-8">' +
+                                    Craft.getCsrfInput() +
+                                    '<input type="hidden" name="action" value="stripey/charges/refundCharge"/>' +
+                                    '<input type="hidden" name="stripeId" value="' + this.stripeId + '"/>' +
+                                    '<input type="hidden" name="redirect" value="stripey/charges"/>' +
+                                    '</form>'
+                            ).appendTo(Garnish.$bod),
+                            $body = $(
+                                    '<div class="body"><h2>' + Craft.t('Stripey Refund') + '</h2>' +
+                                    '<p>' + Craft.t('Refunds take 10-15 days to appear on the persons card.') + '</p>' +
+                                    '<div class="options">' +
+                                    '<div class="field"><div class="heading"></div><label class="required" for="amount">' + Craft.t('Refund Amount:') + '</label><input class="text fullwidth" type="text" name="amount" value="10"/></div> ' +
+                                    '<div class="field"><div class="heading"><label for="reason">' + Craft.t('Reason:') + '</label><input class="text fullwidth" type="text" name="reason" value="" placeholder="e.g Im nice"/></div> ' +
+                                    '</div>' +
+                                    '</div>'
+                            ).appendTo($form),
+                            $buttons = $('<div class="buttons right"/>').appendTo($body),
+                            $cancelBtn = $('<div class="btn">' + Craft.t('Cancel') + '</div>').appendTo($buttons);
 
-            this.$refundSubmitBtn = $('<input type="submit" class="btn submit disabled" value="'+Craft.t('Refund')+'" />').appendTo($buttons);
-            this.$refundSpinner = $('<div class="spinner hidden"/>').appendTo($buttons);
+                    this.$refundSubmitBtn = $('<input type="submit" class="btn submit disabled" value="' + Craft.t('Refund') + '" />').appendTo($buttons);
+                    this.$refundSpinner = $('<div class="spinner hidden"/>').appendTo($buttons);
 
-            this.addListener($cancelBtn, 'click', 'hide');
-            this.addListener(this.$deleteActionRadios, 'change', 'validateDeleteInputs');
-            this.addListener($form, 'submit', 'handleSubmit');
+                    this.addListener($cancelBtn, 'click', 'hide');
+                    this.addListener(this.$deleteActionRadios, 'change', 'validateDeleteInputs');
+                    this.addListener($form, 'submit', 'handleSubmit');
 
-            this.base($form, settings);
-        },
+                    this.base($form, settings);
+                },
 
-        validateRefundInputs: function()
-        {
+                validateRefundInputs: function () {
 //            var validates = false;
-            var validates = true;
+                    var validates = true;
 //
 //            if (this.$deleteActionRadios.eq(0).prop('checked'))
 //            {
@@ -130,39 +137,35 @@
 //                this.$deleteSubmitBtn.addClass('disabled')
 //            }
 
-            return validates;
-        },
+                    return validates;
+                },
 
-        handleSubmit: function(ev)
-        {
-            if (this._refunding || !this.validateRefundInputs())
+                handleSubmit: function (ev) {
+                    if (this._refunding || !this.validateRefundInputs()) {
+                        ev.preventDefault();
+                        return;
+                    }
+
+                    this.$refundSubmitBtn.addClass('active');
+                    this.$refundSpinner.removeClass('hidden');
+                    this.disable();
+                    this._refunding = true;
+
+                    // Let the onSubmit callback prevent the form from getting submitted
+                    if (this.settings.onSubmit() === false) {
+                        ev.preventDefault();
+                    }
+                },
+
+                onFadeIn: function () {
+                    this.base();
+                }
+            },
             {
-                ev.preventDefault();
-                return;
-            }
-
-            this.$refundSubmitBtn.addClass('active');
-            this.$refundSpinner.removeClass('hidden');
-            this.disable();
-            this._refunding = true;
-
-            // Let the onSubmit callback prevent the form from getting submitted
-            if (this.settings.onSubmit() === false)
-            {
-                ev.preventDefault();
-            }
-        },
-
-        onFadeIn: function()
-        {
-            this.base();
-        }
-    },
-    {
-        defaults: {
-            onSubmit: $.noop
-        }
-    });
+                defaults: {
+                    onSubmit: $.noop
+                }
+            });
     {% endset %}
     {% includeJs myJs %}
 </script>
@@ -171,9 +174,9 @@
 
 
 $('.refund-button').on('click',function(e){
-        e.preventDefault();
-        var refundModal = new StripeyRefundChargeModal();
-    });
+e.preventDefault();
+var refundModal = new StripeyRefundChargeModal();
+});
 {% endset %}
 
 {% includeJs myJs %}
