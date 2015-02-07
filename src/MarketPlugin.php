@@ -4,6 +4,8 @@ namespace Craft;
 
 require 'vendor/autoload.php';
 
+use Market\Market;
+
 class MarketPlugin extends BasePlugin
 {
 	function init()
@@ -14,6 +16,9 @@ class MarketPlugin extends BasePlugin
 //
 //            return new Stripe($key);
 //        };
+        Market::app()["hashids"] = function ($c) {
+			return new \Hashids\Hashids("market",10,"123456789ABQXEKST");
+		};
 	}
 
 	public function getName()
@@ -41,6 +46,19 @@ class MarketPlugin extends BasePlugin
 		return true;
 	}
 
+	public function onAfterInstall()
+	{
+//        $fieldLayout = array('type' => 'Market_Charge');
+//        $fieldLayout = FieldLayoutModel::populateModel($fieldLayout);
+//        craft()->fields->saveLayout($fieldLayout);
+	}
+
+	public function onBeforeUninstall()
+	{
+//        $fieldLayout = array('type' => 'Market_Charge');
+//        $fieldLayout = FieldLayoutModel::populateModel($fieldLayout);
+//        craft()->fields->saveLayout($fieldLayout);
+	}
 
 	public function registerCpRoutes()
 	{
@@ -48,18 +66,6 @@ class MarketPlugin extends BasePlugin
 			'market'                                                                                  => array('action' => 'market/dashboard/index'),
 
 			'market/settings/global'                                                                  => array('action' => 'market/settings/edit'),
-
-			'market/settings/producttypes'                                                            => array('action' => 'market/productType/index'),
-			'market/settings/producttypes/(?P<productTypeId>\d+)'                                     => array('action' => 'market/productType/editProductType'),
-			'market/settings/producttypes/new'                                                        => array('action' => 'market/productType/editProductType'),
-
-			'market/settings/ordertypes'                                                              => array('action' => 'market/orderType/index'),
-			'market/settings/ordertypes/(?P<orderTypeId>\d+)'                                         => array('action' => 'market/orderType/editorderType'),
-			'market/settings/ordertypes/new'                                                          => array('action' => 'market/orderType/editOrderType'),
-
-			'market/settings/optiontypes'                                                             => array('action' => 'market/optionType/index'),
-			'market/settings/optiontypes/(?P<optionTypeId>\d+)'                                       => array('action' => 'market/optionType/editOptionType'),
-			'market/settings/optiontypes/new'                                                         => array('action' => 'market/optionType/editOptionType'),
 
 			'market/settings/taxcategories'                                                           => array('action' => 'market/taxCategory/index'),
 			'market/settings/taxcategories/new'                                                       => array('action' => 'market/taxCategory/edit'),
@@ -81,15 +87,29 @@ class MarketPlugin extends BasePlugin
 			'market/settings/taxrates/new'                                                            => array('action' => 'market/taxRate/edit'),
 			'market/settings/taxrates/(?P<id>\d+)'                                                    => array('action' => 'market/taxRate/edit'),
 
+			// Product Routes
 			'market/products'                                                                         => array('action' => 'market/product/productIndex'),
 			'market/products/(?P<productTypeHandle>{handle})/new'                                     => array('action' => 'market/product/editProduct'),
 			'market/products/(?P<productTypeHandle>{handle})/(?P<productId>\d+)'                      => array('action' => 'market/product/editProduct'),
 			'market/products/(?P<productTypeHandle>{handle})/(?P<productId>\d+)/variants/new'         => array('action' => 'market/variant/edit'),
 			'market/products/(?P<productTypeHandle>{handle})/(?P<productId>\d+)/variants/(?P<id>\d+)' => array('action' => 'market/variant/edit'),
 
+			'market/settings/producttypes'                                                            => array('action' => 'market/productType/index'),
+			'market/settings/producttypes/(?P<productTypeId>\d+)'                                     => array('action' => 'market/productType/editProductType'),
+			'market/settings/producttypes/new'                                                        => array('action' => 'market/productType/editProductType'),
+
+			'market/settings/optiontypes'                                                             => array('action' => 'market/optionType/index'),
+			'market/settings/optiontypes/(?P<optionTypeId>\d+)'                                       => array('action' => 'market/optionType/editOptionType'),
+			'market/settings/optiontypes/new'                                                         => array('action' => 'market/optionType/editOptionType'),
+
+			// Order Routes
 			'market/orders'                                                                           => array('action' => 'market/order/orderIndex'),
 			'market/orders/(?P<orderTypeHandle>{handle})/new'                                         => array('action' => 'market/order/editOrder'),
 			'market/orders/(?P<orderTypeHandle>{handle})/(?P<orderId>\d+)'                            => array('action' => 'market/order/editOrder'),
+
+			'market/settings/ordertypes'                                                              => array('action' => 'market/orderType/index'),
+			'market/settings/ordertypes/(?P<orderTypeId>\d+)'                                         => array('action' => 'market/orderType/editorderType'),
+			'market/settings/ordertypes/new'                                                          => array('action' => 'market/orderType/editOrderType'),
 
 			'market/plans'                                                                            => array('action' => 'market/plans/index'),
 			'market/charges'                                                                          => 'market/charges/index',
@@ -98,20 +118,6 @@ class MarketPlugin extends BasePlugin
 			'market/settings/paymentmethods'                                                          => array('action' => 'market/paymentMethod/index'),
 			'market/settings/paymentmethods/(?P<class>\w+)'                                           => array('action' => 'market/paymentMethod/edit'),
 		);
-	}
-
-	public function onAfterInstall()
-	{
-//        $fieldLayout = array('type' => 'Market_Charge');
-//        $fieldLayout = FieldLayoutModel::populateModel($fieldLayout);
-//        craft()->fields->saveLayout($fieldLayout);
-	}
-
-	public function onBeforeUninstall()
-	{
-//        $fieldLayout = array('type' => 'Market_Charge');
-//        $fieldLayout = FieldLayoutModel::populateModel($fieldLayout);
-//        craft()->fields->saveLayout($fieldLayout);
 	}
 
 	/**

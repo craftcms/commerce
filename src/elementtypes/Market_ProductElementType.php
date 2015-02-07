@@ -1,6 +1,8 @@
 <?php
 namespace Craft;
 
+require_once(__DIR__.'/Market_BaseElementType.php');
+
 class Market_ProductElementType extends Market_BaseElementType
 {
 

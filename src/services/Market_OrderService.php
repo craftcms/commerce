@@ -30,7 +30,7 @@ class Market_OrderService extends BaseApplicationComponent
 	public function delete($order)
 	{
 		$order = Market_OrderRecord::model()->findById($order->id);
-		$order->delete();
+		return $order->delete();
 	}
 
 }

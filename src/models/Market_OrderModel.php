@@ -6,8 +6,9 @@ class Market_OrderModel extends BaseElementModel
 {
 	const CART = 'cart';
 
+	private $_orderItems;
+
 	protected $elementType = 'Market_Order';
-	protected $modelRecord = 'Market_OrderRecord';
 
 	public function isEditable()
 	{

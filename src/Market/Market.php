@@ -30,14 +30,3 @@ class Market extends Container
 	}
 
 }
-
-
-/**
- * Returns the Market Plugin equivalent to webApp class that serves up all the services.
- *
- * @return Market
- */
-function market()
-{
-	return \Market\Market::app();
-}

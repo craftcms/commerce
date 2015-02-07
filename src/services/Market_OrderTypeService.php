@@ -118,7 +118,7 @@ class Market_OrderTypeService extends BaseApplicationComponent
 		$transaction = craft()->db->getCurrentTransaction() === NULL ? craft()->db->beginTransaction() : NULL;
 		try {
 			$orderType = Market_OrderTypeRecord::model()->findById($id);
-			
+
 			$query    = craft()->db->createCommand()
 				->select('id')
 				->from('market_orders')
