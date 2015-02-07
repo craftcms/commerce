@@ -5,17 +5,12 @@ namespace Market\Order;
 use Craft\BaseElementModel;
 use Craft\Market_OrderRecord as OrderRecord;
 
+
 class Creator
 {
-	/** @var \BaseElementModel $_charge */
+	/** @var \Craft\BaseElementModel $_charge */
 	private $_order;
-
 	private $_isNewOrder;
-
-	function __construct()
-	{
-
-	}
 
 	public function save(BaseElementModel $order)
 	{
@@ -41,6 +36,10 @@ class Creator
 
 		if (!$this->_order->hasErrors()) {
 			if (\Craft\craft()->elements->saveElement($this->_order)) {
+
+				$number = \Market\Market::app()['hashids']->encode($this->_order->id);
+				// If you ever run out of hashids just change the R to something else lol.
+				$orderRecord->number = 'R'.$number;
 				$orderRecord->id = $this->_order->id;
 				$orderRecord->save(false);
 
@@ -60,7 +59,6 @@ class Creator
 		}
 
 		if (\Craft\craft()->elements->saveElement($this->_order)) {
-
 			$orderRecord->typeId = $this->_order->typeId;
 			$orderRecord->save();
 

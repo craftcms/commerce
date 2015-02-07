@@ -4,7 +4,7 @@ namespace Craft;
 /**
  * Class Market_PaymentMethodRecord
  *
- * @property int    $id
+ * @property int    $id	The primary key and id of the Payment Method
  * @property string $class
  * @property string $name
  * @property array  $settings
@@ -15,9 +15,21 @@ namespace Craft;
  */
 class Market_PaymentMethodRecord extends BaseRecord
 {
+	/*
+	 * The name of the table not including the craft db prefix e.g craft_
+	 *
+	 * @return string
+	 */
 	public function getTableName()
 	{
 		return 'market_paymentmethods';
+	}
+
+	public function defineIndexes()
+	{
+		return array(
+			array('columns' => array('class'), 'unique' => true),
+		);
 	}
 
 	protected function defineAttributes()
@@ -28,13 +40,6 @@ class Market_PaymentMethodRecord extends BaseRecord
 			'settings'        => array(AttributeType::Mixed, 'required' => true),
 			'cpEnabled'       => array(AttributeType::Bool, 'required' => true, 'default' => 0),
 			'frontendEnabled' => array(AttributeType::Bool, 'required' => true, 'default' => 0),
-		);
-	}
-
-	public function defineIndexes()
-	{
-		return array(
-			array('columns' => array('class'), 'unique' => true),
 		);
 	}
 }

@@ -8,7 +8,7 @@ use Clist;
  *
  * @package Market\Cart
  */
-class CartItemCollection extends CList
+class CartItemCollection extends \CList
 {
 	/**
 	 *

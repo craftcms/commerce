@@ -1,6 +1,6 @@
 <?php
 namespace Craft;
 
-class Market_BaseElementType extends BaseElementType{
+abstract class Market_BaseElementType extends BaseElementType{
 
 }

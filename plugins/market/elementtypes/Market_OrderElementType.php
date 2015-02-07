@@ -1,6 +1,8 @@
 <?php
 namespace Craft;
 
+require_once(__DIR__.'/Market_BaseElementType.php');
+
 class Market_OrderElementType extends Market_BaseElementType
 {
 
@@ -16,7 +18,7 @@ class Market_OrderElementType extends Market_BaseElementType
 
 	public function hasTitles()
 	{
-		return true;
+		return false;
 	}
 
 	public function hasStatuses()
@@ -49,14 +51,13 @@ class Market_OrderElementType extends Market_BaseElementType
 	public function defineTableAttributes($source = NULL)
 	{
 		return array(
-			'title'       => Craft::t('Name'),
-			'availableOn' => Craft::t('Available On')
+			'number'       => Craft::t('Number')
 		);
 	}
 
 	public function defineSearchableAttributes()
 	{
-		return array('title');
+		return array('number');
 	}
 
 	public function getTableAttributeHtml(BaseElementModel $element, $attribute)
@@ -85,7 +86,7 @@ class Market_OrderElementType extends Market_BaseElementType
 	public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
 	{
 		$query
-			->addSelect("orders.id, orders.typeId")
+			->addSelect("orders.id, orders.typeId, orders.number")
 			->join('market_orders orders', 'orders.id = elements.id')
 			->join('market_ordertypes ordertypes', 'ordertypes.id = orders.typeId');
 
