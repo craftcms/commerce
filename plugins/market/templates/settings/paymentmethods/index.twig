@@ -1,0 +1,44 @@
+{% extends "market/_layouts/cp" %}
+
+{% set title = "Payment Methods"|t %}
+
+{% set crumbs = [
+{ label: "Market"|t, url: url('market') },
+{ label: "Settings"|t, url: url('market/settings') },
+{ label: "Payment Methods"|t, url: url('market/settings/paymentmethods') }
+] %}
+
+{% set content %}
+<table id="paymentMethods" class="data fullwidth collapsible">
+    <thead>
+    <tr>
+        <th>{{ "Gateway"|t }}</th>
+        <th>{{ "Class"|t }}</th>
+        <th>{{ "Status"|t }}</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for paymentMethod in paymentMethods %}
+        <tr data-id="{{ paymentMethod.class }}" data-name="{{ paymentMethod.name }}">
+            <th scope="row" data-title="Name"><a
+                        href="{{ url('market/settings/paymentmethods/'~paymentMethod.class) }}">{{ paymentMethod.name }}</a>
+            </th>
+            <td data-title="Class">{{ paymentMethod.class }}</td>
+            <td data-title="Status">
+                {% if paymentMethod.cpEnabled and paymentMethod.frontendEnabled %}
+                    {{ 'Enabled in CP and Frontend'|t }}
+                {% elseif paymentMethod.cpEnabled %}
+                    {{ 'Enabled in CP'|t }}
+                {% elseif paymentMethod.frontendEnabled %}
+                    {{ 'Enabled in Frontend'|t }}
+                {% else %}
+                    {{ 'Disabled'|t }}
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+
+    </tbody>
+</table>
+
+{% endset %}

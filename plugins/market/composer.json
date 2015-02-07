@@ -1,0 +1,23 @@
+{
+    "name": "lukeholder/craft-market",
+    "authors": [
+        {
+            "name": "Luke Holder",
+            "email": "lukemh@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "Market\\": "Market"
+        }
+    },
+    "require": {
+        "pimple/pimple": "~3.0@dev",
+        "omnipay/omnipay": "~2.0@dev",
+        "hashids/hashids": "1.0.*@dev"
+    },
+    "require-dev": {
+
+    }
+}
