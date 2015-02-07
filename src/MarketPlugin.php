@@ -8,6 +8,8 @@ use Market\Market;
 
 class MarketPlugin extends BasePlugin
 {
+	public $handle = 'market';
+
 	function init()
 	{
 
@@ -17,7 +19,9 @@ class MarketPlugin extends BasePlugin
 //            return new Stripe($key);
 //        };
         Market::app()["hashids"] = function ($c) {
-			return new \Hashids\Hashids("market",10,"123456789ABQXEKST");
+			$len = craft()->config->get('orderNumberLength', $this->handle);
+			$alphabet = craft()->config->get('orderNumberAlphabet', $this->handle);
+			return new \Hashids\Hashids("market",$len,$alphabet);
 		};
 	}
 
