@@ -19,6 +19,28 @@
         <div class="grid first">
             <div class="item" data-position="left" data-min-colspan="2" data-max-colspan="3">
 
+
+                {% if orderId is defined %}
+
+                    {%  for item in order.items %}
+                        <div class="pane">
+                        <strong>SKU</strong> {{ item.variant.sku }}<br/>
+                        <strong>Title</strong> {{ item.variant.product.title }}<br/>
+                        {% if not item.variant.isMaster %}
+                        <strong>Info</strong> {{ item.variant.optionsText }}<br/>
+                        {% endif %}
+                        <strong>Quantity</strong> {{ item.quantity }}<br/>
+                        <strong>Price</strong> {{ item.price }}<br/>
+                        <strong>Total</strong> {{ item.subtotal }}<br/>
+                        </div>{#END PANE#}
+                    {% endfor %}
+
+
+
+
+                {% endif %}
+
+
                 <div id="fields" class="pane">
                     {% include "_includes/tabs" %}
 
@@ -41,7 +63,6 @@
 
             </div>
             <div class="item" data-position="right" data-colspan="1">
-
 
                 <div class="pane">
 

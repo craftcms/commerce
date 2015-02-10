@@ -91,9 +91,7 @@ class Market_OrderController extends Market_BaseController
 		$order = $this->_setOrderFromPost();
 		$this->_setContentFromPost($order);
 
-		$orderCreator = new Creator;
-
-		if ($orderCreator->save($order)) {
+		if (craft()->market_order->save($order)) {
 			$this->redirectToPostedUrl($order);
 		}
 

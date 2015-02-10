@@ -11,9 +11,10 @@ class Market_VariantService extends BaseApplicationComponent
 	 */
 	public function getById($id)
 	{
-		$product = Market_VariantRecord::model()->findById($id);
-
-		return Market_VariantModel::populateModel($product);
+		$variant = Market_VariantRecord::model()->with('product')->findById($id);
+		$variantModel = Market_VariantModel::populateModel($variant);
+		$variantModel->product = Market_ProductModel::populateModel($variant->product);
+		return $variantModel;
 	}
 
 	/**

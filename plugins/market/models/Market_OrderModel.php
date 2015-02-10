@@ -2,6 +2,20 @@
 
 namespace Craft;
 
+/**
+ * Class Market_OrderModel
+ *
+ * @property int    $id
+ * @property string $number
+ * @property string $state
+ * @property float  $itemTotal
+ * @property float  $adjustmentTotal
+ * @property string $email
+ * @property int    $userId
+ * @property int    $orderDate
+ * @property string	$lastIp
+ * @package Craft
+ */
 class Market_OrderModel extends BaseElementModel
 {
 	const CART = 'cart';
@@ -25,6 +39,11 @@ class Market_OrderModel extends BaseElementModel
 		$orderType = $this->getOrderType();
 
 		return UrlHelper::getCpUrl('market/orders/' . $orderType->handle . '/' . $this->id);
+	}
+
+	public function getItems()
+	{
+		return craft()->market_lineItem->getAllByOrderId($this->id);
 	}
 
 	public function getOrderType()
@@ -57,6 +76,7 @@ class Market_OrderModel extends BaseElementModel
 			'specialInstructions' => AttributeType::String,
 			'currency'            => AttributeType::String,
 			'lastIp'              => AttributeType::String,
+			'orderDate'           => AttributeType::DateTime,
 			//TODO add 'shipmentState'
 			//TODO add 'paymentState'
 			'typeId'              => AttributeType::Number
@@ -66,6 +86,16 @@ class Market_OrderModel extends BaseElementModel
 	public function isLocalized()
 	{
 		return false;
+	}
+
+	public function recalculate()
+	{
+
+	}
+
+	public function isEmpty()
+	{
+		return true;
 	}
 
 	function getTotal()

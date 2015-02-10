@@ -11,7 +11,7 @@ class Market_LineItemRecord extends BaseRecord
 	 */
 	public function getTableName()
 	{
-		return "market_line_items";
+		return "market_lineitems";
 	}
 
 	protected function defineAttributes()
@@ -22,6 +22,13 @@ class Market_LineItemRecord extends BaseRecord
 			'variantId' => AttributeType::Number,
 			'price'     => array(AttributeType::Number, 'decimals' => 4),
 			'quantity'  => AttributeType::Number
+		);
+	}
+
+	public function defineRelations()
+	{
+		return array(
+			'order' => array(static::BELONGS_TO, 'Market_OrderRecord', 'onDelete' => static::CASCADE),
 		);
 	}
 }

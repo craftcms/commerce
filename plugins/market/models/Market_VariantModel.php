@@ -21,6 +21,7 @@ namespace Craft;
 class Market_VariantModel extends BaseModel
 {
 
+	public $product = NULL;
 	private $_optionTypes = NULL;
 
 	public function isLocalized()
@@ -42,7 +43,10 @@ class Market_VariantModel extends BaseModel
 
 	public function getProduct()
 	{
-		return craft()->market_product->getById($this->productId);
+		if ($this->product === NULL) {
+			$this->product = craft()->market_product->getById($this->productId);
+		}
+		return $this->product;
 	}
 
 	public function getOptionsText()
