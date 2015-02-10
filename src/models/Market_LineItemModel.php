@@ -5,9 +5,9 @@ namespace Craft;
 class Market_LineItemModel extends BaseModel
 {
 
-	public function getAmount()
+	public function getSubtotal()
 	{
-		$this->price * $this->quantity;
+		return $this->price * $this->quantity;
 	}
 
 	public function getFinalAmount()
@@ -17,17 +17,12 @@ class Market_LineItemModel extends BaseModel
 
 	public function getOrder()
 	{
-		//TODO return craft()->market_order->getOrderById($this->orderId);
+		return craft()->market_order->getOrderById($this->orderId);
 	}
 
 	public function getVariant()
 	{
 		return craft()->market_variant->getById($this->variantId);
-	}
-
-	public function getProduct()
-	{
-		return $this->variant->product;
 	}
 
 	protected function defineAttributes()

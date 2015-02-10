@@ -15,30 +15,11 @@ class Market_OrderRecord extends BaseRecord
 		return "market_orders";
 	}
 
-	protected function defineAttributes()
-	{
-		return array(
-			'number'              => AttributeType::String,
-			'state'               => array(AttributeType::Enum, 'required' => true, 'values' => array('cart', 'address', 'delivery', 'payment', 'confirm', 'complete'), 'default' => 'cart'),
-			'itemTotal'           => array(AttributeType::Number, 'decimals' => 4),
-			'adjustmentTotal'     => array(AttributeType::Number, 'decimals' => 4),
-			'email'               => AttributeType::String,
-			'userId'              => AttributeType::Number,
-			'completedAt'         => AttributeType::DateTime,
-			'specialInstructions' => AttributeType::String,
-			'currency'            => AttributeType::String,
-			'lastIp'              => AttributeType::String,
-			'lastIp'              => AttributeType::Mixed,
-			//TODO add 'shipmentState'
-			//TODO add 'paymentState'
-		);
-	}
-
 	public function defineRelations()
 	{
 		return array(
 			'type'            => array(static::BELONGS_TO, 'Market_OrderTypeRecord', 'onDelete' => static::CASCADE),
-//            'lineItems' => array(static::HAS_MANY, 'Market_OrderRecord'),
+			'lineItems'       => array(static::HAS_MANY, 'Market_OrderRecord','lineItemId'),
 			'billingAddress'  => array(static::BELONGS_TO, 'Market_AddressRecord'),
 			'shippingAddress' => array(static::BELONGS_TO, 'Market_AddressRecord'),
 		);
@@ -53,6 +34,23 @@ class Market_OrderRecord extends BaseRecord
 	{
 		return array(
 			array('columns' => array('typeId'))
+		);
+	}
+
+	protected function defineAttributes()
+	{
+		return array(
+			'number'              => AttributeType::String,
+			'state'               => array(AttributeType::Enum, 'required' => true, 'values' => array('cart', 'address', 'delivery', 'payment', 'confirm', 'complete'), 'default' => 'cart'),
+			'itemTotal'           => array(AttributeType::Number, 'decimals' => 4),
+			'adjustmentTotal'     => array(AttributeType::Number, 'decimals' => 4),
+			'email'               => AttributeType::String,
+			'userId'              => AttributeType::Number,
+			'completedAt'         => AttributeType::DateTime,
+			'currency'            => AttributeType::String,
+			'lastIp'              => AttributeType::String
+			//TODO add 'shipmentState'
+			//TODO add 'paymentState'
 		);
 	}
 
