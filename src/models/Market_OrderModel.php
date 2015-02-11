@@ -20,9 +20,15 @@ class Market_OrderModel extends BaseElementModel
 {
 	const CART = 'cart';
 
-	private $_orderItems;
-
+	private $_orderItems = array();
 	protected $elementType = 'Market_Order';
+
+	public function init()
+	{
+		if ($this->id){
+			$this->_orderItems = craft()->market_lineItem->getAllByOrderId($this->id);
+		}
+	}
 
 	public function isEditable()
 	{
@@ -43,7 +49,7 @@ class Market_OrderModel extends BaseElementModel
 
 	public function getItems()
 	{
-		return craft()->market_lineItem->getAllByOrderId($this->id);
+		return $this->_orderItems;
 	}
 
 	public function getOrderType()

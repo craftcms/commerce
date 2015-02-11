@@ -29,11 +29,11 @@ class Market_VariantService extends BaseApplicationComponent
 	/**
 	 * Delete all variant-optionValue relations by variant id
 	 *
-	 * @param int $variantId
+	 * @param int $id
 	 */
-	public function unsetOptionValues($variantId)
+	public function unsetOptionValues($id)
 	{
-		Market_VariantOptionValueRecord::model()->deleteAllByAttributes(array('variantId' => $variantId));
+		Market_VariantOptionValueRecord::model()->deleteAllByAttributes(array('variantId' => $id));
 	}
 
 	/**
