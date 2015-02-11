@@ -24,8 +24,8 @@ class Market_ProductModel extends BaseElementModel
 
 	protected $elementType = 'Market_Product';
 	protected $modelRecord = 'Market_ProductRecord';
-	protected $_variants = NULL;
 
+	protected $_variants = NULL;
 	private $_masterVariant;
 
 	public function isEditable()
@@ -118,8 +118,7 @@ class Market_ProductModel extends BaseElementModel
 		if (!$this->_masterVariant) {
 			if ($this->id) {
 				$this->_masterVariant = craft()->market_product->getMasterVariant($this->id);
-			}
-			if (!$this->_masterVariant) {
+			}else{
 				$this->_masterVariant = new Market_VariantModel();
 			}
 		}

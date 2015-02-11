@@ -21,8 +21,7 @@ namespace Craft;
 class Market_VariantModel extends BaseModel
 {
 
-	public $product = NULL;
-	private $_optionTypes = NULL;
+	public $product;
 
 	public function isLocalized()
 	{
@@ -36,22 +35,12 @@ class Market_VariantModel extends BaseModel
 
 	public function getCpEditUrl()
 	{
-		$product = $this->getProduct();
-
-		return UrlHelper::getCpUrl('market/products/' . $product->productType->handle . '/' . $product->id . '/variants/' . $this->id);
-	}
-
-	public function getProduct()
-	{
-		if ($this->product === NULL) {
-			$this->product = craft()->market_product->getById($this->productId);
-		}
-		return $this->product;
+		return UrlHelper::getCpUrl('market/products/' . $this->product->productType->handle . '/' . $this->product->id . '/variants/' . $this->id);
 	}
 
 	public function getOptionsText()
 	{
-		$productOptionTypes = $this->getProduct()->optionTypes;
+		$productOptionTypes = $this->product->optionTypes;
 		$optionValues       = array();
 		foreach ($productOptionTypes as $optionType) {
 			$optionValue    = $this->getOptionValue($optionType->id);
@@ -61,7 +50,7 @@ class Market_VariantModel extends BaseModel
 		return join(" ", $optionValues);
 	}
 
-	public function getOptionValue($optionTypeId)
+	private function getOptionValue($optionTypeId)
 	{
 		$optionValue = Market_OptionValueRecord::model()->find(array(
 			'join'      => 'JOIN craft_market_variant_optionvalues v ON v.optionValueId = t.id',

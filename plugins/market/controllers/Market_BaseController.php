@@ -2,7 +2,7 @@
 namespace Craft;
 
 /**
- * The Base Controller for all Stripe Controllers
+ * The Base Controller for all Market Commerce Controllers
  *
  * @author    Make with Morph. <support@makewithmorph.com>
  * @copyright Copyright (c) 2015, Luke Holder.
@@ -11,8 +11,7 @@ namespace Craft;
  * @package   craft.plugins.market.controllers
  * @since     0.1
  */
-
-class Market_BaseController extends BaseController
+abstract class Market_BaseController extends BaseController
 {
 
 } 

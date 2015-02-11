@@ -25,13 +25,25 @@ class Market_AddressModel extends BaseModel
 	public $country;
 	/** @var Market_StateModel */
 	public $state;
-	/** @var int|string Either ID of a state or name of state if it's not present in our DB */
+	/** @var int|string Either ID of a state or name of state if it's not present in the DB */
 	public $stateValue;
 
-//    public function getCpEditUrl()
-//    {
-//        return UrlHelper::getCpUrl('market/settings/addresses/' . $this->id);
-//    }
+	/**
+	 * @param array|Market_AddressRecord $values
+	 *
+	 * @return $this
+	 */
+	public static function populateModel($values)
+	{
+
+		$model = parent::populateModel($values);
+		if (is_object($values) && $values instanceof Market_AddressRecord) {
+			$model->country = $values->country;
+			$model->state   = $values->state;
+		}
+
+		return $model;
+	}
 
 	public function getStateText()
 	{
@@ -53,21 +65,5 @@ class Market_AddressModel extends BaseModel
 			'countryId'        => AttributeType::Number,
 			'stateId'          => AttributeType::Number,
 		);
-	}
-
-	/**
-	 * @param array|Market_AddressRecord $values
-	 *
-	 * @return $this
-	 */
-	public static function populateModel($values)
-	{
-		$model = parent::populateModel($values);
-		if (is_object($values) && $values instanceof Market_AddressRecord) {
-			$model->country = $values->country;
-			$model->state   = $values->state;
-		}
-
-		return $model;
 	}
 }
