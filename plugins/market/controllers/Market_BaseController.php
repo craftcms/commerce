@@ -14,4 +14,4 @@ namespace Craft;
 abstract class Market_BaseController extends BaseController
 {
 
-} 
+}

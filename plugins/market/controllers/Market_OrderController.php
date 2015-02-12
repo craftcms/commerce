@@ -1,12 +1,15 @@
 <?php
 namespace Craft;
 
-use Market\Order\Creator;
-
 /**
- * Class Market_OrderController
  *
- * @package Craft
+ *
+ * @author    Make with Morph. <support@makewithmorph.com>
+ * @copyright Copyright (c) 2015, Luke Holder.
+ * @license   http://makewithmorph.com/market/license Market License Agreement
+ * @see       http://makewithmorph.com
+ * @package   craft.plugins.market.controllers
+ * @since     0.1
  */
 class Market_OrderController extends Market_BaseController
 {

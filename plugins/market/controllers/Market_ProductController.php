@@ -1,6 +1,16 @@
 <?php
 namespace Craft;
 
+/**
+ *
+ *
+ * @author    Make with Morph. <support@makewithmorph.com>
+ * @copyright Copyright (c) 2015, Luke Holder.
+ * @license   http://makewithmorph.com/market/license Market License Agreement
+ * @see       http://makewithmorph.com
+ * @package   craft.plugins.market.controllers
+ * @since     0.1
+ */
 use Market\Product\Creator;
 
 /**
@@ -77,7 +87,6 @@ class Market_ProductController extends Market_BaseController
 		foreach ($variables['productType']->getFieldLayout()->getTabs() as $index => $tab) {
 			// Do any of the fields on this tab have errors?
 			$hasErrors = false;
-
 			if ($variables['product']->hasErrors()) {
 				foreach ($tab->getFields() as $field) {
 					if ($variables['product']->getErrors($field->getField()->handle)) {

@@ -2,7 +2,7 @@
 namespace Craft;
 
 /**
- * Deprecated Charge Controller
+ *
  *
  * @author    Make with Morph. <support@makewithmorph.com>
  * @copyright Copyright (c) 2015, Luke Holder.
