@@ -56,37 +56,33 @@ class Market_OrderService extends BaseApplicationComponent
 	 */
 	public function addToCart($variantId, $qty, &$error = '')
 	{
-		$lineItem = new Market_LineItemRecord;
-		$lineItem->variantId = $variantId;
-		$lineItem->qty = $qty;
-
-		$variant = craft()->market_variant->getById($variantId);
-		if($variant->id) {
-			$lineItem->price = $variant->price;
-		}
-
 		$transaction = craft()->db->beginTransaction();
 
+		//getting current order
 		$order = $this->getCart();
 		if(!$order->id) {
 			if (!$this->save($order)) {
 				throw new Exception('Error on creating empty cart');
 			}
 		}
-		$lineItem->orderId = $order->id;
 
-		$lineItem->validate();
+		//filling item model
+		$lineItem = craft()->market_lineItem->getByOrderVariant($order->id, $variantId);
+		if($lineItem->id) {
+			$lineItem->qty += $qty;
+		} else {
+			$lineItem = craft()->market_lineItem->create($variantId, $order->id, $qty);
+		}
 
-		if(!$lineItem->hasErrors()) {
-			try {
-				$lineItem->save(false);
+		try {
+			if(craft()->market_lineItem->save($lineItem)) {
 				$this->recalculateOrder($order);
 				$transaction->commit();
 				return true;
-			} catch(\Exception $e) {
-				$transaction->rollback();
-				throw $e;
 			}
+		} catch(\Exception $e) {
+			$transaction->rollback();
+			throw $e;
 		}
 
 		$transaction->rollback();
