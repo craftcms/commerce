@@ -16,6 +16,7 @@ namespace Craft;
  * @property float    weight
  * @property int      stock
  * @property bool 	  unlimitedStock
+ * @property int	  minQty
  * @property DateTime deletedAt
  * @package Craft
  */
@@ -83,6 +84,7 @@ class Market_VariantModel extends BaseModel
 			'weight'    => array(AttributeType::Number, 'decimals' => 4),
 			'stock'     => array(AttributeType::Number),
 			'unlimitedStock' => array(AttributeType::Bool, 'default' => 0),
+			'minQty'    => AttributeType::Number,
 			'deletedAt' => array(AttributeType::DateTime)
 		));
 	}
