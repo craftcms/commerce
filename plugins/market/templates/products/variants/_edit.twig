@@ -30,6 +30,7 @@
             <th scope="col" class="header">{{ 'Weight'|t }}</th>
             <th scope="col" class="header">{{ 'Stock Count'|t }}</th>
             <th scope="col" class="header">{{ 'Unlimited Stock'|t }}</th>
+            <th scope="col" class="header">{{ 'Min Quantity'|t }}</th>
         </tr>
         <tbody>
         <tr>
@@ -58,6 +59,9 @@
                 <input type="hidden" name="unlimitedStock" value="0">
                 <input type="checkbox" name="unlimitedStock" value="1" {% if variant.unlimitedStock %}checked{% endif %}>
             </td>
+            <td class="textual">
+                <input type="number" name="minQty" value="{{ variant.minQty }}" min="0">
+            </td>
         </tr>
         {% if variant.hasErrors() %}
             <tr>
@@ -69,6 +73,7 @@
                 <td><span class="error">{{ variant.getErrors('weight')|join }}</span></td>
                 <td><span class="error">{{ variant.getErrors('stock')|join }}</span></td>
                 <td><span class="error">{{ variant.getErrors('unlimitedStock')|join }}</span></td>
+                <td><span class="error">{{ variant.getErrors('minQty')|join }}</span></td>
             </tr>
         {% endif %}
         </tbody>

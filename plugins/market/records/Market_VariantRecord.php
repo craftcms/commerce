@@ -16,6 +16,7 @@ namespace Craft;
  * @property float    weight
  * @property int	  stock
  * @property bool 	  unlimitedStock
+ * @property int	  minQty
  * @property DateTime deletedAt
  * @package Craft
  */
@@ -60,7 +61,8 @@ class Market_VariantRecord extends BaseRecord
 			'weight'    => array(AttributeType::Number, 'decimals' => 4),
 			'stock'     => array(AttributeType::Number, 'unsigned' => true),
 			'unlimitedStock' => array(AttributeType::Bool, 'default' => 0, 'required' => true),
-			'deletedAt' => array(AttributeType::DateTime)
+			'minQty'    => array(AttributeType::Number, 'unsigned' => true),
+			'deletedAt' => array(AttributeType::DateTime),
 		);
 	}
 
