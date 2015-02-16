@@ -10,7 +10,7 @@
 
 {% block sidebar %}
 
-    {% if productTypes|length %}
+    {% if productTypes|length and taxCategories|length %}
         <div class="buttons">
             {% if productTypes|length > 1 %}
                 <div class="btn submit menubtn add icon">{{ "New Product"|t }}</div>
@@ -39,6 +39,11 @@
 
         <p><span style="color:red">No product types exist!</span><br/>Go to settings and <a
                     href="{{ url('market/settings/producttypes') }}">create a new product type </a> please.</p>
+    {% endif %}
+    {% if not taxCategories|length > 0 %}
+
+        <p><span style="color:red">No tax categories exist!</span><br/>Go to settings and <a
+                    href="{{ url('market/settings/taxcategories') }}">create a new tax category </a> please.</p>
     {% endif %}
 
 {% endblock %}
