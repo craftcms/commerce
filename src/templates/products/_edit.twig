@@ -146,8 +146,17 @@
 
                         {{ forms.field({
                             id:       'masterVariant',
-                            label:    'Master Variant'
+                            label:    'Master Variant'|t
                         }, masterVariant) }}
+
+                        {{ forms.selectField({
+                            label: 'Tax Category'|t,
+                            name: 'taxCategoryId',
+                            value: product.taxCategoryId,
+                            required: true,
+                            options: taxCategories,
+                            class: 'select-wide'
+                        }) }}
                     {% endif %}
 
                     {% for tab in productType.getFieldLayout().getTabs() %}
@@ -266,7 +275,7 @@
 
     {% set js %}
     $(function() {
-    $('select').selectize({});
+        $('select').selectize({dropdownParent: 'body'});
     });
     {% endset %}
     {% includeJs js %}
