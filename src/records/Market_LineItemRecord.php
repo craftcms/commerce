@@ -32,6 +32,13 @@ class Market_LineItemRecord extends BaseRecord
 		return "market_lineitems";
 	}
 
+	public function defineIndexes()
+	{
+		return [
+			['columns' => ['orderId', 'variantId'], 'unique' => true],
+		];
+	}
+
 	protected function defineAttributes()
 	{
 		return [

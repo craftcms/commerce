@@ -21,19 +21,18 @@ class Market_CountryRecord extends BaseRecord
 
 	public function defineIndexes()
 	{
-		return array(
-			array('columns' => array('name'), 'unique' => true),
-			array('columns' => array('iso'), 'unique' => true),
-		);
+		return [
+			['columns' => ['name'], 'unique' => true],
+			['columns' => ['iso'], 'unique' => true],
+		];
 	}
-
 
 	protected function defineAttributes()
 	{
-		return array(
-			'name'          => array(AttributeType::String, 'required' => true),
-			'iso'           => array(AttributeType::String, 'required' => true, 'maxLength' => 2),
-			'stateRequired' => array(AttributeType::Bool, 'required' => true, 'default' => 0),
-		);
+		return [
+			'name'          => [AttributeType::String, 'required' => true],
+			'iso'           => [AttributeType::String, 'required' => true, 'maxLength' => 2],
+			'stateRequired' => [AttributeType::Bool, 'required' => true, 'default' => 0],
+		];
 	}
 }
