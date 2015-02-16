@@ -59,12 +59,12 @@ class Market_VariantController extends Market_BaseController
 		$variant = new Market_VariantModel();
 
 		// Shared attributes
-		$params = array('id', 'productId', 'sku', 'price', 'width', 'height', 'length', 'weight');
+		$params = array('id', 'productId', 'sku', 'price', 'width', 'height', 'length', 'weight', 'stock', 'unlimitedStock');
 		foreach ($params as $param) {
 			$variant->$param = craft()->request->getPost($param);
 		}
 
-		$optionValues = craft()->request->getPost('optionValues');
+		$optionValues = craft()->request->getPost('optionValues', array());
 
 		// Save it
 		if (craft()->market_variant->save($variant)) {
