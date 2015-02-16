@@ -103,6 +103,7 @@ class Market_VariantService extends BaseApplicationComponent
 		$record->height    = $model->height;
 		$record->length    = $model->length;
 		$record->weight    = $model->weight;
+		$record->minQty    = $model->minQty;
 
 		if($model->unlimitedStock) {
 			$record->unlimitedStock = true;
