@@ -32,6 +32,17 @@ class Market_TaxCategoryService extends BaseApplicationComponent
 	}
 
 	/**
+	 * Id of default tax category
+	 *
+	 * @return int|null
+	 */
+	public function getDefaultId()
+	{
+		$default = Market_TaxCategoryRecord::model()->findByAttributes(array('default' => true));
+		return $default ? $default->id : null;
+	}
+
+	/**
 	 * @param Market_TaxCategoryModel $model
 	 *
 	 * @return bool
@@ -67,10 +78,9 @@ class Market_TaxCategoryService extends BaseApplicationComponent
 			$model->id = $record->id;
 
 			//If this was the default make all others not the default.
-			if ($this->default) {
+			if ($model->default) {
 				Market_TaxCategoryRecord::model()->updateAll(array('default' => 0), 'id != ?', array($record->id));
 			}
-
 
 			return true;
 		} else {
