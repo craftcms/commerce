@@ -33,6 +33,13 @@ class Market_VariantRecord extends BaseRecord
 		);
 	}
 
+	public function defineIndexes()
+	{
+		return array(
+			array('columns' => array('sku'), 'unique' => true),
+		);
+	}
+
 	public function defineRelations()
 	{
 		return array(
