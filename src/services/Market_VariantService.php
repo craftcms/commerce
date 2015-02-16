@@ -12,9 +12,7 @@ class Market_VariantService extends BaseApplicationComponent
 	public function getById($id)
 	{
 		$variant = Market_VariantRecord::model()->with('product')->findById($id);
-		$variantModel = Market_VariantModel::populateModel($variant);
-		$variantModel->product = Market_ProductModel::populateModel($variant->product);
-		return $variantModel;
+		return Market_VariantModel::populateModel($variant);
 	}
 
 	/**
@@ -60,7 +58,7 @@ class Market_VariantService extends BaseApplicationComponent
 			$conditions['isMaster'] = $isMaster;
 		}
 
-		$variants = Market_VariantRecord::model()->findAllByAttributes($conditions);
+		$variants = Market_VariantRecord::model()->with('product')->findAllByAttributes($conditions);
 
 		return Market_VariantModel::populateModels($variants);
 	}
