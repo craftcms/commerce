@@ -1,4 +1,4 @@
-{% extends "stripey/_layouts/commerce" %}
+{% extends "store/market/_layouts/commerce" %}
 {% block title %}Main{% endblock %}
 {% block head %}
 {{ parent() }}
@@ -6,7 +6,7 @@
 {% block content %}
 <h2>Products</h2>
 
-{% set products = craft.stripey.products.find() %}
+{% set products = craft.market.products.find() %}
 {% for product in products %}
 <div style="border:1px #000080 solid;padding:10px;">
     <h2>{{product.title}}</h2>
@@ -27,6 +27,23 @@
             {% endfor %}
 
         </ul>
+        <li>Variants:
+
+        <form method="POST">
+            <input type="hidden" name="action" value="market/cart/add">
+            <input type="hidden" name="redirect" value="store/market/cart">
+
+            <select>
+                {% for variant in product.variants %}
+                    <option name="variantId" value="variant.id">SKU: {{ variant.sku }} / Price: {{ variant.price }} / {{ variant.optionsText }}</option>
+                {% endfor %}
+            </select>
+            Qty*: <input type="number" name="qty" min="0">
+            <input type="submit" value="Add to cart">
+            {% if error is defined %}
+                <br/><strong>Error: {{ error }}</strong>
+            {% endif %}
+        </form>
     </ul>
 </div>
 {% endfor %}

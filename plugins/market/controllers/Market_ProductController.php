@@ -29,6 +29,7 @@ class Market_ProductController extends Market_BaseController
 	public function actionProductIndex()
 	{
 		$variables['productTypes'] = craft()->market_productType->getAll();
+		$variables['taxCategories'] = craft()->market_taxCategory->getAll();
 		$this->renderTemplate('market/products/_index', $variables);
 	}
 

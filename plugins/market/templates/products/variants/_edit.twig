@@ -92,6 +92,7 @@
             value: optionValues[optionType.id] is defined ? optionValues[optionType.id] : variant.getOptionValue(optionType.id).id,
             required: false,
             options: optionType.selectValues,
+            class: 'select-wide',
         }) }}
     {% endfor %}
 

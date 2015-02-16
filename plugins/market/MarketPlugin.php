@@ -124,6 +124,13 @@ class MarketPlugin extends BasePlugin
 		);
 	}
 
+	public function registerSiteRoutes()
+	{
+		return [
+			'add-to-cart' => ['action' => 'market/cart/add'],
+		];
+	}
+
 	/**
 	 * @return array
 	 */

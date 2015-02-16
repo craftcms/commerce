@@ -36,7 +36,7 @@ class Market_VariantModel extends BaseModel
 	{
 		$model = parent::populateModel($values);
 		if (is_object($values) && $values instanceof Market_VariantRecord) {
-			if (is_object($model->product) && $model->product instanceof Market_ProductRecord) {
+			if (is_object($values->product) && $values->product instanceof Market_ProductRecord) {
 				$model->product = Market_ProductModel::populateModel($values->product);
 			}
 		}
