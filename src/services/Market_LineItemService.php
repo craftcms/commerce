@@ -12,17 +12,13 @@ class Market_LineItemService extends BaseApplicationComponent
 
 	public function getAllByOrderId($id)
 	{
-		$order = Market_LineItemRecord::model()->findAllByAttributes(['orderId'=>$id]);
+		$lineItems = Market_LineItemRecord::model()->findAllByAttributes(['orderId' => $id]);
 
-		return Market_LineItemModel::populateModels($order);
+		return Market_LineItemModel::populateModels($lineItems);
 	}
 
 	public function delete($lineitem)
 	{
-		$order = Market_LineItemRecord::model()->findById($lineitem->id);
-
-		return $order->delete();
+		return Market_LineItemRecord::model()->deleteByPk($lineitem->id);
 	}
-
-
 }
