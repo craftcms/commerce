@@ -20,8 +20,27 @@ namespace Craft;
  */
 class Market_VariantModel extends BaseModel
 {
+	/**
+	 * Fills the Model from the record and also fills the product model
+	 *
+	 * @param array|Market_VariantRecord $values
+	 *
+	 * @return $this
+	 */
 
 	public $product;
+
+	public static function populateModel($values)
+	{
+		$model = parent::populateModel($values);
+		if (is_object($values) && $values instanceof Market_VariantRecord) {
+			if (is_object($model->product) && $model->product instanceof Market_ProductRecord) {
+				$model->product = Market_ProductModel::populateModel($values->product);
+			}
+		}
+
+		return $model;
+	}
 
 	public function isLocalized()
 	{
@@ -35,6 +54,7 @@ class Market_VariantModel extends BaseModel
 
 	public function getCpEditUrl()
 	{
+		$this->product = craft()->market_product->getById($this->productId);
 		return UrlHelper::getCpUrl('market/products/' . $this->product->productType->handle . '/' . $this->product->id . '/variants/' . $this->id);
 	}
 
@@ -50,7 +70,7 @@ class Market_VariantModel extends BaseModel
 		return join(" ", $optionValues);
 	}
 
-	private function getOptionValue($optionTypeId)
+	public function getOptionValue($optionTypeId)
 	{
 		$optionValue = Market_OptionValueRecord::model()->find(array(
 			'join'      => 'JOIN craft_market_variant_optionvalues v ON v.optionValueId = t.id',
