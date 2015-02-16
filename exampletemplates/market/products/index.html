@@ -31,11 +31,11 @@
 
         <form method="POST">
             <input type="hidden" name="action" value="market/cart/add">
-            <input type="hidden" name="redirect" value="store/market/cart">
+            <input type="hidden" name="redirect" value="cart">
 
-            <select>
+            <select name="variantId">
                 {% for variant in product.variants %}
-                    <option name="variantId" value="variant.id">SKU: {{ variant.sku }} / Price: {{ variant.price }} / {{ variant.optionsText }}</option>
+                    <option value="{{ variant.id }}">SKU: {{ variant.sku }} / Price: {{ variant.price }} / {{ variant.optionsText }}</option>
                 {% endfor %}
             </select>
             Qty*: <input type="number" name="qty" min="0">

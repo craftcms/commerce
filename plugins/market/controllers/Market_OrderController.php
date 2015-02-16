@@ -171,21 +171,4 @@ class Market_OrderController extends Market_BaseController
 			}
 		}
 	}
-
-	/**
-	 * @param Market_OrderModel $order
-	 *
-	 * @return Market_VariantModel
-	 */
-	private function _setMasterVariantFromPost($order)
-	{
-		$attributes = craft()->request->getPost('masterVariant');
-
-		$masterVariant = $order->masterVariant;
-		$masterVariant->setAttributes($attributes);
-		$masterVariant->isMaster = true;
-
-		return $masterVariant;
-	}
-
-} 
+}

@@ -2,9 +2,29 @@
 
 namespace Craft;
 
+/**
+ * Class Market_OrderRecord
+ * @package Craft
+ *
+ * @property int    $id
+ * @property string $number
+ * @property string $state
+ * @property float  $itemTotal
+ * @property float  $adjustmentTotal
+ * @property string $email
+ * @property DateTime completedAt
+ * @property string	$lastIp
+ * @property int    typeId
+ * @property int    billingAddressId
+ * @property int    shippingAddressId
+ *
+ * @property Market_OrderTypeRecord type
+ * @property Market_LineItemRecord[] lineItems
+ * @property Market_AddressRecord billingAddress
+ * @property Market_AddressRecord shipmentAddress
+ */
 class Market_OrderRecord extends BaseRecord
 {
-
 	/**
 	 * Returns the name of the associated database table.
 	 *
@@ -19,7 +39,7 @@ class Market_OrderRecord extends BaseRecord
 	{
 		return array(
 			'type'            => array(static::BELONGS_TO, 'Market_OrderTypeRecord', 'onDelete' => static::CASCADE),
-			'lineItems'       => array(static::HAS_MANY, 'Market_OrderRecord','lineItemId'),
+			'lineItems'       => array(static::HAS_MANY, 'Market_OrderRecord', 'orderId'),
 			'billingAddress'  => array(static::BELONGS_TO, 'Market_AddressRecord'),
 			'shippingAddress' => array(static::BELONGS_TO, 'Market_AddressRecord'),
 		);
@@ -39,19 +59,18 @@ class Market_OrderRecord extends BaseRecord
 
 	protected function defineAttributes()
 	{
-		return array(
+		return [
 			'number'              => AttributeType::String,
-			'state'               => array(AttributeType::Enum, 'required' => true, 'values' => array('cart', 'address', 'delivery', 'payment', 'confirm', 'complete'), 'default' => 'cart'),
-			'itemTotal'           => array(AttributeType::Number, 'decimals' => 4),
-			'adjustmentTotal'     => array(AttributeType::Number, 'decimals' => 4),
+			'state'               => [AttributeType::Enum, 'required' => true, 'default' => 'cart', 'values' => ['cart', 'address', 'delivery', 'payment', 'confirm', 'complete']],
+			'itemTotal'           => [AttributeType::Number, 'decimals' => 4],
+			'adjustmentTotal'     => [AttributeType::Number, 'decimals' => 4],
 			'email'               => AttributeType::String,
-			'userId'              => AttributeType::Number,
 			'completedAt'         => AttributeType::DateTime,
 			'currency'            => AttributeType::String,
 			'lastIp'              => AttributeType::String
 			//TODO add 'shipmentState'
 			//TODO add 'paymentState'
-		);
+		];
 	}
 
 }
