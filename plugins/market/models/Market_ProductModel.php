@@ -10,9 +10,12 @@ namespace Craft;
  * @property DateTime             $expiresOn
  * @property int                  typeId
  * @property int                  authorId
+ * @property int                  taxCategoryId
  * @property bool                 enabled
  *
+ * @property Market_TaxCategoryModel taxCategory
  * @property Market_VariantModel $masterVariant
+ * @property Market_VariantModel[] $variants
  * @package Craft
  */
 class Market_ProductModel extends BaseElementModel
@@ -27,6 +30,19 @@ class Market_ProductModel extends BaseElementModel
 	protected $_variants = NULL;
 
 	private $_masterVariant;
+
+	/**
+	 * Setting default taxCategoryId
+	 * @param null $attributes
+	 */
+	public function __construct($attributes = null)
+	{
+		parent::__construct($attributes);
+
+		if(empty($this->taxCategoryId)) {
+			$this->taxCategoryId = craft()->market_taxCategory->getDefaultId();
+		}
+	}
 
 	public function isEditable()
 	{
@@ -83,6 +99,7 @@ class Market_ProductModel extends BaseElementModel
 		return array_merge(parent::defineAttributes(), array(
 			'typeId'      => AttributeType::Number,
 			'authorId'    => AttributeType::Number,
+			'taxCategoryId' => AttributeType::Number,
 			'availableOn' => AttributeType::DateTime,
 			'expiresOn'   => AttributeType::DateTime
 		));
@@ -111,7 +128,7 @@ class Market_ProductModel extends BaseElementModel
 	}
 
 	/**
-	 * @return BaseModel|Market_VariantModel
+	 * @return Market_VariantModel
 	 */
 	public function getMasterVariant()
 	{
@@ -127,6 +144,17 @@ class Market_ProductModel extends BaseElementModel
 		return $this->_masterVariant;
 	}
 
+	/**
+	 * @return Market_TaxCategoryModel
+	 */
+	public function getTaxCategory()
+	{
+		return $this->_variants = craft()->market_taxCategory->getById($this->taxCategoryId);
+	}
+
+	/**
+	 * @return int[]
+	 */
 	public function getOptionTypesIds()
 	{
 		if (!$this->id) {
@@ -138,10 +166,11 @@ class Market_ProductModel extends BaseElementModel
 		}, $this->getOptionTypes());
 	}
 
+	/**
+	 * @return Market_OptionTypeModel[]
+	 */
 	public function getOptionTypes()
 	{
 		return craft()->market_product->getOptionTypes($this->id);
-
 	}
-
 }

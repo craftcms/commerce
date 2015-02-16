@@ -58,6 +58,9 @@ class Market_ProductController extends Market_BaseController
 		} else {
 			$variables['title'] = Craft::t('Create a new Product');
 		}
+
+		$variables['taxCategories'] = \CHtml::listData(craft()->market_taxCategory->getAll(), 'id', 'name');
+
 		$this->prepVariables($variables);
 
 		$this->renderTemplate('market/products/_edit', $variables);
@@ -174,6 +177,7 @@ class Market_ProductController extends Market_BaseController
 	private function _setContentFromPost($product)
 	{
 		$product->getContent()->title = craft()->request->getPost('title', $product->title);
+		$product->taxCategoryId = craft()->request->getPost('taxCategoryId', $product->taxCategoryId);
 		$product->setContentFromPost('fields');
 	}
 
