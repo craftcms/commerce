@@ -97,12 +97,14 @@
                         <table id="" class="shadow-box editable">
                             <thead>
                             <tr>
-                                <th scope="col" class="header"><span class="required">SKU</span></th>
-                                <th scope="col" class="header"><span class="required">Price</span></th>
-                                <th scope="col" class="header">Width</th>
-                                <th scope="col" class="header">Height</th>
-                                <th scope="col" class="header">Length</th>
-                                <th scope="col" class="header">Weight</th>
+                                <th scope="col" class="header"><span class="required">{{ 'SKU'|t }}</span></th>
+                                <th scope="col" class="header"><span class="required">{{ 'Price'|t }}</span></th>
+                                <th scope="col" class="header">{{ 'Width'|t }}</th>
+                                <th scope="col" class="header">{{ 'Height'|t }}</th>
+                                <th scope="col" class="header">{{ 'Length'|t }}</th>
+                                <th scope="col" class="header">{{ 'Weight'|t }}</th>
+                                <th scope="col" class="header">{{ 'Stock Count'|t }}</th>
+                                <th scope="col" class="header">{{ 'Unlimited Stock'|t }}</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -111,23 +113,27 @@
                                     <input name="masterVariant[sku]" value="{{ masterVariant.sku }}">
                                 </td>
                                 <td class="textual">
-                                    <input type="number" step="0.01" name="masterVariant[price]"
-                                           value="{{ masterVariant.price }}">
+                                    <input type="number" step="0.01" name="masterVariant[price]" value="{{ masterVariant.price }}">
                                 </td>
                                 <td class="textual">
                                     <input type="number" name="masterVariant[width]" value="{{ masterVariant.width }}">
                                 </td>
                                 <td class="textual">
-                                    <input type="number" name="masterVariant[height]"
-                                           value="{{ masterVariant.height }}">
+                                    <input type="number" name="masterVariant[height]" value="{{ masterVariant.height }}">
                                 </td>
                                 <td class="textual">
-                                    <input type="number" name="masterVariant[length]"
-                                           value="{{ masterVariant.length }}">
+                                    <input type="number" name="masterVariant[length]" value="{{ masterVariant.length }}">
                                 </td>
                                 <td class="textual">
-                                    <input type="number" name="masterVariant[weight]"
-                                           value="{{ masterVariant.weight }}">
+                                    <input type="number" name="masterVariant[weight]" value="{{ masterVariant.weight }}">
+                                </td>
+                                <td class="textual">
+                                    <input type="number" name="masterVariant[stock]" value="{{ masterVariant.stock }}" min="0">
+                                </td>
+                                <td class="">
+                                    <input type="hidden" name="masterVariant[unlimitedStock]" value="0">
+                                    <input type="checkbox" name="masterVariant[unlimitedStock]" value="1"
+                                           {% if masterVariant.unlimitedStock %}checked{% endif %}>
                                 </td>
                             </tr>
                             {% if masterVariant.hasErrors() %}
@@ -138,6 +144,8 @@
                                     <td><span class="error">{{ masterVariant.getErrors('height')|join }}</span></td>
                                     <td><span class="error">{{ masterVariant.getErrors('length')|join }}</span></td>
                                     <td><span class="error">{{ masterVariant.getErrors('weight')|join }}</span></td>
+                                    <td><span class="error">{{ masterVariant.getErrors('stock')|join }}</span></td>
+                                    <td><span class="error">{{ masterVariant.getErrors('unlimitedStock')|join }}</span></td>
                                 </tr>
                             {% endif %}
                             </tbody>
@@ -210,7 +218,7 @@
                                         <a class="formsubmit"
                                            data-redirect="{{ variant.cpEditUrl }}">{{ variant.sku }}</a>
                                         <br/>Price: {{ variant.price }}
-                                        <br/>Options: {{ variant.optionsText }}
+                                        <br/>{% if variant.optionsText %}Options: {{ variant.optionsText }}{% endif %}
                                     </td>
                                     <td class="thin">
                                         <a class="delete icon formsubmit" role="button" value="{{ 'Delete'|t }}"
