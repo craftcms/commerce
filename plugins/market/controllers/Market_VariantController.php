@@ -37,6 +37,8 @@ class Market_VariantController extends Market_BaseController
 				$variables['variant']->height = $variables['product']->masterVariant->height;
 				$variables['variant']->length = $variables['product']->masterVariant->length;
 				$variables['variant']->weight = $variables['product']->masterVariant->weight;
+				$variables['variant']->stock  = $variables['product']->masterVariant->stock;
+				$variables['variant']->unlimitedStock = $variables['product']->masterVariant->unlimitedStock;
 			};
 		}
 
