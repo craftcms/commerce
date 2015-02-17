@@ -14,9 +14,9 @@ class Market_OrderTypeService extends BaseApplicationComponent
 	 */
 	public function getAll()
 	{
-		$ordeTypeRecords = Market_OrderTypeRecord::model()->findAll();
+		$orderTypeRecords = Market_OrderTypeRecord::model()->findAll();
 
-		return Market_OrderTypeModel::populateModels($ordeTypeRecords);
+		return Market_OrderTypeModel::populateModels($orderTypeRecords);
 	}
 
 	/**
@@ -26,9 +26,9 @@ class Market_OrderTypeService extends BaseApplicationComponent
 	 */
 	public function getById($id)
 	{
-		$ordeTypeRecord = Market_OrderTypeRecord::model()->findById($id);
+		$orderTypeRecord = Market_OrderTypeRecord::model()->findById($id);
 
-		return Market_OrderTypeModel::populateModel($ordeTypeRecord);
+		return Market_OrderTypeModel::populateModel($orderTypeRecord);
 	}
 
 	/**
@@ -38,41 +38,51 @@ class Market_OrderTypeService extends BaseApplicationComponent
 	 */
 	public function getByHandle($handle)
 	{
-		$ordeTypeRecord = Market_OrderTypeRecord::model()->findByAttributes(array('handle' => $handle));
+		$orderTypeRecord = Market_OrderTypeRecord::model()->findByAttributes(array('handle' => $handle));
 
-		return Market_OrderTypeModel::populateModel($ordeTypeRecord);
+		return Market_OrderTypeModel::populateModel($orderTypeRecord);
 	}
 
 	/**
-	 * @param Market_OrderTypeModel $ordeType
+	 * Get first (default) order type from the DB
+	 * @return Market_OrderTypeModel
+	 */
+	public function getFirst()
+	{
+		$orderType = Market_OrderTypeRecord::model()->find(['order' => 'id', 'limit' => 1]);
+		return Market_OrderTypeModel::populateModel($orderType);
+	}
+
+	/**
+	 * @param Market_OrderTypeModel $orderType
 	 *
 	 * @return bool
 	 * @throws Exception
 	 * @throws \CDbException
 	 * @throws \Exception
 	 */
-	public function save(Market_OrderTypeModel $ordeType)
+	public function save(Market_OrderTypeModel $orderType)
 	{
-		if ($ordeType->id) {
-			$ordeTypeRecord = Market_OrderTypeRecord::model()->findById($ordeType->id);
-			if (!$ordeTypeRecord) {
-				throw new Exception(Craft::t('No orde type exists with the ID “{id}”', array('id' => $ordeType->id)));
+		if ($orderType->id) {
+			$orderTypeRecord = Market_OrderTypeRecord::model()->findById($orderType->id);
+			if (!$orderTypeRecord) {
+				throw new Exception(Craft::t('No order type exists with the ID “{id}”', array('id' => $orderType->id)));
 			}
 
-			$oldOrderType   = Market_OrderTypeModel::populateModel($ordeTypeRecord);
+			$oldOrderType   = Market_OrderTypeModel::populateModel($orderTypeRecord);
 			$isNewOrderType = false;
 		} else {
-			$ordeTypeRecord = new Market_OrderTypeRecord();
+			$orderTypeRecord = new Market_OrderTypeRecord();
 			$isNewOrderType = true;
 		}
 
-		$ordeTypeRecord->name   = $ordeType->name;
-		$ordeTypeRecord->handle = $ordeType->handle;
+		$orderTypeRecord->name   = $orderType->name;
+		$orderTypeRecord->handle = $orderType->handle;
 
-		$ordeTypeRecord->validate();
-		$ordeType->addErrors($ordeTypeRecord->getErrors());
+		$orderTypeRecord->validate();
+		$orderType->addErrors($orderTypeRecord->getErrors());
 
-		if (!$ordeType->hasErrors()) {
+		if (!$orderType->hasErrors()) {
 			$transaction = craft()->db->getCurrentTransaction() === NULL ? craft()->db->beginTransaction() : NULL;
 			try {
 				if (!$isNewOrderType && $oldOrderType->fieldLayoutId) {
@@ -81,19 +91,19 @@ class Market_OrderTypeService extends BaseApplicationComponent
 				}
 
 				// Save the new one
-				$fieldLayout = $ordeType->getFieldLayout();
+				$fieldLayout = $orderType->getFieldLayout();
 				craft()->fields->saveLayout($fieldLayout);
 
 				// Update the calendar record/model with the new layout ID
-				$ordeType->fieldLayoutId       = $fieldLayout->id;
-				$ordeTypeRecord->fieldLayoutId = $fieldLayout->id;
+				$orderType->fieldLayoutId       = $fieldLayout->id;
+				$orderTypeRecord->fieldLayoutId = $fieldLayout->id;
 
 				// Save it!
-				$ordeTypeRecord->save(false);
+				$orderTypeRecord->save(false);
 
 				// Now that we have a calendar ID, save it on the model
-				if (!$ordeType->id) {
-					$ordeType->id = $ordeTypeRecord->id;
+				if (!$orderType->id) {
+					$orderType->id = $orderTypeRecord->id;
 				}
 
 				if ($transaction !== NULL) {

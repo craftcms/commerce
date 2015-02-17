@@ -50,8 +50,25 @@ class MarketPlugin extends BasePlugin
 		return true;
 	}
 
+	/**
+	 * Creating default order type
+	 *
+	 * @throws Exception
+	 * @throws \Exception
+	 */
 	public function onAfterInstall()
 	{
+		$orderType = new Market_OrderTypeModel;
+		$orderType->name = 'Normal Order';
+		$orderType->handle = 'normalOrder';
+
+		// Set the field layout
+		$fieldLayout       = craft()->fields->assembleLayout([], []);
+		$fieldLayout->type = 'Market_Order';
+		$orderType->setFieldLayout($fieldLayout);
+
+		craft()->market_orderType->save($orderType);
+
 //        $fieldLayout = array('type' => 'Market_Charge');
 //        $fieldLayout = FieldLayoutModel::populateModel($fieldLayout);
 //        craft()->fields->saveLayout($fieldLayout);

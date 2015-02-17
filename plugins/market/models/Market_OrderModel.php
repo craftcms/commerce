@@ -83,7 +83,6 @@ class Market_OrderModel extends BaseElementModel
 			'completedAt'         => AttributeType::DateTime,
 			'billingAddressId'    => AttributeType::Number,
 			'shippingAddressId'   => AttributeType::Number,
-			'specialInstructions' => AttributeType::String,
 			'currency'            => AttributeType::String,
 			'lastIp'              => AttributeType::String,
 			'orderDate'           => AttributeType::DateTime,
