@@ -7,12 +7,13 @@ namespace Craft;
  */
 class Market_CartController extends Market_BaseController
 {
-	public function actionIndex()
-	{
-		$cart = craft()->market_order->getCart();
-		$this->renderTemplate('store/market/cart', compact('cart'));
-	}
-
+	/**
+	 * Add a product variant into the cart
+	 *
+	 * @throws Exception
+	 * @throws HttpException
+	 * @throws \Exception
+	 */
 	public function actionAdd()
 	{
 		$this->requirePostRequest();
@@ -25,5 +26,29 @@ class Market_CartController extends Market_BaseController
 		} else {
 			craft()->urlManager->setRouteVariables(['error' => $error]);
 		}
+	}
+
+	/**
+	 * Remove Line item from the cart
+	 */
+	public function actionRemove()
+	{
+		$this->requirePostRequest();
+
+		$lineItemId = craft()->request->getPost('lineItemId');
+
+		craft()->market_order->removeFromCart($lineItemId);
+		$this->redirectToPostedUrl();
+	}
+
+	/**
+	 * Remove all line items from the cart
+	 */
+	public function actionRemoveAll()
+	{
+		$this->requirePostRequest();
+
+		craft()->market_order->clearCart();
+		$this->redirectToPostedUrl();
 	}
 }

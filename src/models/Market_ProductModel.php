@@ -16,6 +16,7 @@ namespace Craft;
  * @property Market_TaxCategoryModel taxCategory
  * @property Market_VariantModel $masterVariant
  * @property Market_VariantModel[] $variants
+ * @property Market_VariantModel[] $nonMasterVariants
  * @package Craft
  */
 class Market_ProductModel extends BaseElementModel
@@ -116,15 +117,29 @@ class Market_ProductModel extends BaseElementModel
 	}
 
 	/**
+	 * Either only master variant if there is only one or all without master
+	 *
 	 * @return Market_VariantModel[]
 	 */
 	public function getVariants()
 	{
-		if (is_null($this->_variants)) {
-			$this->_variants = craft()->market_variant->getAllByProductId($this->id, false);
-		}
+		$variants = $this->_getAllVariants();
 
-		return $this->_variants;
+		if(count($variants) == 1) {
+			return $variants;
+		} else {
+			return $this->getNonMasterVariants();
+		}
+	}
+
+	/**
+	 * @return Market_VariantModel[]
+	 */
+	public function getNonMasterVariants()
+	{
+		return array_filter($this->_getAllVariants(), function($v) {
+			return !$v->isMaster;
+		});
 	}
 
 	/**
@@ -171,5 +186,17 @@ class Market_ProductModel extends BaseElementModel
 	public function getOptionTypes()
 	{
 		return craft()->market_product->getOptionTypes($this->id);
+	}
+
+	/**
+	 * @return Market_VariantModel[]
+	 */
+	private function _getAllVariants()
+	{
+		if (is_null($this->_variants)) {
+			$this->_variants = craft()->market_variant->getAllByProductId($this->id);
+		}
+
+		return $this->_variants;
 	}
 }

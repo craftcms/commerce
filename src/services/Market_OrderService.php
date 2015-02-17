@@ -94,6 +94,53 @@ class Market_OrderService extends BaseApplicationComponent
 	}
 
 	/**
+	 * @TODO check that line item belongs to the current user
+	 * @param int $lineItemId
+	 * @throws Exception
+	 * @throws \CDbException
+	 * @throws \Exception
+	 */
+	public function removeFromCart($lineItemId)
+	{
+		$lineItem = craft()->market_lineItem->getById($lineItemId);
+
+		if (!$lineItem->id) {
+			throw new Exception('Line item not found');
+		}
+
+		$transaction = craft()->db->beginTransaction();
+		try {
+			craft()->market_lineItem->delete($lineItem);
+
+			$order = $this->getCart();
+			$this->recalculateOrder($order);
+		} catch (\Exception $e) {
+			$transaction->rollback();
+			throw $e;
+		}
+
+		$transaction->commit();
+	}
+
+	/**
+	 *
+	 */
+	public function clearCart()
+	{
+		$transaction = craft()->db->beginTransaction();
+		try {
+			$order = $this->getCart();
+			craft()->market_lineItem->deleteAllByOrderId($order->id);
+			$this->recalculateOrder($order);
+		} catch (\Exception $e) {
+			$transaction->rollback();
+			throw $e;
+		}
+
+		$transaction->commit();
+	}
+
+	/**
 	 * @param Market_OrderModel $order
 	 */
 	private function recalculateOrder(Market_OrderModel $order)

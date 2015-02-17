@@ -10,6 +10,16 @@ class Market_LineItemService extends BaseApplicationComponent
 {
 	/**
 	 * @param int $id
+	 * @return Market_LineItemModel
+	 */
+	public function getById($id)
+	{
+		$lineItem = Market_LineItemRecord::model()->findById($id);
+		return Market_LineItemModel::populateModel($lineItem);
+	}
+
+	/**
+	 * @param int $id
 	 * @return Market_LineItemModel[]
 	 */
 	public function getAllByOrderId($id)
@@ -96,5 +106,14 @@ class Market_LineItemService extends BaseApplicationComponent
 	public function delete($lineItem)
 	{
 		return Market_LineItemRecord::model()->deleteByPk($lineItem->id);
+	}
+
+	/**
+	 * @param int $orderId
+	 * @return int
+	 */
+	public function deleteAllByOrderId($orderId)
+	{
+		return Market_LineItemRecord::model()->deleteAllByAttributes(['orderId' => $orderId]);
 	}
 }
