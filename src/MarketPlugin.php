@@ -128,7 +128,6 @@ class MarketPlugin extends BasePlugin
 	{
 		return [
 			'add-to-cart' => ['action' => 'market/cart/add'],
-			'cart' => ['action' => 'market/cart/index'],
 		];
 	}
 
