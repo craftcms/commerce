@@ -7,6 +7,8 @@ namespace Craft;
  */
 class Market_CartController extends Market_BaseController
 {
+	protected $allowAnonymous = true;
+
 	/**
 	 * Add a product variant into the cart
 	 *
