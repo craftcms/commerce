@@ -68,7 +68,7 @@ class Market_LineItemRecord extends BaseRecord
 
 		$variant = $this->variant;
 
-		if($variant->stock !== null && $this->qty > $variant->stock) {
+		if(!$variant->unlimitedStock && $this->qty > $variant->stock) {
 			$error = sprintf('There are only %d items left in stock', $variant->stock);
 			$this->addError('qty', $error);
 		}

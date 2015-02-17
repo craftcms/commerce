@@ -106,7 +106,7 @@ class Market_VariantService extends BaseApplicationComponent
 
 		if($model->unlimitedStock) {
 			$record->unlimitedStock = true;
-			$record->stock = null;
+			$record->stock = 0;
 		} else {
 			$record->stock = $model->stock;
 			$record->unlimitedStock = false;

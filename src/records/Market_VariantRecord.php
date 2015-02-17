@@ -59,7 +59,7 @@ class Market_VariantRecord extends BaseRecord
 			'height'    => array(AttributeType::Number, 'decimals' => 4),
 			'length'    => array(AttributeType::Number, 'decimals' => 4),
 			'weight'    => array(AttributeType::Number, 'decimals' => 4),
-			'stock'     => array(AttributeType::Number, 'unsigned' => true),
+			'stock'     => array(AttributeType::Number, 'unsigned' => true, 'required' => true, 'default' => 0),
 			'unlimitedStock' => array(AttributeType::Bool, 'default' => 0, 'required' => true),
 			'minQty'    => array(AttributeType::Number, 'unsigned' => true),
 			'deletedAt' => array(AttributeType::DateTime),
