@@ -1,4 +1,4 @@
-{% extends "store/market/_layouts/commerce" %}
+{% extends "market/_layouts/commerce" %}
 {% block title %}Main{% endblock %}
 {% block head %}
 {{ parent() }}
@@ -31,7 +31,7 @@
 
         <form method="POST">
             <input type="hidden" name="action" value="market/cart/add">
-            <input type="hidden" name="redirect" value="cart">
+            <input type="hidden" name="redirect" value="market/cart">
 
             <select name="variantId">
                 {% for variant in product.variants %}
