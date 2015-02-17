@@ -53,4 +53,11 @@ class MarketVariable
 		return craft()->market_optionType->getAll();
 	}
 
+	/**
+	 * @return Market_OrderModel
+	 */
+	public function getCart()
+	{
+		return craft()->market_order->getCart();
+	}
 }

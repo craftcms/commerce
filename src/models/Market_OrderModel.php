@@ -11,9 +11,17 @@ namespace Craft;
  * @property float  $itemTotal
  * @property float  $adjustmentTotal
  * @property string $email
- * @property int    $userId
- * @property int    $orderDate
+ * @property DateTime completedAt
  * @property string	$lastIp
+ * @property int    typeId
+ * @property int    billingAddressId
+ * @property int    shippingAddressId
+ *
+ * @property Market_OrderTypeRecord type
+ * @property Market_LineItemRecord[] lineItems
+ * @property Market_AddressRecord billingAddress
+ * @property Market_AddressRecord shipmentAddress
+ *
  * @package Craft
  */
 class Market_OrderModel extends BaseElementModel
@@ -22,13 +30,6 @@ class Market_OrderModel extends BaseElementModel
 
 	private $_orderItems = array();
 	protected $elementType = 'Market_Order';
-
-	public function init()
-	{
-		if ($this->id){
-			$this->_orderItems = craft()->market_lineItem->getAllByOrderId($this->id);
-		}
-	}
 
 	public function isEditable()
 	{
@@ -42,25 +43,29 @@ class Market_OrderModel extends BaseElementModel
 
 	public function getCpEditUrl()
 	{
-		$orderType = $this->getOrderType();
+		$orderType = $this->getType();
 
 		return UrlHelper::getCpUrl('market/orders/' . $orderType->handle . '/' . $this->id);
 	}
 
-	public function getItems()
+	public function getLineItems()
 	{
+		if (!$this->_orderItems && $this->id){
+			$this->_orderItems = craft()->market_lineItem->getAllByOrderId($this->id);
+		}
+
 		return $this->_orderItems;
 	}
 
-	public function getOrderType()
+	public function getType()
 	{
 		return craft()->market_orderType->getById($this->typeId);
 	}
 
 	public function getFieldLayout()
 	{
-		if ($this->getOrderType()) {
-			return $this->orderType->getFieldLayout();
+		if ($this->getType()) {
+			return $this->type->getFieldLayout();
 		}
 
 		return false;
@@ -68,14 +73,13 @@ class Market_OrderModel extends BaseElementModel
 
 	protected function defineAttributes()
 	{
-		return array_merge(parent::defineAttributes(), array(
+		return array_merge(parent::defineAttributes(), [
 			'id'                  => AttributeType::Number,
 			'number'              => AttributeType::String,
-			'state'               => array(AttributeType::Enum, 'required' => true, 'values' => array('cart', 'address', 'delivery', 'payment', 'confirm', 'complete'), 'default' => 'cart'),
-			'itemTotal'           => array(AttributeType::Number, 'decimals' => 4),
-			'adjustmentTotal'     => array(AttributeType::Number, 'decimals' => 4),
+			'state'               => [AttributeType::Enum, 'required' => true, 'default' => 'cart', 'values' => ['cart', 'address', 'delivery', 'payment', 'confirm', 'complete']],
+			'itemTotal'           => [AttributeType::Number, 'decimals' => 4],
+			'adjustmentTotal'     => [AttributeType::Number, 'decimals' => 4],
 			'email'               => AttributeType::String,
-			'userId'              => AttributeType::Number,
 			'completedAt'         => AttributeType::DateTime,
 			'billingAddressId'    => AttributeType::Number,
 			'shippingAddressId'   => AttributeType::Number,
@@ -86,7 +90,7 @@ class Market_OrderModel extends BaseElementModel
 			//TODO add 'shipmentState'
 			//TODO add 'paymentState'
 			'typeId'              => AttributeType::Number
-		));
+		]);
 	}
 
 	public function isLocalized()
