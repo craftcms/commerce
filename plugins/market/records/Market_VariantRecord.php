@@ -14,7 +14,9 @@ namespace Craft;
  * @property float    height
  * @property float    length
  * @property float    weight
- * @property float    stock
+ * @property int	  stock
+ * @property bool 	  unlimitedStock
+ * @property int	  minQty
  * @property DateTime deletedAt
  * @package Craft
  */
@@ -30,6 +32,13 @@ class Market_VariantRecord extends BaseRecord
 	{
 		return array(
 			'condition' => 'deletedAt IS NULL',
+		);
+	}
+
+	public function defineIndexes()
+	{
+		return array(
+			array('columns' => array('sku'), 'unique' => true),
 		);
 	}
 
@@ -50,8 +59,10 @@ class Market_VariantRecord extends BaseRecord
 			'height'    => array(AttributeType::Number, 'decimals' => 4),
 			'length'    => array(AttributeType::Number, 'decimals' => 4),
 			'weight'    => array(AttributeType::Number, 'decimals' => 4),
-			'stock'     => array(AttributeType::Number),
-			'deletedAt' => array(AttributeType::DateTime, 'default' => NULL)
+			'stock'     => array(AttributeType::Number, 'unsigned' => true),
+			'unlimitedStock' => array(AttributeType::Bool, 'default' => 0, 'required' => true),
+			'minQty'    => array(AttributeType::Number, 'unsigned' => true),
+			'deletedAt' => array(AttributeType::DateTime),
 		);
 	}
 
