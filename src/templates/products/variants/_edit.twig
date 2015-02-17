@@ -22,12 +22,15 @@
     <table id="" class="shadow-box editable">
         <thead>
         <tr>
-            <th scope="col" class="header"><span class="required">SKU</span></th>
-            <th scope="col" class="header"><span class="required">Price</span></th>
-            <th scope="col" class="header">Width</th>
-            <th scope="col" class="header">Height</th>
-            <th scope="col" class="header">Length</th>
-            <th scope="col" class="header">Weight</th>
+            <th scope="col" class="header"><span class="required">{{ 'SKU'|t }}</span></th>
+            <th scope="col" class="header"><span class="required">{{ 'Price'|t }}</span></th>
+            <th scope="col" class="header">{{ 'Width'|t }}</th>
+            <th scope="col" class="header">{{ 'Height'|t }}</th>
+            <th scope="col" class="header">{{ 'Length'|t }}</th>
+            <th scope="col" class="header">{{ 'Weight'|t }}</th>
+            <th scope="col" class="header">{{ 'Stock Count'|t }}</th>
+            <th scope="col" class="header">{{ 'Unlimited Stock'|t }}</th>
+            <th scope="col" class="header">{{ 'Min Quantity'|t }}</th>
         </tr>
         <tbody>
         <tr>
@@ -49,6 +52,16 @@
             <td class="textual">
                 <input type="number" name="weight" value="{{ variant.weight }}">
             </td>
+            <td class="textual">
+                <input type="number" name="stock" value="{{ variant.stock }}" min="0">
+            </td>
+            <td class="">
+                <input type="hidden" name="unlimitedStock" value="0">
+                <input type="checkbox" name="unlimitedStock" value="1" {% if variant.unlimitedStock %}checked{% endif %}>
+            </td>
+            <td class="textual">
+                <input type="number" name="minQty" value="{{ variant.minQty }}" min="0">
+            </td>
         </tr>
         {% if variant.hasErrors() %}
             <tr>
@@ -58,6 +71,9 @@
                 <td><span class="error">{{ variant.getErrors('height')|join }}</span></td>
                 <td><span class="error">{{ variant.getErrors('length')|join }}</span></td>
                 <td><span class="error">{{ variant.getErrors('weight')|join }}</span></td>
+                <td><span class="error">{{ variant.getErrors('stock')|join }}</span></td>
+                <td><span class="error">{{ variant.getErrors('unlimitedStock')|join }}</span></td>
+                <td><span class="error">{{ variant.getErrors('minQty')|join }}</span></td>
             </tr>
         {% endif %}
         </tbody>

@@ -47,6 +47,9 @@ class Market_VariantController extends Market_BaseController
 				$variables['variant']->height = $variables['product']->masterVariant->height;
 				$variables['variant']->length = $variables['product']->masterVariant->length;
 				$variables['variant']->weight = $variables['product']->masterVariant->weight;
+				$variables['variant']->stock  = $variables['product']->masterVariant->stock;
+				$variables['variant']->unlimitedStock = $variables['product']->masterVariant->unlimitedStock;
+				$variables['variant']->minQty = $variables['product']->masterVariant->minQty;
 			};
 		}
 
@@ -69,12 +72,12 @@ class Market_VariantController extends Market_BaseController
 		$variant = new Market_VariantModel();
 
 		// Shared attributes
-		$params = array('id', 'productId', 'sku', 'price', 'width', 'height', 'length', 'weight');
+		$params = array('id', 'productId', 'sku', 'price', 'width', 'height', 'length', 'weight', 'stock', 'unlimitedStock', 'minQty');
 		foreach ($params as $param) {
 			$variant->$param = craft()->request->getPost($param);
 		}
 
-		$optionValues = craft()->request->getPost('optionValues');
+		$optionValues = craft()->request->getPost('optionValues', array());
 
 		// Save it
 		if (craft()->market_variant->save($variant)) {
