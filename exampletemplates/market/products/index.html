@@ -29,15 +29,15 @@
         </ul>
         <li>Variants:
 
-        <form method="POST">
+        <form method="POST" style="line-height: 30px">
             <input type="hidden" name="action" value="market/cart/add">
             <input type="hidden" name="redirect" value="market/cart">
 
-            <select name="variantId">
+            <select name="variantId" style="width: 50%">
                 {% for variant in product.variants %}
-                    <option value="{{ variant.id }}">SKU: {{ variant.sku }} / Price: {{ variant.price }} / {{ variant.optionsText }}</option>
+                    <option value="{{ variant.id }}">SKU: {{ variant.sku }} / Price: {{ variant.price }} / Stock: {{ variant.unlimitedStock ? 'unlimited' : variant.stock }} / {{ variant.optionsText }}</option>
                 {% endfor %}
-            </select>
+            </select> <br/>
             Qty*: <input type="number" name="qty" min="1" value="1">
             <input type="submit" value="Add to cart">
             {% if error is defined %}
