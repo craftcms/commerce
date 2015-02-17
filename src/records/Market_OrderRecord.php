@@ -38,7 +38,7 @@ class Market_OrderRecord extends BaseRecord
 	public function defineRelations()
 	{
 		return array(
-			'type'            => array(static::BELONGS_TO, 'Market_OrderTypeRecord', 'onDelete' => static::CASCADE),
+			'type'            => array(static::BELONGS_TO, 'Market_OrderTypeRecord', 'required' => true, 'onDelete' => static::CASCADE),
 			'lineItems'       => array(static::HAS_MANY, 'Market_OrderRecord', 'orderId'),
 			'billingAddress'  => array(static::BELONGS_TO, 'Market_AddressRecord'),
 			'shippingAddress' => array(static::BELONGS_TO, 'Market_AddressRecord'),

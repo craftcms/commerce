@@ -51,7 +51,6 @@ class Market_OrderTypeRecord extends BaseRecord
 		return array(
 			'name'          => array(AttributeType::Name, 'required' => true),
 			'handle'        => array(AttributeType::Handle, 'required' => true),
-			'fieldLayoutId' => AttributeType::Number,
 		);
 	}
 

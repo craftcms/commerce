@@ -16,6 +16,7 @@ class Market_OrderService extends BaseApplicationComponent
 
 	/**
 	 * @return Market_OrderModel
+	 * @throws Exception
 	 */
 	public function getCart()
 	{
@@ -26,6 +27,13 @@ class Market_OrderService extends BaseApplicationComponent
 				$this->cart = Market_OrderModel::populateModel($cart);
 			} else {
 				$this->cart = new Market_OrderModel;
+
+				$orderType = craft()->market_orderType->getFirst();
+				if(!$orderType->id) {
+					throw new Exception('no one order type found');
+				}
+
+				$this->cart->typeId = $orderType->id;
 			}
 
 			$this->cart->lastIp    = craft()->request->getIpAddress();
