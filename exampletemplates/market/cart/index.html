@@ -4,11 +4,14 @@
 {{ parent() }}
 {% endblock %}
 {% block content %}
-<h2>Cart</h2>
+
+
 
     {% set cart = craft.market.getCart() %}
 
     {% if cart.state == 'cart' %}
         {% include 'market/cart/_cart.html' %}
+    {% elseif cart.state == 'address' %}
+        {% include 'market/cart/_address.html' %}
     {% endif %}
 {% endblock %}

@@ -1,6 +1,15 @@
 <?php
 namespace Craft;
 
+/**
+ * Class Market_CustomerRecord
+ * @package Craft
+ *
+ * @property int userId
+ * @property int elementId
+ *
+ * @property Market_CustomerAddressRecord[] addresses
+ */
 class Market_CustomerRecord extends BaseRecord
 {
 	/**
@@ -10,7 +19,7 @@ class Market_CustomerRecord extends BaseRecord
 	 */
 	public function getTableName()
 	{
-		return "market_customers";
+		return 'market_customers';
 	}
 
 	/**
@@ -21,20 +30,19 @@ class Market_CustomerRecord extends BaseRecord
 	protected function defineAttributes()
 	{
 		return array(
-			'stripeId' => AttributeType::String,
+			'email' => [AttributeType::String, 'required' => true],
 		);
 	}
 
 	/**
-	 * @inheritDoc BaseRecord::defineRelations()
-	 *
 	 * @return array
 	 */
 	public function defineRelations()
 	{
-		return array(
-			'user'    => array(static::BELONGS_TO, 'UserRecord'),
-			'element' => array(static::BELONGS_TO, 'ElementRecord', 'id', 'required' => true, 'onDelete' => static::CASCADE),
-		);
+		return [
+			'user'      => [static::BELONGS_TO, 'UserRecord'],
+			'element'   => [static::BELONGS_TO, 'ElementRecord', 'id', 'required' => true, 'onDelete' => static::CASCADE],
+			'addresses' => [static::HAS_MANY, 'Market_CustomerAddressRecord', 'customerId'],
+		];
 	}
-} 
+}

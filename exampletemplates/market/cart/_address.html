@@ -1,0 +1,52 @@
+<h2>Fill the Address form</h2>
+
+{% if not craft.session.isLoggedIn() %}
+<strong>Notice: You are working as guest. It is recommended to sign up to associate the order with your credentials</strong><br/>
+{% endif %}
+
+{% set addresses = craft.market.customer.addresses %}
+
+<form method="post">
+
+{% set addressFields = {
+    firstName : 1,
+    lastName : 1,
+    address1: 0,
+    address2: 0,
+    zipCode: 0,
+    phone: 0,
+    alternativePhone: 0,
+    company: 0,
+    stateName: 0,
+} %}
+
+{% if addresses %}
+    some addr
+{% else %}
+    <input type="hidden" name="action" value="market/cartAddress/postTwoAddresses">
+
+    <h3>Shipping Address</h3>
+    <table style="border: 1px solid #000; margin-bottom: 20px">
+        {% for key,required in addressFields %}
+            <tr>
+                <td>{{ key|makeLabel }} {{ required ? '*' : '' }}</td>
+                <td><input name="ShippingAddress[{{ key }}]" value="{{ shippingAddress is defined ? shippingAddress[key] : '' }}"></td>
+                <td>{% if shippingAddress is defined and shippingAddress.getErrors(key) %}{{ shippingAddress.getErrors(key)|join }}{% endif %}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    
+    <h3>Billing Address</h3>
+    <table style="border: 1px solid #000; margin-bottom: 20px">
+        {% for key,required in addressFields %}
+            <tr>
+                <td>{{ key|makeLabel }} {{ required ? '*' : '' }}</td>
+                <td><input name="BillingAddress[{{ key }}]" value="{{ billingAddress is defined ? billingAddress[key] : '' }}"></td>
+                <td>{% if billingAddress is defined and billingAddress.getErrors(key) %}{{ billingAddress.getErrors(key)|join }}{% endif %}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endif %}
+
+    <input type="submit" value="Confirm addresses">
+</form>

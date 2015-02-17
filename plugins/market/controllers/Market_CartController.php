@@ -82,6 +82,10 @@ class Market_CartController extends Market_BaseController
 		$this->requirePostRequest();
 
 		$order = craft()->market_order->getCart();
+		if(empty($order->lineItems)) {
+			craft()->userSession->setNotice(Craft::t('Please add some items to your cart'));
+			return;
+		}
 
 		if($order->canTransit(Market_OrderRecord::STATE_ADDRESS)) {
 			$order->transition(Market_OrderRecord::STATE_ADDRESS);

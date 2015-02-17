@@ -20,6 +20,12 @@
     <li><a href="{{url('market/charge')}}">Charge</a></li>
 
 </ul>
+
+{% set notice = craft.session.getFlash('notice') %}
+{% if notice %}
+    <strong>Notice: {{ notice }}</strong><br />
+{% endif %}
+
 {% block content %}
 {% endblock %}
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
