@@ -91,7 +91,7 @@
                         maxlength: 255
                     }) }}
 
-                    {% if product.variants is empty %}
+                    {% if product.nonMasterVariants is empty %}
                         {% set masterVariant %}
 
                         <table id="" class="shadow-box editable">
@@ -217,7 +217,7 @@
                             </tr>
                             </thead>
                             <tbody>
-                            {% for variant in product.variants %}
+                            {% for variant in product.nonMasterVariants %}
                                 <tr>
                                     <td title="">
                                         <a class="formsubmit"

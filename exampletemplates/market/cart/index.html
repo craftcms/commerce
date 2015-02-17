@@ -32,7 +32,21 @@
                 <li>Quantity: {{ lineItem.qty }}</li>
                 <li>Order Id: {{ lineItem.orderId }}</li>
                 <li>Variant Id: {{ lineItem.variantId }}</li>
+                <li>
+                    <form method="POST">
+                        <input type="hidden" name="action" value="market/cart/remove" />
+                        <input type="hidden" name="redirect" value="market/cart" />
+                        <input type="hidden" name="lineItemId" value="{{ lineItem.id }}" />
+                        <input type="submit" value="Remove from cart" />
+                    </form>
+                </li>
             </ul>
         {% endfor %}
+
+        <form method="POST">
+            <input type="hidden" name="action" value="market/cart/removeAll" />
+            <input type="hidden" name="redirect" value="market/cart" />
+            <input type="submit" value="Remove all" style="background-color: #ff0000; color: #fff" />
+        </form>
     </div>
 {% endblock %}
