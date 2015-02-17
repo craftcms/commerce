@@ -13,7 +13,7 @@
 </thead><tbody>
 <tr>
 	<td>open</td>
-	<td>/admin/stripey/settings/optiontypes/new</td>
+	<td>/admin/market/settings/optiontypes/new</td>
 	<td></td>
 </tr>
 <tr>
@@ -36,7 +36,6 @@
 	<td>css=div#handle-field&nbsp;&nbsp;ul.errors &gt; li</td>
 	<td>Handle cannot be blank.</td>
 </tr>
-
 </tbody></table>
 </body>
 </html>
