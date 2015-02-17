@@ -1,6 +1,6 @@
 <?php
 
-namespace Market\Product\Behavior\Statemachine;
+namespace Market\Behaviors\Statemachine;
 
 /**
  * Represents a state for a state machine
@@ -8,7 +8,7 @@ namespace Market\Product\Behavior\Statemachine;
  * @author  Charles Pick
  * @package packages.stateMachine
  */
-class AState extends CBehavior
+class AState extends \CBehavior
 {
 	/**
 	 * The state machine this state belongs to

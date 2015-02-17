@@ -1,5 +1,5 @@
 <?php
-namespace Market\Product\Behavior\Statemachine;
+namespace Market\Behaviors\Statemachine;
 /**
  * An exception thrown when a state machine tries to transition to an invalid state.
  *
