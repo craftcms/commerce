@@ -2,14 +2,26 @@
 
 namespace Craft;
 
+/**
+ * Class Market_LineItemModel
+ * @package Craft
+ *
+ * @property int id
+ * @property float price
+ * @property float subtotal
+ * @property float subtotalIncTax
+ * @property float shipTotal
+ * @property float total
+ * @property float totalIncTax
+ * @property int qty
+ * @property int orderId
+ * @property int variantId
+ *
+ * @property Market_OrderRecord order
+ * @property Market_VariantRecord variant
+ */
 class Market_LineItemModel extends BaseModel
 {
-
-	public function getSubtotal()
-	{
-		return $this->price * $this->quantity;
-	}
-
 	public function getFinalAmount()
 	{
 		// TODO: $this->amount * $this->adjustmentTotal;
@@ -27,12 +39,17 @@ class Market_LineItemModel extends BaseModel
 
 	protected function defineAttributes()
 	{
-		return array(
-			'id'        => AttributeType::Number,
-			'orderId'   => AttributeType::Number,
-			'variantId' => AttributeType::Number,
-			'price'     => array(AttributeType::Number, 'decimals' => 4),
-			'quantity'  => AttributeType::Number
-		);
+		return [
+			'id' 			=> AttributeType::Number,
+			'variantId' 	=> AttributeType::Number,
+			'orderId' 		=> AttributeType::Number,
+			'price' 		=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true],
+			'subtotal' 		=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true],
+			'subtotalIncTax'=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true],
+			'shipTotal' 	=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
+			'total' 		=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true],
+			'totalIncTax' 	=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true],
+			'qty'   		=> [AttributeType::Number, 'min' => 0, 'required' => true],
+		];
 	}
 }

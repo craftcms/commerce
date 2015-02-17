@@ -1,8 +1,38 @@
-{% extends "stripey/_layouts/commerce" %}
+{% extends "market/_layouts/commerce" %}
 {% block title %}Cart{% endblock %}
 {% block head %}
 {{ parent() }}
 {% endblock %}
 {% block content %}
 <h2>Cart</h2>
+
+    {% set cart = craft.market.getCart() %}
+
+    <div style="margin-top: 20px">
+        <h3>Order</h3>
+        <ul>
+            <li>ID: {{ cart.id }}</li>
+            <li>Number: {{ cart.number }}</li>
+            <li>State: {{ cart.state }}</li>
+            <li>Item Total: {{ cart.itemTotal }}</li>
+            <li>Adjustment Total: {{ cart.adjustmentTotal }}</li>
+            <li>Type Id: {{ cart.typeId }}</li>
+        </ul>
+
+        <h3>Line Items:</h3>
+        {% for lineItem in cart.lineItems %}
+            <ul style="border:1px #000080 solid;padding:10px 10px 10px 50px;">
+                <li>ID: {{ lineItem.id }}</li>
+                <li>Price: {{ lineItem.price }}</li>
+                <li>Subtotal: {{ lineItem.subtotal }}</li>
+                <li>Subtotal Inc Tax: {{ lineItem.subtotalIncTax }}</li>
+                <li>Ship Total: {{ lineItem.shipTotal }}</li>
+                <li>Total: {{ lineItem.total }}</li>
+                <li>Total Inc Tax: {{ lineItem.totalIncTax }}</li>
+                <li>Quantity: {{ lineItem.qty }}</li>
+                <li>Order Id: {{ lineItem.orderId }}</li>
+                <li>Variant Id: {{ lineItem.variantId }}</li>
+            </ul>
+        {% endfor %}
+    </div>
 {% endblock %}

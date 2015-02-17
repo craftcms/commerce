@@ -10,6 +10,7 @@ Add this code into PHP-doc of CraftCMS WebApp class.
  * @property Market_AddressService $market_address
  * @property Market_CountryService $market_country
  * @property Market_GatewayService $market_gateway
+ * @property Market_LineItemService market_lineItem
  * @property Market_OptionTypeService $market_optionType
  * @property Market_OptionValueService $market_optionValue
  * @property Market_OrderService $market_order

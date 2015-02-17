@@ -9,26 +9,25 @@ namespace Craft;
  */
 class Market_OrderService extends BaseApplicationComponent
 {
-
-	protected $sessionCartId = "market_cart";
+	/** @var string Session key for storing current cart number */
+	protected $sessionCartId = 'market_cart';
+	/** @var Market_OrderModel */
 	private $cart;
 
+	/**
+	 * @return Market_OrderModel
+	 */
 	public function getCart()
 	{
 		if (NULL === $this->cart) {
+			$number = $this->_getSessionCartNumber();
 
-			$number = $this->getSessionCartNumber();
-
-			if ($number) {
-				$cart       = $this->_getCartRecordByNumber($number);
+			if($cart = $this->_getCartRecordByNumber($number)) {
 				$this->cart = Market_OrderModel::populateModel($cart);
-			}
-
-			if (NULL === $this->cart) {
+			} else {
 				$this->cart = new Market_OrderModel;
 			}
 
-			$this->cart->orderDate = DateTimeHelper::currentTimeForDb();
 			$this->cart->lastIp    = craft()->request->getIpAddress();
 
 //			TODO: Will need to see if current user changed and possibily recalc the cart
@@ -47,16 +46,76 @@ class Market_OrderService extends BaseApplicationComponent
 	}
 
 	/**
-	 * @param $number
-	 *
-	 * @return \CActiveRecord
+	 * @param $variantId
+	 * @param $qty
+	 * @param string $error
+	 * @return bool
+	 * @throws Exception
+	 * @throws \CDbException
+	 * @throws \Exception
+	 */
+	public function addToCart($variantId, $qty, &$error = '')
+	{
+		$transaction = craft()->db->beginTransaction();
+
+		//getting current order
+		$order = $this->getCart();
+		if(!$order->id) {
+			if (!$this->save($order)) {
+				throw new Exception('Error on creating empty cart');
+			}
+		}
+
+		//filling item model
+		$lineItem = craft()->market_lineItem->getByOrderVariant($order->id, $variantId);
+		if($lineItem->id) {
+			$lineItem->qty += $qty;
+		} else {
+			$lineItem = craft()->market_lineItem->create($variantId, $order->id, $qty);
+		}
+
+		try {
+			if(craft()->market_lineItem->save($lineItem)) {
+				$this->recalculateOrder($order);
+				$transaction->commit();
+				return true;
+			}
+		} catch(\Exception $e) {
+			$transaction->rollback();
+			throw $e;
+		}
+
+		$transaction->rollback();
+
+		$errors = $lineItem->getErrors();
+		$first = array_pop($errors);
+		$error = $first ? array_pop($first) : '';
+		return false;
+	}
+
+	/**
+	 * @param Market_OrderModel $order
+	 */
+	private function recalculateOrder(Market_OrderModel $order)
+	{
+		$lineItems = craft()->market_lineItem->getAllByOrderId($order->id);
+		$order->itemTotal = array_reduce($lineItems, function($sum, $lineItem) {
+			return $sum + $lineItem->totalIncTax;
+		}, 0);
+
+		$this->save($order);
+	}
+
+	/**
+	 * @param string $number
+	 * @return Market_OrderRecord
 	 */
 	private function _getCartRecordByNumber($number)
 	{
-		$cart = Market_OrderRecord::model()->with('items')->findByAttributes(
-			['number' => $number],
-			"completedAt = null"
-		);
+		$cart = Market_OrderRecord::model()->findByAttributes([
+			'number' => $number,
+			'completedAt' => null,
+		]);
 
 		return $cart;
 	}
@@ -73,7 +132,6 @@ class Market_OrderService extends BaseApplicationComponent
 		return Market_OrderModel::populateModel($order);
 	}
 
-
 	/**
 	 * @param Market_OrderModel $order
 	 *
@@ -82,68 +140,62 @@ class Market_OrderService extends BaseApplicationComponent
 	 */
 	public function delete($order)
 	{
-		$order = Market_OrderRecord::model()->findById($order->id);
-
-		return $order->delete();
+		return Market_OrderRecord::model()->deleteByPk($order->id);
 	}
 
-
+	/**
+	 * @param Market_OrderModel $order
+	 * @return bool
+	 * @throws Exception
+	 */
 	public function save($order)
 	{
-		$new = !$order->id;
-		if ($new) {
-			return $this->_createNewOrder($order);
+		if (!$order->id) {
+			$orderRecord = new Market_OrderRecord();
 		} else {
-			return $this->_saveOrder($order);
-		}
-	}
+			$orderRecord = Market_OrderRecord::model()->findById($order->id);
 
-	private function _createNewOrder($order)
-	{
-		$orderRecord         = new Market_OrderRecord();
-		$orderRecord->typeId = $order->typeId;
+			if (!$orderRecord) {
+				throw new Exception(Craft::t('No order exists with the ID “{id}”', array('id' => $order->id)));
+			}
+		}
+
+		$orderRecord->typeId 			= $order->typeId;
+		$orderRecord->number 			= $this->_getSessionCartNumber();
+		$orderRecord->adjustmentTotal 	= $order->adjustmentTotal;
+		$orderRecord->itemTotal 		= $order->itemTotal;
+		$orderRecord->email 			= $order->email;
+		$orderRecord->completedAt 		= $order->completedAt;
+		$orderRecord->billingAddressId 	= $order->billingAddressId;
+		$orderRecord->shippingAddressId = $order->shippingAddressId;
 
 		$orderRecord->validate();
-
 		$order->addErrors($orderRecord->getErrors());
 
 		if (!$order->hasErrors()) {
-			if (\Craft\craft()->elements->saveElement($order)) {
-
-				$number = \Market\Market::app()['hashids']->encode($order->id);
-				// If you ever run out of hashids just change the R to something else lol.
-				$orderRecord->number = 'R' . $number;
+			if (craft()->elements->saveElement($order)) {
 				$orderRecord->id     = $order->id;
 				$orderRecord->save(false);
 
 				return true;
 			}
 		}
-
 		return false;
 	}
 
-	private function _saveOrder($order)
-	{
-		$orderRecord = Market_OrderRecord::model()->findById($order->id);
-
-		if (!$orderRecord) {
-			throw new Exception(Craft::t('No order exists with the ID “{id}”', array('id' => $order->id)));
-		}
-
-		if (\Craft\craft()->elements->saveElement($order)) {
-			$orderRecord->typeId = $order->typeId;
-			$orderRecord->save();
-
-			return true;
-		}
-
-		return false;
-	}
-
+	/**
+	 * @return string
+	 */
 	private function _getSessionCartNumber()
 	{
-		return craft()->httpSession->get($this->sessionCartId);
+		$cartNumber = craft()->httpSession->get($this->sessionCartId);
+
+		if(!$cartNumber) {
+			$cartNumber = md5(uniqid(mt_rand(), true));
+			craft()->httpSession->add($this->sessionCartId, $cartNumber);
+		}
+
+		return $cartNumber;
 	}
 
 }
