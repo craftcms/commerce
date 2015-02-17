@@ -223,6 +223,7 @@ class Market_OrderService extends BaseApplicationComponent
 		$orderRecord->completedAt 		= $order->completedAt;
 		$orderRecord->billingAddressId 	= $order->billingAddressId;
 		$orderRecord->shippingAddressId = $order->shippingAddressId;
+		$orderRecord->state 			= $order->state;
 
 		$orderRecord->validate();
 		$order->addErrors($orderRecord->getErrors());

@@ -1,0 +1,57 @@
+<div style="margin-top: 20px">
+    <h3>Order</h3>
+    <ul>
+        <li>ID: {{ cart.id }}</li>
+        <li>Number: {{ cart.number }}</li>
+        <li>State: {{ cart.state }}</li>
+        <li>Item Total: {{ cart.itemTotal }}</li>
+        <li>Adjustment Total: {{ cart.adjustmentTotal }}</li>
+        <li>Type Id: {{ cart.typeId }}</li>
+    </ul>
+
+    <h3>Line Items:</h3>
+    {% for lineItem in cart.lineItems %}
+        <ul style="border:1px #000080 solid;padding:10px 10px 10px 50px;">
+            <li>ID: {{ lineItem.id }}</li>
+            <li>Price: {{ lineItem.price }}</li>
+            <li>Subtotal: {{ lineItem.subtotal }}</li>
+            <li>Subtotal Inc Tax: {{ lineItem.subtotalIncTax }}</li>
+            <li>Ship Total: {{ lineItem.shipTotal }}</li>
+            <li>Total: {{ lineItem.total }}</li>
+            <li>Total Inc Tax: {{ lineItem.totalIncTax }}</li>
+            <li>
+                <form method="POST">
+                    <input type="hidden" name="action" value="market/cart/updateQty">
+                    <input type="hidden" name="redirect" value="market/cart">
+                    <input type="hidden" name="lineItemId" value="{{ lineItem.id }}">
+                    Quantity:
+                    <input type="number" name="qty" min="1" value="{{ lineItem.qty }}">
+                    <input type="submit" value="Update" />
+
+                    {% if error is defined %}<strong>Error: {{ error }}</strong>{% endif %}
+                </form>
+            </li>
+            <li>Order Id: {{ lineItem.orderId }}</li>
+            <li>Variant Id: {{ lineItem.variantId }}</li>
+            <li>
+                <form method="POST">
+                    <input type="hidden" name="action" value="market/cart/remove" />
+                    <input type="hidden" name="redirect" value="market/cart" />
+                    <input type="hidden" name="lineItemId" value="{{ lineItem.id }}" />
+                    <input type="submit" value="Remove from cart" />
+                </form>
+            </li>
+        </ul>
+    {% endfor %}
+
+    <form method="POST">
+        <input type="hidden" name="action" value="market/cart/removeAll" />
+        <input type="hidden" name="redirect" value="market/cart" />
+        <input type="submit" value="Remove all" style="background-color: #ff0000; color: #fff" />
+    </form>
+    <form method="POST">
+        <input type="hidden" name="action" value="market/cart/goToAddress" />
+        <input type="hidden" name="redirect" value="market/cart" />
+        <input type="submit" value="Confirm" />
+    </form>
+</div>

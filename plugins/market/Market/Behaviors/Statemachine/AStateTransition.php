@@ -1,5 +1,5 @@
 <?php
-namespace Market\Product\Behavior\Statemachine;
+namespace Market\Behaviors\Statemachine;
 
 /**
  * An event raised when a state machine transitions from one state to another
@@ -7,7 +7,7 @@ namespace Market\Product\Behavior\Statemachine;
  * @author  Charles Pick
  * @package packages.stateMachine
  */
-class AStateTransition extends CEvent
+class AStateTransition extends \CEvent
 {
 	/**
 	 * The state the machine is transitioning from

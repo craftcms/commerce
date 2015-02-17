@@ -1,5 +1,5 @@
 <?php
-namespace Market\Product\Behavior\Statemachine;
+namespace Market\Behaviors\Statemachine;
 
 /**
  * Implements a simple state machine.
@@ -93,7 +93,7 @@ class AStateMachine extends BaseBehavior implements \IApplicationComponent
 	/**
 	 * Holds the transition history
 	 *
-	 * @var CList
+	 * @var \CList
 	 */
 	protected $_transitionHistory;
 
@@ -157,7 +157,7 @@ class AStateMachine extends BaseBehavior implements \IApplicationComponent
 	/**
 	 * Attaches the state machine to a component
 	 *
-	 * @param CComponent $owner the component to attach to
+	 * @param \CComponent $owner the component to attach to
 	 */
 	public function attach($owner)
 	{
@@ -202,7 +202,7 @@ class AStateMachine extends BaseBehavior implements \IApplicationComponent
 	/**
 	 * Detaches the state machine from a component
 	 *
-	 * @param CComponent $owner the component to detach from
+	 * @param \CComponent $owner the component to detach from
 	 */
 	public function detach($owner)
 	{
@@ -219,7 +219,7 @@ class AStateMachine extends BaseBehavior implements \IApplicationComponent
 	 *
 	 * @return mixed      the property value, event handlers attached to the event, or the named behavior (since
 	 *                    version 1.0.2)
-	 * @throws CException if the property or event is not defined
+	 * @throws \CException if the property or event is not defined
 	 * @see CComponent::__get()
 	 */
 
@@ -241,7 +241,7 @@ class AStateMachine extends BaseBehavior implements \IApplicationComponent
 	 *
 	 * @return mixed      the property value, event handlers attached to the event, or the named behavior (since
 	 *                    version 1.0.2)
-	 * @throws CException if the property or event is not defined
+	 * @throws \CException if the property or event is not defined
 	 * @see CComponent::__get()
 	 */
 	public function __set($name, $value)
@@ -281,7 +281,7 @@ class AStateMachine extends BaseBehavior implements \IApplicationComponent
 	 *
 	 * @return mixed      the property value, event handlers attached to the event, or the named behavior (since
 	 *                    version 1.0.2)
-	 * @throws CException if the property or event is not defined
+	 * @throws \CException if the property or event is not defined
 	 * @see CComponent::__get()
 	 */
 	public function __unset($name)
@@ -338,6 +338,7 @@ class AStateMachine extends BaseBehavior implements \IApplicationComponent
 	 * Sets the possible states for this machine
 	 *
 	 * @param AState[] $states an array of possible states
+	 * @return AState[]
 	 */
 	public function setStates($states)
 	{
@@ -360,9 +361,9 @@ class AStateMachine extends BaseBehavior implements \IApplicationComponent
 	{
 		if (is_array($state)) {
 			if (!isset($state['class'])) {
-				$state['class'] = "AState";
+				$state['class'] = 'Market\Behaviors\Statemachine\AState';
 			}
-			$state = Yii::createComponent($state, $state['name'], $this);
+			$state = \Yii::createComponent($state, $state['name'], $this);
 		}
 
 		return $this->_states[$state->getName()] = $state;
@@ -517,12 +518,12 @@ class AStateMachine extends BaseBehavior implements \IApplicationComponent
 	/**
 	 * Gets the transition history
 	 *
-	 * @return CList the transition history
+	 * @return \CList the transition history
 	 */
 	public function getTransitionHistory()
 	{
 		if ($this->_transitionHistory === NULL) {
-			$this->_transitionHistory = new CList(array($this->getStateName()));
+			$this->_transitionHistory = new \CList(array($this->getStateName()));
 		}
 
 		return $this->_transitionHistory;

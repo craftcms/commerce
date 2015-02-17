@@ -73,4 +73,21 @@ class Market_CartController extends Market_BaseController
 		craft()->market_order->clearCart();
 		$this->redirectToPostedUrl();
 	}
+
+	/**
+	 * @throws Exception
+	 */
+	public function actionGoToAddress()
+	{
+		$this->requirePostRequest();
+
+		$order = craft()->market_order->getCart();
+
+		if($order->canTransit(Market_OrderRecord::STATE_ADDRESS)) {
+			$order->transition(Market_OrderRecord::STATE_ADDRESS);
+			$this->redirectToPostedUrl();
+		} else {
+			throw new Exception('unable to go to address state from the state: ' . $order->state);
+		}
+	}
 }

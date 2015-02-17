@@ -1,6 +1,6 @@
 <?php
 
-namespace Market\Product\Behavior\Statemachine;
+namespace Market\Behaviors\Statemachine;
 
 /**
  * Base class for state machine exceptions
@@ -8,6 +8,6 @@ namespace Market\Product\Behavior\Statemachine;
  * @author  Charles Pick
  * @package packages.stateMachine
  */
-class AStateException extends CException
+class AStateException extends \CException
 {
 }

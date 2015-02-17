@@ -1,6 +1,8 @@
 <?php
 
 namespace Craft;
+use Market\Behaviors\Statemachine\AStateMachine;
+use Market\Behaviors\Statemachine\AStateTransition;
 
 /**
  * Class Market_OrderModel
@@ -22,6 +24,9 @@ namespace Craft;
  * @property Market_AddressRecord billingAddress
  * @property Market_AddressRecord shipmentAddress
  *
+ * @method bool canTransit(string $state)
+ * @method void transition(string $state)
+ *
  * @package Craft
  */
 class Market_OrderModel extends BaseElementModel
@@ -30,6 +35,30 @@ class Market_OrderModel extends BaseElementModel
 
 	private $_orderItems = array();
 	protected $elementType = 'Market_Order';
+
+	/**
+	 * Attaching event to behaviour
+	 * @param string $name
+	 * @param mixed $behavior
+	 * @return \IBehavior|mixed
+	 */
+	public function attachBehavior($name, $behavior)
+	{
+		$behavior = parent::attachBehavior($name, $behavior);
+		if($behavior instanceof AStateMachine) {
+			$behavior->onAfterTransition = [$this, 'onStateChange'];
+		}
+		return $behavior;
+	}
+
+	/**
+	 * @param AStateTransition $transition
+	 */
+	public function onStateChange(AStateTransition $transition)
+	{
+		$this->state = $transition->to->getName();
+		craft()->market_order->save($this);
+	}
 
 	public function isEditable()
 	{
@@ -48,6 +77,9 @@ class Market_OrderModel extends BaseElementModel
 		return UrlHelper::getCpUrl('market/orders/' . $orderType->handle . '/' . $this->id);
 	}
 
+	/**
+	 * @return Market_LineItemModel[]
+	 */
 	public function getLineItems()
 	{
 		if (!$this->_orderItems && $this->id){
@@ -57,11 +89,17 @@ class Market_OrderModel extends BaseElementModel
 		return $this->_orderItems;
 	}
 
+	/**
+	 * @return Market_OrderTypeModel
+	 */
 	public function getType()
 	{
 		return craft()->market_orderType->getById($this->typeId);
 	}
 
+	/**
+	 * @return false|FieldLayoutModel
+	 */
 	public function getFieldLayout()
 	{
 		if ($this->getType()) {
@@ -71,12 +109,41 @@ class Market_OrderModel extends BaseElementModel
 		return false;
 	}
 
+	public function behaviors()
+	{
+		return [
+			'state' => [
+				'class' => 'Market\Behaviors\Statemachine\AStateMachine',
+				'states' => [[
+						'name' => Market_OrderRecord::STATE_CART,
+						'transitsTo' => Market_OrderRecord::STATE_ADDRESS
+					], [
+						'name' => Market_OrderRecord::STATE_ADDRESS,
+						'transitsTo' => Market_OrderRecord::STATE_PAYMENT
+					], [
+						'name' => Market_OrderRecord::STATE_PAYMENT,
+						'transitsTo' => Market_OrderRecord::STATE_CONFIRM
+					], [
+						'name' => Market_OrderRecord::STATE_CONFIRM,
+						'transitsTo' => Market_OrderRecord::STATE_COMPLETE
+					], [
+						'name' => Market_OrderRecord::STATE_COMPLETE,
+					],
+				],
+				'defaultStateName' => Market_OrderRecord::STATE_CART,
+				'checkTransitionMap' => true,
+				'stateName' => $this->state,
+			]
+		];
+	}
+
+
 	protected function defineAttributes()
 	{
 		return array_merge(parent::defineAttributes(), [
 			'id'                  => AttributeType::Number,
 			'number'              => AttributeType::String,
-			'state'               => [AttributeType::Enum, 'required' => true, 'default' => 'cart', 'values' => ['cart', 'address', 'delivery', 'payment', 'confirm', 'complete']],
+			'state'               => [AttributeType::Enum, 'required' => true, 'default' => 'cart', 'values' => Market_OrderRecord::$states],
 			'itemTotal'           => [AttributeType::Number, 'decimals' => 4],
 			'adjustmentTotal'     => [AttributeType::Number, 'decimals' => 4],
 			'email'               => AttributeType::String,
@@ -95,11 +162,6 @@ class Market_OrderModel extends BaseElementModel
 	public function isLocalized()
 	{
 		return false;
-	}
-
-	public function recalculate()
-	{
-
 	}
 
 	public function isEmpty()

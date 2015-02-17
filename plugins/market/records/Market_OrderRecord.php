@@ -25,6 +25,21 @@ namespace Craft;
  */
 class Market_OrderRecord extends BaseRecord
 {
+	const STATE_CART = 'cart';
+	const STATE_ADDRESS = 'address';
+	const STATE_PAYMENT = 'payment';
+	const STATE_CONFIRM = 'confirm';
+	const STATE_COMPLETE = 'complete';
+
+	public static $states = [
+		self::STATE_CART,
+		self::STATE_ADDRESS,
+		/*'delivery',*/
+		self::STATE_PAYMENT,
+		self::STATE_CONFIRM,
+		self::STATE_COMPLETE
+	];
+
 	/**
 	 * Returns the name of the associated database table.
 	 *
@@ -61,7 +76,7 @@ class Market_OrderRecord extends BaseRecord
 	{
 		return [
 			'number'              => AttributeType::String,
-			'state'               => [AttributeType::Enum, 'required' => true, 'default' => 'cart', 'values' => ['cart', 'address', 'delivery', 'payment', 'confirm', 'complete']],
+			'state'               => [AttributeType::Enum, 'required' => true, 'default' => 'cart', 'values' => self::$states],
 			'itemTotal'           => [AttributeType::Number, 'decimals' => 4],
 			'adjustmentTotal'     => [AttributeType::Number, 'decimals' => 4],
 			'email'               => AttributeType::String,
