@@ -60,4 +60,12 @@ class MarketVariable
 	{
 		return craft()->market_order->getCart();
 	}
+
+	/**
+	 * @return Market_CustomerModel
+	 */
+	public function getCustomer()
+	{
+		return craft()->market_customer->getCustomer();
+	}
 }

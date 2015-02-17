@@ -47,17 +47,17 @@ class Market_OrderRecord extends BaseRecord
 	 */
 	public function getTableName()
 	{
-		return "market_orders";
+		return 'market_orders';
 	}
 
 	public function defineRelations()
 	{
-		return array(
-			'type'            => array(static::BELONGS_TO, 'Market_OrderTypeRecord', 'required' => true, 'onDelete' => static::CASCADE),
-			'lineItems'       => array(static::HAS_MANY, 'Market_OrderRecord', 'orderId'),
-			'billingAddress'  => array(static::BELONGS_TO, 'Market_AddressRecord'),
-			'shippingAddress' => array(static::BELONGS_TO, 'Market_AddressRecord'),
-		);
+		return [
+			'type'            => [static::BELONGS_TO, 'Market_OrderTypeRecord', 'required' => true, 'onDelete' => static::CASCADE],
+			'lineItems'       => [static::HAS_MANY, 'Market_OrderRecord', 'orderId'],
+			'billingAddress'  => [static::BELONGS_TO, 'Market_AddressRecord'],
+			'shippingAddress' => [static::BELONGS_TO, 'Market_AddressRecord'],
+		];
 	}
 
 	/**
@@ -67,15 +67,16 @@ class Market_OrderRecord extends BaseRecord
 	 */
 	public function defineIndexes()
 	{
-		return array(
-			array('columns' => array('typeId'))
-		);
+		return [
+			['columns' => ['typeId']],
+			['columns' => ['number']],
+		];
 	}
 
 	protected function defineAttributes()
 	{
 		return [
-			'number'              => AttributeType::String,
+			'number'              => [AttributeType::String, 'length' => 32],
 			'state'               => [AttributeType::Enum, 'required' => true, 'default' => 'cart', 'values' => self::$states],
 			'itemTotal'           => [AttributeType::Number, 'decimals' => 4],
 			'adjustmentTotal'     => [AttributeType::Number, 'decimals' => 4],

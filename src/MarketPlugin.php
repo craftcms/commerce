@@ -4,6 +4,7 @@ namespace Craft;
 
 require 'vendor/autoload.php';
 
+use Market\Extensions\MarketTwigExtension;
 use Market\Market;
 
 class MarketPlugin extends BasePlugin
@@ -159,6 +160,15 @@ class MarketPlugin extends BasePlugin
 			//TODO: Fill currency enum values dynamically based on https://support.stripe.com/questions/which-currencies-does-stripe-support
 			'defaultCurrency' => AttributeType::String
 		);
+	}
+
+	/**
+	 * Adding our custom twig functionality
+	 * @return MarketTwigExtension
+	 */
+	public function addTwigExtension()
+	{
+		return new MarketTwigExtension;
 	}
 
 }

@@ -32,6 +32,21 @@ class Market_AddressService extends BaseApplicationComponent
 	}
 
 	/**
+	 * @param int $id
+	 * @return Market_AddressModel[]
+	 */
+	public function getByCustomerId($id)
+	{
+		$addresses = Market_AddressRecord::model()->findAll([
+			'join' => 'JOIN craft_market_customeraddresses cmca ON cmca.addressId = t.id',
+			'condition' => 'cmca.customerId = :id',
+			'params' => ['id' => $id],
+		]);
+
+		return Market_AddressModel::populateModels($addresses);
+	}
+
+	/**
 	 * @param Market_AddressModel $model
 	 *
 	 * @return bool

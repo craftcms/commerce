@@ -4,18 +4,18 @@ namespace Craft;
 /**
  * Class Market_ChargeFormModel
  *
- * This Model is responsible for passing around a
- * form object which is used to make a new charge.
- *
  * @package Craft
  *
+ * @property int 	id
+ * @property int 	userId
+ * @property string email
+ *
+ * @property Market_AddressModel addresses
  */
 class Market_CustomerModel extends BaseElementModel
 {
 	protected $elementType = 'Market_Customer';
 	protected $modelRecord = 'Market_CustomerRecord';
-
-	private $_apiData = NULL;
 
 	/**
 	 * Returns whether the current user can edit the element.
@@ -25,15 +25,6 @@ class Market_CustomerModel extends BaseElementModel
 	public function isEditable()
 	{
 		return true;
-	}
-
-	/**
-	 * @return mixed|string
-	 */
-	public function __toString()
-	{
-		// This is used in the elementType index template as the linked text column
-		return $this->id;
 	}
 
 	/**
@@ -55,55 +46,17 @@ class Market_CustomerModel extends BaseElementModel
 	 */
 	protected function defineAttributes()
 	{
-		return array_merge(parent::defineAttributes(), array(
-
-			/**
-			 * Required fields on new charge
-			 */
-			'stripeId'        => AttributeType::String,
-			'amount'          => AttributeType::Number,
-			//TODO: Fill currency enum values dynamically based on https://support.stripe.com/questions/which-currencies-does-stripe-support
-			'currency'        => array(AttributeType::Enum, 'values' => "AUD,USD"),
-
-			/**
-			 * Optional fields on new charge
-			 */
-			'description'     => AttributeType::String,
-			'email'           => AttributeType::String,
-			'metadata'        => AttributeType::Mixed,
-
-			/**
-			 * Only exist on a saved customer
-			 */
-			'created'         => AttributeType::DateTime,
-			'discount'        => AttributeType::Mixed,
-			'account_balance' => AttributeType::Number,
-			'delinquent'      => AttributeType::String,
-			'livemode'        => AttributeType::Bool,
-		));
+		return array_merge(parent::defineAttributes(), [
+			'userId' => AttributeType::Number,
+			'email'  => AttributeType::String,
+		]);
 	}
 
-	public function getData()
+	/**
+	 * @return Market_AddressModel[]
+	 */
+	public function getAddresses()
 	{
-		if ($this->_apiData == NULL) {
-			$this->_loadStripeData();
-		}
-
-		return $this;
+		return craft()->market_address->getByCustomerId($this->id);
 	}
-
-	private function _loadStripeData()
-	{
-		$this->_apiData = \Market\Market::app()['stripe']->customers()->find(array(
-			'id' => $this->stripeId
-		));
-
-		foreach ($this->_apiData as $key => $val) {
-			if (in_array($key, $this->attributeNames()) && $key != 'id') {
-				$this->$key = $val;
-			}
-		}
-
-	}
-
 }

@@ -36,7 +36,7 @@ class Market_OrderService extends BaseApplicationComponent
 				$this->cart->typeId = $orderType->id;
 			}
 
-			$this->cart->lastIp    = craft()->request->getIpAddress();
+			$this->cart->lastIp = craft()->request->getIpAddress();
 
 //			TODO: Will need to see if current user changed and possibily recalc the cart
 //			due to user specific discounts available to them.
@@ -131,7 +131,7 @@ class Market_OrderService extends BaseApplicationComponent
 	}
 
 	/**
-	 *
+	 * Remove all items
 	 */
 	public function clearCart()
 	{
@@ -236,6 +236,39 @@ class Market_OrderService extends BaseApplicationComponent
 				return true;
 			}
 		}
+		return false;
+	}
+
+	/**
+	 * Save and set the given addresses to the current cart/order
+	 *
+	 * @param Market_AddressModel $shippingAddress
+	 * @param Market_AddressModel $billingAddress
+	 * @return bool
+	 * @throws \Exception
+	 */
+	public function setAddresses(Market_AddressModel $shippingAddress, Market_AddressModel $billingAddress)
+	{
+		$transaction = craft()->db->beginTransaction();
+		try {
+			$result1 = craft()->market_address->save($shippingAddress);
+			$result2 = craft()->market_address->save($billingAddress);
+
+			if($result1 && $result2) {
+				$order = $this->getCart();
+				$order->shippingAddressId = $shippingAddress->id;
+				$order->billingAddressId = $billingAddress->id;
+
+				$this->recalculateOrder($order);
+				$transaction->commit();
+				return true;
+			}
+		} catch (\Exception $e) {
+			$transaction->rollback();
+			throw $e;
+		}
+
+		$transaction->rollback();
 		return false;
 	}
 

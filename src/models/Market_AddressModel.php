@@ -53,6 +53,7 @@ class Market_AddressModel extends BaseModel
 	protected function defineAttributes()
 	{
 		return array(
+			'id' 		       => AttributeType::Number,
 			'firstName'        => AttributeType::String,
 			'lastName'         => AttributeType::String,
 			'address1'         => AttributeType::String,
