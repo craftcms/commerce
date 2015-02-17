@@ -38,7 +38,7 @@
                     <option value="{{ variant.id }}">SKU: {{ variant.sku }} / Price: {{ variant.price }} / {{ variant.optionsText }}</option>
                 {% endfor %}
             </select>
-            Qty*: <input type="number" name="qty" min="0">
+            Qty*: <input type="number" name="qty" min="1" value="1">
             <input type="submit" value="Add to cart">
             {% if error is defined %}
                 <br/><strong>Error: {{ error }}</strong>

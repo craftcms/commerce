@@ -29,6 +29,26 @@ class Market_CartController extends Market_BaseController
 	}
 
 	/**
+	 * Update quantity
+	 *
+	 * @throws Exception
+	 * @throws HttpException
+	 */
+	public function actionUpdateQty()
+	{
+		$this->requirePostRequest();
+
+		$lineItemId = craft()->request->getPost('lineItemId');
+		$qty = craft()->request->getPost('qty', 0);
+
+		if(craft()->market_lineItem->updateQty($lineItemId, $qty, $error)) {
+			$this->redirectToPostedUrl();
+		} else {
+			craft()->urlManager->setRouteVariables(['error' => $error]);
+		}
+	}
+
+	/**
 	 * Remove Line item from the cart
 	 */
 	public function actionRemove()

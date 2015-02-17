@@ -29,7 +29,18 @@
                 <li>Ship Total: {{ lineItem.shipTotal }}</li>
                 <li>Total: {{ lineItem.total }}</li>
                 <li>Total Inc Tax: {{ lineItem.totalIncTax }}</li>
-                <li>Quantity: {{ lineItem.qty }}</li>
+                <li>
+                    <form method="POST">
+                        <input type="hidden" name="action" value="market/cart/updateQty">
+                        <input type="hidden" name="redirect" value="market/cart">
+                        <input type="hidden" name="lineItemId" value="{{ lineItem.id }}">
+                        Quantity:
+                        <input type="number" name="qty" min="1" value="{{ lineItem.qty }}">
+                        <input type="submit" value="Update" />
+
+                         {% if error is defined %}<strong>Error: {{ error }}</strong>{% endif %}
+                    </form>
+                </li>
                 <li>Order Id: {{ lineItem.orderId }}</li>
                 <li>Variant Id: {{ lineItem.variantId }}</li>
                 <li>
