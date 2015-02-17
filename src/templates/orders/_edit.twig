@@ -20,28 +20,39 @@
             <div class="item" data-position="left" data-min-colspan="2" data-max-colspan="3">
 
 
-                {% if orderId is defined %}
-
-                    {%  for item in order.items %}
-                        <div class="pane">
-                        <strong>SKU</strong> {{ item.variant.sku }}<br/>
-                        <strong>Title</strong> {{ item.variant.product.title }}<br/>
-                        {% if not item.variant.isMaster %}
-                        <strong>Info</strong> {{ item.variant.optionsText }}<br/>
-                        {% endif %}
-                        <strong>Quantity</strong> {{ item.quantity }}<br/>
-                        <strong>Price</strong> {{ item.price }}<br/>
-                        <strong>Total</strong> {{ item.subtotal }}<br/>
-                        </div>{#END PANE#}
-                    {% endfor %}
-
-
-
-
-                {% endif %}
-
-
                 <div id="fields" class="pane">
+
+                    {% if orderId is defined %}
+                        <ul>
+                            <li>ID: {{ order.id }}</li>
+                            <li>Number: {{ order.number }}</li>
+                            <li>State: {{ order.state }}</li>
+                            <li>Item Total: {{ order.itemTotal }}</li>
+                            <li>Adjustment Total: {{ order.adjustmentTotal }}</li>
+                        </ul>
+
+
+                            {%  for lineItem in order.lineItems %}
+                                <ul>
+                                <li>ID: {{ lineItem.id }}</li>
+                                <li>Price: {{ lineItem.price }}</li>
+                                <li>Subtotal: {{ lineItem.subtotal }}</li>
+                                <li>Subtotal Inc Tax: {{ lineItem.subtotalIncTax }}</li>
+                                <li>Ship Total: {{ lineItem.shipTotal }}</li>
+                                <li>Total: {{ lineItem.total }}</li>
+                                <li>Total Inc Tax: {{ lineItem.totalIncTax }}</li>
+                                <li>Quantity: {{ lineItem.qty }}</li>
+                                <li>Order Id: {{ lineItem.orderId }}</li>
+                                <li>Variant Id: {{ lineItem.variantId }}</li>
+                                </ul>
+                            {% endfor %}
+
+
+
+
+                    {% endif %}
+
+
                     {% include "_includes/tabs" %}
 
                     {% from "_includes/forms" import textField %}
