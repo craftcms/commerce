@@ -35,7 +35,6 @@ class Market_AddressModel extends BaseModel
 	 */
 	public static function populateModel($values)
 	{
-
 		$model = parent::populateModel($values);
 		if (is_object($values) && $values instanceof Market_AddressRecord) {
 			$model->country = $values->country;

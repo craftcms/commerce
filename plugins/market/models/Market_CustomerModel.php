@@ -14,7 +14,6 @@ namespace Craft;
  */
 class Market_CustomerModel extends BaseElementModel
 {
-	protected $elementType = 'Market_Customer';
 	protected $modelRecord = 'Market_CustomerRecord';
 
 	/**

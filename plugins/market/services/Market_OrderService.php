@@ -230,7 +230,7 @@ class Market_OrderService extends BaseApplicationComponent
 
 		if (!$order->hasErrors()) {
 			if (craft()->elements->saveElement($order)) {
-				$orderRecord->id     = $order->id;
+				$order->id = $orderRecord->id;
 				$orderRecord->save(false);
 
 				return true;
@@ -258,6 +258,9 @@ class Market_OrderService extends BaseApplicationComponent
 				$order = $this->getCart();
 				$order->shippingAddressId = $shippingAddress->id;
 				$order->billingAddressId = $billingAddress->id;
+
+				craft()->market_customer->saveAddress($shippingAddress);
+				craft()->market_customer->saveAddress($billingAddress);
 
 				$this->recalculateOrder($order);
 				$transaction->commit();
