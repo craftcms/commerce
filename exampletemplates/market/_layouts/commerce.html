@@ -26,6 +26,11 @@
     <strong>Notice: {{ notice }}</strong><br />
 {% endif %}
 
+{% set marketFlash = craft.session.getFlash('market') %}
+{% if marketFlash %}
+    <div style="background-color: #ffdc60; padding: 10px;">{{ marketFlash }}</div>
+{% endif %}
+
 {% block content %}
 {% endblock %}
 {% includeJsResource 'lib/jquery-2.1.1.min.js' %}

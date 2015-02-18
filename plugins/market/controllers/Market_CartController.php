@@ -24,6 +24,7 @@ class Market_CartController extends Market_BaseController
 		$qty = craft()->request->getPost('qty', 0);
 
 		if(craft()->market_order->addToCart($variantId, $qty, $error)) {
+			craft()->userSession->setFlash('market', 'Product has been added');
 			$this->redirectToPostedUrl();
 		} else {
 			craft()->urlManager->setRouteVariables(['error' => $error]);
@@ -44,6 +45,7 @@ class Market_CartController extends Market_BaseController
 		$qty = craft()->request->getPost('qty', 0);
 
 		if(craft()->market_lineItem->updateQty($lineItemId, $qty, $error)) {
+			craft()->userSession->setFlash('market', 'Product quantity has been updated');
 			$this->redirectToPostedUrl();
 		} else {
 			craft()->urlManager->setRouteVariables(['error' => $error]);
@@ -60,6 +62,7 @@ class Market_CartController extends Market_BaseController
 		$lineItemId = craft()->request->getPost('lineItemId');
 
 		craft()->market_order->removeFromCart($lineItemId);
+		craft()->userSession->setFlash('market', 'Product has been removed');
 		$this->redirectToPostedUrl();
 	}
 
@@ -71,6 +74,7 @@ class Market_CartController extends Market_BaseController
 		$this->requirePostRequest();
 
 		craft()->market_order->clearCart();
+		craft()->userSession->setFlash('market', 'All products have been removed');
 		$this->redirectToPostedUrl();
 	}
 
