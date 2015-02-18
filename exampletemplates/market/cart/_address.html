@@ -18,6 +18,8 @@
 
         <h3>Choose an address for Shipping</h3>
 
+        {% if order.hasErrors('shippingAddressId') %}<strong style="color: #ff2000">Error: {{ order.getErrors('shippingAddressId')|join }}</strong><br/>{% endif %}
+
         {% for address in addresses %}
             <label class="address-chooser" style=" display: block; float: left; margin: 10px; padding: 10px; border: 1px solid #bbbbbb">
                 {% for key,value in address.attributes %}
@@ -27,13 +29,15 @@
                 <a class="address-remove" data-id="{{ address.id }}" href="#">Remove</a><br/>
                 <a class="address-update" data-id="{{ address.id }}" href="#">Update</a><br/>
 
-                <input type="radio" name="billingAddressId" value="{{ address.id }}" {% if order.billingAddressId == address.id %}checked{% endif %} />
+                <input type="radio" name="shippingAddressId" value="{{ address.id }}" {% if order.shippingAddressId == address.id %}checked{% endif %} />
                 <strong>Choose this</strong>
             </label>
         {% endfor %}
 
         <div style="clear: both;"></div>
         <h3>Choose an address for Billing</h3>
+
+        {% if order.hasErrors('billingAddressId') %}<strong style="color: #ff2000">Error: {{ order.getErrors('billingAddressId')|join }}</strong><br/>{% endif %}
 
         {% for address in addresses %}
             <label class="address-chooser" style=" display: block; float: left; margin: 10px; padding: 10px; border: 1px solid #bbbbbb">

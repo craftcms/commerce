@@ -13,5 +13,7 @@
         {% include 'market/cart/_cart.html' %}
     {% elseif cart.state == 'address' %}
         {% include 'market/cart/_address.html' %}
+    {% elseif cart.state == 'payment' %}
+        {% include 'market/cart/_payment.html' %}
     {% endif %}
 {% endblock %}
