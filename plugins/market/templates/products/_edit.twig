@@ -161,16 +161,16 @@
                             id:       'masterVariant',
                             label:    'Master Variant'|t
                         }, masterVariant) }}
-
-                        {{ forms.selectField({
-                            label: 'Tax Category'|t,
-                            name: 'taxCategoryId',
-                            value: product.taxCategoryId,
-                            required: true,
-                            options: taxCategories,
-                            class: 'select-wide'
-                        }) }}
                     {% endif %}
+
+                    {{ forms.selectField({
+                        label: 'Tax Category'|t,
+                        name: 'taxCategoryId',
+                        value: product.taxCategoryId,
+                        required: true,
+                        options: taxCategories,
+                        class: 'select-wide'
+                    }) }}
 
                     {% for tab in productType.getFieldLayout().getTabs() %}
                         <div id="tab{{ loop.index }}" {% if not loop.first %} class="hidden" {% endif %}>
