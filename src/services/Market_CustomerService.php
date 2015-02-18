@@ -19,10 +19,10 @@ class Market_CustomerService extends BaseApplicationComponent
     public function getCustomer()
     {
         if($this->customer === null) {
-            $userId = craft()->user->id;
+            $user = craft()->userSession->getUser();
 
-            if($userId) {
-                $record = Market_CustomerRecord::model()->findByAttributes(['userId' => $userId]);
+            if($user) {
+                $record = Market_CustomerRecord::model()->findByAttributes(['userId' => $user->id]);
             } else {
                 $id = craft()->session->get(self::SESSION_CUSTOMER);
                 if($id) {
@@ -32,6 +32,11 @@ class Market_CustomerService extends BaseApplicationComponent
 
             if(empty($record)) {
                 $record = new Market_CustomerRecord;
+
+                if($user) {
+                    $record->userId = $user->id;
+                    $record->email = $user->email;
+                }
             }
 
             $this->customer = Market_CustomerModel::populateModel($record);
@@ -51,7 +56,7 @@ class Market_CustomerService extends BaseApplicationComponent
     /**
      * @return Market_CustomerModel
      */
-/*    private function getSavedCustomer()
+    private function getSavedCustomer()
     {
         $customer = $this->getCustomer();
         if(!$customer->id) {
@@ -59,14 +64,38 @@ class Market_CustomerService extends BaseApplicationComponent
         }
 
         return $customer;
-    }*/
+    }
 
+    /**
+     * @param Market_AddressModel $address
+     * @throws Exception
+     */
+    public function saveAddress(Market_AddressModel $address)
+    {
+        $customer = $this->getSavedCustomer();
+        $attr = [
+            'customerId' => $customer->id,
+            'addressId' => $address->id,
+        ];
 
-//    public function saveAddress(Market_AddressModel $address)
-//    {
-//    }
+        $relation = Market_CustomerAddressRecord::model()->findByAttributes($attr);
 
-/*    private function save(Market_CustomerModel $customer)
+        if(!$relation) {
+            $relation = new Market_CustomerAddressRecord;
+            $relation->attributes = $attr;
+            if(!$relation->save()) {
+                $errorsAll = call_user_func_array('array_merge', $relation->getErrors());
+                throw new Exception('Could not create customer-record relation: ' . implode('; ', $errorsAll));
+            }
+        }
+    }
+
+    /**
+     * @param Market_CustomerModel $customer
+     * @return bool
+     * @throws Exception
+     */
+    private function save(Market_CustomerModel $customer)
     {
         if (!$customer->id) {
             $customerRecord = new Market_CustomerRecord();
@@ -81,18 +110,17 @@ class Market_CustomerService extends BaseApplicationComponent
         $customerRecord->email = $customer->email;
         $customerRecord->userId = $customer->userId;
 
-
         $customerRecord->validate();
         $customer->addErrors($customerRecord->getErrors());
 
         if (!$customer->hasErrors()) {
-            if (craft()->elements->saveElement($customer)) {
-                $customerRecord->id     = $customer->id;
-                $customerRecord->save(false);
+            $customerRecord->save(false);
+            $customer->id = $customerRecord->id;
 
-                return true;
-            }
+            craft()->session->add(self::SESSION_CUSTOMER, $customer->id);
+
+            return true;
         }
         return false;
-    }*/
+    }
 }

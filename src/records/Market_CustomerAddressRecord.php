@@ -28,8 +28,7 @@ class Market_CustomerAddressRecord extends BaseRecord
 	public function defineIndexes()
 	{
 		return [
-			['columns' => ['customerId']],
-			['columns' => ['addressId']],
+			['columns' => ['customerId', 'addressId'], 'unique' => true],
 		];
 	}
 
@@ -40,4 +39,14 @@ class Market_CustomerAddressRecord extends BaseRecord
 			'customer' => [static::BELONGS_TO, 'Market_CustomerRecord', 'required' => true],
 		];
 	}
+
+	protected function defineAttributes()
+	{
+		return [
+			'addressId' => [AttributeType::Number, 'required' => true],
+			'customerId' => [AttributeType::Number, 'required' => true],
+		];
+	}
+
+
 }

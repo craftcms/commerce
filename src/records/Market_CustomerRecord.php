@@ -5,9 +5,9 @@ namespace Craft;
  * Class Market_CustomerRecord
  * @package Craft
  *
+ * @property int id
  * @property string email
  * @property int userId
- * @property int elementId
  *
  * @property Market_CustomerAddressRecord[] addresses
  */
@@ -31,7 +31,7 @@ class Market_CustomerRecord extends BaseRecord
 	protected function defineAttributes()
 	{
 		return array(
-			'email' => [AttributeType::String, 'required' => true],
+			'email' => [AttributeType::Email],
 		);
 	}
 
@@ -42,7 +42,6 @@ class Market_CustomerRecord extends BaseRecord
 	{
 		return [
 			'user'      => [static::BELONGS_TO, 'UserRecord'],
-			'element'   => [static::BELONGS_TO, 'ElementRecord', 'id', 'required' => true, 'onDelete' => static::CASCADE],
 			'addresses' => [static::HAS_MANY, 'Market_CustomerAddressRecord', 'customerId'],
 		];
 	}

@@ -51,8 +51,6 @@ class Market_AddressService extends BaseApplicationComponent
 	 *
 	 * @return bool
 	 * @throws Exception
-	 * @throws \CDbException
-	 * @throws \Exception
 	 */
 	public function save(Market_AddressModel $model)
 	{
@@ -76,10 +74,15 @@ class Market_AddressService extends BaseApplicationComponent
 		$record->company          = $model->company;
 		$record->countryId        = $model->countryId;
 
-		if (is_numeric($model->stateValue)) {
-			$record->stateId = $model->stateId = $model->stateValue;
+		if(!empty($model->stateValue)) {
+			if (is_numeric($model->stateValue)) {
+				$record->stateId = $model->stateId = $model->stateValue;
+			} else {
+				$record->stateName = $model->stateName = $model->stateValue;
+			}
 		} else {
-			$record->stateName = $model->stateName = $model->stateValue;
+			$record->stateId = $model->stateId;
+			$record->stateName = $model->stateName;
 		}
 
 		$record->validate();
