@@ -52,6 +52,14 @@ class Market_LineItemRecord extends BaseRecord
 		];
 	}
 
+	public function defineRelations()
+	{
+		return [
+			'order' => [static::BELONGS_TO, 'Market_OrderRecord', 'required' => true, 'onDelete' => static::CASCADE],
+			'variant' => [static::BELONGS_TO, 'Market_VariantRecord', 'onUpdate' => self::CASCADE, 'onDelete' => self::SET_NULL],
+		];
+	}
+
 	/**
 	 * Extra qty validation
 	 *
@@ -80,15 +88,6 @@ class Market_LineItemRecord extends BaseRecord
 
 		return $this->hasErrors();
 	}
-
-	public function defineRelations()
-	{
-		return [
-			'order' => [static::BELONGS_TO, 'Market_OrderRecord', 'required' => true, 'onDelete' => static::CASCADE],
-			'variant' => [static::BELONGS_TO, 'Market_VariantRecord', 'required' => true],
-		];
-	}
-	
 	public function recalculate()
 	{
 		$this->subtotal = $this->price * $this->qty;

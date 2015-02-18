@@ -133,6 +133,8 @@ class Market_LineItemService extends BaseApplicationComponent
 		$variant = craft()->market_variant->getById($variantId);
 		if($variant->id) {
 			$lineItem->price = $variant->price;
+		} else {
+			$lineItem->addError('variantId', 'variant not found');
 		}
 
 		return $lineItem;
