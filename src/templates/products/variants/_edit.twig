@@ -89,7 +89,7 @@
         {{ forms.selectField({
             label: optionType.name,
             name: 'optionValues[' ~ optionType.id ~ ']',
-            value: optionValues[optionType.id] is defined ? optionValues[optionType.id] : variant.getOptionValue(optionType.id).id,
+            value: optionValues[optionType.id] is defined ? optionValues[optionType.id] : '',
             required: false,
             options: optionType.selectValues,
             class: 'select-wide',

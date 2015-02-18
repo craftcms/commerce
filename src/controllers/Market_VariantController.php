@@ -51,6 +51,8 @@ class Market_VariantController extends Market_BaseController
 				$variables['variant']->unlimitedStock = $variables['product']->masterVariant->unlimitedStock;
 				$variables['variant']->minQty = $variables['product']->masterVariant->minQty;
 			};
+
+			$variables['optionValues'] = $variables['variant']->getOptionValuesArray(true);
 		}
 
 		if (!empty($variables['variant']->id)) {

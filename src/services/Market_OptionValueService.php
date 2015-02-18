@@ -29,6 +29,21 @@ class Market_OptionValueService extends BaseApplicationComponent
 	}
 
 	/**
+	 * @param int $variantId
+	 * @return Market_OptionValueModel[]
+	 */
+	public function getAllByVariantId($variantId)
+	{
+		$optionValues = Market_OptionValueRecord::model()->with('optionType')->findAll([
+			'join'      => 'JOIN craft_market_variant_optionvalues v ON v.optionValueId = t.id',
+			'condition' => 'v.variantId = :v',
+			'params'    => ['v' => $variantId],
+		]);
+
+		return Market_OptionValueModel::populateModels($optionValues);
+	}
+
+	/**
 	 * @param Market_OptionTypeModel    $optionType
 	 * @param Market_OptionValueModel[] $optionValues
 	 *
