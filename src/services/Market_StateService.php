@@ -32,6 +32,22 @@ class Market_StateService extends BaseApplicationComponent
 	}
 
 	/**
+	 * @return array [countryId => [stateId => stateName]]
+	 */
+	public function getGroupedByCountries()
+	{
+		$states = craft()->market_state->getAll();
+		$cid2state = [];
+
+		foreach($states as $state) {
+			$cid2state += [$state->countryId => []];
+			$cid2state[$state->countryId][$state->id] = $state->name;
+		}
+
+		return $cid2state;
+	}
+
+	/**
 	 * @param Market_StateModel $model
 	 *
 	 * @return bool
