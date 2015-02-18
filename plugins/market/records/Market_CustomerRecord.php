@@ -5,6 +5,7 @@ namespace Craft;
  * Class Market_CustomerRecord
  * @package Craft
  *
+ * @property string email
  * @property int userId
  * @property int elementId
  *

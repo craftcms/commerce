@@ -32,6 +32,16 @@ class Market_CountryService extends BaseApplicationComponent
 	}
 
 	/**
+	 * Simple list for using in forms
+	 * @return array [id => name]
+	 */
+	public function getFormList()
+	{
+		$countries = $this->getAll();
+		return \CHtml::listData($countries, 'id', 'name');
+	}
+
+	/**
 	 * @param Market_CountryModel $model
 	 *
 	 * @return bool

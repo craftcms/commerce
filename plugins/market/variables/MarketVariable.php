@@ -68,4 +68,43 @@ class MarketVariable
 	{
 		return craft()->market_customer->getCustomer();
 	}
+
+	/**
+	 * @return array [id => name]
+	 */
+	public function getCountriesList()
+	{
+		return craft()->market_country->getFormList();
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getStatesArray()
+	{
+		return craft()->market_state->getGroupedByCountries();
+	}
+
+	/**
+	 * A way to use form.* macros in our templates
+	 * @param string $macro
+	 * @param array $args
+	 * @return \Twig_Markup
+	 */
+	public function renderFormMacro($macro, array $args)
+	{
+		// Get the current template path
+		$originalPath = craft()->path->getTemplatesPath();
+
+		// Point Twig at the CP templates
+		craft()->path->setTemplatesPath(craft()->path->getCpTemplatesPath());
+
+		// Render the macro.
+		$html = craft()->templates->renderMacro('_includes/forms', $macro, array($args));
+
+		// Restore the original template path
+		craft()->path->setTemplatesPath($originalPath);
+
+		return TemplateHelper::getRaw($html);
+	}
 }

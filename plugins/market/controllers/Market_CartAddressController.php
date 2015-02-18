@@ -28,7 +28,7 @@ class Market_CartAddressController extends Market_BaseController
 		$billing->attributes = craft()->request->getPost('BillingAddress');
 
 		if(craft()->market_order->setAddresses($shipping, $billing)) {
-			$this->redirect(['market/cartAddress/goToPayment']);
+			$this->actionGoToPayment();
 		} else {
 			craft()->urlManager->setRouteVariables([
 				'billingAddress' => $billing,
