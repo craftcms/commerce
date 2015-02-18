@@ -19,12 +19,13 @@
         <h3>Choose an address for Shipping</h3>
 
         {% for address in addresses %}
-            <label style=" display: block; float: left; margin: 10px; padding: 10px; border: 1px solid #bbbbbb">
+            <label class="address-chooser" style=" display: block; float: left; margin: 10px; padding: 10px; border: 1px solid #bbbbbb">
                 {% for key,value in address.attributes %}
-                    {{ key|makeLabel }}: {{ value }}<br/>
+                    {{ key|makeLabel }}: <span class="address-option" data-key="{{ key }}" data-value="{{ value }}">{{ value }}</span><br/>
                 {% endfor %}
 
                 <a class="address-remove" data-id="{{ address.id }}" href="#">Remove</a><br/>
+                <a class="address-update" data-id="{{ address.id }}" href="#">Update</a><br/>
 
                 <input type="radio" name="billingAddressId" value="{{ address.id }}" {% if order.billingAddressId == address.id %}checked{% endif %} />
                 <strong>Choose this</strong>
@@ -35,12 +36,15 @@
         <h3>Choose an address for Billing</h3>
 
         {% for address in addresses %}
-            <label style=" display: block; float: left; margin: 10px; padding: 10px; border: 1px solid #bbbbbb">
+            <label class="address-chooser" style=" display: block; float: left; margin: 10px; padding: 10px; border: 1px solid #bbbbbb">
                 {% for key,value in address.attributes %}
-                    {{ key|makeLabel }}: {{ value }}<br/>
+                    {{ key|makeLabel }}: <span class="address-option" data-key="{{ key }}" data-value="{{ value }}">{{ value }}</span><br/>
                 {% endfor %}
 
-                <input type="radio" name="shippingAddressId" value="{{ address.id }}" {% if order.shippingAddressId == address.id %}checked{% endif %} />
+                <a class="address-remove" data-id="{{ address.id }}" href="#">Remove</a><br/>
+                <a class="address-update" data-id="{{ address.id }}" href="#">Update</a><br/>
+
+                <input type="radio" name="billingAddressId" value="{{ address.id }}" {% if order.billingAddressId == address.id %}checked{% endif %} />
                 <strong>Choose this</strong>
             </label>
         {% endfor %}
@@ -49,9 +53,10 @@
         <input type="submit" value="Confirm addresses">
     </form>
 
-    <form method="post" style="float: left; margin-left: 50px;; border: 1px solid #bbbbbb">
-        <h3>Add New Address</h3>
+    <form method="post" class="form-new-address" style="float: left; margin-left: 50px;; border: 1px solid #bbbbbb">
+        <h3 class="form-new-address__label">Add New Address</h3>
         <input type="hidden" name="action" value="market/cartAddress/addAddress">
+        <input type="hidden" name="Address[id]" value="">
 
         {{ forms.addressForm('Address', newAddress is defined ? newAddress : null ) }}
 
@@ -82,6 +87,25 @@ $('.address-remove').click(function(e) {
         id: $(this).data('id')
     }, function() {
         window.location = window.location.href;
+    });
+});
+
+$('.address-update').click(function(e) {
+    e.preventDefault();
+    var $newForm = $('.form-new-address');
+
+    $('.form-new-address__label').text('Update Address #' + $(this).data('id'));
+
+    $(this).parents('.address-chooser').find('.address-option').each(function() {
+        var key = $(this).data('key'),
+            value = $(this).data('value'),
+            $input = $newForm.find('[name="Address[' + key + ']"]');
+
+        $input.val(value);
+
+        if(key == 'countryId') {
+            $input.change();
+        }
     });
 });
 {% endset %}
