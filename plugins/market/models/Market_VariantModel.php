@@ -60,27 +60,36 @@ class Market_VariantModel extends BaseModel
 		return UrlHelper::getCpUrl('market/products/' . $this->product->productType->handle . '/' . $this->product->id . '/variants/' . $this->id);
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getOptionsText()
 	{
-		$productOptionTypes = $this->product->optionTypes;
-		$optionValues       = array();
-		foreach ($productOptionTypes as $optionType) {
-			$optionValue    = $this->getOptionValue($optionType->id);
-			$optionValues[] = $optionType->name . ": " . $optionValue->displayName;
+		$optionValues = [];
+		$values = $this->getOptionValuesArray();
+		foreach($values as $key => $value) {
+			$optionValues[] = "$key: $value";
 		}
 
 		return join(" ", $optionValues);
 	}
 
-	public function getOptionValue($optionTypeId)
+	/**
+	 * @param bool $idKeys
+	 * @return array
+	 */
+	public function getOptionValuesArray($idKeys = false)
 	{
-		$optionValue = Market_OptionValueRecord::model()->find(array(
-			'join'      => 'JOIN craft_market_variant_optionvalues v ON v.optionValueId = t.id',
-			'condition' => 'v.variantId = :v AND t.optionTypeId = :ot',
-			'params'    => array('v' => $this->id, 'ot' => $optionTypeId),
-		));
+		$optionValues = craft()->market_optionValue->getAllByVariantId($this->id);
 
-		return Market_OptionValueModel::populateModel($optionValue);
+		$result = [];
+
+		foreach($optionValues as $value) {
+			$key = $idKeys ? $value->optionType->id : $value->optionType->name;
+			$result[$key] = $value->displayName;
+		}
+
+		return $result;
 	}
 
 	protected function defineAttributes()

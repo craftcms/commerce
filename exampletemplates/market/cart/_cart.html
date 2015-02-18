@@ -21,6 +21,7 @@
             <li>Ship Total: {{ lineItem.shipTotal }}</li>
             <li>Total: {{ lineItem.total }}</li>
             <li>Total Inc Tax: {{ lineItem.totalIncTax }}</li>
+            <li>Options: {{ dump(lineItem.optionsJson) }}</li>
             <li>
                 <form method="POST">
                     <input type="hidden" name="action" value="market/cart/updateQty">

@@ -16,6 +16,7 @@ namespace Craft;
  * @property int qty
  * @property int orderId
  * @property int variantId
+ * @property string optionsJson
  *
  * @property Market_OrderRecord order
  * @property Market_VariantRecord variant
@@ -50,6 +51,7 @@ class Market_LineItemModel extends BaseModel
 			'total' 		=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true],
 			'totalIncTax' 	=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true],
 			'qty'   		=> [AttributeType::Number, 'min' => 0, 'required' => true],
+			'optionsJson'  	=> AttributeType::Mixed,
 		];
 	}
 }

@@ -89,10 +89,11 @@ class Market_LineItemService extends BaseApplicationComponent
 			}
 		}
 
-		$lineItemRecord->variantId = $lineItem->variantId;
-		$lineItemRecord->orderId = $lineItem->orderId;
-		$lineItemRecord->qty = $lineItem->qty;
-		$lineItemRecord->price = $lineItem->price;
+		$lineItemRecord->variantId 		= $lineItem->variantId;
+		$lineItemRecord->orderId 		= $lineItem->orderId;
+		$lineItemRecord->qty 			= $lineItem->qty;
+		$lineItemRecord->price 			= $lineItem->price;
+		$lineItemRecord->optionsJson 	= $lineItem->optionsJson;
 
 		$lineItemRecord->validate();
 		$lineItem->addErrors($lineItemRecord->getErrors());
@@ -133,6 +134,10 @@ class Market_LineItemService extends BaseApplicationComponent
 		$variant = craft()->market_variant->getById($variantId);
 		if($variant->id) {
 			$lineItem->price = $variant->price;
+
+			$options = $variant->attributes;
+			$options['optionValues'] = $variant->getOptionValuesArray();
+			$lineItem->optionsJson = $options;
 		} else {
 			$lineItem->addError('variantId', 'variant not found');
 		}
