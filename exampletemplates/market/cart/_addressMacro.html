@@ -57,3 +57,28 @@
     </table>
 {% endmacro %}
 {# End Address Form Macro #}
+
+
+{% set js %}
+
+var states = {{ craft.market.statesArray|json_encode|raw }};
+
+$('.address-country select').change(function() {
+var cid = $(this).val(),
+$states = $(this).closest('table').find('.address-state select');
+
+$states.find('option').remove();
+
+if(states.hasOwnProperty(cid)) {
+for(var id in states[cid]) {
+var state = states[cid][id],
+$option = $('<option/>');
+
+$option.attr('value', id).text(state);
+$states.append($option);
+}
+}
+});
+
+{% endset %}
+{% includeJs js first %}

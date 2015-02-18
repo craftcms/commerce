@@ -1,5 +1,5 @@
-{% includeJsResource 'lib/jquery-2.1.1.min.js' -%}
 {% import 'market/cart/_addressMacro.html' as forms %}
+{% include 'market/cart/_addressMacro.html' %}
 
 <h2>Fill the Address form</h2>
 
@@ -10,73 +10,79 @@
 {% set addresses = craft.market.customer.addresses %}
 {% set order = craft.market.cart %}
 
-<form method="post">
 
 {% if addresses %}
-    <input type="hidden" name="action" value="market/cartAddress/chooseAddresses">
+    {# UI when at least one address exists #}
+    <form method="post" style="float: left; border: 1px solid #bbbbbb">
+        <input type="hidden" name="action" value="market/cartAddress/chooseAddresses">
 
-    <h3>Choose an address for Shipping</h3>
+        <h3>Choose an address for Shipping</h3>
 
-    {% for address in addresses %}
-        <label style=" display: block; float: left; margin: 10px; padding: 10px; border: 1px solid #bbbbbb">
-            {% for key,value in address.attributes %}
-                {{ key|makeLabel }}: {{ value }}<br/>
-            {% endfor %}
+        {% for address in addresses %}
+            <label style=" display: block; float: left; margin: 10px; padding: 10px; border: 1px solid #bbbbbb">
+                {% for key,value in address.attributes %}
+                    {{ key|makeLabel }}: {{ value }}<br/>
+                {% endfor %}
 
-            <input type="radio" name="billingAddressId" value="{{ address.id }}" {% if order.billingAddressId == address.id %}checked{% endif %} />
-            <strong>Choose this</strong>
-        </label>
-    {% endfor %}
+                <a class="address-remove" data-id="{{ address.id }}" href="#">Remove</a><br/>
 
-    <div style="clear: both;"></div>
-    <h3>Choose an address for Billing</h3>
+                <input type="radio" name="billingAddressId" value="{{ address.id }}" {% if order.billingAddressId == address.id %}checked{% endif %} />
+                <strong>Choose this</strong>
+            </label>
+        {% endfor %}
 
-    {% for address in addresses %}
-        <label style=" display: block; float: left; margin: 10px; padding: 10px; border: 1px solid #bbbbbb">
-            {% for key,value in address.attributes %}
-                {{ key|makeLabel }}: {{ value }}<br/>
-            {% endfor %}
+        <div style="clear: both;"></div>
+        <h3>Choose an address for Billing</h3>
 
-            <input type="radio" name="shippingAddressId" value="{{ address.id }}" {% if order.shippingAddressId == address.id %}checked{% endif %} />
-            <strong>Choose this</strong>
-        </label>
-    {% endfor %}
+        {% for address in addresses %}
+            <label style=" display: block; float: left; margin: 10px; padding: 10px; border: 1px solid #bbbbbb">
+                {% for key,value in address.attributes %}
+                    {{ key|makeLabel }}: {{ value }}<br/>
+                {% endfor %}
 
-    <div style="clear: both;"></div>
+                <input type="radio" name="shippingAddressId" value="{{ address.id }}" {% if order.shippingAddressId == address.id %}checked{% endif %} />
+                <strong>Choose this</strong>
+            </label>
+        {% endfor %}
+
+        <div style="clear: both;"></div>
+        <input type="submit" value="Confirm addresses">
+    </form>
+
+    <form method="post" style="float: left; margin-left: 50px;; border: 1px solid #bbbbbb">
+        <h3>Add New Address</h3>
+        <input type="hidden" name="action" value="market/cartAddress/addAddress">
+
+        {{ forms.addressForm('Address', newAddress is defined ? newAddress : null ) }}
+
+        <input type="submit" value="Add New Address">
+    </form>
 
 {% else %}
-    <input type="hidden" name="action" value="market/cartAddress/postTwoAddresses">
+    {# UI when no addresses exist #}
+    <form method="post">
+        <input type="hidden" name="action" value="market/cartAddress/postTwoAddresses">
 
-    <h3>Shipping Address</h3>
-    {{ forms.addressForm('ShippingAddress', shippingAddress is defined ? shippingAddress : null ) }}
-    
-    <h3>Billing Address</h3>
-    {{ forms.addressForm('BillingAddress', billingAddress is defined ? billingAddress : null) }}
+        <h3>Shipping Address</h3>
+        {{ forms.addressForm('ShippingAddress', shippingAddress is defined ? shippingAddress : null ) }}
+
+        <h3>Billing Address</h3>
+        {{ forms.addressForm('BillingAddress', billingAddress is defined ? billingAddress : null) }}
+
+        <input type="submit" value="Confirm addresses">
+    </form>
 {% endif %}
 
-    <input type="submit" value="Confirm addresses">
-</form>
+{% set js %}
 
-{%- set js %}
-
-    var states = {{ craft.market.statesArray|json_encode|raw }};
-
-    $('.address-country select').change(function() {
-        var cid = $(this).val(),
-            $states = $(this).closest('table').find('.address-state select');
-
-        $states.find('option').remove();
-
-        if(states.hasOwnProperty(cid)) {
-            for(var id in states[cid]) {
-                var state = states[cid][id],
-                    $option = $('<option/>');
-
-                $option.attr('value', id).text(state);
-                $states.append($option);
-            }
-        }
+$('.address-remove').click(function(e) {
+    e.preventDefault();
+    $.post(window.location, {
+        action: 'market/cartAddress/removeAddress',
+        id: $(this).data('id')
+    }, function() {
+        window.location = window.location.href;
     });
-
-{%- endset %}
-{%- includeJs js %}
+});
+{% endset %}
+{% includeJs js %}
