@@ -1,4 +1,5 @@
 {% includeJsResource 'lib/jquery-2.1.1.min.js' -%}
+{% import 'market/cart/_addressMacro.html' as forms %}
 
 <h2>Fill the Address form</h2>
 
@@ -7,113 +8,50 @@
 {% endif %}
 
 {% set addresses = craft.market.customer.addresses %}
+{% set order = craft.market.cart %}
 
 <form method="post">
 
-{% set addressFields = {
-    firstName : 1,
-    lastName : 1,
-    address1: 0,
-    address2: 0,
-    zipCode: 0,
-    phone: 0,
-    alternativePhone: 0,
-    company: 0,
-} %}
-
-    {% set countries = craft.market.countriesList %}
-    {% set states = craft.market.statesArray %}
-
 {% if addresses %}
-    some addr
+    <input type="hidden" name="action" value="market/cartAddress/chooseAddresses">
+
+    <h3>Choose an address for Shipping</h3>
+
+    {% for address in addresses %}
+        <label style=" display: block; float: left; margin: 10px; padding: 10px; border: 1px solid #bbbbbb">
+            {% for key,value in address.attributes %}
+                {{ key|makeLabel }}: {{ value }}<br/>
+            {% endfor %}
+
+            <input type="radio" name="billingAddressId" value="{{ address.id }}" {% if order.billingAddressId == address.id %}checked{% endif %} />
+            <strong>Choose this</strong>
+        </label>
+    {% endfor %}
+
+    <div style="clear: both;"></div>
+    <h3>Choose an address for Billing</h3>
+
+    {% for address in addresses %}
+        <label style=" display: block; float: left; margin: 10px; padding: 10px; border: 1px solid #bbbbbb">
+            {% for key,value in address.attributes %}
+                {{ key|makeLabel }}: {{ value }}<br/>
+            {% endfor %}
+
+            <input type="radio" name="shippingAddressId" value="{{ address.id }}" {% if order.shippingAddressId == address.id %}checked{% endif %} />
+            <strong>Choose this</strong>
+        </label>
+    {% endfor %}
+
+    <div style="clear: both;"></div>
+
 {% else %}
     <input type="hidden" name="action" value="market/cartAddress/postTwoAddresses">
 
     <h3>Shipping Address</h3>
-    <table style="border: 1px solid #000; margin-bottom: 20px">
-        {% for key,required in addressFields %}
-            <tr>
-                <td>{{ key|makeLabel }} {{ required ? '*' : '' }}</td>
-                <td><input name="ShippingAddress[{{ key }}]" value="{{ shippingAddress is defined ? shippingAddress[key] : '' }}"></td>
-                <td>{% if shippingAddress is defined and shippingAddress.getErrors(key) %}{{ shippingAddress.getErrors(key)|join }}{% endif %}</td>
-            </tr>
-        {% endfor %}
-
-        <tr>
-            <td>Country *</td>
-            <td>
-                {{ craft.market.renderFormMacro('select', {
-                    name: 'ShippingAddress[countryId]',
-                    value: shippingAddress is defined ? shippingAddress.countryId : '',
-                    options: countries,
-                    class: 'address-country',
-                }) }}
-            </td>
-            <td>{% if shippingAddress is defined and shippingAddress.getErrors('countryId') %}{{ shippingAddress.getErrors('countryId')|join }}{% endif %}</td>
-        </tr>
-
-        <tr>
-            <td>State</td>
-            <td>
-                {{ craft.market.renderFormMacro('select', {
-                    name: 'ShippingAddress[stateId]',
-                    value: shippingAddress is defined ? shippingAddress.stateId : '',
-                    options: shippingAddress is defined and states[shippingAddress.countryId] is defined ? states[shippingAddress.countryId] : [],
-                    class: 'address-state',
-                }) }}
-
-                <label>
-                    Custom:
-                    <input name="ShippingAddress[stateName]" value="{{ shippingAddress is defined ? shippingAddress.stateName : '' }}">
-                    {% if shippingAddress is defined and shippingAddress.getErrors('stateName') %}<br/>{{ shippingAddress.getErrors('stateName')|join }}{% endif %}
-                </label>
-            </td>
-            <td>{% if shippingAddress is defined and shippingAddress.getErrors('stateId') %}{{ shippingAddress.getErrors('stateId')|join }}{% endif %}</td>
-        </tr>
-    </table>
+    {{ forms.addressForm('ShippingAddress', shippingAddress is defined ? shippingAddress : null ) }}
     
     <h3>Billing Address</h3>
-    <table style="border: 1px solid #000; margin-bottom: 20px">
-        {% for key,required in addressFields %}
-            <tr>
-                <td>{{ key|makeLabel }} {{ required ? '*' : '' }}</td>
-                <td><input name="BillingAddress[{{ key }}]" value="{{ billingAddress is defined ? billingAddress[key] : '' }}"></td>
-                <td>{% if billingAddress is defined and billingAddress.getErrors(key) %}{{ billingAddress.getErrors(key)|join }}{% endif %}</td>
-            </tr>
-        {% endfor %}
-
-        <tr>
-            <td>Country *</td>
-            <td>
-                {{ craft.market.renderFormMacro('select', {
-                    name: 'BillingAddress[countryId]',
-                    value: billingAddress is defined ? billingAddress.countryId : '',
-                    options: countries,
-                    class: 'address-country',
-                }) }}
-            </td>
-            <td>{% if billingAddress is defined and billingAddress.getErrors('countryId') %}{{ billingAddress.getErrors('countryId')|join }}{% endif %}</td>
-        </tr>
-
-        <tr>
-            <td>State</td>
-            <td>
-                {{ craft.market.renderFormMacro('select', {
-                    name: 'BillingAddress[stateId]',
-                    value: billingAddress is defined ? billingAddress.stateId : '',
-                    options: billingAddress is defined and states[billingAddress.countryId] is defined ? states[billingAddress.countryId] : [],
-                    class: 'address-state',
-                }) }}
-
-                <label>
-                    Custom:
-                    <input name="BillingAddress[stateName]" value="{{ billingAddress is defined ? billingAddress.stateName : '' }}">
-                    {% if billingAddress is defined and billingAddress.getErrors('stateName') %}<br/>{{ billingAddress.getErrors('stateName')|join }}{% endif %}
-                </label>
-            </td>
-            <td>{% if billingAddress is defined and billingAddress.getErrors('stateId') %}{{ billingAddress.getErrors('stateId')|join }}{% endif %}</td>
-        </tr>
-    </table>
+    {{ forms.addressForm('BillingAddress', billingAddress is defined ? billingAddress : null) }}
 {% endif %}
 
     <input type="submit" value="Confirm addresses">
@@ -121,7 +59,7 @@
 
 {%- set js %}
 
-    var states = {{ states|json_encode|raw }};
+    var states = {{ craft.market.statesArray|json_encode|raw }};
 
     $('.address-country select').change(function() {
         var cid = $(this).val(),

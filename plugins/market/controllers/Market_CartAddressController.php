@@ -37,6 +37,25 @@ class Market_CartAddressController extends Market_BaseController
 		}
 	}
 
+	public function actionChooseAddresses()
+	{
+		$this->requirePostRequest();
+
+		$billingId = craft()->request->getPost('billingAddressId');
+		$shippingId = craft()->request->getPost('shippingAddressId');
+
+		$billingAddress = craft()->market_address->getById($billingId);
+		$shippingAddress = craft()->market_address->getById($shippingId);
+
+		if(!$billingAddress->id || !$shippingAddress->id) {
+			throw new \CHttpException(400);
+		}
+
+		if(craft()->market_order->setAddresses($shippingAddress, $billingAddress)) {
+			$this->actionGoToPayment();
+		}
+	}
+
 	/**
 	 * @throws Exception
 	 */
