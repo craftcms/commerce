@@ -37,6 +37,13 @@ class Market_CartAddressController extends Market_BaseController
 		}
 	}
 
+	/**
+	 * Choose Addresses
+	 *
+	 * @throws HttpException
+	 * @throws \CHttpException
+	 * @throws \Exception
+	 */
 	public function actionChooseAddresses()
 	{
 		$this->requirePostRequest();
@@ -54,6 +61,45 @@ class Market_CartAddressController extends Market_BaseController
 		if(craft()->market_order->setAddresses($shippingAddress, $billingAddress)) {
 			$this->actionGoToPayment();
 		}
+	}
+
+	/**
+	 * Add New Address
+	 *
+	 * @throws Exception
+	 * @throws HttpException
+	 */
+	public function actionAddAddress()
+	{
+		$this->requirePostRequest();
+
+		$address = new Market_AddressModel;
+		$address->attributes = craft()->request->getPost('Address');
+
+		if(craft()->market_address->save($address)) {
+			craft()->market_customer->saveAddress($address);
+		} else {
+			craft()->urlManager->setRouteVariables([
+				'newAddress' => $address,
+			]);
+		}
+	}
+
+	/**
+	 * Remove Address
+	 * @throws HttpException
+	 */
+	public function actionRemoveAddress()
+	{
+		$this->requirePostRequest();
+
+		$id = craft()->request->getPost('id', 0);
+
+		if(!$id) {
+			throw new HttpException(400);
+		}
+
+		craft()->market_address->deleteById($id);
 	}
 
 	/**

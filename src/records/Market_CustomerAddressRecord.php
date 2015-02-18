@@ -35,8 +35,8 @@ class Market_CustomerAddressRecord extends BaseRecord
 	public function defineRelations()
 	{
 		return [
-			'address' => [static::BELONGS_TO, 'Market_AddressRecord', 'required' => true],
-			'customer' => [static::BELONGS_TO, 'Market_CustomerRecord', 'required' => true],
+			'address' => [static::BELONGS_TO, 'Market_AddressRecord', 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE, 'required' => true],
+			'customer' => [static::BELONGS_TO, 'Market_CustomerRecord', 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE, 'required' => true],
 		];
 	}
 
