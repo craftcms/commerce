@@ -55,7 +55,14 @@ class Market_CartAddressController extends Market_BaseController
 		$shippingAddress = craft()->market_address->getById($shippingId);
 
 		if(!$billingAddress->id || !$shippingAddress->id) {
-			throw new \CHttpException(400);
+			$order = craft()->market_order->getCart();
+			if(empty($billingAddress->id)) {
+				$order->addError('billingAddressId', 'Choose please billing address');
+			}
+			if(empty($shippingAddress->id)) {
+				$order->addError('shippingAddressId', 'Choose please shipping address');
+			}
+			return;
 		}
 
 		if(craft()->market_order->setAddresses($shippingAddress, $billingAddress)) {
@@ -107,20 +114,18 @@ class Market_CartAddressController extends Market_BaseController
 	 */
 	public function actionGoToPayment()
 	{
-		die('going to payment');
-//		$this->requirePostRequest();
-//
-//		$order = craft()->market_order->getCart();
-//		if(empty($order->lineItems)) {
-//			craft()->userSession->setNotice(Craft::t('Please add some items to your cart'));
-//			return;
-//		}
-//
-//		if($order->canTransit(Market_OrderRecord::STATE_ADDRESS)) {
-//			$order->transition(Market_OrderRecord::STATE_ADDRESS);
-//			$this->redirectToPostedUrl();
-//		} else {
-//			throw new Exception('unable to go to address state from the state: ' . $order->state);
-//		}
+		$this->requirePostRequest();
+
+		$order = craft()->market_order->getCart();
+		if(empty($order->shippingAddressId) || empty($order->billingAddressId)) {
+			craft()->userSession->setNotice(Craft::t('Please fill shipping and billing addresses'));
+			return;
+		}
+
+		if($order->canTransit(Market_OrderRecord::STATE_PAYMENT)) {
+			$order->transition(Market_OrderRecord::STATE_PAYMENT);
+		} else {
+			throw new Exception('unable to go to payment state from the state: ' . $order->state);
+		}
 	}
 }
