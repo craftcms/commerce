@@ -230,7 +230,7 @@ class Market_OrderService extends BaseApplicationComponent
 
 		if (!$order->hasErrors()) {
 			if (craft()->elements->saveElement($order)) {
-				$order->id = $orderRecord->id;
+				$orderRecord->id = $order->id;
 				$orderRecord->save(false);
 
 				return true;
