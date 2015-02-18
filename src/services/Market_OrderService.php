@@ -1,6 +1,7 @@
 <?php
 
 namespace Craft;
+use Market\Helpers\MarketDbHelper;
 
 /**
  * Class Market_OrderService
@@ -64,7 +65,7 @@ class Market_OrderService extends BaseApplicationComponent
 	 */
 	public function addToCart($variantId, $qty, &$error = '')
 	{
-		$transaction = craft()->db->beginTransaction();
+		MarketDbHelper::beginStackedTransaction();
 
 		//getting current order
 		$order = $this->getCart();
@@ -85,15 +86,15 @@ class Market_OrderService extends BaseApplicationComponent
 		try {
 			if(craft()->market_lineItem->save($lineItem)) {
 				$this->recalculateOrder($order);
-				$transaction->commit();
+				MarketDbHelper::commitStackedTransaction();
 				return true;
 			}
 		} catch(\Exception $e) {
-			$transaction->rollback();
+			MarketDbHelper::rollbackStackedTransaction();
 			throw $e;
 		}
 
-		$transaction->rollback();
+		MarketDbHelper::rollbackStackedTransaction();
 
 		$errors = $lineItem->getErrors();
 		$first = array_pop($errors);
@@ -116,18 +117,18 @@ class Market_OrderService extends BaseApplicationComponent
 			throw new Exception('Line item not found');
 		}
 
-		$transaction = craft()->db->beginTransaction();
+		MarketDbHelper::beginStackedTransaction();
 		try {
 			craft()->market_lineItem->delete($lineItem);
 
 			$order = $this->getCart();
 			$this->recalculateOrder($order);
 		} catch (\Exception $e) {
-			$transaction->rollback();
+			MarketDbHelper::rollbackStackedTransaction();
 			throw $e;
 		}
 
-		$transaction->commit();
+		MarketDbHelper::commitStackedTransaction();
 	}
 
 	/**
@@ -135,23 +136,23 @@ class Market_OrderService extends BaseApplicationComponent
 	 */
 	public function clearCart()
 	{
-		$transaction = craft()->db->beginTransaction();
+		MarketDbHelper::beginStackedTransaction();
 		try {
 			$order = $this->getCart();
 			craft()->market_lineItem->deleteAllByOrderId($order->id);
 			$this->recalculateOrder($order);
 		} catch (\Exception $e) {
-			$transaction->rollback();
+			MarketDbHelper::rollbackStackedTransaction();
 			throw $e;
 		}
 
-		$transaction->commit();
+		MarketDbHelper::commitStackedTransaction();
 	}
 
 	/**
 	 * @param Market_OrderModel $order
 	 */
-	private function recalculateOrder(Market_OrderModel $order)
+	public function recalculateOrder(Market_OrderModel $order)
 	{
 		$lineItems = craft()->market_lineItem->getAllByOrderId($order->id);
 		$order->itemTotal = array_reduce($lineItems, function($sum, $lineItem) {
@@ -249,7 +250,7 @@ class Market_OrderService extends BaseApplicationComponent
 	 */
 	public function setAddresses(Market_AddressModel $shippingAddress, Market_AddressModel $billingAddress)
 	{
-		$transaction = craft()->db->beginTransaction();
+		MarketDbHelper::beginStackedTransaction();
 		try {
 			$result1 = craft()->market_address->save($shippingAddress);
 			$result2 = craft()->market_address->save($billingAddress);
@@ -263,15 +264,15 @@ class Market_OrderService extends BaseApplicationComponent
 				craft()->market_customer->saveAddress($billingAddress);
 
 				$this->recalculateOrder($order);
-				$transaction->commit();
+				MarketDbHelper::commitStackedTransaction();
 				return true;
 			}
 		} catch (\Exception $e) {
-			$transaction->rollback();
+			MarketDbHelper::rollbackStackedTransaction();
 			throw $e;
 		}
 
-		$transaction->rollback();
+		MarketDbHelper::rollbackStackedTransaction();
 		return false;
 	}
 

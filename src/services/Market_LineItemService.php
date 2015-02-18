@@ -1,6 +1,7 @@
 <?php
 
 namespace Craft;
+use Market\Helpers\MarketDbHelper;
 
 /**
  * Class Market_LineItemService
@@ -74,7 +75,7 @@ class Market_LineItemService extends BaseApplicationComponent
 	/**
 	 * @param Market_LineItemModel $lineItem
 	 * @return bool
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function save(Market_LineItemModel $lineItem)
 	{
@@ -96,12 +97,23 @@ class Market_LineItemService extends BaseApplicationComponent
 		$lineItemRecord->validate();
 		$lineItem->addErrors($lineItemRecord->getErrors());
 
-		if (!$lineItem->hasErrors()) {
-			$lineItemRecord->save(false);
-			$lineItemRecord->id = $lineItem->id;
+		MarketDbHelper::beginStackedTransaction();
+		try {
+			if (!$lineItem->hasErrors()) {
+				$lineItemRecord->save(false);
+				$lineItemRecord->id = $lineItem->id;
 
-			return true;
+				$order = craft()->market_order->getCart();
+				craft()->market_order->recalculateOrder($order);
+
+				MarketDbHelper::commitStackedTransaction();
+				return true;
+			}
+		} catch(\Exception $e) {
+			MarketDbHelper::rollbackStackedTransaction();
+			throw $e;
 		}
+
 		return false;
 	}
 
