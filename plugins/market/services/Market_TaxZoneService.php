@@ -1,6 +1,7 @@
 <?php
 
 namespace Craft;
+use Market\Helpers\MarketDbHelper;
 
 /**
  * Class Market_TaxZoneService
@@ -36,11 +37,10 @@ class Market_TaxZoneService extends BaseApplicationComponent
 
 	/**
 	 * @param Market_TaxZoneModel $model
-	 * @param array                $countriesIds
-	 * @param array                $statesIds
-	 *
+	 * @param array $countriesIds
+	 * @param array $statesIds
 	 * @return bool
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function save(Market_TaxZoneModel $model, $countriesIds, $statesIds)
 	{
@@ -93,7 +93,7 @@ class Market_TaxZoneService extends BaseApplicationComponent
 
 		//saving
 		if (!$model->hasErrors()) {
-			$transaction = craft()->db->getCurrentTransaction() === NULL ? craft()->db->beginTransaction() : NULL;
+			MarketDbHelper::beginStackedTransaction();
 			try {
 				// Save it!
 				$record->save(false);
@@ -126,13 +126,9 @@ class Market_TaxZoneService extends BaseApplicationComponent
 				}
 				craft()->db->createCommand()->insertAll($table, $cols, $rows);
 
-				if ($transaction !== NULL) {
-					$transaction->commit();
-				}
+				MarketDbHelper::commitStackedTransaction();
 			} catch (\Exception $e) {
-				if ($transaction !== NULL) {
-					$transaction->rollback();
-				}
+				MarketDbHelper::rollbackStackedTransaction();
 
 				throw $e;
 			}
