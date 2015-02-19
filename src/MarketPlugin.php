@@ -61,6 +61,10 @@ class MarketPlugin extends BasePlugin
 	{
         craft()->market_seed->afterInstall();
 
+        if(craft()->config->get('devMode')) {
+            craft()->market_seed->testData();
+        }
+
 //        $fieldLayout = array('type' => 'Market_Charge');
 //        $fieldLayout = FieldLayoutModel::populateModel($fieldLayout);
 //        craft()->fields->saveLayout($fieldLayout);
