@@ -3,6 +3,7 @@
 namespace Craft;
 use Market\Behaviors\Statemachine\AStateMachine;
 use Market\Behaviors\Statemachine\AStateTransition;
+use Market\Traits\Market_ModelRelationsTrait;
 
 /**
  * Class Market_OrderModel
@@ -19,10 +20,10 @@ use Market\Behaviors\Statemachine\AStateTransition;
  * @property int    billingAddressId
  * @property int    shippingAddressId
  *
- * @property Market_OrderTypeRecord type
- * @property Market_LineItemRecord[] lineItems
- * @property Market_AddressRecord billingAddress
- * @property Market_AddressRecord shipmentAddress
+ * @property Market_OrderTypeModel type
+ * @property Market_LineItemModel[] lineItems
+ * @property Market_AddressModel billingAddress
+ * @property Market_AddressModel shippingAddress
  *
  * @method bool canTransit(string $state)
  * @method void transition(string $state)
@@ -31,9 +32,8 @@ use Market\Behaviors\Statemachine\AStateTransition;
  */
 class Market_OrderModel extends BaseElementModel
 {
-	const CART = 'cart';
+    use Market_ModelRelationsTrait;
 
-	private $_orderItems = array();
 	protected $elementType = 'Market_Order';
 
 	/**
@@ -72,43 +72,25 @@ class Market_OrderModel extends BaseElementModel
 
 	public function getCpEditUrl()
 	{
-		$orderType = $this->getType();
-
+		$orderType = $this->type;
 		return UrlHelper::getCpUrl('market/orders/' . $orderType->handle . '/' . $this->id);
 	}
 
 	/**
-	 * @return Market_LineItemModel[]
-	 */
-	public function getLineItems()
-	{
-		if (!$this->_orderItems && $this->id){
-			$this->_orderItems = craft()->market_lineItem->getAllByOrderId($this->id);
-		}
-
-		return $this->_orderItems;
-	}
-
-	/**
-	 * @return Market_OrderTypeModel
-	 */
-	public function getType()
-	{
-		return craft()->market_orderType->getById($this->typeId);
-	}
-
-	/**
-	 * @return false|FieldLayoutModel
+	 * @return null|FieldLayoutModel
 	 */
 	public function getFieldLayout()
 	{
-		if ($this->getType()) {
+		if ($this->type) {
 			return $this->type->getFieldLayout();
 		}
 
-		return false;
+		return null;
 	}
 
+    /**
+     * @return array
+     */
 	public function behaviors()
 	{
 		return [
@@ -137,7 +119,9 @@ class Market_OrderModel extends BaseElementModel
 		];
 	}
 
-
+    /**
+     * @return array
+     */
 	protected function defineAttributes()
 	{
 		return array_merge(parent::defineAttributes(), [
@@ -159,7 +143,7 @@ class Market_OrderModel extends BaseElementModel
 		]);
 	}
 
-	public function isLocalized()
+    public function isLocalized()
 	{
 		return false;
 	}

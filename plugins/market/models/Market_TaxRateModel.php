@@ -1,6 +1,7 @@
 <?php
 
 namespace Craft;
+use Market\Traits\Market_ModelRelationsTrait;
 
 /**
  * Class Market_TaxRateModel
@@ -19,6 +20,8 @@ namespace Craft;
  */
 class Market_TaxRateModel extends BaseModel
 {
+    use Market_ModelRelationsTrait;
+
 	public function getCpEditUrl()
 	{
 		return UrlHelper::getCpUrl('market/settings/taxrates/' . $this->id);
@@ -37,17 +40,4 @@ class Market_TaxRateModel extends BaseModel
 			'taxZoneId'     => AttributeType::Number,
 		];
 	}
-
-	public static function populateModel($values)
-	{
-		$model = parent::populateModel($values);
-
-		if (is_object($values) && $values instanceof Market_TaxRateRecord) {
-			$model->taxZone     = Market_TaxZoneModel::populateModel($values->taxZone);
-			$model->taxCategory = Market_TaxCategoryModel::populateModel($values->taxCategory);
-		}
-
-		return $model;
-	}
-
 }
