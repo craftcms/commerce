@@ -24,6 +24,8 @@
 </head>
 <body>
 
+<div class="container-fluid">
+
 <div class="row">
     <div class="col-md-10 col-md-offset-1">
 
@@ -60,13 +62,13 @@
         {% endif %}
         </div>
 
-
+        <p></p>
         {% block content %}
         {% endblock %}
 
     </div>
-</div>
-
+</div>{# end row #}
+</div>{# end fluid container #}
 {% includeJsResource 'lib/jquery-2.1.1.min.js' %}
 </body>
 </html>
