@@ -19,6 +19,7 @@ Add this code into PHP-doc of CraftCMS WebApp class.
  * @property Market_PaymentMethodService $market_paymentMethod
  * @property Market_ProductService $market_product
  * @property Market_ProductTypeService $market_productType
+ * @property Market_SeedService $market_seed
  * @property Market_SettingsService $market_settings
  * @property Market_StateService $market_state
  * @property Market_TaxCategoryService $market_taxCategory
