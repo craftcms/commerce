@@ -31,6 +31,16 @@ class Market_CountryService extends BaseApplicationComponent
 		return Market_CountryModel::populateModel($record);
 	}
 
+    /**
+     * @param array $attr
+     * @return Market_CountryModel
+     */
+    public function getByAttributes(array $attr)
+    {
+        $record = Market_CountryRecord::model()->findByAttributes($attr);
+        return Market_CountryModel::populateModel($record);
+    }
+
 	/**
 	 * Simple list for using in forms
 	 * @return array [id => name]

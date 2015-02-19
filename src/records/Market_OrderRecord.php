@@ -21,7 +21,7 @@ namespace Craft;
  * @property Market_OrderTypeRecord type
  * @property Market_LineItemRecord[] lineItems
  * @property Market_AddressRecord billingAddress
- * @property Market_AddressRecord shipmentAddress
+ * @property Market_AddressRecord shippingAddress
  */
 class Market_OrderRecord extends BaseRecord
 {

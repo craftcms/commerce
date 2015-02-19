@@ -9,6 +9,9 @@ namespace Craft;
  * @property string $name
  * @property string $handle
  * @property int    $fieldLayoutId
+ *
+ * @method null setFieldLayout(FieldLayoutModel $fieldLayout)
+ * @method FieldLayoutModel getFieldLayout()
  * @package Craft
  */
 class Market_OrderTypeModel extends BaseModel
