@@ -44,7 +44,7 @@
             </li>
             {% set cart = craft.market.getCart() %}
             <li role="presentation" class="{% if craft.request.getSegment(2) == 'cart' %}active{% endif %}">
-                <a href="{{url('market/cart')}}">Cart </a>
+                <a href="{{url('market/cart')}}">Cart <span class="badge">{{cart.lineItems|length}}</span></a>
             </li>
         </ul>
 
