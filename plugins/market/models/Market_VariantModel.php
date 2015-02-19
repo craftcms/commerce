@@ -39,7 +39,6 @@ class Market_VariantModel extends BaseModel
 
 	public function getCpEditUrl()
 	{
-		$this->product = craft()->market_product->getById($this->productId);
 		return UrlHelper::getCpUrl('market/products/' . $this->product->type->handle . '/' . $this->product->id . '/variants/' . $this->id);
 	}
 
@@ -58,7 +57,7 @@ class Market_VariantModel extends BaseModel
 	}
 
 	/**
-	 * @param bool $idKeys
+	 * @param bool $idKeys Whether key and values in result should be identifiers
 	 * @return array
 	 */
 	public function getOptionValuesArray($idKeys = false)
@@ -69,7 +68,7 @@ class Market_VariantModel extends BaseModel
 
 		foreach($optionValues as $value) {
 			$key = $idKeys ? $value->optionType->id : $value->optionType->name;
-			$result[$key] = $value->displayName;
+			$result[$key] = $idKeys ? $value->id : $value->displayName;
 		}
 
 		return $result;

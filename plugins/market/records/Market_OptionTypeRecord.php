@@ -22,18 +22,18 @@ class Market_OptionTypeRecord extends BaseRecord
 
 	public function defineRelations()
 	{
-		return array(
-			'products'     => array(static::MANY_MANY, 'Market_ProductRecord', 'market_product_optiontypes(productId, optionTypeId)'),
-			'optionValues' => array(static::HAS_MANY, 'Market_OptionValueRecord', 'optionTypeId'),
-		);
+		return [
+			'products'     => [static::MANY_MANY, 'Market_ProductRecord', 'market_product_optiontypes(productId,optionTypeId)'],
+			'optionValues' => [static::HAS_MANY, 'Market_OptionValueRecord', 'optionTypeId'],
+		];
 	}
 
 	protected function defineAttributes()
 	{
-		return array(
-			'name'   => array(AttributeType::Name, 'required' => true),
-			'handle' => array(AttributeType::Handle, 'required' => true)
-		);
+		return [
+			'name'   => [AttributeType::Name, 'required' => true],
+			'handle' => [AttributeType::Handle, 'required' => true]
+		];
 	}
 
 }

@@ -87,7 +87,7 @@ class Market_ProductController extends Market_BaseController
 	{
 		$variables['tabs'] = array();
 
-		$variables['masterVariant'] = $variables['product']->master;
+		$variables['masterVariant'] = $variables['product']->master ?: new Market_VariantModel;
 
 		foreach ($variables['productType']->getFieldLayout()->getTabs() as $index => $tab) {
 			// Do any of the fields on this tab have errors?
@@ -200,7 +200,7 @@ class Market_ProductController extends Market_BaseController
 	{
 		$attributes = craft()->request->getPost('masterVariant');
 
-		$masterVariant = $product->master;
+		$masterVariant = $product->master ?: new Market_VariantModel;
 		$masterVariant->setAttributes($attributes);
 		$masterVariant->isMaster = true;
 
