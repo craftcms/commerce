@@ -1,10 +1,7 @@
-{% extends "market/_layouts/commerce" %}
-{% block title %}Main{% endblock %}
-{% block head %}
-{{ parent() }}
-{% endblock %}
+{% extends "market/_layouts/_main" %}
+{% block title %}Products{% endblock %}
+
 {% block content %}
-<h2>Products</h2>
 
 {% set products = craft.market.products.find() %}
 {% for product in products %}
