@@ -1,11 +1,7 @@
-{% extends "market/_layouts/commerce" %}
+{% extends "market/_layouts/_main" %}
 {% block title %}Cart{% endblock %}
-{% block head %}
-{{ parent() }}
-{% endblock %}
+
 {% block content %}
-
-
 
     {% set cart = craft.market.getCart() %}
 

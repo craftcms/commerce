@@ -1,52 +1,45 @@
-{% extends "market/_layouts/commerce" %}
-{% block title %}Main{% endblock %}
-{% block head %}
-{{ parent() }}
-{% endblock %}
+{% extends "market/_layouts/_main" %}
+{% block title %}Products{% endblock %}
+
 {% block content %}
-<h2>Products</h2>
 
 {% set products = craft.market.products.find() %}
-{% for product in products %}
-<div style="border:1px #000080 solid;padding:10px;">
-    <h2>{{product.title}}</h2>
-    <ul>
-        <li>Title: {{product.title}}</li>
-        <li>Available On: {{product.availableOn}}</li>
-        <li>Expires On: {{product.expiresOn}}</li>
-        <li>Option Types:</li>
-        <ul>
-            {% for optionType in product.optionTypes %}
-            <li>{{optionType.name}}</li>
-            <li>Option Values</li>
-            <ul>
-                {% for optionValue in optionType.optionValues %}
-                <li>{{optionValue.name}}</li>
-                {% endfor %}
-            </ul>
-            {% endfor %}
 
-        </ul>
-        <li>Variants:
-
-        <form method="POST" style="line-height: 30px">
-            <input type="hidden" name="action" value="market/cart/add">
-            <input type="hidden" name="redirect" value="market/cart">
-
-            <select name="variantId" style="width: 50%">
-                {% for variant in product.variants %}
-                    <option value="{{ variant.id }}">SKU: {{ variant.sku }} / Price: {{ variant.price }} / Stock: {{ variant.unlimitedStock ? 'unlimited' : variant.stock }} / {{ variant.optionsText }}</option>
-                {% endfor %}
-            </select> <br/>
-            Qty*: <input type="number" name="qty" min="1" value="1">
-            <input type="submit" value="Add to cart">
-            {% if error is defined %}
-                <br/><strong>Error: {{ error }}</strong>
-            {% endif %}
-        </form>
-    </ul>
+<div class="row">
+    {% for product in products %}
+    <div class="col-sm-6 col-md-4">
+        <div class="thumbnail">
+            <img src="http://placehold.it/800x300">
+            <div class="caption">
+                <h3>{{product.title}}</h3>
+                <p>Available: {{product.availableOn}} - {{product.expiresOn}}</p>
+                <p>
+                <form method="POST" style="line-height: 30px">
+                    <input type="hidden" name="action" value="market/cart/add">
+                    <input type="hidden" name="redirect" value="market/cart">
+                    <div class="form-group">
+                    <select name="variantId" class="form-control">
+                        {% for variant in product.variants %}
+                        <option value="{{ variant.id }}">SKU: {{ variant.sku }} / Price: {{ variant.price }} / Stock: {{ variant.unlimitedStock ? 'unlimited' : variant.stock }} / {{ variant.optionsText }}</option>
+                        {% endfor %}
+                    </select>
+                    </div>
+                    <div class="form-group">
+                    Quantity*: <input class="form-control" type="number" name="qty" min="1" value="1">
+                    </div>
+                    <div class="form-group">
+                    <input class="btn btn-primary" type="submit" value="Add to cart">
+                    </div>
+                    {% if error is defined %}
+                    <strong>Error: {{ error }}</strong>
+                    {% endif %}
+                </form>
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
 </div>
-{% endfor %}
 
 
 {% endblock %}
