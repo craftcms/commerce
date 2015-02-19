@@ -94,20 +94,20 @@ class Market_VariantModel extends BaseModel
 
 	protected function defineAttributes()
 	{
-		return array_merge(parent::defineAttributes(), array(
-			'id'        => AttributeType::Number,
-			'productId' => AttributeType::Number,
-			'isMaster'  => AttributeType::Bool,
-			'sku'       => array(AttributeType::String, 'required' => true),
-			'price'     => array(AttributeType::Number, 'decimals' => 4, 'required' => true),
-			'width'     => array(AttributeType::Number, 'decimals' => 4),
-			'height'    => array(AttributeType::Number, 'decimals' => 4),
-			'length'    => array(AttributeType::Number, 'decimals' => 4),
-			'weight'    => array(AttributeType::Number, 'decimals' => 4),
-			'stock'     => array(AttributeType::Number),
-			'unlimitedStock' => array(AttributeType::Bool, 'default' => 0),
-			'minQty'    => AttributeType::Number,
-			'deletedAt' => array(AttributeType::DateTime)
-		));
+		return array_merge(parent::defineAttributes(), [
+			'id'                => AttributeType::Number,
+			'productId'         => AttributeType::Number,
+			'isMaster'          => AttributeType::Bool,
+			'sku'               => [AttributeType::String, 'required' => true],
+			'price'             => [AttributeType::Number, 'decimals' => 4, 'required' => true],
+			'width'             => [AttributeType::Number, 'decimals' => 4],
+			'height'            => [AttributeType::Number, 'decimals' => 4],
+			'length'            => [AttributeType::Number, 'decimals' => 4],
+			'weight'            => [AttributeType::Number, 'decimals' => 4],
+			'stock'             => [AttributeType::Number],
+			'unlimitedStock'    => [AttributeType::Bool, 'default' => 0],
+			'minQty'            => AttributeType::Number,
+			'deletedAt'         => [AttributeType::DateTime]
+		]);
 	}
 }

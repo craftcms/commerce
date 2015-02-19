@@ -11,6 +11,7 @@ namespace Craft;
  * @package   craft.plugins.market.controllers
  * @since     0.1
  */
+use Market\Helpers\MarketDbHelper;
 use Market\Product\Creator;
 
 /**
@@ -122,14 +123,14 @@ class Market_ProductController extends Market_BaseController
 
 		$productCreator = new Creator;
 
-		$transaction = craft()->db->beginTransaction();
+        MarketDbHelper::beginStackedTransaction();
 
 		if ($productCreator->save($product)) {
 			$masterVariant->productId = $product->id;
 
 			if (craft()->market_variant->save($masterVariant)) {
 				craft()->market_product->setOptionTypes($product->id, $optionTypes);
-				$transaction->commit();
+                MarketDbHelper::commitStackedTransaction();
 
 				craft()->userSession->setNotice(Craft::t('Product saved.'));
 
@@ -141,7 +142,7 @@ class Market_ProductController extends Market_BaseController
 			}
 		}
 
-		$transaction->rollback();
+        MarketDbHelper::rollbackStackedTransaction();
 
 		craft()->userSession->setNotice(Craft::t("Couldn't save product."));
 		craft()->urlManager->setRouteVariables(array(
@@ -193,10 +194,9 @@ class Market_ProductController extends Market_BaseController
 
 	/**
 	 * @param Market_ProductModel $product
-	 *
 	 * @return Market_VariantModel
 	 */
-	private function _setMasterVariantFromPost($product)
+	private function _setMasterVariantFromPost(Market_ProductModel $product)
 	{
 		$attributes = craft()->request->getPost('masterVariant');
 
