@@ -1,6 +1,7 @@
 <?php
 
 namespace Craft;
+use Market\Traits\Market_ModelRelationsTrait;
 
 /**
  * Class Market_LineItemModel
@@ -16,27 +17,16 @@ namespace Craft;
  * @property int qty
  * @property int orderId
  * @property int variantId
+ * @property int taxCategoryId
  * @property string optionsJson
  *
  * @property Market_OrderRecord order
  * @property Market_VariantRecord variant
+ * @property Market_TaxCategoryRecord taxCategory
  */
 class Market_LineItemModel extends BaseModel
 {
-	public function getFinalAmount()
-	{
-		// TODO: $this->amount * $this->adjustmentTotal;
-	}
-
-	public function getOrder()
-	{
-		return craft()->market_order->getOrderById($this->orderId);
-	}
-
-	public function getVariant()
-	{
-		return craft()->market_variant->getById($this->variantId);
-	}
+    use Market_ModelRelationsTrait;
 
 	protected function defineAttributes()
 	{
@@ -54,4 +44,18 @@ class Market_LineItemModel extends BaseModel
 			'optionsJson'  	=> AttributeType::Mixed,
 		];
 	}
+
+    /**
+     * Safe getter which covers cases when a parent variant was deleted
+     *
+     * @return int|null
+     */
+    public function getTaxCategoryIdSafe()
+    {
+        if($this->variant) {
+            return $this->variant->product->taxCategoryId;
+        } else {
+            return null;
+        }
+    }
 }

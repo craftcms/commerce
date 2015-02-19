@@ -42,14 +42,14 @@ class Market_VariantController extends Market_BaseController
 				}
 			} else {
 				$variables['variant']         = new Market_VariantModel();
-				$variables['variant']->price  = $variables['product']->masterVariant->price;
-				$variables['variant']->width  = $variables['product']->masterVariant->width;
-				$variables['variant']->height = $variables['product']->masterVariant->height;
-				$variables['variant']->length = $variables['product']->masterVariant->length;
-				$variables['variant']->weight = $variables['product']->masterVariant->weight;
-				$variables['variant']->stock  = $variables['product']->masterVariant->stock;
-				$variables['variant']->unlimitedStock = $variables['product']->masterVariant->unlimitedStock;
-				$variables['variant']->minQty = $variables['product']->masterVariant->minQty;
+				$variables['variant']->price  = $variables['product']->master->price;
+				$variables['variant']->width  = $variables['product']->master->width;
+				$variables['variant']->height = $variables['product']->master->height;
+				$variables['variant']->length = $variables['product']->master->length;
+				$variables['variant']->weight = $variables['product']->master->weight;
+				$variables['variant']->stock  = $variables['product']->master->stock;
+				$variables['variant']->unlimitedStock = $variables['product']->master->unlimitedStock;
+				$variables['variant']->minQty = $variables['product']->master->minQty;
 			};
 
 			$variables['optionValues'] = $variables['variant']->getOptionValuesArray(true);

@@ -53,19 +53,6 @@ class Market_ProductService extends BaseApplicationComponent
 	}
 
 	/**
-	 * @param int $productId
-	 *
-	 * @return Market_VariantModel
-	 */
-	public function getMasterVariant($productId)
-	{
-		/** @var Market_ProductRecord $product */
-		$product = Market_ProductRecord::model()->findById($productId);
-
-		return Market_VariantModel::populateModel($product->master);
-	}
-
-	/**
 	 * Set option types to a product
 	 *
 	 * @param int   $productId

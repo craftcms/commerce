@@ -14,8 +14,6 @@ namespace Craft;
  */
 class Market_CustomerModel extends BaseElementModel
 {
-	protected $modelRecord = 'Market_CustomerRecord';
-
 	/**
 	 * Returns whether the current user can edit the element.
 	 *

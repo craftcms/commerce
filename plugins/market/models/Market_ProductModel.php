@@ -1,6 +1,7 @@
 <?php
 
 namespace Craft;
+use Market\Traits\Market_ModelRelationsTrait;
 
 /**
  * Class Market_ProductModel
@@ -13,24 +14,27 @@ namespace Craft;
  * @property int                  taxCategoryId
  * @property bool                 enabled
  *
+ * Inherited from record:
+ * @property Market_ProductTypeModel type
  * @property Market_TaxCategoryModel taxCategory
- * @property Market_VariantModel $masterVariant
+ * @property Market_VariantModel[] allVariants
+ * @property Market_OptionTypeModel[] optionTypes
+ * @property Market_VariantModel $master
+ *
+ * Magic properties:
  * @property Market_VariantModel[] $variants
  * @property Market_VariantModel[] $nonMasterVariants
  * @package Craft
  */
 class Market_ProductModel extends BaseElementModel
 {
+    use Market_ModelRelationsTrait;
 
 	const LIVE = 'live';
 	const PENDING = 'pending';
 	const EXPIRED = 'expired';
 
 	protected $elementType = 'Market_Product';
-	protected $modelRecord = 'Market_ProductRecord';
-
-	protected $_variants = NULL;
-	private $_masterVariant;
 
 	/**
 	 * Setting default taxCategoryId
@@ -57,23 +61,23 @@ class Market_ProductModel extends BaseElementModel
 
 	public function getCpEditUrl()
 	{
-		$productType = $this->getProductType();
-
-		return UrlHelper::getCpUrl('market/products/' . $productType->handle . '/' . $this->id);
+		return UrlHelper::getCpUrl('market/products/' . $this->type->handle . '/' . $this->id);
 	}
 
-	public function getProductType()
-	{
-		return craft()->market_productType->getById($this->typeId);
-	}
-
+    /**
+     * @return FieldLayoutModel|null
+     */
 	public function getFieldLayout()
 	{
-		if ($this->getProductType()) {
-			return $this->productType->getFieldLayout();
+		if ($this->type) {
+			return $this->type->getFieldLayout();
 		}
+        return null;
 	}
 
+    /**
+     * @return null|string
+     */
 	public function getStatus()
 	{
 		$status = parent::getStatus();
@@ -95,25 +99,23 @@ class Market_ProductModel extends BaseElementModel
 		return $status;
 	}
 
+    /**
+     * @return array
+     */
 	protected function defineAttributes()
 	{
-		return array_merge(parent::defineAttributes(), array(
-			'typeId'      => AttributeType::Number,
-			'authorId'    => AttributeType::Number,
+		return array_merge(parent::defineAttributes(), [
+			'typeId'        => AttributeType::Number,
+			'authorId'      => AttributeType::Number,
 			'taxCategoryId' => AttributeType::Number,
-			'availableOn' => AttributeType::DateTime,
-			'expiresOn'   => AttributeType::DateTime
-		));
+			'availableOn'   => AttributeType::DateTime,
+			'expiresOn'     => AttributeType::DateTime
+		]);
 	}
 
 	public function isLocalized()
 	{
 		return false;
-	}
-
-	public function getType()
-	{
-		return $this->getProductType();
 	}
 
 	/**
@@ -123,12 +125,10 @@ class Market_ProductModel extends BaseElementModel
 	 */
 	public function getVariants()
 	{
-		$variants = $this->_getAllVariants();
-
-		if(count($variants) == 1) {
-			return $variants;
+		if(count($this->allVariants) == 1) {
+			return $this->allVariants;
 		} else {
-			return $this->getNonMasterVariants();
+			return $this->nonMasterVariants;
 		}
 	}
 
@@ -137,33 +137,9 @@ class Market_ProductModel extends BaseElementModel
 	 */
 	public function getNonMasterVariants()
 	{
-		return array_filter($this->_getAllVariants(), function($v) {
+		return array_filter($this->allVariants, function($v) {
 			return !$v->isMaster;
 		});
-	}
-
-	/**
-	 * @return Market_VariantModel
-	 */
-	public function getMasterVariant()
-	{
-		if (!$this->_masterVariant) {
-			if ($this->id) {
-				$this->_masterVariant = craft()->market_product->getMasterVariant($this->id);
-			}else{
-				$this->_masterVariant = new Market_VariantModel();
-			}
-		}
-
-		return $this->_masterVariant;
-	}
-
-	/**
-	 * @return Market_TaxCategoryModel
-	 */
-	public function getTaxCategory()
-	{
-		return $this->_variants = craft()->market_taxCategory->getById($this->taxCategoryId);
 	}
 
 	/**
@@ -172,31 +148,11 @@ class Market_ProductModel extends BaseElementModel
 	public function getOptionTypesIds()
 	{
 		if (!$this->id) {
-			return array();
+			return [];
 		}
 
 		return array_map(function ($optionType) {
 			return $optionType->id;
-		}, $this->getOptionTypes());
-	}
-
-	/**
-	 * @return Market_OptionTypeModel[]
-	 */
-	public function getOptionTypes()
-	{
-		return craft()->market_product->getOptionTypes($this->id);
-	}
-
-	/**
-	 * @return Market_VariantModel[]
-	 */
-	private function _getAllVariants()
-	{
-		if (is_null($this->_variants)) {
-			$this->_variants = craft()->market_variant->getAllByProductId($this->id);
-		}
-
-		return $this->_variants;
+		}, $this->optionTypes);
 	}
 }

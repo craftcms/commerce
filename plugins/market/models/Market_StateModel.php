@@ -1,6 +1,7 @@
 <?php
 
 namespace Craft;
+use Market\Traits\Market_ModelRelationsTrait;
 
 /**
  * Class Market_StateModel
@@ -9,40 +10,34 @@ namespace Craft;
  * @property string $name
  * @property string $abbreviation
  * @property int    $countryId
- * @property string $countryName
+ *
+ * @property Market_CountryRecord $country
  * @package Craft
  */
 class Market_StateModel extends BaseModel
 {
-	public $countryName;
+    use Market_ModelRelationsTrait;
 
 	public function getCpEditUrl()
 	{
 		return UrlHelper::getCpUrl('market/settings/states/' . $this->id);
 	}
 
+    /**
+     * @return string
+     */
 	public function formatName()
 	{
-		return $this->name . ' (' . $this->countryName . ')';
+		return $this->name . ' (' . $this->country->name . ')';
 	}
 
 	protected function defineAttributes()
 	{
-		return array(
+		return [
 			'id'           => AttributeType::Number,
 			'name'         => AttributeType::String,
 			'abbreviation' => AttributeType::String,
 			'countryId'    => AttributeType::Number,
-		);
-	}
-
-	public static function populateModel($values)
-	{
-		$model = parent::populateModel($values);
-		if (is_object($values)) {
-			$model->countryName = $values->country->name;
-		}
-
-		return $model;
+		];
 	}
 }

@@ -91,11 +91,16 @@ class Market_LineItemService extends BaseApplicationComponent
 
 		$lineItemRecord->variantId 		= $lineItem->variantId;
 		$lineItemRecord->orderId 		= $lineItem->orderId;
+		$lineItemRecord->taxCategoryId  = $lineItem->taxCategoryId;
 		$lineItemRecord->qty 			= $lineItem->qty;
 		$lineItemRecord->price 			= $lineItem->price;
 		$lineItemRecord->optionsJson 	= $lineItem->optionsJson;
 
-		$lineItemRecord->validate();
+        $lineItemRecord->subtotal = $lineItem->price * $lineItem->qty;
+        $lineItemRecord->total = $lineItemRecord->subtotal + $lineItemRecord->shipTotal;
+        $lineItemRecord->totalIncTax = $lineItemRecord->subtotalIncTax + $lineItemRecord->shipTotal;
+
+        $lineItemRecord->validate();
 		$lineItem->addErrors($lineItemRecord->getErrors());
 
 		MarketDbHelper::beginStackedTransaction();
@@ -138,6 +143,7 @@ class Market_LineItemService extends BaseApplicationComponent
 			$options = $variant->attributes;
 			$options['optionValues'] = $variant->getOptionValuesArray();
 			$lineItem->optionsJson = $options;
+            $lineItem->taxCategoryId = $variant->product->taxCategoryId;
 		} else {
 			$lineItem->addError('variantId', 'variant not found');
 		}

@@ -54,7 +54,7 @@ class Market_ProductController extends Market_BaseController
 		if (empty($variables['product'])) {
 			if (!empty($variables['productId'])) {
 				$variables['product']       = craft()->market_product->getById($variables['productId']);
-				$variables['masterVariant'] = $variables['product']->masterVariant;
+				$variables['masterVariant'] = $variables['product']->master;
 
 				if (!$variables['product']) {
 					throw new HttpException(404);
@@ -87,7 +87,7 @@ class Market_ProductController extends Market_BaseController
 	{
 		$variables['tabs'] = array();
 
-		$variables['masterVariant'] = $variables['product']->masterVariant;
+		$variables['masterVariant'] = $variables['product']->master;
 
 		foreach ($variables['productType']->getFieldLayout()->getTabs() as $index => $tab) {
 			// Do any of the fields on this tab have errors?
@@ -200,7 +200,7 @@ class Market_ProductController extends Market_BaseController
 	{
 		$attributes = craft()->request->getPost('masterVariant');
 
-		$masterVariant = $product->masterVariant;
+		$masterVariant = $product->master;
 		$masterVariant->setAttributes($attributes);
 		$masterVariant->isMaster = true;
 

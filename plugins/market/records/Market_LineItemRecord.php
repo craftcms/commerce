@@ -16,16 +16,16 @@ namespace Craft;
  * @property int qty
  * @property int orderId
  * @property int variantId
+ * @property int taxCategoryId
  * @property string optionsJson
  *
  * @property Market_OrderRecord order
  * @property Market_VariantRecord variant
+ * @property Market_TaxCategoryRecord taxCategory
  */
 class Market_LineItemRecord extends BaseRecord
 {
 	/**
-	 * Returns the name of the associated database table.
-	 *
 	 * @return string
 	 */
 	public function getTableName()
@@ -33,6 +33,9 @@ class Market_LineItemRecord extends BaseRecord
 		return "market_lineitems";
 	}
 
+    /**
+     * @return array
+     */
 	public function defineIndexes()
 	{
 		return [
@@ -40,6 +43,9 @@ class Market_LineItemRecord extends BaseRecord
 		];
 	}
 
+    /**
+     * @return array
+     */
 	protected function defineAttributes()
 	{
 		return [
@@ -51,14 +57,20 @@ class Market_LineItemRecord extends BaseRecord
 			'totalIncTax' 	=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
 			'qty'   		=> [AttributeType::Number, 'min' => 0, 'required' => true],
 			'optionsJson'  	=> [AttributeType::Mixed, 'required' => true],
+
+            'taxCategoryId' => [AttributeType::Number, 'required' => true],
 		];
 	}
 
+    /**
+     * @return array
+     */
 	public function defineRelations()
 	{
 		return [
-			'order' => [static::BELONGS_TO, 'Market_OrderRecord', 'required' => true, 'onDelete' => static::CASCADE],
-			'variant' => [static::BELONGS_TO, 'Market_VariantRecord', 'onUpdate' => self::CASCADE, 'onDelete' => self::SET_NULL],
+			'order'         => [static::BELONGS_TO, 'Market_OrderRecord', 'required' => true, 'onDelete' => static::CASCADE],
+			'variant'       => [static::BELONGS_TO, 'Market_VariantRecord', 'onUpdate' => self::CASCADE, 'onDelete' => self::SET_NULL],
+			'taxCategory'   => [static::BELONGS_TO, 'Market_TaxCategoryRecord', 'onUpdate' => self::CASCADE, 'onDelete' => self::RESTRICT, 'require' => true],
 		];
 	}
 
@@ -89,18 +101,5 @@ class Market_LineItemRecord extends BaseRecord
 		}
 
 		return $this->hasErrors();
-	}
-	public function recalculate()
-	{
-		$this->subtotal = $this->price * $this->qty;
-		$this->subtotalIncTax = $this->subtotal; //@TODO calculate tax by default zone or shipment address
-		$this->total = $this->subtotal + $this->shipTotal;
-		$this->totalIncTax = $this->subtotalIncTax + $this->shipTotal;
-	}
-
-	protected function beforeSave()
-	{
-		$this->recalculate();
-		return parent::beforeSave();
 	}
 }
