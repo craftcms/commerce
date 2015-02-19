@@ -1,6 +1,7 @@
 <?php
 
 namespace Craft;
+use Market\Traits\Market_ModelRelationsTrait;
 
 /**
  * Class Market_AddressModel
@@ -17,32 +18,17 @@ namespace Craft;
  * @property string stateName
  * @property int    countryId
  * @property int    stateId
+ *
+ * @property Market_CountryModel    $country
+ * @property Market_StateModel    $state
  * @package Craft
  */
 class Market_AddressModel extends BaseModel
 {
-	/** @var Market_CountryModel */
-	public $country;
-	/** @var Market_StateModel */
-	public $state;
+    use Market_ModelRelationsTrait;
+
 	/** @var int|string Either ID of a state or name of state if it's not present in the DB */
 	public $stateValue;
-
-	/**
-	 * @param array|Market_AddressRecord $values
-	 *
-	 * @return $this
-	 */
-	public static function populateModel($values)
-	{
-		$model = parent::populateModel($values);
-		if (is_object($values) && $values instanceof Market_AddressRecord) {
-			$model->country = $values->country;
-			$model->state   = $values->state;
-		}
-
-		return $model;
-	}
 
 	public function getStateText()
 	{

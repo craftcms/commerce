@@ -1,6 +1,7 @@
 <?php
 
 namespace Craft;
+use Market\Traits\Market_ModelRelationsTrait;
 
 /**
  * Class Market_TaxZoneModel
@@ -9,14 +10,14 @@ namespace Craft;
  * @property string $name
  * @property string $description
  * @property bool   $countryBased
+ *
+ * @property Market_CountryModel[] $countries
+ * @property Market_StateModel[] $states
  * @package Craft
  */
 class Market_TaxZoneModel extends BaseModel
 {
-	/** @var Market_CountryModel[] */
-	private $countries = [];
-	/** @var Market_StateModel[] */
-	private $states = [];
+    use Market_ModelRelationsTrait;
 
 	public function getCpEditUrl()
 	{
@@ -43,6 +44,9 @@ class Market_TaxZoneModel extends BaseModel
 		}, $this->states);
 	}
 
+    /**
+     * @return array
+     */
 	public function getCountriesNames()
 	{
 		return array_map(function ($country) {
@@ -50,6 +54,9 @@ class Market_TaxZoneModel extends BaseModel
 		}, $this->countries);
 	}
 
+    /**
+     * @return array
+     */
 	public function getStatesNames()
 	{
 		return array_map(function ($state) {
@@ -65,17 +72,5 @@ class Market_TaxZoneModel extends BaseModel
 			'description'  => AttributeType::String,
 			'countryBased' => [AttributeType::Bool, 'default' => 1],
 		];
-	}
-
-	public static function populateModel($values)
-	{
-		$model = parent::populateModel($values);
-		if (is_object($values) && $values instanceof Market_TaxZoneRecord) {
-
-			$model->countries = Market_CountryModel::populateModels($values->countries);
-			$model->states    = Market_StateModel::populateModels($values->states);
-		}
-
-		return $model;
 	}
 }

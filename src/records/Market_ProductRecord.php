@@ -12,17 +12,15 @@ namespace Craft;
  * @property DateTime expiresOn
 
  * @property Market_VariantRecord   $master
- * @property Market_VariantRecord[] $variants
- * @property Market_VariantRecord[] variantsWithMaster
+ * @property Market_VariantRecord[] allVariants
  * @property Market_TaxCategoryRecord taxCategory
+ * @property Market_OptionTypeRecord[] optionTypes
  * @package Craft
  */
 class Market_ProductRecord extends BaseRecord
 {
 
 	/**
-	 * @inheritDoc BaseRecord::getTableName()
-	 *
 	 * @return string
 	 */
 	public function getTableName()
@@ -31,52 +29,42 @@ class Market_ProductRecord extends BaseRecord
 	}
 
 	/**
-	 * @inheritDoc BaseRecord::defineRelations()
-	 *
 	 * @return array
 	 */
 	public function defineRelations()
 	{
-		return array(
-			'element'            => array(static::BELONGS_TO, 'ElementRecord', 'id', 'required' => true, 'onDelete' => static::CASCADE),
-			'type'               => array(static::BELONGS_TO, 'Market_ProductTypeRecord', 'onDelete' => static::CASCADE),
-			'author'             => array(static::BELONGS_TO, 'UserRecord', 'onDelete' => static::CASCADE),
-			'optionTypes'        => array(static::MANY_MANY, 'Market_OptionTypeRecord', 'market_product_optiontypes(productId, optionTypeId)'),
-			'master'             => array(static::HAS_ONE, 'Market_VariantRecord', 'productId', 'condition' => 'master.isMaster = 1'),
-			'variants'           => array(static::HAS_MANY, 'Market_VariantRecord', 'productId', 'condition' => 'master.isMaster = 0'),
-			'variantsWithMaster' => array(static::HAS_MANY, 'Market_VariantRecord', 'productId', 'onDelete' => static::CASCADE),
-			'taxCategory'        => array(static::BELONGS_TO, 'Market_TaxCategoryRecord', 'required' => true),
-		);
+		return [
+			'element'     => [static::BELONGS_TO, 'ElementRecord', 'id', 'required' => true, 'onDelete' => static::CASCADE],
+			'type'        => [static::BELONGS_TO, 'Market_ProductTypeRecord', 'onDelete' => static::CASCADE],
+			'author'      => [static::BELONGS_TO, 'UserRecord', 'onDelete' => static::CASCADE],
+			'optionTypes' => [static::MANY_MANY, 'Market_OptionTypeRecord', 'market_product_optiontypes(productId, optionTypeId]'],
+			'master'      => [static::HAS_ONE, 'Market_VariantRecord', 'productId', 'condition' => 'master.isMaster = 1'],
+			'allVariants' => [static::HAS_MANY, 'Market_VariantRecord', 'productId'],
+			'taxCategory' => [static::BELONGS_TO, 'Market_TaxCategoryRecord', 'required' => true],
+		];
 	}
 
 	/**
-	 * @inheritDoc BaseRecord::defineIndexes()
-	 *
 	 * @return array
 	 */
 	public function defineIndexes()
 	{
-		return array(
-			array('columns' => array('typeId')),
-			array('columns' => array('availableOn')),
-			array('columns' => array('expiresOn')),
-		);
+		return [
+			['columns' => ['typeId']],
+			['columns' => ['availableOn']],
+			['columns' => ['expiresOn']],
+		];
 	}
 
-	// Protected Methods
-	// =========================================================================
-
 	/**
-	 * @inheritDoc BaseRecord::defineAttributes()
-	 *
 	 * @return array
 	 */
 	protected function defineAttributes()
 	{
-		return array(
+		return [
 			'availableOn' => AttributeType::DateTime,
 			'expiresOn'   => AttributeType::DateTime,
-		);
+		];
 	}
 
 }

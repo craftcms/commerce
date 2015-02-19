@@ -9,12 +9,13 @@ namespace Craft;
  */
 class Market_TaxRateService extends BaseApplicationComponent
 {
-	/**
-	 * @return Market_TaxRateModel[]
-	 */
-	public function getAll()
+    /**
+     * @param \CDbCriteria|array $criteria
+     * @return Market_TaxRateModel[]
+     */
+	public function getAll($criteria = [])
 	{
-		$records = Market_TaxRateRecord::model()->with(array('taxZone', 'taxCategory'))->findAll(array('order' => 't.name'));
+		$records = Market_TaxRateRecord::model()->findAll($criteria);
 
 		return Market_TaxRateModel::populateModels($records);
 	}

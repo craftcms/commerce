@@ -13,7 +13,6 @@ namespace Craft;
 class Market_ChargeModel extends BaseElementModel
 {
 	protected $elementType = 'Market_Charge';
-	protected $modelRecord = 'Market_ChargeRecord';
 
 	private $_apiData = NULL;
 

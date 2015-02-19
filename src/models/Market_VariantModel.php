@@ -1,6 +1,7 @@
 <?php
 
 namespace Craft;
+use Market\Traits\Market_ModelRelationsTrait;
 
 /**
  * Class Market_VariantModel
@@ -18,31 +19,13 @@ namespace Craft;
  * @property bool 	  unlimitedStock
  * @property int	  minQty
  * @property DateTime deletedAt
+ *
+ * @property Market_ProductModel $product
  * @package Craft
  */
 class Market_VariantModel extends BaseModel
 {
-	/**
-	 * Fills the Model from the record and also fills the product model
-	 *
-	 * @param array|Market_VariantRecord $values
-	 *
-	 * @return $this
-	 */
-
-	public $product;
-
-	public static function populateModel($values)
-	{
-		$model = parent::populateModel($values);
-		if (is_object($values) && $values instanceof Market_VariantRecord) {
-			if (is_object($values->product) && $values->product instanceof Market_ProductRecord) {
-				$model->product = Market_ProductModel::populateModel($values->product);
-			}
-		}
-
-		return $model;
-	}
+    use Market_ModelRelationsTrait;
 
 	public function isLocalized()
 	{
@@ -57,7 +40,7 @@ class Market_VariantModel extends BaseModel
 	public function getCpEditUrl()
 	{
 		$this->product = craft()->market_product->getById($this->productId);
-		return UrlHelper::getCpUrl('market/products/' . $this->product->productType->handle . '/' . $this->product->id . '/variants/' . $this->id);
+		return UrlHelper::getCpUrl('market/products/' . $this->product->type->handle . '/' . $this->product->id . '/variants/' . $this->id);
 	}
 
 	/**

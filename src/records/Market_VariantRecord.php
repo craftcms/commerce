@@ -18,6 +18,8 @@ namespace Craft;
  * @property bool 	  unlimitedStock
  * @property int	  minQty
  * @property DateTime deletedAt
+ *
+ * @property Market_ProductRecord $product
  * @package Craft
  */
 class Market_VariantRecord extends BaseRecord
