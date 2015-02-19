@@ -42,20 +42,8 @@ class Market_LineItemModel extends BaseModel
 			'totalIncTax' 	=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true],
 			'qty'   		=> [AttributeType::Number, 'min' => 0, 'required' => true],
 			'optionsJson'  	=> AttributeType::Mixed,
-		];
-	}
 
-    /**
-     * Safe getter which covers cases when a parent variant was deleted
-     *
-     * @return int|null
-     */
-    public function getTaxCategoryIdSafe()
-    {
-        if($this->variant) {
-            return $this->variant->product->taxCategoryId;
-        } else {
-            return null;
-        }
-    }
+            'taxCategoryId' => [AttributeType::Number, 'required' => true],
+        ];
+	}
 }
