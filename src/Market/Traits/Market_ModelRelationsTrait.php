@@ -1,6 +1,8 @@
 <?php
 
 namespace Market\Traits;
+use Craft\BaseModel;
+use Craft\BaseRecord;
 
 /**
  * Enables access to the all record's relations through a model
@@ -40,10 +42,14 @@ trait Market_ModelRelationsTrait {
         }
 
         if($this->isRelation($name)) {
-            $relations = $this->_record->defineRelations();
+            if(!$this->getRecord()) {
+                return $this->isArrayRelation($name) ? [] : null;
+            }
+
+            $relations = $this->getRelations();
             $class = $relations[$name][1];
             $modelClass = '\Craft\\' . str_replace('Record', 'Model', $class);
-            $value = $this->_record->$name;
+            $value = $this->getRecord()->$name;
 
             if(is_array($value)) {
                 $this->_relationsCache[$name] = $modelClass::populateModels($value);
@@ -71,16 +77,57 @@ trait Market_ModelRelationsTrait {
     }
 
     /**
+     * @return string
+     */
+    private function getRecordClass()
+    {
+        $class = get_class();
+        $recordClass = str_replace('Model', 'Record', $class);
+        return $recordClass;
+    }
+
+    /**
+     * @return mixed
+     */
+    private function getRelations()
+    {
+        $recordClass = $this->getRecordClass();
+        $record = new $recordClass;
+        return $record->defineRelations();
+    }
+
+    /**
      * @param $name
      * @return bool
      */
     private function isRelation($name)
     {
-        if(empty($this->_record)) {
-            return false;
+        $relations = $this->getRelations();
+        return isset($relations[$name]);
+    }
+
+    /**
+     * @param $name
+     * @return bool
+     */
+    private function isArrayRelation($name)
+    {
+        $relations = $this->getRelations();
+        $type = $relations[$name][0];
+
+        return in_array($type, [BaseRecord::HAS_MANY, BaseRecord::MANY_MANY]);
+    }
+
+    /**
+     * @return BaseRecord
+     */
+    private function getRecord()
+    {
+        if(empty($this->_record) && $this->id) {
+            $recordClass = $this->getRecordClass();
+            $this->_record = $recordClass::model()->findByPk($this->id);
         }
 
-        $relations = $this->_record->defineRelations();
-        return isset($relations[$name]);
+        return $this->_record;
     }
 }
