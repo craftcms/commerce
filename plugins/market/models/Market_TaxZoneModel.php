@@ -59,12 +59,12 @@ class Market_TaxZoneModel extends BaseModel
 
 	protected function defineAttributes()
 	{
-		return array(
+		return [
 			'id'           => AttributeType::Number,
 			'name'         => AttributeType::String,
 			'description'  => AttributeType::String,
-			'countryBased' => array(AttributeType::Bool, 'default' => 1),
-		);
+			'countryBased' => [AttributeType::Bool, 'default' => 1],
+		];
 	}
 
 	public static function populateModel($values)

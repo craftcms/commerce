@@ -8,6 +8,8 @@ use Craft\FieldLayoutModel;
 use Craft\Market_OptionTypeModel;
 use Craft\Market_OptionValueModel;
 use Craft\Market_TaxCategoryModel;
+use Craft\Market_TaxRateModel;
+use Craft\Market_TaxZoneModel;
 use Craft\Market_VariantModel;
 use Market\Product\Creator;
 
@@ -22,6 +24,8 @@ class Market_TestSeeder implements Market_SeederInterface
         $this->optionTypes();
         $this->taxCategories();
         $this->products();
+        $this->taxZones();
+        $this->taxRates();
     }
 
     /**
@@ -84,13 +88,76 @@ class Market_TestSeeder implements Market_SeederInterface
      */
     private function taxCategories()
     {
-        $taxCategory = Market_TaxCategoryModel::populateModel([
-            'name' => 'Europe',
-            'code' => 'EU',
+        $taxCategories = Market_TaxCategoryModel::populateModels([[
+            'name' => 'General',
             'default' => 1,
+        ], [
+            'name' => 'Food',
+            'default' => 0,
+        ], [
+            'name' => 'Clothes',
+            'default' => 0,
+        ]]);
+
+        foreach($taxCategories as $category) {
+            \Craft\craft()->market_taxCategory->save($category);
+        }
+    }
+
+    /**
+     * @throws \Craft\Exception
+     * @throws \Exception
+     */
+    private function taxZones()
+    {
+        //europe
+        $germany = \Craft\craft()->market_country->getByAttributes(['name' => 'Germany']);
+        $italy = \Craft\craft()->market_country->getByAttributes(['name' => 'Italy']);
+        $france = \Craft\craft()->market_country->getByAttributes(['name' => 'France']);
+        $euCountries = [$germany->id, $italy->id, $france->id];
+
+        $euZone = Market_TaxZoneModel::populateModel([
+            'name'         => 'Europe',
+            'countryBased' => true,
         ]);
 
-        \Craft\craft()->market_taxCategory->save($taxCategory);
+        \Craft\craft()->market_taxZone->save($euZone, $euCountries, []);
+
+        //usa states
+        $florida = \Craft\craft()->market_state->getByAttributes(['name' => 'Florida']);
+        $alaska = \Craft\craft()->market_state->getByAttributes(['name' => 'Alaska']);
+        $texas = \Craft\craft()->market_state->getByAttributes(['name' => 'Texas']);
+        $usaStates = [$florida->id, $alaska->id, $texas->id];
+
+        $usaZone = Market_TaxZoneModel::populateModel([
+            'name'         => 'USA',
+            'countryBased' => false,
+        ]);
+
+        \Craft\craft()->market_taxZone->save($usaZone, [], $usaStates);
+    }
+
+    /**
+     * @throws \Craft\Exception
+     */
+    private function taxRates()
+    {
+        $zones = \Craft\craft()->market_taxZone->getAll(false);
+        $categories = \Craft\craft()->market_taxCategory->getAll();
+
+        foreach($zones as $zone) {
+            foreach($categories as $category) {
+                $rate = Market_TaxRateModel::populateModel([
+                    'name' => $category->name . '-' . $zone->name,
+                    'rate' => mt_rand(1, 10000) / 100000,
+                    'include' => mt_rand(1, 2) - 1,
+                    'taxCategoryId' => $category->id,
+                    'taxZoneId' => $zone->id,
+                ]);
+
+                \Craft\craft()->market_taxRate->save($rate);
+            }
+        }
     }
 
     /**

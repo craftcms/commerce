@@ -27,27 +27,27 @@ class Market_TaxRateRecord extends BaseRecord
 
 	public function defineIndexes()
 	{
-		return array(
-			array('columns' => array('taxZoneId')),
-			array('columns' => array('taxCategoryId')),
-		);
+		return [
+			['columns' => ['taxZoneId']],
+			['columns' => ['taxCategoryId']],
+		];
 	}
 
 	public function defineRelations()
 	{
-		return array(
-			'taxZone'     => array(static::BELONGS_TO, 'Market_TaxZoneRecord', 'onDelete' => self::RESTRICT, 'onUpdate' => self::CASCADE, 'required' => true),
-			'taxCategory' => array(static::BELONGS_TO, 'Market_TaxCategoryRecord', 'onDelete' => self::RESTRICT, 'onUpdate' => self::CASCADE, 'required' => true),
-		);
+		return [
+			'taxZone'     => [static::BELONGS_TO, 'Market_TaxZoneRecord', 'onDelete' => self::RESTRICT, 'onUpdate' => self::CASCADE, 'required' => true],
+			'taxCategory' => [static::BELONGS_TO, 'Market_TaxCategoryRecord', 'onDelete' => self::RESTRICT, 'onUpdate' => self::CASCADE, 'required' => true],
+		];
 	}
 
 	protected function defineAttributes()
 	{
-		return array(
-			'name'        => array(AttributeType::String, 'required' => true),
-			'rate'        => array(AttributeType::Number, 'required' => true, 'decimals' => 5),
-			'include'     => array(AttributeType::Bool, 'default' => 0, 'required' => true),
-			'showInLabel' => array(AttributeType::Bool, 'default' => 0, 'required' => true),
-		);
+		return [
+			'name'        => [AttributeType::String, 'required' => true],
+			'rate'        => [AttributeType::Number, 'required' => true, 'decimals' => 5],
+			'include'     => [AttributeType::Bool, 'default' => 0, 'required' => true],
+			'showInLabel' => [AttributeType::Bool, 'default' => 0, 'required' => true],
+		];
 	}
 }

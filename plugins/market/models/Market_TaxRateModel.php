@@ -12,15 +12,13 @@ namespace Craft;
  * @property bool   $showInLabel
  * @property int    $taxZoneId
  * @property int    $taxCategoryId
+ *
+ * @property Market_TaxZoneModel    $taxZone
+ * @property Market_TaxCategoryModel    $taxCategory
  * @package Craft
  */
 class Market_TaxRateModel extends BaseModel
 {
-	/** @var Market_TaxZoneModel */
-	public $taxZone;
-	/** @var Market_TaxCategoryModel */
-	public $taxCategory;
-
 	public function getCpEditUrl()
 	{
 		return UrlHelper::getCpUrl('market/settings/taxrates/' . $this->id);
@@ -28,7 +26,7 @@ class Market_TaxRateModel extends BaseModel
 
 	protected function defineAttributes()
 	{
-		return array(
+		return [
 			'id'            => AttributeType::Number,
 			'name'          => AttributeType::String,
 			'rate'          => array(AttributeType::Number, 'default' => .05),
@@ -37,7 +35,7 @@ class Market_TaxRateModel extends BaseModel
 
 			'taxCategoryId' => AttributeType::Number,
 			'taxZoneId'     => AttributeType::Number,
-		);
+		];
 	}
 
 	public static function populateModel($values)

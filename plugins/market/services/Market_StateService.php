@@ -21,13 +21,21 @@ class Market_StateService extends BaseApplicationComponent
 
 	/**
 	 * @param int $id
-	 *
 	 * @return Market_StateModel
 	 */
 	public function getById($id)
 	{
 		$record = Market_StateRecord::model()->findById($id);
+		return Market_StateModel::populateModel($record);
+	}
 
+    /**
+     * @param array $attr
+     * @return Market_StateModel
+     */
+	public function getByAttributes(array $attr)
+	{
+		$record = Market_StateRecord::model()->findByAttributes($attr);
 		return Market_StateModel::populateModel($record);
 	}
 
