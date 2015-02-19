@@ -5,11 +5,15 @@ namespace Craft;
 /**
  * Class Market_ProductTypeModel
  *
+ *
  * @property int    $id
  * @property string $name
  * @property string $handle
  * @property int    $fieldLayoutId
  * @package Craft
+ *
+ * @method null setFieldLayout(FieldLayoutModel $fieldLayout)
+ * @method FieldLayoutModel getFieldLayout()
  */
 class Market_ProductTypeModel extends BaseModel
 {
