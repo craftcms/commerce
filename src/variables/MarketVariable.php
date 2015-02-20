@@ -58,7 +58,7 @@ class MarketVariable
 	 */
 	public function getCart()
 	{
-		return craft()->market_order->getCart();
+		return craft()->market_cart->getCart();
 	}
 
 	/**

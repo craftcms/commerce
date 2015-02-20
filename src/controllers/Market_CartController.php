@@ -23,7 +23,7 @@ class Market_CartController extends Market_BaseController
 		$variantId = craft()->request->getPost('variantId');
 		$qty = craft()->request->getPost('qty', 0);
 
-		if(craft()->market_order->addToCart($variantId, $qty, $error)) {
+		if(craft()->market_cart->addToCart($variantId, $qty, $error)) {
 			craft()->userSession->setFlash('market', 'Product has been added');
 			$this->redirectToPostedUrl();
 		} else {
@@ -61,7 +61,7 @@ class Market_CartController extends Market_BaseController
 
 		$lineItemId = craft()->request->getPost('lineItemId');
 
-		craft()->market_order->removeFromCart($lineItemId);
+		craft()->market_cart->removeFromCart($lineItemId);
 		craft()->userSession->setFlash('market', 'Product has been removed');
 		$this->redirectToPostedUrl();
 	}
@@ -73,7 +73,7 @@ class Market_CartController extends Market_BaseController
 	{
 		$this->requirePostRequest();
 
-		craft()->market_order->clearCart();
+		craft()->market_cart->clearCart();
 		craft()->userSession->setFlash('market', 'All products have been removed');
 		$this->redirectToPostedUrl();
 	}
@@ -85,7 +85,7 @@ class Market_CartController extends Market_BaseController
 	{
 		$this->requirePostRequest();
 
-		$order = craft()->market_order->getCart();
+		$order = craft()->market_cart->getCart();
 		if(empty($order->lineItems)) {
 			craft()->userSession->setNotice(Craft::t('Please add some items to your cart'));
 			return;
