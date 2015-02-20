@@ -24,8 +24,14 @@ class Market_CartAddressController extends Market_BaseController
 		$shipping = new Market_AddressModel;
 		$billing = new Market_AddressModel;
 
-		$shipping->attributes = craft()->request->getPost('ShippingAddress');
+
 		$billing->attributes = craft()->request->getPost('BillingAddress');
+		if (craft()->request->getPost('sameAddress') == 1) {
+			$shipping->attributes = craft()->request->getPost('BillingAddress');
+		}else{
+			$shipping->attributes = craft()->request->getPost('ShippingAddress');
+		};
+
 
 		if(craft()->market_order->setAddresses($shipping, $billing)) {
 			$this->actionGoToPayment();

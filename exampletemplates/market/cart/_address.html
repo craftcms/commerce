@@ -1,7 +1,6 @@
 {% import 'market/cart/_addressMacro.html' as forms %}
 {% include 'market/cart/_addressMacro.html' %}
 
-<h2>Fill the Address form</h2>
 
 {% if not craft.session.isLoggedIn() %}
 <strong>Notice: You are working as guest. It is recommended to sign up to associate the order with your credentials</strong><br/>
@@ -13,7 +12,7 @@
 
 {% if addresses %}
     {# UI when at least one address exists #}
-    <form method="post" style="float: left; border: 1px solid #bbbbbb">
+    <form method="post" class="form-horizontal">
         <input type="hidden" name="action" value="market/cartAddress/chooseAddresses">
 
         <h3>Choose an address for Shipping</h3>
@@ -57,7 +56,7 @@
         <input type="submit" value="Confirm addresses">
     </form>
 
-    <form method="post" class="form-new-address" style="float: left; margin-left: 50px;; border: 1px solid #bbbbbb">
+    <form method="post" class="form-new-address" class="form-horizontal">
         <h3 class="form-new-address__label">Add New Address</h3>
         <input type="hidden" name="action" value="market/cartAddress/addAddress">
         <input type="hidden" name="Address[id]" value="">
@@ -69,17 +68,26 @@
 
 {% else %}
     {# UI when no addresses exist #}
-    <form method="post">
+    <div class="row">
+    <form method="post" class="">
         <input type="hidden" name="action" value="market/cartAddress/postTwoAddresses">
+        <div class="col-md-6">
 
-        <h3>Shipping Address</h3>
-        {{ forms.addressForm('ShippingAddress', shippingAddress is defined ? shippingAddress : null ) }}
-
-        <h3>Billing Address</h3>
         {{ forms.addressForm('BillingAddress', billingAddress is defined ? billingAddress : null) }}
+        <div class="checkbox">
+            <label>
+                <input type="hidden" name="sameAddress" value="0">
+                <input id="sameAddress" name="sameAddress" type="checkbox" value="1" checked> Shipping Address same as Billing Address
+            </label>
+        </div>
+        <input type="submit" class="btn btn-primary" value="Confirm addresses">
+        </div>
+        <div class="col-md-6">
+            {{ forms.addressForm('ShippingAddress', shippingAddress is defined ? shippingAddress : null ) }}
+        </div>
 
-        <input type="submit" value="Confirm addresses">
     </form>
+    </div>
 {% endif %}
 
 {% set js %}
@@ -112,5 +120,10 @@ $('.address-update').click(function(e) {
         }
     });
 });
+$('.addressBox.ShippingAddress').hide();
+$("#sameAddress").change(function(e) {
+    $('.addressBox.ShippingAddress').toggle();
+});
+
 {% endset %}
 {% includeJs js %}

@@ -14,47 +14,50 @@
         company: 0,
     } %}
 
-    <table style="border: 1px solid #000; margin-bottom: 20px">
-        {% for key,required in addressFields %}
-            <tr>
-                <td>{{ key|makeLabel }} {{ required ? '*' : '' }}</td>
-                <td><input name="{{ modelName }}[{{ key }}]" value="{{ model ? model[key] : '' }}"></td>
-                <td>{% if model and model.getErrors(key) %}{{ model.getErrors(key)|join }}{% endif %}</td>
-            </tr>
-        {% endfor %}
+<div class="addressBox {{modelName}}">
+<h3>{{modelName|makeLabel}}</h3>
+{% for key,required in addressFields %}
 
-        <tr>
-            <td>Country *</td>
-            <td>
-                {{ craft.market.renderFormMacro('select', {
-                    name: modelName ~ '[countryId]',
-                    value: model ? model.countryId : '',
-                    options: countries,
-                    class: 'address-country',
-                }) }}
-            </td>
-            <td>{% if model and model.getErrors('countryId') %}{{ model.getErrors('countryId')|join }}{% endif %}</td>
-        </tr>
+<div class="form-group {% if model and model.getErrors(key) %}has-error{% endif %}">
+    <label for="{{ modelName }}-{{key}}">{{ key|makeLabel }} {{ required ? '*' : '' }}</label>
+    <input id="{{ modelName }}-{{key}}" class="form-control input-sm" name="{{ modelName }}[{{ key }}]" value="{{ model ? model[key] : '' }}">
+    {% if model and model.getErrors(key) %}
+        <span id="helpBlock" class="help-block">{{ model.getErrors(key)|join }}</span>
+    {% endif %}
+</div>
+{% endfor %}
 
-        <tr>
-            <td>State</td>
-            <td>
-                {{ craft.market.renderFormMacro('select', {
-                    name: modelName ~ '[stateId]',
-                    value: model ? model.stateId : '',
-                    options: model and states[model.countryId] is defined ? states[model.countryId] : [],
-                    class: 'address-state',
-                }) }}
+<div class="form-group {% if model and model.getErrors('countryId') %}has-error{% endif %}">
+    <label for="{{ modelName }}-countryId">Country</label>
+    {{ craft.market.renderFormMacro('select', {
+    name: modelName ~ '[countryId]',
+    value: model ? model.countryId : '',
+    options: countries,
+    class: 'address-country',
+    }) }}
+    {% if model and model.getErrors('countryId') %}
+        <span id="helpBlock" class="help-block">{{ model.getErrors('countryId')|join }}</span>
+    {% endif %}
+</div>
 
-                <label>
-                    Custom:
-                    <input name="{{ modelName }}[stateName]" value="{{ model ? model.stateName : '' }}">
-                    {% if model and model.getErrors('stateName') %}<br/>{{ model.getErrors('stateName')|join }}{% endif %}
-                </label>
-            </td>
-            <td>{% if model and model.getErrors('stateId') %}{{ model.getErrors('stateId')|join }}{% endif %}</td>
-        </tr>
-    </table>
+<div class="form-group {% if model and model.getErrors('stateId') %}has-error{% endif %}">
+    <label for="{{ modelName }}-stateId">State</label>
+    {{ craft.market.renderFormMacro('select', {
+    name: modelName ~ '[stateId]',
+    value: model ? model.stateId : '',
+    options: model and states[model.countryId] is defined ? states[model.countryId] : [],
+    class: 'address-state',
+    }) }}
+</div>
+<div class="form-group {% if model and model.getErrors('stateId') %}has-error{% endif %}">
+    <label for="{{ modelName }}-stateName">State Name</label>
+    <input id="{{ modelName }}-stateName" class="form-control input-sm" name="{{ modelName }}[stateName]" value="{{ model ? model.stateName : '' }}">
+    {% if model and model.getErrors('stateName') %}
+    <span id="helpBlock" class="help-block">{{ model.getErrors('stateName')|join }}</span>
+    {% endif %}
+</div>
+
+</div>{# end of address form1#}
 {% endmacro %}
 {# End Address Form Macro #}
 
@@ -64,21 +67,23 @@
 var states = {{ craft.market.statesArray|json_encode|raw }};
 
 $('.address-country select').change(function() {
-var cid = $(this).val(),
-$states = $(this).closest('table').find('.address-state select');
+    var cid = $(this).val(),
+    $states = $(this).closest('.addressBox').find('.address-state select');
+    $states.find('option').remove();
 
-$states.find('option').remove();
+    if(states.hasOwnProperty(cid)) {
+        for(var id in states[cid]) {
+            var state = states[cid][id],
+            $option = $('<option/>');
 
-if(states.hasOwnProperty(cid)) {
-for(var id in states[cid]) {
-var state = states[cid][id],
-$option = $('<option/>');
+            $option.attr('value', id).text(state);
+            $states.append($option);
+        }
+    }
 
-$option.attr('value', id).text(state);
-$states.append($option);
-}
-}
 });
+
+$('select').addClass('form-control input-sm');
 
 {% endset %}
 {% includeJs js first %}

@@ -10,6 +10,8 @@
     {% elseif cart.state == 'address' %}
         {% include 'market/cart/_address.html' %}
     {% elseif cart.state == 'payment' %}
+        {% include 'market/cart/_address.html' %}
+        {% include 'market/cart/_cart.html' %}
         {% include 'market/cart/_payment.html' %}
     {% endif %}
 {% endblock %}
