@@ -109,8 +109,8 @@ class Market_LineItemService extends BaseApplicationComponent
 				$lineItemRecord->save(false);
 				$lineItemRecord->id = $lineItem->id;
 
-				$order = craft()->market_order->getCart();
-				craft()->market_order->recalculateOrder($order);
+				$order = craft()->market_cart->getCart();
+				craft()->market_order->save($order);
 
 				MarketDbHelper::commitStackedTransaction();
 				return true;
