@@ -21,6 +21,7 @@ class Market_OrderAdjustmentModel extends BaseModel
     protected function defineAttributes()
     {
         return [
+            'id'      => AttributeType::Number,
             'type'    => [AttributeType::String, 'required' => true],
             'name'    => [AttributeType::String],
             'rate'    => [AttributeType::Number, 'required' => true, 'decimals' => 5],

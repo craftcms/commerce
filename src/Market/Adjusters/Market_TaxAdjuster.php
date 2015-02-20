@@ -3,6 +3,8 @@
 namespace Market\Adjusters;
 
 use Craft\Market_AddressModel;
+use Craft\Market_LineItemModel;
+use Craft\Market_LineItemRecord;
 use Craft\Market_OrderAdjustmentModel;
 use Craft\Market_OrderModel;
 use Craft\Market_TaxRateModel;
@@ -19,13 +21,14 @@ class Market_TaxAdjuster implements Market_AdjusterInterface
 
     /**
      * @param Market_OrderModel $order
-     * @return Market_OrderAdjustmentModel[]
+     * @param Market_LineItemModel[] $lineItems
+     * @return \Craft\Market_OrderAdjustmentModel[]
      */
-    public function adjust(Market_OrderModel &$order)
+    public function adjust(Market_OrderModel &$order, array $lineItems = [])
     {
-        $shippingAddress = $order->shippingAddress;
+        $shippingAddress = \Craft\craft()->market_address->getById($order->shippingAddressId);
 
-        if (!$shippingAddress || !$shippingAddress->id) {
+        if (!$shippingAddress->id) {
             return [];
         }
 
@@ -34,9 +37,8 @@ class Market_TaxAdjuster implements Market_AdjusterInterface
 
         /** @var Market_TaxRateModel $rate */
         foreach ($taxRates as $rate) {
-            if($adjustment = $this->getAdjustment($order, $shippingAddress, $rate)) {
+            if($adjustment = $this->getAdjustment($order, $lineItems, $shippingAddress, $rate)) {
                 $adjustments[] = $adjustment;
-                $order->adjustmentTotal += $adjustment->amount;
             }
         }
 
@@ -44,12 +46,13 @@ class Market_TaxAdjuster implements Market_AdjusterInterface
     }
 
     /**
-l     * @param Market_OrderModel $order
+     * @param Market_OrderModel $order
+     * @param Market_LineItemModel[] $lineItems
      * @param Market_AddressModel $address
      * @param Market_TaxRateModel $taxRate
-     * @return false|Market_OrderAdjustmentModel
+     * @return Market_OrderAdjustmentModel|false
      */
-    private function getAdjustment(Market_OrderModel $order, Market_AddressModel $address, Market_TaxRateModel $taxRate)
+    private function getAdjustment(Market_OrderModel $order, array $lineItems, Market_AddressModel $address, Market_TaxRateModel $taxRate)
     {
         $zone = $taxRate->taxZone;
 
@@ -85,10 +88,10 @@ l     * @param Market_OrderModel $order
 
         //checking items tax categories
         $itemsMatch = false;
-        foreach($order->lineItems as $item) {
+        foreach($lineItems as $item) {
             if($item->taxCategoryId == $taxRate->taxCategoryId) {
                 $adjustment->amount += $taxRate->rate * $item->total;
-                $item->subtotalIncTax += $taxRate->rate * $item->total;
+                $item->taxAmount += $taxRate->rate * $item->total;
 
                 $itemsMatch = true;
             }
