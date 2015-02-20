@@ -64,6 +64,8 @@ class Market_LineItemService extends BaseApplicationComponent
 		$lineItem->qty = $qty;
 
 		if($this->save($lineItem)) {
+            craft()->market_order->save($lineItem->order);
+
 			return true;
 		} else {
 			$errors = $lineItem->getAllErrors();
@@ -89,17 +91,22 @@ class Market_LineItemService extends BaseApplicationComponent
 			}
 		}
 
-		$lineItemRecord->variantId 		= $lineItem->variantId;
+        $lineItem->subtotal = $lineItem->price * $lineItem->qty;
+        $lineItem->total = $lineItem->subtotal + $lineItem->shipTotal;
+        $lineItem->totalIncTax = $lineItem->total + $lineItem->taxAmount;
+
+        $lineItemRecord->variantId 		= $lineItem->variantId;
 		$lineItemRecord->orderId 		= $lineItem->orderId;
 		$lineItemRecord->taxCategoryId  = $lineItem->taxCategoryId;
 		$lineItemRecord->qty 			= $lineItem->qty;
 		$lineItemRecord->price 			= $lineItem->price;
 		$lineItemRecord->optionsJson 	= $lineItem->optionsJson;
+		$lineItemRecord->taxAmount      = $lineItem->taxAmount;
+		$lineItemRecord->subtotal       = $lineItem->subtotal;
+		$lineItemRecord->total          = $lineItem->total;
+		$lineItemRecord->totalIncTax    = $lineItem->totalIncTax;
 
-        $lineItemRecord->subtotal = $lineItem->price * $lineItem->qty;
-        $lineItemRecord->total = $lineItemRecord->subtotal + $lineItemRecord->shipTotal;
-        $lineItemRecord->totalIncTax = $lineItemRecord->subtotalIncTax + $lineItemRecord->shipTotal;
-
+        
         $lineItemRecord->validate();
 		$lineItem->addErrors($lineItemRecord->getErrors());
 
@@ -108,9 +115,6 @@ class Market_LineItemService extends BaseApplicationComponent
 			if (!$lineItem->hasErrors()) {
 				$lineItemRecord->save(false);
 				$lineItemRecord->id = $lineItem->id;
-
-				$order = craft()->market_cart->getCart();
-				craft()->market_order->save($order);
 
 				MarketDbHelper::commitStackedTransaction();
 				return true;

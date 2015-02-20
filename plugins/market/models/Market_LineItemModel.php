@@ -10,7 +10,7 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property int id
  * @property float price
  * @property float subtotal
- * @property float subtotalIncTax
+ * @property float taxAmount
  * @property float shipTotal
  * @property float total
  * @property float totalIncTax
@@ -20,9 +20,9 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property int taxCategoryId
  * @property string optionsJson
  *
- * @property Market_OrderRecord order
- * @property Market_VariantRecord variant
- * @property Market_TaxCategoryRecord taxCategory
+ * @property Market_OrderModel order
+ * @property Market_VariantModel variant
+ * @property Market_TaxCategoryModel taxCategory
  */
 class Market_LineItemModel extends BaseModel
 {
@@ -36,7 +36,7 @@ class Market_LineItemModel extends BaseModel
 			'orderId' 		=> AttributeType::Number,
 			'price' 		=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true],
 			'subtotal' 		=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true],
-			'subtotalIncTax'=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true],
+			'taxAmount'     => [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
 			'shipTotal' 	=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
 			'total' 		=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true],
 			'totalIncTax' 	=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true],

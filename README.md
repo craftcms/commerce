@@ -15,6 +15,7 @@ Add this code into PHP-doc of CraftCMS WebApp class.
  * @property Market_LineItemService market_lineItem
  * @property Market_OptionTypeService $market_optionType
  * @property Market_OptionValueService $market_optionValue
+ * @property Market_OrderAdjustmentService $market_orderAdjustment
  * @property Market_OrderService $market_order
  * @property Market_OrderTypeService $market_orderType
  * @property Market_PaymentMethodService $market_paymentMethod
