@@ -54,7 +54,7 @@ class Market_OrderRecord extends BaseRecord
 	{
 		return [
 			'type'            => [static::BELONGS_TO, 'Market_OrderTypeRecord', 'required' => true, 'onDelete' => static::CASCADE],
-			'lineItems'       => [static::HAS_MANY, 'Market_OrderRecord', 'orderId'],
+			'lineItems'       => [static::HAS_MANY, 'Market_LineItemRecord', 'orderId'],
 			'billingAddress'  => [static::BELONGS_TO, 'Market_AddressRecord'],
 			'shippingAddress' => [static::BELONGS_TO, 'Market_AddressRecord'],
 		];
