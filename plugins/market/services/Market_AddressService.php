@@ -27,7 +27,6 @@ class Market_AddressService extends BaseApplicationComponent
 	public function getById($id)
 	{
 		$record = Market_AddressRecord::model()->findById($id);
-
 		return Market_AddressModel::populateModel($record);
 	}
 

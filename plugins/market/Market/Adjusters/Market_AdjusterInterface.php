@@ -14,7 +14,8 @@ interface Market_AdjusterInterface
 {
     /**
      * @param Market_OrderModel $order
-     * @return Market_OrderAdjustmentModel[]
+     * @param array $lineItems
+     * @return \Craft\Market_OrderAdjustmentModel[]
      */
-    public function adjust(Market_OrderModel &$order);
+    public function adjust(Market_OrderModel &$order, array $lineItems = []);
 }
