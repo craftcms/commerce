@@ -1,6 +1,8 @@
 <?php
 
 namespace Craft;
+use Market\Adjusters\Market_AdjusterInterface;
+use Market\Adjusters\Market_TaxAdjuster;
 use Market\Helpers\MarketDbHelper;
 
 /**
@@ -10,170 +12,55 @@ use Market\Helpers\MarketDbHelper;
  */
 class Market_OrderService extends BaseApplicationComponent
 {
-	/** @var string Session key for storing current cart number */
-	protected $sessionCartId = 'market_cart';
-	/** @var Market_OrderModel */
-	private $cart;
-
-	/**
-	 * @return Market_OrderModel
-	 * @throws Exception
-	 */
-	public function getCart()
+    /**
+     * @param Market_OrderModel $order
+     * @throws Exception
+     */
+	private function recalculateOrder(Market_OrderModel $order)
 	{
-		if (NULL === $this->cart) {
-			$number = $this->_getSessionCartNumber();
+        if(!$order->id) {
+            return;
+        }
 
-			if($cart = $this->_getCartRecordByNumber($number)) {
-				$this->cart = Market_OrderModel::populateModel($cart);
-			} else {
-				$this->cart = new Market_OrderModel;
+        //calculating adjustments
+        $lineItems = craft()->market_lineItem->getAllByOrderId($order->id);
 
-				$orderType = craft()->market_orderType->getFirst();
-				if(!$orderType->id) {
-					throw new Exception('no one order type found');
-				}
+        foreach($lineItems as $item) { //resetting fields calculated by adjusters
+            $item->taxAmount = 0;
+            $item->shipTotal = 0;
+        }
 
-				$this->cart->typeId = $orderType->id;
-			}
+        /** @var Market_OrderAdjustmentModel[] $adjustments */
+        $adjustments = [];
+        foreach($this->getAdjusters() as $adjuster) {
+            $adjustments = array_merge($adjustments, $adjuster->adjust($order, $lineItems));
+        }
 
-			$this->cart->lastIp = craft()->request->getIpAddress();
+        //refreshing adjustments
+        craft()->market_orderAdjustment->deleteAllByOrderId($order->id);
+        $order->adjustmentTotal = 0;
 
-//			TODO: Will need to see if current user changed and possibily recalc the cart
-//			due to user specific discounts available to them.
-//			$currentUser = craft()->userSession->user;
-//			$userId      = (int)craft()->userSession->user->id;
-//			if (!$this->cart->isEmpty() && (int)$this->cart->member_id != $member_id) {
-//				// member_id has changed, reload the cart and save
-//				$this->cart->userId = $userId;
-//				$this->cart->recalculate();
-//
-//			}
-		}
+        foreach($adjustments as $adjustment) {
+            $order->adjustmentTotal += $adjustment->amount;
+            $result = craft()->market_orderAdjustment->save($adjustment);
+            if(!$result) {
+                $errors = $adjustment->getAllErrors();
+                throw new Exception('Error saving order adjustment: ' . implode(', ', $errors));
+            }
+        }
 
-		return $this->cart;
-	}
+        //recalculating order amount and saving items
+        $order->itemTotal = 0;
+        foreach($lineItems as $item) {
+            $result = craft()->market_lineItem->save($item);
 
-	/**
-	 * @param $variantId
-	 * @param $qty
-	 * @param string $error
-	 * @return bool
-	 * @throws Exception
-	 * @throws \CDbException
-	 * @throws \Exception
-	 */
-	public function addToCart($variantId, $qty, &$error = '')
-	{
-		MarketDbHelper::beginStackedTransaction();
+            $order->itemTotal += $item->totalIncTax;
 
-		//getting current order
-		$order = $this->getCart();
-		if(!$order->id) {
-			if (!$this->save($order)) {
-				throw new Exception('Error on creating empty cart');
-			}
-		}
-
-		//filling item model
-		$lineItem = craft()->market_lineItem->getByOrderVariant($order->id, $variantId);
-		if($lineItem->id) {
-			$lineItem->qty += $qty;
-		} else {
-			$lineItem = craft()->market_lineItem->create($variantId, $order->id, $qty);
-		}
-
-		try {
-			if(craft()->market_lineItem->save($lineItem)) {
-				$this->recalculateOrder($order);
-				MarketDbHelper::commitStackedTransaction();
-				return true;
-			}
-		} catch(\Exception $e) {
-			MarketDbHelper::rollbackStackedTransaction();
-			throw $e;
-		}
-
-		MarketDbHelper::rollbackStackedTransaction();
-
-		$errors = $lineItem->getErrors();
-		$first = array_pop($errors);
-		$error = $first ? array_pop($first) : '';
-		return false;
-	}
-
-	/**
-	 * @TODO check that line item belongs to the current user
-	 * @param int $lineItemId
-	 * @throws Exception
-	 * @throws \CDbException
-	 * @throws \Exception
-	 */
-	public function removeFromCart($lineItemId)
-	{
-		$lineItem = craft()->market_lineItem->getById($lineItemId);
-
-		if (!$lineItem->id) {
-			throw new Exception('Line item not found');
-		}
-
-		MarketDbHelper::beginStackedTransaction();
-		try {
-			craft()->market_lineItem->delete($lineItem);
-
-			$order = $this->getCart();
-			$this->recalculateOrder($order);
-		} catch (\Exception $e) {
-			MarketDbHelper::rollbackStackedTransaction();
-			throw $e;
-		}
-
-		MarketDbHelper::commitStackedTransaction();
-	}
-
-	/**
-	 * Remove all items
-	 */
-	public function clearCart()
-	{
-		MarketDbHelper::beginStackedTransaction();
-		try {
-			$order = $this->getCart();
-			craft()->market_lineItem->deleteAllByOrderId($order->id);
-			$this->recalculateOrder($order);
-		} catch (\Exception $e) {
-			MarketDbHelper::rollbackStackedTransaction();
-			throw $e;
-		}
-
-		MarketDbHelper::commitStackedTransaction();
-	}
-
-	/**
-	 * @param Market_OrderModel $order
-	 */
-	public function recalculateOrder(Market_OrderModel $order)
-	{
-		$lineItems = craft()->market_lineItem->getAllByOrderId($order->id);
-		$order->itemTotal = array_reduce($lineItems, function($sum, $lineItem) {
-			return $sum + $lineItem->totalIncTax;
-		}, 0);
-
-		$this->save($order);
-	}
-
-	/**
-	 * @param string $number
-	 * @return Market_OrderRecord
-	 */
-	private function _getCartRecordByNumber($number)
-	{
-		$cart = Market_OrderRecord::model()->findByAttributes([
-			'number' => $number,
-			'completedAt' => null,
-		]);
-
-		return $cart;
+            if(!$result) {
+                $errors = $item->getAllErrors();
+                throw new Exception('Error saving line item: ' . implode(', ', $errors));
+            }
+        }
 	}
 
 	/**
@@ -199,11 +86,11 @@ class Market_OrderService extends BaseApplicationComponent
 		return Market_OrderRecord::model()->deleteByPk($order->id);
 	}
 
-	/**
-	 * @param Market_OrderModel $order
-	 * @return bool
-	 * @throws Exception
-	 */
+    /**
+     * @param Market_OrderModel $order
+     * @return bool
+     * @throws \Exception
+     */
 	public function save($order)
 	{
 		if (!$order->id) {
@@ -216,8 +103,10 @@ class Market_OrderService extends BaseApplicationComponent
 			}
 		}
 
+        $this->recalculateOrder($order);
+
 		$orderRecord->typeId 			= $order->typeId;
-		$orderRecord->number 			= $this->_getSessionCartNumber();
+		$orderRecord->number 			= $order->number;
 		$orderRecord->adjustmentTotal 	= $order->adjustmentTotal;
 		$orderRecord->itemTotal 		= $order->itemTotal;
 		$orderRecord->email 			= $order->email;
@@ -229,14 +118,24 @@ class Market_OrderService extends BaseApplicationComponent
 		$orderRecord->validate();
 		$order->addErrors($orderRecord->getErrors());
 
-		if (!$order->hasErrors()) {
-			if (craft()->elements->saveElement($order)) {
-				$orderRecord->id = $order->id;
-				$orderRecord->save(false);
+        MarketDbHelper::beginStackedTransaction();
 
-				return true;
-			}
-		}
+        try{
+            if (!$order->hasErrors()) {
+                if (craft()->elements->saveElement($order)) {
+                    $orderRecord->id = $order->id;
+                    $orderRecord->save(false);
+
+                    MarketDbHelper::commitStackedTransaction();
+                    return true;
+                }
+            }
+        } catch(\Exception $e) {
+            MarketDbHelper::rollbackStackedTransaction();
+            throw $e;
+        }
+
+        MarketDbHelper::rollbackStackedTransaction();
 		return false;
 	}
 
@@ -256,14 +155,14 @@ class Market_OrderService extends BaseApplicationComponent
 			$result2 = craft()->market_address->save($billingAddress);
 
 			if($result1 && $result2) {
-				$order = $this->getCart();
+				$order = craft()->market_cart->getCart();
 				$order->shippingAddressId = $shippingAddress->id;
 				$order->billingAddressId = $billingAddress->id;
 
 				craft()->market_customer->saveAddress($shippingAddress);
 				craft()->market_customer->saveAddress($billingAddress);
 
-				$this->recalculateOrder($order);
+				$this->save($order);
 				MarketDbHelper::commitStackedTransaction();
 				return true;
 			}
@@ -276,19 +175,13 @@ class Market_OrderService extends BaseApplicationComponent
 		return false;
 	}
 
-	/**
-	 * @return string
-	 */
-	private function _getSessionCartNumber()
-	{
-		$cartNumber = craft()->httpSession->get($this->sessionCartId);
-
-		if(!$cartNumber) {
-			$cartNumber = md5(uniqid(mt_rand(), true));
-			craft()->httpSession->add($this->sessionCartId, $cartNumber);
-		}
-
-		return $cartNumber;
-	}
-
+    /**
+     * @return Market_AdjusterInterface[]
+     */
+    private function getAdjusters()
+    {
+        return [
+            new Market_TaxAdjuster,
+        ];
+    }
 }

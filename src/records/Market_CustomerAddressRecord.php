@@ -17,12 +17,10 @@ class Market_CustomerAddressRecord extends BaseRecord
 {
 	public function getTableName()
 	{
-		return 'market_customeraddresses';
+		return 'market_customer_addresses';
 	}
 
 	/**
-	 * @inheritDoc BaseRecord::defineIndexes()
-	 *
 	 * @return array
 	 */
 	public function defineIndexes()

@@ -1,7 +1,6 @@
 <?php
 
 namespace Market\Traits;
-use Craft\BaseModel;
 use Craft\BaseRecord;
 
 /**
@@ -21,7 +20,6 @@ trait Market_ModelRelationsTrait {
      */
     public static function populateModel($values)
     {
-        /** @var self $model */
         $model = parent::populateModel($values);
 
         if(is_object($values)) {

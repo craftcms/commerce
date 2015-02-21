@@ -167,7 +167,7 @@ class Market_TestSeeder implements Market_SeederInterface
     {
         $productTypes = \Craft\craft()->market_productType->getAll();
 
-        /** @var Market_ProductModel $product */
+        //first test product
         $product = Market_ProductModel::populateModel([
             'typeId' => $productTypes[0]->id,
             'enabled' => 1,
@@ -188,6 +188,38 @@ class Market_TestSeeder implements Market_SeederInterface
             'isMaster'          => 1,
             'sku'               => 'testSku',
             'price'             => 111,
+            'unlimitedStock'    => 1,
+        ]);
+        \Craft\craft()->market_variant->save($masterVariant);
+
+        //option types
+        $optionTypes = \Craft\craft()->market_optionType->getAll();
+        $ids = array_map(function($type) {
+            return $type->id;
+        }, $optionTypes);
+        \Craft\craft()->market_product->setOptionTypes($product->id, $ids);
+
+        //another test product
+        $product = Market_ProductModel::populateModel([
+            'typeId' => $productTypes[0]->id,
+            'enabled' => 1,
+            'authorId' => \Craft\craft()->userSession->id,
+            'availableOn' => new DateTime(),
+            'expiresOn' => null,
+            'taxCategoryId' => \Craft\craft()->market_taxCategory->getDefaultId(),
+        ]);
+
+        $product->getContent()->title = 'Another Test Product';
+
+        $productCreator = new Creator();
+        $productCreator->save($product);
+
+        //master variant
+        $masterVariant = Market_VariantModel::populateModel([
+            'productId'         => $product->id,
+            'isMaster'          => 1,
+            'sku'               => 'newTestSku',
+            'price'             => 200,
             'unlimitedStock'    => 1,
         ]);
         \Craft\craft()->market_variant->save($masterVariant);
