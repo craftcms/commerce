@@ -56,6 +56,7 @@ class Market_DiscountAdjuster implements Market_AdjusterInterface
         $adjustment->type = self::ADJUSTMENT_TYPE;
         $adjustment->name = $discount->name;
         $adjustment->orderId = $order->id;
+        $adjustment->rate = 0;
 
         //checking items
         $matchingQty = 0;
