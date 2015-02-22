@@ -12,6 +12,9 @@ namespace Craft;
  * @property DateTime   dateTo
  * @property string     discountType
  * @property float      discountAmount
+ * @property bool       allGroups
+ * @property bool       allProducts
+ * @property bool       allProductTypes
  * @property bool       enabled
  *
  * @property Market_ProductRecord[]     products
@@ -47,6 +50,9 @@ class Market_SaleRecord extends BaseRecord
             'dateTo'            => AttributeType::DateTime,
             'discountType'      => [AttributeType::Enum, 'values' => [self::TYPE_PERCENT, self::TYPE_FLAT], 'required' => true],
             'discountAmount'    => [AttributeType::Number, 'decimals' => 5, 'required' => true],
+            'allGroups'         => [AttributeType::Bool, 'required' => true, 'default' => 0],
+            'allProducts'       => [AttributeType::Bool, 'required' => true, 'default' => 0],
+            'allProductTypes'   => [AttributeType::Bool, 'required' => true, 'default' => 0],
             'enabled'           => [AttributeType::Bool, 'required' => true, 'default' => 1],
 		];
 	}

@@ -58,7 +58,8 @@ class Market_TaxAdjuster implements Market_AdjusterInterface
 
         //preparing model
         $adjustment = new Market_OrderAdjustmentModel;
-        $adjustment->type = 'Tax';
+        $adjustment->type = self::ADJUSTMENT_TYPE;
+        $adjustment->name = $taxRate->name;
         $adjustment->rate = $taxRate->rate;
         $adjustment->include = $taxRate->include;
         $adjustment->orderId = $order->id;

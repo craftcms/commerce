@@ -2,6 +2,7 @@
 
 namespace Craft;
 use Market\Adjusters\Market_AdjusterInterface;
+use Market\Adjusters\Market_DiscountAdjuster;
 use Market\Adjusters\Market_TaxAdjuster;
 use Market\Helpers\MarketDbHelper;
 
@@ -182,6 +183,7 @@ class Market_OrderService extends BaseApplicationComponent
     {
         return [
             new Market_TaxAdjuster,
+            new Market_DiscountAdjuster,
         ];
     }
 }

@@ -13,6 +13,9 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property DateTime   dateTo
  * @property string     discountType
  * @property float      discountAmount
+ * @property bool       allGroups
+ * @property bool       allProducts
+ * @property bool       allProductTypes
  * @property bool       enabled
  *
  * @property Market_ProductModel[]     products
@@ -34,6 +37,9 @@ class Market_SaleModel extends BaseModel
             'dateTo'            => AttributeType::DateTime,
             'discountType'      => AttributeType::Enum,
             'discountAmount'    => AttributeType::Number,
+            'allGroups'         => [AttributeType::Bool, 'required' => true, 'default' => 0],
+            'allProducts'       => [AttributeType::Bool, 'required' => true, 'default' => 0],
+            'allProductTypes'   => [AttributeType::Bool, 'required' => true, 'default' => 0],
             'enabled'           => AttributeType::Bool,
 		];
 	}
