@@ -138,6 +138,10 @@ class MarketPlugin extends BasePlugin
             'market/settings/sales'                                                                   => ['action' => 'market/sale/index'],
             'market/settings/sales/new'                                                               => ['action' => 'market/sale/edit'],
             'market/settings/sales/(?P<id>\d+)'                                                       => ['action' => 'market/sale/edit'],
+
+            'market/settings/discounts'                                                               => ['action' => 'market/discount/index'],
+            'market/settings/discounts/new'                                                           => ['action' => 'market/discount/edit'],
+            'market/settings/discounts/(?P<id>\d+)'                                                   => ['action' => 'market/discount/edit'],
 		];
 	}
 
