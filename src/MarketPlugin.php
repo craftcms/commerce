@@ -82,13 +82,6 @@ class MarketPlugin extends BasePlugin
 		return require(__DIR__ . '/routes.php');
 	}
 
-	public function registerSiteRoutes()
-	{
-		return [
-			'add-to-cart' => ['action' => 'market/cart/add'],
-		];
-	}
-
 	/**
 	 * @return array
 	 */
