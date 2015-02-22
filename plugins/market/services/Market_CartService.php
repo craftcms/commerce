@@ -12,8 +12,10 @@ use Market\Helpers\MarketDbHelper;
  */
 class Market_CartService extends BaseApplicationComponent
 {
+    const CART_COOKIE_LIFETIME = 604800; //week
+
 	/** @var string Session key for storing current cart number */
-	protected $sessionCartId = 'market_cart';
+	protected $cookieCartId = 'market_cart_cookie';
 	/** @var Market_OrderModel */
 	private $cart;
 
@@ -171,11 +173,11 @@ class Market_CartService extends BaseApplicationComponent
 	 */
 	private function _getSessionCartNumber()
 	{
-		$cartNumber = craft()->httpSession->get($this->sessionCartId);
+		$cartNumber = craft()->userSession->getStateCookieValue($this->cookieCartId);
 
 		if(!$cartNumber) {
 			$cartNumber = md5(uniqid(mt_rand(), true));
-			craft()->httpSession->add($this->sessionCartId, $cartNumber);
+            craft()->userSession->saveCookie($this->cookieCartId, $cartNumber, self::CART_COOKIE_LIFETIME);
 		}
 
 		return $cartNumber;
