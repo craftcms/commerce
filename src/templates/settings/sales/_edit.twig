@@ -67,7 +67,7 @@
 
     {{ forms.textField({
         label: "Discount Amount"|t,
-        instructions: "Percentage or a flat value of discount."|t,
+        instructions: "Percentage or a flat value of discount (for example: -0,03 for 3% off)."|t,
         id: 'discountAmount',
         name: 'discountAmount',
         value: sale.discountAmount,
@@ -150,7 +150,7 @@ $(function() {
         if(modal) {
             modal.show();
         } else {
-            modal = Craft.createElementSelectorModal('Market_Product', {
+            window.modal = modal = Craft.createElementSelectorModal('Market_Product', {
                 multiSelect: true,
                 onSelect: function(products) {
                     $chosen.find('input').remove();
