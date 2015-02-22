@@ -146,6 +146,26 @@
     }) }}
 
     {{ forms.checkboxField({
+        label: "Exclude On Sale"|t,
+        instructions: "Set discount not applicable to the items which on sale"|t,
+        id: 'excludeOnSale',
+        name: 'excludeOnSale',
+        value: 1,
+        checked: discount.excludeOnSale,
+        errors: discount.getErrors('excludeOnSale')
+    }) }}
+
+    {{ forms.checkboxField({
+        label: "Free Shipping"|t,
+        instructions: "Set shipping price to zero"|t,
+        id: 'freeShipping',
+        name: 'freeShipping',
+        value: 1,
+        checked: discount.freeShipping,
+        errors: discount.getErrors('freeShipping')
+    }) }}
+
+    {{ forms.checkboxField({
         label: "Enabled"|t,
         instructions: "Is it active?"|t,
         id: 'enabled',

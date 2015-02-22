@@ -15,7 +15,11 @@ namespace Craft;
  * @property float      baseDiscount
  * @property float      perItemDiscount
  * @property float      percentDiscount
+ * @property bool       excludeOnSale
  * @property bool       freeShipping
+ * @property bool       allGroups
+ * @property bool       allProducts
+ * @property bool       allProductTypes
  * @property bool       enabled
  *
  * @property Market_ProductRecord[]     products
@@ -51,7 +55,11 @@ class Market_DiscountRecord extends BaseRecord
             'baseDiscount'      => [AttributeType::Number, 'decimals' => 5, 'required' => true, 'default' => 0],
             'perItemDiscount'   => [AttributeType::Number, 'decimals' => 5, 'required' => true, 'default' => 0],
             'percentDiscount'   => [AttributeType::Number, 'decimals' => 5, 'required' => true, 'default' => 0],
+            'excludeOnSale'     => [AttributeType::Bool, 'required' => true, 'default' => 0],
             'freeShipping'      => [AttributeType::Bool, 'required' => true, 'default' => 0],
+            'allGroups'         => [AttributeType::Bool, 'required' => true, 'default' => 0],
+            'allProducts'       => [AttributeType::Bool, 'required' => true, 'default' => 0],
+            'allProductTypes'   => [AttributeType::Bool, 'required' => true, 'default' => 0],
             'enabled'           => [AttributeType::Bool, 'required' => true, 'default' => 1],
 		];
 	}

@@ -30,31 +30,6 @@ class Market_SaleService extends BaseApplicationComponent
 		return Market_SaleModel::populateModel($record);
 	}
 
-    public function getUserGroupsIds()
-    {
-
-    }
-
-//    /**
-//     * @param array $attr
-//     * @return Market_SaleModel
-//     */
-//    public function getByAttributes(array $attr)
-//    {
-//        $record = Market_SaleRecord::model()->findByAttributes($attr);
-//        return Market_SaleModel::populateModel($record);
-//    }
-//
-//	/**
-//	 * Simple list for using in forms
-//	 * @return array [id => name]
-//	 */
-//	public function getFormList()
-//	{
-//		$sales = $this->getAll();
-//		return \CHtml::listData($sales, 'id', 'name');
-//	}
-
     /**
      * @param Market_SaleModel $model
      * @param array $groups ids
@@ -79,6 +54,10 @@ class Market_SaleService extends BaseApplicationComponent
         foreach($fields as $field) {
             $record->$field = $model->$field;
         }
+
+        $record->allGroups = $model->allGroups = empty($groups);
+        $record->allProductTypes = $model->allProductTypes = empty($productTypes);
+        $record->allProducts = $model->allProducts = empty($products);
 
 		$record->validate();
 		$model->addErrors($record->getErrors());

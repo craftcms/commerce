@@ -30,30 +30,82 @@ class Market_DiscountService extends BaseApplicationComponent
 		return Market_DiscountModel::populateModel($record);
 	}
 
-    public function getUserGroupsIds()
+    /**
+     * Getting all discounts applicable for the current user and given items list
+     *
+     * @param Market_LineItemModel[] $lineItems
+     * @return Market_DiscountModel[]
+     */
+    public function getForItems(array $lineItems)
     {
+        //getting ids lists
+        $productIds = [];
+        $productTypeIds = [];
+        foreach($lineItems as $item) {
+            $productIds[] = $item->variant->productId;
+            $productTypeIds[] = $item->variant->product->typeId;
+        }
+        $productTypeIds = array_unique($productTypeIds);
 
+        $groupIds = $this->_getCurrentUserGroups();
+
+        //building criteria
+        $criteria = new \CDbCriteria();
+        $criteria->group = 't.id';
+
+        $criteria->join = 'LEFT JOIN ' . Market_DiscountProductRecord::model()->getTableName() . 'dp ON dp.discountId = t.id ';
+        $criteria->join .= 'LEFT JOIN ' . Market_DiscountProductTypeRecord::model()->getTableName() . 'dpt ON dpt.discountId = t.id ';
+        $criteria->join .= 'LEFT JOIN ' . Market_DiscountUserGroupRecord::model()->getTableName() . 'dug ON dug.discountId = t.id ';
+
+        if($productIds) {
+            $list = implode(',', $productIds);
+            $criteria->addCondition("dp.productId IN ($list) OR t.allProducts = 1");
+        } else {
+            $criteria->addCondition("t.allProducts = 1");
+        }
+
+        if($productTypeIds) {
+            $list = implode(',', $productTypeIds);
+            $criteria->addCondition("dpt.productTypeId IN ($list) OR t.allProductTypes = 1");
+        } else {
+            $criteria->addCondition("t.allProductTypes = 1");
+        }
+
+        if($groupIds) {
+            $list = implode(',', $groupIds);
+            $criteria->addCondition("dug.userGroupId IN ($list) OR t.allGroups = 1");
+        } else {
+            $criteria->addCondition("t.allGroups = 1");
+        }
+
+        //searching
+        return $this->getAll($criteria);
     }
 
-//    /**
-//     * @param array $attr
-//     * @return Market_DiscountModel
-//     */
-//    public function getByAttributes(array $attr)
-//    {
-//        $record = Market_DiscountRecord::model()->findByAttributes($attr);
-//        return Market_DiscountModel::populateModel($record);
-//    }
-//
-//	/**
-//	 * Simple list for using in forms
-//	 * @return array [id => name]
-//	 */
-//	public function getFormList()
-//	{
-//		$discounts = $this->getAll();
-//		return \CHtml::listData($discounts, 'id', 'name');
-//	}
+    /**
+     * @param Market_LineItemModel $lineItem
+     * @param Market_DiscountModel $discount
+     * @return bool
+     */
+    public function matchLineItem(Market_LineItemModel $lineItem, Market_DiscountModel $discount)
+    {
+        $productId = $lineItem->variant->productId;
+        if(!$discount->allProducts && !in_array($productId, $discount->getProductsIds())) {
+            return false;
+        }
+
+        $productTypeId = $lineItem->variant->product->typeId;
+        if(!$discount->allProductTypes && !in_array($productTypeId, $discount->getProductTypesIds())) {
+            return false;
+        }
+
+        $userGroups = $this->_getCurrentUserGroups();
+        if(!$discount->allGroups && !array_intersect($userGroups, $discount->getGroupsIds())) {
+            return false;
+        }
+
+        return true;
+    }
 
     /**
      * @param Market_DiscountModel $model
@@ -75,11 +127,17 @@ class Market_DiscountService extends BaseApplicationComponent
 			$record = new Market_DiscountRecord();
 		}
 
-        foreach($model->attributeNames() as $field) {
+        $fields = ['id', 'name', 'description', 'dateFrom', 'dateTo', 'enabled', 'purchaseTotal', 'purchaseQty', 'baseDiscount', 'perItemDiscount',
+            'percentDiscount', 'freeShipping', 'excludeOnSale'];
+        foreach($fields as $field) {
             $record->$field = $model->$field;
         }
 
-		$record->validate();
+        $record->allGroups = $model->allGroups = empty($groups);
+        $record->allProductTypes = $model->allProductTypes = empty($productTypes);
+        $record->allProducts = $model->allProducts = empty($products);
+
+        $record->validate();
 		$model->addErrors($record->getErrors());
 
         MarketDbHelper::beginStackedTransaction();
@@ -129,4 +187,20 @@ class Market_DiscountService extends BaseApplicationComponent
 	{
 		Market_DiscountRecord::model()->deleteByPk($id);
 	}
+
+    /**
+     * @return array
+     */
+    private function _getCurrentUserGroups()
+    {
+        $groupIds = [];
+        $user = craft()->userSession->getUser();
+        if ($user) {
+            foreach ($user->getGroups() as $group) {
+                $groupIds[] = $group->id;
+            }
+            return $groupIds;
+        }
+        return $groupIds;
+    }
 }
