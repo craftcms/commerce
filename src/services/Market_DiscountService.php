@@ -52,10 +52,13 @@ class Market_DiscountService extends BaseApplicationComponent
         //building criteria
         $criteria = new \CDbCriteria();
         $criteria->group = 't.id';
+        $criteria->addCondition('t.enabled = 1');
+        $criteria->addCondition('t.dateFrom IS NULL OR t.dateFrom <= NOW()');
+        $criteria->addCondition('t.dateTo IS NULL OR t.dateTo >= NOW()');
 
-        $criteria->join = 'LEFT JOIN ' . Market_DiscountProductRecord::model()->getTableName() . 'dp ON dp.discountId = t.id ';
-        $criteria->join .= 'LEFT JOIN ' . Market_DiscountProductTypeRecord::model()->getTableName() . 'dpt ON dpt.discountId = t.id ';
-        $criteria->join .= 'LEFT JOIN ' . Market_DiscountUserGroupRecord::model()->getTableName() . 'dug ON dug.discountId = t.id ';
+        $criteria->join = 'LEFT JOIN {{' . Market_DiscountProductRecord::model()->getTableName() . '}} dp ON dp.discountId = t.id ';
+        $criteria->join .= 'LEFT JOIN {{' . Market_DiscountProductTypeRecord::model()->getTableName() . '}} dpt ON dpt.discountId = t.id ';
+        $criteria->join .= 'LEFT JOIN {{' . Market_DiscountUserGroupRecord::model()->getTableName() . '}} dug ON dug.discountId = t.id ';
 
         if($productIds) {
             $list = implode(',', $productIds);

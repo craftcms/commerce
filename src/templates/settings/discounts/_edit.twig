@@ -7,6 +7,7 @@
 ] %}
 
 {% import "_includes/forms" as forms %}
+{% import "market/_includes/forms/marketForms" as marketForms %}
 
 {% set content %}
 <form method="post" accept-charset="UTF-8" data-saveshortcut>
@@ -115,33 +116,36 @@
         errors: discount.getErrors('purchaseQty'),
     }) }}
 
-    {{ forms.textField({
+    {{ marketForms.numberField({
         label: "Base Discount"|t,
         instructions: "Flat value which should be added to the order total price. Write negative number for off-discount"|t,
         id: 'baseDiscount',
         name: 'baseDiscount',
         value: discount.baseDiscount,
         type: 'number',
+        step: 'any',
         errors: discount.getErrors('baseDiscount'),
     }) }}
 
-    {{ forms.textField({
+    {{ marketForms.numberField({
         label: "Per Item Discount"|t,
         instructions: "Flat value which should be added to each item in the order. Write negative number for off-discount"|t,
         id: 'perItemDiscount',
         name: 'perItemDiscount',
         value: discount.perItemDiscount,
         type: 'number',
+        step: 'any',
         errors: discount.getErrors('perItemDiscount'),
     }) }}
 
-    {{ forms.textField({
+    {{ marketForms.numberField({
         label: "Percent Discount"|t,
         instructions: "Percentile value which should be added to the total order price. Write negative number for off-discount, i.e. -0,04 for 4% off"|t,
         id: 'percentDiscount',
         name: 'percentDiscount',
         value: discount.percentDiscount,
         type: 'number',
+        step: 'any',
         errors: discount.getErrors('percentDiscount'),
     }) }}
 
