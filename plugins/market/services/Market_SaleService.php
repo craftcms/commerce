@@ -123,14 +123,11 @@ class Market_SaleService extends BaseApplicationComponent
         return false;
 	}
 
-//	/**
-//	 * @param int $id
-//	 *
-//	 * @throws \CDbException
-//	 */
-//	public function deleteById($id)
-//	{
-//		$Sale = Market_SaleRecord::model()->findById($id);
-//		$Sale->delete();
-//	}
+	/**
+	 * @param int $id
+	 */
+	public function deleteById($id)
+	{
+		Market_SaleRecord::model()->deleteByPk($id);
+	}
 }
