@@ -7,6 +7,7 @@
 ] %}
 
 {% import "_includes/forms" as forms %}
+{% import "market/_includes/forms/marketForms" as marketForms %}
 
 {% set content %}
 <form method="post" accept-charset="UTF-8" data-saveshortcut>
@@ -65,13 +66,14 @@
         required: true,
     }) }}
 
-    {{ forms.textField({
+    {{ marketForms.numberField({
         label: "Discount Amount"|t,
-        instructions: "Percentage or a flat value of discount."|t,
+        instructions: "Percentage or a flat value of discount (for example: -0,03 for 3% off)."|t,
         id: 'discountAmount',
         name: 'discountAmount',
         value: sale.discountAmount,
         type: 'number',
+        step: 'any',
         errors: sale.getErrors('discountAmount'),
     }) }}
 
@@ -150,7 +152,7 @@ $(function() {
         if(modal) {
             modal.show();
         } else {
-            modal = Craft.createElementSelectorModal('Market_Product', {
+            window.modal = modal = Craft.createElementSelectorModal('Market_Product', {
                 multiSelect: true,
                 onSelect: function(products) {
                     $chosen.find('input').remove();

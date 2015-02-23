@@ -4,15 +4,20 @@ namespace Craft;
 use Market\Traits\Market_ModelRelationsTrait;
 
 /**
- * Class Market_SaleModel
+ * Class Market_DiscountModel
  *
  * @property int        id
  * @property string     name
  * @property string     description
  * @property DateTime   dateFrom
  * @property DateTime   dateTo
- * @property string     discountType
- * @property float      discountAmount
+ * @property int        purchaseTotal
+ * @property int        purchaseQty
+ * @property float      baseDiscount
+ * @property float      perItemDiscount
+ * @property float      percentDiscount
+ * @property bool       excludeOnSale
+ * @property bool       freeShipping
  * @property bool       allGroups
  * @property bool       allProducts
  * @property bool       allProductTypes
@@ -23,26 +28,31 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property UserGroupModel[]          groups
  * @package Craft
  */
-class Market_SaleModel extends BaseModel
+class Market_DiscountModel extends BaseModel
 {
     use Market_ModelRelationsTrait;
 
-	protected function defineAttributes()
-	{
-		return [
+    protected function defineAttributes()
+    {
+        return [
             'id'                => AttributeType::Number,
-			'name'              => AttributeType::Name,
-			'description'       => AttributeType::Mixed,
+            'name'              => [AttributeType::Name, 'required' => true],
+            'description'       => AttributeType::Mixed,
             'dateFrom'          => AttributeType::DateTime,
             'dateTo'            => AttributeType::DateTime,
-            'discountType'      => AttributeType::Enum,
-            'discountAmount'    => AttributeType::Number,
+            'purchaseTotal'     => [AttributeType::Number, 'required' => true, 'default' => 0],
+            'purchaseQty'       => [AttributeType::Number, 'required' => true, 'default' => 0],
+            'baseDiscount'      => [AttributeType::Number, 'decimals' => 5, 'required' => true, 'default' => 0],
+            'perItemDiscount'   => [AttributeType::Number, 'decimals' => 5, 'required' => true, 'default' => 0],
+            'percentDiscount'   => [AttributeType::Number, 'decimals' => 5, 'required' => true, 'default' => 0],
+            'excludeOnSale'     => [AttributeType::Bool, 'required' => true, 'default' => 0],
+            'freeShipping'      => [AttributeType::Bool, 'required' => true, 'default' => 0],
             'allGroups'         => [AttributeType::Bool, 'required' => true, 'default' => 0],
             'allProducts'       => [AttributeType::Bool, 'required' => true, 'default' => 0],
             'allProductTypes'   => [AttributeType::Bool, 'required' => true, 'default' => 0],
-            'enabled'           => AttributeType::Bool,
-		];
-	}
+            'enabled'           => [AttributeType::Bool, 'required' => true, 'default' => 1],
+        ];
+    }
 
     /**
      * @return array
@@ -74,22 +84,4 @@ class Market_SaleModel extends BaseModel
         }, $this->products);
     }
 
-    /**
-     * @param float $price
-     * @return float
-     * @throws Exception
-     */
-    public function calculatePrice($price)
-    {
-        if($this->discountType == Market_SaleRecord::TYPE_FLAT) {
-            $newPrice = $price + $this->discountAmount;
-        } else {
-            $newPrice = $price + $this->discountAmount * $price;
-        }
-
-        if($newPrice <= 0) {
-            throw new Exception('wrong sale#' . $this->id . '. Sale price below zero calculated');
-        }
-        return $newPrice;
-    }
 }

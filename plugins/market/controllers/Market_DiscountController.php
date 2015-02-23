@@ -9,19 +9,19 @@ namespace Craft;
  * @package   craft.plugins.market.controllers
  * @since     0.1
  */
-class Market_SaleController extends Market_BaseController
+class Market_DiscountController extends Market_BaseController
 {
 	/**
 	 * @throws HttpException
 	 */
 	public function actionIndex()
 	{
-		$sales = craft()->market_sale->getAll(['order' => 'name']);
-		$this->renderTemplate('market/settings/sales/index', compact('sales'));
+		$discounts = craft()->market_discount->getAll(['order' => 'name']);
+		$this->renderTemplate('market/settings/discounts/index', compact('discounts'));
 	}
 
 	/**
-	 * Create/Edit Sale
+	 * Create/Edit Discount
 	 *
 	 * @param array $variables
 	 *
@@ -29,23 +29,23 @@ class Market_SaleController extends Market_BaseController
 	 */
 	public function actionEdit(array $variables = array())
 	{
-		if (empty($variables['sale'])) {
+		if (empty($variables['discount'])) {
 			if (!empty($variables['id'])) {
 				$id = $variables['id'];
-				$variables['sale'] = craft()->market_sale->getById($id);
+				$variables['discount'] = craft()->market_discount->getById($id);
 
-				if (!$variables['sale']->id) {
+				if (!$variables['discount']->id) {
 					throw new HttpException(404);
 				}
 			} else {
-				$variables['sale'] = new Market_SaleModel();
+				$variables['discount'] = new Market_DiscountModel();
 			}
 		}
 
-		if (!empty($variables['id'])) {
-			$variables['title'] = $variables['sale']->name;
+        if (!empty($variables['id'])) {
+			$variables['title'] = $variables['discount']->name;
 		} else {
-			$variables['title'] = Craft::t('Create a Sale');
+			$variables['title'] = Craft::t('Create a Discount');
 		}
 
         //getting user groups map
@@ -56,7 +56,7 @@ class Market_SaleController extends Market_BaseController
         $types = craft()->market_productType->getAll();
         $variables['types'] = \CHtml::listData($types, 'id', 'name');
 
-		$this->renderTemplate('market/settings/sales/_edit', $variables);
+		$this->renderTemplate('market/settings/discounts/_edit', $variables);
 	}
 
 	/**
@@ -66,12 +66,13 @@ class Market_SaleController extends Market_BaseController
 	{
 		$this->requirePostRequest();
 
-		$sale = new Market_SaleModel();
+		$discount = new Market_DiscountModel();
 
 		// Shared attributes
-        $fields = ['id', 'name', 'description', 'dateFrom', 'dateTo', 'discountType', 'discountAmount', 'enabled'];
+        $fields = ['id', 'name', 'description', 'dateFrom', 'dateTo', 'enabled', 'purchaseTotal', 'purchaseQty', 'baseDiscount', 'perItemDiscount',
+            'percentDiscount', 'freeShipping', 'excludeOnSale'];
         foreach($fields as $field) {
-            $sale->$field = craft()->request->getPost($field);
+            $discount->$field = craft()->request->getPost($field);
         }
 
         $products = craft()->request->getPost('products', []);
@@ -79,15 +80,15 @@ class Market_SaleController extends Market_BaseController
         $groups = craft()->request->getPost('groups', []);
 
 		// Save it
-		if (craft()->market_sale->save($sale, $groups, $productTypes, $products)) {
-			craft()->userSession->setNotice(Craft::t('Sale saved.'));
-			$this->redirectToPostedUrl($sale);
+		if (craft()->market_discount->save($discount, $groups, $productTypes, $products)) {
+			craft()->userSession->setNotice(Craft::t('Discount saved.'));
+			$this->redirectToPostedUrl($discount);
 		} else {
-			craft()->userSession->setError(Craft::t('Couldn’t save sale.'));
+			craft()->userSession->setError(Craft::t('Couldn’t save discount.'));
 		}
 
 		// Send the model back to the template
-		craft()->urlManager->setRouteVariables(['sale' => $sale]);
+		craft()->urlManager->setRouteVariables(['discount' => $discount]);
 	}
 
 	/**
@@ -100,7 +101,7 @@ class Market_SaleController extends Market_BaseController
 
 		$id = craft()->request->getRequiredPost('id');
 
-		craft()->market_sale->deleteById($id);
+		craft()->market_discount->deleteById($id);
 		$this->returnJson(['success' => true]);
 	}
 

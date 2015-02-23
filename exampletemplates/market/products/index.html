@@ -3,7 +3,7 @@
 
 {% block content %}
 
-{% set products = craft.market.products.find() %}
+{% set products = craft.market.productsWithSales() %}
 
 <div class="row">
     {% for product in products %}
@@ -20,7 +20,9 @@
                     <div class="form-group">
                     <select name="variantId" class="form-control">
                         {% for variant in product.variants %}
-                        <option value="{{ variant.id }}">SKU: {{ variant.sku }} / Price: {{ variant.price }} / Stock: {{ variant.unlimitedStock ? 'unlimited' : variant.stock }} / {{ variant.optionsText }}</option>
+                        <option value="{{ variant.id }}">
+                            SKU: {{ variant.sku }} / Price: {{ variant.price }} {% if variant.underSale %}(sale: {{ variant.salePrice }}){% endif %} / Stock: {{ variant.unlimitedStock ? 'unlimited' : variant.stock }} / {{ variant.optionsText }}
+                        </option>
                         {% endfor %}
                     </select>
                     </div>
