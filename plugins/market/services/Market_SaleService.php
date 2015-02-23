@@ -31,6 +31,84 @@ class Market_SaleService extends BaseApplicationComponent
 	}
 
     /**
+     * Getting all discounts applicable for the current user and given items list
+     *
+     * @param Market_ProductModel[] $products
+     * @return Market_SaleModel[]
+     */
+    public function getForProducts(array $products)
+    {
+        //getting ids lists
+        $productIds = [];
+        $productTypeIds = [];
+        foreach($products as $product) {
+            $productIds[] = $product->id;
+            $productTypeIds[] = $product->typeId;
+        }
+        $productTypeIds = array_unique($productTypeIds);
+
+        $groupIds = craft()->market_discount->getCurrentUserGroups();
+
+        //building criteria
+        $criteria = new \CDbCriteria();
+        $criteria->group = 't.id';
+        $criteria->addCondition('t.enabled = 1');
+        $criteria->addCondition('t.dateFrom IS NULL OR t.dateFrom <= NOW()');
+        $criteria->addCondition('t.dateTo IS NULL OR t.dateTo >= NOW()');
+
+        $criteria->join = 'LEFT JOIN {{' . Market_SaleProductRecord::model()->getTableName() . '}} sp ON sp.saleId = t.id ';
+        $criteria->join .= 'LEFT JOIN {{' . Market_SaleProductTypeRecord::model()->getTableName() . '}} spt ON spt.saleId = t.id ';
+        $criteria->join .= 'LEFT JOIN {{' . Market_SaleUserGroupRecord::model()->getTableName() . '}} sug ON sug.saleId = t.id ';
+
+        if($productIds) {
+            $list = implode(',', $productIds);
+            $criteria->addCondition("sp.productId IN ($list) OR t.allProducts = 1");
+        } else {
+            $criteria->addCondition("t.allProducts = 1");
+        }
+
+        if($productTypeIds) {
+            $list = implode(',', $productTypeIds);
+            $criteria->addCondition("spt.productTypeId IN ($list) OR t.allProductTypes = 1");
+        } else {
+            $criteria->addCondition("t.allProductTypes = 1");
+        }
+
+        if($groupIds) {
+            $list = implode(',', $groupIds);
+            $criteria->addCondition("sug.userGroupId IN ($list) OR t.allGroups = 1");
+        } else {
+            $criteria->addCondition("t.allGroups = 1");
+        }
+
+        //searching
+        return $this->getAll($criteria);
+    }
+
+    /**
+     * @param Market_ProductModel $product
+     * @param Market_SaleModel $sale
+     * @return bool
+     */
+    public function matchProduct(Market_ProductModel $product, Market_SaleModel $sale)
+    {
+        if(!$sale->allProducts && !in_array($product->id, $sale->getProductsIds())) {
+            return false;
+        }
+
+        if(!$sale->allProductTypes && !in_array($product->typeId, $sale->getProductTypesIds())) {
+            return false;
+        }
+
+        $userGroups = craft()->market_discount->getCurrentUserGroups();
+        if(!$sale->allGroups && !array_intersect($userGroups, $sale->getGroupsIds())) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * @param Market_SaleModel $model
      * @param array $groups ids
      * @param array $productTypes ids

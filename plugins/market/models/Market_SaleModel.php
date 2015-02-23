@@ -74,4 +74,22 @@ class Market_SaleModel extends BaseModel
         }, $this->products);
     }
 
+    /**
+     * @param float $price
+     * @return float
+     * @throws Exception
+     */
+    public function calculatePrice($price)
+    {
+        if($this->discountType == Market_SaleRecord::TYPE_FLAT) {
+            $newPrice = $price + $this->discountAmount;
+        } else {
+            $newPrice = $price + $this->discountAmount * $price;
+        }
+
+        if($newPrice <= 0) {
+            throw new Exception('wrong sale#' . $this->id . '. Sale price below zero calculated');
+        }
+        return $newPrice;
+    }
 }

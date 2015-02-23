@@ -47,7 +47,7 @@ class Market_DiscountService extends BaseApplicationComponent
         }
         $productTypeIds = array_unique($productTypeIds);
 
-        $groupIds = $this->_getCurrentUserGroups();
+        $groupIds = $this->getCurrentUserGroups();
 
         //building criteria
         $criteria = new \CDbCriteria();
@@ -102,7 +102,7 @@ class Market_DiscountService extends BaseApplicationComponent
             return false;
         }
 
-        $userGroups = $this->_getCurrentUserGroups();
+        $userGroups = $this->getCurrentUserGroups();
         if(!$discount->allGroups && !array_intersect($userGroups, $discount->getGroupsIds())) {
             return false;
         }
@@ -194,7 +194,7 @@ class Market_DiscountService extends BaseApplicationComponent
     /**
      * @return array
      */
-    private function _getCurrentUserGroups()
+    public function getCurrentUserGroups()
     {
         $groupIds = [];
         $user = craft()->userSession->getUser();
