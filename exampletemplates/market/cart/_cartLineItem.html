@@ -18,7 +18,12 @@
         </form>
     </td>
     <td>
-        Price: {{ lineItem.price }}<br/>
+        {% if lineItem.underSale %}
+            <s>Price: {{ lineItem.price }}</s><br/>
+            Sale Price: {{ lineItem.salePrice }}<br/>
+        {% else %}
+            Price: {{ lineItem.price }}<br/>
+        {% endif %}
         Subtotal: {{ lineItem.subtotal }}<br/>
         Taxes: {{ lineItem.taxAmount }}<br/>
         Ship Total: {{ lineItem.shipTotal }}<br/>

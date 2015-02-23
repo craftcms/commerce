@@ -91,7 +91,7 @@ class Market_LineItemService extends BaseApplicationComponent
 			}
 		}
 
-        $lineItem->subtotal = $lineItem->price * $lineItem->qty;
+        $lineItem->subtotal = $lineItem->salePrice * $lineItem->qty;
         $lineItem->total = $lineItem->subtotal + $lineItem->shipTotal;
         $lineItem->totalIncTax = $lineItem->total + $lineItem->taxAmount;
 
@@ -100,13 +100,13 @@ class Market_LineItemService extends BaseApplicationComponent
 		$lineItemRecord->taxCategoryId  = $lineItem->taxCategoryId;
 		$lineItemRecord->qty 			= $lineItem->qty;
 		$lineItemRecord->price 			= $lineItem->price;
+		$lineItemRecord->salePrice 		= $lineItem->salePrice;
 		$lineItemRecord->optionsJson 	= $lineItem->optionsJson;
 		$lineItemRecord->taxAmount      = $lineItem->taxAmount;
 		$lineItemRecord->subtotal       = $lineItem->subtotal;
 		$lineItemRecord->total          = $lineItem->total;
 		$lineItemRecord->totalIncTax    = $lineItem->totalIncTax;
 
-        
         $lineItemRecord->validate();
 		$lineItem->addErrors($lineItemRecord->getErrors());
 
@@ -142,12 +142,21 @@ class Market_LineItemService extends BaseApplicationComponent
 
 		$variant = craft()->market_variant->getById($variantId);
 		if($variant->id) {
-			$lineItem->price = $variant->price;
+			$lineItem->price = $lineItem->salePrice = $variant->price;
 
 			$options = $variant->attributes;
 			$options['optionValues'] = $variant->getOptionValuesArray();
 			$lineItem->optionsJson = $options;
             $lineItem->taxCategoryId = $variant->product->taxCategoryId;
+
+            $sales = craft()->market_sale->getForVariant($variant);
+            foreach($sales as $sale) {
+                $lineItem->salePrice += $sale->calculateTakeoff($lineItem->price);
+            }
+
+            if($lineItem->salePrice < 0) {
+                $lineItem->salePrice = 0;
+            }
 		} else {
 			$lineItem->addError('variantId', 'variant not found');
 		}

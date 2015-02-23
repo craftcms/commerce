@@ -31,25 +31,12 @@ class Market_SaleService extends BaseApplicationComponent
 	}
 
     /**
-     * Getting all discounts applicable for the current user and given items list
-     *
-     * @param Market_ProductModel[] $products
+     * @param $productIds
+     * @param $productTypeIds
      * @return Market_SaleModel[]
      */
-    public function getForProducts(array $products)
+    private function getAllByConditions($productIds, $productTypeIds)
     {
-        //getting ids lists
-        $productIds = [];
-        $productTypeIds = [];
-        foreach($products as $product) {
-            $productIds[] = $product->id;
-            $productTypeIds[] = $product->typeId;
-        }
-        $productTypeIds = array_unique($productTypeIds);
-
-        $groupIds = craft()->market_discount->getCurrentUserGroups();
-
-        //building criteria
         $criteria = new \CDbCriteria();
         $criteria->group = 't.id';
         $criteria->addCondition('t.enabled = 1');
@@ -74,6 +61,7 @@ class Market_SaleService extends BaseApplicationComponent
             $criteria->addCondition("t.allProductTypes = 1");
         }
 
+        $groupIds = craft()->market_discount->getCurrentUserGroups();
         if($groupIds) {
             $list = implode(',', $groupIds);
             $criteria->addCondition("sug.userGroupId IN ($list) OR t.allGroups = 1");
@@ -83,6 +71,37 @@ class Market_SaleService extends BaseApplicationComponent
 
         //searching
         return $this->getAll($criteria);
+    }
+
+    /**
+     * Getting all discounts applicable for the current user and given items list
+     *
+     * @param Market_ProductModel[] $products
+     * @return Market_SaleModel[]
+     */
+    public function getForProducts(array $products)
+    {
+        $productIds = [];
+        $productTypeIds = [];
+        foreach($products as $product) {
+            $productIds[] = $product->id;
+            $productTypeIds[] = $product->typeId;
+        }
+        $productTypeIds = array_unique($productTypeIds);
+
+        return $this->getAllByConditions($productIds, $productTypeIds);
+    }
+
+    /**
+     * @param Market_VariantModel $variant
+     * @return Market_SaleModel[]
+     */
+    public function getForVariant(Market_VariantModel $variant)
+    {
+        $productIds = [$variant->productId];
+        $productTypeIds = [$variant->product->typeId];
+
+        return $this->getAllByConditions($productIds, $productTypeIds);
     }
 
     /**
