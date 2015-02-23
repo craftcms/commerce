@@ -79,17 +79,14 @@ class Market_SaleModel extends BaseModel
      * @return float
      * @throws Exception
      */
-    public function calculatePrice($price)
+    public function calculateTakeoff($price)
     {
         if($this->discountType == Market_SaleRecord::TYPE_FLAT) {
-            $newPrice = $price + $this->discountAmount;
+            $takeOff = $this->discountAmount;
         } else {
-            $newPrice = $price + $this->discountAmount * $price;
+            $takeOff = $this->discountAmount * $price;
         }
 
-        if($newPrice <= 0) {
-            throw new Exception('wrong sale#' . $this->id . '. Sale price below zero calculated');
-        }
-        return $newPrice;
+        return $takeOff;
     }
 }

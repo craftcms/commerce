@@ -8,6 +8,7 @@ namespace Craft;
  *
  * @property int id
  * @property float price
+ * @property float salePrice
  * @property float subtotal
  * @property float taxAmount
  * @property float shipTotal
@@ -50,6 +51,7 @@ class Market_LineItemRecord extends BaseRecord
 	{
 		return [
 			'price' 		=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true],
+			'salePrice' 	=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true],
 			'subtotal' 		=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
 			'taxAmount'     => [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
 			'shipTotal' 	=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],

@@ -34,6 +34,7 @@ class Market_ProductService extends BaseApplicationComponent
 
         $models = Market_ProductModel::populateModels($products);
         $sales = craft()->market_sale->getForProducts($models);
+
         foreach($models as $product) {
             $this->applySales($product, $sales);
         }
@@ -50,7 +51,11 @@ class Market_ProductService extends BaseApplicationComponent
         foreach($sales as $sale) {
             if(craft()->market_sale->matchProduct($product, $sale)) {
                 foreach($product->variants as $variant) {
-                    $variant->salePrice = $sale->calculatePrice($variant->price);
+                    $variant->salePrice = $variant->price + $sale->calculateTakeoff($variant->price);
+                    if($variant->salePrice < 0) {
+                        $variant->salePrice = 0;
+                    }
+                    var_dump($variant->salePrice);
                 }
             }
         }

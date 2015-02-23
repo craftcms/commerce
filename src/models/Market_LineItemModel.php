@@ -9,6 +9,7 @@ use Market\Traits\Market_ModelRelationsTrait;
  *
  * @property int id
  * @property float price
+ * @property float salePrice
  * @property float subtotal
  * @property float taxAmount
  * @property float shipTotal
@@ -19,6 +20,7 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property int variantId
  * @property int taxCategoryId
  * @property string optionsJson
+ * @property bool underSale
  *
  * @property Market_OrderModel order
  * @property Market_VariantModel variant
@@ -35,6 +37,7 @@ class Market_LineItemModel extends BaseModel
 			'variantId' 	=> AttributeType::Number,
 			'orderId' 		=> AttributeType::Number,
 			'price' 		=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true],
+			'salePrice' 	=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true],
 			'subtotal' 		=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true],
 			'taxAmount'     => [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
 			'shipTotal' 	=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
@@ -46,4 +49,12 @@ class Market_LineItemModel extends BaseModel
             'taxCategoryId' => [AttributeType::Number, 'required' => true],
         ];
 	}
+
+    /**
+     * @return bool
+     */
+    public function getUnderSale()
+    {
+        return $this->price != $this->salePrice;
+    }
 }
