@@ -27,6 +27,8 @@ class Market_VariantModel extends BaseModel
 {
     use Market_ModelRelationsTrait;
 
+    public $salePrice;
+
 	public function isLocalized()
 	{
 		return false;
@@ -92,4 +94,12 @@ class Market_VariantModel extends BaseModel
 			'deletedAt'         => [AttributeType::DateTime]
 		]);
 	}
+
+    /**
+     * @return bool
+     */
+    public function underSale()
+    {
+        return $this->salePrice ? ($this->salePrice != $this->price) : false;
+    }
 }
