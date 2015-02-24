@@ -35,6 +35,12 @@ trait Market_ModelRelationsTrait {
      */
     public function __get($name)
     {
+        //getters have maximum priority anyway
+        $getter = 'get' . $name;
+        if(method_exists($this,$getter)) {
+            return $this->$getter();
+        }
+
         if(isset($this->_relationsCache[$name])) {
             return $this->_relationsCache[$name];
         }

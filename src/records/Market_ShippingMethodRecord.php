@@ -8,6 +8,8 @@ namespace Craft;
  * @property int    $id
  * @property string $name
  * @property bool   $enabled
+ *
+ * @property Market_ShippingRuleRecord[] rules
  * @package Craft
  */
 class Market_ShippingMethodRecord extends BaseRecord
@@ -24,7 +26,14 @@ class Market_ShippingMethodRecord extends BaseRecord
         ];
     }
 
-	protected function defineAttributes()
+    public function defineRelations()
+    {
+        return [
+            'rules' => [self::HAS_MANY, 'Market_ShippingRuleRecord', 'methodId'],
+        ];
+    }
+
+    protected function defineAttributes()
 	{
 		return [
 			'name'      => [AttributeType::String, 'required' => true],

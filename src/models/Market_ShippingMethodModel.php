@@ -9,6 +9,8 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property int    $id
  * @property string $name
  * @property bool   $enabled
+
+ * @property Market_ShippingRuleRecord[] rules
  * @package Craft
  */
 class Market_ShippingMethodModel extends BaseModel

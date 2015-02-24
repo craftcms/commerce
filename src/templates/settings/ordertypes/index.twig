@@ -16,6 +16,7 @@
     <tr>
         <th scope="col">Name</th>
         <th scope="col">Handle</th>
+        <th scope="col">Shipping Method</th>
         <td class="thin"></td>
     </tr>
     </thead>
@@ -25,16 +26,23 @@
             <th scope="row" data-title="Name"><a
                         href="{{ url('market/settings/ordertypes/'~orderType.id) }}">{{ orderType.name }}</a></th>
             <td data-title="Handle"><code>{{ orderType.handle }}</code></td>
+            <td data-title="Shipping Method">{{ orderType.shippingMethod.name }}</td>
             <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
         </tr>
     {% endfor %}
 
     </tbody>
 </table>
-<br/>
-<div class="btngroup submit first">
-    <a href="{{ url('market/settings/ordertypes/new') }}" class="btn submit">New Order Type</a>
-</div>
+
+{% if not methodsExist %}
+    <p><span style="color:red">No shipping methods exist!</span><br/>Go to settings and
+        <a href="{{ url('market/settings/shippingmethods') }}">create a new shipping method </a> please.</p>
+{% else %}
+    <br/>
+    <div class="btngroup submit first">
+        <a href="{{ url('market/settings/ordertypes/new') }}" class="btn submit">New Order Type</a>
+    </div>
+{% endif %}
 {% endset %}
 
 

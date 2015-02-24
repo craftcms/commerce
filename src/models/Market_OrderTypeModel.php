@@ -1,6 +1,7 @@
 <?php
 
 namespace Craft;
+use Market\Traits\Market_ModelRelationsTrait;
 
 /**
  * Class Market_OrderTypeModel
@@ -9,6 +10,10 @@ namespace Craft;
  * @property string $name
  * @property string $handle
  * @property int    $fieldLayoutId
+ * @property int    shippingMethodId
+ *
+ * @property FieldLayoutRecord fieldLayout
+ * @property Market_ShippingMethodRecord shippingMethod
  *
  * @method null setFieldLayout(FieldLayoutModel $fieldLayout)
  * @method FieldLayoutModel getFieldLayout()
@@ -16,6 +21,8 @@ namespace Craft;
  */
 class Market_OrderTypeModel extends BaseModel
 {
+    use Market_ModelRelationsTrait;
+
 	function __toString()
 	{
 		return Craft::t($this->handle);
@@ -28,19 +35,20 @@ class Market_OrderTypeModel extends BaseModel
 
 	public function behaviors()
 	{
-		return array(
-			'fieldLayout' => new FieldLayoutBehavior('Market_Order'),
-		);
-	}
+		return [
+            'fieldLayout' => new FieldLayoutBehavior('Market_Order'),
+        ];
+    }
 
-	protected function defineAttributes()
+    protected function defineAttributes()
 	{
-		return array(
-			'id'            => AttributeType::Number,
-			'name'          => AttributeType::String,
-			'handle'        => AttributeType::String,
-			'fieldLayoutId' => AttributeType::Number
-		);
-	}
+		return [
+            'id'               => AttributeType::Number,
+            'name'             => AttributeType::String,
+            'handle'           => AttributeType::String,
+            'fieldLayoutId'    => AttributeType::Number,
+            'shippingMethodId' => AttributeType::Number,
+        ];
+    }
 
 }

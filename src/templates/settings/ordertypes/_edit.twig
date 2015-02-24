@@ -43,6 +43,18 @@
         required: true
     }) }}
 
+    {{ forms.selectField({
+        label: 'Shipping Method'|t,
+        instructions: "Default shipping method."|t,
+        id: 'shippingMethodId',
+        name: 'shippingMethodId',
+        options: shippingMethods,
+        class: 'select-wide',
+        value: orderType.shippingMethodId,
+        errors: orderType.getErrors('shippingMethodId'),
+        required: true,
+    }) }}
+
     {% include "_includes/fieldlayoutdesigner" with {
     fieldLayout: orderType.getFieldLayout(),
     } only %}
@@ -57,6 +69,13 @@
 {% endset %}
 
 {% set js %}
+{#<script>#}
 {% if not orderType.handle %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
+$(function () {
+    $('#shippingMethodId').selectize({
+        plugins: ['remove_button'],
+        dropdownParent: 'body'
+    });
+});
 {% endset %}
 {% includeJs js %}
