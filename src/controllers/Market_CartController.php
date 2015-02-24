@@ -52,6 +52,23 @@ class Market_CartController extends Market_BaseController
 		}
 	}
 
+    /**
+     * @throws HttpException
+     */
+    public function actionApplyCoupon()
+    {
+        $this->requirePostRequest();
+
+        $code = craft()->request->getPost('couponCode');
+
+        if(craft()->market_cart->applyCoupon($code, $error)) {
+            craft()->userSession->setFlash('market', 'Coupon has been applied');
+            $this->redirectToPostedUrl();
+        } else {
+            craft()->urlManager->setRouteVariables(['couponError' => $error]);
+        }
+    }
+
 	/**
 	 * Remove Line item from the cart
 	 */

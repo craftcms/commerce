@@ -15,8 +15,8 @@ trait Market_ModelRelationsTrait {
     private $_relationsCache = [];
 
     /**
-     * @param array|\craft\Market_OrderRecord $values
-     * @return \craft\Market_OrderModel
+     * @param array|\craft\BaseRecord $values
+     * @return \craft\BaseModel
      */
     public static function populateModel($values)
     {

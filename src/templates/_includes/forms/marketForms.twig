@@ -20,8 +20,8 @@
         {%- if settings.disabled is defined and settings.disabled %} disabled {% endif %}
         {%- if settings.readonly is defined and settings.readonly %} readonly {% endif %}
         {%- if settings.step is defined and settings.step %} step="{{ settings.step }}"{% endif %}
-        {%- if settings.min is defined and settings.min %} min="{{ settings.min }}"{% endif %}
-        {%- if settings.max is defined and settings.max %} max="{{ settings.max }}"{% endif %}
+        {%- if settings.min is defined %} min="{{ settings.min }}"{% endif %}
+        {%- if settings.max is defined %} max="{{ settings.max }}"{% endif %}
         {%- if settings.placeholder is defined %} placeholder="{{ settings.placeholder }}"{% endif %}
             >
 

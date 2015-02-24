@@ -37,6 +37,35 @@
         value: discount.description,
         errors: discount.getErrors('description'),
     }) }}
+
+    {{ forms.textField({
+        label: "Coupon Code"|t,
+        instructions: "A user will have to enter it to activate this discount."|t,
+        id: 'code',
+        name: 'code',
+        value: discount.code,
+        errors: discount.getErrors('code'),
+    }) }}
+
+    {{ marketForms.numberField({
+        label: "Per User Limit"|t,
+        instructions: "How many times one user is allowed to use this discount. Set zero for unlimit use"|t,
+        id: 'perUserLimit',
+        name: 'perUserLimit',
+        value: discount.perUserLimit,
+        min: '0',
+        errors: discount.getErrors('perUserLimit'),
+    }) }}
+
+    {{ marketForms.numberField({
+        label: "Total Use Limit"|t,
+        instructions: "How many times this discount can be used. Set zero for unlimit use"|t,
+        id: 'totalUseLimit',
+        name: 'totalUseLimit',
+        value: discount.totalUseLimit,
+        min: '0',
+        errors: discount.getErrors('totalUseLimit'),
+    }) }}
     
     {{ forms.dateField({
         label: "Start Date"|t,

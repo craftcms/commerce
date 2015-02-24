@@ -31,16 +31,16 @@ class Market_DiscountAdjuster implements Market_AdjusterInterface
             return [];
         }
 
-        $adjustments = [];
-        $discounts = \Craft\craft()->market_discount->getForItems($lineItems);
-
-        foreach ($discounts as $discount) {
-            if($adjustment = $this->getAdjustment($order, $lineItems, $discount)) {
-                $adjustments[] = $adjustment;
-            }
+        $discount = \Craft\craft()->market_discount->getByCode($order->couponCode);
+        if(!$discount->id) {
+            return [];
         }
 
-        return $adjustments;
+        if($adjustment = $this->getAdjustment($order, $lineItems, $discount)) {
+            return [$adjustment];
+        } else {
+            return [];
+        }
     }
 
     /**
