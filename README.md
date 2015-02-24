@@ -25,6 +25,7 @@ Add this code into PHP-doc of CraftCMS WebApp class.
  * @property Market_SaleService $market_sale
  * @property Market_SeedService $market_seed
  * @property Market_SettingsService $market_settings
+ * @property Market_ShippingMethodService $market_shippingMethod
  * @property Market_StateService $market_state
  * @property Market_TaxCategoryService $market_taxCategory
  * @property Market_TaxRateService $market_taxRate
