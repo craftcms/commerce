@@ -1,1 +1,14 @@
 <h3>Payment</h3>
+
+<form method="POST" class="form-inline">
+    <input type="hidden" name="action" value="market/cartPayment/setShippingMethod">
+    <input type="hidden" name="redirect" value="market/cart">
+    Shipping Method:
+    <select name="shippingMethodId" class="form-control" >
+        {% for id,method in craft.market.getShippingMethods() %}
+            <option value="{{ id }}">{{ method.name }}: {{ method.amount }}</option>
+        {% endfor %}
+    </select>
+    <input type="submit" class="btn" value="Set" />
+    {% if shippingMethodError is defined %}<strong>Error: {{ shippingMethodError }}</strong>{% endif %}
+</form>

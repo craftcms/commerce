@@ -93,6 +93,11 @@ class MarketVariable
 		return craft()->market_state->getGroupedByCountries();
 	}
 
+    public function getShippingMethods()
+    {
+        return craft()->market_shippingMethod->calculateForCart();
+    }
+
 	/**
 	 * A way to use form.* macros in our templates
 	 * @param string $macro

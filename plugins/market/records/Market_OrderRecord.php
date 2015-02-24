@@ -18,11 +18,13 @@ namespace Craft;
  * @property int    typeId
  * @property int    billingAddressId
  * @property int    shippingAddressId
+ * @property int    shippingMethodId
  *
  * @property Market_OrderTypeRecord type
  * @property Market_LineItemRecord[] lineItems
  * @property Market_AddressRecord billingAddress
  * @property Market_AddressRecord shippingAddress
+ * @property Market_ShippingMethodRecord shippingMethod
  */
 class Market_OrderRecord extends BaseRecord
 {
@@ -59,12 +61,11 @@ class Market_OrderRecord extends BaseRecord
 			'billingAddress'  => [static::BELONGS_TO, 'Market_AddressRecord'],
 			'shippingAddress' => [static::BELONGS_TO, 'Market_AddressRecord'],
 			'discount'        => [static::HAS_ONE, 'Market_DiscountRecord', ['couponCode' => 'code']],
+			'shippingMethod'  => [static::BELONGS_TO, 'Market_ShippingMethodRecord'],
 		];
 	}
 
 	/**
-	 * @inheritDoc BaseRecord::defineIndexes()
-	 *
 	 * @return array
 	 */
 	public function defineIndexes()

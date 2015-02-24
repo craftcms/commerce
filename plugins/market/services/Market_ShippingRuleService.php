@@ -29,6 +29,58 @@ class Market_ShippingRuleService extends BaseApplicationComponent
 		return Market_ShippingRuleModel::populateModel($record);
 	}
 
+    /**
+     * @param Market_ShippingRuleModel $rule
+     * @param Market_OrderModel        $order
+     * @return bool
+     */
+    public function matchOrder(Market_ShippingRuleModel $rule, Market_OrderModel $order)
+    {
+        if (!$rule->enabled) {
+            return false;
+        }
+
+        $floatFields = ['minTotal', 'maxTotal', 'minWeight', 'maxWeight'];
+        foreach($floatFields as $field) {
+            $rule->$field *= 1;
+        }
+
+        // geographical filters
+        if ($rule->countryId && $rule->countryId != $order->shippingAddress->countryId) {
+            return false;
+        }
+        if ($rule->stateId && $rule->state->name != $order->shippingAddress->getStateText()) {
+            return false;
+        }
+
+        // order qty rules are inclusive (min <= x <= max)
+        if ($rule->minQty AND $rule->minQty > $order->totalQty) {
+            return false;
+        }
+        if ($rule->maxQty AND $rule->maxQty < $order->totalQty) {
+            return false;
+        }
+
+        // order total rules exclude maximum limit (min <= x < max)
+        if ($rule->minTotal AND $rule->minTotal > $order->itemTotal) {
+            return false;
+        }
+        if ($rule->maxTotal AND $rule->maxTotal <= $order->itemTotal) {
+            return false;
+        }
+
+        // order weight rules exclude maximum limit (min <= x < max)
+        if ($rule->minWeight AND $rule->minWeight > $order->totalWeight) {
+            return false;
+        }
+        if ($rule->maxWeight AND $rule->maxWeight <= $order->totalWeight) {
+            return false;
+        }
+
+        // all rules match
+        return true;
+    }
+
 	/**
 	 * @param Market_ShippingRuleModel $model
 	 *

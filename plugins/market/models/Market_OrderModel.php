@@ -20,11 +20,16 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property int    typeId
  * @property int    billingAddressId
  * @property int    shippingAddressId
+ * @property int    shippingMethodId
+ *
+ * @property int    totalQty
+ * @property int    totalWeight
  *
  * @property Market_OrderTypeModel type
  * @property Market_LineItemModel[] lineItems
  * @property Market_AddressModel billingAddress
  * @property Market_AddressModel shippingAddress
+ * @property Market_ShippingMethodModel shippingMethod
  *
  * @method bool canTransit(string $state)
  * @method void transition(string $state)
@@ -136,6 +141,7 @@ class Market_OrderModel extends BaseElementModel
 			'completedAt'         => AttributeType::DateTime,
 			'billingAddressId'    => AttributeType::Number,
 			'shippingAddressId'   => AttributeType::Number,
+			'shippingMethodId'    => AttributeType::Number,
 			'currency'            => AttributeType::String,
 			'lastIp'              => AttributeType::String,
 			'orderDate'           => AttributeType::DateTime,
@@ -155,34 +161,32 @@ class Market_OrderModel extends BaseElementModel
 		return true;
 	}
 
+    /**
+     * @return int
+     */
+    public function getTotalQty()
+    {
+        $qty = 0;
+        foreach($this->lineItems as $item) {
+            $qty += $item->qty;
+        }
+        return $qty;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTotalWeight()
+    {
+        $weight = 0;
+        foreach($this->lineItems as $item) {
+            $weight += $item->qty * $item->variant->weight; //@TODO store weight in a separate line item property
+        }
+        return $weight;
+    }
+
 	function getTotal()
 	{
 		return $this->itemTotal + $this->adjustmentTotal;
 	}
-
-	public function getOutstandingBalance()
-	{
-		//TODO $this->total - $this->paymentTotal.
-	}
-
-	public function getDisplayItemTotal()
-	{
-		//TODO pretty version of total with currency and decimal markers.
-	}
-
-	public function getDisplayAdjustmentTotal()
-	{
-		//TODO pretty version of total with currency and decimal markers.
-	}
-
-	public function getDisplayTotal()
-	{
-		//TODO pretty version of total with currency and decimal markers.
-	}
-
-	public function getDisplayOutstandingBalance()
-	{
-		//TODO pretty version of OutstandingBalance with currency and decimal markers.
-	}
-
 }
