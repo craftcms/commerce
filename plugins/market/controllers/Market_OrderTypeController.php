@@ -13,16 +13,14 @@ namespace Craft;
  */
 class Market_OrderTypeController extends Market_BaseController
 {
-	protected $allowAnonymous = false;
-
 	public function actionIndex()
 	{
-		$orderTypes = craft()->market_orderType->getAll();
-		$this->renderTemplate('market/settings/ordertypes/index', compact('orderTypes'));
-
+        $methodsExist = craft()->market_shippingMethod->exists();
+		$orderTypes = craft()->market_orderType->getAll(['with' => 'shippingMethod', 'order' => 't.name']);
+		$this->renderTemplate('market/settings/ordertypes/index', compact('orderTypes', 'methodsExist'));
 	}
 
-	public function actionEditOrderType(array $variables = array())
+	public function actionEditOrderType(array $variables = [])
 	{
 		$variables['brandNewOrderType'] = false;
 
@@ -31,7 +29,7 @@ class Market_OrderTypeController extends Market_BaseController
 				$orderTypeId            = $variables['orderTypeId'];
 				$variables['orderType'] = craft()->market_orderType->getById($orderTypeId);
 
-				if (!$variables['orderType']) {
+				if (!$variables['orderType']->id) {
 					throw new HttpException(404);
 				}
 			} else {
@@ -46,7 +44,10 @@ class Market_OrderTypeController extends Market_BaseController
 			$variables['title'] = Craft::t('Create a Order Type');
 		}
 
-		$this->renderTemplate('market/settings/ordertypes/_edit', $variables);
+        $shippingMethods = craft()->market_shippingMethod->getAll(['order' => 'name']);
+        $variables['shippingMethods'] = \CHtml::listData($shippingMethods, 'id', 'name');
+
+        $this->renderTemplate('market/settings/ordertypes/_edit', $variables);
 	}
 
 	public function actionSaveOrderType()
@@ -59,6 +60,7 @@ class Market_OrderTypeController extends Market_BaseController
 		$orderType->id     = craft()->request->getPost('orderTypeId');
 		$orderType->name   = craft()->request->getPost('name');
 		$orderType->handle = craft()->request->getPost('handle');
+		$orderType->shippingMethodId = craft()->request->getPost('shippingMethodId');
 
 		// Set the field layout
 		$fieldLayout       = craft()->fields->assembleLayoutFromPost();
@@ -74,13 +76,11 @@ class Market_OrderTypeController extends Market_BaseController
 		}
 
 		// Send the calendar back to the template
-		craft()->urlManager->setRouteVariables(array(
-			'orderType' => $orderType
-		));
-	}
+		craft()->urlManager->setRouteVariables(['orderType' => $orderType]);
+    }
 
 
-	public function actionDeleteOrderType()
+    public function actionDeleteOrderType()
 	{
 		$this->requirePostRequest();
 		$this->requireAjaxRequest();
@@ -88,7 +88,7 @@ class Market_OrderTypeController extends Market_BaseController
 		$orderTypeId = craft()->request->getRequiredPost('id');
 
 		craft()->market_orderType->deleteById($orderTypeId);
-		$this->returnJson(array('success' => true));
-	}
+		$this->returnJson(['success' => true]);
+    }
 
 } 

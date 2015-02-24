@@ -8,13 +8,14 @@ namespace Craft;
  * @property string            name
  * @property string            handle
  * @property int               fieldLayoutId
+ * @property int               shippingMethodId
  *
  * @property FieldLayoutRecord fieldLayout
+ * @property Market_ShippingMethodRecord shippingMethod
  * @package Craft
  */
 class Market_OrderTypeRecord extends BaseRecord
 {
-
 	/**
 	 * @return string
 	 */
@@ -39,8 +40,9 @@ class Market_OrderTypeRecord extends BaseRecord
 	public function defineRelations()
 	{
 		return [
-			'fieldLayout' => [static::BELONGS_TO, 'FieldLayoutRecord', 'onDelete' => static::SET_NULL],
-		];
+            'fieldLayout'    => [static::BELONGS_TO, 'FieldLayoutRecord', 'onDelete' => static::SET_NULL],
+            'shippingMethod' => [static::BELONGS_TO, 'Market_ShippingMethodRecord', 'required' => true],
+        ];
 	}
 
 	/**
@@ -49,9 +51,10 @@ class Market_OrderTypeRecord extends BaseRecord
 	protected function defineAttributes()
 	{
 		return [
-			'name'   => [AttributeType::Name, 'required' => true],
-			'handle' => [AttributeType::Handle, 'required' => true],
-		];
+            'name'             => [AttributeType::Name, 'required' => true],
+            'handle'           => [AttributeType::Handle, 'required' => true],
+            'shippingMethodId' => [AttributeType::Number, 'required' => true],
+        ];
 	}
 
 }

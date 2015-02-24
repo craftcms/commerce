@@ -1,6 +1,7 @@
 <?php
 
 namespace Craft;
+use Market\Helpers\MarketDbHelper;
 
 /**
  * Class Market_OrderTypeService
@@ -9,13 +10,13 @@ namespace Craft;
  */
 class Market_OrderTypeService extends BaseApplicationComponent
 {
-	/**
-	 * @return Market_OrderTypeModel[]
-	 */
-	public function getAll()
+    /**
+     * @param array|\CDbCriteria $criteria
+     * @return Market_OrderTypeModel[]
+     */
+	public function getAll($criteria = [])
 	{
-		$orderTypeRecords = Market_OrderTypeRecord::model()->findAll();
-
+		$orderTypeRecords = Market_OrderTypeRecord::model()->findAll($criteria);
 		return Market_OrderTypeModel::populateModels($orderTypeRecords);
 	}
 
@@ -38,7 +39,7 @@ class Market_OrderTypeService extends BaseApplicationComponent
 	 */
 	public function getByHandle($handle)
 	{
-		$orderTypeRecord = Market_OrderTypeRecord::model()->findByAttributes(array('handle' => $handle));
+		$orderTypeRecord = Market_OrderTypeRecord::model()->findByAttributes(['handle' => $handle]);
 
 		return Market_OrderTypeModel::populateModel($orderTypeRecord);
 	}
@@ -66,7 +67,7 @@ class Market_OrderTypeService extends BaseApplicationComponent
 		if ($orderType->id) {
 			$orderTypeRecord = Market_OrderTypeRecord::model()->findById($orderType->id);
 			if (!$orderTypeRecord) {
-				throw new Exception(Craft::t('No order type exists with the ID “{id}”', array('id' => $orderType->id)));
+				throw new Exception(Craft::t('No order type exists with the ID “{id}”', ['id' => $orderType->id]));
 			}
 
 			$oldOrderType   = Market_OrderTypeModel::populateModel($orderTypeRecord);
@@ -78,6 +79,7 @@ class Market_OrderTypeService extends BaseApplicationComponent
 
 		$orderTypeRecord->name   = $orderType->name;
 		$orderTypeRecord->handle = $orderType->handle;
+		$orderTypeRecord->shippingMethodId = $orderType->shippingMethodId;
 
 		$orderTypeRecord->validate();
 		$orderType->addErrors($orderTypeRecord->getErrors());
@@ -125,32 +127,27 @@ class Market_OrderTypeService extends BaseApplicationComponent
 
 	public function deleteById($id)
 	{
-		$transaction = craft()->db->getCurrentTransaction() === NULL ? craft()->db->beginTransaction() : NULL;
+        MarketDbHelper::beginStackedTransaction();
 		try {
 			$orderType = Market_OrderTypeRecord::model()->findById($id);
 
 			$query    = craft()->db->createCommand()
 				->select('id')
 				->from('market_orders')
-				->where(array('typeId' => $orderType->id));
+				->where(['typeId' => $orderType->id]);
 			$orderIds = $query->queryColumn();
 
 			craft()->elements->deleteElementById($orderIds);
 			craft()->fields->deleteLayoutById($orderType->fieldLayoutId);
-			Market_OptionValueRecord::model()->deleteAllByAttributes(array('optionTypeId' => $orderType->id));
+			Market_OptionValueRecord::model()->deleteAllByAttributes(['optionTypeId' => $orderType->id]);
 
 			$affectedRows = $orderType->delete();
 
-			if ($transaction !== NULL) {
-				$transaction->commit();
-			}
+            MarketDbHelper::commitStackedTransaction();
 
 			return (bool)$affectedRows;
 		} catch (\Exception $e) {
-			if ($transaction !== NULL) {
-				$transaction->rollback();
-			}
-
+            MarketDbHelper::rollbackStackedTransaction();
 			throw $e;
 		}
 	}
