@@ -29,6 +29,14 @@ class Market_ShippingMethodService extends BaseApplicationComponent
 		return Market_ShippingMethodModel::populateModel($record);
 	}
 
+    /**
+     * @return bool
+     */
+    public function exists()
+    {
+        return Market_ShippingMethodRecord::model()->exists();
+    }
+
 	/**
 	 * @param Market_ShippingMethodModel $model
 	 *
@@ -70,12 +78,9 @@ class Market_ShippingMethodService extends BaseApplicationComponent
 
 	/**
 	 * @param int $id
-	 *
-	 * @throws \CDbException
 	 */
 	public function deleteById($id)
 	{
-		$ShippingMethod = Market_ShippingMethodRecord::model()->findById($id);
-		$ShippingMethod->delete();
+        Market_ShippingMethodRecord::model()->deleteByPk($id);
 	}
 }
