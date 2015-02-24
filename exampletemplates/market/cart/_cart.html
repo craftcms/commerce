@@ -23,10 +23,19 @@
     <tr>
         <td></td>
         <td></td>
-        <td></td>
+        <td>
+            <form method="POST" class="form-inline">
+                <input type="hidden" name="action" value="market/cart/applyCoupon">
+                <input type="hidden" name="redirect" value="market/cart">
+                Coupon Code: <input type="text" name="couponCode" class="form-control" width="11" value="{{ cart.couponCode }}">
+                <input type="submit" class="btn" value="{% if cart.couponCode %}Change{% else %}Apply{% endif %} Coupon" />
+                {% if couponError is defined %}<strong>Error: {{ couponError }}</strong>{% endif %}
+            </form>
+        </td>
         <td>
             Item Total: {{ cart.itemTotal }}<br/>
-            Adjustment Total: {{ cart.adjustmentTotal }}
+            Adjustment Total: {{ cart.adjustmentTotal }}<br/>
+            Price Total: {{ cart.itemTotal + cart.adjustmentTotal }}
         <td></td>
     </tr>
     <tr>

@@ -9,6 +9,9 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property int        id
  * @property string     name
  * @property string     description
+ * @property string     code
+ * @property int        perUserLimit
+ * @property int        totalUseLimit
  * @property DateTime   dateFrom
  * @property DateTime   dateTo
  * @property int        purchaseTotal
@@ -37,6 +40,9 @@ class Market_DiscountModel extends BaseModel
         return [
             'id'                => AttributeType::Number,
             'name'              => [AttributeType::Name, 'required' => true],
+            'code'              => [AttributeType::String, 'required' => true],
+            'perUserLimit'      => [AttributeType::Number, 'required' => true, 'min' => 0, 'default' => 1],
+            'totalUseLimit'     => [AttributeType::Number, 'required' => true, 'min' => 0, 'default' => 1],
             'description'       => AttributeType::Mixed,
             'dateFrom'          => AttributeType::DateTime,
             'dateTo'            => AttributeType::DateTime,

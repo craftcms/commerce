@@ -70,7 +70,7 @@ class Market_DiscountController extends Market_BaseController
 
 		// Shared attributes
         $fields = ['id', 'name', 'description', 'dateFrom', 'dateTo', 'enabled', 'purchaseTotal', 'purchaseQty', 'baseDiscount', 'perItemDiscount',
-            'percentDiscount', 'freeShipping', 'excludeOnSale'];
+            'percentDiscount', 'freeShipping', 'excludeOnSale', 'code', 'perUserLimit', 'totalUseLimit'];
         foreach($fields as $field) {
             $discount->$field = craft()->request->getPost($field);
         }

@@ -107,6 +107,25 @@ class Market_CartService extends BaseApplicationComponent
 		return false;
 	}
 
+    /**
+     * @param string $code
+     * @param string $error
+     * @return bool
+     * @throws \Exception
+     */
+    public function applyCoupon($code, &$error = '')
+    {
+        $cart = $this->getCart();
+
+        if(craft()->market_discount->checkCode($code, $error)) {
+            $cart->couponCode = $code;
+            craft()->market_order->save($cart);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 	/**
 	 * @TODO check that line item belongs to the current user
 	 * @param int $lineItemId

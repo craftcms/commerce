@@ -31,6 +31,16 @@ class Market_DiscountService extends BaseApplicationComponent
 	}
 
     /**
+     * @param string $code
+     * @return Market_DiscountModel
+     */
+    public function getByCode($code)
+    {
+        $record = Market_DiscountRecord::model()->findByAttributes(['code' => $code]);
+        return Market_DiscountModel::populateModel($record);
+    }
+
+    /**
      * Getting all discounts applicable for the current user and given items list
      *
      * @param Market_LineItemModel[] $lineItems
@@ -86,6 +96,41 @@ class Market_DiscountService extends BaseApplicationComponent
     }
 
     /**
+     * Get discount by code and check it's active and applies to the current user
+     *
+     * @param int $code
+     * @param string $error
+     * @return true
+     */
+    public function checkCode($code, &$error = '')
+    {
+        $model = $this->getByCode($code);
+        if(!$model->id) {
+            $error = 'Given coupon code not found';
+            return false;
+        }
+
+        if(!$model->enabled) {
+            $error = 'Model is not active';
+            return false;
+        }
+
+        $now = new DateTime();
+        if($model->dateFrom && $model > $now || $model->dateTo && $model->dateTo < $now) {
+            $error = 'Discount is out of date';
+            return false;
+        }
+        
+        $groupIds = $this->getCurrentUserGroups();
+        if(!$model->allGroups && !array_intersect($groupIds, $model->getGroupsIds())) {
+            $error = 'Discount is not allowed for the current user';
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * @param Market_LineItemModel $lineItem
      * @param Market_DiscountModel $discount
      * @return bool
@@ -131,7 +176,7 @@ class Market_DiscountService extends BaseApplicationComponent
 		}
 
         $fields = ['id', 'name', 'description', 'dateFrom', 'dateTo', 'enabled', 'purchaseTotal', 'purchaseQty', 'baseDiscount', 'perItemDiscount',
-            'percentDiscount', 'freeShipping', 'excludeOnSale'];
+            'percentDiscount', 'freeShipping', 'excludeOnSale', 'code', 'perUserLimit', 'totalUseLimit'];
         foreach($fields as $field) {
             $record->$field = $model->$field;
         }

@@ -2,6 +2,7 @@
 
 namespace Market\Seed;
 use Craft\DateTime;
+use Craft\Market_DiscountRecord;
 use Craft\Market_ProductModel;
 use Craft\Market_ProductTypeModel;
 use Craft\FieldLayoutModel;
@@ -26,6 +27,7 @@ class Market_TestSeeder implements Market_SeederInterface
         $this->products();
         $this->taxZones();
         $this->taxRates();
+        $this->discounts();
     }
 
     /**
@@ -230,5 +232,25 @@ class Market_TestSeeder implements Market_SeederInterface
             return $type->id;
         }, $optionTypes);
         \Craft\craft()->market_product->setOptionTypes($product->id, $ids);
+    }
+
+    /**
+     * Discounts
+     */
+    private function discounts()
+    {
+        $discount = new Market_DiscountRecord();
+        $discount->attributes = [
+            'name' => 'Global Test Discount',
+            'code' => 'test_code',
+            'enabled' => 1,
+            'baseDiscount' => -5,
+            'perItemDiscount' => -1,
+            'percentDiscount' => -0.01,
+            'allGroups' => 1,
+            'allProducts' => 1,
+            'allProductTypes' => 1,
+        ];
+        $discount->save();
     }
 }

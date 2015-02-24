@@ -10,6 +10,7 @@ use Market\Traits\Market_ModelRelationsTrait;
  *
  * @property int    $id
  * @property string $number
+ * @property string couponCode
  * @property string $state
  * @property float  $itemTotal
  * @property float  $adjustmentTotal
@@ -127,6 +128,7 @@ class Market_OrderModel extends BaseElementModel
 		return array_merge(parent::defineAttributes(), [
 			'id'                  => AttributeType::Number,
 			'number'              => AttributeType::String,
+			'couponCode'          => AttributeType::String,
 			'state'               => [AttributeType::Enum, 'required' => true, 'default' => 'cart', 'values' => Market_OrderRecord::$states],
 			'itemTotal'           => [AttributeType::Number, 'decimals' => 4],
 			'adjustmentTotal'     => [AttributeType::Number, 'decimals' => 4],
