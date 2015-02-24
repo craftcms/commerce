@@ -67,4 +67,8 @@ return [
     'market/settings/shippingmethods'                                                         => ['action' => 'market/shippingMethod/index'],
     'market/settings/shippingmethods/new'                                                     => ['action' => 'market/shippingMethod/edit'],
     'market/settings/shippingmethods/(?P<id>\d+)'                                             => ['action' => 'market/shippingMethod/edit'],
+
+    'market/settings/shippingrules'                                                           => ['action' => 'market/shippingRule/index'],
+    'market/settings/shippingrules/new'                                                       => ['action' => 'market/shippingRule/edit'],
+    'market/settings/shippingrules/(?P<id>\d+)'                                               => ['action' => 'market/shippingRule/edit'],
 ];
