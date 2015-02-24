@@ -26,6 +26,11 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property float  percentageRate
  * @property float  minRate
  * @property float  maxRate
+ *
+ * @property Market_CountryRecord $country
+ * @property Market_StateRecord $state
+ * @property Market_ShippingMethodRecord $method
+ *
  * @package Craft
  */
 class Market_ShippingRuleModel extends BaseModel

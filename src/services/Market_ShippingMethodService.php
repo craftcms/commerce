@@ -37,6 +37,41 @@ class Market_ShippingMethodService extends BaseApplicationComponent
         return Market_ShippingMethodRecord::model()->exists();
     }
 
+    /**
+     * @return array
+     * @throws Exception
+     */
+    public function calculateForCart()
+    {
+        $cart = craft()->market_cart->getCart();
+
+        $availableMethods = [];
+        $methods = $this->getAll(['with' => 'rules']);
+
+        foreach($methods as $method) {
+            foreach($method->rules as $rule) {
+                if(craft()->market_shippingRule->matchOrder($rule, $cart)) {
+                    $amount = $rule->baseRate;
+                    $amount += $rule->perItemRate * $cart->totalQty;
+                    $amount += $rule->weightRate * $cart->totalWeight;
+                    $amount += $rule->percentageRate * $cart->itemTotal;
+                    $amount = max($amount, $rule->minRate * 1);
+
+                    if ($rule->maxRate) {
+                        $amount = min($amount, $rule->maxRate * 1);
+                    }
+
+                    $availableMethods[$method->id] = [
+                        'name' => $method->name, //TODO replace with OrderShippingModel
+                        'amount' => $amount,
+                    ];
+                }
+            }
+        }
+
+        return $availableMethods;
+    }
+
 	/**
 	 * @param Market_ShippingMethodModel $model
 	 *

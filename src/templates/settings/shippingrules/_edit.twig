@@ -43,7 +43,7 @@
         instructions: "Countries for which this rule is applicable to. Leave blank for all."|t,
         id: 'countries',
         name: 'countryId',
-        options: countries,
+        options: {'': ''}|merge(countries),
         class: 'select-wide',
         value: shippingRule.countryId,
         errors: shippingRule.getErrors('countries'),
@@ -237,7 +237,8 @@ var states = {{ states|json_encode|raw }};
 $(function () {
     $('#countries, #states, #methodId').selectize({
         plugins: ['remove_button'],
-        dropdownParent: 'body'
+        dropdownParent: 'body',
+        allowEmptyOption: true
     });
 
     var statesSelectize = $('#states')[0].selectize;

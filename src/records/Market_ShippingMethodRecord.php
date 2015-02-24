@@ -29,7 +29,7 @@ class Market_ShippingMethodRecord extends BaseRecord
     public function defineRelations()
     {
         return [
-            'rules' => [self::HAS_MANY, 'Market_ShippingRuleRecord', 'methodId'],
+            'rules' => [self::HAS_MANY, 'Market_ShippingRuleRecord', 'methodId', 'order' => 'rules.priority'],
         ];
     }
 
