@@ -87,25 +87,32 @@ class Market_LineItemService extends BaseApplicationComponent
 			$lineItemRecord = Market_LineItemRecord::model()->findById($lineItem->id);
 
 			if (!$lineItemRecord) {
-				throw new Exception(Craft::t('No line item exists with the ID “{id}”', array('id' => $lineItem->id)));
+				throw new Exception(Craft::t('No line item exists with the ID “{id}”', ['id' => $lineItem->id]));
 			}
 		}
 
-        $lineItem->subtotal = $lineItem->salePrice * $lineItem->qty;
-        $lineItem->total = $lineItem->subtotal + $lineItem->shipTotal;
-        $lineItem->totalIncTax = $lineItem->total + $lineItem->taxAmount;
+        $lineItem->total = (
+                $lineItem->price +
+                $lineItem->discountAmount +
+                $lineItem->taxAmount +
+                $lineItem->shippingAmount +
+                $lineItem->saleAmount
+            ) * $lineItem->qty;
 
-        $lineItemRecord->variantId 		= $lineItem->variantId;
-		$lineItemRecord->orderId 		= $lineItem->orderId;
-		$lineItemRecord->taxCategoryId  = $lineItem->taxCategoryId;
-		$lineItemRecord->qty 			= $lineItem->qty;
-		$lineItemRecord->price 			= $lineItem->price;
-		$lineItemRecord->salePrice 		= $lineItem->salePrice;
-		$lineItemRecord->optionsJson 	= $lineItem->optionsJson;
-		$lineItemRecord->taxAmount      = $lineItem->taxAmount;
-		$lineItemRecord->subtotal       = $lineItem->subtotal;
-		$lineItemRecord->total          = $lineItem->total;
-		$lineItemRecord->totalIncTax    = $lineItem->totalIncTax;
+        $lineItemRecord->variantId      = $lineItem->variantId;
+        $lineItemRecord->orderId        = $lineItem->orderId;
+        $lineItemRecord->taxCategoryId  = $lineItem->taxCategoryId;
+
+        $lineItemRecord->qty            = $lineItem->qty;
+        $lineItemRecord->price          = $lineItem->price;
+        $lineItemRecord->total          = $lineItem->total;
+        $lineItemRecord->weight         = $lineItem->weight;
+        $lineItemRecord->optionsJson    = $lineItem->optionsJson;
+
+        $lineItemRecord->saleAmount     = $lineItem->saleAmount;
+        $lineItemRecord->taxAmount      = $lineItem->taxAmount;
+        $lineItemRecord->discountAmount = $lineItem->discountAmount;
+        $lineItemRecord->shippingAmount = $lineItem->shippingAmount;
 
         $lineItemRecord->validate();
 		$lineItem->addErrors($lineItemRecord->getErrors());
@@ -142,20 +149,22 @@ class Market_LineItemService extends BaseApplicationComponent
 
 		$variant = craft()->market_variant->getById($variantId);
 		if($variant->id) {
-			$lineItem->price = $lineItem->salePrice = $variant->price;
+			$lineItem->price = $variant->price;
+            $lineItem->weight = $variant->weight * 1;
+            $lineItem->taxCategoryId = $variant->product->taxCategoryId;
 
 			$options = $variant->attributes;
 			$options['optionValues'] = $variant->getOptionValuesArray();
 			$lineItem->optionsJson = $options;
-            $lineItem->taxCategoryId = $variant->product->taxCategoryId;
 
             $sales = craft()->market_sale->getForVariant($variant);
+
             foreach($sales as $sale) {
-                $lineItem->salePrice += $sale->calculateTakeoff($lineItem->price);
+                $lineItem->saleAmount += $sale->calculateTakeoff($lineItem->price);
             }
 
-            if($lineItem->salePrice < 0) {
-                $lineItem->salePrice = 0;
+            if($lineItem->saleAmount > $lineItem->price) {
+                $lineItem->saleAmount = $lineItem->price;
             }
 		} else {
 			$lineItem->addError('variantId', 'variant not found');

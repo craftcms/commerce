@@ -45,7 +45,7 @@ class Market_ShippingRuleController extends Market_BaseController
 			}
 		}
 
-        $variables['countries'] = craft()->market_country->getFormList();
+        $variables['countries'] = ['' => ''] + craft()->market_country->getFormList();
         $variables['states'] = craft()->market_state->getGroupedByCountries();
         $methods = craft()->market_shippingMethod->getAll(['order' => 'name']);
         $variables['methods'] = \CHtml::listData($methods, 'id', 'name');

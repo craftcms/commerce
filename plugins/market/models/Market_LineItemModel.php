@@ -7,19 +7,21 @@ use Market\Traits\Market_ModelRelationsTrait;
  * Class Market_LineItemModel
  * @package Craft
  *
- * @property int id
- * @property float price
- * @property float salePrice
- * @property float subtotal
- * @property float taxAmount
- * @property float shipTotal
- * @property float total
- * @property float totalIncTax
- * @property int qty
+ * @property int    id
+ * @property float  price
+ * @property float  saleAmount
+ * @property float  taxAmount
+ * @property float  shippingAmount
+ * @property float  discountAmount
+ * @property float  weight
+ * @property float  total
+ * @property int    qty
+ * @property string optionsJson
+ *
  * @property int orderId
  * @property int variantId
  * @property int taxCategoryId
- * @property string optionsJson
+ *
  * @property bool underSale
  *
  * @property Market_OrderModel order
@@ -34,18 +36,18 @@ class Market_LineItemModel extends BaseModel
 	{
 		return [
 			'id' 			=> AttributeType::Number,
-			'variantId' 	=> AttributeType::Number,
-			'orderId' 		=> AttributeType::Number,
-			'price' 		=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true],
-			'salePrice' 	=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true],
-			'subtotal' 		=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true],
-			'taxAmount'     => [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
-			'shipTotal' 	=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
-			'total' 		=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true],
-			'totalIncTax' 	=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true],
-			'qty'   		=> [AttributeType::Number, 'min' => 0, 'required' => true],
-			'optionsJson'  	=> AttributeType::Mixed,
+            'price' 		=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true],
+            'saleAmount' 	=> [AttributeType::Number, 'decimals' => 4, 'required' => true, 'default' => 0],
+            'taxAmount'     => [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
+            'shippingAmount'=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
+            'discountAmount'=> [AttributeType::Number, 'decimals' => 4, 'required' => true, 'default' => 0],
+            'weight' 	    => [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
+            'total' 		=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
+            'qty'   		=> [AttributeType::Number, 'min' => 0, 'required' => true],
+            'optionsJson'  	=> [AttributeType::Mixed, 'required' => true],
 
+            'variantId' 	=> AttributeType::Number,
+            'orderId' 		=> AttributeType::Number,
             'taxCategoryId' => [AttributeType::Number, 'required' => true],
         ];
 	}
@@ -55,6 +57,11 @@ class Market_LineItemModel extends BaseModel
      */
     public function getUnderSale()
     {
-        return $this->price != $this->salePrice;
+        return $this->saleAmount != 0;
+    }
+
+    public function getSubtotalWithSale()
+    {
+        return $this->qty * ($this->price + $this->saleAmount);
     }
 }

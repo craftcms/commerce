@@ -5,7 +5,7 @@
         SKU {{ lineItem.variant.sku }}
     </td>
     <td class="col-md-2">
-        {{ dump(lineItem.optionsJson) }}
+        <pre style="border: none">{{ lineItem.optionsJson|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
     </td>
     <td>
         <form method="POST" class="form-inline">
@@ -19,16 +19,16 @@
     </td>
     <td>
         {% if lineItem.underSale %}
-            <s>Price: {{ lineItem.price }}</s><br/>
-            Sale Price: {{ lineItem.salePrice }}<br/>
+            <s>Price: {{ lineItem.price|number_format(2) }}</s><br/>
+            Sale Price: {{ lineItem.subtotalWithSale|number_format(2) }}<br/>
         {% else %}
-            Price: {{ lineItem.price }}<br/>
+            Price: {{ lineItem.price|number_format(2) }}<br/>
         {% endif %}
-        Subtotal: {{ lineItem.subtotal }}<br/>
-        Taxes: {{ lineItem.taxAmount }}<br/>
-        Ship Total: {{ lineItem.shipTotal }}<br/>
-        Total: {{ lineItem.total }}<br/>
-        Total Inc Tax: {{ lineItem.totalIncTax }}<br/>
+        Sale Off: {{ lineItem.saleAmount|number_format(2) }}<br/>
+        Discount: {{ lineItem.discountAmount|number_format(2) }}<br/>
+        Taxes: {{ lineItem.taxAmount|number_format(2) }}<br/>
+        Ship Total: {{ lineItem.shippingAmount|number_format(2) }}<br/>
+        Total: {{ lineItem.total|number_format(2) }}<br/>
     </td>
     <td>
         <form method="POST" class="form-inline">

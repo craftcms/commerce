@@ -56,7 +56,8 @@ class Market_DiscountAdjuster implements Market_AdjusterInterface
         $adjustment->type = self::ADJUSTMENT_TYPE;
         $adjustment->name = $discount->name;
         $adjustment->orderId = $order->id;
-        $adjustment->rate = 0;
+        $adjustment->description = $this->getDescription($discount);
+        $adjustment->optionsJson = $discount->attributes;
 
         //checking items
         $matchingQty = 0;
@@ -64,7 +65,7 @@ class Market_DiscountAdjuster implements Market_AdjusterInterface
         foreach($lineItems as $item) {
             if(\Craft\craft()->market_discount->matchLineItem($item, $discount)) {
                 $matchingQty += $item->qty;
-                $matchingTotal += $item->subtotal;
+                $matchingTotal += $item->getSubtotalWithSale();
             }
         }
 
@@ -85,9 +86,18 @@ class Market_DiscountAdjuster implements Market_AdjusterInterface
         $amount += $discount->perItemDiscount * $matchingQty;
         $amount += $discount->percentDiscount * $matchingTotal;
 
-        if ($discount->freeShipping) {
-            //@TODO set free shipping
+        foreach($lineItems as $item) {
+            $item->discountAmount = $discount->perItemDiscount * $item->qty + $discount->percentDiscount * $item->getSubtotalWithSale();
+            if($discount->freeShipping) {
+                $item->shippingAmount = 0;
+            }
         }
+
+        if ($discount->freeShipping) {
+            $order->baseShippingRate = 0;
+        }
+
+        $order->baseDiscount = $discount->baseDiscount;
 
         // only display adjustment if an amount was calculated
         if ($amount) {
@@ -96,5 +106,46 @@ class Market_DiscountAdjuster implements Market_AdjusterInterface
         } else {
             return false;
         }
+    }
+
+    /**
+     * @param Market_DiscountModel $discount
+     * @return string "1$ and 5% per item and 10$ base rate"
+     */
+    private function getDescription(Market_DiscountModel $discount)
+    {
+        $description = '';
+        if($discount->perItemDiscount || $discount->percentDiscount) {
+            if($discount->perItemDiscount) {
+                $description .= $discount->perItemDiscount*1 . '$ ';
+            }
+
+            if($discount->percentDiscount) {
+                if($discount->perItemDiscount) {
+                    $description .= 'and ';
+                }
+
+                $description .= $discount->percentDiscount*1 . '% ';
+            }
+
+            $description .= 'per item ';
+        }
+
+        if($discount->baseDiscount) {
+            if($description) {
+                $description .= 'and ';
+            }
+            $description .= $discount->baseDiscount*1 . '$ base rate ';
+        }
+
+        if($discount->freeShipping) {
+            if($description) {
+                $description .= 'and ';
+            }
+
+            $description .= 'free shipping ';
+        }
+
+        return $description;
     }
 }

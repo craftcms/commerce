@@ -13,7 +13,9 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property string couponCode
  * @property string $state
  * @property float  $itemTotal
- * @property float  $adjustmentTotal
+ * @property float  finalPrice
+ * @property float  baseDiscount
+ * @property float  baseShippingRate
  * @property string $email
  * @property DateTime completedAt
  * @property string	$lastIp
@@ -30,6 +32,7 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property Market_AddressModel billingAddress
  * @property Market_AddressModel shippingAddress
  * @property Market_ShippingMethodModel shippingMethod
+ * @property Market_OrderAdjustmentModel[] adjustments
  *
  * @method bool canTransit(string $state)
  * @method void transition(string $state)
@@ -135,9 +138,11 @@ class Market_OrderModel extends BaseElementModel
 			'number'              => AttributeType::String,
 			'couponCode'          => AttributeType::String,
 			'state'               => [AttributeType::Enum, 'required' => true, 'default' => 'cart', 'values' => Market_OrderRecord::$states],
-			'itemTotal'           => [AttributeType::Number, 'decimals' => 4],
-			'adjustmentTotal'     => [AttributeType::Number, 'decimals' => 4],
-			'email'               => AttributeType::String,
+            'itemTotal'           => [AttributeType::Number, 'decimals' => 4, 'default' => 0],
+            'baseDiscount'        => [AttributeType::Number, 'decimals' => 4, 'default' => 0],
+            'baseShippingRate'    => [AttributeType::Number, 'decimals' => 4, 'default' => 0],
+            'finalPrice'          => [AttributeType::Number, 'decimals' => 4, 'default' => 0],
+            'email'               => AttributeType::String,
 			'completedAt'         => AttributeType::DateTime,
 			'billingAddressId'    => AttributeType::Number,
 			'shippingAddressId'   => AttributeType::Number,
@@ -180,13 +185,13 @@ class Market_OrderModel extends BaseElementModel
     {
         $weight = 0;
         foreach($this->lineItems as $item) {
-            $weight += $item->qty * $item->variant->weight; //@TODO store weight in a separate line item property
+            $weight += $item->qty * $item->weight;
         }
         return $weight;
     }
 
-	function getTotal()
-	{
-		return $this->itemTotal + $this->adjustmentTotal;
-	}
+    public function getAdjustments()
+    {
+        return craft()->market_orderAdjustment->getAllByOrderId($this->id);
+    }
 }

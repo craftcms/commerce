@@ -8,6 +8,9 @@ use Craft\Market_ProductTypeModel;
 use Craft\FieldLayoutModel;
 use Craft\Market_OptionTypeModel;
 use Craft\Market_OptionValueModel;
+use Craft\Market_SaleRecord;
+use Craft\Market_ShippingMethodRecord;
+use Craft\Market_ShippingRuleRecord;
 use Craft\Market_TaxCategoryModel;
 use Craft\Market_TaxRateModel;
 use Craft\Market_TaxZoneModel;
@@ -28,6 +31,8 @@ class Market_TestSeeder implements Market_SeederInterface
         $this->taxZones();
         $this->taxRates();
         $this->discounts();
+        $this->shippingRules();
+        $this->sales();
     }
 
     /**
@@ -252,5 +257,36 @@ class Market_TestSeeder implements Market_SeederInterface
             'allProductTypes' => 1,
         ];
         $discount->save();
+    }
+
+    private function shippingRules()
+    {
+        $method = Market_ShippingMethodRecord::model()->find();
+
+        $rule = new Market_ShippingRuleRecord();
+        $rule->name = 'Global Shipping Rule';
+        $rule->methodId = $method->id;
+        $rule->priority = 1;
+        $rule->enabled = 1;
+        $rule->baseRate = 10;
+        $rule->percentageRate = 0.01;
+        $rule->weightRate = 0.10;
+        $rule->perItemRate = 1;
+        $rule->save();
+    }
+
+    private function sales()
+    {
+        $sale = new Market_SaleRecord();
+        $sale->attributes = [
+            'name' => 'Global Test Sale',
+            'enabled' => 1,
+            'discountType' => 'percent',
+            'discountAmount' => -0.1,
+            'allGroups' => 1,
+            'allProducts' => 1,
+            'allProductTypes' => 1,
+        ];
+        $sale->save();
     }
 }

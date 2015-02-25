@@ -8,7 +8,17 @@ namespace Craft;
  * @package Craft
  */
 class Market_OrderAdjustmentService extends BaseApplicationComponent
-{	
+{
+    /**
+     * @param int $orderId
+     * @return Market_OrderAdjustmentModel[]
+     */
+    public function getAllByOrderId($orderId)
+    {
+        $records = Market_OrderAdjustmentRecord::model()->findAllByAttributes(['orderId' => $orderId]);
+        return Market_OrderAdjustmentModel::populateModels($records);
+    }
+
     /**
      * @param Market_OrderAdjustmentModel $model
      *
@@ -27,11 +37,10 @@ class Market_OrderAdjustmentService extends BaseApplicationComponent
             $record = new Market_OrderAdjustmentRecord();
         }
 
-        $fields = ['name', 'type', 'rate', 'amount', 'include', 'orderId'];
+        $fields = ['name', 'type', 'description', 'amount', 'orderId', 'optionsJson'];
         foreach($fields as $field) {
             $record->$field = $model->$field;
         }
-
         $record->validate();
         $model->addErrors($record->getErrors());
 
@@ -53,42 +62,4 @@ class Market_OrderAdjustmentService extends BaseApplicationComponent
     {
         return Market_OrderAdjustmentRecord::model()->deleteAllByAttributes(['orderId' => $orderId]);
     }
-
-	/**
-	 * @return Market_AddressModel[]
-	 */
-//	public function getAll()
-//	{
-//		$records = Market_AddressRecord::model()->with('country', 'state')->findAll(array('order' => 't.name'));
-//
-//		return Market_AddressModel::populateModels($records);
-//	}
-//
-//	/**
-//	 * @param int $id
-//	 *
-//	 * @return Market_AddressModel
-//	 */
-//	public function getById($id)
-//	{
-//		$record = Market_AddressRecord::model()->findById($id);
-//
-//		return Market_AddressModel::populateModel($record);
-//	}
-//
-//	/**
-//	 * @param int $id
-//	 * @return Market_AddressModel[]
-//	 */
-//	public function getByCustomerId($id)
-//	{
-//		$addresses = Market_AddressRecord::model()->findAll([
-//			'join' => 'JOIN craft_market_customeraddresses cmca ON cmca.addressId = t.id',
-//			'condition' => 'cmca.customerId = :id',
-//			'params' => ['id' => $id],
-//		]);
-//
-//		return Market_AddressModel::populateModels($addresses);
-//	}
-
 }

@@ -101,9 +101,8 @@ class Market_CartService extends BaseApplicationComponent
 
 		MarketDbHelper::rollbackStackedTransaction();
 
-		$errors = $lineItem->getErrors();
-		$first = array_pop($errors);
-		$error = $first ? array_pop($first) : '';
+		$errors = $lineItem->getAllErrors();
+		$error = array_pop($errors);
 		return false;
 	}
 

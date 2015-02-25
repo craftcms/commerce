@@ -64,25 +64,4 @@ class Market_ShippingRuleModel extends BaseModel
             'maxRate'        => [AttributeType::Number, 'required' => true, 'default' => 0, 'decimals' => 5],
 		];
 	}
-
-    /**
-     * @param $weight
-     * @param $qty
-     * @param $price
-     * @return float
-     */
-    public function calculate($weight, $qty, $price)
-    {
-        $amount = $this->baseRate;
-        $amount += $this->perItemRate * $qty;
-        $amount += $this->weightRate * $weight;
-        $amount += $this->percentageRate * $price;
-        $amount = max($amount, $this->minRate * 1);
-
-        if ($this->maxRate) {
-            $amount = min($amount, $this->maxRate * 1);
-        }
-
-        return $amount;
-    }
 }
