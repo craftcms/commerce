@@ -137,6 +137,10 @@ class Market_DiscountService extends BaseApplicationComponent
      */
     public function matchLineItem(Market_LineItemModel $lineItem, Market_DiscountModel $discount)
     {
+        if($lineItem->underSale && $discount->excludeOnSale) {
+            return false;
+        }
+
         $productId = $lineItem->variant->productId;
         if(!$discount->allProducts && !in_array($productId, $discount->getProductsIds())) {
             return false;
