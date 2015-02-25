@@ -3,6 +3,7 @@
 namespace Craft;
 use Market\Adjusters\Market_AdjusterInterface;
 use Market\Adjusters\Market_DiscountAdjuster;
+use Market\Adjusters\Market_ShippingAdjuster;
 use Market\Adjusters\Market_TaxAdjuster;
 use Market\Helpers\MarketDbHelper;
 
@@ -100,7 +101,7 @@ class Market_OrderService extends BaseApplicationComponent
 			$orderRecord = Market_OrderRecord::model()->findById($order->id);
 
 			if (!$orderRecord) {
-				throw new Exception(Craft::t('No order exists with the ID “{id}”', array('id' => $order->id)));
+				throw new Exception(Craft::t('No order exists with the ID “{id}”', ['id' => $order->id]));
 			}
 		}
 
@@ -114,6 +115,7 @@ class Market_OrderService extends BaseApplicationComponent
 		$orderRecord->completedAt 		= $order->completedAt;
 		$orderRecord->billingAddressId 	= $order->billingAddressId;
 		$orderRecord->shippingAddressId = $order->shippingAddressId;
+		$orderRecord->shippingMethodId  = $order->shippingMethodId;
 		$orderRecord->state 			= $order->state;
 		$orderRecord->couponCode 	    = $order->couponCode;
 
@@ -183,6 +185,7 @@ class Market_OrderService extends BaseApplicationComponent
     private function getAdjusters()
     {
         return [
+            new Market_ShippingAdjuster,
             new Market_TaxAdjuster,
             new Market_DiscountAdjuster,
         ];

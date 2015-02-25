@@ -10,7 +10,7 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property string $name
  * @property bool   $enabled
 
- * @property Market_ShippingRuleRecord[] rules
+ * @property Market_ShippingRuleModel[] rules
  * @package Craft
  */
 class Market_ShippingMethodModel extends BaseModel
