@@ -6,12 +6,14 @@ namespace Craft;
  * Class Market_OrderRecord
  * @package Craft
  *
- * @property int    $id
- * @property string $number
+ * @property int    id
+ * @property string number
  * @property string couponCode
- * @property string $state
- * @property float  $itemTotal
- * @property float  $adjustmentTotal
+ * @property string state
+ * @property float  itemTotal
+ * @property float  finalPrice
+ * @property float  baseDiscount
+ * @property float  baseShippingRate
  * @property string $email
  * @property DateTime completedAt
  * @property string	$lastIp
@@ -82,10 +84,12 @@ class Market_OrderRecord extends BaseRecord
 			'number'              => [AttributeType::String, 'length' => 32],
 			'couponCode'          => [AttributeType::String],
 			'state'               => [AttributeType::Enum, 'required' => true, 'default' => 'cart', 'values' => self::$states],
-			'itemTotal'           => [AttributeType::Number, 'decimals' => 4],
-			'adjustmentTotal'     => [AttributeType::Number, 'decimals' => 4],
-			'email'               => AttributeType::String,
-			'completedAt'         => AttributeType::DateTime,
+            'itemTotal'           => [AttributeType::Number, 'decimals' => 4, 'default' => 0],
+            'baseDiscount'        => [AttributeType::Number, 'decimals' => 4, 'default' => 0],
+            'baseShippingRate'    => [AttributeType::Number, 'decimals' => 4, 'default' => 0],
+            'finalPrice'          => [AttributeType::Number, 'decimals' => 4, 'default' => 0],
+            'email'               => AttributeType::String,
+            'completedAt'         => AttributeType::DateTime,
 			'currency'            => AttributeType::String,
 			'lastIp'              => AttributeType::String
 			//TODO add 'shipmentState'

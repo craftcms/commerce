@@ -6,19 +6,20 @@ namespace Craft;
  * Class Market_LineItemRecord
  * @package Craft
  *
- * @property int id
- * @property float price
- * @property float salePrice
- * @property float subtotal
- * @property float taxAmount
- * @property float shipTotal
- * @property float total
- * @property float totalIncTax
- * @property int qty
+ * @property int    id
+ * @property float  price
+ * @property float  saleAmount
+ * @property float  taxAmount
+ * @property float  shippingAmount
+ * @property float  discountAmount
+ * @property float  weight
+ * @property float  total
+ * @property int    qty
+ * @property string optionsJson
+ *
  * @property int orderId
  * @property int variantId
  * @property int taxCategoryId
- * @property string optionsJson
  *
  * @property Market_OrderRecord order
  * @property Market_VariantRecord variant
@@ -51,12 +52,12 @@ class Market_LineItemRecord extends BaseRecord
 	{
 		return [
 			'price' 		=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true],
-			'salePrice' 	=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true],
-			'subtotal' 		=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
-			'taxAmount'     => [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
-			'shipTotal' 	=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
+			'saleAmount' 	=> [AttributeType::Number, 'decimals' => 4, 'required' => true, 'default' => 0],
+            'taxAmount'     => [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
+            'shippingAmount'=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
+            'discountAmount'=> [AttributeType::Number, 'decimals' => 4, 'required' => true, 'default' => 0],
+			'weight' 	    => [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
 			'total' 		=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
-			'totalIncTax' 	=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
 			'qty'   		=> [AttributeType::Number, 'min' => 0, 'required' => true],
 			'optionsJson'  	=> [AttributeType::Mixed, 'required' => true],
 

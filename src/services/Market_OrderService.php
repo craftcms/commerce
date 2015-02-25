@@ -29,7 +29,8 @@ class Market_OrderService extends BaseApplicationComponent
 
         foreach($lineItems as $item) { //resetting fields calculated by adjusters
             $item->taxAmount = 0;
-            $item->shipTotal = 0;
+            $item->shippingAmount = 0;
+            $item->discountAmount = 0;
         }
 
         /** @var Market_OrderAdjustmentModel[] $adjustments */
@@ -40,10 +41,8 @@ class Market_OrderService extends BaseApplicationComponent
 
         //refreshing adjustments
         craft()->market_orderAdjustment->deleteAllByOrderId($order->id);
-        $order->adjustmentTotal = 0;
 
         foreach($adjustments as $adjustment) {
-            $order->adjustmentTotal += $adjustment->amount;
             $result = craft()->market_orderAdjustment->save($adjustment);
             if(!$result) {
                 $errors = $adjustment->getAllErrors();
@@ -56,14 +55,17 @@ class Market_OrderService extends BaseApplicationComponent
         foreach($lineItems as $item) {
             $result = craft()->market_lineItem->save($item);
 
-            $order->itemTotal += $item->totalIncTax;
+            $order->itemTotal += $item->total;
 
             if(!$result) {
                 $errors = $item->getAllErrors();
                 throw new Exception('Error saving line item: ' . implode(', ', $errors));
             }
         }
-	}
+
+        $order->finalPrice = $order->itemTotal + $order->baseDiscount + $order->baseShippingRate;
+        $order->finalPrice = max(0, $order->finalPrice);
+    }
 
 	/**
 	 * @param int $id
@@ -109,7 +111,6 @@ class Market_OrderService extends BaseApplicationComponent
 
 		$orderRecord->typeId 			= $order->typeId;
 		$orderRecord->number 			= $order->number;
-		$orderRecord->adjustmentTotal 	= $order->adjustmentTotal;
 		$orderRecord->itemTotal 		= $order->itemTotal;
 		$orderRecord->email 			= $order->email;
 		$orderRecord->completedAt 		= $order->completedAt;
@@ -118,6 +119,9 @@ class Market_OrderService extends BaseApplicationComponent
 		$orderRecord->shippingMethodId  = $order->shippingMethodId;
 		$orderRecord->state 			= $order->state;
 		$orderRecord->couponCode 	    = $order->couponCode;
+		$orderRecord->baseDiscount 	    = $order->baseDiscount;
+        $orderRecord->baseShippingRate  = $order->baseShippingRate;
+        $orderRecord->finalPrice        = $order->finalPrice;
 
 		$orderRecord->validate();
 		$order->addErrors($orderRecord->getErrors());
@@ -186,8 +190,8 @@ class Market_OrderService extends BaseApplicationComponent
     {
         return [
             new Market_ShippingAdjuster,
-            new Market_TaxAdjuster,
             new Market_DiscountAdjuster,
+            new Market_TaxAdjuster,
         ];
     }
 }

@@ -1,16 +1,17 @@
 <?php
 
 namespace Craft;
+use Market\Traits\Market_ModelRelationsTrait;
 
 /**
  * Class Market_OrderAdjustmentModel
  *
  * @property int    $id
  * @property string $name
+ * @property string description
  * @property string $type
- * @property float  $rate
  * @property float  $amount
- * @property bool   $include
+ * @property string optionsJson
  * @property int    $orderId
  *
  * @property Market_OrderRecord $order
@@ -18,16 +19,18 @@ namespace Craft;
  */
 class Market_OrderAdjustmentModel extends BaseModel
 {
+    use Market_ModelRelationsTrait;
+
     protected function defineAttributes()
     {
         return [
             'id'      => AttributeType::Number,
-            'type'    => [AttributeType::String, 'required' => true],
-            'name'    => [AttributeType::String],
-            'rate'    => [AttributeType::Number, 'required' => true, 'decimals' => 5],
-            'amount'  => [AttributeType::Number, 'required' => true, 'decimals' => 5],
-            'include' => [AttributeType::Bool, 'required' => true, 'default' => 0],
-            'orderId' => [AttributeType::Number, 'required' => true],
+            'type'        => [AttributeType::String, 'required' => true],
+            'name'        => [AttributeType::String],
+            'description' => [AttributeType::String],
+            'amount'      => [AttributeType::Number, 'required' => true, 'decimals' => 5],
+            'optionsJson' => [AttributeType::Mixed, 'required' => true],
+            'orderId'     => [AttributeType::Number, 'required' => true],
         ];
     }
 }
