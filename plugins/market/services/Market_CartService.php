@@ -117,13 +117,37 @@ class Market_CartService extends BaseApplicationComponent
     {
         $cart = $this->getCart();
 
-        if(craft()->market_discount->checkCode($code, $error)) {
-            $cart->couponCode = $code;
+        if(empty($code) || craft()->market_discount->checkCode($code, $error)) {
+            $cart->couponCode = $code ?: null;
             craft()->market_order->save($cart);
             return true;
         } else {
             return false;
         }
+    }
+
+    /**
+     * Set shipping method to the current order
+     *
+     * @param int $shippingMethodId
+     * @return bool
+     * @throws \Exception
+     */
+    public function setShippingMethod($shippingMethodId)
+    {
+        $method = craft()->market_shippingMethod->getById($shippingMethodId);
+        if(!$method->id) {
+            return false;
+        }
+
+        $cart = $this->getCart();
+        if(!craft()->market_shippingMethod->getMatchingRule($cart, $method)) {
+            return false;
+        }
+
+        $cart->shippingMethodId = $shippingMethodId;
+        craft()->market_order->save($cart);
+        return true;
     }
 
 	/**

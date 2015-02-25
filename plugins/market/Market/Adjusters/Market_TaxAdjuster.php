@@ -4,7 +4,6 @@ namespace Market\Adjusters;
 
 use Craft\Market_AddressModel;
 use Craft\Market_LineItemModel;
-use Craft\Market_LineItemRecord;
 use Craft\Market_OrderAdjustmentModel;
 use Craft\Market_OrderModel;
 use Craft\Market_TaxRateModel;
@@ -71,14 +70,13 @@ class Market_TaxAdjuster implements Market_AdjusterInterface
             $countriesIds = $zone->getCountriesIds();
 
             if (in_array($address->countryId, $countriesIds)) {
-                $adjustment->name = $address->country->name;
                 $addressMatch = true;
             }
         } else {
             foreach ($zone->states as $state) {
                 if ($state->country->id == $address->countryId && $state->name == $address->getStateText()) {
-                    $adjustment->name = $state->formatName();
                     $addressMatch = true;
+                    break;
                 }
             }
         }

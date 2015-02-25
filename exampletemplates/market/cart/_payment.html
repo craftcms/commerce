@@ -1,12 +1,17 @@
 <h3>Payment</h3>
 
+{% if cart.shippingMethodId %}
+    <p>
+        <strong>Chosen shipping method:</strong> {{ cart.shippingMethod.name }}
+    </p>
+{% endif %}
 <form method="POST" class="form-inline">
     <input type="hidden" name="action" value="market/cartPayment/setShippingMethod">
     <input type="hidden" name="redirect" value="market/cart">
     Shipping Method:
     <select name="shippingMethodId" class="form-control" >
         {% for id,method in craft.market.getShippingMethods() %}
-            <option value="{{ id }}">{{ method.name }}: {{ method.amount }}</option>
+            <option value="{{ id }}" {% if id == cart.shippingMethodId %}selected{% endif %}>{{ method.name }}: {{ method.amount }}</option>
         {% endfor %}
     </select>
     <input type="submit" class="btn" value="Set" />
