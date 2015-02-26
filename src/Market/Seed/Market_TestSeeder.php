@@ -33,6 +33,7 @@ class Market_TestSeeder implements Market_SeederInterface
         $this->discounts();
         $this->shippingRules();
         $this->sales();
+        $this->paymentMethods();
     }
 
     /**
@@ -288,5 +289,15 @@ class Market_TestSeeder implements Market_SeederInterface
             'allProductTypes' => 1,
         ];
         $sale->save();
+    }
+
+    private function paymentMethods()
+    {
+        $model = \Craft\craft()->market_paymentMethod->getByClass('Stripe');
+        $model->frontendEnabled = true;
+        $model->settings = [
+            'apiKey' => 'sk_live_EseJ7kE5GVZSjksIBxQHOGV7',
+        ];
+        \Craft\craft()->market_paymentMethod->save($model);
     }
 }
