@@ -38,7 +38,7 @@ class Market_LineItemModel extends BaseModel
 			'id' 			=> AttributeType::Number,
             'price' 		=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true],
             'saleAmount' 	=> [AttributeType::Number, 'decimals' => 4, 'required' => true, 'default' => 0],
-            'taxAmount'     => [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
+            'taxAmount'     => [AttributeType::Number, 'decimals' => 4, 'required' => true, 'default' => 0],
             'shippingAmount'=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
             'discountAmount'=> [AttributeType::Number, 'decimals' => 4, 'required' => true, 'default' => 0],
             'weight' 	    => [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
@@ -63,5 +63,10 @@ class Market_LineItemModel extends BaseModel
     public function getSubtotalWithSale()
     {
         return $this->qty * ($this->price + $this->saleAmount);
+    }
+
+    public function getPriceWithoutShipping()
+    {
+        return $this->price + $this->discountAmount + $this->saleAmount;
     }
 }

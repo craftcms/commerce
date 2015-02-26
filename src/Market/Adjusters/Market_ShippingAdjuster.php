@@ -92,7 +92,7 @@ class Market_ShippingAdjuster implements Market_AdjusterInterface
                     $description .= 'and ';
                 }
 
-                $description .= $rule->percentageRate*1 . '% ';
+                $description .= $rule->percentageRate * 100 . '% ';
             }
 
             $description .= 'per item ';

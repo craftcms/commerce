@@ -53,7 +53,7 @@ class Market_LineItemRecord extends BaseRecord
 		return [
 			'price' 		=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true],
 			'saleAmount' 	=> [AttributeType::Number, 'decimals' => 4, 'required' => true, 'default' => 0],
-            'taxAmount'     => [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
+            'taxAmount'     => [AttributeType::Number, 'decimals' => 4, 'required' => true, 'default' => 0],
             'shippingAmount'=> [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
             'discountAmount'=> [AttributeType::Number, 'decimals' => 4, 'required' => true, 'default' => 0],
 			'weight' 	    => [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],

@@ -125,7 +125,7 @@ class Market_DiscountAdjuster implements Market_AdjusterInterface
                     $description .= 'and ';
                 }
 
-                $description .= $discount->percentDiscount*1 . '% ';
+                $description .= $discount->percentDiscount * 100 . '% ';
             }
 
             $description .= 'per item ';
