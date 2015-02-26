@@ -34,7 +34,8 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property Market_AddressModel shippingAddress
  * @property Market_ShippingMethodModel shippingMethod
  * @property Market_OrderAdjustmentModel[] adjustments
- * @property Market_PaymentMethodRecord paymentMethod
+ * @property Market_PaymentMethodModel paymentMethod
+ * @property Market_TransactionModel[] transactions
  *
  * @method bool canTransit(string $state)
  * @method void transition(string $state)

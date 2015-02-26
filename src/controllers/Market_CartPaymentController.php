@@ -43,4 +43,22 @@ class Market_CartPaymentController extends Market_BaseController
             craft()->urlManager->setRouteVariables(['paymentMethodError' => 'Wrong payment method']);
         }
 	}
+
+    /**
+     * @throws HttpException
+     */
+    public function actionPay()
+    {
+        $this->requirePostRequest();
+
+        $paymentForm = new Market_PaymentFormModel;
+        $paymentForm->attributes = $_POST;
+
+        if(craft()->market_cart->pay($paymentForm)) {
+            craft()->userSession->setFlash('market', 'Successful payment');
+            $this->redirectToPostedUrl();
+        } else {
+            craft()->urlManager->setRouteVariables(['paymentForm' => $paymentForm]);
+        }
+    }
 }
