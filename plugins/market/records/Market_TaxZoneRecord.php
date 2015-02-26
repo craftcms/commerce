@@ -9,6 +9,7 @@ namespace Craft;
  * @property string                  $name
  * @property string                  $description
  * @property bool                    $countryBased
+ * @property bool                    $default
  *
  * @property Market_CountryRecord[] $countries
  * @property Market_StateRecord[]   $states
@@ -22,20 +23,28 @@ class Market_TaxZoneRecord extends BaseRecord
 		return 'market_taxzones';
 	}
 
-	public function defineRelations()
-	{
-		return array(
-			'countries' => array(static::MANY_MANY, 'Market_CountryRecord', 'market_taxzone_countries(countryId, taxZoneId)'),
-			'states'    => array(static::MANY_MANY, 'Market_StateRecord', 'market_taxzone_states(stateId, taxZoneId)'),
-		);
-	}
+    public function defineIndexes()
+    {
+        return [
+            ['columns' => ['name'], 'unique' => true],
+        ];
+    }
 
-	protected function defineAttributes()
+    public function defineRelations()
 	{
-		return array(
-			'name'         => array(AttributeType::String, 'required' => true),
-			'description'  => AttributeType::String,
-			'countryBased' => array(AttributeType::Bool, 'required' => true, 'default' => 1),
-		);
-	}
+		return [
+            'countries' => [static::MANY_MANY, 'Market_CountryRecord', 'market_taxzone_countries(countryId, taxZoneId)'],
+            'states'    => [static::MANY_MANY, 'Market_StateRecord', 'market_taxzone_states(stateId, taxZoneId)'],
+        ];
+    }
+
+    protected function defineAttributes()
+	{
+		return [
+            'name'         => [AttributeType::String, 'required' => true],
+            'description'  => AttributeType::String,
+            'countryBased' => [AttributeType::Bool, 'required' => true, 'default' => 1],
+            'default'      => [AttributeType::Bool, 'default' => 0, 'required' => true],
+        ];
+    }
 }

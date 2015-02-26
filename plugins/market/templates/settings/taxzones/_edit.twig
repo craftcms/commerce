@@ -65,6 +65,16 @@
         required: true,
     }) }}
 
+    {{ forms.checkboxField({
+        label: "Is Default?"|t,
+        instructions: "Included taxes can relate to default tax zone only."|t,
+        id: 'default',
+        name: 'default',
+        value: 1,
+        checked: taxZone.default,
+        errors: taxZone.getErrors('default')
+    }) }}
+
     <hr>
 
     <div class="buttons">
