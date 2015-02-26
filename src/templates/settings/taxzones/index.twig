@@ -17,6 +17,7 @@
         <th scope="col">Description</th>
         <th scope="col">Type</th>
         <th scope="col">Countries / States</th>
+        <th scope="col">Is Default?</th>
         <td class="thin"></td>
     </tr>
     </thead>
@@ -28,6 +29,7 @@
             <td data-title="Description">{{ taxZone.description }}</td>
             <td data-title="Type">{{ taxZone.countryBased ? 'Country Based'|t : 'State Based'|t }}</td>
             <td data-title="Type">{{ taxZone.getCountriesNames()|join(', ') }}{{ taxZone.getStatesNames()|join(', ') }}</td>
+            <td data-title="Is Default?">{{ taxZone.default ? 'Yes'|t : 'No'|t }}</td>
             <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
         </tr>
     {% endfor %}

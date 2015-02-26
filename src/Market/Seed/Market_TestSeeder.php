@@ -157,7 +157,7 @@ class Market_TestSeeder implements Market_SeederInterface
                 $rate = Market_TaxRateModel::populateModel([
                     'name' => $category->name . '-' . $zone->name,
                     'rate' => mt_rand(1, 10000) / 100000,
-                    'include' => mt_rand(1, 2) - 1,
+                    'include' => $zone->default ? (mt_rand(1, 2) - 1) : 0,
                     'taxCategoryId' => $category->id,
                     'taxZoneId' => $zone->id,
                 ]);

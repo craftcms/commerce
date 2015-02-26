@@ -29,14 +29,14 @@ class Market_TaxZoneController extends Market_BaseController
 	 *
 	 * @throws HttpException
 	 */
-	public function actionEdit(array $variables = array())
+	public function actionEdit(array $variables = [])
 	{
 		if (empty($variables['taxZone'])) {
 			if (!empty($variables['id'])) {
 				$id                   = $variables['id'];
 				$variables['taxZone'] = craft()->market_taxZone->getById($id);
 
-				if (!$variables['taxZone']) {
+				if (!$variables['taxZone']->id) {
 					throw new HttpException(404);
 				}
 			} else {
@@ -53,14 +53,8 @@ class Market_TaxZoneController extends Market_BaseController
 		$countries = craft()->market_country->getAll();
 		$states    = craft()->market_state->getAll();
 
-		$variables['countries'] = $variables['states'] = array();
-
-		foreach ($countries as $country) {
-			$variables['countries'][$country->id] = $country->name;
-		}
-		foreach ($states as $state) {
-			$variables['states'][$state->id] = $state->formatName();
-		}
+		$variables['countries'] = \CHtml::listData($countries, 'id', 'name');
+        $variables['states'] = \CHtml::listData($states, 'id', 'name');
 
 		$this->renderTemplate('market/settings/taxZones/_edit', $variables);
 	}
@@ -78,8 +72,9 @@ class Market_TaxZoneController extends Market_BaseController
 		$taxZone->name         = craft()->request->getPost('name');
 		$taxZone->description  = craft()->request->getPost('description');
 		$taxZone->countryBased = craft()->request->getPost('countryBased');
-		$countriesIds          = craft()->request->getPost('countries', array());
-		$statesIds             = craft()->request->getPost('states', array());
+		$taxZone->default      = craft()->request->getPost('default');
+		$countriesIds          = craft()->request->getPost('countries', []);
+		$statesIds             = craft()->request->getPost('states', []);
 
 		// Save it
 		if (craft()->market_taxZone->save($taxZone, $countriesIds, $statesIds)) {
@@ -90,12 +85,10 @@ class Market_TaxZoneController extends Market_BaseController
 		}
 
 		// Send the model back to the template
-		craft()->urlManager->setRouteVariables(array(
-			'taxZone' => $taxZone
-		));
-	}
+		craft()->urlManager->setRouteVariables(['taxZone' => $taxZone]);
+    }
 
-	/**
+    /**
 	 * @throws HttpException
 	 */
 	public function actionDelete()
@@ -106,7 +99,7 @@ class Market_TaxZoneController extends Market_BaseController
 		$id = craft()->request->getRequiredPost('id');
 
 		craft()->market_taxZone->deleteById($id);
-		$this->returnJson(array('success' => true));
-	}
+        $this->returnJson(['success' => true]);
+    }
 
 }

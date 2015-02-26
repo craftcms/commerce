@@ -10,6 +10,7 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property string $name
  * @property string $description
  * @property bool   $countryBased
+ * @property bool   $default
  *
  * @property Market_CountryModel[] $countries
  * @property Market_StateModel[] $states
@@ -70,7 +71,8 @@ class Market_TaxZoneModel extends BaseModel
 			'id'           => AttributeType::Number,
 			'name'         => AttributeType::String,
 			'description'  => AttributeType::String,
-			'countryBased' => [AttributeType::Bool, 'default' => 1],
+            'countryBased' => [AttributeType::Bool, 'default' => 1],
+            'default'      => [AttributeType::Bool, 'default' => 0],
 		];
 	}
 }

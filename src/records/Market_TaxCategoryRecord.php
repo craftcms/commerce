@@ -20,20 +20,20 @@ class Market_TaxCategoryRecord extends BaseRecord
 	}
 
 	public function defineIndexes()
-	{
-		return array(
-			array('columns' => array('name'), 'unique' => true),
-		);
-	}
+    {
+        return [
+            ['columns' => ['name'], 'unique' => true],
+        ];
+    }
 
-	protected function defineAttributes()
+    protected function defineAttributes()
 	{
-		return array(
-			'name'        => array(AttributeType::String, 'required' => true),
-			'code'        => AttributeType::String,
-			'description' => AttributeType::String,
-			'default'     => array(AttributeType::Bool, 'default' => 0, 'required' => true),
-		);
-	}
+        return [
+            'name'        => [AttributeType::String, 'required' => true],
+            'code'        => AttributeType::String,
+            'description' => AttributeType::String,
+            'default'     => [AttributeType::Bool, 'default' => 0, 'required' => true],
+        ];
+    }
 
 }
