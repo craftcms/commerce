@@ -1,5 +1,6 @@
 <?php
 namespace Craft;
+use Omnipay\Common\AbstractGateway;
 
 /**
  * Class Market_PaymentMethodModel
@@ -18,7 +19,7 @@ namespace Craft;
 class Market_PaymentMethodModel extends BaseModel
 {
 	/** @var array */
-	private $_settings = array();
+	private $_settings = [];
 
 	/**
 	 * Get gateway initialized with the settings
@@ -34,7 +35,7 @@ class Market_PaymentMethodModel extends BaseModel
 	}
 
 	/**
-	 * @return null|\Omnipay\Common\GatewayInterface
+	 * @return AbstractGateway
 	 */
 	public function getGateway()
 	{
@@ -78,7 +79,7 @@ class Market_PaymentMethodModel extends BaseModel
 	{
 		$gateway = craft()->market_gateway->getGateway($this->class);
 		if (!$gateway) {
-			return array();
+			return [];
 		}
 
 		$defaults = $gateway->getDefaultParameters();
@@ -95,10 +96,10 @@ class Market_PaymentMethodModel extends BaseModel
 	{
 		$gateway = craft()->market_gateway->getGateway($this->class);
 		if (!$gateway) {
-			return array();
+			return [];
 		}
 
-		$result   = array();
+		$result   = [];
 		$defaults = $gateway->getDefaultParameters();
 		foreach ($defaults as $key => $value) {
 			if (is_bool($value)) {
@@ -111,13 +112,13 @@ class Market_PaymentMethodModel extends BaseModel
 
 	protected function defineAttributes()
 	{
-		return array(
+		return [
 			'id'              => AttributeType::Number,
 			'class'           => AttributeType::String,
 			'name'            => AttributeType::String,
 			'cpEnabled'       => AttributeType::Bool,
 			'frontendEnabled' => AttributeType::Bool,
-		);
+		];
 	}
 
 	/**

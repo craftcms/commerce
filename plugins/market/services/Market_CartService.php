@@ -216,6 +216,18 @@ class Market_CartService extends BaseApplicationComponent
 		MarketDbHelper::commitStackedTransaction();
 	}
 
+    public function pay(Market_PaymentFormModel $form)
+    {
+        if(!$form->validate()) {
+            return false;
+        }
+
+        $cart = $this->getCart();
+        $transaction = craft()->market_transaction->create($cart);
+
+        return true;
+    }
+
 	/**
 	 * @param string $number
 	 * @return Market_OrderRecord
