@@ -59,7 +59,7 @@ class Market_TaxAdjuster implements Market_AdjusterInterface
         $adjustment = new Market_OrderAdjustmentModel;
         $adjustment->type = self::ADJUSTMENT_TYPE;
         $adjustment->name = $taxRate->name;
-        $adjustment->description = $taxRate->rate*1 . '%' . ($taxRate->include ? ' inc' : '');
+        $adjustment->description = $taxRate->rate * 100 . '%' . ($taxRate->include ? ' inc' : '');
         $adjustment->orderId = $order->id;
         $adjustment->optionsJson = $taxRate->attributes;
 
@@ -82,6 +82,15 @@ class Market_TaxAdjuster implements Market_AdjusterInterface
         }
 
         if(!$addressMatch) {
+            if($taxRate->include) {
+                //excluding taxes included in price
+                foreach($lineItems as $item) {
+                    if($item->taxCategoryId == $taxRate->taxCategoryId) {
+                        $item->taxAmount += - $taxRate->rate * $item->getPriceWithoutShipping();
+                    }
+                }
+            }
+
             return false;
         }
 
@@ -89,7 +98,7 @@ class Market_TaxAdjuster implements Market_AdjusterInterface
         $itemsMatch = false;
         foreach($lineItems as $item) {
             if($item->taxCategoryId == $taxRate->taxCategoryId) {
-                $itemTaxAmount = $taxRate->rate * $item->total;
+                $itemTaxAmount = $taxRate->rate * $item->getPriceWithoutShipping();
                 $adjustment->amount += $itemTaxAmount;
 
                 if(!$taxRate->include) {
