@@ -18,7 +18,7 @@ class Market_PaymentMethodController extends Market_BaseController
 	 */
 	public function actionIndex()
 	{
-		$paymentMethods = craft()->market_paymentMethod->getAll();
+		$paymentMethods = craft()->market_paymentMethod->getAllPossibleGateways();
 		$this->renderTemplate('market/settings/paymentmethods/index', compact('paymentMethods'));
 	}
 
