@@ -3,7 +3,7 @@
 
 {% set crumbs = [
 { label: "Market"|t, url: url('market') },
-{ label: "Settings"|t, url: url('market/settings') }
+{ label: "Settings"|t, url: url('market/settings/global') }
 ] %}
 
 
@@ -16,27 +16,6 @@
 <form action="" method="post" accept-charset="UTF-8">
     <input type="hidden" name="action" value="market/settings/saveSettings"/>
     <input type="hidden" name="redirect" value="market/settings"/>
-    {{ forms.textField({
-        label: "Secret Key"|t,
-        instructions: "Your Stripe secret key. Test or Live."|t,
-        id: 'secretKey',
-        name: 'settings[secretKey]',
-        value: (settings.secretKey is defined ? settings.secretKey : null),
-        errors: (settings is defined ? settings.getErrors('secretKey') : null),
-        required: true,
-        autofocus: true
-    }) }}
-
-    {{ forms.textField({
-        label: "Publishable Key"|t,
-        instructions: "Your Stripe publishable key. Test or Live."|t,
-        id: 'publishableKey',
-        name: 'settings[publishableKey]',
-        value: (settings.publishableKey is defined ? settings.publishableKey : null),
-        errors: (settings is defined ? settings.getErrors('publishableKey') : null),
-        required: true,
-    }) }}
-
     {{ forms.textField({
         label: "Default Currency"|t,
         instructions: "Default Charge Currency."|t,
