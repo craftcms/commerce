@@ -34,11 +34,11 @@ class Market_PlanElementType extends Market_BaseElementType
 	 */
 	public function getSources($context = NULL)
 	{
-		$sources = array(
-			'*' => array(
+		$sources = [
+			'*' => [
 				'label' => Craft::t('All Plans'),
-			)
-		);
+			]
+		];
 
 		return $sources;
 	}
@@ -52,10 +52,10 @@ class Market_PlanElementType extends Market_BaseElementType
 	 */
 	public function defineTableAttributes($source = NULL)
 	{
-		return array(
+		return [
 			'startDate' => Craft::t('Start Date'),
 			'endDate'   => Craft::t('End Date'),
-		);
+		];
 	}
 
 	/**
@@ -78,13 +78,13 @@ class Market_PlanElementType extends Market_BaseElementType
 	 */
 	public function defineCriteriaAttributes()
 	{
-		return array(
+		return [
 			'calendar'   => AttributeType::Mixed,
 			'calendarId' => AttributeType::Mixed,
 			'startDate'  => AttributeType::Mixed,
 			'endDate'    => AttributeType::Mixed,
-			'order'      => array(AttributeType::String, 'default' => 'events.startDate asc'),
-		);
+			'order'      => [AttributeType::String, 'default' => 'events.startDate asc'],
+		];
 	}
 
 	/**
@@ -141,9 +141,9 @@ class Market_PlanElementType extends Market_BaseElementType
 	public function getEditorHtml(BaseElementModel $element)
 	{
 		// Start/End Dates
-		$html = craft()->templates->render('events/_edit', array(
+		$html = craft()->templates->render('events/_edit', [
 			'element' => $element,
-		));
+		]);
 
 		// Everything else
 		$html .= parent::getEditorHtml($element);

@@ -99,9 +99,9 @@ class Market_ChargeModel extends BaseElementModel
 
 	private function _loadStripeData()
 	{
-		$this->_apiData = \Market\Market::app()['stripe']->charges()->find(array(
+		$this->_apiData = \Market\Market::app()['stripe']->charges()->find([
 			'id' => $this->stripeId
-		));
+		]);
 
 		foreach ($this->_apiData as $key => $val) {
 			if (in_array($key, $this->attributeNames()) && $key != 'id') {
@@ -127,7 +127,7 @@ class Market_ChargeModel extends BaseElementModel
 	 */
 	protected function defineAttributes()
 	{
-		return array_merge(parent::defineAttributes(), array(
+		return array_merge(parent::defineAttributes(), [
 
 			/**
 			 * Required fields on new charge
@@ -135,10 +135,10 @@ class Market_ChargeModel extends BaseElementModel
 			'stripeId'              => AttributeType::String,
 			'amount'                => AttributeType::Number,
 			//TODO: Fill currency enum values dynamically based on https://support.stripe.com/questions/which-currencies-does-stripe-support
-			'currency'              => array(AttributeType::Enum, 'values' => "AUD,USD"),
+			'currency'              => [AttributeType::Enum, 'values' => "AUD,USD"],
 			'card'                  => AttributeType::String, // or customer
 			'customer'              => AttributeType::String, // or card
-			'capture'               => array(AttributeType::Bool, 'default' => true),
+			'capture'               => [AttributeType::Bool, 'default' => true],
 
 			/**
 			 * Optional fields on new charge
@@ -167,7 +167,7 @@ class Market_ChargeModel extends BaseElementModel
 			'dispute'               => AttributeType::Mixed,
 			'receipt_number'        => AttributeType::String,
 			'livemode'              => AttributeType::Bool,
-		));
+		]);
 	}
 
 }

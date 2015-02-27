@@ -24,9 +24,9 @@ class Market_VariantOptionValueRecord extends BaseRecord
 	 */
 	public function defineRelations()
 	{
-		return array(
-			'variant'     => array(static::BELONGS_TO, 'Market_VariantRecord', 'required' => true, 'onUpdate' => self::CASCADE, 'onDelete' => self::RESTRICT),
-			'optionValue' => array(static::BELONGS_TO, 'Market_OptionValueRecord', 'required' => true, 'onUpdate' => self::CASCADE, 'onDelete' => self::RESTRICT),
-		);
+		return [
+			'variant'     => [static::BELONGS_TO, 'Market_VariantRecord', 'required' => true, 'onUpdate' => self::CASCADE, 'onDelete' => self::RESTRICT],
+			'optionValue' => [static::BELONGS_TO, 'Market_OptionValueRecord', 'required' => true, 'onUpdate' => self::CASCADE, 'onDelete' => self::RESTRICT],
+		];
 	}
 }

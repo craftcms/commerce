@@ -32,7 +32,7 @@ class Market_VariantService extends BaseApplicationComponent
 	 */
 	public function unsetOptionValues($id)
 	{
-		Market_VariantOptionValueRecord::model()->deleteAllByAttributes(array('variantId' => $id));
+		Market_VariantOptionValueRecord::model()->deleteAllByAttributes(['variantId' => $id]);
 	}
 
 	/**
@@ -54,7 +54,7 @@ class Market_VariantService extends BaseApplicationComponent
 	 */
 	public function getAllByProductId($id, $isMaster = NULL)
 	{
-		$conditions = array('productId' => $id);
+		$conditions = ['productId' => $id];
 		if (!is_null($isMaster)) {
 			$conditions['isMaster'] = $isMaster;
 		}
@@ -71,7 +71,7 @@ class Market_VariantService extends BaseApplicationComponent
 	{
 		$variant            = Market_ProductRecord::model()->findById($variant->id);
 		$variant->deletedAt = DateTimeHelper::currentTimeForDb();
-		$variant->saveAttributes(array('deletedAt'));
+		$variant->saveAttributes(['deletedAt']);
 	}
 
 	/**
@@ -143,15 +143,15 @@ class Market_VariantService extends BaseApplicationComponent
 
 		if ($optionValueIds) {
 			if (!is_array($optionValueIds)) {
-				$optionValueIds = array($optionValueIds);
+				$optionValueIds = [$optionValueIds];
 			}
 
-			$values = array();
+			$values = [];
 			foreach ($optionValueIds as $optionValueId) {
-				$values[] = array($optionValueId, $variantId);
+				$values[] = [$optionValueId, $variantId];
 			}
 
-			craft()->db->createCommand()->insertAll('market_variant_optionvalues', array('optionValueId', 'variantId'), $values);
+			craft()->db->createCommand()->insertAll('market_variant_optionvalues', ['optionValueId', 'variantId'], $values);
 		}
 
 		return true;

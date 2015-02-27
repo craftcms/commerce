@@ -18,7 +18,7 @@ class Market_WebhookController extends Market_BaseController
 	public function actionPost()
 	{
 		$this->requirePostRequest();
-		$this->returnJson(array('hello', 'hi'));
+		$this->returnJson(['hello', 'hi']);
 		$data = craft()->request->getRawBody();
 		MarketPlugin::log($data);
 		craft()->end(200);

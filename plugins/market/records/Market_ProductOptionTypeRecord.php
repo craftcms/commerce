@@ -24,10 +24,10 @@ class Market_ProductOptionTypeRecord extends BaseRecord
 	 */
 	public function defineRelations()
 	{
-		return array(
-			'product'    => array(static::BELONGS_TO, 'Market_ProductRecord'),
-			'optionType' => array(static::BELONGS_TO, 'Market_OptionTypeRecord'),
-		);
+		return [
+			'product'    => [static::BELONGS_TO, 'Market_ProductRecord'],
+			'optionType' => [static::BELONGS_TO, 'Market_OptionTypeRecord'],
+		];
 	}
 
 }

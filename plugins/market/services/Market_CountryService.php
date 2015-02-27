@@ -50,7 +50,7 @@ class Market_CountryService extends BaseApplicationComponent
 	 */
 	public function getAll()
 	{
-		$records = Market_CountryRecord::model()->findAll(array('order' => 'name'));
+		$records = Market_CountryRecord::model()->findAll(['order' => 'name']);
 
 		return Market_CountryModel::populateModels($records);
 	}
@@ -69,7 +69,7 @@ class Market_CountryService extends BaseApplicationComponent
 			$record = Market_CountryRecord::model()->findById($model->id);
 
 			if (!$record) {
-				throw new Exception(Craft::t('No country exists with the ID “{id}”', array('id' => $model->id)));
+				throw new Exception(Craft::t('No country exists with the ID “{id}”', ['id' => $model->id]));
 			}
 		} else {
 			$record = new Market_CountryRecord();

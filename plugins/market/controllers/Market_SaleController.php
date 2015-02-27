@@ -27,7 +27,7 @@ class Market_SaleController extends Market_BaseController
 	 *
 	 * @throws HttpException
 	 */
-	public function actionEdit(array $variables = array())
+	public function actionEdit(array $variables = [])
 	{
 		if (empty($variables['sale'])) {
 			if (!empty($variables['id'])) {

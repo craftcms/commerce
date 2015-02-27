@@ -15,10 +15,10 @@ class AStateMachineTest extends CTestCase
 	public function testMagicMethods()
 	{
 		$machine = new AStateMachine();
-		$machine->setStates(array(
+		$machine->setStates([
 			new ExampleEnabledState("enabled", $machine),
 			new ExampleDisabledState("disabled", $machine),
-		));
+		]);
 		$machine->defaultStateName = "enabled";
 		$this->assertTrue($machine->is("enabled"));
 		$this->assertFalse($machine->is("disabled"));
@@ -53,11 +53,11 @@ class AStateMachineTest extends CTestCase
 	public function testTransitions()
 	{
 		$machine = new AStateMachine();
-		$machine->setStates(array(
+		$machine->setStates([
 			new ExampleEnabledState("enabled", $machine),
 			new ExampleDisabledState("disabled", $machine),
 			new ExampleIntermediateState("intermediate", $machine),
-		));
+		]);
 		$machine->defaultStateName             = "enabled";
 		$machine->enableTransitionHistory      = true;
 		$machine->maximumTransitionHistorySize = 2;
@@ -71,11 +71,11 @@ class AStateMachineTest extends CTestCase
 	public function testCanTransit()
 	{
 		$machine = new AStateMachine();
-		$machine->setStates(array(
+		$machine->setStates([
 			new ExampleEnabledState("enabled", $machine),
 			new ExampleDisabledState("disabled", $machine),
 			new ExampleIntermediateState("intermediate", $machine),
-		));
+		]);
 		$machine->defaultStateName = "enabled";
 
 		$this->assertFalse($machine->canTransit("intermediate")); // intermediate state blocks transition from enabled -> intermediate
@@ -90,22 +90,22 @@ class AStateMachineTest extends CTestCase
 	public function testCanTransitWithTransitionsMapSpecified()
 	{
 		$machine = new AStateMachine();
-		$machine->setStates(array(
-			array(
+		$machine->setStates([
+			[
 				'name'       => 'published',
 				'transitsTo' => 'registration, canceled'
-			),
-			array(
+			],
+			[
 				'name'       => 'registration',
 				'transitsTo' => 'published, processing, canceled'
-			),
-			array(
+			],
+			[
 				'name'       => 'processing',
 				'transitsTo' => 'finished, canceled'
-			),
-			array('name' => 'finished'),
-			array('name' => 'canceled')
-		));
+			],
+			['name' => 'finished'],
+			['name' => 'canceled']
+		]);
 		$machine->defaultStateName   = "published";
 		$machine->checkTransitionMap = true;
 
@@ -146,42 +146,42 @@ class AStateMachineTest extends CTestCase
 	public function testGetAvailableStates()
 	{
 		$machine = new AStateMachine();
-		$machine->setStates(array(
-			array(
+		$machine->setStates([
+			[
 				'name'       => 'not_saved',
 				'transitsTo' => 'published'
-			),
-			array(
+			],
+			[
 				'name'       => 'published',
 				'transitsTo' => 'registration, canceled',
-			),
-			array(
+			],
+			[
 				'name'       => 'registration',
 				'transitsTo' => 'published, processing, canceled'
-			),
-			array(
+			],
+			[
 				'name'       => 'processing',
 				'transitsTo' => 'finished, canceled'
-			),
-			array('name' => 'finished'),
-			array('name' => 'canceled')
-		));
+			],
+			['name' => 'finished'],
+			['name' => 'canceled']
+		]);
 		$machine->checkTransitionMap = true;
 		$machine->defaultStateName   = 'not_saved';
 
-		$this->checkStates(array('published'), $machine->availableStates);
+		$this->checkStates(['published'], $machine->availableStates);
 
 		$machine->transition('published');
-		$this->checkStates(array('registration', 'canceled'), $machine->availableStates);
+		$this->checkStates(['registration', 'canceled'], $machine->availableStates);
 
 		$machine->transition('registration');
-		$this->checkStates(array('published', 'processing', 'canceled'), $machine->availableStates);
+		$this->checkStates(['published', 'processing', 'canceled'], $machine->availableStates);
 
 		$machine->transition('processing');
-		$this->checkStates(array('finished', 'canceled'), $machine->availableStates);
+		$this->checkStates(['finished', 'canceled'], $machine->availableStates);
 
 		$machine->transition('finished');
-		$this->checkStates(array(), $machine->availableStates);
+		$this->checkStates([], $machine->availableStates);
 	}
 
 	protected function checkStates($shouldBeAvailable, $states)
@@ -197,10 +197,10 @@ class AStateMachineTest extends CTestCase
 	public function testBehavior()
 	{
 		$machine = new AStateMachine();
-		$machine->setStates(array(
+		$machine->setStates([
 			new ExampleEnabledState("enabled", $machine),
 			new ExampleDisabledState("disabled", $machine),
-		));
+		]);
 		$machine->defaultStateName = "enabled";
 
 		$component = new CComponent();
@@ -213,15 +213,15 @@ class AStateMachineTest extends CTestCase
 
 	public function testEvents()
 	{
-		$machine = $this->getMock("AStateMachine", array("onBeforeTransition", "onAfterTransition"));
+		$machine = $this->getMock("AStateMachine", ["onBeforeTransition", "onAfterTransition"]);
 
-		$enabled  = $this->getMock("AState", array("onBeforeEnter", "onBeforeExit", "onAfterEnter", "onAfterExit"), array("enabled", $machine));
-		$disabled = $this->getMock("AState", array("onBeforeEnter", "onBeforeExit", "onAfterEnter", "onAfterExit"), array("disabled", $machine));
+		$enabled  = $this->getMock("AState", ["onBeforeEnter", "onBeforeExit", "onAfterEnter", "onAfterExit"], ["enabled", $machine]);
+		$disabled = $this->getMock("AState", ["onBeforeEnter", "onBeforeExit", "onAfterEnter", "onAfterExit"], ["disabled", $machine]);
 
-		$machine->setStates(array($enabled, $disabled));
+		$machine->setStates([$enabled, $disabled]);
 		$machine->defaultStateName = "enabled";
 
-		$params           = array("param" => 1, "param" => 2);
+		$params           = ["param" => 1, "param" => 2];
 		$transition       = new AStateTransition($machine, $params);
 		$transition->to   = $disabled;
 		$transition->from = $enabled;

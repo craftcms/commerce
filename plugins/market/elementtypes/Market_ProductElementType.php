@@ -29,19 +29,19 @@ class Market_ProductElementType extends Market_BaseElementType
 	public function getSources($context = NULL)
 	{
 
-		$sources = array(
-			'*' => array(
+		$sources = [
+			'*' => [
 				'label' => Craft::t('All products'),
-			)
-		);
+			]
+		];
 
 		foreach (craft()->market_productType->getAll() as $productType) {
 			$key = 'productType:' . $productType->id;
 
-			$sources[$key] = array(
+			$sources[$key] = [
 				'label'    => $productType->name,
-				'criteria' => array('typeId' => $productType->id)
-			);
+				'criteria' => ['typeId' => $productType->id]
+			];
 		}
 
 		return $sources;
@@ -51,15 +51,15 @@ class Market_ProductElementType extends Market_BaseElementType
 
 	public function defineTableAttributes($source = NULL)
 	{
-		return array(
+		return [
 			'title'       => Craft::t('Name'),
 			'availableOn' => Craft::t('Available On')
-		);
+		];
 	}
 
 	public function defineSearchableAttributes()
 	{
-		return array('title');
+		return ['title'];
 	}
 
 
@@ -75,11 +75,11 @@ class Market_ProductElementType extends Market_BaseElementType
 	 */
 	public function defineSortableAttributes()
 	{
-		return array(
+		return [
 			'availableOn' => Craft::t('Available On'),
 			'expiresOn'   => Craft::t('Expires On'),
 			'title'       => Craft::t('Name')
-		);
+		];
 	}
 
 
@@ -90,26 +90,26 @@ class Market_ProductElementType extends Market_BaseElementType
 	 */
 	public function getStatuses()
 	{
-		return array(
+		return [
 			Market_ProductModel::LIVE    => Craft::t('Live'),
 			Market_ProductModel::PENDING => Craft::t('Pending'),
 			Market_ProductModel::EXPIRED => Craft::t('Expired'),
 			BaseElementModel::DISABLED   => Craft::t('Disabled')
-		);
+		];
 	}
 
 
 	public function defineCriteriaAttributes()
 	{
-		return array(
+		return [
 			'typeId'      => AttributeType::Mixed,
 			'type'        => AttributeType::Mixed,
 			'availableOn' => AttributeType::Mixed,
 			'expiresOn'   => AttributeType::Mixed,
 			'after'       => AttributeType::Mixed,
 			'before'      => AttributeType::Mixed,
-			'status'      => array(AttributeType::String, 'default' => Market_ProductModel::LIVE),
-		);
+			'status'      => [AttributeType::String, 'default' => Market_ProductModel::LIVE],
+		];
 	}
 
 	/**
@@ -126,29 +126,29 @@ class Market_ProductElementType extends Market_BaseElementType
 
 		switch ($status) {
 			case Market_ProductModel::LIVE: {
-				return array('and',
+				return ['and',
 					'elements.enabled = 1',
 					'elements_i18n.enabled = 1',
 					"products.availableOn <= '{$currentTimeDb}'",
-					array('or', 'products.expiresOn is null', "products.expiresOn > '{$currentTimeDb}'")
-				);
+					['or', 'products.expiresOn is null', "products.expiresOn > '{$currentTimeDb}'"]
+				];
 			}
 
 			case Market_ProductModel::PENDING: {
-				return array('and',
+				return ['and',
 					'elements.enabled = 1',
 					'elements_i18n.enabled = 1',
 					"products.availableOn > '{$currentTimeDb}'"
-				);
+				];
 			}
 
 			case Market_ProductModel::EXPIRED: {
-				return array('and',
+				return ['and',
 					'elements.enabled = 1',
 					'elements_i18n.enabled = 1',
 					'products.expiresOn is not null',
 					"products.expiresOn <= '{$currentTimeDb}'"
-				);
+				];
 			}
 		}
 	}

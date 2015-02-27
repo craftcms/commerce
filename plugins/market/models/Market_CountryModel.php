@@ -20,12 +20,12 @@ class Market_CountryModel extends BaseModel
 
 	protected function defineAttributes()
 	{
-		return array(
+		return [
 			'id'            => AttributeType::Number,
 			'name'          => AttributeType::String,
 			'iso'           => AttributeType::String,
 			'stateRequired' => AttributeType::Bool,
-		);
+		];
 	}
 
 }

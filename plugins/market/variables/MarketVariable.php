@@ -103,7 +103,7 @@ class MarketVariable
 		craft()->path->setTemplatesPath(craft()->path->getCpTemplatesPath());
 
 		// Render the macro.
-		$html = craft()->templates->renderMacro('_includes/forms', $macro, array($args));
+		$html = craft()->templates->renderMacro('_includes/forms', $macro, [$args]);
 
 		// Restore the original template path
 		craft()->path->setTemplatesPath($originalPath);

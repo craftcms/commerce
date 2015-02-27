@@ -47,7 +47,7 @@ class Market_TaxRateService extends BaseApplicationComponent
 			$record = Market_TaxRateRecord::model()->findById($model->id);
 
 			if (!$record) {
-				throw new Exception(Craft::t('No tax rate exists with the ID “{id}”', array('id' => $model->id)));
+				throw new Exception(Craft::t('No tax rate exists with the ID “{id}”', ['id' => $model->id]));
 			}
 		} else {
 			$record = new Market_TaxRateRecord();

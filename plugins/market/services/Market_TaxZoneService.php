@@ -18,8 +18,8 @@ class Market_TaxZoneService extends BaseApplicationComponent
 	 */
 	public function getAll($withRelations = true)
 	{
-		$with    = $withRelations ? array('countries', 'states', 'states.country') : array();
-		$records = Market_TaxZoneRecord::model()->with($with)->findAll(array('order' => 't.name'));
+		$with    = $withRelations ? ['countries', 'states', 'states.country'] : [];
+		$records = Market_TaxZoneRecord::model()->with($with)->findAll(['order' => 't.name']);
 
 		return Market_TaxZoneModel::populateModels($records);
 	}

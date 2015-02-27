@@ -108,7 +108,7 @@ class AStateMachine extends BaseBehavior implements \IApplicationComponent
 	 *
 	 * @var AState[]
 	 */
-	protected $_states = array();
+	protected $_states = [];
 	/**
 	 * Whether the state machine is initialized or not
 	 *
@@ -319,7 +319,7 @@ class AStateMachine extends BaseBehavior implements \IApplicationComponent
 	{
 		$state = $this->getState();
 		if (is_object($state) && method_exists($state, $name)) {
-			return call_user_func_array(array($state, $name), $parameters);
+			return call_user_func_array([$state, $name], $parameters);
 		}
 
 		return parent::__call($name, $parameters);
@@ -344,7 +344,7 @@ class AStateMachine extends BaseBehavior implements \IApplicationComponent
 	 */
 	public function setStates($states)
 	{
-		$this->_states = array();
+		$this->_states = [];
 		foreach ($states as $state) {
 			$this->addState($state);
 		}
@@ -531,7 +531,7 @@ class AStateMachine extends BaseBehavior implements \IApplicationComponent
 	public function getTransitionHistory()
 	{
 		if ($this->_transitionHistory === NULL) {
-			$this->_transitionHistory = new \CList(array($this->getStateName()));
+			$this->_transitionHistory = new \CList([$this->getStateName()]);
 		}
 
 		return $this->_transitionHistory;
@@ -585,7 +585,7 @@ class AStateMachine extends BaseBehavior implements \IApplicationComponent
 	 */
 	public function getAvailableStates()
 	{
-		$result = array();
+		$result = [];
 
 		foreach ($this->states as $state)
 			if ($this->canTransit($state->name))

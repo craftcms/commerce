@@ -24,36 +24,36 @@ class Market_OptionValueRecord extends BaseRecord
 
 	public function defaultScope()
 	{
-		return array(
+		return [
 			'order' => 'position',
-		);
+		];
 	}
 
 	public function defineRelations()
 	{
-		return array(
+		return [
 //            'productOptionTypes' => array(static::HAS_MANY,'Market_ProductOptionTypes','optionTypeId'),
 //            'product' => array(static::HAS_MANY,array('user_id'=>'id'),'through'=>'roles'),
-			'optionType' => array(static::BELONGS_TO, 'Market_OptionTypeRecord', 'required' => true),
-		);
+			'optionType' => [static::BELONGS_TO, 'Market_OptionTypeRecord', 'required' => true],
+		];
 	}
 
 	public function defineIndexes()
 	{
-		return array(
+		return [
 //            array('columns' => array('typeId')),
 //            array('columns' => array('availableOn')),
 //            array('columns' => array('expiresOn')),
-		);
+		];
 	}
 
 	protected function defineAttributes()
 	{
-		return array(
+		return [
 			'name'        => AttributeType::String,
 			'displayName' => AttributeType::String,
 			'position'    => AttributeType::Number,
-		);
+		];
 	}
 
 }

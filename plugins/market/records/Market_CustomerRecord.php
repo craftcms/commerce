@@ -42,8 +42,8 @@ class Market_CustomerRecord extends BaseRecord
 	 */
 	protected function defineAttributes()
 	{
-		return array(
+		return [
 			'email' => [AttributeType::Email],
-		);
+		];
 	}
 }

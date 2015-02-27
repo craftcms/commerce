@@ -38,9 +38,9 @@ class Market_ChargeController extends Market_BaseController
 		$charge        = $chargeCreator->create($charge);
 
 		if ($charge->hasErrors()) {
-			craft()->urlManager->setRouteVariables(array(
+			craft()->urlManager->setRouteVariables([
 				'charge' => $charge
-			));
+			]);
 		} else {
 			$this->redirectToPostedUrl($charge);
 		}
@@ -51,7 +51,7 @@ class Market_ChargeController extends Market_BaseController
 	 *
 	 * @throws HttpException
 	 */
-	public function actionEditCharge(array $variables = array())
+	public function actionEditCharge(array $variables = [])
 	{
 		$chargeId = $variables['chargeId'];
 		$this->renderTemplate('market/charges/_edit', compact('chargeId'));
@@ -60,7 +60,7 @@ class Market_ChargeController extends Market_BaseController
 	/**
 	 * @param array $variables
 	 */
-	public function actionRefundCharge(array $variables = array())
+	public function actionRefundCharge(array $variables = [])
 	{
 
 	}

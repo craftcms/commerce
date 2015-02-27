@@ -105,7 +105,7 @@ class Market_CustomerService extends BaseApplicationComponent
 			$customerRecord = Market_CustomerRecord::model()->findById($customer->id);
 
 			if (!$customerRecord) {
-				throw new Exception(Craft::t('No customer exists with the ID “{id}”', array('id' => $customer->id)));
+				throw new Exception(Craft::t('No customer exists with the ID “{id}”', ['id' => $customer->id]));
 			}
 		}
 

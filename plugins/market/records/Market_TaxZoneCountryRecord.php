@@ -11,11 +11,11 @@ class Market_TaxZoneCountryRecord extends BaseRecord
 
 	public function defineIndexes()
 	{
-		return array(
-			array('columns' => array('taxZoneId')),
-			array('columns' => array('countryId')),
-			array('columns' => array('taxZoneId', 'countryId'), 'unique' => true),
-		);
+		return [
+			['columns' => ['taxZoneId']],
+			['columns' => ['countryId']],
+			['columns' => ['taxZoneId', 'countryId'], 'unique' => true],
+		];
 	}
 
 
@@ -26,10 +26,10 @@ class Market_TaxZoneCountryRecord extends BaseRecord
 	 */
 	public function defineRelations()
 	{
-		return array(
-			'taxZone' => array(static::BELONGS_TO, 'Market_TaxZoneRecord', 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE, 'required' => true),
-			'country' => array(static::BELONGS_TO, 'Market_CountryRecord', 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE, 'required' => true),
-		);
+		return [
+			'taxZone' => [static::BELONGS_TO, 'Market_TaxZoneRecord', 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE, 'required' => true],
+			'country' => [static::BELONGS_TO, 'Market_CountryRecord', 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE, 'required' => true],
+		];
 	}
 
 }

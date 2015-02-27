@@ -38,7 +38,7 @@ class Market_ProductTypeService extends BaseApplicationComponent
 	 */
 	public function getByHandle($handle)
 	{
-		$productTypeRecord = Market_ProductTypeRecord::model()->findByAttributes(array('handle' => $handle));
+		$productTypeRecord = Market_ProductTypeRecord::model()->findByAttributes(['handle' => $handle]);
 
 		return Market_ProductTypeModel::populateModel($productTypeRecord);
 	}
@@ -56,7 +56,7 @@ class Market_ProductTypeService extends BaseApplicationComponent
 		if ($productType->id) {
 			$productTypeRecord = Market_ProductTypeRecord::model()->findById($productType->id);
 			if (!$productTypeRecord) {
-				throw new Exception(Craft::t('No product type exists with the ID “{id}”', array('id' => $productType->id)));
+				throw new Exception(Craft::t('No product type exists with the ID “{id}”', ['id' => $productType->id]));
 			}
 
 			$oldProductType   = Market_ProductTypeModel::populateModel($productTypeRecord);
@@ -127,7 +127,7 @@ class Market_ProductTypeService extends BaseApplicationComponent
 			$query      = craft()->db->createCommand()
 				->select('id')
 				->from('market_products')
-				->where(array('typeId' => $productType->id));
+				->where(['typeId' => $productType->id]);
 			$productIds = $query->queryColumn();
 
 			craft()->elements->deleteElementById($productIds);

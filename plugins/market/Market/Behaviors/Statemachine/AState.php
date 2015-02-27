@@ -190,7 +190,7 @@ class AState extends \CBehavior
 
 	public function getTransitsTo()
 	{
-		return ($this->_transitsTo) ? $this->_transitsTo : array();
+		return ($this->_transitsTo) ? $this->_transitsTo : [];
 	}
 
 	/**
@@ -206,7 +206,7 @@ class AState extends \CBehavior
 				if (strstr($states, ',') !== false) {
 					$transitsTo = explode(',', preg_replace('/\s+/', '', $states));
 				} else
-					$transitsTo = array(trim($states));
+					$transitsTo = [trim($states)];
 			} else {
 				throw new AStateException('Invalide transitsTo format: ' . print_r($states, true));
 			}

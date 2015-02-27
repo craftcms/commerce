@@ -29,19 +29,19 @@ class Market_OrderElementType extends Market_BaseElementType
 	public function getSources($context = NULL)
 	{
 
-		$sources = array(
-			'*' => array(
+		$sources = [
+			'*' => [
 				'label' => Craft::t('All orders'),
-			)
-		);
+			]
+		];
 
 		foreach (craft()->market_orderType->getAll() as $orderType) {
 			$key = 'orderType:' . $orderType->id;
 
-			$sources[$key] = array(
+			$sources[$key] = [
 				'label'    => $orderType->name,
-				'criteria' => array('typeId' => $orderType->id)
-			);
+				'criteria' => ['typeId' => $orderType->id]
+			];
 		}
 
 		return $sources;
@@ -50,16 +50,16 @@ class Market_OrderElementType extends Market_BaseElementType
 
 	public function defineTableAttributes($source = NULL)
 	{
-		return array(
+		return [
 			'number'     => Craft::t('Number'),
-			'state'     => Craft::t('State'),
+			'state'      => Craft::t('State'),
 			'finalPrice' => Craft::t('Final Price')
-		);
+		];
 	}
 
 	public function defineSearchableAttributes()
 	{
-		return array('number','state');
+		return ['number', 'state'];
 	}
 
 	public function getTableAttributeHtml(BaseElementModel $element, $attribute)
@@ -69,22 +69,22 @@ class Market_OrderElementType extends Market_BaseElementType
 
 	public function defineSortableAttributes()
 	{
-		return array(
+		return [
 			'number'     => Craft::t('Number'),
-			'state'     => Craft::t('State'),
+			'state'      => Craft::t('State'),
 			'finalPrice' => Craft::t('Final Price'),
-		);
+		];
 	}
 
 
 	public function defineCriteriaAttributes()
 	{
-		return array(
+		return [
 			'typeId' => AttributeType::Mixed,
 			'type'   => AttributeType::Mixed,
 			'number' => AttributeType::Mixed,
-			'state' => AttributeType::Mixed,
-		);
+			'state'  => AttributeType::Mixed,
+		];
 	}
 
 
