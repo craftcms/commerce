@@ -23,28 +23,39 @@
                 <div id="fields" class="pane">
 
                     {% if orderId is defined %}
+
                         <ul>
                             <li>ID: {{ order.id }}</li>
                             <li>Number: {{ order.number }}</li>
                             <li>State: {{ order.state }}</li>
-                            <li>Item Total: {{ order.itemTotal }}</li>
-                            <li>Adjustment Total: {{ order.adjustmentTotal }}</li>
+                            <li>couponCode          :{{ order.couponCode           }}</li>
+                            <li>state               :{{ order.state                }}</li>
+                            <li>itemTotal           :{{ order.itemTotal            }}</li>
+                            <li>baseDiscount        :{{ order.baseDiscount         }}</li>
+                            <li>baseShippingRate    :{{ order.baseShippingRate     }}</li>
+                            <li>finalPrice          :{{ order.finalPrice           }}</li>
+                            <li>email               :{{ order.email                }}</li>
+                            <li>completedAt         :{{ order.completedAt          }}</li>
+                            <li>billingAddressId    :{{ order.billingAddressId     }}</li>
+                            <li>shippingAddressId   :{{ order.shippingAddressId    }}</li>
+                            <li>shippingMethodId    :{{ order.shippingMethodId     }}</li>
+                            <li>currency            :{{ order.currency             }}</li>
+                            <li>lastIp              :{{ order.lastIp               }}</li>
+                            <li>orderDate           :{{ order.orderDate            }}</li>
                         </ul>
 
 
                             {%  for lineItem in order.lineItems %}
                                 <ul>
                                 <li>ID: {{ lineItem.id }}</li>
-                                <li>Price: {{ lineItem.price }}</li>
-                                <li>Sale Price: {{ lineItem.salePrice }}</li>
-                                <li>Subtotal: {{ lineItem.subtotal }}</li>
-                                <li>Taxes: {{ lineItem.taxAmount }}</li>
-                                <li>Ship Total: {{ lineItem.shipTotal }}</li>
-                                <li>Total: {{ lineItem.total }}</li>
-                                <li>Total Inc Tax: {{ lineItem.totalIncTax }}</li>
-                                <li>Quantity: {{ lineItem.qty }}</li>
-                                <li>Order Id: {{ lineItem.orderId }}</li>
-                                <li>Variant Id: {{ lineItem.variantId }}</li>
+                                <li>price: {{ lineItem.price }}</li>
+                                <li>saleAmount: {{ lineItem.saleAmount }}</li>
+                                <li>taxAmount: {{ lineItem.taxAmount }}</li>
+                                <li>shippingAmount: {{ lineItem.shippingAmount }}</li>
+                                <li>discountAmount: {{ lineItem.discountAmount }}</li>
+                                <li>weight: {{ lineItem.weight }}</li>
+                                <li>total: {{ lineItem.total }}</li>
+                                <li>qty: {{ lineItem.qty }}</li>
                                 </ul>
                             {% endfor %}
 
@@ -80,6 +91,8 @@
 
 
                     {% if orderId is defined %}
+                        <h2>{{order.finalPrice|number_format(2) }}</h2>
+                        <h2>{{order.state|title }}</h2>
                         <div class="btngroup">
                             <input type="button" class="btn small formsubmit" value="{{ 'Delete'|t }}"
                                    data-action="market/order/deleteOrder"
