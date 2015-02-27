@@ -5,7 +5,7 @@ namespace Craft;
 require 'vendor/autoload.php';
 
 use Market\Extensions\MarketTwigExtension;
-use Market\Market;
+//use Market\Market;
 
 class MarketPlugin extends BasePlugin
 {
@@ -19,11 +19,11 @@ class MarketPlugin extends BasePlugin
 //
 //            return new Stripe($key);
 //        };
-        Market::app()["hashids"] = function ($c) {
-			$len = craft()->config->get('orderNumberLength', $this->handle);
-			$alphabet = craft()->config->get('orderNumberAlphabet', $this->handle);
-			return new \Hashids\Hashids("market",$len,$alphabet);
-		};
+//        Market::app()["hashids"] = function ($c) {
+//			$len = craft()->config->get('orderNumberLength', $this->handle);
+//			$alphabet = craft()->config->get('orderNumberAlphabet', $this->handle);
+//			return new \Hashids\Hashids("market",$len,$alphabet);
+//		};
 	}
 
 	public function getName()
@@ -65,16 +65,11 @@ class MarketPlugin extends BasePlugin
             craft()->market_seed->testData();
         }
 
-//        $fieldLayout = array('type' => 'Market_Charge');
-//        $fieldLayout = FieldLayoutModel::populateModel($fieldLayout);
-//        craft()->fields->saveLayout($fieldLayout);
 	}
 
 	public function onBeforeUninstall()
 	{
-//        $fieldLayout = array('type' => 'Market_Charge');
-//        $fieldLayout = FieldLayoutModel::populateModel($fieldLayout);
-//        craft()->fields->saveLayout($fieldLayout);
+
 	}
 
 	public function registerCpRoutes()
@@ -88,9 +83,6 @@ class MarketPlugin extends BasePlugin
 	protected function defineSettings()
 	{
 		return array(
-			'secretKey'       => AttributeType::String,
-			'publishableKey'  => AttributeType::String,
-			//TODO: Fill currency enum values dynamically based on https://support.stripe.com/questions/which-currencies-does-stripe-support
 			'defaultCurrency' => AttributeType::String
 		);
 	}
