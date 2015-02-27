@@ -78,4 +78,12 @@ class Market_TransactionService extends BaseApplicationComponent
         return false;
     }
 
+    /**
+     * @param Market_TransactionModel $transaction
+     */
+    public function delete(Market_TransactionModel $transaction)
+    {
+        Market_TransactionRecord::model()->deleteByPk($transaction->id);
+    }
+
 }

@@ -296,7 +296,7 @@ class Market_TestSeeder implements Market_SeederInterface
         $model = \Craft\craft()->market_paymentMethod->getByClass('Stripe');
         $model->frontendEnabled = true;
         $model->settings = [
-            'apiKey' => 'sk_live_EseJ7kE5GVZSjksIBxQHOGV7',
+            'apiKey' => 'sk_test_8Lvmi5qDkbHRLCsyexhvOGuj',
         ];
         \Craft\craft()->market_paymentMethod->save($model);
     }

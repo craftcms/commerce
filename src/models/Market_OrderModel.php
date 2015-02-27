@@ -116,7 +116,7 @@ class Market_OrderModel extends BaseElementModel
 						'transitsTo' => Market_OrderRecord::STATE_PAYMENT
 					], [
 						'name' => Market_OrderRecord::STATE_PAYMENT,
-						'transitsTo' => Market_OrderRecord::STATE_CONFIRM
+						'transitsTo' => [Market_OrderRecord::STATE_CONFIRM, Market_OrderRecord::STATE_COMPLETE],
 					], [
 						'name' => Market_OrderRecord::STATE_CONFIRM,
 						'transitsTo' => Market_OrderRecord::STATE_COMPLETE

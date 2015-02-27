@@ -40,7 +40,9 @@ class Market_PaymentMethodModel extends BaseModel
 	public function getGateway()
 	{
 		if (!empty($this->class)) {
-			return craft()->market_gateway->getGateway($this->class);
+			$gw = craft()->market_gateway->getGateway($this->class);
+            $gw->initialize($this->settings);
+            return $gw;
 		}
 
 		return NULL;
