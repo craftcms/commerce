@@ -3,15 +3,6 @@ namespace Craft;
 
 class MarketVariable
 {
-	/**
-	 * Get Stripe Plans
-	 *
-	 * @return mixed
-	 */
-	public function plans()
-	{
-		return craft()->market_plans->getPlans();
-	}
 
 	/**
 	 * Get Market settings
@@ -21,16 +12,6 @@ class MarketVariable
 	public function config()
 	{
 		return craft()->market_settings->getSettings();
-	}
-
-	/**
-	 * @param array|null $criteria
-	 *
-	 * @return ElementCriteriaModel|null
-	 */
-	public function charges($criteria = NULL)
-	{
-		return craft()->elements->getCriteria('Market_Charge', $criteria);
 	}
 
 	/**

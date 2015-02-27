@@ -53,7 +53,7 @@ class Market_OrderElementType extends Market_BaseElementType
 		return array(
 			'number'     => Craft::t('Number'),
 			'state'     => Craft::t('State'),
-			'finalPrice' => Craft::t('Final Price'),
+			'finalPrice' => Craft::t('Final Price')
 		);
 	}
 
@@ -64,8 +64,6 @@ class Market_OrderElementType extends Market_BaseElementType
 
 	public function getTableAttributeHtml(BaseElementModel $element, $attribute)
 	{
-		switch $attribute:
-		
 		return parent::getTableAttributeHtml($element, $attribute);
 	}
 
