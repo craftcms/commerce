@@ -55,7 +55,6 @@ class Market_ProductService extends BaseApplicationComponent
                     if($variant->salePrice < 0) {
                         $variant->salePrice = 0;
                     }
-                    var_dump($variant->salePrice);
                 }
             }
         }
