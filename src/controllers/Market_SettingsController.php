@@ -32,7 +32,7 @@ class Market_SettingsController extends Market_BaseController
 		$this->requirePostRequest();
 		$postData = craft()->request->getPost('settings');
 		$settings = Market_SettingsModel::populateModel($postData);
-		
+
 		if (!$settings->validate()) {
 			craft()->userSession->setError(Craft::t('Error, Market settings not saved.'));
 			$this->renderTemplate('market/settings', array(
