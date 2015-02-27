@@ -5,6 +5,7 @@ namespace Craft;
 require 'vendor/autoload.php';
 
 use Market\Extensions\MarketTwigExtension;
+
 //use Market\Market;
 
 class MarketPlugin extends BasePlugin
@@ -59,11 +60,11 @@ class MarketPlugin extends BasePlugin
 	 */
 	public function onAfterInstall()
 	{
-        craft()->market_seed->afterInstall();
+		craft()->market_seed->afterInstall();
 
-        if(craft()->config->get('devMode')) {
-            craft()->market_seed->testData();
-        }
+		if (craft()->config->get('devMode')) {
+			craft()->market_seed->testData();
+		}
 
 	}
 
@@ -78,21 +79,23 @@ class MarketPlugin extends BasePlugin
 	}
 
 	/**
-	 * @return array
-	 */
-	protected function defineSettings()
-	{
-        $settingModel = new Market_SettingsModel;
-		return $settingModel->defineAttributes();
-    }
-
-    /**
 	 * Adding our custom twig functionality
+	 *
 	 * @return MarketTwigExtension
 	 */
 	public function addTwigExtension()
 	{
 		return new MarketTwigExtension;
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function defineSettings()
+	{
+		$settingModel = new Market_SettingsModel;
+
+		return $settingModel->defineAttributes();
 	}
 
 }

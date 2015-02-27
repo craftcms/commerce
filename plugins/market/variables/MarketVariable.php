@@ -24,13 +24,13 @@ class MarketVariable
 		return craft()->elements->getCriteria('Market_Product', $criteria);
 	}
 
-    /**
-     * @return Market_ProductModel[]
-     */
-    public function productsWithSales()
-    {
-        return craft()->market_product->getAllWithSales();
-    }
+	/**
+	 * @return Market_ProductModel[]
+	 */
+	public function productsWithSales()
+	{
+		return craft()->market_product->getAllWithSales();
+	}
 
 	/**
 	 * @param array|null $criteria
@@ -74,21 +74,24 @@ class MarketVariable
 		return craft()->market_state->getGroupedByCountries();
 	}
 
-    public function getShippingMethods()
-    {
-        return craft()->market_shippingMethod->calculateForCart();
-    }
+	public function getShippingMethods()
+	{
+		return craft()->market_shippingMethod->calculateForCart();
+	}
 
-    public function getPaymentMethods()
-    {
-        $methods = craft()->market_paymentMethod->getAllForFrontend();
-        return \CHtml::listData($methods, 'id', 'name');
-    }
+	public function getPaymentMethods()
+	{
+		$methods = craft()->market_paymentMethod->getAllForFrontend();
+
+		return \CHtml::listData($methods, 'id', 'name');
+	}
 
 	/**
 	 * A way to use form.* macros in our templates
+	 *
 	 * @param string $macro
-	 * @param array $args
+	 * @param array  $args
+	 *
 	 * @return \Twig_Markup
 	 */
 	public function renderFormMacro($macro, array $args)

@@ -9,10 +9,11 @@ namespace Craft;
  */
 class Market_TaxRateService extends BaseApplicationComponent
 {
-    /**
-     * @param \CDbCriteria|array $criteria
-     * @return Market_TaxRateModel[]
-     */
+	/**
+	 * @param \CDbCriteria|array $criteria
+	 *
+	 * @return Market_TaxRateModel[]
+	 */
 	public function getAll($criteria = [])
 	{
 		$records = Market_TaxRateRecord::model()->findAll($criteria);
@@ -61,12 +62,12 @@ class Market_TaxRateService extends BaseApplicationComponent
 
 		$record->validate();
 
-        if(!$record->getError('taxZoneId')) {
-            $taxZone = craft()->market_taxZone->getById($record->taxZoneId);
-            if($record->include && !$taxZone->default) {
-                $record->addError('include', 'Included rates allowed for default tax zone only');
-            }
-        }
+		if (!$record->getError('taxZoneId')) {
+			$taxZone = craft()->market_taxZone->getById($record->taxZoneId);
+			if ($record->include && !$taxZone->default) {
+				$record->addError('include', 'Included rates allowed for default tax zone only');
+			}
+		}
 
 		$model->addErrors($record->getErrors());
 

@@ -9,82 +9,87 @@ namespace Craft;
  */
 class Market_ShippingMethodService extends BaseApplicationComponent
 {
-    /**
-     * @param array|\CDbCriteria $criteria
-     * @return Market_ShippingMethodModel[]
-     */
-	public function getAll($criteria = [])
-	{
-		$records = Market_ShippingMethodRecord::model()->findAll($criteria);
-		return Market_ShippingMethodModel::populateModels($records);
-	}
-
 	/**
 	 * @param int $id
+	 *
 	 * @return Market_ShippingMethodModel
 	 */
 	public function getById($id)
 	{
 		$record = Market_ShippingMethodRecord::model()->findById($id);
+
 		return Market_ShippingMethodModel::populateModel($record);
 	}
 
-    /**
-     * @return bool
-     */
-    public function exists()
-    {
-        return Market_ShippingMethodRecord::model()->exists();
-    }
+	/**
+	 * @return bool
+	 */
+	public function exists()
+	{
+		return Market_ShippingMethodRecord::model()->exists();
+	}
 
-    /**
-     * @return array
-     * @throws Exception
-     */
-    public function calculateForCart()
-    {
-        $cart = craft()->market_cart->getCart();
+	/**
+	 * @return array
+	 * @throws Exception
+	 */
+	public function calculateForCart()
+	{
+		$cart = craft()->market_cart->getCart();
 
-        $availableMethods = [];
-        $methods = $this->getAll(['with' => 'rules']);
+		$availableMethods = [];
+		$methods          = $this->getAll(['with' => 'rules']);
 
-        foreach($methods as $method) {
-            if($rule = $this->getMatchingRule($cart, $method)) {
-                $amount = $rule->baseRate;
-                $amount += $rule->perItemRate * $cart->totalQty;
-                $amount += $rule->weightRate * $cart->totalWeight;
-                $amount += $rule->percentageRate * $cart->itemTotal;
-                $amount = max($amount, $rule->minRate * 1);
+		foreach ($methods as $method) {
+			if ($rule = $this->getMatchingRule($cart, $method)) {
+				$amount = $rule->baseRate;
+				$amount += $rule->perItemRate * $cart->totalQty;
+				$amount += $rule->weightRate * $cart->totalWeight;
+				$amount += $rule->percentageRate * $cart->itemTotal;
+				$amount = max($amount, $rule->minRate * 1);
 
-                if ($rule->maxRate * 1) {
-                    $amount = min($amount, $rule->maxRate * 1);
-                }
+				if ($rule->maxRate * 1) {
+					$amount = min($amount, $rule->maxRate * 1);
+				}
 
-                $availableMethods[$method->id] = [
-                    'name' => $method->name,
-                    'amount' => $amount,
-                ];
-            }
-        }
+				$availableMethods[$method->id] = [
+					'name'   => $method->name,
+					'amount' => $amount,
+				];
+			}
+		}
 
-        return $availableMethods;
-    }
+		return $availableMethods;
+	}
 
-    /**
-     * @param Market_OrderModel          $order
-     * @param Market_ShippingMethodModel $method
-     * @return bool|Market_ShippingRuleModel
-     */
-    public function getMatchingRule(Market_OrderModel $order, Market_ShippingMethodModel $method)
-    {
-        foreach($method->rules as $rule) {
-            if(craft()->market_shippingRule->matchOrder($rule, $order)) {
-                return $rule;
-            }
-        }
+	/**
+	 * @param array|\CDbCriteria $criteria
+	 *
+	 * @return Market_ShippingMethodModel[]
+	 */
+	public function getAll($criteria = [])
+	{
+		$records = Market_ShippingMethodRecord::model()->findAll($criteria);
 
-        return false;
-    }
+		return Market_ShippingMethodModel::populateModels($records);
+	}
+
+	/**
+	 * @param Market_OrderModel          $order
+	 * @param Market_ShippingMethodModel $method
+	 *
+	 * @return bool|Market_ShippingRuleModel
+	 */
+	public function getMatchingRule(Market_OrderModel $order, Market_ShippingMethodModel $method)
+	{
+		foreach ($method->rules as $rule) {
+			if (craft()->market_shippingRule->matchOrder($rule, $order)) {
+				return $rule;
+			}
+		}
+
+		return false;
+	}
 
 	/**
 	 * @param Market_ShippingMethodModel $model
@@ -128,6 +133,6 @@ class Market_ShippingMethodService extends BaseApplicationComponent
 	 */
 	public function deleteById($id)
 	{
-        Market_ShippingMethodRecord::model()->deleteByPk($id);
+		Market_ShippingMethodRecord::model()->deleteByPk($id);
 	}
 }

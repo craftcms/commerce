@@ -13,49 +13,54 @@ class Market_PaymentMethodService extends BaseApplicationComponent
 
 	/**
 	 * @param int $id
+	 *
 	 * @return Market_PaymentMethodModel
 	 */
 	public function getById($id)
 	{
 		$record = Market_PaymentMethodRecord::model()->findById($id);
+
 		return Market_PaymentMethodModel::populateModel($record);
 	}
 
-    /**
-     * @return Market_PaymentMethodModel[]
-     */
-    public function getAllForCp()
-    {
-        $records = Market_PaymentMethodRecord::model()->findAllByAttributes([self::CP_ENABLED => true]);
-        return Market_PaymentMethodModel::populateModels($records);
-    }
+	/**
+	 * @return Market_PaymentMethodModel[]
+	 */
+	public function getAllForCp()
+	{
+		$records = Market_PaymentMethodRecord::model()->findAllByAttributes([self::CP_ENABLED => true]);
 
-    /**
-     * @return Market_PaymentMethodModel[]
-     */
-    public function getAllForFrontend()
-    {
-        $records = Market_PaymentMethodRecord::model()->findAllByAttributes([self::FRONTEND_ENABLED => true]);
-        return Market_PaymentMethodModel::populateModels($records);
-    }
+		return Market_PaymentMethodModel::populateModels($records);
+	}
 
-    /**
-     * @return Market_PaymentMethodModel[]
-     */
-    public function getAllPossibleGateways()
-    {
-        $paymentMethods = [];
-        $gateways       = craft()->market_gateway->getGateways();
+	/**
+	 * @return Market_PaymentMethodModel[]
+	 */
+	public function getAllForFrontend()
+	{
+		$records = Market_PaymentMethodRecord::model()->findAllByAttributes([self::FRONTEND_ENABLED => true]);
 
-        foreach ($gateways as $gateway) {
-            $paymentMethods[] = $this->getByClass($gateway->getShortName());
-        }
+		return Market_PaymentMethodModel::populateModels($records);
+	}
 
-        return $paymentMethods;
-    }
+	/**
+	 * @return Market_PaymentMethodModel[]
+	 */
+	public function getAllPossibleGateways()
+	{
+		$paymentMethods = [];
+		$gateways       = craft()->market_gateway->getGateways();
+
+		foreach ($gateways as $gateway) {
+			$paymentMethods[] = $this->getByClass($gateway->getShortName());
+		}
+
+		return $paymentMethods;
+	}
 
 	/**
 	 * @param string $class
+	 *
 	 * @return Market_PaymentMethodModel
 	 */
 	public function getByClass($class)

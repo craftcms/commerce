@@ -19,9 +19,9 @@ class Market_TaxRateController extends Market_BaseController
 	public function actionIndex()
 	{
 		$taxRates = craft()->market_taxRate->getAll([
-            'with' => ['taxZone', 'taxCategory'],
-            'order' => 't.name',
-        ]);
+			'with'  => ['taxZone', 'taxCategory'],
+			'order' => 't.name',
+		]);
 		$this->renderTemplate('market/settings/taxrates/index', compact('taxRates'));
 	}
 

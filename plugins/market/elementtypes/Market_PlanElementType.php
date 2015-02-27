@@ -1,7 +1,7 @@
 <?php
 namespace Craft;
 
-require_once(__DIR__.'/Market_BaseElementType.php');
+require_once(__DIR__ . '/Market_BaseElementType.php');
 
 class Market_PlanElementType extends Market_BaseElementType
 {

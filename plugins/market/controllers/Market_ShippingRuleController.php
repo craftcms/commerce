@@ -16,11 +16,11 @@ class Market_ShippingRuleController extends Market_BaseController
 	 */
 	public function actionIndex()
 	{
-        $methodsExist = craft()->market_shippingMethod->exists();
+		$methodsExist  = craft()->market_shippingMethod->exists();
 		$shippingRules = craft()->market_shippingRule->getAll([
-            'order' => 't.methodId, t.name',
-            'with' => ['method', 'country', 'state'],
-        ]);
+			'order' => 't.methodId, t.name',
+			'with'  => ['method', 'country', 'state'],
+		]);
 		$this->renderTemplate('market/settings/shippingrules/index', compact('shippingRules', 'methodsExist'));
 	}
 
@@ -28,13 +28,14 @@ class Market_ShippingRuleController extends Market_BaseController
 	 * Create/Edit Shipping Rule
 	 *
 	 * @param array $variables
+	 *
 	 * @throws HttpException
 	 */
 	public function actionEdit(array $variables = [])
 	{
 		if (empty($variables['shippingRule'])) {
 			if (!empty($variables['id'])) {
-				$id = $variables['id'];
+				$id                        = $variables['id'];
 				$variables['shippingRule'] = craft()->market_shippingRule->getById($id);
 
 				if (!$variables['shippingRule']->id) {
@@ -45,10 +46,10 @@ class Market_ShippingRuleController extends Market_BaseController
 			}
 		}
 
-        $variables['countries'] = ['' => ''] + craft()->market_country->getFormList();
-        $variables['states'] = craft()->market_state->getGroupedByCountries();
-        $methods = craft()->market_shippingMethod->getAll(['order' => 'name']);
-        $variables['methods'] = \CHtml::listData($methods, 'id', 'name');
+		$variables['countries'] = ['' => ''] + craft()->market_country->getFormList();
+		$variables['states']    = craft()->market_state->getGroupedByCountries();
+		$methods                = craft()->market_shippingMethod->getAll(['order' => 'name']);
+		$variables['methods']   = \CHtml::listData($methods, 'id', 'name');
 
 		if (!empty($variables['id'])) {
 			$variables['title'] = $variables['shippingRule']->name;
@@ -69,11 +70,11 @@ class Market_ShippingRuleController extends Market_BaseController
 		$shippingRule = new Market_ShippingRuleModel();
 
 		// Shared attributes
-        $fields = ['id', 'name', 'description', 'countryId', 'stateId', 'methodId', 'enabled', 'minQty', 'maxQty', 'minTotal', 'maxTotal',
-                   'minWeight', 'maxWeight', 'baseRate', 'perItemRate', 'weightRate', 'percentageRate', 'minRate', 'maxRate'];
-        foreach($fields as $field) {
-            $shippingRule->$field = craft()->request->getPost($field);
-        }
+		$fields = ['id', 'name', 'description', 'countryId', 'stateId', 'methodId', 'enabled', 'minQty', 'maxQty', 'minTotal', 'maxTotal',
+			'minWeight', 'maxWeight', 'baseRate', 'perItemRate', 'weightRate', 'percentageRate', 'minRate', 'maxRate'];
+		foreach ($fields as $field) {
+			$shippingRule->$field = craft()->request->getPost($field);
+		}
 
 		// Save it
 		if (craft()->market_shippingRule->save($shippingRule)) {

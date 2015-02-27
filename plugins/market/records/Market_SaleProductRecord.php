@@ -30,7 +30,7 @@ class Market_SaleProductRecord extends BaseRecord
 	public function defineRelations()
 	{
 		return [
-			'sale'      => [static::BELONGS_TO, 'Market_SaleRecord', 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE, 'required' => true],
+			'sale'    => [static::BELONGS_TO, 'Market_SaleRecord', 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE, 'required' => true],
 			'product' => [static::BELONGS_TO, 'Market_ProductRecord', 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE, 'required' => true],
 		];
 	}
@@ -38,10 +38,9 @@ class Market_SaleProductRecord extends BaseRecord
 	protected function defineAttributes()
 	{
 		return [
-			'saleId'        => [AttributeType::Number, 'required' => true],
-			'productId'     => [AttributeType::Number, 'required' => true],
+			'saleId'    => [AttributeType::Number, 'required' => true],
+			'productId' => [AttributeType::Number, 'required' => true],
 		];
 	}
-
 
 }

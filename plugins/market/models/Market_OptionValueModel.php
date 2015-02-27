@@ -5,11 +5,11 @@ namespace Craft;
 /**
  * Class Market_OptionValueModel
  *
- * @property int    id
- * @property string name
- * @property string displayName
- * @property int    position
- * @property int    optionTypeId
+ * @property int                    id
+ * @property string                 name
+ * @property string                 displayName
+ * @property int                    position
+ * @property int                    optionTypeId
  *
  * @property Market_OptionTypeModel optionType
  * @package Craft
@@ -39,6 +39,22 @@ class Market_OptionValueModel extends BaseModel
 		];
 	}
 
+	/**
+	 * @param array|Market_OptionValueRecord $values
+	 *
+	 * @return Market_OptionValueModel
+	 */
+	public static function populateModel($values)
+	{
+		/** @var Market_OptionValueModel $model */
+		$model = parent::populateModel($values);
+		if (is_object($values) && $values instanceof Market_OptionValueRecord) {
+			$model->record = $values;
+		}
+
+		return $model;
+	}
+
 	function __toString()
 	{
 		return Craft::t($this->displayName);
@@ -54,7 +70,7 @@ class Market_OptionValueModel extends BaseModel
 	 */
 	public function getOptionType()
 	{
-		if($this->record) {
+		if ($this->record) {
 			return Market_OptionTypeModel::populateModel($this->record->optionType);
 		} else {
 			return craft()->market_optionType->getById($this->optionTypeId);
@@ -70,19 +86,5 @@ class Market_OptionValueModel extends BaseModel
 			'position'     => AttributeType::Number,
 			'optionTypeId' => AttributeType::Number
 		];
-	}
-
-	/**
-	 * @param array|Market_OptionValueRecord $values
-	 * @return Market_OptionValueModel
-	 */
-	public static function populateModel($values)
-	{
-		/** @var Market_OptionValueModel $model */
-		$model = parent::populateModel($values);
-		if(is_object($values) && $values instanceof Market_OptionValueRecord) {
-			$model->record = $values;
-		}
-		return $model;
 	}
 }

@@ -1,24 +1,25 @@
 <?php
 
 namespace Craft;
+
 use Market\Traits\Market_ModelRelationsTrait;
 
 /**
  * Class Market_TaxZoneModel
  *
- * @property int    $id
- * @property string $name
- * @property string $description
- * @property bool   $countryBased
- * @property bool   $default
+ * @property int                   $id
+ * @property string                $name
+ * @property string                $description
+ * @property bool                  $countryBased
+ * @property bool                  $default
  *
  * @property Market_CountryModel[] $countries
- * @property Market_StateModel[] $states
+ * @property Market_StateModel[]   $states
  * @package Craft
  */
 class Market_TaxZoneModel extends BaseModel
 {
-    use Market_ModelRelationsTrait;
+	use Market_ModelRelationsTrait;
 
 	public function getCpEditUrl()
 	{
@@ -45,9 +46,9 @@ class Market_TaxZoneModel extends BaseModel
 		}, $this->states);
 	}
 
-    /**
-     * @return array
-     */
+	/**
+	 * @return array
+	 */
 	public function getCountriesNames()
 	{
 		return array_map(function ($country) {
@@ -55,9 +56,9 @@ class Market_TaxZoneModel extends BaseModel
 		}, $this->countries);
 	}
 
-    /**
-     * @return array
-     */
+	/**
+	 * @return array
+	 */
 	public function getStatesNames()
 	{
 		return array_map(function ($state) {
@@ -71,8 +72,8 @@ class Market_TaxZoneModel extends BaseModel
 			'id'           => AttributeType::Number,
 			'name'         => AttributeType::String,
 			'description'  => AttributeType::String,
-            'countryBased' => [AttributeType::Bool, 'default' => 1],
-            'default'      => [AttributeType::Bool, 'default' => 0],
+			'countryBased' => [AttributeType::Bool, 'default' => 1],
+			'default'      => [AttributeType::Bool, 'default' => 0],
 		];
 	}
 }

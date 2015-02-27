@@ -46,7 +46,8 @@ class AState extends \CBehavior
 	/**
 	 * Invoked before the state is transitioned to
 	 *
-	 * @return boolean true if the event is valid and the transition should be allowed to continue
+	 * @return boolean true if the event is valid and the transition should be
+	 *                 allowed to continue
 	 */
 	public function beforeEnter()
 	{
@@ -96,7 +97,8 @@ class AState extends \CBehavior
 	 *
 	 * @param  AState $toState The state we're transitioning to
 	 *
-	 * @return boolean true if the event is valid and the transition should be allowed to continue
+	 * @return boolean true if the event is valid and the transition should be
+	 *                 allowed to continue
 	 */
 	public function beforeExit(AState $toState)
 	{

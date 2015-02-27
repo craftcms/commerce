@@ -1,6 +1,7 @@
 <?php
 
 namespace Craft;
+
 use Market\Helpers\MarketDbHelper;
 
 /**
@@ -10,13 +11,15 @@ use Market\Helpers\MarketDbHelper;
  */
 class Market_OrderTypeService extends BaseApplicationComponent
 {
-    /**
-     * @param array|\CDbCriteria $criteria
-     * @return Market_OrderTypeModel[]
-     */
+	/**
+	 * @param array|\CDbCriteria $criteria
+	 *
+	 * @return Market_OrderTypeModel[]
+	 */
 	public function getAll($criteria = [])
 	{
 		$orderTypeRecords = Market_OrderTypeRecord::model()->findAll($criteria);
+
 		return Market_OrderTypeModel::populateModels($orderTypeRecords);
 	}
 
@@ -46,11 +49,13 @@ class Market_OrderTypeService extends BaseApplicationComponent
 
 	/**
 	 * Get first (default) order type from the DB
+	 *
 	 * @return Market_OrderTypeModel
 	 */
 	public function getFirst()
 	{
 		$orderType = Market_OrderTypeRecord::model()->find(['order' => 'id', 'limit' => 1]);
+
 		return Market_OrderTypeModel::populateModel($orderType);
 	}
 
@@ -74,11 +79,11 @@ class Market_OrderTypeService extends BaseApplicationComponent
 			$isNewOrderType = false;
 		} else {
 			$orderTypeRecord = new Market_OrderTypeRecord();
-			$isNewOrderType = true;
+			$isNewOrderType  = true;
 		}
 
-		$orderTypeRecord->name   = $orderType->name;
-		$orderTypeRecord->handle = $orderType->handle;
+		$orderTypeRecord->name             = $orderType->name;
+		$orderTypeRecord->handle           = $orderType->handle;
 		$orderTypeRecord->shippingMethodId = $orderType->shippingMethodId;
 
 		$orderTypeRecord->validate();
@@ -127,7 +132,7 @@ class Market_OrderTypeService extends BaseApplicationComponent
 
 	public function deleteById($id)
 	{
-        MarketDbHelper::beginStackedTransaction();
+		MarketDbHelper::beginStackedTransaction();
 		try {
 			$orderType = Market_OrderTypeRecord::model()->findById($id);
 
@@ -143,11 +148,11 @@ class Market_OrderTypeService extends BaseApplicationComponent
 
 			$affectedRows = $orderType->delete();
 
-            MarketDbHelper::commitStackedTransaction();
+			MarketDbHelper::commitStackedTransaction();
 
 			return (bool)$affectedRows;
 		} catch (\Exception $e) {
-            MarketDbHelper::rollbackStackedTransaction();
+			MarketDbHelper::rollbackStackedTransaction();
 			throw $e;
 		}
 	}

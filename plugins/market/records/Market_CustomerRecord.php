@@ -3,11 +3,12 @@ namespace Craft;
 
 /**
  * Class Market_CustomerRecord
+ *
  * @package Craft
  *
- * @property int id
- * @property string email
- * @property int userId
+ * @property int                            id
+ * @property string                         email
+ * @property int                            userId
  *
  * @property Market_CustomerAddressRecord[] addresses
  */
@@ -24,6 +25,17 @@ class Market_CustomerRecord extends BaseRecord
 	}
 
 	/**
+	 * @return array
+	 */
+	public function defineRelations()
+	{
+		return [
+			'user'      => [static::BELONGS_TO, 'UserRecord'],
+			'addresses' => [static::HAS_MANY, 'Market_CustomerAddressRecord', 'customerId'],
+		];
+	}
+
+	/**
 	 * @inheritDoc BaseRecord::defineAttributes()
 	 *
 	 * @return array
@@ -33,16 +45,5 @@ class Market_CustomerRecord extends BaseRecord
 		return array(
 			'email' => [AttributeType::Email],
 		);
-	}
-
-	/**
-	 * @return array
-	 */
-	public function defineRelations()
-	{
-		return [
-			'user'      => [static::BELONGS_TO, 'UserRecord'],
-			'addresses' => [static::HAS_MANY, 'Market_CustomerAddressRecord', 'customerId'],
-		];
 	}
 }

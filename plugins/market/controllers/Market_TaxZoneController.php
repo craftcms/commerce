@@ -54,7 +54,7 @@ class Market_TaxZoneController extends Market_BaseController
 		$states    = craft()->market_state->getAll();
 
 		$variables['countries'] = \CHtml::listData($countries, 'id', 'name');
-        $variables['states'] = \CHtml::listData($states, 'id', 'name');
+		$variables['states']    = \CHtml::listData($states, 'id', 'name');
 
 		$this->renderTemplate('market/settings/taxZones/_edit', $variables);
 	}
@@ -86,9 +86,9 @@ class Market_TaxZoneController extends Market_BaseController
 
 		// Send the model back to the template
 		craft()->urlManager->setRouteVariables(['taxZone' => $taxZone]);
-    }
+	}
 
-    /**
+	/**
 	 * @throws HttpException
 	 */
 	public function actionDelete()
@@ -99,7 +99,7 @@ class Market_TaxZoneController extends Market_BaseController
 		$id = craft()->request->getRequiredPost('id');
 
 		craft()->market_taxZone->deleteById($id);
-        $this->returnJson(['success' => true]);
-    }
+		$this->returnJson(['success' => true]);
+	}
 
 }

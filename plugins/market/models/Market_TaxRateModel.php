@@ -1,26 +1,27 @@
 <?php
 
 namespace Craft;
+
 use Market\Traits\Market_ModelRelationsTrait;
 
 /**
  * Class Market_TaxRateModel
  *
- * @property int    $id
- * @property string $name
- * @property float  $rate
- * @property bool   $include
- * @property bool   $showInLabel
- * @property int    $taxZoneId
- * @property int    $taxCategoryId
+ * @property int                        $id
+ * @property string                     $name
+ * @property float                      $rate
+ * @property bool                       $include
+ * @property bool                       $showInLabel
+ * @property int                        $taxZoneId
+ * @property int                        $taxCategoryId
  *
- * @property Market_TaxZoneModel    $taxZone
+ * @property Market_TaxZoneModel        $taxZone
  * @property Market_TaxCategoryModel    $taxCategory
  * @package Craft
  */
 class Market_TaxRateModel extends BaseModel
 {
-    use Market_ModelRelationsTrait;
+	use Market_ModelRelationsTrait;
 
 	public function getCpEditUrl()
 	{

@@ -10,7 +10,7 @@ namespace Craft;
  * @property string                $abbreviation
  * @property int                   $countryId
  *
- * @property Market_CountryRecord $country
+ * @property Market_CountryRecord  $country
  * @package Craft
  */
 class Market_StateRecord extends BaseRecord
@@ -40,7 +40,7 @@ class Market_StateRecord extends BaseRecord
 		return [
 			'name'         => [AttributeType::String, 'required' => true],
 			'abbreviation' => AttributeType::String,
-            'countryId'    => [AttributeType::Number, 'required' => true],
+			'countryId'    => [AttributeType::Number, 'required' => true],
 		];
 	}
 }

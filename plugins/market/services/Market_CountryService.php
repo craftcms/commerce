@@ -10,16 +10,6 @@ namespace Craft;
 class Market_CountryService extends BaseApplicationComponent
 {
 	/**
-	 * @return Market_CountryModel[]
-	 */
-	public function getAll()
-	{
-		$records = Market_CountryRecord::model()->findAll(array('order' => 'name'));
-
-		return Market_CountryModel::populateModels($records);
-	}
-
-	/**
 	 * @param int $id
 	 *
 	 * @return Market_CountryModel
@@ -31,24 +21,38 @@ class Market_CountryService extends BaseApplicationComponent
 		return Market_CountryModel::populateModel($record);
 	}
 
-    /**
-     * @param array $attr
-     * @return Market_CountryModel
-     */
-    public function getByAttributes(array $attr)
-    {
-        $record = Market_CountryRecord::model()->findByAttributes($attr);
-        return Market_CountryModel::populateModel($record);
-    }
+	/**
+	 * @param array $attr
+	 *
+	 * @return Market_CountryModel
+	 */
+	public function getByAttributes(array $attr)
+	{
+		$record = Market_CountryRecord::model()->findByAttributes($attr);
+
+		return Market_CountryModel::populateModel($record);
+	}
 
 	/**
 	 * Simple list for using in forms
+	 *
 	 * @return array [id => name]
 	 */
 	public function getFormList()
 	{
 		$countries = $this->getAll();
+
 		return \CHtml::listData($countries, 'id', 'name');
+	}
+
+	/**
+	 * @return Market_CountryModel[]
+	 */
+	public function getAll()
+	{
+		$records = Market_CountryRecord::model()->findAll(array('order' => 'name'));
+
+		return Market_CountryModel::populateModels($records);
 	}
 
 	/**

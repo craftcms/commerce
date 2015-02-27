@@ -12,6 +12,7 @@ class Market_VariantService extends BaseApplicationComponent
 	public function getById($id)
 	{
 		$variant = Market_VariantRecord::model()->with('product')->findById($id);
+
 		return Market_VariantModel::populateModel($variant);
 	}
 
@@ -104,11 +105,11 @@ class Market_VariantService extends BaseApplicationComponent
 		$record->weight    = $model->weight;
 		$record->minQty    = $model->minQty;
 
-		if($model->unlimitedStock) {
+		if ($model->unlimitedStock) {
 			$record->unlimitedStock = true;
-			$record->stock = 0;
+			$record->stock          = 0;
 		} else {
-			$record->stock = $model->stock;
+			$record->stock          = $model->stock;
 			$record->unlimitedStock = false;
 		}
 

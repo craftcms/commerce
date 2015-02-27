@@ -30,6 +30,7 @@ class Market_OptionValueService extends BaseApplicationComponent
 
 	/**
 	 * @param int $variantId
+	 *
 	 * @return Market_OptionValueModel[]
 	 */
 	public function getAllByVariantId($variantId)
