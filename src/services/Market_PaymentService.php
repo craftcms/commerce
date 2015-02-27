@@ -8,94 +8,100 @@ use Omnipay\Common\Message\ResponseInterface;
 
 /**
  * Class Market_PaymentService
+ *
  * @package craft
  */
 class Market_PaymentService extends BaseApplicationComponent
 {
-    /**
-     * @param Market_PaymentFormModel $form
-     * @return bool
-     * @throws Exception
-     */
-    public function processPayment(Market_PaymentFormModel $form, &$customError = '')
-    {
-        if(!$form->validate()) {
-            return false;
-        }
+	/**
+	 * @param Market_PaymentFormModel $form
+	 *
+	 * @return bool
+	 * @throws Exception
+	 */
+	public function processPayment(Market_PaymentFormModel $form, &$customError = '')
+	{
+		if (!$form->validate()) {
+			return false;
+		}
 
-        $cart = craft()->market_cart->getCart();
-        $transaction = craft()->market_transaction->create($cart);
-        $transaction->type = Market_TransactionRecord::AUTHORIZE;
+		$cart              = craft()->market_cart->getCart();
+		$transaction       = craft()->market_transaction->create($cart);
+		$transaction->type = Market_TransactionRecord::AUTHORIZE;
 
-        if(!craft()->market_transaction->save($transaction)){
-            throw new Exception('Error saving transaction: ' . implode(', ', $transaction->getAllErrors()));
-        }
+		if (!craft()->market_transaction->save($transaction)) {
+			throw new Exception('Error saving transaction: ' . implode(', ', $transaction->getAllErrors()));
+		}
 
-        $gateway = $cart->paymentMethod->getGateway();
+		$gateway = $cart->paymentMethod->getGateway();
 
-        if(!$gateway->supportsAuthorize()) {
-            $customError = 'Gateway doesn\'t support authorize';
-            craft()->market_transaction->delete($transaction);
-            return false;
-        }
+		if (!$gateway->supportsAuthorize()) {
+			$customError = 'Gateway doesn\'t support authorize';
+			craft()->market_transaction->delete($transaction);
 
+			return false;
+		}
 
-        $card = $this->createCard($cart, $form);
-        $request = $gateway->authorize([
-            'card' => $card,
-            'amount' => $cart->finalPrice,
-            'currency' => 'USD', //TODO refine
-            'transactionId' => $transaction->id,
-            'clientIp' => craft()->request->getIpAddress(),
-            'returnUrl' => $this->getReturnUrl($transaction),
-            'cancelUrl' => $this->getCancelUrl($transaction),
-        ]);
+		$card    = $this->createCard($cart, $form);
+		$request = $gateway->authorize([
+			'card'          => $card,
+			'amount'        => $cart->finalPrice,
+			'currency'      => 'USD', //TODO refine
+			'transactionId' => $transaction->id,
+			'clientIp'      => craft()->request->getIpAddress(),
+			'returnUrl'     => $this->getReturnUrl($transaction),
+			'cancelUrl'     => $this->getCancelUrl($transaction),
+		]);
 
-        try{
-            $redirect =  $this->sendPaymentRequest($request, $transaction);
-        } catch (\Exception $e) {
-            $customError = $e->getMessage();
-            craft()->market_transaction->delete($transaction);
-            return false;
-        }
+		try {
+			$redirect = $this->sendPaymentRequest($request, $transaction);
+		} catch (\Exception $e) {
+			$customError = $e->getMessage();
+			craft()->market_transaction->delete($transaction);
 
-        craft()->request->redirect($redirect);
-        return true;
-    }
+			return false;
+		}
 
-    public function processPayment1(Market_OrderModel $order, Market_TransactionModel $transaction, Market_PaymentFormModel $paymentForm)
-    {
+		craft()->request->redirect($redirect);
 
-    }
+		return true;
+	}
 
-    /**
-     * Send a payment request to the gateway, and redirect appropriately
-     * @param RequestInterface        $request
-     * @param Market_TransactionModel $transaction
-     * @return string
-     */
-    public function sendPaymentRequest(RequestInterface $request, Market_TransactionModel $transaction)
-    {
-        // try {
-        /** @var ResponseInterface $response */
-        $response = $request->send();
-        $this->updateTransaction($transaction, $response);
+	public function processPayment1(Market_OrderModel $order, Market_TransactionModel $transaction, Market_PaymentFormModel $paymentForm)
+	{
 
-        if ($response->isRedirect()) {
-            // redirect to off-site gateway
-            return $response->redirect();
-        }
+	}
 
-        // exception required for SagePay Server
+	/**
+	 * Send a payment request to the gateway, and redirect appropriately
+	 *
+	 * @param RequestInterface        $request
+	 * @param Market_TransactionModel $transaction
+	 *
+	 * @return string
+	 */
+	public function sendPaymentRequest(RequestInterface $request, Market_TransactionModel $transaction)
+	{
+		// try {
+		/** @var ResponseInterface $response */
+		$response = $request->send();
+		$this->updateTransaction($transaction, $response);
+
+		if ($response->isRedirect()) {
+			// redirect to off-site gateway
+			return $response->redirect();
+		}
+
+		// exception required for SagePay Server
 //        if (method_exists($response, 'confirm')) {
 //            $response->confirm($this->buildReturnUrl($transaction));
 //        }
-        // } catch (\Exception $e) {
-        //     $transaction->status = Market_TransactionModel::FAILED;
-        //     //$transaction->message = lang('store.payment.communication_error');
-        //     $transaction->message = 'store.payment.communication_error';
-        //     $transaction->save();
-        // }
+		// } catch (\Exception $e) {
+		//     $transaction->status = Market_TransactionModel::FAILED;
+		//     //$transaction->message = lang('store.payment.communication_error');
+		//     $transaction->message = 'store.payment.communication_error';
+		//     $transaction->save();
+		// }
 
 //        $gateways_which_call_us_directly = [
 //            'AuthorizeNet_SIM',
@@ -111,91 +117,96 @@ class Market_PaymentService extends BaseApplicationComponent
 //            $this->redirectForm($this->buildReturnUrl($transaction));
 //        }
 
-        if ($response->isSuccessful()) {
-            return $this->getReturnUrl($transaction);
-        } else {
-            craft()->userSession->setError(Craft::t("Couldn't save payment : ".$transaction->message));
-            return $this->getCancelUrl($transaction);
-        }
-    }
+		if ($response->isSuccessful()) {
+			return $this->getReturnUrl($transaction);
+		} else {
+			craft()->userSession->setError(Craft::t("Couldn't save payment : " . $transaction->message));
 
-    /**
-     * @param Market_TransactionModel $transaction
-     * @param ResponseInterface       $response
-     * @throws Exception
-     */
-    private function updateTransaction(Market_TransactionModel &$transaction, ResponseInterface $response)
-    {
-        if ($response->isSuccessful()) {
-            $transaction->status = Market_TransactionRecord::SUCCESS;
-        } elseif ($response->isRedirect()) {
-            $transaction->status = Market_TransactionRecord::REDIRECT;
-        } else {
-            $transaction->status = Market_TransactionRecord::FAILED;
-        }
+			return $this->getCancelUrl($transaction);
+		}
+	}
 
-        $transaction->reference = $response->getTransactionReference();
-        $transaction->message = $response->getMessage();
+	/**
+	 * @param Market_TransactionModel $transaction
+	 * @param ResponseInterface       $response
+	 *
+	 * @throws Exception
+	 */
+	private function updateTransaction(Market_TransactionModel &$transaction, ResponseInterface $response)
+	{
+		if ($response->isSuccessful()) {
+			$transaction->status = Market_TransactionRecord::SUCCESS;
+		} elseif ($response->isRedirect()) {
+			$transaction->status = Market_TransactionRecord::REDIRECT;
+		} else {
+			$transaction->status = Market_TransactionRecord::FAILED;
+		}
 
-        if(!craft()->market_transaction->save($transaction)){
-            throw new Exception('Error saving transaction: ' . implode(', ', $transaction->getAllErrors()));
-        }
-    }
+		$transaction->reference = $response->getTransactionReference();
+		$transaction->message   = $response->getMessage();
 
-    /**
-     * @param Market_OrderModel       $order
-     * @param Market_PaymentFormModel $paymentForm
-     * @return CreditCard
-     */
-    private function createCard(Market_OrderModel $order, Market_PaymentFormModel $paymentForm)
-    {
-        $card = new CreditCard;
+		if (!craft()->market_transaction->save($transaction)) {
+			throw new Exception('Error saving transaction: ' . implode(', ', $transaction->getAllErrors()));
+		}
+	}
 
-        $card->setFirstName($paymentForm->firstName);
-        $card->setLastName($paymentForm->lastName);
-        $card->setNumber($paymentForm->number);
-        $card->setExpiryMonth($paymentForm->month);
-        $card->setExpiryYear($paymentForm->year);
-        $card->setCvv($paymentForm->cvv);
+	/**
+	 * @param Market_OrderModel       $order
+	 * @param Market_PaymentFormModel $paymentForm
+	 *
+	 * @return CreditCard
+	 */
+	private function createCard(Market_OrderModel $order, Market_PaymentFormModel $paymentForm)
+	{
+		$card = new CreditCard;
 
-        $billingAddress = $order->billingAddress;
-        $card->setBillingAddress1($billingAddress->address1);
-        $card->setBillingAddress2($billingAddress->address2);
-        $card->setBillingPostcode($billingAddress->zipCode);
-        $card->setBillingState($billingAddress->getStateText());
-        $card->setBillingCountry($billingAddress->country->name);
-        $card->setBillingPhone($billingAddress->phone);
+		$card->setFirstName($paymentForm->firstName);
+		$card->setLastName($paymentForm->lastName);
+		$card->setNumber($paymentForm->number);
+		$card->setExpiryMonth($paymentForm->month);
+		$card->setExpiryYear($paymentForm->year);
+		$card->setCvv($paymentForm->cvv);
 
-        $shippingAddress = $order->shippingAddress;
-        $card->setShippingAddress1($shippingAddress->address1);
-        $card->setShippingAddress2($shippingAddress->address2);
-        $card->setShippingPostcode($shippingAddress->zipCode);
-        $card->setShippingState($shippingAddress->getStateText());
-        $card->setShippingCountry($shippingAddress->country->name);
-        $card->setShippingPhone($shippingAddress->phone);
-        $card->setCompany($shippingAddress->company);
+		$billingAddress = $order->billingAddress;
+		$card->setBillingAddress1($billingAddress->address1);
+		$card->setBillingAddress2($billingAddress->address2);
+		$card->setBillingPostcode($billingAddress->zipCode);
+		$card->setBillingState($billingAddress->getStateText());
+		$card->setBillingCountry($billingAddress->country->name);
+		$card->setBillingPhone($billingAddress->phone);
 
-        $user = craft()->userSession->getUser();
-        $card->setEmail($user ? $user->email : '');
+		$shippingAddress = $order->shippingAddress;
+		$card->setShippingAddress1($shippingAddress->address1);
+		$card->setShippingAddress2($shippingAddress->address2);
+		$card->setShippingPostcode($shippingAddress->zipCode);
+		$card->setShippingState($shippingAddress->getStateText());
+		$card->setShippingCountry($shippingAddress->country->name);
+		$card->setShippingPhone($shippingAddress->phone);
+		$card->setCompany($shippingAddress->company);
 
-        return $card;
-    }
+		$user = craft()->userSession->getUser();
+		$card->setEmail($user ? $user->email : '');
 
-    /**
-     * @param Market_TransactionModel $transaction
-     * @return string
-     */
-    private function getReturnUrl(Market_TransactionModel $transaction)
-    {
-        return UrlHelper::getActionUrl('market/cartPayment/success', ['id' => $transaction->id, 'hash' => $transaction->hash]);
-    }
+		return $card;
+	}
 
-    /**
-     * @param Market_TransactionModel $transaction
-     * @return string
-     */
-    private function getCancelUrl(Market_TransactionModel $transaction)
-    {
-        return UrlHelper::getActionUrl('market/cartPayment/cancel', ['id' => $transaction->id, 'hash' => $transaction->hash]);
-    }
+	/**
+	 * @param Market_TransactionModel $transaction
+	 *
+	 * @return string
+	 */
+	private function getReturnUrl(Market_TransactionModel $transaction)
+	{
+		return UrlHelper::getActionUrl('market/cartPayment/success', ['id' => $transaction->id, 'hash' => $transaction->hash]);
+	}
+
+	/**
+	 * @param Market_TransactionModel $transaction
+	 *
+	 * @return string
+	 */
+	private function getCancelUrl(Market_TransactionModel $transaction)
+	{
+		return UrlHelper::getActionUrl('market/cartPayment/cancel', ['id' => $transaction->id, 'hash' => $transaction->hash]);
+	}
 }

@@ -7,8 +7,8 @@ namespace Craft;
  * @property int                       variantId
  * @property int                       optionValueId
  *
- * @property Market_VariantRecord     variant
- * @property Market_OptionValueRecord optionValue
+ * @property Market_VariantRecord      variant
+ * @property Market_OptionValueRecord  optionValue
  * @package Craft
  */
 class Market_VariantOptionValueRecord extends BaseRecord

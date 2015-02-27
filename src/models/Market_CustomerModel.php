@@ -6,9 +6,9 @@ namespace Craft;
  *
  * @package Craft
  *
- * @property int 	id
- * @property int 	userId
- * @property string email
+ * @property int                 id
+ * @property int                 userId
+ * @property string              email
  *
  * @property Market_AddressModel addresses
  */
@@ -35,6 +35,14 @@ class Market_CustomerModel extends BaseElementModel
 	}
 
 	/**
+	 * @return Market_AddressModel[]
+	 */
+	public function getAddresses()
+	{
+		return craft()->market_address->getByCustomerId($this->id);
+	}
+
+	/**
 	 * Charge Model Attributes
 	 *
 	 * @inheritDoc BaseRecord::defineAttributes()
@@ -47,13 +55,5 @@ class Market_CustomerModel extends BaseElementModel
 			'userId' => AttributeType::Number,
 			'email'  => AttributeType::String,
 		]);
-	}
-
-	/**
-	 * @return Market_AddressModel[]
-	 */
-	public function getAddresses()
-	{
-		return craft()->market_address->getByCustomerId($this->id);
 	}
 }

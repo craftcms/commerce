@@ -13,8 +13,8 @@ namespace Craft;
  * @property int                       $taxZoneId
  * @property int                       $taxCategoryId
  *
- * @property Market_TaxZoneRecord     $taxZone
- * @property Market_TaxCategoryRecord $taxCategory
+ * @property Market_TaxZoneRecord      $taxZone
+ * @property Market_TaxCategoryRecord  $taxCategory
  * @package Craft
  */
 class Market_TaxRateRecord extends BaseRecord

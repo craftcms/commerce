@@ -9,77 +9,82 @@ namespace Craft;
  */
 class Market_ShippingRuleService extends BaseApplicationComponent
 {
-    /**
-     * @param array|\CDbCriteria $criteria
-     * @return Market_ShippingRuleModel[]
-     */
+	/**
+	 * @param array|\CDbCriteria $criteria
+	 *
+	 * @return Market_ShippingRuleModel[]
+	 */
 	public function getAll($criteria = [])
 	{
 		$records = Market_ShippingRuleRecord::model()->findAll($criteria);
+
 		return Market_ShippingRuleModel::populateModels($records);
 	}
 
 	/**
 	 * @param int $id
+	 *
 	 * @return Market_ShippingRuleModel
 	 */
 	public function getById($id)
 	{
 		$record = Market_ShippingRuleRecord::model()->findById($id);
+
 		return Market_ShippingRuleModel::populateModel($record);
 	}
 
-    /**
-     * @param Market_ShippingRuleModel $rule
-     * @param Market_OrderModel        $order
-     * @return bool
-     */
-    public function matchOrder(Market_ShippingRuleModel $rule, Market_OrderModel $order)
-    {
-        if (!$rule->enabled) {
-            return false;
-        }
+	/**
+	 * @param Market_ShippingRuleModel $rule
+	 * @param Market_OrderModel        $order
+	 *
+	 * @return bool
+	 */
+	public function matchOrder(Market_ShippingRuleModel $rule, Market_OrderModel $order)
+	{
+		if (!$rule->enabled) {
+			return false;
+		}
 
-        $floatFields = ['minTotal', 'maxTotal', 'minWeight', 'maxWeight'];
-        foreach($floatFields as $field) {
-            $rule->$field *= 1;
-        }
+		$floatFields = ['minTotal', 'maxTotal', 'minWeight', 'maxWeight'];
+		foreach ($floatFields as $field) {
+			$rule->$field *= 1;
+		}
 
-        // geographical filters
-        if ($rule->countryId && $rule->countryId != $order->shippingAddress->countryId) {
-            return false;
-        }
-        if ($rule->stateId && $rule->state->name != $order->shippingAddress->getStateText()) {
-            return false;
-        }
+		// geographical filters
+		if ($rule->countryId && $rule->countryId != $order->shippingAddress->countryId) {
+			return false;
+		}
+		if ($rule->stateId && $rule->state->name != $order->shippingAddress->getStateText()) {
+			return false;
+		}
 
-        // order qty rules are inclusive (min <= x <= max)
-        if ($rule->minQty AND $rule->minQty > $order->totalQty) {
-            return false;
-        }
-        if ($rule->maxQty AND $rule->maxQty < $order->totalQty) {
-            return false;
-        }
+		// order qty rules are inclusive (min <= x <= max)
+		if ($rule->minQty AND $rule->minQty > $order->totalQty) {
+			return false;
+		}
+		if ($rule->maxQty AND $rule->maxQty < $order->totalQty) {
+			return false;
+		}
 
-        // order total rules exclude maximum limit (min <= x < max)
-        if ($rule->minTotal AND $rule->minTotal > $order->itemTotal) {
-            return false;
-        }
-        if ($rule->maxTotal AND $rule->maxTotal <= $order->itemTotal) {
-            return false;
-        }
+		// order total rules exclude maximum limit (min <= x < max)
+		if ($rule->minTotal AND $rule->minTotal > $order->itemTotal) {
+			return false;
+		}
+		if ($rule->maxTotal AND $rule->maxTotal <= $order->itemTotal) {
+			return false;
+		}
 
-        // order weight rules exclude maximum limit (min <= x < max)
-        if ($rule->minWeight AND $rule->minWeight > $order->totalWeight) {
-            return false;
-        }
-        if ($rule->maxWeight AND $rule->maxWeight <= $order->totalWeight) {
-            return false;
-        }
+		// order weight rules exclude maximum limit (min <= x < max)
+		if ($rule->minWeight AND $rule->minWeight > $order->totalWeight) {
+			return false;
+		}
+		if ($rule->maxWeight AND $rule->maxWeight <= $order->totalWeight) {
+			return false;
+		}
 
-        // all rules match
-        return true;
-    }
+		// all rules match
+		return true;
+	}
 
 	/**
 	 * @param Market_ShippingRuleModel $model
@@ -101,20 +106,20 @@ class Market_ShippingRuleService extends BaseApplicationComponent
 			$record = new Market_ShippingRuleRecord();
 		}
 
-        $fields = ['name', 'description', 'countryId', 'stateId', 'methodId', 'enabled', 'minQty', 'maxQty', 'minTotal', 'maxTotal',
-                   'minWeight', 'maxWeight', 'baseRate', 'perItemRate', 'weightRate', 'percentageRate', 'minRate', 'maxRate'];
-        foreach ($fields as $field) {
-            $record->$field = $model->$field;
-        }
+		$fields = ['name', 'description', 'countryId', 'stateId', 'methodId', 'enabled', 'minQty', 'maxQty', 'minTotal', 'maxTotal',
+			'minWeight', 'maxWeight', 'baseRate', 'perItemRate', 'weightRate', 'percentageRate', 'minRate', 'maxRate'];
+		foreach ($fields as $field) {
+			$record->$field = $model->$field;
+		}
 
-        if(empty($record->priority) && empty($model->priority)) {
-            $count = Market_ShippingRuleRecord::model()->countByAttributes(['methodId' => $model->methodId]);
-            $record->priority = $model->priority = $count + 1;
-        } elseif($model->priority) {
-            $record->priority = $model->priority;
-        } else {
-            $model->priority = $record->priority;
-        }
+		if (empty($record->priority) && empty($model->priority)) {
+			$count            = Market_ShippingRuleRecord::model()->countByAttributes(['methodId' => $model->methodId]);
+			$record->priority = $model->priority = $count + 1;
+		} elseif ($model->priority) {
+			$record->priority = $model->priority;
+		} else {
+			$model->priority = $record->priority;
+		}
 
 		$record->validate();
 		$model->addErrors($record->getErrors());
@@ -137,6 +142,6 @@ class Market_ShippingRuleService extends BaseApplicationComponent
 	 */
 	public function deleteById($id)
 	{
-        Market_ShippingRuleRecord::model()->deleteByPk($id);
+		Market_ShippingRuleRecord::model()->deleteByPk($id);
 	}
 }

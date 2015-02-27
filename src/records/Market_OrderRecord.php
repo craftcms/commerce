@@ -4,32 +4,33 @@ namespace Craft;
 
 /**
  * Class Market_OrderRecord
+ *
  * @package Craft
  *
- * @property int    id
- * @property string number
- * @property string couponCode
- * @property string state
- * @property float  itemTotal
- * @property float  finalPrice
- * @property float  baseDiscount
- * @property float  baseShippingRate
- * @property string $email
- * @property DateTime completedAt
- * @property string	$lastIp
- * @property int    typeId
- * @property int    billingAddressId
- * @property int    shippingAddressId
- * @property int    shippingMethodId
- * @property int    paymentMethodId
+ * @property int                         id
+ * @property string                      number
+ * @property string                      couponCode
+ * @property string                      state
+ * @property float                       itemTotal
+ * @property float                       finalPrice
+ * @property float                       baseDiscount
+ * @property float                       baseShippingRate
+ * @property string                      $email
+ * @property DateTime                    completedAt
+ * @property string                      $lastIp
+ * @property int                         typeId
+ * @property int                         billingAddressId
+ * @property int                         shippingAddressId
+ * @property int                         shippingMethodId
+ * @property int                         paymentMethodId
  *
- * @property Market_OrderTypeRecord type
- * @property Market_LineItemRecord[] lineItems
- * @property Market_AddressRecord billingAddress
- * @property Market_AddressRecord shippingAddress
+ * @property Market_OrderTypeRecord      type
+ * @property Market_LineItemRecord[]     lineItems
+ * @property Market_AddressRecord        billingAddress
+ * @property Market_AddressRecord        shippingAddress
  * @property Market_ShippingMethodRecord shippingMethod
- * @property Market_PaymentMethodRecord paymentMethod
- * @property Market_TransactionRecord[] transactions
+ * @property Market_PaymentMethodRecord  paymentMethod
+ * @property Market_TransactionRecord[]  transactions
  */
 class Market_OrderRecord extends BaseRecord
 {
@@ -85,17 +86,17 @@ class Market_OrderRecord extends BaseRecord
 	protected function defineAttributes()
 	{
 		return [
-			'number'              => [AttributeType::String, 'length' => 32],
-			'couponCode'          => [AttributeType::String],
-			'state'               => [AttributeType::Enum, 'required' => true, 'default' => 'cart', 'values' => self::$states],
-            'itemTotal'           => [AttributeType::Number, 'decimals' => 4, 'default' => 0],
-            'baseDiscount'        => [AttributeType::Number, 'decimals' => 4, 'default' => 0],
-            'baseShippingRate'    => [AttributeType::Number, 'decimals' => 4, 'default' => 0],
-            'finalPrice'          => [AttributeType::Number, 'decimals' => 4, 'default' => 0],
-            'email'               => AttributeType::String,
-            'completedAt'         => AttributeType::DateTime,
-			'currency'            => AttributeType::String,
-			'lastIp'              => AttributeType::String
+			'number'           => [AttributeType::String, 'length' => 32],
+			'couponCode'       => [AttributeType::String],
+			'state'            => [AttributeType::Enum, 'required' => true, 'default' => 'cart', 'values' => self::$states],
+			'itemTotal'        => [AttributeType::Number, 'decimals' => 4, 'default' => 0],
+			'baseDiscount'     => [AttributeType::Number, 'decimals' => 4, 'default' => 0],
+			'baseShippingRate' => [AttributeType::Number, 'decimals' => 4, 'default' => 0],
+			'finalPrice'       => [AttributeType::Number, 'decimals' => 4, 'default' => 0],
+			'email'            => AttributeType::String,
+			'completedAt'      => AttributeType::DateTime,
+			'currency'         => AttributeType::String,
+			'lastIp'           => AttributeType::String
 		];
 	}
 

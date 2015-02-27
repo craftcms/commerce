@@ -30,18 +30,17 @@ class Market_DiscountProductTypeRecord extends BaseRecord
 	public function defineRelations()
 	{
 		return [
-			'discount'          => [static::BELONGS_TO, 'Market_DiscountRecord', 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE, 'required' => true],
-			'productType'   => [static::BELONGS_TO, 'Market_ProductTypeRecord', 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE, 'required' => true],
+			'discount'    => [static::BELONGS_TO, 'Market_DiscountRecord', 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE, 'required' => true],
+			'productType' => [static::BELONGS_TO, 'Market_ProductTypeRecord', 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE, 'required' => true],
 		];
 	}
 
 	protected function defineAttributes()
 	{
 		return [
-			'discountId'        => [AttributeType::Number, 'required' => true],
+			'discountId'    => [AttributeType::Number, 'required' => true],
 			'productTypeId' => [AttributeType::Number, 'required' => true],
 		];
 	}
-
 
 }

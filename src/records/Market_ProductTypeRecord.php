@@ -23,15 +23,15 @@ class Market_ProductTypeRecord extends BaseRecord
 		return 'market_producttypes';
 	}
 
-    /**
-     * @return array
-     */
-    public function defineIndexes()
-    {
-        return [
-            ['columns' => ['handle'], 'unique' => true],
-        ];
-    }
+	/**
+	 * @return array
+	 */
+	public function defineIndexes()
+	{
+		return [
+			['columns' => ['handle'], 'unique' => true],
+		];
+	}
 
 	/**
 	 * @return array

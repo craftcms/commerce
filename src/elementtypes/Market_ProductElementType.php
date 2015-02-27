@@ -1,7 +1,7 @@
 <?php
 namespace Craft;
 
-require_once(__DIR__.'/Market_BaseElementType.php');
+require_once(__DIR__ . '/Market_BaseElementType.php');
 
 class Market_ProductElementType extends Market_BaseElementType
 {
@@ -94,7 +94,7 @@ class Market_ProductElementType extends Market_BaseElementType
 			Market_ProductModel::LIVE    => Craft::t('Live'),
 			Market_ProductModel::PENDING => Craft::t('Pending'),
 			Market_ProductModel::EXPIRED => Craft::t('Expired'),
-			BaseElementModel::DISABLED    => Craft::t('Disabled')
+			BaseElementModel::DISABLED   => Craft::t('Disabled')
 		);
 	}
 

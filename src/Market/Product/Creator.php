@@ -31,12 +31,12 @@ class Creator
 
 	private function createNewProduct()
 	{
-		$productRecord              	= new Market_ProductRecord();
-		$productRecord->availableOn 	= $this->_product->availableOn;
-		$productRecord->expiresOn   	= $this->_product->expiresOn;
-		$productRecord->typeId      	= $this->_product->typeId;
-		$productRecord->authorId    	= $this->_product->authorId;
-		$productRecord->taxCategoryId 	= $this->_product->taxCategoryId;
+		$productRecord                = new Market_ProductRecord();
+		$productRecord->availableOn   = $this->_product->availableOn;
+		$productRecord->expiresOn     = $this->_product->expiresOn;
+		$productRecord->typeId        = $this->_product->typeId;
+		$productRecord->authorId      = $this->_product->authorId;
+		$productRecord->taxCategoryId = $this->_product->taxCategoryId;
 
 		$productRecord->validate();
 
@@ -64,11 +64,11 @@ class Creator
 
 		if (\Craft\craft()->elements->saveElement($this->_product)) {
 
-			$productRecord->availableOn 	= $this->_product->availableOn;
-			$productRecord->expiresOn   	= $this->_product->expiresOn;
-			$productRecord->typeId      	= $this->_product->typeId;
-			$productRecord->authorId    	= $this->_product->authorId;
-			$productRecord->taxCategoryId 	= $this->_product->taxCategoryId;
+			$productRecord->availableOn   = $this->_product->availableOn;
+			$productRecord->expiresOn     = $this->_product->expiresOn;
+			$productRecord->typeId        = $this->_product->typeId;
+			$productRecord->authorId      = $this->_product->authorId;
+			$productRecord->taxCategoryId = $this->_product->taxCategoryId;
 			$productRecord->save();
 
 			return true;

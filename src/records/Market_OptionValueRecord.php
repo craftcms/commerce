@@ -11,7 +11,7 @@ namespace Craft;
  * @property int                      optionTypeId
  * @property int                      position
  *
- * @property Market_OptionTypeRecord optionType
+ * @property Market_OptionTypeRecord  optionType
  * @package Craft
  */
 class Market_OptionValueRecord extends BaseRecord

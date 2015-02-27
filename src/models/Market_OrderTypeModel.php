@@ -1,18 +1,19 @@
 <?php
 
 namespace Craft;
+
 use Market\Traits\Market_ModelRelationsTrait;
 
 /**
  * Class Market_OrderTypeModel
  *
- * @property int    $id
- * @property string $name
- * @property string $handle
- * @property int    $fieldLayoutId
- * @property int    shippingMethodId
+ * @property int                         $id
+ * @property string                      $name
+ * @property string                      $handle
+ * @property int                         $fieldLayoutId
+ * @property int                         shippingMethodId
  *
- * @property FieldLayoutRecord fieldLayout
+ * @property FieldLayoutRecord           fieldLayout
  * @property Market_ShippingMethodRecord shippingMethod
  *
  * @method null setFieldLayout(FieldLayoutModel $fieldLayout)
@@ -21,7 +22,7 @@ use Market\Traits\Market_ModelRelationsTrait;
  */
 class Market_OrderTypeModel extends BaseModel
 {
-    use Market_ModelRelationsTrait;
+	use Market_ModelRelationsTrait;
 
 	function __toString()
 	{
@@ -36,19 +37,19 @@ class Market_OrderTypeModel extends BaseModel
 	public function behaviors()
 	{
 		return [
-            'fieldLayout' => new FieldLayoutBehavior('Market_Order'),
-        ];
-    }
+			'fieldLayout' => new FieldLayoutBehavior('Market_Order'),
+		];
+	}
 
-    protected function defineAttributes()
+	protected function defineAttributes()
 	{
 		return [
-            'id'               => AttributeType::Number,
-            'name'             => AttributeType::String,
-            'handle'           => AttributeType::String,
-            'fieldLayoutId'    => AttributeType::Number,
-            'shippingMethodId' => AttributeType::Number,
-        ];
-    }
+			'id'               => AttributeType::Number,
+			'name'             => AttributeType::String,
+			'handle'           => AttributeType::String,
+			'fieldLayoutId'    => AttributeType::Number,
+			'shippingMethodId' => AttributeType::Number,
+		];
+	}
 
 }

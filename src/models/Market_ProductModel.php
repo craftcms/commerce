@@ -1,34 +1,35 @@
 <?php
 
 namespace Craft;
+
 use Market\Traits\Market_ModelRelationsTrait;
 
 /**
  * Class Market_ProductModel
  *
- * @property int                  $id
- * @property DateTime             $availableOn
- * @property DateTime             $expiresOn
- * @property int                  typeId
- * @property int                  authorId
- * @property int                  taxCategoryId
- * @property bool                 enabled
+ * @property int                      $id
+ * @property DateTime                 $availableOn
+ * @property DateTime                 $expiresOn
+ * @property int                      typeId
+ * @property int                      authorId
+ * @property int                      taxCategoryId
+ * @property bool                     enabled
  *
  * Inherited from record:
- * @property Market_ProductTypeModel type
- * @property Market_TaxCategoryModel taxCategory
- * @property Market_VariantModel[] allVariants
+ * @property Market_ProductTypeModel  type
+ * @property Market_TaxCategoryModel  taxCategory
+ * @property Market_VariantModel[]    allVariants
  * @property Market_OptionTypeModel[] optionTypes
- * @property Market_VariantModel $master
+ * @property Market_VariantModel      $master
  *
  * Magic properties:
- * @property Market_VariantModel[] $variants
- * @property Market_VariantModel[] $nonMasterVariants
+ * @property Market_VariantModel[]    $variants
+ * @property Market_VariantModel[]    $nonMasterVariants
  * @package Craft
  */
 class Market_ProductModel extends BaseElementModel
 {
-    use Market_ModelRelationsTrait;
+	use Market_ModelRelationsTrait;
 
 	const LIVE = 'live';
 	const PENDING = 'pending';
@@ -38,13 +39,14 @@ class Market_ProductModel extends BaseElementModel
 
 	/**
 	 * Setting default taxCategoryId
+	 *
 	 * @param null $attributes
 	 */
-	public function __construct($attributes = null)
+	public function __construct($attributes = NULL)
 	{
 		parent::__construct($attributes);
 
-		if(empty($this->taxCategoryId)) {
+		if (empty($this->taxCategoryId)) {
 			$this->taxCategoryId = craft()->market_taxCategory->getDefaultId();
 		}
 	}
@@ -64,20 +66,21 @@ class Market_ProductModel extends BaseElementModel
 		return UrlHelper::getCpUrl('market/products/' . $this->type->handle . '/' . $this->id);
 	}
 
-    /**
-     * @return FieldLayoutModel|null
-     */
+	/**
+	 * @return FieldLayoutModel|null
+	 */
 	public function getFieldLayout()
 	{
 		if ($this->type) {
 			return $this->type->getFieldLayout();
 		}
-        return null;
+
+		return NULL;
 	}
 
-    /**
-     * @return null|string
-     */
+	/**
+	 * @return null|string
+	 */
 	public function getStatus()
 	{
 		$status = parent::getStatus();
@@ -99,20 +102,6 @@ class Market_ProductModel extends BaseElementModel
 		return $status;
 	}
 
-    /**
-     * @return array
-     */
-	protected function defineAttributes()
-	{
-		return array_merge(parent::defineAttributes(), [
-			'typeId'        => AttributeType::Number,
-			'authorId'      => AttributeType::Number,
-			'taxCategoryId' => AttributeType::Number,
-			'availableOn'   => AttributeType::DateTime,
-			'expiresOn'     => AttributeType::DateTime
-		]);
-	}
-
 	public function isLocalized()
 	{
 		return false;
@@ -125,7 +114,7 @@ class Market_ProductModel extends BaseElementModel
 	 */
 	public function getVariants()
 	{
-		if(count($this->allVariants) == 1) {
+		if (count($this->allVariants) == 1) {
 			return $this->allVariants;
 		} else {
 			return $this->nonMasterVariants;
@@ -137,7 +126,7 @@ class Market_ProductModel extends BaseElementModel
 	 */
 	public function getNonMasterVariants()
 	{
-		return array_filter($this->allVariants, function($v) {
+		return array_filter($this->allVariants, function ($v) {
 			return !$v->isMaster;
 		});
 	}
@@ -154,5 +143,19 @@ class Market_ProductModel extends BaseElementModel
 		return array_map(function ($optionType) {
 			return $optionType->id;
 		}, $this->optionTypes);
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function defineAttributes()
+	{
+		return array_merge(parent::defineAttributes(), [
+			'typeId'        => AttributeType::Number,
+			'authorId'      => AttributeType::Number,
+			'taxCategoryId' => AttributeType::Number,
+			'availableOn'   => AttributeType::DateTime,
+			'expiresOn'     => AttributeType::DateTime
+		]);
 	}
 }

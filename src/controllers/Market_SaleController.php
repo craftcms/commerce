@@ -31,7 +31,7 @@ class Market_SaleController extends Market_BaseController
 	{
 		if (empty($variables['sale'])) {
 			if (!empty($variables['id'])) {
-				$id = $variables['id'];
+				$id                = $variables['id'];
 				$variables['sale'] = craft()->market_sale->getById($id);
 
 				if (!$variables['sale']->id) {
@@ -48,13 +48,13 @@ class Market_SaleController extends Market_BaseController
 			$variables['title'] = Craft::t('Create a Sale');
 		}
 
-        //getting user groups map
-        $groups = craft()->userGroups->getAllGroups();
-        $variables['groups'] = \CHtml::listData($groups, 'id', 'name');
+		//getting user groups map
+		$groups              = craft()->userGroups->getAllGroups();
+		$variables['groups'] = \CHtml::listData($groups, 'id', 'name');
 
-        //getting product types maps
-        $types = craft()->market_productType->getAll();
-        $variables['types'] = \CHtml::listData($types, 'id', 'name');
+		//getting product types maps
+		$types              = craft()->market_productType->getAll();
+		$variables['types'] = \CHtml::listData($types, 'id', 'name');
 
 		$this->renderTemplate('market/settings/sales/_edit', $variables);
 	}
@@ -69,14 +69,14 @@ class Market_SaleController extends Market_BaseController
 		$sale = new Market_SaleModel();
 
 		// Shared attributes
-        $fields = ['id', 'name', 'description', 'dateFrom', 'dateTo', 'discountType', 'discountAmount', 'enabled'];
-        foreach($fields as $field) {
-            $sale->$field = craft()->request->getPost($field);
-        }
+		$fields = ['id', 'name', 'description', 'dateFrom', 'dateTo', 'discountType', 'discountAmount', 'enabled'];
+		foreach ($fields as $field) {
+			$sale->$field = craft()->request->getPost($field);
+		}
 
-        $products = craft()->request->getPost('products', []);
-        $productTypes = craft()->request->getPost('productTypes', []);
-        $groups = craft()->request->getPost('groups', []);
+		$products     = craft()->request->getPost('products', []);
+		$productTypes = craft()->request->getPost('productTypes', []);
+		$groups       = craft()->request->getPost('groups', []);
 
 		// Save it
 		if (craft()->market_sale->save($sale, $groups, $productTypes, $products)) {

@@ -18,8 +18,8 @@ namespace Craft;
  * @property int                   countryId
  * @property int                   stateId
  *
- * @property Market_CountryRecord $country
- * @property Market_StateRecord   $state
+ * @property Market_CountryRecord  $country
+ * @property Market_StateRecord    $state
  * @package Craft
  */
 class Market_AddressRecord extends BaseRecord
@@ -31,12 +31,12 @@ class Market_AddressRecord extends BaseRecord
 	}
 
 	public function defineRelations()
-{
-	return [
-		'country' => [static::BELONGS_TO, 'Market_CountryRecord', 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE, 'required' => true],
-		'state'   => [static::BELONGS_TO, 'Market_StateRecord', 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE],
-	];
-}
+	{
+		return [
+			'country' => [static::BELONGS_TO, 'Market_CountryRecord', 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE, 'required' => true],
+			'state'   => [static::BELONGS_TO, 'Market_StateRecord', 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE],
+		];
+	}
 
 	protected function defineAttributes()
 	{

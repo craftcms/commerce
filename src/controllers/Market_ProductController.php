@@ -29,7 +29,7 @@ class Market_ProductController extends Market_BaseController
 	 */
 	public function actionProductIndex()
 	{
-		$variables['productTypes'] = craft()->market_productType->getAll();
+		$variables['productTypes']  = craft()->market_productType->getAll();
 		$variables['taxCategories'] = craft()->market_taxCategory->getAll();
 		$this->renderTemplate('market/products/_index', $variables);
 	}
@@ -123,14 +123,14 @@ class Market_ProductController extends Market_BaseController
 
 		$productCreator = new Creator;
 
-        MarketDbHelper::beginStackedTransaction();
+		MarketDbHelper::beginStackedTransaction();
 
 		if ($productCreator->save($product)) {
 			$masterVariant->productId = $product->id;
 
 			if (craft()->market_variant->save($masterVariant)) {
 				craft()->market_product->setOptionTypes($product->id, $optionTypes);
-                MarketDbHelper::commitStackedTransaction();
+				MarketDbHelper::commitStackedTransaction();
 
 				craft()->userSession->setNotice(Craft::t('Product saved.'));
 
@@ -142,7 +142,7 @@ class Market_ProductController extends Market_BaseController
 			}
 		}
 
-        MarketDbHelper::rollbackStackedTransaction();
+		MarketDbHelper::rollbackStackedTransaction();
 
 		craft()->userSession->setNotice(Craft::t("Couldn't save product."));
 		craft()->urlManager->setRouteVariables(array(
@@ -188,12 +188,13 @@ class Market_ProductController extends Market_BaseController
 	private function _setContentFromPost($product)
 	{
 		$product->getContent()->title = craft()->request->getPost('title', $product->title);
-		$product->taxCategoryId = craft()->request->getPost('taxCategoryId', $product->taxCategoryId);
+		$product->taxCategoryId       = craft()->request->getPost('taxCategoryId', $product->taxCategoryId);
 		$product->setContentFromPost('fields');
 	}
 
 	/**
 	 * @param Market_ProductModel $product
+	 *
 	 * @return Market_VariantModel
 	 */
 	private function _setMasterVariantFromPost(Market_ProductModel $product)

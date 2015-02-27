@@ -1,15 +1,15 @@
 <?php
 
 namespace Craft;
+
 use Market\Traits\Market_ModelRelationsTrait;
 
 /**
  * Class Market_ShippingMethodModel
  *
- * @property int    $id
- * @property string $name
- * @property bool   $enabled
-
+ * @property int                        $id
+ * @property string                     $name
+ * @property bool                       $enabled
  * @property Market_ShippingRuleModel[] rules
  * @package Craft
  */
@@ -20,9 +20,9 @@ class Market_ShippingMethodModel extends BaseModel
 	protected function defineAttributes()
 	{
 		return [
-            'id'        => AttributeType::Number,
-			'name'      => [AttributeType::String, 'required' => true],
-			'enabled'   => [AttributeType::Bool, 'required' => true, 'default' => 1],
+			'id'      => AttributeType::Number,
+			'name'    => [AttributeType::String, 'required' => true],
+			'enabled' => [AttributeType::Bool, 'required' => true, 'default' => 1],
 		];
 	}
 }

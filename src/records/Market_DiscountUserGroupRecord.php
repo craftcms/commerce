@@ -30,7 +30,7 @@ class Market_DiscountUserGroupRecord extends BaseRecord
 	public function defineRelations()
 	{
 		return [
-			'discount'      => [static::BELONGS_TO, 'Market_DiscountRecord', 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE, 'required' => true],
+			'discount'  => [static::BELONGS_TO, 'Market_DiscountRecord', 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE, 'required' => true],
 			'userGroup' => [static::BELONGS_TO, 'UserGroupRecord', 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE, 'required' => true],
 		];
 	}
@@ -38,10 +38,9 @@ class Market_DiscountUserGroupRecord extends BaseRecord
 	protected function defineAttributes()
 	{
 		return [
-			'discountId'        => [AttributeType::Number, 'required' => true],
-			'userGroupId'   => [AttributeType::Number, 'required' => true],
+			'discountId'  => [AttributeType::Number, 'required' => true],
+			'userGroupId' => [AttributeType::Number, 'required' => true],
 		];
 	}
-
 
 }

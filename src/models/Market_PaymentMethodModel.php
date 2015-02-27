@@ -1,5 +1,6 @@
 <?php
 namespace Craft;
+
 use Omnipay\Common\AbstractGateway;
 
 /**
@@ -22,6 +23,24 @@ class Market_PaymentMethodModel extends BaseModel
 	private $_settings = [];
 
 	/**
+	 * @param Market_PaymentMethodRecord|array $values
+	 *
+	 * @return BaseModel
+	 */
+	public static function populateModel($values)
+	{
+		/** @var self $model */
+		$model = parent::populateModel($values);
+		if (is_object($values)) {
+			$model->settings = $values->settings;
+		} else {
+			$model->settings = $values['settings'];
+		}
+
+		return $model;
+	}
+
+	/**
 	 * Get gateway initialized with the settings
 	 *
 	 * @return \Omnipay\Common\GatewayInterface
@@ -41,8 +60,9 @@ class Market_PaymentMethodModel extends BaseModel
 	{
 		if (!empty($this->class)) {
 			$gw = craft()->market_gateway->getGateway($this->class);
-            $gw->initialize($this->settings);
-            return $gw;
+			$gw->initialize($this->settings);
+
+			return $gw;
 		}
 
 		return NULL;
@@ -121,23 +141,5 @@ class Market_PaymentMethodModel extends BaseModel
 			'cpEnabled'       => AttributeType::Bool,
 			'frontendEnabled' => AttributeType::Bool,
 		];
-	}
-
-	/**
-	 * @param Market_PaymentMethodRecord|array $values
-	 *
-	 * @return BaseModel
-	 */
-	public static function populateModel($values)
-	{
-		/** @var self $model */
-		$model = parent::populateModel($values);
-		if (is_object($values)) {
-			$model->settings = $values->settings;
-		} else {
-			$model->settings = $values['settings'];
-		}
-
-		return $model;
 	}
 }
