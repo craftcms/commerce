@@ -59,7 +59,7 @@ class Creator
 		$productRecord = Market_ProductRecord::model()->findById($this->_product->id);
 
 		if (!$productRecord) {
-			throw new Exception(Craft::t('No product exists with the ID “{id}”', array('id' => $this->_product->id)));
+			throw new Exception(Craft::t('No product exists with the ID “{id}”', ['id' => $this->_product->id]));
 		}
 
 		if (\Craft\craft()->elements->saveElement($this->_product)) {

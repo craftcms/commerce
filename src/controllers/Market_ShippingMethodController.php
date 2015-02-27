@@ -88,7 +88,7 @@ class Market_ShippingMethodController extends Market_BaseController
 		$id = craft()->request->getRequiredPost('id');
 
 		craft()->market_shippingMethod->deleteById($id);
-		$this->returnJson(array('success' => true));
+		$this->returnJson(['success' => true]);
 	}
 
 }

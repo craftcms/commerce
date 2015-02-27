@@ -152,7 +152,7 @@ class Market_SaleService extends BaseApplicationComponent
 			$record = Market_SaleRecord::model()->findById($model->id);
 
 			if (!$record) {
-				throw new Exception(Craft::t('No sale exists with the ID “{id}”', array('id' => $model->id)));
+				throw new Exception(Craft::t('No sale exists with the ID “{id}”', ['id' => $model->id]));
 			}
 		} else {
 			$record = new Market_SaleRecord();

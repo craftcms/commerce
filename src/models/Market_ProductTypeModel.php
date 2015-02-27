@@ -29,19 +29,19 @@ class Market_ProductTypeModel extends BaseModel
 
 	public function behaviors()
 	{
-		return array(
+		return [
 			'fieldLayout' => new FieldLayoutBehavior('Market_Product'),
-		);
+		];
 	}
 
 	protected function defineAttributes()
 	{
-		return array(
+		return [
 			'id'            => AttributeType::Number,
 			'name'          => AttributeType::String,
 			'handle'        => AttributeType::String,
 			'fieldLayoutId' => AttributeType::Number
-		);
+		];
 	}
 
 }

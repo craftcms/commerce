@@ -11,11 +11,11 @@ class Market_TaxZoneStateRecord extends BaseRecord
 
 	public function defineIndexes()
 	{
-		return array(
-			array('columns' => array('taxZoneId')),
-			array('columns' => array('stateId')),
-			array('columns' => array('taxZoneId', 'stateId'), 'unique' => true),
-		);
+		return [
+			['columns' => ['taxZoneId']],
+			['columns' => ['stateId']],
+			['columns' => ['taxZoneId', 'stateId'], 'unique' => true],
+		];
 	}
 
 
@@ -26,10 +26,10 @@ class Market_TaxZoneStateRecord extends BaseRecord
 	 */
 	public function defineRelations()
 	{
-		return array(
-			'taxZone' => array(static::BELONGS_TO, 'Market_TaxZoneRecord', 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE, 'required' => true),
-			'state'   => array(static::BELONGS_TO, 'Market_StateRecord', 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE, 'required' => true),
-		);
+		return [
+			'taxZone' => [static::BELONGS_TO, 'Market_TaxZoneRecord', 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE, 'required' => true],
+			'state'   => [static::BELONGS_TO, 'Market_StateRecord', 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE, 'required' => true],
+		];
 	}
 
 }

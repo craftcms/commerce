@@ -38,7 +38,7 @@ class Market_AddressModel extends BaseModel
 
 	protected function defineAttributes()
 	{
-		return array(
+		return [
 			'id'               => AttributeType::Number,
 			'firstName'        => AttributeType::String,
 			'lastName'         => AttributeType::String,
@@ -51,6 +51,6 @@ class Market_AddressModel extends BaseModel
 			'stateName'        => AttributeType::String,
 			'countryId'        => AttributeType::Number,
 			'stateId'          => AttributeType::Number,
-		);
+		];
 	}
 }

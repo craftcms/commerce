@@ -52,11 +52,11 @@ class Market_ChargeElementType extends Market_BaseElementType
 	 */
 	public function getSources($context = NULL)
 	{
-		$sources = array(
-			'*' => array(
+		$sources = [
+			'*' => [
 				'label' => Craft::t('All Charges'),
-			)
-		);
+			]
+		];
 
 		return $sources;
 	}
@@ -70,11 +70,11 @@ class Market_ChargeElementType extends Market_BaseElementType
 	 */
 	public function defineTableAttributes($source = NULL)
 	{
-		return array(
+		return [
 			'id'       => Craft::t('Craft Id'),
 			'stripeId' => Craft::t('Stripe Charge Id'),
 			'amount'   => Craft::t('Amount'),
-		);
+		];
 	}
 
 	/**
@@ -84,7 +84,7 @@ class Market_ChargeElementType extends Market_BaseElementType
 	 */
 	public function defineSearchableAttributes()
 	{
-		return array('stripeId');
+		return ['stripeId'];
 	}
 
 
@@ -107,10 +107,10 @@ class Market_ChargeElementType extends Market_BaseElementType
 	 */
 	public function defineSortableAttributes()
 	{
-		return array(
+		return [
 			'stripeId' => Craft::t('Stripe ID'),
 			'amount'   => Craft::t('Amount')
-		);
+		];
 	}
 
 	/**
@@ -120,9 +120,9 @@ class Market_ChargeElementType extends Market_BaseElementType
 	 */
 	public function defineCriteriaAttributes()
 	{
-		return array(
+		return [
 			'stripeId' => AttributeType::Mixed,
-		);
+		];
 	}
 
 	/**

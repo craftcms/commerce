@@ -117,4 +117,18 @@ class Market_CartController extends Market_BaseController
 			throw new Exception('unable to go to address state from the state: ' . $order->state);
 		}
 	}
+
+	public function actionGotoCart()
+	{
+		$this->requirePostRequest();
+
+		$order = craft()->market_cart->getCart();
+
+		if ($order->canTransit(Market_OrderRecord::STATE_CART)) {
+			$order->transition(Market_OrderRecord::STATE_CART);
+			$this->redirectToPostedUrl();
+		} else {
+			throw new Exception('unable to go to address state from the state: ' . $order->state);
+		}
+	}
 }

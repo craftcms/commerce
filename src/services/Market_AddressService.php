@@ -14,7 +14,7 @@ class Market_AddressService extends BaseApplicationComponent
 	 */
 	public function getAll()
 	{
-		$records = Market_AddressRecord::model()->with('country', 'state')->findAll(array('order' => 't.name'));
+		$records = Market_AddressRecord::model()->with('country', 'state')->findAll(['order' => 't.name']);
 
 		return Market_AddressModel::populateModels($records);
 	}
@@ -59,7 +59,7 @@ class Market_AddressService extends BaseApplicationComponent
 			$record = Market_AddressRecord::model()->findById($model->id);
 
 			if (!$record) {
-				throw new Exception(Craft::t('No address exists with the ID “{id}”', array('id' => $model->id)));
+				throw new Exception(Craft::t('No address exists with the ID “{id}”', ['id' => $model->id]));
 			}
 		} else {
 			$record = new Market_AddressRecord();

@@ -22,7 +22,7 @@ class Market_ProductTypeController extends Market_BaseController
 
 	}
 
-	public function actionEditProductType(array $variables = array())
+	public function actionEditProductType(array $variables = [])
 	{
 		$variables['brandNewProductType'] = false;
 
@@ -74,9 +74,9 @@ class Market_ProductTypeController extends Market_BaseController
 		}
 
 		// Send the calendar back to the template
-		craft()->urlManager->setRouteVariables(array(
+		craft()->urlManager->setRouteVariables([
 			'productType' => $productType
-		));
+		]);
 	}
 
 
@@ -88,7 +88,7 @@ class Market_ProductTypeController extends Market_BaseController
 		$productTypeId = craft()->request->getRequiredPost('id');
 
 		craft()->market_productType->deleteById($productTypeId);
-		$this->returnJson(array('success' => true));
+		$this->returnJson(['success' => true]);
 	}
 
 } 

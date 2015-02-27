@@ -16,13 +16,13 @@ class Market_DashboardController extends Market_BaseController
 
 	public function actionIndex()
 	{
-		$variables = array();
+		$variables = [];
 		$this->renderTemplate('market/index', $variables);
 	}
 
 	public function actionSetup()
 	{
-		$variables = array();
+		$variables = [];
 		$this->renderTemplate('market/setup', $variables);
 	}
 } 

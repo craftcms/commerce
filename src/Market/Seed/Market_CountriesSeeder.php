@@ -267,6 +267,6 @@ class Market_CountriesSeeder implements Market_SeederInterface
 			['ZW', 'Zimbabwe'],
 		];
 
-		\Craft\craft()->db->createCommand()->insertAll($table, array('iso', 'name'), $countries);
+		\Craft\craft()->db->createCommand()->insertAll($table, ['iso', 'name'], $countries);
 	}
 }

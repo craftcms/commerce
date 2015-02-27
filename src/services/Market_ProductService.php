@@ -104,19 +104,19 @@ class Market_ProductService extends BaseApplicationComponent
 	 */
 	public function setOptionTypes($productId, $optionTypeIds)
 	{
-		craft()->db->createCommand()->delete('market_product_optiontypes', array('productId' => $productId));
+		craft()->db->createCommand()->delete('market_product_optiontypes', ['productId' => $productId]);
 
 		if ($optionTypeIds) {
 			if (!is_array($optionTypeIds)) {
-				$optionTypeIds = array($optionTypeIds);
+				$optionTypeIds = [$optionTypeIds];
 			}
 
-			$values = array();
+			$values = [];
 			foreach ($optionTypeIds as $optionTypeId) {
-				$values[] = array($optionTypeId, $productId);
+				$values[] = [$optionTypeId, $productId];
 			}
 
-			craft()->db->createCommand()->insertAll('market_product_optiontypes', array('optionTypeId', 'productId'), $values);
+			craft()->db->createCommand()->insertAll('market_product_optiontypes', ['optionTypeId', 'productId'], $values);
 		}
 	}
 }

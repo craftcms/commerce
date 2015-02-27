@@ -33,6 +33,6 @@ class MarketTwigExtension extends \Twig_Extension
 	 */
 	public function makeLabelFilter($string)
 	{
-		return ucwords(trim(strtolower(str_replace(array('-', '_', '.'), ' ', preg_replace('/(?<![A-Z])[A-Z]/', ' \0', $string)))));
+		return ucwords(trim(strtolower(str_replace(['-', '_', '.'], ' ', preg_replace('/(?<![A-Z])[A-Z]/', ' \0', $string)))));
 	}
 }

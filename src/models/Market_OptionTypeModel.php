@@ -34,7 +34,7 @@ class Market_OptionTypeModel extends BaseModel
 	{
 		$values = $this->getOptionValues();
 
-		$result = array('' => '');
+		$result = ['' => ''];
 		foreach ($values as $value) {
 			$result[$value->id] = $value->displayName;
 		}
@@ -52,11 +52,11 @@ class Market_OptionTypeModel extends BaseModel
 
 	protected function defineAttributes()
 	{
-		return array(
+		return [
 			'id'     => AttributeType::Number,
 			'name'   => AttributeType::String,
 			'handle' => AttributeType::String
-		);
+		];
 	}
 
 }

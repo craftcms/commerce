@@ -21,13 +21,13 @@ class Market_TaxCategoryModel extends BaseModel
 
 	protected function defineAttributes()
 	{
-		return array(
+		return [
 			'id'          => AttributeType::Number,
 			'name'        => AttributeType::String,
 			'code'        => AttributeType::String,
 			'description' => AttributeType::String,
 			'default'     => AttributeType::Bool,
-		);
+		];
 	}
 
 }

@@ -54,7 +54,7 @@ class Market_StateService extends BaseApplicationComponent
 	 */
 	public function getAll()
 	{
-		$records = Market_StateRecord::model()->with('country')->findAll(array('order' => 'country.name, t.name'));
+		$records = Market_StateRecord::model()->with('country')->findAll(['order' => 'country.name, t.name']);
 
 		return Market_StateModel::populateModels($records);
 	}
@@ -73,7 +73,7 @@ class Market_StateService extends BaseApplicationComponent
 			$record = Market_StateRecord::model()->findById($model->id);
 
 			if (!$record) {
-				throw new Exception(Craft::t('No state exists with the ID “{id}”', array('id' => $model->id)));
+				throw new Exception(Craft::t('No state exists with the ID “{id}”', ['id' => $model->id]));
 			}
 		} else {
 			$record = new Market_StateRecord();

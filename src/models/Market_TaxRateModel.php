@@ -33,7 +33,7 @@ class Market_TaxRateModel extends BaseModel
 		return [
 			'id'            => AttributeType::Number,
 			'name'          => AttributeType::String,
-			'rate'          => array(AttributeType::Number, 'default' => .05),
+			'rate'          => [AttributeType::Number, 'default' => .05],
 			'include'       => AttributeType::Bool,
 			'showInLabel'   => AttributeType::Bool,
 

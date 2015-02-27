@@ -21,10 +21,10 @@ class Market_ChargeRecord extends BaseRecord
 	 */
 	public function defineRelations()
 	{
-		return array(
+		return [
 //            'customer' => array(static::BELONGS_TO, 'Market_CustomerRecord'),
-			'element' => array(static::BELONGS_TO, 'ElementRecord', 'id', 'required' => true, 'onDelete' => static::CASCADE),
-		);
+			'element' => [static::BELONGS_TO, 'ElementRecord', 'id', 'required' => true, 'onDelete' => static::CASCADE],
+		];
 	}
 
 	/**
@@ -34,10 +34,10 @@ class Market_ChargeRecord extends BaseRecord
 	 */
 	protected function defineAttributes()
 	{
-		return array(
+		return [
 			'stripeId' => AttributeType::String,
 			'amount'   => AttributeType::Number,
-		);
+		];
 	}
 
 }
