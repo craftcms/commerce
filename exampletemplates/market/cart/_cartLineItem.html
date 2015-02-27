@@ -8,6 +8,9 @@
         <pre style="border: none">{{ lineItem.optionsJson|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
     </td>
     <td>
+        {% if readOnly is defined %}
+        {{ lineItem.qty }}
+        {% else %}
         <form method="POST" class="form-inline">
             <input type="hidden" name="action" value="market/cart/updateQty">
             <input type="hidden" name="redirect" value="market/cart">
@@ -16,6 +19,7 @@
             <input type="submit" class="btn" value="Update" />
             {% if error is defined %}<strong>Error: {{ error }}</strong>{% endif %}
         </form>
+        {% endif %}
     </td>
     <td>
         {% if lineItem.underSale %}
@@ -31,11 +35,13 @@
         Total: {{ lineItem.total|number_format(2) }}<br/>
     </td>
     <td>
+        {% if not readOnly is defined %}
         <form method="POST" class="form-inline">
             <input type="hidden" name="action" value="market/cart/remove" />
             <input type="hidden" name="redirect" value="market/cart" />
             <input type="hidden" name="lineItemId" value="{{ lineItem.id }}" />
             <input type="submit" class="btn btn-xs btn-danger" value="Remove" />
         </form>
+        {% endif %}
     </td>
 </tr>
