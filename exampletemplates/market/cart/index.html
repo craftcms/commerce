@@ -13,5 +13,9 @@
         {% include 'market/cart/_address.html' %}
         {% include 'market/cart/_cart.html' %}
         {% include 'market/cart/_payment.html' %}
+    {% elseif cart.state == 'confirm' %}
+        {% include 'market/cart/_confirm.html' %}
+    {% elseif cart.state == 'complete' %}
+        {% include 'market/cart/_complete.html' %}
     {% endif %}
 {% endblock %}

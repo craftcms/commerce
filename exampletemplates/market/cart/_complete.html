@@ -1,0 +1,24 @@
+<h2>Complete transaction</h2>
+
+{% set transactions = cart.transactions %}
+
+<table class="table table-hover">
+    <tr>
+        {% for key,value in transactions[0].attributes %}
+            <th>{{ key|makeLabel }}</th>
+        {% endfor %}
+    </tr>
+    {% for transaction in transactions %}
+        {% set classes = {
+            pending: 'active',
+            redirect: 'info',
+            success: 'success',
+            failed: 'danger',
+        } %}
+        <tr class="{{ classes[transaction.status] }}">
+            {% for value in transaction.attributes %}
+                <td>{{ value }}</td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+</table>
