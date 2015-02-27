@@ -1,7 +1,7 @@
 <?php
 namespace Craft;
 
-require_once(__DIR__.'/Market_BaseElementType.php');
+require_once(__DIR__ . '/Market_BaseElementType.php');
 
 class Market_OrderElementType extends Market_BaseElementType
 {
@@ -51,24 +51,30 @@ class Market_OrderElementType extends Market_BaseElementType
 	public function defineTableAttributes($source = NULL)
 	{
 		return array(
-			'number'       => Craft::t('Number')
+			'number'     => Craft::t('Number'),
+			'state'     => Craft::t('State'),
+			'finalPrice' => Craft::t('Final Price'),
 		);
 	}
 
 	public function defineSearchableAttributes()
 	{
-		return array('number');
+		return array('number','state');
 	}
 
 	public function getTableAttributeHtml(BaseElementModel $element, $attribute)
 	{
+		switch $attribute:
+		
 		return parent::getTableAttributeHtml($element, $attribute);
 	}
 
 	public function defineSortableAttributes()
 	{
 		return array(
-			'number' => Craft::t('Number')
+			'number'     => Craft::t('Number'),
+			'state'     => Craft::t('State'),
+			'finalPrice' => Craft::t('Final Price'),
 		);
 	}
 
@@ -79,6 +85,7 @@ class Market_OrderElementType extends Market_BaseElementType
 			'typeId' => AttributeType::Mixed,
 			'type'   => AttributeType::Mixed,
 			'number' => AttributeType::Mixed,
+			'state' => AttributeType::Mixed,
 		);
 	}
 
@@ -105,6 +112,10 @@ class Market_OrderElementType extends Market_BaseElementType
 
 		if ($criteria->number) {
 			$query->andWhere(DbHelper::parseParam('orders.number', $criteria->number, $query->params));
+		}
+
+		if ($criteria->state) {
+			$query->andWhere(DbHelper::parseParam('orders.state', $criteria->state, $query->params));
 		}
 	}
 
