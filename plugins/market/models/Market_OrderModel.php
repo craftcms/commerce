@@ -23,6 +23,7 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property int    billingAddressId
  * @property int    shippingAddressId
  * @property int    shippingMethodId
+ * @property int    paymentMethodId
  *
  * @property int    totalQty
  * @property int    totalWeight
@@ -33,6 +34,8 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property Market_AddressModel shippingAddress
  * @property Market_ShippingMethodModel shippingMethod
  * @property Market_OrderAdjustmentModel[] adjustments
+ * @property Market_PaymentMethodModel paymentMethod
+ * @property Market_TransactionModel[] transactions
  *
  * @method bool canTransit(string $state)
  * @method void transition(string $state)
@@ -113,7 +116,7 @@ class Market_OrderModel extends BaseElementModel
 						'transitsTo' => Market_OrderRecord::STATE_PAYMENT
 					], [
 						'name' => Market_OrderRecord::STATE_PAYMENT,
-						'transitsTo' => Market_OrderRecord::STATE_CONFIRM
+						'transitsTo' => [Market_OrderRecord::STATE_CONFIRM, Market_OrderRecord::STATE_COMPLETE],
 					], [
 						'name' => Market_OrderRecord::STATE_CONFIRM,
 						'transitsTo' => Market_OrderRecord::STATE_COMPLETE
@@ -147,6 +150,7 @@ class Market_OrderModel extends BaseElementModel
 			'billingAddressId'    => AttributeType::Number,
 			'shippingAddressId'   => AttributeType::Number,
 			'shippingMethodId'    => AttributeType::Number,
+			'paymentMethodId'     => AttributeType::Number,
 			'currency'            => AttributeType::String,
 			'lastIp'              => AttributeType::String,
 			'orderDate'           => AttributeType::DateTime,

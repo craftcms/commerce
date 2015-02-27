@@ -54,15 +54,20 @@
         </ul>
 
         <div class="flash-info">
-        {% set notice = craft.session.getFlash('notice') %}
-        {% if notice %}
-        <p class="bg-info">{{ notice }}</p>
-        {% endif %}
+            {% set notice = craft.session.getFlash('notice') %}
+            {% if notice %}
+            <p class="bg-info">{{ notice }}</p>
+            {% endif %}
 
-        {% set marketFlash = craft.session.getFlash('market') %}
-        {% if marketFlash %}
-        <p class="bg-warning">{{ marketFlash }}</p>
-        {% endif %}
+            {% set marketFlash = craft.session.getFlash('market') %}
+            {% if marketFlash %}
+            <p class="bg-warning">{{ marketFlash }}</p>
+            {% endif %}
+
+            {% set marketFlash = craft.session.getFlash('error') %}
+            {% if marketFlash %}
+            <p class="bg-error">{{ marketFlash }}</p>
+            {% endif %}
         </div>
 
         <p></p>

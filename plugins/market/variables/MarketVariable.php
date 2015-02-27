@@ -79,6 +79,12 @@ class MarketVariable
         return craft()->market_shippingMethod->calculateForCart();
     }
 
+    public function getPaymentMethods()
+    {
+        $methods = craft()->market_paymentMethod->getAllForFrontend();
+        return \CHtml::listData($methods, 'id', 'name');
+    }
+
 	/**
 	 * A way to use form.* macros in our templates
 	 * @param string $macro

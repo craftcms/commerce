@@ -149,6 +149,26 @@ class Market_CartService extends BaseApplicationComponent
         return true;
     }
 
+    /**
+     * Set shipping method to the current order
+     *
+     * @param int $paymentMethodId
+     * @return bool
+     * @throws \Exception
+     */
+    public function setPaymentMethod($paymentMethodId)
+    {
+        $method = craft()->market_paymentMethod->getById($paymentMethodId);
+        if(!$method->id || !$method->frontendEnabled) {
+            return false;
+        }
+
+        $cart = $this->getCart();
+        $cart->paymentMethodId = $paymentMethodId;
+        craft()->market_order->save($cart);
+        return true;
+    }
+
 	/**
 	 * @TODO check that line item belongs to the current user
 	 * @param int $lineItemId
