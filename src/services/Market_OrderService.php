@@ -117,6 +117,7 @@ class Market_OrderService extends BaseApplicationComponent
 		$orderRecord->billingAddressId 	= $order->billingAddressId;
 		$orderRecord->shippingAddressId = $order->shippingAddressId;
 		$orderRecord->shippingMethodId  = $order->shippingMethodId;
+		$orderRecord->paymentMethodId   = $order->paymentMethodId;
 		$orderRecord->state 			= $order->state;
 		$orderRecord->couponCode 	    = $order->couponCode;
 		$orderRecord->baseDiscount 	    = $order->baseDiscount;

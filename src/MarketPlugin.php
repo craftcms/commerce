@@ -82,12 +82,11 @@ class MarketPlugin extends BasePlugin
 	 */
 	protected function defineSettings()
 	{
-		return array(
-			'defaultCurrency' => AttributeType::String
-		);
-	}
+        $settingModel = new Market_SettingsModel;
+		return $settingModel->defineAttributes();
+    }
 
-	/**
+    /**
 	 * Adding our custom twig functionality
 	 * @return MarketTwigExtension
 	 */

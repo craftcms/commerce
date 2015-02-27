@@ -21,12 +21,15 @@ namespace Craft;
  * @property int    billingAddressId
  * @property int    shippingAddressId
  * @property int    shippingMethodId
+ * @property int    paymentMethodId
  *
  * @property Market_OrderTypeRecord type
  * @property Market_LineItemRecord[] lineItems
  * @property Market_AddressRecord billingAddress
  * @property Market_AddressRecord shippingAddress
  * @property Market_ShippingMethodRecord shippingMethod
+ * @property Market_PaymentMethodRecord paymentMethod
+ * @property Market_TransactionRecord[] transactions
  */
 class Market_OrderRecord extends BaseRecord
 {
@@ -39,7 +42,6 @@ class Market_OrderRecord extends BaseRecord
 	public static $states = [
 		self::STATE_CART,
 		self::STATE_ADDRESS,
-		/*'delivery',*/
 		self::STATE_PAYMENT,
 		self::STATE_CONFIRM,
 		self::STATE_COMPLETE
@@ -64,6 +66,8 @@ class Market_OrderRecord extends BaseRecord
 			'shippingAddress' => [static::BELONGS_TO, 'Market_AddressRecord'],
 			'discount'        => [static::HAS_ONE, 'Market_DiscountRecord', ['couponCode' => 'code']],
 			'shippingMethod'  => [static::BELONGS_TO, 'Market_ShippingMethodRecord'],
+			'paymentMethod'   => [static::BELONGS_TO, 'Market_PaymentMethodRecord'],
+			'transactions'    => [static::HAS_MANY, 'Market_TransactionRecord', 'orderId'],
 		];
 	}
 
@@ -92,8 +96,6 @@ class Market_OrderRecord extends BaseRecord
             'completedAt'         => AttributeType::DateTime,
 			'currency'            => AttributeType::String,
 			'lastIp'              => AttributeType::String
-			//TODO add 'shipmentState'
-			//TODO add 'paymentState'
 		];
 	}
 
