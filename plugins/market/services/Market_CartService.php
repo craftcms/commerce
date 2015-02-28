@@ -96,12 +96,11 @@ class Market_CartService extends BaseApplicationComponent
 
 			$this->cart->lastIp = craft()->request->getIpAddress();
 
-//			TODO: Will need to see if current user changed and possibily recalc the cart
-//			due to user specific discounts available to them.
+            //if current user is changed recalc the cart due to user specific discounts available to them
 //			$currentUser = craft()->userSession->user;
 //			$userId      = (int)craft()->userSession->user->id;
 //			if (!$this->cart->isEmpty() && (int)$this->cart->member_id != $member_id) {
-//				// member_id has changed, reload the cart and save
+//				 member_id has changed, reload the cart and save
 //				$this->cart->userId = $userId;
 //				$this->cart->recalculate();
 //
