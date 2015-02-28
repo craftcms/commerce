@@ -7,6 +7,7 @@ use Craft\Market_LineItemModel;
 use Craft\Market_OrderAdjustmentModel;
 use Craft\Market_OrderModel;
 use Craft\Market_TaxRateModel;
+use Craft\Market_TaxZoneModel;
 
 /**
  * Tax Adjustments
@@ -27,14 +28,15 @@ class Market_TaxAdjuster implements Market_AdjusterInterface
 	 */
 	public function adjust(Market_OrderModel &$order, array $lineItems = [])
 	{
-		$shippingAddress = \Craft\craft()->market_address->getById($order->shippingAddressId);
+        $shippingAddress = \Craft\craft()->market_address->getById($order->shippingAddressId);
+        if (!$shippingAddress->id) {
+            $shippingAddress = null;
+        }
 
-		if (!$shippingAddress->id) {
-			return [];
-		}
-
-		$adjustments = [];
-		$taxRates    = \Craft\craft()->market_taxRate->getAll(['with' => ['taxZone', 'taxZone.countries', 'taxZone.states.country']]);
+        $adjustments = [];
+        $taxRates    = \Craft\craft()->market_taxRate->getAll([
+            'with' => ['taxZone', 'taxZone.countries', 'taxZone.states.country'],
+        ]);
 
 		/** @var Market_TaxRateModel $rate */
 		foreach ($taxRates as $rate) {
@@ -54,7 +56,7 @@ class Market_TaxAdjuster implements Market_AdjusterInterface
 	 *
 	 * @return Market_OrderAdjustmentModel|false
 	 */
-	private function getAdjustment(Market_OrderModel $order, array $lineItems, Market_AddressModel $address, Market_TaxRateModel $taxRate)
+	private function getAdjustment(Market_OrderModel $order, array $lineItems, Market_AddressModel $address = null, Market_TaxRateModel $taxRate)
 	{
 		$zone = $taxRate->taxZone;
 
@@ -67,24 +69,7 @@ class Market_TaxAdjuster implements Market_AdjusterInterface
 		$adjustment->optionsJson = $taxRate->attributes;
 
 		//checking address
-		$addressMatch = false;
-
-		if ($zone->countryBased) {
-			$countriesIds = $zone->getCountriesIds();
-
-			if (in_array($address->countryId, $countriesIds)) {
-				$addressMatch = true;
-			}
-		} else {
-			foreach ($zone->states as $state) {
-				if ($state->country->id == $address->countryId && $state->name == $address->getStateText()) {
-					$addressMatch = true;
-					break;
-				}
-			}
-		}
-
-		if (!$addressMatch) {
+        if (!$this->matchAddress($address, $zone)) {
 			if ($taxRate->include) {
 				//excluding taxes included in price
 				foreach ($lineItems as $item) {
@@ -114,4 +99,32 @@ class Market_TaxAdjuster implements Market_AdjusterInterface
 
 		return $itemsMatch ? $adjustment : false;
 	}
+
+    /**
+     * @param Market_AddressModel $address
+     * @param Market_TaxZoneModel $zone
+     * @return bool
+     */
+    private function matchAddress(Market_AddressModel $address = null, Market_TaxZoneModel $zone)
+    {
+        //when having no address check default tax zones only
+        if(!$address) {
+            return $zone->default;
+        }
+
+        if ($zone->countryBased) {
+            $countriesIds = $zone->getCountriesIds();
+
+            if (in_array($address->countryId, $countriesIds)) {
+                return true;
+            }
+        } else {
+            foreach ($zone->states as $state) {
+                if ($state->country->id == $address->countryId && $state->name == $address->getStateText()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }
