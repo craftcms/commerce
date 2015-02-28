@@ -3,18 +3,17 @@
 
 {% block content %}
 
-{% set orders = craft.market.orders|group(state) %}
+{% set ordersByState = craft.market.orders|group('state') %}
 
 <div class="row">
-    {% for states in ordersStates %}
-        {{ states.key }}
-        {% for order in states %}
-
-        {% endfor %}
-    <div class="col-sm-6 col-md-4">
+    <div class="col-sm-12 col-md-12">
+    {% for state, orders in ordersByState %}
+        <h3>{{ state|title }}</h3>
+        {% for order in orders %}
         <h3>{{order.number}}</h3>
-    </div>
+        {% endfor %}
     {% endfor %}
+    </div>
 </div>
 
 

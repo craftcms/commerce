@@ -23,7 +23,7 @@
     {% for adjustment in cart.adjustments %}
         <tr>
             <td></td>
-            <td></td>
+            <td><pre style="border: none">{{ adjustment.optionsJson|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre></td>
             <td>
                 {{ adjustment.type }} <strong>{{ adjustment.name }}</strong> ({{ adjustment.description }})
             </td>
