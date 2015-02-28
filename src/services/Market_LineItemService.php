@@ -163,23 +163,7 @@ class Market_LineItemService extends BaseApplicationComponent
 
 		$variant = craft()->market_variant->getById($variantId);
 		if ($variant->id) {
-			$lineItem->price         = $variant->price;
-			$lineItem->weight        = $variant->weight * 1;
-			$lineItem->taxCategoryId = $variant->product->taxCategoryId;
-
-			$options                 = $variant->attributes;
-			$options['optionValues'] = $variant->getOptionValuesArray();
-			$lineItem->optionsJson   = $options;
-
-			$sales = craft()->market_sale->getForVariant($variant);
-
-			foreach ($sales as $sale) {
-				$lineItem->saleAmount += $sale->calculateTakeoff($lineItem->price);
-			}
-
-			if ($lineItem->saleAmount > $lineItem->price) {
-				$lineItem->saleAmount = $lineItem->price;
-			}
+            $lineItem->fillFromVariant($variant);
 		} else {
 			$lineItem->addError('variantId', 'variant not found');
 		}

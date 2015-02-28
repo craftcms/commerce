@@ -17,10 +17,9 @@ class Market_OrderService extends BaseApplicationComponent
 {
 	/**
 	 * @param Market_OrderModel $order
-	 *
 	 * @throws Exception
 	 */
-	private function recalculateOrder(Market_OrderModel $order)
+	private function calculateAdjustments(Market_OrderModel $order)
 	{
 		if (!$order->id) {
 			return;
@@ -110,7 +109,7 @@ class Market_OrderService extends BaseApplicationComponent
 			}
 		}
 
-		$this->recalculateOrder($order);
+		$this->calculateAdjustments($order);
 
 		$orderRecord->typeId            = $order->typeId;
 		$orderRecord->number            = $order->number;
@@ -191,6 +190,27 @@ class Market_OrderService extends BaseApplicationComponent
 
 		return false;
 	}
+
+    /**
+     * Full order recalculation
+     * @param Market_OrderModel $order
+     * @throws Exception
+     * @throws \Exception
+     */
+    public function recalculate(Market_OrderModel $order)
+    {
+        foreach($order->lineItems as $item) {
+            if($item->refreshFromVariant()) {
+                if(!craft()->market_lineItem->save($item)) {
+                    throw new Exception('Error on saving lite item: ' . implode(', ', $item->getAllErrors()));
+                }
+            } else {
+                craft()->market_lineItem->delete($item);
+            }
+        }
+
+        $this->save($order);
+    }
 
 	/**
 	 * @return Market_AdjusterInterface[]

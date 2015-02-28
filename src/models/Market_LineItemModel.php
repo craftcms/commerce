@@ -71,4 +71,41 @@ class Market_LineItemModel extends BaseModel
 			'taxCategoryId'  => [AttributeType::Number, 'required' => true],
 		];
 	}
+
+    /**
+     * @return bool False when no related variant exists
+     */
+    public function refreshFromVariant()
+    {
+        if(!$this->variant || !$this->variant->id) {
+            return false;
+        }
+
+        $this->fillFromVariant($this->variant);
+        return true;
+    }
+
+    /**
+     * @param Market_VariantModel $variant
+     */
+    public function fillFromVariant(Market_VariantModel $variant)
+    {
+        $this->price         = $variant->price;
+        $this->weight        = $variant->weight * 1; //converting nulls
+        $this->taxCategoryId = $variant->product->taxCategoryId;
+
+        $options                 = $variant->attributes;
+        $options['optionValues'] = $variant->getOptionValuesArray();
+        $this->optionsJson   = $options;
+
+        $sales = craft()->market_sale->getForVariant($variant);
+
+        foreach ($sales as $sale) {
+            $this->saleAmount += $sale->calculateTakeoff($this->price);
+        }
+
+        if ($this->saleAmount > $this->price) {
+            $this->saleAmount = $this->price;
+        }
+    }
 }
