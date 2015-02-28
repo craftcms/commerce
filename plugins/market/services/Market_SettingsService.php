@@ -21,15 +21,22 @@ class Market_SettingsService extends BaseApplicationComponent
 
 	/**
 	 * Get all settings from plugin core class
-	 *
 	 * @return Market_SettingsModel
 	 */
 	public function getSettings()
 	{
 		$data = $this->_plugin->getSettings();
-
 		return Market_SettingsModel::populateModel($data);
 	}
+
+    /**
+     * @param string $option
+     * @return mixed
+     */
+    public function getOption($option)
+    {
+        return $this->getSettings()->$option;
+    }
 
 	/**
 	 * Set all settings from plugin core class

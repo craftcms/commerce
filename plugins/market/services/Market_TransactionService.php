@@ -75,7 +75,7 @@ class Market_TransactionService extends BaseApplicationComponent
 			$record = new Market_TransactionRecord();
 		}
 
-		$fields = ['id', 'orderId', 'hash', 'paymentMethodId', 'type', 'status', 'amount', 'reference', 'message', 'response'];
+		$fields = ['id', 'orderId', 'hash', 'paymentMethodId', 'type', 'status', 'amount', 'reference', 'message', 'response', 'userId', 'parentId'];
 		foreach ($fields as $field) {
 			$record->$field = $model->$field;
 		}
