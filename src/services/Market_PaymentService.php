@@ -25,25 +25,32 @@ class Market_PaymentService extends BaseApplicationComponent
 			return false;
 		}
 
-		$cart              = craft()->market_cart->getCart();
-		$transaction       = craft()->market_transaction->create($cart);
-		$transaction->type = Market_TransactionRecord::AUTHORIZE;
+        $defaultAction = craft()->market_settings->getOption('paymentMethod');
+        $defaultAction = ($defaultAction === Market_TransactionRecord::PURCHASE) ? $defaultAction : Market_TransactionRecord::AUTHORIZE;
 
-		if (!craft()->market_transaction->save($transaction)) {
-			throw new Exception('Error saving transaction: ' . implode(', ', $transaction->getAllErrors()));
-		}
+        $cart    = craft()->market_cart->getCart();
+        $gateway = $cart->paymentMethod->getGateway();
 
-		$gateway = $cart->paymentMethod->getGateway();
+        if($defaultAction == Market_TransactionRecord::AUTHORIZE) {
+            if (!$gateway->supportsAuthorize()) {
+                $customError = 'Gateway doesn\'t support authorize';
+                return false;
+            }
+        } else {
+            if (!$gateway->supportsPurchase()) {
+                $customError = 'Gateway doesn\'t support purchase';
+                return false;
+            }
+        }
 
-		if (!$gateway->supportsAuthorize()) {
-			$customError = 'Gateway doesn\'t support authorize';
-			craft()->market_transaction->delete($transaction);
+        //creating cart,transaction and request
+        $transaction       = craft()->market_transaction->create($cart);
+        $transaction->type = $defaultAction;
+        $this->saveTransaction($transaction);
 
-			return false;
-		}
+		$card = $this->createCard($cart, $form);
 
-		$card    = $this->createCard($cart, $form);
-		$request = $gateway->authorize($this->buildPaymentRequest($transaction, $card));
+        $request = $gateway->$defaultAction($this->buildPaymentRequest($transaction, $card));
 
 		try {
 			$redirect = $this->sendPaymentRequest($request, $transaction);
