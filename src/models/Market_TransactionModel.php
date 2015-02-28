@@ -27,6 +27,7 @@ use Omnipay\Common\Exception\OmnipayException;
  * @property Market_TransactionModel   parent
  * @property Market_PaymentMethodModel paymentMethod
  * @property Market_OrderModel         order
+ * @property UserModel                 user
  */
 class Market_TransactionModel extends BaseModel
 {
@@ -52,7 +53,7 @@ class Market_TransactionModel extends BaseModel
 
 		// check gateway supports capture
 		try {
-			$gateway = craft()->market_gateway->getGateway($this->paymentMethod->class);
+			$gateway = $this->paymentMethod->getGateway();
 			if (!$gateway || !$gateway->supportsCapture()) {
 				return false;
 			}
@@ -60,14 +61,19 @@ class Market_TransactionModel extends BaseModel
 			return false;
 		}
 
-		// check transaction hasn't already been refunded
-		$condition = 'type = ? AND status = ? AND orderId = ?';
-		$params    = [Market_TransactionRecord::CAPTURE, Market_TransactionRecord::SUCCESS, $this->orderId];
-		$exists    = Market_TransactionRecord::model()->exists($condition, $params);
+		// check transaction hasn't already been captured
+        $criteria = [
+            'condition' => 'type = ? AND status = ? AND orderId = ?',
+            'params' => [Market_TransactionRecord::CAPTURE, Market_TransactionRecord::SUCCESS, $this->orderId],
+        ];
+		$exists = craft()->market_transaction->exists($criteria);
 
 		return !$exists;
 	}
 
+    /**
+     * @return bool
+     */
 	public function canRefund()
 	{
 		// can only refund purchase or capture transactions
@@ -77,7 +83,7 @@ class Market_TransactionModel extends BaseModel
 
 		// check gateway supports refund
 		try {
-			$gateway = craft()->market_gateway->getGateway($this->paymentMethod->class);
+			$gateway = $this->paymentMethod->getGateway();
 			if (!$gateway || !$gateway->supportsRefund()) {
 				return false;
 			}
@@ -86,18 +92,25 @@ class Market_TransactionModel extends BaseModel
 		}
 
 		// check transaction hasn't already been refunded
-		$condition = 'type = ? AND status = ? AND orderId = ?';
-		$params    = [Market_TransactionRecord::REFUND, Market_TransactionRecord::SUCCESS, $this->orderId];
-		$exists    = Market_TransactionRecord::model()->exists($condition, $params);
+        $criteria = [
+            'condition' => 'type = ? AND status = ? AND orderId = ?',
+            'params' => [Market_TransactionRecord::REFUND, Market_TransactionRecord::SUCCESS, $this->orderId],
+        ];
+        $exists = craft()->market_transaction->exists($criteria);
 
 		return !$exists;
 	}
 
+    /**
+     * @return array
+     */
 	protected function defineAttributes()
 	{
 		return [
 			'id'              => AttributeType::Number,
 			'orderId'         => AttributeType::Number,
+			'parentId'        => AttributeType::Number,
+			'userId'          => AttributeType::Number,
 			'hash'            => AttributeType::String,
 			'paymentMethodId' => AttributeType::Number,
 			'type'            => AttributeType::String,

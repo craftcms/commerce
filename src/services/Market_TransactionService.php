@@ -10,31 +10,35 @@ class Market_TransactionService extends BaseApplicationComponent
 {
 	/**
 	 * @param int $id
-	 *
 	 * @return Market_TransactionModel
 	 */
 	public function getById($id)
 	{
 		$record = Market_TransactionRecord::model()->findById($id);
-
 		return Market_TransactionModel::populateModel($record);
 	}
 
 	/**
 	 * @param int $orderId
-	 *
 	 * @return Market_TransactionModel[]
 	 */
 	public function getAllByOrderId($orderId)
 	{
 		$records = Market_TransactionRecord::model()->findAllByAttributes(['orderId' => $orderId]);
-
 		return Market_TransactionModel::populateModels($records);
 	}
 
+    /**
+     * @param array|\CDbCriteria $criteria
+     * @return bool
+     */
+    public function exists($criteria = [])
+    {
+        return Market_TransactionRecord::model()->exists($criteria);
+    }
+
 	/**
 	 * @param Market_OrderModel $order
-	 *
 	 * @return Market_TransactionModel
 	 */
 	public function create(Market_OrderModel $order)
@@ -45,7 +49,12 @@ class Market_TransactionService extends BaseApplicationComponent
 		$transaction->orderId         = $order->id;
 		$transaction->paymentMethodId = $order->paymentMethodId;
 
-		return $transaction;
+        $user = craft()->userSession->getUser();
+        if($user) {
+            $transaction->userId = $user->id;
+        }
+
+        return $transaction;
 	}
 
 	/**

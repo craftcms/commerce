@@ -23,6 +23,7 @@ namespace Craft;
  * @property Market_TransactionRecord   parent
  * @property Market_PaymentMethodRecord paymentMethod
  * @property Market_OrderRecord         order
+ * @property UserRecord                 user
  */
 class Market_TransactionRecord extends BaseRecord
 {
@@ -50,6 +51,7 @@ class Market_TransactionRecord extends BaseRecord
 			'parent'        => [self::BELONGS_TO, 'Market_TransactionRecord', 'onDelete' => self::RESTRICT, 'onUpdate' => self::CASCADE],
 			'paymentMethod' => [self::BELONGS_TO, 'Market_PaymentMethodRecord', 'onDelete' => self::RESTRICT, 'onUpdate' => self::CASCADE],
 			'order'         => [self::BELONGS_TO, 'Market_OrderRecord', 'required' => true, 'onDelete' => self::CASCADE],
+			'user'          => [self::BELONGS_TO, 'UserRecord', 'onDelete' => self::RESTRICT],
 		];
 	}
 
