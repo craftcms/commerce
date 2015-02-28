@@ -43,15 +43,7 @@ class Market_PaymentService extends BaseApplicationComponent
 		}
 
 		$card    = $this->createCard($cart, $form);
-		$request = $gateway->authorize([
-			'card'          => $card,
-			'amount'        => $cart->finalPrice,
-			'currency'      => 'USD', //TODO refine
-			'transactionId' => $transaction->id,
-			'clientIp'      => craft()->request->getIpAddress(),
-			'returnUrl'     => $this->getReturnUrl($transaction),
-			'cancelUrl'     => $this->getCancelUrl($transaction),
-		]);
+		$request = $gateway->authorize($this->buildPaymentRequest($transaction, $card));
 
 		try {
 			$redirect = $this->sendPaymentRequest($request, $transaction);
@@ -67,11 +59,6 @@ class Market_PaymentService extends BaseApplicationComponent
 		return true;
 	}
 
-	public function processPayment1(Market_OrderModel $order, Market_TransactionModel $transaction, Market_PaymentFormModel $paymentForm)
-	{
-
-	}
-
 	/**
 	 * Send a payment request to the gateway, and redirect appropriately
 	 *
@@ -80,7 +67,7 @@ class Market_PaymentService extends BaseApplicationComponent
 	 *
 	 * @return string
 	 */
-	public function sendPaymentRequest(RequestInterface $request, Market_TransactionModel $transaction)
+	private function sendPaymentRequest(RequestInterface $request, Market_TransactionModel $transaction)
 	{
 		// try {
 		/** @var ResponseInterface $response */
@@ -126,6 +113,61 @@ class Market_PaymentService extends BaseApplicationComponent
 		}
 	}
 
+    /**
+     * @param Market_TransactionModel $transaction
+     * @return Market_TransactionModel
+     */
+    public function captureTransaction(Market_TransactionModel $transaction)
+    {
+        return $this->processCaptureOrRefund($transaction, Market_TransactionRecord::CAPTURE);
+    }
+
+    /**
+     * @param Market_TransactionModel $transaction
+     * @return Market_TransactionModel
+     */
+    public function refundTransaction(Market_TransactionModel $transaction)
+    {
+        return $this->processCaptureOrRefund($transaction, Market_TransactionRecord::REFUND);
+    }
+
+    /**
+     * @param Market_TransactionModel $parent
+     * @param string                  $action
+     * @return Market_TransactionModel
+     * @throws Exception
+     */
+    private function processCaptureOrRefund(Market_TransactionModel $parent, $action)
+    {
+        if(!in_array($action, [Market_TransactionRecord::CAPTURE, Market_TransactionRecord::REFUND])) {
+            throw new Exception('Wrong action: ' .$action);
+        }
+
+        $order = $parent->order;
+        $child = craft()->market_transaction->create($order);
+        $child->parentId = $parent->id;
+        $child->paymentMethodId = $parent->paymentMethodId;
+        $child->type = $action;
+        $child->amount = $parent->amount;
+        $this->saveTransaction($child);
+
+        $gateway = $parent->paymentMethod->getGateway();
+        $request = $gateway->$action($this->buildPaymentRequest($child));
+        $request->setTransactionReference($parent->reference);
+
+        try {
+            $response = $request->send();
+            $this->updateTransaction($child, $response);
+        } catch (\Exception $e) {
+            $child->status = Market_TransactionRecord::FAILED;
+            $child->message = $e->getMessage();
+
+            $this->saveTransaction($child);
+        }
+
+        return $child;
+    }
+
 	/**
 	 * @param Market_TransactionModel $transaction
 	 * @param ResponseInterface       $response
@@ -145,9 +187,7 @@ class Market_PaymentService extends BaseApplicationComponent
 		$transaction->reference = $response->getTransactionReference();
 		$transaction->message   = $response->getMessage();
 
-		if (!craft()->market_transaction->save($transaction)) {
-			throw new Exception('Error saving transaction: ' . implode(', ', $transaction->getAllErrors()));
-		}
+        $this->saveTransaction($transaction);
 	}
 
 	/**
@@ -209,4 +249,36 @@ class Market_PaymentService extends BaseApplicationComponent
 	{
 		return UrlHelper::getActionUrl('market/cartPayment/cancel', ['id' => $transaction->id, 'hash' => $transaction->hash]);
 	}
+
+    /**
+     * @param Market_TransactionModel $transaction
+     * @param CreditCard $card
+     * @return array
+     */
+    private function buildPaymentRequest(Market_TransactionModel $transaction, CreditCard $card = null)
+    {
+        $request = [
+            'amount'        => $transaction->amount,
+            'currency'      => 'USD', //TODO refine
+            'transactionId' => $transaction->id,
+            'clientIp'      => craft()->request->getIpAddress(),
+            'returnUrl'     => $this->getReturnUrl($transaction),
+            'cancelUrl'     => $this->getCancelUrl($transaction),
+        ];
+        if($card) {
+            $request['card'] = $card;
+        }
+        return $request;
+    }
+
+    /**
+     * @param Market_TransactionModel $child
+     * @throws Exception
+     */
+    private function saveTransaction($child)
+    {
+        if (!craft()->market_transaction->save($child)) {
+            throw new Exception('Error saving transaction: ' . implode(', ', $child->getAllErrors()));
+        }
+    }
 }
