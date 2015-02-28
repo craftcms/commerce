@@ -25,14 +25,6 @@ class MarketVariable
 	}
 
 	/**
-	 * @return Market_ProductModel[]
-	 */
-	public function productsWithSales()
-	{
-		return craft()->market_product->getAllWithSales();
-	}
-
-	/**
 	 * @param array|null $criteria
 	 *
 	 * @return ElementCriteriaModel|null

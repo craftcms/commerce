@@ -6,7 +6,6 @@ class Market_VariantService extends BaseApplicationComponent
 {
 	/**
 	 * @param int $id
-	 *
 	 * @return Market_VariantModel
 	 */
 	public function getById($id)
@@ -73,6 +72,25 @@ class Market_VariantService extends BaseApplicationComponent
 		$variant->deletedAt = DateTimeHelper::currentTimeForDb();
 		$variant->saveAttributes(['deletedAt']);
 	}
+
+    /**
+     * Apply sales, associated with the given product, to all given variants
+     * @param Market_VariantModel[] $variants
+     * @param Market_ProductModel   $product
+     */
+    public function applySales(array $variants, Market_ProductModel $product)
+    {
+        $sales  = craft()->market_sale->getForProduct($product);
+
+        foreach ($sales as $sale) {
+            foreach ($variants as $variant) {
+                $variant->salePrice = $variant->price + $sale->calculateTakeoff($variant->price);
+                if ($variant->salePrice < 0) {
+                    $variant->salePrice = 0;
+                }
+            }
+        }
+    }
 
 	/**
 	 * Save a model into DB

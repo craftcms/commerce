@@ -3,7 +3,7 @@
 
 {% block content %}
 
-{% set products = craft.market.productsWithSales() %}
+{% set products = craft.market.products() %}
 
 <div class="row">
     {% for product in products %}

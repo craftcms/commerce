@@ -115,10 +115,13 @@ class Market_ProductModel extends BaseElementModel
 	public function getVariants()
 	{
 		if (count($this->allVariants) == 1) {
-			return $this->allVariants;
+			$variants = $this->allVariants;
 		} else {
-			return $this->nonMasterVariants;
+			$variants = $this->nonMasterVariants;
 		}
+
+        craft()->market_variant->applySales($variants, $this);
+        return $variants;
 	}
 
 	/**

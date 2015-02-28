@@ -13,33 +13,24 @@ class Market_SaleService extends BaseApplicationComponent
 {
 	/**
 	 * @param int $id
-	 *
 	 * @return Market_SaleModel
 	 */
 	public function getById($id)
 	{
 		$record = Market_SaleRecord::model()->findById($id);
-
 		return Market_SaleModel::populateModel($record);
 	}
 
 	/**
-	 * Getting all discounts applicable for the current user and given items
-	 * list
+	 * Getting all sales applicable for the current user and given product
 	 *
-	 * @param Market_ProductModel[] $products
-	 *
+	 * @param Market_ProductModel $product
 	 * @return Market_SaleModel[]
 	 */
-	public function getForProducts(array $products)
+	public function getForProduct(Market_ProductModel $product)
 	{
-		$productIds     = [];
-		$productTypeIds = [];
-		foreach ($products as $product) {
-			$productIds[]     = $product->id;
-			$productTypeIds[] = $product->typeId;
-		}
-		$productTypeIds = array_unique($productTypeIds);
+		$productIds     = [$product->id];
+		$productTypeIds = [$product->typeId];
 
 		return $this->getAllByConditions($productIds, $productTypeIds);
 	}

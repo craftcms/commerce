@@ -84,7 +84,7 @@ class Market_VariantModel extends BaseModel
 	 */
 	public function underSale()
 	{
-		return $this->salePrice != $this->price;
+		return is_null($this->salePrice) ? false : ($this->salePrice != $this->price);
 	}
 
 	protected function defineAttributes()
