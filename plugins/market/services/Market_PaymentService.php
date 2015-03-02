@@ -86,31 +86,6 @@ class Market_PaymentService extends BaseApplicationComponent
 			return $response->redirect();
 		}
 
-		// exception required for SagePay Server
-//        if (method_exists($response, 'confirm')) {
-//            $response->confirm($this->buildReturnUrl($transaction));
-//        }
-		// } catch (\Exception $e) {
-		//     $transaction->status = Market_TransactionModel::FAILED;
-		//     //$transaction->message = lang('store.payment.communication_error');
-		//     $transaction->message = 'store.payment.communication_error';
-		//     $transaction->save();
-		// }
-
-//        $gateways_which_call_us_directly = [
-//            'AuthorizeNet_SIM',
-//            'Realex_Redirect',
-//            'SecurePay_DirectPost',
-//            'WorldPay',
-//        ];
-//        if (in_array($transaction->paymentMethod, $gateways_which_call_us_directly)) {
-//            // send the customer's browser to our return URL instead of letting the
-//            // gateway display the page directly to the customer, otherwise they
-//            // end up on our payment failed or order complete page without their
-//            // session cookie which obviously won't work
-//            $this->redirectForm($this->buildReturnUrl($transaction));
-//        }
-
 		if ($response->isSuccessful()) {
 			return $this->getReturnUrl($transaction);
 		} else {
