@@ -172,7 +172,7 @@ class Market_OrderModel extends BaseElementModel
 
 	public function isEmpty()
 	{
-		return true;
+		return $this->getTotalQty() == 0;
 	}
 
 	/**

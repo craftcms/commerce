@@ -110,7 +110,9 @@ class Market_OrderService extends BaseApplicationComponent
 			}
 		}
 
-		$this->recalculateOrder($order);
+		if ($order->completedAt == null){
+			$this->recalculateOrder($order);
+		}
 
 		$orderRecord->typeId            = $order->typeId;
 		$orderRecord->number            = $order->number;
