@@ -21,7 +21,7 @@ This will enable PHP Storm IDE features for services like `craft()->market_produ
  * @property Market_CustomerService        $market_customer
  * @property Market_DiscountService        $market_discount
  * @property Market_GatewayService         $market_gateway
- * @property Market_LineItemService        market_lineItem
+ * @property Market_LineItemService        $market_lineItem
  * @property Market_OptionTypeService      $market_optionType
  * @property Market_OptionValueService     $market_optionValue
  * @property Market_OrderAdjustmentService $market_orderAdjustment
