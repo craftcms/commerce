@@ -1,0 +1,20 @@
+{% extends "market/_layouts/_main" %}
+{% block title %}Orders{% endblock %}
+
+{% block content %}
+
+{% set ordersByState = craft.market.orders|group('state') %}
+
+<div class="row">
+    <div class="col-sm-12 col-md-12">
+    {% for state, orders in ordersByState %}
+        <h3>{{ state|title }}</h3>
+        {% for order in orders %}
+        <h3>{{order.number}}</h3>
+        {% endfor %}
+    {% endfor %}
+    </div>
+</div>
+
+
+{% endblock %}

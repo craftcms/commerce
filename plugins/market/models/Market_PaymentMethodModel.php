@@ -1,6 +1,8 @@
 <?php
 namespace Craft;
 
+use Omnipay\Common\AbstractGateway;
+
 /**
  * Class Market_PaymentMethodModel
  *
@@ -18,7 +20,25 @@ namespace Craft;
 class Market_PaymentMethodModel extends BaseModel
 {
 	/** @var array */
-	private $_settings = array();
+	private $_settings = [];
+
+	/**
+	 * @param Market_PaymentMethodRecord|array $values
+	 *
+	 * @return BaseModel
+	 */
+	public static function populateModel($values)
+	{
+		/** @var self $model */
+		$model = parent::populateModel($values);
+		if (is_object($values)) {
+			$model->settings = $values->settings;
+		} else {
+			$model->settings = $values['settings'];
+		}
+
+		return $model;
+	}
 
 	/**
 	 * Get gateway initialized with the settings
@@ -34,12 +54,15 @@ class Market_PaymentMethodModel extends BaseModel
 	}
 
 	/**
-	 * @return null|\Omnipay\Common\GatewayInterface
+	 * @return AbstractGateway
 	 */
 	public function getGateway()
 	{
 		if (!empty($this->class)) {
-			return craft()->market_gateway->getGateway($this->class);
+			$gw = craft()->market_gateway->getGateway($this->class);
+			$gw->initialize($this->settings);
+
+			return $gw;
 		}
 
 		return NULL;
@@ -78,7 +101,7 @@ class Market_PaymentMethodModel extends BaseModel
 	{
 		$gateway = craft()->market_gateway->getGateway($this->class);
 		if (!$gateway) {
-			return array();
+			return [];
 		}
 
 		$defaults = $gateway->getDefaultParameters();
@@ -95,10 +118,10 @@ class Market_PaymentMethodModel extends BaseModel
 	{
 		$gateway = craft()->market_gateway->getGateway($this->class);
 		if (!$gateway) {
-			return array();
+			return [];
 		}
 
-		$result   = array();
+		$result   = [];
 		$defaults = $gateway->getDefaultParameters();
 		foreach ($defaults as $key => $value) {
 			if (is_bool($value)) {
@@ -111,30 +134,12 @@ class Market_PaymentMethodModel extends BaseModel
 
 	protected function defineAttributes()
 	{
-		return array(
+		return [
 			'id'              => AttributeType::Number,
 			'class'           => AttributeType::String,
 			'name'            => AttributeType::String,
 			'cpEnabled'       => AttributeType::Bool,
 			'frontendEnabled' => AttributeType::Bool,
-		);
-	}
-
-	/**
-	 * @param Market_PaymentMethodRecord|array $values
-	 *
-	 * @return BaseModel
-	 */
-	public static function populateModel($values)
-	{
-		/** @var self $model */
-		$model = parent::populateModel($values);
-		if (is_object($values)) {
-			$model->settings = $values->settings;
-		} else {
-			$model->settings = $values['settings'];
-		}
-
-		return $model;
+		];
 	}
 }

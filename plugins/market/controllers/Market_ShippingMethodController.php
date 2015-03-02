@@ -24,13 +24,14 @@ class Market_ShippingMethodController extends Market_BaseController
 	 * Create/Edit Shipping Method
 	 *
 	 * @param array $variables
+	 *
 	 * @throws HttpException
 	 */
 	public function actionEdit(array $variables = [])
 	{
 		if (empty($variables['shippingMethod'])) {
 			if (!empty($variables['id'])) {
-				$id = $variables['id'];
+				$id                          = $variables['id'];
 				$variables['shippingMethod'] = craft()->market_shippingMethod->getById($id);
 
 				if (!$variables['shippingMethod']->id) {
@@ -87,7 +88,7 @@ class Market_ShippingMethodController extends Market_BaseController
 		$id = craft()->request->getRequiredPost('id');
 
 		craft()->market_shippingMethod->deleteById($id);
-		$this->returnJson(array('success' => true));
+		$this->returnJson(['success' => true]);
 	}
 
 }

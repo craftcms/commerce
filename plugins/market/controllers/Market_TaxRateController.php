@@ -19,9 +19,9 @@ class Market_TaxRateController extends Market_BaseController
 	public function actionIndex()
 	{
 		$taxRates = craft()->market_taxRate->getAll([
-            'with' => ['taxZone', 'taxCategory'],
-            'order' => 't.name',
-        ]);
+			'with'  => ['taxZone', 'taxCategory'],
+			'order' => 't.name',
+		]);
 		$this->renderTemplate('market/settings/taxrates/index', compact('taxRates'));
 	}
 
@@ -32,7 +32,7 @@ class Market_TaxRateController extends Market_BaseController
 	 *
 	 * @throws HttpException
 	 */
-	public function actionEdit(array $variables = array())
+	public function actionEdit(array $variables = [])
 	{
 		if (empty($variables['taxRate'])) {
 			if (!empty($variables['id'])) {
@@ -54,13 +54,13 @@ class Market_TaxRateController extends Market_BaseController
 		}
 
 		$taxZones              = craft()->market_taxZone->getAll(false);
-		$variables['taxZones'] = array();
+		$variables['taxZones'] = [];
 		foreach ($taxZones as $model) {
 			$variables['taxZones'][$model->id] = $model->name;
 		}
 
 		$taxCategories              = craft()->market_taxCategory->getAll();
-		$variables['taxCategories'] = array();
+		$variables['taxCategories'] = [];
 		foreach ($taxCategories as $model) {
 			$variables['taxCategories'][$model->id] = $model->name;
 		}
@@ -95,9 +95,9 @@ class Market_TaxRateController extends Market_BaseController
 		}
 
 		// Send the model back to the template
-		craft()->urlManager->setRouteVariables(array(
+		craft()->urlManager->setRouteVariables([
 			'taxRate' => $taxRate
-		));
+		]);
 	}
 
 	/**
@@ -111,7 +111,7 @@ class Market_TaxRateController extends Market_BaseController
 		$id = craft()->request->getRequiredPost('id');
 
 		craft()->market_taxRate->deleteById($id);
-		$this->returnJson(array('success' => true));
+		$this->returnJson(['success' => true]);
 	}
 
 }

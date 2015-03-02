@@ -11,7 +11,7 @@ class Market_OptionValueService extends BaseApplicationComponent
 	 */
 	public function getAllByOptionTypeId($id)
 	{
-		$optionValueRecords = Market_OptionValueRecord::model()->findAllByAttributes(array('optionTypeId' => $id));
+		$optionValueRecords = Market_OptionValueRecord::model()->findAllByAttributes(['optionTypeId' => $id]);
 
 		return Market_OptionValueModel::populateModels($optionValueRecords);
 	}
@@ -30,6 +30,7 @@ class Market_OptionValueService extends BaseApplicationComponent
 
 	/**
 	 * @param int $variantId
+	 *
 	 * @return Market_OptionValueModel[]
 	 */
 	public function getAllByVariantId($variantId)
@@ -56,7 +57,7 @@ class Market_OptionValueService extends BaseApplicationComponent
 	{
 		// Check for a real optionType
 		if (!craft()->market_optionType->getById($optionType->id)) {
-			throw new Exception(Craft::t('No Option Type exists with the ID “{id}”', array('id' => $id)));
+			throw new Exception(Craft::t('No Option Type exists with the ID “{id}”', ['id' => $id]));
 		}
 
 		// Delete all optionValues that were removed
@@ -65,10 +66,10 @@ class Market_OptionValueService extends BaseApplicationComponent
 		$transaction = craft()->db->getCurrentTransaction() === NULL ? craft()->db->beginTransaction() : NULL;
 		try {
 			foreach ($optionValues as $optionValue) {
-				$optionValueRecord = Market_OptionValueRecord::model()->findByAttributes(array(
+				$optionValueRecord = Market_OptionValueRecord::model()->findByAttributes([
 					'id'           => $optionValue->id,
 					'optionTypeId' => $optionType->id
-				));
+				]);
 
 				if (!$optionValueRecord) {
 					$optionValueRecord = new Market_OptionValueRecord();
@@ -105,7 +106,7 @@ class Market_OptionValueService extends BaseApplicationComponent
 			return $optionValue['id'];
 		}, $optionValues));
 		$criteria = new \CDbCriteria();
-		$criteria->addColumnCondition(array('optionTypeId' => $optionType->id));
+		$criteria->addColumnCondition(['optionTypeId' => $optionType->id]);
 		$criteria->addNotInCondition("id", $newIds);
 		Market_OptionValueRecord::model()->deleteAll($criteria);
 	}

@@ -2,40 +2,36 @@
 
 namespace Craft;
 
+use Market\Traits\Market_ModelRelationsTrait;
+use Omnipay\Common\Exception\OmnipayException;
+
 /**
  * Class Market_TransactionModel
  *
  * @package Craft
  *
- * @property int                         $id
- * @property string                      $hash
- * @property string                      $type
- * @property float                       $amount
- * @property string                      status
- * @property string                      reference
- * @property string                      message
- * @property string                      response
+ * @property int                       $id
+ * @property string                    $hash
+ * @property string                    $type
+ * @property float                     $amount
+ * @property string                    status
+ * @property string                    reference
+ * @property string                    message
+ * @property string                    response
  *
- * @property int                         parentId
- * @property int                         userId
- * @property int                         paymentMethodId
- * @property int                         orderId
+ * @property int                       parentId
+ * @property int                       userId
+ * @property int                       paymentMethodId
+ * @property int                       orderId
  *
- * @property Market_TransactionRecord   $parent
- * @property Market_PaymentMethodRecord paymentMethod
- * @property UserRecord                  $user
+ * @property Market_TransactionModel   parent
+ * @property Market_PaymentMethodModel paymentMethod
+ * @property Market_OrderModel         order
+ * @property UserModel                 user
  */
 class Market_TransactionModel extends BaseModel
 {
-	const AUTHORIZE = 'authorize';
-	const CAPTURE = 'capture';
-	const PURCHASE = 'purchase';
-	const REFUND = 'refund';
-
-	const PENDING = 'pending';
-	const REDIRECT = 'redirect';
-	const SUCCESS = 'success';
-	const FAILED = 'failed';
+	use Market_ModelRelationsTrait;
 
 	public function __construct($attributes = NULL)
 	{
@@ -46,27 +42,75 @@ class Market_TransactionModel extends BaseModel
 	}
 
 	/**
-	 * @return UserModel|null
+	 * @return bool
 	 */
-	public function getUser()
+	public function canCapture()
 	{
-		return $this->userId ? craft()->users->getUserById($this->userId) : NULL;
+		// can only capture authorize payments
+		if ($this->type != Market_TransactionRecord::AUTHORIZE || $this->status != Market_TransactionRecord::SUCCESS) {
+			return false;
+		}
+
+		// check gateway supports capture
+		try {
+			$gateway = $this->paymentMethod->getGateway();
+			if (!$gateway || !$gateway->supportsCapture()) {
+				return false;
+			}
+		} catch (OmnipayException  $e) {
+			return false;
+		}
+
+		// check transaction hasn't already been captured
+        $criteria = [
+            'condition' => 'type = ? AND status = ? AND orderId = ?',
+            'params' => [Market_TransactionRecord::CAPTURE, Market_TransactionRecord::SUCCESS, $this->orderId],
+        ];
+		$exists = craft()->market_transaction->exists($criteria);
+
+		return !$exists;
 	}
 
-	/**
-	 * @return Market_PaymentMethodModel|null
-	 */
-	public function getPaymentMethod()
+    /**
+     * @return bool
+     */
+	public function canRefund()
 	{
-		return $this->paymentMethodId ? craft()->market_paymentMethod->getById($this->paymentMethodId) : NULL;
+		// can only refund purchase or capture transactions
+		if (!in_array($this->type, [Market_TransactionRecord::PURCHASE, Market_TransactionRecord::CAPTURE]) || $this->status != Market_TransactionRecord::SUCCESS) {
+			return false;
+		}
+
+		// check gateway supports refund
+		try {
+			$gateway = $this->paymentMethod->getGateway();
+			if (!$gateway || !$gateway->supportsRefund()) {
+				return false;
+			}
+		} catch (OmnipayException $e) {
+			return false;
+		}
+
+		// check transaction hasn't already been refunded
+        $criteria = [
+            'condition' => 'type = ? AND status = ? AND orderId = ?',
+            'params' => [Market_TransactionRecord::REFUND, Market_TransactionRecord::SUCCESS, $this->orderId],
+        ];
+        $exists = craft()->market_transaction->exists($criteria);
+
+		return !$exists;
 	}
 
+    /**
+     * @return array
+     */
 	protected function defineAttributes()
 	{
-		return array(
+		return [
 			'id'              => AttributeType::Number,
-			'userId'          => AttributeType::Number,
 			'orderId'         => AttributeType::Number,
+			'parentId'        => AttributeType::Number,
+			'userId'          => AttributeType::Number,
 			'hash'            => AttributeType::String,
 			'paymentMethodId' => AttributeType::Number,
 			'type'            => AttributeType::String,
@@ -75,14 +119,6 @@ class Market_TransactionModel extends BaseModel
 			'reference'       => AttributeType::String,
 			'message'         => AttributeType::String,
 			'response'        => AttributeType::String,
-		);
+		];
 	}
-
-	/**
-	 * @return null
-	 */
-//    public function getOrder()
-//    {
-//        return $this->orderId ? craft()->cellar_orders->getOrder($this->orderId) : null;
-//    }
 }

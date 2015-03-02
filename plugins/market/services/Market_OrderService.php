@@ -1,6 +1,7 @@
 <?php
 
 namespace Craft;
+
 use Market\Adjusters\Market_AdjusterInterface;
 use Market\Adjusters\Market_DiscountAdjuster;
 use Market\Adjusters\Market_ShippingAdjuster;
@@ -14,58 +15,58 @@ use Market\Helpers\MarketDbHelper;
  */
 class Market_OrderService extends BaseApplicationComponent
 {
-    /**
-     * @param Market_OrderModel $order
-     * @throws Exception
-     */
-	private function recalculateOrder(Market_OrderModel $order)
+	/**
+	 * @param Market_OrderModel $order
+	 * @throws Exception
+	 */
+	private function calculateAdjustments(Market_OrderModel $order)
 	{
-        if(!$order->id) {
-            return;
-        }
+		if (!$order->id) {
+			return;
+		}
 
-        //calculating adjustments
-        $lineItems = craft()->market_lineItem->getAllByOrderId($order->id);
+		//calculating adjustments
+		$lineItems = craft()->market_lineItem->getAllByOrderId($order->id);
 
-        foreach($lineItems as $item) { //resetting fields calculated by adjusters
-            $item->taxAmount = 0;
-            $item->shippingAmount = 0;
-            $item->discountAmount = 0;
-        }
+		foreach ($lineItems as $item) { //resetting fields calculated by adjusters
+			$item->taxAmount      = 0;
+			$item->shippingAmount = 0;
+			$item->discountAmount = 0;
+		}
 
-        /** @var Market_OrderAdjustmentModel[] $adjustments */
-        $adjustments = [];
-        foreach($this->getAdjusters() as $adjuster) {
-            $adjustments = array_merge($adjustments, $adjuster->adjust($order, $lineItems));
-        }
+		/** @var Market_OrderAdjustmentModel[] $adjustments */
+		$adjustments = [];
+		foreach ($this->getAdjusters() as $adjuster) {
+			$adjustments = array_merge($adjustments, $adjuster->adjust($order, $lineItems));
+		}
 
-        //refreshing adjustments
-        craft()->market_orderAdjustment->deleteAllByOrderId($order->id);
+		//refreshing adjustments
+		craft()->market_orderAdjustment->deleteAllByOrderId($order->id);
 
-        foreach($adjustments as $adjustment) {
-            $result = craft()->market_orderAdjustment->save($adjustment);
-            if(!$result) {
-                $errors = $adjustment->getAllErrors();
-                throw new Exception('Error saving order adjustment: ' . implode(', ', $errors));
-            }
-        }
+		foreach ($adjustments as $adjustment) {
+			$result = craft()->market_orderAdjustment->save($adjustment);
+			if (!$result) {
+				$errors = $adjustment->getAllErrors();
+				throw new Exception('Error saving order adjustment: ' . implode(', ', $errors));
+			}
+		}
 
-        //recalculating order amount and saving items
-        $order->itemTotal = 0;
-        foreach($lineItems as $item) {
-            $result = craft()->market_lineItem->save($item);
+		//recalculating order amount and saving items
+		$order->itemTotal = 0;
+		foreach ($lineItems as $item) {
+			$result = craft()->market_lineItem->save($item);
 
-            $order->itemTotal += $item->total;
+			$order->itemTotal += $item->total;
 
-            if(!$result) {
-                $errors = $item->getAllErrors();
-                throw new Exception('Error saving line item: ' . implode(', ', $errors));
-            }
-        }
+			if (!$result) {
+				$errors = $item->getAllErrors();
+				throw new Exception('Error saving line item: ' . implode(', ', $errors));
+			}
+		}
 
-        $order->finalPrice = $order->itemTotal + $order->baseDiscount + $order->baseShippingRate;
-        $order->finalPrice = max(0, $order->finalPrice);
-    }
+		$order->finalPrice = $order->itemTotal + $order->baseDiscount + $order->baseShippingRate;
+		$order->finalPrice = max(0, $order->finalPrice);
+	}
 
 	/**
 	 * @param int $id
@@ -90,11 +91,12 @@ class Market_OrderService extends BaseApplicationComponent
 		return Market_OrderRecord::model()->deleteByPk($order->id);
 	}
 
-    /**
-     * @param Market_OrderModel $order
-     * @return bool
-     * @throws \Exception
-     */
+	/**
+	 * @param Market_OrderModel $order
+	 *
+	 * @return bool
+	 * @throws \Exception
+	 */
 	public function save($order)
 	{
 		if (!$order->id) {
@@ -107,43 +109,46 @@ class Market_OrderService extends BaseApplicationComponent
 			}
 		}
 
-        $this->recalculateOrder($order);
+		$this->calculateAdjustments($order);
 
-		$orderRecord->typeId 			= $order->typeId;
-		$orderRecord->number 			= $order->number;
-		$orderRecord->itemTotal 		= $order->itemTotal;
-		$orderRecord->email 			= $order->email;
-		$orderRecord->completedAt 		= $order->completedAt;
-		$orderRecord->billingAddressId 	= $order->billingAddressId;
+		$orderRecord->typeId            = $order->typeId;
+		$orderRecord->number            = $order->number;
+		$orderRecord->itemTotal         = $order->itemTotal;
+		$orderRecord->email             = $order->email;
+		$orderRecord->completedAt       = $order->completedAt;
+		$orderRecord->billingAddressId  = $order->billingAddressId;
 		$orderRecord->shippingAddressId = $order->shippingAddressId;
 		$orderRecord->shippingMethodId  = $order->shippingMethodId;
-		$orderRecord->state 			= $order->state;
-		$orderRecord->couponCode 	    = $order->couponCode;
-		$orderRecord->baseDiscount 	    = $order->baseDiscount;
-        $orderRecord->baseShippingRate  = $order->baseShippingRate;
-        $orderRecord->finalPrice        = $order->finalPrice;
+		$orderRecord->paymentMethodId   = $order->paymentMethodId;
+		$orderRecord->state             = $order->state;
+		$orderRecord->couponCode        = $order->couponCode;
+		$orderRecord->baseDiscount      = $order->baseDiscount;
+		$orderRecord->baseShippingRate  = $order->baseShippingRate;
+		$orderRecord->finalPrice        = $order->finalPrice;
 
 		$orderRecord->validate();
 		$order->addErrors($orderRecord->getErrors());
 
-        MarketDbHelper::beginStackedTransaction();
+		MarketDbHelper::beginStackedTransaction();
 
-        try{
-            if (!$order->hasErrors()) {
-                if (craft()->elements->saveElement($order)) {
-                    $orderRecord->id = $order->id;
-                    $orderRecord->save(false);
+		try {
+			if (!$order->hasErrors()) {
+				if (craft()->elements->saveElement($order)) {
+					$orderRecord->id = $order->id;
+					$orderRecord->save(false);
 
-                    MarketDbHelper::commitStackedTransaction();
-                    return true;
-                }
-            }
-        } catch(\Exception $e) {
-            MarketDbHelper::rollbackStackedTransaction();
-            throw $e;
-        }
+					MarketDbHelper::commitStackedTransaction();
 
-        MarketDbHelper::rollbackStackedTransaction();
+					return true;
+				}
+			}
+		} catch (\Exception $e) {
+			MarketDbHelper::rollbackStackedTransaction();
+			throw $e;
+		}
+
+		MarketDbHelper::rollbackStackedTransaction();
+
 		return false;
 	}
 
@@ -152,6 +157,7 @@ class Market_OrderService extends BaseApplicationComponent
 	 *
 	 * @param Market_AddressModel $shippingAddress
 	 * @param Market_AddressModel $billingAddress
+	 *
 	 * @return bool
 	 * @throws \Exception
 	 */
@@ -162,16 +168,17 @@ class Market_OrderService extends BaseApplicationComponent
 			$result1 = craft()->market_address->save($shippingAddress);
 			$result2 = craft()->market_address->save($billingAddress);
 
-			if($result1 && $result2) {
-				$order = craft()->market_cart->getCart();
+			if ($result1 && $result2) {
+				$order                    = craft()->market_cart->getCart();
 				$order->shippingAddressId = $shippingAddress->id;
-				$order->billingAddressId = $billingAddress->id;
+				$order->billingAddressId  = $billingAddress->id;
 
 				craft()->market_customer->saveAddress($shippingAddress);
 				craft()->market_customer->saveAddress($billingAddress);
 
 				$this->save($order);
 				MarketDbHelper::commitStackedTransaction();
+
 				return true;
 			}
 		} catch (\Exception $e) {
@@ -180,18 +187,40 @@ class Market_OrderService extends BaseApplicationComponent
 		}
 
 		MarketDbHelper::rollbackStackedTransaction();
+
 		return false;
 	}
 
     /**
-     * @return Market_AdjusterInterface[]
+     * Full order recalculation
+     * @param Market_OrderModel $order
+     * @throws Exception
+     * @throws \Exception
      */
-    private function getAdjusters()
+    public function recalculate(Market_OrderModel $order)
     {
-        return [
-            new Market_ShippingAdjuster,
-            new Market_DiscountAdjuster,
-            new Market_TaxAdjuster,
-        ];
+        foreach($order->lineItems as $item) {
+            if($item->refreshFromVariant()) {
+                if(!craft()->market_lineItem->save($item)) {
+                    throw new Exception('Error on saving lite item: ' . implode(', ', $item->getAllErrors()));
+                }
+            } else {
+                craft()->market_lineItem->delete($item);
+            }
+        }
+
+        $this->save($order);
     }
+
+	/**
+	 * @return Market_AdjusterInterface[]
+	 */
+	private function getAdjusters()
+	{
+		return [
+			new Market_ShippingAdjuster,
+			new Market_DiscountAdjuster,
+			new Market_TaxAdjuster,
+		];
+	}
 }

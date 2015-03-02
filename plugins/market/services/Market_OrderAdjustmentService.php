@@ -9,57 +9,60 @@ namespace Craft;
  */
 class Market_OrderAdjustmentService extends BaseApplicationComponent
 {
-    /**
-     * @param int $orderId
-     * @return Market_OrderAdjustmentModel[]
-     */
-    public function getAllByOrderId($orderId)
-    {
-        $records = Market_OrderAdjustmentRecord::model()->findAllByAttributes(['orderId' => $orderId]);
-        return Market_OrderAdjustmentModel::populateModels($records);
-    }
+	/**
+	 * @param int $orderId
+	 *
+	 * @return Market_OrderAdjustmentModel[]
+	 */
+	public function getAllByOrderId($orderId)
+	{
+		$records = Market_OrderAdjustmentRecord::model()->findAllByAttributes(['orderId' => $orderId]);
 
-    /**
-     * @param Market_OrderAdjustmentModel $model
-     *
-     * @return bool
-     * @throws Exception
-     */
-    public function save(Market_OrderAdjustmentModel $model)
-    {
-        if ($model->id) {
-            $record = Market_OrderAdjustmentRecord::model()->findById($model->id);
+		return Market_OrderAdjustmentModel::populateModels($records);
+	}
 
-            if (!$record) {
-                throw new Exception(Craft::t('No order Adjustment exists with the ID “{id}”', ['id' => $model->id]));
-            }
-        } else {
-            $record = new Market_OrderAdjustmentRecord();
-        }
+	/**
+	 * @param Market_OrderAdjustmentModel $model
+	 *
+	 * @return bool
+	 * @throws Exception
+	 */
+	public function save(Market_OrderAdjustmentModel $model)
+	{
+		if ($model->id) {
+			$record = Market_OrderAdjustmentRecord::model()->findById($model->id);
 
-        $fields = ['name', 'type', 'description', 'amount', 'orderId', 'optionsJson'];
-        foreach($fields as $field) {
-            $record->$field = $model->$field;
-        }
-        $record->validate();
-        $model->addErrors($record->getErrors());
+			if (!$record) {
+				throw new Exception(Craft::t('No order Adjustment exists with the ID “{id}”', ['id' => $model->id]));
+			}
+		} else {
+			$record = new Market_OrderAdjustmentRecord();
+		}
 
-        if (!$model->hasErrors()) {
-            $record->save(false);
-            $model->id = $record->id;
+		$fields = ['name', 'type', 'description', 'amount', 'orderId', 'optionsJson'];
+		foreach ($fields as $field) {
+			$record->$field = $model->$field;
+		}
+		$record->validate();
+		$model->addErrors($record->getErrors());
 
-            return true;
-        } else {
-            return false;
-        }
-    }
+		if (!$model->hasErrors()) {
+			$record->save(false);
+			$model->id = $record->id;
 
-    /**
-     * @param int $orderId
-     * @return int
-     */
-    public function deleteAllByOrderId($orderId)
-    {
-        return Market_OrderAdjustmentRecord::model()->deleteAllByAttributes(['orderId' => $orderId]);
-    }
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * @param int $orderId
+	 *
+	 * @return int
+	 */
+	public function deleteAllByOrderId($orderId)
+	{
+		return Market_OrderAdjustmentRecord::model()->deleteAllByAttributes(['orderId' => $orderId]);
+	}
 }

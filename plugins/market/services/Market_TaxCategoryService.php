@@ -15,6 +15,7 @@ class Market_TaxCategoryService extends BaseApplicationComponent
 	public function getAll()
 	{
 		$records = Market_TaxCategoryRecord::model()->findAll();
+
 		return Market_TaxCategoryModel::populateModels($records);
 	}
 
@@ -26,6 +27,7 @@ class Market_TaxCategoryService extends BaseApplicationComponent
 	public function getById($id)
 	{
 		$record = Market_TaxCategoryRecord::model()->findById($id);
+
 		return Market_TaxCategoryModel::populateModel($record);
 	}
 
@@ -37,7 +39,8 @@ class Market_TaxCategoryService extends BaseApplicationComponent
 	public function getDefaultId()
 	{
 		$default = Market_TaxCategoryRecord::model()->findByAttributes(['default' => true]);
-        return $default ? $default->id : null;
+
+		return $default ? $default->id : NULL;
 	}
 
 	/**
@@ -55,7 +58,7 @@ class Market_TaxCategoryService extends BaseApplicationComponent
 
 			if (!$record) {
 				throw new Exception(Craft::t('No tax category exists with the ID “{id}”', ['id' => $model->id]));
-            }
+			}
 		} else {
 			$record = new Market_TaxCategoryRecord();
 		}
@@ -75,12 +78,12 @@ class Market_TaxCategoryService extends BaseApplicationComponent
 			// Now that we have a record ID, save it on the model
 			$model->id = $record->id;
 
-            //If this was the default make all others not the default.
-            if ($model->default) {
-                Market_TaxCategoryRecord::model()->updateAll(['default' => 0], 'id != ?', [$record->id]);
-            }
+			//If this was the default make all others not the default.
+			if ($model->default) {
+				Market_TaxCategoryRecord::model()->updateAll(['default' => 0], 'id != ?', [$record->id]);
+			}
 
-            return true;
+			return true;
 		} else {
 			return false;
 		}
@@ -91,6 +94,6 @@ class Market_TaxCategoryService extends BaseApplicationComponent
 	 */
 	public function deleteById($id)
 	{
-        Market_TaxCategoryRecord::model()->deleteByPk($id);
+		Market_TaxCategoryRecord::model()->deleteByPk($id);
 	}
 }

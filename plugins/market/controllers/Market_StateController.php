@@ -29,7 +29,7 @@ class Market_StateController extends Market_BaseController
 	 *
 	 * @throws HttpException
 	 */
-	public function actionEdit(array $variables = array())
+	public function actionEdit(array $variables = [])
 	{
 		if (empty($variables['state'])) {
 			if (!empty($variables['id'])) {
@@ -51,7 +51,7 @@ class Market_StateController extends Market_BaseController
 		}
 
 		$countriesModels = craft()->market_country->getAll();
-		$countries       = array();
+		$countries       = [];
 		foreach ($countriesModels as $model) {
 			$countries[$model->id] = $model->name;
 		}
@@ -84,9 +84,9 @@ class Market_StateController extends Market_BaseController
 		}
 
 		// Send the model back to the template
-		craft()->urlManager->setRouteVariables(array(
+		craft()->urlManager->setRouteVariables([
 			'state' => $state
-		));
+		]);
 	}
 
 	/**
@@ -100,7 +100,7 @@ class Market_StateController extends Market_BaseController
 		$id = craft()->request->getRequiredPost('id');
 
 		craft()->market_state->deleteById($id);
-		$this->returnJson(array('success' => true));
+		$this->returnJson(['success' => true]);
 	}
 
 }

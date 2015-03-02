@@ -23,7 +23,7 @@
     {% for adjustment in cart.adjustments %}
         <tr>
             <td></td>
-            <td></td>
+            <td><pre style="border: none">{{ adjustment.optionsJson|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre></td>
             <td>
                 {{ adjustment.type }} <strong>{{ adjustment.name }}</strong> ({{ adjustment.description }})
             </td>
@@ -37,6 +37,9 @@
         <td></td>
         <td></td>
         <td>
+            {% if readOnly is defined %}
+                <p>{% if cart.couponCode %}Coupon: {% endif %}{{ cart.couponCode }}</p>
+            {% else %}
             <form method="POST" class="form-inline">
                 <input type="hidden" name="action" value="market/cart/applyCoupon">
                 <input type="hidden" name="redirect" value="market/cart">
@@ -44,31 +47,37 @@
                 <input type="submit" class="btn" value="{% if cart.couponCode %}Change{% else %}Apply{% endif %} Coupon" />
                 {% if couponError is defined %}<strong>Error: {{ couponError }}</strong>{% endif %}
             </form>
+            {% endif %}
         </td>
         <td>
             Item Total: {{ cart.itemTotal|number_format(2) }}<br/>
             Base Discount: {{ cart.baseDiscount|number_format(2) }}<br/>
             Base Shipping Rate: {{ cart.baseShippingRate|number_format(2) }}<br/>
-            Final Price: {{ cart.finalPrice|number_format(2) }}
+            <h3>Final Price: {{ cart.finalPrice|number_format(2) }}</h3>
         <td></td>
     </tr>
     <tr>
         <td>
+            {% if not readOnly is defined %}
             <form method="POST">
                 <input type="hidden" name="action" value="market/cart/removeAll" />
                 <input type="hidden" name="redirect" value="market/cart" />
                 <input class="btn btn-danger btn-xs" type="submit" value="Remove all" />
             </form>
+            {% endif %}
         </td>
         <td></td>
         <td></td>
         <td></td>
         <td>
+            {% if not readOnly is defined %}
             <form method="POST">
                 <input type="hidden" name="action" value="market/cart/goToAddress" />
                 <input type="hidden" name="redirect" value="market/cart" />
                 <input class="btn btn-primary" type="submit" value="Checkout" />
-            </form></td>
+            </form>
+            {% endif %}
+        </td>
     </tr>
     </tbody>
 

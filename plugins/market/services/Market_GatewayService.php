@@ -51,7 +51,7 @@ class Market_GatewayService extends BaseApplicationComponent
 	 */
 	public function _loadGateways()
 	{
-		$gateways = array();
+		$gateways = [];
 
 		$supportedGateways = $this->getFactory()->find();
 

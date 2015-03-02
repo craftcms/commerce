@@ -21,7 +21,7 @@ class Market_OptionTypeController extends Market_BaseController
 		$this->renderTemplate('market/settings/optiontypes/index', compact('optionTypes'));
 	}
 
-	public function actionEditOptionType(array $variables = array())
+	public function actionEditOptionType(array $variables = [])
 	{
 		$variables['brandNewOptionType'] = false;
 
@@ -50,13 +50,13 @@ class Market_OptionTypeController extends Market_BaseController
 		$cols = Market_OptionValueModel::editableColumns();
 		$rows = $variables['optionType']->getOptionValues();
 
-		$variables['optionValuesTable'] = craft()->templates->render('market/_includes/forms/editableTable', array(
+		$variables['optionValuesTable'] = craft()->templates->render('market/_includes/forms/editableTable', [
 			'id'     => 'optionValues',
 			'name'   => 'optionValues',
 			'cols'   => $cols,
 			'rows'   => $rows,
 			'static' => false
-		));
+		]);
 		/**End of Option Value Table
 		 */
 
@@ -83,9 +83,9 @@ class Market_OptionTypeController extends Market_BaseController
 		}
 
 		// Send the calendar back to the template
-		craft()->urlManager->setRouteVariables(array(
+		craft()->urlManager->setRouteVariables([
 			'optionType' => $optionType
-		));
+		]);
 	}
 
 	/**
@@ -106,7 +106,7 @@ class Market_OptionTypeController extends Market_BaseController
 	 */
 	private function _prepareOptionValueModels()
 	{
-		$optionValues = array();
+		$optionValues = [];
 		$position     = 0;
 		if (!craft()->request->getPost('optionValues')) {
 			return $optionValues;
@@ -131,7 +131,7 @@ class Market_OptionTypeController extends Market_BaseController
 		$optionTypeId = craft()->request->getRequiredPost('id');
 
 		craft()->market_optionType->deleteById($optionTypeId);
-		$this->returnJson(array('success' => true));
+		$this->returnJson(['success' => true]);
 	}
 
 }

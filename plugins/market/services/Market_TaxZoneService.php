@@ -1,6 +1,7 @@
 <?php
 
 namespace Craft;
+
 use Market\Helpers\MarketDbHelper;
 
 /**
@@ -12,30 +13,34 @@ class Market_TaxZoneService extends BaseApplicationComponent
 {
 	/**
 	 * @param bool $withRelations
+	 *
 	 * @return Market_TaxZoneModel[]
 	 */
 	public function getAll($withRelations = true)
 	{
-		$with    = $withRelations ? array('countries', 'states', 'states.country') : array();
-		$records = Market_TaxZoneRecord::model()->with($with)->findAll(array('order' => 't.name'));
+		$with    = $withRelations ? ['countries', 'states', 'states.country'] : [];
+		$records = Market_TaxZoneRecord::model()->with($with)->findAll(['order' => 't.name']);
 
 		return Market_TaxZoneModel::populateModels($records);
 	}
 
 	/**
 	 * @param int $id
+	 *
 	 * @return Market_TaxZoneModel
 	 */
 	public function getById($id)
 	{
 		$record = Market_TaxZoneRecord::model()->findById($id);
+
 		return Market_TaxZoneModel::populateModel($record);
 	}
 
 	/**
 	 * @param Market_TaxZoneModel $model
-	 * @param array $countriesIds
-	 * @param array $statesIds
+	 * @param array               $countriesIds
+	 * @param array               $statesIds
+	 *
 	 * @return bool
 	 * @throws \Exception
 	 */
@@ -46,7 +51,7 @@ class Market_TaxZoneService extends BaseApplicationComponent
 
 			if (!$record) {
 				throw new Exception(Craft::t('No tax zone exists with the ID “{id}”', ['id' => $model->id]));
-            }
+			}
 		} else {
 			$record = new Market_TaxZoneRecord();
 		}
@@ -101,35 +106,35 @@ class Market_TaxZoneService extends BaseApplicationComponent
 
 				//deleting old links
 				if ($deleteOldCountries) {
-					Market_TaxZoneCountryRecord::model()->deleteAllByAttributes(['taxZoneId' =>  $record->id]);
+					Market_TaxZoneCountryRecord::model()->deleteAllByAttributes(['taxZoneId' => $record->id]);
 				}
 
 				if ($deleteOldStates) {
-					Market_TaxZoneStateRecord::model()->deleteAllByAttributes(['taxZoneId' =>  $record->id]);
+					Market_TaxZoneStateRecord::model()->deleteAllByAttributes(['taxZoneId' => $record->id]);
 				}
 
 				//saving new links
 				if ($model->countryBased) {
-                    $rows  = array_map(function ($id) use ($model) {
-                        return [$id, $model->id];
-                    }, $countriesIds);
-                    $cols  = ['countryId', 'taxZoneId'];
-                    $table = Market_TaxZoneCountryRecord::model()->getTableName();
-                } else {
-                    $rows  = array_map(function ($id) use ($model) {
-                        return [$id, $model->id];
-                    }, $statesIds);
-                    $cols  = ['stateId', 'taxZoneId'];
-                    $table = Market_TaxZoneStateRecord::model()->getTableName();
-                }
-                craft()->db->createCommand()->insertAll($table, $cols, $rows);
+					$rows  = array_map(function ($id) use ($model) {
+						return [$id, $model->id];
+					}, $countriesIds);
+					$cols  = ['countryId', 'taxZoneId'];
+					$table = Market_TaxZoneCountryRecord::model()->getTableName();
+				} else {
+					$rows  = array_map(function ($id) use ($model) {
+						return [$id, $model->id];
+					}, $statesIds);
+					$cols  = ['stateId', 'taxZoneId'];
+					$table = Market_TaxZoneStateRecord::model()->getTableName();
+				}
+				craft()->db->createCommand()->insertAll($table, $cols, $rows);
 
-                //If this was the default make all others not the default.
-                if ($model->default) {
-                    Market_TaxZoneRecord::model()->updateAll(['default' => 0], 'id != ?', [$record->id]);
-                }
+				//If this was the default make all others not the default.
+				if ($model->default) {
+					Market_TaxZoneRecord::model()->updateAll(['default' => 0], 'id != ?', [$record->id]);
+				}
 
-                MarketDbHelper::commitStackedTransaction();
+				MarketDbHelper::commitStackedTransaction();
 			} catch (\Exception $e) {
 				MarketDbHelper::rollbackStackedTransaction();
 
@@ -147,6 +152,6 @@ class Market_TaxZoneService extends BaseApplicationComponent
 	 */
 	public function deleteById($id)
 	{
-        Market_TaxZoneRecord::model()->deleteByPk($id);
+		Market_TaxZoneRecord::model()->deleteByPk($id);
 	}
 }

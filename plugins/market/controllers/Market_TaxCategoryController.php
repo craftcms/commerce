@@ -29,7 +29,7 @@ class Market_TaxCategoryController extends Market_BaseController
 	 *
 	 * @throws HttpException
 	 */
-	public function actionEdit(array $variables = array())
+	public function actionEdit(array $variables = [])
 	{
 		if (empty($variables['taxCategory'])) {
 			if (!empty($variables['id'])) {
@@ -78,9 +78,9 @@ class Market_TaxCategoryController extends Market_BaseController
 		}
 
 		// Send the tax category back to the template
-		craft()->urlManager->setRouteVariables(array(
+		craft()->urlManager->setRouteVariables([
 			'taxCategory' => $taxCategory
-		));
+		]);
 	}
 
 	/**
@@ -94,7 +94,7 @@ class Market_TaxCategoryController extends Market_BaseController
 		$id = craft()->request->getRequiredPost('id');
 
 		craft()->market_taxCategory->deleteById($id);
-		$this->returnJson(array('success' => true));
+		$this->returnJson(['success' => true]);
 	}
 
 }

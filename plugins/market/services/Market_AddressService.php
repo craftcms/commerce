@@ -14,7 +14,7 @@ class Market_AddressService extends BaseApplicationComponent
 	 */
 	public function getAll()
 	{
-		$records = Market_AddressRecord::model()->with('country', 'state')->findAll(array('order' => 't.name'));
+		$records = Market_AddressRecord::model()->with('country', 'state')->findAll(['order' => 't.name']);
 
 		return Market_AddressModel::populateModels($records);
 	}
@@ -27,19 +27,21 @@ class Market_AddressService extends BaseApplicationComponent
 	public function getById($id)
 	{
 		$record = Market_AddressRecord::model()->findById($id);
+
 		return Market_AddressModel::populateModel($record);
 	}
 
 	/**
 	 * @param int $id
+	 *
 	 * @return Market_AddressModel[]
 	 */
 	public function getByCustomerId($id)
 	{
 		$addresses = Market_AddressRecord::model()->findAll([
-			'join' => 'JOIN craft_market_customer_addresses cmca ON cmca.addressId = t.id',
+			'join'      => 'JOIN craft_market_customer_addresses cmca ON cmca.addressId = t.id',
 			'condition' => 'cmca.customerId = :id',
-			'params' => ['id' => $id],
+			'params'    => ['id' => $id],
 		]);
 
 		return Market_AddressModel::populateModels($addresses);
@@ -57,7 +59,7 @@ class Market_AddressService extends BaseApplicationComponent
 			$record = Market_AddressRecord::model()->findById($model->id);
 
 			if (!$record) {
-				throw new Exception(Craft::t('No address exists with the ID “{id}”', array('id' => $model->id)));
+				throw new Exception(Craft::t('No address exists with the ID “{id}”', ['id' => $model->id]));
 			}
 		} else {
 			$record = new Market_AddressRecord();
@@ -73,14 +75,14 @@ class Market_AddressService extends BaseApplicationComponent
 		$record->company          = $model->company;
 		$record->countryId        = $model->countryId;
 
-		if(!empty($model->stateValue)) {
+		if (!empty($model->stateValue)) {
 			if (is_numeric($model->stateValue)) {
 				$record->stateId = $model->stateId = $model->stateValue;
 			} else {
 				$record->stateName = $model->stateName = $model->stateValue;
 			}
 		} else {
-			$record->stateId = $model->stateId;
+			$record->stateId   = $model->stateId;
 			$record->stateName = $model->stateName;
 		}
 

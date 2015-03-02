@@ -16,50 +16,9 @@ class Market_ProductService extends BaseApplicationComponent
 	public function getById($id)
 	{
 		$product = Market_ProductRecord::model()->findById($id);
+
 		return Market_ProductModel::populateModel($product);
 	}
-
-    /**
-     * Calculates product->variants->salePrice field for all variants of all products
-     *
-     * @param array|\CDbCriteria $criteria
-     * @return Market_ProductModel[]
-     */
-    public function getAllWithSales($criteria = [])
-    {
-        $products = Market_ProductRecord::model()->findAll($criteria);
-        if(!$products) {
-            return [];
-        }
-
-        $models = Market_ProductModel::populateModels($products);
-        $sales = craft()->market_sale->getForProducts($models);
-
-        foreach($models as $product) {
-            $this->applySales($product, $sales);
-        }
-
-        return $models;
-    }
-
-    /**
-     * @param Market_ProductModel $product
-     * @param Market_SaleModel[] $sales
-     */
-    private function applySales(Market_ProductModel $product, array $sales)
-    {
-        foreach($sales as $sale) {
-            if(craft()->market_sale->matchProduct($product, $sale)) {
-                foreach($product->variants as $variant) {
-                    $variant->salePrice = $variant->price + $sale->calculateTakeoff($variant->price);
-                    if($variant->salePrice < 0) {
-                        $variant->salePrice = 0;
-                    }
-                    var_dump($variant->salePrice);
-                }
-            }
-        }
-    }
 
 	/**
 	 * @param Market_ProductModel $product
@@ -101,19 +60,19 @@ class Market_ProductService extends BaseApplicationComponent
 	 */
 	public function setOptionTypes($productId, $optionTypeIds)
 	{
-		craft()->db->createCommand()->delete('market_product_optiontypes', array('productId' => $productId));
+		craft()->db->createCommand()->delete('market_product_optiontypes', ['productId' => $productId]);
 
 		if ($optionTypeIds) {
 			if (!is_array($optionTypeIds)) {
-				$optionTypeIds = array($optionTypeIds);
+				$optionTypeIds = [$optionTypeIds];
 			}
 
-			$values = array();
+			$values = [];
 			foreach ($optionTypeIds as $optionTypeId) {
-				$values[] = array($optionTypeId, $productId);
+				$values[] = [$optionTypeId, $productId];
 			}
 
-			craft()->db->createCommand()->insertAll('market_product_optiontypes', array('optionTypeId', 'productId'), $values);
+			craft()->db->createCommand()->insertAll('market_product_optiontypes', ['optionTypeId', 'productId'], $values);
 		}
 	}
 }

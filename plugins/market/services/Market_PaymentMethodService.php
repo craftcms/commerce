@@ -24,52 +24,48 @@ class Market_PaymentMethodService extends BaseApplicationComponent
 	}
 
 	/**
-	 * @param string $enabled CP_ENABLED | FRONTEND_ENABLED
-	 *
 	 * @return Market_PaymentMethodModel[]
 	 */
-	public function getAll($enabled = '')
+	public function getAllForCp()
 	{
-		$this->filterEnabled($enabled);
-		if ($enabled) {
-			$records        = Market_PaymentMethodRecord::model()->findAllByAttributes(array($enabled => true));
-			$paymentMethods = Market_PaymentMethodModel::populateModels($records);
-		} else {
-			$paymentMethods = array();
-			$gateways       = craft()->market_gateway->getGateways();
+		$records = Market_PaymentMethodRecord::model()->findAllByAttributes([self::CP_ENABLED => true]);
 
-			foreach ($gateways as $gateway) {
-				$paymentMethods[] = $this->getByClass($gateway->getShortName());
-			}
+		return Market_PaymentMethodModel::populateModels($records);
+	}
+
+	/**
+	 * @return Market_PaymentMethodModel[]
+	 */
+	public function getAllForFrontend()
+	{
+		$records = Market_PaymentMethodRecord::model()->findAllByAttributes([self::FRONTEND_ENABLED => true]);
+
+		return Market_PaymentMethodModel::populateModels($records);
+	}
+
+	/**
+	 * @return Market_PaymentMethodModel[]
+	 */
+	public function getAllPossibleGateways()
+	{
+		$paymentMethods = [];
+		$gateways       = craft()->market_gateway->getGateways();
+
+		foreach ($gateways as $gateway) {
+			$paymentMethods[] = $this->getByClass($gateway->getShortName());
 		}
 
 		return $paymentMethods;
 	}
 
 	/**
-	 * @param string $enabled
-	 */
-	private function filterEnabled(&$enabled)
-	{
-		if (!in_array($enabled, array(self::CP_ENABLED, self::FRONTEND_ENABLED), true)) {
-			$enabled = '';
-		}
-	}
-
-	/**
 	 * @param string $class
-	 * @param string $enabled CP_ENABLED | FRONTEND_ENABLED
 	 *
 	 * @return Market_PaymentMethodModel
 	 */
-	public function getByClass($class, $enabled = '')
+	public function getByClass($class)
 	{
-		$record = Market_PaymentMethodRecord::model()->findByAttributes(array('class' => $class));
-
-		$this->filterEnabled($enabled);
-		if ($enabled && (!$record || !$record->$enabled)) {
-			return NULL;
-		}
+		$record = Market_PaymentMethodRecord::model()->findByAttributes(['class' => $class]);
 
 		if ($record) {
 			$model = Market_PaymentMethodModel::populateModel($record);
@@ -93,12 +89,12 @@ class Market_PaymentMethodService extends BaseApplicationComponent
 	 */
 	public function save(Market_PaymentMethodModel $model)
 	{
-		$record = Market_PaymentMethodRecord::model()->findByAttributes(array('class' => $model->class));
+		$record = Market_PaymentMethodRecord::model()->findByAttributes(['class' => $model->class]);
 		if (!$record) {
 			$gateway = craft()->market_gateway->getGateway($model->class);
 
 			if (!$gateway) {
-				throw new Exception(Craft::t('No gateway exists with the class name “{class}”', array('class' => $model->class)));
+				throw new Exception(Craft::t('No gateway exists with the class name “{class}”', ['class' => $model->class]));
 			}
 			$record       = new Market_PaymentMethodRecord();
 			$record->name = $gateway->getName();

@@ -27,11 +27,11 @@ class Market_DiscountController extends Market_BaseController
 	 *
 	 * @throws HttpException
 	 */
-	public function actionEdit(array $variables = array())
+	public function actionEdit(array $variables = [])
 	{
 		if (empty($variables['discount'])) {
 			if (!empty($variables['id'])) {
-				$id = $variables['id'];
+				$id                    = $variables['id'];
 				$variables['discount'] = craft()->market_discount->getById($id);
 
 				if (!$variables['discount']->id) {
@@ -42,19 +42,19 @@ class Market_DiscountController extends Market_BaseController
 			}
 		}
 
-        if (!empty($variables['id'])) {
+		if (!empty($variables['id'])) {
 			$variables['title'] = $variables['discount']->name;
 		} else {
 			$variables['title'] = Craft::t('Create a Discount');
 		}
 
-        //getting user groups map
-        $groups = craft()->userGroups->getAllGroups();
-        $variables['groups'] = \CHtml::listData($groups, 'id', 'name');
+		//getting user groups map
+		$groups              = craft()->userGroups->getAllGroups();
+		$variables['groups'] = \CHtml::listData($groups, 'id', 'name');
 
-        //getting product types maps
-        $types = craft()->market_productType->getAll();
-        $variables['types'] = \CHtml::listData($types, 'id', 'name');
+		//getting product types maps
+		$types              = craft()->market_productType->getAll();
+		$variables['types'] = \CHtml::listData($types, 'id', 'name');
 
 		$this->renderTemplate('market/settings/discounts/_edit', $variables);
 	}
@@ -69,15 +69,15 @@ class Market_DiscountController extends Market_BaseController
 		$discount = new Market_DiscountModel();
 
 		// Shared attributes
-        $fields = ['id', 'name', 'description', 'dateFrom', 'dateTo', 'enabled', 'purchaseTotal', 'purchaseQty', 'baseDiscount', 'perItemDiscount',
-            'percentDiscount', 'freeShipping', 'excludeOnSale', 'code', 'perUserLimit', 'totalUseLimit'];
-        foreach($fields as $field) {
-            $discount->$field = craft()->request->getPost($field);
-        }
+		$fields = ['id', 'name', 'description', 'dateFrom', 'dateTo', 'enabled', 'purchaseTotal', 'purchaseQty', 'baseDiscount', 'perItemDiscount',
+			'percentDiscount', 'freeShipping', 'excludeOnSale', 'code', 'perUserLimit', 'totalUseLimit'];
+		foreach ($fields as $field) {
+			$discount->$field = craft()->request->getPost($field);
+		}
 
-        $products = craft()->request->getPost('products', []);
-        $productTypes = craft()->request->getPost('productTypes', []);
-        $groups = craft()->request->getPost('groups', []);
+		$products     = craft()->request->getPost('products', []);
+		$productTypes = craft()->request->getPost('productTypes', []);
+		$groups       = craft()->request->getPost('groups', []);
 
 		// Save it
 		if (craft()->market_discount->save($discount, $groups, $productTypes, $products)) {

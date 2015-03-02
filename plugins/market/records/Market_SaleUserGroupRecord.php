@@ -38,10 +38,9 @@ class Market_SaleUserGroupRecord extends BaseRecord
 	protected function defineAttributes()
 	{
 		return [
-			'saleId'        => [AttributeType::Number, 'required' => true],
-			'userGroupId'   => [AttributeType::Number, 'required' => true],
+			'saleId'      => [AttributeType::Number, 'required' => true],
+			'userGroupId' => [AttributeType::Number, 'required' => true],
 		];
 	}
-
 
 }

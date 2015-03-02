@@ -19,46 +19,52 @@
         <div class="grid first">
             <div class="item" data-position="left" data-min-colspan="2" data-max-colspan="3">
 
-
                 <div id="fields" class="pane">
 
                     {% if orderId is defined %}
-                        <ul>
+
+                        <ul class="list">
                             <li>ID: {{ order.id }}</li>
                             <li>Number: {{ order.number }}</li>
                             <li>State: {{ order.state }}</li>
-                            <li>Item Total: {{ order.itemTotal }}</li>
-                            <li>Adjustment Total: {{ order.adjustmentTotal }}</li>
+                            <li>couponCode          :{{ order.couponCode           }}</li>
+                            <li>state               :{{ order.state                }}</li>
+                            <li>itemTotal           :{{ order.itemTotal            }}</li>
+                            <li>baseDiscount        :{{ order.baseDiscount         }}</li>
+                            <li>baseShippingRate    :{{ order.baseShippingRate     }}</li>
+                            <li>finalPrice          :{{ order.finalPrice           }}</li>
+                            <li>email               :{{ order.email                }}</li>
+                            <li>completedAt         :{{ order.completedAt          }}</li>
+                            <li>billingAddressId    :{{ order.billingAddressId     }}</li>
+                            <li>shippingAddressId   :{{ order.shippingAddressId    }}</li>
+                            <li>shippingMethodId    :{{ order.shippingMethodId     }}</li>
+                            <li>currency            :{{ order.currency             }}</li>
+                            <li>lastIp              :{{ order.lastIp               }}</li>
+                            <li>orderDate           :{{ order.orderDate            }}</li>
                         </ul>
 
-
-                            {%  for lineItem in order.lineItems %}
-                                <ul>
-                                <li>ID: {{ lineItem.id }}</li>
-                                <li>Price: {{ lineItem.price }}</li>
-                                <li>Sale Price: {{ lineItem.salePrice }}</li>
-                                <li>Subtotal: {{ lineItem.subtotal }}</li>
-                                <li>Taxes: {{ lineItem.taxAmount }}</li>
-                                <li>Ship Total: {{ lineItem.shipTotal }}</li>
-                                <li>Total: {{ lineItem.total }}</li>
-                                <li>Total Inc Tax: {{ lineItem.totalIncTax }}</li>
-                                <li>Quantity: {{ lineItem.qty }}</li>
-                                <li>Order Id: {{ lineItem.orderId }}</li>
-                                <li>Variant Id: {{ lineItem.variantId }}</li>
-                                </ul>
-                            {% endfor %}
-
-
-
+                        {%  for lineItem in order.lineItems %}
+                            <h4>Line Item#{{ lineItem.id }}</h4>
+                            <ul>
+                                <li>price: {{ lineItem.price }}</li>
+                                <li>saleAmount: {{ lineItem.saleAmount }}</li>
+                                <li>taxAmount: {{ lineItem.taxAmount }}</li>
+                                <li>shippingAmount: {{ lineItem.shippingAmount }}</li>
+                                <li>discountAmount: {{ lineItem.discountAmount }}</li>
+                                <li>weight: {{ lineItem.weight }}</li>
+                                <li>total: {{ lineItem.total }}</li>
+                                <li>qty: {{ lineItem.qty }}</li>
+                            </ul>
+                        {% endfor %}
 
                     {% endif %}
+
 
 
                     {% include "_includes/tabs" %}
 
                     {% from "_includes/forms" import textField %}
                     {% set static = static is defined ? static : false %}
-
 
                     {% for tab in orderType.getFieldLayout().getTabs() %}
                         <div id="tab{{ loop.index }}" {% if not loop.first %} class="hidden" {% endif %}>
@@ -80,6 +86,8 @@
 
 
                     {% if orderId is defined %}
+                        <h2>{{order.finalPrice|number_format(2) }}</h2>
+                        <h2>{{order.state|title }}</h2>
                         <div class="btngroup">
                             <input type="button" class="btn small formsubmit" value="{{ 'Delete'|t }}"
                                    data-action="market/order/deleteOrder"
@@ -94,10 +102,64 @@
                 <div class="buttons first">
                     <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
                 </div>
-
-
             </div>
+        </div>
+        <div class="grid">
+                <div class="pane">
+                    <h3>Transactions</h3>
 
+                    <table id="" class="shadow-box editable">
+                        <thead>
+                        <tr>
+                            <th scope="col" class="header">{{ 'ID'|t }}</span></th>
+                            <th scope="col" class="header">{{ 'Type'|t }}</span></th>
+                            <th scope="col" class="header">{{ 'Status'|t }}</th>
+                            <th scope="col" class="header">{{ 'Hash'|t }}</th>
+                            <th scope="col" class="header">{{ 'Reference'|t }}</th>
+                            <th scope="col" class="header">{{ 'Message'|t }}</th>
+                            <th scope="col" class="header">{{ 'Response'|t }}</th>
+                            <th scope="col" class="header">{{ 'Payment Method'|t }}</th>
+                            <th scope="col" class="header">{{ 'Parent#'|t }}</th>
+                            <th scope="col" class="header">{{ 'User#'|t }}</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for transaction in order.transactions %}
+                            <tr>
+                                <td>{{ transaction.id }}</td>
+                                <td>{{ transaction.type }}</td>
+                                <td>{{ transaction.status }}</td>
+                                <td>{{ transaction.hash }}</td>
+                                <td>{{ transaction.reference }}</td>
+                                <td>{{ transaction.message }}</td>
+                                <td>{{ transaction.response }}</td>
+                                <td>{{ transaction.paymentMethod.name }}</td>
+                                <td>{{ transaction.parentId }}</td>
+                                <td>{{ transaction.userId }}</td>
+                                <td>
+                                    {% if transaction.canCapture() %}
+                                        <a class="btn submit formsubmit"
+                                           data-action="market/order/transactionCapture"
+                                           data-confirm="{{ 'Confirm capture?'|t }}"
+                                           data-redirect="{{ order.cpEditUrl }}"
+                                           data-param="id"
+                                           data-value="{{ transaction.id }}">Capture</a>
+                                    {% endif %}
+                                    {% if transaction.canRefund() %}
+                                        <a class="btn submit formsubmit"
+                                           data-action="market/order/transactionRefund"
+                                           data-confirm="{{ 'Confirm refund?'|t }}"
+                                           data-redirect="{{ order.cpEditUrl }}"
+                                           data-param="id"
+                                           data-value="{{ transaction.id }}">Refund</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
         </div>
 
 

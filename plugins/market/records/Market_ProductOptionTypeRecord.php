@@ -7,8 +7,8 @@ namespace Craft;
  * @property int                      productId
  * @property int                      optionTypeId
  *
- * @property Market_ProductRecord    product
- * @property Market_OptionTypeRecord optionType
+ * @property Market_ProductRecord     product
+ * @property Market_OptionTypeRecord  optionType
  * @package Craft
  */
 class Market_ProductOptionTypeRecord extends BaseRecord
@@ -24,10 +24,10 @@ class Market_ProductOptionTypeRecord extends BaseRecord
 	 */
 	public function defineRelations()
 	{
-		return array(
-			'product'    => array(static::BELONGS_TO, 'Market_ProductRecord'),
-			'optionType' => array(static::BELONGS_TO, 'Market_OptionTypeRecord'),
-		);
+		return [
+			'product'    => [static::BELONGS_TO, 'Market_ProductRecord'],
+			'optionType' => [static::BELONGS_TO, 'Market_OptionTypeRecord'],
+		];
 	}
 
 }

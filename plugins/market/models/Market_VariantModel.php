@@ -1,33 +1,34 @@
 <?php
 
 namespace Craft;
+
 use Market\Traits\Market_ModelRelationsTrait;
 
 /**
  * Class Market_VariantModel
  *
- * @property int      id
- * @property int      productId
- * @property bool     isMaster
- * @property string   sku
- * @property float    price
- * @property float    width
- * @property float    height
- * @property float    length
- * @property float    weight
- * @property int      stock
- * @property bool 	  unlimitedStock
- * @property int	  minQty
- * @property DateTime deletedAt
+ * @property int                 id
+ * @property int                 productId
+ * @property bool                isMaster
+ * @property string              sku
+ * @property float               price
+ * @property float               width
+ * @property float               height
+ * @property float               length
+ * @property float               weight
+ * @property int                 stock
+ * @property bool                unlimitedStock
+ * @property int                 minQty
+ * @property DateTime            deletedAt
  *
  * @property Market_ProductModel $product
  * @package Craft
  */
 class Market_VariantModel extends BaseModel
 {
-    use Market_ModelRelationsTrait;
+	use Market_ModelRelationsTrait;
 
-    public $salePrice;
+	public $salePrice;
 
 	public function isLocalized()
 	{
@@ -50,8 +51,8 @@ class Market_VariantModel extends BaseModel
 	public function getOptionsText()
 	{
 		$optionValues = [];
-		$values = $this->getOptionValuesArray();
-		foreach($values as $key => $value) {
+		$values       = $this->getOptionValuesArray();
+		foreach ($values as $key => $value) {
 			$optionValues[] = "$key: $value";
 		}
 
@@ -59,7 +60,9 @@ class Market_VariantModel extends BaseModel
 	}
 
 	/**
-	 * @param bool $idKeys Whether key and values in result should be identifiers
+	 * @param bool $idKeys Whether key and values in result should be
+	 *                     identifiers
+	 *
 	 * @return array
 	 */
 	public function getOptionValuesArray($idKeys = false)
@@ -68,38 +71,38 @@ class Market_VariantModel extends BaseModel
 
 		$result = [];
 
-		foreach($optionValues as $value) {
-			$key = $idKeys ? $value->optionType->id : $value->optionType->name;
+		foreach ($optionValues as $value) {
+			$key          = $idKeys ? $value->optionType->id : $value->optionType->name;
 			$result[$key] = $idKeys ? $value->id : $value->displayName;
 		}
 
 		return $result;
 	}
 
+	/**
+	 * @return bool
+	 */
+	public function underSale()
+	{
+		return is_null($this->salePrice) ? false : ($this->salePrice != $this->price);
+	}
+
 	protected function defineAttributes()
 	{
 		return array_merge(parent::defineAttributes(), [
-			'id'                => AttributeType::Number,
-			'productId'         => AttributeType::Number,
-			'isMaster'          => AttributeType::Bool,
-			'sku'               => [AttributeType::String, 'required' => true],
-			'price'             => [AttributeType::Number, 'decimals' => 4, 'required' => true],
-			'width'             => [AttributeType::Number, 'decimals' => 4],
-			'height'            => [AttributeType::Number, 'decimals' => 4],
-			'length'            => [AttributeType::Number, 'decimals' => 4],
-			'weight'            => [AttributeType::Number, 'decimals' => 4],
-			'stock'             => [AttributeType::Number],
-			'unlimitedStock'    => [AttributeType::Bool, 'default' => 0],
-			'minQty'            => AttributeType::Number,
-			'deletedAt'         => [AttributeType::DateTime]
+			'id'             => AttributeType::Number,
+			'productId'      => AttributeType::Number,
+			'isMaster'       => AttributeType::Bool,
+			'sku'            => [AttributeType::String, 'required' => true],
+			'price'          => [AttributeType::Number, 'decimals' => 4, 'required' => true],
+			'width'          => [AttributeType::Number, 'decimals' => 4],
+			'height'         => [AttributeType::Number, 'decimals' => 4],
+			'length'         => [AttributeType::Number, 'decimals' => 4],
+			'weight'         => [AttributeType::Number, 'decimals' => 4],
+			'stock'          => [AttributeType::Number],
+			'unlimitedStock' => [AttributeType::Bool, 'default' => 0],
+			'minQty'         => AttributeType::Number,
+			'deletedAt'      => [AttributeType::DateTime]
 		]);
 	}
-
-    /**
-     * @return bool
-     */
-    public function underSale()
-    {
-        return $this->salePrice != $this->price;
-    }
 }

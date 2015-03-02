@@ -46,7 +46,8 @@ class AState extends \CBehavior
 	/**
 	 * Invoked before the state is transitioned to
 	 *
-	 * @return boolean true if the event is valid and the transition should be allowed to continue
+	 * @return boolean true if the event is valid and the transition should be
+	 *                 allowed to continue
 	 */
 	public function beforeEnter()
 	{
@@ -96,7 +97,8 @@ class AState extends \CBehavior
 	 *
 	 * @param  AState $toState The state we're transitioning to
 	 *
-	 * @return boolean true if the event is valid and the transition should be allowed to continue
+	 * @return boolean true if the event is valid and the transition should be
+	 *                 allowed to continue
 	 */
 	public function beforeExit(AState $toState)
 	{
@@ -188,7 +190,7 @@ class AState extends \CBehavior
 
 	public function getTransitsTo()
 	{
-		return ($this->_transitsTo) ? $this->_transitsTo : array();
+		return ($this->_transitsTo) ? $this->_transitsTo : [];
 	}
 
 	/**
@@ -204,7 +206,7 @@ class AState extends \CBehavior
 				if (strstr($states, ',') !== false) {
 					$transitsTo = explode(',', preg_replace('/\s+/', '', $states));
 				} else
-					$transitsTo = array(trim($states));
+					$transitsTo = [trim($states)];
 			} else {
 				throw new AStateException('Invalide transitsTo format: ' . print_r($states, true));
 			}

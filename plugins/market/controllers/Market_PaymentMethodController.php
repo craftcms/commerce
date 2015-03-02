@@ -18,7 +18,7 @@ class Market_PaymentMethodController extends Market_BaseController
 	 */
 	public function actionIndex()
 	{
-		$paymentMethods = craft()->market_paymentMethod->getAll();
+		$paymentMethods = craft()->market_paymentMethod->getAllPossibleGateways();
 		$this->renderTemplate('market/settings/paymentmethods/index', compact('paymentMethods'));
 	}
 
@@ -29,7 +29,7 @@ class Market_PaymentMethodController extends Market_BaseController
 	 *
 	 * @throws HttpException
 	 */
-	public function actionEdit(array $variables = array())
+	public function actionEdit(array $variables = [])
 	{
 		if (empty($variables['paymentMethod']) && !empty($variables['class'])) {
 			$class                      = $variables['class'];
@@ -68,9 +68,9 @@ class Market_PaymentMethodController extends Market_BaseController
 		}
 
 		// Send the model back to the template
-		craft()->urlManager->setRouteVariables(array(
+		craft()->urlManager->setRouteVariables([
 			'paymentMethod' => $paymentMethod
-		));
+		]);
 	}
 
 	/**
@@ -84,7 +84,7 @@ class Market_PaymentMethodController extends Market_BaseController
 		$id = craft()->request->getRequiredPost('id');
 
 		craft()->market_paymentMethod->deleteById($id);
-		$this->returnJson(array('success' => true));
+		$this->returnJson(['success' => true]);
 	}
 
 }

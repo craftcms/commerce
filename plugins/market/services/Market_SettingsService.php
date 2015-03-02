@@ -21,21 +21,38 @@ class Market_SettingsService extends BaseApplicationComponent
 
 	/**
 	 * Get all settings from plugin core class
+	 * @return Market_SettingsModel
 	 */
 	public function getSettings()
 	{
-		//For now just use the basic built in settings mass assignment feature
-		return $this->_plugin->getSettings();
+		$data = $this->_plugin->getSettings();
+		return Market_SettingsModel::populateModel($data);
 	}
+
+    /**
+     * @param string $option
+     * @return mixed
+     */
+    public function getOption($option)
+    {
+        return $this->getSettings()->$option;
+    }
 
 	/**
 	 * Set all settings from plugin core class
+	 *
+	 * @param Market_SettingsModel $settings
+	 *
+	 * @return bool
 	 */
-	public function setSettings($settings)
+	public function save(Market_SettingsModel $settings)
 	{
-		//For now just use the basic built in settings mass assignment feature
-		//In the future we will use our own record active model
-		//$settings = array('secretKey'=>'sk_test_8Lvmi5qDkbHRLCsyexhvOGuj','publishableKey'=>'pk_test_ysElKNu1n56ehhFioJqVK2DJ');
+		if (!$settings->validate()) {
+			return false;
+		}
+
 		craft()->plugins->savePluginSettings($this->_plugin, $settings);
+
+		return true;
 	}
 } 

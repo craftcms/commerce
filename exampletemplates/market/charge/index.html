@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" />
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-formhelpers/2.3.0/css/bootstrap-formhelpers.min.css" />
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jquery.bootstrapvalidator/0.5.3/css/bootstrapValidator.min.css" />
-    {{craft.dbug.renderHead|raw}}
+    {#{{craft.dbug.renderHead|raw}}#}
     <style type="text/css">
         .col-centered {
             display:inline-block;
@@ -36,7 +36,7 @@
 
     <script type="text/javascript">
 
-        Stripe.setPublishableKey('{{craft.stripey.config.publishableKey}}');
+        {#Stripe.setPublishableKey('{{craft.stripey.config.publishableKey}}');#}
 
         $(document).ready(function() {
             $('#payment-form').bootstrapValidator({
@@ -422,6 +422,6 @@
 
 </form>
 
-{{craft.dbug.render|raw}}
+{#{{craft.dbug.render|raw}}#}
 </body>
 </html>

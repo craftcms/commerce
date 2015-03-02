@@ -3,10 +3,10 @@ namespace Market\Behaviors\Statemachine;
 
 /**
  * Implements a simple state machine.
- * State machines can have various states, each state can provide methods and properties unique to that state
- * The state machine also manages the transitions between states.
- * Since AStateMachine extends CBehavior, it can also be attached to other models
- * e.g.
+ * State machines can have various states, each state can provide methods and
+ * properties unique to that state The state machine also manages the
+ * transitions between states. Since AStateMachine extends CBehavior, it can
+ * also be attached to other models e.g.
  * <pre>
  *    $stateMachine = new AStateMachine;
  *  $stateMachine->setStates(array(
@@ -19,8 +19,8 @@ namespace Market\Behaviors\Statemachine;
  * echo $model->status->is("enabled") ? "true" : "false"; // "true"
  * $model->transition("disabled");
  * echo $model->status->getState(); // "disabled"
- * $model->status->enable(); // assuming enable is a method on ExampleDisabledState
- * echo $model->status->getState(); // "enabled"
+ * $model->status->enable(); // assuming enable is a method on
+ * ExampleDisabledState echo $model->status->getState(); // "enabled"
  * </pre>
  *
  *
@@ -41,8 +41,8 @@ class AStateMachine extends BaseBehavior implements \IApplicationComponent
 
 	/**
 	 * Whether to track state transition history or not.
-	 * The state history will be stored in a stack and will not be persisted between requests.
-	 * This is set to false by default.
+	 * The state history will be stored in a stack and will not be persisted
+	 * between requests. This is set to false by default.
 	 *
 	 * @var boolean
 	 */
@@ -58,9 +58,9 @@ class AStateMachine extends BaseBehavior implements \IApplicationComponent
 	public $maximumTransitionHistorySize;
 
 	/**
-	 * Defines whather to use AState.transitsTo attribute to check transition validity.
-	 * If it was set to TRUE than you should specify which states can be reached from current.
-	 * For example:
+	 * Defines whather to use AState.transitsTo attribute to check transition
+	 * validity. If it was set to TRUE than you should specify which states can
+	 * be reached from current. For example:
 	 * <pre>
 	 *      $machine = new AStateMachine();
 	 *      $machine->setStates(array(
@@ -108,7 +108,7 @@ class AStateMachine extends BaseBehavior implements \IApplicationComponent
 	 *
 	 * @var AState[]
 	 */
-	protected $_states = array();
+	protected $_states = [];
 	/**
 	 * Whether the state machine is initialized or not
 	 *
@@ -135,9 +135,9 @@ class AStateMachine extends BaseBehavior implements \IApplicationComponent
 
 	/**
 	 * Initializes the state machine.
-	 * The default implementation merely sets the $this->_isInitialized property to true
-	 * Child classes that override this method should call the parent implementation
-	 * This method is required by IApplicationComponent
+	 * The default implementation merely sets the $this->_isInitialized
+	 * property to true Child classes that override this method should call the
+	 * parent implementation This method is required by IApplicationComponent
 	 */
 	public function init()
 	{
@@ -200,6 +200,17 @@ class AStateMachine extends BaseBehavior implements \IApplicationComponent
 	}
 
 	/**
+	 * Sets the name of the current state but doesn't trigger the transition
+	 * events
+	 *
+	 * @param string $state the name of the state to change to
+	 */
+	public function setStateName($state)
+	{
+		$this->_stateName = $state;
+	}
+
+	/**
 	 * Detaches the state machine from a component
 	 *
 	 * @param \CComponent $owner the component to detach from
@@ -217,8 +228,8 @@ class AStateMachine extends BaseBehavior implements \IApplicationComponent
 	 *
 	 * @param  string $name the property name or event name
 	 *
-	 * @return mixed      the property value, event handlers attached to the event, or the named behavior (since
-	 *                    version 1.0.2)
+	 * @return mixed      the property value, event handlers attached to the
+	 *                    event, or the named behavior (since version 1.0.2)
 	 * @throws \CException if the property or event is not defined
 	 * @see CComponent::__get()
 	 */
@@ -239,8 +250,8 @@ class AStateMachine extends BaseBehavior implements \IApplicationComponent
 	 * @param  string $name  the property name or event name
 	 * @param  mixed  $value the property value
 	 *
-	 * @return mixed      the property value, event handlers attached to the event, or the named behavior (since
-	 *                    version 1.0.2)
+	 * @return mixed      the property value, event handlers attached to the
+	 *                    event, or the named behavior (since version 1.0.2)
 	 * @throws \CException if the property or event is not defined
 	 * @see CComponent::__get()
 	 */
@@ -279,8 +290,8 @@ class AStateMachine extends BaseBehavior implements \IApplicationComponent
 	 *
 	 * @param  string $name the property name or event name
 	 *
-	 * @return mixed      the property value, event handlers attached to the event, or the named behavior (since
-	 *                    version 1.0.2)
+	 * @return mixed      the property value, event handlers attached to the
+	 *                    event, or the named behavior (since version 1.0.2)
 	 * @throws \CException if the property or event is not defined
 	 * @see CComponent::__get()
 	 */
@@ -308,20 +319,10 @@ class AStateMachine extends BaseBehavior implements \IApplicationComponent
 	{
 		$state = $this->getState();
 		if (is_object($state) && method_exists($state, $name)) {
-			return call_user_func_array(array($state, $name), $parameters);
+			return call_user_func_array([$state, $name], $parameters);
 		}
 
 		return parent::__call($name, $parameters);
-	}
-
-	/**
-	 * Sets the name of the current state but doesn't trigger the transition events
-	 *
-	 * @param string $state the name of the state to change to
-	 */
-	public function setStateName($state)
-	{
-		$this->_stateName = $state;
 	}
 
 	/**
@@ -338,11 +339,12 @@ class AStateMachine extends BaseBehavior implements \IApplicationComponent
 	 * Sets the possible states for this machine
 	 *
 	 * @param AState[] $states an array of possible states
+	 *
 	 * @return AState[]
 	 */
 	public function setStates($states)
 	{
-		$this->_states = array();
+		$this->_states = [];
 		foreach ($states as $state) {
 			$this->addState($state);
 		}
@@ -353,7 +355,9 @@ class AStateMachine extends BaseBehavior implements \IApplicationComponent
 	/**
 	 * Adds a state to the machine
 	 *
-	 * @param  AState|array $state The state to add, either an instance of AState or a configuration array for an AState
+	 * @param  AState|array $state The state to add, either an instance of
+	 *                             AState or a configuration array for an
+	 *                             AState
 	 *
 	 * @return AState       the added state
 	 */
@@ -374,7 +378,8 @@ class AStateMachine extends BaseBehavior implements \IApplicationComponent
 	 *
 	 * @param  string $stateName the name of the state to remove
 	 *
-	 * @return AState|null the removed state, or null if there was no state by that name
+	 * @return AState|null the removed state, or null if there was no state by
+	 *                     that name
 	 */
 	public function removeState($stateName)
 	{
@@ -420,7 +425,8 @@ class AStateMachine extends BaseBehavior implements \IApplicationComponent
 	 * @throws AInvalidStateException if the state doesn't exist
 	 *
 	 * @param  string $to     The name of the state we're transitioning to
-	 * @param mixed   $params additional parameters for the before/after Transition events
+	 * @param mixed   $params additional parameters for the before/after
+	 *                        Transition events
 	 *
 	 * @return boolean true if the transition succeeded or false if it failed
 	 */
@@ -466,7 +472,8 @@ class AStateMachine extends BaseBehavior implements \IApplicationComponent
 	 * @throws AInvalidStateException if the state doesn't exist
 	 *
 	 * @param string $to     The name of the state we're transitioning to
-	 * @param mixed  $params additional parameters for the before/after Transition events
+	 * @param mixed  $params additional parameters for the before/after
+	 *                       Transition events
 	 *
 	 * @return boolean true if the transition succeeded or false if it failed
 	 */
@@ -490,7 +497,8 @@ class AStateMachine extends BaseBehavior implements \IApplicationComponent
 	 * @param AState $toState The state we're transitioning to
 	 * @param mixed  $params  additional parameters for the event
 	 *
-	 * @return boolean true if the event is valid and the transition should be allowed to continue
+	 * @return boolean true if the event is valid and the transition should be
+	 *                 allowed to continue
 	 */
 	public function beforeTransition(AState $toState, $params = NULL)
 	{
@@ -523,7 +531,7 @@ class AStateMachine extends BaseBehavior implements \IApplicationComponent
 	public function getTransitionHistory()
 	{
 		if ($this->_transitionHistory === NULL) {
-			$this->_transitionHistory = new \CList(array($this->getStateName()));
+			$this->_transitionHistory = new \CList([$this->getStateName()]);
 		}
 
 		return $this->_transitionHistory;
@@ -577,7 +585,7 @@ class AStateMachine extends BaseBehavior implements \IApplicationComponent
 	 */
 	public function getAvailableStates()
 	{
-		$result = array();
+		$result = [];
 
 		foreach ($this->states as $state)
 			if ($this->canTransit($state->name))

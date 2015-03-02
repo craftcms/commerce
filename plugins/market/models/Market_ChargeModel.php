@@ -46,58 +46,6 @@ class Market_ChargeModel extends BaseElementModel
 	}
 
 	/**
-	 * Charge Model Attributes
-	 *
-	 * @inheritDoc BaseRecord::defineAttributes()
-	 *
-	 * @return array
-	 */
-	protected function defineAttributes()
-	{
-		return array_merge(parent::defineAttributes(), array(
-
-			/**
-			 * Required fields on new charge
-			 */
-			'stripeId'              => AttributeType::String,
-			'amount'                => AttributeType::Number,
-			//TODO: Fill currency enum values dynamically based on https://support.stripe.com/questions/which-currencies-does-stripe-support
-			'currency'              => array(AttributeType::Enum, 'values' => "AUD,USD"),
-			'card'                  => AttributeType::String, // or customer
-			'customer'              => AttributeType::String, // or card
-			'capture'               => array(AttributeType::Bool, 'default' => true),
-
-			/**
-			 * Optional fields on new charge
-			 */
-			'description'           => AttributeType::String,
-			'metadata'              => AttributeType::Mixed,
-			'statement_description' => AttributeType::String,
-			'receipt_email'         => AttributeType::String,
-			// Application fee not applicable unless we use sub stripe accounts w/ oauth
-			// 'application_fee' => AttributeType::Number,
-
-			/**
-			 * These attributes only exist on a saved charge
-			 */
-			'created'               => AttributeType::DateTime,
-			'paid'                  => AttributeType::Bool,
-			'captured'              => AttributeType::Bool,
-			'refunded'              => AttributeType::Bool,
-			'refunds'               => AttributeType::Mixed,
-			'amount_refunded'       => AttributeType::Number,
-			'balance_transaction'   => AttributeType::String,
-			'failure_message'       => AttributeType::String,
-			'failure_code'          => AttributeType::String,
-			'fraud_details'         => AttributeType::Mixed,
-			'invoice'               => AttributeType::String,
-			'dispute'               => AttributeType::Mixed,
-			'receipt_number'        => AttributeType::String,
-			'livemode'              => AttributeType::Bool,
-		));
-	}
-
-	/**
 	 * Returns the field layout used by this element.
 	 *
 	 * @return FieldLayoutModel|null
@@ -151,9 +99,9 @@ class Market_ChargeModel extends BaseElementModel
 
 	private function _loadStripeData()
 	{
-		$this->_apiData = \Market\Market::app()['stripe']->charges()->find(array(
+		$this->_apiData = \Market\Market::app()['stripe']->charges()->find([
 			'id' => $this->stripeId
-		));
+		]);
 
 		foreach ($this->_apiData as $key => $val) {
 			if (in_array($key, $this->attributeNames()) && $key != 'id') {
@@ -168,6 +116,58 @@ class Market_ChargeModel extends BaseElementModel
 		$this->_loadStripeData();
 
 		return $this->created;
+	}
+
+	/**
+	 * Charge Model Attributes
+	 *
+	 * @inheritDoc BaseRecord::defineAttributes()
+	 *
+	 * @return array
+	 */
+	protected function defineAttributes()
+	{
+		return array_merge(parent::defineAttributes(), [
+
+			/**
+			 * Required fields on new charge
+			 */
+			'stripeId'              => AttributeType::String,
+			'amount'                => AttributeType::Number,
+			//TODO: Fill currency enum values dynamically based on https://support.stripe.com/questions/which-currencies-does-stripe-support
+			'currency'              => [AttributeType::Enum, 'values' => "AUD,USD"],
+			'card'                  => AttributeType::String, // or customer
+			'customer'              => AttributeType::String, // or card
+			'capture'               => [AttributeType::Bool, 'default' => true],
+
+			/**
+			 * Optional fields on new charge
+			 */
+			'description'           => AttributeType::String,
+			'metadata'              => AttributeType::Mixed,
+			'statement_description' => AttributeType::String,
+			'receipt_email'         => AttributeType::String,
+			// Application fee not applicable unless we use sub stripe accounts w/ oauth
+			// 'application_fee' => AttributeType::Number,
+
+			/**
+			 * These attributes only exist on a saved charge
+			 */
+			'created'               => AttributeType::DateTime,
+			'paid'                  => AttributeType::Bool,
+			'captured'              => AttributeType::Bool,
+			'refunded'              => AttributeType::Bool,
+			'refunds'               => AttributeType::Mixed,
+			'amount_refunded'       => AttributeType::Number,
+			'balance_transaction'   => AttributeType::String,
+			'failure_message'       => AttributeType::String,
+			'failure_code'          => AttributeType::String,
+			'fraud_details'         => AttributeType::Mixed,
+			'invoice'               => AttributeType::String,
+			'dispute'               => AttributeType::Mixed,
+			'receipt_number'        => AttributeType::String,
+			'livemode'              => AttributeType::Bool,
+		]);
 	}
 
 }

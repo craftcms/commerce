@@ -38,7 +38,7 @@ class Market_OptionTypeService extends BaseApplicationComponent
 	 */
 	public function getByHandle($handle)
 	{
-		$optionTypeRecord = Market_OptionTypeRecord::model()->findByAttributes(array('handle' => $handle));
+		$optionTypeRecord = Market_OptionTypeRecord::model()->findByAttributes(['handle' => $handle]);
 
 		return Market_OptionTypeModel::populateModel($optionTypeRecord);
 	}
@@ -57,7 +57,7 @@ class Market_OptionTypeService extends BaseApplicationComponent
 			$record = Market_OptionTypeRecord::model()->findById($optionType->id);
 
 			if (!$record) {
-				throw new Exception(Craft::t('No option type exists with the ID “{id}”', array('id' => $optionType->id)));
+				throw new Exception(Craft::t('No option type exists with the ID “{id}”', ['id' => $optionType->id]));
 			}
 		} else {
 			$record = new Market_OptionTypeRecord();

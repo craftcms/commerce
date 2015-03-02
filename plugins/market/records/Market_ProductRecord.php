@@ -5,15 +5,14 @@ namespace Craft;
 /**
  * Class Market_ProductRecord
  *
- * @property int taxCategoryId
- * @property int typeId
- * @property int authorId
- * @property DateTime availableOn
- * @property DateTime expiresOn
-
- * @property Market_VariantRecord   $master
- * @property Market_VariantRecord[] allVariants
- * @property Market_TaxCategoryRecord taxCategory
+ * @property int                       taxCategoryId
+ * @property int                       typeId
+ * @property int                       authorId
+ * @property DateTime                  availableOn
+ * @property DateTime                  expiresOn
+ * @property Market_VariantRecord      $master
+ * @property Market_VariantRecord[]    allVariants
+ * @property Market_TaxCategoryRecord  taxCategory
  * @property Market_OptionTypeRecord[] optionTypes
  * @package Craft
  */

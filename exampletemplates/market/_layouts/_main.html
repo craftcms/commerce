@@ -47,6 +47,9 @@
             <li role="presentation" class="{% if craft.request.getSegment(2) == 'products' %}active{% endif %}">
                 <a href="{{url('market/products')}}">Products</a>
             </li>
+            <li role="presentation" class="{% if craft.request.getSegment(2) == 'orders' %}active{% endif %}">
+                <a href="{{url('market/orders')}}">Orders</a>
+            </li>
             {% set cart = craft.market.getCart() %}
             <li role="presentation" class="{% if craft.request.getSegment(2) == 'cart' %}active{% endif %}">
                 <a href="{{url('market/cart')}}">Cart <span class="badge">{{cart.lineItems|length}}</span></a>
@@ -54,15 +57,20 @@
         </ul>
 
         <div class="flash-info">
-        {% set notice = craft.session.getFlash('notice') %}
-        {% if notice %}
-        <p class="bg-info">{{ notice }}</p>
-        {% endif %}
+            {% set notice = craft.session.getFlash('notice') %}
+            {% if notice %}
+            <p class="bg-info">{{ notice }}</p>
+            {% endif %}
 
-        {% set marketFlash = craft.session.getFlash('market') %}
-        {% if marketFlash %}
-        <p class="bg-warning">{{ marketFlash }}</p>
-        {% endif %}
+            {% set marketFlash = craft.session.getFlash('market') %}
+            {% if marketFlash %}
+            <p class="bg-warning">{{ marketFlash }}</p>
+            {% endif %}
+
+            {% set marketFlash = craft.session.getFlash('error') %}
+            {% if marketFlash %}
+            <p class="bg-error">{{ marketFlash }}</p>
+            {% endif %}
         </div>
 
         <p></p>

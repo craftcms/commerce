@@ -29,7 +29,7 @@ class Market_ProductController extends Market_BaseController
 	 */
 	public function actionProductIndex()
 	{
-		$variables['productTypes'] = craft()->market_productType->getAll();
+		$variables['productTypes']  = craft()->market_productType->getAll();
 		$variables['taxCategories'] = craft()->market_taxCategory->getAll();
 		$this->renderTemplate('market/products/_index', $variables);
 	}
@@ -41,7 +41,7 @@ class Market_ProductController extends Market_BaseController
 	 *
 	 * @throws HttpException
 	 */
-	public function actionEditProduct(array $variables = array())
+	public function actionEditProduct(array $variables = [])
 	{
 		if (!empty($variables['productTypeHandle'])) {
 			$variables['productType'] = craft()->market_productType->getByHandle($variables['productTypeHandle']);
@@ -85,7 +85,7 @@ class Market_ProductController extends Market_BaseController
 	 */
 	private function prepVariables(&$variables)
 	{
-		$variables['tabs'] = array();
+		$variables['tabs'] = [];
 
 		$variables['masterVariant'] = $variables['product']->master ?: new Market_VariantModel;
 
@@ -101,11 +101,11 @@ class Market_ProductController extends Market_BaseController
 				}
 			}
 
-			$variables['tabs'][] = array(
+			$variables['tabs'][] = [
 				'label' => Craft::t($tab->name),
 				'url'   => '#tab' . ($index + 1),
 				'class' => ($hasErrors ? 'error' : NULL)
-			);
+			];
 		}
 	}
 
@@ -123,14 +123,14 @@ class Market_ProductController extends Market_BaseController
 
 		$productCreator = new Creator;
 
-        MarketDbHelper::beginStackedTransaction();
+		MarketDbHelper::beginStackedTransaction();
 
 		if ($productCreator->save($product)) {
 			$masterVariant->productId = $product->id;
 
 			if (craft()->market_variant->save($masterVariant)) {
 				craft()->market_product->setOptionTypes($product->id, $optionTypes);
-                MarketDbHelper::commitStackedTransaction();
+				MarketDbHelper::commitStackedTransaction();
 
 				craft()->userSession->setNotice(Craft::t('Product saved.'));
 
@@ -142,13 +142,13 @@ class Market_ProductController extends Market_BaseController
 			}
 		}
 
-        MarketDbHelper::rollbackStackedTransaction();
+		MarketDbHelper::rollbackStackedTransaction();
 
 		craft()->userSession->setNotice(Craft::t("Couldn't save product."));
-		craft()->urlManager->setRouteVariables(array(
+		craft()->urlManager->setRouteVariables([
 			'product'       => $product,
 			'masterVariant' => $masterVariant
-		));
+		]);
 	}
 
 	/**
@@ -163,7 +163,7 @@ class Market_ProductController extends Market_BaseController
 			$product = craft()->market_product->getById($productId);
 
 			if (!$product) {
-				throw new Exception(Craft::t('No product with the ID “{id}”', array('id' => $productId)));
+				throw new Exception(Craft::t('No product with the ID “{id}”', ['id' => $productId]));
 			}
 		} else {
 			$product = new Market_ProductModel();
@@ -188,12 +188,13 @@ class Market_ProductController extends Market_BaseController
 	private function _setContentFromPost($product)
 	{
 		$product->getContent()->title = craft()->request->getPost('title', $product->title);
-		$product->taxCategoryId = craft()->request->getPost('taxCategoryId', $product->taxCategoryId);
+		$product->taxCategoryId       = craft()->request->getPost('taxCategoryId', $product->taxCategoryId);
 		$product->setContentFromPost('fields');
 	}
 
 	/**
 	 * @param Market_ProductModel $product
+	 *
 	 * @return Market_VariantModel
 	 */
 	private function _setMasterVariantFromPost(Market_ProductModel $product)
@@ -220,26 +221,26 @@ class Market_ProductController extends Market_BaseController
 		$product   = craft()->market_product->getById($productId);
 
 		if (!$product) {
-			throw new Exception(Craft::t('No product exists with the ID “{id}”.', array('id' => $productId)));
+			throw new Exception(Craft::t('No product exists with the ID “{id}”.', ['id' => $productId]));
 		}
 
 		if (craft()->market_product->delete($product)) {
 			if (craft()->request->isAjaxRequest()) {
-				$this->returnJson(array('success' => true));
+				$this->returnJson(['success' => true]);
 			} else {
 				craft()->userSession->setNotice(Craft::t('Product deleted.'));
 				$this->redirectToPostedUrl($product);
 			}
 		} else {
 			if (craft()->request->isAjaxRequest()) {
-				$this->returnJson(array('success' => false));
+				$this->returnJson(['success' => false]);
 			} else {
 				craft()->userSession->setError(Craft::t('Couldn’t delete product.'));
 
-				craft()->urlManager->setRouteVariables(array(
+				craft()->urlManager->setRouteVariables([
 					'product' => $product
 
-				));
+				]);
 			}
 		}
 	}

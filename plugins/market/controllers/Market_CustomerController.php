@@ -14,7 +14,7 @@ namespace Craft;
 class Market_CustomerController extends Market_BaseController
 {
 
-	protected $allowAnonymous = array('actionNewCustomer');
+	protected $allowAnonymous = ['actionNewCustomer'];
 
 	public function actionNewCharge()
 	{

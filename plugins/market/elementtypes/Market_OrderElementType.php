@@ -1,7 +1,7 @@
 <?php
 namespace Craft;
 
-require_once(__DIR__.'/Market_BaseElementType.php');
+require_once(__DIR__ . '/Market_BaseElementType.php');
 
 class Market_OrderElementType extends Market_BaseElementType
 {
@@ -29,19 +29,19 @@ class Market_OrderElementType extends Market_BaseElementType
 	public function getSources($context = NULL)
 	{
 
-		$sources = array(
-			'*' => array(
+		$sources = [
+			'*' => [
 				'label' => Craft::t('All orders'),
-			)
-		);
+			]
+		];
 
 		foreach (craft()->market_orderType->getAll() as $orderType) {
 			$key = 'orderType:' . $orderType->id;
 
-			$sources[$key] = array(
+			$sources[$key] = [
 				'label'    => $orderType->name,
-				'criteria' => array('typeId' => $orderType->id)
-			);
+				'criteria' => ['typeId' => $orderType->id]
+			];
 		}
 
 		return $sources;
@@ -50,14 +50,16 @@ class Market_OrderElementType extends Market_BaseElementType
 
 	public function defineTableAttributes($source = NULL)
 	{
-		return array(
-			'number'       => Craft::t('Number')
-		);
+		return [
+			'number'     => Craft::t('Number'),
+			'state'      => Craft::t('State'),
+			'finalPrice' => Craft::t('Final Price')
+		];
 	}
 
 	public function defineSearchableAttributes()
 	{
-		return array('number');
+		return ['number', 'state'];
 	}
 
 	public function getTableAttributeHtml(BaseElementModel $element, $attribute)
@@ -67,19 +69,22 @@ class Market_OrderElementType extends Market_BaseElementType
 
 	public function defineSortableAttributes()
 	{
-		return array(
-			'number' => Craft::t('Number')
-		);
+		return [
+			'number'     => Craft::t('Number'),
+			'state'      => Craft::t('State'),
+			'finalPrice' => Craft::t('Final Price'),
+		];
 	}
 
 
 	public function defineCriteriaAttributes()
 	{
-		return array(
+		return [
 			'typeId' => AttributeType::Mixed,
 			'type'   => AttributeType::Mixed,
 			'number' => AttributeType::Mixed,
-		);
+			'state'  => AttributeType::Mixed,
+		];
 	}
 
 
@@ -105,6 +110,10 @@ class Market_OrderElementType extends Market_BaseElementType
 
 		if ($criteria->number) {
 			$query->andWhere(DbHelper::parseParam('orders.number', $criteria->number, $query->params));
+		}
+
+		if ($criteria->state) {
+			$query->andWhere(DbHelper::parseParam('orders.state', $criteria->state, $query->params));
 		}
 	}
 

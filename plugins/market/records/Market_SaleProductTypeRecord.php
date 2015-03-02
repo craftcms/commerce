@@ -30,8 +30,8 @@ class Market_SaleProductTypeRecord extends BaseRecord
 	public function defineRelations()
 	{
 		return [
-			'sale'          => [static::BELONGS_TO, 'Market_SaleRecord', 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE, 'required' => true],
-			'productType'   => [static::BELONGS_TO, 'Market_ProductTypeRecord', 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE, 'required' => true],
+			'sale'        => [static::BELONGS_TO, 'Market_SaleRecord', 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE, 'required' => true],
+			'productType' => [static::BELONGS_TO, 'Market_ProductTypeRecord', 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE, 'required' => true],
 		];
 	}
 
@@ -42,6 +42,5 @@ class Market_SaleProductTypeRecord extends BaseRecord
 			'productTypeId' => [AttributeType::Number, 'required' => true],
 		];
 	}
-
 
 }

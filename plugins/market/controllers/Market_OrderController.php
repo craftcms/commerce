@@ -24,7 +24,11 @@ class Market_OrderController extends Market_BaseController
 		$this->renderTemplate('market/orders/_index', $variables);
 	}
 
-	public function actionEditOrder(array $variables = array())
+    /**
+     * @param array $variables
+     * @throws HttpException
+     */
+	public function actionEditOrder(array $variables = [])
 	{
 		if (!empty($variables['orderTypeHandle'])) {
 			$variables['orderType'] = craft()->market_orderType->getByHandle($variables['orderTypeHandle']);
@@ -38,7 +42,7 @@ class Market_OrderController extends Market_BaseController
 			if (!empty($variables['orderId'])) {
 				$variables['order'] = craft()->market_order->getById($variables['orderId']);
 
-				if (!$variables['order']) {
+				if (!$variables['order']->id) {
 					throw new HttpException(404);
 				}
 			} else {
@@ -48,7 +52,7 @@ class Market_OrderController extends Market_BaseController
 		}
 
 		if (!empty($variables['orderId'])) {
-			$variables['title'] = "Order ".$variables['order']->number;
+			$variables['title'] = "Order " . $variables['order']->number;
 		} else {
 			$variables['title'] = Craft::t('Create a new Order');
 		}
@@ -59,12 +63,11 @@ class Market_OrderController extends Market_BaseController
 
 	/**
 	 * Modifies the variables of the request.
-	 *
 	 * @param $variables
 	 */
 	private function prepVariables(&$variables)
 	{
-		$variables['tabs'] = array();
+		$variables['tabs'] = [];
 
 		foreach ($variables['orderType']->getFieldLayout()->getTabs() as $index => $tab) {
 			// Do any of the fields on this tab have errors?
@@ -79,14 +82,69 @@ class Market_OrderController extends Market_BaseController
 				}
 			}
 
-			$variables['tabs'][] = array(
+			$variables['tabs'][] = [
 				'label' => Craft::t($tab->name),
 				'url'   => '#tab' . ($index + 1),
 				'class' => ($hasErrors ? 'error' : NULL)
-			);
+			];
 		}
 	}
 
+    /**
+     * Capture Transaction
+     */
+    public function actionTransactionCapture()
+    {
+        $id = craft()->request->getParam('id');
+        $transaction = craft()->market_transaction->getById($id);
+
+        if ($transaction->canCapture()) {
+            // capture transaction and display result
+            $child = craft()->market_payment->captureTransaction($transaction);
+
+            $message = $child->message ? ' (' . $child->message . ')' : '';
+
+            if ($child->status == Market_TransactionRecord::SUCCESS) {
+                craft()->userSession->setNotice(Craft::t('Transaction has been successfully captured: ') . $message);
+            } else {
+                craft()->userSession->setError(Craft::t('Capturing error: ') . $message);
+            }
+        } else {
+            craft()->userSession->setError(Craft::t('Wrong transaction id'));
+        }
+    }
+
+    /**
+     * Refund Transaction
+     */
+    public function actionTransactionRefund()
+    {
+        $id = craft()->request->getParam('id');
+        $transaction = craft()->market_transaction->getById($id);
+
+        if ($transaction->canRefund()) {
+            // capture transaction and display result
+            $child = craft()->market_payment->refundTransaction($transaction);
+
+            $message = $child->message ? ' (' . $child->message . ')' : '';
+
+            if ($child->status == Market_TransactionRecord::SUCCESS) {
+                craft()->userSession->setNotice(Craft::t('Transaction has been successfully refunded: ') . $message);
+            } else {
+                craft()->userSession->setError(Craft::t('Refunding error: ') . $message);
+            }
+        } else {
+            craft()->userSession->setError(Craft::t('Wrong transaction id'));
+        }
+    }
+
+    /**
+     * TODO nothing to save
+     *
+     * @throws Exception
+     * @throws HttpException
+     * @throws \Exception
+     */
 	public function actionSaveOrder()
 	{
 		$this->requirePostRequest();
@@ -99,9 +157,9 @@ class Market_OrderController extends Market_BaseController
 		}
 
 		craft()->userSession->setNotice(Craft::t("Couldn't save order."));
-		craft()->urlManager->setRouteVariables(array(
+		craft()->urlManager->setRouteVariables([
 			'order' => $order
-		));
+		]);
 	}
 
 	/**
@@ -116,7 +174,7 @@ class Market_OrderController extends Market_BaseController
 			$order = craft()->market_order->getById($orderId);
 
 			if (!$order) {
-				throw new Exception(Craft::t('No order with the ID “{id}”', array('id' => $orderId)));
+				throw new Exception(Craft::t('No order with the ID “{id}”', ['id' => $orderId]));
 			}
 		} else {
 			$order = new Market_OrderModel();
@@ -148,26 +206,22 @@ class Market_OrderController extends Market_BaseController
 		$order   = craft()->market_order->getById($orderId);
 
 		if (!$order) {
-			throw new Exception(Craft::t('No order exists with the ID “{id}”.', array('id' => $orderId)));
+			throw new Exception(Craft::t('No order exists with the ID “{id}”.', ['id' => $orderId]));
 		}
 
 		if (craft()->market_order->delete($order)) {
 			if (craft()->request->isAjaxRequest()) {
-				$this->returnJson(array('success' => true));
+				$this->returnJson(['success' => true]);
 			} else {
 				craft()->userSession->setNotice(Craft::t('Order deleted.'));
 				$this->redirectToPostedUrl($order);
 			}
 		} else {
 			if (craft()->request->isAjaxRequest()) {
-				$this->returnJson(array('success' => false));
+				$this->returnJson(['success' => false]);
 			} else {
 				craft()->userSession->setError(Craft::t('Couldn’t delete order.'));
-
-				craft()->urlManager->setRouteVariables(array(
-					'order' => $order
-
-				));
+				craft()->urlManager->setRouteVariables(['order' => $order]);
 			}
 		}
 	}

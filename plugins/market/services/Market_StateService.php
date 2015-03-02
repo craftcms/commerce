@@ -10,32 +10,26 @@ namespace Craft;
 class Market_StateService extends BaseApplicationComponent
 {
 	/**
-	 * @return Market_StateModel[]
-	 */
-	public function getAll()
-	{
-		$records = Market_StateRecord::model()->with('country')->findAll(array('order' => 'country.name, t.name'));
-
-		return Market_StateModel::populateModels($records);
-	}
-
-	/**
 	 * @param int $id
+	 *
 	 * @return Market_StateModel
 	 */
 	public function getById($id)
 	{
 		$record = Market_StateRecord::model()->findById($id);
+
 		return Market_StateModel::populateModel($record);
 	}
 
-    /**
-     * @param array $attr
-     * @return Market_StateModel
-     */
+	/**
+	 * @param array $attr
+	 *
+	 * @return Market_StateModel
+	 */
 	public function getByAttributes(array $attr)
 	{
 		$record = Market_StateRecord::model()->findByAttributes($attr);
+
 		return Market_StateModel::populateModel($record);
 	}
 
@@ -44,15 +38,25 @@ class Market_StateService extends BaseApplicationComponent
 	 */
 	public function getGroupedByCountries()
 	{
-		$states = craft()->market_state->getAll();
+		$states    = craft()->market_state->getAll();
 		$cid2state = [];
 
-		foreach($states as $state) {
+		foreach ($states as $state) {
 			$cid2state += [$state->countryId => []];
 			$cid2state[$state->countryId][$state->id] = $state->name;
 		}
 
 		return $cid2state;
+	}
+
+	/**
+	 * @return Market_StateModel[]
+	 */
+	public function getAll()
+	{
+		$records = Market_StateRecord::model()->with('country')->findAll(['order' => 'country.name, t.name']);
+
+		return Market_StateModel::populateModels($records);
 	}
 
 	/**
@@ -69,7 +73,7 @@ class Market_StateService extends BaseApplicationComponent
 			$record = Market_StateRecord::model()->findById($model->id);
 
 			if (!$record) {
-				throw new Exception(Craft::t('No state exists with the ID “{id}”', array('id' => $model->id)));
+				throw new Exception(Craft::t('No state exists with the ID “{id}”', ['id' => $model->id]));
 			}
 		} else {
 			$record = new Market_StateRecord();

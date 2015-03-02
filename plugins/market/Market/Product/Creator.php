@@ -31,12 +31,12 @@ class Creator
 
 	private function createNewProduct()
 	{
-		$productRecord              	= new Market_ProductRecord();
-		$productRecord->availableOn 	= $this->_product->availableOn;
-		$productRecord->expiresOn   	= $this->_product->expiresOn;
-		$productRecord->typeId      	= $this->_product->typeId;
-		$productRecord->authorId    	= $this->_product->authorId;
-		$productRecord->taxCategoryId 	= $this->_product->taxCategoryId;
+		$productRecord                = new Market_ProductRecord();
+		$productRecord->availableOn   = $this->_product->availableOn;
+		$productRecord->expiresOn     = $this->_product->expiresOn;
+		$productRecord->typeId        = $this->_product->typeId;
+		$productRecord->authorId      = $this->_product->authorId;
+		$productRecord->taxCategoryId = $this->_product->taxCategoryId;
 
 		$productRecord->validate();
 
@@ -59,16 +59,16 @@ class Creator
 		$productRecord = Market_ProductRecord::model()->findById($this->_product->id);
 
 		if (!$productRecord) {
-			throw new Exception(Craft::t('No product exists with the ID “{id}”', array('id' => $this->_product->id)));
+			throw new Exception(Craft::t('No product exists with the ID “{id}”', ['id' => $this->_product->id]));
 		}
 
 		if (\Craft\craft()->elements->saveElement($this->_product)) {
 
-			$productRecord->availableOn 	= $this->_product->availableOn;
-			$productRecord->expiresOn   	= $this->_product->expiresOn;
-			$productRecord->typeId      	= $this->_product->typeId;
-			$productRecord->authorId    	= $this->_product->authorId;
-			$productRecord->taxCategoryId 	= $this->_product->taxCategoryId;
+			$productRecord->availableOn   = $this->_product->availableOn;
+			$productRecord->expiresOn     = $this->_product->expiresOn;
+			$productRecord->typeId        = $this->_product->typeId;
+			$productRecord->authorId      = $this->_product->authorId;
+			$productRecord->taxCategoryId = $this->_product->taxCategoryId;
 			$productRecord->save();
 
 			return true;

@@ -6,12 +6,12 @@ class Market_VariantService extends BaseApplicationComponent
 {
 	/**
 	 * @param int $id
-	 *
 	 * @return Market_VariantModel
 	 */
 	public function getById($id)
 	{
 		$variant = Market_VariantRecord::model()->with('product')->findById($id);
+
 		return Market_VariantModel::populateModel($variant);
 	}
 
@@ -31,7 +31,7 @@ class Market_VariantService extends BaseApplicationComponent
 	 */
 	public function unsetOptionValues($id)
 	{
-		Market_VariantOptionValueRecord::model()->deleteAllByAttributes(array('variantId' => $id));
+		Market_VariantOptionValueRecord::model()->deleteAllByAttributes(['variantId' => $id]);
 	}
 
 	/**
@@ -53,7 +53,7 @@ class Market_VariantService extends BaseApplicationComponent
 	 */
 	public function getAllByProductId($id, $isMaster = NULL)
 	{
-		$conditions = array('productId' => $id);
+		$conditions = ['productId' => $id];
 		if (!is_null($isMaster)) {
 			$conditions['isMaster'] = $isMaster;
 		}
@@ -70,8 +70,27 @@ class Market_VariantService extends BaseApplicationComponent
 	{
 		$variant            = Market_ProductRecord::model()->findById($variant->id);
 		$variant->deletedAt = DateTimeHelper::currentTimeForDb();
-		$variant->saveAttributes(array('deletedAt'));
+		$variant->saveAttributes(['deletedAt']);
 	}
+
+    /**
+     * Apply sales, associated with the given product, to all given variants
+     * @param Market_VariantModel[] $variants
+     * @param Market_ProductModel   $product
+     */
+    public function applySales(array $variants, Market_ProductModel $product)
+    {
+        $sales  = craft()->market_sale->getForProduct($product);
+
+        foreach ($sales as $sale) {
+            foreach ($variants as $variant) {
+                $variant->salePrice = $variant->price + $sale->calculateTakeoff($variant->price);
+                if ($variant->salePrice < 0) {
+                    $variant->salePrice = 0;
+                }
+            }
+        }
+    }
 
 	/**
 	 * Save a model into DB
@@ -104,11 +123,11 @@ class Market_VariantService extends BaseApplicationComponent
 		$record->weight    = $model->weight;
 		$record->minQty    = $model->minQty;
 
-		if($model->unlimitedStock) {
+		if ($model->unlimitedStock) {
 			$record->unlimitedStock = true;
-			$record->stock = 0;
+			$record->stock          = 0;
 		} else {
-			$record->stock = $model->stock;
+			$record->stock          = $model->stock;
 			$record->unlimitedStock = false;
 		}
 
@@ -142,15 +161,15 @@ class Market_VariantService extends BaseApplicationComponent
 
 		if ($optionValueIds) {
 			if (!is_array($optionValueIds)) {
-				$optionValueIds = array($optionValueIds);
+				$optionValueIds = [$optionValueIds];
 			}
 
-			$values = array();
+			$values = [];
 			foreach ($optionValueIds as $optionValueId) {
-				$values[] = array($optionValueId, $variantId);
+				$values[] = [$optionValueId, $variantId];
 			}
 
-			craft()->db->createCommand()->insertAll('market_variant_optionvalues', array('optionValueId', 'variantId'), $values);
+			craft()->db->createCommand()->insertAll('market_variant_optionvalues', ['optionValueId', 'variantId'], $values);
 		}
 
 		return true;

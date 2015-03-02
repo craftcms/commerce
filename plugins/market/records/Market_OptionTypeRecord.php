@@ -9,8 +9,8 @@ namespace Craft;
  * @property string                      name
  * @property string                      handle
  *
- * @property Market_ProductRecord[]     $products
- * @property Market_OptionValueRecord[] optionValues
+ * @property Market_ProductRecord[]      $products
+ * @property Market_OptionValueRecord[]  optionValues
  * @package Craft
  */
 class Market_OptionTypeRecord extends BaseRecord

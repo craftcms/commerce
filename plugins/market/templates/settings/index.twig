@@ -3,7 +3,7 @@
 
 {% set crumbs = [
 { label: "Market"|t, url: url('market') },
-{ label: "Settings"|t, url: url('market/settings') }
+{ label: "Settings"|t, url: url('market/settings/global') }
 ] %}
 
 
@@ -16,36 +16,67 @@
 <form action="" method="post" accept-charset="UTF-8">
     <input type="hidden" name="action" value="market/settings/saveSettings"/>
     <input type="hidden" name="redirect" value="market/settings"/>
-    {{ forms.textField({
-        label: "Secret Key"|t,
-        instructions: "Your Stripe secret key. Test or Live."|t,
-        id: 'secretKey',
-        name: 'settings[secretKey]',
-        value: (settings.secretKey is defined ? settings.secretKey : null),
-        errors: (settings is defined ? settings.getErrors('secretKey') : null),
-        required: true,
-        autofocus: true
-    }) }}
-
-    {{ forms.textField({
-        label: "Publishable Key"|t,
-        instructions: "Your Stripe publishable key. Test or Live."|t,
-        id: 'publishableKey',
-        name: 'settings[publishableKey]',
-        value: (settings.publishableKey is defined ? settings.publishableKey : null),
-        errors: (settings is defined ? settings.getErrors('publishableKey') : null),
-        required: true,
-    }) }}
 
     {{ forms.textField({
         label: "Default Currency"|t,
         instructions: "Default Charge Currency."|t,
         id: 'defaultCurrency',
         name: 'settings[defaultCurrency]',
-        value: (settings.defaultCurrency is defined ? settings.defaultCurrency : null),
-        errors: (settings is defined ? settings.getErrors('defaultCurrency') : null),
+        value: settings.defaultCurrency,
+        errors: settings.getErrors('defaultCurrency'),
         required: true,
     }) }}
+
+    {% for option in ['currencySymbol', 'currencySuffix', 'currencyDecimalPlaces', 'currencyDecimalSymbol', 'currencyDecimalSeparator', 'emailSenderAddress', 'emailSenderName'] %}
+        {{ forms.textField({
+            label: option|makeLabel|t,
+            id: option,
+            name: 'settings[' ~ option ~ ']',
+            value: settings[option],
+            errors: settings.getErrors(option),
+        }) }}
+    {% endfor %}
+
+    {{ forms.selectField({
+        label: "Weight Units"|t,
+        name: 'settings[weightUnits]',
+        value: settings.weightUnits,
+        options: settings.getWeightUnitsOptions(),
+        errors: settings.getErrors('weightUnits'),
+        required: true,
+    }) }}
+
+    {{ forms.selectField({
+        label: "Dimension Units"|t,
+        name: 'settings[dimensionUnits]',
+        value: settings.dimensionUnits,
+        options: settings.getDimensionUnits(),
+        errors: settings.getErrors('dimensionUnits'),
+        required: true,
+    }) }}
+
+    {{ forms.selectField({
+        label: "Credit Card Payment Method"|t,
+        instructions: "If set to Authorize Only, you will need to manually capture payments before the funds will be transferred to your account."|t,
+        id: 'paymentMethod',
+        name: 'settings[paymentMethod]',
+        value: settings.paymentMethod,
+        options: settings.getPaymentMethodOptions(),
+        errors: settings.getErrors('paymentMethod'),
+        required: true,
+    }) }}
+
+    {{ forms.textField({
+        label: "Cart Expiry Timeout"|t,
+        instructions: "The number of minutes before inactive carts will be removed. Default: 1440 (24 hours)."|t,
+        id: 'defaultCurrency',
+        name: 'settings[cartExpiryTimeout]',
+        value: settings.cartExpiryTimeout,
+        errors: settings.getErrors('cartExpiryTimeout'),
+        required: true,
+    }) }}
+
+
     <!-- TODO: Make dropdown and popular with a currency helper -->
     <input type="submit" class="btn" value="Save"/>
 </form>
