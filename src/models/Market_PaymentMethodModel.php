@@ -81,13 +81,15 @@ class Market_PaymentMethodModel extends BaseModel
 	 *
 	 * @param array $settings
 	 */
-	public function setSettings(array $settings)
+	public function setSettings($settings)
 	{
-		foreach ($settings as $key => $value) {
-			if (is_array($value)) {
-				$this->_settings[$key] = reset($value);
-			} else {
-				$this->_settings[$key] = $value;
+		if (is_array($settings)) {
+			foreach ($settings as $key => $value) {
+				if (is_array($value)) {
+					$this->_settings[$key] = reset($value);
+				} else {
+					$this->_settings[$key] = $value;
+				}
 			}
 		}
 	}
