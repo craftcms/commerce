@@ -2,5 +2,5 @@ vendor/
 .DS_Store
 composer.lock
 sami.phar
-docs/build/
-docs/cache/
+docs/phpdoc/build/
+docs/phpdoc/cache/
