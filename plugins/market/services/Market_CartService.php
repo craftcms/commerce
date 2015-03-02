@@ -96,12 +96,10 @@ class Market_CartService extends BaseApplicationComponent
 
 			$this->cart->lastIp = craft()->request->getIpAddress();
 
-			$userId = craft()->userSession->user->id;
-			if (!$this->cart->isEmpty() && $this->cart->userId != $userId) {
-				// member_id has changed, reload the cart and save
-				$this->cart->userId = $userId;
-				craft()->market_order->save($cart);
-
+			$customer = craft()->market_customer->getCustomer();
+			if (!$this->cart->isEmpty() && $this->cart->customerId != $customer->id) {
+				$this->cart->customerId = $customer->id;
+				craft()->market_order->save($this->cart);
 			}
 		}
 
