@@ -15,7 +15,7 @@ $iterator = Finder::create()
     ->exclude('tests')
     ->exclude('migrations')
     ->exclude('vendor')
-    ->in(__DIR__.'/../plugins/market');
+    ->in(__DIR__.'/../../plugins/market');
 
 $options = array(
     'title'                => 'Market Plugin for Craft CMS',

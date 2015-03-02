@@ -6,6 +6,10 @@ This README is designed to be consumed by developers of Market Commerce.
 Copyright © 2015 Luke Holder
 See LICENSE.md
 
+# Documentation
+
+The `docs/phpdoc` is where Sami phpdoc docs are generated
+The `docs/guide` will be where static site user guide is gnerated
 
 
 ## Code Hint Helpers for PHP Storm
