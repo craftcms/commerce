@@ -29,7 +29,7 @@
 
     {% for option in ['currencySymbol', 'currencySuffix', 'currencyDecimalPlaces', 'currencyDecimalSymbol', 'currencyDecimalSeparator', 'emailSenderAddress', 'emailSenderName'] %}
         {{ forms.textField({
-            label: option|makeLabel|t,
+            label: option|marketTitleize|t,
             id: option,
             name: 'settings[' ~ option ~ ']',
             value: settings[option],
