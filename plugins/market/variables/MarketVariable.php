@@ -29,6 +29,20 @@ class MarketVariable
 	 *
 	 * @return ElementCriteriaModel|null
 	 */
+	public function orders($criteria = NULL)
+	{
+		return craft()->elements->getCriteria('Market_Order', $criteria);
+	}
+
+	/**
+	 * @return Market_ProductModel[]
+	 */
+	public function productsWithSales()
+	{
+		return craft()->market_product->getAllWithSales();
+	}
+
+
 	public function optionTypes()
 	{
 		return craft()->market_optionType->getAll();
