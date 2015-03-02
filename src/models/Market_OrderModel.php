@@ -115,7 +115,8 @@ class Market_OrderModel extends BaseElementModel
 		return [
 			'state' => [
 				'class'              => 'Market\Behaviors\Statemachine\AStateMachine',
-				'states'             => [[
+				'states'             => [
+				[
 					'name'       => Market_OrderRecord::STATE_CART,
 					'transitsTo' => Market_OrderRecord::STATE_ADDRESS
 				], [
@@ -132,7 +133,8 @@ class Market_OrderModel extends BaseElementModel
 						Market_OrderRecord::STATE_ADDRESS,
 						Market_OrderRecord::STATE_PAYMENT,
 						Market_OrderRecord::STATE_CONFIRM,
-						Market_OrderRecord::STATE_COMPLETE],
+						Market_OrderRecord::STATE_COMPLETE
+						],
 				], [
 					'name'       => Market_OrderRecord::STATE_CONFIRM,
 					'transitsTo' => Market_OrderRecord::STATE_COMPLETE
