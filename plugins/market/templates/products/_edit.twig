@@ -188,7 +188,7 @@
             </div>
             <div class="item" data-position="right" data-colspan="1">
 
-                {% if productId is defined %}
+
                     <div class="pane">
 
                         {% set optionTypeFields %}
@@ -205,14 +205,13 @@
                             label:    'Option Types'
                         }, optionTypeFields) }}
 
-
+                        {% if productId is defined %}
                         <table class="data fullwidth">
                             <thead>
                             <tr>
                                 <th scope="col" colspan="2">
                                     Variants
-                                    <a class="btn formsubmit right" data-param="redirectToVariant"
-                                       data-value="1">{{ 'Add variant'|t }}</a>
+
                                 </th>
                             </tr>
                             </thead>
@@ -236,8 +235,9 @@
                                 </tr>
                             {% endfor %}
                         </table>
+                        {% endif %}
                     </div>
-                {% endif %}
+
 
                 <div class="pane">
                     {{ dateTimeField(product, 'availableOn', "Available On"|t) }}
@@ -276,6 +276,8 @@
 
                 <div class="buttons first">
                     <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
+                    <a class="btn formsubmit submit right" data-param="redirectToVariant"
+                       data-value="1">{{ 'Save & Add Variant'|t }}</a>
                 </div>
 
 

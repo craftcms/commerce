@@ -9,7 +9,7 @@ class MarketVariable
 	 *
 	 * @return mixed
 	 */
-	public function config()
+	public function settings()
 	{
 		return craft()->market_settings->getSettings();
 	}
@@ -34,14 +34,6 @@ class MarketVariable
 		return craft()->elements->getCriteria('Market_Order', $criteria);
 	}
 
-	/**
-	 * @return Market_ProductModel[]
-	 */
-	public function productsWithSales()
-	{
-		return craft()->market_product->getAllWithSales();
-	}
-
 
 	public function optionTypes()
 	{
@@ -49,6 +41,8 @@ class MarketVariable
 	}
 
 	/**
+	 * Gets the current sessions cart
+	 * TODO: Add Order Type param.
 	 * @return Market_OrderModel
 	 */
 	public function getCart()
