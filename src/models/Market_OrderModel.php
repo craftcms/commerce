@@ -25,6 +25,7 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property int                           shippingAddressId
  * @property int                           shippingMethodId
  * @property int                           paymentMethodId
+ * @property int                           customerId
  *
  * @property int                           totalQty
  * @property int                           totalWeight
@@ -32,6 +33,7 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property Market_OrderTypeModel         type
  * @property Market_LineItemModel[]        lineItems
  * @property Market_AddressModel           billingAddress
+ * @property Market_CustomerModel          customer
  * @property Market_AddressModel           shippingAddress
  * @property Market_ShippingMethodModel    shippingMethod
  * @property Market_OrderAdjustmentModel[] adjustments
@@ -118,10 +120,19 @@ class Market_OrderModel extends BaseElementModel
 					'transitsTo' => Market_OrderRecord::STATE_ADDRESS
 				], [
 					'name'       => Market_OrderRecord::STATE_ADDRESS,
-					'transitsTo' => Market_OrderRecord::STATE_PAYMENT
+					'transitsTo' => [
+						Market_OrderRecord::STATE_CART,
+						Market_OrderRecord::STATE_ADDRESS,
+						Market_OrderRecord::STATE_PAYMENT
+						]
 				], [
 					'name'       => Market_OrderRecord::STATE_PAYMENT,
-					'transitsTo' => [Market_OrderRecord::STATE_CONFIRM, Market_OrderRecord::STATE_COMPLETE],
+					'transitsTo' => [
+						Market_OrderRecord::STATE_CART,
+						Market_OrderRecord::STATE_ADDRESS,
+						Market_OrderRecord::STATE_PAYMENT,
+						Market_OrderRecord::STATE_CONFIRM,
+						Market_OrderRecord::STATE_COMPLETE],
 				], [
 					'name'       => Market_OrderRecord::STATE_CONFIRM,
 					'transitsTo' => Market_OrderRecord::STATE_COMPLETE
@@ -159,6 +170,7 @@ class Market_OrderModel extends BaseElementModel
 			'currency'          => AttributeType::String,
 			'lastIp'            => AttributeType::String,
 			'orderDate'         => AttributeType::DateTime,
+			'customerId'		=>AttributeType::Number,
 			//TODO add 'shipmentState'
 			//TODO add 'paymentState'
 			'typeId'            => AttributeType::Number

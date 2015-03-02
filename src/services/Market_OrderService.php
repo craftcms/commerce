@@ -125,6 +125,7 @@ class Market_OrderService extends BaseApplicationComponent
 		$orderRecord->baseDiscount      = $order->baseDiscount;
 		$orderRecord->baseShippingRate  = $order->baseShippingRate;
 		$orderRecord->finalPrice        = $order->finalPrice;
+		$orderRecord->customerId        = $order->customerId;
 
 		$orderRecord->validate();
 		$order->addErrors($orderRecord->getErrors());

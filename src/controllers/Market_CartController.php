@@ -104,9 +104,8 @@ class Market_CartController extends Market_BaseController
 		$this->requirePostRequest();
 
 		$order = craft()->market_cart->getCart();
-		if (empty($order->lineItems)) {
+		if ($order->isEmpty()) {
 			craft()->userSession->setNotice(Craft::t('Please add some items to your cart'));
-
 			return;
 		}
 

@@ -12,7 +12,7 @@ namespace Craft;
  *
  * @property Market_AddressModel addresses
  */
-class Market_CustomerModel extends BaseElementModel
+class Market_CustomerModel extends BaseModel
 {
 	/**
 	 * Returns whether the current user can edit the element.
@@ -52,6 +52,7 @@ class Market_CustomerModel extends BaseElementModel
 	protected function defineAttributes()
 	{
 		return array_merge(parent::defineAttributes(), [
+			'id'     => AttributeType::Number,
 			'userId' => AttributeType::Number,
 			'email'  => AttributeType::String,
 		]);

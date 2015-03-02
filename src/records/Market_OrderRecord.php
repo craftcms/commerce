@@ -68,6 +68,7 @@ class Market_OrderRecord extends BaseRecord
 			'discount'        => [static::HAS_ONE, 'Market_DiscountRecord', ['couponCode' => 'code']],
 			'shippingMethod'  => [static::BELONGS_TO, 'Market_ShippingMethodRecord'],
 			'paymentMethod'   => [static::BELONGS_TO, 'Market_PaymentMethodRecord'],
+			'customer'        => [static::BELONGS_TO, 'Market_CustomerRecord'],
 			'transactions'    => [static::HAS_MANY, 'Market_TransactionRecord', 'orderId'],
 		];
 	}
