@@ -21,47 +21,42 @@
 
                 <div id="fields" class="pane">
 
-                    {% if orderId is defined %}
-
-                        <ul class="list">
-                            <li>ID: {{ order.id }}</li>
-                            <li>Number: {{ order.number }}</li>
-                            <li>State: {{ order.state }}</li>
-                            <li>couponCode          :{{ order.couponCode           }}</li>
-                            <li>state               :{{ order.state                }}</li>
-                            <li>itemTotal           :{{ order.itemTotal            }}</li>
-                            <li>baseDiscount        :{{ order.baseDiscount         }}</li>
-                            <li>baseShippingRate    :{{ order.baseShippingRate     }}</li>
-                            <li>finalPrice          :{{ order.finalPrice           }}</li>
-                            <li>email               :{{ order.email                }}</li>
-                            <li>completedAt         :{{ order.completedAt          }}</li>
-                            <li>billingAddressId    :{{ order.billingAddressId     }}</li>
-                            <li>shippingAddressId   :{{ order.shippingAddressId    }}</li>
-                            <li>shippingMethodId    :{{ order.shippingMethodId     }}</li>
-                            <li>currency            :{{ order.currency             }}</li>
-                            <li>lastIp              :{{ order.lastIp               }}</li>
-                            <li>orderDate           :{{ order.orderDate            }}</li>
-                        </ul>
-
-                        {%  for lineItem in order.lineItems %}
-                            <h4>Line Item#{{ lineItem.id }}</h4>
-                            <ul>
-                                <li>price: {{ lineItem.price }}</li>
-                                <li>saleAmount: {{ lineItem.saleAmount }}</li>
-                                <li>taxAmount: {{ lineItem.taxAmount }}</li>
-                                <li>shippingAmount: {{ lineItem.shippingAmount }}</li>
-                                <li>discountAmount: {{ lineItem.discountAmount }}</li>
-                                <li>weight: {{ lineItem.weight }}</li>
-                                <li>total: {{ lineItem.total }}</li>
-                                <li>qty: {{ lineItem.qty }}</li>
-                            </ul>
-                        {% endfor %}
-
-                    {% endif %}
-
-
-
                     {% include "_includes/tabs" %}
+
+                    {% if orderId is defined %}
+                    <table id="" class="shadow-box editable">
+                        <thead>
+                        <tr>
+                            <th scope="col" class="header">{{ 'Line'|t }}</span></th>
+                            <th scope="col" class="header">{{ 'Price'|t }}</span></th>
+                            <th scope="col" class="header">{{ 'Sale Amount'|t }}</th>
+                            <th scope="col" class="header">{{ 'Tax Amount'|t }}</th>
+                            <th scope="col" class="header">{{ 'Shipping Amount'|t }}</th>
+                            <th scope="col" class="header">{{ 'Discount Amount'|t }}</th>
+                            <th scope="col" class="header">{{ 'Weight'|t }}</th>
+                            <th scope="col" class="header">{{ 'Quantity'|t }}</th>
+                            <th scope="col" class="header">{{ 'Total'|t }}</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {%  for lineItem in order.lineItems %}
+                            <tr>
+                                <td>{{ lineItem.id }}</td>
+                                <td>{{ lineItem.price }}</td>
+                                <td>{{ lineItem.saleAmount }}</td>
+                                <td>{{ lineItem.taxAmount }}</td>
+                                <td>{{ lineItem.shippingAmount }}</td>
+                                <td>{{ lineItem.discountAmount }}</td>
+                                <td>{{ lineItem.weight }}</td>
+                                <td>{{ lineItem.qty }}</td>
+                                <td>{{ lineItem.total }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                        </table>
+                        <p></p>
+                    {% endif %}
 
                     {% from "_includes/forms" import textField %}
                     {% set static = static is defined ? static : false %}
@@ -88,6 +83,25 @@
                     {% if orderId is defined %}
                         <h2>{{order.finalPrice|number_format(2) }}</h2>
                         <h2>{{order.state|title }}</h2>
+
+                        <ul class="list">
+                            <li>couponCode          :{{ order.couponCode           }}</li>
+                            <li>state               :{{ order.state                }}</li>
+                            <li>itemTotal           :{{ order.itemTotal            }}</li>
+                            <li>baseDiscount        :{{ order.baseDiscount         }}</li>
+                            <li>baseShippingRate    :{{ order.baseShippingRate     }}</li>
+                            <li>finalPrice          :{{ order.finalPrice           }}</li>
+                            <li>email               :{{ order.email                }}</li>
+                            <li>completedAt         :{{ order.completedAt          }}</li>
+                            <li>billingAddressId    :{{ order.billingAddressId     }}</li>
+                            <li>shippingAddressId   :{{ order.shippingAddressId    }}</li>
+                            <li>shippingMethodId    :{{ order.shippingMethodId     }}</li>
+                            <li>currency            :{{ order.currency             }}</li>
+                            <li>lastIp              :{{ order.lastIp               }}</li>
+                            <li>orderDate           :{{ order.orderDate            }}</li>
+                        </ul>
+
+
                         <div class="btngroup">
                             <input type="button" class="btn small formsubmit" value="{{ 'Delete'|t }}"
                                    data-action="market/order/deleteOrder"

@@ -7,4 +7,10 @@
 
 {% set extraPageHeaderHtml %}
     {% include "market/_includes/navdropdown.twig" %}
+    {% if currentUser.admin %}
+    <script type="text/javascript" src="http://assets.freshdesk.com/widget/freshwidget.js"></script>
+    <script type="text/javascript">
+        FreshWidget.init("", {"queryString": "&widgetType=popup&formTitle=Help+%26+Support", "widgetType": "popup", "buttonType": "text", "buttonText": "Market Commerce Support", "buttonColor": "white", "buttonBg": "#26303D", "alignment": "4", "offset": "350px", "formHeight": "500px", "url": "https://makewithmorph.freshdesk.com"} );
+    </script>
+    {% endif %}
 {% endset %}

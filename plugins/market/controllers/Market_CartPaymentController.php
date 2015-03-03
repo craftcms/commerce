@@ -59,6 +59,8 @@ class Market_CartPaymentController extends Market_BaseController
 		$order = craft()->market_cart->getCart();
 
 		if ($order->canTransit(Market_OrderRecord::STATE_COMPLETE)) {
+			$order->completedAt = DateTimeHelper::currentTimeForDb();
+			craft()->market_order->save($order);
 			$order->transition(Market_OrderRecord::STATE_COMPLETE);
 		} else {
 			throw new Exception('unable to go to payment state from the state: ' . $order->state);

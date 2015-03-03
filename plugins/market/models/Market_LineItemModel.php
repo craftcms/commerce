@@ -65,7 +65,6 @@ class Market_LineItemModel extends BaseModel
 			'total'          => [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
 			'qty'            => [AttributeType::Number, 'min' => 0, 'required' => true],
 			'optionsJson'    => [AttributeType::Mixed, 'required' => true],
-
 			'variantId'      => AttributeType::Number,
 			'orderId'        => AttributeType::Number,
 			'taxCategoryId'  => [AttributeType::Number, 'required' => true],

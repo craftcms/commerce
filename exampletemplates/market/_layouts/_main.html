@@ -10,6 +10,12 @@
         <link href='//fonts.googleapis.com/css?family=Roboto:400,300' rel='stylesheet' type='text/css'>
         <link href='//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css' rel='stylesheet' type='text/css'>
         <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+        {% if currentUser and currentUser.admin %}
+        <script type="text/javascript" src="http://assets.freshdesk.com/widget/freshwidget.js"></script>
+        <script type="text/javascript">
+            FreshWidget.init("", {"queryString": "&widgetType=popup&formTitle=Help+%26+Support", "widgetType": "popup", "buttonType": "text", "buttonText": "Market Commerce Support", "buttonColor": "white", "buttonBg": "#26303D", "alignment": "4", "offset": "350px", "formHeight": "500px", "url": "https://makewithmorph.freshdesk.com"} );
+        </script>
+        {% endif %}
     {% endblock %}
 
     <style>
