@@ -1,3 +1,9 @@
+<form method="POST">
+    <input type="hidden" name="action" value="market/cart/goToCart" />
+    <input type="hidden" name="redirect" value="market/cart" />
+    <input class="btn btn-primary" type="submit" value="Edit Cart" />
+</form>
+
 <h3>Payment</h3>
 
 {% if cart.shippingMethodId %}
@@ -18,32 +24,18 @@
     {% if shippingMethodError is defined %}<strong>Error: {{ shippingMethodError }}</strong>{% endif %}
 </form>
 
+{# Assuming that the shipping method is set, the person has entered everthing
+   for them to know the final price they are willing to pay. Allow them to choose
+   the payment method they would like to use. #}
 {% if cart.shippingMethodId %}
-    {% if cart.paymentMethodId %}
-        <p>
-            <strong>Chosen payment method:</strong> {{ cart.paymentMethod.name }}
-        </p>
-    {% endif %}
-
-    <form method="POST" class="form-inline">
-        <input type="hidden" name="action" value="market/cartPayment/setPaymentMethod">
-        <input type="hidden" name="redirect" value="market/cart">
-        Payment Method:
-        <select name="paymentMethodId" class="form-control" >
-            {% for id,name in craft.market.getPaymentMethods() %}
-                <option value="{{ id }}">{{ name }}</option>
-            {% endfor %}
-        </select>
-        <input type="submit" class="btn" value="Set" />
-    </form>
-    {% if paymentMethodError is defined %}<strong>Error: {{ paymentMethodError }}</strong>{% endif %}
+    {% include "market/cart/_setPaymentMethod" %}
 {% endif %}
 
 {% if cart.paymentMethodId %}
 <form method="POST" class="form-horizontal">
     <input type="hidden" name="action" value="market/cartPayment/pay"/>
     <input type="hidden" name="redirect" value="market/cart"/>
-    <input type="hidden" name="{{ craft.config.csrfTokenName }}" value="{{ craft.request.csrfToken }}">
+    {{ getCsrfInput() }}
 
     <div class="row row-centered">
         <div class="col-md-4 col-md-offset-4">

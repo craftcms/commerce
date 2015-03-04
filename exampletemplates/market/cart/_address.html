@@ -22,7 +22,7 @@
         {% for address in addresses %}
             <label class="address-chooser" style=" display: block; float: left; margin: 10px; padding: 10px; border: 1px solid #bbbbbb">
                 {% for key,value in address.attributes %}
-                    {{ key|makeLabel }}: <span class="address-option" data-key="{{ key }}" data-value="{{ value }}">{{ value }}</span><br/>
+                    {{ key|marketTitleize }}: <span class="address-option" data-key="{{ key }}" data-value="{{ value }}">{{ value }}</span><br/>
                 {% endfor %}
 
                 <a class="address-remove" data-id="{{ address.id }}" href="#">Remove</a><br/>
@@ -41,7 +41,7 @@
         {% for address in addresses %}
             <label class="address-chooser" style=" display: block; float: left; margin: 10px; padding: 10px; border: 1px solid #bbbbbb">
                 {% for key,value in address.attributes %}
-                    {{ key|makeLabel }}: <span class="address-option" data-key="{{ key }}" data-value="{{ value }}">{{ value }}</span><br/>
+                    {{ key|marketTitleize }}: <span class="address-option" data-key="{{ key }}" data-value="{{ value }}">{{ value }}</span><br/>
                 {% endfor %}
 
                 <a class="address-remove" data-id="{{ address.id }}" href="#">Remove</a><br/>

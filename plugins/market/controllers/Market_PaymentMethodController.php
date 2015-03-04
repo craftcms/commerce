@@ -55,7 +55,7 @@ class Market_PaymentMethodController extends Market_BaseController
 
 		// Shared attributes
 		$paymentMethod->class           = craft()->request->getPost('paymentMethodClass');
-		$paymentMethod->settings        = craft()->request->getPost('settings');
+		$paymentMethod->settings        = craft()->request->getPost('settings',[]);
 		$paymentMethod->cpEnabled       = craft()->request->getPost('cpEnabled');
 		$paymentMethod->frontendEnabled = craft()->request->getPost('frontendEnabled');
 

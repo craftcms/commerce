@@ -38,10 +38,14 @@
     <p><span style="color:red">No shipping methods exist!</span><br/>Go to settings and
         <a href="{{ url('market/settings/shippingmethods') }}">create a new shipping method </a> please.</p>
 {% else %}
-    <br/>
-    <div class="btngroup submit first">
-        <a href="{{ url('market/settings/ordertypes/new') }}" class="btn submit">New Order Type</a>
-    </div>
+    {%  if orderTypes|length < 1 %}
+        <br/>
+        <div class="btngroup submit first">
+            <a href="{{ url('market/settings/ordertypes/new') }}" class="btn submit">New Order Type</a>
+        </div>
+    {% else %}
+        <p>Currently only one Order Type can be created. Very soon in the future additional Order Types (Like a Wishlist Order Type) will be available.</p>
+    {%  endif  %}
 {% endif %}
 {% endset %}
 

@@ -31,23 +31,6 @@ class Market_CartPaymentController extends Market_BaseController
 
 	/**
 	 * @throws HttpException
-	 * @throws \Exception
-	 */
-	public function actionSetPaymentMethod()
-	{
-		$this->requirePostRequest();
-
-		$id = craft()->request->getPost('paymentMethodId');
-		if (craft()->market_cart->setPaymentMethod($id)) {
-			craft()->userSession->setFlash('market', 'Payment method has been set');
-			$this->redirectToPostedUrl();
-		} else {
-			craft()->urlManager->setRouteVariables(['paymentMethodError' => 'Wrong payment method']);
-		}
-	}
-
-	/**
-	 * @throws HttpException
 	 */
 	public function actionPay()
 	{
@@ -76,6 +59,8 @@ class Market_CartPaymentController extends Market_BaseController
 		$order = craft()->market_cart->getCart();
 
 		if ($order->canTransit(Market_OrderRecord::STATE_COMPLETE)) {
+			$order->completedAt = DateTimeHelper::currentTimeForDb();
+			craft()->market_order->save($order);
 			$order->transition(Market_OrderRecord::STATE_COMPLETE);
 		} else {
 			throw new Exception('unable to go to payment state from the state: ' . $order->state);

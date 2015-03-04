@@ -25,6 +25,7 @@ use Market\Traits\Market_ModelRelationsTrait;
  * Magic properties:
  * @property Market_VariantModel[]    $variants
  * @property Market_VariantModel[]    $nonMasterVariants
+ * @property string                   name
  * @package Craft
  */
 class Market_ProductModel extends BaseElementModel
@@ -57,6 +58,11 @@ class Market_ProductModel extends BaseElementModel
 	}
 
 	public function __toString()
+	{
+		return $this->title;
+	}
+
+	public function getName()
 	{
 		return $this->title;
 	}

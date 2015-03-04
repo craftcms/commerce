@@ -6,6 +6,10 @@ This README is designed to be consumed by developers of Market Commerce.
 Copyright © 2015 Luke Holder
 See LICENSE.md
 
+# Documentation
+
+The `docs/phpdoc` is where Sami phpdoc docs are generated
+The `docs/guide` will be where static site user guide is gnerated
 
 
 ## Code Hint Helpers for PHP Storm
@@ -21,7 +25,7 @@ This will enable PHP Storm IDE features for services like `craft()->market_produ
  * @property Market_CustomerService        $market_customer
  * @property Market_DiscountService        $market_discount
  * @property Market_GatewayService         $market_gateway
- * @property Market_LineItemService        market_lineItem
+ * @property Market_LineItemService        $market_lineItem
  * @property Market_OptionTypeService      $market_optionType
  * @property Market_OptionValueService     $market_optionValue
  * @property Market_OrderAdjustmentService $market_orderAdjustment

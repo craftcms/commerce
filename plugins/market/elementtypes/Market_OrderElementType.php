@@ -53,7 +53,7 @@ class Market_OrderElementType extends Market_BaseElementType
 		return [
 			'number'     => Craft::t('Number'),
 			'state'      => Craft::t('State'),
-			'finalPrice' => Craft::t('Final Price')
+			'finalPrice' => Craft::t('Total Payable')
 		];
 	}
 
@@ -72,7 +72,7 @@ class Market_OrderElementType extends Market_BaseElementType
 		return [
 			'number'     => Craft::t('Number'),
 			'state'      => Craft::t('State'),
-			'finalPrice' => Craft::t('Final Price'),
+			'finalPrice' => Craft::t('Total Payable'),
 		];
 	}
 
@@ -83,7 +83,7 @@ class Market_OrderElementType extends Market_BaseElementType
 			'typeId' => AttributeType::Mixed,
 			'type'   => AttributeType::Mixed,
 			'number' => AttributeType::Mixed,
-			'state'  => AttributeType::Mixed,
+			'state'  => AttributeType::Mixed
 		];
 	}
 
@@ -91,7 +91,7 @@ class Market_OrderElementType extends Market_BaseElementType
 	public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
 	{
 		$query
-			->addSelect("orders.id, orders.typeId, orders.number")
+			->addSelect("orders.id, orders.typeId, orders.number, orders.finalPrice")
 			->join('market_orders orders', 'orders.id = elements.id')
 			->join('market_ordertypes ordertypes', 'ordertypes.id = orders.typeId');
 

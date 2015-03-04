@@ -1,38 +1,98 @@
 <?php
-
 namespace Market\Extensions;
 
-/**
- * Adding custom filters to twig
- *
- * Class MarketTwigExtension
- *
- * @package Market\Extensions
- */
+use ICanBoogie\Inflector;
+
 class MarketTwigExtension extends \Twig_Extension
 {
+	public $inflector;
+
+	public function __construct()
+	{
+		$this->inflector = Inflector::get();
+	}
+
 	public function getName()
 	{
-		return __CLASS__;
+		return 'Inflect Twig Extension';
 	}
 
 	public function getFilters()
 	{
-		return [
-			'makeLabel' => new \Twig_Filter_Method($this, 'makeLabelFilter'),
-		];
+		$returnArray = array();
+		$methods = array(
+			'pluralize',
+			'singularize',
+			'camelize',
+			'dasherize',
+			'pascalize',
+			'titleize',
+			'underscore',
+			'humanize',
+			'hyphenate',
+			'ordinalize',
+			'slugify',
+		);
+
+		foreach ($methods as $methodName) {
+			$returnArray['market'.ucwords($methodName)] = new \Twig_Filter_Method($this, $methodName);
+		}
+
+		return $returnArray;
 	}
 
-	/**
-	 * Copied from CModel->generateAttributeLabel
-	 * Convert "someField1" => "Some Field1"
-	 *
-	 * @param string $string
-	 *
-	 * @return string
-	 */
-	public function makeLabelFilter($string)
+	public function pluralize($content)
 	{
-		return ucwords(trim(strtolower(str_replace(['-', '_', '.'], ' ', preg_replace('/(?<![A-Z])[A-Z]/', ' \0', $string)))));
+		return $this->inflector->pluralize($content);
+	}
+
+	public function singularize($content)
+	{
+		return $this->inflector->singularize($content);
+	}
+
+	public function camelize($content)
+	{
+		return $this->inflector->camelize($content, true);
+	}
+
+	public function pascalize($content)
+	{
+		return $this->inflector->camelize($content, false);
+	}
+
+	public function titleize($content)
+	{
+		return $this->inflector->titleize($content, false);
+	}
+
+	public function underscore($content)
+	{
+		return $this->inflector->underscore($content);
+	}
+
+	public function humanize($content)
+	{
+		return $this->inflector->humanize($content);
+	}
+
+	public function hyphenate($content)
+	{
+		return $this->inflector->hyphenate($content);
+	}
+
+	public function ordinalize($content)
+	{
+		return $this->inflector->hyphenate($content);
+	}
+
+	public function dasherize($content)
+	{
+		return $this->inflector->dasherize($content);
+	}
+
+	public function slugify($content)
+	{
+		return ElementHelper::createSlug($content);
 	}
 }

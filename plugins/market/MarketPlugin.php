@@ -2,9 +2,12 @@
 
 namespace Craft;
 
-require 'vendor/autoload.php';
-
 use Market\Extensions\MarketTwigExtension;
+
+require 'vendor/autoload.php';
+define('DOMPDF_ENABLE_AUTOLOAD', false);
+require_once 'vendor/dompdf/dompdf/dompdf_config.inc.php';
+
 
 //use Market\Market;
 
@@ -34,7 +37,7 @@ class MarketPlugin extends BasePlugin
 
 	public function getVersion()
 	{
-		return "0.0.1";
+		return "0.0.2";
 	}
 
 	public function getDeveloper()
@@ -52,12 +55,6 @@ class MarketPlugin extends BasePlugin
 		return true;
 	}
 
-	/**
-	 * Creating default order type
-	 *
-	 * @throws Exception
-	 * @throws \Exception
-	 */
 	public function onAfterInstall()
 	{
 		craft()->market_seed->afterInstall();
@@ -78,19 +75,11 @@ class MarketPlugin extends BasePlugin
 		return require(__DIR__ . '/routes.php');
 	}
 
-	/**
-	 * Adding our custom twig functionality
-	 *
-	 * @return MarketTwigExtension
-	 */
 	public function addTwigExtension()
 	{
 		return new MarketTwigExtension;
 	}
 
-	/**
-	 * @return array
-	 */
 	protected function defineSettings()
 	{
 		$settingModel = new Market_SettingsModel;

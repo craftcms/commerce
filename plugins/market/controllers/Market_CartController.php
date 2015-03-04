@@ -71,6 +71,23 @@ class Market_CartController extends Market_BaseController
 	}
 
 	/**
+	 * @throws HttpException
+	 * @throws \Exception
+	 */
+	public function actionSetPaymentMethod()
+	{
+		$this->requirePostRequest();
+
+		$id = craft()->request->getPost('paymentMethodId');
+		if (craft()->market_cart->setPaymentMethod($id)) {
+			craft()->userSession->setFlash('market', 'Payment method has been set');
+			$this->redirectToPostedUrl();
+		} else {
+			craft()->urlManager->setRouteVariables(['paymentMethodError' => 'Wrong payment method']);
+		}
+	}
+
+	/**
 	 * Remove Line item from the cart
 	 */
 	public function actionRemove()
@@ -104,9 +121,8 @@ class Market_CartController extends Market_BaseController
 		$this->requirePostRequest();
 
 		$order = craft()->market_cart->getCart();
-		if (empty($order->lineItems)) {
+		if ($order->isEmpty()) {
 			craft()->userSession->setNotice(Craft::t('Please add some items to your cart'));
-
 			return;
 		}
 

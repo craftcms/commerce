@@ -37,7 +37,7 @@ class Market_PaymentMethodRecord extends BaseRecord
 		return [
 			'class'           => [AttributeType::String, 'required' => true],
 			'name'            => [AttributeType::String, 'required' => true],
-			'settings'        => [AttributeType::Mixed, 'required' => true],
+			'settings'        => [AttributeType::Mixed],
 			'cpEnabled'       => [AttributeType::Bool, 'required' => true, 'default' => 0],
 			'frontendEnabled' => [AttributeType::Bool, 'required' => true, 'default' => 0],
 		];
