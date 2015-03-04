@@ -16,8 +16,8 @@
         "pimple/pimple": "~3.0@dev",
         "omnipay/omnipay": "~2.0@dev",
         "hashids/hashids": "1.0.*@dev",
-        "icanboogie/inflector": "*"
-
+        "icanboogie/inflector": "*",
+        "dompdf/dompdf" : "0.6.*"
     },
     "require-dev": {
         "codeception/codeception": "*"
