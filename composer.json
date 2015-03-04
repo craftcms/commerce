@@ -17,8 +17,9 @@
         "omnipay/omnipay": "~2.0@dev",
         "hashids/hashids": "1.0.*@dev",
         "icanboogie/inflector": "*"
+
     },
     "require-dev": {
-
+        "codeception/codeception": "*"
     }
 }
