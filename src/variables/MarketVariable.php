@@ -3,7 +3,6 @@ namespace Craft;
 
 class MarketVariable
 {
-
 	/**
 	 * Get Market settings
 	 *

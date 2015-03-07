@@ -45,6 +45,7 @@ class Market_CartService extends BaseApplicationComponent
 
 		//filling item model
 		$lineItem = craft()->market_lineItem->getByOrderVariant($order->id, $variantId);
+
 		if ($lineItem->id) {
 			$lineItem->qty += $qty;
 		} else {

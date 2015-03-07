@@ -19,7 +19,7 @@ class Market_TaxZoneController extends Market_BaseController
 	public function actionIndex()
 	{
 		$taxZones = craft()->market_taxZone->getAll();
-		$this->renderTemplate('market/settings/taxZones/index', compact('taxZones'));
+		$this->renderTemplate('market/settings/taxzones/index', compact('taxZones'));
 	}
 
 	/**
@@ -56,7 +56,7 @@ class Market_TaxZoneController extends Market_BaseController
 		$variables['countries'] = \CHtml::listData($countries, 'id', 'name');
 		$variables['states']    = \CHtml::listData($states, 'id', 'name');
 
-		$this->renderTemplate('market/settings/taxZones/_edit', $variables);
+		$this->renderTemplate('market/settings/taxzones/_edit', $variables);
 	}
 
 	/**

@@ -69,7 +69,6 @@
 {% endset %}
 
 {% set js %}
-{#<script>#}
 {% if not orderType.handle %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
 $(function () {
     $('#shippingMethodId').selectize({

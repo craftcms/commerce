@@ -14,6 +14,13 @@ namespace Craft;
  */
 class Market_ProductTypeRecord extends BaseRecord
 {
+	const TYPE_NORMAL = 'normal';
+	const TYPE_ELECTRONIC = 'electronic';
+
+	public static $types = [
+		self::TYPE_NORMAL,
+		self::TYPE_ELECTRONIC
+	];
 
 	/**
 	 * @return string
@@ -51,6 +58,7 @@ class Market_ProductTypeRecord extends BaseRecord
 		return [
 			'name'   => [AttributeType::Name, 'required' => true],
 			'handle' => [AttributeType::Handle, 'required' => true],
+			'type'   => [AttributeType::Enum, 'required' => true, 'values' => ['normal','electronic'], 'default' => 'normal'],
 		];
 	}
 
