@@ -1,0 +1,64 @@
+{% extends "market/_layouts/cp" %}
+{% set title = "Market"|t %}
+
+{% set sidebar %}
+
+{% include "market/_includes/nav.twig" %}
+
+{% endset %}
+
+
+{% set content %}
+<style>
+    .market-dashboard .panel {
+        border: 1px solid #EDEDED;
+        width: 100%;
+        position: relative;
+        margin: 14px 0;
+        padding: 24px;
+        border-radius: 3px;
+        word-wrap: break-word;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+</style>
+<div class="market-dashboard">
+    <div class="panel">
+        <h3>Fake Orders vs Revenue Chart</h3>
+        <canvas id="myChart" width="950" height="200"></canvas>
+        {% set myChart %}
+            var ctx = document.getElementById("myChart").getContext("2d");
+            var data = {
+                labels: ["January", "February", "March", "April", "May", "June", "July"],
+                datasets: [
+                    {
+                        label: "My First dataset",
+                        fillColor: "rgba(220,220,220,0.2)",
+                        strokeColor: "rgba(220,220,220,1)",
+                        pointColor: "rgba(220,220,220,1)",
+                        pointStrokeColor: "#fff",
+                        pointHighlightFill: "#fff",
+                        pointHighlightStroke: "rgba(220,220,220,1)",
+                        data: [65, 59, 80, 81, 56, 55, 40]
+                    },
+                    {
+                        label: "My Second dataset",
+                        fillColor: "rgba(151,187,205,0.2)",
+                        strokeColor: "rgba(151,187,205,1)",
+                        pointColor: "rgba(151,187,205,1)",
+                        pointStrokeColor: "#fff",
+                        pointHighlightFill: "#fff",
+                        pointHighlightStroke: "rgba(151,187,205,1)",
+                        data: [28, 48, 40, 19, 86, 27, 90]
+                    }
+                ]
+            };
+            var myLineChart = new Chart(ctx).Line(data, {});
+        {% endset %}
+        {% includeJs myChart %}
+    </div>
+</div>
+
+{% endset %}

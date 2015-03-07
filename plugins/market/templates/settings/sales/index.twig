@@ -1,0 +1,53 @@
+{% extends "market/_layouts/cp" %}
+
+{% set title = "Market"|t %}
+
+{% set crumbs = [
+{ label: "Market"|t, url: url('market') },
+{ label: "Settings"|t, url: url('market/settings/global') },
+{ label: "Sales"|t, url: url('market/settings/sales') }
+] %}
+
+{% set content %}
+<table id="sales" class="data fullwidth collapsible">
+    <thead>
+    <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Dates</th>
+        <th scope="col">Discount Type</th>
+        <th scope="col">Discount Amount</th>
+        <th scope="col">Enabled</th>
+        <td class="thin"></td>
+    </tr>
+    </thead>
+    <tbody>
+    {% for sale in sales %}
+        <tr data-id="{{ sale.id }}" data-name="{{ sale.name }}">
+            <th scope="row" data-title="Name"><a href="{{ url('market/settings/sales/'~sale.id) }}">{{ sale.name }}</a></th>
+            <td data-title="Dates">
+                {{ sale.dateFrom ? sale.dateFrom : 'no limit'|t }} - {{ sale.dateTo ? sale.dateTo : 'no limit'|t }}
+            </td>
+            <td data-title="Discount Type">{{ sale.discountType|t }}</td>
+            <td data-title="Discount Amount">{{ sale.discountAmount }}</td>
+            <td data-title="Enabled">{{ sale.enabled ? 'Yes'|t : 'No'|t }}</td>
+            <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
+        </tr>
+    {% endfor %}
+
+    </tbody>
+</table>
+<br/>
+<div class="btngroup submit first">
+    <a href="{{ url('market/settings/sales/new') }}" class="btn submit">New Sale</a>
+</div>
+{% endset %}
+
+
+{% set js %}
+var adminTable = new Craft.AdminTable({
+tableSelector: '#sales',
+deleteAction: 'market/sale/delete',
+confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
+});
+{% endset %}
+{% includeJs js %}

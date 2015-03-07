@@ -1,0 +1,20 @@
+{% extends "market/_layouts/_main" %}
+{% block title %}Cart{% endblock %}
+
+{% block content %}
+
+    {% set cart = craft.market.cart %}
+
+    {% if cart.state == 'cart' %}
+        {% include 'market/cart/_cart.html' %}
+    {% elseif cart.state == 'address' %}
+        {% include 'market/cart/_address.html' %}
+    {% elseif cart.state == 'payment' %}
+        {% include 'market/cart/_cart.html' with {'readOnly': true} %}
+        {% include 'market/cart/_payment.html' %}
+    {% elseif cart.state == 'confirm' %}
+        {% include 'market/cart/_confirm.html' %}
+    {% elseif cart.state == 'complete' %}
+        {% include 'market/cart/_complete.html' %}
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,183 @@
+{% extends "market/_layouts/cp" %}
+{% set crumbs = [
+{ label: "Market"|t, url: url('market') },
+{ label: "Orders"|t, url: url('market/orders') }
+] %}
+
+{% import "_includes/forms" as forms %}
+
+
+{% block main %}
+
+    <form id="order-form" method="post" accept-charset="UTF-8">
+        <input type="hidden" name="action" value="market/order/saveOrder">
+        <input type="hidden" name="redirect" value="market/orders">
+        <input type="hidden" name="typeId" value="{{ orderType.id }}">
+        {{ getCsrfInput() }}
+        {% if order.id %}<input type="hidden" name="orderId" value="{{ order.id }}">{% endif %}
+
+        <div class="grid first">
+            <div class="item" data-position="left" data-min-colspan="2" data-max-colspan="3">
+
+                <div id="fields" class="pane">
+
+                    {% include "_includes/tabs" %}
+
+                    {% if orderId is defined %}
+                    <table id="" class="shadow-box editable">
+                        <thead>
+                        <tr>
+                            <th scope="col" class="header">{{ 'Line'|t }}</span></th>
+                            <th scope="col" class="header">{{ 'Price'|t }}</span></th>
+                            <th scope="col" class="header">{{ 'Sale Amount'|t }}</th>
+                            <th scope="col" class="header">{{ 'Tax Amount'|t }}</th>
+                            <th scope="col" class="header">{{ 'Shipping Amount'|t }}</th>
+                            <th scope="col" class="header">{{ 'Discount Amount'|t }}</th>
+                            <th scope="col" class="header">{{ 'Weight'|t }}</th>
+                            <th scope="col" class="header">{{ 'Quantity'|t }}</th>
+                            <th scope="col" class="header">{{ 'Total'|t }}</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {%  for lineItem in order.lineItems %}
+                            <tr>
+                                <td>{{ lineItem.id }}</td>
+                                <td>{{ lineItem.price }}</td>
+                                <td>{{ lineItem.saleAmount }}</td>
+                                <td>{{ lineItem.taxAmount }}</td>
+                                <td>{{ lineItem.shippingAmount }}</td>
+                                <td>{{ lineItem.discountAmount }}</td>
+                                <td>{{ lineItem.weight }}</td>
+                                <td>{{ lineItem.qty }}</td>
+                                <td>{{ lineItem.total }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                        </table>
+                        <p></p>
+                    {% endif %}
+
+                    {% from "_includes/forms" import textField %}
+                    {% set static = static is defined ? static : false %}
+
+                    {% for tab in orderType.getFieldLayout().getTabs() %}
+                        <div id="tab{{ loop.index }}" {% if not loop.first %} class="hidden" {% endif %}>
+                            {% include "_includes/fields" with {
+                            fields: tab.getFields(),
+                            element: order,
+                            static: (static is defined ? static : false)
+                            } only %}
+                        </div>
+                    {% endfor %}
+
+
+                </div>{# end pane#}
+
+            </div>
+            <div class="item" data-position="right" data-colspan="1">
+
+                <div class="pane">
+
+
+                    {% if orderId is defined %}
+                        <h2>{{order.finalPrice|number_format(2) }}</h2>
+                        <h2>{{order.state|title }}</h2>
+
+                        <ul class="list">
+                            <li>couponCode          :{{ order.couponCode           }}</li>
+                            <li>state               :{{ order.state                }}</li>
+                            <li>itemTotal           :{{ order.itemTotal            }}</li>
+                            <li>baseDiscount        :{{ order.baseDiscount         }}</li>
+                            <li>baseShippingRate    :{{ order.baseShippingRate     }}</li>
+                            <li>finalPrice          :{{ order.finalPrice           }}</li>
+                            <li>email               :{{ order.email                }}</li>
+                            <li>completedAt         :{{ order.completedAt          }}</li>
+                            <li>billingAddressId    :{{ order.billingAddressId     }}</li>
+                            <li>shippingAddressId   :{{ order.shippingAddressId    }}</li>
+                            <li>shippingMethodId    :{{ order.shippingMethodId     }}</li>
+                            <li>currency            :{{ order.currency             }}</li>
+                            <li>lastIp              :{{ order.lastIp               }}</li>
+                            <li>orderDate           :{{ order.orderDate            }}</li>
+                        </ul>
+
+
+                        <div class="btngroup">
+                            <input type="button" class="btn small formsubmit" value="{{ 'Delete'|t }}"
+                                   data-action="market/order/deleteOrder"
+                                   data-confirm="{{ 'Are you sure you want to delete this order?'|t }}"
+                                   data-redirect="market/orders">
+                        </div>
+                    {% endif %}
+
+                </div>{#END PANE#}
+
+
+                <div class="buttons first">
+                    <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
+                </div>
+            </div>
+        </div>
+        <div class="grid">
+                <div class="pane">
+                    <h3>Transactions</h3>
+
+                    <table id="" class="shadow-box editable">
+                        <thead>
+                        <tr>
+                            <th scope="col" class="header">{{ 'ID'|t }}</span></th>
+                            <th scope="col" class="header">{{ 'Type'|t }}</span></th>
+                            <th scope="col" class="header">{{ 'Status'|t }}</th>
+                            <th scope="col" class="header">{{ 'Hash'|t }}</th>
+                            <th scope="col" class="header">{{ 'Reference'|t }}</th>
+                            <th scope="col" class="header">{{ 'Message'|t }}</th>
+                            <th scope="col" class="header">{{ 'Response'|t }}</th>
+                            <th scope="col" class="header">{{ 'Payment Method'|t }}</th>
+                            <th scope="col" class="header">{{ 'Parent#'|t }}</th>
+                            <th scope="col" class="header">{{ 'User#'|t }}</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for transaction in order.transactions %}
+                            <tr>
+                                <td>{{ transaction.id }}</td>
+                                <td>{{ transaction.type }}</td>
+                                <td>{{ transaction.status }}</td>
+                                <td>{{ transaction.hash }}</td>
+                                <td>{{ transaction.reference }}</td>
+                                <td>{{ transaction.message }}</td>
+                                <td>{{ transaction.response }}</td>
+                                <td>{{ transaction.paymentMethod.name }}</td>
+                                <td>{{ transaction.parentId }}</td>
+                                <td>{{ transaction.userId }}</td>
+                                <td>
+                                    {% if transaction.canCapture() %}
+                                        <a class="btn submit formsubmit"
+                                           data-action="market/order/transactionCapture"
+                                           data-confirm="{{ 'Confirm capture?'|t }}"
+                                           data-redirect="{{ order.cpEditUrl }}"
+                                           data-param="id"
+                                           data-value="{{ transaction.id }}">Capture</a>
+                                    {% endif %}
+                                    {% if transaction.canRefund() %}
+                                        <a class="btn submit formsubmit"
+                                           data-action="market/order/transactionRefund"
+                                           data-confirm="{{ 'Confirm refund?'|t }}"
+                                           data-redirect="{{ order.cpEditUrl }}"
+                                           data-param="id"
+                                           data-value="{{ transaction.id }}">Refund</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+        </div>
+
+
+    </form>
+
+
+{% endblock %}

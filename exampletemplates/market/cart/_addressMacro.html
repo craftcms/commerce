@@ -1,0 +1,89 @@
+{# Address Form Macro #}
+{% macro addressForm(modelName, model) %}
+
+    {% set countries = craft.market.countriesList %}
+    {% set states = craft.market.statesArray %}
+    {% set addressFields = {
+        firstName : 1,
+        lastName : 1,
+        address1: 0,
+        address2: 0,
+        zipCode: 0,
+        phone: 0,
+        alternativePhone: 0,
+        company: 0,
+    } %}
+
+<div class="addressBox {{modelName}}">
+<h3>{{modelName|marketTitleize}}</h3>
+{% for key,required in addressFields %}
+
+<div class="form-group {% if model and model.getErrors(key) %}has-error{% endif %}">
+    <label for="{{ modelName }}-{{key}}">{{ key|marketTitleize }} {{ required ? '*' : '' }}</label>
+    <input id="{{ modelName }}-{{key}}" class="form-control input-sm" name="{{ modelName }}[{{ key }}]" value="{{ model ? model[key] : '' }}">
+    {% if model and model.getErrors(key) %}
+        <span id="helpBlock" class="help-block">{{ model.getErrors(key)|join }}</span>
+    {% endif %}
+</div>
+{% endfor %}
+
+<div class="form-group {% if model and model.getErrors('countryId') %}has-error{% endif %}">
+    <label for="{{ modelName }}-countryId">Country</label>
+    {{ craft.market.renderFormMacro('select', {
+    name: modelName ~ '[countryId]',
+    value: model ? model.countryId : '',
+    options: countries,
+    class: 'address-country',
+    }) }}
+    {% if model and model.getErrors('countryId') %}
+        <span id="helpBlock" class="help-block">{{ model.getErrors('countryId')|join }}</span>
+    {% endif %}
+</div>
+
+<div class="form-group {% if model and model.getErrors('stateId') %}has-error{% endif %}">
+    <label for="{{ modelName }}-stateId">State</label>
+    {{ craft.market.renderFormMacro('select', {
+    name: modelName ~ '[stateId]',
+    value: model ? model.stateId : '',
+    options: model and states[model.countryId] is defined ? states[model.countryId] : [],
+    class: 'address-state',
+    }) }}
+</div>
+<div class="form-group {% if model and model.getErrors('stateId') %}has-error{% endif %}">
+    <label for="{{ modelName }}-stateName">State Name</label>
+    <input id="{{ modelName }}-stateName" class="form-control input-sm" name="{{ modelName }}[stateName]" value="{{ model ? model.stateName : '' }}">
+    {% if model and model.getErrors('stateName') %}
+    <span id="helpBlock" class="help-block">{{ model.getErrors('stateName')|join }}</span>
+    {% endif %}
+</div>
+
+</div>{# end of address form1#}
+{% endmacro %}
+{# End Address Form Macro #}
+
+
+{% set js %}
+
+var states = {{ craft.market.statesArray|json_encode|raw }};
+
+$('.address-country select').change(function() {
+    var cid = $(this).val(),
+    $states = $(this).closest('.addressBox').find('.address-state select');
+    $states.find('option').remove();
+
+    if(states.hasOwnProperty(cid)) {
+        for(var id in states[cid]) {
+            var state = states[cid][id],
+            $option = $('<option/>');
+
+            $option.attr('value', id).text(state);
+            $states.append($option);
+        }
+    }
+
+});
+
+$('select').addClass('form-control input-sm');
+
+{% endset %}
+{% includeJs js first %}

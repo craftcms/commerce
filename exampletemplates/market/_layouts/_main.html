@@ -1,0 +1,85 @@
+<!doctype html>
+<html class="no-js" lang="">
+<head>
+    {% block head %}
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>{% block title %}Commerce{% endblock %}</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href='//fonts.googleapis.com/css?family=Roboto:400,300' rel='stylesheet' type='text/css'>
+        <link href='//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css' rel='stylesheet' type='text/css'>
+        <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+    {% endblock %}
+
+    <style>
+        body{
+            font-family: 'Roboto', sans-serif;
+        }
+        .flash-info p{
+            padding:15px;
+            margin-top:5px;
+        }
+        label{
+            font-weight: 400;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+
+<div class="row">
+    <div class="col-md-10 col-md-offset-1">
+
+        <!--[if lt IE 8]>
+        <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        <h1>Market Example Templates</h1>
+        <p>
+            These templates are designed for you to understand how Market Commerce works, they should not be simply copied into production sites.
+        </p>
+        <ul class="nav nav-pills">
+            <li role="presentation" class="{% if craft.request.getSegment(2) == '' %}active{% endif %}">
+                <a href="{{url('market')}}">Market</a>
+            </li>
+            <li role="presentation" class="{% if craft.request.getSegment(2) == 'products' %}active{% endif %}">
+                <a href="{{url('market/products')}}">Products</a>
+            </li>
+            <li role="presentation" class="{% if craft.request.getSegment(2) == 'orders' %}active{% endif %}">
+                <a href="{{url('market/orders')}}">Orders</a>
+            </li>
+            {% set cart = craft.market.getCart() %}
+            <li role="presentation" class="{% if craft.request.getSegment(2) == 'cart' %}active{% endif %}">
+                <a href="{{url('market/cart')}}">Cart <span class="badge">{{cart.lineItems|length}}</span></a>
+            </li>
+        </ul>
+
+        <div class="flash-info">
+            {% set notice = craft.session.getFlash('notice') %}
+            {% if notice %}
+            <p class="bg-info">{{ notice }}</p>
+            {% endif %}
+
+            {% set marketFlash = craft.session.getFlash('market') %}
+            {% if marketFlash %}
+            <p class="bg-warning">{{ marketFlash }}</p>
+            {% endif %}
+
+            {% set marketFlash = craft.session.getFlash('error') %}
+            {% if marketFlash %}
+            <p class="bg-error">{{ marketFlash }}</p>
+            {% endif %}
+        </div>
+
+        <p></p>
+        {% block content %}
+        {% endblock %}
+
+    </div>
+</div>{# end row #}
+</div>{# end fluid container #}
+{% includeJsResource 'lib/jquery-2.1.1.min.js' %}
+</body>
+</html>

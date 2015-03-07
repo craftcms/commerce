@@ -1,0 +1,62 @@
+{% extends "market/_layouts/cp" %}
+
+{% set title = "Order Types"|t %}
+
+{% set crumbs = [
+{ label: "Market"|t, url: url('market') },
+{ label: "Settings"|t, url: url('market/settings/global') },
+{ label: "Order Types"|t, url: url('market/settings/ordertypes') }
+] %}
+
+{% set selectedTab = 'settings' %}
+
+{% set content %}
+<table id="ordertypes" class="data fullwidth collapsible">
+    <thead>
+    <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Handle</th>
+        <th scope="col">Shipping Method</th>
+        <td class="thin"></td>
+    </tr>
+    </thead>
+    <tbody>
+    {% for orderType in orderTypes %}
+        <tr data-id="{{ orderType.id }}" data-name="{{ orderType.name }}">
+            <th scope="row" data-title="Name"><a
+                        href="{{ url('market/settings/ordertypes/'~orderType.id) }}">{{ orderType.name }}</a></th>
+            <td data-title="Handle"><code>{{ orderType.handle }}</code></td>
+            <td data-title="Shipping Method">{{ orderType.shippingMethod.name }}</td>
+            <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
+        </tr>
+    {% endfor %}
+
+    </tbody>
+</table>
+
+{% if not methodsExist %}
+    <p><span style="color:red">No shipping methods exist!</span><br/>Go to settings and
+        <a href="{{ url('market/settings/shippingmethods') }}">create a new shipping method </a> please.</p>
+{% else %}
+    {%  if orderTypes|length < 1 %}
+        <br/>
+        <div class="btngroup submit first">
+            <a href="{{ url('market/settings/ordertypes/new') }}" class="btn submit">New Order Type</a>
+        </div>
+    {% else %}
+        <p>Currently only one Order Type can be created. Very soon in the future additional Order Types (Like a Wishlist Order Type) will be available.</p>
+    {%  endif  %}
+{% endif %}
+{% endset %}
+
+
+{% set js %}
+var adminTable = new Craft.AdminTable({
+tableSelector: '#ordertypes',
+noObjectsSelector: '#noordertypes',
+newObjectBtnSelector: '#neworderTypecontainer',
+deleteAction: 'market/orderType/deleteOrderType',
+confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}” and all its orders? Please make sure you have a backup of your database before before peforming this desctruction action"|t }}'
+});
+{% endset %}
+{% includeJs js %}
