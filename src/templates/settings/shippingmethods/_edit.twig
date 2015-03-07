@@ -1,0 +1,49 @@
+{% extends "market/_layouts/cp" %}
+
+{% set crumbs = [
+{ label: "Market"|t, url: url('market') },
+{ label: "Settings"|t, url: url('market/settings/global') },
+{ label: "Shipping Methods"|t, url: url('market/settings/shippingmethods') },
+] %}
+
+{% import "_includes/forms" as forms %}
+
+{% set content %}
+<form method="post" accept-charset="UTF-8" data-saveshortcut>
+    <input type="hidden" name="action" value="market/shippingMethod/save">
+    <input type="hidden" name="redirect" value="market/settings/shippingmethods">
+
+    {{ getCsrfInput() }}
+    {% if shippingMethod.id %}<input type="hidden" name="shippingMethodId" value="{{ shippingMethod.id }}">{% endif %}
+
+    {{ forms.textField({
+        first: true,
+        label: "Name"|t,
+        instructions: "What this shipping method will be called in the CP."|t,
+        id: 'name',
+        name: 'name',
+        value: shippingMethod.name,
+        errors: shippingMethod.getErrors('name'),
+        autofocus: true,
+        required: true,
+        translatable: true
+    }) }}
+
+    {{ forms.checkboxField({
+        label: "Enabled"|t,
+        instructions: "Is it active?"|t,
+        id: 'enabled',
+        name: 'enabled',
+        value: 1,
+        checked: shippingMethod.enabled,
+        errors: shippingMethod.getErrors('enabled')
+    }) }}
+
+    <hr>
+
+    <div class="buttons">
+        <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
+    </div>
+</form>
+
+{% endset %}

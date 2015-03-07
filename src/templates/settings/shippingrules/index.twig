@@ -1,0 +1,75 @@
+{% extends "market/_layouts/cp" %}
+
+{% set title = "Market"|t %}
+
+{% set crumbs = [
+{ label: "Market"|t, url: url('market') },
+{ label: "Settings"|t, url: url('market/settings/global') },
+{ label: "Shipping Rules"|t, url: url('market/settings/shippingrules') }
+] %}
+
+{% set content %}
+<table id="shippingRules" class="data fullwidth collapsible">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Method</th>
+        <th>Country</th>
+        <th>State</th>
+        <th>Filtering Settings</th>
+        <th>Charge Settings</th>
+        <th>Enabled</th>
+        <td class="thin"></td>
+    </tr>
+    </thead>
+    <tbody>
+    {% for shippingRule in shippingRules %}
+        <tr data-id="{{ shippingRule.id }}" data-name="{{ shippingRule.name }}">
+            <th scope="row" data-title="Name"><a href="{{ url('market/settings/shippingrules/'~shippingRule.id) }}">{{ shippingRule.name }}</a></th>
+            <td>{{ shippingRule.method.name }}</td>
+            <td>{{ shippingRule.country.name }}</td>
+            <td>{{ shippingRule.state.name }}</td>
+            <td>
+                Minimum Order Quantity: {{ shippingRule.minQty }}<br/>
+                Maximum Order Quantity: {{ shippingRule.maxQty }}<br/>
+                Minimum Order Total Price: {{ shippingRule.minTotal }}<br/>
+                Maximum Order Total Price: {{ shippingRule.maxTotal }}<br/>
+                Minimum Order Weight: {{ shippingRule.minWeight }}<br/>
+                Maximum Order Weight: {{ shippingRule.maxWeight }}
+            </td>
+            <td>
+                Base Rate: {{ shippingRule.baseRate }}<br/>
+                Per Item Rate: {{ shippingRule.perItemRate }}<br/>
+                Weight Rate: {{ shippingRule.weightRate }}<br/>
+                Percentage Rate: {{ shippingRule.percentageRate }}<br/>
+                Minimum Rate: {{ shippingRule.minRate }}<br/>
+                Maximum Rate: {{ shippingRule.maxRate }}
+            </td>
+            <td>{{ shippingRule.enabled ? 'Yes'|t : 'No'|t }}</td>
+            <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
+        </tr>
+    {% endfor %}
+
+    </tbody>
+</table>
+
+{% if not methodsExist %}
+    <p><span style="color:red">No shipping methods exist!</span><br/>Go to settings and
+        <a href="{{ url('market/settings/shippingmethods') }}">create a new shipping method </a> please.</p>
+{% else %}
+    <br/>
+    <div class="btngroup submit first">
+        <a href="{{ url('market/settings/shippingrules/new') }}" class="btn submit">New Shipping Rule</a>
+    </div>
+{% endif %}
+{% endset %}
+
+
+{% set js %}
+var adminTable = new Craft.AdminTable({
+tableSelector: '#shippingRules',
+deleteAction: 'market/shippingRule/delete',
+confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
+});
+{% endset %}
+{% includeJs js %}
