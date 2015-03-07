@@ -162,6 +162,7 @@ class Market_LineItemService extends BaseApplicationComponent
 		$lineItem->orderId   = $orderId;
 
 		$variant = craft()->market_variant->getById($variantId);
+
 		if ($variant->id) {
             $lineItem->fillFromVariant($variant);
 		} else {

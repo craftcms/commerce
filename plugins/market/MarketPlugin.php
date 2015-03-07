@@ -18,6 +18,12 @@ class MarketPlugin extends BasePlugin
 	function init()
 	{
 
+		//        Market::app()["stripe"] = function ($c) {
+//            $key = $this->getSettings()->secretKey;
+//
+//            return new Stripe($key);
+//        };
+
 //        Market::app()["stripe"] = function ($c) {
 //            $key = $this->getSettings()->secretKey;
 //
@@ -37,7 +43,7 @@ class MarketPlugin extends BasePlugin
 
 	public function getVersion()
 	{
-		return "0.0.2";
+		return file_get_contents(__DIR__.DIRECTORY_SEPARATOR."VERSION.txt");
 	}
 
 	public function getDeveloper()

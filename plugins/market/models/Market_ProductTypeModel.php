@@ -40,6 +40,7 @@ class Market_ProductTypeModel extends BaseModel
 			'id'            => AttributeType::Number,
 			'name'          => AttributeType::String,
 			'handle'        => AttributeType::String,
+			'type'        => AttributeType::String,
 			'fieldLayoutId' => AttributeType::Number
 		];
 	}

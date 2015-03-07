@@ -21,14 +21,14 @@
                     <select name="variantId" class="form-control">
                         {% for variant in product.variants %}
                         <option value="{{ variant.id }}">
-                            SKU: {{ variant.sku }} / Price: {{ variant.price }} {% if variant.underSale %}(sale: {{ variant.salePrice }}){% endif %} / Stock: {{ variant.unlimitedStock ? 'unlimited' : variant.stock }} / {{ variant.optionsText }}
+                            SKU: {{ variant.sku }} / Price: {{ variant.price }} {% if variant.onSale %}(sale: {{ variant.salePrice }}){% endif %} / Stock: {{ variant.unlimitedStock ? 'unlimited' : variant.stock }} / {{ variant.optionsText }}
                         </option>
                         {% endfor %}
                     </select>
                     </div>
                     <div class="form-group">
                     Quantity*: <input class="form-control" type="number" name="qty" min="1" value="1">
-                    </div>
+                    </div>`
                     <div class="form-group">
                     <input class="btn btn-primary" type="submit" value="Add to cart">
                     </div>

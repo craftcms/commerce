@@ -43,6 +43,18 @@
         required: true
     }) }}
 
+    {{ forms.selectField({
+        label: 'Behavior Type'|t,
+        instructions: "This controls how this product behaves. Normal does nothing special. Electonic allows selling of electronic products."|t,
+        id: 'type',
+        name: 'type',
+        options: productTypeTypes,
+        class: 'select-wide',
+        value: productType.type,
+        errors: productType.getErrors('type'),
+        required: true,
+    }) }}
+
     {% include "_includes/fieldlayoutdesigner" with {
     fieldLayout: productType.getFieldLayout(),
     } only %}
@@ -58,5 +70,10 @@
 
 {% set js %}
 {% if not productType.handle %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
+$(function () {
+    $('#type').selectize({
+        dropdownParent: 'body'
+    });
+});
 {% endset %}
 {% includeJs js %}
