@@ -1,0 +1,18 @@
+
+{% macro addVariantToCartButton(variantId,qty,redirect,buttonText,buttonClass) %}
+<form method="POST">
+    <input type="hidden" name="action" value="market/cart/add">
+    <input type="hidden" name="redirect" value="{{ redirect|default("") }}">
+    <input type="hidden" name="variantId" value="{{ variantId }}">
+    <input type="hidden" name="qty" value="{{ qty|default("1") }}">
+    <input type="submit" value="{{ buttonText|default('Add to Cart') }} class="{{ buttonClass|default("") }}" ">
+</form>
+{% endmacro %}
+
+{#{% macro wrapped_input(name, value, type, size) %}#}
+    {#{% import _self as forms %}#}
+
+    {#<div class="field">#}
+        {#{{ forms.input(name, value, type, size) }}#}
+    {#</div>#}
+{#{% endmacro %}#}
