@@ -35,6 +35,8 @@ class Market_OrderElementType extends Market_BaseElementType
 			]
 		];
 
+		$sources[] = ['heading' => "Order Types"];
+
 		foreach (craft()->market_orderType->getAll() as $orderType) {
 			$key = 'orderType:' . $orderType->id;
 

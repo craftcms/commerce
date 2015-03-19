@@ -224,7 +224,6 @@ class Market_PaymentService extends BaseApplicationComponent
 
 	/**
 	 * @param Market_TransactionModel $transaction
-	 *
 	 * @return string
 	 */
 	private function getCancelUrl(Market_TransactionModel $transaction)

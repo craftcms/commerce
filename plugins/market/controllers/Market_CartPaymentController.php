@@ -28,11 +28,11 @@ class Market_CartPaymentController extends Market_BaseController
 		}
 	}
 
-	public function actionCancel()
-	{
-		$this->actionGoToComplete();
-		$this->redirect('market/cart');
-	}
+//	public function actionCancel()
+//	{
+//		$this->actionGoToComplete();
+//		$this->redirect('market/cart');
+//	}
 
 	/**
 	 * @throws Exception
@@ -50,9 +50,9 @@ class Market_CartPaymentController extends Market_BaseController
 		}
 	}
 
-	public function actionSuccess()
-	{
-		$this->actionGoToComplete();
-		$this->redirect('market/cart');
-	}
+//	public function actionSuccess()
+//	{
+//		$this->actionGoToComplete();
+//		$this->redirect('market/cart');
+//	}
 }

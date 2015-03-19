@@ -120,7 +120,7 @@ class Market_OrderService extends BaseApplicationComponent
 			$methods = craft()->market_paymentMethod->getAllForFrontend();
 			$order->paymentMethodId = $methods[0]->id;
 		}
-		
+
 		$this->calculateAdjustments($order);
 
 		$orderRecord->typeId            = $order->typeId;

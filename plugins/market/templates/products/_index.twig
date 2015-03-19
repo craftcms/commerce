@@ -46,4 +46,11 @@
                     href="{{ url('market/settings/taxcategories') }}">create a new tax category </a> please.</p>
     {% endif %}
 
+    {% set js %}
+    $('.elementindex').on('change', 'select', function (e) {
+        window.location = $(this).find(':selected').data('link');
+    });
+    {% endset %}
+    {%  includeJs js %}
+
 {% endblock %}
