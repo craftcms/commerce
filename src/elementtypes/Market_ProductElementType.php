@@ -28,12 +28,14 @@ class Market_ProductElementType extends Market_BaseElementType
 
 	public function getSources($context = NULL)
 	{
-
 		$sources = [
+
 			'*' => [
 				'label' => Craft::t('All products'),
 			]
 		];
+
+		$sources[] = ['heading' => "Product Types"];
 
 		foreach (craft()->market_productType->getAll() as $productType) {
 			$key = 'productType:' . $productType->id;
@@ -53,7 +55,10 @@ class Market_ProductElementType extends Market_BaseElementType
 	{
 		return [
 			'title'       => Craft::t('Name'),
-			'availableOn' => Craft::t('Available On')
+			'type'        => Craft::t('Product Type'),
+			'variants'    => Craft::t('Variants'),
+			'availableOn' => Craft::t('Available On'),
+			'expiresOn'   => Craft::t('Expires On')
 		];
 	}
 
@@ -65,6 +70,23 @@ class Market_ProductElementType extends Market_BaseElementType
 
 	public function getTableAttributeHtml(BaseElementModel $element, $attribute)
 	{
+		if ($attribute == 'type') {
+			return "<a href='" . $element->type->cpEditUrl . "'>" . $element->type->name . "</a>";
+		}
+
+		if ($attribute == 'variants') {
+			$variants = $element->variants;
+			$html     = "<select><option selected='selected'>Edit Variant...</option>";
+			foreach ($variants as $variant) {
+				if ($variant->isMaster){
+					return "<span style='color:#E4E9F7'>None</span>";
+				}
+				$html .= "<option data-link='".$variant->cpEditUrl."'>" . $variant->sku." ".$variant->optionsText . "</option>";
+			}
+			$html .= "</select>";
+			return $html;
+		}
+
 		return parent::getTableAttributeHtml($element, $attribute);
 	}
 
@@ -76,9 +98,9 @@ class Market_ProductElementType extends Market_BaseElementType
 	public function defineSortableAttributes()
 	{
 		return [
+			'title'       => Craft::t('Name'),
 			'availableOn' => Craft::t('Available On'),
-			'expiresOn'   => Craft::t('Expires On'),
-			'title'       => Craft::t('Name')
+			'expiresOn'   => Craft::t('Expires On')
 		];
 	}
 
