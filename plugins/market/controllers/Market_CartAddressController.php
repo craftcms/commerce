@@ -43,6 +43,23 @@ class Market_CartAddressController extends Market_BaseController
 	}
 
 	/**
+	 * @throws HttpException
+	 * @throws \Exception
+	 */
+	public function actionSetShippingMethod()
+	{
+		$this->requirePostRequest();
+
+		$id = craft()->request->getPost('shippingMethodId');
+		if (craft()->market_cart->setShippingMethod($id)) {
+			craft()->userSession->setFlash('market', 'Shipping method has been set');
+			$this->redirectToPostedUrl();
+		} else {
+			craft()->urlManager->setRouteVariables(['shippingMethodError' => 'Wrong shipping method']);
+		}
+	}
+
+	/**
 	 * @throws Exception
 	 */
 	public function actionGoToPayment()
