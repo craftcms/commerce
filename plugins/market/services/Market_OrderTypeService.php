@@ -48,6 +48,37 @@ class Market_OrderTypeService extends BaseApplicationComponent
 	}
 
 	/**
+	 * @param string $orderTypeHandle
+	 *
+	 * @return Market_OrderTypeModel
+	 * @throws Exception
+	 */
+	public function getByHandleOrOnly($orderTypeHandle = '')
+	{
+		$orderType = $this->getByHandle($orderTypeHandle);
+
+		if ($orderTypeHandle == '' or !$orderType->id){
+
+			//Temp: did not pass a orderType
+			throw new Exception('did not pass a orderType');
+
+			MarketPlugin::log("Can not find cart with Order Type of '".$orderTypeHandle."' getting first Order Type.");
+			$orderType = craft()->market_orderType->getFirst();
+			if (!$orderType->id) {
+				throw new Exception('Not one order type found');
+			}
+		}
+
+		return $orderType;
+	}
+
+
+
+
+
+
+
+	/**
 	 * Get first (default) order type from the DB
 	 *
 	 * @return Market_OrderTypeModel

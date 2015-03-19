@@ -36,8 +36,8 @@ class Market_InstallSeeder implements Market_SeederInterface
 		$shippingMethod = Market_ShippingMethodRecord::model()->find();
 
 		$orderType                   = new Market_OrderTypeModel;
-		$orderType->name             = 'Normal Order';
-		$orderType->handle           = 'normalOrder';
+		$orderType->name             = 'Cart';
+		$orderType->handle           = 'cart';
 		$orderType->shippingMethodId = $shippingMethod->id;
 
 		// Set the field layout

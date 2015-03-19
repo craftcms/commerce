@@ -21,6 +21,8 @@ class Market_CartPaymentController extends Market_BaseController
 		$this->requirePostRequest();
 
 		$id = craft()->request->getPost('shippingMethodId');
+		$orderTypeHandle =
+
 		if (craft()->market_cart->setShippingMethod($id)) {
 			craft()->userSession->setFlash('market', 'Shipping method has been set');
 			$this->redirectToPostedUrl();
@@ -56,7 +58,8 @@ class Market_CartPaymentController extends Market_BaseController
 	 */
 	public function actionGoToComplete()
 	{
-		$order = craft()->market_cart->getCart();
+		$orderTypeHandle = craft()->request->getPost('orderTypeHandle');
+		$order = craft()->market_cart->getCart($orderTypeHandle);
 
 		if ($order->canTransit(Market_OrderRecord::STATE_COMPLETE)) {
 			$order->completedAt = DateTimeHelper::currentTimeForDb();
