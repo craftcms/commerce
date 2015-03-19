@@ -120,7 +120,9 @@ class Market_CartController extends Market_BaseController
 	{
 		$this->requirePostRequest();
 
-		$order = craft()->market_cart->getCart();
+		$orderTypeHandle = craft()->request->getPost('orderTypeHandle');
+		$order = craft()->market_cart->getCart($orderTypeHandle);
+
 		if ($order->isEmpty()) {
 			craft()->userSession->setNotice(Craft::t('Please add some items to your cart'));
 			return;
@@ -138,7 +140,8 @@ class Market_CartController extends Market_BaseController
 	{
 		$this->requirePostRequest();
 
-		$order = craft()->market_cart->getCart();
+		$orderTypeHandle = craft()->request->getPost('orderTypeHandle');
+		$order = craft()->market_cart->getCart($orderTypeHandle);
 
 		if ($order->canTransit(Market_OrderRecord::STATE_CART)) {
 			$order->transition(Market_OrderRecord::STATE_CART);

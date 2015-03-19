@@ -81,7 +81,7 @@
 
 
                     {% if orderId is defined %}
-                        <h2>{{order.finalPrice|number_format(2) }}</h2>
+                        <h2>{{order.finalPrice|marketCurrency }}</h2>
                         <h2>{{order.state|title }}</h2>
 
                         <ul class="list">
