@@ -97,6 +97,10 @@ class Market_CartAddressController extends Market_BaseController
 		$billingAddress  = craft()->market_address->getById($billingId);
 		$shippingAddress = craft()->market_address->getById($shippingId);
 
+		if (craft()->request->getPost('sameAddress') == 1) {
+			$shippingAddress = $billingAddress;
+		}
+
 		if (!$billingAddress->id || !$shippingAddress->id) {
 			$order = craft()->market_cart->getCart();
 			if (empty($billingAddress->id)) {
