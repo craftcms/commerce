@@ -62,6 +62,7 @@
                     {% set static = static is defined ? static : false %}
 
                     {% for tab in orderType.getFieldLayout().getTabs() %}
+
                         <div id="tab{{ loop.index }}" {% if not loop.first %} class="hidden" {% endif %}>
                             {% include "_includes/fields" with {
                             fields: tab.getFields(),
@@ -81,12 +82,13 @@
 
 
                     {% if orderId is defined %}
-                        <h2>{{order.finalPrice|marketCurrency }}</h2>
+                        <h1>{{order.finalPrice|number_format(2) }}</h1>
+                        <h2>{{ order.completedAt }}</h2>
                         <h2>{{order.state|title }}</h2>
+                        <p></p>
 
                         <ul class="list">
                             <li>couponCode          :{{ order.couponCode           }}</li>
-                            <li>state               :{{ order.state                }}</li>
                             <li>itemTotal           :{{ order.itemTotal            }}</li>
                             <li>baseDiscount        :{{ order.baseDiscount         }}</li>
                             <li>baseShippingRate    :{{ order.baseShippingRate     }}</li>
@@ -98,7 +100,6 @@
                             <li>shippingMethodId    :{{ order.shippingMethodId     }}</li>
                             <li>currency            :{{ order.currency             }}</li>
                             <li>lastIp              :{{ order.lastIp               }}</li>
-                            <li>orderDate           :{{ order.orderDate            }}</li>
                         </ul>
 
 

@@ -14,14 +14,13 @@ class Market_CartPaymentController extends Market_BaseController
 
 	/**
 	 * @throws HttpException
-	 * @throws \Exception
 	 */
 	public function actionSetShippingMethod()
 	{
 		$this->requirePostRequest();
 
 		$id = craft()->request->getPost('shippingMethodId');
-		$orderTypeHandle =
+		
 
 		if (craft()->market_cart->setShippingMethod($id)) {
 			craft()->userSession->setFlash('market', 'Shipping method has been set');
@@ -50,7 +49,6 @@ class Market_CartPaymentController extends Market_BaseController
 	public function actionCancel()
 	{
 		$this->actionGoToComplete();
-		$this->redirect('market/cart');
 	}
 
 	/**
@@ -62,9 +60,7 @@ class Market_CartPaymentController extends Market_BaseController
 		$order = craft()->market_cart->getCart($orderTypeHandle);
 
 		if ($order->canTransit(Market_OrderRecord::STATE_COMPLETE)) {
-			$order->completedAt = DateTimeHelper::currentTimeForDb();
-			craft()->market_order->save($order);
-			$order->transition(Market_OrderRecord::STATE_COMPLETE);
+			craft()->market_order->complete($order);
 		} else {
 			throw new Exception('unable to go to payment state from the state: ' . $order->state);
 		}
@@ -73,6 +69,5 @@ class Market_CartPaymentController extends Market_BaseController
 	public function actionSuccess()
 	{
 		$this->actionGoToComplete();
-		$this->redirect('market/cart');
 	}
 }

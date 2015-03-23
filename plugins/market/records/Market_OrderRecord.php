@@ -70,6 +70,7 @@ class Market_OrderRecord extends BaseRecord
 			'paymentMethod'   => [static::BELONGS_TO, 'Market_PaymentMethodRecord'],
 			'customer'        => [static::BELONGS_TO, 'Market_CustomerRecord'],
 			'transactions'    => [static::HAS_MANY, 'Market_TransactionRecord', 'orderId'],
+			'element'         => [static::BELONGS_TO, 'ElementRecord', 'id', 'required' => true, 'onDelete' => static::CASCADE],
 		];
 	}
 
