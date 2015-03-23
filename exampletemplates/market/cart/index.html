@@ -4,7 +4,7 @@
 {% block content %}
 
     {% set cart = craft.market.cart %}
-
+    <h3>Cart ID: {{ cart.number }}</h3>
     {% if cart.state == 'cart' %}
         {% include 'market/cart/_cart.html' %}
     {% elseif cart.state == 'address' %}

@@ -11,6 +11,9 @@
         <h3>{{ state|title }}</h3>
         {% for order in orders %}
         <h3>{{order.number}}</h3>
+            <ul>
+                <li>Final Price: {{ order.finalPrice }}</li>
+            </ul>
         {% endfor %}
     {% endfor %}
     </div>

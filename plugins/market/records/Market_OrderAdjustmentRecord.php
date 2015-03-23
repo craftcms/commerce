@@ -34,7 +34,7 @@ class Market_OrderAdjustmentRecord extends BaseRecord
 	public function defineRelations()
 	{
 		return [
-			'order' => [self::BELONGS_TO, 'Market_OrderRecord', 'required' => true],
+			'order' => [self::BELONGS_TO, 'Market_OrderRecord', 'required' => true, 'onDelete' => static::CASCADE ],
 		];
 	}
 
