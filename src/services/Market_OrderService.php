@@ -68,6 +68,16 @@ class Market_OrderService extends BaseApplicationComponent
 		$order->finalPrice = max(0, $order->finalPrice);
 	}
 
+	public function complete($order)
+	{
+		$order->completedAt = DateTimeHelper::currentTimeForDb();
+		$order->transition(Market_OrderRecord::STATE_COMPLETE);
+		if ($this->save($order)){
+			craft()->market_cart->forgetCart();
+			return true;
+		}
+		return false;
+	}
 	/**
 	 * @param int $id
 	 *
@@ -88,7 +98,7 @@ class Market_OrderService extends BaseApplicationComponent
 	 */
 	public function delete($order)
 	{
-		return Market_OrderRecord::model()->deleteByPk($order->id);
+		return craft()->elements->deleteElementById($order->id);
 	}
 
 	/**

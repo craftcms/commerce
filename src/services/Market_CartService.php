@@ -184,6 +184,11 @@ class Market_CartService extends BaseApplicationComponent
 		return true;
 	}
 
+	public function forgetCart()
+	{
+		craft()->userSession->deleteStateCookie($this->cookieCartId);
+	}
+
 	/**
 	 * Set shipping method to the current order
 	 *

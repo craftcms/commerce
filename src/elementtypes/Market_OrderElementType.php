@@ -46,6 +46,15 @@ class Market_OrderElementType extends Market_BaseElementType
 			];
 		}
 
+		$sources[] = ['heading' => "States"];
+
+		foreach (Market_OrderRecord::$states as $state){
+			$key = 'state:' . $state;
+			$sources[$key] = [
+				'label'    => ucwords($state),
+				'criteria' => ['state' => $state]
+			];
+		}
 		return $sources;
 
 	}
@@ -93,7 +102,7 @@ class Market_OrderElementType extends Market_BaseElementType
 	public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
 	{
 		$query
-			->addSelect("orders.id, orders.typeId, orders.number, orders.finalPrice")
+			->addSelect("orders.id, orders.typeId, orders.number, orders.finalPrice, orders.state")
 			->join('market_orders orders', 'orders.id = elements.id')
 			->join('market_ordertypes ordertypes', 'ordertypes.id = orders.typeId');
 
