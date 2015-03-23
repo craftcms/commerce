@@ -76,9 +76,23 @@ class MarketPlugin extends BasePlugin
 
 	}
 
+	public function modifyCpNav(&$nav)
+	{
+		if (craft()->userSession->isAdmin())
+		{
+			$nav['market'] = array('label' => 'Market', 'url' => 'market');
+		}
+	}
+
+
+	public function addCommands() {
+		return require(__DIR__.DIRECTORY_SEPARATOR.'commands.php');
+	}
+
+
 	public function registerCpRoutes()
 	{
-		return require(__DIR__ . '/routes.php');
+		return require(__DIR__.DIRECTORY_SEPARATOR.'routes.php');
 	}
 
 	public function addTwigExtension()
