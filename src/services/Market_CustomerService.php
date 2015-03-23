@@ -8,7 +8,7 @@ namespace Craft;
  */
 class Market_CustomerService extends BaseApplicationComponent
 {
-	const SESSION_CUSTOMER = 'session_customer_id_key';
+	const SESSION_CUSTOMER = 'market_customer_cookie';
 
 	/** @var Market_CustomerModel */
 	private $customer = NULL;

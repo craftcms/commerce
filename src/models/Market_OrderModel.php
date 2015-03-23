@@ -116,67 +116,37 @@ class Market_OrderModel extends BaseElementModel
 			'state' => [
 				'class'              => 'Market\Behaviors\Statemachine\AStateMachine',
 				'states'             => [
-				[
-					'name'       => Market_OrderRecord::STATE_CART,
-					'transitsTo' => Market_OrderRecord::STATE_ADDRESS
-				], [
-					'name'       => Market_OrderRecord::STATE_ADDRESS,
-					'transitsTo' => [
-						Market_OrderRecord::STATE_CART,
-						Market_OrderRecord::STATE_ADDRESS,
-						Market_OrderRecord::STATE_PAYMENT
+					[
+						'name'       => Market_OrderRecord::STATE_CART,
+						'transitsTo' => Market_OrderRecord::STATE_ADDRESS
+					], [
+						'name'       => Market_OrderRecord::STATE_ADDRESS,
+						'transitsTo' => [
+							Market_OrderRecord::STATE_CART,
+							Market_OrderRecord::STATE_ADDRESS,
+							Market_OrderRecord::STATE_PAYMENT
 						]
-				], [
-					'name'       => Market_OrderRecord::STATE_PAYMENT,
-					'transitsTo' => [
-						Market_OrderRecord::STATE_CART,
-						Market_OrderRecord::STATE_ADDRESS,
-						Market_OrderRecord::STATE_PAYMENT,
-						Market_OrderRecord::STATE_CONFIRM,
-						Market_OrderRecord::STATE_COMPLETE
+					], [
+						'name'       => Market_OrderRecord::STATE_PAYMENT,
+						'transitsTo' => [
+							Market_OrderRecord::STATE_CART,
+							Market_OrderRecord::STATE_ADDRESS,
+							Market_OrderRecord::STATE_PAYMENT,
+							Market_OrderRecord::STATE_CONFIRM,
+							Market_OrderRecord::STATE_COMPLETE
 						],
-				], [
-					'name'       => Market_OrderRecord::STATE_CONFIRM,
-					'transitsTo' => Market_OrderRecord::STATE_COMPLETE
-				], [
-					'name' => Market_OrderRecord::STATE_COMPLETE,
-				],
+					], [
+						'name'       => Market_OrderRecord::STATE_CONFIRM,
+						'transitsTo' => Market_OrderRecord::STATE_COMPLETE
+					], [
+						'name' => Market_OrderRecord::STATE_COMPLETE,
+					],
 				],
 				'defaultStateName'   => Market_OrderRecord::STATE_CART,
 				'checkTransitionMap' => true,
 				'stateName'          => $this->state,
 			]
 		];
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function defineAttributes()
-	{
-		return array_merge(parent::defineAttributes(), [
-			'id'                => AttributeType::Number,
-			'number'            => AttributeType::String,
-			'couponCode'        => AttributeType::String,
-			'state'             => [AttributeType::Enum, 'required' => true, 'default' => 'cart', 'values' => Market_OrderRecord::$states],
-			'itemTotal'         => [AttributeType::Number, 'decimals' => 4, 'default' => 0],
-			'baseDiscount'      => [AttributeType::Number, 'decimals' => 4, 'default' => 0],
-			'baseShippingRate'  => [AttributeType::Number, 'decimals' => 4, 'default' => 0],
-			'finalPrice'        => [AttributeType::Number, 'decimals' => 4, 'default' => 0],
-			'email'             => AttributeType::String,
-			'completedAt'       => AttributeType::DateTime,
-			'billingAddressId'  => AttributeType::Number,
-			'shippingAddressId' => AttributeType::Number,
-			'shippingMethodId'  => AttributeType::Number,
-			'paymentMethodId'   => AttributeType::Number,
-			'currency'          => AttributeType::String,
-			'lastIp'            => AttributeType::String,
-			'orderDate'         => AttributeType::DateTime,
-			'customerId'		=>AttributeType::Number,
-			//TODO add 'shipmentState'
-			//TODO add 'paymentState'
-			'typeId'            => AttributeType::Number
-		]);
 	}
 
 	public function isLocalized()
@@ -218,5 +188,32 @@ class Market_OrderModel extends BaseElementModel
 	public function getAdjustments()
 	{
 		return craft()->market_orderAdjustment->getAllByOrderId($this->id);
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function defineAttributes()
+	{
+		return array_merge(parent::defineAttributes(), [
+			'id'                => AttributeType::Number,
+			'number'            => AttributeType::String,
+			'couponCode'        => AttributeType::String,
+			'state'             => [AttributeType::Enum, 'required' => true, 'default' => 'cart', 'values' => Market_OrderRecord::$states],
+			'itemTotal'         => [AttributeType::Number, 'decimals' => 4, 'default' => 0],
+			'baseDiscount'      => [AttributeType::Number, 'decimals' => 4, 'default' => 0],
+			'baseShippingRate'  => [AttributeType::Number, 'decimals' => 4, 'default' => 0],
+			'finalPrice'        => [AttributeType::Number, 'decimals' => 4, 'default' => 0],
+			'email'             => AttributeType::String,
+			'completedAt'       => AttributeType::DateTime,
+			'billingAddressId'  => AttributeType::Number,
+			'shippingAddressId' => AttributeType::Number,
+			'shippingMethodId'  => AttributeType::Number,
+			'paymentMethodId'   => AttributeType::Number,
+			'currency'          => AttributeType::String,
+			'lastIp'            => AttributeType::String,
+			'customerId'        => AttributeType::Number,
+			'typeId'            => AttributeType::Number
+		]);
 	}
 }
