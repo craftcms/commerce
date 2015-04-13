@@ -21,9 +21,10 @@ class Market_CartPaymentController extends Market_BaseController
 
 		$paymentForm             = new Market_PaymentFormModel;
 		$paymentForm->attributes = $_POST;
+        $cart = craft()->market_cart->getCart();
 
 		//in case of success "pay" redirects us somewhere
-		if (!craft()->market_payment->processPayment($paymentForm, $customError)) {
+		if (!craft()->market_payment->processPayment($cart, $paymentForm, $customError)) {
 			craft()->urlManager->setRouteVariables(compact('paymentForm', 'customError'));
 		}
 	}

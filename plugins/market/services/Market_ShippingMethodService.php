@@ -29,14 +29,12 @@ class Market_ShippingMethodService extends BaseApplicationComponent
 		return Market_ShippingMethodRecord::model()->exists();
 	}
 
-	/**
-	 * @return array
-	 * @throws Exception
-	 */
-	public function calculateForCart()
+    /**
+     * @param Market_OrderModel $cart
+     * @return array
+     */
+	public function calculateForCart(Market_OrderModel $cart)
 	{
-		$cart = craft()->market_cart->getCart();
-
 		$availableMethods = [];
 		$methods          = $this->getAll(['with' => 'rules']);
 
