@@ -24,7 +24,9 @@ class Market_CartController extends Market_BaseController
 		$variantId = craft()->request->getPost('variantId');
 		$qty       = craft()->request->getPost('qty', 0);
 
-		if (craft()->market_cart->addToCart($variantId, $qty, $error)) {
+        $cart = craft()->market_cart->getCart();
+
+		if (craft()->market_cart->addToCart($cart, $variantId, $qty, $error)) {
 			craft()->userSession->setFlash('market', 'Product has been added');
 			$this->redirectToPostedUrl();
 		} else {
@@ -61,8 +63,9 @@ class Market_CartController extends Market_BaseController
 		$this->requirePostRequest();
 
 		$code = craft()->request->getPost('couponCode');
+        $cart = craft()->market_cart->getCart();
 
-		if (craft()->market_cart->applyCoupon($code, $error)) {
+		if (craft()->market_cart->applyCoupon($cart, $code, $error)) {
 			craft()->userSession->setFlash('market', 'Coupon has been applied');
 			$this->redirectToPostedUrl();
 		} else {
@@ -79,7 +82,9 @@ class Market_CartController extends Market_BaseController
 		$this->requirePostRequest();
 
 		$id = craft()->request->getPost('paymentMethodId');
-		if (craft()->market_cart->setPaymentMethod($id)) {
+        $cart = craft()->market_cart->getCart();
+
+		if (craft()->market_cart->setPaymentMethod($cart, $id)) {
 			craft()->userSession->setFlash('market', 'Payment method has been set');
 			$this->redirectToPostedUrl();
 		} else {
@@ -95,8 +100,9 @@ class Market_CartController extends Market_BaseController
 		$this->requirePostRequest();
 
 		$lineItemId = craft()->request->getPost('lineItemId');
+        $cart = craft()->market_cart->getCart();
 
-		craft()->market_cart->removeFromCart($lineItemId);
+		craft()->market_cart->removeFromCart($cart, $lineItemId);
 		craft()->userSession->setFlash('market', 'Product has been removed');
 		$this->redirectToPostedUrl();
 	}
@@ -108,7 +114,9 @@ class Market_CartController extends Market_BaseController
 	{
 		$this->requirePostRequest();
 
-		craft()->market_cart->clearCart();
+        $cart = craft()->market_cart->getCart();
+
+		craft()->market_cart->clearCart($cart);
 		craft()->userSession->setFlash('market', 'All products have been removed');
 		$this->redirectToPostedUrl();
 	}

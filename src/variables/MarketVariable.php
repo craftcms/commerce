@@ -75,7 +75,8 @@ class MarketVariable
 
 	public function getShippingMethods()
 	{
-		return craft()->market_shippingMethod->calculateForCart();
+        $cart = craft()->market_cart->getCart();
+		return craft()->market_shippingMethod->calculateForCart($cart);
 	}
 
 	public function getPaymentMethods()

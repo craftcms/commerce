@@ -13,13 +13,15 @@ use Omnipay\Common\Message\ResponseInterface;
  */
 class Market_PaymentService extends BaseApplicationComponent
 {
-	/**
-	 * @param Market_PaymentFormModel $form
-	 *
-	 * @return bool
-	 * @throws Exception
-	 */
-	public function processPayment(Market_PaymentFormModel $form, &$customError = '')
+    /**
+     * @param Market_OrderModel       $cart
+     * @param Market_PaymentFormModel $form
+     *
+     * @param string                  $customError
+     * @return bool
+     * @throws Exception
+     */
+	public function processPayment(Market_OrderModel $cart, Market_PaymentFormModel $form, &$customError = '')
 	{
 		if (!$form->validate()) {
 			return false;
@@ -28,7 +30,6 @@ class Market_PaymentService extends BaseApplicationComponent
         $defaultAction = craft()->market_settings->getOption('paymentMethod');
         $defaultAction = ($defaultAction === Market_TransactionRecord::PURCHASE) ? $defaultAction : Market_TransactionRecord::AUTHORIZE;
 
-        $cart    = craft()->market_cart->getCart();
         $gateway = $cart->paymentMethod->getGateway();
 
         if($defaultAction == Market_TransactionRecord::AUTHORIZE) {

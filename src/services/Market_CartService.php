@@ -21,22 +21,19 @@ class Market_CartService extends BaseApplicationComponent
 	/** @var Market_OrderModel */
 	private $cart;
 
-	/**
-	 * @param        $variantId
-	 * @param        $qty
-	 * @param string $error
-	 *
-	 * @return bool
-	 * @throws Exception
-	 * @throws \CDbException
-	 * @throws \Exception
-	 */
-	public function addToCart($variantId, $qty, &$error = '')
+    /**
+     * @param Market_OrderModel $order
+     * @param int               $variantId
+     * @param int               $qty
+     * @param string            $error
+     * @return bool
+     * @throws \Exception
+     */
+	public function addToCart($order, $variantId, $qty, &$error = '')
 	{
 		MarketDbHelper::beginStackedTransaction();
 
-		//getting current order
-		$order = $this->getCart();
+		//saving current cart if it's new and empty
 		if (!$order->id) {
 			if (!craft()->market_order->save($order)) {
 				throw new Exception('Error on creating empty cart');
@@ -137,17 +134,16 @@ class Market_CartService extends BaseApplicationComponent
 		return $cart;
 	}
 
-	/**
-	 * @param string $code
-	 * @param string $error
-	 *
-	 * @return bool
-	 * @throws \Exception
-	 */
-	public function applyCoupon($code, &$error = '')
+    /**
+     * @param Market_OrderModel $cart
+     * @param string            $code
+     * @param string            $error
+     * @return bool
+     * @throws Exception
+     * @throws \Exception
+     */
+	public function applyCoupon(Market_OrderModel $cart, $code, &$error = '')
 	{
-		$cart = $this->getCart();
-
 		if (empty($code) || craft()->market_discount->checkCode($code, $error)) {
 			$cart->couponCode = $code ?: NULL;
 			craft()->market_order->save($cart);
@@ -158,22 +154,22 @@ class Market_CartService extends BaseApplicationComponent
 		}
 	}
 
-	/**
-	 * Set shipping method to the current order
-	 *
-	 * @param int $shippingMethodId
-	 *
-	 * @return bool
-	 * @throws \Exception
-	 */
-	public function setShippingMethod($shippingMethodId)
+    /**
+     * Set shipping method to the current order
+     *
+     * @param Market_OrderModel $cart
+     * @param int               $shippingMethodId
+     * @return bool
+     * @throws Exception
+     * @throws \Exception
+     */
+	public function setShippingMethod(Market_OrderModel $cart, $shippingMethodId)
 	{
 		$method = craft()->market_shippingMethod->getById($shippingMethodId);
 		if (!$method->id) {
 			return false;
 		}
 
-		$cart = $this->getCart();
 		if (!craft()->market_shippingMethod->getMatchingRule($cart, $method)) {
 			return false;
 		}
@@ -189,38 +185,37 @@ class Market_CartService extends BaseApplicationComponent
 		craft()->userSession->deleteStateCookie($this->cookieCartId);
 	}
 
-	/**
-	 * Set shipping method to the current order
-	 *
-	 * @param int $paymentMethodId
-	 *
-	 * @return bool
-	 * @throws \Exception
-	 */
-	public function setPaymentMethod($paymentMethodId)
+    /**
+     * Set shipping method to the current order
+     *
+     * @param Market_OrderModel $cart
+     * @param int               $paymentMethodId
+     * @return bool
+     * @throws \Exception
+     */
+	public function setPaymentMethod(Market_OrderModel $cart, $paymentMethodId)
 	{
 		$method = craft()->market_paymentMethod->getById($paymentMethodId);
 		if (!$method->id || !$method->frontendEnabled) {
 			return false;
 		}
 
-		$cart                  = $this->getCart();
 		$cart->paymentMethodId = $paymentMethodId;
 		craft()->market_order->save($cart);
 
 		return true;
 	}
 
-	/**
-	 * @TODO check that line item belongs to the current user
-	 *
-	 * @param int $lineItemId
-	 *
-	 * @throws Exception
-	 * @throws \CDbException
-	 * @throws \Exception
-	 */
-	public function removeFromCart($lineItemId)
+    /**
+     * @TODO check that line item belongs to the current user
+     *
+     * @param Market_OrderModel $cart
+     * @param int               $lineItemId
+     *
+     * @throws Exception
+     * @throws \Exception
+     */
+	public function removeFromCart(Market_OrderModel $cart, $lineItemId)
 	{
 		$lineItem = craft()->market_lineItem->getById($lineItemId);
 
@@ -232,8 +227,7 @@ class Market_CartService extends BaseApplicationComponent
 		try {
 			craft()->market_lineItem->delete($lineItem);
 
-			$order = $this->getCart();
-			craft()->market_order->save($order);
+			craft()->market_order->save($cart);
 		} catch (\Exception $e) {
 			MarketDbHelper::rollbackStackedTransaction();
 			throw $e;
@@ -242,16 +236,18 @@ class Market_CartService extends BaseApplicationComponent
 		MarketDbHelper::commitStackedTransaction();
 	}
 
-	/**
-	 * Remove all items
-	 */
-	public function clearCart()
+    /**
+     * Remove all items from a cart
+     *
+     * @param Market_OrderModel $cart
+     * @throws \Exception
+     */
+	public function clearCart(Market_OrderModel $cart)
 	{
 		MarketDbHelper::beginStackedTransaction();
 		try {
-			$order = $this->getCart();
-			craft()->market_lineItem->deleteAllByOrderId($order->id);
-			craft()->market_order->save($order);
+			craft()->market_lineItem->deleteAllByOrderId($cart->id);
+			craft()->market_order->save($cart);
 		} catch (\Exception $e) {
 			MarketDbHelper::rollbackStackedTransaction();
 			throw $e;
