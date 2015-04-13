@@ -41,7 +41,7 @@ class Market_CountryController extends Market_BaseController
 				}
 			} else {
 				$variables['country'] = new Market_CountryModel();
-			};
+			}
 		}
 
 		if (!empty($variables['id'])) {
