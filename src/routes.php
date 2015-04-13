@@ -72,4 +72,8 @@ return [
 	'market/settings/shippingrules'                                                           => ['action' => 'market/shippingRule/index'],
 	'market/settings/shippingrules/new'                                                       => ['action' => 'market/shippingRule/edit'],
 	'market/settings/shippingrules/(?P<id>\d+)'                                               => ['action' => 'market/shippingRule/edit'],
+
+	'market/settings/emails'                                                                  => ['action' => 'market/email/index'],
+	'market/settings/emails/new'                                                              => ['action' => 'market/email/edit'],
+	'market/settings/emails/(?P<id>\d+)'                                                      => ['action' => 'market/email/edit'],
 ];

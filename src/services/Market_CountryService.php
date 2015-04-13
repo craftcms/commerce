@@ -102,7 +102,6 @@ class Market_CountryService extends BaseApplicationComponent
 	 */
 	public function deleteById($id)
 	{
-		$Country = Market_CountryRecord::model()->findById($id);
-		$Country->delete();
+        Market_CountryRecord::model()->deleteByPk($id);
 	}
 }
