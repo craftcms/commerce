@@ -32,7 +32,10 @@ class Market_CartAddressController extends Market_BaseController
 			$shipping = $billing;
 		}
 
-		if (craft()->market_order->setAddresses($shipping, $billing)) {
+		$orderTypeHandle = craft()->request->getPost('orderTypeHandle');
+		$order = craft()->market_cart->getCart($orderTypeHandle);
+
+		if (craft()->market_order->setAddresses($order, $shipping, $billing)) {
 			$this->actionGoToPayment();
 		} else {
 			craft()->urlManager->setRouteVariables([
@@ -68,7 +71,9 @@ class Market_CartAddressController extends Market_BaseController
 	{
 		$this->requirePostRequest();
 
-		$order = craft()->market_cart->getCart();
+		$orderTypeHandle = craft()->request->getPost('orderTypeHandle');
+		$order = craft()->market_cart->getCart($orderTypeHandle);
+
 		if (empty($order->shippingAddressId) || empty($order->billingAddressId)) {
 			craft()->userSession->setNotice(Craft::t('Please fill shipping and billing addresses'));
 
@@ -104,7 +109,8 @@ class Market_CartAddressController extends Market_BaseController
 		}
 
 		if (!$billingAddress->id || !$shippingAddress->id) {
-			$order = craft()->market_cart->getCart();
+			$orderTypeHandle = craft()->request->getPost('orderTypeHandle');
+			$order = craft()->market_cart->getCart($orderTypeHandle);
 			if (empty($billingAddress->id)) {
 				$order->addError('billingAddressId', 'Choose please billing address');
 			}

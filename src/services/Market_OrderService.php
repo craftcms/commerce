@@ -184,7 +184,7 @@ class Market_OrderService extends BaseApplicationComponent
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function setAddresses(Market_AddressModel $shippingAddress, Market_AddressModel $billingAddress)
+	public function setAddresses(Market_OrderModel $order, Market_AddressModel $shippingAddress, Market_AddressModel $billingAddress)
 	{
 		MarketDbHelper::beginStackedTransaction();
 		try {
@@ -192,7 +192,6 @@ class Market_OrderService extends BaseApplicationComponent
 			$result2 = craft()->market_address->save($billingAddress);
 
 			if ($result1 && $result2) {
-				$order                    = craft()->market_cart->getCart();
 				$order->shippingAddressId = $shippingAddress->id;
 				$order->billingAddressId  = $billingAddress->id;
 

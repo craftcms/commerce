@@ -17,7 +17,7 @@ class Market_CartService extends BaseApplicationComponent
 	const CART_COOKIE_LIFETIME = 604800; //week
 
 	/** @var string Session key for storing current cart number */
-	protected $cookieCartId = 'market_cart_cookie';
+	protected $cookieCartId = 'market_cookie';
 	/** @var Market_OrderModel */
 	private $cart;
 
@@ -73,47 +73,50 @@ class Market_CartService extends BaseApplicationComponent
 	 * @return Market_OrderModel
 	 * @throws Exception
 	 */
-	public function getCart()
+	public function getCart($orderTypeHandle)
 	{
-		if (NULL === $this->cart) {
-			$number = $this->_getSessionCartNumber();
+
+		// Before getting the cart, make sure we have a real orderType and then
+		// get the first one if we cant find one. Will fail loud if no order types.
+		$orderType = craft()->market_orderType->getByHandleOrOnly($orderTypeHandle);
+
+		// Should only be dealing with legit order types now
+		if (!isset($this->cart[$orderType->handle])) {
+
+			$number = $this->_getSessionCartNumber($orderType->handle);
 
 			if ($cart = $this->_getCartRecordByNumber($number)) {
-				$this->cart = Market_OrderModel::populateModel($cart);
+				$this->cart[$orderType->handle] = Market_OrderModel::populateModel($cart);
 			} else {
-				$this->cart = new Market_OrderModel;
-
-				$orderType = craft()->market_orderType->getFirst();
-				if (!$orderType->id) {
-					throw new Exception('no one order type found');
-				}
-
-				$this->cart->typeId = $orderType->id;
-				$this->cart->number = $number;
+				$this->cart[$orderType->handle] = new Market_OrderModel;
+				$this->cart[$orderType->handle]->typeId = $orderType->id;
+				$this->cart[$orderType->handle]->number = $number;
 			}
 
-			$this->cart->lastIp = craft()->request->getIpAddress();
+			$this->cart[$orderType->handle]->lastIp = craft()->request->getIpAddress();
 
+			// Update the user if it has changed
 			$customer = craft()->market_customer->getCustomer();
-			if (!$this->cart->isEmpty() && $this->cart->customerId != $customer->id) {
-				$this->cart->customerId = $customer->id;
-				craft()->market_order->save($this->cart);
+			if (!$this->cart[$orderType->handle]->isEmpty() && $this->cart[$orderType->handle]->customerId != $customer->id) {
+				$this->cart[$orderType->handle]->customerId = $customer->id;
+				craft()->market_order->save($this->cart[$orderType->handle]);
 			}
 		}
 
-		return $this->cart;
+		return $this->cart[$orderType->handle];
 	}
 
 	/**
 	 * @return string
 	 */
-	private function _getSessionCartNumber()
+	private function _getSessionCartNumber($cartHandle)
 	{
-		$cartNumber = craft()->userSession->getStateCookieValue($this->cookieCartId);
+		$cookieId = $cartHandle."_".$this->cookieCartId;
+		$cartNumber = craft()->userSession->getStateCookieValue($cookieId);
 
 		if (!$cartNumber) {
 			$cartNumber = md5(uniqid(mt_rand(), true));
-			craft()->userSession->saveCookie($this->cookieCartId, $cartNumber, self::CART_COOKIE_LIFETIME);
+			craft()->userSession->saveCookie($cookieId, $cartNumber, self::CART_COOKIE_LIFETIME);
 		}
 
 		return $cartNumber;
