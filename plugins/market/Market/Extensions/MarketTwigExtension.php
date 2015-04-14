@@ -38,9 +38,18 @@ class MarketTwigExtension extends \Twig_Extension
 			$returnArray['market'.ucwords($methodName)] = new \Twig_Filter_Method($this, $methodName);
 		}
 
+		$returnArray['marketCurrency'] = new \Twig_Filter_Method($this, 'currency');
+
 		return $returnArray;
 	}
 
+	public function currency($content)
+	{
+		$currencyDecimalPlaces = \Craft\craft()->market_settings->getOption('currencyDecimalPlaces');
+		$currencyDecimalSymbol = \Craft\craft()->market_settings->getOption('currencyDecimalSymbol');
+		$currencyDecimalSeparator = \Craft\craft()->market_settings->getOption('currencyDecimalSeparator');
+		return number_format($content,$currencyDecimalPlaces,$currencyDecimalSymbol,$currencyDecimalSeparator);
+	}
 	public function pluralize($content)
 	{
 		return $this->inflector->pluralize($content);

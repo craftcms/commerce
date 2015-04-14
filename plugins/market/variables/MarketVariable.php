@@ -44,9 +44,9 @@ class MarketVariable
 	 * TODO: Add Order Type param.
 	 * @return Market_OrderModel
 	 */
-	public function getCart()
+	public function getCart($orderTypeHandle)
 	{
-		return craft()->market_cart->getCart();
+		return craft()->market_cart->getCart($orderTypeHandle);
 	}
 
 	/**
