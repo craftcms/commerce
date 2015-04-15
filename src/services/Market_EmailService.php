@@ -62,16 +62,27 @@ class Market_EmailService extends BaseApplicationComponent
 			$record = new Market_EmailRecord();
 		}
 
-		$record->name          = $model->name;
-		$record->subject           = $model->subject;
-		$record->to           = $model->to;
-		$record->bcc           = $model->bcc;
-		$record->type           = $model->type;
-		$record->enabled           = $model->enabled;
-		$record->templatePath           = $model->templatePath;
+        $record->name         = $model->name;
+        $record->subject      = $model->subject;
+        $record->to           = $model->to;
+        $record->bcc          = $model->bcc;
+        $record->type         = $model->type;
+        $record->enabled      = $model->enabled;
+        $record->templatePath = $model->templatePath;
 
 		$record->validate();
 		$model->addErrors($record->getErrors());
+
+        //validating template path
+        if(!$model->getErrors('templatePath')) {
+            $templatesDir = craft()->path->getSiteTemplatesPath();
+            $realpath = realpath($templatesDir . $record->templatePath);
+            if(!$realpath || !is_file($realpath)) {
+                $model->addError('templatePath', 'template not found');
+            } elseif(strpos($realpath, $templatesDir) === false) { //checking if the final destination is outside the templates folder
+                $model->addError('templatePath', 'relative pathes are not allowed');
+            }
+        }
 
 		if (!$model->hasErrors()) {
 			// Save it!
