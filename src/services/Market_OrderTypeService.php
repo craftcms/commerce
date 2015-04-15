@@ -48,23 +48,9 @@ class Market_OrderTypeService extends BaseApplicationComponent
 	}
 
 	/**
-	 * Get first (default) order type from the DB
-	 *
-	 * @return Market_OrderTypeModel
-	 */
-	public function getFirst()
-	{
-		$orderType = Market_OrderTypeRecord::model()->find(['order' => 'id', 'limit' => 1]);
-
-		return Market_OrderTypeModel::populateModel($orderType);
-	}
-
-	/**
 	 * @param Market_OrderTypeModel $orderType
 	 *
 	 * @return bool
-	 * @throws Exception
-	 * @throws \CDbException
 	 * @throws \Exception
 	 */
 	public function save(Market_OrderTypeModel $orderType)
@@ -90,7 +76,7 @@ class Market_OrderTypeService extends BaseApplicationComponent
 		$orderType->addErrors($orderTypeRecord->getErrors());
 
 		if (!$orderType->hasErrors()) {
-			$transaction = craft()->db->getCurrentTransaction() === NULL ? craft()->db->beginTransaction() : NULL;
+			MarketDbHelper::beginStackedTransaction();
 			try {
 				if (!$isNewOrderType && $oldOrderType->fieldLayoutId) {
 					// Drop the old field layout
@@ -113,14 +99,9 @@ class Market_OrderTypeService extends BaseApplicationComponent
 					$orderType->id = $orderTypeRecord->id;
 				}
 
-				if ($transaction !== NULL) {
-					$transaction->commit();
-				}
+				MarketDbHelper::commitStackedTransaction();
 			} catch (\Exception $e) {
-				if ($transaction !== NULL) {
-					$transaction->rollback();
-				}
-
+				MarketDbHelper::rollbackStackedTransaction();
 				throw $e;
 			}
 
@@ -130,6 +111,11 @@ class Market_OrderTypeService extends BaseApplicationComponent
 		}
 	}
 
+    /**
+     * @param int $id
+     * @return bool
+     * @throws \Exception
+     */
 	public function deleteById($id)
 	{
 		MarketDbHelper::beginStackedTransaction();
