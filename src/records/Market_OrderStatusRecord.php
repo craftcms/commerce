@@ -10,6 +10,7 @@ namespace Craft;
  * @property int                    orderTypeId
  * @property string                 handle
  * @property string                 color
+ * @property bool                   default
  *
  * @property Market_OrderTypeRecord orderType
  * @property Market_EmailRecord[]   emails
@@ -41,6 +42,7 @@ class Market_OrderStatusRecord extends BaseRecord
             'orderTypeId'   => [AttributeType::Number, 'required' => true],
 			'handle'        => [AttributeType::Handle, 'required' => true],
 			'color'         => [AttributeType::String, 'column' => ColumnType::Char, 'length' => 6, 'required' => true],
+            'default'       => [AttributeType::Bool, 'default' => 0, 'required' => true],
 		];
 	}
 }

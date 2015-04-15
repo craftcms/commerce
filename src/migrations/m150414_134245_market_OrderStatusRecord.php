@@ -16,9 +16,10 @@ class m150414_134245_market_OrderStatusRecord extends BaseMigration
         // Create the craft_market_orderstatuses table
         craft()->db->createCommand()->createTable('market_orderstatuses', [
             'name'        => ['required' => true],
-            'orderTypeId' => ['maxLength' => 11, 'decimals' => 0, 'required' => true, 'unsigned' => false, 'length' => 10, 'column' => 'integer'],
+            'orderTypeId' => ['decimals' => 0, 'required' => true, 'unsigned' => false, 'length' => 10, 'column' => 'integer'],
             'handle'      => ['maxLength' => 255, 'column' => 'varchar', 'required' => true],
             'color'       => ['maxLength' => 255, 'column' => 'char', 'length' => 6, 'required' => true],
+            'default'     => ['default' => 0, 'required' => true, 'column' => 'tinyint', 'unsigned' => true],
         ], null, true);
 
         // Add foreign keys to craft_market_orderstatuses
