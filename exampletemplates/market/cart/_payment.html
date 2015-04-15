@@ -14,9 +14,10 @@
 <form method="POST" class="form-inline">
     <input type="hidden" name="action" value="market/cartAddress/setShippingMethod">
     <input type="hidden" name="redirect" value="market/cart">
+    <input type="hidden" name="orderTypeHandle" value="cart">
     Shipping Method:
     <select name="shippingMethodId" class="form-control" >
-        {% for id,method in craft.market.getShippingMethods() %}
+        {% for id,method in craft.market.getShippingMethods('cart') %}
             <option value="{{ id }}" {% if id == cart.shippingMethodId %}selected{% endif %}>{{ method.name }}: {{ method.amount }}</option>
         {% endfor %}
     </select>
@@ -35,6 +36,7 @@
 <form method="POST" class="form-horizontal">
     <input type="hidden" name="action" value="market/cartPayment/pay"/>
     <input type="hidden" name="redirect" value="market/cart"/>
+    <input type="hidden" name="orderTypeHandle" value="cart">
     {{ getCsrfInput() }}
 
     <div class="row row-centered">

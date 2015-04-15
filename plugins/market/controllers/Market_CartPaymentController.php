@@ -37,9 +37,10 @@ class Market_CartPaymentController extends Market_BaseController
 	{
 		$this->requirePostRequest();
 
-		$paymentForm             = new Market_PaymentFormModel;
-		$paymentForm->attributes = $_POST;
-        $cart = craft()->market_cart->getCart();
+        $paymentForm             = new Market_PaymentFormModel;
+        $paymentForm->attributes = $_POST;
+        $orderTypeHandle         = craft()->request->getPost('orderTypeHandle');
+        $cart                    = craft()->market_cart->getCart($orderTypeHandle);
 
 		//in case of success "pay" redirects us somewhere
 		if (!craft()->market_payment->processPayment($cart, $paymentForm, $customError)) {

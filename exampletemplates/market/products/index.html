@@ -13,35 +13,46 @@
             <div class="caption">
                 <h3>{{product.title}}</h3>
                 <p>Available: {{product.availableOn}} - {{product.expiresOn}}</p>
-                <p>
                 <form method="POST" style="line-height: 30px">
                     <input type="hidden" name="action" value="market/cart/add">
                     <input type="hidden" name="redirect" value="market/cart">
+                    <input type="hidden" name="orderTypeHandle" value="cart">
                     <div class="form-group">
-                    <select name="variantId" class="form-control">
-                        {% for variant in product.variants %}
-                        <option value="{{ variant.id }}">
-                            SKU: {{ variant.sku }} / Price: {{ variant.price }} {% if variant.onSale %}(sale: {{ variant.salePrice }}){% endif %} / Stock: {{ variant.unlimitedStock ? 'unlimited' : variant.stock }} / {{ variant.optionsText }}
-                        </option>
-                        {% endfor %}
-                    </select>
+                        <select name="variantId" class="form-control">
+                            {% for variant in product.variants %}
+                            <option value="{{ variant.id }}">
+                                SKU: {{ variant.sku }} / Price: {{ variant.price }} {% if variant.onSale %}(sale: {{ variant.salePrice }}){% endif %} / Stock: {{ variant.unlimitedStock ? 'unlimited' : variant.stock }} / {{ variant.optionsText }}
+                            </option>
+                            {% endfor %}
+                        </select>
                     </div>
                     <div class="form-group">
-                    Quantity*: <input class="form-control" type="number" name="qty" min="1" value="1">
+                        Quantity*: <input class="form-control" type="number" name="qty" min="1" value="1">
                     </div>
                     <div class="form-group">
-                    <input class="btn btn-primary" type="submit" value="Add to cart">
+                        <input class="btn btn-primary btn-add-to" type="submit" value="Add to cart" data-type="cart" data-redirect="market/cart">
+                        <input class="btn btn-success btn-add-to" type="submit" value="Add to wishlist" data-type="wishlist" data-redirect="market/wishlist">
                     </div>
                     {% if error is defined %}
                     <strong>Error: {{ error }}</strong>
                     {% endif %}
                 </form>
-                </p>
             </div>
         </div>
     </div>
     {% endfor %}
 </div>
-
-
 {% endblock %}
+
+{% set js %}
+{#<script>#}
+    $(document).on('click', '.btn-add-to', function() {
+        var orderTypeHandle = $(this).data('type'),
+            redirect = $(this).data('redirect'),
+            form = $(this).parents('form');
+
+        form.find('[name=orderTypeHandle]').val(orderTypeHandle);
+        form.find('[name=redirect]').val(redirect);
+    });
+{% endset %}
+{% includeJs js %}
