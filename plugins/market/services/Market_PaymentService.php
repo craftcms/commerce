@@ -3,6 +3,7 @@
 namespace Craft;
 
 use Omnipay\Common\CreditCard;
+use Omnipay\Common\Message\AbstractRequest;
 use Omnipay\Common\Message\RequestInterface;
 use Omnipay\Common\Message\ResponseInterface;
 
@@ -21,7 +22,7 @@ class Market_PaymentService extends BaseApplicationComponent
      * @return bool
      * @throws Exception
      */
-	public function processPayment(Market_OrderModel $cart, Market_PaymentFormModel $form, &$customError = '')
+	public function processPayment(Market_OrderModel $cart, Market_PaymentFormModel $form, $redirect, &$customError = '')
 	{
 		if (!$form->validate()) {
 			return false;
@@ -51,10 +52,10 @@ class Market_PaymentService extends BaseApplicationComponent
 
 		$card = $this->createCard($cart, $form);
 
-        $request = $gateway->$defaultAction($this->buildPaymentRequest($transaction, $card));
+        $request = $gateway->$defaultAction($this->buildPaymentRequest($transaction, $redirect, $card));
 
 		try {
-			$redirect = $this->sendPaymentRequest($request, $transaction);
+			$redirect = $this->sendPaymentRequest($request, $transaction, $redirect);
 		} catch (\Exception $e) {
 			$customError = $e->getMessage();
 			craft()->market_transaction->delete($transaction);
@@ -67,15 +68,16 @@ class Market_PaymentService extends BaseApplicationComponent
 		return true;
 	}
 
-	/**
-	 * Send a payment request to the gateway, and redirect appropriately
-	 *
-	 * @param RequestInterface        $request
-	 * @param Market_TransactionModel $transaction
-	 *
-	 * @return string
-	 */
-	private function sendPaymentRequest(RequestInterface $request, Market_TransactionModel $transaction)
+    /**
+     * Send a payment request to the gateway, and redirect appropriately
+     *
+     * @param AbstractRequest         $request
+     * @param Market_TransactionModel $transaction
+     * @param string                   $returnUrl
+
+     * @return string
+     */
+	private function sendPaymentRequest(AbstractRequest $request, Market_TransactionModel $transaction, $returnUrl)
 	{
 		// try {
 		/** @var ResponseInterface $response */
@@ -87,12 +89,14 @@ class Market_PaymentService extends BaseApplicationComponent
 			return $response->redirect();
 		}
 
+        $requestParams = $request->getParameters();
+
 		if ($response->isSuccessful()) {
-			return $this->getReturnUrl($transaction);
+			return $requestParams['returnUrl'];
 		} else {
 			craft()->userSession->setError(Craft::t("Couldn't save payment : " . $transaction->message));
 
-			return $this->getCancelUrl($transaction);
+			return $requestParams['cancelUrl'];
 		}
 	}
 
@@ -135,7 +139,7 @@ class Market_PaymentService extends BaseApplicationComponent
         $this->saveTransaction($child);
 
         $gateway = $parent->paymentMethod->getGateway();
-        $request = $gateway->$action($this->buildPaymentRequest($child));
+        $request = $gateway->$action($this->buildPaymentRequest($child, $order->getCpEditUrl()));
         $request->setTransactionReference($parent->reference);
 
         try {
@@ -213,39 +217,20 @@ class Market_PaymentService extends BaseApplicationComponent
 		return $card;
 	}
 
-	/**
-	 * @param Market_TransactionModel $transaction
-	 *
-	 * @return string
-	 */
-	private function getReturnUrl(Market_TransactionModel $transaction)
-	{
-		return UrlHelper::getActionUrl('market/cartPayment/success', ['id' => $transaction->id, 'hash' => $transaction->hash]);
-	}
-
-	/**
-	 * @param Market_TransactionModel $transaction
-	 * @return string
-	 */
-	private function getCancelUrl(Market_TransactionModel $transaction)
-	{
-		return UrlHelper::getActionUrl('market/cartPayment/cancel', ['id' => $transaction->id, 'hash' => $transaction->hash]);
-	}
-
     /**
      * @param Market_TransactionModel $transaction
      * @param CreditCard $card
      * @return array
      */
-    private function buildPaymentRequest(Market_TransactionModel $transaction, CreditCard $card = null)
+    private function buildPaymentRequest(Market_TransactionModel $transaction, $returnUrl, CreditCard $card = null)
     {
         $request = [
             'amount'        => $transaction->amount,
             'currency'      => 'USD', //TODO refine
             'transactionId' => $transaction->id,
             'clientIp'      => craft()->request->getIpAddress(),
-            'returnUrl'     => $this->getReturnUrl($transaction),
-            'cancelUrl'     => $this->getCancelUrl($transaction),
+            'returnUrl'     => $this->buildDetailedUrl($returnUrl, $transaction),
+            'cancelUrl'     => $this->buildDetailedUrl($returnUrl, $transaction),
         ];
         if($card) {
             $request['card'] = $card;
@@ -262,5 +247,15 @@ class Market_PaymentService extends BaseApplicationComponent
         if (!craft()->market_transaction->save($child)) {
             throw new Exception('Error saving transaction: ' . implode(', ', $child->getAllErrors()));
         }
+    }
+
+    /**
+     * @param string $url
+     * @param Market_TransactionModel $transaction
+     * @return string
+     */
+    private function buildDetailedUrl($url, Market_TransactionModel $transaction)
+    {
+        return UrlHelper::getUrl($url, ['id' => $transaction->id, 'hash' => $transaction->hash]);
     }
 }
