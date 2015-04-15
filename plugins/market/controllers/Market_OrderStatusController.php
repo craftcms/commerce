@@ -72,6 +72,7 @@ class Market_OrderStatusController extends Market_BaseController
 		$orderStatus->handle           = craft()->request->getPost('handle');
 		$orderStatus->color            = craft()->request->getPost('color');
 		$orderStatus->orderTypeId      = craft()->request->getPost('orderTypeId');
+		$orderStatus->default          = craft()->request->getPost('default');
         $emailsIds = craft()->request->getPost('emails', []);
 
 		// Save it

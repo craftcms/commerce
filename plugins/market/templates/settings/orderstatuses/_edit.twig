@@ -71,6 +71,15 @@
         required: true,
     }) }}
 
+    {{ forms.checkboxField({
+        label: "Default"|t,
+        instructions: "Whether this status should be default for that order type."|t,
+        name: 'default',
+        value: 1,
+        checked: orderStatus.default,
+        errors: orderStatus.getErrors('default')
+    }) }}
+
     <hr>
 
     <div class="buttons">

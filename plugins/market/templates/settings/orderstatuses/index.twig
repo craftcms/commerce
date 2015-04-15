@@ -19,6 +19,7 @@
         <th scope="col">Handle</th>
         <th scope="col">Color</th>
         <th scope="col">Emails</th>
+        <th scope="col">Is Default?</th>
         <td class="thin"></td>
     </tr>
     </thead>
@@ -34,6 +35,7 @@
                     {{ email.name }}{% if not loop.last %}, {% endif %}
                 {% endfor %}
             </td>
+            <td>{{ orderStatus.default ? 'Yes' : 'No' }}</td>
             <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
         </tr>
     {% endfor %}

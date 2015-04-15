@@ -112,6 +112,7 @@ class Market_OrderStatusService extends BaseApplicationComponent
         $record->handle      = $model->handle;
         $record->color       = $model->color;
         $record->orderTypeId = $model->orderTypeId;
+        $record->default     = $model->default;
 
 		$record->validate();
 		$model->addErrors($record->getErrors());
@@ -134,6 +135,11 @@ class Market_OrderStatusService extends BaseApplicationComponent
 		if (!$model->hasErrors()) {
             MarketDbHelper::beginStackedTransaction();
 			try {
+                //only one default status can be among statuses of one order type
+                if($record->default) {
+                    Market_OrderStatusRecord::model()->updateAll(['default' => 0], 'orderTypeId = :id', ['id' => $record->orderTypeId]);
+                }
+
 				// Save it!
 				$record->save(false);
 

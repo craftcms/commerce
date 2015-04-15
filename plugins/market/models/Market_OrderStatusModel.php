@@ -12,6 +12,7 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property int                   orderTypeId
  * @property string                handle
  * @property string                color
+ * @property bool                  default
  *
  * @property Market_OrderTypeModel orderType
  * @property Market_EmailModel[]   emails
@@ -35,6 +36,7 @@ class Market_OrderStatusModel extends BaseModel
             'orderTypeId'   => [AttributeType::Number, 'required' => true],
             'handle'        => [AttributeType::Handle, 'required' => true],
             'color'         => [AttributeType::String, 'column' => ColumnType::Char, 'length' => 6, 'required' => true],
+            'default'       => [AttributeType::Bool, 'default' => 0, 'required' => true],
         ];
 	}
 
