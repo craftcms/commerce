@@ -39,11 +39,12 @@ class MarketVariable
 		return craft()->market_optionType->getAll();
 	}
 
-	/**
-	 * Gets the current sessions cart
-	 * TODO: Add Order Type param.
-	 * @return Market_OrderModel
-	 */
+    /**
+     * Gets the current sessions cart
+     * @param string $orderTypeHandle
+     * @return Market_OrderModel
+     * @throws Exception
+     */
 	public function getCart($orderTypeHandle)
 	{
 		return craft()->market_cart->getCart($orderTypeHandle);
@@ -73,9 +74,14 @@ class MarketVariable
 		return craft()->market_state->getGroupedByCountries();
 	}
 
-	public function getShippingMethods()
+    /**
+     * @param string $orderTypeHandle
+     * @return array
+     * @throws Exception
+     */
+	public function getShippingMethods($orderTypeHandle)
 	{
-        $cart = craft()->market_cart->getCart();
+        $cart = craft()->market_cart->getCart($orderTypeHandle);
 		return craft()->market_shippingMethod->calculateForCart($cart);
 	}
 

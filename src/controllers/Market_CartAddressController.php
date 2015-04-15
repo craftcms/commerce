@@ -53,8 +53,9 @@ class Market_CartAddressController extends Market_BaseController
 	{
 		$this->requirePostRequest();
 
-		$id = craft()->request->getPost('shippingMethodId');
-        $cart = craft()->market_cart->getCart();
+        $id              = craft()->request->getPost('shippingMethodId');
+        $orderTypeHandle = craft()->request->getPost('orderTypeHandle');
+        $cart            = craft()->market_cart->getCart($orderTypeHandle);
 
 		if (craft()->market_cart->setShippingMethod($cart, $id)) {
 			craft()->userSession->setFlash('market', 'Shipping method has been set');
