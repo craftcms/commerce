@@ -1,0 +1,94 @@
+{% extends "market/_layouts/cp" %}
+{% set title = "Order Statuses"|t %}
+
+{% set crumbs = [
+{ label: "Market"|t, url: url('market') },
+{ label: "Settings"|t, url: url('market/settings/global') },
+{ label: "Order Statuses"|t, url: url('market/settings/orderstatuses') },
+] %}
+
+
+{% set selectedTab = 'settings' %}
+{% import "_includes/forms" as forms %}
+
+{% set content %}
+<form method="post" accept-charset="UTF-8" data-saveshortcut>
+    <input type="hidden" name="action" value="market/orderStatus/save">
+    <input type="hidden" name="redirect" value="market/settings/orderstatuses">
+
+    {{ getCsrfInput() }}
+    {% if orderStatus.id %}<input type="hidden" name="orderStatusId" value="{{ orderStatus.id }}">{% endif %}
+
+    {{ forms.textField({
+        label: "Name"|t,
+        instructions: "Human-readable name of the status."|t,
+        id: 'name',
+        name: 'name',
+        value: orderStatus.name,
+        errors: orderStatus.getErrors('name'),
+        required: true
+    }) }}
+
+    {{ forms.selectField({
+        label: 'Order Type'|t,
+        instructions: "Which order type this status refers to."|t,
+        id: 'orderTypeId',
+        name: 'orderTypeId',
+        options: orderTypes,
+        class: 'select-wide',
+        value: orderStatus.orderTypeId,
+        errors: orderStatus.getErrors('orderTypeId'),
+        required: true,
+    }) }}
+
+    {{ forms.textField({
+        label: "Handle"|t,
+        instructions: "How you’ll refer to this order status in code or templates."|t,
+        id: 'handle',
+        class: 'code',
+        name: 'handle',
+        value: orderStatus.handle,
+        errors: orderStatus.getErrors('handle'),
+        required: true
+    }) }}
+
+    {{ forms.textField({
+        label: "Color"|t,
+        instructions: "6-letters hex color. For example 00FF00 for green color."|t,
+        name: 'color',
+        value: orderStatus.color,
+        errors: orderStatus.getErrors('color'),
+        required: true
+    }) }}
+
+    {{ forms.multiselectField({
+        label: 'Emails'|t,
+        id: 'emails',
+        name: 'emails',
+        options: emails,
+        values: emailsIds is defined ? emailsIds : orderStatus.getEmailsIds(),
+        errors: orderStatus.getErrors('emails'),
+        required: true,
+    }) }}
+
+    <hr>
+
+    <div class="buttons">
+        <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
+    </div>
+</form>
+
+{% endset %}
+
+{% set js %}
+{% if not orderStatus.handle %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
+{#<script>#}
+$(function () {
+    $('#orderTypeId').selectize({dropdownParent: 'body'});
+    $('#emails').selectize({
+        plugins: ['remove_button'],
+        dropdownParent: 'body'
+    });
+});
+{% endset %}
+{% includeJs js %}

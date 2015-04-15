@@ -34,11 +34,12 @@ class Market_EmailService extends BaseApplicationComponent
 	}
 
 	/**
-	 * @return Market_EmailModel[]
+     * @param array|\CDbCriteria $criteria
+     * @return Market_EmailModel[]
 	 */
-	public function getAll()
+    public function getAll($criteria = [])
 	{
-		$records = Market_EmailRecord::model()->findAll();
+		$records = Market_EmailRecord::model()->findAll($criteria);
 		return Market_EmailModel::populateModels($records);
 	}
 
@@ -76,11 +77,11 @@ class Market_EmailService extends BaseApplicationComponent
         //validating template path
         if(!$model->getErrors('templatePath')) {
             $templatesDir = craft()->path->getSiteTemplatesPath();
-            $realpath = realpath($templatesDir . $record->templatePath);
-            if(!$realpath || !is_file($realpath)) {
+            $fullPath = $templatesDir . $record->templatePath;
+            if(!is_file($fullPath)) {
                 $model->addError('templatePath', 'template not found');
-            } elseif(strpos($realpath, $templatesDir) === false) { //checking if the final destination is outside the templates folder
-                $model->addError('templatePath', 'relative pathes are not allowed');
+            } elseif(preg_match('#(^|/)\.\./#', $record->templatePath)) { //checking occurences of "../" and "/../" in the path
+                $model->addError('templatePath', 'relative paths are not allowed');
             }
         }
 

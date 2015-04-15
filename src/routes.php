@@ -76,4 +76,8 @@ return [
 	'market/settings/emails'                                                                  => ['action' => 'market/email/index'],
 	'market/settings/emails/new'                                                              => ['action' => 'market/email/edit'],
 	'market/settings/emails/(?P<id>\d+)'                                                      => ['action' => 'market/email/edit'],
+    
+	'market/settings/orderstatuses'                                                           => ['action' => 'market/orderStatus/index'],
+	'market/settings/orderstatuses/new'                                                       => ['action' => 'market/orderStatus/edit'],
+	'market/settings/orderstatuses/(?P<id>\d+)'                                               => ['action' => 'market/orderStatus/edit'],
 ];
