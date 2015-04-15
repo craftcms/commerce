@@ -1,0 +1,67 @@
+{% if not cart.lineItems|length %}
+
+<div class="flash-info">
+<p class="bg-info">You have nothing in you cart, add some <a href="{{url('market/products')}}">products</a> to your cart</p>
+</div>
+
+{% else %}
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>Product</th>
+        <th>Info</th>
+        <th>Quantity</th>
+        <th>Price</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for lineItem in cart.lineItems %}
+        {% include "market/wishlist/_cartLineItem" %}
+    {% endfor %}
+    {% for adjustment in cart.adjustments %}
+        <tr>
+            <td></td>
+            <td><pre style="border: none">{{ adjustment.optionsJson|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre></td>
+            <td>
+                {{ adjustment.type }} <strong>{{ adjustment.name }}</strong> ({{ adjustment.description }})
+            </td>
+            <td>
+                {{ adjustment.amount|number_format(2) }}
+            </td>
+            <td></td>
+        </tr>
+    {% endfor %}
+    <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>
+            Item Total: {{ cart.itemTotal|number_format(2) }}<br/>
+            Base Discount: {{ cart.baseDiscount|number_format(2) }}<br/>
+            Base Shipping Rate: {{ cart.baseShippingRate|number_format(2) }}<br/>
+            <h3>Final Price: {{ cart.finalPrice|number_format(2) }}</h3>
+        <td></td>
+    </tr>
+    <tr>
+        <td>
+            {% if not readOnly is defined %}
+            <form method="POST">
+                <input type="hidden" name="action" value="market/cart/removeAll" />
+                <input type="hidden" name="redirect" value="market/wishlist" />
+                <input type="hidden" name="orderTypeHandle" value="wishlist">
+                <input class="btn btn-danger btn-xs" type="submit" value="Remove all" />
+            </form>
+            {% endif %}
+        </td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+    </tbody>
+
+</table>
+
+{% endif %}
