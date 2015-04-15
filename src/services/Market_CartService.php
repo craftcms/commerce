@@ -69,20 +69,27 @@ class Market_CartService extends BaseApplicationComponent
 		return false;
 	}
 
-	/**
-	 * @return Market_OrderModel
-	 * @throws Exception
-	 */
+    /**
+     * @param string $orderTypeHandle
+     * @return Market_OrderModel
+     * @throws \Exception
+     */
 	public function getCart($orderTypeHandle)
 	{
+        //checking handle and getting orderType model
+        if(empty($orderTypeHandle)) {
+            MarketPlugin::log('Empty order type handle passed to getCart()');
+            throw new Exception('Empty orderTypeHandle');
+        }
 
-		// Before getting the cart, make sure we have a real orderType and then
-		// get the first one if we cant find one. Will fail loud if no order types.
-		$orderType = craft()->market_orderType->getByHandleOrOnly($orderTypeHandle);
+        $orderType = craft()->market_orderType->getByHandle($orderTypeHandle);
+        if (!$orderType->id){
+            MarketPlugin::log("Can not find Order Type by handle '$orderTypeHandle'");
+            throw new Exception("Can not find Order Type by handle '$orderTypeHandle'");
+        }
 
 		// Should only be dealing with legit order types now
 		if (!isset($this->cart[$orderType->handle])) {
-
 			$number = $this->_getSessionCartNumber($orderType->handle);
 
 			if ($cart = $this->_getCartRecordByNumber($number)) {
