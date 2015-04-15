@@ -108,9 +108,10 @@ class Market_CartAddressController extends Market_BaseController
 			$shippingAddress = $billingAddress;
 		}
 
+        $orderTypeHandle = craft()->request->getPost('orderTypeHandle');
+        $order = craft()->market_cart->getCart($orderTypeHandle);
+
 		if (!$billingAddress->id || !$shippingAddress->id) {
-			$orderTypeHandle = craft()->request->getPost('orderTypeHandle');
-			$order = craft()->market_cart->getCart($orderTypeHandle);
 			if (empty($billingAddress->id)) {
 				$order->addError('billingAddressId', 'Choose please billing address');
 			}
@@ -121,7 +122,7 @@ class Market_CartAddressController extends Market_BaseController
 			return;
 		}
 
-		if (craft()->market_order->setAddresses($shippingAddress, $billingAddress)) {
+		if (craft()->market_order->setAddresses($order, $shippingAddress, $billingAddress)) {
 			$this->actionGoToPayment();
 		}
 	}
