@@ -28,6 +28,7 @@
             <th scope="row" data-title="Name"><a href="{{ url('market/settings/emails/'~email.id) }}">{{ email.name }}</a></th>
             <td data-title="Subject">{{ email.subject }}</td>
             <td data-title="To">{{ email.to }}</td>
+            <td data-title="To">{{ email.bcc }}</td>
             <td data-title="Type">{{ email.type }}</td>
             <td data-title="Template Path">{{ email.templatePath }}</td>
             <td data-title="Enabled">{{ email.enabled ? 'Yes'|t : 'No'|t }}</td>
