@@ -1,10 +1,10 @@
 {% extends "market/_layouts/cp" %}
-{% set title = "Order Statuses"|t %}
 
 {% set crumbs = [
-{ label: "Market"|t, url: url('market') },
-{ label: "Settings"|t, url: url('market/settings/global') },
-{ label: "Order Statuses"|t, url: url('market/settings/orderstatuses') },
+{ label: 'Market'|t, url: url('market') },
+{ label: 'Settings'|t, url: url('market/settings/global') },
+{ label: 'Order Types'|t, url: url('market/settings/ordertypes') },
+{ label: 'Order Type "' ~ orderType.name ~ '"'|t, url: url('market/settings/ordertypes/' ~ orderType.id) },
 ] %}
 
 
@@ -14,7 +14,8 @@
 {% set content %}
 <form method="post" accept-charset="UTF-8" data-saveshortcut>
     <input type="hidden" name="action" value="market/orderStatus/save">
-    <input type="hidden" name="redirect" value="market/settings/orderstatuses">
+    <input type="hidden" name="redirect" value="market/settings/ordertypes/{{ orderType.id }}">
+    <input type="hidden" name="orderTypeId" value="{{ orderType.id }}">
 
     {{ getCsrfInput() }}
     {% if orderStatus.id %}<input type="hidden" name="orderStatusId" value="{{ orderStatus.id }}">{% endif %}
@@ -27,18 +28,6 @@
         value: orderStatus.name,
         errors: orderStatus.getErrors('name'),
         required: true
-    }) }}
-
-    {{ forms.selectField({
-        label: 'Order Type'|t,
-        instructions: "Which order type this status refers to."|t,
-        id: 'orderTypeId',
-        name: 'orderTypeId',
-        options: orderTypes,
-        class: 'select-wide',
-        value: orderStatus.orderTypeId,
-        errors: orderStatus.getErrors('orderTypeId'),
-        required: true,
     }) }}
 
     {{ forms.textField({

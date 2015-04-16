@@ -25,7 +25,7 @@ class Market_OrderStatusModel extends BaseModel
 
 	public function getCpEditUrl()
 	{
-		return UrlHelper::getCpUrl('market/settings/orderstatuses/' . $this->id);
+		return UrlHelper::getCpUrl('market/settings/ordertypes/' . $this->orderTypeId . '/orderstatuses/' . $this->id);
 	}
 
 	protected function defineAttributes()

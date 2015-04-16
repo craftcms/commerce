@@ -14,20 +14,13 @@ namespace Craft;
 class Market_OrderStatusController extends Market_BaseController
 {
     /**
-     * @throws HttpException
-     */
-	public function actionIndex()
-	{
-		$orderStatuses = craft()->market_orderStatus->getAll(['with' => ['orderType', 'emails'], 'order' => 't.id']);
-		$this->renderTemplate('market/settings/orderstatuses/index', compact('orderStatuses'));
-	}
-
-    /**
      * @param array $variables
      * @throws HttpException
      */
 	public function actionEdit(array $variables = [])
 	{
+        $variables['orderType'] = craft()->market_orderType->getById($variables['orderTypeId']);
+
 		if (empty($variables['orderStatus'])) {
 			if (!empty($variables['id'])) {
                 $variables['orderStatus'] = craft()->market_orderStatus->getById($variables['id']);
@@ -45,9 +38,6 @@ class Market_OrderStatusController extends Market_BaseController
 		} else {
 			$variables['title'] = Craft::t('Create an Order Status');
 		}
-
-        $orderTypes              = craft()->market_orderType->getAll(['order' => 'name']);
-        $variables['orderTypes'] = \CHtml::listData($orderTypes, 'id', 'name');
 
         $emails              = craft()->market_email->getAll(['order' => 'name']);
         $variables['emails'] = \CHtml::listData($emails, 'id', 'name');
@@ -87,7 +77,9 @@ class Market_OrderStatusController extends Market_BaseController
 		craft()->urlManager->setRouteVariables(compact('orderStatus', 'emailsIds'));
 	}
 
-
+    /**
+     * @throws HttpException
+     */
 	public function actionDelete()
 	{
 		$this->requirePostRequest();
