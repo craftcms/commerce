@@ -41,9 +41,11 @@
         required: true
     }) }}
 
-    {{ forms.textField({
+
+    {{ forms.colorField({
         label: "Color"|t,
-        instructions: "6-letters hex color. For example 00FF00 for green color."|t,
+        instructions: "Color Code for this status."|t,
+        id: "color",
         name: 'color',
         value: orderStatus.color,
         errors: orderStatus.getErrors('color'),
