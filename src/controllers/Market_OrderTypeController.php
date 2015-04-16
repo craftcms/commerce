@@ -13,6 +13,9 @@ namespace Craft;
  */
 class Market_OrderTypeController extends Market_BaseController
 {
+    /**
+     * @throws HttpException
+     */
 	public function actionIndex()
 	{
 		$methodsExist = craft()->market_shippingMethod->exists();
@@ -20,6 +23,10 @@ class Market_OrderTypeController extends Market_BaseController
 		$this->renderTemplate('market/settings/ordertypes/index', compact('orderTypes', 'methodsExist'));
 	}
 
+    /**
+     * @param array $variables
+     * @throws HttpException
+     */
 	public function actionEditOrderType(array $variables = [])
 	{
 		$variables['brandNewOrderType'] = false;
@@ -35,7 +42,7 @@ class Market_OrderTypeController extends Market_BaseController
 			} else {
 				$variables['orderType']         = new Market_OrderTypeModel();
 				$variables['brandNewOrderType'] = true;
-			};
+			}
 		}
 
 		if (!empty($variables['orderTypeId'])) {
@@ -50,6 +57,11 @@ class Market_OrderTypeController extends Market_BaseController
 		$this->renderTemplate('market/settings/ordertypes/_edit', $variables);
 	}
 
+    /**
+     * @throws Exception
+     * @throws HttpException
+     * @throws \Exception
+     */
 	public function actionSaveOrderType()
 	{
 		$this->requirePostRequest();
@@ -79,7 +91,10 @@ class Market_OrderTypeController extends Market_BaseController
 		craft()->urlManager->setRouteVariables(['orderType' => $orderType]);
 	}
 
-
+    /**
+     * @throws HttpException
+     * @throws \Exception
+     */
 	public function actionDeleteOrderType()
 	{
 		$this->requirePostRequest();

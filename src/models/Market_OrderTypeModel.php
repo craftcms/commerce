@@ -15,6 +15,7 @@ use Market\Traits\Market_ModelRelationsTrait;
  *
  * @property FieldLayoutRecord           fieldLayout
  * @property Market_ShippingMethodRecord shippingMethod
+ * @property Market_OrderStatusModel[]   orderStatuses
  *
  * @method null setFieldLayout(FieldLayoutModel $fieldLayout)
  * @method FieldLayoutModel getFieldLayout()
