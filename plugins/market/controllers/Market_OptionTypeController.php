@@ -40,7 +40,7 @@ class Market_OptionTypeController extends Market_BaseController
 		}
 
 		if (!empty($variables['optionTypeId'])) {
-			$variables['title'] = $variables['optionType']->name;
+			$variables['title'] = $variables['optionType']->name. " ". Craft::t('Option Type');
 		} else {
 			$variables['title'] = Craft::t('Create an Option Type');
 		}

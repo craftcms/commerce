@@ -71,12 +71,6 @@ class Market_OrderStatusService extends BaseApplicationComponent
 		return $orderStatus;
 	}
 
-
-
-
-
-
-
 	/**
 	 * Get first (default) order status from the DB
 	 *
@@ -126,10 +120,11 @@ class Market_OrderStatusService extends BaseApplicationComponent
         $criteria = new \CDbCriteria();
         $criteria->addInCondition('id', $emailsIds);
         $exist = Market_EmailRecord::model()->exists($criteria);
+		$hasEmails = (boolean) count($emailsIds);
 
-        if (!$exist) {
-            $model->addError('emails', 'Choose at least one email');
-        }
+		if (!$exist && $hasEmails) {
+			$model->addError('emails', 'One or more emails do not exist in the system.');
+		}
 
         //saving
 		if (!$model->hasErrors()) {
