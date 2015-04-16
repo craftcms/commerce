@@ -112,8 +112,8 @@ class Market_OrderStatusService extends BaseApplicationComponent
 		$model->addErrors($record->getErrors());
 
         //validating color
-        if(!$model->getError('color') && !preg_match('/^[a-fA-F0-9]{6}$/', $model->color)) {
-            $model->addError('color', 'Color must contain hex digits only: 0-9 or A-F');
+        if(!$model->getError('color') && !preg_match('/#([a-fA-F0-9]){3}(([a-fA-F0-9]){3})?\b/', $model->color)) {
+            $model->addError('color', 'Color must contain hex digits only: 0-9 or A-F with # at start');
         }
 
         //validating emails ids

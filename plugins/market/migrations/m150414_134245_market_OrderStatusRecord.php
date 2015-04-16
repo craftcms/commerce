@@ -18,7 +18,7 @@ class m150414_134245_market_OrderStatusRecord extends BaseMigration
             'name'        => ['required' => true],
             'orderTypeId' => ['decimals' => 0, 'required' => true, 'unsigned' => false, 'length' => 10, 'column' => 'integer'],
             'handle'      => ['maxLength' => 255, 'column' => 'varchar', 'required' => true],
-            'color'       => ['maxLength' => 255, 'column' => 'char', 'length' => 6, 'required' => true],
+            'color'       => ['maxLength' => 255, 'column' => 'char', 'length' => 7, 'required' => true],
             'default'     => ['default' => 0, 'required' => true, 'column' => 'tinyint', 'unsigned' => true],
         ], null, true);
 
