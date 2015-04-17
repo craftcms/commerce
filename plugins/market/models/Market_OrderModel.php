@@ -9,17 +9,20 @@ use Market\Traits\Market_ModelRelationsTrait;
 /**
  * Class Market_OrderModel
  *
- * @property int                           $id
+ * @property int                           id
  * @property string                        $number
  * @property string                        couponCode
- * @property string                        $state
- * @property float                         $itemTotal
+ * @property string                        state
+ * @property float                         itemTotal
  * @property float                         finalPrice
  * @property float                         baseDiscount
  * @property float                         baseShippingRate
- * @property string                        $email
+ * @property string                        email
  * @property DateTime                      completedAt
- * @property string                        $lastIp
+ * @property string                        lastIp
+ * @property string                        returnUrl
+ * @property string                        cancelUrl
+ *
  * @property int                           typeId
  * @property int                           billingAddressId
  * @property int                           shippingAddressId
@@ -206,14 +209,17 @@ class Market_OrderModel extends BaseElementModel
 			'finalPrice'        => [AttributeType::Number, 'decimals' => 4, 'default' => 0],
 			'email'             => AttributeType::String,
 			'completedAt'       => AttributeType::DateTime,
+            'currency'          => AttributeType::String,
+            'lastIp'            => AttributeType::String,
+            'returnUrl'         => AttributeType::String,
+            'cancelUrl'         => AttributeType::String,
+
 			'billingAddressId'  => AttributeType::Number,
 			'shippingAddressId' => AttributeType::Number,
 			'shippingMethodId'  => AttributeType::Number,
 			'paymentMethodId'   => AttributeType::Number,
-			'currency'          => AttributeType::String,
-			'lastIp'            => AttributeType::String,
-			'customerId'        => AttributeType::Number,
-			'typeId'            => AttributeType::Number
+            'customerId'        => AttributeType::Number,
+			'typeId'            => AttributeType::Number,
 		]);
 	}
 }

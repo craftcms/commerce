@@ -49,3 +49,10 @@ This will enable PHP Storm IDE features for services like `craft()->market_produ
  * @property Market_TransactionService     $market_transaction
  * @property Market_VariantService         $market_variant
 ```
+
+## PayPal bug
+
+If you're going to use PayPal payment gateway you should change default value of "tokenParam" in CraftCMS config:
+app/etc/config/defaults/general.php
+
+Just put there something different to "token", for example "craftToken". Otherwise redirects from PayPal will fail.
