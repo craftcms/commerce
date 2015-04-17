@@ -21,6 +21,8 @@ class Market_PaymentMethodModel extends BaseModel
 {
 	/** @var array */
 	private $_settings = [];
+    /** @var array Gateway which doesn't require card */
+    private $_withoutCard = ['PayPal_Express'];
 
 	/**
 	 * @param Market_PaymentMethodRecord|array $values
@@ -97,7 +99,7 @@ class Market_PaymentMethodModel extends BaseModel
 	/**
 	 * Settings fields which should be displayed as select-boxes
 	 *
-	 * @return array [setting name => choices list]
+	 * @return array [setting name => [choices list]]
 	 */
 	public function getSelects()
 	{
@@ -108,7 +110,12 @@ class Market_PaymentMethodModel extends BaseModel
 
 		$defaults = $gateway->getDefaultParameters();
 
-		return array_filter($defaults, 'is_array');
+        $selects = array_filter($defaults, 'is_array');
+        foreach($selects as $param => &$values) {
+            $values = array_combine($values, $values);
+        }
+
+		return $selects;
 	}
 
 	/**
@@ -133,6 +140,15 @@ class Market_PaymentMethodModel extends BaseModel
 
 		return $result;
 	}
+
+    /**
+     * Whether this payment method requires credit card details
+     * @return bool
+     */
+    public function requiresCard()
+    {
+        return !in_array($this->class, $this->_withoutCard);
+    }
 
 	protected function defineAttributes()
 	{

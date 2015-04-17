@@ -15,14 +15,18 @@ namespace Craft;
  * @property float                       finalPrice
  * @property float                       baseDiscount
  * @property float                       baseShippingRate
- * @property string                      $email
+ * @property string                      email
  * @property DateTime                    completedAt
- * @property string                      $lastIp
+ * @property string                      lastIp
+ * @property string                      returnUrl
+ * @property string                      cancelUrl
+ *
  * @property int                         typeId
  * @property int                         billingAddressId
  * @property int                         shippingAddressId
  * @property int                         shippingMethodId
  * @property int                         paymentMethodId
+ * @property int                         customerId
  *
  * @property Market_OrderTypeRecord      type
  * @property Market_LineItemRecord[]     lineItems
@@ -98,7 +102,9 @@ class Market_OrderRecord extends BaseRecord
 			'email'            => AttributeType::String,
 			'completedAt'      => AttributeType::DateTime,
 			'currency'         => AttributeType::String,
-			'lastIp'           => AttributeType::String
+			'lastIp'           => AttributeType::String,
+			'returnUrl'        => AttributeType::String,
+			'cancelUrl'        => AttributeType::String,
 		];
 	}
 

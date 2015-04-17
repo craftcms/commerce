@@ -68,7 +68,13 @@ class Market_OrderService extends BaseApplicationComponent
 		$order->finalPrice = max(0, $order->finalPrice);
 	}
 
-	public function complete($order)
+    /**
+     * @param Market_OrderModel $order
+     * @return bool
+     * @throws Exception
+     * @throws \Exception
+     */
+	public function complete(Market_OrderModel $order)
 	{
 		$order->completedAt = DateTimeHelper::currentTimeForDb();
 		$order->transition(Market_OrderRecord::STATE_COMPLETE);
@@ -148,6 +154,8 @@ class Market_OrderService extends BaseApplicationComponent
 		$orderRecord->baseShippingRate  = $order->baseShippingRate;
 		$orderRecord->finalPrice        = $order->finalPrice;
 		$orderRecord->customerId        = $order->customerId;
+		$orderRecord->returnUrl         = $order->returnUrl;
+		$orderRecord->cancelUrl         = $order->cancelUrl;
 
 		$orderRecord->validate();
 		$order->addErrors($orderRecord->getErrors());
