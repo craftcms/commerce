@@ -35,7 +35,7 @@ class Market_OrderStatusModel extends BaseModel
             'name'          => [AttributeType::String, 'required' => true],
             'orderTypeId'   => [AttributeType::Number, 'required' => true],
             'handle'        => [AttributeType::Handle, 'required' => true],
-            'color'         => [AttributeType::String, 'column' => ColumnType::Char, 'length' => 6, 'required' => true],
+            'color'         => [AttributeType::String, 'column' => ColumnType::Char, 'length' => 7, 'required' => true],
             'default'       => [AttributeType::Bool, 'default' => 0, 'required' => true],
         ];
 	}
