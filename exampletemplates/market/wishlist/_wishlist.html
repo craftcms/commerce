@@ -1,0 +1,21 @@
+{% if not cart.lineItems|length %}
+
+<div class="flash-info">
+<p class="bg-info">You have nothing in you wishlist, add some <a href="{{url('market/products')}}">products</a> to your wishlist</p>
+</div>
+
+{% else %}
+    <ul>
+    {% for lineItem in cart.lineItems %}
+        <li>{{lineItem.variant.product.title}} - {{lineItem.variant.price }}
+            <form method="POST" style="line-height: 30px;display:inline">
+                <input type="hidden" name="action" value="market/cart/add">
+                <input type="hidden" name="redirect" value="market/cart">
+                <input type="hidden" name="orderTypeHandle" value="cart">
+                <input type="hidden" name="variantId" value="{{ lineItem.variant.id }}">
+                <input type="hidden" name="qty" value="1">
+                <input class="btn btn-success btn-add-to" type="submit" value="Add to cart">
+        </li><br/>
+    {% endfor %}
+    </ul>
+{% endif %}

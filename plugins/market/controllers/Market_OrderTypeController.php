@@ -46,7 +46,7 @@ class Market_OrderTypeController extends Market_BaseController
 		}
 
 		if (!empty($variables['orderTypeId'])) {
-			$variables['title'] = $variables['orderType']->name;
+			$variables['title'] = $variables['orderType']->name. " ". Craft::t('Order Type');;
 		} else {
 			$variables['title'] = Craft::t('Create a Order Type');
 		}

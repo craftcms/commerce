@@ -42,6 +42,12 @@ class Market_OrderStatusController extends Market_BaseController
         $emails              = craft()->market_email->getAll(['order' => 'name']);
         $variables['emails'] = \CHtml::listData($emails, 'id', 'name');
 
+		$variables['colorField'] = craft()->templates->render('_includes/forms/color', array(
+		'id'    => craft()->templates->formatInputId('color'),
+		'name'  => 'color',
+		'value' => '#93FF81'
+		));
+
 		$this->renderTemplate('market/settings/orderstatuses/_edit', $variables);
 	}
 
