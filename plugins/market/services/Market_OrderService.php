@@ -112,7 +112,7 @@ class Market_OrderService extends BaseApplicationComponent
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function save($order)
+	public function save($order, $message)
 	{
 		if (!$order->id) {
 			$orderRecord = new Market_OrderRecord();
@@ -137,6 +137,8 @@ class Market_OrderService extends BaseApplicationComponent
 		}
 
 		$this->calculateAdjustments($order);
+
+        $oldStatusId = $orderRecord->statusId;
 
 		$orderRecord->typeId            = $order->typeId;
 		$orderRecord->number            = $order->number;
@@ -163,7 +165,22 @@ class Market_OrderService extends BaseApplicationComponent
 
 		try {
 			if (!$order->hasErrors()) {
-				if (craft()->elements->saveElement($order)) {
+                if (craft()->elements->saveElement($order)) {
+                    //creating order history record
+                    if($orderRecord->id && $oldStatusId != $orderRecord->statusId) {
+                        $orderHistoryModel = new Market_OrderHistoryModel();
+                        $orderHistoryModel->orderId = $orderRecord->id;
+                        $orderHistoryModel->prevStatusId = $oldStatusId;
+                        $orderHistoryModel->newStatusId = $orderRecord->statusId;
+                        $orderHistoryModel->userId = craft()->userSession->getId();
+                        $orderHistoryModel->message = $message;
+
+                        if(!craft()->market_orderHistory->save($orderHistoryModel)) {
+                            throw new Exception('Error saving order history: ' . implode(', ', $orderHistoryModel->getAllErrors()));
+                        }
+                    }
+
+                    //saving order record
 					$orderRecord->id = $order->id;
 					$orderRecord->save(false);
 
