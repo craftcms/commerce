@@ -14,6 +14,7 @@
     {# UI when at least one address exists #}
     <form method="post" class="form-horizontal">
         <input type="hidden" name="action" value="market/cartAddress/chooseAddresses">
+        <input type="hidden" name="redirect" value="market/cart">
         <input type="hidden" name="orderTypeHandle" value="cart">
         {{ getCsrfInput() }}
         <h3>Choose an address for Shipping</h3>

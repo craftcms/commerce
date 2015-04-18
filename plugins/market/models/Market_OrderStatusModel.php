@@ -49,4 +49,12 @@ class Market_OrderStatusModel extends BaseModel
             return $email->id;
         }, $this->emails);
     }
+
+    /**
+     * @return string
+     */
+    public function printName()
+    {
+        return sprintf('<span style="color: %s">&block;</span> %s', $this->color, $this->name);
+    }
 }

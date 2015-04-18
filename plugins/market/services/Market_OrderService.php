@@ -68,10 +68,15 @@ class Market_OrderService extends BaseApplicationComponent
 		$order->finalPrice = max(0, $order->finalPrice);
 	}
 
-	public function complete($order)
+    /**
+     * @param Market_OrderModel $order
+     * @return bool
+     * @throws Exception
+     * @throws \Exception
+     */
+	public function complete(Market_OrderModel $order)
 	{
 		$order->completedAt = DateTimeHelper::currentTimeForDb();
-		$order->transition(Market_OrderRecord::STATE_COMPLETE);
 		if ($this->save($order)){
 			craft()->market_cart->forgetCart();
 			return true;
@@ -107,7 +112,7 @@ class Market_OrderService extends BaseApplicationComponent
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function save($order)
+	public function save($order, $message)
 	{
 		if (!$order->id) {
 			$orderRecord = new Market_OrderRecord();
@@ -134,6 +139,8 @@ class Market_OrderService extends BaseApplicationComponent
 
 		$this->calculateAdjustments($order);
 
+        $oldStatusId = $orderRecord->statusId;
+
 		$orderRecord->typeId            = $order->typeId;
 		$orderRecord->number            = $order->number;
 		$orderRecord->itemTotal         = $order->itemTotal;
@@ -143,12 +150,14 @@ class Market_OrderService extends BaseApplicationComponent
 		$orderRecord->shippingAddressId = $order->shippingAddressId;
 		$orderRecord->shippingMethodId  = $order->shippingMethodId;
 		$orderRecord->paymentMethodId   = $order->paymentMethodId;
-		$orderRecord->state             = $order->state;
+		$orderRecord->statusId          = $order->statusId;
 		$orderRecord->couponCode        = $order->couponCode;
 		$orderRecord->baseDiscount      = $order->baseDiscount;
 		$orderRecord->baseShippingRate  = $order->baseShippingRate;
 		$orderRecord->finalPrice        = $order->finalPrice;
 		$orderRecord->customerId        = $order->customerId;
+		$orderRecord->returnUrl         = $order->returnUrl;
+		$orderRecord->cancelUrl         = $order->cancelUrl;
 
 		$orderRecord->validate();
 		$order->addErrors($orderRecord->getErrors());
@@ -157,7 +166,22 @@ class Market_OrderService extends BaseApplicationComponent
 
 		try {
 			if (!$order->hasErrors()) {
-				if (craft()->elements->saveElement($order)) {
+                if (craft()->elements->saveElement($order)) {
+                    //creating order history record
+                    if($orderRecord->id && $oldStatusId != $orderRecord->statusId) {
+                        $orderHistoryModel = new Market_OrderHistoryModel();
+                        $orderHistoryModel->orderId = $orderRecord->id;
+                        $orderHistoryModel->prevStatusId = $oldStatusId;
+                        $orderHistoryModel->newStatusId = $orderRecord->statusId;
+                        $orderHistoryModel->userId = craft()->userSession->getId();
+                        $orderHistoryModel->message = $message;
+
+                        if(!craft()->market_orderHistory->save($orderHistoryModel)) {
+                            throw new Exception('Error saving order history: ' . implode(', ', $orderHistoryModel->getAllErrors()));
+                        }
+                    }
+
+                    //saving order record
 					$orderRecord->id = $order->id;
 					$orderRecord->save(false);
 

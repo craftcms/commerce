@@ -10,19 +10,23 @@ namespace Craft;
  * @property int                         id
  * @property string                      number
  * @property string                      couponCode
- * @property string                      state
  * @property float                       itemTotal
  * @property float                       finalPrice
  * @property float                       baseDiscount
  * @property float                       baseShippingRate
- * @property string                      $email
+ * @property string                      email
  * @property DateTime                    completedAt
  * @property string                      lastIp
+ * @property string                      returnUrl
+ * @property string                      cancelUrl
+ *
  * @property int                         typeId
  * @property int                         billingAddressId
  * @property int                         shippingAddressId
  * @property int                         shippingMethodId
  * @property int                         paymentMethodId
+ * @property int                         customerId
+ * @property int                         statusId
  *
  * @property Market_OrderTypeRecord      type
  * @property Market_LineItemRecord[]     lineItems
@@ -31,23 +35,11 @@ namespace Craft;
  * @property Market_ShippingMethodRecord shippingMethod
  * @property Market_PaymentMethodRecord  paymentMethod
  * @property Market_TransactionRecord[]  transactions
+ * @property Market_OrderStatusRecord[]  status
+ * @property Market_OrderHistoryRecord[] histories
  */
 class Market_OrderRecord extends BaseRecord
 {
-	const STATE_CART = 'cart';
-	const STATE_ADDRESS = 'address';
-	const STATE_PAYMENT = 'payment';
-	const STATE_CONFIRM = 'confirm';
-	const STATE_COMPLETE = 'complete';
-
-	public static $states = [
-		self::STATE_CART,
-		self::STATE_ADDRESS,
-		self::STATE_PAYMENT,
-		self::STATE_CONFIRM,
-		self::STATE_COMPLETE
-	];
-
 	/**
 	 * Returns the name of the associated database table.
 	 *
@@ -71,6 +63,8 @@ class Market_OrderRecord extends BaseRecord
 			'customer'        => [static::BELONGS_TO, 'Market_CustomerRecord'],
 			'transactions'    => [static::HAS_MANY, 'Market_TransactionRecord', 'orderId'],
 			'element'         => [static::BELONGS_TO, 'ElementRecord', 'id', 'required' => true, 'onDelete' => static::CASCADE],
+			'status'          => [static::BELONGS_TO, 'Market_OrderStatusRecord', 'onDelete' => static::RESTRICT, 'onUpdate' => self::CASCADE],
+			'histories'       => [static::HAS_MANY, 'Market_OrderHistoryRecord', 'orderId'],
 		];
 	}
 
@@ -89,8 +83,7 @@ class Market_OrderRecord extends BaseRecord
 	{
 		return [
 			'number'           => [AttributeType::String, 'length' => 32],
-			'couponCode'       => [AttributeType::String],
-			'state'            => [AttributeType::Enum, 'required' => true, 'default' => 'cart', 'values' => self::$states],
+			'couponCode'       => AttributeType::String,
 			'itemTotal'        => [AttributeType::Number, 'decimals' => 4, 'default' => 0],
 			'baseDiscount'     => [AttributeType::Number, 'decimals' => 4, 'default' => 0],
 			'baseShippingRate' => [AttributeType::Number, 'decimals' => 4, 'default' => 0],
@@ -98,7 +91,9 @@ class Market_OrderRecord extends BaseRecord
 			'email'            => AttributeType::String,
 			'completedAt'      => AttributeType::DateTime,
 			'currency'         => AttributeType::String,
-			'lastIp'           => AttributeType::String
+			'lastIp'           => AttributeType::String,
+			'returnUrl'        => AttributeType::String,
+			'cancelUrl'        => AttributeType::String,
 		];
 	}
 
