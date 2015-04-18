@@ -58,17 +58,6 @@
                         <p></p>
                     {% endif %}
 
-                    {{ forms.selectField({
-                        label: 'Order Status'|t,
-                        instructions: "Current order status."|t,
-                        id: 'statusId',
-                        name: 'statusId',
-                        options: orderStatuses,
-                        class: 'select-wide',
-                        value: order.statusId,
-                        errors: order.getErrors('statusId'),
-                    }) }}
-
                     {% from "_includes/forms" import textField %}
                     {% set static = static is defined ? static : false %}
 
@@ -88,10 +77,8 @@
 
             </div>
             <div class="item" data-position="right" data-colspan="1">
-
+                <!-- order summary pane -->
                 <div class="pane">
-
-
                     {% if orderId is defined %}
                         <h1>{{order.finalPrice|number_format(2) }}</h1>
                         <h2>Completed at: {{ order.completedAt }}</h2>
@@ -113,7 +100,6 @@
                             <li>lastIp              :{{ order.lastIp               }}</li>
                         </ul>
 
-
                         <div class="btngroup">
                             <input type="button" class="btn small formsubmit" value="{{ 'Delete'|t }}"
                                    data-action="market/order/deleteOrder"
@@ -122,8 +108,29 @@
                         </div>
                     {% endif %}
 
-                </div>{#END PANE#}
+                </div>
 
+                <!-- status pane -->
+                <div class="pane">
+                    {{ forms.selectField({
+                        label: 'Order Status'|t,
+                        instructions: "Current order status."|t,
+                        id: 'statusId',
+                        name: 'statusId',
+                        options: orderStatuses,
+                        class: 'select-wide',
+                        value: order.statusId,
+                        errors: order.getErrors('statusId'),
+                    }) }}
+
+                    {{ forms.textareaField({
+                        label: 'Message'|t,
+                        instructions: "Leave comment if you change the status."|t,
+                        name: 'message',
+                        value: message is defined ? message : '',
+                        errors: order.getErrors('message'),
+                    }) }}
+                </div>
 
                 <div class="buttons first">
                     <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
@@ -132,6 +139,32 @@
         </div>
         <div class="grid">
                 <div class="pane">
+                    <h3>Order History</h3>
+
+                    <table id="" class="shadow-box editable">
+                        <thead>
+                        <tr>
+                            <th scope="col" class="header">{{ 'ID'|t }}</span></th>
+                            <th scope="col" class="header">{{ 'Old Status'|t }}</span></th>
+                            <th scope="col" class="header">{{ 'New Status'|t }}</th>
+                            <th scope="col" class="header">{{ 'User'|t }}</th>
+                            <th scope="col" class="header">{{ 'Message'|t }}</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for orderHistory in order.histories %}
+                            <tr>
+                                <td>{{ orderHistory.id }}</td>
+                                <td>{{  orderHistory.prevStatus.printName()|raw }}</td>
+                                <td>{{  orderHistory.newStatus.printName()|raw }}</td>
+                                <td>{{ orderHistory.user.name ~ ' (#' ~ orderHistory.userId ~ ')' }}</td>
+                                <td>{{ orderHistory.message }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
                     <h3>Transactions</h3>
 
                     <table id="" class="shadow-box editable">

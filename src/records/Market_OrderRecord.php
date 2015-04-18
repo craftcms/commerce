@@ -36,6 +36,7 @@ namespace Craft;
  * @property Market_PaymentMethodRecord  paymentMethod
  * @property Market_TransactionRecord[]  transactions
  * @property Market_OrderStatusRecord[]  status
+ * @property Market_OrderHistoryRecord[] histories
  */
 class Market_OrderRecord extends BaseRecord
 {
@@ -63,6 +64,7 @@ class Market_OrderRecord extends BaseRecord
 			'transactions'    => [static::HAS_MANY, 'Market_TransactionRecord', 'orderId'],
 			'element'         => [static::BELONGS_TO, 'ElementRecord', 'id', 'required' => true, 'onDelete' => static::CASCADE],
 			'status'          => [static::BELONGS_TO, 'Market_OrderStatusRecord', 'onDelete' => static::RESTRICT, 'onUpdate' => self::CASCADE],
+			'histories'       => [static::HAS_MANY, 'Market_OrderHistoryRecord', 'orderId'],
 		];
 	}
 

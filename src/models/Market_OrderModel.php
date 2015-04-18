@@ -41,6 +41,7 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property Market_PaymentMethodModel     paymentMethod
  * @property Market_TransactionModel[]     transactions
  * @property Market_OrderStatusModel[]     status
+ * @property Market_OrderHistoryModel[]    histories
  *
  * @package Craft
  */
