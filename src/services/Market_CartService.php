@@ -79,7 +79,7 @@ class Market_CartService extends BaseApplicationComponent
         //checking handle and getting orderType model
         if(empty($orderTypeHandle)) {
             MarketPlugin::log('Empty order type handle passed to getCart()');
-            throw new Exception('Empty orderTypeHandle');
+            throw new Exception('Empty orderTypeHandle passed to getCart()');
         }
 
         $orderType = craft()->market_orderType->getByHandle($orderTypeHandle);
