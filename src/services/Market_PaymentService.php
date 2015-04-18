@@ -68,6 +68,10 @@ class Market_PaymentService extends BaseApplicationComponent
 
 		try {
 			$returnUrl = $this->sendPaymentRequest($request, $transaction);
+
+            if($transaction->status == Market_TransactionRecord::SUCCESS) {
+                craft()->market_order->complete($cart);
+            }
 		} catch (\Exception $e) {
 			$customError = $e->getMessage();
 			craft()->market_transaction->delete($transaction);
