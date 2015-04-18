@@ -16,6 +16,7 @@
 <form action="" method="post" accept-charset="UTF-8">
     <input type="hidden" name="action" value="market/settings/saveSettings"/>
     <input type="hidden" name="redirect" value="market/settings"/>
+    {{ getCsrfInput() }}
 
     {{ forms.textField({
         label: "Default Currency"|t,
