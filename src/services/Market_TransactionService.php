@@ -18,6 +18,16 @@ class Market_TransactionService extends BaseApplicationComponent
 		return Market_TransactionModel::populateModel($record);
 	}
 
+    /**
+     * @param string $hash
+     * @return Market_TransactionModel
+     */
+    public function getByHash($hash)
+    {
+        $record = Market_TransactionRecord::model()->findByAttributes(['hash' => $hash]);
+        return Market_TransactionModel::populateModel($record);
+    }
+
 	/**
 	 * @param int $orderId
 	 * @return Market_TransactionModel[]

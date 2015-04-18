@@ -56,6 +56,9 @@ class Market_OrderController extends Market_BaseController
 		} else {
 			$variables['title'] = Craft::t('Create a new Order');
 		}
+
+        $variables['orderStatuses'] = [0 => ''] + \CHtml::listData($variables['order']->type->orderStatuses, 'id', 'name');
+
 		$this->prepVariables($variables);
 
 		$this->renderTemplate('market/orders/_edit', $variables);
@@ -151,8 +154,11 @@ class Market_OrderController extends Market_BaseController
 
 		$order = $this->_setOrderFromPost();
 		$this->_setContentFromPost($order);
+        $order->statusId = craft()->request->getPost('statusId');
 
-		if (craft()->market_order->save($order)) {
+        $message = craft()->request->getPost('message');
+
+		if (craft()->market_order->save($order, $message)) {
 			$this->redirectToPostedUrl($order);
 		}
 

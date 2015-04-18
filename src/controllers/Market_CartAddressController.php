@@ -36,7 +36,7 @@ class Market_CartAddressController extends Market_BaseController
 		$order = craft()->market_cart->getCart($orderTypeHandle);
 
 		if (craft()->market_order->setAddresses($order, $shipping, $billing)) {
-			$this->actionGoToPayment();
+			$this->redirectToPostedUrl();
 		} else {
 			craft()->urlManager->setRouteVariables([
 				'billingAddress'  => $billing,
@@ -62,29 +62,6 @@ class Market_CartAddressController extends Market_BaseController
 			$this->redirectToPostedUrl();
 		} else {
 			craft()->urlManager->setRouteVariables(['shippingMethodError' => 'Wrong shipping method']);
-		}
-	}
-
-	/**
-	 * @throws Exception
-	 */
-	public function actionGoToPayment()
-	{
-		$this->requirePostRequest();
-
-		$orderTypeHandle = craft()->request->getPost('orderTypeHandle');
-		$order = craft()->market_cart->getCart($orderTypeHandle);
-
-		if (empty($order->shippingAddressId) || empty($order->billingAddressId)) {
-			craft()->userSession->setNotice(Craft::t('Please fill shipping and billing addresses'));
-
-			return;
-		}
-
-		if ($order->canTransit(Market_OrderRecord::STATE_PAYMENT)) {
-			$order->transition(Market_OrderRecord::STATE_PAYMENT);
-		} else {
-			throw new Exception('unable to go to payment state from the state: ' . $order->state);
 		}
 	}
 
@@ -124,7 +101,7 @@ class Market_CartAddressController extends Market_BaseController
 		}
 
 		if (craft()->market_order->setAddresses($order, $shippingAddress, $billingAddress)) {
-			$this->actionGoToPayment();
+            $this->redirectToPostedUrl();
 		}
 	}
 

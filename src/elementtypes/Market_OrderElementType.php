@@ -46,15 +46,16 @@ class Market_OrderElementType extends Market_BaseElementType
 			];
 		}
 
-		$sources[] = ['heading' => "States"];
-
-		foreach (Market_OrderRecord::$states as $state){
-			$key = 'state:' . $state;
-			$sources[$key] = [
-				'label'    => ucwords($state),
-				'criteria' => ['state' => $state]
-			];
-		}
+//@TODO rewrite with OrderStatus
+//		$sources[] = ['heading' => "States"];
+//
+//		foreach (Market_OrderRecord::$states as $state){
+//			$key = 'state:' . $state;
+//			$sources[$key] = [
+//				'label'    => ucwords($state),
+//				'criteria' => ['state' => $state]
+//			];
+//		}
 		return $sources;
 
 	}
@@ -63,14 +64,14 @@ class Market_OrderElementType extends Market_BaseElementType
 	{
 		return [
 			'number'     => Craft::t('Number'),
-			'state'      => Craft::t('State'),
+//			'state'      => Craft::t('State'),
 			'finalPrice' => Craft::t('Total Payable')
 		];
 	}
 
 	public function defineSearchableAttributes()
 	{
-		return ['number', 'state'];
+		return ['number', /*'state'*/];
 	}
 
 	public function getTableAttributeHtml(BaseElementModel $element, $attribute)
@@ -82,7 +83,7 @@ class Market_OrderElementType extends Market_BaseElementType
 	{
 		return [
 			'number'     => Craft::t('Number'),
-			'state'      => Craft::t('State'),
+//			'state'      => Craft::t('State'),
 			'finalPrice' => Craft::t('Total Payable'),
 		];
 	}
@@ -94,7 +95,7 @@ class Market_OrderElementType extends Market_BaseElementType
 			'typeId' => AttributeType::Mixed,
 			'type'   => AttributeType::Mixed,
 			'number' => AttributeType::Mixed,
-			'state'  => AttributeType::Mixed
+//			'state'  => AttributeType::Mixed
 		];
 	}
 
@@ -102,7 +103,7 @@ class Market_OrderElementType extends Market_BaseElementType
 	public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
 	{
 		$query
-			->addSelect("orders.id, orders.typeId, orders.number, orders.finalPrice, orders.state")
+			->addSelect("orders.id, orders.typeId, orders.number, orders.finalPrice")//, orders.state")
 			->join('market_orders orders', 'orders.id = elements.id')
 			->join('market_ordertypes ordertypes', 'ordertypes.id = orders.typeId');
 
@@ -123,9 +124,9 @@ class Market_OrderElementType extends Market_BaseElementType
 			$query->andWhere(DbHelper::parseParam('orders.number', $criteria->number, $query->params));
 		}
 
-		if ($criteria->state) {
-			$query->andWhere(DbHelper::parseParam('orders.state', $criteria->state, $query->params));
-		}
+//		if ($criteria->state) {
+//			$query->andWhere(DbHelper::parseParam('orders.state', $criteria->state, $query->params));
+//		}
 	}
 
 

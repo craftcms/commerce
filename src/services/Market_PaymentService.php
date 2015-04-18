@@ -18,29 +18,41 @@ class Market_PaymentService extends BaseApplicationComponent
      * @param Market_OrderModel       $cart
      * @param Market_PaymentFormModel $form
      *
+     * @param                         $returnUrl
      * @param string                  $customError
      * @return bool
      * @throws Exception
+     * @throws \Exception
      */
-	public function processPayment(Market_OrderModel $cart, Market_PaymentFormModel $form, $redirect, &$customError = '')
+	public function processPayment(Market_OrderModel $cart, Market_PaymentFormModel $form, $returnUrl, $cancelUrl, &$customError = '')
 	{
-		if (!$form->validate()) {
-			return false;
-		}
+        //validating card
+        if($cart->paymentMethod->requiresCard()) {
+            if (!$form->validate()) {
+                return false;
+            }
+        } else {
+            $form->attributes = [];
+        }
 
+        //saving returnUrl to cart
+        $cart->returnUrl = $returnUrl;
+        $cart->cancelUrl = $cancelUrl;
+        craft()->market_order->save($cart);
+
+        //choosing default action
         $defaultAction = craft()->market_settings->getOption('paymentMethod');
         $defaultAction = ($defaultAction === Market_TransactionRecord::PURCHASE) ? $defaultAction : Market_TransactionRecord::AUTHORIZE;
-
         $gateway = $cart->paymentMethod->getGateway();
 
         if($defaultAction == Market_TransactionRecord::AUTHORIZE) {
             if (!$gateway->supportsAuthorize()) {
-                $customError = 'Gateway doesn\'t support authorize';
+                $customError = "Gateway doesn't support authorize";
                 return false;
             }
         } else {
             if (!$gateway->supportsPurchase()) {
-                $customError = 'Gateway doesn\'t support purchase';
+                $customError = "Gateway doesn't support purchase";
                 return false;
             }
         }
@@ -52,10 +64,14 @@ class Market_PaymentService extends BaseApplicationComponent
 
 		$card = $this->createCard($cart, $form);
 
-        $request = $gateway->$defaultAction($this->buildPaymentRequest($transaction, $redirect, $card));
+        $request = $gateway->$defaultAction($this->buildPaymentRequest($transaction, $card));
 
 		try {
-			$redirect = $this->sendPaymentRequest($request, $transaction, $redirect);
+			$returnUrl = $this->sendPaymentRequest($request, $transaction);
+
+            if($transaction->status == Market_TransactionRecord::SUCCESS) {
+                craft()->market_order->complete($cart);
+            }
 		} catch (\Exception $e) {
 			$customError = $e->getMessage();
 			craft()->market_transaction->delete($transaction);
@@ -63,7 +79,7 @@ class Market_PaymentService extends BaseApplicationComponent
 			return false;
 		}
 
-		craft()->request->redirect($redirect);
+		craft()->request->redirect($returnUrl);
 
 		return true;
 	}
@@ -73,11 +89,10 @@ class Market_PaymentService extends BaseApplicationComponent
      *
      * @param AbstractRequest         $request
      * @param Market_TransactionModel $transaction
-     * @param string                   $returnUrl
 
      * @return string
      */
-	private function sendPaymentRequest(AbstractRequest $request, Market_TransactionModel $transaction, $returnUrl)
+	private function sendPaymentRequest(AbstractRequest $request, Market_TransactionModel $transaction)
 	{
 		// try {
 		/** @var ResponseInterface $response */
@@ -89,14 +104,13 @@ class Market_PaymentService extends BaseApplicationComponent
 			return $response->redirect();
 		}
 
-        $requestParams = $request->getParameters();
+        $order = $transaction->order;
 
 		if ($response->isSuccessful()) {
-			return $requestParams['returnUrl'];
+			return $order->returnUrl;
 		} else {
-			craft()->userSession->setError(Craft::t("Couldn't save payment : " . $transaction->message));
-
-			return $requestParams['cancelUrl'];
+			craft()->userSession->setError(Craft::t("Payment error: " . $transaction->message));
+			return $order->cancelUrl;
 		}
 	}
 
@@ -139,8 +153,11 @@ class Market_PaymentService extends BaseApplicationComponent
         $this->saveTransaction($child);
 
         $gateway = $parent->paymentMethod->getGateway();
-        $request = $gateway->$action($this->buildPaymentRequest($child, $order->getCpEditUrl()));
+        $request = $gateway->$action($this->buildPaymentRequest($child));
         $request->setTransactionReference($parent->reference);
+
+        $order->returnUrl = $order->getCpEditUrl();
+        craft()->market_order->save($order);
 
         try {
             $response = $request->send();
@@ -155,13 +172,66 @@ class Market_PaymentService extends BaseApplicationComponent
         return $child;
     }
 
+    /**
+     * Process return from off-site payment
+     *
+     * @param Market_TransactionModel $transaction
+     * @throws Exception
+     */
+    public function completePayment(Market_TransactionModel $transaction)
+    {
+        $order = $transaction->order;
+
+        // ignore already processed transactions
+        if ($transaction->status != Market_TransactionRecord::REDIRECT) {
+            if ($transaction->status == Market_TransactionRecord::SUCCESS) {
+                craft()->request->redirect($order->returnUrl);
+            } else {
+                craft()->userSession->setError('Payment error: ' . $transaction->message);
+                craft()->request->redirect($order->cancelUrl);
+            }
+        }
+
+        // load payment driver
+        $gateway = $transaction->paymentMethod->getGateway();
+
+        $action = 'complete' . ucfirst($transaction->type);
+        $supportsAction = 'supports' . ucfirst($action);
+        if ($gateway->$supportsAction()) {
+            // don't send notifyUrl for completePurchase
+            $params = $this->buildPaymentRequest($transaction);
+
+            // If MOLLIE, the transactionReference will be theirs
+            if ($transaction->paymentMethod->class == 'Mollie_Ideal' || $transaction->paymentMethod->class == 'Mollie') {
+                $params['transactionReference'] = $transaction->reference;
+            }
+
+            // If SagePay, we need the actual reference
+            if ($transaction->paymentMethod->class == 'SagePay_Server') {
+                $params['transactionReference'] = $transaction->reference;
+            }
+
+            unset($params['notifyUrl']);
+
+            $request = $gateway->$action($params);
+            $redirect = $this->sendPaymentRequest($request, $transaction);
+
+            if($transaction->status == Market_TransactionRecord::SUCCESS) {
+                craft()->market_order->complete($order);
+            }
+            craft()->request->redirect($redirect);
+        } else {
+            throw new Exception('Payment return not supported');
+        }
+    }
+
 	/**
 	 * @param Market_TransactionModel $transaction
 	 * @param ResponseInterface       $response
 	 *
 	 * @throws Exception
 	 */
-	private function updateTransaction(Market_TransactionModel &$transaction, ResponseInterface $response)
+	private function updateTransaction(Market_TransactionModel $transaction, ResponseInterface $response)
 	{
 		if ($response->isSuccessful()) {
 			$transaction->status = Market_TransactionRecord::SUCCESS;
@@ -222,15 +292,15 @@ class Market_PaymentService extends BaseApplicationComponent
      * @param CreditCard $card
      * @return array
      */
-    private function buildPaymentRequest(Market_TransactionModel $transaction, $returnUrl, CreditCard $card = null)
+    private function buildPaymentRequest(Market_TransactionModel $transaction, CreditCard $card = null)
     {
         $request = [
             'amount'        => $transaction->amount,
-            'currency'      => 'USD', //TODO refine
+            'currency'      => craft()->market_settings->getOption('defaultCurrency'),
             'transactionId' => $transaction->id,
             'clientIp'      => craft()->request->getIpAddress(),
-            'returnUrl'     => $this->buildDetailedUrl($returnUrl, $transaction),
-            'cancelUrl'     => $this->buildDetailedUrl($returnUrl, $transaction),
+            'returnUrl'     => UrlHelper::getActionUrl('market/cartPayment/complete', ['id' => $transaction->id, 'hash' => $transaction->hash]),
+            'cancelUrl'     => UrlHelper::getSiteUrl($transaction->order->cancelUrl),
         ];
         if($card) {
             $request['card'] = $card;
@@ -247,15 +317,5 @@ class Market_PaymentService extends BaseApplicationComponent
         if (!craft()->market_transaction->save($child)) {
             throw new Exception('Error saving transaction: ' . implode(', ', $child->getAllErrors()));
         }
-    }
-
-    /**
-     * @param string $url
-     * @param Market_TransactionModel $transaction
-     * @return string
-     */
-    private function buildDetailedUrl($url, Market_TransactionModel $transaction)
-    {
-        return UrlHelper::getUrl($url, ['id' => $transaction->id, 'hash' => $transaction->hash]);
     }
 }
