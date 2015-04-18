@@ -108,11 +108,11 @@ class Market_OrderService extends BaseApplicationComponent
 
 	/**
 	 * @param Market_OrderModel $order
-	 *
+	 * @param string $message
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function save($order, $message)
+	public function save($order, $message = '')
 	{
 		if (!$order->id) {
 			$orderRecord = new Market_OrderRecord();

@@ -151,6 +151,10 @@ class Market_OrderModel extends BaseElementModel
 		]);
 	}
 
+
+	public function getOrderStatus(){
+		return craft()->market_orderStatus->getById($this->statusId);
+	}
     /**
      * @return bool
      */
