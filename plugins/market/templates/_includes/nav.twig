@@ -1,25 +1,22 @@
 <h2>Dashboard</h2>
 <ul>
-    <li><a href="{{ url('market') }}">Main Dashboard</a></li>
+    <li><a href="{{ url('market') }}">{{ "Main Dashboard"|t }}</a></li>
 </ul>
 <h2>Orders</h2>
 <ul>
-    <li><a href="{{ url('market/orders') }}">Manage Orders</a></li>
-    <li><a href="{{ url('market/settings/ordertypes') }}">Order Types</a></li>
-    <li><a href="{{ url('market/settings/orderstatuses') }}">Order Statuses</a></li>
+    <li><a href="{{ url('market/orders') }}">{{ "Manage Orders"|t }}</a></li>
+
 </ul>
 
 <h2>Products</h2>
 <ul>
-    <li><a href="{{ url('market/products') }}">Manage Products</a></li>
-    <li><a href="{{ url('market/settings/producttypes') }}">Product Types</a></li>
-    <li><a href="{{ url('market/settings/optiontypes') }}">Option Types</a></li>
+    <li><a href="{{ url('market/products') }}">{{ "Manage Products"|t }}</a></li>
 </ul>
 
 <h2>Promotions</h2>
 <ul>
-    <li><a href="{{ url('market/settings/sales') }}">Sales</a></li>
-    <li><a href="{{ url('market/settings/discounts') }}">Discounts</a></li>
+    <li><a href="{{ url('market/settings/sales') }}">{{ "Sales"|t }}</a></li>
+    <li><a href="{{ url('market/settings/discounts') }}">{{ "Discounts"|t }}</a></li>
 </ul>
 
 {#
@@ -31,14 +28,17 @@
 
 <h2>Settings</h2>
 <ul>
-    <li><a href="{{ url('market/settings/global') }}">Global Settings</a></li>
-    <li><a href="{{ url('market/settings/paymentmethods') }}">Payment Methods</a></li>
-    <li><a href="{{ url('market/settings/taxcategories') }}">Tax Categories</a></li>
-    <li><a href="{{ url('market/settings/taxrates') }}">Tax Rates</a></li>
-    <li><a href="{{ url('market/settings/taxzones') }}">Tax Zones</a></li>
-    <li><a href="{{ url('market/settings/countries') }}">Countries</a></li>
-    <li><a href="{{ url('market/settings/states') }}">States</a></li>
-    <li><a href="{{ url('market/settings/shippingmethods') }}">Shipping Methods</a></li>
-    <li><a href="{{ url('market/settings/shippingrules') }}">Shipping Rules</a></li>
-    <li><a href="{{ url('market/settings/emails') }}">Emails</a></li>
+    <li><a href="{{ url('market/settings/global') }}">{{ "Global Settings"|t }}</a></li>
+    <li><a href="{{ url('market/settings/ordertypes') }}">{{ "Order Types"|t }}</a></li>
+    <li><a href="{{ url('market/settings/producttypes') }}">{{ "Product Types"|t }}</a></li>
+    <li><a href="{{ url('market/settings/optiontypes') }}">{{ "Option Types"|t }}</a></li>
+    <li><a href="{{ url('market/settings/paymentmethods') }}">{{ "Payment Methods"|t }}</a></li>
+    <li><a href="{{ url('market/settings/taxcategories') }}">{{ "Tax Categories"|t }}</a></li>
+    <li><a href="{{ url('market/settings/taxrates') }}">{{ "Tax Rates"|t }}</a></li>
+    <li><a href="{{ url('market/settings/taxzones') }}">{{ "Tax Zones"|t }}</a></li>
+    <li><a href="{{ url('market/settings/countries') }}">{{ "Countries"|t }}</a></li>
+    <li><a href="{{ url('market/settings/states') }}">{{ "States"|t }}</a></li>
+    <li><a href="{{ url('market/settings/shippingmethods') }}">{{ "Shipping Methods"|t }}</a></li>
+    <li><a href="{{ url('market/settings/shippingrules') }}">{{ "Shipping Rules"|t }}</a></li>
+    <li><a href="{{ url('market/settings/emails') }}">{{ "System Emails"|t }}</a></li>
 </ul>
