@@ -58,6 +58,17 @@
                         <p></p>
                     {% endif %}
 
+                    {{ forms.selectField({
+                        label: 'Order Status'|t,
+                        instructions: "Current order status."|t,
+                        id: 'statusId',
+                        name: 'statusId',
+                        options: orderStatuses,
+                        class: 'select-wide',
+                        value: order.statusId,
+                        errors: order.getErrors('statusId'),
+                    }) }}
+
                     {% from "_includes/forms" import textField %}
                     {% set static = static is defined ? static : false %}
 
@@ -83,8 +94,8 @@
 
                     {% if orderId is defined %}
                         <h1>{{order.finalPrice|number_format(2) }}</h1>
-                        <h2>{{ order.completedAt }}</h2>
-                        <h2>Status ID: {{order.statusId }}</h2>
+                        <h2>Completed at: {{ order.completedAt }}</h2>
+                        <h2>Status ID: {{ order.statusId ? order.statusId : 'none' }}</h2>
                         <p></p>
 
                         <ul class="list">
@@ -182,3 +193,13 @@
 
 
 {% endblock %}
+
+{% set js %}
+{#<script>#}
+    $(function () {
+        $('#statusId').selectize({
+            dropdownParent: 'body'
+        });
+    });
+{% endset %}
+{% includeJs js %}

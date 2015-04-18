@@ -59,7 +59,6 @@
         options: emails,
         values: emailsIds is defined ? emailsIds : orderStatus.getEmailsIds(),
         errors: orderStatus.getErrors('emails'),
-        required: true,
     }) }}
 
     {{ forms.checkboxField({
