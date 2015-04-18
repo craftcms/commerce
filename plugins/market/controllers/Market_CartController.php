@@ -124,42 +124,4 @@ class Market_CartController extends Market_BaseController
 		craft()->userSession->setFlash('market', 'All products have been removed');
 		$this->redirectToPostedUrl();
 	}
-
-	/**
-	 * @throws Exception
-	 */
-	public function actionGoToAddress()
-	{
-		$this->requirePostRequest();
-
-		$orderTypeHandle = craft()->request->getPost('orderTypeHandle');
-		$order = craft()->market_cart->getCart($orderTypeHandle);
-
-		if ($order->isEmpty()) {
-			craft()->userSession->setNotice(Craft::t('Please add some items to your cart'));
-			return;
-		}
-
-		if ($order->canTransit(Market_OrderRecord::STATE_ADDRESS)) {
-			$order->transition(Market_OrderRecord::STATE_ADDRESS);
-			$this->redirectToPostedUrl();
-		} else {
-			throw new Exception('unable to go to address state from the state: ' . $order->state);
-		}
-	}
-
-	public function actionGotoCart()
-	{
-		$this->requirePostRequest();
-
-		$orderTypeHandle = craft()->request->getPost('orderTypeHandle');
-		$order = craft()->market_cart->getCart($orderTypeHandle);
-
-		if ($order->canTransit(Market_OrderRecord::STATE_CART)) {
-			$order->transition(Market_OrderRecord::STATE_CART);
-			$this->redirectToPostedUrl();
-		} else {
-			throw new Exception('unable to go to address state from the state: ' . $order->state);
-		}
-	}
 }

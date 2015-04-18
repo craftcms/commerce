@@ -84,7 +84,7 @@
                     {% if orderId is defined %}
                         <h1>{{order.finalPrice|number_format(2) }}</h1>
                         <h2>{{ order.completedAt }}</h2>
-                        <h2>{{order.state|title }}</h2>
+                        <h2>Status ID: {{order.statusId }}</h2>
                         <p></p>
 
                         <ul class="list">

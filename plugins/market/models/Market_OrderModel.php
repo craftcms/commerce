@@ -2,17 +2,14 @@
 
 namespace Craft;
 
-use Market\Behaviors\Statemachine\AStateMachine;
-use Market\Behaviors\Statemachine\AStateTransition;
 use Market\Traits\Market_ModelRelationsTrait;
 
 /**
  * Class Market_OrderModel
  *
  * @property int                           id
- * @property string                        $number
+ * @property string                        number
  * @property string                        couponCode
- * @property string                        state
  * @property float                         itemTotal
  * @property float                         finalPrice
  * @property float                         baseDiscount
@@ -29,6 +26,7 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property int                           shippingMethodId
  * @property int                           paymentMethodId
  * @property int                           customerId
+ * @property int                           statusId
  *
  * @property int                           totalQty
  * @property int                           totalWeight
@@ -42,9 +40,7 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property Market_OrderAdjustmentModel[] adjustments
  * @property Market_PaymentMethodModel     paymentMethod
  * @property Market_TransactionModel[]     transactions
- *
- * @method bool canTransit(string $state)
- * @method void transition(string $state)
+ * @property Market_OrderStatusModel[]     status
  *
  * @package Craft
  */
@@ -53,33 +49,6 @@ class Market_OrderModel extends BaseElementModel
 	use Market_ModelRelationsTrait;
 
 	protected $elementType = 'Market_Order';
-
-	/**
-	 * Attaching event to behaviour
-	 *
-	 * @param string $name
-	 * @param mixed  $behavior
-	 *
-	 * @return \IBehavior|mixed
-	 */
-	public function attachBehavior($name, $behavior)
-	{
-		$behavior = parent::attachBehavior($name, $behavior);
-		if ($behavior instanceof AStateMachine) {
-			$behavior->onAfterTransition = [$this, 'onStateChange'];
-		}
-
-		return $behavior;
-	}
-
-	/**
-	 * @param AStateTransition $transition
-	 */
-	public function onStateChange(AStateTransition $transition)
-	{
-		$this->state = $transition->to->getName();
-		craft()->market_order->save($this);
-	}
 
 	public function isEditable()
 	{
@@ -108,48 +77,6 @@ class Market_OrderModel extends BaseElementModel
 		}
 
 		return NULL;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function behaviors()
-	{
-		return [
-			'state' => [
-				'class'              => 'Market\Behaviors\Statemachine\AStateMachine',
-				'states'             => [
-					[
-						'name'       => Market_OrderRecord::STATE_CART,
-						'transitsTo' => Market_OrderRecord::STATE_ADDRESS
-					], [
-						'name'       => Market_OrderRecord::STATE_ADDRESS,
-						'transitsTo' => [
-							Market_OrderRecord::STATE_CART,
-							Market_OrderRecord::STATE_ADDRESS,
-							Market_OrderRecord::STATE_PAYMENT
-						]
-					], [
-						'name'       => Market_OrderRecord::STATE_PAYMENT,
-						'transitsTo' => [
-							Market_OrderRecord::STATE_CART,
-							Market_OrderRecord::STATE_ADDRESS,
-							Market_OrderRecord::STATE_PAYMENT,
-							Market_OrderRecord::STATE_CONFIRM,
-							Market_OrderRecord::STATE_COMPLETE
-						],
-					], [
-						'name'       => Market_OrderRecord::STATE_CONFIRM,
-						'transitsTo' => Market_OrderRecord::STATE_COMPLETE
-					], [
-						'name' => Market_OrderRecord::STATE_COMPLETE,
-					],
-				],
-				'defaultStateName'   => Market_OrderRecord::STATE_CART,
-				'checkTransitionMap' => true,
-				'stateName'          => $this->state,
-			]
-		];
 	}
 
 	public function isLocalized()
@@ -202,7 +129,6 @@ class Market_OrderModel extends BaseElementModel
 			'id'                => AttributeType::Number,
 			'number'            => AttributeType::String,
 			'couponCode'        => AttributeType::String,
-			'state'             => [AttributeType::Enum, 'required' => true, 'default' => 'cart', 'values' => Market_OrderRecord::$states],
 			'itemTotal'         => [AttributeType::Number, 'decimals' => 4, 'default' => 0],
 			'baseDiscount'      => [AttributeType::Number, 'decimals' => 4, 'default' => 0],
 			'baseShippingRate'  => [AttributeType::Number, 'decimals' => 4, 'default' => 0],
@@ -214,6 +140,7 @@ class Market_OrderModel extends BaseElementModel
             'returnUrl'         => AttributeType::String,
             'cancelUrl'         => AttributeType::String,
 
+            'statusId'          => AttributeType::Number,
 			'billingAddressId'  => AttributeType::Number,
 			'shippingAddressId' => AttributeType::Number,
 			'shippingMethodId'  => AttributeType::Number,
@@ -222,4 +149,20 @@ class Market_OrderModel extends BaseElementModel
 			'typeId'            => AttributeType::Number,
 		]);
 	}
+
+    /**
+     * @return bool
+     */
+    public function showAddress()
+    {
+        return count($this->lineItems) > 0;
+    }
+
+    /**
+     * @return bool
+     */
+    public function showPayment()
+    {
+        return count($this->lineItems) > 0 && $this->billingAddressId && $this->shippingAddressId;
+    }
 }

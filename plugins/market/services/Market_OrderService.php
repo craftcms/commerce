@@ -77,7 +77,6 @@ class Market_OrderService extends BaseApplicationComponent
 	public function complete(Market_OrderModel $order)
 	{
 		$order->completedAt = DateTimeHelper::currentTimeForDb();
-		$order->transition(Market_OrderRecord::STATE_COMPLETE);
 		if ($this->save($order)){
 			craft()->market_cart->forgetCart();
 			return true;
@@ -148,7 +147,7 @@ class Market_OrderService extends BaseApplicationComponent
 		$orderRecord->shippingAddressId = $order->shippingAddressId;
 		$orderRecord->shippingMethodId  = $order->shippingMethodId;
 		$orderRecord->paymentMethodId   = $order->paymentMethodId;
-		$orderRecord->state             = $order->state;
+		$orderRecord->statusId          = $order->statusId;
 		$orderRecord->couponCode        = $order->couponCode;
 		$orderRecord->baseDiscount      = $order->baseDiscount;
 		$orderRecord->baseShippingRate  = $order->baseShippingRate;
