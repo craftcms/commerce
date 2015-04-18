@@ -15,7 +15,7 @@
 {% set content %}
 <form method="post" accept-charset="UTF-8" data-saveshortcut>
     <input type="hidden" name="action" value="market/orderStatus/save">
-    <input type="hidden" name="redirect" value="market/settings/ordertypes/{{ orderType.id }}">
+    <input type="hidden" name="redirect" value="market/settings/ordertypes/{{ orderType.id }}#tab1">
     <input type="hidden" name="orderTypeId" value="{{ orderType.id }}">
 
     {{ getCsrfInput() }}

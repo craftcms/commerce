@@ -17,7 +17,7 @@ namespace Craft;
  * @property float                       baseShippingRate
  * @property string                      $email
  * @property DateTime                    completedAt
- * @property string                      $lastIp
+ * @property string                      lastIp
  * @property int                         typeId
  * @property int                         billingAddressId
  * @property int                         shippingAddressId
