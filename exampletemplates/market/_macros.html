@@ -5,6 +5,7 @@
     <input type="hidden" name="redirect" value="{{ redirect|default("") }}">
     <input type="hidden" name="variantId" value="{{ variantId }}">
     <input type="hidden" name="qty" value="{{ qty|default("1") }}">
+    {{ getCsrfInput() }}
     <input type="submit" value="{{ buttonText|default('Add to Cart') }} class="{{ buttonClass|default("") }}" ">
 </form>
 {% endmacro %}

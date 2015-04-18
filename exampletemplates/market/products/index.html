@@ -17,6 +17,7 @@
                     <input type="hidden" name="action" value="market/cart/add">
                     <input type="hidden" name="redirect" value="market/cart">
                     <input type="hidden" name="orderTypeHandle" value="cart">
+                    {{ getCsrfInput() }}
                     <div class="form-group">
                         <select name="variantId" class="form-control">
                             {% for variant in product.variants %}

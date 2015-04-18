@@ -119,9 +119,10 @@ class Market_OrderService extends BaseApplicationComponent
 			}
 		}
 
-		// Set default shipping method
+		// Set default shipping method from Order Type
 		if (!$order->shippingMethodId){
-			$method = craft()->market_shippingMethod->getById($order->type->shippingMethodId);
+			$type = craft()->market_orderType->getById($order->typeId);
+			$method = craft()->market_shippingMethod->getById($type->shippingMethodId);
 			$order->shippingMethodId = $method->id;
 		}
 

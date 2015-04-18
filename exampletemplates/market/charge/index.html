@@ -241,6 +241,7 @@
 <form action="" method="POST" id="payment-form" class="form-horizontal">
     <input type="hidden" name="action" value="stripey/charge/newCharge"/>
     <input type="hidden" name="redirect" value="stripey/charge/receipt/{stripeId}"/>
+    {{ getCsrfInput() }}
     <input type="hidden" name="{{ craft.config.csrfTokenName }}" value="{{ craft.request.csrfToken }}">
     <div class="row row-centered">
         <div class="col-md-4 col-md-offset-4">
