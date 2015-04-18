@@ -121,8 +121,8 @@ class Market_OrderService extends BaseApplicationComponent
 
 		// Set default shipping method
 		if (!$order->shippingMethodId){
-			$methods = craft()->market_shippingMethod->getAll();
-			$order->shippingMethodId = $methods[0]->id;
+			$method = craft()->market_shippingMethod->getById($order->type->shippingMethodId);
+			$order->shippingMethodId = $method->id;
 		}
 
 		// Set default payment method

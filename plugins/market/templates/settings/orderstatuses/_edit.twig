@@ -4,7 +4,8 @@
 { label: 'Market'|t, url: url('market') },
 { label: 'Settings'|t, url: url('market/settings/global') },
 { label: 'Order Types'|t, url: url('market/settings/ordertypes') },
-{ label: 'Order Type "' ~ orderType.name ~ '"'|t, url: url('market/settings/ordertypes/' ~ orderType.id) },
+{ label: 'Order Type \'' ~ orderType.name|t ~ '\'', url: url('market/settings/ordertypes/' ~ orderType.id) },
+{ label: 'Statuses'|t, url: url('market/settings/ordertypes/' ~ orderType.id ~ '#tab1') },
 ] %}
 
 
@@ -32,7 +33,7 @@
 
     {{ forms.textField({
         label: "Handle"|t,
-        instructions: "How you’ll refer to this order status in code or templates."|t,
+        instructions: "How you'll refer to this order status in code or templates."|t,
         id: 'handle',
         class: 'code',
         name: 'handle',

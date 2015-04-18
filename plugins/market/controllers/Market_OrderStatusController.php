@@ -13,18 +13,19 @@ namespace Craft;
  */
 class Market_OrderStatusController extends Market_BaseController
 {
-    /**
-     * @param array $variables
-     * @throws HttpException
-     */
+	/**
+	 * @param array $variables
+	 *
+	 * @throws HttpException
+	 */
 	public function actionEdit(array $variables = [])
 	{
-        $variables['orderType'] = craft()->market_orderType->getById($variables['orderTypeId']);
+		$variables['orderType'] = craft()->market_orderType->getById($variables['orderTypeId']);
 
 		if (empty($variables['orderStatus'])) {
 			if (!empty($variables['id'])) {
-                $variables['orderStatus'] = craft()->market_orderStatus->getById($variables['id']);
-
+				$variables['orderStatus']   = craft()->market_orderStatus->getById($variables['id']);
+				$variables['orderStatusId'] = $variables['orderStatus']->id;
 				if (!$variables['orderStatus']->id) {
 					throw new HttpException(404);
 				}
@@ -39,23 +40,23 @@ class Market_OrderStatusController extends Market_BaseController
 			$variables['title'] = Craft::t('Create an Order Status');
 		}
 
-        $emails              = craft()->market_email->getAll(['order' => 'name']);
-        $variables['emails'] = \CHtml::listData($emails, 'id', 'name');
+		$emails              = craft()->market_email->getAll(['order' => 'name']);
+		$variables['emails'] = \CHtml::listData($emails, 'id', 'name');
 
-		$variables['colorField'] = craft()->templates->render('_includes/forms/color', array(
-		'id'    => craft()->templates->formatInputId('color'),
-		'name'  => 'color',
-		'value' => '#93FF81'
-		));
+		$variables['colorField'] = craft()->templates->render('_includes/forms/color', [
+			'id'    => craft()->templates->formatInputId('color'),
+			'name'  => 'color',
+			'value' => '#93FF81'
+		]);
 
 		$this->renderTemplate('market/settings/orderstatuses/_edit', $variables);
 	}
 
-    /**
-     * @throws Exception
-     * @throws HttpException
-     * @throws \Exception
-     */
+	/**
+	 * @throws Exception
+	 * @throws HttpException
+	 * @throws \Exception
+	 */
 	public function actionSave()
 	{
 		$this->requirePostRequest();
@@ -63,13 +64,13 @@ class Market_OrderStatusController extends Market_BaseController
 		$orderStatus = new Market_OrderStatusModel();
 
 		// Shared attributes
-		$orderStatus->id               = craft()->request->getPost('orderStatusId');
-		$orderStatus->name             = craft()->request->getPost('name');
-		$orderStatus->handle           = craft()->request->getPost('handle');
-		$orderStatus->color            = craft()->request->getPost('color');
-		$orderStatus->orderTypeId      = craft()->request->getPost('orderTypeId');
-		$orderStatus->default          = craft()->request->getPost('default');
-        $emailsIds = craft()->request->getPost('emails', []);
+		$orderStatus->id          = craft()->request->getPost('orderStatusId');
+		$orderStatus->name        = craft()->request->getPost('name');
+		$orderStatus->handle      = craft()->request->getPost('handle');
+		$orderStatus->color       = craft()->request->getPost('color');
+		$orderStatus->orderTypeId = craft()->request->getPost('orderTypeId');
+		$orderStatus->default     = craft()->request->getPost('default');
+		$emailsIds                = craft()->request->getPost('emails', []);
 
 		// Save it
 		if (craft()->market_orderStatus->save($orderStatus, $emailsIds)) {
@@ -83,9 +84,9 @@ class Market_OrderStatusController extends Market_BaseController
 		craft()->urlManager->setRouteVariables(compact('orderStatus', 'emailsIds'));
 	}
 
-    /**
-     * @throws HttpException
-     */
+	/**
+	 * @throws HttpException
+	 */
 	public function actionDelete()
 	{
 		$this->requirePostRequest();
