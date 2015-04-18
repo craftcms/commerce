@@ -16,6 +16,7 @@
             <input type="hidden" name="redirect" value="market/cart">
             <input type="hidden" name="lineItemId" value="{{ lineItem.id }}">
             <input type="number" name="qty" min="1" value="{{ lineItem.qty }}" class="form-control" width="11">
+            {{ getCsrfInput() }}
             <input type="submit" class="btn" value="Update" />
             {% if error is defined %}<strong>Error: {{ error }}</strong>{% endif %}
         </form>
@@ -41,6 +42,7 @@
             <input type="hidden" name="redirect" value="market/cart" />
             <input type="hidden" name="orderTypeHandle" value="cart">
             <input type="hidden" name="lineItemId" value="{{ lineItem.id }}" />
+            {{ getCsrfInput() }}
             <input type="submit" class="btn btn-xs btn-danger" value="Remove" />
         </form>
         {% endif %}

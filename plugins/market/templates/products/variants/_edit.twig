@@ -12,10 +12,9 @@
 <form method="post" accept-charset="UTF-8" data-saveshortcut>
     <input type="hidden" name="action" value="market/variant/save">
     <input type="hidden" name="redirect" value="{{ product.cpEditUrl }}">
-
-    {{ getCsrfInput() }}
     <input type="hidden" name="productId" value="{{ productId }}">
     <input type="hidden" name="id" value="{{ variant.id }}">
+    {{ getCsrfInput() }}
 
     {% set variantForm %}
 

@@ -15,6 +15,7 @@
     <input type="hidden" name="action" value="market/cartAddress/setShippingMethod">
     <input type="hidden" name="redirect" value="market/cart">
     <input type="hidden" name="orderTypeHandle" value="cart">
+    {{ getCsrfInput() }}
     Shipping Method:
     <select name="shippingMethodId" class="form-control" >
         {% for id,method in craft.market.getShippingMethods('cart') %}
