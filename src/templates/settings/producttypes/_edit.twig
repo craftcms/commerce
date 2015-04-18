@@ -19,6 +19,14 @@
     {{ getCsrfInput() }}
     {% if productType.id %}<input type="hidden" name="productTypeId" value="{{ productType.id }}">{% endif %}
 
+    {% set tabs = {
+    0: {'label':'Name & Info','url':'#tab0'},
+    1: {'label':'Fields','url':'#tab1'}
+    }
+    %}
+
+    <div id="tab0">
+
     {{ forms.textField({
         first: true,
         label: "Name"|t,
@@ -43,6 +51,7 @@
         required: true
     }) }}
 
+    {# Disabled until we work our how behaviors work.
     {{ forms.selectField({
         label: 'Behavior Type'|t,
         instructions: "This controls how this product behaves. Normal does nothing special. Electonic allows selling of electronic products."|t,
@@ -54,10 +63,16 @@
         errors: productType.getErrors('type'),
         required: true,
     }) }}
+    #}
 
+    </div>
+
+    <div id="tab1" class="hidden">
     {% include "_includes/fieldlayoutdesigner" with {
     fieldLayout: productType.getFieldLayout(),
     } only %}
+
+    </div>
 
     <hr>
 
