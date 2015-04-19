@@ -27,7 +27,7 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property int                           shippingMethodId
  * @property int                           paymentMethodId
  * @property int                           customerId
- * @property int                           statusId
+ * @property int                           orderStatusId
  *
  * @property int                           totalQty
  * @property int                           totalWeight
@@ -41,7 +41,7 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property Market_OrderAdjustmentModel[] adjustments
  * @property Market_PaymentMethodModel     paymentMethod
  * @property Market_TransactionModel[]     transactions
- * @property Market_OrderStatusModel[]     status
+ * @property Market_OrderStatusModel       orderStatus
  * @property Market_OrderHistoryModel[]    histories
  *
  * @package Craft
@@ -142,7 +142,7 @@ class Market_OrderModel extends BaseElementModel
             'message'           => AttributeType::String,
             'returnUrl'         => AttributeType::String,
             'cancelUrl'         => AttributeType::String,
-            'statusId'          => AttributeType::Number,
+            'orderStatusId'     => AttributeType::Number,
 			'billingAddressId'  => AttributeType::Number,
 			'shippingAddressId' => AttributeType::Number,
 			'shippingMethodId'  => AttributeType::Number,
@@ -150,13 +150,6 @@ class Market_OrderModel extends BaseElementModel
             'customerId'        => AttributeType::Number,
 			'typeId'            => AttributeType::Number,
 		]);
-	}
-
-	/**
-	 * @return Market_OrderStatusModel
-	 */
-	public function getOrderStatus(){
-		return craft()->market_orderStatus->getById($this->statusId);
 	}
 
     /**

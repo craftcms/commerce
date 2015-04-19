@@ -154,7 +154,6 @@ class Market_OrderController extends Market_BaseController
 
 		$order = $this->_setOrderFromPost();
 		$this->_setContentFromPost($order);
-        $order->statusId = craft()->request->getPost('statusId');
 
 		if (craft()->market_order->save($order)) {
 			$this->redirectToPostedUrl($order);
@@ -184,7 +183,8 @@ class Market_OrderController extends Market_BaseController
 			$order = new Market_OrderModel();
 		}
 
-		$order->typeId = craft()->request->getPost('typeId');
+        $order->orderStatusId = craft()->request->getPost('orderStatusId');
+        $order->typeId = craft()->request->getPost('typeId');
 		$order->message = craft()->request->getPost('message');
 
 		return $order;

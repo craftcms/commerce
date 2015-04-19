@@ -104,12 +104,12 @@
                     {{ forms.selectField({
                         label: 'Order Status'|t,
                         instructions: "Current order status."|t,
-                        id: 'statusId',
-                        name: 'statusId',
+                        id: 'orderStatusId',
+                        name: 'orderStatusId',
                         options: orderStatuses,
                         class: 'select-wide',
-                        value: order.statusId,
-                        errors: order.getErrors('statusId'),
+                        value: order.orderStatusId,
+                        errors: order.getErrors('orderStatusId'),
                     }) }}
 
                     {{ forms.textareaField({
@@ -219,7 +219,7 @@
 {% set js %}
 {#<script>#}
     $(function () {
-        $('#statusId').selectize({
+        $('#orderStatus').selectize({
             dropdownParent: 'body'
         });
     });

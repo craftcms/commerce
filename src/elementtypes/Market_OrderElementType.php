@@ -98,8 +98,8 @@ class Market_OrderElementType extends Market_BaseElementType
 			'typeId' => AttributeType::Mixed,
 			'type'   => AttributeType::Mixed,
 			'number' => AttributeType::Mixed,
-			'status'  => AttributeType::Mixed,
-			'statusId'  => AttributeType::Mixed
+			'orderStatus'  => AttributeType::Mixed,
+			'orderStatusId'  => AttributeType::Mixed
 		];
 	}
 
@@ -107,7 +107,7 @@ class Market_OrderElementType extends Market_BaseElementType
 	public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
 	{
 		$query
-			->addSelect("orders.id, orders.typeId, orders.number, orders.finalPrice", "orders.statusId")
+			->addSelect("orders.id, orders.typeId, orders.number, orders.finalPrice", "orders.orderStatusId")
 			->join('market_orders orders', 'orders.id = elements.id')
 			->join('market_ordertypes ordertypes', 'ordertypes.id = orders.typeId');
 
@@ -128,17 +128,17 @@ class Market_OrderElementType extends Market_BaseElementType
 			$query->andWhere(DbHelper::parseParam('orders.number', $criteria->number, $query->params));
 		}
 
-		if ($criteria->status) {
-			if ($criteria->status instanceof Market_OrderStatusModel) {
-				$criteria->statusId = $criteria->status->id;
-				$criteria->status   = NULL;
+		if ($criteria->orderStatus) {
+			if ($criteria->orderStatus instanceof Market_OrderStatusModel) {
+				$criteria->orderStatusId = $criteria->orderStatus->id;
+				$criteria->orderStatus   = NULL;
 			}else{
-				$query->andWhere(DbHelper::parseParam('orders.statusId', $criteria->status, $query->params));
+				$query->andWhere(DbHelper::parseParam('orders.orderStatusId', $criteria->orderStatus, $query->params));
 			}
 		}
 
-		if ($criteria->statusId){
-			$query->andWhere(DbHelper::parseParam('orders.statusId', $criteria->statusId, $query->params));
+		if ($criteria->orderStatusId){
+			$query->andWhere(DbHelper::parseParam('orders.orderStatusId', $criteria->orderStatusId, $query->params));
 		}
 	}
 
