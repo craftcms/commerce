@@ -170,14 +170,7 @@ class Market_OrderService extends BaseApplicationComponent
                 if (craft()->elements->saveElement($order)) {
                     //creating order history record
                     if($orderRecord->id && $oldStatusId != $orderRecord->orderStatusId) {
-                        $orderHistoryModel = new Market_OrderHistoryModel();
-                        $orderHistoryModel->orderId = $orderRecord->id;
-                        $orderHistoryModel->prevStatusId = $oldStatusId;
-                        $orderHistoryModel->newStatusId = $orderRecord->orderStatusId;
-                        $orderHistoryModel->userId = craft()->userSession->getId();
-                        $orderHistoryModel->message = $orderRecord->message;
-
-                        if(!craft()->market_orderHistory->save($orderHistoryModel)) {
+                        if(!craft()->market_orderHistory->createFromOrder($order, $oldStatusId)) {
                             throw new Exception('Error saving order history: ' . implode(', ', $orderHistoryModel->getAllErrors()));
                         }
                     }

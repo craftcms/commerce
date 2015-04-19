@@ -39,6 +39,35 @@ class Market_OrderHistoryService extends BaseApplicationComponent
 		return Market_OrderHistoryModel::populateModels($records);
 	}
 
+    /**
+     * @param Market_OrderModel $order
+     * @param int               $oldStatusId
+     * @return bool
+     * @throws Exception
+     */
+    public function createFromOrder(Market_OrderModel $order, $oldStatusId)
+    {
+        $orderHistoryModel = new Market_OrderHistoryModel();
+        $orderHistoryModel->orderId = $order->id;
+        $orderHistoryModel->prevStatusId = $oldStatusId;
+        $orderHistoryModel->newStatusId = $order->orderStatusId;
+        $orderHistoryModel->userId = craft()->userSession->getId();
+        $orderHistoryModel->message = $order->message;
+
+        if(!$this->save($orderHistoryModel)) {
+            return false;
+        }
+
+        //raising event on status change
+        $event = new Event($this, [
+            'orderHistoryModel' => $orderHistoryModel,
+            'order' => $order
+        ]);
+        $this->onStatusChange($event);
+
+        return true;
+    }
+
 	/**
 	 * @param Market_OrderHistoryModel $model
 	 *
@@ -90,4 +119,14 @@ class Market_OrderHistoryService extends BaseApplicationComponent
 	{
         Market_OrderHistoryRecord::model()->deleteByPk($id);
 	}
+
+    /**
+     * Event method
+     *
+     * @param \CEvent $event
+     * @throws \CException
+     */
+    public function onStatusChange(\CEvent $event) {
+        $this->raiseEvent('onStatusChange', $event);
+    }
 }
