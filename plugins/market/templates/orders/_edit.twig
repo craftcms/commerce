@@ -40,6 +40,7 @@
                         </tr>
                         </thead>
                         <tbody>
+
                         {%  for lineItem in order.lineItems %}
                             <tr>
                                 <td>{{ lineItem.id }}</td>
@@ -80,25 +81,13 @@
                 <!-- order summary pane -->
                 <div class="pane">
                     {% if orderId is defined %}
-                        <h1>{{order.finalPrice|number_format(2) }}</h1>
-                        <h2>Completed at: {{ order.completedAt }}</h2>
-                        <h2>Status ID: {{ order.statusId ? order.statusId : 'none' }}</h2>
-                        <p></p>
-
-                        <ul class="list">
-                            <li>couponCode          :{{ order.couponCode           }}</li>
-                            <li>itemTotal           :{{ order.itemTotal            }}</li>
-                            <li>baseDiscount        :{{ order.baseDiscount         }}</li>
-                            <li>baseShippingRate    :{{ order.baseShippingRate     }}</li>
-                            <li>finalPrice          :{{ order.finalPrice           }}</li>
-                            <li>email               :{{ order.email                }}</li>
-                            <li>completedAt         :{{ order.completedAt          }}</li>
-                            <li>billingAddressId    :{{ order.billingAddressId     }}</li>
-                            <li>shippingAddressId   :{{ order.shippingAddressId    }}</li>
-                            <li>shippingMethodId    :{{ order.shippingMethodId     }}</li>
-                            <li>currency            :{{ order.currency             }}</li>
-                            <li>lastIp              :{{ order.lastIp               }}</li>
-                        </ul>
+                        <h1>{{ craft.market.settings.defaultCurrency }}&nbsp;{{order.finalPrice|marketCurrency }}</h1>
+                        <h2>{{ order.completedAt|date('D dS M Y') }}</h2>
+                        <h2>{{ order.email }}</h2>
+                        {#{{ order.billingAddressId }}#}
+                        {#{{ order.shippingAddressId }}#}
+                        {#{{ order.shippingMethodId }}#}
+                        {#{{ order.lastIp }}#}
 
                         <div class="btngroup">
                             <input type="button" class="btn small formsubmit" value="{{ 'Delete'|t }}"
@@ -156,9 +145,9 @@
                         {% for orderHistory in order.histories %}
                             <tr>
                                 <td>{{ orderHistory.id }}</td>
-                                <td>{{  orderHistory.prevStatus.printName()|raw }}</td>
-                                <td>{{  orderHistory.newStatus.printName()|raw }}</td>
-                                <td>{{ orderHistory.user.name ~ ' (#' ~ orderHistory.userId ~ ')' }}</td>
+                                <td>{{ orderHistory.prevStatus.printName()|raw }}</td>
+                                <td>{{ orderHistory.newStatus.printName()|raw }}</td>
+                                <td><a href="{{ orderHistory.user.cpEditUrl }}">{{ orderHistory.user.friendlyName }}</a></td>
                                 <td>{{ orderHistory.message }}</td>
                             </tr>
                         {% endfor %}

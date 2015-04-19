@@ -108,11 +108,11 @@ class Market_OrderService extends BaseApplicationComponent
 
 	/**
 	 * @param Market_OrderModel $order
-	 *
+	 * @param string $message
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function save($order, $message)
+	public function save($order)
 	{
 		if (!$order->id) {
 			$orderRecord = new Market_OrderRecord();
@@ -158,6 +158,7 @@ class Market_OrderService extends BaseApplicationComponent
 		$orderRecord->customerId        = $order->customerId;
 		$orderRecord->returnUrl         = $order->returnUrl;
 		$orderRecord->cancelUrl         = $order->cancelUrl;
+		$orderRecord->message         	= $order->message;
 
 		$orderRecord->validate();
 		$order->addErrors($orderRecord->getErrors());
@@ -174,7 +175,7 @@ class Market_OrderService extends BaseApplicationComponent
                         $orderHistoryModel->prevStatusId = $oldStatusId;
                         $orderHistoryModel->newStatusId = $orderRecord->statusId;
                         $orderHistoryModel->userId = craft()->userSession->getId();
-                        $orderHistoryModel->message = $message;
+                        $orderHistoryModel->message = $orderRecord->message;
 
                         if(!craft()->market_orderHistory->save($orderHistoryModel)) {
                             throw new Exception('Error saving order history: ' . implode(', ', $orderHistoryModel->getAllErrors()));
