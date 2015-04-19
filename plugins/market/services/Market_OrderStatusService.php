@@ -47,31 +47,6 @@ class Market_OrderStatusService extends BaseApplicationComponent
 	}
 
 	/**
-	 * @param string $orderStatusHandle
-	 *
-	 * @return Market_OrderStatusModel
-	 * @throws Exception
-	 */
-	public function getByHandleOrOnly($orderStatusHandle = '')
-	{
-		$orderStatus = $this->getByHandle($orderStatusHandle);
-
-		if ($orderStatusHandle == '' or !$orderStatus->id){
-
-			//Temp: did not pass a orderStatus
-			throw new Exception('did not pass a orderStatus');
-
-			MarketPlugin::log("Can not find cart with Order Status of '".$orderStatusHandle."' getting first Order Status.");
-			$orderStatus = craft()->market_orderStatus->getFirst();
-			if (!$orderStatus->id) {
-				throw new Exception('Not one order status found');
-			}
-		}
-
-		return $orderStatus;
-	}
-
-	/**
 	 * Get first (default) order status from the DB
 	 *
 	 * @return Market_OrderStatusModel
