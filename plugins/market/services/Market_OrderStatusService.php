@@ -141,9 +141,63 @@ class Market_OrderStatusService extends BaseApplicationComponent
 		}
 	}
 
+    /**
+     * @param int $id
+     */
 	public function deleteById($id)
 	{
         Market_OrderStatusRecord::model()->deleteByPk($id);
 	}
+
+    /**
+     * Handler for order status change event
+     *
+     * @param Event $event
+     */
+    public function statusChangeHandler(Event $event) {
+        /** @var Market_OrderModel $order */
+        $order = $event->params['order'];
+
+        if(!$order->orderStatusId) {
+            return;
+        }
+        $status = $order->orderStatus;
+        if(!$status->emails) {
+            return;
+        }
+
+        //sending emails
+        $renderVariables = [
+            'order' => $order,
+            'update' => $event->params['orderHistoryModel'],
+        ];
+
+        //substitute templates path
+        $oldPath = craft()->path->getTemplatesPath();
+        $newPath = craft()->path->getSiteTemplatesPath();
+        craft()->path->setTemplatesPath($newPath);
+
+        foreach($status->emails as $email) {
+            $craftEmail = new EmailModel();
+
+            $craftEmail->toEmail = $to = craft()->templates->renderString($email->to, $renderVariables);
+            $craftEmail->bcc     = craft()->templates->renderString($email->bcc, $renderVariables);
+            $craftEmail->subject = craft()->templates->renderString($email->subject, $renderVariables);
+
+            $body = $email->type == Market_EmailRecord::TYPE_HTML ? 'htmlBody' : 'body';
+            $craftEmail->$body = craft()->templates->render($email->templatePath, $renderVariables);
+
+            if(!craft()->email->sendEmail($craftEmail)) {
+                throw new Exception('Email sending error: ' . implode(', ', $email->getAllErrors()));
+            }
+
+            //logging
+            $log = sprintf('Order #%d got new status "%s". Email "%s" %d was sent to %s', $order->id, $order->orderStatus, $email->name, $email->id, $to);
+            MarketPlugin::log($log, LogLevel::Info, true);
+        }
+
+        //put old template path back
+        craft()->path->setTemplatesPath($oldPath);
+    }
 
 }
