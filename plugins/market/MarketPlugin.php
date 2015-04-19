@@ -17,23 +17,6 @@ class MarketPlugin extends BasePlugin
 
 	function init()
 	{
-
-		//        Market::app()["stripe"] = function ($c) {
-//            $key = $this->getSettings()->secretKey;
-//
-//            return new Stripe($key);
-//        };
-
-//        Market::app()["stripe"] = function ($c) {
-//            $key = $this->getSettings()->secretKey;
-//
-//            return new Stripe($key);
-//        };
-//        Market::app()["hashids"] = function ($c) {
-//			$len = craft()->config->get('orderNumberLength', $this->handle);
-//			$alphabet = craft()->config->get('orderNumberAlphabet', $this->handle);
-//			return new \Hashids\Hashids("market",$len,$alphabet);
-//		};
 	}
 
 	public function getName()

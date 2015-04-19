@@ -17,6 +17,7 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property string                        email
  * @property DateTime                      completedAt
  * @property string                        lastIp
+ * @property string                        message
  * @property string                        returnUrl
  * @property string                        cancelUrl
  *
@@ -138,9 +139,9 @@ class Market_OrderModel extends BaseElementModel
 			'completedAt'       => AttributeType::DateTime,
             'currency'          => AttributeType::String,
             'lastIp'            => AttributeType::String,
+            'message'           => AttributeType::String,
             'returnUrl'         => AttributeType::String,
             'cancelUrl'         => AttributeType::String,
-
             'statusId'          => AttributeType::Number,
 			'billingAddressId'  => AttributeType::Number,
 			'shippingAddressId' => AttributeType::Number,
@@ -151,10 +152,13 @@ class Market_OrderModel extends BaseElementModel
 		]);
 	}
 
-
+	/**
+	 * @return Market_OrderStatusModel
+	 */
 	public function getOrderStatus(){
 		return craft()->market_orderStatus->getById($this->statusId);
 	}
+
     /**
      * @return bool
      */
