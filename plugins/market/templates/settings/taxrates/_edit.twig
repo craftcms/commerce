@@ -37,21 +37,24 @@
         required: true,
     }) }}
 
-    {{ forms.checkboxField({
+    {{ forms.field({
+            errors: taxRate.getErrors('include')
+    }, forms.checkbox({
         label: "Include in Price"|t,
         name: 'include',
         value: 1,
         checked: taxRate.include,
         errors: taxRate.getErrors('include'),
-    }) }}
+    })) }}
 
-    {{ forms.checkboxField({
+    {{ forms.field({
+        errors: taxRate.getErrors('showInLabel'),
+    }, forms.checkbox({
         label: "Show in Label"|t,
         name: 'showInLabel',
         value: 1,
         checked: taxRate.showInLabel,
-        errors: taxRate.getErrors('showInLabel'),
-    }) }}
+    })) }}
 
     {{ forms.selectField({
         label: "Tax Zone"|t,

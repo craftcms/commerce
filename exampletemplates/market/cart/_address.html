@@ -14,7 +14,7 @@
     {# UI when at least one address exists #}
     <form method="post" class="form-horizontal">
         <input type="hidden" name="action" value="market/cartAddress/chooseAddresses">
-        <input type="hidden" name="redirect" value="market/cart">
+        <input type="hidden" name="" value="cart">
         <input type="hidden" name="orderTypeHandle" value="cart">
         {{ getCsrfInput() }}
         <h3>Choose an address for Shipping</h3>
@@ -24,7 +24,9 @@
         {% for address in addresses %}
             <label class="address-chooser" style=" display: block; float: left; margin: 10px; padding: 10px; border: 1px solid #bbbbbb">
                 {% for key,value in address.attributes %}
-                    {{ key|marketTitleize }}: <span class="address-option" data-key="{{ key }}" data-value="{{ value }}">{{ value }}</span><br/>
+                    {{ key|marketTitleize }}: <span class="address-option" data-key="{{ key }}" data-value="{{ value }}">
+                        {{ key == 'countryId' ? address.country : (key == 'stateId' ? address.state : value) }}
+                    </span><br/>
                 {% endfor %}
 
                 <a class="address-remove" data-id="{{ address.id }}" href="#">Remove</a><br/>
@@ -43,7 +45,9 @@
         {% for address in addresses %}
             <label class="address-chooser" style=" display: block; float: left; margin: 10px; padding: 10px; border: 1px solid #bbbbbb">
                 {% for key,value in address.attributes %}
-                    {{ key|marketTitleize }}: <span class="address-option" data-key="{{ key }}" data-value="{{ value }}">{{ value }}</span><br/>
+                    {{ key|marketTitleize }}: <span class="address-option" data-key="{{ key }}" data-value="{{ value }}">
+                        {{ key == 'countryId' ? address.country : (key == 'stateId' ? address.state : value) }}
+                    </span><br/>
                 {% endfor %}
 
                 <a class="address-remove" data-id="{{ address.id }}" href="#">Remove</a><br/>

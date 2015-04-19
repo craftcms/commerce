@@ -24,7 +24,15 @@ class Market_StateModel extends BaseModel
 		return UrlHelper::getCpUrl('market/settings/states/' . $this->id);
 	}
 
-	/**
+    /**
+     * @return string
+     */
+    function __toString()
+    {
+        return (string)$this->name;
+    }
+
+    /**
 	 * @return string
 	 */
 	public function formatName()
