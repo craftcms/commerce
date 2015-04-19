@@ -3,7 +3,7 @@
 
 {% block content %}
 
-{% set ordersByStatus = craft.market.orders|group('statusId') %}
+{% set ordersByStatus = craft.market.orders|group('orderStatusId') %}
 
 <div class="row">
     <div class="col-sm-12 col-md-12">

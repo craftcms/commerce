@@ -27,7 +27,7 @@ namespace Craft;
  * @property int                         shippingMethodId
  * @property int                         paymentMethodId
  * @property int                         customerId
- * @property int                         statusId
+ * @property int                         orderStatusId
  *
  * @property Market_OrderTypeRecord      type
  * @property Market_LineItemRecord[]     lineItems
@@ -36,7 +36,7 @@ namespace Craft;
  * @property Market_ShippingMethodRecord shippingMethod
  * @property Market_PaymentMethodRecord  paymentMethod
  * @property Market_TransactionRecord[]  transactions
- * @property Market_OrderStatusRecord[]  status
+ * @property Market_OrderStatusRecord    orderStatus
  * @property Market_OrderHistoryRecord[] histories
  */
 class Market_OrderRecord extends BaseRecord
@@ -64,7 +64,7 @@ class Market_OrderRecord extends BaseRecord
 			'customer'        => [static::BELONGS_TO, 'Market_CustomerRecord'],
 			'transactions'    => [static::HAS_MANY, 'Market_TransactionRecord', 'orderId'],
 			'element'         => [static::BELONGS_TO, 'ElementRecord', 'id', 'required' => true, 'onDelete' => static::CASCADE],
-			'status'          => [static::BELONGS_TO, 'Market_OrderStatusRecord', 'onDelete' => static::RESTRICT, 'onUpdate' => self::CASCADE],
+			'orderStatus'     => [static::BELONGS_TO, 'Market_OrderStatusRecord', 'onDelete' => static::RESTRICT, 'onUpdate' => self::CASCADE],
 			'histories'       => [static::HAS_MANY, 'Market_OrderHistoryRecord', 'orderId', 'order'=>'dateCreated DESC'],
 		];
 	}

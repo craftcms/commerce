@@ -139,7 +139,7 @@ class Market_OrderService extends BaseApplicationComponent
 
 		$this->calculateAdjustments($order);
 
-        $oldStatusId = $orderRecord->statusId;
+        $oldStatusId = $orderRecord->orderStatusId;
 
 		$orderRecord->typeId            = $order->typeId;
 		$orderRecord->number            = $order->number;
@@ -150,7 +150,7 @@ class Market_OrderService extends BaseApplicationComponent
 		$orderRecord->shippingAddressId = $order->shippingAddressId;
 		$orderRecord->shippingMethodId  = $order->shippingMethodId;
 		$orderRecord->paymentMethodId   = $order->paymentMethodId;
-		$orderRecord->statusId          = $order->statusId;
+		$orderRecord->orderStatusId     = $order->orderStatusId;
 		$orderRecord->couponCode        = $order->couponCode;
 		$orderRecord->baseDiscount      = $order->baseDiscount;
 		$orderRecord->baseShippingRate  = $order->baseShippingRate;
@@ -169,11 +169,11 @@ class Market_OrderService extends BaseApplicationComponent
 			if (!$order->hasErrors()) {
                 if (craft()->elements->saveElement($order)) {
                     //creating order history record
-                    if($orderRecord->id && $oldStatusId != $orderRecord->statusId) {
+                    if($orderRecord->id && $oldStatusId != $orderRecord->orderStatusId) {
                         $orderHistoryModel = new Market_OrderHistoryModel();
                         $orderHistoryModel->orderId = $orderRecord->id;
                         $orderHistoryModel->prevStatusId = $oldStatusId;
-                        $orderHistoryModel->newStatusId = $orderRecord->statusId;
+                        $orderHistoryModel->newStatusId = $orderRecord->orderStatusId;
                         $orderHistoryModel->userId = craft()->userSession->getId();
                         $orderHistoryModel->message = $orderRecord->message;
 
