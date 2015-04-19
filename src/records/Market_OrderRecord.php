@@ -17,6 +17,7 @@ namespace Craft;
  * @property string                      email
  * @property DateTime                    completedAt
  * @property string                      lastIp
+ * @property string                      message
  * @property string                      returnUrl
  * @property string                      cancelUrl
  *
@@ -64,7 +65,7 @@ class Market_OrderRecord extends BaseRecord
 			'transactions'    => [static::HAS_MANY, 'Market_TransactionRecord', 'orderId'],
 			'element'         => [static::BELONGS_TO, 'ElementRecord', 'id', 'required' => true, 'onDelete' => static::CASCADE],
 			'status'          => [static::BELONGS_TO, 'Market_OrderStatusRecord', 'onDelete' => static::RESTRICT, 'onUpdate' => self::CASCADE],
-			'histories'       => [static::HAS_MANY, 'Market_OrderHistoryRecord', 'orderId'],
+			'histories'       => [static::HAS_MANY, 'Market_OrderHistoryRecord', 'orderId', 'order'=>'dateCreated DESC'],
 		];
 	}
 
@@ -92,6 +93,7 @@ class Market_OrderRecord extends BaseRecord
 			'completedAt'      => AttributeType::DateTime,
 			'currency'         => AttributeType::String,
 			'lastIp'           => AttributeType::String,
+			'message'           => AttributeType::String,
 			'returnUrl'        => AttributeType::String,
 			'cancelUrl'        => AttributeType::String,
 		];

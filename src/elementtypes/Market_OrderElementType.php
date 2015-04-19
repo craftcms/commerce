@@ -46,16 +46,15 @@ class Market_OrderElementType extends Market_BaseElementType
 			];
 		}
 
-//@TODO rewrite with OrderStatus
-//		$sources[] = ['heading' => "States"];
-//
-//		foreach (Market_OrderRecord::$states as $state){
-//			$key = 'state:' . $state;
-//			$sources[$key] = [
-//				'label'    => ucwords($state),
-//				'criteria' => ['state' => $state]
-//			];
-//		}
+		$sources[] = ['heading' => "Order Statuses"];
+
+		foreach (craft()->market_orderStatus->getAll() as $status){
+			$key = 'orderStatus:' . $status->id;
+			$sources[$key] = [
+				'label'    => ucwords($status->name),
+				'criteria' => ['orderStatus' => $status->id]
+			];
+		}
 		return $sources;
 
 	}
@@ -64,18 +63,23 @@ class Market_OrderElementType extends Market_BaseElementType
 	{
 		return [
 			'number'     => Craft::t('Number'),
-//			'state'      => Craft::t('State'),
+			'orderStatus'=> Craft::t('Status'),
 			'finalPrice' => Craft::t('Total Payable')
 		];
 	}
 
 	public function defineSearchableAttributes()
 	{
-		return ['number', /*'state'*/];
+		return ['number'];
 	}
 
 	public function getTableAttributeHtml(BaseElementModel $element, $attribute)
 	{
+
+		if ($attribute == 'orderStatus') {
+			return $element->orderStatus->printName();
+		}
+
 		return parent::getTableAttributeHtml($element, $attribute);
 	}
 
@@ -83,7 +87,6 @@ class Market_OrderElementType extends Market_BaseElementType
 	{
 		return [
 			'number'     => Craft::t('Number'),
-//			'state'      => Craft::t('State'),
 			'finalPrice' => Craft::t('Total Payable'),
 		];
 	}
@@ -95,7 +98,8 @@ class Market_OrderElementType extends Market_BaseElementType
 			'typeId' => AttributeType::Mixed,
 			'type'   => AttributeType::Mixed,
 			'number' => AttributeType::Mixed,
-//			'state'  => AttributeType::Mixed
+			'status'  => AttributeType::Mixed,
+			'statusId'  => AttributeType::Mixed
 		];
 	}
 
@@ -103,7 +107,7 @@ class Market_OrderElementType extends Market_BaseElementType
 	public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
 	{
 		$query
-			->addSelect("orders.id, orders.typeId, orders.number, orders.finalPrice")//, orders.state")
+			->addSelect("orders.id, orders.typeId, orders.number, orders.finalPrice", "orders.statusId")
 			->join('market_orders orders', 'orders.id = elements.id')
 			->join('market_ordertypes ordertypes', 'ordertypes.id = orders.typeId');
 
@@ -124,9 +128,18 @@ class Market_OrderElementType extends Market_BaseElementType
 			$query->andWhere(DbHelper::parseParam('orders.number', $criteria->number, $query->params));
 		}
 
-//		if ($criteria->state) {
-//			$query->andWhere(DbHelper::parseParam('orders.state', $criteria->state, $query->params));
-//		}
+		if ($criteria->status) {
+			if ($criteria->status instanceof Market_OrderStatusModel) {
+				$criteria->statusId = $criteria->status->id;
+				$criteria->status   = NULL;
+			}else{
+				$query->andWhere(DbHelper::parseParam('orders.statusId', $criteria->status, $query->params));
+			}
+		}
+
+		if ($criteria->statusId){
+			$query->andWhere(DbHelper::parseParam('orders.statusId', $criteria->statusId, $query->params));
+		}
 	}
 
 
