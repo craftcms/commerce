@@ -3,16 +3,19 @@
 
 {% block content %}
 
-{% set ordersByStatus = craft.market.orders|group('orderStatusId') %}
+{% set ordersByStatus = craft.market.orders|group('orderStatus.name') %}
 
 <div class="row">
     <div class="col-sm-12 col-md-12">
-    {% for statusId, orders in ordersByStatus %}
-        <h3>{{ statusId|title }}</h3>
+    {% for status, orders in ordersByStatus %}
+        <h2>{% if status %}{{ status }}{% else %}<i>No Status</i>{% endif %}</h2>
         {% for order in orders %}
-        <h3>{{order.number}}</h3>
+        <h5>{{order.number}} #{{ order.id }}</h5>
             <ul>
                 <li>Final Price: {{ order.finalPrice }}</li>
+                {% if order.completedAt %}
+                    <li>Completed at: {{ order.completedAt }}</li>
+                {% endif %}
             </ul>
         {% endfor %}
     {% endfor %}

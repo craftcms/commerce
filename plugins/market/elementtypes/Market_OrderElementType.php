@@ -99,7 +99,7 @@ class Market_OrderElementType extends Market_BaseElementType
 			'type'   => AttributeType::Mixed,
 			'number' => AttributeType::Mixed,
 			'orderStatus'  => AttributeType::Mixed,
-			'orderStatusId'  => AttributeType::Mixed
+			'orderStatusId'  => AttributeType::Mixed,
 		];
 	}
 
@@ -107,7 +107,7 @@ class Market_OrderElementType extends Market_BaseElementType
 	public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
 	{
 		$query
-			->addSelect("orders.id, orders.typeId, orders.number, orders.finalPrice", "orders.orderStatusId")
+			->addSelect('orders.id, orders.typeId, orders.number, orders.finalPrice, orders.orderStatusId, orders.completedAt')
 			->join('market_orders orders', 'orders.id = elements.id')
 			->join('market_ordertypes ordertypes', 'ordertypes.id = orders.typeId');
 

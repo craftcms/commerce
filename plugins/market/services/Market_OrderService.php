@@ -82,7 +82,7 @@ class Market_OrderService extends BaseApplicationComponent
         }
 
 		if ($this->save($order)){
-			craft()->market_cart->forgetCart();
+			craft()->market_cart->forgetCart($order);
 			return true;
 		}
 		return false;

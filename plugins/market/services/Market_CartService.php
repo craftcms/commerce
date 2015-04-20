@@ -113,9 +113,10 @@ class Market_CartService extends BaseApplicationComponent
 		return $this->cart[$orderType->handle];
 	}
 
-	/**
-	 * @return string
-	 */
+    /**
+     * @param string $cartHandle
+     * @return string
+     */
 	private function _getSessionCartNumber($cartHandle)
 	{
 		$cookieId = $cartHandle."_".$this->cookieCartId;
@@ -128,6 +129,15 @@ class Market_CartService extends BaseApplicationComponent
 
 		return $cartNumber;
 	}
+
+    /**
+     * @param Market_OrderModel $cart
+     */
+    public function forgetCart(Market_OrderModel $cart)
+    {
+        $cookieId = $cart->type->handle . '_' . $this->cookieCartId;
+        craft()->userSession->deleteStateCookie($cookieId);
+    }
 
 	/**
 	 * @param string $number
@@ -188,11 +198,6 @@ class Market_CartService extends BaseApplicationComponent
 		craft()->market_order->save($cart);
 
 		return true;
-	}
-
-	public function forgetCart()
-	{
-		craft()->userSession->deleteStateCookie($this->cookieCartId);
 	}
 
     /**
