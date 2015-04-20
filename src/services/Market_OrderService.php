@@ -77,6 +77,10 @@ class Market_OrderService extends BaseApplicationComponent
 	public function complete(Market_OrderModel $order)
 	{
 		$order->completedAt = DateTimeHelper::currentTimeForDb();
+        if($status = $order->type->defaultStatus) {
+            $order->orderStatusId = $status->id;
+        }
+
 		if ($this->save($order)){
 			craft()->market_cart->forgetCart();
 			return true;
