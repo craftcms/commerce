@@ -13,6 +13,7 @@ namespace Craft;
  * @property FieldLayoutRecord           fieldLayout
  * @property Market_ShippingMethodRecord shippingMethod
  * @property Market_OrderStatusRecord[]  orderStatuses
+ * @property Market_OrderStatusRecord    defaultStatus
  * @package Craft
  */
 class Market_OrderTypeRecord extends BaseRecord
@@ -44,6 +45,7 @@ class Market_OrderTypeRecord extends BaseRecord
 			'fieldLayout'    => [static::BELONGS_TO, 'FieldLayoutRecord', 'onDelete' => static::SET_NULL],
 			'shippingMethod' => [static::BELONGS_TO, 'Market_ShippingMethodRecord', 'required' => true],
 			'orderStatuses'  => [static::HAS_MANY, 'Market_OrderStatusRecord', 'orderTypeId'],
+			'defaultStatus'  => [static::HAS_ONE, 'Market_OrderStatusRecord', 'orderTypeId', 'condition' => 'defaultStatus.default = 1'],
 		];
 	}
 
