@@ -1,4 +1,4 @@
-Market Lincense available [online](http://www.binpress.com/license/view/l/2dcebfc954842d17a66f414850126b56)
+Market License available [online](http://www.binpress.com/license/view/l/2dcebfc954842d17a66f414850126b56)
 
 Chart.js is open source and available under the MIT license.
 
