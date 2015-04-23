@@ -4,3 +4,10 @@ composer.lock
 sami.phar
 docs/phpdoc/build/
 docs/phpdoc/cache/
+*.idea/*
+*.log
+*.bak
+*.orig
+*.sass-cache/*
+*Thumbs.db
+*aspnet_client/*
