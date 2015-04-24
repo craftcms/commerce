@@ -11,7 +11,7 @@ composer install
 cd plugins/market
 ./vendor/bin/codecept run
 
-# Build Step 3 (if 2 passes)
+# Build Step 3 (if step 2 passes)
 cd plugins/market
 composer remove --update-no-dev
 
