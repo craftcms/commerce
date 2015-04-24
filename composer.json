@@ -1,11 +1,9 @@
 {
-    "name": "lukeholder/craft-market",
-    "authors": [
-        {
-            "name": "Luke Holder",
-            "email": "lukemh@gmail.com"
-        }
-    ],
+    "homepage": "http://buildwithcraft.com/commerce",
+     "config": {
+         "cache-files-ttl": 0,
+         "process-timeout": 1800
+     },
     "minimum-stability": "dev",
     "autoload": {
         "psr-4": {
@@ -13,13 +11,13 @@
         }
     },
     "require": {
-        "pimple/pimple": "~3.0@dev",
-        "omnipay/omnipay": "~2.0@dev",
-        "hashids/hashids": "1.0.*@dev",
-        "icanboogie/inflector": "*",
-        "dompdf/dompdf" : "0.6.*"
+        "pimple/pimple": "3.0.0",
+        "omnipay/omnipay": "2.3.2",
+        "hashids/hashids": "1.0.5",
+        "icanboogie/inflector": "1.3.2",
+        "dompdf/dompdf" : "0.6.1"
     },
     "require-dev": {
-        "codeception/codeception": "*"
+        "codeception/codeception": "2.0.12"
     }
 }
