@@ -1,16 +1,21 @@
-# Market for Craft CMS
+# Craft Commerce
 
-This README is designed to be consumed by developers of Market Commerce.
+This README is designed to be consumed by developers of Craft Commerce,
+not end users.
 
-## Code License
-Copyright © 2015 Luke Holder
-See LICENSE.md
+# Code License
+Copyright 2015 Pixel & Tonic, Inc. All rights reserved. See LICENSE.md
 
-# Documentation
+# Documentation Generation
 
-The `docs/phpdoc` is where Sami phpdoc docs are generated
-The `docs/guide` will be where static site user guide is gnerated
+To generate a phpdoc documentation:
+1. ```cd docs/phpdoc```
+2. ```curl -O http://get.sensiolabs.org/sami.phar```
+2. ```php sami.phar update config.php -v```
 
+Then open the ```build/index.html``` file in the browser. In chrome the search sidebar will not
+show up due to security issues, use firefox. Chrome does not have this issue when
+served from a webserver.
 
 ## Code Hint Helpers for PHP Storm
 
@@ -50,10 +55,3 @@ This will enable PHP Storm IDE features for services like `craft()->market_produ
  * @property Market_TransactionService     $market_transaction
  * @property Market_VariantService         $market_variant
 ```
-
-## PayPal bug
-
-If you're going to use PayPal payment gateway you should change default value of "tokenParam" in CraftCMS config:
-app/etc/config/defaults/general.php
-
-Just put there something different to "token", for example "craftToken". Otherwise redirects from PayPal will fail.
