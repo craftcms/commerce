@@ -14,12 +14,12 @@ To generate a phpdoc documentation:
 2. ```php sami.phar update config.php -v```
 
 Then open the ```build/index.html``` file in the browser. In chrome the search sidebar will not
-show up due to security issues, use firefox. Chrome does not have this issue when
+show up due to security issues for local files. Use firefox. Chrome does not have this issue when
 served from a webserver.
 
 ## Code Hint Helpers for PHP Storm
 
-Add this code into PHP-doc of Craft CMS WebApp.php class.
+Add this code block into the phpdoc of Craft's WebApp.php class.
 
 This will enable PHP Storm IDE features for services like `craft()->market_product->method()`
 
