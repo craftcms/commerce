@@ -1,0 +1,21 @@
+paths:
+    tests: tests
+    log: tests/_log
+    data: tests/_data
+    helpers: tests/_helpers
+settings:
+    bootstrap: _bootstrap.php
+    colors: false
+    log: false
+extensions:
+    enabled:
+      - Codeception\Platform\SimpleOutput
+      - Codeception\Platform\RunFailed
+      - VerbosityLevelOutput
+modules:
+    config:
+        Db:
+            dsn: ''
+            user: ''
+            password: ''
+            dump: tests/_data/dump.sql

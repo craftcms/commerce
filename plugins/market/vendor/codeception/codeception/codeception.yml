@@ -1,0 +1,41 @@
+paths:
+    tests: tests
+    log: tests/log
+    show_uncovered: true
+    include:
+        - src/*
+        - tests/data/claypit/c3.php
+    exclude:
+        - vendor/*
+    data: tests/data
+    helpers: tests/helpers
+settings:
+    bootstrap: _bootstrap.php
+    suite_class: \PHPUnit_Framework_TestSuite
+    colors: true
+    memory_limit: 1024M
+    log: true
+modules:
+    config:
+        AMQP:
+            host: 'localhost'
+            port: '5672'
+            username: 'guest'
+            password: 'guest'
+            vhost: '/'
+            queues: [queue1, queue2]
+
+extensions:
+    enabled: [Codeception\Platform\RunFailed]
+
+coverage:
+    enabled: true
+    include:
+        - src/Codeception/Command/*
+        - src/Codeception/Module/Symfony1.php
+        - src/Codeception/Module/Symfony2.php
+        - src/Codeception/Module/Doctrine1.php
+        - src/Codeception/Module/Doctrine2.php
+        - src/Codeception/Module/Kohana.php
+        - src/Codeception/Module/SocialEngine.php
+        - src/Codeception/Module/ZF1.php
