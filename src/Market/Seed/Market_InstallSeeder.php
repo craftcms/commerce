@@ -14,7 +14,7 @@ class Market_InstallSeeder implements Market_SeederInterface
 	public function seed()
 	{
 		$this->defaultShippingMethod();
-		$this->defaultOrderType();
+		$this->defaultOrderTypes();
 	}
 
 	/**
@@ -31,20 +31,28 @@ class Market_InstallSeeder implements Market_SeederInterface
 	/**
 	 * @throws \Exception
 	 */
-	private function defaultOrderType()
+	private function defaultOrderTypes()
 	{
-		$shippingMethod = Market_ShippingMethodRecord::model()->find();
 
-		$orderType                   = new Market_OrderTypeModel;
-		$orderType->name             = 'Cart';
-		$orderType->handle           = 'cart';
-		$orderType->shippingMethodId = $shippingMethod->id;
+        $types = ['cart','wishlist'];
 
-		// Set the field layout
-		$fieldLayout       = \Craft\craft()->fields->assembleLayout([], []);
-		$fieldLayout->type = 'Market_Order';
-		$orderType->setFieldLayout($fieldLayout);
+        $shippingMethod = Market_ShippingMethodRecord::model()->find();
 
-		\Craft\craft()->market_orderType->save($orderType);
+        foreach ($types as $type){
+            $orderType                   = new Market_OrderTypeModel;
+            $orderType->name             = ucwords($type);
+            $orderType->handle           = $type;
+            $orderType->shippingMethodId = $shippingMethod->id;
+
+            // Set the field layout
+            $fieldLayout       = \Craft\craft()->fields->assembleLayout([], []);
+            $fieldLayout->type = 'Market_Order';
+            $orderType->setFieldLayout($fieldLayout);
+
+            \Craft\craft()->market_orderType->save($orderType);
+        }
+
+
+
 	}
 }
