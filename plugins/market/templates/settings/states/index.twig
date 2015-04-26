@@ -24,7 +24,7 @@
             <th scope="row" data-title="Name"><a
                         href="{{ url('market/settings/states/'~state.id) }}">{{ state.name }}</a></th>
             <td data-title="ISO">{{ state.abbreviation }}</td>
-            <td data-title="Country Name">{{ state.countryName }}</td>
+            <td data-title="Country Name">{{ state.country.name }}</td>
             <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
         </tr>
     {% endfor %}
