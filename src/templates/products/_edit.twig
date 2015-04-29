@@ -114,19 +114,19 @@
                                     <input name="masterVariant[sku]" value="{{ masterVariant.sku }}">
                                 </td>
                                 <td class="textual">
-                                    <input type="number" step="0.01" name="masterVariant[price]" value="{{ masterVariant.price }}">
+                                    <input type="number" step="0.0001" name="masterVariant[price]" value="{{ masterVariant.price }}">
                                 </td>
                                 <td class="textual">
-                                    <input type="number" name="masterVariant[width]" value="{{ masterVariant.width }}">
+                                    <input type="number" step="0.0001" name="masterVariant[width]" value="{{ masterVariant.width }}">
                                 </td>
                                 <td class="textual">
-                                    <input type="number" name="masterVariant[height]" value="{{ masterVariant.height }}">
+                                    <input type="number" step="0.0001" name="masterVariant[height]" value="{{ masterVariant.height }}">
                                 </td>
                                 <td class="textual">
-                                    <input type="number" name="masterVariant[length]" value="{{ masterVariant.length }}">
+                                    <input type="number" step="0.0001" name="masterVariant[length]" value="{{ masterVariant.length }}">
                                 </td>
                                 <td class="textual">
-                                    <input type="number" name="masterVariant[weight]" value="{{ masterVariant.weight }}">
+                                    <input type="number" step="0.0001" name="masterVariant[weight]" value="{{ masterVariant.weight }}">
                                 </td>
                                 <td class="textual">
                                     <input type="number" name="masterVariant[stock]" value="{{ masterVariant.stock }}" min="0">
@@ -240,6 +240,14 @@
 
 
                 <div class="pane">
+                    {{ forms.textField({
+                        label: "Slug"|t,
+                        id: 'slug',
+                        name: 'slug',
+                        value: product.slug,
+                        errors: product.getErrors('slug')|merge(product.getErrors('uri'))
+                    }) }}
+
                     {{ dateTimeField(product, 'availableOn', "Available On"|t) }}
                     {{ dateTimeField(product, 'expiresOn', "Expires On"|t) }}
 
@@ -294,5 +302,10 @@
     });
     {% endset %}
     {% includeJs js %}
+
+
+    {% if not product.slug %}
+        {% includeJs "window.slugGenerator = new Craft.SlugGenerator('#title', '#slug');" %}
+    {% endif %}
 
 {% endblock %}
