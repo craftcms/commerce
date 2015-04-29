@@ -37,19 +37,19 @@
                 <input name="sku" value="{{ variant.sku }}">
             </td>
             <td class="textual">
-                <input type="number" step="0.01" name="price" value="{{ variant.price }}">
+                <input type="number" step="0.0001" name="price" value="{{ variant.price }}">
             </td>
             <td class="textual">
-                <input type="number" name="width" value="{{ variant.width }}">
+                <input type="number" step="0.0001" name="width" value="{{ variant.width }}">
             </td>
             <td class="textual">
-                <input type="number" name="height" value="{{ variant.height }}">
+                <input type="number" step="0.0001" name="height" value="{{ variant.height }}">
             </td>
             <td class="textual">
-                <input type="number" name="length" value="{{ variant.length }}">
+                <input type="number" step="0.0001" name="length" value="{{ variant.length }}">
             </td>
             <td class="textual">
-                <input type="number" name="weight" value="{{ variant.weight }}">
+                <input type="number" step="0.0001" name="weight" value="{{ variant.weight }}">
             </td>
             <td class="textual">
                 <input type="number" name="stock" value="{{ variant.stock }}" min="0">
