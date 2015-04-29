@@ -15,9 +15,7 @@ class Market_ProductService extends BaseApplicationComponent
 	 */
 	public function getById($id)
 	{
-		$product = Market_ProductRecord::model()->findById($id);
-
-		return Market_ProductModel::populateModel($product);
+        return craft()->elements->getElementById($id, 'Market_Product');
 	}
 
 	/**
