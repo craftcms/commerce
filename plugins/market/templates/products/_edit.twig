@@ -168,8 +168,7 @@
                         name: 'taxCategoryId',
                         value: product.taxCategoryId,
                         required: true,
-                        options: taxCategories,
-                        class: 'select-wide'
+                        options: taxCategories
                     }) }}
 
                     {% for tab in productType.getFieldLayout().getTabs() %}
@@ -299,7 +298,7 @@
 
     {% set js %}
     $(function() {
-        $('select').selectize({dropdownParent: 'body'});
+        $('select.optionTypeSelect').selectize({dropdownParent: 'body'});
     });
     {% endset %}
     {% includeJs js %}

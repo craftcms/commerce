@@ -107,7 +107,6 @@
                         id: 'orderStatusId',
                         name: 'orderStatusId',
                         options: orderStatuses,
-                        class: 'select-wide',
                         value: order.orderStatusId,
                         errors: order.getErrors('orderStatusId'),
                     }) }}
@@ -217,11 +216,6 @@
 {% endblock %}
 
 {% set js %}
-{#<script>#}
-    $(function () {
-        $('#orderStatusId').selectize({
-            dropdownParent: 'body'
-        });
-    });
+
 {% endset %}
 {% includeJs js %}
