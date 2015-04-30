@@ -57,7 +57,10 @@ class Market_OrderController extends Market_BaseController
 			$variables['title'] = Craft::t('Create a new Order');
 		}
 
-        $variables['orderStatuses'] = [0 => ''] + \CHtml::listData($variables['order']->type->orderStatuses, 'id', 'name');
+		$variables['orderStatuses'] = \CHtml::listData($variables['order']->type->orderStatuses, 'id', 'name');
+		if ($variables['order']->orderStatusId == null){
+			$variables['orderStatuses'] = ['0' => 'No Status'] + $variables['orderStatuses'];
+		}
 
 		$this->prepVariables($variables);
 
@@ -183,7 +186,13 @@ class Market_OrderController extends Market_BaseController
 			$order = new Market_OrderModel();
 		}
 
-        $order->orderStatusId = craft()->request->getPost('orderStatusId');
+		$orderStatusId = craft()->request->getPost('orderStatusId');
+		if ($orderStatusId == 0 || $orderStatusId == null){
+			$order->orderStatusId = null;
+		}else{
+			$order->orderStatusId = $orderStatusId;
+		}
+
         $order->typeId = craft()->request->getPost('typeId');
 		$order->message = craft()->request->getPost('message');
 
