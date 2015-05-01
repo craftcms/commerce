@@ -75,7 +75,7 @@ class Market_OrderModel extends BaseElementModel
 	public function getFieldLayout()
 	{
 		if ($this->type) {
-			return $this->type->getFieldLayout();
+			return craft()->market_orderType->getById($this->typeId)->getFieldLayout();
 		}
 
 		return NULL;
