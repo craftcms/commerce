@@ -126,8 +126,10 @@ class Market_VariantService extends BaseApplicationComponent
 		if ($model->unlimitedStock) {
 			$record->unlimitedStock = true;
 			$record->stock          = 0;
-		} else {
-			$record->stock          = $model->stock;
+		}
+
+		if (!$model->unlimitedStock) {
+			$record->stock          = $model->stock ? $model->stock : 0;
 			$record->unlimitedStock = false;
 		}
 
@@ -135,10 +137,7 @@ class Market_VariantService extends BaseApplicationComponent
 		$model->addErrors($record->getErrors());
 
 		if (!$model->hasErrors()) {
-			// Save it!
 			$record->save(false);
-
-			// Now that we have a ID, save it on the model
 			$model->id = $record->id;
 
 			return true;
