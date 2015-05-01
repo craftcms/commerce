@@ -123,7 +123,6 @@ class Market_ProductController extends Market_BaseController
 		$this->requirePostRequest();
 
 		$product = $this->_setProductFromPost();
-		$this->_setContentFromPost($product);
 		$masterVariant = $this->_setMasterVariantFromPost($product);
 		$optionTypes   = craft()->request->getPost('optionTypes');
 
@@ -218,19 +217,14 @@ class Market_ProductController extends Market_BaseController
 			$product->availableOn = new DateTime();
 		}
 
-		return $product;
-	}
-
-	/**
-	 * @param Market_ProductModel $product
-	 */
-	private function _setContentFromPost($product)
-	{
 		$product->getContent()->title = craft()->request->getPost('title', $product->title);
 		$product->slug                = craft()->request->getPost('slug', $product->slug);
 		$product->taxCategoryId       = craft()->request->getPost('taxCategoryId', $product->taxCategoryId);
 		$product->setContentFromPost('fields');
+
+		return $product;
 	}
+
 
 	/**
 	 * @param Market_ProductModel $product
