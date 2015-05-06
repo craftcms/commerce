@@ -54,6 +54,13 @@ class Market_CartService extends BaseApplicationComponent
 				craft()->market_order->save($order);
 				MarketDbHelper::commitStackedTransaction();
 
+				//raising event
+				$event = new Event($this, [
+					'lineItem' => $lineItem,
+					'order' => $order,
+				]);
+				$this->onAddToCart($event);
+
 				return true;
 			}
 		} catch (\Exception $e) {
@@ -243,6 +250,14 @@ class Market_CartService extends BaseApplicationComponent
 			craft()->market_lineItem->delete($lineItem);
 
 			craft()->market_order->save($cart);
+
+			//raising event
+			$event = new Event($this, [
+				'lineItemId' => $lineItemId,
+				'order' => $cart
+			]);
+			$this->onRemoveFromCart($event);
+
 		} catch (\Exception $e) {
 			MarketDbHelper::rollbackStackedTransaction();
 			throw $e;
@@ -270,4 +285,44 @@ class Market_CartService extends BaseApplicationComponent
 
 		MarketDbHelper::commitStackedTransaction();
 	}
+
+
+	/**
+	 * Event method.
+	 * Event params: order(Market_OrderModel), lineItem (Market_LineItemModel)
+	 *
+	 * @param \CEvent $event
+	 * @throws \CException
+	 */
+	public function onAddToCart(\CEvent $event) {
+		$params = $event->params;
+		if(empty($params['order']) || !($params['order'] instanceof Market_OrderModel)) {
+			throw new Exception('onAddToCart event requires "order" param with OrderModel instance');
+		}
+
+		if(empty($params['lineItem']) || !($params['lineItem'] instanceof Market_LineItemModel)) {
+			throw new Exception('onAddToCart event requires "lineItem" param with LineItemModel instance');
+		}
+		$this->raiseEvent('onAddToCart', $event);
+	}
+
+	/**
+	 * Event method.
+	 * Event params: order(Market_OrderModel), lineItemId (int)
+	 *
+	 * @param \CEvent $event
+	 * @throws \CException
+	 */
+	public function onRemoveFromCart(\CEvent $event) {
+		$params = $event->params;
+		if(empty($params['order']) || !($params['order'] instanceof Market_OrderModel)) {
+			throw new Exception('onRemoveFromCart event requires "order" param with OrderModel instance');
+		}
+
+		if(empty($params['lineItemId']) || !is_numeric($params['lineItemId'])) {
+			throw new Exception('onRemoveFromCart event requires "lineItemId" param');
+		}
+		$this->raiseEvent('onRemoveFromCart', $event);
+	}
+
 }
