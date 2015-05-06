@@ -17,6 +17,7 @@
         <th scope="col">Name</th>
         <th scope="col">Handle</th>
         <th scope="col">Shipping Method</th>
+        <th scope="col">Purge Incompleted Cart Duration</th>
         <td class="thin"></td>
     </tr>
     </thead>
@@ -27,6 +28,7 @@
                         href="{{ url('market/settings/ordertypes/'~orderType.id) }}">{{ orderType.name }}</a></th>
             <td data-title="Handle"><code>{{ orderType.handle }}</code></td>
             <td data-title="Shipping Method">{{ orderType.shippingMethod.name }}</td>
+            <td data-title="Shipping Method">{{ orderType.purgeIncompletedCartDuration }}</td>
             <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
         </tr>
     {% endfor %}

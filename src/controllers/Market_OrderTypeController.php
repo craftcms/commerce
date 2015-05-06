@@ -29,7 +29,6 @@ class Market_OrderTypeController extends Market_BaseController
      */
 	public function actionEditOrderType(array $variables = [])
 	{
-		$variables['brandNewOrderType'] = false;
 
 		if (empty($variables['orderType'])) {
 			if (!empty($variables['orderTypeId'])) {
@@ -40,8 +39,7 @@ class Market_OrderTypeController extends Market_BaseController
 					throw new HttpException(404);
 				}
 			} else {
-				$variables['orderType']         = new Market_OrderTypeModel();
-				$variables['brandNewOrderType'] = true;
+				$variables['orderType'] = new Market_OrderTypeModel();
 			}
 		}
 
@@ -53,6 +51,9 @@ class Market_OrderTypeController extends Market_BaseController
 
 		$shippingMethods              = craft()->market_shippingMethod->getAll(['order' => 'name']);
 		$variables['shippingMethods'] = \CHtml::listData($shippingMethods, 'id', 'name');
+
+		$cartsToPurge                 = craft()->market_orderType->getCartsToPurge($variables['orderType']);
+		$variables['cartsToPurge']    = count($cartsToPurge);
 
 		$this->renderTemplate('market/settings/ordertypes/_edit', $variables);
 	}
@@ -69,10 +70,11 @@ class Market_OrderTypeController extends Market_BaseController
 		$orderType = new Market_OrderTypeModel();
 
 		// Shared attributes
-		$orderType->id               = craft()->request->getPost('orderTypeId');
-		$orderType->name             = craft()->request->getPost('name');
-		$orderType->handle           = craft()->request->getPost('handle');
-		$orderType->shippingMethodId = craft()->request->getPost('shippingMethodId');
+		$orderType->id                           = craft()->request->getPost('orderTypeId');
+		$orderType->name                         = craft()->request->getPost('name');
+		$orderType->handle                       = craft()->request->getPost('handle');
+		$orderType->shippingMethodId             = craft()->request->getPost('shippingMethodId');
+		$orderType->purgeIncompletedCartDuration = craft()->request->getPost('purgeIncompletedCartDuration');
 
 		// Set the field layout
 		$fieldLayout       = craft()->fields->assembleLayoutFromPost();
@@ -106,4 +108,22 @@ class Market_OrderTypeController extends Market_BaseController
 		$this->returnJson(['success' => true]);
 	}
 
+	/**
+	 * @throws Exception
+	 */
+	public function actionPurgeIncompletedCarts()
+	{
+		$id = craft()->request->getPost('orderTypeId');
+		$orderType = craft()->market_orderType->getById($id);
+		if(!$orderType->id) {
+			throw new Exception('Wrong orderTypeId');
+		}
+
+		$count = craft()->market_orderType->purgeIncompletedCarts($orderType);
+		if($count) {
+			craft()->userSession->setNotice(Craft::t('{c} incompleted cart purged.', ['c' => $count]));
+		} else {
+			craft()->userSession->setError(Craft::t('No carts were deleted.'));
+		}
+	}
 } 

@@ -9,6 +9,7 @@ namespace Craft;
  * @property string                      handle
  * @property int                         fieldLayoutId
  * @property int                         shippingMethodId
+ * @property string                      purgeIncompletedCartDuration
  *
  * @property FieldLayoutRecord           fieldLayout
  * @property Market_ShippingMethodRecord shippingMethod
@@ -55,9 +56,10 @@ class Market_OrderTypeRecord extends BaseRecord
 	protected function defineAttributes()
 	{
 		return [
-			'name'             => [AttributeType::Name, 'required' => true],
-			'handle'           => [AttributeType::Handle, 'required' => true],
-			'shippingMethodId' => [AttributeType::Number, 'required' => true],
+			'name'                         => [AttributeType::Name, 'required' => true],
+			'handle'                       => [AttributeType::Handle, 'required' => true],
+			'shippingMethodId'             => [AttributeType::Number, 'required' => true],
+			'purgeIncompletedCartDuration' => [AttributeType::String, 'maxlength' => 20],
 		];
 	}
 

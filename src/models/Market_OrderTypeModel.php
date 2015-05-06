@@ -12,6 +12,7 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property string                      $handle
  * @property int                         $fieldLayoutId
  * @property int                         shippingMethodId
+ * @property string                      purgeIncompletedCartDuration
  *
  * @property FieldLayoutRecord           fieldLayout
  * @property Market_ShippingMethodRecord shippingMethod
@@ -46,11 +47,12 @@ class Market_OrderTypeModel extends BaseModel
 	protected function defineAttributes()
 	{
 		return [
-			'id'               => AttributeType::Number,
-			'name'             => AttributeType::String,
-			'handle'           => AttributeType::String,
-			'fieldLayoutId'    => AttributeType::Number,
-			'shippingMethodId' => AttributeType::Number,
+			'id'                           => AttributeType::Number,
+			'name'                         => AttributeType::String,
+			'handle'                       => AttributeType::String,
+			'fieldLayoutId'                => AttributeType::Number,
+			'shippingMethodId'             => AttributeType::Number,
+			'purgeIncompletedCartDuration' => AttributeType::String,
 		];
 	}
 
