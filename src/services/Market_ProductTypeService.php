@@ -114,9 +114,13 @@ class Market_ProductTypeService extends BaseApplicationComponent
 	}
 
 	/**
-	 * @param int $id
+	 * Deleted a
 	 *
+	 * @param $id
+	 *
+	 * @return bool
 	 * @throws \CDbException
+	 * @throws \Exception
 	 */
 	public function deleteById($id)
 	{

@@ -38,6 +38,9 @@ class Market_ProductModel extends BaseElementModel
 
 	protected $elementType = 'Market_Product';
 
+	// Public Methods
+	// =============================================================================
+
 	/**
 	 * Setting default taxCategoryId
 	 *
@@ -52,21 +55,49 @@ class Market_ProductModel extends BaseElementModel
 		}
 	}
 
+	/**
+	 * @return bool
+	 */
 	public function isEditable()
 	{
 		return true;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function __toString()
 	{
 		return $this->title;
 	}
 
+	/*
+	 * Name is an alias to title.
+	 *
+	 * @return string
+	 */
 	public function getName()
 	{
 		return $this->title;
 	}
 
+	/**
+	 * What is the Url Format for this ProductType
+	 *
+	 * @return string
+	 */
+	public function getUrlFormat()
+	{
+		if ($this->typeId) {
+			return craft()->market_prwoductType->getById($this->typeId)->getUrlFormat();
+		}
+
+		return NULL;
+	}
+
+	/*
+	 * Url to edit this Product in the control panel.
+	 */
 	public function getCpEditUrl()
 	{
 		return UrlHelper::getCpUrl('market/products/' . $this->type->handle . '/' . $this->id);
@@ -153,6 +184,10 @@ class Market_ProductModel extends BaseElementModel
 			return $optionType->id;
 		}, $this->optionTypes);
 	}
+
+
+	// Protected Methods
+	// =============================================================================
 
 	/**
 	 * @return array
