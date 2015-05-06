@@ -81,11 +81,18 @@ class Market_OrderService extends BaseApplicationComponent
             $order->orderStatusId = $status->id;
         }
 
-		if ($this->save($order)){
-			craft()->market_cart->forgetCart($order);
-			return true;
+		if (!$this->save($order)){
+			return false;
 		}
-		return false;
+
+		craft()->market_cart->forgetCart($order);
+
+		//raising event on order complete
+		$event = new Event($this, [
+			'order' => $order
+		]);
+		$this->onOrderComplete($event);
+		return true;
 	}
 	/**
 	 * @param int $id
@@ -267,5 +274,15 @@ class Market_OrderService extends BaseApplicationComponent
 			new Market_DiscountAdjuster,
 			new Market_TaxAdjuster,
 		];
+	}
+
+	/**
+	 * Event method
+	 *
+	 * @param \CEvent $event
+	 * @throws \CException
+	 */
+	public function onOrderComplete(\CEvent $event) {
+		$this->raiseEvent('onOrderComplete', $event);
 	}
 }

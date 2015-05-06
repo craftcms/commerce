@@ -47,7 +47,6 @@
         errors: discount.getErrors('code'),
     }) }}
 
-    {#
     {{ marketForms.numberField({
         label: "Per User Limit"|t,
         instructions: "How many times one user is allowed to use this discount. Set zero for unlimit use"|t,
@@ -68,8 +67,12 @@
         errors: discount.getErrors('totalUseLimit'),
     }) }}
 
-    #}
-    
+    {{
+        forms.field({
+            'label': 'Times used'|t
+        }, '<input disabled value="' ~discount.totalUses ~ ' times" />')
+    }}
+
     {{ forms.dateField({
         label: "Start Date"|t,
         instructions: "Date from which the discount will be active. Leave blank for unlimited start date"|t,
