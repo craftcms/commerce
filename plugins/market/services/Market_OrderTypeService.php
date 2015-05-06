@@ -49,6 +49,51 @@ class Market_OrderTypeService extends BaseApplicationComponent
 
 	/**
 	 * @param Market_OrderTypeModel $orderType
+	 * @return Market_OrderModel[]
+	 */
+	public function getCartsToPurge(Market_OrderTypeModel $orderType)
+	{
+		if(!$orderType->purgeIncompletedCartDuration || !$orderType->id) {
+			return [];
+		}
+
+		$edge = new DateTime();
+		$interval = new DateInterval($orderType->purgeIncompletedCartDuration);
+		$interval->invert = 1;
+		$edge->add($interval);
+
+		$records = Market_OrderRecord::model()->findAllByAttributes(
+			[
+				'typeId' => $orderType->id,
+				'completedAt' => null,
+			],
+			'dateUpdated <= :edge',
+			['edge' => $edge->format('Y-m-d H:i:s')]
+		);
+		return Market_OrderModel::populateModels($records);
+	}
+
+	/**
+	 * @param Market_OrderTypeModel $orderType
+	 * @return int
+	 * @throws \Exception
+	 */
+	public function purgeIncompletedCarts(Market_OrderTypeModel $orderType)
+	{
+		$carts = $this->getCartsToPurge($orderType);
+		if($carts) {
+			$ids = array_map(function(Market_OrderModel $cart) {
+				return $cart->id;
+			}, $carts);
+			craft()->elements->deleteElementById($ids);
+			return count($ids);
+		}
+		return 0;
+	}
+
+
+	/**
+	 * @param Market_OrderTypeModel $orderType
 	 *
 	 * @return bool
 	 * @throws \Exception
@@ -68,9 +113,22 @@ class Market_OrderTypeService extends BaseApplicationComponent
 			$isNewOrderType  = true;
 		}
 
-		$orderTypeRecord->name             = $orderType->name;
-		$orderTypeRecord->handle           = $orderType->handle;
-		$orderTypeRecord->shippingMethodId = $orderType->shippingMethodId;
+		$orderTypeRecord->name                         = $orderType->name;
+		$orderTypeRecord->handle                       = $orderType->handle;
+		$orderTypeRecord->shippingMethodId             = $orderType->shippingMethodId;
+		$orderTypeRecord->purgeIncompletedCartDuration = $orderType->purgeIncompletedCartDuration;
+
+		//validating date interval
+		if($orderType->purgeIncompletedCartDuration) {
+			try {
+				$interval = new DateInterval($orderType->purgeIncompletedCartDuration);
+			} catch(\Exception $e) {
+				$orderType->addError('purgeIncompletedCartDuration', 'Wrong date interval format');
+			}
+			if(!empty($interval) && $interval->invert) {
+				$orderType->addError('purgeIncompletedCartDuration', 'Only positive intervals allowed');
+			}
+		}
 
 		$orderTypeRecord->validate();
 		$orderType->addErrors($orderTypeRecord->getErrors());

@@ -21,7 +21,8 @@
     {% set tabs = {
         0: {'label':'Name & Info','url':'#tab0'},
         1: {'label':'Statuses','url':'#tab1'},
-        2: {'label':'Fields','url':'#tab2'}
+        2: {'label':'Fields','url':'#tab2'},
+        3: {'label':'Actions','url':'#tab3'},
         }
     %}
 
@@ -63,6 +64,14 @@
         required: true,
     }) }}
 
+    {{ forms.textField({
+        label: "Purge Incompleted Cart Duration"|t,
+        instructions: 'Specify how long inactive cart may live before it can be purged. Any valid php specification allowed:
+        <a href="http://php.net/manual/en/dateinterval.construct.php" target="_blank">http://php.net/manual/en/dateinterval.construct.php</a>'|t,
+        name: 'purgeIncompletedCartDuration',
+        value: orderType.purgeIncompletedCartDuration,
+        errors: orderType.getErrors('purgeIncompletedCartDuration'),
+    }) }}
     </div>
 
     <div id="tab1" class="hidden">
@@ -123,6 +132,20 @@
 
     </div>
 
+    <div id="tab3" class="hidden">
+        {% if cartsToPurge %}
+            <a class="btn submit formsubmit" role="button"
+               data-action="market/orderType/purgeIncompletedCarts"
+               data-confirm="{{ 'Are you sure you want to purge old carts?'|t }}"
+               data-param="orderTypeId"
+               data-value="{{ orderType.id }}">
+                Purge incompleted carts: {{ cartsToPurge }}
+            </a>
+        {% else %}
+            <a class="btn submit disabled">Purge incompleted carts: {{ cartsToPurge }}</a>
+        {% endif %}
+
+    </div>
 
     <hr>
 
