@@ -20,8 +20,8 @@ class Market_CartPaymentController extends Market_BaseController
 		$this->requirePostRequest();
 
 		$id = craft()->request->getPost('shippingMethodId');
-        $orderTypeHandle         = craft()->request->getPost('orderTypeHandle');
-        $cart                    = craft()->market_cart->getCart($orderTypeHandle);
+		$orderTypeHandle = craft()->request->getPost('orderTypeHandle');
+		$cart            = craft()->market_cart->getCart($orderTypeHandle);
 
 		if (craft()->market_cart->setShippingMethod($cart, $id)) {
 			craft()->userSession->setFlash('market', 'Shipping method has been set');
@@ -44,6 +44,13 @@ class Market_CartPaymentController extends Market_BaseController
         $cancelUrl               = craft()->request->getPost('cancelUrl');
         $orderTypeHandle         = craft()->request->getPost('orderTypeHandle');
         $cart                    = craft()->market_cart->getCart($orderTypeHandle);
+
+		// Ensure correct redirect urls are supplied.
+		$redirect = craft()->request->getPost('redirect');
+		if(empty($returnUrl) || empty($cancelUrl) || !empty($redirect)) {
+			throw new Exception('Please specify "returnUrl" and "cancelUrl". "redirect" param is not allowed in this action');
+		}
+
 
 		//in case of success "pay" redirects us somewhere
 		if (!craft()->market_payment->processPayment($cart, $paymentForm, $returnUrl, $cancelUrl, $customError)) {
