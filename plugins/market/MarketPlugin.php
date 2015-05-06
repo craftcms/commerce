@@ -17,12 +17,19 @@ class MarketPlugin extends BasePlugin
 
 	function init()
 	{
-        //init global event handler
+        //init global event handlers
         craft()->on('market_orderHistory.onStatusChange',
 			[
 				craft()->market_orderStatus, 'statusChangeHandler'
 			]
 		);
+
+		craft()->on('market_order.onOrderComplete',
+			[
+				craft()->market_discount, 'orderCompleteHandler'
+			]
+		);
+
 	}
 
 	public function getName()

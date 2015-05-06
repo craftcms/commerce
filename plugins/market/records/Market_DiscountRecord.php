@@ -11,6 +11,7 @@ namespace Craft;
  * @property string                     code
  * @property int                        perUserLimit
  * @property int                        totalUseLimit
+ * @property int                        totalUses
  * @property DateTime                   dateFrom
  * @property DateTime                   dateTo
  * @property int                        purchaseTotal
@@ -61,8 +62,9 @@ class Market_DiscountRecord extends BaseRecord
 			'name'            => [AttributeType::Name, 'required' => true],
 			'description'     => AttributeType::Mixed,
 			'code'            => [AttributeType::String, 'required' => true],
-			'perUserLimit'    => [AttributeType::Number, 'required' => true, 'min' => 0, 'default' => 1],
-			'totalUseLimit'   => [AttributeType::Number, 'required' => true, 'min' => 0, 'default' => 1],
+			'perUserLimit'    => [AttributeType::Number, 'required' => true, 'min' => 0, 'default' => 0],
+			'totalUseLimit'   => [AttributeType::Number, 'required' => true, 'min' => 0, 'default' => 0],
+			'totalUses'       => [AttributeType::Number, 'required' => true, 'min' => 0, 'default' => 0],
 			'dateFrom'        => AttributeType::DateTime,
 			'dateTo'          => AttributeType::DateTime,
 			'purchaseTotal'   => [AttributeType::Number, 'required' => true, 'default' => 0],

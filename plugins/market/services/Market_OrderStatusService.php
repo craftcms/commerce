@@ -149,11 +149,12 @@ class Market_OrderStatusService extends BaseApplicationComponent
         Market_OrderStatusRecord::model()->deleteByPk($id);
 	}
 
-    /**
-     * Handler for order status change event
-     *
-     * @param Event $event
-     */
+	/**
+	 * Handler for order status change event
+	 *
+	 * @param Event $event
+	 * @throws Exception
+	 */
     public function statusChangeHandler(Event $event) {
         /** @var Market_OrderModel $order */
         $order = $event->params['order'];

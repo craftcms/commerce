@@ -70,6 +70,7 @@ class Market_CartController extends Market_BaseController
 			craft()->userSession->setFlash('market', 'Coupon has been applied');
 			$this->redirectToPostedUrl();
 		} else {
+			craft()->userSession->setFlash('error', $error);
 			craft()->urlManager->setRouteVariables(['couponError' => $error]);
 		}
 	}

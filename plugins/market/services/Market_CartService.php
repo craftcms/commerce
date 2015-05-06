@@ -164,7 +164,7 @@ class Market_CartService extends BaseApplicationComponent
      */
 	public function applyCoupon(Market_OrderModel $cart, $code, &$error = '')
 	{
-		if (empty($code) || craft()->market_discount->checkCode($code, $error)) {
+		if (empty($code) || craft()->market_discount->checkCode($code, $cart->customerId, $error)) {
 			$cart->couponCode = $code ?: NULL;
 			craft()->market_order->save($cart);
 

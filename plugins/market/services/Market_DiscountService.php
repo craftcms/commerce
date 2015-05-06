@@ -111,15 +111,14 @@ class Market_DiscountService extends BaseApplicationComponent
 	}
 
 	/**
-	 * Get discount by code and check it's active and applies to the current
-	 * user
+	 * Get discount by code and check it's active and applies to the current user
 	 *
 	 * @param int    $code
 	 * @param string $error
 	 *
 	 * @return true
 	 */
-	public function checkCode($code, &$error = '')
+	public function checkCode($code, $customerId, &$error = '')
 	{
 		$model = $this->getByCode($code);
 		if (!$model->id) {
@@ -129,7 +128,13 @@ class Market_DiscountService extends BaseApplicationComponent
 		}
 
 		if (!$model->enabled) {
-			$error = 'Model is not active';
+			$error = 'Discount is not active';
+
+			return false;
+		}
+
+		if($model->totalUseLimit > 0 && $model->totalUses >= $model->totalUseLimit) {
+			$error = 'Discount is out of limit';
 
 			return false;
 		}
@@ -146,6 +151,15 @@ class Market_DiscountService extends BaseApplicationComponent
 			$error = 'Discount is not allowed for the current user';
 
 			return false;
+		}
+
+		if($customerId) {
+			$uses = Market_CustomerDiscountUseRecord::model()->findByAttributes(['customerId' => $customerId, 'discountId' => $model->id]);
+			if($uses && $uses->uses >= $model->perUserLimit) {
+				$error = 'You can not use this discount anymore';
+
+				return false;
+			}
 		}
 
 		return true;
@@ -276,4 +290,37 @@ class Market_DiscountService extends BaseApplicationComponent
 	{
 		Market_DiscountRecord::model()->deleteByPk($id);
 	}
+
+	/**
+	 * Update discount uses counters
+	 * @param Event $event
+	 */
+	public function orderCompleteHandler(Event $event) {
+		/** @var Market_OrderModel $order */
+		$order = $event->params['order'];
+
+		if(!$order->couponCode) {
+			return;
+		}
+
+		/** @var Market_DiscountRecord $record */
+		$record = Market_DiscountRecord::model()->findByAttributes(['code' => $order->couponCode]);
+		if (!$record || !$record->id) {
+			return;
+		}
+
+		if($record->totalUseLimit) {
+			$record->saveCounters(['totalUses' => 1]);
+		}
+
+		if($record->perUserLimit && $order->customerId) {
+			$table = Market_CustomerDiscountUseRecord::model()->getTableName();
+			craft()->db->createCommand("
+                INSERT INTO {{" . $table . "}} (customerId, discountId, uses)
+                VALUES (:cid, :did, 1)
+                ON DUPLICATE KEY UPDATE uses = uses + 1
+            ")->execute(['cid' => $order->customerId, 'did' => $record->id]);
+		}
+	}
+
 }
