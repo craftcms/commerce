@@ -122,11 +122,20 @@ class Market_OrderHistoryService extends BaseApplicationComponent
 
     /**
      * Event method
-     *
+     * Event params: order (Market_OrderModel), orderHistoryModel (Market_OrderHistoryModel)
      * @param \CEvent $event
      * @throws \CException
      */
     public function onStatusChange(\CEvent $event) {
+		$params = $event->params;
+		if(empty($params['order']) || !($params['order'] instanceof Market_OrderModel)) {
+			throw new Exception('onStatusChange event requires "order" param with OrderModel instance');
+		}
+
+		if(empty($params['orderHistoryModel']) || !($params['orderHistoryModel'] instanceof Market_OrderHistoryModel)) {
+			throw new Exception('onStatusChange event requires "orderHistoryModel" param with OrderHistoryModel instance');
+		}
+
         $this->raiseEvent('onStatusChange', $event);
     }
 }

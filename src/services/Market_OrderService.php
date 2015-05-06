@@ -119,12 +119,20 @@ class Market_OrderService extends BaseApplicationComponent
 
 	/**
 	 * @param Market_OrderModel $order
-	 * @param string $message
 	 * @return bool
 	 * @throws \Exception
 	 */
 	public function save($order)
 	{
+		if(!$order->completedAt) {
+			//raising event
+			$event = new Event($this, [
+				'order' => $order
+			]);
+			$this->onBeforeSaveOrder($event);
+		}
+
+
 		if (!$order->id) {
 			$orderRecord = new Market_OrderRecord();
 		} else {
@@ -182,7 +190,7 @@ class Market_OrderService extends BaseApplicationComponent
                     //creating order history record
                     if($orderRecord->id && $oldStatusId != $orderRecord->orderStatusId) {
                         if(!craft()->market_orderHistory->createFromOrder($order, $oldStatusId)) {
-                            throw new Exception('Error saving order history: ' . implode(', ', $orderHistoryModel->getAllErrors()));
+							throw new Exception('Error saving order history');
                         }
                     }
 
@@ -191,6 +199,14 @@ class Market_OrderService extends BaseApplicationComponent
 					$orderRecord->save(false);
 
 					MarketDbHelper::commitStackedTransaction();
+
+					//raising event
+					if(!$order->completedAt) {
+						$event = new Event($this, [
+							'order' => $order
+						]);
+						$this->onSaveOrder($event);
+					}
 
 					return true;
 				}
@@ -285,4 +301,35 @@ class Market_OrderService extends BaseApplicationComponent
 	public function onOrderComplete(\CEvent $event) {
 		$this->raiseEvent('onOrderComplete', $event);
 	}
+
+	/**
+	 * Event: before saving incomplete order
+	 * Event params: order(Market_OrderModel)
+	 *
+	 * @param \CEvent $event
+	 * @throws \CException
+	 */
+	public function onBeforeSaveOrder(\CEvent $event) {
+		$params = $event->params;
+		if(empty($params['order']) || !($params['order'] instanceof Market_OrderModel)) {
+			throw new Exception('onBeforeSaveOrder event requires "order" param with OrderModel instance');
+		}
+		$this->raiseEvent('onBeforeSaveOrder', $event);
+	}
+
+	/**
+	 * Event: before successful saving incomplete order
+	 * Event params: order(Market_OrderModel)
+	 *
+	 * @param \CEvent $event
+	 * @throws \CException
+	 */
+	public function onSaveOrder(\CEvent $event) {
+		$params = $event->params;
+		if(empty($params['order']) || !($params['order'] instanceof Market_OrderModel)) {
+			throw new Exception('onSaveOrder event requires "order" param with OrderModel instance');
+		}
+		$this->raiseEvent('onSaveOrder', $event);
+	}
+
 }
