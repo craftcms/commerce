@@ -25,6 +25,7 @@ class Market_CartController extends Market_BaseController
         $qty             = craft()->request->getPost('qty', 0);
         $orderTypeHandle = craft()->request->getPost('orderTypeHandle');
         $cart            = craft()->market_cart->getCart($orderTypeHandle);
+		$cart->setContentFromPost('fields');
 
 		if (craft()->market_cart->addToCart($cart, $variantId, $qty, $error)) {
 			craft()->userSession->setFlash('market', 'Product has been added');
@@ -47,7 +48,15 @@ class Market_CartController extends Market_BaseController
 		$lineItemId = craft()->request->getPost('lineItemId');
 		$qty        = craft()->request->getPost('qty', 0);
 
-		if (craft()->market_lineItem->updateQty($lineItemId, $qty, $error)) {
+		$lineItem = craft()->market_lineItem->getById($lineItemId);
+		if (!$lineItem->id) {
+			throw new Exception('Line item not found');
+		}
+
+		$lineItem->qty = $qty;
+		$lineItem->order->setContentFromPost('fields');
+
+		if (craft()->market_lineItem->update($lineItem, $error)) {
 			craft()->userSession->setFlash('market', 'Product quantity has been updated');
 			$this->redirectToPostedUrl();
 		} else {
@@ -65,6 +74,7 @@ class Market_CartController extends Market_BaseController
         $code            = craft()->request->getPost('couponCode');
         $orderTypeHandle = craft()->request->getPost('orderTypeHandle');
         $cart            = craft()->market_cart->getCart($orderTypeHandle);
+		$cart->setContentFromPost('fields');
 
 		if (craft()->market_cart->applyCoupon($cart, $code, $error)) {
 			craft()->userSession->setFlash('market', 'Coupon has been applied');
