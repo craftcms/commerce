@@ -21,9 +21,13 @@ class Response extends AbstractResponse
 
     public function getCardReference()
     {
-        return empty($this->data->Transaction->DpsBillingId)
-            ? null
-            : (string) $this->data->Transaction->DpsBillingId;
+        if (! empty($this->data->Transaction->DpsBillingId)) {
+            return (string) $this->data->Transaction->DpsBillingId;
+        } elseif (! empty($this->data->DpsBillingId)) {
+            return (string) $this->data->DpsBillingId;
+        }
+
+        return null;
     }
 
     public function getMessage()

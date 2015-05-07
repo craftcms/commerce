@@ -70,6 +70,32 @@ class PxPayGatewayTest extends GatewayTestCase
         $this->assertSame('Invalid Key', $response->getMessage());
     }
 
+    public function testCreateCardSuccess()
+    {
+        $this->setMockHttpResponse('PxPayCreateCardSuccess.txt');
+
+        $response = $this->gateway->authorize($this->options)->send();
+
+        $this->assertFalse($response->isSuccessful());
+        $this->assertTrue($response->isRedirect());
+        $this->assertNull($response->getTransactionReference());
+        $this->assertNull($response->getMessage());
+        $this->assertSame('https://sec.paymentexpress.com/pxmi3/EF4054F622D6C4C1B0FA3975F5B37D5883A7AA411DF778AEBA9C4E3CBE1B394B50478552233E3FBD7', $response->getRedirectUrl());
+        $this->assertSame('GET', $response->getRedirectMethod());
+    }
+
+    public function testCreateCardFailure()
+    {
+        $this->setMockHttpResponse('PxPayCreateCardFailure.txt');
+
+        $response = $this->gateway->authorize($this->options)->send();
+
+        $this->assertFalse($response->isSuccessful());
+        $this->assertFalse($response->isRedirect());
+        $this->assertNull($response->getTransactionReference());
+        $this->assertSame('userpass too short', $response->getMessage());
+    }
+
     public function testCompleteAuthorizeSuccess()
     {
         $this->getHttpRequest()->query->replace(array('result' => 'abc123'));
@@ -89,6 +115,35 @@ class PxPayGatewayTest extends GatewayTestCase
         $this->getHttpRequest()->query->replace(array('result' => 'abc123'));
 
         $this->setMockHttpResponse('PxPayCompletePurchaseFailure.txt');
+
+        $response = $this->gateway->completeAuthorize($this->options)->send();
+
+        $this->assertFalse($response->isSuccessful());
+        $this->assertFalse($response->isRedirect());
+        $this->assertNull($response->getTransactionReference());
+        $this->assertSame('Length of the data to decrypt is invalid.', $response->getMessage());
+    }
+
+    public function testCompleteCreateCardSuccess()
+    {
+        $this->getHttpRequest()->query->replace(array('result' => 'abc123'));
+
+        $this->setMockHttpResponse('PxPayCompleteCreateCardSuccess.txt');
+
+        $response = $this->gateway->completeAuthorize($this->options)->send();
+
+        $this->assertTrue($response->isSuccessful());
+        $this->assertFalse($response->isRedirect());
+        $this->assertSame('000000030a1806f0', $response->getTransactionReference());
+        $this->assertSame('0000030007487668', $response->getCardReference());
+        $this->assertSame('APPROVED', $response->getMessage());
+    }
+
+    public function testCompleteCreateCardFailure()
+    {
+        $this->getHttpRequest()->query->replace(array('result' => 'abc123'));
+
+        $this->setMockHttpResponse('PxPayCompleteCreateCardFailure.txt');
 
         $response = $this->gateway->completeAuthorize($this->options)->send();
 
