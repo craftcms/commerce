@@ -27,6 +27,13 @@ class Market_ProductTypeModel extends BaseModel
 		return UrlHelper::getCpUrl('market/settings/producttypes/' . $this->id);
 	}
 
+	/**
+	 * Hard-coded until we ad url format options to product type.
+	 */
+	public function getUrlFormat(){
+		return "market/products/".$this->handle."/{slug}";
+	}
+
 	public function behaviors()
 	{
 		return [
@@ -44,5 +51,7 @@ class Market_ProductTypeModel extends BaseModel
 			'fieldLayoutId' => AttributeType::Number
 		];
 	}
+
+
 
 }
