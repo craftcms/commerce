@@ -14,14 +14,6 @@ namespace Craft;
  */
 class Market_ProductTypeRecord extends BaseRecord
 {
-	const TYPE_NORMAL = 'normal';
-	const TYPE_ELECTRONIC = 'electronic';
-
-	public static $types = [
-		self::TYPE_NORMAL,
-		self::TYPE_ELECTRONIC
-	];
-
 	/**
 	 * @return string
 	 */
