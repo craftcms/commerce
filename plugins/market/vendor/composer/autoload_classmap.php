@@ -6,4 +6,8 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'ICanBoogie\\Inflections' => $vendorDir . '/icanboogie/inflector/lib/inflections.php',
+    'ICanBoogie\\Inflector' => $vendorDir . '/icanboogie/inflector/lib/inflector.php',
+    'Omnipay\\Omnipay' => $vendorDir . '/omnipay/common/src/Omnipay/Omnipay.php',
+    'SessionHandlerInterface' => $vendorDir . '/symfony/http-foundation/Resources/stubs/SessionHandlerInterface.php',
 );
