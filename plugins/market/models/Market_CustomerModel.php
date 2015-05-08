@@ -43,7 +43,6 @@ class Market_CustomerModel extends BaseModel
 	}
 
 	/**
-	 * Charge Model Attributes
 	 *
 	 * @inheritDoc BaseRecord::defineAttributes()
 	 *
