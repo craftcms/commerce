@@ -14,6 +14,26 @@ class Market_CustomerService extends BaseApplicationComponent
 	private $customer = NULL;
 
 	/**
+	 * @param \CDbCriteria|array $criteria
+	 * @return Market_CustomerModel[]
+	 */
+	public function getAll($criteria = [])
+	{
+		$records = Market_CustomerRecord::model()->findAll($criteria);
+		return Market_CustomerModel::populateModels($records);
+	}
+
+	/**
+	 * @param int $id
+	 * @return Market_CustomerModel
+	 */
+	public function getById($id)
+	{
+		$record = Market_CustomerRecord::model()->findById($id);
+		return Market_CustomerModel::populateModel($record);
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function isSaved()
@@ -80,13 +100,20 @@ class Market_CustomerService extends BaseApplicationComponent
 
 	/**
 	 * @return Market_CustomerModel
+	 * @throws Exception
 	 */
 	private function getSavedCustomer()
 	{
 		$customer = $this->getCustomer();
 		if (!$customer->id) {
-			$this->save($customer);
+			if($this->save($customer)) {
+				craft()->session->add(self::SESSION_CUSTOMER, $customer->id);
+			} else {
+				$errors = implode(', ', $customer->getAllErrors());
+				throw new Exception('Error saving customer: ' . $errors);
+			}
 		}
+
 
 		return $customer;
 	}
@@ -97,7 +124,7 @@ class Market_CustomerService extends BaseApplicationComponent
 	 * @return bool
 	 * @throws Exception
 	 */
-	private function save(Market_CustomerModel $customer)
+	public function save(Market_CustomerModel $customer)
 	{
 		if (!$customer->id) {
 			$customerRecord = new Market_CustomerRecord();
@@ -118,8 +145,6 @@ class Market_CustomerService extends BaseApplicationComponent
 		if (!$customer->hasErrors()) {
 			$customerRecord->save(false);
 			$customer->id = $customerRecord->id;
-
-			craft()->session->add(self::SESSION_CUSTOMER, $customer->id);
 
 			return true;
 		}

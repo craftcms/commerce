@@ -75,4 +75,7 @@ return [
     
     'market/settings/ordertypes/(?P<orderTypeId>\d+)/orderstatuses/new'                       => ['action' => 'market/orderStatus/edit'],
     'market/settings/ordertypes/(?P<orderTypeId>\d+)/orderstatuses/(?P<id>\d+)'               => ['action' => 'market/orderStatus/edit'],
+	
+	'market/customers'                                                                        => ['action' => 'market/customer/index'],
+	'market/customers/(?P<id>\d+)'                                                            => ['action' => 'market/customer/edit'],
 ];
