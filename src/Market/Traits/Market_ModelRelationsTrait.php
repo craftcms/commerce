@@ -62,8 +62,10 @@ trait 	Market_ModelRelationsTrait
 
 			if (is_array($value)) {
 				$this->_relationsCache[$name] = $modelClass::populateModels($value);
-			} else {
+			} elseif($value) {
 				$this->_relationsCache[$name] = $modelClass::populateModel($value);
+			} else {
+				$this->_relationsCache[$name] = null;
 			}
 
 			return $this->_relationsCache[$name];

@@ -1,19 +1,21 @@
 <?php
 namespace Craft;
-
+use Market\Traits\Market_ModelRelationsTrait;
 /**
- * Class Market_ChargeFormModel
+ * Class Market_CustomerModel
  *
  * @package Craft
  *
- * @property int                 id
- * @property int                 userId
- * @property string              email
+ * @property int                   id
+ * @property int                   userId
+ * @property string                email
  *
- * @property Market_AddressModel addresses
+ * @property Market_AddressModel[] addresses
+ * @property UserModel             user
  */
 class Market_CustomerModel extends BaseModel
 {
+	use Market_ModelRelationsTrait;
 	/**
 	 * Returns whether the current user can edit the element.
 	 *
@@ -31,21 +33,10 @@ class Market_CustomerModel extends BaseModel
 	 */
 	public function getCpEditUrl()
 	{
-		return UrlHelper::getCpUrl('market/customer/' . $this->id);
+		return UrlHelper::getCpUrl('market/customers/' . $this->id);
 	}
 
 	/**
-	 * @return Market_AddressModel[]
-	 */
-	public function getAddresses()
-	{
-		return craft()->market_address->getByCustomerId($this->id);
-	}
-
-	/**
-	 *
-	 * @inheritDoc BaseRecord::defineAttributes()
-	 *
 	 * @return array
 	 */
 	protected function defineAttributes()
