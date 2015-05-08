@@ -90,11 +90,9 @@ class Market_AddressService extends BaseApplicationComponent
 	/**
 	 * @param int $id
 	 *
-	 * @throws \CDbException
 	 */
 	public function deleteById($id)
 	{
-		$Address = Market_AddressRecord::model()->findById($id);
-		$Address->delete();
+		Market_AddressRecord::model()->deleteByPk($id);
 	}
 }

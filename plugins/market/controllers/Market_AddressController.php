@@ -34,7 +34,10 @@ class Market_AddressController extends Market_BaseController
 
 		$variables['title'] = Craft::t('Address #{id}', ['id' => $variables['id']]);
 
-		$this->renderTemplate('market/addresses/_edit', $variables);
+		$variables['countries'] = craft()->market_country->getFormList();
+		$variables['states'] = craft()->market_state->getGroupedByCountries();
+
+		$this->renderTemplate('market/customers/addresses/_edit', $variables);
 	}
 
 	/**
@@ -52,7 +55,10 @@ class Market_AddressController extends Market_BaseController
 		}
 
 		// Shared attributes
-		$address->email = craft()->request->getPost('email');
+		$attrs = ['firstName', 'lastName', 'address1', 'address2', 'zipCode', 'phone', 'alternativePhone', 'company', 'countryId', 'stateValue'];
+		foreach ($attrs as $attr) {
+			$address->$attr = craft()->request->getPost($attr);
+		}
 
 		// Save it
 		if (craft()->market_address->save($address)) {
@@ -64,5 +70,19 @@ class Market_AddressController extends Market_BaseController
 
 		// Send the model back to the template
 		craft()->urlManager->setRouteVariables(['address' => $address]);
+	}
+
+	/**
+	 * @throws HttpException
+	 */
+	public function actionDelete()
+	{
+		$this->requirePostRequest();
+		$this->requireAjaxRequest();
+
+		$id = craft()->request->getRequiredPost('id');
+
+		craft()->market_address->deleteById($id);
+		$this->returnJson(['success' => true]);
 	}
 }

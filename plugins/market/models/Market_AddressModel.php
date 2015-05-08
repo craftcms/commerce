@@ -36,7 +36,7 @@ class Market_AddressModel extends BaseModel
 
 	public function getCpEditUrl()
 	{
-//        return UrlHelper::getCpUrl('market/customers/' . $this->id);
+		return UrlHelper::getCpUrl('market/customers/' . $this->customerId . '/addresses/' . $this->id);
 	}
 
 
