@@ -74,12 +74,27 @@
         errors: address.getErrors('company'),
     }) }}
 
-    {{ forms.textField({
-        label: "State"|t,
-        name: 'stateName',
-        value: address.stateName,
-        errors: address.getErrors('stateName'),
+    {{ forms.selectField({
+        label: "Country"|t,
+        class: 'select-wide',
+        id: 'countryId',
+        name: 'countryId',
+        value: address.countryId,
+        options: countries,
+        errors: address.getErrors('countryId'),
+        required: true,
     }) }}
+
+    {{ forms.selectField({
+        label: "State"|t,
+        class: 'select-wide',
+        id: 'stateValue',
+        name: 'stateValue',
+        value: address.stateId,
+        options: states[address.countryId] is defined ? states[address.countryId] : [],
+        errors: address.getErrors('stateId')|merge(address.getErrors('stateName')),
+    }) }}
+
 
     <hr>
 
@@ -89,3 +104,40 @@
 </form>
 
 {% endset %}
+
+{% set js %}
+{#<script>#}
+var states = {{ states|json_encode|raw }},
+stateName = {{ address.stateName|json_encode|raw }};
+
+$(function () {
+$('#countryId').selectize({
+dropdownParent: 'body',
+onChange: function(value) {
+console.log(value);
+if(!states.hasOwnProperty(value)) {
+$stateSelect.clearOptions();
+} else {
+var options = [];
+for(var id in states[value]) {
+options.push({value: id, text: states[value][id]});
+}
+$stateSelect.createItem(options);
+}
+}
+});
+var $stateSelect = $('#stateValue').selectize({
+dropdownParent: 'body',
+create: true,
+persist: false,
+sortField: 'text'
+})[0].selectize;
+
+if(!$stateSelect.getValue()) {
+$stateSelect.addOption({value: stateName, text: stateName});
+$stateSelect.setValue(stateName);
+}
+
+});
+{% endset %}
+{% includeJs js %}
