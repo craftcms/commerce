@@ -11,6 +11,7 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property string                email
  *
  * @property Market_AddressModel[] addresses
+ * @property Market_OrderModel[]   orders
  * @property UserModel             user
  */
 class Market_CustomerModel extends BaseModel

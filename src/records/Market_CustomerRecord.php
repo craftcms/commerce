@@ -11,6 +11,7 @@ namespace Craft;
  * @property int                            userId                      userId
  *
  * @property Market_AddressRecord[] addresses
+ * @property Market_OrderRecord[]   orders
  * @property UserRecord             user
  */
 class Market_CustomerRecord extends BaseRecord
@@ -33,6 +34,7 @@ class Market_CustomerRecord extends BaseRecord
 		return [
 			'user'      => [static::BELONGS_TO, 'UserRecord'],
 			'addresses' => [static::HAS_MANY, 'Market_AddressRecord', 'customerId'],
+			'orders'    => [static::HAS_MANY, 'Market_OrderRecord', 'customerId'],
 		];
 	}
 
