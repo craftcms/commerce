@@ -12,7 +12,6 @@ namespace Craft;
  * @since     0.1
  */
 use Market\Helpers\MarketDbHelper;
-use Market\Product\Creator;
 
 /**
  * Class Market_ProductController
@@ -55,13 +54,13 @@ class Market_ProductController extends Market_BaseController
 			if (!empty($variables['productId'])) {
 				$variables['product'] = craft()->market_product->getById($variables['productId']);
 
-				if (!$variables['product']) {
+				if (!$variables['product']->id) {
 					throw new HttpException(404);
 				}
 			} else {
 				$variables['product']         = new Market_ProductModel();
 				$variables['product']->typeId = $variables['productType']->id;
-			};
+			}
 		}
 
 		if (!empty($variables['productId'])) {
@@ -89,7 +88,7 @@ class Market_ProductController extends Market_BaseController
 		$productId = craft()->request->getRequiredPost('productId');
 		$product   = craft()->market_product->getById($productId);
 
-		if (!$product) {
+		if (!$product->id) {
 			throw new Exception(Craft::t('No product exists with the ID “{id}”.', ['id' => $productId]));
 		}
 
@@ -126,11 +125,9 @@ class Market_ProductController extends Market_BaseController
 		$masterVariant = $this->_setMasterVariantFromPost($product);
 		$optionTypes   = craft()->request->getPost('optionTypes');
 
-		$productCreator = new Creator;
-
 		MarketDbHelper::beginStackedTransaction();
 
-		if ($productCreator->save($product)) {
+		if (craft()->market_product->save($product)) {
 			$masterVariant->productId = $product->id;
 
 			if (craft()->market_variant->save($masterVariant)) {
@@ -207,11 +204,15 @@ class Market_ProductController extends Market_BaseController
 			$product = new Market_ProductModel();
 		}
 
-		$product->availableOn = ($availableOn = craft()->request->getPost('availableOn')) ? DateTime::createFromString($availableOn, craft()->timezone) : $product->availableOn;
-		$product->expiresOn   = ($expiresOn = craft()->request->getPost('expiresOn')) ? DateTime::createFromString($expiresOn, craft()->timezone) : NULL;
-		$product->typeId      = craft()->request->getPost('typeId');
-		$product->enabled     = craft()->request->getPost('enabled');
-		$product->authorId    = craft()->userSession->id;
+		$availableOn = craft()->request->getPost('availableOn');
+		$expiresOn   = craft()->request->getPost('expiresOn');
+
+		$product->availableOn   = $availableOn ? DateTime::createFromString($availableOn, craft()->timezone) : $product->availableOn;
+		$product->expiresOn     = $expiresOn ? DateTime::createFromString($expiresOn, craft()->timezone) : NULL;
+		$product->typeId        = craft()->request->getPost('typeId');
+		$product->enabled       = craft()->request->getPost('enabled');
+		$product->authorId      = craft()->userSession->id;
+		$product->taxCategoryId = craft()->request->getPost('taxCategoryId', $product->taxCategoryId);
 
 		if (!$product->availableOn) {
 			$product->availableOn = new DateTime();
@@ -219,7 +220,6 @@ class Market_ProductController extends Market_BaseController
 
 		$product->getContent()->title = craft()->request->getPost('title', $product->title);
 		$product->slug                = craft()->request->getPost('slug', $product->slug);
-		$product->taxCategoryId       = craft()->request->getPost('taxCategoryId', $product->taxCategoryId);
 		$product->setContentFromPost('fields');
 
 		return $product;

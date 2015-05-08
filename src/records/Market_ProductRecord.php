@@ -5,6 +5,7 @@ namespace Craft;
 /**
  * Class Market_ProductRecord
  *
+ * @property int                       id
  * @property int                       taxCategoryId
  * @property int                       typeId
  * @property int                       authorId
