@@ -78,4 +78,5 @@ return [
 
 	'market/customers'                                                                        => ['action' => 'market/customer/index'],
 	'market/customers/(?P<id>\d+)'                                                            => ['action' => 'market/customer/edit'],
+	'market/customers/(?P<customerId>\d+)/addresses/(?P<id>\d+)'                              => ['action' => 'market/address/edit'],
 ];

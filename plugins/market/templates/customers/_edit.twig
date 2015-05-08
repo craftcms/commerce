@@ -37,6 +37,33 @@
         errors: customer.getErrors('email'),
     }) }}
 
+    <h3>Addresses</h3>
+
+    <table id="" class="shadow-box editable">
+        <thead>
+        <tr>
+            <th scope="col" class="header">{{ 'ID'|t }}</span></th>
+            <th scope="col" class="header">{{ 'First Name'|t }}</span></th>
+            <th scope="col" class="header">{{ 'Last Name'|t }}</th>
+            <th scope="col" class="header">{{ 'Country'|t }}</th>
+            <th scope="col" class="header">{{ 'State'|t }}</th>
+            <th class="thin"></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for address in customer.addresses %}
+            <tr>
+                <td>{{ address.id }}</td>
+                <td>{{ address.firstName }}</td>
+                <td>{{ address.lastName }}</td>
+                <td>{{ address.country.name }}</td>
+                <td>{{ address.stateText }}</td>
+                <td><a class="edit icon" href="{{ address.getCpEditUrl() }}"> Edit</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
     <hr>
 
     <div class="buttons">
