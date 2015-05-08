@@ -50,10 +50,6 @@ return [
 	'market/settings/ordertypes/(?P<orderTypeId>\d+)'                                         => ['action' => 'market/orderType/editorderType'],
 	'market/settings/ordertypes/new'                                                          => ['action' => 'market/orderType/editOrderType'],
 
-	'market/plans'                                                                            => ['action' => 'market/plans/index'],
-	'market/charges'                                                                          => 'market/charges/index',
-	'market/charges/(?P<chargeId>\d+)'                                                        => ['action' => 'market/charge/editCharge'],
-
 	'market/settings/paymentmethods'                                                          => ['action' => 'market/paymentMethod/index'],
 	'market/settings/paymentmethods/(?P<class>\w+)'                                           => ['action' => 'market/paymentMethod/edit'],
 
