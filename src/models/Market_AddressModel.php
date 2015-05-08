@@ -7,21 +7,24 @@ use Market\Traits\Market_ModelRelationsTrait;
 /**
  * Class Market_AddressModel
  *
- * @property int                    $id
- * @property string                 $firstName
- * @property string                 lastName
- * @property string                 address1
- * @property string                 address2
- * @property string                 zipCode
- * @property string                 phone
- * @property string                 alternativePhone
- * @property string                 company
- * @property string                 stateName
- * @property int                    countryId
- * @property int                    stateId
+ * @property int                  id
+ * @property string               firstName
+ * @property string               lastName
+ * @property string               address1
+ * @property string               address2
+ * @property string               zipCode
+ * @property string               phone
+ * @property string               alternativePhone
+ * @property string               company
+ * @property string               stateName
+ * @property int                  countryId
+ * @property int                  stateId
+ * @property int                  customerId
  *
- * @property Market_CountryModel    $country
- * @property Market_StateModel      $state
+ * @property Market_CountryModel  country
+ * @property Market_StateModel    state
+ * @property Market_CustomerModel customer
+ *
  * @package Craft
  */
 class Market_AddressModel extends BaseModel
@@ -51,6 +54,7 @@ class Market_AddressModel extends BaseModel
 			'stateName'        => AttributeType::String,
 			'countryId'        => AttributeType::Number,
 			'stateId'          => AttributeType::Number,
+			'customerId'       => AttributeType::Number,
 		];
 	}
 }

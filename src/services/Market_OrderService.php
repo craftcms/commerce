@@ -69,6 +69,8 @@ class Market_OrderService extends BaseApplicationComponent
 	}
 
     /**
+	 * Completes an Order
+	 *
      * @param Market_OrderModel $order
      * @return bool
      * @throws Exception
@@ -224,9 +226,9 @@ class Market_OrderService extends BaseApplicationComponent
 	/**
 	 * Save and set the given addresses to the current cart/order
 	 *
+	 * @param Market_OrderModel   $order
 	 * @param Market_AddressModel $shippingAddress
 	 * @param Market_AddressModel $billingAddress
-	 *
 	 * @return bool
 	 * @throws \Exception
 	 */
@@ -234,15 +236,17 @@ class Market_OrderService extends BaseApplicationComponent
 	{
 		MarketDbHelper::beginStackedTransaction();
 		try {
-			$result1 = craft()->market_address->save($shippingAddress);
-			$result2 = craft()->market_address->save($billingAddress);
+			$result1 = craft()->market_customer->saveAddress($shippingAddress);
+
+			if($billingAddress->id && $billingAddress->id == $shippingAddress->id) {
+				$result2 = true;
+			} else {
+				$result2 = craft()->market_customer->saveAddress($billingAddress);
+			}
 
 			if ($result1 && $result2) {
 				$order->shippingAddressId = $shippingAddress->id;
 				$order->billingAddressId  = $billingAddress->id;
-
-				craft()->market_customer->saveAddress($shippingAddress);
-				craft()->market_customer->saveAddress($billingAddress);
 
 				$this->save($order);
 				MarketDbHelper::commitStackedTransaction();

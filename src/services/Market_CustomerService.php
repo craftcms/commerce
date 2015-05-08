@@ -74,28 +74,19 @@ class Market_CustomerService extends BaseApplicationComponent
 	}
 
 	/**
-	 * @param Market_AddressModel $address
+	 * Add customer id to address and save
 	 *
+	 * @param Market_AddressModel $address
+	 * @return bool
 	 * @throws Exception
 	 */
 	public function saveAddress(Market_AddressModel $address)
 	{
 		$customer = $this->getSavedCustomer();
-		$attr     = [
-			'customerId' => $customer->id,
-			'addressId'  => $address->id,
-		];
+		$address->customerId = $customer->id;
 
-		$relation = Market_CustomerAddressRecord::model()->findByAttributes($attr);
+		return craft()->market_address->save($address);
 
-		if (!$relation) {
-			$relation             = new Market_CustomerAddressRecord;
-			$relation->attributes = $attr;
-			if (!$relation->save()) {
-				$errorsAll = call_user_func_array('array_merge', $relation->getErrors());
-				throw new Exception('Could not create customer-record relation: ' . implode('; ', $errorsAll));
-			}
-		}
 	}
 
 	/**

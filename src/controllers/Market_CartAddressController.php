@@ -25,11 +25,11 @@ class Market_CartAddressController extends Market_BaseController
 		$billing             = new Market_AddressModel;
 		$billing->attributes = craft()->request->getPost('BillingAddress');
 
-		$shipping             = new Market_AddressModel;
-		$shipping->attributes = craft()->request->getPost('ShippingAddress');
-
 		if (craft()->request->getPost('sameAddress') == 1) {
 			$shipping = $billing;
+		} else {
+			$shipping             = new Market_AddressModel;
+			$shipping->attributes = craft()->request->getPost('ShippingAddress');
 		}
 
 		$orderTypeHandle = craft()->request->getPost('orderTypeHandle');
@@ -77,13 +77,13 @@ class Market_CartAddressController extends Market_BaseController
 		$this->requirePostRequest();
 
 		$billingId  = craft()->request->getPost('billingAddressId');
-		$shippingId = craft()->request->getPost('shippingAddressId');
-
 		$billingAddress  = craft()->market_address->getById($billingId);
-		$shippingAddress = craft()->market_address->getById($shippingId);
 
 		if (craft()->request->getPost('sameAddress') == 1) {
 			$shippingAddress = $billingAddress;
+		} else {
+			$shippingId = craft()->request->getPost('shippingAddressId');
+			$shippingAddress = craft()->market_address->getById($shippingId);
 		}
 
         $orderTypeHandle = craft()->request->getPost('orderTypeHandle');
@@ -118,9 +118,7 @@ class Market_CartAddressController extends Market_BaseController
 		$address             = new Market_AddressModel;
 		$address->attributes = craft()->request->getPost('Address');
 
-		if (craft()->market_address->save($address)) {
-			craft()->market_customer->saveAddress($address);
-		} else {
+		if (!craft()->market_customer->saveAddress($address)) {
 			craft()->urlManager->setRouteVariables([
 				'newAddress' => $address,
 			]);

@@ -17,14 +17,16 @@ namespace Craft;
  * @property string                stateName
  * @property int                   countryId
  * @property int                   stateId
+ * @property int                   customerId
  *
- * @property Market_CountryRecord  $country
- * @property Market_StateRecord    $state
+ * @property Market_CountryRecord  country
+ * @property Market_StateRecord    state
+ * @property Market_CustomerRecord customer
+ *
  * @package Craft
  */
 class Market_AddressRecord extends BaseRecord
 {
-
 	public function getTableName()
 	{
 		return 'market_addresses';
@@ -33,8 +35,9 @@ class Market_AddressRecord extends BaseRecord
 	public function defineRelations()
 	{
 		return [
-			'country' => [static::BELONGS_TO, 'Market_CountryRecord', 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE, 'required' => true],
-			'state'   => [static::BELONGS_TO, 'Market_StateRecord', 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE],
+			'country' => [static::BELONGS_TO, 'Market_CountryRecord', 'onDelete' => self::RESTRICT, 'onUpdate' => self::CASCADE, 'required' => true],
+			'state'   => [static::BELONGS_TO, 'Market_StateRecord', 'onDelete' => self::RESTRICT, 'onUpdate' => self::CASCADE],
+			'customer' => [static::BELONGS_TO, 'Market_CustomerRecord', 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE, 'required' => true],
 		];
 	}
 
@@ -51,6 +54,7 @@ class Market_AddressRecord extends BaseRecord
 			'alternativePhone' => AttributeType::String,
 			'company'          => AttributeType::String,
 			'stateName'        => AttributeType::String,
+			'customerId'       => [AttributeType::Number, 'required' => true],
 		];
 	}
 }
