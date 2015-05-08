@@ -32,7 +32,7 @@ class Market_CustomerRecord extends BaseRecord
 	{
 		return [
 			'user'      => [static::BELONGS_TO, 'UserRecord'],
-			'addresses' => [static::MANY_MANY, 'Market_AddressRecord', 'market_customer_addresses(customerId, addressId)'],
+			'addresses' => [static::HAS_MANY, 'Market_AddressRecord', 'customerId'],
 		];
 	}
 
