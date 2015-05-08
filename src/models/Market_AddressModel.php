@@ -34,9 +34,15 @@ class Market_AddressModel extends BaseModel
 	/** @var int|string Either ID of a state or name of state if it's not present in the DB */
 	public $stateValue;
 
+	public function getCpEditUrl()
+	{
+//        return UrlHelper::getCpUrl('market/customers/' . $this->id);
+	}
+
+
 	public function getStateText()
 	{
-		return $this->stateName ?: $this->state->name;
+		return $this->stateName ?: ($this->state ? $this->state->name : '');
 	}
 
 	protected function defineAttributes()

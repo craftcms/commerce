@@ -11,6 +11,7 @@
 <table id="customers" class="data fullwidth collapsible">
     <thead>
     <tr>
+        <th scope="col">ID</th>
         <th scope="col">User</th>
         <th scope="col">Email</th>
         <td></td>
@@ -19,6 +20,7 @@
     <tbody>
     {% for customer in customers %}
         <tr data-id="{{ customer.id }}">
+            <th><a href="{{ customer.getCpEditUrl() }}">#{{ customer.id }}</a></th>
             <td data-title="User">
                 {% if customer.user %}
                     <a href="{{ customer.user.getCpEditUrl() }}">{{ customer.user.name }}</a>

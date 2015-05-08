@@ -1,0 +1,91 @@
+{% extends "market/_layouts/cp" %}
+
+{% set crumbs = [
+{ label: "Market"|t, url: url('market') },
+{ label: "Customers"|t, url: url('market/customers') },
+{ label: "Customer #{id}"|t({id: customerId}), url: url('market/customers/' ~ customerId) },
+] %}
+
+{% import "_includes/forms" as forms %}
+
+{% set content %}
+<form method="post" accept-charset="UTF-8" data-saveshortcut>
+    <input type="hidden" name="action" value="market/address/save">
+    <input type="hidden" name="redirect" value="market/customers/{{ customerId }}">
+    {{ getCsrfInput() }}
+
+    <input type="hidden" name="id" value="{{ address.id }}">
+
+    {{ forms.textField({
+        label: "First Name"|t,
+        name: 'firstName',
+        value: address.firstName,
+        errors: address.getErrors('firstName'),
+        required: true,
+    }) }}
+
+    {{ forms.textField({
+        label: "Last Name"|t,
+        name: 'lastName',
+        value: address.lastName,
+        errors: address.getErrors('lastName'),
+        required: true,
+    }) }}
+
+    {{ forms.textField({
+        label: "Address1"|t,
+        name: 'address1',
+        value: address.address1,
+        errors: address.getErrors('address1'),
+    }) }}
+
+    {{ forms.textField({
+        label: "Address2"|t,
+        name: 'address2',
+        value: address.address2,
+        errors: address.getErrors('address2'),
+    }) }}
+
+    {{ forms.textField({
+        label: "Zip Code"|t,
+        name: 'zipCode',
+        value: address.zipCode,
+        errors: address.getErrors('zipCode'),
+    }) }}
+
+    {{ forms.textField({
+        label: "Phone"|t,
+        name: 'phone',
+        value: address.phone,
+        errors: address.getErrors('phone'),
+    }) }}
+
+    {{ forms.textField({
+        label: "Alternative Phone"|t,
+        name: 'alternativePhone',
+        value: address.alternativePhone,
+        errors: address.getErrors('alternativePhone'),
+    }) }}
+
+    {{ forms.textField({
+        label: "Company"|t,
+        name: 'company',
+        value: address.company,
+        errors: address.getErrors('company'),
+    }) }}
+
+    {{ forms.textField({
+        label: "State"|t,
+        name: 'stateName',
+        value: address.stateName,
+        errors: address.getErrors('stateName'),
+    }) }}
+
+    <hr>
+
+    <div class="buttons">
+        <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
+    </div>
+</form>
+
+{% endset %}
