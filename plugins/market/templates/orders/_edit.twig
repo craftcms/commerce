@@ -84,8 +84,22 @@
                         <h1>{{ craft.market.settings.defaultCurrency }}&nbsp;{{order.finalPrice|marketCurrency }}</h1>
                         <h2>{{ order.completedAt|date('D dS M Y') }}</h2>
                         <h2>{{ order.email }}</h2>
-                        {#{{ order.billingAddressId }}#}
-                        {#{{ order.shippingAddressId }}#}
+
+                        <strong>Billing Address: </strong>
+                        {% if order.billingAddressId %}
+                            <a href="{{ order.billingAddress.getCpEditUrl() }}">{{ order.billingAddress.country.name }}</a>
+                        {% else %}
+                            (null)
+                        {% endif %}<br/>
+
+                        <strong>Shipping Address: </strong>
+                        {% if order.shippingAddressId %}
+                            <a href="{{ order.shippingAddress.getCpEditUrl() }}">{{ order.shippingAddress.country.name }}</a>
+                        {% else %}
+                            (null)
+                        {% endif %}<br/>
+
+
                         {#{{ order.shippingMethodId }}#}
                         {#{{ order.lastIp }}#}
 
@@ -144,8 +158,8 @@
                         {% for orderHistory in order.histories %}
                             <tr>
                                 <td>{{ orderHistory.id }}</td>
-                                <td>{{ orderHistory.prevStatus.printName()|raw }}</td>
-                                <td>{{ orderHistory.newStatus.printName()|raw }}</td>
+                                <td>{{ orderHistory.prevStatus ? orderHistory.prevStatus.printName()|raw : '' }}</td>
+                                <td>{{ orderHistory.newStatus ? orderHistory.newStatus.printName()|raw : '' }}</td>
                                 <td><a href="{{ orderHistory.user.cpEditUrl }}">{{ orderHistory.user.friendlyName }}</a></td>
                                 <td>{{ orderHistory.message }}</td>
                             </tr>
