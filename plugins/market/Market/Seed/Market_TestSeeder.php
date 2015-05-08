@@ -16,7 +16,6 @@ use Craft\Market_TaxCategoryModel;
 use Craft\Market_TaxRateModel;
 use Craft\Market_TaxZoneModel;
 use Craft\Market_VariantModel;
-use Market\Product\Creator;
 
 /**
  * Test Data useful during development
@@ -178,6 +177,7 @@ class Market_TestSeeder implements Market_SeederInterface
 		$productTypes = \Craft\craft()->market_productType->getAll();
 
 		//first test product
+		/** @var Market_ProductModel $product */
 		$product = Market_ProductModel::populateModel([
 			'typeId'        => $productTypes[0]->id,
 			'enabled'       => 1,
@@ -189,10 +189,10 @@ class Market_TestSeeder implements Market_SeederInterface
 
 		$product->getContent()->title = 'Test Product';
 
-		$productCreator = new Creator();
-		$productCreator->save($product);
+		\Craft\craft()->market_product->save($product);
 
 		//master variant
+		/** @var Market_VariantModel $masterVariant */
 		$masterVariant = Market_VariantModel::populateModel([
 			'productId'      => $product->id,
 			'isMaster'       => 1,
@@ -210,6 +210,7 @@ class Market_TestSeeder implements Market_SeederInterface
 		\Craft\craft()->market_product->setOptionTypes($product->id, $ids);
 
 		//another test product
+		/** @var Market_ProductModel $product */
 		$product = Market_ProductModel::populateModel([
 			'typeId'        => $productTypes[0]->id,
 			'enabled'       => 1,
@@ -221,8 +222,7 @@ class Market_TestSeeder implements Market_SeederInterface
 
 		$product->getContent()->title = 'Another Test Product';
 
-		$productCreator = new Creator();
-		$productCreator->save($product);
+		\Craft\craft()->market_product->save($product);
 
 		//master variant
 		$masterVariant = Market_VariantModel::populateModel([

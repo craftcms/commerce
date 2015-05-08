@@ -100,7 +100,13 @@ class Market_ProductModel extends BaseElementModel
 	 */
 	public function getCpEditUrl()
 	{
-		return UrlHelper::getCpUrl('market/products/' . $this->type->handle . '/' . $this->id);
+		if ($this->typeId) {
+			$productTypeHandle = craft()->market_productType->getById($this->typeId)->handle;
+			return UrlHelper::getCpUrl('market/products/' .$productTypeHandle. '/' . $this->id);
+		}
+
+		return NULL;
+
 	}
 
 	/**
