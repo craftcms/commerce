@@ -16,6 +16,6 @@
       "icanboogie/inflector": "1.3.2"
     },
     "require-dev": {
-        "codeception/codeception": "2.0.12"
+        "codeception/codeception": "2.0.13"
     }
 }
