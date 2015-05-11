@@ -1,28 +1,11 @@
-<h2>Manage</h2>
-<ul>
-    <li><a href="{{ url('market/orders') }}">{{ "Orders"|t }}</a></li>
-    <li><a href="{{ url('market/products') }}">{{ "Products"|t }}</a></li>
-</ul>
-
-<h2>Promotions</h2>
-<ul>
-    <li><a href="{{ url('market/settings/sales') }}">{{ "Sales"|t }}</a></li>
-    <li><a href="{{ url('market/settings/discounts') }}">{{ "Discounts"|t }}</a></li>
-</ul>
-
-<h2>Settings</h2>
-<ul>
-    <li><a href="{{ url('market/settings/global') }}">{{ "Global Settings"|t }}</a></li>
-    <li><a href="{{ url('market/settings/ordertypes') }}">{{ "Order Types"|t }}</a></li>
-    <li><a href="{{ url('market/settings/producttypes') }}">{{ "Product Types"|t }}</a></li>
-    <li><a href="{{ url('market/settings/optiontypes') }}">{{ "Option Types"|t }}</a></li>
-    <li><a href="{{ url('market/settings/paymentmethods') }}">{{ "Payment Methods"|t }}</a></li>
-    <li><a href="{{ url('market/settings/taxcategories') }}">{{ "Tax Categories"|t }}</a></li>
-    <li><a href="{{ url('market/settings/taxrates') }}">{{ "Tax Rates"|t }}</a></li>
-    <li><a href="{{ url('market/settings/taxzones') }}">{{ "Tax Zones"|t }}</a></li>
-    <li><a href="{{ url('market/settings/countries') }}">{{ "Countries"|t }}</a></li>
-    <li><a href="{{ url('market/settings/states') }}">{{ "States"|t }}</a></li>
-    <li><a href="{{ url('market/settings/shippingmethods') }}">{{ "Shipping Methods"|t }}</a></li>
-    <li><a href="{{ url('market/settings/shippingrules') }}">{{ "Shipping Rules"|t }}</a></li>
-    <li><a href="{{ url('market/settings/emails') }}">{{ "System Emails"|t }}</a></li>
-</ul>
+{% block sidebar %}
+    <nav>
+        <ul>
+            <li><a href="{{ url('market/orders') }}">{{ "Orders"|t }}</a></li>
+            <li><a href="{{ url('market/products') }}">{{ "Products"|t }}</a></li>
+            <li><a href="{{ url('market/settings/sales') }}">{{ "Sales"|t }}</a></li>
+            <li><a href="{{ url('market/settings/discounts') }}">{{ "Discounts"|t }}</a></li>
+            <li><a href="{{ url('market/settings') }}">{{ "Settings"|t }}</a></li>
+        </ul>
+    </nav>
+{% endblock %}

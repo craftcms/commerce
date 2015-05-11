@@ -1,46 +1,42 @@
-{% extends "market/_layouts/cp" %}
-
-{% set title = "Market"|t %}
-
-{% set crumbs = [
-{ label: "Market"|t, url: url('market') },
-{ label: "Settings"|t, url: url('market/settings/global') },
-{ label: "Tax Rates"|t, url: url('market/settings/taxrates') }
-] %}
+{% extends "market/_layouts/settings" %}
 
 {% set content %}
-<table id="taxRates" class="data fullwidth collapsible">
-    <thead>
-    <tr>
-        <th scope="col">Name</th>
-        <th scope="col">Rate</th>
-        <th scope="col">Include in Price?</th>
-        <th scope="col">Show in Label?</th>
-        <th scope="col">Tax Zone</th>
-        <th scope="col">Tax Category</th>
-        <td class="thin"></td>
-    </tr>
-    </thead>
-    <tbody>
-    {% for taxRate in taxRates %}
-        <tr data-id="{{ taxRate.id }}" data-name="{{ taxRate.name }}">
-            <th scope="row" data-title="Name"><a
-                        href="{{ url('market/settings/taxrates/'~taxRate.id) }}">{{ taxRate.name }}</a></th>
-            <td data-title="Rate">{{ taxRate.rate|number_format(5) }}</td>
-            <td data-title="Include in Price?">{{ taxRate.include ? 'Yes'|t : 'No'|t }}</td>
-            <td data-title="Show in Label?">{{ taxRate.showInLabel ? 'Yes'|t : 'No'|t }}</td>
-            <td data-title="Tax Zone">{{ taxRate.taxZone.name }}</td>
-            <td data-title="Tax Category">{{ taxRate.taxCategory.name }}</td>
-            <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
-        </tr>
-    {% endfor %}
 
-    </tbody>
-</table>
-<br/>
-<div class="btngroup submit first">
-    <a href="{{ url('market/settings/taxrates/new') }}" class="btn submit">New Tax Rate</a>
-</div>
+    <h2>{{ "Tax Rates"|t }}</h2>
+
+    <table id="taxRates" class="data fullwidth collapsible">
+        <thead>
+        <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Rate</th>
+            <th scope="col">Include in Price?</th>
+            <th scope="col">Show in Label?</th>
+            <th scope="col">Tax Zone</th>
+            <th scope="col">Tax Category</th>
+            <td class="thin"></td>
+        </tr>
+        </thead>
+        <tbody>
+        {% for taxRate in taxRates %}
+            <tr data-id="{{ taxRate.id }}" data-name="{{ taxRate.name }}">
+                <th scope="row" data-title="Name"><a
+                            href="{{ url('market/settings/taxrates/'~taxRate.id) }}">{{ taxRate.name }}</a></th>
+                <td data-title="Rate">{{ taxRate.rate|number_format(5) }}</td>
+                <td data-title="Include in Price?">{{ taxRate.include ? 'Yes'|t : 'No'|t }}</td>
+                <td data-title="Show in Label?">{{ taxRate.showInLabel ? 'Yes'|t : 'No'|t }}</td>
+                <td data-title="Tax Zone">{{ taxRate.taxZone.name }}</td>
+                <td data-title="Tax Category">{{ taxRate.taxCategory.name }}</td>
+                <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
+            </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+    <br/>
+    <div class="btngroup submit first">
+        <a href="{{ url('market/settings/taxrates/new') }}" class="btn submit">New Tax Rate</a>
+    </div>
+
 {% endset %}
 
 

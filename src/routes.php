@@ -3,8 +3,8 @@
 return [
 	'market'                                                                                  => ['action' => 'market/dashboard/index'],
 
+	'market/settings'                                                                         => ['action' => 'market/settings/index'],
 	'market/settings/global'                                                                  => ['action' => 'market/settings/edit'],
-	'market/settings'                                                                         => ['action' => 'market/settings/edit'],
 
 	'market/settings/taxcategories'                                                           => ['action' => 'market/taxCategory/index'],
 	'market/settings/taxcategories/new'                                                       => ['action' => 'market/taxCategory/edit'],
@@ -72,7 +72,7 @@ return [
 	'market/settings/emails'                                                                  => ['action' => 'market/email/index'],
 	'market/settings/emails/new'                                                              => ['action' => 'market/email/edit'],
 	'market/settings/emails/(?P<id>\d+)'                                                      => ['action' => 'market/email/edit'],
-    
+
     'market/settings/ordertypes/(?P<orderTypeId>\d+)/orderstatuses/new'                       => ['action' => 'market/orderStatus/edit'],
     'market/settings/ordertypes/(?P<orderTypeId>\d+)/orderstatuses/(?P<id>\d+)'               => ['action' => 'market/orderStatus/edit'],
 ];
