@@ -1,37 +1,33 @@
-{% extends "market/_layouts/cp" %}
-
-{% set title = "Market"|t %}
-
-{% set crumbs = [
-{ label: "Market"|t, url: url('market') },
-{ label: "Settings"|t, url: url('market/settings/global') },
-{ label: "Shipping Methods"|t, url: url('market/settings/shippingmethods') }
-] %}
+{% extends "market/_layouts/settings" %}
 
 {% set content %}
-<table id="shippingMethods" class="data fullwidth collapsible">
-    <thead>
-    <tr>
-        <th scope="col">Name</th>
-        <th scope="col">Enabled</th>
-        <td class="thin"></td>
-    </tr>
-    </thead>
-    <tbody>
-    {% for shippingMethod in shippingMethods %}
-        <tr data-id="{{ shippingMethod.id }}" data-name="{{ shippingMethod.name }}">
-            <th scope="row" data-title="Name"><a href="{{ url('market/settings/shippingmethods/'~shippingMethod.id) }}">{{ shippingMethod.name }}</a></th>
-            <td data-title="Enabled">{{ shippingMethod.enabled ? 'Yes'|t : 'No'|t }}</td>
-            <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
-        </tr>
-    {% endfor %}
 
-    </tbody>
-</table>
-<br/>
-<div class="btngroup submit first">
-    <a href="{{ url('market/settings/shippingmethods/new') }}" class="btn submit">New Shipping Method</a>
-</div>
+    <h2>{{ "Shipping Methods"|t }}</h2>
+
+    <table id="shippingMethods" class="data fullwidth collapsible">
+        <thead>
+        <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Enabled</th>
+            <td class="thin"></td>
+        </tr>
+        </thead>
+        <tbody>
+        {% for shippingMethod in shippingMethods %}
+            <tr data-id="{{ shippingMethod.id }}" data-name="{{ shippingMethod.name }}">
+                <th scope="row" data-title="Name"><a href="{{ url('market/settings/shippingmethods/'~shippingMethod.id) }}">{{ shippingMethod.name }}</a></th>
+                <td data-title="Enabled">{{ shippingMethod.enabled ? 'Yes'|t : 'No'|t }}</td>
+                <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
+            </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+    <br/>
+    <div class="btngroup submit first">
+        <a href="{{ url('market/settings/shippingmethods/new') }}" class="btn submit">New Shipping Method</a>
+    </div>
+
 {% endset %}
 
 

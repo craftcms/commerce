@@ -2,7 +2,7 @@
 
 {% set crumbs = [
 { label: "Market"|t, url: url('market') },
-{ label: "Settings"|t, url: url('market/settings/global') },
+{ label: "Settings"|t, url: url('market/settings') },
 { label: "Order Types"|t, url: url('market/settings/ordertypes') },
 ] %}
 
@@ -103,7 +103,7 @@
                     <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
                 </tr>
             {% endfor %}
-    
+
             </tbody>
         </table>
 

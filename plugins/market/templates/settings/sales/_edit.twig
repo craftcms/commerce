@@ -2,7 +2,6 @@
 
 {% set crumbs = [
 { label: "Market"|t, url: url('market') },
-{ label: "Settings"|t, url: url('market/settings/global') },
 { label: "Sales"|t, url: url('market/settings/sales') },
 ] %}
 
@@ -37,7 +36,7 @@
         value: sale.description,
         errors: sale.getErrors('description'),
     }) }}
-    
+
     {{ forms.dateField({
         label: "Start Date"|t,
         instructions: "Date from which the sale will be active. Leave blank for unlimited start date"|t,

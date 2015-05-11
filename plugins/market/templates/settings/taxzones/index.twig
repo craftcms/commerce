@@ -1,48 +1,41 @@
-{% extends "market/_layouts/cp" %}
-
-{% set title = "Market"|t %}
-
-{% set crumbs = [
-{ label: "Market"|t, url: url('market') },
-{ label: "Settings"|t, url: url('market/settings/global') },
-{ label: "Tax Zones"|t, url: url('market/settings/taxzones') }
-] %}
+{% extends "market/_layouts/settings" %}
 
 {% set content %}
 
-<table id="taxZones" class="data fullwidth collapsible">
-    <thead>
-    <tr>
-        <th scope="col">Name</th>
-        <th scope="col">Description</th>
-        <th scope="col">Type</th>
-        <th scope="col">Countries / States</th>
-        <th scope="col">Is Default?</th>
-        <td class="thin"></td>
-    </tr>
-    </thead>
-    <tbody>
-    {% for taxZone in taxZones %}
-        <tr data-id="{{ taxZone.id }}" data-name="{{ taxZone.name }}">
-            <td scope="row" data-title="Name"><a
-                        href="{{ url('market/settings/taxzones/'~taxZone.id) }}">{{ taxZone.name }}</a></td>
-            <td data-title="Description">{{ taxZone.description }}</td>
-            <td data-title="Type">{{ taxZone.countryBased ? 'Country Based'|t : 'State Based'|t }}</td>
-            <td data-title="Type">{{ taxZone.getCountriesNames()|join(', ') }}{{ taxZone.getStatesNames()|join(', ') }}</td>
-            <td data-title="Is Default?">{{ taxZone.default ? 'Yes'|t : 'No'|t }}</td>
-            <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
-        </tr>
-    {% endfor %}
+    <h2>{{ "Tax Zones"|t }}</h2>
 
-    </tbody>
-</table>
-<br/>
-<div class="btngroup submit first">
-    <a href="{{ url('market/settings/taxzones/new') }}" class="btn submit">New Tax Zone</a>
-</div>
+    <table id="taxZones" class="data fullwidth collapsible">
+        <thead>
+        <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Description</th>
+            <th scope="col">Type</th>
+            <th scope="col">Countries / States</th>
+            <th scope="col">Is Default?</th>
+            <td class="thin"></td>
+        </tr>
+        </thead>
+        <tbody>
+        {% for taxZone in taxZones %}
+            <tr data-id="{{ taxZone.id }}" data-name="{{ taxZone.name }}">
+                <td scope="row" data-title="Name"><a
+                            href="{{ url('market/settings/taxzones/'~taxZone.id) }}">{{ taxZone.name }}</a></td>
+                <td data-title="Description">{{ taxZone.description }}</td>
+                <td data-title="Type">{{ taxZone.countryBased ? 'Country Based'|t : 'State Based'|t }}</td>
+                <td data-title="Type">{{ taxZone.getCountriesNames()|join(', ') }}{{ taxZone.getStatesNames()|join(', ') }}</td>
+                <td data-title="Is Default?">{{ taxZone.default ? 'Yes'|t : 'No'|t }}</td>
+                <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
+            </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+    <br/>
+    <div class="btngroup submit first">
+        <a href="{{ url('market/settings/taxzones/new') }}" class="btn submit">New Tax Zone</a>
+    </div>
 
 {% endset %}
-
 
 {% set js %}
 var adminTable = new Craft.AdminTable({
