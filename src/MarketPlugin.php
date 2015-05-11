@@ -17,6 +17,8 @@ class MarketPlugin extends BasePlugin
 
 	function init()
 	{
+		$this->initMarketNav();
+
         //init global event handlers
         craft()->on('market_orderHistory.onStatusChange',
 			[
@@ -101,6 +103,48 @@ class MarketPlugin extends BasePlugin
 		$settingModel = new Market_SettingsModel;
 
 		return $settingModel->defineAttributes();
+	}
+
+	private function initMarketNav()
+	{
+		if(craft()->request->isCpRequest())
+		{
+			craft()->templates->includeCssResource('market/market-nav.css');
+
+			craft()->templates->includeJsResource('market/market-nav.js');
+
+			$nav = array(
+				array(
+					'url' => 'market/orders',
+					'title' => Craft::t("Orders"),
+					'selected' => (craft()->request->getSegment(2) == 'orders' ? true : false)
+				),
+				array(
+					'url' => 'market/products',
+					'title' => Craft::t("Products"),
+					'selected' => (craft()->request->getSegment(2) == 'products' ? true : false)
+				),
+				array(
+					'url' => 'market/settings/sales',
+					'title' => Craft::t("Sales"),
+					'selected' => (craft()->request->getSegment(3) == 'sales' ? true : false)
+				),
+				array(
+					'url' => 'market/settings/discounts',
+					'title' => Craft::t("Discounts"),
+					'selected' => (craft()->request->getSegment(3) == 'discounts' ? true : false)
+				),
+				array(
+					'url' => 'market/settings',
+					'title' => Craft::t("Settings"),
+					'selected' => (craft()->request->getSegment(2) == 'settings' ? true : false)
+				),
+			);
+
+			$navJson = JsonHelper::encode($nav);
+
+			craft()->templates->includeJs('new Craft.MarketNav('.$navJson.');');
+		}
 	}
 
 }
