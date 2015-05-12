@@ -17,7 +17,7 @@
     <tbody>
     {% for sale in sales %}
         <tr data-id="{{ sale.id }}" data-name="{{ sale.name }}">
-            <th scope="row" data-title="Name"><a href="{{ url('market/settings/sales/'~sale.id) }}">{{ sale.name }}</a></th>
+            <th scope="row" data-title="Name"><a href="{{ url('market/sales/'~sale.id) }}">{{ sale.name }}</a></th>
             <td data-title="Dates">
                 {{ sale.dateFrom ? sale.dateFrom : 'no limit'|t }} - {{ sale.dateTo ? sale.dateTo : 'no limit'|t }}
             </td>
@@ -32,7 +32,7 @@
 </table>
 <br/>
 <div class="btngroup submit first">
-    <a href="{{ url('market/settings/sales/new') }}" class="btn submit">New Sale</a>
+    <a href="{{ url('market/sales/new') }}" class="btn submit">New Sale</a>
 </div>
 {% endset %}
 

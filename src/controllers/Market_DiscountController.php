@@ -17,7 +17,7 @@ class Market_DiscountController extends Market_BaseController
 	public function actionIndex()
 	{
 		$discounts = craft()->market_discount->getAll(['order' => 'name']);
-		$this->renderTemplate('market/settings/discounts/index', compact('discounts'));
+		$this->renderTemplate('market/discounts/index', compact('discounts'));
 	}
 
 	/**
@@ -56,7 +56,7 @@ class Market_DiscountController extends Market_BaseController
 		$types              = craft()->market_productType->getAll();
 		$variables['types'] = \CHtml::listData($types, 'id', 'name');
 
-		$this->renderTemplate('market/settings/discounts/_edit', $variables);
+		$this->renderTemplate('market/discounts/_edit', $variables);
 	}
 
 	/**

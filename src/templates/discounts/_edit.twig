@@ -1,7 +1,7 @@
 {% extends "market/_layouts/cp" %}
 
 {% set crumbs = [
-{ label: "Discounts"|t, url: url('market/settings/discounts') },
+{ label: "Discounts"|t, url: url('market/discounts') },
 ] %}
 
 {% import "_includes/forms" as forms %}
@@ -10,7 +10,7 @@
 {% set content %}
 <form method="post" accept-charset="UTF-8" data-saveshortcut>
     <input type="hidden" name="action" value="market/discount/save">
-    <input type="hidden" name="redirect" value="market/settings/discounts">
+    <input type="hidden" name="redirect" value="market/discounts">
 
     {{ getCsrfInput() }}
     {% if discount.id %}<input type="hidden" name="id" value="{{ discount.id }}">{% endif %}
