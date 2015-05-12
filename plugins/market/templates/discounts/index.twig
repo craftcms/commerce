@@ -24,7 +24,7 @@
     <tbody>
     {% for discount in discounts %}
         <tr data-id="{{ discount.id }}" data-name="{{ discount.name }}">
-            <th scope="row" data-title="Name"><a href="{{ url('market/settings/discounts/'~discount.id) }}">{{ discount.name }}</a></th>
+            <th scope="row" data-title="Name"><a href="{{ url('market/discounts/'~discount.id) }}">{{ discount.name }}</a></th>
             <td data-title="Dates">
                 {{ discount.dateFrom ? discount.dateFrom : 'no limit'|t }} - {{ discount.dateTo ? discount.dateTo : 'no limit'|t }}
             </td>
@@ -46,7 +46,7 @@
 </table>
 <br/>
 <div class="btngroup submit first">
-    <a href="{{ url('market/settings/discounts/new') }}" class="btn submit">New Discount</a>
+    <a href="{{ url('market/discounts/new') }}" class="btn submit">New Discount</a>
 </div>
 {% endset %}
 
