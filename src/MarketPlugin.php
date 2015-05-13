@@ -125,14 +125,11 @@ class MarketPlugin extends BasePlugin
 					'selected' => (craft()->request->getSegment(2) == 'products' ? true : false)
 				),
 				array(
-					'url' => 'market/sales',
-					'title' => Craft::t("Sales"),
-					'selected' => (craft()->request->getSegment(2) == 'sales' ? true : false)
+					'url' => 'market/promotions',
+					'title' => Craft::t("Promotions"),
+					'selected' => (craft()->request->getSegment(2) == 'Promotions' ? true : false)
 				),
 				array(
-					'url' => 'market/discounts',
-					'title' => Craft::t("Discounts"),
-					'selected' => (craft()->request->getSegment(2) == 'discounts' ? true : false)
 					'url' => 'market/customers',
 					'title' => Craft::t("Customers"),
 					'selected' => (craft()->request->getSegment(2) == 'customers' ? true : false)
