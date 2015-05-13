@@ -53,13 +53,13 @@ return [
 	'market/settings/paymentmethods'                                                          => ['action' => 'market/paymentMethod/index'],
 	'market/settings/paymentmethods/(?P<class>\w+)'                                           => ['action' => 'market/paymentMethod/edit'],
 
-	'market/sales'                                                                   => ['action' => 'market/sale/index'],
-	'market/sales/new'                                                               => ['action' => 'market/sale/edit'],
-	'market/sales/(?P<id>\d+)'                                                       => ['action' => 'market/sale/edit'],
+	'market/promotions/sales'                                                                   => ['action' => 'market/sale/index'],
+	'market/promotions/sales/new'                                                               => ['action' => 'market/sale/edit'],
+	'market/promotions/sales/(?P<id>\d+)'                                                       => ['action' => 'market/sale/edit'],
 
-	'market/discounts'                                                               => ['action' => 'market/discount/index'],
-	'market/discounts/new'                                                           => ['action' => 'market/discount/edit'],
-	'market/discounts/(?P<id>\d+)'                                                   => ['action' => 'market/discount/edit'],
+	'market/promotions/discounts'                                                               => ['action' => 'market/discount/index'],
+	'market/promotions/discounts/new'                                                           => ['action' => 'market/discount/edit'],
+	'market/promotions/discounts/(?P<id>\d+)'                                                   => ['action' => 'market/discount/edit'],
 
 	'market/settings/shippingmethods'                                                         => ['action' => 'market/shippingMethod/index'],
 	'market/settings/shippingmethods/new'                                                     => ['action' => 'market/shippingMethod/edit'],
