@@ -3,8 +3,8 @@
 return [
 	'market'                                                                                  => ['action' => 'market/dashboard/index'],
 
+	'market/settings'                                                                         => ['action' => 'market/settings/index'],
 	'market/settings/global'                                                                  => ['action' => 'market/settings/edit'],
-	'market/settings'                                                                         => ['action' => 'market/settings/edit'],
 
 	'market/settings/taxcategories'                                                           => ['action' => 'market/taxCategory/index'],
 	'market/settings/taxcategories/new'                                                       => ['action' => 'market/taxCategory/edit'],
@@ -53,13 +53,13 @@ return [
 	'market/settings/paymentmethods'                                                          => ['action' => 'market/paymentMethod/index'],
 	'market/settings/paymentmethods/(?P<class>\w+)'                                           => ['action' => 'market/paymentMethod/edit'],
 
-	'market/settings/sales'                                                                   => ['action' => 'market/sale/index'],
-	'market/settings/sales/new'                                                               => ['action' => 'market/sale/edit'],
-	'market/settings/sales/(?P<id>\d+)'                                                       => ['action' => 'market/sale/edit'],
+	'market/promotions/sales'                                                                   => ['action' => 'market/sale/index'],
+	'market/promotions/sales/new'                                                               => ['action' => 'market/sale/edit'],
+	'market/promotions/sales/(?P<id>\d+)'                                                       => ['action' => 'market/sale/edit'],
 
-	'market/settings/discounts'                                                               => ['action' => 'market/discount/index'],
-	'market/settings/discounts/new'                                                           => ['action' => 'market/discount/edit'],
-	'market/settings/discounts/(?P<id>\d+)'                                                   => ['action' => 'market/discount/edit'],
+	'market/promotions/discounts'                                                               => ['action' => 'market/discount/index'],
+	'market/promotions/discounts/new'                                                           => ['action' => 'market/discount/edit'],
+	'market/promotions/discounts/(?P<id>\d+)'                                                   => ['action' => 'market/discount/edit'],
 
 	'market/settings/shippingmethods'                                                         => ['action' => 'market/shippingMethod/index'],
 	'market/settings/shippingmethods/new'                                                     => ['action' => 'market/shippingMethod/edit'],
@@ -72,7 +72,7 @@ return [
 	'market/settings/emails'                                                                  => ['action' => 'market/email/index'],
 	'market/settings/emails/new'                                                              => ['action' => 'market/email/edit'],
 	'market/settings/emails/(?P<id>\d+)'                                                      => ['action' => 'market/email/edit'],
-    
+
     'market/settings/ordertypes/(?P<orderTypeId>\d+)/orderstatuses/new'                       => ['action' => 'market/orderStatus/edit'],
     'market/settings/ordertypes/(?P<orderTypeId>\d+)/orderstatuses/(?P<id>\d+)'               => ['action' => 'market/orderStatus/edit'],
 

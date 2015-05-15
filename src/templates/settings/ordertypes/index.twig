@@ -1,50 +1,45 @@
-{% extends "market/_layouts/cp" %}
-
-{% set title = "Order Types"|t %}
-
-{% set crumbs = [
-{ label: "Market"|t, url: url('market') },
-{ label: "Settings"|t, url: url('market/settings') },
-{ label: "Order Types"|t, url: url('market/settings/ordertypes') }
-] %}
+{% extends "market/_layouts/settings" %}
 
 {% set selectedTab = 'settings' %}
 
 {% set content %}
-<table id="ordertypes" class="data fullwidth collapsible">
-    <thead>
-    <tr>
-        <th scope="col">Name</th>
-        <th scope="col">Handle</th>
-        <th scope="col">Shipping Method</th>
-        <th scope="col">Purge Incompleted Cart Duration</th>
-        <td class="thin"></td>
-    </tr>
-    </thead>
-    <tbody>
-    {% for orderType in orderTypes %}
-        <tr data-id="{{ orderType.id }}" data-name="{{ orderType.name }}">
-            <th scope="row" data-title="Name"><a
-                        href="{{ url('market/settings/ordertypes/'~orderType.id) }}">{{ orderType.name }}</a></th>
-            <td data-title="Handle"><code>{{ orderType.handle }}</code></td>
-            <td data-title="Shipping Method">{{ orderType.shippingMethod.name }}</td>
-            <td data-title="Shipping Method">{{ orderType.purgeIncompletedCartDuration }}</td>
-            <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
+
+    <h2>{{ "Order Types"|t }}</h2>
+
+    <table id="ordertypes" class="data fullwidth collapsible">
+        <thead>
+        <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Handle</th>
+            <th scope="col">Shipping Method</th>
+            <th scope="col">Purge Incompleted Cart Duration</th>
+            <td class="thin"></td>
         </tr>
-    {% endfor %}
+        </thead>
+        <tbody>
+        {% for orderType in orderTypes %}
+            <tr data-id="{{ orderType.id }}" data-name="{{ orderType.name }}">
+                <th scope="row" data-title="Name"><a
+                            href="{{ url('market/settings/ordertypes/'~orderType.id) }}">{{ orderType.name }}</a></th>
+                <td data-title="Handle"><code>{{ orderType.handle }}</code></td>
+                <td data-title="Shipping Method">{{ orderType.shippingMethod.name }}</td>
+                <td data-title="Shipping Method">{{ orderType.purgeIncompletedCartDuration }}</td>
+                <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
+            </tr>
+        {% endfor %}
 
-    </tbody>
-</table>
+        </tbody>
+    </table>
 
-{% if not methodsExist %}
-    <p><span style="color:red">No shipping methods exist!</span><br/>Go to settings and
-        <a href="{{ url('market/settings/shippingmethods') }}">create a new shipping method </a> please.</p>
-{% else %}
-        <br/>
-        <div class="btngroup submit first">
-            <a href="{{ url('market/settings/ordertypes/new') }}" class="btn submit">New Order Type</a>
-        </div>
-{% endif %}
+    {% if not methodsExist %}
+        <p><span style="color:red">No shipping methods exist!</span><br/>Go to settings and
+            <a href="{{ url('market/settings/shippingmethods') }}">create a new shipping method </a> please.</p>
+    {% else %}
+            <br/>
+            <div class="btngroup submit first">
+                <a href="{{ url('market/settings/ordertypes/new') }}" class="btn submit">New Order Type</a>
+            </div>
+    {% endif %}
 {% endset %}
 
 

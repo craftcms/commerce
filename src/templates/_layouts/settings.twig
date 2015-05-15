@@ -1,0 +1,36 @@
+{% extends "market/_layouts/cp" %}
+
+{% set title = "Market Settings"|t %}
+
+{% block sidebar %}
+    <nav>
+        <ul>
+            <li><a href="{{ url('market/settings/global') }}"{% if craft.request.segment(3) == 'global' %} class="sel"{% endif %}>{{ "Global Settings"|t }}</a></li>
+
+            <li><a href="{{ url('market/settings/ordertypes') }}"{% if craft.request.segment(3) == 'ordertypes' %} class="sel"{% endif %}>{{ "Order Types"|t }}</a></li>
+
+            <li><a href="{{ url('market/settings/producttypes') }}"{% if craft.request.segment(3) == 'producttypes' %} class="sel"{% endif %}>{{ "Product Types"|t }}</a></li>
+
+            <li><a href="{{ url('market/settings/optiontypes') }}"{% if craft.request.segment(3) == 'optiontypes' %} class="sel"{% endif %}>{{ "Option Types"|t }}</a></li>
+
+            <li><a href="{{ url('market/settings/paymentmethods') }}"{% if craft.request.segment(3) == 'paymentmethods' %} class="sel"{% endif %}>{{ "Payment Methods"|t }}</a></li>
+
+            <li><a href="{{ url('market/settings/taxcategories') }}"{% if craft.request.segment(3) == 'taxcategories' %} class="sel"{% endif %}>{{ "Tax Categories"|t }}</a></li>
+
+            <li><a href="{{ url('market/settings/taxrates') }}"{% if craft.request.segment(3) == 'taxrates' %} class="sel"{% endif %}>{{ "Tax Rates"|t }}</a></li>
+
+            <li><a href="{{ url('market/settings/taxzones') }}"{% if craft.request.segment(3) == 'taxzones' %} class="sel"{% endif %}>{{ "Tax Zones"|t }}</a></li>
+
+            <li><a href="{{ url('market/settings/countries') }}"{% if craft.request.segment(3) == 'countries' %} class="sel"{% endif %}>{{ "Countries"|t }}</a></li>
+
+            <li><a href="{{ url('market/settings/states') }}"{% if craft.request.segment(3) == 'states' %} class="sel"{% endif %}>{{ "States"|t }}</a></li>
+
+            <li><a href="{{ url('market/settings/shippingmethods') }}"{% if craft.request.segment(3) == 'shippingmethods' %} class="sel"{% endif %}>{{ "Shipping Methods"|t }}</a></li>
+
+            <li><a href="{{ url('market/settings/shippingrules') }}"{% if craft.request.segment(3) == 'shippingrules' %} class="sel"{% endif %}>{{ "Shipping Rules"|t }}</a></li>
+
+            <li><a href="{{ url('market/settings/emails') }}"{% if craft.request.segment(3) == 'emails' %} class="sel"{% endif %}>{{ "System Emails"|t }}</a></li>
+
+        </ul>
+    </nav>
+{% endblock %}

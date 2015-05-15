@@ -1,41 +1,39 @@
-{% extends "market/_layouts/cp" %}
+{% extends "market/_layouts/settings" %}
 
 {% set title = "Product Types"|t %}
-
-{% set crumbs = [
-{ label: "Market"|t, url: url('market') },
-{ label: "Settings"|t, url: url('market/settings') },
-{ label: "Product Types"|t, url: url('market/settings/producttypes') }
-] %}
 
 {% set selectedTab = 'settings' %}
 
 {% set content %}
-<table id="producttypes" class="data fullwidth collapsible">
-    <thead>
-    <tr>
-        <th scope="col">Name</th>
-        <th scope="col">Handle</th>
-        <td class="thin"></td>
-    </tr>
-    </thead>
-    <tbody>
-    {% for productType in productTypes %}
-        <tr data-id="{{ productType.id }}" data-name="{{ productType.name }}">
-            <th scope="row" data-title="Name"><a
-                        href="{{ url('market/settings/producttypes/'~productType.id) }}">{{ productType.name }}</a>
-            </th>
-            <td data-title="Handle"><code>{{ productType.handle }}</code></td>
-            <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
-        </tr>
-    {% endfor %}
 
-    </tbody>
-</table>
-<br/>
-<div class="btngroup submit first">
-    <a href="{{ url('market/settings/producttypes/new') }}" class="btn submit">New Product Type</a>
-</div>
+    <h2>{{ "Product Types"|t }}</h2>
+
+    <table id="producttypes" class="data fullwidth collapsible">
+        <thead>
+        <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Handle</th>
+            <td class="thin"></td>
+        </tr>
+        </thead>
+        <tbody>
+        {% for productType in productTypes %}
+            <tr data-id="{{ productType.id }}" data-name="{{ productType.name }}">
+                <th scope="row" data-title="Name"><a
+                            href="{{ url('market/settings/producttypes/'~productType.id) }}">{{ productType.name }}</a>
+                </th>
+                <td data-title="Handle"><code>{{ productType.handle }}</code></td>
+                <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
+            </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+    <br/>
+    <div class="btngroup submit first">
+        <a href="{{ url('market/settings/producttypes/new') }}" class="btn submit">New Product Type</a>
+    </div>
+
 {% endset %}
 
 

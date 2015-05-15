@@ -15,12 +15,20 @@ class Market_SettingsController extends Market_BaseController
 {
 
 	/**
+	 * Market Settings Index
+	 */
+	public function actionIndex()
+	{
+		$settings = craft()->market_settings->getSettings();
+		$this->renderTemplate('market/settings', ['settings' => $settings]);
+	}
+	/**
 	 * Market Settings Form
 	 */
 	public function actionEdit()
 	{
 		$settings = craft()->market_settings->getSettings();
-		$this->renderTemplate('market/settings', ['settings' => $settings]);
+		$this->renderTemplate('market/settings/global', ['settings' => $settings]);
 	}
 
 	/**
@@ -40,4 +48,4 @@ class Market_SettingsController extends Market_BaseController
 			$this->redirectToPostedUrl();
 		}
 	}
-} 
+}

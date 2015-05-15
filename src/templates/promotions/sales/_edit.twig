@@ -1,9 +1,8 @@
 {% extends "market/_layouts/cp" %}
 
 {% set crumbs = [
-{ label: "Market"|t, url: url('market') },
-{ label: "Settings"|t, url: url('market/settings') },
-{ label: "Sales"|t, url: url('market/settings/sales') },
+    { label: "Promotions"|t, url: url('market/promotions') },
+    { label: "Sales"|t, url: url('market/promotions/sales') },
 ] %}
 
 {% import "_includes/forms" as forms %}
@@ -12,7 +11,7 @@
 {% set content %}
 <form method="post" accept-charset="UTF-8" data-saveshortcut>
     <input type="hidden" name="action" value="market/sale/save">
-    <input type="hidden" name="redirect" value="market/settings/sales">
+    <input type="hidden" name="redirect" value="market/promotions/sales">
 
     {{ getCsrfInput() }}
     {% if sale.id %}<input type="hidden" name="id" value="{{ sale.id }}">{% endif %}
@@ -37,7 +36,7 @@
         value: sale.description,
         errors: sale.getErrors('description'),
     }) }}
-    
+
     {{ forms.dateField({
         label: "Start Date"|t,
         instructions: "Date from which the sale will be active. Leave blank for unlimited start date"|t,
