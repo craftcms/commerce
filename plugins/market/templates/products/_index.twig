@@ -3,11 +3,6 @@
 {% set elementType = 'Market_Product' %}
 {% set selectedTab = 'products' %}
 
-{% set crumbs = [
-{ label: "Market"|t, url: url('market') },
-{ label: "Products"|t, url: url('market/products') }
-] %}
-
 {% block sidebar %}
 
     {% if productTypes|length and taxCategories|length %}

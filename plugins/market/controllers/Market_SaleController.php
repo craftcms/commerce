@@ -17,7 +17,7 @@ class Market_SaleController extends Market_BaseController
 	public function actionIndex()
 	{
 		$sales = craft()->market_sale->getAll(['order' => 'name']);
-		$this->renderTemplate('market/settings/sales/index', compact('sales'));
+		$this->renderTemplate('market/promotions/sales/index', compact('sales'));
 	}
 
 	/**
@@ -56,7 +56,7 @@ class Market_SaleController extends Market_BaseController
 		$types              = craft()->market_productType->getAll();
 		$variables['types'] = \CHtml::listData($types, 'id', 'name');
 
-		$this->renderTemplate('market/settings/sales/_edit', $variables);
+		$this->renderTemplate('market/promotions/sales/_edit', $variables);
 	}
 
 	/**
