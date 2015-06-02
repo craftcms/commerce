@@ -53,6 +53,7 @@ class Market_AddressService extends BaseApplicationComponent
 		$record->lastName         = $model->lastName;
 		$record->address1         = $model->address1;
 		$record->address2         = $model->address2;
+		$record->city		        = $model->city;
 		$record->zipCode          = $model->zipCode;
 		$record->phone            = $model->phone;
 		$record->alternativePhone = $model->alternativePhone;

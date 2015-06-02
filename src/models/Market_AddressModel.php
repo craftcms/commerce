@@ -12,6 +12,7 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property string               lastName
  * @property string               address1
  * @property string               address2
+ * @property string               city
  * @property string               zipCode
  * @property string               phone
  * @property string               alternativePhone
@@ -53,6 +54,7 @@ class Market_AddressModel extends BaseModel
 			'lastName'         => AttributeType::String,
 			'address1'         => AttributeType::String,
 			'address2'         => AttributeType::String,
+			'city'             => AttributeType::String,
 			'zipCode'          => AttributeType::String,
 			'phone'            => AttributeType::String,
 			'alternativePhone' => AttributeType::String,

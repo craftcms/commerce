@@ -46,6 +46,14 @@
         errors: address.getErrors('address2'),
     }) }}
 
+
+    {{ forms.textField({
+        label: "City"|t,
+        name: 'city',
+        value: address.city,
+        errors: address.getErrors('city'),
+    }) }}
+
     {{ forms.textField({
         label: "Zip Code"|t,
         name: 'zipCode',
