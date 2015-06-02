@@ -45,11 +45,10 @@ class MarketTwigExtension extends \Twig_Extension
 
 	public function currency($content)
 	{
-		$currencyDecimalPlaces = \Craft\craft()->market_settings->getOption('currencyDecimalPlaces');
-		$currencyDecimalSymbol = \Craft\craft()->market_settings->getOption('currencyDecimalSymbol');
-		$currencyDecimalSeparator = \Craft\craft()->market_settings->getOption('currencyDecimalSeparator');
-		return number_format($content,$currencyDecimalPlaces,$currencyDecimalSymbol,$currencyDecimalSeparator);
+		$currency = \Craft\craft()->market_settings->getOption('defaultCurrency');
+		return \Craft\craft()->numberFormatter->formatCurrency($content, strtoupper($currency));
 	}
+
 	public function pluralize($content)
 	{
 		return $this->inflector->pluralize($content);
