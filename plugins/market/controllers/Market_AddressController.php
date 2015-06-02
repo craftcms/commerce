@@ -55,7 +55,7 @@ class Market_AddressController extends Market_BaseController
 		}
 
 		// Shared attributes
-		$attrs = ['firstName', 'lastName', 'address1', 'address2', 'zipCode', 'phone', 'alternativePhone', 'company', 'countryId', 'stateValue'];
+		$attrs = ['firstName', 'lastName', 'address1', 'address2', 'city', 'zipCode', 'phone', 'alternativePhone', 'company', 'countryId', 'stateValue'];
 		foreach ($attrs as $attr) {
 			$address->$attr = craft()->request->getPost($attr);
 		}

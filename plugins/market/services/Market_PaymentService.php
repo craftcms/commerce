@@ -1,4 +1,5 @@
 <?php
+<?php
 
 namespace Craft;
 
@@ -267,6 +268,7 @@ class Market_PaymentService extends BaseApplicationComponent
 		$billingAddress = $order->billingAddress;
 		$card->setBillingAddress1($billingAddress->address1);
 		$card->setBillingAddress2($billingAddress->address2);
+		$card->setBillingCity($billingAddress->city);
 		$card->setBillingPostcode($billingAddress->zipCode);
 		$card->setBillingState($billingAddress->getStateText());
 		$card->setBillingCountry($billingAddress->country->name);
@@ -275,6 +277,7 @@ class Market_PaymentService extends BaseApplicationComponent
 		$shippingAddress = $order->shippingAddress;
 		$card->setShippingAddress1($shippingAddress->address1);
 		$card->setShippingAddress2($shippingAddress->address2);
+		$card->setShippingCity($shippingAddress->city);
 		$card->setShippingPostcode($shippingAddress->zipCode);
 		$card->setShippingState($shippingAddress->getStateText());
 		$card->setShippingCountry($shippingAddress->country->name);

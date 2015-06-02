@@ -10,6 +10,7 @@ namespace Craft;
  * @property string                lastName
  * @property string                address1
  * @property string                address2
+ * @property string                city
  * @property string                zipCode
  * @property string                phone
  * @property string                alternativePhone
@@ -35,8 +36,8 @@ class Market_AddressRecord extends BaseRecord
 	public function defineRelations()
 	{
 		return [
-			'country' => [static::BELONGS_TO, 'Market_CountryRecord', 'onDelete' => self::RESTRICT, 'onUpdate' => self::CASCADE, 'required' => true],
-			'state'   => [static::BELONGS_TO, 'Market_StateRecord', 'onDelete' => self::RESTRICT, 'onUpdate' => self::CASCADE],
+			'country'  => [static::BELONGS_TO, 'Market_CountryRecord', 'onDelete' => self::RESTRICT, 'onUpdate' => self::CASCADE, 'required' => true],
+			'state'    => [static::BELONGS_TO, 'Market_StateRecord', 'onDelete' => self::RESTRICT, 'onUpdate' => self::CASCADE],
 			'customer' => [static::BELONGS_TO, 'Market_CustomerRecord', 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE, 'required' => true],
 		];
 	}
@@ -49,6 +50,7 @@ class Market_AddressRecord extends BaseRecord
 			'countryId'        => [AttributeType::Number, 'required' => true],
 			'address1'         => AttributeType::String,
 			'address2'         => AttributeType::String,
+			'city'             => AttributeType::String,
 			'zipCode'          => AttributeType::String,
 			'phone'            => AttributeType::String,
 			'alternativePhone' => AttributeType::String,
