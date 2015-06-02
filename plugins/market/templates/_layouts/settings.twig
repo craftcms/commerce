@@ -15,9 +15,9 @@
 
             <li><a href="{{ url('market/settings/paymentmethods') }}"{% if craft.request.segment(3) == 'paymentmethods' %} class="sel"{% endif %}>{{ "Payment Methods"|t }}</a></li>
 
-            <li><a href="{{ url('market/settings/taxcategories') }}"{% if craft.request.segment(3) == 'taxcategories' %} class="sel"{% endif %}>{{ "Tax Categories"|t }}</a></li>
-
             <li><a href="{{ url('market/settings/taxrates') }}"{% if craft.request.segment(3) == 'taxrates' %} class="sel"{% endif %}>{{ "Tax Rates"|t }}</a></li>
+
+            <li><a href="{{ url('market/settings/taxcategories') }}"{% if craft.request.segment(3) == 'taxcategories' %} class="sel"{% endif %}>{{ "Tax Categories"|t }}</a></li>
 
             <li><a href="{{ url('market/settings/taxzones') }}"{% if craft.request.segment(3) == 'taxzones' %} class="sel"{% endif %}>{{ "Tax Zones"|t }}</a></li>
 
