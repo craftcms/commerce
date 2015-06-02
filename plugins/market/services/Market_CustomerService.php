@@ -13,6 +13,19 @@ class Market_CustomerService extends BaseApplicationComponent
 	/** @var Market_CustomerModel */
 	private $customer = NULL;
 
+
+	/**
+	 * Id of current customer record. Guaranteed not null
+	 *
+	 * @return int
+	 * @throws Exception
+	 */
+	public function getCustomerId()
+	{
+		return $this->getSavedCustomer()->id;
+	}
+
+
 	/**
 	 * @param \CDbCriteria|array $criteria
 	 * @return Market_CustomerModel[]

@@ -162,8 +162,10 @@ class Market_OrderStatusService extends BaseApplicationComponent
         if(!$order->orderStatusId) {
             return;
         }
-        $status = $order->orderStatus;
+
+        $status = craft()->market_orderStatus->getById($order->orderStatusId);
 		if(!$status || !$status->emails) {
+			MarketPlugin::log("Can't send email if no status or emails exist.", LogLevel::Info, true);
             return;
         }
 

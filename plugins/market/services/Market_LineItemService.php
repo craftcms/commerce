@@ -41,34 +41,25 @@ class Market_LineItemService extends BaseApplicationComponent
 		return Market_LineItemModel::populateModel($variant);
 	}
 
+
 	/**
+	 * Update line item and recalculate order
 	 * @TODO check that the line item belongs to the current user
 	 *
-	 * @param int    $lineItemId
-	 * @param int    $qty
-	 * @param string $error
+	 * @param Market_LineItemModel $lineItem
+	 * @param string               $error
 	 *
 	 * @return bool
 	 * @throws Exception
 	 */
-	public function updateQty($lineItemId, $qty, &$error = '')
+	public function update(Market_LineItemModel $lineItem, &$error = '')
 	{
-		$lineItem = craft()->market_lineItem->getById($lineItemId);
-
-		if (!$lineItem->id) {
-			throw new Exception('Line item not found');
-		}
-
-		$lineItem->qty = $qty;
-
 		if ($this->save($lineItem)) {
 			craft()->market_order->save($lineItem->order);
-
 			return true;
 		} else {
 			$errors = $lineItem->getAllErrors();
 			$error  = array_pop($errors);
-
 			return false;
 		}
 	}

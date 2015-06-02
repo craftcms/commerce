@@ -51,7 +51,7 @@ class Market_OrderHistoryService extends BaseApplicationComponent
         $orderHistoryModel->orderId = $order->id;
         $orderHistoryModel->prevStatusId = $oldStatusId;
         $orderHistoryModel->newStatusId = $order->orderStatusId;
-        $orderHistoryModel->userId = craft()->userSession->getId();
+		$orderHistoryModel->customerId = craft()->market_customer->getCustomerId();
         $orderHistoryModel->message = $order->message;
 
         if(!$this->save($orderHistoryModel)) {
@@ -91,7 +91,7 @@ class Market_OrderHistoryService extends BaseApplicationComponent
         $record->message      = $model->message;
         $record->newStatusId  = $model->newStatusId;
         $record->prevStatusId = $model->prevStatusId;
-        $record->userId       = $model->userId;
+		$record->customerId   = $model->customerId;
         $record->orderId      = $model->orderId;
 
 		$record->validate();
