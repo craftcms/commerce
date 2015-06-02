@@ -14,8 +14,8 @@
         {{ getCsrfInput() }}
 
         {{ forms.textField({
-            label: "Default Currency"|t,
-            instructions: "Default Charge Currency."|t,
+            label: "Currency"|t,
+            instructions: "System Currency for all orders and carts."|t,
             id: 'defaultCurrency',
             name: 'settings[defaultCurrency]',
             value: settings.defaultCurrency,
@@ -23,7 +23,7 @@
             required: true,
         }) }}
 
-        {% for option in ['currencySymbol', 'currencySuffix', 'currencyDecimalPlaces', 'currencyDecimalSymbol', 'currencyDecimalSeparator', 'emailSenderAddress', 'emailSenderName'] %}
+        {% for option in ['emailSenderAddress', 'emailSenderName'] %}
             {{ forms.textField({
                 label: option|marketTitleize|t,
                 id: option,
