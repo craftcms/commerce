@@ -22,8 +22,8 @@
             <tr data-id="{{ shippingRule.id }}" data-name="{{ shippingRule.name }}">
                 <th scope="row" data-title="Name"><a href="{{ url('market/settings/shippingrules/'~shippingRule.id) }}">{{ shippingRule.name }}</a></th>
                 <td>{{ shippingRule.method.name }}</td>
-                <td>{{ shippingRule.country.name }}</td>
-                <td>{{ shippingRule.state.name }}</td>
+                <td>{{ shippingRule.country.name|default('All') }}</td>
+                <td>{{ shippingRule.state.name|default('All') }}</td>
                 <td>
                     Minimum Order Quantity: {{ shippingRule.minQty }}<br/>
                     Maximum Order Quantity: {{ shippingRule.maxQty }}<br/>
