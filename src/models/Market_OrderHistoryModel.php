@@ -13,12 +13,12 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property int                         orderId
  * @property int                         prevStatusId
  * @property int                         newStatusId
- * @property int                         userId
+ * @property int                         customerId
  *
  * @property Market_OrderModel           order
  * @property Market_OrderStatusModel     prevStatus
  * @property Market_OrderStatusModel     newStatus
- * @property UserModel                   user
+ * @property Market_CustomerModel                   customer
  *
  * @package Craft
  */
@@ -39,7 +39,7 @@ class Market_OrderHistoryModel extends BaseModel
             'orderId'      => [AttributeType::Number],
             'prevStatusId' => [AttributeType::Number],
             'newStatusId'  => [AttributeType::Number],
-            'userId'       => [AttributeType::Number],
+            'customerId'       => [AttributeType::Number],
         ];
 	}
 }

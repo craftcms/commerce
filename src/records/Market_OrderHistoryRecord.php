@@ -10,12 +10,12 @@ namespace Craft;
  * @property int                          orderId
  * @property int                          prevStatusId
  * @property int                          newStatusId
- * @property int                          userId
+ * @property int                          customerId
  *
  * @property Market_OrderRecord           order
  * @property Market_OrderStatusRecord     prevStatus
  * @property Market_OrderStatusRecord     newStatus
- * @property UserRecord                   user
+ * @property Market_CustomerRecord        customer
  * @package Craft
  */
 class Market_OrderHistoryRecord extends BaseRecord
@@ -37,7 +37,7 @@ class Market_OrderHistoryRecord extends BaseRecord
             'order'      => [static::BELONGS_TO, 'Market_OrderRecord', 'required' => true, 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE],
             'prevStatus' => [static::BELONGS_TO, 'Market_OrderStatusRecord', 'onDelete' => self::RESTRICT, 'onUpdate' => self::CASCADE],
             'newStatus'  => [static::BELONGS_TO, 'Market_OrderStatusRecord', 'onDelete' => self::RESTRICT, 'onUpdate' => self::CASCADE],
-            'user'       => [static::BELONGS_TO, 'UserRecord', 'required' => true, 'onDelete' => self::RESTRICT, 'onUpdate' => self::CASCADE],
+			'customer'   => [static::BELONGS_TO, 'Market_CustomerRecord', 'required' => true, 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE],
 		];
 	}
 
@@ -47,9 +47,9 @@ class Market_OrderHistoryRecord extends BaseRecord
 	protected function defineAttributes()
 	{
         return [
-            'orderId' => [AttributeType::Number, 'required' => true],
-            'userId'  => [AttributeType::Number, 'required' => true],
-            'message' => [AttributeType::Mixed],
+			'orderId'    => [AttributeType::Number, 'required' => true],
+			'customerId' => [AttributeType::Number, 'required' => true],
+			'message'    => [AttributeType::Mixed],
 		];
 	}
 
