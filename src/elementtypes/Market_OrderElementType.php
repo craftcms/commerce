@@ -28,33 +28,31 @@ class Market_OrderElementType extends Market_BaseElementType
 
 	public function getSources($context = NULL)
 	{
-
 		$sources = [
 			'*' => [
 				'label' => Craft::t('All orders'),
 			]
 		];
 
-		$sources[] = ['heading' => "Order Types"];
-
 		foreach (craft()->market_orderType->getAll() as $orderType) {
-			$key = 'orderType:' . $orderType->id;
 
+			$sources[] = ['heading' => $orderType->name];
+
+			$key = 'orderType:' . $orderType->id;
 			$sources[$key] = [
-				'label'    => $orderType->name,
+				'label'    => craft::t("All") . ' ' .$orderType->name,
 				'criteria' => ['typeId' => $orderType->id]
 			];
+
+			foreach ($orderType->orderStatuses as $status){
+				$key = 'orderType:' . $orderType->id . ':orderStatus:' . $status->id;
+				$sources[$key] = [
+					'label'    => ucwords($status->name),
+					'criteria' => ['typeId' => $orderType->id, 'orderStatus' => $status->id]
+				];
+			}
 		}
 
-		$sources[] = ['heading' => "Order Statuses"];
-
-		foreach (craft()->market_orderStatus->getAll() as $status){
-			$key = 'orderStatus:' . $status->id;
-			$sources[$key] = [
-				'label'    => ucwords($status->name),
-				'criteria' => ['orderStatus' => $status->id]
-			];
-		}
 		return $sources;
 
 	}
@@ -77,8 +75,18 @@ class Market_OrderElementType extends Market_BaseElementType
 	public function getTableAttributeHtml(BaseElementModel $element, $attribute)
 	{
 
+		if ($attribute == 'finalPrice') {
+			$currency = craft()->market_settings->getOption('defaultCurrency');
+			return craft()->numberFormatter->formatCurrency($element->finalPrice, strtoupper($currency));
+		}
+
 		if ($attribute == 'orderStatus') {
-			return $element->orderStatus->printName();
+			if ($element->orderStatus){
+				return $element->orderStatus->printName();
+			}else{
+				return "";
+			}
+
 		}
 
 		return parent::getTableAttributeHtml($element, $attribute);
