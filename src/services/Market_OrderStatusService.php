@@ -163,7 +163,7 @@ class Market_OrderStatusService extends BaseApplicationComponent
             return;
         }
         $status = $order->orderStatus;
-        if(!$status->emails) {
+		if(!$status || !$status->emails) {
             return;
         }
 
