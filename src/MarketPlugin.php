@@ -5,11 +5,6 @@ namespace Craft;
 use Market\Extensions\MarketTwigExtension;
 
 require 'vendor/autoload.php';
-//define('DOMPDF_ENABLE_AUTOLOAD', false);
-//require_once 'vendor/dompdf/dompdf/dompdf_config.inc.php';
-
-
-//use Market\Market;
 
 class MarketPlugin extends BasePlugin
 {
