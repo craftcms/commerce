@@ -84,8 +84,10 @@ class Market_TestSeeder implements Market_SeederInterface
 	{
 		$productType         = new Market_ProductTypeModel;
 		$productType->name   = 'Default Product';
-		$productType->handle = 'defaultProduct';
 		$productType->handle = 'normal';
+		$productType->hasUrls = true;
+		$productType->template = 'market/products/_entry.html';
+		$productType->urlFormat = 'market/products/{slug}';
 
 		$fieldLayout = FieldLayoutModel::populateModel(['type' => 'Market_Product']);
 		$productType->setFieldLayout($fieldLayout);

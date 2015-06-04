@@ -53,6 +53,8 @@ class Market_ProductTypeService extends BaseApplicationComponent
 	 */
 	public function save(Market_ProductTypeModel $productType)
 	{
+		$urlFormatChanged = false;
+
 		if ($productType->id) {
 			$productTypeRecord = Market_ProductTypeRecord::model()->findById($productType->id);
 			if (!$productTypeRecord) {
@@ -70,6 +72,11 @@ class Market_ProductTypeService extends BaseApplicationComponent
 		$productTypeRecord->handle    = $productType->handle;
 		$productTypeRecord->hasUrls   = $productType->hasUrls;
 		$productTypeRecord->template  = $productType->template;
+
+		// Set flag if urlFormat changed so we can update all product elements.
+		if ($productTypeRecord->urlFormat != $productType->urlFormat){
+			$urlFormatChanged = true;
+		}
 		$productTypeRecord->urlFormat = $productType->urlFormat;
 
 		$productTypeRecord->validate();
@@ -97,6 +104,20 @@ class Market_ProductTypeService extends BaseApplicationComponent
 				// Now that we have a calendar ID, save it on the model
 				if (!$productType->id) {
 					$productType->id = $productTypeRecord->id;
+				}
+
+				//Refresh all urls for products of same type if urlFormat changed.
+				if($urlFormatChanged){
+					$criteria = craft()->elements->getCriteria('Market_Product');
+					$criteria->typeId = $productType->id;
+					$products = $criteria->find();
+					foreach ($products as $key => $product)
+					{
+						if ($product && $product->getContent()->id)
+						{
+							craft()->elements->updateElementSlugAndUri($product, false, false);
+						}
+					}
 				}
 
 				if ($transaction !== NULL) {
