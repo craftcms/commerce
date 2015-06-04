@@ -14,8 +14,8 @@ class MarketPlugin extends BasePlugin
 	{
 		$this->initMarketNav();
 
-        //init global event handlers
-        craft()->on('market_orderHistory.onStatusChange',
+		//init global event handlers
+		craft()->on('market_orderHistory.onStatusChange',
 			[
 				craft()->market_orderStatus, 'statusChangeHandler'
 			]
