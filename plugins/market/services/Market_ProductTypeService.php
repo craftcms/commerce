@@ -66,8 +66,11 @@ class Market_ProductTypeService extends BaseApplicationComponent
 			$isNewProductType  = true;
 		}
 
-		$productTypeRecord->name   = $productType->name;
-		$productTypeRecord->handle = $productType->handle;
+		$productTypeRecord->name      = $productType->name;
+		$productTypeRecord->handle    = $productType->handle;
+		$productTypeRecord->hasUrls   = $productType->hasUrls;
+		$productTypeRecord->template  = $productType->template;
+		$productTypeRecord->urlFormat = $productType->urlFormat;
 
 		$productTypeRecord->validate();
 		$productType->addErrors($productTypeRecord->getErrors());
