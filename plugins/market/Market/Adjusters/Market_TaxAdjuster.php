@@ -85,8 +85,14 @@ class Market_TaxAdjuster implements Market_AdjusterInterface
 		//checking items tax categories
 		$itemsMatch = false;
 		foreach ($lineItems as $item) {
+
 			if ($item->taxCategoryId == $taxRate->taxCategoryId) {
-				$itemTaxAmount = $taxRate->rate * $item->getPriceWithoutShipping() * $item->qty;
+				if (!$taxRate->include) {
+					$itemTaxAmount = $taxRate->rate * $item->getPriceWithoutShipping() * $item->qty;
+				}else{
+					$itemTaxAmount = ($item->getPriceWithoutShipping()-($item->getPriceWithoutShipping()/(1+$taxRate->rate))) * $item->qty;
+				}
+
 				$adjustment->amount += $itemTaxAmount;
 
 				if (!$taxRate->include) {
