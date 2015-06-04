@@ -179,7 +179,7 @@ class Market_ProductElementType extends Market_BaseElementType
 	public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
 	{
 		$query
-			->addSelect("products.id, products.typeId, products.availableOn, products.expiresOn")
+			->addSelect("products.id, products.typeId, products.availableOn, products.expiresOn, products.taxCategoryId, products.authorId")
 			->join('market_products products', 'products.id = elements.id')
 			->join('market_producttypes producttypes', 'producttypes.id = products.typeId');
 
