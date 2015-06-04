@@ -9,6 +9,9 @@ namespace Craft;
  * @property int    $id
  * @property string $name
  * @property string $handle
+ * @property bool   $hasUrls
+ * @property string $template
+ * @property string $urlFormat
  * @property int    $fieldLayoutId
  * @package Craft
  *
@@ -27,13 +30,6 @@ class Market_ProductTypeModel extends BaseModel
 		return UrlHelper::getCpUrl('market/settings/producttypes/' . $this->id);
 	}
 
-	/**
-	 * Hard-coded until we ad url format options to product type.
-	 */
-	public function getUrlFormat(){
-		return "market/products/".$this->handle."/{slug}";
-	}
-
 	public function behaviors()
 	{
 		return [
@@ -47,11 +43,11 @@ class Market_ProductTypeModel extends BaseModel
 			'id'            => AttributeType::Number,
 			'name'          => AttributeType::String,
 			'handle'        => AttributeType::String,
-			'type'        => AttributeType::String,
+			'hasUrls'       => AttributeType::Bool,
+			'urlFormat'     => AttributeType::UrlFormat,
+			'template'      => AttributeType::Template,
 			'fieldLayoutId' => AttributeType::Number
 		];
 	}
-
-
 
 }
