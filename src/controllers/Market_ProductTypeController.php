@@ -46,9 +46,6 @@ class Market_ProductTypeController extends Market_BaseController
 			$variables['title'] = Craft::t('Create a Product Type');
 		}
 
-		$types = Market_ProductTypeRecord::$types;
-		$variables['productTypeTypes'] = array_combine($types,$types);
-
 		$this->renderTemplate('market/settings/producttypes/_edit', $variables);
 	}
 
