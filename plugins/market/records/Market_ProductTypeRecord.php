@@ -7,6 +7,9 @@ namespace Craft;
  * @property int               id
  * @property string            name
  * @property string            handle
+ * @property bool              hasUrls
+ * @property string            template
+ * @property string            urlFormat
  * @property int               fieldLayoutId
  *
  * @property FieldLayoutRecord fieldLayout
@@ -48,9 +51,11 @@ class Market_ProductTypeRecord extends BaseRecord
 	protected function defineAttributes()
 	{
 		return [
-			'name'   => [AttributeType::Name, 'required' => true],
-			'handle' => [AttributeType::Handle, 'required' => true],
-			'type'   => [AttributeType::Enum, 'required' => true, 'values' => ['normal','electronic'], 'default' => 'normal'],
+			'name'      => [AttributeType::Name, 'required' => true],
+			'handle'    => [AttributeType::Handle, 'required' => true],
+			'hasUrls'   => AttributeType::Bool,
+			'urlFormat' => AttributeType::UrlFormat,
+			'template'  => AttributeType::Template
 		];
 	}
 
