@@ -108,33 +108,33 @@ class MarketPlugin extends BasePlugin
 
 			craft()->templates->includeJsResource('market/market-nav.js');
 
-			$nav = array(
-				array(
+			$nav = [
+				[
 					'url' => 'market/orders',
 					'title' => Craft::t("Orders"),
 					'selected' => (craft()->request->getSegment(2) == 'orders' ? true : false)
-				),
-				array(
+				],
+				[
 					'url' => 'market/products',
 					'title' => Craft::t("Products"),
 					'selected' => (craft()->request->getSegment(2) == 'products' ? true : false)
-				),
-				array(
+				],
+				[
 					'url' => 'market/promotions',
 					'title' => Craft::t("Promotions"),
 					'selected' => (craft()->request->getSegment(2) == 'promotions' ? true : false)
-				),
-				array(
+				],
+				[
 					'url' => 'market/customers',
 					'title' => Craft::t("Customers"),
 					'selected' => (craft()->request->getSegment(2) == 'customers' ? true : false)
-				),
-				array(
+				],
+				[
 					'url' => 'market/settings',
 					'title' => Craft::t("Settings"),
 					'selected' => (craft()->request->getSegment(2) == 'settings' ? true : false)
-				),
-			);
+				]
+			];
 
 			$navJson = JsonHelper::encode($nav);
 
