@@ -250,4 +250,9 @@ class Market_ProductElementType extends Market_BaseElementType
 		return false;
 	}
 
+	public function saveElement(BaseElementModel $element, $params)
+	{
+		craft()->market_product->save($element);
+	}
+
 } 
