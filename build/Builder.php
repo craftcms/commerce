@@ -30,11 +30,6 @@ class Builder
 		$this->_sourceBaseDir = str_replace('\\', '/', realpath(__DIR__.'/..')).'/';
 		$this->_tempDir = $this->_sourceBaseDir.UtilsHelper::UUID().'/';
 
-		if (!file_exists($this->_args['destDir']))
-		{
-			UtilsHelper::createDir($this->_args['destDir']);
-		}
-
 		UtilsHelper::createDir($this->_tempDir);
 
 		date_default_timezone_set('UTC');
@@ -189,9 +184,25 @@ class Builder
 		UtilsHelper::zipDir($this->_tempDir, $fileName);
 		echo 'Done zipping '.$this->_tempDir.PHP_EOL.PHP_EOL;
 
-		echo 'Copying '.$this->_tempDir.$fileName.' to '.$this->_args['destDir'].PHP_EOL;
-		UtilsHelper::copyFile($this->_tempDir.$fileName, $this->_args['destDir'].$fileName);
-		echo 'Done copying '.$this->_tempDir.$fileName.' to '.$this->_args['destDir'].$fileName.PHP_EOL;
+		$destDir = $this->_finalBaseDir.$this->_args['version'].'/'.$this->_args['version'].'.'.$this->_args['build'].'/';
+
+		if (!file_exists($this->_finalBaseDir.$this->_args['version']))
+		{
+			echo 'Creating '.$this->_finalBaseDir.$this->_args['version'].PHP_EOL;
+			UtilsHelper::createDir($this->_finalBaseDir.$this->_args['version']);
+			echo 'Done creating '.$this->_finalBaseDir.$this->_args['version'].PHP_EOL.PHP_EOL;
+		}
+
+		if (!file_exists($this->_finalBaseDir.$this->_args['version'].'/'.$this->_args['version'].'.'.$this->_args['build']))
+		{
+			echo 'Creating '.$this->_finalBaseDir.$this->_args['version'].'/'.$this->_args['version'].'.'.$this->_args['build'].PHP_EOL;
+			UtilsHelper::createDir($this->_finalBaseDir.$this->_args['version'].'/'.$this->_args['version'].'.'.$this->_args['build']);
+			echo 'Done creating '.$this->_finalBaseDir.$this->_args['version'].'/'.$this->_args['version'].'.'.$this->_args['build'].PHP_EOL.PHP_EOL;
+		}
+
+		echo 'Copying '.$this->_tempDir.$fileName.' to '.$destDir.PHP_EOL;
+		UtilsHelper::copyFile($this->_tempDir.$fileName, $destDir.$fileName);
+		echo 'Done copying '.$this->_tempDir.$fileName.' to '.$destDir.$fileName.PHP_EOL;
 	}
 
 	/**
