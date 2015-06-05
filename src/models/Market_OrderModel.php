@@ -31,6 +31,9 @@ use Market\Traits\Market_ModelRelationsTrait;
  *
  * @property int                           totalQty
  * @property int                           totalWeight
+ * @property int                           totalHeight
+ * @property int                           totalLength
+ * @property int                           totalWidth
  *
  * @property Market_OrderTypeModel         type
  * @property Market_LineItemModel[]        lineItems
@@ -109,6 +112,7 @@ class Market_OrderModel extends BaseElementModel
 	 */
 	public function getTotalWeight()
 	{
+		//TODO: Check for free shipping on item?
 		$weight = 0;
 		foreach ($this->lineItems as $item) {
 			$weight += $item->qty * $item->weight;
@@ -117,9 +121,59 @@ class Market_OrderModel extends BaseElementModel
 		return $weight;
 	}
 
+	public function getTotalLength()
+	{
+		//TODO: Check for free shipping on item?
+		$value = 0;
+		foreach ($this->lineItems as $item) {
+			$value += $item->qty * $item->length;
+		}
+
+		return $value;
+	}
+
+	public function getTotalWidth()
+	{
+		//TODO: Check for free shipping on item?
+		$value = 0;
+		foreach ($this->lineItems as $item) {
+			$value += $item->qty * $item->width;
+		}
+
+		return $value;
+	}
+
+	public function getTotalHeight()
+	{
+		//TODO: Check for free shipping on item?
+		$value = 0;
+		foreach ($this->lineItems as $item) {
+			$value += $item->qty * $item->height;
+		}
+
+		return $value;
+	}
+
+
 	public function getAdjustments()
 	{
 		return craft()->market_orderAdjustment->getAllByOrderId($this->id);
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function showAddress()
+	{
+		return count($this->lineItems) > 0;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function showPayment()
+	{
+		return count($this->lineItems) > 0 && $this->billingAddressId && $this->shippingAddressId;
 	}
 
 	/**
@@ -137,34 +191,18 @@ class Market_OrderModel extends BaseElementModel
 			'finalPrice'        => [AttributeType::Number, 'decimals' => 4, 'default' => 0],
 			'email'             => AttributeType::String,
 			'completedAt'       => AttributeType::DateTime,
-            'currency'          => AttributeType::String,
-            'lastIp'            => AttributeType::String,
-            'message'           => AttributeType::String,
-            'returnUrl'         => AttributeType::String,
-            'cancelUrl'         => AttributeType::String,
-            'orderStatusId'     => AttributeType::Number,
+			'currency'          => AttributeType::String,
+			'lastIp'            => AttributeType::String,
+			'message'           => AttributeType::String,
+			'returnUrl'         => AttributeType::String,
+			'cancelUrl'         => AttributeType::String,
+			'orderStatusId'     => AttributeType::Number,
 			'billingAddressId'  => AttributeType::Number,
 			'shippingAddressId' => AttributeType::Number,
 			'shippingMethodId'  => AttributeType::Number,
 			'paymentMethodId'   => AttributeType::Number,
-            'customerId'        => AttributeType::Number,
+			'customerId'        => AttributeType::Number,
 			'typeId'            => AttributeType::Number,
 		]);
 	}
-
-    /**
-     * @return bool
-     */
-    public function showAddress()
-    {
-        return count($this->lineItems) > 0;
-    }
-
-    /**
-     * @return bool
-     */
-    public function showPayment()
-    {
-        return count($this->lineItems) > 0 && $this->billingAddressId && $this->shippingAddressId;
-    }
 }
