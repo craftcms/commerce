@@ -200,7 +200,7 @@ class Builder
 			echo 'Done creating '.$this->_finalBaseDir.$this->_args['version'].'/'.$this->_args['version'].'.'.$this->_args['build'].PHP_EOL.PHP_EOL;
 		}
 
-		echo 'Copying '.$this->_tempDir.$fileName.' to '.$destDir.PHP_EOL;
+		echo 'Copying '.$this->_sourceBaseDir.$fileName.' to '.$destDir.$fileName.PHP_EOL;
 		UtilsHelper::copyFile($this->_tempDir.$fileName, $destDir.$fileName);
 		echo 'Done copying '.$this->_tempDir.$fileName.' to '.$destDir.$fileName.PHP_EOL;
 	}
