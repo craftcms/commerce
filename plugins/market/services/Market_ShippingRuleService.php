@@ -149,6 +149,15 @@ class Market_ShippingRuleService extends BaseApplicationComponent
 		}
 	}
 
+	public function reorder($ids)
+	{
+		foreach ($ids as $sortOrder => $id)
+		{
+			craft()->db->createCommand()->update('market_shippingrules', array('priority' => $sortOrder+1), array('id' => $id));
+		}
+
+		return true;
+	}
 	/**
 	 * @param int $id
 	 */

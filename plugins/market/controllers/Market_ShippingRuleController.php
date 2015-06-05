@@ -86,6 +86,14 @@ class Market_ShippingRuleController extends Market_BaseController
 		craft()->urlManager->setRouteVariables(['shippingRule' => $shippingRule]);
 	}
 
+	public function actionReorder(){
+		$this->requirePostRequest();
+		$this->requireAjaxRequest();
+
+		$ids = JsonHelper::decode(craft()->request->getRequiredPost('ids'));
+		$success = craft()->market_shippingRule->reorder($ids);
+		return $this->returnJson(['success' => $success]);
+	}
 	/**
 	 * @throws HttpException
 	 */
