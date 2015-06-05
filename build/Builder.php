@@ -201,8 +201,8 @@ class Builder
 		}
 
 		echo 'Copying '.$this->_sourceBaseDir.$fileName.' to '.$destDir.$fileName.PHP_EOL;
-		UtilsHelper::copyFile($this->_tempDir.$fileName, $destDir.$fileName);
-		echo 'Done copying '.$this->_tempDir.$fileName.' to '.$destDir.$fileName.PHP_EOL;
+		UtilsHelper::copyFile($this->_sourceBaseDir.$fileName, $destDir.$fileName);
+		echo 'Done copying '.$this->_sourceBaseDir.$fileName.' to '.$destDir.$fileName.PHP_EOL;
 	}
 
 	/**
