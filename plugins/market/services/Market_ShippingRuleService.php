@@ -45,7 +45,7 @@ class Market_ShippingRuleService extends BaseApplicationComponent
 			return false;
 		}
 
-		$floatFields = ['minTotal', 'maxTotal', 'minWeight', 'maxWeight', 'maxHeight','minHeight', 'maxLength','minLength', 'maxWidth','minWidth'];
+		$floatFields = ['minTotal', 'maxTotal', 'minWeight', 'maxWeight'];
 		foreach ($floatFields as $field) {
 			$rule->$field *= 1;
 		}
