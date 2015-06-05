@@ -50,19 +50,53 @@
         required: true
     }) }}
 
-    {# Disabled until we work our how product behaviors work.
-    {{ forms.selectField({
-        label: 'Behavior Type'|t,
-        instructions: "This controls how this product behaves. Normal does nothing special. Electonic allows selling of electronic products."|t,
-        id: 'type',
-        name: 'type',
-        options: productTypeTypes,
-        class: 'select-wide',
-        value: productType.type,
-        errors: productType.getErrors('type'),
-        required: true,
-    }) }}
-    #}
+    {% macro hasUrlsField(productType) %}
+        {% from "_includes/forms" import checkboxField %}
+
+        {{ checkboxField({
+            label: "Products of this type have their own URLs"|t,
+            id: 'hasUrls',
+            name: 'hasUrls',
+            checked: productType.hasUrls,
+            toggle: 'url-settings'
+        }) }}
+    {% endmacro %}
+
+    {% macro templateField(productType) %}
+        {% from "_includes/forms" import textField %}
+
+        {{ textField({
+            label: "Entry Template"|t,
+            instructions: "The template to use when the products’s URL is requested."|t,
+            id: 'template',
+            class: 'ltr',
+            name: 'template',
+            value: productType.template,
+            errors: productType.getErrors('template')
+        }) }}
+    {% endmacro %}
+
+    {% from _self import hasUrlsField, templateField %}
+
+    {{ hasUrlsField(productType) }}
+
+    <div id="url-settings" class="nested-fields{% if not productType.hasUrls %} hidden{% endif %}">
+        {{ forms.textField({
+            label: "Product Url Format"|t,
+            instructions: "What the product URLs should look like. You can include tags that output entry properties, such as {slug} or {publishDate|date(\"Y\")}."|t,
+            id: 'urlFormat',
+            class: 'code',
+            name: 'urlFormat',
+            value: productType.urlFormat,
+            errors: productType.getErrors('urlFormat')
+        }) }}
+
+        {{ templateField(productType) }}
+    </div>
+
+
+
+
 
     </div>
 

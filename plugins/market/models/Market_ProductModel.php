@@ -89,7 +89,7 @@ class Market_ProductModel extends BaseElementModel
 	public function getUrlFormat()
 	{
 		if ($this->typeId) {
-			return craft()->market_productType->getById($this->typeId)->getUrlFormat();
+			return craft()->market_productType->getById($this->typeId)->urlFormat;
 		}
 
 		return NULL;

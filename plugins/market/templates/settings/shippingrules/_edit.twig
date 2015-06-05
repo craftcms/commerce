@@ -11,7 +11,8 @@
 {% set content %}
 <form method="post" accept-charset="UTF-8" data-saveshortcut>
     <input type="hidden" name="action" value="market/shippingRule/save">
-    <input type="hidden" name="redirect" value="market/settings/shippingrules">
+    <input type="hidden" name="redirect" value="market/settings/shippingmethods/{{ methodId }}">
+    <input type="hidden" name="methodId" value="{{ methodId }}">
 
     {{ getCsrfInput() }}
     {% if shippingRule.id %}<input type="hidden" name="id" value="{{ shippingRule.id }}">{% endif %}
@@ -59,17 +60,6 @@
         errors: shippingRule.getErrors('states'),
     }) }}
 
-    {{ forms.selectField({
-        label: 'Shipping Method'|t,
-        instructions: "A method which this rule belongs to."|t,
-        id: 'methodId',
-        name: 'methodId',
-        options: methods,
-        class: 'select-wide',
-        value: shippingRule.methodId,
-        errors: shippingRule.getErrors('methodId'),
-        required: true,
-    }) }}
 
     <hr/>
     <h2>{{ "Filtering conditions which describe to which orders this rule is applicable to. Write 0 to skip a condition."|t }}</h2>

@@ -179,7 +179,7 @@ class Market_ProductElementType extends Market_BaseElementType
 	public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
 	{
 		$query
-			->addSelect("products.id, products.typeId, products.availableOn, products.expiresOn")
+			->addSelect("products.id, products.typeId, products.availableOn, products.expiresOn, products.taxCategoryId, products.authorId")
 			->join('market_products products', 'products.id = elements.id')
 			->join('market_producttypes producttypes', 'producttypes.id = products.typeId');
 
@@ -217,6 +217,42 @@ class Market_ProductElementType extends Market_BaseElementType
 	public function populateElementModel($row)
 	{
 		return Market_ProductModel::populateModel($row);
+	}
+
+	/**
+	 * Routes the request when the URI matches a product.
+	 *
+	 * @param BaseElementModel $element
+	 *
+	 * @return array|bool|mixed
+	 */
+	public function routeRequestForMatchedElement(BaseElementModel $element)
+	{
+		/** @var Market_ProductModel $element */
+		if ($element->getStatus() == Market_ProductModel::LIVE)
+		{
+			$productType = $element->type;
+
+			if ($productType->hasUrls)
+			{
+				return [
+					'action' => 'templates/render',
+					'params' => [
+						'template' => $productType->template,
+						'variables' => [
+							'product' => $element
+						]
+					]
+				];
+			}
+		}
+
+		return false;
+	}
+
+	public function saveElement(BaseElementModel $element, $params)
+	{
+		craft()->market_product->save($element);
 	}
 
 } 

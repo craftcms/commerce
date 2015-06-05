@@ -24,6 +24,18 @@ class Market_ShippingRuleService extends BaseApplicationComponent
 	/**
 	 * @param int $id
 	 *
+	 * @return Market_ShippingRuleModel[]
+	 */
+	public function getAllByMethodId($id)
+	{
+		$records = Market_ShippingRuleRecord::model()->findAllByAttributes(['methodId'=>$id]);
+
+		return Market_ShippingRuleModel::populateModels($records);
+	}
+
+	/**
+	 * @param int $id
+	 *
 	 * @return Market_ShippingRuleModel
 	 */
 	public function getById($id)
@@ -137,6 +149,15 @@ class Market_ShippingRuleService extends BaseApplicationComponent
 		}
 	}
 
+	public function reorder($ids)
+	{
+		foreach ($ids as $sortOrder => $id)
+		{
+			craft()->db->createCommand()->update('market_shippingrules', array('priority' => $sortOrder+1), array('id' => $id));
+		}
+
+		return true;
+	}
 	/**
 	 * @param int $id
 	 */
