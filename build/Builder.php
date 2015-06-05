@@ -57,29 +57,29 @@ class Builder
 	 */
 	protected function copyFiles()
 	{
-		echo ('Copying code from '.$this->_sourceSourceDir.'docs to '.$this->_args['destdir'].PHP_EOL);
+		echo ('Copying code from '.$this->_sourceBaseDir.'docs to '.$this->_args['destdir'].PHP_EOL);
 		UtilsHelper::copyDirectory($this->_sourceBaseDir.'docs', $this->_tempDir);
-		echo ('Finished copying code from '.$this->_sourceSourceDir.'docs to '.$this->_args['destdir'].PHP_EOL.PHP_EOL);
+		echo ('Finished copying code from '.$this->_sourceBaseDir.'docs to '.$this->_args['destdir'].PHP_EOL.PHP_EOL);
 
-		echo ('Copying code from '.$this->_sourceSourceDir.'exampletemplates to '.$this->_args['destdir'].PHP_EOL);
+		echo ('Copying code from '.$this->_sourceBaseDir.'exampletemplates to '.$this->_args['destdir'].PHP_EOL);
 		UtilsHelper::copyDirectory($this->_sourceBaseDir.'exampletemplates', $this->_tempDir);
-		echo ('Finished copying code from '.$this->_sourceSourceDir.'exampletemplates to '.$this->_args['destdir'].PHP_EOL.PHP_EOL);
+		echo ('Finished copying code from '.$this->_sourceBaseDir.'exampletemplates to '.$this->_args['destdir'].PHP_EOL.PHP_EOL);
 
-		echo ('Copying code from '.$this->_sourceSourceDir.'plugins to '.$this->_args['destdir'].PHP_EOL);
+		echo ('Copying code from '.$this->_sourceBaseDir.'plugins to '.$this->_args['destdir'].PHP_EOL);
 		UtilsHelper::copyDirectory($this->_sourceBaseDir.'plugins', $this->_tempDir);
-		echo ('Finished copying code from '.$this->_sourceSourceDir.'plugins to '.$this->_args['destdir'].PHP_EOL.PHP_EOL);
+		echo ('Finished copying code from '.$this->_sourceBaseDir.'plugins to '.$this->_args['destdir'].PHP_EOL.PHP_EOL);
 
-		echo ('Copying file from '.$this->_sourceSourceDir.'CHANGELOG.md to '.$this->_args['destdir'].PHP_EOL);
+		echo ('Copying file from '.$this->_sourceBaseDir.'CHANGELOG.md to '.$this->_args['destdir'].PHP_EOL);
 		UtilsHelper::copyFile($this->_sourceBaseDir.'CHANGELOG.md', $this->_tempDir);
-		echo ('Finished copying file from '.$this->_sourceSourceDir.'CHANGELOG.md to '.$this->_args['destdir'].PHP_EOL.PHP_EOL);
+		echo ('Finished copying file from '.$this->_sourceBaseDir.'CHANGELOG.md to '.$this->_args['destdir'].PHP_EOL.PHP_EOL);
 
-		echo ('Copying file from '.$this->_sourceSourceDir.'LICENSE.md to '.$this->_args['destdir'].PHP_EOL);
+		echo ('Copying file from '.$this->_sourceBaseDir.'LICENSE.md to '.$this->_args['destdir'].PHP_EOL);
 		UtilsHelper::copyFile($this->_sourceBaseDir.'LICENSE.md', $this->_tempDir);
-		echo ('Finished copying file from '.$this->_sourceSourceDir.'LICENSE.md to '.$this->_args['destdir'].PHP_EOL.PHP_EOL);
+		echo ('Finished copying file from '.$this->_sourceBaseDir.'LICENSE.md to '.$this->_args['destdir'].PHP_EOL.PHP_EOL);
 
-		echo ('Copying file from '.$this->_sourceSourceDir.'README.md to '.$this->_args['destdir'].PHP_EOL);
+		echo ('Copying file from '.$this->_sourceBaseDir.'README.md to '.$this->_args['destdir'].PHP_EOL);
 		UtilsHelper::copyFile($this->_sourceBaseDir.'README.md', $this->_tempDir);
-		echo ('Finished copying file from '.$this->_sourceSourceDir.'README.md to '.$this->_args['destdir'].PHP_EOL.PHP_EOL);
+		echo ('Finished copying file from '.$this->_sourceBaseDir.'README.md to '.$this->_args['destdir'].PHP_EOL.PHP_EOL);
 
 		echo ('Deleting file '.$this->_args['destdir'].'composer.json'.PHP_EOL);
 		unlink($this->_sourceBaseDir.'composer.json');
