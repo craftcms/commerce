@@ -72,9 +72,9 @@ class Builder
 		UtilsHelper::copyDirectory($this->_sourceBaseDir.'plugins', $this->_tempDir.'plugins/');
 		echo ('Finished copying code from '.$this->_sourceBaseDir.'plugins to '.$this->_tempDir.'plugins/'.PHP_EOL.PHP_EOL);
 
-		echo ('Copying file from '.$this->_sourceBaseDir.'CHANGELOG.md to '.$this->_tempDir.PHP_EOL);
-		UtilsHelper::copyFile($this->_sourceBaseDir.'CHANGELOG.md', $this->_tempDir);
-		echo ('Finished copying file from '.$this->_sourceBaseDir.'CHANGELOG.md to '.$this->_tempDir.PHP_EOL.PHP_EOL);
+		echo ('Copying file from '.$this->_sourceBaseDir.'CHANGELOG.md to '.$this->_tempDir.'CHANGELOG.md'.PHP_EOL);
+		UtilsHelper::copyFile($this->_sourceBaseDir.'CHANGELOG.md', $this->_tempDir.'CHANGELOG.md');
+		echo ('Finished copying file from '.$this->_sourceBaseDir.'CHANGELOG.md to '.$this->_tempDir.'CHANGELOG.md'.PHP_EOL.PHP_EOL);
 
 		echo ('Copying file from '.$this->_sourceBaseDir.'LICENSE.md to '.$this->_tempDir.'LICENSE.md'.PHP_EOL);
 		UtilsHelper::copyFile($this->_sourceBaseDir.'LICENSE.md', $this->_tempDir.'LICENSE.md');
