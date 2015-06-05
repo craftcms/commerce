@@ -36,7 +36,7 @@ class MarketPlugin extends BasePlugin
 
 	public function getVersion()
 	{
-		return file_get_contents(__DIR__.DIRECTORY_SEPARATOR."VERSION.txt");
+		return '9.9.9999';
 	}
 
 	public function getDeveloper()
