@@ -84,14 +84,23 @@ class Builder
 		UtilsHelper::copyFile($this->_sourceBaseDir.'README.md', $this->_tempDir.'README.md');
 		echo ('Finished copying file from '.$this->_sourceBaseDir.'README.md to '.$this->_tempDir.'README.md'.PHP_EOL.PHP_EOL);
 
-		echo ('Deleting file '.$this->_tempDir.'composer.json'.PHP_EOL);
-		unlink($this->_tempDir.'composer.json');
+		if (file_exists($this->_tempDir.'composer.json'))
+		{
+			echo('Deleting file '.$this->_tempDir.'composer.json'.PHP_EOL);
+			unlink($this->_tempDir.'composer.json');
+		}
 
-		echo ('Deleting file '.$this->_tempDir.'composer.lock'.PHP_EOL);
-		unlink($this->_tempDir.'composer.lock');
+		if (file_exists($this->_tempDir.'composer.lock'))
+		{
+			echo('Deleting file '.$this->_tempDir.'composer.lock'.PHP_EOL);
+			unlink($this->_tempDir.'composer.lock');
+		}
 
-		echo ('Deleting file '.$this->_tempDir.'codeception.yml'.PHP_EOL);
-		unlink($this->_tempDir.'codeception.yml');
+		if (file_exists($this->_tempDir.'codeception.yml'))
+		{
+			echo('Deleting file '.$this->_tempDir.'codeception.yml'.PHP_EOL);
+			unlink($this->_tempDir.'codeception.yml');
+		}
 	}
 
 	/**
