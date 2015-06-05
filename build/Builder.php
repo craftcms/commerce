@@ -177,7 +177,7 @@ class Builder
 	protected function updateVersionBuild()
 	{
 		$path = $this->_tempDir.'plugins/MarketPlugin.php';
-		echo 'Loading the contents of MarketPlugin.php: '.$path.PHP_EOL;
+		echo 'Loading the contents of MarketPlugin.php at '.$path.PHP_EOL;
 		$contents = file_get_contents($path);
 
 		$variables = array(
@@ -191,7 +191,7 @@ class Builder
 			$contents
 		);
 
-		echo 'Saving config/main.php'.PHP_EOL;
+		echo $path.PHP_EOL;
 		file_put_contents($path, $newContents);
 		echo 'Done.'.PHP_EOL.PHP_EOL;
 	}
