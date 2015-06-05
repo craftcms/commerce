@@ -84,23 +84,14 @@ class Builder
 		UtilsHelper::copyFile($this->_sourceBaseDir.'README.md', $this->_tempDir.'README.md');
 		echo ('Finished copying file from '.$this->_sourceBaseDir.'README.md to '.$this->_tempDir.'README.md'.PHP_EOL.PHP_EOL);
 
-		if (file_exists($this->_tempDir.'composer.json'))
-		{
-			echo('Deleting file '.$this->_tempDir.'composer.json'.PHP_EOL);
-			unlink($this->_tempDir.'composer.json');
-		}
+		echo('Deleting file '.$this->_tempDir.'plugins/market/composer.json'.PHP_EOL);
+		unlink($this->_tempDir.'plugins/market/composer.json');
 
-		if (file_exists($this->_tempDir.'composer.lock'))
-		{
-			echo('Deleting file '.$this->_tempDir.'composer.lock'.PHP_EOL);
-			unlink($this->_tempDir.'composer.lock');
-		}
+		echo('Deleting file '.$this->_tempDir.'plugins/market/composer.lock'.PHP_EOL);
+		unlink($this->_tempDir.'plugins/market/composer.lock');
 
-		if (file_exists($this->_tempDir.'codeception.yml'))
-		{
-			echo('Deleting file '.$this->_tempDir.'codeception.yml'.PHP_EOL);
-			unlink($this->_tempDir.'codeception.yml');
-		}
+		echo('Deleting file '.$this->_tempDir.'plugins/market/codeception.yml'.PHP_EOL);
+		unlink($this->_tempDir.'plugins/market/codeception.yml');
 	}
 
 	/**
@@ -108,15 +99,6 @@ class Builder
 	 */
 	protected function cleanDestinationDirectories()
 	{
-		// Delete aspnet_client folder.
-		echo ('Deleting aspnet_client folder from '.$this->_tempDir.'public/aspnet_client'.PHP_EOL);
-		UtilsHelper::purgeDirectory($this->_tempDir.'public/aspnet_client');
-		if (file_exists($this->_tempDir.'public/aspnet_client'))
-		{
-			rmdir($this->_tempDir.'public/aspnet_client');
-		}
-		echo ('Finished deleting aspnet_client folder from '.$this->_tempDir.'public/aspnet_client'.PHP_EOL.PHP_EOL);
-
 		$dsStores = UtilsHelper::findFiles($this->_tempDir, array('fileTypes' => array('DS_Store'), 'level' => -1));
 
 		echo ('Found '.count($dsStores).' DS_Store files. Nuking them.'.PHP_EOL);
@@ -176,7 +158,7 @@ class Builder
 	 */
 	protected function updateVersionBuild()
 	{
-		$path = $this->_tempDir.'plugins/MarketPlugin.php';
+		$path = $this->_tempDir.'plugins/market/MarketPlugin.php';
 		echo 'Loading the contents of MarketPlugin.php at '.$path.PHP_EOL;
 		$contents = file_get_contents($path);
 
