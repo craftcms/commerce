@@ -34,8 +34,8 @@ class Market_ShippingRuleController extends Market_BaseController
 	public function actionEdit(array $variables = [])
 	{
 		if (empty($variables['shippingRule'])) {
-			if (!empty($variables['id'])) {
-				$id                        = $variables['id'];
+			if (!empty($variables['ruleId'])) {
+				$id                        = $variables['ruleId'];
 				$variables['shippingRule'] = craft()->market_shippingRule->getById($id);
 
 				if (!$variables['shippingRule']->id) {
@@ -48,10 +48,8 @@ class Market_ShippingRuleController extends Market_BaseController
 
 		$variables['countries'] = ['' => ''] + craft()->market_country->getFormList();
 		$variables['states']    = craft()->market_state->getGroupedByCountries();
-		$methods                = craft()->market_shippingMethod->getAll(['order' => 'name']);
-		$variables['methods']   = \CHtml::listData($methods, 'id', 'name');
 
-		if (!empty($variables['id'])) {
+		if (!empty($variables['ruleId'])) {
 			$variables['title'] = $variables['shippingRule']->name;
 		} else {
 			$variables['title'] = Craft::t('Create a Shipping Rule');
