@@ -76,13 +76,13 @@ class Builder
 		UtilsHelper::copyFile($this->_sourceBaseDir.'CHANGELOG.md', $this->_tempDir);
 		echo ('Finished copying file from '.$this->_sourceBaseDir.'CHANGELOG.md to '.$this->_tempDir.PHP_EOL.PHP_EOL);
 
-		echo ('Copying file from '.$this->_sourceBaseDir.'LICENSE.md to '.$this->_tempDir.PHP_EOL);
-		UtilsHelper::copyFile($this->_sourceBaseDir.'LICENSE.md', $this->_tempDir);
-		echo ('Finished copying file from '.$this->_sourceBaseDir.'LICENSE.md to '.$this->_tempDir.PHP_EOL.PHP_EOL);
+		echo ('Copying file from '.$this->_sourceBaseDir.'LICENSE.md to '.$this->_tempDir.'LICENSE.md'.PHP_EOL);
+		UtilsHelper::copyFile($this->_sourceBaseDir.'LICENSE.md', $this->_tempDir.'LICENSE.md');
+		echo ('Finished copying file from '.$this->_sourceBaseDir.'LICENSE.md to '.$this->_tempDir.'LICENSE.md'.PHP_EOL.PHP_EOL);
 
-		echo ('Copying file from '.$this->_sourceBaseDir.'README.md to '.$this->_tempDir.PHP_EOL);
-		UtilsHelper::copyFile($this->_sourceBaseDir.'README.md', $this->_tempDir);
-		echo ('Finished copying file from '.$this->_sourceBaseDir.'README.md to '.$this->_tempDir.PHP_EOL.PHP_EOL);
+		echo ('Copying file from '.$this->_sourceBaseDir.'README.md to '.$this->_tempDir.'README.md'.PHP_EOL);
+		UtilsHelper::copyFile($this->_sourceBaseDir.'README.md', $this->_tempDir.'README.md');
+		echo ('Finished copying file from '.$this->_sourceBaseDir.'README.md to '.$this->_tempDir.'README.md'.PHP_EOL.PHP_EOL);
 
 		echo ('Deleting file '.$this->_tempDir.'composer.json'.PHP_EOL);
 		unlink($this->_sourceBaseDir.'composer.json');
