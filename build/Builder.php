@@ -24,13 +24,16 @@ class Builder
 	{
 		$this->_args = array_merge(array(
 			'build'         => '1',
-			'version'       => '.05',
 			'track'         => 'stable',
 		), $args);
 
-
 		$this->_sourceBaseDir = str_replace('\\', '/', realpath(__DIR__.'/..')).'/';
 		$this->_tempDir = $this->_sourceBaseDir.UtilsHelper::UUID().'/';
+
+		if (!file_exists($this->_args['destDir']))
+		{
+			UtilsHelper::createDir($this->_args['destDir']);
+		}
 
 		UtilsHelper::createDir($this->_tempDir);
 
@@ -45,7 +48,7 @@ class Builder
 		$this->copyFiles();
 		$this->updateVersionBuild();
 		$this->processFiles();
-		$this->cleanDestinationDirectories();
+		$this->cleanDirectories();
 		$this->zipIt();
 
 		$totalTime = UtilsHelper::getBenchmarkTime() - $this->_startTime;
@@ -97,7 +100,7 @@ class Builder
 	/**
 	 *
 	 */
-	protected function cleanDestinationDirectories()
+	protected function cleanDirectories()
 	{
 		$dsStores = UtilsHelper::findFiles($this->_tempDir, array('fileTypes' => array('DS_Store'), 'level' => -1));
 
@@ -180,27 +183,15 @@ class Builder
 
 	protected function zipIt()
 	{
+		$fileName = 'Commerce-'.$this->_args['version'].'.'.$this->_args['build'].'.zip';
+
 		echo 'Zipping '.$this->_tempDir.PHP_EOL;
-		UtilsHelper::zipDir($this->_tempDir, 'Commerce-'.$this->_args['version'].'.'.$this->_args['build'].'.zip');
+		UtilsHelper::zipDir($this->_tempDir, $fileName);
 		echo 'Done zipping '.$this->_tempDir.PHP_EOL.PHP_EOL;
 
-		if (!file_exists($this->_finalBaseDir.$this->_args['version']))
-		{
-			echo 'Creating '.$this->_finalBaseDir.$this->_args['version'].PHP_EOL;
-			UtilsHelper::createDir($this->_finalBaseDir.$this->_args['version']);
-			echo 'Done creating '.$this->_finalBaseDir.$this->_args['version'].PHP_EOL.PHP_EOL;
-		}
-
-		if (!file_exists($this->_finalBaseDir.$this->_args['version'].'/'.$this->_args['version'].'.'.$this->_args['build']))
-		{
-			echo 'Creating '.$this->_finalBaseDir.$this->_args['version'].'/'.$this->_args['version'].'.'.$this->_args['build'].PHP_EOL;
-			UtilsHelper::createDir($this->_finalBaseDir.$this->_args['version'].'/'.$this->_args['version'].'.'.$this->_args['build']);
-			echo 'Done creating '.$this->_finalBaseDir.$this->_args['version'].'/'.$this->_args['version'].'.'.$this->_args['build'].PHP_EOL.PHP_EOL;
-		}
-
-		echo 'Copying '.$this->_tempDir.'Commerce-'.$this->_args['version'].'.'.$this->_args['build'].'.zip to '.$this->_finalBaseDir.$this->_args['version'].'/'.$this->_args['version'].'.'.$this->_args['build'].PHP_EOL;
-		UtilsHelper::copyFile($this->_tempDir.'Commerce-'.$this->_args['version'].'.'.$this->_args['build'].'.zip', $this->_finalBaseDir.$this->_args['version'].'/'.$this->_args['version'].'.'.$this->_args['build']);
-		echo 'Done copying '.$this->_tempDir.'Commerce-'.$this->_args['version'].'.'.$this->_args['build'].'.zip to '.$this->_finalBaseDir.$this->_args['version'].'/'.$this->_args['version'].'.'.$this->_args['build'].PHP_EOL;
+		echo 'Copying '.$this->_tempDir.$fileName.' to '.$this->_args['destDir'].PHP_EOL;
+		UtilsHelper::copyFile($this->_tempDir.$fileName, $this->_args['destDir'].$fileName);
+		echo 'Done copying '.$this->_tempDir.$fileName.' to '.$this->_args['destDir'].$fileName.PHP_EOL;
 	}
 
 	/**
