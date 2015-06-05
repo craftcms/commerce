@@ -53,28 +53,27 @@ return [
 	'market/settings/paymentmethods'                                                          => ['action' => 'market/paymentMethod/index'],
 	'market/settings/paymentmethods/(?P<class>\w+)'                                           => ['action' => 'market/paymentMethod/edit'],
 
-	'market/promotions/sales'                                                                   => ['action' => 'market/sale/index'],
-	'market/promotions/sales/new'                                                               => ['action' => 'market/sale/edit'],
-	'market/promotions/sales/(?P<id>\d+)'                                                       => ['action' => 'market/sale/edit'],
+	'market/promotions/sales'                                                                 => ['action' => 'market/sale/index'],
+	'market/promotions/sales/new'                                                             => ['action' => 'market/sale/edit'],
+	'market/promotions/sales/(?P<id>\d+)'                                                     => ['action' => 'market/sale/edit'],
 
-	'market/promotions/discounts'                                                               => ['action' => 'market/discount/index'],
-	'market/promotions/discounts/new'                                                           => ['action' => 'market/discount/edit'],
-	'market/promotions/discounts/(?P<id>\d+)'                                                   => ['action' => 'market/discount/edit'],
+	'market/promotions/discounts'                                                             => ['action' => 'market/discount/index'],
+	'market/promotions/discounts/new'                                                         => ['action' => 'market/discount/edit'],
+	'market/promotions/discounts/(?P<id>\d+)'                                                 => ['action' => 'market/discount/edit'],
 
 	'market/settings/shippingmethods'                                                         => ['action' => 'market/shippingMethod/index'],
 	'market/settings/shippingmethods/new'                                                     => ['action' => 'market/shippingMethod/edit'],
 	'market/settings/shippingmethods/(?P<id>\d+)'                                             => ['action' => 'market/shippingMethod/edit'],
 
-	'market/settings/shippingrules'                                                           => ['action' => 'market/shippingRule/index'],
-	'market/settings/shippingrules/new'                                                       => ['action' => 'market/shippingRule/edit'],
-	'market/settings/shippingrules/(?P<id>\d+)'                                               => ['action' => 'market/shippingRule/edit'],
+	'market/settings/shippingmethods/(?P<methodId>\d+)/shippingrules/new'                     => ['action' => 'market/shippingRule/edit'],
+	'market/settings/shippingmethods/(?P<methodId>\d+)/shippingrules/(?P<ruleId>\d+)'         => ['action' => 'market/shippingRule/edit'],
 
 	'market/settings/emails'                                                                  => ['action' => 'market/email/index'],
 	'market/settings/emails/new'                                                              => ['action' => 'market/email/edit'],
 	'market/settings/emails/(?P<id>\d+)'                                                      => ['action' => 'market/email/edit'],
 
-    'market/settings/ordertypes/(?P<orderTypeId>\d+)/orderstatuses/new'                       => ['action' => 'market/orderStatus/edit'],
-    'market/settings/ordertypes/(?P<orderTypeId>\d+)/orderstatuses/(?P<id>\d+)'               => ['action' => 'market/orderStatus/edit'],
+	'market/settings/ordertypes/(?P<orderTypeId>\d+)/orderstatuses/new'                       => ['action' => 'market/orderStatus/edit'],
+	'market/settings/ordertypes/(?P<orderTypeId>\d+)/orderstatuses/(?P<id>\d+)'               => ['action' => 'market/orderStatus/edit'],
 
 	'market/customers'                                                                        => ['action' => 'market/customer/index'],
 	'market/customers/(?P<id>\d+)'                                                            => ['action' => 'market/customer/edit'],
