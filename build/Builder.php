@@ -30,7 +30,7 @@ class Builder
 
 
 		$this->_sourceBaseDir = str_replace('\\', '/', realpath(__DIR__.'/..')).'/';
-		$this->_tempDir = $this->_sourceBaseDir.UtilsHelper::UUID();
+		$this->_tempDir = $this->_sourceBaseDir.UtilsHelper::UUID().'/';
 
 		UtilsHelper::createDir($this->_tempDir);
 
@@ -58,14 +58,17 @@ class Builder
 	protected function copyFiles()
 	{
 		echo ('Copying code from '.$this->_sourceBaseDir.'docs to '.$this->_tempDir.PHP_EOL);
+		UtilsHelper::createDir($this->_tempDir.'docs/');
 		UtilsHelper::copyDirectory($this->_sourceBaseDir.'docs', $this->_tempDir);
 		echo ('Finished copying code from '.$this->_sourceBaseDir.'docs to '.$this->_tempDir.PHP_EOL.PHP_EOL);
 
 		echo ('Copying code from '.$this->_sourceBaseDir.'exampletemplates to '.$this->_tempDir.PHP_EOL);
+		UtilsHelper::createDir($this->_tempDir.'exampletemplates/');
 		UtilsHelper::copyDirectory($this->_sourceBaseDir.'exampletemplates', $this->_tempDir);
 		echo ('Finished copying code from '.$this->_sourceBaseDir.'exampletemplates to '.$this->_tempDir.PHP_EOL.PHP_EOL);
 
 		echo ('Copying code from '.$this->_sourceBaseDir.'plugins to '.$this->_tempDir.PHP_EOL);
+		UtilsHelper::createDir($this->_tempDir.'plugins/');
 		UtilsHelper::copyDirectory($this->_sourceBaseDir.'plugins', $this->_tempDir);
 		echo ('Finished copying code from '.$this->_sourceBaseDir.'plugins to '.$this->_tempDir.PHP_EOL.PHP_EOL);
 
