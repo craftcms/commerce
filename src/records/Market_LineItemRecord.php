@@ -14,6 +14,9 @@ namespace Craft;
  * @property float                    shippingAmount
  * @property float                    discountAmount
  * @property float                    weight
+ * @property float                    height
+ * @property float                    width
+ * @property float                    length
  * @property float                    total
  * @property int                      qty
  * @property string                   optionsJson
@@ -100,6 +103,9 @@ class Market_LineItemRecord extends BaseRecord
 			'shippingAmount' => [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
 			'discountAmount' => [AttributeType::Number, 'decimals' => 4, 'required' => true, 'default' => 0],
 			'weight'         => [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
+			'height'         => [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
+			'length'         => [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
+			'width'          => [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
 			'total'          => [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
 			'qty'            => [AttributeType::Number, 'min' => 0, 'required' => true],
 			'optionsJson'    => [AttributeType::Mixed, 'required' => true],

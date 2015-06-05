@@ -48,7 +48,7 @@ class Market_TransactionRecord extends BaseRecord
 	public function defineRelations()
 	{
 		return [
-			'parent'        => [self::BELONGS_TO, 'Market_TransactionRecord', 'onDelete' => self::RESTRICT, 'onUpdate' => self::CASCADE],
+			'parent'        => [self::BELONGS_TO, 'Market_TransactionRecord', 'onDelete' => self::CASCADE, 'onUpdate' => self::CASCADE],
 			'paymentMethod' => [self::BELONGS_TO, 'Market_PaymentMethodRecord', 'onDelete' => self::RESTRICT, 'onUpdate' => self::CASCADE],
 			'order'         => [self::BELONGS_TO, 'Market_OrderRecord', 'required' => true, 'onDelete' => self::CASCADE],
 			'user'          => [self::BELONGS_TO, 'UserRecord', 'onDelete' => self::RESTRICT],
@@ -65,7 +65,6 @@ class Market_TransactionRecord extends BaseRecord
 			'reference' => [AttributeType::String],
 			'message'   => [AttributeType::Mixed],
 			'response'  => [AttributeType::Mixed],
-
 			'orderId'   => [AttributeType::Number, 'required' => true],
 		];
 	}

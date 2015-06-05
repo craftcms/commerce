@@ -10,7 +10,7 @@
 {% set content %}
 <form method="post" accept-charset="UTF-8" data-saveshortcut>
     <input type="hidden" name="action" value="market/shippingMethod/save">
-    <input type="hidden" name="redirect" value="market/settings/shippingmethods">
+    <input type="hidden" name="redirect" value="market/settings/shippingmethods/{id}">
 
     {{ getCsrfInput() }}
     {% if shippingMethod.id %}<input type="hidden" name="shippingMethodId" value="{{ shippingMethod.id }}">{% endif %}
@@ -41,8 +41,82 @@
     <hr>
 
     <div class="buttons">
-        <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
+        <input type="submit" class="btn submit" value="{{ 'Save Shipping Method'|t }}">
     </div>
 </form>
 
+<hr/>
+<h2>{{ "Shipping Rules"|t }}</h2>
+
+<table id="shippingRules" class="data fullwidth collapsible">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Method</th>
+        <th>Country</th>
+        <th>State</th>
+        <th>Filtering Settings</th>
+        <th>Charge Settings</th>
+        <th>Enabled</th>
+        <td class="thin"></td>
+        <td class="thin"></td>
+    </tr>
+    </thead>
+    <tbody>
+    {% for shippingRule in shippingRules %}
+        <tr data-id="{{ shippingRule.id }}" data-name="{{ shippingRule.name }}">
+            <th scope="row" data-title="Name"><a href="{{ url('market/settings/shippingmethods/'~shippingRule.methodId~'/shippingrules/'~shippingRule.id) }}">{{ shippingRule.name }}</a></th>
+            <td>{{ shippingRule.method.name }}</td>
+            <td>{{ shippingRule.country.name|default('All') }}</td>
+            <td>{{ shippingRule.state.name|default('All') }}</td>
+            <td>
+                Minimum Order Quantity: {{ shippingRule.minQty }}<br/>
+                Maximum Order Quantity: {{ shippingRule.maxQty }}<br/>
+                Minimum Order Total Price: {{ shippingRule.minTotal }}<br/>
+                Maximum Order Total Price: {{ shippingRule.maxTotal }}<br/>
+                Minimum Order Weight: {{ shippingRule.minWeight }}<br/>
+                Maximum Order Weight: {{ shippingRule.maxWeight }}
+            </td>
+            <td>
+                Base Rate: {{ shippingRule.baseRate }}<br/>
+                Per Item Rate: {{ shippingRule.perItemRate }}<br/>
+                Weight Rate: {{ shippingRule.weightRate }}<br/>
+                Percentage Rate: {{ shippingRule.percentageRate }}<br/>
+                Minimum Rate: {{ shippingRule.minRate }}<br/>
+                Maximum Rate: {{ shippingRule.maxRate }}
+            </td>
+            <td>{{ shippingRule.enabled ? 'Yes'|t : 'No'|t }}</td>
+            <td class="thin">
+                <a class="move icon disabled" title="{{ 'Delete'|t }}" role="button"></a>
+            </td>
+            <td class="thin">
+                <a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a>
+            </td>
+        </tr>
+    {% endfor %}
+
+    </tbody>
+</table>
+
+{% if newMethod %}
+    <p><span style="color:red">Save this method before creating rules.</span></p>
+{% else %}
+    <br/>
+    <div class="btngroup submit first">
+        <a href="{{ url('market/settings/shippingmethods/'~shippingMethod.id~'/shippingrules/new') }}" class="btn submit">New Shipping Rule</a>
+    </div>
+{% endif %}
+
+
 {% endset %}
+
+{% set js %}
+var adminTable = new Craft.AdminTable({
+    tableSelector: '#shippingRules',
+    deleteAction: 'market/shippingRule/delete',
+    sortable: true,
+    reorderAction: 'market/shippingRule/reorder',
+    confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
+});
+{% endset %}
+{% includeJs js %}

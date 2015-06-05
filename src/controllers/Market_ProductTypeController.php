@@ -46,9 +46,6 @@ class Market_ProductTypeController extends Market_BaseController
 			$variables['title'] = Craft::t('Create a Product Type');
 		}
 
-		$types = Market_ProductTypeRecord::$types;
-		$variables['productTypeTypes'] = array_combine($types,$types);
-
 		$this->renderTemplate('market/settings/producttypes/_edit', $variables);
 	}
 
@@ -59,9 +56,12 @@ class Market_ProductTypeController extends Market_BaseController
 		$productType = new Market_ProductTypeModel();
 
 		// Shared attributes
-		$productType->id     = craft()->request->getPost('productTypeId');
-		$productType->name   = craft()->request->getPost('name');
-		$productType->handle = craft()->request->getPost('handle');
+		$productType->id        = craft()->request->getPost('productTypeId');
+		$productType->name      = craft()->request->getPost('name');
+		$productType->handle    = craft()->request->getPost('handle');
+		$productType->hasUrls   = craft()->request->getPost('hasUrls');
+		$productType->template  = craft()->request->getPost('template');
+		$productType->urlFormat = craft()->request->getPost('urlFormat');
 
 		// Set the field layout
 		$fieldLayout       = craft()->fields->assembleLayoutFromPost();

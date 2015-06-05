@@ -16,6 +16,9 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property float                   shippingAmount
  * @property float                   discountAmount
  * @property float                   weight
+ * @property float                   height
+ * @property float                   width
+ * @property float                   length
  * @property float                   total
  * @property int                     qty
  * @property string                  optionsJson
@@ -52,6 +55,47 @@ class Market_LineItemModel extends BaseModel
 		return $this->price + $this->discountAmount + $this->saleAmount;
 	}
 
+	/**
+	 * @return bool False when no related variant exists
+	 */
+	public function refreshFromVariant()
+	{
+		if (!$this->variant || !$this->variant->id) {
+			return false;
+		}
+
+		$this->fillFromVariant($this->variant);
+
+		return true;
+	}
+
+	/**
+	 * @param Market_VariantModel $variant
+	 */
+	public function fillFromVariant(Market_VariantModel $variant)
+	{
+		$this->price         = $variant->price;
+		$this->weight        = $variant->weight * 1; //converting nulls
+		$this->height        = $variant->height * 1; //converting nulls
+		$this->length        = $variant->length * 1; //converting nulls
+		$this->width         = $variant->width * 1; //converting nulls
+		$this->taxCategoryId = $variant->product->taxCategoryId;
+
+		$options                 = $variant->attributes;
+		$options['optionValues'] = $variant->getOptionValuesArray();
+		$this->optionsJson       = $options;
+
+		$sales = craft()->market_sale->getForVariant($variant);
+
+		foreach ($sales as $sale) {
+			$this->saleAmount += $sale->calculateTakeoff($this->price);
+		}
+
+		if ($this->saleAmount > $this->price) {
+			$this->saleAmount = $this->price;
+		}
+	}
+
 	protected function defineAttributes()
 	{
 		return [
@@ -62,6 +106,9 @@ class Market_LineItemModel extends BaseModel
 			'shippingAmount' => [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
 			'discountAmount' => [AttributeType::Number, 'decimals' => 4, 'required' => true, 'default' => 0],
 			'weight'         => [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
+			'length'         => [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
+			'height'         => [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
+			'width'          => [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
 			'total'          => [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
 			'qty'            => [AttributeType::Number, 'min' => 0, 'required' => true],
 			'optionsJson'    => [AttributeType::Mixed, 'required' => true],
@@ -70,41 +117,4 @@ class Market_LineItemModel extends BaseModel
 			'taxCategoryId'  => [AttributeType::Number, 'required' => true],
 		];
 	}
-
-    /**
-     * @return bool False when no related variant exists
-     */
-    public function refreshFromVariant()
-    {
-        if(!$this->variant || !$this->variant->id) {
-            return false;
-        }
-
-        $this->fillFromVariant($this->variant);
-        return true;
-    }
-
-    /**
-     * @param Market_VariantModel $variant
-     */
-    public function fillFromVariant(Market_VariantModel $variant)
-    {
-        $this->price         = $variant->price;
-        $this->weight        = $variant->weight * 1; //converting nulls
-        $this->taxCategoryId = $variant->product->taxCategoryId;
-
-        $options                 = $variant->attributes;
-        $options['optionValues'] = $variant->getOptionValuesArray();
-        $this->optionsJson   = $options;
-
-        $sales = craft()->market_sale->getForVariant($variant);
-
-        foreach ($sales as $sale) {
-            $this->saleAmount += $sale->calculateTakeoff($this->price);
-        }
-
-        if ($this->saleAmount > $this->price) {
-            $this->saleAmount = $this->price;
-        }
-    }
 }

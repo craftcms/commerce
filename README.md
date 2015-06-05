@@ -9,11 +9,12 @@ Copyright 2015 Pixel & Tonic, Inc. All rights reserved. See LICENSE.md
 # Documentation Generation
 
 To generate a phpdoc documentation:
-1. ```cd docs/phpdoc```
-2. ```curl -O http://get.sensiolabs.org/sami.phar```
-2. ```php sami.phar update config.php -v```
 
-Then open the ```build/index.html``` file in the browser. In chrome the search sidebar will not
+1. `cd docs/phpdoc`
+2. `curl -O http://get.sensiolabs.org/sami.phar`
+3. `php sami.phar update config.php -v`
+
+Then open the `build/index.html` file in the browser. In chrome the search sidebar will not
 show up due to security issues for local files. Use firefox. Chrome does not have this issue when
 served from a webserver.
 

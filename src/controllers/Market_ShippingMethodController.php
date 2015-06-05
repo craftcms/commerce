@@ -33,12 +33,14 @@ class Market_ShippingMethodController extends Market_BaseController
 			if (!empty($variables['id'])) {
 				$id                          = $variables['id'];
 				$variables['shippingMethod'] = craft()->market_shippingMethod->getById($id);
+				$variables['newMethod']      = false;
 
 				if (!$variables['shippingMethod']->id) {
 					throw new HttpException(404);
 				}
 			} else {
 				$variables['shippingMethod'] = new Market_ShippingMethodModel();
+				$variables['newMethod']      = true;
 			}
 		}
 
@@ -47,6 +49,10 @@ class Market_ShippingMethodController extends Market_BaseController
 		} else {
 			$variables['title'] = Craft::t('Create a Shipping Method');
 		}
+
+		$shippingRules = craft()->market_shippingRule->getAllByMethodId($variables['shippingMethod']->id);
+
+		$variables['shippingRules'] = $shippingRules;
 
 		$this->renderTemplate('market/settings/shippingmethods/_edit', $variables);
 	}
