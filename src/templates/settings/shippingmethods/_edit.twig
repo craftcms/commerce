@@ -59,6 +59,7 @@
         <th>Charge Settings</th>
         <th>Enabled</th>
         <td class="thin"></td>
+        <td class="thin"></td>
     </tr>
     </thead>
     <tbody>
@@ -85,7 +86,12 @@
                 Maximum Rate: {{ shippingRule.maxRate }}
             </td>
             <td>{{ shippingRule.enabled ? 'Yes'|t : 'No'|t }}</td>
-            <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
+            <td class="thin">
+                <a class="move icon disabled" title="{{ 'Delete'|t }}" role="button"></a>
+            </td>
+            <td class="thin">
+                <a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a>
+            </td>
         </tr>
     {% endfor %}
 
@@ -106,9 +112,11 @@
 
 {% set js %}
 var adminTable = new Craft.AdminTable({
-tableSelector: '#shippingRules',
-deleteAction: 'market/shippingRule/delete',
-confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
+    tableSelector: '#shippingRules',
+    deleteAction: 'market/shippingRule/delete',
+    sortable: true,
+    reorderAction: 'market/shippingRule/reorder',
+    confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
 });
 {% endset %}
 {% includeJs js %}

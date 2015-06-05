@@ -23,7 +23,6 @@ Craft.MarketNav = Garnish.Base.extend(
         subnavHtml = '<div id="nav-market-menu" class="menu"><ul>';
 
         $(subnav).each(function(key, item) {
-            console.log(item.selected);
             subnavHtml += '<li>';
             subnavHtml += '<a href="'+Craft.getUrl(item.url)+'"';
             if(item.selected)
