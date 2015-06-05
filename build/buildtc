@@ -1,2 +1,2 @@
 # TeamCity builder
-php $1 --build=$2 --track=$3 --version=$4 --destdir=/www/eh21814/commerce/$3/$2/$4.$3/
+php $1 --build=$2 --track=$3 --version=$4 --destDir=/www/eh21814/commerce/$3/$2/$4.$3/
