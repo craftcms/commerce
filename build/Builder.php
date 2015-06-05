@@ -57,37 +57,37 @@ class Builder
 	 */
 	protected function copyFiles()
 	{
-		echo ('Copying code from '.$this->_sourceBaseDir.'docs to '.$this->_args['destdir'].PHP_EOL);
+		echo ('Copying code from '.$this->_sourceBaseDir.'docs to '.$this->_tempDir.PHP_EOL);
 		UtilsHelper::copyDirectory($this->_sourceBaseDir.'docs', $this->_tempDir);
-		echo ('Finished copying code from '.$this->_sourceBaseDir.'docs to '.$this->_args['destdir'].PHP_EOL.PHP_EOL);
+		echo ('Finished copying code from '.$this->_sourceBaseDir.'docs to '.$this->_tempDir.PHP_EOL.PHP_EOL);
 
-		echo ('Copying code from '.$this->_sourceBaseDir.'exampletemplates to '.$this->_args['destdir'].PHP_EOL);
+		echo ('Copying code from '.$this->_sourceBaseDir.'exampletemplates to '.$this->_tempDir.PHP_EOL);
 		UtilsHelper::copyDirectory($this->_sourceBaseDir.'exampletemplates', $this->_tempDir);
-		echo ('Finished copying code from '.$this->_sourceBaseDir.'exampletemplates to '.$this->_args['destdir'].PHP_EOL.PHP_EOL);
+		echo ('Finished copying code from '.$this->_sourceBaseDir.'exampletemplates to '.$this->_tempDir.PHP_EOL.PHP_EOL);
 
-		echo ('Copying code from '.$this->_sourceBaseDir.'plugins to '.$this->_args['destdir'].PHP_EOL);
+		echo ('Copying code from '.$this->_sourceBaseDir.'plugins to '.$this->_tempDir.PHP_EOL);
 		UtilsHelper::copyDirectory($this->_sourceBaseDir.'plugins', $this->_tempDir);
-		echo ('Finished copying code from '.$this->_sourceBaseDir.'plugins to '.$this->_args['destdir'].PHP_EOL.PHP_EOL);
+		echo ('Finished copying code from '.$this->_sourceBaseDir.'plugins to '.$this->_tempDir.PHP_EOL.PHP_EOL);
 
-		echo ('Copying file from '.$this->_sourceBaseDir.'CHANGELOG.md to '.$this->_args['destdir'].PHP_EOL);
+		echo ('Copying file from '.$this->_sourceBaseDir.'CHANGELOG.md to '.$this->_tempDir.PHP_EOL);
 		UtilsHelper::copyFile($this->_sourceBaseDir.'CHANGELOG.md', $this->_tempDir);
-		echo ('Finished copying file from '.$this->_sourceBaseDir.'CHANGELOG.md to '.$this->_args['destdir'].PHP_EOL.PHP_EOL);
+		echo ('Finished copying file from '.$this->_sourceBaseDir.'CHANGELOG.md to '.$this->_tempDir.PHP_EOL.PHP_EOL);
 
-		echo ('Copying file from '.$this->_sourceBaseDir.'LICENSE.md to '.$this->_args['destdir'].PHP_EOL);
+		echo ('Copying file from '.$this->_sourceBaseDir.'LICENSE.md to '.$this->_tempDir.PHP_EOL);
 		UtilsHelper::copyFile($this->_sourceBaseDir.'LICENSE.md', $this->_tempDir);
-		echo ('Finished copying file from '.$this->_sourceBaseDir.'LICENSE.md to '.$this->_args['destdir'].PHP_EOL.PHP_EOL);
+		echo ('Finished copying file from '.$this->_sourceBaseDir.'LICENSE.md to '.$this->_tempDir.PHP_EOL.PHP_EOL);
 
-		echo ('Copying file from '.$this->_sourceBaseDir.'README.md to '.$this->_args['destdir'].PHP_EOL);
+		echo ('Copying file from '.$this->_sourceBaseDir.'README.md to '.$this->_tempDir.PHP_EOL);
 		UtilsHelper::copyFile($this->_sourceBaseDir.'README.md', $this->_tempDir);
-		echo ('Finished copying file from '.$this->_sourceBaseDir.'README.md to '.$this->_args['destdir'].PHP_EOL.PHP_EOL);
+		echo ('Finished copying file from '.$this->_sourceBaseDir.'README.md to '.$this->_tempDir.PHP_EOL.PHP_EOL);
 
-		echo ('Deleting file '.$this->_args['destdir'].'composer.json'.PHP_EOL);
+		echo ('Deleting file '.$this->_tempDir.'composer.json'.PHP_EOL);
 		unlink($this->_sourceBaseDir.'composer.json');
 
-		echo ('Deleting file '.$this->_args['destdir'].'composer.lock'.PHP_EOL);
+		echo ('Deleting file '.$this->_tempDir.'composer.lock'.PHP_EOL);
 		unlink($this->_sourceBaseDir.'composer.lock');
 
-		echo ('Deleting file '.$this->_args['destdir'].'codeception.yml'.PHP_EOL);
+		echo ('Deleting file '.$this->_tempDir.'codeception.yml'.PHP_EOL);
 		unlink($this->_sourceBaseDir.'codeception.yml');
 	}
 
@@ -97,13 +97,13 @@ class Builder
 	protected function cleanDestinationDirectories()
 	{
 		// Delete aspnet_client folder.
-		echo ('Deleting aspnet_client folder from '.$this->_args['destdir'].'public/aspnet_client'.PHP_EOL);
-		UtilsHelper::purgeDirectory($this->_args['destdir'].'public/aspnet_client');
-		if (file_exists($this->_args['destdir'].'public/aspnet_client'))
+		echo ('Deleting aspnet_client folder from '.$this->_tempDir.'public/aspnet_client'.PHP_EOL);
+		UtilsHelper::purgeDirectory($this->_tempDir.'public/aspnet_client');
+		if (file_exists($this->_tempDir.'public/aspnet_client'))
 		{
-			rmdir($this->_args['destdir'].'public/aspnet_client');
+			rmdir($this->_tempDir.'public/aspnet_client');
 		}
-		echo ('Finished deleting aspnet_client folder from '.$this->_args['destdir'].'public/aspnet_client'.PHP_EOL.PHP_EOL);
+		echo ('Finished deleting aspnet_client folder from '.$this->_tempDir.'public/aspnet_client'.PHP_EOL.PHP_EOL);
 
 		$dsStores = UtilsHelper::findFiles($this->_tempDir, array('fileTypes' => array('DS_Store'), 'level' => -1));
 
@@ -122,7 +122,7 @@ class Builder
 	{
 		echo ('Beginning to process app files'.PHP_EOL.PHP_EOL);
 		$extensions = array('html', 'txt', 'scss', 'css', 'js', 'php', 'config', '');
-		$allFiles = UtilsHelper::dirContents($this->_args['destdir'], $extensions);
+		$allFiles = UtilsHelper::dirContents($this->_tempDir, $extensions);
 
 		foreach ($allFiles as $file)
 		{
