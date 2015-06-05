@@ -29,7 +29,7 @@ class Builder
 		), $args);
 
 
-		$this->_sourceBaseDir = str_replace('\\', '/', realpath(__DIR__.'/../..')).'/';
+		$this->_sourceBaseDir = str_replace('\\', '/', realpath(__DIR__.'/..')).'/';
 		$this->_tempDir = $this->_sourceBaseDir.UtilsHelper::UUID();
 
 		UtilsHelper::createDir($this->_tempDir);
