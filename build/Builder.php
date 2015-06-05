@@ -85,13 +85,13 @@ class Builder
 		echo ('Finished copying file from '.$this->_sourceBaseDir.'README.md to '.$this->_tempDir.'README.md'.PHP_EOL.PHP_EOL);
 
 		echo ('Deleting file '.$this->_tempDir.'composer.json'.PHP_EOL);
-		unlink($this->_sourceBaseDir.'composer.json');
+		unlink($this->_tempDir.'composer.json');
 
 		echo ('Deleting file '.$this->_tempDir.'composer.lock'.PHP_EOL);
-		unlink($this->_sourceBaseDir.'composer.lock');
+		unlink($this->_tempDir.'composer.lock');
 
 		echo ('Deleting file '.$this->_tempDir.'codeception.yml'.PHP_EOL);
-		unlink($this->_sourceBaseDir.'codeception.yml');
+		unlink($this->_tempDir.'codeception.yml');
 	}
 
 	/**
