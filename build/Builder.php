@@ -8,6 +8,7 @@ class Builder
 	private $_sourceBaseDir;
 	private $_finalBaseDir = '/www/eh21814/commerce/';
 	private $_tempDir;
+	private $_version;
 
 	private $_args;
 	private $_startTime;
@@ -161,7 +162,6 @@ class Builder
 		$contents = file_get_contents($path);
 
 		$variables = array(
-			'9.9'                 => $this->_args['version'],
 			'9999'                => $this->_args['build'],
 		);
 
@@ -171,6 +171,13 @@ class Builder
 			$contents
 		);
 
+		preg_match('/(\d\.\d)\.(\d){4}/', $newContents, $matches);
+		
+		if ($matches && isset($matches[1]))
+		{
+			$this->_version = $matches[1];
+		}
+
 		echo $path.PHP_EOL;
 		file_put_contents($path, $newContents);
 		echo 'Done.'.PHP_EOL.PHP_EOL;
@@ -178,26 +185,26 @@ class Builder
 
 	protected function zipIt()
 	{
-		$fileName = 'Commerce-'.$this->_args['version'].'.'.$this->_args['build'].'.zip';
+		$fileName = 'Commerce-'.$this->_version.'.'.$this->_args['build'].'.zip';
 
 		echo 'Zipping '.$this->_tempDir.PHP_EOL;
 		UtilsHelper::zipDir($this->_tempDir, $fileName);
 		echo 'Done zipping '.$this->_tempDir.PHP_EOL.PHP_EOL;
 
-		$destDir = $this->_finalBaseDir.$this->_args['version'].'/'.$this->_args['version'].'.'.$this->_args['build'].'/';
+		$destDir = $this->_finalBaseDir.$this->_version.'/'.$this->_version.'.'.$this->_args['build'].'/';
 
-		if (!file_exists($this->_finalBaseDir.$this->_args['version']))
+		if (!file_exists($this->_finalBaseDir.$this->_version))
 		{
-			echo 'Creating '.$this->_finalBaseDir.$this->_args['version'].PHP_EOL;
-			UtilsHelper::createDir($this->_finalBaseDir.$this->_args['version']);
-			echo 'Done creating '.$this->_finalBaseDir.$this->_args['version'].PHP_EOL.PHP_EOL;
+			echo 'Creating '.$this->_finalBaseDir.$this->_version.PHP_EOL;
+			UtilsHelper::createDir($this->_finalBaseDir.$this->_version);
+			echo 'Done creating '.$this->_finalBaseDir.$this->_version.PHP_EOL.PHP_EOL;
 		}
 
-		if (!file_exists($this->_finalBaseDir.$this->_args['version'].'/'.$this->_args['version'].'.'.$this->_args['build']))
+		if (!file_exists($this->_finalBaseDir.$this->_version.'/'.$this->_version.'.'.$this->_args['build']))
 		{
-			echo 'Creating '.$this->_finalBaseDir.$this->_args['version'].'/'.$this->_args['version'].'.'.$this->_args['build'].PHP_EOL;
-			UtilsHelper::createDir($this->_finalBaseDir.$this->_args['version'].'/'.$this->_args['version'].'.'.$this->_args['build']);
-			echo 'Done creating '.$this->_finalBaseDir.$this->_args['version'].'/'.$this->_args['version'].'.'.$this->_args['build'].PHP_EOL.PHP_EOL;
+			echo 'Creating '.$this->_finalBaseDir.$this->_version.'/'.$this->_version.'.'.$this->_args['build'].PHP_EOL;
+			UtilsHelper::createDir($this->_finalBaseDir.$this->_version.'/'.$this->_version.'.'.$this->_args['build']);
+			echo 'Done creating '.$this->_finalBaseDir.$this->_version.'/'.$this->_version.'.'.$this->_args['build'].PHP_EOL.PHP_EOL;
 		}
 
 		echo 'Copying '.$this->_sourceBaseDir.$fileName.' to '.$destDir.$fileName.PHP_EOL;
