@@ -27,6 +27,12 @@ class MarketPlugin extends BasePlugin
 			]
 		);
 
+		craft()->on('market_order.onOrderComplete',
+			[
+				craft()->market_variant, 'orderCompleteHandler'
+			]
+		);
+
 	}
 
 	public function getName()
