@@ -24,10 +24,11 @@ class Market_OrderController extends Market_BaseController
 		$this->renderTemplate('market/orders/_index', $variables);
 	}
 
-    /**
-     * @param array $variables
-     * @throws HttpException
-     */
+	/**
+	 * @param array $variables
+	 *
+	 * @throws HttpException
+	 */
 	public function actionEditOrder(array $variables = [])
 	{
 		if (!empty($variables['orderTypeHandle'])) {
@@ -58,7 +59,7 @@ class Market_OrderController extends Market_BaseController
 		}
 
 		$variables['orderStatuses'] = \CHtml::listData($variables['order']->type->orderStatuses, 'id', 'name');
-		if ($variables['order']->orderStatusId == null){
+		if ($variables['order']->orderStatusId == NULL) {
 			$variables['orderStatuses'] = ['0' => 'No Status'] + $variables['orderStatuses'];
 		}
 
@@ -69,6 +70,7 @@ class Market_OrderController extends Market_BaseController
 
 	/**
 	 * Modifies the variables of the request.
+	 *
 	 * @param $variables
 	 */
 	private function prepVariables(&$variables)
@@ -96,61 +98,61 @@ class Market_OrderController extends Market_BaseController
 		}
 	}
 
-    /**
-     * Capture Transaction
-     */
-    public function actionTransactionCapture()
-    {
-        $id = craft()->request->getParam('id');
-        $transaction = craft()->market_transaction->getById($id);
+	/**
+	 * Capture Transaction
+	 */
+	public function actionTransactionCapture()
+	{
+		$id          = craft()->request->getParam('id');
+		$transaction = craft()->market_transaction->getById($id);
 
-        if ($transaction->canCapture()) {
-            // capture transaction and display result
-            $child = craft()->market_payment->captureTransaction($transaction);
+		if ($transaction->canCapture()) {
+			// capture transaction and display result
+			$child = craft()->market_payment->captureTransaction($transaction);
 
-            $message = $child->message ? ' (' . $child->message . ')' : '';
+			$message = $child->message ? ' (' . $child->message . ')' : '';
 
-            if ($child->status == Market_TransactionRecord::SUCCESS) {
-                craft()->userSession->setNotice(Craft::t('Transaction has been successfully captured: ') . $message);
-            } else {
-                craft()->userSession->setError(Craft::t('Capturing error: ') . $message);
-            }
-        } else {
-            craft()->userSession->setError(Craft::t('Wrong transaction id'));
-        }
-    }
+			if ($child->status == Market_TransactionRecord::SUCCESS) {
+				craft()->userSession->setNotice(Craft::t('Transaction has been successfully captured: ') . $message);
+			} else {
+				craft()->userSession->setError(Craft::t('Capturing error: ') . $message);
+			}
+		} else {
+			craft()->userSession->setError(Craft::t('Wrong transaction id'));
+		}
+	}
 
-    /**
-     * Refund Transaction
-     */
-    public function actionTransactionRefund()
-    {
-        $id = craft()->request->getParam('id');
-        $transaction = craft()->market_transaction->getById($id);
+	/**
+	 * Refund Transaction
+	 */
+	public function actionTransactionRefund()
+	{
+		$id          = craft()->request->getParam('id');
+		$transaction = craft()->market_transaction->getById($id);
 
-        if ($transaction->canRefund()) {
-            // capture transaction and display result
-            $child = craft()->market_payment->refundTransaction($transaction);
+		if ($transaction->canRefund()) {
+			// capture transaction and display result
+			$child = craft()->market_payment->refundTransaction($transaction);
 
-            $message = $child->message ? ' (' . $child->message . ')' : '';
+			$message = $child->message ? ' (' . $child->message . ')' : '';
 
-            if ($child->status == Market_TransactionRecord::SUCCESS) {
-                craft()->userSession->setNotice(Craft::t('Transaction has been successfully refunded: ') . $message);
-            } else {
-                craft()->userSession->setError(Craft::t('Refunding error: ') . $message);
-            }
-        } else {
-            craft()->userSession->setError(Craft::t('Wrong transaction id'));
-        }
-    }
+			if ($child->status == Market_TransactionRecord::SUCCESS) {
+				craft()->userSession->setNotice(Craft::t('Transaction has been successfully refunded: ') . $message);
+			} else {
+				craft()->userSession->setError(Craft::t('Refunding error: ') . $message);
+			}
+		} else {
+			craft()->userSession->setError(Craft::t('Wrong transaction id'));
+		}
+	}
 
-    /**
-     * TODO nothing to save
-     *
-     * @throws Exception
-     * @throws HttpException
-     * @throws \Exception
-     */
+	/**
+	 * TODO nothing to save
+	 *
+	 * @throws Exception
+	 * @throws HttpException
+	 * @throws \Exception
+	 */
 	public function actionSaveOrder()
 	{
 		$this->requirePostRequest();
@@ -187,13 +189,13 @@ class Market_OrderController extends Market_BaseController
 		}
 
 		$orderStatusId = craft()->request->getPost('orderStatusId');
-		if ($orderStatusId == 0 || $orderStatusId == null){
-			$order->orderStatusId = null;
-		}else{
+		if ($orderStatusId == 0 || $orderStatusId == NULL) {
+			$order->orderStatusId = NULL;
+		} else {
 			$order->orderStatusId = $orderStatusId;
 		}
 
-        $order->typeId = craft()->request->getPost('typeId');
+		$order->typeId  = craft()->request->getPost('typeId');
 		$order->message = craft()->request->getPost('message');
 
 		return $order;
