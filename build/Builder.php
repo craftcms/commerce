@@ -161,6 +161,13 @@ class Builder
 		echo 'Loading the contents of MarketPlugin.php at '.$path.PHP_EOL;
 		$contents = file_get_contents($path);
 
+		preg_match('/(\d\.\d)\.(\d){4}/', $contents, $matches);
+
+		if ($matches && isset($matches[1]))
+		{
+			$this->_version = $matches[1];
+		}
+
 		$variables = array(
 			'9999'                => $this->_args['build'],
 		);
@@ -170,13 +177,6 @@ class Builder
 			array_values($variables),
 			$contents
 		);
-
-		preg_match('/(\d\.\d)\.(\d){4}/', $newContents, $matches);
-		
-		if ($matches && isset($matches[1]))
-		{
-			$this->_version = $matches[1];
-		}
 
 		echo $path.PHP_EOL;
 		file_put_contents($path, $newContents);
