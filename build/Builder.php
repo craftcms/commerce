@@ -161,7 +161,7 @@ class Builder
 		echo 'Loading the contents of MarketPlugin.php at '.$path.PHP_EOL;
 		$contents = file_get_contents($path);
 
-		preg_match('/(\d\.\d)\.(\d){4}/', $contents, $matches);
+		preg_match('/(\d\.\d{1,2})\.(\d){4}/', $contents, $matches);
 
 		if ($matches && isset($matches[1]))
 		{
