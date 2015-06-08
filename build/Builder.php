@@ -56,10 +56,10 @@ class Builder
 	 */
 	protected function copyFiles()
 	{
-		echo ('Copying code from '.$this->_sourceBaseDir.'docs to '.$this->_tempDir.'docs/'.PHP_EOL);
-		UtilsHelper::createDir($this->_tempDir.'docs/');
-		UtilsHelper::copyDirectory($this->_sourceBaseDir.'docs', $this->_tempDir.'docs/');
-		echo ('Finished copying code from '.$this->_sourceBaseDir.'docs to '.$this->_tempDir.'docs/'.PHP_EOL.PHP_EOL);
+		//echo ('Copying code from '.$this->_sourceBaseDir.'docs to '.$this->_tempDir.'docs/'.PHP_EOL);
+		//UtilsHelper::createDir($this->_tempDir.'docs/');
+		//UtilsHelper::copyDirectory($this->_sourceBaseDir.'docs', $this->_tempDir.'docs/');
+		//echo ('Finished copying code from '.$this->_sourceBaseDir.'docs to '.$this->_tempDir.'docs/'.PHP_EOL.PHP_EOL);
 
 		echo ('Copying code from '.$this->_sourceBaseDir.'exampletemplates to '.$this->_tempDir.'exampletemplates/'.PHP_EOL);
 		UtilsHelper::createDir($this->_tempDir.'exampletemplates/');
@@ -79,9 +79,9 @@ class Builder
 		UtilsHelper::copyFile($this->_sourceBaseDir.'LICENSE.md', $this->_tempDir.'LICENSE.md');
 		echo ('Finished copying file from '.$this->_sourceBaseDir.'LICENSE.md to '.$this->_tempDir.'LICENSE.md'.PHP_EOL.PHP_EOL);
 
-		echo ('Copying file from '.$this->_sourceBaseDir.'README.md to '.$this->_tempDir.'README.md'.PHP_EOL);
-		UtilsHelper::copyFile($this->_sourceBaseDir.'README.md', $this->_tempDir.'README.md');
-		echo ('Finished copying file from '.$this->_sourceBaseDir.'README.md to '.$this->_tempDir.'README.md'.PHP_EOL.PHP_EOL);
+		//echo ('Copying file from '.$this->_sourceBaseDir.'README.md to '.$this->_tempDir.'README.md'.PHP_EOL);
+		//UtilsHelper::copyFile($this->_sourceBaseDir.'README.md', $this->_tempDir.'README.md');
+		//echo ('Finished copying file from '.$this->_sourceBaseDir.'README.md to '.$this->_tempDir.'README.md'.PHP_EOL.PHP_EOL);
 
 		echo('Deleting file '.$this->_tempDir.'plugins/market/composer.json'.PHP_EOL);
 		unlink($this->_tempDir.'plugins/market/composer.json');
