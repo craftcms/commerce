@@ -173,4 +173,23 @@ class Market_VariantService extends BaseApplicationComponent
 
 		return true;
 	}
+
+	/**
+	 * Update Stock count from completed order
+	 * @param Event $event
+	 */
+	public function orderCompleteHandler(Event $event) {
+		/** @var Market_OrderModel $order */
+		$order = $event->params['order'];
+
+		foreach ($order->lineItems as $lineItem){
+			/** @var Market_VariantRecord $record */
+			$record = Market_VariantRecord::model()->findByAttributes(['id' => $lineItem->variantId]);
+			if (!$record->unlimitedStock){
+				$record->stock = $record->stock - $lineItem->qty;
+				$record->save(false);
+			}
+		}
+	}
+
 }
