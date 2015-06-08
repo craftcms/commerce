@@ -1,2 +1,2 @@
 # TeamCity builder
-php $1 --build=$2 --track=$3 --version=$4
+php $1 --build=$2 --track=$3
