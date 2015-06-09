@@ -24,10 +24,11 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property Market_ProductModel $product
  * @package Craft
  */
-class Market_VariantModel extends BaseModel
+class Market_VariantModel extends BaseElementModel
 {
 	use Market_ModelRelationsTrait;
 
+	protected $elementType = 'Market_Variant';
 	public $salePrice;
 
 	public function isLocalized()
@@ -85,6 +86,18 @@ class Market_VariantModel extends BaseModel
 	public function getOnSale()
 	{
 		return is_null($this->salePrice) ? false : ($this->salePrice != $this->price);
+	}
+
+	/**
+	 * @return FieldLayoutModel|null
+	 */
+	public function getFieldLayout()
+	{
+		if ($this->productId) {
+			return craft()->market_product->getById($this->productId)->getFieldLayout();
+		}
+
+		return NULL;
 	}
 
 	protected function defineAttributes()
