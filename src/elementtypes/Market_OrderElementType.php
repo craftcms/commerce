@@ -44,6 +44,13 @@ class Market_OrderElementType extends Market_BaseElementType
 				'criteria' => ['typeId' => $orderType->id]
 			];
 
+			$key = 'orderType:' . $orderType->id . ':completedAt:null';
+
+			$sources[$key] = [
+				'label'    => Craft::t('Incomplete'),
+				'criteria' => ['typeId' => $orderType->id, 'completedAt' => ":empty:"]
+			];
+
 			foreach ($orderType->orderStatuses as $status){
 				$key = 'orderType:' . $orderType->id . ':orderStatus:' . $status->id;
 				$sources[$key] = [
@@ -96,7 +103,9 @@ class Market_OrderElementType extends Market_BaseElementType
 	{
 		return [
 			'number'     => Craft::t('Number'),
+			'completedAt'     => Craft::t('Completed At'),
 			'finalPrice' => Craft::t('Total Payable'),
+			'orderStatusId' => Craft::t('Order Status'),
 		];
 	}
 
@@ -107,6 +116,7 @@ class Market_OrderElementType extends Market_BaseElementType
 			'typeId' => AttributeType::Mixed,
 			'type'   => AttributeType::Mixed,
 			'number' => AttributeType::Mixed,
+			'completedAt'  => AttributeType::Mixed,
 			'orderStatus'  => AttributeType::Mixed,
 			'orderStatusId'  => AttributeType::Mixed,
 		];
@@ -135,6 +145,10 @@ class Market_OrderElementType extends Market_BaseElementType
 
 		if ($criteria->number) {
 			$query->andWhere(DbHelper::parseParam('orders.number', $criteria->number, $query->params));
+		}
+
+		if ($criteria->completedAt) {
+			$query->andWhere(DbHelper::parseParam('orders.completedAt', $criteria->completedAt, $query->params));
 		}
 
 		if ($criteria->orderStatus) {
