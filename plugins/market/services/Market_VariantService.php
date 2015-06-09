@@ -2,6 +2,8 @@
 
 namespace Craft;
 
+use Market\Helpers\MarketDbHelper;
+
 class Market_VariantService extends BaseApplicationComponent
 {
 	/**
@@ -136,14 +138,24 @@ class Market_VariantService extends BaseApplicationComponent
 		$record->validate();
 		$model->addErrors($record->getErrors());
 
-		if (!$model->hasErrors()) {
-			$record->save(false);
-			$model->id = $record->id;
-
-			return true;
-		} else {
-			return false;
+		MarketDbHelper::beginStackedTransaction();
+		try {
+			if (!$model->hasErrors()) {
+				if (craft()->elements->saveElement($model)) {
+					$record->id = $model->id;
+					$record->save(false);
+					MarketDbHelper::commitStackedTransaction();
+					return true;
+				}
+			}
+		} catch (\Exception $e) {
+			MarketDbHelper::rollbackStackedTransaction();
+			throw $e;
 		}
+
+		MarketDbHelper::rollbackStackedTransaction();
+
+		return false;
 	}
 
 	/**

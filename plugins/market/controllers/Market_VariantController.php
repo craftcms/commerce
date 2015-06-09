@@ -73,6 +73,7 @@ class Market_VariantController extends Market_BaseController
 
 		$variant = new Market_VariantModel();
 
+		$variant->setContentFromPost('fields');
 		// Shared attributes
 		$params = ['id', 'productId', 'sku', 'price', 'width', 'height', 'length', 'weight', 'stock', 'unlimitedStock', 'minQty'];
 		foreach ($params as $param) {
