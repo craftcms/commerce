@@ -149,13 +149,17 @@ class Market_OrderService extends BaseApplicationComponent
 		if (!$order->shippingMethodId){
 			$type = craft()->market_orderType->getById($order->typeId);
 			$method = craft()->market_shippingMethod->getById($type->shippingMethodId);
-			$order->shippingMethodId = $method->id;
+			if($method){
+				$order->shippingMethodId = $method->id;
+			}
 		}
 
 		// Set default payment method
 		if (!$order->paymentMethodId){
 			$methods = craft()->market_paymentMethod->getAllForFrontend();
-			$order->paymentMethodId = $methods[0]->id;
+			if($methods){
+				$order->paymentMethodId = $methods[0]->id;	
+			}
 		}
 
 		$this->calculateAdjustments($order);
