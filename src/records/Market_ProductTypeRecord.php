@@ -10,7 +10,7 @@ namespace Craft;
  * @property bool              hasUrls
  * @property string            template
  * @property string            urlFormat
- * @property int               fieldLayoutId
+ * @property int               productFieldLayoutId
  *
  * @property FieldLayoutRecord fieldLayout
  * @package Craft
@@ -41,7 +41,7 @@ class Market_ProductTypeRecord extends BaseRecord
 	public function defineRelations()
 	{
 		return [
-			'fieldLayout' => [static::BELONGS_TO, 'FieldLayoutRecord', 'onDelete' => static::SET_NULL],
+			'productFieldLayout' => [static::BELONGS_TO, 'FieldLayoutRecord', 'onDelete' => static::SET_NULL],
 		];
 	}
 
