@@ -85,18 +85,18 @@ class Market_ProductTypeService extends BaseApplicationComponent
 		if (!$productType->hasErrors()) {
 			$transaction = craft()->db->getCurrentTransaction() === NULL ? craft()->db->beginTransaction() : NULL;
 			try {
-				if (!$isNewProductType && $oldProductType->productFieldLayoutId) {
+				if (!$isNewProductType && $oldProductType->fieldLayoutId) {
 					// Drop the old field layout
-					craft()->fields->deleteLayoutById($oldProductType->productFieldLayoutId);
+					craft()->fields->deleteLayoutById($oldProductType->fieldLayoutId);
 				}
 
 				// Save the new one
-				$productFieldLayout = $productType->productFieldLayout;
-				craft()->fields->saveLayout($productFieldLayout);
+				$fieldLayout = $productType->getFieldLayout();
+				craft()->fields->saveLayout($fieldLayout);
 
 				// Update the calendar record/model with the new layout ID
-				$productType->productFieldLayoutId       = $productFieldLayout->id;
-				$productTypeRecord->productFieldLayoutId = $productFieldLayout->id;
+				$productType->fieldLayoutId       = $fieldLayout->id;
+				$productTypeRecord->fieldLayoutId = $fieldLayout->id;
 
 				// Save it!
 				$productTypeRecord->save(false);
@@ -159,7 +159,7 @@ class Market_ProductTypeService extends BaseApplicationComponent
 			$productIds = $query->queryColumn();
 
 			craft()->elements->deleteElementById($productIds);
-			craft()->fields->deleteLayoutById($productType->productFieldLayoutId);
+			craft()->fields->deleteLayoutById($productType->fieldLayoutId);
 
 			$affectedRows = $productType->delete();
 

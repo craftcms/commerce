@@ -12,7 +12,7 @@ namespace Craft;
  * @property bool   $hasUrls
  * @property string $template
  * @property string $urlFormat
- * @property int    $productFieldLayoutId
+ * @property int    $fieldLayoutId
  * @package Craft
  *
  * @method null setFieldLayout(FieldLayoutModel $fieldLayout)

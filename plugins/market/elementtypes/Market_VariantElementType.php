@@ -13,7 +13,7 @@ class Market_VariantElementType extends Market_BaseElementType
 
 	public function hasContent()
 	{
-		return true;
+		return false;
 	}
 
 	public function hasTitles()
@@ -58,7 +58,8 @@ class Market_VariantElementType extends Market_BaseElementType
 
 	public function defineSearchableAttributes()
 	{
-		return ['sku'];
+		return ['sku', 'price', 'width', 'height', 'length', 'weight', 'stock', 'unlimitedStock', 'minQty'];
+
 	}
 
 
@@ -71,7 +72,15 @@ class Market_VariantElementType extends Market_BaseElementType
 	public function defineSortableAttributes()
 	{
 		return [
-			'sku'       => Craft::t('SKU')
+			'sku'            => Craft::t('SKU'),
+			'price'          => Craft::t('Price'),
+			'width'          => Craft::t('Width'),
+			'height'         => Craft::t('Height'),
+			'length'         => Craft::t('Length'),
+			'weight'         => Craft::t('Weight'),
+			'stock'          => Craft::t('Stock'),
+			'unlimitedStock' => Craft::t('Unlimited Stock'),
+			'minQty'         => Craft::t('Min Qty')
 		];
 	}
 
@@ -79,7 +88,17 @@ class Market_VariantElementType extends Market_BaseElementType
 	public function defineCriteriaAttributes()
 	{
 		return [
-			'sku'      =>  AttributeType::Mixed
+			'sku'            => AttributeType::Mixed,
+			'product'        => AttributeType::Mixed,
+			'productId'        => AttributeType::Mixed,
+//			'price'          => AttrbuteType::Mixed,
+//			'width'          => AttrbuteType::Mixed,
+//			'height'         => AttrbuteType::Mixed,
+//			'length'         => AttrbuteType::Mixed,
+//			'weight'         => AttrbuteType::Mixed,
+//			'stock'          => AttrbuteType::Mixed,
+//			'unlimitedStock' => AttrbuteType::Mixed,
+//			'minQty'         => AttrbuteType::Mixed
 		];
 	}
 
@@ -90,7 +109,20 @@ class Market_VariantElementType extends Market_BaseElementType
 			->join('market_variants variants', 'variants.id = elements.id');
 
 		if ($criteria->sku) {
-			$query->andWhere(DbHelper::parseDateParam('variants.sku', $criteria->sku, $query->params));
+			$query->andWhere(DbHelper::parseParam('variants.sku', $criteria->sku, $query->params));
+		}
+
+		if ($criteria->product) {
+			if ($criteria->product instanceof Market_ProductModel) {
+				$criteria->productId = $criteria->product->id;
+				$criteria->product   = NULL;
+			}else{
+				$query->andWhere(DbHelper::parseParam('variants.productId', $criteria->product, $query->params));
+			}
+		}
+
+		if ($criteria->productId) {
+			$query->andWhere(DbHelper::parseParam('variants.productId', $criteria->productId, $query->params));
 		}
 
 	}

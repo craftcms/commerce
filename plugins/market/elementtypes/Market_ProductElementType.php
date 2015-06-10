@@ -55,7 +55,6 @@ class Market_ProductElementType extends Market_BaseElementType
 	{
 		return [
 			'title'       => Craft::t('Name'),
-			'type'        => Craft::t('Product Type'),
 			'variants'    => Craft::t('Variants'),
 			'availableOn' => Craft::t('Available On'),
 			'expiresOn'   => Craft::t('Expires On')
@@ -70,10 +69,6 @@ class Market_ProductElementType extends Market_BaseElementType
 
 	public function getTableAttributeHtml(BaseElementModel $element, $attribute)
 	{
-		if ($attribute == 'type') {
-			return "<a href='" . $element->type->cpEditUrl . "'>" . $element->type->name . "</a>";
-		}
-
 		if ($attribute == 'variants') {
 			$variants = $element->variants;
 			$html     = "<select><option selected='selected'>Edit Variant...</option>";
