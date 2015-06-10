@@ -115,7 +115,7 @@ class Market_ProductModel extends BaseElementModel
 	public function getFieldLayout()
 	{
 		if ($this->typeId) {
-			return craft()->market_productType->getById($this->typeId)->getFieldLayout();
+			return craft()->market_productType->getById($this->typeId)->getProductFieldLayout();
 		}
 
 		return NULL;

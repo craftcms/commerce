@@ -12,14 +12,15 @@ namespace Craft;
  * @property bool   $hasUrls
  * @property string $template
  * @property string $urlFormat
- * @property int    $fieldLayoutId
+ * @property int    $productFieldLayoutId
  * @package Craft
  *
  * @method null setFieldLayout(FieldLayoutModel $fieldLayout)
- * @method FieldLayoutModel getFieldLayout()
+ * @method FieldLayoutModel getProductFieldLayout()
  */
 class Market_ProductTypeModel extends BaseModel
 {
+
 	function __toString()
 	{
 		return Craft::t($this->handle);
@@ -33,20 +34,20 @@ class Market_ProductTypeModel extends BaseModel
 	public function behaviors()
 	{
 		return [
-			'fieldLayout' => new FieldLayoutBehavior('Market_Product'),
+			'productFieldLayout' => new FieldLayoutBehavior('Market_Product'),
 		];
 	}
 
 	protected function defineAttributes()
 	{
 		return [
-			'id'            => AttributeType::Number,
-			'name'          => AttributeType::String,
-			'handle'        => AttributeType::String,
-			'hasUrls'       => AttributeType::Bool,
-			'urlFormat'     => AttributeType::UrlFormat,
-			'template'      => AttributeType::Template,
-			'fieldLayoutId' => AttributeType::Number
+			'id'                   => AttributeType::Number,
+			'name'                 => AttributeType::String,
+			'handle'               => AttributeType::String,
+			'hasUrls'              => AttributeType::Bool,
+			'urlFormat'            => AttributeType::UrlFormat,
+			'template'             => AttributeType::Template,
+			'productFieldLayoutId' => AttributeType::Number,
 		];
 	}
 
