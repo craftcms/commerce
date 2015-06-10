@@ -189,20 +189,6 @@
 
                     <div class="pane">
 
-                        {% set optionTypeFields %}
-                        <select class="optionTypeSelect" multiple name="optionTypes[]">
-                            {% for optionType in craft.market.optiontypes %}
-                                <option value="{{ optionType.id }}"
-                                        {% if optionType.id in product.optionTypesIds %}selected{% endif %}>{{ optionType.name }}</option>
-                            {% endfor %}
-                        </select>
-                        {% endset %}
-
-                        {{ forms.field({
-                            id:       'optionTypes',
-                            label:    'Option Types'
-                        }, optionTypeFields) }}
-
                         {% if productId is defined %}
                         <table class="data fullwidth">
                             <thead>
@@ -220,7 +206,6 @@
                                         <a class="formsubmit"
                                            data-redirect="{{ variant.cpEditUrl }}">{{ variant.sku }}</a>
                                         <br/>Price: {{ variant.price }}
-                                        <br/>{% if variant.optionsText %}Options: {{ variant.optionsText }}{% endif %}
                                     </td>
                                     <td class="thin">
                                         <a class="delete icon formsubmit" role="button" value="{{ 'Delete'|t }}"
@@ -294,13 +279,6 @@
 
 
     </form>
-
-    {% set js %}
-    $(function() {
-        $('select.optionTypeSelect').selectize({dropdownParent: 'body'});
-    });
-    {% endset %}
-    {% includeJs js %}
 
 
     {% if not product.slug %}

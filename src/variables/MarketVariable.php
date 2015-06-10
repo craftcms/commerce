@@ -33,12 +33,6 @@ class MarketVariable
 		return craft()->elements->getCriteria('Market_Order', $criteria);
 	}
 
-
-	public function optionTypes()
-	{
-		return craft()->market_optionType->getAll();
-	}
-
     /**
      * Gets the current sessions cart
      * @param string $orderTypeHandle

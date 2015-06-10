@@ -11,8 +11,6 @@
 
             <li><a href="{{ url('market/settings/producttypes') }}"{% if craft.request.segment(3) == 'producttypes' %} class="sel"{% endif %}>{{ "Product Types"|t }}</a></li>
 
-            <li><a href="{{ url('market/settings/optiontypes') }}"{% if craft.request.segment(3) == 'optiontypes' %} class="sel"{% endif %}>{{ "Option Types"|t }}</a></li>
-
             <li><a href="{{ url('market/settings/paymentmethods') }}"{% if craft.request.segment(3) == 'paymentmethods' %} class="sel"{% endif %}>{{ "Payment Methods"|t }}</a></li>
 
             <li><a href="{{ url('market/settings/taxrates') }}"{% if craft.request.segment(3) == 'taxrates' %} class="sel"{% endif %}>{{ "Tax Rates"|t }}</a></li>

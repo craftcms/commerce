@@ -123,7 +123,6 @@ class Market_ProductController extends Market_BaseController
 
 		$product = $this->_setProductFromPost();
 		$masterVariant = $this->_setMasterVariantFromPost($product);
-		$optionTypes   = craft()->request->getPost('optionTypes');
 
 		MarketDbHelper::beginStackedTransaction();
 
@@ -131,7 +130,7 @@ class Market_ProductController extends Market_BaseController
 			$masterVariant->productId = $product->id;
 
 			if (craft()->market_variant->save($masterVariant)) {
-				craft()->market_product->setOptionTypes($product->id, $optionTypes);
+
 				MarketDbHelper::commitStackedTransaction();
 
 				craft()->userSession->setNotice(Craft::t('Product saved.'));

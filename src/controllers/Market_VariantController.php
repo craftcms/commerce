@@ -52,7 +52,6 @@ class Market_VariantController extends Market_BaseController
 				$variables['variant']->minQty         = $variables['product']->master->minQty;
 			};
 
-			$variables['optionValues'] = $variables['variant']->getOptionValuesArray(true);
 		}
 
 		if (!empty($variables['variant']->id)) {
@@ -73,21 +72,14 @@ class Market_VariantController extends Market_BaseController
 
 		$variant = new Market_VariantModel();
 
-		$variant->setContentFromPost('fields');
 		// Shared attributes
 		$params = ['id', 'productId', 'sku', 'price', 'width', 'height', 'length', 'weight', 'stock', 'unlimitedStock', 'minQty'];
 		foreach ($params as $param) {
 			$variant->$param = craft()->request->getPost($param);
 		}
 
-		$optionValues = craft()->request->getPost('optionValues', []);
-
 		// Save it
 		if (craft()->market_variant->save($variant)) {
-			$optionValuesFiltered = array_filter($optionValues);
-			if ($optionValuesFiltered) {
-				craft()->market_variant->setOptionValues($variant->id, $optionValuesFiltered);
-			}
 
 			craft()->userSession->setNotice(Craft::t('Variant saved.'));
 			$this->redirectToPostedUrl($variant);
@@ -97,8 +89,7 @@ class Market_VariantController extends Market_BaseController
 
 		// Send the model back to the template
 		craft()->urlManager->setRouteVariables([
-			'variant'      => $variant,
-			'optionValues' => $optionValues,
+			'variant'      => $variant
 		]);
 	}
 

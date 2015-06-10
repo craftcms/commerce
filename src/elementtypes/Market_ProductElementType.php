@@ -81,7 +81,7 @@ class Market_ProductElementType extends Market_BaseElementType
 				if ($variant->isMaster){
 					return "<span style='color:#E4E9F7'>None</span>";
 				}
-				$html .= "<option data-link='".$variant->cpEditUrl."'>" . $variant->sku." ".$variant->optionsText . "</option>";
+				$html .= "<option data-link='".$variant->cpEditUrl."'>" . $variant->sku. "</option>";
 			}
 			$html .= "</select>";
 			return $html;

@@ -19,7 +19,6 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property Market_ProductTypeModel  type
  * @property Market_TaxCategoryModel  taxCategory
  * @property Market_VariantModel[]    allVariants
- * @property Market_OptionTypeModel[] optionTypes
  * @property Market_VariantModel      $master
  *
  * Magic properties:
@@ -115,7 +114,7 @@ class Market_ProductModel extends BaseElementModel
 	public function getFieldLayout()
 	{
 		if ($this->typeId) {
-			return craft()->market_productType->getById($this->typeId)->getProductFieldLayout();
+			return craft()->market_productType->getById($this->typeId)->getFieldLayout();
 		}
 
 		return NULL;
@@ -176,21 +175,6 @@ class Market_ProductModel extends BaseElementModel
 			return !$v->isMaster;
 		});
 	}
-
-	/**
-	 * @return int[]
-	 */
-	public function getOptionTypesIds()
-	{
-		if (!$this->id) {
-			return [];
-		}
-
-		return array_map(function ($optionType) {
-			return $optionType->id;
-		}, $this->optionTypes);
-	}
-
 
 	// Protected Methods
 	// =============================================================================

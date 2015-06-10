@@ -22,18 +22,7 @@ class Market_VariantService extends BaseApplicationComponent
 	 */
 	public function deleteById($id)
 	{
-		$this->unsetOptionValues($id);
 		Market_VariantRecord::model()->deleteByPk($id);
-	}
-
-	/**
-	 * Delete all variant-optionValue relations by variant id
-	 *
-	 * @param int $id
-	 */
-	public function unsetOptionValues($id)
-	{
-		Market_VariantOptionValueRecord::model()->deleteAllByAttributes(['variantId' => $id]);
 	}
 
 	/**
@@ -156,34 +145,6 @@ class Market_VariantService extends BaseApplicationComponent
 		MarketDbHelper::rollbackStackedTransaction();
 
 		return false;
-	}
-
-	/**
-	 * Set option values to a variant
-	 *
-	 * @param int   $variantId
-	 * @param int[] $optionValueIds
-	 *
-	 * @return bool
-	 */
-	public function setOptionValues($variantId, $optionValueIds)
-	{
-		$this->unsetOptionValues($variantId);
-
-		if ($optionValueIds) {
-			if (!is_array($optionValueIds)) {
-				$optionValueIds = [$optionValueIds];
-			}
-
-			$values = [];
-			foreach ($optionValueIds as $optionValueId) {
-				$values[] = [$optionValueId, $variantId];
-			}
-
-			craft()->db->createCommand()->insertAll('market_variant_optionvalues', ['optionValueId', 'variantId'], $values);
-		}
-
-		return true;
 	}
 
 	/**

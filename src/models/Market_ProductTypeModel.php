@@ -16,7 +16,7 @@ namespace Craft;
  * @package Craft
  *
  * @method null setFieldLayout(FieldLayoutModel $fieldLayout)
- * @method FieldLayoutModel getProductFieldLayout()
+ * @method FieldLayoutModel getFieldLayout()
  */
 class Market_ProductTypeModel extends BaseModel
 {
@@ -34,20 +34,21 @@ class Market_ProductTypeModel extends BaseModel
 	public function behaviors()
 	{
 		return [
-			'productFieldLayout' => new FieldLayoutBehavior('Market_Product'),
+			'fieldLayout' => new FieldLayoutBehavior('Market_Product'),
 		];
 	}
 
 	protected function defineAttributes()
 	{
 		return [
-			'id'                   => AttributeType::Number,
-			'name'                 => AttributeType::String,
-			'handle'               => AttributeType::String,
-			'hasUrls'              => AttributeType::Bool,
-			'urlFormat'            => AttributeType::UrlFormat,
-			'template'             => AttributeType::Template,
-			'productFieldLayoutId' => AttributeType::Number,
+
+			'id'            => AttributeType::Number,
+			'name'          => AttributeType::String,
+			'handle'        => AttributeType::String,
+			'hasUrls'       => AttributeType::Bool,
+			'urlFormat'     => AttributeType::UrlFormat,
+			'template'      => AttributeType::Template,
+			'fieldLayoutId' => AttributeType::Number,
 		];
 	}
 

@@ -47,40 +47,6 @@ class Market_VariantModel extends BaseElementModel
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getOptionsText()
-	{
-		$optionValues = [];
-		$values       = $this->getOptionValuesArray();
-		foreach ($values as $key => $value) {
-			$optionValues[] = "$key: $value";
-		}
-
-		return join(" ", $optionValues);
-	}
-
-	/**
-	 * @param bool $idKeys Whether key and values in result should be
-	 *                     identifiers
-	 *
-	 * @return array
-	 */
-	public function getOptionValuesArray($idKeys = false)
-	{
-		$optionValues = craft()->market_optionValue->getAllByVariantId($this->id);
-
-		$result = [];
-
-		foreach ($optionValues as $value) {
-			$key          = $idKeys ? $value->optionType->id : $value->optionType->name;
-			$result[$key] = $idKeys ? $value->id : $value->displayName;
-		}
-
-		return $result;
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function getOnSale()

@@ -37,10 +37,6 @@ return [
 	'market/settings/producttypes/(?P<productTypeId>\d+)'                                     => ['action' => 'market/productType/editProductType'],
 	'market/settings/producttypes/new'                                                        => ['action' => 'market/productType/editProductType'],
 
-	'market/settings/optiontypes'                                                             => ['action' => 'market/optionType/index'],
-	'market/settings/optiontypes/(?P<optionTypeId>\d+)'                                       => ['action' => 'market/optionType/editOptionType'],
-	'market/settings/optiontypes/new'                                                         => ['action' => 'market/optionType/editOptionType'],
-
 	// Order Routes
 	'market/orders'                                                                           => ['action' => 'market/order/orderIndex'],
 	'market/orders/(?P<orderTypeHandle>{handle})/new'                                         => ['action' => 'market/order/editOrder'],
