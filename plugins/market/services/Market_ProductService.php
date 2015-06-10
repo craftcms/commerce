@@ -88,41 +88,4 @@ class Market_ProductService extends BaseApplicationComponent
 		}
 	}
 
-	/**
-	 * @param int $productId
-	 *
-	 * @return Market_OptionTypeModel[]
-	 */
-	public function getOptionTypes($productId)
-	{
-		$product = Market_ProductRecord::model()->with('optionTypes')->findById($productId);
-
-		return Market_OptionTypeModel::populateModels($product->optionTypes);
-	}
-
-	/**
-	 * Set option types to a product
-	 *
-	 * @param int   $productId
-	 * @param int[] $optionTypeIds
-	 *
-	 * @return bool
-	 */
-	public function setOptionTypes($productId, $optionTypeIds)
-	{
-		craft()->db->createCommand()->delete('market_product_optiontypes', ['productId' => $productId]);
-
-		if ($optionTypeIds) {
-			if (!is_array($optionTypeIds)) {
-				$optionTypeIds = [$optionTypeIds];
-			}
-
-			$values = [];
-			foreach ($optionTypeIds as $optionTypeId) {
-				$values[] = [$optionTypeId, $productId];
-			}
-
-			craft()->db->createCommand()->insertAll('market_product_optiontypes', ['optionTypeId', 'productId'], $values);
-		}
-	}
 }

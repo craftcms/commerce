@@ -82,7 +82,6 @@ class Market_LineItemModel extends BaseModel
 		$this->taxCategoryId = $variant->product->taxCategoryId;
 
 		$options                 = $variant->attributes;
-		$options['optionValues'] = $variant->getOptionValuesArray();
 		$this->optionsJson       = $options;
 
 		$sales = craft()->market_sale->getForVariant($variant);

@@ -188,7 +188,6 @@ class Market_OrderTypeService extends BaseApplicationComponent
 
 			craft()->elements->deleteElementById($orderIds);
 			craft()->fields->deleteLayoutById($orderType->fieldLayoutId);
-			Market_OptionValueRecord::model()->deleteAllByAttributes(['optionTypeId' => $orderType->id]);
 
 			$affectedRows = $orderType->delete();
 

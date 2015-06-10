@@ -17,7 +17,6 @@
 
     {% set variantForm %}
 
-    {% include "_includes/tabs" %}
 
     <table id="" class="shadow-box editable">
         <thead>
@@ -85,26 +84,6 @@
         label:    'Variant'
     }, variantForm) }}
 
-    {% for optionType in product.optionTypes %}
-        {{ forms.selectField({
-            label: optionType.name,
-            name: 'optionValues[' ~ optionType.id ~ ']',
-            value: optionValues[optionType.id] is defined ? optionValues[optionType.id] : '',
-            required: false,
-            options: optionType.selectValues,
-            class: 'select-wide',
-        }) }}
-    {% endfor %}
-
-    {% for tab in productType.getFieldLayout().getTabs() %}
-        <div id="tab{{ loop.index }}" {% if not loop.first %} class="hidden" {% endif %}>
-            {% include "_includes/fields" with {
-            fields: tab.getFields(),
-            element: product,
-            static: (static is defined ? static : false)
-            } only %}
-        </div>
-    {% endfor %}
 
     <div class="buttons">
         <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
