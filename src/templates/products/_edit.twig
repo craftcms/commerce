@@ -71,6 +71,8 @@
             <div class="item" data-position="left" data-min-colspan="2" data-max-colspan="3">
 
                 <div id="fields" class="pane">
+                    {% set tabs = tabs|merge({'variantsTab':{'label':'Variants','url':'#variantsTab'}}) %}
+
                     {% include "_includes/tabs" %}
 
                     {% from "_includes/forms" import textField %}
@@ -162,14 +164,6 @@
                         }, masterVariant) }}
                     {% endif %}
 
-                    {{ forms.selectField({
-                        label: 'Tax Category'|t,
-                        name: 'taxCategoryId',
-                        value: product.taxCategoryId,
-                        required: true,
-                        options: taxCategories
-                    }) }}
-
                     {% for tab in productType.getFieldLayout().getTabs() %}
                         <div id="tab{{ loop.index }}" {% if not loop.first %} class="hidden" {% endif %}>
                             {% include "_includes/fields" with {
@@ -180,47 +174,79 @@
                         </div>
                     {% endfor %}
 
+                    <div id="variantsTab" class="hidden">
+
+                        {% if productId is defined %}
+                            {% set elementTypeClass = 'Market_Variant' %}
+                            {% set elementType = craft.elements.getElementType(elementTypeClass) %}
+                            {% set context = 'index' %}
+
+                            {% if not elementType %}
+                                {% exit 404 %}
+                            {% endif %}
+
+                            {% set sources = elementType.getSources('index') %}
+
+                            <div class="content">
+                                <div class="sidebar hide">
+                                    <nav>
+                                        {% include "_elements/sources" %}
+                                    </nav>
+                                </div>
+
+                                {% include "_elements/indexcontainer" %}
+                            </div>
+
+                            {% set initJs %}
+                                Craft.elementIndex = Craft.createElementIndex('{{ elementTypeClass }}', $('#main'), {
+                                context:        '{{ context }}',
+                                showStatusMenu: {{ showStatusMenu is defined ? showStatusMenu|json_encode|raw : "'auto'" }},
+                                showLocaleMenu: {{ showLocaleMenu is defined ? showLocaleMenu|json_encode|raw : "'auto'" }},
+                                storageKey:     'elementindex.{{ elementTypeClass }}',
+                                criteria:       { productId: {{ productId }}, localeEnabled: null }
+                                });
+                            {% endset %}
+
+                            {% includeJs initJs %}
+
+                        {%  endif  %}
+
+                        {% if false %}
+                            <table class="data fullwidth">
+                                <thead>
+                                <tr>
+                                    <th scope="col" colspan="2">
+                                        Variants
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for variant in product.nonMasterVariants %}
+                                    <tr>
+                                        <td title="">
+                                            <a class="formsubmit"
+                                               data-redirect="{{ variant.cpEditUrl }}">{{ variant.sku }}</a>
+                                            <br/>Price: {{ variant.price }}
+                                        </td>
+                                        <td class="thin">
+                                            <a class="delete icon formsubmit" role="button" value="{{ 'Delete'|t }}"
+                                               data-action="market/variant/delete"
+                                               data-confirm="{{ 'Are you sure you want to delete this variant?'|t }}"
+                                               data-redirect="{{ product.cpEditUrl }}"
+                                               data-param="id"
+                                               data-value="{{ variant.id }}"></a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </table>
+                        {% endif %}
+                    </div>
+
 
                 </div>{# end pane#}
 
             </div>
             <div class="item" data-position="right" data-colspan="1">
-
-
-                    <div class="pane">
-
-                        {% if productId is defined %}
-                        <table class="data fullwidth">
-                            <thead>
-                            <tr>
-                                <th scope="col" colspan="2">
-                                    Variants
-
-                                </th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for variant in product.nonMasterVariants %}
-                                <tr>
-                                    <td title="">
-                                        <a class="formsubmit"
-                                           data-redirect="{{ variant.cpEditUrl }}">{{ variant.sku }}</a>
-                                        <br/>Price: {{ variant.price }}
-                                    </td>
-                                    <td class="thin">
-                                        <a class="delete icon formsubmit" role="button" value="{{ 'Delete'|t }}"
-                                           data-action="market/variant/delete"
-                                           data-confirm="{{ 'Are you sure you want to delete this variant?'|t }}"
-                                           data-redirect="{{ product.cpEditUrl }}"
-                                           data-param="id"
-                                           data-value="{{ variant.id }}"></a>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </table>
-                        {% endif %}
-                    </div>
-
 
                 <div class="pane">
                     {{ forms.textField({
@@ -230,6 +256,14 @@
                         name: 'slug',
                         value: product.slug,
                         errors: product.getErrors('slug')|merge(product.getErrors('uri'))
+                    }) }}
+
+                    {{ forms.selectField({
+                        label: 'Tax Category'|t,
+                        name: 'taxCategoryId',
+                        value: product.taxCategoryId,
+                        required: true,
+                        options: taxCategories
                     }) }}
 
                     {{ dateTimeField(product, 'availableOn', "Available On"|t) }}
@@ -286,3 +320,5 @@
     {% endif %}
 
 {% endblock %}
+
+
