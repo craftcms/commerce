@@ -42,6 +42,7 @@ class Market_ProductTypeRecord extends BaseRecord
 	{
 		return [
 			'fieldLayout' => [static::BELONGS_TO, 'FieldLayoutRecord', 'onDelete' => static::SET_NULL],
+			'variantFieldLayout' => [static::BELONGS_TO, 'FieldLayoutRecord', 'onDelete' => static::SET_NULL],
 		];
 	}
 

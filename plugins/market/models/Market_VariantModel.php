@@ -3,7 +3,7 @@
 namespace Craft;
 
 use Market\Traits\Market_ModelRelationsTrait;
-
+use Market\Interfaces\Purchasable;
 /**
  * Class Market_VariantModel
  *
@@ -24,7 +24,8 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property Market_ProductModel $product
  * @package Craft
  */
-class Market_VariantModel extends BaseElementModel
+
+class Market_VariantModel extends BaseElementModel implements Purchasable
 {
 	use Market_ModelRelationsTrait;
 
@@ -84,4 +85,37 @@ class Market_VariantModel extends BaseElementModel
 			'deletedAt'      => [AttributeType::DateTime]
 		]);
 	}
+
+	public function getPurchasablePrice()
+	{
+		return $this->price;
+	}
+
+	public function getPurchasableSku()
+	{
+		return $this->sku;
+	}
+
+	public function getPurchasableDescription()
+	{
+		return $this->sku;
+	}
+
+
+	// events
+
+	public function onAddToOrder(Market_OrderModel $order){
+		return true;
+	}
+
+	public function onRemoveFromOrder(Market_OrderModel $order)
+	{
+		return true;
+	}
+
+	public function onOrderCompleted(Market_OrderModel $order)
+	{
+		return true;
+	}
+	
 }

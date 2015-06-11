@@ -48,7 +48,7 @@ class Market_TestSeeder implements Market_SeederInterface
 		$productType->urlFormat = 'market/products/{slug}';
 
 		$fieldLayout = FieldLayoutModel::populateModel(['type' => 'Market_Product']);
-		$productType->setFieldLayout($fieldLayout);
+		$productType->asa('productFieldLayout')->setFieldLayout($fieldLayout);
 		\Craft\craft()->market_productType->save($productType);
 	}
 

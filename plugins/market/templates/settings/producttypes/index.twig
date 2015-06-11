@@ -13,6 +13,7 @@
         <tr>
             <th scope="col">Name</th>
             <th scope="col">Handle</th>
+            <th scope="col">Variant Fields</th>
             <td class="thin"></td>
         </tr>
         </thead>
@@ -23,6 +24,7 @@
                             href="{{ url('market/settings/producttypes/'~productType.id) }}">{{ productType.name }}</a>
                 </th>
                 <td data-title="Handle"><code>{{ productType.handle }}</code></td>
+                <td data-title="Handle"><a href="{{ productType.cpEditVariantUrl() }}">Field Layout</a></td>
                 <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
             </tr>
         {% endfor %}

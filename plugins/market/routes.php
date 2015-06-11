@@ -35,6 +35,7 @@ return [
 
 	'market/settings/producttypes'                                                            => ['action' => 'market/productType/index'],
 	'market/settings/producttypes/(?P<productTypeId>\d+)'                                     => ['action' => 'market/productType/editProductType'],
+	'market/settings/producttypes/(?P<productTypeId>\d+)/variant'                            => ['action' => 'market/productType/editVariantFieldLayout'],
 	'market/settings/producttypes/new'                                                        => ['action' => 'market/productType/editProductType'],
 
 	// Order Routes
