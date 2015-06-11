@@ -13,7 +13,7 @@ class Market_VariantElementType extends Market_BaseElementType
 
 	public function hasContent()
 	{
-		return false;
+		return true;
 	}
 
 	public function hasTitles()
@@ -137,4 +137,4 @@ class Market_VariantElementType extends Market_BaseElementType
 		craft()->market_variant->save($element);
 	}
 
-} 
+}

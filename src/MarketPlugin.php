@@ -42,7 +42,7 @@ class MarketPlugin extends BasePlugin
 
 	public function getVersion()
 	{
-		return '0.60.9999';
+		return '0.61.9999';
 	}
 
 	public function getDeveloper()
@@ -79,7 +79,7 @@ class MarketPlugin extends BasePlugin
 	{
 		if (craft()->userSession->isAdmin())
 		{
-			$nav['market'] = array('label' => 'Market', 'url' => 'market');
+			$nav['market'] = ['label' => 'Market', 'url' => 'market'];
 		}
 	}
 

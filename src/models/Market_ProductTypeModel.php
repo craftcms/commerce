@@ -31,10 +31,16 @@ class Market_ProductTypeModel extends BaseModel
 		return UrlHelper::getCpUrl('market/settings/producttypes/' . $this->id);
 	}
 
+	public function getCpEditVariantUrl()
+	{
+		return UrlHelper::getCpUrl('market/settings/producttypes/' . $this->id . '/variant');
+	}
+
 	public function behaviors()
 	{
 		return [
-			'fieldLayout' => new FieldLayoutBehavior('Market_Product'),
+			'productFieldLayout' => new FieldLayoutBehavior('Market_Product', 'fieldLayoutId'),
+			'variantFieldLayout' => new FieldLayoutBehavior('Market_Variant', 'variantFieldLayoutId'),
 		];
 	}
 
@@ -42,13 +48,14 @@ class Market_ProductTypeModel extends BaseModel
 	{
 		return [
 
-			'id'            => AttributeType::Number,
-			'name'          => AttributeType::String,
-			'handle'        => AttributeType::String,
-			'hasUrls'       => AttributeType::Bool,
-			'urlFormat'     => AttributeType::UrlFormat,
-			'template'      => AttributeType::Template,
-			'fieldLayoutId' => AttributeType::Number,
+			'id'                   => AttributeType::Number,
+			'name'                 => AttributeType::String,
+			'handle'               => AttributeType::String,
+			'hasUrls'              => AttributeType::Bool,
+			'urlFormat'            => AttributeType::UrlFormat,
+			'template'             => AttributeType::Template,
+			'fieldLayoutId'        => AttributeType::Number,
+			'variantFieldLayoutId' => AttributeType::Number,
 		];
 	}
 

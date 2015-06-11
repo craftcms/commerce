@@ -54,6 +54,9 @@ class Market_VariantController extends Market_BaseController
 
 		}
 
+		$variables['productType'] = craft()->market_productType->getByHandle($variables['productTypeHandle']);
+		$this->prepVariables($variables);
+
 		if (!empty($variables['variant']->id)) {
 			$variables['title'] = Craft::t('Variant for {product}', ['product' => $variables['product']]);
 		} else {
@@ -77,6 +80,8 @@ class Market_VariantController extends Market_BaseController
 		foreach ($params as $param) {
 			$variant->$param = craft()->request->getPost($param);
 		}
+
+		$variant->setContentFromPost('fields');
 
 		// Save it
 		if (craft()->market_variant->save($variant)) {
@@ -106,4 +111,32 @@ class Market_VariantController extends Market_BaseController
 		$this->redirectToPostedUrl();
 	}
 
+	/**
+	 * Modifies the variables of the request.
+	 *
+	 * @param $variables
+	 */
+	private function prepVariables(&$variables)
+	{
+		$variables['tabs'] = [];
+
+		foreach ($variables['productType']->asa('variantFieldLayout')->getFieldLayout()->getTabs() as $index => $tab) {
+			// Do any of the fields on this tab have errors?
+			$hasErrors = false;
+			if ($variables['variant']->hasErrors()) {
+				foreach ($tab->getFields() as $field) {
+					if ($variables['variant']->getErrors($field->getField()->handle)) {
+						$hasErrors = true;
+						break;
+					}
+				}
+			}
+
+			$variables['tabs'][] = [
+				'label' => Craft::t($tab->name),
+				'url'   => '#tab' . ($index + 1),
+				'class' => ($hasErrors ? 'error' : NULL)
+			];
+		}
+	}
 }

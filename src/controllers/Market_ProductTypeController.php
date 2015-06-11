@@ -66,7 +66,7 @@ class Market_ProductTypeController extends Market_BaseController
 		// Set the field layout
 		$fieldLayout       = craft()->fields->assembleLayoutFromPost();
 		$fieldLayout->type = 'Market_Product';
-		$productType->setFieldLayout($fieldLayout);
+		$productType->asa('productFieldLayout')->setFieldLayout($fieldLayout);
 
 		// Save it
 		if (craft()->market_productType->save($productType)) {
@@ -76,7 +76,7 @@ class Market_ProductTypeController extends Market_BaseController
 			craft()->userSession->setError(Craft::t('Couldn’t save product type.'));
 		}
 
-		// Send the calendar back to the template
+		// Send the productType back to the template
 		craft()->urlManager->setRouteVariables([
 			'productType' => $productType
 		]);
@@ -92,6 +92,30 @@ class Market_ProductTypeController extends Market_BaseController
 
 		craft()->market_productType->deleteById($productTypeId);
 		$this->returnJson(['success' => true]);
+	}
+
+	public function actionSaveVariantFieldLayout()
+	{
+		$id = craft()->request->getRequiredPost('productTypeId');
+		$productType = craft()->market_productType->getById($id);
+
+		// Set the field layout
+		$fieldLayout       = craft()->fields->assembleLayoutFromPost();
+		$fieldLayout->type = 'Market_Variant';
+		$productType->asa('variantFieldLayout')->setFieldLayout($fieldLayout);
+		// Save it
+		if (craft()->market_productType->saveVariantFieldLayout($productType)) {
+			craft()->userSession->setNotice(Craft::t('Variant Field Layout saved.'));
+			$this->redirectToPostedUrl($productType);
+		} else {
+			craft()->userSession->setError(Craft::t('Couldn’t save Field Layout.'));
+		}
+	}
+
+	public function actionEditVariantFieldLayout(array $variables = [])
+	{
+		$variables['productType'] = craft()->market_productType->getById($variables['productTypeId']);
+		$this->renderTemplate('market/settings/producttypes/_editvariantfieldlayout', $variables);
 	}
 
 } 

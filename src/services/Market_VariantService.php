@@ -12,9 +12,7 @@ class Market_VariantService extends BaseApplicationComponent
 	 */
 	public function getById($id)
 	{
-		$variant = Market_VariantRecord::model()->with('product')->findById($id);
-
-		return Market_VariantModel::populateModel($variant);
+		return craft()->elements->getElementById($id, 'Market_Variant');
 	}
 
 	/**
@@ -92,7 +90,7 @@ class Market_VariantService extends BaseApplicationComponent
 	 * @throws \CDbException
 	 * @throws \Exception
 	 */
-	public function save(Market_VariantModel $model)
+	public function save(BaseElementModel $model)
 	{
 		if ($model->id) {
 			$record = Market_VariantRecord::model()->findById($model->id);
