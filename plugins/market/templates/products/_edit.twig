@@ -164,7 +164,8 @@
                         }, masterVariant) }}
                     {% endif %}
 
-                    {% for tab in productType.asa('productFieldLayout').getFieldLayout().getTabs() %}
+                    {% set allProductTab = productType.asa('productFieldLayout').getFieldLayout().getTabs() %}
+                    {% for tab in allProductTab %}
                         <div id="tab{{ loop.index }}" {% if not loop.first %} class="hidden" {% endif %}>
                             {% include "_includes/fields" with {
                             fields: tab.getFields(),
@@ -174,7 +175,7 @@
                         </div>
                     {% endfor %}
 
-                    <div id="variantsTab" class="hidden">
+                    <div id="variantsTab" class="{% if allProductTab|length %}hidden{% endif %}">
 
                         {% if productId is defined %}
                             {% set elementTypeClass = 'Market_Variant' %}

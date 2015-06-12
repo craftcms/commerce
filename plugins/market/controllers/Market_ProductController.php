@@ -121,25 +121,16 @@ class Market_ProductController extends Market_BaseController
 		$this->requirePostRequest();
 
 		$product = $this->_setProductFromPost();
-		$masterVariant = $this->_setMasterVariantFromPost($product);
+//		$masterVariant = $this->_setMasterVariantFromPost($product);
 
 		MarketDbHelper::beginStackedTransaction();
 
 		if (craft()->market_product->save($product)) {
 			$masterVariant->productId = $product->id;
+			MarketDbHelper::commitStackedTransaction();
+			craft()->userSession->setNotice(Craft::t('Product saved.'));
+			$this->redirectToPostedUrl($product);
 
-			if (craft()->market_variant->save($masterVariant)) {
-
-				MarketDbHelper::commitStackedTransaction();
-
-				craft()->userSession->setNotice(Craft::t('Product saved.'));
-
-				if (craft()->request->getPost('redirectToVariant')) {
-					$this->redirect($product->getCpEditUrl() . '/variants/new');
-				} else {
-					$this->redirectToPostedUrl($product);
-				}
-			}
 		}
 
 		MarketDbHelper::rollbackStackedTransaction();
