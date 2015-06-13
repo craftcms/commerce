@@ -10,9 +10,11 @@ namespace Craft;
  * @property string $name
  * @property string $handle
  * @property bool   $hasUrls
+ * @property bool   $hasVariants
  * @property string $template
  * @property string $urlFormat
  * @property int    $fieldLayoutId
+ * @property int    $variantFieldLayoutId
  * @package Craft
  *
  * @method null setFieldLayout(FieldLayoutModel $fieldLayout)
@@ -52,6 +54,7 @@ class Market_ProductTypeModel extends BaseModel
 			'name'                 => AttributeType::String,
 			'handle'               => AttributeType::String,
 			'hasUrls'              => AttributeType::Bool,
+			'hasVariants'          => AttributeType::Bool,
 			'urlFormat'            => AttributeType::UrlFormat,
 			'template'             => AttributeType::Template,
 			'fieldLayoutId'        => AttributeType::Number,

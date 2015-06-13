@@ -56,17 +56,25 @@ class Market_ProductTypeController extends Market_BaseController
 		$productType = new Market_ProductTypeModel();
 
 		// Shared attributes
-		$productType->id        = craft()->request->getPost('productTypeId');
-		$productType->name      = craft()->request->getPost('name');
-		$productType->handle    = craft()->request->getPost('handle');
-		$productType->hasUrls   = craft()->request->getPost('hasUrls');
-		$productType->template  = craft()->request->getPost('template');
-		$productType->urlFormat = craft()->request->getPost('urlFormat');
+		$productType->id          = craft()->request->getPost('productTypeId');
+		$productType->name        = craft()->request->getPost('name');
+		$productType->handle      = craft()->request->getPost('handle');
+		$productType->hasUrls     = craft()->request->getPost('hasUrls');
+		$productType->hasVariants = craft()->request->getPost('hasVariants');
+		$productType->template    = craft()->request->getPost('template');
+		$productType->urlFormat   = craft()->request->getPost('urlFormat');
 
 		// Set the field layout
 		$fieldLayout       = craft()->fields->assembleLayoutFromPost();
 		$fieldLayout->type = 'Market_Product';
 		$productType->asa('productFieldLayout')->setFieldLayout($fieldLayout);
+
+		// Set the variant field layout, we need to manually do so since assembleLayout has hardcoded post names
+		$postedFieldLayout        = craft()->request->getPost('variantfieldLayout', []);
+		$requiredFields           = craft()->request->getPost('variantrequiredFields', []);
+		$variantFieldLayout       = craft()->fields->assembleLayout($postedFieldLayout, $requiredFields);
+		$variantFieldLayout->type = 'Market_Variant';
+		$productType->asa('variantFieldLayout')->setFieldLayout($variantFieldLayout);
 
 		// Save it
 		if (craft()->market_productType->save($productType)) {
@@ -93,29 +101,4 @@ class Market_ProductTypeController extends Market_BaseController
 		craft()->market_productType->deleteById($productTypeId);
 		$this->returnJson(['success' => true]);
 	}
-
-	public function actionSaveVariantFieldLayout()
-	{
-		$id = craft()->request->getRequiredPost('productTypeId');
-		$productType = craft()->market_productType->getById($id);
-
-		// Set the field layout
-		$fieldLayout       = craft()->fields->assembleLayoutFromPost();
-		$fieldLayout->type = 'Market_Variant';
-		$productType->asa('variantFieldLayout')->setFieldLayout($fieldLayout);
-		// Save it
-		if (craft()->market_productType->saveVariantFieldLayout($productType)) {
-			craft()->userSession->setNotice(Craft::t('Variant Field Layout saved.'));
-			$this->redirectToPostedUrl($productType);
-		} else {
-			craft()->userSession->setError(Craft::t('Couldn’t save Field Layout.'));
-		}
-	}
-
-	public function actionEditVariantFieldLayout(array $variables = [])
-	{
-		$variables['productType'] = craft()->market_productType->getById($variables['productTypeId']);
-		$this->renderTemplate('market/settings/producttypes/_editvariantfieldlayout', $variables);
-	}
-
 } 
