@@ -71,8 +71,6 @@
             <div class="item" data-position="left" data-min-colspan="2" data-max-colspan="3">
 
                 <div id="fields" class="pane">
-                    {% set tabs = tabs|merge({'variantsTab':{'label':'Variants','url':'#variantsTab'}}) %}
-
                     {% include "_includes/tabs" %}
 
                     {% from "_includes/forms" import textField %}
@@ -175,7 +173,15 @@
                         </div>
                     {% endfor %}
 
-                    <div id="variantsTab" class="{% if allProductTab|length %}hidden{% endif %}">
+
+                </div>{# end pane#}
+
+                <div id="" class="pane">
+                    {% set variantTab = {'variantsTab':{'label':'Variants','url':'#variantsTab'}} %}
+
+                    {% include "_includes/tabs" with {'tabs': variantTab }%}
+
+                    <div id="variantsTab" class="">
 
                         {% if productId is defined %}
                             {% set elementTypeClass = 'Market_Variant' %}
@@ -214,9 +220,7 @@
                         {%  endif  %}
 
                     </div>
-
-
-                </div>{# end pane#}
+                </div>
 
             </div>
             <div class="item" data-position="right" data-colspan="1">

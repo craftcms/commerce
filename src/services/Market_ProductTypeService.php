@@ -70,10 +70,11 @@ class Market_ProductTypeService extends BaseApplicationComponent
 			$isNewProductType  = true;
 		}
 
-		$productTypeRecord->name     = $productType->name;
-		$productTypeRecord->handle   = $productType->handle;
-		$productTypeRecord->hasUrls  = $productType->hasUrls;
-		$productTypeRecord->template = $productType->template;
+		$productTypeRecord->name        = $productType->name;
+		$productTypeRecord->handle      = $productType->handle;
+		$productTypeRecord->hasUrls     = $productType->hasUrls;
+		$productTypeRecord->hasVariants = $productType->hasVariants;
+		$productTypeRecord->template    = $productType->template;
 
 		// Set flag if urlFormat changed so we can update all product elements.
 		if ($productTypeRecord->urlFormat != $productType->urlFormat) {
@@ -98,6 +99,16 @@ class Market_ProductTypeService extends BaseApplicationComponent
 				craft()->fields->saveLayout($fieldLayout);
 				$productType->fieldLayoutId       = $fieldLayout->id;
 				$productTypeRecord->fieldLayoutId = $fieldLayout->id;
+
+				if (!$isNewProductType && $productType->variantFieldLayoutId) {
+					// Drop the old field layout
+					craft()->fields->deleteLayoutById($productType->variantFieldLayoutId);
+				}
+				// Save the new one
+				$variantFieldLayout = $productType->asa('variantFieldLayout')->getFieldLayout();
+				craft()->fields->saveLayout($variantFieldLayout);
+				$productType->variantFieldLayoutId       = $variantFieldLayout->id;
+				$productTypeRecord->variantFieldLayoutId = $variantFieldLayout->id;
 
 				// Save it!
 				$productTypeRecord->save(false);
@@ -174,15 +185,6 @@ class Market_ProductTypeService extends BaseApplicationComponent
 	public function saveVariantFieldLayout($productType)
 	{
 		$productTypeRecord = Market_ProductTypeRecord::model()->findById($productType->id);
-
-		if ($productType->variantFieldLayoutId) {
-			craft()->fields->deleteLayoutById($productType->variantFieldLayoutId);
-		}
-
-		// Save the new one
-		$variantFieldLayout = $productType->asa('variantFieldLayout')->getFieldLayout();
-		craft()->fields->saveLayout($variantFieldLayout);
-		$productTypeRecord->variantFieldLayoutId = $variantFieldLayout->id;
 
 		$productTypeRecord->save(false);
 

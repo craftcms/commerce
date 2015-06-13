@@ -8,9 +8,11 @@ namespace Craft;
  * @property string            name
  * @property string            handle
  * @property bool              hasUrls
+ * @property bool              hasVariants
  * @property string            template
  * @property string            urlFormat
  * @property int               fieldLayoutId
+ * @property int               variantFieldLayoutId
  *
  * @property FieldLayoutRecord fieldLayout
  * @package Craft
@@ -41,7 +43,7 @@ class Market_ProductTypeRecord extends BaseRecord
 	public function defineRelations()
 	{
 		return [
-			'fieldLayout' => [static::BELONGS_TO, 'FieldLayoutRecord', 'onDelete' => static::SET_NULL],
+			'fieldLayout'        => [static::BELONGS_TO, 'FieldLayoutRecord', 'onDelete' => static::SET_NULL],
 			'variantFieldLayout' => [static::BELONGS_TO, 'FieldLayoutRecord', 'onDelete' => static::SET_NULL],
 		];
 	}
@@ -52,11 +54,12 @@ class Market_ProductTypeRecord extends BaseRecord
 	protected function defineAttributes()
 	{
 		return [
-			'name'      => [AttributeType::Name, 'required' => true],
-			'handle'    => [AttributeType::Handle, 'required' => true],
-			'hasUrls'   => AttributeType::Bool,
-			'urlFormat' => AttributeType::UrlFormat,
-			'template'  => AttributeType::Template
+			'name'        => [AttributeType::Name, 'required' => true],
+			'handle'      => [AttributeType::Handle, 'required' => true],
+			'hasUrls'     => AttributeType::Bool,
+			'hasVariants' => AttributeType::Bool,
+			'urlFormat'   => AttributeType::UrlFormat,
+			'template'    => AttributeType::Template
 		];
 	}
 

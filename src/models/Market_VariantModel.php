@@ -103,6 +103,9 @@ class Market_VariantModel extends BaseElementModel implements Purchasable
 
 
 	// events
+	public function canPurchase(Market_OrderModel $order){
+		return true;
+	}
 
 	public function onAddToOrder(Market_OrderModel $order){
 		return true;
