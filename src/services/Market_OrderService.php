@@ -276,7 +276,7 @@ class Market_OrderService extends BaseApplicationComponent
     public function recalculate(Market_OrderModel $order)
     {
         foreach($order->lineItems as $item) {
-            if($item->refreshFromVariant()) {
+            if($item->refreshFromPurchasable()) {
                 if(!craft()->market_lineItem->save($item)) {
                     throw new Exception('Error on saving lite item: ' . implode(', ', $item->getAllErrors()));
                 }

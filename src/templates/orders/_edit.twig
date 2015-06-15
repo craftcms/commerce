@@ -46,8 +46,8 @@
                         {%  for lineItem in order.lineItems %}
                             <tr>
                                 <td>{{ lineItem.id }}</td>
-                                <td><a href="{{ lineItem.variant.product.cpEditUrl }}">{{ lineItem.variant.product.name }}</a></td>
-                                <td>{{ lineItem.variant.sku }}</td>
+                                <td><a href="{{ lineItem.purchasable.cpEditUrl }}">{{ lineItem.purchasable.purchasableDescription }}</a></td>
+                                <td>{{ lineItem.purchasable.purchasableSku }}</td>
                                 <td>{{ lineItem.price }}</td>
                                 <td>{{ lineItem.saleAmount }}</td>
                                 <td>{{ lineItem.taxAmount }}</td>

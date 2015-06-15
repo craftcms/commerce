@@ -155,7 +155,7 @@ class Market_VariantService extends BaseApplicationComponent
 
 		foreach ($order->lineItems as $lineItem){
 			/** @var Market_VariantRecord $record */
-			$record = Market_VariantRecord::model()->findByAttributes(['id' => $lineItem->variantId]);
+			$record = Market_VariantRecord::model()->findByAttributes(['id' => $lineItem->purchasableId]);
 			if (!$record->unlimitedStock){
 				$record->stock = $record->stock - $lineItem->qty;
 				$record->save(false);
