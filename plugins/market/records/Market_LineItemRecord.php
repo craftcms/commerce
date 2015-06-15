@@ -22,7 +22,7 @@ namespace Craft;
  * @property string                   optionsJson
  *
  * @property int                      orderId
- * @property int                      variantId
+ * @property int                      purchasableId
  * @property int                      taxCategoryId
  *
  * @property Market_OrderRecord       order
@@ -45,7 +45,7 @@ class Market_LineItemRecord extends BaseRecord
 	public function defineIndexes()
 	{
 		return [
-			['columns' => ['orderId', 'variantId'], 'unique' => true],
+			['columns' => ['orderId', 'purchasableId'], 'unique' => true],
 		];
 	}
 
@@ -56,39 +56,9 @@ class Market_LineItemRecord extends BaseRecord
 	{
 		return [
 			'order'       => [static::BELONGS_TO, 'Market_OrderRecord', 'required' => true, 'onDelete' => static::CASCADE],
-			'variant'     => [static::BELONGS_TO, 'Market_VariantRecord', 'onUpdate' => self::CASCADE, 'onDelete' => self::SET_NULL],
+			'purchasable' => [static::BELONGS_TO, 'Element', 'onUpdate' => self::CASCADE, 'onDelete' => self::SET_NULL],
 			'taxCategory' => [static::BELONGS_TO, 'Market_TaxCategoryRecord', 'onUpdate' => self::CASCADE, 'onDelete' => self::RESTRICT, 'required' => true],
 		];
-	}
-
-	/**
-	 * Extra qty validation
-	 *
-	 * @param null $attributes
-	 * @param bool $clearErrors
-	 *
-	 * @return bool
-	 */
-	public function validate($attributes = NULL, $clearErrors = true)
-	{
-		$result = parent::validate($attributes, $clearErrors);
-		if (!$result) {
-			return false;
-		}
-
-		$variant = $this->variant;
-
-		if (!$variant->unlimitedStock && $this->qty > $variant->stock) {
-			$error = sprintf('There are only %d items left in stock', $variant->stock);
-			$this->addError('qty', $error);
-		}
-
-		if ($this->qty < $variant->minQty) {
-			$error = sprintf('Minimal order qty for this variant is %d', $variant->minQty);
-			$this->addError('qty', $error);
-		}
-
-		return $this->hasErrors();
 	}
 
 	/**
@@ -109,7 +79,6 @@ class Market_LineItemRecord extends BaseRecord
 			'total'          => [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
 			'qty'            => [AttributeType::Number, 'min' => 0, 'required' => true],
 			'optionsJson'    => [AttributeType::Mixed, 'required' => true],
-
 			'taxCategoryId'  => [AttributeType::Number, 'required' => true],
 		];
 	}

@@ -100,9 +100,9 @@ class Market_ProductTypeService extends BaseApplicationComponent
 				$productType->fieldLayoutId       = $fieldLayout->id;
 				$productTypeRecord->fieldLayoutId = $fieldLayout->id;
 
-				if (!$isNewProductType && $productType->variantFieldLayoutId) {
+				if (!$isNewProductType && $oldProductType->variantFieldLayoutId) {
 					// Drop the old field layout
-					craft()->fields->deleteLayoutById($productType->variantFieldLayoutId);
+					craft()->fields->deleteLayoutById($oldProductType->variantFieldLayoutId);
 				}
 				// Save the new one
 				$variantFieldLayout = $productType->asa('variantFieldLayout')->getFieldLayout();

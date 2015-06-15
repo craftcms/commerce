@@ -11,7 +11,7 @@ class Market_CartController extends Market_BaseController
 	protected $allowAnonymous = true;
 
 	/**
-	 * Add a product variant into the cart
+	 * Add a purchasable into the cart
 	 *
 	 * @throws Exception
 	 * @throws HttpException
@@ -21,13 +21,13 @@ class Market_CartController extends Market_BaseController
 	{
 		$this->requirePostRequest();
 
-        $variantId       = craft()->request->getPost('variantId');
-        $qty             = craft()->request->getPost('qty', 0);
-        $orderTypeHandle = craft()->request->getPost('orderTypeHandle');
-        $cart            = craft()->market_cart->getCart($orderTypeHandle);
+		$purchasableId   = craft()->request->getPost('purchasableId');
+		$qty             = craft()->request->getPost('qty', 0);
+		$orderTypeHandle = craft()->request->getPost('orderTypeHandle');
+		$cart            = craft()->market_cart->getCart($orderTypeHandle);
 		$cart->setContentFromPost('fields');
 
-		if (craft()->market_cart->addToCart($cart, $variantId, $qty, $error)) {
+		if (craft()->market_cart->addToCart($cart, $purchasableId, $qty, $error)) {
 			craft()->userSession->setFlash('market', 'Product has been added');
 			$this->redirectToPostedUrl();
 		} else {
@@ -71,9 +71,9 @@ class Market_CartController extends Market_BaseController
 	{
 		$this->requirePostRequest();
 
-        $code            = craft()->request->getPost('couponCode');
-        $orderTypeHandle = craft()->request->getPost('orderTypeHandle');
-        $cart            = craft()->market_cart->getCart($orderTypeHandle);
+		$code            = craft()->request->getPost('couponCode');
+		$orderTypeHandle = craft()->request->getPost('orderTypeHandle');
+		$cart            = craft()->market_cart->getCart($orderTypeHandle);
 		$cart->setContentFromPost('fields');
 
 		if (craft()->market_cart->applyCoupon($cart, $code, $error)) {
@@ -93,9 +93,9 @@ class Market_CartController extends Market_BaseController
 	{
 		$this->requirePostRequest();
 
-        $id              = craft()->request->getPost('paymentMethodId');
-        $orderTypeHandle = craft()->request->getPost('orderTypeHandle');
-        $cart            = craft()->market_cart->getCart($orderTypeHandle);
+		$id              = craft()->request->getPost('paymentMethodId');
+		$orderTypeHandle = craft()->request->getPost('orderTypeHandle');
+		$cart            = craft()->market_cart->getCart($orderTypeHandle);
 
 		if (craft()->market_cart->setPaymentMethod($cart, $id)) {
 			craft()->userSession->setFlash('market', 'Payment method has been set');
@@ -112,9 +112,9 @@ class Market_CartController extends Market_BaseController
 	{
 		$this->requirePostRequest();
 
-        $lineItemId      = craft()->request->getPost('lineItemId');
-        $orderTypeHandle = craft()->request->getPost('orderTypeHandle');
-        $cart            = craft()->market_cart->getCart($orderTypeHandle);
+		$lineItemId      = craft()->request->getPost('lineItemId');
+		$orderTypeHandle = craft()->request->getPost('orderTypeHandle');
+		$cart            = craft()->market_cart->getCart($orderTypeHandle);
 
 		craft()->market_cart->removeFromCart($cart, $lineItemId);
 		craft()->userSession->setFlash('market', 'Product has been removed');
@@ -128,8 +128,8 @@ class Market_CartController extends Market_BaseController
 	{
 		$this->requirePostRequest();
 
-        $orderTypeHandle = craft()->request->getPost('orderTypeHandle');
-        $cart            = craft()->market_cart->getCart($orderTypeHandle);
+		$orderTypeHandle = craft()->request->getPost('orderTypeHandle');
+		$cart            = craft()->market_cart->getCart($orderTypeHandle);
 
 		craft()->market_cart->clearCart($cart);
 		craft()->userSession->setFlash('market', 'All products have been removed');

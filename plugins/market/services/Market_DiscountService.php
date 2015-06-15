@@ -37,8 +37,8 @@ class Market_DiscountService extends BaseApplicationComponent
 		$productIds     = [];
 		$productTypeIds = [];
 		foreach ($lineItems as $item) {
-			$productIds[]     = $item->variant->productId;
-			$productTypeIds[] = $item->variant->product->typeId;
+			$productIds[]     = $item->purchasable->productId;
+			$productTypeIds[] = $item->purchasable->product->typeId;
 		}
 		$productTypeIds = array_unique($productTypeIds);
 
@@ -189,12 +189,12 @@ class Market_DiscountService extends BaseApplicationComponent
 			return false;
 		}
 
-		$productId = $lineItem->variant->productId;
+		$productId = $lineItem->purchasable->productId;
 		if (!$discount->allProducts && !in_array($productId, $discount->getProductsIds())) {
 			return false;
 		}
 
-		$productTypeId = $lineItem->variant->product->typeId;
+		$productTypeId = $lineItem->purchasable->product->typeId;
 		if (!$discount->allProductTypes && !in_array($productTypeId, $discount->getProductTypesIds())) {
 			return false;
 		}

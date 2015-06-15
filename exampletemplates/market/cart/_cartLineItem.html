@@ -1,7 +1,7 @@
 <tr>
     <td class="col-md-2">
-        {{lineItem.variant.product.title}}<br/>
-        SKU {{ lineItem.variant.sku }}
+        {{lineItem.purchasable.product.title}}<br/>
+        SKU {{ lineItem.purchasable.sku }}
     </td>
     <td class="col-md-2">
         <pre style="border: none">{{ lineItem.optionsJson|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>

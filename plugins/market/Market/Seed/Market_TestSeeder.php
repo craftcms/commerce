@@ -14,6 +14,7 @@ use Craft\Market_TaxCategoryModel;
 use Craft\Market_TaxRateModel;
 use Craft\Market_TaxZoneModel;
 use Craft\Market_VariantModel;
+use Craft\Market_OrderStatusModel;
 
 /**
  * Test Data useful during development
@@ -49,6 +50,7 @@ class Market_TestSeeder implements Market_SeederInterface
 
 		$fieldLayout = FieldLayoutModel::populateModel(['type' => 'Market_Product']);
 		$productType->asa('productFieldLayout')->setFieldLayout($fieldLayout);
+
 		\Craft\craft()->market_productType->save($productType);
 	}
 

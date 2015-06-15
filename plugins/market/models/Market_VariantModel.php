@@ -4,6 +4,7 @@ namespace Craft;
 
 use Market\Traits\Market_ModelRelationsTrait;
 use Market\Interfaces\Purchasable;
+
 /**
  * Class Market_VariantModel
  *
@@ -60,8 +61,8 @@ class Market_VariantModel extends BaseElementModel implements Purchasable
 	 */
 	public function getFieldLayout()
 	{
-		if ($this->productId) {
-			return craft()->market_product->getById($this->productId)->getFieldLayout();
+		if ($this->product->typeId) {
+			return craft()->market_productType->getById($this->product->typeId)->asa('variantFieldLayout')->getFieldLayout();
 		}
 
 		return NULL;
@@ -101,24 +102,18 @@ class Market_VariantModel extends BaseElementModel implements Purchasable
 		return $this->sku;
 	}
 
+	public function validateLineItem(Market_LineItemModel $lineItem){
 
-	// events
-	public function canPurchase(Market_OrderModel $order){
-		return true;
-	}
+		if (!$this->unlimitedStock && $lineItem->qty > $this->stock) {
+			$error = sprintf('There are only %d items left in stock', $this->stock);
+			$lineItem->addError('qty', $error);
+		}
 
-	public function onAddToOrder(Market_OrderModel $order){
-		return true;
-	}
+		if ($lineItem->qty < $this->minQty) {
+			$error = sprintf('Minimal order qty for this variant is %d', $this->minQty);
+			$lineItem->addError('qty', $error);
+		}
 
-	public function onRemoveFromOrder(Market_OrderModel $order)
-	{
-		return true;
-	}
-
-	public function onOrderCompleted(Market_OrderModel $order)
-	{
-		return true;
 	}
 	
 }

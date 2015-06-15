@@ -34,25 +34,36 @@ class Market_InstallSeeder implements Market_SeederInterface
 	private function defaultOrderTypes()
 	{
 
-        $types = ['cart','wishlist'];
+		$types = ['Order'];
 
-        $shippingMethod = Market_ShippingMethodRecord::model()->find();
+		$shippingMethod = Market_ShippingMethodRecord::model()->find();
 
-        foreach ($types as $type){
-            $orderType                   = new Market_OrderTypeModel;
-            $orderType->name             = ucwords($type);
-            $orderType->handle           = $type;
-            $orderType->shippingMethodId = $shippingMethod->id;
+		foreach ($types as $type) {
+			$orderType                   = new Market_OrderTypeModel;
+			$orderType->name             = ucwords($type);
+			$orderType->handle           = $type;
+			$orderType->shippingMethodId = $shippingMethod->id;
 
-            // Set the field layout
-            $fieldLayout       = \Craft\craft()->fields->assembleLayout([], []);
-            $fieldLayout->type = 'Market_Order';
-            $orderType->setFieldLayout($fieldLayout);
+			// Set the field layout
+			$fieldLayout       = \Craft\craft()->fields->assembleLayout([], []);
+			$fieldLayout->type = 'Market_Order';
+			$orderType->setFieldLayout($fieldLayout);
 
-            \Craft\craft()->market_orderType->save($orderType);
+			$data  = [
+				'name'        => 'New',
+				'orderTypeId' => '1',
+				'handle'      => 'new',
+				'color'       => '#31FF79',
+				'default'     => true
+			];
+
+			$state = Market_OrderStatusModel::populateModel($data);
+
+			\Craft\craft()->market_orderType->save($orderType);
+
+			\Craft\craft()->market_orderStatus->save($state,[]);
+
         }
-
-
 
 	}
 }

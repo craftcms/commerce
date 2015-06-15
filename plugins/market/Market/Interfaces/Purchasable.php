@@ -14,12 +14,7 @@ interface Purchasable
 
 	public function getPurchasableDescription();
 
+	// hooks
 
-	// events
-
-	public function onAddToOrder(\Craft\Market_OrderModel $order);
-
-	public function onRemoveFromOrder(\Craft\Market_OrderModel $order);
-
-	public function onOrderCompleted(\Craft\Market_OrderModel $order);
+	public function validateLineItem(\Craft\Market_LineItemModel $lineItem);
 }

@@ -19,7 +19,7 @@
                     <input type="hidden" name="orderTypeHandle" value="cart">
                     {{ getCsrfInput() }}
                     <div class="form-group">
-                        <select name="variantId" class="form-control">
+                        <select name="purchasableId" class="form-control">
                             {% for variant in product.variants %}
                             <option value="{{ variant.id }}">
                                 SKU: {{ variant.sku }} / Price: {{ variant.price }} {% if variant.onSale %}(sale: {{ variant.salePrice }}){% endif %} / Stock: {{ variant.unlimitedStock ? 'unlimited' : variant.stock }}

@@ -90,15 +90,7 @@ class Market_VariantElementType extends Market_BaseElementType
 		return [
 			'sku'            => AttributeType::Mixed,
 			'product'        => AttributeType::Mixed,
-			'productId'        => AttributeType::Mixed,
-//			'price'          => AttrbuteType::Mixed,
-//			'width'          => AttrbuteType::Mixed,
-//			'height'         => AttrbuteType::Mixed,
-//			'length'         => AttrbuteType::Mixed,
-//			'weight'         => AttrbuteType::Mixed,
-//			'stock'          => AttrbuteType::Mixed,
-//			'unlimitedStock' => AttrbuteType::Mixed,
-//			'minQty'         => AttrbuteType::Mixed
+			'productId'        => AttributeType::Mixed
 		];
 	}
 
