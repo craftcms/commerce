@@ -62,6 +62,12 @@ class Market_ShippingRuleService extends BaseApplicationComponent
 			$rule->$field *= 1;
 		}
 
+		// if the rule uses a country but the order has no shipping address yet
+		// TODO: default shipping country?
+		if ($rule->countryId && !$order->shippingAddressId){
+			return false;
+		}
+
 		// geographical filters
 		if ($rule->countryId && $rule->countryId != $order->shippingAddress->countryId) {
 			return false;
