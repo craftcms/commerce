@@ -112,7 +112,6 @@ class Market_OrderModel extends BaseElementModel
 	 */
 	public function getTotalWeight()
 	{
-		//TODO: Check for free shipping on item?
 		$weight = 0;
 		foreach ($this->lineItems as $item) {
 			$weight += $item->qty * $item->weight;
@@ -123,7 +122,6 @@ class Market_OrderModel extends BaseElementModel
 
 	public function getTotalLength()
 	{
-		//TODO: Check for free shipping on item?
 		$value = 0;
 		foreach ($this->lineItems as $item) {
 			$value += $item->qty * $item->length;
@@ -134,7 +132,6 @@ class Market_OrderModel extends BaseElementModel
 
 	public function getTotalWidth()
 	{
-		//TODO: Check for free shipping on item?
 		$value = 0;
 		foreach ($this->lineItems as $item) {
 			$value += $item->qty * $item->width;
@@ -145,7 +142,6 @@ class Market_OrderModel extends BaseElementModel
 
 	public function getTotalHeight()
 	{
-		//TODO: Check for free shipping on item?
 		$value = 0;
 		foreach ($this->lineItems as $item) {
 			$value += $item->qty * $item->height;
