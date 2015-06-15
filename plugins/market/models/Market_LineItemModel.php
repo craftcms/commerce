@@ -94,7 +94,7 @@ class Market_LineItemModel extends BaseModel
 		$options           = $purchasable->attributes;
 		$this->optionsJson = $options;
 
-		//TODO make sales api work with other purchasables types somehow
+		//TODO make sales api work with other purchasables types
 		$sales = craft()->market_sale->getForVariant($purchasable);
 
 		foreach ($sales as $sale) {

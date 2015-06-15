@@ -147,7 +147,6 @@ class Market_OrderController extends Market_BaseController
 	}
 
 	/**
-	 * TODO nothing to save
 	 *
 	 * @throws Exception
 	 * @throws HttpException
