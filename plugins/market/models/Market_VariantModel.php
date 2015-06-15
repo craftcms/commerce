@@ -56,12 +56,20 @@ class Market_VariantModel extends BaseElementModel implements Purchasable
 		return is_null($this->salePrice) ? false : ($this->salePrice != $this->price);
 	}
 
+	public function getProduct(){
+		if ($this->productId) {
+			return craft()->market_product->getById($this->productId);
+		}
+
+		return NULL;
+	}
+
 	/**
 	 * @return FieldLayoutModel|null
 	 */
 	public function getFieldLayout()
 	{
-		if ($this->product->typeId) {
+		if ($this->productId) {
 			return craft()->market_productType->getById($this->product->typeId)->asa('variantFieldLayout')->getFieldLayout();
 		}
 
