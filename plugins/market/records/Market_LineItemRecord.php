@@ -56,7 +56,7 @@ class Market_LineItemRecord extends BaseRecord
 	{
 		return [
 			'order'       => [static::BELONGS_TO, 'Market_OrderRecord', 'required' => true, 'onDelete' => static::CASCADE],
-			'purchasable' => [static::BELONGS_TO, 'Element', 'onUpdate' => self::CASCADE, 'onDelete' => self::SET_NULL],
+			'purchasable' => [static::BELONGS_TO, 'ElementRecord', 'onUpdate' => self::CASCADE, 'onDelete' => self::SET_NULL],
 			'taxCategory' => [static::BELONGS_TO, 'Market_TaxCategoryRecord', 'onUpdate' => self::CASCADE, 'onDelete' => self::RESTRICT, 'required' => true],
 		];
 	}
