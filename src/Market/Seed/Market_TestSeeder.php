@@ -45,13 +45,20 @@ class Market_TestSeeder implements Market_SeederInterface
 		$productType->name   = 'Default Product';
 		$productType->handle = 'normal';
 		$productType->hasUrls = true;
+		$productType->hasVariants = true;
 		$productType->template = 'market/products/_entry.html';
 		$productType->urlFormat = 'market/products/{slug}';
 
 		$fieldLayout = FieldLayoutModel::populateModel(['type' => 'Market_Product']);
+		\Craft\craft()->fields->saveLayout($fieldLayout);
 		$productType->asa('productFieldLayout')->setFieldLayout($fieldLayout);
 
+		$variantFieldLayout = FieldLayoutModel::populateModel(['type' => 'Market_Variant']);
+		\Craft\craft()->fields->saveLayout($variantFieldLayout);
+		$productType->asa('variantFieldLayout')->setFieldLayout($variantFieldLayout);
+
 		\Craft\craft()->market_productType->save($productType);
+
 	}
 
 	/**

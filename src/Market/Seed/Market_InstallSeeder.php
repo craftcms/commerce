@@ -4,7 +4,7 @@ namespace Market\Seed;
 
 use Craft\Market_OrderTypeModel;
 use Craft\Market_ShippingMethodRecord;
-
+use Craft\Market_OrderStatusModel;
 /**
  * Default Seeder
  */
