@@ -13,26 +13,7 @@ class MarketPlugin extends BasePlugin
 	function init()
 	{
 		$this->initMarketNav();
-
-		//init global event handlers
-		craft()->on('market_orderHistory.onStatusChange',
-			[
-				craft()->market_orderStatus, 'statusChangeHandler'
-			]
-		);
-
-		craft()->on('market_order.onOrderComplete',
-			[
-				craft()->market_discount, 'orderCompleteHandler'
-			]
-		);
-
-		craft()->on('market_order.onOrderComplete',
-			[
-				craft()->market_variant, 'orderCompleteHandler'
-			]
-		);
-
+		$this->initEventHandlers();
 	}
 
 	public function getName()
@@ -146,6 +127,28 @@ class MarketPlugin extends BasePlugin
 
 			craft()->templates->includeJs('new Craft.MarketNav('.$navJson.');');
 		}
+	}
+
+	private function initEventHandlers()
+	{
+		//init global event handlers
+		craft()->on('market_orderHistory.onStatusChange',
+			[
+				craft()->market_orderStatus, 'statusChangeHandler'
+			]
+		);
+
+		craft()->on('market_order.onOrderComplete',
+			[
+				craft()->market_discount, 'orderCompleteHandler'
+			]
+		);
+
+		craft()->on('market_order.onOrderComplete',
+			[
+				craft()->market_variant, 'orderCompleteHandler'
+			]
+		);
 	}
 
 }
