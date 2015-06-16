@@ -84,7 +84,7 @@ class Market_VariantService extends BaseApplicationComponent
 	/**
 	 * Save a model into DB
 	 *
-	 * @param Market_VariantModel $model
+	 * @param BaseElementModel $model
 	 *
 	 * @return bool
 	 * @throws \CDbException

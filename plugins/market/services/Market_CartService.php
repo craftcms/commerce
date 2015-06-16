@@ -131,7 +131,7 @@ class Market_CartService extends BaseApplicationComponent
 		$cartNumber = craft()->userSession->getStateCookieValue($cookieId);
 
 		if (!$cartNumber) {
-			$cartNumber = md5(uniqid(mt_rand(), true));
+			$cartNumber =
 			craft()->userSession->saveCookie($cookieId, $cartNumber, self::CART_COOKIE_LIFETIME);
 		}
 
