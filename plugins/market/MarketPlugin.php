@@ -10,10 +10,12 @@ class MarketPlugin extends BasePlugin
 {
 	public $handle = 'market';
 
+
 	function init()
 	{
 		$this->initMarketNav();
 		$this->initEventHandlers();
+
 	}
 
 	public function getName()
@@ -58,21 +60,21 @@ class MarketPlugin extends BasePlugin
 
 	public function modifyCpNav(&$nav)
 	{
-		if (craft()->userSession->isAdmin())
-		{
+		if (craft()->userSession->isAdmin()) {
 			$nav['market'] = ['label' => 'Market', 'url' => 'market'];
 		}
 	}
 
 
-	public function addCommands() {
-		return require(__DIR__.DIRECTORY_SEPARATOR.'commands.php');
+	public function addCommands()
+	{
+		return require(__DIR__ . DIRECTORY_SEPARATOR . 'commands.php');
 	}
 
 
 	public function registerCpRoutes()
 	{
-		return require(__DIR__.DIRECTORY_SEPARATOR.'routes.php');
+		return require(__DIR__ . DIRECTORY_SEPARATOR . 'routes.php');
 	}
 
 	public function addTwigExtension()
@@ -89,43 +91,42 @@ class MarketPlugin extends BasePlugin
 
 	private function initMarketNav()
 	{
-		if(craft()->request->isCpRequest())
-		{
+		if (craft()->request->isCpRequest()) {
 			craft()->templates->includeCssResource('market/market-nav.css');
 
 			craft()->templates->includeJsResource('market/market-nav.js');
 
 			$nav = [
 				[
-					'url' => 'market/orders',
-					'title' => Craft::t("Orders"),
+					'url'      => 'market/orders',
+					'title'    => Craft::t("Orders"),
 					'selected' => (craft()->request->getSegment(2) == 'orders' ? true : false)
 				],
 				[
-					'url' => 'market/products',
-					'title' => Craft::t("Products"),
+					'url'      => 'market/products',
+					'title'    => Craft::t("Products"),
 					'selected' => (craft()->request->getSegment(2) == 'products' ? true : false)
 				],
 				[
-					'url' => 'market/promotions',
-					'title' => Craft::t("Promotions"),
+					'url'      => 'market/promotions',
+					'title'    => Craft::t("Promotions"),
 					'selected' => (craft()->request->getSegment(2) == 'promotions' ? true : false)
 				],
 				[
-					'url' => 'market/customers',
-					'title' => Craft::t("Customers"),
+					'url'      => 'market/customers',
+					'title'    => Craft::t("Customers"),
 					'selected' => (craft()->request->getSegment(2) == 'customers' ? true : false)
 				],
 				[
-					'url' => 'market/settings',
-					'title' => Craft::t("Settings"),
+					'url'      => 'market/settings',
+					'title'    => Craft::t("Settings"),
 					'selected' => (craft()->request->getSegment(2) == 'settings' ? true : false)
 				]
 			];
 
 			$navJson = JsonHelper::encode($nav);
 
-			craft()->templates->includeJs('new Craft.MarketNav('.$navJson.');');
+			craft()->templates->includeJs('new Craft.MarketNav(' . $navJson . ');');
 		}
 	}
 
