@@ -12,7 +12,7 @@ class m150616_010101_Market_OptionTypesToFieldsOnVariant extends BaseMigration
 	public function safeUp()
 	{
 
-//		First get all option types and values and make dropdown fields
+		//First get all option types and values and make dropdown fields
 
 		$alloptionTypes = craft()->db->createCommand()->select('*')->from('market_optiontypes')->queryAll();
 
@@ -52,7 +52,7 @@ class m150616_010101_Market_OptionTypesToFieldsOnVariant extends BaseMigration
 		}
 
 
-//		Now make a fieldLayout for Variants and add the fields created above
+		//Now make a fieldLayout for Variants and add the fields created above
 		$productTypes = craft()->market_productType->getAll();
 
 		foreach ($productTypes as $productType) {
@@ -78,7 +78,7 @@ class m150616_010101_Market_OptionTypesToFieldsOnVariant extends BaseMigration
 			$variantFieldLayout->type = 'Market_Variant';
 			$productType->asa('variantFieldLayout')->setFieldLayout($variantFieldLayout);
 
-			craft()->market_productType->save($productType);
+//			craft()->market_productType->save($productType);
 		}
 
 		$all = <<<EOT
