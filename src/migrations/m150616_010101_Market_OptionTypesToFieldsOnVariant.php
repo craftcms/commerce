@@ -78,7 +78,7 @@ class m150616_010101_Market_OptionTypesToFieldsOnVariant extends BaseMigration
 			$variantFieldLayout->type = 'Market_Variant';
 			$productType->asa('variantFieldLayout')->setFieldLayout($variantFieldLayout);
 
-//			craft()->market_productType->save($productType);
+			craft()->market_productType->save($productType);
 		}
 
 //		$all = <<<EOT
