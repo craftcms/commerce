@@ -161,6 +161,22 @@ class Market_OrderModel extends BaseElementModel
 	}
 
 	/**
+	 * @return Market_AddressModel
+	 */
+	public function getShippingAddress()
+	{
+		return craft()->market_address->getById($this->shippingAddressId);
+	}
+
+	/**
+	 * @return Market_AddressModel
+	 */
+	public function getBillingAddress()
+	{
+		return craft()->market_address->getById($this->billingAddressId);
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function showAddress()
