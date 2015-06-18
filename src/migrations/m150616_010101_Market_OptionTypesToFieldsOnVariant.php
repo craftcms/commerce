@@ -81,34 +81,34 @@ class m150616_010101_Market_OptionTypesToFieldsOnVariant extends BaseMigration
 //			craft()->market_productType->save($productType);
 		}
 
-		$all = <<<EOT
-select
-vv.id as id,
-vv.variantId as variantId,
-v.productId as variantProductId,
-p.typeId as productTypeId,
-ot.handle as optionTypeName,
-ov.id as optionValueId,
-ov.name as optionValueName,
-ov.displayName as optionValueDisplayName
-from craft_market_variant_optionvalues vv
-	left join craft_market_variants v
-		on vv.variantId = v.id
-	left join craft_market_products p
-		on v.productId = p.id
-	left join craft_market_optionvalues ov
-		on vv.optionValueId = ov.id
-	left join craft_market_optiontypes ot
-		on ov.optionTypeId = ot.id
-EOT;
-
-		$allData = craft()->db->createCommand($all)->queryAll();
-
-		foreach($allData as $item){
-			$variant = craft()->market_variant->getById($item['variantId']);
-			$variant->getContent()->{$item['optionTypeName']} = $item['optionValueName'];
-			craft()->market_variant->save($variant);
-		}
+//		$all = <<<EOT
+//select
+//vv.id as id,
+//vv.variantId as variantId,
+//v.productId as variantProductId,
+//p.typeId as productTypeId,
+//ot.handle as optionTypeName,
+//ov.id as optionValueId,
+//ov.name as optionValueName,
+//ov.displayName as optionValueDisplayName
+//from craft_market_variant_optionvalues vv
+//	left join craft_market_variants v
+//		on vv.variantId = v.id
+//	left join craft_market_products p
+//		on v.productId = p.id
+//	left join craft_market_optionvalues ov
+//		on vv.optionValueId = ov.id
+//	left join craft_market_optiontypes ot
+//		on ov.optionTypeId = ot.id
+//EOT;
+//
+//		$allData = craft()->db->createCommand($all)->queryAll();
+//
+//		foreach($allData as $item){
+//			$variant = craft()->market_variant->getById($item['variantId']);
+//			$variant->getContent()->{$item['optionTypeName']} = $item['optionValueName'];
+//			craft()->market_variant->save($variant);
+//		}
 
 
 		return true;
