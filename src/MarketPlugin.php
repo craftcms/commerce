@@ -60,8 +60,8 @@ class MarketPlugin extends BasePlugin
 
 	public function modifyCpNav(&$nav)
 	{
-		if (craft()->userSession->isAdmin()) {
-			$nav['market'] = ['label' => 'Market', 'url' => 'market'];
+		if (craft()->userSession->isAdmin() && craft()->config->get('devMode')) {
+			$nav['market'] = ['label' => "Market ".$this->getVersion(), 'url' => 'market'];
 		}
 	}
 
