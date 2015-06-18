@@ -47,69 +47,8 @@ class m150616_010101_Market_OptionTypesToFieldsOnVariant extends BaseMigration
 			//save the field
 			craft()->fields->saveField($field);
 
-			//keep the ones we made for later
 			$fields[] = $field;
 		}
-
-
-		//Now make a fieldLayout for Variants and add the fields created above
-		$productTypes = craft()->market_productType->getAll();
-
-		foreach ($productTypes as $productType) {
-
-			// Since the save on producttype throws away the layout everytime, we need to rebuild it.
-			$productLayout        = $productType->asa('productFieldLayout')->getFieldLayout();
-			$layoutData = [];
-			foreach($productLayout->getTabs() as $tab ){
-				foreach($tab->getFields() as $field){
-					$layoutData[$tab->name][] = (int)$field->fieldId;
-				}
-			}
-
-			// Assemble the same layout that existed for products
-			$productFieldLayout       = craft()->fields->assembleLayout($layoutData, []);
-			$productFieldLayout->type = 'Market_Product';
-			$productType->asa('productFieldLayout')->setFieldLayout($productFieldLayout);
-
-			// Add the fields for each option type to every variant fieldlayout
-			$fieldIds = $this->array_pluck("id", $fields);
-			$variantLayoutData        = ['Content' => $fieldIds];
-			$variantFieldLayout       = craft()->fields->assembleLayout($variantLayoutData, []);
-			$variantFieldLayout->type = 'Market_Variant';
-			$productType->asa('variantFieldLayout')->setFieldLayout($variantFieldLayout);
-
-			craft()->market_productType->save($productType);
-		}
-
-//		$all = <<<EOT
-//select
-//vv.id as id,
-//vv.variantId as variantId,
-//v.productId as variantProductId,
-//p.typeId as productTypeId,
-//ot.handle as optionTypeName,
-//ov.id as optionValueId,
-//ov.name as optionValueName,
-//ov.displayName as optionValueDisplayName
-//from craft_market_variant_optionvalues vv
-//	left join craft_market_variants v
-//		on vv.variantId = v.id
-//	left join craft_market_products p
-//		on v.productId = p.id
-//	left join craft_market_optionvalues ov
-//		on vv.optionValueId = ov.id
-//	left join craft_market_optiontypes ot
-//		on ov.optionTypeId = ot.id
-//EOT;
-//
-//		$allData = craft()->db->createCommand($all)->queryAll();
-//
-//		foreach($allData as $item){
-//			$variant = craft()->market_variant->getById($item['variantId']);
-//			$variant->getContent()->{$item['optionTypeName']} = $item['optionValueName'];
-//			craft()->market_variant->save($variant);
-//		}
-
 
 		return true;
 	}
