@@ -162,6 +162,7 @@ class Market_OrderService extends BaseApplicationComponent
 			}
 		}
 
+		//TODO: Don't recalculate when a completed order, we don't want amounts to change.
 		$this->calculateAdjustments($order);
 
         $oldStatusId = $orderRecord->orderStatusId;
