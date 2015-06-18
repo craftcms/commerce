@@ -17,14 +17,12 @@ class m150616_010101_Market_OptionTypesToFieldsOnVariant extends BaseMigration
 		$alloptionTypes = craft()->db->createCommand()->select('*')->from('market_optiontypes')->queryAll();
 
 		$fields = [];
-		$count = 0;
 		foreach($alloptionTypes as $optionType){
-			$count++;
 			// Need to know if the field name is already taken
 			$exists = craft()->fields->getFieldByHandle(ElementHelper::createSlug($optionType['handle']));
 			//make a new field name is field name already taken
 			if($exists && $exists->id){
-				$optionType['handle'] = $optionType['handle'].$count;
+				$optionType['handle'] = $optionType['handle']." option";
 			}
 
 			//Make a new field
