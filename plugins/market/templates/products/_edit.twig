@@ -93,6 +93,109 @@
                     }) }}
 
 
+                    {{ forms.text({
+                        name:   'masterVariant[isMaster]',
+                        type:   'hidden',
+                        value: '1'
+                    }) }}
+                    <div id="masterVariantDetails" class="grid first" data-cols="9">
+
+                    <div class="item" data-min-colspan="1" data-max-colspan="3">
+                    {{ forms.textField({
+                        label: 'SKU'|t,
+                        name:   'masterVariant[sku]',
+                        value: masterVariant.sku,
+                        errors: masterVariant.getErrors('sku')
+                    })}}
+                    </div>
+
+                    <div class="item" data-min-colspan="1" data-max-colspan="3">
+                    {{ forms.textField({
+                        label: 'Price'|t,
+                        name:   'masterVariant[price]',
+                        type:   'text',
+                        value: masterVariant.price,
+                        errors: masterVariant.getErrors('price')
+                    })}}
+                    </div>
+
+                    <div class="item" data-min-colspan="1" data-max-colspan="3">
+                    {{ forms.textField({
+                        label: 'Min Qty'|t,
+                        name:   'masterVariant[minQty]',
+                        type:   'text',
+                        value: masterVariant.minQty,
+                        errors: masterVariant.getErrors('minQty')
+                    })}}
+                    </div>
+
+                    <div class="item" data-min-colspan="1" data-max-colspan="3">
+                    {{ forms.textField({
+                        label: 'Max Qty'|t,
+                        name:   'masterVariant[maxQty]',
+                        type:   'text',
+                        value: masterVariant.maxQty,
+                        errors: masterVariant.getErrors('maxQty')
+                    })}}
+                    </div>
+
+                    <div class="item" data-min-colspan="1" data-max-colspan="3">
+                    {{ forms.textField({
+                        label: 'Width'|t,
+                        name:   'masterVariant[width]',
+                        type:   'text',
+                        value: masterVariant.width,
+                        errors: masterVariant.getErrors('width')
+                    })}}
+                    </div>
+
+                    <div class="item" data-min-colspan="1" data-max-colspan="3">
+                    {{ forms.textField({
+                        label: 'Height'|t,
+                        name:   'masterVariant[height]',
+                        type:   'number',
+                        value: masterVariant.height,
+                        errors: masterVariant.getErrors('height')
+                    })}}
+                    </div>
+
+                    <div class="item" data-min-colspan="1" data-max-colspan="3">
+                    {{ forms.textField({
+                        label: 'Length'|t,
+                        name:   'masterVariant[length]',
+                        type:   'text',
+                        value: masterVariant.length,
+                        errors: masterVariant.getErrors('length')
+                    })}}
+                    </div>
+
+                    <div class="item" data-min-colspan="1" data-max-colspan="3">
+                    {{ forms.textField({
+                        label: 'Weight'|t,
+                        name:   'masterVariant[weight]',
+                        type:   'text',
+                        value: masterVariant.weight,
+                        errors: masterVariant.getErrors('weight')
+                    })}}
+                    </div>
+
+                    <div class="item" data-min-colspan="1" data-max-colspan="3">
+                    {{ forms.textField({
+                        label: 'Stock'|t,
+                        name:   'masterVariant[stock]',
+                        type:   'text',
+                        value: masterVariant.stock,
+                        errors: masterVariant.getErrors('stock')
+                    })}}
+                    {{ forms.checkboxField({
+                        label: 'Unlimited Stock'|t,
+                        name:   'masterVariant[unlimitedStock]',
+                        errors: masterVariant.getErrors('unlimitedStock')
+                    }) }}
+                    </div>
+
+
+                    </div>
 
                     {% set allProductTab = productType.asa('productFieldLayout').getFieldLayout().getTabs() %}
                     {% for tab in allProductTab %}
@@ -160,99 +263,6 @@
 
             </div>
             <div class="item" data-position="right" data-colspan="1">
-
-                {# master variant pane#}
-                <div class="pane">
-
-                    <h3>Product Details</h3>
-
-                    {{ forms.text({
-                        name:   'masterVariant[isMaster]',
-                        type:   'hidden',
-                        value: '1'
-                    }) }}
-
-                    {{ forms.textField({
-                        label: 'SKU'|t,
-                        name:   'masterVariant[sku]',
-                        value: masterVariant.sku,
-                        errors: masterVariant.getErrors('sku')
-                    })}}
-
-                    {{ forms.textField({
-                        label: 'Price'|t,
-                        name:   'masterVariant[price]',
-                        type:   'text',
-                        value: masterVariant.price,
-                        errors: masterVariant.getErrors('price')
-                    })}}
-                    <a class="fieldtoggle" data-target="#masterVariantDetails">More</a>
-                    <div id="masterVariantDetails" class="hidden">
-
-                    {{ forms.textField({
-                        label: 'Min Qty Per Order'|t,
-                        name:   'masterVariant[minQty]',
-                        type:   'text',
-                        value: masterVariant.minQty,
-                        errors: masterVariant.getErrors('minQty')
-                    })}}
-
-                    {{ forms.textField({
-                        label: 'Max Qty Per Order'|t,
-                        name:   'masterVariant[maxQty]',
-                        type:   'text',
-                        value: masterVariant.maxQty,
-                        errors: masterVariant.getErrors('maxQty')
-                    })}}
-
-                    {{ forms.textField({
-                        label: 'Width'|t,
-                        name:   'masterVariant[width]',
-                        type:   'text',
-                        value: masterVariant.width,
-                        errors: masterVariant.getErrors('width')
-                    })}}
-
-                    {{ forms.textField({
-                        label: 'Height'|t,
-                        name:   'masterVariant[height]',
-                        type:   'number',
-                        value: masterVariant.height,
-                        errors: masterVariant.getErrors('height')
-                    })}}
-
-                    {{ forms.textField({
-                        label: 'Length'|t,
-                        name:   'masterVariant[length]',
-                        type:   'text',
-                        value: masterVariant.length,
-                        errors: masterVariant.getErrors('length')
-                    })}}
-
-                    {{ forms.textField({
-                        label: 'Weight'|t,
-                        name:   'masterVariant[weight]',
-                        type:   'text',
-                        value: masterVariant.weight,
-                        errors: masterVariant.getErrors('weight')
-                    })}}
-
-                    {{ forms.textField({
-                        label: 'Stock'|t,
-                        name:   'masterVariant[stock]',
-                        type:   'text',
-                        value: masterVariant.stock,
-                        errors: masterVariant.getErrors('stock')
-                    })}}
-                    {{ forms.checkboxField({
-                        label: 'Unlimited Stock'|t,
-                        name:   'masterVariant[unlimitedStock]',
-                        errors: masterVariant.getErrors('unlimitedStock')
-                    }) }}
-
-                    </div> {# end masterVariantDetails #}
-
-                </div> {# end pane #}
 
                 <div class="pane">
                     {{ forms.textField({
