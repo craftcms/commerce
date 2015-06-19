@@ -14,6 +14,7 @@
     <input type="hidden" name="redirect" value="{{ product.cpEditUrl }}">
     <input type="hidden" name="productId" value="{{ productId }}">
     <input type="hidden" name="id" value="{{ variant.id }}">
+    <input type="hidden" name="isMaster" value="{{ variant.isMaster }}">
     {{ getCsrfInput() }}
 
     {% set variantForm %}

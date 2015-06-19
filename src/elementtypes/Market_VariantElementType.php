@@ -51,7 +51,8 @@ class Market_VariantElementType extends Market_BaseElementType
 			'weight'         => Craft::t('weight'),
 			'stock'          => Craft::t('stock'),
 			'unlimitedStock' => Craft::t('unlimitedStock'),
-			'minQty'         => Craft::t('minQty')
+			'minQty'         => Craft::t('minQty'),
+			'isMaster'         => Craft::t('master'),
 
 		];
 	}
