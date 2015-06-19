@@ -52,7 +52,7 @@ class Market_ProductController extends Market_BaseController
 		if (empty($variables['product'])) {
 			if (!empty($variables['productId'])) {
 				$variables['product'] = craft()->market_product->getById($variables['productId']);
-				$variables['title'] = $variables['product']->title;
+				$variables['title']   = $variables['product']->title;
 
 				if (!$variables['product']->id) {
 					throw new HttpException(404);
@@ -60,7 +60,7 @@ class Market_ProductController extends Market_BaseController
 			} else {
 				$variables['product']         = new Market_ProductModel();
 				$variables['product']->typeId = $variables['productType']->id;
-				$variables['title'] = Craft::t('Create a new Product');
+				$variables['title']           = Craft::t('Create a new Product');
 			}
 		}
 
@@ -116,13 +116,14 @@ class Market_ProductController extends Market_BaseController
 	{
 		$this->requirePostRequest();
 
-		$product = $this->_setProductFromPost();
+		$product       = $this->_setProductFromPost();
 		$masterVariant = $this->_setMasterVariantFromPost($product);
 
 		MarketDbHelper::beginStackedTransaction();
 
 		if (craft()->market_product->save($product)) {
 			$masterVariant->productId = $product->id;
+			craft()->market_variant->save($masterVariant);
 			MarketDbHelper::commitStackedTransaction();
 			craft()->userSession->setNotice(Craft::t('Product saved.'));
 			$this->redirectToPostedUrl($product);
