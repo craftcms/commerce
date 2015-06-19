@@ -66,7 +66,7 @@ class Market_ProductController extends Market_BaseController
 
 		$variables['taxCategories'] = \CHtml::listData(craft()->market_taxCategory->getAll(), 'id', 'name');
 
-		$this->prepVariables($variables);
+		$this->_prepVariables($variables);
 
 		$this->renderTemplate('market/products/_edit', $variables);
 	}
@@ -144,7 +144,7 @@ class Market_ProductController extends Market_BaseController
 	 *
 	 * @param $variables
 	 */
-	private function prepVariables(&$variables)
+	private function _prepVariables(&$variables)
 	{
 		$variables['tabs'] = [];
 
