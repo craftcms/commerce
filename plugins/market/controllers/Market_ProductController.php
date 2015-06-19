@@ -52,6 +52,7 @@ class Market_ProductController extends Market_BaseController
 		if (empty($variables['product'])) {
 			if (!empty($variables['productId'])) {
 				$variables['product'] = craft()->market_product->getById($variables['productId']);
+				$variables['title'] = $variables['product']->title;
 
 				if (!$variables['product']->id) {
 					throw new HttpException(404);
@@ -59,13 +60,8 @@ class Market_ProductController extends Market_BaseController
 			} else {
 				$variables['product']         = new Market_ProductModel();
 				$variables['product']->typeId = $variables['productType']->id;
+				$variables['title'] = Craft::t('Create a new Product');
 			}
-		}
-
-		if (!empty($variables['productId'])) {
-			$variables['title'] = $variables['product']->title;
-		} else {
-			$variables['title'] = Craft::t('Create a new Product');
 		}
 
 		$variables['taxCategories'] = \CHtml::listData(craft()->market_taxCategory->getAll(), 'id', 'name');
@@ -121,7 +117,7 @@ class Market_ProductController extends Market_BaseController
 		$this->requirePostRequest();
 
 		$product = $this->_setProductFromPost();
-//		$masterVariant = $this->_setMasterVariantFromPost($product);
+		$masterVariant = $this->_setMasterVariantFromPost($product);
 
 		MarketDbHelper::beginStackedTransaction();
 
@@ -152,7 +148,7 @@ class Market_ProductController extends Market_BaseController
 	{
 		$variables['tabs'] = [];
 
-		$variables['masterVariant'] = $variables['product']->master ?: new Market_VariantModel;
+		$variables['masterVariant'] = $variables['product']->masterVariant ?: new Market_VariantModel;
 
 		foreach ($variables['productType']->getFieldLayout()->getTabs() as $index => $tab) {
 			// Do any of the fields on this tab have errors?
@@ -224,7 +220,7 @@ class Market_ProductController extends Market_BaseController
 	{
 		$attributes = craft()->request->getPost('masterVariant');
 
-		$masterVariant = $product->master ?: new Market_VariantModel;
+		$masterVariant = $product->masterVariant ?: new Market_VariantModel;
 		$masterVariant->setAttributes($attributes);
 		$masterVariant->isMaster = true;
 
