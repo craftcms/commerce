@@ -90,7 +90,6 @@
                         maxlength: 255
                     }) }}
 
-                    {% if product.nonMasterVariants is empty %}
                         {% set masterVariantHtml %}
 
                         <table id="" class="shadow-box editable">
@@ -160,7 +159,6 @@
                             id:       'masterVariant',
                             label:    'Master Variant'|t
                         }, masterVariantHtml) }}
-                    {% endif %}
 
                     {% set allProductTab = productType.asa('productFieldLayout').getFieldLayout().getTabs() %}
                     {% for tab in allProductTab %}
