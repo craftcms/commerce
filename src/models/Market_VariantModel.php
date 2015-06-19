@@ -80,9 +80,9 @@ class Market_VariantModel extends BaseElementModel implements Purchasable
 	protected function defineAttributes()
 	{
 		return array_merge(parent::defineAttributes(), [
-			'id'             => AttributeType::Number,
-			'productId'      => AttributeType::Number,
-			'isMaster'       => AttributeType::Bool,
+			'id'             => [AttributeType::Number],
+			'productId'      => [AttributeType::Number],
+			'isMaster'       => [AttributeType::Bool],
 			'sku'            => [AttributeType::String, 'required' => true],
 			'price'          => [AttributeType::Number, 'decimals' => 4, 'required' => true],
 			'width'          => [AttributeType::Number, 'decimals' => 4],
@@ -91,8 +91,8 @@ class Market_VariantModel extends BaseElementModel implements Purchasable
 			'weight'         => [AttributeType::Number, 'decimals' => 4],
 			'stock'          => [AttributeType::Number],
 			'unlimitedStock' => [AttributeType::Bool, 'default' => 0],
-			'minQty'         => AttributeType::Number,
-			'maxQty'         => AttributeType::Number,
+			'minQty'         => [AttributeType::Number],
+			'maxQty'         => [AttributeType::Number],
 			'deletedAt'      => [AttributeType::DateTime]
 		]);
 	}
