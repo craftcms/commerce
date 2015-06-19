@@ -20,6 +20,7 @@ use Market\Interfaces\Purchasable;
  * @property int                 stock
  * @property bool                unlimitedStock
  * @property int                 minQty
+ * @property int                 maxQty
  * @property DateTime            deletedAt
  *
  * @property Market_ProductModel $product
@@ -91,6 +92,7 @@ class Market_VariantModel extends BaseElementModel implements Purchasable
 			'stock'          => [AttributeType::Number],
 			'unlimitedStock' => [AttributeType::Bool, 'default' => 0],
 			'minQty'         => AttributeType::Number,
+			'maxQty'         => AttributeType::Number,
 			'deletedAt'      => [AttributeType::DateTime]
 		]);
 	}
@@ -119,6 +121,11 @@ class Market_VariantModel extends BaseElementModel implements Purchasable
 
 		if ($lineItem->qty < $this->minQty) {
 			$error = sprintf('Minimal order qty for this variant is %d', $this->minQty);
+			$lineItem->addError('qty', $error);
+		}
+
+		if ($lineItem->qty > $this->maxQty) {
+			$error = sprintf('Maximum order qty for this variant is %d', $this->minQty);
 			$lineItem->addError('qty', $error);
 		}
 

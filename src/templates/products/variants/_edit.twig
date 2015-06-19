@@ -31,7 +31,8 @@
             <th scope="col" class="header">{{ 'Weight'|t }}</th>
             <th scope="col" class="header">{{ 'Stock Count'|t }}</th>
             <th scope="col" class="header">{{ 'Unlimited Stock'|t }}</th>
-            <th scope="col" class="header">{{ 'Min Quantity'|t }}</th>
+            <th scope="col" class="header">{{ 'Min Qty Per Order'|t }}</th>
+            <th scope="col" class="header">{{ 'Max Qty Per Order'|t }}</th>
         </tr>
         <tbody>
         <tr>
@@ -63,6 +64,9 @@
             <td class="textual">
                 <input type="number" name="minQty" value="{{ variant.minQty }}" min="0">
             </td>
+            <td class="textual">
+                <input type="number" name="maxQty" value="{{ variant.maxQty }}" min="0">
+            </td>
         </tr>
         {% if variant.hasErrors() %}
             <tr>
@@ -75,6 +79,7 @@
                 <td><span class="error">{{ variant.getErrors('stock')|join }}</span></td>
                 <td><span class="error">{{ variant.getErrors('unlimitedStock')|join }}</span></td>
                 <td><span class="error">{{ variant.getErrors('minQty')|join }}</span></td>
+                <td><span class="error">{{ variant.getErrors('maxQty')|join }}</span></td>
             </tr>
         {% endif %}
         </tbody>
