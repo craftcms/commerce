@@ -127,8 +127,6 @@ class Market_ProductController extends Market_BaseController
 		$product       = $this->_setProductFromPost();
 		$masterVariant = $this->_setMasterVariantFromPost($product);
 
-
-
 		MarketDbHelper::beginStackedTransaction();
 
 		if (craft()->market_product->save($product)) {
@@ -149,6 +147,10 @@ class Market_ProductController extends Market_BaseController
 		}
 
 		MarketDbHelper::rollbackStackedTransaction();
+		// Since Product may have been ok to save and an ID assigned,
+		// but child model validation failed and the transaction rolled back.
+		// Since action failed, lets remove the ID that was no persisted.
+		$product->id = null;
 
 		craft()->userSession->setNotice(Craft::t("Couldn't save product."));
 		craft()->urlManager->setRouteVariables([
