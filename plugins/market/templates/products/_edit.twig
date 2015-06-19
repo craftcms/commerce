@@ -92,76 +92,7 @@
                         maxlength: 255
                     }) }}
 
-                        {% set masterVariantHtml %}
 
-                        <table id="" class="shadow-box editable">
-                            <thead>
-                            <tr>
-                                <th scope="col" class="header"><span class="required">{{ 'SKU'|t }}</span></th>
-                                <th scope="col" class="header"><span class="required">{{ 'Price'|t }}</span></th>
-                                <th scope="col" class="header">{{ 'Width'|t }}</th>
-                                <th scope="col" class="header">{{ 'Height'|t }}</th>
-                                <th scope="col" class="header">{{ 'Length'|t }}</th>
-                                <th scope="col" class="header">{{ 'Weight'|t }}</th>
-                                <th scope="col" class="header">{{ 'Stock Count'|t }}</th>
-                                <th scope="col" class="header">{{ 'Unlimited Stock'|t }}</th>
-                                <th scope="col" class="header">{{ 'Min Quantity'|t }}</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr>
-                                <input type="hidden" name="masterVariant[isMaster]" value="1">
-                                <td class="textual">
-                                    <input name="masterVariant[sku]" value="{{ masterVariant.sku }}">
-                                </td>
-                                <td class="textual">
-                                    <input type="number" step="0.0001" name="masterVariant[price]" value="{{ masterVariant.price }}">
-                                </td>
-                                <td class="textual">
-                                    <input type="number" step="0.0001" name="masterVariant[width]" value="{{ masterVariant.width }}">
-                                </td>
-                                <td class="textual">
-                                    <input type="number" step="0.0001" name="masterVariant[height]" value="{{ masterVariant.height }}">
-                                </td>
-                                <td class="textual">
-                                    <input type="number" step="0.0001" name="masterVariant[length]" value="{{ masterVariant.length }}">
-                                </td>
-                                <td class="textual">
-                                    <input type="number" step="0.0001" name="masterVariant[weight]" value="{{ masterVariant.weight }}">
-                                </td>
-                                <td class="textual">
-                                    <input type="number" name="masterVariant[stock]" value="{{ masterVariant.stock }}" min="0">
-                                </td>
-                                <td class="">
-                                    <input type="hidden" name="masterVariant[unlimitedStock]" value="0">
-                                    <input type="checkbox" name="masterVariant[unlimitedStock]" value="1"
-                                           {% if masterVariant.unlimitedStock %}checked{% endif %}>
-                                </td>
-                                <td class="textual">
-                                    <input type="number" name="masterVariant[minQty]" value="{{ masterVariant.minQty }}" min="0">
-                                </td>
-                            </tr>
-                            {% if masterVariant.errors|length %}
-                                <tr>
-                                    <td><span class="error">{{ masterVariant.getErrors('sku')|join }}</span></td>
-                                    <td><span class="error">{{ masterVariant.getErrors('price')|join }}</span></td>
-                                    <td><span class="error">{{ masterVariant.getErrors('width')|join }}</span></td>
-                                    <td><span class="error">{{ masterVariant.getErrors('height')|join }}</span></td>
-                                    <td><span class="error">{{ masterVariant.getErrors('length')|join }}</span></td>
-                                    <td><span class="error">{{ masterVariant.getErrors('weight')|join }}</span></td>
-                                    <td><span class="error">{{ masterVariant.getErrors('stock')|join }}</span></td>
-                                    <td><span class="error">{{ masterVariant.getErrors('unlimitedStock')|join }}</span></td>
-                                    <td><span class="error">{{ masterVariant.getErrors('minQty')|join }}</span></td>
-                                </tr>
-                            {% endif %}
-                            </tbody>
-                        </table>
-                        {% endset %}
-
-                        {{ forms.field({
-                            id:       'masterVariant',
-                            label:    'Master Variant'|t
-                        }, masterVariantHtml) }}
 
                     {% set allProductTab = productType.asa('productFieldLayout').getFieldLayout().getTabs() %}
                     {% for tab in allProductTab %}
@@ -229,9 +160,100 @@
 
             </div>
             <div class="item" data-position="right" data-colspan="1">
+
+                {# master variant pane#}
                 <div class="pane">
-                </div>
-                
+
+                    <h3>Product Details</h3>
+
+                    {{ forms.text({
+                        name:   'masterVariant[isMaster]',
+                        type:   'hidden',
+                        value: '1'
+                    }) }}
+
+                    {{ forms.textField({
+                        label: 'SKU'|t,
+                        name:   'masterVariant[sku]',
+                        value: masterVariant.sku,
+                        errors: masterVariant.getErrors('sku')
+                    })}}
+
+                    {{ forms.textField({
+                        label: 'Price'|t,
+                        name:   'masterVariant[price]',
+                        type:   'text',
+                        value: masterVariant.price,
+                        errors: masterVariant.getErrors('price')
+                    })}}
+                    <a class="fieldtoggle" data-target="#masterVariantDetails">More</a>
+                    <div id="masterVariantDetails" class="hidden">
+
+                    {{ forms.textField({
+                        label: 'Min Qty Per Order'|t,
+                        name:   'masterVariant[minQty]',
+                        type:   'text',
+                        value: masterVariant.minQty,
+                        errors: masterVariant.getErrors('minQty')
+                    })}}
+
+                    {{ forms.textField({
+                        label: 'Max Qty Per Order'|t,
+                        name:   'masterVariant[maxQty]',
+                        type:   'text',
+                        value: masterVariant.maxQty,
+                        errors: masterVariant.getErrors('maxQty')
+                    })}}
+
+                    {{ forms.textField({
+                        label: 'Width'|t,
+                        name:   'masterVariant[width]',
+                        type:   'text',
+                        value: masterVariant.width,
+                        errors: masterVariant.getErrors('width')
+                    })}}
+
+                    {{ forms.textField({
+                        label: 'Height'|t,
+                        name:   'masterVariant[height]',
+                        type:   'number',
+                        value: masterVariant.height,
+                        errors: masterVariant.getErrors('height')
+                    })}}
+
+                    {{ forms.textField({
+                        label: 'Length'|t,
+                        name:   'masterVariant[length]',
+                        type:   'text',
+                        value: masterVariant.length,
+                        errors: masterVariant.getErrors('length')
+                    })}}
+
+                    {{ forms.textField({
+                        label: 'Weight'|t,
+                        name:   'masterVariant[weight]',
+                        type:   'text',
+                        value: masterVariant.weight,
+                        errors: masterVariant.getErrors('weight')
+                    })}}
+
+                    {{ forms.textField({
+                        label: 'Stock'|t,
+                        name:   'masterVariant[stock]',
+                        type:   'text',
+                        value: masterVariant.stock,
+                        errors: masterVariant.getErrors('stock')
+                    })}}
+                    {{ forms.checkboxField({
+                        label: 'Unlimited Stock'|t,
+                        name:   'masterVariant[unlimitedStock]',
+                        errors: masterVariant.getErrors('unlimitedStock')
+                    }) }}
+
+                    </div> {# end masterVariantDetails #}
+
+                </div> {# end pane #}
+
                 <div class="pane">
                     {{ forms.textField({
                         label: "Slug"|t,
