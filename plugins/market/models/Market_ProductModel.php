@@ -151,6 +151,7 @@ class Market_ProductModel extends BaseElementModel
 
 	/**
 	 * Either only master variant if there is only one or all without master
+	 * Applies sales to the product before returning
 	 *
 	 * @return Market_VariantModel[]
 	 */
@@ -166,6 +167,19 @@ class Market_ProductModel extends BaseElementModel
         return $variants;
 	}
 
+	/**
+	 * Gets only the variant that is master.
+	 *
+	 * @return array
+	 */
+	public function getMasterVariant()
+	{
+		$masterVariant = array_filter($this->allVariants, function ($v) {
+			return $v->isMaster;
+		});
+
+		return isset($masterVariant[0]) ? $masterVariant[0] : null;
+	}
 	/**
 	 * @return Market_VariantModel[]
 	 */

@@ -91,7 +91,7 @@
                     }) }}
 
                     {% if product.nonMasterVariants is empty %}
-                        {% set masterVariant %}
+                        {% set masterVariantHtml %}
 
                         <table id="" class="shadow-box editable">
                             <thead>
@@ -159,7 +159,7 @@
                         {{ forms.field({
                             id:       'masterVariant',
                             label:    'Master Variant'|t
-                        }, masterVariant) }}
+                        }, masterVariantHtml) }}
                     {% endif %}
 
                     {% set allProductTab = productType.asa('productFieldLayout').getFieldLayout().getTabs() %}
