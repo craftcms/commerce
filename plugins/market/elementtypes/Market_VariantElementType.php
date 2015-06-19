@@ -51,9 +51,7 @@ class Market_VariantElementType extends Market_BaseElementType
 			'weight'         => Craft::t('weight'),
 			'stock'          => Craft::t('stock'),
 			'unlimitedStock' => Craft::t('unlimitedStock'),
-			'minQty'         => Craft::t('minQty'),
-			'isMaster'         => Craft::t('master'),
-
+			'minQty'         => Craft::t('minQty')
 		];
 	}
 
@@ -89,9 +87,10 @@ class Market_VariantElementType extends Market_BaseElementType
 	public function defineCriteriaAttributes()
 	{
 		return [
-			'sku'            => AttributeType::Mixed,
-			'product'        => AttributeType::Mixed,
-			'productId'        => AttributeType::Mixed
+			'sku'       => AttributeType::Mixed,
+			'product'   => AttributeType::Mixed,
+			'productId' => AttributeType::Mixed,
+			'isMaster' => AttributeType::Mixed,
 		];
 	}
 
@@ -109,13 +108,17 @@ class Market_VariantElementType extends Market_BaseElementType
 			if ($criteria->product instanceof Market_ProductModel) {
 				$criteria->productId = $criteria->product->id;
 				$criteria->product   = NULL;
-			}else{
+			} else {
 				$query->andWhere(DbHelper::parseParam('variants.productId', $criteria->product, $query->params));
 			}
 		}
 
 		if ($criteria->productId) {
 			$query->andWhere(DbHelper::parseParam('variants.productId', $criteria->productId, $query->params));
+		}
+
+		if ($criteria->isMaster) {
+			$query->andWhere(DbHelper::parseParam('variants.isMaster', $criteria->isMaster, $query->params));
 		}
 
 	}
