@@ -67,6 +67,8 @@
         {{ getCsrfInput() }}
         {% if product.id %}<input type="hidden" name="productId" value="{{ product.id }}">{% endif %}
 
+
+
         <div class="grid first">
             <div class="item" data-position="left" data-min-colspan="2" data-max-colspan="3">
 
@@ -108,6 +110,7 @@
                             </thead>
                             <tbody>
                             <tr>
+                                <input type="hidden" name="masterVariant[isMaster]" value="1">
                                 <td class="textual">
                                     <input name="masterVariant[sku]" value="{{ masterVariant.sku }}">
                                 </td>
@@ -138,7 +141,7 @@
                                     <input type="number" name="masterVariant[minQty]" value="{{ masterVariant.minQty }}" min="0">
                                 </td>
                             </tr>
-                            {% if masterVariant.hasErrors() %}
+                            {% if masterVariant.errors|length %}
                                 <tr>
                                     <td><span class="error">{{ masterVariant.getErrors('sku')|join }}</span></td>
                                     <td><span class="error">{{ masterVariant.getErrors('price')|join }}</span></td>
@@ -171,6 +174,10 @@
                         </div>
                     {% endfor %}
 
+
+                </div>{# end pane#}
+
+                <div id="" class="pane">
 
                 </div>{# end pane#}
 
@@ -222,7 +229,9 @@
 
             </div>
             <div class="item" data-position="right" data-colspan="1">
-
+                <div class="pane">
+                </div>
+                
                 <div class="pane">
                     {{ forms.textField({
                         label: "Slug"|t,
