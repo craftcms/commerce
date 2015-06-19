@@ -80,6 +80,74 @@ class Market_ProductModel extends BaseElementModel
 		return $this->title;
 	}
 
+
+	/**
+	 * Returns the placeholder template for the sku
+	 *
+	 */
+	public function getSkuPlaceholder()
+	{
+		//TODO implement SKU template
+		return "";
+	}
+
+	/**
+	 * Returns the Master Variants's
+	 * @return float
+
+	 */
+	public function getPrice()
+	{
+		if ($this->getMasterVariant()){
+			return $this->getMasterVariant()->price;
+		}
+	}
+
+	/**
+	 * Returns the Master Variants's
+	 * @return float
+
+	 */
+	public function getWidth()
+	{
+		if ($this->getMasterVariant()){
+			return $this->getMasterVariant()->width;
+		}
+	}
+
+	/**
+	 * Returns the Master Variants's Height
+	 * @return float
+	 */
+	public function getHeight()
+	{
+		if ($this->getMasterVariant()){
+			return $this->getMasterVariant()->height;
+		}
+	}
+
+	/**
+	 * Returns the Master Variants's Length
+	 * @return float
+	 */
+	public function getLength()
+	{
+		if ($this->getMasterVariant()){
+			return $this->getMasterVariant()->length;
+		}
+	}
+
+	/**
+	 * Returns the Master Variants's Weight
+	 * @return float
+	 */
+	public function getWeight()
+	{
+		if ($this->getMasterVariant()){
+			return $this->getMasterVariant()->weight;
+		}
+	}
+
 	/**
 	 * What is the Url Format for this ProductType
 	 *
@@ -170,10 +238,11 @@ class Market_ProductModel extends BaseElementModel
 	/**
 	 * Gets only the variant that is master.
 	 *
-	 * @return array
+	 * @return Market_VariantModel|null
 	 */
 	public function getMasterVariant()
 	{
+
 		$masterVariant = array_filter($this->allVariants, function ($v) {
 			return $v->isMaster;
 		});

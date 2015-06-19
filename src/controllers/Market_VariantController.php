@@ -36,20 +36,24 @@ class Market_VariantController extends Market_BaseController
 		if (empty($variables['variant'])) {
 			if (!empty($variables['id'])) {
 				$variables['variant'] = craft()->market_variant->getById($variables['id']);
-				$variables['title'] = Craft::t('Variant for {product}', ['product' => $variables['product']]);
+
 				if (!$variables['variant']) {
 					throw new HttpException(404);
 				}
 			} else {
 				$variables['variant'] = new Market_VariantModel();
-				$variables['title'] = Craft::t('Create a Variant for {product}', ['product' => $variables['product']]);
 			};
 
 		}
 
 		$variables['productType'] = craft()->market_productType->getByHandle($variables['productTypeHandle']);
-
 		$this->prepVariables($variables);
+
+		if (!empty($variables['variant']->id)) {
+			$variables['title'] = Craft::t('Variant for {product}', ['product' => $variables['product']]);
+		} else {
+			$variables['title'] = Craft::t('Create a Variant for {product}', ['product' => $variables['product']]);
+		}
 
 		$this->renderTemplate('market/products/variants/_edit', $variables);
 	}

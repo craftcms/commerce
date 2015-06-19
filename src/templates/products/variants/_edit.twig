@@ -36,22 +36,22 @@
         <tbody>
         <tr>
             <td class="textual">
-                <input name="sku" value="{{ variant.sku }}">
+                <input name="sku" placeholder="{{ product.skuPlaceholder }}" value="{{ variant.sku }}">
             </td>
             <td class="textual">
-                <input type="number" step="0.0001" name="price" value="{{ variant.price }}">
+                <input type="number" placeholder="{{ product.price }}" step="0.0001" name="price" value="{{ variant.price }}">
             </td>
             <td class="textual">
-                <input type="number" step="0.0001" name="width" value="{{ variant.width }}">
+                <input type="number" placeholder="{{ product.width }}" step="0.0001" name="width" value="{{ variant.width }}">
             </td>
             <td class="textual">
-                <input type="number" step="0.0001" name="height" value="{{ variant.height }}">
+                <input type="number" placeholder="{{ product.height }}" step="0.0001" name="height" value="{{ variant.height }}">
             </td>
             <td class="textual">
-                <input type="number" step="0.0001" name="length" value="{{ variant.length }}">
+                <input type="number" placeholder="{{ product.length }}" step="0.0001" name="length" value="{{ variant.length }}">
             </td>
             <td class="textual">
-                <input type="number" step="0.0001" name="weight" value="{{ variant.weight }}">
+                <input type="number" placeholder="{{ product.weight }}" step="0.0001" name="weight" value="{{ variant.weight }}">
             </td>
             <td class="textual">
                 <input type="number" name="stock" value="{{ variant.stock }}" min="0">
