@@ -49,7 +49,7 @@
             <li role="presentation" class="{% if craft.request.getSegment(2) == 'orders' %}active{% endif %}">
                 <a href="{{url('market/orders')}}">Orders</a>
             </li>
-            {% set cart = craft.market.getCart('cart') %}
+            {% set cart = craft.market.getCart('order') %}
             <li role="presentation" class="{% if craft.request.getSegment(2) == 'cart' %}active{% endif %}">
                 <a href="{{url('market/cart')}}">Cart <span class="badge">{{cart.lineItems|length}}</span></a>
             </li>
