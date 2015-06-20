@@ -34,7 +34,7 @@ class Market_InstallSeeder implements Market_SeederInterface
 	private function defaultOrderTypes()
 	{
 
-		$types = ['Order'];
+		$types = ['order'];
 
 		$shippingMethod = Market_ShippingMethodRecord::model()->find();
 
