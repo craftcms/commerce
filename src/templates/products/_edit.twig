@@ -100,6 +100,7 @@
                     }) }}
                     <div id="masterVariantDetails" class="grid first" data-cols="9">
 
+                    {% if not productType.hasVariants %}
                     <div class="item" data-min-colspan="1" data-max-colspan="3">
                     {{ forms.textField({
                         label: 'SKU'|t,
@@ -108,6 +109,7 @@
                         errors: masterVariant.getErrors('sku')
                     })}}
                     </div>
+                    {%  endif %}
 
                     <div class="item" data-min-colspan="1" data-max-colspan="3">
                     {{ forms.textField({
@@ -211,11 +213,10 @@
 
                 </div>{# end pane#}
 
-                <div id="" class="pane">
 
-                </div>{# end pane#}
+                {% if productType.hasVariants %}
 
-                <div id="" class="pane">
+                    <div id="" class="pane">
                     {% set variantTab = {'variantsTab':{'label':'Variants','url':'#variantsTab'}} %}
 
                     {% include "_includes/tabs" with {'tabs': variantTab }%}
@@ -259,7 +260,8 @@
                         {%  endif  %}
 
                     </div>
-                </div>
+                </div>{# end pane #}
+                {%  endif %}
 
             </div>
             <div class="item" data-position="right" data-colspan="1">
@@ -318,8 +320,10 @@
 
                 <div class="buttons first">
                     <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
+                    {% if productType.hasVariants %}
                     <a class="btn formsubmit submit right" data-redirect="{{ product.cpEditUrl }}/variants/new"
                        data-value="1">{{ 'Save & Add Variant'|t }}</a>
+                    {%  endif %}
                 </div>
 
 
