@@ -92,13 +92,13 @@
                         maxlength: 255
                     }) }}
 
-
+                    {%  set masterVariantHtml %}
                     {{ forms.text({
                         name:   'masterVariant[isMaster]',
                         type:   'hidden',
                         value: '1'
                     }) }}
-                    <div id="masterVariantDetails" class="grid first {% if productType.hasVariants %}hidden{% endif %}" data-cols="9">
+                    <div id="masterVariantDetails" class="grid first" data-cols="9">
 
 
                     <div class="item" data-min-colspan="1" data-max-colspan="3">
@@ -196,9 +196,12 @@
                         errors: masterVariant.getErrors('unlimitedStock')
                     }) }}
                     </div>
-
-
                     </div>
+                    {%  endset %}
+
+                    {%  if not productType.hasVariants %}
+                        {{ masterVariantHtml }}
+                    {%  endif %}
 
                     {% set allProductTab = productType.asa('productFieldLayout').getFieldLayout().getTabs() %}
                     {% for tab in allProductTab %}
@@ -221,6 +224,10 @@
                     {% set variantTab = {'variantsTab':{'label':'Variants','url':'#variantsTab'}} %}
 
                     {% include "_includes/tabs" with {'tabs': variantTab }%}
+
+                    {%  if productType.hasVariants %}
+                        {{ masterVariantHtml }}
+                    {%  endif %}
 
                     <div id="variantsTab" class="">
 
