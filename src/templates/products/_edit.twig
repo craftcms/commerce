@@ -98,9 +98,9 @@
                         type:   'hidden',
                         value: '1'
                     }) }}
-                    <div id="masterVariantDetails" class="grid first" data-cols="9">
+                    <div id="masterVariantDetails" class="grid first {% if productType.hasVariants %}hidden{% endif %}" data-cols="9">
 
-                    {% if not productType.hasVariants %}
+
                     <div class="item" data-min-colspan="1" data-max-colspan="3">
                     {{ forms.textField({
                         label: 'SKU'|t,
@@ -109,7 +109,7 @@
                         errors: masterVariant.getErrors('sku')
                     })}}
                     </div>
-                    {%  endif %}
+
 
                     <div class="item" data-min-colspan="1" data-max-colspan="3">
                     {{ forms.textField({
