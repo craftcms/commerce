@@ -113,19 +113,6 @@ class Market_OrderTypeService extends BaseApplicationComponent
 		$orderTypeRecord->name                         = $orderType->name;
 		$orderTypeRecord->handle                       = $orderType->handle;
 		$orderTypeRecord->shippingMethodId             = $orderType->shippingMethodId;
-		$orderTypeRecord->purgeIncompletedCartDuration = $orderType->purgeIncompletedCartDuration;
-
-		//validating date interval
-		if($orderType->purgeIncompletedCartDuration) {
-			try {
-				$interval = new DateInterval($orderType->purgeIncompletedCartDuration);
-			} catch(\Exception $e) {
-				$orderType->addError('purgeIncompletedCartDuration', 'Wrong date interval format');
-			}
-			if(!empty($interval) && $interval->invert) {
-				$orderType->addError('purgeIncompletedCartDuration', 'Only positive intervals allowed');
-			}
-		}
 
 		$orderTypeRecord->validate();
 		$orderType->addErrors($orderTypeRecord->getErrors());
