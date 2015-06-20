@@ -8,14 +8,17 @@
 {% import "_includes/forms" as forms %}
 
 {% set content %}
+
 <form method="post" accept-charset="UTF-8" data-saveshortcut>
     <input type="hidden" name="action" value="market/variant/save">
     <input type="hidden" name="redirect" value="{{ product.cpEditUrl }}">
     <input type="hidden" name="productId" value="{{ productId }}">
     <input type="hidden" name="id" value="{{ variant.id }}">
+    <input type="hidden" name="isMaster" value="{{ variant.isMaster }}">
     {{ getCsrfInput() }}
 
     {% set variantForm %}
+
 
     <table id="" class="shadow-box editable">
         <thead>
@@ -28,27 +31,28 @@
             <th scope="col" class="header">{{ 'Weight'|t }}</th>
             <th scope="col" class="header">{{ 'Stock Count'|t }}</th>
             <th scope="col" class="header">{{ 'Unlimited Stock'|t }}</th>
-            <th scope="col" class="header">{{ 'Min Quantity'|t }}</th>
+            <th scope="col" class="header">{{ 'Min Qty Per Order'|t }}</th>
+            <th scope="col" class="header">{{ 'Max Qty Per Order'|t }}</th>
         </tr>
         <tbody>
         <tr>
             <td class="textual">
-                <input name="sku" value="{{ variant.sku }}">
+                <input name="sku" placeholder="{{ product.skuPlaceholder }}" value="{{ variant.sku }}">
             </td>
             <td class="textual">
-                <input type="number" step="0.0001" name="price" value="{{ variant.price }}">
+                <input type="number" placeholder="{{ product.price }}" step="0.0001" name="price" value="{{ variant.price }}">
             </td>
             <td class="textual">
-                <input type="number" step="0.0001" name="width" value="{{ variant.width }}">
+                <input type="number" placeholder="{{ product.width }}" step="0.0001" name="width" value="{{ variant.width }}">
             </td>
             <td class="textual">
-                <input type="number" step="0.0001" name="height" value="{{ variant.height }}">
+                <input type="number" placeholder="{{ product.height }}" step="0.0001" name="height" value="{{ variant.height }}">
             </td>
             <td class="textual">
-                <input type="number" step="0.0001" name="length" value="{{ variant.length }}">
+                <input type="number" placeholder="{{ product.length }}" step="0.0001" name="length" value="{{ variant.length }}">
             </td>
             <td class="textual">
-                <input type="number" step="0.0001" name="weight" value="{{ variant.weight }}">
+                <input type="number" placeholder="{{ product.weight }}" step="0.0001" name="weight" value="{{ variant.weight }}">
             </td>
             <td class="textual">
                 <input type="number" name="stock" value="{{ variant.stock }}" min="0">
@@ -59,6 +63,9 @@
             </td>
             <td class="textual">
                 <input type="number" name="minQty" value="{{ variant.minQty }}" min="0">
+            </td>
+            <td class="textual">
+                <input type="number" name="maxQty" value="{{ variant.maxQty }}" min="0">
             </td>
         </tr>
         {% if variant.hasErrors() %}
@@ -72,6 +79,7 @@
                 <td><span class="error">{{ variant.getErrors('stock')|join }}</span></td>
                 <td><span class="error">{{ variant.getErrors('unlimitedStock')|join }}</span></td>
                 <td><span class="error">{{ variant.getErrors('minQty')|join }}</span></td>
+                <td><span class="error">{{ variant.getErrors('maxQty')|join }}</span></td>
             </tr>
         {% endif %}
         </tbody>
@@ -83,15 +91,14 @@
         label:    'Variant'
     }, variantForm) }}
 
-    {% for optionType in product.optionTypes %}
-        {{ forms.selectField({
-            label: optionType.name,
-            name: 'optionValues[' ~ optionType.id ~ ']',
-            value: optionValues[optionType.id] is defined ? optionValues[optionType.id] : '',
-            required: false,
-            options: optionType.selectValues,
-            class: 'select-wide',
-        }) }}
+    {% for tab in productType.asa('variantFieldLayout').getFieldLayout().getTabs() %}
+        <div id="tab{{ loop.index }}" {% if not loop.first %} class="hidden" {% endif %}>
+            {% include "_includes/fields" with {
+            fields: tab.getFields(),
+            element: variant,
+            static: (static is defined ? static : false)
+            } only %}
+        </div>
     {% endfor %}
 
 
@@ -100,13 +107,5 @@
     </div>
 </form>
 
-{% set js %}
-$(function() {
-    $('select').selectize({
-      allowEmptyOption:true
-    });
-});
-{% endset %}
-{% includeJs js %}
 
 {% endset %}

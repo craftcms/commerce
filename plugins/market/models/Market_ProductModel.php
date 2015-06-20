@@ -19,7 +19,6 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property Market_ProductTypeModel  type
  * @property Market_TaxCategoryModel  taxCategory
  * @property Market_VariantModel[]    allVariants
- * @property Market_OptionTypeModel[] optionTypes
  * @property Market_VariantModel      $master
  *
  * Magic properties:
@@ -81,6 +80,74 @@ class Market_ProductModel extends BaseElementModel
 		return $this->title;
 	}
 
+
+	/**
+	 * Returns the placeholder template for the sku
+	 *
+	 */
+	public function getSkuPlaceholder()
+	{
+		//TODO implement SKU template
+		return "";
+	}
+
+	/**
+	 * Returns the Master Variants's
+	 * @return float
+
+	 */
+	public function getPrice()
+	{
+		if ($this->getMasterVariant()){
+			return $this->getMasterVariant()->price;
+		}
+	}
+
+	/**
+	 * Returns the Master Variants's
+	 * @return float
+
+	 */
+	public function getWidth()
+	{
+		if ($this->getMasterVariant()){
+			return $this->getMasterVariant()->width;
+		}
+	}
+
+	/**
+	 * Returns the Master Variants's Height
+	 * @return float
+	 */
+	public function getHeight()
+	{
+		if ($this->getMasterVariant()){
+			return $this->getMasterVariant()->height;
+		}
+	}
+
+	/**
+	 * Returns the Master Variants's Length
+	 * @return float
+	 */
+	public function getLength()
+	{
+		if ($this->getMasterVariant()){
+			return $this->getMasterVariant()->length;
+		}
+	}
+
+	/**
+	 * Returns the Master Variants's Weight
+	 * @return float
+	 */
+	public function getWeight()
+	{
+		if ($this->getMasterVariant()){
+			return $this->getMasterVariant()->weight;
+		}
+	}
+
 	/**
 	 * What is the Url Format for this ProductType
 	 *
@@ -115,7 +182,7 @@ class Market_ProductModel extends BaseElementModel
 	public function getFieldLayout()
 	{
 		if ($this->typeId) {
-			return craft()->market_productType->getById($this->typeId)->getFieldLayout();
+			return craft()->market_productType->getById($this->typeId)->asa('productFieldLayout')->getFieldLayout();
 		}
 
 		return NULL;
@@ -152,6 +219,7 @@ class Market_ProductModel extends BaseElementModel
 
 	/**
 	 * Either only master variant if there is only one or all without master
+	 * Applies sales to the product before returning
 	 *
 	 * @return Market_VariantModel[]
 	 */
@@ -168,6 +236,20 @@ class Market_ProductModel extends BaseElementModel
 	}
 
 	/**
+	 * Gets only the variant that is master.
+	 *
+	 * @return Market_VariantModel|null
+	 */
+	public function getMasterVariant()
+	{
+
+		$masterVariant = array_filter($this->allVariants, function ($v) {
+			return $v->isMaster;
+		});
+
+		return isset($masterVariant[0]) ? $masterVariant[0] : null;
+	}
+	/**
 	 * @return Market_VariantModel[]
 	 */
 	public function getNonMasterVariants()
@@ -176,21 +258,6 @@ class Market_ProductModel extends BaseElementModel
 			return !$v->isMaster;
 		});
 	}
-
-	/**
-	 * @return int[]
-	 */
-	public function getOptionTypesIds()
-	{
-		if (!$this->id) {
-			return [];
-		}
-
-		return array_map(function ($optionType) {
-			return $optionType->id;
-		}, $this->optionTypes);
-	}
-
 
 	// Protected Methods
 	// =============================================================================

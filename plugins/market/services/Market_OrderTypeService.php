@@ -48,23 +48,20 @@ class Market_OrderTypeService extends BaseApplicationComponent
 	}
 
 	/**
-	 * @param Market_OrderTypeModel $orderType
+	 * Which Carts need to be deleted
 	 * @return Market_OrderModel[]
 	 */
-	public function getCartsToPurge(Market_OrderTypeModel $orderType)
+	public function getCartsToPurge()
 	{
-		if(!$orderType->purgeIncompletedCartDuration || !$orderType->id) {
-			return [];
-		}
 
+		$configInterval = craft()->config->get('purgeIncompleteCartDuration','market');
 		$edge = new DateTime();
-		$interval = new DateInterval($orderType->purgeIncompletedCartDuration);
+		$interval = new DateInterval($configInterval);
 		$interval->invert = 1;
 		$edge->add($interval);
 
 		$records = Market_OrderRecord::model()->findAllByAttributes(
 			[
-				'typeId' => $orderType->id,
 				'completedAt' => null,
 			],
 			'dateUpdated <= :edge',
@@ -74,13 +71,13 @@ class Market_OrderTypeService extends BaseApplicationComponent
 	}
 
 	/**
-	 * @param Market_OrderTypeModel $orderType
+	 * Removes all carts that are incomplete and older than the config setting.
 	 * @return int
 	 * @throws \Exception
 	 */
-	public function purgeIncompletedCarts(Market_OrderTypeModel $orderType)
+	public function purgeIncompleteCarts()
 	{
-		$carts = $this->getCartsToPurge($orderType);
+		$carts = $this->getCartsToPurge();
 		if($carts) {
 			$ids = array_map(function(Market_OrderModel $cart) {
 				return $cart->id;
@@ -188,7 +185,6 @@ class Market_OrderTypeService extends BaseApplicationComponent
 
 			craft()->elements->deleteElementById($orderIds);
 			craft()->fields->deleteLayoutById($orderType->fieldLayoutId);
-			Market_OptionValueRecord::model()->deleteAllByAttributes(['optionTypeId' => $orderType->id]);
 
 			$affectedRows = $orderType->delete();
 

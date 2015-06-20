@@ -2,6 +2,7 @@
 
 namespace Craft;
 
+use Market\Interfaces\Purchasable;
 use Market\Traits\Market_ModelRelationsTrait;
 
 /**
@@ -24,13 +25,13 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property string                  optionsJson
  *
  * @property int                     orderId
- * @property int                     variantId
+ * @property int                     purchasableId
  * @property int                     taxCategoryId
  *
  * @property bool                    underSale
  *
+ * @property Purchasable             $purchasable
  * @property Market_OrderModel       order
- * @property Market_VariantModel     variant
  * @property Market_TaxCategoryModel taxCategory
  */
 class Market_LineItemModel extends BaseModel
@@ -55,37 +56,46 @@ class Market_LineItemModel extends BaseModel
 		return $this->price + $this->discountAmount + $this->saleAmount;
 	}
 
+	public function getPurchasable()
+	{
+		if (!$this->purchasableId) {
+			return NULL;
+		}
+
+		return craft()->elements->getElementById($this->purchasableId);
+	}
+
 	/**
 	 * @return bool False when no related variant exists
 	 */
-	public function refreshFromVariant()
+	public function refreshFromPurchasable()
 	{
-		if (!$this->variant || !$this->variant->id) {
+		if (!$this->purchasable || !$this->purchasable->id) {
 			return false;
 		}
 
-		$this->fillFromVariant($this->variant);
+		$this->fillFromPurchasable($this->purchasable);
 
 		return true;
 	}
 
 	/**
-	 * @param Market_VariantModel $variant
+	 * @param Purchasable $purchasable
 	 */
-	public function fillFromVariant(Market_VariantModel $variant)
+	public function fillFromPurchasable(Purchasable $purchasable)
 	{
-		$this->price         = $variant->price;
-		$this->weight        = $variant->weight * 1; //converting nulls
-		$this->height        = $variant->height * 1; //converting nulls
-		$this->length        = $variant->length * 1; //converting nulls
-		$this->width         = $variant->width * 1; //converting nulls
-		$this->taxCategoryId = $variant->product->taxCategoryId;
+		$this->price         = $purchasable->price;
+		$this->weight        = $purchasable->weight * 1; //converting nulls
+		$this->height        = $purchasable->height * 1; //converting nulls
+		$this->length        = $purchasable->length * 1; //converting nulls
+		$this->width         = $purchasable->width * 1; //converting nulls
+		$this->taxCategoryId = $purchasable->product->taxCategoryId;
 
-		$options                 = $variant->attributes;
-		$options['optionValues'] = $variant->getOptionValuesArray();
-		$this->optionsJson       = $options;
+		$options           = $purchasable->attributes;
+		$this->optionsJson = $options;
 
-		$sales = craft()->market_sale->getForVariant($variant);
+		//TODO make sales api work with other purchasables types
+		$sales = craft()->market_sale->getForVariant($purchasable);
 
 		foreach ($sales as $sale) {
 			$this->saleAmount += $sale->calculateTakeoff($this->price);
@@ -112,7 +122,7 @@ class Market_LineItemModel extends BaseModel
 			'total'          => [AttributeType::Number, 'min' => 0, 'decimals' => 4, 'required' => true, 'default' => 0],
 			'qty'            => [AttributeType::Number, 'min' => 0, 'required' => true],
 			'optionsJson'    => [AttributeType::Mixed, 'required' => true],
-			'variantId'      => AttributeType::Number,
+			'purchasableId'  => AttributeType::Number,
 			'orderId'        => AttributeType::Number,
 			'taxCategoryId'  => [AttributeType::Number, 'required' => true],
 		];

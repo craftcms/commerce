@@ -1,7 +1,7 @@
 {% extends "market/_layouts/_main" %}
 {% block title %}Cart{% endblock %}
 
-{% set cart = craft.market.getCart('cart') %}
+{% set cart = craft.market.getCart('order') %}
 {% block content %}
     <h3>Cart ID: {{ cart.number }}</h3>
 

@@ -18,10 +18,12 @@
     {{ getCsrfInput() }}
     {% if productType.id %}<input type="hidden" name="productTypeId" value="{{ productType.id }}">{% endif %}
 
+    {%  set variantTabHidden = (productType.hasVariants ? '' : 'hidden') %}
     {% set tabs = {
-    0: {'label':'Name & Info','url':'#tab0'},
-    1: {'label':'Fields','url':'#tab1'}
-    }
+            0: {'label':'Settings','url':'#tab0'},
+            'productTab': {'label':'Product Fields','url':'#productTab'},
+            'variantTab': {'label':'Variant Fields','url':'#variantTab','class':'variant-settings '~variantTabHidden}
+        }
     %}
 
     <div id="tab0">
@@ -50,6 +52,19 @@
         required: true
     }) }}
 
+    {% macro hasVariantsField(productType) %}
+        {% from "_includes/forms" import lightswitchField %}
+
+        {{ lightswitchField({
+            label: "Products Type has Variants."|t,
+            instructions: "One or more items for sale in a single product that differ from each other.",
+            id: 'hasVariants',
+            name: 'hasVariants',
+            on: productType.hasVariants,
+            toggle: '.variant-settings'
+        }) }}
+    {% endmacro %}
+
     {% macro hasUrlsField(productType) %}
         {% from "_includes/forms" import checkboxField %}
 
@@ -66,7 +81,7 @@
         {% from "_includes/forms" import textField %}
 
         {{ textField({
-            label: "Entry Template"|t,
+            label: "Product Template"|t,
             instructions: "The template to use when the products’s URL is requested."|t,
             id: 'template',
             class: 'ltr',
@@ -76,9 +91,59 @@
         }) }}
     {% endmacro %}
 
-    {% from _self import hasUrlsField, templateField %}
+
+    {% macro fieldOptionsRow(name, handle) %}
+        {% from "_includes/forms" import checkboxField %}
+        <tr data-id="1" data-name="{{ handle }}Field">
+            <th scope="row" data-title="Name">
+                {{ name|title }}
+            </th>
+            <td data-title="Visible">
+                {{ checkboxField({
+                    label: ""|t,
+                    id: 'visible',
+                    name: 'fieldOptions['~handle~'][visible]',
+                    checked: 1,
+                    disabled:lockedVisible|default(false)
+                }) }}
+            </td>
+            <td data-title="Same">
+                <span class="variant-settings">
+                {{ checkboxField({
+                    label: ""|t,
+                    id: 'same',
+                    name: 'fieldOptions['~handle~'][same]',
+                    checked: 1
+                }) }}
+                </span>
+            </td>
+        </tr>
+    {%  endmacro %}
+
+    {% from _self import hasUrlsField, templateField, hasVariantsField, fieldOptionsRow  %}
+
+    {{ hasVariantsField(productType) }}
+
+    {#<table id="fieldOptions" class="data fullwidth collapsible">#}
+        {#<thead>#}
+        {#<tr>#}
+            {#<th scope="col">Field</th>#}
+            {#<th scope="col">Visible</th>#}
+            {#<th scope="col"><span class="variant-settings">Variant Field Hidden</span></th>#}
+        {#</tr>#}
+        {#</thead>#}
+        {#<tbody>#}
+        {#{{ fieldOptionsRow('Weight'|t,'weight') }}#}
+        {#{{ fieldOptionsRow('Width'|t,'width') }}#}
+        {#{{ fieldOptionsRow('Height'|t,'height') }}#}
+        {#{{ fieldOptionsRow('Length'|t,'length') }}#}
+        {#</tbody>#}
+    {#</table>#}
+
+    <hr/>
 
     {{ hasUrlsField(productType) }}
+
 
     <div id="url-settings" class="nested-fields{% if not productType.hasUrls %} hidden{% endif %}">
         {{ forms.textField({
@@ -94,15 +159,21 @@
         {{ templateField(productType) }}
     </div>
 
+    </div>
 
+    <div id="productTab" class="hidden">
 
-
+    {% include "_includes/fieldlayoutdesigner" with {
+    fieldLayout: productType.asa('productFieldLayout').getFieldLayout(),
+    } only %}
 
     </div>
 
-    <div id="tab1" class="hidden">
-    {% include "_includes/fieldlayoutdesigner" with {
-    fieldLayout: productType.getFieldLayout(),
+    <div id="variantTab" class="hidden">
+
+    {% include "market/_includes/variantfieldlayoutdesigner" with {
+        fieldLayout: productType.asa('variantFieldLayout').getFieldLayout(),
+        customizableTabs: false
     } only %}
 
     </div>

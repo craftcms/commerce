@@ -19,10 +19,10 @@
                     <input type="hidden" name="orderTypeHandle" value="cart">
                     {{ getCsrfInput() }}
                     <div class="form-group">
-                        <select name="variantId" class="form-control">
+                        <select name="purchasableId" class="form-control">
                             {% for variant in product.variants %}
                             <option value="{{ variant.id }}">
-                                SKU: {{ variant.sku }} / Price: {{ variant.price }} {% if variant.onSale %}(sale: {{ variant.salePrice }}){% endif %} / Stock: {{ variant.unlimitedStock ? 'unlimited' : variant.stock }} / {{ variant.optionsText }}
+                                SKU: {{ variant.sku }} / Price: {{ variant.price }} {% if variant.onSale %}(sale: {{ variant.salePrice }}){% endif %} / Stock: {{ variant.unlimitedStock ? 'unlimited' : variant.stock }}
                             </option>
                             {% endfor %}
                         </select>
@@ -32,7 +32,6 @@
                     </div>
                     <div class="form-group">
                         <input class="btn btn-primary btn-add-to" type="submit" value="Add to cart" data-type="cart" data-redirect="market/cart">
-                        <input class="btn btn-success btn-add-to" type="submit" value="Add to wishlist" data-type="wishlist" data-redirect="market/wishlist">
                     </div>
                     {% if error is defined %}
                     <strong>Error: {{ error }}</strong>

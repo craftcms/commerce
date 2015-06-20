@@ -145,19 +145,24 @@ class Market_OrderService extends BaseApplicationComponent
 			}
 		}
 
-		// Set default shipping method from Order Type
+		// Set default shipping method from Order Type if available
 		if (!$order->shippingMethodId){
 			$type = craft()->market_orderType->getById($order->typeId);
 			$method = craft()->market_shippingMethod->getById($type->shippingMethodId);
-			$order->shippingMethodId = $method->id;
+			if($method){
+				$order->shippingMethodId = $method->id;
+			}
 		}
 
-		// Set default payment method
+		// Set default payment method if available
 		if (!$order->paymentMethodId){
 			$methods = craft()->market_paymentMethod->getAllForFrontend();
-			$order->paymentMethodId = $methods[0]->id;
+			if($methods){
+				$order->paymentMethodId = $methods[0]->id;	
+			}
 		}
 
+		//TODO: Don't recalculate when a completed order, we don't want amounts to change.
 		$this->calculateAdjustments($order);
 
         $oldStatusId = $orderRecord->orderStatusId;
@@ -272,7 +277,7 @@ class Market_OrderService extends BaseApplicationComponent
     public function recalculate(Market_OrderModel $order)
     {
         foreach($order->lineItems as $item) {
-            if($item->refreshFromVariant()) {
+            if($item->refreshFromPurchasable()) {
                 if(!craft()->market_lineItem->save($item)) {
                     throw new Exception('Error on saving lite item: ' . implode(', ', $item->getAllErrors()));
                 }

@@ -41,19 +41,13 @@ class Market_VariantController extends Market_BaseController
 					throw new HttpException(404);
 				}
 			} else {
-				$variables['variant']                 = new Market_VariantModel();
-				$variables['variant']->price          = $variables['product']->master->price;
-				$variables['variant']->width          = $variables['product']->master->width;
-				$variables['variant']->height         = $variables['product']->master->height;
-				$variables['variant']->length         = $variables['product']->master->length;
-				$variables['variant']->weight         = $variables['product']->master->weight;
-				$variables['variant']->stock          = $variables['product']->master->stock;
-				$variables['variant']->unlimitedStock = $variables['product']->master->unlimitedStock;
-				$variables['variant']->minQty         = $variables['product']->master->minQty;
+				$variables['variant'] = new Market_VariantModel();
 			};
 
-			$variables['optionValues'] = $variables['variant']->getOptionValuesArray(true);
 		}
+
+		$variables['productType'] = craft()->market_productType->getByHandle($variables['productTypeHandle']);
+		$this->prepVariables($variables);
 
 		if (!empty($variables['variant']->id)) {
 			$variables['title'] = Craft::t('Variant for {product}', ['product' => $variables['product']]);
@@ -74,19 +68,15 @@ class Market_VariantController extends Market_BaseController
 		$variant = new Market_VariantModel();
 
 		// Shared attributes
-		$params = ['id', 'productId', 'sku', 'price', 'width', 'height', 'length', 'weight', 'stock', 'unlimitedStock', 'minQty'];
+		$params = ['id', 'productId', 'sku', 'price', 'width', 'height', 'length', 'weight', 'stock', 'unlimitedStock', 'minQty', 'maxQty', 'isMaster'];
 		foreach ($params as $param) {
 			$variant->$param = craft()->request->getPost($param);
 		}
 
-		$optionValues = craft()->request->getPost('optionValues', []);
+		$variant->setContentFromPost('fields');
 
 		// Save it
 		if (craft()->market_variant->save($variant)) {
-			$optionValuesFiltered = array_filter($optionValues);
-			if ($optionValuesFiltered) {
-				craft()->market_variant->setOptionValues($variant->id, $optionValuesFiltered);
-			}
 
 			craft()->userSession->setNotice(Craft::t('Variant saved.'));
 			$this->redirectToPostedUrl($variant);
@@ -96,8 +86,7 @@ class Market_VariantController extends Market_BaseController
 
 		// Send the model back to the template
 		craft()->urlManager->setRouteVariables([
-			'variant'      => $variant,
-			'optionValues' => $optionValues,
+			'variant' => $variant
 		]);
 	}
 
@@ -114,4 +103,32 @@ class Market_VariantController extends Market_BaseController
 		$this->redirectToPostedUrl();
 	}
 
+	/**
+	 * Modifies the variables of the request.
+	 *
+	 * @param $variables
+	 */
+	private function prepVariables(&$variables)
+	{
+		$variables['tabs'] = [];
+
+		foreach ($variables['productType']->asa('variantFieldLayout')->getFieldLayout()->getTabs() as $index => $tab) {
+			// Do any of the fields on this tab have errors?
+			$hasErrors = false;
+			if ($variables['variant']->hasErrors()) {
+				foreach ($tab->getFields() as $field) {
+					if ($variables['variant']->getErrors($field->getField()->handle)) {
+						$hasErrors = true;
+						break;
+					}
+				}
+			}
+
+			$variables['tabs'][] = [
+				'label' => Craft::t($tab->name),
+				'url'   => '#tab' . ($index + 1),
+				'class' => ($hasErrors ? 'error' : NULL)
+			];
+		}
+	}
 }
