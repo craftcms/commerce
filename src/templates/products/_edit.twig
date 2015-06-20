@@ -182,6 +182,7 @@
                     </div>
 
                     <div class="item" data-min-colspan="1" data-max-colspan="3">
+
                     {{ forms.textField({
                         label: 'Stock'|t,
                         name:   'masterVariant[stock]',
@@ -190,7 +191,7 @@
                         errors: masterVariant.getErrors('stock')
                     })}}
                     {{ forms.checkboxField({
-                        label: 'Unlimited Stock'|t,
+                        label: 'Unlimited'|t,
                         name:   'masterVariant[unlimitedStock]',
                         errors: masterVariant.getErrors('unlimitedStock')
                     }) }}
