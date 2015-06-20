@@ -58,8 +58,7 @@ class Market_OrderTypeRecord extends BaseRecord
 		return [
 			'name'                         => [AttributeType::Name, 'required' => true],
 			'handle'                       => [AttributeType::Handle, 'required' => true],
-			'shippingMethodId'             => [AttributeType::Number, 'required' => true],
-			'purgeIncompletedCartDuration' => [AttributeType::String, 'maxlength' => 20],
+			'shippingMethodId'             => [AttributeType::Number, 'required' => true]
 		];
 	}
 

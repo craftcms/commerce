@@ -3,6 +3,7 @@
 namespace Craft;
 
 use Market\Traits\Market_ModelRelationsTrait;
+use Market\Interfaces\Purchasable;
 
 /**
  * Class Market_VariantModel
@@ -19,15 +20,18 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property int                 stock
  * @property bool                unlimitedStock
  * @property int                 minQty
+ * @property int                 maxQty
  * @property DateTime            deletedAt
  *
  * @property Market_ProductModel $product
  * @package Craft
  */
-class Market_VariantModel extends BaseModel
+
+class Market_VariantModel extends BaseElementModel implements Purchasable
 {
 	use Market_ModelRelationsTrait;
 
+	protected $elementType = 'Market_Variant';
 	public $salePrice;
 
 	public function isLocalized()
@@ -46,40 +50,6 @@ class Market_VariantModel extends BaseModel
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getOptionsText()
-	{
-		$optionValues = [];
-		$values       = $this->getOptionValuesArray();
-		foreach ($values as $key => $value) {
-			$optionValues[] = "$key: $value";
-		}
-
-		return join(" ", $optionValues);
-	}
-
-	/**
-	 * @param bool $idKeys Whether key and values in result should be
-	 *                     identifiers
-	 *
-	 * @return array
-	 */
-	public function getOptionValuesArray($idKeys = false)
-	{
-		$optionValues = craft()->market_optionValue->getAllByVariantId($this->id);
-
-		$result = [];
-
-		foreach ($optionValues as $value) {
-			$key          = $idKeys ? $value->optionType->id : $value->optionType->name;
-			$result[$key] = $idKeys ? $value->id : $value->displayName;
-		}
-
-		return $result;
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function getOnSale()
@@ -87,12 +57,32 @@ class Market_VariantModel extends BaseModel
 		return is_null($this->salePrice) ? false : ($this->salePrice != $this->price);
 	}
 
+	public function getProduct(){
+		if ($this->productId) {
+			return craft()->market_product->getById($this->productId);
+		}
+
+		return NULL;
+	}
+
+	/**
+	 * @return FieldLayoutModel|null
+	 */
+	public function getFieldLayout()
+	{
+		if ($this->productId) {
+			return craft()->market_productType->getById($this->product->typeId)->asa('variantFieldLayout')->getFieldLayout();
+		}
+
+		return NULL;
+	}
+
 	protected function defineAttributes()
 	{
 		return array_merge(parent::defineAttributes(), [
-			'id'             => AttributeType::Number,
-			'productId'      => AttributeType::Number,
-			'isMaster'       => AttributeType::Bool,
+			'id'             => [AttributeType::Number],
+			'productId'      => [AttributeType::Number],
+			'isMaster'       => [AttributeType::Bool],
 			'sku'            => [AttributeType::String, 'required' => true],
 			'price'          => [AttributeType::Number, 'decimals' => 4, 'required' => true],
 			'width'          => [AttributeType::Number, 'decimals' => 4],
@@ -101,8 +91,44 @@ class Market_VariantModel extends BaseModel
 			'weight'         => [AttributeType::Number, 'decimals' => 4],
 			'stock'          => [AttributeType::Number],
 			'unlimitedStock' => [AttributeType::Bool, 'default' => 0],
-			'minQty'         => AttributeType::Number,
+			'minQty'         => [AttributeType::Number],
+			'maxQty'         => [AttributeType::Number],
 			'deletedAt'      => [AttributeType::DateTime]
 		]);
 	}
+
+	public function getPurchasablePrice()
+	{
+		return $this->price;
+	}
+
+	public function getPurchasableSku()
+	{
+		return $this->sku;
+	}
+
+	public function getPurchasableDescription()
+	{
+		return $this->sku;
+	}
+
+	public function validateLineItem(Market_LineItemModel $lineItem){
+
+		if (!$this->unlimitedStock && $lineItem->qty > $this->stock) {
+			$error = sprintf('There are only %d items left in stock', $this->stock);
+			$lineItem->addError('qty', $error);
+		}
+
+		if ($lineItem->qty < $this->minQty) {
+			$error = sprintf('Minimal order qty for this variant is %d', $this->minQty);
+			$lineItem->addError('qty', $error);
+		}
+
+		if ($lineItem->qty > $this->maxQty) {
+			$error = sprintf('Maximum order qty for this variant is %d', $this->minQty);
+			$lineItem->addError('qty', $error);
+		}
+
+	}
+	
 }

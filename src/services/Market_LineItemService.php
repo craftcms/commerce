@@ -27,23 +27,24 @@ class Market_LineItemService extends BaseApplicationComponent
 	 * Find line item by order and variant
 	 *
 	 * @param int $orderId
-	 * @param int $variantId
+	 * @param int $purchasableId
 	 *
 	 * @return Market_LineItemModel
 	 */
-	public function getByOrderVariant($orderId, $variantId)
+	public function getByOrderPurchasable($orderId, $purchasableId)
 	{
-		$variant = Market_LineItemRecord::model()->findByAttributes([
+		$purchasable = Market_LineItemRecord::model()->findByAttributes([
 			'orderId'   => $orderId,
-			'variantId' => $variantId,
+			'purchasableId' => $purchasableId,
 		]);
 
-		return Market_LineItemModel::populateModel($variant);
+		return Market_LineItemModel::populateModel($purchasable);
 	}
 
 
 	/**
 	 * Update line item and recalculate order
+	 *
 	 * @TODO check that the line item belongs to the current user
 	 *
 	 * @param Market_LineItemModel $lineItem
@@ -56,10 +57,12 @@ class Market_LineItemService extends BaseApplicationComponent
 	{
 		if ($this->save($lineItem)) {
 			craft()->market_order->save($lineItem->order);
+
 			return true;
 		} else {
 			$errors = $lineItem->getAllErrors();
 			$error  = array_pop($errors);
+
 			return false;
 		}
 	}
@@ -95,14 +98,14 @@ class Market_LineItemService extends BaseApplicationComponent
 		}
 
 		$lineItem->total = ((
-				$lineItem->price +
-				$lineItem->discountAmount +
-				$lineItem->shippingAmount +
-				$lineItem->saleAmount
-			) * $lineItem->qty)
+					$lineItem->price +
+					$lineItem->discountAmount +
+					$lineItem->shippingAmount +
+					$lineItem->saleAmount
+				) * $lineItem->qty)
 			+ $lineItem->taxAmount;
 
-		$lineItemRecord->variantId     = $lineItem->variantId;
+		$lineItemRecord->purchasableId = $lineItem->purchasableId;
 		$lineItemRecord->orderId       = $lineItem->orderId;
 		$lineItemRecord->taxCategoryId = $lineItem->taxCategoryId;
 
@@ -118,6 +121,11 @@ class Market_LineItemService extends BaseApplicationComponent
 		$lineItemRecord->shippingAmount = $lineItem->shippingAmount;
 
 		$lineItemRecord->validate();
+
+		/** @var \Market\Interfaces\Purchasable $purchasable */
+		$purchasable = craft()->elements->getElementById($lineItem->purchasableId);
+		$purchasable->validateLineItem($lineItem);
+
 		$lineItem->addErrors($lineItemRecord->getErrors());
 
 		MarketDbHelper::beginStackedTransaction();
@@ -139,25 +147,26 @@ class Market_LineItemService extends BaseApplicationComponent
 	}
 
 	/**
-	 * @param int $variantId
+	 * @param int $purchasableId
 	 * @param int $orderId
 	 * @param int $qty
 	 *
 	 * @return Market_LineItemModel
 	 */
-	public function create($variantId, $orderId, $qty)
+	public function create($purchasableId, $orderId, $qty)
 	{
 		$lineItem            = new Market_LineItemModel();
-		$lineItem->variantId = $variantId;
+		$lineItem->purchasableId = $purchasableId;
 		$lineItem->qty       = $qty;
 		$lineItem->orderId   = $orderId;
 
-		$variant = craft()->market_variant->getById($variantId);
+		/** @var \Market\Interfaces\Purchasable $purchasable */
+		$purchasable = craft()->elements->getElementById($purchasableId);
 
-		if ($variant->id) {
-            $lineItem->fillFromVariant($variant);
+		if ($purchasable->id) {
+			$lineItem->fillFromPurchasable($purchasable);
 		} else {
-			$lineItem->addError('variantId', 'variant not found');
+			$lineItem->addError('purchasableId', 'Purchasable not found');
 		}
 
 		return $lineItem;

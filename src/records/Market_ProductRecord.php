@@ -14,7 +14,6 @@ namespace Craft;
  * @property Market_VariantRecord      $master
  * @property Market_VariantRecord[]    allVariants
  * @property Market_TaxCategoryRecord  taxCategory
- * @property Market_OptionTypeRecord[] optionTypes
  * @package Craft
  */
 class Market_ProductRecord extends BaseRecord
@@ -37,7 +36,6 @@ class Market_ProductRecord extends BaseRecord
 			'element'     => [static::BELONGS_TO, 'ElementRecord', 'id', 'required' => true, 'onDelete' => static::CASCADE],
 			'type'        => [static::BELONGS_TO, 'Market_ProductTypeRecord', 'onDelete' => static::CASCADE],
 			'author'      => [static::BELONGS_TO, 'UserRecord', 'onDelete' => static::CASCADE],
-			'optionTypes' => [static::MANY_MANY, 'Market_OptionTypeRecord', 'market_product_optiontypes(productId, optionTypeId)'],
 			'master'      => [static::HAS_ONE, 'Market_VariantRecord', 'productId', 'condition' => 'master.isMaster = 1'],
 			'allVariants' => [static::HAS_MANY, 'Market_VariantRecord', 'productId'],
 			'taxCategory' => [static::BELONGS_TO, 'Market_TaxCategoryRecord', 'required' => true],

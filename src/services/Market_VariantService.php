@@ -2,6 +2,8 @@
 
 namespace Craft;
 
+use Market\Helpers\MarketDbHelper;
+
 class Market_VariantService extends BaseApplicationComponent
 {
 	/**
@@ -10,9 +12,7 @@ class Market_VariantService extends BaseApplicationComponent
 	 */
 	public function getById($id)
 	{
-		$variant = Market_VariantRecord::model()->with('product')->findById($id);
-
-		return Market_VariantModel::populateModel($variant);
+		return craft()->elements->getElementById($id, 'Market_Variant');
 	}
 
 	/**
@@ -20,18 +20,7 @@ class Market_VariantService extends BaseApplicationComponent
 	 */
 	public function deleteById($id)
 	{
-		$this->unsetOptionValues($id);
 		Market_VariantRecord::model()->deleteByPk($id);
-	}
-
-	/**
-	 * Delete all variant-optionValue relations by variant id
-	 *
-	 * @param int $id
-	 */
-	public function unsetOptionValues($id)
-	{
-		Market_VariantOptionValueRecord::model()->deleteAllByAttributes(['variantId' => $id]);
 	}
 
 	/**
@@ -95,13 +84,13 @@ class Market_VariantService extends BaseApplicationComponent
 	/**
 	 * Save a model into DB
 	 *
-	 * @param Market_VariantModel $model
+	 * @param BaseElementModel $model
 	 *
 	 * @return bool
 	 * @throws \CDbException
 	 * @throws \Exception
 	 */
-	public function save(Market_VariantModel $model)
+	public function save(BaseElementModel $model)
 	{
 		if ($model->id) {
 			$record = Market_VariantRecord::model()->findById($model->id);
@@ -122,6 +111,7 @@ class Market_VariantService extends BaseApplicationComponent
 		$record->length    = $model->length;
 		$record->weight    = $model->weight;
 		$record->minQty    = $model->minQty;
+		$record->maxQty    = $model->maxQty;
 
 		if ($model->unlimitedStock) {
 			$record->unlimitedStock = true;
@@ -136,41 +126,42 @@ class Market_VariantService extends BaseApplicationComponent
 		$record->validate();
 		$model->addErrors($record->getErrors());
 
-		if (!$model->hasErrors()) {
-			$record->save(false);
-			$model->id = $record->id;
-
-			return true;
-		} else {
-			return false;
+		MarketDbHelper::beginStackedTransaction();
+		try {
+			if (!$model->hasErrors()) {
+				if (craft()->elements->saveElement($model)) {
+					$record->id = $model->id;
+					$record->save(false);
+					MarketDbHelper::commitStackedTransaction();
+					return true;
+				}
+			}
+		} catch (\Exception $e) {
+			MarketDbHelper::rollbackStackedTransaction();
+			throw $e;
 		}
+
+		MarketDbHelper::rollbackStackedTransaction();
+
+		return false;
 	}
 
 	/**
-	 * Set option values to a variant
-	 *
-	 * @param int   $variantId
-	 * @param int[] $optionValueIds
-	 *
-	 * @return bool
+	 * Update Stock count from completed order
+	 * @param Event $event
 	 */
-	public function setOptionValues($variantId, $optionValueIds)
-	{
-		$this->unsetOptionValues($variantId);
+	public function orderCompleteHandler(Event $event) {
+		/** @var Market_OrderModel $order */
+		$order = $event->params['order'];
 
-		if ($optionValueIds) {
-			if (!is_array($optionValueIds)) {
-				$optionValueIds = [$optionValueIds];
+		foreach ($order->lineItems as $lineItem){
+			/** @var Market_VariantRecord $record */
+			$record = Market_VariantRecord::model()->findByAttributes(['id' => $lineItem->purchasableId]);
+			if (!$record->unlimitedStock){
+				$record->stock = $record->stock - $lineItem->qty;
+				$record->save(false);
 			}
-
-			$values = [];
-			foreach ($optionValueIds as $optionValueId) {
-				$values[] = [$optionValueId, $variantId];
-			}
-
-			craft()->db->createCommand()->insertAll('market_variant_optionvalues', ['optionValueId', 'variantId'], $values);
 		}
-
-		return true;
 	}
+
 }

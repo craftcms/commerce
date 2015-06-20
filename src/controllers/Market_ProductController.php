@@ -3,7 +3,6 @@ namespace Craft;
 
 /**
  *
- *
  * @author    Make with Morph. <support@makewithmorph.com>
  * @copyright Copyright (c) 2015, Luke Holder.
  * @license   http://makewithmorph.com/market/license Market License Agreement
@@ -54,24 +53,28 @@ class Market_ProductController extends Market_BaseController
 			if (!empty($variables['productId'])) {
 				$variables['product'] = craft()->market_product->getById($variables['productId']);
 
+
 				if (!$variables['product']->id) {
 					throw new HttpException(404);
 				}
 			} else {
 				$variables['product']         = new Market_ProductModel();
 				$variables['product']->typeId = $variables['productType']->id;
+
 			}
 		}
 
-		if (!empty($variables['productId'])) {
+		if (!empty($variables['product']->id)) {
 			$variables['title'] = $variables['product']->title;
-		} else {
-			$variables['title'] = Craft::t('Create a new Product');
+		}else{
+			$variables['title']           = Craft::t('Create a new Product');
 		}
+
+
 
 		$variables['taxCategories'] = \CHtml::listData(craft()->market_taxCategory->getAll(), 'id', 'name');
 
-		$this->prepVariables($variables);
+		$this->_prepVariables($variables);
 
 		$this->renderTemplate('market/products/_edit', $variables);
 	}
@@ -121,9 +124,8 @@ class Market_ProductController extends Market_BaseController
 	{
 		$this->requirePostRequest();
 
-		$product = $this->_setProductFromPost();
+		$product       = $this->_setProductFromPost();
 		$masterVariant = $this->_setMasterVariantFromPost($product);
-		$optionTypes   = craft()->request->getPost('optionTypes');
 
 		MarketDbHelper::beginStackedTransaction();
 
@@ -131,7 +133,7 @@ class Market_ProductController extends Market_BaseController
 			$masterVariant->productId = $product->id;
 
 			if (craft()->market_variant->save($masterVariant)) {
-				craft()->market_product->setOptionTypes($product->id, $optionTypes);
+
 				MarketDbHelper::commitStackedTransaction();
 
 				craft()->userSession->setNotice(Craft::t('Product saved.'));
@@ -145,6 +147,10 @@ class Market_ProductController extends Market_BaseController
 		}
 
 		MarketDbHelper::rollbackStackedTransaction();
+		// Since Product may have been ok to save and an ID assigned,
+		// but child model validation failed and the transaction rolled back.
+		// Since action failed, lets remove the ID that was no persisted.
+		$product->id = null;
 
 		craft()->userSession->setNotice(Craft::t("Couldn't save product."));
 		craft()->urlManager->setRouteVariables([
@@ -159,11 +165,14 @@ class Market_ProductController extends Market_BaseController
 	 *
 	 * @param $variables
 	 */
-	private function prepVariables(&$variables)
+	private function _prepVariables(&$variables)
 	{
 		$variables['tabs'] = [];
 
-		$variables['masterVariant'] = $variables['product']->master ?: new Market_VariantModel;
+		if (empty($variables['masterVariant'])){
+			$variables['masterVariant'] = $variables['product']->masterVariant ?: new Market_VariantModel;
+		}
+
 
 		foreach ($variables['productType']->getFieldLayout()->getTabs() as $index => $tab) {
 			// Do any of the fields on this tab have errors?
@@ -235,7 +244,7 @@ class Market_ProductController extends Market_BaseController
 	{
 		$attributes = craft()->request->getPost('masterVariant');
 
-		$masterVariant = $product->master ?: new Market_VariantModel;
+		$masterVariant = $product->masterVariant ?: new Market_VariantModel;
 		$masterVariant->setAttributes($attributes);
 		$masterVariant->isMaster = true;
 

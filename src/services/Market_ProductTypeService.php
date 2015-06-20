@@ -2,6 +2,8 @@
 
 namespace Craft;
 
+use Market\Helpers\MarketDbHelper;
+
 /**
  * Class Market_ProductTypeService
  *
@@ -68,13 +70,14 @@ class Market_ProductTypeService extends BaseApplicationComponent
 			$isNewProductType  = true;
 		}
 
-		$productTypeRecord->name      = $productType->name;
-		$productTypeRecord->handle    = $productType->handle;
-		$productTypeRecord->hasUrls   = $productType->hasUrls;
-		$productTypeRecord->template  = $productType->template;
+		$productTypeRecord->name        = $productType->name;
+		$productTypeRecord->handle      = $productType->handle;
+		$productTypeRecord->hasUrls     = $productType->hasUrls;
+		$productTypeRecord->hasVariants = $productType->hasVariants;
+		$productTypeRecord->template    = $productType->template;
 
 		// Set flag if urlFormat changed so we can update all product elements.
-		if ($productTypeRecord->urlFormat != $productType->urlFormat){
+		if ($productTypeRecord->urlFormat != $productType->urlFormat) {
 			$urlFormatChanged = true;
 		}
 		$productTypeRecord->urlFormat = $productType->urlFormat;
@@ -83,50 +86,54 @@ class Market_ProductTypeService extends BaseApplicationComponent
 		$productType->addErrors($productTypeRecord->getErrors());
 
 		if (!$productType->hasErrors()) {
-			$transaction = craft()->db->getCurrentTransaction() === NULL ? craft()->db->beginTransaction() : NULL;
+			MarketDbHelper::beginStackedTransaction();
 			try {
+
+				// Product Field Layout
 				if (!$isNewProductType && $oldProductType->fieldLayoutId) {
 					// Drop the old field layout
 					craft()->fields->deleteLayoutById($oldProductType->fieldLayoutId);
 				}
-
 				// Save the new one
-				$fieldLayout = $productType->getFieldLayout();
+				$fieldLayout = $productType->asa('productFieldLayout')->getFieldLayout();
 				craft()->fields->saveLayout($fieldLayout);
-
-				// Update the calendar record/model with the new layout ID
 				$productType->fieldLayoutId       = $fieldLayout->id;
 				$productTypeRecord->fieldLayoutId = $fieldLayout->id;
+
+				if (!$isNewProductType && $oldProductType->variantFieldLayoutId) {
+					// Drop the old field layout
+					craft()->fields->deleteLayoutById($oldProductType->variantFieldLayoutId);
+				}
+				// Save the new one
+				$variantFieldLayout = $productType->asa('variantFieldLayout')->getFieldLayout();
+				craft()->fields->saveLayout($variantFieldLayout);
+				$productType->variantFieldLayoutId       = $variantFieldLayout->id;
+				$productTypeRecord->variantFieldLayoutId = $variantFieldLayout->id;
 
 				// Save it!
 				$productTypeRecord->save(false);
 
-				// Now that we have a calendar ID, save it on the model
+				// Now that we have a product type ID, save it on the model
 				if (!$productType->id) {
 					$productType->id = $productTypeRecord->id;
 				}
 
 				//Refresh all urls for products of same type if urlFormat changed.
-				if($urlFormatChanged){
-					$criteria = craft()->elements->getCriteria('Market_Product');
+				if ($urlFormatChanged) {
+					$criteria         = craft()->elements->getCriteria('Market_Product');
 					$criteria->typeId = $productType->id;
-					$products = $criteria->find();
-					foreach ($products as $key => $product)
-					{
-						if ($product && $product->getContent()->id)
-						{
+					$products         = $criteria->find();
+					foreach ($products as $key => $product) {
+						if ($product && $product->getContent()->id) {
 							craft()->elements->updateElementSlugAndUri($product, false, false);
 						}
 					}
 				}
 
-				if ($transaction !== NULL) {
-					$transaction->commit();
-				}
+				MarketDbHelper::commitStackedTransaction();
+
 			} catch (\Exception $e) {
-				if ($transaction !== NULL) {
-					$transaction->rollback();
-				}
+				MarketDbHelper::rollbackStackedTransaction();
 
 				throw $e;
 			}
@@ -148,7 +155,7 @@ class Market_ProductTypeService extends BaseApplicationComponent
 	 */
 	public function deleteById($id)
 	{
-		$transaction = craft()->db->getCurrentTransaction() === NULL ? craft()->db->beginTransaction() : NULL;
+		MarketDbHelper::beginStackedTransaction();
 		try {
 			$productType = Market_ProductTypeRecord::model()->findById($id);
 
@@ -163,18 +170,25 @@ class Market_ProductTypeService extends BaseApplicationComponent
 
 			$affectedRows = $productType->delete();
 
-			if ($transaction !== NULL) {
-				$transaction->commit();
-			}
+			MarketDbHelper::commitStackedTransaction();
 
 			return (bool)$affectedRows;
 		} catch (\Exception $e) {
-			if ($transaction !== NULL) {
-				$transaction->rollback();
-			}
+			MarketDbHelper::rollbackStackedTransaction();
 
 			throw $e;
 		}
 	}
 
+	// Need to have a separate controller action and service method
+	// since you cant have 2 field layout editors on one POST.
+	public function saveVariantFieldLayout($productType)
+	{
+		$productTypeRecord = Market_ProductTypeRecord::model()->findById($productType->id);
+
+		$productTypeRecord->save(false);
+
+		return true;
+
+	}
 }

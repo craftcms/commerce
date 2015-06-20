@@ -5,8 +5,6 @@ namespace Market\Seed;
 use Craft\DateTime;
 use Craft\FieldLayoutModel;
 use Craft\Market_DiscountRecord;
-use Craft\Market_OptionTypeModel;
-use Craft\Market_OptionValueModel;
 use Craft\Market_ProductModel;
 use Craft\Market_ProductTypeModel;
 use Craft\Market_SaleRecord;
@@ -16,6 +14,7 @@ use Craft\Market_TaxCategoryModel;
 use Craft\Market_TaxRateModel;
 use Craft\Market_TaxZoneModel;
 use Craft\Market_VariantModel;
+use Craft\Market_OrderStatusModel;
 
 /**
  * Test Data useful during development
@@ -25,7 +24,6 @@ class Market_TestSeeder implements Market_SeederInterface
 	public function seed()
 	{
 		$this->productTypes();
-		$this->optionTypes();
 		$this->taxCategories();
 		$this->products();
 		$this->taxZones();
@@ -36,45 +34,6 @@ class Market_TestSeeder implements Market_SeederInterface
 		$this->paymentMethods();
 	}
 
-	/**
-	 * @throws \Craft\Exception
-	 * @throws \Exception
-	 */
-	private function optionTypes()
-	{
-		//color
-		$colorOptionType         = new Market_OptionTypeModel;
-		$colorOptionType->name   = 'Color';
-		$colorOptionType->handle = 'color';
-		\Craft\craft()->market_optionType->save($colorOptionType);
-
-		$colorOptionValues                 = [new Market_OptionValueModel, new Market_OptionValueModel];
-		$colorOptionValues[0]->name        = 'blue';
-		$colorOptionValues[0]->displayName = 'blue';
-		$colorOptionValues[0]->position    = 1;
-		$colorOptionValues[1]->name        = 'red';
-		$colorOptionValues[1]->displayName = 'red';
-		$colorOptionValues[1]->position    = 2;
-
-		\Craft\craft()->market_optionValue->saveOptionValuesForOptionType($colorOptionType, $colorOptionValues);
-
-		//size
-		$sizeOptionType         = new Market_OptionTypeModel;
-		$sizeOptionType->name   = 'Size';
-		$sizeOptionType->handle = 'size';
-
-		\Craft\craft()->market_optionType->save($sizeOptionType);
-
-		$sizeOptionValues                 = [new Market_OptionValueModel, new Market_OptionValueModel];
-		$sizeOptionValues[0]->name        = 'xl';
-		$sizeOptionValues[0]->displayName = 'xl';
-		$sizeOptionValues[0]->position    = 1;
-		$sizeOptionValues[1]->name        = 'm';
-		$sizeOptionValues[1]->displayName = 'm';
-		$sizeOptionValues[1]->position    = 2;
-
-		\Craft\craft()->market_optionValue->saveOptionValuesForOptionType($sizeOptionType, $sizeOptionValues);
-	}
 
 	/**
 	 * @throws \Craft\Exception
@@ -86,12 +45,20 @@ class Market_TestSeeder implements Market_SeederInterface
 		$productType->name   = 'Default Product';
 		$productType->handle = 'normal';
 		$productType->hasUrls = true;
+		$productType->hasVariants = true;
 		$productType->template = 'market/products/_entry.html';
 		$productType->urlFormat = 'market/products/{slug}';
 
 		$fieldLayout = FieldLayoutModel::populateModel(['type' => 'Market_Product']);
-		$productType->setFieldLayout($fieldLayout);
+		\Craft\craft()->fields->saveLayout($fieldLayout);
+		$productType->asa('productFieldLayout')->setFieldLayout($fieldLayout);
+
+		$variantFieldLayout = FieldLayoutModel::populateModel(['type' => 'Market_Variant']);
+		\Craft\craft()->fields->saveLayout($variantFieldLayout);
+		$productType->asa('variantFieldLayout')->setFieldLayout($variantFieldLayout);
+
 		\Craft\craft()->market_productType->save($productType);
+
 	}
 
 	/**
@@ -204,13 +171,6 @@ class Market_TestSeeder implements Market_SeederInterface
 		]);
 		\Craft\craft()->market_variant->save($masterVariant);
 
-		//option types
-		$optionTypes = \Craft\craft()->market_optionType->getAll();
-		$ids         = array_map(function ($type) {
-			return $type->id;
-		}, $optionTypes);
-		\Craft\craft()->market_product->setOptionTypes($product->id, $ids);
-
 		//another test product
 		/** @var Market_ProductModel $product */
 		$product = Market_ProductModel::populateModel([
@@ -236,12 +196,6 @@ class Market_TestSeeder implements Market_SeederInterface
 		]);
 		\Craft\craft()->market_variant->save($masterVariant);
 
-		//option types
-		$optionTypes = \Craft\craft()->market_optionType->getAll();
-		$ids         = array_map(function ($type) {
-			return $type->id;
-		}, $optionTypes);
-		\Craft\craft()->market_product->setOptionTypes($product->id, $ids);
 	}
 
 	/**

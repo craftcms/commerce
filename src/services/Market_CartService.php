@@ -23,13 +23,14 @@ class Market_CartService extends BaseApplicationComponent
 
     /**
      * @param Market_OrderModel $order
-     * @param int               $variantId
-     * @param int               $qty
+     * @param int               $purchasableId
+	 * @param int               $qty
      * @param string            $error
-     * @return bool
+     *
+*@return bool
      * @throws \Exception
      */
-	public function addToCart($order, $variantId, $qty, &$error = '')
+	public function addToCart($order, $purchasableId, $qty, &$error = '')
 	{
 		MarketDbHelper::beginStackedTransaction();
 
@@ -41,12 +42,12 @@ class Market_CartService extends BaseApplicationComponent
 		}
 
 		//filling item model
-		$lineItem = craft()->market_lineItem->getByOrderVariant($order->id, $variantId);
+		$lineItem = craft()->market_lineItem->getByOrderPurchasable($order->id, $purchasableId);
 
 		if ($lineItem->id) {
 			$lineItem->qty += $qty;
 		} else {
-			$lineItem = craft()->market_lineItem->create($variantId, $order->id, $qty);
+			$lineItem = craft()->market_lineItem->create($purchasableId, $order->id, $qty);
 		}
 
 		try {
@@ -130,7 +131,7 @@ class Market_CartService extends BaseApplicationComponent
 		$cartNumber = craft()->userSession->getStateCookieValue($cookieId);
 
 		if (!$cartNumber) {
-			$cartNumber = md5(uniqid(mt_rand(), true));
+			$cartNumber =
 			craft()->userSession->saveCookie($cookieId, $cartNumber, self::CART_COOKIE_LIFETIME);
 		}
 
