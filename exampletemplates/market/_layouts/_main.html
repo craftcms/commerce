@@ -53,10 +53,6 @@
             <li role="presentation" class="{% if craft.request.getSegment(2) == 'cart' %}active{% endif %}">
                 <a href="{{url('market/cart')}}">Cart <span class="badge">{{cart.lineItems|length}}</span></a>
             </li>
-            {% set wishlist = craft.market.getCart('wishlist') %}
-            <li role="presentation" class="{% if craft.request.getSegment(2) == 'wishlist' %}active{% endif %}">
-                <a href="{{url('market/wishlist')}}">Wishlist <span class="badge">{{wishlist.lineItems|length}}</span></a>
-            </li>
         </ul>
 
         <div class="flash-info">
