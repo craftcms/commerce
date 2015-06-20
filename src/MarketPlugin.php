@@ -10,7 +10,6 @@ class MarketPlugin extends BasePlugin
 {
 	public $handle = 'market';
 
-
 	function init()
 	{
 		$this->initMarketNav();
@@ -24,7 +23,7 @@ class MarketPlugin extends BasePlugin
 
 	public function getVersion()
 	{
-		return '0.67.9999';
+		return '0.68.9999';
 	}
 
 	public function getDeveloper()

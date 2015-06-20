@@ -20,6 +20,9 @@ class Market_OrderController extends Market_BaseController
 	 */
 	public function actionOrderIndex()
 	{
+		// Remove all incomplete carts older than a certain date in config.
+		craft()->market_orderType->purgeIncompleteCarts();
+
 		$variables['orderTypes'] = craft()->market_orderType->getAll();
 		$this->renderTemplate('market/orders/_index', $variables);
 	}

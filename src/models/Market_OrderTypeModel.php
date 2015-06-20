@@ -51,8 +51,7 @@ class Market_OrderTypeModel extends BaseModel
 			'name'                         => AttributeType::String,
 			'handle'                       => AttributeType::String,
 			'fieldLayoutId'                => AttributeType::Number,
-			'shippingMethodId'             => AttributeType::Number,
-			'purgeIncompletedCartDuration' => AttributeType::String,
+			'shippingMethodId'             => AttributeType::Number
 		];
 	}
 

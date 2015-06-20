@@ -108,22 +108,4 @@ class Market_OrderTypeController extends Market_BaseController
 		$this->returnJson(['success' => true]);
 	}
 
-	/**
-	 * @throws Exception
-	 */
-	public function actionPurgeIncompletedCarts()
-	{
-		$id = craft()->request->getPost('orderTypeId');
-		$orderType = craft()->market_orderType->getById($id);
-		if(!$orderType->id) {
-			throw new Exception('Wrong orderTypeId');
-		}
-
-		$count = craft()->market_orderType->purgeIncompletedCarts($orderType);
-		if($count) {
-			craft()->userSession->setNotice(Craft::t('{c} incompleted cart purged.', ['c' => $count]));
-		} else {
-			craft()->userSession->setError(Craft::t('No carts were deleted.'));
-		}
-	}
 } 
