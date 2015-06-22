@@ -60,11 +60,18 @@ class Market_OrderModel extends BaseElementModel
         return true;
     }
 
+    /**
+     * @return string
+     */
     public function __toString()
     {
         return $this->number;
     }
 
+    /**
+     * @inheritdoc
+     * @return string
+     */
     public function getCpEditUrl()
     {
         $orderType = $this->type;
@@ -84,17 +91,16 @@ class Market_OrderModel extends BaseElementModel
         return null;
     }
 
+
     public function isLocalized()
     {
         return false;
     }
 
-    public function isEmpty()
-    {
-        return $this->getTotalQty() == 0;
-    }
 
     /**
+     * Total number of items.
+     *
      * @return int
      */
     public function getTotalQty()
@@ -106,6 +112,17 @@ class Market_OrderModel extends BaseElementModel
 
         return $qty;
     }
+
+    /**
+     * Has the order got any items in it?
+     *
+     * @return bool
+     */
+    public function isEmpty()
+    {
+        return $this->getTotalQty() == 0;
+    }
+
 
     /**
      * @return int
