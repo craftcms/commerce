@@ -25,24 +25,28 @@ namespace Craft;
 class Market_PurchasableRecord extends BaseRecord
 {
 
-	public function getTableName()
-	{
-		return 'market_purchasable';
-	}
+    public function getTableName()
+    {
+        return 'market_purchasable';
+    }
 
-	public function defineIndexes()
-	{
-		return [
-			['columns' => ['sku'], 'unique' => true],
-		];
-	}
+    public function defineIndexes()
+    {
+        return [
+            ['columns' => ['sku'], 'unique' => true],
+        ];
+    }
 
-	protected function defineAttributes()
-	{
-		return [
-			'sku'            => [AttributeType::String, 'required' => true],
-			'price'          => [AttributeType::Number, 'decimals' => 4, 'required' => true]
-		];
-	}
+    protected function defineAttributes()
+    {
+        return [
+            'sku'   => [AttributeType::String, 'required' => true],
+            'price' => [
+                AttributeType::Number,
+                'decimals' => 4,
+                'required' => true
+            ]
+        ];
+    }
 
 }

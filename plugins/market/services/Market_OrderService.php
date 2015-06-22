@@ -15,271 +15,288 @@ use Market\Helpers\MarketDbHelper;
  */
 class Market_OrderService extends BaseApplicationComponent
 {
-	/**
-	 * @param Market_OrderModel $order
-	 * @throws Exception
-	 */
-	private function calculateAdjustments(Market_OrderModel $order)
-	{
-		if (!$order->id) {
-			return;
-		}
+    /**
+     * @param Market_OrderModel $order
+     *
+     * @throws Exception
+     */
+    private function calculateAdjustments(Market_OrderModel $order)
+    {
+        if (!$order->id) {
+            return;
+        }
 
-		//calculating adjustments
-		$lineItems = craft()->market_lineItem->getAllByOrderId($order->id);
+        //calculating adjustments
+        $lineItems = craft()->market_lineItem->getAllByOrderId($order->id);
 
-		foreach ($lineItems as $item) { //resetting fields calculated by adjusters
-			$item->taxAmount      = 0;
-			$item->shippingAmount = 0;
-			$item->discountAmount = 0;
-		}
+        foreach ($lineItems as $item) { //resetting fields calculated by adjusters
+            $item->taxAmount      = 0;
+            $item->shippingAmount = 0;
+            $item->discountAmount = 0;
+        }
 
-		/** @var Market_OrderAdjustmentModel[] $adjustments */
-		$adjustments = [];
-		foreach ($this->getAdjusters() as $adjuster) {
-			$adjustments = array_merge($adjustments, $adjuster->adjust($order, $lineItems));
-		}
+        /** @var Market_OrderAdjustmentModel[] $adjustments */
+        $adjustments = [];
+        foreach ($this->getAdjusters() as $adjuster) {
+            $adjustments = array_merge($adjustments,
+                $adjuster->adjust($order, $lineItems));
+        }
 
-		//refreshing adjustments
-		craft()->market_orderAdjustment->deleteAllByOrderId($order->id);
+        //refreshing adjustments
+        craft()->market_orderAdjustment->deleteAllByOrderId($order->id);
 
-		foreach ($adjustments as $adjustment) {
-			$result = craft()->market_orderAdjustment->save($adjustment);
-			if (!$result) {
-				$errors = $adjustment->getAllErrors();
-				throw new Exception('Error saving order adjustment: ' . implode(', ', $errors));
-			}
-		}
+        foreach ($adjustments as $adjustment) {
+            $result = craft()->market_orderAdjustment->save($adjustment);
+            if (!$result) {
+                $errors = $adjustment->getAllErrors();
+                throw new Exception('Error saving order adjustment: ' . implode(', ',
+                        $errors));
+            }
+        }
 
-		//recalculating order amount and saving items
-		$order->itemTotal = 0;
-		foreach ($lineItems as $item) {
-			$result = craft()->market_lineItem->save($item);
+        //recalculating order amount and saving items
+        $order->itemTotal = 0;
+        foreach ($lineItems as $item) {
+            $result = craft()->market_lineItem->save($item);
 
-			$order->itemTotal += $item->total;
+            $order->itemTotal += $item->total;
 
-			if (!$result) {
-				$errors = $item->getAllErrors();
-				throw new Exception('Error saving line item: ' . implode(', ', $errors));
-			}
-		}
+            if (!$result) {
+                $errors = $item->getAllErrors();
+                throw new Exception('Error saving line item: ' . implode(', ',
+                        $errors));
+            }
+        }
 
-		$order->finalPrice = $order->itemTotal + $order->baseDiscount + $order->baseShippingRate;
-		$order->finalPrice = max(0, $order->finalPrice);
-	}
+        $order->finalPrice = $order->itemTotal + $order->baseDiscount + $order->baseShippingRate;
+        $order->finalPrice = max(0, $order->finalPrice);
+    }
 
     /**
-	 * Completes an Order
-	 *
+     * Completes an Order
+     *
      * @param Market_OrderModel $order
+     *
      * @return bool
      * @throws Exception
      * @throws \Exception
      */
-	public function complete(Market_OrderModel $order)
-	{
-		$order->completedAt = DateTimeHelper::currentTimeForDb();
-        if($status = $order->type->defaultStatus) {
+    public function complete(Market_OrderModel $order)
+    {
+        $order->completedAt = DateTimeHelper::currentTimeForDb();
+        if ($status = $order->type->defaultStatus) {
             $order->orderStatusId = $status->id;
         }
 
-		if (!$this->save($order)){
-			return false;
-		}
+        if (!$this->save($order)) {
+            return false;
+        }
 
-		craft()->market_cart->forgetCart($order);
+        craft()->market_cart->forgetCart($order);
 
-		//raising event on order complete
-		$event = new Event($this, [
-			'order' => $order
-		]);
-		$this->onOrderComplete($event);
-		return true;
-	}
-	/**
-	 * @param int $id
-	 *
-	 * @return Market_OrderModel
-	 */
-	public function getById($id)
-	{
-		$order = Market_OrderRecord::model()->findById($id);
+        //raising event on order complete
+        $event = new Event($this, [
+            'order' => $order
+        ]);
+        $this->onOrderComplete($event);
 
-		return Market_OrderModel::populateModel($order);
-	}
+        return true;
+    }
 
-	/**
-	 * @param Market_OrderModel $order
-	 *
-	 * @return bool
-	 * @throws \CDbException
-	 */
-	public function delete($order)
-	{
-		return craft()->elements->deleteElementById($order->id);
-	}
+    /**
+     * @param int $id
+     *
+     * @return Market_OrderModel
+     */
+    public function getById($id)
+    {
+        $order = Market_OrderRecord::model()->findById($id);
 
-	/**
-	 * @param Market_OrderModel $order
-	 * @return bool
-	 * @throws \Exception
-	 */
-	public function save($order)
-	{
-		if(!$order->completedAt) {
-			//raising event
-			$event = new Event($this, [
-				'order' => $order
-			]);
-			$this->onBeforeSaveOrder($event);
-		}
+        return Market_OrderModel::populateModel($order);
+    }
 
+    /**
+     * @param Market_OrderModel $order
+     *
+     * @return bool
+     * @throws \CDbException
+     */
+    public function delete($order)
+    {
+        return craft()->elements->deleteElementById($order->id);
+    }
 
-		if (!$order->id) {
-			$orderRecord = new Market_OrderRecord();
-		} else {
-			$orderRecord = Market_OrderRecord::model()->findById($order->id);
+    /**
+     * @param Market_OrderModel $order
+     *
+     * @return bool
+     * @throws \Exception
+     */
+    public function save($order)
+    {
+        if (!$order->completedAt) {
+            //raising event
+            $event = new Event($this, [
+                'order' => $order
+            ]);
+            $this->onBeforeSaveOrder($event);
+        }
 
-			if (!$orderRecord) {
-				throw new Exception(Craft::t('No order exists with the ID “{id}”', ['id' => $order->id]));
-			}
-		}
+        if (!$order->id) {
+            $orderRecord = new Market_OrderRecord();
+        } else {
+            $orderRecord = Market_OrderRecord::model()->findById($order->id);
 
-		// Set default shipping method from Order Type if available
-		if (!$order->shippingMethodId){
-			$type = craft()->market_orderType->getById($order->typeId);
-			$method = craft()->market_shippingMethod->getById($type->shippingMethodId);
-			if($method){
-				$order->shippingMethodId = $method->id;
-			}
-		}
+            if (!$orderRecord) {
+                throw new Exception(Craft::t('No order exists with the ID “{id}”',
+                    ['id' => $order->id]));
+            }
+        }
 
-		// Set default payment method if available
-		if (!$order->paymentMethodId){
-			$methods = craft()->market_paymentMethod->getAllForFrontend();
-			if($methods){
-				$order->paymentMethodId = $methods[0]->id;	
-			}
-		}
+        // Set default shipping method from Order Type if available
+        if (!$order->shippingMethodId) {
+            $type   = craft()->market_orderType->getById($order->typeId);
+            $method = craft()->market_shippingMethod->getById($type->shippingMethodId);
+            if ($method) {
+                $order->shippingMethodId = $method->id;
+            }
+        }
 
-		//TODO: Don't recalculate when a completed order, we don't want amounts to change.
-		$this->calculateAdjustments($order);
+        // Set default payment method if available
+        if (!$order->paymentMethodId) {
+            $methods = craft()->market_paymentMethod->getAllForFrontend();
+            if ($methods) {
+                $order->paymentMethodId = $methods[0]->id;
+            }
+        }
+
+        //TODO: Don't recalculate when a completed order, we don't want amounts to change.
+        $this->calculateAdjustments($order);
 
         $oldStatusId = $orderRecord->orderStatusId;
 
-		$orderRecord->typeId            = $order->typeId;
-		$orderRecord->number            = $order->number;
-		$orderRecord->itemTotal         = $order->itemTotal;
-		$orderRecord->email             = $order->email;
-		$orderRecord->completedAt       = $order->completedAt;
-		$orderRecord->billingAddressId  = $order->billingAddressId;
-		$orderRecord->shippingAddressId = $order->shippingAddressId;
-		$orderRecord->shippingMethodId  = $order->shippingMethodId;
-		$orderRecord->paymentMethodId   = $order->paymentMethodId;
-		$orderRecord->orderStatusId     = $order->orderStatusId;
-		$orderRecord->couponCode        = $order->couponCode;
-		$orderRecord->baseDiscount      = $order->baseDiscount;
-		$orderRecord->baseShippingRate  = $order->baseShippingRate;
-		$orderRecord->finalPrice        = $order->finalPrice;
-		$orderRecord->customerId        = $order->customerId;
-		$orderRecord->returnUrl         = $order->returnUrl;
-		$orderRecord->cancelUrl         = $order->cancelUrl;
-		$orderRecord->message         	= $order->message;
+        $orderRecord->typeId            = $order->typeId;
+        $orderRecord->number            = $order->number;
+        $orderRecord->itemTotal         = $order->itemTotal;
+        $orderRecord->email             = $order->email;
+        $orderRecord->completedAt       = $order->completedAt;
+        $orderRecord->billingAddressId  = $order->billingAddressId;
+        $orderRecord->shippingAddressId = $order->shippingAddressId;
+        $orderRecord->shippingMethodId  = $order->shippingMethodId;
+        $orderRecord->paymentMethodId   = $order->paymentMethodId;
+        $orderRecord->orderStatusId     = $order->orderStatusId;
+        $orderRecord->couponCode        = $order->couponCode;
+        $orderRecord->baseDiscount      = $order->baseDiscount;
+        $orderRecord->baseShippingRate  = $order->baseShippingRate;
+        $orderRecord->finalPrice        = $order->finalPrice;
+        $orderRecord->customerId        = $order->customerId;
+        $orderRecord->returnUrl         = $order->returnUrl;
+        $orderRecord->cancelUrl         = $order->cancelUrl;
+        $orderRecord->message           = $order->message;
 
-		$orderRecord->validate();
-		$order->addErrors($orderRecord->getErrors());
+        $orderRecord->validate();
+        $order->addErrors($orderRecord->getErrors());
 
-		MarketDbHelper::beginStackedTransaction();
+        MarketDbHelper::beginStackedTransaction();
 
-		try {
-			if (!$order->hasErrors()) {
+        try {
+            if (!$order->hasErrors()) {
                 if (craft()->elements->saveElement($order)) {
                     //creating order history record
-                    if($orderRecord->id && $oldStatusId != $orderRecord->orderStatusId) {
-                        if(!craft()->market_orderHistory->createFromOrder($order, $oldStatusId)) {
-							throw new Exception('Error saving order history');
+                    if ($orderRecord->id && $oldStatusId != $orderRecord->orderStatusId) {
+                        if (!craft()->market_orderHistory->createFromOrder($order,
+                            $oldStatusId)
+                        ) {
+                            throw new Exception('Error saving order history');
                         }
                     }
 
                     //saving order record
-					$orderRecord->id = $order->id;
-					$orderRecord->save(false);
+                    $orderRecord->id = $order->id;
+                    $orderRecord->save(false);
 
-					MarketDbHelper::commitStackedTransaction();
+                    MarketDbHelper::commitStackedTransaction();
 
-					//raising event
-					if(!$order->completedAt) {
-						$event = new Event($this, [
-							'order' => $order
-						]);
-						$this->onSaveOrder($event);
-					}
+                    //raising event
+                    if (!$order->completedAt) {
+                        $event = new Event($this, [
+                            'order' => $order
+                        ]);
+                        $this->onSaveOrder($event);
+                    }
 
-					return true;
-				}
-			}
-		} catch (\Exception $e) {
-			MarketDbHelper::rollbackStackedTransaction();
-			throw $e;
-		}
+                    return true;
+                }
+            }
+        } catch (\Exception $e) {
+            MarketDbHelper::rollbackStackedTransaction();
+            throw $e;
+        }
 
-		MarketDbHelper::rollbackStackedTransaction();
+        MarketDbHelper::rollbackStackedTransaction();
 
-		return false;
-	}
+        return false;
+    }
 
-	/**
-	 * Save and set the given addresses to the current cart/order
-	 *
-	 * @param Market_OrderModel   $order
-	 * @param Market_AddressModel $shippingAddress
-	 * @param Market_AddressModel $billingAddress
-	 * @return bool
-	 * @throws \Exception
-	 */
-	public function setAddresses(Market_OrderModel $order, Market_AddressModel $shippingAddress, Market_AddressModel $billingAddress)
-	{
-		MarketDbHelper::beginStackedTransaction();
-		try {
-			$result1 = craft()->market_customer->saveAddress($shippingAddress);
+    /**
+     * Save and set the given addresses to the current cart/order
+     *
+     * @param Market_OrderModel   $order
+     * @param Market_AddressModel $shippingAddress
+     * @param Market_AddressModel $billingAddress
+     *
+     * @return bool
+     * @throws \Exception
+     */
+    public function setAddresses(
+        Market_OrderModel $order,
+        Market_AddressModel $shippingAddress,
+        Market_AddressModel $billingAddress
+    ) {
+        MarketDbHelper::beginStackedTransaction();
+        try {
+            $result1 = craft()->market_customer->saveAddress($shippingAddress);
 
-			if($billingAddress->id && $billingAddress->id == $shippingAddress->id) {
-				$result2 = true;
-			} else {
-				$result2 = craft()->market_customer->saveAddress($billingAddress);
-			}
+            if ($billingAddress->id && $billingAddress->id == $shippingAddress->id) {
+                $result2 = true;
+            } else {
+                $result2 = craft()->market_customer->saveAddress($billingAddress);
+            }
 
-			if ($result1 && $result2) {
-				$order->shippingAddressId = $shippingAddress->id;
-				$order->billingAddressId  = $billingAddress->id;
+            if ($result1 && $result2) {
+                $order->shippingAddressId = $shippingAddress->id;
+                $order->billingAddressId  = $billingAddress->id;
 
-				$this->save($order);
-				MarketDbHelper::commitStackedTransaction();
+                $this->save($order);
+                MarketDbHelper::commitStackedTransaction();
 
-				return true;
-			}
-		} catch (\Exception $e) {
-			MarketDbHelper::rollbackStackedTransaction();
-			throw $e;
-		}
+                return true;
+            }
+        } catch (\Exception $e) {
+            MarketDbHelper::rollbackStackedTransaction();
+            throw $e;
+        }
 
-		MarketDbHelper::rollbackStackedTransaction();
+        MarketDbHelper::rollbackStackedTransaction();
 
-		return false;
-	}
+        return false;
+    }
 
     /**
      * Full order recalculation
+     *
      * @param Market_OrderModel $order
+     *
      * @throws Exception
      * @throws \Exception
      */
     public function recalculate(Market_OrderModel $order)
     {
-        foreach($order->lineItems as $item) {
-            if($item->refreshFromPurchasable()) {
-                if(!craft()->market_lineItem->save($item)) {
-                    throw new Exception('Error on saving lite item: ' . implode(', ', $item->getAllErrors()));
+        foreach ($order->lineItems as $item) {
+            if ($item->refreshFromPurchasable()) {
+                if (!craft()->market_lineItem->save($item)) {
+                    throw new Exception('Error on saving lite item: ' . implode(', ',
+                            $item->getAllErrors()));
                 }
             } else {
                 craft()->market_lineItem->delete($item);
@@ -289,56 +306,62 @@ class Market_OrderService extends BaseApplicationComponent
         $this->save($order);
     }
 
-	/**
-	 * @return Market_AdjusterInterface[]
-	 */
-	private function getAdjusters()
-	{
-		return [
-			new Market_ShippingAdjuster,
-			new Market_DiscountAdjuster,
-			new Market_TaxAdjuster,
-		];
-	}
+    /**
+     * @return Market_AdjusterInterface[]
+     */
+    private function getAdjusters()
+    {
+        return [
+            new Market_ShippingAdjuster,
+            new Market_DiscountAdjuster,
+            new Market_TaxAdjuster,
+        ];
+    }
 
-	/**
-	 * Event method
-	 *
-	 * @param \CEvent $event
-	 * @throws \CException
-	 */
-	public function onOrderComplete(\CEvent $event) {
-		$this->raiseEvent('onOrderComplete', $event);
-	}
+    /**
+     * Event method
+     *
+     * @param \CEvent $event
+     *
+     * @throws \CException
+     */
+    public function onOrderComplete(\CEvent $event)
+    {
+        $this->raiseEvent('onOrderComplete', $event);
+    }
 
-	/**
-	 * Event: before saving incomplete order
-	 * Event params: order(Market_OrderModel)
-	 *
-	 * @param \CEvent $event
-	 * @throws \CException
-	 */
-	public function onBeforeSaveOrder(\CEvent $event) {
-		$params = $event->params;
-		if(empty($params['order']) || !($params['order'] instanceof Market_OrderModel)) {
-			throw new Exception('onBeforeSaveOrder event requires "order" param with OrderModel instance');
-		}
-		$this->raiseEvent('onBeforeSaveOrder', $event);
-	}
+    /**
+     * Event: before saving incomplete order
+     * Event params: order(Market_OrderModel)
+     *
+     * @param \CEvent $event
+     *
+     * @throws \CException
+     */
+    public function onBeforeSaveOrder(\CEvent $event)
+    {
+        $params = $event->params;
+        if (empty($params['order']) || !($params['order'] instanceof Market_OrderModel)) {
+            throw new Exception('onBeforeSaveOrder event requires "order" param with OrderModel instance');
+        }
+        $this->raiseEvent('onBeforeSaveOrder', $event);
+    }
 
-	/**
-	 * Event: before successful saving incomplete order
-	 * Event params: order(Market_OrderModel)
-	 *
-	 * @param \CEvent $event
-	 * @throws \CException
-	 */
-	public function onSaveOrder(\CEvent $event) {
-		$params = $event->params;
-		if(empty($params['order']) || !($params['order'] instanceof Market_OrderModel)) {
-			throw new Exception('onSaveOrder event requires "order" param with OrderModel instance');
-		}
-		$this->raiseEvent('onSaveOrder', $event);
-	}
+    /**
+     * Event: before successful saving incomplete order
+     * Event params: order(Market_OrderModel)
+     *
+     * @param \CEvent $event
+     *
+     * @throws \CException
+     */
+    public function onSaveOrder(\CEvent $event)
+    {
+        $params = $event->params;
+        if (empty($params['order']) || !($params['order'] instanceof Market_OrderModel)) {
+            throw new Exception('onSaveOrder event requires "order" param with OrderModel instance');
+        }
+        $this->raiseEvent('onSaveOrder', $event);
+    }
 
 }

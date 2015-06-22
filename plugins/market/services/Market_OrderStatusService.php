@@ -11,110 +11,108 @@ use Market\Helpers\MarketDbHelper;
  */
 class Market_OrderStatusService extends BaseApplicationComponent
 {
-	/**
-	 * @param array|\CDbCriteria $criteria
-	 *
-	 * @return Market_OrderStatusModel[]
-	 */
-	public function getAll($criteria = [])
-	{
-		$orderStatusRecords = Market_OrderStatusRecord::model()->findAll($criteria);
-		return Market_OrderStatusModel::populateModels($orderStatusRecords);
-	}
+    /**
+     * @param array|\CDbCriteria $criteria
+     *
+     * @return Market_OrderStatusModel[]
+     */
+    public function getAll($criteria = [])
+    {
+        $orderStatusRecords = Market_OrderStatusRecord::model()->findAll($criteria);
 
-	/**
-	 * @param int $id
-	 *
-	 * @return Market_OrderStatusModel
-	 */
-	public function getById($id)
-	{
-		$orderStatusRecord = Market_OrderStatusRecord::model()->findById($id);
+        return Market_OrderStatusModel::populateModels($orderStatusRecords);
+    }
 
-		return Market_OrderStatusModel::populateModel($orderStatusRecord);
-	}
+    /**
+     * @param string $handle
+     *
+     * @return Market_OrderStatusModel
+     */
+    public function getByHandle($handle)
+    {
+        $orderStatusRecord = Market_OrderStatusRecord::model()->findByAttributes(['handle' => $handle]);
 
-	/**
-	 * @param string $handle
-	 *
-	 * @return Market_OrderStatusModel
-	 */
-	public function getByHandle($handle)
-	{
-		$orderStatusRecord = Market_OrderStatusRecord::model()->findByAttributes(['handle' => $handle]);
+        return Market_OrderStatusModel::populateModel($orderStatusRecord);
+    }
 
-		return Market_OrderStatusModel::populateModel($orderStatusRecord);
-	}
+    /**
+     * Get first (default) order status from the DB
+     *
+     * @return Market_OrderStatusModel
+     */
+    public function getFirst()
+    {
+        $orderStatus = Market_OrderStatusRecord::model()->find([
+            'order' => 'id',
+            'limit' => 1
+        ]);
 
-	/**
-	 * Get first (default) order status from the DB
-	 *
-	 * @return Market_OrderStatusModel
-	 */
-	public function getFirst()
-	{
-		$orderStatus = Market_OrderStatusRecord::model()->find(['order' => 'id', 'limit' => 1]);
+        return Market_OrderStatusModel::populateModel($orderStatus);
+    }
 
-		return Market_OrderStatusModel::populateModel($orderStatus);
-	}
+    /**
+     * @param Market_OrderStatusModel $model
+     *
+     * @return bool
+     * @throws Exception
+     * @throws \CDbException
+     * @throws \Exception
+     */
+    public function save(Market_OrderStatusModel $model, array $emailsIds)
+    {
+        if ($model->id) {
+            $record = Market_OrderStatusRecord::model()->findById($model->id);
+            if (!$record->id) {
+                throw new Exception(Craft::t('No order status exists with the ID “{id}”',
+                    ['id' => $model->id]));
+            }
+        } else {
+            $record = new Market_OrderStatusRecord();
+        }
 
-	/**
-	 * @param Market_OrderStatusModel $model
-	 *
-	 * @return bool
-	 * @throws Exception
-	 * @throws \CDbException
-	 * @throws \Exception
-	 */
-	public function save(Market_OrderStatusModel $model, array $emailsIds)
-	{
-		if ($model->id) {
-			$record = Market_OrderStatusRecord::model()->findById($model->id);
-			if (!$record->id) {
-				throw new Exception(Craft::t('No order status exists with the ID “{id}”', ['id' => $model->id]));
-			}
-		} else {
-			$record = new Market_OrderStatusRecord();
-		}
-
-		$record->name        = $model->name;
+        $record->name        = $model->name;
         $record->handle      = $model->handle;
         $record->color       = $model->color;
         $record->orderTypeId = $model->orderTypeId;
         $record->default     = $model->default;
 
-		$record->validate();
-		$model->addErrors($record->getErrors());
+        $record->validate();
+        $model->addErrors($record->getErrors());
 
         //validating color
-        if(!$model->getError('color') && !preg_match('/#([a-fA-F0-9]){3}(([a-fA-F0-9]){3})?\b/', $model->color)) {
-            $model->addError('color', 'Color must contain hex digits only: 0-9 or A-F with # at start');
+        if (!$model->getError('color') && !preg_match('/#([a-fA-F0-9]){3}(([a-fA-F0-9]){3})?\b/',
+                $model->color)
+        ) {
+            $model->addError('color',
+                'Color must contain hex digits only: 0-9 or A-F with # at start');
         }
 
         //validating emails ids
         $criteria = new \CDbCriteria();
         $criteria->addInCondition('id', $emailsIds);
-        $exist = Market_EmailRecord::model()->exists($criteria);
-		$hasEmails = (boolean) count($emailsIds);
+        $exist     = Market_EmailRecord::model()->exists($criteria);
+        $hasEmails = (boolean)count($emailsIds);
 
-		if (!$exist && $hasEmails) {
-			$model->addError('emails', 'One or more emails do not exist in the system.');
-		}
+        if (!$exist && $hasEmails) {
+            $model->addError('emails',
+                'One or more emails do not exist in the system.');
+        }
 
         //saving
-		if (!$model->hasErrors()) {
+        if (!$model->hasErrors()) {
             MarketDbHelper::beginStackedTransaction();
-			try {
+            try {
                 //only one default status can be among statuses of one order type
-                if($record->default) {
-                    Market_OrderStatusRecord::model()->updateAll(['default' => 0], 'orderTypeId = :id', ['id' => $record->orderTypeId]);
+                if ($record->default) {
+                    Market_OrderStatusRecord::model()->updateAll(['default' => 0],
+                        'orderTypeId = :id', ['id' => $record->orderTypeId]);
                 }
 
-				// Save it!
-				$record->save(false);
+                // Save it!
+                $record->save(false);
 
                 //Delete old links
-                if($model->id) {
+                if ($model->id) {
                     Market_OrderStatusEmailRecord::model()->deleteAllByAttributes(['orderStatusId' => $model->id]);
                 }
 
@@ -124,54 +122,58 @@ class Market_OrderStatusService extends BaseApplicationComponent
                 }, $emailsIds);
                 $cols  = ['emailId', 'orderStatusId'];
                 $table = Market_OrderStatusEmailRecord::model()->getTableName();
-				craft()->db->createCommand()->insertAll($table, $cols, $rows);
+                craft()->db->createCommand()->insertAll($table, $cols, $rows);
 
-				// Now that we have a calendar ID, save it on the model
+                // Now that we have a calendar ID, save it on the model
                 $model->id = $record->id;
 
-				MarketDbHelper::commitStackedTransaction();
-			} catch (\Exception $e) {
-				MarketDbHelper::rollbackStackedTransaction();
-				throw $e;
-			}
+                MarketDbHelper::commitStackedTransaction();
+            } catch (\Exception $e) {
+                MarketDbHelper::rollbackStackedTransaction();
+                throw $e;
+            }
 
-			return true;
-		} else {
-			return false;
-		}
-	}
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     /**
      * @param int $id
      */
-	public function deleteById($id)
-	{
+    public function deleteById($id)
+    {
         Market_OrderStatusRecord::model()->deleteByPk($id);
-	}
+    }
 
-	/**
-	 * Handler for order status change event
-	 *
-	 * @param Event $event
-	 * @throws Exception
-	 */
-    public function statusChangeHandler(Event $event) {
+    /**
+     * Handler for order status change event
+     *
+     * @param Event $event
+     *
+     * @throws Exception
+     */
+    public function statusChangeHandler(Event $event)
+    {
         /** @var Market_OrderModel $order */
         $order = $event->params['order'];
 
-        if(!$order->orderStatusId) {
+        if (!$order->orderStatusId) {
             return;
         }
 
         $status = craft()->market_orderStatus->getById($order->orderStatusId);
-		if(!$status || !$status->emails) {
-			MarketPlugin::log("Can't send email if no status or emails exist.", LogLevel::Info, true);
+        if (!$status || !$status->emails) {
+            MarketPlugin::log("Can't send email if no status or emails exist.",
+                LogLevel::Info, true);
+
             return;
         }
 
         //sending emails
         $renderVariables = [
-            'order' => $order,
+            'order'  => $order,
             'update' => $event->params['orderHistoryModel'],
         ];
 
@@ -180,27 +182,45 @@ class Market_OrderStatusService extends BaseApplicationComponent
         $newPath = craft()->path->getSiteTemplatesPath();
         craft()->path->setTemplatesPath($newPath);
 
-        foreach($status->emails as $email) {
+        foreach ($status->emails as $email) {
             $craftEmail = new EmailModel();
 
-            $craftEmail->toEmail = $to = craft()->templates->renderString($email->to, $renderVariables);
-            $craftEmail->bcc     = craft()->templates->renderString($email->bcc, $renderVariables);
-            $craftEmail->subject = craft()->templates->renderString($email->subject, $renderVariables);
+            $craftEmail->toEmail = $to = craft()->templates->renderString($email->to,
+                $renderVariables);
+            $craftEmail->bcc     = craft()->templates->renderString($email->bcc,
+                $renderVariables);
+            $craftEmail->subject = craft()->templates->renderString($email->subject,
+                $renderVariables);
 
-            $body = $email->type == Market_EmailRecord::TYPE_HTML ? 'htmlBody' : 'body';
-            $craftEmail->$body = craft()->templates->render($email->templatePath, $renderVariables);
+            $body              = $email->type == Market_EmailRecord::TYPE_HTML ? 'htmlBody' : 'body';
+            $craftEmail->$body = craft()->templates->render($email->templatePath,
+                $renderVariables);
 
-            if(!craft()->email->sendEmail($craftEmail)) {
-                throw new Exception('Email sending error: ' . implode(', ', $email->getAllErrors()));
+            if (!craft()->email->sendEmail($craftEmail)) {
+                throw new Exception('Email sending error: ' . implode(', ',
+                        $email->getAllErrors()));
             }
 
             //logging
-            $log = sprintf('Order #%d got new status "%s". Email "%s" %d was sent to %s', $order->id, $order->orderStatus, $email->name, $email->id, $to);
+            $log = sprintf('Order #%d got new status "%s". Email "%s" %d was sent to %s',
+                $order->id, $order->orderStatus, $email->name, $email->id, $to);
             MarketPlugin::log($log, LogLevel::Info, true);
         }
 
         //put old template path back
         craft()->path->setTemplatesPath($oldPath);
+    }
+
+    /**
+     * @param int $id
+     *
+     * @return Market_OrderStatusModel
+     */
+    public function getById($id)
+    {
+        $orderStatusRecord = Market_OrderStatusRecord::model()->findById($id);
+
+        return Market_OrderStatusModel::populateModel($orderStatusRecord);
     }
 
 }

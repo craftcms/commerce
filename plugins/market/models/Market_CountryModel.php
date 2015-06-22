@@ -16,10 +16,10 @@ class Market_CountryModel extends BaseModel
     /**
      * @return string
      */
-	public function getCpEditUrl()
-	{
-		return UrlHelper::getCpUrl('market/settings/countries/' . $this->id);
-	}
+    public function getCpEditUrl()
+    {
+        return UrlHelper::getCpUrl('market/settings/countries/' . $this->id);
+    }
 
     /**
      * @return string
@@ -33,13 +33,13 @@ class Market_CountryModel extends BaseModel
      * @return array
      */
     protected function defineAttributes()
-	{
-		return [
-			'id'            => AttributeType::Number,
-			'name'          => AttributeType::String,
-			'iso'           => AttributeType::String,
-			'stateRequired' => AttributeType::Bool,
-		];
-	}
+    {
+        return [
+            'id'            => AttributeType::Number,
+            'name'          => AttributeType::String,
+            'iso'           => AttributeType::String,
+            'stateRequired' => AttributeType::Bool,
+        ];
+    }
 
 }

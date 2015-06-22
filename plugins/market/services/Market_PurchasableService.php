@@ -10,10 +10,10 @@ namespace Craft;
 class Market_PurchasableService extends BaseApplicationComponent
 {
 
-	public function savePurchasableElement(BaseElementModel $model)
-	{
+    public function savePurchasableElement(BaseElementModel $model)
+    {
 //		if(craft()->elements->saveElement($model)) {
 //
 //		}
-	}
+    }
 }

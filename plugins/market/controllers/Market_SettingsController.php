@@ -14,38 +14,40 @@ namespace Craft;
 class Market_SettingsController extends Market_BaseController
 {
 
-	/**
-	 * Market Settings Index
-	 */
-	public function actionIndex()
-	{
-		$settings = craft()->market_settings->getSettings();
-		$this->renderTemplate('market/settings', ['settings' => $settings]);
-	}
-	/**
-	 * Market Settings Form
-	 */
-	public function actionEdit()
-	{
-		$settings = craft()->market_settings->getSettings();
-		$this->renderTemplate('market/settings/global', ['settings' => $settings]);
-	}
+    /**
+     * Market Settings Index
+     */
+    public function actionIndex()
+    {
+        $settings = craft()->market_settings->getSettings();
+        $this->renderTemplate('market/settings', ['settings' => $settings]);
+    }
 
-	/**
-	 * @throws HttpException
-	 */
-	public function actionSaveSettings()
-	{
-		$this->requirePostRequest();
-		$postData = craft()->request->getPost('settings');
-		$settings = Market_SettingsModel::populateModel($postData);
+    /**
+     * Market Settings Form
+     */
+    public function actionEdit()
+    {
+        $settings = craft()->market_settings->getSettings();
+        $this->renderTemplate('market/settings/global',
+            ['settings' => $settings]);
+    }
 
-		if (!craft()->market_settings->save($settings)) {
-			craft()->userSession->setError(Craft::t('Error, Market settings not saved.'));
-			$this->renderTemplate('market/settings', ['settings' => $settings]);
-		} else {
-			craft()->userSession->setNotice(Craft::t('Success, Market settings saved.'));
-			$this->redirectToPostedUrl();
-		}
-	}
+    /**
+     * @throws HttpException
+     */
+    public function actionSaveSettings()
+    {
+        $this->requirePostRequest();
+        $postData = craft()->request->getPost('settings');
+        $settings = Market_SettingsModel::populateModel($postData);
+
+        if (!craft()->market_settings->save($settings)) {
+            craft()->userSession->setError(Craft::t('Error, Market settings not saved.'));
+            $this->renderTemplate('market/settings', ['settings' => $settings]);
+        } else {
+            craft()->userSession->setNotice(Craft::t('Success, Market settings saved.'));
+            $this->redirectToPostedUrl();
+        }
+    }
 }

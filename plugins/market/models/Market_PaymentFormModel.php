@@ -16,28 +16,40 @@ namespace Craft;
  */
 class Market_PaymentFormModel extends BaseModel
 {
-	public function rules()
-	{
-		return [
-			['firstName, lastName, month, year, cvv, number', 'required'],
-			['month', 'numerical', 'integerOnly' => true, 'min' => 1, 'max' => 12],
-			['year', 'numerical', 'integerOnly' => true, 'min' => date('Y'), 'max' => date('Y') + 12],
-			['cvv', 'numerical', 'integerOnly' => true],
-			['cvv', 'length', 'min' => 3, 'max' => 4],
-			['number', 'numerical', 'integerOnly' => true],
-			['number', 'length', 'max' => 19],
-		];
-	}
+    public function rules()
+    {
+        return [
+            ['firstName, lastName, month, year, cvv, number', 'required'],
+            [
+                'month',
+                'numerical',
+                'integerOnly' => true,
+                'min'         => 1,
+                'max'         => 12
+            ],
+            [
+                'year',
+                'numerical',
+                'integerOnly' => true,
+                'min'         => date('Y'),
+                'max'         => date('Y') + 12
+            ],
+            ['cvv', 'numerical', 'integerOnly' => true],
+            ['cvv', 'length', 'min' => 3, 'max' => 4],
+            ['number', 'numerical', 'integerOnly' => true],
+            ['number', 'length', 'max' => 19],
+        ];
+    }
 
-	protected function defineAttributes()
-	{
-		return [
-			'firstName' => AttributeType::String,
-			'lastName'  => AttributeType::String,
-			'number'    => AttributeType::Number,
-			'month'     => AttributeType::Number,
-			'year'      => AttributeType::Number,
-			'cvv'       => AttributeType::Number,
-		];
-	}
+    protected function defineAttributes()
+    {
+        return [
+            'firstName' => AttributeType::String,
+            'lastName'  => AttributeType::String,
+            'number'    => AttributeType::Number,
+            'month'     => AttributeType::Number,
+            'year'      => AttributeType::Number,
+            'cvv'       => AttributeType::Number,
+        ];
+    }
 }
