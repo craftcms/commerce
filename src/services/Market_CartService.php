@@ -5,10 +5,8 @@ namespace Craft;
 use Market\Helpers\MarketDbHelper;
 
 /**
- * Cart is same as Order. This class deals with order as with cart. All saving
- * logic and etc. are in OrderService
- *
- * Class Market_CartService
+ * Cart is the same as Order. This class deals with order as with cart. All
+ * saving logic and etc. are in OrderService
  *
  * @package Craft
  */
@@ -134,7 +132,7 @@ class Market_CartService extends BaseApplicationComponent
 
             $this->cart[$orderType->handle]->lastIp = craft()->request->getIpAddress();
 
-            // Update the user if it has changed
+            // Update the user if it has changed and recalculate.
             $customer = craft()->market_customer->getCustomer();
             if (!$this->cart[$orderType->handle]->isEmpty() && $this->cart[$orderType->handle]->customerId != $customer->id) {
                 $this->cart[$orderType->handle]->customerId = $customer->id;
@@ -180,6 +178,8 @@ class Market_CartService extends BaseApplicationComponent
     }
 
     /**
+     * Forgets a Cart by deleting its cookie.
+     *
      * @param Market_OrderModel $cart
      */
     public function forgetCart(Market_OrderModel $cart)
