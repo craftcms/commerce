@@ -51,170 +51,186 @@ use Market\Traits\Market_ModelRelationsTrait;
  */
 class Market_OrderModel extends BaseElementModel
 {
-	use Market_ModelRelationsTrait;
+    use Market_ModelRelationsTrait;
 
-	protected $elementType = 'Market_Order';
+    protected $elementType = 'Market_Order';
 
-	public function isEditable()
-	{
-		return true;
-	}
+    public function isEditable()
+    {
+        return true;
+    }
 
-	public function __toString()
-	{
-		return $this->number;
-	}
+    public function __toString()
+    {
+        return $this->number;
+    }
 
-	public function getCpEditUrl()
-	{
-		$orderType = $this->type;
+    public function getCpEditUrl()
+    {
+        $orderType = $this->type;
 
-		return UrlHelper::getCpUrl('market/orders/' . $orderType->handle . '/' . $this->id);
-	}
+        return UrlHelper::getCpUrl('market/orders/' . $orderType->handle . '/' . $this->id);
+    }
 
-	/**
-	 * @return null|FieldLayoutModel
-	 */
-	public function getFieldLayout()
-	{
-		if ($this->type) {
-			return craft()->market_orderType->getById($this->typeId)->getFieldLayout();
-		}
+    /**
+     * @return null|FieldLayoutModel
+     */
+    public function getFieldLayout()
+    {
+        if ($this->type) {
+            return craft()->market_orderType->getById($this->typeId)->getFieldLayout();
+        }
 
-		return NULL;
-	}
+        return null;
+    }
 
-	public function isLocalized()
-	{
-		return false;
-	}
+    public function isLocalized()
+    {
+        return false;
+    }
 
-	public function isEmpty()
-	{
-		return $this->getTotalQty() == 0;
-	}
+    public function isEmpty()
+    {
+        return $this->getTotalQty() == 0;
+    }
 
-	/**
-	 * @return int
-	 */
-	public function getTotalQty()
-	{
-		$qty = 0;
-		foreach ($this->lineItems as $item) {
-			$qty += $item->qty;
-		}
+    /**
+     * @return int
+     */
+    public function getTotalQty()
+    {
+        $qty = 0;
+        foreach ($this->lineItems as $item) {
+            $qty += $item->qty;
+        }
 
-		return $qty;
-	}
+        return $qty;
+    }
 
-	/**
-	 * @return int
-	 */
-	public function getTotalWeight()
-	{
-		$weight = 0;
-		foreach ($this->lineItems as $item) {
-			$weight += $item->qty * $item->weight;
-		}
+    /**
+     * @return int
+     */
+    public function getTotalWeight()
+    {
+        $weight = 0;
+        foreach ($this->lineItems as $item) {
+            $weight += $item->qty * $item->weight;
+        }
 
-		return $weight;
-	}
+        return $weight;
+    }
 
-	public function getTotalLength()
-	{
-		$value = 0;
-		foreach ($this->lineItems as $item) {
-			$value += $item->qty * $item->length;
-		}
+    public function getTotalLength()
+    {
+        $value = 0;
+        foreach ($this->lineItems as $item) {
+            $value += $item->qty * $item->length;
+        }
 
-		return $value;
-	}
+        return $value;
+    }
 
-	public function getTotalWidth()
-	{
-		$value = 0;
-		foreach ($this->lineItems as $item) {
-			$value += $item->qty * $item->width;
-		}
+    public function getTotalWidth()
+    {
+        $value = 0;
+        foreach ($this->lineItems as $item) {
+            $value += $item->qty * $item->width;
+        }
 
-		return $value;
-	}
+        return $value;
+    }
 
-	public function getTotalHeight()
-	{
-		$value = 0;
-		foreach ($this->lineItems as $item) {
-			$value += $item->qty * $item->height;
-		}
+    public function getTotalHeight()
+    {
+        $value = 0;
+        foreach ($this->lineItems as $item) {
+            $value += $item->qty * $item->height;
+        }
 
-		return $value;
-	}
+        return $value;
+    }
 
 
-	public function getAdjustments()
-	{
-		return craft()->market_orderAdjustment->getAllByOrderId($this->id);
-	}
+    public function getAdjustments()
+    {
+        return craft()->market_orderAdjustment->getAllByOrderId($this->id);
+    }
 
-	/**
-	 * @return Market_AddressModel
-	 */
-	public function getShippingAddress()
-	{
-		return craft()->market_address->getById($this->shippingAddressId);
-	}
+    /**
+     * @return Market_AddressModel
+     */
+    public function getShippingAddress()
+    {
+        return craft()->market_address->getById($this->shippingAddressId);
+    }
 
-	/**
-	 * @return Market_AddressModel
-	 */
-	public function getBillingAddress()
-	{
-		return craft()->market_address->getById($this->billingAddressId);
-	}
+    /**
+     * @return Market_AddressModel
+     */
+    public function getBillingAddress()
+    {
+        return craft()->market_address->getById($this->billingAddressId);
+    }
 
-	/**
-	 * @return bool
-	 */
-	public function showAddress()
-	{
-		return count($this->lineItems) > 0;
-	}
+    /**
+     * @return bool
+     */
+    public function showAddress()
+    {
+        return count($this->lineItems) > 0;
+    }
 
-	/**
-	 * @return bool
-	 */
-	public function showPayment()
-	{
-		return count($this->lineItems) > 0 && $this->billingAddressId && $this->shippingAddressId;
-	}
+    /**
+     * @return bool
+     */
+    public function showPayment()
+    {
+        return count($this->lineItems) > 0 && $this->billingAddressId && $this->shippingAddressId;
+    }
 
-	/**
-	 * @return array
-	 */
-	protected function defineAttributes()
-	{
-		return array_merge(parent::defineAttributes(), [
-			'id'                => AttributeType::Number,
-			'number'            => AttributeType::String,
-			'couponCode'        => AttributeType::String,
-			'itemTotal'         => [AttributeType::Number, 'decimals' => 4, 'default' => 0],
-			'baseDiscount'      => [AttributeType::Number, 'decimals' => 4, 'default' => 0],
-			'baseShippingRate'  => [AttributeType::Number, 'decimals' => 4, 'default' => 0],
-			'finalPrice'        => [AttributeType::Number, 'decimals' => 4, 'default' => 0],
-			'email'             => AttributeType::String,
-			'completedAt'       => AttributeType::DateTime,
-			'currency'          => AttributeType::String,
-			'lastIp'            => AttributeType::String,
-			'message'           => AttributeType::String,
-			'returnUrl'         => AttributeType::String,
-			'cancelUrl'         => AttributeType::String,
-			'orderStatusId'     => AttributeType::Number,
-			'billingAddressId'  => AttributeType::Number,
-			'shippingAddressId' => AttributeType::Number,
-			'shippingMethodId'  => AttributeType::Number,
-			'paymentMethodId'   => AttributeType::Number,
-			'customerId'        => AttributeType::Number,
-			'typeId'            => AttributeType::Number,
-		]);
-	}
+    /**
+     * @return array
+     */
+    protected function defineAttributes()
+    {
+        return array_merge(parent::defineAttributes(), [
+            'id'                => AttributeType::Number,
+            'number'            => AttributeType::String,
+            'couponCode'        => AttributeType::String,
+            'itemTotal'         => [
+                AttributeType::Number,
+                'decimals' => 4,
+                'default'  => 0
+            ],
+            'baseDiscount'      => [
+                AttributeType::Number,
+                'decimals' => 4,
+                'default'  => 0
+            ],
+            'baseShippingRate'  => [
+                AttributeType::Number,
+                'decimals' => 4,
+                'default'  => 0
+            ],
+            'finalPrice'        => [
+                AttributeType::Number,
+                'decimals' => 4,
+                'default'  => 0
+            ],
+            'email'             => AttributeType::String,
+            'completedAt'       => AttributeType::DateTime,
+            'currency'          => AttributeType::String,
+            'lastIp'            => AttributeType::String,
+            'message'           => AttributeType::String,
+            'returnUrl'         => AttributeType::String,
+            'cancelUrl'         => AttributeType::String,
+            'orderStatusId'     => AttributeType::Number,
+            'billingAddressId'  => AttributeType::Number,
+            'shippingAddressId' => AttributeType::Number,
+            'shippingMethodId'  => AttributeType::Number,
+            'paymentMethodId'   => AttributeType::Number,
+            'customerId'        => AttributeType::Number,
+            'typeId'            => AttributeType::Number,
+        ]);
+    }
 }

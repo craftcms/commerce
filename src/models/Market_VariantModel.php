@@ -2,8 +2,8 @@
 
 namespace Craft;
 
-use Market\Traits\Market_ModelRelationsTrait;
 use Market\Interfaces\Purchasable;
+use Market\Traits\Market_ModelRelationsTrait;
 
 /**
  * Class Market_VariantModel
@@ -26,109 +26,120 @@ use Market\Interfaces\Purchasable;
  * @property Market_ProductModel $product
  * @package Craft
  */
-
 class Market_VariantModel extends BaseElementModel implements Purchasable
 {
-	use Market_ModelRelationsTrait;
+    use Market_ModelRelationsTrait;
 
-	protected $elementType = 'Market_Variant';
-	public $salePrice;
+    protected $elementType = 'Market_Variant';
+    public $salePrice;
 
-	public function isLocalized()
-	{
-		return false;
-	}
+    public function isLocalized()
+    {
+        return false;
+    }
 
-	public function __toString()
-	{
-		return $this->sku;
-	}
+    public function __toString()
+    {
+        return $this->sku;
+    }
 
-	public function getCpEditUrl()
-	{
-		return UrlHelper::getCpUrl('market/products/' . $this->product->type->handle . '/' . $this->product->id . '/variants/' . $this->id);
-	}
+    public function getCpEditUrl()
+    {
+        return UrlHelper::getCpUrl('market/products/' . $this->product->type->handle . '/' . $this->product->id . '/variants/' . $this->id);
+    }
 
-	/**
-	 * @return bool
-	 */
-	public function getOnSale()
-	{
-		return is_null($this->salePrice) ? false : ($this->salePrice != $this->price);
-	}
+    /**
+     * @return bool
+     */
+    public function getOnSale()
+    {
+        return is_null($this->salePrice) ? false : ($this->salePrice != $this->price);
+    }
 
-	public function getProduct(){
-		if ($this->productId) {
-			return craft()->market_product->getById($this->productId);
-		}
+    public function getProduct()
+    {
+        if ($this->productId) {
+            return craft()->market_product->getById($this->productId);
+        }
 
-		return NULL;
-	}
+        return null;
+    }
 
-	/**
-	 * @return FieldLayoutModel|null
-	 */
-	public function getFieldLayout()
-	{
-		if ($this->productId) {
-			return craft()->market_productType->getById($this->product->typeId)->asa('variantFieldLayout')->getFieldLayout();
-		}
+    /**
+     * @return FieldLayoutModel|null
+     */
+    public function getFieldLayout()
+    {
+        if ($this->productId) {
+            return craft()->market_productType->getById($this->product->typeId)->asa('variantFieldLayout')->getFieldLayout();
+        }
 
-		return NULL;
-	}
+        return null;
+    }
 
-	protected function defineAttributes()
-	{
-		return array_merge(parent::defineAttributes(), [
-			'id'             => [AttributeType::Number],
-			'productId'      => [AttributeType::Number],
-			'isMaster'       => [AttributeType::Bool],
-			'sku'            => [AttributeType::String, 'required' => true],
-			'price'          => [AttributeType::Number, 'decimals' => 4, 'required' => true],
-			'width'          => [AttributeType::Number, 'decimals' => 4],
-			'height'         => [AttributeType::Number, 'decimals' => 4],
-			'length'         => [AttributeType::Number, 'decimals' => 4],
-			'weight'         => [AttributeType::Number, 'decimals' => 4],
-			'stock'          => [AttributeType::Number],
-			'unlimitedStock' => [AttributeType::Bool, 'default' => 0],
-			'minQty'         => [AttributeType::Number],
-			'maxQty'         => [AttributeType::Number],
-			'deletedAt'      => [AttributeType::DateTime]
-		]);
-	}
+    protected function defineAttributes()
+    {
+        return array_merge(parent::defineAttributes(), [
+            'id'             => [AttributeType::Number],
+            'productId'      => [AttributeType::Number],
+            'isMaster'       => [AttributeType::Bool],
+            'sku'            => [AttributeType::String, 'required' => true],
+            'price'          => [
+                AttributeType::Number,
+                'decimals' => 4,
+                'required' => true
+            ],
+            'width'          => [AttributeType::Number, 'decimals' => 4],
+            'height'         => [AttributeType::Number, 'decimals' => 4],
+            'length'         => [AttributeType::Number, 'decimals' => 4],
+            'weight'         => [AttributeType::Number, 'decimals' => 4],
+            'stock'          => [AttributeType::Number],
+            'unlimitedStock' => [AttributeType::Bool, 'default' => 0],
+            'minQty'         => [AttributeType::Number],
+            'maxQty'         => [AttributeType::Number],
+            'deletedAt'      => [AttributeType::DateTime]
+        ]);
+    }
 
-	public function getPurchasablePrice()
-	{
-		return $this->price;
-	}
+    public function getPurchasablePrice()
+    {
+        return $this->price;
+    }
 
-	public function getPurchasableSku()
-	{
-		return $this->sku;
-	}
+    public function getPurchasableSku()
+    {
+        return $this->sku;
+    }
 
-	public function getPurchasableDescription()
-	{
-		return $this->sku;
-	}
+    public function getPurchasableDescription()
+    {
+        return $this->sku;
+    }
 
-	public function validateLineItem(Market_LineItemModel $lineItem){
+    public function validateLineItem(Market_LineItemModel $lineItem)
+    {
 
-		if (!$this->unlimitedStock && $lineItem->qty > $this->stock) {
-			$error = sprintf('There are only %d items left in stock', $this->stock);
-			$lineItem->addError('qty', $error);
-		}
+        if (!$this->unlimitedStock && $lineItem->qty > $this->stock) {
+            $error = sprintf('There are only %d items left in stock',
+                $this->stock);
+            $lineItem->addError('qty', $error);
+        }
 
-		if ($lineItem->qty < $this->minQty) {
-			$error = sprintf('Minimal order qty for this variant is %d', $this->minQty);
-			$lineItem->addError('qty', $error);
-		}
+        if ($lineItem->qty < $this->minQty) {
+            $error = sprintf('Minimal order qty for this variant is %d',
+                $this->minQty);
+            $lineItem->addError('qty', $error);
+        }
 
-		if ($lineItem->qty > $this->maxQty) {
-			$error = sprintf('Maximum order qty for this variant is %d', $this->minQty);
-			$lineItem->addError('qty', $error);
-		}
+        if ($this->maxQty != 0){
+            if ($lineItem->qty > $this->maxQty) {
+                $error = sprintf('Maximum order qty for this variant is %d',
+                    $this->minQty);
+                $lineItem->addError('qty', $error);
+            }
+        }
 
-	}
-	
+
+    }
+
 }

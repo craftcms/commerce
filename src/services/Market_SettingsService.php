@@ -8,29 +8,20 @@ namespace Craft;
  */
 class Market_SettingsService extends BaseApplicationComponent
 {
-	/** @var BasePlugin */
-	private $_plugin;
+    /** @var BasePlugin */
+    private $_plugin;
 
-	/**
-	 * Setup
-	 */
-	public function init()
-	{
-		$this->_plugin = craft()->plugins->getPlugin('market');
-	}
-
-	/**
-	 * Get all settings from plugin core class
-	 * @return Market_SettingsModel
-	 */
-	public function getSettings()
-	{
-		$data = $this->_plugin->getSettings();
-		return Market_SettingsModel::populateModel($data);
-	}
+    /**
+     * Setup
+     */
+    public function init()
+    {
+        $this->_plugin = craft()->plugins->getPlugin('market');
+    }
 
     /**
      * @param string $option
+     *
      * @return mixed
      */
     public function getOption($option)
@@ -38,21 +29,33 @@ class Market_SettingsService extends BaseApplicationComponent
         return $this->getSettings()->$option;
     }
 
-	/**
-	 * Set all settings from plugin core class
-	 *
-	 * @param Market_SettingsModel $settings
-	 *
-	 * @return bool
-	 */
-	public function save(Market_SettingsModel $settings)
-	{
-		if (!$settings->validate()) {
-			return false;
-		}
+    /**
+     * Get all settings from plugin core class
+     *
+     * @return Market_SettingsModel
+     */
+    public function getSettings()
+    {
+        $data = $this->_plugin->getSettings();
 
-		craft()->plugins->savePluginSettings($this->_plugin, $settings);
+        return Market_SettingsModel::populateModel($data);
+    }
 
-		return true;
-	}
+    /**
+     * Set all settings from plugin core class
+     *
+     * @param Market_SettingsModel $settings
+     *
+     * @return bool
+     */
+    public function save(Market_SettingsModel $settings)
+    {
+        if (!$settings->validate()) {
+            return false;
+        }
+
+        craft()->plugins->savePluginSettings($this->_plugin, $settings);
+
+        return true;
+    }
 } 

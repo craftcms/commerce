@@ -25,34 +25,34 @@ use Market\Traits\Market_ModelRelationsTrait;
  */
 class Market_OrderTypeModel extends BaseModel
 {
-	use Market_ModelRelationsTrait;
+    use Market_ModelRelationsTrait;
 
-	function __toString()
-	{
-		return Craft::t($this->handle);
-	}
+    function __toString()
+    {
+        return Craft::t($this->handle);
+    }
 
-	public function getCpEditUrl()
-	{
-		return UrlHelper::getCpUrl('market/settings/ordertypes/' . $this->id);
-	}
+    public function getCpEditUrl()
+    {
+        return UrlHelper::getCpUrl('market/settings/ordertypes/' . $this->id);
+    }
 
-	public function behaviors()
-	{
-		return [
-			'fieldLayout' => new FieldLayoutBehavior('Market_Order'),
-		];
-	}
+    public function behaviors()
+    {
+        return [
+            'fieldLayout' => new FieldLayoutBehavior('Market_Order'),
+        ];
+    }
 
-	protected function defineAttributes()
-	{
-		return [
-			'id'                           => AttributeType::Number,
-			'name'                         => AttributeType::String,
-			'handle'                       => AttributeType::String,
-			'fieldLayoutId'                => AttributeType::Number,
-			'shippingMethodId'             => AttributeType::Number
-		];
-	}
+    protected function defineAttributes()
+    {
+        return [
+            'id'               => AttributeType::Number,
+            'name'             => AttributeType::String,
+            'handle'           => AttributeType::String,
+            'fieldLayoutId'    => AttributeType::Number,
+            'shippingMethodId' => AttributeType::Number
+        ];
+    }
 
 }

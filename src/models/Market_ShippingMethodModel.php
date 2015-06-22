@@ -15,14 +15,18 @@ use Market\Traits\Market_ModelRelationsTrait;
  */
 class Market_ShippingMethodModel extends BaseModel
 {
-	use Market_ModelRelationsTrait;
+    use Market_ModelRelationsTrait;
 
-	protected function defineAttributes()
-	{
-		return [
-			'id'      => AttributeType::Number,
-			'name'    => [AttributeType::String, 'required' => true],
-			'enabled' => [AttributeType::Bool, 'required' => true, 'default' => 1],
-		];
-	}
+    protected function defineAttributes()
+    {
+        return [
+            'id'      => AttributeType::Number,
+            'name'    => [AttributeType::String, 'required' => true],
+            'enabled' => [
+                AttributeType::Bool,
+                'required' => true,
+                'default'  => 1
+            ],
+        ];
+    }
 }

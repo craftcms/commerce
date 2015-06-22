@@ -19,47 +19,64 @@ namespace Craft;
  */
 class Market_OrderTypeRecord extends BaseRecord
 {
-	/**
-	 * @return string
-	 */
-	public function getTableName()
-	{
-		return 'market_ordertypes';
-	}
+    /**
+     * @return string
+     */
+    public function getTableName()
+    {
+        return 'market_ordertypes';
+    }
 
-	/**
-	 * @return array
-	 */
-	public function defineIndexes()
-	{
-		return [
-			['columns' => ['handle'], 'unique' => true],
-		];
-	}
+    /**
+     * @return array
+     */
+    public function defineIndexes()
+    {
+        return [
+            ['columns' => ['handle'], 'unique' => true],
+        ];
+    }
 
-	/**
-	 * @return array
-	 */
-	public function defineRelations()
-	{
-		return [
-			'fieldLayout'    => [static::BELONGS_TO, 'FieldLayoutRecord', 'onDelete' => static::SET_NULL],
-			'shippingMethod' => [static::BELONGS_TO, 'Market_ShippingMethodRecord', 'required' => true],
-			'orderStatuses'  => [static::HAS_MANY, 'Market_OrderStatusRecord', 'orderTypeId'],
-			'defaultStatus'  => [static::HAS_ONE, 'Market_OrderStatusRecord', 'orderTypeId', 'condition' => 'defaultStatus.default = 1'],
-		];
-	}
+    /**
+     * @return array
+     */
+    public function defineRelations()
+    {
+        return [
+            'fieldLayout'    => [
+                static::BELONGS_TO,
+                'FieldLayoutRecord',
+                'onDelete' => static::SET_NULL
+            ],
+            'shippingMethod' => [
+                static::BELONGS_TO,
+                'Market_ShippingMethodRecord',
+                'required' => true
+            ],
+            'orderStatuses'  => [
+                static::HAS_MANY,
+                'Market_OrderStatusRecord',
+                'orderTypeId'
+            ],
+            'defaultStatus'  => [
+                static::HAS_ONE,
+                'Market_OrderStatusRecord',
+                'orderTypeId',
+                'condition' => 'defaultStatus.default = 1'
+            ],
+        ];
+    }
 
-	/**
-	 * @return array
-	 */
-	protected function defineAttributes()
-	{
-		return [
-			'name'                         => [AttributeType::Name, 'required' => true],
-			'handle'                       => [AttributeType::Handle, 'required' => true],
-			'shippingMethodId'             => [AttributeType::Number, 'required' => true]
-		];
-	}
+    /**
+     * @return array
+     */
+    protected function defineAttributes()
+    {
+        return [
+            'name'             => [AttributeType::Name, 'required' => true],
+            'handle'           => [AttributeType::Handle, 'required' => true],
+            'shippingMethodId' => [AttributeType::Number, 'required' => true]
+        ];
+    }
 
 }

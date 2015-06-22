@@ -14,20 +14,20 @@ namespace Craft;
  */
 class Market_TaxCategoryModel extends BaseModel
 {
-	public function getCpEditUrl()
-	{
-		return UrlHelper::getCpUrl('market/settings/taxcategories/' . $this->id);
-	}
+    public function getCpEditUrl()
+    {
+        return UrlHelper::getCpUrl('market/settings/taxcategories/' . $this->id);
+    }
 
-	protected function defineAttributes()
-	{
-		return [
-			'id'          => AttributeType::Number,
-			'name'        => AttributeType::String,
-			'code'        => AttributeType::String,
-			'description' => AttributeType::String,
-			'default'     => AttributeType::Bool,
-		];
-	}
+    protected function defineAttributes()
+    {
+        return [
+            'id'          => AttributeType::Number,
+            'name'        => AttributeType::String,
+            'code'        => AttributeType::String,
+            'description' => AttributeType::String,
+            'default'     => AttributeType::Bool,
+        ];
+    }
 
 }

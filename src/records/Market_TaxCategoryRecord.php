@@ -14,26 +14,30 @@ namespace Craft;
  */
 class Market_TaxCategoryRecord extends BaseRecord
 {
-	public function getTableName()
-	{
-		return 'market_taxcategories';
-	}
+    public function getTableName()
+    {
+        return 'market_taxcategories';
+    }
 
-	public function defineIndexes()
-	{
-		return [
-			['columns' => ['name'], 'unique' => true],
-		];
-	}
+    public function defineIndexes()
+    {
+        return [
+            ['columns' => ['name'], 'unique' => true],
+        ];
+    }
 
-	protected function defineAttributes()
-	{
-		return [
-			'name'        => [AttributeType::String, 'required' => true],
-			'code'        => AttributeType::String,
-			'description' => AttributeType::String,
-			'default'     => [AttributeType::Bool, 'default' => 0, 'required' => true],
-		];
-	}
+    protected function defineAttributes()
+    {
+        return [
+            'name'        => [AttributeType::String, 'required' => true],
+            'code'        => AttributeType::String,
+            'description' => AttributeType::String,
+            'default'     => [
+                AttributeType::Bool,
+                'default'  => 0,
+                'required' => true
+            ],
+        ];
+    }
 
 }

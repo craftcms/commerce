@@ -24,37 +24,73 @@ namespace Craft;
  */
 class Market_SaleRecord extends BaseRecord
 {
-	const TYPE_PERCENT = 'percent';
-	const TYPE_FLAT = 'flat';
+    const TYPE_PERCENT = 'percent';
+    const TYPE_FLAT = 'flat';
 
-	public function getTableName()
-	{
-		return 'market_sales';
-	}
+    public function getTableName()
+    {
+        return 'market_sales';
+    }
 
-	public function defineRelations()
-	{
-		return [
-			'groups'       => [static::MANY_MANY, 'UserGroupRecord', 'market_sale_usergroups(saleId, userGroupId)'],
-			'products'     => [static::MANY_MANY, 'Market_ProductRecord', 'market_sale_products(saleId, productId)'],
-			'productTypes' => [static::MANY_MANY, 'Market_ProductTypeRecord', 'market_sale_producttypes(saleId, productTypeId)'],
-		];
-	}
+    public function defineRelations()
+    {
+        return [
+            'groups'       => [
+                static::MANY_MANY,
+                'UserGroupRecord',
+                'market_sale_usergroups(saleId, userGroupId)'
+            ],
+            'products'     => [
+                static::MANY_MANY,
+                'Market_ProductRecord',
+                'market_sale_products(saleId, productId)'
+            ],
+            'productTypes' => [
+                static::MANY_MANY,
+                'Market_ProductTypeRecord',
+                'market_sale_producttypes(saleId, productTypeId)'
+            ],
+        ];
+    }
 
-	protected function defineAttributes()
-	{
-		return [
-			'name'            => [AttributeType::Name, 'required' => true],
-			'description'     => AttributeType::Mixed,
-			'dateFrom'        => AttributeType::DateTime,
-			'dateTo'          => AttributeType::DateTime,
-			'discountType'    => [AttributeType::Enum, 'values' => [self::TYPE_PERCENT, self::TYPE_FLAT], 'required' => true],
-			'discountAmount'  => [AttributeType::Number, 'decimals' => 5, 'required' => true],
-			'allGroups'       => [AttributeType::Bool, 'required' => true, 'default' => 0],
-			'allProducts'     => [AttributeType::Bool, 'required' => true, 'default' => 0],
-			'allProductTypes' => [AttributeType::Bool, 'required' => true, 'default' => 0],
-			'enabled'         => [AttributeType::Bool, 'required' => true, 'default' => 1],
-		];
-	}
+    protected function defineAttributes()
+    {
+        return [
+            'name'            => [AttributeType::Name, 'required' => true],
+            'description'     => AttributeType::Mixed,
+            'dateFrom'        => AttributeType::DateTime,
+            'dateTo'          => AttributeType::DateTime,
+            'discountType'    => [
+                AttributeType::Enum,
+                'values'   => [self::TYPE_PERCENT, self::TYPE_FLAT],
+                'required' => true
+            ],
+            'discountAmount'  => [
+                AttributeType::Number,
+                'decimals' => 5,
+                'required' => true
+            ],
+            'allGroups'       => [
+                AttributeType::Bool,
+                'required' => true,
+                'default'  => 0
+            ],
+            'allProducts'     => [
+                AttributeType::Bool,
+                'required' => true,
+                'default'  => 0
+            ],
+            'allProductTypes' => [
+                AttributeType::Bool,
+                'required' => true,
+                'default'  => 0
+            ],
+            'enabled'         => [
+                AttributeType::Bool,
+                'required' => true,
+                'default'  => 1
+            ],
+        ];
+    }
 
 }

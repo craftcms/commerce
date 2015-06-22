@@ -15,33 +15,41 @@ namespace Craft;
  */
 class Market_PaymentMethodRecord extends BaseRecord
 {
-	/*
-	 * The name of the table not including the craft db prefix e.g craft_
-	 *
-	 * @return string
-	 */
-	public function getTableName()
-	{
-		return 'market_paymentmethods';
-	}
+    /*
+     * The name of the table not including the craft db prefix e.g craft_
+     *
+     * @return string
+     */
+    public function getTableName()
+    {
+        return 'market_paymentmethods';
+    }
 
-	public function defineIndexes()
-	{
-		return [
-			['columns' => ['class'], 'unique' => true],
-		];
-	}
+    public function defineIndexes()
+    {
+        return [
+            ['columns' => ['class'], 'unique' => true],
+        ];
+    }
 
-	protected function defineAttributes()
-	{
-		return [
-			'class'           => [AttributeType::String, 'required' => true],
-			'name'            => [AttributeType::String, 'required' => true],
-			'settings'        => [AttributeType::Mixed],
-			'cpEnabled'       => [AttributeType::Bool, 'required' => true, 'default' => 0],
-			'frontendEnabled' => [AttributeType::Bool, 'required' => true, 'default' => 0],
-		];
-	}
+    protected function defineAttributes()
+    {
+        return [
+            'class'           => [AttributeType::String, 'required' => true],
+            'name'            => [AttributeType::String, 'required' => true],
+            'settings'        => [AttributeType::Mixed],
+            'cpEnabled'       => [
+                AttributeType::Bool,
+                'required' => true,
+                'default'  => 0
+            ],
+            'frontendEnabled' => [
+                AttributeType::Bool,
+                'required' => true,
+                'default'  => 0
+            ],
+        ];
+    }
 }
 
 

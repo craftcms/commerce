@@ -14,15 +14,15 @@ namespace Craft;
 class Market_DashboardController extends Market_BaseController
 {
 
-	public function actionIndex()
-	{
-		$variables = [];
-		$this->renderTemplate('market/index', $variables);
-	}
+    public function actionIndex()
+    {
+        $variables = [];
+        $this->renderTemplate('market/index', $variables);
+    }
 
-	public function actionSetup()
-	{
-		$variables = [];
-		$this->renderTemplate('market/setup', $variables);
-	}
+    public function actionSetup()
+    {
+        $variables = [];
+        $this->renderTemplate('market/setup', $variables);
+    }
 } 
