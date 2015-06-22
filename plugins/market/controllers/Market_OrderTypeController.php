@@ -74,8 +74,7 @@ class Market_OrderTypeController extends Market_BaseController
 		$orderType->name                         = craft()->request->getPost('name');
 		$orderType->handle                       = craft()->request->getPost('handle');
 		$orderType->shippingMethodId             = craft()->request->getPost('shippingMethodId');
-		$orderType->purgeIncompletedCartDuration = craft()->request->getPost('purgeIncompletedCartDuration');
-
+		
 		// Set the field layout
 		$fieldLayout       = craft()->fields->assembleLayoutFromPost();
 		$fieldLayout->type = 'Market_Order';
