@@ -252,7 +252,7 @@ class Market_ProductModel extends BaseElementModel
         } else {
             $variants = $this->nonMasterVariants;
         }
-
+        
         craft()->market_variant->applySales($variants, $this);
 
         return $variants;

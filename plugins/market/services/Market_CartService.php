@@ -139,7 +139,6 @@ class Market_CartService extends BaseApplicationComponent
                 craft()->market_order->save($this->cart[$orderType->handle]);
             }
         }
-
         return $this->cart[$orderType->handle];
     }
 
