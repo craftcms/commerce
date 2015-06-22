@@ -103,7 +103,7 @@ class Market_VariantModel extends BaseElementModel implements Purchasable
 
     public function getPurchasablePrice()
     {
-        return $this->price;
+        return $this->salePrice;
     }
 
     public function getPurchasableSku()
