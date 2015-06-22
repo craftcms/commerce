@@ -48,11 +48,12 @@ EOT;
 		}
 
 
-		$this->dropForeignKey('market_variant_optionvalues','variantId');
-		$this->dropForeignKey('market_variant_optionvalues','optionValueId');
-		$this->dropForeignKey('market_optionvalues','optionTypeId');
-		$this->dropForeignKey('market_product_optiontypes','optionTypeId');
-		$this->dropForeignKey('market_product_optiontypes','productId');
+		MigrationHelper::dropForeignKeyIfExists('market_variant_optionvalues','variantId');
+		MigrationHelper::dropForeignKeyIfExists('market_variant_optionvalues','variantId');
+		MigrationHelper::dropForeignKeyIfExists('market_variant_optionvalues','optionValueId');
+		MigrationHelper::dropForeignKeyIfExists('market_optionvalues','optionTypeId');
+		MigrationHelper::dropForeignKeyIfExists('market_product_optiontypes','optionTypeId');
+		MigrationHelper::dropForeignKeyIfExists('market_product_optiontypes','productId');
 
 		$this->dropTable('market_optionvalues');
 		$this->dropTable('market_optiontypes');
