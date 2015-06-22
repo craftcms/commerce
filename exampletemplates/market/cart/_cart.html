@@ -43,7 +43,7 @@
             <form method="POST" class="form-inline">
                 <input type="hidden" name="action" value="market/cart/applyCoupon">
                 <input type="hidden" name="redirect" value="market/cart">
-                <input type="hidden" name="orderTypeHandle" value="cart">
+                <input type="hidden" name="orderTypeHandle" value="order">
                 {{ getCsrfInput() }}
                 Coupon Code: <input type="text" name="couponCode" class="form-control" width="11" value="{{ cart.couponCode }}">
                 <input type="submit" class="btn" value="{% if cart.couponCode %}Change{% else %}Apply{% endif %} Coupon" />
@@ -64,7 +64,7 @@
             <form method="POST">
                 <input type="hidden" name="action" value="market/cart/removeAll" />
                 <input type="hidden" name="redirect" value="market/cart" />
-                <input type="hidden" name="orderTypeHandle" value="cart">
+                <input type="hidden" name="orderTypeHandle" value="order">
                 {{ getCsrfInput() }}
                 <input class="btn btn-danger btn-xs" type="submit" value="Remove all" />
             </form>

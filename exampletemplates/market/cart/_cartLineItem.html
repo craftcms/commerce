@@ -39,7 +39,7 @@
         <form method="POST" class="form-inline">
             <input type="hidden" name="action" value="market/cart/remove" />
             <input type="hidden" name="redirect" value="market/cart" />
-            <input type="hidden" name="orderTypeHandle" value="cart">
+            <input type="hidden" name="orderTypeHandle" value="order">
             <input type="hidden" name="lineItemId" value="{{ lineItem.id }}" />
             {{ getCsrfInput() }}
             <input type="submit" class="btn btn-xs btn-danger" value="Remove" />
