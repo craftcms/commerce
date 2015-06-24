@@ -4,7 +4,7 @@ namespace Market\Seed;
 
 use Craft\Market_CountryRecord;
 
-/ *
+/**
  * Class Market_CountriesSeeder
  *
  * @package Market\Seed
