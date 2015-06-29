@@ -12,7 +12,7 @@ namespace Craft;
  * @property DateTime                 availableOn
  * @property DateTime                 expiresOn
  * @property Market_VariantRecord     $master
- * @property Market_VariantRecord[]   allVariants
+ * @property Market_VariantRecord[]   variants
  * @property Market_TaxCategoryRecord taxCategory
  * @package Craft
  */
@@ -56,7 +56,7 @@ class Market_ProductRecord extends BaseRecord
                 'productId',
                 'condition' => 'master.isMaster = 1'
             ],
-            'allVariants' => [
+            'variants' => [
                 static::HAS_MANY,
                 'Market_VariantRecord',
                 'productId'

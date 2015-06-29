@@ -193,6 +193,7 @@
                     {{ forms.checkboxField({
                         label: 'Unlimited'|t,
                         name:   'masterVariant[unlimitedStock]',
+                        checked: masterVariant.unlimitedStock,
                         errors: masterVariant.getErrors('unlimitedStock')
                     }) }}
                     </div>
@@ -329,7 +330,7 @@
                 <div class="buttons first">
                     <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
                     {% if productType.hasVariants %}
-                    <a class="btn formsubmit submit right" data-redirect="{{ product.cpEditUrl }}/variants/new"
+                    <a class="btn formsubmit submit right" data-redirect="market/products/{type.handle}/{id}/variants/new"
                        data-value="1">{{ 'Save & Add Variant'|t }}</a>
                     {%  endif %}
                 </div>

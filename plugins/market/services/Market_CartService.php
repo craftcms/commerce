@@ -28,7 +28,7 @@ class Market_CartService extends BaseApplicationComponent
      * @return bool
      * @throws \Exception
      */
-    public function addToCart($order, $purchasableId, $qty, &$error = '')
+    public function addToCart($order, $purchasableId, $qty = 1, &$error = '')
     {
         MarketDbHelper::beginStackedTransaction();
 

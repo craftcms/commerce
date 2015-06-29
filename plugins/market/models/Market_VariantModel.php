@@ -116,6 +116,11 @@ class Market_VariantModel extends BaseElementModel implements Purchasable
         return $this->sku;
     }
 
+    public function getPurchasableId()
+    {
+        return $this->id;
+    }
+
     public function validateLineItem(Market_LineItemModel $lineItem)
     {
 
