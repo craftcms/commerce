@@ -1,0 +1,95 @@
+{% extends 'commerce/_layout' %}
+
+{%  block basiccontent %}
+
+
+    {# Cart. #}
+    {# Documentation: LINKHERE #}
+
+    {% import 'commerce/_includes/_forms' as forms %}
+
+    {#<div class="meter">#}
+        {#<span style="width: 25%"></span>#}
+    {#</div>#}
+
+    <table class="u-full-width">
+        <thead>
+        <tr>
+            <th>Product</th>
+            <th>Qty</th>
+            <th class="right">Price</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for item in cart.lineItems %}
+        <tr>
+            <td>
+                {% include 'commerce/_includes/_purchasableDetails' with {'purchasable':item.purchasable} %}
+                {{ forms.removeFromCartButton(item) }}
+            </td>
+            <td>
+                <form method="POST">
+                    <input type="hidden" name="action" value="market/cart/updateQty">
+                    <input type="hidden" name="redirect" value="market/cart">
+                    <input type="hidden" name="lineItemId" value="{{ item.id }}">
+                    <input type="number" name="qty" min="1" value="{{ item.qty }}" width="3">
+                    {{ getCsrfInput() }}
+                    <input type="submit" class="btn" value="Update" />
+                    {% if error is defined %}<strong>Error: {{ error }}</strong>{% endif %}
+                </form>
+            </td>
+            <td class="right">
+                {% if item.underSale %}
+                    <s>Price: {{ item.price|marketCurrency }}</s><br/>
+                    Sale Price: {{ item.subtotalWithSale|marketCurrency }}<br/>
+                {% else %}
+                    Price: {{ item.price|marketCurrency }}<br/>
+                {% endif %}
+                Sale Off: {{ item.saleAmount|marketCurrency }}<br/>
+                Discount: {{ item.discountAmount|marketCurrency }}<br/>
+                Taxes: {{ item.taxAmount|marketCurrency }}<br/>
+                Ship Total: {{ item.shippingAmount|marketCurrency }}<br/>
+                Total: {{ item.total|marketCurrency }}<br/>
+            </td>
+        </tr>
+        {%  endfor %}
+
+
+        {%  for adjustment in cart.adjustments %}
+            <tr>
+            <td>{{ adjustment.type }}
+                {#<pre><code>{{ adjustment.optionsJson|json_encode(constant('JSON_PRETTY_PRINT')) }}</code></pre>#}
+            </td>
+            <td> <strong>{{ adjustment.name }}</strong><br/>({{ adjustment.description }})</td>
+            <td class="right">{{ adjustment.amount|marketCurrency }}</td>
+            </tr>
+        {% endfor %}
+
+        <tr>
+            <td>
+                <form method="POST">
+                    <input type="hidden" name="action" value="market/cart/applyCoupon">
+                    <input type="hidden" name="redirect" value="commerce/cart">
+                    <input type="hidden" name="orderTypeHandle" value="order">
+                    {{ getCsrfInput() }}
+                    <input type="text" name="couponCode" width="11" value="{{ cart.couponCode }}" placeholder="{{ "Coupon Code"|t }}"><br/>
+                    <input type="submit" class="button" value="{% if cart.couponCode %}Change{% else %}Apply{% endif %} Coupon" />
+                    {% if couponError is defined %}<strong>Error: {{ couponError }}</strong>{% endif %}
+                </form>
+            </td>
+            <td class="right" colspan="2">
+                Item Total: {{ cart.itemTotal|marketCurrency }}<br/>
+                Base Discount: {{ cart.baseDiscount|marketCurrency }}<br/>
+                Base Shipping Rate: {{ cart.baseShippingRate|marketCurrency }}<br/>
+                <h4>Final Price: {{ cart.finalPrice|marketCurrency }}</h4>
+            </td>
+        </tr>
+
+        </tbody>
+    </table>
+
+    {% if not cart.lineItems|length %}
+        <p>You have no items in your cart, add some on the <a href="/commerce/products">products page</a>.</p>
+    {% endif %}
+
+{%  endblock %}

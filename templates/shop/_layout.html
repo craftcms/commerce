@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+
+  {# GLOBAL EXAMPLE TEMPLATE VARIABLES #}
+  {% set settings = {
+    'baseUrl' : 'commerce',
+    'siteName' : 'Craft Commerce'|t
+  } %}
+
+  {% set cart = craft.market.getCart('order') %}
+
+  <meta charset="utf-8">
+  <title>{{ settings.siteName }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css">
+  <link rel="stylesheet" href="/{{ settings.baseUrl }}/style.css">
+</head>
+<body>
+<div id="header" class="container">
+  <div class="row">
+    <div class="eleven columns">
+      {% include settings.baseUrl~"/_logo" %}
+      <nav>
+        {% set slug = craft.request.getSegment(2) %}
+        <a class="button {% if slug == 'products' %}button-primary{% endif %}" href="/commerce/products">
+          {{ "Products"|t }}
+        </a>
+        <a class="button {% if slug == 'cart' %}button-primary{% endif %}" href="/commerce/cart">
+          ({{cart.lineItems|length}}) {{ "Cart"|t }}
+        </a>
+      </nav>
+    </div>
+  </div>
+</div>
+<div id="main" class="container">
+{% block content %}
+    <div class="row">
+      <div class="eleven columns">
+        {%  block basiccontent %}
+        <h4>Default Content</h4>
+        <p>You should not see this.</p>
+        {%  endblock %}
+      </div>
+    </div>
+{% endblock %}
+</div>
+</body>
+</html>

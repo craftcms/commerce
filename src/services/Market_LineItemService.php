@@ -167,7 +167,7 @@ class Market_LineItemService extends BaseApplicationComponent
         if ($purchasable->id) {
             $lineItem->fillFromPurchasable($purchasable);
         } else {
-            $lineItem->addError('purchasableId', 'Purchasable not found');
+            $lineItem->addError('purchasableId', Craft::t('Item not found'));
         }
 
         return $lineItem;

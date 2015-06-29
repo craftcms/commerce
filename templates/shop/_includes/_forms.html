@@ -1,0 +1,21 @@
+{% macro addToCartButton(purchasable) %}
+    <form method="POST">
+        <input type="hidden" name="action" value="market/cart/add">
+        <input type="hidden" name="redirect" value="commerce/cart">
+        <input type="hidden" name="qty" value="1">
+        <input type="hidden" name="orderTypeHandle" value="order">
+        <input type="hidden" name="purchasableId" value="{{ purchasable.purchasableId }}">
+        <input {% if purchasable.stock <= 0 and purchasable.unlimitedStock == false  %}disabled {% endif %} type="submit" value="{{ "Add to cart"|t}}" class="button"/>
+    </form>
+{% endmacro %}
+
+{% macro removeFromCartButton(lineitem) %}
+    <form method="POST">
+        <input type="hidden" name="action" value="market/cart/remove" />
+        <input type="hidden" name="redirect" value="commerce/cart" />
+        <input type="hidden" name="orderTypeHandle" value="order">
+        <input type="hidden" name="lineItemId" value="{{ lineitem.id }}" />
+        {{ getCsrfInput() }}
+        <input type="submit" class="button" value="Remove" />
+    </form>
+{% endmacro %}

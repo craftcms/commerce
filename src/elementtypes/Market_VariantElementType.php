@@ -51,13 +51,14 @@ class Market_VariantElementType extends Market_BaseElementType
 			'weight'         => Craft::t('weight'),
 			'stock'          => Craft::t('stock'),
 			'unlimitedStock' => Craft::t('unlimitedStock'),
-			'minQty'         => Craft::t('minQty')
+			'minQty'         => Craft::t('minQty'),
+			'maxQty'         => Craft::t('maxQty')
 		];
 	}
 
 	public function defineSearchableAttributes()
 	{
-		return ['sku', 'price', 'width', 'height', 'length', 'weight', 'stock', 'unlimitedStock', 'minQty'];
+		return ['sku', 'price', 'width', 'height', 'length', 'weight', 'stock', 'unlimitedStock', 'minQty','maxQty'];
 
 	}
 
@@ -79,7 +80,8 @@ class Market_VariantElementType extends Market_BaseElementType
 			'weight'         => Craft::t('Weight'),
 			'stock'          => Craft::t('Stock'),
 			'unlimitedStock' => Craft::t('Unlimited Stock'),
-			'minQty'         => Craft::t('Min Qty')
+			'minQty'         => Craft::t('Min Qty'),
+			'maxQty'         => Craft::t('Max Qty')
 		];
 	}
 
@@ -97,7 +99,7 @@ class Market_VariantElementType extends Market_BaseElementType
 	public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
 	{
 		$query
-			->addSelect("variants.id,variants.productId,variants.isMaster,variants.sku,variants.price,variants.width,variants.height,variants.length,variants.weight,variants.stock,variants.unlimitedStock,variants.minQty")
+			->addSelect("variants.id,variants.productId,variants.isMaster,variants.sku,variants.price,variants.width,variants.height,variants.length,variants.weight,variants.stock,variants.unlimitedStock,variants.minQty,variants.maxQty")
 			->join('market_variants variants', 'variants.id = elements.id');
 
 		if ($criteria->sku) {

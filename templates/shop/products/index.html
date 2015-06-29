@@ -1,0 +1,38 @@
+{% extends 'commerce/_layout' %}
+{%  block content %}
+
+   {# Get All Products. #}
+   {# Documentation: LINKHERE #}
+
+   {% import 'commerce/_includes/_forms' as forms %}
+
+   {%  for product in craft.market.products.find() %}
+   <div class="row">
+      <div class="two columns">
+         <img class="product rounded" src="http://baconmockup.com/200/200">
+      </div>
+      <div class="ten columns">
+
+         {% if product.type.hasUrls %}
+            <h5><a href="{{ product.url }}">{{ product.name }}</a></h5>
+            {% else %}
+            <h5>{{ product.name }}</h5>
+         {% endif %}
+
+         {% if product.type.hasVariants %}
+            {% for variant in product.variants %}
+               {% include 'commerce/_includes/_purchasableDetails' with {'purchasable':variant} %}
+               {{ forms.addToCartButton(variant) }}
+            {% endfor %}
+         {% else %}
+            {% include 'commerce/_includes/_purchasableDetails' with {'purchasable':product} %}
+
+            {{ forms.addToCartButton(product) }}
+         {% endif %}
+
+      </div>
+   </div>
+      <hr/>
+   {% endfor %}
+
+{%  endblock %}
