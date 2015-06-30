@@ -19,3 +19,27 @@
         <input type="submit" class="button" value="Remove" />
     </form>
 {% endmacro %}
+
+{% macro updateQtyForm(lineitem) %}
+    <form method="POST">
+        <input type="hidden" name="action" value="market/cart/updateQty">
+        <input type="hidden" name="redirect" value="commerce/cart">
+        <input type="hidden" name="lineItemId" value="{{ lineitem.id }}">
+        <input type="number" name="qty" min="1" value="{{ lineitem.qty }}">
+        {{ getCsrfInput() }}
+        <input type="submit" class="btn" value="Update" />
+        {% if error is defined %}<strong>Error: {{ error }}</strong>{% endif %}
+    </form>
+{% endmacro %}
+
+{% macro updateCouponForm(cart) %}
+    <form method="POST">
+        <input type="hidden" name="action" value="market/cart/applyCoupon">
+        <input type="hidden" name="redirect" value="commerce/cart">
+        <input type="hidden" name="orderTypeHandle" value="order">
+        {{ getCsrfInput() }}
+        <input type="text" name="couponCode" width="11" value="{{ cart.couponCode }}" placeholder="{{ "Coupon Code"|t }}"><br/>
+        <input type="submit" class="button" value="{% if cart.couponCode %}Change{% else %}Apply{% endif %} Coupon" />
+        {% if couponError is defined %}<strong>Error: {{ couponError }}</strong>{% endif %}
+    </form>
+{% endmacro %}
