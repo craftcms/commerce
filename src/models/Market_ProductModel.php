@@ -3,6 +3,7 @@
 namespace Craft;
 
 use Market\Traits\Market_ModelRelationsTrait;
+use Market\Interfaces\Purchasable;
 
 /**
  * Class Market_ProductModel
@@ -24,7 +25,7 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property string                  name
  * @package Craft
  */
-class Market_ProductModel extends BaseElementModel
+class Market_ProductModel extends BaseElementModel implements Purchasable
 {
     use Market_ModelRelationsTrait;
 
@@ -77,17 +78,28 @@ class Market_ProductModel extends BaseElementModel
         return $this->title;
     }
 
-
     /**
-     * Returns the placeholder template for the sku
-     *
+     * We need to be explicit to meet interface
+     * @return string
      */
-    public function getSkuPlaceholder()
+    public function getDescription()
     {
-        //TODO implement SKU template
-        return "";
+        if (!$this->type->hasVariants) {
+            return (string) $this->title;
+        }
     }
 
+    /**
+     * Validate based mast variant validation
+     *
+     * @param Market_LineItemModel $lineItem
+     *
+     * @return mixed
+     */
+    public function validateLineItem(Market_LineItemModel $lineItem)
+    {
+        $this->getMasterVariant()->validateLineItem($lineItem);
+    }
 
     /**
      * @return int
@@ -95,7 +107,7 @@ class Market_ProductModel extends BaseElementModel
     public function getPurchasableId()
     {
         if (!$this->type->hasVariants) {
-            return $this->getMasterVariant()->id;
+            return $this->getMasterVariant()->getPurchasableId();
         }
     }
 

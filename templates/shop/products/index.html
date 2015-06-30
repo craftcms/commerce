@@ -1,4 +1,4 @@
-{% extends 'commerce/_layout' %}
+{% extends 'commerce/_layouts/_main' %}
 {%  block content %}
 
    {# Get All Products. #}
@@ -9,10 +9,9 @@
    {%  for product in craft.market.products.find() %}
    <div class="row">
       <div class="two columns">
-         <img class="product rounded" src="http://baconmockup.com/200/200">
+         {% include "commerce/_includes/_bacon" %}
       </div>
       <div class="ten columns">
-
          {% if product.type.hasUrls %}
             <h5><a href="{{ product.url }}">{{ product.name }}</a></h5>
             {% else %}
@@ -26,13 +25,11 @@
             {% endfor %}
          {% else %}
             {% include 'commerce/_includes/_purchasableDetails' with {'purchasable':product} %}
-
             {{ forms.addToCartButton(product) }}
          {% endif %}
 
       </div>
    </div>
-      <hr/>
    {% endfor %}
 
 {%  endblock %}

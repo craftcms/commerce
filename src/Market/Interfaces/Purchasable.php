@@ -6,15 +6,26 @@ namespace Market\Interfaces;
 interface Purchasable
 {
 
-	// information
+	// Information
 
-	public function getPurchasablePrice();
+	public function getPurchasableId();
 
-	public function getPurchasableSku();
+	public function getPrice();
 
-	public function getPurchasableDescription();
+	public function getSku();
 
-	// hooks
+	public function getDescription();
 
+	// Hooks
+
+	/**
+	 * Validates this purchasable for the line item it is on.
+	 *
+	 * You can add model errors to the line item like this: `$lineItem->addError('qty', $errorText);`
+	 *
+	 * @param \Craft\Market_LineItemModel $lineItem
+	 *
+	 * @return mixed
+	 */
 	public function validateLineItem(\Craft\Market_LineItemModel $lineItem);
 }

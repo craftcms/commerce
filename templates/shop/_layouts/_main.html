@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
 
-
   {# GLOBAL EXAMPLE TEMPLATE VARIABLES #}
   {% set settings = {
     'baseUrl' : 'commerce',
@@ -22,15 +21,28 @@
 <div id="header" class="container">
   <div class="row">
     <div class="eleven columns">
-      {% include settings.baseUrl~"/_logo" %}
+      {% include "commerce/_includes/_logo" %}
       <nav>
-        {% set slug = craft.request.getSegment(2) %}
-        <a class="button {% if slug == 'products' %}button-primary{% endif %}" href="/commerce/products">
+
+        {% set page = craft.request.getSegment(2) %}
+
+        <a class="button {% if page == '' %}button-primary{% endif %}" href="/commerce">
+          {{ "Home"|t }}
+        </a>
+
+        <a class="button {% if page == 'products' %}button-primary{% endif %}" href="/commerce/products">
           {{ "Products"|t }}
         </a>
-        <a class="button {% if slug == 'cart' %}button-primary{% endif %}" href="/commerce/cart">
-          ({{cart.lineItems|length}}) {{ "Cart"|t }}
+        <a class="button {% if page == 'cart' %}button-primary{% endif %}" href="/commerce/cart">
+          {{ "Cart"|t }} ({{cart.lineItems|length}})
         </a>
+        <span class="right">
+          {% if currentUser %}
+            {{ currentUser.name }}
+          {% else %}
+            {{ "Guest"|t }}
+          {% endif %}
+        </span>
       </nav>
     </div>
   </div>
