@@ -190,18 +190,22 @@ class Market_OrderModel extends BaseElementModel
     }
 
     /**
+     * @deprecated
      * @return bool
      */
     public function showAddress()
     {
+        craft()->deprecator->log('Market_OrderModel::showAddress():removed', 'You should no longer use `cart.showAddress` in twig to determine whether to show the address form. Do your own check in twig like this `{% if cart.linItems|length > 0 %}');
         return count($this->lineItems) > 0;
     }
 
     /**
+     * @deprecated
      * @return bool
      */
     public function showPayment()
     {
+        craft()->deprecator->log('Market_OrderModel::showPayment():removed', 'You should no longer use `cart.showPayment` in twig to determine whether to show the payment form. Do your own check in twig like this `{% if cart.linItems|length > 0 and cart.billingAddressId and cart.shippingAddressId %}');
         return count($this->lineItems) > 0 && $this->billingAddressId && $this->shippingAddressId;
     }
 
