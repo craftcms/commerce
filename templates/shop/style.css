@@ -631,6 +631,8 @@ hr {
     -webkit-border-radius: 10px;
     border-radius: 10px;
     padding: 3px;
+    margin-bottom: 10px;
+    .flash
 }
 
 .meter > span {
@@ -671,4 +673,8 @@ img.product {
 .variant-input input[type='radio'] {
     padding: 0px;
     margin: 0px;
+}
+
+.flash{
+    color: #CE4539;
 }
