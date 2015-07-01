@@ -1,11 +1,7 @@
 {% extends 'commerce/_layouts/_main' %}
 
 {%  block content %}
-<div class="row">
-    <div class="eleven columns">
-
-    {# Cart. #}
-    {# Documentation: LINKHERE #}
+<div class="row"><div class="eleven columns">
 
     {% import 'commerce/_includes/_forms' as forms %}
 
@@ -48,7 +44,6 @@
             </td>
         </tr>
         {%  endfor %}
-
 
         {%  for adjustment in cart.adjustments %}
             <tr>

@@ -372,6 +372,18 @@ input[type="button"].button-primary:focus {
     background-color: #CE4539;
     border-color: #CE4539;
 }
+.button.link {
+    display:inline;
+    border:none;
+    text-transform: none;
+    padding: 0px;
+    font-size: 1em; /* currently ems cause chrome bug misinterpreting rems on body element */
+    line-height: 1;
+    font-weight: 400;
+    color:#CE4539;
+    text-align:left;
+    height: auto;
+}
 
 /* Forms
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
