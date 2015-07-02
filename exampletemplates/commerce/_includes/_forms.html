@@ -9,6 +9,21 @@
     </form>
 {% endmacro %}
 
+{% macro addToCartForm(purchasables) %}
+    <form method="POST">
+        <input type="hidden" name="action" value="market/cart/add">
+        <input type="hidden" name="redirect" value="commerce/cart">
+        <input type="hidden" name="qty" value="1">
+        <input type="hidden" name="orderTypeHandle" value="order">
+        <select name="purchasableId">
+            {% for purchasable in purchasables %}
+            <option {% if purchasable.stock <= 0 and purchasable.unlimitedStock == false  %}disabled {% endif %} value="{{ purchasable.purchasableId }}">{{ purchasable.sku }} {{ purchasable.description }} {{ purchasable.price|marketCurrency }}</option>
+            {% endfor %}
+        </select>
+        <input type="submit" value="{{ "Add to cart"|t}}" class="button"/>
+    </form>
+{% endmacro %}
+
 {% macro removeFromCartButton(lineitem) %}
     <form method="POST">
         <input type="hidden" name="action" value="market/cart/remove" />

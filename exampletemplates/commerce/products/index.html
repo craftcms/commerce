@@ -24,10 +24,7 @@
          {% endif %}
 
          {% if product.type.hasVariants %}
-            {% for variant in product.variants %}
-               {% include 'commerce/_includes/_purchasableDetails' with {'purchasable':variant} %}
-               {{ forms.addToCartButton(variant) }}
-            {% endfor %}
+            {{ forms.addToCartForm(product.variants) }}
          {% else %}
             {% include 'commerce/_includes/_purchasableDetails' with {'purchasable':product} %}
             {{ forms.addToCartButton(product) }}
