@@ -57,6 +57,7 @@
 
         <tr>
             <td>
+                {{ forms.emptyCartForm(cart) }}
                 {{ forms.updateCouponForm(cart) }}
             </td>
             <td>
@@ -71,6 +72,8 @@
 
         </tbody>
     </table>
+
+
 
     {% if not cart.lineItems|length %}
         <p>You have no items in your cart, add some on the <a href="/commerce/products">products page</a>.</p>
