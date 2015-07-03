@@ -11,7 +11,7 @@ use Craft\BaseRecord;
  *
  * @package craft
  */
-trait    Market_ModelRelationsTrait
+trait Market_ModelRelationsTrait
 {
     /** @var \craft\BaseRecord */
     private $_record;
