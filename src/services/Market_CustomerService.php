@@ -159,4 +159,5 @@ class Market_CustomerService extends BaseApplicationComponent
         return craft()->market_address->save($address);
 
     }
+
 }
