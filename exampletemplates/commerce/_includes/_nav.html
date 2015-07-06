@@ -16,9 +16,9 @@
 
     <span class="right">
       {% if currentUser %}
-          {{ currentUser.name }}
+          {{ currentUser.name }} - <a href="/commerce/customer">My Account</a>
       {% else %}
-          {{ "Guest"|t }}
+          {{ "Guest User"|t }} - <a href="/commerce/login">Log In</a>
       {% endif %}
     </span>
 
