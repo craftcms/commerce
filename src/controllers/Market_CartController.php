@@ -88,6 +88,38 @@ class Market_CartController extends Market_BaseController
         }
     }
 
+
+    /**
+     *
+     *
+     */
+    public function actionSetEmail()
+    {
+        $this->requirePostRequest();
+
+        $email = craft()->request->getPost('email');
+
+        $validator = new \CEmailValidator;
+        $validator->allowEmpty = false;
+
+        if($validator->validateValue($email)){
+            if(craft()->userSession->isGuest){
+                $orderTypeHandle = craft()->request->getPost('orderTypeHandle');
+                $cart            = craft()->market_cart->getCart($orderTypeHandle);
+                $cart->email = $email;
+                if (craft()->market_order->save($cart)){
+                    craft()->userSession->setFlash('market',
+                        Craft::t('Email has been set'));
+                }
+            }
+        }else{
+            craft()->userSession->setFlash('market',
+                Craft::t('Email Not Valid'));
+        }
+
+    }
+
+
     /**
      * @throws HttpException
      * @throws \Exception
