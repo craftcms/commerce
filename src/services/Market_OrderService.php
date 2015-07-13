@@ -193,6 +193,8 @@ class Market_OrderService extends BaseApplicationComponent
         $orderRecord->returnUrl         = $order->returnUrl;
         $orderRecord->cancelUrl         = $order->cancelUrl;
         $orderRecord->message           = $order->message;
+        $orderRecord->shippingAddressData = $order->shippingAddressData;
+        $orderRecord->billingAddressData = $order->billingAddressData;
 
         $orderRecord->validate();
         $order->addErrors($orderRecord->getErrors());
@@ -264,8 +266,12 @@ class Market_OrderService extends BaseApplicationComponent
             }
 
             if ($result1 && $result2) {
+
                 $order->shippingAddressId = $shippingAddress->id;
                 $order->billingAddressId  = $billingAddress->id;
+
+                $order->shippingAddressData = JsonHelper::encode($shippingAddress->attributes);
+                $order->billingAddressData = JsonHelper::encode($billingAddress->attributes);
 
                 $this->save($order);
                 MarketDbHelper::commitStackedTransaction();
