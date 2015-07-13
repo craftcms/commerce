@@ -23,7 +23,9 @@ use Market\Traits\Market_ModelRelationsTrait;
  *
  * @property int                           typeId
  * @property int                           billingAddressId
+ * @property mixed                         billingAddressData
  * @property int                           shippingAddressId
+ * @property mixed                         shippingAddressData
  * @property int                           shippingMethodId
  * @property int                           paymentMethodId
  * @property int                           customerId
@@ -178,7 +180,12 @@ class Market_OrderModel extends BaseElementModel
      */
     public function getShippingAddress()
     {
-        return craft()->market_address->getById($this->shippingAddressId);
+        // Get the live linked address if it is still a cart, else cached
+        if (!$this->completedAt) {
+            return craft()->market_address->getById($this->shippingAddressId);
+        }else{
+            return Market_AddressModel::populateModel($this->shippingAddressData);
+        }
     }
 
     /**
@@ -186,7 +193,13 @@ class Market_OrderModel extends BaseElementModel
      */
     public function getBillingAddress()
     {
-        return craft()->market_address->getById($this->billingAddressId);
+        // Get the live linked address if it is still a cart, else cached
+        if (!$this->completedAt) {
+            return craft()->market_address->getById($this->billingAddressId);
+        }else{
+            return Market_AddressModel::populateModel($this->billingAddressData);
+        }
+
     }
 
     /**
@@ -252,6 +265,9 @@ class Market_OrderModel extends BaseElementModel
             'paymentMethodId'   => AttributeType::Number,
             'customerId'        => AttributeType::Number,
             'typeId'            => AttributeType::Number,
+
+            'shippingAddressData'   => AttributeType::Mixed,
+            'billingAddressData'    => AttributeType::Mixed
         ]);
     }
 }
