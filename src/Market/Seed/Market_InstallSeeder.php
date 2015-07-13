@@ -99,10 +99,10 @@ class Market_InstallSeeder implements Market_SeederInterface
 		$productType         = new Market_ProductTypeModel;
 		$productType->name   = 'Plain Shirts';
 		$productType->handle = 'plainShirts';
-		$productType->hasUrls = false;
+		$productType->hasUrls = true;
 		$productType->hasVariants = false;
-		$productType->template = '';
-		$productType->urlFormat = '';
+		$productType->template = 'commerce/products/_entry';
+		$productType->urlFormat = 'commerce/products/{slug}';
 
 		$fieldLayout = FieldLayoutModel::populateModel(['type' => 'Market_Product']);
 		\Craft\craft()->fields->saveLayout($fieldLayout);
