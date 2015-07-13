@@ -4,6 +4,7 @@ namespace Market\Seed;
 
 use Craft\Market_OrderTypeModel;
 use Craft\Market_ShippingMethodRecord;
+use Craft\Market_ShippingRuleRecord;
 use Craft\Market_OrderStatusModel;
 use Craft\Market_ProductModel;
 use Craft\Market_ProductTypeModel;
@@ -38,6 +39,12 @@ class Market_InstallSeeder implements Market_SeederInterface
 		$method->enabled = true;
 		$method->save();
 
+		$rule = new Market_ShippingRuleRecord();
+		$rule->methodId = $method->id;
+		$rule->description  = "Catches all countries and states";
+		$rule->name  = "Catch All";
+		$rule->enabled = true;
+		$rule->save();
 
 	}
 
