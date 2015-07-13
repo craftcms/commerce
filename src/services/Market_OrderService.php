@@ -170,6 +170,12 @@ class Market_OrderService extends BaseApplicationComponent
             }
         }
 
+        if (!$order->customerId){
+            $order->email = "";
+        }else{
+            $order->email = $order->customer->email;
+        }
+
         //TODO: Don't recalculate when a completed order, we don't want amounts to change.
         $this->calculateAdjustments($order);
 
