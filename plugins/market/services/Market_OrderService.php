@@ -171,9 +171,12 @@ class Market_OrderService extends BaseApplicationComponent
         }
 
         if (!$order->customerId){
-            $order->email = "";
+            $order->customerId = craft()->market_customer->getCustomerId();
         }else{
-            $order->email = $order->customer->email;
+            // if there is no email set and we have a customer, get their email.
+            if(!$order->email){
+                $order->email = craft()->market_customer->getById($order->customerId)->email;
+            }
         }
 
         //TODO: Don't recalculate when a completed order, we don't want amounts to change.

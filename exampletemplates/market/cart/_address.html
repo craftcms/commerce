@@ -3,9 +3,20 @@
 
 
 {% if not craft.session.isLoggedIn() %}
-<strong>Notice: You are working as guest. It is recommended to sign up to associate the order with your credentials</strong><br/>
+<strong>Notice: You are working as guest. It is recommended to sign up to associate the order with your credentials. </strong><br/>
+
+If you want to proceed as a guest, simply add your email to the order:
+<form method="post" class="form-horizontal">
+    <input type="hidden" name="action" value="market/cart/setEmail">
+    <input type="hidden" name="orderTypeHandle" value="order">
+    {{ getCsrfInput() }}
+    Email: <input type="text" value="{{ cart.email }}" name="email"><br/>
+    <input type="submit" value="Save Email">
+</form>
 {% endif %}
 
+{# If we have an email on the order, let them continue #}
+{% if cart.email %}
 {% set addresses = craft.market.customer.addresses %}
 {% set order = craft.market.getCart('order') %}
 
@@ -136,3 +147,6 @@ $("#sameAddress").change(function(e) {
 
 {% endset %}
 {% includeJs js %}
+
+
+{% endif %} {# // is email set?#}
