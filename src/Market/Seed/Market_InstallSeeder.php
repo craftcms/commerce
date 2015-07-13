@@ -25,6 +25,7 @@ class Market_InstallSeeder implements Market_SeederInterface
 		$this->defaultOrderTypes();
 		$this->defaultProductTypes();
 		$this->defaultProducts();
+		$this->paymentMethods();
 	}
 
 	/**
@@ -36,6 +37,8 @@ class Market_InstallSeeder implements Market_SeederInterface
 		$method->name    = 'Default Shipping Method';
 		$method->enabled = true;
 		$method->save();
+
+
 	}
 
 	/**
