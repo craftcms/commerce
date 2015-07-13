@@ -56,14 +56,14 @@ class Market_OrderElementType extends Market_BaseElementType
 
             $key = 'orderType:' . $orderType->id;
             $sources[$key] = [
-                'label' => craft::t("All") . ' ' . $orderType->name,
+                'label' => craft::t("All") . ' \'' . $orderType->name .'\'',
                 'criteria' => ['typeId' => $orderType->id]
             ];
 
             $key = 'orderType:' . $orderType->id . ':completedAt:null';
 
             $sources[$key] = [
-                'label' => Craft::t('Incomplete'),
+                'label' => Craft::t('Incomplete Carts'),
                 'criteria' => ['typeId' => $orderType->id, 'completedAt' => ":empty:"]
             ];
 

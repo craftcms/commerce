@@ -134,10 +134,13 @@ class Market_CartService extends BaseApplicationComponent
 
             // Update the user if it has changed and recalculate.
             $customer = craft()->market_customer->getCustomer();
-            if (!$this->cart[$orderType->handle]->isEmpty() && $this->cart[$orderType->handle]->customerId != $customer->id) {
-                $this->cart[$orderType->handle]->customerId = $customer->id;
-                craft()->market_order->save($this->cart[$orderType->handle]);
+            if($customer->id){
+                if (!$this->cart[$orderType->handle]->isEmpty() && $this->cart[$orderType->handle]->customerId != $customer->id) {
+                    $this->cart[$orderType->handle]->customerId = $customer->id;
+                    craft()->market_order->save($this->cart[$orderType->handle]);
+                }
             }
+
         }
         return $this->cart[$orderType->handle];
     }
