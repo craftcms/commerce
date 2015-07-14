@@ -37,13 +37,10 @@ class Market_InstallSeeder implements Market_SeederInterface
 
 		$types = ['order'];
 
-		$shippingMethod = Market_ShippingMethodRecord::model()->find();
-
 		foreach ($types as $type) {
 			$orderType                   = new Market_OrderTypeModel;
 			$orderType->name             = ucwords($type);
 			$orderType->handle           = $type;
-			$orderType->shippingMethodId = $shippingMethod->id;
 
 			// Set the field layout
 			$fieldLayout       = \Craft\craft()->fields->assembleLayout([], []);
