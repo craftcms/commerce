@@ -9,6 +9,7 @@
         <tr>
             <th scope="col">Name</th>
             <th scope="col">Enabled</th>
+            <th scope="col">Default</th>
             <td class="thin"></td>
         </tr>
         </thead>
@@ -17,6 +18,7 @@
             <tr data-id="{{ shippingMethod.id }}" data-name="{{ shippingMethod.name }}">
                 <th scope="row" data-title="Name"><a href="{{ url('market/settings/shippingmethods/'~shippingMethod.id) }}">{{ shippingMethod.name }}</a></th>
                 <td data-title="Enabled">{{ shippingMethod.enabled ? 'Yes'|t : 'No'|t }}</td>
+                <td data-title="Default">{{ shippingMethod.default ? 'Yes'|t : '' }}</td>
                 <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
             </tr>
         {% endfor %}
@@ -28,14 +30,38 @@
         <a href="{{ url('market/settings/shippingmethods/new') }}" class="btn submit">New Shipping Method</a>
     </div>
 
-{% endset %}
 
-
+<script>
 {% set js %}
-var adminTable = new Craft.AdminTable({
-tableSelector: '#shippingMethods',
-deleteAction: 'market/shippingMethod/delete',
-confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
+ShippingMethodsTable = Craft.AdminTable.extend({
+    handleDeleteObjectResponse: function(response, $row)
+    {
+        var id = this.getObjectId($row),
+                name = this.getObjectName($row);
+
+        if (response.success)
+        {
+            $row.remove();
+            this.totalObjects--;
+            this.updateUI();
+            this.onDeleteObject(id);
+
+            Craft.cp.displayNotice(Craft.t(this.settings.deleteSuccessMessage, { name: name }));
+        }
+        else
+        {
+            Craft.cp.displayError(Craft.t(this.settings.deleteFailMessage, { name: name })+" "+response.errors[0]);
+        }
+    }
+});
+
+var adminTable = new ShippingMethodsTable({
+    tableSelector: '#shippingMethods',
+    minObjects: 1,
+    deleteAction: 'market/shippingMethod/delete'
 });
 {% endset %}
+</script>
 {% includeJs js %}
+
+{% endset %}

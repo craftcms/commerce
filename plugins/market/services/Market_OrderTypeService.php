@@ -118,7 +118,6 @@ class Market_OrderTypeService extends BaseApplicationComponent
 
         $orderTypeRecord->name             = $orderType->name;
         $orderTypeRecord->handle           = $orderType->handle;
-        $orderTypeRecord->shippingMethodId = $orderType->shippingMethodId;
 
         $orderTypeRecord->validate();
         $orderType->addErrors($orderTypeRecord->getErrors());

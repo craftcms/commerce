@@ -50,18 +50,6 @@
         required: true
     }) }}
 
-    {{ forms.selectField({
-        label: 'Shipping Method'|t,
-        instructions: "Default shipping method."|t,
-        id: 'shippingMethodId',
-        name: 'shippingMethodId',
-        options: shippingMethods,
-        class: 'select-wide',
-        value: orderType.shippingMethodId,
-        errors: orderType.getErrors('shippingMethodId'),
-        required: true,
-    }) }}
-
     </div>
 
     <div id="tab1" class="hidden">

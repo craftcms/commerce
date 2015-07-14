@@ -129,7 +129,7 @@ class MarketPlugin extends BasePlugin
 
     public function getVersion()
     {
-        return '0.68.9999';
+        return '0.71.9999';
     }
 
     public function addCommands()
