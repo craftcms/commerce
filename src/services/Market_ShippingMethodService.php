@@ -2,6 +2,8 @@
 
 namespace Craft;
 
+use Market\Helpers\MarketDbHelper;
+
 /**
  * Class Market_ShippingMethodService
  *
@@ -113,6 +115,7 @@ class Market_ShippingMethodService extends BaseApplicationComponent
 
         $record->name    = $model->name;
         $record->enabled = $model->enabled;
+        $record->default = $model->default;
 
         $record->validate();
         $model->addErrors($record->getErrors());
@@ -124,17 +127,41 @@ class Market_ShippingMethodService extends BaseApplicationComponent
             // Now that we have a record ID, save it on the model
             $model->id = $record->id;
 
+            //If this was the default make all others not the default.
+            if ($model->default) {
+                Market_ShippingMethodRecord::model()->updateAll(['default' => 0],
+                    'id != ?', [$record->id]);
+            }
+
             return true;
         } else {
             return false;
         }
     }
 
-    /**
-     * @param int $id
-     */
-    public function deleteById($id)
+
+    public function delete($model)
     {
-        Market_ShippingMethodRecord::model()->deleteByPk($id);
+        // Delete all rules first.
+        MarketDbHelper::beginStackedTransaction();
+        try{
+
+            $rules = craft()->market_shippingRule->getAllByMethodId($model->id);
+            foreach($rules as $rule){
+                craft()->market_shippingRule->deleteById($rule->id);
+            }
+
+            Market_ShippingMethodRecord::model()->deleteByPk($model->id);
+
+            MarketDbHelper::commitStackedTransaction();
+
+            return true;
+        } catch (\Exception $e) {
+            MarketDbHelper::rollbackStackedTransaction();
+            return false;
+        }
+
+        MarketDbHelper::rollbackStackedTransaction();
+        return false;
     }
 }

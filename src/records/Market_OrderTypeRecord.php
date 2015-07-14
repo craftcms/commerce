@@ -8,11 +8,9 @@ namespace Craft;
  * @property string                      name
  * @property string                      handle
  * @property int                         fieldLayoutId
- * @property int                         shippingMethodId
  * @property string                      purgeIncompletedCartDuration
  *
  * @property FieldLayoutRecord           fieldLayout
- * @property Market_ShippingMethodRecord shippingMethod
  * @property Market_OrderStatusRecord[]  orderStatuses
  * @property Market_OrderStatusRecord    defaultStatus
  * @package Craft
@@ -48,11 +46,6 @@ class Market_OrderTypeRecord extends BaseRecord
                 'FieldLayoutRecord',
                 'onDelete' => static::SET_NULL
             ],
-            'shippingMethod' => [
-                static::BELONGS_TO,
-                'Market_ShippingMethodRecord',
-                'required' => true
-            ],
             'orderStatuses'  => [
                 static::HAS_MANY,
                 'Market_OrderStatusRecord',
@@ -74,8 +67,7 @@ class Market_OrderTypeRecord extends BaseRecord
     {
         return [
             'name'             => [AttributeType::Name, 'required' => true],
-            'handle'           => [AttributeType::Handle, 'required' => true],
-            'shippingMethodId' => [AttributeType::Number, 'required' => true]
+            'handle'           => [AttributeType::Handle, 'required' => true]
         ];
     }
 

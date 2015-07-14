@@ -10,6 +10,7 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property int                        $id
  * @property string                     $name
  * @property bool                       $enabled
+ * @property bool                       $default
  * @property Market_ShippingRuleModel[] rules
  * @package Craft
  */
@@ -26,6 +27,11 @@ class Market_ShippingMethodModel extends BaseModel
                 AttributeType::Bool,
                 'required' => true,
                 'default'  => 1
+            ],
+            'default' => [
+                AttributeType::Bool,
+                'required' => true,
+                'default'  => 0
             ],
         ];
     }

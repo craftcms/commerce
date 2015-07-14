@@ -11,11 +11,9 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property string                      $name
  * @property string                      $handle
  * @property int                         $fieldLayoutId
- * @property int                         shippingMethodId
  * @property string                      purgeIncompletedCartDuration
  *
  * @property FieldLayoutRecord           fieldLayout
- * @property Market_ShippingMethodRecord shippingMethod
  * @property Market_OrderStatusModel[]   orderStatuses
  * @property Market_OrderStatusModel     defaultStatus
  *
@@ -50,8 +48,7 @@ class Market_OrderTypeModel extends BaseModel
             'id'               => AttributeType::Number,
             'name'             => AttributeType::String,
             'handle'           => AttributeType::String,
-            'fieldLayoutId'    => AttributeType::Number,
-            'shippingMethodId' => AttributeType::Number
+            'fieldLayoutId'    => AttributeType::Number
         ];
     }
 

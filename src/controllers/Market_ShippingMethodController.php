@@ -70,6 +70,7 @@ class Market_ShippingMethodController extends Market_BaseController
 		$shippingMethod->id      = craft()->request->getPost('shippingMethodId');
 		$shippingMethod->name    = craft()->request->getPost('name');
 		$shippingMethod->enabled = craft()->request->getPost('enabled');
+		$shippingMethod->default = craft()->request->getPost('default');
 
 		// Save it
 		if (craft()->market_shippingMethod->save($shippingMethod)) {
@@ -93,8 +94,18 @@ class Market_ShippingMethodController extends Market_BaseController
 
 		$id = craft()->request->getRequiredPost('id');
 
-		craft()->market_shippingMethod->deleteById($id);
-		$this->returnJson(['success' => true]);
+		$method = craft()->market_shippingMethod->getById($id);
+
+		if ($method->default){
+			$this->returnJson(array(
+				'errors' => [Craft::t('Can not delete the default method.')]
+			));
+		}
+
+		if (craft()->market_shippingMethod->delete($method)) {
+			$this->returnJson(['success' => true]);
+		}
+
 	}
 
 }

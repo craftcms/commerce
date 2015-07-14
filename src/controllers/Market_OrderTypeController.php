@@ -18,12 +18,8 @@ class Market_OrderTypeController extends Market_BaseController
      */
     public function actionIndex()
     {
-        $methodsExist = craft()->market_shippingMethod->exists();
-        $orderTypes   = craft()->market_orderType->getAll(['with'  => 'shippingMethod',
-                                                           'order' => 't.name'
-        ]);
-        $this->renderTemplate('market/settings/ordertypes/index',
-            compact('orderTypes', 'methodsExist'));
+        $orderTypes   = craft()->market_orderType->getAll(['order' => 't.name']);
+        $this->renderTemplate('market/settings/ordertypes/index', compact('orderTypes'));
     }
 
     /**
@@ -78,7 +74,6 @@ class Market_OrderTypeController extends Market_BaseController
         $orderType->id               = craft()->request->getPost('orderTypeId');
         $orderType->name             = craft()->request->getPost('name');
         $orderType->handle           = craft()->request->getPost('handle');
-        $orderType->shippingMethodId = craft()->request->getPost('shippingMethodId');
 
         // Set the field layout
         $fieldLayout       = craft()->fields->assembleLayoutFromPost();

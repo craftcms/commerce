@@ -8,6 +8,7 @@ namespace Craft;
  * @property int                         $id
  * @property string                      $name
  * @property bool                        $enabled
+ * @property bool                        $default
  *
  * @property Market_ShippingRuleRecord[] rules
  * @package Craft
@@ -46,6 +47,11 @@ class Market_ShippingMethodRecord extends BaseRecord
                 AttributeType::Bool,
                 'required' => true,
                 'default'  => 1
+            ],
+            'default' => [
+                AttributeType::Bool,
+                'required' => true,
+                'default'  => 0
             ],
         ];
     }
