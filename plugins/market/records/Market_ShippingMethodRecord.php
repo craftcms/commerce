@@ -27,6 +27,14 @@ class Market_ShippingMethodRecord extends BaseRecord
         ];
     }
 
+    public function scopes() {
+        return [
+            'enabled'=>[
+                'condition'=>'enabled = 1',
+            ],
+        ];
+    }
+
     public function defineRelations()
     {
         return [

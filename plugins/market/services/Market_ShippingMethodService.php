@@ -39,24 +39,26 @@ class Market_ShippingMethodService extends BaseApplicationComponent
     public function calculateForCart(Market_OrderModel $cart)
     {
         $availableMethods = [];
-        $methods          = $this->getAll(['with' => 'rules']);
+        $methods          = $this->getAll(['with'=>'rules']);
 
         foreach ($methods as $method) {
-            if ($rule = $this->getMatchingRule($cart, $method)) {
-                $amount = $rule->baseRate;
-                $amount += $rule->perItemRate * $cart->totalQty;
-                $amount += $rule->weightRate * $cart->totalWeight;
-                $amount += $rule->percentageRate * $cart->itemTotal;
-                $amount = max($amount, $rule->minRate * 1);
+            if($method->enabled) {
+                if ($rule = $this->getMatchingRule($cart, $method)) {
+                    $amount = $rule->baseRate;
+                    $amount += $rule->perItemRate * $cart->totalQty;
+                    $amount += $rule->weightRate * $cart->totalWeight;
+                    $amount += $rule->percentageRate * $cart->itemTotal;
+                    $amount = max($amount, $rule->minRate * 1);
 
-                if ($rule->maxRate * 1) {
-                    $amount = min($amount, $rule->maxRate * 1);
+                    if ($rule->maxRate * 1) {
+                        $amount = min($amount, $rule->maxRate * 1);
+                    }
+
+                    $availableMethods[$method->id] = [
+                        'name' => $method->name,
+                        'amount' => $amount,
+                    ];
                 }
-
-                $availableMethods[$method->id] = [
-                    'name'   => $method->name,
-                    'amount' => $amount,
-                ];
             }
         }
 
