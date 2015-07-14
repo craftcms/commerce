@@ -23,13 +23,10 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property int                 maxQty
  * @property DateTime            deletedAt
  *
- * @property Market_ProductModel $product
  * @package Craft
  */
 class Market_VariantModel extends BaseElementModel implements Purchasable
 {
-    use Market_ModelRelationsTrait;
-
     protected $elementType = 'Market_Variant';
     public $salePrice;
 
@@ -56,6 +53,9 @@ class Market_VariantModel extends BaseElementModel implements Purchasable
         return is_null($this->salePrice) ? false : ($this->salePrice != $this->price);
     }
 
+    /**
+     * @return Market_ProductModel|null
+     */
     public function getProduct()
     {
         if ($this->productId) {
@@ -101,21 +101,49 @@ class Market_VariantModel extends BaseElementModel implements Purchasable
         ]);
     }
 
-    public function getPurchasablePrice()
+    /**
+     * We need to be explicit to meet interface
+     * @return mixed
+     */
+    public function getPrice()
     {
-        return $this->salePrice;
+        return $this->attributes['price'];
     }
 
-    public function getPurchasableSku()
+    /**
+     * We need to be explicit to meet interface
+     * @return string
+     */
+    public function getSku()
     {
-        return $this->sku;
+        return $this->attributes['sku'];
     }
 
-    public function getPurchasableDescription()
+    /**
+     * We need to be explicit to meet interface
+     * @return string
+     */
+    public function getDescription()
     {
-        return $this->sku;
+        return (string) $this->getProduct()->getTitle();
     }
 
+    /**
+     * We need to be explicit to meet interface
+     * @return int
+     */
+    public function getPurchasableId()
+    {
+        return $this->attributes['id'];
+    }
+
+    /**
+     * Validate based on min and max qty and stock levels.
+     *
+     * @param Market_LineItemModel $lineItem
+     *
+     * @return mixed
+     */
     public function validateLineItem(Market_LineItemModel $lineItem)
     {
 

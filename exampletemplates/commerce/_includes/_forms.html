@@ -1,0 +1,72 @@
+{% macro addToCartButton(purchasable) %}
+    <form method="POST">
+        <input type="hidden" name="action" value="market/cart/add">
+        <input type="hidden" name="redirect" value="commerce/cart">
+        <input type="hidden" name="qty" value="1">
+        <input type="hidden" name="orderTypeHandle" value="order">
+        <input type="hidden" name="purchasableId" value="{{ purchasable.purchasableId }}">
+        <input {% if purchasable.stock <= 0 and purchasable.unlimitedStock == false  %}disabled {% endif %} type="submit" value="{{ "Add to cart"|t}}" class="button"/>
+    </form>
+{% endmacro %}
+
+{% macro addToCartForm(purchasables) %}
+    <form method="POST">
+        <input type="hidden" name="action" value="market/cart/add">
+        <input type="hidden" name="redirect" value="commerce/cart">
+        <input type="hidden" name="qty" value="1">
+        <input type="hidden" name="orderTypeHandle" value="order">
+        <select name="purchasableId">
+            {% for purchasable in purchasables %}
+            <option {% if purchasable.stock <= 0 and purchasable.unlimitedStock == false  %}disabled {% endif %} value="{{ purchasable.purchasableId }}">{{ purchasable.sku }} {{ purchasable.description }} {{ purchasable.price|marketCurrency }}</option>
+            {% endfor %}
+        </select>
+        <input type="submit" value="{{ "Add to cart"|t}}" class="button"/>
+    </form>
+{% endmacro %}
+
+{% macro removeFromCartButton(lineitem) %}
+    <form method="POST">
+        <input type="hidden" name="action" value="market/cart/remove" />
+        <input type="hidden" name="redirect" value="commerce/cart" />
+        <input type="hidden" name="orderTypeHandle" value="order">
+        <input type="hidden" name="lineItemId" value="{{ lineitem.id }}" />
+        {{ getCsrfInput() }}
+        <input type="submit" class="button link" value="Remove" />
+    </form>
+{% endmacro %}
+
+{% macro updateQtyForm(lineitem) %}
+    <form method="POST">
+        <input type="hidden" name="action" value="market/cart/updateQty">
+        <input type="hidden" name="redirect" value="commerce/cart">
+        <input type="hidden" name="lineItemId" value="{{ lineitem.id }}">
+        <input type="number" name="qty" min="1" value="{{ lineitem.qty }}">
+        {{ getCsrfInput() }}
+        <input type="submit" class="button" value="Update" />
+        {% if error is defined %}<strong>Error: {{ error }}</strong>{% endif %}
+    </form>
+{% endmacro %}
+
+{% macro updateCouponForm(cart) %}
+    <form method="POST">
+        <input type="hidden" name="action" value="market/cart/applyCoupon">
+        <input type="hidden" name="redirect" value="commerce/cart">
+        <input type="hidden" name="orderTypeHandle" value="order">
+        {{ getCsrfInput() }}
+        <input type="text" name="couponCode" width="11" value="{{ cart.couponCode }}" placeholder="{{ "Coupon Code"|t }}"><br/>
+        <input type="submit" class="button" value="{% if cart.couponCode %}Change{% else %}Apply{% endif %} Coupon" />
+        {% if couponError is defined %}<strong>Error: {{ couponError }}</strong>{% endif %}
+    </form>
+{% endmacro %}
+
+
+
+{% macro emptyCartForm(cart) %}
+    <form method="POST">
+        <input type="hidden" name="action" value="market/cart/removeAll" />
+        <input type="hidden" name="redirect" value="market/cart" />
+        <input type="hidden" name="orderTypeHandle" value="order">
+        {{ getCsrfInput() }}
+        <input class="button link" type="submit" value="Empty the Cart" />
+    </form>
+{% endmacro %}

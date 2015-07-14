@@ -11,7 +11,7 @@ use Craft\BaseRecord;
  *
  * @package craft
  */
-trait    Market_ModelRelationsTrait
+trait Market_ModelRelationsTrait
 {
     /** @var \craft\BaseRecord */
     private $_record;
@@ -55,10 +55,10 @@ trait    Market_ModelRelationsTrait
                 return $this->isArrayRelation($name) ? [] : null;
             }
 
-            $relations  = $this->getRelations();
-            $class      = $relations[$name][1];
+            $relations = $this->getRelations();
+            $class = $relations[$name][1];
             $modelClass = '\Craft\\' . str_replace('Record', 'Model', $class);
-            $value      = $this->getRecord()->$name;
+            $value = $this->getRecord()->$name;
 
             if (is_array($value)) {
                 $this->_relationsCache[$name] = $modelClass::populateModels($value);
@@ -92,7 +92,7 @@ trait    Market_ModelRelationsTrait
     private function getRelations()
     {
         $recordClass = $this->getRecordClass();
-        $record      = new $recordClass;
+        $record = new $recordClass;
 
         return $record->defineRelations();
     }
@@ -102,7 +102,7 @@ trait    Market_ModelRelationsTrait
      */
     private function getRecordClass()
     {
-        $class       = get_class();
+        $class = get_class();
         $recordClass = str_replace('Model', 'Record', $class);
 
         return $recordClass;
@@ -114,7 +114,7 @@ trait    Market_ModelRelationsTrait
     private function getRecord()
     {
         if (empty($this->_record) && $this->id) {
-            $recordClass   = $this->getRecordClass();
+            $recordClass = $this->getRecordClass();
             $this->_record = $recordClass::model()->findByPk($this->id);
         }
 
@@ -129,7 +129,7 @@ trait    Market_ModelRelationsTrait
     private function isArrayRelation($name)
     {
         $relations = $this->getRelations();
-        $type      = $relations[$name][0];
+        $type = $relations[$name][0];
 
         return in_array($type, [BaseRecord::HAS_MANY, BaseRecord::MANY_MANY]);
     }

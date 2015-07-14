@@ -28,7 +28,7 @@ class Market_CartService extends BaseApplicationComponent
      * @return bool
      * @throws \Exception
      */
-    public function addToCart($order, $purchasableId, $qty, &$error = '')
+    public function addToCart($order, $purchasableId, $qty = 1, &$error = '')
     {
         MarketDbHelper::beginStackedTransaction();
 
@@ -132,12 +132,21 @@ class Market_CartService extends BaseApplicationComponent
 
             $this->cart[$orderType->handle]->lastIp = craft()->request->getIpAddress();
 
-            // Update the user if it has changed and recalculate.
+            // Update the cart if the customer has changed and recalculate the cart.
             $customer = craft()->market_customer->getCustomer();
-            if (!$this->cart[$orderType->handle]->isEmpty() && $this->cart[$orderType->handle]->customerId != $customer->id) {
-                $this->cart[$orderType->handle]->customerId = $customer->id;
-                craft()->market_order->save($this->cart[$orderType->handle]);
+            if($customer->id){
+                if (!$this->cart[$orderType->handle]->isEmpty() && $this->cart[$orderType->handle]->customerId != $customer->id) {
+                    $this->cart[$orderType->handle]->customerId = $customer->id;
+                    $this->cart[$orderType->handle]->email = $customer->email;
+                    $this->cart[$orderType->handle]->billingAddressId = null;
+                    $this->cart[$orderType->handle]->shippingAddressId = null;
+                    $this->cart[$orderType->handle]->billingAddressData = null;
+                    $this->cart[$orderType->handle]->shippingAddressData = null;
+                    craft()->market_order->save($this->cart[$orderType->handle]);
+                }
             }
+
+
         }
         return $this->cart[$orderType->handle];
     }

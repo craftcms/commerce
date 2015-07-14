@@ -46,8 +46,8 @@
                         {%  for lineItem in order.lineItems %}
                             <tr>
                                 <td>{{ lineItem.id }}</td>
-                                <td><a href="{{ lineItem.purchasable.cpEditUrl }}">{{ lineItem.purchasable.purchasableDescription }}</a></td>
-                                <td>{{ lineItem.purchasable.purchasableSku }}</td>
+                                <td><a href="{{ lineItem.purchasable.cpEditUrl }}">{{ lineItem.purchasable.description }}</a></td>
+                                <td>{{ lineItem.purchasable.sku }}</td>
                                 <td>{{ lineItem.price }}</td>
                                 <td>{{ lineItem.saleAmount }}</td>
                                 <td>{{ lineItem.taxAmount }}</td>
@@ -87,25 +87,7 @@
                     {% if orderId is defined %}
                         <h1>{{ craft.market.settings.defaultCurrency }}&nbsp;{{order.finalPrice|marketCurrency }}</h1>
                         <h2>{{ order.completedAt|date('D dS M Y') }}</h2>
-                        <h2>{{ order.email }}</h2>
-
-                        <strong>Billing Address: </strong>
-                        {% if order.billingAddressId %}
-                            <a href="{{ order.billingAddress.getCpEditUrl() }}">{{ order.billingAddress.country.name }}</a>
-                        {% else %}
-                            (null)
-                        {% endif %}<br/>
-
-                        <strong>Shipping Address: </strong>
-                        {% if order.shippingAddressId %}
-                            <a href="{{ order.shippingAddress.getCpEditUrl() }}">{{ order.shippingAddress.country.name }}</a>
-                        {% else %}
-                            (null)
-                        {% endif %}<br/>
-
-
-                        {#{{ order.shippingMethodId }}#}
-                        {#{{ order.lastIp }}#}
+                        <a href="{{ order.customer.cpEditUrl }}">{{ order.email }}</a>
 
                         <div class="btngroup">
                             <input type="button" class="btn small formsubmit" value="{{ 'Delete'|t }}"
@@ -115,6 +97,36 @@
                         </div>
                     {% endif %}
 
+                </div>
+
+                <div class="pane">
+                    <strong>Billing Address </strong><br/>
+                 {% if order.billingAddressId %}
+                    {{ order.billingAddress.firstName }} {{ order.billingAddress.lastName }}<br/>
+                    {{ order.billingAddress.company }}<br/>
+                    {{ order.billingAddress.address1 }}<br/>
+                    {{ order.billingAddress.city }}, {{ order.billingAddress.zipCode }}<br/>
+                    {{ order.billingAddress.phone }} OR {{ order.billingAddress.alternativePhone }}<br/>
+                    {{ order.billingAddress.state.name }}<br/>
+                    {{ order.billingAddress.country.name }}<br/>
+                {% else %}
+                    -
+                {% endif %}<br/>
+                </div>
+                <div class="pane">
+                    <strong>Shipping Address </strong><br/>
+                    {% if order.shippingAddressId %}
+                    {{ order.shippingAddress.firstName }} {{ order.shippingAddress.lastName }}<br/>
+                    {{ order.shippingAddress.company }}<br/>
+                    {{ order.shippingAddress.address1 }}<br/>
+                    {{ order.shippingAddress.address2 }}<br/>
+                    {{ order.shippingAddress.city }}, {{ order.shippingAddress.zipCode }}<br/>
+                    {{ order.shippingAddress.phone }} OR {{ order.shippingAddress.alternativePhone }}<br/>
+                    {{ order.shippingAddress.state.name }}<br/>
+                    {{ order.shippingAddress.country.name }}<br/>
+                {% else %}
+                    -
+                    {% endif %}<br/>
                 </div>
 
                 <!-- status pane -->
@@ -145,7 +157,7 @@
         </div>
         <div class="grid">
                 <div class="pane">
-                    <h3>Order History</h3>
+                    <h3>Order Status History</h3>
 
                     <table id="" class="shadow-box editable">
                         <thead>

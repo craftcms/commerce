@@ -31,6 +31,7 @@ class Market_ProductService extends BaseApplicationComponent
      */
     public function save(Market_ProductModel $product)
     {
+
         if (!$product->id) {
             $record = new Market_ProductRecord();
         } else {

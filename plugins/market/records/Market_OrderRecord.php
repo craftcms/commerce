@@ -23,7 +23,9 @@ namespace Craft;
  *
  * @property int                         typeId
  * @property int                         billingAddressId
+ * @property mixed                       billingAddressData
  * @property int                         shippingAddressId
+ * @property mixed                       shippingAddressData
  * @property int                         shippingMethodId
  * @property int                         paymentMethodId
  * @property int                         customerId
@@ -151,6 +153,9 @@ class Market_OrderRecord extends BaseRecord
             'message'          => AttributeType::String,
             'returnUrl'        => AttributeType::String,
             'cancelUrl'        => AttributeType::String,
+
+            'billingAddressData'  => AttributeType::Mixed,
+            'shippingAddressData'  => AttributeType::Mixed
         ];
     }
 

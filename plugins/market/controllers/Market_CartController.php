@@ -22,7 +22,7 @@ class Market_CartController extends Market_BaseController
         $this->requirePostRequest();
 
         $purchasableId   = craft()->request->getPost('purchasableId');
-        $qty             = craft()->request->getPost('qty', 0);
+        $qty             = craft()->request->getPost('qty', 1);
         $orderTypeHandle = craft()->request->getPost('orderTypeHandle');
         $cart            = craft()->market_cart->getCart($orderTypeHandle);
         $cart->setContentFromPost('fields');
@@ -87,6 +87,38 @@ class Market_CartController extends Market_BaseController
             craft()->urlManager->setRouteVariables(['couponError' => $error]);
         }
     }
+
+
+    /**
+     *
+     *
+     */
+    public function actionSetEmail()
+    {
+        $this->requirePostRequest();
+
+        $email = craft()->request->getPost('email');
+
+        $validator = new \CEmailValidator;
+        $validator->allowEmpty = false;
+
+        if($validator->validateValue($email)){
+            if(craft()->userSession->isGuest){
+                $orderTypeHandle = craft()->request->getPost('orderTypeHandle');
+                $cart            = craft()->market_cart->getCart($orderTypeHandle);
+                $cart->email = $email;
+                if (craft()->market_order->save($cart)){
+                    craft()->userSession->setFlash('market',
+                        Craft::t('Email has been set'));
+                }
+            }
+        }else{
+            craft()->userSession->setFlash('market',
+                Craft::t('Email Not Valid'));
+        }
+
+    }
+
 
     /**
      * @throws HttpException

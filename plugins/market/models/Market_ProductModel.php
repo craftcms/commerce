@@ -3,6 +3,7 @@
 namespace Craft;
 
 use Market\Traits\Market_ModelRelationsTrait;
+use Market\Interfaces\Purchasable;
 
 /**
  * Class Market_ProductModel
@@ -18,16 +19,13 @@ use Market\Traits\Market_ModelRelationsTrait;
  * Inherited from record:
  * @property Market_ProductTypeModel type
  * @property Market_TaxCategoryModel taxCategory
- * @property Market_VariantModel[]   allVariants
- * @property Market_VariantModel     $master
+ * @property Market_VariantModel[]   variants
  *
  * Magic properties:
- * @property Market_VariantModel[]   $variants
- * @property Market_VariantModel[]   $nonMasterVariants
  * @property string                  name
  * @package Craft
  */
-class Market_ProductModel extends BaseElementModel
+class Market_ProductModel extends BaseElementModel implements Purchasable
 {
     use Market_ModelRelationsTrait;
 
@@ -80,15 +78,37 @@ class Market_ProductModel extends BaseElementModel
         return $this->title;
     }
 
+    /**
+     * We need to be explicit to meet interface
+     * @return string
+     */
+    public function getDescription()
+    {
+        if (!$this->type->hasVariants) {
+            return (string) $this->title;
+        }
+    }
 
     /**
-     * Returns the placeholder template for the sku
+     * Validate based mast variant validation
      *
+     * @param Market_LineItemModel $lineItem
+     *
+     * @return mixed
      */
-    public function getSkuPlaceholder()
+    public function validateLineItem(Market_LineItemModel $lineItem)
     {
-        //TODO implement SKU template
-        return "";
+        $this->getMasterVariant()->validateLineItem($lineItem);
+    }
+
+    /**
+     * @return int
+     */
+    public function getPurchasableId()
+    {
+        if (!$this->type->hasVariants) {
+            return $this->getMasterVariant()->getPurchasableId();
+        }
     }
 
     /**
@@ -98,24 +118,9 @@ class Market_ProductModel extends BaseElementModel
      */
     public function getPrice()
     {
-        if ($this->getMasterVariant()) {
+        if (!$this->type->hasVariants) {
             return $this->getMasterVariant()->price;
         }
-    }
-
-    /**
-     * Gets only the variant that is master.
-     *
-     * @return Market_VariantModel|null
-     */
-    public function getMasterVariant()
-    {
-
-        $masterVariant = array_filter($this->allVariants, function ($v) {
-            return $v->isMaster;
-        });
-
-        return isset($masterVariant[0]) ? $masterVariant[0] : null;
     }
 
     /**
@@ -125,8 +130,71 @@ class Market_ProductModel extends BaseElementModel
      */
     public function getWidth()
     {
-        if ($this->getMasterVariant()) {
+        if (!$this->type->hasVariants) {
             return $this->getMasterVariant()->width;
+        }
+    }
+
+    /**
+     * Returns the Master Variants's
+     *
+     * @return float
+     */
+    public function getSku()
+    {
+        if (!$this->type->hasVariants) {
+            return $this->getMasterVariant()->sku;
+        }
+    }
+
+
+    /**
+     * Returns the Master Variants's
+     *
+     * @return float
+     */
+    public function getOnSale()
+    {
+        if (!$this->type->hasVariants) {
+            return $this->getMasterVariant()->onSale;
+        }
+    }
+
+
+    /**
+     * Returns the Master Variants's
+     *
+     * @return float
+     */
+    public function getStock()
+    {
+        if (!$this->type->hasVariants) {
+            return $this->getMasterVariant()->stock;
+        }
+    }
+
+    /**
+     * Returns the Master Variants's
+     *
+     * @return float
+     */
+    public function getSalePrice()
+    {
+        if (!$this->type->hasVariants) {
+            return $this->getMasterVariant()->salePrice;
+        }
+    }
+
+
+    /**
+     * Returns the Master Variants's
+     *
+     * @return float
+     */
+    public function getUnlimitedStock()
+    {
+        if (!$this->type->hasVariants) {
+            return $this->getMasterVariant()->unlimitedStock;
         }
     }
 
@@ -137,7 +205,7 @@ class Market_ProductModel extends BaseElementModel
      */
     public function getHeight()
     {
-        if ($this->getMasterVariant()) {
+        if (!$this->type->hasVariants) {
             return $this->getMasterVariant()->height;
         }
     }
@@ -149,7 +217,7 @@ class Market_ProductModel extends BaseElementModel
      */
     public function getLength()
     {
-        if ($this->getMasterVariant()) {
+        if (!$this->type->hasVariants) {
             return $this->getMasterVariant()->length;
         }
     }
@@ -161,7 +229,7 @@ class Market_ProductModel extends BaseElementModel
      */
     public function getWeight()
     {
-        if ($this->getMasterVariant()) {
+        if (!$this->type->hasVariants) {
             return $this->getMasterVariant()->weight;
         }
     }
@@ -184,6 +252,9 @@ class Market_ProductModel extends BaseElementModel
         return null;
     }
 
+    /**
+     * @return null|string
+     */
     public function getCpEditUrl()
     {
         if ($this->typeId) {
@@ -247,26 +318,47 @@ class Market_ProductModel extends BaseElementModel
      */
     public function getVariants()
     {
-        if (count($this->allVariants) == 1) {
-            $variants = $this->allVariants;
-        } else {
-            $variants = $this->nonMasterVariants;
-        }
-        
+        $variants = craft()->market_variant->getAllByProductId($this->id);
         craft()->market_variant->applySales($variants, $this);
+
+        if ($this->type->hasVariants){
+            $variants = array_filter($variants, function ($v) {
+                return !$v->isMaster;
+            });
+        }
 
         return $variants;
     }
 
     /**
-     * @return Market_VariantModel[]
+     * Gets only the variant that is master.
+     *
+     * @return Market_VariantModel|null
      */
-    public function getNonMasterVariants()
+    public function getMasterVariant()
     {
-        return array_filter($this->allVariants, function ($v) {
-            return !$v->isMaster;
-        });
+
+        if($this->id){
+            $variants = craft()->market_variant->getAllByProductId($this->id);
+            craft()->market_variant->applySales($variants, $this);
+
+            $masterVariant = array_filter($variants, function ($v) {
+                return $v->isMaster;
+            });
+
+            if (count($masterVariant) == 1){
+                return array_shift(array_values($masterVariant));
+            }else{
+                throw new Exception('More than one master variant found. Contact Support.');
+                return false;
+            }
+        }
+
+        return false;
     }
+
+
+
 
     // Protected Methods
     // =============================================================================
