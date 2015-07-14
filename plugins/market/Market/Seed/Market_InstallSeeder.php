@@ -25,6 +25,7 @@ class Market_InstallSeeder implements Market_SeederInterface
 		$method          = new Market_ShippingMethodRecord();
 		$method->name    = 'Default Shipping Method';
 		$method->enabled = true;
+		$method->default = true;
 		$method->save();
 	}
 
