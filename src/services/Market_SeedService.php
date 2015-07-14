@@ -18,22 +18,9 @@ class Market_SeedService extends BaseApplicationComponent
      */
     public function afterInstall()
     {
-        $installSeeder = new Market_InstallSeeder;
-        $installSeeder->seed();
-
-        $countriesSeeder = new Market_CountriesSeeder;
-        $countriesSeeder->seed();
-
-        $statesSeeder = new Market_StatesSeeder;
-        $statesSeeder->seed();
+        (new Market_InstallSeeder)->seed();
+        (new Market_CountriesSeeder)->seed();
+        (new Market_StatesSeeder)->seed();
     }
 
-    /**
-     * Create Test Data when in dev mode
-     */
-    public function testData()
-    {
-        $testSeeder = new Market_TestSeeder;
-        $testSeeder->seed();
-    }
 } 

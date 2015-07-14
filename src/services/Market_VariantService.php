@@ -21,7 +21,7 @@ class Market_VariantService extends BaseApplicationComponent
      */
     public function deleteById($id)
     {
-        Market_VariantRecord::model()->deleteByPk($id);
+        craft()->elements->deleteElementById($id);
     }
 
     /**
@@ -37,20 +37,17 @@ class Market_VariantService extends BaseApplicationComponent
 
     /**
      * @param int  $id
-     * @param bool $isMaster null / true / false. All by default
+     * @param bool $includeMaster
      *
      * @return Market_VariantModel[]
      */
-    public function getAllByProductId($id, $isMaster = null)
+    public function getAllByProductId($id)
     {
-        $conditions = ['productId' => $id];
-        if (!is_null($isMaster)) {
-            $conditions['isMaster'] = $isMaster;
-        }
+        $criteria = ['productId' => $id];
+        $variants = craft()->elements->getCriteria('Market_Variant',
+            $criteria)->find();
 
-        $variants = Market_VariantRecord::model()->with('product')->findAllByAttributes($conditions);
-
-        return Market_VariantModel::populateModels($variants);
+        return $variants;
     }
 
     /**
@@ -71,13 +68,16 @@ class Market_VariantService extends BaseApplicationComponent
      */
     public function applySales(array $variants, Market_ProductModel $product)
     {
-        $sales = craft()->market_sale->getForProduct($product);
+        // Don't apply sales when product is not persisted.
+        if ($product->id) {
+            $sales = craft()->market_sale->getForProduct($product);
 
-        foreach ($sales as $sale) {
-            foreach ($variants as $variant) {
-                $variant->salePrice = $variant->price + $sale->calculateTakeoff($variant->price);
-                if ($variant->salePrice < 0) {
-                    $variant->salePrice = 0;
+            foreach ($sales as $sale) {
+                foreach ($variants as $variant) {
+                    $variant->salePrice = $variant->price + $sale->calculateTakeoff($variant->price);
+                    if ($variant->salePrice < 0) {
+                        $variant->salePrice = 0;
+                    }
                 }
             }
         }
@@ -104,25 +104,22 @@ class Market_VariantService extends BaseApplicationComponent
             $record = new Market_VariantRecord();
         }
 
-        $record->isMaster  = $model->isMaster;
-        $record->productId = $model->productId;
-        $record->sku       = $model->sku;
-        $record->price     = $model->price;
-        $record->width     = $model->width;
-        $record->height    = $model->height;
-        $record->length    = $model->length;
-        $record->weight    = $model->weight;
-        $record->minQty    = $model->minQty;
-        $record->maxQty    = $model->maxQty;
+        $record->isMaster       = $model->isMaster;
+        $record->productId      = $model->productId;
+        $record->sku            = $model->sku;
+        $record->price          = $model->price;
+        $record->width          = $model->width;
+        $record->height         = $model->height;
+        $record->length         = $model->length;
+        $record->weight         = $model->weight;
+        $record->minQty         = $model->minQty;
+        $record->maxQty         = $model->maxQty;
+        $record->stock          = $model->stock;
+        $record->unlimitedStock = $model->unlimitedStock;
 
-        if ($model->unlimitedStock) {
-            $record->unlimitedStock = true;
-            $record->stock          = 0;
-        }
-
-        if (!$model->unlimitedStock) {
-            $record->stock          = $model->stock ? $model->stock : 0;
-            $record->unlimitedStock = false;
+        if($model->unlimitedStock && $record->stock == ""){
+            $model->stock = 0;
+            $record->stock = 0;
         }
 
         $record->validate();

@@ -1,0 +1,9 @@
+<strong>{{ purchasable.description }}</strong><br/>
+<strong>SKU</strong> {{ purchasable.sku }}<br/>
+<strong>Price</strong>
+{% if purchasable.onSale %}
+    <strike>{{ purchasable.price|marketCurrency }}</strike>   {{ purchasable.salePrice|marketCurrency }}
+{% else %}
+   {{ purchasable.price|marketCurrency }}
+{% endif %}<br/>
+<strong>Stock</strong> {{ purchasable.unlimitedStock ? 'Unlimited'|t : purchasable.stock }} <br/>

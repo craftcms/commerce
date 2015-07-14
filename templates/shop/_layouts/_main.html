@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{{ "Craft Commerce"|t }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css">
+  <link rel="stylesheet" href="/commerce/style.css">
+  {# global commerce variables #}
+  {% set cart = craft.market.getCart('order') %}
+</head>
+<body>
+{% block body %}
+  <div id="header" class="container">
+    <div class="row">
+      <div class="eleven columns">
+        {% include "commerce/_includes/_logo" %}
+        {% include "commerce/_includes/_nav" %}
+      </div>
+    </div>
+  </div>
+  <div id="main" class="container">
+  {% block content %}
+      <div class="row"><div class="eleven columns">
+          <h4>Default Content</h4>
+          <p>You should not see this.</p>
+        </div></div>
+  {% endblock %}
+  </div>
+{% endblock %}
+</body>
+</html>

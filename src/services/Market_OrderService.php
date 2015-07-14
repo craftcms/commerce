@@ -170,6 +170,15 @@ class Market_OrderService extends BaseApplicationComponent
             }
         }
 
+        if (!$order->customerId){
+            $order->customerId = craft()->market_customer->getCustomerId();
+        }else{
+            // if there is no email set and we have a customer, get their email.
+            if(!$order->email){
+                $order->email = craft()->market_customer->getById($order->customerId)->email;
+            }
+        }
+
         //TODO: Don't recalculate when a completed order, we don't want amounts to change.
         $this->calculateAdjustments($order);
 
@@ -193,6 +202,8 @@ class Market_OrderService extends BaseApplicationComponent
         $orderRecord->returnUrl         = $order->returnUrl;
         $orderRecord->cancelUrl         = $order->cancelUrl;
         $orderRecord->message           = $order->message;
+        $orderRecord->shippingAddressData = $order->shippingAddressData;
+        $orderRecord->billingAddressData = $order->billingAddressData;
 
         $orderRecord->validate();
         $order->addErrors($orderRecord->getErrors());
@@ -264,8 +275,12 @@ class Market_OrderService extends BaseApplicationComponent
             }
 
             if ($result1 && $result2) {
+
                 $order->shippingAddressId = $shippingAddress->id;
                 $order->billingAddressId  = $billingAddress->id;
+
+                $order->shippingAddressData = JsonHelper::encode($shippingAddress->attributes);
+                $order->billingAddressData = JsonHelper::encode($billingAddress->attributes);
 
                 $this->save($order);
                 MarketDbHelper::commitStackedTransaction();
