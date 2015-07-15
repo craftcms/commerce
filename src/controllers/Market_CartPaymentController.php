@@ -1,8 +1,9 @@
 <?php
 namespace Craft;
 
+
 /**
- * Cart. Step "Payment".
+ * Cart.
  *
  * Class Market_CartPaymentController
  *
@@ -41,6 +42,8 @@ class Market_CartPaymentController extends Market_BaseController
 
         $paymentForm             = new Market_PaymentFormModel;
         $paymentForm->attributes = $_POST;
+        // give the credit card number more of a chance to validate
+        $paymentForm->number = preg_replace("/[^0-9]/", "", $paymentForm->number);
         $returnUrl               = craft()->request->getPost('returnUrl');
         $cancelUrl               = craft()->request->getPost('cancelUrl');
         $orderTypeHandle         = craft()->request->getPost('orderTypeHandle');
