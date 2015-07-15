@@ -34,7 +34,7 @@
     {% if cart.paymentMethodId %}
         <form method="POST" class="form-horizontal">
             <input type="hidden" name="action" value="market/cartPayment/pay"/>
-            <input type="hidden" name="returnUrl" value="/market/orders"/>
+            <input type="hidden" name="redirect" value="/market/orders?number={number}"/>
             <input type="hidden" name="cancelUrl" value="/market/cart"/>
             <input type="hidden" name="orderTypeHandle" value="order">
             {{ getCsrfInput() }}
