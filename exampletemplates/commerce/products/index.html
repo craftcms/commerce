@@ -1,37 +1,37 @@
-{% extends 'commerce/_layouts/_main' %}
-{%  block content %}
+{% extends 'commerce/_layouts/main' %}
+{%  block main %}
 
    {# Get All Products. #}
    {# Documentation: LINKHERE #}
 
-   {% import 'commerce/_includes/_forms' as forms %}
+   {% import 'commerce/_includes/forms' as forms %}
 
    {%  for product in craft.market.products.find() %}
-   <div class="row">
-      <div class="eleven columns">
-         <div class="flash">{{ craft.session.getFlash('market') }}</div>
+      <div class="row">
+         <div class="eleven columns">
+            <div class="flash">{{ craft.session.getFlash('market') }}</div>
+         </div>
       </div>
-   </div>
-   <div class="row">
-      <div class="two columns">
-         {% include "commerce/_includes/_bacon" %}
-      </div>
-      <div class="ten columns">
-         {% if product.type.hasUrls %}
-            <h5><a href="{{ product.url }}">{{ product.name }}</a></h5>
+      <div class="row">
+         <div class="two columns">
+            {% include "commerce/_images/productSmall" with { class: 'u-max-full-width' } %}
+         </div>
+         <div class="ten columns">
+            {% if product.type.hasUrls %}
+               <h5><a href="{{ product.url }}">{{ product.name }}</a></h5>
+               {% else %}
+               <h5>{{ product.name }}</h5>
+            {% endif %}
+
+            {% if product.type.hasVariants %}
+               {{ forms.addToCartForm(product.variants) }}
             {% else %}
-            <h5>{{ product.name }}</h5>
-         {% endif %}
+               {% include 'commerce/_includes/purchasableDetails' with {'purchasable':product} %}
+               {{ forms.addToCartButton(product) }}
+            {% endif %}
 
-         {% if product.type.hasVariants %}
-            {{ forms.addToCartForm(product.variants) }}
-         {% else %}
-            {% include 'commerce/_includes/_purchasableDetails' with {'purchasable':product} %}
-            {{ forms.addToCartButton(product) }}
-         {% endif %}
-
+         </div>
       </div>
-   </div>
    {% endfor %}
 
 {%  endblock %}
