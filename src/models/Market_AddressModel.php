@@ -40,10 +40,18 @@ class Market_AddressModel extends BaseModel
         return UrlHelper::getCpUrl('market/customers/' . $this->customerId . '/addresses/' . $this->id);
     }
 
-
     public function getStateText()
     {
-        return $this->stateName ?: ($this->state ? $this->state->name : '');
+        return $this->stateName ?: ($this->stateId ? $this->state->name : '');
+    }
+
+    public function getCountryText()
+    {
+        if (!$this->countryId) {
+            return "";
+        }
+
+        return craft()->market_country->getById($this->countryId)->name;
     }
 
     protected function defineAttributes()
