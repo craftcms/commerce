@@ -310,8 +310,7 @@ class Market_PaymentService extends BaseApplicationComponent
         $card->setShippingPhone($shippingAddress->phone);
         $card->setCompany($shippingAddress->company);
 
-        $user = craft()->userSession->getUser();
-        $card->setEmail($user ? $user->email : '');
+        $card->setEmail($order->email);
 
         return $card;
     }
