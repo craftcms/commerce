@@ -17,7 +17,8 @@ class Market_PaymentService extends BaseApplicationComponent
      * @param Market_OrderModel       $cart
      * @param Market_PaymentFormModel $form
      *
-     * @param                         $returnUrl
+     * @param                         $redirect
+     * @param                         $cancelUrl
      * @param string                  $customError
      *
      * @return bool
@@ -27,7 +28,7 @@ class Market_PaymentService extends BaseApplicationComponent
     public function processPayment(
         Market_OrderModel $cart,
         Market_PaymentFormModel $form,
-        $returnUrl,
+        $redirect,
         $cancelUrl,
         &$customError = ''
     ) {
@@ -40,9 +41,9 @@ class Market_PaymentService extends BaseApplicationComponent
             $form->attributes = [];
         }
 
-        //saving returnUrl to cart
-        $cart->returnUrl = $returnUrl;
-        $cart->cancelUrl = $cancelUrl;
+        //saving cancelUrl and redirect to cart
+        $cart->returnUrl = craft()->templates->renderObjectTemplate($redirect, $cart);
+        $cart->cancelUrl = craft()->templates->renderObjectTemplate($cancelUrl, $cart);
         craft()->market_order->save($cart);
 
         //choosing default action
@@ -52,19 +53,18 @@ class Market_PaymentService extends BaseApplicationComponent
 
         if ($defaultAction == Market_TransactionRecord::AUTHORIZE) {
             if (!$gateway->supportsAuthorize()) {
-                $customError = "Gateway doesn't support authorize";
+                $customError = Craft::t("Gateway doesn't support authorize");
 
                 return false;
             }
         } else {
             if (!$gateway->supportsPurchase()) {
-                $customError = "Gateway doesn't support purchase";
-
+                $customError = Craft::t("Gateway doesn't support purchase");
                 return false;
             }
         }
 
-        //creating cart,transaction and request
+        //creating cart, transaction and request
         $transaction       = craft()->market_transaction->create($cart);
         $transaction->type = $defaultAction;
         $this->saveTransaction($transaction);
@@ -75,7 +75,7 @@ class Market_PaymentService extends BaseApplicationComponent
             $card));
 
         try {
-            $returnUrl = $this->sendPaymentRequest($request, $transaction);
+            $redirect = $this->sendPaymentRequest($request, $transaction);
 
             if ($transaction->status == Market_TransactionRecord::SUCCESS) {
                 craft()->market_order->complete($cart);
@@ -87,7 +87,7 @@ class Market_PaymentService extends BaseApplicationComponent
             return false;
         }
 
-        craft()->request->redirect($returnUrl);
+        craft()->request->redirect($redirect);
 
         return true;
     }
@@ -291,24 +291,29 @@ class Market_PaymentService extends BaseApplicationComponent
         $card->setExpiryYear($paymentForm->year);
         $card->setCvv($paymentForm->cvv);
 
-        $billingAddress = $order->billingAddress;
-        $card->setBillingAddress1($billingAddress->address1);
-        $card->setBillingAddress2($billingAddress->address2);
-        $card->setBillingCity($billingAddress->city);
-        $card->setBillingPostcode($billingAddress->zipCode);
-        $card->setBillingState($billingAddress->getStateText());
-        $card->setBillingCountry($billingAddress->country->name);
-        $card->setBillingPhone($billingAddress->phone);
 
-        $shippingAddress = $order->shippingAddress;
-        $card->setShippingAddress1($shippingAddress->address1);
-        $card->setShippingAddress2($shippingAddress->address2);
-        $card->setShippingCity($shippingAddress->city);
-        $card->setShippingPostcode($shippingAddress->zipCode);
-        $card->setShippingState($shippingAddress->getStateText());
-        $card->setShippingCountry($shippingAddress->country->name);
-        $card->setShippingPhone($shippingAddress->phone);
-        $card->setCompany($shippingAddress->company);
+        if($order->billingAddressId) {
+            $billingAddress = $order->billingAddress;
+            $card->setBillingAddress1($billingAddress->address1);
+            $card->setBillingAddress2($billingAddress->address2);
+            $card->setBillingCity($billingAddress->city);
+            $card->setBillingPostcode($billingAddress->zipCode);
+            $card->setBillingState($billingAddress->getStateText());
+            $card->setBillingCountry($billingAddress->getCountryText());
+            $card->setBillingPhone($billingAddress->phone);
+        }
+
+        if($order->shippingAddressId) {
+            $shippingAddress = $order->shippingAddress;
+            $card->setShippingAddress1($shippingAddress->address1);
+            $card->setShippingAddress2($shippingAddress->address2);
+            $card->setShippingCity($shippingAddress->city);
+            $card->setShippingPostcode($shippingAddress->zipCode);
+            $card->setShippingState($shippingAddress->getStateText());
+            $card->setShippingCountry($shippingAddress->getCountryText());
+            $card->setShippingPhone($shippingAddress->phone);
+            $card->setCompany($shippingAddress->company);
+        }
 
         $card->setEmail($order->email);
 
@@ -349,7 +354,7 @@ class Market_PaymentService extends BaseApplicationComponent
     private function saveTransaction($child)
     {
         if (!craft()->market_transaction->save($child)) {
-            throw new Exception('Error saving transaction: ' . implode(', ',
+            throw new Exception(Craft::t('Error saving transaction: ') . implode(', ',
                     $child->getAllErrors()));
         }
     }

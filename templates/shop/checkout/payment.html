@@ -1,0 +1,161 @@
+{% extends 'commerce/_layouts/checkout' %}
+
+{% import 'commerce/_includes/forms' as forms %}
+
+{%  block content %}
+
+    <h2>Order Review</h2>
+
+    <ul>
+        <li>
+            <strong>Products:</strong> {{ cart.itemTotal|marketCurrency }}
+        </li>
+
+        {%  for adjustment in cart.adjustments %}
+            <li>
+                <strong>{{ adjustment.type }}: </strong> {{ adjustment.amount|marketCurrency }}
+            </li>
+        {% endfor %}
+
+        <li>
+            <strong>Total:</strong> {{ cart.finalPrice|marketCurrency }}
+        </li>
+    </ul>
+
+    <h2>Payment Method</h2>
+
+    {# Assuming that the shipping method is set, the person has entered everthing
+       for them to know the final price they are willing to pay. Allow them to choose
+       the payment method they would like to use. #}
+    {% if cart.shippingMethodId %}
+        {% include "commerce/_includes/setPaymentMethod" %}
+    {% endif %}
+
+    {% if cart.paymentMethodId %}
+        <form method="POST" class="form-horizontal">
+            <input type="hidden" name="action" value="market/cartPayment/pay"/>
+            <input type="hidden" name="redirect" value="/market/orders?number={number}"/>
+            <input type="hidden" name="cancelUrl" value="/market/cart"/>
+            <input type="hidden" name="orderTypeHandle" value="order">
+            {{ getCsrfInput() }}
+
+            <div class="row">
+                <div class="twelve columns">
+                    <div class="page-header">
+                        <h3>Credit Card</h3>
+                    </div>
+                    <noscript>
+                        <div class="bs-callout bs-callout-danger">
+                            <h4>JavaScript is not enabled!</h4>
+                            <p>This payment form requires your browser to have JavaScript enabled. Please activate JavaScript and reload this page. Check <a href="http://enable-javascript.com" target="_blank">enable-javascript.com</a> for more informations.</p>
+                        </div>
+                    </noscript>
+                    {% if customError is defined and customError %}
+                        <div class="alert alert-danger">
+                            <strong>Error!</strong> {{ customError }}
+                        </div>
+                    {% endif %}
+
+                    <span class="payment-success"></span>
+                </div>
+            </div>
+
+            <fieldset>
+                {% if cart.paymentMethod.requiresCard() %}
+                    {% set currentYear = date().format('Y') %}
+                    {% set formValues = {
+                    firstName: paymentForm is defined ? paymentForm.firstName : cart.billingAddress.firstName,
+                    lastName: paymentForm is defined ? paymentForm.lastName : cart.billingAddress.lastName,
+                    number: paymentForm is defined ? paymentForm.number : '',
+                    cvv: paymentForm is defined ? paymentForm.cvv : '',
+                    month: paymentForm is defined ? paymentForm.month : 1,
+                    year: paymentForm is defined ? paymentForm.year : currentYear,
+                    } %}
+
+                    <div class="row">
+                        <div class="six columns">
+
+                            <!-- Card Holder Name -->
+                            <div class="form-group {% if paymentForm is defined and (paymentForm.hasErrors('firstName') or paymentForm.hasErrors('firstName')) %}has-error{% endif %}">
+                                <label>Card Holder</label>
+
+                                <div class="row">
+                                    <div class="six columns">
+
+                                        <input type="text" name="firstName" maxlength="70" placeholder="First Name" class="card-holder-first-name u-full-width"
+                                           value="{{ formValues.firstName }}">
+
+                                    </div>
+
+                                    <div class="six columns">
+                                        <input type="text" name="lastName" maxlength="70" placeholder="Last Name" class="card-holder-last-name u-full-width"
+                                           value="{{ formValues.lastName }}">
+
+                                    </div>
+                                </div>
+
+
+                                <span class="help-block">{% if paymentForm is defined %}{{ paymentForm.getError('firstName') }}{% endif %}</span>
+
+                                <span class="help-block">{% if paymentForm is defined %}{{ paymentForm.getError('lastName') }}{% endif %}</span>
+                            </div>
+
+                            <!-- Card Number -->
+                            <div class="form-group {% if paymentForm is defined and paymentForm.hasErrors('number') %}has-error{% endif %}">
+                                <label>Card Number</label>
+
+                                <input type="text" name="number" maxlength="19" placeholder="Card Number" class="card-number u-full-width" value="{{ formValues.number }}">
+
+                                <span class="help-block">{% if paymentForm is defined %}{{ paymentForm.getError('number') }}{% endif %}</span>
+                            </div>
+
+                            <!-- Expiry-->
+                            <div class="form-group {% if paymentForm is defined and (paymentForm.hasErrors('month') or paymentForm.hasErrors('year')) %}has-error{% endif %}">
+                                <label>Card Expiry Date</label>
+
+                                <select class="form-control" name="month">
+                                    {% for month in 1..12  %}
+                                        <option value="{{ month }}" {% if formValues.month == month %}selected{% endif %}>{{ month }}</option>
+                                    {% endfor %}
+                                </select>
+                                <span> / </span>
+                                <select class="required form-control" name="year">
+                                    {% for year in currentYear..(currentYear + 12)  %}
+                                        <option value="{{ year }}" {% if formValues.year == year %}selected{% endif %}>{{ year }}</option>
+                                    {% endfor %}
+                                </select>
+
+                                <span class="help-block">{% if paymentForm is defined %}{{ paymentForm.getError('month') }}{% endif %}</span>
+
+                                <span class="help-block">{% if paymentForm is defined %}{{ paymentForm.getError('year') }}{% endif %}</span>
+
+                            </div>
+
+                            <!-- CVV -->
+                            <div class="form-group {% if paymentForm is defined and paymentForm.hasErrors('cvv') %}has-error{% endif %}">
+
+                                <label>CVV/CVV2</label>
+                                <input type="text" name="cvv" placeholder="CVV" maxlength="4" class="card-cvc" value="{{ formValues.cvv }}">
+
+                                <span class="help-block">{% if paymentForm is defined %}{{ paymentForm.getError('cvv') }}{% endif %}</span>
+
+                            </div>
+
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Amount -->
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" for="amount">Amount</label>
+
+                    <input type="text" disabled value="{{ cart.finalPrice|number_format(2) }}"/>
+                </div>
+
+                <!-- Submit -->
+                <button class="button button-primary" type="submit">Pay Now</button>
+            </fieldset>
+        </form>
+    {% endif %}
+
+{%  endblock %}

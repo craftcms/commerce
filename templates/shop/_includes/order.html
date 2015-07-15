@@ -1,0 +1,33 @@
+<h4><a href="{{ url('commerce/customer/order', { orderId: order.id }) }}">Order #{{ order.id }}</a></h4>
+
+<ul>
+    <li><strong>{{ "couponCode"|title }}:</strong> {{ order.couponCode}}</li>
+    <li><strong>{{ "itemTotal"|title }}:</strong> {{ order.itemTotal}}</li>
+    <li><strong>{{ "finalPrice"|title }}:</strong> {{ order.finalPrice}}</li>
+    <li><strong>{{ "completedAt"|title }}:</strong> {{ order.completedAt}}</li>
+</ul>
+
+{#
+
+{{ "id"|title }}: {{ order.id}}<br/>
+{{ "number"|title }}: {{ order.number}}<br/>
+{{ "couponCode"|title }}: {{ order.couponCode}}<br/>
+{{ "itemTotal"|title }}: {{ order.itemTotal}}<br/>
+{{ "finalPrice"|title }}: {{ order.finalPrice}}<br/>
+{{ "baseDiscount"|title }}: {{ order.baseDiscount}}<br/>
+{{ "baseShippingRate"|title }}: {{ order.baseShippingRate}}<br/>
+{{ "email"|title }}: {{ order.email}}<br/>
+{{ "completedAt"|title }}: {{ order.completedAt}}<br/>
+{{ "lastIp"|title }}: {{ order.lastIp}}<br/>
+{{ "message"|title }}: {{ order.message}}<br/>
+{{ "returnUrl"|title }}: {{ order.returnUrl}}<br/>
+{{ "cancelUrl"|title }}: {{ order.cancelUrl}}<br/>
+{{ "typeId"|title }}: {{ order.typeId}}<br/>
+{{ "billingAddressId"|title }}: {{ order.billingAddressId}}<br/>
+{{ "shippingAddressId"|title }}: {{ order.shippingAddressId}}<br/>
+{{ "shippingMethodId"|title }}: {{ order.shippingMethodId}}<br/>
+{{ "paymentMethodId"|title }}: {{ order.paymentMethodId}}<br/>
+{{ "customerId"|title }}: {{ order.customerId}}<br/>
+{{ "orderStatusId"|title }}: {{ order.orderStatusId}}<br/>
+
+#}
