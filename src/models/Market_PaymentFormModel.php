@@ -2,6 +2,7 @@
 
 namespace Craft;
 
+use Omnipay\Common\Helper as OmnipayHelper;
 /**
  * Class Market_PaymentFormModel
  *
@@ -38,7 +39,15 @@ class Market_PaymentFormModel extends BaseModel
             ['cvv', 'length', 'min' => 3, 'max' => 4],
             ['number', 'numerical', 'integerOnly' => true],
             ['number', 'length', 'max' => 19],
+            ['number', 'creditCardLuhn']
         ];
+    }
+
+    public function creditCardLuhn($attribute,$params)
+    {
+        if(!OmnipayHelper::validateLuhn($this->$attribute)){
+            $this->addError($attribute, Craft::t('Not a valid Credit Card Number'));
+        }
     }
 
     protected function defineAttributes()
