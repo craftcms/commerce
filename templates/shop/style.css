@@ -632,31 +632,25 @@ hr {
 @media (min-width: 1200px) {
 }
 
-/* Progress Bar
+/* Steps
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 
-.meter {
-    height: 10px; /* Can be anything */
-    position: relative;
-    border: 1px solid #bbb;
-    -moz-border-radius: 10px;
-    -webkit-border-radius: 10px;
-    border-radius: 10px;
-    padding: 3px;
-    margin-bottom: 10px;
-    .flash
-}
+.steps { margin-bottom: 40px; }
+.steps ul { display: flex; display: -webkit-flex; margin-bottom: 0; }
+.steps ul li { list-style: none; display: block; flex:1; }
+.steps ul li { color: #aaa; }
+.steps ul li a { color: #aaa; }
+.steps ul li.done { color: #CE4539; opacity: .5; }
+.steps ul li.done a { color: #CE4539; }
+.steps ul li.sel { color: #CE4539; opacity: 1; }
+.steps ul li.sel a { color: #CE4539; }
+.steps .meter { height: 10px; position: relative; border: 1px solid #bbb; -moz-border-radius: 10px; -webkit-border-radius: 10px; border-radius: 10px; padding: 3px; margin-bottom: 10px; }
+.steps .meter > span { display: block; height: 100%; border-top-right-radius: 2px; border-bottom-right-radius: 2px; border-top-left-radius: 10px; border-bottom-left-radius: 10px; background-color: #CE4539; position: relative; overflow: hidden; }
 
-.meter > span {
-    display: block;
-    height: 100%;
-    border-top-right-radius: 2px;
-    border-bottom-right-radius: 2px;
-    border-top-left-radius: 10px;
-    border-bottom-left-radius: 10px;
-    background-color: #CE4539;
-    position: relative;
-    overflow: hidden;
+@media (max-width: 750px) {
+    .steps ul { display: block; margin-left: 24px; }
+    .steps ul li { list-style: decimal; display: list-item; }
+    .steps .meter { display: none; }
 }
 
 /* Commerce Design
