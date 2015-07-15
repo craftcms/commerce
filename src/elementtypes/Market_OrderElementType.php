@@ -178,7 +178,9 @@ class Market_OrderElementType extends Market_BaseElementType
                         orders.returnUrl,
                         orders.cancelUrl,
                         orders.billingAddressId,
+                        orders.billingAddressData,
                         orders.shippingAddressId,
+                        orders.shippingAddressData,
                         orders.shippingMethodId,
                         orders.paymentMethodId,
                         orders.customerId,
@@ -240,4 +242,4 @@ class Market_OrderElementType extends Market_BaseElementType
         return Market_OrderModel::populateModel($row);
     }
 
-} 
+}
