@@ -1,3 +1,74 @@
+{% macro shippingMethodForm(cart) %}
+
+    <form method="POST" class="form-inline">
+        <input type="hidden" name="action" value="market/cartAddress/setShippingMethod">
+        <input type="hidden" name="redirect" value="commerce/checkout/payment">
+        <input type="hidden" name="orderTypeHandle" value="order">
+        {{ getCsrfInput() }}
+
+        <label for="">Shipping Method</label>
+        <select name="shippingMethodId" class="form-control" >
+            {% for id,method in craft.market.getShippingMethods('order') %}
+                <option value="{{ id }}" {% if id == cart.shippingMethodId %}selected{% endif %}>{{ method.name }}: {{ method.amount }}</option>
+            {% endfor %}
+        </select>
+
+        <p><input type="submit" class="button button-primary" value="Select Shipping Method" /></p>
+
+        {% if shippingMethodError is defined %}<strong>Error: {{ shippingMethodError }}</strong>{% endif %}
+    </form>
+
+{% endmacro %}
+
+{% macro guestCheckoutForm() %}
+    <form action="">
+        <label for="">Email</label>
+        <input class="u-full-width" type="text" name="email" placeholder="email@site.com" />
+
+        <input type="button" class="button button-primary" value="Checkout as guest" />
+    </form>
+{% endmacro %}
+
+{% macro registerForm() %}
+    <form action="">
+        <label for="">Email</label>
+        <input class="u-full-width" type="text" name="email" placeholder="email@site.com" />
+
+        <input type="button" class="button button-primary" value="Register" />
+    </form>
+{% endmacro %}
+
+{% macro loginForm() %}
+    <form method="post" accept-charset="UTF-8">
+
+        {% if errorMessage is defined %}
+            <p>{{ errorMessage }}</p>
+        {% endif %}
+
+        {{ getCsrfInput() }}
+
+        <input type="hidden" name="action" value="users/login">
+        <input type="hidden" name="redirect" value="commerce/customer">
+
+        <label for="loginName">Email</label>
+        <input id="loginName" class="u-full-width" type="text" name="loginName" placeholder="email@site.com" value="{{ craft.session.rememberedUsername }}">
+
+        <label for="password">Password</label>
+        <input id="password" class="u-full-width" type="password" name="password">
+
+        <label>
+            <input type="checkbox" name="rememberMe" value="1">
+            Remember me
+        </label>
+
+        <input type="submit" value="Login" class="button button-primary" />
+
+    </form>
+
+    <p><a href="{{ url('forgotpassword') }}">Forget your password?</a></p>
+
+{% endmacro %}
+
 {% macro addToCartButton(purchasable) %}
     <form method="POST">
         <input type="hidden" name="action" value="market/cart/add">
