@@ -1,0 +1,24 @@
+{% set showNav = false %}
+
+{% import 'commerce/_includes/forms' as forms %}
+{% extends 'commerce/_layouts/main' %}
+
+{% block main %}
+
+    <div class="row">
+        <div class="six columns">
+
+            <h3>Login</h3>
+
+            {{ forms.loginForm() }}
+        </div>
+
+        <div class="six columns">
+
+            <h3>Register</h3>
+
+            {{ forms.registerForm() }}
+
+        </div>
+    </div>
+{%  endblock %}
