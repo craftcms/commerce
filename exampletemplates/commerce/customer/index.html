@@ -1,39 +1,20 @@
-{% extends 'commerce/_layouts/_main' %}
+{% extends 'commerce/_layouts/main' %}
 
-{%  block content %}
-<div class="row"><div class="eleven columns">
-<p>
-    {% set customer = craft.market.getCustomer() %}
-    {{ dump(customer.attributes) }}
-    {% if currentUser %}
-    Welcome back, {{ currentUser.name }}
-</p>
-<h3>My Orders</h3>
+{%  block main %}
+<div class="row">
+    <div class="eleven columns">
+{#             {% set customer = craft.market.getCustomer() %}
+            {{ dump(customer.attributes) }} #}
+            {% if currentUser %}
 
+                <h1>My Orders</h1>
 
+                {% for order in craft.market.orders.find() %}
 
-{% for order in craft.market.orders.find() %}
-    {{ "id"|title }}: {{ order.id}}<br/>
-    {{ "number"|title }}: {{ order.number}}<br/>
-    {{ "couponCode"|title }}: {{ order.couponCode}}<br/>
-    {{ "itemTotal"|title }}: {{ order.itemTotal}}<br/>
-    {{ "finalPrice"|title }}: {{ order.finalPrice}}<br/>
-    {{ "baseDiscount"|title }}: {{ order.baseDiscount}}<br/>
-    {{ "baseShippingRate"|title }}: {{ order.baseShippingRate}}<br/>
-    {{ "email"|title }}: {{ order.email}}<br/>
-    {{ "completedAt"|title }}: {{ order.completedAt}}<br/>
-    {{ "lastIp"|title }}: {{ order.lastIp}}<br/>
-    {{ "message"|title }}: {{ order.message}}<br/>
-    {{ "returnUrl"|title }}: {{ order.returnUrl}}<br/>
-    {{ "cancelUrl"|title }}: {{ order.cancelUrl}}<br/>
-    {{ "typeId"|title }}: {{ order.typeId}}<br/>
-    {{ "billingAddressId"|title }}: {{ order.billingAddressId}}<br/>
-    {{ "shippingAddressId"|title }}: {{ order.shippingAddressId}}<br/>
-    {{ "shippingMethodId"|title }}: {{ order.shippingMethodId}}<br/>
-    {{ "paymentMethodId"|title }}: {{ order.paymentMethodId}}<br/>
-    {{ "customerId"|title }}: {{ order.customerId}}<br/>
-    {{ "orderStatusId"|title }}: {{ order.orderStatusId}}<br/>
-{% endfor %}
-{% endif %}
-</div></div>
+                    {% include 'commerce/_includes/order' %}
+
+                {% endfor %}
+        {% endif %}
+    </div>
+</div>
 {% endblock %}

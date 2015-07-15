@@ -109,7 +109,7 @@ class Market_InstallSeeder implements Market_SeederInterface
 		$productType->handle = 'plainShirts';
 		$productType->hasUrls = true;
 		$productType->hasVariants = false;
-		$productType->template = 'commerce/products/_entry';
+		$productType->template = 'commerce/products/_product';
 		$productType->urlFormat = 'commerce/products/{slug}';
 
 		$fieldLayout = FieldLayoutModel::populateModel(['type' => 'Market_Product']);
