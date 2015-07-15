@@ -26,13 +26,6 @@
 
         </tbody>
     </table>
-
-
-    <br/>
-    <div class="btngroup submit first">
-        <a href="{{ url('market/settings/ordertypes/new') }}" class="btn submit">New Order Type</a>
-    </div>
-
 {% endset %}
 
 
@@ -40,6 +33,7 @@
 var adminTable = new Craft.AdminTable({
 tableSelector: '#ordertypes',
 noObjectsSelector: '#noordertypes',
+minObjects: 1,
 newObjectBtnSelector: '#neworderTypecontainer',
 deleteAction: 'market/orderType/deleteOrderType',
 confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}” and all its orders? Please make sure you have a backup of your database before before peforming this desctruction action"|t }}'
