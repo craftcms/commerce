@@ -9,11 +9,28 @@
 
                 <h1>My Orders</h1>
 
-                {% for order in craft.market.orders.find() %}
+                <table class="u-full-width">
+                    <thead>
+                        <tr>
+                            <th>{{ "Order"|t }}</th>
+                            <th>{{ "Date"|t }}</th>
+                            <th>{{ "Total Quantity"|t }}</th>
+                            <th>{{ "Total"|t }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
 
-                    {% include 'commerce/_includes/order' %}
+                        {% for order in craft.market.orders.find() %}
+                            <tr>
+                                <td><a href="{{ url('commerce/customer/order', { orderId: order.id }) }}">Order #{{ order.id }}</a></td>
+                                <td>{{ order.completedAt }}</li>
+                                <td>{{ order.totalQty }} items</td>
+                                <td>{{ order.finalPrice|marketCurrency }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
 
-                {% endfor %}
         {% endif %}
     </div>
 </div>
