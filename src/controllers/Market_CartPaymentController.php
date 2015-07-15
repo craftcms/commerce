@@ -1,9 +1,8 @@
 <?php
 namespace Craft;
 
-
 /**
- * Cart.
+ * Cart. Step "Payment".
  *
  * Class Market_CartPaymentController
  *
@@ -42,22 +41,18 @@ class Market_CartPaymentController extends Market_BaseController
 
         $paymentForm             = new Market_PaymentFormModel;
         $paymentForm->attributes = $_POST;
-        // give the credit card number more of a chance to validate
-        $paymentForm->number = preg_replace("/[^0-9]/", "", $paymentForm->number);
-        $returnUrl               = craft()->request->getPost('returnUrl');
+        $redirect                = craft()->request->getPost('redirect');
         $cancelUrl               = craft()->request->getPost('cancelUrl');
         $orderTypeHandle         = craft()->request->getPost('orderTypeHandle');
         $cart                    = craft()->market_cart->getCart($orderTypeHandle);
 
         // Ensure correct redirect urls are supplied.
-        $redirect = craft()->request->getPost('redirect');
-        if (empty($returnUrl) || empty($cancelUrl) || !empty($redirect)) {
-            throw new Exception('Please specify "returnUrl" and "cancelUrl". "redirect" param is not allowed in this action');
+        if (empty($cancelUrl) || empty($redirect)) {
+            throw new Exception(Craft::t('Please specify "redirect" and "cancelUrl".'));
         }
 
-        //in case of success "pay" redirects us somewhere
         if (!craft()->market_payment->processPayment($cart, $paymentForm,
-            $returnUrl, $cancelUrl, $customError)
+            $redirect, $cancelUrl, $customError)
         ) {
             craft()->urlManager->setRouteVariables(compact('paymentForm',
                 'customError'));
