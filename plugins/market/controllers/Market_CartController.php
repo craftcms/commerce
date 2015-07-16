@@ -106,7 +106,11 @@ class Market_CartController extends Market_BaseController
             if(craft()->userSession->isGuest){
                 $orderTypeHandle = craft()->request->getPost('orderTypeHandle');
                 $cart            = craft()->market_cart->getCart($orderTypeHandle);
-                $cart->email = $email;
+                $cart->customerId = craft()->market_customer->getCustomerId();
+                $customer = craft()->market_customer->getCustomer();
+                $customer->email = $email;
+                craft()->market_customer->save($customer);
+
                 if (craft()->market_order->save($cart)){
                     $this->redirectToPostedUrl();
                 }
