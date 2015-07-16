@@ -12,10 +12,12 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property string                        couponCode
  * @property float                         itemTotal
  * @property float                         finalPrice
+ * @property float                         paidTotal
  * @property float                         baseDiscount
  * @property float                         baseShippingRate
  * @property string                        email
  * @property DateTime                      completedAt
+ * @property DateTime                      paidAt
  * @property string                        lastIp
  * @property string                        message
  * @property string                        returnUrl
@@ -99,6 +101,10 @@ class Market_OrderModel extends BaseElementModel
         return false;
     }
 
+    public function isPaid()
+    {
+        return $this->paidTotal >= $this->finalPrice;
+    }
 
     /**
      * Total number of items.
@@ -251,8 +257,14 @@ class Market_OrderModel extends BaseElementModel
                 'decimals' => 4,
                 'default'  => 0
             ],
+            'paidTotal'         => [
+                AttributeType::Number,
+                'decimals' => 4,
+                'default'  => 0
+            ],
             'email'             => AttributeType::String,
             'completedAt'       => AttributeType::DateTime,
+            'paidAt'            => AttributeType::DateTime,
             'currency'          => AttributeType::String,
             'lastIp'            => AttributeType::String,
             'message'           => AttributeType::String,

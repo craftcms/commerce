@@ -147,7 +147,7 @@ class MarketPlugin extends BasePlugin
      */
     public function getVersion()
     {
-        return '0.69.9999';
+        return '0.75.9999';
     }
 
     /**
