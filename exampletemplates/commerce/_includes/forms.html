@@ -139,7 +139,7 @@
 {% macro emptyCartForm(cart) %}
     <form method="POST">
         <input type="hidden" name="action" value="market/cart/removeAll" />
-        <input type="hidden" name="redirect" value="market/cart" />
+        <input type="hidden" name="redirect" value="commerce/cart" />
         <input type="hidden" name="orderTypeHandle" value="order">
         {{ getCsrfInput() }}
         <input class="button link" type="submit" value="Empty the Cart" />
