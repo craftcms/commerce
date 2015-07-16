@@ -91,7 +91,7 @@ class Market_OrderElementType extends Market_BaseElementType
 			if ($element->orderStatus){
 				return $element->orderStatus->printName();
 			}else{
-				return "";
+				return sprintf('<span class="market status %s"></span> %s','', '');
 			}
 
 		}

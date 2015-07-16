@@ -83,7 +83,8 @@
                 <tr data-id="{{ orderStatus.id }}" data-name="{{ orderStatus.handle }}">
                     <th scope="row" data-title="Name"><a href="{{ orderStatus.getCpEditUrl() }}">{{ orderStatus.name }}</a></th>
                     <td data-title="Handle">{{ orderStatus.handle }}</td>
-                    <td data-title="Color"><span style="color: {{ orderStatus.color }}">&block;</span> {{ orderStatus.color }}</td>
+
+                    <td data-title="Color"><span class="market status {{ orderStatus.color }}"></span></td>
                     <td data-title="Emails">
                         {% for email in orderStatus.emails %}
                             {{ email.name }}{% if not loop.last %}, {% endif %}
@@ -133,8 +134,9 @@
 
 {% set js %}
 {% if not orderType.handle %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
-{#<script>#}
+
 $(function () {
+
     $('#shippingMethodId').selectize({
         plugins: ['remove_button'],
         dropdownParent: 'body'
