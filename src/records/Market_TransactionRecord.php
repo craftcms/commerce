@@ -51,7 +51,7 @@ class Market_TransactionRecord extends BaseRecord
     ];
 
     // used for sum on amount
-    public $total;
+    public $total = 0;
 
     public function getTableName()
     {
