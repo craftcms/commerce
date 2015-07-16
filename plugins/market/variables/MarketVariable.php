@@ -30,6 +30,9 @@ class MarketVariable
      */
     public function orders($criteria = null)
     {
+        if(!$criteria['completedAt']){
+            $criteria['completedAt'] = ':notempty:';
+        }
         return craft()->elements->getCriteria('Market_Order', $criteria);
     }
 
