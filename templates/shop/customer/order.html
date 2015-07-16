@@ -3,6 +3,10 @@
 {% set orderId = craft.request.param('orderId') %}
 {% set order = craft.market.orders.id(orderId).customer(currentUser).first() %}
 
+{% if not order %}
+    {% redirect 'commerce/customer' %}
+{% endif %}
+
 {%  block main %}
     <div class="row">
         <div class="eleven columns">
