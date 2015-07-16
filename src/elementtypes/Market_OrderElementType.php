@@ -137,7 +137,7 @@ class Market_OrderElementType extends Market_BaseElementType
 				orders.finalPrice,
 				orders.paidTotal,
 				orders.orderStatusId,
-				orders.completedAt
+				orders.completedAt,
 				orders.email,
 				orders.completedAt,
 				orders.paidAt,
@@ -152,8 +152,7 @@ class Market_OrderElementType extends Market_BaseElementType
 				orders.shippingMethodId,
 				orders.paymentMethodId,
 				orders.customerId,
-				orders.typeId
-			')
+				orders.typeId')
 			->join('market_orders orders', 'orders.id = elements.id')
 			->join('market_ordertypes ordertypes', 'ordertypes.id = orders.typeId');
 
