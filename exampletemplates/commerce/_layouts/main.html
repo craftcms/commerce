@@ -30,6 +30,10 @@
     </div>
   </div>
   <div id="main" class="container">
+
+  <div class="flash">{{ craft.session.getFlash('notice') }}</div>
+  <div class="flash">!!! {{ craft.session.getFlash('error') }}</div>
+
   {% block main %}
       <div class="row"><div class="eleven columns">
           <h4>Default Content</h4>

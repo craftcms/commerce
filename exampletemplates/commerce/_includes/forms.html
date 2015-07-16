@@ -16,7 +16,6 @@
 
         <p><input type="submit" class="button button-primary" value="Select Shipping Method" /></p>
 
-        {% if shippingMethodError is defined %}<strong>Error: {{ shippingMethodError }}</strong>{% endif %}
     </form>
 
 {% endmacro %}
@@ -44,10 +43,6 @@
 
 {% macro loginForm() %}
     <form method="post" accept-charset="UTF-8">
-
-        {% if errorMessage is defined %}
-            <p>{{ errorMessage }}</p>
-        {% endif %}
 
         {{ getCsrfInput() }}
 
@@ -130,7 +125,6 @@
         {{ getCsrfInput() }}
         <input type="text" name="couponCode" width="11" value="{{ cart.couponCode }}" placeholder="{{ "Coupon Code"|t }}"><br/>
         <input type="submit" class="button" value="{% if cart.couponCode %}Change{% else %}Apply{% endif %} Coupon" />
-        {% if couponError is defined %}<strong>Error: {{ couponError }}</strong>{% endif %}
     </form>
 {% endmacro %}
 
