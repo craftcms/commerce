@@ -23,7 +23,7 @@ class Market_OrderService extends BaseApplicationComponent
     private function calculateAdjustments(Market_OrderModel $order)
     {
         // Don't recalc the totals of completed orders.
-        if (!$order->id or $order->completedAt == null) {
+        if (!$order->id or $order->completedAt != null) {
             return;
         }
 
@@ -93,8 +93,6 @@ class Market_OrderService extends BaseApplicationComponent
             return false;
         }
 
-        $this->updateOrderPaidTotal($order);
-
         craft()->market_cart->forgetCart($order);
 
         //raising event on order complete
@@ -113,9 +111,7 @@ class Market_OrderService extends BaseApplicationComponent
      */
     public function getById($id)
     {
-        $order = Market_OrderRecord::model()->findById($id);
-
-        return Market_OrderModel::populateModel($order);
+        return craft()->elements->getElementById($id, 'Market_Order');
     }
 
     /**
@@ -244,6 +240,8 @@ class Market_OrderService extends BaseApplicationComponent
     }
 
     /**
+     * Updates the orders paidTotal and paidAt date and completes order
+     *
      * @param Market_OrderModel $order
      */
     public function updateOrderPaidTotal(Market_OrderModel $order)
@@ -260,6 +258,17 @@ class Market_OrderService extends BaseApplicationComponent
 
         $this->save($order);
 
+        if(!$order->completedAt){
+            if($order->isPaid()){
+                craft()->market_order->complete($order);
+            }else{
+                // maybe not paid in full, but authorized enough to complete order.
+                $totalAuthorized = craft()->market_payment->getTotalAuthorizedForOrder($order);
+                if($totalAuthorized >= $order->finalPrice){
+                    craft()->market_order->complete($order);
+                }
+            }
+        }
     }
 
     /**
