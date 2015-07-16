@@ -30,10 +30,10 @@ class Market_CartController extends Market_BaseController
         if (craft()->market_cart->addToCart($cart, $purchasableId, $qty,
             $error)
         ) {
-            craft()->userSession->setFlash('market', 'Product has been added');
+            craft()->userSession->setFlash('notice', Craft::t('Product has been added'));
             $this->redirectToPostedUrl();
         } else {
-            craft()->urlManager->setRouteVariables(['error' => $error]);
+            craft()->userSession->setFlash('notice',$error);
         }
     }
 
@@ -52,18 +52,17 @@ class Market_CartController extends Market_BaseController
 
         $lineItem = craft()->market_lineItem->getById($lineItemId);
         if (!$lineItem->id) {
-            throw new Exception('Line item not found');
+            throw new Exception(Craft::t('Line item not found'));
         }
 
         $lineItem->qty = $qty;
         $lineItem->order->setContentFromPost('fields');
 
         if (craft()->market_lineItem->update($lineItem, $error)) {
-            craft()->userSession->setFlash('market',
-                'Product quantity has been updated');
+            craft()->userSession->setFlash('notice',Craft::t('Product quantity has been updated'));
             $this->redirectToPostedUrl();
         } else {
-            craft()->urlManager->setRouteVariables(['error' => $error]);
+            craft()->userSession->setFlash('error',$error);
         }
     }
 
@@ -80,11 +79,10 @@ class Market_CartController extends Market_BaseController
         $cart->setContentFromPost('fields');
 
         if (craft()->market_cart->applyCoupon($cart, $code, $error)) {
-            craft()->userSession->setFlash('market', 'Coupon has been applied');
+            craft()->userSession->setFlash('info', Craft::t('Coupon has been applied'));
             $this->redirectToPostedUrl();
         } else {
             craft()->userSession->setFlash('error', $error);
-            craft()->urlManager->setRouteVariables(['couponError' => $error]);
         }
     }
 
@@ -116,8 +114,7 @@ class Market_CartController extends Market_BaseController
                 }
             }
         }else{
-            craft()->userSession->setFlash('market',
-                Craft::t('Email Not Valid'));
+            craft()->userSession->setFlash('notice',Craft::t('Email Not Valid'));
         }
 
     }
@@ -136,11 +133,10 @@ class Market_CartController extends Market_BaseController
         $cart            = craft()->market_cart->getCart($orderTypeHandle);
 
         if (craft()->market_cart->setPaymentMethod($cart, $id)) {
-            craft()->userSession->setFlash('market',
-                'Payment method has been set');
+            craft()->userSession->setFlash('notice', Craft::t('Payment method has been set'));
             $this->redirectToPostedUrl();
         } else {
-            craft()->urlManager->setRouteVariables(['paymentMethodError' => 'Wrong payment method']);
+            craft()->userSession->setFlash('notice',Craft::t('Wrong payment method'));
         }
     }
 
@@ -156,7 +152,7 @@ class Market_CartController extends Market_BaseController
         $cart            = craft()->market_cart->getCart($orderTypeHandle);
 
         craft()->market_cart->removeFromCart($cart, $lineItemId);
-        craft()->userSession->setFlash('market', 'Product has been removed');
+        craft()->userSession->setFlash('notice', Craft::t('Product has been removed'));
         $this->redirectToPostedUrl();
     }
 
@@ -171,8 +167,7 @@ class Market_CartController extends Market_BaseController
         $cart            = craft()->market_cart->getCart($orderTypeHandle);
 
         craft()->market_cart->clearCart($cart);
-        craft()->userSession->setFlash('market',
-            'All products have been removed');
+        craft()->userSession->setFlash('notice',Craft::t('All products have been removed'));
         $this->redirectToPostedUrl();
     }
 }
