@@ -6,12 +6,13 @@
         <input type="hidden" name="orderTypeHandle" value="order">
         {{ getCsrfInput() }}
 
-        <label for="">Shipping Method</label>
-        <select name="shippingMethodId" class="form-control" >
-            {% for id,method in craft.market.getShippingMethods('order') %}
-                <option value="{{ id }}" {% if id == cart.shippingMethodId %}selected{% endif %}>{{ method.name }}: {{ method.amount }}</option>
-            {% endfor %}
-        </select>
+        {% for id,method in craft.market.getShippingMethods('order') %}
+
+            <label>
+                <input type="radio" name="shippingMethodId" value="{{ id }}" {% if id == cart.shippingMethodId %}checked{% endif %} />
+                {{ method.name }}: {{ method.amount|marketCurrency }}
+            </label>
+        {% endfor %}
 
         <p><input type="submit" class="button button-primary" value="Select Shipping Method" /></p>
 
