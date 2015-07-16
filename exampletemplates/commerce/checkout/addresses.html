@@ -7,10 +7,6 @@
 
     <h1>Addresses</h1>
 
-    {% if not craft.session.isLoggedIn() %}
-        <strong>Notice: You are working as guest. It is recommended to sign up to associate the order with your credentials</strong><br/>
-    {% endif %}
-
     {% set addresses = craft.market.customer.addresses %}
     {% set order = craft.market.getCart('order') %}
 

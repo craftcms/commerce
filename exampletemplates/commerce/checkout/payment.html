@@ -24,12 +24,9 @@
 
     <h2>Payment Method</h2>
 
-    {# Assuming that the shipping method is set, the person has entered everthing
-       for them to know the final price they are willing to pay. Allow them to choose
-       the payment method they would like to use. #}
-    {% if cart.shippingMethodId %}
-        {% include "commerce/_includes/setPaymentMethod" %}
-    {% endif %}
+
+    {% include "commerce/_includes/setPaymentMethod" %}
+
 
     {% if cart.paymentMethodId %}
         <form method="POST" class="form-horizontal">

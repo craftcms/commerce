@@ -21,12 +21,15 @@
 
 {% endmacro %}
 
-{% macro guestCheckoutForm() %}
-    <form action="">
-        <label for="">Email</label>
-        <input class="u-full-width" type="text" name="email" placeholder="email@site.com" />
+{% macro guestCheckoutForm(cart) %}
+<form method="post" class="form-horizontal">
+    <input type="hidden" name="action" value="market/cart/setEmail">
+    <input type="hidden" name="redirect" value="commerce/checkout/addresses">
+    <input type="hidden" name="orderTypeHandle" value="order">
+    <label for="">Email</label>
+    <input class="u-full-width" type="text" value="{{ cart.email }}" name="email" placeholder="email@site.com" />
 
-        <input type="button" class="button button-primary" value="Checkout as guest" />
+    <input type="submit" class="button button-primary" value="Checkout as guest" />
     </form>
 {% endmacro %}
 

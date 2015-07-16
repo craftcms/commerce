@@ -108,8 +108,7 @@ class Market_CartController extends Market_BaseController
                 $cart            = craft()->market_cart->getCart($orderTypeHandle);
                 $cart->email = $email;
                 if (craft()->market_order->save($cart)){
-                    craft()->userSession->setFlash('market',
-                        Craft::t('Email has been set'));
+                    $this->redirectToPostedUrl();
                 }
             }
         }else{
