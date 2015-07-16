@@ -50,6 +50,9 @@ class Market_TransactionRecord extends BaseRecord
         self::FAILED
     ];
 
+    // used for sum on amount
+    public $total;
+
     public function getTableName()
     {
         return 'market_transactions';
