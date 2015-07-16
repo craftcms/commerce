@@ -18,7 +18,6 @@ namespace Craft;
  */
 class Market_OrderStatusRecord extends BaseRecord
 {
-
     public function getTableName()
     {
         return 'market_orderstatuses';
@@ -49,12 +48,7 @@ class Market_OrderStatusRecord extends BaseRecord
             'name'        => [AttributeType::String, 'required' => true],
             'orderTypeId' => [AttributeType::Number, 'required' => true],
             'handle'      => [AttributeType::Handle, 'required' => true],
-            'color'       => [
-                AttributeType::String,
-                'column'   => ColumnType::Char,
-                'length'   => 7,
-                'required' => true
-            ],
+            'color'       => [AttributeType::Enum, 'values' => array('green', 'orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'), 'required' => true, 'default' => 'green'],
             'default'     => [
                 AttributeType::Bool,
                 'default'  => 0,

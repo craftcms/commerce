@@ -73,7 +73,7 @@ class Market_InstallSeeder implements Market_SeederInterface
 				'name'        => 'New',
 				'orderTypeId' => '1',
 				'handle'      => 'new',
-				'color'       => '#31FF79',
+				'color'       => 'green',
 				'default'     => true
 			];
 

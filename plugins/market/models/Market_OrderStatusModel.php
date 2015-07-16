@@ -48,7 +48,7 @@ class Market_OrderStatusModel extends BaseModel
      */
     public function printName()
     {
-        return sprintf('<span style="color: %s">&block;</span> %s',
+        return sprintf('<span class="market status %s"></span> %s',
             $this->color, $this->name);
     }
 
@@ -59,12 +59,7 @@ class Market_OrderStatusModel extends BaseModel
             'name'        => [AttributeType::String, 'required' => true],
             'orderTypeId' => [AttributeType::Number, 'required' => true],
             'handle'      => [AttributeType::Handle, 'required' => true],
-            'color'       => [
-                AttributeType::String,
-                'column'   => ColumnType::Char,
-                'length'   => 7,
-                'required' => true
-            ],
+            'color'       => [AttributeType::String, 'default' => 'green'],
             'default'     => [
                 AttributeType::Bool,
                 'default'  => 0,
