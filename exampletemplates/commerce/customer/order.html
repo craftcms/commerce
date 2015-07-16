@@ -1,7 +1,7 @@
 {% extends 'commerce/_layouts/main' %}
 
 {% set orderId = craft.request.param('orderId') %}
-{% set order = craft.market.orders.id(orderId).first() %}
+{% set order = craft.market.orders.id(orderId).customer(currentUser).first() %}
 
 {%  block main %}
     <div class="row">
@@ -77,10 +77,10 @@
 
                     <tr>
                         <td colspan="4" class="text-right">
-                            Item Total: {{ cart.itemTotal|marketCurrency }}<br/>
-                            Base Discount: {{ cart.baseDiscount|marketCurrency }}<br/>
-                            Base Shipping Rate: {{ cart.baseShippingRate|marketCurrency }}<br/>
-                            <h4>Total: {{ cart.finalPrice|marketCurrency }}</h4>
+                            Item Total: {{ order.itemTotal|marketCurrency }}<br/>
+                            Base Discount: {{ order.baseDiscount|marketCurrency }}<br/>
+                            Base Shipping Rate: {{ order.baseShippingRate|marketCurrency }}<br/>
+                            <h4>Total: {{ order.finalPrice|marketCurrency }}</h4>
                         </td>
                     </tr>
 

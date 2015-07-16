@@ -3,8 +3,6 @@
 {%  block main %}
 <div class="row">
     <div class="eleven columns">
-{#             {% set customer = craft.market.getCustomer() %}
-            {{ dump(customer.attributes) }} #}
             {% if currentUser %}
 
                 <h1>My Orders</h1>
@@ -20,7 +18,7 @@
                     </thead>
                     <tbody>
 
-                        {% for order in craft.market.orders.customer(currentUser).completedAt(':notempty:').find() %}
+                        {% for order in craft.market.orders.customer(currentUser).find() %}
                             <tr>
                                 <td><a href="{{ url('commerce/customer/order', { orderId: order.id }) }}">Order #{{ order.id }}</a></td>
                                 <td>{{ order.completedAt }}</li>
