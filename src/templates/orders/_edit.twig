@@ -107,8 +107,8 @@
                     {{ order.billingAddress.address1 }}<br/>
                     {{ order.billingAddress.city }}, {{ order.billingAddress.zipCode }}<br/>
                     {{ order.billingAddress.phone }} OR {{ order.billingAddress.alternativePhone }}<br/>
-                    {{ order.billingAddress.state.name }}<br/>
-                    {{ order.billingAddress.country.name }}<br/>
+                    {{ order.billingAddress.stateText }}<br/>
+                    {{ order.billingAddress.countryText }}<br/>
                 {% else %}
                     -
                 {% endif %}<br/>
@@ -122,8 +122,8 @@
                     {{ order.shippingAddress.address2 }}<br/>
                     {{ order.shippingAddress.city }}, {{ order.shippingAddress.zipCode }}<br/>
                     {{ order.shippingAddress.phone }} OR {{ order.shippingAddress.alternativePhone }}<br/>
-                    {{ order.shippingAddress.state.name }}<br/>
-                    {{ order.shippingAddress.country.name }}<br/>
+                    {{ order.shippingAddress.stateText }}<br/>
+                    {{ order.shippingAddress.countryText }}<br/>
                 {% else %}
                     -
                     {% endif %}<br/>
