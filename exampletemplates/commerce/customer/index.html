@@ -20,7 +20,7 @@
                     </thead>
                     <tbody>
 
-                        {% for order in craft.market.orders.find() %}
+                        {% for order in craft.market.orders.customer(currentUser).completedAt(':notempty:').find() %}
                             <tr>
                                 <td><a href="{{ url('commerce/customer/order', { orderId: order.id }) }}">Order #{{ order.id }}</a></td>
                                 <td>{{ order.completedAt }}</li>
