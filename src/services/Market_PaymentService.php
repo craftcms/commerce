@@ -275,6 +275,10 @@ class Market_PaymentService extends BaseApplicationComponent
         $transaction->reference = $response->getTransactionReference();
         $transaction->message   = $response->getMessage();
 
+        if($response->isSuccessful()){
+            craft()->market_order->updateOrderPaidTotal($transaction->order);
+        }
+
         $this->saveTransaction($transaction);
     }
 
