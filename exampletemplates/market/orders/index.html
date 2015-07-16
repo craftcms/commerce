@@ -13,6 +13,7 @@
         <h5>{{order.number}} #{{ order.id }}</h5>
             <ul>
                 <li>Final Price: {{ order.finalPrice }}</li>
+                <li>Paid Total: {{ order.paidTotal }}</li>
                 {% if order.completedAt %}
                     <li>Completed at: {{ order.completedAt }}</li>
                 {% endif %}
