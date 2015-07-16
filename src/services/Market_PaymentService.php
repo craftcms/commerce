@@ -353,4 +353,25 @@ class Market_PaymentService extends BaseApplicationComponent
                     $child->getAllErrors()));
         }
     }
+
+    /**
+     * @param Market_OrderModel $order
+     * @return static[]
+     */
+    public function getTotalPaidForOrder(Market_OrderModel $order)
+    {
+        $criteria = new \CDbCriteria();
+        $criteria->select = 'sum(amount) AS total, orderId';
+        $criteria->addCondition(['status = :status','orderId = :orderId']);
+        $criteria->params = [
+            'orderId' => $order->id,
+            'status' => Market_TransactionRecord::SUCCESS
+        ];
+        $criteria->addInCondition('type',[Market_TransactionRecord::PURCHASE,Market_TransactionRecord::CAPTURE]);
+        $criteria->group ='orderId';
+
+        $transaction = Market_TransactionRecord::model()->find($criteria);
+
+        return $transaction->total;
+    }
 }

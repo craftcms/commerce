@@ -119,14 +119,41 @@ class Market_OrderElementType extends Market_BaseElementType
 			'completedAt'  => AttributeType::Mixed,
 			'orderStatus'  => AttributeType::Mixed,
 			'orderStatusId'  => AttributeType::Mixed,
+			'customer'  => AttributeType::Mixed,
+			'customerId'  => AttributeType::Mixed
 		];
 	}
 
 
 	public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
 	{
-		$query
-			->addSelect('orders.id, orders.typeId, orders.number, orders.finalPrice, orders.orderStatusId, orders.completedAt')
+        $query
+            ->addSelect('orders.id,
+				orders.number,
+				orders.couponCode,
+				orders.itemTotal,
+				orders.baseDiscount,
+				orders.baseShippingRate,
+				orders.finalPrice,
+				orders.paidTotal,
+				orders.orderStatusId,
+				orders.completedAt
+				orders.email,
+				orders.completedAt,
+				orders.paidAt,
+				orders.currency,
+				orders.lastIp,
+				orders.message,
+				orders.returnUrl,
+				orders.cancelUrl,
+				orders.orderStatusId,
+				orders.billingAddressId,
+				orders.shippingAddressId,
+				orders.shippingMethodId,
+				orders.paymentMethodId,
+				orders.customerId,
+				orders.typeId
+			')
 			->join('market_orders orders', 'orders.id = elements.id')
 			->join('market_ordertypes ordertypes', 'ordertypes.id = orders.typeId');
 
@@ -162,6 +189,17 @@ class Market_OrderElementType extends Market_BaseElementType
 
 		if ($criteria->orderStatusId){
 			$query->andWhere(DbHelper::parseParam('orders.orderStatusId', $criteria->orderStatusId, $query->params));
+		}
+
+
+		if($criteria->customer) {
+			if ($criteria->customer instanceof Market_CustomerModel) {
+				$criteria->customerId = $criteria->customer->id;
+				$criteria->customer = null;
+			}
+		}
+		if($criteria->customerId){
+			$query->andWhere(DbHelper::parseParam('orders.customerId', $criteria->customerId, $query->params));
 		}
 	}
 
