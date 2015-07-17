@@ -151,6 +151,8 @@ class Market_OrderElementType extends Market_BaseElementType
             'orderStatus' => AttributeType::Mixed,
             'orderStatusId' => AttributeType::Mixed,
             'completed' => AttributeType::Bool,
+            'customer'  => AttributeType::Mixed,
+            'customerId'  => AttributeType::Mixed
         ];
     }
 
@@ -164,25 +166,31 @@ class Market_OrderElementType extends Market_BaseElementType
     {
         $query
             ->addSelect('orders.id,
-                        orders.typeId,
-                        orders.number,
-                        orders.couponCode,
-                        orders.itemTotal,
-                        orders.finalPrice,
-                        orders.baseDiscount,
-                        orders.baseShippingRate,
-                        orders.email,
-                        orders.completedAt,
-                        orders.lastIp,
-                        orders.message,
-                        orders.returnUrl,
-                        orders.cancelUrl,
-                        orders.billingAddressId,
-                        orders.shippingAddressId,
-                        orders.shippingMethodId,
-                        orders.paymentMethodId,
-                        orders.customerId,
-                        orders.orderStatusId')
+        orders.number,
+        orders.couponCode,
+        orders.itemTotal,
+        orders.baseDiscount,
+        orders.baseShippingRate,
+        orders.finalPrice,
+        orders.paidTotal,
+        orders.orderStatusId,
+        orders.completedAt,
+        orders.email,
+        orders.completedAt,
+        orders.paidAt,
+        orders.currency,
+        orders.lastIp,
+        orders.message,
+        orders.returnUrl,
+        orders.cancelUrl,
+        orders.orderStatusId,
+        orders.billingAddressId,
+        orders.billingAddressData,
+        orders.shippingAddressId,
+        orders.shippingMethodData,
+        orders.paymentMethodId,
+        orders.customerId,
+        orders.typeId')
             ->join('market_orders orders', 'orders.id = elements.id')
             ->join('market_ordertypes ordertypes', 'ordertypes.id = orders.typeId');
 
@@ -191,6 +199,10 @@ class Market_OrderElementType extends Market_BaseElementType
                 $query->andWhere('orders.completedAt is not null');
                 $criteria->completed = null;
             }
+        }
+
+        if ($criteria->completedAt) {
+            $query->andWhere(DbHelper::parseParam('orders.completedAt', $criteria->completedAt, $query->params));
         }
 
         if ($criteria->type) {
@@ -210,10 +222,6 @@ class Market_OrderElementType extends Market_BaseElementType
             $query->andWhere(DbHelper::parseParam('orders.number', $criteria->number, $query->params));
         }
 
-        if ($criteria->completedAt) {
-            $query->andWhere(DbHelper::parseParam('orders.completedAt', $criteria->completedAt, $query->params));
-        }
-
         if ($criteria->orderStatus) {
             if ($criteria->orderStatus instanceof Market_OrderStatusModel) {
                 $criteria->orderStatusId = $criteria->orderStatus->id;
@@ -225,6 +233,17 @@ class Market_OrderElementType extends Market_BaseElementType
 
         if ($criteria->orderStatusId) {
             $query->andWhere(DbHelper::parseParam('orders.orderStatusId', $criteria->orderStatusId, $query->params));
+        }
+
+        if($criteria->customer) {
+          if ($criteria->customer instanceof Market_CustomerModel) {
+            $criteria->customerId = $criteria->customer->id;
+            $criteria->customer = null;
+          }
+        }
+
+        if($criteria->customerId){
+          $query->andWhere(DbHelper::parseParam('orders.customerId', $criteria->customerId, $query->params));
         }
     }
 
@@ -240,4 +259,4 @@ class Market_OrderElementType extends Market_BaseElementType
         return Market_OrderModel::populateModel($row);
     }
 
-} 
+}
