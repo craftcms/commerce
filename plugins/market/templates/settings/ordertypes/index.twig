@@ -29,15 +29,6 @@
         </tbody>
     </table>
 
-    {% if not methodsExist %}
-        <p><span style="color:red">No shipping methods exist!</span><br/>Go to settings and
-            <a href="{{ url('market/settings/shippingmethods') }}">create a new shipping method </a> please.</p>
-    {% else %}
-            <br/>
-            <div class="btngroup submit first">
-                <a href="{{ url('market/settings/ordertypes/new') }}" class="btn submit">New Order Type</a>
-            </div>
-    {% endif %}
 {% endset %}
 
 
@@ -45,6 +36,7 @@
 var adminTable = new Craft.AdminTable({
 tableSelector: '#ordertypes',
 noObjectsSelector: '#noordertypes',
+minObjects: 1,
 newObjectBtnSelector: '#neworderTypecontainer',
 deleteAction: 'market/orderType/deleteOrderType',
 confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}” and all its orders? Please make sure you have a backup of your database before before peforming this desctruction action"|t }}'
