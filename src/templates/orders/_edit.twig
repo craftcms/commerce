@@ -24,38 +24,44 @@
                     {% include "_includes/tabs" %}
 
                     {% if orderId is defined %}
-                    <table id="" class="shadow-box editable">
+                    <table id="" class="data fullwidth collapsible">
                         <thead>
                         <tr>
-                            <th scope="col" class="header">{{ 'Line'|t }}</span></th>
-                            <th scope="col" class="header">{{ 'Name'|t }}</span></th>
-                            <th scope="col" class="header">{{ 'SKU'|t }}</span></th>
-                            <th scope="col" class="header">{{ 'Price'|t }}</span></th>
-                            <th scope="col" class="header">{{ 'Sale Amount'|t }}</th>
-                            <th scope="col" class="header">{{ 'Tax Amount'|t }}</th>
-                            <th scope="col" class="header">{{ 'Shipping Amount'|t }}</th>
-                            <th scope="col" class="header">{{ 'Discount Amount'|t }}</th>
-                            <th scope="col" class="header">{{ 'Weight'|t }}</th>
-                            <th scope="col" class="header">{{ 'Quantity'|t }}</th>
-                            <th scope="col" class="header">{{ 'Total'|t }}</th>
-                            <th></th>
+                            <th scope="col"></span></th>
+                            <th scope="col">{{ 'Quantity'|t }}</th>
+                            <th scope="col">{{ 'Item'|t }}</span></th>
+                            <th scope="col">{{ 'Total'|t }}</th>
+                            <th scope="col"></th>
                         </tr>
                         </thead>
                         <tbody>
 
                         {%  for lineItem in order.lineItems %}
                             <tr>
-                                <td>{{ lineItem.id }}</td>
-                                <td><a href="{{ lineItem.purchasable.cpEditUrl }}">{{ lineItem.purchasable.description }}</a></td>
-                                <td>{{ lineItem.purchasable.sku }}</td>
-                                <td>{{ lineItem.price|marketCurrency }}</td>
-                                <td>{{ lineItem.saleAmount|marketCurrency }}</td>
-                                <td>{{ lineItem.taxAmount|marketCurrency }}</td>
-                                <td>{{ lineItem.shippingAmount|marketCurrency }}</td>
-                                <td>{{ lineItem.discountAmount|marketCurrency }}</td>
-                                <td>{{ lineItem.weight }}</td>
+                                <td><a class="fieldtoggle" data-target=".more-{{ lineItem.purchasable.sku }}">&nbsp;</a></td>
                                 <td>{{ lineItem.qty }}</td>
-                                <td>{{ lineItem.total|marketCurrency }}</td>
+                                <td><a href="{{ lineItem.purchasable.cpEditUrl }}">{{ lineItem.purchasable.description }} </a>({{ lineItem.purchasable.sku }})</td>
+                                <td>
+                                    <div class="hidden more-{{ lineItem.purchasable.sku }}">
+                                        <strong>{{ "Price"|t }}</strong><br/>
+                                        <strong>{{ "Sale Price"|t }}</strong><br/>
+                                        <strong>{{ "Tax"|t }}</strong><br/>
+                                        <strong>{{ "Shipping"|t }}</strong><br/>
+                                        <strong>{{ "Discount"|t }}</strong><br/>
+                                    </div>
+                                    <strong>Total</strong><br/>
+
+                                </td>
+                                <td>
+                                    <div class="hidden more-{{ lineItem.purchasable.sku }}">
+                                        {{ lineItem.price|marketCurrency }}<br/>
+                                        {{ lineItem.saleAmount|marketCurrency }}<br/>
+                                        {{ lineItem.taxAmount|marketCurrency }}<br/>
+                                        {{ lineItem.shippingAmount|marketCurrency }}<br/>
+                                        {{ lineItem.discountAmount|marketCurrency }}<br/>
+                                    </div>
+                                    {{ lineItem.total|marketCurrency }}
+                                </td>
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -92,7 +98,11 @@
                             </tr>
                             <tr>
                                 <td><strong>Status</strong></td>
-                                <td>{{ order.orderStatus.printName|raw }} </td>
+                                {% if order.orderStatus %}
+                                    <td>{{ order.orderStatus.printName|raw }} </td>
+                                {% else %}
+                                    <td><span class="market status"></span></td>
+                                {% endif %}
                             </tr>
                             <tr>
                                 <td><strong>Order Date</strong></td>
@@ -108,7 +118,7 @@
                             </tr>
                             <tr>
                                 <td><strong>Customer</strong></td>
-                                <td><a href="{{ order.customer.cpEditUrl }}">{{ order.email }}</a></td>
+                                <td><a href="{{ order.customer.cpEditUrl }}">{{ order.email }}</a>&nbsp;{% if not order.customer.userId %}{{ "(Guest)"|t }}{% endif %}</td>
                             </tr>
                         </table>
 
@@ -133,7 +143,7 @@
                     {{ order.billingAddress.city }}, {{ order.billingAddress.zipCode }}<br/>
                     {% if order.billingAddress.phone %}{{ order.billingAddress.phone }}<br/>{% endif %}
                     {% if order.billingAddress.alternativePhone %}{{ order.billingAddress.alternativePhone }}<br/>{% endif %}
-                    {{ order.billingAddress.stateText }}<br/>
+                    {% if order.billingAddress.stateText %}{{ order.billingAddress.stateText }}<br/>{% endif %}
                     {{ order.billingAddress.countryText }}<br/>
 
                 </div>
@@ -149,7 +159,7 @@
                     {{ order.shippingAddress.city }}, {{ order.shippingAddress.zipCode }}<br/>
                     {% if order.shippingAddress.phone %}{{ order.shippingAddress.phone }}<br/>{% endif %}
                     {% if order.shippingAddress.alternativePhone %}{{ order.shippingAddress.alternativePhone }}<br/>{% endif %}
-                    {{ order.shippingAddress.stateText }}<br/>
+                    {% if order.shippingAddress.stateText %}{{ order.shippingAddress.stateText }}<br/>{% endif %}
                     {{ order.shippingAddress.countryText }}
 
                 </div>
