@@ -35,7 +35,7 @@ class Market_CartService extends BaseApplicationComponent
         //saving current cart if it's new and empty
         if (!$order->id) {
             if (!craft()->market_order->save($order)) {
-                throw new Exception('Error on creating empty cart');
+                throw new Exception(Craft::t('Error on creating empty cart'));
             }
         }
 

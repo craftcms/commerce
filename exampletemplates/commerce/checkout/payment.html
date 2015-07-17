@@ -24,18 +24,15 @@
 
     <h2>Payment Method</h2>
 
-    {# Assuming that the shipping method is set, the person has entered everthing
-       for them to know the final price they are willing to pay. Allow them to choose
-       the payment method they would like to use. #}
-    {% if cart.shippingMethodId %}
-        {% include "commerce/_includes/setPaymentMethod" %}
-    {% endif %}
+
+    {% include "commerce/_includes/setPaymentMethod" %}
+
 
     {% if cart.paymentMethodId %}
         <form method="POST" class="form-horizontal">
             <input type="hidden" name="action" value="market/cartPayment/pay"/>
-            <input type="hidden" name="redirect" value="/market/orders?number={number}"/>
-            <input type="hidden" name="cancelUrl" value="/market/cart"/>
+            <input type="hidden" name="redirect" value="/commerce/customer/order?orderId={id}"/>
+            <input type="hidden" name="cancelUrl" value="/commerce/cart"/>
             <input type="hidden" name="orderTypeHandle" value="order">
             {{ getCsrfInput() }}
 
@@ -50,11 +47,6 @@
                             <p>This payment form requires your browser to have JavaScript enabled. Please activate JavaScript and reload this page. Check <a href="http://enable-javascript.com" target="_blank">enable-javascript.com</a> for more informations.</p>
                         </div>
                     </noscript>
-                    {% if customError is defined and customError %}
-                        <div class="alert alert-danger">
-                            <strong>Error!</strong> {{ customError }}
-                        </div>
-                    {% endif %}
 
                     <span class="payment-success"></span>
                 </div>

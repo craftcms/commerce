@@ -42,19 +42,33 @@
         required: true
     }) }}
 
-
-    {{ forms.colorField({
-        label: "Color"|t,
-        instructions: "Color Code for this status."|t,
-        id: "color",
+    {{ forms.hidden({
+        id: 'color',
         name: 'color',
-        value: orderStatus.color,
-        errors: orderStatus.getErrors('color'),
-        required: true
+        value: orderStatus.color
     }) }}
+
+    {% set colorField %}
+    <div>
+        <a id="colorMenuBtn" class="btn menubtn" href="#"><span class="market status {{ orderStatus.color }}"></span>{{ orderStatus.color|t|title }}</a>
+        <div class="menu">
+            <ul class="">
+                {% for color in ['green','orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'] %}
+                <li><a data-val="{{ color }}" {% if orderStatus.color == color %}class="sel"{% endif %} href="#"><span class="market status {{ color }}"></span>{{ color|t|title }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endset %}
+    {{ forms.field({
+        label: 'Color'|t,
+        instructions: 'Choose a color to represent the order\'s status'|t
+    },colorField) }}
+
 
     {{ forms.multiselectField({
         label: 'Emails'|t,
+        instructions: 'The emails that will be sent when transitioning to this status'|t,
         id: 'emails',
         name: 'emails',
         options: emails,
@@ -82,9 +96,20 @@
 
 {% set js %}
 {% if not orderStatus.handle %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
-{#<script>#}
 $(function () {
+
+    $colorSelect = $('#colorMenuBtn');
+    new Garnish.MenuBtn($colorSelect, {
+        onOptionSelect: function(data){
+            var val = $(data).data('val');
+            $('#color').val(val);
+            var html = "<span class='market status "+val+"'></span>"+Craft.uppercaseFirst(val);
+            $colorSelect.html(html);
+        }
+    });
+
     $('#orderTypeId').selectize({dropdownParent: 'body'});
+
     $('#emails').selectize({
         plugins: ['remove_button'],
         dropdownParent: 'body'
