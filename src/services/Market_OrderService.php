@@ -22,7 +22,8 @@ class Market_OrderService extends BaseApplicationComponent
      */
     private function calculateAdjustments(Market_OrderModel $order)
     {
-        if (!$order->id) {
+        // Don't recalc the totals of completed orders.
+        if (!$order->id or $order->completedAt != null) {
             return;
         }
 
@@ -110,9 +111,7 @@ class Market_OrderService extends BaseApplicationComponent
      */
     public function getById($id)
     {
-        $order = Market_OrderRecord::model()->findById($id);
-
-        return Market_OrderModel::populateModel($order);
+        return craft()->elements->getElementById($id, 'Market_Order');
     }
 
     /**
@@ -179,7 +178,6 @@ class Market_OrderService extends BaseApplicationComponent
             }
         }
 
-        //TODO: Don't recalculate when a completed order, we don't want amounts to change.
         $this->calculateAdjustments($order);
 
         $oldStatusId = $orderRecord->orderStatusId;
@@ -189,6 +187,7 @@ class Market_OrderService extends BaseApplicationComponent
         $orderRecord->itemTotal         = $order->itemTotal;
         $orderRecord->email             = $order->email;
         $orderRecord->completedAt       = $order->completedAt;
+        $orderRecord->paidAt            = $order->paidAt;
         $orderRecord->billingAddressId  = $order->billingAddressId;
         $orderRecord->shippingAddressId = $order->shippingAddressId;
         $orderRecord->shippingMethodId  = $order->shippingMethodId;
@@ -198,6 +197,7 @@ class Market_OrderService extends BaseApplicationComponent
         $orderRecord->baseDiscount      = $order->baseDiscount;
         $orderRecord->baseShippingRate  = $order->baseShippingRate;
         $orderRecord->finalPrice        = $order->finalPrice;
+        $orderRecord->paidTotal         = $order->paidTotal;
         $orderRecord->customerId        = $order->customerId;
         $orderRecord->returnUrl         = $order->returnUrl;
         $orderRecord->cancelUrl         = $order->cancelUrl;
@@ -247,6 +247,38 @@ class Market_OrderService extends BaseApplicationComponent
         MarketDbHelper::rollbackStackedTransaction();
 
         return false;
+    }
+
+    /**
+     * Updates the orders paidTotal and paidAt date and completes order
+     *
+     * @param Market_OrderModel $order
+     */
+    public function updateOrderPaidTotal(Market_OrderModel $order)
+    {
+        $totalPaid = craft()->market_payment->getTotalPaidForOrder($order);
+
+        $order->paidTotal = $totalPaid;
+
+        if($order->isPaid()){
+            if($order->paidAt == null){
+                $order->paidAt = DateTimeHelper::currentTimeForDb();
+            }
+        }
+
+        $this->save($order);
+
+        if(!$order->completedAt){
+            if($order->isPaid()){
+                craft()->market_order->complete($order);
+            }else{
+                // maybe not paid in full, but authorized enough to complete order.
+                $totalAuthorized = craft()->market_payment->getTotalAuthorizedForOrder($order);
+                if($totalAuthorized >= $order->finalPrice){
+                    craft()->market_order->complete($order);
+                }
+            }
+        }
     }
 
     /**

@@ -31,28 +31,28 @@ class MarketPlugin extends BasePlugin
 
             $nav = [
                 [
-                    'url' => 'market/orders',
-                    'title' => Craft::t("Orders"),
+                    'url'      => 'market/orders',
+                    'title'    => Craft::t("Orders"),
                     'selected' => (craft()->request->getSegment(2) == 'orders' ? true : false)
                 ],
                 [
-                    'url' => 'market/products',
-                    'title' => Craft::t("Products"),
+                    'url'      => 'market/products',
+                    'title'    => Craft::t("Products"),
                     'selected' => (craft()->request->getSegment(2) == 'products' ? true : false)
                 ],
                 [
-                    'url' => 'market/promotions',
-                    'title' => Craft::t("Promotions"),
+                    'url'      => 'market/promotions',
+                    'title'    => Craft::t("Promotions"),
                     'selected' => (craft()->request->getSegment(2) == 'promotions' ? true : false)
                 ],
                 [
-                    'url' => 'market/customers',
-                    'title' => Craft::t("Customers"),
+                    'url'      => 'market/customers',
+                    'title'    => Craft::t("Customers"),
                     'selected' => (craft()->request->getSegment(2) == 'customers' ? true : false)
                 ],
                 [
-                    'url' => 'market/settings',
-                    'title' => Craft::t("Settings"),
+                    'url'      => 'market/settings',
+                    'title'    => Craft::t("Settings"),
                     'selected' => (craft()->request->getSegment(2) == 'settings' ? true : false)
                 ]
             ];
@@ -147,7 +147,7 @@ class MarketPlugin extends BasePlugin
      */
     public function getVersion()
     {
-        return '0.71.9999';
+        return '0.70.9999';
     }
 
     /**

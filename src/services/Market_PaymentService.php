@@ -46,6 +46,12 @@ class Market_PaymentService extends BaseApplicationComponent
         $cart->cancelUrl = craft()->templates->renderObjectTemplate($cancelUrl, $cart);
         craft()->market_order->save($cart);
 
+        // Cart could have zero finalPrice and already considered 'paid'. Free carts complete immediately.
+        if($cart->isPaid()){
+            craft()->market_order->complete($cart);
+            craft()->request->redirect($returnUrl);
+        }
+
         //choosing default action
         $defaultAction = craft()->market_settings->getOption('paymentMethod');
         $defaultAction = ($defaultAction === Market_TransactionRecord::PURCHASE) ? $defaultAction : Market_TransactionRecord::AUTHORIZE;
@@ -78,7 +84,7 @@ class Market_PaymentService extends BaseApplicationComponent
             $redirect = $this->sendPaymentRequest($request, $transaction);
 
             if ($transaction->status == Market_TransactionRecord::SUCCESS) {
-                craft()->market_order->complete($cart);
+                craft()->market_order->updateOrderPaidTotal($cart);
             }
         } catch (\Exception $e) {
             $customError = $e->getMessage();
@@ -240,7 +246,7 @@ class Market_PaymentService extends BaseApplicationComponent
             $redirect = $this->sendPaymentRequest($request, $transaction);
 
             if ($transaction->status == Market_TransactionRecord::SUCCESS) {
-                craft()->market_order->complete($order);
+                craft()->market_order->updateOrderPaidTotal($order);
             }
             craft()->request->redirect($redirect);
         } else {
@@ -268,6 +274,10 @@ class Market_PaymentService extends BaseApplicationComponent
 
         $transaction->reference = $response->getTransactionReference();
         $transaction->message   = $response->getMessage();
+
+        if($response->isSuccessful()){
+            craft()->market_order->updateOrderPaidTotal($transaction->order);
+        }
 
         $this->saveTransaction($transaction);
     }
@@ -357,5 +367,60 @@ class Market_PaymentService extends BaseApplicationComponent
             throw new Exception(Craft::t('Error saving transaction: ') . implode(', ',
                     $child->getAllErrors()));
         }
+    }
+
+    /**
+     *
+     * Gets the total transactions amount really paid (not authorized)
+     *
+     * @param Market_OrderModel $order
+     * @return static[]
+     */
+    public function getTotalPaidForOrder(Market_OrderModel $order)
+    {
+        $criteria = new \CDbCriteria();
+        $criteria->select = 'sum(amount) AS total, orderId';
+        $criteria->addCondition(['status = :status','orderId = :orderId']);
+        $criteria->params = [
+            'orderId' => $order->id,
+            'status' => Market_TransactionRecord::SUCCESS
+        ];
+        $criteria->addInCondition('type',[Market_TransactionRecord::PURCHASE,Market_TransactionRecord::CAPTURE]);
+        $criteria->group ='orderId';
+
+        $transaction = Market_TransactionRecord::model()->find($criteria);
+
+        if($transaction){
+            return $transaction->total;
+        }
+
+        return 0;
+    }
+
+    /**
+     * Gets the total transactions amount with authorized
+     *
+     * @param Market_OrderModel $order
+     * @return static[]
+     */
+    public function getTotalAuthorizedForOrder(Market_OrderModel $order)
+    {
+        $criteria = new \CDbCriteria();
+        $criteria->select = 'sum(amount) AS total, orderId';
+        $criteria->addCondition(['status = :status','orderId = :orderId']);
+        $criteria->params = [
+            'orderId' => $order->id,
+            'status' => Market_TransactionRecord::SUCCESS
+        ];
+        $criteria->addInCondition('type',[Market_TransactionRecord::AUTHORIZE,Market_TransactionRecord::PURCHASE,Market_TransactionRecord::CAPTURE]);
+        $criteria->group ='orderId';
+
+        $transaction = Market_TransactionRecord::model()->find($criteria);
+
+        if($transaction){
+            return $transaction->total;
+        }
+
+        return 0;
     }
 }

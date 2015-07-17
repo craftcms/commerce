@@ -118,6 +118,7 @@ class Market_OrderController extends Market_BaseController
             $message = $child->message ? ' (' . $child->message . ')' : '';
 
             if ($child->status == Market_TransactionRecord::SUCCESS) {
+                craft()->market_order->updateOrderPaidTotal($child->order);
                 craft()->userSession->setNotice(Craft::t('Transaction has been successfully captured: ') . $message);
             } else {
                 craft()->userSession->setError(Craft::t('Capturing error: ') . $message);
