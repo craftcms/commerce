@@ -187,7 +187,8 @@ class Market_OrderElementType extends Market_BaseElementType
         orders.billingAddressId,
         orders.billingAddressData,
         orders.shippingAddressId,
-        orders.shippingMethodData,
+        orders.shippingAddressData,
+        orders.shippingMethodId,
         orders.paymentMethodId,
         orders.customerId,
         orders.typeId')
