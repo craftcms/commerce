@@ -69,7 +69,7 @@ class Market_OrderModel extends BaseElementModel
      */
     public function __toString()
     {
-        return $this->number;
+        return substr($this->number,0,7);
     }
 
     /**

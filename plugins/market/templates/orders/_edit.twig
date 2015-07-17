@@ -93,11 +93,11 @@
                     {% if orderId is defined %}
                         <table class="data fullwidth collapsible">
                             <tr>
-                                <td><strong>Reference</strong></td>
-                                <td>{{ order.number[0:8] }}</td>
+                                <td><strong>Ref</strong></td>
+                                <td><span title="Full Number: {{ order.number }}">{{ order.number[0:7] }}</span></td>
                             </tr>
                             <tr>
-                                <td><strong>Status</strong></td>
+                                <td><strong>{{ "Status"|t}}</strong></td>
                                 {% if order.orderStatus %}
                                     <td>{{ order.orderStatus.printName|raw }} </td>
                                 {% else %}
@@ -105,20 +105,20 @@
                                 {% endif %}
                             </tr>
                             <tr>
-                                <td><strong>Order Date</strong></td>
+                                <td><strong>{{ "Order Date"|t}}</strong></td>
                                 <td>{{ order.completedAt|date('D dS M Y') }}</td>
                             </tr>
                             <tr>
-                                <td><strong>Total</strong></td>
+                                <td><strong>{{ "Total"|t}}</strong></td>
                                 <td>{{ order.finalPrice|marketCurrency }}</td>
                             </tr>
                             <tr>
-                                <td><strong>Paid </strong></td>
+                                <td><strong>{{ "Paid"|t}} </strong></td>
                                 <td>{{ order.paidTotal|marketCurrency }} {{ order.paidAt|date('D dS M Y') }}</td>
                             </tr>
                             <tr>
-                                <td><strong>Customer</strong></td>
-                                <td><a href="{{ order.customer.cpEditUrl }}">{{ order.email }}</a>&nbsp;{% if not order.customer.userId %}{{ "(Guest)"|t }}{% endif %}</td>
+                                <td><strong>{{ "Customer"|t}}</strong></td>
+                                <td><a href="{{ order.customer.cpEditUrl }}">{{ order.email }}</a>&nbsp;{% if not order.customer.userId %}({{ "Guest"|t }}){% endif %}</td>
                             </tr>
                         </table>
 
