@@ -1,7 +1,7 @@
 {% extends "market/_layouts/cp" %}
 
 {% set crumbs = [
-{ label: "Orders"|t, url: url('market/orders') }
+    { label: "Orders"|t, url: url('market/orders') }
 ] %}
 
 {% import "_includes/forms" as forms %}
@@ -43,11 +43,11 @@
                                 <td><a href="{{ lineItem.purchasable.cpEditUrl }}">{{ lineItem.purchasable.description }} </a>({{ lineItem.purchasable.sku }})</td>
                                 <td>
                                     <div class="hidden more-{{ lineItem.purchasable.sku }}">
-                                        <strong>{{ "Price"|t }}</strong><br/>
-                                        <strong>{{ "Sale Price"|t }}</strong><br/>
-                                        <strong>{{ "Tax"|t }}</strong><br/>
-                                        <strong>{{ "Shipping"|t }}</strong><br/>
-                                        <strong>{{ "Discount"|t }}</strong><br/>
+                                        {{ "Price"|t }}<br/>
+                                        {{ "Sale Price"|t }}<br/>
+                                        {{ "Tax"|t }}<br/>
+                                        {{ "Shipping"|t }}<br/>
+                                        {{ "Discount"|t }}<br/>
                                     </div>
                                     <strong>Total</strong><br/>
 
@@ -64,10 +64,40 @@
                                 </td>
                             </tr>
                         {% endfor %}
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><strong>Item Total</strong></td>
+                            <td>{{ order.itemTotal|marketCurrency }}</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><strong>Base Shipping</strong></td>
+                            <td>{{ order.baseShippingRate|marketCurrency }}</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><strong>Base Discount</strong></td>
+                            <td>{{ order.baseDiscount|marketCurrency }}</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><strong>Final Total</strong></td>
+                            <td>{{ order.finalPrice|marketCurrency }}</td>
+                        </tr>
+
                         </tbody>
                         </table>
                         <p></p>
                     {% endif %}
+
 
                     {% from "_includes/forms" import textField %}
                     {% set static = static is defined ? static : false %}
