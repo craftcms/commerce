@@ -70,7 +70,8 @@ class Market_OrderElementType extends Market_BaseElementType
 			'number'     => Craft::t('Number'),
 			'orderStatus'=> Craft::t('Status'),
 			'finalPrice' => Craft::t('Total Payable'),
-			'completedAt'=> Craft::t('Completed')
+			'completedAt'=> Craft::t('Completed'),
+			'paidAt' => Craft::t('Paid')
 		];
 	}
 

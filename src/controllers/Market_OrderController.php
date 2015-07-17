@@ -57,7 +57,7 @@ class Market_OrderController extends Market_BaseController
         }
 
         if (!empty($variables['orderId'])) {
-            $variables['title'] = "Order " . $variables['order']->number;
+            $variables['title'] = "Order " . substr($variables['order']->number,0,7);
         } else {
             $variables['title'] = Craft::t('Create a new Order');
         }
