@@ -82,9 +82,7 @@ class Market_OrderStatusController extends Market_BaseController
             craft()->userSession->setError(Craft::t('Couldn’t save order status.'));
         }
 
-        // Send the calendar back to the template
-        craft()->urlManager->setRouteVariables(compact('orderStatus',
-            'emailsIds'));
+        craft()->urlManager->setRouteVariables(compact('orderStatus','emailsIds'));
     }
 
     /**

@@ -58,11 +58,10 @@ class Market_CartAddressController extends Market_BaseController
         $cart            = craft()->market_cart->getCart($orderTypeHandle);
 
         if (craft()->market_cart->setShippingMethod($cart, $id)) {
-            craft()->userSession->setFlash('market',
-                'Shipping method has been set');
+            craft()->userSession->setFlash('notice',Craft::t('Shipping method has been set'));
             $this->redirectToPostedUrl();
         } else {
-            craft()->urlManager->setRouteVariables(['shippingMethodError' => 'Wrong shipping method']);
+            craft()->userSession->setFlash('error',Craft::t('Wrong shipping method'));
         }
     }
 

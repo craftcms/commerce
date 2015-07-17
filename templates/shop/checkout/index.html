@@ -1,4 +1,4 @@
-{% if user %}
+{% if currentUser %}
     {% redirect 'commerce/checkout/addresses' %}
 {% endif %}
 
@@ -18,7 +18,7 @@
         <div class="six columns">
 
             <h3>Guest Checkout</h3>
-            {{ forms.guestCheckoutForm() }}
+            {{ forms.guestCheckoutForm(cart) }}
 
         </div>
     </div>

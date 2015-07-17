@@ -5,7 +5,7 @@
 <form method="POST" class="form-inline">
 
     <input type="hidden" name="action" value="market/cart/setPaymentMethod">
-    <input type="hidden" name="redirect" value="market/cart">
+    <input type="hidden" name="redirect" value="commerce/checkout/payment">
     <input type="hidden" name="orderTypeHandle" value="order">
     {{ getCsrfInput() }}
 
@@ -19,5 +19,3 @@
     <p><input type="submit" class="btn" value="Select Payment Method" /></p>
 
 </form>
-
-{% if paymentMethodError is defined %}<strong>Error: {{ paymentMethodError }}</strong>{% endif %}

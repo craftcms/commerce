@@ -1,53 +1,96 @@
-{% set showNav = false %}
 {% extends 'commerce/_layouts/main' %}
 
 {% set orderId = craft.request.param('orderId') %}
-{% set order = craft.market.orders.id(orderId).first() %}
+{% set order = craft.market.orders.id(orderId).customer(currentUser).first() %}
+
+{% if not order %}
+    {% redirect 'commerce/customer' %}
+{% endif %}
 
 {%  block main %}
     <div class="row">
         <div class="eleven columns">
+
+            <p><a href="{{ url('commerce/customer') }}">My Orders</a></p>
             <h1>Order #{{ order.id }}</h1>
 
-            <h2>Infos</h2>
 
-            <ul>
-                <li><strong>{{ "couponCode"|title }}:</strong> {{ order.couponCode}}</li>
-                <li><strong>{{ "itemTotal"|title }}:</strong> {{ order.itemTotal}}</li>
-                <li><strong>{{ "finalPrice"|title }}:</strong> {{ order.finalPrice}}</li>
-                <li><strong>{{ "completedAt"|title }}:</strong> {{ order.completedAt}}</li>
-            </ul>
+            <div class="row">
+                <div class="four columns">
+                    <h4>Details</h4>
 
-            <h2>Shipping Address</h2>
+                    <ul>
+                        <li><strong>{{ "Customer"|t }}:</strong> {{ order.customer.email}}</li>
+                        <li><strong>{{ "Total"|t }}:</strong> {{ order.finalPrice|marketCurrency}}</li>
+                        <li><strong>{{ "Date"|t }}:</strong> {{ order.completedAt}}</li>
+                    </ul>
 
-            <h2>Billing Address</h2>
+                </div>
+                <div class="four columns">
+                    <h4>Shipping Address</h4>
 
-            <h2>Receipt</h2>
+                    {% include 'commerce/_includes/address' with { address: order.shippingAddress } %}
+                </div>
+                <div class="four columns">
+                    <h4>Billing Address</h4>
 
-            {#
+                    {% include 'commerce/_includes/address' with { address: order.billingAddress } %}
 
-            {{ "id"|title }}: {{ order.id}}<br/>
-            {{ "number"|title }}: {{ order.number}}<br/>
-            {{ "couponCode"|title }}: {{ order.couponCode}}<br/>
-            {{ "itemTotal"|title }}: {{ order.itemTotal}}<br/>
-            {{ "finalPrice"|title }}: {{ order.finalPrice}}<br/>
-            {{ "baseDiscount"|title }}: {{ order.baseDiscount}}<br/>
-            {{ "baseShippingRate"|title }}: {{ order.baseShippingRate}}<br/>
-            {{ "email"|title }}: {{ order.email}}<br/>
-            {{ "completedAt"|title }}: {{ order.completedAt}}<br/>
-            {{ "lastIp"|title }}: {{ order.lastIp}}<br/>
-            {{ "message"|title }}: {{ order.message}}<br/>
-            {{ "returnUrl"|title }}: {{ order.returnUrl}}<br/>
-            {{ "cancelUrl"|title }}: {{ order.cancelUrl}}<br/>
-            {{ "typeId"|title }}: {{ order.typeId}}<br/>
-            {{ "billingAddressId"|title }}: {{ order.billingAddressId}}<br/>
-            {{ "shippingAddressId"|title }}: {{ order.shippingAddressId}}<br/>
-            {{ "shippingMethodId"|title }}: {{ order.shippingMethodId}}<br/>
-            {{ "paymentMethodId"|title }}: {{ order.paymentMethodId}}<br/>
-            {{ "customerId"|title }}: {{ order.customerId}}<br/>
-            {{ "orderStatusId"|title }}: {{ order.orderStatusId}}<br/>
+                </div>
+            </div>
 
-            #}
+
+            <h4>Receipt</h4>
+
+            <table class="u-full-width">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Unit Price</th>
+                        <th>Quantity</th>
+                        <th class="text-right">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order.lineItems %}
+                        {% set purchasable = item.purchasable %}
+                        <tr>
+                            <td>
+                                <strong>{{ purchasable.description }}</strong><br/>
+                                SKU: {{ purchasable.sku }}
+                            </td>
+                            <td>
+                                {% if purchasable.onSale %}
+                                    <strike>{{ purchasable.price|marketCurrency }}</strike>   {{ purchasable.salePrice|marketCurrency }}
+                                {% else %}
+                                   {{ purchasable.price|marketCurrency }}
+                                {% endif %}
+                            </td>
+                            <td>{{ item.qty }}</td>
+                            <td class="text-right">{{ item.total|marketCurrency }}</td>
+                        </tr>
+                    {% endfor %}
+
+                    {%  for adjustment in order.adjustments %}
+                        <tr>
+                            <td>{{ adjustment.type }}</td>
+                            <td colspan="2"><strong>{{ adjustment.name }}</strong><br/>({{ adjustment.description }})</td>
+                            <td class="text-right">{{ adjustment.amount|marketCurrency }}</td>
+                        </tr>
+                    {% endfor %}
+
+                    <tr>
+                        <td colspan="4" class="text-right">
+                            Item Total: {{ order.itemTotal|marketCurrency }}<br/>
+                            Base Discount: {{ order.baseDiscount|marketCurrency }}<br/>
+                            Base Shipping Rate: {{ order.baseShippingRate|marketCurrency }}<br/>
+                            <h4>Total: {{ order.finalPrice|marketCurrency }}</h4>
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+
         </div>
     </div>
 {% endblock %}

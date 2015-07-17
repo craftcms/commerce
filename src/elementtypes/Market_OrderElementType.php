@@ -84,20 +84,21 @@ class Market_OrderElementType extends Market_BaseElementType
      * @param null $source
      * @return array
      */
-    public function defineTableAttributes($source = NULL)
-    {
-        return [
-            'number' => Craft::t('Number'),
-            'orderStatus' => Craft::t('Status'),
-            'finalPrice' => Craft::t('Total Payable'),
-            'completedAt' => Craft::t('Completed')
-        ];
-    }
+	public function defineTableAttributes($source = NULL)
+	{
+		return [
+			'number'     => Craft::t('Number'),
+			'orderStatus'=> Craft::t('Status'),
+			'finalPrice' => Craft::t('Total Payable'),
+			'completedAt'=> Craft::t('Completed'),
+			'paidAt' => Craft::t('Paid')
+		];
+	}
 
-    public function defineSearchableAttributes()
-    {
-        return ['number'];
-    }
+	public function defineSearchableAttributes()
+	{
+		return ['number'];
+	}
 
     /**
      * @param BaseElementModel $element
@@ -112,14 +113,14 @@ class Market_OrderElementType extends Market_BaseElementType
             return craft()->numberFormatter->formatCurrency($element->finalPrice, strtoupper($currency));
         }
 
-        if ($attribute == 'orderStatus') {
-            if ($element->orderStatus) {
-                return $element->orderStatus->printName();
-            } else {
-                return "";
-            }
+		if ($attribute == 'orderStatus') {
+			if ($element->orderStatus){
+				return $element->orderStatus->printName();
+			}else{
+				return sprintf('<span class="market status %s"></span> %s','', '');
+			}
 
-        }
+		}
 
         return parent::getTableAttributeHtml($element, $attribute);
     }

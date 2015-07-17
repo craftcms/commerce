@@ -178,6 +178,7 @@ class Market_OrderService extends BaseApplicationComponent
             }
         }
 
+        // Will not adjust a completed order, we don't want totals to change.
         $this->calculateAdjustments($order);
 
         $oldStatusId = $orderRecord->orderStatusId;

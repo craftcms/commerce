@@ -6,26 +6,29 @@
         <input type="hidden" name="orderTypeHandle" value="order">
         {{ getCsrfInput() }}
 
-        <label for="">Shipping Method</label>
-        <select name="shippingMethodId" class="form-control" >
-            {% for id,method in craft.market.getShippingMethods('order') %}
-                <option value="{{ id }}" {% if id == cart.shippingMethodId %}selected{% endif %}>{{ method.name }}: {{ method.amount }}</option>
-            {% endfor %}
-        </select>
+        {% for id,method in craft.market.getShippingMethods('order') %}
+
+            <label>
+                <input type="radio" name="shippingMethodId" value="{{ id }}" {% if id == cart.shippingMethodId %}checked{% endif %} />
+                {{ method.name }}: {{ method.amount|marketCurrency }}
+            </label>
+        {% endfor %}
 
         <p><input type="submit" class="button button-primary" value="Select Shipping Method" /></p>
 
-        {% if shippingMethodError is defined %}<strong>Error: {{ shippingMethodError }}</strong>{% endif %}
     </form>
 
 {% endmacro %}
 
-{% macro guestCheckoutForm() %}
-    <form action="">
-        <label for="">Email</label>
-        <input class="u-full-width" type="text" name="email" placeholder="email@site.com" />
+{% macro guestCheckoutForm(cart) %}
+<form method="post" class="form-horizontal">
+    <input type="hidden" name="action" value="market/cart/setEmail">
+    <input type="hidden" name="redirect" value="commerce/checkout/addresses">
+    <input type="hidden" name="orderTypeHandle" value="order">
+    <label for="">Email</label>
+    <input class="u-full-width" type="text" value="{{ cart.email }}" name="email" placeholder="email@site.com" />
 
-        <input type="button" class="button button-primary" value="Checkout as guest" />
+    <input type="submit" class="button button-primary" value="Checkout as guest" />
     </form>
 {% endmacro %}
 
@@ -40,10 +43,6 @@
 
 {% macro loginForm() %}
     <form method="post" accept-charset="UTF-8">
-
-        {% if errorMessage is defined %}
-            <p>{{ errorMessage }}</p>
-        {% endif %}
 
         {{ getCsrfInput() }}
 
@@ -126,7 +125,6 @@
         {{ getCsrfInput() }}
         <input type="text" name="couponCode" width="11" value="{{ cart.couponCode }}" placeholder="{{ "Coupon Code"|t }}"><br/>
         <input type="submit" class="button" value="{% if cart.couponCode %}Change{% else %}Apply{% endif %} Coupon" />
-        {% if couponError is defined %}<strong>Error: {{ couponError }}</strong>{% endif %}
     </form>
 {% endmacro %}
 
@@ -135,7 +133,7 @@
 {% macro emptyCartForm(cart) %}
     <form method="POST">
         <input type="hidden" name="action" value="market/cart/removeAll" />
-        <input type="hidden" name="redirect" value="market/cart" />
+        <input type="hidden" name="redirect" value="commerce/cart" />
         <input type="hidden" name="orderTypeHandle" value="order">
         {{ getCsrfInput() }}
         <input class="button link" type="submit" value="Empty the Cart" />

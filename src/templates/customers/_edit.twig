@@ -19,7 +19,7 @@
     {% if customer.user %}
         <a href="{{ customer.user.getCpEditUrl() }}">{{ customer.user.name }}</a>
     {% else %}
-        (null)
+        (Guest)
     {% endif %}
     {% endset %}
 

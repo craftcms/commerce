@@ -1,7 +1,6 @@
 <?php
 namespace Craft;
 
-
 /**
  * Cart.
  *
@@ -25,11 +24,10 @@ class Market_CartPaymentController extends Market_BaseController
         $cart            = craft()->market_cart->getCart($orderTypeHandle);
 
         if (craft()->market_cart->setShippingMethod($cart, $id)) {
-            craft()->userSession->setFlash('market',
-                'Shipping method has been set');
+            craft()->userSession->setFlash('notice',Craft::t('Shipping method has been set'));
             $this->redirectToPostedUrl();
         } else {
-            craft()->urlManager->setRouteVariables(['shippingMethodError' => 'Wrong shipping method']);
+            craft()->userSession->setFlash('notice',Craft::t('Wrong shipping method'));
         }
     }
 
@@ -57,8 +55,8 @@ class Market_CartPaymentController extends Market_BaseController
         if (!craft()->market_payment->processPayment($cart, $paymentForm,
             $redirect, $cancelUrl, $customError)
         ) {
-            craft()->urlManager->setRouteVariables(compact('paymentForm',
-                'customError'));
+            craft()->userSession->setFlash('error',$customError);
+            craft()->urlManager->setRouteVariables(compact('paymentForm'));
         }
     }
 
