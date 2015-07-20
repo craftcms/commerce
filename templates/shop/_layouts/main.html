@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600' rel='stylesheet' type='text/css'>
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css">
+  <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
   <link rel="stylesheet" href="/commerce/style.css">
   {# global commerce variables #}
   {% set cart = craft.market.getCart('order') %}
@@ -42,6 +43,5 @@
   {% endblock %}
   </div>
 {% endblock %}
-  {% includeJsResource 'lib/jquery-2.1.4.min.js' first %}
 </body>
 </html>
