@@ -108,7 +108,7 @@ class MarketPlugin extends BasePlugin
      */
     public function getDeveloper()
     {
-        return "Make with Morph (Luke Holder)";
+        return "Pixel & Tonic";
     }
 
     /**
@@ -118,7 +118,7 @@ class MarketPlugin extends BasePlugin
      */
     public function getDeveloperUrl()
     {
-        return "http://makewithmorph.com";
+        return "http://buildwithcraft.com/commerce";
     }
 
     /**
@@ -147,7 +147,7 @@ class MarketPlugin extends BasePlugin
      */
     public function getVersion()
     {
-        return '0.70.9999';
+        return '0.6.71';
     }
 
     /**
