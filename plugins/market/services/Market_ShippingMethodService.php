@@ -24,6 +24,22 @@ class Market_ShippingMethodService extends BaseApplicationComponent
     }
 
     /**
+     * Gets the default method or first available if no default set.
+     */
+    public function getDefault()
+    {
+        $method = Market_ShippingMethodRecord::model()->findByAttributes(['default'=>true]);
+        if (!$method){
+            $records = $this->getAll();
+            if(!$records){
+                throw new Exception(Craft::t('You have no Shipping Methods set up.'));
+            }
+            return $records[0];
+        }
+        return $method;
+    }
+
+    /**
      * @return bool
      */
     public function exists()
