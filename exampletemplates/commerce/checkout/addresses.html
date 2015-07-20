@@ -23,7 +23,6 @@
 
                     {{ getCsrfInput() }}
 
-
                     <h3>Choose an address for Shipping</h3>
 
                     {% if order.hasErrors('shippingAddressId') %}<strong style="color: #ff2000">Error: {{ order.getErrors('shippingAddressId')|join }}</strong><br/>{% endif %}
@@ -94,9 +93,12 @@
             </div>
         </div>
 
-    {% else %}
+    {% endif %}
+
+    {% if not addresses %}
         <form method="post" class="">
             <input type="hidden" name="action" value="market/cartAddress/postTwoAddresses">
+            <input type="hidden" name="redirect" value="commerce/checkout/shipping"/>
             <input type="hidden" name="orderTypeHandle" value="order">
             {{ getCsrfInput() }}
 
@@ -123,36 +125,37 @@
     {% set js %}
 
         $('.address-remove').click(function(e) {
-        e.preventDefault();
-        $.post(window.location, {
-        action: 'market/cartAddress/removeAddress',
-        id: $(this).data('id')
-        }, function() {
-        window.location = window.location.href;
-        });
+            e.preventDefault();
+            $.post(window.location, {
+                action: 'market/cartAddress/removeAddress',
+                id: $(this).data('id')
+            }, function() {
+                window.location = window.location.href; //refresh page.
+            });
         });
 
         $('.address-update').click(function(e) {
-        e.preventDefault();
-        var $newForm = $('.form-new-address');
+            e.preventDefault();
 
-        $('.form-new-address__label').text('Update Address #' + $(this).data('id'));
+            var $newForm = $('.form-new-address');
 
-        $(this).parents('.address-chooser').find('.address-option').each(function() {
-        var key = $(this).data('key'),
-        value = $(this).data('value'),
-        $input = $newForm.find('[name="Address[' + key + ']"]');
+            $('.form-new-address__label').text('Update Address #' + $(this).data('id'));
 
-        $input.val(value);
+            $(this).parents('.address-chooser').find('.address-option').each(function() {
+                var key = $(this).data('key'),
+                value = $(this).data('value'),
+                $input = $newForm.find('[name="Address[' + key + ']"]');
 
-        if(key == 'countryId') {
-        $input.change();
-        }
-        });
-        });
-        $('.addressBox.ShippingAddress').hide();
-        $("#sameAddress").change(function(e) {
-        $('.addressBox.ShippingAddress').toggle();
+                $input.val(value);
+
+                if(key == 'countryId') {
+                    $input.change();
+                }
+                });
+            });
+            $('.addressBox.ShippingAddress').hide();
+            $("#sameAddress").change(function(e) {
+            $('.addressBox.ShippingAddress').toggle();
         });
 
     {% endset %}
