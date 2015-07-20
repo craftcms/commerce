@@ -32,6 +32,19 @@ class Market_PaymentService extends BaseApplicationComponent
         $cancelUrl,
         &$customError = ''
     ) {
+
+        //saving cancelUrl and redirect to cart
+        $cart->returnUrl = craft()->templates->renderObjectTemplate($redirect, $cart);
+        $cart->cancelUrl = craft()->templates->renderObjectTemplate($cancelUrl, $cart);
+        craft()->market_order->save($cart);
+
+
+        // Cart could have zero finalPrice and already considered 'paid'. Free carts complete immediately.
+        if($cart->isPaid()){
+            craft()->market_order->complete($cart);
+            craft()->request->redirect($cart->returnUrl);
+        }
+
         //validating card
         if ($cart->paymentMethod->requiresCard()) {
             if (!$form->validate()) {
@@ -39,17 +52,6 @@ class Market_PaymentService extends BaseApplicationComponent
             }
         } else {
             $form->attributes = [];
-        }
-
-        //saving cancelUrl and redirect to cart
-        $cart->returnUrl = craft()->templates->renderObjectTemplate($redirect, $cart);
-        $cart->cancelUrl = craft()->templates->renderObjectTemplate($cancelUrl, $cart);
-        craft()->market_order->save($cart);
-
-        // Cart could have zero finalPrice and already considered 'paid'. Free carts complete immediately.
-        if($cart->isPaid()){
-            craft()->market_order->complete($cart);
-            craft()->request->redirect($returnUrl);
         }
 
         //choosing default action
