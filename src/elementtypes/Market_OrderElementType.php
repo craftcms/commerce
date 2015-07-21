@@ -46,35 +46,39 @@ class Market_OrderElementType extends Market_BaseElementType
     {
         $sources = [
             '*' => [
-                'label' => Craft::t('All orders'),
+                'label' => Craft::t('All Orders'),
+                'criteria' => ['completed' => true]
             ]
         ];
 
-        foreach (craft()->market_orderType->getAll() as $orderType) {
+        $sources[] = ['heading' => Craft::t("Order Status")];
 
-            $sources[] = ['heading' => $orderType->name];
-
-            $key = 'orderType:' . $orderType->id;
+        foreach (craft()->market_orderStatus->getAll() as $orderStatus) {
+            $key = 'orderStatus:' . $orderStatus->name;
             $sources[$key] = [
-                'label' => craft::t("All") . ' \'' . $orderType->name .'\'',
-                'criteria' => ['typeId' => $orderType->id]
+                'raw' => true,
+                'label' => $orderStatus->printName(),
+                'criteria' => ['orderStatus' => $orderStatus]
             ];
-
-            $key = 'orderType:' . $orderType->id . ':completedAt:null';
-
-            $sources[$key] = [
-                'label' => Craft::t('Incomplete Carts'),
-                'criteria' => ['typeId' => $orderType->id, 'completedAt' => ":empty:"]
-            ];
-
-            foreach ($orderType->orderStatuses as $status) {
-                $key = 'orderType:' . $orderType->id . ':orderStatus:' . $status->id;
-                $sources[$key] = [
-                    'label' => ucwords($status->name),
-                    'criteria' => ['typeId' => $orderType->id, 'orderStatus' => $status->id]
-                ];
-            }
         }
+
+
+        $sources[] = ['heading' => Craft::t("Carts")];
+
+        $edge             = new DateTime();
+        $interval         = new DateInterval("PT1H");
+        $interval->invert = 1;
+        $edge->add($interval);
+
+        $sources['carts:active'] = [
+            'label' => Craft::t('Active Carts'),
+            'criteria' => ['updatedAfter'=>$edge,'completedAt' => ":empty:"]
+        ];
+
+        $sources['carts:inactive'] = [
+            'label' => Craft::t('Inactive Carts'),
+            'criteria' => ['updatedBefore'=>$edge,'completedAt' => ":empty:"]
+        ];
 
         return $sources;
 
@@ -86,6 +90,13 @@ class Market_OrderElementType extends Market_BaseElementType
      */
 	public function defineTableAttributes($source = NULL)
 	{
+        if (explode(':',$source)[0] == 'carts'){
+            return [
+                'number'     => Craft::t('Number'),
+                'dateUpdated'=> Craft::t('Last Updated'),
+                'finalPrice' => Craft::t('Total')
+            ];
+        }
 		return [
 			'number'     => Craft::t('Number'),
 			'orderStatus'=> Craft::t('Status'),
@@ -149,6 +160,9 @@ class Market_OrderElementType extends Market_BaseElementType
             'type' => AttributeType::Mixed,
             'number' => AttributeType::Mixed,
             'completedAt' => AttributeType::Mixed,
+            'updatedOn' => AttributeType::Mixed,
+            'updatedAfter' => AttributeType::Mixed,
+            'updatedBefore' => AttributeType::Mixed,
             'orderStatus' => AttributeType::Mixed,
             'orderStatusId' => AttributeType::Mixed,
             'completed' => AttributeType::Bool,
@@ -192,7 +206,8 @@ class Market_OrderElementType extends Market_BaseElementType
         orders.shippingMethodId,
         orders.paymentMethodId,
         orders.customerId,
-        orders.typeId')
+        orders.typeId,
+        orders.dateUpdated')
             ->join('market_orders orders', 'orders.id = elements.id')
             ->join('market_ordertypes ordertypes', 'ordertypes.id = orders.typeId');
 
@@ -246,6 +261,18 @@ class Market_OrderElementType extends Market_BaseElementType
 
         if($criteria->customerId){
           $query->andWhere(DbHelper::parseParam('orders.customerId', $criteria->customerId, $query->params));
+        }
+
+        if ($criteria->updatedOn) {
+            $query->andWhere(DbHelper::parseDateParam('orders.dateUpdated', $criteria->updatedOn, $query->params));
+        } else {
+            if ($criteria->updatedAfter) {
+                $query->andWhere(DbHelper::parseDateParam('orders.dateUpdated', '>=' . $criteria->updatedAfter, $query->params));
+            }
+
+            if ($criteria->updatedBefore) {
+                $query->andWhere(DbHelper::parseDateParam('orders.dateUpdated', '<' . $criteria->updatedBefore, $query->params));
+            }
         }
     }
 
