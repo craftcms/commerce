@@ -85,8 +85,8 @@
                     <input type="hidden" name="orderTypeHandle" value="order">
                     <input type="hidden" name="Address[id]" value="">
                     {{ getCsrfInput() }}
-
-                    {{ forms.addressForm('Add Address', newAddress is defined ? newAddress : null ) }}
+                    
+                    {{ forms.addressForm('Address', newAddress is defined ? newAddress : null ) }}
 
                     <input type="submit" value="Add New Address">
                 </form>
