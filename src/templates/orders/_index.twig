@@ -11,10 +11,4 @@
         </nav>
     {% endif %}
 
-    {% if not orderTypes|length > 0 %}
-
-        <p><span style="color:red">No order types exist!</span><br/>Go to settings and <a
-                    href="{{ url('market/settings/ordertypes') }}">create a new order type </a> please.</p>
-    {% endif %}
-
 {% endblock %}
