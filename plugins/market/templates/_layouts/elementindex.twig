@@ -1,2 +1,40 @@
-{% extends "_layouts/elementindex" %}
+{% extends "_layouts/cp" %}
 {% includeCssResource "market/market.css" %}
+{% set elementTypeClass = elementType %}
+{% set elementType = craft.elements.getElementType(elementTypeClass) %}
+{% set context = 'index' %}
+
+{% if not elementType %}
+    {% exit 404 %}
+{% endif %}
+
+{% set sources = elementType.getSources('index') %}
+
+
+{% block sidebar %}
+    {% if sources is not empty %}
+        <nav>
+            {% include "market/_elements/sources" %}
+        </nav>
+    {% endif %}
+{% endblock %}
+
+
+{% set content %}
+    <div class="elementindex">
+        {% include "_elements/indexcontainer" %}
+    </div>
+{% endset %}
+
+
+{% block initJs %}
+    Craft.elementIndex = Craft.createElementIndex('{{ elementTypeClass }}', $('#main'), {
+    context:        '{{ context }}',
+    showStatusMenu: {{ showStatusMenu is defined ? showStatusMenu|json_encode|raw : "'auto'" }},
+    showLocaleMenu: {{ showLocaleMenu is defined ? showLocaleMenu|json_encode|raw : "'auto'" }},
+    storageKey:     'elementindex.{{ elementTypeClass }}',
+    criteria:       { localeEnabled: null }
+    });
+{% endblock %}
+
+{% includeJs block('initJs') %}
