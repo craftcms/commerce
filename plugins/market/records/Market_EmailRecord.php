@@ -31,8 +31,8 @@ class Market_EmailRecord extends BaseRecord
         return [
             'name'         => [AttributeType::String, 'required' => true],
             'subject'      => [AttributeType::String, 'required' => true],
-            'to'           => [AttributeType::Email, 'required' => true],
-            'bcc'          => AttributeType::Email,
+            'to'           => [AttributeType::String, 'required' => true],
+            'bcc'          => AttributeType::String,
             'type'         => [
                 AttributeType::Enum,
                 'required' => true,
