@@ -32,8 +32,7 @@ class Market_CartAddressController extends Market_BaseController
             $shipping->attributes = craft()->request->getPost('ShippingAddress');
         }
 
-        $orderTypeHandle = craft()->request->getPost('orderTypeHandle');
-        $order           = craft()->market_cart->getCart($orderTypeHandle);
+        $order = craft()->market_cart->getCart();
 
         if (craft()->market_order->setAddresses($order, $shipping, $billing)) {
             $this->redirectToPostedUrl();
@@ -54,8 +53,7 @@ class Market_CartAddressController extends Market_BaseController
         $this->requirePostRequest();
 
         $id              = craft()->request->getPost('shippingMethodId');
-        $orderTypeHandle = craft()->request->getPost('orderTypeHandle');
-        $cart            = craft()->market_cart->getCart($orderTypeHandle);
+        $cart            = craft()->market_cart->getCart();
 
         if (craft()->market_cart->setShippingMethod($cart, $id)) {
             craft()->userSession->setFlash('notice',Craft::t('Shipping method has been set'));
@@ -86,8 +84,7 @@ class Market_CartAddressController extends Market_BaseController
             $shippingAddress = craft()->market_address->getById($shippingId);
         }
 
-        $orderTypeHandle = craft()->request->getPost('orderTypeHandle');
-        $order           = craft()->market_cart->getCart($orderTypeHandle);
+        $order           = craft()->market_cart->getCart();
 
         if (!$billingAddress->id || !$shippingAddress->id) {
             if (empty($billingAddress->id)) {

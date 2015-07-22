@@ -7,12 +7,10 @@ namespace Craft;
  *
  * @property int                    id
  * @property string                 name
- * @property int                    orderTypeId
  * @property string                 handle
  * @property string                 color
  * @property bool                   default
  *
- * @property Market_OrderTypeRecord orderType
  * @property Market_EmailRecord[]   emails
  * @package Craft
  */
@@ -29,11 +27,6 @@ class Market_OrderStatusRecord extends BaseRecord
     public function defineRelations()
     {
         return [
-            'orderType' => [
-                static::BELONGS_TO,
-                'Market_OrderTypeRecord',
-                'required' => true
-            ],
             'emails'    => [
                 static::MANY_MANY,
                 'Market_EmailRecord',
@@ -46,7 +39,6 @@ class Market_OrderStatusRecord extends BaseRecord
     {
         return [
             'name'        => [AttributeType::String, 'required' => true],
-            'orderTypeId' => [AttributeType::Number, 'required' => true],
             'handle'      => [AttributeType::Handle, 'required' => true],
             'color'       => [AttributeType::Enum, 'values' => array('green', 'orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'), 'required' => true, 'default' => 'green'],
             'default'     => [

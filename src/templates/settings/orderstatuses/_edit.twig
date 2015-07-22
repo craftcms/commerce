@@ -3,9 +3,7 @@
 {% set crumbs = [
 { label: 'Market'|t, url: url('market') },
 { label: 'Settings'|t, url: url('market/settings/global') },
-{ label: 'Order Types'|t, url: url('market/settings/ordertypes') },
-{ label: 'Order Type \'' ~ orderType.name|t ~ '\'', url: url('market/settings/ordertypes/' ~ orderType.id) },
-{ label: 'Statuses'|t, url: url('market/settings/ordertypes/' ~ orderType.id ~ '#tab1') },
+{ label: 'Statuses'|t, url: url('market/settings/orderstatuses') },
 ] %}
 
 
@@ -15,8 +13,7 @@
 {% set content %}
 <form method="post" accept-charset="UTF-8" data-saveshortcut>
     <input type="hidden" name="action" value="market/orderStatus/save">
-    <input type="hidden" name="redirect" value="market/settings/ordertypes/{{ orderType.id }}#tab1">
-    <input type="hidden" name="orderTypeId" value="{{ orderType.id }}">
+    <input type="hidden" name="redirect" value="market/settings/orderstatuses">
 
     {{ getCsrfInput() }}
     {% if orderStatus.id %}<input type="hidden" name="orderStatusId" value="{{ orderStatus.id }}">{% endif %}
@@ -78,7 +75,7 @@
 
     {{ forms.checkboxField({
         label: "Default"|t,
-        instructions: "Whether this status should be default for that order type."|t,
+        instructions: "The status that orders should be set to on completion."|t,
         name: 'default',
         value: 1,
         checked: orderStatus.default,
@@ -108,7 +105,6 @@ $(function () {
         }
     });
 
-    $('#orderTypeId').selectize({dropdownParent: 'body'});
 
     $('#emails').selectize({
         plugins: ['remove_button'],

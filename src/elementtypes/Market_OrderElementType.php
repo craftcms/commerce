@@ -156,8 +156,6 @@ class Market_OrderElementType extends Market_BaseElementType
     public function defineCriteriaAttributes()
     {
         return [
-            'typeId' => AttributeType::Mixed,
-            'type' => AttributeType::Mixed,
             'number' => AttributeType::Mixed,
             'completedAt' => AttributeType::Mixed,
             'updatedOn' => AttributeType::Mixed,
@@ -206,10 +204,8 @@ class Market_OrderElementType extends Market_BaseElementType
         orders.shippingMethodId,
         orders.paymentMethodId,
         orders.customerId,
-        orders.typeId,
         orders.dateUpdated')
-            ->join('market_orders orders', 'orders.id = elements.id')
-            ->join('market_ordertypes ordertypes', 'ordertypes.id = orders.typeId');
+            ->join('market_orders orders', 'orders.id = elements.id');
 
         if ($criteria->completed) {
             if ($criteria->completed == true) {
@@ -220,19 +216,6 @@ class Market_OrderElementType extends Market_BaseElementType
 
         if ($criteria->completedAt) {
             $query->andWhere(DbHelper::parseParam('orders.completedAt', $criteria->completedAt, $query->params));
-        }
-
-        if ($criteria->type) {
-            if ($criteria->type instanceof Market_OrderTypeModel) {
-                $criteria->typeId = $criteria->type->id;
-                $criteria->type = NULL;
-            } else {
-                $query->andWhere(DbHelper::parseParam('ordertypes.handle', $criteria->type, $query->params));
-            }
-        }
-
-        if ($criteria->typeId) {
-            $query->andWhere(DbHelper::parseParam('orders.typeId', $criteria->typeId, $query->params));
         }
 
         if ($criteria->number) {

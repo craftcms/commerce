@@ -99,66 +99,50 @@ class Market_CartService extends BaseApplicationComponent
     }
 
     /**
-     * @param string $orderTypeHandle
-     *
-     * @return Market_OrderModel
+     * @return mixed
+     * @throws Exception
      * @throws \Exception
      */
-    public function getCart($orderTypeHandle)
+    public function getCart()
     {
-        //checking handle and getting orderType model
-        if (empty($orderTypeHandle)) {
-            MarketPlugin::log('Empty order type handle passed to getCart()');
-            throw new Exception('Empty orderTypeHandle passed to getCart()');
-        }
 
-        $orderType = craft()->market_orderType->getByHandle($orderTypeHandle);
-        if (!$orderType->id) {
-            MarketPlugin::log("Can not find Order Type by handle '$orderTypeHandle'");
-            throw new Exception("Can not find Order Type by handle '$orderTypeHandle'");
-        }
-
-        // Should only be dealing with legit order types now
-        if (!isset($this->cart[$orderType->handle])) {
-            $number = $this->_getSessionCartNumber($orderType->handle);
+        if (!isset($this->cart)) {
+            $number = $this->_getSessionCartNumber();
 
             if ($cart = $this->_getCartRecordByNumber($number)) {
-                $this->cart[$orderType->handle] = Market_OrderModel::populateModel($cart);
+                $this->cart = Market_OrderModel::populateModel($cart);
             } else {
-                $this->cart[$orderType->handle]         = new Market_OrderModel;
-                $this->cart[$orderType->handle]->typeId = $orderType->id;
-                $this->cart[$orderType->handle]->number = $number;
+                $this->cart         = new Market_OrderModel;
+                $this->cart->number = $number;
             }
 
-            $this->cart[$orderType->handle]->lastIp = craft()->request->getIpAddress();
+            $this->cart->lastIp = craft()->request->getIpAddress();
 
             // Update the cart if the customer has changed and recalculate the cart.
             $customer = craft()->market_customer->getCustomer();
             if($customer->id){
-                if (!$this->cart[$orderType->handle]->isEmpty() && $this->cart[$orderType->handle]->customerId != $customer->id) {
-                    $this->cart[$orderType->handle]->customerId = $customer->id;
-                    $this->cart[$orderType->handle]->email = $customer->email;
-                    $this->cart[$orderType->handle]->billingAddressId = null;
-                    $this->cart[$orderType->handle]->shippingAddressId = null;
-                    $this->cart[$orderType->handle]->billingAddressData = null;
-                    $this->cart[$orderType->handle]->shippingAddressData = null;
-                    craft()->market_order->save($this->cart[$orderType->handle]);
+                if (!$this->cart->isEmpty() && $this->cart->customerId != $customer->id) {
+                    $this->cart->customerId = $customer->id;
+                    $this->cart->email = $customer->email;
+                    $this->cart->billingAddressId = null;
+                    $this->cart->shippingAddressId = null;
+                    $this->cart->billingAddressData = null;
+                    $this->cart->shippingAddressData = null;
+                    craft()->market_order->save($this->cart);
                 }
             }
 
 
         }
-        return $this->cart[$orderType->handle];
+        return $this->cart;
     }
 
     /**
-     * @param string $cartHandle
-     *
-     * @return string
+     * @return mixed|string
      */
-    private function _getSessionCartNumber($cartHandle)
+    private function _getSessionCartNumber()
     {
-        $cookieId   = $cartHandle . "_" . $this->cookieCartId;
+        $cookieId   = $this->cookieCartId;
         $cartNumber = craft()->userSession->getStateCookieValue($cookieId);
 
         if (!$cartNumber) {
@@ -192,7 +176,7 @@ class Market_CartService extends BaseApplicationComponent
      */
     public function forgetCart(Market_OrderModel $cart)
     {
-        $cookieId = $cart->type->handle . '_' . $this->cookieCartId;
+        $cookieId = $this->cookieCartId;
         craft()->userSession->deleteStateCookie($cookieId);
     }
 
@@ -350,4 +334,50 @@ class Market_CartService extends BaseApplicationComponent
         MarketDbHelper::commitStackedTransaction();
     }
 
+    /**
+     * Removes all carts that are incomplete and older than the config setting.
+     *
+     * @return int
+     * @throws \Exception
+     */
+    public function purgeIncompleteCarts()
+    {
+        $carts = $this->getCartsToPurge();
+        if ($carts) {
+            $ids = array_map(function (Market_OrderModel $cart) {
+                return $cart->id;
+            }, $carts);
+            craft()->elements->deleteElementById($ids);
+
+            return count($ids);
+        }
+
+        return 0;
+    }
+
+    /**
+     * Which Carts need to be deleted
+     *
+     * @return Market_OrderModel[]
+     */
+    public function getCartsToPurge()
+    {
+
+        $configInterval   = craft()->config->get('purgeIncompleteCartDuration',
+            'market');
+        $edge             = new DateTime();
+        $interval         = new DateInterval($configInterval);
+        $interval->invert = 1;
+        $edge->add($interval);
+
+        $records = Market_OrderRecord::model()->findAllByAttributes(
+            [
+                'completedAt' => null,
+            ],
+            'dateUpdated <= :edge',
+            ['edge' => $edge->format('Y-m-d H:i:s')]
+        );
+
+        return Market_OrderModel::populateModels($records);
+    }
 }

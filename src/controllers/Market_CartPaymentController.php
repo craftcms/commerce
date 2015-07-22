@@ -20,8 +20,7 @@ class Market_CartPaymentController extends Market_BaseController
         $this->requirePostRequest();
 
         $id              = craft()->request->getPost('shippingMethodId');
-        $orderTypeHandle = craft()->request->getPost('orderTypeHandle');
-        $cart            = craft()->market_cart->getCart($orderTypeHandle);
+        $cart            = craft()->market_cart->getCart();
 
         if (craft()->market_cart->setShippingMethod($cart, $id)) {
             craft()->userSession->setFlash('notice',Craft::t('Shipping method has been set'));
@@ -44,8 +43,7 @@ class Market_CartPaymentController extends Market_BaseController
         $paymentForm->number = preg_replace("/[^0-9]/", "", $paymentForm->number);
         $redirect                = craft()->request->getPost('redirect');
         $cancelUrl               = craft()->request->getPost('cancelUrl');
-        $orderTypeHandle         = craft()->request->getPost('orderTypeHandle');
-        $cart                    = craft()->market_cart->getCart($orderTypeHandle);
+        $cart                    = craft()->market_cart->getCart();
 
         // Ensure correct redirect urls are supplied.
         if (empty($cancelUrl) || empty($redirect)) {

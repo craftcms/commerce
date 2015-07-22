@@ -37,16 +37,11 @@ class MarketVariable
     }
 
     /**
-     * Gets the current sessions cart
-     *
-     * @param string $orderTypeHandle
-     *
      * @return Market_OrderModel
-     * @throws Exception
      */
-    public function getCart($orderTypeHandle)
+    public function getCart()
     {
-        return craft()->market_cart->getCart($orderTypeHandle);
+        return craft()->market_cart->getCart();
     }
 
     /**
@@ -73,15 +68,13 @@ class MarketVariable
         return craft()->market_state->getGroupedByCountries();
     }
 
+
     /**
-     * @param string $orderTypeHandle
-     *
      * @return array
-     * @throws Exception
      */
-    public function getShippingMethods($orderTypeHandle)
+    public function getShippingMethods()
     {
-        $cart = craft()->market_cart->getCart($orderTypeHandle);
+        $cart = craft()->market_cart->getCart();
 
         return craft()->market_shippingMethod->calculateForCart($cart);
     }
