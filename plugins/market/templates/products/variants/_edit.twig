@@ -12,78 +12,10 @@
 <form method="post" accept-charset="UTF-8" data-saveshortcut>
     <input type="hidden" name="action" value="market/variant/save">
     <input type="hidden" name="redirect" value="{{ product.cpEditUrl }}">
-    <input type="hidden" name="productId" value="{{ productId }}">
-    <input type="hidden" name="id" value="{{ variant.id }}">
-    <input type="hidden" name="isMaster" value="{{ variant.isMaster }}">
     {{ getCsrfInput() }}
 
     {% set variantForm %}
-
-
-    <table id="" class="shadow-box editable">
-        <thead>
-        <tr>
-            <th scope="col" class="header"><span class="required">{{ 'SKU'|t }}</span></th>
-            <th scope="col" class="header"><span class="required">{{ 'Price'|t }}</span></th>
-            <th scope="col" class="header">{{ 'Width'|t }}</th>
-            <th scope="col" class="header">{{ 'Height'|t }}</th>
-            <th scope="col" class="header">{{ 'Length'|t }}</th>
-            <th scope="col" class="header">{{ 'Weight'|t }}</th>
-            <th scope="col" class="header">{{ 'Stock Count'|t }}</th>
-            <th scope="col" class="header">{{ 'Unlimited Stock'|t }}</th>
-            <th scope="col" class="header">{{ 'Min Qty Per Order'|t }}</th>
-            <th scope="col" class="header">{{ 'Max Qty Per Order'|t }}</th>
-        </tr>
-        <tbody>
-        <tr>
-            <td class="textual">
-                <input name="sku" value="{{ variant.sku }}">
-            </td>
-            <td class="textual">
-                <input type="number" placeholder="{{ product.price }}" step="0.0001" name="price" value="{{ variant.price }}">
-            </td>
-            <td class="textual">
-                <input type="number" placeholder="{{ product.width }}" step="0.0001" name="width" value="{{ variant.width }}">
-            </td>
-            <td class="textual">
-                <input type="number" placeholder="{{ product.height }}" step="0.0001" name="height" value="{{ variant.height }}">
-            </td>
-            <td class="textual">
-                <input type="number" placeholder="{{ product.length }}" step="0.0001" name="length" value="{{ variant.length }}">
-            </td>
-            <td class="textual">
-                <input type="number" placeholder="{{ product.weight }}" step="0.0001" name="weight" value="{{ variant.weight }}">
-            </td>
-            <td class="textual">
-                <input type="number" name="stock" value="{{ variant.stock }}" min="0">
-            </td>
-            <td class="">
-                <input type="hidden" name="unlimitedStock" value="0">
-                <input type="checkbox" name="unlimitedStock" value="1" {% if variant.unlimitedStock %}checked{% endif %}>
-            </td>
-            <td class="textual">
-                <input type="number" name="minQty" value="{{ variant.minQty }}" min="0">
-            </td>
-            <td class="textual">
-                <input type="number" name="maxQty" value="{{ variant.maxQty }}" min="0">
-            </td>
-        </tr>
-        {% if variant.hasErrors() %}
-            <tr>
-                <td><span class="error">{{ variant.getErrors('sku')|join }}</span></td>
-                <td><span class="error">{{ variant.getErrors('price')|join }}</span></td>
-                <td><span class="error">{{ variant.getErrors('width')|join }}</span></td>
-                <td><span class="error">{{ variant.getErrors('height')|join }}</span></td>
-                <td><span class="error">{{ variant.getErrors('length')|join }}</span></td>
-                <td><span class="error">{{ variant.getErrors('weight')|join }}</span></td>
-                <td><span class="error">{{ variant.getErrors('stock')|join }}</span></td>
-                <td><span class="error">{{ variant.getErrors('unlimitedStock')|join }}</span></td>
-                <td><span class="error">{{ variant.getErrors('minQty')|join }}</span></td>
-                <td><span class="error">{{ variant.getErrors('maxQty')|join }}</span></td>
-            </tr>
-        {% endif %}
-        </tbody>
-    </table>
+        {%  include "market/_includes/variant/fields" with {'variant':variant}%}
     {% endset %}
 
     {{ forms.field({

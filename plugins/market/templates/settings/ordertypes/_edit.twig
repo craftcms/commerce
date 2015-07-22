@@ -54,52 +54,6 @@
 
     <div id="tab1" class="hidden">
 
-    {% set orderStatuses %}
-        <table id="orderStatuses" class="data fullwidth collapsible">
-            <thead>
-            <tr>
-                <th scope="col">Name</th>
-                <th scope="col">Handle</th>
-                <th scope="col">Color</th>
-                <th scope="col">Emails</th>
-                <th scope="col">Is Default?</th>
-                <td class="thin"></td>
-            </tr>
-            </thead>
-            <tbody>
-            {% for orderStatus in orderType.orderStatuses %}
-                <tr data-id="{{ orderStatus.id }}" data-name="{{ orderStatus.handle }}">
-                    <th scope="row" data-title="Name"><a href="{{ orderStatus.getCpEditUrl() }}">{{ orderStatus.name }}</a></th>
-                    <td data-title="Handle">{{ orderStatus.handle }}</td>
-
-                    <td data-title="Color"><span class="market status {{ orderStatus.color }}"></span></td>
-                    <td data-title="Emails">
-                        {% for email in orderStatus.emails %}
-                            {{ email.name }}{% if not loop.last %}, {% endif %}
-                        {% endfor %}
-                    </td>
-                    <td>{{ orderStatus.default ? 'Yes' : 'No' }}</td>
-                    <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
-                </tr>
-            {% endfor %}
-
-            </tbody>
-        </table>
-
-        <div class="btngroup submit first">
-            {% if orderType.id %}
-                <a href="{{ url('market/settings/ordertypes/' ~ orderType.id ~ '/orderstatuses/new') }}" class="btn submit">New Order Status</a>
-            {% else %}
-                <a href="#" class="btn submit disabled" title="Save the order type before creating belonging statuses">New Order Status</a>
-            {% endif %}
-        </div>
-    {% endset %}
-
-    {{ forms.field({
-        instructions: 'Order statuses available for the orders of this type.'|t,
-        label:    'Order Statuses'|t
-    }, orderStatuses) }}
-
     </div>
 
     <div id="tab2" class="hidden">
@@ -122,19 +76,5 @@
 
 {% set js %}
 {% if not orderType.handle %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
-
-$(function () {
-
-    $('#shippingMethodId').selectize({
-        plugins: ['remove_button'],
-        dropdownParent: 'body'
-    });
-
-    new Craft.AdminTable({
-        tableSelector: '#orderStatuses',
-        deleteAction: 'market/orderStatus/delete',
-        confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
-    });
-});
 {% endset %}
 {% includeJs js %}
