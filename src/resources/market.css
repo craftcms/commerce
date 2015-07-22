@@ -21,6 +21,10 @@ table.editable tbody input:focus {
     outline: none;
 }
 
+.statusSource .status{
+    margin-right: 3px !important;
+    margin-left: -17px !important;
+}
 /* TODO remove status colors for 2.5 */
 /* status icons */
 .status { display: inline-block; margin-right: 10px; width: 8px; height: 8px; border-radius: 100%; border: 1px solid transparent; }

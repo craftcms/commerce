@@ -54,10 +54,10 @@ class Market_OrderElementType extends Market_BaseElementType
         $sources[] = ['heading' => Craft::t("Order Status")];
 
         foreach (craft()->market_orderStatus->getAll() as $orderStatus) {
-            $key = 'orderStatus:' . $orderStatus->name;
+            $key = 'orderStatus:' . $orderStatus->handle;
             $sources[$key] = [
-                'raw' => true,
-                'label' => $orderStatus->printName(),
+                'statusColor' => $orderStatus->color,
+                'label' => $orderStatus->name,
                 'criteria' => ['orderStatus' => $orderStatus]
             ];
         }
