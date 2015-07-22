@@ -13,6 +13,14 @@ namespace Craft;
  */
 class Market_OrderStatusController extends Market_BaseController
 {
+    public function actionIndex(array $variables = [])
+    {
+        $variables['orderStatuses'] = craft()->market_orderStatus->getAll();
+
+        $this->renderTemplate('market/settings/orderstatuses/index', $variables);
+    }
+
+
     /**
      * @param array $variables
      *
@@ -20,7 +28,6 @@ class Market_OrderStatusController extends Market_BaseController
      */
     public function actionEdit(array $variables = [])
     {
-        $variables['orderType'] = craft()->market_orderType->getById($variables['orderTypeId']);
 
         if (empty($variables['orderStatus'])) {
             if (!empty($variables['id'])) {
@@ -43,13 +50,6 @@ class Market_OrderStatusController extends Market_BaseController
         $emails              = craft()->market_email->getAll(['order' => 'name']);
         $variables['emails'] = \CHtml::listData($emails, 'id', 'name');
 
-        $variables['colorField'] = craft()->templates->render('_includes/forms/color',
-            [
-                'id'    => craft()->templates->formatInputId('color'),
-                'name'  => 'color',
-                'value' => '#93FF81'
-            ]);
-
         $this->renderTemplate('market/settings/orderstatuses/_edit',
             $variables);
     }
@@ -70,7 +70,6 @@ class Market_OrderStatusController extends Market_BaseController
         $orderStatus->name        = craft()->request->getPost('name');
         $orderStatus->handle      = craft()->request->getPost('handle');
         $orderStatus->color       = craft()->request->getPost('color');
-        $orderStatus->orderTypeId = craft()->request->getPost('orderTypeId');
         $orderStatus->default     = craft()->request->getPost('default');
         $emailsIds                = craft()->request->getPost('emails', []);
 

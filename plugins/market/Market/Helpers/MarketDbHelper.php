@@ -15,7 +15,14 @@ class MarketDbHelper
 	public static function beginStackedTransaction()
 	{
 		if (self::$transactionsStackSize == 0) {
-			self::$transaction = \Craft\craft()->db->beginTransaction();
+			if(\Craft\craft()->db->getCurrentTransaction() === null){
+				self::$transaction = \Craft\craft()->db->beginTransaction();
+			}else{
+				// If we are at zero but 3rd party has a current transaction in play
+				self::$transaction = \Craft\craft()->db->getCurrentTransaction();
+				// By setting to 1, we will never commit, but whoever started it should.
+				self::$transactionsStackSize = 1;
+			}
 		}
 
 		++self::$transactionsStackSize;

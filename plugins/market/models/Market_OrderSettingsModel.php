@@ -5,23 +5,20 @@ namespace Craft;
 use Market\Traits\Market_ModelRelationsTrait;
 
 /**
- * Class Market_OrderTypeModel
+ * Class Market_OrderSettingsModel
  *
  * @property int                         $id
  * @property string                      $name
  * @property string                      $handle
  * @property int                         $fieldLayoutId
- * @property string                      purgeIncompletedCartDuration
  *
  * @property FieldLayoutRecord           fieldLayout
- * @property Market_OrderStatusModel[]   orderStatuses
- * @property Market_OrderStatusModel     defaultStatus
  *
  * @method null setFieldLayout(FieldLayoutModel $fieldLayout)
  * @method FieldLayoutModel getFieldLayout()
  * @package Craft
  */
-class Market_OrderTypeModel extends BaseModel
+class Market_OrderSettingsModel extends BaseModel
 {
     use Market_ModelRelationsTrait;
 
@@ -32,7 +29,7 @@ class Market_OrderTypeModel extends BaseModel
 
     public function getCpEditUrl()
     {
-        return UrlHelper::getCpUrl('market/settings/ordertypes/' . $this->id);
+        return UrlHelper::getCpUrl('market/settings/ordersettings');
     }
 
     public function behaviors()

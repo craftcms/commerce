@@ -71,18 +71,15 @@ EOT;
             }
         }
 
-        MigrationHelper::dropForeignKeyIfExists('market_variant_optionvalues',
-            'variantId');
-        MigrationHelper::dropForeignKeyIfExists('market_variant_optionvalues',
-            'variantId');
-        MigrationHelper::dropForeignKeyIfExists('market_variant_optionvalues',
-            'optionValueId');
-        MigrationHelper::dropForeignKeyIfExists('market_optionvalues',
-            'optionTypeId');
-        MigrationHelper::dropForeignKeyIfExists('market_product_optiontypes',
-            'optionTypeId');
-        MigrationHelper::dropForeignKeyIfExists('market_product_optiontypes',
-            'productId');
+        $market_optionvalues = MigrationHelper::getTable('market_optionvalues');
+        $market_optiontypes = MigrationHelper::getTable('market_optiontypes');
+        $market_product_optiontypes = MigrationHelper::getTable('market_product_optiontypes');
+        $market_variant_optionvalues = MigrationHelper::getTable('market_variant_optionvalues');
+
+        MigrationHelper::dropAllForeignKeysOnTable($market_optionvalues);
+        MigrationHelper::dropAllForeignKeysOnTable($market_optiontypes);
+        MigrationHelper::dropAllForeignKeysOnTable($market_product_optiontypes);
+        MigrationHelper::dropAllForeignKeysOnTable($market_variant_optionvalues);
 
         $this->dropTable('market_optionvalues');
         $this->dropTable('market_optiontypes');

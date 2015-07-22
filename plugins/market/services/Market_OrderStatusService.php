@@ -36,16 +36,13 @@ class Market_OrderStatusService extends BaseApplicationComponent
     }
 
     /**
-     * Get first (default) order status from the DB
+     * Get default order status from the DB
      *
      * @return Market_OrderStatusModel
      */
-    public function getFirst()
+    public function getDefault()
     {
-        $orderStatus = Market_OrderStatusRecord::model()->find([
-            'order' => 'id',
-            'limit' => 1
-        ]);
+        $orderStatus = Market_OrderStatusRecord::model()->findByAttributes(['default'=>true]);
 
         return Market_OrderStatusModel::populateModel($orderStatus);
     }
@@ -73,7 +70,6 @@ class Market_OrderStatusService extends BaseApplicationComponent
         $record->name        = $model->name;
         $record->handle      = $model->handle;
         $record->color       = $model->color;
-        $record->orderTypeId = $model->orderTypeId;
         $record->default     = $model->default;
 
         $record->validate();
@@ -96,8 +92,7 @@ class Market_OrderStatusService extends BaseApplicationComponent
             try {
                 //only one default status can be among statuses of one order type
                 if ($record->default) {
-                    Market_OrderStatusRecord::model()->updateAll(['default' => 0],
-                        'orderTypeId = :id', ['id' => $record->orderTypeId]);
+                    Market_OrderStatusRecord::model()->updateAll(['default' => 0]);
                 }
 
                 // Save it!

@@ -28,13 +28,14 @@ return [
     'market/settings/producttypes'                                                            => ['action' => 'market/productType/index'],
     'market/settings/producttypes/(?P<productTypeId>\d+)'                                     => ['action' => 'market/productType/editProductType'],
     'market/settings/producttypes/new'                                                        => ['action' => 'market/productType/editProductType'],
+
     // Order Routes
     'market/orders'                                                                           => ['action' => 'market/order/orderIndex'],
-    'market/orders/(?P<orderTypeHandle>{handle})/new'                                         => ['action' => 'market/order/editOrder'],
-    'market/orders/(?P<orderTypeHandle>{handle})/(?P<orderId>\d+)'                            => ['action' => 'market/order/editOrder'],
-    'market/settings/ordertypes'                                                              => ['action' => 'market/orderType/index'],
-    'market/settings/ordertypes/(?P<orderTypeId>\d+)'                                         => ['action' => 'market/orderType/editorderType'],
-    'market/settings/ordertypes/new'                                                          => ['action' => 'market/orderType/editOrderType'],
+    'market/orders/new'                                                                       => ['action' => 'market/order/editOrder'],
+    'market/orders/(?P<orderId>\d+)'                                                          => ['action' => 'market/order/editOrder'],
+
+    'market/settings/ordersettings'                                                           => ['action' => 'market/orderSettings/edit'],
+
     'market/settings/paymentmethods'                                                          => ['action' => 'market/paymentMethod/index'],
     'market/settings/paymentmethods/(?P<class>\w+)'                                           => ['action' => 'market/paymentMethod/edit'],
     'market/promotions/sales'                                                                 => ['action' => 'market/sale/index'],
@@ -51,8 +52,11 @@ return [
     'market/settings/emails'                                                                  => ['action' => 'market/email/index'],
     'market/settings/emails/new'                                                              => ['action' => 'market/email/edit'],
     'market/settings/emails/(?P<id>\d+)'                                                      => ['action' => 'market/email/edit'],
-    'market/settings/ordertypes/(?P<orderTypeId>\d+)/orderstatuses/new'                       => ['action' => 'market/orderStatus/edit'],
-    'market/settings/ordertypes/(?P<orderTypeId>\d+)/orderstatuses/(?P<id>\d+)'               => ['action' => 'market/orderStatus/edit'],
+
+    'market/settings/orderstatuses'                                                           => ['action' => 'market/orderStatus/index'],
+    'market/settings/orderstatuses/new'                                                       => ['action' => 'market/orderStatus/edit'],
+    'market/settings/orderstatuses/(?P<id>\d+)'                                               => ['action' => 'market/orderStatus/edit'],
+
     'market/customers'                                                                        => ['action' => 'market/customer/index'],
     'market/customers/(?P<id>\d+)'                                                            => ['action' => 'market/customer/edit'],
     'market/customers/(?P<customerId>\d+)/addresses/(?P<id>\d+)'                              => ['action' => 'market/address/edit'],
