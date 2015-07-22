@@ -1,4 +1,8 @@
-<input type="hidden" name="productId" value="{{ variant.productId}}">
+{% if productId is defined %}
+<input type="hidden" name="productId" value="{{productId}}">
+{% else %}
+<input type="hidden" name="productId" value="{{variant.productId}}">
+{% endif %}
 <input type="hidden" name="id" value="{{ variant.id }}">
 <input type="hidden" name="isMaster" value="{{ variant.isMaster }}">
 
