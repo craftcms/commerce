@@ -7,7 +7,9 @@
         <ul>
             <li><a href="{{ url('market/settings/global') }}"{% if craft.request.segment(3) == 'global' %} class="sel"{% endif %}>{{ "Global Settings"|t }}</a></li>
 
-            <li><a href="{{ url('market/settings/ordertypes') }}"{% if craft.request.segment(3) == 'ordertypes' %} class="sel"{% endif %}>{{ "Order Types"|t }}</a></li>
+            <li><a href="{{ url('market/settings/ordersettings') }}"{% if craft.request.segment(3) == 'ordersettings' %} class="sel"{% endif %}>{{ "Order Settings"|t }}</a></li>
+
+            <li><a href="{{ url('market/settings/orderstatuses') }}"{% if craft.request.segment(3) == 'orderstatuses' %} class="sel"{% endif %}>{{ "Order Statuses"|t }}</a></li>
 
             <li><a href="{{ url('market/settings/producttypes') }}"{% if craft.request.segment(3) == 'producttypes' %} class="sel"{% endif %}>{{ "Product Types"|t }}</a></li>
 

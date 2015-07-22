@@ -12,7 +12,6 @@
     <form id="order-form" method="post" accept-charset="UTF-8">
         <input type="hidden" name="action" value="market/order/saveOrder">
         <input type="hidden" name="redirect" value="market/orders">
-        <input type="hidden" name="typeId" value="{{ orderType.id }}">
         {{ getCsrfInput() }}
         {% if order.id %}<input type="hidden" name="orderId" value="{{ order.id }}">{% endif %}
 
@@ -102,7 +101,7 @@
                     {% from "_includes/forms" import textField %}
                     {% set static = static is defined ? static : false %}
 
-                    {% for tab in orderType.getFieldLayout().getTabs() %}
+                    {% for tab in orderSettings.getFieldLayout().getTabs() %}
 
                         <div id="tab{{ loop.index }}" {% if not loop.first %} class="hidden" {% endif %}>
                             {% include "_includes/fields" with {

@@ -8,7 +8,7 @@
     <h1>Addresses</h1>
 
     {% set addresses = craft.market.customer.addresses %}
-    {% set order = craft.market.getCart('order') %}
+    {% set order = craft.market.getCart() %}
 
     {% if addresses %}
         {# UI when at least one address exists #}
@@ -18,7 +18,6 @@
                 <form method="post">
 
                     <input type="hidden" name="action" value="market/cartAddress/chooseAddresses">
-                    <input type="hidden" name="orderTypeHandle" value="order">
                     <input type="hidden" name="redirect" value="commerce/checkout/shipping" />
 
                     {{ getCsrfInput() }}
@@ -82,7 +81,6 @@
                 <form method="post" class="form-new-address" class="form-horizontal">
 
                     <input type="hidden" name="action" value="market/cartAddress/addAddress">
-                    <input type="hidden" name="orderTypeHandle" value="order">
                     <input type="hidden" name="Address[id]" value="">
                     {{ getCsrfInput() }}
                     
@@ -99,7 +97,6 @@
         <form method="post" class="">
             <input type="hidden" name="action" value="market/cartAddress/postTwoAddresses">
             <input type="hidden" name="redirect" value="commerce/checkout/shipping"/>
-            <input type="hidden" name="orderTypeHandle" value="order">
             {{ getCsrfInput() }}
 
             {# UI when no addresses exist #}

@@ -85,7 +85,7 @@ class Market_OrderService extends BaseApplicationComponent
     public function complete(Market_OrderModel $order)
     {
         $order->completedAt = DateTimeHelper::currentTimeForDb();
-        if ($status = $order->type->defaultStatus) {
+        if ($status = craft()->market_orderStatus->getDefault()) {
             $order->orderStatusId = $status->id;
         }
 
@@ -182,7 +182,6 @@ class Market_OrderService extends BaseApplicationComponent
 
         $oldStatusId = $orderRecord->orderStatusId;
 
-        $orderRecord->typeId            = $order->typeId;
         $orderRecord->number            = $order->number;
         $orderRecord->itemTotal         = $order->itemTotal;
         $orderRecord->email             = $order->email;

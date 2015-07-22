@@ -39,7 +39,7 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property int                           totalLength
  * @property int                           totalWidth
  *
- * @property Market_OrderTypeModel         type
+ * @property Market_OrderSettingsModel         type
  * @property Market_LineItemModel[]        lineItems
  * @property Market_AddressModel           billingAddress
  * @property Market_CustomerModel          customer
@@ -78,29 +78,28 @@ class Market_OrderModel extends BaseElementModel
      */
     public function getCpEditUrl()
     {
-        $orderType = $this->type;
-
-        return UrlHelper::getCpUrl('market/orders/' . $orderType->handle . '/' . $this->id);
+        return UrlHelper::getCpUrl('market/orders/' . $this->id);
     }
 
     /**
-     * @return null|FieldLayoutModel
+     * @return FieldLayoutModel
      */
     public function getFieldLayout()
     {
-        if ($this->type) {
-            return craft()->market_orderType->getById($this->typeId)->getFieldLayout();
-        }
-
-        return null;
+        return craft()->market_orderSettings->getByHandle('order')->getFieldLayout();
     }
 
-
+    /**
+     * @return bool
+     */
     public function isLocalized()
     {
         return false;
     }
 
+    /**
+     * @return bool
+     */
     public function isPaid()
     {
         return $this->paidTotal >= $this->finalPrice;

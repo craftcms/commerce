@@ -21,10 +21,9 @@ class Market_OrderController extends Market_BaseController
     public function actionOrderIndex()
     {
         // Remove all incomplete carts older than a certain date in config.
-        craft()->market_orderType->purgeIncompleteCarts();
+        craft()->market_cart->purgeIncompleteCarts();
 
-        $variables['orderTypes'] = craft()->market_orderType->getAll();
-        $this->renderTemplate('market/orders/_index', $variables);
+        $this->renderTemplate('market/orders/_index');
     }
 
     /**
@@ -34,14 +33,8 @@ class Market_OrderController extends Market_BaseController
      */
     public function actionEditOrder(array $variables = [])
     {
-        if (!empty($variables['orderTypeHandle'])) {
-            $variables['orderType'] = craft()->market_orderType->getByHandle($variables['orderTypeHandle']);
-        }
 
-        if (empty($variables['orderType'])) {
-            throw new HttpException(400,
-                craft::t('Wrong order type specified'));
-        }
+        $variables['orderSettings'] = craft()->market_orderSettings->getByHandle('order');
 
         if (empty($variables['order'])) {
             if (!empty($variables['orderId'])) {
@@ -52,7 +45,6 @@ class Market_OrderController extends Market_BaseController
                 }
             } else {
                 $variables['order']         = new Market_OrderModel();
-                $variables['order']->typeId = $variables['orderType']->id;
             };
         }
 
@@ -62,7 +54,7 @@ class Market_OrderController extends Market_BaseController
             $variables['title'] = Craft::t('Create a new Order');
         }
 
-        $variables['orderStatuses'] = \CHtml::listData($variables['order']->type->orderStatuses,
+        $variables['orderStatuses'] = \CHtml::listData(craft()->market_orderStatus->getAll(),
             'id', 'name');
         if ($variables['order']->orderStatusId == null) {
             $variables['orderStatuses'] = ['0' => 'No Status'] + $variables['orderStatuses'];
@@ -82,7 +74,7 @@ class Market_OrderController extends Market_BaseController
     {
         $variables['tabs'] = [];
 
-        foreach ($variables['orderType']->getFieldLayout()->getTabs() as $index => $tab) {
+        foreach ($variables['orderSettings']->getFieldLayout()->getTabs() as $index => $tab) {
             // Do any of the fields on this tab have errors?
             $hasErrors = false;
 
@@ -201,7 +193,6 @@ class Market_OrderController extends Market_BaseController
             $order->orderStatusId = $orderStatusId;
         }
 
-        $order->typeId  = craft()->request->getPost('typeId');
         $order->message = craft()->request->getPost('message');
 
         return $order;
