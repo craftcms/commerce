@@ -26,6 +26,11 @@ class Market_VariantElementType extends Market_BaseElementType
 		return false;
 	}
 
+	public function isSelectable()
+	{
+		return false;
+	}
+
 	public function getSources($context = NULL)
 	{
 		$sources = [
@@ -125,6 +130,16 @@ class Market_VariantElementType extends Market_BaseElementType
 
 	}
 
+	public function getEditorHtml(BaseElementModel $element)
+	{
+		$variant = $element;
+		$html = craft()->templates->render('market/_includes/variant/fields',compact('variant'));
+
+		$html .= parent::getEditorHtml($element);
+
+		return $html;
+	}
+
 	public function populateElementModel($row)
 	{
 		return Market_VariantModel::populateModel($row);
@@ -132,7 +147,10 @@ class Market_VariantElementType extends Market_BaseElementType
 
 	public function saveElement(BaseElementModel $element, $params)
 	{
-		craft()->market_variant->save($element);
+		foreach ($params as $name => $value) {
+			$element->$name = $value;
+		}
+		return craft()->market_variant->save($element);
 	}
 
 }
