@@ -2,27 +2,24 @@
 namespace Craft;
 
 /**
- * Class Market_OrderTypeRecord
+ * Class Market_OrderSettingsRecord
  *
  * @property int                         id
  * @property string                      name
  * @property string                      handle
  * @property int                         fieldLayoutId
- * @property string                      purgeIncompletedCartDuration
  *
  * @property FieldLayoutRecord           fieldLayout
- * @property Market_OrderStatusRecord[]  orderStatuses
- * @property Market_OrderStatusRecord    defaultStatus
  * @package Craft
  */
-class Market_OrderTypeRecord extends BaseRecord
+class Market_OrderSettingsRecord extends BaseRecord
 {
     /**
      * @return string
      */
     public function getTableName()
     {
-        return 'market_ordertypes';
+        return 'market_ordersettings';
     }
 
     /**
@@ -45,18 +42,7 @@ class Market_OrderTypeRecord extends BaseRecord
                 static::BELONGS_TO,
                 'FieldLayoutRecord',
                 'onDelete' => static::SET_NULL
-            ],
-            'orderStatuses'  => [
-                static::HAS_MANY,
-                'Market_OrderStatusRecord',
-                'orderTypeId'
-            ],
-            'defaultStatus'  => [
-                static::HAS_ONE,
-                'Market_OrderStatusRecord',
-                'orderTypeId',
-                'condition' => 'defaultStatus.default = 1'
-            ],
+            ]
         ];
     }
 

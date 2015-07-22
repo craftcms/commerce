@@ -30,6 +30,12 @@ class Market_VariantModel extends BaseElementModel implements Purchasable
     protected $elementType = 'Market_Variant';
     public $salePrice;
 
+
+    public function isEditable()
+    {
+        return true;
+    }
+
     public function isLocalized()
     {
         return false;

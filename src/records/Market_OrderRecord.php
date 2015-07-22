@@ -23,7 +23,6 @@ namespace Craft;
  * @property string                      returnUrl
  * @property string                      cancelUrl
  *
- * @property int                         typeId
  * @property int                         billingAddressId
  * @property mixed                       billingAddressData
  * @property int                         shippingAddressId
@@ -33,7 +32,6 @@ namespace Craft;
  * @property int                         customerId
  * @property int                         orderStatusId
  *
- * @property Market_OrderTypeRecord      type
  * @property Market_LineItemRecord[]     lineItems
  * @property Market_AddressRecord        billingAddress
  * @property Market_AddressRecord        shippingAddress
@@ -58,12 +56,6 @@ class Market_OrderRecord extends BaseRecord
     public function defineRelations()
     {
         return [
-            'type'            => [
-                static::BELONGS_TO,
-                'Market_OrderTypeRecord',
-                'required' => true,
-                'onDelete' => static::CASCADE
-            ],
             'lineItems'       => [
                 static::HAS_MANY,
                 'Market_LineItemRecord',
@@ -118,7 +110,6 @@ class Market_OrderRecord extends BaseRecord
     public function defineIndexes()
     {
         return [
-            ['columns' => ['typeId']],
             ['columns' => ['number']],
         ];
     }

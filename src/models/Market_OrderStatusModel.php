@@ -9,12 +9,10 @@ use Market\Traits\Market_ModelRelationsTrait;
  *
  * @property int                   id
  * @property string                name
- * @property int                   orderTypeId
  * @property string                handle
  * @property string                color
  * @property bool                  default
  *
- * @property Market_OrderTypeModel orderType
  * @property Market_EmailModel[]   emails
  *
  * @package Craft
@@ -25,7 +23,7 @@ class Market_OrderStatusModel extends BaseModel
 
     public function getCpEditUrl()
     {
-        return UrlHelper::getCpUrl('market/settings/ordertypes/' . $this->orderTypeId . '/orderstatuses/' . $this->id);
+        return UrlHelper::getCpUrl('market/settings/orderstatuses/' . $this->id);
     }
 
     public function __toString()
@@ -57,7 +55,6 @@ class Market_OrderStatusModel extends BaseModel
         return [
             'id'          => AttributeType::Number,
             'name'        => [AttributeType::String, 'required' => true],
-            'orderTypeId' => [AttributeType::Number, 'required' => true],
             'handle'      => [AttributeType::Handle, 'required' => true],
             'color'       => [AttributeType::String, 'default' => 'green'],
             'default'     => [

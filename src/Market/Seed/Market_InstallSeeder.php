@@ -2,7 +2,7 @@
 
 namespace Market\Seed;
 
-use Craft\Market_OrderTypeModel;
+use Craft\Market_OrderSettingsModel;
 use Craft\Market_ShippingMethodRecord;
 use Craft\Market_ShippingRuleRecord;
 use Craft\Market_OrderStatusModel;
@@ -23,7 +23,7 @@ class Market_InstallSeeder implements Market_SeederInterface
 	{
 		$this->defaultShippingMethod();
 		$this->defaultTaxCategories();
-		$this->defaultOrderTypes();
+		$this->defaultOrderSettings();
 		$this->defaultProductTypes();
 		$this->defaultProducts();
 		$this->paymentMethods();
@@ -52,24 +52,20 @@ class Market_InstallSeeder implements Market_SeederInterface
 	/**
 	 * @throws \Exception
 	 */
-	private function defaultOrderTypes()
+	private function defaultOrderSettings()
 	{
 
-		$types = ['order'];
-
-		foreach ($types as $type) {
-			$orderType                   = new Market_OrderTypeModel;
-			$orderType->name             = ucwords($type);
-			$orderType->handle           = $type;
+			$orderSettings                   = new Market_OrderSettingsModel;
+			$orderSettings->name             = 'Order';
+			$orderSettings->handle           = 'order';
 
 			// Set the field layout
 			$fieldLayout       = \Craft\craft()->fields->assembleLayout([], []);
 			$fieldLayout->type = 'Market_Order';
-			$orderType->setFieldLayout($fieldLayout);
+			$orderSettings->setFieldLayout($fieldLayout);
 
 			$data  = [
 				'name'        => 'New',
-				'orderTypeId' => '1',
 				'handle'      => 'new',
 				'color'       => 'green',
 				'default'     => true
@@ -77,11 +73,10 @@ class Market_InstallSeeder implements Market_SeederInterface
 
 			$state = Market_OrderStatusModel::populateModel($data);
 
-			\Craft\craft()->market_orderType->save($orderType);
+			\Craft\craft()->market_orderSettings->save($orderSettings);
 
 			\Craft\craft()->market_orderStatus->save($state,[]);
 
-        }
 
 	}
 
