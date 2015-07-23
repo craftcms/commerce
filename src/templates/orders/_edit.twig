@@ -150,6 +150,8 @@
                                 <td><a href="{{ order.customer.cpEditUrl }}">{{ order.email }}</a>&nbsp;{% if not order.customer.userId %}({{ "Guest"|t }}){% endif %}</td>
                             </tr>
                         </table>
+                        <br/>
+                        <a href="{{ order.pdfUrl }}" target="_blank">Download PDF</a>
 
                         <div class="btngroup right">
                             <input type="button" class="btn small formsubmit" value="{{ 'Delete Order'|t }}"

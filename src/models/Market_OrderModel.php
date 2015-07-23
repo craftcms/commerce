@@ -82,6 +82,15 @@ class Market_OrderModel extends BaseElementModel
     }
 
     /**
+     * Returns the link to the Order's PDF file for download.
+     * @return string
+     */
+    public function getPdfUrl()
+    {
+        return UrlHelper::getActionUrl('market/download/pdf?number=' . $this->number);
+    }
+
+    /**
      * @return FieldLayoutModel
      */
     public function getFieldLayout()
