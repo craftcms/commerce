@@ -66,7 +66,7 @@ class Market_CustomerService extends BaseApplicationComponent
 
                 if ($user) {
                     $record->userId = $user->id;
-                    $record->email  = $user->email;
+                    $record->email = $user->email;
                 }
             }
 
@@ -95,7 +95,7 @@ class Market_CustomerService extends BaseApplicationComponent
             }
         }
 
-        $customerRecord->email  = $customer->email;
+        $customerRecord->email = $customer->email;
         $customerRecord->userId = $customer->userId;
 
         $customerRecord->validate();
@@ -153,11 +153,25 @@ class Market_CustomerService extends BaseApplicationComponent
      */
     public function saveAddress(Market_AddressModel $address)
     {
-        $customer            = $this->getSavedCustomer();
+        $customer = $this->getSavedCustomer();
         $address->customerId = $customer->id;
 
         return craft()->market_address->save($address);
 
+    }
+
+    /**
+     * @param $customerId
+     * @return array
+     */
+    public function getAddressIds($customerId)
+    {
+        $addresses = craft()->market_address->getAllByCustomerId($customerId);
+        $ids = [];
+        foreach($addresses as $address){
+            $ids[] = $address->id;
+        }
+        return $ids;
     }
 
 }
