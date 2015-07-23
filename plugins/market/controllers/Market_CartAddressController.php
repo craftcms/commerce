@@ -88,21 +88,24 @@ class Market_CartAddressController extends Market_BaseController
 
         if (!$billingAddress->id || !$shippingAddress->id) {
             if (empty($billingAddress->id)) {
-                $order->addError('billingAddressId',
-                    'Choose please billing address');
+                craft()->userSession->setFlash('error',Craft::t('Please choose a billing address'));
             }
             if (empty($shippingAddress->id)) {
-                $order->addError('shippingAddressId',
-                    'Choose please shipping address');
+                craft()->userSession->setFlash('error',Craft::t('Please choose a shipping address'));
             }
 
             return;
         }
 
-        if (craft()->market_order->setAddresses($order, $shippingAddress,
-            $billingAddress)
-        ) {
-            $this->redirectToPostedUrl();
+        $customerId = craft()->market_customer->getCustomerId();
+        $addressIds = craft()->market_customer->getAddressIds($customerId);
+
+        if (in_array($billingAddress->id,$addressIds) && in_array($shippingAddress->id,$addressIds)) {
+            if (craft()->market_order->setAddresses($order, $shippingAddress, $billingAddress)) {
+                $this->redirectToPostedUrl();
+            }
+        }else{
+            craft()->userSession->setFlash('error',Craft::t('Choose addresses that are yours.'));
         }
     }
 
@@ -118,6 +121,17 @@ class Market_CartAddressController extends Market_BaseController
 
         $address             = new Market_AddressModel;
         $address->attributes = craft()->request->getPost('Address');
+
+        $customerId = craft()->market_customer->getCustomerId();
+        $addressIds = craft()->market_customer->getAddressIds($customerId);
+
+        // if this is an existing address
+        if($address->id){
+            if (!in_array($address->id,$addressIds)){
+                craft()->userSession->setFlash('error',Craft::t('Not allowed to edit that address.'));
+                return;
+            }
+        }
 
         if (!craft()->market_customer->saveAddress($address)) {
             craft()->urlManager->setRouteVariables([
@@ -135,12 +149,21 @@ class Market_CartAddressController extends Market_BaseController
     {
         $this->requirePostRequest();
 
+        $customerId = craft()->market_customer->getCustomerId();
+        $addressIds = craft()->market_customer->getAddressIds($customerId);
+
         $id = craft()->request->getPost('id', 0);
 
         if (!$id) {
             throw new HttpException(400);
         }
 
-        craft()->market_address->deleteById($id);
+        // current customer is the owner of the address
+        if (in_array($id,$addressIds)){
+            craft()->market_address->deleteById($id);
+            craft()->userSession->setFlash('notice',Craft::t('Address removed.'));
+        }else{
+            craft()->userSession->setFlash('error',Craft::t('Not allowed to remove that address.'));
+        }
     }
 }

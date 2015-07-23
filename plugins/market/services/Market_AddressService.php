@@ -33,6 +33,18 @@ class Market_AddressService extends BaseApplicationComponent
     }
 
     /**
+     * @param $id
+     * @return array
+     */
+    public function getAllByCustomerId($id)
+    {
+        $records = Market_AddressRecord::model()->with('country',
+            'state')->findAllByAttributes(['customerId'=>$id]);
+
+        return Market_AddressModel::populateModels($records);
+    }
+
+    /**
      * @param Market_AddressModel $model
      *
      * @return bool
