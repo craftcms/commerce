@@ -115,6 +115,18 @@ class Market_OrderService extends BaseApplicationComponent
     }
 
     /**
+     * @param string $number
+     *
+     * @return Market_OrderModel
+     */
+    public function getByNumber($number)
+    {
+        $criteria = craft()->elements->getCriteria('Market_Order');
+        $criteria->number = $number;
+        return $criteria->first();
+    }
+
+    /**
      * @param Market_OrderModel $order
      *
      * @return bool

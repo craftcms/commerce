@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: DejaVu Sans; }
+    </style>
+</head>
+
+<body>
+<h1>Order #{{ order.number[:7] }}</h1>
+<p>Thanks for your order valued at {{ order.finalPrice|marketCurrency }}</p>
+</body>
+</html>
