@@ -32,7 +32,7 @@ class Market_CartController extends Market_BaseController
             craft()->userSession->setFlash('notice', Craft::t('Product has been added'));
             $this->redirectToPostedUrl();
         } else {
-            craft()->userSession->setFlash('notice',$error);
+            craft()->userSession->setFlash('error',$error);
         }
     }
 
