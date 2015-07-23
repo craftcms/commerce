@@ -3,6 +3,7 @@
 namespace Craft;
 
 use Market\Helpers\MarketDbHelper;
+use Market\Interfaces\Purchasable;
 
 /**
  * Cart is the same as Order. This class deals with order as with cart. All
@@ -46,8 +47,16 @@ class Market_CartService extends BaseApplicationComponent
         if ($lineItem->id) {
             $lineItem->qty += $qty;
         } else {
-            $lineItem = craft()->market_lineItem->create($purchasableId,
-                $order->id, $qty);
+
+            $purchasable = craft()->elements->getElementById($purchasableId);
+
+            // Is this a real purchasable?
+            if (!$purchasable or !($purchasable instanceof Purchasable)){
+                $error = Craft::t('Not a purchasable element, check purchasableId is valid.');
+                return false;
+            }
+
+            $lineItem = craft()->market_lineItem->create($purchasableId, $order->id, $qty);
         }
 
         try {
