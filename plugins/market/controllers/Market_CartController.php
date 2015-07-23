@@ -23,6 +23,7 @@ class Market_CartController extends Market_BaseController
 
         $purchasableId   = craft()->request->getPost('purchasableId');
         $qty             = craft()->request->getPost('qty', 1);
+        /** @var Market_OrderModel $cart */
         $cart            = craft()->market_cart->getCart();
         $cart->setContentFromPost('fields');
 
