@@ -28,7 +28,7 @@ class Market_TaxAdjuster implements Market_AdjusterInterface
 	 */
 	public function adjust(Market_OrderModel &$order, array $lineItems = [])
 	{
-        $shippingAddress = \Craft\craft()->market_address->getById($order->shippingAddressId);
+        $shippingAddress = \Craft\craft()->market_address->getAddressById($order->shippingAddressId);
         if (!$shippingAddress->id) {
             $shippingAddress = null;
         }

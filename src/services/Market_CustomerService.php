@@ -156,7 +156,7 @@ class Market_CustomerService extends BaseApplicationComponent
         $customer = $this->getSavedCustomer();
         $address->customerId = $customer->id;
 
-        return craft()->market_address->save($address);
+        return craft()->market_address->saveAddress($address);
 
     }
 
@@ -166,7 +166,7 @@ class Market_CustomerService extends BaseApplicationComponent
      */
     public function getAddressIds($customerId)
     {
-        $addresses = craft()->market_address->getAllByCustomerId($customerId);
+        $addresses = craft()->market_address->getAddressesByCustomerId($customerId);
         $ids = [];
         foreach($addresses as $address){
             $ids[] = $address->id;

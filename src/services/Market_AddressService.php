@@ -1,31 +1,24 @@
 <?php
-
 namespace Craft;
 
 /**
  * Class Market_AddressService
  *
- * @package Craft
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2014, Pixel & Tonic, Inc.
+ * @license   http://buildwithcraft.com/license Craft License Agreement
+ * @see       http://buildwithcraft.com/commerce
+ * @package   craft.plugins.commerce.services
+ * @since     1.0
  */
 class Market_AddressService extends BaseApplicationComponent
 {
-    /**
-     * @return Market_AddressModel[]
-     */
-    public function getAll()
-    {
-        $records = Market_AddressRecord::model()->with('country',
-            'state')->findAll(['order' => 't.name']);
-
-        return Market_AddressModel::populateModels($records);
-    }
-
     /**
      * @param int $id
      *
      * @return Market_AddressModel
      */
-    public function getById($id)
+    public function getAddressById($id)
     {
         $record = Market_AddressRecord::model()->findById($id);
 
@@ -36,7 +29,7 @@ class Market_AddressService extends BaseApplicationComponent
      * @param $id
      * @return array
      */
-    public function getAllByCustomerId($id)
+    public function getAddressesByCustomerId($id)
     {
         $records = Market_AddressRecord::model()->with('country',
             'state')->findAllByAttributes(['customerId'=>$id]);
@@ -45,56 +38,56 @@ class Market_AddressService extends BaseApplicationComponent
     }
 
     /**
-     * @param Market_AddressModel $model
+     * @param Market_AddressModel $addressModel
      *
      * @return bool
      * @throws Exception
      */
-    public function save(Market_AddressModel $model)
+    public function saveAddress(Market_AddressModel $addressModel)
     {
-        if ($model->id) {
-            $record = Market_AddressRecord::model()->findById($model->id);
+        if ($addressModel->id) {
+            $addressRecord = Market_AddressRecord::model()->findById($addressModel->id);
 
-            if (!$record) {
+            if (!$addressRecord) {
                 throw new Exception(Craft::t('No address exists with the ID “{id}”',
-                    ['id' => $model->id]));
+                    ['id' => $addressModel->id]));
             }
         } else {
-            $record = new Market_AddressRecord();
+            $addressRecord = new Market_AddressRecord();
         }
 
-        $record->firstName        = $model->firstName;
-        $record->lastName         = $model->lastName;
-        $record->address1         = $model->address1;
-        $record->address2         = $model->address2;
-        $record->city             = $model->city;
-        $record->zipCode          = $model->zipCode;
-        $record->phone            = $model->phone;
-        $record->alternativePhone = $model->alternativePhone;
-        $record->company          = $model->company;
-        $record->countryId        = $model->countryId;
-        $record->customerId       = $model->customerId;
+        $addressRecord->firstName        = $addressModel->firstName;
+        $addressRecord->lastName         = $addressModel->lastName;
+        $addressRecord->address1         = $addressModel->address1;
+        $addressRecord->address2         = $addressModel->address2;
+        $addressRecord->city             = $addressModel->city;
+        $addressRecord->zipCode          = $addressModel->zipCode;
+        $addressRecord->phone            = $addressModel->phone;
+        $addressRecord->alternativePhone = $addressModel->alternativePhone;
+        $addressRecord->company          = $addressModel->company;
+        $addressRecord->countryId        = $addressModel->countryId;
+        $addressRecord->customerId       = $addressModel->customerId;
 
-        if (!empty($model->stateValue)) {
-            if (is_numeric($model->stateValue)) {
-                $record->stateId = $model->stateId = $model->stateValue;
+        if (!empty($addressModel->stateValue)) {
+            if (is_numeric($addressModel->stateValue)) {
+                $addressRecord->stateId = $addressModel->stateId = $addressModel->stateValue;
             } else {
-                $record->stateName = $model->stateName = $model->stateValue;
+                $addressRecord->stateName = $addressModel->stateName = $addressModel->stateValue;
             }
         } else {
-            $record->stateId   = $model->stateId;
-            $record->stateName = $model->stateName;
+            $addressRecord->stateId   = $addressModel->stateId;
+            $addressRecord->stateName = $addressModel->stateName;
         }
 
-        $record->validate();
-        $model->addErrors($record->getErrors());
+        $addressRecord->validate();
+        $addressModel->addErrors($addressRecord->getErrors());
 
-        if (!$model->hasErrors()) {
+        if (!$addressModel->hasErrors()) {
             // Save it!
-            $record->save(false);
+            $addressRecord->save(false);
 
             // Now that we have a record ID, save it on the model
-            $model->id = $record->id;
+            $addressModel->id = $addressRecord->id;
 
             return true;
         } else {
@@ -106,7 +99,7 @@ class Market_AddressService extends BaseApplicationComponent
      * @param int $id
      *
      */
-    public function deleteById($id)
+    public function deleteAddressById($id)
     {
         Market_AddressRecord::model()->deleteByPk($id);
     }

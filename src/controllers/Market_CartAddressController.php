@@ -75,13 +75,13 @@ class Market_CartAddressController extends Market_BaseController
         $this->requirePostRequest();
 
         $billingId      = craft()->request->getPost('billingAddressId');
-        $billingAddress = craft()->market_address->getById($billingId);
+        $billingAddress = craft()->market_address->getAddressById($billingId);
 
         if (craft()->request->getPost('sameAddress') == 1) {
             $shippingAddress = $billingAddress;
         } else {
             $shippingId      = craft()->request->getPost('shippingAddressId');
-            $shippingAddress = craft()->market_address->getById($shippingId);
+            $shippingAddress = craft()->market_address->getAddressById($shippingId);
         }
 
         $order           = craft()->market_cart->getCart();
@@ -160,7 +160,7 @@ class Market_CartAddressController extends Market_BaseController
 
         // current customer is the owner of the address
         if (in_array($id,$addressIds)){
-            craft()->market_address->deleteById($id);
+            craft()->market_address->deleteAddressById($id);
             craft()->userSession->setFlash('notice',Craft::t('Address removed.'));
         }else{
             craft()->userSession->setFlash('error',Craft::t('Not allowed to remove that address.'));
