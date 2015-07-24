@@ -26,7 +26,7 @@ class Market_AddressController extends Market_BaseController
             }
 
             $id                   = $variables['id'];
-            $variables['address'] = craft()->market_address->getById($id);
+            $variables['address'] = craft()->market_address->getAddressById($id);
 
             if (!$variables['address']->id) {
                 throw new HttpException(404);
@@ -50,7 +50,7 @@ class Market_AddressController extends Market_BaseController
         $this->requirePostRequest();
 
         $id      = craft()->request->getRequiredPost('id');
-        $address = craft()->market_address->getById($id);
+        $address = craft()->market_address->getAddressById($id);
 
         if (!$address->id) {
             throw new HttpException(400);
@@ -75,7 +75,7 @@ class Market_AddressController extends Market_BaseController
         }
 
         // Save it
-        if (craft()->market_address->save($address)) {
+        if (craft()->market_address->saveAddress($address)) {
             craft()->userSession->setNotice(Craft::t('Address saved.'));
             $this->redirectToPostedUrl();
         } else {
@@ -96,7 +96,7 @@ class Market_AddressController extends Market_BaseController
 
         $id = craft()->request->getRequiredPost('id');
 
-        craft()->market_address->deleteById($id);
+        craft()->market_address->deleteAddressById($id);
         $this->returnJson(['success' => true]);
     }
 }

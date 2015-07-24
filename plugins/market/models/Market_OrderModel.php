@@ -196,7 +196,7 @@ class Market_OrderModel extends BaseElementModel
     {
         // Get the live linked address if it is still a cart, else cached
         if (!$this->completedAt) {
-            return craft()->market_address->getById($this->shippingAddressId);
+            return craft()->market_address->getAddressById($this->shippingAddressId);
         }else{
             return Market_AddressModel::populateModel($this->shippingAddressData);
         }
@@ -209,7 +209,7 @@ class Market_OrderModel extends BaseElementModel
     {
         // Get the live linked address if it is still a cart, else cached
         if (!$this->completedAt) {
-            return craft()->market_address->getById($this->billingAddressId);
+            return craft()->market_address->getAddressById($this->billingAddressId);
         }else{
             return Market_AddressModel::populateModel($this->billingAddressData);
         }
