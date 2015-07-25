@@ -3,7 +3,6 @@
 namespace Craft;
 
 use Market\Interfaces\Purchasable;
-use Market\Traits\Market_ModelRelationsTrait;
 
 /**
  * Class Market_VariantModel
