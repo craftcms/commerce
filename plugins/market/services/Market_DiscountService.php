@@ -119,6 +119,7 @@ class Market_DiscountService extends BaseApplicationComponent
      * user
      *
      * @param int    $code
+     * @param int    $customerId
      * @param string $error
      *
      * @return true
