@@ -46,7 +46,6 @@ class Market_VariantService extends BaseApplicationComponent
 
     /**
      * @param int  $id
-     * @param bool $includeMaster
      *
      * @return Market_VariantModel[]
      */

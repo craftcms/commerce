@@ -53,6 +53,7 @@ class Market_OrderStatusService extends BaseApplicationComponent
 
     /**
      * @param Market_OrderStatusModel $model
+     * @param array $emailsIds
      *
      * @return bool
      * @throws Exception
