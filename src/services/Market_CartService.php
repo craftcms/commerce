@@ -1,21 +1,24 @@
 <?php
-
 namespace Craft;
 
 use Market\Helpers\MarketDbHelper;
 use Market\Interfaces\Purchasable;
 
 /**
- * Cart is the same as Order. This class deals with order as with cart. All
- * saving logic and etc. are in OrderService
+ * Class Market_CartService
  *
- * @package Craft
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://buildwithcraft.com/license Craft License Agreement
+ * @see       http://buildwithcraft.com/commerce
+ * @package   craft.plugins.commerce.services
+ * @since     1.0
  */
 class Market_CartService extends BaseApplicationComponent
 {
     const CART_COOKIE_LIFETIME = 604800; //week
 
-    /** @var string Session key for storing current cart number */
+    /** @var string Session key for storing the cart number */
     protected $cookieCartId = 'market_cookie';
     /** @var Market_OrderModel */
     private $cart;

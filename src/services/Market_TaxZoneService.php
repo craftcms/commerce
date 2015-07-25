@@ -1,5 +1,4 @@
 <?php
-
 namespace Craft;
 
 use Market\Helpers\MarketDbHelper;
@@ -7,7 +6,12 @@ use Market\Helpers\MarketDbHelper;
 /**
  * Class Market_TaxZoneService
  *
- * @package Craft
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://buildwithcraft.com/license Craft License Agreement
+ * @see       http://buildwithcraft.com/commerce
+ * @package   craft.plugins.commerce.services
+ * @since     1.0
  */
 class Market_TaxZoneService extends BaseApplicationComponent
 {
