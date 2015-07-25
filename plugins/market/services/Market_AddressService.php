@@ -5,7 +5,7 @@ namespace Craft;
  * Class Market_AddressService
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2014, Pixel & Tonic, Inc.
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
  * @license   http://buildwithcraft.com/license Craft License Agreement
  * @see       http://buildwithcraft.com/commerce
  * @package   craft.plugins.commerce.services
