@@ -45,6 +45,12 @@ class Market_CartPaymentController extends Market_BaseController
         $cancelUrl               = craft()->request->getPost('cancelUrl');
         $cart                    = craft()->market_cart->getCart();
 
+        if (!$cart->email){
+            craft()->userSession->setFlash('error',Craft::t("No customer email address for cart."));
+            craft()->urlManager->setRouteVariables(compact('paymentForm'));
+            return;
+        }
+
         // Ensure correct redirect urls are supplied.
         if (empty($cancelUrl) || empty($redirect)) {
             throw new Exception(Craft::t('Please specify "redirect" and "cancelUrl".'));
