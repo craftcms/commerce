@@ -104,7 +104,7 @@ class Market_LineItemService extends BaseApplicationComponent
 
         $lineItemRecord->qty         = $lineItem->qty;
         $lineItemRecord->price       = $lineItem->price;
-        $lineItemRecord->total       = $lineItem->total;
+
         $lineItemRecord->weight      = $lineItem->weight;
         $lineItemRecord->optionsJson = $lineItem->optionsJson;
 
@@ -112,6 +112,12 @@ class Market_LineItemService extends BaseApplicationComponent
         $lineItemRecord->taxAmount      = $lineItem->taxAmount;
         $lineItemRecord->discountAmount = $lineItem->discountAmount;
         $lineItemRecord->shippingAmount = $lineItem->shippingAmount;
+        $lineItemRecord->total       = $lineItem->total;
+
+        // Cant have discounts making things less than zero.
+        if ($lineItemRecord->total < 0){
+            $lineItemRecord->total = 0;
+        }
 
         $lineItemRecord->validate();
 
