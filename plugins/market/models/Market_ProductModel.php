@@ -8,9 +8,9 @@ use Market\Interfaces\Purchasable;
 /**
  * Class Market_ProductModel
  *
- * @property int                     $id
- * @property DateTime                $availableOn
- * @property DateTime                $expiresOn
+ * @property int                     id
+ * @property DateTime                availableOn
+ * @property DateTime                expiresOn
  * @property int                     typeId
  * @property int                     authorId
  * @property int                     taxCategoryId
@@ -38,19 +38,6 @@ class Market_ProductModel extends BaseElementModel implements Purchasable
     // Public Methods
     // =============================================================================
 
-    /**
-     * Setting default taxCategoryId
-     *
-     * @param null $attributes
-     */
-    public function __construct($attributes = null)
-    {
-        parent::__construct($attributes);
-
-        if (empty($this->taxCategoryId)) {
-            $this->taxCategoryId = craft()->market_taxCategory->getDefaultId();
-        }
-    }
 
     /**
      * @return bool
@@ -77,6 +64,7 @@ class Market_ProductModel extends BaseElementModel implements Purchasable
     {
         return $this->title;
     }
+
 
     /**
      * We need to be explicit to meet interface
@@ -331,9 +319,8 @@ class Market_ProductModel extends BaseElementModel implements Purchasable
     }
 
     /**
-     * Gets only the variant that is master.
-     *
-     * @return Market_VariantModel|null
+     * @return bool|mixed
+     * @throws Exception
      */
     public function getMasterVariant()
     {
