@@ -16,6 +16,15 @@
     {{ getCsrfInput() }}
     {% if sale.id %}<input type="hidden" name="id" value="{{ sale.id }}">{% endif %}
 
+
+    {% set tabs = {
+        0: {'label':'Sale','url':'#sale'},
+        1: {'label':'Conditions','url':'#conditions'},
+        2: {'label':'Actions','url':'#actions'}
+        }
+    %}
+
+    <div id="sale">
     {{ forms.textField({
         first: true,
         label: "Name"|t,
@@ -37,6 +46,19 @@
         errors: sale.getErrors('description'),
     }) }}
 
+    {{ forms.checkboxField({
+        label: "Enabled"|t,
+        instructions: "Is it active?"|t,
+        id: 'enabled',
+        name: 'enabled',
+        value: 1,
+        checked: sale.enabled,
+        errors: sale.getErrors('enabled')
+    }) }}
+
+    </div>
+
+    <div id="conditions" class="hidden">
     {{ forms.dateField({
         label: "Start Date"|t,
         instructions: "Date from which the sale will be active. Leave blank for unlimited start date"|t,
@@ -55,26 +77,6 @@
         errors: sale.getErrors('dateTo'),
     }) }}
 
-    {{ forms.radioGroupField({
-        label: 'Discount Type'|t,
-        instructions: "Select how the discount for this sale will be calculated"|t,
-        name: 'discountType',
-        options: {'flat' : 'Flat'|t, 'percent' : 'Percent'|t},
-        value: sale.discountType,
-        errors: sale.getErrors('discountType'),
-        required: true,
-    }) }}
-
-    {{ marketForms.numberField({
-        label: "Discount Amount"|t,
-        instructions: "Percentage or a flat value of discount (for example: -0,03 for 3% off)."|t,
-        id: 'discountAmount',
-        name: 'discountAmount',
-        value: sale.discountAmount,
-        type: 'number',
-        step: 'any',
-        errors: sale.getErrors('discountAmount'),
-    }) }}
 
     {{ forms.multiselectField({
         label: 'Groups'|t,
@@ -98,8 +100,8 @@
 
     {% set productsField %}
         <a href="#" class="products-modal btn">Choose products <span class="products-counter">
-                {{ sale.getProductsIds() ? '(' ~ sale.getProductsIds()|length ~ ')' : '' }}
-            </span></a>
+            {{ sale.getProductsIds() ? '(' ~ sale.getProductsIds()|length ~ ')' : '' }}
+        </span></a>
 
         <div class="chosen-products">
             {% for id in sale.getProductsIds() %}
@@ -116,16 +118,34 @@
         errors: sale.getErrors('products'),
     }, productsField) }}
 
-    {{ forms.checkboxField({
-        label: "Enabled"|t,
-        instructions: "Is it active?"|t,
-        id: 'enabled',
-        name: 'enabled',
-        value: 1,
-        checked: sale.enabled,
-        errors: sale.getErrors('enabled')
+
+
+    </div>
+
+    <div id="actions" class="hidden">
+
+    {{ forms.radioGroupField({
+        label: 'Discount Type'|t,
+        instructions: "Select how the discount for this sale will be calculated"|t,
+        name: 'discountType',
+        options: {'flat' : 'Flat'|t, 'percent' : 'Percent'|t},
+        value: sale.discountType,
+        errors: sale.getErrors('discountType'),
+        required: true,
     }) }}
 
+    {{ marketForms.numberField({
+        label: "Discount Amount"|t,
+        instructions: "Percentage or a flat value of discount (for example: -0,03 for 3% off)."|t,
+        id: 'discountAmount',
+        name: 'discountAmount',
+        value: sale.discountAmount,
+        type: 'number',
+        step: 'any',
+        errors: sale.getErrors('discountAmount'),
+    }) }}
+
+    </div>
     <hr>
 
     <div class="buttons">

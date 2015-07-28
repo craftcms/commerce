@@ -45,6 +45,16 @@
         errors: discount.getErrors('description'),
     }) }}
 
+    {{ forms.checkboxField({
+        label: "Enabled"|t,
+        instructions: "Is it active?"|t,
+        id: 'enabled',
+        name: 'enabled',
+        value: 1,
+        checked: discount.enabled,
+        errors: discount.getErrors('enabled')
+    }) }}
+
     </div>
     <div id="conditions" class="hidden">
     {{ forms.textField({
@@ -215,15 +225,7 @@
         errors: discount.getErrors('freeShipping')
     }) }}
 
-    {{ forms.checkboxField({
-        label: "Enabled"|t,
-        instructions: "Is it active?"|t,
-        id: 'enabled',
-        name: 'enabled',
-        value: 1,
-        checked: discount.enabled,
-        errors: discount.getErrors('enabled')
-    }) }}
+
     </div>
 
     <hr>
