@@ -16,6 +16,14 @@
     {{ getCsrfInput() }}
     {% if discount.id %}<input type="hidden" name="id" value="{{ discount.id }}">{% endif %}
 
+    {% set tabs = {
+        0: {'label':'Discount','url':'#discount'},
+        1: {'label':'Conditions','url':'#conditions'},
+        2: {'label':'Actions','url':'#actions'}
+        }
+    %}
+
+    <div id="discount">
     {{ forms.textField({
         first: true,
         label: "Name"|t,
@@ -37,6 +45,8 @@
         errors: discount.getErrors('description'),
     }) }}
 
+    </div>
+    <div id="conditions" class="hidden">
     {{ forms.textField({
         label: "Coupon Code"|t,
         instructions: "A user will have to enter it to activate this discount."|t,
@@ -58,7 +68,7 @@
 
     {{ marketForms.numberField({
         label: "Total Use Limit"|t,
-        instructions: "How many times this discount can be used. Set zero for unlimit use"|t,
+        instructions: "How many times this discount can be used. Set zero for unlimited use"|t,
         id: 'totalUseLimit',
         name: 'totalUseLimit',
         value: discount.totalUseLimit,
@@ -69,7 +79,7 @@
     {{
         forms.field({
             'label': 'Times used'|t
-        }, '<input disabled value="' ~discount.totalUses ~ ' times" />')
+        }, '<input disabled value="' ~ discount.totalUses ~ ' times" />')
     }}
 
     {{ forms.dateField({
@@ -150,6 +160,8 @@
         errors: discount.getErrors('purchaseQty'),
     }) }}
 
+    </div>
+    <div id="actions" class="hidden">
     {{ marketForms.numberField({
         label: "Base Discount"|t,
         instructions: "Flat value which should be added to the order total price. Write negative number for off-discount"|t,
@@ -184,8 +196,8 @@
     }) }}
 
     {{ forms.checkboxField({
-        label: "Exclude On Sale"|t,
-        instructions: "Set discount not applicable to the items which on sale"|t,
+        label: "Exclude If On Sale"|t,
+        instructions: "Sets the discount not applicable to the items which on sale"|t,
         id: 'excludeOnSale',
         name: 'excludeOnSale',
         value: 1,
@@ -212,6 +224,7 @@
         checked: discount.enabled,
         errors: discount.getErrors('enabled')
     }) }}
+    </div>
 
     <hr>
 
