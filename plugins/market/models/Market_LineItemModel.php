@@ -92,18 +92,22 @@ class Market_LineItemModel extends BaseModel
         $this->taxCategoryId = $purchasable->product->taxCategoryId;
 
         $options           = $purchasable->attributes;
+        //TODO rename to purchasableData
         $this->optionsJson = $options;
 
-        //TODO make sales api work with other purchasables types
-        $sales = craft()->market_sale->getForVariant($purchasable);
+        //TODO make sales api work with other Purchasable implementations
+        if ($purchasable instanceof Market_VariantModel || $purchasable instanceof Market_ProductModel) {
+            $sales = craft()->market_sale->getForVariant($purchasable);
 
-        foreach ($sales as $sale) {
-            $this->saleAmount += $sale->calculateTakeoff($this->price);
+            foreach ($sales as $sale) {
+                $this->saleAmount += $sale->calculateTakeoff($this->price);
+            }
+
+            if ($this->saleAmount > $this->price) {
+                $this->saleAmount = $this->price;
+            }
         }
 
-        if ($this->saleAmount > $this->price) {
-            $this->saleAmount = $this->price;
-        }
     }
 
     protected function defineAttributes()
