@@ -106,7 +106,7 @@
                     <div class="item" data-min-colspan="4" data-max-colspan="8">
                     {{ forms.textField({
                         label: 'SKU'|t,
-                        required: productType.hasVariants ? falase : true,
+                        required: productType.hasVariants ? false : true,
                         name: 'masterVariant[sku]',
                         value: masterVariant.sku,
                         errors: masterVariant.getErrors('sku')
@@ -118,7 +118,7 @@
                     {{ forms.textField({
                         label: productType.hasVariants ? 'Default Price'|t : 'Price'|t,
                         name:   'masterVariant[price]',
-                        required: productType.hasVariants ? falase : true,
+                        required: productType.hasVariants ? false : true,
                         type:   'text',
                         value: masterVariant.price|number,
                         errors: masterVariant.getErrors('price')
@@ -206,7 +206,7 @@
                         name:   'masterVariant[stock]',
                         type:   'text',
                         value: masterVariant.stock,
-                        required: productType.hasVariants ? falase : true,
+                        required: productType.hasVariants ? false : true,
                         errors: masterVariant.getErrors('stock'),
 
                     })}}
