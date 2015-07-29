@@ -70,6 +70,12 @@ class Market_VariantElementType extends Market_BaseElementType
 
 	public function getTableAttributeHtml(BaseElementModel $element, $attribute)
 	{
+		$numbers = ['price','weight','height','length',];
+		if(in_array($attribute,$numbers)){
+			$formatter = craft()->getNumberFormatter();
+			return $formatter->formatDecimal($element->$attribute);
+		}
+
 		return parent::getTableAttributeHtml($element, $attribute);
 	}
 
