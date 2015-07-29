@@ -239,7 +239,7 @@
                     {%  if productType.hasVariants %}
 
                         <a class="fieldtoggle" data-target="#masterVariantDefaults">Variant Defaults</a>
-                        <div id="masterVariantDefaults" class="hidden">
+                        <div id="masterVariantDefaults" class="{% if product.id and not product.hasErrors() %}hidden{% endif %}">
                         {{ masterVariantHtml }}
                         </div>
                     {%  endif %}
