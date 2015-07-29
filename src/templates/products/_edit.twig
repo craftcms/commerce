@@ -102,22 +102,23 @@
 
 
                     <div class="grid first" data-cols="8">
-                    <div class="item" data-min-colspan="4" data-max-colspan="4">
                     {% if not productType.hasVariants %}
+                    <div class="item" data-min-colspan="4" data-max-colspan="8">
                     {{ forms.textField({
                         label: 'SKU'|t,
+                        required: productType.hasVariants ? falase : true,
                         name: 'masterVariant[sku]',
                         value: masterVariant.sku,
                         errors: masterVariant.getErrors('sku')
                     })}}
-                    {% endif %}
                     </div>
+                    {% endif %}
 
-
-                    <div class="item" data-min-colspan="4" data-max-colspan="4">
+                    <div class="item" data-min-colspan="4" data-max-colspan="8">
                     {{ forms.textField({
                         label: productType.hasVariants ? 'Default Price'|t : 'Price'|t,
                         name:   'masterVariant[price]',
+                        required: productType.hasVariants ? falase : true,
                         type:   'text',
                         value: masterVariant.price|number,
                         errors: masterVariant.getErrors('price')
@@ -126,9 +127,9 @@
                     </div>
 
                     <div class="grid first" data-cols="8">
-                    <div class="item" data-min-colspan="4" data-max-colspan="4">
+                    <div class="item" data-min-colspan="4" data-max-colspan="8">
                     {{ forms.textField({
-                        label: productType.hasVariants ? 'Default Min Qty'|t : 'Qty'|t,
+                        label: productType.hasVariants ? 'Default Min Qty'|t : 'Min Qty'|t,
                         name:   'masterVariant[minQty]',
                         type:   'text',
                         value: masterVariant.minQty,
@@ -136,9 +137,9 @@
                     })}}
                     </div>
 
-                    <div class="item" data-min-colspan="4" data-max-colspan="4">
+                    <div class="item" data-min-colspan="4" data-max-colspan="8">
                     {{ forms.textField({
-                        label: productType.hasVariants ? 'Default Max Qty'|t : 'Qty'|t,
+                        label: productType.hasVariants ? 'Default Max Qty'|t : 'Max Qty'|t,
                         name:   'masterVariant[maxQty]',
                         type:   'text',
                         value: masterVariant.maxQty,
@@ -190,31 +191,31 @@
                     </div>
 
                     <div class="grid first" data-cols="8">
-                    <div class="item" data-min-colspan="4" data-max-colspan="4">
+                    <div class="item" data-min-colspan="8" data-max-colspan="8">
+                    {{ forms.checkboxField({
+                        label: productType.hasVariants ? 'Default to Unlimited Stock'|t : 'Unlimited Stock'|t,
+                        name:   'masterVariant[unlimitedStock]',
+                        checked: (masterVariant.id ? masterVariant.unlimitedStock : 1),
+                        errors: masterVariant.getErrors('unlimitedStock'),
+                        reverseToggle: '.stockToggle'
+                    }) }}
 
+                    <div class="stockToggle {% if not masterVariant.id or masterVariant.unlimitedStock %}hidden{% endif %}">
                     {{ forms.textField({
                         label: productType.hasVariants ? 'Default Stock'|t : 'Stock'|t,
                         name:   'masterVariant[stock]',
                         type:   'text',
                         value: masterVariant.stock,
-                        errors: masterVariant.getErrors('stock')
+                        required: productType.hasVariants ? falase : true,
+                        errors: masterVariant.getErrors('stock'),
+
                     })}}
                     </div>
-                    <div class="item" data-min-colspan="4" data-max-colspan="4">
-                    {{ forms.checkboxField({
-                        label: productType.hasVariants ? 'Default Unlimited Stock'|t : 'Unlimited Stock'|t,
-                        name:   'masterVariant[unlimitedStock]',
-                        checked: (masterVariant.id ? masterVariant.unlimitedStock : 1),
-                        errors: masterVariant.getErrors('unlimitedStock')
-                    }) }}
                     </div>
+
                     </div>
                     </div>
                     {%  endset %}
-
-                    {%  if not productType.hasVariants %}
-                        {{ masterVariantHtml }}
-                    {%  endif %}
 
                     {% set allProductTab = productType.asa('productFieldLayout').getFieldLayout().getTabs() %}
                     {% for tab in allProductTab %}
@@ -301,6 +302,12 @@
                         value: product.slug,
                         errors: product.getErrors('slug')|merge(product.getErrors('uri'))
                     }) }}
+
+
+                    {%  if not productType.hasVariants %}
+                        {{ masterVariantHtml }}
+                    {%  endif %}
+
 
                     {{ forms.selectField({
                         label: 'Tax Category'|t,
