@@ -60,7 +60,8 @@
 
 {% block main %}
 
-    <form id="product-form" method="post" accept-charset="UTF-8">
+    <form id="product-form" method="post" accept-charset="UTF-8" data-saveshortcut data-saveshortcut-redirect="{{ continueEditingUrl }}" data-confirm-unload>
+
         <input type="hidden" name="action" value="market/product/saveProduct">
         <input type="hidden" name="redirect" value="market/products">
         <input type="hidden" name="typeId" value="{{ productType.id }}">
@@ -350,15 +351,31 @@
 
                 </div>{#END PANE#}
 
+                <table class="inputs fullwidth">
+                    <tr>
+                        <td class="thin">
+                            <div class="btngroup submit first">
+                                <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
 
-                <div class="buttons first">
-                    <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
-                    {% if productType.hasVariants %}
-                    <a class="btn formsubmit submit right" data-redirect="market/products/{type.handle}/{id}/variants/new"
-                       data-value="1">{{ 'Save & Add Variant'|t }}</a>
-                    {%  endif %}
-                </div>
+                                <div class="btn submit menubtn"></div>
+                                <div class="menu">
+                                    <ul>
+                                        <li><a class="formsubmit" data-redirect="{{ continueEditingUrl }}">
+                                                {{ "Save and continue editing"|t }}
+                                                {{ forms.optionShortcutLabel('S') }}
+                                            </a></li>
 
+                                        {% if productType.hasVariants %}
+                                            <li><a class="formsubmit" data-param="entryId" data-value="" data-redirect="market/products/{type.handle}/{id}/variants/new"
+                                                   data-value="1">{{ 'Save and add new variant'|t }}</a></li>
+                                        {%  endif %}
+
+                                    </ul>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
 
             </div>
 
