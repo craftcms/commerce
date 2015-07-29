@@ -71,12 +71,10 @@ class Market_ProductTypeController extends Market_BaseController
         $productType->asa('productFieldLayout')->setFieldLayout($fieldLayout);
 
         // Set the variant field layout, we need to manually do so since assembleLayout has hardcoded post names
-        $postedFieldLayout        = craft()->request->getPost('variantfieldLayout',
-            []);
-        $requiredFields           = craft()->request->getPost('variantrequiredFields',
-            []);
-        $variantFieldLayout       = craft()->fields->assembleLayout($postedFieldLayout,
-            $requiredFields);
+        $postedFieldLayout        = craft()->request->getPost('variantfieldLayout', []);
+        $requiredFields           = craft()->request->getPost('variantrequiredFields', []);
+        $variantFieldLayout       = craft()->fields->assembleLayout($postedFieldLayout, $requiredFields);
+
         $variantFieldLayout->type = 'Market_Variant';
         $productType->asa('variantFieldLayout')->setFieldLayout($variantFieldLayout);
 
