@@ -1,9 +1,6 @@
 {% extends 'commerce/_layouts/main' %}
 {%  block main %}
 
-   {# Get All Products. #}
-   {# Documentation: LINKHERE #}
-
    {% import 'commerce/_includes/forms' as forms %}
 
    {%  for product in craft.market.products.find() %}
@@ -24,7 +21,11 @@
             {% endif %}
 
             {% if product.type.hasVariants %}
+               {% if product.variants|length %}
                {{ forms.addToCartForm(product.variants) }}
+               {% else %}
+               <p>This is a product without any variants.</p>
+               {% endif %}
             {% else %}
                {% include 'commerce/_includes/purchasableDetails' with {'purchasable':product} %}
                {{ forms.addToCartButton(product) }}
