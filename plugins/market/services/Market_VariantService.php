@@ -102,6 +102,14 @@ class Market_VariantService extends BaseApplicationComponent
      */
     public function save(BaseElementModel $model)
     {
+        $productTypeId = craft()->db->createCommand()
+            ->select('typeId')
+            ->from('market_products')
+            ->where('id=:id',[':id'=>$model->productId])
+            ->queryScalar();
+
+        $productType = craft()->market_productType->getById($productTypeId);
+
         if ($model->id) {
             $record = Market_VariantRecord::model()->findById($model->id);
 
@@ -111,10 +119,15 @@ class Market_VariantService extends BaseApplicationComponent
         } else {
             $record = new Market_VariantRecord();
         }
-
+        /* @var Market_VariantModel $model */
         $record->isMaster       = $model->isMaster;
         $record->productId      = $model->productId;
-        $record->sku            = $model->sku;
+        // We dont ask for a sku when dealing with a product with variants
+        if ($model->isMaster && $productType->hasVariants){
+            $record->sku        = 'masterSkuOfProductId'.$model->productId;
+        }else{
+            $record->sku        = $model->sku;
+        }
         $record->price          = $model->price;
         $record->width          = $model->width;
         $record->height         = $model->height;
