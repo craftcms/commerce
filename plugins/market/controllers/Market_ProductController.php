@@ -70,6 +70,8 @@ class Market_ProductController extends Market_BaseController
             $variables['title'] = Craft::t('Create a new Product');
         }
 
+        $variables['continueEditingUrl'] = "market/products/".$variables['productTypeHandle']."/{id}";
+
         $variables['taxCategories'] = \CHtml::listData(craft()->market_taxCategory->getAll(),
             'id', 'name');
 
