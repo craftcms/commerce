@@ -9,6 +9,12 @@
 
 {% set content %}
 
+{% set moreTabs = {
+    0: {'label':'Variant','url':'#variant'},
+} %}
+
+{%  set tabs = moreTabs|merge(tabs) %}
+
 <form method="post" accept-charset="UTF-8" data-saveshortcut>
     <input type="hidden" name="action" value="market/variant/save">
     <input type="hidden" name="redirect" value="{{ product.cpEditUrl }}">
@@ -18,13 +24,15 @@
         {%  include "market/_includes/variant/fields" with {'variant':variant}%}
     {% endset %}
 
+    <div id="variant">
     {{ forms.field({
         id:       'variant',
         label:    'Variant'
     }, variantForm) }}
+    </div>
 
     {% for tab in productType.asa('variantFieldLayout').getFieldLayout().getTabs() %}
-        <div id="tab{{ loop.index }}" {% if not loop.first %} class="hidden" {% endif %}>
+        <div id="tab{{ loop.index }}" class="hidden">
             {% include "_includes/fields" with {
             fields: tab.getFields(),
             element: variant,
