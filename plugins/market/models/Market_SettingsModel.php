@@ -9,12 +9,6 @@ namespace Craft;
  *
  * @property string defaultCurrency
  * @property string paymentMethod
- * @property int    cartExpiryTimeout
- * @property string currencySymbol
- * @property string currencySuffix
- * @property int    currencyDecimalPlaces
- * @property string currencyDecimalSymbol
- * @property string currencyDecimalSeparator
  * @property string weightUnits
  * @property string dimensionUnits
  * @property string emailSenderAddress
