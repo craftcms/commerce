@@ -28,7 +28,7 @@ class Market_VariantElementType extends Market_BaseElementType
 
 	public function isSelectable()
 	{
-		return false;
+		return true;
 	}
 
 	public function getSources($context = NULL)
@@ -44,6 +44,17 @@ class Market_VariantElementType extends Market_BaseElementType
 
 	}
 
+	public function getAvailableActions($source = null)
+	{
+		$deleteAction = craft()->elements->getAction('Delete');
+		$deleteAction->setParams(array(
+			'confirmationMessage' => Craft::t('Are you sure you want to delete the selected variants?'),
+			'successMessage'      => Craft::t('Variants deleted.'),
+		));
+		$actions[] = $deleteAction;
+
+		return $actions;
+	}
 
 	public function defineTableAttributes($source = NULL)
 	{
