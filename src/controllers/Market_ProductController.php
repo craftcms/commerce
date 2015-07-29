@@ -213,24 +213,19 @@ class Market_ProductController extends Market_BaseController
         $availableOn = craft()->request->getPost('availableOn');
         $expiresOn   = craft()->request->getPost('expiresOn');
 
-        $product->availableOn   = $availableOn ? DateTime::createFromString($availableOn,
-            craft()->timezone) : $product->availableOn;
-        $product->expiresOn     = $expiresOn ? DateTime::createFromString($expiresOn,
-            craft()->timezone) : null;
+        $product->availableOn   = $availableOn ? DateTime::createFromString($availableOn, craft()->timezone) : $product->availableOn;
+        $product->expiresOn     = $expiresOn ? DateTime::createFromString($expiresOn, craft()->timezone) : null;
         $product->typeId        = craft()->request->getPost('typeId');
         $product->enabled       = craft()->request->getPost('enabled');
         $product->authorId      = craft()->userSession->id;
-        $product->taxCategoryId = craft()->request->getPost('taxCategoryId',
-            $product->taxCategoryId);
+        $product->taxCategoryId = craft()->request->getPost('taxCategoryId', $product->taxCategoryId);
 
         if (!$product->availableOn) {
             $product->availableOn = new DateTime();
         }
 
-        $product->getContent()->title = craft()->request->getPost('title',
-            $product->title);
-        $product->slug                = craft()->request->getPost('slug',
-            $product->slug);
+        $product->getContent()->title = craft()->request->getPost('title', $product->title);
+        $product->slug                = craft()->request->getPost('slug', $product->slug);
         $product->setContentFromPost('fields');
 
         return $product;
@@ -248,6 +243,7 @@ class Market_ProductController extends Market_BaseController
 
         $masterVariant = $product->masterVariant ?: new Market_VariantModel;
         $masterVariant->setAttributes($attributes);
+
         $masterVariant->isMaster = true;
 
         return $masterVariant;
