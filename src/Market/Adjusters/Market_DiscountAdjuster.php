@@ -95,7 +95,7 @@ class Market_DiscountAdjuster implements Market_AdjusterInterface
 				$item->discountAmount = -$item->getSubtotalWithSale();
 			}
 			if ($discount->freeShipping) {
-				$item->shippingAmount = 0;
+				$item->shippingCost = 0;
 			}
 		}
 
