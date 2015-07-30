@@ -23,7 +23,7 @@
                                 <td><a href="{{ url('commerce/customer/order', { orderId: order.id }) }}">Order #{{ order.id }}</a></td>
                                 <td>{{ order.completedAt }}</li>
                                 <td>{{ order.totalQty }} items</td>
-                                <td>{{ order.finalPrice|marketCurrency }}</td>
+                                <td>{{ order.totalPrice|marketCurrency }}</td>
                             </tr>
                         {% endfor %}
                     </tbody>

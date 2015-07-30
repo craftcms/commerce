@@ -18,7 +18,7 @@
         {% endfor %}
 
         <li>
-            <strong>Total:</strong> {{ cart.finalPrice|marketCurrency }}
+            <strong>Total:</strong> {{ cart.totalPrice|marketCurrency }}
         </li>
     </ul>
 
@@ -140,7 +140,7 @@
                 <div class="form-group">
                     <label class="col-sm-2 control-label" for="amount">Amount</label>
 
-                    <input type="text" disabled value="{{ cart.finalPrice|number_format(2) }}"/>
+                    <input type="text" disabled value="{{ cart.totalPrice|number_format(2) }}"/>
                 </div>
 
                 <!-- Submit -->

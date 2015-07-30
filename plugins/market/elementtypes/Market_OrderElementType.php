@@ -94,13 +94,13 @@ class Market_OrderElementType extends Market_BaseElementType
             return [
                 'number'     => Craft::t('Number'),
                 'dateUpdated'=> Craft::t('Last Updated'),
-                'finalPrice' => Craft::t('Total')
+                'totalPrice' => Craft::t('Total')
             ];
         }
 		return [
 			'number'     => Craft::t('Number'),
 			'orderStatus'=> Craft::t('Status'),
-			'finalPrice' => Craft::t('Total Payable'),
+			'totalPrice' => Craft::t('Total Payable'),
 			'completedAt'=> Craft::t('Completed'),
 			'paidAt' => Craft::t('Paid')
 		];
@@ -119,9 +119,9 @@ class Market_OrderElementType extends Market_BaseElementType
     public function getTableAttributeHtml(BaseElementModel $element, $attribute)
     {
 
-        if ($attribute == 'finalPrice') {
+        if ($attribute == 'totalPrice') {
             $currency = craft()->market_settings->getOption('defaultCurrency');
-            return craft()->numberFormatter->formatCurrency($element->finalPrice, strtoupper($currency));
+            return craft()->numberFormatter->formatCurrency($element->totalPrice, strtoupper($currency));
         }
 
 		if ($attribute == 'orderStatus') {
@@ -144,7 +144,7 @@ class Market_OrderElementType extends Market_BaseElementType
         return [
             'number' => Craft::t('Number'),
             'completedAt' => Craft::t('Completed At'),
-            'finalPrice' => Craft::t('Total Payable'),
+            'totalPrice' => Craft::t('Total Payable'),
             'orderStatusId' => Craft::t('Order Status'),
         ];
     }
@@ -184,7 +184,7 @@ class Market_OrderElementType extends Market_BaseElementType
         orders.itemTotal,
         orders.baseDiscount,
         orders.baseShippingCost,
-        orders.finalPrice,
+        orders.totalPrice,
         orders.paidTotal,
         orders.orderStatusId,
         orders.completedAt,

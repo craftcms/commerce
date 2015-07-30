@@ -9,6 +9,6 @@
 
 <body>
 <h1>Order #{{ order.number[:7] }}</h1>
-<p>Thanks for your order valued at {{ order.finalPrice|marketCurrency }}</p>
+<p>Thanks for your order valued at {{ order.totalPrice|marketCurrency }}</p>
 </body>
 </html>

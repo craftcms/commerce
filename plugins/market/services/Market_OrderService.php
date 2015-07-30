@@ -73,8 +73,8 @@ class Market_OrderService extends BaseApplicationComponent
             }
         }
 
-        $order->finalPrice = $order->itemTotal + $order->baseDiscount + $order->baseShippingCost;
-        $order->finalPrice = max(0, $order->finalPrice);
+        $order->totalPrice = $order->itemTotal + $order->baseDiscount + $order->baseShippingCost;
+        $order->totalPrice = max(0, $order->totalPrice);
     }
 
     /**
@@ -211,7 +211,7 @@ class Market_OrderService extends BaseApplicationComponent
         $orderRecord->couponCode        = $order->couponCode;
         $orderRecord->baseDiscount      = $order->baseDiscount;
         $orderRecord->baseShippingCost  = $order->baseShippingCost;
-        $orderRecord->finalPrice        = $order->finalPrice;
+        $orderRecord->totalPrice        = $order->totalPrice;
         $orderRecord->paidTotal         = $order->paidTotal;
         $orderRecord->customerId        = $order->customerId;
         $orderRecord->returnUrl         = $order->returnUrl;
@@ -289,7 +289,7 @@ class Market_OrderService extends BaseApplicationComponent
             }else{
                 // maybe not paid in full, but authorized enough to complete order.
                 $totalAuthorized = craft()->market_payment->getTotalAuthorizedForOrder($order);
-                if($totalAuthorized >= $order->finalPrice){
+                if($totalAuthorized >= $order->totalPrice){
                     craft()->market_order->complete($order);
                 }
             }
