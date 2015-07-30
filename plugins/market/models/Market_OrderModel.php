@@ -12,7 +12,7 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property string                        couponCode
  * @property float                         itemTotal
  * @property float                         totalPrice
- * @property float                         paidTotal
+ * @property float                         totalPaid
  * @property float                         baseDiscount
  * @property float                         baseShippingCost
  * @property string                        email
@@ -111,7 +111,7 @@ class Market_OrderModel extends BaseElementModel
      */
     public function isPaid()
     {
-        return $this->paidTotal >= $this->totalPrice;
+        return $this->totalPaid >= $this->totalPrice;
     }
 
     /**
@@ -265,7 +265,7 @@ class Market_OrderModel extends BaseElementModel
                 'decimals' => 4,
                 'default'  => 0
             ],
-            'paidTotal'         => [
+            'totalPaid'         => [
                 AttributeType::Number,
                 'decimals' => 4,
                 'default'  => 0

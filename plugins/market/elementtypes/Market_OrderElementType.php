@@ -185,7 +185,7 @@ class Market_OrderElementType extends Market_BaseElementType
         orders.baseDiscount,
         orders.baseShippingCost,
         orders.totalPrice,
-        orders.paidTotal,
+        orders.totalPaid,
         orders.orderStatusId,
         orders.completedAt,
         orders.email,
