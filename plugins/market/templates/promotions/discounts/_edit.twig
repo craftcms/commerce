@@ -152,7 +152,7 @@
 
     {{ forms.textField({
         label: "Purchase Total"|t,
-        instructions: "How many items should be in a cart to apply this discount"|t,
+        instructions: "Restrict the discount to only those orders where the customer has purchased a minimum total value of matching items."|t,
         id: 'purchaseTotal',
         name: 'purchaseTotal',
         value: discount.purchaseTotal,
