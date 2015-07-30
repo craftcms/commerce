@@ -83,7 +83,7 @@
                         <td colspan="4" class="text-right">
                             Item Total: {{ order.itemTotal|marketCurrency }}<br/>
                             Base Discount: {{ order.baseDiscount|marketCurrency }}<br/>
-                            Base Shipping Rate: {{ order.baseShippingRate|marketCurrency }}<br/>
+                            Base Shipping Rate: {{ order.baseShippingCost|marketCurrency }}<br/>
                             <h4>Total: {{ order.finalPrice|marketCurrency }}</h4>
                         </td>
                     </tr>

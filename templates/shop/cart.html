@@ -59,7 +59,7 @@
             <td class="text-right">
                 Item Total: {{ cart.itemTotal|marketCurrency }}<br/>
                 Base Discount: {{ cart.baseDiscount|marketCurrency }}<br/>
-                Base Shipping Rate: {{ cart.baseShippingRate|marketCurrency }}<br/>
+                Base Shipping Rate: {{ cart.baseShippingCost|marketCurrency }}<br/>
                 <h4>Final Price: {{ cart.finalPrice|marketCurrency }}</h4>
             </td>
         </tr>
