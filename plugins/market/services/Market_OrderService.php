@@ -27,7 +27,7 @@ class Market_OrderService extends BaseApplicationComponent
     private function calculateAdjustments(Market_OrderModel $order)
     {
         // Don't recalc the totals of completed orders.
-        if (!$order->id or $order->completedAt != null) {
+        if (!$order->id or $order->dateOrdered != null) {
             return;
         }
 
@@ -88,7 +88,7 @@ class Market_OrderService extends BaseApplicationComponent
      */
     public function complete(Market_OrderModel $order)
     {
-        $order->completedAt = DateTimeHelper::currentTimeForDb();
+        $order->dateOrdered = DateTimeHelper::currentTimeForDb();
         if ($status = craft()->market_orderStatus->getDefault()) {
             $order->orderStatusId = $status->id;
         }
@@ -149,7 +149,7 @@ class Market_OrderService extends BaseApplicationComponent
      */
     public function save($order)
     {
-        if (!$order->completedAt) {
+        if (!$order->dateOrdered) {
             //raising event
             $event = new Event($this, [
                 'order' => $order
@@ -201,8 +201,8 @@ class Market_OrderService extends BaseApplicationComponent
         $orderRecord->number            = $order->number;
         $orderRecord->itemTotal         = $order->itemTotal;
         $orderRecord->email             = $order->email;
-        $orderRecord->completedAt       = $order->completedAt;
-        $orderRecord->paidAt            = $order->paidAt;
+        $orderRecord->dateOrdered       = $order->dateOrdered;
+        $orderRecord->datePaid            = $order->datePaid;
         $orderRecord->billingAddressId  = $order->billingAddressId;
         $orderRecord->shippingAddressId = $order->shippingAddressId;
         $orderRecord->shippingMethodId  = $order->shippingMethodId;
@@ -244,7 +244,7 @@ class Market_OrderService extends BaseApplicationComponent
                     MarketDbHelper::commitStackedTransaction();
 
                     //raising event
-                    if (!$order->completedAt) {
+                    if (!$order->dateOrdered) {
                         $event = new Event($this, [
                             'order' => $order
                         ]);
@@ -265,7 +265,7 @@ class Market_OrderService extends BaseApplicationComponent
     }
 
     /**
-     * Updates the orders totalPaid and paidAt date and completes order
+     * Updates the orders totalPaid and datePaid date and completes order
      *
      * @param Market_OrderModel $order
      */
@@ -276,14 +276,14 @@ class Market_OrderService extends BaseApplicationComponent
         $order->totalPaid = $totalPaid;
 
         if($order->isPaid()){
-            if($order->paidAt == null){
-                $order->paidAt = DateTimeHelper::currentTimeForDb();
+            if($order->datePaid == null){
+                $order->datePaid = DateTimeHelper::currentTimeForDb();
             }
         }
 
         $this->save($order);
 
-        if(!$order->completedAt){
+        if(!$order->dateOrdered){
             if($order->isPaid()){
                 craft()->market_order->complete($order);
             }else{

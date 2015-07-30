@@ -16,8 +16,8 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property float                         baseDiscount
  * @property float                         baseShippingCost
  * @property string                        email
- * @property DateTime                      completedAt
- * @property DateTime                      paidAt
+ * @property DateTime                      dateOrdered
+ * @property DateTime                      datePaid
  * @property string                        lastIp
  * @property string                        message
  * @property string                        returnUrl
@@ -195,7 +195,7 @@ class Market_OrderModel extends BaseElementModel
     public function getShippingAddress()
     {
         // Get the live linked address if it is still a cart, else cached
-        if (!$this->completedAt) {
+        if (!$this->dateOrdered) {
             return craft()->market_address->getAddressById($this->shippingAddressId);
         }else{
             return Market_AddressModel::populateModel($this->shippingAddressData);
@@ -208,7 +208,7 @@ class Market_OrderModel extends BaseElementModel
     public function getBillingAddress()
     {
         // Get the live linked address if it is still a cart, else cached
-        if (!$this->completedAt) {
+        if (!$this->dateOrdered) {
             return craft()->market_address->getAddressById($this->billingAddressId);
         }else{
             return Market_AddressModel::populateModel($this->billingAddressData);
@@ -271,8 +271,8 @@ class Market_OrderModel extends BaseElementModel
                 'default'  => 0
             ],
             'email'             => AttributeType::String,
-            'completedAt'       => AttributeType::DateTime,
-            'paidAt'            => AttributeType::DateTime,
+            'dateOrdered'       => AttributeType::DateTime,
+            'datePaid'            => AttributeType::DateTime,
             'currency'          => AttributeType::String,
             'lastIp'            => AttributeType::String,
             'message'           => AttributeType::String,
