@@ -43,7 +43,6 @@
         {%  for adjustment in cart.adjustments %}
             <tr>
             <td>{{ adjustment.type }}
-                {#<pre><code>{{ adjustment.optionsJson|json_encode(constant('JSON_PRETTY_PRINT')) }}</code></pre>#}
             </td>
             <td> <strong>{{ adjustment.name }}</strong><br/>({{ adjustment.description }})</td>
             <td class="text-right">{{ adjustment.amount|marketCurrency }}</td>
