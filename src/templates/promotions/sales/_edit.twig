@@ -1,5 +1,7 @@
 {% extends "market/_layouts/cp" %}
 
+{% set selectedSubNavItem = "promotions" %}
+
 {% set crumbs = [
     { label: "Promotions"|t, url: url('market/promotions') },
     { label: "Sales"|t, url: url('market/promotions/sales') },
