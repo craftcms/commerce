@@ -15,7 +15,7 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property float                   saleAmount
  * @property float                   $tax
  * @property float                   shippingCost
- * @property float                   discountAmount
+ * @property float                   discount
  * @property float                   weight
  * @property float                   height
  * @property float                   width
@@ -53,7 +53,7 @@ class Market_LineItemModel extends BaseModel
 
     public function getPriceWithoutShipping()
     {
-        return $this->price + $this->discountAmount + $this->saleAmount;
+        return $this->price + $this->discount + $this->saleAmount;
     }
 
     public function getPurchasable()
@@ -139,7 +139,7 @@ class Market_LineItemModel extends BaseModel
                 'required' => true,
                 'default'  => 0
             ],
-            'discountAmount' => [
+            'discount' => [
                 AttributeType::Number,
                 'decimals' => 4,
                 'required' => true,
