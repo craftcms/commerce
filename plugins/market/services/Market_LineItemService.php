@@ -107,6 +107,7 @@ class Market_LineItemService extends BaseApplicationComponent
 
         $lineItemRecord->weight      = $lineItem->weight;
         $lineItemRecord->snapshot = $lineItem->snapshot;
+        $lineItemRecord->note = $lineItem->note;
 
         $lineItemRecord->saleAmount     = $lineItem->saleAmount;
         $lineItemRecord->tax      = $lineItem->tax;

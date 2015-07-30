@@ -22,6 +22,7 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property float                   length
  * @property float                   total
  * @property int                     qty
+ * @property string                  note
  * @property string                  snapshot
  *
  * @property int                     orderId
@@ -186,6 +187,7 @@ class Market_LineItemModel extends BaseModel
                 'required' => true
             ],
             'snapshot'    => [AttributeType::Mixed, 'required' => true],
+            'note'    => AttributeType::Mixed,
             'purchasableId'  => AttributeType::Number,
             'orderId'        => AttributeType::Number,
             'taxCategoryId'  => [AttributeType::Number, 'required' => true],
