@@ -202,6 +202,10 @@ class Market_DiscountService extends BaseApplicationComponent
             return false;
         }
 
+        if (!$lineItem->purchasable instanceof Market_VariantModel){
+            return false;
+        }
+
         $productId = $lineItem->purchasable->productId;
         if (!$discount->allProducts && !in_array($productId,
                 $discount->getProductsIds())
