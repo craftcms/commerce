@@ -100,7 +100,7 @@ class Market_DiscountAdjuster implements Market_AdjusterInterface
 		}
 
 		if ($discount->freeShipping) {
-			$order->baseShippingRate = 0;
+			$order->baseShippingCost = 0;
 		}
 
 		$order->baseDiscount = $discount->baseDiscount;

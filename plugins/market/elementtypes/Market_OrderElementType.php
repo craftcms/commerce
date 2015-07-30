@@ -183,7 +183,7 @@ class Market_OrderElementType extends Market_BaseElementType
         orders.couponCode,
         orders.itemTotal,
         orders.baseDiscount,
-        orders.baseShippingRate,
+        orders.baseShippingCost,
         orders.finalPrice,
         orders.paidTotal,
         orders.orderStatusId,

@@ -73,7 +73,7 @@ class Market_OrderService extends BaseApplicationComponent
             }
         }
 
-        $order->finalPrice = $order->itemTotal + $order->baseDiscount + $order->baseShippingRate;
+        $order->finalPrice = $order->itemTotal + $order->baseDiscount + $order->baseShippingCost;
         $order->finalPrice = max(0, $order->finalPrice);
     }
 
@@ -210,7 +210,7 @@ class Market_OrderService extends BaseApplicationComponent
         $orderRecord->orderStatusId     = $order->orderStatusId;
         $orderRecord->couponCode        = $order->couponCode;
         $orderRecord->baseDiscount      = $order->baseDiscount;
-        $orderRecord->baseShippingRate  = $order->baseShippingRate;
+        $orderRecord->baseShippingCost  = $order->baseShippingCost;
         $orderRecord->finalPrice        = $order->finalPrice;
         $orderRecord->paidTotal         = $order->paidTotal;
         $orderRecord->customerId        = $order->customerId;

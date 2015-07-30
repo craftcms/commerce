@@ -14,7 +14,7 @@ namespace Craft;
  * @property float                       finalPrice
  * @property float                       paidTotal
  * @property float                       baseDiscount
- * @property float                       baseShippingRate
+ * @property float                       baseShippingCost
  * @property string                      email
  * @property DateTime                    completedAt
  * @property DateTime                    paidAt
@@ -129,7 +129,7 @@ class Market_OrderRecord extends BaseRecord
                 'decimals' => 4,
                 'default'  => 0
             ],
-            'baseShippingRate' => [
+            'baseShippingCost' => [
                 AttributeType::Number,
                 'decimals' => 4,
                 'default'  => 0

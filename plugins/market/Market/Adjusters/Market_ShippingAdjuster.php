@@ -66,7 +66,7 @@ class Market_ShippingAdjuster implements Market_AdjusterInterface
 			$adjustment->amount = $amount;
 
 			//real shipping base rate (can be a bit artificial because it counts min and max rate as well, but in general it equals to baseRate)
-			$order->baseShippingRate = $amount - $itemShippingTotal;
+			$order->baseShippingCost = $amount - $itemShippingTotal;
 
 			$adjustments[] = $adjustment;
 		}
