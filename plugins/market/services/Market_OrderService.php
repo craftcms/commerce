@@ -37,7 +37,7 @@ class Market_OrderService extends BaseApplicationComponent
         foreach ($lineItems as $item) { //resetting fields calculated by adjusters
             $item->tax      = 0;
             $item->shippingCost = 0;
-            $item->discountAmount = 0;
+            $item->discount = 0;
         }
 
         /** @var Market_OrderAdjustmentModel[] $adjustments */

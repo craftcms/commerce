@@ -92,7 +92,7 @@ class Market_LineItemService extends BaseApplicationComponent
 
         $lineItem->total = ((
                     $lineItem->price +
-                    $lineItem->discountAmount +
+                    $lineItem->discount +
                     $lineItem->shippingCost +
                     $lineItem->saleAmount
                 ) * $lineItem->qty)
@@ -110,7 +110,7 @@ class Market_LineItemService extends BaseApplicationComponent
 
         $lineItemRecord->saleAmount     = $lineItem->saleAmount;
         $lineItemRecord->tax      = $lineItem->tax;
-        $lineItemRecord->discountAmount = $lineItem->discountAmount;
+        $lineItemRecord->discount = $lineItem->discount;
         $lineItemRecord->shippingCost = $lineItem->shippingCost;
         $lineItemRecord->total       = $lineItem->total;
 
