@@ -96,7 +96,7 @@ class Market_LineItemService extends BaseApplicationComponent
                     $lineItem->shippingAmount +
                     $lineItem->saleAmount
                 ) * $lineItem->qty)
-            + $lineItem->taxAmount;
+            + $lineItem->tax;
 
         $lineItemRecord->purchasableId = $lineItem->purchasableId;
         $lineItemRecord->orderId       = $lineItem->orderId;
@@ -109,7 +109,7 @@ class Market_LineItemService extends BaseApplicationComponent
         $lineItemRecord->optionsJson = $lineItem->optionsJson;
 
         $lineItemRecord->saleAmount     = $lineItem->saleAmount;
-        $lineItemRecord->taxAmount      = $lineItem->taxAmount;
+        $lineItemRecord->tax      = $lineItem->tax;
         $lineItemRecord->discountAmount = $lineItem->discountAmount;
         $lineItemRecord->shippingAmount = $lineItem->shippingAmount;
         $lineItemRecord->total       = $lineItem->total;

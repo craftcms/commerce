@@ -10,7 +10,7 @@ namespace Craft;
  * @property int                      id
  * @property float                    price
  * @property float                    saleAmount
- * @property float                    taxAmount
+ * @property float                    tax
  * @property float                    shippingAmount
  * @property float                    discountAmount
  * @property float                    weight
@@ -95,7 +95,7 @@ class Market_LineItemRecord extends BaseRecord
                 'required' => true,
                 'default'  => 0
             ],
-            'taxAmount'      => [
+            'tax'      => [
                 AttributeType::Number,
                 'decimals' => 4,
                 'required' => true,

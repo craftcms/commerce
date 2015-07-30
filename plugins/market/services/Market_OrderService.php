@@ -35,7 +35,7 @@ class Market_OrderService extends BaseApplicationComponent
         $lineItems = craft()->market_lineItem->getAllByOrderId($order->id);
 
         foreach ($lineItems as $item) { //resetting fields calculated by adjusters
-            $item->taxAmount      = 0;
+            $item->tax      = 0;
             $item->shippingAmount = 0;
             $item->discountAmount = 0;
         }
