@@ -41,12 +41,13 @@ class Market_CartController extends Market_BaseController
      * @throws Exception
      * @throws HttpException
      */
-    public function actionUpdateQty()
+    public function actionUpdateLineItem()
     {
         $this->requirePostRequest();
 
         $lineItemId = craft()->request->getPost('lineItemId');
         $qty        = craft()->request->getPost('qty', 0);
+        $note        = craft()->request->getPost('note');
 
         $lineItem = craft()->market_lineItem->getById($lineItemId);
         if (!$lineItem->id) {
@@ -54,10 +55,11 @@ class Market_CartController extends Market_BaseController
         }
 
         $lineItem->qty = $qty;
+        $lineItem->note = $note;
         $lineItem->order->setContentFromPost('fields');
 
         if (craft()->market_lineItem->update($lineItem, $error)) {
-            craft()->userSession->setFlash('notice',Craft::t('Product quantity has been updated'));
+            craft()->userSession->setFlash('notice',Craft::t('Order item has been updated'));
             $this->redirectToPostedUrl();
         } else {
             craft()->userSession->setFlash('error',$error);

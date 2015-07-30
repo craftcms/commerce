@@ -100,11 +100,12 @@
     </form>
 {% endmacro %}
 
-{% macro updateQtyForm(lineitem) %}
+{% macro updateLineItemForm(lineitem) %}
     <form method="POST">
-        <input type="hidden" name="action" value="market/cart/updateQty">
+        <input type="hidden" name="action" value="market/cart/updateLineItem">
         <input type="hidden" name="redirect" value="commerce/cart">
         <input type="hidden" name="lineItemId" value="{{ lineitem.id }}">
+        <input type="text" placeholder="My Note" size="20" name="note" value="{{ lineitem.note }}">
         <input type="number" name="qty" min="1" value="{{ lineitem.qty }}">
         {{ getCsrfInput() }}
         <input type="submit" class="button" value="Update" />
