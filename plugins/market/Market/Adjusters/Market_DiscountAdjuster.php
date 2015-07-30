@@ -89,6 +89,11 @@ class Market_DiscountAdjuster implements Market_AdjusterInterface
 
 		foreach ($lineItems as $item) {
 			$item->discountAmount = $discount->perItemDiscount * $item->qty + $discount->percentDiscount * $item->getSubtotalWithSale();
+			// If the discount is larger than the subtotal
+			// make the discount equal the discount, thus making the item free.
+			if(($item->discountAmount * -1) > $item->getSubtotalWithSale()){
+				$item->discountAmount = -$item->getSubtotalWithSale();
+			}
 			if ($discount->freeShipping) {
 				$item->shippingAmount = 0;
 			}
