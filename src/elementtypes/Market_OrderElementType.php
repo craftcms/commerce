@@ -72,12 +72,12 @@ class Market_OrderElementType extends Market_BaseElementType
 
         $sources['carts:active'] = [
             'label' => Craft::t('Active Carts'),
-            'criteria' => ['updatedAfter'=>$edge,'completedAt' => ":empty:"]
+            'criteria' => ['updatedAfter'=>$edge,'dateOrdered' => ":empty:"]
         ];
 
         $sources['carts:inactive'] = [
             'label' => Craft::t('Inactive Carts'),
-            'criteria' => ['updatedBefore'=>$edge,'completedAt' => ":empty:"]
+            'criteria' => ['updatedBefore'=>$edge,'dateOrdered' => ":empty:"]
         ];
 
         return $sources;
@@ -101,8 +101,8 @@ class Market_OrderElementType extends Market_BaseElementType
 			'number'     => Craft::t('Number'),
 			'orderStatus'=> Craft::t('Status'),
 			'totalPrice' => Craft::t('Total Payable'),
-			'completedAt'=> Craft::t('Completed'),
-			'paidAt' => Craft::t('Paid')
+			'dateOrdered'=> Craft::t('Completed'),
+			'datePaid' => Craft::t('Paid')
 		];
 	}
 
@@ -143,7 +143,7 @@ class Market_OrderElementType extends Market_BaseElementType
     {
         return [
             'number' => Craft::t('Number'),
-            'completedAt' => Craft::t('Completed At'),
+            'dateOrdered' => Craft::t('Completed At'),
             'totalPrice' => Craft::t('Total Payable'),
             'orderStatusId' => Craft::t('Order Status'),
         ];
@@ -157,7 +157,7 @@ class Market_OrderElementType extends Market_BaseElementType
     {
         return [
             'number' => AttributeType::Mixed,
-            'completedAt' => AttributeType::Mixed,
+            'dateOrdered' => AttributeType::Mixed,
             'updatedOn' => AttributeType::Mixed,
             'updatedAfter' => AttributeType::Mixed,
             'updatedBefore' => AttributeType::Mixed,
@@ -187,10 +187,10 @@ class Market_OrderElementType extends Market_BaseElementType
         orders.totalPrice,
         orders.totalPaid,
         orders.orderStatusId,
-        orders.completedAt,
+        orders.dateOrdered,
         orders.email,
-        orders.completedAt,
-        orders.paidAt,
+        orders.dateOrdered,
+        orders.datePaid,
         orders.currency,
         orders.lastIp,
         orders.message,
@@ -209,13 +209,13 @@ class Market_OrderElementType extends Market_BaseElementType
 
         if ($criteria->completed) {
             if ($criteria->completed == true) {
-                $query->andWhere('orders.completedAt is not null');
+                $query->andWhere('orders.dateOrdered is not null');
                 $criteria->completed = null;
             }
         }
 
-        if ($criteria->completedAt) {
-            $query->andWhere(DbHelper::parseParam('orders.completedAt', $criteria->completedAt, $query->params));
+        if ($criteria->dateOrdered) {
+            $query->andWhere(DbHelper::parseParam('orders.dateOrdered', $criteria->dateOrdered, $query->params));
         }
 
         if ($criteria->number) {

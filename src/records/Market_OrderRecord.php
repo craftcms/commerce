@@ -16,8 +16,8 @@ namespace Craft;
  * @property float                       baseDiscount
  * @property float                       baseShippingCost
  * @property string                      email
- * @property DateTime                    completedAt
- * @property DateTime                    paidAt
+ * @property DateTime                    dateOrdered
+ * @property DateTime                    datePaid
  * @property string                      lastIp
  * @property string                      message
  * @property string                      returnUrl
@@ -145,8 +145,8 @@ class Market_OrderRecord extends BaseRecord
                 'default'  => 0
             ],
             'email'            => AttributeType::String,
-            'completedAt'      => AttributeType::DateTime,
-            'paidAt'           => AttributeType::DateTime,
+            'dateOrdered'      => AttributeType::DateTime,
+            'datePaid'           => AttributeType::DateTime,
             'currency'         => AttributeType::String,
             'lastIp'           => AttributeType::String,
             'message'          => AttributeType::String,

@@ -175,7 +175,7 @@ class Market_CartService extends BaseApplicationComponent
     {
         $cart = Market_OrderRecord::model()->findByAttributes([
             'number'      => $number,
-            'completedAt' => null,
+            'dateOrdered' => null,
         ]);
 
         return $cart;
@@ -384,7 +384,7 @@ class Market_CartService extends BaseApplicationComponent
 
         $records = Market_OrderRecord::model()->findAllByAttributes(
             [
-                'completedAt' => null,
+                'dateOrdered' => null,
             ],
             'dateUpdated <= :edge',
             ['edge' => $edge->format('Y-m-d H:i:s')]
