@@ -21,52 +21,7 @@ class MarketPlugin extends BasePlugin
      */
     public function init()
     {
-        $this->initMarketNav();
         $this->initEventHandlers();
-    }
-
-    /**
-     * Temporary nav until 2.5 is released.
-     */
-    private function initMarketNav()
-    {
-        if (craft()->request->isCpRequest()) {
-            craft()->templates->includeCssResource('market/market-nav.css');
-
-            craft()->templates->includeJsResource('market/market-nav.js');
-
-            $nav = [
-                [
-                    'url'      => 'market/orders',
-                    'title'    => Craft::t("Orders"),
-                    'selected' => (craft()->request->getSegment(2) == 'orders' ? true : false)
-                ],
-                [
-                    'url'      => 'market/products',
-                    'title'    => Craft::t("Products"),
-                    'selected' => (craft()->request->getSegment(2) == 'products' ? true : false)
-                ],
-                [
-                    'url'      => 'market/promotions',
-                    'title'    => Craft::t("Promotions"),
-                    'selected' => (craft()->request->getSegment(2) == 'promotions' ? true : false)
-                ],
-                [
-                    'url'      => 'market/customers',
-                    'title'    => Craft::t("Customers"),
-                    'selected' => (craft()->request->getSegment(2) == 'customers' ? true : false)
-                ],
-                [
-                    'url'      => 'market/settings',
-                    'title'    => Craft::t("Settings"),
-                    'selected' => (craft()->request->getSegment(2) == 'settings' ? true : false)
-                ]
-            ];
-
-            $navJson = JsonHelper::encode($nav);
-
-            craft()->templates->includeJs('new Craft.MarketNav(' . $navJson . ');');
-        }
     }
 
     /**
@@ -197,6 +152,14 @@ class MarketPlugin extends BasePlugin
         $settingModel = new Market_SettingsModel;
 
         return $settingModel->defineAttributes();
+    }
+
+    /**
+     * Get Settings URL
+     */
+    public function getSettingsUrl()
+    {
+        return 'market/settings';
     }
 
 }
