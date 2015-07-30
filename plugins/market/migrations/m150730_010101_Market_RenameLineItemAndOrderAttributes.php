@@ -1,7 +1,7 @@
 <?php
 namespace Craft;
 
-class m1507230_010101_Market_RenameLineItemAndOrderAttributes extends BaseMigration
+class m150730_010101_Market_RenameLineItemAndOrderAttributes extends BaseMigration
 {
     public function safeUp()
     {

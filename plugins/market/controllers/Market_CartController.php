@@ -27,11 +27,11 @@ class Market_CartController extends Market_BaseController
         $cart            = craft()->market_cart->getCart();
         $cart->setContentFromPost('fields');
 
-        if (craft()->market_cart->addToCart($cart, $purchasableId, $qty,$error)) {
+        if (craft()->market_cart->addToCart($cart, $purchasableId, $qty, $error)) {
             craft()->userSession->setFlash('notice', Craft::t('Product has been added'));
             $this->redirectToPostedUrl();
         } else {
-            craft()->userSession->setFlash('error',$error);
+            craft()->userSession->setFlash('error', $error);
         }
     }
 
