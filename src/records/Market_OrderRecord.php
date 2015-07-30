@@ -11,7 +11,7 @@ namespace Craft;
  * @property string                      number
  * @property string                      couponCode
  * @property float                       itemTotal
- * @property float                       finalPrice
+ * @property float                       totalPrice
  * @property float                       paidTotal
  * @property float                       baseDiscount
  * @property float                       baseShippingCost
@@ -134,7 +134,7 @@ class Market_OrderRecord extends BaseRecord
                 'decimals' => 4,
                 'default'  => 0
             ],
-            'finalPrice'       => [
+            'totalPrice'       => [
                 AttributeType::Number,
                 'decimals' => 4,
                 'default'  => 0

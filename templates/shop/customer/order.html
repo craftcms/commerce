@@ -21,7 +21,7 @@
 
                     <ul>
                         <li><strong>{{ "Customer"|t }}:</strong> {{ order.customer.email}}</li>
-                        <li><strong>{{ "Total"|t }}:</strong> {{ order.finalPrice|marketCurrency}}</li>
+                        <li><strong>{{ "Total"|t }}:</strong> {{ order.totalPrice|marketCurrency}}</li>
                         <li><strong>{{ "Date"|t }}:</strong> {{ order.completedAt}}</li>
                     </ul>
 
@@ -84,7 +84,7 @@
                             Item Total: {{ order.itemTotal|marketCurrency }}<br/>
                             Base Discount: {{ order.baseDiscount|marketCurrency }}<br/>
                             Base Shipping Rate: {{ order.baseShippingCost|marketCurrency }}<br/>
-                            <h4>Total: {{ order.finalPrice|marketCurrency }}</h4>
+                            <h4>Total: {{ order.totalPrice|marketCurrency }}</h4>
                         </td>
                     </tr>
 

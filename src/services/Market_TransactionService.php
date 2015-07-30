@@ -68,7 +68,7 @@ class Market_TransactionService extends BaseApplicationComponent
     {
         $transaction                  = new Market_TransactionModel;
         $transaction->status          = Market_TransactionRecord::PENDING;
-        $transaction->amount          = round($order->finalPrice, 2);
+        $transaction->amount          = round($order->totalPrice, 2);
         $transaction->orderId         = $order->id;
         $transaction->paymentMethodId = $order->paymentMethodId;
 

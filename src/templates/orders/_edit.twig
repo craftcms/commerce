@@ -89,7 +89,7 @@
                             <td></td>
                             <td></td>
                             <td><strong>Final Total</strong></td>
-                            <td>{{ order.finalPrice|marketCurrency }}</td>
+                            <td>{{ order.totalPrice|marketCurrency }}</td>
                         </tr>
 
                         </tbody>
@@ -139,7 +139,7 @@
                             </tr>
                             <tr>
                                 <td><strong>{{ "Total"|t}}</strong></td>
-                                <td>{{ order.finalPrice|marketCurrency }}</td>
+                                <td>{{ order.totalPrice|marketCurrency }}</td>
                             </tr>
                             <tr>
                                 <td><strong>{{ "Paid"|t}} </strong></td>
