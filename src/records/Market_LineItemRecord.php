@@ -19,7 +19,7 @@ namespace Craft;
  * @property float                    length
  * @property float                    total
  * @property int                      qty
- * @property string                   optionsJson
+ * @property string                   snapshot
  *
  * @property int                      orderId
  * @property int                      purchasableId
@@ -154,7 +154,7 @@ class Market_LineItemRecord extends BaseRecord
                 'min'      => 0,
                 'required' => true
             ],
-            'optionsJson'    => [AttributeType::Mixed, 'required' => true],
+            'snapshot'    => [AttributeType::Mixed, 'required' => true],
             'taxCategoryId'  => [AttributeType::Number, 'required' => true],
         ];
     }

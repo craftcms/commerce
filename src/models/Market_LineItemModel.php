@@ -22,7 +22,7 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property float                   length
  * @property float                   total
  * @property int                     qty
- * @property string                  optionsJson
+ * @property string                  snapshot
  *
  * @property int                     orderId
  * @property int                     purchasableId
@@ -93,7 +93,7 @@ class Market_LineItemModel extends BaseModel
 
         $options           = $purchasable->attributes;
         //TODO rename to purchasableData
-        $this->optionsJson = $options;
+        $this->snapshot = $options;
 
         //TODO make sales api work with other Purchasable implementations
         if ($purchasable instanceof Market_VariantModel || $purchasable instanceof Market_ProductModel) {
@@ -185,7 +185,7 @@ class Market_LineItemModel extends BaseModel
                 'min'      => 0,
                 'required' => true
             ],
-            'optionsJson'    => [AttributeType::Mixed, 'required' => true],
+            'snapshot'    => [AttributeType::Mixed, 'required' => true],
             'purchasableId'  => AttributeType::Number,
             'orderId'        => AttributeType::Number,
             'taxCategoryId'  => [AttributeType::Number, 'required' => true],
