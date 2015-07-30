@@ -212,7 +212,7 @@ class Market_OrderService extends BaseApplicationComponent
         $orderRecord->baseDiscount      = $order->baseDiscount;
         $orderRecord->baseShippingCost  = $order->baseShippingCost;
         $orderRecord->totalPrice        = $order->totalPrice;
-        $orderRecord->paidTotal         = $order->paidTotal;
+        $orderRecord->totalPaid         = $order->totalPaid;
         $orderRecord->customerId        = $order->customerId;
         $orderRecord->returnUrl         = $order->returnUrl;
         $orderRecord->cancelUrl         = $order->cancelUrl;
@@ -265,7 +265,7 @@ class Market_OrderService extends BaseApplicationComponent
     }
 
     /**
-     * Updates the orders paidTotal and paidAt date and completes order
+     * Updates the orders totalPaid and paidAt date and completes order
      *
      * @param Market_OrderModel $order
      */
@@ -273,7 +273,7 @@ class Market_OrderService extends BaseApplicationComponent
     {
         $totalPaid = craft()->market_payment->getTotalPaidForOrder($order);
 
-        $order->paidTotal = $totalPaid;
+        $order->totalPaid = $totalPaid;
 
         if($order->isPaid()){
             if($order->paidAt == null){
