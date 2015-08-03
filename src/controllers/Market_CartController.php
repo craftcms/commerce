@@ -28,9 +28,15 @@ class Market_CartController extends Market_BaseController
         $cart->setContentFromPost('fields');
 
         if (craft()->market_cart->addToCart($cart, $purchasableId, $qty, $error)) {
+            if(craft()->request->isAjaxRequest){
+                $this->returnJson(['success'=>true]);
+            }
             craft()->userSession->setFlash('notice', Craft::t('Product has been added'));
             $this->redirectToPostedUrl();
         } else {
+            if(craft()->request->isAjaxRequest){
+                $this->returnJson(['error'=>$error]);
+            }
             craft()->userSession->setFlash('error', $error);
         }
     }
@@ -60,8 +66,14 @@ class Market_CartController extends Market_BaseController
 
         if (craft()->market_lineItem->update($lineItem, $error)) {
             craft()->userSession->setFlash('notice',Craft::t('Order item has been updated'));
+            if(craft()->request->isAjaxRequest){
+                $this->returnJson(['success'=>true]);
+            }
             $this->redirectToPostedUrl();
         } else {
+            if(craft()->request->isAjaxRequest){
+                $this->returnJson(['error'=>$error]);
+            }
             craft()->userSession->setFlash('error',$error);
         }
     }
@@ -78,9 +90,15 @@ class Market_CartController extends Market_BaseController
         $cart->setContentFromPost('fields');
 
         if (craft()->market_cart->applyCoupon($cart, $code, $error)) {
+            if(craft()->request->isAjaxRequest){
+                $this->returnJson(['success'=>true]);
+            }
             craft()->userSession->setFlash('info', Craft::t('Coupon has been applied'));
             $this->redirectToPostedUrl();
         } else {
+            if(craft()->request->isAjaxRequest){
+                $this->returnJson(['error'=>$error]);
+            }
             craft()->userSession->setFlash('error', $error);
         }
     }
@@ -108,11 +126,18 @@ class Market_CartController extends Market_BaseController
                 craft()->market_customer->save($customer);
 
                 if (craft()->market_order->save($cart)){
+                    if(craft()->request->isAjaxRequest){
+                        $this->returnJson(['success'=>true]);
+                    }
                     $this->redirectToPostedUrl();
                 }
             }
         }else{
-            craft()->userSession->setFlash('notice',Craft::t('Email Not Valid'));
+            $error = Craft::t('Email Not Valid');
+            if(craft()->request->isAjaxRequest){
+                $this->returnJson(['error'=>$error]);
+            }
+            craft()->userSession->setFlash('error',$error);
         }
 
     }
@@ -130,10 +155,17 @@ class Market_CartController extends Market_BaseController
         $cart            = craft()->market_cart->getCart();
 
         if (craft()->market_cart->setPaymentMethod($cart, $id)) {
+            if(craft()->request->isAjaxRequest){
+                $this->returnJson(['success'=>true]);
+            }
             craft()->userSession->setFlash('notice', Craft::t('Payment method has been set'));
             $this->redirectToPostedUrl();
         } else {
-            craft()->userSession->setFlash('notice',Craft::t('Wrong payment method'));
+            $msg = Craft::t('Wrong payment method');
+            if(craft()->request->isAjaxRequest){
+                $this->returnJson(['error'=>$msg]);
+            }
+            craft()->userSession->setFlash('notice',$msg);
         }
     }
 
@@ -148,6 +180,9 @@ class Market_CartController extends Market_BaseController
         $cart            = craft()->market_cart->getCart();
 
         craft()->market_cart->removeFromCart($cart, $lineItemId);
+        if(craft()->request->isAjaxRequest){
+            $this->returnJson(['success'=>true]);
+        }
         craft()->userSession->setFlash('notice', Craft::t('Product has been removed'));
         $this->redirectToPostedUrl();
     }
@@ -162,6 +197,9 @@ class Market_CartController extends Market_BaseController
         $cart = craft()->market_cart->getCart();
 
         craft()->market_cart->clearCart($cart);
+        if(craft()->request->isAjaxRequest){
+            $this->returnJson(['success'=>true]);
+        }
         craft()->userSession->setFlash('notice',Craft::t('All products have been removed'));
         $this->redirectToPostedUrl();
     }
