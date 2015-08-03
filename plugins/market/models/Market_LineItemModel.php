@@ -90,14 +90,12 @@ class Market_LineItemModel extends BaseModel
         $this->height        = $purchasable->height * 1; //converting nulls
         $this->length        = $purchasable->length * 1; //converting nulls
         $this->width         = $purchasable->width * 1; //converting nulls
-        $this->taxCategoryId = $purchasable->product->taxCategoryId;
+        $this->snapshot      = $purchasable->attributes;
 
-        $options           = $purchasable->attributes;
-        //TODO rename to purchasableData
-        $this->snapshot = $options;
-
-        //TODO make sales api work with other Purchasable implementations
         if ($purchasable instanceof Market_VariantModel || $purchasable instanceof Market_ProductModel) {
+
+            $this->taxCategoryId = $purchasable->product->taxCategoryId;
+
             $sales = craft()->market_sale->getForVariant($purchasable);
 
             foreach ($sales as $sale) {
@@ -107,6 +105,8 @@ class Market_LineItemModel extends BaseModel
             if ($this->saleAmount > $this->price) {
                 $this->saleAmount = $this->price;
             }
+        }else{
+            $this->saleAmount = $this->price;
         }
 
     }
