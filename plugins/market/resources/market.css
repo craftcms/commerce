@@ -20,6 +20,9 @@ table.editable tbody input:focus {
     padding: 6px 9px;
     outline: none;
 }
+#variantButtons{
+    margin-top:10px;
+}
 
 .statusSource {
     padding-left:8px !important;
