@@ -17,7 +17,8 @@
         {% for item in cart.lineItems %}
         <tr>
             <td>
-                {% include 'commerce/_includes/purchasableDetails' with {'purchasable':item.purchasable} %}
+                <strong>{{ item.purchasable.description }}</strong><br/>
+                {{ item.purchasable.sku }}
                 {{ forms.removeFromCartButton(item) }}
             </td>
             <td>
