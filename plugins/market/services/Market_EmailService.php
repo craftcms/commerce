@@ -81,19 +81,6 @@ class Market_EmailService extends BaseApplicationComponent
         $record->validate();
         $model->addErrors($record->getErrors());
 
-        //validating template path
-        if (!$model->getErrors('templatePath')) {
-            $templatesDir = craft()->path->getSiteTemplatesPath();
-            $fullPath     = $templatesDir . $record->templatePath;
-            if (!is_file($fullPath)) {
-                $model->addError('templatePath', 'template not found');
-            } elseif (preg_match('#(^|/)\.\./#',
-                $record->templatePath)) { //checking occurences of "../" and "/../" in the path
-                $model->addError('templatePath',
-                    'relative paths are not allowed');
-            }
-        }
-
         if (!$model->hasErrors()) {
             // Save it!
             $record->save(false);
