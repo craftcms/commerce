@@ -33,11 +33,11 @@ class Market_TaxRateModel extends BaseModel
         return [
             'id'            => AttributeType::Number,
             'name'          => AttributeType::String,
-            'rate'          => [AttributeType::Number, 'default' => .05],
+            'rate'          => [AttributeType::Number, 'default' => .05, 'decimals' => 5],
             'include'       => AttributeType::Bool,
             'showInLabel'   => AttributeType::Bool,
-            'taxCategoryId' => AttributeType::Number,
-            'taxZoneId'     => AttributeType::Number,
+            'taxCategoryId' => [AttributeType::Number, 'required'=>true],
+            'taxZoneId'     => [AttributeType::Number, 'required'=>true]
         ];
     }
 }
