@@ -87,17 +87,14 @@ class Market_TaxRateController extends Market_BaseController
         $taxRate->taxCategoryId = craft()->request->getPost('taxCategoryId');
         $taxRate->taxZoneId     = craft()->request->getPost('taxZoneId');
 
-        $taxRate->validate();
-
-        if(!$taxRate->hasErrors()){
-            // Save it
-            if (craft()->market_taxRate->save($taxRate)) {
-                craft()->userSession->setNotice(Craft::t('Tax Rate saved.'));
-                $this->redirectToPostedUrl($taxRate);
-            } else {
-                craft()->userSession->setError(Craft::t('Couldn’t save tax rate.'));
-            }
+        // Save it
+        if (craft()->market_taxRate->save($taxRate)) {
+            craft()->userSession->setNotice(Craft::t('Tax Rate saved.'));
+            $this->redirectToPostedUrl($taxRate);
+        } else {
+            craft()->userSession->setError(Craft::t('Couldn’t save tax rate.'));
         }
+
 
         // Send the model back to the template
         craft()->urlManager->setRouteVariables([
