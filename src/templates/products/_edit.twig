@@ -283,7 +283,7 @@
                                     $newVariantBtn: null,
                                     showingSidebar: false,
 
-                                    onAfterHtmlInit: function()
+                                    afterInit: function()
                                     {
                                         this.$newVariantBtnGroup = $('<div class="btngroup submit"/>');
                                         this.$newVariantBtn = $('<a class="btn submit add icon" data-productId="{{ product.id }}" data-productTypeId="{{ productType.id }}">New Variant</a>').appendTo(this.$newVariantBtnGroup);
