@@ -2,7 +2,7 @@
 namespace Craft;
 
 use Market\Helpers\MarketDbHelper;
-
+use Market\Interfaces\Purchasable;
 /**
  * Class Market_LineItemService
  *
@@ -102,18 +102,18 @@ class Market_LineItemService extends BaseApplicationComponent
         $lineItemRecord->orderId       = $lineItem->orderId;
         $lineItemRecord->taxCategoryId = $lineItem->taxCategoryId;
 
-        $lineItemRecord->qty         = $lineItem->qty;
-        $lineItemRecord->price       = $lineItem->price;
+        $lineItemRecord->qty           = $lineItem->qty;
+        $lineItemRecord->price         = $lineItem->price;
 
-        $lineItemRecord->weight      = $lineItem->weight;
-        $lineItemRecord->snapshot = $lineItem->snapshot;
-        $lineItemRecord->note = $lineItem->note;
+        $lineItemRecord->weight        = $lineItem->weight;
+        $lineItemRecord->snapshot      = $lineItem->snapshot;
+        $lineItemRecord->note          = $lineItem->note;
 
-        $lineItemRecord->saleAmount     = $lineItem->saleAmount;
-        $lineItemRecord->tax      = $lineItem->tax;
-        $lineItemRecord->discount = $lineItem->discount;
-        $lineItemRecord->shippingCost = $lineItem->shippingCost;
-        $lineItemRecord->total       = $lineItem->total;
+        $lineItemRecord->saleAmount    = $lineItem->saleAmount;
+        $lineItemRecord->tax           = $lineItem->tax;
+        $lineItemRecord->discount      = $lineItem->discount;
+        $lineItemRecord->shippingCost  = $lineItem->shippingCost;
+        $lineItemRecord->total         = $lineItem->total;
 
         // Cant have discounts making things less than zero.
         if ($lineItemRecord->total < 0){
