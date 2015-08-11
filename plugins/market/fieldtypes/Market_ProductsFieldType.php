@@ -23,6 +23,6 @@ class Market_ProductsFieldType extends BaseElementFieldType
      */
     protected function getAddButtonLabel()
     {
-        return Craft::t('Add an product');
+        return Craft::t('Add a Product');
     }
 }
