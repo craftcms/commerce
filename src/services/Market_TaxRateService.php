@@ -75,6 +75,7 @@ class Market_TaxRateService extends BaseApplicationComponent
             }
         }
 
+        $model->validate();
         $model->addErrors($record->getErrors());
 
         if (!$model->hasErrors()) {
