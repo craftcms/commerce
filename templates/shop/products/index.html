@@ -42,15 +42,5 @@
          </div>
       </div>
    {% endfor %}
-
-   Multi Add:
-   <form method="POST">
-      <input type="hidden" name="action" value="market/cart/add">
-      <input type="hidden" name="redirect" value="commerce/cart">
-      <input type="hidden" name="qty" value="1">
-      <input type="hidden" name="purchasableId[]" value="34">
-      <input type="hidden" name="purchasableId[]" value="36">
-      <input type="submit" value="Add 34 and 36 to cart" class="button"/>
-   </form>
-
+   
 {%  endblock %}
