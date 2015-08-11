@@ -44,14 +44,14 @@ class Market_ShippingAdjuster implements Market_AdjusterInterface
 			$adjustment->optionsJson = $rule->attributes;
 
 			//checking items tax categories
-			$weight            = $qty = $price = 0;
+			$weight = $qty = $price = 0;
 			$itemShippingTotal = 0;
 			foreach ($lineItems as $item) {
 				$weight += $item->qty * $item->weight;
 				$qty += $item->qty;
 				$price += $item->getSubtotalWithSale();
 
-				$item->shippingCost = $item->getSubtotalWithSale() * $rule->percentageRate + $rule->perItemRate + $item->weight * $rule->weightRate;
+				$item->shippingCost = ($item->getSubtotalWithSale() * $rule->percentageRate) + $rule->perItemRate + ($item->weight * $rule->weightRate);
 				$itemShippingTotal += $item->shippingCost * $item->qty;
 			}
 
