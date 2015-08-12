@@ -10,6 +10,7 @@ class Market_DownloadController extends Market_BaseController
     {
         $template = craft()->config->get('orderPdfPath','market');
         $number = craft()->request->getQuery('number');
+        $option = craft()->request->getQuery('option','');
         $order = craft()->market_order->getByNumber($number);
         if(!$order){
             throw new HttpException(404);
@@ -17,7 +18,7 @@ class Market_DownloadController extends Market_BaseController
         $originalPath = craft()->path->getTemplatesPath();
         $newPath = craft()->path->getSiteTemplatesPath();
         craft()->path->setTemplatesPath($newPath);
-        $html = craft()->templates->render($template,compact('order'));
+        $html = craft()->templates->render($template,compact('order','option'));
 
         $dompdf = new \DOMPDF();
         $dompdf->load_html($html);
