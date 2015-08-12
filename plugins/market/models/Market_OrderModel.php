@@ -38,8 +38,9 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property int                           totalHeight
  * @property int                           totalLength
  * @property int                           totalWidth
+ * @property string                        pdfUrl
  *
- * @property Market_OrderSettingsModel         type
+ * @property Market_OrderSettingsModel     type
  * @property Market_LineItemModel[]        lineItems
  * @property Market_AddressModel           billingAddress
  * @property Market_CustomerModel          customer
@@ -83,11 +84,12 @@ class Market_OrderModel extends BaseElementModel
 
     /**
      * Returns the link to the Order's PDF file for download.
+     * @param string $option
      * @return string
      */
-    public function getPdfUrl()
+    public function getPdfUrl($option = '')
     {
-        return UrlHelper::getActionUrl('market/download/pdf?number=' . $this->number);
+        return UrlHelper::getActionUrl('market/download/pdf?number=' . $this->number . "&option=" . $option);
     }
 
     /**

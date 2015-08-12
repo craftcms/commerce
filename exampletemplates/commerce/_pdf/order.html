@@ -8,7 +8,11 @@
 </head>
 
 <body>
+{% if option == 'receipt' %}
+<h1>Receipt for Order#{{ order.number[:7] }}</h1>
+{% else %}
 <h1>Order #{{ order.number[:7] }}</h1>
+{% endif %}
 <p>Thanks for your order valued at {{ order.totalPrice|marketCurrency }}</p>
 </body>
 </html>
