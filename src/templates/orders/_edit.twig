@@ -39,7 +39,10 @@
                             <tr>
                                 <td><a class="fieldtoggle" data-target=".more-{{ lineItem.purchasable.sku }}">&nbsp;</a></td>
                                 <td>{{ lineItem.qty }}</td>
-                                <td><a href="{{ lineItem.purchasable.cpEditUrl }}">{{ lineItem.purchasable.description }} </a>({{ lineItem.purchasable.sku }})</td>
+                                <td valign="top">
+                                    <a href="{{ lineItem.purchasable.cpEditUrl }}">{{ lineItem.purchasable.description }} </a>({{ lineItem.purchasable.sku }})
+                                    <div class="hidden more-{{ lineItem.purchasable.sku }}">{{ "Note"|t }}: {{ lineItem.note }}</div>
+                                </td>
                                 <td>
                                     <div class="hidden more-{{ lineItem.purchasable.sku }}">
                                         {{ "Price"|t }}<br/>
@@ -114,6 +117,109 @@
 
 
                 </div>{# end pane#}
+
+
+                <div class="pane">
+                    <h3>Order Status History</h3>
+
+                    <table class="data fullwidth">
+                        <thead>
+                        <tr>
+                            <th scope="col">{{ 'ID'|t }}</span></th>
+                            <th scope="col">{{ 'Old Status'|t }}</span></th>
+                            <th scope="col">{{ 'New Status'|t }}</th>
+                            <th scope="col">{{ 'Customer'|t }}</th>
+                            <th scope="col">{{ 'Message'|t }}</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for orderHistory in order.histories %}
+                            <tr>
+                                <td>{{ orderHistory.id }}</td>
+                                <td>
+                                    {% if orderHistory.prevStatus %}
+                                        <a href="{{ orderHistory.prevStatus.cpEditUrl }}">{{ orderHistory.prevStatus.printName()|raw }}</a>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if orderHistory.newStatus %}
+                                        <a href="{{ orderHistory.newStatus.cpEditUrl }}">{{ orderHistory.newStatus.printName()|raw }}</a>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ orderHistory.customer.cpEditUrl }}">
+                                        {% if orderHistory.customer.userId %}
+                                            {{ orderHistory.customer.user.friendlyName }}
+                                        {% else %}
+                                            Customer #{{ orderHistory.customerId }}
+                                        {% endif %}
+                                    </a>
+                                </td>
+                                <td>{{ orderHistory.message }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pane">
+
+                    <h3>Transactions</h3>
+
+                    <table class="data fullwidth">
+                        <thead>
+                        <tr>
+                            <th scope="col">{{ 'ID'|t }}</span></th>
+                            <th scope="col">{{ 'Type'|t }}</span></th>
+                            <th scope="col">{{ 'Status'|t }}</th>
+                            <th scope="col">{{ 'Hash'|t }}</th>
+                            <th scope="col">{{ 'Reference'|t }}</th>
+                            <th scope="col">{{ 'Amount'|t }}</th>
+                            <th scope="col">{{ 'Message'|t }}</th>
+                            <th scope="col">{{ 'Response'|t }}</th>
+                            <th scope="col">{{ 'Payment Method'|t }}</th>
+                            <th scope="col">{{ 'Parent#'|t }}</th>
+                            <th scope="col">{{ 'User#'|t }}</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for transaction in order.transactions %}
+                            <tr>
+                                <td>{{ transaction.id }}</td>
+                                <td>{{ transaction.type }}</td>
+                                <td>{{ transaction.status }}</td>
+                                <td>{{ transaction.hash }}</td>
+                                <td>{{ transaction.reference }}</td>
+                                <td>{{ transaction.amount }}</td>
+                                <td>{{ transaction.message }}</td>
+                                <td>{{ transaction.response }}</td>
+                                <td>{{ transaction.paymentMethod.name }}</td>
+                                <td>{{ transaction.parentId }}</td>
+                                <td>{{ transaction.userId }}</td>
+                                <td>
+                                    {% if transaction.canCapture() %}
+                                        <a class="btn submit formsubmit"
+                                           data-action="market/order/transactionCapture"
+                                           data-confirm="{{ 'Confirm capture?'|t }}"
+                                           data-redirect="{{ order.cpEditUrl }}"
+                                           data-param="id"
+                                           data-value="{{ transaction.id }}">Capture</a>
+                                    {% endif %}
+                                    {% if transaction.canRefund() %}
+                                        <a class="btn submit formsubmit"
+                                           data-action="market/order/transactionRefund"
+                                           data-confirm="{{ 'Confirm refund?'|t }}"
+                                           data-redirect="{{ order.cpEditUrl }}"
+                                           data-param="id"
+                                           data-value="{{ transaction.id }}">Refund</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
 
             </div>
             <div class="item" data-position="right" data-colspan="1">
@@ -221,107 +327,6 @@
                     <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
                 </div>
             </div>
-        </div>
-        <div class="grid">
-                <div class="pane">
-                    <h3>Order Status History</h3>
-
-                    <table id="" class="shadow-box editable">
-                        <thead>
-                        <tr>
-                            <th scope="col" class="header">{{ 'ID'|t }}</span></th>
-                            <th scope="col" class="header">{{ 'Old Status'|t }}</span></th>
-                            <th scope="col" class="header">{{ 'New Status'|t }}</th>
-                            <th scope="col" class="header">{{ 'Customer'|t }}</th>
-                            <th scope="col" class="header">{{ 'Message'|t }}</th>
-                            <th></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for orderHistory in order.histories %}
-                            <tr>
-                                <td>{{ orderHistory.id }}</td>
-                                <td>
-                                    {% if orderHistory.prevStatus %}
-                                        <a href="{{ orderHistory.prevStatus.cpEditUrl }}">{{ orderHistory.prevStatus.printName()|raw }}</a>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if orderHistory.newStatus %}
-                                        <a href="{{ orderHistory.newStatus.cpEditUrl }}">{{ orderHistory.newStatus.printName()|raw }}</a>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <a href="{{ orderHistory.customer.cpEditUrl }}">
-                                        {% if orderHistory.customer.userId %}
-                                            {{ orderHistory.customer.user.friendlyName }}
-                                        {% else %}
-                                            Customer #{{ orderHistory.customerId }}
-                                        {% endif %}
-                                    </a>
-                                </td>
-                                <td>{{ orderHistory.message }}</td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-
-                    <h3>Transactions</h3>
-
-                    <table id="" class="shadow-box editable">
-                        <thead>
-                        <tr>
-                            <th scope="col" class="header">{{ 'ID'|t }}</span></th>
-                            <th scope="col" class="header">{{ 'Type'|t }}</span></th>
-                            <th scope="col" class="header">{{ 'Status'|t }}</th>
-                            <th scope="col" class="header">{{ 'Hash'|t }}</th>
-                            <th scope="col" class="header">{{ 'Reference'|t }}</th>
-                            <th scope="col" class="header">{{ 'Amount'|t }}</th>
-                            <th scope="col" class="header">{{ 'Message'|t }}</th>
-                            <th scope="col" class="header">{{ 'Response'|t }}</th>
-                            <th scope="col" class="header">{{ 'Payment Method'|t }}</th>
-                            <th scope="col" class="header">{{ 'Parent#'|t }}</th>
-                            <th scope="col" class="header">{{ 'User#'|t }}</th>
-                            <th></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for transaction in order.transactions %}
-                            <tr>
-                                <td>{{ transaction.id }}</td>
-                                <td>{{ transaction.type }}</td>
-                                <td>{{ transaction.status }}</td>
-                                <td>{{ transaction.hash }}</td>
-                                <td>{{ transaction.reference }}</td>
-                                <td>{{ transaction.amount }}</td>
-                                <td>{{ transaction.message }}</td>
-                                <td>{{ transaction.response }}</td>
-                                <td>{{ transaction.paymentMethod.name }}</td>
-                                <td>{{ transaction.parentId }}</td>
-                                <td>{{ transaction.userId }}</td>
-                                <td>
-                                    {% if transaction.canCapture() %}
-                                        <a class="btn submit formsubmit"
-                                           data-action="market/order/transactionCapture"
-                                           data-confirm="{{ 'Confirm capture?'|t }}"
-                                           data-redirect="{{ order.cpEditUrl }}"
-                                           data-param="id"
-                                           data-value="{{ transaction.id }}">Capture</a>
-                                    {% endif %}
-                                    {% if transaction.canRefund() %}
-                                        <a class="btn submit formsubmit"
-                                           data-action="market/order/transactionRefund"
-                                           data-confirm="{{ 'Confirm refund?'|t }}"
-                                           data-redirect="{{ order.cpEditUrl }}"
-                                           data-param="id"
-                                           data-value="{{ transaction.id }}">Refund</a>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
         </div>
 
 
