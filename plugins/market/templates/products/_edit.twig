@@ -242,11 +242,10 @@
 
                     {%  if productType.hasVariants %}
 
-                        <a class="fieldtoggle" data-target="#masterVariantDefaults">Variant Defaults</a>
-                        <div id="masterVariantDefaults" class="{% if product.id and not product.hasErrors() %}hidden{% endif %}">
+                        <div id="masterVariantDefaults" class="{% if not masterVariant.hasErrors() %}hidden{% endif %}">
                         {{ masterVariantHtml }}
                         </div>
-                        <hr/>
+
                     {%  endif %}
 
                     <div id="variantsTab" class="">
@@ -270,8 +269,9 @@
                                 </div>
 
                                 {% include "_elements/indexcontainer" %}
-
+                            <hr/>
                             </div>
+
 
                             {% set initJs %}
                                 Craft.elementIndex = Craft.createElementIndex('{{ elementTypeClass }}', $('#variantsTab'), {
@@ -286,6 +286,11 @@
                             {% includeJs initJs %}
 
                         {%  endif  %}
+
+                        <a class="btn formsubmit" data-param="entryId" data-value="" data-redirect="market/products/{type.handle}/{id}/variants/new"
+                           data-value="1">{{ "Add a variant"|t }}</a>
+                        
+
 
                     </div>
                 </div>{# end pane #}
