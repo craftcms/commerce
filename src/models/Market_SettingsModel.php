@@ -31,7 +31,7 @@ class Market_SettingsModel extends BaseModel
             ],
             'cartExpiryTimeout'        => [
                 AttributeType::Number,
-                'default'  => 1440,
+                'default'  => 10080,
                 'required' => true
             ],
             'currencySymbol'           => [
