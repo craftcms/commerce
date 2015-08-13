@@ -16,8 +16,6 @@ use Market\Interfaces\Purchasable;
  */
 class Market_CartService extends BaseApplicationComponent
 {
-    const CART_COOKIE_LIFETIME = 604800; //week
-
     /** @var string Session key for storing the cart number */
     protected $cookieCartId = 'market_cookie';
     /** @var Market_OrderModel */
@@ -150,8 +148,8 @@ class Market_CartService extends BaseApplicationComponent
 
         if (!$cartNumber) {
             $cartNumber = md5(uniqid(mt_rand(), true));
-            craft()->userSession->saveCookie($cookieId, $cartNumber,
-                    self::CART_COOKIE_LIFETIME);
+            $cartExpiry = craft()->market_settings->getSettings()->cartExpiryTimeout;
+            craft()->userSession->saveCookie($cookieId, $cartNumber,$cartExpiry);
         }
 
         return $cartNumber;
