@@ -177,6 +177,9 @@ class Market_OrderStatusService extends BaseApplicationComponent
         foreach ($status->emails as $email) {
             $craftEmail = new EmailModel();
 
+            $craftEmail->fromEmail = craft()->market_settings->getSettings()->emailSenderAddress;
+            $craftEmail->fromName = craft()->market_settings->getSettings()->emailSenderName;
+
             $craftEmail->toEmail = $to = craft()->templates->renderString($email->to,
                 $renderVariables);
             $craftEmail->bcc     = craft()->templates->renderString($email->bcc,
