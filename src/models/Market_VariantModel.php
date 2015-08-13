@@ -50,6 +50,11 @@ class Market_VariantModel extends BaseElementModel implements Purchasable
         return UrlHelper::getCpUrl('market/products/' . $this->product->type->handle . '/' . $this->product->id . '/variants/' . $this->id);
     }
 
+    public function getUrl()
+    {
+        return $this->product->url.'?variant='.$this->id;
+    }
+
     /**
      * @return bool
      */
