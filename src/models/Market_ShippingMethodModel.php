@@ -18,6 +18,11 @@ class Market_ShippingMethodModel extends BaseModel
 {
     use Market_ModelRelationsTrait;
 
+    public function getRules()
+    {
+        return craft()->market_shippingRule->getAllByMethodId($this->id);
+    }
+
     protected function defineAttributes()
     {
         return [

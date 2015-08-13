@@ -34,7 +34,7 @@ class Market_ShippingRuleService extends BaseApplicationComponent
      */
     public function getAllByMethodId($id)
     {
-        $records = Market_ShippingRuleRecord::model()->findAllByAttributes(['methodId' => $id]);
+        $records = Market_ShippingRuleRecord::model()->findAllByAttributes(['methodId' => $id],['order'=>'priority ASC']);
 
         return Market_ShippingRuleModel::populateModels($records);
     }
