@@ -8,7 +8,7 @@ class Market_DownloadController extends Market_BaseController
 
     public function actionPdf()
     {
-        $template = craft()->config->get('orderPdfPath','market');
+        $template = craft()->market_settings->getSettings()->orderPdfPath;
         $number = craft()->request->getQuery('number');
         $option = craft()->request->getQuery('option','');
         $order = craft()->market_order->getByNumber($number);

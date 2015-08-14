@@ -3,6 +3,7 @@
 namespace Market\Seed;
 
 use Craft\Market_OrderSettingsModel;
+use Craft\Market_SettingsModel;
 use Craft\Market_ShippingMethodRecord;
 use Craft\Market_ShippingRuleRecord;
 use Craft\Market_OrderStatusModel;
@@ -27,6 +28,7 @@ class Market_InstallSeeder implements Market_SeederInterface
 		$this->defaultProductTypes();
 		$this->defaultProducts();
 		$this->paymentMethods();
+		$this->defaultSettings();
 	}
 
 	/**
@@ -186,6 +188,12 @@ class Market_InstallSeeder implements Market_SeederInterface
 		$model                  = \Craft\craft()->market_paymentMethod->getByClass('Dummy');
 		$model->frontendEnabled = true;
 		\Craft\craft()->market_paymentMethod->save($model);
+	}
+
+	private function defaultSettings()
+	{
+		$settings = new Market_SettingsModel();
+		\Craft\craft()->market_settings->save($settings);
 	}
 
 }
