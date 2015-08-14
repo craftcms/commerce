@@ -13,6 +13,9 @@ namespace Craft;
  * @property string dimensionUnits
  * @property string emailSenderAddress
  * @property string emailSenderName
+ * @property string purgeIncompleteCartDuration
+ * @property string orderPdfPath
+ *
  */
 class Market_SettingsModel extends BaseModel
 {
@@ -27,7 +30,8 @@ class Market_SettingsModel extends BaseModel
             'paymentMethod'            => [
                 AttributeType::Enum,
                 'values'   => ['authorize', 'purchase'],
-                'required' => true
+                'required' => true,
+                'default'  => 'authorize'
             ],
             'cartExpiryTimeout'        => [
                 AttributeType::Number,
@@ -61,6 +65,8 @@ class Market_SettingsModel extends BaseModel
             ],
             'emailSenderAddress'       => [AttributeType::String],
             'emailSenderName'          => [AttributeType::String],
+            'purgeIncompleteCartDuration' => [AttributeType::String,'default'=>'P3M'],
+            'orderPdfPath'             => [AttributeType::String]
         ];
     }
 

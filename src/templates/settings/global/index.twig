@@ -72,6 +72,26 @@
             required: true,
         }) }}
 
+        {{ forms.textField({
+            label: "Purge Inactive Carts Duration"|t,
+            instructions: "When should we delete inactive carts from last update date. Enter in PHP interval format."|t,
+            id: 'purgeIncompleteCartDuration',
+            name: 'settings[purgeIncompleteCartDuration]',
+            value: settings.purgeIncompleteCartDuration,
+            errors: settings.getErrors('purgeIncompleteCartDuration'),
+            required: true,
+        }) }}
+
+        {{ forms.textField({
+            label: "Order PDF Template"|t,
+            instructions: "The path to the template used for generating order PDF's"|t,
+            id: 'orderPdfPath',
+            name: 'settings[orderPdfPath]',
+            value: settings.orderPdfPath,
+            errors: settings.getErrors('orderPdfPath'),
+            required: true,
+        }) }}
+
 
         <!-- TODO: Make dropdown and popular with a currency helper -->
         <input type="submit" class="btn" value="Save"/>

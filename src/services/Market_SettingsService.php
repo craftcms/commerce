@@ -55,7 +55,9 @@ class Market_SettingsService extends BaseApplicationComponent
      */
     public function save(Market_SettingsModel $settings)
     {
+
         if (!$settings->validate()) {
+            $errors = $settings->getAllErrors();
             return false;
         }
 

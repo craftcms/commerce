@@ -364,8 +364,7 @@ class Market_CartService extends BaseApplicationComponent
     public function getCartsToPurge()
     {
 
-        $configInterval   = craft()->config->get('purgeIncompleteCartDuration',
-            'market');
+        $configInterval   = craft()->market_settings->getSettings()->purgeIncompleteCartDuration;
         $edge             = new DateTime();
         $interval         = new DateInterval($configInterval);
         $interval->invert = 1;
