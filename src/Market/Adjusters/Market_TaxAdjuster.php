@@ -74,7 +74,7 @@ class Market_TaxAdjuster implements Market_AdjusterInterface
 				//excluding taxes included in price
 				foreach ($lineItems as $item) {
 					if ($item->taxCategoryId == $taxRate->taxCategoryId) {
-						$item->tax += -$taxRate->rate * $item->getPriceWithoutShipping();
+						$item->tax += -($item->getPriceWithoutShipping()-($item->getPriceWithoutShipping()/(1+$taxRate->rate)))  * $item->qty;
 					}
 				}
 			}
