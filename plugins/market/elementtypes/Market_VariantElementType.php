@@ -51,7 +51,12 @@ class Market_VariantElementType extends Market_BaseElementType
 			'confirmationMessage' => Craft::t('Are you sure you want to delete the selected variants?'),
 			'successMessage'      => Craft::t('Variants deleted.'),
 		));
+
 		$actions[] = $deleteAction;
+
+		$editAction = craft()->elements->getAction('Edit');
+		$actions[] = $editAction;
+
 
 		return $actions;
 	}
