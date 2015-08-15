@@ -273,13 +273,42 @@
 
 
                             {% set initJs %}
-                                Craft.elementIndex = Craft.createElementIndex('{{ elementTypeClass }}', $('#variantsTab'), {
-                                context:        '{{ context }}',
-                                showStatusMenu: {{ showStatusMenu is defined ? showStatusMenu|json_encode|raw : "'auto'" }},
-                                showLocaleMenu: {{ showLocaleMenu is defined ? showLocaleMenu|json_encode|raw : "'auto'" }},
-                                storageKey:     'elementindex.{{ elementTypeClass }}',
-                                criteria:       { productId: {{ productId }}, isMaster: false, localeEnabled: null }
+
+                                Craft.SetVariantValuesModal = Garnish.Modal.extend({
+
+                                ids: null,
+
+                                init: function(ids,settings){
+                                    this.ids = ids;
+
+                                    var $form = $('<form class="modal fitted " method="post" accept-charset="UTF-8">' +
+                                            Craft.getCsrfInput() +
+                                            '<input type="hidden" name="redirect" value=""/>' +
+                                            '</form>').appendTo(Garnish.$bod);
+
+                                    var $body = $('<div class="body">' +
+                                            '<p>'+Craft.t('Tick the boxes for the fields values you want to update')+'</p>' +
+                                    '</div>').appendTo($form);
+
+                                    var $buttons = $('<div class="buttons right"/>').appendTo($body);
+
+                                    var $cancelBtn = $('<div class="btn">'+Craft.t('Cancel')+'</div>').appendTo($buttons);
+                                    this.$deleteSubmitBtn = $('<input type="submit" class="btn submit disabled" value="'+Craft.t('Set Values') +'" />').appendTo($buttons);
+                                    this.addListener($cancelBtn, 'click', 'hide');
+
+                                    this.base($form, settings);
+                                }
                                 });
+
+
+                                Craft.elementIndex = Craft.createElementIndex('{{ elementTypeClass }}', $('#variantsTab'), {
+                                    context:        '{{ context }}',
+                                    showStatusMenu: {{ showStatusMenu is defined ? showStatusMenu|json_encode|raw : "'auto'" }},
+                                    showLocaleMenu: {{ showLocaleMenu is defined ? showLocaleMenu|json_encode|raw : "'auto'" }},
+                                    storageKey:     'elementindex.{{ elementTypeClass }}',
+                                    criteria:       { productId: {{ productId }}, isMaster: false, localeEnabled: null }
+                                });
+
                             {% endset %}
 
                             {% includeJs initJs %}
