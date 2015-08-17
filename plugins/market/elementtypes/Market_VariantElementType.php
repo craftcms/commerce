@@ -64,16 +64,15 @@ class Market_VariantElementType extends Market_BaseElementType
 	public function defineTableAttributes($source = NULL)
 	{
 		return [
-			'sku'            => Craft::t('sku'),
-			'price'          => Craft::t('price'),
-			'width'          => Craft::t('width'),
-			'height'         => Craft::t('height'),
-			'length'         => Craft::t('length'),
-			'weight'         => Craft::t('weight'),
-			'stock'          => Craft::t('stock'),
-			'unlimitedStock' => Craft::t('unlimitedStock'),
-			'minQty'         => Craft::t('minQty'),
-			'maxQty'         => Craft::t('maxQty')
+			'sku'            => Craft::t('SKU'),
+			'price'          => Craft::t('Price'),
+			'width'          => Craft::t('Width'),
+			'height'         => Craft::t('Height'),
+			'length'         => Craft::t('Length'),
+			'weight'         => Craft::t('Weight'),
+			'stock'          => Craft::t('Stock'),
+			'minQty'         => Craft::t('Min Qty'),
+			'maxQty'         => Craft::t('Max Qty')
 		];
 	}
 
@@ -86,11 +85,19 @@ class Market_VariantElementType extends Market_BaseElementType
 
 	public function getTableAttributeHtml(BaseElementModel $element, $attribute)
 	{
-
 		$numbers = ['weight','height','length','width'];
 		if(in_array($attribute,$numbers)){
 			$formatter = craft()->getNumberFormatter();
-			return $formatter->formatDecimal($element->$attribute);
+			if($element->$attribute == 0){
+				return "<span style=\"color:#E5E5E5\">".$formatter->formatDecimal($element->$attribute)."</span>";
+			}else{
+				return $formatter->formatDecimal($element->$attribute);
+			}
+
+		}
+
+		if($attribute == 'stock' && $element->unlimitedStock){
+			return "<span style=\"color:#E5E5E5\">NA</span>";
 		}
 
 		if($attribute == 'price'){
