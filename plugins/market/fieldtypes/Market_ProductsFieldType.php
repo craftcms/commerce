@@ -7,6 +7,16 @@ class Market_ProductsFieldType extends BaseElementFieldType
     // =========================================================================
 
     /**
+     * @inheritDoc IComponentType::getName()
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return Craft::t('Commerce Product');
+    }
+
+    /**
      * The element type this field deals with.
      *
      * @var string $elementType
