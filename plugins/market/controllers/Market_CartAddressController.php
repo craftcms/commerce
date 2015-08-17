@@ -35,8 +35,14 @@ class Market_CartAddressController extends Market_BaseController
         $order = craft()->market_cart->getCart();
 
         if (craft()->market_order->setAddresses($order, $shipping, $billing)) {
+            if(craft()->request->isAjaxRequest){
+                $this->returnJson(['success'=>true]);
+            }
             $this->redirectToPostedUrl();
         } else {
+            if(craft()->request->isAjaxRequest){
+                $this->returnJson(['error'=>$billing->getAllErrors()]);
+            }
             craft()->urlManager->setRouteVariables([
                 'billingAddress'  => $billing,
                 'shippingAddress' => $shipping,
@@ -56,10 +62,17 @@ class Market_CartAddressController extends Market_BaseController
         $cart            = craft()->market_cart->getCart();
 
         if (craft()->market_cart->setShippingMethod($cart, $id)) {
+            if(craft()->request->isAjaxRequest){
+                $this->returnJson(['success'=>true]);
+            }
             craft()->userSession->setFlash('notice',Craft::t('Shipping method has been set'));
             $this->redirectToPostedUrl();
         } else {
-            craft()->userSession->setFlash('error',Craft::t('Wrong shipping method'));
+            $error = Craft::t('Wrong shipping method');
+            if(craft()->request->isAjaxRequest){
+                $this->returnJson(['error'=>$error]);
+            }
+            craft()->userSession->setFlash('error',$error);
         }
     }
 
@@ -84,7 +97,7 @@ class Market_CartAddressController extends Market_BaseController
             $shippingAddress = craft()->market_address->getAddressById($shippingId);
         }
 
-        $order           = craft()->market_cart->getCart();
+        $order = craft()->market_cart->getCart();
 
         if (!$billingAddress->id || !$shippingAddress->id) {
             if (empty($billingAddress->id)) {
@@ -93,7 +106,6 @@ class Market_CartAddressController extends Market_BaseController
             if (empty($shippingAddress->id)) {
                 craft()->userSession->setFlash('error',Craft::t('Please choose a shipping address'));
             }
-
             return;
         }
 
@@ -102,9 +114,15 @@ class Market_CartAddressController extends Market_BaseController
 
         if (in_array($billingAddress->id,$addressIds) && in_array($shippingAddress->id,$addressIds)) {
             if (craft()->market_order->setAddresses($order, $shippingAddress, $billingAddress)) {
+                if(craft()->request->isAjaxRequest){
+                    $this->returnJson(['success'=>true]);
+                }
                 $this->redirectToPostedUrl();
             }
         }else{
+            if(craft()->request->isAjaxRequest){
+                $this->returnJson(['error'=>Craft::t('Choose addresses that are yours.')]);
+            }
             craft()->userSession->setFlash('error',Craft::t('Choose addresses that are yours.'));
         }
     }
@@ -128,12 +146,24 @@ class Market_CartAddressController extends Market_BaseController
         // if this is an existing address
         if($address->id){
             if (!in_array($address->id,$addressIds)){
-                craft()->userSession->setFlash('error',Craft::t('Not allowed to edit that address.'));
+                $error = Craft::t('Not allowed to edit that address.');
+                if(craft()->request->isAjaxRequest){
+                    $this->returnJson(['error'=>$error]);
+                }
+                craft()->userSession->setFlash('error',$error);
                 return;
             }
         }
 
-        if (!craft()->market_customer->saveAddress($address)) {
+        if (craft()->market_customer->saveAddress($address)) {
+            if(craft()->request->isAjaxRequest){
+                $this->returnJson(['success'=>true]);
+            }
+            $this->redirectToPostedUrl();
+        }else{
+            if(craft()->request->isAjaxRequest){
+                $this->returnJson(['error'=>$address->getAllErrors()]);
+            }
             craft()->urlManager->setRouteVariables([
                 'newAddress' => $address,
             ]);
@@ -160,10 +190,19 @@ class Market_CartAddressController extends Market_BaseController
 
         // current customer is the owner of the address
         if (in_array($id,$addressIds)){
-            craft()->market_address->deleteAddressById($id);
+            if(craft()->market_address->deleteAddressById($id)){
+                if(craft()->request->isAjaxRequest){
+                    $this->returnJson(['success'=>true]);
+                }
+                $this->redirectToPostedUrl();
+            }
             craft()->userSession->setFlash('notice',Craft::t('Address removed.'));
         }else{
-            craft()->userSession->setFlash('error',Craft::t('Not allowed to remove that address.'));
+            $error = Craft::t('Not allowed to remove that address.');
+            if(craft()->request->isAjaxRequest){
+                $this->returnJson(['error'=>$error]);
+            }
+            craft()->userSession->setFlash('error',$error);
         }
     }
 }
