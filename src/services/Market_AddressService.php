@@ -95,12 +95,8 @@ class Market_AddressService extends BaseApplicationComponent
         }
     }
 
-    /**
-     * @param int $id
-     *
-     */
     public function deleteAddressById($id)
     {
-        Market_AddressRecord::model()->deleteByPk($id);
+        return (bool) Market_AddressRecord::model()->deleteByPk($id);
     }
 }
