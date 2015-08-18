@@ -184,6 +184,24 @@ class Market_OrderService extends BaseApplicationComponent
             }
         }
 
+        // Set default shipping address if last used is available
+        $lastShippingAddressId = craft()->market_customer->getCustomer()->lastUsedShippingAddressId;
+        if (!$order->shippingAddressId && $lastShippingAddressId) {
+            if($address = craft()->market_address->getAddressById($lastShippingAddressId)){
+                $order->shippingAddressId = $address->id;
+                $order->shippingAddressData = JsonHelper::encode($address->attributes);
+            }
+        }
+
+        // Set default billing address if last used is available
+        $lastBillingAddressId = craft()->market_customer->getCustomer()->lastUsedBillingAddressId;
+        if (!$order->billingAddressId && $lastBillingAddressId) {
+            if($address = craft()->market_address->getAddressById($lastBillingAddressId)){
+                $order->billingAddressId = $address->id;
+                $order->billingAddressData = JsonHelper::encode($address->attributes);
+            }
+        }
+
         if (!$order->customerId){
             $order->customerId = craft()->market_customer->getCustomerId();
         }else{
@@ -202,7 +220,7 @@ class Market_OrderService extends BaseApplicationComponent
         $orderRecord->itemTotal         = $order->itemTotal;
         $orderRecord->email             = $order->email;
         $orderRecord->dateOrdered       = $order->dateOrdered;
-        $orderRecord->datePaid            = $order->datePaid;
+        $orderRecord->datePaid          = $order->datePaid;
         $orderRecord->billingAddressId  = $order->billingAddressId;
         $orderRecord->shippingAddressId = $order->shippingAddressId;
         $orderRecord->shippingMethodId  = $order->shippingMethodId;

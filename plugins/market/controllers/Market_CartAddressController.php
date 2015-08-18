@@ -35,6 +35,9 @@ class Market_CartAddressController extends Market_BaseController
         $order = craft()->market_cart->getCart();
 
         if (craft()->market_order->setAddresses($order, $shipping, $billing)) {
+
+            craft()->market_customer->setLastUsedAddresses($billing->id,$shipping->id);
+
             if(craft()->request->isAjaxRequest){
                 $this->returnJson(['success'=>true]);
             }
@@ -114,6 +117,7 @@ class Market_CartAddressController extends Market_BaseController
 
         if (in_array($billingAddress->id,$addressIds) && in_array($shippingAddress->id,$addressIds)) {
             if (craft()->market_order->setAddresses($order, $shippingAddress, $billingAddress)) {
+                craft()->market_customer->setLastUsedAddresses($billingAddress->id,$shippingAddress->id);
                 if(craft()->request->isAjaxRequest){
                     $this->returnJson(['success'=>true]);
                 }
