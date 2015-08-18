@@ -289,6 +289,7 @@ class Market_CustomerService extends BaseApplicationComponent
             return true;
 
         } catch (\Exception $e) {
+            MarketPlugin::log("Could not consolidate orders to username: ".$username);
             MarketDbHelper::rollbackStackedTransaction();
         }
     }
