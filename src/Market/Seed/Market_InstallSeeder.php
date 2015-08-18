@@ -193,6 +193,7 @@ class Market_InstallSeeder implements Market_SeederInterface
 	private function defaultSettings()
 	{
 		$settings = new Market_SettingsModel();
+		$settings->orderPdfPath = 'commerce/_pdf/order';
 		\Craft\craft()->market_settings->save($settings);
 	}
 
