@@ -8,7 +8,9 @@ namespace Craft;
  *
  * @property int                    id
  * @property string                 email
- * @property int                    userId                      userId
+ * @property int                    userId
+ * @property int                    lastUsedBillingAddressId
+ * @property int                    lastUsedShippingAddressId
  *
  * @property Market_AddressRecord[] addresses
  * @property Market_OrderRecord[]   orders
@@ -54,7 +56,9 @@ class Market_CustomerRecord extends BaseRecord
     protected function defineAttributes()
     {
         return [
-            'email' => [AttributeType::Email],
+            'email' => AttributeType::Email,
+            'lastUsedBillingAddressId' => AttributeType::Number,
+            'lastUsedShippingAddressId' => AttributeType::Number
         ];
     }
 }

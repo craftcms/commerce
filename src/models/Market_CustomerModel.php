@@ -11,6 +11,8 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property int                   id
  * @property int                   userId
  * @property string                email
+ * @property int                   lastUsedBillingAddressId
+ * @property int                   lastUsedShippingAddressId
  *
  * @property Market_AddressModel[] addresses
  * @property Market_OrderModel[]   orders
@@ -49,6 +51,8 @@ class Market_CustomerModel extends BaseModel
             'id'     => AttributeType::Number,
             'userId' => AttributeType::Number,
             'email'  => AttributeType::String,
+            'lastUsedBillingAddressId' => AttributeType::Number,
+            'lastUsedShippingAddressId' => AttributeType::Number
         ]);
     }
 }

@@ -63,6 +63,10 @@ class Market_CustomerService extends BaseApplicationComponent
                 $id = craft()->session->get(self::SESSION_CUSTOMER);
                 if ($id) {
                     $record = Market_CustomerRecord::model()->findById($id);
+                    // If there is a customer record but it is associated with a real user, don't use it which guest.
+                    if($record && $record->userId){
+                        $record = false;
+                    }
                 }
             }
 
@@ -102,6 +106,8 @@ class Market_CustomerService extends BaseApplicationComponent
 
         $customerRecord->email = $customer->email;
         $customerRecord->userId = $customer->userId;
+        $customerRecord->lastUsedBillingAddressId = $customer->lastUsedBillingAddressId;
+        $customerRecord->lastUsedShippingAddressId = $customer->lastUsedShippingAddressId;
 
         $customerRecord->validate();
         $customer->addErrors($customerRecord->getErrors());
@@ -163,6 +169,28 @@ class Market_CustomerService extends BaseApplicationComponent
 
         return craft()->market_address->saveAddress($address);
 
+    }
+
+    /**
+     * @param $billingId
+     * @param $shippingId
+     *
+     * @return bool
+     * @throws Exception
+     */
+    public function setLastUsedAddresses($billingId,$shippingId)
+    {
+        $customer = $this->getSavedCustomer();
+
+        if($billingId){
+            $customer->lastUsedBillingAddressId = $billingId;
+        }
+
+        if($shippingId){
+            $customer->lastUsedShippingAddressId = $shippingId;
+        }
+
+        return $this->save($customer);
     }
 
     /**

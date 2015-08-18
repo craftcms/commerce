@@ -70,7 +70,7 @@ class Market_AddressModel extends BaseModel
             'stateName'        => AttributeType::String,
             'countryId'        => AttributeType::Number,
             'stateId'          => AttributeType::Number,
-            'customerId'       => AttributeType::Number,
+            'customerId'       => AttributeType::Number
         ];
     }
 }
