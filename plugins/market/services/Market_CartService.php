@@ -42,8 +42,7 @@ class Market_CartService extends BaseApplicationComponent
         }
 
         //filling item model
-        $lineItem = craft()->market_lineItem->getByOrderPurchasable($order->id,
-            $purchasableId);
+        $lineItem = craft()->market_lineItem->getByOrderPurchasable($order->id, $purchasableId);
 
         if ($lineItem->id) {
             $lineItem->qty += $qty;
