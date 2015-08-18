@@ -130,6 +130,24 @@ class Market_OrderService extends BaseApplicationComponent
         return $criteria->first();
     }
 
+
+    /**
+     * @param int|Market_CustomerModel $customer
+     *
+     * @return Market_OrderModel[]
+     */
+    public function getByCustomer($customer)
+    {
+        $id = $customer;
+        if ($customer instanceof Market_CustomerModel){
+            $id = $customer->id;
+        }
+
+        $orders = Market_OrderRecord::model()->findAllByAttributes(['customerId'=>$id]);
+
+        return Market_OrderModel::populateModels($orders);
+    }
+
     /**
      * @param Market_OrderModel $order
      *
@@ -184,21 +202,25 @@ class Market_OrderService extends BaseApplicationComponent
             }
         }
 
-        // Set default shipping address if last used is available
-        $lastShippingAddressId = craft()->market_customer->getCustomer()->lastUsedShippingAddressId;
-        if (!$order->shippingAddressId && $lastShippingAddressId) {
-            if($address = craft()->market_address->getAddressById($lastShippingAddressId)){
-                $order->shippingAddressId = $address->id;
-                $order->shippingAddressData = JsonHelper::encode($address->attributes);
-            }
-        }
+        //Only set default addresses on carts
+        if(!$order->dateOrdered) {
 
-        // Set default billing address if last used is available
-        $lastBillingAddressId = craft()->market_customer->getCustomer()->lastUsedBillingAddressId;
-        if (!$order->billingAddressId && $lastBillingAddressId) {
-            if($address = craft()->market_address->getAddressById($lastBillingAddressId)){
-                $order->billingAddressId = $address->id;
-                $order->billingAddressData = JsonHelper::encode($address->attributes);
+            // Set default shipping address if last used is available
+            $lastShippingAddressId = craft()->market_customer->getCustomer()->lastUsedShippingAddressId;
+            if (!$order->shippingAddressId && $lastShippingAddressId) {
+                if ($address = craft()->market_address->getAddressById($lastShippingAddressId)) {
+                    $order->shippingAddressId = $address->id;
+                    $order->shippingAddressData = JsonHelper::encode($address->attributes);
+                }
+            }
+
+            // Set default billing address if last used is available
+            $lastBillingAddressId = craft()->market_customer->getCustomer()->lastUsedBillingAddressId;
+            if (!$order->billingAddressId && $lastBillingAddressId) {
+                if ($address = craft()->market_address->getAddressById($lastBillingAddressId)) {
+                    $order->billingAddressId = $address->id;
+                    $order->billingAddressData = JsonHelper::encode($address->attributes);
+                }
             }
         }
 

@@ -1,6 +1,8 @@
 <?php
 namespace Craft;
 
+use Market\Helpers\MarketDbHelper;
+
 /**
  * Class Market_CustomerService
  *
@@ -147,6 +149,18 @@ class Market_CustomerService extends BaseApplicationComponent
     }
 
     /**
+     * @param $id
+     * @return BaseModel
+     */
+    public function getByUserId($id)
+    {
+        $record = Market_CustomerRecord::model()->findByAttributes(['userId'=>$id]);
+
+        return Market_CustomerModel::populateModel($record);
+    }
+
+
+    /**
      * @return bool
      */
     public function isSaved()
@@ -205,6 +219,88 @@ class Market_CustomerService extends BaseApplicationComponent
             $ids[] = $address->id;
         }
         return $ids;
+    }
+
+    public function getByEmail($email)
+    {
+        $customers = Market_CustomerRecord::model()->findAllByAttributes(['email'=>$email]);
+
+        return Market_CustomerModel::populateModels($customers);
+    }
+
+    /**
+     *
+     * @param Market_CustomerModel $customer
+     * @return mixed
+     */
+    public function delete($customer)
+    {
+        return Market_CustomerRecord::model()->deleteByPk($customer->id);
+    }
+
+    /**
+     * @param $username
+     * @return bool
+     * @throws Exception
+     * @throws \Exception
+     */
+    public function consolidateOrdersToUser($username)
+    {
+        MarketDbHelper::beginStackedTransaction();
+
+        $user = craft()->users->getUserByUsernameOrEmail($username);
+
+        if(!$user){
+            throw new Exception('User does not exists');
+        }
+
+        try {
+            $toCustomer = $this->getByUserId($user->id);
+            if (!$toCustomer) {
+                $toCustomer = new Market_CustomerModel();
+                $toCustomer->email = $user->email;
+                $toCustomer->userId = $user->id;
+                $this->save($toCustomer);
+            }
+
+            $customers = $this->getByEmail($user->email);
+
+            foreach ($customers as $customer) {
+
+                $orders = craft()->market_order->getByCustomer($customer->id);
+
+                foreach ($orders as $order) {
+                    // Only consolidate completed orders, not carts
+                    if ($order->dateOrdered) {
+                        $order->customerId = $toCustomer->id;
+                        $order->email = $toCustomer->email;
+                        craft()->market_order->save($order);
+                    }
+                }
+
+                if($toCustomer->userId != $customer->userId){
+                    $this->delete($customer);
+                }
+
+            }
+
+            MarketDbHelper::commitStackedTransaction();
+
+            return true;
+
+        } catch (\Exception $e) {
+            MarketDbHelper::rollbackStackedTransaction();
+        }
+    }
+
+    /**
+     * @param Event $event
+     * @throws Exception
+     */
+    public function loginHandler(Event $event)
+    {
+        $username = $event->params['username'];
+        $this->consolidateOrdersToUser($username);
     }
 
 }

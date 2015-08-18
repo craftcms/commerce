@@ -95,6 +95,13 @@ class MarketPlugin extends BasePlugin
                 'orderCompleteHandler'
             ]
         );
+
+        craft()->on('userSession.onLogin',
+            [
+                craft()->market_customer,
+                'loginHandler'
+            ]
+        );
     }
 
     /**
