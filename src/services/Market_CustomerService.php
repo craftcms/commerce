@@ -65,7 +65,7 @@ class Market_CustomerService extends BaseApplicationComponent
                 $id = craft()->session->get(self::SESSION_CUSTOMER);
                 if ($id) {
                     $record = Market_CustomerRecord::model()->findById($id);
-                    // If there is a customer record but it is associated with a real user, don't use it which guest.
+                    // If there is a customer record but it is associated with a real user, don't use it when guest.
                     if($record && $record->userId){
                         $record = false;
                     }
