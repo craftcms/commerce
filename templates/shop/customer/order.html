@@ -1,13 +1,14 @@
 {% extends 'commerce/_layouts/main' %}
 
 {% set orderId = craft.request.param('orderId') %}
-{% set order = craft.market.orders.id(orderId).customer(currentUser).first() %}
+{% set order = craft.market.orders.id(orderId).customer(craft.market.customer).first() %}
 
 {% if not order %}
     {% redirect 'commerce/customer' %}
 {% endif %}
 
 {%  block main %}
+
     <div class="row">
         <div class="eleven columns">
 

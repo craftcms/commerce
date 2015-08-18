@@ -237,8 +237,12 @@ class Market_OrderElementType extends Market_BaseElementType
 
         if($criteria->customer) {
           if ($criteria->customer instanceof Market_CustomerModel) {
-            $criteria->customerId = $criteria->customer->id;
-            $criteria->customer = null;
+            if($criteria->customer->id){
+                $criteria->customerId = $criteria->customer->id;
+                $criteria->customer = null;
+            }else{
+                $query->andWhere(DbHelper::parseParam('orders.customerId', 'IS NULL', $query->params));
+            }
           }
         }
 
