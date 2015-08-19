@@ -312,6 +312,11 @@ class Market_OrderModel extends BaseElementModel
         }
         $data['adjustments'] = $adjustments;
 
+        // remove un-needed base element attributes
+        $remove = ['archived','cancelUrl','lft','level','rgt','slug','uri','root'];
+        foreach($remove as $r){
+            unset($data[$r]);
+        }
         return $data;
     }
 }
