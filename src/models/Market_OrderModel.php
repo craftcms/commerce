@@ -274,7 +274,7 @@ class Market_OrderModel extends BaseElementModel
             ],
             'email'             => AttributeType::String,
             'dateOrdered'       => AttributeType::DateTime,
-            'datePaid'            => AttributeType::DateTime,
+            'datePaid'          => AttributeType::DateTime,
             'currency'          => AttributeType::String,
             'lastIp'            => AttributeType::String,
             'message'           => AttributeType::String,
@@ -291,5 +291,27 @@ class Market_OrderModel extends BaseElementModel
             'shippingAddressData'   => AttributeType::Mixed,
             'billingAddressData'    => AttributeType::Mixed
         ]);
+    }
+
+    public function toArray()
+    {
+        $data = [];
+        foreach($this->defineAttributes() as $key => $val){
+            $data[$key] = $this->getAttribute($key, true);
+        }
+
+        $lineItems = [];
+        foreach($this->lineItems as $lineItem){
+            $lineItems[$lineItem->id] = $lineItem->toArray();
+        }
+        $data['lineItems'] = $lineItems;
+
+        $adjustments = [];
+        foreach($this->adjustments as $adjustments){
+            $lineItems[$adjustments->id] = $adjustments->toArray();
+        }
+        $data['adjustments'] = $adjustments;
+
+        return $data;
     }
 }
