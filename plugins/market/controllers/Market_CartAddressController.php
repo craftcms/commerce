@@ -39,7 +39,7 @@ class Market_CartAddressController extends Market_BaseController
             craft()->market_customer->setLastUsedAddresses($billing->id,$shipping->id);
 
             if(craft()->request->isAjaxRequest){
-                $this->returnJson(['success'=>true]);
+                $this->returnJson(['success'=>true,'cart'=>$order->toArray()]);
             }
             $this->redirectToPostedUrl();
         } else {
@@ -66,7 +66,7 @@ class Market_CartAddressController extends Market_BaseController
 
         if (craft()->market_cart->setShippingMethod($cart, $id)) {
             if(craft()->request->isAjaxRequest){
-                $this->returnJson(['success'=>true]);
+                $this->returnJson(['success'=>true,'cart'=>$cart->toArray()]);
             }
             craft()->userSession->setFlash('notice',Craft::t('Shipping method has been set'));
             $this->redirectToPostedUrl();
@@ -119,7 +119,7 @@ class Market_CartAddressController extends Market_BaseController
             if (craft()->market_order->setAddresses($order, $shippingAddress, $billingAddress)) {
                 craft()->market_customer->setLastUsedAddresses($billingAddress->id,$shippingAddress->id);
                 if(craft()->request->isAjaxRequest){
-                    $this->returnJson(['success'=>true]);
+                    $this->returnJson(['success'=>true,'cart'=>$order->toArray()]);
                 }
                 $this->redirectToPostedUrl();
             }
