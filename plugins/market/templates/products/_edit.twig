@@ -121,7 +121,7 @@
                         name:   'masterVariant[price]',
                         required: productType.hasVariants ? false : true,
                         type:   'text',
-                        value: masterVariant.price|number,
+                        value: masterVariant.price,
                         errors: masterVariant.getErrors('price')
                     })}}
                     </div>
@@ -155,7 +155,7 @@
                         label: productType.hasVariants ? 'Default Width'|t : 'Width'|t,
                         name:   'masterVariant[width]',
                         type:   'text',
-                        value: masterVariant.width|number,
+                        value: masterVariant.width,
                         errors: masterVariant.getErrors('width')
                     })}}
                     </div>
@@ -165,7 +165,7 @@
                         label: productType.hasVariants ? 'Default Height'|t : 'Height'|t,
                         name:   'masterVariant[height]',
                         type:   'number',
-                        value: masterVariant.height|number,
+                        value: masterVariant.height,
                         errors: masterVariant.getErrors('height')
                     })}}
                     </div>
@@ -185,7 +185,7 @@
                         label: productType.hasVariants ? 'Default Weight'|t : 'Weight'|t,
                         name:   'masterVariant[weight]',
                         type:   'text',
-                        value: masterVariant.weight|number,
+                        value: masterVariant.weight,
                         errors: masterVariant.getErrors('weight')
                     })}}
                     </div>
