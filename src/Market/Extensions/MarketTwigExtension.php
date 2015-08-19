@@ -2,6 +2,7 @@
 namespace Market\Extensions;
 
 use ICanBoogie\Inflector;
+use CNumberFormatter;
 
 class MarketTwigExtension extends \Twig_Extension
 {
@@ -39,14 +40,20 @@ class MarketTwigExtension extends \Twig_Extension
 		}
 
 		$returnArray['marketCurrency'] = new \Twig_Filter_Method($this, 'currency');
+		$returnArray['marketDecimal'] = new \Twig_Filter_Method($this, 'decimal');
 
 		return $returnArray;
 	}
 
+	public function decimal($content)
+	{
+		return \Craft\craft()->numberFormatter->formatDecimal($content);
+	}
+
 	public function currency($content)
 	{
-		$currency = \Craft\craft()->market_settings->getOption('defaultCurrency');
-		return \Craft\craft()->numberFormatter->formatCurrency($content, strtoupper($currency));
+		$code = \Craft\craft()->market_settings->getOption('defaultCurrency');
+		return \Craft\craft()->numberFormatter->formatCurrency($content, strtoupper($code), true);
 	}
 
 	public function pluralize($content)
