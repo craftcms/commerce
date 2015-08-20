@@ -17,7 +17,6 @@ namespace Craft;
  * @property int                  stock
  * @property bool                 unlimitedStock
  * @property int                  minQty
- * @property DateTime             deletedAt
  *
  * @property Market_ProductRecord $product
  * @package Craft
