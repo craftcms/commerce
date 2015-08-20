@@ -6,20 +6,30 @@ class m150820_010101_Market_FixProductAndVariants extends BaseMigration
     public function safeUp()
     {
 
-        $products = craft()->db->createCommand()->select('id')->from('elements')->where('type = :type',[':type'=>'Market_Product'])->queryColumn();
-        $marketProducts = craft()->db->createCommand()->select('id')->from('market_products')->queryColumn();
+        // Find any elements in the craft_elements table that don't exist in our market records and remove them.
+        $types = ['Market_Product','Market_Variant','Market_Order'];
+        foreach($types as $type){
+            $elements = craft()->db->createCommand()->select('id')->from('elements')->where('type = :type',[':type'=>$type])->queryColumn();
+            $tableName = strtolower($type)."s";
+            $marketTableElements = craft()->db->createCommand()->select('id')->from($tableName)->queryColumn();
 
-        $count = 0;
-        foreach($products as $p){
-            if (!in_array($p,$marketProducts)){
-                Craft::log("Deleting element not in market product table: ". $p);
-                craft()->db->createCommand()->delete('elements', 'id=:id', array(':id'=>$p));
-                $count++;
+            $count = 0;
+            foreach($elements as $p){
+                if (!in_array($p,$marketTableElements)){
+                    Craft::log("Deleting ".$type." element not in market table id: ". $p);
+                    craft()->db->createCommand()->delete('elements', 'id=:id', array(':id'=>$p));
+                    $count++;
+                }
             }
+            Craft::log("Total ".$type." elements removed as they are not in market tables: ". $count);
         }
-        Craft::log("Total product elements removed as they are not in market products table: ". $count);
 
-        $this->dropColumn('market_variants','deletedAt');
+        $table = craft()->db->schema->getTable('market_variants');
+        if(isset($table->columns['deletedAt'])) {
+            $this->dropColumn('market_variants', 'deletedAt');
+        }
+
+        // Ensure that variants get deleted when their elements do.
         MigrationHelper::dropForeignKeyIfExists('market_variants',['id']);
         $this->addForeignKey('market_variants','id','elements','id','CASCADE');
 
