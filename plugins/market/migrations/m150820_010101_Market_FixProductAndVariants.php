@@ -29,10 +29,6 @@ class m150820_010101_Market_FixProductAndVariants extends BaseMigration
             $this->dropColumn('market_variants', 'deletedAt');
         }
 
-        // Ensure that variants get deleted when their elements do.
-        MigrationHelper::dropForeignKeyIfExists('market_variants',['id']);
-        $this->addForeignKey('market_variants','id','elements','id','CASCADE');
-
         return true;
     }
 }
