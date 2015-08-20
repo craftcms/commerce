@@ -36,11 +36,11 @@ class Market_VariantService extends BaseApplicationComponent
     /**
      * @param int $productId
      */
-    public function disableAllByProductId($productId)
+    public function deleteAllByProductId($productId)
     {
         $variants = $this->getAllByProductId($productId);
         foreach ($variants as $variant) {
-            $this->disableVariant($variant);
+            $this->deleteVariant($variant);
         }
     }
 
@@ -61,11 +61,9 @@ class Market_VariantService extends BaseApplicationComponent
     /**
      * @param $variant
      */
-    public function disableVariant($variant)
+    public function deleteVariant($variant)
     {
-        $variant            = Market_ProductRecord::model()->findById($variant->id);
-        $variant->deletedAt = DateTimeHelper::currentTimeForDb();
-        $variant->saveAttributes(['deletedAt']);
+        craft()->elements->deleteElementById($variant->id);
     }
 
     /**
