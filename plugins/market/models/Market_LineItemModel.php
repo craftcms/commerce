@@ -134,7 +134,7 @@ class Market_LineItemModel extends BaseModel
             }
 
             $snapshotMore = [
-              'onsale' => $purchasable->getOnSale(),
+              'onSale' => $purchasable->getOnSale(),
               'cpEditUrl' => $purchasable->getCpEditUrl()
             ];
 
