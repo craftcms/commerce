@@ -47,7 +47,7 @@ class MarketTwigExtension extends \Twig_Extension
 
 	public function decimal($content)
 	{
-		return \Craft\craft()->numberFormatter->formatDecimal($content);
+		return \Craft\craft()->numberFormatter->formatDecimal($content,false);
 	}
 
 	public function currency($content)
