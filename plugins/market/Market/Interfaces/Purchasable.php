@@ -13,13 +13,19 @@ interface Purchasable
     public function getPurchasableId();
 
     /*
-     * This is an array of data that should be saves in a serialized way to the line item.
-     * It is used to have all info about the purchasable saved to the lineitem if it is deleted later.
-     * This snapshot gets passed to your ModelClass in a ::populateModel($snaphot)
+     * This is an array of data that should be saved in a serialized way to the line item.
+     *
+     * Use it as a way to store data on the lineItem even after the purchasable may be deleted.
+     * We will automatically add all attributes returned by ```->getAttributes()``` in addition to the ones you define here.
+     * This snapshot gets passed to your Model's Class in a ```$modelClass::populateModel($snaphot)``` if
+     * your Purchasable ```->getModelClass()``` is available, otherwise it returns just the snapshot data as an array.
+     *
+     * Below is an example of the snapshot data you could add in addition to the attributes of your model. Remember
+     * that if you use the same array key as the model's attributes, the these items will will overridden.
      *
      * Example: $data = array('ticketType' => 'full',
      *                       'location' => 'N');
-     *          return array_merge($this->getAttributes(),$data);
+     *
      *
      * @return array
      */
