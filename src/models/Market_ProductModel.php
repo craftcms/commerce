@@ -100,6 +100,28 @@ class Market_ProductModel extends BaseElementModel implements Purchasable
     }
 
     /**
+     * We need to be explicit to meet interface
+     * @return string
+     */
+    public function getSnapshot()
+    {
+        $data = [
+            'title' => $this->getTitle()
+        ];
+
+        return array_merge($this->getAttributes(),$data);
+    }
+
+    /**
+     * We need to be explicit to meet interface
+     * @return string
+     */
+    public function getModelClass()
+    {
+        return 'Market_ProductModel';
+    }
+
+    /**
      * Returns the Master Variants's
      *
      * @return float
