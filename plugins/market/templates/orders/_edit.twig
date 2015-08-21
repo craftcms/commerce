@@ -40,16 +40,14 @@
                                 <td><a class="fieldtoggle" data-target=".more-{{ lineItem.id }}">&nbsp;</a></td>
                                 <td>{{ lineItem.qty }}</td>
                                 <td valign="top">
-                                    {% if lineItem.purchasable %}
+                                    {% if lineItem.purchasableId %}
                                         <a href="{{ lineItem.purchasable.cpEditUrl }}">{{ lineItem.purchasable.description }} </a>({{ lineItem.purchasable.sku }})
                                     {%  else  %}
-                                        {% if lineItem.snapshot.description is defined %}
-                                            {{ lineItem.snapshot.description }} <span style="color:#CECECE">(deleted)</span>
-                                        {% else %}
-                                            {{ lineItem.snapshot.sku }} <span style="color:#CECECE">(deleted)</span>
-                                        {%  endif %}
+                                            {{ lineItem.purchasable.description }} ({{ lineItem.purchasable.sku }}) <span style="color:#CECECE">(deleted?)</span>
                                     {%  endif %}
+                                    {%  if lineItem.note %}
                                     <div class="hidden more-{{ lineItem.id }}">{{ "Note"|t }}: {{ lineItem.note }}</div>
+                                    {% endif %}
                                 </td>
                                 <td>
                                     <div class="hidden more-{{ lineItem.id }}">
