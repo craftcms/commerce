@@ -15,9 +15,11 @@ interface Purchasable
     /*
      * This is an array of data that should be saves in a serialized way to the line item.
      * It is used to have all info about the purchasable saved to the lineitem if it is deleted later.
+     * This snapshot gets passed to your ModelClass in a ::populateModel($snaphot)
      *
-     * Example: return array('ticketType' => 'full',
+     * Example: $data = array('ticketType' => 'full',
      *                       'location' => 'N');
+     *          return array_merge($this->getAttributes(),$data);
      *
      * @return array
      */
