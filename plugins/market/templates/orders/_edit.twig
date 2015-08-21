@@ -37,14 +37,14 @@
 
                         {%  for lineItem in order.lineItems %}
                             <tr>
-                                <td><a class="fieldtoggle" data-target=".more-{{ lineItem.purchasable.sku }}">&nbsp;</a></td>
+                                <td><a class="fieldtoggle" data-target=".more-{{ lineItem.id }}">&nbsp;</a></td>
                                 <td>{{ lineItem.qty }}</td>
                                 <td valign="top">
                                     <a href="{{ lineItem.purchasable.cpEditUrl }}">{{ lineItem.purchasable.description }} </a>({{ lineItem.purchasable.sku }})
-                                    <div class="hidden more-{{ lineItem.purchasable.sku }}">{{ "Note"|t }}: {{ lineItem.note }}</div>
+                                    <div class="hidden more-{{ lineItem.id }}">{{ "Note"|t }}: {{ lineItem.note }}</div>
                                 </td>
                                 <td>
-                                    <div class="hidden more-{{ lineItem.purchasable.sku }}">
+                                    <div class="hidden more-{{ lineItem.id }}">
                                         {{ "Price"|t }}<br/>
                                         {{ "Sale Price"|t }}<br/>
                                         {{ "Tax"|t }}<br/>
@@ -55,7 +55,7 @@
 
                                 </td>
                                 <td>
-                                    <div class="hidden more-{{ lineItem.purchasable.sku }}">
+                                    <div class="hidden more-{{ lineItem.id }}">
                                         {{ lineItem.price|marketCurrency }}<br/>
                                         {{ lineItem.saleAmount|marketCurrency }}<br/>
                                         {{ lineItem.tax|marketCurrency }}<br/>
