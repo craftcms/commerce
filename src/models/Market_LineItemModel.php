@@ -103,6 +103,7 @@ class Market_LineItemModel extends BaseModel
     public function fillFromPurchasable(Purchasable $purchasable)
     {
         $this->price = $purchasable->getPrice();
+
         $snapshot = [
             'price' => $purchasable->getPrice(),
             'sku' => $purchasable->getSku(),
@@ -112,7 +113,11 @@ class Market_LineItemModel extends BaseModel
             'cpEditUrl' => '#'
         ];
 
-        $this->snapshot = array_merge($purchasable->getSnapShot(), $snapshot);
+        // Add our purchasable data to the snapshot
+        $snapshot = array_merge($purchasable->getSnapShot(), $snapshot);
+
+        // Add all the purchasable attributes to the snapshot
+        $this->snapshot = array_merge($purchasable->getAttributes(), $snapshot);
 
         if ($purchasable instanceof Market_VariantModel || $purchasable instanceof Market_ProductModel) {
 
@@ -133,6 +138,7 @@ class Market_LineItemModel extends BaseModel
                 $this->saleAmount = $this->price;
             }
 
+            // Commerce Variant and Product only snapshot items
             $snapshotMore = [
               'onSale' => $purchasable->getOnSale(),
               'cpEditUrl' => $purchasable->getCpEditUrl()
