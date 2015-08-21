@@ -27,7 +27,7 @@
             label: 'Price'|t,
             name:   'price',
             type:   'text',
-            value: variant.price,
+            value: variant.price|marketDecimal,
             errors: variant.getErrors('price')
         })}}
     </div>
@@ -61,7 +61,7 @@
             label: 'Width'|t,
             name:   'width',
             type:   'text',
-            value: variant.width,
+            value: variant.width|marketDecimal,
             errors: variant.getErrors('width')
         })}}
     </div>
@@ -71,7 +71,7 @@
             label: 'Height'|t,
             name:   'height',
             type:   'number',
-            value: variant.height,
+            value: variant.height|marketDecimal,
             errors: variant.getErrors('height')
         })}}
     </div>
@@ -81,7 +81,7 @@
             label: 'Length'|t,
             name:   'length',
             type:   'text',
-            value: variant.length,
+            value: variant.length|marketDecimal,
             errors: variant.getErrors('length')
         })}}
     </div>
@@ -91,7 +91,7 @@
             label: 'Weight'|t,
             name:   'weight',
             type:   'text',
-            value: variant.weight,
+            value: variant.weight|marketDecimal,
             errors: variant.getErrors('weight')
         })}}
     </div>

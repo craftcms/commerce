@@ -121,7 +121,7 @@
                         name:   'masterVariant[price]',
                         required: productType.hasVariants ? false : true,
                         type:   'text',
-                        value: masterVariant.price,
+                        value: masterVariant.price|marketDecimal,
                         errors: masterVariant.getErrors('price')
                     })}}
                     </div>
@@ -155,7 +155,7 @@
                         label: productType.hasVariants ? 'Default Width'|t : 'Width'|t,
                         name:   'masterVariant[width]',
                         type:   'text',
-                        value: masterVariant.width,
+                        value: masterVariant.width|marketDecimal,
                         errors: masterVariant.getErrors('width')
                     })}}
                     </div>
@@ -165,7 +165,7 @@
                         label: productType.hasVariants ? 'Default Height'|t : 'Height'|t,
                         name:   'masterVariant[height]',
                         type:   'number',
-                        value: masterVariant.height,
+                        value: masterVariant.height|marketDecimal,
                         errors: masterVariant.getErrors('height')
                     })}}
                     </div>
@@ -175,7 +175,7 @@
                         label: productType.hasVariants ? 'Default Length'|t : 'Length'|t,
                         name:   'masterVariant[length]',
                         type:   'text',
-                        value: masterVariant.length|number,
+                        value: masterVariant.length|marketDecimal,
                         errors: masterVariant.getErrors('length')
                     })}}
                     </div>
@@ -185,7 +185,7 @@
                         label: productType.hasVariants ? 'Default Weight'|t : 'Weight'|t,
                         name:   'masterVariant[weight]',
                         type:   'text',
-                        value: masterVariant.weight,
+                        value: masterVariant.weight|marketDecimal,
                         errors: masterVariant.getErrors('weight')
                     })}}
                     </div>
