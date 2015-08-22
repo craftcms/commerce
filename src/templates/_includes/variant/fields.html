@@ -62,7 +62,7 @@
     <div class="grid first" data-cols="8">
     <div class="item" data-min-colspan="2" data-max-colspan="2">
         {{ forms.textField({
-            label: 'Width'|t,
+            label: 'Width'|t~' ('~craft.market.settings.dimensionUnits~')',
             name:   'width',
             type:   'text',
             value: variant.width|marketDecimal,
@@ -72,7 +72,7 @@
 
         <div class="item" data-min-colspan="2" data-max-colspan="2">
         {{ forms.textField({
-            label: 'Height'|t,
+            label: 'Height'|t~' ('~craft.market.settings.dimensionUnits~')',
             name:   'height',
             type:   'number',
             value: variant.height|marketDecimal,
@@ -82,7 +82,7 @@
 
         <div class="item" data-min-colspan="2" data-max-colspan="2">
         {{ forms.textField({
-            label: 'Length'|t,
+            label: 'Length'|t~' ('~craft.market.settings.dimensionUnits~')',
             name:   'length',
             type:   'text',
             value: variant.length|marketDecimal,
@@ -92,7 +92,7 @@
 
         <div class="item" data-min-colspan="2" data-max-colspan="2">
         {{ forms.textField({
-            label: 'Weight'|t,
+            label: 'Weight'|t~' ('~craft.market.settings.weightUnits~')',
             name:   'weight',
             type:   'text',
             value: variant.weight|marketDecimal,
