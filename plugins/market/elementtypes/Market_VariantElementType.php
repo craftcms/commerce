@@ -66,10 +66,10 @@ class Market_VariantElementType extends Market_BaseElementType
 		return [
 			'sku'            => Craft::t('SKU'),
 			'price'          => Craft::t('Price'),
-			'width'          => Craft::t('Width'),
-			'height'         => Craft::t('Height'),
-			'length'         => Craft::t('Length'),
-			'weight'         => Craft::t('Weight'),
+			'width'          => Craft::t('Width ')."(".craft()->market_settings->getOption('dimensionUnits').")",
+			'height'         => Craft::t('Height ')."(".craft()->market_settings->getOption('dimensionUnits').")",
+			'length'         => Craft::t('Length ')."(".craft()->market_settings->getOption('dimensionUnits').")",
+			'weight'         => Craft::t('Weight ')."(".craft()->market_settings->getOption('weightUnits').")",
 			'stock'          => Craft::t('Stock'),
 			'minQty'         => Craft::t('Quantities')
 		];
