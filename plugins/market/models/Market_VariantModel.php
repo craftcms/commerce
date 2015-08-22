@@ -194,7 +194,7 @@ class Market_VariantModel extends BaseElementModel implements Purchasable
         if ($this->maxQty != 0){
             if ($lineItem->qty > $this->maxQty) {
                 $error = sprintf('Maximum order qty for this variant is %d',
-                    $this->minQty);
+                    $this->maxQty);
                 $lineItem->addError('qty', $error);
             }
         }
