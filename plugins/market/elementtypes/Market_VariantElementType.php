@@ -71,8 +71,7 @@ class Market_VariantElementType extends Market_BaseElementType
 			'length'         => Craft::t('Length'),
 			'weight'         => Craft::t('Weight'),
 			'stock'          => Craft::t('Stock'),
-			'minQty'         => Craft::t('Min Qty'),
-			'maxQty'         => Craft::t('Max Qty')
+			'minQty'         => Craft::t('Quantities')
 		];
 	}
 
@@ -85,6 +84,7 @@ class Market_VariantElementType extends Market_BaseElementType
 
 	public function getTableAttributeHtml(BaseElementModel $element, $attribute)
 	{
+		$infinity = "<span style=\"color:#E5E5E5\">&infin;</span>";
 		$numbers = ['weight','height','length','width'];
 		if(in_array($attribute,$numbers)){
 			$formatter = craft()->getNumberFormatter();
@@ -97,12 +97,23 @@ class Market_VariantElementType extends Market_BaseElementType
 		}
 
 		if($attribute == 'stock' && $element->unlimitedStock){
-			return "<span style=\"color:#E5E5E5\">NA</span>";
+			return $infinity;
 		}
 
 		if($attribute == 'price'){
 			$formatter = craft()->getNumberFormatter();
 			return $formatter->formatCurrency($element->$attribute,craft()->market_settings->getSettings()->defaultCurrency);
+		}
+
+		if($attribute == 'minQty'){
+			if(!$element->minQty && !$element->maxQty){
+				return $infinity;
+			}else{
+				$min = $element->minQty ? $element->minQty : '1';
+				$max = $element->maxQty ? $element->maxQty : $infinity;
+				return $min ." - ".$max;
+			}
+
 		}
 
 		return parent::getTableAttributeHtml($element, $attribute);
