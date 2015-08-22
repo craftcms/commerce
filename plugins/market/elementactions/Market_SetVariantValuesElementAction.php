@@ -18,6 +18,16 @@ class Market_SetVariantValuesElementAction extends BaseElementAction
     }
 
     /**
+     * @inheritDoc IElementAction::isDestructive()
+     *
+     * @return bool
+     */
+    public function isDestructive()
+    {
+        return true;
+    }
+
+    /**
      * @inheritDoc IElementAction::getTriggerHtml()
      *
      * @return string|null
@@ -35,7 +45,7 @@ class Market_SetVariantValuesElementAction extends BaseElementAction
 			var modal = new Craft.SetVariantValuesModal(Craft.elementIndex.getSelectedElementIds(), {
 				onSubmit: function()
 				{
-					//Craft.elementIndex.submitAction('Market_SetVariantValues', Garnish.getPostData(modal.\$container));
+					Craft.elementIndex.submitAction('Market_SetVariantValues', Garnish.getPostData(modal.\$container));
 					modal.hide();
 
 					return false;
@@ -61,11 +71,14 @@ EOT;
     {
         $variants = $criteria->find();
         foreach($variants as $variant){
-            $variant->price = 11;
+
+            if ($this->getParams()->setPrice){
+                $variant->price = $this->getParams()->price;
+            }
             craft()->market_variant->save($variant);
         }
 
-        $this->setMessage(Craft::t('Price set to 11.00'));
+        $this->setMessage(Craft::t('Variant values set'));
 
         return true;
 
@@ -81,8 +94,9 @@ EOT;
      */
     protected function defineParams()
     {
-        return array(
-            'label' => array(AttributeType::String, 'default' => Craft::t('Set Values')),
-        );
+        return [
+            'setPrice' => AttributeType::Bool,
+            'price' => [AttributeType::Number,'decimals' => 4]
+        ];
     }
 }

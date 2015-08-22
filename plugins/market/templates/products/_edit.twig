@@ -276,28 +276,53 @@
 
                                 Craft.SetVariantValuesModal = Garnish.Modal.extend({
 
-                                ids: null,
+                                    ids: null,
 
-                                init: function(ids,settings){
-                                    this.ids = ids;
+                                    init: function(ids,settings){
+                                        this.ids = ids;
 
-                                    var $form = $('<form class="modal fitted " method="post" accept-charset="UTF-8">' +
-                                            Craft.getCsrfInput() +
-                                            '<input type="hidden" name="redirect" value=""/>' +
-                                            '</form>').appendTo(Garnish.$bod);
+                                        var $form = $('<form class="modal" method="post" accept-charset="UTF-8">' +
+                                                Craft.getCsrfInput() +
+                                                '<input type="hidden" name="redirect" value=""/>' +
+                                                '</form>').appendTo(Garnish.$bod);
+                                    
+                                        var $body = $('<div class="body">' +
+                                                '<p>'+Craft.t('Tick the boxes for the fields values you want to mass update on the selected variants.')+'</p>' +
+                                        '</div>').appendTo($form);
 
-                                    var $body = $('<div class="body">' +
-                                            '<p>'+Craft.t('Tick the boxes for the fields values you want to update')+'</p>' +
-                                    '</div>').appendTo($form);
+                                        var $fields = $('<div class="fields">' +
+                                            '{%  spaceless %}{{ forms.checkboxField({
+                                                label: 'Set Price'|t,
+                                                id: 'setPrice',
+                                                name:   'setPrice',
+                                                checked: 0,
+                                                toggle: '#setPriceToggle'
+                                            }) }}{% endspaceless %}' +
+                                            '{% spaceless %}<div id="setPriceToggle" class="hidden">{{ forms.textField({
+                                                label: 'Price'|t,
+                                                id: 'price',
+                                                name: 'price',
+                                                value: '',
+                                            }) }}</div>{% endspaceless %}' +
+                                        '</div>').appendTo($body);
 
-                                    var $buttons = $('<div class="buttons right"/>').appendTo($body);
+                                        new Craft.FieldToggle($form.find('#setPrice'));
 
-                                    var $cancelBtn = $('<div class="btn">'+Craft.t('Cancel')+'</div>').appendTo($buttons);
-                                    this.$deleteSubmitBtn = $('<input type="submit" class="btn submit disabled" value="'+Craft.t('Set Values') +'" />').appendTo($buttons);
-                                    this.addListener($cancelBtn, 'click', 'hide');
+                                        var $buttons = $('<div class="buttons right"/>').appendTo($body);
 
-                                    this.base($form, settings);
-                                }
+                                        var $cancelBtn = $('<div class="btn">'+Craft.t('Cancel')+'</div>').appendTo($buttons);
+                                        this.$SubmitBtn = $('<input type="submit" class="btn submit" value="'+Craft.t('Set Values') +'" />').appendTo($buttons);
+                                        this.addListener($cancelBtn, 'click', 'hide');
+                                        this.addListener($form, 'submit', 'handleSubmit');
+
+                                        this.base($form, settings);
+                                    },
+                                    handleSubmit: function(ev){
+                                        // Let the onSubmit callback prevent the form from getting submitted
+                                        if (this.settings.onSubmit() === false){
+                                            ev.preventDefault();
+                                        }
+                                    }
                                 });
 
 
