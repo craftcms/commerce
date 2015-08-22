@@ -16,6 +16,7 @@
         {{ forms.textField({
             label: 'SKU'|t,
             name:   'sku',
+            instructions: 'Global store identifier. Stock Keeping Unit.'|t,
             value: variant.sku,
             required: true,
             errors: variant.getErrors('sku')
@@ -26,6 +27,7 @@
         {{ forms.textField({
             label: 'Price'|t,
             name:   'price',
+            instructions: 'Base price before sales and discounts.'|t,
             type:   'text',
             value: variant.price|marketDecimal,
             errors: variant.getErrors('price')
@@ -38,6 +40,7 @@
         {{ forms.textField({
             label: 'Min Qty'|t,
             name:   'minQty',
+            instructions: 'Minimum items that can be added to a cart.'|t,
             type:   'text',
             value: variant.minQty,
             errors: variant.getErrors('minQty')
@@ -48,6 +51,7 @@
         {{ forms.textField({
             label: 'Max Qty'|t,
             name:   'maxQty',
+            instructions: 'Maximum items that can be added to a cart.'|t,
             type:   'text',
             value: variant.maxQty,
             errors: variant.getErrors('maxQty')
