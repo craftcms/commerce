@@ -79,6 +79,12 @@ class Market_LineItemService extends BaseApplicationComponent
      */
     public function save(Market_LineItemModel $lineItem)
     {
+
+        if($lineItem->qty <= 0 && $lineItem->id){
+            $this->delete($lineItem);
+            return true;
+        }
+
         if (!$lineItem->id) {
             $lineItemRecord = new Market_LineItemRecord();
         } else {

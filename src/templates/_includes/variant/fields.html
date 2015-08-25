@@ -16,6 +16,7 @@
         {{ forms.textField({
             label: 'SKU'|t,
             name:   'sku',
+            instructions: 'Global store identifier. Stock Keeping Unit.'|t,
             value: variant.sku,
             required: true,
             errors: variant.getErrors('sku')
@@ -26,8 +27,9 @@
         {{ forms.textField({
             label: 'Price'|t,
             name:   'price',
+            instructions: 'Base price before sales and discounts.'|t,
             type:   'text',
-            value: variant.price,
+            value: variant.price|marketDecimal,
             errors: variant.getErrors('price')
         })}}
     </div>
@@ -38,6 +40,7 @@
         {{ forms.textField({
             label: 'Min Qty'|t,
             name:   'minQty',
+            instructions: 'Minimum items that can be added to a cart.'|t,
             type:   'text',
             value: variant.minQty,
             errors: variant.getErrors('minQty')
@@ -48,6 +51,7 @@
         {{ forms.textField({
             label: 'Max Qty'|t,
             name:   'maxQty',
+            instructions: 'Maximum items that can be added to a cart.'|t,
             type:   'text',
             value: variant.maxQty,
             errors: variant.getErrors('maxQty')
@@ -58,40 +62,40 @@
     <div class="grid first" data-cols="8">
     <div class="item" data-min-colspan="2" data-max-colspan="2">
         {{ forms.textField({
-            label: 'Width'|t,
+            label: 'Width'|t~' ('~craft.market.settings.dimensionUnits~')',
             name:   'width',
             type:   'text',
-            value: variant.width,
+            value: variant.width|marketDecimal,
             errors: variant.getErrors('width')
         })}}
     </div>
 
         <div class="item" data-min-colspan="2" data-max-colspan="2">
         {{ forms.textField({
-            label: 'Height'|t,
+            label: 'Height'|t~' ('~craft.market.settings.dimensionUnits~')',
             name:   'height',
             type:   'number',
-            value: variant.height,
+            value: variant.height|marketDecimal,
             errors: variant.getErrors('height')
         })}}
     </div>
 
         <div class="item" data-min-colspan="2" data-max-colspan="2">
         {{ forms.textField({
-            label: 'Length'|t,
+            label: 'Length'|t~' ('~craft.market.settings.dimensionUnits~')',
             name:   'length',
             type:   'text',
-            value: variant.length,
+            value: variant.length|marketDecimal,
             errors: variant.getErrors('length')
         })}}
     </div>
 
         <div class="item" data-min-colspan="2" data-max-colspan="2">
         {{ forms.textField({
-            label: 'Weight'|t,
+            label: 'Weight'|t~' ('~craft.market.settings.weightUnits~')',
             name:   'weight',
             type:   'text',
-            value: variant.weight,
+            value: variant.weight|marketDecimal,
             errors: variant.getErrors('weight')
         })}}
     </div>

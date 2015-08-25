@@ -18,7 +18,6 @@ namespace Craft;
  * @property bool                 unlimitedStock
  * @property int                  minQty
  * @property int                  maxQty
- * @property DateTime             deletedAt
  *
  * @property Market_ProductRecord $product
  * @package Craft
@@ -29,13 +28,6 @@ class Market_VariantRecord extends BaseRecord
     public function getTableName()
     {
         return 'market_variants';
-    }
-
-    public function defaultScope()
-    {
-        return [
-            'condition' => 'deletedAt IS NULL',
-        ];
     }
 
     public function defineIndexes()
@@ -54,6 +46,13 @@ class Market_VariantRecord extends BaseRecord
                 'onDelete' => self::SET_NULL,
                 'onUpdate' => self::CASCADE
             ],
+            'element'     => [
+                static::BELONGS_TO,
+                'ElementRecord',
+                'id',
+                'required' => true,
+                'onDelete' => static::CASCADE
+            ]
         ];
     }
 
@@ -87,8 +86,7 @@ class Market_VariantRecord extends BaseRecord
                 'required' => true
             ],
             'minQty'         => [AttributeType::Number, 'unsigned' => true],
-            'maxQty'         => [AttributeType::Number, 'unsigned' => true],
-            'deletedAt'      => [AttributeType::DateTime],
+            'maxQty'         => [AttributeType::Number, 'unsigned' => true]
         ];
     }
 

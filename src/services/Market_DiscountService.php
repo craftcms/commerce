@@ -198,11 +198,17 @@ class Market_DiscountService extends BaseApplicationComponent
         Market_LineItemModel $lineItem,
         Market_DiscountModel $discount
     ) {
+
         if ($lineItem->underSale && $discount->excludeOnSale) {
             return false;
         }
 
         if (!$lineItem->purchasable instanceof Market_VariantModel){
+            return false;
+        }
+
+        // can't match something not promotable
+        if (!$lineItem->purchasable->product->promotable){
             return false;
         }
 

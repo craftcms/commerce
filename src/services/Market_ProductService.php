@@ -51,6 +51,8 @@ class Market_ProductService extends BaseApplicationComponent
         $record->expiresOn     = $product->expiresOn;
         $record->typeId        = $product->typeId;
         $record->authorId      = $product->authorId;
+        $record->promotable    = $product->promotable;
+        $record->freeShipping  = $product->freeShipping;
         $record->taxCategoryId = $product->taxCategoryId;
 
         $record->validate();
@@ -88,12 +90,17 @@ class Market_ProductService extends BaseApplicationComponent
     public function delete($product)
     {
         $product = Market_ProductRecord::model()->findById($product->id);
-        if ($product->delete()) {
-            craft()->market_variant->disableAllByProductId($product->id);
+        if($product) {
+            $variants = craft()->market_variant->getAllByProductId($product->id);
+            if (craft()->elements->deleteElementById($product->id)) {
+                foreach ($variants as $v) {
+                    craft()->market_variant->deleteById($v->id);
+                }
 
-            return true;
-        } else {
-            return false;
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 

@@ -14,6 +14,8 @@ use Market\Interfaces\Purchasable;
  * @property int                     typeId
  * @property int                     authorId
  * @property int                     taxCategoryId
+ * @property bool                    promotable
+ * @property bool                    freeShipping
  * @property bool                    enabled
  *
  * Inherited from record:
@@ -97,6 +99,28 @@ class Market_ProductModel extends BaseElementModel implements Purchasable
         if (!$this->type->hasVariants) {
             return $this->getMasterVariant()->getPurchasableId();
         }
+    }
+
+    /**
+     * We need to be explicit to meet interface
+     * @return string
+     */
+    public function getSnapshot()
+    {
+        $data = [
+            'title' => $this->getTitle()
+        ];
+
+        return array_merge($this->getAttributes(),$data);
+    }
+
+    /**
+     * We need to be explicit to meet interface
+     * @return string
+     */
+    public function getModelClass()
+    {
+        return '\Craft\Market_ProductModel';
     }
 
     /**
@@ -359,6 +383,8 @@ class Market_ProductModel extends BaseElementModel implements Purchasable
             'typeId'        => AttributeType::Number,
             'authorId'      => AttributeType::Number,
             'taxCategoryId' => AttributeType::Number,
+            'promotable'    => AttributeType::Bool,
+            'freeShipping'  => AttributeType::Bool,
             'availableOn'   => AttributeType::DateTime,
             'expiresOn'     => AttributeType::DateTime
         ]);

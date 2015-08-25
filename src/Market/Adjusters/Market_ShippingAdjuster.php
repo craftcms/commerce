@@ -53,6 +53,10 @@ class Market_ShippingAdjuster implements Market_AdjusterInterface
 
 				$item->shippingCost = ($item->getSubtotalWithSale() * $rule->percentageRate) + $rule->perItemRate + ($item->weight * $rule->weightRate);
 				$itemShippingTotal += $item->shippingCost * $item->qty;
+
+				if($item->purchasable->product->freeShipping){
+					$item->shippingCost = 0;
+				}
 			}
 
 			//amount for displaying in adjustment

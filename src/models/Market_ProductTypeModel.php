@@ -51,7 +51,6 @@ class Market_ProductTypeModel extends BaseModel
     protected function defineAttributes()
     {
         return [
-
             'id'                   => AttributeType::Number,
             'name'                 => AttributeType::String,
             'handle'               => AttributeType::String,
