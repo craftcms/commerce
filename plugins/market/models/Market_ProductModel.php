@@ -14,6 +14,8 @@ use Market\Interfaces\Purchasable;
  * @property int                     typeId
  * @property int                     authorId
  * @property int                     taxCategoryId
+ * @property bool                    promotable
+ * @property bool                    freeShipping
  * @property bool                    enabled
  *
  * Inherited from record:
@@ -118,7 +120,7 @@ class Market_ProductModel extends BaseElementModel implements Purchasable
      */
     public function getModelClass()
     {
-        return 'Market_ProductModel';
+        return '\Craft\Market_ProductModel';
     }
 
     /**
@@ -381,6 +383,8 @@ class Market_ProductModel extends BaseElementModel implements Purchasable
             'typeId'        => AttributeType::Number,
             'authorId'      => AttributeType::Number,
             'taxCategoryId' => AttributeType::Number,
+            'promotable'    => AttributeType::Bool,
+            'freeShipping'  => AttributeType::Bool,
             'availableOn'   => AttributeType::DateTime,
             'expiresOn'     => AttributeType::DateTime
         ]);

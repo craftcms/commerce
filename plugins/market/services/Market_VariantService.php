@@ -80,9 +80,14 @@ class Market_VariantService extends BaseApplicationComponent
 
             foreach ($sales as $sale) {
                 foreach ($variants as $variant) {
-                    $variant->salePrice = $variant->price + $sale->calculateTakeoff($variant->price);
-                    if ($variant->salePrice < 0) {
-                        $variant->salePrice = 0;
+                    // only apply sales to promotable products
+                    if($product->promotable)
+                    {
+                        $variant->salePrice = $variant->price + $sale->calculateTakeoff($variant->price);
+                        if ($variant->salePrice < 0)
+                        {
+                            $variant->salePrice = 0;
+                        }
                     }
                 }
             }

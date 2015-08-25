@@ -51,6 +51,8 @@ class Market_ProductService extends BaseApplicationComponent
         $record->expiresOn     = $product->expiresOn;
         $record->typeId        = $product->typeId;
         $record->authorId      = $product->authorId;
+        $record->promotable    = $product->promotable;
+        $record->freeShipping  = $product->freeShipping;
         $record->taxCategoryId = $product->taxCategoryId;
 
         $record->validate();

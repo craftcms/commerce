@@ -138,7 +138,7 @@ class Market_VariantModel extends BaseElementModel implements Purchasable
      */
     public function getModelClass()
     {
-        return 'Market_VariantModel';
+        return '\Craft\Market_VariantModel';
     }
 
 
