@@ -94,6 +94,11 @@ class Market_DiscountAdjuster implements Market_AdjusterInterface
 			if(($item->discount * -1) > $item->getSubtotalWithSale()){
 				$item->discount = -$item->getSubtotalWithSale();
 			}
+
+			if(!$item->purchasable->product->promotable){
+				$item->discount = 0;
+			}
+
 			if ($discount->freeShipping) {
 				$item->shippingCost = 0;
 			}

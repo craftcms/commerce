@@ -11,6 +11,9 @@ namespace Craft;
  * @property int                      authorId
  * @property DateTime                 availableOn
  * @property DateTime                 expiresOn
+ * @property bool                     promotable
+ * @property bool                     freeShipping
+ *
  * @property Market_VariantRecord     $master
  * @property Market_VariantRecord[]   variants
  * @property Market_TaxCategoryRecord taxCategory
@@ -87,8 +90,10 @@ class Market_ProductRecord extends BaseRecord
     protected function defineAttributes()
     {
         return [
-            'availableOn' => AttributeType::DateTime,
-            'expiresOn'   => AttributeType::DateTime,
+            'availableOn'   => AttributeType::DateTime,
+            'expiresOn'     => AttributeType::DateTime,
+            'promotable'    => AttributeType::Bool,
+            'freeShipping'  => AttributeType::Bool
         ];
     }
 

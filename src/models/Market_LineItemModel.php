@@ -13,7 +13,7 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property int                     id
  * @property float                   price
  * @property float                   saleAmount
- * @property float                   $tax
+ * @property float                   tax
  * @property float                   shippingCost
  * @property float                   discount
  * @property float                   weight
@@ -134,7 +134,13 @@ class Market_LineItemModel extends BaseModel
                 $this->saleAmount += $sale->calculateTakeoff($this->price);
             }
 
+            // Don't let sale amount be more than the price.
             if ($this->saleAmount > $this->price) {
+                $this->saleAmount = $this->price;
+            }
+
+            // If the product is not promotable, reset saleAmount to price
+            if (!$purchasable->product->promotable){
                 $this->saleAmount = $this->price;
             }
 
@@ -145,7 +151,6 @@ class Market_LineItemModel extends BaseModel
             ];
 
             $this->snapshot = array_merge($this->snapshot, $snapshotMore);
-
         } else {
             $this->saleAmount = $this->price;
         }
