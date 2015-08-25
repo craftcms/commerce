@@ -225,6 +225,8 @@ class Market_ProductController extends Market_BaseController
         $product->expiresOn = $expiresOn ? DateTime::createFromString($expiresOn, craft()->timezone) : null;
         $product->typeId = craft()->request->getPost('typeId');
         $product->enabled = craft()->request->getPost('enabled');
+        $product->promotable    = craft()->request->getPost('promotable');
+        $product->freeShipping  = craft()->request->getPost('freeShipping');
         $product->authorId = craft()->userSession->id;
         $product->taxCategoryId = craft()->request->getPost('taxCategoryId', $product->taxCategoryId);
 

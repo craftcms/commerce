@@ -13,7 +13,7 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property int                     id
  * @property float                   price
  * @property float                   saleAmount
- * @property float                   $tax
+ * @property float                   tax
  * @property float                   shippingCost
  * @property float                   discount
  * @property float                   weight
@@ -59,11 +59,28 @@ class Market_LineItemModel extends BaseModel
 
     public function getPurchasable()
     {
-        if (!$this->purchasableId) {
-            return null;
+        if ($purchasable = craft()->elements->getElementById($this->purchasableId)) {
+            return $purchasable;
         }
 
-        return craft()->elements->getElementById($this->purchasableId);
+        // If there is no purchasable it's probably been deleted. Give them them a snapshot instance.
+        if(isset($this->snapshot['className'])) {
+            $className = $this->snapshot['className'];
+            if (class_exists($className)){
+                $dummyPurchasable = $className::populateModel($this->snapshot);
+                if($dummyPurchasable){
+                    return $dummyPurchasable;
+                }
+            }
+        }
+
+        // Try to send them something about the item purchased.
+        if ($this->snapshot){
+            return $this->snapshot;
+        }
+
+        // If we can't even send them a snapshot instance, then we have bigger problems.
+        throw new Exception('Cannot find the purchasable on line item on order, deleted without a snapshot');
     }
 
     /**
@@ -85,14 +102,29 @@ class Market_LineItemModel extends BaseModel
      */
     public function fillFromPurchasable(Purchasable $purchasable)
     {
-        $this->price         = $purchasable->price;
-        $this->weight        = $purchasable->weight * 1; //converting nulls
-        $this->height        = $purchasable->height * 1; //converting nulls
-        $this->length        = $purchasable->length * 1; //converting nulls
-        $this->width         = $purchasable->width * 1; //converting nulls
-        $this->snapshot      = $purchasable->attributes;
+        $this->price = $purchasable->getPrice();
+
+        $snapshot = [
+            'price' => $purchasable->getPrice(),
+            'sku' => $purchasable->getSku(),
+            'description' => $purchasable->getDescription(),
+            'purchasableId' => $purchasable->getPurchasableId(),
+            'className' => $purchasable->getModelClass(),
+            'cpEditUrl' => '#'
+        ];
+
+        // Add our purchasable data to the snapshot
+        $snapshot = array_merge($purchasable->getSnapShot(), $snapshot);
+
+        // Add all the purchasable attributes to the snapshot
+        $this->snapshot = array_merge($purchasable->getAttributes(), $snapshot);
 
         if ($purchasable instanceof Market_VariantModel || $purchasable instanceof Market_ProductModel) {
+
+            $this->weight = $purchasable->weight * 1; //converting nulls
+            $this->height = $purchasable->height * 1; //converting nulls
+            $this->length = $purchasable->length * 1; //converting nulls
+            $this->width = $purchasable->width * 1; //converting nulls
 
             $this->taxCategoryId = $purchasable->product->taxCategoryId;
 
@@ -102,104 +134,118 @@ class Market_LineItemModel extends BaseModel
                 $this->saleAmount += $sale->calculateTakeoff($this->price);
             }
 
+            // Don't let sale amount be more than the price.
             if ($this->saleAmount > $this->price) {
                 $this->saleAmount = $this->price;
             }
-        }else{
+
+            // If the product is not promotable, reset saleAmount to price
+            if (!$purchasable->product->promotable){
+                $this->saleAmount = $this->price;
+            }
+
+            // Commerce Variant and Product only snapshot items
+            $snapshotMore = [
+              'onSale' => $purchasable->getOnSale(),
+              'cpEditUrl' => $purchasable->getCpEditUrl()
+            ];
+
+            $this->snapshot = array_merge($this->snapshot, $snapshotMore);
+        } else {
             $this->saleAmount = $this->price;
         }
 
     }
 
+    public function toArray()
+    {
+        $data = [];
+        foreach ($this->defineAttributes() as $key => $val) {
+            $data[$key] = $this->getAttribute($key, true);
+        }
+        return $data;
+    }
+
     protected function defineAttributes()
     {
         return [
-            'id'             => AttributeType::Number,
-            'price'          => [
+            'id' => AttributeType::Number,
+            'price' => [
                 AttributeType::Number,
-                'min'      => 0,
+                'min' => 0,
                 'decimals' => 4,
                 'required' => true
             ],
-            'saleAmount'     => [
+            'saleAmount' => [
                 AttributeType::Number,
                 'decimals' => 4,
                 'required' => true,
-                'default'  => 0
+                'default' => 0
             ],
-            'tax'      => [
+            'tax' => [
                 AttributeType::Number,
                 'decimals' => 4,
                 'required' => true,
-                'default'  => 0
+                'default' => 0
             ],
             'shippingCost' => [
                 AttributeType::Number,
-                'min'      => 0,
+                'min' => 0,
                 'decimals' => 4,
                 'required' => true,
-                'default'  => 0
+                'default' => 0
             ],
             'discount' => [
                 AttributeType::Number,
                 'decimals' => 4,
                 'required' => true,
-                'default'  => 0
+                'default' => 0
             ],
-            'weight'         => [
+            'weight' => [
                 AttributeType::Number,
-                'min'      => 0,
+                'min' => 0,
                 'decimals' => 4,
                 'required' => true,
-                'default'  => 0
+                'default' => 0
             ],
-            'length'         => [
+            'length' => [
                 AttributeType::Number,
-                'min'      => 0,
+                'min' => 0,
                 'decimals' => 4,
                 'required' => true,
-                'default'  => 0
+                'default' => 0
             ],
-            'height'         => [
+            'height' => [
                 AttributeType::Number,
-                'min'      => 0,
+                'min' => 0,
                 'decimals' => 4,
                 'required' => true,
-                'default'  => 0
+                'default' => 0
             ],
-            'width'          => [
+            'width' => [
                 AttributeType::Number,
-                'min'      => 0,
+                'min' => 0,
                 'decimals' => 4,
                 'required' => true,
-                'default'  => 0
+                'default' => 0
             ],
-            'total'          => [
+            'total' => [
                 AttributeType::Number,
-                'min'      => 0,
+                'min' => 0,
                 'decimals' => 4,
                 'required' => true,
-                'default'  => 0
+                'default' => 0
             ],
-            'qty'            => [
+            'qty' => [
                 AttributeType::Number,
-                'min'      => 0,
+                'min' => 0,
                 'required' => true
             ],
-            'snapshot'    => [AttributeType::Mixed, 'required' => true],
-            'note'    => AttributeType::Mixed,
-            'purchasableId'  => AttributeType::Number,
-            'orderId'        => AttributeType::Number,
-            'taxCategoryId'  => [AttributeType::Number, 'required' => true],
+            'snapshot' => [AttributeType::Mixed, 'required' => true],
+            'note' => AttributeType::Mixed,
+            'purchasableId' => AttributeType::Number,
+            'orderId' => AttributeType::Number,
+            'taxCategoryId' => [AttributeType::Number, 'required' => true],
         ];
-    }
-
-    public function toArray()
-    {
-        $data = [];
-        foreach($this->defineAttributes() as $key => $val){
-            $data[$key] = $this->getAttribute($key, true);
-        }
-        return $data;
     }
 }

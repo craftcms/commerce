@@ -41,7 +41,6 @@ class Market_VariantElementType extends Market_BaseElementType
 		];
 
 		return $sources;
-
 	}
 
 	public function getAvailableActions($source = null)
@@ -51,12 +50,13 @@ class Market_VariantElementType extends Market_BaseElementType
 			'confirmationMessage' => Craft::t('Are you sure you want to delete the selected variants?'),
 			'successMessage'      => Craft::t('Variants deleted.'),
 		));
-
 		$actions[] = $deleteAction;
 
 		$editAction = craft()->elements->getAction('Edit');
 		$actions[] = $editAction;
 
+		$setValuesAction = craft()->elements->getAction('Market_SetVariantValues');
+		$actions[] = $setValuesAction;
 
 		return $actions;
 	}
@@ -66,13 +66,12 @@ class Market_VariantElementType extends Market_BaseElementType
 		return [
 			'sku'            => Craft::t('SKU'),
 			'price'          => Craft::t('Price'),
-			'width'          => Craft::t('Width'),
-			'height'         => Craft::t('Height'),
-			'length'         => Craft::t('Length'),
-			'weight'         => Craft::t('Weight'),
+			'width'          => Craft::t('Width ')."(".craft()->market_settings->getOption('dimensionUnits').")",
+			'height'         => Craft::t('Height ')."(".craft()->market_settings->getOption('dimensionUnits').")",
+			'length'         => Craft::t('Length ')."(".craft()->market_settings->getOption('dimensionUnits').")",
+			'weight'         => Craft::t('Weight ')."(".craft()->market_settings->getOption('weightUnits').")",
 			'stock'          => Craft::t('Stock'),
-			'minQty'         => Craft::t('Min Qty'),
-			'maxQty'         => Craft::t('Max Qty')
+			'minQty'         => Craft::t('Quantities')
 		];
 	}
 
@@ -85,6 +84,7 @@ class Market_VariantElementType extends Market_BaseElementType
 
 	public function getTableAttributeHtml(BaseElementModel $element, $attribute)
 	{
+		$infinity = "<span style=\"color:#E5E5E5\">&infin;</span>";
 		$numbers = ['weight','height','length','width'];
 		if(in_array($attribute,$numbers)){
 			$formatter = craft()->getNumberFormatter();
@@ -97,12 +97,23 @@ class Market_VariantElementType extends Market_BaseElementType
 		}
 
 		if($attribute == 'stock' && $element->unlimitedStock){
-			return "<span style=\"color:#E5E5E5\">NA</span>";
+			return $infinity;
 		}
 
 		if($attribute == 'price'){
 			$formatter = craft()->getNumberFormatter();
 			return $formatter->formatCurrency($element->$attribute,craft()->market_settings->getSettings()->defaultCurrency);
+		}
+
+		if($attribute == 'minQty'){
+			if(!$element->minQty && !$element->maxQty){
+				return $infinity;
+			}else{
+				$min = $element->minQty ? $element->minQty : '1';
+				$max = $element->maxQty ? $element->maxQty : $infinity;
+				return $min ." - ".$max;
+			}
+
 		}
 
 		return parent::getTableAttributeHtml($element, $attribute);

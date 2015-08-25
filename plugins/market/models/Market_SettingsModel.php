@@ -9,6 +9,7 @@ namespace Craft;
  *
  * @property string defaultCurrency
  * @property string paymentMethod
+ * @property int cartExpiryTimeout
  * @property string weightUnits
  * @property string dimensionUnits
  * @property string emailSenderAddress
@@ -37,23 +38,6 @@ class Market_SettingsModel extends BaseModel
                 AttributeType::Number,
                 'default'  => 10080,
                 'required' => true
-            ],
-            'currencySymbol'           => [
-                AttributeType::String,
-                'default' => '$'
-            ],
-            'currencySuffix'           => [AttributeType::String],
-            'currencyDecimalPlaces'    => [
-                AttributeType::Number,
-                'default' => 2
-            ],
-            'currencyDecimalSymbol'    => [
-                AttributeType::String,
-                'default' => '.'
-            ],
-            'currencyDecimalSeparator' => [
-                AttributeType::String,
-                'default' => ','
             ],
             'weightUnits'              => [
                 AttributeType::String,
