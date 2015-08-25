@@ -304,20 +304,110 @@
                                                 name: 'price',
                                                 value: '',
                                             }) }}</div>{% endspaceless %}' +
+                                            '{%  spaceless %}{{ forms.checkboxField({
+                                                label: 'Set Min Qty'|t,
+                                                id: 'setMinQty',
+                                                name:   'setMinQty',
+                                                checked: 0,
+                                                toggle: '#setMinQtyToggle'
+                                            }) }}{% endspaceless %}' +
+                                            '{% spaceless %}<div id="setMinQtyToggle" class="hidden">{{ forms.textField({
+                                                label: 'Minimum Quantity'|t,
+                                                id: 'minQty',
+                                                name: 'minQty',
+                                                value: '',
+                                            }) }}</div>{% endspaceless %}' +
+                                            '{%  spaceless %}{{ forms.checkboxField({
+                                                label: 'Set Max Qty'|t,
+                                                id: 'setMaxQty',
+                                                name:   'setMaxQty',
+                                                checked: 0,
+                                                toggle: '#setMaxQtyToggle'
+                                            }) }}{% endspaceless %}' +
+                                            '{% spaceless %}<div id="setMaxQtyToggle" class="hidden">{{ forms.textField({
+                                                label: 'Maximum Quantity'|t,
+                                                id: 'maxQty',
+                                                name: 'maxQty',
+                                                value: '',
+                                            }) }}</div>{% endspaceless %}' +
+                                            '{%  spaceless %}{{ forms.checkboxField({
+                                                label: 'Set Width'|t,
+                                                id: 'setWidth',
+                                                name:   'setWidth',
+                                                checked: 0,
+                                                toggle: '#setWidthToggle'
+                                            }) }}{% endspaceless %}' +
+                                            '{% spaceless %}<div id="setWidthToggle" class="hidden">{{ forms.textField({
+                                                label: 'Width'|t~' ('~craft.market.settings.dimensionUnits~')',
+                                                id: 'width',
+                                                name: 'width',
+                                                value: '',
+                                            }) }}</div>{% endspaceless %}' +
+                                            '{%  spaceless %}{{ forms.checkboxField({
+                                                label: 'Set Height'|t,
+                                                id: 'setHeight',
+                                                name:   'setHeight',
+                                                checked: 0,
+                                                toggle: '#setHeightToggle'
+                                            }) }}{% endspaceless %}' +
+                                            '{% spaceless %}<div id="setHeightToggle" class="hidden">{{ forms.textField({
+                                                label: 'Height'|t~' ('~craft.market.settings.dimensionUnits~')',
+                                                id: 'height',
+                                                name: 'height',
+                                                value: '',
+                                            }) }}</div>{% endspaceless %}' +
+                                            '{%  spaceless %}{{ forms.checkboxField({
+                                                label: 'Set Length'|t,
+                                                id: 'setLength',
+                                                name:   'setLength',
+                                                checked: 0,
+                                                toggle: '#setLengthToggle'
+                                            }) }}{% endspaceless %}' +
+                                            '{% spaceless %}<div id="setLengthToggle" class="hidden">{{ forms.textField({
+                                                label: 'Length'|t~' ('~craft.market.settings.dimensionUnits~')',
+                                                id: 'length',
+                                                name: 'length',
+                                                value: '',
+                                            }) }}</div>{% endspaceless %}' +
+                                            '{%  spaceless %}{{ forms.checkboxField({
+                                                label: 'Set Wight'|t,
+                                                id: 'setWeight',
+                                                name:   'setWeight',
+                                                checked: 0,
+                                                toggle: '#setWeightToggle'
+                                            }) }}{% endspaceless %}' +
+                                            '{% spaceless %}<div id="setWeightToggle" class="hidden">{{ forms.textField({
+                                                label: 'Weight'|t~' ('~craft.market.settings.weightUnits~')',
+                                                id: 'weight',
+                                                name: 'weight',
+                                                value: '',
+                                            }) }}</div>{% endspaceless %}' +
                                         '</div>').appendTo($body);
 
-                                        new Craft.FieldToggle($form.find('#setPrice'));
+                                         new Craft.FieldToggle($form.find('#setPrice'));
+                                         new Craft.FieldToggle($form.find('#setMinQty'));
+                                         new Craft.FieldToggle($form.find('#setMaxQty'));
+                                         new Craft.FieldToggle($form.find('#setWidth'));
+                                         new Craft.FieldToggle($form.find('#setHeight'));
+                                         new Craft.FieldToggle($form.find('#setLength'));
+                                         new Craft.FieldToggle($form.find('#setWeight'));
 
                                         var $buttons = $('<div class="buttons right"/>').appendTo($body);
 
                                         var $cancelBtn = $('<div class="btn">'+Craft.t('Cancel')+'</div>').appendTo($buttons);
-                                        this.$SubmitBtn = $('<input type="submit" class="btn submit" value="'+Craft.t('Set Values') +'" />').appendTo($buttons);
+                                        var $SubmitBtn = $('<input type="submit" class="btn submit" value="'+Craft.t('Set Values') +'" />').appendTo($buttons);
                                         this.addListener($cancelBtn, 'click', 'hide');
                                         this.addListener($form, 'submit', 'handleSubmit');
 
                                         this.base($form, settings);
                                     },
+                                    hide: function(){
+                                        this.base();
+                                    },
                                     handleSubmit: function(ev){
+
+                                        this.disable();
+
                                         // Let the onSubmit callback prevent the form from getting submitted
                                         if (this.settings.onSubmit() === false){
                                             ev.preventDefault();

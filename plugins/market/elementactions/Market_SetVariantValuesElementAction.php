@@ -70,18 +70,23 @@ EOT;
     public function performAction(ElementCriteriaModel $criteria)
     {
         $variants = $criteria->find();
+
+        $attributes = ['price','minQty','maxQty','width','height','length','weight'];
+
         foreach($variants as $variant){
-
-            if ($this->getParams()->setPrice){
-                $variant->price = $this->getParams()->price;
+            foreach($attributes as $attribute) {
+                if ($this->getParams()->{'set'.ucfirst($attribute)}) {
+                    $variant->$attribute = $this->getParams()->$attribute;
+                }
             }
-            craft()->market_variant->save($variant);
+            if(craft()->market_variant->save($variant)){
+                $this->setMessage(Craft::t('Variant values set'));
+                return true;
+            }else{
+                $this->setMessage(Craft::t('Validation error. No values Set.'));
+                return false;
+            }
         }
-
-        $this->setMessage(Craft::t('Variant values set'));
-
-        return true;
-
     }
 
     // Protected Methods
@@ -96,7 +101,19 @@ EOT;
     {
         return [
             'setPrice' => AttributeType::Bool,
-            'price' => [AttributeType::Number,'decimals' => 4]
+            'price' => [AttributeType::Number,'decimals' => 4],
+            'setMinQty' => AttributeType::Bool,
+            'minQty' => [AttributeType::Number,'decimals' => 4],
+            'setMaxQty' => AttributeType::Bool,
+            'maxQty' => [AttributeType::Number,'decimals' => 4],
+            'setWidth' => AttributeType::Bool,
+            'width' => [AttributeType::Number,'decimals' => 4],
+            'setHeight' => AttributeType::Bool,
+            'height' => [AttributeType::Number,'decimals' => 4],
+            'setLength' => AttributeType::Bool,
+            'length' => [AttributeType::Number,'decimals' => 4],
+            'setWeight' => AttributeType::Bool,
+            'weight' => [AttributeType::Number,'decimals' => 4],
         ];
     }
 }
