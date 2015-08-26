@@ -58,6 +58,9 @@ class Market_OrderModel extends BaseElementModel
 {
     use Market_ModelRelationsTrait;
 
+    private $_shippingAddress;
+    private $_billingAddress;
+
     protected $elementType = 'Market_Order';
 
     public function isEditable()
@@ -196,12 +199,26 @@ class Market_OrderModel extends BaseElementModel
      */
     public function getShippingAddress()
     {
-        // Get the live linked address if it is still a cart, else cached
-        if (!$this->dateOrdered) {
-            return craft()->market_address->getAddressById($this->shippingAddressId);
-        }else{
-            return Market_AddressModel::populateModel($this->shippingAddressData);
+        if(!isset($this->_shippingAddress)){
+            // Get the live linked address if it is still a cart, else cached
+            if (!$this->dateOrdered) {
+                $this->_shippingAddress = craft()->market_address->getAddressById($this->shippingAddressId);
+            }else{
+                $this->_shippingAddress = Market_AddressModel::populateModel($this->shippingAddressData);
+            }
+
         }
+
+        return $this->_shippingAddress;
+    }
+
+    /**
+     * @param Market_AddressModel $address
+     */
+    public function setShippingAddress(Market_AddressModel $address)
+    {
+        $this->shippingAddressData = JsonHelper::encode($address->attributes);
+        $this->_shippingAddress = $address;
     }
 
     /**
@@ -209,14 +226,29 @@ class Market_OrderModel extends BaseElementModel
      */
     public function getBillingAddress()
     {
-        // Get the live linked address if it is still a cart, else cached
-        if (!$this->dateOrdered) {
-            return craft()->market_address->getAddressById($this->billingAddressId);
-        }else{
-            return Market_AddressModel::populateModel($this->billingAddressData);
+        if(!isset($this->_billingAddress))
+        {
+            // Get the live linked address if it is still a cart, else cached
+            if (!$this->dateOrdered)
+            {
+                $this->_billingAddress = craft()->market_address->getAddressById($this->billingAddressId);
+            }
+            else
+            {
+                $this->_billingAddress = Market_AddressModel::populateModel($this->billingAddressData);
+            }
         }
 
+        return $this->_billingAddress;
     }
+
+
+    public function setBillingAddress(Market_AddressModel $address)
+    {
+        $this->billingAddressData = JsonHelper::encode($address->attributes);
+        $this->_billingAddress = $address;
+    }
+
 
     /**
      * @deprecated

@@ -361,13 +361,13 @@ class Market_OrderService extends BaseApplicationComponent
                 $result2 = craft()->market_customer->saveAddress($billingAddress);
             }
 
+            $order->setShippingAddress($shippingAddress);
+            $order->setBillingAddress($billingAddress);
+
             if ($result1 && $result2) {
 
                 $order->shippingAddressId = $shippingAddress->id;
                 $order->billingAddressId  = $billingAddress->id;
-
-                $order->shippingAddressData = JsonHelper::encode($shippingAddress->attributes);
-                $order->billingAddressData = JsonHelper::encode($billingAddress->attributes);
 
                 $this->save($order);
                 MarketDbHelper::commitStackedTransaction();
