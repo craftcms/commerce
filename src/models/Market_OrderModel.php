@@ -243,6 +243,10 @@ class Market_OrderModel extends BaseElementModel
     }
 
 
+    /**
+     *
+     * @param Market_AddressModel $address
+     */
     public function setBillingAddress(Market_AddressModel $address)
     {
         $this->billingAddressData = JsonHelper::encode($address->attributes);
