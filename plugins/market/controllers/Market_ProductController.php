@@ -2,13 +2,14 @@
 namespace Craft;
 
 /**
+ * Class Market_ProductController
  *
- * @author    Make with Morph. <support@makewithmorph.com>
- * @copyright Copyright (c) 2015, Luke Holder.
- * @license   http://makewithmorph.com/market/license Market License Agreement
- * @see       http://makewithmorph.com
- * @package   craft.plugins.market.controllers
- * @since     0.1
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://buildwithcraft.com/license Craft License Agreement
+ * @see       http://buildwithcraft.com/commerce
+ * @package   craft.plugins.commerce.controllers
+ * @since     1.0
  */
 use Market\Helpers\MarketDbHelper;
 
@@ -27,6 +28,8 @@ class Market_ProductController extends Market_BaseController
      */
     public function actionProductIndex()
     {
+        $this->requireAdmin();
+
         $variables['productTypes'] = craft()->market_productType->getAll();
         $variables['taxCategories'] = craft()->market_taxCategory->getAll();
         $this->renderTemplate('market/products/_index', $variables);
@@ -41,6 +44,8 @@ class Market_ProductController extends Market_BaseController
      */
     public function actionEditProduct(array $variables = [])
     {
+        $this->requireAdmin();
+
         if (!empty($variables['productTypeHandle'])) {
             $variables['productType'] = craft()->market_productType->getByHandle($variables['productTypeHandle']);
         }
@@ -120,6 +125,7 @@ class Market_ProductController extends Market_BaseController
      */
     public function actionDeleteProduct()
     {
+        $this->requireAdmin();
         $this->requirePostRequest();
 
         $productId = craft()->request->getRequiredPost('productId');
@@ -156,6 +162,7 @@ class Market_ProductController extends Market_BaseController
      */
     public function actionSaveProduct()
     {
+        $this->requireAdmin();
         $this->requirePostRequest();
 
         $product = $this->_setProductFromPost();

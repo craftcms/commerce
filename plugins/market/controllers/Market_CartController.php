@@ -4,7 +4,12 @@ namespace Craft;
 /**
  * Class Market_CartController
  *
- * @package Craft
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://buildwithcraft.com/license Craft License Agreement
+ * @see       http://buildwithcraft.com/commerce
+ * @package   craft.plugins.commerce.controllers
+ * @since     1.0
  */
 class Market_CartController extends Market_BaseController
 {
@@ -51,13 +56,16 @@ class Market_CartController extends Market_BaseController
     {
         $this->requirePostRequest();
 
+        $cart = craft()->market_cart->getCart();
         $lineItemId = craft()->request->getPost('lineItemId');
         $qty        = craft()->request->getPost('qty', 0);
         $note        = craft()->request->getPost('note');
 
         $lineItem = craft()->market_lineItem->getById($lineItemId);
-        if (!$lineItem->id) {
-            throw new Exception(Craft::t('Line item not found'));
+
+        // Only let them update their own cart's line item.
+        if (!$lineItem->id || $cart->id != $lineItem->order->id){
+            throw new Exception(Craft::t('Line item not found for current cart'));
         }
 
         $lineItem->qty = $qty;
@@ -105,7 +113,7 @@ class Market_CartController extends Market_BaseController
 
 
     /**
-     *
+     * Sets the email on the cart. Also updates the current users email.
      *
      */
     public function actionSetEmail()
@@ -178,6 +186,13 @@ class Market_CartController extends Market_BaseController
 
         $lineItemId      = craft()->request->getPost('lineItemId');
         $cart            = craft()->market_cart->getCart();
+
+        $lineItem = craft()->market_lineItem->getById($lineItemId);
+
+        // Only let them update their own cart's line item.
+        if (!$lineItem->id || $cart->id != $lineItem->order->id){
+            throw new Exception(Craft::t('Line item not found for current cart'));
+        }
 
         craft()->market_cart->removeFromCart($cart, $lineItemId);
         if(craft()->request->isAjaxRequest){
