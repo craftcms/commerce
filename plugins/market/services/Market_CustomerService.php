@@ -221,6 +221,13 @@ class Market_CustomerService extends BaseApplicationComponent
         return $ids;
     }
 
+    /**
+     * Gets all customer by email address.
+     *
+     * @param $email
+     *
+     * @return array
+     */
     public function getByEmail($email)
     {
         $customers = Market_CustomerRecord::model()->findAllByAttributes(['email'=>$email]);
@@ -251,6 +258,7 @@ class Market_CustomerService extends BaseApplicationComponent
         $user = craft()->users->getUserByUsernameOrEmail($username);
 
         if (!$user) {
+            MarketPlugin::log("Could not find " . $username . " to consolidate orders");
             throw new Exception('User does not exists');
         }
 
@@ -278,6 +286,7 @@ class Market_CustomerService extends BaseApplicationComponent
                     }
                 }
 
+                // Delete the consolidated customer, but not our new one.
                 if ($toCustomer->userId != $customer->userId) {
                     $this->delete($customer);
                 }
@@ -289,7 +298,7 @@ class Market_CustomerService extends BaseApplicationComponent
             return true;
 
         } catch (\Exception $e) {
-            MarketPlugin::log("Could not consolidate orders to username: " . $username);
+            MarketPlugin::log("Could not consolidate orders to username: " . $username . ". Reason: " . $e->getMessage());
             MarketDbHelper::rollbackStackedTransaction();
         }
     }
