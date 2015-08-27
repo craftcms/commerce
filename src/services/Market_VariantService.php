@@ -152,7 +152,7 @@ class Market_VariantService extends BaseApplicationComponent
         MarketDbHelper::beginStackedTransaction();
         try {
             if (!$model->hasErrors()) {
-                if (craft()->elements->saveElement($model)) {
+                if (craft()->market_purchasable->saveElement($model)) {
                     $record->id = $model->id;
                     $record->save(false);
                     MarketDbHelper::commitStackedTransaction();
