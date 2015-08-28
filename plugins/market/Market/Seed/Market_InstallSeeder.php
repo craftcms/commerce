@@ -138,6 +138,7 @@ class Market_InstallSeeder implements Market_SeederInterface
 			'authorId'      => \Craft\craft()->userSession->id,
 			'availableOn'   => new DateTime(),
 			'expiresOn'     => NULL,
+			'promotable'    => 1,
 			'taxCategoryId' => \Craft\craft()->market_taxCategory->getDefaultId(),
 		]);
 
@@ -164,6 +165,7 @@ class Market_InstallSeeder implements Market_SeederInterface
 			'authorId'      => \Craft\craft()->userSession->id,
 			'availableOn'   => new DateTime(),
 			'expiresOn'     => NULL,
+			'promotable'    => 1,
 			'taxCategoryId' => \Craft\craft()->market_taxCategory->getDefaultId(),
 		]);
 

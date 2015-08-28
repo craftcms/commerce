@@ -24,7 +24,7 @@ class m150820_010101_Market_FixProductAndVariants extends BaseMigration
             Craft::log("Total ".$type." elements removed as they are not in market tables: ". $count);
         }
 
-        $table = craft()->db->schema->getTable('market_variants');
+        $table = craft()->db->schema->getTable('craft_market_variants');
         if(isset($table->columns['deletedAt'])) {
             $this->dropColumn('market_variants', 'deletedAt');
         }

@@ -126,21 +126,12 @@ class Market_VariantModel extends BaseElementModel implements Purchasable
     public function getSnapshot()
     {
         $data = [
-            'title' => $this->getProduct()->getTitle()
+            'onSale' => $this->getOnSale(),
+            'cpEditUrl' => $this->getProduct()->getCpEditUrl()
         ];
 
         return array_merge($this->getAttributes(),$data);
     }
-
-    /**
-     * We need to be explicit to meet interface
-     * @return string
-     */
-    public function getModelClass()
-    {
-        return '\Craft\Market_VariantModel';
-    }
-
 
     /**
      * We need to be explicit to meet interface

@@ -31,18 +31,6 @@ interface Purchasable
      */
     public function getSnapshot();
 
-
-    /**
-     * This is the className that used to populate the model from the snapshot if the purchasable is deleted
-     *
-     * Example: return 'Market_VariantModel';
-     *
-     * Would we used like this $modelClass::populateModel($snapshot);
-     *
-     * @return array
-     */
-    public function getModelClass();
-
     /**
      * This is the base price the item will be added to the line item with.
      *
