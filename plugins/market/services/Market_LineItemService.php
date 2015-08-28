@@ -116,6 +116,7 @@ class Market_LineItemService extends BaseApplicationComponent
         $lineItemRecord->note          = $lineItem->note;
 
         $lineItemRecord->saleAmount    = $lineItem->saleAmount;
+        $lineItemRecord->salePrice     = $lineItem->salePrice;
         $lineItemRecord->tax           = $lineItem->tax;
         $lineItemRecord->discount      = $lineItem->discount;
         $lineItemRecord->shippingCost  = $lineItem->shippingCost;
