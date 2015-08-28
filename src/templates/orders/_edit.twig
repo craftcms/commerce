@@ -40,19 +40,20 @@
                                 <td><a class="fieldtoggle" data-target=".more-{{ lineItem.id }}">&nbsp;</a></td>
                                 <td>{{ lineItem.qty }}</td>
                                 <td valign="top">
-                                    {% if lineItem.purchasableId %}
-                                        <a href="{{ lineItem.purchasable.cpEditUrl }}">{{ lineItem.purchasable.description }} </a>({{ lineItem.purchasable.sku }})
-                                    {%  else  %}
-                                            {{ lineItem.purchasable.description }} ({{ lineItem.purchasable.sku }}) <span style="color:#CECECE">(deleted?)</span>
-                                    {%  endif %}
+                                        {% if lineItem.snapshot.cpEditUrl != "#" %}
+                                        <a href="{{ lineItem.snapshot.cpEditUrl }}">{{ lineItem.description }} </a>({{ lineItem.sku }})
+                                        {% else %}
+                                            {{ lineItem.description }} ({{ lineItem.sku }})
+                                        {%  endif %}
                                     {%  if lineItem.note %}
                                     <div class="hidden more-{{ lineItem.id }}">{{ "Note"|t }}: {{ lineItem.note }}</div>
                                     {% endif %}
                                 </td>
                                 <td>
                                     <div class="hidden more-{{ lineItem.id }}">
-                                        {{ "Price"|t }}<br/>
-                                        {{ "Sale Price"|t }}<br/>
+                                        {{ "Item Price"|t }}<br/>
+                                        {{ "Item Sale Amount"|t }}<br/>
+                                        {{ "Item Sale Price"|t }}<br/>
                                         {{ "Tax"|t }}<br/>
                                         {{ "Shipping"|t }}<br/>
                                         {{ "Discount"|t }}<br/>
@@ -62,8 +63,13 @@
                                 </td>
                                 <td>
                                     <div class="hidden more-{{ lineItem.id }}">
-                                        {{ lineItem.price|marketCurrency }}<br/>
+                                        {% if lineItem.onSale %}
+                                            <strike>{{ lineItem.price|marketCurrency }}<br/></strike>
+                                        {% else %}
+                                            {{ lineItem.price|marketCurrency }}<br/>
+                                        {% endif %}
                                         {{ lineItem.saleAmount|marketCurrency }}<br/>
+                                        {{ lineItem.salePrice|marketCurrency }}<br/>
                                         {{ lineItem.tax|marketCurrency }}<br/>
                                         {{ lineItem.shippingCost|marketCurrency }}<br/>
                                         {{ lineItem.discount|marketCurrency }}<br/>

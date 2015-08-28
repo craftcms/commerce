@@ -181,7 +181,7 @@ class Market_LineItemService extends BaseApplicationComponent
         /** @var \Market\Interfaces\Purchasable $purchasable */
         $purchasable = craft()->elements->getElementById($purchasableId);
 
-        if ($purchasable->id && $purchasable instanceof Purchasable) {
+        if ($purchasable && $purchasable instanceof Purchasable) {
             $lineItem->fillFromPurchasable($purchasable);
         } else {
             $lineItem->addError('purchasableId', Craft::t('Item not found or is not a purchasable.'));
