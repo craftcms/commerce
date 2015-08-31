@@ -109,6 +109,9 @@ class Market_LineItemModel extends BaseModel
     {
         $this->price = $purchasable->getPrice();
 
+        // Since sales cannot apply to non core purchasables, set to price.
+        $this->salePrice = $purchasable->getPrice();
+
         $snapshot = [
             'price' => $purchasable->getPrice(),
             'sku' => $purchasable->getSku(),
@@ -117,7 +120,7 @@ class Market_LineItemModel extends BaseModel
             'cpEditUrl' => '#'
         ];
 
-        // Add our purchasable data to the snapshot
+        // Add our purchasable data to the snapshot, save our sales.
         $this->snapshot = array_merge($purchasable->getSnapShot(), $snapshot);
 
         if ($purchasable instanceof Market_VariantModel) {
@@ -140,8 +143,10 @@ class Market_LineItemModel extends BaseModel
                 $this->saleAmount = -$this->price;
             }
 
+            $this->salePrice = $this->saleAmount + $this->price;
+
             // If the product is not promotable but has saleAmount, reset saleAmount to zero
-            if (!$purchasable->product->promotable && $this->saleAmount != 0){
+            if (!$purchasable->product->promotable && $this->saleAmount){
                 $this->saleAmount = 0;
             }
 
