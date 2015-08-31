@@ -17,12 +17,13 @@ class Market_ProductService extends BaseApplicationComponent
 {
     /**
      * @param int $id
+     * @param int $localeId
      *
      * @return Market_ProductModel
      */
-    public function getById($id)
+    public function getById($id, $localeId = null)
     {
-        return craft()->elements->getElementById($id, 'Market_Product');
+        return craft()->elements->getElementById($id, 'Market_Product', $localeId);
     }
 
 
