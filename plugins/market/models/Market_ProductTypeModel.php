@@ -13,6 +13,7 @@ namespace Craft;
  * @property bool   $hasVariants
  * @property string $template
  * @property string $urlFormat
+ * @property string $titleFormat
  * @property int    $fieldLayoutId
  * @property int    $variantFieldLayoutId
  * @package Craft
@@ -52,11 +53,12 @@ class Market_ProductTypeModel extends BaseModel
     {
         return [
             'id'                   => AttributeType::Number,
-            'name'                 => AttributeType::String,
-            'handle'               => AttributeType::String,
+            'name'                 => [AttributeType::Name, 'required' => true],
+            'handle'               => [AttributeType::Handle, 'required' => true],
             'hasUrls'              => AttributeType::Bool,
             'hasVariants'          => AttributeType::Bool,
             'urlFormat'            => AttributeType::UrlFormat,
+            'titleFormat'          => [AttributeType::String, 'required' => true, 'default'=>'{sku}'],
             'template'             => AttributeType::Template,
             'fieldLayoutId'        => AttributeType::Number,
             'variantFieldLayoutId' => AttributeType::Number,

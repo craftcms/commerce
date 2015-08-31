@@ -18,7 +18,7 @@ class Market_VariantElementType extends Market_BaseElementType
 
 	public function hasTitles()
 	{
-		return false;
+		return true;
 	}
 
 	public function hasStatuses()
@@ -64,6 +64,7 @@ class Market_VariantElementType extends Market_BaseElementType
 	public function defineTableAttributes($source = NULL)
 	{
 		return [
+			'title'            => Craft::t('Title'),
 			'sku'            => Craft::t('SKU'),
 			'price'          => Craft::t('Price'),
 			'width'          => Craft::t('Width ')."(".craft()->market_settings->getOption('dimensionUnits').")",
