@@ -31,6 +31,11 @@ class Market_VariantElementType extends Market_BaseElementType
 		return true;
 	}
 
+	public function isLocalized()
+	{
+		return false;
+	}
+
 	public function getSources($context = NULL)
 	{
 		$sources = [

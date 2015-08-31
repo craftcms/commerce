@@ -46,28 +46,7 @@ class Market_ProductController extends Market_BaseController
     {
         $this->requireAdmin();
 
-        if (!empty($variables['productTypeHandle'])) {
-            $variables['productType'] = craft()->market_productType->getByHandle($variables['productTypeHandle']);
-        }
-
-        if (empty($variables['productType'])) {
-            throw new HttpException(400,
-                craft::t('Wrong product type specified'));
-        }
-
-        if (empty($variables['product'])) {
-            if (!empty($variables['productId'])) {
-                $variables['product'] = craft()->market_product->getById($variables['productId']);
-
-                if (!$variables['product']->id) {
-                    throw new HttpException(404);
-                }
-            } else {
-                $variables['product'] = new Market_ProductModel();
-                $variables['product']->typeId = $variables['productType']->id;
-
-            }
-        }
+        $this->_prepProductVariables($variables);
 
         if (!empty($variables['product']->id)) {
             $variables['title'] = $variables['product']->title;
@@ -75,20 +54,22 @@ class Market_ProductController extends Market_BaseController
             $variables['title'] = Craft::t('Create a new Product');
         }
 
-        $variables['continueEditingUrl'] = "market/products/" . $variables['productTypeHandle'] . "/{id}";
+        $variables['continueEditingUrl'] = "market/products/" . $variables['productTypeHandle'] . "/{id}-{slug}".
+            (craft()->isLocalized() && craft()->getLanguage() != $variables['localeId'] ? '/'.$variables['localeId'] : '');
 
         $variables['taxCategories'] = \CHtml::listData(craft()->market_taxCategory->getAll(),
             'id', 'name');
 
         $this->_prepVariables($variables);
-
+        craft()->templates->includeCssResource('market/product.css');
         $this->renderTemplate('market/products/_edit', $variables);
     }
 
+
     /**
-     * Modifies the variables of the request.
-     *
      * @param $variables
+     *
+     * @throws HttpException
      */
     private function _prepVariables(&$variables)
     {
@@ -116,6 +97,7 @@ class Market_ProductController extends Market_BaseController
                 'class' => ($hasErrors ? 'error' : null)
             ];
         }
+
     }
 
     /**
@@ -212,9 +194,10 @@ class Market_ProductController extends Market_BaseController
     private function _setProductFromPost()
     {
         $productId = craft()->request->getPost('productId');
+        $locale = craft()->request->getPost('locale');
 
         if ($productId) {
-            $product = craft()->market_product->getById($productId);
+            $product = craft()->market_product->getById($productId,$locale);
 
             if (!$product) {
                 throw new Exception(Craft::t('No product with the ID “{id}”',
@@ -262,5 +245,61 @@ class Market_ProductController extends Market_BaseController
         $masterVariant->isMaster = true;
 
         return $masterVariant;
+    }
+
+    private function _prepProductVariables(&$variables)
+    {
+        if (craft()->isLocalized()){
+            // default to all use all locales for now
+            $variables['localeIds'] = craft()->i18n->getEditableLocaleIds();
+
+        }else{
+            $variables['localeIds'] = array(craft()->i18n->getPrimarySiteLocaleId());
+        }
+
+        if (empty($variables['localeId']))
+        {
+            $variables['localeId'] = craft()->language;
+
+            if (!in_array($variables['localeId'], $variables['localeIds']))
+            {
+                $variables['localeId'] = $variables['localeIds'][0];
+            }
+        }
+        else
+        {
+            // Make sure they were requesting a valid locale
+            if (!in_array($variables['localeId'], $variables['localeIds']))
+            {
+                throw new HttpException(404);
+            }
+        }
+
+        if (!empty($variables['productTypeHandle'])) {
+            $variables['productType'] = craft()->market_productType->getByHandle($variables['productTypeHandle']);
+        }
+
+        if (empty($variables['productType'])) {
+            throw new HttpException(400,
+                craft::t('Wrong product type specified'));
+        }
+
+        if (empty($variables['product'])) {
+            if (!empty($variables['productId'])) {
+                $variables['product'] = craft()->market_product->getById($variables['productId'],$variables['localeId']);
+
+                if (!$variables['product']->id) {
+                    throw new HttpException(404);
+                }
+            } else {
+                $variables['product'] = new Market_ProductModel();
+                $variables['product']->typeId = $variables['productType']->id;
+                if ($variables['localeId'])
+                {
+                    $variables['product']->locale = $variables['localeId'];
+                }
+
+            }
+        }
     }
 } 

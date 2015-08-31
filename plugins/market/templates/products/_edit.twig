@@ -65,6 +65,7 @@
         <input type="hidden" name="action" value="market/product/saveProduct">
         <input type="hidden" name="redirect" value="market/products">
         <input type="hidden" name="typeId" value="{{ productType.id }}">
+        {% if craft.isLocalized() %}<input type="hidden" name="locale" value="{{ product.locale }}">{% endif %}
         {{ getCsrfInput() }}
         {% if product.id %}<input type="hidden" name="productId" value="{{ product.id }}">{% endif %}
 
@@ -427,13 +428,13 @@
                                     }
                                 });
 
-
-                                Craft.elementIndex = Craft.createElementIndex('{{ elementTypeClass }}', $('#variantsTab'), {
+                                {% set showLocaleMenu = false %}
+                                Craft.variantIndex = Craft.createElementIndex('{{ elementTypeClass }}', $('#variantsTab'), {
                                     context:        '{{ context }}',
                                     showStatusMenu: {{ showStatusMenu is defined ? showStatusMenu|json_encode|raw : "'auto'" }},
                                     showLocaleMenu: {{ showLocaleMenu is defined ? showLocaleMenu|json_encode|raw : "'auto'" }},
                                     storageKey:     'elementindex.{{ elementTypeClass }}',
-                                    criteria:       { productId: {{ productId }}, isMaster: false, localeEnabled: null }
+                                    criteria:       { productId: {{ productId }}, isMaster: false, localeEnabled: true }
                                 });
 
                             {% endset %}
@@ -442,8 +443,8 @@
 
                         {%  endif  %}
 
-                        <a class="btn formsubmit" data-param="entryId" data-value="" data-redirect="market/products/{type.handle}/{id}/variants/new"
-                           data-value="1">{{ "Add a variant"|t }}</a>
+                        <a class="btn formsubmit add icon" data-param="entryId" data-value="" data-redirect="market/products/{type.handle}/{id}/variants/new"
+                           data-value="1">{{ "Add a Variant"|t }}</a>
                         
 
 
@@ -452,7 +453,28 @@
                 {%  endif %}
 
             </div>
+
             <div class="item" data-position="right" data-colspan="1">
+
+                {% if craft.isLocalized() %}
+                    <ul id="locales" class="pane">
+                        {% for localeId in localeIds %}
+                            {% set localeName = craft.i18n.getLocaleById(localeId).name %}
+                            <li{% if localeId == product.locale %} class="sel"{% endif %}>
+                                {%- if localeId == product.locale -%}
+                                    {{ localeName }}
+                                {%- else -%}
+                                    {% set localeUrl = url(
+                                    'market/products/'~productType.handle~'/'~craft.request.getSegment(4)~'/'~localeId
+                                    ) -%}
+                                    <a href="{{ localeUrl }}">{{ localeName }}</a>
+                                    <div class="status enabled"></div>
+                                {%- endif -%}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+
 
                 <div class="pane">
                     {{ forms.textField({

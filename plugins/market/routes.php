@@ -21,8 +21,10 @@ return [
     'market/settings/taxrates/(?P<id>\d+)'                                                    => ['action' => 'market/taxRate/edit'],
     // Product Routes
     'market/products'                                                                         => ['action' => 'market/product/productIndex'],
-    'market/products/(?P<productTypeHandle>{handle})/new'                                     => ['action' => 'market/product/editProduct'],
-    'market/products/(?P<productTypeHandle>{handle})/(?P<productId>\d+)'                      => ['action' => 'market/product/editProduct'],
+    'market/products/(?P<productTypeHandle>{handle})/new/(?P<localeId>\w+)'                   => ['action' => 'market/product/editProduct'],
+    'market/products/(?P<productTypeHandle>{handle})/new'                                                 => ['action' => 'market/product/editProduct'],
+    'market/products/(?P<productTypeHandle>{handle})/(?P<productId>\d+)(?:-{slug})?/(?P<localeId>\w+)'    => ['action' => 'market/product/editProduct'],
+    'market/products/(?P<productTypeHandle>{handle})/(?P<productId>\d+)(?:-{slug})'                      => ['action' => 'market/product/editProduct'],
     'market/products/(?P<productTypeHandle>{handle})/(?P<productId>\d+)/variants/new'         => ['action' => 'market/variant/edit'],
     'market/products/(?P<productTypeHandle>{handle})/(?P<productId>\d+)/variants/(?P<id>\d+)' => ['action' => 'market/variant/edit'],
     'market/settings/producttypes'                                                            => ['action' => 'market/productType/index'],
