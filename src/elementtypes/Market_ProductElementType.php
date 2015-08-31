@@ -26,6 +26,11 @@ class Market_ProductElementType extends Market_BaseElementType
 		return true;
 	}
 
+	public function isLocalized()
+	{
+		return true;
+	}
+
 	public function getSources($context = NULL)
 	{
 		$sources = [
