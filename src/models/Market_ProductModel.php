@@ -265,17 +265,35 @@ class Market_ProductModel extends BaseElementModel implements Purchasable
     }
 
     /**
+     * Gets the products type
+     */
+    public function getType()
+    {
+        if ($this->typeId)
+        {
+            return craft()->market_productType->getById($this->typeId);
+        }
+    }
+
+    /**
      * @return null|string
      */
     public function getCpEditUrl()
     {
-        if ($this->typeId) {
-            $productTypeHandle = craft()->market_productType->getById($this->typeId)->handle;
+        $productType = $this->getType();
 
-            return UrlHelper::getCpUrl('market/products/' . $productTypeHandle . '/' . $this->id);
+        if ($productType)
+        {
+            // The slug *might* not be set if this is a Draft and they've deleted it for whatever reason
+            $url = UrlHelper::getCpUrl('market/products/'.$productType->handle.'/'.$this->id.($this->slug ? '-'.$this->slug : ''));
+
+            if (craft()->isLocalized() && $this->locale != craft()->language)
+            {
+                $url .= '/'.$this->locale;
+            }
+
+            return $url;
         }
-
-        return null;
 
     }
 
@@ -319,9 +337,8 @@ class Market_ProductModel extends BaseElementModel implements Purchasable
 
     public function isLocalized()
     {
-        return false;
+        return true;
     }
-
     /**
      * Either only master variant if there is only one or all without master
      * Applies sales to the product before returning
