@@ -108,30 +108,42 @@ class Market_VariantService extends BaseApplicationComponent
         $productTypeId = craft()->db->createCommand()
             ->select('typeId')
             ->from('market_products')
-            ->where('id=:id',[':id'=>$model->productId])
+            ->where('id=:id', [':id' => $model->productId])
             ->queryScalar();
 
         $productType = craft()->market_productType->getById($productTypeId);
 
-        if ($model->id) {
+        if ($model->id)
+        {
             $record = Market_VariantRecord::model()->findById($model->id);
 
-            if (!$record) {
+            if (!$record)
+            {
                 throw new HttpException(404);
             }
-        } else {
+        }
+        else
+        {
             $record = new Market_VariantRecord();
         }
         /* @var Market_VariantModel $model */
-        $record->isMaster       = $model->isMaster;
-        $record->productId      = $model->productId;
+        $record->isMaster = $model->isMaster;
+        $record->productId = $model->productId;
+
         // We dont ask for a sku when dealing with a product with variants
-        if ($model->isMaster && $productType->hasVariants){
-            $model->sku         = 'implicitSkuOfProductId'.$model->productId;
-            $record->sku        = $model->sku;
-        }else{
-            $record->sku        = $model->sku;
+        if ($model->isMaster && $productType->hasVariants) {
+            $model->sku = 'implicitSkuOfProductId'.$model->productId;
+            $record->sku = $model->sku;
+        } else {
+            $record->sku = $model->sku;
         }
+
+        if (!$productType->titleFormat) {
+            $productType->titleFormat = "{sku}";
+        }
+
+        $model->getContent()->title = craft()->templates->renderObjectTemplate($productType->titleFormat, $model);
+
         $record->price          = $model->price;
         $record->width          = $model->width;
         $record->height         = $model->height;

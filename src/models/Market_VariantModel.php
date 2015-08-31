@@ -41,7 +41,7 @@ class Market_VariantModel extends BaseElementModel implements Purchasable
 
     public function __toString()
     {
-        return $this->sku;
+        return $this->getContent()->title;
     }
 
     public function getCpEditUrl()

@@ -70,6 +70,7 @@ class Market_ProductTypeController extends Market_BaseController
         $productType->hasVariants = craft()->request->getPost('hasVariants');
         $productType->template    = craft()->request->getPost('template');
         $productType->urlFormat   = craft()->request->getPost('urlFormat');
+        $productType->titleFormat   = craft()->request->getPost('titleFormat');
 
         // Set the field layout
         $fieldLayout       = craft()->fields->assembleLayoutFromPost();
