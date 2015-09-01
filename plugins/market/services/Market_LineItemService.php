@@ -51,16 +51,17 @@ class Market_LineItemService extends BaseApplicationComponent
      *
      * @TODO check that the line item belongs to the current user
      *
+     * @param Market_OrderModel    $order
      * @param Market_LineItemModel $lineItem
      * @param string               $error
      *
      * @return bool
      * @throws Exception
      */
-    public function update(Market_LineItemModel $lineItem, &$error = '')
+    public function update(Market_OrderModel $order, Market_LineItemModel $lineItem, &$error = '')
     {
         if ($this->save($lineItem)) {
-            craft()->market_order->save($lineItem->order);
+            craft()->market_order->save($order);
 
             return true;
         } else {
