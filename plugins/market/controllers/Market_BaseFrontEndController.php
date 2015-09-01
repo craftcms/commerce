@@ -21,10 +21,31 @@ class Market_BaseFrontEndController extends Market_BaseController
 	protected function cartArray(Market_OrderModel $cart)
 	{
 		$data = [];
-
-		foreach($cart->defineAttributes() as $key => $val){
-			$data[$key] = $cart->getAttribute($key, true);
-		}
+		$data['id'] = $cart->id;
+        $data['number'] = $cart->number;
+        $data['couponCode'] = $cart->couponCode;
+        $data['itemTotal'] = $cart->itemTotal;
+        $data['baseDiscount'] = $cart->baseDiscount;
+        $data['baseShippingCost'] = $cart->baseShippingCost;
+        $data['totalPrice'] = $cart->totalPrice;
+        $data['totalPaid'] = $cart->totalPaid;
+        $data['email'] = $cart->email;
+        $data['dateOrdered'] = $cart->dateOrdered;
+        $data['datePaid'] = $cart->datePaid;
+        $data['currency'] = $cart->currency;
+        $data['lastIp'] = $cart->lastIp;
+        $data['message'] = $cart->message;
+        $data['returnUrl'] = $cart->returnUrl;
+        $data['cancelUrl'] = $cart->cancelUrl;
+        $data['orderStatusId'] = $cart->orderStatusId;
+        $data['billingAddressId'] = $cart->billingAddressId;
+        $data['shippingAddressId'] = $cart->shippingAddressId;
+        $data['shippingMethodId'] = $cart->shippingMethodId;
+        $data['paymentMethodId'] = $cart->paymentMethodId;
+        $data['customerId'] = $cart->customerId;
+        $data['typeId'] = $cart->typeId;
+        $data['shippingAddressData'] = $cart->shippingAddressData;
+        $data['billingAddressData'] = $cart->billingAddressData;
 		$data['isPaid'] = $cart->isPaid();
 		$data['totalQty'] = $cart->totalQty;
 		$data['pdfUrl'] = $cart->getPdfUrl('ajax');
@@ -37,24 +58,41 @@ class Market_BaseFrontEndController extends Market_BaseController
 		$lineItems = [];
 		foreach($cart->lineItems as $lineItem){
 			$lineItemData = [];
-			foreach ($lineItem->defineAttributes() as $key => $val) {
-				$lineItemData[$key] = $lineItem->getAttribute($key, true);
-			}
+			$lineItemData['id'] = $lineItem->id;
+            $lineItemData['price'] = $lineItem->price;
+            $lineItemData['saleAmount'] = $lineItem->saleAmount;
+            $lineItemData['salePrice'] = $lineItem->salePrice;
+            $lineItemData['tax'] = $lineItem->tax;
+            $lineItemData['shippingCost'] = $lineItem->shippingCost;
+            $lineItemData['discount'] = $lineItem->discount;
+            $lineItemData['weight'] = $lineItem->weight;
+            $lineItemData['length'] = $lineItem->length;
+            $lineItemData['height'] = $lineItem->height;
+            $lineItemData['width'] = $lineItem->width;
+            $lineItemData['total'] = $lineItem->total;
+            $lineItemData['qty'] = $lineItem->qty;
+            $lineItemData['snapshot'] = $lineItem->snapshot;
+            $lineItemData['note'] = $lineItem->note;
+            $lineItemData['purchasableId'] = $lineItem->purchasableId;
+            $lineItemData['orderId'] = $lineItem->orderId;
+            $lineItemData['taxCategoryId'] = $lineItem->taxCategoryId;
 			$lineItemData['underSale'] = $lineItem->underSale;
 			$lineItemData['onSale'] = $lineItem->getOnSale();
-
 			$lineItems[$lineItem->id] = $lineItemData;
 		}
 		$data['lineItems'] = $lineItems;
 
 		$adjustments = [];
-		foreach($cart->adjustments as $adjustments){
-
+		foreach($cart->adjustments as $adjustment){
 			$adjustmentData = [];
-			foreach($adjustments->defineAttributes() as $key => $val){
-				$adjustmentData[$key] = $adjustments->getAttribute($key, true);
-			}
-			$adjustments[$adjustments->type][$adjustments->id] = $adjustmentData;
+			$adjustmentData['id'] = $adjustment->id;
+            $adjustmentData['type'] = $adjustment->type;
+            $adjustmentData['name'] = $adjustment->name;
+            $adjustmentData['description'] = $adjustment->description;
+            $adjustmentData['amount'] = $adjustment->amount;
+            $adjustmentData['optionsJson'] = $adjustment->optionsJson;
+            $adjustmentData['orderId'] = $adjustment->orderId;
+			$adjustments[$adjustment->type][$adjustment->id] = $adjustmentData;
 		}
 		$data['adjustments'] = $adjustments;
 
