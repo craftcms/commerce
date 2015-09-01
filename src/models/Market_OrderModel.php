@@ -188,7 +188,17 @@ class Market_OrderModel extends BaseElementModel
         return $value;
     }
 
+    /**
+     * @return Market_LineItemModel[]
+     */
+    public function getLineItems()
+    {
+        return craft()->market_lineItem->getAllByOrderId($this->id);
+    }
 
+    /**
+     * @return Market_OrderAdjustmentModel[]
+     */
     public function getAdjustments()
     {
         return craft()->market_orderAdjustment->getAllByOrderId($this->id);
