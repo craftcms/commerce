@@ -72,7 +72,7 @@ class Market_CartController extends Market_BaseController
         $lineItem->note = $note;
         $lineItem->order->setContentFromPost('fields');
 
-        if (craft()->market_lineItem->update($lineItem, $error)) {
+        if (craft()->market_lineItem->update($cart, $lineItem, $error)) {
             craft()->userSession->setFlash('notice',Craft::t('Order item has been updated'));
             if(craft()->request->isAjaxRequest){
                 $this->returnJson(['success'=>true,'cart'=>$cart->toArray()]);
