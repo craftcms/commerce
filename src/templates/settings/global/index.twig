@@ -25,7 +25,7 @@
 
         {% for option in ['emailSenderAddress', 'emailSenderName'] %}
             {{ forms.textField({
-                label: option|marketTitleize|t,
+                label: option|title|t,
                 id: option,
                 name: 'settings[' ~ option ~ ']',
                 value: settings[option],
