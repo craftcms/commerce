@@ -54,7 +54,7 @@ class Market_BaseFrontEndController extends Market_BaseController
 			foreach($adjustments->defineAttributes() as $key => $val){
 				$adjustmentData[$key] = $adjustments->getAttribute($key, true);
 			}
-			$lineItems[$adjustments->type][$adjustments->id] = $adjustmentData;
+			$adjustments[$adjustments->type][$adjustments->id] = $adjustmentData;
 		}
 		$data['adjustments'] = $adjustments;
 
