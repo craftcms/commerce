@@ -165,7 +165,7 @@ class Market_ProductElementType extends Market_BaseElementType
 			->join('market_producttypes producttypes', 'producttypes.id = products.typeId');
 
 		if ($criteria->availableOn) {
-			$query->andWhere(DbHelper::parseDateParam('products.availableOn', $criteria->postDate, $query->params));
+			$query->andWhere(DbHelper::parseDateParam('products.availableOn', $criteria->availableOn, $query->params));
 		} else {
 			if ($criteria->after) {
 				$query->andWhere(DbHelper::parseDateParam('products.availableOn', '>=' . $criteria->after, $query->params));
@@ -177,7 +177,7 @@ class Market_ProductElementType extends Market_BaseElementType
 		}
 
 		if ($criteria->expiresOn) {
-			$query->andWhere(DbHelper::parseDateParam('products.expiresOn', $criteria->expiryDate, $query->params));
+			$query->andWhere(DbHelper::parseDateParam('products.expiresOn', $criteria->expiresOn, $query->params));
 		}
 
 		if ($criteria->type) {
