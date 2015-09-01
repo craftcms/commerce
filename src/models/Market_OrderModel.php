@@ -328,31 +328,4 @@ class Market_OrderModel extends BaseElementModel
             'billingAddressData'    => AttributeType::Mixed
         ]);
     }
-
-    public function toArray()
-    {
-        $data = [];
-        foreach($this->defineAttributes() as $key => $val){
-            $data[$key] = $this->getAttribute($key, true);
-        }
-
-        $lineItems = [];
-        foreach($this->lineItems as $lineItem){
-            $lineItems[$lineItem->id] = $lineItem->toArray();
-        }
-        $data['lineItems'] = $lineItems;
-
-        $adjustments = [];
-        foreach($this->adjustments as $adjustments){
-            $lineItems[$adjustments->id] = $adjustments->toArray();
-        }
-        $data['adjustments'] = $adjustments;
-
-        // remove un-needed base element attributes
-        $remove = ['archived','cancelUrl','lft','level','rgt','slug','uri','root'];
-        foreach($remove as $r){
-            unset($data[$r]);
-        }
-        return $data;
-    }
 }

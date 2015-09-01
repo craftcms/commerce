@@ -158,15 +158,6 @@ class Market_LineItemModel extends BaseModel
 
     }
 
-    public function toArray()
-    {
-        $data = [];
-        foreach ($this->defineAttributes() as $key => $val) {
-            $data[$key] = $this->getAttribute($key, true);
-        }
-        return $data;
-    }
-
     protected function defineAttributes()
     {
         return [
