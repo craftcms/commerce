@@ -16,11 +16,11 @@
     } %}
 
 <div class="addressBox {{modelName}}">
-<h3>{{modelName|marketTitleize}}</h3>
+<h3>{{modelName|title}}</h3>
 {% for key,required in addressFields %}
 
 <div class="form-group {% if model and model.getErrors(key) %}has-error{% endif %}">
-    <label for="{{ modelName }}-{{key}}">{{ key|marketTitleize }}{{ required ? '*' : '' }}</label>
+    <label for="{{ modelName }}-{{key}}">{{ key|title }}{{ required ? '*' : '' }}</label>
     <input type="text" id="{{ modelName }}-{{key}}" class="u-full-width" name="{{ modelName }}[{{ key }}]" value="{{ model ? model[key] : '' }}">
     {% if model and model.getErrors(key) %}
         <span id="helpBlock" class="help-block">{{ model.getErrors(key)|join }}</span>
