@@ -171,7 +171,7 @@ class MarketPlugin extends BasePlugin
      */
     public function addCommands()
     {
-        return require(__DIR__ . DIRECTORY_SEPARATOR . 'commands.php');
+        return require(__DIR__.'/etc/commands.php');
     }
 
     /**
@@ -181,7 +181,7 @@ class MarketPlugin extends BasePlugin
      */
     public function registerCpRoutes()
     {
-        return require(__DIR__ . DIRECTORY_SEPARATOR . 'routes.php');
+        return require(__DIR__.'/etc/routes.php');
     }
 
     /**
