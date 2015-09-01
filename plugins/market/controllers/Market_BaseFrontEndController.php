@@ -81,6 +81,7 @@ class Market_BaseFrontEndController extends Market_BaseController
 			$lineItems[$lineItem->id] = $lineItemData;
 		}
 		$data['lineItems'] = $lineItems;
+		$data['totalLineItems'] = count($lineItems);
 
 		$adjustments = [];
 		foreach($cart->adjustments as $adjustment){
@@ -95,6 +96,7 @@ class Market_BaseFrontEndController extends Market_BaseController
 			$adjustments[$adjustment->type][$adjustment->id] = $adjustmentData;
 		}
 		$data['adjustments'] = $adjustments;
+        $data['totalAdjustments'] = count($adjustments);
 
 		// remove un-needed base element attributes
 		$remove = ['archived','cancelUrl','lft','level','rgt','slug','uri','root'];
