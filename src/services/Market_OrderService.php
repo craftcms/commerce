@@ -413,11 +413,19 @@ class Market_OrderService extends BaseApplicationComponent
      */
     private function getAdjusters()
     {
-        return [
+        $adjusters = [
             new Market_ShippingAdjuster,
             new Market_DiscountAdjuster,
             new Market_TaxAdjuster,
         ];
+
+        $additional = craft()->plugins->call('registerCommerceOrderAdjusters');
+
+        foreach($additional as $additionalAdjusters){
+            $adjusters = array_merge($adjusters,$additionalAdjusters);
+        }
+
+        return $adjusters;
     }
 
     /**
