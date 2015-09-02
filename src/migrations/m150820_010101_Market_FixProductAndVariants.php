@@ -6,7 +6,18 @@ class m150820_010101_Market_FixProductAndVariants extends BaseMigration
     public function safeUp()
     {
 
-        // Find any elements in the craft_elements table that don't exist in our market records and remove them.
+        $productIds = $craft->db->createCommand()->select('id')->from("market_products")->queryColumn();
+        $variantProductIds = $craft->db->createCommand()->select('productId')->from("market_variants")->queryColumn();
+
+        $variantProductIds = array_unique($variantProductIds);
+
+        foreach($variantProductIds as $vId){
+            if (!in_array($vId,$productIds)){
+                Craft::log("Deleting variant with productId: ". $vId);
+                craft()->db->createCommand()->delete('market_variants', 'productId=:id', array(':id'=>$vId));
+            }
+        }
+
         $types = ['Market_Product','Market_Variant','Market_Order'];
         foreach($types as $type){
             $elements = craft()->db->createCommand()->select('id')->from('elements')->where('type = :type',[':type'=>$type])->queryColumn();
