@@ -14,6 +14,10 @@ use Craft\Market_OrderModel;
 interface Market_AdjusterInterface
 {
 	/**
+	 * The adjust method modifies the order values (like baseShippingCost),
+	 * and records all adjustments by returning one or more orderAdjusterModels
+	 * to be saved on the order.
+	 *
 	 * @param Market_OrderModel $order
 	 * @param array             $lineItems
 	 *
