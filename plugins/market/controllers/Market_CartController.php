@@ -27,12 +27,14 @@ class Market_CartController extends Market_BaseFrontEndController
         $this->requirePostRequest();
 
         $purchasableId   = craft()->request->getPost('purchasableId');
+        $note            = craft()->request->getPost('note');
         $qty             = craft()->request->getPost('qty', 1);
         /** @var Market_OrderModel $cart */
         $cart            = craft()->market_cart->getCart();
         $cart->setContentFromPost('fields');
+        $error = '';
 
-        if (craft()->market_cart->addToCart($cart, $purchasableId, $qty, $error)) {
+        if (craft()->market_cart->addToCart($cart, $purchasableId, $qty, $note, $error)) {
             if(craft()->request->isAjaxRequest){
                 $this->returnJson(['success'=>true,'cart'=>$this->cartArray($cart)]);
             }
