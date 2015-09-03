@@ -210,8 +210,7 @@ class Market_ProductController extends Market_BaseController
         $availableOn = craft()->request->getPost('availableOn');
         $expiresOn = craft()->request->getPost('expiresOn');
 
-        $product->availableOn = $availableOn ? DateTime::createFromString($availableOn,
-            craft()->timezone) : $product->availableOn;
+        $product->availableOn = $availableOn ? DateTime::createFromString($availableOn, craft()->timezone) : $product->availableOn;
         $product->expiresOn = $expiresOn ? DateTime::createFromString($expiresOn, craft()->timezone) : null;
         $product->typeId = craft()->request->getPost('typeId');
         $product->enabled = craft()->request->getPost('enabled');
@@ -219,6 +218,7 @@ class Market_ProductController extends Market_BaseController
         $product->freeShipping  = craft()->request->getPost('freeShipping');
         $product->authorId = craft()->userSession->id;
         $product->taxCategoryId = craft()->request->getPost('taxCategoryId', $product->taxCategoryId);
+        $product->localeEnabled = (bool) craft()->request->getPost('localeEnabled', $product->localeEnabled);
 
         if (!$product->availableOn) {
             $product->availableOn = new DateTime();
@@ -299,6 +299,18 @@ class Market_ProductController extends Market_BaseController
                     $variables['product']->locale = $variables['localeId'];
                 }
 
+            }
+        }
+
+        if (!empty($variables['product']->id))
+        {
+            $variables['enabledLocales'] = craft()->elements->getEnabledLocalesForElement($variables['product']->id);
+        }else{
+            $variables['enabledLocales'] = array();
+
+            foreach (craft()->i18n->getEditableLocaleIds() as $locale)
+            {
+                $variables['enabledLocales'][] = $locale;
             }
         }
     }
