@@ -428,11 +428,9 @@
                                     }
                                 });
 
-                                {% set showLocaleMenu = false %}
+
                                 Craft.variantIndex = Craft.createElementIndex('{{ elementTypeClass }}', $('#variantsTab'), {
                                     context:        '{{ context }}',
-                                    showStatusMenu: {{ showStatusMenu is defined ? showStatusMenu|json_encode|raw : "'auto'" }},
-                                    showLocaleMenu: {{ showLocaleMenu is defined ? showLocaleMenu|json_encode|raw : "'auto'" }},
                                     storageKey:     'elementindex.{{ elementTypeClass }}',
                                     criteria:       { productId: {{ productId }}, isMaster: false, localeEnabled: true }
                                 });
@@ -463,12 +461,17 @@
                             <li{% if localeId == product.locale %} class="sel"{% endif %}>
                                 {%- if localeId == product.locale -%}
                                     {{ localeName }}
+                                    {{ forms.lightswitch({
+                                        name: 'localeEnabled',
+                                        on:   product.localeEnabled,
+                                        small: true
+                                    }) }}
                                 {%- else -%}
                                     {% set localeUrl = url(
                                     'market/products/'~productType.handle~'/'~craft.request.getSegment(4)~'/'~localeId
                                     ) -%}
                                     <a href="{{ localeUrl }}">{{ localeName }}</a>
-                                    <div class="status enabled"></div>
+                                    <div class="status {{ localeId in enabledLocales ? 'enabled' : 'disabled' }}"></div>
                                 {%- endif -%}
                             </li>
                         {% endfor %}
