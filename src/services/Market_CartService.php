@@ -25,12 +25,13 @@ class Market_CartService extends BaseApplicationComponent
      * @param Market_OrderModel $order
      * @param int               $purchasableId
      * @param int               $qty
+     * @param string            $note
      * @param string            $error
      *
      * @return bool
      * @throws \Exception
      */
-    public function addToCart($order, $purchasableId, $qty = 1, &$error = '')
+    public function addToCart($order, $purchasableId, $qty = 1, $note = '', &$error = '')
     {
         MarketDbHelper::beginStackedTransaction();
 
@@ -48,6 +49,10 @@ class Market_CartService extends BaseApplicationComponent
             $lineItem->qty += $qty;
         } else {
             $lineItem = craft()->market_lineItem->create($purchasableId, $order->id, $qty);
+        }
+
+        if($note){
+            $lineItem->note = $note;
         }
 
         try {
