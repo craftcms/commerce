@@ -77,21 +77,6 @@
         }) }}
     {% endmacro %}
 
-    {% macro templateField(productType) %}
-        {% from "_includes/forms" import textField %}
-
-        {{ textField({
-            label: "Product Template"|t,
-            instructions: "The template to use when the products’s URL is requested."|t,
-            id: 'template',
-            class: 'ltr',
-            name: 'template',
-            value: productType.template,
-            errors: productType.getErrors('template')
-        }) }}
-    {% endmacro %}
-
-
     {% macro fieldOptionsRow(name, handle) %}
         {% from "_includes/forms" import checkboxField %}
         <tr data-id="1" data-name="{{ handle }}Field">
@@ -149,17 +134,73 @@
 
 
     <div id="url-settings" class="nested-fields{% if not productType.hasUrls %} hidden{% endif %}">
-        {{ forms.textField({
-            label: "Product Url Format"|t,
-            instructions: "What the product URLs should look like. You can include tags that output entry properties, such as {slug} or {publishDate|date(\"Y\")}."|t,
-            id: 'urlFormat',
-            class: 'code',
-            name: 'urlFormat',
-            value: productType.urlFormat,
-            errors: productType.getErrors('urlFormat')
-        }) }}
+        {#{{ forms.textField({#}
+            {#label: "Product Url Format"|t,#}
+            {#instructions: "What the product URLs should look like. You can include tags that output entry properties, such as {slug} or {publishDate|date(\"Y\")}."|t,#}
+            {#id: 'urlFormat',#}
+            {#class: 'code',#}
+            {#name: 'urlFormat',#}
+            {#value: productType.urlFormat,#}
+            {#errors: productType.getErrors('urlFormat')#}
+        {#}) }}#}
 
-        {{ templateField(productType) }}
+        {% macro urlFormatText(locale, productType, name, value) %}
+            {% from "_includes/forms" import text, errorList %}
+            {% set errors = productType.getErrors(name~'-'~locale.id) %}
+
+            <div class="input{% if errors %} errors{% endif %}">
+                {{ text({
+                    id: name~'-'~locale.id,
+                    class: 'code ltr',
+                    name: name~'['~locale.id~']',
+                    value: (value != '__home__' ? value : null),
+                    errors: errors
+                }) }}
+            </div>
+
+            {{ errorList(errors) }}
+        {% endmacro %}
+
+        {% set urlFormatInput %}
+            <table class="data fullwidth">
+                <thead>
+                {% if craft.isLocalized() %}
+                    <th></th>
+                {% endif %}
+                <th scope="col">{{ "Product Type"|t }}</th>
+                </thead>
+                <tbody>
+                {% for locale in craft.i18n.getSiteLocales() %}
+                    <tr>
+                        {% if craft.isLocalized() %}
+                            <th class="thin nowrap">{{ locale.id }}</th>
+                        {% endif %}
+                        <td class="topalign">
+                            {% set value = (productType.locales[locale.id] is defined ? productType.locales[locale.id].urlFormat : null) %}
+                            {{ _self.urlFormatText(locale, productType, 'urlFormat', value) }}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endset %}
+
+        {{ forms.field({
+            label: "Category URL Formats"|t,
+            instructions: "What the Product type URLs should look like. <code>{slug}</code> is required, but it can also include any product properties."|t,
+            required: true,
+            errors: productType.getErrors('urlFormat')
+        }, urlFormatInput) }}
+
+        {{ forms.textField({
+            label: "Category Template"|t,
+            instructions: "The template to use when a product’s URL is requested."|t,
+            id: 'template',
+            class: 'ltr',
+            name: 'template',
+            value: productType.template,
+            errors: productType.getErrors('template')
+        }) }}
     </div>
 
     </div>
@@ -199,3 +240,15 @@ $(function () {
 });
 {% endset %}
 {% includeJs js %}
+
+{% if not productType.handle %}
+    {% set js %}
+
+        {% for locale in craft.i18n.getSiteLocales() %}
+            {% if productType.locales[locale.id] is not defined or not productType.locales[locale.id].urlFormat %}
+                new Craft.EntryUrlFormatGenerator('#name', '#urlFormat-{{ locale.id }}', { suffix: '/{slug}' });
+            {% endif %}
+        {% endfor %}
+    {% endset %}
+    {% includeJs js %}
+{% endif %}

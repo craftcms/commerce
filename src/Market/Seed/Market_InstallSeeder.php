@@ -3,6 +3,7 @@
 namespace Market\Seed;
 
 use Craft\Market_OrderSettingsModel;
+use Craft\Market_ProductTypeLocaleModel;
 use Craft\Market_SettingsModel;
 use Craft\Market_ShippingMethodRecord;
 use Craft\Market_ShippingRuleRecord;
@@ -118,6 +119,17 @@ class Market_InstallSeeder implements Market_SeederInterface
 		$productType->asa('variantFieldLayout')->setFieldLayout($variantFieldLayout);
 
 		\Craft\craft()->market_productType->save($productType);
+
+		$urlFormat = 'commerce/products/{slug}';
+		$productTypeLocales = \Craft\craft()->i18n->getSiteLocaleIds();
+
+		foreach($productTypeLocales as $locale){
+			\Craft\craft()->db->createCommand()->insert('market_producttypes_i18n',[
+				'productTypeId' => $productType->id,
+				'locale' => $locale,
+				'urlFormat' => 'commerce/products/{slug}'
+			]);
+		}
 
 	}
 

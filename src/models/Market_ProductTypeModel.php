@@ -24,6 +24,11 @@ namespace Craft;
 class Market_ProductTypeModel extends BaseModel
 {
 
+    /**
+     * @var
+     */
+    private $_locales;
+
     function __toString()
     {
         return Craft::t($this->handle);
@@ -37,6 +42,34 @@ class Market_ProductTypeModel extends BaseModel
     public function getCpEditVariantUrl()
     {
         return UrlHelper::getCpUrl('market/settings/producttypes/' . $this->id . '/variant');
+    }
+
+    public function getLocales()
+    {
+        if (!isset($this->_locales))
+        {
+            if ($this->id)
+            {
+                $this->_locales = craft()->market_productType->getProductTypeLocales($this->id, 'locale');
+            }
+            else
+            {
+                $this->_locales = array();
+            }
+        }
+
+        return $this->_locales;
+    }
+
+
+    /**
+     * Sets the locales on the product type
+     *
+     * @param $locales
+     */
+    public function setLocales($locales)
+    {
+        $this->_locales = $locales;
     }
 
     public function behaviors()

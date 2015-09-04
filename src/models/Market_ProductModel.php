@@ -257,11 +257,17 @@ class Market_ProductModel extends BaseElementModel implements Purchasable
      */
     public function getUrlFormat()
     {
-        if ($this->typeId) {
-            return craft()->market_productType->getById($this->typeId)->urlFormat;
-        }
+        $productType = $this->getType();
 
-        return null;
+        if ($productType && $productType->hasUrls)
+        {
+            $productTypeLocales = $productType->getLocales();
+
+            if (isset($productTypeLocales[$this->locale]))
+            {
+                return $productTypeLocales[$this->locale]->urlFormat;
+            }
+        }
     }
 
     /**
