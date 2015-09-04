@@ -108,7 +108,6 @@ class Market_InstallSeeder implements Market_SeederInterface
 		$productType->hasUrls = true;
 		$productType->hasVariants = false;
 		$productType->template = 'commerce/products/_product';
-		$productType->urlFormat = 'commerce/products/{slug}';
 
 		$fieldLayout = FieldLayoutModel::populateModel(['type' => 'Market_Product']);
 		\Craft\craft()->fields->saveLayout($fieldLayout);
@@ -120,7 +119,6 @@ class Market_InstallSeeder implements Market_SeederInterface
 
 		\Craft\craft()->market_productType->save($productType);
 
-		$urlFormat = 'commerce/products/{slug}';
 		$productTypeLocales = \Craft\craft()->i18n->getSiteLocaleIds();
 
 		foreach($productTypeLocales as $locale){

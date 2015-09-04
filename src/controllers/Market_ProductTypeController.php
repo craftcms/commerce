@@ -69,7 +69,6 @@ class Market_ProductTypeController extends Market_BaseController
         $productType->hasUrls     = craft()->request->getPost('hasUrls');
         $productType->hasVariants = craft()->request->getPost('hasVariants');
         $productType->template    = craft()->request->getPost('template');
-        $productType->urlFormat   = craft()->request->getPost('urlFormat');
         $productType->titleFormat   = craft()->request->getPost('titleFormat');
 
         $locales = [];
@@ -78,8 +77,7 @@ class Market_ProductTypeController extends Market_BaseController
         {
             $locales[$localeId] = new Market_ProductTypeLocaleModel(array(
                 'locale'          => $localeId,
-                'urlFormat'       => craft()->request->getPost('urlFormat.'.$localeId),
-                'nestedUrlFormat' => craft()->request->getPost('nestedUrlFormat.'.$localeId),
+                'urlFormat'       => craft()->request->getPost('urlFormat.'.$localeId)
             ));
         }
 
