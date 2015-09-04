@@ -240,7 +240,7 @@ class Market_ProductTypeService extends BaseApplicationComponent
 
                 if (!$isNewProductType)
                 {
-                    // Drop any locales that are no longer being used, as well as the associated category/element
+                    // Drop any locales that are no longer being used, as well as the associated element
                     // locale rows
 
                     $droppedLocaleIds = array_diff(array_keys($oldLocales), array_keys($productTypeLocales));
@@ -284,7 +284,7 @@ class Market_ProductTypeService extends BaseApplicationComponent
                             {
                                 craft()->config->maxPowerCaptain();
 
-                                // Loop through each of the changed locales and update all of the categories’ slugs and
+                                // Loop through each of the changed locales and update all of the products’ slugs and
                                 // URIs
                                 foreach ($changedLocaleIds as $localeId)
                                 {
