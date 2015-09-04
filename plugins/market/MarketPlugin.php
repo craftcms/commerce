@@ -89,19 +89,31 @@ class MarketPlugin extends BasePlugin
             ]
         );
 
-        craft()->on('market_order.onOrderComplete',
-            [
-                craft()->market_variant,
-                'orderCompleteHandler'
-            ]
-        );
+	    craft()->on('market_order.onOrderComplete',
+		    [
+			    craft()->market_variant,
+			    'orderCompleteHandler'
+		    ]
+	    );
 
-        craft()->on('userSession.onLogin',
-            [
-                craft()->market_customer,
-                'loginHandler'
-            ]
-        );
+//        craft()->on('localization.onDeleteLocale',
+//            [
+//                craft()->market_variant,
+//                'orderCompleteHandler'
+//            ]
+//        );
+
+	    if(!craft()->isConsole())
+	    {
+		    craft()->on('userSession.onLogin',
+			    [
+				    craft()->market_customer,
+				    'loginHandler'
+			    ]
+		    );
+	    }
+
+
     }
 
     /**
@@ -160,7 +172,7 @@ class MarketPlugin extends BasePlugin
      */
     public function getVersion()
     {
-        return '0.7.15';
+        return '0.7.25';
     }
 
     /**

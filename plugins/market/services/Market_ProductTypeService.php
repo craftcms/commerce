@@ -18,7 +18,7 @@ class Market_ProductTypeService extends BaseApplicationComponent
     /**
      * @return Market_ProductTypeModel[]
      */
-    public function getAll()
+    public function getAll ()
     {
         $productTypeRecords = Market_ProductTypeRecord::model()->findAll();
 
@@ -30,7 +30,7 @@ class Market_ProductTypeService extends BaseApplicationComponent
      *
      * @return Market_ProductTypeModel
      */
-    public function getById($id)
+    public function getById ($id)
     {
         $productTypeRecord = Market_ProductTypeRecord::model()->findById($id);
 
@@ -42,11 +42,26 @@ class Market_ProductTypeService extends BaseApplicationComponent
      *
      * @return Market_ProductTypeModel
      */
-    public function getByHandle($handle)
+    public function getByHandle ($handle)
     {
         $productTypeRecord = Market_ProductTypeRecord::model()->findByAttributes(['handle' => $handle]);
 
         return Market_ProductTypeModel::populateModel($productTypeRecord);
+    }
+
+    /**
+     * @param      $productTypeId
+     * @param null $indexBy
+     *
+     * @return array
+     */
+    public function getProductTypeLocales ($productTypeId, $indexBy = null)
+    {
+        $records = Market_ProductTypeLocaleRecord::model()->findAllByAttributes([
+            'productTypeId' => $productTypeId
+        ]);
+
+        return Market_ProductTypeLocaleModel::populateModels($records, $indexBy);
     }
 
     /**
@@ -57,9 +72,8 @@ class Market_ProductTypeService extends BaseApplicationComponent
      * @throws \CDbException
      * @throws \Exception
      */
-    public function save(Market_ProductTypeModel $productType)
+    public function save (Market_ProductTypeModel $productType)
     {
-        $urlFormatChanged = false;
         $titleFormatChanged = false;
 
         if ($productType->id)
@@ -86,63 +100,94 @@ class Market_ProductTypeService extends BaseApplicationComponent
         $productTypeRecord->hasVariants = $productType->hasVariants;
         $productTypeRecord->template = $productType->template;
 
-        if ($productTypeRecord->titleFormat != $productType->titleFormat) {
+        if ($productTypeRecord->titleFormat != $productType->titleFormat && $productType->hasVariants)
+        {
             $titleFormatChanged = true;
         }
         $productTypeRecord->titleFormat = $productType->titleFormat;
 
-        // Set flag if urlFormat changed so we can update all product elements.
-        if ($productTypeRecord->urlFormat != $productType->urlFormat) {
-            $urlFormatChanged = true;
+        // Make sure that all of the URL formats are set properly
+        $productTypeLocales = $productType->getLocales();
+
+        foreach ($productTypeLocales as $localeId => $productTypeLocale)
+        {
+            if ($productType->hasUrls)
+            {
+                $urlFormatAttributes = ['urlFormat'];
+                $productTypeLocale->urlFormatIsRequired = true;
+
+                foreach ($urlFormatAttributes as $attribute)
+                {
+                    if (!$productTypeLocale->validate([$attribute]))
+                    {
+                        $productType->addError($attribute.'-'.$localeId, $productTypeLocale->getError($attribute));
+                    }
+                }
+            }
+            else
+            {
+                $productTypeLocale->urlFormat = null;
+            }
         }
-        $productTypeRecord->urlFormat = $productType->urlFormat;
 
         $productTypeRecord->validate();
         $productType->addErrors($productTypeRecord->getErrors());
 
-        if (!$productType->hasErrors()) {
+        if (!$productType->hasErrors())
+        {
             MarketDbHelper::beginStackedTransaction();
-            try {
+            try
+            {
 
                 // Product Field Layout
-                if (!$isNewProductType && $oldProductType->fieldLayoutId) {
+                if (!$isNewProductType && $oldProductType->fieldLayoutId)
+                {
                     // Drop the old field layout
                     craft()->fields->deleteLayoutById($oldProductType->fieldLayoutId);
                 }
                 // Save the new one
                 $fieldLayout = $productType->asa('productFieldLayout')->getFieldLayout();
                 craft()->fields->saveLayout($fieldLayout);
-                $productType->fieldLayoutId       = $fieldLayout->id;
+                $productType->fieldLayoutId = $fieldLayout->id;
                 $productTypeRecord->fieldLayoutId = $fieldLayout->id;
 
-                if (!$isNewProductType && $oldProductType->variantFieldLayoutId) {
+                if (!$isNewProductType && $oldProductType->variantFieldLayoutId)
+                {
                     // Drop the old field layout
                     craft()->fields->deleteLayoutById($oldProductType->variantFieldLayoutId);
                 }
                 // Save the new one
                 $variantFieldLayout = $productType->asa('variantFieldLayout')->getFieldLayout();
                 craft()->fields->saveLayout($variantFieldLayout);
-                $productType->variantFieldLayoutId       = $variantFieldLayout->id;
+                $productType->variantFieldLayoutId = $variantFieldLayout->id;
                 $productTypeRecord->variantFieldLayoutId = $variantFieldLayout->id;
 
                 // Save it!
                 $productTypeRecord->save(false);
 
                 // Now that we have a product type ID, save it on the model
-                if (!$productType->id) {
+                if (!$productType->id)
+                {
                     $productType->id = $productTypeRecord->id;
                 }
 
-                if($productType->hasVariants){
+                $newLocaleData = [];
+
+                if ($productType->hasVariants)
+                {
                     //Refresh all urls for products of same type if urlFormat changed.
-                    if ($titleFormatChanged) {
-                        $criteria         = craft()->elements->getCriteria('Market_Product');
+                    if ($titleFormatChanged)
+                    {
+                        $criteria = craft()->elements->getCriteria('Market_Product');
                         $criteria->typeId = $productType->id;
-                        $products         = $criteria->find();
+                        $products = $criteria->find();
                         /** @var Market_ProductModel $product */
-                        foreach ($products as $key => $product) {
-                            if ($product && $product->getContent()->id) {
-                                foreach($product->getVariants() as $variant){
+                        foreach ($products as $key => $product)
+                        {
+                            if ($product && $product->getContent()->id)
+                            {
+                                foreach ($product->getVariants() as $variant)
+                                {
                                     craft()->market_variant->save($variant);
                                 }
                             }
@@ -150,30 +195,129 @@ class Market_ProductTypeService extends BaseApplicationComponent
                     }
                 }
 
+                if (!$isNewProductType)
+                {
+                    // Get the old product type locales
+                    $oldLocaleRecords = Market_ProductTypeLocaleRecord::model()->findAllByAttributes([
+                        'productTypeId' => $productType->id
+                    ]);
+                    $oldLocales = Market_ProductTypeLocaleModel::populateModels($oldLocaleRecords, 'locale');
 
-                //Refresh all urls for products of same type if urlFormat changed.
-                if ($urlFormatChanged) {
-                    $criteria         = craft()->elements->getCriteria('Market_Product');
+                    $changedLocaleIds = [];
+                }
+
+
+                foreach ($productTypeLocales as $localeId => $locale)
+                {
+                    // Was this already selected?
+                    if (!$isNewProductType && isset($oldLocales[$localeId]))
+                    {
+                        $oldLocale = $oldLocales[$localeId];
+
+                        // Has the URL format changed?
+                        if ($locale->urlFormat != $oldLocale->urlFormat)
+                        {
+                            craft()->db->createCommand()->update('market_producttypes_i18n', [
+                                'urlFormat' => $locale->urlFormat
+                            ], [
+                                'id' => $oldLocale->id
+                            ]);
+
+                            $changedLocaleIds[] = $localeId;
+                        }
+                    }
+                    else
+                    {
+                        $newLocaleData[] = [$productType->id, $localeId, $locale->urlFormat];
+                    }
+                }
+
+                // Insert the new locales
+                craft()->db->createCommand()->insertAll('market_producttypes_i18n',
+                    array('productTypeId', 'locale', 'urlFormat'),
+                    $newLocaleData
+                );
+
+                if (!$isNewProductType)
+                {
+                    // Drop any locales that are no longer being used, as well as the associated category/element
+                    // locale rows
+
+                    $droppedLocaleIds = array_diff(array_keys($oldLocales), array_keys($productTypeLocales));
+
+                    if ($droppedLocaleIds)
+                    {
+                        craft()->db->createCommand()->delete('market_producttypes_i18n', ['in', 'locale', $droppedLocaleIds]);
+                    }
+                }
+
+
+                if (!$isNewProductType)
+                {
+                    // Get all of the product IDs in this group
+                    $criteria = craft()->elements->getCriteria('Market_Product');
                     $criteria->typeId = $productType->id;
-                    $products         = $criteria->find();
-                    foreach ($products as $key => $product) {
-                        if ($product && $product->getContent()->id) {
-                            craft()->elements->updateElementSlugAndUri($product,
-                                false, false);
+                    $criteria->status = null;
+                    $criteria->limit = null;
+                    $productTypeIds = $criteria->ids();
+
+                    // Should we be deleting
+                    if ($productTypeIds && $droppedLocaleIds)
+                    {
+                        craft()->db->createCommand()->delete('elements_i18n', ['and', ['in', 'elementId', $productTypeIds], ['in', 'locale', $droppedLocaleIds]]);
+                        craft()->db->createCommand()->delete('content', ['and', ['in', 'elementId', $productTypeIds], ['in', 'locale', $droppedLocaleIds]]);
+                    }
+                    // Are there any locales left?
+                    if ($productTypeLocales)
+                    {
+                        // Drop the old productType URIs if the product type no longer has URLs
+                        if (!$productType->hasUrls && $oldProductType->hasUrls)
+                        {
+                            craft()->db->createCommand()->update('elements_i18n',
+                                ['uri' => null],
+                                ['in', 'elementId', $productTypeIds]
+                            );
+                        }
+                        else if ($changedLocaleIds)
+                        {
+                            foreach ($productTypeIds as $productTypeId)
+                            {
+                                craft()->config->maxPowerCaptain();
+
+                                // Loop through each of the changed locales and update all of the categories’ slugs and
+                                // URIs
+                                foreach ($changedLocaleIds as $localeId)
+                                {
+                                    $criteria = craft()->elements->getCriteria('Market_Product');
+                                    $criteria->id = $productTypeId;
+                                    $criteria->locale = $localeId;
+                                    $criteria->status = null;
+                                    $updateProduct = $criteria->first();
+
+                                    // todo: replace the getContent()->id check with 'strictLocale' param once it's added
+                                    if ($updateProduct && $updateProduct->getContent()->id)
+                                    {
+                                        craft()->elements->updateElementSlugAndUri($updateProduct, false, false);
+                                    }
+                                }
+                            }
                         }
                     }
                 }
 
                 MarketDbHelper::commitStackedTransaction();
-
-            } catch (\Exception $e) {
+            }
+            catch (\Exception $e)
+            {
                 MarketDbHelper::rollbackStackedTransaction();
 
                 throw $e;
             }
 
             return true;
-        } else {
+        }
+        else
+        {
             return false;
         }
     }
@@ -187,13 +331,14 @@ class Market_ProductTypeService extends BaseApplicationComponent
      * @throws \CDbException
      * @throws \Exception
      */
-    public function deleteById($id)
+    public function deleteById ($id)
     {
         MarketDbHelper::beginStackedTransaction();
-        try {
+        try
+        {
             $productType = Market_ProductTypeRecord::model()->findById($id);
 
-            $query      = craft()->db->createCommand()
+            $query = craft()->db->createCommand()
                 ->select('id')
                 ->from('market_products')
                 ->where(['typeId' => $productType->id]);
@@ -207,7 +352,9 @@ class Market_ProductTypeService extends BaseApplicationComponent
             MarketDbHelper::commitStackedTransaction();
 
             return (bool)$affectedRows;
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e)
+        {
             MarketDbHelper::rollbackStackedTransaction();
 
             throw $e;
@@ -216,13 +363,17 @@ class Market_ProductTypeService extends BaseApplicationComponent
 
     // Need to have a separate controller action and service method
     // since you cant have 2 field layout editors on one POST.
-    public function saveVariantFieldLayout($productType)
+    public function saveVariantFieldLayout ($productType)
     {
         $productTypeRecord = Market_ProductTypeRecord::model()->findById($productType->id);
 
         $productTypeRecord->save(false);
 
         return true;
+    }
 
+    public function handleDeleteSiteLocale ()
+    {
+        // TODO...
     }
 }

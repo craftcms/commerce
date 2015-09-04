@@ -72,6 +72,19 @@ class Market_ProductTypeController extends Market_BaseController
         $productType->urlFormat   = craft()->request->getPost('urlFormat');
         $productType->titleFormat   = craft()->request->getPost('titleFormat');
 
+        $locales = [];
+
+        foreach (craft()->i18n->getSiteLocaleIds() as $localeId)
+        {
+            $locales[$localeId] = new Market_ProductTypeLocaleModel(array(
+                'locale'          => $localeId,
+                'urlFormat'       => craft()->request->getPost('urlFormat.'.$localeId),
+                'nestedUrlFormat' => craft()->request->getPost('nestedUrlFormat.'.$localeId),
+            ));
+        }
+
+        $productType->setLocales($locales);
+
         // Set the field layout
         $fieldLayout       = craft()->fields->assembleLayoutFromPost();
         $fieldLayout->type = 'Market_Product';
