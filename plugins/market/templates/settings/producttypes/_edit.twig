@@ -186,14 +186,14 @@
         {% endset %}
 
         {{ forms.field({
-            label: "Category URL Formats"|t,
+            label: "Product Type URL Formats"|t,
             instructions: "What the Product type URLs should look like. <code>{slug}</code> is required, but it can also include any product properties."|t,
             required: true,
             errors: productType.getErrors('urlFormat')
         }, urlFormatInput) }}
 
         {{ forms.textField({
-            label: "Category Template"|t,
+            label: "Product Type Template"|t,
             instructions: "The template to use when a product’s URL is requested."|t,
             id: 'template',
             class: 'ltr',
