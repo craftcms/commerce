@@ -130,6 +130,7 @@ class Market_VariantModel extends BaseElementModel implements Purchasable
             'cpEditUrl' => $this->getProduct()->getCpEditUrl()
         ];
 
+        $data['product'] = $this->getProduct()->getSnapshot();
         return array_merge($this->getAttributes(),$data);
     }
 

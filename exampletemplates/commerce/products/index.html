@@ -27,16 +27,16 @@
                <p>This is a product without any variants.</p>
                {% endif %}
             {% else %}
-               <strong>{{ product.description }}</strong><br/>
-               <strong>SKU</strong> {{ product.sku }}<br/>
+               <strong>{{ product.masterVariant.description }}</strong><br/>
+               <strong>SKU</strong> {{ product.masterVariant.sku }}<br/>
                <strong>Price</strong>
-               {% if product.onSale %}
-                  <strike>{{ product.price|marketCurrency }}</strike>   {{ product.salePrice|marketCurrency }}
+               {% if product.masterVariant.onSale %}
+                  <strike>{{ product.masterVariant.price|marketCurrency }}</strike>   {{ product.masterVariant.salePrice|marketCurrency }}
                {% else %}
-                  {{ product.price|marketCurrency }}
+                  {{ product.masterVariant.price|marketCurrency }}
                {% endif %}<br/>
-               <strong>Stock</strong> {{ product.unlimitedStock ? 'Unlimited'|t : product.stock }} <br/>
-               {{ forms.addToCartButton(product) }}
+               <strong>Stock</strong> {{ product.masterVariant.unlimitedStock ? 'Unlimited'|t : product.masterVariant.stock }} <br/>
+               {{ forms.addToCartButton(product.masterVariant) }}
             {% endif %}
 
          </div>
