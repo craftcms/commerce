@@ -71,7 +71,7 @@ class Market_OrderHistoryService extends BaseApplicationComponent
 
         //raising event on status change
         $event = new Event($this, [
-            'orderHistoryModel' => $orderHistoryModel,
+            'orderHistory'      => $orderHistoryModel,
             'order'             => $order
         ]);
         $this->onStatusChange($event);
