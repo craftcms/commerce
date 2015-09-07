@@ -27,6 +27,12 @@ table.editable tbody input:focus {
 .statusSource .status{
     margin-right:3px !important;
 }
+
+/*.variant-massEdit-modal .checkbox-text-input{  position:relative;  }*/
+.variant-massEdit-modal .checkbox-text-input .checkbox-text-label{  margin-left: 31px;  }
+.variant-massEdit-modal .checkbox-text-input .checkbox-input{  position:relative; top:-25px; width:30px; }
+.variant-massEdit-modal .checkbox-text-input .text{ display:block; position:relative; left: 30px; width:50%; }
+
 /* TODO remove status colors for 2.5 */
 /* status icons */
 .status { display: inline-block; margin-right: 10px; width: 8px; height: 8px; border-radius: 100%; border: 1px solid transparent; }

@@ -290,8 +290,14 @@
                                     {
                                         var sourceVal = this.$source.val();
                                         var targetVal = this.generateTargetValue(sourceVal);
-
                                         this.$target.prop('checked', true);
+                                    },
+                                    onFormSubmit: function()
+                                    {
+                                        if (this.timeout)
+                                        {
+                                            clearTimeout(this.timeout);
+                                        }
                                     }
                                 });
 
@@ -302,79 +308,133 @@
                                     init: function(ids,settings){
                                         this.ids = ids;
 
-                                        var $form = $('<form class="modal" method="post" accept-charset="UTF-8">' +
+                                        var $form = $('<form class="modal variant-massEdit-modal" method="post" accept-charset="UTF-8">' +
                                                 Craft.getCsrfInput() +
                                                 '<input type="hidden" name="redirect" value=""/>' +
                                                 '</form>').appendTo(Garnish.$bod);
                                     
                                         var $body = $('<div class="body">' +
-                                                '<p>'+Craft.t('Tick the boxes for the fields values you want to mass update on the selected variants.')+'</p>' +
+                                                '<p>'+Craft.t('Only values with checkboxes selected will be updated.')+'</p>' +
                                         '</div>').appendTo($form);
 
                                         {%  set fieldHtml %}
                                             <div class="fields">
-                                                <input type="hidden" name="setPrice" value="0">
-                                                <label>{{ "Price"|t }}</label>
-                                                <input type="checkbox" id="setPrice" name="setPrice" value="1">
-                                                <div id="setPriceToggle">{{ forms.textField({
+                                                <div class="checkbox-text-input">
+                                                    <label class="checkbox-text-label">{{ "Price"|t }} </label>
+                                                    {{ forms.text({
                                                     id: 'price',
                                                     name: 'price',
                                                     value: '',
-                                                }) }}
+                                                    }) }}
+                                                    <div class="checkbox-input">
+                                                    {{ forms.checkbox({
+                                                        id: 'setPrice',
+                                                        name:   'setPrice',
+                                                        checked: 0,
+                                                        value: 1
+                                                    }) }}
+                                                    </div>
                                                 </div>
-                                                <input type="hidden" name="setMinQty" value="0">
-                                                <label>{{ "Minimum Quantity"|t }}</label>
-                                                <input type="checkbox" id="setMinQty" name="setMinQty" value="1">
-                                                <div id="setMinQtyToggle">{{ forms.textField({
-                                                    id: 'minQty',
-                                                    name: 'minQty',
-                                                    value: '',
-                                                }) }}
+                                                <div class="checkbox-text-input">
+                                                    <label class="checkbox-text-label">{{ "Minimum Quantity"|t }} </label>
+                                                    {{ forms.text({
+                                                        id: 'minQty',
+                                                        name: 'minQty',
+                                                        value: '',
+                                                    }) }}
+                                                    <div class="checkbox-input">
+                                                        {{ forms.checkbox({
+                                                            id: 'setMinQty',
+                                                            name:   'setMinQty',
+                                                            checked: 0,
+                                                            value: 1
+                                                        }) }}
+                                                    </div>
                                                 </div>
-                                                <input type="hidden" name="setMaxQty" value="0">
-                                                <label>{{ "Maximum Quantity"|t }}</label>
-                                                <input type="checkbox" id="setMaxQty" name="setMaxQty" value="1">
-                                                <div id="setMaxQtyToggle">{{ forms.textField({
-                                                    id: 'maxQty',
-                                                    name: 'maxQty',
-                                                    value: '',
-                                                }) }}
+
+                                                <div class="checkbox-text-input">
+                                                    <label class="checkbox-text-label">{{ "Maximum Quantity"|t }} </label>
+                                                    {{ forms.text({
+                                                        id: 'maxQty',
+                                                        name: 'maxQty',
+                                                        value: '',
+                                                    }) }}
+                                                    <div class="checkbox-input">
+                                                        {{ forms.checkbox({
+                                                            id: 'setMaxQty',
+                                                            name:   'setMaxQty',
+                                                            checked: 0,
+                                                            value: 1
+                                                        }) }}
+                                                    </div>
                                                 </div>
-                                                <input type="hidden" name="setWidth" value="0">
-                                                <label>{{ 'Width'|t~' ('~craft.market.settings.dimensionUnits~')' }}</label>
-                                                <input type="checkbox" id="setWidth" name="setWidth" value="1">
-                                                <div id="setWidthToggle">{{ forms.textField({
-                                                    id: 'width',
-                                                    name: 'width',
-                                                    value: '',
-                                                }) }}
+
+                                                <div class="checkbox-text-input">
+                                                    <label class="checkbox-text-label">{{ 'Width'|t~' ('~craft.market.settings.dimensionUnits~')' }} </label>
+                                                    {{ forms.text({
+                                                        id: 'width',
+                                                        name: 'width',
+                                                        value: '',
+                                                    }) }}
+                                                    <div class="checkbox-input">
+                                                        {{ forms.checkbox({
+                                                            id: 'setWidth',
+                                                            name:   'setWidth',
+                                                            checked: 0,
+                                                            value: 1
+                                                        }) }}
+                                                    </div>
                                                 </div>
-                                                <input type="hidden" name="setHeight" value="0">
-                                                <label>{{ 'Height'|t~' ('~craft.market.settings.dimensionUnits~')' }}</label>
-                                                <input type="checkbox" id="setHeight" name="setHeight" value="1">
-                                                <div id="setHeightToggle">{{ forms.textField({
-                                                    id: 'height',
-                                                    name: 'height',
-                                                    value: '',
-                                                }) }}
+
+                                                <div class="checkbox-text-input">
+                                                    <label class="checkbox-text-label">{{ 'Height'|t~' ('~craft.market.settings.dimensionUnits~')' }} </label>
+                                                    {{ forms.text({
+                                                        id: 'height',
+                                                        name: 'height',
+                                                        value: '',
+                                                    }) }}
+                                                    <div class="checkbox-input">
+                                                        {{ forms.checkbox({
+                                                            id: 'setHeight',
+                                                            name:   'setHeight',
+                                                            checked: 0,
+                                                            value: 1
+                                                        }) }}
+                                                    </div>
                                                 </div>
-                                                <input type="hidden" name="setLength" value="0">
-                                                <label>{{ 'Length'|t~' ('~craft.market.settings.dimensionUnits~')' }}</label>
-                                                <input type="checkbox" id="setLength" name="setLength" value="1">
-                                                <div id="setLengthToggle">{{ forms.textField({
-                                                    id: 'length',
-                                                    name: 'length',
-                                                    value: '',
-                                                }) }}
+
+                                                <div class="checkbox-text-input">
+                                                    <label class="checkbox-text-label">{{ 'Length'|t~' ('~craft.market.settings.dimensionUnits~')' }} </label>
+                                                    {{ forms.text({
+                                                        id: 'length',
+                                                        name: 'length',
+                                                        value: '',
+                                                    }) }}
+                                                    <div class="checkbox-input">
+                                                        {{ forms.checkbox({
+                                                            id: 'setLength',
+                                                            name:   'setLength',
+                                                            checked: 0,
+                                                            value: 1
+                                                        }) }}
+                                                    </div>
                                                 </div>
-                                                <input type="hidden" name="setWeight" value="0">
-                                                <label>{{ 'Weight'|t~' ('~craft.market.settings.weightUnits~')' }}</label>
-                                                <input type="checkbox" id="setWeight" name="setWeight" value="1">
-                                                <div id="setWeightToggle">{{ forms.textField({
-                                                    id: 'weight',
-                                                    name: 'weight',
-                                                    value: '',
-                                                }) }}
+
+                                                <div class="checkbox-text-input">
+                                                    <label class="checkbox-text-label">{{ 'Weight'|t~' ('~craft.market.settings.weightUnits~')' }} </label>
+                                                    {{ forms.text({
+                                                        id: 'weight',
+                                                        name: 'weight',
+                                                        value: '',
+                                                    }) }}
+                                                    <div class="checkbox-input">
+                                                        {{ forms.checkbox({
+                                                            id: 'setWeight',
+                                                            name:   'setWeight',
+                                                            checked: 0,
+                                                            value: 1
+                                                        }) }}
+                                                    </div>
                                                 </div>
                                             </div>
                                         {%  endset %}
@@ -382,7 +442,6 @@
 
                                         var $fields = $("{{ fieldHtml|e('js') }}").appendTo($body);
 
-                                        {#new Craft.FieldToggle($form.find('#setPrice'));#}
                                         new Craft.SetVariantValuesInput($form.find('#price'), $form.find('#setPrice'));
                                         new Craft.SetVariantValuesInput($form.find('#minQty'), $form.find('#setMinQty'));
                                         new Craft.SetVariantValuesInput($form.find('#maxQty'), $form.find('#setMaxQty'));
