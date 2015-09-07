@@ -75,7 +75,8 @@ EOT;
 
         foreach($variants as $variant){
             foreach($attributes as $attribute) {
-                if ($this->getParams()->{'set'.ucfirst($attribute)}) {
+                $set = $this->getParams()->{'set'.ucfirst($attribute)};
+                if ($set) {
                     $variant->$attribute = $this->getParams()->$attribute;
                 }
             }
