@@ -311,11 +311,13 @@
                                         var $form = $('<form class="modal variant-massEdit-modal" method="post" accept-charset="UTF-8">' +
                                                 Craft.getCsrfInput() +
                                                 '<input type="hidden" name="redirect" value=""/>' +
+                                                '<div class="body header-body"><p>'+Craft.t('Only values with checkboxes selected will be updated.')+'</p></div>' +
+                                                '<hr />' +
                                                 '</form>').appendTo(Garnish.$bod);
                                     
-                                        var $body = $('<div class="body">' +
-                                                '<p>'+Craft.t('Only values with checkboxes selected will be updated.')+'</p>' +
-                                        '</div>').appendTo($form);
+                                        var $body = $('<div class="body fields-body"></div>').appendTo($form);
+
+
 
                                         {%  set fieldHtml %}
                                             <div class="fields">
