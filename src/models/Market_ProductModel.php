@@ -3,7 +3,6 @@
 namespace Craft;
 
 use Market\Traits\Market_ModelRelationsTrait;
-use Market\Interfaces\Purchasable;
 
 /**
  * Class Market_ProductModel
@@ -27,7 +26,7 @@ use Market\Interfaces\Purchasable;
  * @property string                  name
  * @package Craft
  */
-class Market_ProductModel extends BaseElementModel implements Purchasable
+class Market_ProductModel extends BaseElementModel
 {
     use Market_ModelRelationsTrait;
 
@@ -57,6 +56,20 @@ class Market_ProductModel extends BaseElementModel implements Purchasable
         return $this->title;
     }
 
+    /**
+     * Allow the variant to ask the product what data to snapshot
+     * @return string
+     */
+    public function getSnapshot()
+    {
+        $data = [
+            'title' => $this->getTitle(),
+            'name' => $this->getTitle()
+        ];
+
+        return array_merge($this->getAttributes(), $data);
+    }
+
     /*
      * Name is an alias to title.
      *
@@ -65,185 +78,6 @@ class Market_ProductModel extends BaseElementModel implements Purchasable
     public function getName()
     {
         return $this->title;
-    }
-
-
-    /**
-     * We need to be explicit to meet interface
-     * @return string
-     */
-    public function getDescription()
-    {
-        if (!$this->type->hasVariants) {
-            return (string) $this->title;
-        }
-    }
-
-    /**
-     * Validate based mast variant validation
-     *
-     * @param Market_LineItemModel $lineItem
-     *
-     * @return mixed
-     */
-    public function validateLineItem(Market_LineItemModel $lineItem)
-    {
-        $this->getMasterVariant()->validateLineItem($lineItem);
-    }
-
-    /**
-     * @return int
-     */
-    public function getPurchasableId()
-    {
-        if (!$this->type->hasVariants) {
-            return $this->getMasterVariant()->getPurchasableId();
-        }
-    }
-
-    /**
-     * We need to be explicit to meet interface
-     * @return string
-     */
-    public function getSnapshot()
-    {
-        $data = [
-            'title' => $this->getTitle()
-        ];
-
-        return array_merge($this->getAttributes(),$data);
-    }
-
-    /**
-     * We need to be explicit to meet interface
-     * @return string
-     */
-    public function getModelClass()
-    {
-        return '\Craft\Market_ProductModel';
-    }
-
-    /**
-     * Returns the Master Variants's
-     *
-     * @return float
-     */
-    public function getPrice()
-    {
-        if (!$this->type->hasVariants) {
-            return $this->getMasterVariant()->price;
-        }
-    }
-
-    /**
-     * Returns the Master Variants's
-     *
-     * @return float
-     */
-    public function getWidth()
-    {
-        if (!$this->type->hasVariants) {
-            return $this->getMasterVariant()->width;
-        }
-    }
-
-    /**
-     * Returns the Master Variants's
-     *
-     * @return float
-     */
-    public function getSku()
-    {
-        if (!$this->type->hasVariants) {
-            return $this->getMasterVariant()->sku;
-        }
-    }
-
-
-    /**
-     * Returns the Master Variants's
-     *
-     * @return float
-     */
-    public function getOnSale()
-    {
-        if (!$this->type->hasVariants) {
-            return $this->getMasterVariant()->onSale;
-        }
-    }
-
-
-    /**
-     * Returns the Master Variants's
-     *
-     * @return float
-     */
-    public function getStock()
-    {
-        if (!$this->type->hasVariants) {
-            return $this->getMasterVariant()->stock;
-        }
-    }
-
-    /**
-     * Returns the Master Variants's
-     *
-     * @return float
-     */
-    public function getSalePrice()
-    {
-        if (!$this->type->hasVariants) {
-            return $this->getMasterVariant()->salePrice;
-        }
-    }
-
-
-    /**
-     * Returns the Master Variants's
-     *
-     * @return float
-     */
-    public function getUnlimitedStock()
-    {
-        if (!$this->type->hasVariants) {
-            return $this->getMasterVariant()->unlimitedStock;
-        }
-    }
-
-    /**
-     * Returns the Master Variants's Height
-     *
-     * @return float
-     */
-    public function getHeight()
-    {
-        if (!$this->type->hasVariants) {
-            return $this->getMasterVariant()->height;
-        }
-    }
-
-    /**
-     * Returns the Master Variants's Length
-     *
-     * @return float
-     */
-    public function getLength()
-    {
-        if (!$this->type->hasVariants) {
-            return $this->getMasterVariant()->length;
-        }
-    }
-
-    /**
-     * Returns the Master Variants's Weight
-     *
-     * @return float
-     */
-    public function getWeight()
-    {
-        if (!$this->type->hasVariants) {
-            return $this->getMasterVariant()->weight;
-        }
     }
 
     /*
@@ -367,9 +201,6 @@ class Market_ProductModel extends BaseElementModel implements Purchasable
 
         return false;
     }
-
-
-
 
     // Protected Methods
     // =============================================================================
