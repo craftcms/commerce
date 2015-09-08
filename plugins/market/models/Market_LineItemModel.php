@@ -109,7 +109,7 @@ class Market_LineItemModel extends BaseModel
     {
         $this->price = $purchasable->getPrice();
 
-        // Since sales cannot apply to non core purchasables, set to price.
+        // Since sales cannot apply to non core purchasables, set to price at default
         $this->salePrice = $purchasable->getPrice();
 
         $snapshot = [
@@ -143,12 +143,12 @@ class Market_LineItemModel extends BaseModel
                 $this->saleAmount = -$this->price;
             }
 
-            $this->salePrice = $this->saleAmount + $this->price;
-
             // If the product is not promotable but has saleAmount, reset saleAmount to zero
             if (!$purchasable->product->promotable && $this->saleAmount){
                 $this->saleAmount = 0;
             }
+
+            $this->salePrice = $this->saleAmount + $this->price;
 
         } else {
             // Non core commerce purchasables cannot have sales applied (yet)
