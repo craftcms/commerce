@@ -246,7 +246,7 @@ class Market_CustomerService extends BaseApplicationComponent
     }
 
     /**
-     * @param $username
+     * @param string $username
      * @return bool
      * @throws Exception
      * @throws \Exception
@@ -255,15 +255,13 @@ class Market_CustomerService extends BaseApplicationComponent
     {
         MarketDbHelper::beginStackedTransaction();
 
-        $user = craft()->users->getUserByUsernameOrEmail($username);
-
-        if (!$user) {
-            MarketPlugin::log("Could not find " . $username . " to consolidate orders");
-            throw new Exception('User does not exists');
-        }
-
         try {
+
+            /** @var UserModel $user */
+            $user = craft()->users->getUserByUsernameOrEmail($username);
+
             $toCustomer = $this->getByUserId($user->id);
+
             if (!$toCustomer) {
                 $toCustomer = new Market_CustomerModel();
                 $toCustomer->email = $user->email;
@@ -271,26 +269,15 @@ class Market_CustomerService extends BaseApplicationComponent
                 $this->save($toCustomer);
             }
 
-            $customers = $this->getByEmail($user->email);
+            $orders = craft()->market_order->getByEmail($toCustomer->email);
 
-            foreach ($customers as $customer) {
-
-                $orders = craft()->market_order->getByCustomer($customer->id);
-
-                foreach ($orders as $order) {
-                    // Only consolidate completed orders, not carts
-                    if ($order->dateOrdered) {
-                        $order->customerId = $toCustomer->id;
-                        $order->email = $toCustomer->email;
-                        craft()->market_order->save($order);
-                    }
+            foreach ($orders as $order) {
+                // Only consolidate completed orders, not carts
+                if ($order->dateOrdered) {
+                    $order->customerId = $toCustomer->id;
+                    $order->email = $toCustomer->email;
+                    craft()->market_order->save($order);
                 }
-
-                // Delete the consolidated customer, but not our new one.
-                if ($toCustomer->userId != $customer->userId) {
-                    $this->delete($customer);
-                }
-
             }
 
             MarketDbHelper::commitStackedTransaction();
