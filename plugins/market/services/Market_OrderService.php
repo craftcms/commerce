@@ -149,6 +149,18 @@ class Market_OrderService extends BaseApplicationComponent
     }
 
     /**
+     * @param string $email
+     *
+     * @return Market_OrderModel[]
+     */
+    public function getByEmail($email)
+    {
+        $orders = Market_OrderRecord::model()->findAllByAttributes(['email'=>$email]);
+        return Market_OrderModel::populateModels($orders);
+    }
+
+
+    /**
      * @param Market_OrderModel $order
      *
      * @return bool
