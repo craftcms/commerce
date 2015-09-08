@@ -171,6 +171,10 @@ class Market_ProductModel extends BaseElementModel
             $variants = array_filter($variants, function ($v) {
                 return !$v->isMaster;
             });
+        }else{
+            $variants = array_filter($variants, function ($v) {
+                return $v->isMaster;
+            });
         }
 
         return $variants;
