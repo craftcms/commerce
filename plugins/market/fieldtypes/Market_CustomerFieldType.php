@@ -33,7 +33,7 @@ class Market_CustomerFieldType extends BaseFieldType
 
     public function prepValue($value)
     {
-        return $value
+        return $value;
     }
 
     private function getCustomer()
