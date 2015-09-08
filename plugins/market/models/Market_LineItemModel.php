@@ -80,7 +80,7 @@ class Market_LineItemModel extends BaseModel
     /**
      * @return bool
      */
-    public function getOnSale()
+    public function getUnderSale()
     {
         craft()->deprecator->log('Market_LineItemModel::underSale():removed', 'You should no longer use `underSale` on the lineItem. Use `onSale`.');
         return $this->getOnSale();
