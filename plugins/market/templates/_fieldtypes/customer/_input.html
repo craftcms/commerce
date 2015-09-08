@@ -1,0 +1,24 @@
+{% includeCssResource "market/market.css" %}
+{% set orders = craft.market.orders.customer(customer).find() %}
+<table class="data fullwidth collapsible">
+	<thead>
+	<tr>
+		<th scope="col">{{ 'Order Number'|t }}</th>
+		<th scope="col">{{ 'Order Date'|t }}</th>
+		<th scope="col">{{ 'Total Price'|t }}</th>
+		<th scope="col">{{ 'Total Price'|t }}</th>
+		<th scope="col">{{ 'Status'|t }}</th>
+	</tr>
+	</thead>
+	<tbody>
+	{% for order in orders %}
+		<tr>
+			<td>{{ order.link }}</td>
+			<td>{{ order.dateOrdered|date }}</td>
+			<td>{{ order.totalPaid|marketCurrency }}</td>
+			<td>{{ order.totalPaid|marketCurrency }}</td>
+			<td>{{ order.orderStatus.printName|raw }}</td>
+		</tr>
+	{% endfor %}
+	</tbody>
+	</table>
