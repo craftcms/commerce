@@ -2,6 +2,7 @@
 
 ## Breaking Changes
 
+- removed `lineItem.underSale`, use `lineItem.onSale`. (Duplicate Methods)
 - Renamed variant attribute `isMaster` to `isImplicit`.
 - `product.variants` now returns normal variants if the product type has variants, or an array containing just the implicit variant if the product type has no variants.
 - [Purchasable Interface](#) now requires a `getSnapShot()` method that returns an array.
