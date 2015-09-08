@@ -144,14 +144,14 @@ class Market_VariantElementType extends Market_BaseElementType
 			'sku'       => AttributeType::Mixed,
 			'product'   => AttributeType::Mixed,
 			'productId' => AttributeType::Mixed,
-			'isMaster' => AttributeType::Mixed,
+			'isImplicit' => AttributeType::Mixed,
 		];
 	}
 
 	public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
 	{
 		$query
-			->addSelect("variants.id,variants.productId,variants.isMaster,variants.sku,variants.price,variants.width,variants.height,variants.length,variants.weight,variants.stock,variants.unlimitedStock,variants.minQty,variants.maxQty")
+			->addSelect("variants.id,variants.productId,variants.isImplicit,variants.sku,variants.price,variants.width,variants.height,variants.length,variants.weight,variants.stock,variants.unlimitedStock,variants.minQty,variants.maxQty")
 			->join('market_variants variants', 'variants.id = elements.id');
 
 		if ($criteria->sku) {
@@ -171,8 +171,8 @@ class Market_VariantElementType extends Market_BaseElementType
 			$query->andWhere(DbHelper::parseParam('variants.productId', $criteria->productId, $query->params));
 		}
 
-		if ($criteria->isMaster) {
-			$query->andWhere(DbHelper::parseParam('variants.isMaster', $criteria->isMaster, $query->params));
+		if ($criteria->isImplicit) {
+			$query->andWhere(DbHelper::parseParam('variants.isImplicit', $criteria->isImplicit, $query->params));
 		}
 
 	}

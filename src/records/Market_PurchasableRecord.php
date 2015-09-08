@@ -9,7 +9,7 @@ namespace Craft;
  * @property string               sku
  * @property float                price
  *
- * @property Market_VariantRecord $master
+ * @property Market_VariantRecord $implicit
  * @package Craft
  */
 class Market_PurchasableRecord extends BaseRecord

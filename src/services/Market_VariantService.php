@@ -127,11 +127,11 @@ class Market_VariantService extends BaseApplicationComponent
             $record = new Market_VariantRecord();
         }
         /* @var Market_VariantModel $model */
-        $record->isMaster = $model->isMaster;
+        $record->isImplicit = $model->isImplicit;
         $record->productId = $model->productId;
 
         // We dont ask for a sku when dealing with a product with variants
-        if ($model->isMaster && $productType->hasVariants) {
+        if ($model->isImplicit && $productType->hasVariants) {
             $model->sku = 'implicitSkuOfProductId'.$model->productId;
             $record->sku = $model->sku;
         } else {
