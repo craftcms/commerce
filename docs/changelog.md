@@ -11,7 +11,7 @@
 - Purchasable table now tracks all Purchasable's id, price and sku. If you have a custom Purchasable you need to make a migration that adds your Purchasables to this table and use `craft()->market_purchasable->saveElement()` instead of `craft()->elements->saveElement()`. See the [Purchasable](http://buildwithmarket.com/docs/developers/purchasables) docs.
 - Ajax response on cart actions contains additional data. Adjustments are now grouped by their type.
 - Removed inflection twig filters. Please use a 3rd party inflection plugin. Only core filters are `|marketDecimal` and `|marketCurrency`.
-- **Products no longer charade themselves as purchasables**. You must now explicitly add the products implicid variant's id to the cart as the purchasabelId. Look at the example templates for more information.
+- **Products no longer charade themselves as purchasables**. You must now explicitly add the products implicit variant's id to the cart as the `purchasabelId`. Look at the example templates for more information.
 - Order Status change event now returns `orderHistory` and not `orderHistoryModel` see the [events reference](http://buildwithmarket.com/docs/developers/events-reference)
 
 ## Fixed Bugs and Issues
@@ -25,9 +25,10 @@
 - All CP controller actions are now Admin only, until we get more advanced permissions system built out.
 - Snapshots are now contain more information about the Purchasable on the lineItem.
 - salePrice now saved on the lineItem for core Purchasables.
-- Fixed issue where sku was not being saved on an implicid variant.
+- Fixed issue where SKU was not being saved on an implicit variant.
 - Fixed product `availableOn` and `expiresOn` query params.
 - Fixed issue where order was not updated in the ajax response after modifying lineItems.
+- `salePrice` is always equal to `price` even when sales do not apply.
 
 ## Improvements Made
 
