@@ -32,6 +32,7 @@
                     Sale Price Subtotal: {{ item.subtotalWithSale|marketCurrency }}<br/>
                 {% else %}
                     Price: {{ item.price|marketCurrency }}<br/>
+                    Sale Price {{ item.salePrice|marketCurrency }}<br/>
                     Sale Price Subtotal: {{ item.subtotalWithSale|marketCurrency }}<br/>
                 {% endif %}
 
