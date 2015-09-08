@@ -149,6 +149,10 @@ class Market_VariantModel extends BaseElementModel implements Purchasable
      */
     public function getDescription()
     {
+        if($this->isImplicit){
+            return $this->getProduct()->getTitle();
+        }
+
         return $this->getTitle();
     }
 
