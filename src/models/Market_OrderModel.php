@@ -80,6 +80,15 @@ class Market_OrderModel extends BaseElementModel
      * @inheritdoc
      * @return string
      */
+    public function getLink()
+    {
+        return TemplateHelper::getRaw("<a href='".$this->getCpEditUrl()."'>".substr($this->number,0,7)."</a>");
+    }
+
+    /**
+     * @inheritdoc
+     * @return string
+     */
     public function getCpEditUrl()
     {
         return UrlHelper::getCpUrl('market/orders/' . $this->id);
