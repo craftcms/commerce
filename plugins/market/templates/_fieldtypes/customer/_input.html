@@ -3,7 +3,7 @@
 <table class="data fullwidth collapsible">
 	<thead>
 	<tr>
-		<th scope="col">{{ 'Order Number'|t }}</th>
+		<th scope="col">{{ 'Order'|t }}</th>
 		<th scope="col">{{ 'Order Date'|t }}</th>
 		<th scope="col">{{ 'Total Price'|t }}</th>
 		<th scope="col">{{ 'Total Price'|t }}</th>
@@ -22,3 +22,21 @@
 	{% endfor %}
 	</tbody>
 	</table>
+<hr/>
+{% set addresses = customer.addresses %}
+<table class="data fullwidth collapsible">
+	<thead>
+	<tr>
+		<th scope="col">{{ 'Address'|t }}</th>
+		<th scope="col"></th>
+	</tr>
+	</thead>
+	<tbody>
+	{% for address in addresses %}
+		<tr>
+			<td><strong>{{ address.firstName }} {{ address.lastName }}</strong> {{ address.address1 }}... {{ address.stateText }}, {{ address.countryText }}</td>
+			<td><a href="{{ address.getCpEditUrl }}">Edit</a></td>
+		</tr>
+	{% endfor %}
+	</tbody>
+</table>
