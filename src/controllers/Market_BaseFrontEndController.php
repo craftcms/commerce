@@ -76,7 +76,6 @@ class Market_BaseFrontEndController extends Market_BaseController
             $lineItemData['purchasableId'] = $lineItem->purchasableId;
             $lineItemData['orderId'] = $lineItem->orderId;
             $lineItemData['taxCategoryId'] = $lineItem->taxCategoryId;
-			$lineItemData['underSale'] = $lineItem->underSale;
 			$lineItemData['onSale'] = $lineItem->getOnSale();
 			$lineItems[$lineItem->id] = $lineItemData;
 		}

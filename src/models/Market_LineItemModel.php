@@ -30,7 +30,7 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property int                     purchasableId
  * @property int                     taxCategoryId
  *
- * @property bool                    underSale
+ * @property bool                    onSale
  *
  * @property Purchasable             $purchasable
  * @property Market_OrderModel       order
@@ -39,14 +39,6 @@ use Market\Traits\Market_ModelRelationsTrait;
 class Market_LineItemModel extends BaseModel
 {
     use Market_ModelRelationsTrait;
-
-    /**
-     * @return bool
-     */
-    public function getUnderSale()
-    {
-        return $this->saleAmount != 0;
-    }
 
     public function getSubtotalWithSale()
     {
@@ -85,6 +77,14 @@ class Market_LineItemModel extends BaseModel
         return is_null($this->salePrice) ? false : ($this->salePrice != $this->price);
     }
 
+    /**
+     * @return bool
+     */
+    public function getOnSale()
+    {
+        craft()->deprecator->log('Market_LineItemModel::underSale():removed', 'You should no longer use `underSale` on the lineItem. Use `onSale`.');
+        return $this->getOnSale();
+    }
 
     /**
      * Returns the description from the snapshot of the purchasable
