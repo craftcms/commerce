@@ -115,7 +115,7 @@ class Market_VariantController extends Market_BaseController
             'unlimitedStock',
             'minQty',
             'maxQty',
-            'isMaster'
+            'isImplicit'
         ];
         foreach ($params as $param) {
             $variant->$param = craft()->request->getPost($param);

@@ -157,7 +157,7 @@ class Market_ProductModel extends BaseElementModel
     }
 
     /**
-     * Either only master variant if there is only one or all without master
+     * Either only implicit variant if there is only one or all without implicit
      * Applies sales to the product before returning
      *
      * @return Market_VariantModel[]
@@ -169,11 +169,11 @@ class Market_ProductModel extends BaseElementModel
 
         if ($this->type->hasVariants){
             $variants = array_filter($variants, function ($v) {
-                return !$v->isMaster;
+                return !$v->isImplicit;
             });
         }else{
             $variants = array_filter($variants, function ($v) {
-                return $v->isMaster;
+                return $v->isImplicit;
             });
         }
 
@@ -184,21 +184,26 @@ class Market_ProductModel extends BaseElementModel
      * @return bool|mixed
      * @throws Exception
      */
-    public function getMasterVariant()
+    public function getImplicitVariant()
     {
 
         if($this->id){
             $variants = craft()->market_variant->getAllByProductId($this->id);
             craft()->market_variant->applySales($variants, $this);
 
-            $masterVariant = array_filter($variants, function ($v) {
-                return $v->isMaster;
+            $implicitVariant = array_filter($variants, function ($v)
+            {
+                return $v->isImplicit;
             });
 
-            if (count($masterVariant) == 1){
-                return array_shift(array_values($masterVariant));
-            }else{
-                throw new Exception('More than one master variant found. Contact Support.');
+            if (count($implicitVariant) == 1)
+            {
+                return array_shift(array_values($implicitVariant));
+            }
+            else
+            {
+                throw new Exception('More than one implicit variant found. Contact Support.');
+
                 return false;
             }
         }

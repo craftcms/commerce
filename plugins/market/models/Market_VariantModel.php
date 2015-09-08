@@ -9,7 +9,7 @@ use Market\Interfaces\Purchasable;
  *
  * @property int                 id
  * @property int                 productId
- * @property bool                isMaster
+ * @property bool                isImplicit
  * @property string              sku
  * @property float               price
  * @property float               width
@@ -91,7 +91,7 @@ class Market_VariantModel extends BaseElementModel implements Purchasable
         return array_merge(parent::defineAttributes(), [
             'id'             => [AttributeType::Number],
             'productId'      => [AttributeType::Number],
-            'isMaster'       => [AttributeType::Bool],
+            'isImplicit'       => [AttributeType::Bool],
             'sku'            => [AttributeType::String, 'required' => true],
             'price'          => [
                 AttributeType::Number,
