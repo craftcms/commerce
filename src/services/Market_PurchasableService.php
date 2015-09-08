@@ -28,16 +28,16 @@ class Market_PurchasableService extends BaseApplicationComponent
 	 */
 	public function saveElement (BaseElementModel $model)
 	{
+		if (!$model instanceof Purchasable)
+		{
+			throw new Exception('Trying to save a purchasable element that is not a purchasable.');
+		}
+
 		MarketDbHelper::beginStackedTransaction();
 		try
 		{
 			if ($success = craft()->elements->saveElement($model))
 			{
-				if (!$model instanceof Purchasable)
-				{
-					throw new Exception('Trying to save a purchasable element that is not a purchasable.');
-				}
-
 				$id = $model->getPurchasableId();
 				$price = $model->getPrice();
 				$sku = $model->getSku();
