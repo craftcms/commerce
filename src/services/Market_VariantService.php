@@ -74,6 +74,12 @@ class Market_VariantService extends BaseApplicationComponent
      */
     public function applySales(array $variants, Market_ProductModel $product)
     {
+
+        // set salePrice to be price at default
+        foreach($variants as $variant){
+            $variant->salePrice = $variant->price;
+        }
+
         // Don't apply sales when product is not persisted.
         if ($product->id) {
             $sales = craft()->market_sale->getForProduct($product);
