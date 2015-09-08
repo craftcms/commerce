@@ -9,6 +9,7 @@
 - Ajax response on cart actions contains additional data. Adjustments are now grouped by their type.
 - Removed inflection twig filters. Please use a 3rd party inflection plugin. Only core filters are `|marketDecimal` and `|marketCurrency`.
 - **Products no longer charade themselves as purchasables**. You must now explicitly add the products implicid variant's id to the cart as the purchasabelId. Look at the example templates for more information.
+- Order Status change event now returns `orderHistory` and not `orderHistoryModel` see the [events reference](http://buildwithmarket.com/docs/developers/events-reference)
 
 ## Fixed Bugs and Issues
 
@@ -52,6 +53,7 @@
 
 ## Fixed Bugs and Issues
 
+- Various Bug Fixes.
 - SKU is marked as required in UI on variants
 - The `customer` param on order element query now works correctly. Thus enabling `{% set orders = craft.market.orders.customer(craft.market.customer).find() %}`
 - Fixed bug when editing price with commas. (For now price formatting is turned off until we get localization support for products)
@@ -61,7 +63,7 @@
 - Variant Index UI inside a product improved
 - Product Field given a clearer name.
 - Default credit card expiry year set to 2016 to ease testing
-- More Ajaxified enpoints for cart controller actions
+- More Ajaxified endpoints for cart controller actions
 - Set the default orderPdfTemplate to the example template.
 - Last used shipping and billing addresses now remembers and set as defaults for guest or logged in user.
 - All guest orders with a matching email address to a user are consolidated to single user when that user logs in. This means that someone could checkout as a guest 5 times with the same email address, then eventually register and all 5 guest orders with the same email address will moved to that user.
