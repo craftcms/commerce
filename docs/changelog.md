@@ -2,6 +2,8 @@
 
 ## Breaking Changes
 
+- Renamed variant attribute `isMaster` to `isImplicit`.
+- `product.variants` now returns normal variants if the product type has variants, or an array containing just the implicit variant if the product type has no variants.
 - [Purchasable Interface](#) now requires a `getSnapShot()` method that returns an array.
 - Variants are now deleted when the product is deleted. No more deletedAt date on variants.
 - Address management in templates is now all handled in the context of the order. See example templates.
