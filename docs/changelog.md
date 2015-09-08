@@ -2,16 +2,51 @@
 
 ## Breaking Changes
 
-- [Purchasable Interface](#) now requires a `getSnapShot()` method.
--
+- [Purchasable Interface](#) now requires a `getSnapShot()` method that returns an array.
+- Variants are now deleted when the product is deleted. No more deletedAt date on variants.
+- Address management in templates is now all handled in the context of the order. See example templates.
+- Purchasable table now tracks all Purchasable's id, price and sku. If you have a custom Purchasable you need to make a migration that adds your Purchasables to this table and use `craft()->market_purchasable->saveElement()` instead of `craft()->elements->saveElement()`. See the [Purchasable](http://buildwithmarket.com/docs/developers/purchasables) docs.
+- Ajax response on cart actions contains additional data. Adjustments are now grouped by their type.
+- Removed inflection twig filters. Please use a 3rd party inflection plugin. Only core filters are `|marketDecimal` and `|marketCurrency`.
+- **Products no longer charade themselves as purchasables**. You must now explicitly add the products implicid variant's id to the cart as the purchasabelId. Look at the example templates for more information.
 
 ## Fixed Bugs and Issues
 
+- Fixed decimals without commas, which are now used in price fields
+- Fixed issue where some variants were being orphaned
+- Remove any orphaned order, product, or variant elements in the elements table but not in the core commerce tables.
+- Fixed order example templates and CP order page to only reference the snapshot data or lineItem data. Avoid referencing the original purchasable (variant) after order is complete.
+- LineItem is removed from cart if Qty is updated to be zero.
+- Fixed bug for maxQty when adding to the cart.
+- All CP controller actions are now Admin only, until we get more advanced permissions system built out.
+- Snapshots are now contain more information about the Purchasable on the lineItem.
+- salePrice now saved on the lineItem for core Purchasables.
+- Fixed issue where sku was not being saved on an implicid variant.
+- Fixed product `availableOn` and `expiresOn` query params.
+- Fixed issue where order was not updated in the ajax response after modifying lineItems.
 
 ## Improvements Made
 
-- As much data about purchasable (variant) is now included in a `snapshot` attribute. Use it to access information about the purchasable. This is useful in the cases where variants were deleted after being ordered.
--
+- As much data about purchasable (variant) is now included in a `snapshot` attribute on the lineItem. Use it to access information about the purchasable. This is useful in the cases where variants are deleted after being ordered.
+- Improved Variant listing in product screen.
+- Better instructions on Variant edit screen.
+- Remove unused core settings currencySymbol,currencySuffix,currencyDecimalPlaces,currencyDecimalSeperator
+- Show the core dimensions settings on variant entry dimension fields.
+- **Mass Edit** Variants action. You can now bulk update core variant values like price and weight in a single action.
+- If no fromEmail and fromName are set in core commerce settings, use the Craft system email settings defaults.
+- **Promotable Flag** on product edit screen. Control whether a product should be subject to any discount or sales rules.
+- **Free Shipping Flag** on product edit screen. Control whether a product should have free shipping irregardless of shipping rules.
+- Better logging for customer consolidation processing.
+- Better Order ajax response.
+- `|marketDecimal` now has an optional param for showing commas. Use: `9000.00|marketDecimal` will now result in `9000.00` and `|marketDecimal(true)` will now result in  `9,000.00`
+- `|marketCurrency` now has optional param for not stripping zero cents. `9000.00|marketCurrency(true)` will now result in `9000.00`
+- Cleaned up base plugin folder using `/etc` dir.
+- **Variant Titles** have been added. Use the template string on the product type to build a title from the custom fields.
+- Title field on variants is now used for lineItem description.
+- `totalLineItems` and `totalAdjustments` values added to cart ajax responses.
+- **Adjusters** can now be supplied to the system. See the [Adjusters](http://buildwithmarket.com/docs/developers/adjusters) docs.
+- A note post param can be included in the addToCart form action.
+
 
 #  0.6.85
 
