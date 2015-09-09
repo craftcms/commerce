@@ -99,8 +99,15 @@ class Market_CountryController extends Market_BaseController
 
         $id = craft()->request->getRequiredPost('id');
 
-        craft()->market_country->deleteById($id);
-        $this->returnJson(['success' => true]);
+        try
+        {
+            craft()->market_country->deleteById($id);
+            $this->returnJson(['success' => true]);
+
+        } catch (\Exception $e) {
+            $this->returnErrorJson($e->getMessage());
+        }
+
     }
 
 }
