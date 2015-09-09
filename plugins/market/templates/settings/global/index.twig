@@ -23,15 +23,23 @@
             required: true,
         }) }}
 
-        {% for option in ['emailSenderAddress', 'emailSenderName'] %}
-            {{ forms.textField({
-                label: option|title|t,
-                id: option,
-                name: 'settings[' ~ option ~ ']',
-                value: settings[option],
-                errors: settings.getErrors(option),
-            }) }}
-        {% endfor %}
+        {{ forms.textField({
+            label: 'From Email Address'|t,
+            instructions: "The email address that order status emails are from, leave blank for system address."|t,
+            id: 'emailSenderAddress',
+            name: 'settings[emailSenderAddress]',
+            value: settings.emailSenderAddress,
+            errors: settings.getErrors('emailSenderAddress'),
+        }) }}
+
+        {{ forms.textField({
+            label: 'From Name'|t,
+            instructions: "The name that order status emails are from, leave blank for system from name."|t,
+            id: 'emailSenderName',
+            name: 'settings[emailSenderName]',
+            value: settings.emailSenderName,
+            errors: settings.getErrors('emailSenderName'),
+        }) }}
 
         {{ forms.selectField({
             label: "Weight Units"|t,
