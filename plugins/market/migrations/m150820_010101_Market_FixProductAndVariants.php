@@ -6,8 +6,8 @@ class m150820_010101_Market_FixProductAndVariants extends BaseMigration
     public function safeUp()
     {
 
-        $productIds = $craft->db->createCommand()->select('id')->from("market_products")->queryColumn();
-        $variantProductIds = $craft->db->createCommand()->select('productId')->from("market_variants")->queryColumn();
+        $productIds = craft()->db->createCommand()->select('id')->from("market_products")->queryColumn();
+        $variantProductIds = craft()->db->createCommand()->select('productId')->from("market_variants")->queryColumn();
 
         $variantProductIds = array_unique($variantProductIds);
 
