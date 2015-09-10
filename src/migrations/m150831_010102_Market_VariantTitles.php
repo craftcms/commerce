@@ -15,7 +15,7 @@ class m150831_010102_Market_VariantTitles extends BaseMigration
 		$productTypes = craft()->db->createCommand()->select('*')->from('market_producttypes')->where('hasVariants = 1')->queryAll();
 
 		foreach($productTypes as $productType){
-			craft()->db->createCommand()->update('market_producttypes',['titleFormat' => '{sku}'], 'id=:id', [':id' => $productType->id]);
+			craft()->db->createCommand()->update('market_producttypes',['titleFormat' => '{sku}'], 'id=:id', [':id' => $productType['id']]);
 		}
 
 		craft()->tasks->createTask('ResaveElements', Craft::t('Resaving all variants'), [
