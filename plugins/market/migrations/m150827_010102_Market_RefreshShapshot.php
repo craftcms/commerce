@@ -17,32 +17,39 @@ class m150827_010102_Market_RefreshShapshot extends BaseMigration
 		foreach ($lineItems as $lineItem)
 		{
 
-			$purchasable = craft()->market_variant->getById($lineItem['purchasableId']);
+			$purchasable = craft()->db->createCommand()->select('*')->from('market_variants')->where('id = '. $lineItem['purchasableId'])->queryRow();
+			if($purchasable){
 
-			$onSale = false;
-			if ($lineItem['saleAmount'] != 0)
-			{
-				$onSale = true;
+				$purchasable['isImplicit'] = $purchasable['isMaster'];
+
+				$purchasable = Market_VariantModel::populateModel($purchasable);
+
+				$onSale = false;
+				if ($lineItem['saleAmount'] != 0)
+				{
+					$onSale = true;
+				}
+
+				// ensure all snapshots from previous orders have the purchasable interface data in them.
+				$snapshot = [
+					'price'         => $purchasable->getPrice(),
+					'sku'           => $purchasable->getSku(),
+					'description'   => $purchasable->getDescription(),
+					'purchasableId' => $purchasable->getPurchasableId(),
+					'cpEditUrl'     => '#',
+					'onSale'        => $onSale
+				];
+
+				// Add our purchasable data to the snapshot
+				$snapshot = array_merge($purchasable->getSnapShot(), $snapshot);
+
+				$snapshot_json = json_encode($snapshot);
+
+				$salePrice = $lineItem['saleAmount'] + $lineItem['price'];
+
+				craft()->db->createCommand()->insertOrUpdate('market_lineitems', ['id' => $lineItem['id'], 'purchasableId' => $lineItem['purchasableId'], 'orderId' => $lineItem['orderId']], ['snapshot' => $snapshot_json, 'salePrice' => $salePrice]);
 			}
 
-			// ensure all snapshots from previous orders have the purchasable interface data in them.
-			$snapshot = [
-				'price'         => $purchasable->getPrice(),
-				'sku'           => $purchasable->getSku(),
-				'description'   => $purchasable->getDescription(),
-				'purchasableId' => $purchasable->getPurchasableId(),
-				'cpEditUrl'     => '#',
-				'onSale'        => $onSale
-			];
-
-			// Add our purchasable data to the snapshot
-			$snapshot = array_merge($purchasable->getSnapShot(), $snapshot);
-
-			$snapshot_json = json_encode($snapshot);
-
-			$salePrice = $lineItem['saleAmount'] + $lineItem['price'];
-
-			craft()->db->createCommand()->insertOrUpdate('market_lineitems', ['id' => $lineItem['id'], 'purchasableId' => $lineItem['purchasableId'], 'orderId' => $lineItem['orderId']], ['snapshot' => $snapshot_json, 'salePrice' => $salePrice]);
 		}
 
 		return true;
