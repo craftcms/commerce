@@ -19,7 +19,6 @@ class m150827_010102_Market_RefreshShapshot extends BaseMigration
 
 			$purchasable = craft()->db->createCommand()->select('*')->from('market_variants')->where('id = '. $lineItem['purchasableId'])->queryRow();
 			if($purchasable){
-	//			$purchasable = craft()->market_variant->getById($lineItem['purchasableId']);
 
 				$purchasable['isImplicit'] = $purchasable['isMaster'];
 
