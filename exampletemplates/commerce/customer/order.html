@@ -54,17 +54,16 @@
                 </thead>
                 <tbody>
                     {% for item in order.lineItems %}
-                        {% set purchasable = item.purchasable %}
                         <tr>
                             <td>
-                                <strong>{{ purchasable.description }}</strong><br/>
-                                SKU: {{ purchasable.sku }}
+                                <strong>{{ item.description }}</strong><br/>
+                                SKU: {{ item.sku }}
                             </td>
                             <td>
-                                {% if purchasable.onSale %}
-                                    <strike>{{ purchasable.price|marketCurrency }}</strike>   {{ purchasable.salePrice|marketCurrency }}
+                                {% if item.onSale %}
+                                    <strike>{{ item.price|marketCurrency }}</strike>   {{ item.salePrice|marketCurrency }}
                                 {% else %}
-                                   {{ purchasable.price|marketCurrency }}
+                                   {{ item.price|marketCurrency }}
                                 {% endif %}
                             </td>
                             <td>{{ item.qty }}</td>

@@ -11,6 +11,7 @@ namespace Craft;
  * @property bool              hasVariants
  * @property string            template
  * @property string            urlFormat
+ * @property string            titleFormat
  * @property int               fieldLayoutId
  * @property int               variantFieldLayoutId
  *
@@ -67,6 +68,7 @@ class Market_ProductTypeRecord extends BaseRecord
             'hasUrls'     => AttributeType::Bool,
             'hasVariants' => AttributeType::Bool,
             'urlFormat'   => AttributeType::UrlFormat,
+            'titleFormat' => [AttributeType::String, 'required' => true],
             'template'    => AttributeType::Template
         ];
     }

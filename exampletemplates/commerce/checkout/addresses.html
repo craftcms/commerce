@@ -29,7 +29,7 @@
                     {% for address in addresses %}
                         <label class="address-chooser" style=" display: block; float: left; margin: 10px; padding: 10px; border: 1px solid #bbbbbb">
                             {% for key,value in address.attributes %}
-                                {{ key|marketTitleize }}: <span class="address-option" data-key="{{ key }}" data-value="{{ value }}">
+                                {{ key|title }}: <span class="address-option" data-key="{{ key }}" data-value="{{ value }}">
                                 {{ key == 'countryId' ? address.countryText : (key == 'stateId' ? address.stateText : value) }}
                             </span><br/>
                             {% endfor %}
@@ -52,7 +52,7 @@
                     {% for address in addresses %}
                         <label class="address-chooser" style=" display: block; float: left; margin: 10px; padding: 10px; border: 1px solid #bbbbbb">
                             {% for key,value in address.attributes %}
-                                {{ key|marketTitleize }}: <span class="address-option" data-key="{{ key }}" data-value="{{ value }}">
+                                {{ key|title }}: <span class="address-option" data-key="{{ key }}" data-value="{{ value }}">
                                 {{ key == 'countryId' ? address.countryText : (key == 'stateId' ? address.stateText : value) }}
                             </span><br/>
                             {% endfor %}

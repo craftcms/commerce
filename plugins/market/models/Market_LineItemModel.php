@@ -13,6 +13,7 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property int                     id
  * @property float                   price
  * @property float                   saleAmount
+ * @property float                   salePrice
  * @property float                   tax
  * @property float                   shippingCost
  * @property float                   discount
@@ -29,7 +30,7 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property int                     purchasableId
  * @property int                     taxCategoryId
  *
- * @property bool                    underSale
+ * @property bool                    onSale
  *
  * @property Purchasable             $purchasable
  * @property Market_OrderModel       order
@@ -38,14 +39,6 @@ use Market\Traits\Market_ModelRelationsTrait;
 class Market_LineItemModel extends BaseModel
 {
     use Market_ModelRelationsTrait;
-
-    /**
-     * @return bool
-     */
-    public function getUnderSale()
-    {
-        return $this->saleAmount != 0;
-    }
 
     public function getSubtotalWithSale()
     {
@@ -59,36 +52,15 @@ class Market_LineItemModel extends BaseModel
 
     public function getPurchasable()
     {
-        if ($purchasable = craft()->elements->getElementById($this->purchasableId)) {
-            return $purchasable;
-        }
-
-        // If there is no purchasable it's probably been deleted. Give them them a snapshot instance.
-        if(isset($this->snapshot['className'])) {
-            $className = $this->snapshot['className'];
-            if (class_exists($className)){
-                $dummyPurchasable = $className::populateModel($this->snapshot);
-                if($dummyPurchasable){
-                    return $dummyPurchasable;
-                }
-            }
-        }
-
-        // Try to send them something about the item purchased.
-        if ($this->snapshot){
-            return $this->snapshot;
-        }
-
-        // If we can't even send them a snapshot instance, then we have bigger problems.
-        throw new Exception('Cannot find the purchasable on line item on order, deleted without a snapshot');
+        return craft()->elements->getElementById($this->purchasableId);
     }
 
     /**
-     * @return bool False when no related variant exists
+     * @return bool False when no related purchasable exists or order complete.
      */
     public function refreshFromPurchasable()
     {
-        if (!$this->purchasable || !$this->purchasable->id) {
+        if (!$this->getPurchasable() || $this->order->dateOrdered) {
             return false;
         }
 
@@ -98,28 +70,60 @@ class Market_LineItemModel extends BaseModel
     }
 
     /**
+     * @return bool
+     */
+    public function getOnSale()
+    {
+        return is_null($this->salePrice) ? false : ($this->salePrice != $this->price);
+    }
+
+    /**
+     * @return bool
+     */
+    public function getUnderSale()
+    {
+        craft()->deprecator->log('Market_LineItemModel::underSale():removed', 'You should no longer use `underSale` on the lineItem. Use `onSale`.');
+        return $this->getOnSale();
+    }
+
+    /**
+     * Returns the description from the snapshot of the purchasable
+     */
+    public function getDescription()
+    {
+       return $this->snapshot['description'];
+    }
+
+    /**
+     * Returns the description from the snapshot of the purchasable
+     */
+    public function getSku()
+    {
+        return $this->snapshot['sku'];
+    }
+
+    /**
      * @param Purchasable $purchasable
      */
     public function fillFromPurchasable(Purchasable $purchasable)
     {
         $this->price = $purchasable->getPrice();
 
+        // Since sales cannot apply to non core purchasables, set to price at default
+        $this->salePrice = $purchasable->getPrice();
+
         $snapshot = [
             'price' => $purchasable->getPrice(),
             'sku' => $purchasable->getSku(),
             'description' => $purchasable->getDescription(),
             'purchasableId' => $purchasable->getPurchasableId(),
-            'className' => $purchasable->getModelClass(),
             'cpEditUrl' => '#'
         ];
 
-        // Add our purchasable data to the snapshot
-        $snapshot = array_merge($purchasable->getSnapShot(), $snapshot);
+        // Add our purchasable data to the snapshot, save our sales.
+        $this->snapshot = array_merge($purchasable->getSnapShot(), $snapshot);
 
-        // Add all the purchasable attributes to the snapshot
-        $this->snapshot = array_merge($purchasable->getAttributes(), $snapshot);
-
-        if ($purchasable instanceof Market_VariantModel || $purchasable instanceof Market_ProductModel) {
+        if ($purchasable instanceof Market_VariantModel) {
 
             $this->weight = $purchasable->weight * 1; //converting nulls
             $this->height = $purchasable->height * 1; //converting nulls
@@ -135,35 +139,23 @@ class Market_LineItemModel extends BaseModel
             }
 
             // Don't let sale amount be more than the price.
-            if ($this->saleAmount > $this->price) {
-                $this->saleAmount = $this->price;
+            if (-$this->saleAmount > $this->price) {
+                $this->saleAmount = -$this->price;
             }
 
-            // If the product is not promotable, reset saleAmount to price
-            if (!$purchasable->product->promotable){
-                $this->saleAmount = $this->price;
+            // If the product is not promotable but has saleAmount, reset saleAmount to zero
+            if (!$purchasable->product->promotable && $this->saleAmount){
+                $this->saleAmount = 0;
             }
 
-            // Commerce Variant and Product only snapshot items
-            $snapshotMore = [
-              'onSale' => $purchasable->getOnSale(),
-              'cpEditUrl' => $purchasable->getCpEditUrl()
-            ];
+            $this->salePrice = $this->saleAmount + $this->price;
 
-            $this->snapshot = array_merge($this->snapshot, $snapshotMore);
         } else {
-            $this->saleAmount = $this->price;
+            // Non core commerce purchasables cannot have sales applied (yet)
+            $this->saleAmount = 0;
         }
 
-    }
 
-    public function toArray()
-    {
-        $data = [];
-        foreach ($this->defineAttributes() as $key => $val) {
-            $data[$key] = $this->getAttribute($key, true);
-        }
-        return $data;
     }
 
     protected function defineAttributes()
@@ -177,6 +169,12 @@ class Market_LineItemModel extends BaseModel
                 'required' => true
             ],
             'saleAmount' => [
+                AttributeType::Number,
+                'decimals' => 4,
+                'required' => true,
+                'default' => 0
+            ],
+            'salePrice' => [
                 AttributeType::Number,
                 'decimals' => 4,
                 'required' => true,

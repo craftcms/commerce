@@ -2,12 +2,14 @@
 namespace Craft;
 
 /**
- * @author    Make with Morph. <support@makewithmorph.com>
- * @copyright Copyright (c) 2015, Luke Holder.
- * @license   http://makewithmorph.com/market/license Market License Agreement
- * @see       http://makewithmorph.com
- * @package   craft.plugins.market.controllers
- * @since     0.1
+ * Class Market_AddressController
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://buildwithcraft.com/license Craft License Agreement
+ * @see       http://buildwithcraft.com/commerce
+ * @package   craft.plugins.commerce.controllers
+ * @since     1.0
  */
 class Market_AddressController extends Market_BaseController
 {
@@ -20,6 +22,8 @@ class Market_AddressController extends Market_BaseController
      */
     public function actionEdit(array $variables = [])
     {
+        $this->requireAdmin();
+
         if (empty($variables['address'])) {
             if (empty($variables['id'])) {
                 throw new HttpException(404);
@@ -47,6 +51,8 @@ class Market_AddressController extends Market_BaseController
      */
     public function actionSave()
     {
+        $this->requireAdmin();
+
         $this->requirePostRequest();
 
         $id      = craft()->request->getRequiredPost('id');
@@ -91,6 +97,8 @@ class Market_AddressController extends Market_BaseController
      */
     public function actionDelete()
     {
+        $this->requireAdmin();
+
         $this->requirePostRequest();
         $this->requireAjaxRequest();
 

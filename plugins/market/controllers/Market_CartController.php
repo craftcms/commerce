@@ -4,9 +4,14 @@ namespace Craft;
 /**
  * Class Market_CartController
  *
- * @package Craft
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://buildwithcraft.com/license Craft License Agreement
+ * @see       http://buildwithcraft.com/commerce
+ * @package   craft.plugins.commerce.controllers
+ * @since     1.0
  */
-class Market_CartController extends Market_BaseController
+class Market_CartController extends Market_BaseFrontEndController
 {
     protected $allowAnonymous = true;
 
@@ -21,15 +26,18 @@ class Market_CartController extends Market_BaseController
     {
         $this->requirePostRequest();
 
-        $purchasableId   = craft()->request->getPost('purchasableId');
-        $qty             = craft()->request->getPost('qty', 1);
         /** @var Market_OrderModel $cart */
         $cart            = craft()->market_cart->getCart();
         $cart->setContentFromPost('fields');
 
-        if (craft()->market_cart->addToCart($cart, $purchasableId, $qty, $error)) {
+        $purchasableId   = craft()->request->getPost('purchasableId');
+        $note            = craft()->request->getPost('note');
+        $qty             = craft()->request->getPost('qty', 1);
+        $error = '';
+
+        if (craft()->market_cart->addToCart($cart, $purchasableId, $qty, $note, $error)) {
             if(craft()->request->isAjaxRequest){
-                $this->returnJson(['success'=>true,'cart'=>$cart->toArray()]);
+                $this->returnJson(['success'=>true,'cart'=>$this->cartArray($cart)]);
             }
             craft()->userSession->setFlash('notice', Craft::t('Product has been added'));
             $this->redirectToPostedUrl();
@@ -51,23 +59,26 @@ class Market_CartController extends Market_BaseController
     {
         $this->requirePostRequest();
 
+        $cart = craft()->market_cart->getCart();
         $lineItemId = craft()->request->getPost('lineItemId');
         $qty        = craft()->request->getPost('qty', 0);
         $note        = craft()->request->getPost('note');
 
         $lineItem = craft()->market_lineItem->getById($lineItemId);
-        if (!$lineItem->id) {
-            throw new Exception(Craft::t('Line item not found'));
+
+        // Only let them update their own cart's line item.
+        if (!$lineItem->id || $cart->id != $lineItem->order->id){
+            throw new Exception(Craft::t('Line item not found for current cart'));
         }
 
         $lineItem->qty = $qty;
         $lineItem->note = $note;
         $lineItem->order->setContentFromPost('fields');
 
-        if (craft()->market_lineItem->update($lineItem, $error)) {
+        if (craft()->market_lineItem->update($cart, $lineItem, $error)) {
             craft()->userSession->setFlash('notice',Craft::t('Order item has been updated'));
             if(craft()->request->isAjaxRequest){
-                $this->returnJson(['success'=>true,'cart'=>$cart->toArray()]);
+                $this->returnJson(['success'=>true,'cart'=>$this->cartArray($cart)]);
             }
             $this->redirectToPostedUrl();
         } else {
@@ -97,7 +108,7 @@ class Market_CartController extends Market_BaseController
             $this->redirectToPostedUrl();
         } else {
             if(craft()->request->isAjaxRequest){
-                $this->returnJson(['success'=>true,'cart'=>$cart->toArray()]);
+                $this->returnJson(['success'=>true,'cart'=>$this->cartArray($cart)]);
             }
             craft()->userSession->setFlash('error', $error);
         }
@@ -105,7 +116,7 @@ class Market_CartController extends Market_BaseController
 
 
     /**
-     *
+     * Sets the email on the cart. Also updates the current users email.
      *
      */
     public function actionSetEmail()
@@ -127,7 +138,7 @@ class Market_CartController extends Market_BaseController
 
                 if (craft()->market_order->save($cart)){
                     if(craft()->request->isAjaxRequest){
-                        $this->returnJson(['success'=>true,'cart'=>$cart->toArray()]);
+                        $this->returnJson(['success'=>true,'cart'=>$this->cartArray($cart)]);
                     }
                     $this->redirectToPostedUrl();
                 }
@@ -156,7 +167,7 @@ class Market_CartController extends Market_BaseController
 
         if (craft()->market_cart->setPaymentMethod($cart, $id)) {
             if(craft()->request->isAjaxRequest){
-                $this->returnJson(['success'=>true,'cart'=>$cart->toArray()]);
+                $this->returnJson(['success'=>true,'cart'=>$this->cartArray($cart)]);
             }
             craft()->userSession->setFlash('notice', Craft::t('Payment method has been set'));
             $this->redirectToPostedUrl();
@@ -179,9 +190,16 @@ class Market_CartController extends Market_BaseController
         $lineItemId      = craft()->request->getPost('lineItemId');
         $cart            = craft()->market_cart->getCart();
 
+        $lineItem = craft()->market_lineItem->getById($lineItemId);
+
+        // Only let them update their own cart's line item.
+        if (!$lineItem->id || $cart->id != $lineItem->order->id){
+            throw new Exception(Craft::t('Line item not found for current cart'));
+        }
+
         craft()->market_cart->removeFromCart($cart, $lineItemId);
         if(craft()->request->isAjaxRequest){
-            $this->returnJson(['success'=>true,'cart'=>$cart->toArray()]);
+            $this->returnJson(['success'=>true,'cart'=>$this->cartArray($cart)]);
         }
         craft()->userSession->setFlash('notice', Craft::t('Product has been removed'));
         $this->redirectToPostedUrl();
@@ -198,7 +216,7 @@ class Market_CartController extends Market_BaseController
 
         craft()->market_cart->clearCart($cart);
         if(craft()->request->isAjaxRequest){
-            $this->returnJson(['success'=>true,'cart'=>$cart->toArray()]);
+            $this->returnJson(['success'=>true,'cart'=>$this->cartArray($cart)]);
         }
         craft()->userSession->setFlash('notice',Craft::t('All products have been removed'));
         $this->redirectToPostedUrl();

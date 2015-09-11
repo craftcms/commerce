@@ -149,6 +149,18 @@ class Market_OrderService extends BaseApplicationComponent
     }
 
     /**
+     * @param string $email
+     *
+     * @return Market_OrderModel[]
+     */
+    public function getByEmail($email)
+    {
+        $orders = Market_OrderRecord::model()->findAllByAttributes(['email'=>$email]);
+        return Market_OrderModel::populateModels($orders);
+    }
+
+
+    /**
      * @param Market_OrderModel $order
      *
      * @return bool
@@ -361,13 +373,13 @@ class Market_OrderService extends BaseApplicationComponent
                 $result2 = craft()->market_customer->saveAddress($billingAddress);
             }
 
+            $order->setShippingAddress($shippingAddress);
+            $order->setBillingAddress($billingAddress);
+
             if ($result1 && $result2) {
 
                 $order->shippingAddressId = $shippingAddress->id;
                 $order->billingAddressId  = $billingAddress->id;
-
-                $order->shippingAddressData = JsonHelper::encode($shippingAddress->attributes);
-                $order->billingAddressData = JsonHelper::encode($billingAddress->attributes);
 
                 $this->save($order);
                 MarketDbHelper::commitStackedTransaction();
@@ -413,11 +425,19 @@ class Market_OrderService extends BaseApplicationComponent
      */
     private function getAdjusters()
     {
-        return [
+        $adjusters = [
             new Market_ShippingAdjuster,
             new Market_DiscountAdjuster,
             new Market_TaxAdjuster,
         ];
+
+        $additional = craft()->plugins->call('registerCommerceOrderAdjusters');
+
+        foreach($additional as $additionalAdjusters){
+            $adjusters = array_merge($adjusters,$additionalAdjusters);
+        }
+
+        return $adjusters;
     }
 
     /**

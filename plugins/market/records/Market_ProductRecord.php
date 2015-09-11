@@ -14,7 +14,7 @@ namespace Craft;
  * @property bool                     promotable
  * @property bool                     freeShipping
  *
- * @property Market_VariantRecord     $master
+ * @property Market_VariantRecord     $implicit
  * @property Market_VariantRecord[]   variants
  * @property Market_TaxCategoryRecord taxCategory
  * @package Craft
@@ -53,11 +53,11 @@ class Market_ProductRecord extends BaseRecord
                 'UserRecord',
                 'onDelete' => static::CASCADE
             ],
-            'master'      => [
+            'implicit'      => [
                 static::HAS_ONE,
                 'Market_VariantRecord',
                 'productId',
-                'condition' => 'master.isMaster = 1'
+                'condition' => 'implicit.isImplicit = 1'
             ],
             'variants' => [
                 static::HAS_MANY,

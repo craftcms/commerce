@@ -2,18 +2,21 @@
 namespace Craft;
 
 /**
- * Cart. Step "Address".
- *
  * Class Market_CartAddressController
  *
- * @package Craft
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://buildwithcraft.com/license Craft License Agreement
+ * @see       http://buildwithcraft.com/commerce
+ * @package   craft.plugins.commerce.controllers
+ * @since     1.0
  */
-class Market_CartAddressController extends Market_BaseController
+class Market_CartAddressController extends Market_BaseFrontEndController
 {
     protected $allowAnonymous = true;
 
     /**
-     * Posting two new addresses in case when a user has no saved address
+     * Posting two new addresses in case when a user has no saved addresses
      *
      * @throws HttpException
      * @throws \Exception
@@ -39,7 +42,7 @@ class Market_CartAddressController extends Market_BaseController
             craft()->market_customer->setLastUsedAddresses($billing->id,$shipping->id);
 
             if(craft()->request->isAjaxRequest){
-                $this->returnJson(['success'=>true,'cart'=>$order->toArray()]);
+                $this->returnJson(['success'=>true,'cart'=>$this->cartArray($order)]);
             }
             $this->redirectToPostedUrl();
         } else {
@@ -66,7 +69,7 @@ class Market_CartAddressController extends Market_BaseController
 
         if (craft()->market_cart->setShippingMethod($cart, $id)) {
             if(craft()->request->isAjaxRequest){
-                $this->returnJson(['success'=>true,'cart'=>$cart->toArray()]);
+                $this->returnJson(['success'=>true,'cart'=>$this->cartArray($cart)]);
             }
             craft()->userSession->setFlash('notice',Craft::t('Shipping method has been set'));
             $this->redirectToPostedUrl();
@@ -119,7 +122,7 @@ class Market_CartAddressController extends Market_BaseController
             if (craft()->market_order->setAddresses($order, $shippingAddress, $billingAddress)) {
                 craft()->market_customer->setLastUsedAddresses($billingAddress->id,$shippingAddress->id);
                 if(craft()->request->isAjaxRequest){
-                    $this->returnJson(['success'=>true,'cart'=>$order->toArray()]);
+                    $this->returnJson(['success'=>true,'cart'=>$this->cartArray($order)]);
                 }
                 $this->redirectToPostedUrl();
             }

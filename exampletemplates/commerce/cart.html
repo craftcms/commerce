@@ -25,14 +25,17 @@
                 {{ forms.updateLineItemForm(item) }}
             </td>
             <td class="text-right">
-                {% if item.underSale %}
+                {% if item.onSale %}
                     <s>Price: {{ item.price|marketCurrency }}</s><br/>
-                    Sale Price: {{ item.subtotalWithSale|marketCurrency }}<br/>
+                    Sale Off: {{ item.saleAmount|marketCurrency }}<br/>
+                    Sale Price {{ item.salePrice|marketCurrency }}<br/>
+                    Sale Price Subtotal: {{ item.subtotalWithSale|marketCurrency }}<br/>
                 {% else %}
                     Price: {{ item.price|marketCurrency }}<br/>
-                    Sale Price: {{ item.subtotalWithSale|marketCurrency }}<br/>
+                    Sale Price {{ item.salePrice|marketCurrency }}<br/>
+                    Sale Price Subtotal: {{ item.subtotalWithSale|marketCurrency }}<br/>
                 {% endif %}
-                Sale Off: {{ item.saleAmount|marketCurrency }}<br/>
+
                 Discount: {{ item.discount|marketCurrency }}<br/>
                 Taxes: {{ item.tax|marketCurrency }}<br/>
                 Ship Total: {{ item.shippingCost|marketCurrency }}<br/>

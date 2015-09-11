@@ -51,16 +51,17 @@ class Market_LineItemService extends BaseApplicationComponent
      *
      * @TODO check that the line item belongs to the current user
      *
+     * @param Market_OrderModel    $order
      * @param Market_LineItemModel $lineItem
      * @param string               $error
      *
      * @return bool
      * @throws Exception
      */
-    public function update(Market_LineItemModel $lineItem, &$error = '')
+    public function update(Market_OrderModel $order, Market_LineItemModel $lineItem, &$error = '')
     {
         if ($this->save($lineItem)) {
-            craft()->market_order->save($lineItem->order);
+            craft()->market_order->save($order);
 
             return true;
         } else {
@@ -96,13 +97,9 @@ class Market_LineItemService extends BaseApplicationComponent
             }
         }
 
-        $lineItem->total = ((
-                    $lineItem->price +
-                    $lineItem->discount +
-                    $lineItem->shippingCost +
-                    $lineItem->saleAmount
-                ) * $lineItem->qty)
-            + $lineItem->tax;
+        $lineItem->total = (($lineItem->price + $lineItem->saleAmount)
+                            * $lineItem->qty)
+                            + $lineItem->tax + $lineItem->discount + $lineItem->shippingCost;
 
         $lineItemRecord->purchasableId = $lineItem->purchasableId;
         $lineItemRecord->orderId       = $lineItem->orderId;
@@ -116,6 +113,7 @@ class Market_LineItemService extends BaseApplicationComponent
         $lineItemRecord->note          = $lineItem->note;
 
         $lineItemRecord->saleAmount    = $lineItem->saleAmount;
+        $lineItemRecord->salePrice     = $lineItem->salePrice;
         $lineItemRecord->tax           = $lineItem->tax;
         $lineItemRecord->discount      = $lineItem->discount;
         $lineItemRecord->shippingCost  = $lineItem->shippingCost;
@@ -181,7 +179,7 @@ class Market_LineItemService extends BaseApplicationComponent
         /** @var \Market\Interfaces\Purchasable $purchasable */
         $purchasable = craft()->elements->getElementById($purchasableId);
 
-        if ($purchasable->id && $purchasable instanceof Purchasable) {
+        if ($purchasable && $purchasable instanceof Purchasable) {
             $lineItem->fillFromPurchasable($purchasable);
         } else {
             $lineItem->addError('purchasableId', Craft::t('Item not found or is not a purchasable.'));
