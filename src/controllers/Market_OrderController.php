@@ -2,14 +2,14 @@
 namespace Craft;
 
 /**
+ * Class Market_OrderController
  *
- *
- * @author    Make with Morph. <support@makewithmorph.com>
- * @copyright Copyright (c) 2015, Luke Holder.
- * @license   http://makewithmorph.com/market/license Market License Agreement
- * @see       http://makewithmorph.com
- * @package   craft.plugins.market.controllers
- * @since     0.1
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://buildwithcraft.com/license Craft License Agreement
+ * @see       http://buildwithcraft.com/commerce
+ * @package   craft.plugins.commerce.controllers
+ * @since     1.0
  */
 class Market_OrderController extends Market_BaseController
 {
@@ -20,6 +20,8 @@ class Market_OrderController extends Market_BaseController
      */
     public function actionOrderIndex()
     {
+        $this->requireAdmin();
+
         // Remove all incomplete carts older than a certain date in config.
         craft()->market_cart->purgeIncompleteCarts();
 
@@ -33,6 +35,7 @@ class Market_OrderController extends Market_BaseController
      */
     public function actionEditOrder(array $variables = [])
     {
+        $this->requireAdmin();
 
         $variables['orderSettings'] = craft()->market_orderSettings->getByHandle('order');
 
@@ -100,6 +103,8 @@ class Market_OrderController extends Market_BaseController
      */
     public function actionTransactionCapture()
     {
+        $this->requireAdmin();
+
         $id          = craft()->request->getParam('id');
         $transaction = craft()->market_transaction->getById($id);
 
@@ -125,6 +130,8 @@ class Market_OrderController extends Market_BaseController
      */
     public function actionTransactionRefund()
     {
+        $this->requireAdmin();
+
         $id          = craft()->request->getParam('id');
         $transaction = craft()->market_transaction->getById($id);
 
@@ -152,6 +159,8 @@ class Market_OrderController extends Market_BaseController
      */
     public function actionSaveOrder()
     {
+        $this->requireAdmin();
+
         $this->requirePostRequest();
 
         $order = $this->_setOrderFromPost();
@@ -213,6 +222,8 @@ class Market_OrderController extends Market_BaseController
      */
     public function actionDeleteOrder()
     {
+        $this->requireAdmin();
+
         $this->requirePostRequest();
 
         $orderId = craft()->request->getRequiredPost('orderId');

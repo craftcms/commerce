@@ -2,14 +2,14 @@
 namespace Craft;
 
 /**
+ * Class Market_OrderSettingsController
  *
- *
- * @author    Make with Morph. <support@makewithmorph.com>
- * @copyright Copyright (c) 2015, Luke Holder.
- * @license   http://makewithmorph.com/market/license Market License Agreement
- * @see       http://makewithmorph.com
- * @package   craft.plugins.market.controllers
- * @since     0.1
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://buildwithcraft.com/license Craft License Agreement
+ * @see       http://buildwithcraft.com/commerce
+ * @package   craft.plugins.commerce.controllers
+ * @since     1.0
  */
 class Market_OrderSettingsController extends Market_BaseController
 {
@@ -20,6 +20,8 @@ class Market_OrderSettingsController extends Market_BaseController
      */
     public function actionEdit(array $variables = [])
     {
+        $this->requireAdmin();
+
         $variables['orderSettings'] = craft()->market_orderSettings->getByHandle('order');
 
         $variables['title'] = Craft::t('Order Settings');
@@ -34,6 +36,8 @@ class Market_OrderSettingsController extends Market_BaseController
      */
     public function actionSave()
     {
+        $this->requireAdmin();
+
         $this->requirePostRequest();
 
         $orderSettings = new Market_OrderSettingsModel();

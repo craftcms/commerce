@@ -38,13 +38,4 @@ class Market_OrderAdjustmentModel extends BaseModel
             'orderId'     => [AttributeType::Number, 'required' => true],
         ];
     }
-
-    public function toArray()
-    {
-        $data = [];
-        foreach($this->defineAttributes() as $key => $val){
-            $data[$key] = $this->getAttribute($key, true);
-        }
-        return $data;
-    }
 }

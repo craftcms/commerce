@@ -2,12 +2,14 @@
 namespace Craft;
 
 /**
- * @author    Make with Morph. <support@makewithmorph.com>
- * @copyright Copyright (c) 2015, Luke Holder.
- * @license   http://makewithmorph.com/market/license Market License Agreement
- * @see       http://makewithmorph.com
- * @package   craft.plugins.market.controllers
- * @since     0.1
+ * Class Market_DiscountController
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://buildwithcraft.com/license Craft License Agreement
+ * @see       http://buildwithcraft.com/commerce
+ * @package   craft.plugins.commerce.controllers
+ * @since     1.0
  */
 class Market_DiscountController extends Market_BaseController
 {
@@ -16,6 +18,8 @@ class Market_DiscountController extends Market_BaseController
      */
     public function actionIndex()
     {
+        $this->requireAdmin();
+
         $discounts = craft()->market_discount->getAll(['order' => 'name']);
         $this->renderTemplate('market/promotions/discounts/index',
             compact('discounts'));
@@ -30,6 +34,8 @@ class Market_DiscountController extends Market_BaseController
      */
     public function actionEdit(array $variables = [])
     {
+        $this->requireAdmin();
+
         if (empty($variables['discount'])) {
             if (!empty($variables['id'])) {
                 $id                    = $variables['id'];
@@ -65,6 +71,8 @@ class Market_DiscountController extends Market_BaseController
      */
     public function actionSave()
     {
+        $this->requireAdmin();
+
         $this->requirePostRequest();
 
         $discount = new Market_DiscountModel();
@@ -115,6 +123,8 @@ class Market_DiscountController extends Market_BaseController
      */
     public function actionDelete()
     {
+        $this->requireAdmin();
+
         $this->requirePostRequest();
         $this->requireAjaxRequest();
 

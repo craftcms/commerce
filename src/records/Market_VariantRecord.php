@@ -7,7 +7,7 @@ namespace Craft;
  *
  * @property int                  id
  * @property int                  productId
- * @property bool                 isMaster
+ * @property bool                 isImplicit
  * @property string               sku
  * @property float                price
  * @property float                width
@@ -59,7 +59,7 @@ class Market_VariantRecord extends BaseRecord
     protected function defineAttributes()
     {
         return [
-            'isMaster'       => [
+            'isImplicit'       => [
                 AttributeType::Bool,
                 'default'  => 0,
                 'required' => true

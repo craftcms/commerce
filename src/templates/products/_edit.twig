@@ -17,7 +17,7 @@
         name:      attribute,
         options:   options,
         values:    values,
-        errors:    product.getErrors(attribuitlee),
+        errors:    product.getErrors(attribute),
     }) }}
     {% endset %}
 
@@ -96,13 +96,14 @@
                         maxlength: 255
                     }) }}
 
-                    {%  set masterVariantHtml %}
+                    {%  set implicitVariantHtml %}
                     {{ forms.text({
-                        name:   'masterVariant[isMaster]',
+                        name:   'implicitVariant[isImplicit]',
                         type:   'hidden',
                         value: '1'
                     }) }}
-                    <div id="masterVariantDetails">
+                    {% if implicitVariant.id %}<input type="hidden" name="implicitVariant[id]" value="{{ implicitVariant.id }}">{% endif %}
+                    <div id="implicitVariantDetails">
 
 
                     <div class="grid first" data-cols="4">
@@ -111,20 +112,20 @@
                     {{ forms.textField({
                         label: 'SKU'|t,
                         required: productType.hasVariants ? false : true,
-                        name: 'masterVariant[sku]',
-                        value: masterVariant.sku,
-                        errors: masterVariant.getErrors('sku')
+                        name: 'implicitVariant[sku]',
+                        value: implicitVariant.sku,
+                        errors: implicitVariant.getErrors('sku')
                     })}}
                     </div>
 
                     <div class="item" data-min-colspan="2" data-max-colspan="4">
                     {{ forms.textField({
                         label: 'Price'|t,
-                        name:   'masterVariant[price]',
+                        name:   'implicitVariant[price]',
                         required: productType.hasVariants ? false : true,
                         type:   'text',
-                        value: masterVariant.price|marketDecimal,
-                        errors: masterVariant.getErrors('price')
+                        value: implicitVariant.price|marketDecimal,
+                        errors: implicitVariant.getErrors('price')
                     })}}
                     </div>
                     </div>
@@ -133,20 +134,20 @@
                     <div class="item" data-min-colspan="2" data-max-colspan="4">
                     {{ forms.textField({
                         label: 'Min Qty'|t,
-                        name:  'masterVariant[minQty]',
+                        name:  'implicitVariant[minQty]',
                         type:  'text',
-                        value: masterVariant.minQty,
-                        errors: masterVariant.getErrors('minQty')
+                        value: implicitVariant.minQty,
+                        errors: implicitVariant.getErrors('minQty')
                     })}}
                     </div>
 
                     <div class="item" data-min-colspan="2" data-max-colspan="4">
                     {{ forms.textField({
                         label:  'Max Qty'|t,
-                        name:   'masterVariant[maxQty]',
+                        name:   'implicitVariant[maxQty]',
                         type:   'text',
-                        value: masterVariant.maxQty,
-                        errors: masterVariant.getErrors('maxQty')
+                        value: implicitVariant.maxQty,
+                        errors: implicitVariant.getErrors('maxQty')
                     })}}
                     </div>
                     </div>
@@ -155,40 +156,40 @@
                     <div class="item" data-min-colspan="1" data-max-colspan="1">
                     {{ forms.textField({
                         label:  'Width'|t~' ('~craft.market.settings.dimensionUnits~')',
-                        name:   'masterVariant[width]',
+                        name:   'implicitVariant[width]',
                         type:   'text',
-                        value: masterVariant.width|marketDecimal,
-                        errors: masterVariant.getErrors('width')
+                        value: implicitVariant.width|marketDecimal,
+                        errors: implicitVariant.getErrors('width')
                     })}}
                     </div>
 
                     <div class="item" data-min-colspan="1" data-max-colspan="1">
                     {{ forms.textField({
                         label: 'Height'|t~' ('~craft.market.settings.dimensionUnits~')',
-                        name:  'masterVariant[height]',
+                        name:  'implicitVariant[height]',
                         type:  'number',
-                        value: masterVariant.height|marketDecimal,
-                        errors: masterVariant.getErrors('height')
+                        value: implicitVariant.height|marketDecimal,
+                        errors: implicitVariant.getErrors('height')
                     })}}
                     </div>
 
                     <div class="item" data-min-colspan="1" data-max-colspan="1">
                     {{ forms.textField({
                         label:  'Length'|t~' ('~craft.market.settings.dimensionUnits~')',
-                        name:   'masterVariant[length]',
+                        name:   'implicitVariant[length]',
                         type:   'text',
-                        value: masterVariant.length|marketDecimal,
-                        errors: masterVariant.getErrors('length')
+                        value: implicitVariant.length|marketDecimal,
+                        errors: implicitVariant.getErrors('length')
                     })}}
                     </div>
 
                     <div class="item" data-min-colspan="1" data-max-colspan="1">
                     {{ forms.textField({
                         label: 'Weight'|t~' ('~craft.market.settings.weightUnits~')',
-                        name:   'masterVariant[weight]',
+                        name:   'implicitVariant[weight]',
                         type:   'text',
-                        value: masterVariant.weight|marketDecimal,
-                        errors: masterVariant.getErrors('weight')
+                        value: implicitVariant.weight|marketDecimal,
+                        errors: implicitVariant.getErrors('weight')
                     })}}
                     </div>
                     </div>
@@ -197,21 +198,21 @@
                         <div class="item" data-min-colspan="2" data-max-colspan="4">
                         {{ forms.checkboxField({
                             label: 'Unlimited Stock'|t,
-                            name:   'masterVariant[unlimitedStock]',
-                            checked: (masterVariant.id ? masterVariant.unlimitedStock : 1),
-                            errors: masterVariant.getErrors('unlimitedStock'),
+                            name:   'implicitVariant[unlimitedStock]',
+                            checked: (implicitVariant.id ? implicitVariant.unlimitedStock : 1),
+                            errors: implicitVariant.getErrors('unlimitedStock'),
                             reverseToggle: '.stockToggle'
                         }) }}
                         </div>
                         <div class="item" data-min-colspan="2" data-max-colspan="4">
-                            <div class="stockToggle {% if not masterVariant.id or masterVariant.unlimitedStock %}hidden{% endif %}">
+                            <div class="stockToggle {% if not implicitVariant.id or implicitVariant.unlimitedStock %}hidden{% endif %}">
                                 {{ forms.textField({
                                     label:  'Stock'|t,
-                                    name:   'masterVariant[stock]',
+                                    name:   'implicitVariant[stock]',
                                     type:   'text',
-                                    value: masterVariant.stock,
+                                    value: implicitVariant.stock,
                                     required: productType.hasVariants ? false : true,
-                                    errors: masterVariant.getErrors('stock')
+                                    errors: implicitVariant.getErrors('stock')
                                 })}}
                             </div>
                         </div>
@@ -244,8 +245,8 @@
 
                     {%  if productType.hasVariants %}
 
-                        <div id="masterVariant" class="{% if not masterVariant.hasErrors() %}hidden{% endif %}">
-                        {{ masterVariantHtml }}
+                        <div id="implicitVariant" class="{% if not implicitVariant.hasErrors() %}hidden{% endif %}">
+                        {{ implicitVariantHtml }}
                         </div>
 
                     {%  endif %}
@@ -275,6 +276,33 @@
                             </div>
 
                             {% set initJs %}
+                                Craft.SetVariantValuesInput = Craft.BaseInputGenerator.extend({
+                                    startListening: function()
+                                    {
+                                        if (this.listening)
+                                        {
+                                            return;
+                                        }
+
+                                        this.listening = true;
+
+                                        this.addListener(this.$source, 'textchange', 'onTextChange');
+                                        this.addListener(this.$form, 'submit', 'onFormSubmit');
+                                    },
+                                    updateTarget: function ()
+                                    {
+                                        var sourceVal = this.$source.val();
+                                        var targetVal = this.generateTargetValue(sourceVal);
+                                        this.$target.prop('checked', true);
+                                    },
+                                    onFormSubmit: function()
+                                    {
+                                        if (this.timeout)
+                                        {
+                                            clearTimeout(this.timeout);
+                                        }
+                                    }
+                                });
 
                                 Craft.MarketVariantIndex = Craft.BaseElementIndex.extend(
                                 {
@@ -342,118 +370,151 @@
                                     init: function(ids,settings){
                                         this.ids = ids;
 
-                                        var $form = $('<form class="modal" method="post" accept-charset="UTF-8">' +
+                                        var $form = $('<form class="modal variant-massEdit-modal" method="post" accept-charset="UTF-8">' +
                                                 Craft.getCsrfInput() +
                                                 '<input type="hidden" name="redirect" value=""/>' +
+                                                '<div class="body header-body"><p>'+Craft.t('Only values with checkboxes selected will be updated.')+'</p></div>' +
+                                                '<hr />' +
                                                 '</form>').appendTo(Garnish.$bod);
 
-                                        var $body = $('<div class="body">' +
-                                                '<p>'+Craft.t('Tick the boxes for the fields values you want to mass update on the selected variants.')+'</p>' +
-                                        '</div>').appendTo($form);
+                                        var $body = $('<div class="body fields-body"></div>').appendTo($form);
 
-                                        var $fields = $('<div class="fields">' +
-                                            '{%  spaceless %}{{ forms.checkboxField({
-                                                label: 'Set Price'|t,
-                                                id: 'setPrice',
-                                                name:   'setPrice',
-                                                checked: 0,
-                                                toggle: '#setPriceToggle'
-                                            }) }}{% endspaceless %}' +
-                                            '{% spaceless %}<div id="setPriceToggle" class="hidden">{{ forms.textField({
-                                                label: 'Price'|t,
-                                                id: 'price',
-                                                name: 'price',
-                                                value: '',
-                                            }) }}</div>{% endspaceless %}' +
-                                            '{%  spaceless %}{{ forms.checkboxField({
-                                                label: 'Set Min Qty'|t,
-                                                id: 'setMinQty',
-                                                name:   'setMinQty',
-                                                checked: 0,
-                                                toggle: '#setMinQtyToggle'
-                                            }) }}{% endspaceless %}' +
-                                            '{% spaceless %}<div id="setMinQtyToggle" class="hidden">{{ forms.textField({
-                                                label: 'Minimum Quantity'|t,
-                                                id: 'minQty',
-                                                name: 'minQty',
-                                                value: '',
-                                            }) }}</div>{% endspaceless %}' +
-                                            '{%  spaceless %}{{ forms.checkboxField({
-                                                label: 'Set Max Qty'|t,
-                                                id: 'setMaxQty',
-                                                name:   'setMaxQty',
-                                                checked: 0,
-                                                toggle: '#setMaxQtyToggle'
-                                            }) }}{% endspaceless %}' +
-                                            '{% spaceless %}<div id="setMaxQtyToggle" class="hidden">{{ forms.textField({
-                                                label: 'Maximum Quantity'|t,
-                                                id: 'maxQty',
-                                                name: 'maxQty',
-                                                value: '',
-                                            }) }}</div>{% endspaceless %}' +
-                                            '{%  spaceless %}{{ forms.checkboxField({
-                                                label: 'Set Width'|t,
-                                                id: 'setWidth',
-                                                name:   'setWidth',
-                                                checked: 0,
-                                                toggle: '#setWidthToggle'
-                                            }) }}{% endspaceless %}' +
-                                            '{% spaceless %}<div id="setWidthToggle" class="hidden">{{ forms.textField({
-                                                label: 'Width'|t~' ('~craft.market.settings.dimensionUnits~')',
-                                                id: 'width',
-                                                name: 'width',
-                                                value: '',
-                                            }) }}</div>{% endspaceless %}' +
-                                            '{%  spaceless %}{{ forms.checkboxField({
-                                                label: 'Set Height'|t,
-                                                id: 'setHeight',
-                                                name:   'setHeight',
-                                                checked: 0,
-                                                toggle: '#setHeightToggle'
-                                            }) }}{% endspaceless %}' +
-                                            '{% spaceless %}<div id="setHeightToggle" class="hidden">{{ forms.textField({
-                                                label: 'Height'|t~' ('~craft.market.settings.dimensionUnits~')',
-                                                id: 'height',
-                                                name: 'height',
-                                                value: '',
-                                            }) }}</div>{% endspaceless %}' +
-                                            '{%  spaceless %}{{ forms.checkboxField({
-                                                label: 'Set Length'|t,
-                                                id: 'setLength',
-                                                name:   'setLength',
-                                                checked: 0,
-                                                toggle: '#setLengthToggle'
-                                            }) }}{% endspaceless %}' +
-                                            '{% spaceless %}<div id="setLengthToggle" class="hidden">{{ forms.textField({
-                                                label: 'Length'|t~' ('~craft.market.settings.dimensionUnits~')',
-                                                id: 'length',
-                                                name: 'length',
-                                                value: '',
-                                            }) }}</div>{% endspaceless %}' +
-                                            '{%  spaceless %}{{ forms.checkboxField({
-                                                label: 'Set Wight'|t,
-                                                id: 'setWeight',
-                                                name:   'setWeight',
-                                                checked: 0,
-                                                toggle: '#setWeightToggle'
-                                            }) }}{% endspaceless %}' +
-                                            '{% spaceless %}<div id="setWeightToggle" class="hidden">{{ forms.textField({
-                                                label: 'Weight'|t~' ('~craft.market.settings.weightUnits~')',
-                                                id: 'weight',
-                                                name: 'weight',
-                                                value: '',
-                                            }) }}</div>{% endspaceless %}' +
-                                        '</div>').appendTo($body);
+                                        {%  set fieldHtml %}
+                                            <div class="fields">
+                                                <div class="checkbox-text-input">
+                                                    <label class="checkbox-text-label">{{ "Price"|t }} </label>
+                                                    {{ forms.text({
+                                                    id: 'price',
+                                                    name: 'price',
+                                                    value: '',
+                                                    }) }}
+                                                    <div class="checkbox-input">
+                                                    {{ forms.checkbox({
+                                                        id: 'setPrice',
+                                                        name:   'setPrice',
+                                                        checked: 0,
+                                                        value: 1
+                                                    }) }}
+                                                    </div>
+                                                </div>
+                                                <div class="checkbox-text-input">
+                                                    <label class="checkbox-text-label">{{ "Minimum Quantity"|t }} </label>
+                                                    {{ forms.text({
+                                                        id: 'minQty',
+                                                        name: 'minQty',
+                                                        value: '',
+                                                    }) }}
+                                                    <div class="checkbox-input">
+                                                        {{ forms.checkbox({
+                                                            id: 'setMinQty',
+                                                            name:   'setMinQty',
+                                                            checked: 0,
+                                                            value: 1
+                                                        }) }}
+                                                    </div>
+                                                </div>
 
-                                         new Craft.FieldToggle($form.find('#setPrice'));
-                                         new Craft.FieldToggle($form.find('#setMinQty'));
-                                         new Craft.FieldToggle($form.find('#setMaxQty'));
-                                         new Craft.FieldToggle($form.find('#setWidth'));
-                                         new Craft.FieldToggle($form.find('#setHeight'));
-                                         new Craft.FieldToggle($form.find('#setLength'));
-                                         new Craft.FieldToggle($form.find('#setWeight'));
+                                                <div class="checkbox-text-input">
+                                                    <label class="checkbox-text-label">{{ "Maximum Quantity"|t }} </label>
+                                                    {{ forms.text({
+                                                        id: 'maxQty',
+                                                        name: 'maxQty',
+                                                        value: '',
+                                                    }) }}
+                                                    <div class="checkbox-input">
+                                                        {{ forms.checkbox({
+                                                            id: 'setMaxQty',
+                                                            name:   'setMaxQty',
+                                                            checked: 0,
+                                                            value: 1
+                                                        }) }}
+                                                    </div>
+                                                </div>
 
-                                        var $buttons = $('<div class="buttons right"/>').appendTo($body);
+                                                <div class="checkbox-text-input">
+                                                    <label class="checkbox-text-label">{{ 'Width'|t~' ('~craft.market.settings.dimensionUnits~')' }} </label>
+                                                    {{ forms.text({
+                                                        id: 'width',
+                                                        name: 'width',
+                                                        value: '',
+                                                    }) }}
+                                                    <div class="checkbox-input">
+                                                        {{ forms.checkbox({
+                                                            id: 'setWidth',
+                                                            name:   'setWidth',
+                                                            checked: 0,
+                                                            value: 1
+                                                        }) }}
+                                                    </div>
+                                                </div>
+
+                                                <div class="checkbox-text-input">
+                                                    <label class="checkbox-text-label">{{ 'Height'|t~' ('~craft.market.settings.dimensionUnits~')' }} </label>
+                                                    {{ forms.text({
+                                                        id: 'height',
+                                                        name: 'height',
+                                                        value: '',
+                                                    }) }}
+                                                    <div class="checkbox-input">
+                                                        {{ forms.checkbox({
+                                                            id: 'setHeight',
+                                                            name:   'setHeight',
+                                                            checked: 0,
+                                                            value: 1
+                                                        }) }}
+                                                    </div>
+                                                </div>
+
+                                                <div class="checkbox-text-input">
+                                                    <label class="checkbox-text-label">{{ 'Length'|t~' ('~craft.market.settings.dimensionUnits~')' }} </label>
+                                                    {{ forms.text({
+                                                        id: 'length',
+                                                        name: 'length',
+                                                        value: '',
+                                                    }) }}
+                                                    <div class="checkbox-input">
+                                                        {{ forms.checkbox({
+                                                            id: 'setLength',
+                                                            name:   'setLength',
+                                                            checked: 0,
+                                                            value: 1
+                                                        }) }}
+                                                    </div>
+                                                </div>
+
+                                                <div class="checkbox-text-input">
+                                                    <label class="checkbox-text-label">{{ 'Weight'|t~' ('~craft.market.settings.weightUnits~')' }} </label>
+                                                    {{ forms.text({
+                                                        id: 'weight',
+                                                        name: 'weight',
+                                                        value: '',
+                                                    }) }}
+                                                    <div class="checkbox-input">
+                                                        {{ forms.checkbox({
+                                                            id: 'setWeight',
+                                                            name:   'setWeight',
+                                                            checked: 0,
+                                                            value: 1
+                                                        }) }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {%  endset %}
+
+
+                                        var $fields = $("{{ fieldHtml|e('js') }}").appendTo($body);
+
+                                        new Craft.SetVariantValuesInput($form.find('#price'), $form.find('#setPrice'));
+                                        new Craft.SetVariantValuesInput($form.find('#minQty'), $form.find('#setMinQty'));
+                                        new Craft.SetVariantValuesInput($form.find('#maxQty'), $form.find('#setMaxQty'));
+                                        new Craft.SetVariantValuesInput($form.find('#width'), $form.find('#setWidth'));
+                                        new Craft.SetVariantValuesInput($form.find('#height'), $form.find('#setHeight'));
+                                        new Craft.SetVariantValuesInput($form.find('#weight'), $form.find('#setWeight'));
+                                        new Craft.SetVariantValuesInput($form.find('#length'), $form.find('#setLength'));
+
+                                        var $footer = $('<div class="footer" style="position:absolute;bottom:0;width:100%"/>').appendTo($form);
+                                        var $buttons = $('<div class="buttons right"/>').appendTo($footer);
+>>>>>>> dev/market
 
                                         var $cancelBtn = $('<div class="btn">'+Craft.t('Cancel')+'</div>').appendTo($buttons);
                                         var $SubmitBtn = $('<input type="submit" class="btn submit" value="'+Craft.t('Set Values') +'" />').appendTo($buttons);
@@ -466,7 +527,6 @@
                                         this.base();
                                     },
                                     handleSubmit: function(ev){
-
                                         this.disable();
 
                                         // Let the onSubmit callback prevent the form from getting submitted
@@ -476,7 +536,6 @@
                                     }
                                 });
 
-
                                 Craft.elementIndex = Craft.createElementIndex('{{ elementTypeClass }}', $('#variantsIndex'), {
                                   context:        '{{ context }}',
                                   showStatusMenu: false,
@@ -484,6 +543,7 @@
                                   storageKey:     'elementindex.{{ elementTypeClass }}',
                                   criteria:       { productId: {{ productId }}, isMaster: false, localeEnabled: null },
                                   buttonContainer: $('#variantButtons')
+
                                 });
 
                             {% endset %}
@@ -516,7 +576,7 @@
 
 
                     {%  if not productType.hasVariants %}
-                        {{ masterVariantHtml }}
+                        {{ implicitVariantHtml }}
                     {%  endif %}
 
                     {{ forms.selectField({

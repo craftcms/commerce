@@ -60,26 +60,36 @@ class Market_ProductTypeService extends BaseApplicationComponent
     public function save(Market_ProductTypeModel $productType)
     {
         $urlFormatChanged = false;
+        $titleFormatChanged = false;
 
-        if ($productType->id) {
+        if ($productType->id)
+        {
             $productTypeRecord = Market_ProductTypeRecord::model()->findById($productType->id);
-            if (!$productTypeRecord) {
+            if (!$productTypeRecord)
+            {
                 throw new Exception(Craft::t('No product type exists with the ID “{id}”',
                     ['id' => $productType->id]));
             }
 
-            $oldProductType   = Market_ProductTypeModel::populateModel($productTypeRecord);
+            $oldProductType = Market_ProductTypeModel::populateModel($productTypeRecord);
             $isNewProductType = false;
-        } else {
+        }
+        else
+        {
             $productTypeRecord = new Market_ProductTypeRecord();
-            $isNewProductType  = true;
+            $isNewProductType = true;
         }
 
-        $productTypeRecord->name        = $productType->name;
-        $productTypeRecord->handle      = $productType->handle;
-        $productTypeRecord->hasUrls     = $productType->hasUrls;
+        $productTypeRecord->name = $productType->name;
+        $productTypeRecord->handle = $productType->handle;
+        $productTypeRecord->hasUrls = $productType->hasUrls;
         $productTypeRecord->hasVariants = $productType->hasVariants;
-        $productTypeRecord->template    = $productType->template;
+        $productTypeRecord->template = $productType->template;
+
+        if ($productTypeRecord->titleFormat != $productType->titleFormat) {
+            $titleFormatChanged = true;
+        }
+        $productTypeRecord->titleFormat = $productType->titleFormat;
 
         // Set flag if urlFormat changed so we can update all product elements.
         if ($productTypeRecord->urlFormat != $productType->urlFormat) {
@@ -122,6 +132,24 @@ class Market_ProductTypeService extends BaseApplicationComponent
                 if (!$productType->id) {
                     $productType->id = $productTypeRecord->id;
                 }
+
+                if($productType->hasVariants){
+                    //Refresh all urls for products of same type if urlFormat changed.
+                    if ($titleFormatChanged) {
+                        $criteria         = craft()->elements->getCriteria('Market_Product');
+                        $criteria->typeId = $productType->id;
+                        $products         = $criteria->find();
+                        /** @var Market_ProductModel $product */
+                        foreach ($products as $key => $product) {
+                            if ($product && $product->getContent()->id) {
+                                foreach($product->getVariants() as $variant){
+                                    craft()->market_variant->save($variant);
+                                }
+                            }
+                        }
+                    }
+                }
+
 
                 //Refresh all urls for products of same type if urlFormat changed.
                 if ($urlFormatChanged) {

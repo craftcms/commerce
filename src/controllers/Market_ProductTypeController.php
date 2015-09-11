@@ -2,14 +2,14 @@
 namespace Craft;
 
 /**
+ * Class Market_ProductTypeController
  *
- *
- * @author    Make with Morph. <support@makewithmorph.com>
- * @copyright Copyright (c) 2015, Luke Holder.
- * @license   http://makewithmorph.com/market/license Market License Agreement
- * @see       http://makewithmorph.com
- * @package   craft.plugins.market.controllers
- * @since     0.1
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://buildwithcraft.com/license Craft License Agreement
+ * @see       http://buildwithcraft.com/commerce
+ * @package   craft.plugins.commerce.controllers
+ * @since     1.0
  */
 class Market_ProductTypeController extends Market_BaseController
 {
@@ -17,6 +17,8 @@ class Market_ProductTypeController extends Market_BaseController
 
     public function actionIndex()
     {
+        $this->requireAdmin();
+
         $productTypes = craft()->market_productType->getAll();
         $this->renderTemplate('market/settings/producttypes/index',
             compact('productTypes'));
@@ -25,6 +27,8 @@ class Market_ProductTypeController extends Market_BaseController
 
     public function actionEditProductType(array $variables = [])
     {
+        $this->requireAdmin();
+
         $variables['brandNewProductType'] = false;
 
         if (empty($variables['productType'])) {
@@ -52,6 +56,8 @@ class Market_ProductTypeController extends Market_BaseController
 
     public function actionSaveProductType()
     {
+        $this->requireAdmin();
+
         $this->requirePostRequest();
 
         $productType = new Market_ProductTypeModel();
@@ -64,6 +70,7 @@ class Market_ProductTypeController extends Market_BaseController
         $productType->hasVariants = craft()->request->getPost('hasVariants');
         $productType->template    = craft()->request->getPost('template');
         $productType->urlFormat   = craft()->request->getPost('urlFormat');
+        $productType->titleFormat   = craft()->request->getPost('titleFormat');
 
         // Set the field layout
         $fieldLayout       = craft()->fields->assembleLayoutFromPost();
@@ -95,6 +102,7 @@ class Market_ProductTypeController extends Market_BaseController
 
     public function actionDeleteProductType()
     {
+        $this->requireAdmin();
         $this->requirePostRequest();
         $this->requireAjaxRequest();
 

@@ -2,14 +2,14 @@
 namespace Craft;
 
 /**
+ * Class Market_SettingsController
  *
- *
- * @author    Make with Morph. <support@makewithmorph.com>
- * @copyright Copyright (c) 2015, Luke Holder.
- * @license   http://makewithmorph.com/market/license Market License Agreement
- * @see       http://makewithmorph.com
- * @package   craft.plugins.market.controllers
- * @since     0.1
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://buildwithcraft.com/license Craft License Agreement
+ * @see       http://buildwithcraft.com/commerce
+ * @package   craft.plugins.commerce.controllers
+ * @since     1.0
  */
 class Market_SettingsController extends Market_BaseController
 {
@@ -19,6 +19,8 @@ class Market_SettingsController extends Market_BaseController
      */
     public function actionIndex()
     {
+        $this->requireAdmin();
+
         $settings = craft()->market_settings->getSettings();
         $this->renderTemplate('market/settings', ['settings' => $settings]);
     }
@@ -28,6 +30,8 @@ class Market_SettingsController extends Market_BaseController
      */
     public function actionEdit()
     {
+        $this->requireAdmin();
+
         $settings = craft()->market_settings->getSettings();
         $this->renderTemplate('market/settings/global',
             ['settings' => $settings]);
@@ -38,6 +42,8 @@ class Market_SettingsController extends Market_BaseController
      */
     public function actionSaveSettings()
     {
+        $this->requireAdmin();
+
         $this->requirePostRequest();
         $postData = craft()->request->getPost('settings');
         $settings = Market_SettingsModel::populateModel($postData);

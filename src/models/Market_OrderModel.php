@@ -58,6 +58,9 @@ class Market_OrderModel extends BaseElementModel
 {
     use Market_ModelRelationsTrait;
 
+    private $_shippingAddress;
+    private $_billingAddress;
+
     protected $elementType = 'Market_Order';
 
     public function isEditable()
@@ -71,6 +74,15 @@ class Market_OrderModel extends BaseElementModel
     public function __toString()
     {
         return substr($this->number,0,7);
+    }
+
+    /**
+     * @inheritdoc
+     * @return string
+     */
+    public function getLink()
+    {
+        return TemplateHelper::getRaw("<a href='".$this->getCpEditUrl()."'>".substr($this->number,0,7)."</a>");
     }
 
     /**
@@ -185,7 +197,17 @@ class Market_OrderModel extends BaseElementModel
         return $value;
     }
 
+    /**
+     * @return Market_LineItemModel[]
+     */
+    public function getLineItems()
+    {
+        return craft()->market_lineItem->getAllByOrderId($this->id);
+    }
 
+    /**
+     * @return Market_OrderAdjustmentModel[]
+     */
     public function getAdjustments()
     {
         return craft()->market_orderAdjustment->getAllByOrderId($this->id);
@@ -196,12 +218,26 @@ class Market_OrderModel extends BaseElementModel
      */
     public function getShippingAddress()
     {
-        // Get the live linked address if it is still a cart, else cached
-        if (!$this->dateOrdered) {
-            return craft()->market_address->getAddressById($this->shippingAddressId);
-        }else{
-            return Market_AddressModel::populateModel($this->shippingAddressData);
+        if(!isset($this->_shippingAddress)){
+            // Get the live linked address if it is still a cart, else cached
+            if (!$this->dateOrdered) {
+                $this->_shippingAddress = craft()->market_address->getAddressById($this->shippingAddressId);
+            }else{
+                $this->_shippingAddress = Market_AddressModel::populateModel($this->shippingAddressData);
+            }
+
         }
+
+        return $this->_shippingAddress;
+    }
+
+    /**
+     * @param Market_AddressModel $address
+     */
+    public function setShippingAddress(Market_AddressModel $address)
+    {
+        $this->shippingAddressData = JsonHelper::encode($address->attributes);
+        $this->_shippingAddress = $address;
     }
 
     /**
@@ -209,14 +245,33 @@ class Market_OrderModel extends BaseElementModel
      */
     public function getBillingAddress()
     {
-        // Get the live linked address if it is still a cart, else cached
-        if (!$this->dateOrdered) {
-            return craft()->market_address->getAddressById($this->billingAddressId);
-        }else{
-            return Market_AddressModel::populateModel($this->billingAddressData);
+        if(!isset($this->_billingAddress))
+        {
+            // Get the live linked address if it is still a cart, else cached
+            if (!$this->dateOrdered)
+            {
+                $this->_billingAddress = craft()->market_address->getAddressById($this->billingAddressId);
+            }
+            else
+            {
+                $this->_billingAddress = Market_AddressModel::populateModel($this->billingAddressData);
+            }
         }
 
+        return $this->_billingAddress;
     }
+
+
+    /**
+     *
+     * @param Market_AddressModel $address
+     */
+    public function setBillingAddress(Market_AddressModel $address)
+    {
+        $this->billingAddressData = JsonHelper::encode($address->attributes);
+        $this->_billingAddress = $address;
+    }
+
 
     /**
      * @deprecated
@@ -291,32 +346,5 @@ class Market_OrderModel extends BaseElementModel
             'shippingAddressData'   => AttributeType::Mixed,
             'billingAddressData'    => AttributeType::Mixed
         ]);
-    }
-
-    public function toArray()
-    {
-        $data = [];
-        foreach($this->defineAttributes() as $key => $val){
-            $data[$key] = $this->getAttribute($key, true);
-        }
-
-        $lineItems = [];
-        foreach($this->lineItems as $lineItem){
-            $lineItems[$lineItem->id] = $lineItem->toArray();
-        }
-        $data['lineItems'] = $lineItems;
-
-        $adjustments = [];
-        foreach($this->adjustments as $adjustments){
-            $lineItems[$adjustments->id] = $adjustments->toArray();
-        }
-        $data['adjustments'] = $adjustments;
-
-        // remove un-needed base element attributes
-        $remove = ['archived','cancelUrl','lft','level','rgt','slug','uri','root'];
-        foreach($remove as $r){
-            unset($data[$r]);
-        }
-        return $data;
     }
 }

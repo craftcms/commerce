@@ -9,7 +9,7 @@ use Market\Interfaces\Purchasable;
  *
  * @property int                 id
  * @property int                 productId
- * @property bool                isMaster
+ * @property bool                isImplicit
  * @property string              sku
  * @property float               price
  * @property float               width
@@ -41,7 +41,7 @@ class Market_VariantModel extends BaseElementModel implements Purchasable
 
     public function __toString()
     {
-        return $this->sku;
+        return $this->getContent()->title;
     }
 
     public function getCpEditUrl()
@@ -91,7 +91,7 @@ class Market_VariantModel extends BaseElementModel implements Purchasable
         return array_merge(parent::defineAttributes(), [
             'id'             => [AttributeType::Number],
             'productId'      => [AttributeType::Number],
-            'isMaster'       => [AttributeType::Bool],
+            'isImplicit'       => [AttributeType::Bool],
             'sku'            => [AttributeType::String, 'required' => true],
             'price'          => [
                 AttributeType::Number,
@@ -126,21 +126,13 @@ class Market_VariantModel extends BaseElementModel implements Purchasable
     public function getSnapshot()
     {
         $data = [
-            'title' => $this->getProduct()->getTitle()
+            'onSale' => $this->getOnSale(),
+            'cpEditUrl' => $this->getProduct()->getCpEditUrl()
         ];
 
+        $data['product'] = $this->getProduct()->getSnapshot();
         return array_merge($this->getAttributes(),$data);
     }
-
-    /**
-     * We need to be explicit to meet interface
-     * @return string
-     */
-    public function getModelClass()
-    {
-        return '\Craft\Market_VariantModel';
-    }
-
 
     /**
      * We need to be explicit to meet interface
@@ -157,7 +149,11 @@ class Market_VariantModel extends BaseElementModel implements Purchasable
      */
     public function getDescription()
     {
-        return (string) $this->getProduct()->getTitle();
+        if($this->isImplicit){
+            return $this->getProduct()->getTitle();
+        }
+
+        return $this->getTitle();
     }
 
     /**

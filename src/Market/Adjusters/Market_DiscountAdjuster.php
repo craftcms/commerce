@@ -3,7 +3,6 @@
 namespace Market\Adjusters;
 
 use Craft\Market_DiscountModel;
-use Craft\Market_DiscountRateModel;
 use Craft\Market_LineItemModel;
 use Craft\Market_OrderAdjustmentModel;
 use Craft\Market_OrderModel;

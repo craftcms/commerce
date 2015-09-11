@@ -22,21 +22,21 @@
 
             {% if product.type.hasVariants %}
                {% if product.variants|length %}
-               {{ forms.addToCartForm(product.variants) }}
+                  {{ forms.addToCartForm(product.variants) }}
                {% else %}
                <p>This is a product without any variants.</p>
                {% endif %}
             {% else %}
-               <strong>{{ product.description }}</strong><br/>
-               <strong>SKU</strong> {{ product.sku }}<br/>
+               <strong>{{ product.implicitVariant.description }}</strong><br/>
+               <strong>SKU</strong> {{ product.implicitVariant.sku }}<br/>
                <strong>Price</strong>
-               {% if product.onSale %}
-                  <strike>{{ product.price|marketCurrency }}</strike>   {{ product.salePrice|marketCurrency }}
+               {% if product.implicitVariant.onSale %}
+                  <strike>{{ product.implicitVariant.price|marketCurrency }}</strike>   {{ product.implicitVariant.salePrice|marketCurrency }}
                {% else %}
-                  {{ product.price|marketCurrency }}
+                  {{ product.implicitVariant.price|marketCurrency }}
                {% endif %}<br/>
-               <strong>Stock</strong> {{ product.unlimitedStock ? 'Unlimited'|t : product.stock }} <br/>
-               {{ forms.addToCartButton(product) }}
+               <strong>Stock</strong> {{ product.implicitVariant.unlimitedStock ? 'Unlimited'|t : product.implicitVariant.stock }} <br/>
+               {{ forms.addToCartButton(product.implicitVariant) }}
             {% endif %}
 
          </div>

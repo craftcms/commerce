@@ -2,13 +2,14 @@
 namespace Craft;
 
 /**
+ * Class Market_ProductController
  *
- * @author    Make with Morph. <support@makewithmorph.com>
- * @copyright Copyright (c) 2015, Luke Holder.
- * @license   http://makewithmorph.com/market/license Market License Agreement
- * @see       http://makewithmorph.com
- * @package   craft.plugins.market.controllers
- * @since     0.1
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://buildwithcraft.com/license Craft License Agreement
+ * @see       http://buildwithcraft.com/commerce
+ * @package   craft.plugins.commerce.controllers
+ * @since     1.0
  */
 use Market\Helpers\MarketDbHelper;
 
@@ -27,6 +28,8 @@ class Market_ProductController extends Market_BaseController
      */
     public function actionProductIndex()
     {
+        $this->requireAdmin();
+
         $variables['productTypes'] = craft()->market_productType->getAll();
         $variables['taxCategories'] = craft()->market_taxCategory->getAll();
         $this->renderTemplate('market/products/_index', $variables);
@@ -41,6 +44,8 @@ class Market_ProductController extends Market_BaseController
      */
     public function actionEditProduct(array $variables = [])
     {
+        $this->requireAdmin();
+
         if (!empty($variables['productTypeHandle'])) {
             $variables['productType'] = craft()->market_productType->getByHandle($variables['productTypeHandle']);
         }
@@ -89,8 +94,8 @@ class Market_ProductController extends Market_BaseController
     {
         $variables['tabs'] = [];
 
-        if (empty($variables['masterVariant'])) {
-            $variables['masterVariant'] = $variables['product']->masterVariant ?: new Market_VariantModel;
+        if (empty($variables['implicitVariant'])) {
+            $variables['implicitVariant'] = $variables['product']->implicitVariant ?: new Market_VariantModel;
         }
 
         foreach ($variables['productType']->getFieldLayout()->getTabs() as $index => $tab) {
@@ -120,6 +125,7 @@ class Market_ProductController extends Market_BaseController
      */
     public function actionDeleteProduct()
     {
+        $this->requireAdmin();
         $this->requirePostRequest();
 
         $productId = craft()->request->getRequiredPost('productId');
@@ -156,19 +162,20 @@ class Market_ProductController extends Market_BaseController
      */
     public function actionSaveProduct()
     {
+        $this->requireAdmin();
         $this->requirePostRequest();
 
         $product = $this->_setProductFromPost();
-        $masterVariant = $this->_setMasterVariantFromPost($product);
+        $implicitVariant = $this->_setImplicitVariantFromPost($product);
 
         $existingProduct = (bool)$product->id;
 
         MarketDbHelper::beginStackedTransaction();
 
         if (craft()->market_product->save($product)) {
-            $masterVariant->productId = $product->id;
+            $implicitVariant->productId = $product->id;
 
-            if (craft()->market_variant->save($masterVariant)) {
+            if (craft()->market_variant->save($implicitVariant)) {
 
                 MarketDbHelper::commitStackedTransaction();
 
@@ -194,7 +201,7 @@ class Market_ProductController extends Market_BaseController
         craft()->userSession->setNotice(Craft::t("Couldn't save product."));
         craft()->urlManager->setRouteVariables([
             'product' => $product,
-            'masterVariant' => $masterVariant
+            'implicitVariant' => $implicitVariant
         ]);
     }
 
@@ -247,13 +254,13 @@ class Market_ProductController extends Market_BaseController
      *
      * @return Market_VariantModel
      */
-    private function _setMasterVariantFromPost(Market_ProductModel $product)
+    private function _setImplicitVariantFromPost(Market_ProductModel $product)
     {
-        $attributes = craft()->request->getPost('masterVariant');
-        $masterVariant = $product->masterVariant ?: new Market_VariantModel;
-        $masterVariant->setAttributes($attributes);
-        $masterVariant->isMaster = true;
+        $attributes = craft()->request->getPost('implicitVariant');
+        $implicitVariant = $product->getImplicitVariant() ?: new Market_VariantModel;
+        $implicitVariant->setAttributes($attributes);
+        $implicitVariant->isImplicit = true;
 
-        return $masterVariant;
+        return $implicitVariant;
     }
 } 
