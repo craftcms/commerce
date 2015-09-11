@@ -514,7 +514,6 @@
 
                                         var $footer = $('<div class="footer" style="position:absolute;bottom:0;width:100%"/>').appendTo($form);
                                         var $buttons = $('<div class="buttons right"/>').appendTo($footer);
->>>>>>> dev/market
 
                                         var $cancelBtn = $('<div class="btn">'+Craft.t('Cancel')+'</div>').appendTo($buttons);
                                         var $SubmitBtn = $('<input type="submit" class="btn submit" value="'+Craft.t('Set Values') +'" />').appendTo($buttons);
@@ -541,9 +540,8 @@
                                   showStatusMenu: false,
                                   showLocaleMenu: false,
                                   storageKey:     'elementindex.{{ elementTypeClass }}',
-                                  criteria:       { productId: {{ productId }}, isMaster: false, localeEnabled: null },
+                                  criteria:       { productId: {{ productId }}, isImplicit: false, localeEnabled: null },
                                   buttonContainer: $('#variantButtons')
-
                                 });
 
                             {% endset %}
@@ -551,9 +549,6 @@
                             {% includeJs initJs %}
 
                         {%  endif  %}
-
-                        <a class="btn formsubmit" data-param="entryId" data-value="" data-redirect="market/products/{type.handle}/{id}/variants/new"
-                           data-value="1">{{ "Add a variant"|t }}</a>
 
 
 
