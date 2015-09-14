@@ -70,24 +70,30 @@ EOT;
     public function performAction(ElementCriteriaModel $criteria)
     {
         $variants = $criteria->find();
-
         $attributes = ['price','minQty','maxQty','width','height','length','weight'];
 
-        foreach($variants as $variant){
-            foreach($attributes as $attribute) {
-                $set = $this->getParams()->{'set'.ucfirst($attribute)};
-                if ($set) {
-                    $variant->$attribute = $this->getParams()->$attribute;
+        try
+        {
+            foreach ($variants as $variant)
+            {
+                foreach ($attributes as $attribute)
+                {
+                    $set = $this->getParams()->{'set'.ucfirst($attribute)};
+                    if ($set)
+                    {
+                        $variant->$attribute = $this->getParams()->$attribute;
+                    }
                 }
+                craft()->market_variant->save($variant);
             }
-            if(craft()->market_variant->save($variant)){
-                $this->setMessage(Craft::t('Variant values set'));
-                return true;
-            }else{
-                $this->setMessage(Craft::t('Validation error. No values Set.'));
-                return false;
-            }
+        }catch(Exception $e){
+            $this->setMessage(Craft::t('Error'));
+            return false;
         }
+
+        $this->setMessage(Craft::t('Variants updated.'));
+        return true;
+
     }
 
     // Protected Methods
