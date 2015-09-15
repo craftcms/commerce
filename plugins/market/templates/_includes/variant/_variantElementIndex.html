@@ -1,6 +1,6 @@
+{% if productId is defined %}
 <div id="variantsIndex" class="">
 
-	{% if productId is defined %}
 		{% set elementTypeClass = 'Market_Variant' %}
 		{% set elementType = craft.elements.getElementType(elementTypeClass) %}
 		{% set context = 'index' %}
@@ -12,7 +12,7 @@
 		{% set sources = elementType.getSources('index') %}
 
 		<div class="content">
-			<div class="sidebar hide">
+			<div class="sidebar">
 				<nav>
 					{% include "_elements/sources" %}
 				</nav>
@@ -21,7 +21,7 @@
 			{% include "_elements/indexcontainer" %}
 			<div id="variantButtons" class="secondary-buttons"></div>
 		</div>
-	{%  endif  %}
+
 
 </div>{# end variantIndex #}
 
@@ -154,13 +154,13 @@
 {% set initJs %}
 	Craft.registerElementIndexClass('Market_Variant', Craft.MarketVariantIndex);
 
-	Craft.variantElementIndex = Craft.createElementIndex('{{ elementTypeClass }}', $('#variantsIndex'), {
+	Craft.variantIndex = Craft.createElementIndex('{{ elementTypeClass }}', $('#variantsIndex'), {
 		context:        '{{ context }}',
-		showStatusMenu: false,
-		showLocaleMenu: false,
 		storageKey:     'elementindex.{{ elementTypeClass }}',
 		criteria:       { productId: {{ productId }}, isImplicit: false, localeEnabled: null },
-		buttonContainer: $('#variantButtons')
+		buttonContainer: $('#variantButtons'),
+		parentElementId: {{ product.id }},
+		parentElementTypeId: {{ productType.id }},
 	});
 
 	Craft.SetVariantValuesModal = Garnish.Modal.extend({
@@ -214,3 +214,6 @@
 
 {% endset %}
 {% includeJs initJs %}
+{%  else %}
+	<p>TODO: Remove this note when product's temporary id is generated on new product screen. Replace with Variant Index with new variant HUD enabled.</p>
+{%  endif  %}
