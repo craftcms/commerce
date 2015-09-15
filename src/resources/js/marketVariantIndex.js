@@ -4,14 +4,15 @@ Craft.MarketVariantIndex = Craft.BaseElementIndex.extend(
         $newVariantBtn: null,
         showingSidebar: false,
 
-        afterInit: function()
+        onAfterInit: function()
         {
+            console.log(this.settings.parentElementId);
             this.$newVariantBtnGroup = $('<div class="btngroup submit"/>');
-            this.$newVariantBtn = $('<a class="btn submit add icon" data-productId="{{ product.id }}" data-productTypeId="{{ productType.id }}">New Variant</a>').appendTo(this.$newVariantBtnGroup);
+            this.$newVariantBtn = $('<a class="btn submit add icon">New Variant</a>').appendTo(this.$newVariantBtnGroup);
 
             this.addListener(this.$newVariantBtn, 'click', function(ev)
             {
-                this._openCreateVariantModal(ev.currentTarget.getAttribute('data-productId'),ev.currentTarget.getAttribute('data-productTypeId'));
+                this._openCreateVariantModal(this.settings.parentElementId,this.settings.parentElementTypeId);
             });
 
             this.addButton(this.$newVariantBtnGroup);
