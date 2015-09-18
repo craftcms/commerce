@@ -30,7 +30,7 @@
             {{ forms.selectField({
                 first: loop.first,
                 label: paymentMethod.generateAttributeLabel(paramKey)|t,
-                name: 'settings['~paramKe`y~']',
+                name: 'settings['~paramKey~']',
                 options : paymentMethod.selects[paramKey],
                 value : (paymentMethod.settings[paramKey] is defined ? paymentMethod.settings[paramKey] : '')
             }) }}
@@ -45,21 +45,18 @@
 
     {% endfor %}
 
+    {% set noSettingsGateways = ['Manual','Dummy'] %}
+    {% if paymentMethod.class in noSettingsGateways %}
+        {% set isFirst = true %}
+    {% else %}
+        {% set isFirst = false %}
+    {% endif %}
     {{ forms.checkboxField({
-        first: true,
-        label: "Enabled in Control Panel"|t,
-        name: 'cpEnabled',
-        checked: paymentMethod.cpEnabled,
-    }) }}
-
-    {{ forms.checkboxField({
-        first: true,
-        label: "Enabled on Frontend"|t,
+        first: isFirst,
+        label: "Enabled for the front end"|t,
         name: 'frontendEnabled',
         checked: paymentMethod.frontendEnabled,
     }) }}
-
-    <hr/>
 
     <div class="buttons">
         <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
