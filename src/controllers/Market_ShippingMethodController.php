@@ -35,11 +35,12 @@ class Market_ShippingMethodController extends Market_BaseController
 	{
 		$this->requireAdmin();
 
+		$variables['newMethod'] = false;
+
 		if (empty($variables['shippingMethod'])) {
 			if (!empty($variables['id'])) {
 				$id                          = $variables['id'];
 				$variables['shippingMethod'] = craft()->market_shippingMethod->getById($id);
-				$variables['newMethod']      = false;
 
 				if (!$variables['shippingMethod']->id) {
 					throw new HttpException(404);
@@ -53,7 +54,8 @@ class Market_ShippingMethodController extends Market_BaseController
 		if (!empty($variables['id'])) {
 			$variables['title'] = $variables['shippingMethod']->name;
 		} else {
-			$variables['title'] = Craft::t('Create a Shipping Method');
+			$variables['title'] = Craft::t('Create a new shipping method');
+			$variables['newMethod']      = true;
 		}
 
 		$shippingRules = craft()->market_shippingRule->getAllByMethodId($variables['shippingMethod']->id);
@@ -69,9 +71,7 @@ class Market_ShippingMethodController extends Market_BaseController
 	public function actionSave()
 	{
 		$this->requireAdmin();
-
 		$this->requirePostRequest();
-
 		$shippingMethod = new Market_ShippingMethodModel();
 
 		// Shared attributes
@@ -79,7 +79,6 @@ class Market_ShippingMethodController extends Market_BaseController
 		$shippingMethod->name    = craft()->request->getPost('name');
 		$shippingMethod->enabled = craft()->request->getPost('enabled');
 		$shippingMethod->default = craft()->request->getPost('default');
-
 		// Save it
 		if (craft()->market_shippingMethod->save($shippingMethod)) {
 			craft()->userSession->setNotice(Craft::t('Shipping method saved.'));

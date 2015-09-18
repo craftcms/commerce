@@ -30,7 +30,7 @@
 
     {{ forms.textField({
         label: "ISO"|t,
-        instructions: "2-letter ISO code."|t,
+        instructions: "The two-letter ISO country code."|t,
         id: 'iso',
         name: 'iso',
         value: country.iso,
@@ -39,16 +39,13 @@
     }) }}
 
     {{ forms.checkboxField({
-        label: "State required?"|t,
-        instructions: "Does this country require a state to be selected?"|t,
+        label: "Require a state to be selected when this country is chosen?"|t,
         id: 'stateRequired',
         name: 'stateRequired',
         value: 1,
         checked: country.stateRequired,
         errors: country.getErrors('stateRequired')
     }) }}
-
-    <hr>
 
     <div class="buttons">
         <input type="submit" class="btn submit" value="{{ 'Save'|t }}">

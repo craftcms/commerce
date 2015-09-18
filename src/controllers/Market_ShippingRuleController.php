@@ -58,7 +58,7 @@ class Market_ShippingRuleController extends Market_BaseController
 		if (!empty($variables['ruleId'])) {
 			$variables['title'] = $variables['shippingRule']->name;
 		} else {
-			$variables['title'] = Craft::t('Create a Shipping Rule');
+			$variables['title'] = Craft::t('Create a new shipping rule');
 		}
 
 		$this->renderTemplate('market/settings/shippingrules/_edit', $variables);
