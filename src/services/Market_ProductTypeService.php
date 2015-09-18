@@ -193,7 +193,7 @@ class Market_ProductTypeService extends BaseApplicationComponent
         try {
             $productType = $this->getById($id);
 
-            $query      = craft()->db->createCommand()
+            $query = craft()->db->createCommand()
                 ->select('id')
                 ->from('market_products')
                 ->where(['typeId' => $productType->id]);
