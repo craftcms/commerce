@@ -36,15 +36,8 @@
         required: true,
     }) }}
 
-    {% set includeLabel %}
-    {% if taxRate.getErrors('include') %}
-    {{ "Include in Price"|t }} - <span class="error">{{ taxRate.getErrors('include')|join(', ') }}</span>
-    {% else %}
-        {{ "Include in Price"|t }}
-    {% endif %}
-    {% endset %}
     {{ forms.checkboxField({
-        label: includeLabel,
+        label: "Include in Price"|t,
         name: 'include',
         value: 1,
         checked: taxRate.include,
