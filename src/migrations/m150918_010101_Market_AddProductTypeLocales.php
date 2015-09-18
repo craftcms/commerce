@@ -1,7 +1,7 @@
 <?php
 namespace Craft;
 
-class m150903_010101_Market_AddProductTypeLocales extends BaseMigration
+class m150918_010101_Market_AddProductTypeLocales extends BaseMigration
 {
 	public function safeUp ()
 	{
@@ -21,12 +21,12 @@ class m150903_010101_Market_AddProductTypeLocales extends BaseMigration
 		craft()->db->createCommand()->addForeignKey('market_producttypes_i18n', 'locale', 'locales', 'locale', 'CASCADE', 'CASCADE');
 
 		$localeIds = craft()->i18n->getSiteLocales();
-		$productTypes = craft()->market_productType->getAll();
+		$productTypes = craft()->db->createCommand()->select('*')->from('market_producttypes')->queryAll();
 
 		foreach($localeIds as $locale){
 			foreach($productTypes as $productType){
 				$locale = (string) $locale;
-				craft()->db->createCommand()->insert('market_producttypes_i18n',['productTypeId'=>$productType->id,'locale'=>$locale,'urlFormat'=>$productType->urlFormat]);
+				craft()->db->createCommand()->insert('market_producttypes_i18n',['productTypeId'=>$productType['id'],'locale'=>$locale,'urlFormat'=>$productType['urlFormat']]);
 			}
 		}
 

@@ -2,6 +2,7 @@
 namespace Craft;
 
 use Market\Helpers\MarketDbHelper;
+use Mockery\CountValidator\Exception;
 
 /**
  * Class Market_ProductTypeService
@@ -370,19 +371,31 @@ class Market_ProductTypeService extends BaseApplicationComponent
         }
     }
 
-    // Need to have a separate controller action and service method
-    // since you cant have 2 field layout editors on one POST.
-    public function saveVariantFieldLayout ($productType)
+    public function addLocaleHandler(Event $event)
     {
-        $productTypeRecord = Market_ProductTypeRecord::model()->findById($productType->id);
+        /** @var Market_OrderModel $order */
+        $localeId = $event->params['localeId'];
 
-        $productTypeRecord->save(false);
+        // Add this locale to each of the category groups
+        $productTypeLocales = craft()->db->createCommand()
+            ->select('productTypeId, urlFormat')
+            ->from('market_producttypes_i18n')
+            ->where('locale = :locale', array(':locale' => craft()->i18n->getPrimarySiteLocaleId()))
+            ->queryAll();
+
+        if ($productTypeLocales)
+        {
+            $newProductTypeLocales = [];
+
+            foreach ($productTypeLocales as $categoryLocale)
+            {
+                $newProductTypeLocales[] = [$categoryLocale['productTypeId'], $localeId, $categoryLocale['urlFormat']];
+            }
+
+            craft()->db->createCommand()->insertAll('market_producttypes_i18n', ['productTypeId', 'locale', 'urlFormat'], $newProductTypeLocales);
+        }
 
         return true;
     }
 
-    public function handleDeleteSiteLocale ()
-    {
-        // TODO...
-    }
 }

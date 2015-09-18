@@ -27,7 +27,6 @@
     %}
 
     <div id="tab0">
-
     {{ forms.textField({
         first: true,
         label: "Name"|t,
@@ -59,7 +58,7 @@
             label: "Does this product type have variants?"|t,
             id: 'hasVariants',
             name: 'hasVariants',
-            on: productType.hasVariants,
+            checked: productType.hasVariants,
             toggle: '.variant-settings'
         }) }}
     {% endmacro %}
@@ -189,14 +188,9 @@
             </table>
         {% endset %}
 
-        {{ forms.textField({
+        {{ forms.field({
             label: "Product URL Format"|t,
             instructions: "What the product URLs should look like. You can include tags that output entry properties, such as such as {ex1} or {ex2}."|t({ ex1: '<code>{slug}</code>', ex2: '<code>{publishDate|date(\"Y\")}</code>' }),
-            id: 'urlFormat',
-            class: 'code',
-            name: 'urlFormat',
-            value: productType.urlFormat,
-            errors: productType.getErrors('urlFormat')
         }, urlFormatInput) }}
 
         {{ forms.textField({
