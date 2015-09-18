@@ -9,12 +9,10 @@ namespace Craft;
  *
  * @property string defaultCurrency
  * @property string paymentMethod
- * @property int cartExpiryTimeout
  * @property string weightUnits
  * @property string dimensionUnits
  * @property string emailSenderAddress
  * @property string emailSenderName
- * @property string purgeIncompleteCartDuration
  * @property string orderPdfPath
  *
  */
@@ -37,11 +35,6 @@ class Market_SettingsModel extends BaseModel
                 'required' => true,
                 'default'  => 'purchase'
             ],
-            'cartExpiryTimeout'        => [
-                AttributeType::Number,
-                'default'  => 10080,
-                'required' => true
-            ],
             'weightUnits'              => [
                 AttributeType::String,
                 'default' => 'g'
@@ -52,7 +45,6 @@ class Market_SettingsModel extends BaseModel
             ],
             'emailSenderAddress'       => [AttributeType::String],
             'emailSenderName'          => [AttributeType::String],
-            'purgeIncompleteCartDuration' => [AttributeType::String,'default'=>'P3M'],
             'orderPdfPath'             => [AttributeType::String]
         ];
     }
