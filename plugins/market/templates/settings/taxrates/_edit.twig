@@ -36,24 +36,27 @@
         required: true,
     }) }}
 
-    {{ forms.field({
-            errors: taxRate.getErrors('include')
-    }, forms.checkbox({
-        label: "Include in Price"|t,
+    {% set includeLabel %}
+    {% if taxRate.getErrors('include') %}
+    {{ "Include in Price"|t }} - <span class="error">{{ taxRate.getErrors('include')|join(', ') }}</span>
+    {% else %}
+        {{ "Include in Price"|t }}
+    {% endif %}
+    {% endset %}
+    {{ forms.checkboxField({
+        label: includeLabel,
         name: 'include',
         value: 1,
         checked: taxRate.include,
         errors: taxRate.getErrors('include'),
-    })) }}
+    }) }}
 
-    {{ forms.field({
-        errors: taxRate.getErrors('showInLabel'),
-    }, forms.checkbox({
+    {{ forms.checkboxField({
         label: "Show in Label"|t,
         name: 'showInLabel',
         value: 1,
-        checked: taxRate.showInLabel,
-    })) }}
+        checked: taxRate.showInLabel
+    }) }}
 
     {{ forms.selectField({
         label: "Tax Zone"|t,
@@ -79,8 +82,6 @@
         class: 'select-wide',
     }) }}
 
-    <hr>
-
     <div class="buttons">
         <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
     </div>
@@ -90,9 +91,9 @@
 
 {% set js %}
 $(function() {
-$('#taxZoneId, #taxCategoryId').selectize({
-dropdownParent: 'body'
-});
+    $('#taxZoneId, #taxCategoryId').selectize({
+        dropdownParent: 'body'
+    });
 });
 {% endset %}
 {% includeJs js %}
