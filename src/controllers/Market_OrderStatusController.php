@@ -48,7 +48,7 @@ class Market_OrderStatusController extends Market_BaseController
         if (!empty($variables['orderStatusId'])) {
             $variables['title'] = $variables['orderStatus']->name;
         } else {
-            $variables['title'] = Craft::t('Create an Order Status');
+            $variables['title'] = Craft::t('Create a new custom status');
         }
 
         $emails              = craft()->market_email->getAll(['order' => 'name']);
@@ -95,13 +95,14 @@ class Market_OrderStatusController extends Market_BaseController
     public function actionDelete()
     {
         $this->requireAdmin();
-        $this->requirePostRequest();
         $this->requireAjaxRequest();
 
         $orderStatusId = craft()->request->getRequiredPost('id');
 
-        craft()->market_orderStatus->deleteById($orderStatusId);
-        $this->returnJson(['success' => true]);
+        if(craft()->market_orderStatus->deleteById($orderStatusId)){
+            $this->returnJson(['success' => true]);
+        };
+
     }
 
 } 

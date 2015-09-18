@@ -20,6 +20,7 @@
     {% for paramKey, paramValue in paymentMethod.gateway.parameters %}
         {% if paramKey in paymentMethod.booleans %}
             {{ forms.checkboxField({
+                first: loop.first,
                 label: paymentMethod.generateAttributeLabel(paramKey)|t,
                 name: 'settings['~paramKey~']',
                 value: 1,
@@ -27,13 +28,15 @@
             }) }}
         {% elseif paymentMethod.selects[paramKey] is defined %}
             {{ forms.selectField({
+                first: loop.first,
                 label: paymentMethod.generateAttributeLabel(paramKey)|t,
-                name: 'settings['~paramKey~']',
+                name: 'settings['~paramKe`y~']',
                 options : paymentMethod.selects[paramKey],
                 value : (paymentMethod.settings[paramKey] is defined ? paymentMethod.settings[paramKey] : '')
             }) }}
         {% else %}
             {{ forms.textField({
+                first: loop.first,
                 label: paymentMethod.generateAttributeLabel(paramKey)|t,
                 name: 'settings['~paramKey~']',
                 value : (paymentMethod.settings[paramKey] is defined ? paymentMethod.settings[paramKey] : '')

@@ -66,19 +66,27 @@ class Market_InstallSeeder implements Market_SeederInterface
 			$fieldLayout->type = 'Market_Order';
 			$orderSettings->setFieldLayout($fieldLayout);
 
+			\Craft\craft()->market_orderSettings->save($orderSettings);
+
 			$data  = [
-				'name'        => 'New',
-				'handle'      => 'new',
+				'name'        => 'Processing',
+				'handle'      => 'processing',
 				'color'       => 'green',
 				'default'     => true
 			];
+			$defaultStatus = Market_OrderStatusModel::populateModel($data);
+			\Craft\craft()->market_orderStatus->save($defaultStatus,[]);
 
-			$state = Market_OrderStatusModel::populateModel($data);
+			$data  = [
+				'name'        => 'Shipped',
+				'handle'      => 'shipped',
+				'color'       => 'blue',
+				'default'     => false
+			];
 
-			\Craft\craft()->market_orderSettings->save($orderSettings);
+			$status = Market_OrderStatusModel::populateModel($data);
 
-			\Craft\craft()->market_orderStatus->save($state,[]);
-
+			\Craft\craft()->market_orderStatus->save($status,[]);
 
 	}
 
