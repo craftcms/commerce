@@ -166,7 +166,7 @@ class Market_OrderStatusService extends BaseApplicationComponent
         //sending emails
         $renderVariables = [
             'order'  => $order,
-            'update' => $event->params['orderHistoryModel'],
+            'update' => $event->params['orderHistory'],
         ];
 
         //substitute templates path

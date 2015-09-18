@@ -63,6 +63,22 @@ class Market_SaleController extends Market_BaseController
         $types              = craft()->market_productType->getAll();
         $variables['types'] = \CHtml::listData($types, 'id', 'name');
 
+
+
+        $variables['products'] = null;
+        $products = $productIds = [];
+        if (empty($variables['id']))
+        {
+            $productIds = explode('|', craft()->request->getParam('productIds'));
+        }else{
+            $productIds = $variables['sale']->getProductsIds();
+        }
+        foreach ($productIds as $productId)
+        {
+            $products[] = craft()->market_product->getById($productId);
+        }
+        $variables['products'] = $products;
+
         $this->renderTemplate('market/promotions/sales/_edit', $variables);
     }
 
