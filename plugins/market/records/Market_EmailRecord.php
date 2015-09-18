@@ -11,7 +11,6 @@ namespace Craft;
  * @property string to
  * @property string bcc
  * @property bool   enabled
- * @property string type
  * @property string templatePath
  *
  * @package Craft
@@ -33,11 +32,6 @@ class Market_EmailRecord extends BaseRecord
             'subject'      => [AttributeType::String, 'required' => true],
             'to'           => [AttributeType::String, 'required' => true],
             'bcc'          => AttributeType::String,
-            'type'         => [
-                AttributeType::Enum,
-                'required' => true,
-                'values'   => [self::TYPE_PLAIN, self::TYPE_HTML]
-            ],
             'enabled'      => [AttributeType::Bool, 'required' => true],
             'templatePath' => [AttributeType::String, 'required' => true],
         ];

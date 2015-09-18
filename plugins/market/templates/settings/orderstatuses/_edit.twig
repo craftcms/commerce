@@ -1,9 +1,7 @@
 {% extends "market/_layouts/settingscp" %}
 
 {% set crumbs = [
-{ label: 'Market'|t, url: url('market') },
-{ label: 'Settings'|t, url: url('market/settings/global') },
-{ label: 'Statuses'|t, url: url('market/settings/orderstatuses') },
+{ label: 'Market Settings'|t, url: url('market/settings/orderstatuses') }
 ] %}
 
 
@@ -20,7 +18,8 @@
 
     {{ forms.textField({
         label: "Name"|t,
-        instructions: "Human-readable name of the status."|t,
+        first: true,
+        instructions: "What this status will be called in the CP."|t,
         id: 'name',
         name: 'name',
         value: orderStatus.name,
@@ -30,7 +29,7 @@
 
     {{ forms.textField({
         label: "Handle"|t,
-        instructions: "How you'll refer to this order status in code or templates."|t,
+        instructions: "How you’ll refer to this status in the templates."|t,
         id: 'handle',
         class: 'code',
         name: 'handle',
@@ -49,7 +48,7 @@
     <div>
         <a id="colorMenuBtn" class="btn menubtn" href="#"><span class="market status {{ orderStatus.color }}"></span>{{ orderStatus.color|t|title }}</a>
         <div class="menu">
-            <ul class="">
+            <ul class="padded">
                 {% for color in ['green','orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'] %}
                 <li><a data-val="{{ color }}" {% if orderStatus.color == color %}class="sel"{% endif %} href="#"><span class="market status {{ color }}"></span>{{ color|t|title }}</a></li>
                 {% endfor %}
@@ -64,7 +63,7 @@
 
 
     {{ forms.multiselectField({
-        label: 'Emails'|t,
+        label: 'Status Emails'|t,
         instructions: 'The emails that will be sent when transitioning to this status'|t,
         id: 'emails',
         name: 'emails',
@@ -74,15 +73,12 @@
     }) }}
 
     {{ forms.checkboxField({
-        label: "Default"|t,
-        instructions: "The status that orders should be set to on completion."|t,
+        label: "New orders get this status by default"|t,
         name: 'default',
         value: 1,
         checked: orderStatus.default,
         errors: orderStatus.getErrors('default')
     }) }}
-
-    <hr>
 
     <div class="buttons">
         <input type="submit" class="btn submit" value="{{ 'Save'|t }}">

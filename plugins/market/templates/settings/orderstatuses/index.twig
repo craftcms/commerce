@@ -3,29 +3,27 @@
 {% set selectedTab = 'settings' %}
 
 {% set content %}
-
+        <h2>{{ "Custom Order Statuses"|t }}</h2>
+        <p>{{ "Define the statuses that can be set on orders once they've been completed."|t }}</p>
         <table id="orderStatuses" class="data fullwidth collapsible">
             <thead>
             <tr>
-                <th scope="col">Name</th>
-                <th scope="col">Handle</th>
-                <th scope="col">Color</th>
-                <th scope="col">Emails</th>
-                <th scope="col">Is Default?</th>
+                <th scope="col">{{ "Status"|t }}</th>
+                <th scope="col">{{ "Handle"|t }}</th>
+                <th scope="col">{{ "Has Emails?"|t }}</th>
+                <th scope="col">{{ "Default Status?"|t }}</th>
                 <td class="thin"></td>
             </tr>
             </thead>
             <tbody>
             {% for orderStatus in orderStatuses %}
                 <tr data-id="{{ orderStatus.id }}" data-name="{{ orderStatus.handle }}">
-                    <th scope="row" data-title="Name"><a href="{{ orderStatus.getCpEditUrl() }}">{{ orderStatus.name }}</a></th>
-                    <td data-title="Handle">{{ orderStatus.handle }}</td>
-
-                    <td data-title="Color"><span class="market status {{ orderStatus.color }}"></span></td>
+                    <th scope="row" data-title="Name"><a href="{{ orderStatus.getCpEditUrl() }}">{{ orderStatus.printName|raw }}</a></th>
+                    <td data-title="Handle"><code>{{ orderStatus.handle }}</code></td>
                     <td data-title="Emails">
-                        {% for email in orderStatus.emails %}
-                            {{ email.name }}{% if not loop.last %}, {% endif %}
-                        {% endfor %}
+                        {% if orderStatus.emails | length %}
+                            {{ orderStatus.emails | length }}
+                        {% endif %}
                     </td>
                     <td>{{ orderStatus.default ? 'Yes' : 'No' }}</td>
                     <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
@@ -48,6 +46,7 @@
     new Craft.AdminTable({
         tableSelector: '#orderStatuses',
         deleteAction: 'market/orderStatus/delete',
+        minObjects: 1,
         confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
     });
 {% endset %}

@@ -22,14 +22,10 @@
                 </th>
                 <td data-title="Class">{{ paymentMethod.class }}</td>
                 <td data-title="Status">
-                    {% if paymentMethod.cpEnabled and paymentMethod.frontendEnabled %}
-                        {{ 'Enabled in CP and Frontend'|t }}
-                    {% elseif paymentMethod.cpEnabled %}
-                        {{ 'Enabled in CP'|t }}
-                    {% elseif paymentMethod.frontendEnabled %}
-                        {{ 'Enabled in Frontend'|t }}
+                    {% if paymentMethod.frontendEnabled %}
+                        <div class="status enabled"></div>
                     {% else %}
-                        {{ 'Disabled'|t }}
+                        <div class="status"></div>
                     {% endif %}
                 </td>
             </tr>
