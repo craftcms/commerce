@@ -19,10 +19,7 @@ class Market_SettingsController extends Market_BaseController
      */
     public function actionIndex()
     {
-        $this->requireAdmin();
-
-        $settings = craft()->market_settings->getSettings();
-        $this->renderTemplate('market/settings', ['settings' => $settings]);
+       craft()->request->redirect('settings/global');
     }
 
     /**
@@ -33,6 +30,11 @@ class Market_SettingsController extends Market_BaseController
         $this->requireAdmin();
 
         $settings = craft()->market_settings->getSettings();
+
+        $craftSettings = craft()->email->getSettings();
+        $settings->emailSenderAddressPlaceholder = (isset($craftSettings['emailAddress']) ? $craftSettings['emailAddress'] : '');
+        $settings->emailSenderNamePlaceholder = (isset($craftSettings['senderName']) ? $craftSettings['senderName'] : '');
+
         $this->renderTemplate('market/settings/global',
             ['settings' => $settings]);
     }

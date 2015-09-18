@@ -13,36 +13,41 @@
         <input type="hidden" name="redirect" value="market/settings"/>
         {{ getCsrfInput() }}
 
-        {{ forms.textField({
+
+        {{ forms.selectField({
             label: "Currency"|t,
-            instructions: "System Currency for all orders and carts."|t,
+            instructions: "The currency that the store uses."|t,
             id: 'defaultCurrency',
             name: 'settings[defaultCurrency]',
             value: settings.defaultCurrency,
+            options: settings.getCurrencies(),
             errors: settings.getErrors('defaultCurrency'),
             required: true,
         }) }}
 
         {{ forms.textField({
-            label: 'From Email Address'|t,
-            instructions: "The email address that order status emails are from, leave blank for system address."|t,
+            label: 'Status Email Address'|t,
+            instructions: "The email address that order status emails are sent from. Leave blank to use the System Email Address defined in Craft’s General Settings."|t,
             id: 'emailSenderAddress',
             name: 'settings[emailSenderAddress]',
+            placeholder: settings.emailSenderAddressPlaceholder,
             value: settings.emailSenderAddress,
             errors: settings.getErrors('emailSenderAddress'),
         }) }}
 
         {{ forms.textField({
             label: 'From Name'|t,
-            instructions: "The name that order status emails are from, leave blank for system from name."|t,
+            instructions: 'The "From" name that will be used when sending order status emails. Leave blank to use the Sender Name defined in Craft’s General Settings.'|t,
             id: 'emailSenderName',
             name: 'settings[emailSenderName]',
+            placeholder: settings.emailSenderNamePlaceholder,
             value: settings.emailSenderName,
             errors: settings.getErrors('emailSenderName'),
         }) }}
 
         {{ forms.selectField({
-            label: "Weight Units"|t,
+            label: "Weight Unit"|t,
+            instructions: "The unit of measurement that should be used when specifying product weights."|t,
             name: 'settings[weightUnits]',
             value: settings.weightUnits,
             options: settings.getWeightUnitsOptions(),
@@ -51,7 +56,8 @@
         }) }}
 
         {{ forms.selectField({
-            label: "Dimension Units"|t,
+            label: "Dimension Unit"|t,
+            instructions: "The unit of measurement that should be used when specifying product dimensions."|t,
             name: 'settings[dimensionUnits]',
             value: settings.dimensionUnits,
             options: settings.getDimensionUnits(),
@@ -102,7 +108,7 @@
 
 
         <!-- TODO: Make dropdown and popular with a currency helper -->
-        <input type="submit" class="btn" value="Save"/>
+        <input type="submit" class="btn submit" value="Save"/>
     </form>
 
 {% endset %}
