@@ -69,7 +69,7 @@ class Market_TaxCategoryService extends BaseApplicationComponent
         }
 
         $record->name        = $model->name;
-        $record->code        = $model->code;
+        $record->handle      = $model->handle;
         $record->description = $model->description;
         $record->default     = $model->default;
 
