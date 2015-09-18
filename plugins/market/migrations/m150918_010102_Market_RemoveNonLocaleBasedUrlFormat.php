@@ -1,7 +1,7 @@
 <?php
 namespace Craft;
 
-class m150904_010101_Market_RemoveNonLocaleBasedUrlFormat extends BaseMigration
+class m150918_010102_Market_RemoveNonLocaleBasedUrlFormat extends BaseMigration
 {
 	public function safeUp ()
 	{

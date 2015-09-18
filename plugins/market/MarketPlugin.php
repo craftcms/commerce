@@ -30,45 +30,13 @@ class MarketPlugin extends BasePlugin
     private function initEventHandlers()
     {
         //init global event handlers
-        craft()->on('market_orderHistory.onStatusChange',
-            [
-                craft()->market_orderStatus,
-                'statusChangeHandler'
-            ]
-        );
-
-        craft()->on('market_order.onOrderComplete',
-            [
-                craft()->market_discount,
-                'orderCompleteHandler'
-            ]
-        );
-
-	    craft()->on('market_order.onOrderComplete',
-		    [
-			    craft()->market_variant,
-			    'orderCompleteHandler'
-		    ]
-	    );
-
-//        craft()->on('localization.onDeleteLocale',
-//            [
-//                craft()->market_variant,
-//                'orderCompleteHandler'
-//            ]
-//        );
-
-	    if(!craft()->isConsole())
-	    {
-		    craft()->on('userSession.onLogin',
-			    [
-				    craft()->market_customer,
-				    'loginHandler'
-			    ]
-		    );
+        craft()->on('market_orderHistory.onStatusChange', [ craft()->market_orderStatus, 'statusChangeHandler' ]);
+        craft()->on('market_order.onOrderComplete', [ craft()->market_discount, 'orderCompleteHandler' ]);
+	    craft()->on('market_order.onOrderComplete', [ craft()->market_variant, 'orderCompleteHandler' ]);
+        craft()->on('i18n.onAddLocale',[ craft()->market_productType, 'addLocaleHandler' ]);
+	    if(!craft()->isConsole()){
+		    craft()->on('userSession.onLogin', [craft()->market_customer, 'loginHandler']);
 	    }
-
-
     }
 
     /**
@@ -127,7 +95,7 @@ class MarketPlugin extends BasePlugin
      */
     public function getVersion()
     {
-        return '0.8.04';
+        return '0.8.05';
     }
 
     /**
