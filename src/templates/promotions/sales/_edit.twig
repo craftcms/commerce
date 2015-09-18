@@ -1,5 +1,7 @@
 {% extends "market/_layouts/cp" %}
 
+{% set selectedSubNavItem = "promotions" %}
+
 {% set crumbs = [
     { label: "Promotions"|t, url: url('market/promotions') },
     { label: "Sales"|t, url: url('market/promotions/sales') },
@@ -98,27 +100,16 @@
         errors: sale.getErrors('productTypes'),
     }) }}
 
-    {% set productsField %}
-        <a href="#" class="products-modal btn">Choose products <span class="products-counter">
-            {{ sale.getProductsIds() ? '(' ~ sale.getProductsIds()|length ~ ')' : '' }}
-        </span></a>
-
-        <div class="chosen-products">
-            {% for id in sale.getProductsIds() %}
-                <input type="hidden" name="products[]" value="{{ id }}">
-            {% endfor %}
-        </div>
-
-    {% endset %}
-
-    {{ forms.field({
-        id:       'products',
-        label:    'Products',
+    {{ forms.elementSelect({
+        id: 'products',
+        label: 'Products',
+        name: 'products',
+        elements: products,
+        elementType: craft.elements.getElementType('Market_Product'),
+        limit: null,
         instructions: "Products for which this sale will be applicable to. Leave blank for all products"|t,
         errors: sale.getErrors('products'),
-    }, productsField) }}
-
-
+    }) }}
 
     </div>
 
@@ -160,28 +151,6 @@ $(function() {
     $('#groups, #productTypes').selectize({
         plugins: ['remove_button'],
         dropdownParent: 'body'
-    });
-
-    var modal,
-        $chosen = $('.chosen-products'),
-        $counter = $('.products-counter');
-
-    $('.products-modal').click(function(e) {
-        if(modal) {
-            modal.show();
-        } else {
-            window.modal = modal = Craft.createElementSelectorModal('Market_Product', {
-                multiSelect: true,
-                onSelect: function(products) {
-                    $chosen.find('input').remove();
-                    for(i in products) {
-                        var id = products[i].id;
-                        $('<input/>').attr('type', 'hidden').attr('name', 'products[]').val(id).appendTo($chosen);
-                        $counter.text('(' + products.length + ')');
-                    }
-                }
-            });
-        }
     });
 });
 {% endset %}

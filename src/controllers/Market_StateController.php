@@ -52,7 +52,7 @@ class Market_StateController extends Market_BaseController
         if (!empty($variables['id'])) {
             $variables['title'] = $variables['state']->name;
         } else {
-            $variables['title'] = Craft::t('Create a State');
+            $variables['title'] = Craft::t('Create a new state');
         }
 
         $countriesModels = craft()->market_country->getAll();

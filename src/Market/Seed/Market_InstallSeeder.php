@@ -67,19 +67,27 @@ class Market_InstallSeeder implements Market_SeederInterface
 			$fieldLayout->type = 'Market_Order';
 			$orderSettings->setFieldLayout($fieldLayout);
 
+			\Craft\craft()->market_orderSettings->save($orderSettings);
+
 			$data  = [
-				'name'        => 'New',
-				'handle'      => 'new',
+				'name'        => 'Processing',
+				'handle'      => 'processing',
 				'color'       => 'green',
 				'default'     => true
 			];
+			$defaultStatus = Market_OrderStatusModel::populateModel($data);
+			\Craft\craft()->market_orderStatus->save($defaultStatus,[]);
 
-			$state = Market_OrderStatusModel::populateModel($data);
+			$data  = [
+				'name'        => 'Shipped',
+				'handle'      => 'shipped',
+				'color'       => 'blue',
+				'default'     => false
+			];
 
-			\Craft\craft()->market_orderSettings->save($orderSettings);
+			$status = Market_OrderStatusModel::populateModel($data);
 
-			\Craft\craft()->market_orderStatus->save($state,[]);
-
+			\Craft\craft()->market_orderStatus->save($status,[]);
 
 	}
 
@@ -156,16 +164,16 @@ class Market_InstallSeeder implements Market_SeederInterface
 
 		\Craft\craft()->market_product->save($product);
 
-		//master variant
-		/** @var Market_VariantModel $masterVariant */
-		$masterVariant = Market_VariantModel::populateModel([
+		//implicit variant
+		/** @var Market_VariantModel $implicitVariant */
+		$implicitVariant = Market_VariantModel::populateModel([
 			'productId'      => $product->id,
-			'isMaster'       => 1,
+			'isImplicit'       => 1,
 			'sku'            => 'ABC',
 			'price'          => 10,
 			'unlimitedStock' => 1,
 		]);
-		\Craft\craft()->market_variant->save($masterVariant);
+		\Craft\craft()->market_variant->save($implicitVariant);
 
 		//another test product
 		/** @var Market_ProductModel $product */
@@ -183,15 +191,15 @@ class Market_InstallSeeder implements Market_SeederInterface
 
 		\Craft\craft()->market_product->save($product);
 
-		//master variant
-		$masterVariant = Market_VariantModel::populateModel([
+		//implicit variant
+		$implicitVariant = Market_VariantModel::populateModel([
 			'productId'      => $product->id,
-			'isMaster'       => 1,
+			'isImplicit'       => 1,
 			'sku'            => 'CBA',
 			'price'          => 20,
 			'unlimitedStock' => 1,
 		]);
-		\Craft\craft()->market_variant->save($masterVariant);
+		\Craft\craft()->market_variant->save($implicitVariant);
 
 	}
 
@@ -206,6 +214,7 @@ class Market_InstallSeeder implements Market_SeederInterface
 	{
 		$settings = new Market_SettingsModel();
 		$settings->orderPdfPath = 'commerce/_pdf/order';
+		$settings->paymentMethod = 'purchase';
 		\Craft\craft()->market_settings->save($settings);
 	}
 

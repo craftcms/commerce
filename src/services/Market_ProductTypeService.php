@@ -334,9 +334,8 @@ class Market_ProductTypeService extends BaseApplicationComponent
     public function deleteById ($id)
     {
         MarketDbHelper::beginStackedTransaction();
-        try
-        {
-            $productType = Market_ProductTypeRecord::model()->findById($id);
+        try {
+            $productType = $this->getById($id);
 
             $query = craft()->db->createCommand()
                 ->select('id')
@@ -344,12 +343,22 @@ class Market_ProductTypeService extends BaseApplicationComponent
                 ->where(['typeId' => $productType->id]);
             $productIds = $query->queryColumn();
 
-            craft()->elements->deleteElementById($productIds);
-            craft()->fields->deleteLayoutById($productType->fieldLayoutId);
+            foreach($productIds as $id){
+                craft()->elements->deleteElementById($id);
+            }
 
-            $affectedRows = $productType->delete();
+            $fieldLayoutId = $productType->asa('productFieldLayout')->getFieldLayout()->id;
+            craft()->fields->deleteLayoutById($fieldLayoutId);
+            if($productType->hasVariants){
+                craft()->fields->deleteLayoutById($productType->asa('variantFieldLayout')->getFieldLayout()->id);
+            }
 
-            MarketDbHelper::commitStackedTransaction();
+            $productTypeRecord = Market_ProductTypeRecord::model()->findById($productType->id);
+            $affectedRows = $productTypeRecord->delete();
+
+            if($affectedRows){
+                MarketDbHelper::commitStackedTransaction();
+            }
 
             return (bool)$affectedRows;
         }

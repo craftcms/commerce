@@ -152,7 +152,9 @@ class Market_CartService extends BaseApplicationComponent
 
         if (!$cartNumber) {
             $cartNumber = md5(uniqid(mt_rand(), true));
-            $cartExpiry = craft()->market_settings->getSettings()->cartExpiryTimeout;
+            $configInterval = craft()->config->get('cartCookieDuration', 'market');
+            $interval       = new DateInterval($configInterval);
+            $cartExpiry = date_create('@0')->add($interval)->getTimestamp();
             craft()->userSession->saveCookie($cookieId, $cartNumber,$cartExpiry);
         }
 
@@ -368,7 +370,7 @@ class Market_CartService extends BaseApplicationComponent
     public function getCartsToPurge()
     {
 
-        $configInterval   = craft()->market_settings->getSettings()->purgeIncompleteCartDuration;
+        $configInterval   = craft()->config->get('purgeInactiveCartsDuration', 'market');
         $edge             = new DateTime();
         $interval         = new DateInterval($configInterval);
         $interval->invert = 1;

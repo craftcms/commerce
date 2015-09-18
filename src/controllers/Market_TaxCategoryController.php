@@ -51,7 +51,7 @@ class Market_TaxCategoryController extends Market_BaseController
 		if (!empty($variables['id'])) {
 			$variables['title'] = $variables['taxCategory']->name;
 		} else {
-			$variables['title'] = Craft::t('Create a Tax Category');
+			$variables['title'] = Craft::t('Create a new tax category');
 		}
 
 		$this->renderTemplate('market/settings/taxcategories/_edit', $variables);
@@ -70,7 +70,7 @@ class Market_TaxCategoryController extends Market_BaseController
 		// Shared attributes
 		$taxCategory->id          = craft()->request->getPost('taxCategoryId');
 		$taxCategory->name        = craft()->request->getPost('name');
-		$taxCategory->code        = craft()->request->getPost('code');
+		$taxCategory->handle      = craft()->request->getPost('handle');
 		$taxCategory->description = craft()->request->getPost('description');
 		$taxCategory->default     = craft()->request->getPost('default');
 

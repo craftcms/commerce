@@ -5,9 +5,9 @@
     <table id="countries" class="data fullwidth collapsible">
         <thead>
         <tr>
-            <th scope="col">Name</th>
-            <th scope="col">ISO</th>
-            <th scope="col">State required?</th>
+            <th scope="col">{{ 'Name'|t }}</th>
+            <th scope="col">{{ 'Country Code'|t }}</th>
+            <th scope="col">{{ 'State required?'|t }}</th>
             <td class="thin"></td>
         </tr>
         </thead>
@@ -35,7 +35,8 @@
 var adminTable = new Craft.AdminTable({
 tableSelector: '#countries',
 deleteAction: 'market/country/delete',
-confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
+confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}',
+deleteFailMessage: '{{ "Can not delete “{name}”, it is being used by various addresses."|t }}'
 });
 {% endset %}
 {% includeJs js %}

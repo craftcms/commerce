@@ -136,7 +136,14 @@ class Market_OrderStatusService extends BaseApplicationComponent
      */
     public function deleteById($id)
     {
-        Market_OrderStatusRecord::model()->deleteByPk($id);
+        $statuses = $this->getAll();
+
+        if(count($statuses) >= 2){
+            Market_OrderStatusRecord::model()->deleteByPk($id);
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -166,7 +173,7 @@ class Market_OrderStatusService extends BaseApplicationComponent
         //sending emails
         $renderVariables = [
             'order'  => $order,
-            'update' => $event->params['orderHistoryModel'],
+            'update' => $event->params['orderHistory'],
         ];
 
         //substitute templates path
@@ -192,7 +199,6 @@ class Market_OrderStatusService extends BaseApplicationComponent
             $craftEmail->subject = craft()->templates->renderString($email->subject,
                 $renderVariables);
 
-            $body              = $email->type == Market_EmailRecord::TYPE_HTML ? 'htmlBody' : 'body';
             $craftEmail->$body = craft()->templates->render($email->templatePath,
                 $renderVariables);
 

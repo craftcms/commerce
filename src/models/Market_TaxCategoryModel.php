@@ -7,7 +7,7 @@ namespace Craft;
  *
  * @property int    $id
  * @property string $name
- * @property string $code
+ * @property string $handle
  * @property string $description
  * @property bool   $default
  * @package Craft
@@ -24,7 +24,7 @@ class Market_TaxCategoryModel extends BaseModel
         return [
             'id'          => AttributeType::Number,
             'name'        => AttributeType::String,
-            'code'        => AttributeType::String,
+            'handle'      => AttributeType::String,
             'description' => AttributeType::String,
             'default'     => AttributeType::Bool,
         ];

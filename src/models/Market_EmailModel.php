@@ -11,7 +11,6 @@ namespace Craft;
  * @property string to
  * @property string bcc
  * @property bool   enabled
- * @property string type
  * @property string templatePath
  *
  * @package Craft
@@ -26,11 +25,6 @@ class Market_EmailModel extends BaseModel
             'subject'      => [AttributeType::String, 'required' => true],
             'to'           => [AttributeType::String, 'required' => true],
             'bcc'          => AttributeType::String,
-            'type'         => [
-                AttributeType::Enum,
-                'required' => true,
-                'values'   => ['plain_text', 'html']
-            ],
             'enabled'      => [
                 AttributeType::Bool,
                 'required' => true,

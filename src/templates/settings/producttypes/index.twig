@@ -8,6 +8,7 @@
 
     <h2>{{ "Product Types"|t }}</h2>
 
+    {%  if productTypes|length %}
     <table id="producttypes" class="data fullwidth collapsible">
         <thead>
         <tr>
@@ -29,7 +30,9 @@
 
         </tbody>
     </table>
-    <br/>
+    {% else %}
+    <p>{{ "No product types exist yet."|t }}</p>
+    {% endif %}
     <div class="btngroup submit first">
         <a href="{{ url('market/settings/producttypes/new') }}" class="btn submit">New Product Type</a>
     </div>

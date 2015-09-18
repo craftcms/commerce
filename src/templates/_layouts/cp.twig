@@ -3,3 +3,9 @@
 {% includeCssResource "market/market.css" %}
 {% includeJsResource "market/bower_components/selectize/dist/js/standalone/selectize.js" %}
 {% includeCssResource "market/bower_components/selectize/dist/css/selectize.default.css" %}
+
+{% set subnav = {
+    orders: { label: "Orders"|t, url: 'market/orders' },
+    products: { label: "Products"|t, url: 'market/products' },
+    promotions: { label: "Promotions"|t, url: 'market/promotions' }
+} %}

@@ -54,6 +54,8 @@ class Market_BaseFrontEndController extends Market_BaseController
 		$data['totalWidth'] = $cart->totalWidth;
 		$data['totalHeight'] = $cart->totalHeight;
 		$data['totalHeight'] = $cart->totalLength;
+		$data['totalTax'] = $cart->totalTax;
+		$data['totalShippingCost'] = $cart->totalShippingCost;
 
 		$lineItems = [];
 		foreach($cart->lineItems as $lineItem){
@@ -76,7 +78,6 @@ class Market_BaseFrontEndController extends Market_BaseController
             $lineItemData['purchasableId'] = $lineItem->purchasableId;
             $lineItemData['orderId'] = $lineItem->orderId;
             $lineItemData['taxCategoryId'] = $lineItem->taxCategoryId;
-			$lineItemData['underSale'] = $lineItem->underSale;
 			$lineItemData['onSale'] = $lineItem->getOnSale();
 			$lineItems[$lineItem->id] = $lineItemData;
 		}
@@ -93,7 +94,7 @@ class Market_BaseFrontEndController extends Market_BaseController
             $adjustmentData['amount'] = $adjustment->amount;
             $adjustmentData['optionsJson'] = $adjustment->optionsJson;
             $adjustmentData['orderId'] = $adjustment->orderId;
-			$adjustments[$adjustment->type][$adjustment->id] = $adjustmentData;
+			$adjustments[$adjustment->type][] = $adjustmentData;
 		}
 		$data['adjustments'] = $adjustments;
         $data['totalAdjustments'] = count($adjustments);

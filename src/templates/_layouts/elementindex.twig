@@ -1,2 +1,7 @@
 {% extends "_layouts/elementindex" %}
-{% includeCssResource "market/market.css" %}
+
+{% set subnav = {
+    orders: { label: "Orders"|t, url: 'market/orders' },
+    products: { label: "Products"|t, url: 'market/products' },
+    promotions: { label: "Promotions"|t, url: 'market/promotions' }
+} %}

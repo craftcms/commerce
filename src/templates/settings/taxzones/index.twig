@@ -3,15 +3,15 @@
 {% set content %}
 
     <h2>{{ "Tax Zones"|t }}</h2>
-
+    {% if taxZones|length %}
     <table id="taxZones" class="data fullwidth collapsible">
         <thead>
         <tr>
-            <th scope="col">Name</th>
-            <th scope="col">Description</th>
-            <th scope="col">Type</th>
-            <th scope="col">Countries / States</th>
-            <th scope="col">Is Default?</th>
+            <th scope="col">{{ 'Name'|t }}</th>
+            <th scope="col">{{ 'Description'|t }}</th>
+            <th scope="col">{{ 'Type'|t }}</th>
+            <th scope="col">{{ 'Countries / States'|t }}</th>
+            <th scope="col">{{ 'Default Zone?'|t }}</th>
             <td class="thin"></td>
         </tr>
         </thead>
@@ -30,6 +30,9 @@
 
         </tbody>
     </table>
+    {% else %}
+        <p>{{ 'No tax zones exist yet.'|t }}</p>
+    {% endif %}
     <br/>
     <div class="btngroup submit first">
         <a href="{{ url('market/settings/taxzones/new') }}" class="btn submit">New Tax Zone</a>
