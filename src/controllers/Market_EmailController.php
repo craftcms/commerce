@@ -52,7 +52,7 @@ class Market_EmailController extends Market_BaseController
         if (!empty($variables['id'])) {
             $variables['title'] = $variables['email']->name;
         } else {
-            $variables['title'] = Craft::t('Create a Email');
+            $variables['title'] = Craft::t('Create an Email');
         }
 
         $this->renderTemplate('market/settings/emails/_edit', $variables);
