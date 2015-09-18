@@ -63,13 +63,14 @@ class Market_ProductTypeController extends Market_BaseController
         $productType = new Market_ProductTypeModel();
 
         // Shared attributes
-        $productType->id          = craft()->request->getPost('productTypeId');
-        $productType->name        = craft()->request->getPost('name');
-        $productType->handle      = craft()->request->getPost('handle');
-        $productType->hasUrls     = craft()->request->getPost('hasUrls');
+        $productType->id = craft()->request->getPost('productTypeId');
+        $productType->name = craft()->request->getPost('name');
+        $productType->handle = craft()->request->getPost('handle');
+        $productType->hasDimensions = craft()->request->getPost('hasDimensions');
+        $productType->hasUrls = craft()->request->getPost('hasUrls');
         $productType->hasVariants = craft()->request->getPost('hasVariants');
-        $productType->template    = craft()->request->getPost('template');
-        $productType->titleFormat   = craft()->request->getPost('titleFormat');
+        $productType->template = craft()->request->getPost('template');
+        $productType->titleFormat = craft()->request->getPost('titleFormat');
 
         $locales = [];
 

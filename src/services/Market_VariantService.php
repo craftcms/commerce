@@ -165,6 +165,13 @@ class Market_VariantService extends BaseApplicationComponent
         $record->stock          = $model->stock;
         $record->unlimitedStock = $model->unlimitedStock;
 
+        if(!$productType->hasDimensions){
+            $record->width = $model->width = 0;
+            $record->height = $model->height = 0;
+            $record->length = $model->length = 0;
+            $record->weight = $model->weight = 0;
+        }
+
         if($model->unlimitedStock && $record->stock == ""){
             $model->stock = 0;
             $record->stock = 0;

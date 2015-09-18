@@ -10,6 +10,7 @@ namespace Craft;
  * @property string $name
  * @property string $handle
  * @property bool   $hasUrls
+ * @property bool   $hasDimensions
  * @property bool   $hasVariants
  * @property string $template
  * @property string $titleFormat
@@ -23,77 +24,78 @@ namespace Craft;
 class Market_ProductTypeModel extends BaseModel
 {
 
-    /**
-     * @var
-     */
-    private $_locales;
+	/**
+	 * @var
+	 */
+	private $_locales;
 
-    function __toString()
-    {
-        return Craft::t($this->handle);
-    }
+	function __toString ()
+	{
+		return Craft::t($this->handle);
+	}
 
-    public function getCpEditUrl()
-    {
-        return UrlHelper::getCpUrl('market/settings/producttypes/' . $this->id);
-    }
+	public function getCpEditUrl ()
+	{
+		return UrlHelper::getCpUrl('market/settings/producttypes/'.$this->id);
+	}
 
-    public function getCpEditVariantUrl()
-    {
-        return UrlHelper::getCpUrl('market/settings/producttypes/' . $this->id . '/variant');
-    }
+	public function getCpEditVariantUrl ()
+	{
+		return UrlHelper::getCpUrl('market/settings/producttypes/'.$this->id.'/variant');
+	}
 
-    public function getLocales()
-    {
-        if (!isset($this->_locales))
-        {
-            if ($this->id)
-            {
-                $this->_locales = craft()->market_productType->getProductTypeLocales($this->id, 'locale');
-            }
-            else
-            {
-                $this->_locales = array();
-            }
-        }
+	public function getLocales ()
+	{
+		if (!isset($this->_locales))
+		{
+			if ($this->id)
+			{
+				$this->_locales = craft()->market_productType->getProductTypeLocales($this->id, 'locale');
+			}
+			else
+			{
+				$this->_locales = [];
+			}
+		}
 
-        return $this->_locales;
-    }
+		return $this->_locales;
+	}
 
 
-    /**
-     * Sets the locales on the product type
-     *
-     * @param $locales
-     */
-    public function setLocales($locales)
-    {
-        $this->_locales = $locales;
-    }
+	/**
+	 * Sets the locales on the product type
+	 *
+	 * @param $locales
+	 */
+	public function setLocales ($locales)
+	{
+		$this->_locales = $locales;
+	}
 
-    public function behaviors()
-    {
-        return [
-            'productFieldLayout' => new FieldLayoutBehavior('Market_Product',
-                'fieldLayoutId'),
-            'variantFieldLayout' => new FieldLayoutBehavior('Market_Variant',
-                'variantFieldLayoutId'),
-        ];
-    }
+	public function behaviors ()
+	{
+		return [
+			'productFieldLayout' => new FieldLayoutBehavior('Market_Product',
+				'fieldLayoutId'),
+			'variantFieldLayout' => new FieldLayoutBehavior('Market_Variant',
+				'variantFieldLayoutId'),
+		];
+	}
 
-    protected function defineAttributes()
-    {
-        return [
-            'id'                   => AttributeType::Number,
-            'name'                 => [AttributeType::Name, 'required' => true],
-            'handle'               => [AttributeType::Handle, 'required' => true],
-            'hasUrls'              => AttributeType::Bool,
-            'hasVariants'          => AttributeType::Bool,
-            'titleFormat'          => [AttributeType::String, 'required' => true, 'default'=>'{sku}'],
-            'template'             => AttributeType::Template,
-            'fieldLayoutId'        => AttributeType::Number,
-            'variantFieldLayoutId' => AttributeType::Number,
-        ];
-    }
+	protected function defineAttributes ()
+	{
+		return [
+			'id'                   => AttributeType::Number,
+			'name'                 => [AttributeType::Name, 'required' => true],
+			'handle'               => [AttributeType::Handle, 'required' => true],
+			'hasUrls'              => AttributeType::Bool,
+			'hasDimensions'        => [AttributeType::Bool,'default' => true],
+			'hasVariants'          => AttributeType::Bool,
+			'titleFormat'          => [AttributeType::String, 'required' => true, 'default' => '{sku}'],
+			'template'             => AttributeType::Template,
+			'fieldLayoutId'        => AttributeType::Number,
+			'variantFieldLayoutId' => AttributeType::Number,
+		];
+	}
 
 }
