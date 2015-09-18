@@ -52,7 +52,7 @@ class Market_CountryController extends Market_BaseController
         if (!empty($variables['id'])) {
             $variables['title'] = $variables['country']->name;
         } else {
-            $variables['title'] = Craft::t('Create a Country');
+            $variables['title'] = Craft::t('Create a new country');
         }
 
         $this->renderTemplate('market/settings/countries/_edit', $variables);
