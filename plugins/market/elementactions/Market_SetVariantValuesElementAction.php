@@ -1,6 +1,8 @@
 <?php
 namespace Craft;
 
+use Market\Helpers\MarketDbHelper;
+
 class Market_SetVariantValuesElementAction extends BaseElementAction
 {
 
@@ -72,6 +74,7 @@ EOT;
         $variants = $criteria->find();
         $attributes = ['price','minQty','maxQty','width','height','length','weight'];
 
+        MarketDbHelper::beginStackedTransaction();
         try
         {
             foreach ($variants as $variant)
@@ -87,10 +90,12 @@ EOT;
                 craft()->market_variant->save($variant);
             }
         }catch(Exception $e){
+            MarketDbHelper::rollbackStackedTransaction();
             $this->setMessage(Craft::t('Error'));
             return false;
         }
 
+        MarketDbHelper::commitStackedTransaction();
         $this->setMessage(Craft::t('Variants updated.'));
         return true;
 
