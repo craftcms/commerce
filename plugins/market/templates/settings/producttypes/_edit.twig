@@ -216,10 +216,12 @@
 
     <div id="variantTab" class="hidden">
 
-    {% include "market/_includes/variantfieldlayoutdesigner" with {
+    {% namespace "variant-layout" %}
+    {% include "_includes/fieldlayoutdesigner" with {
         fieldLayout: productType.asa('variantFieldLayout').getFieldLayout(),
         customizableTabs: false
     } only %}
+    {% endnamespace %}
 
     </div>
 
