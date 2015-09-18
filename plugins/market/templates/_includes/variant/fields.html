@@ -59,7 +59,7 @@
     </div>
     </div>
 
-    <div class="grid first" data-cols="8">
+    <div class="grid first {{ variant.product.type.hasDimensions ? '' : 'hidden'}}" data-cols="8">
     <div class="item" data-min-colspan="2" data-max-colspan="2">
         {{ forms.textField({
             label: 'Width'|t~' ('~craft.market.settings.dimensionUnits~')',

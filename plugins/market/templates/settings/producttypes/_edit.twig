@@ -51,6 +51,13 @@
         required: true
     }) }}
 
+    {{ forms.checkboxField({
+        label: "Does this product type have dimensions?"|t,
+        id: 'hasDimensions',
+        name: 'hasDimensions',
+        checked: productType.hasDimensions,
+    }) }}
+
     {% macro hasVariantsField(productType) %}
         {% from "_includes/forms" import checkboxField %}
 

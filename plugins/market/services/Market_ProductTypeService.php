@@ -97,6 +97,7 @@ class Market_ProductTypeService extends BaseApplicationComponent
 
         $productTypeRecord->name = $productType->name;
         $productTypeRecord->handle = $productType->handle;
+        $productTypeRecord->hasDimensions = $productType->hasDimensions;
         $productTypeRecord->hasUrls = $productType->hasUrls;
         $productTypeRecord->hasVariants = $productType->hasVariants;
         $productTypeRecord->template = $productType->template;

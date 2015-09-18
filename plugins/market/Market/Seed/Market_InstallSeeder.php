@@ -3,7 +3,6 @@
 namespace Market\Seed;
 
 use Craft\Market_OrderSettingsModel;
-use Craft\Market_ProductTypeLocaleModel;
 use Craft\Market_SettingsModel;
 use Craft\Market_ShippingMethodRecord;
 use Craft\Market_ShippingRuleRecord;
@@ -113,6 +112,7 @@ class Market_InstallSeeder implements Market_SeederInterface
 		$productType         = new Market_ProductTypeModel;
 		$productType->name   = 'Plain Shirts';
 		$productType->handle = 'plainShirts';
+		$productType->hasDimensions = true;
 		$productType->hasUrls = true;
 		$productType->hasVariants = false;
 		$productType->template = 'commerce/products/_product';
