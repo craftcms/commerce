@@ -26,6 +26,21 @@ class Market_ProductElementType extends Market_BaseElementType
 		return true;
 	}
 
+	public function getAvailableActions($source = null)
+	{
+		$deleteAction = craft()->elements->getAction('Delete');
+		$deleteAction->setParams(array(
+			'confirmationMessage' => Craft::t('Are you sure you want to delete the selected product and their variants?'),
+			'successMessage'      => Craft::t('Products deleted.'),
+		));
+		$actions[] = $deleteAction;
+
+		$setValuesAction = craft()->elements->getAction('Market_CreateSale');
+		$actions[] = $setValuesAction;
+
+		return $actions;
+	}
+
 	public function getSources($context = NULL)
 	{
 		$sources = [

@@ -148,6 +148,11 @@ class Market_VariantService extends BaseApplicationComponent
             $productType->titleFormat = "{sku}";
         }
 
+        // implicit variant has no custom field data so play it safe and default it to sku.
+        if ($model->isImplicit) {
+            $productType->titleFormat = "{sku}";
+        }
+
         $model->getContent()->title = craft()->templates->renderObjectTemplate($productType->titleFormat, $model);
 
         $record->price          = $model->price;
