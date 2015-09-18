@@ -74,7 +74,6 @@ class Market_EmailService extends BaseApplicationComponent
         $record->subject      = $model->subject;
         $record->to           = $model->to;
         $record->bcc          = $model->bcc;
-        $record->type         = $model->type;
         $record->enabled      = $model->enabled;
         $record->templatePath = $model->templatePath;
 

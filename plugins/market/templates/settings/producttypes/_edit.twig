@@ -1,4 +1,4 @@
-{% extends "market/_layouts/cp" %}
+{% extends "market/_layouts/settingscp" %}
 {% set title = "Product Types"|t %}
 
 {% set crumbs = [
@@ -43,7 +43,7 @@
 
     {{ forms.textField({
         label: "Handle"|t,
-        instructions: "How you’ll refer to this product type in code or templates."|t,
+        instructions: "How you’ll refer to this product type in the templates."|t,
         id: 'handle',
         class: 'code',
         name: 'handle',
@@ -53,11 +53,10 @@
     }) }}
 
     {% macro hasVariantsField(productType) %}
-        {% from "_includes/forms" import lightswitchField %}
+        {% from "_includes/forms" import checkboxField %}
 
-        {{ lightswitchField({
-            label: "Products Type has Variants."|t,
-            instructions: "One or more items for sale in a single product that differ from each other.",
+        {{ checkboxField({
+            label: "Does this product type have variants?"|t,
             id: 'hasVariants',
             name: 'hasVariants',
             on: productType.hasVariants,
@@ -76,6 +75,22 @@
             toggle: 'url-settings'
         }) }}
     {% endmacro %}
+
+
+    {% macro templateField(productType) %}
+        {% from "_includes/forms" import textField %}
+
+        {{ textField({
+            label: "Product Template"|t,
+            instructions: "The template to use when a product’s URL is requested."|t,
+            id: 'template',
+            class: 'ltr',
+            name: 'template',
+            value: productType.template,
+            errors: productType.getErrors('template')
+        }) }}
+    {% endmacro %}
+
 
     {% macro fieldOptionsRow(name, handle) %}
         {% from "_includes/forms" import checkboxField %}
@@ -110,7 +125,7 @@
         <div class="variant-settings {{ (productType.hasVariants ? '' : 'hidden') }}">
         {{ textField({
             label: "Variant Title Format"|t,
-            instructions: "What the auto-generated entry titles should look like. You can include tags that output entry properties, such as {myCustomField}."|t,
+            instructions: "What the auto-generated entry titles should look like. You can include tags that output entry properties, such as {ex1} or {ex2}."|t({ ex1: '<code>{sku}</code>', ex2: '<code>{myCustomField}</code>' }),
             id: 'titleFormat',
             class: 'ltr',
             name: 'titleFormat',
@@ -119,8 +134,6 @@
         }) }}
         </div>
     {% endmacro %}
-
-
 
 
     {% from _self import hasUrlsField, templateField, hasVariantsField, fieldOptionsRow, titleFormatField  %}
@@ -134,15 +147,6 @@
 
 
     <div id="url-settings" class="nested-fields{% if not productType.hasUrls %} hidden{% endif %}">
-        {#{{ forms.textField({#}
-            {#label: "Product Url Format"|t,#}
-            {#instructions: "What the product URLs should look like. You can include tags that output entry properties, such as {slug} or {publishDate|date(\"Y\")}."|t,#}
-            {#id: 'urlFormat',#}
-            {#class: 'code',#}
-            {#name: 'urlFormat',#}
-            {#value: productType.urlFormat,#}
-            {#errors: productType.getErrors('urlFormat')#}
-        {#}) }}#}
 
         {% macro urlFormatText(locale, productType, name, value) %}
             {% from "_includes/forms" import text, errorList %}
@@ -185,10 +189,13 @@
             </table>
         {% endset %}
 
-        {{ forms.field({
-            label: "Product Type URL Formats"|t,
-            instructions: "What the Product type URLs should look like. <code>{slug}</code> is required, but it can also include any product properties."|t,
-            required: true,
+        {{ forms.textField({
+            label: "Product URL Format"|t,
+            instructions: "What the product URLs should look like. You can include tags that output entry properties, such as such as {ex1} or {ex2}."|t({ ex1: '<code>{slug}</code>', ex2: '<code>{publishDate|date(\"Y\")}</code>' }),
+            id: 'urlFormat',
+            class: 'code',
+            name: 'urlFormat',
+            value: productType.urlFormat,
             errors: productType.getErrors('urlFormat')
         }, urlFormatInput) }}
 

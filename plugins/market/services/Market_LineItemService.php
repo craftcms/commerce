@@ -97,13 +97,9 @@ class Market_LineItemService extends BaseApplicationComponent
             }
         }
 
-        $lineItem->total = ((
-                    $lineItem->price +
-                    $lineItem->discount +
-                    $lineItem->shippingCost +
-                    $lineItem->saleAmount
-                ) * $lineItem->qty)
-            + $lineItem->tax;
+        $lineItem->total = (($lineItem->price + $lineItem->saleAmount)
+                            * $lineItem->qty)
+                            + $lineItem->tax + $lineItem->discount + $lineItem->shippingCost;
 
         $lineItemRecord->purchasableId = $lineItem->purchasableId;
         $lineItemRecord->orderId       = $lineItem->orderId;

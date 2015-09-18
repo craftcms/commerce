@@ -52,7 +52,7 @@ class Market_EmailController extends Market_BaseController
         if (!empty($variables['id'])) {
             $variables['title'] = $variables['email']->name;
         } else {
-            $variables['title'] = Craft::t('Create a Email');
+            $variables['title'] = Craft::t('Create a new email');
         }
 
         $this->renderTemplate('market/settings/emails/_edit', $variables);
@@ -75,7 +75,6 @@ class Market_EmailController extends Market_BaseController
         $email->subject      = craft()->request->getPost('subject');
         $email->to           = craft()->request->getPost('to');
         $email->bcc          = craft()->request->getPost('bcc');
-        $email->type         = craft()->request->getPost('type');
         $email->enabled      = craft()->request->getPost('enabled');
         $email->templatePath = craft()->request->getPost('templatePath');
 

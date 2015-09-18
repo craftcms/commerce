@@ -7,7 +7,7 @@ namespace Craft;
  *
  * @property int    $id
  * @property string $name
- * @property string $code
+ * @property string $handle
  * @property string $description
  * @property bool   $default
  * @package Craft
@@ -22,7 +22,7 @@ class Market_TaxCategoryRecord extends BaseRecord
     public function defineIndexes()
     {
         return [
-            ['columns' => ['name'], 'unique' => true],
+            ['columns' => ['handle'], 'unique' => true],
         ];
     }
 
@@ -30,7 +30,7 @@ class Market_TaxCategoryRecord extends BaseRecord
     {
         return [
             'name'        => [AttributeType::String, 'required' => true],
-            'code'        => AttributeType::String,
+            'handle'      => [AttributeType::String, 'required' => true],
             'description' => AttributeType::String,
             'default'     => [
                 AttributeType::Bool,

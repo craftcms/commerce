@@ -20,12 +20,15 @@ class Market_TaxRateController extends Market_BaseController
     {
         $this->requireAdmin();
 
+        $taxZones = craft()->market_taxZone->getAll();
+        $zonesExist = (bool) count($taxZones);
+
         $taxRates = craft()->market_taxRate->getAll([
             'with'  => ['taxZone', 'taxCategory'],
             'order' => 't.name',
         ]);
         $this->renderTemplate('market/settings/taxrates/index',
-            compact('taxRates'));
+            compact('taxRates','zonesExist'));
     }
 
     /**
@@ -38,6 +41,14 @@ class Market_TaxRateController extends Market_BaseController
     public function actionEdit(array $variables = [])
     {
         $this->requireAdmin();
+
+        $taxZones = craft()->market_taxZone->getAll();
+        $zonesExist = (bool) count($taxZones);
+
+        if(!$zonesExist){
+            craft()->userSession->setError(Craft::t('Create a tax zone before creating a tax rate.'));
+            craft()->request->redirect('/admin/market/settings/taxrates');
+        }
 
         if (empty($variables['taxRate'])) {
             if (!empty($variables['id'])) {
@@ -55,7 +66,7 @@ class Market_TaxRateController extends Market_BaseController
         if (!empty($variables['id'])) {
             $variables['title'] = $variables['taxRate']->name;
         } else {
-            $variables['title'] = Craft::t('Create a Tax Rate');
+            $variables['title'] = Craft::t('Create a new tax rate');
         }
 
         $taxZones              = craft()->market_taxZone->getAll(false);

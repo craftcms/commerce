@@ -1,4 +1,4 @@
-{% extends "market/_layouts/cp" %}
+{% extends "market/_layouts/settingscp" %}
 
 {% set title = "Market Settings"|t %}
 
@@ -9,9 +9,9 @@
 
             <li class="heading"><span>{{ "Orders"|t }}</span></li>
 
-            <li><a href="{{ url('market/settings/ordersettings') }}"{% if craft.request.segment(3) == 'ordersettings' %} class="sel"{% endif %}>{{ "Order Settings"|t }}</a></li>
+            <li><a href="{{ url('market/settings/ordersettings') }}"{% if craft.request.segment(3) == 'ordersettings' %} class="sel"{% endif %}>{{ "Order Fields"|t }}</a></li>
 
-            <li><a href="{{ url('market/settings/orderstatuses') }}"{% if craft.request.segment(3) == 'orderstatuses' %} class="sel"{% endif %}>{{ "Order Statuses"|t }}</a></li>
+            <li><a href="{{ url('market/settings/orderstatuses') }}"{% if craft.request.segment(3) == 'orderstatuses' %} class="sel"{% endif %}>{{ "Custom Order Statuses"|t }}</a></li>
 
             <li><a href="{{ url('market/settings/emails') }}"{% if craft.request.segment(3) == 'emails' %} class="sel"{% endif %}>{{ "Emails"|t }}</a></li>
 

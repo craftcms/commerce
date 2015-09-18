@@ -38,6 +38,8 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property int                           totalHeight
  * @property int                           totalLength
  * @property int                           totalWidth
+ * @property int                           totalTax
+ * @property int                           totalShippingCost
  * @property string                        pdfUrl
  *
  * @property Market_OrderSettingsModel     type
@@ -74,6 +76,15 @@ class Market_OrderModel extends BaseElementModel
     public function __toString()
     {
         return substr($this->number,0,7);
+    }
+
+    /**
+     * @inheritdoc
+     * @return string
+     */
+    public function getLink()
+    {
+        return TemplateHelper::getRaw("<a href='".$this->getCpEditUrl()."'>".substr($this->number,0,7)."</a>");
     }
 
     /**
@@ -144,6 +155,31 @@ class Market_OrderModel extends BaseElementModel
         return $this->getTotalQty() == 0;
     }
 
+    /**
+     * @return int
+     */
+    public function getTotalTax()
+    {
+        $tax = 0;
+        foreach ($this->lineItems as $item) {
+            $tax += $item->tax;
+        }
+
+        return $tax;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTotalShippingCost()
+    {
+        $shippingCost = 0;
+        foreach ($this->lineItems as $item) {
+            $shippingCost += $item->shippingCost;
+        }
+
+        return $shippingCost + $this->baseShippingCost;
+    }
 
     /**
      * @return int

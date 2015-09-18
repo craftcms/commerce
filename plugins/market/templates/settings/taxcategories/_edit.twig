@@ -1,4 +1,4 @@
-{% extends "market/_layouts/cp" %}
+{% extends "market/_layouts/settingscp" %}
 
 {% set crumbs = [
 { label: "Market Settings"|t, url: url('market/settings') },
@@ -29,17 +29,17 @@
     }) }}
 
     {{ forms.textField({
-        label: "Code"|t,
-        instructions: "Tax category code."|t,
-        id: 'code',
-        name: 'code',
-        value: taxCategory.code,
-        errors: taxCategory.getErrors('code')
+        label: "Handle"|t,
+        instructions: "How you’ll refer to this tax category in the templates."|t,
+        id: 'handle',
+        name: 'handle',
+        required: true,
+        value: taxCategory.handle,
+        errors: taxCategory.getErrors('handle')
     }) }}
 
     {{ forms.textField({
         label: "Description"|t,
-        instructions: "Tax category description."|t,
         id: 'description',
         name: 'description',
         value: taxCategory.description,
@@ -47,16 +47,13 @@
     }) }}
 
     {{ forms.checkboxField({
-        label: "Is Default?"|t,
-        instructions: "When a product has no tax category specified it will use default one."|t,
+        label: "Use this tax category by default for new products?"|t,
         id: 'default',
         name: 'default',
         value: 1,
         checked: taxCategory.default,
         errors: taxCategory.getErrors('default')
     }) }}
-
-    <hr>
 
     <div class="buttons">
         <input type="submit" class="btn submit" value="{{ 'Save'|t }}">

@@ -30,7 +30,7 @@ use Market\Traits\Market_ModelRelationsTrait;
  * @property int                     purchasableId
  * @property int                     taxCategoryId
  *
- * @property bool                    underSale
+ * @property bool                    onSale
  *
  * @property Purchasable             $purchasable
  * @property Market_OrderModel       order
@@ -39,14 +39,6 @@ use Market\Traits\Market_ModelRelationsTrait;
 class Market_LineItemModel extends BaseModel
 {
     use Market_ModelRelationsTrait;
-
-    /**
-     * @return bool
-     */
-    public function getUnderSale()
-    {
-        return $this->saleAmount != 0;
-    }
 
     public function getSubtotalWithSale()
     {
@@ -85,6 +77,14 @@ class Market_LineItemModel extends BaseModel
         return is_null($this->salePrice) ? false : ($this->salePrice != $this->price);
     }
 
+    /**
+     * @return bool
+     */
+    public function getUnderSale()
+    {
+        craft()->deprecator->log('Market_LineItemModel::underSale():removed', 'You should no longer use `underSale` on the lineItem. Use `onSale`.');
+        return $this->getOnSale();
+    }
 
     /**
      * Returns the description from the snapshot of the purchasable
@@ -109,7 +109,7 @@ class Market_LineItemModel extends BaseModel
     {
         $this->price = $purchasable->getPrice();
 
-        // Since sales cannot apply to non core purchasables, set to price.
+        // Since sales cannot apply to non core purchasables, set to price at default
         $this->salePrice = $purchasable->getPrice();
 
         $snapshot = [
@@ -143,12 +143,12 @@ class Market_LineItemModel extends BaseModel
                 $this->saleAmount = -$this->price;
             }
 
-            $this->salePrice = $this->saleAmount + $this->price;
-
             // If the product is not promotable but has saleAmount, reset saleAmount to zero
             if (!$purchasable->product->promotable && $this->saleAmount){
                 $this->saleAmount = 0;
             }
+
+            $this->salePrice = $this->saleAmount + $this->price;
 
         } else {
             // Non core commerce purchasables cannot have sales applied (yet)

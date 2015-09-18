@@ -1,5 +1,7 @@
 {% extends "market/_layouts/cp" %}
 
+{% set selectedSubNavItem = "orders" %}
+
 {% set crumbs = [
     { label: "Orders"|t, url: url('market/orders') }
 ] %}
@@ -160,13 +162,11 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <a href="{{ orderHistory.customer.cpEditUrl }}">
-                                        {% if orderHistory.customer.userId %}
-                                            {{ orderHistory.customer.user.friendlyName }}
-                                        {% else %}
-                                            Customer #{{ orderHistory.customerId }}
-                                        {% endif %}
-                                    </a>
+                                    {% if orderHistory.customer.userId %}
+                                        <a href="{{ orderHistory.customer.user.cpEditUrl }}">{{ orderHistory.customer.user.friendlyName }}</a>
+                                    {% else %}
+                                        {{ orderHistory.order.email }}
+                                    {% endif %}
                                 </td>
                                 <td>{{ orderHistory.message }}</td>
                             </tr>
@@ -265,7 +265,7 @@
                             </tr>
                             <tr>
                                 <td><strong>{{ "Customer"|t}}</strong></td>
-                                <td><a href="{{ order.customer.cpEditUrl }}">{{ order.email }}</a>&nbsp;{% if not order.customer.userId %}({{ "Guest"|t }}){% endif %}</td>
+                                <td>{% if order.customer.userId %}<a href="{{ order.customer.user.cpEditUrl }}">{{ order.email }}</a>{% else %}{{ order.email }}&nbsp;({{ "Guest"|t }} {% endif %}</td>
                             </tr>
                         </table>
                         <br/>

@@ -75,8 +75,8 @@ class Market_ProductController extends Market_BaseController
     {
         $variables['tabs'] = [];
 
-        if (empty($variables['masterVariant'])) {
-            $variables['masterVariant'] = $variables['product']->masterVariant ?: new Market_VariantModel;
+        if (empty($variables['implicitVariant'])) {
+            $variables['implicitVariant'] = $variables['product']->implicitVariant ?: new Market_VariantModel;
         }
 
         foreach ($variables['productType']->getFieldLayout()->getTabs() as $index => $tab) {
@@ -148,16 +148,16 @@ class Market_ProductController extends Market_BaseController
         $this->requirePostRequest();
 
         $product = $this->_setProductFromPost();
-        $masterVariant = $this->_setMasterVariantFromPost($product);
+        $implicitVariant = $this->_setImplicitVariantFromPost($product);
 
         $existingProduct = (bool)$product->id;
 
         MarketDbHelper::beginStackedTransaction();
 
         if (craft()->market_product->save($product)) {
-            $masterVariant->productId = $product->id;
+            $implicitVariant->productId = $product->id;
 
-            if (craft()->market_variant->save($masterVariant)) {
+            if (craft()->market_variant->save($implicitVariant)) {
 
                 MarketDbHelper::commitStackedTransaction();
 
@@ -183,7 +183,7 @@ class Market_ProductController extends Market_BaseController
         craft()->userSession->setNotice(Craft::t("Couldn't save product."));
         craft()->urlManager->setRouteVariables([
             'product' => $product,
-            'masterVariant' => $masterVariant
+            'implicitVariant' => $implicitVariant
         ]);
     }
 
@@ -237,14 +237,14 @@ class Market_ProductController extends Market_BaseController
      *
      * @return Market_VariantModel
      */
-    private function _setMasterVariantFromPost(Market_ProductModel $product)
+    private function _setImplicitVariantFromPost(Market_ProductModel $product)
     {
-        $attributes = craft()->request->getPost('masterVariant');
-        $masterVariant = $product->masterVariant ?: new Market_VariantModel;
-        $masterVariant->setAttributes($attributes);
-        $masterVariant->isMaster = true;
+        $attributes = craft()->request->getPost('implicitVariant');
+        $implicitVariant = $product->getImplicitVariant() ?: new Market_VariantModel;
+        $implicitVariant->setAttributes($attributes);
+        $implicitVariant->isImplicit = true;
 
-        return $masterVariant;
+        return $implicitVariant;
     }
 
     private function _prepProductVariables(&$variables)

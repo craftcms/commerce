@@ -26,12 +26,13 @@ class Market_CartController extends Market_BaseFrontEndController
     {
         $this->requirePostRequest();
 
-        $purchasableId   = craft()->request->getPost('purchasableId');
-        $note            = craft()->request->getPost('note');
-        $qty             = craft()->request->getPost('qty', 1);
         /** @var Market_OrderModel $cart */
         $cart            = craft()->market_cart->getCart();
         $cart->setContentFromPost('fields');
+
+        $purchasableId   = craft()->request->getPost('purchasableId');
+        $note            = craft()->request->getPost('note');
+        $qty             = craft()->request->getPost('qty', 1);
         $error = '';
 
         if (craft()->market_cart->addToCart($cart, $purchasableId, $qty, $note, $error)) {

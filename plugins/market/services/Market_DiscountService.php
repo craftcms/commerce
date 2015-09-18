@@ -199,7 +199,7 @@ class Market_DiscountService extends BaseApplicationComponent
         Market_DiscountModel $discount
     ) {
 
-        if ($lineItem->underSale && $discount->excludeOnSale) {
+        if ($lineItem->onSale && $discount->excludeOnSale) {
             return false;
         }
 

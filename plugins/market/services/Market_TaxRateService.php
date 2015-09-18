@@ -71,7 +71,7 @@ class Market_TaxRateService extends BaseApplicationComponent
             $taxZone = craft()->market_taxZone->getById($record->taxZoneId);
             if ($record->include && !$taxZone->default) {
                 $record->addError('include',
-                    'Included rates allowed for default tax zone only');
+                    Craft::t('Included tax rates are only allowed for the default tax zone.'));
             }
         }
 
