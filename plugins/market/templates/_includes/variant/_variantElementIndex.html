@@ -157,7 +157,7 @@
 	Craft.variantIndex = Craft.createElementIndex('{{ elementTypeClass }}', $('#variantsIndex'), {
 		context:        '{{ context }}',
 		storageKey:     'elementindex.{{ elementTypeClass }}',
-		criteria:       { productId: {{ productId }}, isImplicit: false, localeEnabled: null },
+		criteria:       { productId: {{ productId }}, isImplicit: false, localeEnabled: true },
 		buttonContainer: $('#variantButtons'),
 		parentElementId: {{ product.id }},
 		parentElementTypeId: {{ productType.id }},
