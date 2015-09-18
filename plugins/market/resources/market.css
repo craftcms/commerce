@@ -1,29 +1,16 @@
+.selectize-control.multi .selectize-input [data-value] {
+    background-image: none !important;
+}
+
 .select-wide {
     display: block;
     box-shadow: none;
     -webkit-box-shadow: none;
     -moz-box-shadow: none;
 }
-
-/* craft supports only textareas in editable tables. We allow inputs as well */
-table.editable tbody input {
-    display: block;
-    width: 100%;
-    box-sizing: border-box;
-    border: none;
-    padding: 7px 10px;
-    background: #fff;
-    overflow: hidden;
-}
-table.editable tbody input:focus {
-    border: 1px solid rgba(0, 0, 0, 0.15);
-    padding: 6px 9px;
-    outline: none;
-}
 #variantButtons{
     margin-top:10px;
 }
-
 .statusSource {
     padding-left:8px !important;
 }
