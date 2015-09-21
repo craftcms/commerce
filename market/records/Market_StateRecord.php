@@ -16,37 +16,49 @@ namespace Craft;
 class Market_StateRecord extends BaseRecord
 {
 
-    public function getTableName()
-    {
-        return 'market_states';
-    }
+	/**
+	 * @return string
+	 */
+	public function getTableName ()
+	{
+		return 'market_states';
+	}
 
-    public function defineIndexes()
-    {
-        return [
-            ['columns' => ['name', 'countryId'], 'unique' => true],
-        ];
-    }
+	/**
+	 * @return array
+	 */
+	public function defineIndexes ()
+	{
+		return [
+			['columns' => ['name', 'countryId'], 'unique' => true],
+		];
+	}
 
-    public function defineRelations()
-    {
-        return [
-            'country' => [
-                static::BELONGS_TO,
-                'Market_CountryRecord',
-                'onDelete' => self::CASCADE,
-                'onUpdate' => self::CASCADE,
-                'required' => true
-            ],
-        ];
-    }
+	/**
+	 * @return array
+	 */
+	public function defineRelations ()
+	{
+		return [
+			'country' => [
+				static::BELONGS_TO,
+				'Market_CountryRecord',
+				'onDelete' => self::CASCADE,
+				'onUpdate' => self::CASCADE,
+				'required' => true
+			],
+		];
+	}
 
-    protected function defineAttributes()
-    {
-        return [
-            'name'         => [AttributeType::String, 'required' => true],
-            'abbreviation' => AttributeType::String,
-            'countryId'    => [AttributeType::Number, 'required' => true],
-        ];
-    }
+	/**
+	 * @return array
+	 */
+	protected function defineAttributes ()
+	{
+		return [
+			'name'         => [AttributeType::String, 'required' => true],
+			'abbreviation' => AttributeType::String,
+			'countryId'    => [AttributeType::Number, 'required' => true],
+		];
+	}
 }

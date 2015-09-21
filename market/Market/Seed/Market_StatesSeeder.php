@@ -13,7 +13,7 @@ use Craft\Market_StateRecord;
 class Market_StatesSeeder implements Market_SeederInterface
 {
 
-	public function seed()
+	public function seed ()
 	{
 		$states = [
 			'AU' => [
@@ -99,14 +99,17 @@ class Market_StatesSeeder implements Market_SeederInterface
 		$criteria = new \CDbCriteria();
 		$criteria->addInCondition('iso', array_keys($states));
 		$countries = Market_CountryRecord::model()->findAll($criteria);
-		$code2id   = [];
-		foreach ($countries as $record) {
+		$code2id = [];
+		foreach ($countries as $record)
+		{
 			$code2id[$record->iso] = $record->id;
 		}
 
 		$rows = [];
-		foreach ($states as $iso => $list) {
-			foreach ($list as $abbr => $name) {
+		foreach ($states as $iso => $list)
+		{
+			foreach ($list as $abbr => $name)
+			{
 				$rows[] = [$code2id[$iso], $abbr, $name];
 			}
 		}

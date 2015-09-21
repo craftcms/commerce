@@ -11,12 +11,10 @@ class BaseException Extends Exception
 	// =========================================================================
 
 	/**
-	 * @param     $message
-	 * @param int $code
-	 *
-	 * @return Exception
+	 * @param string $message
+	 * @param int    $code
 	 */
-	public function __construct($message, $code = 0)
+	public function __construct ($message, $code = 0)
 	{
 		MarketPlugin::log($message, LogLevel::Error);
 		parent::__construct($message, $code);

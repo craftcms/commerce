@@ -23,5 +23,5 @@ interface Market_AdjusterInterface
 	 *
 	 * @return \Craft\Market_OrderAdjustmentModel[]
 	 */
-	public function adjust(Market_OrderModel &$order, array $lineItems = []);
+	public function adjust (Market_OrderModel &$order, array $lineItems = []);
 }

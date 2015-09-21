@@ -43,119 +43,125 @@ namespace Craft;
  */
 class Market_OrderRecord extends BaseRecord
 {
-    /**
-     * Returns the name of the associated database table.
-     *
-     * @return string
-     */
-    public function getTableName()
-    {
-        return 'market_orders';
-    }
+	/**
+	 * Returns the name of the associated database table.
+	 *
+	 * @return string
+	 */
+	public function getTableName ()
+	{
+		return 'market_orders';
+	}
 
-    public function defineRelations()
-    {
-        return [
-            'lineItems'       => [
-                static::HAS_MANY,
-                'Market_LineItemRecord',
-                'orderId'
-            ],
-            'billingAddress'  => [static::BELONGS_TO, 'Market_AddressRecord'],
-            'shippingAddress' => [static::BELONGS_TO, 'Market_AddressRecord'],
-            'discount'        => [
-                static::HAS_ONE,
-                'Market_DiscountRecord',
-                ['couponCode' => 'code']
-            ],
-            'shippingMethod'  => [
-                static::BELONGS_TO,
-                'Market_ShippingMethodRecord'
-            ],
-            'paymentMethod'   => [
-                static::BELONGS_TO,
-                'Market_PaymentMethodRecord'
-            ],
-            'customer'        => [static::BELONGS_TO, 'Market_CustomerRecord'],
-            'transactions'    => [
-                static::HAS_MANY,
-                'Market_TransactionRecord',
-                'orderId'
-            ],
-            'element'         => [
-                static::BELONGS_TO,
-                'ElementRecord',
-                'id',
-                'required' => true,
-                'onDelete' => static::CASCADE
-            ],
-            'orderStatus'     => [
-                static::BELONGS_TO,
-                'Market_OrderStatusRecord',
-                'onDelete' => static::RESTRICT,
-                'onUpdate' => self::CASCADE
-            ],
-            'histories'       => [
-                static::HAS_MANY,
-                'Market_OrderHistoryRecord',
-                'orderId',
-                'order' => 'dateCreated DESC'
-            ],
-        ];
-    }
+	/**
+	 * @return array
+	 */
+	public function defineRelations ()
+	{
+		return [
+			'lineItems'       => [
+				static::HAS_MANY,
+				'Market_LineItemRecord',
+				'orderId'
+			],
+			'billingAddress'  => [static::BELONGS_TO, 'Market_AddressRecord'],
+			'shippingAddress' => [static::BELONGS_TO, 'Market_AddressRecord'],
+			'discount'        => [
+				static::HAS_ONE,
+				'Market_DiscountRecord',
+				['couponCode' => 'code']
+			],
+			'shippingMethod'  => [
+				static::BELONGS_TO,
+				'Market_ShippingMethodRecord'
+			],
+			'paymentMethod'   => [
+				static::BELONGS_TO,
+				'Market_PaymentMethodRecord'
+			],
+			'customer'        => [static::BELONGS_TO, 'Market_CustomerRecord'],
+			'transactions'    => [
+				static::HAS_MANY,
+				'Market_TransactionRecord',
+				'orderId'
+			],
+			'element'         => [
+				static::BELONGS_TO,
+				'ElementRecord',
+				'id',
+				'required' => true,
+				'onDelete' => static::CASCADE
+			],
+			'orderStatus'     => [
+				static::BELONGS_TO,
+				'Market_OrderStatusRecord',
+				'onDelete' => static::RESTRICT,
+				'onUpdate' => self::CASCADE
+			],
+			'histories'       => [
+				static::HAS_MANY,
+				'Market_OrderHistoryRecord',
+				'orderId',
+				'order' => 'dateCreated DESC'
+			],
+		];
+	}
 
-    /**
-     * @return array
-     */
-    public function defineIndexes()
-    {
-        return [
-            ['columns' => ['number']],
-        ];
-    }
+	/**
+	 * @return array
+	 */
+	public function defineIndexes ()
+	{
+		return [
+			['columns' => ['number']],
+		];
+	}
 
-    protected function defineAttributes()
-    {
-        return [
-            'number'           => [AttributeType::String, 'length' => 32],
-            'couponCode'       => AttributeType::String,
-            'itemTotal'        => [
-                AttributeType::Number,
-                'decimals' => 4,
-                'default'  => 0
-            ],
-            'baseDiscount'     => [
-                AttributeType::Number,
-                'decimals' => 4,
-                'default'  => 0
-            ],
-            'baseShippingCost' => [
-                AttributeType::Number,
-                'decimals' => 4,
-                'default'  => 0
-            ],
-            'totalPrice'       => [
-                AttributeType::Number,
-                'decimals' => 4,
-                'default'  => 0
-            ],
-            'totalPaid'        => [
-                AttributeType::Number,
-                'decimals' => 4,
-                'default'  => 0
-            ],
-            'email'            => AttributeType::String,
-            'dateOrdered'      => AttributeType::DateTime,
-            'datePaid'           => AttributeType::DateTime,
-            'currency'         => AttributeType::String,
-            'lastIp'           => AttributeType::String,
-            'message'          => AttributeType::String,
-            'returnUrl'        => AttributeType::String,
-            'cancelUrl'        => AttributeType::String,
+	/**
+	 * @return array
+	 */
+	protected function defineAttributes ()
+	{
+		return [
+			'number'              => [AttributeType::String, 'length' => 32],
+			'couponCode'          => AttributeType::String,
+			'itemTotal'           => [
+				AttributeType::Number,
+				'decimals' => 4,
+				'default'  => 0
+			],
+			'baseDiscount'        => [
+				AttributeType::Number,
+				'decimals' => 4,
+				'default'  => 0
+			],
+			'baseShippingCost'    => [
+				AttributeType::Number,
+				'decimals' => 4,
+				'default'  => 0
+			],
+			'totalPrice'          => [
+				AttributeType::Number,
+				'decimals' => 4,
+				'default'  => 0
+			],
+			'totalPaid'           => [
+				AttributeType::Number,
+				'decimals' => 4,
+				'default'  => 0
+			],
+			'email'               => AttributeType::String,
+			'dateOrdered'         => AttributeType::DateTime,
+			'datePaid'            => AttributeType::DateTime,
+			'currency'            => AttributeType::String,
+			'lastIp'              => AttributeType::String,
+			'message'             => AttributeType::String,
+			'returnUrl'           => AttributeType::String,
+			'cancelUrl'           => AttributeType::String,
 
-            'billingAddressData'  => AttributeType::Mixed,
-            'shippingAddressData'  => AttributeType::Mixed
-        ];
-    }
+			'billingAddressData'  => AttributeType::Mixed,
+			'shippingAddressData' => AttributeType::Mixed
+		];
+	}
 
 }

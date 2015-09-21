@@ -25,69 +25,81 @@ namespace Craft;
 class Market_VariantRecord extends BaseRecord
 {
 
-    public function getTableName()
-    {
-        return 'market_variants';
-    }
+	/**
+	 * @return string
+	 */
+	public function getTableName ()
+	{
+		return 'market_variants';
+	}
 
-    public function defineIndexes()
-    {
-        return [
-            ['columns' => ['sku'], 'unique' => true],
-        ];
-    }
+	/**
+	 * @return array
+	 */
+	public function defineIndexes ()
+	{
+		return [
+			['columns' => ['sku'], 'unique' => true],
+		];
+	}
 
-    public function defineRelations()
-    {
-        return [
-            'product' => [
-                self::BELONGS_TO,
-                'Market_ProductRecord',
-                'onDelete' => self::SET_NULL,
-                'onUpdate' => self::CASCADE
-            ],
-            'element'     => [
-                static::BELONGS_TO,
-                'ElementRecord',
-                'id',
-                'required' => true,
-                'onDelete' => static::CASCADE
-            ]
-        ];
-    }
+	/**
+	 * @return array
+	 */
+	public function defineRelations ()
+	{
+		return [
+			'product' => [
+				self::BELONGS_TO,
+				'Market_ProductRecord',
+				'onDelete' => self::SET_NULL,
+				'onUpdate' => self::CASCADE
+			],
+			'element' => [
+				static::BELONGS_TO,
+				'ElementRecord',
+				'id',
+				'required' => true,
+				'onDelete' => static::CASCADE
+			]
+		];
+	}
 
-    protected function defineAttributes()
-    {
-        return [
-            'isImplicit'       => [
-                AttributeType::Bool,
-                'default'  => 0,
-                'required' => true
-            ],
-            'sku'            => [AttributeType::String, 'required' => true],
-            'price'          => [
-                AttributeType::Number,
-                'decimals' => 4,
-                'required' => true
-            ],
-            'width'          => [AttributeType::Number, 'decimals' => 4],
-            'height'         => [AttributeType::Number, 'decimals' => 4],
-            'length'         => [AttributeType::Number, 'decimals' => 4],
-            'weight'         => [AttributeType::Number, 'decimals' => 4],
-            'stock'          => [
-                AttributeType::Number,
-                'unsigned' => true,
-                'required' => true,
-                'default'  => 0
-            ],
-            'unlimitedStock' => [
-                AttributeType::Bool,
-                'default'  => 0,
-                'required' => true
-            ],
-            'minQty'         => [AttributeType::Number, 'unsigned' => true],
-            'maxQty'         => [AttributeType::Number, 'unsigned' => true]
-        ];
-    }
+	/**
+	 * @return array
+	 */
+	protected function defineAttributes ()
+	{
+		return [
+			'isImplicit'     => [
+				AttributeType::Bool,
+				'default'  => 0,
+				'required' => true
+			],
+			'sku'            => [AttributeType::String, 'required' => true],
+			'price'          => [
+				AttributeType::Number,
+				'decimals' => 4,
+				'required' => true
+			],
+			'width'          => [AttributeType::Number, 'decimals' => 4],
+			'height'         => [AttributeType::Number, 'decimals' => 4],
+			'length'         => [AttributeType::Number, 'decimals' => 4],
+			'weight'         => [AttributeType::Number, 'decimals' => 4],
+			'stock'          => [
+				AttributeType::Number,
+				'unsigned' => true,
+				'required' => true,
+				'default'  => 0
+			],
+			'unlimitedStock' => [
+				AttributeType::Bool,
+				'default'  => 0,
+				'required' => true
+			],
+			'minQty'         => [AttributeType::Number, 'unsigned' => true],
+			'maxQty'         => [AttributeType::Number, 'unsigned' => true]
+		];
+	}
 
 }

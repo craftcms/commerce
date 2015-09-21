@@ -13,19 +13,9 @@ namespace Craft;
  */
 class Market_InstallService extends BaseApplicationComponent
 {
+	public function _createTables ()
+	{
+		// TODO: test for market during rename etc.
+	}
 
-    public function install()
-    {
-
-        $this->_createTables();
-        $this->_addForeignKeys();
-    }
-
-    private function _createTables()
-    {
-    }
-
-    private function _addForeignKeys()
-    {
-    }
 }

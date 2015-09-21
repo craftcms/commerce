@@ -21,7 +21,7 @@ class Market_ProductTypeLocaleRecord extends BaseRecord
 	 *
 	 * @return string
 	 */
-	public function getTableName()
+	public function getTableName ()
 	{
 		return 'market_producttypes_i18n';
 	}
@@ -31,12 +31,12 @@ class Market_ProductTypeLocaleRecord extends BaseRecord
 	 *
 	 * @return array
 	 */
-	public function defineRelations()
+	public function defineRelations ()
 	{
-		return array(
-			'productType'  => array(static::BELONGS_TO, 'Market_ProductTypeRecord', 'required' => true, 'onDelete' => static::CASCADE),
-			'locale' => array(static::BELONGS_TO, 'LocaleRecord', 'locale', 'required' => true, 'onDelete' => static::CASCADE, 'onUpdate' => static::CASCADE),
-		);
+		return [
+			'productType' => [static::BELONGS_TO, 'Market_ProductTypeRecord', 'required' => true, 'onDelete' => static::CASCADE],
+			'locale'      => [static::BELONGS_TO, 'LocaleRecord', 'locale', 'required' => true, 'onDelete' => static::CASCADE, 'onUpdate' => static::CASCADE],
+		];
 	}
 
 	/**
@@ -44,11 +44,11 @@ class Market_ProductTypeLocaleRecord extends BaseRecord
 	 *
 	 * @return array
 	 */
-	public function defineIndexes()
+	public function defineIndexes ()
 	{
-		return array(
-			array('columns' => array('productTypeId', 'locale'), 'unique' => true),
-		);
+		return [
+			['columns' => ['productTypeId', 'locale'], 'unique' => true],
+		];
 	}
 
 	// Protected Methods
@@ -59,11 +59,11 @@ class Market_ProductTypeLocaleRecord extends BaseRecord
 	 *
 	 * @return array
 	 */
-	protected function defineAttributes()
+	protected function defineAttributes ()
 	{
-		return array(
-			'locale'          => array(AttributeType::Locale, 'required' => true),
-			'urlFormat'       => AttributeType::UrlFormat
-		);
+		return [
+			'locale'    => [AttributeType::Locale, 'required' => true],
+			'urlFormat' => AttributeType::UrlFormat
+		];
 	}
 }

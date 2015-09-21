@@ -16,11 +16,11 @@ class Market_ShippingRuleController extends Market_BaseController
 	/**
 	 * @throws HttpException
 	 */
-	public function actionIndex()
+	public function actionIndex ()
 	{
 		$this->requireAdmin();
 
-		$methodsExist  = craft()->market_shippingMethod->exists();
+		$methodsExist = craft()->market_shippingMethod->exists();
 		$shippingRules = craft()->market_shippingRule->getAll([
 			'order' => 't.methodId, t.name',
 			'with'  => ['method', 'country', 'state'],
@@ -35,29 +35,37 @@ class Market_ShippingRuleController extends Market_BaseController
 	 *
 	 * @throws HttpException
 	 */
-	public function actionEdit(array $variables = [])
+	public function actionEdit (array $variables = [])
 	{
 		$this->requireAdmin();
 
-		if (empty($variables['shippingRule'])) {
-			if (!empty($variables['ruleId'])) {
-				$id                        = $variables['ruleId'];
+		if (empty($variables['shippingRule']))
+		{
+			if (!empty($variables['ruleId']))
+			{
+				$id = $variables['ruleId'];
 				$variables['shippingRule'] = craft()->market_shippingRule->getById($id);
 
-				if (!$variables['shippingRule']->id) {
+				if (!$variables['shippingRule']->id)
+				{
 					throw new HttpException(404);
 				}
-			} else {
+			}
+			else
+			{
 				$variables['shippingRule'] = new Market_ShippingRuleModel();
 			}
 		}
 
 		$variables['countries'] = ['' => ''] + craft()->market_country->getFormList();
-		$variables['states']    = craft()->market_state->getGroupedByCountries();
+		$variables['states'] = craft()->market_state->getGroupedByCountries();
 
-		if (!empty($variables['ruleId'])) {
+		if (!empty($variables['ruleId']))
+		{
 			$variables['title'] = $variables['shippingRule']->name;
-		} else {
+		}
+		else
+		{
 			$variables['title'] = Craft::t('Create a new shipping rule');
 		}
 
@@ -67,7 +75,7 @@ class Market_ShippingRuleController extends Market_BaseController
 	/**
 	 * @throws HttpException
 	 */
-	public function actionSave()
+	public function actionSave ()
 	{
 		$this->requireAdmin();
 		$this->requirePostRequest();
@@ -77,15 +85,19 @@ class Market_ShippingRuleController extends Market_BaseController
 		// Shared attributes
 		$fields = ['id', 'name', 'description', 'countryId', 'stateId', 'methodId', 'enabled', 'minQty', 'maxQty', 'minTotal', 'maxTotal',
 			'minWeight', 'maxWeight', 'baseRate', 'perItemRate', 'weightRate', 'percentageRate', 'minRate', 'maxRate'];
-		foreach ($fields as $field) {
+		foreach ($fields as $field)
+		{
 			$shippingRule->$field = craft()->request->getPost($field);
 		}
 
 		// Save it
-		if (craft()->market_shippingRule->save($shippingRule)) {
+		if (craft()->market_shippingRule->save($shippingRule))
+		{
 			craft()->userSession->setNotice(Craft::t('Shipping rule saved.'));
 			$this->redirectToPostedUrl($shippingRule);
-		} else {
+		}
+		else
+		{
 			craft()->userSession->setError(Craft::t('Couldn’t save shipping rule.'));
 		}
 
@@ -97,7 +109,7 @@ class Market_ShippingRuleController extends Market_BaseController
 	 * @return null
 	 * @throws HttpException
 	 */
-	public function actionReorder()
+	public function actionReorder ()
 	{
 		$this->requireAdmin();
 		$this->requirePostRequest();
@@ -105,12 +117,14 @@ class Market_ShippingRuleController extends Market_BaseController
 
 		$ids = JsonHelper::decode(craft()->request->getRequiredPost('ids'));
 		$success = craft()->market_shippingRule->reorder($ids);
+
 		return $this->returnJson(['success' => $success]);
 	}
+
 	/**
 	 * @throws HttpException
 	 */
-	public function actionDelete()
+	public function actionDelete ()
 	{
 		$this->requireAdmin();
 		$this->requirePostRequest();

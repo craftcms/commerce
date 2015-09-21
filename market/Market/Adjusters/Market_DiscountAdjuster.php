@@ -24,20 +24,25 @@ class Market_DiscountAdjuster implements Market_AdjusterInterface
 	 *
 	 * @return \Craft\Market_OrderAdjustmentModel[]
 	 */
-	public function adjust(Market_OrderModel &$order, array $lineItems = [])
+	public function adjust (Market_OrderModel &$order, array $lineItems = [])
 	{
-		if (empty($lineItems)) {
+		if (empty($lineItems))
+		{
 			return [];
 		}
 
 		$discount = \Craft\craft()->market_discount->getByCode($order->couponCode);
-		if (!$discount->id) {
+		if (!$discount->id)
+		{
 			return [];
 		}
 
-		if ($adjustment = $this->getAdjustment($order, $lineItems, $discount)) {
+		if ($adjustment = $this->getAdjustment($order, $lineItems, $discount))
+		{
 			return [$adjustment];
-		} else {
+		}
+		else
+		{
 			return [];
 		}
 	}
@@ -49,35 +54,40 @@ class Market_DiscountAdjuster implements Market_AdjusterInterface
 	 *
 	 * @return Market_OrderAdjustmentModel|false
 	 */
-	private function getAdjustment(Market_OrderModel $order, array $lineItems, Market_DiscountModel $discount)
+	private function getAdjustment (Market_OrderModel $order, array $lineItems, Market_DiscountModel $discount)
 	{
 		//preparing model
-		$adjustment              = new Market_OrderAdjustmentModel;
-		$adjustment->type        = self::ADJUSTMENT_TYPE;
-		$adjustment->name        = $discount->name;
-		$adjustment->orderId     = $order->id;
+		$adjustment = new Market_OrderAdjustmentModel;
+		$adjustment->type = self::ADJUSTMENT_TYPE;
+		$adjustment->name = $discount->name;
+		$adjustment->orderId = $order->id;
 		$adjustment->description = $this->getDescription($discount);
 		$adjustment->optionsJson = $discount->attributes;
 
 		//checking items
-		$matchingQty   = 0;
+		$matchingQty = 0;
 		$matchingTotal = 0;
-		foreach ($lineItems as $item) {
-			if (\Craft\craft()->market_discount->matchLineItem($item, $discount)) {
+		foreach ($lineItems as $item)
+		{
+			if (\Craft\craft()->market_discount->matchLineItem($item, $discount))
+			{
 				$matchingQty += $item->qty;
 				$matchingTotal += $item->getSubtotalWithSale();
 			}
 		}
 
-		if (!$matchingQty) {
+		if (!$matchingQty)
+		{
 			return false;
 		}
 
-		if ($matchingQty < $discount->purchaseQty) {
+		if ($matchingQty < $discount->purchaseQty)
+		{
 			return false;
 		}
 
-		if ($matchingTotal < $discount->purchaseTotal) {
+		if ($matchingTotal < $discount->purchaseTotal)
+		{
 			return false;
 		}
 
@@ -86,35 +96,43 @@ class Market_DiscountAdjuster implements Market_AdjusterInterface
 		$amount += $discount->perItemDiscount * $matchingQty;
 		$amount += $discount->percentDiscount * $matchingTotal;
 
-		foreach ($lineItems as $item) {
+		foreach ($lineItems as $item)
+		{
 			$item->discount = $discount->perItemDiscount * $item->qty + $discount->percentDiscount * $item->getSubtotalWithSale();
 			// If the discount is larger than the subtotal
 			// make the discount equal the discount, thus making the item free.
-			if(($item->discount * -1) > $item->getSubtotalWithSale()){
+			if (($item->discount * -1) > $item->getSubtotalWithSale())
+			{
 				$item->discount = -$item->getSubtotalWithSale();
 			}
 
-			if(!$item->purchasable->product->promotable){
+			if (!$item->purchasable->product->promotable)
+			{
 				$item->discount = 0;
 			}
 
-			if ($discount->freeShipping) {
+			if ($discount->freeShipping)
+			{
 				$item->shippingCost = 0;
 			}
 		}
 
-		if ($discount->freeShipping) {
+		if ($discount->freeShipping)
+		{
 			$order->baseShippingCost = 0;
 		}
 
 		$order->baseDiscount = $discount->baseDiscount;
 
 		// only display adjustment if an amount was calculated
-		if ($amount) {
+		if ($amount)
+		{
 			$adjustment->amount = $amount;
 
 			return $adjustment;
-		} else {
+		}
+		else
+		{
 			return false;
 		}
 	}
@@ -124,34 +142,42 @@ class Market_DiscountAdjuster implements Market_AdjusterInterface
 	 *
 	 * @return string "1$ and 5% per item and 10$ base rate"
 	 */
-	private function getDescription(Market_DiscountModel $discount)
+	private function getDescription (Market_DiscountModel $discount)
 	{
 		$description = '';
-		if ($discount->perItemDiscount || $discount->percentDiscount) {
-			if ($discount->perItemDiscount) {
-				$description .= $discount->perItemDiscount * 1 . '$ ';
+		if ($discount->perItemDiscount || $discount->percentDiscount)
+		{
+			if ($discount->perItemDiscount)
+			{
+				$description .= $discount->perItemDiscount * 1 .'$ ';
 			}
 
-			if ($discount->percentDiscount) {
-				if ($discount->perItemDiscount) {
+			if ($discount->percentDiscount)
+			{
+				if ($discount->perItemDiscount)
+				{
 					$description .= 'and ';
 				}
 
-				$description .= $discount->percentDiscount * 100 . '% ';
+				$description .= $discount->percentDiscount * 100 .'% ';
 			}
 
 			$description .= 'per item ';
 		}
 
-		if ($discount->baseDiscount) {
-			if ($description) {
+		if ($discount->baseDiscount)
+		{
+			if ($description)
+			{
 				$description .= 'and ';
 			}
-			$description .= $discount->baseDiscount * 1 . '$ base rate ';
+			$description .= $discount->baseDiscount * 1 .'$ base rate ';
 		}
 
-		if ($discount->freeShipping) {
-			if ($description) {
+		if ($discount->freeShipping)
+		{
+			if ($description)
+			{
 				$description .= 'and ';
 			}
 

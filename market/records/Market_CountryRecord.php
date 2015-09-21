@@ -14,33 +14,42 @@ namespace Craft;
 class Market_CountryRecord extends BaseRecord
 {
 
-    public function getTableName()
-    {
-        return 'market_countries';
-    }
+	/**
+	 * @return string
+	 */
+	public function getTableName ()
+	{
+		return 'market_countries';
+	}
 
-    public function defineIndexes()
-    {
-        return [
-            ['columns' => ['name'], 'unique' => true],
-            ['columns' => ['iso'], 'unique' => true],
-        ];
-    }
+	/**
+	 * @return array
+	 */
+	public function defineIndexes ()
+	{
+		return [
+			['columns' => ['name'], 'unique' => true],
+			['columns' => ['iso'], 'unique' => true],
+		];
+	}
 
-    protected function defineAttributes()
-    {
-        return [
-            'name'          => [AttributeType::String, 'required' => true],
-            'iso'           => [
-                AttributeType::String,
-                'required'  => true,
-                'maxLength' => 2
-            ],
-            'stateRequired' => [
-                AttributeType::Bool,
-                'required' => true,
-                'default'  => 0
-            ],
-        ];
-    }
+	/**
+	 * @return array
+	 */
+	protected function defineAttributes ()
+	{
+		return [
+			'name'          => [AttributeType::String, 'required' => true],
+			'iso'           => [
+				AttributeType::String,
+				'required'  => true,
+				'maxLength' => 2
+			],
+			'stateRequired' => [
+				AttributeType::Bool,
+				'required' => true,
+				'default'  => 0
+			],
+		];
+	}
 }

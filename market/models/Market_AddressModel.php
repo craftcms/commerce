@@ -30,47 +30,60 @@ use Market\Traits\Market_ModelRelationsTrait;
  */
 class Market_AddressModel extends BaseModel
 {
-    use Market_ModelRelationsTrait;
+	use Market_ModelRelationsTrait;
 
-    /** @var int|string Either ID of a state or name of state if it's not present in the DB */
-    public $stateValue;
+	/** @var int|string Either ID of a state or name of state if it's not present in the DB */
+	public $stateValue;
 
-    public function getCpEditUrl()
-    {
-        return UrlHelper::getCpUrl('market/customers/' . $this->customerId . '/addresses/' . $this->id);
-    }
+	/**
+	 * @return string
+	 */
+	public function getCpEditUrl ()
+	{
+		return UrlHelper::getCpUrl('market/customers/'.$this->customerId.'/addresses/'.$this->id);
+	}
 
-    public function getStateText()
-    {
-        return $this->stateName ?: ($this->stateId ? $this->state->name : '');
-    }
+	/**
+	 * @return string
+	 */
+	public function getStateText ()
+	{
+		return $this->stateName ?: ($this->stateId ? $this->state->name : '');
+	}
 
-    public function getCountryText()
-    {
-        if (!$this->countryId) {
-            return "";
-        }
+	/**
+	 * @return string
+	 */
+	public function getCountryText ()
+	{
+		if (!$this->countryId)
+		{
+			return "";
+		}
 
-        return craft()->market_country->getById($this->countryId)->name;
-    }
+		return craft()->market_country->getById($this->countryId)->name;
+	}
 
-    protected function defineAttributes()
-    {
-        return [
-            'id'               => AttributeType::Number,
-            'firstName'        => AttributeType::String,
-            'lastName'         => AttributeType::String,
-            'address1'         => AttributeType::String,
-            'address2'         => AttributeType::String,
-            'city'             => AttributeType::String,
-            'zipCode'          => AttributeType::String,
-            'phone'            => AttributeType::String,
-            'alternativePhone' => AttributeType::String,
-            'company'          => AttributeType::String,
-            'stateName'        => AttributeType::String,
-            'countryId'        => AttributeType::Number,
-            'stateId'          => AttributeType::Number,
-            'customerId'       => AttributeType::Number
-        ];
-    }
+	/**
+	 * @return array
+	 */
+	protected function defineAttributes ()
+	{
+		return [
+			'id'               => AttributeType::Number,
+			'firstName'        => AttributeType::String,
+			'lastName'         => AttributeType::String,
+			'address1'         => AttributeType::String,
+			'address2'         => AttributeType::String,
+			'city'             => AttributeType::String,
+			'zipCode'          => AttributeType::String,
+			'phone'            => AttributeType::String,
+			'alternativePhone' => AttributeType::String,
+			'company'          => AttributeType::String,
+			'stateName'        => AttributeType::String,
+			'countryId'        => AttributeType::Number,
+			'stateId'          => AttributeType::Number,
+			'customerId'       => AttributeType::Number
+		];
+	}
 }

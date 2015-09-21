@@ -16,7 +16,7 @@ class Market_TaxCategoryController extends Market_BaseController
 	/**
 	 * @throws HttpException
 	 */
-	public function actionIndex()
+	public function actionIndex ()
 	{
 		$this->requireAdmin();
 
@@ -31,26 +31,34 @@ class Market_TaxCategoryController extends Market_BaseController
 	 *
 	 * @throws HttpException
 	 */
-	public function actionEdit(array $variables = [])
+	public function actionEdit (array $variables = [])
 	{
 		$this->requireAdmin();
 
-		if (empty($variables['taxCategory'])) {
-			if (!empty($variables['id'])) {
-				$id                       = $variables['id'];
+		if (empty($variables['taxCategory']))
+		{
+			if (!empty($variables['id']))
+			{
+				$id = $variables['id'];
 				$variables['taxCategory'] = craft()->market_taxCategory->getById($id);
 
-				if (!$variables['taxCategory']) {
+				if (!$variables['taxCategory'])
+				{
 					throw new HttpException(404);
 				}
-			} else {
+			}
+			else
+			{
 				$variables['taxCategory'] = new Market_TaxCategoryModel();
 			};
 		}
 
-		if (!empty($variables['id'])) {
+		if (!empty($variables['id']))
+		{
 			$variables['title'] = $variables['taxCategory']->name;
-		} else {
+		}
+		else
+		{
 			$variables['title'] = Craft::t('Create a new tax category');
 		}
 
@@ -60,7 +68,7 @@ class Market_TaxCategoryController extends Market_BaseController
 	/**
 	 * @throws HttpException
 	 */
-	public function actionSave()
+	public function actionSave ()
 	{
 		$this->requireAdmin();
 		$this->requirePostRequest();
@@ -68,17 +76,20 @@ class Market_TaxCategoryController extends Market_BaseController
 		$taxCategory = new Market_TaxCategoryModel();
 
 		// Shared attributes
-		$taxCategory->id          = craft()->request->getPost('taxCategoryId');
-		$taxCategory->name        = craft()->request->getPost('name');
-		$taxCategory->handle      = craft()->request->getPost('handle');
+		$taxCategory->id = craft()->request->getPost('taxCategoryId');
+		$taxCategory->name = craft()->request->getPost('name');
+		$taxCategory->handle = craft()->request->getPost('handle');
 		$taxCategory->description = craft()->request->getPost('description');
-		$taxCategory->default     = craft()->request->getPost('default');
+		$taxCategory->default = craft()->request->getPost('default');
 
 		// Save it
-		if (craft()->market_taxCategory->save($taxCategory)) {
+		if (craft()->market_taxCategory->save($taxCategory))
+		{
 			craft()->userSession->setNotice(Craft::t('Tax category saved.'));
 			$this->redirectToPostedUrl($taxCategory);
-		} else {
+		}
+		else
+		{
 			craft()->userSession->setError(Craft::t('Couldn’t save tax category.'));
 		}
 
@@ -91,7 +102,7 @@ class Market_TaxCategoryController extends Market_BaseController
 	/**
 	 * @throws HttpException
 	 */
-	public function actionDelete()
+	public function actionDelete ()
 	{
 		$this->requireAdmin();
 		$this->requirePostRequest();

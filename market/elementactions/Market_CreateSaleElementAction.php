@@ -51,7 +51,12 @@ EOT;
 		craft()->templates->includeJs($js);
 	}
 
-	protected function defineParams()
+	/**
+	 * @inheritDoc BaseElementAction::defineParams()
+	 *
+	 * @return array
+	 */
+	protected function defineParams ()
 	{
 		return [];
 	}

@@ -28,228 +28,252 @@ use Market\Traits\Market_ModelRelationsTrait;
  */
 class Market_ProductModel extends BaseElementModel
 {
-    use Market_ModelRelationsTrait;
+	use Market_ModelRelationsTrait;
 
-    const LIVE = 'live';
-    const PENDING = 'pending';
-    const EXPIRED = 'expired';
+	const LIVE = 'live';
+	const PENDING = 'pending';
+	const EXPIRED = 'expired';
 
-    protected $elementType = 'Market_Product';
+	/**
+	 * @var string
+	 */
+	protected $elementType = 'Market_Product';
 
-    // Public Methods
-    // =============================================================================
+	// Public Methods
+	// =============================================================================
 
 
-    /**
-     * @return bool
-     */
-    public function isEditable()
-    {
-        return true;
-    }
+	/**
+	 * @return bool
+	 */
+	public function isEditable ()
+	{
+		return true;
+	}
 
-    /**
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->title;
-    }
+	/**
+	 * @return string
+	 */
+	public function __toString ()
+	{
+		return $this->title;
+	}
 
-    /**
-     * Allow the variant to ask the product what data to snapshot
-     * @return string
-     */
-    public function getSnapshot()
-    {
-        $data = [
-            'title' => $this->getTitle(),
-            'name' => $this->getTitle()
-        ];
+	/**
+	 * Allow the variant to ask the product what data to snapshot
+	 *
+	 * @return string
+	 */
+	public function getSnapshot ()
+	{
+		$data = [
+			'title' => $this->getTitle(),
+			'name'  => $this->getTitle()
+		];
 
-        return array_merge($this->getAttributes(), $data);
-    }
+		return array_merge($this->getAttributes(), $data);
+	}
 
-    /*
-     * Name is an alias to title.
-     *
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->title;
-    }
+	/*
+	 * Name is an alias to title.
+	 *
+	 * @return string
+	 */
+	/**
+	 * @return mixed
+	 */
+	public function getName ()
+	{
+		return $this->title;
+	}
 
-    /*
-     * Url to edit this Product in the control panel.
-     */
+	/*
+	 * Url to edit this Product in the control panel.
+	 */
 
-    /**
-     * What is the Url Format for this ProductType
-     *
-     * @return string
-     */
-    public function getUrlFormat()
-    {
-        $productType = $this->getType();
+	/**
+	 * What is the Url Format for this ProductType
+	 *
+	 * @return string
+	 */
+	public function getUrlFormat ()
+	{
+		$productType = $this->getType();
 
-        if ($productType && $productType->hasUrls)
-        {
-            $productTypeLocales = $productType->getLocales();
+		if ($productType && $productType->hasUrls)
+		{
+			$productTypeLocales = $productType->getLocales();
 
-            if (isset($productTypeLocales[$this->locale]))
-            {
-                return $productTypeLocales[$this->locale]->urlFormat;
-            }
-        }
-    }
+			if (isset($productTypeLocales[$this->locale]))
+			{
+				return $productTypeLocales[$this->locale]->urlFormat;
+			}
+		}
+	}
 
-    /**
-     * Gets the products type
-     */
-    public function getType()
-    {
-        if ($this->typeId)
-        {
-            return craft()->market_productType->getById($this->typeId);
-        }
-    }
+	/**
+	 * Gets the products type
+	 */
+	public function getType ()
+	{
+		if ($this->typeId)
+		{
+			return craft()->market_productType->getById($this->typeId);
+		}
+	}
 
-    /**
-     * @return null|string
-     */
-    public function getCpEditUrl()
-    {
-        $productType = $this->getType();
+	/**
+	 * @return null|string
+	 */
+	public function getCpEditUrl ()
+	{
+		$productType = $this->getType();
 
-        if ($productType)
-        {
-            // The slug *might* not be set if this is a Draft and they've deleted it for whatever reason
-            $url = UrlHelper::getCpUrl('market/products/'.$productType->handle.'/'.$this->id.($this->slug ? '-'.$this->slug : ''));
+		if ($productType)
+		{
+			// The slug *might* not be set if this is a Draft and they've deleted it for whatever reason
+			$url = UrlHelper::getCpUrl('market/products/'.$productType->handle.'/'.$this->id.($this->slug ? '-'.$this->slug : ''));
 
-            if (craft()->isLocalized() && $this->locale != craft()->language)
-            {
-                $url .= '/'.$this->locale;
-            }
+			if (craft()->isLocalized() && $this->locale != craft()->language)
+			{
+				$url .= '/'.$this->locale;
+			}
 
-            return $url;
-        }
+			return $url;
+		}
+	}
 
-    }
+	/**
+	 * @return FieldLayoutModel|null
+	 */
+	public function getFieldLayout ()
+	{
+		if ($this->typeId)
+		{
+			return craft()->market_productType->getById($this->typeId)->asa('productFieldLayout')->getFieldLayout();
+		}
 
-    /**
-     * @return FieldLayoutModel|null
-     */
-    public function getFieldLayout()
-    {
-        if ($this->typeId) {
-            return craft()->market_productType->getById($this->typeId)->asa('productFieldLayout')->getFieldLayout();
-        }
+		return null;
+	}
 
-        return null;
-    }
+	/**
+	 * @return null|string
+	 */
+	public function getStatus ()
+	{
+		$status = parent::getStatus();
 
-    /**
-     * @return null|string
-     */
-    public function getStatus()
-    {
-        $status = parent::getStatus();
+		if ($status == static::ENABLED && $this->availableOn)
+		{
+			$currentTime = DateTimeHelper::currentTimeStamp();
+			$availableOn = $this->availableOn->getTimestamp();
+			$expiresOn = ($this->expiresOn ? $this->expiresOn->getTimestamp() : null);
 
-        if ($status == static::ENABLED && $this->availableOn) {
-            $currentTime = DateTimeHelper::currentTimeStamp();
-            $availableOn = $this->availableOn->getTimestamp();
-            $expiresOn   = ($this->expiresOn ? $this->expiresOn->getTimestamp() : null);
+			if ($availableOn <= $currentTime && (!$expiresOn || $expiresOn > $currentTime))
+			{
+				return static::LIVE;
+			}
+			else
+			{
+				if ($availableOn > $currentTime)
+				{
+					return static::PENDING;
+				}
+				else
+				{
+					return static::EXPIRED;
+				}
+			}
+		}
 
-            if ($availableOn <= $currentTime && (!$expiresOn || $expiresOn > $currentTime)) {
-                return static::LIVE;
-            } else {
-                if ($availableOn > $currentTime) {
-                    return static::PENDING;
-                } else {
-                    return static::EXPIRED;
-                }
-            }
-        }
+		return $status;
+	}
 
-        return $status;
-    }
+	/**
+	 * @return bool
+	 */
+	public function isLocalized ()
+	{
+		return true;
+	}
 
-    public function isLocalized()
-    {
-        return true;
-    }
-    /**
-     * Either only implicit variant if there is only one or all without implicit
-     * Applies sales to the product before returning
-     *
-     * @return Market_VariantModel[]
-     */
-    public function getVariants()
-    {
-        $variants = craft()->market_variant->getAllByProductId($this->id);
-        craft()->market_variant->applySales($variants, $this);
+	/**
+	 * Either only implicit variant if there is only one or all without implicit
+	 * Applies sales to the product before returning
+	 *
+	 * @return Market_VariantModel[]
+	 */
+	public function getVariants ()
+	{
+		$variants = craft()->market_variant->getAllByProductId($this->id);
+		craft()->market_variant->applySales($variants, $this);
 
-        if ($this->type->hasVariants){
-            $variants = array_filter($variants, function ($v) {
-                return !$v->isImplicit;
-            });
-        }else{
-            $variants = array_filter($variants, function ($v) {
-                return $v->isImplicit;
-            });
-        }
+		if ($this->type->hasVariants)
+		{
+			$variants = array_filter($variants, function ($v)
+			{
+				return !$v->isImplicit;
+			});
+		}
+		else
+		{
+			$variants = array_filter($variants, function ($v)
+			{
+				return $v->isImplicit;
+			});
+		}
 
-        return $variants;
-    }
+		return $variants;
+	}
 
-    /**
-     * @return bool|mixed
-     * @throws Exception
-     */
-    public function getImplicitVariant()
-    {
+	/**
+	 * @return bool|mixed
+	 * @throws Exception
+	 */
+	public function getImplicitVariant ()
+	{
 
-        if($this->id){
-            $variants = craft()->market_variant->getAllByProductId($this->id);
-            craft()->market_variant->applySales($variants, $this);
+		if ($this->id)
+		{
+			$variants = craft()->market_variant->getAllByProductId($this->id);
+			craft()->market_variant->applySales($variants, $this);
 
-            $implicitVariant = array_filter($variants, function ($v)
-            {
-                return $v->isImplicit;
-            });
+			$implicitVariant = array_filter($variants, function ($v)
+			{
+				return $v->isImplicit;
+			});
 
-            if (count($implicitVariant) == 1)
-            {
-                return array_shift(array_values($implicitVariant));
-            }
-            else
-            {
-                throw new Exception('More than one implicit variant found. Contact Support.');
+			if (count($implicitVariant) == 1)
+			{
+				return array_shift(array_values($implicitVariant));
+			}
+			else
+			{
+				throw new Exception('More than one implicit variant found. Contact Support.');
 
-                return false;
-            }
-        }
+				return false;
+			}
+		}
 
-        return false;
-    }
+		return false;
+	}
 
-    // Protected Methods
-    // =============================================================================
+	// Protected Methods
+	// =============================================================================
 
-    /**
-     * @return array
-     */
-    protected function defineAttributes()
-    {
-        return array_merge(parent::defineAttributes(), [
-            'typeId'        => AttributeType::Number,
-            'authorId'      => AttributeType::Number,
-            'taxCategoryId' => AttributeType::Number,
-            'promotable'    => AttributeType::Bool,
-            'freeShipping'  => AttributeType::Bool,
-            'availableOn'   => AttributeType::DateTime,
-            'expiresOn'     => AttributeType::DateTime
-        ]);
-    }
+	/**
+	 * @return array
+	 */
+	protected function defineAttributes ()
+	{
+		return array_merge(parent::defineAttributes(), [
+			'typeId'        => AttributeType::Number,
+			'authorId'      => AttributeType::Number,
+			'taxCategoryId' => AttributeType::Number,
+			'promotable'    => AttributeType::Bool,
+			'freeShipping'  => AttributeType::Bool,
+			'availableOn'   => AttributeType::DateTime,
+			'expiresOn'     => AttributeType::DateTime
+		]);
+	}
 }

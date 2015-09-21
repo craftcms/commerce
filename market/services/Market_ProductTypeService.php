@@ -236,7 +236,7 @@ class Market_ProductTypeService extends BaseApplicationComponent
 
                 // Insert the new locales
                 craft()->db->createCommand()->insertAll('market_producttypes_i18n',
-                    array('productTypeId', 'locale', 'urlFormat'),
+                    ['productTypeId', 'locale', 'urlFormat'],
                     $newLocaleData
                 );
 
@@ -336,7 +336,8 @@ class Market_ProductTypeService extends BaseApplicationComponent
     public function deleteById ($id)
     {
         MarketDbHelper::beginStackedTransaction();
-        try {
+        try
+        {
             $productType = $this->getById($id);
 
             $query = craft()->db->createCommand()
@@ -345,20 +346,23 @@ class Market_ProductTypeService extends BaseApplicationComponent
                 ->where(['typeId' => $productType->id]);
             $productIds = $query->queryColumn();
 
-            foreach($productIds as $id){
+            foreach ($productIds as $id)
+            {
                 craft()->elements->deleteElementById($id);
             }
 
             $fieldLayoutId = $productType->asa('productFieldLayout')->getFieldLayout()->id;
             craft()->fields->deleteLayoutById($fieldLayoutId);
-            if($productType->hasVariants){
+            if ($productType->hasVariants)
+            {
                 craft()->fields->deleteLayoutById($productType->asa('variantFieldLayout')->getFieldLayout()->id);
             }
 
             $productTypeRecord = Market_ProductTypeRecord::model()->findById($productType->id);
             $affectedRows = $productTypeRecord->delete();
 
-            if($affectedRows){
+            if ($affectedRows)
+            {
                 MarketDbHelper::commitStackedTransaction();
             }
 
@@ -372,7 +376,12 @@ class Market_ProductTypeService extends BaseApplicationComponent
         }
     }
 
-    public function addLocaleHandler(Event $event)
+	/**
+     * @param Event $event
+     *
+     * @return bool
+     */
+    public function addLocaleHandler (Event $event)
     {
         /** @var Market_OrderModel $order */
         $localeId = $event->params['localeId'];
@@ -381,7 +390,7 @@ class Market_ProductTypeService extends BaseApplicationComponent
         $productTypeLocales = craft()->db->createCommand()
             ->select('productTypeId, urlFormat')
             ->from('market_producttypes_i18n')
-            ->where('locale = :locale', array(':locale' => craft()->i18n->getPrimarySiteLocaleId()))
+            ->where('locale = :locale', [':locale' => craft()->i18n->getPrimarySiteLocaleId()])
             ->queryAll();
 
         if ($productTypeLocales)

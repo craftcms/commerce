@@ -21,23 +21,29 @@ use Market\Traits\Market_ModelRelationsTrait;
  */
 class Market_TaxRateModel extends BaseModel
 {
-    use Market_ModelRelationsTrait;
+	use Market_ModelRelationsTrait;
 
-    public function getCpEditUrl()
-    {
-        return UrlHelper::getCpUrl('market/settings/taxrates/' . $this->id);
-    }
+	/**
+	 * @return string
+	 */
+	public function getCpEditUrl ()
+	{
+		return UrlHelper::getCpUrl('market/settings/taxrates/'.$this->id);
+	}
 
-    protected function defineAttributes()
-    {
-        return [
-            'id'            => AttributeType::Number,
-            'name'          => AttributeType::String,
-            'rate'          => [AttributeType::Number, 'default' => .05, 'decimals' => 5],
-            'include'       => AttributeType::Bool,
-            'showInLabel'   => AttributeType::Bool,
-            'taxCategoryId' => [AttributeType::Number, 'required'=>true],
-            'taxZoneId'     => [AttributeType::Number, 'required'=>true]
-        ];
-    }
+	/**
+	 * @return array
+	 */
+	protected function defineAttributes ()
+	{
+		return [
+			'id'            => AttributeType::Number,
+			'name'          => AttributeType::String,
+			'rate'          => [AttributeType::Number, 'default' => .05, 'decimals' => 5],
+			'include'       => AttributeType::Bool,
+			'showInLabel'   => AttributeType::Bool,
+			'taxCategoryId' => [AttributeType::Number, 'required' => true],
+			'taxZoneId'     => [AttributeType::Number, 'required' => true]
+		];
+	}
 }

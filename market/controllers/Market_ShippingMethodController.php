@@ -16,7 +16,7 @@ class Market_ShippingMethodController extends Market_BaseController
 	/**
 	 * @throws HttpException
 	 */
-	public function actionIndex()
+	public function actionIndex ()
 	{
 		$this->requireAdmin();
 
@@ -31,31 +31,39 @@ class Market_ShippingMethodController extends Market_BaseController
 	 *
 	 * @throws HttpException
 	 */
-	public function actionEdit(array $variables = [])
+	public function actionEdit (array $variables = [])
 	{
 		$this->requireAdmin();
 
 		$variables['newMethod'] = false;
 
-		if (empty($variables['shippingMethod'])) {
-			if (!empty($variables['id'])) {
-				$id                          = $variables['id'];
+		if (empty($variables['shippingMethod']))
+		{
+			if (!empty($variables['id']))
+			{
+				$id = $variables['id'];
 				$variables['shippingMethod'] = craft()->market_shippingMethod->getById($id);
 
-				if (!$variables['shippingMethod']->id) {
+				if (!$variables['shippingMethod']->id)
+				{
 					throw new HttpException(404);
 				}
-			} else {
+			}
+			else
+			{
 				$variables['shippingMethod'] = new Market_ShippingMethodModel();
-				$variables['newMethod']      = true;
+				$variables['newMethod'] = true;
 			}
 		}
 
-		if (!empty($variables['id'])) {
+		if (!empty($variables['id']))
+		{
 			$variables['title'] = $variables['shippingMethod']->name;
-		} else {
+		}
+		else
+		{
 			$variables['title'] = Craft::t('Create a new shipping method');
-			$variables['newMethod']      = true;
+			$variables['newMethod'] = true;
 		}
 
 		$shippingRules = craft()->market_shippingRule->getAllByMethodId($variables['shippingMethod']->id);
@@ -68,22 +76,25 @@ class Market_ShippingMethodController extends Market_BaseController
 	/**
 	 * @throws HttpException
 	 */
-	public function actionSave()
+	public function actionSave ()
 	{
 		$this->requireAdmin();
 		$this->requirePostRequest();
 		$shippingMethod = new Market_ShippingMethodModel();
 
 		// Shared attributes
-		$shippingMethod->id      = craft()->request->getPost('shippingMethodId');
-		$shippingMethod->name    = craft()->request->getPost('name');
+		$shippingMethod->id = craft()->request->getPost('shippingMethodId');
+		$shippingMethod->name = craft()->request->getPost('name');
 		$shippingMethod->enabled = craft()->request->getPost('enabled');
 		$shippingMethod->default = craft()->request->getPost('default');
 		// Save it
-		if (craft()->market_shippingMethod->save($shippingMethod)) {
+		if (craft()->market_shippingMethod->save($shippingMethod))
+		{
 			craft()->userSession->setNotice(Craft::t('Shipping method saved.'));
 			$this->redirectToPostedUrl($shippingMethod);
-		} else {
+		}
+		else
+		{
 			craft()->userSession->setError(Craft::t('Couldn’t save shipping method.'));
 		}
 
@@ -94,7 +105,7 @@ class Market_ShippingMethodController extends Market_BaseController
 	/**
 	 * @throws HttpException
 	 */
-	public function actionDelete()
+	public function actionDelete ()
 	{
 		$this->requireAdmin();
 		$this->requirePostRequest();
@@ -104,16 +115,17 @@ class Market_ShippingMethodController extends Market_BaseController
 
 		$method = craft()->market_shippingMethod->getById($id);
 
-		if ($method->default){
-			$this->returnJson(array(
+		if ($method->default)
+		{
+			$this->returnJson([
 				'errors' => [Craft::t('Can not delete the default method.')]
-			));
+			]);
 		}
 
-		if (craft()->market_shippingMethod->delete($method)) {
+		if (craft()->market_shippingMethod->delete($method))
+		{
 			$this->returnJson(['success' => true]);
 		}
-
 	}
 
 }

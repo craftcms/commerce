@@ -15,46 +15,53 @@ class Market_ProductTypeController extends Market_BaseController
 {
     protected $allowAnonymous = false;
 
-    public function actionIndex()
+    public function actionIndex ()
     {
         $this->requireAdmin();
 
         $productTypes = craft()->market_productType->getAll();
         $this->renderTemplate('market/settings/producttypes/index',
             compact('productTypes'));
-
     }
 
-    public function actionEditProductType(array $variables = [])
+    public function actionEditProductType (array $variables = [])
     {
         $this->requireAdmin();
 
         $variables['brandNewProductType'] = false;
 
-        if (empty($variables['productType'])) {
-            if (!empty($variables['productTypeId'])) {
-                $productTypeId            = $variables['productTypeId'];
+        if (empty($variables['productType']))
+        {
+            if (!empty($variables['productTypeId']))
+            {
+                $productTypeId = $variables['productTypeId'];
                 $variables['productType'] = craft()->market_productType->getById($productTypeId);
 
-                if (!$variables['productType']) {
+                if (!$variables['productType'])
+                {
                     throw new HttpException(404);
                 }
-            } else {
-                $variables['productType']         = new Market_ProductTypeModel();
+            }
+            else
+            {
+                $variables['productType'] = new Market_ProductTypeModel();
                 $variables['brandNewProductType'] = true;
             };
         }
 
-        if (!empty($variables['productTypeId'])) {
+        if (!empty($variables['productTypeId']))
+        {
             $variables['title'] = $variables['productType']->name;
-        } else {
+        }
+        else
+        {
             $variables['title'] = Craft::t('Create a Product Type');
         }
 
         $this->renderTemplate('market/settings/producttypes/_edit', $variables);
     }
 
-    public function actionSaveProductType()
+    public function actionSaveProductType ()
     {
         $this->requireAdmin();
 
@@ -76,10 +83,10 @@ class Market_ProductTypeController extends Market_BaseController
 
         foreach (craft()->i18n->getSiteLocaleIds() as $localeId)
         {
-            $locales[$localeId] = new Market_ProductTypeLocaleModel(array(
-                'locale'          => $localeId,
-                'urlFormat'       => craft()->request->getPost('urlFormat.'.$localeId)
-            ));
+            $locales[$localeId] = new Market_ProductTypeLocaleModel([
+                'locale'    => $localeId,
+                'urlFormat' => craft()->request->getPost('urlFormat.'.$localeId)
+            ]);
         }
 
         $productType->setLocales($locales);
@@ -95,10 +102,13 @@ class Market_ProductTypeController extends Market_BaseController
         $productType->asa('variantFieldLayout')->setFieldLayout($variantFieldLayout);
 
         // Save it
-        if (craft()->market_productType->save($productType)) {
+        if (craft()->market_productType->save($productType))
+        {
             craft()->userSession->setNotice(Craft::t('Product type saved.'));
             $this->redirectToPostedUrl($productType);
-        } else {
+        }
+        else
+        {
             craft()->userSession->setError(Craft::t('Couldn’t save product type.'));
         }
 
@@ -109,7 +119,7 @@ class Market_ProductTypeController extends Market_BaseController
     }
 
 
-    public function actionDeleteProductType()
+    public function actionDeleteProductType ()
     {
         $this->requireAdmin();
         $this->requirePostRequest();

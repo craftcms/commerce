@@ -15,52 +15,68 @@ namespace Craft;
  */
 class Market_ShippingMethodRecord extends BaseRecord
 {
-    public function getTableName()
-    {
-        return 'market_shippingmethods';
-    }
+	/**
+	 * @return string
+	 */
+	public function getTableName ()
+	{
+		return 'market_shippingmethods';
+	}
 
-    public function defineIndexes()
-    {
-        return [
-            ['columns' => ['name'], 'unique' => true],
-        ];
-    }
+	/**
+	 * @return array
+	 */
+	public function defineIndexes ()
+	{
+		return [
+			['columns' => ['name'], 'unique' => true],
+		];
+	}
 
-    public function scopes() {
-        return [
-            'enabled'=>[
-                'condition'=>'enabled = 1',
-            ],
-        ];
-    }
+	/**
+	 * @return array
+	 */
+	public function scopes ()
+	{
+		return [
+			'enabled' => [
+				'condition' => 'enabled = 1',
+			],
+		];
+	}
 
-    public function defineRelations()
-    {
-        return [
-            'rules' => [
-                self::HAS_MANY,
-                'Market_ShippingRuleRecord',
-                'methodId',
-                'order' => 'rules.priority'
-            ],
-        ];
-    }
+	/**
+	 * @return array
+	 */
+	public function defineRelations ()
+	{
+		return [
+			'rules' => [
+				self::HAS_MANY,
+				'Market_ShippingRuleRecord',
+				'methodId',
+				'order' => 'rules.priority'
+			],
+		];
+	}
 
-    protected function defineAttributes()
-    {
-        return [
-            'name'    => [AttributeType::String, 'required' => true],
-            'enabled' => [
-                AttributeType::Bool,
-                'required' => true,
-                'default'  => 1
-            ],
-            'default' => [
-                AttributeType::Bool,
-                'required' => true,
-                'default'  => 0
-            ],
-        ];
-    }
+	/**
+	 * @return array
+	 */
+	protected function defineAttributes ()
+	{
+		return [
+			'name'    => [AttributeType::String, 'required' => true],
+			'enabled' => [
+				AttributeType::Bool,
+				'required' => true,
+				'default'  => 1
+			],
+			'default' => [
+				AttributeType::Bool,
+				'required' => true,
+				'default'  => 0
+			],
+		];
+	}
 }

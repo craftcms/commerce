@@ -24,29 +24,32 @@ class Market_ShippingAdjuster implements Market_AdjusterInterface
 	 *
 	 * @return \Craft\Market_OrderAdjustmentModel[]
 	 */
-	public function adjust(Market_OrderModel &$order, array $lineItems = [])
+	public function adjust (Market_OrderModel &$order, array $lineItems = [])
 	{
 		$shippingMethod = \Craft\craft()->market_shippingMethod->getById($order->shippingMethodId);
 
-		if (!$shippingMethod->id) {
+		if (!$shippingMethod->id)
+		{
 			return [];
 		}
 
 		$adjustments = [];
 
-		if ($rule = \Craft\craft()->market_shippingMethod->getMatchingRule($order, $shippingMethod)) {
+		if ($rule = \Craft\craft()->market_shippingMethod->getMatchingRule($order, $shippingMethod))
+		{
 			//preparing model
-			$adjustment              = new Market_OrderAdjustmentModel;
-			$adjustment->type        = self::ADJUSTMENT_TYPE;
-			$adjustment->name        = $shippingMethod->name;
+			$adjustment = new Market_OrderAdjustmentModel;
+			$adjustment->type = self::ADJUSTMENT_TYPE;
+			$adjustment->name = $shippingMethod->name;
 			$adjustment->description = $this->getDescription($rule);
-			$adjustment->orderId     = $order->id;
+			$adjustment->orderId = $order->id;
 			$adjustment->optionsJson = $rule->attributes;
 
 			//checking items tax categories
 			$weight = $qty = $price = 0;
 			$itemShippingTotal = 0;
-			foreach ($lineItems as $item) {
+			foreach ($lineItems as $item)
+			{
 				$weight += $item->qty * $item->weight;
 				$qty += $item->qty;
 				$price += $item->getSubtotalWithSale();
@@ -54,7 +57,8 @@ class Market_ShippingAdjuster implements Market_AdjusterInterface
 				$item->shippingCost = ($item->getSubtotalWithSale() * $rule->percentageRate) + $rule->perItemRate + ($item->weight * $rule->weightRate);
 				$itemShippingTotal += $item->shippingCost * $item->qty;
 
-				if($item->purchasable->product->freeShipping){
+				if ($item->purchasable->product->freeShipping)
+				{
 					$item->shippingCost = 0;
 				}
 			}
@@ -63,7 +67,8 @@ class Market_ShippingAdjuster implements Market_AdjusterInterface
 			$amount = $rule->baseRate + $itemShippingTotal;
 			$amount = max($amount, $rule->minRate * 1);
 
-			if ($rule->maxRate * 1) {
+			if ($rule->maxRate * 1)
+			{
 				$amount = min($amount, $rule->maxRate * 1);
 			}
 
@@ -83,30 +88,36 @@ class Market_ShippingAdjuster implements Market_AdjusterInterface
 	 *
 	 * @return string "1$ and 5% per item and 10$ base rate"
 	 */
-	private function getDescription(Market_ShippingRuleModel $rule)
+	private function getDescription (Market_ShippingRuleModel $rule)
 	{
 		$description = '';
-		if ($rule->perItemRate || $rule->percentageRate) {
-			if ($rule->perItemRate) {
-				$description .= $rule->perItemRate * 1 . '$ ';
+		if ($rule->perItemRate || $rule->percentageRate)
+		{
+			if ($rule->perItemRate)
+			{
+				$description .= $rule->perItemRate * 1 .'$ ';
 			}
 
-			if ($rule->percentageRate) {
-				if ($rule->perItemRate) {
+			if ($rule->percentageRate)
+			{
+				if ($rule->perItemRate)
+				{
 					$description .= 'and ';
 				}
 
-				$description .= $rule->percentageRate * 100 . '% ';
+				$description .= $rule->percentageRate * 100 .'% ';
 			}
 
 			$description .= 'per item ';
 		}
 
-		if ($rule->baseRate) {
-			if ($description) {
+		if ($rule->baseRate)
+		{
+			if ($description)
+			{
 				$description .= 'and ';
 			}
-			$description .= $rule->baseRate * 1 . '$ base rate';
+			$description .= $rule->baseRate * 1 .'$ base rate';
 		}
 
 		return $description;
