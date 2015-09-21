@@ -12,9 +12,9 @@ use Craft\Market_CountryRecord;
 class Market_CountriesSeeder implements Market_SeederInterface
 {
 
-	public function seed()
+	public function seed ()
 	{
-		$table     = Market_CountryRecord::model()->getTableName();
+		$table = Market_CountryRecord::model()->getTableName();
 		$countries = [
 			['AD', 'Andorra'],
 			['AE', 'United Arab Emirates'],

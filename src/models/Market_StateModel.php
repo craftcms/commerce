@@ -17,36 +17,42 @@ use Market\Traits\Market_ModelRelationsTrait;
  */
 class Market_StateModel extends BaseModel
 {
-    use Market_ModelRelationsTrait;
+	use Market_ModelRelationsTrait;
 
-    public function getCpEditUrl()
-    {
-        return UrlHelper::getCpUrl('market/settings/states/' . $this->id);
-    }
+	/**
+	 * @return string
+	 */
+	public function getCpEditUrl ()
+	{
+		return UrlHelper::getCpUrl('market/settings/states/'.$this->id);
+	}
 
-    /**
-     * @return string
-     */
-    function __toString()
-    {
-        return (string)$this->name;
-    }
+	/**
+	 * @return string
+	 */
+	function __toString ()
+	{
+		return (string)$this->name;
+	}
 
-    /**
-     * @return string
-     */
-    public function formatName()
-    {
-        return $this->name . ' (' . $this->country->name . ')';
-    }
+	/**
+	 * @return string
+	 */
+	public function formatName ()
+	{
+		return $this->name.' ('.$this->country->name.')';
+	}
 
-    protected function defineAttributes()
-    {
-        return [
-            'id'           => AttributeType::Number,
-            'name'         => AttributeType::String,
-            'abbreviation' => AttributeType::String,
-            'countryId'    => AttributeType::Number,
-        ];
-    }
+	/**
+	 * @return array
+	 */
+	protected function defineAttributes ()
+	{
+		return [
+			'id'           => AttributeType::Number,
+			'name'         => AttributeType::String,
+			'abbreviation' => AttributeType::String,
+			'countryId'    => AttributeType::Number,
+		];
+	}
 }

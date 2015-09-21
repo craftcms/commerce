@@ -15,11 +15,17 @@ namespace Craft;
 class Market_PurchasableRecord extends BaseRecord
 {
 
+	/**
+	 * @return string
+	 */
 	public function getTableName ()
 	{
 		return 'market_purchasables';
 	}
 
+	/**
+	 * @return array
+	 */
 	public function defineIndexes ()
 	{
 		return [
@@ -27,10 +33,13 @@ class Market_PurchasableRecord extends BaseRecord
 		];
 	}
 
-	public function defineRelations()
+	/**
+	 * @return array
+	 */
+	public function defineRelations ()
 	{
 		return [
-			'element'     => [
+			'element' => [
 				static::BELONGS_TO,
 				'ElementRecord',
 				'id',
@@ -40,6 +49,9 @@ class Market_PurchasableRecord extends BaseRecord
 		];
 	}
 
+	/**
+	 * @return array
+	 */
 	protected function defineAttributes ()
 	{
 		return [

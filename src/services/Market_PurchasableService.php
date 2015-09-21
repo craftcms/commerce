@@ -1,8 +1,8 @@
 <?php
 namespace Craft;
 
-use Market\Interfaces\Purchasable;
 use Market\Helpers\MarketDbHelper;
+use Market\Interfaces\Purchasable;
 
 /**
  * Class Market_PurchasableService
@@ -55,16 +55,19 @@ class Market_PurchasableService extends BaseApplicationComponent
 
 				$success = $purchasable->save();
 
-				if (!$success){
+				if (!$success)
+				{
 					$model->addErrors($purchasable->getErrors());
 					MarketDbHelper::rollbackStackedTransaction();
+
 					return $success;
 				}
 
 				MarketDbHelper::commitStackedTransaction();
-
 			}
-		} catch (\Exception $e) {
+		}
+		catch (\Exception $e)
+		{
 			MarketDbHelper::rollbackStackedTransaction();
 			throw $e;
 		}

@@ -24,22 +24,22 @@ use Market\Traits\Market_ModelRelationsTrait;
  */
 class Market_OrderHistoryModel extends BaseModel
 {
-    use Market_ModelRelationsTrait;
+	use Market_ModelRelationsTrait;
 
-    public function getCpEditUrl()
-    {
-        return UrlHelper::getCpUrl('market/settings/orderhistories/' . $this->id);
-    }
+	public function getCpEditUrl ()
+	{
+		return UrlHelper::getCpUrl('market/settings/orderhistories/'.$this->id);
+	}
 
-    protected function defineAttributes()
-    {
-        return [
-            'id'           => AttributeType::Number,
-            'message'      => [AttributeType::String],
-            'orderId'      => [AttributeType::Number],
-            'prevStatusId' => [AttributeType::Number],
-            'newStatusId'  => [AttributeType::Number],
-            'customerId'   => [AttributeType::Number],
-        ];
-    }
+	protected function defineAttributes ()
+	{
+		return [
+			'id'           => AttributeType::Number,
+			'message'      => [AttributeType::String],
+			'orderId'      => [AttributeType::Number],
+			'prevStatusId' => [AttributeType::Number],
+			'newStatusId'  => [AttributeType::Number],
+			'customerId'   => [AttributeType::Number],
+		];
+	}
 }

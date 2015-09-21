@@ -15,289 +15,318 @@ use Market\Helpers\MarketDbHelper;
  */
 class Market_CustomerService extends BaseApplicationComponent
 {
-    const SESSION_CUSTOMER = 'market_customer_cookie';
+	const SESSION_CUSTOMER = 'market_customer_cookie';
 
-    /** @var Market_CustomerModel */
-    private $customer = null;
-
-
-    /**
-     * Id of current customer record. Guaranteed not null
-     *
-     * @return int
-     * @throws Exception
-     */
-    public function getCustomerId()
-    {
-        return $this->getSavedCustomer()->id;
-    }
-
-    /**
-     * @return Market_CustomerModel
-     * @throws Exception
-     */
-    private function getSavedCustomer()
-    {
-        $customer = $this->getCustomer();
-        if (!$customer->id) {
-            if ($this->save($customer)) {
-                craft()->session->add(self::SESSION_CUSTOMER, $customer->id);
-            } else {
-                $errors = implode(', ', $customer->getAllErrors());
-                throw new Exception('Error saving customer: ' . $errors);
-            }
-        }
-
-        return $customer;
-    }
-
-    /**
-     * @return Market_CustomerModel
-     */
-    public function getCustomer()
-    {
-        if ($this->customer === null) {
-            $user = craft()->userSession->getUser();
-
-            if ($user) {
-                $record = Market_CustomerRecord::model()->findByAttributes(['userId' => $user->id]);
-            } else {
-                $id = craft()->session->get(self::SESSION_CUSTOMER);
-                if ($id) {
-                    $record = Market_CustomerRecord::model()->findById($id);
-                    // If there is a customer record but it is associated with a real user, don't use it when guest.
-                    if($record && $record->userId){
-                        $record = false;
-                    }
-                }
-            }
-
-            if (empty($record)) {
-                $record = new Market_CustomerRecord;
-
-                if ($user) {
-                    $record->userId = $user->id;
-                    $record->email = $user->email;
-                }
-            }
-
-            $this->customer = Market_CustomerModel::populateModel($record);
-        }
-
-        return $this->customer;
-    }
-
-    /**
-     * @param Market_CustomerModel $customer
-     *
-     * @return bool
-     * @throws Exception
-     */
-    public function save(Market_CustomerModel $customer)
-    {
-        if (!$customer->id) {
-            $customerRecord = new Market_CustomerRecord();
-        } else {
-            $customerRecord = Market_CustomerRecord::model()->findById($customer->id);
-
-            if (!$customerRecord) {
-                throw new Exception(Craft::t('No customer exists with the ID “{id}”',
-                    ['id' => $customer->id]));
-            }
-        }
-
-        $customerRecord->email = $customer->email;
-        $customerRecord->userId = $customer->userId;
-        $customerRecord->lastUsedBillingAddressId = $customer->lastUsedBillingAddressId;
-        $customerRecord->lastUsedShippingAddressId = $customer->lastUsedShippingAddressId;
-
-        $customerRecord->validate();
-        $customer->addErrors($customerRecord->getErrors());
-
-        if (!$customer->hasErrors()) {
-            $customerRecord->save(false);
-            $customer->id = $customerRecord->id;
-
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * @param \CDbCriteria|array $criteria
-     *
-     * @return Market_CustomerModel[]
-     */
-    public function getAll($criteria = [])
-    {
-        $records = Market_CustomerRecord::model()->findAll($criteria);
-
-        return Market_CustomerModel::populateModels($records);
-    }
-
-    /**
-     * @param int $id
-     *
-     * @return Market_CustomerModel
-     */
-    public function getById($id)
-    {
-        $record = Market_CustomerRecord::model()->findById($id);
-
-        return Market_CustomerModel::populateModel($record);
-    }
-
-    /**
-     * @param $id
-     * @return BaseModel
-     */
-    public function getByUserId($id)
-    {
-        $record = Market_CustomerRecord::model()->findByAttributes(['userId'=>$id]);
-
-        return Market_CustomerModel::populateModel($record);
-    }
+	/** @var Market_CustomerModel */
+	private $customer = null;
 
 
-    /**
-     * @return bool
-     */
-    public function isSaved()
-    {
-        return !!$this->getCustomer()->id;
-    }
+	/**
+	 * Id of current customer record. Guaranteed not null
+	 *
+	 * @return int
+	 * @throws Exception
+	 */
+	public function getCustomerId ()
+	{
+		return $this->getSavedCustomer()->id;
+	}
 
-    /**
-     * Add customer id to address and save
-     *
-     * @param Market_AddressModel $address
-     *
-     * @return bool
-     * @throws Exception
-     */
-    public function saveAddress(Market_AddressModel $address)
-    {
-        $customer = $this->getSavedCustomer();
-        $address->customerId = $customer->id;
+	/**
+	 * @return Market_CustomerModel
+	 * @throws Exception
+	 */
+	private function getSavedCustomer ()
+	{
+		$customer = $this->getCustomer();
+		if (!$customer->id)
+		{
+			if ($this->save($customer))
+			{
+				craft()->session->add(self::SESSION_CUSTOMER, $customer->id);
+			}
+			else
+			{
+				$errors = implode(', ', $customer->getAllErrors());
+				throw new Exception('Error saving customer: '.$errors);
+			}
+		}
 
-        return craft()->market_address->saveAddress($address);
+		return $customer;
+	}
 
-    }
+	/**
+	 * @return Market_CustomerModel
+	 */
+	public function getCustomer ()
+	{
+		if ($this->customer === null)
+		{
+			$user = craft()->userSession->getUser();
 
-    /**
-     * @param $billingId
-     * @param $shippingId
-     *
-     * @return bool
-     * @throws Exception
-     */
-    public function setLastUsedAddresses($billingId,$shippingId)
-    {
-        $customer = $this->getSavedCustomer();
+			if ($user)
+			{
+				$record = Market_CustomerRecord::model()->findByAttributes(['userId' => $user->id]);
+			}
+			else
+			{
+				$id = craft()->session->get(self::SESSION_CUSTOMER);
+				if ($id)
+				{
+					$record = Market_CustomerRecord::model()->findById($id);
+					// If there is a customer record but it is associated with a real user, don't use it when guest.
+					if ($record && $record->userId)
+					{
+						$record = false;
+					}
+				}
+			}
 
-        if($billingId){
-            $customer->lastUsedBillingAddressId = $billingId;
-        }
+			if (empty($record))
+			{
+				$record = new Market_CustomerRecord;
 
-        if($shippingId){
-            $customer->lastUsedShippingAddressId = $shippingId;
-        }
+				if ($user)
+				{
+					$record->userId = $user->id;
+					$record->email = $user->email;
+				}
+			}
 
-        return $this->save($customer);
-    }
+			$this->customer = Market_CustomerModel::populateModel($record);
+		}
 
-    /**
-     * @param $customerId
-     * @return array
-     */
-    public function getAddressIds($customerId)
-    {
-        $addresses = craft()->market_address->getAddressesByCustomerId($customerId);
-        $ids = [];
-        foreach($addresses as $address){
-            $ids[] = $address->id;
-        }
-        return $ids;
-    }
+		return $this->customer;
+	}
 
-    /**
-     * Gets all customer by email address.
-     *
-     * @param $email
-     *
-     * @return array
-     */
-    public function getByEmail($email)
-    {
-        $customers = Market_CustomerRecord::model()->findAllByAttributes(['email'=>$email]);
+	/**
+	 * @param Market_CustomerModel $customer
+	 *
+	 * @return bool
+	 * @throws Exception
+	 */
+	public function save (Market_CustomerModel $customer)
+	{
+		if (!$customer->id)
+		{
+			$customerRecord = new Market_CustomerRecord();
+		}
+		else
+		{
+			$customerRecord = Market_CustomerRecord::model()->findById($customer->id);
 
-        return Market_CustomerModel::populateModels($customers);
-    }
+			if (!$customerRecord)
+			{
+				throw new Exception(Craft::t('No customer exists with the ID “{id}”',
+					['id' => $customer->id]));
+			}
+		}
 
-    /**
-     *
-     * @param Market_CustomerModel $customer
-     * @return mixed
-     */
-    public function delete($customer)
-    {
-        return Market_CustomerRecord::model()->deleteByPk($customer->id);
-    }
+		$customerRecord->email = $customer->email;
+		$customerRecord->userId = $customer->userId;
+		$customerRecord->lastUsedBillingAddressId = $customer->lastUsedBillingAddressId;
+		$customerRecord->lastUsedShippingAddressId = $customer->lastUsedShippingAddressId;
 
-    /**
-     * @param string $username
-     * @return bool
-     * @throws Exception
-     * @throws \Exception
-     */
-    public function consolidateOrdersToUser($username)
-    {
-        MarketDbHelper::beginStackedTransaction();
+		$customerRecord->validate();
+		$customer->addErrors($customerRecord->getErrors());
 
-        try {
+		if (!$customer->hasErrors())
+		{
+			$customerRecord->save(false);
+			$customer->id = $customerRecord->id;
 
-            /** @var UserModel $user */
-            $user = craft()->users->getUserByUsernameOrEmail($username);
+			return true;
+		}
 
-            $toCustomer = $this->getByUserId($user->id);
+		return false;
+	}
 
-            if (!$toCustomer) {
-                $toCustomer = new Market_CustomerModel();
-                $toCustomer->email = $user->email;
-                $toCustomer->userId = $user->id;
-                $this->save($toCustomer);
-            }
+	/**
+	 * @param \CDbCriteria|array $criteria
+	 *
+	 * @return Market_CustomerModel[]
+	 */
+	public function getAll ($criteria = [])
+	{
+		$records = Market_CustomerRecord::model()->findAll($criteria);
 
-            $orders = craft()->market_order->getByEmail($toCustomer->email);
+		return Market_CustomerModel::populateModels($records);
+	}
 
-            foreach ($orders as $order) {
-                // Only consolidate completed orders, not carts
-                if ($order->dateOrdered) {
-                    $order->customerId = $toCustomer->id;
-                    $order->email = $toCustomer->email;
-                    craft()->market_order->save($order);
-                }
-            }
+	/**
+	 * @param int $id
+	 *
+	 * @return Market_CustomerModel
+	 */
+	public function getById ($id)
+	{
+		$record = Market_CustomerRecord::model()->findById($id);
 
-            MarketDbHelper::commitStackedTransaction();
+		return Market_CustomerModel::populateModel($record);
+	}
 
-            return true;
+	/**
+	 * @return bool
+	 */
+	public function isSaved ()
+	{
+		return !!$this->getCustomer()->id;
+	}
 
-        } catch (\Exception $e) {
-            MarketPlugin::log("Could not consolidate orders to username: " . $username . ". Reason: " . $e->getMessage());
-            MarketDbHelper::rollbackStackedTransaction();
-        }
-    }
+	/**
+	 * Add customer id to address and save
+	 *
+	 * @param Market_AddressModel $address
+	 *
+	 * @return bool
+	 * @throws Exception
+	 */
+	public function saveAddress (Market_AddressModel $address)
+	{
+		$customer = $this->getSavedCustomer();
+		$address->customerId = $customer->id;
 
-    /**
-     * @param Event $event
-     * @throws Exception
-     */
-    public function loginHandler(Event $event)
-    {
-        $username = $event->params['username'];
-        $this->consolidateOrdersToUser($username);
-    }
+		return craft()->market_address->saveAddress($address);
+	}
+
+	/**
+	 * @param $billingId
+	 * @param $shippingId
+	 *
+	 * @return bool
+	 * @throws Exception
+	 */
+	public function setLastUsedAddresses ($billingId, $shippingId)
+	{
+		$customer = $this->getSavedCustomer();
+
+		if ($billingId)
+		{
+			$customer->lastUsedBillingAddressId = $billingId;
+		}
+
+		if ($shippingId)
+		{
+			$customer->lastUsedShippingAddressId = $shippingId;
+		}
+
+		return $this->save($customer);
+	}
+
+	/**
+	 * @param $customerId
+	 *
+	 * @return array
+	 */
+	public function getAddressIds ($customerId)
+	{
+		$addresses = craft()->market_address->getAddressesByCustomerId($customerId);
+		$ids = [];
+		foreach ($addresses as $address)
+		{
+			$ids[] = $address->id;
+		}
+
+		return $ids;
+	}
+
+	/**
+	 * Gets all customer by email address.
+	 *
+	 * @param $email
+	 *
+	 * @return array
+	 */
+	public function getByEmail ($email)
+	{
+		$customers = Market_CustomerRecord::model()->findAllByAttributes(['email' => $email]);
+
+		return Market_CustomerModel::populateModels($customers);
+	}
+
+	/**
+	 *
+	 * @param Market_CustomerModel $customer
+	 *
+	 * @return mixed
+	 */
+	public function delete ($customer)
+	{
+		return Market_CustomerRecord::model()->deleteByPk($customer->id);
+	}
+
+	/**
+	 * @param Event $event
+	 *
+	 * @throws Exception
+	 */
+	public function loginHandler (Event $event)
+	{
+		$username = $event->params['username'];
+		$this->consolidateOrdersToUser($username);
+	}
+
+	/**
+	 * @param string $username
+	 *
+	 * @return bool
+	 * @throws Exception
+	 * @throws \Exception
+	 */
+	public function consolidateOrdersToUser ($username)
+	{
+		MarketDbHelper::beginStackedTransaction();
+
+		try
+		{
+
+			/** @var UserModel $user */
+			$user = craft()->users->getUserByUsernameOrEmail($username);
+
+			$toCustomer = $this->getByUserId($user->id);
+
+			if (!$toCustomer)
+			{
+				$toCustomer = new Market_CustomerModel();
+				$toCustomer->email = $user->email;
+				$toCustomer->userId = $user->id;
+				$this->save($toCustomer);
+			}
+
+			$orders = craft()->market_order->getByEmail($toCustomer->email);
+
+			foreach ($orders as $order)
+			{
+				// Only consolidate completed orders, not carts
+				if ($order->dateOrdered)
+				{
+					$order->customerId = $toCustomer->id;
+					$order->email = $toCustomer->email;
+					craft()->market_order->save($order);
+				}
+			}
+
+			MarketDbHelper::commitStackedTransaction();
+
+			return true;
+		}
+		catch (\Exception $e)
+		{
+			MarketPlugin::log("Could not consolidate orders to username: ".$username.". Reason: ".$e->getMessage());
+			MarketDbHelper::rollbackStackedTransaction();
+		}
+	}
+
+	/**
+	 * @param $id
+	 *
+	 * @return BaseModel
+	 */
+	public function getByUserId ($id)
+	{
+		$record = Market_CustomerRecord::model()->findByAttributes(['userId' => $id]);
+
+		return Market_CustomerModel::populateModel($record);
+	}
 
 }

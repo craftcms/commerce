@@ -18,49 +18,61 @@ namespace Craft;
 class Market_TaxZoneRecord extends BaseRecord
 {
 
-    public function getTableName()
-    {
-        return 'market_taxzones';
-    }
+	/**
+	 * @return string
+	 */
+	public function getTableName ()
+	{
+		return 'market_taxzones';
+	}
 
-    public function defineIndexes()
-    {
-        return [
-            ['columns' => ['name'], 'unique' => true],
-        ];
-    }
+	/**
+	 * @return array
+	 */
+	public function defineIndexes ()
+	{
+		return [
+			['columns' => ['name'], 'unique' => true],
+		];
+	}
 
-    public function defineRelations()
-    {
-        return [
-            'countries' => [
-                static::MANY_MANY,
-                'Market_CountryRecord',
-                'market_taxzone_countries(countryId, taxZoneId)'
-            ],
-            'states'    => [
-                static::MANY_MANY,
-                'Market_StateRecord',
-                'market_taxzone_states(stateId, taxZoneId)'
-            ],
-        ];
-    }
+	/**
+	 * @return array
+	 */
+	public function defineRelations ()
+	{
+		return [
+			'countries' => [
+				static::MANY_MANY,
+				'Market_CountryRecord',
+				'market_taxzone_countries(countryId, taxZoneId)'
+			],
+			'states'    => [
+				static::MANY_MANY,
+				'Market_StateRecord',
+				'market_taxzone_states(stateId, taxZoneId)'
+			],
+		];
+	}
 
-    protected function defineAttributes()
-    {
-        return [
-            'name'         => [AttributeType::String, 'required' => true],
-            'description'  => AttributeType::String,
-            'countryBased' => [
-                AttributeType::Bool,
-                'required' => true,
-                'default'  => 1
-            ],
-            'default'      => [
-                AttributeType::Bool,
-                'default'  => 0,
-                'required' => true
-            ],
-        ];
-    }
+	/**
+	 * @return array
+	 */
+	protected function defineAttributes ()
+	{
+		return [
+			'name'         => [AttributeType::String, 'required' => true],
+			'description'  => AttributeType::String,
+			'countryBased' => [
+				AttributeType::Bool,
+				'required' => true,
+				'default'  => 1
+			],
+			'default'      => [
+				AttributeType::Bool,
+				'default'  => 0,
+				'required' => true
+			],
+		];
+	}
 }

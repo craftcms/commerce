@@ -16,7 +16,7 @@ class Market_PaymentMethodController extends Market_BaseController
 	/**
 	 * @throws HttpException
 	 */
-	public function actionIndex()
+	public function actionIndex ()
 	{
 		$this->requireAdmin();
 
@@ -31,16 +31,18 @@ class Market_PaymentMethodController extends Market_BaseController
 	 *
 	 * @throws HttpException
 	 */
-	public function actionEdit(array $variables = [])
+	public function actionEdit (array $variables = [])
 	{
 		$this->requireAdmin();
 
-		if (empty($variables['paymentMethod']) && !empty($variables['class'])) {
-			$class                      = $variables['class'];
+		if (empty($variables['paymentMethod']) && !empty($variables['class']))
+		{
+			$class = $variables['class'];
 			$variables['paymentMethod'] = craft()->market_paymentMethod->getByClass($class);
 		}
 
-		if (empty($variables['paymentMethod'])) {
+		if (empty($variables['paymentMethod']))
+		{
 			throw new HttpException(404);
 		}
 
@@ -51,7 +53,7 @@ class Market_PaymentMethodController extends Market_BaseController
 	/**
 	 * @throws HttpException
 	 */
-	public function actionSave()
+	public function actionSave ()
 	{
 		$this->requireAdmin();
 		$this->requirePostRequest();
@@ -59,16 +61,19 @@ class Market_PaymentMethodController extends Market_BaseController
 		$paymentMethod = new Market_PaymentMethodModel();
 
 		// Shared attributes
-		$paymentMethod->class           = craft()->request->getPost('paymentMethodClass');
-		$paymentMethod->settings        = craft()->request->getPost('settings',[]);
-		$paymentMethod->cpEnabled       = craft()->request->getPost('cpEnabled');
+		$paymentMethod->class = craft()->request->getPost('paymentMethodClass');
+		$paymentMethod->settings = craft()->request->getPost('settings', []);
+		$paymentMethod->cpEnabled = craft()->request->getPost('cpEnabled');
 		$paymentMethod->frontendEnabled = craft()->request->getPost('frontendEnabled');
 
 		// Save it
-		if (craft()->market_paymentMethod->save($paymentMethod)) {
+		if (craft()->market_paymentMethod->save($paymentMethod))
+		{
 			craft()->userSession->setNotice(Craft::t('Payment Method saved.'));
 			$this->redirectToPostedUrl($paymentMethod);
-		} else {
+		}
+		else
+		{
 			craft()->userSession->setError(Craft::t('Couldn’t save payment method.'));
 		}
 
@@ -81,7 +86,7 @@ class Market_PaymentMethodController extends Market_BaseController
 	/**
 	 * @throws HttpException
 	 */
-	public function actionDelete()
+	public function actionDelete ()
 	{
 		$this->requireAdmin();
 		$this->requirePostRequest();

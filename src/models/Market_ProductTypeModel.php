@@ -25,25 +25,37 @@ class Market_ProductTypeModel extends BaseModel
 {
 
 	/**
-	 * @var
+	 * @var LocaleModel[]
 	 */
 	private $_locales;
 
+	/**
+	 * @return null|string
+	 */
 	function __toString ()
 	{
 		return Craft::t($this->handle);
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getCpEditUrl ()
 	{
 		return UrlHelper::getCpUrl('market/settings/producttypes/'.$this->id);
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getCpEditVariantUrl ()
 	{
 		return UrlHelper::getCpUrl('market/settings/producttypes/'.$this->id.'/variant');
 	}
 
+	/**
+	 * @return array
+	 */
 	public function getLocales ()
 	{
 		if (!isset($this->_locales))
@@ -72,6 +84,9 @@ class Market_ProductTypeModel extends BaseModel
 		$this->_locales = $locales;
 	}
 
+	/**
+	 * @return array
+	 */
 	public function behaviors ()
 	{
 		return [
@@ -82,6 +97,9 @@ class Market_ProductTypeModel extends BaseModel
 		];
 	}
 
+	/**
+	 * @return array
+	 */
 	protected function defineAttributes ()
 	{
 		return [
@@ -89,7 +107,7 @@ class Market_ProductTypeModel extends BaseModel
 			'name'                 => [AttributeType::Name, 'required' => true],
 			'handle'               => [AttributeType::Handle, 'required' => true],
 			'hasUrls'              => AttributeType::Bool,
-			'hasDimensions'        => [AttributeType::Bool,'default' => true],
+			'hasDimensions'        => [AttributeType::Bool, 'default' => true],
 			'hasVariants'          => AttributeType::Bool,
 			'titleFormat'          => [AttributeType::String, 'required' => true, 'default' => '{sku}'],
 			'template'             => AttributeType::Template,

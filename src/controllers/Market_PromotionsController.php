@@ -13,8 +13,8 @@ namespace Craft;
  */
 class Market_PromotionsController extends Market_BaseController
 {
-    public function actionIndex()
-    {
-        $this->redirect('market/promotions/sales');
-    }
+	public function actionIndex ()
+	{
+		$this->redirect('market/promotions/sales');
+	}
 }

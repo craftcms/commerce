@@ -13,76 +13,83 @@ namespace Craft;
  */
 class Market_CustomerController extends Market_BaseController
 {
-    /**
-     * @throws HttpException
-     */
-    public function actionIndex()
-    {
-        $this->requireAdmin();
+	/**
+	 * @throws HttpException
+	 */
+	public function actionIndex ()
+	{
+		$this->requireAdmin();
 
-        $customers = craft()->market_customer->getAll(['with' => 'user']);
-        $this->renderTemplate('market/customers/index', compact('customers'));
-    }
+		$customers = craft()->market_customer->getAll(['with' => 'user']);
+		$this->renderTemplate('market/customers/index', compact('customers'));
+	}
 
-    /**
-     * Edit Customer
-     *
-     * @param array $variables
-     *
-     * @throws HttpException
-     */
-    public function actionEdit(array $variables = [])
-    {
-        $this->requireAdmin();
+	/**
+	 * Edit Customer
+	 *
+	 * @param array $variables
+	 *
+	 * @throws HttpException
+	 */
+	public function actionEdit (array $variables = [])
+	{
+		$this->requireAdmin();
 
-        if (empty($variables['customer'])) {
-            if (empty($variables['id'])) {
-                throw new HttpException(404);
-            }
+		if (empty($variables['customer']))
+		{
+			if (empty($variables['id']))
+			{
+				throw new HttpException(404);
+			}
 
-            $id                    = $variables['id'];
-            $variables['customer'] = craft()->market_customer->getById($id);
+			$id = $variables['id'];
+			$variables['customer'] = craft()->market_customer->getById($id);
 
-            if (!$variables['customer']->id) {
-                throw new HttpException(404);
-            }
-        }
+			if (!$variables['customer']->id)
+			{
+				throw new HttpException(404);
+			}
+		}
 
-        $variables['title'] = Craft::t('Customer #{id}',
-            ['id' => $variables['id']]);
+		$variables['title'] = Craft::t('Customer #{id}',
+			['id' => $variables['id']]);
 
-        $this->renderTemplate('market/customers/_edit', $variables);
-    }
+		$this->renderTemplate('market/customers/_edit', $variables);
+	}
 
-    /**
-     * @throws HttpException
-     */
-    public function actionSave()
-    {
-        $this->requireAdmin();
+	/**
+	 * @throws HttpException
+	 */
+	public function actionSave ()
+	{
+		$this->requireAdmin();
 
-        $this->requirePostRequest();
+		$this->requirePostRequest();
 
-        $id       = craft()->request->getRequiredPost('id');
-        $customer = craft()->market_customer->getById($id);
+		$id = craft()->request->getRequiredPost('id');
+		$customer = craft()->market_customer->getById($id);
 
-        if (!$customer->id) {
-            throw new HttpException(400);
-        }
+		if (!$customer->id)
+		{
+			throw new HttpException(400);
+		}
 
-        // Shared attributes
-        $customer->email = craft()->request->getPost('email');
+		// Shared attributes
+		$customer->email = craft()->request->getPost('email');
 
-        // Save it
-        if (craft()->market_customer->save($customer)) {
-            craft()->userSession->setNotice(Craft::t('Customer saved.'));
-            $this->redirectToPostedUrl();
-        } else {
-            craft()->userSession->setError(Craft::t('Couldn’t save customer.'));
-        }
+		// Save it
+		if (craft()->market_customer->save($customer))
+		{
+			craft()->userSession->setNotice(Craft::t('Customer saved.'));
+			$this->redirectToPostedUrl();
+		}
+		else
+		{
+			craft()->userSession->setError(Craft::t('Couldn’t save customer.'));
+		}
 
-        // Send the model back to the template
-        craft()->urlManager->setRouteVariables(['customer' => $customer]);
-    }
+		// Send the model back to the template
+		craft()->urlManager->setRouteVariables(['customer' => $customer]);
+	}
 
 }

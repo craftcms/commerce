@@ -38,212 +38,229 @@ use Market\Traits\Market_ModelRelationsTrait;
  */
 class Market_LineItemModel extends BaseModel
 {
-    use Market_ModelRelationsTrait;
+	use Market_ModelRelationsTrait;
 
-    public function getSubtotalWithSale()
-    {
-        return $this->qty * ($this->price + $this->saleAmount);
-    }
+	/**
+	 * @return int
+	 */
+	public function getSubtotalWithSale ()
+	{
+		return $this->qty * ($this->price + $this->saleAmount);
+	}
 
-    public function getPriceWithoutShipping()
-    {
-        return $this->price + $this->discount + $this->saleAmount;
-    }
+	/**
+	 * @return float
+	 */
+	public function getPriceWithoutShipping ()
+	{
+		return $this->price + $this->discount + $this->saleAmount;
+	}
 
-    public function getPurchasable()
-    {
-        return craft()->elements->getElementById($this->purchasableId);
-    }
+	/**
+	 * @return bool False when no related purchasable exists or order complete.
+	 */
+	public function refreshFromPurchasable ()
+	{
+		if (!$this->getPurchasable() || $this->order->dateOrdered)
+		{
+			return false;
+		}
 
-    /**
-     * @return bool False when no related purchasable exists or order complete.
-     */
-    public function refreshFromPurchasable()
-    {
-        if (!$this->getPurchasable() || $this->order->dateOrdered) {
-            return false;
-        }
+		$this->fillFromPurchasable($this->purchasable);
 
-        $this->fillFromPurchasable($this->purchasable);
+		return true;
+	}
 
-        return true;
-    }
+	/**
+	 * @return BaseElementModel|null
+	 */
+	public function getPurchasable ()
+	{
+		return craft()->elements->getElementById($this->purchasableId);
+	}
 
-    /**
-     * @return bool
-     */
-    public function getOnSale()
-    {
-        return is_null($this->salePrice) ? false : ($this->salePrice != $this->price);
-    }
+	/**
+	 * @param Purchasable $purchasable
+	 */
+	public function fillFromPurchasable (Purchasable $purchasable)
+	{
+		$this->price = $purchasable->getPrice();
 
-    /**
-     * @return bool
-     */
-    public function getUnderSale()
-    {
-        craft()->deprecator->log('Market_LineItemModel::underSale():removed', 'You should no longer use `underSale` on the lineItem. Use `onSale`.');
-        return $this->getOnSale();
-    }
+		// Since sales cannot apply to non core purchasables, set to price at default
+		$this->salePrice = $purchasable->getPrice();
 
-    /**
-     * Returns the description from the snapshot of the purchasable
-     */
-    public function getDescription()
-    {
-       return $this->snapshot['description'];
-    }
+		$snapshot = [
+			'price'         => $purchasable->getPrice(),
+			'sku'           => $purchasable->getSku(),
+			'description'   => $purchasable->getDescription(),
+			'purchasableId' => $purchasable->getPurchasableId(),
+			'cpEditUrl'     => '#'
+		];
 
-    /**
-     * Returns the description from the snapshot of the purchasable
-     */
-    public function getSku()
-    {
-        return $this->snapshot['sku'];
-    }
+		// Add our purchasable data to the snapshot, save our sales.
+		$this->snapshot = array_merge($purchasable->getSnapShot(), $snapshot);
 
-    /**
-     * @param Purchasable $purchasable
-     */
-    public function fillFromPurchasable(Purchasable $purchasable)
-    {
-        $this->price = $purchasable->getPrice();
+		if ($purchasable instanceof Market_VariantModel)
+		{
 
-        // Since sales cannot apply to non core purchasables, set to price at default
-        $this->salePrice = $purchasable->getPrice();
+			$this->weight = $purchasable->weight * 1; //converting nulls
+			$this->height = $purchasable->height * 1; //converting nulls
+			$this->length = $purchasable->length * 1; //converting nulls
+			$this->width = $purchasable->width * 1; //converting nulls
 
-        $snapshot = [
-            'price' => $purchasable->getPrice(),
-            'sku' => $purchasable->getSku(),
-            'description' => $purchasable->getDescription(),
-            'purchasableId' => $purchasable->getPurchasableId(),
-            'cpEditUrl' => '#'
-        ];
+			$this->taxCategoryId = $purchasable->product->taxCategoryId;
 
-        // Add our purchasable data to the snapshot, save our sales.
-        $this->snapshot = array_merge($purchasable->getSnapShot(), $snapshot);
+			$sales = craft()->market_sale->getForVariant($purchasable);
 
-        if ($purchasable instanceof Market_VariantModel) {
+			foreach ($sales as $sale)
+			{
+				$this->saleAmount += $sale->calculateTakeoff($this->price);
+			}
 
-            $this->weight = $purchasable->weight * 1; //converting nulls
-            $this->height = $purchasable->height * 1; //converting nulls
-            $this->length = $purchasable->length * 1; //converting nulls
-            $this->width = $purchasable->width * 1; //converting nulls
+			// Don't let sale amount be more than the price.
+			if (-$this->saleAmount > $this->price)
+			{
+				$this->saleAmount = -$this->price;
+			}
 
-            $this->taxCategoryId = $purchasable->product->taxCategoryId;
+			// If the product is not promotable but has saleAmount, reset saleAmount to zero
+			if (!$purchasable->product->promotable && $this->saleAmount)
+			{
+				$this->saleAmount = 0;
+			}
 
-            $sales = craft()->market_sale->getForVariant($purchasable);
+			$this->salePrice = $this->saleAmount + $this->price;
+		}
+		else
+		{
+			// Non core commerce purchasables cannot have sales applied (yet)
+			$this->saleAmount = 0;
+		}
+	}
 
-            foreach ($sales as $sale) {
-                $this->saleAmount += $sale->calculateTakeoff($this->price);
-            }
+	/**
+	 * @return bool
+	 */
+	public function getUnderSale ()
+	{
+		craft()->deprecator->log('Market_LineItemModel::underSale():removed', 'You should no longer use `underSale` on the lineItem. Use `onSale`.');
 
-            // Don't let sale amount be more than the price.
-            if (-$this->saleAmount > $this->price) {
-                $this->saleAmount = -$this->price;
-            }
+		return $this->getOnSale();
+	}
 
-            // If the product is not promotable but has saleAmount, reset saleAmount to zero
-            if (!$purchasable->product->promotable && $this->saleAmount){
-                $this->saleAmount = 0;
-            }
+	/**
+	 * @return bool
+	 */
+	public function getOnSale ()
+	{
+		return is_null($this->salePrice) ? false : ($this->salePrice != $this->price);
+	}
 
-            $this->salePrice = $this->saleAmount + $this->price;
+	/**
+	 * Returns the description from the snapshot of the purchasable
+	 */
+	public function getDescription ()
+	{
+		return $this->snapshot['description'];
+	}
 
-        } else {
-            // Non core commerce purchasables cannot have sales applied (yet)
-            $this->saleAmount = 0;
-        }
+	/**
+	 * Returns the description from the snapshot of the purchasable
+	 */
+	public function getSku ()
+	{
+		return $this->snapshot['sku'];
+	}
 
-
-    }
-
-    protected function defineAttributes()
-    {
-        return [
-            'id' => AttributeType::Number,
-            'price' => [
-                AttributeType::Number,
-                'min' => 0,
-                'decimals' => 4,
-                'required' => true
-            ],
-            'saleAmount' => [
-                AttributeType::Number,
-                'decimals' => 4,
-                'required' => true,
-                'default' => 0
-            ],
-            'salePrice' => [
-                AttributeType::Number,
-                'decimals' => 4,
-                'required' => true,
-                'default' => 0
-            ],
-            'tax' => [
-                AttributeType::Number,
-                'decimals' => 4,
-                'required' => true,
-                'default' => 0
-            ],
-            'shippingCost' => [
-                AttributeType::Number,
-                'min' => 0,
-                'decimals' => 4,
-                'required' => true,
-                'default' => 0
-            ],
-            'discount' => [
-                AttributeType::Number,
-                'decimals' => 4,
-                'required' => true,
-                'default' => 0
-            ],
-            'weight' => [
-                AttributeType::Number,
-                'min' => 0,
-                'decimals' => 4,
-                'required' => true,
-                'default' => 0
-            ],
-            'length' => [
-                AttributeType::Number,
-                'min' => 0,
-                'decimals' => 4,
-                'required' => true,
-                'default' => 0
-            ],
-            'height' => [
-                AttributeType::Number,
-                'min' => 0,
-                'decimals' => 4,
-                'required' => true,
-                'default' => 0
-            ],
-            'width' => [
-                AttributeType::Number,
-                'min' => 0,
-                'decimals' => 4,
-                'required' => true,
-                'default' => 0
-            ],
-            'total' => [
-                AttributeType::Number,
-                'min' => 0,
-                'decimals' => 4,
-                'required' => true,
-                'default' => 0
-            ],
-            'qty' => [
-                AttributeType::Number,
-                'min' => 0,
-                'required' => true
-            ],
-            'snapshot' => [AttributeType::Mixed, 'required' => true],
-            'note' => AttributeType::Mixed,
-            'purchasableId' => AttributeType::Number,
-            'orderId' => AttributeType::Number,
-            'taxCategoryId' => [AttributeType::Number, 'required' => true],
-        ];
-    }
+	/**
+	 * @return array
+	 */
+	protected function defineAttributes ()
+	{
+		return [
+			'id'            => AttributeType::Number,
+			'price'         => [
+				AttributeType::Number,
+				'min'      => 0,
+				'decimals' => 4,
+				'required' => true
+			],
+			'saleAmount'    => [
+				AttributeType::Number,
+				'decimals' => 4,
+				'required' => true,
+				'default'  => 0
+			],
+			'salePrice'     => [
+				AttributeType::Number,
+				'decimals' => 4,
+				'required' => true,
+				'default'  => 0
+			],
+			'tax'           => [
+				AttributeType::Number,
+				'decimals' => 4,
+				'required' => true,
+				'default'  => 0
+			],
+			'shippingCost'  => [
+				AttributeType::Number,
+				'min'      => 0,
+				'decimals' => 4,
+				'required' => true,
+				'default'  => 0
+			],
+			'discount'      => [
+				AttributeType::Number,
+				'decimals' => 4,
+				'required' => true,
+				'default'  => 0
+			],
+			'weight'        => [
+				AttributeType::Number,
+				'min'      => 0,
+				'decimals' => 4,
+				'required' => true,
+				'default'  => 0
+			],
+			'length'        => [
+				AttributeType::Number,
+				'min'      => 0,
+				'decimals' => 4,
+				'required' => true,
+				'default'  => 0
+			],
+			'height'        => [
+				AttributeType::Number,
+				'min'      => 0,
+				'decimals' => 4,
+				'required' => true,
+				'default'  => 0
+			],
+			'width'         => [
+				AttributeType::Number,
+				'min'      => 0,
+				'decimals' => 4,
+				'required' => true,
+				'default'  => 0
+			],
+			'total'         => [
+				AttributeType::Number,
+				'min'      => 0,
+				'decimals' => 4,
+				'required' => true,
+				'default'  => 0
+			],
+			'qty'           => [
+				AttributeType::Number,
+				'min'      => 0,
+				'required' => true
+			],
+			'snapshot'      => [AttributeType::Mixed, 'required' => true],
+			'note'          => AttributeType::Mixed,
+			'purchasableId' => AttributeType::Number,
+			'orderId'       => AttributeType::Number,
+			'taxCategoryId' => [AttributeType::Number, 'required' => true],
+		];
+	}
 }

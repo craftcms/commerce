@@ -16,8 +16,9 @@ namespace Craft;
  * @property string urlFormat
  *
  *
- * @package Craft
+ * @package   Craft
  */
+
 class Market_ProductTypeLocaleModel extends BaseModel
 {
 	// Properties
@@ -36,13 +37,13 @@ class Market_ProductTypeLocaleModel extends BaseModel
 	 *
 	 * @return array
 	 */
-	public function rules()
+	public function rules ()
 	{
 		$rules = parent::rules();
 
 		if ($this->urlFormatIsRequired)
 		{
-			$rules[] = array('urlFormat', 'required');
+			$rules[] = ['urlFormat', 'required'];
 		}
 
 		return $rules;
@@ -56,13 +57,13 @@ class Market_ProductTypeLocaleModel extends BaseModel
 	 *
 	 * @return array
 	 */
-	protected function defineAttributes()
+	protected function defineAttributes ()
 	{
-		return array(
-			'id'              => AttributeType::Number,
-			'productTypeId'   => AttributeType::Number,
-			'locale'          => AttributeType::Locale,
-			'urlFormat'       => array(AttributeType::UrlFormat, 'label' => 'URL Format')
-		);
+		return [
+			'id'            => AttributeType::Number,
+			'productTypeId' => AttributeType::Number,
+			'locale'        => AttributeType::Locale,
+			'urlFormat'     => [AttributeType::UrlFormat, 'label' => 'URL Format']
+		];
 	}
 }

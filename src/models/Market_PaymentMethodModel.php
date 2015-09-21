@@ -19,146 +19,163 @@ use Omnipay\Common\AbstractGateway;
  */
 class Market_PaymentMethodModel extends BaseModel
 {
-    /** @var array */
-    private $_settings = [];
-    /** @var array Gateway which doesn't require card */
-    private $_withoutCard = ['PayPal_Express','Manual'];
+	/** @var array */
+	private $_settings = [];
+	/** @var array Gateway which doesn't require card */
+	private $_withoutCard = ['PayPal_Express', 'Manual'];
 
-    /**
-     * @param Market_PaymentMethodRecord|array $values
-     *
-     * @return BaseModel
-     */
-    public static function populateModel($values)
-    {
-        /** @var self $model */
-        $model = parent::populateModel($values);
-        if (is_object($values)) {
-            $model->settings = $values->settings;
-        } else {
-            $model->settings = $values['settings'];
-        }
+	/**
+	 * @param Market_PaymentMethodRecord|array $values
+	 *
+	 * @return BaseModel
+	 */
+	public static function populateModel ($values)
+	{
+		/** @var self $model */
+		$model = parent::populateModel($values);
+		if (is_object($values))
+		{
+			$model->settings = $values->settings;
+		}
+		else
+		{
+			$model->settings = $values['settings'];
+		}
 
-        return $model;
-    }
+		return $model;
+	}
 
-    /**
-     * Get gateway initialized with the settings
-     *
-     * @return \Omnipay\Common\GatewayInterface
-     */
-    public function createGateway()
-    {
-        $gateway = $this->getGateway();
-        $gateway->initialize($this->settings);
+	/**
+	 * Get gateway initialized with the settings
+	 *
+	 * @return \Omnipay\Common\GatewayInterface
+	 */
+	public function createGateway ()
+	{
+		$gateway = $this->getGateway();
+		$gateway->initialize($this->settings);
 
-        return $gateway;
-    }
+		return $gateway;
+	}
 
-    /**
-     * @return AbstractGateway
-     */
-    public function getGateway()
-    {
-        if (!empty($this->class)) {
-            $gw = craft()->market_gateway->getGateway($this->class);
-            $gw->initialize($this->settings);
+	/**
+	 * @return AbstractGateway
+	 */
+	public function getGateway ()
+	{
+		if (!empty($this->class))
+		{
+			$gw = craft()->market_gateway->getGateway($this->class);
+			$gw->initialize($this->settings);
 
-            return $gw;
-        }
+			return $gw;
+		}
 
-        return null;
-    }
+		return null;
+	}
 
-    /**
-     * @return array
-     */
-    public function getSettings()
-    {
-        return $this->_settings;
-    }
+	/**
+	 * @return array
+	 */
+	public function getSettings ()
+	{
+		return $this->_settings;
+	}
 
-    /**
-     * Magic property setter
-     *
-     * @param array $settings
-     */
-    public function setSettings($settings)
-    {
-        if (is_array($settings)) {
-            foreach ($settings as $key => $value) {
-                if (is_array($value)) {
-                    $this->_settings[$key] = reset($value);
-                } else {
-                    $this->_settings[$key] = $value;
-                }
-            }
-        }
-    }
+	/**
+	 * Magic property setter
+	 *
+	 * @param array $settings
+	 */
+	public function setSettings ($settings)
+	{
+		if (is_array($settings))
+		{
+			foreach ($settings as $key => $value)
+			{
+				if (is_array($value))
+				{
+					$this->_settings[$key] = reset($value);
+				}
+				else
+				{
+					$this->_settings[$key] = $value;
+				}
+			}
+		}
+	}
 
-    /**
-     * Settings fields which should be displayed as select-boxes
-     *
-     * @return array [setting name => [choices list]]
-     */
-    public function getSelects()
-    {
-        $gateway = craft()->market_gateway->getGateway($this->class);
-        if (!$gateway) {
-            return [];
-        }
+	/**
+	 * Settings fields which should be displayed as select-boxes
+	 *
+	 * @return array [setting name => [choices list]]
+	 */
+	public function getSelects ()
+	{
+		$gateway = craft()->market_gateway->getGateway($this->class);
+		if (!$gateway)
+		{
+			return [];
+		}
 
-        $defaults = $gateway->getDefaultParameters();
+		$defaults = $gateway->getDefaultParameters();
 
-        $selects = array_filter($defaults, 'is_array');
-        foreach ($selects as $param => &$values) {
-            $values = array_combine($values, $values);
-        }
+		$selects = array_filter($defaults, 'is_array');
+		foreach ($selects as $param => &$values)
+		{
+			$values = array_combine($values, $values);
+		}
 
-        return $selects;
-    }
+		return $selects;
+	}
 
-    /**
-     * Settings fields which should be displayed as check-boxes
-     *
-     * @return array
-     */
-    public function getBooleans()
-    {
-        $gateway = craft()->market_gateway->getGateway($this->class);
-        if (!$gateway) {
-            return [];
-        }
+	/**
+	 * Settings fields which should be displayed as check-boxes
+	 *
+	 * @return array
+	 */
+	public function getBooleans ()
+	{
+		$gateway = craft()->market_gateway->getGateway($this->class);
+		if (!$gateway)
+		{
+			return [];
+		}
 
-        $result   = [];
-        $defaults = $gateway->getDefaultParameters();
-        foreach ($defaults as $key => $value) {
-            if (is_bool($value)) {
-                $result[] = $key;
-            }
-        }
+		$result = [];
+		$defaults = $gateway->getDefaultParameters();
+		foreach ($defaults as $key => $value)
+		{
+			if (is_bool($value))
+			{
+				$result[] = $key;
+			}
+		}
 
-        return $result;
-    }
+		return $result;
+	}
 
-    /**
-     * Whether this payment method requires credit card details
-     *
-     * @return bool
-     */
-    public function requiresCard()
-    {
-        return !in_array($this->class, $this->_withoutCard);
-    }
+	/**
+	 * Whether this payment method requires credit card details
+	 *
+	 * @return bool
+	 */
+	public function requiresCard ()
+	{
+		return !in_array($this->class, $this->_withoutCard);
+	}
 
-    protected function defineAttributes()
-    {
-        return [
-            'id'              => AttributeType::Number,
-            'class'           => AttributeType::String,
-            'name'            => AttributeType::String,
-            'cpEnabled'       => AttributeType::Bool,
-            'frontendEnabled' => AttributeType::Bool,
-        ];
-    }
+	/**
+	 * @return array
+	 */
+	protected function defineAttributes ()
+	{
+		return [
+			'id'              => AttributeType::Number,
+			'class'           => AttributeType::String,
+			'name'            => AttributeType::String,
+			'cpEnabled'       => AttributeType::Bool,
+			'frontendEnabled' => AttributeType::Bool,
+		];
+	}
 }

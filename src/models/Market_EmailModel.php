@@ -17,20 +17,23 @@ namespace Craft;
  */
 class Market_EmailModel extends BaseModel
 {
-    protected function defineAttributes()
-    {
-        return [
-            'id'           => [AttributeType::Number, 'required' => true],
-            'name'         => [AttributeType::String, 'required' => true],
-            'subject'      => [AttributeType::String, 'required' => true],
-            'to'           => [AttributeType::String, 'required' => true],
-            'bcc'          => AttributeType::String,
-            'enabled'      => [
-                AttributeType::Bool,
-                'required' => true,
-                'default'  => 1
-            ],
-            'templatePath' => [AttributeType::String, 'required' => true],
-        ];
-    }
+	/**
+	 * @return array
+	 */
+	protected function defineAttributes ()
+	{
+		return [
+			'id'           => [AttributeType::Number, 'required' => true],
+			'name'         => [AttributeType::String, 'required' => true],
+			'subject'      => [AttributeType::String, 'required' => true],
+			'to'           => [AttributeType::String, 'required' => true],
+			'bcc'          => AttributeType::String,
+			'enabled'      => [
+				AttributeType::Bool,
+				'required' => true,
+				'default'  => 1
+			],
+			'templatePath' => [AttributeType::String, 'required' => true],
+		];
+	}
 }

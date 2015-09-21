@@ -13,125 +13,137 @@ namespace Craft;
  */
 class Market_DiscountController extends Market_BaseController
 {
-    /**
-     * @throws HttpException
-     */
-    public function actionIndex()
-    {
-        $this->requireAdmin();
+	/**
+	 * @throws HttpException
+	 */
+	public function actionIndex ()
+	{
+		$this->requireAdmin();
 
-        $discounts = craft()->market_discount->getAll(['order' => 'name']);
-        $this->renderTemplate('market/promotions/discounts/index',
-            compact('discounts'));
-    }
+		$discounts = craft()->market_discount->getAll(['order' => 'name']);
+		$this->renderTemplate('market/promotions/discounts/index',
+			compact('discounts'));
+	}
 
-    /**
-     * Create/Edit Discount
-     *
-     * @param array $variables
-     *
-     * @throws HttpException
-     */
-    public function actionEdit(array $variables = [])
-    {
-        $this->requireAdmin();
+	/**
+	 * Create/Edit Discount
+	 *
+	 * @param array $variables
+	 *
+	 * @throws HttpException
+	 */
+	public function actionEdit (array $variables = [])
+	{
+		$this->requireAdmin();
 
-        if (empty($variables['discount'])) {
-            if (!empty($variables['id'])) {
-                $id                    = $variables['id'];
-                $variables['discount'] = craft()->market_discount->getById($id);
+		if (empty($variables['discount']))
+		{
+			if (!empty($variables['id']))
+			{
+				$id = $variables['id'];
+				$variables['discount'] = craft()->market_discount->getById($id);
 
-                if (!$variables['discount']->id) {
-                    throw new HttpException(404);
-                }
-            } else {
-                $variables['discount'] = new Market_DiscountModel();
-            }
-        }
+				if (!$variables['discount']->id)
+				{
+					throw new HttpException(404);
+				}
+			}
+			else
+			{
+				$variables['discount'] = new Market_DiscountModel();
+			}
+		}
 
-        if (!empty($variables['id'])) {
-            $variables['title'] = $variables['discount']->name;
-        } else {
-            $variables['title'] = Craft::t('Create a Discount');
-        }
+		if (!empty($variables['id']))
+		{
+			$variables['title'] = $variables['discount']->name;
+		}
+		else
+		{
+			$variables['title'] = Craft::t('Create a Discount');
+		}
 
-        //getting user groups map
-        $groups              = craft()->userGroups->getAllGroups();
-        $variables['groups'] = \CHtml::listData($groups, 'id', 'name');
+		//getting user groups map
+		$groups = craft()->userGroups->getAllGroups();
+		$variables['groups'] = \CHtml::listData($groups, 'id', 'name');
 
-        //getting product types maps
-        $types              = craft()->market_productType->getAll();
-        $variables['types'] = \CHtml::listData($types, 'id', 'name');
+		//getting product types maps
+		$types = craft()->market_productType->getAll();
+		$variables['types'] = \CHtml::listData($types, 'id', 'name');
 
-        $this->renderTemplate('market/promotions/discounts/_edit', $variables);
-    }
+		$this->renderTemplate('market/promotions/discounts/_edit', $variables);
+	}
 
-    /**
-     * @throws HttpException
-     */
-    public function actionSave()
-    {
-        $this->requireAdmin();
+	/**
+	 * @throws HttpException
+	 */
+	public function actionSave ()
+	{
+		$this->requireAdmin();
 
-        $this->requirePostRequest();
+		$this->requirePostRequest();
 
-        $discount = new Market_DiscountModel();
+		$discount = new Market_DiscountModel();
 
-        // Shared attributes
-        $fields = [
-            'id',
-            'name',
-            'description',
-            'dateFrom',
-            'dateTo',
-            'enabled',
-            'purchaseTotal',
-            'purchaseQty',
-            'baseDiscount',
-            'perItemDiscount',
-            'percentDiscount',
-            'freeShipping',
-            'excludeOnSale',
-            'code',
-            'perUserLimit',
-            'totalUseLimit'
-        ];
-        foreach ($fields as $field) {
-            $discount->$field = craft()->request->getPost($field);
-        }
+		// Shared attributes
+		$fields = [
+			'id',
+			'name',
+			'description',
+			'dateFrom',
+			'dateTo',
+			'enabled',
+			'purchaseTotal',
+			'purchaseQty',
+			'baseDiscount',
+			'perItemDiscount',
+			'percentDiscount',
+			'freeShipping',
+			'excludeOnSale',
+			'code',
+			'perUserLimit',
+			'totalUseLimit'
+		];
+		foreach ($fields as $field)
+		{
+			$discount->$field = craft()->request->getPost($field);
+		}
 
-        $products     = craft()->request->getPost('products', []);
-        $productTypes = craft()->request->getPost('productTypes', []);
-        $groups       = craft()->request->getPost('groups', []);
+		$products = craft()->request->getPost('products', []);
+		$productTypes = craft()->request->getPost('productTypes', []);
+		$groups = craft()->request->getPost('groups', []);
 
-        // Save it
-        if (craft()->market_discount->save($discount, $groups, $productTypes,
-            $products)
-        ) {
-            craft()->userSession->setNotice(Craft::t('Discount saved.'));
-            $this->redirectToPostedUrl($discount);
-        } else {
-            craft()->userSession->setError(Craft::t('Couldn’t save discount.'));
-        }
+		// Save it
+		if (craft()->market_discount->save($discount, $groups, $productTypes,
+			$products)
+		)
+		{
+			craft()->userSession->setNotice(Craft::t('Discount saved.'));
+			$this->redirectToPostedUrl($discount);
+		}
+		else
+		{
+			craft()->userSession->setError(Craft::t('Couldn’t save discount.'));
+		}
 
-        // Send the model back to the template
-        craft()->urlManager->setRouteVariables(['discount' => $discount]);
-    }
+		// Send the model back to the template
+		craft()->urlManager->setRouteVariables(['discount' => $discount]);
+	}
 
-    /**
-     * @throws HttpException
-     */
-    public function actionDelete()
-    {
-        $this->requireAdmin();
+	/**
+	 * @throws HttpException
+	 */
+	public function actionDelete ()
+	{
+		$this->requireAdmin();
 
-        $this->requirePostRequest();
-        $this->requireAjaxRequest();
+		$this->requirePostRequest();
+		$this->requireAjaxRequest();
 
-        $id = craft()->request->getRequiredPost('id');
+		$id = craft()->request->getRequiredPost('id');
 
-        craft()->market_discount->deleteById($id);
-        $this->returnJson(['success' => true]);
-    }
+		craft()->market_discount->deleteById($id);
+		$this->returnJson(['success' => true]);
+	}
 
 }

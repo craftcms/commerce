@@ -16,28 +16,34 @@ use Market\Traits\Market_ModelRelationsTrait;
  */
 class Market_ShippingMethodModel extends BaseModel
 {
-    use Market_ModelRelationsTrait;
+	use Market_ModelRelationsTrait;
 
-    public function getRules()
-    {
-        return craft()->market_shippingRule->getAllByMethodId($this->id);
-    }
+	/**
+	 * @return Market_ShippingRuleModel[]
+	 */
+	public function getRules ()
+	{
+		return craft()->market_shippingRule->getAllByMethodId($this->id);
+	}
 
-    protected function defineAttributes()
-    {
-        return [
-            'id'      => AttributeType::Number,
-            'name'    => [AttributeType::String, 'required' => true],
-            'enabled' => [
-                AttributeType::Bool,
-                'required' => true,
-                'default'  => 1
-            ],
-            'default' => [
-                AttributeType::Bool,
-                'required' => true,
-                'default'  => 0
-            ],
-        ];
-    }
+	/**
+	 * @return array
+	 */
+	protected function defineAttributes ()
+	{
+		return [
+			'id'      => AttributeType::Number,
+			'name'    => [AttributeType::String, 'required' => true],
+			'enabled' => [
+				AttributeType::Bool,
+				'required' => true,
+				'default'  => 1
+			],
+			'default' => [
+				AttributeType::Bool,
+				'required' => true,
+				'default'  => 0
+			],
+		];
+	}
 }

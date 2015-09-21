@@ -1,6 +1,7 @@
 <?php
 namespace Market\Gateways;
 
-class BaseGatewayAdapter{
+class BaseGatewayAdapter
+{
 
 }

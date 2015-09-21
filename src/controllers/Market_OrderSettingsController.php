@@ -13,54 +13,57 @@ namespace Craft;
  */
 class Market_OrderSettingsController extends Market_BaseController
 {
-    /**
-     * @param array $variables
-     *
-     * @throws HttpException
-     */
-    public function actionEdit(array $variables = [])
-    {
-        $this->requireAdmin();
+	/**
+	 * @param array $variables
+	 *
+	 * @throws HttpException
+	 */
+	public function actionEdit (array $variables = [])
+	{
+		$this->requireAdmin();
 
-        $variables['orderSettings'] = craft()->market_orderSettings->getByHandle('order');
+		$variables['orderSettings'] = craft()->market_orderSettings->getByHandle('order');
 
-        $variables['title'] = Craft::t('Order Settings');
+		$variables['title'] = Craft::t('Order Settings');
 
-        $this->renderTemplate('market/settings/ordersettings/_edit', $variables);
-    }
+		$this->renderTemplate('market/settings/ordersettings/_edit', $variables);
+	}
 
-    /**
-     * @throws Exception
-     * @throws HttpException
-     * @throws \Exception
-     */
-    public function actionSave()
-    {
-        $this->requireAdmin();
+	/**
+	 * @throws Exception
+	 * @throws HttpException
+	 * @throws \Exception
+	 */
+	public function actionSave ()
+	{
+		$this->requireAdmin();
 
-        $this->requirePostRequest();
+		$this->requirePostRequest();
 
-        $orderSettings = new Market_OrderSettingsModel();
+		$orderSettings = new Market_OrderSettingsModel();
 
-        // Shared attributes
-        $orderSettings->id               = craft()->request->getPost('orderSettingsId');
-        $orderSettings->name             = 'Order';
-        $orderSettings->handle           = 'order';
+		// Shared attributes
+		$orderSettings->id = craft()->request->getPost('orderSettingsId');
+		$orderSettings->name = 'Order';
+		$orderSettings->handle = 'order';
 
-        // Set the field layout
-        $fieldLayout       = craft()->fields->assembleLayoutFromPost();
-        $fieldLayout->type = 'Market_Order';
-        $orderSettings->setFieldLayout($fieldLayout);
+		// Set the field layout
+		$fieldLayout = craft()->fields->assembleLayoutFromPost();
+		$fieldLayout->type = 'Market_Order';
+		$orderSettings->setFieldLayout($fieldLayout);
 
-        // Save it
-        if (craft()->market_orderSettings->save($orderSettings)) {
-            craft()->userSession->setNotice(Craft::t('Order settings saved.'));
-            $this->redirectToPostedUrl($orderSettings);
-        } else {
-            craft()->userSession->setError(Craft::t('Couldn’t save order settings.'));
-        }
+		// Save it
+		if (craft()->market_orderSettings->save($orderSettings))
+		{
+			craft()->userSession->setNotice(Craft::t('Order settings saved.'));
+			$this->redirectToPostedUrl($orderSettings);
+		}
+		else
+		{
+			craft()->userSession->setError(Craft::t('Couldn’t save order settings.'));
+		}
 
-        craft()->urlManager->setRouteVariables(['orderSettings' => $orderSettings]);
-    }
+		craft()->urlManager->setRouteVariables(['orderSettings' => $orderSettings]);
+	}
 
 } 

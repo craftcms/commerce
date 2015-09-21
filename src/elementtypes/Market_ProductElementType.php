@@ -1,44 +1,63 @@
 <?php
 namespace Craft;
 
-require_once(__DIR__ . '/Market_BaseElementType.php');
+require_once(__DIR__.'/Market_BaseElementType.php');
 
 class Market_ProductElementType extends Market_BaseElementType
 {
 
-	public function getName()
+	/**
+	 * @return null|string
+	 */
+	public function getName ()
 	{
 		return Craft::t('Products');
 	}
 
-	public function hasContent()
+	/**
+	 * @return bool
+	 */
+	public function hasContent ()
 	{
 		return true;
 	}
 
-	public function hasTitles()
+	/**
+	 * @return bool
+	 */
+	public function hasTitles ()
 	{
 		return true;
 	}
 
-	public function hasStatuses()
+	/**
+	 * @return bool
+	 */
+	public function hasStatuses ()
 	{
 		return true;
 	}
 
-
-	public function isLocalized()
+	/**
+	 * @return bool
+	 */
+	public function isLocalized ()
 	{
 		return true;
 	}
 
-	public function getAvailableActions($source = null)
+	/**
+	 * @param null $source
+	 *
+	 * @return array
+	 */
+	public function getAvailableActions ($source = null)
 	{
 		$deleteAction = craft()->elements->getAction('Delete');
-		$deleteAction->setParams(array(
+		$deleteAction->setParams([
 			'confirmationMessage' => Craft::t('Are you sure you want to delete the selected product and their variants?'),
 			'successMessage'      => Craft::t('Products deleted.'),
-		));
+		]);
 		$actions[] = $deleteAction;
 
 		$setValuesAction = craft()->elements->getAction('Market_CreateSale');
@@ -47,7 +66,12 @@ class Market_ProductElementType extends Market_BaseElementType
 		return $actions;
 	}
 
-	public function getSources($context = NULL)
+	/**
+	 * @param null $context
+	 *
+	 * @return array
+	 */
+	public function getSources ($context = null)
 	{
 		$sources = [
 
@@ -58,8 +82,9 @@ class Market_ProductElementType extends Market_BaseElementType
 
 		$sources[] = ['heading' => "Product Types"];
 
-		foreach (craft()->market_productType->getAll() as $productType) {
-			$key = 'productType:' . $productType->id;
+		foreach (craft()->market_productType->getAll() as $productType)
+		{
+			$key = 'productType:'.$productType->id;
 
 			$sources[$key] = [
 				'label'    => $productType->name,
@@ -68,11 +93,14 @@ class Market_ProductElementType extends Market_BaseElementType
 		}
 
 		return $sources;
-
 	}
 
-
-	public function defineTableAttributes($source = NULL)
+	/**
+	 * @param null $source
+	 *
+	 * @return array
+	 */
+	public function defineTableAttributes ($source = null)
 	{
 		return [
 			'title'       => Craft::t('Name'),
@@ -81,13 +109,22 @@ class Market_ProductElementType extends Market_BaseElementType
 		];
 	}
 
-	public function defineSearchableAttributes()
+	/**
+	 * @return array
+	 */
+	public function defineSearchableAttributes ()
 	{
 		return ['title'];
 	}
 
 
-	public function getTableAttributeHtml(BaseElementModel $element, $attribute)
+	/**
+	 * @param BaseElementModel $element
+	 * @param string           $attribute
+	 *
+	 * @return mixed|string
+	 */
+	public function getTableAttributeHtml (BaseElementModel $element, $attribute)
 	{
 		return parent::getTableAttributeHtml($element, $attribute);
 	}
@@ -97,7 +134,7 @@ class Market_ProductElementType extends Market_BaseElementType
 	 *
 	 * @return array
 	 */
-	public function defineSortableAttributes()
+	public function defineSortableAttributes ()
 	{
 		return [
 			'title'       => Craft::t('Name'),
@@ -112,7 +149,7 @@ class Market_ProductElementType extends Market_BaseElementType
 	 *
 	 * @return array|null
 	 */
-	public function getStatuses()
+	public function getStatuses ()
 	{
 		return [
 			Market_ProductModel::LIVE    => Craft::t('Live'),
@@ -123,7 +160,10 @@ class Market_ProductElementType extends Market_BaseElementType
 	}
 
 
-	public function defineCriteriaAttributes()
+	/**
+	 * @return array
+	 */
+	public function defineCriteriaAttributes ()
 	{
 		return [
 			'typeId'      => AttributeType::Mixed,
@@ -144,12 +184,14 @@ class Market_ProductElementType extends Market_BaseElementType
 	 *
 	 * @return array|false|string|void
 	 */
-	public function getElementQueryStatusCondition(DbCommand $query, $status)
+	public function getElementQueryStatusCondition (DbCommand $query, $status)
 	{
 		$currentTimeDb = DateTimeHelper::currentTimeForDb();
 
-		switch ($status) {
-			case Market_ProductModel::LIVE: {
+		switch ($status)
+		{
+			case Market_ProductModel::LIVE:
+			{
 				return ['and',
 					'elements.enabled = 1',
 					'elements_i18n.enabled = 1',
@@ -158,7 +200,8 @@ class Market_ProductElementType extends Market_BaseElementType
 				];
 			}
 
-			case Market_ProductModel::PENDING: {
+			case Market_ProductModel::PENDING:
+			{
 				return ['and',
 					'elements.enabled = 1',
 					'elements_i18n.enabled = 1',
@@ -166,7 +209,8 @@ class Market_ProductElementType extends Market_BaseElementType
 				];
 			}
 
-			case Market_ProductModel::EXPIRED: {
+			case Market_ProductModel::EXPIRED:
+			{
 				return ['and',
 					'elements.enabled = 1',
 					'elements_i18n.enabled = 1',
@@ -178,45 +222,65 @@ class Market_ProductElementType extends Market_BaseElementType
 	}
 
 
-	public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
+	/**
+	 * @param DbCommand            $query
+	 * @param ElementCriteriaModel $criteria
+	 */
+	public function modifyElementsQuery (DbCommand $query, ElementCriteriaModel $criteria)
 	{
 		$query
 			->addSelect("products.id, products.typeId, products.promotable, products.freeShipping, products.availableOn, products.expiresOn, products.taxCategoryId, products.authorId")
 			->join('market_products products', 'products.id = elements.id')
 			->join('market_producttypes producttypes', 'producttypes.id = products.typeId');
 
-		if ($criteria->availableOn) {
+		if ($criteria->availableOn)
+		{
 			$query->andWhere(DbHelper::parseDateParam('products.availableOn', $criteria->availableOn, $query->params));
-		} else {
-			if ($criteria->after) {
-				$query->andWhere(DbHelper::parseDateParam('products.availableOn', '>=' . $criteria->after, $query->params));
+		}
+		else
+		{
+			if ($criteria->after)
+			{
+				$query->andWhere(DbHelper::parseDateParam('products.availableOn', '>='.$criteria->after, $query->params));
 			}
 
-			if ($criteria->before) {
-				$query->andWhere(DbHelper::parseDateParam('products.availableOn', '<' . $criteria->before, $query->params));
+			if ($criteria->before)
+			{
+				$query->andWhere(DbHelper::parseDateParam('products.availableOn', '<'.$criteria->before, $query->params));
 			}
 		}
 
-		if ($criteria->expiresOn) {
+		if ($criteria->expiresOn)
+		{
 			$query->andWhere(DbHelper::parseDateParam('products.expiresOn', $criteria->expiresOn, $query->params));
 		}
 
-		if ($criteria->type) {
-			if ($criteria->type instanceof Market_ProductTypeModel) {
+		if ($criteria->type)
+		{
+			if ($criteria->type instanceof Market_ProductTypeModel)
+			{
 				$criteria->typeId = $criteria->type->id;
-				$criteria->type   = NULL;
-			} else {
+				$criteria->type = null;
+			}
+			else
+			{
 				$query->andWhere(DbHelper::parseParam('producttypes.handle', $criteria->type, $query->params));
 			}
 		}
 
-		if ($criteria->typeId) {
+		if ($criteria->typeId)
+		{
 			$query->andWhere(DbHelper::parseParam('products.typeId', $criteria->typeId, $query->params));
 		}
 	}
 
 
-	public function populateElementModel($row)
+	/**
+	 * @param array $row
+	 *
+	 * @return BaseModel
+	 */
+	public function populateElementModel ($row)
 	{
 		return Market_ProductModel::populateModel($row);
 	}
@@ -228,7 +292,7 @@ class Market_ProductElementType extends Market_BaseElementType
 	 *
 	 * @return array|bool|mixed
 	 */
-	public function routeRequestForMatchedElement(BaseElementModel $element)
+	public function routeRequestForMatchedElement (BaseElementModel $element)
 	{
 		/** @var Market_ProductModel $element */
 		if ($element->getStatus() == Market_ProductModel::LIVE)
@@ -240,7 +304,7 @@ class Market_ProductElementType extends Market_BaseElementType
 				return [
 					'action' => 'templates/render',
 					'params' => [
-						'template' => $productType->template,
+						'template'  => $productType->template,
 						'variables' => [
 							'product' => $element
 						]
@@ -252,9 +316,17 @@ class Market_ProductElementType extends Market_BaseElementType
 		return false;
 	}
 
-	public function saveElement(BaseElementModel $element, $params)
+	/**
+	 * @param BaseElementModel $element
+	 * @param array            $params
+	 *
+	 * @return bool
+	 * @throws Exception
+	 * @throws \Exception
+	 */
+	public function saveElement (BaseElementModel $element, $params)
 	{
-		craft()->market_product->save($element);
+		return craft()->market_product->save($element);
 	}
 
 } 

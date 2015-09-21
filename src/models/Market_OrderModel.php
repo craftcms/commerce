@@ -58,320 +58,354 @@ use Market\Traits\Market_ModelRelationsTrait;
  */
 class Market_OrderModel extends BaseElementModel
 {
-    use Market_ModelRelationsTrait;
+	use Market_ModelRelationsTrait;
 
-    private $_shippingAddress;
-    private $_billingAddress;
+	/**
+	 * @var string
+	 */
+	protected $elementType = 'Market_Order';
+	/**
+	 * @var
+	 */
+	private $_shippingAddress;
+	/**
+	 * @var
+	 */
+	private $_billingAddress;
 
-    protected $elementType = 'Market_Order';
+	/**
+	 * @return bool
+	 */
+	public function isEditable ()
+	{
+		return true;
+	}
 
-    public function isEditable()
-    {
-        return true;
-    }
+	/**
+	 * @return string
+	 */
+	public function __toString ()
+	{
+		return substr($this->number, 0, 7);
+	}
 
-    /**
-     * @return string
-     */
-    public function __toString()
-    {
-        return substr($this->number,0,7);
-    }
+	/**
+	 * @inheritdoc
+	 * @return string
+	 */
+	public function getLink ()
+	{
+		return TemplateHelper::getRaw("<a href='".$this->getCpEditUrl()."'>".substr($this->number, 0, 7)."</a>");
+	}
 
-    /**
-     * @inheritdoc
-     * @return string
-     */
-    public function getLink()
-    {
-        return TemplateHelper::getRaw("<a href='".$this->getCpEditUrl()."'>".substr($this->number,0,7)."</a>");
-    }
+	/**
+	 * @inheritdoc
+	 * @return string
+	 */
+	public function getCpEditUrl ()
+	{
+		return UrlHelper::getCpUrl('market/orders/'.$this->id);
+	}
 
-    /**
-     * @inheritdoc
-     * @return string
-     */
-    public function getCpEditUrl()
-    {
-        return UrlHelper::getCpUrl('market/orders/' . $this->id);
-    }
+	/**
+	 * Returns the link to the Order's PDF file for download.
+	 *
+	 * @param string $option
+	 *
+	 * @return string
+	 */
+	public function getPdfUrl ($option = '')
+	{
+		return UrlHelper::getActionUrl('market/download/pdf?number='.$this->number."&option=".$option);
+	}
 
-    /**
-     * Returns the link to the Order's PDF file for download.
-     * @param string $option
-     * @return string
-     */
-    public function getPdfUrl($option = '')
-    {
-        return UrlHelper::getActionUrl('market/download/pdf?number=' . $this->number . "&option=" . $option);
-    }
+	/**
+	 * @return FieldLayoutModel
+	 */
+	public function getFieldLayout ()
+	{
+		return craft()->market_orderSettings->getByHandle('order')->getFieldLayout();
+	}
 
-    /**
-     * @return FieldLayoutModel
-     */
-    public function getFieldLayout()
-    {
-        return craft()->market_orderSettings->getByHandle('order')->getFieldLayout();
-    }
+	/**
+	 * @return bool
+	 */
+	public function isLocalized ()
+	{
+		return false;
+	}
 
-    /**
-     * @return bool
-     */
-    public function isLocalized()
-    {
-        return false;
-    }
+	/**
+	 * @return bool
+	 */
+	public function isPaid ()
+	{
+		return $this->totalPaid >= $this->totalPrice;
+	}
 
-    /**
-     * @return bool
-     */
-    public function isPaid()
-    {
-        return $this->totalPaid >= $this->totalPrice;
-    }
+	/**
+	 * Has the order got any items in it?
+	 *
+	 * @return bool
+	 */
+	public function isEmpty ()
+	{
+		return $this->getTotalQty() == 0;
+	}
 
-    /**
-     * Total number of items.
-     *
-     * @return int
-     */
-    public function getTotalQty()
-    {
-        $qty = 0;
-        foreach ($this->lineItems as $item) {
-            $qty += $item->qty;
-        }
+	/**
+	 * Total number of items.
+	 *
+	 * @return int
+	 */
+	public function getTotalQty ()
+	{
+		$qty = 0;
+		foreach ($this->lineItems as $item)
+		{
+			$qty += $item->qty;
+		}
 
-        return $qty;
-    }
+		return $qty;
+	}
 
-    /**
-     * Has the order got any items in it?
-     *
-     * @return bool
-     */
-    public function isEmpty()
-    {
-        return $this->getTotalQty() == 0;
-    }
+	/**
+	 * @return int
+	 */
+	public function getTotalTax ()
+	{
+		$tax = 0;
+		foreach ($this->lineItems as $item)
+		{
+			$tax += $item->tax;
+		}
 
-    /**
-     * @return int
-     */
-    public function getTotalTax()
-    {
-        $tax = 0;
-        foreach ($this->lineItems as $item) {
-            $tax += $item->tax;
-        }
+		return $tax;
+	}
 
-        return $tax;
-    }
+	/**
+	 * @return int
+	 */
+	public function getTotalShippingCost ()
+	{
+		$shippingCost = 0;
+		foreach ($this->lineItems as $item)
+		{
+			$shippingCost += $item->shippingCost;
+		}
 
-    /**
-     * @return int
-     */
-    public function getTotalShippingCost()
-    {
-        $shippingCost = 0;
-        foreach ($this->lineItems as $item) {
-            $shippingCost += $item->shippingCost;
-        }
+		return $shippingCost + $this->baseShippingCost;
+	}
 
-        return $shippingCost + $this->baseShippingCost;
-    }
+	/**
+	 * @return int
+	 */
+	public function getTotalWeight ()
+	{
+		$weight = 0;
+		foreach ($this->lineItems as $item)
+		{
+			$weight += $item->qty * $item->weight;
+		}
 
-    /**
-     * @return int
-     */
-    public function getTotalWeight()
-    {
-        $weight = 0;
-        foreach ($this->lineItems as $item) {
-            $weight += $item->qty * $item->weight;
-        }
+		return $weight;
+	}
 
-        return $weight;
-    }
+	/**
+	 * @return int
+	 */
+	public function getTotalLength ()
+	{
+		$value = 0;
+		foreach ($this->lineItems as $item)
+		{
+			$value += $item->qty * $item->length;
+		}
 
-    public function getTotalLength()
-    {
-        $value = 0;
-        foreach ($this->lineItems as $item) {
-            $value += $item->qty * $item->length;
-        }
+		return $value;
+	}
 
-        return $value;
-    }
+	/**
+	 * @return int
+	 */
+	public function getTotalWidth ()
+	{
+		$value = 0;
+		foreach ($this->lineItems as $item)
+		{
+			$value += $item->qty * $item->width;
+		}
 
-    public function getTotalWidth()
-    {
-        $value = 0;
-        foreach ($this->lineItems as $item) {
-            $value += $item->qty * $item->width;
-        }
+		return $value;
+	}
 
-        return $value;
-    }
+	/**
+	 * @return int
+	 */
+	public function getTotalHeight ()
+	{
+		$value = 0;
+		foreach ($this->lineItems as $item)
+		{
+			$value += $item->qty * $item->height;
+		}
 
-    public function getTotalHeight()
-    {
-        $value = 0;
-        foreach ($this->lineItems as $item) {
-            $value += $item->qty * $item->height;
-        }
+		return $value;
+	}
 
-        return $value;
-    }
+	/**
+	 * @return Market_LineItemModel[]
+	 */
+	public function getLineItems ()
+	{
+		return craft()->market_lineItem->getAllByOrderId($this->id);
+	}
 
-    /**
-     * @return Market_LineItemModel[]
-     */
-    public function getLineItems()
-    {
-        return craft()->market_lineItem->getAllByOrderId($this->id);
-    }
+	/**
+	 * @return Market_OrderAdjustmentModel[]
+	 */
+	public function getAdjustments ()
+	{
+		return craft()->market_orderAdjustment->getAllByOrderId($this->id);
+	}
 
-    /**
-     * @return Market_OrderAdjustmentModel[]
-     */
-    public function getAdjustments()
-    {
-        return craft()->market_orderAdjustment->getAllByOrderId($this->id);
-    }
+	/**
+	 * @return Market_AddressModel
+	 */
+	public function getShippingAddress ()
+	{
+		if (!isset($this->_shippingAddress))
+		{
+			// Get the live linked address if it is still a cart, else cached
+			if (!$this->dateOrdered)
+			{
+				$this->_shippingAddress = craft()->market_address->getAddressById($this->shippingAddressId);
+			}
+			else
+			{
+				$this->_shippingAddress = Market_AddressModel::populateModel($this->shippingAddressData);
+			}
+		}
 
-    /**
-     * @return Market_AddressModel
-     */
-    public function getShippingAddress()
-    {
-        if(!isset($this->_shippingAddress)){
-            // Get the live linked address if it is still a cart, else cached
-            if (!$this->dateOrdered) {
-                $this->_shippingAddress = craft()->market_address->getAddressById($this->shippingAddressId);
-            }else{
-                $this->_shippingAddress = Market_AddressModel::populateModel($this->shippingAddressData);
-            }
+		return $this->_shippingAddress;
+	}
 
-        }
+	/**
+	 * @param Market_AddressModel $address
+	 */
+	public function setShippingAddress (Market_AddressModel $address)
+	{
+		$this->shippingAddressData = JsonHelper::encode($address->attributes);
+		$this->_shippingAddress = $address;
+	}
 
-        return $this->_shippingAddress;
-    }
+	/**
+	 * @return Market_AddressModel
+	 */
+	public function getBillingAddress ()
+	{
+		if (!isset($this->_billingAddress))
+		{
+			// Get the live linked address if it is still a cart, else cached
+			if (!$this->dateOrdered)
+			{
+				$this->_billingAddress = craft()->market_address->getAddressById($this->billingAddressId);
+			}
+			else
+			{
+				$this->_billingAddress = Market_AddressModel::populateModel($this->billingAddressData);
+			}
+		}
 
-    /**
-     * @param Market_AddressModel $address
-     */
-    public function setShippingAddress(Market_AddressModel $address)
-    {
-        $this->shippingAddressData = JsonHelper::encode($address->attributes);
-        $this->_shippingAddress = $address;
-    }
-
-    /**
-     * @return Market_AddressModel
-     */
-    public function getBillingAddress()
-    {
-        if(!isset($this->_billingAddress))
-        {
-            // Get the live linked address if it is still a cart, else cached
-            if (!$this->dateOrdered)
-            {
-                $this->_billingAddress = craft()->market_address->getAddressById($this->billingAddressId);
-            }
-            else
-            {
-                $this->_billingAddress = Market_AddressModel::populateModel($this->billingAddressData);
-            }
-        }
-
-        return $this->_billingAddress;
-    }
-
-
-    /**
-     *
-     * @param Market_AddressModel $address
-     */
-    public function setBillingAddress(Market_AddressModel $address)
-    {
-        $this->billingAddressData = JsonHelper::encode($address->attributes);
-        $this->_billingAddress = $address;
-    }
+		return $this->_billingAddress;
+	}
 
 
-    /**
-     * @deprecated
-     * @return bool
-     */
-    public function showAddress()
-    {
-        craft()->deprecator->log('Market_OrderModel::showAddress():removed', 'You should no longer use `cart.showAddress` in twig to determine whether to show the address form. Do your own check in twig like this `{% if cart.linItems|length > 0 %}`');
-        return count($this->lineItems) > 0;
-    }
+	/**
+	 *
+	 * @param Market_AddressModel $address
+	 */
+	public function setBillingAddress (Market_AddressModel $address)
+	{
+		$this->billingAddressData = JsonHelper::encode($address->attributes);
+		$this->_billingAddress = $address;
+	}
 
-    /**
-     * @deprecated
-     * @return bool
-     */
-    public function showPayment()
-    {
-        craft()->deprecator->log('Market_OrderModel::showPayment():removed', 'You should no longer use `cart.showPayment` in twig to determine whether to show the payment form. Do your own check in twig like this `{% if cart.linItems|length > 0 and cart.billingAddressId and cart.shippingAddressId %}`');
-        return count($this->lineItems) > 0 && $this->billingAddressId && $this->shippingAddressId;
-    }
 
-    /**
-     * @return array
-     */
-    protected function defineAttributes()
-    {
-        return array_merge(parent::defineAttributes(), [
-            'id'                => AttributeType::Number,
-            'number'            => AttributeType::String,
-            'couponCode'        => AttributeType::String,
-            'itemTotal'         => [
-                AttributeType::Number,
-                'decimals' => 4,
-                'default'  => 0
-            ],
-            'baseDiscount'      => [
-                AttributeType::Number,
-                'decimals' => 4,
-                'default'  => 0
-            ],
-            'baseShippingCost'  => [
-                AttributeType::Number,
-                'decimals' => 4,
-                'default'  => 0
-            ],
-            'totalPrice'        => [
-                AttributeType::Number,
-                'decimals' => 4,
-                'default'  => 0
-            ],
-            'totalPaid'         => [
-                AttributeType::Number,
-                'decimals' => 4,
-                'default'  => 0
-            ],
-            'email'             => AttributeType::String,
-            'dateOrdered'       => AttributeType::DateTime,
-            'datePaid'          => AttributeType::DateTime,
-            'currency'          => AttributeType::String,
-            'lastIp'            => AttributeType::String,
-            'message'           => AttributeType::String,
-            'returnUrl'         => AttributeType::String,
-            'cancelUrl'         => AttributeType::String,
-            'orderStatusId'     => AttributeType::Number,
-            'billingAddressId'  => AttributeType::Number,
-            'shippingAddressId' => AttributeType::Number,
-            'shippingMethodId'  => AttributeType::Number,
-            'paymentMethodId'   => AttributeType::Number,
-            'customerId'        => AttributeType::Number,
-            'typeId'            => AttributeType::Number,
+	/**
+	 * @deprecated
+	 * @return bool
+	 */
+	public function showAddress ()
+	{
+		craft()->deprecator->log('Market_OrderModel::showAddress():removed', 'You should no longer use `cart.showAddress` in twig to determine whether to show the address form. Do your own check in twig like this `{% if cart.linItems|length > 0 %}`');
 
-            'shippingAddressData'   => AttributeType::Mixed,
-            'billingAddressData'    => AttributeType::Mixed
-        ]);
-    }
+		return count($this->lineItems) > 0;
+	}
+
+	/**
+	 * @deprecated
+	 * @return bool
+	 */
+	public function showPayment ()
+	{
+		craft()->deprecator->log('Market_OrderModel::showPayment():removed', 'You should no longer use `cart.showPayment` in twig to determine whether to show the payment form. Do your own check in twig like this `{% if cart.linItems|length > 0 and cart.billingAddressId and cart.shippingAddressId %}`');
+
+		return count($this->lineItems) > 0 && $this->billingAddressId && $this->shippingAddressId;
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function defineAttributes ()
+	{
+		return array_merge(parent::defineAttributes(), [
+			'id'                  => AttributeType::Number,
+			'number'              => AttributeType::String,
+			'couponCode'          => AttributeType::String,
+			'itemTotal'           => [
+				AttributeType::Number,
+				'decimals' => 4,
+				'default'  => 0
+			],
+			'baseDiscount'        => [
+				AttributeType::Number,
+				'decimals' => 4,
+				'default'  => 0
+			],
+			'baseShippingCost'    => [
+				AttributeType::Number,
+				'decimals' => 4,
+				'default'  => 0
+			],
+			'totalPrice'          => [
+				AttributeType::Number,
+				'decimals' => 4,
+				'default'  => 0
+			],
+			'totalPaid'           => [
+				AttributeType::Number,
+				'decimals' => 4,
+				'default'  => 0
+			],
+			'email'               => AttributeType::String,
+			'dateOrdered'         => AttributeType::DateTime,
+			'datePaid'            => AttributeType::DateTime,
+			'currency'            => AttributeType::String,
+			'lastIp'              => AttributeType::String,
+			'message'             => AttributeType::String,
+			'returnUrl'           => AttributeType::String,
+			'cancelUrl'           => AttributeType::String,
+			'orderStatusId'       => AttributeType::Number,
+			'billingAddressId'    => AttributeType::Number,
+			'shippingAddressId'   => AttributeType::Number,
+			'shippingMethodId'    => AttributeType::Number,
+			'paymentMethodId'     => AttributeType::Number,
+			'customerId'          => AttributeType::Number,
+			'typeId'              => AttributeType::Number,
+
+			'shippingAddressData' => AttributeType::Mixed,
+			'billingAddressData'  => AttributeType::Mixed
+		]);
+	}
 }

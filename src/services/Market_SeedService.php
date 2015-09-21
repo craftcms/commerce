@@ -17,14 +17,14 @@ use Market\Seed\Market_StatesSeeder;
  */
 class Market_SeedService extends BaseApplicationComponent
 {
-    /**
-     * Default seeders
-     */
-    public function afterInstall()
-    {
-        (new Market_InstallSeeder)->seed();
-        (new Market_CountriesSeeder)->seed();
-        (new Market_StatesSeeder)->seed();
-    }
+	/**
+	 * Default seeders
+	 */
+	public function afterInstall ()
+	{
+		(new Market_InstallSeeder)->seed();
+		(new Market_CountriesSeeder)->seed();
+		(new Market_StatesSeeder)->seed();
+	}
 
 } 
