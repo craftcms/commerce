@@ -95,6 +95,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
 	{
 		$category = Commerce_TaxCategoryModel::populateModel([
 			'name'    => 'General',
+			'handle'  => 'general',
 			'default' => 1,
 		]);
 
