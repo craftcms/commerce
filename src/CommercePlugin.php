@@ -124,6 +124,10 @@ class CommercePlugin extends BasePlugin
 						$migration->up();
 					}
 
+					craft()->db->createCommand()->update('elements',['type' => 'Commerce_Product'], 'type=:elementType', [':elementType' => 'Market_Product' ]);
+					craft()->db->createCommand()->update('elements',['type' => 'Commerce_Order'], 'type=:elementType', [':elementType' => 'Market_Order' ]);
+					craft()->db->createCommand()->update('elements',['type' => 'Commerce_Variant'], 'type=:elementType', [':elementType' => 'Market_Variant' ]);
+
 					CommerceDbHelper::commitStackedTransaction();
 				}
 				catch (Exception $e)
