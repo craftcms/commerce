@@ -61,8 +61,15 @@
     {% macro hasVariantsField(productType) %}
         {% from "_includes/forms" import checkboxField %}
 
+        {% set instructions %}{% spaceless %}
+            {% if (productType.handle and productType.hasVariants) %}
+                <p><span class="error">{{ "Careful—changing this may result in the data loss of exisiting variants of this type." }}</span></p>
+            {% endif %}
+        {% endspaceless %}{% endset %}
+
         {{ checkboxField({
             label: "Does this product type have variants?"|t,
+            instructions: instructions,
             id: 'hasVariants',
             name: 'hasVariants',
             checked: productType.hasVariants,
@@ -128,10 +135,11 @@
 
     {% macro titleFormatField(productType) %}
         {% from "_includes/forms" import textField %}
+
         <div class="variant-settings {{ (productType.hasVariants ? '' : 'hidden') }}">
         {{ textField({
             label: "Variant Title Format"|t,
-            instructions: "What the auto-generated entry titles should look like. You can include tags that output entry properties, such as {ex1} or {ex2}."|t({ ex1: '<code>{sku}</code>', ex2: '<code>{myCustomField}</code>' }),
+            instructions: "What the auto-generated entry titles should look like. You can include tags that output entry properties, such as {ex1} or {ex2}. "|t({ ex1: '<code>{sku}</code>', ex2: '<code>{myCustomField}</code>' }),
             id: 'titleFormat',
             class: 'ltr',
             name: 'titleFormat',
@@ -146,6 +154,7 @@
 
     <hr/>
     {{ hasVariantsField(productType) }}
+
     {{ titleFormatField(productType) }}
     <hr/>
 
@@ -243,12 +252,9 @@
 
 {% set js %}
 {% if not productType.handle %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
-$(function () {
-    $('#type').selectize({
-        dropdownParent: 'body'
-    });
-});
+
 {% endset %}
+
 {% includeJs js %}
 
 {% if not productType.handle %}

@@ -7,19 +7,21 @@ use Commerce\Interfaces\Purchasable;
 /**
  * Class Commerce_VariantModel
  *
- * @property int    id
- * @property int    productId
- * @property bool   isImplicit
- * @property string sku
- * @property float  price
- * @property float  width
- * @property float  height
- * @property float  length
- * @property float  weight
- * @property int    stock
- * @property bool   unlimitedStock
- * @property int    minQty
- * @property int    maxQty
+ * @property int    $id
+ * @property int    $productId
+ * @property bool   $isImplicit
+ * @property string $sku
+ * @property float  $price
+ * @property float  $width
+ * @property float  $height
+ * @property float  $length
+ * @property float  $weight
+ * @property int    $stock
+ * @property bool   $unlimitedStock
+ * @property int    $minQty
+ * @property int    $maxQty
+ *
+ * @property Commerce_ProductModel $product
  *
  * @package Craft
  */

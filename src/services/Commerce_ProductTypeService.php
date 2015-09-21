@@ -86,6 +86,7 @@ class Commerce_ProductTypeService extends BaseApplicationComponent
                     ['id' => $productType->id]));
             }
 
+            /** @var Commerce_ProductTypeModel $oldProductType */
             $oldProductType = Commerce_ProductTypeModel::populateModel($productTypeRecord);
             $isNewProductType = false;
         }
@@ -140,6 +141,27 @@ class Commerce_ProductTypeService extends BaseApplicationComponent
             CommerceDbHelper::beginStackedTransaction();
             try
             {
+
+                if (!$isNewProductType){
+                    // If we previously had variants but now don't, delete all explicit variants.
+                    if($oldProductType->hasVariants && !$productType->hasVariants)
+                    {
+                        $criteria = craft()->elements->getCriteria('Commerce_Product');
+                        $criteria->typeId = $productType->id;
+                        $products = $criteria->find();
+                        /** @var Commerce_ProductModel $product */
+                        foreach ($products as $key => $product)
+                        {
+                            if ($product && $product->getContent()->id)
+                            {
+                                foreach ($product->getVariants() as $variant)
+                                {
+                                    craft()->commerce_variant->deleteById($variant->id);
+                                }
+                            }
+                        }
+                    }
+                }
 
                 // Product Field Layout
                 if (!$isNewProductType && $oldProductType->fieldLayoutId)
@@ -242,15 +264,15 @@ class Commerce_ProductTypeService extends BaseApplicationComponent
 
                 if (!$isNewProductType)
                 {
-                    // Drop any locales that are no longer being used, as well as the associated element
-                    // locale rows
+                        // Drop any locales that are no longer being used, as well as the associated element
+                        // locale rows
 
-                    $droppedLocaleIds = array_diff(array_keys($oldLocales), array_keys($productTypeLocales));
+                        $droppedLocaleIds = array_diff(array_keys($oldLocales), array_keys($productTypeLocales));
 
-                    if ($droppedLocaleIds)
-                    {
-                        craft()->db->createCommand()->delete('commerce_producttypes_i18n', ['in', 'locale', $droppedLocaleIds]);
-                    }
+                        if ($droppedLocaleIds)
+                        {
+                            craft()->db->createCommand()->delete('commerce_producttypes_i18n', ['in', 'locale', $droppedLocaleIds]);
+                        }
                 }
 
 
