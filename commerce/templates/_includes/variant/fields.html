@@ -1,0 +1,126 @@
+{% if productId is defined %}
+<input type="hidden" name="productId" value="{{productId}}">
+{% else %}
+<input type="hidden" name="productId" value="{{variant.productId}}">
+{% endif %}
+
+{% import "_includes/forms" as forms %}
+
+<input type="hidden" name="id" value="{{ variant.id }}">
+<input type="hidden" name="isImplicit" value="{{ variant.isImplicit }}">
+
+<div id="variantDetails">
+
+    <div class="grid first" data-cols="8">
+    <div class="item" data-min-colspan="4" data-max-colspan="8">
+        {{ forms.textField({
+            label: 'SKU'|t,
+            name:   'sku',
+            instructions: 'Global store identifier. Stock Keeping Unit.'|t,
+            value: variant.sku,
+            required: true,
+            errors: variant.getErrors('sku')
+        })}}
+    </div>
+
+    <div class="item" data-min-colspan="4" data-max-colspan="8">
+        {{ forms.textField({
+            label: 'Price'|t,
+            name:   'price',
+            instructions: 'Base price before sales and discounts.'|t,
+            type:   'text',
+            value: variant.price|commerceDecimal,
+            errors: variant.getErrors('price')
+        })}}
+    </div>
+    </div>
+
+    <div class="grid first" data-cols="8">
+        <div class="item" data-min-colspan="4" data-max-colspan="4">
+        {{ forms.textField({
+            label: 'Min Qty'|t,
+            name:   'minQty',
+            instructions: 'Minimum items that can be added to a cart.'|t,
+            type:   'text',
+            value: variant.minQty,
+            errors: variant.getErrors('minQty')
+        })}}
+    </div>
+
+    <div class="item" data-min-colspan="4" data-max-colspan="4">
+        {{ forms.textField({
+            label: 'Max Qty'|t,
+            name:   'maxQty',
+            instructions: 'Maximum items that can be added to a cart.'|t,
+            type:   'text',
+            value: variant.maxQty,
+            errors: variant.getErrors('maxQty')
+        })}}
+    </div>
+    </div>
+
+    <div class="grid first {{ variant.product.type.hasDimensions ? '' : 'hidden'}}" data-cols="8">
+    <div class="item" data-min-colspan="2" data-max-colspan="2">
+        {{ forms.textField({
+            label: 'Width'|t~' ('~craft.commerce.settings.dimensionUnits~')',
+            name:   'width',
+            type:   'text',
+            value: variant.width|commerceDecimal,
+            errors: variant.getErrors('width')
+        })}}
+    </div>
+
+        <div class="item" data-min-colspan="2" data-max-colspan="2">
+        {{ forms.textField({
+            label: 'Height'|t~' ('~craft.commerce.settings.dimensionUnits~')',
+            name:   'height',
+            type:   'number',
+            value: variant.height|commerceDecimal,
+            errors: variant.getErrors('height')
+        })}}
+    </div>
+
+        <div class="item" data-min-colspan="2" data-max-colspan="2">
+        {{ forms.textField({
+            label: 'Length'|t~' ('~craft.commerce.settings.dimensionUnits~')',
+            name:   'length',
+            type:   'text',
+            value: variant.length|commerceDecimal,
+            errors: variant.getErrors('length')
+        })}}
+    </div>
+
+        <div class="item" data-min-colspan="2" data-max-colspan="2">
+        {{ forms.textField({
+            label: 'Weight'|t~' ('~craft.commerce.settings.weightUnits~')',
+            name:   'weight',
+            type:   'text',
+            value: variant.weight|commerceDecimal,
+            errors: variant.getErrors('weight')
+        })}}
+    </div>
+    </div>
+
+    <div class="grid first" data-cols="8">
+        <div class="item" data-min-colspan="8" data-max-colspan="8">
+        {{ forms.checkboxField({
+            label: 'Unlimited Stock'|t,
+            name:   'unlimitedStock',
+            checked: (variant.id ? variant.unlimitedStock : 1),
+            errors: variant.getErrors('unlimitedStock'),
+            reverseToggle: '.stockToggle'
+        }) }}
+        <div class="stockToggle {% if not variant.id or variant.unlimitedStock %}hidden{% endif %}">
+        {{ forms.textField({
+            label: 'Stock'|t,
+            name:   'stock',
+            type:   'text',
+            value: variant.stock,
+            required: true,
+            errors: variant.getErrors('stock')
+        })}}
+        </div>
+
+        </div>
+    </div>
+</div>

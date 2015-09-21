@@ -1,0 +1,11 @@
+{% extends "_layouts/cp" %}
+
+{% includeCssResource "commerce/commerce.css" %}
+{% includeJsResource "commerce/bower_components/selectize/dist/js/standalone/selectize.js" %}
+{% includeCssResource "commerce/bower_components/selectize/dist/css/selectize.default.css" %}
+
+{% set subnav = {
+    orders: { label: "Orders"|t, url: 'commerce/orders' },
+    products: { label: "Products"|t, url: 'commerce/products' },
+    promotions: { label: "Promotions"|t, url: 'commerce/promotions' }
+} %}

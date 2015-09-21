@@ -1,0 +1,32 @@
+@charset "UTF-8";
+
+.selectize-control.multi .selectize-input [data-value] {
+    background-image: none !important;
+}
+
+.select-wide {
+    display: block;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+}
+
+#variantButtons{
+    margin-top:10px;
+}
+
+.statusSource {
+    padding-left:8px !important;
+}
+.statusSource .status{
+    margin-right:3px !important;
+}
+
+/*.variant-massEdit-modal .checkbox-text-input{  position:relative;  }*/
+.variant-massEdit-modal {height:650px;}
+.variant-massEdit-modal .checkbox-text-input .checkbox-text-label{  margin-left: 31px;  }
+.variant-massEdit-modal .checkbox-text-input .checkbox-input{  position:relative; top:-25px; width:30px; }
+.variant-massEdit-modal .checkbox-text-input .text{ display:block; position:relative; left: 30px; width:90%; }
+.variant-massEdit-modal .header-body { padding-bottom:0px; }
+.variant-massEdit-modal .fields-body { padding-top:0px; }
+

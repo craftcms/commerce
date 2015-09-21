@@ -1,0 +1,15 @@
+{% extends "commerce/_layouts/elementindex" %}
+{% set title = "Orders"|t %}
+{% set elementType = 'Commerce_Order' %}
+{% set selectedTab = 'orders' %}
+{% set selectedSubnavItem = "orders" %}
+
+{% block sidebar %}
+
+    {% if sources is not empty %}
+        <nav>
+            {% include "commerce/_elements/sources" %}
+        </nav>
+    {% endif %}
+
+{% endblock %}

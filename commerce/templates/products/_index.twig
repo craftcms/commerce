@@ -1,0 +1,50 @@
+{% extends "commerce/_layouts/elementindex" %}
+{% set title = "Products"|t %}
+{% set elementType = 'Commerce_Product' %}
+{% set selectedTab = 'products' %}
+{% set selectedsubnavItem = "products" %}
+
+{% block sidebar %}
+
+    {% if productTypes|length and taxCategories|length %}
+        <div class="buttons">
+            {% if productTypes|length > 1 %}
+                <div class="btn submit menubtn add icon">{{ "New Product"|t }}</div>
+                <div class="menu">
+                    <ul>
+                        {% for productType in productTypes %}
+                            <li>
+                                <a href="{{ url('commerce/products/'~productType.handle~'/new') }}">{{ productType.name|t }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% else %}
+                <a class="btn submit add icon"
+                   href="{{ url('commerce/products/'~productTypes[0].handle~'/new') }}">{{ "New Product"|t }}</a>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    {{ parent() }}
+
+    {% if not productTypes|length > 0 %}
+
+        <p><span style="color:red">No product types exist!</span><br/>Go to settings and <a
+                    href="{{ url('commerce/settings/producttypes') }}">create a new product type </a>.</p>
+    {% endif %}
+    {% if not taxCategories|length > 0 %}
+
+        <p><span style="color:red">No tax categories exist!</span><br/>Go to settings and <a
+                    href="{{ url('commerce/settings/taxcategories') }}">create a new tax category </a>.</p>
+    {% endif %}
+
+{% endblock %}
+
+{% block initJs %}
+    Craft.elementIndex = Craft.createElementIndex('{{ elementTypeClass }}', $('#main'), {
+    context:        '{{ context }}',
+    storageKey:     'elementindex.{{ elementTypeClass }}',
+    criteria:       { localeEnabled: true }
+    });
+{% endblock %}
