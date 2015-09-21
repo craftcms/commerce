@@ -22,7 +22,7 @@
             <tr data-id="{{ taxRate.id }}" data-name="{{ taxRate.name }}">
                 <th scope="row" data-title="Name"><a
                             href="{{ url('commerce/settings/taxrates/'~taxRate.id) }}">{{ taxRate.name }}</a></th>
-                <td data-title="Rate">{{ taxRate.rate|number_format(5) }}</td>
+                <td data-title="Rate">{{ taxRate.rateAsPercent }}</td>
                 <td data-title="Include in Price?">{{ taxRate.include ? 'Yes'|t : 'No'|t }}</td>
                 <td data-title="Show in Label?">{{ taxRate.showInLabel ? 'Yes'|t : 'No'|t }}</td>
                 <td data-title="Tax Zone">{{ taxRate.taxZone.name }}</td>

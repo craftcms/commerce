@@ -31,6 +31,13 @@ class Commerce_TaxRateModel extends BaseModel
 		return UrlHelper::getCpUrl('commerce/settings/taxrates/'.$this->id);
 	}
 
+	public function rateAsPercent()
+	{
+		$localeData = craft()->i18n->getLocaleData();
+		$percentSign = $localeData->getNumberSymbol('percentSign');
+		return $this->rate * 100 . "" . $percentSign;
+	}
+
 	/**
 	 * @return array
 	 */
