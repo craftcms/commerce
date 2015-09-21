@@ -106,7 +106,7 @@ class Market_ProductTypeService extends BaseApplicationComponent
         {
             $titleFormatChanged = true;
         }
-        $productTypeRecord->titleFormat = $productType->titleFormat;
+        $productTypeRecord->titleFormat = $productType->titleFormat ? $productType->titleFormat : "{sku}";
 
         // Make sure that all of the URL formats are set properly
         $productTypeLocales = $productType->getLocales();
