@@ -89,7 +89,7 @@ class Market_ProductTypeService extends BaseApplicationComponent
         if ($productTypeRecord->titleFormat != $productType->titleFormat) {
             $titleFormatChanged = true;
         }
-        $productTypeRecord->titleFormat = $productType->titleFormat;
+        $productTypeRecord->titleFormat = $productType->titleFormat ? $productType->titleFormat : "{sku}";
 
         // Set flag if urlFormat changed so we can update all product elements.
         if ($productTypeRecord->urlFormat != $productType->urlFormat) {
