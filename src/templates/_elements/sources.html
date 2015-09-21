@@ -12,7 +12,7 @@
                         {%- if source.data is defined -%}
                             {% for dataKey, dataVal in source.data %} data-{{ dataKey }}="{{ dataVal }}"{% endfor %}
                         {%- endif -%}
-                        >{% if source.statusColor is defined and source.statusColor %}<span class="market status {{ source.statusColor }}"></span>{% endif %}{{ source.label }}</a>
+                        >{% if source.statusColor is defined and source.statusColor %}<span class="commerce status {{ source.statusColor }}"></span>{% endif %}{{ source.label }}</a>
                 {% if source.nested is defined and source.nested is not empty %}
                     <div class="toggle"></div>
                     {% include "_elements/sources" with {

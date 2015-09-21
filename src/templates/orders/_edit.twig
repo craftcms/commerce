@@ -1,9 +1,9 @@
-{% extends "market/_layouts/cp" %}
+{% extends "commerce/_layouts/cp" %}
 
 {% set selectedSubnavItem = "orders" %}
 
 {% set crumbs = [
-    { label: "Orders"|t, url: url('market/orders') }
+    { label: "Orders"|t, url: url('commerce/orders') }
 ] %}
 
 {% import "_includes/forms" as forms %}
@@ -12,8 +12,8 @@
 {% block main %}
 
     <form id="order-form" method="post" accept-charset="UTF-8">
-        <input type="hidden" name="action" value="market/order/saveOrder">
-        <input type="hidden" name="redirect" value="market/orders">
+        <input type="hidden" name="action" value="commerce/order/saveOrder">
+        <input type="hidden" name="redirect" value="commerce/orders">
         {{ getCsrfInput() }}
         {% if order.id %}<input type="hidden" name="orderId" value="{{ order.id }}">{% endif %}
 
@@ -66,17 +66,17 @@
                                 <td>
                                     <div class="hidden more-{{ lineItem.id }}">
                                         {% if lineItem.onSale %}
-                                            <strike>{{ lineItem.price|marketCurrency }}<br/></strike>
+                                            <strike>{{ lineItem.price|commerceCurrency }}<br/></strike>
                                         {% else %}
-                                            {{ lineItem.price|marketCurrency }}<br/>
+                                            {{ lineItem.price|commerceCurrency }}<br/>
                                         {% endif %}
-                                        {{ lineItem.saleAmount|marketCurrency }}<br/>
-                                        {{ lineItem.salePrice|marketCurrency }}<br/>
-                                        {{ lineItem.tax|marketCurrency }}<br/>
-                                        {{ lineItem.shippingCost|marketCurrency }}<br/>
-                                        {{ lineItem.discount|marketCurrency }}<br/>
+                                        {{ lineItem.saleAmount|commerceCurrency }}<br/>
+                                        {{ lineItem.salePrice|commerceCurrency }}<br/>
+                                        {{ lineItem.tax|commerceCurrency }}<br/>
+                                        {{ lineItem.shippingCost|commerceCurrency }}<br/>
+                                        {{ lineItem.discount|commerceCurrency }}<br/>
                                     </div>
-                                    {{ lineItem.total|marketCurrency }}
+                                    {{ lineItem.total|commerceCurrency }}
                                 </td>
                             </tr>
                         {% endfor %}
@@ -85,28 +85,28 @@
                             <td></td>
                             <td></td>
                             <td><strong>Item Total</strong></td>
-                            <td>{{ order.itemTotal|marketCurrency }}</td>
+                            <td>{{ order.itemTotal|commerceCurrency }}</td>
                         </tr>
                         <tr>
                             <td></td>
                             <td></td>
                             <td></td>
                             <td><strong>Base Shipping</strong></td>
-                            <td>{{ order.baseShippingCost|marketCurrency }}</td>
+                            <td>{{ order.baseShippingCost|commerceCurrency }}</td>
                         </tr>
                         <tr>
                             <td></td>
                             <td></td>
                             <td></td>
                             <td><strong>Base Discount</strong></td>
-                            <td>{{ order.baseDiscount|marketCurrency }}</td>
+                            <td>{{ order.baseDiscount|commerceCurrency }}</td>
                         </tr>
                         <tr>
                             <td></td>
                             <td></td>
                             <td></td>
                             <td><strong>Final Total</strong></td>
-                            <td>{{ order.totalPrice|marketCurrency }}</td>
+                            <td>{{ order.totalPrice|commerceCurrency }}</td>
                         </tr>
 
                         </tbody>
@@ -212,7 +212,7 @@
                                 <td>
                                     {% if transaction.canCapture() %}
                                         <a class="btn submit formsubmit"
-                                           data-action="market/order/transactionCapture"
+                                           data-action="commerce/order/transactionCapture"
                                            data-confirm="{{ 'Confirm capture?'|t }}"
                                            data-redirect="{{ order.cpEditUrl }}"
                                            data-param="id"
@@ -220,7 +220,7 @@
                                     {% endif %}
                                     {% if transaction.canRefund() %}
                                         <a class="btn submit formsubmit"
-                                           data-action="market/order/transactionRefund"
+                                           data-action="commerce/order/transactionRefund"
                                            data-confirm="{{ 'Confirm refund?'|t }}"
                                            data-redirect="{{ order.cpEditUrl }}"
                                            data-param="id"
@@ -248,7 +248,7 @@
                                 {% if order.orderStatus %}
                                     <td>{{ order.orderStatus.printName|raw }} </td>
                                 {% else %}
-                                    <td><span class="market status"></span></td>
+                                    <td><span class="commerce status"></span></td>
                                 {% endif %}
                             </tr>
                             <tr>
@@ -257,11 +257,11 @@
                             </tr>
                             <tr>
                                 <td><strong>{{ "Total"|t}}</strong></td>
-                                <td>{{ order.totalPrice|marketCurrency }}</td>
+                                <td>{{ order.totalPrice|commerceCurrency }}</td>
                             </tr>
                             <tr>
                                 <td><strong>{{ "Paid"|t}} </strong></td>
-                                <td>{{ order.totalPaid|marketCurrency }} {{ order.datePaid|date('D dS M Y') }}</td>
+                                <td>{{ order.totalPaid|commerceCurrency }} {{ order.datePaid|date('D dS M Y') }}</td>
                             </tr>
                             <tr>
                                 <td><strong>{{ "Customer"|t}}</strong></td>
@@ -273,9 +273,9 @@
 
                         <div class="btngroup right">
                             <input type="button" class="btn small formsubmit" value="{{ 'Delete Order'|t }}"
-                                   data-action="market/order/deleteOrder"
+                                   data-action="commerce/order/deleteOrder"
                                    data-confirm="{{ 'Are you sure you want to delete this order?'|t }}"
-                                   data-redirect="market/orders">
+                                   data-redirect="commerce/orders">
                         </div>
                     {% endif %}
 

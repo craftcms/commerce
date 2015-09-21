@@ -1,4 +1,4 @@
-{% extends "market/_layouts/settings" %}
+{% extends "commerce/_layouts/settings" %}
 
 {% set content %}
 
@@ -17,7 +17,7 @@
         {% for state in states %}
             <tr data-id="{{ state.id }}" data-name="{{ state.name }}">
                 <th scope="row" data-title="Name"><a
-                            href="{{ url('market/settings/states/'~state.id) }}">{{ state.name }}</a></th>
+                            href="{{ url('commerce/settings/states/'~state.id) }}">{{ state.name }}</a></th>
                 <td data-title="ISO">{{ state.abbreviation }}</td>
                 <td data-title="Country Name">{{ state.country.name }}</td>
                 <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
@@ -28,7 +28,7 @@
     </table>
     <br/>
     <div class="btngroup submit first">
-        <a href="{{ url('market/settings/states/new') }}" class="btn submit">New State</a>
+        <a href="{{ url('commerce/settings/states/new') }}" class="btn submit">New State</a>
     </div>
 
 {% endset %}
@@ -37,7 +37,7 @@
 {% set js %}
 var adminTable = new Craft.AdminTable({
 tableSelector: '#states',
-deleteAction: 'market/state/delete',
+deleteAction: 'commerce/state/delete',
 confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
 });
 {% endset %}

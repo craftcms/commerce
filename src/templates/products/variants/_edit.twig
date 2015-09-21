@@ -1,7 +1,7 @@
-{% extends "market/_layouts/cp" %}
+{% extends "commerce/_layouts/cp" %}
 
 {% set crumbs = [
-{ label: "Products"|t, url: url('market/products') },
+{ label: "Products"|t, url: url('commerce/products') },
 { label: product.title, url: url(product.cpEditUrl) },
 ] %}
 
@@ -16,12 +16,12 @@
 {%  set tabs = moreTabs|merge(tabs) %}
 
 <form method="post" accept-charset="UTF-8" data-saveshortcut>
-    <input type="hidden" name="action" value="market/variant/save">
+    <input type="hidden" name="action" value="commerce/variant/save">
     <input type="hidden" name="redirect" value="{{ product.cpEditUrl }}">
     {{ getCsrfInput() }}
 
     {% set variantForm %}
-        {%  include "market/_includes/variant/fields" with {'variant':variant}%}
+        {%  include "commerce/_includes/variant/fields" with {'variant':variant}%}
     {% endset %}
 
     <div id="variant">

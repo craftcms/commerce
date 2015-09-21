@@ -1,16 +1,16 @@
-{% extends "market/_layouts/settingscp" %}
+{% extends "commerce/_layouts/settingscp" %}
 
 {% set crumbs = [
-{ label: "Market Settings"|t, url: url('market/settings') },
-{ label: "Emails"|t, url: url('market/settings/emails') },
+{ label: "Commerce Settings"|t, url: url('commerce/settings') },
+{ label: "Emails"|t, url: url('commerce/settings/emails') },
 ] %}
 
 {% import "_includes/forms" as forms %}
 
 {% set content %}
 <form method="post" accept-charset="UTF-8" data-saveshortcut>
-    <input type="hidden" name="action" value="market/email/save">
-    <input type="hidden" name="redirect" value="market/settings/emails">
+    <input type="hidden" name="action" value="commerce/email/save">
+    <input type="hidden" name="redirect" value="commerce/settings/emails">
 
     {{ getCsrfInput() }}
     {% if email.id %}<input type="hidden" name="emailId" value="{{ email.id }}">{% endif %}

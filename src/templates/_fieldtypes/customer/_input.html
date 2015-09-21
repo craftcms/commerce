@@ -1,5 +1,5 @@
-{% includeCssResource "market/market.css" %}
-{% set orders = craft.market.orders.customer(customer).find() %}
+{% includeCssResource "commerce/commerce.css" %}
+{% set orders = craft.commerce.orders.customer(customer).find() %}
 <table class="data fullwidth collapsible">
 	<thead>
 	<tr>
@@ -15,8 +15,8 @@
 		<tr>
 			<td>{{ order.link }}</td>
 			<td>{{ order.dateOrdered|date }}</td>
-			<td>{{ order.totalPaid|marketCurrency }}</td>
-			<td>{{ order.totalPaid|marketCurrency }}</td>
+			<td>{{ order.totalPaid|commerceCurrency }}</td>
+			<td>{{ order.totalPaid|commerceCurrency }}</td>
 			<td>{{ order.orderStatus.printName|raw }}</td>
 		</tr>
 	{% endfor %}

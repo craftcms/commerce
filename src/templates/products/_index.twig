@@ -1,6 +1,6 @@
-{% extends "market/_layouts/elementindex" %}
+{% extends "commerce/_layouts/elementindex" %}
 {% set title = "Products"|t %}
-{% set elementType = 'Market_Product' %}
+{% set elementType = 'Commerce_Product' %}
 {% set selectedTab = 'products' %}
 {% set selectedsubnavItem = "products" %}
 
@@ -14,14 +14,14 @@
                     <ul>
                         {% for productType in productTypes %}
                             <li>
-                                <a href="{{ url('market/products/'~productType.handle~'/new') }}">{{ productType.name|t }}</a>
+                                <a href="{{ url('commerce/products/'~productType.handle~'/new') }}">{{ productType.name|t }}</a>
                             </li>
                         {% endfor %}
                     </ul>
                 </div>
             {% else %}
                 <a class="btn submit add icon"
-                   href="{{ url('market/products/'~productTypes[0].handle~'/new') }}">{{ "New Product"|t }}</a>
+                   href="{{ url('commerce/products/'~productTypes[0].handle~'/new') }}">{{ "New Product"|t }}</a>
             {% endif %}
         </div>
     {% endif %}
@@ -31,12 +31,12 @@
     {% if not productTypes|length > 0 %}
 
         <p><span style="color:red">No product types exist!</span><br/>Go to settings and <a
-                    href="{{ url('market/settings/producttypes') }}">create a new product type </a>.</p>
+                    href="{{ url('commerce/settings/producttypes') }}">create a new product type </a>.</p>
     {% endif %}
     {% if not taxCategories|length > 0 %}
 
         <p><span style="color:red">No tax categories exist!</span><br/>Go to settings and <a
-                    href="{{ url('market/settings/taxcategories') }}">create a new tax category </a>.</p>
+                    href="{{ url('commerce/settings/taxcategories') }}">create a new tax category </a>.</p>
     {% endif %}
 
 {% endblock %}

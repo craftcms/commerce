@@ -1,0 +1,95 @@
+<?php
+namespace Craft;
+
+/**
+ * Class Commerce_PaymentController
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://buildwithcraft.com/license Craft License Agreement
+ * @see       http://buildwithcraft.com/commerce
+ * @package   craft.plugins.commerce.controllers
+ * @since     1.0
+ */
+class Commerce_CartPaymentController extends Commerce_BaseController
+{
+	protected $allowAnonymous = true;
+
+	/**
+	 * @throws HttpException
+	 */
+	public function actionSetShippingMethod ()
+	{
+		$this->requirePostRequest();
+
+		$id = craft()->request->getPost('shippingMethodId');
+		$cart = craft()->commerce_cart->getCart();
+
+		if (craft()->commerce_cart->setShippingMethod($cart, $id))
+		{
+			craft()->userSession->setFlash('notice', Craft::t('Shipping method has been set'));
+			$this->redirectToPostedUrl();
+		}
+		else
+		{
+			craft()->userSession->setFlash('notice', Craft::t('Wrong shipping method'));
+		}
+	}
+
+	/**
+	 * @throws HttpException
+	 */
+	public function actionPay ()
+	{
+		$this->requirePostRequest();
+
+		$paymentForm = new Commerce_PaymentFormModel;
+		$paymentForm->attributes = $_POST;
+		// give the credit card number more of a chance to validate
+		$paymentForm->number = preg_replace("/[^0-9]/", "", $paymentForm->number);
+		$redirect = craft()->request->getPost('redirect');
+		$cancelUrl = craft()->request->getPost('cancelUrl');
+		$cart = craft()->commerce_cart->getCart();
+
+		if (!$cart->email)
+		{
+			craft()->userSession->setFlash('error', Craft::t("No customer email address for cart."));
+			craft()->urlManager->setRouteVariables(compact('paymentForm'));
+
+			return;
+		}
+
+		// Ensure correct redirect urls are supplied.
+		if (empty($cancelUrl) || empty($redirect))
+		{
+			throw new Exception(Craft::t('Please specify "redirect" and "cancelUrl".'));
+		}
+
+		if (!craft()->commerce_payment->processPayment($cart, $paymentForm,
+			$redirect, $cancelUrl, $customError)
+		)
+		{
+			craft()->userSession->setFlash('error', $customError);
+			craft()->urlManager->setRouteVariables(compact('paymentForm'));
+		}
+	}
+
+	/**
+	 * Process return from off-site payment
+	 *
+	 * @throws Exception
+	 * @throws HttpException
+	 */
+	public function actionComplete ()
+	{
+		$id = craft()->request->getParam('hash');
+		$transaction = craft()->commerce_transaction->getByHash($id);
+
+		if (!$transaction->id)
+		{
+			throw new HttpException(400);
+		}
+
+		craft()->commerce_payment->completePayment($transaction);
+	}
+}

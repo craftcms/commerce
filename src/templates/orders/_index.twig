@@ -1,6 +1,6 @@
-{% extends "market/_layouts/elementindex" %}
+{% extends "commerce/_layouts/elementindex" %}
 {% set title = "Orders"|t %}
-{% set elementType = 'Market_Order' %}
+{% set elementType = 'Commerce_Order' %}
 {% set selectedTab = 'orders' %}
 {% set selectedSubnavItem = "orders" %}
 
@@ -8,7 +8,7 @@
 
     {% if sources is not empty %}
         <nav>
-            {% include "market/_elements/sources" %}
+            {% include "commerce/_elements/sources" %}
         </nav>
     {% endif %}
 

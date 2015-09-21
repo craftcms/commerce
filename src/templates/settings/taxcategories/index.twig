@@ -1,4 +1,4 @@
-{% extends "market/_layouts/settings" %}
+{% extends "commerce/_layouts/settings" %}
 
 {% set content %}
 
@@ -18,7 +18,7 @@
         {% for taxCategory in taxCategories %}
             <tr data-id="{{ taxCategory.id }}" data-name="{{ taxCategory.name }}">
                 <th scope="row" data-title="Name"><a
-                            href="{{ url('market/settings/taxcategories/'~taxCategory.id) }}">{{ taxCategory.name }}</a>
+                            href="{{ url('commerce/settings/taxcategories/'~taxCategory.id) }}">{{ taxCategory.name }}</a>
                 </th>
                 <td data-title="Handle"><code>{{ taxCategory.handle }}</code></td>
                 <td data-title="Description">{{ taxCategory.description }}</td>
@@ -31,7 +31,7 @@
     </table>
     <br/>
     <div class="btngroup submit first">
-        <a href="{{ url('market/settings/taxcategories/new') }}" class="btn submit">New Tax Category</a>
+        <a href="{{ url('commerce/settings/taxcategories/new') }}" class="btn submit">New Tax Category</a>
     </div>
 
 {% endset %}
@@ -39,7 +39,7 @@
 {% set js %}
 var adminTable = new Craft.AdminTable({
 tableSelector: '#taxcategories',
-deleteAction: 'market/taxCategory/delete',
+deleteAction: 'commerce/taxCategory/delete',
 minObjects: 1,
 confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
 });

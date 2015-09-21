@@ -1,16 +1,16 @@
-{% extends "market/_layouts/settingscp" %}
+{% extends "commerce/_layouts/settingscp" %}
 
 {% set crumbs = [
-{ label: "Market Settings"|t, url: url('market/settings') },
-{ label: "Tax Zones"|t, url: url('market/settings/taxzones') },
+{ label: "Commerce Settings"|t, url: url('commerce/settings') },
+{ label: "Tax Zones"|t, url: url('commerce/settings/taxzones') },
 ] %}
 
 {% import "_includes/forms" as forms %}
 
 {% set content %}
 <form method="post" accept-charset="UTF-8" data-saveshortcut>
-    <input type="hidden" name="action" value="market/taxZone/save">
-    <input type="hidden" name="redirect" value="market/settings/taxzones">
+    <input type="hidden" name="action" value="commerce/taxZone/save">
+    <input type="hidden" name="redirect" value="commerce/settings/taxzones">
 
     {{ getCsrfInput() }}
     {% if taxZone.id %}<input type="hidden" name="taxZoneId" value="{{ taxZone.id }}">{% endif %}

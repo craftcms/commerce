@@ -1,17 +1,17 @@
-{% extends "market/_layouts/cp" %}
+{% extends "commerce/_layouts/cp" %}
 
 {% set crumbs = [
-{ label: "Market"|t, url: url('market') },
-{ label: "Customers"|t, url: url('market/customers') },
-{ label: "Customer #{id}"|t({id: customerId}), url: url('market/customers/' ~ customerId) },
+{ label: "Commerce"|t, url: url('commerce') },
+{ label: "Customers"|t, url: url('commerce/customers') },
+{ label: "Customer #{id}"|t({id: customerId}), url: url('commerce/customers/' ~ customerId) },
 ] %}
 
 {% import "_includes/forms" as forms %}
 
 {% set content %}
 <form method="post" accept-charset="UTF-8" data-saveshortcut>
-    <input type="hidden" name="action" value="market/address/save">
-    <input type="hidden" name="redirect" value="market/customers/{{ customerId }}">
+    <input type="hidden" name="action" value="commerce/address/save">
+    <input type="hidden" name="redirect" value="commerce/customers/{{ customerId }}">
     {{ getCsrfInput() }}
 
     <input type="hidden" name="id" value="{{ address.id }}">

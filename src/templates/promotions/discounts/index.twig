@@ -1,4 +1,4 @@
-{% extends "market/_layouts/promotions" %}
+{% extends "commerce/_layouts/promotions" %}
 
 {% set content %}
 
@@ -24,7 +24,7 @@
         <tbody>
         {% for discount in discounts %}
             <tr data-id="{{ discount.id }}" data-name="{{ discount.name }}">
-                <th scope="row" data-title="Name"><a href="{{ url('market/promotions/discounts/'~discount.id) }}">{{ discount.name }}</a></th>
+                <th scope="row" data-title="Name"><a href="{{ url('commerce/promotions/discounts/'~discount.id) }}">{{ discount.name }}</a></th>
                 <td data-title="Dates">
                     {{ discount.dateFrom ? discount.dateFrom : 'no limit'|t }} - {{ discount.dateTo ? discount.dateTo : 'no limit'|t }}
                 </td>
@@ -46,7 +46,7 @@
     </table>
     <br/>
     <div class="btngroup submit first">
-        <a href="{{ url('market/promotions/discounts/new') }}" class="btn submit">New Discount</a>
+        <a href="{{ url('commerce/promotions/discounts/new') }}" class="btn submit">New Discount</a>
     </div>
 {% endset %}
 
@@ -54,7 +54,7 @@
 {% set js %}
 var adminTable = new Craft.AdminTable({
 tableSelector: '#discounts',
-deleteAction: 'market/discount/delete',
+deleteAction: 'commerce/discount/delete',
 confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
 });
 {% endset %}

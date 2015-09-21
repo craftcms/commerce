@@ -1,9 +1,9 @@
-{% extends "market/_layouts/cp" %}
+{% extends "commerce/_layouts/cp" %}
 
 {% set selectedSubnavItem = "products" %}
 
 {% set crumbs = [
-{ label: "Products"|t, url: url('market/products') }
+{ label: "Products"|t, url: url('commerce/products') }
 ] %}
 
 {% import "_includes/forms" as forms %}
@@ -65,8 +65,8 @@
 
     <form id="product-form" method="post" accept-charset="UTF-8" data-saveshortcut data-saveshortcut-redirect="{{ continueEditingUrl }}" data-confirm-unload>
 
-        <input type="hidden" name="action" value="market/product/saveProduct">
-        <input type="hidden" name="redirect" value="market/products">
+        <input type="hidden" name="action" value="commerce/product/saveProduct">
+        <input type="hidden" name="redirect" value="commerce/products">
         <input type="hidden" name="typeId" value="{{ productType.id }}">
         {% if craft.isLocalized() %}<input type="hidden" name="locale" value="{{ product.locale }}">{% endif %}
         {{ getCsrfInput() }}
@@ -125,7 +125,7 @@
                         name:   'implicitVariant[price]',
                         required: productType.hasVariants ? false : true,
                         type:   'text',
-                        value: implicitVariant.price|marketDecimal,
+                        value: implicitVariant.price|commerceDecimal,
                         errors: implicitVariant.getErrors('price')
                     })}}
                     </div>
@@ -156,40 +156,40 @@
                     <div class="grid first {{ productType.hasDimensions ? '':'hidden'}}" data-cols="4">
                     <div class="item" data-min-colspan="1" data-max-colspan="1">
                     {{ forms.textField({
-                        label:  'Width'|t~' ('~craft.market.settings.dimensionUnits~')',
+                        label:  'Width'|t~' ('~craft.commerce.settings.dimensionUnits~')',
                         name:   'implicitVariant[width]',
                         type:   'text',
-                        value: implicitVariant.width|marketDecimal,
+                        value: implicitVariant.width|commerceDecimal,
                         errors: implicitVariant.getErrors('width')
                     })}}
                     </div>
 
                     <div class="item" data-min-colspan="1" data-max-colspan="1">
                     {{ forms.textField({
-                        label: 'Height'|t~' ('~craft.market.settings.dimensionUnits~')',
+                        label: 'Height'|t~' ('~craft.commerce.settings.dimensionUnits~')',
                         name:  'implicitVariant[height]',
                         type:  'number',
-                        value: implicitVariant.height|marketDecimal,
+                        value: implicitVariant.height|commerceDecimal,
                         errors: implicitVariant.getErrors('height')
                     })}}
                     </div>
 
                     <div class="item" data-min-colspan="1" data-max-colspan="1">
                     {{ forms.textField({
-                        label:  'Length'|t~' ('~craft.market.settings.dimensionUnits~')',
+                        label:  'Length'|t~' ('~craft.commerce.settings.dimensionUnits~')',
                         name:   'implicitVariant[length]',
                         type:   'text',
-                        value: implicitVariant.length|marketDecimal,
+                        value: implicitVariant.length|commerceDecimal,
                         errors: implicitVariant.getErrors('length')
                     })}}
                     </div>
 
                     <div class="item" data-min-colspan="1" data-max-colspan="1">
                     {{ forms.textField({
-                        label: 'Weight'|t~' ('~craft.market.settings.weightUnits~')',
+                        label: 'Weight'|t~' ('~craft.commerce.settings.weightUnits~')',
                         name:   'implicitVariant[weight]',
                         type:   'text',
-                        value: implicitVariant.weight|marketDecimal,
+                        value: implicitVariant.weight|commerceDecimal,
                         errors: implicitVariant.getErrors('weight')
                     })}}
                     </div>
@@ -248,7 +248,7 @@
                         </div>
 
 
-                        {%  include 'market/_includes/variant/_variantElementIndex' %}
+                        {%  include 'commerce/_includes/variant/_variantElementIndex' %}
                     </div>{# end pane #}
                 {%  endif %}
 
@@ -271,7 +271,7 @@
                                     }) }}
                                 {%- else -%}
                                     {% set localeUrl = url(
-                                    'market/products/'~productType.handle~'/'~craft.request.getSegment(4)~'/'~localeId
+                                    'commerce/products/'~productType.handle~'/'~craft.request.getSegment(4)~'/'~localeId
                                     ) -%}
                                     <a href="{{ localeUrl }}">{{ localeName }}</a>
                                     <div class="status {{ localeId in enabledLocales ? 'enabled' : 'disabled' }}"></div>
@@ -334,9 +334,9 @@
                         {% if productId is defined %}
                             <div class="btngroup">
                                 <input type="button" class="btn small formsubmit" value="{{ 'Delete'|t }}"
-                                       data-action="market/product/deleteProduct"
+                                       data-action="commerce/product/deleteProduct"
                                        data-confirm="{{ 'Are you sure you want to delete this product?'|t }}"
-                                       data-redirect="market/products">
+                                       data-redirect="commerce/products">
                             </div>
                         {% endif %}
                     </div>
@@ -365,7 +365,7 @@
                                             </a></li>
 
                                         {% if productType.hasVariants %}
-                                            <li><a class="formsubmit" data-param="entryId" data-value="" data-redirect="market/products/{type.handle}/{id}/variants/new"
+                                            <li><a class="formsubmit" data-param="entryId" data-value="" data-redirect="commerce/products/{type.handle}/{id}/variants/new"
                                                    data-value="1">{{ 'Save and add new variant'|t }}</a></li>
                                         {%  endif %}
 

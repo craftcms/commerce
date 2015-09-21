@@ -1,4 +1,4 @@
-{% extends "market/_layouts/settings" %}
+{% extends "commerce/_layouts/settings" %}
 
 {% set selectedTab = 'settings' %}
 
@@ -9,8 +9,8 @@
     <h2>{{ "Global Settings"|t }}</h2>
 
     <form action="" method="post" accept-charset="UTF-8">
-        <input type="hidden" name="action" value="market/settings/saveSettings"/>
-        <input type="hidden" name="redirect" value="market/settings"/>
+        <input type="hidden" name="action" value="commerce/settings/saveSettings"/>
+        <input type="hidden" name="redirect" value="commerce/settings"/>
         {{ getCsrfInput() }}
 
 

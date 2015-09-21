@@ -1,4 +1,4 @@
-{% extends "market/_layouts/settings" %}
+{% extends "commerce/_layouts/settings" %}
 
 {% set content %}
 
@@ -19,7 +19,7 @@
         {% for taxZone in taxZones %}
             <tr data-id="{{ taxZone.id }}" data-name="{{ taxZone.name }}">
                 <td scope="row" data-title="Name"><a
-                            href="{{ url('market/settings/taxzones/'~taxZone.id) }}">{{ taxZone.name }}</a></td>
+                            href="{{ url('commerce/settings/taxzones/'~taxZone.id) }}">{{ taxZone.name }}</a></td>
                 <td data-title="Description">{{ taxZone.description }}</td>
                 <td data-title="Type">{{ taxZone.countryBased ? 'Country Based'|t : 'State Based'|t }}</td>
                 <td data-title="Type">{{ taxZone.getCountriesNames()|join(', ') }}{{ taxZone.getStatesNames()|join(', ') }}</td>
@@ -35,7 +35,7 @@
     {% endif %}
     <br/>
     <div class="btngroup submit first">
-        <a href="{{ url('market/settings/taxzones/new') }}" class="btn submit">New Tax Zone</a>
+        <a href="{{ url('commerce/settings/taxzones/new') }}" class="btn submit">New Tax Zone</a>
     </div>
 
 {% endset %}
@@ -43,7 +43,7 @@
 {% set js %}
 var adminTable = new Craft.AdminTable({
 tableSelector: '#taxZones',
-deleteAction: 'market/taxZone/delete',
+deleteAction: 'commerce/taxZone/delete',
 confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
 });
 {% endset %}

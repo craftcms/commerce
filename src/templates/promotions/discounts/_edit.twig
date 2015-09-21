@@ -1,19 +1,19 @@
-{% extends "market/_layouts/cp" %}
+{% extends "commerce/_layouts/cp" %}
 
 {% set selectedSubnavItem = "promotions" %}
 
 {% set crumbs = [
-    { label: "Promotions"|t, url: url('market/promotions') },
-    { label: "Discounts"|t, url: url('market/promotions/discounts') },
+    { label: "Promotions"|t, url: url('commerce/promotions') },
+    { label: "Discounts"|t, url: url('commerce/promotions/discounts') },
 ] %}
 
 {% import "_includes/forms" as forms %}
-{% import "market/_includes/forms/marketForms" as marketForms %}
+{% import "commerce/_includes/forms/commerceForms" as commerceForms %}
 
 {% set content %}
 <form method="post" accept-charset="UTF-8" data-saveshortcut>
-    <input type="hidden" name="action" value="market/discount/save">
-    <input type="hidden" name="redirect" value="market/promotions/discounts">
+    <input type="hidden" name="action" value="commerce/discount/save">
+    <input type="hidden" name="redirect" value="commerce/promotions/discounts">
 
     {{ getCsrfInput() }}
     {% if discount.id %}<input type="hidden" name="id" value="{{ discount.id }}">{% endif %}
@@ -68,7 +68,7 @@
         errors: discount.getErrors('code'),
     }) }}
 
-    {{ marketForms.numberField({
+    {{ commerceForms.numberField({
         label: "Per User Limit"|t,
         instructions: "How many times one user is allowed to use this discount. Set zero for unlimit use"|t,
         id: 'perUserLimit',
@@ -78,7 +78,7 @@
         errors: discount.getErrors('perUserLimit'),
     }) }}
 
-    {{ marketForms.numberField({
+    {{ commerceForms.numberField({
         label: "Total Use Limit"|t,
         instructions: "How many times this discount can be used. Set zero for unlimited use"|t,
         id: 'totalUseLimit',
@@ -174,7 +174,7 @@
 
     </div>
     <div id="actions" class="hidden">
-    {{ marketForms.numberField({
+    {{ commerceForms.numberField({
         label: "Base Discount"|t,
         instructions: "Flat value which should be added to the order total price. Write negative number for off-discount"|t,
         id: 'baseDiscount',
@@ -185,7 +185,7 @@
         errors: discount.getErrors('baseDiscount'),
     }) }}
 
-    {{ marketForms.numberField({
+    {{ commerceForms.numberField({
         label: "Per Item Discount"|t,
         instructions: "Flat value which should be added to each item in the order. Write negative number for off-discount"|t,
         id: 'perItemDiscount',
@@ -196,7 +196,7 @@
         errors: discount.getErrors('perItemDiscount'),
     }) }}
 
-    {{ marketForms.numberField({
+    {{ commerceForms.numberField({
         label: "Percent Discount"|t,
         instructions: "Percentile value which should be added to the total order price. Write negative number for off-discount, i.e. -0,04 for 4% off"|t,
         id: 'percentDiscount',
@@ -255,7 +255,7 @@ $(function() {
         if(modal) {
             modal.show();
         } else {
-            window.modal = modal = Craft.createElementSelectorModal('Market_Product', {
+            window.modal = modal = Craft.createElementSelectorModal('Commerce_Product', {
                 multiSelect: true,
                 onSelect: function(products) {
                     $chosen.find('input').remove();

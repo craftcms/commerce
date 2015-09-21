@@ -1,4 +1,4 @@
-{% extends "market/_layouts/settings" %}
+{% extends "commerce/_layouts/settings" %}
 
 {% set selectedTab = 'settings' %}
 
@@ -34,7 +34,7 @@
         </table>
         <br/>
         <div class="btngroup submit">
-            <a href="{{ url('market/settings/orderstatuses/new') }}" class="btn submit">New Order Status</a>
+            <a href="{{ url('commerce/settings/orderstatuses/new') }}" class="btn submit">New Order Status</a>
         </div>
 
 
@@ -45,7 +45,7 @@
 {% set js %}
     new Craft.AdminTable({
         tableSelector: '#orderStatuses',
-        deleteAction: 'market/orderStatus/delete',
+        deleteAction: 'commerce/orderStatus/delete',
         minObjects: 1,
         confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
     });

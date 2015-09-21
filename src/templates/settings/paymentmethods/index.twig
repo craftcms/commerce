@@ -1,4 +1,4 @@
-{% extends "market/_layouts/settings" %}
+{% extends "commerce/_layouts/settings" %}
 
 {% set title = "Payment Methods"|t %}
 
@@ -18,7 +18,7 @@
         {% for paymentMethod in paymentMethods %}
             <tr data-id="{{ paymentMethod.class }}" data-name="{{ paymentMethod.name }}">
                 <th scope="row" data-title="Name"><a
-                            href="{{ url('market/settings/paymentmethods/'~paymentMethod.class) }}">{{ paymentMethod.name }}</a>
+                            href="{{ url('commerce/settings/paymentmethods/'~paymentMethod.class) }}">{{ paymentMethod.name }}</a>
                 </th>
                 <td data-title="Class">{{ paymentMethod.class }}</td>
                 <td data-title="Status">

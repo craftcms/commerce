@@ -1,16 +1,16 @@
-{% extends "market/_layouts/settingscp" %}
+{% extends "commerce/_layouts/settingscp" %}
 
 {% set crumbs = [
-{ label: "Market Settings"|t, url: url('market/settings') },
-{ label: "Tax Categories"|t, url: url('market/settings/taxcategories') },
+{ label: "Commerce Settings"|t, url: url('commerce/settings') },
+{ label: "Tax Categories"|t, url: url('commerce/settings/taxcategories') },
 ] %}
 
 {% import "_includes/forms" as forms %}
 
 {% set content %}
 <form method="post" accept-charset="UTF-8" data-saveshortcut>
-    <input type="hidden" name="action" value="market/taxCategory/save">
-    <input type="hidden" name="redirect" value="market/settings/taxcategories">
+    <input type="hidden" name="action" value="commerce/taxCategory/save">
+    <input type="hidden" name="redirect" value="commerce/settings/taxcategories">
 
     {{ getCsrfInput() }}
     {% if taxCategory.id %}<input type="hidden" name="taxCategoryId" value="{{ taxCategory.id }}">{% endif %}

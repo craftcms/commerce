@@ -1,9 +1,9 @@
-{% extends "market/_layouts/settingscp" %}
+{% extends "commerce/_layouts/settingscp" %}
 {% set title = "Product Types"|t %}
 
 {% set crumbs = [
-{ label: "Market Settings"|t, url: url('market/settings') },
-{ label: "Product Types"|t, url: url('market/settings/producttypes') },
+{ label: "Commerce Settings"|t, url: url('commerce/settings') },
+{ label: "Product Types"|t, url: url('commerce/settings/producttypes') },
 ] %}
 
 
@@ -12,8 +12,8 @@
 
 {% set content %}
 <form method="post" accept-charset="UTF-8" data-saveshortcut>
-    <input type="hidden" name="action" value="market/productType/saveProductType">
-    <input type="hidden" name="redirect" value="market/settings/producttypes">
+    <input type="hidden" name="action" value="commerce/productType/saveProductType">
+    <input type="hidden" name="redirect" value="commerce/settings/producttypes">
 
     {{ getCsrfInput() }}
     {% if productType.id %}<input type="hidden" name="productTypeId" value="{{ productType.id }}">{% endif %}

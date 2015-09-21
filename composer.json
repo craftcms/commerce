@@ -1,5 +1,5 @@
 {
-    "homepage": "http://buildwithcraft.com/commerce",
+    "homepage": "http://craftcommerce.com",
      "config": {
          "cache-files-ttl": 0,
          "process-timeout": 1800
@@ -7,7 +7,7 @@
     "minimum-stability": "dev",
     "autoload": {
         "psr-4": {
-            "Market\\": "Market"
+            "Commerce\\": "Commerce"
         }
     },
     "require": {

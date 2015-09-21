@@ -1,19 +1,19 @@
-{% extends "market/_layouts/cp" %}
+{% extends "commerce/_layouts/cp" %}
 
 {% set selectedSubnavItem = "promotions" %}
 
 {% set crumbs = [
-    { label: "Promotions"|t, url: url('market/promotions') },
-    { label: "Sales"|t, url: url('market/promotions/sales') },
+    { label: "Promotions"|t, url: url('commerce/promotions') },
+    { label: "Sales"|t, url: url('commerce/promotions/sales') },
 ] %}
 
 {% import "_includes/forms" as forms %}
-{% import "market/_includes/forms/marketForms" as marketForms %}
+{% import "commerce/_includes/forms/commerceForms" as commerceForms %}
 
 {% set content %}
 <form method="post" accept-charset="UTF-8" data-saveshortcut>
-    <input type="hidden" name="action" value="market/sale/save">
-    <input type="hidden" name="redirect" value="market/promotions/sales">
+    <input type="hidden" name="action" value="commerce/sale/save">
+    <input type="hidden" name="redirect" value="commerce/promotions/sales">
 
     {{ getCsrfInput() }}
     {% if sale.id %}<input type="hidden" name="id" value="{{ sale.id }}">{% endif %}
@@ -105,7 +105,7 @@
         label: 'Products',
         name: 'products',
         elements: products,
-        elementType: craft.elements.getElementType('Market_Product'),
+        elementType: craft.elements.getElementType('Commerce_Product'),
         limit: null,
         instructions: "Products for which this sale will be applicable to. Leave blank for all products"|t,
         errors: sale.getErrors('products'),
@@ -125,7 +125,7 @@
         required: true,
     }) }}
 
-    {{ marketForms.numberField({
+    {{ commerceForms.numberField({
         label: "Discount Amount"|t,
         instructions: "Percentage or a flat value of discount (for example: -0,03 for 3% off)."|t,
         id: 'discountAmount',

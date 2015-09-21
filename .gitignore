@@ -11,3 +11,4 @@ docs/phpdoc/cache/
 *Thumbs.db
 *aspnet_client/*
 market/vendor/
+commerce/vendor/

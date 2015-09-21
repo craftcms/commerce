@@ -1,8 +1,8 @@
-{% extends "market/_layouts/settingscp" %}
+{% extends "commerce/_layouts/settingscp" %}
 
 {% set crumbs = [
-{ label: "Market Settings"|t, url: url('market/settings') },
-{ label: "Shipping Methods"|t, url: url('market/settings/shippingmethods') },
+{ label: "Commerce Settings"|t, url: url('commerce/settings') },
+{ label: "Shipping Methods"|t, url: url('commerce/settings/shippingmethods') },
 ] %}
 
 {% import "_includes/forms" as forms %}
@@ -19,8 +19,8 @@
 <form method="post" accept-charset="UTF-8" data-saveshortcut>
 <div id="shippingMethodTab">
 
-    <input type="hidden" name="action" value="market/shippingMethod/save">
-    <input type="hidden" name="redirect" value="market/settings/shippingmethods/{id}#rules">
+    <input type="hidden" name="action" value="commerce/shippingMethod/save">
+    <input type="hidden" name="redirect" value="commerce/settings/shippingmethods/{id}#rules">
 
     {{ getCsrfInput() }}
     {% if shippingMethod.id %}<input type="hidden" name="shippingMethodId" value="{{ shippingMethod.id }}">{% endif %}
@@ -79,7 +79,7 @@
     <tbody>
     {% for shippingRule in shippingRules %}
         <tr data-id="{{ shippingRule.id }}" data-name="{{ shippingRule.name }}">
-            <th scope="row" data-title="Name"><a href="{{ url('market/settings/shippingmethods/'~shippingRule.methodId~'/shippingrules/'~shippingRule.id) }}">{{ shippingRule.name }}</a></th>
+            <th scope="row" data-title="Name"><a href="{{ url('commerce/settings/shippingmethods/'~shippingRule.methodId~'/shippingrules/'~shippingRule.id) }}">{{ shippingRule.name }}</a></th>
             <td>{{ shippingRule.method.name }}</td>
             <td>{{ shippingRule.country.name|default('All') }}</td>
             <td>{{ shippingRule.state.name|default('All') }}</td>
@@ -115,7 +115,7 @@
     <p>{{ 'No shipping rules exist yet for this shipping method.' }}</p>
 {% endif %}
 <div class="btngroup submit first">
-    <a href="{{ url('market/settings/shippingmethods/'~shippingMethod.id~'/shippingrules/new') }}" class="btn submit">{{ 'New Shipping Rule'|t }}</a>
+    <a href="{{ url('commerce/settings/shippingmethods/'~shippingMethod.id~'/shippingrules/new') }}" class="btn submit">{{ 'New Shipping Rule'|t }}</a>
 </div>
 
 </div>
@@ -129,9 +129,9 @@
 {% set js %}
 var adminTable = new Craft.AdminTable({
     tableSelector: '#shippingRules',
-    deleteAction: 'market/shippingRule/delete',
+    deleteAction: 'commerce/shippingRule/delete',
     sortable: true,
-    reorderAction: 'market/shippingRule/reorder',
+    reorderAction: 'commerce/shippingRule/reorder',
     confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
 });
 {% endset %}

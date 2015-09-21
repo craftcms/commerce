@@ -1,8 +1,8 @@
-{% extends "market/_layouts/settingscp" %}
+{% extends "commerce/_layouts/settingscp" %}
 
 {% set crumbs = [
-{ label: "Market Settings"|t, url: url('market/settings') },
-{ label: "Payment Methods"|t, url: url('market/settings/paymentmethods') },
+{ label: "Commerce Settings"|t, url: url('commerce/settings') },
+{ label: "Payment Methods"|t, url: url('commerce/settings/paymentmethods') },
 ] %}
 
 {% import "_includes/forms" as forms %}
@@ -10,8 +10,8 @@
 {% set content %}
 
 <form method="post" action="" accept-charset="UTF-8">
-    <input type="hidden" name="action" value="market/paymentMethod/save">
-    <input type="hidden" name="redirect" value="market/settings/paymentmethods">
+    <input type="hidden" name="action" value="commerce/paymentMethod/save">
+    <input type="hidden" name="redirect" value="commerce/settings/paymentmethods">
 
     {{ getCsrfInput() }}
 
