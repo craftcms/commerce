@@ -108,11 +108,19 @@ class Commerce_TaxRateController extends Commerce_BaseController
 		// Shared attributes
 		$taxRate->id = craft()->request->getPost('taxRateId');
 		$taxRate->name = craft()->request->getPost('name');
-		$taxRate->rate = craft()->request->getPost('rate');
 		$taxRate->include = craft()->request->getPost('include');
 		$taxRate->showInLabel = craft()->request->getPost('showInLabel');
 		$taxRate->taxCategoryId = craft()->request->getPost('taxCategoryId');
 		$taxRate->taxZoneId = craft()->request->getPost('taxZoneId');
+
+		$localeData = craft()->i18n->getLocaleData();
+		$percentSign = $localeData->getNumberSymbol('percentSign');
+		$rate = craft()->request->getPost('rate');
+		if(strpos($rate,$percentSign) or $rate >= 1){
+			$taxRate->rate = floatval($rate) / 100;
+		}else{
+			$taxRate->rate = floatval($rate);
+		};
 
 		// Save it
 		if (craft()->commerce_taxRate->save($taxRate))
