@@ -2,7 +2,7 @@
 namespace Craft;
 
 /**
- * Class Commerce_ProductTypeRecord
+ * Product type record.
  *
  * @property int               $id
  * @property string            $name
@@ -15,8 +15,14 @@ namespace Craft;
  * @property int               $fieldLayoutId
  * @property int               $variantFieldLayoutId
  *
- * @property FieldLayoutRecord fieldLayout
- * @package Craft
+ * @property FieldLayoutRecord $fieldLayout
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.records
+ * @since     1.0
  */
 class Commerce_ProductTypeRecord extends BaseRecord
 {

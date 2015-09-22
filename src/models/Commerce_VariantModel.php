@@ -1,5 +1,4 @@
 <?php
-
 namespace Craft;
 
 use Commerce\Interfaces\Purchasable;
@@ -7,23 +6,29 @@ use Commerce\Interfaces\Purchasable;
 /**
  * Class Commerce_VariantModel
  *
- * @property int    $id
- * @property int    $productId
- * @property bool   $isImplicit
- * @property string $sku
- * @property float  $price
- * @property float  $width
- * @property float  $height
- * @property float  $length
- * @property float  $weight
- * @property int    $stock
- * @property bool   $unlimitedStock
- * @property int    $minQty
- * @property int    $maxQty
+ * @property int                   $id
+ * @property int                   $productId
+ * @property bool                  $isImplicit
+ * @property string                $sku
+ * @property float                 $price
+ * @property float                 $width
+ * @property float                 $height
+ * @property float                 $length
+ * @property float                 $weight
+ * @property int                   $stock
+ * @property bool                  $unlimitedStock
+ * @property int                   $minQty
+ * @property int                   $maxQty
  *
  * @property Commerce_ProductModel $product
  *
- * @package Craft
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.models
+ * @since     1.0
  */
 class Commerce_VariantModel extends BaseElementModel implements Purchasable
 {

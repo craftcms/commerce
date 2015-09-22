@@ -1,16 +1,21 @@
 <?php
-
 namespace Craft;
 
 /**
- * Class Commerce_PurchasableRecord
+ * Purchasable record.
  *
- * @property int                  id
- * @property string               sku
- * @property float                price
+ * @property int                  $id
+ * @property string               $sku
+ * @property float                $price
  *
  * @property Commerce_VariantRecord $implicit
- * @package Craft
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.records
+ * @since     1.0
  */
 class Commerce_PurchasableRecord extends BaseRecord
 {

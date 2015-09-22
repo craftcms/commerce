@@ -1,60 +1,64 @@
 <?php
-
 namespace Craft;
 
 use Commerce\Traits\Commerce_ModelRelationsTrait;
 
 /**
- * Class Commerce_OrderModel
+ * Order or Cart model.
  *
- * @property int                           id
- * @property string                        number
- * @property string                        couponCode
- * @property float                         itemTotal
- * @property float                         totalPrice
- * @property float                         totalPaid
- * @property float                         baseDiscount
- * @property float                         baseShippingCost
- * @property string                        email
- * @property DateTime                      dateOrdered
- * @property DateTime                      datePaid
- * @property string                        lastIp
- * @property string                        message
- * @property string                        returnUrl
- * @property string                        cancelUrl
+ * @property int                             $id
+ * @property string                          $number
+ * @property string                          $couponCode
+ * @property float                           $itemTotal
+ * @property float                           $totalPrice
+ * @property float                           $totalPaid
+ * @property float                           $baseDiscount
+ * @property float                           $baseShippingCost
+ * @property string                          $email
+ * @property DateTime                        $dateOrdered
+ * @property DateTime                        $datePaid
+ * @property string                          $lastIp
+ * @property string                          $message
+ * @property string                          $returnUrl
+ * @property string                          $cancelUrl
  *
- * @property int                           typeId
- * @property int                           billingAddressId
- * @property mixed                         billingAddressData
- * @property int                           shippingAddressId
- * @property mixed                         shippingAddressData
- * @property int                           shippingMethodId
- * @property int                           paymentMethodId
- * @property int                           customerId
- * @property int                           orderStatusId
+ * @property int                             $typeId
+ * @property int                             $billingAddressId
+ * @property mixed                           $billingAddressData
+ * @property int                             $shippingAddressId
+ * @property mixed                           $shippingAddressData
+ * @property int                             $shippingMethodId
+ * @property int                             $paymentMethodId
+ * @property int                             $customerId
+ * @property int                             $orderStatusId
  *
- * @property int                           totalQty
- * @property int                           totalWeight
- * @property int                           totalHeight
- * @property int                           totalLength
- * @property int                           totalWidth
- * @property int                           totalTax
- * @property int                           totalShippingCost
- * @property string                        pdfUrl
+ * @property int                             $totalQty
+ * @property int                             $totalWeight
+ * @property int                             $totalHeight
+ * @property int                             $totalLength
+ * @property int                             $totalWidth
+ * @property int                             $totalTax
+ * @property int                             $totalShippingCost
+ * @property string                          $pdfUrl
  *
- * @property Commerce_OrderSettingsModel     type
- * @property Commerce_LineItemModel[]        lineItems
- * @property Commerce_AddressModel           billingAddress
- * @property Commerce_CustomerModel          customer
- * @property Commerce_AddressModel           shippingAddress
- * @property Commerce_ShippingMethodModel    shippingMethod
- * @property Commerce_OrderAdjustmentModel[] adjustments
- * @property Commerce_PaymentMethodModel     paymentMethod
- * @property Commerce_TransactionModel[]     transactions
- * @property Commerce_OrderStatusModel       orderStatus
- * @property Commerce_OrderHistoryModel[]    histories
+ * @property Commerce_OrderSettingsModel     $type
+ * @property Commerce_LineItemModel[]        $lineItems
+ * @property Commerce_AddressModel           $billingAddress
+ * @property Commerce_CustomerModel          $customer
+ * @property Commerce_AddressModel           $shippingAddress
+ * @property Commerce_ShippingMethodModel    $shippingMethod
+ * @property Commerce_OrderAdjustmentModel[] $adjustments
+ * @property Commerce_PaymentMethodModel     $paymentMethod
+ * @property Commerce_TransactionModel[]     $transactions
+ * @property Commerce_OrderStatusModel       $orderStatus
+ * @property Commerce_OrderHistoryModel[]    $histories
  *
- * @package Craft
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.models
+ * @since     1.0
  */
 class Commerce_OrderModel extends BaseElementModel
 {

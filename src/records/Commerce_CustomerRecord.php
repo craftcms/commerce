@@ -2,19 +2,24 @@
 namespace Craft;
 
 /**
- * Class Commerce_CustomerRecord
+ * Customer record.
  *
- * @package Craft
+ * @property int                      $id
+ * @property string                   $email
+ * @property int                      $userId
+ * @property int                      $lastUsedBillingAddressId
+ * @property int                      $lastUsedShippingAddressId
  *
- * @property int                    id
- * @property string                 email
- * @property int                    userId
- * @property int                    lastUsedBillingAddressId
- * @property int                    lastUsedShippingAddressId
+ * @property Commerce_AddressRecord[] $addresses
+ * @property Commerce_OrderRecord[]   $orders
+ * @property UserRecord               $user
  *
- * @property Commerce_AddressRecord[] addresses
- * @property Commerce_OrderRecord[]   orders
- * @property UserRecord             user
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.records
+ * @since     1.0
  */
 class Commerce_CustomerRecord extends BaseRecord
 {

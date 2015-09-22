@@ -1,23 +1,28 @@
 <?php
-
 namespace Craft;
 
 /**
- * Class Commerce_ProductRecord
+ * Product record.
  *
- * @property int                      id
- * @property int                      taxCategoryId
- * @property int                      typeId
- * @property int                      authorId
- * @property DateTime                 availableOn
- * @property DateTime                 expiresOn
- * @property bool                     promotable
- * @property bool                     freeShipping
+ * @property int                        $id
+ * @property int                        $taxCategoryId
+ * @property int                        $typeId
+ * @property int                        $authorId
+ * @property DateTime                   $availableOn
+ * @property DateTime                   $expiresOn
+ * @property bool                       $promotable
+ * @property bool                       $freeShipping
  *
  * @property Commerce_VariantRecord     $implicit
- * @property Commerce_VariantRecord[]   variants
- * @property Commerce_TaxCategoryRecord taxCategory
- * @package Craft
+ * @property Commerce_VariantRecord[]   $variants
+ * @property Commerce_TaxCategoryRecord $taxCategory
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.records
+ * @since     1.0
  */
 class Commerce_ProductRecord extends BaseRecord
 {

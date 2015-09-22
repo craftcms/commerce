@@ -1,21 +1,26 @@
 <?php
-
 namespace Craft;
 
 use Commerce\Traits\Commerce_ModelRelationsTrait;
 
 /**
- * Class Commerce_TaxZoneModel
+ * Tax zone model.
  *
- * @property int                   $id
- * @property string                $name
- * @property string                $description
- * @property bool                  $countryBased
- * @property bool                  $default
+ * @property int                     $id
+ * @property string                  $name
+ * @property string                  $description
+ * @property bool                    $countryBased
+ * @property bool                    $default
  *
  * @property Commerce_CountryModel[] $countries
  * @property Commerce_StateModel[]   $states
- * @package Craft
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.models
+ * @since     1.0
  */
 class Commerce_TaxZoneModel extends BaseModel
 {

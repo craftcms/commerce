@@ -1,5 +1,4 @@
 <?php
-
 namespace Craft;
 
 use Commerce\Traits\Commerce_ModelRelationsTrait;
@@ -8,26 +7,33 @@ use Omnipay\Common\Exception\OmnipayException;
 /**
  * Class Commerce_TransactionModel
  *
- * @package Craft
+ * @package   Craft
  *
- * @property int                       $id
- * @property string                    $hash
- * @property string                    $type
- * @property float                     $amount
- * @property string                    status
- * @property string                    reference
- * @property string                    message
- * @property string                    response
+ * @property int                         $id
+ * @property string                      $hash
+ * @property string                      $type
+ * @property float                       $amount
+ * @property string                      $status
+ * @property string                      $reference
+ * @property string                      $message
+ * @property string                      $response
  *
- * @property int                       parentId
- * @property int                       userId
- * @property int                       paymentMethodId
- * @property int                       orderId
+ * @property int                         $parentId
+ * @property int                         $userId
+ * @property int                         $paymentMethodId
+ * @property int                         $orderId
  *
- * @property Commerce_TransactionModel   parent
- * @property Commerce_PaymentMethodModel paymentMethod
- * @property Commerce_OrderModel         order
- * @property UserModel                 user
+ * @property Commerce_TransactionModel   $parent
+ * @property Commerce_PaymentMethodModel $paymentMethod
+ * @property Commerce_OrderModel         $order
+ * @property UserModel                   $user
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.models
+ * @since     1.0
  */
 class Commerce_TransactionModel extends BaseModel
 {

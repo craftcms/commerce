@@ -16,6 +16,13 @@ use Omnipay\Common\AbstractGateway;
  * @property bool                             $frontendEnabled
  *
  * @property \Omnipay\Common\GatewayInterface $gateway
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.models
+ * @since     1.0
  */
 class Commerce_PaymentMethodModel extends BaseModel
 {

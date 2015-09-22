@@ -1,17 +1,22 @@
 <?php
-
 namespace Craft;
 
 /**
- * Class Commerce_ShippingMethodRecord
+ * Shipping method record.
  *
- * @property int                         $id
- * @property string                      $name
- * @property bool                        $enabled
- * @property bool                        $default
+ * @property int                           $id
+ * @property string                        $name
+ * @property bool                          $enabled
+ * @property bool                          $default
  *
- * @property Commerce_ShippingRuleRecord[] rules
- * @package Craft
+ * @property Commerce_ShippingRuleRecord[] $rules
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.records
+ * @since     1.0
  */
 class Commerce_ShippingMethodRecord extends BaseRecord
 {

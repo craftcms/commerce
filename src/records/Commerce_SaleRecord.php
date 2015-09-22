@@ -1,26 +1,31 @@
 <?php
-
 namespace Craft;
 
 /**
- * Class Commerce_SaleRecord
+ * Sale record.
  *
- * @property int                        id
- * @property string                     name
- * @property string                     description
- * @property DateTime                   dateFrom
- * @property DateTime                   dateTo
- * @property string                     discountType
- * @property float                      discountAmount
- * @property bool                       allGroups
- * @property bool                       allProducts
- * @property bool                       allProductTypes
- * @property bool                       enabled
+ * @property int                          $id
+ * @property string                       $name
+ * @property string                       $description
+ * @property DateTime                     $dateFrom
+ * @property DateTime                     $dateTo
+ * @property string                       $discountType
+ * @property float                        $discountAmount
+ * @property bool                         $allGroups
+ * @property bool                         $allProducts
+ * @property bool                         $allProductTypes
+ * @property bool                         $enabled
  *
- * @property Commerce_ProductRecord[]     products
- * @property Commerce_ProductTypeRecord[] productTypes
- * @property UserGroupRecord[]          groups
- * @package Craft
+ * @property Commerce_ProductRecord[]     $products
+ * @property Commerce_ProductTypeRecord[] $productTypes
+ * @property UserGroupRecord[]            $groups
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.records
+ * @since     1.0
  */
 class Commerce_SaleRecord extends BaseRecord
 {

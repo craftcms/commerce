@@ -1,9 +1,8 @@
 <?php
-
 namespace Craft;
 
 /**
- * Class Commerce_TaxRateRecord
+ * Tax rate record.
  *
  * @property int                      $id
  * @property string                   $name
@@ -15,7 +14,13 @@ namespace Craft;
  *
  * @property Commerce_TaxZoneRecord     $taxZone
  * @property Commerce_TaxCategoryRecord $taxCategory
- * @package Craft
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.records
+ * @since     1.0
  */
 class Commerce_TaxRateRecord extends BaseRecord
 {

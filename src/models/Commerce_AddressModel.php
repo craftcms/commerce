@@ -1,32 +1,36 @@
 <?php
-
 namespace Craft;
 
 use Commerce\Traits\Commerce_ModelRelationsTrait;
 
 /**
- * Class Commerce_AddressModel
+ * Customer address model.
  *
- * @property int                  id
- * @property string               firstName
- * @property string               lastName
- * @property string               address1
- * @property string               address2
- * @property string               city
- * @property string               zipCode
- * @property string               phone
- * @property string               alternativePhone
- * @property string               company
- * @property string               stateName
- * @property int                  countryId
- * @property int                  stateId
- * @property int                  customerId
+ * @property int                    $id
+ * @property string                 $firstName
+ * @property string                 $lastName
+ * @property string                 $address1
+ * @property string                 $address2
+ * @property string                 $city
+ * @property string                 $zipCode
+ * @property string                 $phone
+ * @property string                 $alternativePhone
+ * @property string                 $company
+ * @property string                 $stateName
+ * @property int                    $countryId
+ * @property int                    $stateId
+ * @property int                    $customerId
  *
- * @property Commerce_CountryModel  country
- * @property Commerce_StateModel    state
- * @property Commerce_CustomerModel customer
+ * @property Commerce_CountryModel  $country
+ * @property Commerce_StateModel    $state
+ * @property Commerce_CustomerModel $customer
  *
- * @package Craft
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.models
+ * @since     1.0
  */
 class Commerce_AddressModel extends BaseModel
 {

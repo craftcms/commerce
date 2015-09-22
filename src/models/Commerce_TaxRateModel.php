@@ -1,23 +1,28 @@
 <?php
-
 namespace Craft;
 
 use Commerce\Traits\Commerce_ModelRelationsTrait;
 
 /**
- * Class Commerce_TaxRateModel
+ * Tax rate model.
  *
- * @property int                     $id
- * @property string                  $name
- * @property float                   $rate
- * @property bool                    $include
- * @property bool                    $showInLabel
- * @property int                     $taxZoneId
- * @property int                     $taxCategoryId
+ * @property int                       $id
+ * @property string                    $name
+ * @property float                     $rate
+ * @property bool                      $include
+ * @property bool                      $showInLabel
+ * @property int                       $taxZoneId
+ * @property int                       $taxCategoryId
  *
  * @property Commerce_TaxZoneModel     $taxZone
  * @property Commerce_TaxCategoryModel $taxCategory
- * @package Craft
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.models
+ * @since     1.0
  */
 class Commerce_TaxRateModel extends BaseModel
 {
@@ -31,11 +36,12 @@ class Commerce_TaxRateModel extends BaseModel
 		return UrlHelper::getCpUrl('commerce/settings/taxrates/'.$this->id);
 	}
 
-	public function getRateAsPercent()
+	public function getRateAsPercent ()
 	{
 		$localeData = craft()->i18n->getLocaleData();
 		$percentSign = $localeData->getNumberSymbol('percentSign');
-		return $this->rate * 100 . "" . $percentSign;
+
+		return $this->rate * 100 ."".$percentSign;
 	}
 
 	/**

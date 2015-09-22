@@ -7,6 +7,16 @@ use Commerce\Helpers\CommerceDbHelper;
 
 require 'vendor/autoload.php';
 
+/**
+ * Craft Commerce Plugin for Craft CMS.
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce
+ * @since     1.0
+ */
 class CommercePlugin extends BasePlugin
 {
 	public $handle = 'commerce';
@@ -125,7 +135,7 @@ class CommercePlugin extends BasePlugin
 	 */
 	public function getDeveloperUrl ()
 	{
-		return "http://buildwithcraft.com/commerce";
+		return "http://craftcommerce.com";
 	}
 
 	/**
@@ -157,7 +167,7 @@ class CommercePlugin extends BasePlugin
 	 */
 	public function getVersion ()
 	{
-		return '0.8.11';
+		return '0.8.22';
 	}
 
 	/**
@@ -196,7 +206,7 @@ class CommercePlugin extends BasePlugin
 	 */
 	public function getSettingsUrl ()
 	{
-		return 'commerce/settings';
+		return 'commerce/settings/global';
 	}
 
 	/**

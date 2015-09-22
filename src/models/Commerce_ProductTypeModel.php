@@ -1,10 +1,8 @@
 <?php
-
 namespace Craft;
 
 /**
- * Class Commerce_ProductTypeModel
- *
+ * Product type model.
  *
  * @property int    $id
  * @property string $name
@@ -16,10 +14,16 @@ namespace Craft;
  * @property string $titleFormat
  * @property int    $fieldLayoutId
  * @property int    $variantFieldLayoutId
- * @package Craft
  *
  * @method null setFieldLayout(FieldLayoutModel $fieldLayout)
  * @method FieldLayoutModel getFieldLayout()
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.models
+ * @since     1.0
  */
 class Commerce_ProductTypeModel extends BaseModel
 {

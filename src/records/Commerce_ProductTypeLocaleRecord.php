@@ -2,14 +2,21 @@
 namespace Craft;
 
 /**
- * Class ProductTypeLocaleRecord
+ * Product type locale record.
+ *
+ * @property int                        $productTypeId
+ * @property int                        $localeId
+ * @property string                     $urlFormat
+ *
+ * @property LocaleRecord               $locale
+ * @property Commerce_ProductTypeRecord $productType
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2014, Pixel & Tonic, Inc.
- * @license   http://buildwithcraft.com/license Craft License Agreement
- * @see       http://buildwithcraft.com
- * @package   craft.app.records
- * @since     2.0
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.records
+ * @since     1.0
  */
 class Commerce_ProductTypeLocaleRecord extends BaseRecord
 {

@@ -1,19 +1,24 @@
 <?php
-
 namespace Craft;
 
 use Commerce\Traits\Commerce_ModelRelationsTrait;
 
 /**
- * Class Commerce_StateModel
+ * State model.
  *
- * @property int                  $id
- * @property string               $name
- * @property string               $abbreviation
- * @property int                  $countryId
+ * @property int                    $id
+ * @property string                 $name
+ * @property string                 $abbreviation
+ * @property int                    $countryId
  *
  * @property Commerce_CountryRecord $country
- * @package Craft
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.models
+ * @since     1.0
  */
 class Commerce_StateModel extends BaseModel
 {

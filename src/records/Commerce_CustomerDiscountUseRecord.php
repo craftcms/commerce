@@ -1,16 +1,21 @@
 <?php
-
 namespace Craft;
 
 /**
- * Class Commerce_CustomerDiscountUseRecord
+ * Customer discount record.
  *
- * @property int                   id
- * @property int                   discountId
- * @property int                   customerId
- * @property Commerce_DiscountRecord discount
- * @property Commerce_CustomerRecord customer
- * @package Craft
+ * @property int                     $id
+ * @property int                     $discountId
+ * @property int                     $customerId
+ * @property Commerce_DiscountRecord $discount
+ * @property Commerce_CustomerRecord $customer
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.records
+ * @since     1.0
  */
 class Commerce_CustomerDiscountUseRecord extends BaseRecord
 {

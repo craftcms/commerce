@@ -1,28 +1,33 @@
 <?php
-
 namespace Craft;
 
 use Commerce\Traits\Commerce_ModelRelationsTrait;
 
 /**
- * Class Commerce_SaleModel
+ * Sale model.
  *
- * @property int                       id
- * @property string                    name
- * @property string                    description
- * @property DateTime                  dateFrom
- * @property DateTime                  dateTo
- * @property string                    discountType
- * @property float                     discountAmount
- * @property bool                      allGroups
- * @property bool                      allProducts
- * @property bool                      allProductTypes
- * @property bool                      enabled
+ * @property int                         $id
+ * @property string                      $name
+ * @property string                      $description
+ * @property DateTime                    $dateFrom
+ * @property DateTime                    $dateTo
+ * @property string                      $discountType
+ * @property float                       $discountAmount
+ * @property bool                        $allGroups
+ * @property bool                        $allProducts
+ * @property bool                        $allProductTypes
+ * @property bool                        $enabled
  *
- * @property Commerce_ProductModel[]     products
- * @property Commerce_ProductTypeModel[] productTypes
- * @property UserGroupModel[]          groups
- * @package Craft
+ * @property Commerce_ProductModel[]     $products
+ * @property Commerce_ProductTypeModel[] $productTypes
+ * @property UserGroupModel[]            $groups
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.models
+ * @since     1.0
  */
 class Commerce_SaleModel extends BaseModel
 {
@@ -64,17 +69,18 @@ class Commerce_SaleModel extends BaseModel
 	/**
 	 * @return string
 	 */
-	public function getDiscountAmountAsPercent()
+	public function getDiscountAmountAsPercent ()
 	{
 		$localeData = craft()->i18n->getLocaleData();
 		$percentSign = $localeData->getNumberSymbol('percentSign');
-		return -$this->discountAmount * 100 . "" . $percentSign;
+
+		return -$this->discountAmount * 100 ."".$percentSign;
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getDiscountAmountAsFlat()
+	public function getDiscountAmountAsFlat ()
 	{
 		return -$this->discountAmount;
 	}

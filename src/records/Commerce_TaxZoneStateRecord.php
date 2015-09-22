@@ -1,6 +1,19 @@
 <?php
 namespace Craft;
 
+/**
+ * Tax zone state record.
+ *
+ * @property int taxZoneId
+ * @property int stateId
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.records
+ * @since     1.0
+ */
 class Commerce_TaxZoneStateRecord extends BaseRecord
 {
 
