@@ -7,8 +7,8 @@
 
     <h1>Addresses</h1>
 
-    {% set addresses = craft.market.customer.addresses %}
-    {% set order = craft.market.getCart() %}
+    {% set addresses = craft.commerce.customer.addresses %}
+    {% set order = craft.commerce.getCart() %}
 
     {% if addresses %}
         {# UI when at least one address exists #}
@@ -17,7 +17,7 @@
             <div class="twelve columns">
                 <form method="post">
 
-                    <input type="hidden" name="action" value="market/cartAddress/chooseAddresses">
+                    <input type="hidden" name="action" value="commerce/cartAddress/chooseAddresses">
                     <input type="hidden" name="redirect" value="commerce/checkout/shipping" />
 
                     {{ getCsrfInput() }}
@@ -80,7 +80,7 @@
             <div class="six columns">
                 <form method="post" class="form-new-address" class="form-horizontal">
 
-                    <input type="hidden" name="action" value="market/cartAddress/addAddress">
+                    <input type="hidden" name="action" value="commerce/cartAddress/addAddress">
                     <input type="hidden" name="Address[id]" value="">
                     {{ getCsrfInput() }}
                     
@@ -95,7 +95,7 @@
 
     {% if not addresses %}
         <form method="post" class="">
-            <input type="hidden" name="action" value="market/cartAddress/postTwoAddresses">
+            <input type="hidden" name="action" value="commerce/cartAddress/postTwoAddresses">
             <input type="hidden" name="redirect" value="commerce/checkout/shipping"/>
             {{ getCsrfInput() }}
 
@@ -124,7 +124,7 @@
         $('.address-remove').click(function(e) {
             e.preventDefault();
             $.post(window.location, {
-                action: 'market/cartAddress/removeAddress',
+                action: 'commerce/cartAddress/removeAddress',
                 id: $(this).data('id')
             }, function() {
                 window.location = window.location.href; //refresh page.

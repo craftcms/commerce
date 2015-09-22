@@ -8,17 +8,17 @@
 
     <ul>
         <li>
-            <strong>Products:</strong> {{ cart.itemTotal|marketCurrency }}
+            <strong>Products:</strong> {{ cart.itemTotal|commerceCurrency }}
         </li>
 
         {%  for adjustment in cart.adjustments %}
             <li>
-                <strong>{{ adjustment.type }}: </strong> {{ adjustment.amount|marketCurrency }}
+                <strong>{{ adjustment.type }}: </strong> {{ adjustment.amount|commerceCurrency }}
             </li>
         {% endfor %}
 
         <li>
-            <strong>Total:</strong> {{ cart.totalPrice|marketCurrency }}
+            <strong>Total:</strong> {{ cart.totalPrice|commerceCurrency }}
         </li>
     </ul>
 
@@ -30,7 +30,7 @@
 
     {% if cart.paymentMethodId %}
         <form method="POST" class="form-horizontal">
-            <input type="hidden" name="action" value="market/cartPayment/pay"/>
+            <input type="hidden" name="action" value="commerce/cartPayment/pay"/>
             <input type="hidden" name="redirect" value="/commerce/customer/order?orderId={id}"/>
             <input type="hidden" name="cancelUrl" value="/commerce/cart"/>
             {{ getCsrfInput() }}
