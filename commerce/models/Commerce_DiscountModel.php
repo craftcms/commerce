@@ -5,33 +5,39 @@ namespace Craft;
 use Commerce\Traits\Commerce_ModelRelationsTrait;
 
 /**
- * Class Commerce_DiscountModel
+ * Discount model.
  *
- * @property int                       id
- * @property string                    name
- * @property string                    description
- * @property string                    code
- * @property int                       perUserLimit
- * @property int                       totalUseLimit
- * @property int                       totalUses
- * @property DateTime                  dateFrom
- * @property DateTime                  dateTo
- * @property int                       purchaseTotal
- * @property int                       purchaseQty
- * @property float                     baseDiscount
- * @property float                     perItemDiscount
- * @property float                     percentDiscount
- * @property bool                      excludeOnSale
- * @property bool                      freeShipping
- * @property bool                      allGroups
- * @property bool                      allProducts
- * @property bool                      allProductTypes
- * @property bool                      enabled
+ * @property int                         $id
+ * @property string                      $name
+ * @property string                      $description
+ * @property string                      $code
+ * @property int                         $perUserLimit
+ * @property int                         $totalUseLimit
+ * @property int                         $totalUses
+ * @property DateTime                    $dateFrom
+ * @property DateTime                    $dateTo
+ * @property int                         $purchaseTotal
+ * @property int                         $purchaseQty
+ * @property float                       $baseDiscount
+ * @property float                       $perItemDiscount
+ * @property float                       $percentDiscount
+ * @property bool                        $excludeOnSale
+ * @property bool                        $freeShipping
+ * @property bool                        $allGroups
+ * @property bool                        $allProducts
+ * @property bool                        $allProductTypes
+ * @property bool                        $enabled
  *
- * @property Commerce_ProductModel[]     products
- * @property Commerce_ProductTypeModel[] productTypes
- * @property UserGroupModel[]          groups
- * @package Craft
+ * @property Commerce_ProductModel[]     $products
+ * @property Commerce_ProductTypeModel[] $productTypes
+ * @property UserGroupModel[]            $groups
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.models
+ * @since     1.0
  */
 class Commerce_DiscountModel extends BaseModel
 {

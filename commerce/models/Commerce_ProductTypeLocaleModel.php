@@ -4,19 +4,17 @@ namespace Craft;
 /**
  * Product type locale model class.
  *
+ * @property int    $id
+ * @property int    $productTypeId
+ * @property string $locale
+ * @property string $urlFormat
+ *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2014, Pixel & Tonic, Inc.
- * @license   http://buildwithcraft.com/license Craft License Agreement
- * @see       http://buildwithcraft.com
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.models
  * @since     1.0
- *
- * @property int    id
- * @property int    productTypeId
- * @property string locale
- * @property string urlFormat
- *
- *
- * @package   Craft
  */
 
 class Commerce_ProductTypeLocaleModel extends BaseModel

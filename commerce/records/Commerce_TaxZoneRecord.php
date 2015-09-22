@@ -1,19 +1,24 @@
 <?php
-
 namespace Craft;
 
 /**
- * Class Commerce_TaxZoneRecord
+ * Tax zone record.
  *
- * @property int                    $id
- * @property string                 $name
- * @property string                 $description
- * @property bool                   $countryBased
- * @property bool                   $default
+ * @property int                      $id
+ * @property string                   $name
+ * @property string                   $description
+ * @property bool                     $countryBased
+ * @property bool                     $default
  *
  * @property Commerce_CountryRecord[] $countries
  * @property Commerce_StateRecord[]   $states
- * @package Craft
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.records
+ * @since     1.0
  */
 class Commerce_TaxZoneRecord extends BaseRecord
 {

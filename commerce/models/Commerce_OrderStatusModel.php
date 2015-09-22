@@ -1,21 +1,25 @@
 <?php
-
 namespace Craft;
 
 use Commerce\Traits\Commerce_ModelRelationsTrait;
 
 /**
- * Class Commerce_OrderStatusModel
+ * Order status model.
  *
- * @property int                 id
- * @property string              name
- * @property string              handle
- * @property string              color
- * @property bool                default
+ * @property int                   $id
+ * @property string                $name
+ * @property string                $handle
+ * @property string                $color
+ * @property bool                  $default
  *
- * @property Commerce_EmailModel[] emails
+ * @property Commerce_EmailModel[] $emails
  *
- * @package Craft
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.models
+ * @since     1.0
  */
 class Commerce_OrderStatusModel extends BaseModel
 {

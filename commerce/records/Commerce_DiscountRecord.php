@@ -3,33 +3,39 @@
 namespace Craft;
 
 /**
- * Class Commerce_DiscountRecord
+ * Discount record.
  *
- * @property int                        id
- * @property string                     name
- * @property string                     description
- * @property string                     code
- * @property int                        perUserLimit
- * @property int                        totalUseLimit
- * @property int                        totalUses
- * @property DateTime                   dateFrom
- * @property DateTime                   dateTo
- * @property int                        purchaseTotal
- * @property int                        purchaseQty
- * @property float                      baseDiscount
- * @property float                      perItemDiscount
- * @property float                      percentDiscount
- * @property bool                       excludeOnSale
- * @property bool                       freeShipping
- * @property bool                       allGroups
- * @property bool                       allProducts
- * @property bool                       allProductTypes
- * @property bool                       enabled
+ * @property int                          $id
+ * @property string                       $name
+ * @property string                       $description
+ * @property string                       $code
+ * @property int                          $perUserLimit
+ * @property int                          $totalUseLimit
+ * @property int                          $totalUses
+ * @property DateTime                     $dateFrom
+ * @property DateTime                     $dateTo
+ * @property int                          $purchaseTotal
+ * @property int                          $purchaseQty
+ * @property float                        $baseDiscount
+ * @property float                        $perItemDiscount
+ * @property float                        $percentDiscount
+ * @property bool                         $excludeOnSale
+ * @property bool                         $freeShipping
+ * @property bool                         $allGroups
+ * @property bool                         $allProducts
+ * @property bool                         $allProductTypes
+ * @property bool                         $enabled
  *
- * @property Commerce_ProductRecord[]     products
- * @property Commerce_ProductTypeRecord[] productTypes
- * @property UserGroupRecord[]          groups
- * @package Craft
+ * @property Commerce_ProductRecord[]     $products
+ * @property Commerce_ProductTypeRecord[] $productTypes
+ * @property UserGroupRecord[]            $groups
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.records
+ * @since     1.0
  */
 class Commerce_DiscountRecord extends BaseRecord
 {

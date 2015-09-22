@@ -1,14 +1,19 @@
 <?php
-
 namespace Craft;
 
 /**
- * Class Commerce_DiscountUserGroupRecord
+ * Discount user record.
  *
- * @property int id
- * @property int discountId
- * @property int userGroupId
- * @package Craft
+ * @property int $id
+ * @property int $discountId
+ * @property int $userGroupId
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.records
+ * @since     1.0
  */
 class Commerce_DiscountUserGroupRecord extends BaseRecord
 {

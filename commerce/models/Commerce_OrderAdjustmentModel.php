@@ -1,22 +1,27 @@
 <?php
-
 namespace Craft;
 
 use Commerce\Traits\Commerce_ModelRelationsTrait;
 
 /**
- * Class Commerce_OrderAdjustmentModel
+ * Order adjustment model.
  *
- * @property int                $id
- * @property string             $name
- * @property string             description
- * @property string             $type
- * @property float              $amount
- * @property string             optionsJson
- * @property int                $orderId
+ * @property int                  $id
+ * @property string               $name
+ * @property string               $description
+ * @property string               $type
+ * @property float                $amount
+ * @property string               $optionsJson
+ * @property int                  $orderId
  *
  * @property Commerce_OrderRecord $order
- * @package Craft
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.models
+ * @since     1.0
  */
 class Commerce_OrderAdjustmentModel extends BaseModel
 {

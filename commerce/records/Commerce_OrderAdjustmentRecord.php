@@ -1,20 +1,25 @@
 <?php
-
 namespace Craft;
 
 /**
- * Class Commerce_OrderAdjustmentRecord
+ * Order adjustment record.
  *
- * @property int                $id
- * @property string             $name
- * @property string             description
- * @property string             $type
- * @property float              $amount
- * @property string             optionsJson
- * @property int                $orderId
+ * @property int                  $id
+ * @property string               $name
+ * @property string               $description
+ * @property string               $type
+ * @property float                $amount
+ * @property string               $optionsJson
+ * @property int                  $orderId
  *
  * @property Commerce_OrderRecord $order
- * @package Craft
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.records
+ * @since     1.0
  */
 class Commerce_OrderAdjustmentRecord extends BaseRecord
 {

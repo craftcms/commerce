@@ -1,35 +1,40 @@
 <?php
-
 namespace Craft;
 
 /**
- * Class Commerce_ShippingRuleRecord
+ * Shipping rule record.
  *
- * @property int                         id
- * @property string                      name
- * @property string                      description
- * @property int                         countryId
- * @property int                         stateId
- * @property int                         methodId
- * @property int                         priority
- * @property bool                        $enabled
- * @property int                         minQty
- * @property int                         maxQty
- * @property float                       minTotal
- * @property float                       maxTotal
- * @property float                       minWeight
- * @property float                       maxWeight
- * @property float                       baseRate
- * @property float                       perItemRate
- * @property float                       weightRate
- * @property float                       percentageRate
- * @property float                       minRate
- * @property float                       maxRate
+ * @property int                           $id
+ * @property string                        $name
+ * @property string                        $description
+ * @property int                           $countryId
+ * @property int                           $stateId
+ * @property int                           $methodId
+ * @property int                           $priority
+ * @property bool                          $enabled
+ * @property int                           $minQty
+ * @property int                           $maxQty
+ * @property float                         $minTotal
+ * @property float                         $maxTotal
+ * @property float                         $minWeight
+ * @property float                         $maxWeight
+ * @property float                         $baseRate
+ * @property float                         $perItemRate
+ * @property float                         $weightRate
+ * @property float                         $percentageRate
+ * @property float                         $minRate
+ * @property float                         $maxRate
  *
  * @property Commerce_CountryRecord        $country
  * @property Commerce_StateRecord          $state
  * @property Commerce_ShippingMethodRecord $method
- * @package Craft
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.records
+ * @since     1.0
  */
 class Commerce_ShippingRuleRecord extends BaseRecord
 {

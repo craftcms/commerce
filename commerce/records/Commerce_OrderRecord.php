@@ -3,43 +3,48 @@
 namespace Craft;
 
 /**
- * Class Commerce_OrderRecord
+ * Order or Cart record.
  *
- * @package Craft
+ * @property int                           $id
+ * @property string                        $number
+ * @property string                        $couponCode
+ * @property float                         $itemTotal
+ * @property float                         $totalPrice
+ * @property float                         $totalPaid
+ * @property float                         $baseDiscount
+ * @property float                         $baseShippingCost
+ * @property string                        $email
+ * @property DateTime                      $dateOrdered
+ * @property DateTime                      $datePaid
+ * @property string                        $lastIp
+ * @property string                        $message
+ * @property string                        $returnUrl
+ * @property string                        $cancelUrl
  *
- * @property int                         id
- * @property string                      number
- * @property string                      couponCode
- * @property float                       itemTotal
- * @property float                       totalPrice
- * @property float                       totalPaid
- * @property float                       baseDiscount
- * @property float                       baseShippingCost
- * @property string                      email
- * @property DateTime                    dateOrdered
- * @property DateTime                    datePaid
- * @property string                      lastIp
- * @property string                      message
- * @property string                      returnUrl
- * @property string                      cancelUrl
+ * @property int                           $billingAddressId
+ * @property mixed                         $billingAddressData
+ * @property int                           $shippingAddressId
+ * @property mixed                         $shippingAddressData
+ * @property int                           $shippingMethodId
+ * @property int                           $paymentMethodId
+ * @property int                           $customerId
+ * @property int                           $orderStatusId
  *
- * @property int                         billingAddressId
- * @property mixed                       billingAddressData
- * @property int                         shippingAddressId
- * @property mixed                       shippingAddressData
- * @property int                         shippingMethodId
- * @property int                         paymentMethodId
- * @property int                         customerId
- * @property int                         orderStatusId
+ * @property Commerce_LineItemRecord[]     $lineItems
+ * @property Commerce_AddressRecord        $billingAddress
+ * @property Commerce_AddressRecord        $shippingAddress
+ * @property Commerce_ShippingMethodRecord $shippingMethod
+ * @property Commerce_PaymentMethodRecord  $paymentMethod
+ * @property Commerce_TransactionRecord[]  $transactions
+ * @property Commerce_OrderStatusRecord    $orderStatus
+ * @property Commerce_OrderHistoryRecord[] $histories
  *
- * @property Commerce_LineItemRecord[]     lineItems
- * @property Commerce_AddressRecord        billingAddress
- * @property Commerce_AddressRecord        shippingAddress
- * @property Commerce_ShippingMethodRecord shippingMethod
- * @property Commerce_PaymentMethodRecord  paymentMethod
- * @property Commerce_TransactionRecord[]  transactions
- * @property Commerce_OrderStatusRecord    orderStatus
- * @property Commerce_OrderHistoryRecord[] histories
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.records
+ * @since     1.0
  */
 class Commerce_OrderRecord extends BaseRecord
 {

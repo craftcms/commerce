@@ -1,40 +1,46 @@
 <?php
-
 namespace Craft;
 
 use Commerce\Interfaces\Purchasable;
 use Commerce\Traits\Commerce_ModelRelationsTrait;
 
 /**
- * Class Commerce_LineItemModel
+ * Line Item model representing a line item on an order.
  *
  * @package Craft
  *
- * @property int                     id
- * @property float                   price
- * @property float                   saleAmount
- * @property float                   salePrice
- * @property float                   tax
- * @property float                   shippingCost
- * @property float                   discount
- * @property float                   weight
- * @property float                   height
- * @property float                   width
- * @property float                   length
- * @property float                   total
- * @property int                     qty
- * @property string                  note
- * @property string                  snapshot
+ * @property int                       $id
+ * @property float                     $price
+ * @property float                     $saleAmount
+ * @property float                     $salePrice
+ * @property float                     $tax
+ * @property float                     $shippingCost
+ * @property float                     $discount
+ * @property float                     $weight
+ * @property float                     $height
+ * @property float                     $width
+ * @property float                     $length
+ * @property float                     $total
+ * @property int                       $qty
+ * @property string                    $note
+ * @property string                    $snapshot
  *
- * @property int                     orderId
- * @property int                     purchasableId
- * @property int                     taxCategoryId
+ * @property int                       $orderId
+ * @property int                       $purchasableId
+ * @property int                       $taxCategoryId
  *
- * @property bool                    onSale
+ * @property bool                      $onSale
+ * @property Purchasable               $purchasable
  *
- * @property Purchasable             $purchasable
- * @property Commerce_OrderModel       order
- * @property Commerce_TaxCategoryModel taxCategory
+ * @property Commerce_OrderModel       $order
+ * @property Commerce_TaxCategoryModel $taxCategory
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.models
+ * @since     1.0
  */
 class Commerce_LineItemModel extends BaseModel
 {

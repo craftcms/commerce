@@ -2,14 +2,20 @@
 namespace Craft;
 
 /**
- * Class Commerce_OrderStatusEmailRecord
+ * Order status email record.
  *
- * @property int                      orderStatusId
- * @property int                      emailId
+ * @property int                        $orderStatusId
+ * @property int                        $emailId
  *
- * @property Commerce_OrderStatusRecord orderStatus
- * @property Commerce_EmailRecord       email
- * @package Craft
+ * @property Commerce_OrderStatusRecord $orderStatus
+ * @property Commerce_EmailRecord       $email
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.records
+ * @since     1.0
  */
 class Commerce_OrderStatusEmailRecord extends BaseRecord
 {

@@ -1,35 +1,39 @@
 <?php
-
 namespace Craft;
 
 /**
- * Class Commerce_LineItemRecord
+ * Line Item record.
  *
- * @package Craft
+ * @property int                        $id
+ * @property float                      $price
+ * @property float                      $saleAmount
+ * @property float                      $salePrice
+ * @property float                      $tax
+ * @property float                      $shippingCost
+ * @property float                      $discount
+ * @property float                      $weight
+ * @property float                      $height
+ * @property float                      $width
+ * @property float                      $length
+ * @property float                      $total
+ * @property int                        $qty
+ * @property string                     $note
+ * @property string                     $snapshot
  *
- * @property int                      id
- * @property float                    price
- * @property float                    saleAmount
- * @property float                    salePrice
- * @property float                    tax
- * @property float                    shippingCost
- * @property float                    discount
- * @property float                    weight
- * @property float                    height
- * @property float                    width
- * @property float                    length
- * @property float                    total
- * @property int                      qty
- * @property string                   note
- * @property string                   snapshot
+ * @property int                        $orderId
+ * @property int                        $purchasableId
+ * @property int                        $taxCategoryId
  *
- * @property int                      orderId
- * @property int                      purchasableId
- * @property int                      taxCategoryId
+ * @property Commerce_OrderRecord       $order
+ * @property Commerce_VariantRecord     $variant
+ * @property Commerce_TaxCategoryRecord $taxCategory
  *
- * @property Commerce_OrderRecord       order
- * @property Commerce_VariantRecord     variant
- * @property Commerce_TaxCategoryRecord taxCategory
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.records
+ * @since     1.0
  */
 class Commerce_LineItemRecord extends BaseRecord
 {

@@ -2,21 +2,27 @@
 namespace Craft;
 
 /**
- * Class Commerce_OrderHistoryRecord
+ * Order hsitory record.
  *
- * @property int                      id
- * @property string                   message
+ * @property int                        $id
+ * @property string                     $message
  *
- * @property int                      orderId
- * @property int                      prevStatusId
- * @property int                      newStatusId
- * @property int                      customerId
+ * @property int                        $orderId
+ * @property int                        $prevStatusId
+ * @property int                        $newStatusId
+ * @property int                        $customerId
  *
- * @property Commerce_OrderRecord       order
- * @property Commerce_OrderStatusRecord prevStatus
- * @property Commerce_OrderStatusRecord newStatus
- * @property Commerce_CustomerRecord    customer
- * @package Craft
+ * @property Commerce_OrderRecord       $order
+ * @property Commerce_OrderStatusRecord $prevStatus
+ * @property Commerce_OrderStatusRecord $newStatus
+ * @property Commerce_CustomerRecord    $customer
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.records
+ * @since     1.0
  */
 class Commerce_OrderHistoryRecord extends BaseRecord
 {

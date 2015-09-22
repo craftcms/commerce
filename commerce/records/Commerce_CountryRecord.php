@@ -1,15 +1,20 @@
 <?php
-
 namespace Craft;
 
 /**
- * Class Commerce_CountryRecord
+ * Country record.
  *
  * @property int    $id
  * @property string $name
  * @property string $iso
  * @property bool   $stateRequired
- * @package Craft
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.records
+ * @since     1.0
  */
 class Commerce_CountryRecord extends BaseRecord
 {

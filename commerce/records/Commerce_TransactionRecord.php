@@ -2,28 +2,33 @@
 namespace Craft;
 
 /**
- * Class Commerce_TransactionRecord
+ * Transaction record.
  *
- * @package Craft
+ * @property int                          $id
+ * @property string                       $hash
+ * @property string                       $type
+ * @property float                        $amount
+ * @property string                       $status
+ * @property string                       $reference
+ * @property string                       $message
+ * @property string                       $response
  *
- * @property int                        $id
- * @property string                     $hash
- * @property string                     $type
- * @property float                      $amount
- * @property string                     status
- * @property string                     reference
- * @property string                     message
- * @property string                     response
+ * @property int                          $parentId
+ * @property int                          $userId
+ * @property int                          $paymentMethodId
+ * @property int                          $orderId
  *
- * @property int                        parentId
- * @property int                        userId
- * @property int                        paymentMethodId
- * @property int                        orderId
+ * @property Commerce_TransactionRecord   $parent
+ * @property Commerce_PaymentMethodRecord $paymentMethod
+ * @property Commerce_OrderRecord         $order
+ * @property UserRecord                   $user
  *
- * @property Commerce_TransactionRecord   parent
- * @property Commerce_PaymentMethodRecord paymentMethod
- * @property Commerce_OrderRecord         order
- * @property UserRecord                 user
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.records
+ * @since     1.0
  */
 class Commerce_TransactionRecord extends BaseRecord
 {

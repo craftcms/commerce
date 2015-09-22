@@ -1,26 +1,31 @@
 <?php
-
 namespace Craft;
 
 /**
- * Class Commerce_VariantRecord
+ * Variant record.
  *
- * @property int                  id
- * @property int                  productId
- * @property bool                 isImplicit
- * @property string               sku
- * @property float                price
- * @property float                width
- * @property float                height
- * @property float                length
- * @property float                weight
- * @property int                  stock
- * @property bool                 unlimitedStock
- * @property int                  minQty
- * @property int                  maxQty
+ * @property int                    $id
+ * @property int                    $productId
+ * @property bool                   $isImplicit
+ * @property string                 $sku
+ * @property float                  $price
+ * @property float                  $width
+ * @property float                  $height
+ * @property float                  $length
+ * @property float                  $weight
+ * @property int                    $stock
+ * @property bool                   $unlimitedStock
+ * @property int                    $minQty
+ * @property int                    $maxQty
  *
  * @property Commerce_ProductRecord $product
- * @package Craft
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.records
+ * @since     1.0
  */
 class Commerce_VariantRecord extends BaseRecord
 {

@@ -1,20 +1,24 @@
 <?php
-
 namespace Craft;
 
 use Omnipay\Common\Helper as OmnipayHelper;
 
 /**
- * Class Commerce_PaymentFormModel
+ * Payment form model. Used for validation of input, not directly persisted.
  *
- * @property string firstName
- * @property string lastName
- * @property int    month
- * @property int    year
- * @property int    cvv
- * @property int    number
+ * @property string $firstName
+ * @property string $lastName
+ * @property int    $month
+ * @property int    $year
+ * @property int    $cvv
+ * @property int    $number
  *
- * @package Craft
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.models
+ * @since     1.0
  */
 class Commerce_PaymentFormModel extends BaseModel
 {

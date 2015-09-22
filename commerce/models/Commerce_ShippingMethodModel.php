@@ -1,18 +1,23 @@
 <?php
-
 namespace Craft;
 
 use Commerce\Traits\Commerce_ModelRelationsTrait;
 
 /**
- * Class Commerce_ShippingMethodModel
+ * Shipping method model.
  *
- * @property int                        $id
- * @property string                     $name
- * @property bool                       $enabled
- * @property bool                       $default
- * @property Commerce_ShippingRuleModel[] rules
- * @package Craft
+ * @property int                          $id
+ * @property string                       $name
+ * @property bool                         $enabled
+ * @property bool                         $default
+ * @property Commerce_ShippingRuleModel[] $rules
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.models
+ * @since     1.0
  */
 class Commerce_ShippingMethodModel extends BaseModel
 {

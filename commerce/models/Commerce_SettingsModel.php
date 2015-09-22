@@ -1,20 +1,23 @@
 <?php
-
 namespace Craft;
 
 /**
- * Class Commerce_SettingsModel
+ * Settings model.
  *
- * @package Craft
+ * @property string $defaultCurrency
+ * @property string $paymentMethod
+ * @property string $weightUnits
+ * @property string $dimensionUnits
+ * @property string $emailSenderAddress
+ * @property string $emailSenderName
+ * @property string $orderPdfPath
  *
- * @property string defaultCurrency
- * @property string paymentMethod
- * @property string weightUnits
- * @property string dimensionUnits
- * @property string emailSenderAddress
- * @property string emailSenderName
- * @property string orderPdfPath
- *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.models
+ * @since     1.0
  */
 class Commerce_SettingsModel extends BaseModel
 {

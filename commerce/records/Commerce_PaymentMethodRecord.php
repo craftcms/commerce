@@ -2,16 +2,22 @@
 namespace Craft;
 
 /**
- * Class Commerce_PaymentMethodRecord
+ * Payment method id.
  *
- * @property int    $id    The primary key and id of the Payment Method
+ * @property int    $id
  * @property string $class
  * @property string $name
  * @property array  $settings
  * @property string $type
  * @property bool   $cpEnabled
  * @property bool   $frontendEnabled
- * @package Craft
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.records
+ * @since     1.0
  */
 class Commerce_PaymentMethodRecord extends BaseRecord
 {

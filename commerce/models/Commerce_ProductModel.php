@@ -1,30 +1,33 @@
 <?php
-
 namespace Craft;
 
 use Commerce\Traits\Commerce_ModelRelationsTrait;
 
 /**
- * Class Commerce_ProductModel
+ * Product model.
  *
- * @property int                     id
- * @property DateTime                availableOn
- * @property DateTime                expiresOn
- * @property int                     typeId
- * @property int                     authorId
- * @property int                     taxCategoryId
- * @property bool                    promotable
- * @property bool                    freeShipping
- * @property bool                    enabled
+ * @property int                       $id
+ * @property DateTime                  $availableOn
+ * @property DateTime                  $expiresOn
+ * @property int                       $typeId
+ * @property int                       $authorId
+ * @property int                       $taxCategoryId
+ * @property bool                      $promotable
+ * @property bool                      $freeShipping
+ * @property bool                      $enabled
  *
- * Inherited from record:
- * @property Commerce_ProductTypeModel type
- * @property Commerce_TaxCategoryModel taxCategory
- * @property Commerce_VariantModel[]   variants
+ * @property Commerce_ProductTypeModel $type
+ * @property Commerce_TaxCategoryModel $taxCategory
+ * @property Commerce_VariantModel[]   $variants
  *
- * Magic properties:
- * @property string                  name
- * @package Craft
+ * @property string                    $name
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.models
+ * @since     1.0
  */
 class Commerce_ProductModel extends BaseElementModel
 {

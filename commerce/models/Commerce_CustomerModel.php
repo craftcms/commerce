@@ -1,22 +1,25 @@
 <?php
 namespace Craft;
 
-use Commerce\Traits\Commerce_ModelRelationsTrait;
-
 /**
- * Class Commerce_CustomerModel
+ * Customer model.
  *
- * @package Craft
+ * @property int                     $id
+ * @property int                     $userId
+ * @property string                  $email
+ * @property int                     $lastUsedBillingAddressId
+ * @property int                     $lastUsedShippingAddressId
  *
- * @property int                   id
- * @property int                   userId
- * @property string                email
- * @property int                   lastUsedBillingAddressId
- * @property int                   lastUsedShippingAddressId
+ * @property Commerce_AddressModel[] $addresses
+ * @property Commerce_OrderModel[]   $orders
+ * @property UserModel               $user
  *
- * @property Commerce_AddressModel[] addresses
- * @property Commerce_OrderModel[]   orders
- * @property UserModel             user
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   craft.plugins.commerce.models
+ * @since     1.0
  */
 class Commerce_CustomerModel extends BaseModel
 {
@@ -27,7 +30,8 @@ class Commerce_CustomerModel extends BaseModel
 	 *
 	 * @return bool
 	 */
-	public function isEditable ()
+	public
+	function isEditable ()
 	{
 		return true;
 	}
@@ -37,7 +41,8 @@ class Commerce_CustomerModel extends BaseModel
 	 *
 	 * @return string|false
 	 */
-	public function getCpEditUrl ()
+	public
+	function getCpEditUrl ()
 	{
 		return UrlHelper::getCpUrl('commerce/customers/'.$this->id);
 	}
@@ -45,7 +50,8 @@ class Commerce_CustomerModel extends BaseModel
 	/**
 	 * @return array
 	 */
-	protected function defineAttributes ()
+	protected
+	function defineAttributes ()
 	{
 		return array_merge(parent::defineAttributes(), [
 			'id'                        => AttributeType::Number,

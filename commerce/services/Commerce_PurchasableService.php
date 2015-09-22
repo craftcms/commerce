@@ -5,12 +5,12 @@ use Commerce\Helpers\CommerceDbHelper;
 use Commerce\Interfaces\Purchasable;
 
 /**
- * Class Commerce_PurchasableService
+ * Purchasable service.
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   http://buildwithcraft.com/license Craft License Agreement
- * @see       http://buildwithcraft.com/commerce
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
  * @package   craft.plugins.commerce.services
  * @since     1.0
  */
