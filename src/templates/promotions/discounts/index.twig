@@ -17,7 +17,7 @@
             <th scope="col">Base Discount</th>
             <th scope="col">Per Item Discount</th>
             <th scope="col">Percent Discount</th>
-            <th scope="col">Enabled</th>
+            <th scope="col">Enabled?</th>
             <td class="thin"></td>
         </tr>
         </thead>
@@ -37,7 +37,13 @@
                 <td data-title="Base Discount">{{ discount.baseDiscount }}</td>
                 <td data-title="Per Item Discount">{{ discount.perItemDiscount }}</td>
                 <td data-title="Percent Discount">{{ discount.percentDiscount }}</td>
-                <td data-title="Enabled">{{ discount.enabled ? 'Yes'|t : 'No'|t }}</td>
+                <td data-title="Enabled">
+                    {% if discount.enabled %}
+                        <div class="status enabled"></div>
+                    {% else %}
+                        <div class="status"></div>
+                    {% endif %}
+                </td>
                 <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
             </tr>
         {% endfor %}

@@ -62,6 +62,24 @@ class Commerce_SaleModel extends BaseModel
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getDiscountAmountAsPercent()
+	{
+		$localeData = craft()->i18n->getLocaleData();
+		$percentSign = $localeData->getNumberSymbol('percentSign');
+		return -$this->discountAmount * 100 . "" . $percentSign;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getDiscountAmountAsFlat()
+	{
+		return -$this->discountAmount;
+	}
+
+	/**
 	 * @param float $price
 	 *
 	 * @return float

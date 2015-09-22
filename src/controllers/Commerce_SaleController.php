@@ -109,7 +109,6 @@ class Commerce_SaleController extends Commerce_BaseController
 			'dateFrom',
 			'dateTo',
 			'discountType',
-			'discountAmount',
 			'enabled'
 		];
 		foreach ($fields as $field)
@@ -117,14 +116,28 @@ class Commerce_SaleController extends Commerce_BaseController
 			$sale->$field = craft()->request->getPost($field);
 		}
 
+		$discountAmount = craft()->request->getPost('discountAmount');
+		if($sale->discountType == 'percent'){
+			$localeData = craft()->i18n->getLocaleData();
+			$percentSign = $localeData->getNumberSymbol('percentSign');
+			if(strpos($discountAmount,$percentSign) or floatval($discountAmount) >= 1){
+				$sale->discountAmount = floatval($discountAmount) / -100;
+			}else{
+				$sale->discountAmount = floatval($discountAmount);
+			};
+		}else{
+			$sale->discountAmount = -floatval($discountAmount);
+		}
+
 		$products = craft()->request->getPost('products', []);
+		if(!$products){
+			$products = [];
+		}
 		$productTypes = craft()->request->getPost('productTypes', []);
 		$groups = craft()->request->getPost('groups', []);
 
 		// Save it
-		if (craft()->commerce_sale->save($sale, $groups, $productTypes,
-			$products)
-		)
+		if (craft()->commerce_sale->save($sale, $groups, $productTypes,$products))
 		{
 			craft()->userSession->setNotice(Craft::t('Sale saved.'));
 			$this->redirectToPostedUrl($sale);

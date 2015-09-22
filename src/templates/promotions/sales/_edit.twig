@@ -18,11 +18,20 @@
     {{ getCsrfInput() }}
     {% if sale.id %}<input type="hidden" name="id" value="{{ sale.id }}">{% endif %}
 
+    {% set actionClasses = "" %}
+    {% if (sale.getErrors('discountAmount') or sale.getErrors('discountType')) %}
+        {% set actionClasses = "error" %}
+    {% endif %}
+
+    {% set saleClasses = "" %}
+    {% if(sale.getErrors('name')) %}
+        {% set saleClasses = "error" %}
+    {% endif %}
 
     {% set tabs = {
-        0: {'label':'Sale','url':'#sale'},
+        0: {'label':'Sale','url':'#sale','class': saleClasses},
         1: {'label':'Conditions','url':'#conditions'},
-        2: {'label':'Actions','url':'#actions'}
+        2: {'label':'Actions','url':'#actions','class': actionClasses}
         }
     %}
 
@@ -49,8 +58,7 @@
     }) }}
 
     {{ forms.checkboxField({
-        label: "Enabled"|t,
-        instructions: "Is it active?"|t,
+        label: "Is this sale enabled?"|t,
         id: 'enabled',
         name: 'enabled',
         value: 1,
@@ -100,11 +108,11 @@
         errors: sale.getErrors('productTypes'),
     }) }}
 
-    {{ forms.elementSelect({
+    {{ forms.elementSelectField({
         id: 'products',
         label: 'Products',
         name: 'products',
-        elements: products,
+        elements: products ? products : null,
         elementType: craft.elements.getElementType('Commerce_Product'),
         limit: null,
         instructions: "Products for which this sale will be applicable to. Leave blank for all products"|t,
@@ -125,14 +133,20 @@
         required: true,
     }) }}
 
-    {{ commerceForms.numberField({
+    {% set discountAmountValue %}{% spaceless %}
+        {% if sale.discountType == 'percent' %}
+        {{ sale.discountAmountAsPercent }}
+        {% else %}
+        {{ sale.discountAmountAsFlat }}
+        {% endif %}
+    {% endspaceless %}{% endset %}
+    {{ forms.textField({
         label: "Discount Amount"|t,
-        instructions: "Percentage or a flat value of discount (for example: -0,03 for 3% off)."|t,
+        instructions: "Percentage or a flat value of discount (for example: '3%' for 3% off, and '10' for $10 off)."|t,
         id: 'discountAmount',
         name: 'discountAmount',
-        value: sale.discountAmount,
-        type: 'number',
-        step: 'any',
+        required: true,
+        value: discountAmountValue,
         errors: sale.getErrors('discountAmount'),
     }) }}
 
