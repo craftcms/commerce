@@ -48,8 +48,7 @@
     }) }}
 
     {{ forms.checkboxField({
-        label: "Enabled"|t,
-        instructions: "Is it active?"|t,
+        label: "Is this discount enabled?"|t,
         id: 'enabled',
         name: 'enabled',
         value: 1,
@@ -119,7 +118,7 @@
         name: 'groups',
         options: groups,
         values: discount.getGroupsIds(),
-        errors: discount.getErrors('groups'),
+        errors: discount.getErrors('groups')
     }) }}
 
     {{ forms.multiselectField({

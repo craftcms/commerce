@@ -11,9 +11,8 @@
         <tr>
             <th scope="col">Name</th>
             <th scope="col">Dates</th>
-            <th scope="col">Discount Type</th>
             <th scope="col">Discount Amount</th>
-            <th scope="col">Enabled</th>
+            <th scope="col">Enabled?</th>
             <td class="thin"></td>
         </tr>
         </thead>
@@ -24,9 +23,20 @@
                 <td data-title="Dates">
                     {{ sale.dateFrom ? sale.dateFrom : 'no limit'|t }} - {{ sale.dateTo ? sale.dateTo : 'no limit'|t }}
                 </td>
-                <td data-title="Discount Type">{{ sale.discountType|t }}</td>
-                <td data-title="Discount Amount">{{ sale.discountAmount }}</td>
-                <td data-title="Enabled">{{ sale.enabled ? 'Yes'|t : 'No'|t }}</td>
+                <td data-title="Discount Amount">
+                    {% if sale.discountType == 'percent' %}
+                        {{ sale.discountAmountAsPercent }} {{ "off"|t }}
+                    {% else %}
+                        {{ sale.discountAmountAsFlat|commerceCurrency }} {{ "off"|t }}
+                    {% endif %}
+                </td>
+                <td data-title="Enabled">
+                    {% if sale.enabled %}
+                        <div class="status enabled"></div>
+                    {% else %}
+                        <div class="status"></div>
+                    {% endif %}
+                </td>
                 <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
             </tr>
         {% endfor %}
