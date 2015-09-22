@@ -3,10 +3,10 @@
 
    {% import 'commerce/_includes/forms' as forms %}
 
-   {%  for product in craft.market.products.find() %}
+   {%  for product in craft.commerce.products.find() %}
       <div class="row">
          <div class="eleven columns">
-            <div class="flash">{{ craft.session.getFlash('market') }}</div>
+            <div class="flash">{{ craft.session.getFlash('commerce') }}</div>
          </div>
       </div>
       <div class="row">
@@ -31,9 +31,9 @@
                <strong>SKU</strong> {{ product.implicitVariant.sku }}<br/>
                <strong>Price</strong>
                {% if product.implicitVariant.onSale %}
-                  <strike>{{ product.implicitVariant.price|marketCurrency }}</strike>   {{ product.implicitVariant.salePrice|marketCurrency }}
+                  <strike>{{ product.implicitVariant.price|commerceCurrency }}</strike>   {{ product.implicitVariant.salePrice|commerceCurrency }}
                {% else %}
-                  {{ product.implicitVariant.price|marketCurrency }}
+                  {{ product.implicitVariant.price|commerceCurrency }}
                {% endif %}<br/>
                <strong>Stock</strong> {{ product.implicitVariant.unlimitedStock ? 'Unlimited'|t : product.implicitVariant.stock }} <br/>
                {{ forms.addToCartButton(product.implicitVariant) }}

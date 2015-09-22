@@ -26,20 +26,20 @@
             </td>
             <td class="text-right">
                 {% if item.onSale %}
-                    <s>Price: {{ item.price|marketCurrency }}</s><br/>
-                    Sale Off: {{ item.saleAmount|marketCurrency }}<br/>
-                    Sale Price {{ item.salePrice|marketCurrency }}<br/>
-                    Sale Price Subtotal: {{ item.subtotalWithSale|marketCurrency }}<br/>
+                    <s>Price: {{ item.price|commerceCurrency }}</s><br/>
+                    Sale Off: {{ item.saleAmount|commerceCurrency }}<br/>
+                    Sale Price {{ item.salePrice|commerceCurrency }}<br/>
+                    Sale Price Subtotal: {{ item.subtotalWithSale|commerceCurrency }}<br/>
                 {% else %}
-                    Price: {{ item.price|marketCurrency }}<br/>
-                    Sale Price {{ item.salePrice|marketCurrency }}<br/>
-                    Sale Price Subtotal: {{ item.subtotalWithSale|marketCurrency }}<br/>
+                    Price: {{ item.price|commerceCurrency }}<br/>
+                    Sale Price {{ item.salePrice|commerceCurrency }}<br/>
+                    Sale Price Subtotal: {{ item.subtotalWithSale|commerceCurrency }}<br/>
                 {% endif %}
 
-                Discount: {{ item.discount|marketCurrency }}<br/>
-                Taxes: {{ item.tax|marketCurrency }}<br/>
-                Ship Total: {{ item.shippingCost|marketCurrency }}<br/>
-                Total: {{ item.total|marketCurrency }}<br/>
+                Discount: {{ item.discount|commerceCurrency }}<br/>
+                Taxes: {{ item.tax|commerceCurrency }}<br/>
+                Ship Total: {{ item.shippingCost|commerceCurrency }}<br/>
+                Total: {{ item.total|commerceCurrency }}<br/>
             </td>
         </tr>
         {%  endfor %}
@@ -49,7 +49,7 @@
             <td>{{ adjustment.type }}
             </td>
             <td> <strong>{{ adjustment.name }}</strong><br/>({{ adjustment.description }})</td>
-            <td class="text-right">{{ adjustment.amount|marketCurrency }}</td>
+            <td class="text-right">{{ adjustment.amount|commerceCurrency }}</td>
             </tr>
         {% endfor %}
 
@@ -61,10 +61,10 @@
             <td>
             </td>
             <td class="text-right">
-                Item Total: {{ cart.itemTotal|marketCurrency }}<br/>
-                Base Discount: {{ cart.baseDiscount|marketCurrency }}<br/>
-                Base Shipping Rate: {{ cart.baseShippingCost|marketCurrency }}<br/>
-                <h4>Total Price: {{ cart.totalPrice|marketCurrency }}</h4>
+                Item Total: {{ cart.itemTotal|commerceCurrency }}<br/>
+                Base Discount: {{ cart.baseDiscount|commerceCurrency }}<br/>
+                Base Shipping Rate: {{ cart.baseShippingCost|commerceCurrency }}<br/>
+                <h4>Total Price: {{ cart.totalPrice|commerceCurrency }}</h4>
             </td>
         </tr>
 

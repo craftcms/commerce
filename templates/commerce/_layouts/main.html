@@ -9,7 +9,7 @@
   <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
   <link rel="stylesheet" href="/commerce/style.css">
   {# global commerce variables #}
-  {% set cart = craft.market.getCart() %}
+  {% set cart = craft.commerce.getCart() %}
 </head>
 <body class="{{ bodyClass is defined ? bodyClass : '' }}">
 

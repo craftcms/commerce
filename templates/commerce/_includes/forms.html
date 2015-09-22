@@ -1,15 +1,15 @@
 {% macro shippingMethodForm(cart) %}
 
     <form method="POST" class="form-inline">
-        <input type="hidden" name="action" value="market/cartAddress/setShippingMethod">
+        <input type="hidden" name="action" value="commerce/cartAddress/setShippingMethod">
         <input type="hidden" name="redirect" value="commerce/checkout/payment">
         {{ getCsrfInput() }}
 
-        {% for id,method in craft.market.getShippingMethods('order') %}
+        {% for id,method in craft.commerce.getShippingMethods('order') %}
 
             <label>
                 <input type="radio" name="shippingMethodId" value="{{ id }}" {% if id == cart.shippingMethodId %}checked{% endif %} />
-                {{ method.name }}: {{ method.amount|marketCurrency }}
+                {{ method.name }}: {{ method.amount|commerceCurrency }}
             </label>
         {% endfor %}
 
@@ -21,7 +21,7 @@
 
 {% macro guestCheckoutForm(cart) %}
 <form method="post" class="form-horizontal">
-    <input type="hidden" name="action" value="market/cart/setEmail">
+    <input type="hidden" name="action" value="commerce/cart/setEmail">
     <input type="hidden" name="redirect" value="commerce/checkout/addresses">
     <label for="">Email</label>
     <input class="u-full-width" type="text" value="{{ cart.email }}" name="email" placeholder="email@site.com" />
@@ -68,7 +68,7 @@
 
 {% macro addToCartButton(purchasable) %}
     <form method="POST">
-        <input type="hidden" name="action" value="market/cart/add">
+        <input type="hidden" name="action" value="commerce/cart/add">
         <input type="hidden" name="redirect" value="commerce/cart">
         <input type="hidden" name="qty" value="1">
         <input type="hidden" name="purchasableId" value="{{ purchasable.purchasableId }}">
@@ -78,12 +78,12 @@
 
 {% macro addToCartForm(purchasables) %}
     <form method="POST">
-        <input type="hidden" name="action" value="market/cart/add">
+        <input type="hidden" name="action" value="commerce/cart/add">
         <input type="hidden" name="redirect" value="commerce/cart">
         <input type="hidden" name="qty" value="1">
         <select name="purchasableId">
             {% for purchasable in purchasables %}
-            <option {% if purchasable.stock <= 0 and purchasable.unlimitedStock == false  %}disabled {% endif %} value="{{ purchasable.purchasableId }}">{{ purchasable.sku }} {{ purchasable.description }} {{ purchasable.price|marketCurrency }}</option>
+            <option {% if purchasable.stock <= 0 and purchasable.unlimitedStock == false  %}disabled {% endif %} value="{{ purchasable.purchasableId }}">{{ purchasable.sku }} {{ purchasable.description }} {{ purchasable.price|commerceCurrency }}</option>
             {% endfor %}
         </select>
         <input type="submit" value="{{ "Add to cart"|t}}" class="button"/>
@@ -92,7 +92,7 @@
 
 {% macro removeFromCartButton(lineitem) %}
     <form method="POST">
-        <input type="hidden" name="action" value="market/cart/remove" />
+        <input type="hidden" name="action" value="commerce/cart/remove" />
         <input type="hidden" name="redirect" value="commerce/cart" />
         <input type="hidden" name="lineItemId" value="{{ lineitem.id }}" />
         {{ getCsrfInput() }}
@@ -102,7 +102,7 @@
 
 {% macro updateLineItemForm(lineitem) %}
     <form method="POST">
-        <input type="hidden" name="action" value="market/cart/updateLineItem">
+        <input type="hidden" name="action" value="commerce/cart/updateLineItem">
         <input type="hidden" name="redirect" value="commerce/cart">
         <input type="hidden" name="lineItemId" value="{{ lineitem.id }}">
         <input type="text" placeholder="My Note" size="20" name="note" value="{{ lineitem.note }}">
@@ -115,7 +115,7 @@
 
 {% macro updateCouponForm(cart) %}
     <form method="POST">
-        <input type="hidden" name="action" value="market/cart/applyCoupon">
+        <input type="hidden" name="action" value="commerce/cart/applyCoupon">
         <input type="hidden" name="redirect" value="commerce/cart">
         {{ getCsrfInput() }}
         <input type="text" name="couponCode" width="11" value="{{ cart.couponCode }}" placeholder="{{ "Coupon Code"|t }}"><br/>
@@ -127,7 +127,7 @@
 
 {% macro emptyCartForm(cart) %}
     <form method="POST">
-        <input type="hidden" name="action" value="market/cart/removeAll" />
+        <input type="hidden" name="action" value="commerce/cart/removeAll" />
         <input type="hidden" name="redirect" value="commerce/cart" />
         {{ getCsrfInput() }}
         <input class="button link" type="submit" value="Empty the Cart" />

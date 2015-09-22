@@ -1,8 +1,8 @@
 {# Address Form Macro #}
 {% macro addressForm(modelName, model) %}
 
-    {% set countries = craft.market.countriesList %}
-    {% set states = craft.market.statesArray %}
+    {% set countries = craft.commerce.countriesList %}
+    {% set states = craft.commerce.statesArray %}
     {% set addressFields = {
         firstName : 1,
         lastName : 1,
@@ -30,7 +30,7 @@
 
 <div class="form-group {% if model and model.getErrors('countryId') %}has-error{% endif %}">
     <label for="{{ modelName }}-countryId">Country</label>
-    {{ craft.market.renderFormMacro('select', {
+    {{ craft.commerce.renderFormMacro('select', {
     name: modelName ~ '[countryId]',
     value: model ? model.countryId : '',
     options: countries,
@@ -43,7 +43,7 @@
 
 <div class="form-group {% if model and model.getErrors('stateId') %}has-error{% endif %}">
     <label for="{{ modelName }}-stateId">State</label>
-    {{ craft.market.renderFormMacro('select', {
+    {{ craft.commerce.renderFormMacro('select', {
     name: modelName ~ '[stateId]',
     value: model ? model.stateId : '',
     options: model and states[model.countryId] is defined ? states[model.countryId] : [],
@@ -65,7 +65,7 @@
 
 {% set js %}
 
-var states = {{ craft.market.statesArray|json_encode|raw }};
+var states = {{ craft.commerce.statesArray|json_encode|raw }};
 
 $('.address-country select').change(function() {
     var cid = $(this).val(),
