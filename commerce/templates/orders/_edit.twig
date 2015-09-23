@@ -17,6 +17,7 @@
         {{ getCsrfInput() }}
         {% if order.id %}<input type="hidden" name="orderId" value="{{ order.id }}">{% endif %}
 
+
         <div class="grid first">
             <div class="item" data-position="left" data-min-colspan="2" data-max-colspan="3">
 
@@ -25,10 +26,10 @@
                     {% include "_includes/tabs" %}
 
                     {% if orderId is defined %}
+                    <h2>{{ "Details"|t }}</h2>
                     <table id="" class="data fullwidth collapsible">
                         <thead>
                         <tr>
-                            <th scope="col"></span></th>
                             <th scope="col">{{ 'Quantity'|t }}</th>
                             <th scope="col">{{ 'Item'|t }}</span></th>
                             <th scope="col">{{ 'Total'|t }}</th>
@@ -39,7 +40,6 @@
 
                         {%  for lineItem in order.lineItems %}
                             <tr>
-                                <td><a class="fieldtoggle" data-target=".more-{{ lineItem.id }}">&nbsp;</a></td>
                                 <td>{{ lineItem.qty }}</td>
                                 <td valign="top">
                                         {% if lineItem.snapshot.cpEditUrl != "#" %}
@@ -52,6 +52,9 @@
                                     {% endif %}
                                 </td>
                                 <td>
+                                    <strong>
+                                        <a class="fieldtoggle" data-target=".more-{{ lineItem.id }}">{{ "Total"|t }}</a>
+                                    </strong>
                                     <div class="hidden more-{{ lineItem.id }}">
                                         {{ "Item Price"|t }}<br/>
                                         {{ "Item Sale Amount"|t }}<br/>
@@ -60,11 +63,9 @@
                                         {{ "Shipping"|t }}<br/>
                                         {{ "Discount"|t }}<br/>
                                     </div>
-                                    <strong>Total</strong><br/>
-
                                 </td>
-                                <td>
-                                    <div class="hidden more-{{ lineItem.id }}">
+                                <td>{{ lineItem.total|commerceCurrency }}<br/><br/>
+                                    <div class="hidden more-{{ lineItem.id }}">{% spaceless %}
                                         {% if lineItem.onSale %}
                                             <strike>{{ lineItem.price|commerceCurrency }}<br/></strike>
                                         {% else %}
@@ -76,36 +77,33 @@
                                         {{ lineItem.shippingCost|commerceCurrency }}<br/>
                                         {{ lineItem.discount|commerceCurrency }}<br/>
                                     </div>
-                                    {{ lineItem.total|commerceCurrency }}
+
+                                    {% endspaceless %}
                                 </td>
                             </tr>
                         {% endfor %}
                         <tr>
                             <td></td>
                             <td></td>
-                            <td></td>
-                            <td><strong>Item Total</strong></td>
+                            <td><strong>{{ "Items Total" }}</strong></td>
                             <td>{{ order.itemTotal|commerceCurrency }}</td>
                         </tr>
                         <tr>
                             <td></td>
                             <td></td>
-                            <td></td>
-                            <td><strong>Base Shipping</strong></td>
+                            <td><strong>{{ "Base Shipping Cost"|t }}</strong></td>
                             <td>{{ order.baseShippingCost|commerceCurrency }}</td>
                         </tr>
                         <tr>
                             <td></td>
                             <td></td>
-                            <td></td>
-                            <td><strong>Base Discount</strong></td>
+                            <td><strong>{{ "Base Discount"|t }}</strong></td>
                             <td>{{ order.baseDiscount|commerceCurrency }}</td>
                         </tr>
                         <tr>
                             <td></td>
                             <td></td>
-                            <td></td>
-                            <td><strong>Final Total</strong></td>
+                            <td><strong>{{ "Total Price"|t }}</strong></td>
                             <td>{{ order.totalPrice|commerceCurrency }}</td>
                         </tr>
 
@@ -130,14 +128,13 @@
                     {% endfor %}
 
 
-                </div>{# end pane#}
-
+                <hr/>
+                <h2>{{ "Addresses"|t }}</h2>
                 <div class="grid first" data-cols="2">
                 {% import "commerce/_includes/forms/addressFields" as addressFields %}
                 <div class="item" data-colspan="1">
-                <div class="pane">
-                    <a class="small right" href="http://maps.google.com/maps?q={{ order.billingAddress.address1 }}+{{ order.billingAddress.address2 }}+{{ order.billingAddress.city }}+{{ order.billingAddress.zipCode }}+{{ order.billingAddress.stateText }}+{{ order.billingAddress.countryText }}" target="_blank">Map</a>
-                    <strong>Billing Address </strong><br/>
+
+                    <strong>Billing Address </strong> - <a class="small" href="http://maps.google.com/maps?q={{ order.billingAddress.address1 }}+{{ order.billingAddress.address2 }}+{{ order.billingAddress.city }}+{{ order.billingAddress.zipCode }}+{{ order.billingAddress.stateText }}+{{ order.billingAddress.countryText }}" target="_blank">Map</a><br/>
                     {{ order.billingAddress.firstName }} {{ order.billingAddress.lastName }}<br/>
                     {% if order.billingAddress.company %}{{ order.billingAddress.company }}<br/>{% endif %}
                     {% if order.billingAddress.address1 %}{{ order.billingAddress.address1 }}<br/>{% endif %}
@@ -155,13 +152,11 @@
 
                         {{ addressFields.addressFields(order.billingAddress,'billingAddress',countries,states) }}
                     </div>
-                </div>{#end pane#}
                 </div>{#end grid item#}
 
                 <div class="item" data-colspan="1">
-                <div class="pane">
-                    <a class="small right" href="http://maps.google.com/maps?q={{ order.shippingAddress.address1 }}+{{ order.shippingAddress.address2 }}+{{ order.shippingAddress.city }}+{{ order.shippingAddress.zipCode }}+{{ order.shippingAddress.stateText }}+{{ order.shippingAddress.countryText }}" target="_blank">Map</a>
-                    <strong>Shipping Address </strong><br/>
+
+                    <strong>Shipping Address </strong> - <a class="small" href="http://maps.google.com/maps?q={{ order.shippingAddress.address1 }}+{{ order.shippingAddress.address2 }}+{{ order.shippingAddress.city }}+{{ order.shippingAddress.zipCode }}+{{ order.shippingAddress.stateText }}+{{ order.shippingAddress.countryText }}" target="_blank">Map</a><br/>
                     {{ order.shippingAddress.firstName }} {{ order.shippingAddress.lastName }}<br/>
                     {% if order.shippingAddress.company %}{{ order.shippingAddress.company }}<br/>{% endif %}
                     {% if order.shippingAddress.address1 %}{{ order.shippingAddress.address1 }}<br/>{% endif %}
@@ -178,9 +173,11 @@
                     <div id="shippingAddressForm" class="hidden">
                         {{ addressFields.addressFields(order.shippingAddress,'shippingAddress',countries,states) }}
                     </div>
-                </div>{#end pane#}
-                </div>{#end grid item#}
-                </div>
+
+                </div>{# end grid item #}
+                </div>{# end grid #}
+
+                </div>{# end pane #}
 
                 <div class="pane first">
                     <h3>Order Status History</h3>
