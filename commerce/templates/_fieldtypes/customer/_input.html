@@ -5,8 +5,7 @@
 	<tr>
 		<th scope="col">{{ 'Order'|t }}</th>
 		<th scope="col">{{ 'Order Date'|t }}</th>
-		<th scope="col">{{ 'Total Price'|t }}</th>
-		<th scope="col">{{ 'Total Price'|t }}</th>
+		<th scope="col">{{ 'Total Paid'|t }}</th>
 		<th scope="col">{{ 'Status'|t }}</th>
 	</tr>
 	</thead>
@@ -15,7 +14,6 @@
 		<tr>
 			<td>{{ order.link }}</td>
 			<td>{{ order.dateOrdered|date }}</td>
-			<td>{{ order.totalPaid|commerceCurrency }}</td>
 			<td>{{ order.totalPaid|commerceCurrency }}</td>
 			<td>{{ order.orderStatus.printName|raw }}</td>
 		</tr>
