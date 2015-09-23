@@ -8,7 +8,7 @@ use Commerce\Adjusters\Commerce_TaxAdjuster;
 use Commerce\Helpers\CommerceDbHelper;
 
 /**
- * Order service.
+ * Class Commerce_OrderService
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -171,7 +171,6 @@ class Commerce_OrderService extends BaseApplicationComponent
 		return Commerce_OrderModel::populateModels($orders);
 	}
 
-
 	/**
 	 * @param Commerce_OrderModel $order
 	 *
@@ -191,7 +190,7 @@ class Commerce_OrderService extends BaseApplicationComponent
 	 */
 	public function save ($order)
 	{
-		if (!$order->dateOrdered)
+		if ($order->dateOrdered)
 		{
 			//raising event
 			$event = new Event($this, [
@@ -246,7 +245,6 @@ class Commerce_OrderService extends BaseApplicationComponent
 				if ($address = craft()->commerce_address->getAddressById($lastShippingAddressId))
 				{
 					$order->shippingAddressId = $address->id;
-					$order->shippingAddressData = JsonHelper::encode($address->attributes);
 				}
 			}
 
@@ -257,7 +255,6 @@ class Commerce_OrderService extends BaseApplicationComponent
 				if ($address = craft()->commerce_address->getAddressById($lastBillingAddressId))
 				{
 					$order->billingAddressId = $address->id;
-					$order->billingAddressData = JsonHelper::encode($address->attributes);
 				}
 			}
 		}

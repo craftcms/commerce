@@ -11,7 +11,7 @@
 
 {% block main %}
 
-    <form id="order-form" method="post" accept-charset="UTF-8">
+    <form id="order-form" method="post" accept-charset="UTF-8" data-saveshortcut data-saveshortcut-redirect="{{ order.cpEditUrl }}" data-confirm-unload>
         <input type="hidden" name="action" value="commerce/order/saveOrder">
         <input type="hidden" name="redirect" value="commerce/orders">
         {{ getCsrfInput() }}
@@ -132,8 +132,57 @@
 
                 </div>{# end pane#}
 
-
+                <div class="grid first" data-cols="2">
+                {% import "commerce/_includes/forms/addressFields" as addressFields %}
+                <div class="item" data-colspan="1">
                 <div class="pane">
+                    <a class="small right" href="http://maps.google.com/maps?q={{ order.billingAddress.address1 }}+{{ order.billingAddress.address2 }}+{{ order.billingAddress.city }}+{{ order.billingAddress.zipCode }}+{{ order.billingAddress.stateText }}+{{ order.billingAddress.countryText }}" target="_blank">Map</a>
+                    <strong>Billing Address </strong><br/>
+                    {{ order.billingAddress.firstName }} {{ order.billingAddress.lastName }}<br/>
+                    {% if order.billingAddress.company %}{{ order.billingAddress.company }}<br/>{% endif %}
+                    {% if order.billingAddress.address1 %}{{ order.billingAddress.address1 }}<br/>{% endif %}
+                    {% if order.billingAddress.address2 %}{{ order.billingAddress.address2 }}<br/>{% endif %}
+                    {{ order.billingAddress.city }}, {{ order.billingAddress.zipCode }}<br/>
+                    {% if order.billingAddress.phone %}{{ order.billingAddress.phone }}<br/>{% endif %}
+                    {% if order.billingAddress.alternativePhone %}{{ order.billingAddress.alternativePhone }}<br/>{% endif %}
+                    {% if order.billingAddress.stateText %}{{ order.billingAddress.stateText }}<br/>{% endif %}
+                    {{ order.billingAddress.countryText }}<br/>
+
+                    {% if order.dateOrdered %}
+                        <a class="small fieldtoggle" data-target="#billingAddressForm">Edit Address</a>
+                    {% endif %}
+                    <div id="billingAddressForm" class="hidden">
+
+                        {{ addressFields.addressFields(order.billingAddress,'billingAddress',countries,states) }}
+                    </div>
+                </div>{#end pane#}
+                </div>{#end grid item#}
+
+                <div class="item" data-colspan="1">
+                <div class="pane">
+                    <a class="small right" href="http://maps.google.com/maps?q={{ order.shippingAddress.address1 }}+{{ order.shippingAddress.address2 }}+{{ order.shippingAddress.city }}+{{ order.shippingAddress.zipCode }}+{{ order.shippingAddress.stateText }}+{{ order.shippingAddress.countryText }}" target="_blank">Map</a>
+                    <strong>Shipping Address </strong><br/>
+                    {{ order.shippingAddress.firstName }} {{ order.shippingAddress.lastName }}<br/>
+                    {% if order.shippingAddress.company %}{{ order.shippingAddress.company }}<br/>{% endif %}
+                    {% if order.shippingAddress.address1 %}{{ order.shippingAddress.address1 }}<br/>{% endif %}
+                    {% if order.shippingAddress.address2 %}{{ order.shippingAddress.address2 }}<br/>{% endif %}
+                    {{ order.shippingAddress.city }}, {{ order.shippingAddress.zipCode }}<br/>
+                    {% if order.shippingAddress.phone %}{{ order.shippingAddress.phone }}<br/>{% endif %}
+                    {% if order.shippingAddress.alternativePhone %}{{ order.shippingAddress.alternativePhone }}<br/>{% endif %}
+                    {% if order.shippingAddress.stateText %}{{ order.shippingAddress.stateText }}<br/>{% endif %}
+                    {{ order.shippingAddress.countryText }}<br/>
+
+                    {% if order.dateOrdered %}
+                        <a class="small fieldtoggle" data-target="#shippingAddressForm">Edit Address</a>
+                    {% endif %}
+                    <div id="shippingAddressForm" class="hidden">
+                        {{ addressFields.addressFields(order.shippingAddress,'shippingAddress',countries,states) }}
+                    </div>
+                </div>{#end pane#}
+                </div>{#end grid item#}
+                </div>
+
+                <div class="pane first">
                     <h3>Order Status History</h3>
 
                     <table class="data fullwidth">
@@ -174,6 +223,7 @@
                         </tbody>
                     </table>
                 </div>
+
                 <div class="pane">
 
                     <h3>Transactions</h3>
@@ -274,45 +324,12 @@
                         <div class="btngroup right">
                             <input type="button" class="btn small formsubmit" value="{{ 'Delete Order'|t }}"
                                    data-action="commerce/order/deleteOrder"
-                                   data-confirm="{{ 'Are you sure you want to delete this order?'|t }}"
+                                   data-confirm="{{ 'Are you sure you want to delete this order? Please note this does not refund the customer.'|t }}"
                                    data-redirect="commerce/orders">
                         </div>
                     {% endif %}
 
                 </div>
-
-                {% if order.billingAddressId %}
-                <div class="pane">
-                    <a class="btn right small" href="http://maps.google.com/maps?q={{ order.billingAddress.address1 }}+{{ order.billingAddress.address2 }}+{{ order.billingAddress.city }}+{{ order.billingAddress.zipCode }}+{{ order.billingAddress.stateText }}+{{ order.billingAddress.countryText }}" target="_blank">Map</a>
-                    <strong>Billing Address </strong><br/>
-                    {{ order.billingAddress.firstName }} {{ order.billingAddress.lastName }}<br/>
-                    {% if order.billingAddress.company %}{{ order.billingAddress.company }}<br/>{% endif %}
-                    {% if order.billingAddress.address1 %}{{ order.billingAddress.address1 }}<br/>{% endif %}
-                    {% if order.billingAddress.address2 %}{{ order.billingAddress.address2 }}<br/>{% endif %}
-                    {{ order.billingAddress.city }}, {{ order.billingAddress.zipCode }}<br/>
-                    {% if order.billingAddress.phone %}{{ order.billingAddress.phone }}<br/>{% endif %}
-                    {% if order.billingAddress.alternativePhone %}{{ order.billingAddress.alternativePhone }}<br/>{% endif %}
-                    {% if order.billingAddress.stateText %}{{ order.billingAddress.stateText }}<br/>{% endif %}
-                    {{ order.billingAddress.countryText }}<br/>
-
-                </div>
-                {% endif %}
-                {% if order.shippingAddressId %}
-                <div class="pane">
-                    <a class="btn right small" href="http://maps.google.com/maps?q={{ order.shippingAddress.address1 }}+{{ order.shippingAddress.address2 }}+{{ order.shippingAddress.city }}+{{ order.shippingAddress.zipCode }}+{{ order.shippingAddress.stateText }}+{{ order.shippingAddress.countryText }}" target="_blank">Map</a>
-                    <strong>Shipping Address </strong><br/>
-                    {{ order.shippingAddress.firstName }} {{ order.shippingAddress.lastName }}<br/>
-                    {% if order.shippingAddress.company %}{{ order.shippingAddress.company }}<br/>{% endif %}
-                    {% if order.shippingAddress.address1 %}{{ order.shippingAddress.address1 }}<br/>{% endif %}
-                    {% if order.shippingAddress.address2 %}{{ order.shippingAddress.address2 }}<br/>{% endif %}
-                    {{ order.shippingAddress.city }}, {{ order.shippingAddress.zipCode }}<br/>
-                    {% if order.shippingAddress.phone %}{{ order.shippingAddress.phone }}<br/>{% endif %}
-                    {% if order.shippingAddress.alternativePhone %}{{ order.shippingAddress.alternativePhone }}<br/>{% endif %}
-                    {% if order.shippingAddress.stateText %}{{ order.shippingAddress.stateText }}<br/>{% endif %}
-                    {{ order.shippingAddress.countryText }}
-
-                </div>
-                {% endif %}
 
                 <!-- status pane -->
                 <div class="pane">
@@ -328,16 +345,36 @@
 
                     {{ forms.textareaField({
                         label: 'Message'|t,
-                        instructions: "Leave comment if you change the status."|t,
+                        instructions: "Status change message."|t,
                         name: 'message',
                         value: message is defined ? message : '',
                         errors: order.getErrors('message'),
                     }) }}
                 </div>
 
-                <div class="buttons first">
-                    <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
-                </div>
+                <table class="inputs fullwidth">
+                    <tr>
+                        <td class="thin">
+                            <div class="btngroup submit first">
+                                <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
+
+                                <div class="btn submit menubtn"></div>
+                                <div class="menu">
+                                    <ul>
+                                        <li><a class="formsubmit" data-redirect="{{ order.cpEditUrl }}">
+                                                {{ "Save and continue editing"|t }}
+                                                {{ forms.optionShortcutLabel('S') }}
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+
+                        </td>
+                    </tr>
+                </table>
             </div>
         </div>
 
