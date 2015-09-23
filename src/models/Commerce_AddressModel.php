@@ -44,7 +44,7 @@ class Commerce_AddressModel extends BaseModel
 	 */
 	public function getCpEditUrl ()
 	{
-		return UrlHelper::getCpUrl('commerce/customers/'.$this->customerId.'/addresses/'.$this->id);
+		return UrlHelper::getCpUrl('commerce/addresses/'.$this->id);
 	}
 
 	/**

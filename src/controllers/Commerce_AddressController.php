@@ -40,13 +40,12 @@ class Commerce_AddressController extends Commerce_BaseController
 			}
 		}
 
-		$variables['title'] = Craft::t('Address #{id}',
-			['id' => $variables['id']]);
+		$variables['title'] = Craft::t('Edit Address',['id' => $variables['id']]);
 
 		$variables['countries'] = craft()->commerce_country->getFormList();
 		$variables['states'] = craft()->commerce_state->getGroupedByCountries();
 
-		$this->renderTemplate('commerce/customers/addresses/_edit', $variables);
+		$this->renderTemplate('commerce/addresses/_edit', $variables);
 	}
 
 	/**

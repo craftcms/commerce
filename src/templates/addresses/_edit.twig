@@ -1,20 +1,18 @@
 {% extends "commerce/_layouts/cp" %}
 
-{% set crumbs = [
-{ label: "Commerce"|t, url: url('commerce') },
-{ label: "Customers"|t, url: url('commerce/customers') },
-{ label: "Customer #{id}"|t({id: customerId}), url: url('commerce/customers/' ~ customerId) },
-] %}
-
 {% import "_includes/forms" as forms %}
 
 {% set content %}
 <form method="post" accept-charset="UTF-8" data-saveshortcut>
-    <input type="hidden" name="action" value="commerce/address/save">
-    <input type="hidden" name="redirect" value="commerce/customers/{{ customerId }}">
-    {{ getCsrfInput() }}
 
-    <input type="hidden" name="id" value="{{ address.id }}">
+    {# Are we editing an address book address for a user? #}
+    {% if address.id %}
+        <input type="hidden" name="action" value="commerce/address/save">
+        <input type="hidden" name="redirect" value="{{ address.customer.user.cpEditUrl }}#profile">
+        <input type="hidden" name="id" value="{{ address.id }}">
+    {% endif %}
+
+    {{ getCsrfInput() }}
 
     {{ forms.textField({
         label: "First Name"|t,
@@ -114,38 +112,36 @@
 {% endset %}
 
 {% set js %}
-{#<script>#}
-var states = {{ states|json_encode|raw }},
-stateName = {{ address.stateName|json_encode|raw }};
+        var states = {{ states|json_encode|raw }}
+        var stateName = {{ address.stateName|json_encode|raw }};
 
-$(function () {
-$('#countryId').selectize({
-dropdownParent: 'body',
-onChange: function(value) {
-console.log(value);
-if(!states.hasOwnProperty(value)) {
-$stateSelect.clearOptions();
-} else {
-var options = [];
-for(var id in states[value]) {
-options.push({value: id, text: states[value][id]});
-}
-$stateSelect.createItem(options);
-}
-}
-});
-var $stateSelect = $('#stateValue').selectize({
-dropdownParent: 'body',
-create: true,
-persist: false,
-sortField: 'text'
-})[0].selectize;
+        $(function () {
+            $('#countryId').selectize({
+                dropdownParent: 'body',
+                onChange: function (value) {
+                    if (!states.hasOwnProperty(value)) {
+                        $stateSelect.clearOptions();
+                    } else {
+                        var options = [];
+                        for (var id in states[value]) {
+                            options.push({value: id, text: states[value][id]});
+                        }
+                        $stateSelect.createItem(options);
+                    }
+                }
+            });
+            var $stateSelect = $('#stateValue').selectize({
+                dropdownParent: 'body',
+                create: true,
+                persist: false,
+                sortField: 'text'
+            })[0].selectize;
 
-if(!$stateSelect.getValue()) {
-$stateSelect.addOption({value: stateName, text: stateName});
-$stateSelect.setValue(stateName);
-}
+            if (!$stateSelect.getValue()) {
+                $stateSelect.addOption({value: stateName, text: stateName});
+                $stateSelect.setValue(stateName);
+            }
 
-});
+        });
 {% endset %}
 {% includeJs js %}
