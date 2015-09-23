@@ -188,7 +188,8 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 			'orderStatusId' => AttributeType::Mixed,
 			'completed'     => AttributeType::Bool,
 			'customer'      => AttributeType::Mixed,
-			'customerId'    => AttributeType::Mixed
+			'customerId'    => AttributeType::Mixed,
+			'user'          => AttributeType::Mixed,
 		];
 	}
 
@@ -267,11 +268,11 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 			$query->andWhere(DbHelper::parseParam('orders.orderStatusId', $criteria->orderStatusId, $query->params));
 		}
 
-		if ($criteria->customer)
+		if($criteria->user)
 		{
-			if ($criteria->customer instanceof UserModel)
+			if ($criteria->user instanceof UserModel)
 			{
-				$id = craft()->commerce_customer->getById($criteria->customer->id)->id;
+				$id = craft()->commerce_customer->getById($criteria->user->id)->id;
 				if ($id)
 				{
 					$criteria->customerId = $id;
@@ -282,7 +283,10 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 					$query->andWhere(DbHelper::parseParam('orders.customerId', 'IS NULL', $query->params));
 				}
 			}
+		}
 
+		if ($criteria->customer)
+		{
 			if ($criteria->customer instanceof Commerce_CustomerModel)
 			{
 				if ($criteria->customer->id)

@@ -17,8 +17,7 @@
                         </tr>
                     </thead>
                     <tbody>
-
-                        {% for order in craft.commerce.orders.customer(currentUser).find() %}
+                        {% for order in craft.commerce.orders.customer(craft.commerce.customer).find() %}
                             <tr>
                                 <td><a href="{{ url('commerce/customer/order', { orderId: order.id }) }}">Order #{{ order.id }}</a></td>
                                 <td>{{ order.dateOrdered }}</li>
