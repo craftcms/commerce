@@ -65,6 +65,9 @@ class Commerce_OrderController extends Commerce_BaseController
 			$variables['title'] = Craft::t('Create a new Order');
 		}
 
+		$variables['countries'] = craft()->commerce_country->getFormList();
+		$variables['states'] = craft()->commerce_state->getGroupedByCountries();
+
 		$variables['orderStatuses'] = \CHtml::listData(craft()->commerce_orderStatus->getAll(),
 			'id', 'name');
 		if ($variables['order']->orderStatusId == null)
@@ -226,7 +229,7 @@ class Commerce_OrderController extends Commerce_BaseController
 		}
 
 		$orderStatusId = craft()->request->getPost('orderStatusId');
-		if ($orderStatusId == 0 || $orderStatusId == null)
+		if (!$orderStatusId)
 		{
 			$order->orderStatusId = null;
 		}
@@ -236,6 +239,15 @@ class Commerce_OrderController extends Commerce_BaseController
 		}
 
 		$order->message = craft()->request->getPost('message');
+
+		/** @var Commerce_AddressModel $billingAddress */
+		$billingAddress = Commerce_AddressModel::populateModel(craft()->request->getPost('billingAddress'));
+		$order->setBillingAddress($billingAddress);
+		$shippingAddress = Commerce_AddressModel::populateModel(craft()->request->getPost('shippingAddress'));
+		$order->setShippingAddress($shippingAddress);
+
+		$order->billingAddressId = null;
+		$order->shippingAddressId = null;
 
 		return $order;
 	}
