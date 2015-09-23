@@ -220,7 +220,7 @@ class Commerce_OrderStatusService extends BaseApplicationComponent
 			$craftEmail->subject = craft()->templates->renderString($email->subject,
 				$renderVariables);
 
-			$craftEmail->htmlBody = craft()->templates->render($email->templatePath,
+			$craftEmail->body = $craftEmail->htmlBody = craft()->templates->render($email->templatePath,
 				$renderVariables);
 
 			if (!craft()->email->sendEmail($craftEmail))
