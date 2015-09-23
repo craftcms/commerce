@@ -1,6 +1,8 @@
 <?php
 namespace Craft;
 
+use Commerce\Traits\Commerce_ModelRelationsTrait;
+
 /**
  * Customer model.
  *
