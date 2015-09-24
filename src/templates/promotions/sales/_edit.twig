@@ -96,6 +96,7 @@
         options: groups,
         values: sale.getGroupsIds(),
         errors: sale.getErrors('groups'),
+        class: 'selectize fullwidth',
     }) }}
 
     {{ forms.multiselectField({
@@ -106,6 +107,7 @@
         options: types,
         values: sale.getProductTypesIds(),
         errors: sale.getErrors('productTypes'),
+        class: 'selectize fullwidth',
     }) }}
 
     {{ forms.elementSelectField({

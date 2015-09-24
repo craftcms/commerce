@@ -1,16 +1,5 @@
 @charset "UTF-8";
 
-.selectize-control.multi .selectize-input [data-value] {
-    background-image: none !important;
-}
-
-.select-wide {
-    display: block;
-    box-shadow: none;
-    -webkit-box-shadow: none;
-    -moz-box-shadow: none;
-}
-
 #variantButtons{
     margin-top:10px;
 }

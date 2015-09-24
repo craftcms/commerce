@@ -70,6 +70,7 @@
         options: emails,
         values: emailsIds is defined ? emailsIds : orderStatus.getEmailsIds(),
         errors: orderStatus.getErrors('emails'),
+        class: 'selectize fullwidth',
     }) }}
 
     {{ forms.checkboxField({
