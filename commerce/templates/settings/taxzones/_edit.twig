@@ -53,7 +53,7 @@
         values: taxZone.getCountriesIds(),
         errors: taxZone.getErrors('countries'),
         required: true,
-
+        class: 'selectize fullwidth',
     }) }}
 
     {{ forms.multiselectField({
@@ -65,6 +65,7 @@
         values: taxZone.getStatesIds(),
         errors: taxZone.getErrors('states'),
         required: true,
+        class: 'selectize fullwidth',
     }) }}
 
     {{ forms.checkboxField({

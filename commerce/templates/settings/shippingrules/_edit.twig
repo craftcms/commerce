@@ -52,7 +52,7 @@
         id: 'countries',
         name: 'countryId',
         options: countries,
-        class: 'select-wide',
+        class: 'selectize fullwidth',
         value: shippingRule.countryId,
         errors: shippingRule.getErrors('countries'),
     }) }}
@@ -63,7 +63,7 @@
         id: 'states',
         name: 'stateId',
         options: states[shippingRule.countryId] is defined ? states[shippingRule.countryId] : null,
-        class: 'select-wide',
+        class: 'selectize fullwidth',
         value: shippingRule.stateId,
         errors: shippingRule.getErrors('states'),
     }) }}

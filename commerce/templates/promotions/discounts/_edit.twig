@@ -118,7 +118,8 @@
         name: 'groups',
         options: groups,
         values: discount.getGroupsIds(),
-        errors: discount.getErrors('groups')
+        errors: discount.getErrors('groups'),
+        class: 'selectize fullwidth',
     }) }}
 
     {{ forms.multiselectField({
@@ -129,6 +130,7 @@
         options: types,
         values: discount.getProductTypesIds(),
         errors: discount.getErrors('productTypes'),
+        class: 'selectize fullwidth',
     }) }}
 
     {% set productsField %}
