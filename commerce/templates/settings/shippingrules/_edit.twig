@@ -230,7 +230,7 @@
 var states = {{ states|json_encode|raw }};
 
 $(function () {
-    $('#countries, #states, #methodId').selectize({
+    $('#countries, #states').selectize({
         plugins: ['remove_button'],
         dropdownParent: 'body'
     });
