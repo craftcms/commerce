@@ -52,7 +52,7 @@ class Commerce_AddressModel extends BaseModel
 	 */
 	public function getStateText ()
 	{
-		return $this->stateName ?: ($this->stateId ? $this->state->name : '');
+		return $this->stateName ? ($this->stateId ? $this->state->name : '') : '';
 	}
 
 	/**
