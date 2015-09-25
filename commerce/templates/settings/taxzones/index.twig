@@ -22,7 +22,21 @@
                             href="{{ url('commerce/settings/taxzones/'~taxZone.id) }}">{{ taxZone.name }}</a></td>
                 <td data-title="Description">{{ taxZone.description }}</td>
                 <td data-title="Type">{{ taxZone.countryBased ? 'Country Based'|t : 'State Based'|t }}</td>
-                <td data-title="Type">{{ taxZone.getCountriesNames()|join(', ') }}{{ taxZone.getStatesNames()|join(', ') }}</td>
+                <td data-title="CountryState">
+                    {%  set countryCount = taxZone.getCountriesNames()|length%}
+                    {% if countryCount > 3 %}
+                        {{ taxZone.getCountriesNames()|slice(0,3)|join(', ') }} ({{ (countryCount - 3) ~ " more"|t }}&hellip;)
+                    {% else %}
+                        {{ taxZone.getCountriesNames()|join(', ') }}
+                    {% endif %}
+
+                    {%  set stateCount = taxZone.getStatesNames()|length%}
+                    {% if stateCount > 3 %}
+                        {{ taxZone.getStatesNames()|slice(0,3)|join(', ') }} ({{ (stateCount - 3) ~ " more"|t }}&hellip;)
+                    {% else %}
+                        {{ taxZone.getStatesNames()|join(', ') }}
+                    {% endif %}
+                </td>
                 <td data-title="Is Default?">{{ taxZone.default ? 'Yes'|t : 'No'|t }}</td>
                 <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
             </tr>
