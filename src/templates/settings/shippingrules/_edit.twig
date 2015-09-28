@@ -225,7 +225,7 @@
 
 {% endset %}
 
-{% set js %}
+{% includejs %}
 {#<script>#}
 var states = {{ states|json_encode|raw }};
 
@@ -258,5 +258,4 @@ $(function () {
         }
     });
 });
-{% endset %}
-{% includeJs js %}
+{% endincludejs %}

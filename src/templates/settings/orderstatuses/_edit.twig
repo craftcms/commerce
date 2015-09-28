@@ -88,7 +88,7 @@
 
 {% endset %}
 
-{% set js %}
+{% includejs %}
 {% if not orderStatus.handle %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
 $(function () {
 
@@ -108,5 +108,4 @@ $(function () {
         dropdownParent: 'body'
     });
 });
-{% endset %}
-{% includeJs js %}
+{% endincludejs %}

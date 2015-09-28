@@ -36,12 +36,11 @@
 
 {% endset %}
 
-{% set js %}
+{% includejs %}
 var adminTable = new Craft.AdminTable({
 tableSelector: '#taxcategories',
 deleteAction: 'commerce/taxCategory/delete',
 minObjects: 1,
 confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
 });
-{% endset %}
-{% includeJs js %}
+{% endincludejs %}

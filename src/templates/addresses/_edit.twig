@@ -111,7 +111,7 @@
 
 {% endset %}
 
-{% set js %}
+{% includejs %}
         var states = {{ states|json_encode|raw }}
         var stateName = {{ address.stateName|json_encode|raw }};
 
@@ -143,5 +143,4 @@
             }
 
         });
-{% endset %}
-{% includeJs js %}
+{% endincludejs %}
