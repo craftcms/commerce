@@ -111,7 +111,7 @@ class Commerce_ProductTypeModel extends BaseModel
 			'name'                 => [AttributeType::Name, 'required' => true],
 			'handle'               => [AttributeType::Handle, 'required' => true],
 			'hasUrls'              => AttributeType::Bool,
-			'hasDimensions'        => [AttributeType::Bool, 'default' => true],
+			'hasDimensions'        => AttributeType::Bool,
 			'hasVariants'          => AttributeType::Bool,
 			'titleFormat'          => [AttributeType::String, 'required' => true, 'default' => '{sku}'],
 			'template'             => AttributeType::Template,
