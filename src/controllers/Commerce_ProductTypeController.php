@@ -17,7 +17,9 @@ class Commerce_ProductTypeController extends Commerce_BaseController
 
     public function actionIndex ()
     {
-        $this->requireAdmin();
+        if(!craft()->userSession->getUser()->can('accessCommerce')){
+            throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
+        }
 
         $productTypes = craft()->commerce_productType->getAll();
         $this->renderTemplate('commerce/settings/producttypes/index',
@@ -26,7 +28,9 @@ class Commerce_ProductTypeController extends Commerce_BaseController
 
     public function actionEditProductType (array $variables = [])
     {
-        $this->requireAdmin();
+        if(!craft()->userSession->getUser()->can('accessCommerce')){
+            throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
+        }
 
         $variables['brandNewProductType'] = false;
 
@@ -63,7 +67,9 @@ class Commerce_ProductTypeController extends Commerce_BaseController
 
     public function actionSaveProductType ()
     {
-        $this->requireAdmin();
+        if(!craft()->userSession->getUser()->can('accessCommerce')){
+            throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
+        }
 
         $this->requirePostRequest();
 
@@ -121,7 +127,10 @@ class Commerce_ProductTypeController extends Commerce_BaseController
 
     public function actionDeleteProductType ()
     {
-        $this->requireAdmin();
+        if(!craft()->userSession->getUser()->can('accessCommerce')){
+            throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
+        }
+
         $this->requirePostRequest();
         $this->requireAjaxRequest();
 

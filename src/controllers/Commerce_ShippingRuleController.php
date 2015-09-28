@@ -18,7 +18,10 @@ class Commerce_ShippingRuleController extends Commerce_BaseController
 	 */
 	public function actionIndex ()
 	{
-		$this->requireAdmin();
+		if (!craft()->userSession->getUser()->can('accessCommerce'))
+		{
+			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
+		}
 
 		$methodsExist = craft()->commerce_shippingMethod->exists();
 		$shippingRules = craft()->commerce_shippingRule->getAll([
@@ -37,7 +40,10 @@ class Commerce_ShippingRuleController extends Commerce_BaseController
 	 */
 	public function actionEdit (array $variables = [])
 	{
-		$this->requireAdmin();
+		if (!craft()->userSession->getUser()->can('accessCommerce'))
+		{
+			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
+		}
 
 		if (empty($variables['shippingRule']))
 		{
@@ -77,7 +83,11 @@ class Commerce_ShippingRuleController extends Commerce_BaseController
 	 */
 	public function actionSave ()
 	{
-		$this->requireAdmin();
+		if (!craft()->userSession->getUser()->can('accessCommerce'))
+		{
+			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
+		}
+
 		$this->requirePostRequest();
 
 		$shippingRule = new Commerce_ShippingRuleModel();
@@ -111,7 +121,11 @@ class Commerce_ShippingRuleController extends Commerce_BaseController
 	 */
 	public function actionReorder ()
 	{
-		$this->requireAdmin();
+		if (!craft()->userSession->getUser()->can('accessCommerce'))
+		{
+			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
+		}
+
 		$this->requirePostRequest();
 		$this->requireAjaxRequest();
 
@@ -126,7 +140,10 @@ class Commerce_ShippingRuleController extends Commerce_BaseController
 	 */
 	public function actionDelete ()
 	{
-		$this->requireAdmin();
+		if(!craft()->userSession->getUser()->can('accessCommerce')){
+			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
+		}
+
 		$this->requirePostRequest();
 		$this->requireAjaxRequest();
 

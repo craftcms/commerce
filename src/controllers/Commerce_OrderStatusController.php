@@ -15,7 +15,9 @@ class Commerce_OrderStatusController extends Commerce_BaseController
 {
 	public function actionIndex (array $variables = [])
 	{
-		$this->requireAdmin();
+		if(!craft()->userSession->getUser()->can('accessCommerce')){
+			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
+		}
 
 		$variables['orderStatuses'] = craft()->commerce_orderStatus->getAll();
 
@@ -31,7 +33,9 @@ class Commerce_OrderStatusController extends Commerce_BaseController
 	public function actionEdit (array $variables = [])
 	{
 
-		$this->requireAdmin();
+		if(!craft()->userSession->getUser()->can('accessCommerce')){
+			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
+		}
 
 		if (empty($variables['orderStatus']))
 		{
@@ -73,7 +77,10 @@ class Commerce_OrderStatusController extends Commerce_BaseController
 	 */
 	public function actionSave ()
 	{
-		$this->requireAdmin();
+		if(!craft()->userSession->getUser()->can('accessCommerce')){
+			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
+		}
+
 		$this->requirePostRequest();
 
 		$orderStatus = new Commerce_OrderStatusModel();
@@ -105,7 +112,10 @@ class Commerce_OrderStatusController extends Commerce_BaseController
 	 */
 	public function actionDelete ()
 	{
-		$this->requireAdmin();
+		if(!craft()->userSession->getUser()->can('accessCommerce')){
+			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
+		}
+
 		$this->requireAjaxRequest();
 
 		$orderStatusId = craft()->request->getRequiredPost('id');
