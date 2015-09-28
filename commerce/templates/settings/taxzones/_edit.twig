@@ -84,7 +84,7 @@
 
 {% endset %}
 
-{% set js %}
+{% includejs %}
 {#<script>#}
 $(function () {
     $('#countries, #states').selectize({
@@ -112,5 +112,4 @@ $(function () {
     $('[name=countryBased]:checked').trigger('change');
 });
 {#</script>#}
-{% endset %}
-{% includeJs js %}
+{% endincludejs %}

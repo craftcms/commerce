@@ -82,11 +82,10 @@
 
 {% endset %}
 
-{% set js %}
+{% includejs %}
 $(function() {
     $('#taxZoneId, #taxCategoryId').selectize({
         dropdownParent: 'body'
     });
 });
-{% endset %}
-{% includeJs js %}
+{% endincludejs %}

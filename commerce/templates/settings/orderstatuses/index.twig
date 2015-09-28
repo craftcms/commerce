@@ -42,12 +42,11 @@
 {% endset %}
 
 
-{% set js %}
+{% includejs %}
     new Craft.AdminTable({
         tableSelector: '#orderStatuses',
         deleteAction: 'commerce/orderStatus/delete',
         minObjects: 1,
         confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
     });
-{% endset %}
-{% includeJs js %}
+{% endincludejs %}

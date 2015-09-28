@@ -162,12 +162,11 @@
 
 {% endset %}
 
-{% set js %}
+{% includejs %}
 $(function() {
     $('#groups, #productTypes').selectize({
         plugins: ['remove_button'],
         dropdownParent: 'body'
     });
 });
-{% endset %}
-{% includeJs js %}
+{% endincludejs %}

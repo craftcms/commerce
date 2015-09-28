@@ -55,11 +55,10 @@
 
 {% endset %}
 
-{% set js %}
+{% includejs %}
 $(function() {
 $('#countryId').selectize({
 dropdownParent: 'body'
 });
 });
-{% endset %}
-{% includeJs js %}
+{% endincludejs %}

@@ -31,12 +31,11 @@
 {% endset %}
 
 
-{% set js %}
+{% includejs %}
 var adminTable = new Craft.AdminTable({
 tableSelector: '#countries',
 deleteAction: 'commerce/country/delete',
 confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}',
 deleteFailMessage: '{{ "Can not delete “{name}”, it is being used by various addresses."|t }}'
 });
-{% endset %}
-{% includeJs js %}
+{% endincludejs %}

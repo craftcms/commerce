@@ -30,9 +30,8 @@
         <a href="{{ url('commerce/settings/shippingmethods/new') }}" class="btn submit">New Shipping Method</a>
     </div>
 
-
-<script>
-{% set js %}
+{% includejs %}
+{#<script>#}
 ShippingMethodsTable = Craft.AdminTable.extend({
     handleDeleteObjectResponse: function(response, $row)
     {
@@ -60,8 +59,5 @@ var adminTable = new ShippingMethodsTable({
     minObjects: 1,
     deleteAction: 'commerce/shippingMethod/delete'
 });
-{% endset %}
-</script>
-{% includeJs js %}
-
-{% endset %}
+{#</script>#}
+{% endincludejs %}

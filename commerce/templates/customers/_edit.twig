@@ -75,11 +75,10 @@
 {% endset %}
 
 
-{% set js %}
+{% includejs %}
     new Craft.AdminTable({
     tableSelector: '#addresses',
     deleteAction: 'commerce/address/delete',
     confirmDeleteMessage: '{{ "Are you sure you want to delete address ID: '{name}'?"|t }}'
     });
-{% endset %}
-{% includeJs js %}
+{% endincludejs %}

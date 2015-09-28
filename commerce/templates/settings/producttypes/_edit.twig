@@ -250,21 +250,18 @@
 
 {% endset %}
 
-{% set js %}
+{% includejs %}
 {% if not productType.handle %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
 
-{% endset %}
-
-{% includeJs js %}
+{% endincludejs %}
 
 {% if not productType.handle %}
-    {% set js %}
+    {% includejs %}
 
         {% for locale in craft.i18n.getSiteLocales() %}
             {% if productType.locales[locale.id] is not defined or not productType.locales[locale.id].urlFormat %}
                 new Craft.EntryUrlFormatGenerator('#name', '#urlFormat-{{ locale.id }}', { suffix: '/{slug}' });
             {% endif %}
         {% endfor %}
-    {% endset %}
-    {% includeJs js %}
+    {% endincludejs %}
 {% endif %}

@@ -240,7 +240,7 @@
 
 {% endset %}
 
-{% set js %}
+{% includejs %}
 {#<script>#}
 $(function() {
     $('#groups, #productTypes').selectize({
@@ -270,5 +270,4 @@ $(function() {
         }
     });
 });
-{% endset %}
-{% includeJs js %}
+{% endincludejs %}

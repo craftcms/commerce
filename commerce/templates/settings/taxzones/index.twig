@@ -52,13 +52,10 @@
         <a href="{{ url('commerce/settings/taxzones/new') }}" class="btn submit">New Tax Zone</a>
     </div>
 
-{% endset %}
-
-{% set js %}
+{% endincludejs %}
 var adminTable = new Craft.AdminTable({
 tableSelector: '#taxZones',
 deleteAction: 'commerce/taxZone/delete',
 confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
 });
-{% endset %}
-{% includeJs js %}
+{% endincludejs %}
