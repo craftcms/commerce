@@ -11,14 +11,14 @@ namespace Craft;
  * @package   craft.plugins.commerce.controllers
  * @since     1.0
  */
-class Commerce_ShippingRuleController extends Commerce_BaseController
+class Commerce_ShippingRuleController extends Commerce_BaseAdminController
 {
 	/**
 	 * @throws HttpException
 	 */
 	public function actionIndex ()
 	{
-		if (!craft()->userSession->getUser()->can('accessCommerce'))
+		if (!craft()->userSession->getUser()->can('manageCommerce'))
 		{
 			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
 		}
@@ -40,7 +40,7 @@ class Commerce_ShippingRuleController extends Commerce_BaseController
 	 */
 	public function actionEdit (array $variables = [])
 	{
-		if (!craft()->userSession->getUser()->can('accessCommerce'))
+		if (!craft()->userSession->getUser()->can('manageCommerce'))
 		{
 			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
 		}
@@ -83,7 +83,7 @@ class Commerce_ShippingRuleController extends Commerce_BaseController
 	 */
 	public function actionSave ()
 	{
-		if (!craft()->userSession->getUser()->can('accessCommerce'))
+		if (!craft()->userSession->getUser()->can('manageCommerce'))
 		{
 			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
 		}
@@ -121,7 +121,7 @@ class Commerce_ShippingRuleController extends Commerce_BaseController
 	 */
 	public function actionReorder ()
 	{
-		if (!craft()->userSession->getUser()->can('accessCommerce'))
+		if (!craft()->userSession->getUser()->can('manageCommerce'))
 		{
 			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
 		}
@@ -140,10 +140,6 @@ class Commerce_ShippingRuleController extends Commerce_BaseController
 	 */
 	public function actionDelete ()
 	{
-		if(!craft()->userSession->getUser()->can('accessCommerce')){
-			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
-		}
-
 		$this->requirePostRequest();
 		$this->requireAjaxRequest();
 

@@ -2,7 +2,7 @@
 namespace Craft;
 
 /**
- * Class Commerce_PromotionsController
+ * Class BaseAdminController
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -11,10 +11,6 @@ namespace Craft;
  * @package   craft.plugins.commerce.controllers
  * @since     1.0
  */
-class Commerce_PromotionsController extends Commerce_BaseAdminController
+class Commerce_BaseAdminController extends Commerce_BaseController
 {
-	public function actionIndex ()
-	{
-		$this->redirect('commerce/promotions/sales');
-	}
 }

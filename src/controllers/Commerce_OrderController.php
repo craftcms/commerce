@@ -11,7 +11,7 @@ namespace Craft;
  * @package   craft.plugins.commerce.controllers
  * @since     1.0
  */
-class Commerce_OrderController extends Commerce_BaseController
+class Commerce_OrderController extends Commerce_BaseAdminController
 {
 	protected $allowAnonymous = false;
 
@@ -20,10 +20,6 @@ class Commerce_OrderController extends Commerce_BaseController
 	 */
 	public function actionOrderIndex ()
 	{
-		if(!craft()->userSession->getUser()->can('accessCommerce')){
-			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
-		}
-
 		// Remove all incomplete carts older than a certain date in config.
 		craft()->commerce_cart->purgeIncompleteCarts();
 
@@ -37,10 +33,6 @@ class Commerce_OrderController extends Commerce_BaseController
 	 */
 	public function actionEditOrder (array $variables = [])
 	{
-		if(!craft()->userSession->getUser()->can('accessCommerce')){
-			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
-		}
-
 		$variables['orderSettings'] = craft()->commerce_orderSettings->getByHandle('order');
 
 		if (empty($variables['order']))
@@ -123,10 +115,6 @@ class Commerce_OrderController extends Commerce_BaseController
 	 */
 	public function actionTransactionCapture ()
 	{
-		if(!craft()->userSession->getUser()->can('accessCommerce')){
-			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
-		}
-
 		$id = craft()->request->getParam('id');
 		$transaction = craft()->commerce_transaction->getById($id);
 
@@ -158,10 +146,6 @@ class Commerce_OrderController extends Commerce_BaseController
 	 */
 	public function actionTransactionRefund ()
 	{
-		if(!craft()->userSession->getUser()->can('accessCommerce')){
-			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
-		}
-
 		$id = craft()->request->getParam('id');
 		$transaction = craft()->commerce_transaction->getById($id);
 
@@ -195,10 +179,6 @@ class Commerce_OrderController extends Commerce_BaseController
 	 */
 	public function actionSaveOrder ()
 	{
-		if(!craft()->userSession->getUser()->can('accessCommerce')){
-			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
-		}
-
 		$this->requirePostRequest();
 
 		$order = $this->_setOrderFromPost();
@@ -277,10 +257,6 @@ class Commerce_OrderController extends Commerce_BaseController
 	 */
 	public function actionDeleteOrder ()
 	{
-		if(!craft()->userSession->getUser()->can('accessCommerce')){
-			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
-		}
-
 		$this->requirePostRequest();
 
 		$orderId = craft()->request->getRequiredPost('orderId');

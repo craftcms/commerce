@@ -11,17 +11,13 @@ namespace Craft;
  * @package   craft.plugins.commerce.controllers
  * @since     1.0
  */
-class Commerce_TaxCategoryController extends Commerce_BaseController
+class Commerce_TaxCategoryController extends Commerce_BaseAdminController
 {
 	/**
 	 * @throws HttpException
 	 */
 	public function actionIndex ()
 	{
-		if(!craft()->userSession->getUser()->can('accessCommerce')){
-			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
-		}
-
 		$taxCategories = craft()->commerce_taxCategory->getAll();
 		$this->renderTemplate('commerce/settings/taxcategories/index', compact('taxCategories'));
 	}
@@ -35,10 +31,6 @@ class Commerce_TaxCategoryController extends Commerce_BaseController
 	 */
 	public function actionEdit (array $variables = [])
 	{
-		if(!craft()->userSession->getUser()->can('accessCommerce')){
-			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
-		}
-
 		if (empty($variables['taxCategory']))
 		{
 			if (!empty($variables['id']))
@@ -74,10 +66,6 @@ class Commerce_TaxCategoryController extends Commerce_BaseController
 	 */
 	public function actionSave ()
 	{
-		if(!craft()->userSession->getUser()->can('accessCommerce')){
-			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
-		}
-
 		$this->requirePostRequest();
 
 		$taxCategory = new Commerce_TaxCategoryModel();
@@ -111,10 +99,6 @@ class Commerce_TaxCategoryController extends Commerce_BaseController
 	 */
 	public function actionDelete ()
 	{
-		if(!craft()->userSession->getUser()->can('accessCommerce')){
-			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
-		}
-
 		$this->requirePostRequest();
 		$this->requireAjaxRequest();
 

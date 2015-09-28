@@ -11,7 +11,7 @@ namespace Craft;
  * @package   craft.plugins.commerce.controllers
  * @since     1.0
  */
-class Commerce_VariantController extends Commerce_BaseController
+class Commerce_VariantController extends Commerce_BaseAdminController
 {
 	/**
 	 * Create/Edit State
@@ -22,10 +22,6 @@ class Commerce_VariantController extends Commerce_BaseController
 	 */
 	public function actionEdit (array $variables = [])
 	{
-		if(!craft()->userSession->getUser()->can('accessCommerce')){
-			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
-		}
-
 		//getting related product
 		if (empty($variables['productId']))
 		{
@@ -111,10 +107,6 @@ class Commerce_VariantController extends Commerce_BaseController
 	 */
 	public function actionSave ()
 	{
-		if(!craft()->userSession->getUser()->can('accessCommerce')){
-			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
-		}
-
 		$this->requirePostRequest();
 
 		$variant = new Commerce_VariantModel();
@@ -165,10 +157,6 @@ class Commerce_VariantController extends Commerce_BaseController
 	 */
 	public function actionDelete ()
 	{
-		if(!craft()->userSession->getUser()->can('accessCommerce')){
-			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
-		}
-
 		$this->requirePostRequest();
 
 		$id = craft()->request->getRequiredPost('id');

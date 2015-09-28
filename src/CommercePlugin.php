@@ -145,10 +145,7 @@ class CommercePlugin extends BasePlugin
 	 */
 	public function hasCpSection ()
 	{
-		if(craft()->userSession->getUser()->can('accessCommerce')){
-			return true;
-		}
-		return false;
+		return true;
 	}
 
 	/**
@@ -192,20 +189,6 @@ class CommercePlugin extends BasePlugin
 	public function registerCpRoutes ()
 	{
 		return require(__DIR__.'/etc/routes.php');
-	}
-
-	/**
-	 * Permissions declaration
-	 *
-	 * @return array
-	 */
-	public function registerUserPermissions()
-	{
-		return [
-			'accessCommerce' => array(
-				'label' => Craft::t('Access Commerce')
-			)
-		];
 	}
 
 	/**

@@ -11,17 +11,13 @@ namespace Craft;
  * @package   craft.plugins.commerce.controllers
  * @since     1.0
  */
-class Commerce_CustomerController extends Commerce_BaseController
+class Commerce_CustomerController extends Commerce_BaseAdminController
 {
 	/**
 	 * @throws HttpException
 	 */
 	public function actionIndex ()
 	{
-		if(!craft()->userSession->getUser()->can('accessCommerce')){
-			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
-		}
-
 		$customers = craft()->commerce_customer->getAll(['with' => 'user']);
 		$this->renderTemplate('commerce/customers/index', compact('customers'));
 	}
@@ -35,10 +31,6 @@ class Commerce_CustomerController extends Commerce_BaseController
 	 */
 	public function actionEdit (array $variables = [])
 	{
-		if(!craft()->userSession->getUser()->can('accessCommerce')){
-			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
-		}
-
 		if (empty($variables['customer']))
 		{
 			if (empty($variables['id']))
@@ -66,10 +58,6 @@ class Commerce_CustomerController extends Commerce_BaseController
 	 */
 	public function actionSave ()
 	{
-		if(!craft()->userSession->getUser()->can('accessCommerce')){
-			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
-		}
-
 		$this->requirePostRequest();
 
 		$id = craft()->request->getRequiredPost('id');

@@ -11,17 +11,13 @@ namespace Craft;
  * @package   craft.plugins.commerce.controllers
  * @since     1.0
  */
-class Commerce_ShippingMethodController extends Commerce_BaseController
+class Commerce_ShippingMethodController extends Commerce_BaseAdminController
 {
 	/**
 	 * @throws HttpException
 	 */
 	public function actionIndex ()
 	{
-		if(!craft()->userSession->getUser()->can('accessCommerce')){
-			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
-		}
-
 		$shippingMethods = craft()->commerce_shippingMethod->getAll();
 		$this->renderTemplate('commerce/settings/shippingmethods/index', compact('shippingMethods'));
 	}
@@ -35,10 +31,6 @@ class Commerce_ShippingMethodController extends Commerce_BaseController
 	 */
 	public function actionEdit (array $variables = [])
 	{
-		if(!craft()->userSession->getUser()->can('accessCommerce')){
-			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
-		}
-
 		$variables['newMethod'] = false;
 
 		if (empty($variables['shippingMethod']))
@@ -82,10 +74,6 @@ class Commerce_ShippingMethodController extends Commerce_BaseController
 	 */
 	public function actionSave ()
 	{
-		if(!craft()->userSession->getUser()->can('accessCommerce')){
-			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
-		}
-
 		$this->requirePostRequest();
 		$shippingMethod = new Commerce_ShippingMethodModel();
 
@@ -114,10 +102,6 @@ class Commerce_ShippingMethodController extends Commerce_BaseController
 	 */
 	public function actionDelete ()
 	{
-		if(!craft()->userSession->getUser()->can('accessCommerce')){
-			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
-		}
-
 		$this->requirePostRequest();
 		$this->requireAjaxRequest();
 
