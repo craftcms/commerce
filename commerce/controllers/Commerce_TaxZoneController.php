@@ -18,7 +18,9 @@ class Commerce_TaxZoneController extends Commerce_BaseController
 	 */
 	public function actionIndex ()
 	{
-		$this->requireAdmin();
+		if(!craft()->userSession->getUser()->can('accessCommerce')){
+			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
+		}
 
 		$taxZones = craft()->commerce_taxZone->getAll();
 		$this->renderTemplate('commerce/settings/taxzones/index',
@@ -34,7 +36,9 @@ class Commerce_TaxZoneController extends Commerce_BaseController
 	 */
 	public function actionEdit (array $variables = [])
 	{
-		$this->requireAdmin();
+		if(!craft()->userSession->getUser()->can('accessCommerce')){
+			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
+		}
 
 		if (empty($variables['taxZone']))
 		{
@@ -77,7 +81,10 @@ class Commerce_TaxZoneController extends Commerce_BaseController
 	 */
 	public function actionSave ()
 	{
-		$this->requireAdmin();
+		if(!craft()->userSession->getUser()->can('accessCommerce')){
+			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
+		}
+
 		$this->requirePostRequest();
 
 		$taxZone = new Commerce_TaxZoneModel();
@@ -113,7 +120,10 @@ class Commerce_TaxZoneController extends Commerce_BaseController
 	 */
 	public function actionDelete ()
 	{
-		$this->requireAdmin();
+		if(!craft()->userSession->getUser()->can('accessCommerce')){
+			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
+		}
+
 		$this->requirePostRequest();
 		$this->requireAjaxRequest();
 

@@ -22,7 +22,9 @@ class Commerce_VariantController extends Commerce_BaseController
 	 */
 	public function actionEdit (array $variables = [])
 	{
-		$this->requireAdmin();
+		if(!craft()->userSession->getUser()->can('accessCommerce')){
+			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
+		}
 
 		//getting related product
 		if (empty($variables['productId']))
@@ -109,7 +111,10 @@ class Commerce_VariantController extends Commerce_BaseController
 	 */
 	public function actionSave ()
 	{
-		$this->requireAdmin();
+		if(!craft()->userSession->getUser()->can('accessCommerce')){
+			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
+		}
+
 		$this->requirePostRequest();
 
 		$variant = new Commerce_VariantModel();
@@ -160,7 +165,10 @@ class Commerce_VariantController extends Commerce_BaseController
 	 */
 	public function actionDelete ()
 	{
-		$this->requireAdmin();
+		if(!craft()->userSession->getUser()->can('accessCommerce')){
+			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
+		}
+
 		$this->requirePostRequest();
 
 		$id = craft()->request->getRequiredPost('id');

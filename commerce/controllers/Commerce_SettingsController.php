@@ -27,7 +27,9 @@ class Commerce_SettingsController extends Commerce_BaseController
 	 */
 	public function actionEdit ()
 	{
-		$this->requireAdmin();
+		if(!craft()->userSession->getUser()->can('accessCommerce')){
+			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
+		}
 
 		$settings = craft()->commerce_settings->getSettings();
 
@@ -44,7 +46,9 @@ class Commerce_SettingsController extends Commerce_BaseController
 	 */
 	public function actionSaveSettings ()
 	{
-		$this->requireAdmin();
+		if(!craft()->userSession->getUser()->can('accessCommerce')){
+			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
+		}
 
 		$this->requirePostRequest();
 		$postData = craft()->request->getPost('settings');
