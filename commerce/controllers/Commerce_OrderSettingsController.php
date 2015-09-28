@@ -11,7 +11,7 @@ namespace Craft;
  * @package   craft.plugins.commerce.controllers
  * @since     1.0
  */
-class Commerce_OrderSettingsController extends Commerce_BaseController
+class Commerce_OrderSettingsController extends Commerce_BaseAdminController
 {
 	/**
 	 * @param array $variables
@@ -20,10 +20,6 @@ class Commerce_OrderSettingsController extends Commerce_BaseController
 	 */
 	public function actionEdit (array $variables = [])
 	{
-		if(!craft()->userSession->getUser()->can('accessCommerce')){
-			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
-		}
-
 		$variables['orderSettings'] = craft()->commerce_orderSettings->getByHandle('order');
 
 		$variables['title'] = Craft::t('Order Settings');
@@ -38,10 +34,6 @@ class Commerce_OrderSettingsController extends Commerce_BaseController
 	 */
 	public function actionSave ()
 	{
-		if(!craft()->userSession->getUser()->can('accessCommerce')){
-			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
-		}
-
 		$this->requirePostRequest();
 
 		$orderSettings = new Commerce_OrderSettingsModel();

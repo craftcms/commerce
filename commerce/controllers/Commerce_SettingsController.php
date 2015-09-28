@@ -11,7 +11,7 @@ namespace Craft;
  * @package   craft.plugins.commerce.controllers
  * @since     1.0
  */
-class Commerce_SettingsController extends Commerce_BaseController
+class Commerce_SettingsController extends Commerce_BaseAdminController
 {
 
 	/**
@@ -27,10 +27,6 @@ class Commerce_SettingsController extends Commerce_BaseController
 	 */
 	public function actionEdit ()
 	{
-		if(!craft()->userSession->getUser()->can('accessCommerce')){
-			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
-		}
-
 		$settings = craft()->commerce_settings->getSettings();
 
 		$craftSettings = craft()->email->getSettings();
@@ -46,10 +42,6 @@ class Commerce_SettingsController extends Commerce_BaseController
 	 */
 	public function actionSaveSettings ()
 	{
-		if(!craft()->userSession->getUser()->can('accessCommerce')){
-			throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
-		}
-
 		$this->requirePostRequest();
 		$postData = craft()->request->getPost('settings');
 		$settings = Commerce_SettingsModel::populateModel($postData);
