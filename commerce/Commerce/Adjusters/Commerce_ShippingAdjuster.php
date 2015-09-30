@@ -48,6 +48,7 @@ class Commerce_ShippingAdjuster implements Commerce_AdjusterInterface
 			//checking items tax categories
 			$weight = $qty = $price = 0;
 			$itemShippingTotal = 0;
+			$freeShippingAmount = 0;
 			foreach ($lineItems as $item)
 			{
 				$weight += $item->qty * $item->weight;
@@ -59,12 +60,13 @@ class Commerce_ShippingAdjuster implements Commerce_AdjusterInterface
 
 				if ($item->purchasable->product->freeShipping)
 				{
+					$freeShippingAmount = $freeShippingAmount + $item->shippingCost;
 					$item->shippingCost = 0;
 				}
 			}
 
 			//amount for displaying in adjustment
-			$amount = $rule->baseRate + $itemShippingTotal;
+			$amount = $rule->baseRate + $itemShippingTotal - $freeShippingAmount;
 			$amount = max($amount, $rule->minRate * 1);
 
 			if ($rule->maxRate * 1)
@@ -75,7 +77,7 @@ class Commerce_ShippingAdjuster implements Commerce_AdjusterInterface
 			$adjustment->amount = $amount;
 
 			//real shipping base rate (can be a bit artificial because it counts min and max rate as well, but in general it equals to baseRate)
-			$order->baseShippingCost = $amount - $itemShippingTotal;
+			$order->baseShippingCost = $amount - $itemShippingTotal - $freeShippingAmount;
 
 			$adjustments[] = $adjustment;
 		}
