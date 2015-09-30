@@ -6,6 +6,7 @@
 
     <h2>{{ "Sales"|t }}</h2>
 
+    {% if sales|length %}
     <table id="sales" class="data fullwidth collapsible">
         <thead>
         <tr>
@@ -43,6 +44,9 @@
 
         </tbody>
     </table>
+    {% else %}
+        <p>{{ "No sales exist yet."|t }}</p>
+    {% endif %}
     <br/>
     <div class="btngroup submit first">
         <a href="{{ url('commerce/promotions/sales/new') }}" class="btn submit">New Sale</a>
