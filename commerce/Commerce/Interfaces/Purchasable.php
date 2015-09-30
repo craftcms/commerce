@@ -2,7 +2,16 @@
 
 namespace Commerce\Interfaces;
 
-
+/**
+ * Interface Purchasable
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   Commerce\Interfaces
+ * @since     1.0
+ */
 interface Purchasable
 {
 

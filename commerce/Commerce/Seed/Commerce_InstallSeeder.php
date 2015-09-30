@@ -2,8 +2,6 @@
 
 namespace Commerce\Seed;
 
-use Craft\DateTime;
-use Craft\FieldLayoutModel;
 use Craft\Commerce_OrderSettingsModel;
 use Craft\Commerce_OrderStatusModel;
 use Craft\Commerce_ProductModel;
@@ -13,9 +11,18 @@ use Craft\Commerce_ShippingMethodRecord;
 use Craft\Commerce_ShippingRuleRecord;
 use Craft\Commerce_TaxCategoryModel;
 use Craft\Commerce_VariantModel;
+use Craft\DateTime;
+use Craft\FieldLayoutModel;
 
 /**
- * Default Seeder
+ * Class Commerce_InstallSeeder
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   Commerce\Seed
+ * @since     1.0
  */
 class Commerce_InstallSeeder implements Commerce_SeederInterface
 {
@@ -48,6 +55,20 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
 		$rule->name = "Catch All";
 		$rule->enabled = true;
 		$rule->save();
+	}
+
+	/**
+	 * @throws \Craft\Exception
+	 */
+	private function defaultTaxCategories ()
+	{
+		$category = Commerce_TaxCategoryModel::populateModel([
+			'name'    => 'General',
+			'handle'  => 'general',
+			'default' => 1,
+		]);
+
+		\Craft\craft()->commerce_taxCategory->save($category);
 	}
 
 	/**
@@ -86,20 +107,6 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
 		$status = Commerce_OrderStatusModel::populateModel($data);
 
 		\Craft\craft()->commerce_orderStatus->save($status, []);
-	}
-
-	/**
-	 * @throws \Craft\Exception
-	 */
-	private function defaultTaxCategories ()
-	{
-		$category = Commerce_TaxCategoryModel::populateModel([
-			'name'    => 'General',
-			'handle'  => 'general',
-			'default' => 1,
-		]);
-
-		\Craft\craft()->commerce_taxCategory->save($category);
 	}
 
 	/**

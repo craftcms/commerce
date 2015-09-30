@@ -1,6 +1,16 @@
 <?php
 namespace Commerce\Extensions;
 
+/**
+ * Class CommerceTwigExtension
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   Commerce\Extensions
+ * @since     1.0
+ */
 class CommerceTwigExtension extends \Twig_Extension
 {
 

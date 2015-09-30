@@ -1,8 +1,8 @@
 <?php
 namespace Commerce\Exception;
 
-use Craft\Exception;
 use Craft\CommercePlugin;
+use Craft\Exception;
 
 class BaseException Extends Exception
 {

@@ -19,7 +19,7 @@ interface Commerce_AdjusterInterface
 	 * to be saved on the order.
 	 *
 	 * @param Commerce_OrderModel $order
-	 * @param array             $lineItems
+	 * @param array               $lineItems
 	 *
 	 * @return \Craft\Commerce_OrderAdjustmentModel[]
 	 */
