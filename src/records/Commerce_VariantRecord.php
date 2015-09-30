@@ -81,7 +81,7 @@ class Commerce_VariantRecord extends BaseRecord
 				'default'  => 0,
 				'required' => true
 			],
-			'sku'            => [AttributeType::String, 'required' => true],
+			'sku'            => [AttributeType::String, 'required' => true, 'label' => 'SKU'],
 			'price'          => [
 				AttributeType::Number,
 				'decimals' => 4,
