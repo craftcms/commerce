@@ -47,6 +47,10 @@ class Commerce_CustomerFieldType extends BaseFieldType
 	 */
 	public function getInputHtml ($name, $value)
 	{
+		if(!($this->element instanceof UserModel)) {
+			return '<span style="color: #da5a47">'. Craft::t('Error. Commerce Customer Info field is for user profiles only.'). '</span>';
+		}
+
 		return craft()->templates->render('commerce/_fieldtypes/customer/_input', [
 			'customer' => $this->getCustomer()
 		]);
