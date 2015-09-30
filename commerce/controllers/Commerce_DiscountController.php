@@ -75,7 +75,7 @@ class Commerce_DiscountController extends Commerce_BaseAdminController
 		}
 		else
 		{
-			$productIds = $variables['sale']->getProductsIds();
+			$productIds = $variables['discount']->getProductsIds();
 		}
 		foreach ($productIds as $productId)
 		{
@@ -120,6 +120,9 @@ class Commerce_DiscountController extends Commerce_BaseAdminController
 		}
 
 		$products = craft()->request->getPost('products', []);
+		if(!$products){
+			$products = [];
+		}
 		$productTypes = craft()->request->getPost('productTypes', []);
 		$groups = craft()->request->getPost('groups', []);
 

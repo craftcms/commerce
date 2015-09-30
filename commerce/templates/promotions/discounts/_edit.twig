@@ -18,9 +18,21 @@
     {{ getCsrfInput() }}
     {% if discount.id %}<input type="hidden" name="id" value="{{ discount.id }}">{% endif %}
 
+
+    {% set discountClasses = "" %}
+    {% if (discount.getErrors('name')) %}
+        {% set discountClasses = "error" %}
+    {% endif %}
+
+    {% set conditionsClasses = "" %}
+    {% if(discount.getErrors('code')) %}
+        {% set conditionsClasses = "error" %}
+    {% endif %}
+
+
     {% set tabs = {
-        0: {'label':'Discount'|t,'url':'#discount'},
-        1: {'label':'Conditions'|t,'url':'#conditions'},
+        0: {'label':'Discount'|t,'url':'#discount','class':discountClasses},
+        1: {'label':'Conditions'|t,'url':'#conditions','class':conditionsClasses},
         2: {'label':'Amounts'|t,'url':'#amounts'}
         }
     %}
@@ -62,6 +74,7 @@
         label: "Coupon Code"|t,
         instructions: "A user will have to enter it to activate this discount."|t,
         id: 'code',
+        required: true,
         name: 'code',
         value: discount.code,
         errors: discount.getErrors('code'),
@@ -112,7 +125,7 @@
     }) }}
 
     {{ forms.multiselectField({
-        label: 'Groups'|t,
+        label: 'User Groups'|t,
         instructions: "Groups for which this discount will be applicable to. Leave blank for all groups"|t,
         id: 'groups',
         name: 'groups',
@@ -210,7 +223,7 @@
     }) }}
 
     {{ forms.checkboxField({
-        label: "Set costs to zero?"|t,
+        label: "Set shipping costs to zero for matching products?"|t,
         id: 'freeShipping',
         name: 'freeShipping',
         value: 1,
