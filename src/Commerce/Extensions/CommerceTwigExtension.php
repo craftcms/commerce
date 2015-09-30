@@ -29,8 +29,22 @@ class CommerceTwigExtension extends \Twig_Extension
 	{
 		$returnArray['commerceCurrency'] = new \Twig_Filter_Method($this, 'currency');
 		$returnArray['commerceDecimal'] = new \Twig_Filter_Method($this, 'decimal');
+		$returnArray['commercePercent'] = new \Twig_Filter_Method($this, 'percent');
 
 		return $returnArray;
+	}
+
+	/**
+	 * @param            $string
+	 *
+	 * @return mixed
+	 */
+	public function percent ($string)
+	{
+		$localeData = \Craft\craft()->i18n->getLocaleData();
+		$percentSign = $localeData->getNumberSymbol('percentSign');
+
+		return $this->decimal($string)."".$percentSign;
 	}
 
 	/**

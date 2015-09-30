@@ -37,7 +37,7 @@
                 <td data-title="Purchase Quantity">{{ discount.purchaseQty }}</td>
                 <td data-title="Base Discount">{{ discount.baseDiscount|commerceCurrency }}</td>
                 <td data-title="Per Item Discount">{{ discount.perItemDiscount|commerceCurrency }}</td>
-                <td data-title="Percent Discount">{{ discount.percentDiscount }}</td>
+                <td data-title="Percent Discount">{{ discount.percentDiscount|commercePercent }}</td>
                 <td data-title="Enabled">
                     {% if discount.enabled %}
                         <div class="status enabled"></div>
