@@ -125,7 +125,7 @@ class Commerce_TransactionRecord extends BaseRecord
 				'required' => true
 			],
 			'reference' => [AttributeType::String],
-			'message'   => [AttributeType::Mixed],
+			'message'   => [AttributeType::Mixed], //TODO change to string
 			'response'  => [AttributeType::Mixed],
 			'orderId'   => [AttributeType::Number, 'required' => true],
 		];

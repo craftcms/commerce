@@ -64,12 +64,18 @@ class Commerce_OrderController extends Commerce_BaseAdminController
 		$variables['countries'] = craft()->commerce_country->getFormList();
 		$variables['states'] = craft()->commerce_state->getGroupedByCountries();
 
-		$variables['orderStatuses'] = \CHtml::listData(craft()->commerce_orderStatus->getAll(),
-			'id', 'name');
+		$variables['orderStatuses'] = [];
+		foreach (craft()->commerce_orderStatus->getAll() as $status)
+		{
+			$variables['orderStatuses'][$status->id] = ['color' => $status->color, 'name' => $status->name];
+		}
+
 		if ($variables['order']->orderStatusId == null)
 		{
 			$variables['orderStatuses'] = ['0' => 'No Status'] + $variables['orderStatuses'];
 		}
+
+		craft()->templates->includeCssResource('commerce/order.css');
 
 		$this->prepVariables($variables);
 
@@ -172,6 +178,73 @@ class Commerce_OrderController extends Commerce_BaseAdminController
 	}
 
 	/**
+	 * Update Order Status Id
+	 */
+	public function actionUpdateStatus ()
+	{
+		$this->requireAjaxRequest();
+		$orderId = craft()->request->getParam('orderId');
+		$orderStatusId = craft()->request->getParam('orderStatusId');
+		$message = craft()->request->getParam('message');
+
+		$order = craft()->commerce_order->getById($orderId);
+		$orderStatus = craft()->commerce_orderStatus->getById($orderStatusId);
+
+		if (!$order or !$orderStatus)
+		{
+			$this->returnErrorJson(Craft::t('Bad Order or Status'));
+		}
+
+		$order->orderStatusId = $orderStatus->id;
+		$order->message = $message;
+
+		if (craft()->commerce_order->save($order))
+		{
+			$this->returnJson(['success' => true]);
+		}
+	}
+
+
+	/**
+	 * Update an address on Order.
+	 */
+	public function actionUpdateAddress ()
+	{
+		$this->requireAjaxRequest();
+		$orderId = craft()->request->getParam('orderId');
+		$addressType = craft()->request->getParam('addressType');
+		$address = craft()->request->getParam('address');
+
+		$order = craft()->commerce_order->getById($orderId);
+
+		if ($addressType == 'billing')
+		{
+			$billingAddress = Commerce_AddressModel::populateModel($address);
+			$order->setBillingAddress($billingAddress);
+		}
+		else
+		{
+			$shippingAddress = Commerce_AddressModel::populateModel($address);
+			$order->setShippingAddress($shippingAddress);
+		}
+
+		$order->billingAddressId = null;
+		$order->shippingAddressId = null;
+
+
+		if ($order->hasErrors())
+		{
+			$this->returnErrorJson(Craft::t('Error saving address.'));
+		}
+
+		if (craft()->commerce_order->save($order))
+		{
+			$this->returnJson(['success' => true]);
+		}
+	}
+
+
+	/**
 	 *
 	 * @throws Exception
 	 * @throws HttpException
@@ -213,31 +286,6 @@ class Commerce_OrderController extends Commerce_BaseAdminController
 					['id' => $orderId]));
 			}
 		}
-		else
-		{
-			$order = new Commerce_OrderModel();
-		}
-
-		$orderStatusId = craft()->request->getPost('orderStatusId');
-		if (!$orderStatusId)
-		{
-			$order->orderStatusId = null;
-		}
-		else
-		{
-			$order->orderStatusId = $orderStatusId;
-		}
-
-		$order->message = craft()->request->getPost('message');
-
-		/** @var Commerce_AddressModel $billingAddress */
-		$billingAddress = Commerce_AddressModel::populateModel(craft()->request->getPost('billingAddress'));
-		$order->setBillingAddress($billingAddress);
-		$shippingAddress = Commerce_AddressModel::populateModel(craft()->request->getPost('shippingAddress'));
-		$order->setShippingAddress($shippingAddress);
-
-		$order->billingAddressId = null;
-		$order->shippingAddressId = null;
 
 		return $order;
 	}
