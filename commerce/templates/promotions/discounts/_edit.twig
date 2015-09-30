@@ -250,27 +250,5 @@ $(function() {
         plugins: ['remove_button'],
         dropdownParent: 'body'
     });
-
-    var modal,
-        $chosen = $('.chosen-products'),
-        $counter = $('.products-counter');
-
-    $('.products-modal').click(function(e) {
-        if(modal) {
-            modal.show();
-        } else {
-            window.modal = modal = Craft.createElementSelectorModal('Commerce_Product', {
-                multiSelect: true,
-                onSelect: function(products) {
-                    $chosen.find('input').remove();
-                    for(i in products) {
-                        var id = products[i].id;
-                        $('<input/>').attr('type', 'hidden').attr('name', 'products[]').val(id).appendTo($chosen);
-                        $counter.text('(' + products.length + ')');
-                    }
-                }
-            });
-        }
-    });
 });
 {% endincludejs %}
