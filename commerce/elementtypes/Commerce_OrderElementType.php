@@ -126,7 +126,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 	 */
 	public function defineSearchableAttributes ()
 	{
-		return ['number'];
+		return ['number','email'];
 	}
 
 	/**
