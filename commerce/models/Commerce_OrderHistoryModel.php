@@ -30,11 +30,6 @@ class Commerce_OrderHistoryModel extends BaseModel
 {
 	use Commerce_ModelRelationsTrait;
 
-	public function getCpEditUrl ()
-	{
-		return UrlHelper::getCpUrl('commerce/settings/orderhistories/'.$this->id);
-	}
-
 	protected function defineAttributes ()
 	{
 		return [

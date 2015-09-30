@@ -41,7 +41,7 @@ class CommerceTwigExtension extends \Twig_Extension
 	 *
 	 * @return mixed
 	 */
-	public function currency ($content, $stripZeroCents = true)
+	public function currency ($content, $stripZeroCents = false)
 	{
 		$code = \Craft\craft()->commerce_settings->getOption('defaultCurrency');
 

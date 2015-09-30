@@ -36,5 +36,6 @@ class Commerce_DownloadController extends Commerce_BaseController
 		$dompdf->stream("Order-".$number.".pdf");
 
 		craft()->path->setTemplatesPath($originalPath);
+		craft()->end();
 	}
 }

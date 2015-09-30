@@ -48,6 +48,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 		return false;
 	}
 
+
 	/**
 	 * @param null $context
 	 *
