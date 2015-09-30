@@ -19,9 +19,9 @@
     {% if discount.id %}<input type="hidden" name="id" value="{{ discount.id }}">{% endif %}
 
     {% set tabs = {
-        0: {'label':'Discount','url':'#discount'},
-        1: {'label':'Conditions','url':'#conditions'},
-        2: {'label':'Actions','url':'#actions'}
+        0: {'label':'Discount'|t,'url':'#discount'},
+        1: {'label':'Conditions'|t,'url':'#conditions'},
+        2: {'label':'Amounts'|t,'url':'#amounts'}
         }
     %}
 
@@ -133,25 +133,16 @@
         class: 'selectize fullwidth',
     }) }}
 
-    {% set productsField %}
-        <a href="#" class="products-modal btn">Choose products <span class="products-counter">
-                {{ discount.getProductsIds() ? '(' ~ discount.getProductsIds()|length ~ ')' : '' }}
-            </span></a>
-
-        <div class="chosen-products">
-            {% for id in discount.getProductsIds() %}
-                <input type="hidden" name="products[]" value="{{ id }}">
-            {% endfor %}
-        </div>
-
-    {% endset %}
-
-    {{ forms.field({
-        id:       'products',
-        label:    'Products',
+    {{ forms.elementSelectField({
+        id: 'products',
+        label: 'Products',
+        name: 'products',
+        elements: products ? products : null,
+        elementType: craft.elements.getElementType('Commerce_Product'),
+        limit: null,
         instructions: "Products for which this discount will be applicable to. Leave blank for all products"|t,
         errors: discount.getErrors('products'),
-    }, productsField) }}
+    }) }}
 
     {{ forms.textField({
         label: "Purchase Total"|t,
@@ -173,8 +164,18 @@
         errors: discount.getErrors('purchaseQty'),
     }) }}
 
+    {{ forms.checkboxField({
+        label: "Exclude this discount if product is on sale?"|t,
+        id: 'excludeOnSale',
+        name: 'excludeOnSale',
+        value: 1,
+        checked: discount.excludeOnSale,
+        errors: discount.getErrors('excludeOnSale')
+    }) }}
+
+
     </div>
-    <div id="actions" class="hidden">
+    <div id="amounts" class="hidden">
     {{ commerceForms.numberField({
         label: "Base Discount"|t,
         instructions: "Flat value which should be added to the order total price. Write negative number for off-discount"|t,
@@ -209,18 +210,7 @@
     }) }}
 
     {{ forms.checkboxField({
-        label: "Exclude If On Sale"|t,
-        instructions: "Sets the discount not applicable to the items which on sale"|t,
-        id: 'excludeOnSale',
-        name: 'excludeOnSale',
-        value: 1,
-        checked: discount.excludeOnSale,
-        errors: discount.getErrors('excludeOnSale')
-    }) }}
-
-    {{ forms.checkboxField({
-        label: "Free Shipping"|t,
-        instructions: "Set shipping price to zero"|t,
+        label: "Set costs to zero?"|t,
         id: 'freeShipping',
         name: 'freeShipping',
         value: 1,

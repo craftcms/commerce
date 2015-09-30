@@ -67,6 +67,22 @@ class Commerce_DiscountController extends Commerce_BaseAdminController
 		$types = craft()->commerce_productType->getAll();
 		$variables['types'] = \CHtml::listData($types, 'id', 'name');
 
+		$variables['products'] = null;
+		$products = $productIds = [];
+		if (empty($variables['id']))
+		{
+			$productIds = explode('|', craft()->request->getParam('productIds'));
+		}
+		else
+		{
+			$productIds = $variables['sale']->getProductsIds();
+		}
+		foreach ($productIds as $productId)
+		{
+			$products[] = craft()->commerce_product->getById($productId);
+		}
+		$variables['products'] = $products;
+
 		$this->renderTemplate('commerce/promotions/discounts/_edit', $variables);
 	}
 
