@@ -60,7 +60,7 @@ class Commerce_ShippingAdjuster implements Commerce_AdjusterInterface
 
 				if ($item->purchasable->product->freeShipping)
 				{
-					$freeShippingAmount = $freeShippingAmount + $item->shippingCost;
+					$freeShippingAmount = $freeShippingAmount + $itemShippingTotal;
 					$item->shippingCost = 0;
 				}
 			}
@@ -76,8 +76,8 @@ class Commerce_ShippingAdjuster implements Commerce_AdjusterInterface
 
 			$adjustment->amount = $amount;
 
-			//real shipping base rate (can be a bit artificial because it counts min and max rate as well, but in general it equals to baseRate)
-			$order->baseShippingCost = $amount - $itemShippingTotal - $freeShippingAmount;
+			//real shipping base rate (can be a bit artificial because it counts min and max rate as well, but in general it equals to be $rule->baseRate)
+			$order->baseShippingCost = $amount - ($itemShippingTotal - $freeShippingAmount);
 
 			$adjustments[] = $adjustment;
 		}
