@@ -221,7 +221,7 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
 			'id'             => [AttributeType::Number],
 			'productId'      => [AttributeType::Number],
 			'isImplicit'     => [AttributeType::Bool],
-			'sku'            => [AttributeType::String, 'required' => true],
+			'sku'            => [AttributeType::String, 'required' => true, 'label' => 'SKU'],
 			'price'          => [
 				AttributeType::Number,
 				'decimals' => 4,
