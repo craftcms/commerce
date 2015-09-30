@@ -36,6 +36,12 @@ class CommercePlugin extends BasePlugin
 		}
 
 		$this->initEventHandlers();
+
+		// If this is a CP request, register the commerce.prepCpTemplate hook
+		if (craft()->request->isCpRequest())
+		{
+			craft()->templates->hook('commerce.prepCpTemplate', [$this, 'prepCpTemplate']);
+		}
 	}
 
 	/**
@@ -221,4 +227,24 @@ class CommercePlugin extends BasePlugin
 		return $settingModel->defineAttributes();
 	}
 
+	/**
+	 * Prepares a CP template.
+	 *
+	 * @param &$context The current template context
+	 */
+	public function prepCpTemplate(&$context)
+	{
+		$context['subnav'] = [
+			'orders' => ['label' => Craft::t('Orders'), 'url' => 'commerce/orders'],
+			'products' => ['label' => Craft::t('Products'), 'url' => 'commerce/products'],
+			'promotions' => ['label' => Craft::t('Promotions'), 'url' => 'commerce/promotions'],
+		];
+
+		if (craft()->userSession->isAdmin())
+		{
+			$context['subnav']['settings'] = ['icon' => 'settings', 'label' => Craft::t('Settings'), 'url' => 'commerce/settings'];
+		}
+
+		craft()->templates->includeCssResource('commerce/commerce.css');
+	}
 }
