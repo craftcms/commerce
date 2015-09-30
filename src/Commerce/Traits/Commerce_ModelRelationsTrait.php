@@ -5,11 +5,15 @@ namespace Commerce\Traits;
 use Craft\BaseRecord;
 
 /**
- * Enables access to the all record's relations through a model
+ * Trait Commerce_ModelRelationsTrait provides a way for models to have relations
+ * based on associated record's relations. Getters always take precedence over this.
  *
- * Class Commerce_ModelRelationsTrait
- *
- * @package craft
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
+ * @package   Commerce\Traits
+ * @since     1.0
  */
 trait Commerce_ModelRelationsTrait
 {
