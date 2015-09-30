@@ -27,7 +27,7 @@
             <tr data-id="{{ discount.id }}" data-name="{{ discount.name }}">
                 <th scope="row" data-title="Name"><a href="{{ url('commerce/promotions/discounts/'~discount.id) }}">{{ discount.name }}</a></th>
                 <td data-title="Dates">
-                    {{ discount.dateFrom ? discount.dateFrom : 'no limit'|t }} - {{ discount.dateTo ? discount.dateTo : 'no limit'|t }}
+                    {{ (discount.dateFrom ? discount.dateFrom : '&infin;')|raw }}<br/> to<br/> {{ (discount.dateTo ? discount.dateTo : '&infin;')|raw }}
                 </td>
                 <td data-title="Code">{{ discount.code }}</td>
                 <td data-title="Per User Limit">{{ discount.perUserLimit }}</td>
