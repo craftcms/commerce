@@ -113,10 +113,10 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
 	{
 		$data = [
 			'onSale'    => $this->getOnSale(),
-			'cpEditUrl' => $this->getProduct()->getCpEditUrl()
+			'cpEditUrl' => $this->getProduct() ? $this->getProduct()->getCpEditUrl() : ''
 		];
 
-		$data['product'] = $this->getProduct()->getSnapshot();
+		$data['product'] = $this->getProduct() ? $this->getProduct()->getSnapshot() : '';
 
 		return array_merge($this->getAttributes(), $data);
 	}
