@@ -3,6 +3,7 @@
 {% set content %}
 
     <h2>{{ "Discounts"|t }}</h2>
+    {% if discounts|length %}
     <table id="discounts" class="data fullwidth collapsible">
         <thead>
         <tr>
@@ -50,6 +51,9 @@
 
         </tbody>
     </table>
+    {% else %}
+        <p>{{ "No discounts exist yet."|t }}</p>
+    {% endif %}
     <br/>
     <div class="btngroup submit first">
         <a href="{{ url('commerce/promotions/discounts/new') }}" class="btn submit">New Discount</a>
