@@ -1,4 +1,6 @@
-{% extends "commerce/_layouts/elementindex" %}
+{% extends "_layouts/elementindex" %}
+{% hook 'commerce.prepCpTemplate' %}
+
 {% set title = "Products"|t %}
 {% set elementType = 'Commerce_Product' %}
 {% set selectedTab = 'products' %}

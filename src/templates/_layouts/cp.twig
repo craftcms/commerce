@@ -1,9 +1,2 @@
 {% extends "_layouts/cp" %}
-
-{% includeCssResource "commerce/commerce.css" %}
-
-{% set subnav = {
-    orders: { label: "Orders"|t, url: 'commerce/orders' },
-    products: { label: "Products"|t, url: 'commerce/products' },
-    promotions: { label: "Promotions"|t, url: 'commerce/promotions' }
-} %}
+{% hook 'commerce.prepCpTemplate' %}
