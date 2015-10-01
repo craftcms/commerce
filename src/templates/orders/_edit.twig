@@ -205,7 +205,7 @@
 		<div class="btngroup">
 			<input type="button" class="btn formsubmit"
 				value="{{ 'Delete Order'|t }}"
-				data-action="commerce/order/deleteOrder"
+				data-action="commerce/orders/deleteOrder"
 				data-confirm="{{ 'Are you sure you want to delete this order? Please note, this does not refund the customer.'|t }}"
 				data-redirect="commerce/orders"
 				data-param="orderId"
@@ -219,7 +219,7 @@
 		  data-saveshortcut
 		  data-saveshortcut-redirect="{{ order.cpEditUrl }}"
 		  data-confirm-unload>
-		<input type="hidden" name="action" value="commerce/order/saveOrder">
+		<input type="hidden" name="action" value="commerce/orders/saveOrder">
 		<input type="hidden" name="redirect" value="commerce/orders">
 		{{ getCsrfInput() }}
 
@@ -321,7 +321,7 @@
 					<td>
 						{% if transaction.canCapture() %}
 							<a class="btn submit formsubmit"
-							   data-action="commerce/order/transactionCapture"
+							   data-action="commerce/orders/transactionCapture"
 							   data-confirm="{{ 'Confirm capture?'|t }}"
 							   data-redirect="{{ order.cpEditUrl }}"
 							   data-param="id"
@@ -329,7 +329,7 @@
 						{% endif %}
 						{% if transaction.canRefund() %}
 							<a class="btn submit formsubmit"
-							   data-action="commerce/order/transactionRefund"
+							   data-action="commerce/orders/transactionRefund"
 							   data-confirm="{{ 'Confirm refund?'|t }}"
 							   data-redirect="{{ order.cpEditUrl }}"
 							   data-param="id"
@@ -488,7 +488,7 @@
 				}
 			}
 
-			Craft.postActionRequest('commerce/order/updateAddress', data, function (response) {
+			Craft.postActionRequest('commerce/orders/updateAddress', data, function (response) {
 				if (response.success) {
 					location.reload(true);
 				} else {
@@ -529,7 +529,7 @@
 					var $body = $('<div class="body"></div>').appendTo($form);
 					var $inputs = $('<div class="content">' +
 							'<input type="hidden" name="orderId" value="' + this.orderId + '"/>' +
-							'<input type="hidden" name="action" value="' + Craft.getActionUrl('commerce/order/updateStatus') + '"/>' +
+							'<input type="hidden" name="action" value="' + Craft.getActionUrl('commerce/orders/updateStatus') + '"/>' +
 							Craft.getCsrfInput() +
 							'<h2 class="first">' + Craft.t("Update Order Status") + '</h2>' +
 							'</div>').appendTo($body);
@@ -593,7 +593,7 @@
 						'message': this.$message.find('textarea[name="message"]').val()
 					}
 
-					Craft.postActionRequest('commerce/order/updateStatus', data, function (response) {
+					Craft.postActionRequest('commerce/orders/updateStatus', data, function (response) {
 						if (response.success) {
 							location.reload(true);
 						} else {

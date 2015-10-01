@@ -121,7 +121,7 @@ class Commerce_ProductModel extends BaseElementModel
 	{
 		if ($this->typeId)
 		{
-			return craft()->commerce_productType->getById($this->typeId);
+			return craft()->commerce_productTypes->getById($this->typeId);
 		}
 	}
 
@@ -153,7 +153,7 @@ class Commerce_ProductModel extends BaseElementModel
 	{
 		if ($this->typeId)
 		{
-			return craft()->commerce_productType->getById($this->typeId)->asa('productFieldLayout')->getFieldLayout();
+			return craft()->commerce_productTypes->getById($this->typeId)->asa('productFieldLayout')->getFieldLayout();
 		}
 
 		return null;
@@ -208,8 +208,8 @@ class Commerce_ProductModel extends BaseElementModel
 	 */
 	public function getVariants ()
 	{
-		$variants = craft()->commerce_variant->getAllByProductId($this->id);
-		craft()->commerce_variant->applySales($variants, $this);
+		$variants = craft()->commerce_variants->getAllByProductId($this->id);
+		craft()->commerce_variants->applySales($variants, $this);
 
 		if ($this->type->hasVariants)
 		{
@@ -238,8 +238,8 @@ class Commerce_ProductModel extends BaseElementModel
 
 		if ($this->id)
 		{
-			$variants = craft()->commerce_variant->getAllByProductId($this->id);
-			craft()->commerce_variant->applySales($variants, $this);
+			$variants = craft()->commerce_variants->getAllByProductId($this->id);
+			craft()->commerce_variants->applySales($variants, $this);
 
 			$implicitVariant = array_filter($variants, function ($v)
 			{

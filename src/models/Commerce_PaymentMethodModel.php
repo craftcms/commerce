@@ -72,7 +72,7 @@ class Commerce_PaymentMethodModel extends BaseModel
 	{
 		if (!empty($this->class))
 		{
-			$gw = craft()->commerce_gateway->getGateway($this->class);
+			$gw = craft()->commerce_gateways->getGateway($this->class);
 			$gw->initialize($this->settings);
 
 			return $gw;
@@ -119,7 +119,7 @@ class Commerce_PaymentMethodModel extends BaseModel
 	 */
 	public function getSelects ()
 	{
-		$gateway = craft()->commerce_gateway->getGateway($this->class);
+		$gateway = craft()->commerce_gateways->getGateway($this->class);
 		if (!$gateway)
 		{
 			return [];
@@ -143,7 +143,7 @@ class Commerce_PaymentMethodModel extends BaseModel
 	 */
 	public function getBooleans ()
 	{
-		$gateway = craft()->commerce_gateway->getGateway($this->class);
+		$gateway = craft()->commerce_gateways->getGateway($this->class);
 		if (!$gateway)
 		{
 			return [];

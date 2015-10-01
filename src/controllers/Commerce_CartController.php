@@ -69,7 +69,7 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
 		$qty = craft()->request->getPost('qty', 0);
 		$note = craft()->request->getPost('note');
 
-		$lineItem = craft()->commerce_lineItem->getById($lineItemId);
+		$lineItem = craft()->commerce_lineItems->getById($lineItemId);
 
 		// Only let them update their own cart's line item.
 		if (!$lineItem->id || $cart->id != $lineItem->order->id)
@@ -81,7 +81,7 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
 		$lineItem->note = $note;
 		$lineItem->order->setContentFromPost('fields');
 
-		if (craft()->commerce_lineItem->update($cart, $lineItem, $error))
+		if (craft()->commerce_lineItems->update($cart, $lineItem, $error))
 		{
 			craft()->userSession->setFlash('notice', Craft::t('Order item has been updated'));
 			if (craft()->request->isAjaxRequest)
@@ -149,12 +149,12 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
 			if (craft()->userSession->isGuest)
 			{
 				$cart = craft()->commerce_cart->getCart();
-				$cart->customerId = craft()->commerce_customer->getCustomerId();
-				$customer = craft()->commerce_customer->getCustomer();
+				$cart->customerId = craft()->commerce_customers->getCustomerId();
+				$customer = craft()->commerce_customers->getCustomer();
 				$customer->email = $email;
-				craft()->commerce_customer->save($customer);
+				craft()->commerce_customers->save($customer);
 
-				if (craft()->commerce_order->save($cart))
+				if (craft()->commerce_orders->save($cart))
 				{
 					if (craft()->request->isAjaxRequest)
 					{
@@ -217,7 +217,7 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
 		$lineItemId = craft()->request->getPost('lineItemId');
 		$cart = craft()->commerce_cart->getCart();
 
-		$lineItem = craft()->commerce_lineItem->getById($lineItemId);
+		$lineItem = craft()->commerce_lineItems->getById($lineItemId);
 
 		// Only let them update their own cart's line item.
 		if (!$lineItem->id || $cart->id != $lineItem->order->id)

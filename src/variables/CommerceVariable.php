@@ -61,7 +61,7 @@ class CommerceVariable
 	 */
 	public function getCustomer ()
 	{
-		return craft()->commerce_customer->getCustomer();
+		return craft()->commerce_customers->getCustomer();
 	}
 
 	/**
@@ -69,7 +69,7 @@ class CommerceVariable
 	 */
 	public function getCountriesList ()
 	{
-		return craft()->commerce_country->getFormList();
+		return craft()->commerce_countries->getFormList();
 	}
 
 	/**
@@ -77,7 +77,7 @@ class CommerceVariable
 	 */
 	public function getStatesArray ()
 	{
-		return craft()->commerce_state->getGroupedByCountries();
+		return craft()->commerce_states->getGroupedByCountries();
 	}
 
 
@@ -88,7 +88,7 @@ class CommerceVariable
 	{
 		$cart = craft()->commerce_cart->getCart();
 
-		return craft()->commerce_shippingMethod->calculateForCart($cart);
+		return craft()->commerce_shippingMethods->calculateForCart($cart);
 	}
 
 	/**
@@ -96,7 +96,7 @@ class CommerceVariable
 	 */
 	public function getPaymentMethods ()
 	{
-		$methods = craft()->commerce_paymentMethod->getAllForFrontend();
+		$methods = craft()->commerce_paymentMethods->getAllForFrontend();
 
 		return \CHtml::listData($methods, 'id', 'name');
 	}

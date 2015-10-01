@@ -28,14 +28,14 @@ class Commerce_TaxAdjuster implements Commerce_AdjusterInterface
 	 */
 	public function adjust (Commerce_OrderModel &$order, array $lineItems = [])
 	{
-		$shippingAddress = \Craft\craft()->commerce_address->getAddressById($order->shippingAddressId);
+		$shippingAddress = \Craft\craft()->commerce_addresses->getAddressById($order->shippingAddressId);
 		if (!$shippingAddress->id)
 		{
 			$shippingAddress = null;
 		}
 
 		$adjustments = [];
-		$taxRates = \Craft\craft()->commerce_taxRate->getAll([
+		$taxRates = \Craft\craft()->commerce_taxRates->getAll([
 			'with' => ['taxZone', 'taxZone.countries', 'taxZone.states.country'],
 		]);
 

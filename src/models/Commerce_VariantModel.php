@@ -88,7 +88,7 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
 	{
 		if ($this->productId)
 		{
-			return craft()->commerce_productType->getById($this->product->typeId)->asa('variantFieldLayout')->getFieldLayout();
+			return craft()->commerce_productTypes->getById($this->product->typeId)->asa('variantFieldLayout')->getFieldLayout();
 		}
 
 		return null;
@@ -136,7 +136,7 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
 	{
 		if ($this->productId)
 		{
-			return craft()->commerce_product->getById($this->productId);
+			return craft()->commerce_products->getById($this->productId);
 		}
 
 		return null;

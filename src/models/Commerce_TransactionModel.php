@@ -84,7 +84,7 @@ class Commerce_TransactionModel extends BaseModel
 				$this->orderId
 			],
 		];
-		$exists = craft()->commerce_transaction->exists($criteria);
+		$exists = craft()->commerce_transactions->exists($criteria);
 
 		return !$exists;
 	}
@@ -127,7 +127,7 @@ class Commerce_TransactionModel extends BaseModel
 				$this->orderId
 			],
 		];
-		$exists = craft()->commerce_transaction->exists($criteria);
+		$exists = craft()->commerce_transactions->exists($criteria);
 
 		return !$exists;
 	}

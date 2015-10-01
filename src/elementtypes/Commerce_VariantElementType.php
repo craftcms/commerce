@@ -299,7 +299,7 @@ class Commerce_VariantElementType extends Commerce_BaseElementType
 			$element->$name = $value;
 		}
 
-		return craft()->commerce_variant->save($element);
+		return craft()->commerce_variants->save($element);
 	}
 
 }

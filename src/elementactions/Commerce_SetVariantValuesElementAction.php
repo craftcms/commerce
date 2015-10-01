@@ -97,7 +97,7 @@ EOT;
 						$variant->$attribute = $this->getParams()->$attribute;
 					}
 				}
-				craft()->commerce_variant->save($variant);
+				craft()->commerce_variants->save($variant);
 			}
 		}
 		catch (Exception $e)

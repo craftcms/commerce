@@ -66,7 +66,7 @@ class Commerce_ProductTypeModel extends BaseModel
 		{
 			if ($this->id)
 			{
-				$this->_locales = craft()->commerce_productType->getProductTypeLocales($this->id, 'locale');
+				$this->_locales = craft()->commerce_productTypes->getProductTypeLocales($this->id, 'locale');
 			}
 			else
 			{

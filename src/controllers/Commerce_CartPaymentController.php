@@ -65,7 +65,7 @@ class Commerce_CartPaymentController extends Commerce_BaseController
 			throw new Exception(Craft::t('Please specify "redirect" and "cancelUrl".'));
 		}
 
-		if (!craft()->commerce_payment->processPayment($cart, $paymentForm,
+		if (!craft()->commerce_payments->processPayment($cart, $paymentForm,
 			$redirect, $cancelUrl, $customError)
 		)
 		{
@@ -83,13 +83,13 @@ class Commerce_CartPaymentController extends Commerce_BaseController
 	public function actionComplete ()
 	{
 		$id = craft()->request->getParam('hash');
-		$transaction = craft()->commerce_transaction->getByHash($id);
+		$transaction = craft()->commerce_transactions->getByHash($id);
 
 		if (!$transaction->id)
 		{
 			throw new HttpException(400);
 		}
 
-		craft()->commerce_payment->completePayment($transaction);
+		craft()->commerce_payments->completePayment($transaction);
 	}
 }

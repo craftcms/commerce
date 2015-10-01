@@ -50,13 +50,13 @@ class CommercePlugin extends BasePlugin
 	private function initEventHandlers ()
 	{
 		//init global event handlers
-		craft()->on('commerce_orderHistory.onStatusChange', [craft()->commerce_orderStatus, 'statusChangeHandler']);
-		craft()->on('commerce_order.onOrderComplete', [craft()->commerce_discount, 'orderCompleteHandler']);
-		craft()->on('commerce_order.onOrderComplete', [craft()->commerce_variant, 'orderCompleteHandler']);
-		craft()->on('i18n.onAddLocale', [craft()->commerce_productType, 'addLocaleHandler']);
+		craft()->on('commerce_orderHistories.onStatusChange', [craft()->commerce_orderStatuses, 'statusChangeHandler']);
+		craft()->on('commerce_orders.onOrderComplete', [craft()->commerce_discounts, 'orderCompleteHandler']);
+		craft()->on('commerce_orders.onOrderComplete', [craft()->commerce_variants, 'orderCompleteHandler']);
+		craft()->on('i18n.onAddLocale', [craft()->commerce_productTypes, 'addLocaleHandler']);
 		if (!craft()->isConsole())
 		{
-			craft()->on('userSession.onLogin', [craft()->commerce_customer, 'loginHandler']);
+			craft()->on('userSession.onLogin', [craft()->commerce_customers, 'loginHandler']);
 		}
 	}
 

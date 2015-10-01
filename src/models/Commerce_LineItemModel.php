@@ -116,7 +116,7 @@ class Commerce_LineItemModel extends BaseModel
 
 			$this->taxCategoryId = $purchasable->product->taxCategoryId;
 
-			$sales = craft()->commerce_sale->getForVariant($purchasable);
+			$sales = craft()->commerce_sales->getForVariant($purchasable);
 
 			foreach ($sales as $sale)
 			{
