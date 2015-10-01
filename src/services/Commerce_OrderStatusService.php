@@ -215,8 +215,7 @@ class Commerce_OrderStatusService extends BaseApplicationComponent
 
 			$craftEmail->toEmail = $to = craft()->templates->renderString($email->to,
 				$renderVariables);
-			$craftEmail->bcc = craft()->templates->renderString($email->bcc,
-				$renderVariables);
+			$craftEmail->bcc     = [['email'=>craft()->templates->renderString($email->bcc, $renderVariables)]];
 			$craftEmail->subject = craft()->templates->renderString($email->subject,
 				$renderVariables);
 
