@@ -96,7 +96,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
 
 		$sources[] = ['heading' => "Product Types"];
 
-		foreach (craft()->commerce_productType->getAll() as $productType)
+		foreach (craft()->commerce_productTypes->getAll() as $productType)
 		{
 			$key = 'productType:'.$productType->id;
 
@@ -340,7 +340,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
 	 */
 	public function saveElement (BaseElementModel $element, $params)
 	{
-		return craft()->commerce_product->save($element);
+		return craft()->commerce_products->save($element);
 	}
 
 } 

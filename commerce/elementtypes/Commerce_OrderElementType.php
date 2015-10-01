@@ -65,7 +65,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 
 		$sources[] = ['heading' => Craft::t("Order Status")];
 
-		foreach (craft()->commerce_orderStatus->getAll() as $orderStatus)
+		foreach (craft()->commerce_orderStatuses->getAll() as $orderStatus)
 		{
 			$key = 'orderStatus:'.$orderStatus->handle;
 			$sources[$key] = [
@@ -273,7 +273,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 		{
 			if ($criteria->user instanceof UserModel)
 			{
-				$id = craft()->commerce_customer->getById($criteria->user->id)->id;
+				$id = craft()->commerce_customers->getById($criteria->user->id)->id;
 				if ($id)
 				{
 					$criteria->customerId = $id;

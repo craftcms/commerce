@@ -68,7 +68,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
 			'default' => 1,
 		]);
 
-		\Craft\craft()->commerce_taxCategory->save($category);
+		\Craft\craft()->commerce_taxCategories->save($category);
 	}
 
 	/**
@@ -95,7 +95,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
 			'default' => true
 		];
 		$defaultStatus = Commerce_OrderStatusModel::populateModel($data);
-		\Craft\craft()->commerce_orderStatus->save($defaultStatus, []);
+		\Craft\craft()->commerce_orderStatuses->save($defaultStatus, []);
 
 		$data = [
 			'name'    => 'Shipped',
@@ -106,7 +106,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
 
 		$status = Commerce_OrderStatusModel::populateModel($data);
 
-		\Craft\craft()->commerce_orderStatus->save($status, []);
+		\Craft\craft()->commerce_orderStatuses->save($status, []);
 	}
 
 	/**
@@ -131,7 +131,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
 		\Craft\craft()->fields->saveLayout($variantFieldLayout);
 		$productType->asa('variantFieldLayout')->setFieldLayout($variantFieldLayout);
 
-		\Craft\craft()->commerce_productType->save($productType);
+		\Craft\craft()->commerce_productTypes->save($productType);
 
 		$productTypeLocales = \Craft\craft()->i18n->getSiteLocaleIds();
 
@@ -152,7 +152,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
 	 */
 	private function defaultProducts ()
 	{
-		$productTypes = \Craft\craft()->commerce_productType->getAll();
+		$productTypes = \Craft\craft()->commerce_productTypes->getAll();
 
 		//first test product
 		/** @var Commerce_ProductModel $product */
@@ -163,12 +163,12 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
 			'availableOn'   => new DateTime(),
 			'expiresOn'     => null,
 			'promotable'    => 1,
-			'taxCategoryId' => \Craft\craft()->commerce_taxCategory->getDefaultId(),
+			'taxCategoryId' => \Craft\craft()->commerce_taxCategories->getDefaultId(),
 		]);
 
 		$product->getContent()->title = 'Nice Shirt';
 
-		\Craft\craft()->commerce_product->save($product);
+		\Craft\craft()->commerce_products->save($product);
 
 		//implicit variant
 		/** @var Commerce_VariantModel $implicitVariant */
@@ -179,7 +179,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
 			'price'          => 10,
 			'unlimitedStock' => 1,
 		]);
-		\Craft\craft()->commerce_variant->save($implicitVariant);
+		\Craft\craft()->commerce_variants->save($implicitVariant);
 
 		//another test product
 		/** @var Commerce_ProductModel $product */
@@ -190,12 +190,12 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
 			'availableOn'   => new DateTime(),
 			'expiresOn'     => null,
 			'promotable'    => 1,
-			'taxCategoryId' => \Craft\craft()->commerce_taxCategory->getDefaultId(),
+			'taxCategoryId' => \Craft\craft()->commerce_taxCategories->getDefaultId(),
 		]);
 
 		$product->getContent()->title = 'Really Nice Shirt';
 
-		\Craft\craft()->commerce_product->save($product);
+		\Craft\craft()->commerce_products->save($product);
 
 		//implicit variant
 		$implicitVariant = Commerce_VariantModel::populateModel([
@@ -205,14 +205,14 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
 			'price'          => 20,
 			'unlimitedStock' => 1,
 		]);
-		\Craft\craft()->commerce_variant->save($implicitVariant);
+		\Craft\craft()->commerce_variants->save($implicitVariant);
 	}
 
 	private function paymentMethods ()
 	{
-		$model = \Craft\craft()->commerce_paymentMethod->getByClass('Dummy');
+		$model = \Craft\craft()->commerce_paymentMethods->getByClass('Dummy');
 		$model->frontendEnabled = true;
-		\Craft\craft()->commerce_paymentMethod->save($model);
+		\Craft\craft()->commerce_paymentMethods->save($model);
 	}
 
 	private function defaultSettings ()

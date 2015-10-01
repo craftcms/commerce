@@ -63,7 +63,7 @@ class Commerce_CustomerFieldType extends BaseFieldType
 	{
 		if (!$this->_customer)
 		{
-			$this->_customer = craft()->commerce_customer->getByUserId($this->element->id);
+			$this->_customer = craft()->commerce_customers->getByUserId($this->element->id);
 		}
 
 		return $this->_customer;

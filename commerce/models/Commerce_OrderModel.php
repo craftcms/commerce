@@ -262,7 +262,7 @@ class Commerce_OrderModel extends BaseElementModel
 	 */
 	public function getLineItems ()
 	{
-		return craft()->commerce_lineItem->getAllByOrderId($this->id);
+		return craft()->commerce_lineItems->getAllByOrderId($this->id);
 	}
 
 	/**
@@ -270,7 +270,7 @@ class Commerce_OrderModel extends BaseElementModel
 	 */
 	public function getAdjustments ()
 	{
-		return craft()->commerce_orderAdjustment->getAllByOrderId($this->id);
+		return craft()->commerce_orderAdjustments->getAllByOrderId($this->id);
 	}
 
 	/**
@@ -283,7 +283,7 @@ class Commerce_OrderModel extends BaseElementModel
 			// Get the live linked address if it is still a cart, else cached
 			if (!$this->dateOrdered)
 			{
-				$this->_shippingAddress = craft()->commerce_address->getAddressById($this->shippingAddressId);
+				$this->_shippingAddress = craft()->commerce_addresses->getAddressById($this->shippingAddressId);
 			}
 			else
 			{
@@ -313,7 +313,7 @@ class Commerce_OrderModel extends BaseElementModel
 			// Get the live linked address if it is still a cart, else cached
 			if (!$this->dateOrdered)
 			{
-				$this->_billingAddress = craft()->commerce_address->getAddressById($this->billingAddressId);
+				$this->_billingAddress = craft()->commerce_addresses->getAddressById($this->billingAddressId);
 			}
 			else
 			{

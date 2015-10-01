@@ -37,14 +37,14 @@ class Commerce_CartService extends BaseApplicationComponent
 		//saving current cart if it's new and empty
 		if (!$order->id)
 		{
-			if (!craft()->commerce_order->save($order))
+			if (!craft()->commerce_orders->save($order))
 			{
 				throw new Exception(Craft::t('Error on creating empty cart'));
 			}
 		}
 
 		//filling item model
-		$lineItem = craft()->commerce_lineItem->getByOrderPurchasable($order->id, $purchasableId);
+		$lineItem = craft()->commerce_lineItems->getByOrderPurchasable($order->id, $purchasableId);
 
 		if ($lineItem->id)
 		{
@@ -52,7 +52,7 @@ class Commerce_CartService extends BaseApplicationComponent
 		}
 		else
 		{
-			$lineItem = craft()->commerce_lineItem->create($purchasableId, $order->id, $qty);
+			$lineItem = craft()->commerce_lineItems->create($purchasableId, $order->id, $qty);
 		}
 
 		if ($note)
@@ -62,9 +62,9 @@ class Commerce_CartService extends BaseApplicationComponent
 
 		try
 		{
-			if (craft()->commerce_lineItem->save($lineItem))
+			if (craft()->commerce_lineItems->save($lineItem))
 			{
-				craft()->commerce_order->save($order);
+				craft()->commerce_orders->save($order);
 				CommerceDbHelper::commitStackedTransaction();
 
 				//raising event
@@ -139,7 +139,7 @@ class Commerce_CartService extends BaseApplicationComponent
 			$this->cart->lastIp = craft()->request->getIpAddress();
 
 			// Update the cart if the customer has changed and recalculate the cart.
-			$customer = craft()->commerce_customer->getCustomer();
+			$customer = craft()->commerce_customers->getCustomer();
 			if ($customer->id)
 			{
 				if (!$this->cart->isEmpty() && $this->cart->customerId != $customer->id)
@@ -150,7 +150,7 @@ class Commerce_CartService extends BaseApplicationComponent
 					$this->cart->shippingAddressId = null;
 					$this->cart->billingAddressData = null;
 					$this->cart->shippingAddressData = null;
-					craft()->commerce_order->save($this->cart);
+					craft()->commerce_orders->save($this->cart);
 				}
 			}
 		}
@@ -215,12 +215,12 @@ class Commerce_CartService extends BaseApplicationComponent
 	 */
 	public function applyCoupon (Commerce_OrderModel $cart, $code, &$error = '')
 	{
-		if (empty($code) || craft()->commerce_discount->checkCode($code,
+		if (empty($code) || craft()->commerce_discounts->checkCode($code,
 				$cart->customerId, $error)
 		)
 		{
 			$cart->couponCode = $code ?: null;
-			craft()->commerce_order->save($cart);
+			craft()->commerce_orders->save($cart);
 
 			return true;
 		}
@@ -245,19 +245,19 @@ class Commerce_CartService extends BaseApplicationComponent
 		$shippingMethodId
 	)
 	{
-		$method = craft()->commerce_shippingMethod->getById($shippingMethodId);
+		$method = craft()->commerce_shippingMethods->getById($shippingMethodId);
 		if (!$method->id)
 		{
 			return false;
 		}
 
-		if (!craft()->commerce_shippingMethod->getMatchingRule($cart, $method))
+		if (!craft()->commerce_shippingMethods->getMatchingRule($cart, $method))
 		{
 			return false;
 		}
 
 		$cart->shippingMethodId = $shippingMethodId;
-		craft()->commerce_order->save($cart);
+		craft()->commerce_orders->save($cart);
 
 		return true;
 	}
@@ -273,14 +273,14 @@ class Commerce_CartService extends BaseApplicationComponent
 	 */
 	public function setPaymentMethod (Commerce_OrderModel $cart, $paymentMethodId)
 	{
-		$method = craft()->commerce_paymentMethod->getById($paymentMethodId);
+		$method = craft()->commerce_paymentMethods->getById($paymentMethodId);
 		if (!$method->id || !$method->frontendEnabled)
 		{
 			return false;
 		}
 
 		$cart->paymentMethodId = $paymentMethodId;
-		craft()->commerce_order->save($cart);
+		craft()->commerce_orders->save($cart);
 
 		return true;
 	}
@@ -296,7 +296,7 @@ class Commerce_CartService extends BaseApplicationComponent
 	 */
 	public function removeFromCart (Commerce_OrderModel $cart, $lineItemId)
 	{
-		$lineItem = craft()->commerce_lineItem->getById($lineItemId);
+		$lineItem = craft()->commerce_lineItems->getById($lineItemId);
 
 		if (!$lineItem->id)
 		{
@@ -306,9 +306,9 @@ class Commerce_CartService extends BaseApplicationComponent
 		CommerceDbHelper::beginStackedTransaction();
 		try
 		{
-			craft()->commerce_lineItem->delete($lineItem);
+			craft()->commerce_lineItems->delete($lineItem);
 
-			craft()->commerce_order->save($cart);
+			craft()->commerce_orders->save($cart);
 
 			//raising event
 			$event = new Event($this, [
@@ -361,8 +361,8 @@ class Commerce_CartService extends BaseApplicationComponent
 		CommerceDbHelper::beginStackedTransaction();
 		try
 		{
-			craft()->commerce_lineItem->deleteAllByOrderId($cart->id);
-			craft()->commerce_order->save($cart);
+			craft()->commerce_lineItems->deleteAllByOrderId($cart->id);
+			craft()->commerce_orders->save($cart);
 		}
 		catch (\Exception $e)
 		{

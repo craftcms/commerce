@@ -1,7 +1,7 @@
 {% macro shippingMethodForm(cart) %}
 
     <form method="POST" class="form-inline">
-        <input type="hidden" name="action" value="commerce/cartAddress/setShippingMethod">
+        <input type="hidden" name="action" value="commerce/cartAddresses/setShippingMethod">
         <input type="hidden" name="redirect" value="commerce/checkout/payment">
         {{ getCsrfInput() }}
 

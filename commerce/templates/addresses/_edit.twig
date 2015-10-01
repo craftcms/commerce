@@ -7,7 +7,7 @@
 
     {# Are we editing an address book address for a user? #}
     {% if address.id %}
-        <input type="hidden" name="action" value="commerce/address/save">
+        <input type="hidden" name="action" value="commerce/addresses/save">
         <input type="hidden" name="redirect" value="{{ address.customer.user.cpEditUrl }}#profile">
         <input type="hidden" name="id" value="{{ address.id }}">
     {% endif %}

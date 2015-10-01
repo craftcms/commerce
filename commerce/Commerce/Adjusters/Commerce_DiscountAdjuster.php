@@ -31,7 +31,7 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
 			return [];
 		}
 
-		$discount = \Craft\craft()->commerce_discount->getByCode($order->couponCode);
+		$discount = \Craft\craft()->commerce_discounts->getByCode($order->couponCode);
 		if (!$discount->id)
 		{
 			return [];
@@ -69,7 +69,7 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
 		$matchingTotal = 0;
 		foreach ($lineItems as $item)
 		{
-			if (\Craft\craft()->commerce_discount->matchLineItem($item, $discount))
+			if (\Craft\craft()->commerce_discounts->matchLineItem($item, $discount))
 			{
 				$matchingQty += $item->qty;
 				$matchingTotal += $item->getSubtotalWithSale();

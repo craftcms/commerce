@@ -26,7 +26,7 @@ class Commerce_ShippingAdjuster implements Commerce_AdjusterInterface
 	 */
 	public function adjust (Commerce_OrderModel &$order, array $lineItems = [])
 	{
-		$shippingMethod = \Craft\craft()->commerce_shippingMethod->getById($order->shippingMethodId);
+		$shippingMethod = \Craft\craft()->commerce_shippingMethods->getById($order->shippingMethodId);
 
 		if (!$shippingMethod->id)
 		{
@@ -35,7 +35,7 @@ class Commerce_ShippingAdjuster implements Commerce_AdjusterInterface
 
 		$adjustments = [];
 
-		if ($rule = \Craft\craft()->commerce_shippingMethod->getMatchingRule($order, $shippingMethod))
+		if ($rule = \Craft\craft()->commerce_shippingMethods->getMatchingRule($order, $shippingMethod))
 		{
 			//preparing model
 			$adjustment = new Commerce_OrderAdjustmentModel;

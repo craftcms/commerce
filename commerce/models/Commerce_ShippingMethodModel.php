@@ -28,7 +28,7 @@ class Commerce_ShippingMethodModel extends BaseModel
 	 */
 	public function getRules ()
 	{
-		return craft()->commerce_shippingRule->getAllByMethodId($this->id);
+		return craft()->commerce_shippingRules->getAllByMethodId($this->id);
 	}
 
 	/**

@@ -68,7 +68,7 @@
 		  data-saveshortcut-redirect="{{ continueEditingUrl }}"
 		  data-confirm-unload>
 
-		<input type="hidden" name="action" value="commerce/product/saveProduct">
+		<input type="hidden" name="action" value="commerce/products/saveProduct">
 		<input type="hidden" name="redirect" value="commerce/products">
 		<input type="hidden" name="typeId" value="{{ productType.id }}">
 		{% if craft.isLocalized() %}<input type="hidden" name="locale"
@@ -355,7 +355,7 @@
 									<input type="button"
 										   class="btn small formsubmit"
 										   value="{{ 'Delete'|t }}"
-										   data-action="commerce/product/deleteProduct"
+										   data-action="commerce/products/deleteProduct"
 										   data-confirm="{{ 'Are you sure you want to delete this product?'|t }}"
 										   data-redirect="commerce/products">
 								</div>
