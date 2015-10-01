@@ -70,8 +70,12 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
 		]);
 		$actions[] = $deleteAction;
 
-		$setValuesAction = craft()->elements->getAction('Commerce_CreateSale');
-		$actions[] = $setValuesAction;
+		$createSaleAction = craft()->elements->getAction('Commerce_CreateSale');
+		$actions[] = $createSaleAction;
+
+		$createDiscountAction = craft()->elements->getAction('Commerce_CreateDiscount');
+		$actions[] = $createDiscountAction;
+
 
 		return $actions;
 	}
