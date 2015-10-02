@@ -76,6 +76,13 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
 		$createDiscountAction = craft()->elements->getAction('Commerce_CreateDiscount');
 		$actions[] = $createDiscountAction;
 
+		// Allow plugins to add additional actions
+		$allPluginActions = craft()->plugins->call('commerce_addProductActions', array($source), true);
+
+		foreach ($allPluginActions as $pluginActions)
+		{
+			$actions = array_merge($actions, $pluginActions);
+		}
 
 		return $actions;
 	}
@@ -106,6 +113,9 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
 			];
 		}
 
+		// Allow plugins to modify the sources
+		craft()->plugins->call('commerce_modifyProductSources', array(&$sources, $context));
+
 		return $sources;
 	}
 
@@ -116,11 +126,16 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
 	 */
 	public function defineTableAttributes ($source = null)
 	{
-		return [
+		$attributes = [
 			'title'       => Craft::t('Name'),
 			'availableOn' => Craft::t('Available On'),
 			'expiresOn'   => Craft::t('Expires On')
 		];
+
+		// Allow plugins to modify the attributes
+		craft()->plugins->call('commerce_modifyProductTableAttributes', array(&$attributes));
+
+		return $attributes;
 	}
 
 	/**
@@ -140,6 +155,14 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
 	 */
 	public function getTableAttributeHtml (BaseElementModel $element, $attribute)
 	{
+		// First give plugins a chance to set this
+		$pluginAttributeHtml = craft()->plugins->callFirst('commerce_getProductTableAttributeHtml', array($element, $attribute), true);
+
+		if ($pluginAttributeHtml !== null)
+		{
+			return $pluginAttributeHtml;
+		}
+
 		return parent::getTableAttributeHtml($element, $attribute);
 	}
 
@@ -150,11 +173,16 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
 	 */
 	public function defineSortableAttributes ()
 	{
-		return [
+		$attributes =  [
 			'title'       => Craft::t('Name'),
 			'availableOn' => Craft::t('Available On'),
 			'expiresOn'   => Craft::t('Expires On')
 		];
+
+		// Allow plugins to modify the attributes
+		craft()->plugins->call('commerce_modifyProductSortableAttributes', array(&$attributes));
+
+		return $attributes;
 	}
 
 
