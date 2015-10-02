@@ -48,6 +48,25 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 		return false;
 	}
 
+	/**
+	 * @param null $source
+	 *
+	 * @return array
+	 */
+	public function getAvailableActions ($source = null)
+	{
+		$actions = [];
+
+		// Allow plugins to add additional actions
+		$allPluginActions = craft()->plugins->call('commerce_addOrderActions', [$source], true);
+
+		foreach ($allPluginActions as $pluginActions)
+		{
+			$actions = array_merge($actions, $pluginActions);
+		}
+
+		return $actions;
+	}
 
 	/**
 	 * @param null $context
@@ -93,6 +112,9 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 			'criteria' => ['updatedBefore' => $edge, 'dateOrdered' => ":empty:"]
 		];
 
+		// Allow plugins to modify the sources
+		craft()->plugins->call('commerce_modifyOrderSources', [&$sources, $context]);
+
 		return $sources;
 	}
 
@@ -105,20 +127,26 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 	{
 		if (explode(':', $source)[0] == 'carts')
 		{
-			return [
+			$attributes = [
 				'number'      => Craft::t('Number'),
 				'dateUpdated' => Craft::t('Last Updated'),
 				'totalPrice'  => Craft::t('Total')
 			];
 		}
 
-		return [
+		$attributes = [
 			'number'      => Craft::t('Number'),
 			'orderStatus' => Craft::t('Status'),
 			'totalPrice'  => Craft::t('Total Payable'),
 			'dateOrdered' => Craft::t('Completed'),
 			'datePaid'    => Craft::t('Paid')
 		];
+
+
+		// Allow plugins to modify the attributes
+		craft()->plugins->call('commerce_modifyOrderTableAttributes', [&$attributes]);
+
+		return $attributes;
 	}
 
 	/**
@@ -126,7 +154,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 	 */
 	public function defineSearchableAttributes ()
 	{
-		return ['number','email'];
+		return ['number', 'email'];
 	}
 
 	/**
@@ -138,26 +166,38 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 	public function getTableAttributeHtml (BaseElementModel $element, $attribute)
 	{
 
-		if ($attribute == 'totalPrice')
-		{
-			$currency = craft()->commerce_settings->getOption('defaultCurrency');
+		// First give plugins a chance to set this
+		$pluginAttributeHtml = craft()->plugins->callFirst('commerce_getOrderTableAttributeHtml', [$element, $attribute], true);
 
-			return craft()->numberFormatter->formatCurrency($element->totalPrice, strtoupper($currency));
+		if ($pluginAttributeHtml !== null)
+		{
+			return $pluginAttributeHtml;
 		}
 
-		if ($attribute == 'orderStatus')
+		switch ($attribute)
 		{
-			if ($element->orderStatus)
+			case 'orderStatus':
 			{
-				return $element->orderStatus->printName();
+				if ($element->orderStatus)
+				{
+					return $element->orderStatus->printName();
+				}
+				else
+				{
+					return sprintf('<span class="commerce status %s"></span> %s', '', '');
+				}
 			}
-			else
+			case 'totalPrice':
 			{
-				return sprintf('<span class="commerce status %s"></span> %s', '', '');
+				$currency = craft()->commerce_settings->getOption('defaultCurrency');
+
+				return craft()->numberFormatter->formatCurrency($element->totalPrice, strtoupper($currency));
+			}
+			default:
+			{
+				return parent::getTableAttributeHtml($element, $attribute);
 			}
 		}
-
-		return parent::getTableAttributeHtml($element, $attribute);
 	}
 
 	/**
@@ -165,12 +205,17 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 	 */
 	public function defineSortableAttributes ()
 	{
-		return [
+		$attributes = [
 			'number'        => Craft::t('Number'),
 			'dateOrdered'   => Craft::t('Completed At'),
 			'totalPrice'    => Craft::t('Total Payable'),
 			'orderStatusId' => Craft::t('Order Status'),
 		];
+
+		// Allow plugins to modify the attributes
+		craft()->plugins->call('commerce_modifyOrderSortableAttributes', array(&$attributes));
+
+		return $attributes;
 	}
 
 
@@ -269,7 +314,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 			$query->andWhere(DbHelper::parseParam('orders.orderStatusId', $criteria->orderStatusId, $query->params));
 		}
 
-		if($criteria->user)
+		if ($criteria->user)
 		{
 			if ($criteria->user instanceof UserModel)
 			{
