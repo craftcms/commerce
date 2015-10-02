@@ -82,7 +82,7 @@
 
     {{ commerceForms.numberField({
         label: "Per User Limit"|t,
-        instructions: "How many times one user is allowed to use this discount. Set zero for unlimit use"|t,
+        instructions: "How many times one user is allowed to use this discount. Set zero for unlimited use."|t,
         id: 'perUserLimit',
         name: 'perUserLimit',
         value: discount.perUserLimit,
@@ -92,7 +92,7 @@
 
     {{ commerceForms.numberField({
         label: "Total Use Limit"|t,
-        instructions: "How many times this discount can be used. Set zero for unlimited use"|t,
+        instructions: "How many times this discount can be used in total. Set zero for unlimited use."|t,
         id: 'totalUseLimit',
         name: 'totalUseLimit',
         value: discount.totalUseLimit,
