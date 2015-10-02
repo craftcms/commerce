@@ -102,28 +102,22 @@ class CommerceVariable
 	}
 
 	/**
-	 * A way to use form.* macros in our templates
-	 *
-	 * @param string $macro
-	 * @param array  $args
-	 *
-	 * @return \Twig_Markup
+	 * @return Commerce_DiscountModel[]
 	 */
-	public function renderFormMacro ($macro, array $args)
+	public function getDiscounts()
 	{
-		// Get the current template path
-		$originalPath = craft()->path->getTemplatesPath();
+		$discounts = craft()->commerce_discounts->getAll();
 
-		// Point Twig at the CP templates
-		craft()->path->setTemplatesPath(craft()->path->getCpTemplatesPath());
+		return $discounts;
+	}
 
-		// Render the macro.
-		$html = craft()->templates->renderMacro('_includes/forms', $macro,
-			[$args]);
+	/**
+	 * @return Commerce_SaleModel[]
+	 */
+	public function getSales()
+	{
+		$sales = craft()->commerce_sales->getAll();
 
-		// Restore the original template path
-		craft()->path->setTemplatesPath($originalPath);
-
-		return TemplateHelper::getRaw($html);
+		return $sales;
 	}
 }
