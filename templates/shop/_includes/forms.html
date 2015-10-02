@@ -133,3 +133,7 @@
         <input class="button link" type="submit" value="Empty the Cart" />
     </form>
 {% endmacro %}
+
+{% macro select(config) %}
+    {% include "commerce/_includes/select" with config only %}
+{% endmacro %}
