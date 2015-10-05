@@ -40,7 +40,8 @@ class CommerceVariable
 	 */
 	public function orders ($criteria = null)
 	{
-		if (!$criteria['dateOrdered'])
+
+		if (!isset($criteria['dateOrdered']))
 		{
 			$criteria['dateOrdered'] = ':notempty:';
 		}
