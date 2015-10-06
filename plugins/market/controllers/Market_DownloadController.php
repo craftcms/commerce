@@ -35,5 +35,7 @@ class Market_DownloadController extends Market_BaseController
         $dompdf->stream("Order-".$number.".pdf");
 
         craft()->path->setTemplatesPath($originalPath);
+
+        craft()->end();
     }
 }
