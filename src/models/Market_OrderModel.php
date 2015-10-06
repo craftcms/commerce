@@ -128,7 +128,7 @@ class Market_OrderModel extends BaseElementModel
      */
     public function isPaid()
     {
-        $currency = Currency::find(craft()->commerce_settings->getSettings()->defaultCurrency);
+        $currency = Currency::find(craft()->market_settings->getSettings()->defaultCurrency);
         $totalPaid = round($this->totalPaid, $currency->getDecimals());
         $totalPrice = round($this->totalPrice, $currency->getDecimals());
         return $totalPaid >= $totalPrice;
