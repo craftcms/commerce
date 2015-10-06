@@ -142,6 +142,9 @@ class Market_CartController extends Market_BaseFrontEndController
                     }
                     $this->redirectToPostedUrl();
                 }
+            }else{
+                // Should not update email for logged in user - uses user profile email.
+                throw new HttpException(400);
             }
         }else{
             $error = Craft::t('Email Not Valid');
