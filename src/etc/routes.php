@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'market'                                                                                  => ['action' => 'market/dashboard/index'],
+    'market'                                                                                  => 'market/dashboard/index',
     'market/settings'                                                                         => ['action' => 'market/settings/index'],
     'market/settings/global'                                                                  => ['action' => 'market/settings/edit'],
     'market/settings/taxcategories'                                                           => ['action' => 'market/taxCategory/index'],
