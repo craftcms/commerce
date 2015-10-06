@@ -2,6 +2,7 @@
 namespace Craft;
 
 use Commerce\Traits\Commerce_ModelRelationsTrait;
+use Omnipay\Common\Currency;
 
 /**
  * Order or Cart model.
@@ -144,7 +145,10 @@ class Commerce_OrderModel extends BaseElementModel
 	 */
 	public function isPaid ()
 	{
-		return $this->totalPaid >= $this->totalPrice;
+		$currency = Currency::find(craft()->commerce_settings->getSettings()->defaultCurrency);
+		$totalPaid = round($this->totalPaid, $currency->getDecimals());
+		$totalPrice = round($this->totalPrice, $currency->getDecimals());
+		return $totalPaid >= $totalPrice;
 	}
 
 	/**
