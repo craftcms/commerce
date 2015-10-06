@@ -185,12 +185,9 @@ class Market_OrderStatusService extends BaseApplicationComponent
                 $craftEmail->fromName = craft()->market_settings->getSettings()->emailSenderName;
             }
 
-            $craftEmail->toEmail = $to = craft()->templates->renderString($email->to,
-                $renderVariables);
-            $craftEmail->bcc     = craft()->templates->renderString($email->bcc,
-                $renderVariables);
-            $craftEmail->subject = craft()->templates->renderString($email->subject,
-                $renderVariables);
+            $craftEmail->toEmail = $to = craft()->templates->renderString($email->to, $renderVariables);
+            $craftEmail->bcc     = [['email'=>craft()->templates->renderString($email->bcc, $renderVariables)]];
+            $craftEmail->subject = craft()->templates->renderString($email->subject, $renderVariables);
 
             $body              = $email->type == Market_EmailRecord::TYPE_HTML ? 'htmlBody' : 'body';
             $craftEmail->$body = craft()->templates->render($email->templatePath,
