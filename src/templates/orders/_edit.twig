@@ -66,7 +66,7 @@
 
 				<strong>Billing Address </strong><br/>
 				{% if order.dateOrdered %}
-				<a class="small btn right editBillingAddress" data-orderid="{{ order.id }}" data-addresstype="billing" data-countries="{{ countries|json_encode }}" data-states="{{ states|json_encode }}" data-address="{{ order.billingAddressData|json_encode }}">Edit</a>
+				<a class="small btn right editBillingAddress" data-orderid="{{ order.id }}" data-addresstype="billing" data-address="{{ order.billingAddressData|json_encode }}">Edit</a>
 				{% endif %}
 				<a class="small btn right"
 				   href="http://maps.google.com/maps?q={{ order.billingAddress.address1 }}+{{ order.billingAddress.address2 }}+{{ order.billingAddress.city }}+{{ order.billingAddress.zipCode }}+{{ order.billingAddress.stateText }}+{{ order.billingAddress.countryText }}"
@@ -79,7 +79,7 @@
 				<div class="order-address-box-content">
 				<strong>Shipping Address </strong><br/>
 				{% if order.dateOrdered %}
-				<a class="small btn right editShippingAddress" data-orderid="{{ order.id }}" data-addresstype="shipping" data-countries="{{ countries|json_encode }}" data-states="{{ states|json_encode }}" data-address="{{ order.shippingAddressData|json_encode }}">Edit</a>
+				<a class="small btn right editShippingAddress" data-orderid="{{ order.id }}" data-addresstype="shipping" data-address="{{ order.shippingAddressData|json_encode }}">Edit</a>
 				{% endif %}
 				<a class="small btn right"
 				   href="http://maps.google.com/maps?q={{ order.shippingAddress.address1 }}+{{ order.shippingAddress.address2 }}+{{ order.shippingAddress.city }}+{{ order.shippingAddress.zipCode }}+{{ order.shippingAddress.stateText }}+{{ order.shippingAddress.countryText }}"
@@ -344,349 +344,157 @@
 </form>
 
 {% endblock %}
+{% includeJsResource 'commerce/js/classes/TableRowAdditionalInfoIcon.js' %}
+{% includeJsResource 'commerce/js/classes/EditAddressModal.js' %}
 
-{% includejs %}
-	Craft.CommerceEditAddressModal = Garnish.Modal.extend({
-		data: null,
-		$body: null,
-		desiredHeight: $(window).height(),
-		type: null,
-		orderId : null,
-		$error : null,
-		init: function (btn, settings) {
-			self = this;
-			this.data = $(btn).data('address');
-			var countries = $(btn).data('countries');
-			var states = $(btn).data('states');
-			this.type = $(btn).data('addresstype');
-			this.orderId = $(btn).data('orderid');
+    {% includejs %}
 
-			var $form = $('<form class="modal" style="height:100%" method="post" accept-charset="UTF-8"/>').appendTo(Garnish.$bod);
-			this.$body = $('<div class="body fields-body"></div>').appendTo($form);
+    $.each($('.tableRowInfo'), function () {
+        new Craft.Commerce.TableRowAdditionalInfoIcon(this);
+    });
 
-			var fields = {
-				'firstName': {'label': Craft.t('First Name'), 'required': true},
-				'lastName': {'label': Craft.t('Last Name'), 'required': true},
-				'address1': {'label': Craft.t('Address Line 1')},
-				'address2': {'label': Craft.t('Address Line 2')},
-				'city': {'label': Craft.t('City')},
-				'zipCode': {'label': Craft.t('Zip Code')},
-				'phone': {'label': Craft.t('Phone')},
-				'alternativePhone': {'label': Craft.t('Alternative Phone')},
-				'company': {'label': Craft.t('Company')}
-			}
+    window.countries = JSON.parse('{{ countries|json_encode|raw }}');
+    window.states = JSON.parse('{{ states|json_encode|raw }}');
 
-			$.each(fields, function (i, item) {
-				var field = $('<div class="field">' +
-						'<div class="heading">' +
-						'<label class="' + (item.required ? "required" : "") + '">' + item.label + '</label>' +
-						'</div>' +
-						'<div class="input '+Craft.orientation+'">' +
-						'<input class="text fullwidth ' + i + '" type="text" name="address[' + i + ']" value="'+self.data[i]+'" autocomplete="off" style="background-image: none; background-position: 0% 0%; background-repeat: repeat;">' +
-						'</div>' +
-						'</div>').appendTo(self.$body);
-			});
+    Craft.CommerceUpdateOrderStatusModal = Garnish.Modal.extend(
+            {
+                id: null,
+                orderId: null,
+                orderStatusName: null,
+                orderStatusColor: null,
+                orderStatusId: null,
+                $statusSelect: null,
+                $orderStatusIdInput: null,
+                $message: null,
+                $error: null,
+                $updateBtn: null,
+                $cancelBtn: null,
+                init: function (btn, settings) {
+                    self = this;
+                    this.setSettings(settings, {
+                        resizable: false
+                    });
 
-			var $countryList = $('<div class="field">' +
-							'<div class="heading">' +
-							'<label for="field-country">'+Craft.t('Country')+'</label>' +
-							'</div>' +
-							'<div class="input '+Craft.orientation+'">' +
-							'<div class="select">' +
-							'<select class="countryId" name="address[countryId]" />' +
-							'</div>' +
-							'</div>' +
-							'</div>').appendTo(this.$body);
+                    this.orderId = $(btn).data('orderid');
+                    this.orderStatusId = $(btn).data('orderstatusid');
+                    this.orderStatusName = $(btn).data('orderstatusname');
+                    this.orderStatusColor = $(btn).data('orderstatuscolor');
+                    var statuses = $(btn).data('statuses');
 
-			$.each(countries,function(i,item){
-				var option = $('<option value="'+i+'" '+(self.data.countryId == i ? "selected" : "")+'>'+item+'</option>').appendTo($countryList.find('select').first());
-			});
+                    this.id = Math.floor(Math.random() * 1000000000);
 
-			var $stateList = $('<div class="field">' +
-				'<div class="heading">' +
-					'<label for="field-state">'+Craft.t('State')+'</label>' +
-					'</div>' +
-				'<div class="input '+Craft.orientation+'">' +
-					'<div class="select">' +
-						'<select class="stateId" name="address[stateId]" />' +
-						'</div>' +
-					'</div>' +
-				'</div>').appendTo(this.$body);
+                    var $form = $('<form class="modal fitted" method="post" accept-charset="UTF-8"/>').appendTo(Garnish.$bod);
+                    var $body = $('<div class="body"></div>').appendTo($form);
+                    var $inputs = $('<div class="content">' +
+                            '<input type="hidden" name="orderId" value="' + this.orderId + '"/>' +
+                            '<input type="hidden" name="action" value="' + Craft.getActionUrl('commerce/orders/updateStatus') + '"/>' +
+                            Craft.getCsrfInput() +
+                            '<h2 class="first">' + Craft.t("Update Order Status") + '</h2>' +
+                            '</div>').appendTo($body);
 
-			var $stateName = $('<div class="field">' +
-				'<div class="heading">' +
-					'<label>' + Craft.t('State') + '</label>' +
-					'</div>' +
-				'<div class="input '+Craft.orientation+'">' +
-					'<input class="text fullwidth stateName" type="text" name="address[stateName]" value="'+self.data["stateName"]+'" autocomplete="off" style="background-image: none; background-position: 0% 0%; background-repeat: repeat;">' +
-					'</div>' +
-				'</div>').appendTo(self.$body);
+                    this.$orderStatusIdInput = $('<input type="hidden" name="orderStatusId" value="' + this.orderStatusId + '"/>').appendTo($body);
 
-			this.$error = $('<div class="error"/>').appendTo(self.$body);
+                    this.$statusSelect = $('<a class="btn menubtn" href="#"><span class="commerce status ' + this.orderStatusColor + '"></span>' + this.orderStatusName + '</a>').appendTo($inputs);
 
-			if(states.hasOwnProperty(self.data.countryId)){
-				$stateName.hide();
-				$.each(states[self.data.countryId],function(i, item){
-					var option = $('<option value="'+i+'">'+item+'</option>').appendTo($stateList.find('select').first());
-				});
-			}else{
-				$stateList.hide();
-			};
+                    var $menu = $('<div class="menu"/>').appendTo($inputs);
 
-			$countryList.find('select').first().change(function() {
-				var cid = $(this).val();
-				$states = $stateList.find('select').first();
-				$states.find('option').remove();
+                    var $list = $('<ul class="padded"/>').appendTo($menu);
+                    $.each(statuses, function (i, item) {
+                        if (self.orderStatusId == i) {
+                            var classes = "sel";
+                        }
+                        $('<li><a data-id="' + i + '" data-color="' + item.color + '" data-name="' + item.name + '" class="' + classes + '" href="#"><span class="commerce status ' + item.color + '"></span>' + item.name + '</a></li>').appendTo($list);
+                    });
 
-				if(states.hasOwnProperty(cid)) {
-					$stateName.hide();
-					$stateList.show();
-					for(var id in states[cid]) {
-						var state = states[cid][id],
-						$option = $('<option/>');
-						$option.attr('value', id).text(state);
-						$states.append($option);
-					}
-				}else{
-					$stateList.hide();
-					$stateName.show();
-				}
-			});
+                    this.$message = $('<div class="field">' +
+                            '<div class="heading">' +
+                            '<label>' + Craft.t('Message') + '</label>' +
+                            '<div class="instructions"><p>' + Craft.t('Status change message') + '.</p>' +
+                            '</div>' +
+                            '</div>' +
+                            '<div class="input ltr">' +
+                            '<textarea class="text fullwidth" rows="2" cols="50" name="message"></textarea>' +
+                            '</div>' +
+                            '</div>').appendTo($inputs);
 
-			var $footer = $('<div class="footer"/>').appendTo($form);
-			var $btnGroup = $('<div class="btngroup"/>').appendTo($footer);
-			var $mainBtnGroup = $('<div class="btngroup right"/>').appendTo($footer);
-			var $updateBtn = $('<input type="button" class="btn submit" value="' + Craft.t('Update Address') + '"/>').appendTo($mainBtnGroup);
-			var $cancelBtn = $('<input type="button" class="btn" value="' + Craft.t('Cancel') + '"/>').appendTo($btnGroup);
+                    this.$error = $('<div class="error"/>').appendTo($inputs);
 
-			this.addListener($cancelBtn, 'click', 'hide');
-			this.addListener($updateBtn, 'click', function () {
-				this.updateAddress();
-			});
+                    var $footer = $('<div class="footer"/>').appendTo($form);
+                    var $btnGroup = $('<div class="btngroup"/>').appendTo($footer);
+                    var $mainBtnGroup = $('<div class="btngroup right"/>').appendTo($footer);
 
+                    this.$updateBtn = $('<input type="button" class="btn submit" value="' + Craft.t('Update') + '"/>').appendTo($mainBtnGroup);
+                    this.$cancelBtn = $('<input type="button" class="btn" value="' + Craft.t('Cancel') + '"/>').appendTo($btnGroup);
 
-			this.base($form, settings);
-		},
-		updateAddress: function () {
+                    new Garnish.MenuBtn(this.$statusSelect, {
+                        onOptionSelect: function (data) {
+                            self.orderStatusId = $(data).data('id');
+                            self.orderStatusName = $(data).data('name');
+                            self.orderStatusColor = $(data).data('color');
+                            self.$orderStatusIdInput.val(self.orderStatusId);
+                            var newHtml = "<span><span class='commerce status " + self.orderStatusColor + "'></span>" + Craft.uppercaseFirst(self.orderStatusName) + "</span>";
+                            self.$statusSelect.html(newHtml);
+                        }
+                    });
 
-			data = {
-				orderId : this.orderId,
-				addressType : this.type,
-				address: {
-					firstName : this.$body.find("input.firstName").val(),
-					lastName : this.$body.find("input.lastName").val(),
-					address1 : this.$body.find("input.address1").val(),
-					address2 : this.$body.find("input.address2").val(),
-					city : this.$body.find("input.city").val(),
-					zipCode : this.$body.find("input.zipCode").val(),
-					phone : this.$body.find("input.phone").val(),
-					alternativePhone : this.$body.find("input.alternativePhone").val(),
-					company : this.$body.find("input.company").val(),
-					countryId : this.$body.find("select.countryId option:selected").val(),
-					stateId : this.$body.find("select.stateId option:selected").val(),
-					stateName: this.$body.find("input.stateName").val()
-				}
-			}
+                    this.addListener(this.$cancelBtn, 'click', 'hide');
+                    this.addListener(this.$updateBtn, 'click', function () {
+                        this.updateStatus();
+                    });
 
-			Craft.postActionRequest('commerce/orders/updateAddress', data, function (response) {
-				if (response.success) {
-					location.reload(true);
-				} else {
-					self.$error.html(response.error);
-				}
-			});
-		}
-	});
+                    this.base($form, settings);
+                },
+                updateStatus: function () {
+                    var data = {
+                        'orderId': this.orderId,
+                        'orderStatusId': this.orderStatusId,
+                        'message': this.$message.find('textarea[name="message"]').val()
+                    }
 
-	Craft.CommerceUpdateOrderStatusModal = Garnish.Modal.extend(
-			{
-				id: null,
-				orderId: null,
-				orderStatusName: null,
-				orderStatusColor: null,
-				orderStatusId: null,
-				$statusSelect: null,
-				$orderStatusIdInput: null,
-				$message: null,
-				$error: null,
-				$updateBtn: null,
-				$cancelBtn: null,
-				init: function (btn, settings) {
-					self = this;
-					this.setSettings(settings, {
-						resizable: false
-					});
+                    Craft.postActionRequest('commerce/orders/updateStatus', data, function (response) {
+                        if (response.success) {
+                            location.reload(true);
+                        } else {
+                            self.$error.html(response.error);
+                        }
+                    });
+                }
+            });
 
-					this.orderId = $(btn).data('orderid');
-					this.orderStatusId = $(btn).data('orderstatusid');
-					this.orderStatusName = $(btn).data('orderstatusname');
-					this.orderStatusColor = $(btn).data('orderstatuscolor');
-					var statuses = $(btn).data('statuses');
+    $(document).ready(function () {
+        var $updateStatusBtn = $('.updatestatus').removeClass('hidden').click(function (e) {
+            e.preventDefault();
+            if (!this.modal) {
+                this.modal = new Craft.CommerceUpdateOrderStatusModal(this, {});
+            } else {
+                this.modal.show();
+            }
+        });
 
-					this.id = Math.floor(Math.random() * 1000000000);
+        // orderedit.js class: orderedit initialize with all data... creates 2 instances of address editor
+        // order editor, addres editor, 3x addres modal.
+        // this.shippingEdit = shippingeditormodel(this)
 
-					var $form = $('<form class="modal fitted" method="post" accept-charset="UTF-8"/>').appendTo(Garnish.$bod);
-					var $body = $('<div class="body"></div>').appendTo($form);
-					var $inputs = $('<div class="content">' +
-							'<input type="hidden" name="orderId" value="' + this.orderId + '"/>' +
-							'<input type="hidden" name="action" value="' + Craft.getActionUrl('commerce/orders/updateStatus') + '"/>' +
-							Craft.getCsrfInput() +
-							'<h2 class="first">' + Craft.t("Update Order Status") + '</h2>' +
-							'</div>').appendTo($body);
+        var $editBillingAddressBtn = $('.editBillingAddress').click(function (e) {
+            e.preventDefault();
+            if (!this.modal) {
+                this.modal = new Craft.Commerce.EditAddressModal(this, {});
+            } else {
+                this.modal.show();
+            }
+        });
 
-					this.$orderStatusIdInput = $('<input type="hidden" name="orderStatusId" value="' + this.orderStatusId + '"/>').appendTo($body);
-
-					this.$statusSelect = $('<a class="btn menubtn" href="#"><span class="commerce status ' + this.orderStatusColor + '"></span>' + this.orderStatusName + '</a>').appendTo($inputs);
-
-					var $menu = $('<div class="menu"/>').appendTo($inputs);
-
-					var $list = $('<ul class="padded"/>').appendTo($menu);
-					$.each(statuses, function (i, item) {
-						if (self.orderStatusId == i) {
-							var classes = "sel";
-						}
-						$('<li><a data-id="' + i + '" data-color="' + item.color + '" data-name="' + item.name + '" class="' + classes + '" href="#"><span class="commerce status ' + item.color + '"></span>' + item.name + '</a></li>').appendTo($list);
-					});
-
-					this.$message = $('<div class="field">' +
-							'<div class="heading">' +
-							'<label>' + Craft.t('Message') + '</label>' +
-							'<div class="instructions"><p>' + Craft.t('Status change message') + '.</p>' +
-							'</div>' +
-							'</div>' +
-							'<div class="input ltr">' +
-							'<textarea class="text fullwidth" rows="2" cols="50" name="message"></textarea>' +
-							'</div>' +
-							'</div>').appendTo($inputs);
-
-					this.$error = $('<div class="error"/>').appendTo($inputs);
-
-					var $footer = $('<div class="footer"/>').appendTo($form);
-					var $btnGroup = $('<div class="btngroup"/>').appendTo($footer);
-					var $mainBtnGroup = $('<div class="btngroup right"/>').appendTo($footer);
-
-					this.$updateBtn = $('<input type="button" class="btn submit" value="' + Craft.t('Update') + '"/>').appendTo($mainBtnGroup);
-					this.$cancelBtn = $('<input type="button" class="btn" value="' + Craft.t('Cancel') + '"/>').appendTo($btnGroup);
-
-					new Garnish.MenuBtn(this.$statusSelect, {
-						onOptionSelect: function (data) {
-							self.orderStatusId = $(data).data('id');
-							self.orderStatusName = $(data).data('name');
-							self.orderStatusColor = $(data).data('color');
-							self.$orderStatusIdInput.val(self.orderStatusId);
-							var newHtml = "<span><span class='commerce status " + self.orderStatusColor + "'></span>" + Craft.uppercaseFirst(self.orderStatusName) + "</span>";
-							self.$statusSelect.html(newHtml);
-						}
-					});
-
-					this.addListener(this.$cancelBtn, 'click', 'hide');
-					this.addListener(this.$updateBtn, 'click', function () {
-						this.updateStatus();
-					});
-
-					this.base($form, settings);
-				},
-				updateStatus: function () {
-					var data = {
-						'orderId': this.orderId,
-						'orderStatusId': this.orderStatusId,
-						'message': this.$message.find('textarea[name="message"]').val()
-					}
-
-					Craft.postActionRequest('commerce/orders/updateStatus', data, function (response) {
-						if (response.success) {
-							location.reload(true);
-						} else {
-							self.$error.html(response.error);
-						}
-					});
-				}
-			});
-
-	$(document).ready(function () {
-		var $updateStatusBtn = $('.updatestatus').removeClass('hidden').click(function (e) {
-			e.preventDefault();
-			if (!this.modal) {
-				this.modal = new Craft.CommerceUpdateOrderStatusModal(this, {});
-			} else {
-				this.modal.show();
-			}
-		});
-
-		var $editBillingAddressBtn = $('.editBillingAddress').click(function (e) {
-			e.preventDefault();
-			if (!this.modal) {
-				this.modal = new Craft.CommerceEditAddressModal(this, {});
-			} else {
-				this.modal.show();
-			}
-		});
-
-		var $editShippingAddressBtn = $('.editShippingAddress').click(function (e) {
-			e.preventDefault();
-			if (!this.modal) {
-				this.modal = new Craft.CommerceEditAddressModal(this, {});
-			} else {
-				this.modal.show();
-			}
-		});
+        var $editShippingAddressBtn = $('.editShippingAddress').click(function (e) {
+            e.preventDefault();
+            if (!this.modal) {
+                this.modal = new Craft.Commerce.EditAddressModal(this, {});
+            } else {
+                this.modal.show();
+            }
+        });
 
 
-	});
+    });
 
 
-	Craft.TableRowAdditionalInfoIcon = Garnish.Base.extend(
-			{
-				$icon: null,
-				hud: null,
-
-				init: function (icon) {
-					this.$icon = $(icon);
-
-					this.addListener(this.$icon, 'click', 'showHud');
-				},
-
-				showHud: function () {
-					if (!this.hud) {
-
-						var item = this.$icon.closest('.infoRow');
-						var $hudbody = $("<div/>");
-						var $html = $("<div><h2>Details</h2><table class='data fullwidth'><tbody>" +
-								"<tr><td><strong>" + Craft.t('Description') + "</strong></td><td> " + item.data('description') + "</td></tr>" +
-								"<tr><td><strong>" + Craft.t('Quantity') + "</strong></td><td> " + item.data('qty') + "</td></tr>" +
-								"<tr><td><strong>" + Craft.t('Tax Category') + "</strong></td><td><a href='" + item.data('taxcategoryurl') + "'>" + item.data('taxcategory') + "</a></td></tr>" +
-								"<tr><td><strong>" + Craft.t('Price') + "</strong></td><td> " + item.data('price') + "</td></tr>" +
-								"<tr><td><strong>" + Craft.t('Sale Amount') + "</strong></td><td> " + item.data('saleamount') + "</td></tr>" +
-								"<tr><td><strong>" + Craft.t('Sale Price') + "</strong></td><td> " + item.data('saleprice') + "</td></tr>" +
-								"<tr><td><strong>" + Craft.t('Tax') + "</strong></td><td> " + item.data('tax') + "</td></tr>" +
-								"<tr><td><strong>" + Craft.t('Shipping Cost') + "</strong></td><td> " + item.data('shippingcost') + "</td></tr>" +
-								"<tr><td><strong>" + Craft.t('Discount') + "</strong></td><td> " + item.data('discount') + "</td></tr>" +
-								"<tr><td><strong>" + Craft.t('Total') + "</strong></td><td> " + item.data('total') + "</td></tr>" +
-								"<tr><td><strong>" + Craft.t('Note') + "</strong></td><td> " + item.data('note') + "</td></tr>" +
-								"<tr><td><strong>" + Craft.t('On Sale?') + "</strong></td><td> " + item.data('onsale') + "</td></tr>" +
-								"</tbody></table></div>");
-
-						$hudbody.append($html);
-
-						this.hud = new Garnish.HUD(this.$icon, $hudbody, {
-							hudClass: 'hud',
-						});
-					}
-					else {
-						this.hud.show();
-					}
-				}
-			});
-
-	$.extend($.fn,
-			{
-				tableRowAdditionalInfo: function () {
-					return this.each(function () {
-						new Craft.TableRowAdditionalInfoIcon(this);
-					});
-				}
-			});
-
-	$('.tableRowInfo').tableRowAdditionalInfo();
-
-{% endincludejs %}
+    {% endincludejs %}
