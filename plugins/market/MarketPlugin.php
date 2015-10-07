@@ -6,149 +6,204 @@ use Market\Extensions\MarketTwigExtension;
 
 require 'vendor/autoload.php';
 
+// disable DOMPDF's internal autoloader since we are using Composer
+define('DOMPDF_ENABLE_AUTOLOAD', false);
+
+// include DOMPDF's configuration
+require_once __DIR__.'/vendor/dompdf/dompdf/dompdf_config.inc.php';
+
 class MarketPlugin extends BasePlugin
 {
-	public $handle = 'market';
+    public $handle = 'market';
 
-	function init()
-	{
-		$this->initMarketNav();
-		$this->initEventHandlers();
-	}
+    /**
+     * Initialize plugin.
+     */
+    public function init()
+    {
+        $this->initMarketNav();
+        $this->initEventHandlers();
+    }
 
-	public function getName()
-	{
-		return "Market";
-	}
+    /**
+     * Temporary nav until 2.5 is released.
+     */
+    private function initMarketNav()
+    {
+        if (craft()->request->isCpRequest()) {
+            craft()->templates->includeCssResource('market/market-nav.css');
 
-	public function getVersion()
-	{
-		return '0.68.9999';
-	}
+            craft()->templates->includeJsResource('market/market-nav.js');
 
-	public function getDeveloper()
-	{
-		return "Make with Morph (Luke Holder)";
-	}
+            $nav = [
+                [
+                    'url'      => 'market/orders',
+                    'title'    => Craft::t("Orders"),
+                    'selected' => (craft()->request->getSegment(2) == 'orders' ? true : false)
+                ],
+                [
+                    'url'      => 'market/products',
+                    'title'    => Craft::t("Products"),
+                    'selected' => (craft()->request->getSegment(2) == 'products' ? true : false)
+                ],
+                [
+                    'url'      => 'market/promotions',
+                    'title'    => Craft::t("Promotions"),
+                    'selected' => (craft()->request->getSegment(2) == 'promotions' ? true : false)
+                ],
+                [
+                    'url'      => 'market/customers',
+                    'title'    => Craft::t("Customers"),
+                    'selected' => (craft()->request->getSegment(2) == 'customers' ? true : false)
+                ],
+                [
+                    'url'      => 'market/settings',
+                    'title'    => Craft::t("Settings"),
+                    'selected' => (craft()->request->getSegment(2) == 'settings' ? true : false)
+                ]
+            ];
 
-	public function getDeveloperUrl()
-	{
-		return "http://makewithmorph.com";
-	}
+            $navJson = JsonHelper::encode($nav);
 
-	public function hasCpSection()
-	{
-		return true;
-	}
+            craft()->templates->includeJs('new Craft.MarketNav(' . $navJson . ');');
+        }
+    }
 
-	public function onAfterInstall()
-	{
-		craft()->market_seed->afterInstall();
+    /**
+     * Set up all event handlers.
+     */
+    private function initEventHandlers()
+    {
+        //init global event handlers
+        craft()->on('market_orderHistory.onStatusChange',
+            [
+                craft()->market_orderStatus,
+                'statusChangeHandler'
+            ]
+        );
 
-		if (craft()->config->get('devMode')) {
-			craft()->market_seed->testData();
-		}
+        craft()->on('market_order.onOrderComplete',
+            [
+                craft()->market_discount,
+                'orderCompleteHandler'
+            ]
+        );
 
-	}
+        craft()->on('market_order.onOrderComplete',
+            [
+                craft()->market_variant,
+                'orderCompleteHandler'
+            ]
+        );
 
-	public function onBeforeUninstall()
-	{
+        craft()->on('userSession.onLogin',
+            [
+                craft()->market_customer,
+                'loginHandler'
+            ]
+        );
+    }
 
-	}
+    /**
+     * The plugin name.
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return "Market";
+    }
 
-	public function modifyCpNav(&$nav)
-	{
-		if (craft()->userSession->isAdmin() && craft()->config->get('devMode')) {
-			$nav['market'] = ['label' => "Market ".$this->getVersion(), 'url' => 'market'];
-		}
-	}
+    /**
+     * @inheritdoc
+     *
+     * @return string
+     */
+    public function getDeveloper()
+    {
+        return "Pixel & Tonic";
+    }
 
+    /**
+     * Market Developer URL.
+     *
+     * @return string
+     */
+    public function getDeveloperUrl()
+    {
+        return "http://buildwithcraft.com/commerce";
+    }
 
-	public function addCommands()
-	{
-		return require(__DIR__ . DIRECTORY_SEPARATOR . 'commands.php');
-	}
+    /**
+     * Market has a control panel section.
+     *
+     * @return bool
+     */
+    public function hasCpSection()
+    {
+        return true;
+    }
 
+    /**
+     * After install, run seeders and optional test data.
+     *
+     */
+    public function onAfterInstall()
+    {
+        craft()->market_seed->afterInstall();
+    }
 
-	public function registerCpRoutes()
-	{
-		return require(__DIR__ . DIRECTORY_SEPARATOR . 'routes.php');
-	}
+    /**
+     * Market Commerce Version.
+     *
+     * @return string
+     */
+    public function getVersion()
+    {
+        return '0.8.05';
+    }
 
-	public function addTwigExtension()
-	{
-		return new MarketTwigExtension;
-	}
+    /**
+     * A&M Command Palette data. Enables shortcuts to different areas of the
+     * control panel.
+     *
+     * @return mixed
+     */
+    public function addCommands()
+    {
+        return require(__DIR__.'/etc/commands.php');
+    }
 
-	protected function defineSettings()
-	{
-		$settingModel = new Market_SettingsModel;
+    /**
+     * Control Panel routes.
+     *
+     * @return mixed
+     */
+    public function registerCpRoutes()
+    {
+        return require(__DIR__.'/etc/routes.php');
+    }
 
-		return $settingModel->defineAttributes();
-	}
+    /**
+     * Adds the Market twig extensions
+     *
+     * @return MarketTwigExtension
+     */
+    public function addTwigExtension()
+    {
+        return new MarketTwigExtension;
+    }
 
-	private function initMarketNav()
-	{
-		if (craft()->request->isCpRequest()) {
-			craft()->templates->includeCssResource('market/market-nav.css');
+    /**
+     * Define Market Settings.
+     *
+     * @return array
+     */
+    protected function defineSettings()
+    {
+        $settingModel = new Market_SettingsModel;
 
-			craft()->templates->includeJsResource('market/market-nav.js');
-
-			$nav = [
-				[
-					'url'      => 'market/orders',
-					'title'    => Craft::t("Orders"),
-					'selected' => (craft()->request->getSegment(2) == 'orders' ? true : false)
-				],
-				[
-					'url'      => 'market/products',
-					'title'    => Craft::t("Products"),
-					'selected' => (craft()->request->getSegment(2) == 'products' ? true : false)
-				],
-				[
-					'url'      => 'market/promotions',
-					'title'    => Craft::t("Promotions"),
-					'selected' => (craft()->request->getSegment(2) == 'promotions' ? true : false)
-				],
-				[
-					'url'      => 'market/customers',
-					'title'    => Craft::t("Customers"),
-					'selected' => (craft()->request->getSegment(2) == 'customers' ? true : false)
-				],
-				[
-					'url'      => 'market/settings',
-					'title'    => Craft::t("Settings"),
-					'selected' => (craft()->request->getSegment(2) == 'settings' ? true : false)
-				]
-			];
-
-			$navJson = JsonHelper::encode($nav);
-
-			craft()->templates->includeJs('new Craft.MarketNav(' . $navJson . ');');
-		}
-	}
-
-	private function initEventHandlers()
-	{
-		//init global event handlers
-		craft()->on('market_orderHistory.onStatusChange',
-			[
-				craft()->market_orderStatus, 'statusChangeHandler'
-			]
-		);
-
-		craft()->on('market_order.onOrderComplete',
-			[
-				craft()->market_discount, 'orderCompleteHandler'
-			]
-		);
-
-		craft()->on('market_order.onOrderComplete',
-			[
-				craft()->market_variant, 'orderCompleteHandler'
-			]
-		);
-	}
+        return $settingModel->defineAttributes();
+    }
 
 }
-

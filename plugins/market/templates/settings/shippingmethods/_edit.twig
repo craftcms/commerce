@@ -30,13 +30,24 @@
 
     {{ forms.checkboxField({
         label: "Enabled"|t,
-        instructions: "Is it active?"|t,
+        instructions: "Is it available on the front end?"|t,
         id: 'enabled',
         name: 'enabled',
         value: 1,
         checked: shippingMethod.enabled,
         errors: shippingMethod.getErrors('enabled')
     }) }}
+
+    {{ forms.checkboxField({
+        label: "Default"|t,
+        instructions: "Is this the carts default selected shipping method?"|t,
+        id: 'default',
+        name: 'default',
+        value: 1,
+        checked: shippingMethod.default,
+        errors: shippingMethod.getErrors('default')
+    }) }}
+
 
     <hr>
 

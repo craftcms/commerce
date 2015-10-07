@@ -13,6 +13,7 @@ namespace Craft;
  * @property bool   $hasVariants
  * @property string $template
  * @property string $urlFormat
+ * @property string $titleFormat
  * @property int    $fieldLayoutId
  * @property int    $variantFieldLayoutId
  * @package Craft
@@ -23,43 +24,45 @@ namespace Craft;
 class Market_ProductTypeModel extends BaseModel
 {
 
-	function __toString()
-	{
-		return Craft::t($this->handle);
-	}
+    function __toString()
+    {
+        return Craft::t($this->handle);
+    }
 
-	public function getCpEditUrl()
-	{
-		return UrlHelper::getCpUrl('market/settings/producttypes/' . $this->id);
-	}
+    public function getCpEditUrl()
+    {
+        return UrlHelper::getCpUrl('market/settings/producttypes/' . $this->id);
+    }
 
-	public function getCpEditVariantUrl()
-	{
-		return UrlHelper::getCpUrl('market/settings/producttypes/' . $this->id . '/variant');
-	}
+    public function getCpEditVariantUrl()
+    {
+        return UrlHelper::getCpUrl('market/settings/producttypes/' . $this->id . '/variant');
+    }
 
-	public function behaviors()
-	{
-		return [
-			'productFieldLayout' => new FieldLayoutBehavior('Market_Product', 'fieldLayoutId'),
-			'variantFieldLayout' => new FieldLayoutBehavior('Market_Variant', 'variantFieldLayoutId'),
-		];
-	}
+    public function behaviors()
+    {
+        return [
+            'productFieldLayout' => new FieldLayoutBehavior('Market_Product',
+                'fieldLayoutId'),
+            'variantFieldLayout' => new FieldLayoutBehavior('Market_Variant',
+                'variantFieldLayoutId'),
+        ];
+    }
 
-	protected function defineAttributes()
-	{
-		return [
-
-			'id'                   => AttributeType::Number,
-			'name'                 => AttributeType::String,
-			'handle'               => AttributeType::String,
-			'hasUrls'              => AttributeType::Bool,
-			'hasVariants'          => AttributeType::Bool,
-			'urlFormat'            => AttributeType::UrlFormat,
-			'template'             => AttributeType::Template,
-			'fieldLayoutId'        => AttributeType::Number,
-			'variantFieldLayoutId' => AttributeType::Number,
-		];
-	}
+    protected function defineAttributes()
+    {
+        return [
+            'id'                   => AttributeType::Number,
+            'name'                 => [AttributeType::Name, 'required' => true],
+            'handle'               => [AttributeType::Handle, 'required' => true],
+            'hasUrls'              => AttributeType::Bool,
+            'hasVariants'          => AttributeType::Bool,
+            'urlFormat'            => AttributeType::UrlFormat,
+            'titleFormat'          => [AttributeType::String, 'required' => true, 'default'=>'{sku}'],
+            'template'             => AttributeType::Template,
+            'fieldLayoutId'        => AttributeType::Number,
+            'variantFieldLayoutId' => AttributeType::Number,
+        ];
+    }
 
 }

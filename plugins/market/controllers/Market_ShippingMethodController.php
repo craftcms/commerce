@@ -2,12 +2,14 @@
 namespace Craft;
 
 /**
- * @author    Make with Morph. <support@makewithmorph.com>
- * @copyright Copyright (c) 2015, Luke Holder.
- * @license   http://makewithmorph.com/market/license Market License Agreement
- * @see       http://makewithmorph.com
- * @package   craft.plugins.market.controllers
- * @since     0.1
+ * Class Market_ShippingMethodController
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://buildwithcraft.com/license Craft License Agreement
+ * @see       http://buildwithcraft.com/commerce
+ * @package   craft.plugins.commerce.controllers
+ * @since     1.0
  */
 class Market_ShippingMethodController extends Market_BaseController
 {
@@ -16,6 +18,8 @@ class Market_ShippingMethodController extends Market_BaseController
 	 */
 	public function actionIndex()
 	{
+		$this->requireAdmin();
+
 		$shippingMethods = craft()->market_shippingMethod->getAll();
 		$this->renderTemplate('market/settings/shippingmethods/index', compact('shippingMethods'));
 	}
@@ -29,6 +33,8 @@ class Market_ShippingMethodController extends Market_BaseController
 	 */
 	public function actionEdit(array $variables = [])
 	{
+		$this->requireAdmin();
+
 		if (empty($variables['shippingMethod'])) {
 			if (!empty($variables['id'])) {
 				$id                          = $variables['id'];
@@ -62,6 +68,8 @@ class Market_ShippingMethodController extends Market_BaseController
 	 */
 	public function actionSave()
 	{
+		$this->requireAdmin();
+
 		$this->requirePostRequest();
 
 		$shippingMethod = new Market_ShippingMethodModel();
@@ -70,6 +78,7 @@ class Market_ShippingMethodController extends Market_BaseController
 		$shippingMethod->id      = craft()->request->getPost('shippingMethodId');
 		$shippingMethod->name    = craft()->request->getPost('name');
 		$shippingMethod->enabled = craft()->request->getPost('enabled');
+		$shippingMethod->default = craft()->request->getPost('default');
 
 		// Save it
 		if (craft()->market_shippingMethod->save($shippingMethod)) {
@@ -88,13 +97,24 @@ class Market_ShippingMethodController extends Market_BaseController
 	 */
 	public function actionDelete()
 	{
+		$this->requireAdmin();
 		$this->requirePostRequest();
 		$this->requireAjaxRequest();
 
 		$id = craft()->request->getRequiredPost('id');
 
-		craft()->market_shippingMethod->deleteById($id);
-		$this->returnJson(['success' => true]);
+		$method = craft()->market_shippingMethod->getById($id);
+
+		if ($method->default){
+			$this->returnJson(array(
+				'errors' => [Craft::t('Can not delete the default method.')]
+			));
+		}
+
+		if (craft()->market_shippingMethod->delete($method)) {
+			$this->returnJson(['success' => true]);
+		}
+
 	}
 
 }

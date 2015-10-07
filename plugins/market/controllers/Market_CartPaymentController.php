@@ -2,61 +2,70 @@
 namespace Craft;
 
 /**
- * Cart. Step "Payment".
+ * Class Market_PaymentController
  *
- * Class Market_CartPaymentController
- *
- * @package Craft
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://buildwithcraft.com/license Craft License Agreement
+ * @see       http://buildwithcraft.com/commerce
+ * @package   craft.plugins.commerce.controllers
+ * @since     1.0
  */
 class Market_CartPaymentController extends Market_BaseController
 {
-	protected $allowAnonymous = true;
+    protected $allowAnonymous = true;
 
-	/**
-	 * @throws HttpException
-	 */
-	public function actionSetShippingMethod()
-	{
-		$this->requirePostRequest();
+    /**
+     * @throws HttpException
+     */
+    public function actionSetShippingMethod()
+    {
+        $this->requirePostRequest();
 
-		$id = craft()->request->getPost('shippingMethodId');
-		$orderTypeHandle = craft()->request->getPost('orderTypeHandle');
-		$cart            = craft()->market_cart->getCart($orderTypeHandle);
+        $id              = craft()->request->getPost('shippingMethodId');
+        $cart            = craft()->market_cart->getCart();
 
-		if (craft()->market_cart->setShippingMethod($cart, $id)) {
-			craft()->userSession->setFlash('market', 'Shipping method has been set');
-			$this->redirectToPostedUrl();
-		} else {
-			craft()->urlManager->setRouteVariables(['shippingMethodError' => 'Wrong shipping method']);
-		}
-	}
+        if (craft()->market_cart->setShippingMethod($cart, $id)) {
+            craft()->userSession->setFlash('notice',Craft::t('Shipping method has been set'));
+            $this->redirectToPostedUrl();
+        } else {
+            craft()->userSession->setFlash('notice',Craft::t('Wrong shipping method'));
+        }
+    }
 
-	/**
-	 * @throws HttpException
-	 */
-	public function actionPay()
-	{
-		$this->requirePostRequest();
+    /**
+     * @throws HttpException
+     */
+    public function actionPay()
+    {
+        $this->requirePostRequest();
 
         $paymentForm             = new Market_PaymentFormModel;
         $paymentForm->attributes = $_POST;
-        $returnUrl               = craft()->request->getPost('returnUrl');
+        // give the credit card number more of a chance to validate
+        $paymentForm->number = preg_replace("/[^0-9]/", "", $paymentForm->number);
+        $redirect                = craft()->request->getPost('redirect');
         $cancelUrl               = craft()->request->getPost('cancelUrl');
-        $orderTypeHandle         = craft()->request->getPost('orderTypeHandle');
-        $cart                    = craft()->market_cart->getCart($orderTypeHandle);
+        $cart                    = craft()->market_cart->getCart();
 
-		// Ensure correct redirect urls are supplied.
-		$redirect = craft()->request->getPost('redirect');
-		if(empty($returnUrl) || empty($cancelUrl) || !empty($redirect)) {
-			throw new Exception('Please specify "returnUrl" and "cancelUrl". "redirect" param is not allowed in this action');
-		}
+        if (!$cart->email){
+            craft()->userSession->setFlash('error',Craft::t("No customer email address for cart."));
+            craft()->urlManager->setRouteVariables(compact('paymentForm'));
+            return;
+        }
 
+        // Ensure correct redirect urls are supplied.
+        if (empty($cancelUrl) || empty($redirect)) {
+            throw new Exception(Craft::t('Please specify "redirect" and "cancelUrl".'));
+        }
 
-		//in case of success "pay" redirects us somewhere
-		if (!craft()->market_payment->processPayment($cart, $paymentForm, $returnUrl, $cancelUrl, $customError)) {
-			craft()->urlManager->setRouteVariables(compact('paymentForm', 'customError'));
-		}
-	}
+        if (!craft()->market_payment->processPayment($cart, $paymentForm,
+            $redirect, $cancelUrl, $customError)
+        ) {
+            craft()->userSession->setFlash('error',$customError);
+            craft()->urlManager->setRouteVariables(compact('paymentForm'));
+        }
+    }
 
     /**
      * Process return from off-site payment
@@ -66,10 +75,10 @@ class Market_CartPaymentController extends Market_BaseController
      */
     public function actionComplete()
     {
-        $id = craft()->request->getParam('hash');
+        $id          = craft()->request->getParam('hash');
         $transaction = craft()->market_transaction->getByHash($id);
 
-        if(!$transaction->id) {
+        if (!$transaction->id) {
             throw new HttpException(400);
         }
 

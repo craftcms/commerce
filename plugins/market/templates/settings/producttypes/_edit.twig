@@ -120,26 +120,29 @@
         </tr>
     {%  endmacro %}
 
-    {% from _self import hasUrlsField, templateField, hasVariantsField, fieldOptionsRow  %}
+    {% macro titleFormatField(productType) %}
+        {% from "_includes/forms" import textField %}
+        <div class="variant-settings {{ (productType.hasVariants ? '' : 'hidden') }}">
+        {{ textField({
+            label: "Variant Title Format"|t,
+            instructions: "What the auto-generated entry titles should look like. You can include tags that output entry properties, such as {sku} or {myCustomField}."|t,
+            id: 'titleFormat',
+            class: 'ltr',
+            name: 'titleFormat',
+            value: productType.titleFormat,
+            errors: productType.getErrors('titleFormat')
+        }) }}
+        </div>
+    {% endmacro %}
 
+
+
+
+    {% from _self import hasUrlsField, templateField, hasVariantsField, fieldOptionsRow, titleFormatField  %}
+
+    <hr/>
     {{ hasVariantsField(productType) }}
-
-    {#<table id="fieldOptions" class="data fullwidth collapsible">#}
-        {#<thead>#}
-        {#<tr>#}
-            {#<th scope="col">Field</th>#}
-            {#<th scope="col">Visible</th>#}
-            {#<th scope="col"><span class="variant-settings">Variant Field Hidden</span></th>#}
-        {#</tr>#}
-        {#</thead>#}
-        {#<tbody>#}
-        {#{{ fieldOptionsRow('Weight'|t,'weight') }}#}
-        {#{{ fieldOptionsRow('Width'|t,'width') }}#}
-        {#{{ fieldOptionsRow('Height'|t,'height') }}#}
-        {#{{ fieldOptionsRow('Length'|t,'length') }}#}
-        {#</tbody>#}
-    {#</table>#}
-
+    {{ titleFormatField(productType) }}
     <hr/>
 
     {{ hasUrlsField(productType) }}

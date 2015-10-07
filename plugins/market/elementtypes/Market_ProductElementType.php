@@ -26,6 +26,21 @@ class Market_ProductElementType extends Market_BaseElementType
 		return true;
 	}
 
+	public function getAvailableActions($source = null)
+	{
+		$deleteAction = craft()->elements->getAction('Delete');
+		$deleteAction->setParams(array(
+			'confirmationMessage' => Craft::t('Are you sure you want to delete the selected product and their variants?'),
+			'successMessage'      => Craft::t('Products deleted.'),
+		));
+		$actions[] = $deleteAction;
+
+		$setValuesAction = craft()->elements->getAction('Market_CreateSale');
+		$actions[] = $setValuesAction;
+
+		return $actions;
+	}
+
 	public function getSources($context = NULL)
 	{
 		$sources = [
@@ -160,12 +175,12 @@ class Market_ProductElementType extends Market_BaseElementType
 	public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
 	{
 		$query
-			->addSelect("products.id, products.typeId, products.availableOn, products.expiresOn, products.taxCategoryId, products.authorId")
+			->addSelect("products.id, products.typeId, products.promotable, products.freeShipping, products.availableOn, products.expiresOn, products.taxCategoryId, products.authorId")
 			->join('market_products products', 'products.id = elements.id')
 			->join('market_producttypes producttypes', 'producttypes.id = products.typeId');
 
 		if ($criteria->availableOn) {
-			$query->andWhere(DbHelper::parseDateParam('products.availableOn', $criteria->postDate, $query->params));
+			$query->andWhere(DbHelper::parseDateParam('products.availableOn', $criteria->availableOn, $query->params));
 		} else {
 			if ($criteria->after) {
 				$query->andWhere(DbHelper::parseDateParam('products.availableOn', '>=' . $criteria->after, $query->params));
@@ -177,7 +192,7 @@ class Market_ProductElementType extends Market_BaseElementType
 		}
 
 		if ($criteria->expiresOn) {
-			$query->andWhere(DbHelper::parseDateParam('products.expiresOn', $criteria->expiryDate, $query->params));
+			$query->andWhere(DbHelper::parseDateParam('products.expiresOn', $criteria->expiresOn, $query->params));
 		}
 
 		if ($criteria->type) {

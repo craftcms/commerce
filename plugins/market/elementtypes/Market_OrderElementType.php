@@ -6,71 +6,103 @@ require_once(__DIR__ . '/Market_BaseElementType.php');
 class Market_OrderElementType extends Market_BaseElementType
 {
 
-	public function getName()
-	{
-		return Craft::t('Orders');
-	}
+    /**
+     * @return null|string
+     */
+    public function getName()
+    {
+        return Craft::t('Orders');
+    }
 
-	public function hasContent()
-	{
-		return true;
-	}
+    /**
+     * @return bool
+     */
+    public function hasContent()
+    {
+        return true;
+    }
 
-	public function hasTitles()
-	{
-		return false;
-	}
+    /**
+     * @return bool
+     */
+    public function hasTitles()
+    {
+        return false;
+    }
 
-	public function hasStatuses()
-	{
-		return false;
-	}
+    /**
+     * @return bool
+     */
+    public function hasStatuses()
+    {
+        return false;
+    }
 
-	public function getSources($context = NULL)
-	{
-		$sources = [
-			'*' => [
-				'label' => Craft::t('All orders'),
-			]
-		];
+    /**
+     * @param null $context
+     * @return array
+     */
+    public function getSources($context = NULL)
+    {
+        $sources = [
+            '*' => [
+                'label' => Craft::t('All Orders'),
+                'criteria' => ['completed' => true]
+            ]
+        ];
 
-		foreach (craft()->market_orderType->getAll() as $orderType) {
+        $sources[] = ['heading' => Craft::t("Order Status")];
 
-			$sources[] = ['heading' => $orderType->name];
+        foreach (craft()->market_orderStatus->getAll() as $orderStatus) {
+            $key = 'orderStatus:' . $orderStatus->handle;
+            $sources[$key] = [
+                'statusColor' => $orderStatus->color,
+                'label' => $orderStatus->name,
+                'criteria' => ['orderStatus' => $orderStatus]
+            ];
+        }
 
-			$key = 'orderType:' . $orderType->id;
-			$sources[$key] = [
-				'label'    => craft::t("All") . ' ' .$orderType->name,
-				'criteria' => ['typeId' => $orderType->id]
-			];
 
-			$key = 'orderType:' . $orderType->id . ':completedAt:null';
+        $sources[] = ['heading' => Craft::t("Carts")];
 
-			$sources[$key] = [
-				'label'    => Craft::t('Incomplete'),
-				'criteria' => ['typeId' => $orderType->id, 'completedAt' => ":empty:"]
-			];
+        $edge             = new DateTime();
+        $interval         = new DateInterval("PT1H");
+        $interval->invert = 1;
+        $edge->add($interval);
 
-			foreach ($orderType->orderStatuses as $status){
-				$key = 'orderType:' . $orderType->id . ':orderStatus:' . $status->id;
-				$sources[$key] = [
-					'label'    => ucwords($status->name),
-					'criteria' => ['typeId' => $orderType->id, 'orderStatus' => $status->id]
-				];
-			}
-		}
+        $sources['carts:active'] = [
+            'label' => Craft::t('Active Carts'),
+            'criteria' => ['updatedAfter'=>$edge,'dateOrdered' => ":empty:"]
+        ];
 
-		return $sources;
+        $sources['carts:inactive'] = [
+            'label' => Craft::t('Inactive Carts'),
+            'criteria' => ['updatedBefore'=>$edge,'dateOrdered' => ":empty:"]
+        ];
 
-	}
+        return $sources;
 
+    }
+
+    /**
+     * @param null $source
+     * @return array
+     */
 	public function defineTableAttributes($source = NULL)
 	{
+        if (explode(':',$source)[0] == 'carts'){
+            return [
+                'number'     => Craft::t('Number'),
+                'dateUpdated'=> Craft::t('Last Updated'),
+                'totalPrice' => Craft::t('Total')
+            ];
+        }
 		return [
 			'number'     => Craft::t('Number'),
 			'orderStatus'=> Craft::t('Status'),
-			'finalPrice' => Craft::t('Total Payable'),
-			'completedAt'=> Craft::t('Completed')
+			'totalPrice' => Craft::t('Total Payable'),
+			'dateOrdered'=> Craft::t('Completed'),
+			'datePaid' => Craft::t('Paid')
 		];
 	}
 
@@ -79,96 +111,168 @@ class Market_OrderElementType extends Market_BaseElementType
 		return ['number'];
 	}
 
-	public function getTableAttributeHtml(BaseElementModel $element, $attribute)
-	{
+    /**
+     * @param BaseElementModel $element
+     * @param string $attribute
+     * @return mixed|string
+     */
+    public function getTableAttributeHtml(BaseElementModel $element, $attribute)
+    {
 
-		if ($attribute == 'finalPrice') {
-			$currency = craft()->market_settings->getOption('defaultCurrency');
-			return craft()->numberFormatter->formatCurrency($element->finalPrice, strtoupper($currency));
-		}
+        if ($attribute == 'totalPrice') {
+            $currency = craft()->market_settings->getOption('defaultCurrency');
+            return craft()->numberFormatter->formatCurrency($element->totalPrice, strtoupper($currency));
+        }
 
 		if ($attribute == 'orderStatus') {
 			if ($element->orderStatus){
 				return $element->orderStatus->printName();
 			}else{
-				return "";
+				return sprintf('<span class="market status %s"></span> %s','', '');
 			}
 
 		}
 
-		return parent::getTableAttributeHtml($element, $attribute);
-	}
+        return parent::getTableAttributeHtml($element, $attribute);
+    }
 
-	public function defineSortableAttributes()
-	{
-		return [
-			'number'     => Craft::t('Number'),
-			'completedAt'     => Craft::t('Completed At'),
-			'finalPrice' => Craft::t('Total Payable'),
-			'orderStatusId' => Craft::t('Order Status'),
-		];
-	}
-
-
-	public function defineCriteriaAttributes()
-	{
-		return [
-			'typeId' => AttributeType::Mixed,
-			'type'   => AttributeType::Mixed,
-			'number' => AttributeType::Mixed,
-			'completedAt'  => AttributeType::Mixed,
-			'orderStatus'  => AttributeType::Mixed,
-			'orderStatusId'  => AttributeType::Mixed,
-		];
-	}
+    /**
+     * @return array
+     */
+    public function defineSortableAttributes()
+    {
+        return [
+            'number' => Craft::t('Number'),
+            'dateOrdered' => Craft::t('Completed At'),
+            'totalPrice' => Craft::t('Total Payable'),
+            'orderStatusId' => Craft::t('Order Status'),
+        ];
+    }
 
 
-	public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
-	{
-		$query
-			->addSelect('orders.id, orders.typeId, orders.number, orders.finalPrice, orders.orderStatusId, orders.completedAt')
-			->join('market_orders orders', 'orders.id = elements.id')
-			->join('market_ordertypes ordertypes', 'ordertypes.id = orders.typeId');
+    /**
+     * @return array
+     */
+    public function defineCriteriaAttributes()
+    {
+        return [
+            'number' => AttributeType::Mixed,
+            'dateOrdered' => AttributeType::Mixed,
+            'updatedOn' => AttributeType::Mixed,
+            'updatedAfter' => AttributeType::Mixed,
+            'updatedBefore' => AttributeType::Mixed,
+            'orderStatus' => AttributeType::Mixed,
+            'orderStatusId' => AttributeType::Mixed,
+            'completed' => AttributeType::Bool,
+            'customer'  => AttributeType::Mixed,
+            'customerId'  => AttributeType::Mixed
+        ];
+    }
 
-		if ($criteria->type) {
-			if ($criteria->type instanceof Market_OrderTypeModel) {
-				$criteria->typeId = $criteria->type->id;
-				$criteria->type   = NULL;
-			} else {
-				$query->andWhere(DbHelper::parseParam('ordertypes.handle', $criteria->type, $query->params));
-			}
-		}
+    /**
+     * @param DbCommand $query
+     * @param ElementCriteriaModel $criteria
+     *
+     * @return void
+     */
+    public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
+    {
+        $query
+            ->addSelect('orders.id,
+        orders.number,
+        orders.couponCode,
+        orders.itemTotal,
+        orders.baseDiscount,
+        orders.baseShippingCost,
+        orders.totalPrice,
+        orders.totalPaid,
+        orders.orderStatusId,
+        orders.dateOrdered,
+        orders.email,
+        orders.dateOrdered,
+        orders.datePaid,
+        orders.currency,
+        orders.lastIp,
+        orders.message,
+        orders.returnUrl,
+        orders.cancelUrl,
+        orders.orderStatusId,
+        orders.billingAddressId,
+        orders.billingAddressData,
+        orders.shippingAddressId,
+        orders.shippingAddressData,
+        orders.shippingMethodId,
+        orders.paymentMethodId,
+        orders.customerId,
+        orders.dateUpdated')
+            ->join('market_orders orders', 'orders.id = elements.id');
 
-		if ($criteria->typeId) {
-			$query->andWhere(DbHelper::parseParam('orders.typeId', $criteria->typeId, $query->params));
-		}
+        if ($criteria->completed) {
+            if ($criteria->completed == true) {
+                $query->andWhere('orders.dateOrdered is not null');
+                $criteria->completed = null;
+            }
+        }
 
-		if ($criteria->number) {
-			$query->andWhere(DbHelper::parseParam('orders.number', $criteria->number, $query->params));
-		}
+        if ($criteria->dateOrdered) {
+            $query->andWhere(DbHelper::parseParam('orders.dateOrdered', $criteria->dateOrdered, $query->params));
+        }
 
-		if ($criteria->completedAt) {
-			$query->andWhere(DbHelper::parseParam('orders.completedAt', $criteria->completedAt, $query->params));
-		}
+        if ($criteria->number) {
+            $query->andWhere(DbHelper::parseParam('orders.number', $criteria->number, $query->params));
+        }
 
-		if ($criteria->orderStatus) {
-			if ($criteria->orderStatus instanceof Market_OrderStatusModel) {
-				$criteria->orderStatusId = $criteria->orderStatus->id;
-				$criteria->orderStatus   = NULL;
-			}else{
-				$query->andWhere(DbHelper::parseParam('orders.orderStatusId', $criteria->orderStatus, $query->params));
-			}
-		}
+        if ($criteria->orderStatus) {
+            if ($criteria->orderStatus instanceof Market_OrderStatusModel) {
+                $criteria->orderStatusId = $criteria->orderStatus->id;
+                $criteria->orderStatus = NULL;
+            } else {
+                $query->andWhere(DbHelper::parseParam('orders.orderStatusId', $criteria->orderStatus, $query->params));
+            }
+        }
 
-		if ($criteria->orderStatusId){
-			$query->andWhere(DbHelper::parseParam('orders.orderStatusId', $criteria->orderStatusId, $query->params));
-		}
-	}
+        if ($criteria->orderStatusId) {
+            $query->andWhere(DbHelper::parseParam('orders.orderStatusId', $criteria->orderStatusId, $query->params));
+        }
+
+        if($criteria->customer) {
+          if ($criteria->customer instanceof Market_CustomerModel) {
+            if($criteria->customer->id){
+                $criteria->customerId = $criteria->customer->id;
+                $criteria->customer = null;
+            }else{
+                $query->andWhere(DbHelper::parseParam('orders.customerId', 'IS NULL', $query->params));
+            }
+          }
+        }
+
+        if($criteria->customerId){
+          $query->andWhere(DbHelper::parseParam('orders.customerId', $criteria->customerId, $query->params));
+        }
+
+        if ($criteria->updatedOn) {
+            $query->andWhere(DbHelper::parseDateParam('orders.dateUpdated', $criteria->updatedOn, $query->params));
+        } else {
+            if ($criteria->updatedAfter) {
+                $query->andWhere(DbHelper::parseDateParam('orders.dateUpdated', '>=' . $criteria->updatedAfter, $query->params));
+            }
+
+            if ($criteria->updatedBefore) {
+                $query->andWhere(DbHelper::parseDateParam('orders.dateUpdated', '<' . $criteria->updatedBefore, $query->params));
+            }
+        }
+    }
 
 
-	public function populateElementModel($row)
-	{
-		return Market_OrderModel::populateModel($row);
-	}
+    /**
+     * Populate the Order.
+     *
+     * @param array $row
+     * @return BaseModel
+     */
+    public function populateElementModel($row)
+    {
+        return Market_OrderModel::populateModel($row);
+    }
 
-} 
+}

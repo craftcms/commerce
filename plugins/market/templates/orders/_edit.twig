@@ -1,7 +1,7 @@
 {% extends "market/_layouts/cp" %}
 
 {% set crumbs = [
-{ label: "Orders"|t, url: url('market/orders') }
+    { label: "Orders"|t, url: url('market/orders') }
 ] %}
 
 {% import "_includes/forms" as forms %}
@@ -12,7 +12,6 @@
     <form id="order-form" method="post" accept-charset="UTF-8">
         <input type="hidden" name="action" value="market/order/saveOrder">
         <input type="hidden" name="redirect" value="market/orders">
-        <input type="hidden" name="typeId" value="{{ orderType.id }}">
         {{ getCsrfInput() }}
         {% if order.id %}<input type="hidden" name="orderId" value="{{ order.id }}">{% endif %}
 
@@ -24,49 +23,100 @@
                     {% include "_includes/tabs" %}
 
                     {% if orderId is defined %}
-                    <table id="" class="shadow-box editable">
+                    <table id="" class="data fullwidth collapsible">
                         <thead>
                         <tr>
-                            <th scope="col" class="header">{{ 'Line'|t }}</span></th>
-                            <th scope="col" class="header">{{ 'Name'|t }}</span></th>
-                            <th scope="col" class="header">{{ 'SKU'|t }}</span></th>
-                            <th scope="col" class="header">{{ 'Price'|t }}</span></th>
-                            <th scope="col" class="header">{{ 'Sale Amount'|t }}</th>
-                            <th scope="col" class="header">{{ 'Tax Amount'|t }}</th>
-                            <th scope="col" class="header">{{ 'Shipping Amount'|t }}</th>
-                            <th scope="col" class="header">{{ 'Discount Amount'|t }}</th>
-                            <th scope="col" class="header">{{ 'Weight'|t }}</th>
-                            <th scope="col" class="header">{{ 'Quantity'|t }}</th>
-                            <th scope="col" class="header">{{ 'Total'|t }}</th>
-                            <th></th>
+                            <th scope="col"></span></th>
+                            <th scope="col">{{ 'Quantity'|t }}</th>
+                            <th scope="col">{{ 'Item'|t }}</span></th>
+                            <th scope="col">{{ 'Total'|t }}</th>
+                            <th scope="col"></th>
                         </tr>
                         </thead>
                         <tbody>
 
                         {%  for lineItem in order.lineItems %}
                             <tr>
-                                <td>{{ lineItem.id }}</td>
-                                <td><a href="{{ lineItem.purchasable.cpEditUrl }}">{{ lineItem.purchasable.purchasableDescription }}</a></td>
-                                <td>{{ lineItem.purchasable.purchasableSku }}</td>
-                                <td>{{ lineItem.price }}</td>
-                                <td>{{ lineItem.saleAmount }}</td>
-                                <td>{{ lineItem.taxAmount }}</td>
-                                <td>{{ lineItem.shippingAmount }}</td>
-                                <td>{{ lineItem.discountAmount }}</td>
-                                <td>{{ lineItem.weight }}</td>
+                                <td><a class="fieldtoggle" data-target=".more-{{ lineItem.id }}">&nbsp;</a></td>
                                 <td>{{ lineItem.qty }}</td>
-                                <td>{{ lineItem.total }}</td>
+                                <td valign="top">
+                                        {% if lineItem.snapshot.cpEditUrl != "#" %}
+                                        <a href="{{ lineItem.snapshot.cpEditUrl }}">{{ lineItem.description }} </a>({{ lineItem.sku }})
+                                        {% else %}
+                                            {{ lineItem.description }} ({{ lineItem.sku }})
+                                        {%  endif %}
+                                    {%  if lineItem.note %}
+                                    <div class="hidden more-{{ lineItem.id }}">{{ "Note"|t }}: {{ lineItem.note }}</div>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="hidden more-{{ lineItem.id }}">
+                                        {{ "Item Price"|t }}<br/>
+                                        {{ "Item Sale Amount"|t }}<br/>
+                                        {{ "Item Sale Price"|t }}<br/>
+                                        {{ "Tax"|t }}<br/>
+                                        {{ "Shipping"|t }}<br/>
+                                        {{ "Discount"|t }}<br/>
+                                    </div>
+                                    <strong>Total</strong><br/>
+
+                                </td>
+                                <td>
+                                    <div class="hidden more-{{ lineItem.id }}">
+                                        {% if lineItem.onSale %}
+                                            <strike>{{ lineItem.price|marketCurrency }}<br/></strike>
+                                        {% else %}
+                                            {{ lineItem.price|marketCurrency }}<br/>
+                                        {% endif %}
+                                        {{ lineItem.saleAmount|marketCurrency }}<br/>
+                                        {{ lineItem.salePrice|marketCurrency }}<br/>
+                                        {{ lineItem.tax|marketCurrency }}<br/>
+                                        {{ lineItem.shippingCost|marketCurrency }}<br/>
+                                        {{ lineItem.discount|marketCurrency }}<br/>
+                                    </div>
+                                    {{ lineItem.total|marketCurrency }}
+                                </td>
                             </tr>
                         {% endfor %}
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><strong>Item Total</strong></td>
+                            <td>{{ order.itemTotal|marketCurrency }}</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><strong>Base Shipping</strong></td>
+                            <td>{{ order.baseShippingCost|marketCurrency }}</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><strong>Base Discount</strong></td>
+                            <td>{{ order.baseDiscount|marketCurrency }}</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><strong>Final Total</strong></td>
+                            <td>{{ order.totalPrice|marketCurrency }}</td>
+                        </tr>
+
                         </tbody>
                         </table>
                         <p></p>
                     {% endif %}
 
+
                     {% from "_includes/forms" import textField %}
                     {% set static = static is defined ? static : false %}
 
-                    {% for tab in orderType.getFieldLayout().getTabs() %}
+                    {% for tab in orderSettings.getFieldLayout().getTabs() %}
 
                         <div id="tab{{ loop.index }}" {% if not loop.first %} class="hidden" {% endif %}>
                             {% include "_includes/fields" with {
@@ -80,81 +130,18 @@
 
                 </div>{# end pane#}
 
-            </div>
-            <div class="item" data-position="right" data-colspan="1">
-                <!-- order summary pane -->
+
                 <div class="pane">
-                    {% if orderId is defined %}
-                        <h1>{{ craft.market.settings.defaultCurrency }}&nbsp;{{order.finalPrice|marketCurrency }}</h1>
-                        <h2>{{ order.completedAt|date('D dS M Y') }}</h2>
-                        <h2>{{ order.email }}</h2>
+                    <h3>Order Status History</h3>
 
-                        <strong>Billing Address: </strong>
-                        {% if order.billingAddressId %}
-                            <a href="{{ order.billingAddress.getCpEditUrl() }}">{{ order.billingAddress.country.name }}</a>
-                        {% else %}
-                            (null)
-                        {% endif %}<br/>
-
-                        <strong>Shipping Address: </strong>
-                        {% if order.shippingAddressId %}
-                            <a href="{{ order.shippingAddress.getCpEditUrl() }}">{{ order.shippingAddress.country.name }}</a>
-                        {% else %}
-                            (null)
-                        {% endif %}<br/>
-
-
-                        {#{{ order.shippingMethodId }}#}
-                        {#{{ order.lastIp }}#}
-
-                        <div class="btngroup">
-                            <input type="button" class="btn small formsubmit" value="{{ 'Delete'|t }}"
-                                   data-action="market/order/deleteOrder"
-                                   data-confirm="{{ 'Are you sure you want to delete this order?'|t }}"
-                                   data-redirect="market/orders">
-                        </div>
-                    {% endif %}
-
-                </div>
-
-                <!-- status pane -->
-                <div class="pane">
-                    {{ forms.selectField({
-                        label: 'Order Status'|t,
-                        instructions: "Current order status."|t,
-                        id: 'orderStatusId',
-                        name: 'orderStatusId',
-                        options: orderStatuses,
-                        value: order.orderStatusId,
-                        errors: order.getErrors('orderStatusId'),
-                    }) }}
-
-                    {{ forms.textareaField({
-                        label: 'Message'|t,
-                        instructions: "Leave comment if you change the status."|t,
-                        name: 'message',
-                        value: message is defined ? message : '',
-                        errors: order.getErrors('message'),
-                    }) }}
-                </div>
-
-                <div class="buttons first">
-                    <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
-                </div>
-            </div>
-        </div>
-        <div class="grid">
-                <div class="pane">
-                    <h3>Order History</h3>
-
-                    <table id="" class="shadow-box editable">
+                    <table class="data fullwidth">
                         <thead>
                         <tr>
-                            <th scope="col" class="header">{{ 'ID'|t }}</span></th>
-                            <th scope="col" class="header">{{ 'Old Status'|t }}</span></th>
-                            <th scope="col" class="header">{{ 'New Status'|t }}</th>
-                            <th scope="col" class="header">{{ 'Customer'|t }}</th>
-                            <th scope="col" class="header">{{ 'Message'|t }}</th>
+                            <th scope="col">{{ 'ID'|t }}</span></th>
+                            <th scope="col">{{ 'Old Status'|t }}</span></th>
+                            <th scope="col">{{ 'New Status'|t }}</th>
+                            <th scope="col">{{ 'Customer'|t }}</th>
+                            <th scope="col">{{ 'Message'|t }}</th>
                             <th></th>
                         </tr>
                         </thead>
@@ -173,35 +160,36 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <a href="{{ orderHistory.customer.cpEditUrl }}">
-                                        {% if orderHistory.customer.userId %}
-                                            {{ orderHistory.customer.user.friendlyName }}
-                                        {% else %}
-                                            Customer #{{ orderHistory.customerId }}
-                                        {% endif %}
-                                    </a>
+                                    {% if orderHistory.customer.userId %}
+                                        <a href="{{ orderHistory.customer.user.cpEditUrl }}">{{ orderHistory.customer.user.friendlyName }}</a>
+                                    {% else %}
+                                        {{ orderHistory.order.email }}
+                                    {% endif %}
                                 </td>
                                 <td>{{ orderHistory.message }}</td>
                             </tr>
                         {% endfor %}
                         </tbody>
                     </table>
+                </div>
+                <div class="pane">
 
                     <h3>Transactions</h3>
 
-                    <table id="" class="shadow-box editable">
+                    <table class="data fullwidth">
                         <thead>
                         <tr>
-                            <th scope="col" class="header">{{ 'ID'|t }}</span></th>
-                            <th scope="col" class="header">{{ 'Type'|t }}</span></th>
-                            <th scope="col" class="header">{{ 'Status'|t }}</th>
-                            <th scope="col" class="header">{{ 'Hash'|t }}</th>
-                            <th scope="col" class="header">{{ 'Reference'|t }}</th>
-                            <th scope="col" class="header">{{ 'Message'|t }}</th>
-                            <th scope="col" class="header">{{ 'Response'|t }}</th>
-                            <th scope="col" class="header">{{ 'Payment Method'|t }}</th>
-                            <th scope="col" class="header">{{ 'Parent#'|t }}</th>
-                            <th scope="col" class="header">{{ 'User#'|t }}</th>
+                            <th scope="col">{{ 'ID'|t }}</span></th>
+                            <th scope="col">{{ 'Type'|t }}</span></th>
+                            <th scope="col">{{ 'Status'|t }}</th>
+                            <th scope="col">{{ 'Hash'|t }}</th>
+                            <th scope="col">{{ 'Reference'|t }}</th>
+                            <th scope="col">{{ 'Amount'|t }}</th>
+                            <th scope="col">{{ 'Message'|t }}</th>
+                            <th scope="col">{{ 'Response'|t }}</th>
+                            <th scope="col">{{ 'Payment Method'|t }}</th>
+                            <th scope="col">{{ 'Parent#'|t }}</th>
+                            <th scope="col">{{ 'User#'|t }}</th>
                             <th></th>
                         </tr>
                         </thead>
@@ -213,6 +201,7 @@
                                 <td>{{ transaction.status }}</td>
                                 <td>{{ transaction.hash }}</td>
                                 <td>{{ transaction.reference }}</td>
+                                <td>{{ transaction.amount }}</td>
                                 <td>{{ transaction.message }}</td>
                                 <td>{{ transaction.response }}</td>
                                 <td>{{ transaction.paymentMethod.name }}</td>
@@ -241,6 +230,113 @@
                         </tbody>
                     </table>
                 </div>
+
+            </div>
+            <div class="item" data-position="right" data-colspan="1">
+                <!-- order summary pane -->
+                <div class="pane">
+                    {% if orderId is defined %}
+                        <table class="data fullwidth collapsible">
+                            <tr>
+                                <td><strong>Ref</strong></td>
+                                <td><span title="Full Number: {{ order.number }}">{{ order.number[0:7] }}</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>{{ "Status"|t}}</strong></td>
+                                {% if order.orderStatus %}
+                                    <td>{{ order.orderStatus.printName|raw }} </td>
+                                {% else %}
+                                    <td><span class="market status"></span></td>
+                                {% endif %}
+                            </tr>
+                            <tr>
+                                <td><strong>{{ "Order Date"|t}}</strong></td>
+                                <td>{{ order.dateOrdered|date('D dS M Y') }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>{{ "Total"|t}}</strong></td>
+                                <td>{{ order.totalPrice|marketCurrency }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>{{ "Paid"|t}} </strong></td>
+                                <td>{{ order.totalPaid|marketCurrency }} {{ order.datePaid|date('D dS M Y') }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>{{ "Customer"|t}}</strong></td>
+                                <td>{% if order.customer.userId %}<a href="{{ order.customer.user.cpEditUrl }}">{{ order.email }}</a>{% else %}{{ order.email }}&nbsp;({{ "Guest"|t }} {% endif %}</td>
+                            </tr>
+                        </table>
+                        <br/>
+                        <a href="{{ order.pdfUrl }}" target="_blank">Download PDF</a>
+
+                        <div class="btngroup right">
+                            <input type="button" class="btn small formsubmit" value="{{ 'Delete Order'|t }}"
+                                   data-action="market/order/deleteOrder"
+                                   data-confirm="{{ 'Are you sure you want to delete this order?'|t }}"
+                                   data-redirect="market/orders">
+                        </div>
+                    {% endif %}
+
+                </div>
+
+                {% if order.billingAddressId %}
+                <div class="pane">
+                    <a class="btn right small" href="http://maps.google.com/maps?q={{ order.billingAddress.address1 }}+{{ order.billingAddress.address2 }}+{{ order.billingAddress.city }}+{{ order.billingAddress.zipCode }}+{{ order.billingAddress.stateText }}+{{ order.billingAddress.countryText }}" target="_blank">Map</a>
+                    <strong>Billing Address </strong><br/>
+                    {{ order.billingAddress.firstName }} {{ order.billingAddress.lastName }}<br/>
+                    {% if order.billingAddress.company %}{{ order.billingAddress.company }}<br/>{% endif %}
+                    {% if order.billingAddress.address1 %}{{ order.billingAddress.address1 }}<br/>{% endif %}
+                    {% if order.billingAddress.address2 %}{{ order.billingAddress.address2 }}<br/>{% endif %}
+                    {{ order.billingAddress.city }}, {{ order.billingAddress.zipCode }}<br/>
+                    {% if order.billingAddress.phone %}{{ order.billingAddress.phone }}<br/>{% endif %}
+                    {% if order.billingAddress.alternativePhone %}{{ order.billingAddress.alternativePhone }}<br/>{% endif %}
+                    {% if order.billingAddress.stateText %}{{ order.billingAddress.stateText }}<br/>{% endif %}
+                    {{ order.billingAddress.countryText }}<br/>
+
+                </div>
+                {% endif %}
+                {% if order.shippingAddressId %}
+                <div class="pane">
+                    <a class="btn right small" href="http://maps.google.com/maps?q={{ order.shippingAddress.address1 }}+{{ order.shippingAddress.address2 }}+{{ order.shippingAddress.city }}+{{ order.shippingAddress.zipCode }}+{{ order.shippingAddress.stateText }}+{{ order.shippingAddress.countryText }}" target="_blank">Map</a>
+                    <strong>Shipping Address </strong><br/>
+                    {{ order.shippingAddress.firstName }} {{ order.shippingAddress.lastName }}<br/>
+                    {% if order.shippingAddress.company %}{{ order.shippingAddress.company }}<br/>{% endif %}
+                    {% if order.shippingAddress.address1 %}{{ order.shippingAddress.address1 }}<br/>{% endif %}
+                    {% if order.shippingAddress.address2 %}{{ order.shippingAddress.address2 }}<br/>{% endif %}
+                    {{ order.shippingAddress.city }}, {{ order.shippingAddress.zipCode }}<br/>
+                    {% if order.shippingAddress.phone %}{{ order.shippingAddress.phone }}<br/>{% endif %}
+                    {% if order.shippingAddress.alternativePhone %}{{ order.shippingAddress.alternativePhone }}<br/>{% endif %}
+                    {% if order.shippingAddress.stateText %}{{ order.shippingAddress.stateText }}<br/>{% endif %}
+                    {{ order.shippingAddress.countryText }}
+
+                </div>
+                {% endif %}
+
+                <!-- status pane -->
+                <div class="pane">
+                    {{ forms.selectField({
+                        label: 'Change Status'|t,
+                        instructions: "Set a new status"|t,
+                        id: 'orderStatusId',
+                        name: 'orderStatusId',
+                        options: orderStatuses,
+                        value: order.orderStatusId,
+                        errors: order.getErrors('orderStatusId'),
+                    }) }}
+
+                    {{ forms.textareaField({
+                        label: 'Message'|t,
+                        instructions: "Leave comment if you change the status."|t,
+                        name: 'message',
+                        value: message is defined ? message : '',
+                        errors: order.getErrors('message'),
+                    }) }}
+                </div>
+
+                <div class="buttons first">
+                    <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
+                </div>
+            </div>
         </div>
 
 

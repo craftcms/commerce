@@ -20,3 +20,48 @@ table.editable tbody input:focus {
     padding: 6px 9px;
     outline: none;
 }
+
+.statusSource {
+    padding-left:8px !important;
+}
+.statusSource .status{
+    margin-right:3px !important;
+}
+
+/*.variant-massEdit-modal .checkbox-text-input{  position:relative;  }*/
+.variant-massEdit-modal {height:650px;}
+.variant-massEdit-modal .checkbox-text-input .checkbox-text-label{  margin-left: 31px;  }
+.variant-massEdit-modal .checkbox-text-input .checkbox-input{  position:relative; top:-25px; width:30px; }
+.variant-massEdit-modal .checkbox-text-input .text{ display:block; position:relative; left: 30px; width:90%; }
+.variant-massEdit-modal .header-body { padding-bottom:0px; }
+.variant-massEdit-modal .fields-body { padding-top:0px; }
+
+/* TODO remove status colors for 2.5 */
+/* status icons */
+.status { display: inline-block; margin-right: 10px; width: 8px; height: 8px; border-radius: 100%; border: 1px solid transparent; }
+.status.market{background: none;}
+.status:not(.on):not(.live):not(.active):not(.enabled):not(.locked):not(.pending):not(.off):not(.suspended):not(.expired):not(.yellow):not(.orange):not(.red):not(.pink):not(.purple):not(.blue):not(.green):not(.turquoise):not(.light):not(.grey):not(.black) { border-color: rgba(0,0,0,0.40); }
+
+.status.green,
+.status.on,
+.status.live,
+.status.active,
+.status.enabled { background-color: #27AE60; } /* green */
+
+.status.orange,
+.status.locked,
+.status.pending { background-color: #F2842D; } /* orange */
+
+.status.red,
+.status.off,
+.status.suspended,
+.status.expired { background-color: #D0021B; } /* red */
+
+.status.yellow { background-color: #F1C40E; }
+.status.pink { background-color: #FF50F2; }
+.status.purple { background-color: #9B59B6; }
+.status.blue { background-color: #0D99F2; }
+.status.turquoise { background-color: #2CE0BD; }
+.status.light { background-color: #CCD1D6; }
+.status.grey { background-color: #98A3AE; }
+.status.black { background-color: #32475E; }

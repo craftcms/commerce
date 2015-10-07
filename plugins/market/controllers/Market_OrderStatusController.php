@@ -2,100 +2,106 @@
 namespace Craft;
 
 /**
+ * Class Market_OrderStatusController
  *
- *
- * @author    Make with Morph. <support@makewithmorph.com>
- * @copyright Copyright (c) 2015, Luke Holder.
- * @license   http://makewithmorph.com/market/license Market License Agreement
- * @see       http://makewithmorph.com
- * @package   craft.plugins.market.controllers
- * @since     0.1
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://buildwithcraft.com/license Craft License Agreement
+ * @see       http://buildwithcraft.com/commerce
+ * @package   craft.plugins.commerce.controllers
+ * @since     1.0
  */
 class Market_OrderStatusController extends Market_BaseController
 {
-	/**
-	 * @param array $variables
-	 *
-	 * @throws HttpException
-	 */
-	public function actionEdit(array $variables = [])
-	{
-		$variables['orderType'] = craft()->market_orderType->getById($variables['orderTypeId']);
+    public function actionIndex(array $variables = [])
+    {
+        $this->requireAdmin();
 
-		if (empty($variables['orderStatus'])) {
-			if (!empty($variables['id'])) {
-				$variables['orderStatus']   = craft()->market_orderStatus->getById($variables['id']);
-				$variables['orderStatusId'] = $variables['orderStatus']->id;
-				if (!$variables['orderStatus']->id) {
-					throw new HttpException(404);
-				}
-			} else {
-				$variables['orderStatus'] = new Market_OrderStatusModel();
-			}
-		}
+        $variables['orderStatuses'] = craft()->market_orderStatus->getAll();
 
-		if (!empty($variables['orderStatusId'])) {
-			$variables['title'] = $variables['orderStatus']->name;
-		} else {
-			$variables['title'] = Craft::t('Create an Order Status');
-		}
+        $this->renderTemplate('market/settings/orderstatuses/index', $variables);
+    }
 
-		$emails              = craft()->market_email->getAll(['order' => 'name']);
-		$variables['emails'] = \CHtml::listData($emails, 'id', 'name');
 
-		$variables['colorField'] = craft()->templates->render('_includes/forms/color', [
-			'id'    => craft()->templates->formatInputId('color'),
-			'name'  => 'color',
-			'value' => '#93FF81'
-		]);
+    /**
+     * @param array $variables
+     *
+     * @throws HttpException
+     */
+    public function actionEdit(array $variables = [])
+    {
 
-		$this->renderTemplate('market/settings/orderstatuses/_edit', $variables);
-	}
+        $this->requireAdmin();
 
-	/**
-	 * @throws Exception
-	 * @throws HttpException
-	 * @throws \Exception
-	 */
-	public function actionSave()
-	{
-		$this->requirePostRequest();
+        if (empty($variables['orderStatus'])) {
+            if (!empty($variables['id'])) {
+                $variables['orderStatus']   = craft()->market_orderStatus->getById($variables['id']);
+                $variables['orderStatusId'] = $variables['orderStatus']->id;
+                if (!$variables['orderStatus']->id) {
+                    throw new HttpException(404);
+                }
+            } else {
+                $variables['orderStatus'] = new Market_OrderStatusModel();
+            }
+        }
 
-		$orderStatus = new Market_OrderStatusModel();
+        if (!empty($variables['orderStatusId'])) {
+            $variables['title'] = $variables['orderStatus']->name;
+        } else {
+            $variables['title'] = Craft::t('Create an Order Status');
+        }
 
-		// Shared attributes
-		$orderStatus->id          = craft()->request->getPost('orderStatusId');
-		$orderStatus->name        = craft()->request->getPost('name');
-		$orderStatus->handle      = craft()->request->getPost('handle');
-		$orderStatus->color       = craft()->request->getPost('color');
-		$orderStatus->orderTypeId = craft()->request->getPost('orderTypeId');
-		$orderStatus->default     = craft()->request->getPost('default');
-		$emailsIds                = craft()->request->getPost('emails', []);
+        $emails              = craft()->market_email->getAll(['order' => 'name']);
+        $variables['emails'] = \CHtml::listData($emails, 'id', 'name');
 
-		// Save it
-		if (craft()->market_orderStatus->save($orderStatus, $emailsIds)) {
-			craft()->userSession->setNotice(Craft::t('Order status saved.'));
-			$this->redirectToPostedUrl($orderStatus);
-		} else {
-			craft()->userSession->setError(Craft::t('Couldn’t save order status.'));
-		}
+        $this->renderTemplate('market/settings/orderstatuses/_edit',
+            $variables);
+    }
 
-		// Send the calendar back to the template
-		craft()->urlManager->setRouteVariables(compact('orderStatus', 'emailsIds'));
-	}
+    /**
+     * @throws Exception
+     * @throws HttpException
+     * @throws \Exception
+     */
+    public function actionSave()
+    {
+        $this->requireAdmin();
+        $this->requirePostRequest();
 
-	/**
-	 * @throws HttpException
-	 */
-	public function actionDelete()
-	{
-		$this->requirePostRequest();
-		$this->requireAjaxRequest();
+        $orderStatus = new Market_OrderStatusModel();
 
-		$orderStatusId = craft()->request->getRequiredPost('id');
+        // Shared attributes
+        $orderStatus->id          = craft()->request->getPost('orderStatusId');
+        $orderStatus->name        = craft()->request->getPost('name');
+        $orderStatus->handle      = craft()->request->getPost('handle');
+        $orderStatus->color       = craft()->request->getPost('color');
+        $orderStatus->default     = craft()->request->getPost('default');
+        $emailsIds                = craft()->request->getPost('emails', []);
 
-		craft()->market_orderStatus->deleteById($orderStatusId);
-		$this->returnJson(['success' => true]);
-	}
+        // Save it
+        if (craft()->market_orderStatus->save($orderStatus, $emailsIds)) {
+            craft()->userSession->setNotice(Craft::t('Order status saved.'));
+            $this->redirectToPostedUrl($orderStatus);
+        } else {
+            craft()->userSession->setError(Craft::t('Couldn’t save order status.'));
+        }
+
+        craft()->urlManager->setRouteVariables(compact('orderStatus','emailsIds'));
+    }
+
+    /**
+     * @throws HttpException
+     */
+    public function actionDelete()
+    {
+        $this->requireAdmin();
+        $this->requirePostRequest();
+        $this->requireAjaxRequest();
+
+        $orderStatusId = craft()->request->getRequiredPost('id');
+
+        craft()->market_orderStatus->deleteById($orderStatusId);
+        $this->returnJson(['success' => true]);
+    }
 
 } 

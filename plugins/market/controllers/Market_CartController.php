@@ -4,135 +4,224 @@ namespace Craft;
 /**
  * Class Market_CartController
  *
- * @package Craft
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://buildwithcraft.com/license Craft License Agreement
+ * @see       http://buildwithcraft.com/commerce
+ * @package   craft.plugins.commerce.controllers
+ * @since     1.0
  */
-class Market_CartController extends Market_BaseController
+class Market_CartController extends Market_BaseFrontEndController
 {
-	protected $allowAnonymous = true;
+    protected $allowAnonymous = true;
 
-	/**
-	 * Add a purchasable into the cart
-	 *
-	 * @throws Exception
-	 * @throws HttpException
-	 * @throws \Exception
-	 */
-	public function actionAdd()
-	{
-		$this->requirePostRequest();
+    /**
+     * Add a purchasable into the cart
+     *
+     * @throws Exception
+     * @throws HttpException
+     * @throws \Exception
+     */
+    public function actionAdd()
+    {
+        $this->requirePostRequest();
 
-		$purchasableId   = craft()->request->getPost('purchasableId');
-		$qty             = craft()->request->getPost('qty', 0);
-		$orderTypeHandle = craft()->request->getPost('orderTypeHandle');
-		$cart            = craft()->market_cart->getCart($orderTypeHandle);
-		$cart->setContentFromPost('fields');
+        /** @var Market_OrderModel $cart */
+        $cart            = craft()->market_cart->getCart();
+        $cart->setContentFromPost('fields');
 
-		if (craft()->market_cart->addToCart($cart, $purchasableId, $qty, $error)) {
-			craft()->userSession->setFlash('market', 'Product has been added');
-			$this->redirectToPostedUrl();
-		} else {
-			craft()->urlManager->setRouteVariables(['error' => $error]);
-		}
-	}
+        $purchasableId   = craft()->request->getPost('purchasableId');
+        $note            = craft()->request->getPost('note');
+        $qty             = craft()->request->getPost('qty', 1);
+        $error = '';
 
-	/**
-	 * Update quantity
-	 *
-	 * @throws Exception
-	 * @throws HttpException
-	 */
-	public function actionUpdateQty()
-	{
-		$this->requirePostRequest();
+        if (craft()->market_cart->addToCart($cart, $purchasableId, $qty, $note, $error)) {
+            if(craft()->request->isAjaxRequest){
+                $this->returnJson(['success'=>true,'cart'=>$this->cartArray($cart)]);
+            }
+            craft()->userSession->setFlash('notice', Craft::t('Product has been added'));
+            $this->redirectToPostedUrl();
+        } else {
+            if(craft()->request->isAjaxRequest){
+                $this->returnJson(['error'=>$error]);
+            }
+            craft()->userSession->setFlash('error', $error);
+        }
+    }
 
-		$lineItemId = craft()->request->getPost('lineItemId');
-		$qty        = craft()->request->getPost('qty', 0);
+    /**
+     * Update quantity
+     *
+     * @throws Exception
+     * @throws HttpException
+     */
+    public function actionUpdateLineItem()
+    {
+        $this->requirePostRequest();
 
-		$lineItem = craft()->market_lineItem->getById($lineItemId);
-		if (!$lineItem->id) {
-			throw new Exception('Line item not found');
-		}
+        $cart = craft()->market_cart->getCart();
+        $lineItemId = craft()->request->getPost('lineItemId');
+        $qty        = craft()->request->getPost('qty', 0);
+        $note        = craft()->request->getPost('note');
 
-		$lineItem->qty = $qty;
-		$lineItem->order->setContentFromPost('fields');
+        $lineItem = craft()->market_lineItem->getById($lineItemId);
 
-		if (craft()->market_lineItem->update($lineItem, $error)) {
-			craft()->userSession->setFlash('market', 'Product quantity has been updated');
-			$this->redirectToPostedUrl();
-		} else {
-			craft()->urlManager->setRouteVariables(['error' => $error]);
-		}
-	}
+        // Only let them update their own cart's line item.
+        if (!$lineItem->id || $cart->id != $lineItem->order->id){
+            throw new Exception(Craft::t('Line item not found for current cart'));
+        }
 
-	/**
-	 * @throws HttpException
-	 */
-	public function actionApplyCoupon()
-	{
-		$this->requirePostRequest();
+        $lineItem->qty = $qty;
+        $lineItem->note = $note;
+        $lineItem->order->setContentFromPost('fields');
 
-		$code            = craft()->request->getPost('couponCode');
-		$orderTypeHandle = craft()->request->getPost('orderTypeHandle');
-		$cart            = craft()->market_cart->getCart($orderTypeHandle);
-		$cart->setContentFromPost('fields');
+        if (craft()->market_lineItem->update($cart, $lineItem, $error)) {
+            craft()->userSession->setFlash('notice',Craft::t('Order item has been updated'));
+            if(craft()->request->isAjaxRequest){
+                $this->returnJson(['success'=>true,'cart'=>$this->cartArray($cart)]);
+            }
+            $this->redirectToPostedUrl();
+        } else {
+            if(craft()->request->isAjaxRequest){
+                $this->returnJson(['error'=>$error]);
+            }
+            craft()->userSession->setFlash('error',$error);
+        }
+    }
 
-		if (craft()->market_cart->applyCoupon($cart, $code, $error)) {
-			craft()->userSession->setFlash('market', 'Coupon has been applied');
-			$this->redirectToPostedUrl();
-		} else {
-			craft()->userSession->setFlash('error', $error);
-			craft()->urlManager->setRouteVariables(['couponError' => $error]);
-		}
-	}
+    /**
+     * @throws HttpException
+     */
+    public function actionApplyCoupon()
+    {
+        $this->requirePostRequest();
 
-	/**
-	 * @throws HttpException
-	 * @throws \Exception
-	 */
-	public function actionSetPaymentMethod()
-	{
-		$this->requirePostRequest();
+        $code            = craft()->request->getPost('couponCode');
+        $cart            = craft()->market_cart->getCart();
+        $cart->setContentFromPost('fields');
 
-		$id              = craft()->request->getPost('paymentMethodId');
-		$orderTypeHandle = craft()->request->getPost('orderTypeHandle');
-		$cart            = craft()->market_cart->getCart($orderTypeHandle);
+        if (craft()->market_cart->applyCoupon($cart, $code, $error)) {
+            if(craft()->request->isAjaxRequest){
+                $this->returnJson(['success'=>true]);
+            }
+            craft()->userSession->setFlash('info', Craft::t('Coupon has been applied'));
+            $this->redirectToPostedUrl();
+        } else {
+            if(craft()->request->isAjaxRequest){
+                $this->returnJson(['success'=>true,'cart'=>$this->cartArray($cart)]);
+            }
+            craft()->userSession->setFlash('error', $error);
+        }
+    }
 
-		if (craft()->market_cart->setPaymentMethod($cart, $id)) {
-			craft()->userSession->setFlash('market', 'Payment method has been set');
-			$this->redirectToPostedUrl();
-		} else {
-			craft()->urlManager->setRouteVariables(['paymentMethodError' => 'Wrong payment method']);
-		}
-	}
 
-	/**
-	 * Remove Line item from the cart
-	 */
-	public function actionRemove()
-	{
-		$this->requirePostRequest();
+    /**
+     * Sets the email on the cart. Also updates the current users email.
+     *
+     */
+    public function actionSetEmail()
+    {
+        $this->requirePostRequest();
 
-		$lineItemId      = craft()->request->getPost('lineItemId');
-		$orderTypeHandle = craft()->request->getPost('orderTypeHandle');
-		$cart            = craft()->market_cart->getCart($orderTypeHandle);
+        $email = craft()->request->getPost('email');
 
-		craft()->market_cart->removeFromCart($cart, $lineItemId);
-		craft()->userSession->setFlash('market', 'Product has been removed');
-		$this->redirectToPostedUrl();
-	}
+        $validator = new \CEmailValidator;
+        $validator->allowEmpty = false;
 
-	/**
-	 * Remove all line items from the cart
-	 */
-	public function actionRemoveAll()
-	{
-		$this->requirePostRequest();
+        if($validator->validateValue($email)){
+            if(craft()->userSession->isGuest){
+                $cart            = craft()->market_cart->getCart();
+                $cart->customerId = craft()->market_customer->getCustomerId();
+                $customer = craft()->market_customer->getCustomer();
+                $customer->email = $email;
+                craft()->market_customer->save($customer);
 
-		$orderTypeHandle = craft()->request->getPost('orderTypeHandle');
-		$cart            = craft()->market_cart->getCart($orderTypeHandle);
+                if (craft()->market_order->save($cart)){
+                    if(craft()->request->isAjaxRequest){
+                        $this->returnJson(['success'=>true,'cart'=>$this->cartArray($cart)]);
+                    }
+                    $this->redirectToPostedUrl();
+                }
+            }else{
+                // Should not update email for logged in user - uses user profile email.
+                throw new HttpException(400);
+            }
+        }else{
+            $error = Craft::t('Email Not Valid');
+            if(craft()->request->isAjaxRequest){
+                $this->returnJson(['error'=>$error]);
+            }
+            craft()->userSession->setFlash('error',$error);
+        }
 
-		craft()->market_cart->clearCart($cart);
-		craft()->userSession->setFlash('market', 'All products have been removed');
-		$this->redirectToPostedUrl();
-	}
+    }
+
+
+    /**
+     * @throws HttpException
+     * @throws \Exception
+     */
+    public function actionSetPaymentMethod()
+    {
+        $this->requirePostRequest();
+
+        $id              = craft()->request->getPost('paymentMethodId');
+        $cart            = craft()->market_cart->getCart();
+
+        if (craft()->market_cart->setPaymentMethod($cart, $id)) {
+            if(craft()->request->isAjaxRequest){
+                $this->returnJson(['success'=>true,'cart'=>$this->cartArray($cart)]);
+            }
+            craft()->userSession->setFlash('notice', Craft::t('Payment method has been set'));
+            $this->redirectToPostedUrl();
+        } else {
+            $msg = Craft::t('Wrong payment method');
+            if(craft()->request->isAjaxRequest){
+                $this->returnJson(['error'=>$msg]);
+            }
+            craft()->userSession->setFlash('notice',$msg);
+        }
+    }
+
+    /**
+     * Remove Line item from the cart
+     */
+    public function actionRemove()
+    {
+        $this->requirePostRequest();
+
+        $lineItemId      = craft()->request->getPost('lineItemId');
+        $cart            = craft()->market_cart->getCart();
+
+        $lineItem = craft()->market_lineItem->getById($lineItemId);
+
+        // Only let them update their own cart's line item.
+        if (!$lineItem->id || $cart->id != $lineItem->order->id){
+            throw new Exception(Craft::t('Line item not found for current cart'));
+        }
+
+        craft()->market_cart->removeFromCart($cart, $lineItemId);
+        if(craft()->request->isAjaxRequest){
+            $this->returnJson(['success'=>true,'cart'=>$this->cartArray($cart)]);
+        }
+        craft()->userSession->setFlash('notice', Craft::t('Product has been removed'));
+        $this->redirectToPostedUrl();
+    }
+
+    /**
+     * Remove all line items from the cart
+     */
+    public function actionRemoveAll()
+    {
+        $this->requirePostRequest();
+
+        $cart = craft()->market_cart->getCart();
+
+        craft()->market_cart->clearCart($cart);
+        if(craft()->request->isAjaxRequest){
+            $this->returnJson(['success'=>true,'cart'=>$this->cartArray($cart)]);
+        }
+        craft()->userSession->setFlash('notice',Craft::t('All products have been removed'));
+        $this->redirectToPostedUrl();
+    }
 }

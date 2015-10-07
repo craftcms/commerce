@@ -2,116 +2,124 @@
 namespace Craft;
 
 /**
+ * Class Market_TaxRateController
  *
- *
- * @author    Make with Morph. <support@makewithmorph.com>
- * @copyright Copyright (c) 2015, Luke Holder.
- * @license   http://makewithmorph.com/market/license Market License Agreement
- * @see       http://makewithmorph.com
- * @package   craft.plugins.market.controllers
- * @since     0.1
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://buildwithcraft.com/license Craft License Agreement
+ * @see       http://buildwithcraft.com/commerce
+ * @package   craft.plugins.commerce.controllers
+ * @since     1.0
  */
 class Market_TaxRateController extends Market_BaseController
 {
-	/**
-	 * @throws HttpException
-	 */
-	public function actionIndex()
-	{
-		$taxRates = craft()->market_taxRate->getAll([
-			'with'  => ['taxZone', 'taxCategory'],
-			'order' => 't.name',
-		]);
-		$this->renderTemplate('market/settings/taxrates/index', compact('taxRates'));
-	}
+    /**
+     * @throws HttpException
+     */
+    public function actionIndex()
+    {
+        $this->requireAdmin();
 
-	/**
-	 * Create/Edit TaxRate
-	 *
-	 * @param array $variables
-	 *
-	 * @throws HttpException
-	 */
-	public function actionEdit(array $variables = [])
-	{
-		if (empty($variables['taxRate'])) {
-			if (!empty($variables['id'])) {
-				$id                   = $variables['id'];
-				$variables['taxRate'] = craft()->market_taxRate->getById($id);
+        $taxRates = craft()->market_taxRate->getAll([
+            'with'  => ['taxZone', 'taxCategory'],
+            'order' => 't.name',
+        ]);
+        $this->renderTemplate('market/settings/taxrates/index',
+            compact('taxRates'));
+    }
 
-				if (!$variables['taxRate']) {
-					throw new HttpException(404);
-				}
-			} else {
-				$variables['taxRate'] = new Market_TaxRateModel();
-			};
-		}
+    /**
+     * Create/Edit TaxRate
+     *
+     * @param array $variables
+     *
+     * @throws HttpException
+     */
+    public function actionEdit(array $variables = [])
+    {
+        $this->requireAdmin();
 
-		if (!empty($variables['id'])) {
-			$variables['title'] = $variables['taxRate']->name;
-		} else {
-			$variables['title'] = Craft::t('Create a Tax Rate');
-		}
+        if (empty($variables['taxRate'])) {
+            if (!empty($variables['id'])) {
+                $id                   = $variables['id'];
+                $variables['taxRate'] = craft()->market_taxRate->getById($id);
 
-		$taxZones              = craft()->market_taxZone->getAll(false);
-		$variables['taxZones'] = [];
-		foreach ($taxZones as $model) {
-			$variables['taxZones'][$model->id] = $model->name;
-		}
+                if (!$variables['taxRate']) {
+                    throw new HttpException(404);
+                }
+            } else {
+                $variables['taxRate'] = new Market_TaxRateModel();
+            };
+        }
 
-		$taxCategories              = craft()->market_taxCategory->getAll();
-		$variables['taxCategories'] = [];
-		foreach ($taxCategories as $model) {
-			$variables['taxCategories'][$model->id] = $model->name;
-		}
+        if (!empty($variables['id'])) {
+            $variables['title'] = $variables['taxRate']->name;
+        } else {
+            $variables['title'] = Craft::t('Create a Tax Rate');
+        }
 
-		$this->renderTemplate('market/settings/taxrates/_edit', $variables);
-	}
+        $taxZones              = craft()->market_taxZone->getAll(false);
+        $variables['taxZones'] = [];
+        foreach ($taxZones as $model) {
+            $variables['taxZones'][$model->id] = $model->name;
+        }
 
-	/**
-	 * @throws HttpException
-	 */
-	public function actionSave()
-	{
-		$this->requirePostRequest();
+        $taxCategories              = craft()->market_taxCategory->getAll();
+        $variables['taxCategories'] = [];
+        foreach ($taxCategories as $model) {
+            $variables['taxCategories'][$model->id] = $model->name;
+        }
 
-		$taxRate = new Market_TaxRateModel();
+        $this->renderTemplate('market/settings/taxrates/_edit', $variables);
+    }
 
-		// Shared attributes
-		$taxRate->id            = craft()->request->getPost('taxRateId');
-		$taxRate->name          = craft()->request->getPost('name');
-		$taxRate->rate          = craft()->request->getPost('rate');
-		$taxRate->include       = craft()->request->getPost('include');
-		$taxRate->showInLabel   = craft()->request->getPost('showInLabel');
-		$taxRate->taxCategoryId = craft()->request->getPost('taxCategoryId');
-		$taxRate->taxZoneId     = craft()->request->getPost('taxZoneId');
+    /**
+     * @throws HttpException
+     */
+    public function actionSave()
+    {
+        $this->requireAdmin();
+        $this->requirePostRequest();
 
-		// Save it
-		if (craft()->market_taxRate->save($taxRate)) {
-			craft()->userSession->setNotice(Craft::t('Tax Rate saved.'));
-			$this->redirectToPostedUrl($taxRate);
-		} else {
-			craft()->userSession->setError(Craft::t('Couldn’t save tax rate.'));
-		}
+        $taxRate = new Market_TaxRateModel();
 
-		// Send the model back to the template
-		craft()->urlManager->setRouteVariables([
-			'taxRate' => $taxRate
-		]);
-	}
+        // Shared attributes
+        $taxRate->id            = craft()->request->getPost('taxRateId');
+        $taxRate->name          = craft()->request->getPost('name');
+        $taxRate->rate          = craft()->request->getPost('rate');
+        $taxRate->include       = craft()->request->getPost('include');
+        $taxRate->showInLabel   = craft()->request->getPost('showInLabel');
+        $taxRate->taxCategoryId = craft()->request->getPost('taxCategoryId');
+        $taxRate->taxZoneId     = craft()->request->getPost('taxZoneId');
 
-	/**
-	 * @throws HttpException
-	 */
-	public function actionDelete()
-	{
-		$this->requirePostRequest();
-		$this->requireAjaxRequest();
+        // Save it
+        if (craft()->market_taxRate->save($taxRate)) {
+            craft()->userSession->setNotice(Craft::t('Tax Rate saved.'));
+            $this->redirectToPostedUrl($taxRate);
+        } else {
+            craft()->userSession->setError(Craft::t('Couldn’t save tax rate.'));
+        }
 
-		$id = craft()->request->getRequiredPost('id');
 
-		craft()->market_taxRate->deleteById($id);
-		$this->returnJson(['success' => true]);
-	}
+        // Send the model back to the template
+        craft()->urlManager->setRouteVariables([
+            'taxRate' => $taxRate
+        ]);
+    }
+
+    /**
+     * @throws HttpException
+     */
+    public function actionDelete()
+    {
+        $this->requireAdmin();
+        $this->requirePostRequest();
+        $this->requireAjaxRequest();
+
+        $id = craft()->request->getRequiredPost('id');
+
+        craft()->market_taxRate->deleteById($id);
+        $this->returnJson(['success' => true]);
+    }
 
 }

@@ -1,5 +1,4 @@
 .DS_Store
-composer.lock
 sami.phar
 docs/phpdoc/build/
 docs/phpdoc/cache/
@@ -10,4 +9,4 @@ docs/phpdoc/cache/
 *.sass-cache/*
 *Thumbs.db
 *aspnet_client/*
-plugins/market/vendor/**/.git
+plugins/market/vendor/

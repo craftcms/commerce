@@ -7,6 +7,7 @@ class Builder
 {
 	private $_sourceBaseDir;
 	private $_finalBaseDir = '/www/eh21814/commerce/';
+	private $_composerPath = '/www/eh21814/composer.phar';
 	private $_tempDir;
 	private $_version;
 
@@ -41,6 +42,7 @@ class Builder
 	{
 		$this->_startTime = UtilsHelper::getBenchmarkTime();
 
+		$this->updateComposer();
 		$this->copyFiles();
 		$this->updateVersionBuild();
 		$this->processFiles();
@@ -51,16 +53,44 @@ class Builder
 		echo PHP_EOL.'Execution Time: '.$totalTime.' seconds.'.PHP_EOL;
 	}
 
+	public function updateComposer()
+	{
+		// Update composer itself.
+		$command = "/usr/bin/php {$this->_composerPath} self-update";
+
+		echo 'Executing: '.$command.PHP_EOL;
+		exec($command.' 2>&1', $output, $status);
+
+		echo 'Status: '.$status.PHP_EOL;
+		$output = implode(PHP_EOL, $output);
+		echo 'Results: '.$output.PHP_EOL.PHP_EOL;
+
+		if ($status == 1)
+		{
+			throw new Exception('There was an error self-updating composer.');
+		}
+
+		// Now update Commerce dependencies
+		$command = "/usr/bin/php {$this->_composerPath} update";
+
+		echo 'Executing: '.$command.PHP_EOL;
+		exec($command.' 2>&1', $output, $status);
+
+		echo 'Status: '.$status.PHP_EOL;
+		$output = implode(PHP_EOL, $output);
+		echo 'Results: '.$output.PHP_EOL.PHP_EOL;
+
+		if ($status == 1)
+		{
+			throw new Exception('There was an error updating Commerce composer dependencies.');
+		}
+	}
+
 	/**
 	 *
 	 */
 	protected function copyFiles()
 	{
-		//echo ('Copying code from '.$this->_sourceBaseDir.'docs to '.$this->_tempDir.'docs/'.PHP_EOL);
-		//UtilsHelper::createDir($this->_tempDir.'docs/');
-		//UtilsHelper::copyDirectory($this->_sourceBaseDir.'docs', $this->_tempDir.'docs/');
-		//echo ('Finished copying code from '.$this->_sourceBaseDir.'docs to '.$this->_tempDir.'docs/'.PHP_EOL.PHP_EOL);
-
 		echo ('Copying code from '.$this->_sourceBaseDir.'exampletemplates to '.$this->_tempDir.'exampletemplates/'.PHP_EOL);
 		UtilsHelper::createDir($this->_tempDir.'exampletemplates/');
 		UtilsHelper::copyDirectory($this->_sourceBaseDir.'exampletemplates', $this->_tempDir.'exampletemplates/');
@@ -78,10 +108,6 @@ class Builder
 		echo ('Copying file from '.$this->_sourceBaseDir.'LICENSE.md to '.$this->_tempDir.'LICENSE.md'.PHP_EOL);
 		UtilsHelper::copyFile($this->_sourceBaseDir.'LICENSE.md', $this->_tempDir.'LICENSE.md');
 		echo ('Finished copying file from '.$this->_sourceBaseDir.'LICENSE.md to '.$this->_tempDir.'LICENSE.md'.PHP_EOL.PHP_EOL);
-
-		//echo ('Copying file from '.$this->_sourceBaseDir.'README.md to '.$this->_tempDir.'README.md'.PHP_EOL);
-		//UtilsHelper::copyFile($this->_sourceBaseDir.'README.md', $this->_tempDir.'README.md');
-		//echo ('Finished copying file from '.$this->_sourceBaseDir.'README.md to '.$this->_tempDir.'README.md'.PHP_EOL.PHP_EOL);
 
 		echo('Deleting file '.$this->_tempDir.'plugins/market/composer.json'.PHP_EOL);
 		unlink($this->_tempDir.'plugins/market/composer.json');

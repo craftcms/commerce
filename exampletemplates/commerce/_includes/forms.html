@@ -1,0 +1,135 @@
+{% macro shippingMethodForm(cart) %}
+
+    <form method="POST" class="form-inline">
+        <input type="hidden" name="action" value="market/cartAddress/setShippingMethod">
+        <input type="hidden" name="redirect" value="commerce/checkout/payment">
+        {{ getCsrfInput() }}
+
+        {% for id,method in craft.market.getShippingMethods('order') %}
+
+            <label>
+                <input type="radio" name="shippingMethodId" value="{{ id }}" {% if id == cart.shippingMethodId %}checked{% endif %} />
+                {{ method.name }}: {{ method.amount|marketCurrency }}
+            </label>
+        {% endfor %}
+
+        <p><input type="submit" class="button button-primary" value="Select Shipping Method" /></p>
+
+    </form>
+
+{% endmacro %}
+
+{% macro guestCheckoutForm(cart) %}
+<form method="post" class="form-horizontal">
+    <input type="hidden" name="action" value="market/cart/setEmail">
+    <input type="hidden" name="redirect" value="commerce/checkout/addresses">
+    <label for="">Email</label>
+    <input class="u-full-width" type="text" value="{{ cart.email }}" name="email" placeholder="email@site.com" />
+
+    <input type="submit" class="button button-primary" value="Checkout as guest" />
+    </form>
+{% endmacro %}
+
+{% macro registerForm() %}
+    <form action="">
+        <label for="">Email</label>
+        <input class="u-full-width" type="text" name="email" placeholder="email@site.com" />
+
+        <input type="button" class="button button-primary" value="Register" />
+    </form>
+{% endmacro %}
+
+{% macro loginForm() %}
+    <form method="post" accept-charset="UTF-8">
+
+        {{ getCsrfInput() }}
+
+        <input type="hidden" name="action" value="users/login">
+        <input type="hidden" name="redirect" value="commerce/customer">
+
+        <label for="loginName">Email</label>
+        <input id="loginName" class="u-full-width" type="text" name="loginName" placeholder="email@site.com" value="{{ craft.session.rememberedUsername }}">
+
+        <label for="password">Password</label>
+        <input id="password" class="u-full-width" type="password" name="password">
+
+        <label>
+            <input type="checkbox" name="rememberMe" value="1">
+            Remember me
+        </label>
+
+        <input type="submit" value="Login" class="button button-primary" />
+
+    </form>
+
+    <p><a href="{{ url('forgotpassword') }}">Forget your password?</a></p>
+
+{% endmacro %}
+
+{% macro addToCartButton(purchasable) %}
+    <form method="POST">
+        <input type="hidden" name="action" value="market/cart/add">
+        <input type="hidden" name="redirect" value="commerce/cart">
+        <input type="hidden" name="qty" value="1">
+        <input type="hidden" name="purchasableId" value="{{ purchasable.purchasableId }}">
+        <input {% if purchasable.stock <= 0 and purchasable.unlimitedStock == false  %}disabled {% endif %} type="submit" value="{{ "Add to cart"|t}}" class="button"/>
+    </form>
+{% endmacro %}
+
+{% macro addToCartForm(purchasables) %}
+    <form method="POST">
+        <input type="hidden" name="action" value="market/cart/add">
+        <input type="hidden" name="redirect" value="commerce/cart">
+        <input type="hidden" name="qty" value="1">
+        <select name="purchasableId">
+            {% for purchasable in purchasables %}
+            <option {% if purchasable.stock <= 0 and purchasable.unlimitedStock == false  %}disabled {% endif %} value="{{ purchasable.purchasableId }}">{{ purchasable.sku }} {{ purchasable.description }} {{ purchasable.price|marketCurrency }}</option>
+            {% endfor %}
+        </select>
+        <input type="submit" value="{{ "Add to cart"|t}}" class="button"/>
+    </form>
+{% endmacro %}
+
+{% macro removeFromCartButton(lineitem) %}
+    <form method="POST">
+        <input type="hidden" name="action" value="market/cart/remove" />
+        <input type="hidden" name="redirect" value="commerce/cart" />
+        <input type="hidden" name="lineItemId" value="{{ lineitem.id }}" />
+        {{ getCsrfInput() }}
+        <input type="submit" class="button link" value="Remove" />
+    </form>
+{% endmacro %}
+
+{% macro updateLineItemForm(lineitem) %}
+    <form method="POST">
+        <input type="hidden" name="action" value="market/cart/updateLineItem">
+        <input type="hidden" name="redirect" value="commerce/cart">
+        <input type="hidden" name="lineItemId" value="{{ lineitem.id }}">
+        <input type="text" placeholder="My Note" size="20" name="note" value="{{ lineitem.note }}">
+        <input type="number" name="qty" min="1" value="{{ lineitem.qty }}">
+        {{ getCsrfInput() }}
+        <input type="submit" class="button" value="Update" />
+        {% if error is defined %}<strong>Error: {{ error }}</strong>{% endif %}
+    </form>
+{% endmacro %}
+
+{% macro updateCouponForm(cart) %}
+    <form method="POST">
+        <input type="hidden" name="action" value="market/cart/applyCoupon">
+        <input type="hidden" name="redirect" value="commerce/cart">
+        {{ getCsrfInput() }}
+        <input type="text" name="couponCode" width="11" value="{{ cart.couponCode }}" placeholder="{{ "Coupon Code"|t }}"><br/>
+        <input type="submit" class="button" value="{% if cart.couponCode %}Change{% else %}Apply{% endif %} Coupon" />
+    </form>
+{% endmacro %}
+
+
+
+{% macro emptyCartForm(cart) %}
+    <form method="POST">
+        <input type="hidden" name="action" value="market/cart/removeAll" />
+        <input type="hidden" name="redirect" value="commerce/cart" />
+        {{ getCsrfInput() }}
+        <input class="button link" type="submit" value="Empty the Cart" />
+    </form>
+{% endmacro %}
