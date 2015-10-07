@@ -4,36 +4,11 @@
 {% set selectedTab = 'orders' %}
 
 {% block sidebar %}
-    {#
-    {% if orderTypes|length %}
-        <div class="buttons">
-            {% if orderTypes|length > 1 %}
-                <div class="btn submit menubtn add icon">{{ "New Order"|t }}</div>
-                <div class="menu">
-                    <ul>
-                        {% for orderType in orderTypes %}
-                            <li>
-                                <a href="{{ url('market/orders/'~orderType.handle~'/new') }}">{{ orderType.name|t }}</a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            {% else %}
-                <a class="btn submit add icon"
-                   href="{{ url('market/orders/'~orderTypes[0].handle~'/new') }}">{{ "New Order"|t }}</a>
-            {% endif %}
-        </div>
-    {% endif %}
-    #}
 
-
-
-    {{ parent() }}
-
-    {% if not orderTypes|length > 0 %}
-
-        <p><span style="color:red">No order types exist!</span><br/>Go to settings and <a
-                    href="{{ url('market/settings/ordertypes') }}">create a new order type </a> please.</p>
+    {% if sources is not empty %}
+        <nav>
+            {% include "market/_elements/sources" %}
+        </nav>
     {% endif %}
 
 {% endblock %}

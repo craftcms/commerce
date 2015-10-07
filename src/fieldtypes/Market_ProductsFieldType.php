@@ -3,26 +3,36 @@ namespace Craft;
 
 class Market_ProductsFieldType extends BaseElementFieldType
 {
-	// Properties
-	// =========================================================================
+    // Properties
+    // =========================================================================
 
-	/**
-	 * The element type this field deals with.
-	 *
-	 * @var string $elementType
-	 */
-	protected $elementType = 'Market_Product';
+    /**
+     * @inheritDoc IComponentType::getName()
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return Craft::t('Commerce Product');
+    }
 
-	// Protected Methods
-	// =========================================================================
+    /**
+     * The element type this field deals with.
+     *
+     * @var string $elementType
+     */
+    protected $elementType = 'Market_Product';
 
-	/**
-	 * @inheritDoc BaseElementFieldType::getAddButtonLabel()
-	 *
-	 * @return string
-	 */
-	protected function getAddButtonLabel()
-	{
-		return Craft::t('Add an product');
-	}
+    // Protected Methods
+    // =========================================================================
+
+    /**
+     * @inheritDoc BaseElementFieldType::getAddButtonLabel()
+     *
+     * @return string
+     */
+    protected function getAddButtonLabel()
+    {
+        return Craft::t('Add a Product');
+    }
 }

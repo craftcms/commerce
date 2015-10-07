@@ -1,0 +1,16 @@
+{% import 'commerce/_includes/forms' as forms %}
+{% extends 'commerce/_layouts/checkout' %}
+
+{% block content %}
+
+    <h1>Shipping Method</h1>
+
+    {% if cart.shippingMethodId %}
+        <p>
+            <strong>Chosen shipping method:</strong> {{ cart.shippingMethod.name }}
+        </p>
+    {% endif %}
+
+    {{ forms.shippingMethodForm(cart) }}
+
+{%  endblock %}

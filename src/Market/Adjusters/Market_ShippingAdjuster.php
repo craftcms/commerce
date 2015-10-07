@@ -44,19 +44,25 @@ class Market_ShippingAdjuster implements Market_AdjusterInterface
 			$adjustment->optionsJson = $rule->attributes;
 
 			//checking items tax categories
-			$weight            = $qty = $price = 0;
+			$weight = $qty = $price = 0;
 			$itemShippingTotal = 0;
+			$freeShippingAmount = 0;
 			foreach ($lineItems as $item) {
 				$weight += $item->qty * $item->weight;
 				$qty += $item->qty;
 				$price += $item->getSubtotalWithSale();
 
-				$item->shippingAmount = $item->getSubtotalWithSale() * $rule->percentageRate + $rule->perItemRate + $item->weight * $rule->weightRate;
-				$itemShippingTotal += $item->shippingAmount * $item->qty;
+				$item->shippingCost = ($item->getSubtotalWithSale() * $rule->percentageRate) + $rule->perItemRate + ($item->weight * $rule->weightRate);
+				$itemShippingTotal += $item->shippingCost * $item->qty;
+
+				if($item->purchasable->product->freeShipping){
+					$freeShippingAmount = $freeShippingAmount + $itemShippingTotal;
+					$item->shippingCost = 0;
+				}
 			}
 
 			//amount for displaying in adjustment
-			$amount = $rule->baseRate + $itemShippingTotal;
+			$amount = $rule->baseRate + ($itemShippingTotal - $freeShippingAmount);
 			$amount = max($amount, $rule->minRate * 1);
 
 			if ($rule->maxRate * 1) {
@@ -65,9 +71,8 @@ class Market_ShippingAdjuster implements Market_AdjusterInterface
 
 			$adjustment->amount = $amount;
 
-			//real shipping base rate (can be a bit artificial because it counts min and max rate as well, but in general it equals to baseRate)
-			$order->baseShippingRate = $amount - $itemShippingTotal;
-
+			//real shipping base rate (can be a bit artificial because it counts min and max rate as well, but in general it equals to be $rule->baseRate)
+			$order->baseShippingCost = $amount - ($itemShippingTotal - $freeShippingAmount);
 			$adjustments[] = $adjustment;
 		}
 

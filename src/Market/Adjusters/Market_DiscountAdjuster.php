@@ -3,7 +3,6 @@
 namespace Market\Adjusters;
 
 use Craft\Market_DiscountModel;
-use Craft\Market_DiscountRateModel;
 use Craft\Market_LineItemModel;
 use Craft\Market_OrderAdjustmentModel;
 use Craft\Market_OrderModel;
@@ -88,14 +87,24 @@ class Market_DiscountAdjuster implements Market_AdjusterInterface
 		$amount += $discount->percentDiscount * $matchingTotal;
 
 		foreach ($lineItems as $item) {
-			$item->discountAmount = $discount->perItemDiscount * $item->qty + $discount->percentDiscount * $item->getSubtotalWithSale();
+			$item->discount = $discount->perItemDiscount * $item->qty + $discount->percentDiscount * $item->getSubtotalWithSale();
+			// If the discount is larger than the subtotal
+			// make the discount equal the discount, thus making the item free.
+			if(($item->discount * -1) > $item->getSubtotalWithSale()){
+				$item->discount = -$item->getSubtotalWithSale();
+			}
+
+			if(!$item->purchasable->product->promotable){
+				$item->discount = 0;
+			}
+
 			if ($discount->freeShipping) {
-				$item->shippingAmount = 0;
+				$item->shippingCost = 0;
 			}
 		}
 
 		if ($discount->freeShipping) {
-			$order->baseShippingRate = 0;
+			$order->baseShippingCost = 0;
 		}
 
 		$order->baseDiscount = $discount->baseDiscount;

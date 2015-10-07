@@ -3,9 +3,7 @@
 {% set crumbs = [
 { label: 'Market'|t, url: url('market') },
 { label: 'Settings'|t, url: url('market/settings/global') },
-{ label: 'Order Types'|t, url: url('market/settings/ordertypes') },
-{ label: 'Order Type \'' ~ orderType.name|t ~ '\'', url: url('market/settings/ordertypes/' ~ orderType.id) },
-{ label: 'Statuses'|t, url: url('market/settings/ordertypes/' ~ orderType.id ~ '#tab1') },
+{ label: 'Statuses'|t, url: url('market/settings/orderstatuses') },
 ] %}
 
 
@@ -15,8 +13,7 @@
 {% set content %}
 <form method="post" accept-charset="UTF-8" data-saveshortcut>
     <input type="hidden" name="action" value="market/orderStatus/save">
-    <input type="hidden" name="redirect" value="market/settings/ordertypes/{{ orderType.id }}#tab1">
-    <input type="hidden" name="orderTypeId" value="{{ orderType.id }}">
+    <input type="hidden" name="redirect" value="market/settings/orderstatuses">
 
     {{ getCsrfInput() }}
     {% if orderStatus.id %}<input type="hidden" name="orderStatusId" value="{{ orderStatus.id }}">{% endif %}
@@ -42,19 +39,33 @@
         required: true
     }) }}
 
-
-    {{ forms.colorField({
-        label: "Color"|t,
-        instructions: "Color Code for this status."|t,
-        id: "color",
+    {{ forms.hidden({
+        id: 'color',
         name: 'color',
-        value: orderStatus.color,
-        errors: orderStatus.getErrors('color'),
-        required: true
+        value: orderStatus.color
     }) }}
+
+    {% set colorField %}
+    <div>
+        <a id="colorMenuBtn" class="btn menubtn" href="#"><span class="market status {{ orderStatus.color }}"></span>{{ orderStatus.color|t|title }}</a>
+        <div class="menu">
+            <ul class="">
+                {% for color in ['green','orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'] %}
+                <li><a data-val="{{ color }}" {% if orderStatus.color == color %}class="sel"{% endif %} href="#"><span class="market status {{ color }}"></span>{{ color|t|title }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endset %}
+    {{ forms.field({
+        label: 'Color'|t,
+        instructions: 'Choose a color to represent the order\'s status'|t
+    },colorField) }}
+
 
     {{ forms.multiselectField({
         label: 'Emails'|t,
+        instructions: 'The emails that will be sent when transitioning to this status'|t,
         id: 'emails',
         name: 'emails',
         options: emails,
@@ -64,7 +75,7 @@
 
     {{ forms.checkboxField({
         label: "Default"|t,
-        instructions: "Whether this status should be default for that order type."|t,
+        instructions: "The status that orders should be set to on completion."|t,
         name: 'default',
         value: 1,
         checked: orderStatus.default,
@@ -82,9 +93,19 @@
 
 {% set js %}
 {% if not orderStatus.handle %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
-{#<script>#}
 $(function () {
-    $('#orderTypeId').selectize({dropdownParent: 'body'});
+
+    $colorSelect = $('#colorMenuBtn');
+    new Garnish.MenuBtn($colorSelect, {
+        onOptionSelect: function(data){
+            var val = $(data).data('val');
+            $('#color').val(val);
+            var html = "<span class='market status "+val+"'></span>"+Craft.uppercaseFirst(val);
+            $colorSelect.html(html);
+        }
+    });
+
+
     $('#emails').selectize({
         plugins: ['remove_button'],
         dropdownParent: 'body'

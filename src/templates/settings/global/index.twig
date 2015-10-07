@@ -23,15 +23,23 @@
             required: true,
         }) }}
 
-        {% for option in ['emailSenderAddress', 'emailSenderName'] %}
-            {{ forms.textField({
-                label: option|marketTitleize|t,
-                id: option,
-                name: 'settings[' ~ option ~ ']',
-                value: settings[option],
-                errors: settings.getErrors(option),
-            }) }}
-        {% endfor %}
+        {{ forms.textField({
+            label: 'From Email Address'|t,
+            instructions: "The email address that order status emails are from, leave blank for system address."|t,
+            id: 'emailSenderAddress',
+            name: 'settings[emailSenderAddress]',
+            value: settings.emailSenderAddress,
+            errors: settings.getErrors('emailSenderAddress'),
+        }) }}
+
+        {{ forms.textField({
+            label: 'From Name'|t,
+            instructions: "The name that order status emails are from, leave blank for system from name."|t,
+            id: 'emailSenderName',
+            name: 'settings[emailSenderName]',
+            value: settings.emailSenderName,
+            errors: settings.getErrors('emailSenderName'),
+        }) }}
 
         {{ forms.selectField({
             label: "Weight Units"|t,
@@ -64,11 +72,31 @@
 
         {{ forms.textField({
             label: "Cart Expiry Timeout"|t,
-            instructions: "The number of minutes before inactive carts will be removed. Default: 1440 (24 hours)."|t,
+            instructions: "The number of minutes the cart cookie should last. Default: 10080 (1 week)."|t,
             id: 'defaultCurrency',
             name: 'settings[cartExpiryTimeout]',
             value: settings.cartExpiryTimeout,
             errors: settings.getErrors('cartExpiryTimeout'),
+            required: true,
+        }) }}
+
+        {{ forms.textField({
+            label: "Purge Inactive Carts Duration"|t,
+            instructions: "When should we delete inactive carts from last update date. Enter in PHP interval format."|t,
+            id: 'purgeIncompleteCartDuration',
+            name: 'settings[purgeIncompleteCartDuration]',
+            value: settings.purgeIncompleteCartDuration,
+            errors: settings.getErrors('purgeIncompleteCartDuration'),
+            required: true,
+        }) }}
+
+        {{ forms.textField({
+            label: "Order PDF Template"|t,
+            instructions: "The path to the template used for generating order PDF's"|t,
+            id: 'orderPdfPath',
+            name: 'settings[orderPdfPath]',
+            value: settings.orderPdfPath,
+            errors: settings.getErrors('orderPdfPath'),
             required: true,
         }) }}
 

@@ -1,91 +1,107 @@
 <?php
-
 namespace Craft;
+
 use Market\Helpers\MarketDbHelper;
+
 /**
  * Class Market_ProductService
  *
- * @package Craft
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://buildwithcraft.com/license Craft License Agreement
+ * @see       http://buildwithcraft.com/commerce
+ * @package   craft.plugins.commerce.services
+ * @since     1.0
  */
 class Market_ProductService extends BaseApplicationComponent
 {
-	/**
-	 * @param int $id
-	 * @return Market_ProductModel
-	 */
-	public function getById($id)
-	{
+    /**
+     * @param int $id
+     *
+     * @return Market_ProductModel
+     */
+    public function getById($id)
+    {
         return craft()->elements->getElementById($id, 'Market_Product');
-	}
+    }
 
 
-	/**
-	 * @param Market_ProductModel $product
-	 * @return bool
-	 * @throws Exception
-	 * @throws \Exception
-	 */
-	public function save(Market_ProductModel $product)
-	{
-		if (!$product->id) {
-			$record = new Market_ProductRecord();
-		} else {
-			$record = Market_ProductRecord::model()->findById($product->id);
+    /**
+     * @param Market_ProductModel $product
+     *
+     * @return bool
+     * @throws Exception
+     * @throws \Exception
+     */
+    public function save(Market_ProductModel $product)
+    {
 
-			if (!$record) {
-				throw new Exception(Craft::t('No product exists with the ID “{id}”', ['id' => $product->id]));
-			}
-		}
+        if (!$product->id) {
+            $record = new Market_ProductRecord();
+        } else {
+            $record = Market_ProductRecord::model()->findById($product->id);
 
-		$record->availableOn   = $product->availableOn;
-		$record->expiresOn     = $product->expiresOn;
-		$record->typeId        = $product->typeId;
-		$record->authorId      = $product->authorId;
-		$record->taxCategoryId = $product->taxCategoryId;
+            if (!$record) {
+                throw new Exception(Craft::t('No product exists with the ID “{id}”',
+                    ['id' => $product->id]));
+            }
+        }
 
-		$record->validate();
-		$product->addErrors($record->getErrors());
+        $record->availableOn   = $product->availableOn;
+        $record->expiresOn     = $product->expiresOn;
+        $record->typeId        = $product->typeId;
+        $record->authorId      = $product->authorId;
+        $record->promotable    = $product->promotable;
+        $record->freeShipping  = $product->freeShipping;
+        $record->taxCategoryId = $product->taxCategoryId;
 
-		MarketDbHelper::beginStackedTransaction();
-		try {
-			if (!$product->hasErrors()) {
-				if (craft()->elements->saveElement($product)) {
-					$record->id = $product->id;
-					$record->save(false);
+        $record->validate();
+        $product->addErrors($record->getErrors());
 
-					MarketDbHelper::commitStackedTransaction();
+        MarketDbHelper::beginStackedTransaction();
+        try {
+            if (!$product->hasErrors()) {
+                if (craft()->elements->saveElement($product)) {
+                    $record->id = $product->id;
+                    $record->save(false);
 
-					return true;
-				}
-			}
-		} catch (\Exception $e) {
-			MarketDbHelper::rollbackStackedTransaction();
-			throw $e;
-		}
+                    MarketDbHelper::commitStackedTransaction();
 
-		MarketDbHelper::rollbackStackedTransaction();
+                    return true;
+                }
+            }
+        } catch (\Exception $e) {
+            MarketDbHelper::rollbackStackedTransaction();
+            throw $e;
+        }
 
-		return false;
-	}
+        MarketDbHelper::rollbackStackedTransaction();
+
+        return false;
+    }
 
 
+    /**
+     * @param Market_ProductModel $product
+     *
+     * @return bool
+     * @throws \CDbException
+     */
+    public function delete($product)
+    {
+        $product = Market_ProductRecord::model()->findById($product->id);
+        if($product) {
+            $variants = craft()->market_variant->getAllByProductId($product->id);
+            if (craft()->elements->deleteElementById($product->id)) {
+                foreach ($variants as $v) {
+                    craft()->market_variant->deleteById($v->id);
+                }
 
-/**
-	 * @param Market_ProductModel $product
-	 *
-	 * @return bool
-	 * @throws \CDbException
-	 */
-	public function delete($product)
-	{
-		$product = Market_ProductRecord::model()->findById($product->id);
-		if ($product->delete()) {
-			craft()->market_variant->disableAllByProductId($product->id);
-
-			return true;
-		} else {
-			return false;
-		}
-	}
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
 
 }

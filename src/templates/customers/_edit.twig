@@ -19,7 +19,7 @@
     {% if customer.user %}
         <a href="{{ customer.user.getCpEditUrl() }}">{{ customer.user.name }}</a>
     {% else %}
-        (null)
+        (Guest)
     {% endif %}
     {% endset %}
 
@@ -39,7 +39,7 @@
 
     <h3>Addresses</h3>
 
-    <table id="" class="shadow-box editable">
+    <table id="addresses" class="data fullwidth collapsible">
         <thead>
         <tr>
             <th scope="col" class="header">{{ 'ID'|t }}</span></th>
@@ -48,17 +48,19 @@
             <th scope="col" class="header">{{ 'Country'|t }}</th>
             <th scope="col" class="header">{{ 'State'|t }}</th>
             <th class="thin"></th>
+            <th class="thin"></th>
         </tr>
         </thead>
         <tbody>
         {% for address in customer.addresses %}
-            <tr>
+            <tr data-id="{{ address.id }}" data-name="{{ address.id }}">
                 <td>{{ address.id }}</td>
                 <td>{{ address.firstName }}</td>
                 <td>{{ address.lastName }}</td>
                 <td>{{ address.country.name }}</td>
                 <td>{{ address.stateText }}</td>
-                <td><a class="edit icon" href="{{ address.getCpEditUrl() }}"> Edit</a></td>
+                <td class="thin"><a href="{{ address.getCpEditUrl() }}">Edit</a></td>
+                <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
             </tr>
         {% endfor %}
         </tbody>
@@ -72,3 +74,13 @@
 </form>
 
 {% endset %}
+
+
+{% set js %}
+    new Craft.AdminTable({
+    tableSelector: '#addresses',
+    deleteAction: 'market/address/delete',
+    confirmDeleteMessage: '{{ "Are you sure you want to delete address ID: '{name}'?"|t }}'
+    });
+{% endset %}
+{% includeJs js %}

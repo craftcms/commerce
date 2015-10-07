@@ -2,64 +2,74 @@
 namespace Craft;
 
 /**
- * @author    Make with Morph. <support@makewithmorph.com>
- * @copyright Copyright (c) 2015, Luke Holder.
- * @license   http://makewithmorph.com/market/license Market License Agreement
- * @see       http://makewithmorph.com
- * @package   craft.plugins.market.controllers
- * @since     0.1
+ * Class Market_EmailController
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://buildwithcraft.com/license Craft License Agreement
+ * @see       http://buildwithcraft.com/commerce
+ * @package   craft.plugins.commerce.controllers
+ * @since     1.0
  */
 class Market_EmailController extends Market_BaseController
 {
-	/**
-	 * @throws HttpException
-	 */
-	public function actionIndex()
-	{
-		$emails = craft()->market_email->getAll();
-		$this->renderTemplate('market/settings/emails/index', compact('emails'));
-	}
+    /**
+     * @throws HttpException
+     */
+    public function actionIndex()
+    {
+        $this->requireAdmin();
 
-	/**
-	 * Create/Edit Email
-	 *
-	 * @param array $variables
-	 * @throws HttpException
-	 */
-	public function actionEdit(array $variables = [])
-	{
-		if (empty($variables['email'])) {
-			if (!empty($variables['id'])) {
-				$id = $variables['id'];
-				$variables['email'] = craft()->market_email->getById($id);
+        $emails = craft()->market_email->getAll();
+        $this->renderTemplate('market/settings/emails/index',
+            compact('emails'));
+    }
 
-				if (!$variables['email']->id) {
-					throw new HttpException(404);
-				}
-			} else {
-				$variables['email'] = new Market_EmailModel();
-			}
-		}
+    /**
+     * Create/Edit Email
+     *
+     * @param array $variables
+     *
+     * @throws HttpException
+     */
+    public function actionEdit(array $variables = [])
+    {
+        $this->requireAdmin();
 
-		if (!empty($variables['id'])) {
-			$variables['title'] = $variables['email']->name;
-		} else {
-			$variables['title'] = Craft::t('Create a Email');
-		}
+        if (empty($variables['email'])) {
+            if (!empty($variables['id'])) {
+                $id                 = $variables['id'];
+                $variables['email'] = craft()->market_email->getById($id);
 
-		$this->renderTemplate('market/settings/emails/_edit', $variables);
-	}
+                if (!$variables['email']->id) {
+                    throw new HttpException(404);
+                }
+            } else {
+                $variables['email'] = new Market_EmailModel();
+            }
+        }
 
-	/**
-	 * @throws HttpException
-	 */
-	public function actionSave()
-	{
-		$this->requirePostRequest();
+        if (!empty($variables['id'])) {
+            $variables['title'] = $variables['email']->name;
+        } else {
+            $variables['title'] = Craft::t('Create a Email');
+        }
 
-		$email = new Market_EmailModel();
+        $this->renderTemplate('market/settings/emails/_edit', $variables);
+    }
 
-		// Shared attributes
+    /**
+     * @throws HttpException
+     */
+    public function actionSave()
+    {
+        $this->requireAdmin();
+
+        $this->requirePostRequest();
+
+        $email = new Market_EmailModel();
+
+        // Shared attributes
         $email->id           = craft()->request->getPost('emailId');
         $email->name         = craft()->request->getPost('name');
         $email->subject      = craft()->request->getPost('subject');
@@ -69,30 +79,32 @@ class Market_EmailController extends Market_BaseController
         $email->enabled      = craft()->request->getPost('enabled');
         $email->templatePath = craft()->request->getPost('templatePath');
 
-		// Save it
-		if (craft()->market_email->save($email)) {
-			craft()->userSession->setNotice(Craft::t('Email saved.'));
-			$this->redirectToPostedUrl($email);
-		} else {
-			craft()->userSession->setError(Craft::t('Couldn’t save email.'));
-		}
+        // Save it
+        if (craft()->market_email->save($email)) {
+            craft()->userSession->setNotice(Craft::t('Email saved.'));
+            $this->redirectToPostedUrl($email);
+        } else {
+            craft()->userSession->setError(Craft::t('Couldn’t save email.'));
+        }
 
-		// Send the model back to the template
-		craft()->urlManager->setRouteVariables(['email' => $email]);
-	}
+        // Send the model back to the template
+        craft()->urlManager->setRouteVariables(['email' => $email]);
+    }
 
-	/**
-	 * @throws HttpException
-	 */
-	public function actionDelete()
-	{
-		$this->requirePostRequest();
-		$this->requireAjaxRequest();
+    /**
+     * @throws HttpException
+     */
+    public function actionDelete()
+    {
+        $this->requireAdmin();
 
-		$id = craft()->request->getRequiredPost('id');
+        $this->requirePostRequest();
+        $this->requireAjaxRequest();
 
-		craft()->market_email->deleteById($id);
-		$this->returnJson(['success' => true]);
-	}
+        $id = craft()->request->getRequiredPost('id');
+
+        craft()->market_email->deleteById($id);
+        $this->returnJson(['success' => true]);
+    }
 
 }

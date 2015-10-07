@@ -14,7 +14,7 @@
         name:      attribute,
         options:   options,
         values:    values,
-        errors:    product.getErrors(attribuitlee),
+        errors:    product.getErrors(attribute),
     }) }}
     {% endset %}
 
@@ -60,7 +60,8 @@
 
 {% block main %}
 
-    <form id="product-form" method="post" accept-charset="UTF-8">
+    <form id="product-form" method="post" accept-charset="UTF-8" data-saveshortcut data-saveshortcut-redirect="{{ continueEditingUrl }}" data-confirm-unload>
+
         <input type="hidden" name="action" value="market/product/saveProduct">
         <input type="hidden" name="redirect" value="market/products">
         <input type="hidden" name="typeId" value="{{ productType.id }}">
@@ -92,116 +93,130 @@
                         maxlength: 255
                     }) }}
 
-                    {%  set masterVariantHtml %}
+                    {%  set implicitVariantHtml %}
                     {{ forms.text({
-                        name:   'masterVariant[isMaster]',
+                        name:   'implicitVariant[isImplicit]',
                         type:   'hidden',
                         value: '1'
                     }) }}
-                    <div id="masterVariantDetails" class="grid first" data-cols="9">
+                    {% if implicitVariant.id %}<input type="hidden" name="implicitVariant[id]" value="{{ implicitVariant.id }}">{% endif %}
+                    <div id="implicitVariantDetails">
 
 
-                    <div class="item" data-min-colspan="1" data-max-colspan="3">
+                    <div class="grid first" data-cols="4">
+
+                    <div class="item" data-min-colspan="2" data-max-colspan="4">
                     {{ forms.textField({
                         label: 'SKU'|t,
-                        name:   'masterVariant[sku]',
-                        value: masterVariant.sku,
-                        errors: masterVariant.getErrors('sku')
+                        required: productType.hasVariants ? false : true,
+                        name: 'implicitVariant[sku]',
+                        value: implicitVariant.sku,
+                        errors: implicitVariant.getErrors('sku')
                     })}}
                     </div>
 
-
-                    <div class="item" data-min-colspan="1" data-max-colspan="3">
+                    <div class="item" data-min-colspan="2" data-max-colspan="4">
                     {{ forms.textField({
                         label: 'Price'|t,
-                        name:   'masterVariant[price]',
+                        name:   'implicitVariant[price]',
+                        required: productType.hasVariants ? false : true,
                         type:   'text',
-                        value: masterVariant.price,
-                        errors: masterVariant.getErrors('price')
+                        value: implicitVariant.price|marketDecimal,
+                        errors: implicitVariant.getErrors('price')
                     })}}
                     </div>
+                    </div>
 
-                    <div class="item" data-min-colspan="1" data-max-colspan="3">
+                    <div class="grid first" data-cols="4">
+                    <div class="item" data-min-colspan="2" data-max-colspan="4">
                     {{ forms.textField({
                         label: 'Min Qty'|t,
-                        name:   'masterVariant[minQty]',
-                        type:   'text',
-                        value: masterVariant.minQty,
-                        errors: masterVariant.getErrors('minQty')
+                        name:  'implicitVariant[minQty]',
+                        type:  'text',
+                        value: implicitVariant.minQty,
+                        errors: implicitVariant.getErrors('minQty')
                     })}}
                     </div>
 
-                    <div class="item" data-min-colspan="1" data-max-colspan="3">
+                    <div class="item" data-min-colspan="2" data-max-colspan="4">
                     {{ forms.textField({
-                        label: 'Max Qty'|t,
-                        name:   'masterVariant[maxQty]',
+                        label:  'Max Qty'|t,
+                        name:   'implicitVariant[maxQty]',
                         type:   'text',
-                        value: masterVariant.maxQty,
-                        errors: masterVariant.getErrors('maxQty')
+                        value: implicitVariant.maxQty,
+                        errors: implicitVariant.getErrors('maxQty')
                     })}}
                     </div>
+                    </div>
 
-                    <div class="item" data-min-colspan="1" data-max-colspan="3">
+                    <div class="grid first" data-cols="4">
+                    <div class="item" data-min-colspan="1" data-max-colspan="1">
                     {{ forms.textField({
-                        label: 'Width'|t,
-                        name:   'masterVariant[width]',
+                        label:  'Width'|t~' ('~craft.market.settings.dimensionUnits~')',
+                        name:   'implicitVariant[width]',
                         type:   'text',
-                        value: masterVariant.width,
-                        errors: masterVariant.getErrors('width')
+                        value: implicitVariant.width|marketDecimal,
+                        errors: implicitVariant.getErrors('width')
                     })}}
                     </div>
 
-                    <div class="item" data-min-colspan="1" data-max-colspan="3">
+                    <div class="item" data-min-colspan="1" data-max-colspan="1">
                     {{ forms.textField({
-                        label: 'Height'|t,
-                        name:   'masterVariant[height]',
-                        type:   'number',
-                        value: masterVariant.height,
-                        errors: masterVariant.getErrors('height')
+                        label: 'Height'|t~' ('~craft.market.settings.dimensionUnits~')',
+                        name:  'implicitVariant[height]',
+                        type:  'number',
+                        value: implicitVariant.height|marketDecimal,
+                        errors: implicitVariant.getErrors('height')
                     })}}
                     </div>
 
-                    <div class="item" data-min-colspan="1" data-max-colspan="3">
+                    <div class="item" data-min-colspan="1" data-max-colspan="1">
                     {{ forms.textField({
-                        label: 'Length'|t,
-                        name:   'masterVariant[length]',
+                        label:  'Length'|t~' ('~craft.market.settings.dimensionUnits~')',
+                        name:   'implicitVariant[length]',
                         type:   'text',
-                        value: masterVariant.length,
-                        errors: masterVariant.getErrors('length')
+                        value: implicitVariant.length|marketDecimal,
+                        errors: implicitVariant.getErrors('length')
                     })}}
                     </div>
 
-                    <div class="item" data-min-colspan="1" data-max-colspan="3">
+                    <div class="item" data-min-colspan="1" data-max-colspan="1">
                     {{ forms.textField({
-                        label: 'Weight'|t,
-                        name:   'masterVariant[weight]',
+                        label: 'Weight'|t~' ('~craft.market.settings.weightUnits~')',
+                        name:   'implicitVariant[weight]',
                         type:   'text',
-                        value: masterVariant.weight,
-                        errors: masterVariant.getErrors('weight')
+                        value: implicitVariant.weight|marketDecimal,
+                        errors: implicitVariant.getErrors('weight')
                     })}}
                     </div>
-
-                    <div class="item" data-min-colspan="1" data-max-colspan="3">
-
-                    {{ forms.textField({
-                        label: 'Stock'|t,
-                        name:   'masterVariant[stock]',
-                        type:   'text',
-                        value: masterVariant.stock,
-                        errors: masterVariant.getErrors('stock')
-                    })}}
-                    {{ forms.checkboxField({
-                        label: 'Unlimited'|t,
-                        name:   'masterVariant[unlimitedStock]',
-                        errors: masterVariant.getErrors('unlimitedStock')
-                    }) }}
                     </div>
+
+                    <div class="grid first" data-cols="4">
+                        <div class="item" data-min-colspan="2" data-max-colspan="4">
+                        {{ forms.checkboxField({
+                            label: 'Unlimited Stock'|t,
+                            name:   'implicitVariant[unlimitedStock]',
+                            checked: (implicitVariant.id ? implicitVariant.unlimitedStock : 1),
+                            errors: implicitVariant.getErrors('unlimitedStock'),
+                            reverseToggle: '.stockToggle'
+                        }) }}
+                        </div>
+                        <div class="item" data-min-colspan="2" data-max-colspan="4">
+                            <div class="stockToggle {% if not implicitVariant.id or implicitVariant.unlimitedStock %}hidden{% endif %}">
+                                {{ forms.textField({
+                                    label:  'Stock'|t,
+                                    name:   'implicitVariant[stock]',
+                                    type:   'text',
+                                    value: implicitVariant.stock,
+                                    required: productType.hasVariants ? false : true,
+                                    errors: implicitVariant.getErrors('stock')
+                                })}}
+                            </div>
+                        </div>
+                    </div>
+
                     </div>
                     {%  endset %}
-
-                    {%  if not productType.hasVariants %}
-                        {{ masterVariantHtml }}
-                    {%  endif %}
 
                     {% set allProductTab = productType.asa('productFieldLayout').getFieldLayout().getTabs() %}
                     {% for tab in allProductTab %}
@@ -226,7 +241,11 @@
                     {% include "_includes/tabs" with {'tabs': variantTab }%}
 
                     {%  if productType.hasVariants %}
-                        {{ masterVariantHtml }}
+
+                        <div id="implicitVariant" class="{% if not implicitVariant.hasErrors() %}hidden{% endif %}">
+                        {{ implicitVariantHtml }}
+                        </div>
+
                     {%  endif %}
 
                     <div id="variantsTab" class="">
@@ -250,22 +269,232 @@
                                 </div>
 
                                 {% include "_elements/indexcontainer" %}
-
+                            <hr/>
                             </div>
 
+
                             {% set initJs %}
-                                Craft.elementIndex = Craft.createElementIndex('{{ elementTypeClass }}', $('#variantsTab'), {
-                                context:        '{{ context }}',
-                                showStatusMenu: {{ showStatusMenu is defined ? showStatusMenu|json_encode|raw : "'auto'" }},
-                                showLocaleMenu: {{ showLocaleMenu is defined ? showLocaleMenu|json_encode|raw : "'auto'" }},
-                                storageKey:     'elementindex.{{ elementTypeClass }}',
-                                criteria:       { productId: {{ productId }}, isMaster: false, localeEnabled: null }
+                                Craft.SetVariantValuesInput = Craft.BaseInputGenerator.extend({
+                                    startListening: function()
+                                    {
+                                        if (this.listening)
+                                        {
+                                            return;
+                                        }
+
+                                        this.listening = true;
+
+                                        this.addListener(this.$source, 'textchange', 'onTextChange');
+                                        this.addListener(this.$form, 'submit', 'onFormSubmit');
+                                    },
+                                    updateTarget: function ()
+                                    {
+                                        var sourceVal = this.$source.val();
+                                        var targetVal = this.generateTargetValue(sourceVal);
+                                        this.$target.prop('checked', true);
+                                    },
+                                    onFormSubmit: function()
+                                    {
+                                        if (this.timeout)
+                                        {
+                                            clearTimeout(this.timeout);
+                                        }
+                                    }
                                 });
+
+                                Craft.SetVariantValuesModal = Garnish.Modal.extend({
+
+                                    ids: null,
+
+                                    init: function(ids,settings){
+                                        this.ids = ids;
+
+                                        var $form = $('<form class="modal variant-massEdit-modal" method="post" accept-charset="UTF-8">' +
+                                                Craft.getCsrfInput() +
+                                                '<input type="hidden" name="redirect" value=""/>' +
+                                                '<div class="body header-body"><p>'+Craft.t('Only values with checkboxes selected will be updated.')+'</p></div>' +
+                                                '<hr />' +
+                                                '</form>').appendTo(Garnish.$bod);
+                                    
+                                        var $body = $('<div class="body fields-body"></div>').appendTo($form);
+
+
+
+                                        {%  set fieldHtml %}
+                                            <div class="fields">
+                                                <div class="checkbox-text-input">
+                                                    <label class="checkbox-text-label">{{ "Price"|t }} </label>
+                                                    {{ forms.text({
+                                                    id: 'price',
+                                                    name: 'price',
+                                                    value: '',
+                                                    }) }}
+                                                    <div class="checkbox-input">
+                                                    {{ forms.checkbox({
+                                                        id: 'setPrice',
+                                                        name:   'setPrice',
+                                                        checked: 0,
+                                                        value: 1
+                                                    }) }}
+                                                    </div>
+                                                </div>
+                                                <div class="checkbox-text-input">
+                                                    <label class="checkbox-text-label">{{ "Minimum Quantity"|t }} </label>
+                                                    {{ forms.text({
+                                                        id: 'minQty',
+                                                        name: 'minQty',
+                                                        value: '',
+                                                    }) }}
+                                                    <div class="checkbox-input">
+                                                        {{ forms.checkbox({
+                                                            id: 'setMinQty',
+                                                            name:   'setMinQty',
+                                                            checked: 0,
+                                                            value: 1
+                                                        }) }}
+                                                    </div>
+                                                </div>
+
+                                                <div class="checkbox-text-input">
+                                                    <label class="checkbox-text-label">{{ "Maximum Quantity"|t }} </label>
+                                                    {{ forms.text({
+                                                        id: 'maxQty',
+                                                        name: 'maxQty',
+                                                        value: '',
+                                                    }) }}
+                                                    <div class="checkbox-input">
+                                                        {{ forms.checkbox({
+                                                            id: 'setMaxQty',
+                                                            name:   'setMaxQty',
+                                                            checked: 0,
+                                                            value: 1
+                                                        }) }}
+                                                    </div>
+                                                </div>
+
+                                                <div class="checkbox-text-input">
+                                                    <label class="checkbox-text-label">{{ 'Width'|t~' ('~craft.market.settings.dimensionUnits~')' }} </label>
+                                                    {{ forms.text({
+                                                        id: 'width',
+                                                        name: 'width',
+                                                        value: '',
+                                                    }) }}
+                                                    <div class="checkbox-input">
+                                                        {{ forms.checkbox({
+                                                            id: 'setWidth',
+                                                            name:   'setWidth',
+                                                            checked: 0,
+                                                            value: 1
+                                                        }) }}
+                                                    </div>
+                                                </div>
+
+                                                <div class="checkbox-text-input">
+                                                    <label class="checkbox-text-label">{{ 'Height'|t~' ('~craft.market.settings.dimensionUnits~')' }} </label>
+                                                    {{ forms.text({
+                                                        id: 'height',
+                                                        name: 'height',
+                                                        value: '',
+                                                    }) }}
+                                                    <div class="checkbox-input">
+                                                        {{ forms.checkbox({
+                                                            id: 'setHeight',
+                                                            name:   'setHeight',
+                                                            checked: 0,
+                                                            value: 1
+                                                        }) }}
+                                                    </div>
+                                                </div>
+
+                                                <div class="checkbox-text-input">
+                                                    <label class="checkbox-text-label">{{ 'Length'|t~' ('~craft.market.settings.dimensionUnits~')' }} </label>
+                                                    {{ forms.text({
+                                                        id: 'length',
+                                                        name: 'length',
+                                                        value: '',
+                                                    }) }}
+                                                    <div class="checkbox-input">
+                                                        {{ forms.checkbox({
+                                                            id: 'setLength',
+                                                            name:   'setLength',
+                                                            checked: 0,
+                                                            value: 1
+                                                        }) }}
+                                                    </div>
+                                                </div>
+
+                                                <div class="checkbox-text-input">
+                                                    <label class="checkbox-text-label">{{ 'Weight'|t~' ('~craft.market.settings.weightUnits~')' }} </label>
+                                                    {{ forms.text({
+                                                        id: 'weight',
+                                                        name: 'weight',
+                                                        value: '',
+                                                    }) }}
+                                                    <div class="checkbox-input">
+                                                        {{ forms.checkbox({
+                                                            id: 'setWeight',
+                                                            name:   'setWeight',
+                                                            checked: 0,
+                                                            value: 1
+                                                        }) }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {%  endset %}
+
+
+                                        var $fields = $("{{ fieldHtml|e('js') }}").appendTo($body);
+
+                                        new Craft.SetVariantValuesInput($form.find('#price'), $form.find('#setPrice'));
+                                        new Craft.SetVariantValuesInput($form.find('#minQty'), $form.find('#setMinQty'));
+                                        new Craft.SetVariantValuesInput($form.find('#maxQty'), $form.find('#setMaxQty'));
+                                        new Craft.SetVariantValuesInput($form.find('#width'), $form.find('#setWidth'));
+                                        new Craft.SetVariantValuesInput($form.find('#height'), $form.find('#setHeight'));
+                                        new Craft.SetVariantValuesInput($form.find('#weight'), $form.find('#setWeight'));
+                                        new Craft.SetVariantValuesInput($form.find('#length'), $form.find('#setLength'));
+
+                                        var $footer = $('<div class="footer" style="position:absolute;bottom:0;width:100%"/>').appendTo($form);
+                                        var $buttons = $('<div class="buttons right"/>').appendTo($footer);
+
+                                        var $cancelBtn = $('<div class="btn">'+Craft.t('Cancel')+'</div>').appendTo($buttons);
+                                        var $SubmitBtn = $('<input type="submit" class="btn submit" value="'+Craft.t('Set Values') +'" />').appendTo($buttons);
+                                        this.addListener($cancelBtn, 'click', 'hide');
+                                        this.addListener($form, 'submit', 'handleSubmit');
+
+                                        this.base($form, settings);
+                                    },
+                                    hide: function(){
+                                        this.base();
+                                    },
+                                    handleSubmit: function(ev){
+                                        this.disable();
+
+                                        // Let the onSubmit callback prevent the form from getting submitted
+                                        if (this.settings.onSubmit() === false){
+                                            ev.preventDefault();
+                                        }
+                                    }
+                                });
+
+
+                                Craft.elementIndex = Craft.createElementIndex('{{ elementTypeClass }}', $('#variantsTab'), {
+                                    context:        '{{ context }}',
+                                    showStatusMenu: {{ showStatusMenu is defined ? showStatusMenu|json_encode|raw : "'auto'" }},
+                                    showLocaleMenu: {{ showLocaleMenu is defined ? showLocaleMenu|json_encode|raw : "'auto'" }},
+                                    storageKey:     'elementindex.{{ elementTypeClass }}',
+                                    criteria:       { productId: {{ productId }}, isImplicit: false, localeEnabled: null }
+                                });
+
                             {% endset %}
 
                             {% includeJs initJs %}
 
                         {%  endif  %}
+
+                        <a class="btn formsubmit" data-param="entryId" data-value="" data-redirect="market/products/{type.handle}/{id}/variants/new"
+                           data-value="1">{{ "Add a variant"|t }}</a>
+                        
+
 
                     </div>
                 </div>{# end pane #}
@@ -284,12 +513,29 @@
                         errors: product.getErrors('slug')|merge(product.getErrors('uri'))
                     }) }}
 
+
+                    {%  if not productType.hasVariants %}
+                        {{ implicitVariantHtml }}
+                    {%  endif %}
+
                     {{ forms.selectField({
                         label: 'Tax Category'|t,
                         name: 'taxCategoryId',
                         value: product.taxCategoryId,
                         required: true,
                         options: taxCategories
+                    }) }}
+
+                    {{ forms.checkboxField({
+                        label: 'Free Shipping'|t,
+                        name: 'freeShipping',
+                        checked: (product.id ? product.freeShipping : 0),
+                    }) }}
+
+                    {{ forms.checkboxField({
+                        label: 'Promotable'|t,
+                        name: 'promotable',
+                        checked: (product.id ? product.promotable : 1),
                     }) }}
 
                     {{ dateTimeField(product, 'availableOn', "Available On"|t) }}
@@ -325,15 +571,34 @@
 
                 </div>{#END PANE#}
 
+                <table class="inputs fullwidth">
+                    <tr>
+                        <td class="thin">
+                            <div class="btngroup submit first">
+                                <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
 
-                <div class="buttons first">
-                    <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
-                    {% if productType.hasVariants %}
-                    <a class="btn formsubmit submit right" data-redirect="{{ product.cpEditUrl }}/variants/new"
-                       data-value="1">{{ 'Save & Add Variant'|t }}</a>
-                    {%  endif %}
-                </div>
+                                <div class="btn submit menubtn"></div>
+                                <div class="menu">
+                                    <ul>
+                                        <li><a class="formsubmit" data-redirect="{{ continueEditingUrl }}">
+                                                {{ "Save and continue editing"|t }}
+                                                {{ forms.optionShortcutLabel('S') }}
+                                            </a></li>
 
+                                        {% if productType.hasVariants %}
+                                            <li><a class="formsubmit" data-param="entryId" data-value="" data-redirect="market/products/{type.handle}/{id}/variants/new"
+                                                   data-value="1">{{ 'Save and add new variant'|t }}</a></li>
+                                        {%  endif %}
+
+                                    </ul>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+
+                        </td>
+                    </tr>
+                </table>
 
             </div>
 

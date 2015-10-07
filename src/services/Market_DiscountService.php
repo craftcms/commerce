@@ -1,5 +1,4 @@
 <?php
-
 namespace Craft;
 
 use Market\Helpers\MarketDbHelper;
@@ -7,320 +6,382 @@ use Market\Helpers\MarketDbHelper;
 /**
  * Class Market_DiscountService
  *
- * @package Craft
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://buildwithcraft.com/license Craft License Agreement
+ * @see       http://buildwithcraft.com/commerce
+ * @package   craft.plugins.commerce.services
+ * @since     1.0
  */
 class Market_DiscountService extends BaseApplicationComponent
 {
-	/**
-	 * @param int $id
-	 *
-	 * @return Market_DiscountModel
-	 */
-	public function getById($id)
-	{
-		$record = Market_DiscountRecord::model()->findById($id);
+    /**
+     * @param int $id
+     *
+     * @return Market_DiscountModel
+     */
+    public function getById($id)
+    {
+        $record = Market_DiscountRecord::model()->findById($id);
 
-		return Market_DiscountModel::populateModel($record);
-	}
+        return Market_DiscountModel::populateModel($record);
+    }
 
-	/**
-	 * Getting all discounts applicable for the current user and given items
-	 * list
-	 *
-	 * @param Market_LineItemModel[] $lineItems
-	 *
-	 * @return Market_DiscountModel[]
-	 */
-	public function getForItems(array $lineItems)
-	{
-		//getting ids lists
-		$productIds     = [];
-		$productTypeIds = [];
-		foreach ($lineItems as $item) {
-			$productIds[]     = $item->purchasable->productId;
-			$productTypeIds[] = $item->purchasable->product->typeId;
-		}
-		$productTypeIds = array_unique($productTypeIds);
+    /**
+     * Getting all discounts applicable for the current user and given items
+     * list
+     *
+     * @param Market_LineItemModel[] $lineItems
+     *
+     * @return Market_DiscountModel[]
+     */
+    public function getForItems(array $lineItems)
+    {
+        //getting ids lists
+        $productIds     = [];
+        $productTypeIds = [];
+        foreach ($lineItems as $item) {
+            $productIds[]     = $item->purchasable->productId;
+            $productTypeIds[] = $item->purchasable->product->typeId;
+        }
+        $productTypeIds = array_unique($productTypeIds);
 
-		$groupIds = $this->getCurrentUserGroups();
+        $groupIds = $this->getCurrentUserGroups();
 
-		//building criteria
-		$criteria        = new \CDbCriteria();
-		$criteria->group = 't.id';
-		$criteria->addCondition('t.enabled = 1');
-		$criteria->addCondition('t.dateFrom IS NULL OR t.dateFrom <= NOW()');
-		$criteria->addCondition('t.dateTo IS NULL OR t.dateTo >= NOW()');
+        //building criteria
+        $criteria        = new \CDbCriteria();
+        $criteria->group = 't.id';
+        $criteria->addCondition('t.enabled = 1');
+        $criteria->addCondition('t.dateFrom IS NULL OR t.dateFrom <= NOW()');
+        $criteria->addCondition('t.dateTo IS NULL OR t.dateTo >= NOW()');
 
-		$criteria->join = 'LEFT JOIN {{' . Market_DiscountProductRecord::model()->getTableName() . '}} dp ON dp.discountId = t.id ';
-		$criteria->join .= 'LEFT JOIN {{' . Market_DiscountProductTypeRecord::model()->getTableName() . '}} dpt ON dpt.discountId = t.id ';
-		$criteria->join .= 'LEFT JOIN {{' . Market_DiscountUserGroupRecord::model()->getTableName() . '}} dug ON dug.discountId = t.id ';
+        $criteria->join = 'LEFT JOIN {{' . Market_DiscountProductRecord::model()->getTableName() . '}} dp ON dp.discountId = t.id ';
+        $criteria->join .= 'LEFT JOIN {{' . Market_DiscountProductTypeRecord::model()->getTableName() . '}} dpt ON dpt.discountId = t.id ';
+        $criteria->join .= 'LEFT JOIN {{' . Market_DiscountUserGroupRecord::model()->getTableName() . '}} dug ON dug.discountId = t.id ';
 
-		if ($productIds) {
-			$list = implode(',', $productIds);
-			$criteria->addCondition("dp.productId IN ($list) OR t.allProducts = 1");
-		} else {
-			$criteria->addCondition("t.allProducts = 1");
-		}
+        if ($productIds) {
+            $list = implode(',', $productIds);
+            $criteria->addCondition("dp.productId IN ($list) OR t.allProducts = 1");
+        } else {
+            $criteria->addCondition("t.allProducts = 1");
+        }
 
-		if ($productTypeIds) {
-			$list = implode(',', $productTypeIds);
-			$criteria->addCondition("dpt.productTypeId IN ($list) OR t.allProductTypes = 1");
-		} else {
-			$criteria->addCondition("t.allProductTypes = 1");
-		}
+        if ($productTypeIds) {
+            $list = implode(',', $productTypeIds);
+            $criteria->addCondition("dpt.productTypeId IN ($list) OR t.allProductTypes = 1");
+        } else {
+            $criteria->addCondition("t.allProductTypes = 1");
+        }
 
-		if ($groupIds) {
-			$list = implode(',', $groupIds);
-			$criteria->addCondition("dug.userGroupId IN ($list) OR t.allGroups = 1");
-		} else {
-			$criteria->addCondition("t.allGroups = 1");
-		}
+        if ($groupIds) {
+            $list = implode(',', $groupIds);
+            $criteria->addCondition("dug.userGroupId IN ($list) OR t.allGroups = 1");
+        } else {
+            $criteria->addCondition("t.allGroups = 1");
+        }
 
-		//searching
-		return $this->getAll($criteria);
-	}
+        //searching
+        return $this->getAll($criteria);
+    }
 
-	/**
-	 * @return array
-	 */
-	public function getCurrentUserGroups()
-	{
-		$groupIds = [];
-		$user     = craft()->userSession->getUser();
-		if ($user) {
-			foreach ($user->getGroups() as $group) {
-				$groupIds[] = $group->id;
-			}
+    /**
+     * @return array
+     */
+    public function getCurrentUserGroups()
+    {
+        $groupIds = [];
+        $user     = craft()->userSession->getUser();
+        if ($user) {
+            foreach ($user->getGroups() as $group) {
+                $groupIds[] = $group->id;
+            }
 
-			return $groupIds;
-		}
+            return $groupIds;
+        }
 
-		return $groupIds;
-	}
+        return $groupIds;
+    }
 
-	/**
-	 * @param array|\CDbCriteria $criteria
-	 *
-	 * @return Market_DiscountModel[]
-	 */
-	public function getAll($criteria = [])
-	{
-		$records = Market_DiscountRecord::model()->findAll($criteria);
+    /**
+     * @param array|\CDbCriteria $criteria
+     *
+     * @return Market_DiscountModel[]
+     */
+    public function getAll($criteria = [])
+    {
+        $records = Market_DiscountRecord::model()->findAll($criteria);
 
-		return Market_DiscountModel::populateModels($records);
-	}
+        return Market_DiscountModel::populateModels($records);
+    }
 
-	/**
-	 * Get discount by code and check it's active and applies to the current user
-	 *
-	 * @param int    $code
-	 * @param string $error
-	 *
-	 * @return true
-	 */
-	public function checkCode($code, $customerId, &$error = '')
-	{
-		$model = $this->getByCode($code);
-		if (!$model->id) {
-			$error = 'Given coupon code not found';
+    /**
+     * Get discount by code and check it's active and applies to the current
+     * user
+     *
+     * @param int    $code
+     * @param int    $customerId
+     * @param string $error
+     *
+     * @return true
+     */
+    public function checkCode($code, $customerId, &$error = '')
+    {
+        $model = $this->getByCode($code);
+        if (!$model->id) {
+            $error = 'Given coupon code not found';
 
-			return false;
-		}
+            return false;
+        }
 
-		if (!$model->enabled) {
-			$error = 'Discount is not active';
+        if (!$model->enabled) {
+            $error = 'Discount is not active';
 
-			return false;
-		}
+            return false;
+        }
 
-		if($model->totalUseLimit > 0 && $model->totalUses >= $model->totalUseLimit) {
-			$error = 'Discount is out of limit';
+        if ($model->totalUseLimit > 0 && $model->totalUses >= $model->totalUseLimit) {
+            $error = 'Discount is out of limit';
 
-			return false;
-		}
+            return false;
+        }
 
-		$now = new DateTime();
-		if ($model->dateFrom && $model > $now || $model->dateTo && $model->dateTo < $now) {
-			$error = 'Discount is out of date';
+        $now = new DateTime();
+        if ($model->dateFrom && $model > $now || $model->dateTo && $model->dateTo < $now) {
+            $error = 'Discount is out of date';
 
-			return false;
-		}
+            return false;
+        }
 
-		$groupIds = $this->getCurrentUserGroups();
-		if (!$model->allGroups && !array_intersect($groupIds, $model->getGroupsIds())) {
-			$error = 'Discount is not allowed for the current user';
+        $groupIds = $this->getCurrentUserGroups();
+        if (!$model->allGroups && !array_intersect($groupIds,
+                $model->getGroupsIds())
+        ) {
+            $error = 'Discount is not allowed for the current user';
 
-			return false;
-		}
+            return false;
+        }
 
-		if($customerId) {
-			$uses = Market_CustomerDiscountUseRecord::model()->findByAttributes(['customerId' => $customerId, 'discountId' => $model->id]);
-			if($uses && $uses->uses >= $model->perUserLimit) {
-				$error = 'You can not use this discount anymore';
+        if ($customerId) {
+            $uses = Market_CustomerDiscountUseRecord::model()->findByAttributes([
+                'customerId' => $customerId,
+                'discountId' => $model->id
+            ]);
+            if ($uses && $uses->uses >= $model->perUserLimit) {
+                $error = 'You can not use this discount anymore';
 
-				return false;
-			}
-		}
+                return false;
+            }
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	/**
-	 * @param string $code
-	 *
-	 * @return Market_DiscountModel
-	 */
-	public function getByCode($code)
-	{
-		$record = Market_DiscountRecord::model()->findByAttributes(['code' => $code]);
+    /**
+     * @param string $code
+     *
+     * @return Market_DiscountModel
+     */
+    public function getByCode($code)
+    {
+        $record = Market_DiscountRecord::model()->findByAttributes(['code' => $code]);
 
-		return Market_DiscountModel::populateModel($record);
-	}
+        return Market_DiscountModel::populateModel($record);
+    }
 
-	/**
-	 * @param Market_LineItemModel $lineItem
-	 * @param Market_DiscountModel $discount
-	 *
-	 * @return bool
-	 */
-	public function matchLineItem(Market_LineItemModel $lineItem, Market_DiscountModel $discount)
-	{
-		if ($lineItem->underSale && $discount->excludeOnSale) {
-			return false;
-		}
+    /**
+     * @param Market_LineItemModel $lineItem
+     * @param Market_DiscountModel $discount
+     *
+     * @return bool
+     */
+    public function matchLineItem(
+        Market_LineItemModel $lineItem,
+        Market_DiscountModel $discount
+    ) {
 
-		$productId = $lineItem->purchasable->productId;
-		if (!$discount->allProducts && !in_array($productId, $discount->getProductsIds())) {
-			return false;
-		}
+        if ($lineItem->onSale && $discount->excludeOnSale) {
+            return false;
+        }
 
-		$productTypeId = $lineItem->purchasable->product->typeId;
-		if (!$discount->allProductTypes && !in_array($productTypeId, $discount->getProductTypesIds())) {
-			return false;
-		}
+        if (!$lineItem->purchasable instanceof Market_VariantModel){
+            return false;
+        }
 
-		$userGroups = $this->getCurrentUserGroups();
-		if (!$discount->allGroups && !array_intersect($userGroups, $discount->getGroupsIds())) {
-			return false;
-		}
+        // can't match something not promotable
+        if (!$lineItem->purchasable->product->promotable){
+            return false;
+        }
 
-		return true;
-	}
+        $productId = $lineItem->purchasable->productId;
+        if (!$discount->allProducts && !in_array($productId,
+                $discount->getProductsIds())
+        ) {
+            return false;
+        }
 
-	/**
-	 * @param Market_DiscountModel $model
-	 * @param array                $groups       ids
-	 * @param array                $productTypes ids
-	 * @param array                $products     ids
-	 *
-	 * @return bool
-	 * @throws \Exception
-	 */
-	public function save(Market_DiscountModel $model, array $groups, array $productTypes, array $products)
-	{
-		if ($model->id) {
-			$record = Market_DiscountRecord::model()->findById($model->id);
+        $productTypeId = $lineItem->purchasable->product->typeId;
+        if (!$discount->allProductTypes && !in_array($productTypeId,
+                $discount->getProductTypesIds())
+        ) {
+            return false;
+        }
 
-			if (!$record) {
-				throw new Exception(Craft::t('No discount exists with the ID “{id}”', ['id' => $model->id]));
-			}
-		} else {
-			$record = new Market_DiscountRecord();
-		}
+        $userGroups = $this->getCurrentUserGroups();
+        if (!$discount->allGroups && !array_intersect($userGroups,
+                $discount->getGroupsIds())
+        ) {
+            return false;
+        }
 
-		$fields = ['id', 'name', 'description', 'dateFrom', 'dateTo', 'enabled', 'purchaseTotal', 'purchaseQty', 'baseDiscount', 'perItemDiscount',
-			'percentDiscount', 'freeShipping', 'excludeOnSale', 'code', 'perUserLimit', 'totalUseLimit'];
-		foreach ($fields as $field) {
-			$record->$field = $model->$field;
-		}
+        return true;
+    }
 
-		$record->allGroups       = $model->allGroups = empty($groups);
-		$record->allProductTypes = $model->allProductTypes = empty($productTypes);
-		$record->allProducts     = $model->allProducts = empty($products);
+    /**
+     * @param Market_DiscountModel $model
+     * @param array                $groups       ids
+     * @param array                $productTypes ids
+     * @param array                $products     ids
+     *
+     * @return bool
+     * @throws \Exception
+     */
+    public function save(
+        Market_DiscountModel $model,
+        array $groups,
+        array $productTypes,
+        array $products
+    ) {
+        if ($model->id) {
+            $record = Market_DiscountRecord::model()->findById($model->id);
 
-		$record->validate();
-		$model->addErrors($record->getErrors());
+            if (!$record) {
+                throw new Exception(Craft::t('No discount exists with the ID “{id}”',
+                    ['id' => $model->id]));
+            }
+        } else {
+            $record = new Market_DiscountRecord();
+        }
 
-		MarketDbHelper::beginStackedTransaction();
-		try {
-			if (!$model->hasErrors()) {
-				$record->save(false);
-				$model->id = $record->id;
+        $fields = [
+            'id',
+            'name',
+            'description',
+            'dateFrom',
+            'dateTo',
+            'enabled',
+            'purchaseTotal',
+            'purchaseQty',
+            'baseDiscount',
+            'perItemDiscount',
+            'percentDiscount',
+            'freeShipping',
+            'excludeOnSale',
+            'code',
+            'perUserLimit',
+            'totalUseLimit'
+        ];
+        foreach ($fields as $field) {
+            $record->$field = $model->$field;
+        }
 
-				Market_DiscountUserGroupRecord::model()->deleteAllByAttributes(['discountId' => $model->id]);
-				Market_DiscountProductRecord::model()->deleteAllByAttributes(['discountId' => $model->id]);
-				Market_DiscountProductTypeRecord::model()->deleteAllByAttributes(['discountId' => $model->id]);
+        $record->allGroups       = $model->allGroups = empty($groups);
+        $record->allProductTypes = $model->allProductTypes = empty($productTypes);
+        $record->allProducts     = $model->allProducts = empty($products);
 
-				foreach ($groups as $groupId) {
-					$relation             = new Market_DiscountUserGroupRecord;
-					$relation->attributes = ['userGroupId' => $groupId, 'discountId' => $model->id];
-					$relation->insert();
-				}
+        $record->validate();
+        $model->addErrors($record->getErrors());
 
-				foreach ($productTypes as $productTypeId) {
-					$relation             = new Market_DiscountProductTypeRecord;
-					$relation->attributes = ['productTypeId' => $productTypeId, 'discountId' => $model->id];
-					$relation->insert();
-				}
+        MarketDbHelper::beginStackedTransaction();
+        try {
+            if (!$model->hasErrors()) {
+                $record->save(false);
+                $model->id = $record->id;
 
-				foreach ($products as $productId) {
-					$relation             = new Market_DiscountProductRecord;
-					$relation->attributes = ['productId' => $productId, 'discountId' => $model->id];
-					$relation->insert();
-				}
+                Market_DiscountUserGroupRecord::model()->deleteAllByAttributes(['discountId' => $model->id]);
+                Market_DiscountProductRecord::model()->deleteAllByAttributes(['discountId' => $model->id]);
+                Market_DiscountProductTypeRecord::model()->deleteAllByAttributes(['discountId' => $model->id]);
 
-				MarketDbHelper::commitStackedTransaction();
+                foreach ($groups as $groupId) {
+                    $relation             = new Market_DiscountUserGroupRecord;
+                    $relation->attributes = [
+                        'userGroupId' => $groupId,
+                        'discountId'  => $model->id
+                    ];
+                    $relation->insert();
+                }
 
-				return true;
-			}
-		} catch (\Exception $e) {
-			MarketDbHelper::rollbackStackedTransaction();
-			throw $e;
-		}
+                foreach ($productTypes as $productTypeId) {
+                    $relation             = new Market_DiscountProductTypeRecord;
+                    $relation->attributes = [
+                        'productTypeId' => $productTypeId,
+                        'discountId'    => $model->id
+                    ];
+                    $relation->insert();
+                }
 
-		MarketDbHelper::rollbackStackedTransaction();
+                foreach ($products as $productId) {
+                    $relation             = new Market_DiscountProductRecord;
+                    $relation->attributes = [
+                        'productId'  => $productId,
+                        'discountId' => $model->id
+                    ];
+                    $relation->insert();
+                }
 
-		return false;
-	}
+                MarketDbHelper::commitStackedTransaction();
 
-	/**
-	 * @param int $id
-	 */
-	public function deleteById($id)
-	{
-		Market_DiscountRecord::model()->deleteByPk($id);
-	}
+                return true;
+            }
+        } catch (\Exception $e) {
+            MarketDbHelper::rollbackStackedTransaction();
+            throw $e;
+        }
 
-	/**
-	 * Update discount uses counters
-	 * @param Event $event
-	 */
-	public function orderCompleteHandler(Event $event) {
-		/** @var Market_OrderModel $order */
-		$order = $event->params['order'];
+        MarketDbHelper::rollbackStackedTransaction();
 
-		if(!$order->couponCode) {
-			return;
-		}
+        return false;
+    }
 
-		/** @var Market_DiscountRecord $record */
-		$record = Market_DiscountRecord::model()->findByAttributes(['code' => $order->couponCode]);
-		if (!$record || !$record->id) {
-			return;
-		}
+    /**
+     * @param int $id
+     */
+    public function deleteById($id)
+    {
+        Market_DiscountRecord::model()->deleteByPk($id);
+    }
 
-		if($record->totalUseLimit) {
-			$record->saveCounters(['totalUses' => 1]);
-		}
+    /**
+     * Update discount uses counters
+     *
+     * @param Event $event
+     */
+    public function orderCompleteHandler(Event $event)
+    {
+        /** @var Market_OrderModel $order */
+        $order = $event->params['order'];
 
-		if($record->perUserLimit && $order->customerId) {
-			$table = Market_CustomerDiscountUseRecord::model()->getTableName();
-			craft()->db->createCommand("
+        if (!$order->couponCode) {
+            return;
+        }
+
+        /** @var Market_DiscountRecord $record */
+        $record = Market_DiscountRecord::model()->findByAttributes(['code' => $order->couponCode]);
+        if (!$record || !$record->id) {
+            return;
+        }
+
+        if ($record->totalUseLimit) {
+            $record->saveCounters(['totalUses' => 1]);
+        }
+
+        if ($record->perUserLimit && $order->customerId) {
+            $table = Market_CustomerDiscountUseRecord::model()->getTableName();
+            craft()->db->createCommand("
                 INSERT INTO {{" . $table . "}} (customerId, discountId, uses)
                 VALUES (:cid, :did, 1)
                 ON DUPLICATE KEY UPDATE uses = uses + 1
             ")->execute(['cid' => $order->customerId, 'did' => $record->id]);
-		}
-	}
+        }
+    }
 
 }

@@ -28,7 +28,7 @@ class Market_TaxAdjuster implements Market_AdjusterInterface
 	 */
 	public function adjust(Market_OrderModel &$order, array $lineItems = [])
 	{
-        $shippingAddress = \Craft\craft()->market_address->getById($order->shippingAddressId);
+        $shippingAddress = \Craft\craft()->market_address->getAddressById($order->shippingAddressId);
         if (!$shippingAddress->id) {
             $shippingAddress = null;
         }
@@ -74,7 +74,7 @@ class Market_TaxAdjuster implements Market_AdjusterInterface
 				//excluding taxes included in price
 				foreach ($lineItems as $item) {
 					if ($item->taxCategoryId == $taxRate->taxCategoryId) {
-						$item->taxAmount += -$taxRate->rate * $item->getPriceWithoutShipping();
+						$item->tax += -($item->getPriceWithoutShipping()-($item->getPriceWithoutShipping()/(1+$taxRate->rate)))  * $item->qty;
 					}
 				}
 			}
@@ -88,15 +88,15 @@ class Market_TaxAdjuster implements Market_AdjusterInterface
 
 			if ($item->taxCategoryId == $taxRate->taxCategoryId) {
 				if (!$taxRate->include) {
-					$itemTaxAmount = $taxRate->rate * $item->getPriceWithoutShipping() * $item->qty;
+					$itemtax = $taxRate->rate * $item->getPriceWithoutShipping() * $item->qty;
 				}else{
-					$itemTaxAmount = ($item->getPriceWithoutShipping()-($item->getPriceWithoutShipping()/(1+$taxRate->rate))) * $item->qty;
+					$itemtax = ($item->getPriceWithoutShipping()-($item->getPriceWithoutShipping()/(1+$taxRate->rate))) * $item->qty;
 				}
 
-				$adjustment->amount += $itemTaxAmount;
+				$adjustment->amount += $itemtax;
 
 				if (!$taxRate->include) {
-					$item->taxAmount += $itemTaxAmount;
+					$item->tax += $itemtax;
 				}
 
 				$itemsMatch = true;

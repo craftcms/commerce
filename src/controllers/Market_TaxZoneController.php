@@ -2,104 +2,114 @@
 namespace Craft;
 
 /**
+ * Class Market_TaxZoneController
  *
- *
- * @author    Make with Morph. <support@makewithmorph.com>
- * @copyright Copyright (c) 2015, Luke Holder.
- * @license   http://makewithmorph.com/market/license Market License Agreement
- * @see       http://makewithmorph.com
- * @package   craft.plugins.market.controllers
- * @since     0.1
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://buildwithcraft.com/license Craft License Agreement
+ * @see       http://buildwithcraft.com/commerce
+ * @package   craft.plugins.commerce.controllers
+ * @since     1.0
  */
 class Market_TaxZoneController extends Market_BaseController
 {
-	/**
-	 * @throws HttpException
-	 */
-	public function actionIndex()
-	{
-		$taxZones = craft()->market_taxZone->getAll();
-		$this->renderTemplate('market/settings/taxzones/index', compact('taxZones'));
-	}
+    /**
+     * @throws HttpException
+     */
+    public function actionIndex()
+    {
+        $this->requireAdmin();
 
-	/**
-	 * Create/Edit TaxZone
-	 *
-	 * @param array $variables
-	 *
-	 * @throws HttpException
-	 */
-	public function actionEdit(array $variables = [])
-	{
-		if (empty($variables['taxZone'])) {
-			if (!empty($variables['id'])) {
-				$id                   = $variables['id'];
-				$variables['taxZone'] = craft()->market_taxZone->getById($id);
+        $taxZones = craft()->market_taxZone->getAll();
+        $this->renderTemplate('market/settings/taxzones/index',
+            compact('taxZones'));
+    }
 
-				if (!$variables['taxZone']->id) {
-					throw new HttpException(404);
-				}
-			} else {
-				$variables['taxZone'] = new Market_TaxZoneModel();
-			};
-		}
+    /**
+     * Create/Edit TaxZone
+     *
+     * @param array $variables
+     *
+     * @throws HttpException
+     */
+    public function actionEdit(array $variables = [])
+    {
+        $this->requireAdmin();
 
-		if (!empty($variables['id'])) {
-			$variables['title'] = $variables['taxZone']->name;
-		} else {
-			$variables['title'] = Craft::t('Create a Tax Zone');
-		}
+        if (empty($variables['taxZone'])) {
+            if (!empty($variables['id'])) {
+                $id                   = $variables['id'];
+                $variables['taxZone'] = craft()->market_taxZone->getById($id);
 
-		$countries = craft()->market_country->getAll();
-		$states    = craft()->market_state->getAll();
+                if (!$variables['taxZone']->id) {
+                    throw new HttpException(404);
+                }
+            } else {
+                $variables['taxZone'] = new Market_TaxZoneModel();
+            };
+        }
 
-		$variables['countries'] = \CHtml::listData($countries, 'id', 'name');
-		$variables['states']    = \CHtml::listData($states, 'id', 'name');
+        if (!empty($variables['id'])) {
+            $variables['title'] = $variables['taxZone']->name;
+        } else {
+            $variables['title'] = Craft::t('Create a Tax Zone');
+        }
 
-		$this->renderTemplate('market/settings/taxzones/_edit', $variables);
-	}
+        $countries = craft()->market_country->getAll();
+        $states    = craft()->market_state->getAll();
 
-	/**
-	 * @throws HttpException
-	 */
-	public function actionSave()
-	{
-		$this->requirePostRequest();
-		$taxZone = new Market_TaxZoneModel();
+        $variables['countries'] = \CHtml::listData($countries, 'id', 'name');
+        $variables['states']    = \CHtml::listData($states, 'id', 'name');
 
-		// Shared attributes
-		$taxZone->id           = craft()->request->getPost('taxZoneId');
-		$taxZone->name         = craft()->request->getPost('name');
-		$taxZone->description  = craft()->request->getPost('description');
-		$taxZone->countryBased = craft()->request->getPost('countryBased');
-		$taxZone->default      = craft()->request->getPost('default');
-		$countriesIds          = craft()->request->getPost('countries', []);
-		$statesIds             = craft()->request->getPost('states', []);
+        $this->renderTemplate('market/settings/taxzones/_edit', $variables);
+    }
 
-		// Save it
-		if (craft()->market_taxZone->save($taxZone, $countriesIds, $statesIds)) {
-			craft()->userSession->setNotice(Craft::t('Tax Zone saved.'));
-			$this->redirectToPostedUrl($taxZone);
-		} else {
-			craft()->userSession->setError(Craft::t('Couldn’t save tax zone.'));
-		}
+    /**
+     * @throws HttpException
+     */
+    public function actionSave()
+    {
+        $this->requireAdmin();
+        $this->requirePostRequest();
 
-		// Send the model back to the template
-		craft()->urlManager->setRouteVariables(['taxZone' => $taxZone]);
-	}
+        $taxZone = new Market_TaxZoneModel();
 
-	/**
-	 * @throws HttpException
-	 */
-	public function actionDelete()
-	{
-		$this->requirePostRequest();
-		$this->requireAjaxRequest();
+        // Shared attributes
+        $taxZone->id           = craft()->request->getPost('taxZoneId');
+        $taxZone->name         = craft()->request->getPost('name');
+        $taxZone->description  = craft()->request->getPost('description');
+        $taxZone->countryBased = craft()->request->getPost('countryBased');
+        $taxZone->default      = craft()->request->getPost('default');
+        $countriesIds          = craft()->request->getPost('countries', []);
+        $statesIds             = craft()->request->getPost('states', []);
 
-		$id = craft()->request->getRequiredPost('id');
+        // Save it
+        if (craft()->market_taxZone->save($taxZone, $countriesIds,
+            $statesIds)
+        ) {
+            craft()->userSession->setNotice(Craft::t('Tax Zone saved.'));
+            $this->redirectToPostedUrl($taxZone);
+        } else {
+            craft()->userSession->setError(Craft::t('Couldn’t save tax zone.'));
+        }
 
-		craft()->market_taxZone->deleteById($id);
-		$this->returnJson(['success' => true]);
-	}
+        // Send the model back to the template
+        craft()->urlManager->setRouteVariables(['taxZone' => $taxZone]);
+    }
+
+    /**
+     * @throws HttpException
+     */
+    public function actionDelete()
+    {
+        $this->requireAdmin();
+        $this->requirePostRequest();
+        $this->requireAjaxRequest();
+
+        $id = craft()->request->getRequiredPost('id');
+
+        craft()->market_taxZone->deleteById($id);
+        $this->returnJson(['success' => true]);
+    }
 
 }
