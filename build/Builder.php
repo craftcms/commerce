@@ -296,7 +296,7 @@ class Builder
 
 	private function _executeComposer($command)
 	{
-		$command = "/usr/bin/php {$this->_composerPath} {$command}";
+		$command = "cd {$this->_sourceBaseDir}plugins/market;/usr/bin/php {$this->_composerPath} {$command}";
 
 		echo 'Executing: '.$command.PHP_EOL;
 		exec($command.' 2>&1', $output, $status);
