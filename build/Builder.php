@@ -177,7 +177,7 @@ class Builder
 		}
 
 		$variables = array(
-			'9999'                => $this->_args['build'],
+			'9999' => $this->_args['build'],
 		);
 
 		$newContents = str_replace(
