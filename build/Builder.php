@@ -55,35 +55,17 @@ class Builder
 
 	public function updateComposer()
 	{
+		// Clear composer cache
+		$this->_executeComposer('clear-cache');
+
 		// Update composer itself.
-		$command = "/usr/bin/php {$this->_composerPath} self-update";
-
-		echo 'Executing: '.$command.PHP_EOL;
-		exec($command.' 2>&1', $output, $status);
-
-		echo 'Status: '.$status.PHP_EOL;
-		$output = implode(PHP_EOL, $output);
-		echo 'Results: '.$output.PHP_EOL.PHP_EOL;
-
-		if ($status == 1)
-		{
-			throw new Exception('There was an error self-updating composer.');
-		}
+		$this->_executeComposer('self-update');
 
 		// Now update Commerce dependencies
-		$command = "cd {$this->_sourceBaseDir}plugins/market;/usr/bin/php {$this->_composerPath} update";
+		$this->_executeComposer('update');
 
-		echo 'Executing: '.$command.PHP_EOL;
-		exec($command.' 2>&1', $output, $status);
-
-		echo 'Status: '.$status.PHP_EOL;
-		$output = implode(PHP_EOL, $output);
-		echo 'Results: '.$output.PHP_EOL.PHP_EOL;
-
-		if ($status == 1)
-		{
-			throw new Exception('There was an error updating Commerce composer dependencies.');
-		}
+		// Remove dev dependencies
+		$this->_executeComposer('remove --update-no-dev');
 	}
 
 	/**
@@ -114,9 +96,6 @@ class Builder
 
 		echo('Deleting file '.$this->_tempDir.'plugins/market/composer.lock'.PHP_EOL);
 		unlink($this->_tempDir.'plugins/market/composer.lock');
-
-		echo('Deleting file '.$this->_tempDir.'plugins/market/codeception.yml'.PHP_EOL);
-		unlink($this->_tempDir.'plugins/market/codeception.yml');
 	}
 
 	/**
@@ -313,5 +292,22 @@ class Builder
 		}
 
 		return true;
+	}
+
+	private function _executeComposer($command)
+	{
+		$command = "/usr/bin/php {$this->_composerPath} {$command}";
+
+		echo 'Executing: '.$command.PHP_EOL;
+		exec($command.' 2>&1', $output, $status);
+
+		echo 'Status: '.$status.PHP_EOL;
+		$output = implode(PHP_EOL, $output);
+		echo 'Results: '.$output.PHP_EOL.PHP_EOL;
+
+		if ($status == 1)
+		{
+			throw new Exception('There was an error running composer.');
+		}
 	}
 }
