@@ -66,6 +66,9 @@ class Builder
 
 		// Remove dev dependencies
 		$this->_executeComposer('remove --update-no-dev');
+
+		// Optimize that shiz.
+		$this->_executeComposer('dumpautoload -o');
 	}
 
 	/**
