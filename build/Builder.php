@@ -71,7 +71,7 @@ class Builder
 		}
 
 		// Now update Commerce dependencies
-		$command = "/usr/bin/php {$this->_composerPath} update";
+		$command = "cd {$this->_sourceBaseDir}plugins/market;/usr/bin/php {$this->_composerPath} update";
 
 		echo 'Executing: '.$command.PHP_EOL;
 		exec($command.' 2>&1', $output, $status);
