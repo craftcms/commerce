@@ -186,14 +186,6 @@ class CommercePlugin extends BasePlugin
     }
 
     /**
-     * @return array
-     */
-    public function registerCommerceGatewayAdapters()
-    {
-        return require(__DIR__ . '/etc/gatewayAdapters.php');
-    }
-
-    /**
      * Adds the Commerce twig extensions
      *
      * @return CommerceTwigExtension
