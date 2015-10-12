@@ -72,7 +72,7 @@ class Commerce_GatewaysService extends BaseApplicationComponent
             $adapters = craft()->plugins->call('registerCommerceGatewayAdapters');
             $adapters['Commerce'] = $allAdapters;
         }else{
-            $adapters['commerce'] = ['\Commerce\Gateways\Omnipay\Dummy_GatewayAdapter'];
+            $adapters['Commerce'] = ['\Commerce\Gateways\Omnipay\Dummy_GatewayAdapter'];
         }
 
         foreach ($adapters as $adaptersByPlugin) {
