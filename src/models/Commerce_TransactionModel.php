@@ -62,8 +62,8 @@ class Commerce_TransactionModel extends BaseModel
 
         // check gateway supports capture
         try {
-            $gateway = $this->paymentMethod->getGatewayAdapter();
-            if (!$gateway || !$gateway->supportsCapture()) {
+            $adapter = $this->paymentMethod->getGatewayAdapter();
+            if (!$adapter || !$adapter->getGateway()->supportsCapture()) {
                 return false;
             }
         } catch (OmnipayException  $e) {
