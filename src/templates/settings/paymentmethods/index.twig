@@ -11,15 +11,13 @@
         <tr>
             <th>{{ "Payment Method"|t }}</th>
             <th>{{ "Gateway"|t }}</th>
-            <th>{{ "Enabled for Customers?"|t }}</th>
+            <th>{{ "Front End Status"|t }}</th>
         </tr>
         </thead>
         <tbody>
         {% for paymentMethod in paymentMethods %}
             <tr data-id="{{ paymentMethod.class }}" data-name="{{ paymentMethod.name }}">
-                <th scope="row" data-title="Name"><a
-                            href="{{ url('commerce/settings/paymentmethods/'~paymentMethod.class) }}">{{ paymentMethod.name }}</a>
-                </th>
+                <th scope="row" data-title="Name"><a href="{{ paymentMethod.cpEditUrl }}">{{ paymentMethod.name }}</a></th>
                 <td data-title="Class">{{ paymentMethod.class }}</td>
                 <td data-title="Status">
                     {% if paymentMethod.frontendEnabled %}
@@ -33,5 +31,9 @@
 
         </tbody>
     </table>
+    <br/>
+    <div class="btngroup submit">
+        <a href="{{ url('commerce/settings/paymentmethods/new') }}" class="btn submit">New Payment Method</a>
+    </div>
 
 {% endset %}
