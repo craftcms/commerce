@@ -86,7 +86,8 @@ class CommercePlugin extends BasePlugin
                         'm150917_010102_Commerce_RenameCodeToHandletaxCatColumn',
                         'm150918_010101_Commerce_AddProductTypeLocales',
                         'm150918_010102_Commerce_RemoveNonLocaleBasedUrlFormat',
-                        'm150919_010101_Commerce_AddHasDimensionsToProductType'
+                        'm150919_010101_Commerce_AddHasDimensionsToProductType',
+                        'm151004_142113_Commerce_PaymentMethods_Name_Unique'
                     ];
 
                     foreach ($migrations as $migrationClass) {
