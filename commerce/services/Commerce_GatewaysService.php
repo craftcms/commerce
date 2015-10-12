@@ -1,11 +1,11 @@
 <?php
+
 namespace Craft;
 
-use Omnipay\Common\AbstractGateway;
-use Omnipay\Common\GatewayFactory;
+use Commerce\Gateways\BaseGatewayAdapter;
 
 /**
- * Gateway service.
+ * Gateways service.
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -16,61 +16,34 @@ use Omnipay\Common\GatewayFactory;
  */
 class Commerce_GatewaysService extends BaseApplicationComponent
 {
-	/** @var AbstractGateway[] */
-	private $gateways;
-	/** @var GatewayFactory */
-	private $factory;
+    /** @var BaseGatewayAdapter[] */
+    private $gateways = [];
 
-	public function __construct ()
-	{
-		$this->_loadGateways();
-	}
+    public function __construct()
+    {
+        $this->_loadGateways();
+    }
 
-	/**
-	 * @return GatewayFactory
-	 */
-	private function getFactory ()
-	{
-		if (!$this->factory)
-		{
-			$this->factory = new GatewayFactory();
-		}
+    /**
+     * Pre-load all gateways
+     */
+    private function _loadGateways()
+    {
+        $adapters = craft()->plugins->call('registerCommerceGatewayAdapters');
 
-		return $this->factory;
-	}
+        foreach ($adapters as $adaptersByPlugin) {
+            foreach ($adaptersByPlugin as $class) {
+                $gateway = new $class;
+                $this->gateways[$gateway->handle()] = $gateway;
+            }
+        }
+    }
 
-	/**
-	 * @param string $shortName
-	 *
-	 * @return AbstractGateway
-	 */
-	public function getGateway ($shortName)
-	{
-		return $this->getFactory()->create($shortName);
-	}
-
-	/**
-	 * @return AbstractGateway[]
-	 */
-	public function getGateways ()
-	{
-		return $this->gateways;
-	}
-
-	/**
-	 * Pre-load all gateways
-	 */
-	public function _loadGateways ()
-	{
-		$gateways = [];
-
-		$supportedGateways = $this->getFactory()->find();
-
-		foreach ($supportedGateways as $shortName)
-		{
-			$gateways[] = $this->getGateway($shortName);
-		}
-
-		$this->gateways = $gateways;
-	}
+    /**
+     * @return BaseGatewayAdapter[] indexed by handle
+     */
+    public function getAll()
+    {
+        return $this->gateways;
+    }
 }

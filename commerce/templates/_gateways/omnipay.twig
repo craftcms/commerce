@@ -1,0 +1,28 @@
+{% import "_includes/forms" as forms %}
+
+{% for paramKey, paramValue in adapter.gateway.parameters %}
+    {% if paramKey in adapter.booleans %}
+        {{ forms.checkboxField({
+            label: adapter.generateAttributeLabel(paramKey)|t,
+            name: 'settings['~paramKey~']',
+            value: 1,
+            checked : paramValue,
+            errors: adapter.getErrors(paramKey),
+        }) }}
+    {% elseif adapter.selects[paramKey] is defined %}
+        {{ forms.selectField({
+            label: adapter.generateAttributeLabel(paramKey)|t,
+            name: 'settings['~paramKey~']',
+            options : adapter.selects[paramKey],
+            value : paramValue,
+            errors: adapter.getErrors(paramKey),
+        }) }}
+    {% else %}
+        {{ forms.textField({
+            label: adapter.generateAttributeLabel(paramKey)|t,
+            name: 'settings['~paramKey~']',
+            value : paramValue,
+            errors: adapter.getErrors(paramKey),
+        }) }}
+    {% endif %}
+{% endfor %}
