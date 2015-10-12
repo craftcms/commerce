@@ -100,8 +100,8 @@ class Commerce_TransactionModel extends BaseModel
 
         // check gateway supports refund
         try {
-            $gateway = $this->paymentMethod->getGatewayAdapter();
-            if (!$gateway || !$gateway->supportsRefund()) {
+            $adapter = $this->paymentMethod->getGatewayAdapter();
+            if (!$adapter || !$adapter->getGateway()->supportsRefund()) {
                 return false;
             }
         } catch (OmnipayException $e) {
