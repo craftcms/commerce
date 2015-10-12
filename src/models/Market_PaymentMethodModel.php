@@ -22,7 +22,7 @@ class Market_PaymentMethodModel extends BaseModel
     /** @var array */
     private $_settings = [];
     /** @var array Gateway which doesn't require card */
-    private $_withoutCard = ['PayPal_Express','Manual'];
+    private $_withoutCard = ['PayPal_Express','Manual','Mollie'];
 
     /**
      * @param Market_PaymentMethodRecord|array $values
