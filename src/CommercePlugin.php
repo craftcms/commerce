@@ -173,7 +173,7 @@ class CommercePlugin extends BasePlugin
 	 */
 	public function getVersion ()
 	{
-		return '0.8.22';
+		return '0.8.23';
 	}
 
 	/**
