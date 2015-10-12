@@ -40,6 +40,7 @@ return [
 
     'commerce/settings/ordersettings' => ['action' => 'commerce/orderSettings/edit'],
     'commerce/settings/paymentmethods' => ['action' => 'commerce/paymentMethods/index'],
+    'commerce/settings/paymentmethods/new' => ['action' => 'commerce/paymentMethods/edit'],
     'commerce/settings/paymentmethods/(?P<id>\d+)' => ['action' => 'commerce/paymentMethods/edit'],
 
     'commerce/settings/shippingmethods' => ['action' => 'commerce/shippingMethods/index'],
