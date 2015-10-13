@@ -358,11 +358,23 @@ class Commerce_PaymentsService extends BaseApplicationComponent
             'transactionId' => $transaction->id,
             'description'   => Craft::t('Order') . ' #'.$transaction->orderId,
             'clientIp' => craft()->request->getIpAddress(),
-            'gatewayReference' => $transaction->reference,
+            'transactionReference' =>$transaction->hash,
             'returnUrl' => UrlHelper::getActionUrl('commerce/cartPayment/complete',
                 ['id' => $transaction->id, 'hash' => $transaction->hash]),
             'cancelUrl' => UrlHelper::getSiteUrl($transaction->order->cancelUrl),
         ];
+
+        $request['notifyUrl'] = $request['returnUrl'];
+
+        // custom gateways may wish to access the order directly
+        $request['order'] = $transaction->order;
+        $request['orderId'] = $transaction->order->id;
+    
+        // Paypal only params
+        $request['noShipping'] = 1;
+        $request['allowNote'] = 0;
+        $request['addressOverride'] = 1;
+
         if ($card) {
             $request['card'] = $card;
         }
