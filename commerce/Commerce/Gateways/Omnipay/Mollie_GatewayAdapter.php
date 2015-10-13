@@ -9,4 +9,12 @@ class Mollie_GatewayAdapter extends BaseGatewayAdapter
     {
         return 'Mollie';
     }
+
+    /**
+     * @return bool
+     */
+    public function requiresCreditCard()
+    {
+        return false;
+    }
 }

@@ -118,19 +118,23 @@ class Commerce_PaymentsService extends BaseApplicationComponent
         Commerce_TransactionModel $transaction
     )
     {
-        // try {
-        /** @var ResponseInterface $response */
-        $response = $request->send();
-        $this->updateTransaction($transaction, $response);
+        try {
+            /** @var ResponseInterface $response */
+            $response = $request->send();
+            $this->updateTransaction($transaction, $response);
 
-        if ($response->isRedirect()) {
-            // redirect to off-site gateway
-            return $response->redirect();
+            if ($response->isRedirect()) {
+                // redirect to off-site gateway
+                return $response->redirect();
+            }
+        }catch(\Exception $e){
+            $transaction->status = Commerce_TransactionRecord::FAILED;
+            $transaction->message = $e->getMessage();
+            $this->saveTransaction($transaction);
         }
-
         $order = $transaction->order;
 
-        if ($response->isSuccessful()) {
+        if ($transaction->status == Commerce_TransactionRecord::SUCCESS) {
             return $order->returnUrl;
         } else {
             craft()->userSession->setError(Craft::t("Payment error: " . $transaction->message));
@@ -239,6 +243,12 @@ class Commerce_PaymentsService extends BaseApplicationComponent
             // don't send notifyUrl for completePurchase
             $params = $this->buildPaymentRequest($transaction);
 
+            // If MOLLIE, the transactionReference will be theirs
+            $name = $transaction->paymentMethod->getGatewayAdapter()->getGateway()->getName();
+            if ( $name == 'Mollie_Ideal' || $name == 'Mollie' || $name == 'SagePay_Server') {
+                $params['transactionReference'] = $transaction->reference;
+            }
+
             unset($params['notifyUrl']);
 
             $request = $gateway->$action($params);
@@ -346,7 +356,9 @@ class Commerce_PaymentsService extends BaseApplicationComponent
             'amount' => $transaction->amount,
             'currency' => craft()->commerce_settings->getOption('defaultCurrency'),
             'transactionId' => $transaction->id,
+            'description'   => Craft::t('Order') . ' #'.$transaction->orderId,
             'clientIp' => craft()->request->getIpAddress(),
+            'gatewayReference' => $transaction->reference,
             'returnUrl' => UrlHelper::getActionUrl('commerce/cartPayment/complete',
                 ['id' => $transaction->id, 'hash' => $transaction->hash]),
             'cancelUrl' => UrlHelper::getSiteUrl($transaction->order->cancelUrl),
