@@ -102,13 +102,13 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
 
         if (craft()->commerce_cart->applyCoupon($cart, $code, $error)) {
             if (craft()->request->isAjaxRequest) {
-                $this->returnJson(['success' => true]);
+                $this->returnJson(['success' => true, 'cart' => $this->cartArray($cart)]);
             }
             craft()->userSession->setFlash('info', Craft::t('Coupon has been applied'));
             $this->redirectToPostedUrl();
         } else {
             if (craft()->request->isAjaxRequest) {
-                $this->returnJson(['success' => true, 'cart' => $this->cartArray($cart)]);
+                $this->returnJson(['error' => $error]);
             }
             craft()->userSession->setFlash('error', $error);
         }
