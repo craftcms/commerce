@@ -4,11 +4,11 @@ namespace Craft;
 /**
  * Tax Category model.
  *
- * @property int    $id
+ * @property int $id
  * @property string $name
  * @property string $handle
  * @property string $description
- * @property bool   $default
+ * @property bool $default
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -19,26 +19,26 @@ namespace Craft;
  */
 class Commerce_TaxCategoryModel extends BaseModel
 {
-	/**
-	 * @return string
-	 */
-	public function getCpEditUrl ()
-	{
-		return UrlHelper::getCpUrl('commerce/settings/taxcategories/'.$this->id);
-	}
+    /**
+     * @return string
+     */
+    public function getCpEditUrl()
+    {
+        return UrlHelper::getCpUrl('commerce/settings/taxcategories/' . $this->id);
+    }
 
-	/**
-	 * @return array
-	 */
-	protected function defineAttributes ()
-	{
-		return [
-			'id'          => AttributeType::Number,
-			'name'        => AttributeType::String,
-			'handle'      => AttributeType::String,
-			'description' => AttributeType::String,
-			'default'     => AttributeType::Bool,
-		];
-	}
+    /**
+     * @return array
+     */
+    protected function defineAttributes()
+    {
+        return [
+            'id' => AttributeType::Number,
+            'name' => AttributeType::String,
+            'handle' => AttributeType::String,
+            'description' => AttributeType::String,
+            'default' => AttributeType::Bool,
+        ];
+    }
 
 }

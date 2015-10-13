@@ -6,10 +6,10 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
 /**
  * Shipping method model.
  *
- * @property int                          $id
- * @property string                       $name
- * @property bool                         $enabled
- * @property bool                         $default
+ * @property int $id
+ * @property string $name
+ * @property bool $enabled
+ * @property bool $default
  * @property Commerce_ShippingRuleModel[] $rules
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
@@ -21,34 +21,34 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  */
 class Commerce_ShippingMethodModel extends BaseModel
 {
-	use Commerce_ModelRelationsTrait;
+    use Commerce_ModelRelationsTrait;
 
-	/**
-	 * @return Commerce_ShippingRuleModel[]
-	 */
-	public function getRules ()
-	{
-		return craft()->commerce_shippingRules->getAllByMethodId($this->id);
-	}
+    /**
+     * @return Commerce_ShippingRuleModel[]
+     */
+    public function getRules()
+    {
+        return craft()->commerce_shippingRules->getAllByMethodId($this->id);
+    }
 
-	/**
-	 * @return array
-	 */
-	protected function defineAttributes ()
-	{
-		return [
-			'id'      => AttributeType::Number,
-			'name'    => [AttributeType::String, 'required' => true],
-			'enabled' => [
-				AttributeType::Bool,
-				'required' => true,
-				'default'  => 1
-			],
-			'default' => [
-				AttributeType::Bool,
-				'required' => true,
-				'default'  => 0
-			],
-		];
-	}
+    /**
+     * @return array
+     */
+    protected function defineAttributes()
+    {
+        return [
+            'id' => AttributeType::Number,
+            'name' => [AttributeType::String, 'required' => true],
+            'enabled' => [
+                AttributeType::Bool,
+                'required' => true,
+                'default' => 1
+            ],
+            'default' => [
+                AttributeType::Bool,
+                'required' => true,
+                'default' => 0
+            ],
+        ];
+    }
 }

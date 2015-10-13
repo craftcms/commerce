@@ -13,107 +13,95 @@ namespace Craft;
  */
 class Commerce_StatesController extends Commerce_BaseAdminController
 {
-	/**
-	 * @throws HttpException
-	 */
-	public function actionIndex ()
-	{
-		$states = craft()->commerce_states->getAll();
-		$this->renderTemplate('commerce/settings/states/index',
-			compact('states'));
-	}
+    /**
+     * @throws HttpException
+     */
+    public function actionIndex()
+    {
+        $states = craft()->commerce_states->getAll();
+        $this->renderTemplate('commerce/settings/states/index',
+            compact('states'));
+    }
 
-	/**
-	 * Create/Edit State
-	 *
-	 * @param array $variables
-	 *
-	 * @throws HttpException
-	 */
-	public function actionEdit (array $variables = [])
-	{
-		if (empty($variables['state']))
-		{
-			if (!empty($variables['id']))
-			{
-				$id = $variables['id'];
-				$variables['state'] = craft()->commerce_states->getById($id);
+    /**
+     * Create/Edit State
+     *
+     * @param array $variables
+     *
+     * @throws HttpException
+     */
+    public function actionEdit(array $variables = [])
+    {
+        if (empty($variables['state'])) {
+            if (!empty($variables['id'])) {
+                $id = $variables['id'];
+                $variables['state'] = craft()->commerce_states->getById($id);
 
-				if (!$variables['state'])
-				{
-					throw new HttpException(404);
-				}
-			}
-			else
-			{
-				$variables['state'] = new Commerce_StateModel();
-			};
-		}
+                if (!$variables['state']) {
+                    throw new HttpException(404);
+                }
+            } else {
+                $variables['state'] = new Commerce_StateModel();
+            };
+        }
 
-		if (!empty($variables['id']))
-		{
-			$variables['title'] = $variables['state']->name;
-		}
-		else
-		{
-			$variables['title'] = Craft::t('Create a new state');
-		}
+        if (!empty($variables['id'])) {
+            $variables['title'] = $variables['state']->name;
+        } else {
+            $variables['title'] = Craft::t('Create a new state');
+        }
 
-		$countriesModels = craft()->commerce_countries->getAll();
-		$countries = [];
-		foreach ($countriesModels as $model)
-		{
-			$countries[$model->id] = $model->name;
-		}
-		$variables['countries'] = $countries;
+        $countriesModels = craft()->commerce_countries->getAll();
+        $countries = [];
+        foreach ($countriesModels as $model) {
+            $countries[$model->id] = $model->name;
+        }
+        $variables['countries'] = $countries;
 
-		$this->renderTemplate('commerce/settings/states/_edit', $variables);
-	}
+        $this->renderTemplate('commerce/settings/states/_edit', $variables);
+    }
 
-	/**
-	 * @throws HttpException
-	 */
-	public function actionSave ()
-	{
-		$this->requirePostRequest();
+    /**
+     * @throws HttpException
+     */
+    public function actionSave()
+    {
+        $this->requirePostRequest();
 
-		$state = new Commerce_StateModel();
+        $state = new Commerce_StateModel();
 
-		// Shared attributes
-		$state->id = craft()->request->getPost('stateId');
-		$state->name = craft()->request->getPost('name');
-		$state->abbreviation = craft()->request->getPost('abbreviation');
-		$state->countryId = craft()->request->getPost('countryId');
+        // Shared attributes
+        $state->id = craft()->request->getPost('stateId');
+        $state->name = craft()->request->getPost('name');
+        $state->abbreviation = craft()->request->getPost('abbreviation');
+        $state->countryId = craft()->request->getPost('countryId');
 
-		// Save it
-		if (craft()->commerce_states->save($state))
-		{
-			craft()->userSession->setNotice(Craft::t('State saved.'));
-			$this->redirectToPostedUrl($state);
-		}
-		else
-		{
-			craft()->userSession->setError(Craft::t('Couldn’t save state.'));
-		}
+        // Save it
+        if (craft()->commerce_states->save($state)) {
+            craft()->userSession->setNotice(Craft::t('State saved.'));
+            $this->redirectToPostedUrl($state);
+        } else {
+            craft()->userSession->setError(Craft::t('Couldn’t save state.'));
+        }
 
-		// Send the model back to the template
-		craft()->urlManager->setRouteVariables([
-			'state' => $state
-		]);
-	}
+        // Send the model back to the template
+        craft()->urlManager->setRouteVariables([
+            'state' => $state
+        ]);
+    }
 
-	/**
-	 * @throws HttpException
-	 */
-	public function actionDelete ()
-	{
-		$this->requirePostRequest();
-		$this->requireAjaxRequest();
+    /**
+     * @throws HttpException
+     */
+    public function actionDelete()
+    {
+        $this->requirePostRequest();
+        $this->requireAjaxRequest();
 
-		$id = craft()->request->getRequiredPost('id');
+        $id = craft()->request->getRequiredPost('id');
 
-		craft()->commerce_states->deleteById($id);
-		$this->returnJson(['success' => true]);
-	}
+        craft()->commerce_states->deleteById($id);
+        $this->returnJson(['success' => true]);
+    }
 
 }

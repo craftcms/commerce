@@ -13,113 +13,100 @@ namespace Craft;
  */
 class Commerce_ShippingMethodsController extends Commerce_BaseAdminController
 {
-	/**
-	 * @throws HttpException
-	 */
-	public function actionIndex ()
-	{
-		$shippingMethods = craft()->commerce_shippingMethods->getAll();
-		$this->renderTemplate('commerce/settings/shippingmethods/index', compact('shippingMethods'));
-	}
+    /**
+     * @throws HttpException
+     */
+    public function actionIndex()
+    {
+        $shippingMethods = craft()->commerce_shippingMethods->getAll();
+        $this->renderTemplate('commerce/settings/shippingmethods/index', compact('shippingMethods'));
+    }
 
-	/**
-	 * Create/Edit Shipping Method
-	 *
-	 * @param array $variables
-	 *
-	 * @throws HttpException
-	 */
-	public function actionEdit (array $variables = [])
-	{
-		$variables['newMethod'] = false;
+    /**
+     * Create/Edit Shipping Method
+     *
+     * @param array $variables
+     *
+     * @throws HttpException
+     */
+    public function actionEdit(array $variables = [])
+    {
+        $variables['newMethod'] = false;
 
-		if (empty($variables['shippingMethod']))
-		{
-			if (!empty($variables['id']))
-			{
-				$id = $variables['id'];
-				$variables['shippingMethod'] = craft()->commerce_shippingMethods->getById($id);
+        if (empty($variables['shippingMethod'])) {
+            if (!empty($variables['id'])) {
+                $id = $variables['id'];
+                $variables['shippingMethod'] = craft()->commerce_shippingMethods->getById($id);
 
-				if (!$variables['shippingMethod']->id)
-				{
-					throw new HttpException(404);
-				}
-			}
-			else
-			{
-				$variables['shippingMethod'] = new Commerce_ShippingMethodModel();
-				$variables['newMethod'] = true;
-			}
-		}
+                if (!$variables['shippingMethod']->id) {
+                    throw new HttpException(404);
+                }
+            } else {
+                $variables['shippingMethod'] = new Commerce_ShippingMethodModel();
+                $variables['newMethod'] = true;
+            }
+        }
 
-		if (!empty($variables['id']))
-		{
-			$variables['title'] = $variables['shippingMethod']->name;
-		}
-		else
-		{
-			$variables['title'] = Craft::t('Create a new shipping method');
-			$variables['newMethod'] = true;
-		}
+        if (!empty($variables['id'])) {
+            $variables['title'] = $variables['shippingMethod']->name;
+        } else {
+            $variables['title'] = Craft::t('Create a new shipping method');
+            $variables['newMethod'] = true;
+        }
 
-		$shippingRules = craft()->commerce_shippingRules->getAllByMethodId($variables['shippingMethod']->id);
+        $shippingRules = craft()->commerce_shippingRules->getAllByMethodId($variables['shippingMethod']->id);
 
-		$variables['shippingRules'] = $shippingRules;
+        $variables['shippingRules'] = $shippingRules;
 
-		$this->renderTemplate('commerce/settings/shippingmethods/_edit', $variables);
-	}
+        $this->renderTemplate('commerce/settings/shippingmethods/_edit', $variables);
+    }
 
-	/**
-	 * @throws HttpException
-	 */
-	public function actionSave ()
-	{
-		$this->requirePostRequest();
-		$shippingMethod = new Commerce_ShippingMethodModel();
+    /**
+     * @throws HttpException
+     */
+    public function actionSave()
+    {
+        $this->requirePostRequest();
+        $shippingMethod = new Commerce_ShippingMethodModel();
 
-		// Shared attributes
-		$shippingMethod->id = craft()->request->getPost('shippingMethodId');
-		$shippingMethod->name = craft()->request->getPost('name');
-		$shippingMethod->enabled = craft()->request->getPost('enabled');
-		$shippingMethod->default = craft()->request->getPost('default');
-		// Save it
-		if (craft()->commerce_shippingMethods->save($shippingMethod))
-		{
-			craft()->userSession->setNotice(Craft::t('Shipping method saved.'));
-			$this->redirectToPostedUrl($shippingMethod);
-		}
-		else
-		{
-			craft()->userSession->setError(Craft::t('Couldn’t save shipping method.'));
-		}
+        // Shared attributes
+        $shippingMethod->id = craft()->request->getPost('shippingMethodId');
+        $shippingMethod->name = craft()->request->getPost('name');
+        $shippingMethod->enabled = craft()->request->getPost('enabled');
+        $shippingMethod->default = craft()->request->getPost('default');
+        // Save it
+        if (craft()->commerce_shippingMethods->save($shippingMethod)) {
+            craft()->userSession->setNotice(Craft::t('Shipping method saved.'));
+            $this->redirectToPostedUrl($shippingMethod);
+        } else {
+            craft()->userSession->setError(Craft::t('Couldn’t save shipping method.'));
+        }
 
-		// Send the model back to the template
-		craft()->urlManager->setRouteVariables(['shippingMethod' => $shippingMethod]);
-	}
+        // Send the model back to the template
+        craft()->urlManager->setRouteVariables(['shippingMethod' => $shippingMethod]);
+    }
 
-	/**
-	 * @throws HttpException
-	 */
-	public function actionDelete ()
-	{
-		$this->requirePostRequest();
-		$this->requireAjaxRequest();
+    /**
+     * @throws HttpException
+     */
+    public function actionDelete()
+    {
+        $this->requirePostRequest();
+        $this->requireAjaxRequest();
 
-		$id = craft()->request->getRequiredPost('id');
+        $id = craft()->request->getRequiredPost('id');
 
-		$method = craft()->commerce_shippingMethods->getById($id);
+        $method = craft()->commerce_shippingMethods->getById($id);
 
-		if ($method->default)
-		{
-			$this->returnJson([
-				'errors' => [Craft::t('Can not delete the default method.')]
-			]);
-		}
+        if ($method->default) {
+            $this->returnJson([
+                'errors' => [Craft::t('Can not delete the default method.')]
+            ]);
+        }
 
-		if (craft()->commerce_shippingMethods->delete($method))
-		{
-			$this->returnJson(['success' => true]);
-		}
-	}
+        if (craft()->commerce_shippingMethods->delete($method)) {
+            $this->returnJson(['success' => true]);
+        }
+    }
 
 }

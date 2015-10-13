@@ -13,58 +13,57 @@ namespace Craft;
  */
 class Commerce_SettingsService extends BaseApplicationComponent
 {
-	/** @var BasePlugin */
-	private $_plugin;
+    /** @var BasePlugin */
+    private $_plugin;
 
-	/**
-	 * Setup
-	 */
-	public function init ()
-	{
-		$this->_plugin = craft()->plugins->getPlugin('commerce');
-	}
+    /**
+     * Setup
+     */
+    public function init()
+    {
+        $this->_plugin = craft()->plugins->getPlugin('commerce');
+    }
 
-	/**
-	 * @param string $option
-	 *
-	 * @return mixed
-	 */
-	public function getOption ($option)
-	{
-		return $this->getSettings()->$option;
-	}
+    /**
+     * @param string $option
+     *
+     * @return mixed
+     */
+    public function getOption($option)
+    {
+        return $this->getSettings()->$option;
+    }
 
-	/**
-	 * Get all settings from plugin core class
-	 *
-	 * @return Commerce_SettingsModel
-	 */
-	public function getSettings ()
-	{
-		$data = $this->_plugin->getSettings();
+    /**
+     * Get all settings from plugin core class
+     *
+     * @return Commerce_SettingsModel
+     */
+    public function getSettings()
+    {
+        $data = $this->_plugin->getSettings();
 
-		return Commerce_SettingsModel::populateModel($data);
-	}
+        return Commerce_SettingsModel::populateModel($data);
+    }
 
-	/**
-	 * Set all settings from plugin core class
-	 *
-	 * @param Commerce_SettingsModel $settings
-	 *
-	 * @return bool
-	 */
-	public function save (Commerce_SettingsModel $settings)
-	{
+    /**
+     * Set all settings from plugin core class
+     *
+     * @param Commerce_SettingsModel $settings
+     *
+     * @return bool
+     */
+    public function save(Commerce_SettingsModel $settings)
+    {
 
-		if (!$settings->validate())
-		{
-			$errors = $settings->getAllErrors();
+        if (!$settings->validate()) {
+            $errors = $settings->getAllErrors();
 
-			return false;
-		}
+            return false;
+        }
 
-		craft()->plugins->savePluginSettings($this->_plugin, $settings);
+        craft()->plugins->savePluginSettings($this->_plugin, $settings);
 
-		return true;
-	}
+        return true;
+    }
 } 

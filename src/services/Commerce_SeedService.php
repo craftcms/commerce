@@ -17,14 +17,14 @@ use Commerce\Seed\Commerce_StatesSeeder;
  */
 class Commerce_SeedService extends BaseApplicationComponent
 {
-	/**
-	 * Default seeders
-	 */
-	public function afterInstall ()
-	{
-		(new Commerce_InstallSeeder)->seed();
-		(new Commerce_CountriesSeeder)->seed();
-		(new Commerce_StatesSeeder)->seed();
-	}
+    /**
+     * Default seeders
+     */
+    public function afterInstall()
+    {
+        (new Commerce_InstallSeeder)->seed();
+        (new Commerce_CountriesSeeder)->seed();
+        (new Commerce_StatesSeeder)->seed();
+    }
 
 } 

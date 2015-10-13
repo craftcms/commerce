@@ -3,13 +3,13 @@ namespace Craft;
 
 class m150918_010102_Commerce_RemoveNonLocaleBasedUrlFormat extends BaseMigration
 {
-	public function safeUp ()
-	{
-		$table = craft()->db->schema->getTable('craft_commerce_producttypes');
-		if(isset($table->columns['urlFormat'])) {
-			$this->dropColumn('commerce_producttypes', 'urlFormat');
-		}
+    public function safeUp()
+    {
+        $table = craft()->db->schema->getTable('craft_commerce_producttypes');
+        if (isset($table->columns['urlFormat'])) {
+            $this->dropColumn('commerce_producttypes', 'urlFormat');
+        }
 
-		return true;
-	}
+        return true;
+    }
 }

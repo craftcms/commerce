@@ -13,100 +13,88 @@ namespace Craft;
  */
 class Commerce_OrderStatusesController extends Commerce_BaseAdminController
 {
-	public function actionIndex (array $variables = [])
-	{
-		$variables['orderStatuses'] = craft()->commerce_orderStatuses->getAll();
+    public function actionIndex(array $variables = [])
+    {
+        $variables['orderStatuses'] = craft()->commerce_orderStatuses->getAll();
 
-		$this->renderTemplate('commerce/settings/orderstatuses/index', $variables);
-	}
+        $this->renderTemplate('commerce/settings/orderstatuses/index', $variables);
+    }
 
 
-	/**
-	 * @param array $variables
-	 *
-	 * @throws HttpException
-	 */
-	public function actionEdit (array $variables = [])
-	{
-		if (empty($variables['orderStatus']))
-		{
-			if (!empty($variables['id']))
-			{
-				$variables['orderStatus'] = craft()->commerce_orderStatuses->getById($variables['id']);
-				$variables['orderStatusId'] = $variables['orderStatus']->id;
-				if (!$variables['orderStatus']->id)
-				{
-					throw new HttpException(404);
-				}
-			}
-			else
-			{
-				$variables['orderStatus'] = new Commerce_OrderStatusModel();
-			}
-		}
+    /**
+     * @param array $variables
+     *
+     * @throws HttpException
+     */
+    public function actionEdit(array $variables = [])
+    {
+        if (empty($variables['orderStatus'])) {
+            if (!empty($variables['id'])) {
+                $variables['orderStatus'] = craft()->commerce_orderStatuses->getById($variables['id']);
+                $variables['orderStatusId'] = $variables['orderStatus']->id;
+                if (!$variables['orderStatus']->id) {
+                    throw new HttpException(404);
+                }
+            } else {
+                $variables['orderStatus'] = new Commerce_OrderStatusModel();
+            }
+        }
 
-		if (!empty($variables['orderStatusId']))
-		{
-			$variables['title'] = $variables['orderStatus']->name;
-		}
-		else
-		{
-			$variables['title'] = Craft::t('Create a new custom status');
-		}
+        if (!empty($variables['orderStatusId'])) {
+            $variables['title'] = $variables['orderStatus']->name;
+        } else {
+            $variables['title'] = Craft::t('Create a new custom status');
+        }
 
-		$emails = craft()->commerce_emails->getAll(['order' => 'name']);
-		$variables['emails'] = \CHtml::listData($emails, 'id', 'name');
+        $emails = craft()->commerce_emails->getAll(['order' => 'name']);
+        $variables['emails'] = \CHtml::listData($emails, 'id', 'name');
 
-		$this->renderTemplate('commerce/settings/orderstatuses/_edit',
-			$variables);
-	}
+        $this->renderTemplate('commerce/settings/orderstatuses/_edit',
+            $variables);
+    }
 
-	/**
-	 * @throws Exception
-	 * @throws HttpException
-	 * @throws \Exception
-	 */
-	public function actionSave ()
-	{
-		$this->requirePostRequest();
+    /**
+     * @throws Exception
+     * @throws HttpException
+     * @throws \Exception
+     */
+    public function actionSave()
+    {
+        $this->requirePostRequest();
 
-		$orderStatus = new Commerce_OrderStatusModel();
+        $orderStatus = new Commerce_OrderStatusModel();
 
-		// Shared attributes
-		$orderStatus->id = craft()->request->getPost('orderStatusId');
-		$orderStatus->name = craft()->request->getPost('name');
-		$orderStatus->handle = craft()->request->getPost('handle');
-		$orderStatus->color = craft()->request->getPost('color');
-		$orderStatus->default = craft()->request->getPost('default');
-		$emailsIds = craft()->request->getPost('emails', []);
+        // Shared attributes
+        $orderStatus->id = craft()->request->getPost('orderStatusId');
+        $orderStatus->name = craft()->request->getPost('name');
+        $orderStatus->handle = craft()->request->getPost('handle');
+        $orderStatus->color = craft()->request->getPost('color');
+        $orderStatus->default = craft()->request->getPost('default');
+        $emailsIds = craft()->request->getPost('emails', []);
 
-		// Save it
-		if (craft()->commerce_orderStatuses->save($orderStatus, $emailsIds))
-		{
-			craft()->userSession->setNotice(Craft::t('Order status saved.'));
-			$this->redirectToPostedUrl($orderStatus);
-		}
-		else
-		{
-			craft()->userSession->setError(Craft::t('Couldn’t save order status.'));
-		}
+        // Save it
+        if (craft()->commerce_orderStatuses->save($orderStatus, $emailsIds)) {
+            craft()->userSession->setNotice(Craft::t('Order status saved.'));
+            $this->redirectToPostedUrl($orderStatus);
+        } else {
+            craft()->userSession->setError(Craft::t('Couldn’t save order status.'));
+        }
 
-		craft()->urlManager->setRouteVariables(compact('orderStatus', 'emailsIds'));
-	}
+        craft()->urlManager->setRouteVariables(compact('orderStatus', 'emailsIds'));
+    }
 
-	/**
-	 * @throws HttpException
-	 */
-	public function actionDelete ()
-	{
-		$this->requireAjaxRequest();
+    /**
+     * @throws HttpException
+     */
+    public function actionDelete()
+    {
+        $this->requireAjaxRequest();
 
-		$orderStatusId = craft()->request->getRequiredPost('id');
+        $orderStatusId = craft()->request->getRequiredPost('id');
 
-		if (craft()->commerce_orderStatuses->deleteById($orderStatusId))
-		{
-			$this->returnJson(['success' => true]);
-		};
-	}
+        if (craft()->commerce_orderStatuses->deleteById($orderStatusId)) {
+            $this->returnJson(['success' => true]);
+        };
+    }
 
 } 
