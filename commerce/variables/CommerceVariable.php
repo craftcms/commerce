@@ -13,112 +13,111 @@ namespace Craft;
  */
 class CommerceVariable
 {
-	/**
-	 * Get Commerce settings
-	 *
-	 * @return mixed
-	 */
-	public function settings ()
-	{
-		return craft()->commerce_settings->getSettings();
-	}
+    /**
+     * Get Commerce settings
+     *
+     * @return mixed
+     */
+    public function settings()
+    {
+        return craft()->commerce_settings->getSettings();
+    }
 
-	/**
-	 * @param array|null $criteria
-	 *
-	 * @return ElementCriteriaModel|null
-	 */
-	public function products ($criteria = null)
-	{
-		return craft()->elements->getCriteria('Commerce_Product', $criteria);
-	}
+    /**
+     * @param array|null $criteria
+     *
+     * @return ElementCriteriaModel|null
+     */
+    public function products($criteria = null)
+    {
+        return craft()->elements->getCriteria('Commerce_Product', $criteria);
+    }
 
-	/**
-	 * @param array|null $criteria
-	 *
-	 * @return ElementCriteriaModel|null
-	 */
-	public function orders ($criteria = null)
-	{
+    /**
+     * @param array|null $criteria
+     *
+     * @return ElementCriteriaModel|null
+     */
+    public function orders($criteria = null)
+    {
 
-		if (!isset($criteria['dateOrdered']))
-		{
-			$criteria['dateOrdered'] = ':notempty:';
-		}
+        if (!isset($criteria['dateOrdered'])) {
+            $criteria['dateOrdered'] = ':notempty:';
+        }
 
-		return craft()->elements->getCriteria('Commerce_Order', $criteria);
-	}
+        return craft()->elements->getCriteria('Commerce_Order', $criteria);
+    }
 
-	/**
-	 * @return Commerce_OrderModel
-	 */
-	public function getCart ()
-	{
-		return craft()->commerce_cart->getCart();
-	}
+    /**
+     * @return Commerce_OrderModel
+     */
+    public function getCart()
+    {
+        return craft()->commerce_cart->getCart();
+    }
 
-	/**
-	 * @return Commerce_CustomerModel
-	 */
-	public function getCustomer ()
-	{
-		return craft()->commerce_customers->getCustomer();
-	}
+    /**
+     * @return Commerce_CustomerModel
+     */
+    public function getCustomer()
+    {
+        return craft()->commerce_customers->getCustomer();
+    }
 
-	/**
-	 * @return array [id => name]
-	 */
-	public function getCountriesList ()
-	{
-		return craft()->commerce_countries->getFormList();
-	}
+    /**
+     * @return array [id => name]
+     */
+    public function getCountriesList()
+    {
+        return craft()->commerce_countries->getFormList();
+    }
 
-	/**
-	 * @return array
-	 */
-	public function getStatesArray ()
-	{
-		return craft()->commerce_states->getGroupedByCountries();
-	}
+    /**
+     * @return array
+     */
+    public function getStatesArray()
+    {
+        return craft()->commerce_states->getGroupedByCountries();
+    }
 
 
-	/**
-	 * @return array
-	 */
-	public function getShippingMethods ()
-	{
-		$cart = craft()->commerce_cart->getCart();
+    /**
+     * @return array
+     */
+    public function getShippingMethods()
+    {
+        $cart = craft()->commerce_cart->getCart();
 
-		return craft()->commerce_shippingMethods->calculateForCart($cart);
-	}
+        return craft()->commerce_shippingMethods->calculateForCart($cart);
+    }
 
-	/**
-	 * @return array
-	 */
-	public function getPaymentMethods ()
-	{
-		$methods = craft()->commerce_paymentMethods->getAllForFrontend();
+    /**
+     * @return array
+     */
+    public function getPaymentMethods()
+    {
+        $methods = craft()->commerce_paymentMethods->getAllForFrontend();
 
-		return \CHtml::listData($methods, 'id', 'name');
-	}
+        return \CHtml::listData($methods, 'id', 'name');
+    }
 
-	/**
-	 * @return Commerce_DiscountModel[]
-	 */
-	public function getDiscounts()
-	{
-		$discounts = craft()->commerce_discounts->getAll();
+    /**
+     * @return Commerce_DiscountModel[]
+     */
+    public function getDiscounts()
+    {
+        $discounts = craft()->commerce_discounts->getAll();
 
-		return $discounts;
-	}
+        return $discounts;
+    }
 
-	/**
-	 * @return Commerce_SaleModel[]
-	 */
-	public function getSales()
-	{
-		$sales = craft()->commerce_sales->getAll();
+    /**
+     * @return Commerce_SaleModel[]
+     */
+    public function getSales()
+    {
+        $sales = craft()->commerce_sales->getAll();
 
-		return $sales;
-	}
+        return $sales;
+    }
 }

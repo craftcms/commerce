@@ -17,61 +17,54 @@ use Commerce\Interfaces\Purchasable;
 class Commerce_PurchasableService extends BaseApplicationComponent
 {
 
-	/**
-	 * Saves the element and the purchasable. Use this function where you would usually
-	 * use `craft()->elements->saveElement()`
-	 *
-	 * @param BaseElementModel $model
-	 *
-	 * @return bool
-	 * @throws \Exception
-	 */
-	public function saveElement (BaseElementModel $model)
-	{
-		if (!$model instanceof Purchasable)
-		{
-			throw new Exception('Trying to save a purchasable element that is not a purchasable.');
-		}
+    /**
+     * Saves the element and the purchasable. Use this function where you would usually
+     * use `craft()->elements->saveElement()`
+     *
+     * @param BaseElementModel $model
+     *
+     * @return bool
+     * @throws \Exception
+     */
+    public function saveElement(BaseElementModel $model)
+    {
+        if (!$model instanceof Purchasable) {
+            throw new Exception('Trying to save a purchasable element that is not a purchasable.');
+        }
 
-		CommerceDbHelper::beginStackedTransaction();
-		try
-		{
-			if ($success = craft()->elements->saveElement($model))
-			{
-				$id = $model->getPurchasableId();
-				$price = $model->getPrice();
-				$sku = $model->getSku();
+        CommerceDbHelper::beginStackedTransaction();
+        try {
+            if ($success = craft()->elements->saveElement($model)) {
+                $id = $model->getPurchasableId();
+                $price = $model->getPrice();
+                $sku = $model->getSku();
 
-				$purchasable = Commerce_PurchasableRecord::model()->findById($id);
+                $purchasable = Commerce_PurchasableRecord::model()->findById($id);
 
-				if (!$purchasable)
-				{
-					$purchasable = new Commerce_PurchasableRecord();
-				}
+                if (!$purchasable) {
+                    $purchasable = new Commerce_PurchasableRecord();
+                }
 
-				$purchasable->id = $id;
-				$purchasable->price = $price;
-				$purchasable->sku = $sku;
+                $purchasable->id = $id;
+                $purchasable->price = $price;
+                $purchasable->sku = $sku;
 
-				$success = $purchasable->save();
+                $success = $purchasable->save();
 
-				if (!$success)
-				{
-					$model->addErrors($purchasable->getErrors());
-					CommerceDbHelper::rollbackStackedTransaction();
+                if (!$success) {
+                    $model->addErrors($purchasable->getErrors());
+                    CommerceDbHelper::rollbackStackedTransaction();
 
-					return $success;
-				}
+                    return $success;
+                }
 
-				CommerceDbHelper::commitStackedTransaction();
-			}
-		}
-		catch (\Exception $e)
-		{
-			CommerceDbHelper::rollbackStackedTransaction();
-			throw $e;
-		}
+                CommerceDbHelper::commitStackedTransaction();
+            }
+        } catch (\Exception $e) {
+            CommerceDbHelper::rollbackStackedTransaction();
+            throw $e;
+        }
 
-		return $success;
-	}
+        return $success;
+    }
 }

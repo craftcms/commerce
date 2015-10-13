@@ -14,37 +14,37 @@ namespace Craft;
 class Commerce_CreateDiscountElementAction extends BaseElementAction
 {
 
-	// Public Methods
-	// =========================================================================
+    // Public Methods
+    // =========================================================================
 
-	/**
-	 * @inheritDoc IComponentType::getName()
-	 *
-	 * @return string
-	 */
-	public function getName ()
-	{
-		return Craft::t('Create discount coupon that affects the selected products…');
-	}
+    /**
+     * @inheritDoc IComponentType::getName()
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return Craft::t('Create discount coupon that affects the selected products…');
+    }
 
-	/**
-	 * @inheritDoc IElementAction::isDestructive()
-	 *
-	 * @return bool
-	 */
-	public function isDestructive ()
-	{
-		return false;
-	}
+    /**
+     * @inheritDoc IElementAction::isDestructive()
+     *
+     * @return bool
+     */
+    public function isDestructive()
+    {
+        return false;
+    }
 
-	/**
-	 * @inheritDoc IElementAction::getTriggerHtml()
-	 *
-	 * @return string|null
-	 */
-	public function getTriggerHtml ()
-	{
-		$js = <<<EOT
+    /**
+     * @inheritDoc IElementAction::getTriggerHtml()
+     *
+     * @return string|null
+     */
+    public function getTriggerHtml()
+    {
+        $js = <<<EOT
 (function()
 {
 	var trigger = new Craft.ElementActionTrigger({
@@ -58,16 +58,16 @@ class Commerce_CreateDiscountElementAction extends BaseElementAction
 })();
 EOT;
 
-		craft()->templates->includeJs($js);
-	}
+        craft()->templates->includeJs($js);
+    }
 
-	/**
-	 * @inheritDoc BaseElementAction::defineParams()
-	 *
-	 * @return array
-	 */
-	protected function defineParams ()
-	{
-		return [];
-	}
+    /**
+     * @inheritDoc BaseElementAction::defineParams()
+     *
+     * @return array
+     */
+    protected function defineParams()
+    {
+        return [];
+    }
 }

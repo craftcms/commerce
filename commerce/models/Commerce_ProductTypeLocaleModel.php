@@ -4,8 +4,8 @@ namespace Craft;
 /**
  * Product type locale model class.
  *
- * @property int    $id
- * @property int    $productTypeId
+ * @property int $id
+ * @property int $productTypeId
  * @property string $locale
  * @property string $urlFormat
  *
@@ -19,49 +19,48 @@ namespace Craft;
 
 class Commerce_ProductTypeLocaleModel extends BaseModel
 {
-	// Properties
-	// =========================================================================
+    // Properties
+    // =========================================================================
 
-	/**
-	 * @var bool
-	 */
-	public $urlFormatIsRequired = true;
+    /**
+     * @var bool
+     */
+    public $urlFormatIsRequired = true;
 
-	// Public Methods
-	// =========================================================================
+    // Public Methods
+    // =========================================================================
 
-	/**
-	 * @inheritDoc BaseModel::rules()
-	 *
-	 * @return array
-	 */
-	public function rules ()
-	{
-		$rules = parent::rules();
+    /**
+     * @inheritDoc BaseModel::rules()
+     *
+     * @return array
+     */
+    public function rules()
+    {
+        $rules = parent::rules();
 
-		if ($this->urlFormatIsRequired)
-		{
-			$rules[] = ['urlFormat', 'required'];
-		}
+        if ($this->urlFormatIsRequired) {
+            $rules[] = ['urlFormat', 'required'];
+        }
 
-		return $rules;
-	}
+        return $rules;
+    }
 
-	// Protected Methods
-	// =========================================================================
+    // Protected Methods
+    // =========================================================================
 
-	/**
-	 * @inheritDoc BaseModel::defineAttributes()
-	 *
-	 * @return array
-	 */
-	protected function defineAttributes ()
-	{
-		return [
-			'id'            => AttributeType::Number,
-			'productTypeId' => AttributeType::Number,
-			'locale'        => AttributeType::Locale,
-			'urlFormat'     => [AttributeType::UrlFormat, 'label' => 'URL Format']
-		];
-	}
+    /**
+     * @inheritDoc BaseModel::defineAttributes()
+     *
+     * @return array
+     */
+    protected function defineAttributes()
+    {
+        return [
+            'id' => AttributeType::Number,
+            'productTypeId' => AttributeType::Number,
+            'locale' => AttributeType::Locale,
+            'urlFormat' => [AttributeType::UrlFormat, 'label' => 'URL Format']
+        ];
+    }
 }

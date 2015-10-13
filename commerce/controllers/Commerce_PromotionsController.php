@@ -13,8 +13,8 @@ namespace Craft;
  */
 class Commerce_PromotionsController extends Commerce_BaseAdminController
 {
-	public function actionIndex ()
-	{
-		$this->redirect('commerce/promotions/sales');
-	}
+    public function actionIndex()
+    {
+        $this->redirect('commerce/promotions/sales');
+    }
 }

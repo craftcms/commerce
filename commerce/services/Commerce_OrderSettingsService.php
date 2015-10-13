@@ -17,107 +17,95 @@ class Commerce_OrderSettingsService extends BaseApplicationComponent
 {
 
 
-	/**
-	 * @param $id
-	 *
-	 * @return BaseModel
-	 */
-	public function getById ($id)
-	{
-		$orderSettingsRecord = Commerce_OrderSettingsRecord::model()->findByAttributes(['id' => $id]);
+    /**
+     * @param $id
+     *
+     * @return BaseModel
+     */
+    public function getById($id)
+    {
+        $orderSettingsRecord = Commerce_OrderSettingsRecord::model()->findByAttributes(['id' => $id]);
 
-		return Commerce_OrderSettingsModel::populateModel($orderSettingsRecord);
-	}
-
-
-	/**
-	 * @param string $handle
-	 *
-	 * @return Commerce_OrderSettingsModel
-	 */
-	public function getByHandle ($handle)
-	{
-		$orderSettingsRecord = Commerce_OrderSettingsRecord::model()->findByAttributes(['handle' => $handle]);
-
-		return Commerce_OrderSettingsModel::populateModel($orderSettingsRecord);
-	}
+        return Commerce_OrderSettingsModel::populateModel($orderSettingsRecord);
+    }
 
 
-	/**
-	 * @param Commerce_OrderSettingsModel $orderSettings
-	 *
-	 * @return bool
-	 * @throws Exception
-	 * @throws \Exception
-	 */
-	public function save (Commerce_OrderSettingsModel $orderSettings)
-	{
-		if ($orderSettings->id)
-		{
-			$orderSettingsRecord = Commerce_OrderSettingsRecord::model()->findById($orderSettings->id);
-			if (!$orderSettingsRecord)
-			{
-				throw new Exception(Craft::t('No order settings exists with the ID “{id}”',
-					['id' => $orderSettings->id]));
-			}
+    /**
+     * @param string $handle
+     *
+     * @return Commerce_OrderSettingsModel
+     */
+    public function getByHandle($handle)
+    {
+        $orderSettingsRecord = Commerce_OrderSettingsRecord::model()->findByAttributes(['handle' => $handle]);
 
-			$oldOrderSettings = Commerce_OrderSettingsModel::populateModel($orderSettingsRecord);
-			$isNewOrderSettings = false;
-		}
-		else
-		{
-			$orderSettingsRecord = new Commerce_OrderSettingsRecord();
-			$isNewOrderSettings = true;
-		}
+        return Commerce_OrderSettingsModel::populateModel($orderSettingsRecord);
+    }
 
-		$orderSettingsRecord->name = $orderSettings->name;
-		$orderSettingsRecord->handle = $orderSettings->handle;
 
-		$orderSettingsRecord->validate();
-		$orderSettings->addErrors($orderSettingsRecord->getErrors());
+    /**
+     * @param Commerce_OrderSettingsModel $orderSettings
+     *
+     * @return bool
+     * @throws Exception
+     * @throws \Exception
+     */
+    public function save(Commerce_OrderSettingsModel $orderSettings)
+    {
+        if ($orderSettings->id) {
+            $orderSettingsRecord = Commerce_OrderSettingsRecord::model()->findById($orderSettings->id);
+            if (!$orderSettingsRecord) {
+                throw new Exception(Craft::t('No order settings exists with the ID “{id}”',
+                    ['id' => $orderSettings->id]));
+            }
 
-		if (!$orderSettings->hasErrors())
-		{
-			CommerceDbHelper::beginStackedTransaction();
-			try
-			{
-				if (!$isNewOrderSettings && $oldOrderSettings->fieldLayoutId)
-				{
-					// Drop the old field layout
-					craft()->fields->deleteLayoutById($oldOrderSettings->fieldLayoutId);
-				}
+            $oldOrderSettings = Commerce_OrderSettingsModel::populateModel($orderSettingsRecord);
+            $isNewOrderSettings = false;
+        } else {
+            $orderSettingsRecord = new Commerce_OrderSettingsRecord();
+            $isNewOrderSettings = true;
+        }
 
-				// Save the new one
-				$fieldLayout = $orderSettings->getFieldLayout();
-				craft()->fields->saveLayout($fieldLayout);
+        $orderSettingsRecord->name = $orderSettings->name;
+        $orderSettingsRecord->handle = $orderSettings->handle;
 
-				// Update the calendar record/model with the new layout ID
-				$orderSettings->fieldLayoutId = $fieldLayout->id;
-				$orderSettingsRecord->fieldLayoutId = $fieldLayout->id;
+        $orderSettingsRecord->validate();
+        $orderSettings->addErrors($orderSettingsRecord->getErrors());
 
-				// Save it!
-				$orderSettingsRecord->save(false);
+        if (!$orderSettings->hasErrors()) {
+            CommerceDbHelper::beginStackedTransaction();
+            try {
+                if (!$isNewOrderSettings && $oldOrderSettings->fieldLayoutId) {
+                    // Drop the old field layout
+                    craft()->fields->deleteLayoutById($oldOrderSettings->fieldLayoutId);
+                }
 
-				// Now that we have a calendar ID, save it on the model
-				if (!$orderSettings->id)
-				{
-					$orderSettings->id = $orderSettingsRecord->id;
-				}
+                // Save the new one
+                $fieldLayout = $orderSettings->getFieldLayout();
+                craft()->fields->saveLayout($fieldLayout);
 
-				CommerceDbHelper::commitStackedTransaction();
-			}
-			catch (\Exception $e)
-			{
-				CommerceDbHelper::rollbackStackedTransaction();
-				throw $e;
-			}
+                // Update the calendar record/model with the new layout ID
+                $orderSettings->fieldLayoutId = $fieldLayout->id;
+                $orderSettingsRecord->fieldLayoutId = $fieldLayout->id;
 
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
+                // Save it!
+                $orderSettingsRecord->save(false);
+
+                // Now that we have a calendar ID, save it on the model
+                if (!$orderSettings->id) {
+                    $orderSettings->id = $orderSettingsRecord->id;
+                }
+
+                CommerceDbHelper::commitStackedTransaction();
+            } catch (\Exception $e) {
+                CommerceDbHelper::rollbackStackedTransaction();
+                throw $e;
+            }
+
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 }

@@ -2,11 +2,11 @@
 
 namespace Craft;
 
-define("DOMPDF_DIR",__DIR__.'/vendor/dompdf/dompdf');
+define("DOMPDF_DIR", __DIR__ . '/vendor/dompdf/dompdf');
 define("DOMPDF_TEMP_DIR", craft()->path->getTempPath());
 define("DOMPDF_CHROOT", DOMPDF_DIR);
-define("DOMPDF_FONT_DIR", DOMPDF_DIR."/lib/fonts/");
-define("DOMPDF_FONT_CACHE", DOMPDF_DIR."/lib/fonts/");
+define("DOMPDF_FONT_DIR", DOMPDF_DIR . "/lib/fonts/");
+define("DOMPDF_FONT_CACHE", DOMPDF_DIR . "/lib/fonts/");
 define("DOMPDF_UNICODE_ENABLED", true);
 define("DOMPDF_PDF_BACKEND", "PDFLib");
 define("DOMPDF_DEFAULT_MEDIA_TYPE", "print");
@@ -26,7 +26,7 @@ define("DEBUG_LAYOUT_BLOCKS", false);
 define("DEBUG_LAYOUT_INLINE", false);
 define("DOMPDF_FONT_HEIGHT_RATIO", 1.0);
 define("DEBUG_LAYOUT_PADDINGBOX", false);
-define("DOMPDF_LOG_OUTPUT_FILE", DOMPDF_FONT_DIR."log.htm");
+define("DOMPDF_LOG_OUTPUT_FILE", DOMPDF_FONT_DIR . "log.htm");
 define("DOMPDF_ENABLE_HTML5PARSER", true);
 define("DOMPDF_ENABLE_FONTSUBSETTING", true);
 

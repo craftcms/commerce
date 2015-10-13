@@ -13,29 +13,28 @@ namespace Craft;
  */
 class Commerce_DownloadsController extends Commerce_BaseController
 {
-	protected $allowAnonymous = ['actionPdf'];
+    protected $allowAnonymous = ['actionPdf'];
 
-	public function actionPdf ()
-	{
-		$template = craft()->commerce_settings->getSettings()->orderPdfPath;
-		$number = craft()->request->getQuery('number');
-		$option = craft()->request->getQuery('option', '');
-		$order = craft()->commerce_orders->getByNumber($number);
-		if (!$order)
-		{
-			throw new HttpException(404);
-		}
-		$originalPath = craft()->path->getTemplatesPath();
-		$newPath = craft()->path->getSiteTemplatesPath();
-		craft()->path->setTemplatesPath($newPath);
-		$html = craft()->templates->render($template, compact('order', 'option'));
+    public function actionPdf()
+    {
+        $template = craft()->commerce_settings->getSettings()->orderPdfPath;
+        $number = craft()->request->getQuery('number');
+        $option = craft()->request->getQuery('option', '');
+        $order = craft()->commerce_orders->getByNumber($number);
+        if (!$order) {
+            throw new HttpException(404);
+        }
+        $originalPath = craft()->path->getTemplatesPath();
+        $newPath = craft()->path->getSiteTemplatesPath();
+        craft()->path->setTemplatesPath($newPath);
+        $html = craft()->templates->render($template, compact('order', 'option'));
 
-		$dompdf = new \DOMPDF();
-		$dompdf->load_html($html);
-		$dompdf->render();
-		$dompdf->stream("Order-".$number.".pdf");
+        $dompdf = new \DOMPDF();
+        $dompdf->load_html($html);
+        $dompdf->render();
+        $dompdf->stream("Order-" . $number . ".pdf");
 
-		craft()->path->setTemplatesPath($originalPath);
-		craft()->end();
-	}
+        craft()->path->setTemplatesPath($originalPath);
+        craft()->end();
+    }
 }
