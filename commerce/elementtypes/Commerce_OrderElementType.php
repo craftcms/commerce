@@ -49,6 +49,14 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
     }
 
     /**
+     * @return bool
+     */
+    public function isLocalized()
+    {
+        return false;
+    }
+
+    /**
      * @param null $source
      *
      * @return array
@@ -56,6 +64,13 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
     public function getAvailableActions($source = null)
     {
         $actions = [];
+
+        $deleteAction = craft()->elements->getAction('Delete');
+        $deleteAction->setParams([
+            'confirmationMessage' => Craft::t('Are you sure you want to delete the selected product and their variants?'),
+            'successMessage' => Craft::t('Products deleted.'),
+        ]);
+        $actions[] = $deleteAction;
 
         // Allow plugins to add additional actions
         $allPluginActions = craft()->plugins->call('commerce_addOrderActions', [$source], true);
@@ -225,6 +240,8 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
             'customer' => AttributeType::Mixed,
             'customerId' => AttributeType::Mixed,
             'user' => AttributeType::Mixed,
+            'isPaid' => AttributeType::Bool,
+            'isUnPaid' => AttributeType::Bool
         ];
     }
 
@@ -331,6 +348,14 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
             if ($criteria->updatedBefore) {
                 $query->andWhere(DbHelper::parseDateParam('orders.dateUpdated', '<' . $criteria->updatedBefore, $query->params));
             }
+        }
+
+        if ($criteria->isPaid == true) {
+            $query->andWhere(DbHelper::parseParam('orders.totalPaid', '>= orders.totalPrice', $query->params));
+        }
+
+        if ($criteria->isUnPaid == true) {
+            $query->andWhere(DbHelper::parseParam('orders.totalPaid', '< orders.totalPrice', $query->params));
         }
     }
 
