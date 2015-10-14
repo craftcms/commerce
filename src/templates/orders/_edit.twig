@@ -215,13 +215,16 @@
 	</div>{# end pane #}
 	</form>
 
-<form id="order-form" method="post" accept-charset="UTF-8"
+
+	{% if orderSettings.getFieldLayout().getTabs()|length %}
+	<form id="order-form" method="post" accept-charset="UTF-8"
 		  data-saveshortcut
 		  data-saveshortcut-redirect="{{ order.cpEditUrl }}"
 		  data-confirm-unload>
 		<input type="hidden" name="action" value="commerce/orders/saveOrder">
 		<input type="hidden" name="redirect" value="commerce/orders">
 		{{ getCsrfInput() }}
+
 
 	{# Custom fields pane #}
 	<div id="fields" class="pane">
@@ -261,6 +264,8 @@
 
 	</div>
 	{# End custom fields pane #}
+	</form>
+	{% endif %}
 
 	{# Order History Pane #}
 	<div class="pane">
@@ -320,20 +325,24 @@
 					<td>{{ transaction.paymentMethod.name }}</td>
 					<td>
 						{% if transaction.canCapture() %}
+							<form>
 							<a class="btn submit formsubmit"
 							   data-action="commerce/orders/transactionCapture"
 							   data-confirm="{{ 'Confirm capture?'|t }}"
 							   data-redirect="{{ order.cpEditUrl }}"
 							   data-param="id"
 							   data-value="{{ transaction.id }}">Capture</a>
+							</form>
 						{% endif %}
 						{% if transaction.canRefund() %}
+							<form>
 							<a class="btn submit formsubmit"
 							   data-action="commerce/orders/transactionRefund"
 							   data-confirm="{{ 'Confirm refund?'|t }}"
 							   data-redirect="{{ order.cpEditUrl }}"
 							   data-param="id"
 							   data-value="{{ transaction.id }}">Refund</a>
+							</form>
 						{% endif %}
 					</td>
 				</tr>
@@ -341,7 +350,7 @@
 			</tbody>
 		</table>
 	</div>
-</form>
+
 
 {% endblock %}
 {% includeJsResource 'commerce/js/classes/TableRowAdditionalInfoIcon.js' %}
