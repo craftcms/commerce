@@ -12,6 +12,7 @@ use Omnipay\Common\Helper as OmnipayHelper;
  * @property int $year
  * @property int $cvv
  * @property int $number
+ * @property int $token
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -74,6 +75,7 @@ class Commerce_PaymentFormModel extends BaseModel
             'month' => AttributeType::Number,
             'year' => AttributeType::Number,
             'cvv' => AttributeType::Number,
+            'token' => AttributeType::String
         ];
     }
 }
