@@ -244,6 +244,19 @@ class Commerce_OrderModel extends BaseElementModel
     /**
      * @return int
      */
+    public function getItemSubtotalWithSale()
+    {
+        $value = 0;
+        foreach ($this->lineItems as $item) {
+            $value += $item->getSubtotalWithSale();
+        }
+
+        return $value;
+    }
+
+    /**
+     * @return int
+     */
     public function getTotalHeight()
     {
         $value = 0;
