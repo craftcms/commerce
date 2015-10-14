@@ -52,11 +52,11 @@ class Commerce_ShippingAdjuster implements Commerce_AdjusterInterface
                 $qty += $item->qty;
                 $price += $item->getSubtotalWithSale();
 
-                $item->shippingCost = ($item->getSubtotalWithSale() * $rule->percentageRate) + $rule->perItemRate + ($item->weight * $rule->weightRate);
-                $itemShippingTotal += $item->shippingCost * $item->qty;
+                $item->shippingCost = ($item->getSubtotalWithSale() * $rule->percentageRate) + ($rule->perItemRate * $item->qty) + ($item->weight * $rule->weightRate);
+                $itemShippingTotal += $item->shippingCost;
 
                 if ($item->purchasable->product->freeShipping) {
-                    $freeShippingAmount = $freeShippingAmount + $itemShippingTotal;
+                    $freeShippingAmount += $item->shippingCost;
                     $item->shippingCost = 0;
                 }
             }
