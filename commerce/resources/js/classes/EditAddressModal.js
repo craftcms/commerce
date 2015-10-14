@@ -8,7 +8,6 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend({
     orderId: null,
     $error: null,
     init: function (btn, settings) {
-        console.log(btn);
         var self = this;
         this.data = $(btn).data('address');
         var countries = window.countries;

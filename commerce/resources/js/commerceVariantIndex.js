@@ -6,7 +6,6 @@ Craft.CommerceVariantIndex = Craft.BaseElementIndex.extend(
 
         onAfterInit: function()
         {
-            console.log(this.settings.parentElementId);
             this.$newVariantBtnGroup = $('<div class="btngroup submit"/>');
             this.$newVariantBtn = $('<a class="btn submit add icon">New Variant</a>').appendTo(this.$newVariantBtnGroup);
 
@@ -41,7 +40,6 @@ Craft.CommerceVariantIndex = Craft.BaseElementIndex.extend(
                 onEndLoading: $.proxy(function()
                 {
                     this.$newVariantBtn.removeClass('loading');
-                    console.log(productTypeId,productId);
                 }, this),
                 onHideHud: $.proxy(function()
                 {
