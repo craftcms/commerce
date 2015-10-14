@@ -52,8 +52,8 @@ class Market_ShippingAdjuster implements Market_AdjusterInterface
 				$qty += $item->qty;
 				$price += $item->getSubtotalWithSale();
 
-				$item->shippingCost = ($item->getSubtotalWithSale() * $rule->percentageRate) + $rule->perItemRate + ($item->weight * $rule->weightRate);
-				$itemShippingTotal += $item->shippingCost * $item->qty;
+				$item->shippingCost = ($item->getSubtotalWithSale() * $rule->percentageRate) + ($rule->perItemRate * $item->qty) + ($item->weight * $rule->weightRate);
+				$itemShippingTotal += $item->shippingCost;
 
 				if($item->purchasable->product->freeShipping){
 					$freeShippingAmount = $freeShippingAmount + $itemShippingTotal;
