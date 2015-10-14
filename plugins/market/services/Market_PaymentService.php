@@ -236,6 +236,12 @@ class Market_PaymentService extends BaseApplicationComponent
             // don't send notifyUrl for completePurchase
             $params = $this->buildPaymentRequest($transaction);
 
+            // If MOLLIE, the transactionReference will be theirs
+            $name = $transaction->paymentMethod->class;
+            if ( $name == 'Mollie_Ideal' || $name == 'Mollie' || $name == 'SagePay_Server') {
+                $params['transactionReference'] = $transaction->reference;
+            }
+
             unset($params['notifyUrl']);
 
             $request  = $gateway->$action($params);
