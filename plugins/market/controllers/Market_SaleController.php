@@ -107,7 +107,10 @@ class Market_SaleController extends Market_BaseController
             $sale->$field = craft()->request->getPost($field);
         }
 
-        $products     = craft()->request->getPost('products', []);
+        $products     = craft()->request->getPost('products');
+        if(!$products){
+            $products = [];
+        }
         $productTypes = craft()->request->getPost('productTypes', []);
         $groups       = craft()->request->getPost('groups', []);
 

@@ -175,33 +175,35 @@ class Market_OrderStatusService extends BaseApplicationComponent
         craft()->path->setTemplatesPath($newPath);
 
         foreach ($status->emails as $email) {
-            $craftEmail = new EmailModel();
+            if($email->enabled == true){
+                $craftEmail = new EmailModel();
 
-            if(craft()->market_settings->getSettings()->emailSenderAddress){
-                $craftEmail->fromEmail = craft()->market_settings->getSettings()->emailSenderAddress;
+                if(craft()->market_settings->getSettings()->emailSenderAddress){
+                    $craftEmail->fromEmail = craft()->market_settings->getSettings()->emailSenderAddress;
+                }
+
+                if(craft()->market_settings->getSettings()->emailSenderName){
+                    $craftEmail->fromName = craft()->market_settings->getSettings()->emailSenderName;
+                }
+
+                $craftEmail->toEmail = $to = craft()->templates->renderString($email->to, $renderVariables);
+                $craftEmail->bcc     = [['email'=>craft()->templates->renderString($email->bcc, $renderVariables)]];
+                $craftEmail->subject = craft()->templates->renderString($email->subject, $renderVariables);
+
+                $body              = $email->type == Market_EmailRecord::TYPE_HTML ? 'htmlBody' : 'body';
+                $craftEmail->$body = craft()->templates->render($email->templatePath,
+                    $renderVariables);
+
+                if (!craft()->email->sendEmail($craftEmail)) {
+                    throw new Exception('Email sending error: ' . implode(', ',
+                            $email->getAllErrors()));
+                }
+
+                //logging
+                $log = sprintf('Order #%d got new status "%s". Email "%s" %d was sent to %s',
+                    $order->id, $order->orderStatus, $email->name, $email->id, $to);
+                MarketPlugin::log($log, LogLevel::Info, true);
             }
-
-            if(craft()->market_settings->getSettings()->emailSenderName){
-                $craftEmail->fromName = craft()->market_settings->getSettings()->emailSenderName;
-            }
-
-            $craftEmail->toEmail = $to = craft()->templates->renderString($email->to, $renderVariables);
-            $craftEmail->bcc     = [['email'=>craft()->templates->renderString($email->bcc, $renderVariables)]];
-            $craftEmail->subject = craft()->templates->renderString($email->subject, $renderVariables);
-
-            $body              = $email->type == Market_EmailRecord::TYPE_HTML ? 'htmlBody' : 'body';
-            $craftEmail->$body = craft()->templates->render($email->templatePath,
-                $renderVariables);
-
-            if (!craft()->email->sendEmail($craftEmail)) {
-                throw new Exception('Email sending error: ' . implode(', ',
-                        $email->getAllErrors()));
-            }
-
-            //logging
-            $log = sprintf('Order #%d got new status "%s". Email "%s" %d was sent to %s',
-                $order->id, $order->orderStatus, $email->name, $email->id, $to);
-            MarketPlugin::log($log, LogLevel::Info, true);
         }
 
         //put old template path back
