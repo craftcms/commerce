@@ -56,7 +56,7 @@ class Market_ShippingAdjuster implements Market_AdjusterInterface
 				$itemShippingTotal += $item->shippingCost;
 
 				if($item->purchasable->product->freeShipping){
-					$freeShippingAmount = $freeShippingAmount + $itemShippingTotal;
+					$freeShippingAmount += $item->shippingCost;
 					$item->shippingCost = 0;
 				}
 			}
