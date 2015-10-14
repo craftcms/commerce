@@ -267,6 +267,7 @@
 	</form>
 	{% endif %}
 
+	{% if order.histories|length %}
 	{# Order History Pane #}
 	<div class="pane">
 		<h3>Order Status History</h3>
@@ -301,7 +302,9 @@
 			</tbody>
 		</table>
 	</div>
+	{% endif %}
 
+	{% if order.transactions|length %}
 	<div class="pane">
 
 		<h3>Transactions</h3>
@@ -350,6 +353,7 @@
 			</tbody>
 		</table>
 	</div>
+	{% endif %}
 
 
 {% endblock %}
