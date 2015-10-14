@@ -49,13 +49,11 @@ class Commerce_PaymentsService extends BaseApplicationComponent
             craft()->request->redirect($cart->returnUrl);
         }
 
-        //validating card
-        if ($cart->paymentMethod->requiresCard()) {
+        // Validate card if no token provided
+        if (!$form->token && $cart->paymentMethod->requiresCard()) {
             if (!$form->validate()) {
                 return false;
             }
-        } else {
-            $form->attributes = [];
         }
 
         //choosing default action
@@ -84,8 +82,12 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 
         $card = $this->createCard($cart, $form);
 
-        $request = $gateway->$defaultAction($this->buildPaymentRequest($transaction,
-            $card));
+        $request = $gateway->$defaultAction($this->buildPaymentRequest($transaction, $card));
+
+        // set token directly on request if available (not in card)
+        if ($form->token) {
+            $request->setToken($form->token);
+        }
 
         try {
             $redirect = $this->sendPaymentRequest($request, $transaction);
