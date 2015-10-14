@@ -53,9 +53,6 @@ class Commerce_OrdersController extends Commerce_BaseAdminController
             $variables['title'] = Craft::t('Create a new Order');
         }
 
-        $variables['countries'] = craft()->commerce_countries->getFormList();
-        $variables['states'] = craft()->commerce_states->getGroupedByCountries();
-
         $variables['orderStatuses'] = [];
         foreach (craft()->commerce_orderStatuses->getAll() as $status) {
             $variables['orderStatuses'][$status->id] = ['color' => $status->color, 'name' => $status->name];

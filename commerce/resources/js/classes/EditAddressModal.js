@@ -8,6 +8,7 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend({
     orderId: null,
     $error: null,
     init: function (btn, settings) {
+        console.log(btn);
         var self = this;
         this.data = $(btn).data('address');
         var countries = window.countries;
@@ -36,7 +37,7 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend({
                 class: 'fullwidth' + ' ' + fields[i].attribute,
                 id: fields[i].attribute + '-field',
                 name: 'address[' + fields[i].attribute + ']',
-                value: this.data[fields[i].attribute]
+                value: this.data[fields[i].attribute] ? this.data[fields[i].attribute] : ''
             }).appendTo(this.$body);
         }
 
@@ -123,7 +124,7 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend({
     },
     updateAddress: function () {
 
-        data = {
+        this.data = {
             orderId: this.orderId,
             addressType: this.type,
             address: {
@@ -142,7 +143,7 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend({
             }
         }
 
-        Craft.postActionRequest('commerce/orders/updateAddress', data, function (response) {
+        Craft.postActionRequest('commerce/orders/updateAddress', this.data, function (response) {
             if (response.success) {
                 location.reload(true);
             } else {
