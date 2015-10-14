@@ -353,6 +353,9 @@ class Market_PaymentService extends BaseApplicationComponent
                 ['id' => $transaction->id, 'hash' => $transaction->hash]),
             'cancelUrl'     => UrlHelper::getSiteUrl($transaction->order->cancelUrl),
         ];
+
+        $request['notifyUrl'] = $request['returnUrl'];
+        
         if ($card) {
             $request['card'] = $card;
         }
