@@ -121,7 +121,7 @@ class Commerce_OrderModel extends BaseElementModel
      */
     public function getPdfUrl($option = '')
     {
-        return UrlHelper::getActionUrl('commerce/download/pdf?number=' . $this->number . "&option=" . $option);
+        return UrlHelper::getActionUrl('commerce/downloads/pdf?number=' . $this->number . "&option=" . $option);
     }
 
     /**
