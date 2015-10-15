@@ -80,7 +80,6 @@ class CommerceVariable
         return craft()->commerce_states->getGroupedByCountries();
     }
 
-
     /**
      * @return array
      */
@@ -99,6 +98,19 @@ class CommerceVariable
         $methods = craft()->commerce_paymentMethods->getAllForFrontend();
 
         return \CHtml::listData($methods, 'id', 'name');
+    }
+
+    /**
+     * @return array
+     */
+    public function getOrderStatuses()
+    {
+        $allStatuses = craft()->commerce_orderStatuses->getAll();
+        $statuses = [];
+        foreach($allStatuses as $status){
+            $statuses[] = $status->attributes;
+        }
+        return $statuses;
     }
 
     /**
