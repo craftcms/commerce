@@ -369,7 +369,7 @@ class Market_PaymentService extends BaseApplicationComponent
             $request['card'] = $card;
         }
 
-        $pluginRequest = craft()->plugins->callFirst('modifyCommercePaymentRequest',$request);
+        $pluginRequest = craft()->plugins->callFirst('modifyCommercePaymentRequest',[$request]);
 
         if($pluginRequest){
             $request = array_merge($request,$pluginRequest);
