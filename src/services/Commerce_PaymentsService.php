@@ -381,6 +381,8 @@ class Commerce_PaymentsService extends BaseApplicationComponent
             $request['card'] = $card;
         }
 
+        $request = craft()->plugins->callFirst('modifyCommercePaymentRequest',$request);
+
         return $request;
     }
 
