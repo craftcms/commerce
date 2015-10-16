@@ -202,6 +202,8 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
             $craftEmail->body = $craftEmail->htmlBody = craft()->templates->render($email->templatePath,
                 $renderVariables);
 
+            craft()->plugins->callFirst('modifyCommerceEmail',[&$craftEmail, $order]);
+
             if (!craft()->email->sendEmail($craftEmail)) {
                 throw new Exception('Email sending error: ' . implode(', ',
                         $email->getAllErrors()));
