@@ -96,12 +96,14 @@ class MarketPlugin extends BasePlugin
             ]
         );
 
-        craft()->on('userSession.onLogin',
-            [
-                craft()->market_customer,
-                'loginHandler'
-            ]
-        );
+        if (!craft()->isConsole()) {
+          craft()->on('userSession.onLogin',
+              [
+                  craft()->market_customer,
+                  'loginHandler'
+              ]
+          );
+        }
     }
 
     /**
