@@ -6,12 +6,14 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend({
     $billingAddress: null,
     $shippingAddress: null,
     $statusUpdate: null,
+    statusUpdateModal: null,
     init: function(args, settings){
-        self = this;
+
         this.orderId = args.orderId;
         this.$container = args.container;
         this.$billingAddress = this.$container.find('.billingAddress');
         this.$shippingAddress = this.$container.find('.shippingAddress');
+        this.$statusUpdate = this.$container.find('.updatestatus');
 
         var $editBillingAddressBtn = this.$billingAddress.find('.edit.btn').click(function (e) {
             e.preventDefault();
@@ -31,28 +33,30 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend({
             }
         });
 
-        $('.updatestatus').click($.proxy(function (e) {
-            e.preventDefault();
-            if (!this.modal) {
-                var id = this.orderId;
-                var handle = $(e.target).data('orderstatushandle');
-                var statuses = $(e.target).data('orderstatuses');
-                new Craft.Commerce.UpdateOrderStatusModal(handle,statuses, {
-                    onSubmit: function(data){
-                        data.orderId = id;
-                        Craft.postActionRequest('commerce/orders/updateStatus', data, function (response) {
-                            if (response.success) {
-                                location.reload(true);
-                            } else {
-                                this.$error.html(response.error);
-                            }
-                        });
-                    }
-                });
-            } else {
-                this.modal.show();
-            }
-        },this));
-
+        this.addListener(this.$statusUpdate, 'click', function (ev) {
+            ev.preventDefault();
+            this._openCreateUpdateStatusModal();
+        });
+    },
+    _openCreateUpdateStatusModal: function(){
+        if (!this.statusUpdateModal) {
+            var id = this.orderId;
+            var handle = this.$statusUpdate.data('orderstatushandle');
+            var statuses = this.$statusUpdate.data('orderstatuses');
+            this.statusUpdateModal = new Craft.Commerce.UpdateOrderStatusModal(handle,statuses, {
+                onSubmit: function(data){
+                    data.orderId = id;
+                    Craft.postActionRequest('commerce/orders/updateStatus', data, function (response) {
+                        if (response.success) {
+                            location.reload(true);
+                        } else {
+                            this.$error.html(response.error);
+                        }
+                    });
+                }
+            });
+        } else {
+            this.statusUpdateModal.show();
+        }
     }
 });
