@@ -35,17 +35,14 @@
 				<tr>
 					<td><strong>{{ "Status"|t }}</strong></td>
 					{% if order.orderStatus %}
-						<td>{{ order.orderStatus.printName|raw }} &nbsp; <a
+						<td><div id="orderStatus">{{ order.orderStatus.htmlLabel|raw }} &nbsp; <a
 									href="#"
-									class="updatestatus btn small hidden"
-									data-orderid="{{ order.id }}"
-									data-orderstatuscolor="{{ order.orderStatus.color }}"
-									data-orderstatusname="{{ order.orderStatus.name}}"
-									data-orderstatusid="{{ order.orderStatusId }}"
-									data-statuses="{{ orderStatuses|json_encode }}">{{ "Update Status"|t }}</a>
+									class="updatestatus btn small"
+									data-orderStatusHandle="{{ order.orderStatus.handle }}"
+									data-orderStatuses="{{ craft.commerce.orderStatuses|json_encode() }}">{{ "Update Status"|t }}</a></div>
 						</td>
 					{% else %}
-						<td><span class="commerce status"></span></td>
+						<td><span class="status"></span></td>
 					{% endif %}
 				<tr>
 					<td><strong>{{ "Total"|t }}</strong></td>
@@ -60,13 +57,13 @@
 		</div>
 
 		<div class="order-addresses right">
-			<div class="order-address-box">
+			<div class="order-address-box billingAddress">
 				<div class="order-address-box-content">
 				{% import "commerce/_includes/orders/address" as addressMacros %}
 
 				<strong>Billing Address </strong><br/>
 				{% if order.dateOrdered %}
-				<a class="small btn right editBillingAddress" data-orderid="{{ order.id }}" data-addresstype="billing" data-address="{{ order.billingAddressData|json_encode }}">Edit</a>
+				<a class="small btn right edit" data-addresstype="billing" data-address="{{ order.billingAddressData|json_encode }}">Edit</a>
 				{% endif %}
 				<a class="small btn right"
 				   href="http://maps.google.com/maps?q={{ order.billingAddress.address1 }}+{{ order.billingAddress.address2 }}+{{ order.billingAddress.city }}+{{ order.billingAddress.zipCode }}+{{ order.billingAddress.stateText }}+{{ order.billingAddress.countryText }}"
@@ -75,11 +72,11 @@
 				</div>
 			</div>
 
-			<div class="order-address-box">
+			<div class="order-address-box shippingAddress">
 				<div class="order-address-box-content">
 				<strong>Shipping Address </strong><br/>
 				{% if order.dateOrdered %}
-				<a class="small btn right editShippingAddress" data-orderid="{{ order.id }}" data-addresstype="shipping" data-address="{{ order.shippingAddressData|json_encode }}">Edit</a>
+				<a class="small btn right edit" data-addresstype="shipping" data-address="{{ order.shippingAddressData|json_encode }}">Edit</a>
 				{% endif %}
 				<a class="small btn right"
 				   href="http://maps.google.com/maps?q={{ order.shippingAddress.address1 }}+{{ order.shippingAddress.address2 }}+{{ order.shippingAddress.city }}+{{ order.shippingAddress.zipCode }}+{{ order.shippingAddress.stateText }}+{{ order.shippingAddress.countryText }}"
@@ -286,7 +283,7 @@
 				<tr data-id="{{ orderHistory.id }}">
 					<td>
 						{% if orderHistory.newStatus %}
-							<a href="{{ orderHistory.newStatus.cpEditUrl }}">{{ orderHistory.newStatus.printName()|raw }}</a>
+							<a href="{{ orderHistory.newStatus.cpEditUrl }}">{{ orderHistory.newStatus.htmlLabel()|raw }}</a> {% if loop.first %}({{ "Current"|t }}){% endif %}
 						{% endif %}
 					</td>
 					<td>
@@ -362,20 +359,25 @@
 {% includeJsResource 'commerce/js/classes/UpdateOrderStatusModal.js' %}
 {% includeJsResource 'commerce/js/classes/OrderEdit.js' %}
 
-    {% includejs %}
+{% includejs %}
 
-	window.countries = JSON.parse('{{ craft.commerce.countriesList|json_encode|raw }}');
-	window.states = JSON.parse('{{ craft.commerce.statesArray|json_encode|raw }}');
+window.countries = JSON.parse('{{ craft.commerce.countriesList|json_encode|raw }}');
+window.states = JSON.parse('{{ craft.commerce.statesArray|json_encode|raw }}');
 
-    $(document).ready(function () {
+$(document).ready(function () {
 
-		new Craft.Commerce.OrderEdit;
+	new Craft.Commerce.OrderEdit({
+		orderId: {{ orderId }},
+		container: $('#main'),
+		countries: window.countries,
+		states: window.states
+	});
 
-		$.each($('.tableRowInfo'), function () {
-			new Craft.Commerce.TableRowAdditionalInfoIcon(this);
-		});
+	$.each($('.tableRowInfo'), function () {
+		new Craft.Commerce.TableRowAdditionalInfoIcon(this);
+	});
 
-    });
+});
 
 
-    {% endincludejs %}
+{% endincludejs %}

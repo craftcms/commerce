@@ -1,9 +1,8 @@
+Craft.Commerce = Craft.Commerce || {};
+
 Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
     {
         id: null,
-        orderId: null,
-        orderStatusName: null,
-        orderStatusColor: null,
         orderStatusId: null,
         $statusSelect: null,
         $orderStatusIdInput: null,
@@ -11,17 +10,17 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
         $error: null,
         $updateBtn: null,
         $cancelBtn: null,
-        init: function (btn, settings) {
-            self = this;
+        init: function (currentStatusHandle, orderStatuses, settings) {
+            var self = this;
             this.setSettings(settings, {
                 resizable: false
             });
-
-            this.orderId = $(btn).data('orderid');
-            this.orderStatusId = $(btn).data('orderstatusid');
-            this.orderStatusName = $(btn).data('orderstatusname');
-            this.orderStatusColor = $(btn).data('orderstatuscolor');
-            var statuses = $(btn).data('statuses');
+            var currentStatus = {};
+            for (i = 0; i < orderStatuses.length; i++) {
+                if (currentStatusHandle == orderStatuses[i].handle) {
+                    currentStatus = orderStatuses[i];
+                }
+            }
 
             this.id = Math.floor(Math.random() * 1000000000);
 
@@ -34,19 +33,23 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
                 '<h2 class="first">' + Craft.t("Update Order Status") + '</h2>' +
                 '</div>').appendTo($body);
 
-            this.$orderStatusIdInput = $('<input type="hidden" name="orderStatusId" value="' + this.orderStatusId + '"/>').appendTo($body);
+            this.$orderStatusIdInput = $('<input type="hidden" name="orderStatusId" value="' + currentStatus.id + '"/>').appendTo($body);
 
-            this.$statusSelect = $('<a class="btn menubtn" href="#"><span class="commerce status ' + this.orderStatusColor + '"></span>' + this.orderStatusName + '</a>').appendTo($inputs);
+            this.$statusSelect = $('<a class="btn menubtn" href="#"><span class="commerce status ' + currentStatus.color + '"></span>' + currentStatus.name + '</a>').appendTo($inputs);
 
             var $menu = $('<div class="menu"/>').appendTo($inputs);
 
             var $list = $('<ul class="padded"/>').appendTo($menu);
-            $.each(statuses, function (i, item) {
-                if (self.orderStatusId == i) {
-                    var classes = "sel";
+
+            var classes = "";
+            for (i = 0; i < orderStatuses.length; i++) {
+                if (currentStatusHandle == orderStatuses[i].handle) {
+                    classes = "sel";
+                }else{
+                    classes = "";
                 }
-                $('<li><a data-id="' + i + '" data-color="' + item.color + '" data-name="' + item.name + '" class="' + classes + '" href="#"><span class="commerce status ' + item.color + '"></span>' + item.name + '</a></li>').appendTo($list);
-            });
+                $('<li><a data-id="' + orderStatuses[i].id + '" data-color="' + orderStatuses[i].color + '" data-name="' + orderStatuses[i].name + '" class="' + classes + '" href="#"><span class="commerce status ' + orderStatuses[i].color + '"></span>' + orderStatuses[i].name + '</a></li>').appendTo($list);
+            }
 
             this.$message = $('<div class="field">' +
                 '<div class="heading">' +
@@ -83,22 +86,17 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
             this.addListener(this.$updateBtn, 'click', function () {
                 this.updateStatus();
             });
-
             this.base($form, settings);
         },
         updateStatus: function () {
             var data = {
-                'orderId': this.orderId,
                 'orderStatusId': this.orderStatusId,
                 'message': this.$message.find('textarea[name="message"]').val()
             }
 
-            Craft.postActionRequest('commerce/orders/updateStatus', data, function (response) {
-                if (response.success) {
-                    location.reload(true);
-                } else {
-                    self.$error.html(response.error);
-                }
-            });
+            this.settings.onSubmit(data);
+        },
+        defaults: {
+            onSubmit: $.noop
         }
     });
