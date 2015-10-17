@@ -15,7 +15,7 @@
 			<td>{{ order.link }}</td>
 			<td>{{ order.dateOrdered|date }}</td>
 			<td>{{ order.totalPaid|commerceCurrency }}</td>
-			<td>{{ order.orderStatus.printName|raw }}</td>
+			<td>{{ order.orderStatus.htmlLabel|raw }}</td>
 		</tr>
 	{% endfor %}
 	</tbody>
