@@ -4,6 +4,7 @@ namespace Commerce\Seed;
 
 use Craft\Commerce_OrderSettingsModel;
 use Craft\Commerce_OrderStatusModel;
+use Craft\Commerce_PaymentMethodModel;
 use Craft\Commerce_ProductModel;
 use Craft\Commerce_ProductTypeModel;
 use Craft\Commerce_SettingsModel;
@@ -210,7 +211,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
     private function paymentMethods()
     {
         /** @var Dummy_GatewayAdapter $adapter */
-        $adapter = \Craft\craft()->commerce_gateway->getAll()['Dummy'];
+        $adapter = \Craft\craft()->commerce_gateways->getAll()['Dummy'];
 
         $model = new Commerce_PaymentMethodModel;
         $model->class = $adapter->handle();
@@ -218,7 +219,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
         $model->settings = $adapter->getGateway()->getDefaultParameters();
         $model->frontendEnabled = true;
 
-        \Craft\craft()->commerce_paymentMethod->save($model);
+        \Craft\craft()->commerce_paymentMethods->save($model);
     }
 
 
