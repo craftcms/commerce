@@ -83,7 +83,7 @@
                     <input type="hidden" name="action" value="commerce/cartAddresses/addAddress">
                     <input type="hidden" name="Address[id]" value="">
                     {{ getCsrfInput() }}
-                    
+
                     {{ forms.addressForm('Address', newAddress is defined ? newAddress : null ) }}
 
                     <input type="submit" value="Add New Address">
@@ -119,7 +119,7 @@
         </form>
     {% endif %}
 
-    {% set js %}
+    {% includejs %}
 
         $('.address-remove').click(function(e) {
             e.preventDefault();
@@ -155,7 +155,6 @@
             $('.addressBox.ShippingAddress').toggle();
         });
 
-    {% endset %}
-    {% includeJs js %}
+    {% endincludejs %}
 
 {%  endblock %}
