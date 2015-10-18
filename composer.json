@@ -2,7 +2,8 @@
     "homepage": "http://buildwithcraft.com/commerce",
     "config": {
         "cache-files-ttl": 0,
-        "process-timeout": 1800
+        "process-timeout": 1800,
+        "vendor-dir": "plugins/market/vendor"
     },
     "minimum-stability": "dev",
     "autoload": {
