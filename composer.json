@@ -8,7 +8,7 @@
     "minimum-stability": "dev",
     "autoload": {
         "psr-4": {
-            "Market\\": "Market"
+            "Market\\": "plugins/market/Market"
         }
     },
     "require": {

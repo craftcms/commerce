@@ -4,8 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "be3886da35912a3294c292eb51590a6d",
-    "content-hash": "9f26c1e20bb69175630dfbe8d0b8ecc8",
+    "hash": "71d11ffc29bc1d020d851b59f0b38d87",
     "packages": [
         {
             "name": "dompdf/dompdf",
@@ -1911,12 +1910,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-foundation.git",
-                "reference": "7e8c33e9e6464d75091296e4615852ec4981ed80"
+                "reference": "0df68b8751d344a42529d20b44861be68dbd79e9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/7e8c33e9e6464d75091296e4615852ec4981ed80",
-                "reference": "7e8c33e9e6464d75091296e4615852ec4981ed80",
+                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/0df68b8751d344a42529d20b44861be68dbd79e9",
+                "reference": "0df68b8751d344a42529d20b44861be68dbd79e9",
                 "shasum": ""
             },
             "require": {
@@ -1955,7 +1954,7 @@
             ],
             "description": "Symfony HttpFoundation Component",
             "homepage": "https://symfony.com",
-            "time": "2015-10-13 16:11:28"
+            "time": "2015-10-18 20:23:24"
         }
     ],
     "packages-dev": [],
