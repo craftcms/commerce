@@ -278,13 +278,14 @@ class Commerce_DiscountsService extends BaseApplicationComponent
             'percentDiscount',
             'freeShipping',
             'excludeOnSale',
-            'code',
             'perUserLimit',
             'totalUseLimit'
         ];
         foreach ($fields as $field) {
             $record->$field = $model->$field;
         }
+
+        $record->code = $model->code ?: null;
 
         $record->allGroups = $model->allGroups = empty($groups);
         $record->allProductTypes = $model->allProductTypes = empty($productTypes);

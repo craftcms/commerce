@@ -91,7 +91,7 @@ class Commerce_DiscountRecord extends BaseRecord
         return [
             'name' => [AttributeType::Name, 'required' => true],
             'description' => AttributeType::Mixed,
-            'code' => [AttributeType::String, 'required' => true],
+            'code' => AttributeType::String,
             'perUserLimit' => [
                 AttributeType::Number,
                 'required' => true,
