@@ -45,7 +45,7 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
             for (i = 0; i < orderStatuses.length; i++) {
                 if (currentStatusHandle == orderStatuses[i].handle) {
                     classes = "sel";
-                }else{
+                } else {
                     classes = "";
                 }
                 $('<li><a data-id="' + orderStatuses[i].id + '" data-color="' + orderStatuses[i].color + '" data-name="' + orderStatuses[i].name + '" class="' + classes + '" href="#"><span class="commerce status ' + orderStatuses[i].color + '"></span>' + orderStatuses[i].name + '</a></li>').appendTo($list);
@@ -68,7 +68,7 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
             var $btnGroup = $('<div class="btngroup"/>').appendTo($footer);
             var $mainBtnGroup = $('<div class="btngroup right"/>').appendTo($footer);
 
-            this.$updateBtn = $('<input type="button" class="btn submit" value="' + Craft.t('Update') + '"/>').appendTo($mainBtnGroup);
+            this.$updateBtn = $('<input type="button" class="btn submit disabled" value="' + Craft.t('Update') + '"/>').appendTo($mainBtnGroup);
             this.$cancelBtn = $('<input type="button" class="btn" value="' + Craft.t('Cancel') + '"/>').appendTo($btnGroup);
 
             new Garnish.MenuBtn(this.$statusSelect, {
@@ -79,12 +79,22 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
                     self.$orderStatusIdInput.val(self.orderStatusId);
                     var newHtml = "<span><span class='commerce status " + self.orderStatusColor + "'></span>" + Craft.uppercaseFirst(self.orderStatusName) + "</span>";
                     self.$statusSelect.html(newHtml);
+
+                    if (self.orderStatusId == currentStatus.id) {
+                        self.$updateBtn.addClass('disabled');
+                    } else {
+                        self.$updateBtn.removeClass('disabled');
+                    }
                 }
             });
 
+
             this.addListener(this.$cancelBtn, 'click', 'hide');
-            this.addListener(this.$updateBtn, 'click', function () {
-                this.updateStatus();
+            this.addListener(this.$updateBtn, 'click', function (ev) {
+                ev.preventDefault();
+                if (!$(ev.target).hasClass('disabled')) {
+                    this.updateStatus();
+                }
             });
             this.base($form, settings);
         },
