@@ -1,20 +1,18 @@
 {
     "homepage": "http://buildwithcraft.com/commerce",
-     "config": {
-         "cache-files-ttl": 0,
-         "process-timeout": 1800,
-         "github-oauth": {
-             "github.com": "fc31fa76ff0fb8a2a9828c4c5bdb1c8d233b9894"
-         }
-     },
+    "config": {
+        "cache-files-ttl": 0,
+        "process-timeout": 1800,
+        "vendor-dir": "plugins/market/vendor"
+    },
     "minimum-stability": "dev",
     "autoload": {
         "psr-4": {
-            "Market\\": "Market"
+            "Market\\": "plugins/market/Market"
         }
     },
     "require": {
-      "omnipay/omnipay": "2.3.2",
-      "dompdf/dompdf" : "0.6.1"
+        "omnipay/omnipay": "2.3.2",
+        "dompdf/dompdf" : "0.6.1"
     }
 }
