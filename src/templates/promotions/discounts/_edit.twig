@@ -73,9 +73,8 @@
     <div id="conditions" class="hidden">
     {{ forms.textField({
         label: "Coupon Code"|t,
-        instructions: "A user will have to enter it to activate this discount."|t,
+        instructions: "A user will have to enter it to activate this discount. Leave blank to always attempt to match this discount."|t,
         id: 'code',
-        required: true,
         name: 'code',
         value: discount.code,
         errors: discount.getErrors('code'),

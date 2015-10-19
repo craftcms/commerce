@@ -81,7 +81,7 @@ class Commerce_DiscountModel extends BaseModel
         return [
             'id' => AttributeType::Number,
             'name' => [AttributeType::Name, 'required' => true],
-            'code' => [AttributeType::String, 'required' => true],
+            'code' => AttributeType::String,
             'perUserLimit' => [AttributeType::Number, 'default' => 0],
             'totalUseLimit' => [AttributeType::Number, 'default' => 0],
             'totalUses' => [AttributeType::Number, 'default' => 0],
