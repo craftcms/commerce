@@ -194,6 +194,8 @@ class Market_OrderStatusService extends BaseApplicationComponent
                 $craftEmail->$body = craft()->templates->render($email->templatePath,
                     $renderVariables);
 
+                craft()->plugins->callFirst('modifyCommerceEmail',[&$craftEmail, $order]);
+
                 if (!craft()->email->sendEmail($craftEmail)) {
                     throw new Exception('Email sending error: ' . implode(', ',
                             $email->getAllErrors()));
