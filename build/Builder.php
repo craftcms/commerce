@@ -93,12 +93,6 @@ class Builder
 		echo ('Copying file from '.$this->_sourceBaseDir.'LICENSE.md to '.$this->_tempDir.'LICENSE.md'.PHP_EOL);
 		UtilsHelper::copyFile($this->_sourceBaseDir.'LICENSE.md', $this->_tempDir.'LICENSE.md');
 		echo ('Finished copying file from '.$this->_sourceBaseDir.'LICENSE.md to '.$this->_tempDir.'LICENSE.md'.PHP_EOL.PHP_EOL);
-
-		echo('Deleting file '.$this->_tempDir.'composer.json'.PHP_EOL);
-		unlink($this->_tempDir.'composer.json');
-
-		echo('Deleting file '.$this->_tempDir.'composer.lock'.PHP_EOL);
-		unlink($this->_tempDir.'composer.lock');
 	}
 
 	/**
@@ -116,15 +110,19 @@ class Builder
 		echo ('Done nuking DS_Store files.'.PHP_EOL.PHP_EOL);
 
 		$gitFolders = UtilsHelper::getFolders($this->_tempDir.'plugins/market/vendor/', '\\.git');
-		echo ('Found '.count($gitFolders).' .git folders. Nuking them.'.PHP_EOL);
 
-		foreach ($gitFolders as $gitFolder)
+		if ($gitFolders)
 		{
-			echo ('Path'.$gitFolders.PHP_EOL);
-			UtilsHelper::purgeDirectory($gitFolder);
-			unlink($gitFolder);
+			echo('Found '.count($gitFolders).' .git folders. Nuking them.'.PHP_EOL);
+
+			foreach ($gitFolders as $gitFolder)
+			{
+				echo('Path'.$gitFolder.PHP_EOL);
+				UtilsHelper::purgeDirectory($gitFolder);
+				unlink($gitFolder);
+			}
+			echo('Done nuking .git folders.'.PHP_EOL.PHP_EOL);
 		}
-		echo ('Done nuking .git folders.'.PHP_EOL.PHP_EOL);
 	}
 
 	/**
