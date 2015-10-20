@@ -52,11 +52,6 @@ class MarketPlugin extends BasePlugin
                     'selected' => (craft()->request->getSegment(2) == 'promotions' ? true : false)
                 ],
                 [
-                    'url'      => 'market/customers',
-                    'title'    => Craft::t("Customers"),
-                    'selected' => (craft()->request->getSegment(2) == 'customers' ? true : false)
-                ],
-                [
                     'url'      => 'market/settings',
                     'title'    => Craft::t("Settings"),
                     'selected' => (craft()->request->getSegment(2) == 'settings' ? true : false)
@@ -96,12 +91,14 @@ class MarketPlugin extends BasePlugin
             ]
         );
 
-        craft()->on('userSession.onLogin',
-            [
-                craft()->market_customer,
-                'loginHandler'
-            ]
-        );
+        if (!craft()->isConsole()) {
+          craft()->on('userSession.onLogin',
+              [
+                  craft()->market_customer,
+                  'loginHandler'
+              ]
+          );
+        }
     }
 
     /**
