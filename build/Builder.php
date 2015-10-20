@@ -109,7 +109,7 @@ class Builder
 		}
 		echo ('Done nuking DS_Store files.'.PHP_EOL.PHP_EOL);
 
-		$gitFolders = UtilsHelper::getFolders($this->_tempDir.'plugins/market/vendor/', '\\.git');
+		$gitFolders = UtilsHelper::getFolders($this->_tempDir.'plugins/market/vendor/', '.git');
 
 		if ($gitFolders)
 		{
