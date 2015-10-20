@@ -558,16 +558,17 @@ class UtilsHelper
 
 	/**
 	 * @param $path
+	 * @param $pattern
 	 *
 	 * @return array|bool
 	 */
-	public static function getFolders($path)
+	public static function getFolders($path, $pattern)
 	{
 		$path = static::normalizePathSeparators($path);
 
 		if (is_dir($path))
 		{
-			$folders = glob($path.'*', GLOB_ONLYDIR);
+			$folders = glob($path.$pattern, GLOB_ONLYDIR);
 
 			if ($folders)
 			{
