@@ -562,25 +562,24 @@ class UtilsHelper
 	 *
 	 * @return array|bool
 	 */
-	public static function getFolders($path, $pattern)
+	public static function getGitFolders($path)
 	{
 		$path = static::normalizePathSeparators($path);
 
 		if (is_dir($path))
 		{
-			$folders = glob($path.$pattern, GLOB_ONLYDIR);
+			$iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path), RecursiveIteratorIterator::SELF_FIRST);
+			$folders = [];
 
-			if ($folders)
+			foreach ($iterator as $file)
 			{
-				foreach ($folders as $key => $folder)
+				if ($file->isDir() && $file->getFilename() == '.git')
 				{
-					$folders[$key] = static::normalizePathSeparators($folder);
+					$folders[] = static::normalizePathSeparators($file->getRealPath());
 				}
-
-				return $folders;
 			}
 		}
 
-		return false;
+		return $folders;
 	}
 }
