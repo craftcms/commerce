@@ -236,6 +236,12 @@ class Market_PaymentService extends BaseApplicationComponent
             // don't send notifyUrl for completePurchase
             $params = $this->buildPaymentRequest($transaction);
 
+            // If MOLLIE, the transactionReference will be theirs
+            $name = $transaction->paymentMethod->class;
+            if ( $name == 'Mollie_Ideal' || $name == 'Mollie' || $name == 'SagePay_Server') {
+                $params['transactionReference'] = $transaction->reference;
+            }
+
             unset($params['notifyUrl']);
 
             $request  = $gateway->$action($params);
@@ -340,13 +346,33 @@ class Market_PaymentService extends BaseApplicationComponent
             'amount'        => $transaction->amount,
             'currency'      => craft()->market_settings->getOption('defaultCurrency'),
             'transactionId' => $transaction->id,
+            'description'   => Craft::t('Order') . ' #'.$transaction->orderId,
             'clientIp'      => craft()->request->getIpAddress(),
+            'transactionReference' => $transaction->reference,
             'returnUrl'     => UrlHelper::getActionUrl('market/cartPayment/complete',
                 ['id' => $transaction->id, 'hash' => $transaction->hash]),
             'cancelUrl'     => UrlHelper::getSiteUrl($transaction->order->cancelUrl),
         ];
+
+        $request['notifyUrl'] = $request['returnUrl'];
+
+        // custom gateways may wish to access the order directly
+        $request['order'] = $transaction->order;
+        $request['orderId'] = $transaction->order->id;
+
+        // Params only used for paypal
+        $request['noShipping'] = 1;
+        $request['allowNote'] = 0;
+        $request['addressOverride'] = 1;
+
         if ($card) {
             $request['card'] = $card;
+        }
+
+        $pluginRequest = craft()->plugins->callFirst('modifyCommercePaymentRequest',[$request]);
+
+        if($pluginRequest){
+            $request = array_merge($request,$pluginRequest);
         }
 
         return $request;

@@ -555,4 +555,31 @@ class UtilsHelper
 			mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
 		);
 	}
+
+	/**
+	 * @param $path
+	 *
+	 * @return array|bool
+	 */
+	public static function getFolders($path)
+	{
+		$path = static::normalizePathSeparators($path);
+
+		if (is_dir($path))
+		{
+			$folders = glob($path.'*', GLOB_ONLYDIR);
+
+			if ($folders)
+			{
+				foreach ($folders as $key => $folder)
+				{
+					$folders[$key] = static::normalizePathSeparators($folder);
+				}
+
+				return $folders;
+			}
+		}
+
+		return false;
+	}
 }

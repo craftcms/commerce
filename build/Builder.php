@@ -113,7 +113,17 @@ class Builder
 		{
 			unlink($dsStore);
 		}
-		echo ('Done nuking DS_Store files'.PHP_EOL.PHP_EOL);
+		echo ('Done nuking DS_Store files.'.PHP_EOL.PHP_EOL);
+
+		$gitFolders = UtilsHelper::getFolders($this->_tempDir.'plugins/market/vendor/');
+		echo ('Found '.count($gitFolders).' .git folders. Nuking them.'.PHP_EOL);
+
+		foreach ($gitFolders as $gitFolder)
+		{
+			UtilsHelper::purgeDirectory($gitFolder);
+			unlink($gitFolder);
+		}
+		echo ('Done nuking .git folders.'.PHP_EOL.PHP_EOL);
 	}
 
 	/**
