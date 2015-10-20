@@ -569,7 +569,7 @@ class UtilsHelper
 		if (is_dir($path))
 		{
 			$iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path), RecursiveIteratorIterator::SELF_FIRST);
-			$folders = [];
+			$folders = array();
 
 			foreach ($iterator as $file)
 			{
