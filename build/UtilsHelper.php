@@ -558,7 +558,6 @@ class UtilsHelper
 
 	/**
 	 * @param $path
-	 * @param $pattern
 	 *
 	 * @return array|bool
 	 */

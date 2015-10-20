@@ -119,7 +119,7 @@ class Builder
 			{
 				echo('Path'.$gitFolder.PHP_EOL);
 				UtilsHelper::purgeDirectory($gitFolder);
-				unlink($gitFolder);
+				rmdir($gitFolder);
 			}
 			echo('Done nuking .git folders.'.PHP_EOL.PHP_EOL);
 		}
