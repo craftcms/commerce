@@ -8,61 +8,129 @@
 
 {% import "_includes/forms" as forms %}
 
-{% macro multiSelectField(options, values, attribute, label) %}
 
+{% macro generalVariantFields(variant) %}
 	{% import "_includes/forms" as forms %}
-	{% set multiSelectInput %}
-		{{ forms.multiselect({
-			id:        attribute,
-			name:      attribute,
-			options:   options,
-			values:    values,
-			errors:    product.getErrors(attribute),
-		}) }}
+
+	{{ forms.textField({
+		id: 'sku',
+		label: 'SKU'|t,
+		required: true,
+		name: 'sku',
+		value: variant.sku,
+		placeholder: 'Enter SKU'|t,
+		errors: variant.getErrors('sku')
+	}) }}
+
+	{{ forms.textField({
+		id: 'price',
+		label: 'Price',
+		name: 'price',
+		value: (variant.price ? variant.price|commerceDecimal ?: ''),
+		placeholder: 'Enter price'|t,
+		unit: craft.commerce.settings.defaultCurrency,
+		required: true,
+		errors: variant.getErrors('price')
+	}) }}
+
+	{% set stockInput %}
+		<div class="flex">
+			{{ forms.text({
+				id: 'stock',
+				name: 'stock',
+				value: (variant.stock ?: ''),
+				placeholder: 'Enter stock'|t,
+				disabled: variant.unlimitedStock
+			}) }}
+			{{ forms.checkbox({
+				id: 'unlimited-stock',
+				class: 'unlimited-stock',
+				label: 'Unlimited'|t,
+				name: 'unlimitedStock',
+				checked: variant.unlimitedStock,
+			}) }}
+		</div>
 	{% endset %}
 
 	{{ forms.field({
-		id:       attribute,
-		label:    label
-	}, multiSelectInput) }}
+		id: 'stock',
+		label: 'Stock',
+		errors: variant.getErrors('unlimitedStock')|merge(variant.getErrors('stock')),
+	}, stockInput) }}
 
-{% endmacro %}
-
-
-{% macro dateTimeField(product, attribute, label) %}
-
-	{% import "_includes/forms" as forms %}
-
-	{% set dateTimeInput %}
-		{{ forms.date({
-			id:        attribute,
-			name:      attribute,
-			value:     product.getAttribute(attribute),
-			errors:    product.getErrors(attribute),
-		}) }}
-
-		{{ forms.time({
-			id:        attribute,
-			name:      attribute,
-			value:     product.getAttribute(attribute),
-			errors:    product.getErrors(attribute),
-		}) }}
+	{% set quantityRangeInput %}
+		<div class="flex">
+			{{ forms.text({
+				id: 'minQty',
+				name: 'minQty',
+				value: variant.minQty,
+				placeholder: 'Any'|t
+			}) }}
+			<span class="label light">{{ 'to'|t }}</span>
+			{{ forms.text({
+				id: 'maxQty',
+				name: 'maxQty',
+				value: variant.maxQty,
+				placeholder: 'Any'|t
+			}) }}
+		</div>
 	{% endset %}
 
 	{{ forms.field({
-		id:       attribute,
-		label:    label,
-		first:    (attribute == 'availableOn'),
-		required: false
-	}, dateTimeInput) }}
-
+		id: 'minQty',
+		label: 'Allowed Qty'|t,
+		errors: variant.getErrors('minQty')|merge(variant.getErrors('maxQty'))
+	}, quantityRangeInput) }}
 {% endmacro %}
 
+{% macro dimensionVariantFields(variant) %}
+	{% import "_includes/forms" as forms %}
 
-{% from _self import dateTimeField %}
+	{{ forms.textField({
+		id: 'width',
+		label: 'Width'|t,
+		name: 'width',
+		value: (variant.width|commerceDecimal ?: ''),
+		placeholder: 'Enter width'|t,
+		unit: craft.commerce.settings.dimensionUnits,
+		errors: variant.getErrors('width')
+	}) }}
+
+	{{ forms.textField({
+		id: 'height',
+		label: 'Height',
+		name: 'height',
+		value: (variant.height|commerceDecimal ?: ''),
+		placeholder: 'Enter height'|t,
+		unit: craft.commerce.settings.dimensionUnits,
+		errors: variant.getErrors('height')
+	}) }}
+
+	{{ forms.textField({
+		id: 'length',
+		label: 'Length',
+		name: 'length',
+		value: (variant.length|commerceDecimal ?: ''),
+		placeholder: 'Enter length'|t,
+		unit: craft.commerce.settings.dimensionUnits,
+		errors: variant.getErrors('length')
+	}) }}
+
+	{{ forms.textField({
+		id: 'weight',
+		label: 'Weight'|t,
+		name: 'weight',
+		value: (variant.weight|commerceDecimal ?: ''),
+		placeholder: 'Enter weight'|t,
+		unit: craft.commerce.settings.weightUnits,
+		errors: variant.getErrors('weight')
+	}) }}
+{% endmacro %}
+
+{% from _self import generalVariantFields, dimensionVariantFields %}
+
 
 {% block main %}
-
 	<form id="product-form" method="post" accept-charset="UTF-8"
 		  data-saveshortcut
 		  data-saveshortcut-redirect="{{ continueEditingUrl }}"
@@ -71,11 +139,13 @@
 		<input type="hidden" name="action" value="commerce/products/saveProduct">
 		<input type="hidden" name="redirect" value="commerce/products">
 		<input type="hidden" name="typeId" value="{{ productType.id }}">
-		{% if craft.isLocalized() %}<input type="hidden" name="locale"
-										   value="{{ product.locale }}">{% endif %}
+		{% if craft.isLocalized() %}<input type="hidden" name="locale" value="{{ product.locale }}">{% endif %}
+		{% if implicitVariant.id %}
+			<input type="hidden" name="implicitVariant[id]" value="{{ implicitVariant.id }}">
+			<input type="hidden" name="implicitVariant[isImplicit]" value="1">
+		{% endif %}
 		{{ getCsrfInput() }}
-		{% if product.id %}<input type="hidden" name="productId"
-								  value="{{ product.id }}">{% endif %}
+		{% if product.id %}<input type="hidden" name="productId" value="{{ product.id }}">{% endif %}
 
 
 		<div class="grid first">
@@ -102,144 +172,6 @@
 						maxlength: 255
 					}) }}
 
-					{% set implicitVariantHtml %}
-						{{ forms.text({
-							name:   'implicitVariant[isImplicit]',
-							type:   'hidden',
-							value: '1'
-						}) }}
-						{% if implicitVariant.id %}<input type="hidden"
-														  name="implicitVariant[id]"
-														  value="{{ implicitVariant.id }}">{% endif %}
-						<div id="implicitVariantDetails">
-
-
-							<div class="grid first" data-cols="4">
-
-								<div class="item" data-min-colspan="2"
-									 data-max-colspan="4">
-									{{ forms.textField({
-										label: 'SKU'|t,
-										required: productType.hasVariants ? false : true,
-										name: 'implicitVariant[sku]',
-										value: implicitVariant.sku,
-										errors: implicitVariant.getErrors('sku')
-									}) }}
-								</div>
-
-								<div class="item" data-min-colspan="2"
-									 data-max-colspan="4">
-									{{ forms.textField({
-										label: 'Price'|t,
-										name:   'implicitVariant[price]',
-										required: productType.hasVariants ? false : true,
-										type:   'text',
-										value: implicitVariant.price|commerceDecimal,
-										errors: implicitVariant.getErrors('price')
-									}) }}
-								</div>
-							</div>
-
-							<div class="grid first" data-cols="4">
-								<div class="item" data-min-colspan="2"
-									 data-max-colspan="4">
-									{{ forms.textField({
-										label: 'Min Qty'|t,
-										name:  'implicitVariant[minQty]',
-										type:  'text',
-										value: implicitVariant.minQty,
-										errors: implicitVariant.getErrors('minQty')
-									}) }}
-								</div>
-
-								<div class="item" data-min-colspan="2"
-									 data-max-colspan="4">
-									{{ forms.textField({
-										label:  'Max Qty'|t,
-										name:   'implicitVariant[maxQty]',
-										type:   'text',
-										value: implicitVariant.maxQty,
-										errors: implicitVariant.getErrors('maxQty')
-									}) }}
-								</div>
-							</div>
-
-							<div class="grid first {{ productType.hasDimensions ? '':'hidden' }}"
-								 data-cols="4">
-								<div class="item" data-min-colspan="1"
-									 data-max-colspan="1">
-									{{ forms.textField({
-										label:  'Width'|t~' ('~craft.commerce.settings.dimensionUnits~')',
-										name:   'implicitVariant[width]',
-										type:   'text',
-										value: implicitVariant.width|commerceDecimal,
-										errors: implicitVariant.getErrors('width')
-									}) }}
-								</div>
-
-								<div class="item" data-min-colspan="1"
-									 data-max-colspan="1">
-									{{ forms.textField({
-										label: 'Height'|t~' ('~craft.commerce.settings.dimensionUnits~')',
-										name:  'implicitVariant[height]',
-										type:  'number',
-										value: implicitVariant.height|commerceDecimal,
-										errors: implicitVariant.getErrors('height')
-									}) }}
-								</div>
-
-								<div class="item" data-min-colspan="1"
-									 data-max-colspan="1">
-									{{ forms.textField({
-										label:  'Length'|t~' ('~craft.commerce.settings.dimensionUnits~')',
-										name:   'implicitVariant[length]',
-										type:   'text',
-										value: implicitVariant.length|commerceDecimal,
-										errors: implicitVariant.getErrors('length')
-									}) }}
-								</div>
-
-								<div class="item" data-min-colspan="1"
-									 data-max-colspan="1">
-									{{ forms.textField({
-										label: 'Weight'|t~' ('~craft.commerce.settings.weightUnits~')',
-										name:   'implicitVariant[weight]',
-										type:   'text',
-										value: implicitVariant.weight|commerceDecimal,
-										errors: implicitVariant.getErrors('weight')
-									}) }}
-								</div>
-							</div>
-
-							<div class="grid first" data-cols="4">
-								<div class="item" data-min-colspan="2"
-									 data-max-colspan="4">
-									{{ forms.checkboxField({
-										label: 'Unlimited Stock'|t,
-										name:   'implicitVariant[unlimitedStock]',
-										checked: (implicitVariant.id ? implicitVariant.unlimitedStock : 1),
-										errors: implicitVariant.getErrors('unlimitedStock'),
-										reverseToggle: '.stockToggle'
-									}) }}
-								</div>
-								<div class="item" data-min-colspan="2"
-									 data-max-colspan="4">
-									<div class="stockToggle {% if not implicitVariant.id or implicitVariant.unlimitedStock %}hidden{% endif %}">
-										{{ forms.textField({
-											label:  'Stock'|t,
-											name:   'implicitVariant[stock]',
-											type:   'text',
-											value: implicitVariant.stock,
-											required: productType.hasVariants ? false : true,
-											errors: implicitVariant.getErrors('stock')
-										}) }}
-									</div>
-								</div>
-							</div>
-
-						</div>
-					{% endset %}
-
 					{% set allProductTab = productType.asa('productFieldLayout').getFieldLayout().getTabs() %}
 					{% for tab in allProductTab %}
 						<div id="tab{{ loop.index }}" {% if not loop.first %} class="hidden" {% endif %}>
@@ -250,28 +182,23 @@
 							} only %}
 						</div>
 					{% endfor %}
-
-
-				</div>{# end pane#}
-
+				</div>
 
 				{% if productType.hasVariants %}
 					<div id="" class="pane">
-					{% set variantTab = {'variantsTab':{'label':'Variants','url':'#variantsTab'}} %}
+						{% set variantTab = {'variantsTab':{'label':'Variants','url':'#variantsTab'}} %}
 
-					{% include "_includes/tabs" with {'tabs': variantTab } %}
+						{% include "_includes/tabs" with {'tabs': variantTab } %}
 
-					<div id="implicitVariant"
-						 class="{% if not implicitVariant.hasErrors() %}hidden{% endif %}">
-						{{ implicitVariantHtml }}
+						<div id="implicitVariant" class="{% if not implicitVariant.hasErrors() %}hidden{% endif %}">
+							{% namespace 'implicitVariant' %}
+								{{ generalVariantFields(implicitVariant) }}
+							{% endnamespace %}
+						</div>
+
+						{% include 'commerce/_includes/variant/_variantElementIndex' %}
 					</div>
-
-
-					{% include 'commerce/_includes/variant/_variantElementIndex' %}
-					</div>{# end pane #}
 				{% endif %}
-
-
 			</div>
 
 			<div class="item" data-position="right" data-colspan="1">
@@ -301,43 +228,32 @@
 				{% endif %}
 
 
-				<div class="pane">
+				<div class="pane meta">
 					{{ forms.textField({
 						label: "Slug"|t,
 						locale: product.locale,
 						id: 'slug',
 						name: 'slug',
 						value: product.slug,
+						placeholder: 'Enter slug'|t,
 						errors: product.getErrors('slug')|merge(product.getErrors('uri'))
 					}) }}
 
-
-					{% if not productType.hasVariants %}
-						{{ implicitVariantHtml }}
-					{% endif %}
-
-					{{ forms.selectField({
-						label: 'Tax Category'|t,
-						name: 'taxCategoryId',
-						value: product.taxCategoryId,
-						required: true,
-						options: taxCategories
+					{{ forms.dateTimeField({
+						label: 'Post Date'|t,
+						id: 'availableOn',
+						name: 'availableOn',
+						value: product.availableOn,
+						errors: product.getErrors('availableOn')
 					}) }}
 
-					{{ forms.checkboxField({
-						label: 'Free Shipping'|t,
-						name: 'freeShipping',
-						checked: (product.id ? product.freeShipping : 0),
+					{{ forms.dateTimeField({
+						label: 'Expiry Date'|t,
+						id: 'expiresOn',
+						name: 'expiresOn',
+						value: product.expiresOn,
+						errors: product.getErrors('expiresOn')
 					}) }}
-
-					{{ forms.checkboxField({
-						label: 'Promotable'|t,
-						name: 'promotable',
-						checked: (product.id ? product.promotable : 1),
-					}) }}
-
-					{{ dateTimeField(product, 'availableOn', "Available On"|t) }}
-					{{ dateTimeField(product, 'expiresOn', "Expires On"|t) }}
 
 					{% set enabledswitch %}
 						<div class="left">
@@ -351,25 +267,55 @@
 						</div>
 						<div class="right">
 							{% if productId is defined %}
-								<div class="btngroup">
-									<input type="button"
-										   class="btn small formsubmit"
-										   value="{{ 'Delete'|t }}"
-										   data-action="commerce/products/deleteProduct"
-										   data-confirm="{{ 'Are you sure you want to delete this product?'|t }}"
-										   data-redirect="commerce/products">
-								</div>
+								<input type="button"
+									   class="btn small formsubmit"
+									   value="{{ 'Delete'|t }}"
+									   data-action="commerce/products/deleteProduct"
+									   data-confirm="{{ 'Are you sure you want to delete this product?'|t }}"
+									   data-redirect="commerce/products">
 							{% endif %}
 						</div>
 					{% endset %}
 
 					{{ forms.field({
 						id:       'status',
-						label:    'Status',
-						first:    true
+						label:    'Enabled'
 					},enabledswitch) }}
 
 				</div>{#END PANE#}
+
+				<div class="pane meta">
+					{{ forms.selectField({
+						label: 'Tax Category'|t,
+						name: 'taxCategoryId',
+						value: product.taxCategoryId,
+						required: true,
+						options: taxCategories
+					}) }}
+
+					{{ forms.checkboxField({
+						fieldLabel: 'Free Shipping'|t,
+						name: 'freeShipping',
+						checked: (product.id ? product.freeShipping : 0),
+					}) }}
+
+					{{ forms.checkboxField({
+						fieldLabel: 'Promotable'|t,
+						name: 'promotable',
+						checked: (product.id ? product.promotable : 1),
+					}) }}
+				</div>
+
+				{% if not productType.hasVariants %}
+					{% namespace 'implicitVariant' %}
+						<div class="pane meta">
+							{{ generalVariantFields(implicitVariant) }}
+						</div>
+						<div class="pane meta">
+							{{ dimensionVariantFields(implicitVariant) }}
+						</div>
+					{% endnamespace %}
+				{% endif %}
 
 				<table class="inputs fullwidth">
 					<tr>
@@ -421,3 +367,20 @@
 	{% endif %}
 
 {% endblock %}
+
+
+{% includejs %}
+	$('input.unlimited-stock').change(function() {
+		var $checkbox = $(this),
+			$text = $checkbox.prevAll('.text:first');
+
+		if ($checkbox.prop('checked'))
+		{
+			$text.prop('disabled', true).addClass('disabled').val('');
+		}
+		else
+		{
+			$text.prop('disabled', false).removeClass('disabled').focus();
+		}
+	});
+{% endincludejs %}
