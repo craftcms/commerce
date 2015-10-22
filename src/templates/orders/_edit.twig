@@ -121,9 +121,9 @@
 					data-snapshot='{{ lineItem.snapshot|json_encode()}}'>
 					<td>
 						{% if lineItem.purchasableId and lineItem.purchasable %}
-							<a href="{{ lineItem.purchasable.cpEditUrl }}">{{ lineItem.description }} </a>({{ lineItem.sku }})
+							<a href="{{ lineItem.purchasable.cpEditUrl }}">{{ lineItem.description }} </a><br/>{{ lineItem.sku }}
 						{% else %}
-							{{ lineItem.description }} ({{ lineItem.sku }})
+							{{ lineItem.description }}<br/>({{ lineItem.sku }})
 						{% endif %}
 					</td>
 					<td>
@@ -138,6 +138,16 @@
 						<span class="tableRowInfo" data-icon="info" href="#"></span>
 					</td>
 				</tr>
+			{% endfor %}
+			{% for adjustment in order.adjustments %}
+			<tr>
+				<td><strong>{{ adjustment.type|title|t }} {{ "Adjustment"|t }}</strong><br/>{{ adjustment.name|title }} <span class="info"><strong>{{ adjustment.type|title|t }} {{ "Adjustment"|t }}</strong><br/> {{ adjustment.description }}</span></td>
+				<td>{{ adjustment.amount|commerceCurrency }}</td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
 			{% endfor %}
 			<tr>
 				<td></td>
