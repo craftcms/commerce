@@ -21,17 +21,19 @@
     <form method="POST">
         <input type="hidden" name="action" value="commerce/cart/update">
         <input type="hidden" name="redirect" value="commerce/checkout/payment">
-            {{ getCsrfInput() }}
+        {{ getCsrfInput() }}
 
-            {% for id, method in craft.commerce.getShippingMethods() %}
-                <label>
-                    <input type="radio" name="shippingMethodId" value="{{ id }}" {% if id == cart.shippingMethodId %}checked{% endif %} />
-                    <strong><{{ method.name }}/strong> {{ method.amount|commerceCurrency }}
-                </label>
-            {% endfor %}
+        {% for id, method in craft.commerce.getShippingMethods() %}
+            <label>
+                <input type="radio" name="shippingMethodId" value="{{ id }}"
+                       {% if id == cart.shippingMethodId %}checked{% endif %} />
+                <strong><{{ method.name }}/strong> {{ method.amount|commerceCurrency }}
+            </label>
+        {% endfor %}
         <span class="flash">{{ cart.getErrors('shippingMethodId')|join }}</span>
-        <p><input type="submit" class="button button-primary" value="Select Shipping Method" /></p>
+
+        <p><input type="submit" class="button button-primary" value="Select Shipping Method"/></p>
 
     </form>
 
-{%  endblock %}
+{% endblock %}
