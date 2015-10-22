@@ -1,11 +1,11 @@
-Craft.Commerce = Craft.Commerce || {};
+if (typeof Craft.Commerce === typeof undefined){ Craft.Commerce = {}; }
 
 Craft.Commerce.OrderEdit = Garnish.Base.extend({
     $container: null,
     orderId: null,
     $billingAddress: null,
     $shippingAddress: null,
-    $statusUpdate: null,
+    $status: null,
     statusUpdateModal: null,
     init: function(args, settings){
 
@@ -13,7 +13,7 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend({
         this.$container = args.container;
         this.$billingAddress = this.$container.find('.billingAddress');
         this.$shippingAddress = this.$container.find('.shippingAddress');
-        this.$statusUpdate = this.$container.find('.updatestatus');
+        this.$status = this.$container.find('#orderStatus');
 
         var $editBillingAddressBtn = this.$billingAddress.find('.edit.btn').click(function (e) {
             e.preventDefault();
@@ -33,7 +33,7 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend({
             }
         });
 
-        this.addListener(this.$statusUpdate, 'click', function (ev) {
+        this.addListener(this.$status.find('.updatestatus'), 'click', function (ev) {
             ev.preventDefault();
             this._openCreateUpdateStatusModal();
         });
@@ -41,14 +41,14 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend({
     _openCreateUpdateStatusModal: function(){
         if (!this.statusUpdateModal) {
             var id = this.orderId;
-            var handle = this.$statusUpdate.data('orderstatushandle');
-            var statuses = this.$statusUpdate.data('orderstatuses');
-            this.statusUpdateModal = new Craft.Commerce.UpdateOrderStatusModal(handle,statuses, {
+            var currentStatus = this.$status.find('.updatestatus').data('currentstatus');
+            var statuses = this.$status.find('.updatestatus').data('orderstatuses');
+            this.statusUpdateModal = new Craft.Commerce.UpdateOrderStatusModal(currentStatus,statuses, {
                 onSubmit: function(data){
                     data.orderId = id;
                     Craft.postActionRequest('commerce/orders/updateStatus', data, function (response) {
                         if (response.success) {
-                            location.reload(true);
+                            location.reload();
                         } else {
                             this.$error.html(response.error);
                         }

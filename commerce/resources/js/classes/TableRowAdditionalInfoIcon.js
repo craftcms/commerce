@@ -1,4 +1,4 @@
-Craft.Commerce = Craft.Commerce || {};
+if (typeof Craft.Commerce === typeof undefined){ Craft.Commerce = {}; }
 
 Craft.Commerce.TableRowAdditionalInfoIcon = Garnish.Base.extend(
     {

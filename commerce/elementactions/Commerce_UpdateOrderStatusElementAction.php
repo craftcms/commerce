@@ -56,8 +56,14 @@ class Commerce_UpdateOrderStatusElementAction extends BaseElementAction
 		activate: function(\$selectedItems)
 		{
 		    var currentSourceStatusHandle = Craft.elementIndex.sourceKey.split(':')[1];
+		    var currentOrderStatus = null;
 		    var orderStatuses = $orderStatuses;
-            var modal = new Craft.Commerce.UpdateOrderStatusModal(currentSourceStatusHandle,orderStatuses, {
+		    for (i = 0; i < orderStatuses.length; i++) {
+		        if(orderStatuses[i].handle == currentSourceStatusHandle){
+		            currentOrderStatus = orderStatuses[i];
+		        }
+		    }
+            var modal = new Craft.Commerce.UpdateOrderStatusModal(currentOrderStatus,orderStatuses, {
                 onSubmit: function(data){
                    Craft.elementIndex.submitAction('Commerce_UpdateOrderStatus', data);
                    modal.hide();
