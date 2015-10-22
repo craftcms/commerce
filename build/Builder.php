@@ -5,6 +5,7 @@
  */
 class Builder
 {
+	private $_finalRemoteRepoPath = '/www/eh21814/gitrepostc/';
 	private $_sourceBaseDir;
 	private $_finalBaseDir = '/www/eh21814/commerce/';
 	private $_composerPath = '/www/eh21814/composer.phar';
@@ -13,6 +14,7 @@ class Builder
 
 	private $_args;
 	private $_startTime;
+	private $_repo;
 
 
 	/**
@@ -31,6 +33,7 @@ class Builder
 
 		$this->_sourceBaseDir = str_replace('\\', '/', realpath(__DIR__.'/..')).'/';
 		$this->_tempDir = $this->_sourceBaseDir.UtilsHelper::UUID().'/';
+		$this->_finalRemoteRepoPath .= 'commerce-'.$this->_args['track'].'/';
 
 		UtilsHelper::createDir($this->_tempDir);
 
@@ -48,6 +51,7 @@ class Builder
 		$this->processFiles();
 		$this->cleanDirectories();
 		$this->zipIt();
+		$this->processRepo();
 
 		$totalTime = UtilsHelper::getBenchmarkTime() - $this->_startTime;
 		echo PHP_EOL.'Execution Time: '.$totalTime.' seconds.'.PHP_EOL;
@@ -202,7 +206,7 @@ class Builder
 
 	protected function zipIt()
 	{
-		$fileName = 'Commerce-'.$this->_version.'.'.$this->_args['build'].'.zip';
+		$fileName = 'CraftCommerce-'.$this->_version.'.'.$this->_args['build'].'.zip';
 
 		echo 'Zipping '.$this->_tempDir.PHP_EOL;
 		UtilsHelper::zipDir($this->_tempDir, $fileName);
@@ -227,6 +231,25 @@ class Builder
 		echo 'Copying '.$this->_sourceBaseDir.$fileName.' to '.$destDir.$fileName.PHP_EOL;
 		UtilsHelper::copyFile($this->_sourceBaseDir.$fileName, $destDir.$fileName);
 		echo 'Done copying '.$this->_sourceBaseDir.$fileName.' to '.$destDir.$fileName.PHP_EOL;
+	}
+
+	/**
+	 *
+	 */
+	protected function processRepo()
+	{
+		$repo = $this->_getRepo();
+		echo 'Adding all files to the repo.'.PHP_EOL;
+		$output = $repo->git('add .');
+		echo 'Output: '.$output.PHP_EOL.PHP_EOL;
+
+		echo 'Committing all files to the repo'.PHP_EOL;
+		$output = $repo->git('commit -a -m "Build '.$this->_args['build'].'"');
+		echo 'Output: '.$output.PHP_EOL.PHP_EOL;
+
+		echo 'Pushing all files to remote'.PHP_EOL;
+		$output = $repo->git('git push');
+		echo 'Output: '.$output.PHP_EOL.PHP_EOL;
 	}
 
 	/**
@@ -321,5 +344,18 @@ class Builder
 		{
 			throw new Exception('There was an error running composer.');
 		}
+	}
+
+	/**
+	 * @return PHPGit_Repository
+	 */
+	private function _getRepo()
+	{
+		if (!isset($this->_repo))
+		{
+			$this->_repo = new \PHPGit_Repository($this->_finalRemoteRepoPath, false, array('git_executable' => '/usr/bin/git', 'win' => false));
+		}
+
+		return $this->_repo;
 	}
 }
