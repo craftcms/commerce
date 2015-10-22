@@ -1,4 +1,7 @@
-if (typeof Craft.Commerce === typeof undefined){ Craft.Commerce = {}; }
+if (typeof Craft.Commerce === typeof undefined)
+{
+    Craft.Commerce = {};
+}
 
 Craft.Commerce.EditAddressModal = Garnish.Modal.extend({
     data: null,
@@ -7,7 +10,8 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend({
     type: null,
     orderId: null,
     $error: null,
-    init: function (btn, settings) {
+    init: function (btn, settings)
+    {
         var self = this;
         this.data = $(btn).data('address');
         var countries = window.countries;
@@ -29,7 +33,8 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend({
         fields.push({attribute: 'alternativePhone', label: Craft.t('Alternative Phone')});
         fields.push({attribute: 'company', label: Craft.t('Company')});
 
-        for (i = 0; i < fields.length; i++) {
+        for (i = 0; i < fields.length; i++)
+        {
             var $field = Craft.ui.createTextField({
                 label: fields[i].label,
                 required: fields[i].required,
@@ -52,7 +57,8 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend({
             '</div>' +
             '</div>').appendTo(this.$body);
 
-        $.each(countries, function (i, item) {
+        $.each(countries, function (i, item)
+        {
             var option = $('<option value="' + i + '" ' + (self.data.countryId == i ? "selected" : "") + '>' + item + '</option>').appendTo($countryList.find('select').first());
         });
 
@@ -78,30 +84,37 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend({
 
         this.$error = $('<div class="error"/>').appendTo(self.$body);
 
-        if (states.hasOwnProperty(self.data.countryId)) {
+        if (states.hasOwnProperty(self.data.countryId))
+        {
             $stateName.hide();
-            $.each(states[self.data.countryId], function (i, item) {
+            $.each(states[self.data.countryId], function (i, item)
+            {
                 var option = $('<option value="' + i + '">' + item + '</option>').appendTo($stateList.find('select').first());
             });
-        } else {
+        } else
+        {
             $stateList.hide();
         }
 
-        $countryList.find('select').first().change(function () {
+        $countryList.find('select').first().change(function ()
+        {
             var cid = $(this).val();
             $states = $stateList.find('select').first();
             $states.find('option').remove();
 
-            if (states.hasOwnProperty(cid)) {
+            if (states.hasOwnProperty(cid))
+            {
                 $stateName.hide();
                 $stateList.show();
-                for (var id in states[cid]) {
+                for (var id in states[cid])
+                {
                     var state = states[cid][id],
                         $option = $('<option/>');
                     $option.attr('value', id).text(state);
                     $states.append($option);
                 }
-            } else {
+            } else
+            {
                 $stateList.hide();
                 $stateName.show();
             }
@@ -114,14 +127,16 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend({
         var $cancelBtn = $('<input type="button" class="btn" value="' + Craft.t('Cancel') + '"/>').appendTo($btnGroup);
 
         this.addListener($cancelBtn, 'click', 'hide');
-        this.addListener($updateBtn, 'click', function () {
+        this.addListener($updateBtn, 'click', function ()
+        {
             this.updateAddress();
         });
 
 
         this.base($form, settings);
     },
-    updateAddress: function () {
+    updateAddress: function ()
+    {
 
         this.data = {
             orderId: this.orderId,
@@ -142,10 +157,13 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend({
             }
         }
 
-        Craft.postActionRequest('commerce/orders/updateAddress', this.data, function (response) {
-            if (response.success) {
+        Craft.postActionRequest('commerce/orders/updateAddress', this.data, function (response)
+        {
+            if (response.success)
+            {
                 location.reload(true);
-            } else {
+            } else
+            {
                 self.$error.html(response.error);
             }
         });

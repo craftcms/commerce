@@ -1,18 +1,24 @@
-if (typeof Craft.Commerce === typeof undefined){ Craft.Commerce = {}; }
+if (typeof Craft.Commerce === typeof undefined)
+{
+    Craft.Commerce = {};
+}
 
 Craft.Commerce.TableRowAdditionalInfoIcon = Garnish.Base.extend(
     {
         $icon: null,
         hud: null,
 
-        init: function (icon) {
+        init: function (icon)
+        {
             this.$icon = $(icon);
 
             this.addListener(this.$icon, 'click', 'showHud');
         },
 
-        showHud: function () {
-            if (!this.hud) {
+        showHud: function ()
+        {
+            if (!this.hud)
+            {
 
                 var item = this.$icon.closest('.infoRow');
                 var $hudbody = $("<div/>");
@@ -37,7 +43,8 @@ Craft.Commerce.TableRowAdditionalInfoIcon = Garnish.Base.extend(
                     hudClass: 'hud',
                 });
             }
-            else {
+            else
+            {
                 this.hud.show();
             }
         }
