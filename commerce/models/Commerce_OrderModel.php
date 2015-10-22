@@ -249,7 +249,7 @@ class Commerce_OrderModel extends BaseElementModel
     {
         $value = 0;
         foreach ($this->lineItems as $item) {
-            $value += $item->saleAmount;
+            $value += $item->qty * $item->saleAmount;
         }
 
         return $value;
