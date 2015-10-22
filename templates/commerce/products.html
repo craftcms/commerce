@@ -22,7 +22,19 @@
 
             {% if product.type.hasVariants %}
                {% if product.variants|length %}
-                  {{ forms.addToCartForm(product.variants) }}
+
+                  <form method="POST">
+                     <input type="hidden" name="action" value="commerce/cart/add">
+                     <input type="hidden" name="redirect" value="commerce/cart">
+                     <input type="hidden" name="qty" value="1">
+                     <select name="purchasableId">
+                        {% for purchasable in product.variants %}
+                           <option {% if purchasable.stock <= 0 and purchasable.unlimitedStock == false  %}disabled {% endif %} value="{{ purchasable.purchasableId }}">{{ purchasable.sku }} {{ purchasable.description }} {{ purchasable.price|commerceCurrency }}</option>
+                        {% endfor %}
+                     </select>
+                     <input type="submit" value="{{ "Add to cart"|t}}" class="button"/>
+                  </form>
+
                {% else %}
                <p>This is a product without any variants.</p>
                {% endif %}
@@ -36,7 +48,13 @@
                   {{ product.implicitVariant.price|commerceCurrency }}
                {% endif %}<br/>
                <strong>Stock</strong> {{ product.implicitVariant.unlimitedStock ? 'Unlimited'|t : product.implicitVariant.stock }} <br/>
-               {{ forms.addToCartButton(product.implicitVariant) }}
+               <form method="POST">
+                  <input type="hidden" name="action" value="commerce/cart/add">
+                  <input type="hidden" name="redirect" value="commerce/cart">
+                  <input type="hidden" name="qty" value="1">
+                  <input type="hidden" name="purchasableId" value="{{ product.implicitVariant.purchasableId }}">
+                  <input {% if product.implicitVariant.stock <= 0 and product.implicitVariant.unlimitedStock == false  %}disabled {% endif %} type="submit" value="{{ "Add to cart"|t}}" class="button"/>
+               </form>
             {% endif %}
 
          </div>

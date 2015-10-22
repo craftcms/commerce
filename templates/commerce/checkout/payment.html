@@ -1,6 +1,5 @@
 {% extends 'commerce/_layouts/checkout' %}
 
-{% import 'commerce/_includes/forms' as forms %}
 
 {%  block content %}
 
@@ -24,14 +23,10 @@
 
     <h2>Payment Method</h2>
 
-
-    {% include "commerce/_includes/setPaymentMethod" %}
-
-
     {% if cart.paymentMethodId %}
         <form method="POST" class="form-horizontal">
             <input type="hidden" name="action" value="commerce/cartPayment/pay"/>
-            <input type="hidden" name="redirect" value="/commerce/customer/order?orderId={id}"/>
+            <input type="hidden" name="redirect" value="/commerce/customer/order?orderId={number}"/>
             <input type="hidden" name="cancelUrl" value="/commerce/cart"/>
             {{ getCsrfInput() }}
 

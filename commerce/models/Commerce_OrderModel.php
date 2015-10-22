@@ -242,6 +242,20 @@ class Commerce_OrderModel extends BaseElementModel
     }
 
     /**
+     * Returns the total sale amount.
+     * @return int
+     */
+    public function getTotalSaleAmount()
+    {
+        $value = 0;
+        foreach ($this->lineItems as $item) {
+            $value += $item->saleAmount;
+        }
+
+        return $value;
+    }
+
+    /**
      * @return int
      */
     public function getItemSubtotalWithSale()

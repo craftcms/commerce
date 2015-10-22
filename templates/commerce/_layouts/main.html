@@ -17,7 +17,7 @@
   <div id="header" class="container">
     <div class="row">
       <div class="eleven columns">
-        <a href="{{ url('commerce') }}">{% include "commerce/_includes/logo" %}</a>
+        <a href="{{ url('commerce') }}">{% include "commerce/_images/logo" with {'class': 'logo'} %}</a>
 
         {% if showNav is not defined %}
           {% set showNav = true %}

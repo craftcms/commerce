@@ -1,0 +1,60 @@
+<div class="address-fieldset {{ class }}">
+
+    {% if addresses %}
+        {% for address in addresses %}
+            <div class="address-select" data-address-id="{{ address.id }}">
+                <div class="actions">
+                    <ul>
+                        <li><a class="edit" href="/commerce/customer/addresses/edit?addressId={{ address.id }}&redirect={{ craft.request.path }}">Edit</a></li>
+                    </ul>
+                </div>
+
+                <div class="radio">
+                    <input type="radio" name="{{ name }}Id" {% if attribute(cart,name~'Id') == address.id %}checked="checked"{% endif %} value="{{ address.id }}"/>
+
+                    <ul class="address-data">
+                        {% for key,value in address.attributes() %}
+
+                            {% switch key %}
+
+                            {% case "id" %}
+                            {# Ignore ID #}
+
+                            {% default %}
+
+                            {% if value %}
+                                <li>
+                                    <strong>{{ key|title }}</strong>
+                                            <span class="address-option" data-key="{{ key }}" data-value="{{ value }}">
+                                                {{ key == 'countryId' ? address.countryText : (key == 'stateId' ? address.stateText : value) }}
+                                            </span>
+                                </li>
+                            {% endif %}
+
+                            {% endswitch %}
+
+                        {% endfor %}
+                    </ul>
+                </div>
+
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="address-select">
+        <div class="radio">
+            {# If we have no addresses expand the 'New Address" fields by default it to being checked. If we have errors on the address also check and expand. #}
+            {% set addressHasErrors = cart.shippingAddress.hasErrors() %}
+            <input type="radio" name="{{ name }}Id" {% if not addresses|length or addressHasErrors %}checked="checked"{% endif %} value=""/> <strong>{{ "New"|t }} {{ title }}</strong>
+        </div>
+
+        <div class="body hidden">
+            {% if addressHasErrors %}<span class="flash">{{ cart.getErrors(name)|join }}</span><br/>{% endif %}
+            {% include 'commerce/_includes/addresses/form' with {
+                'modelName': name,
+                'address': attribute(cart, name)
+            } %}
+
+        </div>
+    </div>
+</div>
