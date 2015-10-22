@@ -128,10 +128,6 @@ class Commerce_ProductsController extends Commerce_BaseAdminController
     {
         $variables['tabs'] = [];
 
-        if (empty($variables['implicitVariant'])) {
-            $variables['implicitVariant'] = $variables['product']->implicitVariant ?: new Commerce_VariantModel;
-        }
-
         foreach ($variables['productType']->getFieldLayout()->getTabs() as $index => $tab) {
             // Do any of the fields on this tab have errors?
             $hasErrors = false;
@@ -150,6 +146,19 @@ class Commerce_ProductsController extends Commerce_BaseAdminController
                 'class' => ($hasErrors ? 'error' : null)
             ];
         }
+
+        if (!isset($variables['variants'])) {
+            $variables['variants'] = $variables['product']->getVariants();
+        }
+
+        if (empty($variables['variants'])) {
+            // Create the first one
+            $variant = new Commerce_VariantModel();
+            $variant->setProduct($variables['product']);
+            $variables['variants'][] = $variant;
+        }
+
+        $variables['primaryVariant'] = ArrayHelper::getFirstValue($variables['variants']);
     }
 
     /**
@@ -303,4 +312,4 @@ class Commerce_ProductsController extends Commerce_BaseAdminController
 
         return $implicitVariant;
     }
-} 
+}
