@@ -18,24 +18,6 @@ class Commerce_CartPaymentController extends Commerce_BaseController
     /**
      * @throws HttpException
      */
-    public function actionSetShippingMethod()
-    {
-        $this->requirePostRequest();
-
-        $id = craft()->request->getPost('shippingMethodId');
-        $cart = craft()->commerce_cart->getCart();
-
-        if (craft()->commerce_cart->setShippingMethod($cart, $id)) {
-            craft()->userSession->setFlash('notice', Craft::t('Shipping method has been set'));
-            $this->redirectToPostedUrl();
-        } else {
-            craft()->userSession->setFlash('notice', Craft::t('Wrong shipping method'));
-        }
-    }
-
-    /**
-     * @throws HttpException
-     */
     public function actionPay()
     {
         $this->requirePostRequest();
