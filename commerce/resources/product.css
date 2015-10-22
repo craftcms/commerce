@@ -37,8 +37,6 @@ body.rtl #locales li .status { left: 16px; }
 
 #variant-matrix > .blocks > .matrixblock { padding: 0; }
 #variant-matrix > .blocks > .matrixblock > .titlebar { margin: 0; width: 100%; border-bottom: 1px solid #e3e5e8; }
-#variant-matrix > .blocks > .matrixblock > .fields { display: flex; align-items: stretch; margin-bottom: -1px; }
+#variant-matrix > .blocks > .matrixblock > .fields { display: flex; align-items: stretch; }
 #variant-matrix > .blocks > .matrixblock > .fields > .variant-properties { width: 310px; border-right: 1px solid #e3e5e8; }
-#variant-matrix > .blocks > .matrixblock > .fields > .custom-fields { width: calc(100% - 311px); }
-#variant-matrix > .blocks > .matrixblock > .fields > .variant-properties > .field:last-child,
-#variant-matrix > .blocks > .matrixblock > .fields > .custom-fields > .field:last-child { border-bottom: 1px solid #e3e5e8; }
+#variant-matrix > .blocks > .matrixblock > .fields > .custom-fields { padding: 14px 24px; width: calc(100% - 359px); }
