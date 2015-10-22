@@ -11,15 +11,16 @@
     </a>
 
     <a class="button {% if page == 'cart' %}button-primary{% endif %}" href="/commerce/cart">
-        {{ "Cart"|t }} ({{cart.lineItems|length}})
+        {{ "Cart"|t }} ({{ cart.lineItems|length }})
     </a>
 
     <span class="right">
       {% if currentUser %}
-          <a href="/commerce/customer">My Orders</a>
+          <a href="/commerce/customer">{{ "My Orders"|t }}</a>
+          - <a href="/commerce/customer/addresses">{{ "My Addresses"|t }}</a>
           — <a href="{{ logoutUrl }}">Logout</a>
       {% else %}
-          {{ "Guest User"|t }} - <a href="/commerce/login">Log In</a>
+          {{ "Guest"|t }}
       {% endif %}
     </span>
 

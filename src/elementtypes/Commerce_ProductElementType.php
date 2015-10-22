@@ -210,6 +210,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
             'availableOn' => AttributeType::Mixed,
             'expiresOn' => AttributeType::Mixed,
             'after' => AttributeType::Mixed,
+            'order' => [AttributeType::String, 'default' => 'availableOn desc'],
             'before' => AttributeType::Mixed,
             'status' => [AttributeType::String, 'default' => Commerce_ProductModel::LIVE],
         ];

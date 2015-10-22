@@ -128,26 +128,26 @@ class Commerce_DiscountsService extends BaseApplicationComponent
     {
         $model = $this->getByCode($code);
         if (!$model->id) {
-            $error = 'Given coupon code not found';
+            $error = Craft::t('Given coupon code not found');
 
             return false;
         }
 
         if (!$model->enabled) {
-            $error = 'Discount is not active';
+            $error = Craft::t('Discount is not active');
 
             return false;
         }
 
         if ($model->totalUseLimit > 0 && $model->totalUses >= $model->totalUseLimit) {
-            $error = 'Discount is out of limit';
+            $error = Craft::t('Discount is out of limit');
 
             return false;
         }
 
         $now = new DateTime();
         if ($model->dateFrom && $model > $now || $model->dateTo && $model->dateTo < $now) {
-            $error = 'Discount is out of date';
+            $error = Craft::t('Discount is out of date');
 
             return false;
         }
@@ -156,7 +156,7 @@ class Commerce_DiscountsService extends BaseApplicationComponent
         if (!$model->allGroups && !array_intersect($groupIds,
                 $model->getGroupsIds())
         ) {
-            $error = 'Discount is not allowed for the current user';
+            $error = Craft::t('Discount is not allowed for the current user');
 
             return false;
         }
@@ -167,7 +167,7 @@ class Commerce_DiscountsService extends BaseApplicationComponent
                 'discountId' => $model->id
             ]);
             if ($uses && $uses->uses >= $model->perUserLimit) {
-                $error = 'You can not use this discount anymore';
+                $error = Craft::t('You can not use this discount anymore');
 
                 return false;
             }

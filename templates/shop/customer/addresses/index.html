@@ -1,0 +1,24 @@
+{% extends 'commerce/_layouts/main' %}
+
+{% block main %}
+    <h1>{{ "Manage Addresses" }}</h1>
+
+    <div class="flash">{{ craft.session.getFlash('notice') }}</div>
+    <div class="flash">{{ craft.session.getFlash('error') }}</div>
+
+    <a class="button button-primary right" href="/commerce/customer/addresses/edit">Add New Address</a>
+
+    {% for address in craft.commerce.customer.addresses %}
+        <div class="address-list">
+            {% include 'commerce/_includes/address' with {'address': address} %}
+            <a class="button button-primary"
+               href="/commerce/customer/addresses/edit?addressId={{ address.id }}">Edit</a>
+            <form method="POST">
+                <input type="hidden" name="action" value="commerce/customerAddresses/delete">
+                <input type="hidden" name="id" value="{{ address.id }}"/>
+                <input type="submit" value="delete"/>
+            </form>
+        </div>
+        <hr/>
+    {% endfor %}
+{% endblock %}
