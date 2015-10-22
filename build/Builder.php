@@ -26,6 +26,10 @@ class Builder
 	 */
 	public function __construct($args)
 	{
+		require __DIR__.'/../lib/PHPGit/Command.php';
+		require __DIR__.'/../lib/PHPGit/Configuration.php';
+		require __DIR__.'/../lib/PHPGit/Repository.php';
+
 		$this->_args = array_merge(array(
 			'build'         => '1',
 			'track'         => 'stable',
