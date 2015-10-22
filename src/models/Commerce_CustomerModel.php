@@ -32,8 +32,7 @@ class Commerce_CustomerModel extends BaseModel
      *
      * @return bool
      */
-    public
-    function isEditable()
+    public function isEditable()
     {
         return true;
     }
@@ -43,17 +42,33 @@ class Commerce_CustomerModel extends BaseModel
      *
      * @return string|false
      */
-    public
-    function getCpEditUrl()
+    public function getCpEditUrl()
     {
         return UrlHelper::getCpUrl('commerce/customers/' . $this->id);
     }
 
     /**
+     * Gets a single address of a customer by id
+     *
+     * @param null $id
+     * @return mixed
+     */
+    public function getAddress($id = null)
+    {
+        $addresses = craft()->commerce_addresses->getAddressesByCustomerId($this->id);
+        foreach ($addresses as $address) {
+            if ($id == $address->id) {
+                return $address;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * @return array
      */
-    protected
-    function defineAttributes()
+    protected function defineAttributes()
     {
         return array_merge(parent::defineAttributes(), [
             'id' => AttributeType::Number,

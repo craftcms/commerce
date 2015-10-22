@@ -21,8 +21,9 @@ class Commerce_AddressesController extends Commerce_BaseAdminController
 	 * @throws HttpException
 	 */
 	public function actionEdit (array $variables = [])
-	{
-		if (empty($variables['address']))
+    {
+        if (empty($variables['address']))
+        {
             if (empty($variables['id'])) {
                 throw new HttpException(404);
             }

@@ -298,12 +298,12 @@ p {
 /* Links
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 a {
-    color: #CE4539;
+    color: #DA5A17;
     text-decoration: none
 }
 
 a:hover {
-    color: #B33E34;
+    color: #DA5A17;
     text-decoration: none
 }
 
@@ -354,8 +354,8 @@ input[type="submit"].button-primary,
 input[type="reset"].button-primary,
 input[type="button"].button-primary {
     color: #FFF;
-    background-color: #B33E34;
-    border-color: #B33E34;
+    background-color: #DA5A17;
+    border-color: #DA5A17;
 }
 
 .button.button-primary:hover,
@@ -369,8 +369,8 @@ input[type="submit"].button-primary:focus,
 input[type="reset"].button-primary:focus,
 input[type="button"].button-primary:focus {
     color: #FFF;
-    background-color: #CE4539;
-    border-color: #CE4539;
+    background-color: #DA5A17;
+    border-color: #DA5A17;
 }
 .button.link {
     display:inline;
@@ -380,7 +380,7 @@ input[type="button"].button-primary:focus {
     font-size: 1em; /* currently ems cause chrome bug misinterpreting rems on body element */
     line-height: 1;
     font-weight: 400;
-    color:#CE4539;
+    color:#DA5A17;
     text-align:left;
     height: auto;
 }
@@ -434,7 +434,7 @@ input[type="url"]:focus,
 input[type="password"]:focus,
 textarea:focus,
 select:focus {
-    border: 1px solid #B33E34;
+    border: 1px solid #DA5A17;
     outline: 0;
 }
 
@@ -640,12 +640,12 @@ hr {
 .steps ul li { list-style: none; display: block; flex:1; }
 .steps ul li { color: #aaa; }
 .steps ul li a { color: #aaa; }
-.steps ul li.done { color: #CE4539; opacity: .5; }
-.steps ul li.done a { color: #CE4539; }
-.steps ul li.sel { color: #CE4539; opacity: 1; }
-.steps ul li.sel a { color: #CE4539; }
+.steps ul li.done { color: #DA5A17; opacity: .5; }
+.steps ul li.done a { color: #DA5A17; }
+.steps ul li.sel { color: #DA5A17; opacity: 1; }
+.steps ul li.sel a { color: #DA5A17; }
 .steps .meter { height: 10px; position: relative; border: 1px solid #bbb; -moz-border-radius: 10px; -webkit-border-radius: 10px; border-radius: 10px; padding: 3px; margin-bottom: 10px; }
-.steps .meter > span { display: block; height: 100%; border-top-right-radius: 2px; border-bottom-right-radius: 2px; border-top-left-radius: 10px; border-bottom-left-radius: 10px; background-color: #CE4539; position: relative; overflow: hidden; }
+.steps .meter > span { display: block; height: 100%; border-top-right-radius: 2px; border-bottom-right-radius: 2px; border-top-left-radius: 10px; border-bottom-left-radius: 10px; background-color: #DA5A17; position: relative; overflow: hidden; }
 
 @media (max-width: 750px) {
     .steps ul { display: block; margin-left: 24px; }
@@ -655,32 +655,41 @@ hr {
 
 /* Commerce Design
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
+img.logo{ width:400px; }
 
-#header {
-    margin-top: 50px;
-}
+#header { margin-top: 50px; }
 
-#header nav {
-    margin-top: 25px;
-}
+#header nav { margin-top: 25px; }
 
-#main {
-    margin-top: 25px;
-}
+#main { margin-top: 25px; }
 
-img.product {
-    width: 100%;
-}
+img.product { width: 100%; }
 
-.variant-input {
-    margin-bottom: 10px;
-}
+.variant-input { margin-bottom: 10px; }
 
-.variant-input input[type='radio'] {
-    padding: 0px;
-    margin: 0px;
-}
+.variant-input input[type='radio'] { padding: 0px; margin: 0px; }
 
-.flash{
-    color: #CE4539;
-}
+.flash{ color: #DA5A17; }
+
+
+.address-select { background: #fff; border: 1px solid #eee; margin-bottom: 1em; position: relative; border-radius: 4px; }
+.address-select .radio input { margin: 0 5px 0 0; position: relative; top: -1px; }
+
+.address-select .radio { padding: 14px 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.address-select ul.address-data { display: inline; }
+.address-select ul.address-data li { display: inline; }
+.address-select ul.address-data li { display: inline; }
+.address-select ul.address-data li strong { display: none; }
+.address-select ul.address-data li span[data-key=firstName] { font-weight: bold; }
+.address-select ul.address-data li span[data-key=lastName] { font-weight: bold; }
+
+.address-select .actions { float: right; padding: 14px 15px; font-size: 0.9em; }
+.address-select .actions ul { margin:0; }
+.address-select .actions ul li { display: inline-block; margin: 0 0 0 1em; }
+.address-select .actions ul li a { color: #999; text-decoration: underline; }
+
+.address-select .body { padding: 14px; }
+
+
+
+.hidden { display: none; }

@@ -103,6 +103,133 @@ class Commerce_CartService extends BaseApplicationComponent
     }
 
     /**
+     * Forgets a Cart by deleting its cookie.
+     *
+     * @param Commerce_OrderModel $cart
+     */
+    public function forgetCart(Commerce_OrderModel $cart)
+    {
+        $cookieId = $this->cookieCartId;
+        craft()->userSession->deleteStateCookie($cookieId);
+    }
+
+    /**
+     * @param Commerce_OrderModel $cart
+     * @param string $code
+     * @param string $error
+     *
+     * @return bool
+     * @throws Exception
+     * @throws \Exception
+     */
+    public function applyCoupon(Commerce_OrderModel $cart, $code, &$error = '')
+    {
+        if (empty($code) || craft()->commerce_discounts->checkCode($code,
+                $cart->customerId, $error)
+        ) {
+            $cart->couponCode = $code ?: null;
+            craft()->commerce_orders->save($cart);
+
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Set shipping method to the current order
+     *
+     * @param Commerce_OrderModel $cart
+     * @param int $shippingMethodId
+     * @param string $error ;
+     *
+     * @return bool
+     * @throws Exception
+     * @throws \Exception
+     */
+    public function setShippingMethod(
+        Commerce_OrderModel $cart,
+        $shippingMethodId,
+        &$error = ""
+    )
+    {
+        $method = craft()->commerce_shippingMethods->getById($shippingMethodId);
+        if (!$method->id) {
+            $error = Craft::t('Bad shipping method');
+            return false;
+        }
+
+        if (!craft()->commerce_shippingMethods->getMatchingRule($cart, $method)) {
+            $error = Craft::t('Shipping method not available');
+            return false;
+        }
+
+        $cart->shippingMethodId = $shippingMethodId;
+        craft()->commerce_orders->save($cart);
+
+        return true;
+    }
+
+    /**
+     * Set shipping method to the current order
+     *
+     * @param Commerce_OrderModel $cart
+     * @param int $paymentMethodId
+     * @param string $error
+     *
+     * @return bool
+     * @throws \Exception
+     */
+    public function setPaymentMethod(Commerce_OrderModel $cart, $paymentMethodId, &$error = "")
+    {
+        $method = craft()->commerce_paymentMethods->getById($paymentMethodId);
+        if (!$method->id || !$method->frontendEnabled) {
+            $error = Craft::t('Payment method does not exist or is not allowed.');
+            return false;
+        }
+
+        $cart->paymentMethodId = $paymentMethodId;
+        craft()->commerce_orders->save($cart);
+
+        return true;
+    }
+
+    /**
+     * @param Commerce_OrderModel $cart
+     * @param $email
+     * @param string $error
+     *
+     * @return bool
+     */
+    public function setEmail(Commerce_OrderModel $cart, $email, &$error = "")
+    {
+
+        $validator = new \CEmailValidator;
+        $validator->allowEmpty = false;
+
+        if (!$validator->validateValue($email)) {
+            $error = Craft::t('Not a valid email address');
+            return false;
+        }
+
+        try {
+            // we need to force a persisted customer so get a customer id
+            $this->getCart()->customerId = craft()->commerce_customers->getCustomerId();
+            $customer = craft()->commerce_customers->getCustomer();
+            if (!$customer->userId) {
+                $customer->email = $email;
+                craft()->commerce_customers->save($customer);
+                $cart->email = $customer->email;
+                craft()->commerce_orders->save($cart);
+            }
+        } catch (Exception $e) {
+            $error = $e->getMessage();
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * @return mixed
      * @throws Exception
      * @throws \Exception
@@ -172,92 +299,6 @@ class Commerce_CartService extends BaseApplicationComponent
         ]);
 
         return $cart;
-    }
-
-    /**
-     * Forgets a Cart by deleting its cookie.
-     *
-     * @param Commerce_OrderModel $cart
-     */
-    public function forgetCart(Commerce_OrderModel $cart)
-    {
-        $cookieId = $this->cookieCartId;
-        craft()->userSession->deleteStateCookie($cookieId);
-    }
-
-    /**
-     * @param Commerce_OrderModel $cart
-     * @param string $code
-     * @param string $error
-     *
-     * @return bool
-     * @throws Exception
-     * @throws \Exception
-     */
-    public function applyCoupon(Commerce_OrderModel $cart, $code, &$error = '')
-    {
-        if (empty($code) || craft()->commerce_discounts->checkCode($code,
-                $cart->customerId, $error)
-        ) {
-            $cart->couponCode = $code ?: null;
-            craft()->commerce_orders->save($cart);
-
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Set shipping method to the current order
-     *
-     * @param Commerce_OrderModel $cart
-     * @param int $shippingMethodId
-     *
-     * @return bool
-     * @throws Exception
-     * @throws \Exception
-     */
-    public function setShippingMethod(
-        Commerce_OrderModel $cart,
-        $shippingMethodId
-    )
-    {
-        $method = craft()->commerce_shippingMethods->getById($shippingMethodId);
-        if (!$method->id) {
-            return false;
-        }
-
-        if (!craft()->commerce_shippingMethods->getMatchingRule($cart, $method)) {
-            return false;
-        }
-
-        $cart->shippingMethodId = $shippingMethodId;
-        craft()->commerce_orders->save($cart);
-
-        return true;
-    }
-
-    /**
-     * Set shipping method to the current order
-     *
-     * @param Commerce_OrderModel $cart
-     * @param int $paymentMethodId
-     *
-     * @return bool
-     * @throws \Exception
-     */
-    public function setPaymentMethod(Commerce_OrderModel $cart, $paymentMethodId)
-    {
-        $method = craft()->commerce_paymentMethods->getById($paymentMethodId);
-        if (!$method->id || !$method->frontendEnabled) {
-            return false;
-        }
-
-        $cart->paymentMethodId = $paymentMethodId;
-        craft()->commerce_orders->save($cart);
-
-        return true;
     }
 
     /**

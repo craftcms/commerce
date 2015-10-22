@@ -69,8 +69,6 @@ class Commerce_ShippingRulesService extends BaseApplicationComponent
             $rule->$field *= 1;
         }
 
-        // if the rule uses a country or state but the order has no shipping address yet
-        // TODO: default shipping country?
         if ($rule->countryId && !$order->shippingAddressId) {
             return false;
         }
@@ -79,10 +77,12 @@ class Commerce_ShippingRulesService extends BaseApplicationComponent
             return false;
         }
 
-        // geographical filters
+        // country geographical filters
         if ($rule->countryId && $rule->countryId != $order->shippingAddress->countryId) {
             return false;
         }
+
+        // state filters
         if ($rule->stateId && $rule->state->name != $order->shippingAddress->getStateText()) {
             return false;
         }
