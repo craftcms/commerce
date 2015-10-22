@@ -64,14 +64,16 @@
 				id: 'minQty',
 				name: 'minQty',
 				value: variant.minQty,
-				placeholder: 'Any'|t
+				placeholder: 'Any'|t,
+				title: 'Minimum allowed quantity'|t
 			}) }}
 			<span class="label light">{{ 'to'|t }}</span>
 			{{ forms.text({
 				id: 'maxQty',
 				name: 'maxQty',
 				value: variant.maxQty,
-				placeholder: 'Any'|t
+				placeholder: 'Any'|t,
+				title: 'Maximum allowed quantity'|t
 			}) }}
 		</div>
 	{% endset %}
@@ -86,35 +88,45 @@
 {% macro dimensionVariantFields(variant) %}
 	{% import "_includes/forms" as forms %}
 
-	{{ forms.textField({
-		id: 'width',
-		label: 'Width'|t,
-		name: 'width',
-		value: (variant.width|commerceDecimal ?: ''),
-		placeholder: 'Enter width'|t,
-		unit: craft.commerce.settings.dimensionUnits,
-		errors: variant.getErrors('width')
-	}) }}
+	{% set dimensionsInput %}
+		<div class="flex">
+			{{ forms.text({
+				id: 'width',
+				name: 'width',
+				value: (variant.width|commerceDecimal ?: ''),
+				placeholder: 'Width'|t|upper[0:1],
+				title: 'Width'|t,
+				unit: craft.commerce.settings.dimensionUnits,
+				errors: variant.getErrors('width')
+			}) }}
+			<span class="label light">/</span>
+			{{ forms.text({
+				id: 'height',
+				name: 'height',
+				value: (variant.height|commerceDecimal ?: ''),
+				placeholder: 'Height'|t|upper[0:1],
+				title: 'Height'|t,
+				unit: craft.commerce.settings.dimensionUnits,
+				errors: variant.getErrors('height')
+			}) }}
+			<span class="label light">/</span>
+			{{ forms.text({
+				id: 'length',
+				name: 'length',
+				value: (variant.length|commerceDecimal ?: ''),
+				placeholder: 'Depth'|t|upper[0:1],
+				title: 'Depth'|t,
+				unit: craft.commerce.settings.dimensionUnits,
+				errors: variant.getErrors('length')
+			}) }}
+			<span class="label light">{{ craft.commerce.settings.dimensionUnits }}</span>
+		</div>
+	{% endset %}
 
-	{{ forms.textField({
-		id: 'height',
-		label: 'Height',
-		name: 'height',
-		value: (variant.height|commerceDecimal ?: ''),
-		placeholder: 'Enter height'|t,
-		unit: craft.commerce.settings.dimensionUnits,
-		errors: variant.getErrors('height')
-	}) }}
-
-	{{ forms.textField({
-		id: 'length',
-		label: 'Length',
-		name: 'length',
-		value: (variant.length|commerceDecimal ?: ''),
-		placeholder: 'Enter length'|t,
-		unit: craft.commerce.settings.dimensionUnits,
-		errors: variant.getErrors('length')
-	}) }}
+	{{ forms.field({
+		label: 'Dimensions'|t,
+		id: 'width'
+	}, dimensionsInput) }}
 
 	{{ forms.textField({
 		id: 'weight',
