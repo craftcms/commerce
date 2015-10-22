@@ -1,4 +1,7 @@
-if (typeof Craft.Commerce === typeof undefined){ Craft.Commerce = {}; }
+if (typeof Craft.Commerce === typeof undefined)
+{
+    Craft.Commerce = {};
+}
 
 Craft.Commerce.OrderEdit = Garnish.Base.extend({
     $container: null,
@@ -7,7 +10,8 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend({
     $shippingAddress: null,
     $status: null,
     statusUpdateModal: null,
-    init: function(args, settings){
+    init: function (args, settings)
+    {
 
         this.orderId = args.orderId;
         this.$container = args.container;
@@ -15,47 +19,61 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend({
         this.$shippingAddress = this.$container.find('.shippingAddress');
         this.$status = this.$container.find('#orderStatus');
 
-        var $editBillingAddressBtn = this.$billingAddress.find('.edit.btn').click(function (e) {
+        var $editBillingAddressBtn = this.$billingAddress.find('.edit.btn').click(function (e)
+        {
             e.preventDefault();
-            if (!this.modal) {
+            if (!this.modal)
+            {
                 this.modal = new Craft.Commerce.EditAddressModal(this, {});
-            } else {
+            } else
+            {
                 this.modal.show();
             }
         });
 
-        var $editShippingAddressBtn = this.$billingAddress.find('.edit.btn').click(function (e) {
+        var $editShippingAddressBtn = this.$billingAddress.find('.edit.btn').click(function (e)
+        {
             e.preventDefault();
-            if (!this.modal) {
+            if (!this.modal)
+            {
                 this.modal = new Craft.Commerce.EditAddressModal(this, {});
-            } else {
+            } else
+            {
                 this.modal.show();
             }
         });
 
-        this.addListener(this.$status.find('.updatestatus'), 'click', function (ev) {
+        this.addListener(this.$status.find('.updatestatus'), 'click', function (ev)
+        {
             ev.preventDefault();
             this._openCreateUpdateStatusModal();
         });
     },
-    _openCreateUpdateStatusModal: function(){
-        if (!this.statusUpdateModal) {
+    _openCreateUpdateStatusModal: function ()
+    {
+        if (!this.statusUpdateModal)
+        {
             var id = this.orderId;
             var currentStatus = this.$status.find('.updatestatus').data('currentstatus');
             var statuses = this.$status.find('.updatestatus').data('orderstatuses');
-            this.statusUpdateModal = new Craft.Commerce.UpdateOrderStatusModal(currentStatus,statuses, {
-                onSubmit: function(data){
+            this.statusUpdateModal = new Craft.Commerce.UpdateOrderStatusModal(currentStatus, statuses, {
+                onSubmit: function (data)
+                {
                     data.orderId = id;
-                    Craft.postActionRequest('commerce/orders/updateStatus', data, function (response) {
-                        if (response.success) {
+                    Craft.postActionRequest('commerce/orders/updateStatus', data, function (response)
+                    {
+                        if (response.success)
+                        {
                             location.reload();
-                        } else {
+                        } else
+                        {
                             this.$error.html(response.error);
                         }
                     });
                 }
             });
-        } else {
+        } else
+        {
             this.statusUpdateModal.show();
         }
     }
