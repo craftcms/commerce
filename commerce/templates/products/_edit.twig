@@ -152,10 +152,6 @@
 		<input type="hidden" name="redirect" value="commerce/products">
 		<input type="hidden" name="typeId" value="{{ productType.id }}">
 		{% if craft.isLocalized() %}<input type="hidden" name="locale" value="{{ product.locale }}">{% endif %}
-		{% if implicitVariant.id %}
-			<input type="hidden" name="implicitVariant[id]" value="{{ implicitVariant.id }}">
-			<input type="hidden" name="implicitVariant[isImplicit]" value="1">
-		{% endif %}
 		{{ getCsrfInput() }}
 		{% if product.id %}<input type="hidden" name="productId" value="{{ product.id }}">{% endif %}
 
@@ -197,19 +193,7 @@
 				</div>
 
 				{% if productType.hasVariants %}
-					<div id="" class="pane">
-						{% set variantTab = {'variantsTab':{'label':'Variants','url':'#variantsTab'}} %}
-
-						{% include "_includes/tabs" with {'tabs': variantTab } %}
-
-						<div id="implicitVariant" class="{% if not implicitVariant.hasErrors() %}hidden{% endif %}">
-							{% namespace 'implicitVariant' %}
-								{{ generalVariantFields(implicitVariant) }}
-							{% endnamespace %}
-						</div>
-
-						{% include 'commerce/_includes/variant/_variantElementIndex' %}
-					</div>
+					{% include "commerce/products/_variant_matrix" %}
 				{% endif %}
 			</div>
 
@@ -319,12 +303,12 @@
 				</div>
 
 				{% if not productType.hasVariants %}
-					{% namespace 'implicitVariant' %}
+					{% namespace 'variants['~(primaryVariant.id ?: 'new1')~']' %}
 						<div class="pane meta">
-							{{ generalVariantFields(implicitVariant) }}
+							{{ generalVariantFields(primaryVariant) }}
 						</div>
 						<div class="pane meta">
-							{{ dimensionVariantFields(implicitVariant) }}
+							{{ dimensionVariantFields(primaryVariant) }}
 						</div>
 					{% endnamespace %}
 				{% endif %}
