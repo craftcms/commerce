@@ -38,7 +38,7 @@
 						<td><div id="orderStatus">{{ order.orderStatus.htmlLabel|raw }} &nbsp; <a
 									href="#"
 									class="updatestatus btn small"
-									data-orderStatusHandle="{{ order.orderStatus.handle }}"
+									data-currentStatus="{{ order.orderStatus.attributes|json_encode() }}"
 									data-orderStatuses="{{ craft.commerce.orderStatuses|json_encode() }}">{{ "Update Status"|t }}</a></div>
 						</td>
 					{% else %}
