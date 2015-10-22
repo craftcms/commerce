@@ -1,7 +1,7 @@
 {% extends 'commerce/_layouts/checkout' %}
 
 
-{%  block content %}
+{% block content %}
 
     <h2>Order Review</h2>
 
@@ -10,7 +10,7 @@
             <strong>Products:</strong> {{ cart.itemTotal|commerceCurrency }}
         </li>
 
-        {%  for adjustment in cart.adjustments %}
+        {% for adjustment in cart.adjustments %}
             <li>
                 <strong>{{ adjustment.type }}: </strong> {{ adjustment.amount|commerceCurrency }}
             </li>
@@ -38,7 +38,11 @@
                     <noscript>
                         <div class="bs-callout bs-callout-danger">
                             <h4>JavaScript is not enabled!</h4>
-                            <p>This payment form requires your browser to have JavaScript enabled. Please activate JavaScript and reload this page. Check <a href="http://enable-javascript.com" target="_blank">enable-javascript.com</a> for more informations.</p>
+
+                            <p>This payment form requires your browser to have JavaScript enabled. Please activate
+                                JavaScript and reload this page. Check <a href="http://enable-javascript.com"
+                                                                          target="_blank">enable-javascript.com</a> for
+                                more informations.</p>
                         </div>
                     </noscript>
 
@@ -68,14 +72,16 @@
                                 <div class="row">
                                     <div class="six columns">
 
-                                        <input type="text" name="firstName" maxlength="70" placeholder="First Name" class="card-holder-first-name u-full-width"
-                                           value="{{ formValues.firstName }}">
+                                        <input type="text" name="firstName" maxlength="70" placeholder="First Name"
+                                               class="card-holder-first-name u-full-width"
+                                               value="{{ formValues.firstName }}">
 
                                     </div>
 
                                     <div class="six columns">
-                                        <input type="text" name="lastName" maxlength="70" placeholder="Last Name" class="card-holder-last-name u-full-width"
-                                           value="{{ formValues.lastName }}">
+                                        <input type="text" name="lastName" maxlength="70" placeholder="Last Name"
+                                               class="card-holder-last-name u-full-width"
+                                               value="{{ formValues.lastName }}">
 
                                     </div>
                                 </div>
@@ -90,7 +96,8 @@
                             <div class="form-group {% if paymentForm is defined and paymentForm.hasErrors('number') %}has-error{% endif %}">
                                 <label>Card Number</label>
 
-                                <input type="text" name="number" maxlength="19" placeholder="Card Number" class="card-number u-full-width" value="{{ formValues.number }}">
+                                <input type="text" name="number" maxlength="19" placeholder="Card Number"
+                                       class="card-number u-full-width" value="{{ formValues.number }}">
 
                                 <span class="help-block">{% if paymentForm is defined %}{{ paymentForm.getError('number') }}{% endif %}</span>
                             </div>
@@ -100,14 +107,16 @@
                                 <label>Card Expiry Date</label>
 
                                 <select class="form-control" name="month">
-                                    {% for month in 1..12  %}
-                                        <option value="{{ month }}" {% if formValues.month == month %}selected{% endif %}>{{ month }}</option>
+                                    {% for month in 1..12 %}
+                                        <option value="{{ month }}"
+                                                {% if formValues.month == month %}selected{% endif %}>{{ month }}</option>
                                     {% endfor %}
                                 </select>
                                 <span> / </span>
                                 <select class="required form-control" name="year">
-                                    {% for year in currentYear-1..(currentYear + 12)  %}
-                                        <option value="{{ year }}" {% if formValues.year == year %}selected{% endif %}>{{ year }}</option>
+                                    {% for year in currentYear-1..(currentYear + 12) %}
+                                        <option value="{{ year }}"
+                                                {% if formValues.year == year %}selected{% endif %}>{{ year }}</option>
                                     {% endfor %}
                                 </select>
 
@@ -121,7 +130,8 @@
                             <div class="form-group {% if paymentForm is defined and paymentForm.hasErrors('cvv') %}has-error{% endif %}">
 
                                 <label>CVV/CVV2</label>
-                                <input type="text" name="cvv" placeholder="CVV" maxlength="4" class="card-cvc" value="{{ formValues.cvv }}">
+                                <input type="text" name="cvv" placeholder="CVV" maxlength="4" class="card-cvc"
+                                       value="{{ formValues.cvv }}">
 
                                 <span class="help-block">{% if paymentForm is defined %}{{ paymentForm.getError('cvv') }}{% endif %}</span>
 
@@ -144,4 +154,4 @@
         </form>
     {% endif %}
 
-{%  endblock %}
+{% endblock %}

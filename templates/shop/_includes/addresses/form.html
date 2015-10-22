@@ -67,25 +67,26 @@ company: 0,
 </div>
 
 {% includejs %}
-    var states = {{ craft.commerce.statesArray|json_encode|raw }};
+var states = {{ craft.commerce.statesArray|json_encode|raw }};
 
-    $('.address-country select').change(function () {
-        var cid = $(this).val(),
-                $states = $(this).closest('.addressBox').find('.address-state select');
-        $states.find('option').remove();
+$('.address-country select').change(function () {
+var cid = $(this).val(),
+$states = $(this).closest('.addressBox').find('.address-state select');
+$states.find('option').remove();
 
-        if (states.hasOwnProperty(cid)) {
-            for (var id in states[cid]) {
-                var state = states[cid][id],
-                        $option = $('<option/>');
+if (states.hasOwnProperty(cid)) {
+for (var id in states[cid]) {
+var state = states[cid][id],
+$option = $('
+<option/>');
 
-                $option.attr('value', id).text(state);
-                $states.append($option);
-            }
-        }
+$option.attr('value', id).text(state);
+$states.append($option);
+}
+}
 
-    });
+});
 
-    $('select').addClass('form-control input-sm');
+$('select').addClass('form-control input-sm');
 
-    {% endincludejs %}
+{% endincludejs %}

@@ -11,6 +11,7 @@
         <div class="six columns">
 
             <h3>Already Registered ?</h3>
+
             <form method="post" accept-charset="UTF-8">
 
                 {{ getCsrfInput() }}
@@ -19,7 +20,8 @@
                 <input type="hidden" name="redirect" value="commerce/checkout/addresses">
 
                 <label for="loginName">Email</label>
-                <input id="loginName" class="u-full-width" type="text" name="loginName" placeholder="email@site.com" value="{{ craft.session.rememberedUsername }}">
+                <input id="loginName" class="u-full-width" type="text" name="loginName" placeholder="email@site.com"
+                       value="{{ craft.session.rememberedUsername }}">
 
                 <label for="password">Password</label>
                 <input id="password" class="u-full-width" type="password" name="password">
@@ -29,7 +31,7 @@
                     Remember me
                 </label>
 
-                <input type="submit" value="Login" class="button button-primary" />
+                <input type="submit" value="Login" class="button button-primary"/>
 
             </form>
 
@@ -51,13 +53,14 @@
                 <input type="hidden" name="redirect" value="commerce/checkout/addresses">
 
                 <label for="">Email</label>
-                <input class="u-full-width" type="text" value="{{ cart.email }}" name="email" placeholder="email@site.com" />
+                <input class="u-full-width" type="text" value="{{ cart.email }}" name="email"
+                       placeholder="email@site.com"/>
 
                 <span class="flash">{{ cart.getErrors('email')|join }}</span><br/>
 
-                <input type="submit" value="Continue as Guest" class="button button-primary" />
+                <input type="submit" value="Continue as Guest" class="button button-primary"/>
 
             </form>
         </div>
     </div>
-{%  endblock %}
+{% endblock %}
