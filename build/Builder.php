@@ -242,6 +242,9 @@ class Builder
 	 */
 	protected function processRepo()
 	{
+		echo 'Copying everything from '.$this->_tempDir.' to '.$this->_finalRemoteRepoPath.'.'.PHP_EOL;
+		UtilsHelper::copyDirectory($this->_tempDir, $this->_finalRemoteRepoPath);
+
 		$repo = $this->_getRepo();
 		echo 'Adding all files to the repo.'.PHP_EOL;
 		$output = $repo->git('add .');
