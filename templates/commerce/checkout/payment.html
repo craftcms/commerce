@@ -23,11 +23,33 @@
 
     <h2>Payment Method</h2>
 
+    {#
+    Using the update cart action you could allow the user to select the payment method here.
+    We recommend using ajax to set this, so no page refresh is needed. This would also allow you to show or hide the credit card form
+    on method change if the method does not require a card and the submit just redirects offsite.
+    #}
+    <form method="POST" class="form-inline">
+
+        <input type="hidden" name="action" value="commerce/cart/update">
+        <input type="hidden" name="redirect" value="commerce/checkout/payment">
+        {{ getCsrfInput() }}
+
+        <label for="">Payment Method</label>
+        <select name="paymentMethodId" class="form-control" >
+            {% for id,name in craft.commerce.getPaymentMethods() %}
+                <option value="{{ id }}" {% if id == cart.paymentMethod.id %}selected{% endif %}>{{ name }}</option>
+            {% endfor %}
+        </select>
+
+        <p><input type="submit" class="btn" value="Select Payment Method" /></p>
+
+    </form>
+
     {% if cart.paymentMethodId %}
         <form method="POST" class="form-horizontal">
             <input type="hidden" name="action" value="commerce/cartPayment/pay"/>
             <input type="hidden" name="redirect" value="/commerce/customer/order?orderId={number}"/>
-            <input type="hidden" name="cancelUrl" value="/commerce/cart"/>
+            <input type="hidden" name="cancelUrl" value="/commerce/checkout/payment"/>
             {{ getCsrfInput() }}
 
             <div class="row">
@@ -64,6 +86,8 @@
 
                     <div class="row">
                         <div class="six columns">
+
+
 
                             <!-- Card Holder Name -->
                             <div class="form-group {% if paymentForm is defined and (paymentForm.hasErrors('firstName') or paymentForm.hasErrors('firstName')) %}has-error{% endif %}">
