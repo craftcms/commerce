@@ -97,7 +97,6 @@ class Commerce_PaymentsService extends BaseApplicationComponent
             }
         } catch (\Exception $e) {
             $customError = $e->getMessage();
-            craft()->commerce_transactions->delete($transaction);
 
             return false;
         }
