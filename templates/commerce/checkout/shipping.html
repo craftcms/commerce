@@ -1,16 +1,39 @@
-{% import 'commerce/_includes/forms' as forms %}
 {% extends 'commerce/_layouts/checkout' %}
 
 {% block content %}
 
-    <h1>Shipping Method</h1>
+    <h1>Shipping</h1>
 
     {% if cart.shippingMethodId %}
         <p>
-            <strong>Chosen shipping method:</strong> {{ cart.shippingMethod.name }}
+            <strong>Current Shipping Method:</strong> {{ cart.shippingMethod.name }}
         </p>
     {% endif %}
 
-    {{ forms.shippingMethodForm(cart) }}
+    {#
+    Choosing a shipping method.
+    Now that we know the cart's address, we need to show all available shipping methods. Only those that match
+    a shipping method's rule are compatible with the shipping address. This is why we need use the function which only returns matched method id's:
+    `craft.commerce.getShippingMethods()`
+    This will return shipping methods with the cost for each method based on the first matching rule in that method.
+    #}
 
-{%  endblock %}
+    <form method="POST">
+        <input type="hidden" name="action" value="commerce/cart/update">
+        <input type="hidden" name="redirect" value="commerce/checkout/payment">
+        {{ getCsrfInput() }}
+
+        {% for id, method in craft.commerce.getShippingMethods() %}
+            <label>
+                <input type="radio" name="shippingMethodId" value="{{ id }}"
+                       {% if id == cart.shippingMethodId %}checked{% endif %} />
+                <strong><{{ method.name }}/strong> {{ method.amount|commerceCurrency }}
+            </label>
+        {% endfor %}
+        <span class="flash">{{ cart.getErrors('shippingMethodId')|join }}</span>
+
+        <p><input type="submit" class="button button-primary" value="Select Shipping Method"/></p>
+
+    </form>
+
+{% endblock %}
