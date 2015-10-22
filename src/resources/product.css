@@ -36,7 +36,7 @@ body.rtl #locales li .status { left: 16px; }
 #settings .select, #settings .select select { width: 100%; }
 
 #variant-matrix > .blocks > .matrixblock { padding: 0; }
-#variant-matrix > .blocks > .matrixblock > .titlebar { margin: 0; width: 100%; border-bottom: 1px solid #e3e5e8; }
+#variant-matrix > .blocks > .matrixblock > .titlebar { margin: 0; width: 100%; }
 #variant-matrix > .blocks > .matrixblock > .fields { display: flex; align-items: stretch; }
 #variant-matrix > .blocks > .matrixblock > .fields > .variant-properties { width: 310px; border-right: 1px solid #e3e5e8; }
 #variant-matrix > .blocks > .matrixblock > .fields > .custom-fields { padding: 14px 24px; width: calc(100% - 359px); }
