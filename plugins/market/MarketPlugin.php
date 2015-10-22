@@ -6,10 +6,10 @@ use Market\Extensions\MarketTwigExtension;
 
 require 'vendor/autoload.php';
 
-// disable DOMPDF's internal autoloader since we are using Composer
+// Disable DOMPDF's internal autoloader since we are using Composer
 define('DOMPDF_ENABLE_AUTOLOAD', false);
 
-// include DOMPDF's configuration
+// Include DOMPDF's configuration
 require_once __DIR__.'/vendor/dompdf/dompdf/dompdf_config.inc.php';
 
 class MarketPlugin extends BasePlugin
