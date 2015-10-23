@@ -9,8 +9,9 @@ class UtilsHelper
 	 *
 	 * @param $path
 	 * @param $recursive
+	 * @param $includeHiddenFolders
 	 */
-	public static function purgeDirectory($path, $recursive = true)
+	public static function purgeDirectory($path, $recursive = true, $includeHiddenFolders = true)
 	{
 		$path = rtrim($path, '/');
 		$dirContents = static::dirContents($path, array(), false);
@@ -23,6 +24,11 @@ class UtilsHelper
 			}
 			else if ($recursive && is_dir($item))
 			{
+				if ($item[0] == '.' && !$includeHiddenFolders)
+				{
+					continue;
+				}
+
 				static::purgeDirectory($item);
 				@rmdir($item);
 			}
