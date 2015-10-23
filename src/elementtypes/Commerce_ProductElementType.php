@@ -213,6 +213,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
             'order' => [AttributeType::String, 'default' => 'availableOn desc'],
             'before' => AttributeType::Mixed,
             'status' => [AttributeType::String, 'default' => Commerce_ProductModel::LIVE],
+            'withVariant' => AttributeType::Mixed,
         ];
     }
 
@@ -261,6 +262,8 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
     /**
      * @param DbCommand $query
      * @param ElementCriteriaModel $criteria
+     * @return bool
+     * @throws Exception
      */
     public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
     {
@@ -297,6 +300,26 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
         if ($criteria->typeId) {
             $query->andWhere(DbHelper::parseParam('products.typeId', $criteria->typeId, $query->params));
         }
+
+        if ($criteria->withVariant) {
+            if ($criteria->withVariant instanceof ElementCriteriaModel) {
+                $variantCriteria = $criteria->withVariant;
+            } else {
+                $variantCriteria = craft()->elements->getCriteria('Commerce_Variant', $criteria->withVariant);
+            }
+
+            $productIds = craft()->elements->buildElementsQuery($variantCriteria)
+                ->selectDistinct('productId')
+                ->queryColumn();
+
+            if (!$productIds) {
+                return false;
+            }
+
+            $query->andWhere(['in', 'products.id', $productIds]);
+        }
+
+        return true;
     }
 
 
