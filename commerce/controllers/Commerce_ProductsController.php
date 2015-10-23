@@ -12,6 +12,7 @@ namespace Craft;
  * @since     1.0
  */
 use Commerce\Helpers\CommerceDbHelper;
+use Commerce\Helpers\CommerceVariantMatrixHelper as VariantMatrixHelper;
 
 /**
  * Class Commerce_ProductsController
@@ -57,6 +58,11 @@ class Commerce_ProductsController extends Commerce_BaseAdminController
             'id', 'name');
 
         $this->_prepVariables($variables);
+
+        if ($variables['product']->getType()->hasVariants) {
+            $variables['variantMatrixHtml'] = VariantMatrixHelper::getVariantMatrixHtml($variables['product']);
+        }
+
         craft()->templates->includeCssResource('commerce/product.css');
         $this->renderTemplate('commerce/products/_edit', $variables);
     }
@@ -147,18 +153,7 @@ class Commerce_ProductsController extends Commerce_BaseAdminController
             ];
         }
 
-        if (!isset($variables['variants'])) {
-            $variables['variants'] = $variables['product']->getVariants();
-        }
-
-        if (empty($variables['variants'])) {
-            // Create the first one
-            $variant = new Commerce_VariantModel();
-            $variant->setProduct($variables['product']);
-            $variables['variants'][] = $variant;
-        }
-
-        $variables['primaryVariant'] = ArrayHelper::getFirstValue($variables['variants']);
+        $variables['primaryVariant'] = ArrayHelper::getFirstValue($variables['product']->getVariants());
     }
 
     /**

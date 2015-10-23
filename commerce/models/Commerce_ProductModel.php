@@ -42,6 +42,11 @@ class Commerce_ProductModel extends BaseElementModel
      */
     protected $elementType = 'Commerce_Product';
 
+    /**
+     * @var Commerce_VariantModel[] This product’s variants
+     */
+    private $_variants;
+
     // Public Methods
     // =============================================================================
 
@@ -195,20 +200,31 @@ class Commerce_ProductModel extends BaseElementModel
      */
     public function getVariants()
     {
-        $variants = craft()->commerce_variants->getAllByProductId($this->id);
-        craft()->commerce_variants->applySales($variants, $this);
+        if ($this->_variants === null) {
+            if ($this->id) {
+                $variants = craft()->commerce_variants->getAllByProductId($this->id);
+                craft()->commerce_variants->applySales($variants, $this);
 
-        if ($this->type->hasVariants) {
-            $variants = array_filter($variants, function ($v) {
-                return !$v->isImplicit;
-            });
-        } else {
-            $variants = array_filter($variants, function ($v) {
-                return $v->isImplicit;
-            });
+                if ($this->type->hasVariants) {
+                    $this->_variants = array_filter($variants, function ($v) {
+                        return !$v->isImplicit;
+                    });
+                } else {
+                    $this->_variants = array_filter($variants, function ($v) {
+                        return $v->isImplicit;
+                    });
+                }
+            }
+
+            if (empty($this->_variants)) {
+                // Must have at least one
+                $variant = new Commerce_VariantModel();
+                $variant->setProduct($this);
+                $this->_variants = [$variant];
+            }
         }
 
-        return $variants;
+        return $this->_variants;
     }
 
     /**
