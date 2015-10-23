@@ -207,6 +207,9 @@ class Builder
 	 */
 	protected function processRepo()
 	{
+		echo 'Removing contents from '.$this->_finalRemoteRepoPath.'.'.PHP_EOL;
+		UtilsHelper::purgeDirectory($this->_finalRemoteRepoPath);
+
 		echo 'Copying everything from '.$this->_tempDir.' to '.$this->_finalRemoteRepoPath.'.'.PHP_EOL;
 		UtilsHelper::copyDirectory($this->_tempDir, $this->_finalRemoteRepoPath);
 
