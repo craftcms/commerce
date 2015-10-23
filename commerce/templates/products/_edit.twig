@@ -6,6 +6,9 @@
 { label: "Products"|t, url: url('commerce/products') }
 ] %}
 
+{% set fullPageForm = true %}
+{% set saveShortcutRedirect = continueEditingUrl %}
+
 {% import "_includes/forms" as forms %}
 
 
@@ -142,12 +145,23 @@
 {% from _self import generalVariantFields, dimensionVariantFields %}
 
 
-{% block main %}
-	<form id="product-form" method="post" accept-charset="UTF-8"
-		  data-saveshortcut
-		  data-saveshortcut-redirect="{{ continueEditingUrl }}"
-		  data-confirm-unload>
+{% block saveButton %}
+	<div class="btngroup">
+		<input type="submit" class="btn submit" value="{{ 'Save'|t }}">
+		<div class="btn submit menubtn"></div>
+		<div class="menu">
+			<ul>
+				<li><a class="formsubmit" data-redirect="{{ continueEditingUrl }}">
+					{{ "Save and continue editing"|t }}
+					{{ forms.optionShortcutLabel('S') }}
+				</a></li>
+			</ul>
+		</div>
+	</div>
+{% endblock %}
 
+
+{% block main %}
 		<input type="hidden" name="action" value="commerce/products/saveProduct">
 		<input type="hidden" name="redirect" value="commerce/products">
 		<input type="hidden" name="typeId" value="{{ productType.id }}">
@@ -320,49 +334,8 @@
 						</div>
 					{% endnamespace %}
 				{% endif %}
-
-				<table class="inputs fullwidth">
-					<tr>
-						<td class="thin">
-							<div class="btngroup submit first">
-								<input type="submit" class="btn submit"
-									   value="{{ 'Save'|t }}">
-
-								<div class="btn submit menubtn"></div>
-								<div class="menu">
-									<ul>
-										<li><a class="formsubmit"
-											   data-redirect="{{ continueEditingUrl }}">
-												{{ "Save and continue editing"|t }}
-												{{ forms.optionShortcutLabel('S') }}
-											</a></li>
-
-										{% if productType.hasVariants %}
-											<li><a class="formsubmit"
-												   data-param="entryId"
-												   data-value=""
-												   data-redirect="commerce/products/{type.handle}/{id}/variants/new"
-												   data-value="1">{{ 'Save and add new variant'|t }}</a>
-											</li>
-										{% endif %}
-
-									</ul>
-								</div>
-							</div>
-						</td>
-						<td>
-
-						</td>
-					</tr>
-				</table>
-
 			</div>
-
 		</div>
-
-
-	</form>
-
 
 	{% if not product.slug %}
 		{% includejs %}
