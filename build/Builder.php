@@ -7,7 +7,6 @@ class Builder
 {
 	private $_finalRemoteRepoPath = '/www/eh21814/gitrepostc/';
 	private $_sourceBaseDir;
-	private $_finalBaseDir = '/www/eh21814/commerce/';
 	private $_composerPath = '/www/eh21814/composer.phar';
 	private $_tempDir;
 	private $_version;
@@ -54,7 +53,6 @@ class Builder
 		$this->updateVersionBuild();
 		$this->processFiles();
 		$this->cleanDirectories();
-		$this->zipIt();
 		$this->processRepo();
 
 		$totalTime = UtilsHelper::getBenchmarkTime() - $this->_startTime;
@@ -202,35 +200,6 @@ class Builder
 		echo $path.PHP_EOL;
 		file_put_contents($path, $newContents);
 		echo 'Done.'.PHP_EOL.PHP_EOL;
-	}
-
-	protected function zipIt()
-	{
-		$fileName = 'CraftCommerce-'.$this->_version.'.'.$this->_args['build'].'.zip';
-
-		echo 'Zipping '.$this->_tempDir.PHP_EOL;
-		UtilsHelper::zipDir($this->_tempDir, $fileName);
-		echo 'Done zipping '.$this->_tempDir.PHP_EOL.PHP_EOL;
-
-		$destDir = $this->_finalBaseDir.$this->_version.'/'.$this->_version.'.'.$this->_args['build'].'/';
-
-		if (!file_exists($this->_finalBaseDir.$this->_version))
-		{
-			echo 'Creating '.$this->_finalBaseDir.$this->_version.PHP_EOL;
-			UtilsHelper::createDir($this->_finalBaseDir.$this->_version);
-			echo 'Done creating '.$this->_finalBaseDir.$this->_version.PHP_EOL.PHP_EOL;
-		}
-
-		if (!file_exists($this->_finalBaseDir.$this->_version.'/'.$this->_version.'.'.$this->_args['build']))
-		{
-			echo 'Creating '.$this->_finalBaseDir.$this->_version.'/'.$this->_version.'.'.$this->_args['build'].PHP_EOL;
-			UtilsHelper::createDir($this->_finalBaseDir.$this->_version.'/'.$this->_version.'.'.$this->_args['build']);
-			echo 'Done creating '.$this->_finalBaseDir.$this->_version.'/'.$this->_version.'.'.$this->_args['build'].PHP_EOL.PHP_EOL;
-		}
-
-		echo 'Copying '.$this->_sourceBaseDir.$fileName.' to '.$destDir.$fileName.PHP_EOL;
-		UtilsHelper::copyFile($this->_sourceBaseDir.$fileName, $destDir.$fileName);
-		echo 'Done copying '.$this->_sourceBaseDir.$fileName.' to '.$destDir.$fileName.PHP_EOL;
 	}
 
 	/**
