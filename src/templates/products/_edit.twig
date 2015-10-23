@@ -193,7 +193,15 @@
 				</div>
 
 				{% if productType.hasVariants %}
-					{% include "commerce/products/_variant_matrix" %}
+					<div class="pane">
+						{% include "_includes/tabs" with {
+							tabs: {
+								variantsTab: { label: 'Variants'|t, url: '#variantsTab' }
+							}
+						} %}
+
+						{{ variantMatrixHtml|raw }}
+					</div>
 				{% endif %}
 			</div>
 
