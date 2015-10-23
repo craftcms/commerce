@@ -23,7 +23,7 @@ class CommercePlugin extends BasePlugin
     private $doSeed = true;
 
     /**
-     * Initialize plugin.
+     * Initialize the plugin.
      */
     public function init()
     {
@@ -162,7 +162,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getVersion()
     {
-        return '0.8.24';
+        return '0.9.0000';
     }
 
     /**
