@@ -5,13 +5,15 @@
  */
 class Builder
 {
+	private $_finalRemoteRepoPath = '/www/eh21814/gitrepostc/';
 	private $_sourceBaseDir;
-	private $_finalBaseDir = '/www/eh21814/commerce/';
+	private $_composerPath = '/www/eh21814/composer.phar';
 	private $_tempDir;
 	private $_version;
 
 	private $_args;
 	private $_startTime;
+	private $_repo;
 
 
 	/**
@@ -23,6 +25,10 @@ class Builder
 	 */
 	public function __construct($args)
 	{
+		require __DIR__.'/lib/PHPGit/Command.php';
+		require __DIR__.'/lib/PHPGit/Configuration.php';
+		require __DIR__.'/lib/PHPGit/Repository.php';
+
 		$this->_args = array_merge(array(
 			'build'         => '1',
 			'track'         => 'stable',
@@ -30,6 +36,7 @@ class Builder
 
 		$this->_sourceBaseDir = str_replace('\\', '/', realpath(__DIR__.'/..')).'/';
 		$this->_tempDir = $this->_sourceBaseDir.UtilsHelper::UUID().'/';
+		$this->_finalRemoteRepoPath .= 'commerce-'.$this->_args['track'].'/';
 
 		UtilsHelper::createDir($this->_tempDir);
 
@@ -41,14 +48,33 @@ class Builder
 	{
 		$this->_startTime = UtilsHelper::getBenchmarkTime();
 
+		$this->updateComposer();
 		$this->copyFiles();
 		$this->updateVersionBuild();
 		$this->processFiles();
 		$this->cleanDirectories();
-		$this->zipIt();
+		$this->processRepo();
 
 		$totalTime = UtilsHelper::getBenchmarkTime() - $this->_startTime;
 		echo PHP_EOL.'Execution Time: '.$totalTime.' seconds.'.PHP_EOL;
+	}
+
+	public function updateComposer()
+	{
+		// Clear composer cache
+		$this->_executeComposer('clear-cache');
+
+		// Update composer itself.
+		$this->_executeComposer('self-update');
+
+		// Now update Commerce dependencies
+		$this->_executeComposer('update');
+
+		// Remove dev dependencies
+		$this->_executeComposer('remove --update-no-dev');
+
+		// Optimize that shiz.
+		$this->_executeComposer('dumpautoload -o');
 	}
 
 	/**
@@ -56,41 +82,19 @@ class Builder
 	 */
 	protected function copyFiles()
 	{
-		//echo ('Copying code from '.$this->_sourceBaseDir.'docs to '.$this->_tempDir.'docs/'.PHP_EOL);
-		//UtilsHelper::createDir($this->_tempDir.'docs/');
-		//UtilsHelper::copyDirectory($this->_sourceBaseDir.'docs', $this->_tempDir.'docs/');
-		//echo ('Finished copying code from '.$this->_sourceBaseDir.'docs to '.$this->_tempDir.'docs/'.PHP_EOL.PHP_EOL);
+		echo ('Copying code from '.$this->_sourceBaseDir.'templates to '.$this->_tempDir.'templates/'.PHP_EOL);
+		UtilsHelper::createDir($this->_tempDir.'templates/');
+		UtilsHelper::copyDirectory($this->_sourceBaseDir.'templates', $this->_tempDir.'templates/');
+		echo ('Finished copying code from '.$this->_sourceBaseDir.'templates to '.$this->_tempDir.'templates/'.PHP_EOL.PHP_EOL);
 
-		echo ('Copying code from '.$this->_sourceBaseDir.'exampletemplates to '.$this->_tempDir.'exampletemplates/'.PHP_EOL);
-		UtilsHelper::createDir($this->_tempDir.'exampletemplates/');
-		UtilsHelper::copyDirectory($this->_sourceBaseDir.'exampletemplates', $this->_tempDir.'exampletemplates/');
-		echo ('Finished copying code from '.$this->_sourceBaseDir.'exampletemplates to '.$this->_tempDir.'exampletemplates/'.PHP_EOL.PHP_EOL);
-
-		echo ('Copying code from '.$this->_sourceBaseDir.'plugins to '.$this->_tempDir.'plugins/'.PHP_EOL);
-		UtilsHelper::createDir($this->_tempDir.'plugins/');
-		UtilsHelper::copyDirectory($this->_sourceBaseDir.'plugins', $this->_tempDir.'plugins/');
-		echo ('Finished copying code from '.$this->_sourceBaseDir.'plugins to '.$this->_tempDir.'plugins/'.PHP_EOL.PHP_EOL);
-
-		echo ('Copying file from '.$this->_sourceBaseDir.'CHANGELOG.md to '.$this->_tempDir.'CHANGELOG.md'.PHP_EOL);
-		UtilsHelper::copyFile($this->_sourceBaseDir.'CHANGELOG.md', $this->_tempDir.'CHANGELOG.md');
-		echo ('Finished copying file from '.$this->_sourceBaseDir.'CHANGELOG.md to '.$this->_tempDir.'CHANGELOG.md'.PHP_EOL.PHP_EOL);
+		echo ('Copying code from '.$this->_sourceBaseDir.'commerce to '.$this->_tempDir.'commerce/'.PHP_EOL);
+		UtilsHelper::createDir($this->_tempDir.'commerce/');
+		UtilsHelper::copyDirectory($this->_sourceBaseDir.'commerce', $this->_tempDir.'commerce/');
+		echo ('Finished copying code from '.$this->_sourceBaseDir.'commerce to '.$this->_tempDir.'commerce/'.PHP_EOL.PHP_EOL);
 
 		echo ('Copying file from '.$this->_sourceBaseDir.'LICENSE.md to '.$this->_tempDir.'LICENSE.md'.PHP_EOL);
 		UtilsHelper::copyFile($this->_sourceBaseDir.'LICENSE.md', $this->_tempDir.'LICENSE.md');
 		echo ('Finished copying file from '.$this->_sourceBaseDir.'LICENSE.md to '.$this->_tempDir.'LICENSE.md'.PHP_EOL.PHP_EOL);
-
-		//echo ('Copying file from '.$this->_sourceBaseDir.'README.md to '.$this->_tempDir.'README.md'.PHP_EOL);
-		//UtilsHelper::copyFile($this->_sourceBaseDir.'README.md', $this->_tempDir.'README.md');
-		//echo ('Finished copying file from '.$this->_sourceBaseDir.'README.md to '.$this->_tempDir.'README.md'.PHP_EOL.PHP_EOL);
-
-		echo('Deleting file '.$this->_tempDir.'plugins/market/composer.json'.PHP_EOL);
-		unlink($this->_tempDir.'plugins/market/composer.json');
-
-		echo('Deleting file '.$this->_tempDir.'plugins/market/composer.lock'.PHP_EOL);
-		unlink($this->_tempDir.'plugins/market/composer.lock');
-
-		echo('Deleting file '.$this->_tempDir.'plugins/market/codeception.yml'.PHP_EOL);
-		unlink($this->_tempDir.'plugins/market/codeception.yml');
 	}
 
 	/**
@@ -105,7 +109,22 @@ class Builder
 		{
 			unlink($dsStore);
 		}
-		echo ('Done nuking DS_Store files'.PHP_EOL.PHP_EOL);
+		echo ('Done nuking DS_Store files.'.PHP_EOL.PHP_EOL);
+
+		$gitFolders = UtilsHelper::getGitFolders($this->_tempDir.'commerce/vendor/');
+
+		if ($gitFolders)
+		{
+			echo('Found '.count($gitFolders).' .git folders. Nuking them.'.PHP_EOL);
+
+			foreach ($gitFolders as $gitFolder)
+			{
+				echo('Path'.$gitFolder.PHP_EOL);
+				UtilsHelper::purgeDirectory($gitFolder);
+				rmdir($gitFolder);
+			}
+			echo('Done nuking .git folders.'.PHP_EOL.PHP_EOL);
+		}
 	}
 
 	/**
@@ -157,8 +176,8 @@ class Builder
 	 */
 	protected function updateVersionBuild()
 	{
-		$path = $this->_tempDir.'plugins/market/MarketPlugin.php';
-		echo 'Loading the contents of MarketPlugin.php at '.$path.PHP_EOL;
+		$path = $this->_tempDir.'commerce/CommercePlugin.php';
+		echo 'Loading the contents of CommercePlugin.php at '.$path.PHP_EOL;
 		$contents = file_get_contents($path);
 
 		preg_match('/(\d\.\d{1,2})\.(\d){4}/', $contents, $matches);
@@ -169,7 +188,7 @@ class Builder
 		}
 
 		$variables = array(
-			'9999'                => $this->_args['build'],
+			'0000' => $this->_args['build'],
 		);
 
 		$newContents = str_replace(
@@ -183,33 +202,29 @@ class Builder
 		echo 'Done.'.PHP_EOL.PHP_EOL;
 	}
 
-	protected function zipIt()
+	/**
+	 *
+	 */
+	protected function processRepo()
 	{
-		$fileName = 'Commerce-'.$this->_version.'.'.$this->_args['build'].'.zip';
+		echo 'Removing contents from '.$this->_finalRemoteRepoPath.'.'.PHP_EOL;
+		UtilsHelper::purgeDirectory($this->_finalRemoteRepoPath, true, false);
 
-		echo 'Zipping '.$this->_tempDir.PHP_EOL;
-		UtilsHelper::zipDir($this->_tempDir, $fileName);
-		echo 'Done zipping '.$this->_tempDir.PHP_EOL.PHP_EOL;
+		echo 'Copying everything from '.$this->_tempDir.' to '.$this->_finalRemoteRepoPath.'.'.PHP_EOL;
+		UtilsHelper::copyDirectory($this->_tempDir, $this->_finalRemoteRepoPath);
 
-		$destDir = $this->_finalBaseDir.$this->_version.'/'.$this->_version.'.'.$this->_args['build'].'/';
+		$repo = $this->_getRepo();
+		echo 'Adding all files to the repo.'.PHP_EOL;
+		$output = $repo->git('add .');
+		echo 'Output: '.$output.PHP_EOL.PHP_EOL;
 
-		if (!file_exists($this->_finalBaseDir.$this->_version))
-		{
-			echo 'Creating '.$this->_finalBaseDir.$this->_version.PHP_EOL;
-			UtilsHelper::createDir($this->_finalBaseDir.$this->_version);
-			echo 'Done creating '.$this->_finalBaseDir.$this->_version.PHP_EOL.PHP_EOL;
-		}
+		echo 'Committing all files to the repo'.PHP_EOL;
+		$output = $repo->git('commit -a -m "Build '.$this->_args['build'].'"');
+		echo 'Output: '.$output.PHP_EOL.PHP_EOL;
 
-		if (!file_exists($this->_finalBaseDir.$this->_version.'/'.$this->_version.'.'.$this->_args['build']))
-		{
-			echo 'Creating '.$this->_finalBaseDir.$this->_version.'/'.$this->_version.'.'.$this->_args['build'].PHP_EOL;
-			UtilsHelper::createDir($this->_finalBaseDir.$this->_version.'/'.$this->_version.'.'.$this->_args['build']);
-			echo 'Done creating '.$this->_finalBaseDir.$this->_version.'/'.$this->_version.'.'.$this->_args['build'].PHP_EOL.PHP_EOL;
-		}
-
-		echo 'Copying '.$this->_sourceBaseDir.$fileName.' to '.$destDir.$fileName.PHP_EOL;
-		UtilsHelper::copyFile($this->_sourceBaseDir.$fileName, $destDir.$fileName);
-		echo 'Done copying '.$this->_sourceBaseDir.$fileName.' to '.$destDir.$fileName.PHP_EOL;
+		echo 'Pushing all files to remote'.PHP_EOL;
+		$output = $repo->git('git push');
+		echo 'Output: '.$output.PHP_EOL.PHP_EOL;
 	}
 
 	/**
@@ -287,5 +302,35 @@ class Builder
 		}
 
 		return true;
+	}
+
+	private function _executeComposer($command)
+	{
+		$command = "cd {$this->_sourceBaseDir};/usr/bin/php {$this->_composerPath} {$command}";
+
+		echo 'Executing: '.$command.PHP_EOL;
+		exec($command.' 2>&1', $output, $status);
+
+		echo 'Status: '.$status.PHP_EOL;
+		$output = implode(PHP_EOL, $output);
+		echo 'Results: '.$output.PHP_EOL.PHP_EOL;
+
+		if ($status == 1)
+		{
+			throw new Exception('There was an error running composer.');
+		}
+	}
+
+	/**
+	 * @return PHPGit_Repository
+	 */
+	private function _getRepo()
+	{
+		if (!isset($this->_repo))
+		{
+			$this->_repo = new \PHPGit_Repository($this->_finalRemoteRepoPath, false, array('git_executable' => '/usr/bin/git', 'win' => false));
+		}
+
+		return $this->_repo;
 	}
 }

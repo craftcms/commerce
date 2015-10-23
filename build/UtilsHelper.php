@@ -9,8 +9,9 @@ class UtilsHelper
 	 *
 	 * @param $path
 	 * @param $recursive
+	 * @param $includeHiddenFolders
 	 */
-	public static function purgeDirectory($path, $recursive = true)
+	public static function purgeDirectory($path, $recursive = true, $includeHiddenFolders = true)
 	{
 		$path = rtrim($path, '/');
 		$dirContents = static::dirContents($path, array(), false);
@@ -23,6 +24,13 @@ class UtilsHelper
 			}
 			else if ($recursive && is_dir($item))
 			{
+				$parts = explode(DIRECTORY_SEPARATOR, $item);
+
+				if ($parts[count($parts) - 1][0] == '.' && !$includeHiddenFolders)
+				{
+					continue;
+				}
+
 				static::purgeDirectory($item);
 				@rmdir($item);
 			}
@@ -554,5 +562,31 @@ class UtilsHelper
 			// 48 bits for "node"
 			mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
 		);
+	}
+
+	/**
+	 * @param $path
+	 *
+	 * @return array|bool
+	 */
+	public static function getGitFolders($path)
+	{
+		$path = static::normalizePathSeparators($path);
+
+		if (is_dir($path))
+		{
+			$iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path), RecursiveIteratorIterator::SELF_FIRST);
+			$folders = array();
+
+			foreach ($iterator as $file)
+			{
+				if ($file->isDir() && $file->getFilename() == '.git')
+				{
+					$folders[] = static::normalizePathSeparators($file->getRealPath());
+				}
+			}
+		}
+
+		return $folders;
 	}
 }

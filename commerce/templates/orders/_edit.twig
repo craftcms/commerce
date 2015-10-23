@@ -268,7 +268,6 @@
 	{% endif %}
 
 	{% if order.histories|length %}
-	{# Order History Pane #}
 	<div class="pane">
 		<h3>Order Status History</h3>
 
@@ -307,13 +306,14 @@
 	{% if order.transactions|length %}
 	<div class="pane">
 
-		<h3>Transactions</h3>
+		<h3>{{ "Transactions"|t }}</h3>
 
 		<table class="data fullwidth">
 			<thead>
 			<tr>
 				<th scope="col">{{ 'Type'|t }}</span></th>
 				<th scope="col">{{ 'Status'|t }}</th>
+				<th scope="col">{{ 'Message'|t }}</th>
 				<th scope="col">{{ 'Amount'|t }}</th>
 				<th scope="col">{{ 'Payment Method'|t }}</th>
 				<th></th>
@@ -324,12 +324,13 @@
 				<tr>
 					<td>{{ transaction.type|title }}</td>
 					<td>{{ transaction.status|title }}</td>
+					<td>{{ transaction.message|title }}</td>
 					<td>{{ transaction.amount|commerceCurrency }}</td>
 					<td>{{ transaction.paymentMethod.name }}</td>
 					<td>
 						{% if transaction.canCapture() %}
 							<form>
-							<a class="btn submit formsubmit"
+							<a class="small btn submit formsubmit"
 							   data-action="commerce/orders/transactionCapture"
 							   data-confirm="{{ 'Confirm capture?'|t }}"
 							   data-redirect="{{ order.cpEditUrl }}"
@@ -339,7 +340,7 @@
 						{% endif %}
 						{% if transaction.canRefund() %}
 							<form>
-							<a class="btn submit formsubmit"
+							<a class="small btn submit formsubmit"
 							   data-action="commerce/orders/transactionRefund"
 							   data-confirm="{{ 'Confirm refund?'|t }}"
 							   data-redirect="{{ order.cpEditUrl }}"
