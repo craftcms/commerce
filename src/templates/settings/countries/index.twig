@@ -1,13 +1,13 @@
-{% extends "market/_layouts/settings" %}
+{% extends "commerce/_layouts/settings" %}
 
 {% set content %}
     <h2>{{ "Countries"|t }}</h2>
     <table id="countries" class="data fullwidth collapsible">
         <thead>
         <tr>
-            <th scope="col">Name</th>
-            <th scope="col">ISO</th>
-            <th scope="col">State required?</th>
+            <th scope="col">{{ 'Name'|t }}</th>
+            <th scope="col">{{ 'Country Code'|t }}</th>
+            <th scope="col">{{ 'State required?'|t }}</th>
             <td class="thin"></td>
         </tr>
         </thead>
@@ -15,7 +15,7 @@
         {% for country in countries %}
             <tr data-id="{{ country.id }}" data-name="{{ country.name }}">
                 <th scope="row" data-title="Name"><a
-                            href="{{ url('market/settings/countries/'~country.id) }}">{{ country.name }}</a></th>
+                            href="{{ url('commerce/settings/countries/'~country.id) }}">{{ country.name }}</a></th>
                 <td data-title="ISO">{{ country.iso }}</td>
                 <td data-title="State required?">{{ country.stateRequired ? 'Yes'|t : 'No'|t }}</td>
                 <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
@@ -26,17 +26,16 @@
     </table>
     <br/>
     <div class="btngroup submit first">
-        <a href="{{ url('market/settings/countries/new') }}" class="btn submit">New Country</a>
+        <a href="{{ url('commerce/settings/countries/new') }}" class="btn submit">New Country</a>
     </div>
 {% endset %}
 
 
-{% set js %}
+{% includejs %}
 var adminTable = new Craft.AdminTable({
 tableSelector: '#countries',
-deleteAction: 'market/country/delete',
+deleteAction: 'commerce/countries/delete',
 confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}',
 deleteFailMessage: '{{ "Can not delete “{name}”, it is being used by various addresses."|t }}'
 });
-{% endset %}
-{% includeJs js %}
+{% endincludejs %}

@@ -1,8 +1,8 @@
-{% extends "market/_layouts/cp" %}
+{% extends "commerce/_layouts/settingscp" %}
 
 {% set crumbs = [
-{ label: "Market Settings"|t, url: url('market/settings') },
-{ label: "Order Types"|t, url: url('market/settings/ordertypes') },
+{ label: "Commerce Settings"|t, url: url('commerce/settings') },
+{ label: "Order Types"|t, url: url('commerce/settings/ordertypes') },
 ] %}
 
 
@@ -11,8 +11,8 @@
 
 {% set content %}
 <form method="post" accept-charset="UTF-8" data-saveshortcut>
-    <input type="hidden" name="action" value="market/orderType/saveOrderType">
-    <input type="hidden" name="redirect" value="market/settings/ordertypes">
+    <input type="hidden" name="action" value="commerce/orderTypes/saveOrderType">
+    <input type="hidden" name="redirect" value="commerce/settings/ordertypes">
 
     {{ getCsrfInput() }}
     {% if orderType.id %}<input type="hidden" name="orderTypeId" value="{{ orderType.id }}">{% endif %}
@@ -74,7 +74,6 @@
 
 {% endset %}
 
-{% set js %}
+{% includejs %}
 {% if not orderType.handle %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
-{% endset %}
-{% includeJs js %}
+{% endincludejs %}

@@ -1,18 +1,18 @@
 {% extends 'commerce/_layouts/main' %}
 
 {% set orderId = craft.request.param('orderId') %}
-{% set order = craft.market.orders.id(orderId).customer(craft.market.customer).first() %}
+{% set order = craft.commerce.orders.number(orderId).customer(craft.commerce.customer).first() %}
 
 {% if not order %}
     {% redirect 'commerce/customer' %}
 {% endif %}
 
-{%  block main %}
+{% block main %}
 
     <div class="row">
         <div class="eleven columns">
 
-            <p><a href="{{ url('commerce/customer') }}">My Orders</a></p>
+            {% if currentUser %}<p><a href="{{ url('commerce/customer') }}">My Orders</a></p>{% endif %}
             <h1>Order #{{ order.id }}</h1>
 
 
@@ -21,9 +21,9 @@
                     <h4>Details</h4>
 
                     <ul>
-                        <li><strong>{{ "Customer"|t }}:</strong> {{ order.customer.email}}</li>
-                        <li><strong>{{ "Total"|t }}:</strong> {{ order.totalPrice|marketCurrency}}</li>
-                        <li><strong>{{ "Date"|t }}:</strong> {{ order.dateOrdered}}</li>
+                        <li><strong>{{ "Customer"|t }}:</strong> {{ order.customer.email }}</li>
+                        <li><strong>{{ "Total"|t }}:</strong> {{ order.totalPrice|commerceCurrency }}</li>
+                        <li><strong>{{ "Date"|t }}:</strong> {{ order.dateOrdered }}</li>
                     </ul>
 
                 </div>
@@ -45,48 +45,48 @@
 
             <table class="u-full-width">
                 <thead>
-                    <tr>
-                        <th>Item</th>
-                        <th>Unit Price</th>
-                        <th>Quantity</th>
-                        <th class="text-right">Total</th>
-                    </tr>
+                <tr>
+                    <th>Item</th>
+                    <th>Unit Price</th>
+                    <th>Quantity</th>
+                    <th class="text-right">Total</th>
+                </tr>
                 </thead>
                 <tbody>
-                    {% for item in order.lineItems %}
-                        <tr>
-                            <td>
-                                <strong>{{ item.description }}</strong><br/>
-                                SKU: {{ item.sku }}
-                            </td>
-                            <td>
-                                {% if item.onSale %}
-                                    <strike>{{ item.price|marketCurrency }}</strike>   {{ item.salePrice|marketCurrency }}
-                                {% else %}
-                                   {{ item.price|marketCurrency }}
-                                {% endif %}
-                            </td>
-                            <td>{{ item.qty }}</td>
-                            <td class="text-right">{{ item.total|marketCurrency }}</td>
-                        </tr>
-                    {% endfor %}
-
-                    {%  for adjustment in order.adjustments %}
-                        <tr>
-                            <td>{{ adjustment.type }}</td>
-                            <td colspan="2"><strong>{{ adjustment.name }}</strong><br/>({{ adjustment.description }})</td>
-                            <td class="text-right">{{ adjustment.amount|marketCurrency }}</td>
-                        </tr>
-                    {% endfor %}
-
+                {% for item in order.lineItems %}
                     <tr>
-                        <td colspan="4" class="text-right">
-                            Item Total: {{ order.itemTotal|marketCurrency }}<br/>
-                            Base Discount: {{ order.baseDiscount|marketCurrency }}<br/>
-                            Base Shipping Rate: {{ order.baseShippingCost|marketCurrency }}<br/>
-                            <h4>Total: {{ order.totalPrice|marketCurrency }}</h4>
+                        <td>
+                            <strong>{{ item.description }}</strong><br/>
+                            SKU: {{ item.sku }}
                         </td>
+                        <td>
+                            {% if item.onSale %}
+                                <strike>{{ item.price|commerceCurrency }}</strike>   {{ item.salePrice|commerceCurrency }}
+                            {% else %}
+                                {{ item.price|commerceCurrency }}
+                            {% endif %}
+                        </td>
+                        <td>{{ item.qty }}</td>
+                        <td class="text-right">{{ item.total|commerceCurrency }}</td>
                     </tr>
+                {% endfor %}
+
+                {% for adjustment in order.adjustments %}
+                    <tr>
+                        <td>{{ adjustment.type }}</td>
+                        <td colspan="2"><strong>{{ adjustment.name }}</strong><br/>({{ adjustment.description }})</td>
+                        <td class="text-right">{{ adjustment.amount|commerceCurrency }}</td>
+                    </tr>
+                {% endfor %}
+
+                <tr>
+                    <td colspan="4" class="text-right">
+                        Item Total: {{ order.itemTotal|commerceCurrency }}<br/>
+                        Base Discount: {{ order.baseDiscount|commerceCurrency }}<br/>
+                        Base Shipping Rate: {{ order.baseShippingCost|commerceCurrency }}<br/>
+                        <h4>Total: {{ order.totalPrice|commerceCurrency }}</h4>
+                    </td>
+                </tr>
 
                 </tbody>
             </table>

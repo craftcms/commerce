@@ -1,9 +1,9 @@
-{% extends "market/_layouts/cp" %}
+{% extends "commerce/_layouts/settingscp" %}
 {% set title = "Product Types"|t %}
 
 {% set crumbs = [
-{ label: "Market Settings"|t, url: url('market/settings') },
-{ label: "Product Types"|t, url: url('market/settings/producttypes') },
+{ label: "Commerce Settings"|t, url: url('commerce/settings') },
+{ label: "Product Types"|t, url: url('commerce/settings/producttypes') },
 ] %}
 
 
@@ -12,22 +12,19 @@
 
 {% set content %}
 <form method="post" accept-charset="UTF-8" data-saveshortcut>
-    <input type="hidden" name="action" value="market/productType/saveProductType">
-    <input type="hidden" name="redirect" value="market/settings/producttypes">
+    <input type="hidden" name="action" value="commerce/productTypes/saveProductType">
+    <input type="hidden" name="redirect" value="commerce/settings/producttypes">
 
     {{ getCsrfInput() }}
     {% if productType.id %}<input type="hidden" name="productTypeId" value="{{ productType.id }}">{% endif %}
 
-    {%  set variantTabHidden = (productType.hasVariants ? '' : 'hidden') %}
     {% set tabs = {
-            0: {'label':'Settings','url':'#tab0'},
-            'productTab': {'label':'Product Fields','url':'#productTab'},
-            'variantTab': {'label':'Variant Fields','url':'#variantTab','class':'variant-settings '~variantTabHidden}
-        }
-    %}
+        productTypeSettings: { label: "Settings"|t, url: '#product-type-settings' },
+        productFields:       { label: "Product Fields"|t, url: '#product-fields' },
+        variantFields:       { label: "Variant Fields"|t, url: '#variant-fields', class: (not productType.hasVariants ? 'hidden') }
+    } %}
 
-    <div id="tab0">
-
+    <div id="product-type-settings">
     {{ forms.textField({
         first: true,
         label: "Name"|t,
@@ -43,7 +40,7 @@
 
     {{ forms.textField({
         label: "Handle"|t,
-        instructions: "How you’ll refer to this product type in code or templates."|t,
+        instructions: "How you’ll refer to this product type in the templates."|t,
         id: 'handle',
         class: 'code',
         name: 'handle',
@@ -52,16 +49,31 @@
         required: true
     }) }}
 
-    {% macro hasVariantsField(productType) %}
-        {% from "_includes/forms" import lightswitchField %}
+    {{ forms.checkboxField({
+        label: "Products of this type have dimensions"|t,
+        id: 'hasDimensions',
+        name: 'hasDimensions',
+        checked: productType.hasDimensions,
+    }) }}
 
-        {{ lightswitchField({
-            label: "Products Type has Variants."|t,
-            instructions: "One or more items for sale in a single product that differ from each other.",
+    {% macro hasVariantsField(productType) %}
+        {% from "_includes/forms" import checkboxField %}
+
+        {% set hasVariantsInstructions %}
+            {%- spaceless %}
+                {% if productType.id and productType.hasVariants %}
+                    <span class="error">{{ "Careful—your existing variant data will be deleted if you change this." }}</span>
+                {% endif %}
+            {% endspaceless -%}
+        {% endset %}
+
+        {{ checkboxField({
+            label: "Products of this type have multiple variants"|t,
+            instructions: hasVariantsInstructions,
             id: 'hasVariants',
             name: 'hasVariants',
-            on: productType.hasVariants,
-            toggle: '.variant-settings'
+            checked: productType.hasVariants,
+            toggle: '#variant-settings'
         }) }}
     {% endmacro %}
 
@@ -77,12 +89,13 @@
         }) }}
     {% endmacro %}
 
+
     {% macro templateField(productType) %}
         {% from "_includes/forms" import textField %}
 
         {{ textField({
             label: "Product Template"|t,
-            instructions: "The template to use when the products’s URL is requested."|t,
+            instructions: "The template to use when a product’s URL is requested."|t,
             id: 'template',
             class: 'ltr',
             name: 'template',
@@ -91,41 +104,13 @@
         }) }}
     {% endmacro %}
 
-
-    {% macro fieldOptionsRow(name, handle) %}
-        {% from "_includes/forms" import checkboxField %}
-        <tr data-id="1" data-name="{{ handle }}Field">
-            <th scope="row" data-title="Name">
-                {{ name|title }}
-            </th>
-            <td data-title="Visible">
-                {{ checkboxField({
-                    label: ""|t,
-                    id: 'visible',
-                    name: 'fieldOptions['~handle~'][visible]',
-                    checked: 1,
-                    disabled:lockedVisible|default(false)
-                }) }}
-            </td>
-            <td data-title="Same">
-                <span class="variant-settings">
-                {{ checkboxField({
-                    label: ""|t,
-                    id: 'same',
-                    name: 'fieldOptions['~handle~'][same]',
-                    checked: 1
-                }) }}
-                </span>
-            </td>
-        </tr>
-    {%  endmacro %}
-
     {% macro titleFormatField(productType) %}
         {% from "_includes/forms" import textField %}
-        <div class="variant-settings {{ (productType.hasVariants ? '' : 'hidden') }}">
+
+        <div id="variant-settings"{% if not productType.hasVariants %} class="hidden"{% endif %}>
         {{ textField({
             label: "Variant Title Format"|t,
-            instructions: "What the auto-generated entry titles should look like. You can include tags that output entry properties, such as {sku} or {myCustomField}."|t,
+            instructions: "What the auto-generated variant titles should look like. You can include tags that output variant properties, such as {ex1} or {ex2}. "|t({ ex1: '<code>{sku}</code>', ex2: '<code>{myCustomField}</code>' }),
             id: 'titleFormat',
             class: 'ltr',
             name: 'titleFormat',
@@ -136,12 +121,11 @@
     {% endmacro %}
 
 
-
-
-    {% from _self import hasUrlsField, templateField, hasVariantsField, fieldOptionsRow, titleFormatField  %}
+    {% from _self import hasUrlsField, templateField, hasVariantsField, titleFormatField  %}
 
     <hr/>
     {{ hasVariantsField(productType) }}
+
     {{ titleFormatField(productType) }}
     <hr/>
 
@@ -149,22 +133,67 @@
 
 
     <div id="url-settings" class="nested-fields{% if not productType.hasUrls %} hidden{% endif %}">
+
+        {% macro urlFormatText(locale, productType, name, value) %}
+            {% from "_includes/forms" import text, errorList %}
+            {% set errors = productType.getErrors(name~'-'~locale.id) %}
+
+            <div class="input{% if errors %} errors{% endif %}">
+                {{ text({
+                    id: name~'-'~locale.id,
+                    class: 'code ltr',
+                    name: name~'['~locale.id~']',
+                    value: (value != '__home__' ? value : null),
+                    errors: errors
+                }) }}
+            </div>
+
+            {{ errorList(errors) }}
+        {% endmacro %}
+
+        {% set urlFormatInput %}
+            <table class="data fullwidth">
+                <thead>
+                {% if craft.isLocalized() %}
+                    <th></th>
+                {% endif %}
+                <th scope="col">{{ "Product Type"|t }}</th>
+                </thead>
+                <tbody>
+                {% for locale in craft.i18n.getSiteLocales() %}
+                    <tr>
+                        {% if craft.isLocalized() %}
+                            <th class="thin nowrap">{{ locale.id }}</th>
+                        {% endif %}
+                        <td class="topalign">
+                            {% set value = (productType.locales[locale.id] is defined ? productType.locales[locale.id].urlFormat : null) %}
+                            {{ _self.urlFormatText(locale, productType, 'urlFormat', value) }}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endset %}
+
+        {{ forms.field({
+            label: "Product URL Format"|t,
+            instructions: "What the product URLs should look like. You can include tags that output product properties, such as such as {ex1} or {ex2}."|t({ ex1: '<code>{slug}</code>', ex2: '<code>{publishDate|date(\"Y\")}</code>' }),
+        }, urlFormatInput) }}
+
         {{ forms.textField({
-            label: "Product Url Format"|t,
-            instructions: "What the product URLs should look like. You can include tags that output entry properties, such as {slug} or {publishDate|date(\"Y\")}."|t,
-            id: 'urlFormat',
-            class: 'code',
-            name: 'urlFormat',
-            value: productType.urlFormat,
-            errors: productType.getErrors('urlFormat')
+            label: "Product Template"|t,
+            instructions: "The template to use when a product’s URL is requested."|t,
+            id: 'template',
+            class: 'ltr',
+            name: 'template',
+            value: productType.template,
+            errors: productType.getErrors('template')
         }) }}
-
-        {{ templateField(productType) }}
     </div>
 
     </div>
 
-    <div id="productTab" class="hidden">
+    <div id="product-fields" class="hidden">
 
     {% include "_includes/fieldlayoutdesigner" with {
     fieldLayout: productType.asa('productFieldLayout').getFieldLayout(),
@@ -172,12 +201,14 @@
 
     </div>
 
-    <div id="variantTab" class="hidden">
+    <div id="variant-fields" class="hidden">
 
-    {% include "market/_includes/variantfieldlayoutdesigner" with {
+    {% namespace "variant-layout" %}
+    {% include "_includes/fieldlayoutdesigner" with {
         fieldLayout: productType.asa('variantFieldLayout').getFieldLayout(),
         customizableTabs: false
     } only %}
+    {% endnamespace %}
 
     </div>
 
@@ -190,12 +221,20 @@
 
 {% endset %}
 
-{% set js %}
-{% if not productType.handle %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
-$(function () {
-    $('#type').selectize({
-        dropdownParent: 'body'
+{% includejs %}
+    {% if not productType.handle %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
+
+    {% for locale in craft.i18n.getSiteLocales() %}
+        {% if productType.locales[locale.id] is not defined or not productType.locales[locale.id].urlFormat %}
+            new Craft.EntryUrlFormatGenerator('#name', '#urlFormat-{{ locale.id }}', { suffix: '/{slug}' });
+        {% endif %}
+    {% endfor %}
+
+    $('#hasVariants').on('change', function() {
+        if ($(this).prop('checked')) {
+            $('#tab-variantFields').removeClass('hidden');
+        } else {
+            $('#tab-variantFields').addClass('hidden');
+        }
     });
-});
-{% endset %}
-{% includeJs js %}
+{% endincludejs %}

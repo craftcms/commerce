@@ -1,38 +1,55 @@
 {% extends 'commerce/_layouts/checkout' %}
 
-{% import 'commerce/_includes/forms' as forms %}
 
-{%  block content %}
+{% block content %}
 
     <h2>Order Review</h2>
 
     <ul>
         <li>
-            <strong>Products:</strong> {{ cart.itemTotal|marketCurrency }}
+            <strong>Products:</strong> {{ cart.itemTotal|commerceCurrency }}
         </li>
 
-        {%  for adjustment in cart.adjustments %}
+        {% for adjustment in cart.adjustments %}
             <li>
-                <strong>{{ adjustment.type }}: </strong> {{ adjustment.amount|marketCurrency }}
+                <strong>{{ adjustment.type }}: </strong> {{ adjustment.amount|commerceCurrency }}
             </li>
         {% endfor %}
 
         <li>
-            <strong>Total:</strong> {{ cart.totalPrice|marketCurrency }}
+            <strong>Total:</strong> {{ cart.totalPrice|commerceCurrency }}
         </li>
     </ul>
 
     <h2>Payment Method</h2>
 
+    {#
+    Using the update cart action you could allow the user to select the payment method here.
+    We recommend using ajax to set this, so no page refresh is needed. This would also allow you to show or hide the credit card form
+    on method change if the method does not require a card and the submit just redirects offsite.
+    #}
+    <form method="POST" class="form-inline">
 
-    {% include "commerce/_includes/setPaymentMethod" %}
+        <input type="hidden" name="action" value="commerce/cart/update">
+        <input type="hidden" name="redirect" value="commerce/checkout/payment">
+        {{ getCsrfInput() }}
 
+        <label for="">Payment Method</label>
+        <select name="paymentMethodId" class="form-control" >
+            {% for id,name in craft.commerce.getPaymentMethods() %}
+                <option value="{{ id }}" {% if id == cart.paymentMethod.id %}selected{% endif %}>{{ name }}</option>
+            {% endfor %}
+        </select>
+
+        <p><input type="submit" class="btn" value="Select Payment Method" /></p>
+
+    </form>
 
     {% if cart.paymentMethodId %}
         <form method="POST" class="form-horizontal">
-            <input type="hidden" name="action" value="market/cartPayment/pay"/>
-            <input type="hidden" name="redirect" value="/commerce/customer/order?orderId={id}"/>
-            <input type="hidden" name="cancelUrl" value="/commerce/cart"/>
+            <input type="hidden" name="action" value="commerce/cartPayment/pay"/>
+            <input type="hidden" name="redirect" value="/commerce/customer/order?orderId={number}"/>
+            <input type="hidden" name="cancelUrl" value="/commerce/checkout/payment"/>
             {{ getCsrfInput() }}
 
             <div class="row">
@@ -43,7 +60,11 @@
                     <noscript>
                         <div class="bs-callout bs-callout-danger">
                             <h4>JavaScript is not enabled!</h4>
-                            <p>This payment form requires your browser to have JavaScript enabled. Please activate JavaScript and reload this page. Check <a href="http://enable-javascript.com" target="_blank">enable-javascript.com</a> for more informations.</p>
+
+                            <p>This payment form requires your browser to have JavaScript enabled. Please activate
+                                JavaScript and reload this page. Check <a href="http://enable-javascript.com"
+                                                                          target="_blank">enable-javascript.com</a> for
+                                more informations.</p>
                         </div>
                     </noscript>
 
@@ -66,6 +87,8 @@
                     <div class="row">
                         <div class="six columns">
 
+
+
                             <!-- Card Holder Name -->
                             <div class="form-group {% if paymentForm is defined and (paymentForm.hasErrors('firstName') or paymentForm.hasErrors('firstName')) %}has-error{% endif %}">
                                 <label>Card Holder</label>
@@ -73,14 +96,16 @@
                                 <div class="row">
                                     <div class="six columns">
 
-                                        <input type="text" name="firstName" maxlength="70" placeholder="First Name" class="card-holder-first-name u-full-width"
-                                           value="{{ formValues.firstName }}">
+                                        <input type="text" name="firstName" maxlength="70" placeholder="First Name"
+                                               class="card-holder-first-name u-full-width"
+                                               value="{{ formValues.firstName }}">
 
                                     </div>
 
                                     <div class="six columns">
-                                        <input type="text" name="lastName" maxlength="70" placeholder="Last Name" class="card-holder-last-name u-full-width"
-                                           value="{{ formValues.lastName }}">
+                                        <input type="text" name="lastName" maxlength="70" placeholder="Last Name"
+                                               class="card-holder-last-name u-full-width"
+                                               value="{{ formValues.lastName }}">
 
                                     </div>
                                 </div>
@@ -95,7 +120,8 @@
                             <div class="form-group {% if paymentForm is defined and paymentForm.hasErrors('number') %}has-error{% endif %}">
                                 <label>Card Number</label>
 
-                                <input type="text" name="number" maxlength="19" placeholder="Card Number" class="card-number u-full-width" value="{{ formValues.number }}">
+                                <input type="text" name="number" maxlength="19" placeholder="Card Number"
+                                       class="card-number u-full-width" value="{{ formValues.number }}">
 
                                 <span class="help-block">{% if paymentForm is defined %}{{ paymentForm.getError('number') }}{% endif %}</span>
                             </div>
@@ -105,14 +131,16 @@
                                 <label>Card Expiry Date</label>
 
                                 <select class="form-control" name="month">
-                                    {% for month in 1..12  %}
-                                        <option value="{{ month }}" {% if formValues.month == month %}selected{% endif %}>{{ month }}</option>
+                                    {% for month in 1..12 %}
+                                        <option value="{{ month }}"
+                                                {% if formValues.month == month %}selected{% endif %}>{{ month }}</option>
                                     {% endfor %}
                                 </select>
                                 <span> / </span>
                                 <select class="required form-control" name="year">
-                                    {% for year in currentYear-1..(currentYear + 12)  %}
-                                        <option value="{{ year }}" {% if formValues.year == year %}selected{% endif %}>{{ year }}</option>
+                                    {% for year in currentYear-1..(currentYear + 12) %}
+                                        <option value="{{ year }}"
+                                                {% if formValues.year == year %}selected{% endif %}>{{ year }}</option>
                                     {% endfor %}
                                 </select>
 
@@ -126,7 +154,8 @@
                             <div class="form-group {% if paymentForm is defined and paymentForm.hasErrors('cvv') %}has-error{% endif %}">
 
                                 <label>CVV/CVV2</label>
-                                <input type="text" name="cvv" placeholder="CVV" maxlength="4" class="card-cvc" value="{{ formValues.cvv }}">
+                                <input type="text" name="cvv" placeholder="CVV" maxlength="4" class="card-cvc"
+                                       value="{{ formValues.cvv }}">
 
                                 <span class="help-block">{% if paymentForm is defined %}{{ paymentForm.getError('cvv') }}{% endif %}</span>
 
@@ -149,4 +178,4 @@
         </form>
     {% endif %}
 
-{%  endblock %}
+{% endblock %}

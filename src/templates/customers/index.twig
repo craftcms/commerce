@@ -1,11 +1,4 @@
-{% extends "market/_layouts/cp" %}
-
-{% set title = "Market"|t %}
-
-{% set crumbs = [
-{ label: "Market"|t, url: url('market') },
-{ label: "Customers"|t, url: url('market/settings/customers') }
-] %}
+{% extends "commerce/_layouts/cp" %}
 
 {% set content %}
 <table id="customers" class="data fullwidth collapsible">

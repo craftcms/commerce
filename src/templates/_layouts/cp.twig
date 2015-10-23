@@ -1,5 +1,2 @@
 {% extends "_layouts/cp" %}
-
-{% includeCssResource "market/market.css" %}
-{% includeJsResource "market/bower_components/selectize/dist/js/standalone/selectize.js" %}
-{% includeCssResource "market/bower_components/selectize/dist/css/selectize.default.css" %}
+{% hook 'commerce.prepCpTemplate' %}

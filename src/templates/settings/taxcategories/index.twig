@@ -1,4 +1,4 @@
-{% extends "market/_layouts/settings" %}
+{% extends "commerce/_layouts/settings" %}
 
 {% set content %}
 
@@ -7,10 +7,10 @@
     <table id="taxcategories" class="data fullwidth collapsible">
         <thead>
         <tr>
-            <th scope="col">Name</th>
-            <th scope="col">Code</th>
-            <th scope="col">Description</th>
-            <th scope="col">Is Default?</th>
+            <th scope="col">{{ "Name"|t }}</th>
+            <th scope="col">{{ "Handle"|t }}</th>
+            <th scope="col">{{ "Description"|t }}</th>
+            <th scope="col">{{ "Default Category?"|t }}</th>
             <td class="thin"></td>
         </tr>
         </thead>
@@ -18,9 +18,9 @@
         {% for taxCategory in taxCategories %}
             <tr data-id="{{ taxCategory.id }}" data-name="{{ taxCategory.name }}">
                 <th scope="row" data-title="Name"><a
-                            href="{{ url('market/settings/taxcategories/'~taxCategory.id) }}">{{ taxCategory.name }}</a>
+                            href="{{ url('commerce/settings/taxcategories/'~taxCategory.id) }}">{{ taxCategory.name }}</a>
                 </th>
-                <td data-title="Code">{{ taxCategory.code }}</td>
+                <td data-title="Handle"><code>{{ taxCategory.handle }}</code></td>
                 <td data-title="Description">{{ taxCategory.description }}</td>
                 <td data-title="Is Default?">{{ taxCategory.default ? 'Yes'|t : 'No'|t }}</td>
                 <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
@@ -31,17 +31,16 @@
     </table>
     <br/>
     <div class="btngroup submit first">
-        <a href="{{ url('market/settings/taxcategories/new') }}" class="btn submit">New Tax Category</a>
+        <a href="{{ url('commerce/settings/taxcategories/new') }}" class="btn submit">New Tax Category</a>
     </div>
 
 {% endset %}
 
-{% set js %}
+{% includejs %}
 var adminTable = new Craft.AdminTable({
 tableSelector: '#taxcategories',
-deleteAction: 'market/taxCategory/delete',
+deleteAction: 'commerce/taxCategories/delete',
 minObjects: 1,
 confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
 });
-{% endset %}
-{% includeJs js %}
+{% endincludejs %}

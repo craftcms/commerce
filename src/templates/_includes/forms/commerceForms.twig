@@ -1,0 +1,35 @@
+{% macro number(settings) %}
+
+    {%- set class = [
+    'text',
+    (settings.class is defined and settings.class ? settings.class : null),
+    (settings.placeholder is defined and settings.placeholder ? 'nicetext' : null),
+    (settings.disabled is defined and settings.disabled ? 'disabled' : null),
+    (settings.size is defined and settings.size ? null : 'fullwidth')
+    ]|filter|join(' ') %}
+
+    <input class="{{ class }}" type="number"
+        {%- if settings.style is defined %} style="{{ settings.style }}"{% endif %}
+        {%- if settings.id is defined %} id="{{ settings.id }}"{% endif %}
+        {%- if settings.size is defined %} size="{{ settings.size }}"{% endif %}
+        {%- if settings.name is defined %} name="{{ settings.name }}"{% endif %}
+        {%- if settings.value is defined %} value="{{ settings.value }}"{% endif %}
+        {%- if settings.maxlength is defined and settings.maxlength %} maxlength="{{ settings.maxlength }}"{% endif %}
+        {%- if settings.autofocus is defined and settings.autofocus and not craft.request.isMobileBrowser(true) %} autofocus{% endif %}
+        {%- if settings.autocomplete is not defined or not settings.autocomplete %} autocomplete="off"{% endif %}
+        {%- if settings.disabled is defined and settings.disabled %} disabled {% endif %}
+        {%- if settings.readonly is defined and settings.readonly %} readonly {% endif %}
+        {%- if settings.step is defined and settings.step %} step="{{ settings.step }}"{% endif %}
+        {%- if settings.min is defined %} min="{{ settings.min }}"{% endif %}
+        {%- if settings.max is defined %} max="{{ settings.max }}"{% endif %}
+        {%- if settings.placeholder is defined %} placeholder="{{ settings.placeholder }}"{% endif %}
+            >
+
+{% endmacro %}
+
+{% macro numberField(config) %}
+    {% import _self as commerceForms %}
+    {% import "_includes/forms" as forms %}
+
+    {{ forms.field(config, commerceForms.number(config)) }}
+{% endmacro %}

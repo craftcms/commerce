@@ -1,8 +1,8 @@
-{% extends "market/_layouts/cp" %}
+{% extends "commerce/_layouts/settingscp" %}
 
 {% set crumbs = [
-{ label: "Market Settings"|t, url: url('market/settings') },
-{ label: "Payment Methods"|t, url: url('market/settings/paymentmethods') },
+{ label: "Commerce Settings"|t, url: url('commerce/settings') },
+{ label: "Payment Methods"|t, url: url('commerce/settings/paymentmethods') },
 ] %}
 
 {% import "_includes/forms" as forms %}
@@ -10,53 +10,53 @@
 {% set content %}
 
 <form method="post" action="" accept-charset="UTF-8">
-    <input type="hidden" name="action" value="market/paymentMethod/save">
-    <input type="hidden" name="redirect" value="market/settings/paymentmethods">
+
+    {{ forms.textField({
+        label: 'Name'|t,
+        name: 'name',
+        value : paymentMethod.name,
+        required: true,
+        errors: paymentMethod.getErrors('name'),
+    }) }}
+
+    <input type="hidden" name="id" value="{{ paymentMethod.id }}">
+    <input type="hidden" name="action" value="commerce/paymentMethods/save">
+    <input type="hidden" name="redirect" value="commerce/settings/paymentmethods">
 
     {{ getCsrfInput() }}
 
+    {{ forms.selectField({
+        first: true,
+        label: 'Gateway'|t,
+        id: 'class',
+        name: 'class',
+        options : gatewaysList,
+        value : paymentMethod.class,
+        required: true,
+        errors: paymentMethod.getErrors('class'),
+    }) }}
+
     <input type="hidden" name="paymentMethodClass" value="{{ paymentMethod.class }}"/>
 
-    {% for paramKey, paramValue in paymentMethod.gateway.parameters %}
-        {% if paramKey in paymentMethod.booleans %}
-            {{ forms.checkboxField({
-                label: paymentMethod.generateAttributeLabel(paramKey)|t,
-                name: 'settings['~paramKey~']',
-                value: 1,
-                checked : (paymentMethod.settings[paramKey] is defined ? paymentMethod.settings[paramKey] : false)
-            }) }}
-        {% elseif paymentMethod.selects[paramKey] is defined %}
-            {{ forms.selectField({
-                label: paymentMethod.generateAttributeLabel(paramKey)|t,
-                name: 'settings['~paramKey~']',
-                options : paymentMethod.selects[paramKey],
-                value : (paymentMethod.settings[paramKey] is defined ? paymentMethod.settings[paramKey] : '')
-            }) }}
-        {% else %}
-            {{ forms.textField({
-                label: paymentMethod.generateAttributeLabel(paramKey)|t,
-                name: 'settings['~paramKey~']',
-                value : (paymentMethod.settings[paramKey] is defined ? paymentMethod.settings[paramKey] : '')
-            }) }}
-        {% endif %}
-
+    {% for gateway in gateways %}
+        <div class="gateway-settings" id="gateway-{{ gateway.handle }}" data-name="{{ gateway.displayName }}">
+            {{ gateway.getSettingsHtml(paymentMethod)|raw }}
+        </div>
     {% endfor %}
 
+    {% set noSettingsGateways = ['Manual','Dummy'] %}
+    {% if paymentMethod.class in noSettingsGateways %}
+        {% set isFirst = true %}
+    {% else %}
+        {% set isFirst = false %}
+    {% endif %}
     {{ forms.checkboxField({
-        first: true,
-        label: "Enabled in Control Panel"|t,
-        name: 'cpEnabled',
-        checked: paymentMethod.cpEnabled,
-    }) }}
-
-    {{ forms.checkboxField({
-        first: true,
-        label: "Enabled on Frontend"|t,
+        first: isFirst,
+        label: "Enabled for the front end"|t,
         name: 'frontendEnabled',
         checked: paymentMethod.frontendEnabled,
+        errors: paymentMethod.getErrors('frontendEnabled'),
     }) }}
-
-    <hr/>
 
     <div class="buttons">
         <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
@@ -65,3 +65,17 @@
 </form>
 
 {% endset %}
+
+{% includejs %}
+{#<script>#}
+    $(function() {
+        $('#class').change(function() {
+            $('.gateway-settings').hide().find('select, input, textarea').prop('disabled', true);
+            if($(this).val()) {
+                $('#gateway-' + $(this).val()).show().find('select, input, textarea').prop('disabled', false);
+            }
+        }).change();
+
+    });
+{#</script>#}
+{% endincludejs %}

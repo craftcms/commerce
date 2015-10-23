@@ -1,28 +1,27 @@
-{% extends "market/_layouts/settings" %}
+{% extends "commerce/_layouts/settings" %}
 
 {% set content %}
-    <h2>{{ "System Emails"|t }}</h2>
+    <h2>{{ "Emails"|t }}</h2>
+    {% if emails|length %}
     <table id="emails" class="data fullwidth collapsible">
         <thead>
         <tr>
-            <th scope="col">Name</th>
-            <th scope="col">Subject</th>
-            <th scope="col">To</th>
-            <th scope="col">Bcc</th>
-            <th scope="col">Type</th>
-            <th scope="col">Template Path</th>
-            <th scope="col">Enabled</th>
+            <th scope="col">{{ "Name"|t }}</th>
+            <th scope="col">{{ "Subject"|t }}</th>
+            <th scope="col">{{ "To"|t }}</th>
+            <th scope="col">{{ "Bcc"|t }}</th>
+            <th scope="col">{{ "Template Path"|t }}</th>
+            <th scope="col">{{ "Enabled"|t }}</th>
             <td class="thin"></td>
         </tr>
         </thead>
         <tbody>
         {% for email in emails %}
             <tr data-id="{{ email.id }}" data-name="{{ email.name }}">
-                <th scope="row" data-title="Name"><a href="{{ url('market/settings/emails/'~email.id) }}">{{ email.name }}</a></th>
+                <th scope="row" data-title="Name"><a href="{{ url('commerce/settings/emails/'~email.id) }}">{{ email.name }}</a></th>
                 <td data-title="Subject">{{ email.subject }}</td>
                 <td data-title="To">{{ email.to }}</td>
                 <td data-title="To">{{ email.bcc }}</td>
-                <td data-title="Type">{{ email.type }}</td>
                 <td data-title="Template Path">{{ email.templatePath }}</td>
                 <td data-title="Enabled">{{ email.enabled ? 'Yes'|t : 'No'|t }}</td>
                 <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
@@ -31,18 +30,19 @@
 
         </tbody>
     </table>
-    <br/>
+    {% else %}
+        <p>{{ "No emails exist yet."|t }}</p>
+    {% endif %}
     <div class="btngroup submit first">
-        <a href="{{ url('market/settings/emails/new') }}" class="btn submit">New Email</a>
+        <a href="{{ url('commerce/settings/emails/new') }}" class="btn submit">New Email</a>
     </div>
 {% endset %}
 
 
-{% set js %}
+{% includejs %}
 var adminTable = new Craft.AdminTable({
 tableSelector: '#emails',
-deleteAction: 'market/email/delete',
+deleteAction: 'commerce/emails/delete',
 confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
 });
-{% endset %}
-{% includeJs js %}
+{% endincludejs %}

@@ -1,17 +1,17 @@
-{% extends "market/_layouts/settings" %}
+{% extends "commerce/_layouts/settings" %}
 
 {% set content %}
 
     <h2>{{ "Tax Zones"|t }}</h2>
-
+    {% if taxZones|length %}
     <table id="taxZones" class="data fullwidth collapsible">
         <thead>
         <tr>
-            <th scope="col">Name</th>
-            <th scope="col">Description</th>
-            <th scope="col">Type</th>
-            <th scope="col">Countries / States</th>
-            <th scope="col">Is Default?</th>
+            <th scope="col">{{ 'Name'|t }}</th>
+            <th scope="col">{{ 'Description'|t }}</th>
+            <th scope="col">{{ 'Type'|t }}</th>
+            <th scope="col">{{ 'Countries / States'|t }}</th>
+            <th scope="col">{{ 'Default Zone?'|t }}</th>
             <td class="thin"></td>
         </tr>
         </thead>
@@ -19,10 +19,24 @@
         {% for taxZone in taxZones %}
             <tr data-id="{{ taxZone.id }}" data-name="{{ taxZone.name }}">
                 <td scope="row" data-title="Name"><a
-                            href="{{ url('market/settings/taxzones/'~taxZone.id) }}">{{ taxZone.name }}</a></td>
+                            href="{{ url('commerce/settings/taxzones/'~taxZone.id) }}">{{ taxZone.name }}</a></td>
                 <td data-title="Description">{{ taxZone.description }}</td>
                 <td data-title="Type">{{ taxZone.countryBased ? 'Country Based'|t : 'State Based'|t }}</td>
-                <td data-title="Type">{{ taxZone.getCountriesNames()|join(', ') }}{{ taxZone.getStatesNames()|join(', ') }}</td>
+                <td data-title="CountryState">
+                    {%  set countryCount = taxZone.getCountriesNames()|length%}
+                    {% if countryCount > 3 %}
+                        {{ taxZone.getCountriesNames()|slice(0,3)|join(', ') }} ({{ (countryCount - 3) ~ " more"|t }}&hellip;)
+                    {% else %}
+                        {{ taxZone.getCountriesNames()|join(', ') }}
+                    {% endif %}
+
+                    {%  set stateCount = taxZone.getStatesNames()|length%}
+                    {% if stateCount > 3 %}
+                        {{ taxZone.getStatesNames()|slice(0,3)|join(', ') }} ({{ (stateCount - 3) ~ " more"|t }}&hellip;)
+                    {% else %}
+                        {{ taxZone.getStatesNames()|join(', ') }}
+                    {% endif %}
+                </td>
                 <td data-title="Is Default?">{{ taxZone.default ? 'Yes'|t : 'No'|t }}</td>
                 <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
             </tr>
@@ -30,18 +44,19 @@
 
         </tbody>
     </table>
+    {% else %}
+        <p>{{ 'No tax zones exist yet.'|t }}</p>
+    {% endif %}
     <br/>
     <div class="btngroup submit first">
-        <a href="{{ url('market/settings/taxzones/new') }}" class="btn submit">New Tax Zone</a>
+        <a href="{{ url('commerce/settings/taxzones/new') }}" class="btn submit">New Tax Zone</a>
     </div>
 
 {% endset %}
-
-{% set js %}
+{% includejs %}
 var adminTable = new Craft.AdminTable({
 tableSelector: '#taxZones',
-deleteAction: 'market/taxZone/delete',
+deleteAction: 'commerce/taxZones/delete',
 confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
 });
-{% endset %}
-{% includeJs js %}
+{% endincludejs %}

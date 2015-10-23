@@ -1,16 +1,15 @@
-{% extends "market/_layouts/cp" %}
+{% extends "commerce/_layouts/cp" %}
 
 {% set crumbs = [
-{ label: "Market"|t, url: url('market') },
-{ label: "Customers"|t, url: url('market/settings/customers') },
+{ label: "Customers"|t, url: url('commerce/customers') },
 ] %}
 
 {% import "_includes/forms" as forms %}
 
 {% set content %}
 <form method="post" accept-charset="UTF-8" data-saveshortcut>
-    <input type="hidden" name="action" value="market/customer/save">
-    <input type="hidden" name="redirect" value="market/customers">
+    <input type="hidden" name="action" value="commerce/customers/save">
+    <input type="hidden" name="redirect" value="commerce/customers">
     {{ getCsrfInput() }}
 
     <input type="hidden" name="id" value="{{ customer.id }}">
@@ -76,11 +75,10 @@
 {% endset %}
 
 
-{% set js %}
+{% includejs %}
     new Craft.AdminTable({
     tableSelector: '#addresses',
-    deleteAction: 'market/address/delete',
+    deleteAction: 'commerce/address/delete',
     confirmDeleteMessage: '{{ "Are you sure you want to delete address ID: '{name}'?"|t }}'
     });
-{% endset %}
-{% includeJs js %}
+{% endincludejs %}

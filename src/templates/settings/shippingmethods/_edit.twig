@@ -1,16 +1,26 @@
-{% extends "market/_layouts/cp" %}
+{% extends "commerce/_layouts/settingscp" %}
 
 {% set crumbs = [
-{ label: "Market Settings"|t, url: url('market/settings') },
-{ label: "Shipping Methods"|t, url: url('market/settings/shippingmethods') },
+{ label: "Commerce Settings"|t, url: url('commerce/settings') },
+{ label: "Shipping Methods"|t, url: url('commerce/settings/shippingmethods') },
 ] %}
 
 {% import "_includes/forms" as forms %}
 
+    {% set tabs = {
+    0: {'label':'Shipping Method','url':'#shippingMethodTab'}
+    }
+    %}
+    {% if not newMethod %}
+        {%  set tabs = tabs|merge({1: {'label':'Rules','url':'#rules'}}) %}
+    {% endif %}
+
 {% set content %}
 <form method="post" accept-charset="UTF-8" data-saveshortcut>
-    <input type="hidden" name="action" value="market/shippingMethod/save">
-    <input type="hidden" name="redirect" value="market/settings/shippingmethods/{id}">
+<div id="shippingMethodTab">
+
+    <input type="hidden" name="action" value="commerce/shippingMethod/save">
+    <input type="hidden" name="redirect" value="commerce/settings/shippingmethods/{id}#rules">
 
     {{ getCsrfInput() }}
     {% if shippingMethod.id %}<input type="hidden" name="shippingMethodId" value="{{ shippingMethod.id }}">{% endif %}
@@ -29,8 +39,7 @@
     }) }}
 
     {{ forms.checkboxField({
-        label: "Enabled"|t,
-        instructions: "Is it available on the front end?"|t,
+        label: "Enable this shipping method on the front end?"|t,
         id: 'enabled',
         name: 'enabled',
         value: 1,
@@ -39,8 +48,7 @@
     }) }}
 
     {{ forms.checkboxField({
-        label: "Default"|t,
-        instructions: "Is this the carts default selected shipping method?"|t,
+        label: "New carts get this status by default"|t,
         id: 'default',
         name: 'default',
         value: 1,
@@ -48,27 +56,22 @@
         errors: shippingMethod.getErrors('default')
     }) }}
 
+</div>
 
-    <hr>
+<div id="rules" class="hidden">
 
-    <div class="buttons">
-        <input type="submit" class="btn submit" value="{{ 'Save Shipping Method'|t }}">
-    </div>
-</form>
-
-<hr/>
 <h2>{{ "Shipping Rules"|t }}</h2>
-
+{% if shippingRules|length %}
 <table id="shippingRules" class="data fullwidth collapsible">
     <thead>
     <tr>
-        <th>Name</th>
-        <th>Method</th>
-        <th>Country</th>
-        <th>State</th>
-        <th>Filtering Settings</th>
-        <th>Charge Settings</th>
-        <th>Enabled</th>
+        <th>{{ 'Name'|t }}</th>
+        <th>{{ 'Method'|t }}</th>
+        <th>{{ 'Country'|t }}</th>
+        <th>{{ 'State'|t }}</th>
+        <th>{{ 'Filtering Settings'|t }}</th>
+        <th>{{ 'Charge Settings'|t }}</th>
+        <th>{{ 'Enabled?'|t }}</th>
         <td class="thin"></td>
         <td class="thin"></td>
     </tr>
@@ -76,7 +79,7 @@
     <tbody>
     {% for shippingRule in shippingRules %}
         <tr data-id="{{ shippingRule.id }}" data-name="{{ shippingRule.name }}">
-            <th scope="row" data-title="Name"><a href="{{ url('market/settings/shippingmethods/'~shippingRule.methodId~'/shippingrules/'~shippingRule.id) }}">{{ shippingRule.name }}</a></th>
+            <th scope="row" data-title="Name"><a href="{{ url('commerce/settings/shippingmethods/'~shippingRule.methodId~'/shippingrules/'~shippingRule.id) }}">{{ shippingRule.name }}</a></th>
             <td>{{ shippingRule.method.name }}</td>
             <td>{{ shippingRule.country.name|default('All') }}</td>
             <td>{{ shippingRule.state.name|default('All') }}</td>
@@ -108,26 +111,27 @@
 
     </tbody>
 </table>
-
-{% if newMethod %}
-    <p><span style="color:red">Save this method before creating rules.</span></p>
 {% else %}
-    <br/>
-    <div class="btngroup submit first">
-        <a href="{{ url('market/settings/shippingmethods/'~shippingMethod.id~'/shippingrules/new') }}" class="btn submit">New Shipping Rule</a>
-    </div>
+    <p>{{ 'No shipping rules exist yet for this shipping method.' }}</p>
 {% endif %}
+<div class="btngroup submit first">
+    <a href="{{ url('commerce/settings/shippingmethods/'~shippingMethod.id~'/shippingrules/new') }}" class="btn submit">{{ 'New Shipping Rule'|t }}</a>
+</div>
 
+</div>
 
+<div class="buttons">
+    <input type="submit" class="btn submit" value="{{ newMethod ? 'Save and set rules'|t :'Save'|t }}">
+</div>
+</form>
 {% endset %}
 
-{% set js %}
+{% includejs %}
 var adminTable = new Craft.AdminTable({
     tableSelector: '#shippingRules',
-    deleteAction: 'market/shippingRule/delete',
+    deleteAction: 'commerce/shippingRules/delete',
     sortable: true,
-    reorderAction: 'market/shippingRule/reorder',
+    reorderAction: 'commerce/shippingRule/reorder',
     confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
 });
-{% endset %}
-{% includeJs js %}
+{% endincludejs %}

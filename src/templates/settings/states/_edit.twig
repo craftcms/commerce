@@ -1,16 +1,16 @@
-{% extends "market/_layouts/cp" %}
+{% extends "commerce/_layouts/settingscp" %}
 
 {% set crumbs = [
-{ label: "Market Settings"|t, url: url('market/settings') },
-{ label: "States"|t, url: url('market/settings/states') },
+{ label: "Commerce Settings"|t, url: url('commerce/settings') },
+{ label: "States"|t, url: url('commerce/settings/states') },
 ] %}
 
 {% import "_includes/forms" as forms %}
 
 {% set content %}
 <form method="post" accept-charset="UTF-8" data-saveshortcut>
-    <input type="hidden" name="action" value="market/state/save">
-    <input type="hidden" name="redirect" value="market/settings/states">
+    <input type="hidden" name="action" value="commerce/states/save">
+    <input type="hidden" name="redirect" value="commerce/settings/states">
 
     {{ getCsrfInput() }}
     {% if state.id %}<input type="hidden" name="stateId" value="{{ state.id }}">{% endif %}
@@ -30,7 +30,6 @@
 
     {{ forms.textField({
         label: "Abbreviation"|t,
-        instructions: "Short name."|t,
         id: 'abbreviation',
         name: 'abbreviation',
         value: state.abbreviation,
@@ -40,17 +39,14 @@
 
     {{ forms.selectField({
         label: "Country"|t,
-        instructions: "Select a country."|t,
         id: 'countryId',
         name: 'countryId',
         value: state.countryId,
         errors: state.getErrors('countryId'),
         required: true,
         options: countries,
-        class: 'select-wide',
+        class: 'selectize fullwidth',
     }) }}
-
-    <hr>
 
     <div class="buttons">
         <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
@@ -59,11 +55,10 @@
 
 {% endset %}
 
-{% set js %}
+{% includejs %}
 $(function() {
 $('#countryId').selectize({
 dropdownParent: 'body'
 });
 });
-{% endset %}
-{% includeJs js %}
+{% endincludejs %}

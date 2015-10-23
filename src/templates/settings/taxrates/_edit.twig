@@ -1,16 +1,16 @@
-{% extends "market/_layouts/cp" %}
+{% extends "commerce/_layouts/settingscp" %}
 
 {% set crumbs = [
-{ label: "Market Settings"|t, url: url('market/settings') },
-{ label: "Tax Rates"|t, url: url('market/settings/taxrates') },
+{ label: "Commerce Settings"|t, url: url('commerce/settings') },
+{ label: "Tax Rates"|t, url: url('commerce/settings/taxrates') },
 ] %}
 
 {% import "_includes/forms" as forms %}
 
 {% set content %}
 <form method="post" accept-charset="UTF-8" data-saveshortcut>
-    <input type="hidden" name="action" value="market/taxRate/save">
-    <input type="hidden" name="redirect" value="market/settings/taxrates">
+    <input type="hidden" name="action" value="commerce/taxRates/save">
+    <input type="hidden" name="redirect" value="commerce/settings/taxrates">
 
     {{ getCsrfInput() }}
     {% if taxRate.id %}<input type="hidden" name="taxRateId" value="{{ taxRate.id }}">{% endif %}
@@ -29,31 +29,27 @@
 
     {{ forms.textField({
         label: "Rate"|t,
-        instructions: "Tax rates are a decimal amount to aid in calculations, (i.e. if the tax rate is 5% then enter 0.05)."|t,
+        instructions: "Tax rates are a percentages, (i.e. if the tax rate is 5% then enter '5%'. You could also enter '10.5%')."|t,
         name: 'rate',
-        value: taxRate.rate|number_format(5),
+        value: taxRate.rateAsPercent,
         errors: taxRate.getErrors('rate'),
         required: true,
     }) }}
 
-    {{ forms.field({
-            errors: taxRate.getErrors('include')
-    }, forms.checkbox({
+    {{ forms.checkboxField({
         label: "Include in Price"|t,
         name: 'include',
         value: 1,
         checked: taxRate.include,
         errors: taxRate.getErrors('include'),
-    })) }}
+    }) }}
 
-    {{ forms.field({
-        errors: taxRate.getErrors('showInLabel'),
-    }, forms.checkbox({
+    {{ forms.checkboxField({
         label: "Show in Label"|t,
         name: 'showInLabel',
         value: 1,
-        checked: taxRate.showInLabel,
-    })) }}
+        checked: taxRate.showInLabel
+    }) }}
 
     {{ forms.selectField({
         label: "Tax Zone"|t,
@@ -64,7 +60,7 @@
         errors: taxRate.getErrors('taxZoneId'),
         required: true,
         options: taxZones,
-        class: 'select-wide',
+        class: 'selectize fullwidth',
     }) }}
 
     {{ forms.selectField({
@@ -76,10 +72,8 @@
         errors: taxRate.getErrors('taxCategoryId'),
         required: true,
         options: taxCategories,
-        class: 'select-wide',
+        class: 'selectize fullwidth',
     }) }}
-
-    <hr>
 
     <div class="buttons">
         <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
@@ -88,11 +82,10 @@
 
 {% endset %}
 
-{% set js %}
+{% includejs %}
 $(function() {
-$('#taxZoneId, #taxCategoryId').selectize({
-dropdownParent: 'body'
+    $('#taxZoneId, #taxCategoryId').selectize({
+        dropdownParent: 'body'
+    });
 });
-});
-{% endset %}
-{% includeJs js %}
+{% endincludejs %}

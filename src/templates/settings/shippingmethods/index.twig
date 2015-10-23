@@ -1,4 +1,4 @@
-{% extends "market/_layouts/settings" %}
+{% extends "commerce/_layouts/settings" %}
 
 {% set content %}
 
@@ -7,16 +7,16 @@
     <table id="shippingMethods" class="data fullwidth collapsible">
         <thead>
         <tr>
-            <th scope="col">Name</th>
-            <th scope="col">Enabled</th>
-            <th scope="col">Default</th>
+            <th scope="col">{{ 'Name'|t }}</th>
+            <th scope="col">{{ 'Enabled?'|t }}</th>
+            <th scope="col">{{ 'Default?'|t }}</th>
             <td class="thin"></td>
         </tr>
         </thead>
         <tbody>
         {% for shippingMethod in shippingMethods %}
             <tr data-id="{{ shippingMethod.id }}" data-name="{{ shippingMethod.name }}">
-                <th scope="row" data-title="Name"><a href="{{ url('market/settings/shippingmethods/'~shippingMethod.id) }}">{{ shippingMethod.name }}</a></th>
+                <th scope="row" data-title="Name"><a href="{{ url('commerce/settings/shippingmethods/'~shippingMethod.id) }}">{{ shippingMethod.name }}</a></th>
                 <td data-title="Enabled">{{ shippingMethod.enabled ? 'Yes'|t : 'No'|t }}</td>
                 <td data-title="Default">{{ shippingMethod.default ? 'Yes'|t : '' }}</td>
                 <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
@@ -27,12 +27,11 @@
     </table>
     <br/>
     <div class="btngroup submit first">
-        <a href="{{ url('market/settings/shippingmethods/new') }}" class="btn submit">New Shipping Method</a>
+        <a href="{{ url('commerce/settings/shippingmethods/new') }}" class="btn submit">New Shipping Method</a>
     </div>
-
-
-<script>
-{% set js %}
+{% endset %}
+{% includejs %}
+{#<script>#}
 ShippingMethodsTable = Craft.AdminTable.extend({
     handleDeleteObjectResponse: function(response, $row)
     {
@@ -58,10 +57,7 @@ ShippingMethodsTable = Craft.AdminTable.extend({
 var adminTable = new ShippingMethodsTable({
     tableSelector: '#shippingMethods',
     minObjects: 1,
-    deleteAction: 'market/shippingMethod/delete'
+    deleteAction: 'commerce/shippingMethods/delete'
 });
-{% endset %}
-</script>
-{% includeJs js %}
-
-{% endset %}
+{#</script>#}
+{% endincludejs %}

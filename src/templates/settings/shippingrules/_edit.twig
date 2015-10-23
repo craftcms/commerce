@@ -1,22 +1,30 @@
-{% extends "market/_layouts/cp" %}
+{% extends "commerce/_layouts/settingscp" %}
 
 {% set crumbs = [
-{ label: "Market Settings"|t, url: url('market/settings') },
-{ label: "Shipping Rules"|t, url: url('market/settings/shippingrules') },
+{ label: "Commerce Settings"|t, url: url('commerce/settings') },
+{ label: "Shipping Method"|t, url: url('commerce/settings/shippingmethods/'~methodId) },
 ] %}
 
 {% import "_includes/forms" as forms %}
-{% import "market/_includes/forms/marketForms" as marketForms %}
+{% import "commerce/_includes/forms/commerceForms" as commerceForms %}
+
+    {% set tabs = {
+        0: {'label':'Rule','url':'#ruleTab'},
+        1: {'label':'Conditions','url':'#conditionsTab'},
+        2: {'label':'Costs','url':'#costsTab'}
+    }
+    %}
 
 {% set content %}
 <form method="post" accept-charset="UTF-8" data-saveshortcut>
-    <input type="hidden" name="action" value="market/shippingRule/save">
-    <input type="hidden" name="redirect" value="market/settings/shippingmethods/{{ methodId }}">
+    <input type="hidden" name="action" value="commerce/shippingRules/save">
+    <input type="hidden" name="redirect" value="commerce/settings/shippingmethods/{{ methodId }}">
     <input type="hidden" name="methodId" value="{{ methodId }}">
 
     {{ getCsrfInput() }}
     {% if shippingRule.id %}<input type="hidden" name="id" value="{{ shippingRule.id }}">{% endif %}
 
+    <div id="ruleTab">
     {{ forms.textField({
         first: true,
         label: "Name"|t,
@@ -44,7 +52,7 @@
         id: 'countries',
         name: 'countryId',
         options: countries,
-        class: 'select-wide',
+        class: 'selectize fullwidth',
         value: shippingRule.countryId,
         errors: shippingRule.getErrors('countries'),
     }) }}
@@ -55,16 +63,24 @@
         id: 'states',
         name: 'stateId',
         options: states[shippingRule.countryId] is defined ? states[shippingRule.countryId] : null,
-        class: 'select-wide',
+        class: 'selectize fullwidth',
         value: shippingRule.stateId,
         errors: shippingRule.getErrors('states'),
     }) }}
 
+    {{ forms.checkboxField({
+        label: "Enable this shipping rule?"|t,
+        id: 'enabled',
+        name: 'enabled',
+        value: 1,
+        checked: shippingRule.enabled,
+        errors: shippingRule.getErrors('enabled')
+    }) }}
+    </div>
+    <div id="conditionsTab" class="hidden">
+    <p>{{ "Filtering conditions which describe to which orders this rule is applicable to. Write 0 to skip a condition."|t }}</p>
 
-    <hr/>
-    <h2>{{ "Filtering conditions which describe to which orders this rule is applicable to. Write 0 to skip a condition."|t }}</h2>
-
-    {{ marketForms.numberField({
+    {{ commerceForms.numberField({
         label: "Minimum Order Quantity"|t,
         name: 'minQty',
         value: shippingRule.minQty,
@@ -74,7 +90,7 @@
         required: true,
     }) }}
 
-    {{ marketForms.numberField({
+    {{ commerceForms.numberField({
         label: "Maximum Order Quantity"|t,
         name: 'maxQty',
         value: shippingRule.maxQty,
@@ -84,7 +100,7 @@
         required: true,
     }) }}
 
-    {{ marketForms.numberField({
+    {{ commerceForms.numberField({
         label: "Minimum Order Total Price"|t,
         name: 'minTotal',
         value: shippingRule.minTotal,
@@ -95,7 +111,7 @@
         required: true,
     }) }}
 
-    {{ marketForms.numberField({
+    {{ commerceForms.numberField({
         label: "Maximum Order Total Price"|t,
         name: 'maxTotal',
         value: shippingRule.maxTotal,
@@ -106,7 +122,7 @@
         required: true,
     }) }}
 
-    {{ marketForms.numberField({
+    {{ commerceForms.numberField({
         label: "Minimum Order Total Weight"|t,
         name: 'minWeight',
         value: shippingRule.minWeight,
@@ -117,7 +133,7 @@
         required: true,
     }) }}
 
-    {{ marketForms.numberField({
+    {{ commerceForms.numberField({
         label: "Maximum Order Total Weight"|t,
         name: 'maxWeight',
         value: shippingRule.maxWeight,
@@ -128,10 +144,10 @@
         required: true,
     }) }}
 
-    <hr/>
-    <h2>{{ "Charges"|t }}</h2>
+    </div>
+    <div id="costsTab" class="hidden">
 
-    {{ marketForms.numberField({
+    {{ commerceForms.numberField({
         label: "Base Rate"|t,
         name: 'baseRate',
         value: shippingRule.baseRate,
@@ -142,7 +158,7 @@
         required: true,
     }) }}
 
-    {{ marketForms.numberField({
+    {{ commerceForms.numberField({
         label: "Per Item Rate"|t,
         name: 'perItemRate',
         value: shippingRule.perItemRate,
@@ -153,7 +169,7 @@
         required: true,
     }) }}
 
-    {{ marketForms.numberField({
+    {{ commerceForms.numberField({
         label: "Weight Rate"|t,
         name: 'weightRate',
         value: shippingRule.weightRate,
@@ -164,7 +180,7 @@
         required: true,
     }) }}
 
-    {{ marketForms.numberField({
+    {{ commerceForms.numberField({
         label: "Percentage Rate"|t,
         name: 'percentageRate',
         instructions: "The minimum the person should spend on shippping. Set zero to disable this check."|t,
@@ -176,7 +192,7 @@
         required: true,
     }) }}
 
-    {{ marketForms.numberField({
+    {{ commerceForms.numberField({
         label: "Minimum Rate"|t,
         name: 'minRate',
         instructions: "The minimum the person should spend on shippping. Set zero to disable this check."|t,
@@ -188,7 +204,7 @@
         required: true,
     }) }}
 
-    {{ marketForms.numberField({
+    {{ commerceForms.numberField({
         label: "Maximum Base Rate"|t,
         instructions: "The maximum the person should spend on shippping. Set zero to disable this check."|t,
         name: 'maxRate',
@@ -200,19 +216,7 @@
         required: true,
     }) }}
 
-    <hr/>
-
-    {{ forms.checkboxField({
-        label: "Enabled"|t,
-        instructions: "Is it active?"|t,
-        id: 'enabled',
-        name: 'enabled',
-        value: 1,
-        checked: shippingRule.enabled,
-        errors: shippingRule.getErrors('enabled')
-    }) }}
-
-    <hr/>
+    </div>
 
     <div class="buttons">
         <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
@@ -221,12 +225,12 @@
 
 {% endset %}
 
-{% set js %}
+{% includejs %}
 {#<script>#}
 var states = {{ states|json_encode|raw }};
 
 $(function () {
-    $('#countries, #states, #methodId').selectize({
+    $('#countries, #states').selectize({
         plugins: ['remove_button'],
         dropdownParent: 'body'
     });
@@ -254,5 +258,4 @@ $(function () {
         }
     });
 });
-{% endset %}
-{% includeJs js %}
+{% endincludejs %}

@@ -1,8 +1,10 @@
-{% extends "market/_layouts/promotions" %}
+{% extends "commerce/_layouts/promotions" %}
+{% set fitted = true %}
 
 {% set content %}
 
     <h2>{{ "Discounts"|t }}</h2>
+    {% if discounts|length %}
     <table id="discounts" class="data fullwidth collapsible">
         <thead>
         <tr>
@@ -17,16 +19,16 @@
             <th scope="col">Base Discount</th>
             <th scope="col">Per Item Discount</th>
             <th scope="col">Percent Discount</th>
-            <th scope="col">Enabled</th>
+            <th scope="col">Enabled?</th>
             <td class="thin"></td>
         </tr>
         </thead>
         <tbody>
         {% for discount in discounts %}
             <tr data-id="{{ discount.id }}" data-name="{{ discount.name }}">
-                <th scope="row" data-title="Name"><a href="{{ url('market/promotions/discounts/'~discount.id) }}">{{ discount.name }}</a></th>
+                <th scope="row" data-title="Name"><a href="{{ url('commerce/promotions/discounts/'~discount.id) }}">{{ discount.name }}</a></th>
                 <td data-title="Dates">
-                    {{ discount.dateFrom ? discount.dateFrom : 'no limit'|t }} - {{ discount.dateTo ? discount.dateTo : 'no limit'|t }}
+                    {{ (discount.dateFrom ? discount.dateFrom : '&infin;')|raw }}<br/> to<br/> {{ (discount.dateTo ? discount.dateTo : '&infin;')|raw }}
                 </td>
                 <td data-title="Code">{{ discount.code }}</td>
                 <td data-title="Per User Limit">{{ discount.perUserLimit }}</td>
@@ -34,28 +36,36 @@
                 <td data-title="Purchase Total">{{ discount.purchaseTotal }}</td>
                 <td data-title="Times Used">{{ discount.totalUses }}</td>
                 <td data-title="Purchase Quantity">{{ discount.purchaseQty }}</td>
-                <td data-title="Base Discount">{{ discount.baseDiscount }}</td>
-                <td data-title="Per Item Discount">{{ discount.perItemDiscount }}</td>
-                <td data-title="Percent Discount">{{ discount.percentDiscount }}</td>
-                <td data-title="Enabled">{{ discount.enabled ? 'Yes'|t : 'No'|t }}</td>
+                <td data-title="Base Discount">{{ discount.baseDiscount|commerceCurrency }}</td>
+                <td data-title="Per Item Discount">{{ discount.perItemDiscount|commerceCurrency }}</td>
+                <td data-title="Percent Discount">{{ discount.percentDiscount|commercePercent }}</td>
+                <td data-title="Enabled">
+                    {% if discount.enabled %}
+                        <div class="status enabled"></div>
+                    {% else %}
+                        <div class="status"></div>
+                    {% endif %}
+                </td>
                 <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
             </tr>
         {% endfor %}
 
         </tbody>
     </table>
+    {% else %}
+        <p>{{ "No discounts exist yet."|t }}</p>
+    {% endif %}
     <br/>
     <div class="btngroup submit first">
-        <a href="{{ url('market/promotions/discounts/new') }}" class="btn submit">New Discount</a>
+        <a href="{{ url('commerce/promotions/discounts/new') }}" class="btn submit">New Discount</a>
     </div>
 {% endset %}
 
 
-{% set js %}
+{% includejs %}
 var adminTable = new Craft.AdminTable({
 tableSelector: '#discounts',
-deleteAction: 'market/discount/delete',
+deleteAction: 'commerce/discounts/delete',
 confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
 });
-{% endset %}
-{% includeJs js %}
+{% endincludejs %}

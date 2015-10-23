@@ -1,26 +1,38 @@
-{% extends "market/_layouts/cp" %}
+{% extends "commerce/_layouts/cp" %}
+{% set fitted = true %}
+
+{% set selectedSubnavItem = "promotions" %}
 
 {% set crumbs = [
-    { label: "Promotions"|t, url: url('market/promotions') },
-    { label: "Sales"|t, url: url('market/promotions/sales') },
+    { label: "Promotions"|t, url: url('commerce/promotions') },
+    { label: "Sales"|t, url: url('commerce/promotions/sales') },
 ] %}
 
 {% import "_includes/forms" as forms %}
-{% import "market/_includes/forms/marketForms" as marketForms %}
+{% import "commerce/_includes/forms/commerceForms" as commerceForms %}
 
 {% set content %}
 <form method="post" accept-charset="UTF-8" data-saveshortcut>
-    <input type="hidden" name="action" value="market/sale/save">
-    <input type="hidden" name="redirect" value="market/promotions/sales">
+    <input type="hidden" name="action" value="commerce/sales/save">
+    <input type="hidden" name="redirect" value="commerce/promotions/sales">
 
     {{ getCsrfInput() }}
     {% if sale.id %}<input type="hidden" name="id" value="{{ sale.id }}">{% endif %}
 
+    {% set actionClasses = "" %}
+    {% if (sale.getErrors('discountAmount') or sale.getErrors('discountType')) %}
+        {% set actionClasses = "error" %}
+    {% endif %}
+
+    {% set saleClasses = "" %}
+    {% if(sale.getErrors('name')) %}
+        {% set saleClasses = "error" %}
+    {% endif %}
 
     {% set tabs = {
-        0: {'label':'Sale','url':'#sale'},
+        0: {'label':'Sale','url':'#sale','class': saleClasses},
         1: {'label':'Conditions','url':'#conditions'},
-        2: {'label':'Actions','url':'#actions'}
+        2: {'label':'Actions','url':'#actions','class': actionClasses}
         }
     %}
 
@@ -47,8 +59,7 @@
     }) }}
 
     {{ forms.checkboxField({
-        label: "Enabled"|t,
-        instructions: "Is it active?"|t,
+        label: "Is this sale enabled?"|t,
         id: 'enabled',
         name: 'enabled',
         value: 1,
@@ -79,13 +90,14 @@
 
 
     {{ forms.multiselectField({
-        label: 'Groups'|t,
+        label: 'User Groups'|t,
         instructions: "Groups for which this sale will be applicable to. Leave blank for all groups"|t,
         id: 'groups',
         name: 'groups',
         options: groups,
         values: sale.getGroupsIds(),
         errors: sale.getErrors('groups'),
+        class: 'selectize fullwidth',
     }) }}
 
     {{ forms.multiselectField({
@@ -96,14 +108,15 @@
         options: types,
         values: sale.getProductTypesIds(),
         errors: sale.getErrors('productTypes'),
+        class: 'selectize fullwidth',
     }) }}
 
     {{ forms.elementSelectField({
         id: 'products',
         label: 'Products',
         name: 'products',
-        elements: products,
-        elementType: craft.elements.getElementType('Market_Product'),
+        elements: products ? products : null,
+        elementType: craft.elements.getElementType('Commerce_Product'),
         limit: null,
         instructions: "Products for which this sale will be applicable to. Leave blank for all products"|t,
         errors: sale.getErrors('products'),
@@ -123,14 +136,20 @@
         required: true,
     }) }}
 
-    {{ marketForms.numberField({
+    {% set discountAmountValue %}{% spaceless %}
+        {% if sale.discountType == 'percent' %}
+        {{ sale.discountAmountAsPercent }}
+        {% else %}
+        {{ sale.discountAmountAsFlat }}
+        {% endif %}
+    {% endspaceless %}{% endset %}
+    {{ forms.textField({
         label: "Discount Amount"|t,
-        instructions: "Percentage or a flat value of discount (for example: -0,03 for 3% off)."|t,
+        instructions: "Percentage or a flat value of discount (for example: '3%' for 3% off, and '10' for $10 off)."|t,
         id: 'discountAmount',
         name: 'discountAmount',
-        value: sale.discountAmount,
-        type: 'number',
-        step: 'any',
+        required: true,
+        value: discountAmountValue,
         errors: sale.getErrors('discountAmount'),
     }) }}
 
@@ -144,12 +163,11 @@
 
 {% endset %}
 
-{% set js %}
+{% includejs %}
 $(function() {
     $('#groups, #productTypes').selectize({
         plugins: ['remove_button'],
         dropdownParent: 'body'
     });
 });
-{% endset %}
-{% includeJs js %}
+{% endincludejs %}

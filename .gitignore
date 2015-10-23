@@ -9,4 +9,5 @@ docs/phpdoc/cache/
 *.sass-cache/*
 *Thumbs.db
 *aspnet_client/*
-plugins/market/vendor/
+market/vendor/
+commerce/vendor/

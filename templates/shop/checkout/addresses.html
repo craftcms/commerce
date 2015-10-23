@@ -1,161 +1,76 @@
 {% extends 'commerce/_layouts/checkout' %}
 
-{%  block content %}
+{% block content %}
 
-    {% import 'commerce/_includes/addressMacro.html' as forms %}
-    {% include 'commerce/_includes/addressMacro.html' %}
+    {% set addresses = craft.commerce.customer.addresses %}
+    {% set order = craft.commerce.getCart() %}
 
-    <h1>Addresses</h1>
+    {# UI when at least one address exists #}
 
-    {% set addresses = craft.market.customer.addresses %}
-    {% set order = craft.market.getCart() %}
+    <div class="row">
+        <div class="twelve columns">
+            <form method="post">
 
-    {% if addresses %}
-        {# UI when at least one address exists #}
+                <input type="hidden" name="action" value="commerce/cart/update">
+                <input type="hidden" name="redirect" value="commerce/checkout/shipping"/>
 
-        <div class="row">
-            <div class="twelve columns">
-                <form method="post">
+                {{ getCsrfInput() }}
 
-                    <input type="hidden" name="action" value="market/cartAddress/chooseAddresses">
-                    <input type="hidden" name="redirect" value="commerce/checkout/shipping" />
+                {% include 'commerce/_includes/addresses/fieldset' with {
+                title: "Shipping Address"|t,
+                class: 'ShippingAddress',
+                name: 'shippingAddress'
+                } %}
 
-                    {{ getCsrfInput() }}
+                <input type="hidden" name="sameAddress" value="0">
+                <input id="sameAddress" name="sameAddress" type="checkbox" checked="checked"/> Use same address for
+                billing<br/>
 
-                    <h3>Choose an address for Shipping</h3>
+                {% include 'commerce/_includes/addresses/fieldset' with {
+                title: "Billing Address"|t,
+                class: 'BillingAddress hidden',
+                name: 'billingAddress'
+                } %}
 
-                    {% if order.hasErrors('shippingAddressId') %}<strong style="color: #ff2000">Error: {{ order.getErrors('shippingAddressId')|join }}</strong><br/>{% endif %}
+                <input type="submit" class="button button-primary" value="Confirm addresses">
 
-                    {% for address in addresses %}
-                        <label class="address-chooser" style=" display: block; float: left; margin: 10px; padding: 10px; border: 1px solid #bbbbbb">
-                            {% for key,value in address.attributes %}
-                                {{ key|title }}: <span class="address-option" data-key="{{ key }}" data-value="{{ value }}">
-                                {{ key == 'countryId' ? address.countryText : (key == 'stateId' ? address.stateText : value) }}
-                            </span><br/>
-                            {% endfor %}
-
-                            <a class="address-remove" data-id="{{ address.id }}" href="#">Remove</a><br/>
-                            <a class="address-update" data-id="{{ address.id }}" href="#">Update</a><br/>
-
-                            <input type="radio" name="shippingAddressId" value="{{ address.id }}" {% if order.shippingAddressId == address.id %}checked{% endif %} />
-                            <strong>Choose this address</strong>
-                        </label>
-                    {% endfor %}
-
-                    <div class="u-cf"></div>
+            </form>
 
 
-                    <h3>Choose an address for Billing</h3>
-
-                    {% if order.hasErrors('billingAddressId') %}<strong style="color: #ff2000">Error: {{ order.getErrors('billingAddressId')|join }}</strong><br/>{% endif %}
-
-                    {% for address in addresses %}
-                        <label class="address-chooser" style=" display: block; float: left; margin: 10px; padding: 10px; border: 1px solid #bbbbbb">
-                            {% for key,value in address.attributes %}
-                                {{ key|title }}: <span class="address-option" data-key="{{ key }}" data-value="{{ value }}">
-                                {{ key == 'countryId' ? address.countryText : (key == 'stateId' ? address.stateText : value) }}
-                            </span><br/>
-                            {% endfor %}
-
-                            <a class="address-remove" data-id="{{ address.id }}" href="#">Remove</a><br/>
-                            <a class="address-update" data-id="{{ address.id }}" href="#">Update</a><br/>
-
-                            <input type="radio" name="billingAddressId" value="{{ address.id }}" {% if order.billingAddressId == address.id %}checked{% endif %} />
-                            <strong>Choose this address</strong>
-                        </label>
-                    {% endfor %}
-
-                    <div class="u-cf"></div>
-
-
-                    <input type="submit" class="button button-primary" value="Confirm addresses">
-
-                </form>
-
-
-            </div>
         </div>
+    </div>
 
-        <div class="row">
-            <div class="six columns">
-                <form method="post" class="form-new-address" class="form-horizontal">
+    {% includejs %}
+    var $fieldsets = $('.address-fieldset');
 
-                    <input type="hidden" name="action" value="market/cartAddress/addAddress">
-                    <input type="hidden" name="Address[id]" value="">
-                    {{ getCsrfInput() }}
-                    
-                    {{ forms.addressForm('Address', newAddress is defined ? newAddress : null ) }}
+    $fieldsets.each(function () {
 
-                    <input type="submit" value="Add New Address">
-                </form>
-            </div>
-        </div>
+    var $addressFieldset = $(this);
 
+    $('.address-select', $addressFieldset).each(function () {
+
+    this.$element = $(this);
+    this.$radio = $('.radio input', this.$element);
+    this.$body = $('.body', this.$element);
+
+    this.$radio.change($.proxy(function () {
+    $('.body', $addressFieldset).addClass('hidden');
+    this.$body.removeClass('hidden');
+    }, this));
+
+    if (this.$radio.is(':checked')) {
+    this.$body.removeClass('hidden');
+    }
+    });
+
+    });
+
+    $("#sameAddress").change(function (e) {
+    $('.address-fieldset.BillingAddress').toggleClass('hidden');
+    });
+    {% if cart.billingAddress.hasErrors() %}
+        $("#sameAddress").click();
     {% endif %}
+    {% endincludejs %}
 
-    {% if not addresses %}
-        <form method="post" class="">
-            <input type="hidden" name="action" value="market/cartAddress/postTwoAddresses">
-            <input type="hidden" name="redirect" value="commerce/checkout/shipping"/>
-            {{ getCsrfInput() }}
-
-            {# UI when no addresses exist #}
-            <div class="row">
-                <div class="six columns">
-
-                    {{ forms.addressForm('BillingAddress', billingAddress is defined ? billingAddress : null) }}
-                    <div class="checkbox">
-                        <label>
-                            <input type="hidden" name="sameAddress" value="0">
-                            <input id="sameAddress" name="sameAddress" type="checkbox" value="1" checked> Shipping Address same as Billing Address
-                        </label>
-                    </div>
-                    <input type="submit" class="button button-primary" value="Confirm addresses">
-                </div>
-                <div class="six columns">
-                    {{ forms.addressForm('ShippingAddress', shippingAddress is defined ? shippingAddress : null ) }}
-                </div>
-            </div>
-        </form>
-    {% endif %}
-
-    {% set js %}
-
-        $('.address-remove').click(function(e) {
-            e.preventDefault();
-            $.post(window.location, {
-                action: 'market/cartAddress/removeAddress',
-                id: $(this).data('id')
-            }, function() {
-                window.location = window.location.href; //refresh page.
-            });
-        });
-
-        $('.address-update').click(function(e) {
-            e.preventDefault();
-            console.log('Clicked update address');
-            var $newForm = $('.form-new-address');
-
-            $('.form-new-address__label').text('Update Address #' + $(this).data('id'));
-
-            $(this).parents('.address-chooser').find('.address-option').each(function() {
-                var key = $(this).data('key'),
-                value = $(this).data('value'),
-                $input = $newForm.find('[name="Address[' + key + ']"]');
-
-                $input.val(value);
-
-                if(key == 'countryId') {
-                    $input.change();
-                }
-                });
-            });
-            $('.addressBox.ShippingAddress').hide();
-            $("#sameAddress").change(function(e) {
-            $('.addressBox.ShippingAddress').toggle();
-        });
-
-    {% endset %}
-    {% includeJs js %}
-
-{%  endblock %}
+{% endblock %}
