@@ -50,7 +50,7 @@ class CommerceVariantMatrixHelper
 			'"'.\Craft\craft()->templates->namespaceInputName($name).'"' .
 		');');
 
-		\Craft\craft()->templates->includeTranslations('Disabled', 'Actions', 'Collapse', 'Expand', 'Disable', 'Enable', 'Add variant above', 'Add a block', 'Are you sure you want to delete the selected variants?');
+		\Craft\craft()->templates->includeTranslations('Disabled', 'Actions', 'Collapse', 'Expand', 'Disable', 'Enable', 'Add variant above', 'Add a variant', 'Are you sure you want to delete the selected variants?');
 
 		return $html;
 	}
@@ -68,11 +68,6 @@ class CommerceVariantMatrixHelper
 	 */
 	private function _getVariantFieldHtml($product, $name)
 	{
-		// Set a temporary namespace for these
-		//$originalNamespace = \Craft\craft()->templates->getNamespace();
-		//$namespace = \Craft\craft()->templates->namespaceInputName($name.'[__VARIANT__]', $originalNamespace);
-		//\Craft\craft()->templates->setNamespace($namespace);
-
 		// Create a fake Variant model so the field types have a way to get at the owner element, if there is one
 		$variant = new Variant();
 		$variant->setProduct($product);
@@ -109,8 +104,6 @@ class CommerceVariantMatrixHelper
 				$fieldType->setIsFresh(null);
 			}
 		}
-
-		//\Craft\craft()->templates->setNamespace($originalNamespace);
 
 		return array($bodyHtml, $footHtml);
 	}
