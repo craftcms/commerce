@@ -344,20 +344,3 @@
 	{% endif %}
 
 {% endblock %}
-
-
-{% includejs %}
-	$('input.unlimited-stock').change(function() {
-		var $checkbox = $(this),
-			$text = $checkbox.prevAll('.text:first');
-
-		if ($checkbox.prop('checked'))
-		{
-			$text.prop('disabled', true).addClass('disabled').val('');
-		}
-		else
-		{
-			$text.prop('disabled', false).removeClass('disabled').focus();
-		}
-	});
-{% endincludejs %}
