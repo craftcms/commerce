@@ -1,0 +1,40 @@
+{% includeCssResource "commerce/commerce.css" %}
+{% set orders = craft.commerce.orders.customer(customer).find() %}
+<table class="data fullwidth collapsible">
+	<thead>
+	<tr>
+		<th scope="col">{{ 'Order'|t }}</th>
+		<th scope="col">{{ 'Order Date'|t }}</th>
+		<th scope="col">{{ 'Total Paid'|t }}</th>
+		<th scope="col">{{ 'Status'|t }}</th>
+	</tr>
+	</thead>
+	<tbody>
+	{% for order in orders %}
+		<tr>
+			<td>{{ order.link }}</td>
+			<td>{{ order.dateOrdered|date }}</td>
+			<td>{{ order.totalPaid|commerceCurrency }}</td>
+			<td>{{ order.orderStatus.printName|raw }}</td>
+		</tr>
+	{% endfor %}
+	</tbody>
+	</table>
+<hr/>
+{% set addresses = customer.addresses %}
+<table class="data fullwidth collapsible">
+	<thead>
+	<tr>
+		<th scope="col">{{ 'Address'|t }}</th>
+		<th scope="col"></th>
+	</tr>
+	</thead>
+	<tbody>
+	{% for address in addresses %}
+		<tr>
+			<td><strong>{{ address.firstName }} {{ address.lastName }}</strong> {{ address.address1 }}... {{ address.stateText }}, {{ address.countryText }}</td>
+			<td><a href="{{ address.getCpEditUrl }}">Edit</a></td>
+		</tr>
+	{% endfor %}
+	</tbody>
+</table>

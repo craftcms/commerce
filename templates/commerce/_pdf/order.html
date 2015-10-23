@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: DejaVu Sans; font-size: 12px; }
+        .text-right { float: right }
+        table{ width: 100%; }
+        th { height: 50px; text-align:left; padding: 15px; }
+        td { padding: 15px; }
+        table, th, td { border: 1px solid #444444; border-collapse: collapse; }
+    </style>
+</head>
+
+<body>
+
+{% set orderTable %}
+<table class="u-full-width">
+    <thead>
+    <tr>
+        <th>Product</th>
+        <th>Quantity</th>
+        <th class="text-right">Price</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for item in order.lineItems %}
+        <tr>
+            <td>
+                <strong>{{ item.description }}</strong><br/>
+                {{ item.sku }}
+            </td>
+            <td>
+                {{ item.qty }}
+            </td>
+            <td class="text-right">
+                {% if item.onSale %}
+                    <s>Price: {{ item.price|commerceCurrency }}</s><br/>
+                    Sale Off: {{ item.saleAmount|commerceCurrency }}<br/>
+                    Sale Price {{ item.salePrice|commerceCurrency }}<br/>
+                    Sale Price Subtotal: {{ item.subtotalWithSale|commerceCurrency }}<br/>
+                {% else %}
+                    Price: {{ item.price|commerceCurrency }}<br/>
+                    Sale Price {{ item.salePrice|commerceCurrency }}<br/>
+                    Sale Price Subtotal: {{ item.subtotalWithSale|commerceCurrency }}<br/>
+                {% endif %}
+
+                Discount: {{ item.discount|commerceCurrency }}<br/>
+                Taxes: {{ item.tax|commerceCurrency }}<br/>
+                Ship Total: {{ item.shippingCost|commerceCurrency }}<br/>
+                <strong>Total: {{ item.total|commerceCurrency }}<br/></strong>
+            </td>
+        </tr>
+    {%  endfor %}
+
+    {%  for adjustment in order.adjustments %}
+        <tr>
+            <td>{{ adjustment.type }}
+            </td>
+            <td> <strong>{{ adjustment.name }}</strong><br/>({{ adjustment.description }})</td>
+            <td class="text-right">{{ adjustment.amount|commerceCurrency }}</td>
+        </tr>
+    {% endfor %}
+
+    <tr>
+        <td>
+        </td>
+        <td>
+        </td>
+        <td class="text-right">
+            Item Total: {{ order.itemTotal|commerceCurrency }}<br/>
+            Base Discount: {{ order.baseDiscount|commerceCurrency }}<br/>
+            Base Shipping Cost: {{ order.baseShippingCost|commerceCurrency }}<br/>
+            <h4>Total Price: {{ order.totalPrice|commerceCurrency }}</h4>
+        </td>
+    </tr>
+
+    </tbody>
+</table>
+{% endset %}
+
+{# Use the option param passed into the pdf template to show different order pdf's depending on the context #}
+{% switch option %}
+{% case "receipt" %}
+<h1>Receipt for Order #{{ order.number[:7] }}</h1>
+{{ orderTable }}
+{% default %}
+<h1>Order #{{ order.number[:7] }}</h1>
+{{ orderTable }}
+{% endswitch %}
+
+
+</body>
+</html>

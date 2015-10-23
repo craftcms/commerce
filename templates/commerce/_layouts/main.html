@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>{{ "Craft Commerce"|t }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css">
+    <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <link rel="stylesheet" href="/commerce/style.css">
+    {# global commerce variables #}
+    {% set cart = craft.commerce.getCart() %}
+</head>
+<body class="{{ bodyClass is defined ? bodyClass : '' }}">
+
+{% block body %}
+    <div id="header" class="container">
+        <div class="row">
+            <div class="eleven columns">
+                <a href="{{ url('commerce') }}">{% include "commerce/_images/logo" with {'class': 'logo'} %}</a>
+
+                {% if showNav is not defined %}
+                    {% set showNav = true %}
+                {% endif %}
+
+                {% if showNav %}
+                    {% include "commerce/_includes/nav" %}
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+    <div id="main" class="container">
+
+        <div class="flash">{{ craft.session.getFlash('notice') }}</div>
+        <div class="flash">{{ craft.session.getFlash('error') }}</div>
+
+        {% block main %}
+            <div class="row">
+                <div class="eleven columns">
+                    <h4>Default Content</h4>
+
+                    <p>You should not see this.</p>
+                </div>
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}
+</body>
+</html>

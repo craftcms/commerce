@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "23e81c5946caca469e5d7ebadaa6ff89",
+    "hash": "8e6809c32bf75f65016834370d122f1b",
     "content-hash": "9f26c1e20bb69175630dfbe8d0b8ecc8",
     "packages": [
         {
@@ -1854,12 +1854,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/event-dispatcher.git",
-                "reference": "41899a21d196332ab23e40f76e1276f2b7aa4d0d"
+                "reference": "22db6ac518817c5459e704dbd21727777a764f32"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/event-dispatcher/zipball/41899a21d196332ab23e40f76e1276f2b7aa4d0d",
-                "reference": "41899a21d196332ab23e40f76e1276f2b7aa4d0d",
+                "url": "https://api.github.com/repos/symfony/event-dispatcher/zipball/22db6ac518817c5459e704dbd21727777a764f32",
+                "reference": "22db6ac518817c5459e704dbd21727777a764f32",
                 "shasum": ""
             },
             "require": {
@@ -1903,7 +1903,7 @@
             ],
             "description": "Symfony EventDispatcher Component",
             "homepage": "https://symfony.com",
-            "time": "2015-10-12 10:13:39"
+            "time": "2015-10-20 17:27:01"
         },
         {
             "name": "symfony/http-foundation",

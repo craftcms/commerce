@@ -1,0 +1,91 @@
+{% extends "commerce/_layouts/settingscp" %}
+
+{% set crumbs = [
+{ label: "Commerce Settings"|t, url: url('commerce/settings') },
+{ label: "Tax Rates"|t, url: url('commerce/settings/taxrates') },
+] %}
+
+{% import "_includes/forms" as forms %}
+
+{% set content %}
+<form method="post" accept-charset="UTF-8" data-saveshortcut>
+    <input type="hidden" name="action" value="commerce/taxRates/save">
+    <input type="hidden" name="redirect" value="commerce/settings/taxrates">
+
+    {{ getCsrfInput() }}
+    {% if taxRate.id %}<input type="hidden" name="taxRateId" value="{{ taxRate.id }}">{% endif %}
+
+    {{ forms.textField({
+        first: true,
+        label: "Name"|t,
+        instructions: "What this tax rate will be called in the CP."|t,
+        name: 'name',
+        value: taxRate.name,
+        errors: taxRate.getErrors('name'),
+        autofocus: true,
+        required: true,
+        translatable: true
+    }) }}
+
+    {{ forms.textField({
+        label: "Rate"|t,
+        instructions: "Tax rates are a percentages, (i.e. if the tax rate is 5% then enter '5%'. You could also enter '10.5%')."|t,
+        name: 'rate',
+        value: taxRate.rateAsPercent,
+        errors: taxRate.getErrors('rate'),
+        required: true,
+    }) }}
+
+    {{ forms.checkboxField({
+        label: "Include in Price"|t,
+        name: 'include',
+        value: 1,
+        checked: taxRate.include,
+        errors: taxRate.getErrors('include'),
+    }) }}
+
+    {{ forms.checkboxField({
+        label: "Show in Label"|t,
+        name: 'showInLabel',
+        value: 1,
+        checked: taxRate.showInLabel
+    }) }}
+
+    {{ forms.selectField({
+        label: "Tax Zone"|t,
+        instructions: "Select a tax zone."|t,
+        id: 'taxZoneId',
+        name: 'taxZoneId',
+        value: taxRate.taxZoneId,
+        errors: taxRate.getErrors('taxZoneId'),
+        required: true,
+        options: taxZones,
+        class: 'selectize fullwidth',
+    }) }}
+
+    {{ forms.selectField({
+        label: "Tax Category"|t,
+        instructions: "Select a tax category."|t,
+        id: 'taxCategoryId',
+        name: 'taxCategoryId',
+        value: taxRate.taxCategoryId,
+        errors: taxRate.getErrors('taxCategoryId'),
+        required: true,
+        options: taxCategories,
+        class: 'selectize fullwidth',
+    }) }}
+
+    <div class="buttons">
+        <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
+    </div>
+</form>
+
+{% endset %}
+
+{% includejs %}
+$(function() {
+    $('#taxZoneId, #taxCategoryId').selectize({
+        dropdownParent: 'body'
+    });
+});
+{% endincludejs %}

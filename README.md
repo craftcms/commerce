@@ -22,35 +22,35 @@ served from a webserver.
 
 Add this code block into the phpdoc of Craft's WebApp.php class.
 
-This will enable PHP Storm IDE features for services like `craft()->market_product->method()`
+This will enable PHP Storm IDE features for services like `craft()->commerce_product->method()`
 
 ```php
- * @property Market_AddressService         $market_address
- * @property Market_CartService            $market_cart
- * @property Market_CountryService         $market_country
- * @property Market_CustomerService        $market_customer
- * @property Market_DiscountService        $market_discount
- * @property Market_EmailService           $market_email
- * @property Market_GatewayService         $market_gateway
- * @property Market_LineItemService        $market_lineItem
- * @property Market_OrderAdjustmentService $market_orderAdjustment
- * @property Market_OrderHistoryService    $market_orderHistory
- * @property Market_OrderService           $market_order
- * @property Market_OrderSettingsService   $market_orderSettings
- * @property Market_OrderStatusService     $market_orderStatus
- * @property Market_PaymentMethodService   $market_paymentMethod
- * @property Market_PaymentService         $market_payment
- * @property Market_ProductService         $market_product
- * @property Market_ProductTypeService     $market_productType
- * @property Market_SaleService            $market_sale
- * @property Market_SeedService            $market_seed
- * @property Market_SettingsService        $market_settings
- * @property Market_ShippingMethodService  $market_shippingMethod
- * @property Market_ShippingRuleService    $market_shippingRule
- * @property Market_StateService           $market_state
- * @property Market_TaxCategoryService     $market_taxCategory
- * @property Market_TaxRateService         $market_taxRate
- * @property Market_TaxZoneService         $market_taxZone
- * @property Market_TransactionService     $market_transaction
- * @property Market_VariantService         $market_variant
+* @property Commerce_AddressesService        $commerce_addresses
+* @property Commerce_CartService             $commerce_cart
+* @property Commerce_CountriesService        $commerce_countries
+* @property Commerce_CustomersService        $commerce_customers
+* @property Commerce_DiscountsService        $commerce_discounts
+* @property Commerce_EmailsService           $commerce_emails
+* @property Commerce_GatewaysService         $commerce_gateways
+* @property Commerce_LineItemsService        $commerce_lineItems
+* @property Commerce_OrderAdjustmentsService $commerce_orderAdjustments
+* @property Commerce_OrderHistoriesService   $commerce_orderHistories
+* @property Commerce_OrdersService           $commerce_orders
+* @property Commerce_OrderSettingsService    $commerce_orderSettings
+* @property Commerce_OrderStatusesService    $commerce_orderStatuses
+* @property Commerce_PaymentMethodsService   $commerce_paymentMethods
+* @property Commerce_PaymentsService         $commerce_payments
+* @property Commerce_ProductsService         $commerce_products
+* @property Commerce_ProductTypesService     $commerce_productTypes
+* @property Commerce_SalesService            $commerce_sales
+* @property Commerce_SeedService             $commerce_seed
+* @property Commerce_SettingsService         $commerce_settings
+* @property Commerce_ShippingMethodsService  $commerce_shippingMethods
+* @property Commerce_ShippingRulesService    $commerce_shippingRules
+* @property Commerce_StatesService           $commerce_states
+* @property Commerce_TaxCategoriesService    $commerce_taxCategories
+* @property Commerce_TaxRatesService         $commerce_taxRates
+* @property Commerce_TaxZonesService         $commerce_taxZones
+* @property Commerce_TransactionsService     $commerce_transactions
+* @property Commerce_VariantsService         $commerce_variants
 ```

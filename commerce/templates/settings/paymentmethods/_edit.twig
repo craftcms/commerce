@@ -1,0 +1,81 @@
+{% extends "commerce/_layouts/settingscp" %}
+
+{% set crumbs = [
+{ label: "Commerce Settings"|t, url: url('commerce/settings') },
+{ label: "Payment Methods"|t, url: url('commerce/settings/paymentmethods') },
+] %}
+
+{% import "_includes/forms" as forms %}
+
+{% set content %}
+
+<form method="post" action="" accept-charset="UTF-8">
+
+    {{ forms.textField({
+        label: 'Name'|t,
+        name: 'name',
+        value : paymentMethod.name,
+        required: true,
+        errors: paymentMethod.getErrors('name'),
+    }) }}
+
+    <input type="hidden" name="id" value="{{ paymentMethod.id }}">
+    <input type="hidden" name="action" value="commerce/paymentMethods/save">
+    <input type="hidden" name="redirect" value="commerce/settings/paymentmethods">
+
+    {{ getCsrfInput() }}
+
+    {{ forms.selectField({
+        first: true,
+        label: 'Gateway'|t,
+        id: 'class',
+        name: 'class',
+        options : gatewaysList,
+        value : paymentMethod.class,
+        required: true,
+        errors: paymentMethod.getErrors('class'),
+    }) }}
+
+    <input type="hidden" name="paymentMethodClass" value="{{ paymentMethod.class }}"/>
+
+    {% for gateway in gateways %}
+        <div class="gateway-settings" id="gateway-{{ gateway.handle }}" data-name="{{ gateway.displayName }}">
+            {{ gateway.getSettingsHtml(paymentMethod)|raw }}
+        </div>
+    {% endfor %}
+
+    {% set noSettingsGateways = ['Manual','Dummy'] %}
+    {% if paymentMethod.class in noSettingsGateways %}
+        {% set isFirst = true %}
+    {% else %}
+        {% set isFirst = false %}
+    {% endif %}
+    {{ forms.checkboxField({
+        first: isFirst,
+        label: "Enabled for the front end"|t,
+        name: 'frontendEnabled',
+        checked: paymentMethod.frontendEnabled,
+        errors: paymentMethod.getErrors('frontendEnabled'),
+    }) }}
+
+    <div class="buttons">
+        <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
+    </div>
+
+</form>
+
+{% endset %}
+
+{% includejs %}
+{#<script>#}
+    $(function() {
+        $('#class').change(function() {
+            $('.gateway-settings').hide().find('select, input, textarea').prop('disabled', true);
+            if($(this).val()) {
+                $('#gateway-' + $(this).val()).show().find('select, input, textarea').prop('disabled', false);
+            }
+        }).change();
+
+    });
+{#</script>#}
+{% endincludejs %}

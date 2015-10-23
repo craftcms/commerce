@@ -84,19 +84,15 @@ class Builder
 	 */
 	protected function copyFiles()
 	{
-		echo ('Copying code from '.$this->_sourceBaseDir.'exampletemplates to '.$this->_tempDir.'exampletemplates/'.PHP_EOL);
-		UtilsHelper::createDir($this->_tempDir.'exampletemplates/');
-		UtilsHelper::copyDirectory($this->_sourceBaseDir.'exampletemplates', $this->_tempDir.'exampletemplates/');
-		echo ('Finished copying code from '.$this->_sourceBaseDir.'exampletemplates to '.$this->_tempDir.'exampletemplates/'.PHP_EOL.PHP_EOL);
+		echo ('Copying code from '.$this->_sourceBaseDir.'templates to '.$this->_tempDir.'templates/'.PHP_EOL);
+		UtilsHelper::createDir($this->_tempDir.'templates/');
+		UtilsHelper::copyDirectory($this->_sourceBaseDir.'templates', $this->_tempDir.'templates/');
+		echo ('Finished copying code from '.$this->_sourceBaseDir.'templates to '.$this->_tempDir.'templates/'.PHP_EOL.PHP_EOL);
 
-		echo ('Copying code from '.$this->_sourceBaseDir.'plugins to '.$this->_tempDir.'plugins/'.PHP_EOL);
-		UtilsHelper::createDir($this->_tempDir.'plugins/');
-		UtilsHelper::copyDirectory($this->_sourceBaseDir.'plugins', $this->_tempDir.'plugins/');
-		echo ('Finished copying code from '.$this->_sourceBaseDir.'plugins to '.$this->_tempDir.'plugins/'.PHP_EOL.PHP_EOL);
-
-		echo ('Copying file from '.$this->_sourceBaseDir.'CHANGELOG.md to '.$this->_tempDir.'CHANGELOG.md'.PHP_EOL);
-		UtilsHelper::copyFile($this->_sourceBaseDir.'CHANGELOG.md', $this->_tempDir.'CHANGELOG.md');
-		echo ('Finished copying file from '.$this->_sourceBaseDir.'CHANGELOG.md to '.$this->_tempDir.'CHANGELOG.md'.PHP_EOL.PHP_EOL);
+		echo ('Copying code from '.$this->_sourceBaseDir.'commerce to '.$this->_tempDir.'commerce/'.PHP_EOL);
+		UtilsHelper::createDir($this->_tempDir.'commerce/');
+		UtilsHelper::copyDirectory($this->_sourceBaseDir.'commerce', $this->_tempDir.'commerce/');
+		echo ('Finished copying code from '.$this->_sourceBaseDir.'commerce to '.$this->_tempDir.'commerce/'.PHP_EOL.PHP_EOL);
 
 		echo ('Copying file from '.$this->_sourceBaseDir.'LICENSE.md to '.$this->_tempDir.'LICENSE.md'.PHP_EOL);
 		UtilsHelper::copyFile($this->_sourceBaseDir.'LICENSE.md', $this->_tempDir.'LICENSE.md');
@@ -117,7 +113,7 @@ class Builder
 		}
 		echo ('Done nuking DS_Store files.'.PHP_EOL.PHP_EOL);
 
-		$gitFolders = UtilsHelper::getGitFolders($this->_tempDir.'plugins/market/vendor/');
+		$gitFolders = UtilsHelper::getGitFolders($this->_tempDir.'commerce/vendor/');
 
 		if ($gitFolders)
 		{
@@ -182,8 +178,8 @@ class Builder
 	 */
 	protected function updateVersionBuild()
 	{
-		$path = $this->_tempDir.'plugins/market/MarketPlugin.php';
-		echo 'Loading the contents of MarketPlugin.php at '.$path.PHP_EOL;
+		$path = $this->_tempDir.'commerce/CommercePlugin.php';
+		echo 'Loading the contents of CommercePlugin.php at '.$path.PHP_EOL;
 		$contents = file_get_contents($path);
 
 		preg_match('/(\d\.\d{1,2})\.(\d){4}/', $contents, $matches);

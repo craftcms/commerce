@@ -1,0 +1,84 @@
+{% extends "commerce/_layouts/cp" %}
+
+{% set crumbs = [
+{ label: "Customers"|t, url: url('commerce/customers') },
+] %}
+
+{% import "_includes/forms" as forms %}
+
+{% set content %}
+<form method="post" accept-charset="UTF-8" data-saveshortcut>
+    <input type="hidden" name="action" value="commerce/customers/save">
+    <input type="hidden" name="redirect" value="commerce/customers">
+    {{ getCsrfInput() }}
+
+    <input type="hidden" name="id" value="{{ customer.id }}">
+
+    {% set userField %}
+    {% if customer.user %}
+        <a href="{{ customer.user.getCpEditUrl() }}">{{ customer.user.name }}</a>
+    {% else %}
+        (Guest)
+    {% endif %}
+    {% endset %}
+
+    {{ forms.field({
+        first: true,
+        label: "User"|t,
+        instructions: "Associated user account."|t,
+    }, userField) }}
+
+    {{ forms.textField({
+        label: "Email"|t,
+        instructions: "Customer email (same as user email if user is specified)."|t,
+        name: 'email',
+        value: customer.email,
+        errors: customer.getErrors('email'),
+    }) }}
+
+    <h3>Addresses</h3>
+
+    <table id="addresses" class="data fullwidth collapsible">
+        <thead>
+        <tr>
+            <th scope="col" class="header">{{ 'ID'|t }}</span></th>
+            <th scope="col" class="header">{{ 'First Name'|t }}</span></th>
+            <th scope="col" class="header">{{ 'Last Name'|t }}</th>
+            <th scope="col" class="header">{{ 'Country'|t }}</th>
+            <th scope="col" class="header">{{ 'State'|t }}</th>
+            <th class="thin"></th>
+            <th class="thin"></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for address in customer.addresses %}
+            <tr data-id="{{ address.id }}" data-name="{{ address.id }}">
+                <td>{{ address.id }}</td>
+                <td>{{ address.firstName }}</td>
+                <td>{{ address.lastName }}</td>
+                <td>{{ address.country.name }}</td>
+                <td>{{ address.stateText }}</td>
+                <td class="thin"><a href="{{ address.getCpEditUrl() }}">Edit</a></td>
+                <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <hr>
+
+    <div class="buttons">
+        <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
+    </div>
+</form>
+
+{% endset %}
+
+
+{% includejs %}
+    new Craft.AdminTable({
+    tableSelector: '#addresses',
+    deleteAction: 'commerce/address/delete',
+    confirmDeleteMessage: '{{ "Are you sure you want to delete address ID: '{name}'?"|t }}'
+    });
+{% endincludejs %}

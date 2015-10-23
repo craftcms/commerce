@@ -1,0 +1,66 @@
+<ul>
+    {% if address.firstName is not empty or address.lastName is not empty %}
+        <li>
+            <strong>
+                {% if address.firstName is not empty %}
+                    {{ address.firstName }}
+                {% endif %}
+
+                {% if address.lastName is not empty %}
+                    {{ address.lastName }}
+                {% endif %}
+
+                {% if address.company is not empty %}
+                    {{ address.company }}
+                {% endif %}
+            </strong>
+        </li>
+    {% endif %}
+
+    {% if address.customer.email is defined %}
+        <li>{{ address.customer.email }}</li>
+    {% endif %}
+
+    {% if address.address1 is not empty %}
+        <li>{{ address.address1 }}</li>
+    {% endif %}
+
+    {% if address.address2 is not empty %}
+        <li>{{ address.address2 }}</li>
+    {% endif %}
+
+
+    {% if address.zipCode is not empty or address.city is not empty %}
+        <li>
+            {% if address.zipCode is not empty %}
+                {{ address.zipCode }}
+            {% endif %}
+
+            {% if address.city is not empty %}
+                {{ address.city }}
+            {% endif %}
+        </li>
+    {% endif %}
+
+    {% if address.stateName is not empty %}
+        <li>{{ address.stateName }}</li>
+    {% endif %}
+
+    {% if address.country.name is defined %}
+        <li>{{ address.country.name }}</li>
+    {% endif %}
+
+    {% if address.state.name is defined %}
+        <li>{{ address.state.name }}</li>
+    {% endif %}
+
+    {% if address.phone is not empty %}
+        <li>{{ address.phone }}</li>
+    {% endif %}
+
+    {% if address.alternativePhone is not empty %}
+        <li>{{ address.alternativePhone }}</li>
+    {% endif %}
+
+
+</ul>
