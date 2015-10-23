@@ -24,7 +24,9 @@ class UtilsHelper
 			}
 			else if ($recursive && is_dir($item))
 			{
-				if ($item[0] == '.' && !$includeHiddenFolders)
+				$parts = explode(DIRECTORY_SEPARATOR, $item);
+
+				if ($parts[count($parts) - 1][0] == '.' && !$includeHiddenFolders)
 				{
 					continue;
 				}
