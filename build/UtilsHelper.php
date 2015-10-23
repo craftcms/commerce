@@ -555,4 +555,30 @@ class UtilsHelper
 			mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
 		);
 	}
+
+	/**
+	 * @param $path
+	 *
+	 * @return array|bool
+	 */
+	public static function getGitFolders($path)
+	{
+		$path = static::normalizePathSeparators($path);
+
+		if (is_dir($path))
+		{
+			$iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path), RecursiveIteratorIterator::SELF_FIRST);
+			$folders = array();
+
+			foreach ($iterator as $file)
+			{
+				if ($file->isDir() && $file->getFilename() == '.git')
+				{
+					$folders[] = static::normalizePathSeparators($file->getRealPath());
+				}
+			}
+		}
+
+		return $folders;
+	}
 }
