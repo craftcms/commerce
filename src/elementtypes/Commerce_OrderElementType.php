@@ -217,7 +217,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
         ];
 
         // Allow plugins to modify the attributes
-        craft()->plugins->call('commerce_modifyOrderSortableAttributes', array(&$attributes));
+        craft()->plugins->call('commerce_modifyOrderSortableAttributes', [&$attributes]);
 
         return $attributes;
     }
