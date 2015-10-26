@@ -1,7 +1,6 @@
 {% extends "commerce/_layouts/settings" %}
 
-{% set content %}
-
+{% block content %}
     <h2>{{ "Tax Zones"|t }}</h2>
     {% if taxZones|length %}
     <table id="taxZones" class="data fullwidth collapsible">
@@ -47,12 +46,12 @@
     {% else %}
         <p>{{ 'No tax zones exist yet.'|t }}</p>
     {% endif %}
-    <br/>
-    <div class="btngroup submit first">
-        <a href="{{ url('commerce/settings/taxzones/new') }}" class="btn submit">New Tax Zone</a>
-    </div>
 
-{% endset %}
+    <div class="buttons secondary-buttons">
+        <a href="{{ url('commerce/settings/taxzones/new') }}" class="btn submit add icon">New tax zone</a>
+    </div>
+{% endblock %}
+
 {% includejs %}
 var adminTable = new Craft.AdminTable({
 tableSelector: '#taxZones',

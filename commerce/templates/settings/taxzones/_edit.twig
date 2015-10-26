@@ -5,10 +5,11 @@
 { label: "Tax Zones"|t, url: url('commerce/settings/taxzones') },
 ] %}
 
+{% set fullPageForm = true %}
+
 {% import "_includes/forms" as forms %}
 
-{% set content %}
-<form method="post" accept-charset="UTF-8" data-saveshortcut>
+{% block content %}
     <input type="hidden" name="action" value="commerce/taxZones/save">
     <input type="hidden" name="redirect" value="commerce/settings/taxzones">
 
@@ -69,20 +70,14 @@
     }) }}
 
     {{ forms.checkboxField({
-        label: "Use this tax zone as the default when no shipping address is set?"|t,
+        label: "Default to this tax zone when no shipping address is set"|t,
         id: 'default',
         name: 'default',
         value: 1,
         checked: taxZone.default,
         errors: taxZone.getErrors('default')
     }) }}
-
-    <div class="buttons">
-        <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
-    </div>
-</form>
-
-{% endset %}
+{% endblock %}
 
 {% includejs %}
 {#<script>#}

@@ -1,7 +1,6 @@
 {% extends "commerce/_layouts/settings" %}
 
-{% set content %}
-
+{% block content %}
     <h2>{{ "States"|t }}</h2>
 
     <table id="states" class="data fullwidth collapsible">
@@ -26,12 +25,11 @@
 
         </tbody>
     </table>
-    <br/>
-    <div class="btngroup submit first">
-        <a href="{{ url('commerce/settings/states/new') }}" class="btn submit">New State</a>
-    </div>
 
-{% endset %}
+    <div class="buttons secondary-buttons">
+        <a href="{{ url('commerce/settings/states/new') }}" class="btn submit add icon">New state</a>
+    </div>
+{% endblock %}
 
 
 {% includejs %}
