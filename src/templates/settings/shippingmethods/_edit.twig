@@ -27,7 +27,6 @@
     <input type="hidden" name="action" value="commerce/shippingMethods/save">
     <input type="hidden" name="redirect" value="commerce/settings/shippingmethods/{id}#rules">
     {% if shippingMethod.id %}<input type="hidden" name="shippingMethodId" value="{{ shippingMethod.id }}">{% endif %}
-    {{ getCsrfInput() }}
 
     {{ forms.textField({
         first: true,

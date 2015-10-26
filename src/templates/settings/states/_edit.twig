@@ -13,7 +13,6 @@
     <input type="hidden" name="action" value="commerce/states/save">
     <input type="hidden" name="redirect" value="commerce/settings/states">
     {% if state.id %}<input type="hidden" name="stateId" value="{{ state.id }}">{% endif %}
-    {{ getCsrfInput() }}
 
     {{ forms.textField({
         first: true,

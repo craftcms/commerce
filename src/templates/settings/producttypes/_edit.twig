@@ -21,8 +21,6 @@
 {% block content %}
     <input type="hidden" name="action" value="commerce/productTypes/saveProductType">
     <input type="hidden" name="redirect" value="commerce/settings/producttypes">
-
-    {{ getCsrfInput() }}
     {% if productType.id %}<input type="hidden" name="productTypeId" value="{{ productType.id }}">{% endif %}
 
     <div id="product-type-settings">
