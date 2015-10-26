@@ -7,7 +7,7 @@
         <h2>{{ "Order Statuses"|t }}</h2>
         <p>{{ "Define the statuses that can be set on orders once they've been completed."|t }}</p>
 
-        <table id="orderStatuses" class="data fullwidth collapsible">
+        <table id="order-statuses" class="data fullwidth collapsible">
             <thead>
             <tr>
                 <th scope="col">{{ "Name"|t }}</th>
@@ -43,7 +43,7 @@
 
 {% includejs %}
     new Craft.AdminTable({
-        tableSelector: '#orderStatuses',
+        tableSelector: '#order-statuses',
         deleteAction: 'commerce/orderStatuses/delete',
         minObjects: 1
     });

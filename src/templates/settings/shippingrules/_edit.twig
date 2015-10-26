@@ -12,9 +12,9 @@
 {% import "commerce/_includes/forms/commerceForms" as commerceForms %}
 
     {% set tabs = {
-        0: {'label':'Rule','url':'#ruleTab'},
-        1: {'label':'Conditions','url':'#conditionsTab'},
-        2: {'label':'Costs','url':'#costsTab'}
+        0: {'label':'Rule','url':'#rule-tab'},
+        1: {'label':'Conditions','url':'#conditions-tab'},
+        2: {'label':'Costs','url':'#costs-tab'}
     }
     %}
 
@@ -24,7 +24,7 @@
     <input type="hidden" name="methodId" value="{{ methodId }}">
     {% if shippingRule.id %}<input type="hidden" name="id" value="{{ shippingRule.id }}">{% endif %}
 
-    <div id="ruleTab">
+    <div id="rule-tab">
     {{ forms.textField({
         first: true,
         label: "Name"|t,
@@ -77,7 +77,7 @@
         errors: shippingRule.getErrors('enabled')
     }) }}
     </div>
-    <div id="conditionsTab" class="hidden">
+    <div id="conditions-tab" class="hidden">
     <p>{{ "Filtering conditions which describe to which orders this rule is applicable to. Write 0 to skip a condition."|t }}</p>
 
     {{ commerceForms.numberField({
@@ -145,7 +145,7 @@
     }) }}
 
     </div>
-    <div id="costsTab" class="hidden">
+    <div id="costs-tab" class="hidden">
 
     {{ commerceForms.numberField({
         label: "Base Rate"|t,

@@ -45,7 +45,7 @@
 
     {% set colorField %}
     <div>
-        <a id="colorMenuBtn" class="btn menubtn" href="#"><span class="commerce status {{ orderStatus.color }}"></span>{{ orderStatus.color|t|title }}</a>
+        <a id="color-menu-btn" class="btn menubtn" href="#"><span class="commerce status {{ orderStatus.color }}"></span>{{ orderStatus.color|t|title }}</a>
         <div class="menu">
             <ul class="padded">
                 {% for color in ['green','orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'] %}
@@ -93,7 +93,7 @@
 {% if not orderStatus.handle %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
 $(function () {
 
-    $colorSelect = $('#colorMenuBtn');
+    $colorSelect = $('#color-menu-btn');
     new Garnish.MenuBtn($colorSelect, {
         onOptionSelect: function(data){
             var val = $(data).data('val');

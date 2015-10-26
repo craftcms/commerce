@@ -35,7 +35,7 @@
 				<tr>
 					<td><strong>{{ "Status"|t }}</strong></td>
 					{% if order.orderStatus %}
-						<td><div id="orderStatus">{{ order.orderStatus.htmlLabel|raw }} &nbsp; <a
+						<td><div id="order-status">{{ order.orderStatus.htmlLabel|raw }} &nbsp; <a
 									href="#"
 									class="updatestatus btn small"
 									data-currentStatus="{{ order.orderStatus.attributes|json_encode() }}"
