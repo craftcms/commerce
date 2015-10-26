@@ -4,44 +4,13 @@ if (typeof Craft.Commerce === typeof undefined)
 }
 
 Craft.Commerce.OrderEdit = Garnish.Base.extend({
-    $container: null,
     orderId: null,
-    $billingAddress: null,
-    $shippingAddress: null,
     $status: null,
     statusUpdateModal: null,
-    init: function (args, settings)
+    init: function (orderId, settings)
     {
-
-        this.orderId = args.orderId;
-        this.$container = args.container;
-        this.$billingAddress = this.$container.find('.billingAddress');
-        this.$shippingAddress = this.$container.find('.shippingAddress');
-        this.$status = this.$container.find('#orderStatus');
-
-        var $editBillingAddressBtn = this.$billingAddress.find('.edit.btn').click(function (e)
-        {
-            e.preventDefault();
-            if (!this.modal)
-            {
-                this.modal = new Craft.Commerce.EditAddressModal(this, {});
-            } else
-            {
-                this.modal.show();
-            }
-        });
-
-        var $editShippingAddressBtn = this.$billingAddress.find('.edit.btn').click(function (e)
-        {
-            e.preventDefault();
-            if (!this.modal)
-            {
-                this.modal = new Craft.Commerce.EditAddressModal(this, {});
-            } else
-            {
-                this.modal.show();
-            }
-        });
+        this.orderId = orderId;
+        this.$status = $('#orderStatus');
 
         this.addListener(this.$status.find('.updatestatus'), 'click', function (ev)
         {

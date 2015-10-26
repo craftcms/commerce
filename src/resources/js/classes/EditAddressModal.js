@@ -10,14 +10,18 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend({
     type: null,
     orderId: null,
     $error: null,
-    init: function (btn, settings)
+    init: function (args, settings)
     {
         var self = this;
-        this.data = $(btn).data('address');
+        this.data = args.address;
         var countries = window.countries;
         var states = window.states;
-        this.type = $(btn).data('addresstype');
-        this.orderId = $(btn).data('orderid');
+        this.type = args.addressType;
+        this.orderId = args.orderId;
+
+        this.setSettings(settings, {
+            resizable: false
+        });
 
         var $form = $('<form class="modal" style="height:100%" method="post" accept-charset="UTF-8"/>').appendTo(Garnish.$bod);
         this.$body = $('<div class="body fields-body"></div>').appendTo($form);
@@ -164,8 +168,13 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend({
                 location.reload(true);
             } else
             {
-                self.$error.html(response.error);
+                console.log(response.error);
+                //this.$error.html(response.error);
             }
         });
+    },
+    defaults: {
+        onSubmit: $.noop
     }
+
 });

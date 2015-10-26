@@ -67,8 +67,8 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 
         $deleteAction = craft()->elements->getAction('Delete');
         $deleteAction->setParams([
-            'confirmationMessage' => Craft::t('Are you sure you want to delete the selected product and their variants?'),
-            'successMessage' => Craft::t('Products deleted.'),
+            'confirmationMessage' => Craft::t('Are you sure you want to delete the selected orders?'),
+            'successMessage' => Craft::t('Orders deleted.'),
         ]);
         $actions[] = $deleteAction;
 
