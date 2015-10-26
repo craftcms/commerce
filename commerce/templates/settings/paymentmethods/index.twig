@@ -2,8 +2,8 @@
 
 {% set title = "Payment Methods"|t %}
 
-{% set content %}
 
+{% block content %}
     <h2>{{ "Payment Methods"|t }}</h2>
 
     <table id="paymentMethods" class="data fullwidth collapsible">
@@ -35,5 +35,4 @@
     <div class="buttons secondary-buttons">
         <a href="{{ url('commerce/settings/paymentmethods/new') }}" class="btn submit add icon">New payment method</a>
     </div>
-
-{% endset %}
+{% endblock %}

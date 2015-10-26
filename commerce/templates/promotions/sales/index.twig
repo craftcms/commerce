@@ -1,10 +1,8 @@
 {% extends "commerce/_layouts/promotions" %}
-{% set fitted = true %}
 
 {% set title = "Sales"|t %}
 
-{% set content %}
-
+{% block content %}
     <h2>{{ "Sales"|t }}</h2>
 
     {% if sales|length %}
@@ -48,12 +46,11 @@
     {% else %}
         <p>{{ "No sales exist yet."|t }}</p>
     {% endif %}
-    <br/>
-    <div class="btngroup submit first">
-        <a href="{{ url('commerce/promotions/sales/new') }}" class="btn submit">New Sale</a>
-    </div>
 
-{% endset %}
+    <div class="buttons secondary-buttons">
+        <a href="{{ url('commerce/promotions/sales/new') }}" class="btn submit add icon">New sale</a>
+    </div>
+{% endblock %}
 
 
 {% includejs %}

@@ -1,6 +1,7 @@
 {% extends "commerce/_layouts/settings" %}
 
-{% set content %}
+
+{% block content %}
     <h2>{{ "Emails"|t }}</h2>
     {% if emails|length %}
     <table id="emails" class="data fullwidth collapsible">
@@ -37,7 +38,7 @@
     <div class="buttons secondary-buttons">
         <a href="{{ url('commerce/settings/emails/new') }}" class="btn submit add icon">New email</a>
     </div>
-{% endset %}
+{% endblock %}
 
 
 {% includejs %}
