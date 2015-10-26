@@ -36,8 +36,8 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
     {
         $methods = $this->getAll();
 
-        foreach($methods as $method){
-            if($method->getHandle() == $handle){
+        foreach ($methods as $method) {
+            if ($method->getHandle() == $handle) {
                 return $method;
             }
         }
@@ -47,21 +47,36 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
     }
 
     /**
-     * @param array|\CDbCriteria $criteria
+     * Returns the Commerce managed and 3rd party shipping methods
      *
      * @return Commerce_ShippingMethodModel[]
      */
-    public function getAll($criteria = [])
+    public function getAll()
     {
-        $records = Commerce_ShippingMethodRecord::model()->findAll($criteria);
-
-        $methods = Commerce_ShippingMethodModel::populateModels($records);
+        $methods = $this->getAllCore();
 
         $additionalMethods = craft()->plugins->call('commerce_registerShippingMethods');
 
         foreach ($additionalMethods as $additional) {
             $methods = array_merge($methods, $additional);
         }
+
+        return $methods;
+
+    }
+
+    /**
+     * Returns the Commerce managed shipping methods
+     *
+     * @param array|\CDbCriteria $criteria
+     *
+     * @return Commerce_ShippingMethodModel[]
+     */
+    public function getAllCore($criteria = [])
+    {
+        $records = Commerce_ShippingMethodRecord::model()->findAll($criteria);
+
+        $methods = Commerce_ShippingMethodModel::populateModels($records);
 
         return $methods;
 
@@ -121,7 +136,7 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
     )
     {
         foreach ($method->getRules() as $rule) {
-            if($rule->matchOrder($order)) {
+            if ($rule->matchOrder($order)) {
                 return $rule;
             }
         }
