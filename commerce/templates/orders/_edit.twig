@@ -363,20 +363,20 @@
 							<form>
 							<a class="small btn submit formsubmit"
 							   data-action="commerce/orders/transactionCapture"
-							   data-confirm="{{ 'Confirm capture?'|t }}"
+							   data-confirm="{{ 'Are you sure you want to capture this transaction?'|t }}"
 							   data-redirect="{{ order.cpEditUrl }}"
 							   data-param="id"
-							   data-value="{{ transaction.id }}">Capture</a>
+							   data-value="{{ transaction.id }}">{{ 'Capture'|t }}</a>
 							</form>
 						{% endif %}
 						{% if transaction.canRefund() %}
 							<form>
 							<a class="small btn submit formsubmit"
 							   data-action="commerce/orders/transactionRefund"
-							   data-confirm="{{ 'Confirm refund?'|t }}"
+							   data-confirm="{{ 'Are you sure you want to refund this transaction?'|t }}"
 							   data-redirect="{{ order.cpEditUrl }}"
 							   data-param="id"
-							   data-value="{{ transaction.id }}">Refund</a>
+							   data-value="{{ transaction.id }}">{{ 'Refund'|t }}</a>
 							</form>
 						{% endif %}
 					</td>
@@ -386,9 +386,9 @@
 		</table>
 	</div>
 	{% endif %}
-
-
 {% endblock %}
+
+
 {% includeJsResource 'commerce/js/classes/TableRowAdditionalInfoIcon.js' %}
 {% includeJsResource 'commerce/js/classes/EditAddressModal.js' %}
 {% includeJsResource 'commerce/js/classes/UpdateOrderStatusModal.js' %}

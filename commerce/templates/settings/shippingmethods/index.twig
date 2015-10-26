@@ -13,16 +13,21 @@
         <tr>
             <th scope="col">{{ 'Name'|t }}</th>
             <th scope="col">{{ 'Handle'|t }}</th>
-            <th scope="col">{{ 'Enabled?'|t }}</th>
             <td class="thin"></td>
         </tr>
         </thead>
         <tbody>
         {% for shippingMethod in shippingMethods %}
             <tr data-id="{{ shippingMethod.id }}" data-name="{{ shippingMethod.name }}">
-                <th scope="row" data-title="Name"><a href="{{ url('commerce/settings/shippingmethods/'~shippingMethod.id) }}">{{ shippingMethod.name }}</a></th>
-                <td data-title="Handle"><code>{{ shippingMethod.handle }}</code></td>
-                <td data-title="Enabled">{% if shippingMethod.enabled %}<span class="status green"></span>{% else %}<span class="status green"></span>{% endif %}</td>
+                <th scope="row" data-title="Name">
+                    {% if shippingMethod.enabled %}
+                        <span class="status green"></span>
+                    {% else %}
+                        <span class="status green"></span>
+                    {% endif %}
+                    <a href="{{ url('commerce/settings/shippingmethods/'~shippingMethod.id) }}">{{ shippingMethod.name }}</a>
+                </th>
+                <td data-title="Handle" class="code">{{ shippingMethod.handle }}</td>
                 <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
             </tr>
         {% endfor %}
