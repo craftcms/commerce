@@ -67,11 +67,17 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 
         $deleteAction = craft()->elements->getAction('Delete');
         $deleteAction->setParams([
-            'confirmationMessage' => Craft::t('Are you sure you want to delete the selected product and their variants?'),
-            'successMessage' => Craft::t('Products deleted.'),
+            'confirmationMessage' => Craft::t('Are you sure you want to delete the selected orders?'),
+            'successMessage' => Craft::t('Orders deleted.'),
         ]);
         $actions[] = $deleteAction;
 
+        // Only allow mass updating order status when all selected are of the same status, and not carts.
+        $isStatus = strpos($source,'orderStatus:');
+        if($isStatus === 0){
+            $updateOrderStatusAction = craft()->elements->getAction('Commerce_UpdateOrderStatus');
+            $actions[] = $updateOrderStatusAction;
+        }
         // Allow plugins to add additional actions
         $allPluginActions = craft()->plugins->call('commerce_addOrderActions', [$source], true);
 
@@ -188,7 +194,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
         switch ($attribute) {
             case 'orderStatus': {
                 if ($element->orderStatus) {
-                    return $element->orderStatus->printName();
+                    return $element->orderStatus->htmlLabel();
                 } else {
                     return sprintf('<span class="commerce status %s"></span> %s', '', '');
                 }
