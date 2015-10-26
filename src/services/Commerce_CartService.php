@@ -140,7 +140,7 @@ class Commerce_CartService extends BaseApplicationComponent
      * Set shipping method to the current order
      *
      * @param Commerce_OrderModel $cart
-     * @param int $shippingMethodId
+     * @param int $shippingMethod
      * @param string $error ;
      *
      * @return bool
@@ -149,12 +149,13 @@ class Commerce_CartService extends BaseApplicationComponent
      */
     public function setShippingMethod(
         Commerce_OrderModel $cart,
-        $shippingMethodId,
+        $shippingMethod,
         &$error = ""
     )
     {
-        $method = craft()->commerce_shippingMethods->getById($shippingMethodId);
-        if (!$method->id) {
+        $method = craft()->commerce_shippingMethods->getByHandle($shippingMethod);
+
+        if (!$method) {
             $error = Craft::t('Bad shipping method');
             return false;
         }
@@ -164,7 +165,7 @@ class Commerce_CartService extends BaseApplicationComponent
             return false;
         }
 
-        $cart->shippingMethodId = $shippingMethodId;
+        $cart->shippingMethod = $shippingMethod;
         craft()->commerce_orders->save($cart);
 
         return true;
