@@ -10,7 +10,7 @@
 {% import "_includes/forms" as forms %}
 
     {% set tabs = {
-    0: {'label':'Shipping Method','url':'#shippingMethodTab'}
+    0: {'label':'Shipping Method','url':'#shipping-method-tab'}
     }
     %}
     {% if not newMethod %}
@@ -23,7 +23,7 @@
 {% endblock %}
 
 {% block content %}
-<div id="shippingMethodTab">
+<div id="shipping-method-tab">
     <input type="hidden" name="action" value="commerce/shippingMethods/save">
     <input type="hidden" name="redirect" value="commerce/settings/shippingmethods/{id}#rules">
     {% if shippingMethod.id %}<input type="hidden" name="shippingMethodId" value="{{ shippingMethod.id }}">{% endif %}
