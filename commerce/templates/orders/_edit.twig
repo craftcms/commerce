@@ -63,7 +63,7 @@
 
 				<strong>Billing Address </strong><br/>
 				{% if order.dateOrdered %}
-				<a class="small btn right edit" data-addresstype="billing" data-address="{{ order.billingAddressData|json_encode }}">Edit</a>
+				{#<a class="small btn right edit" data-orderid="{{ orderId }}" data-addresstype="billing" data-address="{{ order.billingAddressData|json_encode }}">Edit</a>#}
 				{% endif %}
 				<a class="small btn right"
 				   href="http://maps.google.com/maps?q={{ order.billingAddress.address1 }}+{{ order.billingAddress.address2 }}+{{ order.billingAddress.city }}+{{ order.billingAddress.zipCode }}+{{ order.billingAddress.stateText }}+{{ order.billingAddress.countryText }}"
@@ -76,7 +76,7 @@
 				<div class="order-address-box-content">
 				<strong>Shipping Address </strong><br/>
 				{% if order.dateOrdered %}
-				<a class="small btn right edit" data-addresstype="shipping" data-address="{{ order.shippingAddressData|json_encode }}">Edit</a>
+				{#<a class="small btn right edit" data-addresstype="shipping" data-address="{{ order.shippingAddressData|json_encode }}">Edit</a>#}
 				{% endif %}
 				<a class="small btn right"
 				   href="http://maps.google.com/maps?q={{ order.shippingAddress.address1 }}+{{ order.shippingAddress.address2 }}+{{ order.shippingAddress.city }}+{{ order.shippingAddress.zipCode }}+{{ order.shippingAddress.stateText }}+{{ order.shippingAddress.countryText }}"
@@ -396,16 +396,13 @@
 
 {% includejs %}
 
-window.countries = JSON.parse('{{ craft.commerce.countriesList|json_encode|raw }}');
-window.states = JSON.parse('{{ craft.commerce.statesArray|json_encode|raw }}');
+//window.countries = JSON.parse('{{ craft.commerce.countriesList|json_encode|raw }}');
+//window.states = JSON.parse('{{ craft.commerce.statesArray|json_encode|raw }}');
 
 $(document).ready(function () {
 
 	new Craft.Commerce.OrderEdit({
-		orderId: {{ orderId }},
-		container: $('#main'),
-		countries: window.countries,
-		states: window.states
+		orderId: {{ orderId }}
 	});
 
 	$.each($('.tableRowInfo'), function () {
