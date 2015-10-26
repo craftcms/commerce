@@ -67,8 +67,13 @@
 <div id="rules" class="hidden">
 
 <h2>{{ "Shipping Rules"|t }}</h2>
+
+<div id="no-shipping-rules"{% if shippingRules|length %} class="hidden"{% endif %}>
+    <p>{{ "No shipping rules exist yet."|t }}</p>
+</div>
+
 {% if shippingRules|length %}
-<table id="shippingRules" class="data fullwidth collapsible">
+<table id="shipping-rules" class="data fullwidth collapsible">
     <thead>
     <tr>
         <th>{{ 'Name'|t }}</th>
@@ -100,8 +105,6 @@
 
     </tbody>
 </table>
-{% else %}
-    <p>{{ 'No shipping rules exist yet for this shipping method.' }}</p>
 {% endif %}
 
 <div class="buttons secondary-buttons">
@@ -114,7 +117,8 @@
 {% includejs %}
 {% if not shippingMethod.id %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
 var adminTable = new Craft.AdminTable({
-    tableSelector: '#shippingRules',
+    tableSelector: '#shipping-rules',
+    noObjectsSelector: '#no-shipping-rules',
     deleteAction: 'commerce/shippingRules/delete',
     sortable: true,
     reorderAction: 'commerce/shippingRules/reorder',

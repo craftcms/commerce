@@ -1,8 +1,14 @@
 {% extends "commerce/_layouts/settings" %}
 
+
 {% block content %}
     <h2>{{ "States"|t }}</h2>
 
+    <div id="no-states"{% if states|length %} class="hidden"{% endif %}>
+        <p>{{ "No states exist yet."|t }}</p>
+    </div>
+
+    {% if states|length %}
     <table id="states" class="data fullwidth collapsible">
         <thead>
         <tr>
@@ -25,6 +31,7 @@
 
         </tbody>
     </table>
+    {% endif %}
 
     <div class="buttons secondary-buttons">
         <a href="{{ url('commerce/settings/states/new') }}" class="btn submit add icon">New state</a>
@@ -35,6 +42,7 @@
 {% includejs %}
 var adminTable = new Craft.AdminTable({
 tableSelector: '#states',
+noObjectsSelector: '#no-states',
 deleteAction: 'commerce/states/delete',
 confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
 });

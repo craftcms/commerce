@@ -2,8 +2,13 @@
 
 {% block content %}
     <h2>{{ "Tax Zones"|t }}</h2>
+
+    <div id="no-tax-zones"{% if taxZones|length %} class="hidden"{% endif %}>
+        <p>{{ "No tax zones exist yet."|t }}</p>
+    </div>
+
     {% if taxZones|length %}
-    <table id="taxZones" class="data fullwidth collapsible">
+    <table id="tax-zones" class="data fullwidth collapsible">
         <thead>
         <tr>
             <th scope="col">{{ 'Name'|t }}</th>
@@ -43,8 +48,6 @@
 
         </tbody>
     </table>
-    {% else %}
-        <p>{{ 'No tax zones exist yet.'|t }}</p>
     {% endif %}
 
     <div class="buttons secondary-buttons">
@@ -54,7 +57,8 @@
 
 {% includejs %}
 var adminTable = new Craft.AdminTable({
-tableSelector: '#taxZones',
+tableSelector: '#tax-zones',
+noObjectsSelector: '#no-tax-zones',
 deleteAction: 'commerce/taxZones/delete',
 confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
 });

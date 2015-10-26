@@ -3,6 +3,11 @@
 
 {% block content %}
     <h2>{{ "Emails"|t }}</h2>
+
+    <div id="no-emails"{% if emails|length %} class="hidden"{% endif %}>
+        <p>{{ "No emails exist yet."|t }}</p>
+    </div>
+
     {% if emails|length %}
     <table id="emails" class="data fullwidth collapsible">
         <thead>
@@ -31,8 +36,6 @@
 
         </tbody>
     </table>
-    {% else %}
-        <p>{{ "No emails exist yet."|t }}</p>
     {% endif %}
 
     <div class="buttons secondary-buttons">
@@ -44,6 +47,7 @@
 {% includejs %}
 var adminTable = new Craft.AdminTable({
 tableSelector: '#emails',
+noObjectsSelector: '#no-emails',
 deleteAction: 'commerce/emails/delete',
 confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
 });
