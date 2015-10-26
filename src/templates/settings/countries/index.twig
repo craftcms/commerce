@@ -14,7 +14,7 @@
         <tr>
             <th scope="col">{{ 'Name'|t }}</th>
             <th scope="col">{{ 'Country Code'|t }}</th>
-            <th scope="col">{{ 'State required?'|t }}</th>
+            <th scope="col">{{ 'State Required?'|t }}</th>
             <td class="thin"></td>
         </tr>
         </thead>
@@ -44,7 +44,6 @@ var adminTable = new Craft.AdminTable({
 tableSelector: '#countries',
 noObjectsSelector: '#no-countries',
 deleteAction: 'commerce/countries/delete',
-confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}',
-deleteFailMessage: '{{ "Can not delete “{name}”, it is being used by various addresses."|t }}'
+deleteFailMessage: '{{ "Can not delete “{name}” because it is in use."|t }}'
 });
 {% endincludejs %}
