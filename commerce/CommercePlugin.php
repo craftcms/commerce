@@ -23,7 +23,7 @@ class CommercePlugin extends BasePlugin
     private $doSeed = true;
 
     /**
-     * Initialize plugin.
+     * Initialize the plugin.
      */
     public function init()
     {
