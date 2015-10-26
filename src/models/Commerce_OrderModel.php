@@ -340,6 +340,16 @@ class Commerce_OrderModel extends BaseElementModel
     }
 
     /**
+     *
+     * @param Commerce_AddressModel $address
+     */
+    public function setBillingAddress(Commerce_AddressModel $address)
+    {
+        $this->billingAddressData = JsonHelper::encode($address->attributes);
+        $this->_billingAddress = $address;
+    }
+
+    /**
      * @return bool|\Commerce\Interfaces\ShippingMethod
      */
     public function getShippingMethod()
@@ -354,17 +364,6 @@ class Commerce_OrderModel extends BaseElementModel
     {
         return $this->getAttribute('shippingMethod');
     }
-
-    /**
-     *
-     * @param Commerce_AddressModel $address
-     */
-    public function setBillingAddress(Commerce_AddressModel $address)
-    {
-        $this->billingAddressData = JsonHelper::encode($address->attributes);
-        $this->_billingAddress = $address;
-    }
-
 
     /**
      * @deprecated

@@ -13,17 +13,16 @@ namespace Craft;
  */
 class Commerce_AddressesController extends Commerce_BaseAdminController
 {
-	/**
-	 * Edit Address
-	 *
-	 * @param array $variables
-	 *
-	 * @throws HttpException
-	 */
-	public function actionEdit (array $variables = [])
+    /**
+     * Edit Address
+     *
+     * @param array $variables
+     *
+     * @throws HttpException
+     */
+    public function actionEdit(array $variables = [])
     {
-        if (empty($variables['address']))
-        {
+        if (empty($variables['address'])) {
             if (empty($variables['id'])) {
                 throw new HttpException(404);
             }

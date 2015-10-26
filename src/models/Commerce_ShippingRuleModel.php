@@ -49,7 +49,7 @@ class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfac
      */
     public function getHandle()
     {
-        return 'commerceRuleId'.$this->id;
+        return 'commerceRuleId' . $this->id;
     }
 
     /**
@@ -190,24 +190,25 @@ class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfac
 
             if ($this->percentageRate) {
                 if ($this->perItemRate) {
-                    $description .= Craft::t('and').' ';
+                    $description .= Craft::t('and') . ' ';
                 }
 
                 $description .= $this->percentageRate * 100 . '% ';
             }
 
-            $description .= Craft::t('per item').' ';
+            $description .= Craft::t('per item') . ' ';
         }
 
         if ($this->baseRate) {
             if ($description) {
-                $description .= Craft::t('and').' ';
+                $description .= Craft::t('and') . ' ';
             }
-            $description .= $this->baseRate * 1 . '$ '.Craft::t('base rate');
+            $description .= $this->baseRate * 1 . '$ ' . Craft::t('base rate');
         }
 
         return $description;
     }
+
     /**
      * @return array
      */

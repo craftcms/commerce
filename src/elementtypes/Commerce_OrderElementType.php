@@ -73,8 +73,8 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
         $actions[] = $deleteAction;
 
         // Only allow mass updating order status when all selected are of the same status, and not carts.
-        $isStatus = strpos($source,'orderStatus:');
-        if($isStatus === 0){
+        $isStatus = strpos($source, 'orderStatus:');
+        if ($isStatus === 0) {
             $updateOrderStatusAction = craft()->elements->getAction('Commerce_UpdateOrderStatus');
             $actions[] = $updateOrderStatusAction;
         }
