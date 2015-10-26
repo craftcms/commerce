@@ -1,4 +1,5 @@
 {% extends "commerce/_layouts/promotions" %}
+{% set selectedSidebarNavItem = 'discounts' %}
 
 
 {% block content %}
@@ -8,43 +9,30 @@
         <thead>
         <tr>
             <th scope="col">Name</th>
-            <th scope="col">Dates</th>
             <th scope="col">Code</th>
-            <th scope="col">Per User Limit</th>
-            <th scope="col">Total Use Limit</th>
+            <th scope="col">Duration</th>
             <th scope="col">Times Used</th>
-            <th scope="col">Purchase Total</th>
-            <th scope="col">Purchase Quantity</th>
-            <th scope="col">Base Discount</th>
-            <th scope="col">Per Item Discount</th>
-            <th scope="col">Percent Discount</th>
-            <th scope="col">Enabled?</th>
             <td class="thin"></td>
         </tr>
         </thead>
         <tbody>
         {% for discount in discounts %}
             <tr data-id="{{ discount.id }}" data-name="{{ discount.name }}">
-                <th scope="row" data-title="Name"><a href="{{ url('commerce/promotions/discounts/'~discount.id) }}">{{ discount.name }}</a></th>
-                <td data-title="Dates">
-                    {{ (discount.dateFrom ? discount.dateFrom : '&infin;')|raw }}<br/> to<br/> {{ (discount.dateTo ? discount.dateTo : '&infin;')|raw }}
-                </td>
-                <td data-title="Code">{{ discount.code }}</td>
-                <td data-title="Per User Limit">{{ discount.perUserLimit }}</td>
-                <td data-title="Total Use Limit">{{ discount.totalUseLimit }}</td>
-                <td data-title="Purchase Total">{{ discount.purchaseTotal }}</td>
-                <td data-title="Times Used">{{ discount.totalUses }}</td>
-                <td data-title="Purchase Quantity">{{ discount.purchaseQty }}</td>
-                <td data-title="Base Discount">{{ discount.baseDiscount|commerceCurrency }}</td>
-                <td data-title="Per Item Discount">{{ discount.perItemDiscount|commerceCurrency }}</td>
-                <td data-title="Percent Discount">{{ discount.percentDiscount|commercePercent }}</td>
-                <td data-title="Enabled">
+                <th scope="row" data-title="Name">
                     {% if discount.enabled %}
                         <div class="status enabled"></div>
                     {% else %}
                         <div class="status"></div>
                     {% endif %}
+                    <a href="{{ url('commerce/promotions/discounts/'~discount.id) }}">{{ discount.name }}</a>
+                </th>
+                <td data-title="Code" class="code">{{ discount.code }}</td>
+                <td data-title="Dates">
+                    {{ (discount.dateFrom ? discount.dateFrom.localeDate() : '∞') }}
+                    -
+                    {{ (discount.dateTo ? discount.dateTo.localeDate() : '∞') }}
                 </td>
+                <td data-title="Times Used">{{ discount.totalUses }}</td>
                 <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
             </tr>
         {% endfor %}
