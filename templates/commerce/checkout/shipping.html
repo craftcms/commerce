@@ -23,7 +23,6 @@
         <input type="hidden" name="redirect" value="commerce/checkout/payment">
         {{ getCsrfInput() }}
 
-        {{ cart.shippingMethodHandle }}
         {% for handle, method in craft.commerce.getShippingMethods() %}
             <label>
                 <input type="radio" name="shippingMethod" value="{{ handle }}"
