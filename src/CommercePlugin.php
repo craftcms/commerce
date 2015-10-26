@@ -71,11 +71,11 @@ class CommercePlugin extends BasePlugin
         if (!$pluginInfo) {
             parent::createTables();
         } else {
-            if ($pluginInfo['version'] != '0.8.05') {
+            if ($pluginInfo['version'] != '0.8.09') {
                 throw new Exception('Market plugin must be upgraded to 0.8.05 before installing Commerce');
             }
 
-            if ($pluginInfo['version'] == '0.8.05') {
+            if ($pluginInfo['version'] == '0.8.09') {
                 CommerceDbHelper::beginStackedTransaction();
                 try {
                     $this->doSeed = false;
