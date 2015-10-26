@@ -22,11 +22,11 @@
         <tbody>
         {% for taxZone in taxZones %}
             <tr data-id="{{ taxZone.id }}" data-name="{{ taxZone.name }}">
-                <td scope="row" data-title="Name"><a
+                <td scope="row" data-title="{{ 'Name'|t }}"><a
                             href="{{ url('commerce/settings/taxzones/'~taxZone.id) }}">{{ taxZone.name }}</a></td>
-                <td data-title="Description">{{ taxZone.description }}</td>
-                <td data-title="Type">{{ taxZone.countryBased ? 'Country Based'|t : 'State Based'|t }}</td>
-                <td data-title="CountryState">
+                <td data-title="{{ 'Description'|t }}">{{ taxZone.description }}</td>
+                <td data-title="{{ 'Type'|t }}">{{ taxZone.countryBased ? 'Country Based'|t : 'State Based'|t }}</td>
+                <td data-title="{{ 'CountryState'|t }}">
                     {%  set countryCount = taxZone.getCountriesNames()|length%}
                     {% if countryCount > 3 %}
                         {{ taxZone.getCountriesNames()|slice(0,3)|join(', ') }} ({{ (countryCount - 3) ~ " more"|t }}&hellip;)

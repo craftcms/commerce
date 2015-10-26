@@ -9,7 +9,7 @@
     <table id="paymentMethods" class="data fullwidth collapsible">
         <thead>
         <tr>
-            <th>{{ "Payment Method"|t }}</th>
+            <th>{{ "Name"|t }}</th>
             <th>{{ "Gateway"|t }}</th>
             <th>{{ "Front End Status"|t }}</th>
         </tr>
@@ -17,9 +17,9 @@
         <tbody>
         {% for paymentMethod in paymentMethods %}
             <tr data-id="{{ paymentMethod.class }}" data-name="{{ paymentMethod.name }}">
-                <th scope="row" data-title="Name"><a href="{{ paymentMethod.cpEditUrl }}">{{ paymentMethod.name }}</a></th>
-                <td data-title="Class">{{ paymentMethod.class }}</td>
-                <td data-title="Status">
+                <th scope="row" data-title="{{ 'Name'|t }}"><a href="{{ paymentMethod.cpEditUrl }}">{{ paymentMethod.name }}</a></th>
+                <td data-title="{{ 'Gateway'|t }}">{{ paymentMethod.class }}</td>
+                <td data-title="{{ 'Front End Status'|t }}">
                     {% if paymentMethod.frontendEnabled %}
                         <div class="status enabled"></div>
                     {% else %}

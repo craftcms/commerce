@@ -10,7 +10,7 @@
         <table id="orderStatuses" class="data fullwidth collapsible">
             <thead>
             <tr>
-                <th scope="col">{{ "Status"|t }}</th>
+                <th scope="col">{{ "Name"|t }}</th>
                 <th scope="col">{{ "Handle"|t }}</th>
                 <th scope="col">{{ "Has Emails?"|t }}</th>
                 <th scope="col">{{ "Default Status?"|t }}</th>
@@ -20,9 +20,9 @@
             <tbody>
             {% for orderStatus in orderStatuses %}
                 <tr data-id="{{ orderStatus.id }}" data-name="{{ orderStatus.handle }}">
-                    <th scope="row" data-title="Name"><a href="{{ orderStatus.getCpEditUrl() }}">{{ orderStatus.htmlLabel|raw }}</a></th>
-                    <td data-title="Handle" class="code">{{ orderStatus.handle }}</td>
-                    <td data-title="Emails">
+                    <th scope="row" data-title="{{ 'Name'|t }}"><a href="{{ orderStatus.getCpEditUrl() }}">{{ orderStatus.htmlLabel|raw }}</a></th>
+                    <td data-title="{{ 'Handle'|t }}" class="code">{{ orderStatus.handle }}</td>
+                    <td data-title="{{ 'Emails'|t }}">
                         {% if orderStatus.emails | length %}
                             {{ orderStatus.emails | length }}
                         {% endif %}

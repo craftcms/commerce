@@ -19,7 +19,7 @@
         <tbody>
         {% for shippingMethod in shippingMethods %}
             <tr data-id="{{ shippingMethod.id }}" data-name="{{ shippingMethod.name }}">
-                <th scope="row" data-title="Name">
+                <th scope="row" data-title="{{ 'Name'|t }}">
                     {% if shippingMethod.enabled %}
                         <span class="status green"></span>
                     {% else %}
@@ -27,7 +27,7 @@
                     {% endif %}
                     <a href="{{ url('commerce/settings/shippingmethods/'~shippingMethod.id) }}">{{ shippingMethod.name }}</a>
                 </th>
-                <td data-title="Handle" class="code">{{ shippingMethod.handle }}</td>
+                <td data-title="{{ 'Handle'|t }}" class="code">{{ shippingMethod.handle }}</td>
                 <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
             </tr>
         {% endfor %}
