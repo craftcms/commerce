@@ -35,11 +35,6 @@
         <p><span style="color:red">No product types exist!</span><br/>Go to settings and <a
                     href="{{ url('commerce/settings/producttypes') }}">create a new product type </a>.</p>
     {% endif %}
-    {% if not taxCategories|length > 0 %}
-
-        <p><span style="color:red">No tax categories exist!</span><br/>Go to settings and <a
-                    href="{{ url('commerce/settings/taxcategories') }}">create a new tax category </a>.</p>
-    {% endif %}
 
 {% endblock %}
 
