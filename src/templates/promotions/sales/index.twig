@@ -22,7 +22,7 @@
         <tbody>
         {% for sale in sales %}
             <tr data-id="{{ sale.id }}" data-name="{{ sale.name }}">
-                <th scope="row" data-title="Name">
+                <th scope="row" data-title="{{ 'Name'|t }}">
                     {% if sale.enabled %}
                         <div class="status enabled"></div>
                     {% else %}
@@ -30,12 +30,12 @@
                     {% endif %}
                     <a href="{{ url('commerce/promotions/sales/'~sale.id) }}">{{ sale.name }}</a>
                 </th>
-                <td data-title="Dates">
+                <td data-title="{{ 'Duration'|t }}">
                     {{ sale.dateFrom ? sale.dateFrom.localeDate() : '∞'|t }}
                     -
                     {{ sale.dateTo ? sale.dateTo.localeDate() : '∞' }}
                 </td>
-                <td data-title="Discount Amount">
+                <td data-title="{{ 'Discount Amount'|t }}">
                     {% if sale.discountType == 'percent' %}
                         {{ sale.discountAmountAsPercent }} {{ "off"|t }}
                     {% else %}

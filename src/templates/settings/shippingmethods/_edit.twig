@@ -86,7 +86,7 @@
     <tbody>
     {% for shippingRule in shippingRules %}
         <tr data-id="{{ shippingRule.id }}" data-name="{{ shippingRule.name }}">
-            <th scope="row" data-title="Name">
+            <th scope="row" data-title="{{ 'Name'|t }}">
                 {% if shippingRule.enabled %}
                     <span class="status green"></span>
                 {% else %}

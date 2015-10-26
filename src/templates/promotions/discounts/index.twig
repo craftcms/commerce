@@ -23,7 +23,7 @@
         <tbody>
         {% for discount in discounts %}
             <tr data-id="{{ discount.id }}" data-name="{{ discount.name }}">
-                <th scope="row" data-title="Name">
+                <th scope="row" data-title="{{ 'Name'|t }}">
                     {% if discount.enabled %}
                         <div class="status enabled"></div>
                     {% else %}
@@ -31,13 +31,13 @@
                     {% endif %}
                     <a href="{{ url('commerce/promotions/discounts/'~discount.id) }}">{{ discount.name }}</a>
                 </th>
-                <td data-title="Code" class="code">{{ discount.code }}</td>
-                <td data-title="Dates">
+                <td data-title="{{ 'Code'|t }}" class="code">{{ discount.code }}</td>
+                <td data-title="{{ 'Duration'|t }}">
                     {{ (discount.dateFrom ? discount.dateFrom.localeDate() : '∞') }}
                     -
                     {{ (discount.dateTo ? discount.dateTo.localeDate() : '∞') }}
                 </td>
-                <td data-title="Times Used">{{ discount.totalUses }}</td>
+                <td data-title="{{ 'Times Used'|t }}">{{ discount.totalUses }}</td>
                 <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
             </tr>
         {% endfor %}

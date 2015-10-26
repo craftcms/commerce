@@ -15,14 +15,14 @@
     {% for customer in customers %}
         <tr data-id="{{ customer.id }}">
             <th><a href="{{ customer.getCpEditUrl() }}">#{{ customer.id }}</a></th>
-            <td data-title="User">
+            <td data-title="{{ 'User'|t }}">
                 {% if customer.user %}
                     <a href="{{ customer.user.getCpEditUrl() }}">{{ customer.user.name }}</a>
                 {% else %}
                     (null)
                 {% endif %}
             </td>
-            <td data-title="Email">{{ customer.email ?: '(null)' }}</td>
+            <td data-title="{{ 'Email'|t }}">{{ customer.email ?: '(null)' }}</td>
             <td>
                 <a class="edit icon" href="{{ customer.getCpEditUrl() }}"> Edit</a>
             </td>

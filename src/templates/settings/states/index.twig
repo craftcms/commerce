@@ -21,10 +21,10 @@
         <tbody>
         {% for state in states %}
             <tr data-id="{{ state.id }}" data-name="{{ state.name }}">
-                <th scope="row" data-title="Name"><a
+                <th scope="row" data-title="{{ 'Name'|t }}"><a
                             href="{{ url('commerce/settings/states/'~state.id) }}">{{ state.name }}</a></th>
-                <td data-title="ISO">{{ state.abbreviation }}</td>
-                <td data-title="Country Name">{{ state.country.name }}</td>
+                <td data-title="{{ 'ISO'|t }}">{{ state.abbreviation }}</td>
+                <td data-title="{{ 'Country Name'|t }}">{{ state.country.name }}</td>
                 <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
             </tr>
         {% endfor %}
