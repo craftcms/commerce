@@ -134,7 +134,7 @@ class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfac
      */
     public function getPercentageRate()
     {
-        return $this->attributes['percentageRate'];
+        return $this->getAttribute('percentageRate');
     }
 
     /**
@@ -142,7 +142,7 @@ class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfac
      */
     public function getPerItemRate()
     {
-        return $this->attributes['perItemRate'];
+        return $this->getAttribute('perItemRate');
     }
 
     /**
@@ -150,7 +150,7 @@ class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfac
      */
     public function getWeightRate()
     {
-        return $this->attributes['weightRate'];
+        return $this->getAttribute('weightRate');
     }
 
     /**
@@ -158,7 +158,7 @@ class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfac
      */
     public function getBaseRate()
     {
-        return $this->attributes['baseRate'];
+        return $this->getAttribute('baseRate');
     }
 
     /**
@@ -166,7 +166,7 @@ class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfac
      */
     public function getMaxRate()
     {
-        return $this->attributes['maxRate'];
+        return $this->getAttribute('maxRate');
     }
 
     /**
@@ -174,7 +174,7 @@ class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfac
      */
     public function getMinRate()
     {
-        return $this->attributes['minRate'];
+        return $this->getAttribute('minRate');
     }
 
     /**
