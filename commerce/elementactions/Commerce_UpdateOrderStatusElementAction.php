@@ -79,6 +79,24 @@ EOT;
     }
 
     /**
+     * @param ElementCriteriaModel $criteria
+     * @return bool
+     */
+    public function performAction(ElementCriteriaModel $criteria)
+    {
+        $orders = $criteria->find();
+
+        foreach ($orders as $order) {
+            /** @var Commerce_OrderModel $order */
+            $order->orderStatusId = $this->getParams()->orderStatusId;
+            $order->message = $this->getParams()->message;
+            craft()->commerce_orders->save($order);
+        }
+
+        return true;
+    }
+
+    /**
      * @inheritDoc BaseElementAction::defineParams()
      *
      * @return array
@@ -89,23 +107,5 @@ EOT;
             'orderStatusId' => AttributeType::Number,
             'message' => AttributeType::String,
         );
-    }
-
-    /**
-     * @param ElementCriteriaModel $criteria
-     * @return bool
-     */
-    public function performAction(ElementCriteriaModel $criteria)
-    {
-        $orders = $criteria->find();
-
-        foreach($orders as $order){
-            /** @var Commerce_OrderModel $order */
-            $order->orderStatusId = $this->getParams()->orderStatusId;
-            $order->message = $this->getParams()->message;
-            craft()->commerce_orders->save($order);
-        }
-
-        return true;
     }
 }

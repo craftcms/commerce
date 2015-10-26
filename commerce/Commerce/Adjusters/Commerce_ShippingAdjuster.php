@@ -5,8 +5,6 @@ namespace Commerce\Adjusters;
 use Craft\Commerce_LineItemModel;
 use Craft\Commerce_OrderAdjustmentModel;
 use Craft\Commerce_OrderModel;
-use Craft\Commerce_ShippingRuleModel;
-use Craft\Commerce_VariantModel;
 
 /**
  * Tax Adjustments
@@ -30,7 +28,7 @@ class Commerce_ShippingAdjuster implements Commerce_AdjusterInterface
         $shippingMethods = \Craft\craft()->commerce_shippingMethods->getAll();
 
         foreach ($shippingMethods as $method) {
-            if($method->getIsEnabled() == true && $method->getHandle() == $order->getShippingMethodHandle()){
+            if ($method->getIsEnabled() == true && $method->getHandle() == $order->getShippingMethodHandle()) {
                 $shippingMethod = $method;
             }
         }
