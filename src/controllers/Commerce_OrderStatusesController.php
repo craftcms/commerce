@@ -43,7 +43,7 @@ class Commerce_OrderStatusesController extends Commerce_BaseAdminController
         if (!empty($variables['orderStatusId'])) {
             $variables['title'] = $variables['orderStatus']->name;
         } else {
-            $variables['title'] = Craft::t('Create a new custom status');
+            $variables['title'] = Craft::t('Create a new order status');
         }
 
         $emails = craft()->commerce_emails->getAll(['order' => 'name']);
@@ -97,4 +97,4 @@ class Commerce_OrderStatusesController extends Commerce_BaseAdminController
         };
     }
 
-} 
+}

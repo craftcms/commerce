@@ -3,8 +3,10 @@
 {% set selectedTab = 'settings' %}
 {% import "_includes/forms" as forms %}
 
-{% set content %}
-    <h2>Order Fields</h2>
+
+{% block content %}
+<h2>Order Fields</h2>
+
 <form method="post" accept-charset="UTF-8" data-saveshortcut>
     <input type="hidden" name="action" value="commerce/orderSettings/save">
     <input type="hidden" name="redirect" value="commerce/settings/global">
@@ -20,5 +22,4 @@
         <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
     </div>
 </form>
-
-{% endset %}
+{% endblock %}

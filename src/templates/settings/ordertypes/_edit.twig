@@ -9,20 +9,20 @@
 {% set selectedTab = 'settings' %}
 {% import "_includes/forms" as forms %}
 
-{% set content %}
+{% set tabs = {
+    0: {'label':'Name & Info','url':'#tab0'},
+    1: {'label':'Statuses','url':'#tab1'},
+    2: {'label':'Fields','url':'#tab2'}
+} %}
+
+
+{% block content %}
 <form method="post" accept-charset="UTF-8" data-saveshortcut>
     <input type="hidden" name="action" value="commerce/orderTypes/saveOrderType">
     <input type="hidden" name="redirect" value="commerce/settings/ordertypes">
 
     {{ getCsrfInput() }}
     {% if orderType.id %}<input type="hidden" name="orderTypeId" value="{{ orderType.id }}">{% endif %}
-
-    {% set tabs = {
-        0: {'label':'Name & Info','url':'#tab0'},
-        1: {'label':'Statuses','url':'#tab1'},
-        2: {'label':'Fields','url':'#tab2'}
-        }
-    %}
 
     <div id="tab0">
 
@@ -71,8 +71,7 @@
         <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
     </div>
 </form>
-
-{% endset %}
+{% endblock %}
 
 {% includejs %}
 {% if not orderType.handle %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
