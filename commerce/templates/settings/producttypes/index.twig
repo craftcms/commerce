@@ -23,7 +23,7 @@
                 <th scope="row" data-title="Name"><a
                             href="{{ url('commerce/settings/producttypes/'~productType.id) }}">{{ productType.name }}</a>
                 </th>
-                <td data-title="Handle"><code>{{ productType.handle }}</code></td>
+                <td data-title="Handle" class="code">{{ productType.handle }}</td>
                 <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
             </tr>
         {% endfor %}

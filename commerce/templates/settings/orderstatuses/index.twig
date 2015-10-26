@@ -21,7 +21,7 @@
             {% for orderStatus in orderStatuses %}
                 <tr data-id="{{ orderStatus.id }}" data-name="{{ orderStatus.handle }}">
                     <th scope="row" data-title="Name"><a href="{{ orderStatus.getCpEditUrl() }}">{{ orderStatus.htmlLabel|raw }}</a></th>
-                    <td data-title="Handle"><code>{{ orderStatus.handle }}</code></td>
+                    <td data-title="Handle" class="code">{{ orderStatus.handle }}</td>
                     <td data-title="Emails">
                         {% if orderStatus.emails | length %}
                             {{ orderStatus.emails | length }}
