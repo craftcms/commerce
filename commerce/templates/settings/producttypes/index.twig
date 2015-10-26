@@ -4,7 +4,7 @@
 
 {% set selectedTab = 'settings' %}
 
-{% set content %}
+{% block content %}
 
     <h2>{{ "Product Types"|t }}</h2>
 
@@ -20,10 +20,10 @@
         <tbody>
         {% for productType in productTypes %}
             <tr data-id="{{ productType.id }}" data-name="{{ productType.name }}">
-                <th scope="row" data-title="Name"><a
+                <th scope="row" data-title="{{ 'Name'|t }}"><a
                             href="{{ url('commerce/settings/producttypes/'~productType.id) }}">{{ productType.name }}</a>
                 </th>
-                <td data-title="Handle"><code>{{ productType.handle }}</code></td>
+                <td data-title="{{ 'Handle'|t }}" class="code">{{ productType.handle }}</td>
                 <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
             </tr>
         {% endfor %}
@@ -33,12 +33,11 @@
     {% else %}
     <p>{{ "No product types exist yet."|t }}</p>
     {% endif %}
-    <br/>
-    <div class="btngroup submit">
-        <a href="{{ url('commerce/settings/producttypes/new') }}" class="btn submit">New Product Type</a>
-    </div>
 
-{% endset %}
+    <div class="buttons secondary-buttons">
+        <a href="{{ url('commerce/settings/producttypes/new') }}" class="btn submit add icon">New product type</a>
+    </div>
+{% endblock %}
 
 
 {% includejs %}

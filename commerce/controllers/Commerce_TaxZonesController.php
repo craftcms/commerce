@@ -48,7 +48,7 @@ class Commerce_TaxZonesController extends Commerce_BaseAdminController
         if (!empty($variables['id'])) {
             $variables['title'] = $variables['taxZone']->name;
         } else {
-            $variables['title'] = Craft::t('Create a Tax Zone');
+            $variables['title'] = Craft::t('Create a tax zone');
         }
 
         $countries = craft()->commerce_countries->getAll();
