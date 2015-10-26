@@ -175,6 +175,16 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
     }
 
     /**
+     * Does this variants product has free shipping set.
+     *
+     * @return bool
+     */
+    public function hasFreeShipping()
+    {
+        return $this->product->freeShipping;
+    }
+
+    /**
      * Validate based on min and max qty and stock levels.
      *
      * @param Commerce_LineItemModel $lineItem

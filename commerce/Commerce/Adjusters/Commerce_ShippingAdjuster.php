@@ -6,6 +6,7 @@ use Craft\Commerce_LineItemModel;
 use Craft\Commerce_OrderAdjustmentModel;
 use Craft\Commerce_OrderModel;
 use Craft\Commerce_ShippingRuleModel;
+use Craft\Commerce_VariantModel;
 
 /**
  * Tax Adjustments
@@ -26,9 +27,15 @@ class Commerce_ShippingAdjuster implements Commerce_AdjusterInterface
      */
     public function adjust(Commerce_OrderModel &$order, array $lineItems = [])
     {
-        $shippingMethod = \Craft\craft()->commerce_shippingMethods->getById($order->shippingMethodId);
+        $shippingMethods = \Craft\craft()->commerce_shippingMethods->getAll();
 
-        if (!$shippingMethod->id) {
+        foreach ($shippingMethods as $method) {
+            if($method->getIsEnabled() == true && $method->getHandle() == $order->getShippingMethodHandle()){
+                $shippingMethod = $method;
+            }
+        }
+
+        if (!$shippingMethod) {
             return [];
         }
 
@@ -39,9 +46,9 @@ class Commerce_ShippingAdjuster implements Commerce_AdjusterInterface
             $adjustment = new Commerce_OrderAdjustmentModel;
             $adjustment->type = self::ADJUSTMENT_TYPE;
             $adjustment->name = $shippingMethod->name;
-            $adjustment->description = $this->getDescription($rule);
+            $adjustment->description = $rule->getDescription();
             $adjustment->orderId = $order->id;
-            $adjustment->optionsJson = $rule->attributes;
+            $adjustment->optionsJson = $rule->getOptions();
 
             //checking items tax categories
             $weight = $qty = $price = 0;
@@ -52,21 +59,22 @@ class Commerce_ShippingAdjuster implements Commerce_AdjusterInterface
                 $qty += $item->qty;
                 $price += $item->getSubtotalWithSale();
 
-                $item->shippingCost = ($item->getSubtotalWithSale() * $rule->percentageRate) + ($rule->perItemRate * $item->qty) + ($item->weight * $rule->weightRate);
+                $item->shippingCost = ($item->getSubtotalWithSale() * $rule->getPercentageRate()) + ($rule->getPerItemRate() * $item->qty) + ($item->weight * $rule->getWeightRate());
                 $itemShippingTotal += $item->shippingCost;
 
-                if ($item->purchasable->product->freeShipping) {
+                if ($item->purchasable->hasFreeShipping()) {
                     $freeShippingAmount += $item->shippingCost;
                     $item->shippingCost = 0;
                 }
+
             }
 
             //amount for displaying in adjustment
-            $amount = $rule->baseRate + $itemShippingTotal - $freeShippingAmount;
-            $amount = max($amount, $rule->minRate * 1);
+            $amount = $rule->getBaseRate() + $itemShippingTotal - $freeShippingAmount;
+            $amount = max($amount, $rule->getMinRate() * 1);
 
-            if ($rule->maxRate * 1) {
-                $amount = min($amount, $rule->maxRate * 1);
+            if ($rule->getMaxRate() * 1) {
+                $amount = min($amount, $rule->getMaxRate() * 1);
             }
 
             $adjustment->amount = $amount;
@@ -80,37 +88,4 @@ class Commerce_ShippingAdjuster implements Commerce_AdjusterInterface
         return $adjustments;
     }
 
-    /**
-     * @param Commerce_ShippingRuleModel $rule
-     *
-     * @return string "1$ and 5% per item and 10$ base rate"
-     */
-    private function getDescription(Commerce_ShippingRuleModel $rule)
-    {
-        $description = '';
-        if ($rule->perItemRate || $rule->percentageRate) {
-            if ($rule->perItemRate) {
-                $description .= $rule->perItemRate * 1 . '$ ';
-            }
-
-            if ($rule->percentageRate) {
-                if ($rule->perItemRate) {
-                    $description .= 'and ';
-                }
-
-                $description .= $rule->percentageRate * 100 . '% ';
-            }
-
-            $description .= 'per item ';
-        }
-
-        if ($rule->baseRate) {
-            if ($description) {
-                $description .= 'and ';
-            }
-            $description .= $rule->baseRate * 1 . '$ base rate';
-        }
-
-        return $description;
-    }
 }
