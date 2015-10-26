@@ -1,5 +1,4 @@
 .DS_Store
-composer.lock
 sami.phar
 docs/phpdoc/build/
 docs/phpdoc/cache/

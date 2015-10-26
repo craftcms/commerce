@@ -141,14 +141,6 @@ class Commerce_OrdersService extends BaseApplicationComponent
             }
         }
 
-        // Set default shipping method
-        if (!$order->shippingMethodId) {
-            $method = craft()->commerce_shippingMethods->getDefault();
-            if ($method) {
-                $order->shippingMethodId = $method->id;
-            }
-        }
-
         // Set default payment method
         if (!$order->paymentMethodId) {
             $methods = craft()->commerce_paymentMethods->getAllForFrontend();
@@ -195,7 +187,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
         $orderRecord->datePaid = $order->datePaid;
         $orderRecord->billingAddressId = $order->billingAddressId;
         $orderRecord->shippingAddressId = $order->shippingAddressId;
-        $orderRecord->shippingMethodId = $order->shippingMethodId;
+        $orderRecord->shippingMethod = $order->getShippingMethodHandle();
         $orderRecord->paymentMethodId = $order->paymentMethodId;
         $orderRecord->orderStatusId = $order->orderStatusId;
         $orderRecord->couponCode = $order->couponCode;
@@ -286,10 +278,13 @@ class Commerce_OrdersService extends BaseApplicationComponent
         //calculating adjustments
         $lineItems = craft()->commerce_lineItems->getAllByOrderId($order->id);
 
+        $order->itemTotal = 0;
         foreach ($lineItems as $item) { //resetting fields calculated by adjusters
             $item->tax = 0;
             $item->shippingCost = 0;
             $item->discount = 0;
+            // Need to have an initial itemTotal for use by adjusters.
+            $order->itemTotal += $item->total;
         }
 
         /** @var Commerce_OrderAdjustmentModel[] $adjustments */
@@ -377,6 +372,13 @@ class Commerce_OrdersService extends BaseApplicationComponent
      */
     public function complete(Commerce_OrderModel $order)
     {
+
+        //raising event on order complete
+        $event = new Event($this, [
+            'order' => $order
+        ]);
+        $this->onBeforeOrderComplete($event);
+
         $order->dateOrdered = DateTimeHelper::currentTimeForDb();
         if ($status = craft()->commerce_orderStatuses->getDefault()) {
             $order->orderStatusId = $status->id;
@@ -395,6 +397,19 @@ class Commerce_OrdersService extends BaseApplicationComponent
         $this->onOrderComplete($event);
 
         return true;
+    }
+
+
+    /**
+     * Event method
+     *
+     * @param \CEvent $event
+     *
+     * @throws \CException
+     */
+    public function onBeforeOrderComplete(\CEvent $event)
+    {
+        $this->raiseEvent('onBeforeOrderComplete', $event);
     }
 
     /**
