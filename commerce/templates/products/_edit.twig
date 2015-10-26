@@ -94,6 +94,16 @@
 	{% set dimensionsInput %}
 		<div class="flex">
 			{{ forms.text({
+				id: 'length',
+				name: 'length',
+				value: (variant.length|commerceDecimal ?: ''),
+				placeholder: 'Length'|t|upper[0:1],
+				title: 'Length'|t,
+				unit: craft.commerce.settings.dimensionUnits,
+				errors: variant.getErrors('length')
+			}) }}
+			<span class="label light">/</span>
+			{{ forms.text({
 				id: 'width',
 				name: 'width',
 				value: (variant.width|commerceDecimal ?: ''),
@@ -111,16 +121,6 @@
 				title: 'Height'|t,
 				unit: craft.commerce.settings.dimensionUnits,
 				errors: variant.getErrors('height')
-			}) }}
-			<span class="label light">/</span>
-			{{ forms.text({
-				id: 'length',
-				name: 'length',
-				value: (variant.length|commerceDecimal ?: ''),
-				placeholder: 'Depth'|t|upper[0:1],
-				title: 'Depth'|t,
-				unit: craft.commerce.settings.dimensionUnits,
-				errors: variant.getErrors('length')
 			}) }}
 			<span class="label light">{{ craft.commerce.settings.dimensionUnits }}</span>
 		</div>
