@@ -15,6 +15,11 @@ namespace Commerce\Interfaces;
 interface ShippingMethod
 {
 
+    /**
+     * Returns the name of this Shipping Method
+     * @return string
+     */
+    public function getName();
 
     /**
      * Returns the unique handle of this Shipping Method

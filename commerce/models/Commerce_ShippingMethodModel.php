@@ -25,10 +25,22 @@ class Commerce_ShippingMethodModel extends BaseModel implements ShippingMethod
 {
     use Commerce_ModelRelationsTrait;
 
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->getAttribute('name');
+    }
+
+    /**
+     * @return string
+     */
     public function getHandle()
     {
-        return $this->attributes['handle'];
+        return $this->getAttribute('handle');
     }
+
     /**
      * @return Commerce_ShippingRuleModel[]
      */
