@@ -38,6 +38,11 @@
 
     <h3>Addresses</h3>
 
+    <div id="no-addresses"{% if customer.addresses|length %} class="hidden"{% endif %}>
+        <p>{{ "No addresses exist for this customer yet."|t }}</p>
+    </div>
+
+    {% if customer.addresses|length %}
     <table id="addresses" class="data fullwidth collapsible">
         <thead>
         <tr>
@@ -64,12 +69,14 @@
         {% endfor %}
         </tbody>
     </table>
+    {% endif %}
 {% endblock %}
 
 
 {% includejs %}
     new Craft.AdminTable({
     tableSelector: '#addresses',
+    noObjectsSelector: '#no-addresses',
     deleteAction: 'commerce/address/delete',
     confirmDeleteMessage: '{{ "Are you sure you want to delete address ID: '{name}'?"|t }}'
     });

@@ -3,6 +3,12 @@
 
 {% block content %}
     <h2>{{ "Countries"|t }}</h2>
+
+    <div id="no-countries"{% if countries|length %} class="hidden"{% endif %}>
+        <p>{{ "No countries exist yet."|t }}</p>
+    </div>
+
+    {% if countries|length %}
     <table id="countries" class="data fullwidth collapsible">
         <thead>
         <tr>
@@ -25,6 +31,7 @@
 
         </tbody>
     </table>
+    {% endif %}
 
     <div class="buttons secondary-buttons">
         <a href="{{ url('commerce/settings/countries/new') }}" class="btn submit add icon">New country</a>
@@ -35,6 +42,7 @@
 {% includejs %}
 var adminTable = new Craft.AdminTable({
 tableSelector: '#countries',
+noObjectsSelector: '#no-countries',
 deleteAction: 'commerce/countries/delete',
 confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}',
 deleteFailMessage: '{{ "Can not delete “{name}”, it is being used by various addresses."|t }}'

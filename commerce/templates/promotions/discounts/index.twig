@@ -4,6 +4,11 @@
 
 {% block content %}
     <h2>{{ "Discounts"|t }}</h2>
+
+    <div id="no-discounts"{% if discounts|length %} class="hidden"{% endif %}>
+        <p>{{ "No discounts exist yet."|t }}</p>
+    </div>
+
     {% if discounts|length %}
     <table id="discounts" class="data fullwidth collapsible">
         <thead>
@@ -39,8 +44,6 @@
 
         </tbody>
     </table>
-    {% else %}
-        <p>{{ "No discounts exist yet."|t }}</p>
     {% endif %}
 
     <div class="buttons secondary-buttons">
@@ -52,6 +55,7 @@
 {% includejs %}
 var adminTable = new Craft.AdminTable({
 tableSelector: '#discounts',
+noObjectsSelector: '#no-discounts',
 deleteAction: 'commerce/discounts/delete',
 confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
 });
