@@ -28,7 +28,7 @@ use Omnipay\Common\Currency;
  * @property mixed $billingAddressData
  * @property int $shippingAddressId
  * @property mixed $shippingAddressData
- * @property int $shippingMethodId
+ * @property int $shippingMethod
  * @property int $paymentMethodId
  * @property int $customerId
  * @property int $orderStatusId
@@ -47,7 +47,6 @@ use Omnipay\Common\Currency;
  * @property Commerce_AddressModel $billingAddress
  * @property Commerce_CustomerModel $customer
  * @property Commerce_AddressModel $shippingAddress
- * @property Commerce_ShippingMethodModel $shippingMethod
  * @property Commerce_OrderAdjustmentModel[] $adjustments
  * @property Commerce_PaymentMethodModel $paymentMethod
  * @property Commerce_TransactionModel[] $transactions
@@ -340,6 +339,21 @@ class Commerce_OrderModel extends BaseElementModel
         return $this->_billingAddress;
     }
 
+    /**
+     * @return bool|\Commerce\Interfaces\ShippingMethod
+     */
+    public function getShippingMethod()
+    {
+        return craft()->commerce_shippingMethods->getByHandle($this->attributes['shippingMethod']);
+    }
+
+    /**
+     * @return string
+     */
+    public function getShippingMethodHandle()
+    {
+        return $this->attributes['shippingMethod'];
+    }
 
     /**
      *
@@ -419,7 +433,7 @@ class Commerce_OrderModel extends BaseElementModel
             'orderStatusId' => AttributeType::Number,
             'billingAddressId' => AttributeType::Number,
             'shippingAddressId' => AttributeType::Number,
-            'shippingMethodId' => AttributeType::Number,
+            'shippingMethod' => AttributeType::String,
             'paymentMethodId' => AttributeType::Number,
             'customerId' => AttributeType::Number,
             'typeId' => AttributeType::Number,

@@ -88,7 +88,8 @@ class CommercePlugin extends BasePlugin
                         'm150918_010102_Commerce_RemoveNonLocaleBasedUrlFormat',
                         'm150919_010101_Commerce_AddHasDimensionsToProductType',
                         'm151004_142113_Commerce_PaymentMethods_Name_Unique',
-                        'm151018_010101_Commerce_DiscountCodeNull'
+                        'm151018_010101_Commerce_DiscountCodeNull',
+                        'm151025_010101_Commerce_AddHandleToShippingMethod'
                     ];
 
                     foreach ($migrations as $migrationClass) {
@@ -162,7 +163,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getVersion()
     {
-        return '0.9.0000';
+        return '0.9.0002';
     }
 
     /**

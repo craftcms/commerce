@@ -277,7 +277,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
         orders.billingAddressData,
         orders.shippingAddressId,
         orders.shippingAddressData,
-        orders.shippingMethodId,
+        orders.shippingMethod,
         orders.paymentMethodId,
         orders.customerId,
         orders.dateUpdated')

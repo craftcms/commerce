@@ -1,6 +1,7 @@
 <?php
 namespace Craft;
 
+use Commerce\Interfaces\ShippingMethod;
 use Commerce\Traits\Commerce_ModelRelationsTrait;
 
 /**
@@ -8,6 +9,7 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  *
  * @property int $id
  * @property string $name
+ * @property string $handle
  * @property bool $enabled
  * @property bool $default
  * @property Commerce_ShippingRuleModel[] $rules
@@ -19,16 +21,28 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  * @package   craft.plugins.commerce.models
  * @since     1.0
  */
-class Commerce_ShippingMethodModel extends BaseModel
+class Commerce_ShippingMethodModel extends BaseModel implements ShippingMethod
 {
     use Commerce_ModelRelationsTrait;
 
+    public function getHandle()
+    {
+        return $this->attributes['handle'];
+    }
     /**
      * @return Commerce_ShippingRuleModel[]
      */
     public function getRules()
     {
         return craft()->commerce_shippingRules->getAllByMethodId($this->id);
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsEnabled()
+    {
+        return $this->enabled;
     }
 
     /**
@@ -39,6 +53,7 @@ class Commerce_ShippingMethodModel extends BaseModel
         return [
             'id' => AttributeType::Number,
             'name' => [AttributeType::String, 'required' => true],
+            'handle' => [AttributeType::Handle, 'required' => true],
             'enabled' => [
                 AttributeType::Bool,
                 'required' => true,
