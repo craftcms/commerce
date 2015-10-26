@@ -9,6 +9,12 @@
 {% set selectedTab = 'settings' %}
 {% import "_includes/forms" as forms %}
 
+{% set tabs = {
+    0: {'label':'Name & Info','url':'#tab0'},
+    1: {'label':'Statuses','url':'#tab1'},
+    2: {'label':'Fields','url':'#tab2'}
+} %}
+
 
 {% block content %}
 <form method="post" accept-charset="UTF-8" data-saveshortcut>
@@ -17,13 +23,6 @@
 
     {{ getCsrfInput() }}
     {% if orderType.id %}<input type="hidden" name="orderTypeId" value="{{ orderType.id }}">{% endif %}
-
-    {% set tabs = {
-        0: {'label':'Name & Info','url':'#tab0'},
-        1: {'label':'Statuses','url':'#tab1'},
-        2: {'label':'Fields','url':'#tab2'}
-        }
-    %}
 
     <div id="tab0">
 

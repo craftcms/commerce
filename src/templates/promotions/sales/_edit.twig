@@ -13,27 +13,27 @@
 {% import "commerce/_includes/forms/commerceForms" as commerceForms %}
 
 
+{% set actionClasses = "" %}
+{% if (sale.getErrors('discountAmount') or sale.getErrors('discountType')) %}
+    {% set actionClasses = "error" %}
+{% endif %}
+
+{% set saleClasses = "" %}
+{% if(sale.getErrors('name')) %}
+    {% set saleClasses = "error" %}
+{% endif %}
+
+{% set tabs = {
+    0: {'label':'Sale','url':'#sale','class': saleClasses},
+    1: {'label':'Conditions','url':'#conditions'},
+    2: {'label':'Actions','url':'#actions','class': actionClasses}
+} %}
+
+
 {% block content %}
     <input type="hidden" name="action" value="commerce/sales/save">
     <input type="hidden" name="redirect" value="commerce/promotions/sales">
     {% if sale.id %}<input type="hidden" name="id" value="{{ sale.id }}">{% endif %}
-
-    {% set actionClasses = "" %}
-    {% if (sale.getErrors('discountAmount') or sale.getErrors('discountType')) %}
-        {% set actionClasses = "error" %}
-    {% endif %}
-
-    {% set saleClasses = "" %}
-    {% if(sale.getErrors('name')) %}
-        {% set saleClasses = "error" %}
-    {% endif %}
-
-    {% set tabs = {
-        0: {'label':'Sale','url':'#sale','class': saleClasses},
-        1: {'label':'Conditions','url':'#conditions'},
-        2: {'label':'Actions','url':'#actions','class': actionClasses}
-        }
-    %}
 
     <div id="sale">
     {{ forms.textField({
