@@ -2,6 +2,7 @@
 {% hook 'commerce.prepCpTemplate' %}
 
 {% set title = "Orders"|t %}
+{% set docTitle = title~' - '~'Commerce'|t %}
 {% set elementType = 'Commerce_Order' %}
 {% set selectedTab = 'orders' %}
 {% set selectedSubnavItem = "orders" %}
