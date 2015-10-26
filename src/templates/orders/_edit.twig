@@ -61,7 +61,7 @@
 				<div class="order-address-box-content">
 				{% import "commerce/_includes/orders/address" as addressMacros %}
 
-				<strong>Billing Address </strong><br/>
+				<strong>Billing Address </strong><br>
 				{% if order.dateOrdered %}
 				{#<a class="small btn right edit" data-orderid="{{ orderId }}" data-addresstype="billing" data-address="{{ order.billingAddressData|json_encode }}">Edit</a>#}
 				{% endif %}
@@ -74,7 +74,7 @@
 
 			<div class="order-address-box shippingAddress">
 				<div class="order-address-box-content">
-				<strong>Shipping Address </strong><br/>
+				<strong>Shipping Address </strong><br>
 				{% if order.dateOrdered %}
 				{#<a class="small btn right edit" data-addresstype="shipping" data-address="{{ order.shippingAddressData|json_encode }}">Edit</a>#}
 				{% endif %}
@@ -134,9 +134,9 @@
 					data-snapshot='{{ lineItem.snapshot|json_encode()}}'>
 					<td>
 						{% if lineItem.purchasableId and lineItem.purchasable %}
-							<a href="{{ lineItem.purchasable.cpEditUrl }}">{{ lineItem.description }} </a><br/>{{ lineItem.sku }}
+							<a href="{{ lineItem.purchasable.cpEditUrl }}">{{ lineItem.description }} </a><br>{{ lineItem.sku }}
 						{% else %}
-							{{ lineItem.description }}<br/>({{ lineItem.sku }})
+							{{ lineItem.description }}<br>({{ lineItem.sku }})
 						{% endif %}
 					</td>
 					<td>
@@ -154,7 +154,7 @@
 			{% endfor %}
 			{% for adjustment in order.adjustments %}
 			<tr>
-				<td><strong>{{ adjustment.type|title|t }} {{ "Adjustment"|t }}</strong><br/>{{ adjustment.name|title }} <span class="info"><strong>{{ adjustment.type|title|t }} {{ "Adjustment"|t }}</strong><br/> {{ adjustment.description }}</span></td>
+				<td><strong>{{ adjustment.type|title|t }} {{ "Adjustment"|t }}</strong><br>{{ adjustment.name|title }} <span class="info"><strong>{{ adjustment.type|title|t }} {{ "Adjustment"|t }}</strong><br> {{ adjustment.description }}</span></td>
 				<td>{{ adjustment.amount|commerceCurrency }}</td>
 				<td></td>
 				<td></td>
