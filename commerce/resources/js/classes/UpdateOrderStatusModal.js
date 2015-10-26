@@ -19,8 +19,6 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
         {
             this.id = Math.floor(Math.random() * 1000000000);
 
-            var self = this;
-
             this.setSettings(settings, {
                 resizable: false
             });
@@ -75,28 +73,30 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
 
             // Listeners and
             this.$statusMenuBtn = new Garnish.MenuBtn(this.$statusSelect, {
-                onOptionSelect: function (data)
-                {
-                    self.currentStatus = {
-                        id: $(data).data('id'),
-                        name: $(data).data('name'),
-                        color: $(data).data('color')
-                    };
-                    var newHtml = "<span><span class='commerce status " + self.currentStatus.color + "'></span>" + Craft.uppercaseFirst(self.currentStatus.name) + "</span>";
-                    self.$statusSelect.html(newHtml);
-                }
+                onOptionSelect: $.proxy(this, 'onSelectStatus')
             });
 
             this.addListener(this.$cancelBtn, 'click', 'hide');
             this.addListener(this.$updateBtn, 'click', function (ev)
             {
+                var confirm = window.confirm(Craft.t('Are you sure you want to update this order? This action may trigger emails.'));
                 ev.preventDefault();
-                if (!$(ev.target).hasClass('disabled'))
+                if (!$(ev.target).hasClass('disabled') && confirm)
                 {
                     this.updateStatus();
                 }
             });
             this.base($form, settings);
+        },
+        onSelectStatus: function (ev)
+        {
+            this.currentStatus = {
+                id: $(ev).data('id'),
+                name: $(ev).data('name'),
+                color: $(ev).data('color')
+            };
+            var newHtml = "<span><span class='commerce status " + this.currentStatus.color + "'></span>" + Craft.uppercaseFirst(this.currentStatus.name) + "</span>";
+            this.$statusSelect.html(newHtml);
         },
         updateStatus: function ()
         {
