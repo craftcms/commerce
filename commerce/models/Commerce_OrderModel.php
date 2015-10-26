@@ -344,7 +344,7 @@ class Commerce_OrderModel extends BaseElementModel
      */
     public function getShippingMethod()
     {
-        return craft()->commerce_shippingMethods->getByHandle($this->attributes['shippingMethod']);
+        return craft()->commerce_shippingMethods->getByHandle($this->getAttribute('shippingMethod'));
     }
 
     /**
@@ -352,7 +352,7 @@ class Commerce_OrderModel extends BaseElementModel
      */
     public function getShippingMethodHandle()
     {
-        return $this->attributes['shippingMethod'];
+        return $this->getAttribute('shippingMethod');
     }
 
     /**

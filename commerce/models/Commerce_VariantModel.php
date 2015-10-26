@@ -100,7 +100,7 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
      */
     public function getPrice()
     {
-        return $this->attributes['price'];
+        return $this->getAttribute('price');
     }
 
     /**
@@ -147,7 +147,7 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
      */
     public function getSku()
     {
-        return $this->attributes['sku'];
+        return $this->getAttribute('sku');
     }
 
     /**
@@ -171,7 +171,7 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
      */
     public function getPurchasableId()
     {
-        return $this->attributes['id'];
+        return $this->getAttribute('id');
     }
 
     /**
