@@ -35,7 +35,7 @@
         errors: paymentMethod.getErrors('class'),
     }) }}
 
-    <input type="hidden" name="paymentMethodClass" value="{{ paymentMethod.class }}"/>
+    <input type="hidden" name="paymentMethodClass" value="{{ paymentMethod.class }}">
 
     {% for gateway in gateways %}
         <div class="gateway-settings" id="gateway-{{ gateway.handle }}" data-name="{{ gateway.displayName }}">
