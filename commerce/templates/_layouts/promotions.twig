@@ -1,16 +1,16 @@
 {% extends "commerce/_layouts/cp" %}
 
 {% set title = "Promotions"|t %}
-
 {% set selectedSubnavItem = "promotions" %}
 
+{% set sidebarNavItems = {
+	sales: { label: 'Sales'|t, url: url('commerce/promotions/sales') },
+	discounts: { label: 'Discounts'|t, url: url('commerce/promotions/discounts') }
+} %}
+
+{% set docTitle = sidebarNavItems[selectedSidebarNavItem].label~' - '~title~' - '~'Commerce'|t %}
+
+
 {% block sidebar %}
-    <nav>
-        <ul>
-            <li><a href="{{ url('commerce/promotions/sales') }}"{% if craft.request.segment(3) == 'sales' %} class="sel"{% endif %}>{{ "Sales"|t }}</a></li>
-
-            <li><a href="{{ url('commerce/promotions/discounts') }}"{% if craft.request.segment(3) == 'discounts' %} class="sel"{% endif %}>{{ "Discounts"|t }}</a></li>
-
-        </ul>
-    </nav>
+	{% include "_includes/nav" with { items: sidebarNavItems, selectedItem: selectedSidebarNavItem } only %}
 {% endblock %}

@@ -1,6 +1,6 @@
 {% extends "commerce/_layouts/promotions" %}
+{% set selectedSidebarNavItem = 'sales' %}
 
-{% set title = "Sales"|t %}
 
 {% block content %}
     <h2>{{ "Sales"|t }}</h2>
@@ -10,31 +10,32 @@
         <thead>
         <tr>
             <th scope="col">Name</th>
-            <th scope="col">Dates</th>
+            <th scope="col">Duration</th>
             <th scope="col">Discount Amount</th>
-            <th scope="col">Enabled?</th>
             <td class="thin"></td>
         </tr>
         </thead>
         <tbody>
         {% for sale in sales %}
             <tr data-id="{{ sale.id }}" data-name="{{ sale.name }}">
-                <th scope="row" data-title="Name"><a href="{{ url('commerce/promotions/sales/'~sale.id) }}">{{ sale.name }}</a></th>
+                <th scope="row" data-title="Name">
+                    {% if sale.enabled %}
+                        <div class="status enabled"></div>
+                    {% else %}
+                        <div class="status"></div>
+                    {% endif %}
+                    <a href="{{ url('commerce/promotions/sales/'~sale.id) }}">{{ sale.name }}</a>
+                </th>
                 <td data-title="Dates">
-                    {{ sale.dateFrom ? sale.dateFrom : 'no limit'|t }} - {{ sale.dateTo ? sale.dateTo : 'no limit'|t }}
+                    {{ sale.dateFrom ? sale.dateFrom.localeDate() : '∞'|t }}
+                    -
+                    {{ sale.dateTo ? sale.dateTo.localeDate() : '∞' }}
                 </td>
                 <td data-title="Discount Amount">
                     {% if sale.discountType == 'percent' %}
                         {{ sale.discountAmountAsPercent }} {{ "off"|t }}
                     {% else %}
                         {{ sale.discountAmountAsFlat|commerceCurrency }} {{ "off"|t }}
-                    {% endif %}
-                </td>
-                <td data-title="Enabled">
-                    {% if sale.enabled %}
-                        <div class="status enabled"></div>
-                    {% else %}
-                        <div class="status"></div>
                     {% endif %}
                 </td>
                 <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
