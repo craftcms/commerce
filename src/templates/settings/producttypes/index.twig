@@ -4,7 +4,7 @@
 
 {% set selectedTab = 'settings' %}
 
-{% set content %}
+{% block content %}
 
     <h2>{{ "Product Types"|t }}</h2>
 
@@ -33,12 +33,11 @@
     {% else %}
     <p>{{ "No product types exist yet."|t }}</p>
     {% endif %}
-    <br/>
-    <div class="btngroup submit">
-        <a href="{{ url('commerce/settings/producttypes/new') }}" class="btn submit">New Product Type</a>
-    </div>
 
-{% endset %}
+    <div class="buttons secondary-buttons">
+        <a href="{{ url('commerce/settings/producttypes/new') }}" class="btn submit add icon">New product type</a>
+    </div>
+{% endblock %}
 
 
 {% includejs %}

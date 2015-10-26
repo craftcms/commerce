@@ -3,7 +3,7 @@
 {% set selectedTab = 'settings' %}
 
 {% set content %}
-        <h2>{{ "Custom Order Statuses"|t }}</h2>
+        <h2>{{ "Order Statuses"|t }}</h2>
         <p>{{ "Define the statuses that can be set on orders once they've been completed."|t }}</p>
         <table id="orderStatuses" class="data fullwidth collapsible">
             <thead>
@@ -32,13 +32,10 @@
 
             </tbody>
         </table>
-        <br/>
-        <div class="btngroup submit">
-            <a href="{{ url('commerce/settings/orderstatuses/new') }}" class="btn submit">New Order Status</a>
+
+        <div class="buttons secondary-buttons">
+            <a href="{{ url('commerce/settings/orderstatuses/new') }}" class="btn submit add icon">New order status</a>
         </div>
-
-
-
 {% endset %}
 
 

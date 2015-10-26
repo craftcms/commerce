@@ -1,7 +1,6 @@
 {% extends "commerce/_layouts/settings" %}
 
-{% set content %}
-
+{% block content %}
     <h2>{{ "Shipping Methods"|t }}</h2>
 
     {% if shippingMethods|length %}
@@ -29,11 +28,13 @@
     {% else %}
         <p>{{ 'No shipping methods exist yet.'|t }}</p>
     {% endif %}
-    <br/>
-    <div class="btngroup submit">
-        <a href="{{ url('commerce/settings/shippingmethods/new') }}" class="btn submit">New Shipping Method</a>
+
+    <div class="buttons secondary-buttons">
+        <a href="{{ url('commerce/settings/shippingmethods/new') }}" class="btn submit add icon">New shipping method</a>
     </div>
-{% endset %}
+{% endblock %}
+
+
 {% includejs %}
 {#<script>#}
 
