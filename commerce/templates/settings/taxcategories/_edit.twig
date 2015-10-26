@@ -13,7 +13,6 @@
     <input type="hidden" name="action" value="commerce/taxCategories/save">
     <input type="hidden" name="redirect" value="commerce/settings/taxcategories">
     {% if taxCategory.id %}<input type="hidden" name="taxCategoryId" value="{{ taxCategory.id }}">{% endif %}
-    {{ getCsrfInput() }}
 
     {{ forms.textField({
         first: true,

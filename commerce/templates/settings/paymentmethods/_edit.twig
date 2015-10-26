@@ -13,7 +13,6 @@
     <input type="hidden" name="id" value="{{ paymentMethod.id }}">
     <input type="hidden" name="action" value="commerce/paymentMethods/save">
     <input type="hidden" name="redirect" value="commerce/settings/paymentmethods">
-    {{ getCsrfInput() }}
 
     {{ forms.textField({
         label: 'Name'|t,

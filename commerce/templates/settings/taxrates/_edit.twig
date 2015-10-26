@@ -13,7 +13,6 @@
     <input type="hidden" name="action" value="commerce/taxRates/save">
     <input type="hidden" name="redirect" value="commerce/settings/taxrates">
     {% if taxRate.id %}<input type="hidden" name="taxRateId" value="{{ taxRate.id }}">{% endif %}
-    {{ getCsrfInput() }}
 
     {{ forms.textField({
         first: true,

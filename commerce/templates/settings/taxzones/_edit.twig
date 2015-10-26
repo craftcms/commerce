@@ -12,8 +12,6 @@
 {% block content %}
     <input type="hidden" name="action" value="commerce/taxZones/save">
     <input type="hidden" name="redirect" value="commerce/settings/taxzones">
-
-    {{ getCsrfInput() }}
     {% if taxZone.id %}<input type="hidden" name="taxZoneId" value="{{ taxZone.id }}">{% endif %}
 
     {{ forms.textField({
