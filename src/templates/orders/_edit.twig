@@ -103,11 +103,24 @@
 			<tbody>
 
 			{% for lineItem in order.lineItems %}
-				<tr class="infoRow" data-id="{{lineItem.id}}"
-					data-purchasableid="{% if lineItem.purchasableId and lineItem.purchasable %}{{ lineItem.purchasableId }}{% endif %}"
+				<tr class="infoRow"
+					data-inforow='{% spaceless %}[
+					{"label":"Description","attribute":"description","currency":"false"},
+					{"label":"Tax Category","attribute":"taxcategory","currency":"false"},
+					{"label":"Price","attribute":"price","currency":"true"},
+					{"label":"Sale Amount","attribute":"saleamount","currency":"true"},
+					{"label":"Sale Price","attribute":"saleprice","currency":"true"},
+					{"label":"Tax","attribute":"tax","currency":"true"},
+					{"label":"Shipping Cost","attribute":"shippingcost","currency":"true"},
+					{"label":"Discount","attribute":"discount","currency":"true"},
+					{"label":"Total","attribute":"total","currency":"true"},
+					{"label":"Quantity","attribute":"qty","currency":"false"},
+					{"label":"Note","attribute":"note","currency":"false"},
+					{"label":"onSale","attribute":"onsale","currency":"false"}
+					]'{% endspaceless %}
+					data-id="{{lineItem.id}}"
 					data-description="{{ lineItem.description }}"
 					data-taxcategory="{{ lineItem.taxCategory.name }}"
-					data-taxcategoryurl="{{ lineItem.taxCategory.cpEditUrl }}"
 					data-price="{{ lineItem.price|commerceCurrency }}"
 					data-saleamount="{{ lineItem.saleAmount|commerceCurrency }}"
 					data-saleprice="{{ lineItem.salePrice|commerceCurrency }}"
@@ -323,17 +336,28 @@
 				<th scope="col">{{ 'Message'|t }}</th>
 				<th scope="col">{{ 'Amount'|t }}</th>
 				<th scope="col">{{ 'Payment Method'|t }}</th>
+				<th scope="col">{{ 'Info'|t }}</th>
 				<th></th>
 			</tr>
 			</thead>
 			<tbody>
 			{% for transaction in order.transactions %}
-				<tr>
+				<tr class="infoRow"
+					data-inforow='{% spaceless %}[
+					{"label":"Hash","attribute":"hash","currency":"false"},
+					{"label":"Reference","attribute":"reference","currency":"false"},
+					{"label":"Response","attribute":"response","currency":"false"}
+					]'{% endspaceless %}
+					data-hash="{{ transaction.hash }}"
+					data-reference="{{ transaction.reference }}"
+					data-response="{{ transaction.response }}"
+				>
 					<td>{{ transaction.type|title }}</td>
 					<td>{{ transaction.status|title }}</td>
 					<td>{{ transaction.message|title }}</td>
 					<td>{{ transaction.amount|commerceCurrency }}</td>
 					<td>{{ transaction.paymentMethod.name }}</td>
+					<td><span class="tableRowInfo" data-icon="info" href="#"></span></td>
 					<td>
 						{% if transaction.canCapture() %}
 							<form>
