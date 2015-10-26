@@ -6,6 +6,7 @@ namespace Craft;
  *
  * @property int $id
  * @property string $name
+ * @property string $handle
  * @property bool $enabled
  * @property bool $default
  *
@@ -72,6 +73,7 @@ class Commerce_ShippingMethodRecord extends BaseRecord
     {
         return [
             'name' => [AttributeType::String, 'required' => true],
+            'handle' => [AttributeType::Handle, 'required' => true],
             'enabled' => [
                 AttributeType::Bool,
                 'required' => true,

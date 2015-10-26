@@ -54,9 +54,9 @@ class Commerce_OrderStatusModel extends BaseModel
     /**
      * @return string
      */
-    public function printName()
+    public function htmlLabel()
     {
-        return sprintf('<span class="commerce status %s"></span> %s',
+        return sprintf('<span class="commerceStatusLabel"><span class="status %s"></span> %s</span>',
             $this->color, $this->name);
     }
 

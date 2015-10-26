@@ -62,16 +62,24 @@
     },colorField) }}
 
 
-    {{ forms.multiselectField({
-        label: 'Status Emails'|t,
-        instructions: 'The emails that will be sent when transitioning to this status'|t,
-        id: 'emails',
-        name: 'emails',
-        options: emails,
-        values: emailsIds is defined ? emailsIds : orderStatus.getEmailsIds(),
-        errors: orderStatus.getErrors('emails'),
-        class: 'selectize fullwidth',
-    }) }}
+    {% if not emails|length %}
+        {{ forms.field({
+            label: 'Status Emails'|t,
+            instructions: '<span class="error">'~'You currently have no emails configured to select for this status.'|t~'</span>',
+            disabled: true
+        }) }}
+    {% else %}
+        {{ forms.multiselectField({
+            label: 'Status Emails'|t,
+            instructions: 'Select the emails that will be sent when transitioning to this status.'|t,
+            id: 'emails',
+            name: 'emails',
+            options: emails,
+            values: emailsIds is defined ? emailsIds : orderStatus.getEmailsIds(),
+            errors: orderStatus.getErrors('emails'),
+            class: 'selectize fullwidth',
+        }) }}
+    {% endif %}
 
     {{ forms.checkboxField({
         label: "New orders get this status by default"|t,

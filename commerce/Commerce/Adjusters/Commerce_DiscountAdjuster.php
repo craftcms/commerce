@@ -90,7 +90,7 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
         $amount += $discount->percentDiscount * $matchingTotal;
 
         foreach ($lineItems as $item) {
-            if(in_array($item->id,$matchingLineIds)){
+            if (in_array($item->id, $matchingLineIds)) {
                 $item->discount += $discount->perItemDiscount * $item->qty + $discount->percentDiscount * $item->getSubtotalWithSale();
                 // If the discount is larger than the subtotal
                 // make the discount equal the discount, thus making the item free.
