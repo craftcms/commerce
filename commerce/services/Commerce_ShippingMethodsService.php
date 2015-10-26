@@ -28,21 +28,22 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
     }
 
     /**
-     * Gets the default method or first available if no default set.
+     * @param string $handle
+     *
+     * @return \Commerce\Interfaces\ShippingMethod|bool
      */
-    public function getDefault()
+    public function getByHandle($handle)
     {
-        $method = Commerce_ShippingMethodRecord::model()->findByAttributes(['default' => true]);
-        if (!$method) {
-            $records = $this->getAll();
-            if (!$records) {
-                throw new Exception(Craft::t('You have no Shipping Methods set up.'));
-            }
+        $methods = $this->getAll();
 
-            return $records[0];
+        foreach($methods as $method){
+            if($method->getHandle() == $handle){
+                return $method;
+            }
         }
 
-        return $method;
+        // No method of this handle found.
+        return false;
     }
 
     /**
@@ -54,7 +55,16 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
     {
         $records = Commerce_ShippingMethodRecord::model()->findAll($criteria);
 
-        return Commerce_ShippingMethodModel::populateModels($records);
+        $methods = Commerce_ShippingMethodModel::populateModels($records);
+
+        $additionalMethods = craft()->plugins->call('commerce_registerShippingMethods');
+
+        foreach ($additionalMethods as $additional) {
+            $methods = array_merge($methods, $additional);
+        }
+
+        return $methods;
+
     }
 
     /**
@@ -76,19 +86,19 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
         $methods = $this->getAll(['with' => 'rules']);
 
         foreach ($methods as $method) {
-            if ($method->enabled) {
+            if ($method->getIsEnabled()) {
                 if ($rule = $this->getMatchingRule($cart, $method)) {
-                    $amount = $rule->baseRate;
-                    $amount += $rule->perItemRate * $cart->totalQty;
-                    $amount += $rule->weightRate * $cart->totalWeight;
-                    $amount += $rule->percentageRate * $cart->itemTotal;
-                    $amount = max($amount, $rule->minRate * 1);
+                    $amount = $rule->getBaseRate();
+                    $amount += $rule->getPerItemRate() * $cart->totalQty;
+                    $amount += $rule->getWeightRate() * $cart->totalWeight;
+                    $amount += $rule->getPercentageRate() * $cart->itemTotal;
+                    $amount = max($amount, $rule->getMinRate() * 1);
 
-                    if ($rule->maxRate * 1) {
-                        $amount = min($amount, $rule->maxRate * 1);
+                    if ($rule->getMaxRate() * 1) {
+                        $amount = min($amount, $rule->getMaxRate() * 1);
                     }
 
-                    $availableMethods[$method->id] = [
+                    $availableMethods[$method->getHandle()] = [
                         'name' => $method->name,
                         'amount' => $amount,
                     ];
@@ -110,8 +120,8 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
         Commerce_ShippingMethodModel $method
     )
     {
-        foreach ($method->rules as $rule) {
-            if (craft()->commerce_shippingRules->matchOrder($rule, $order)) {
+        foreach ($method->getRules() as $rule) {
+            if($rule->matchOrder($order)) {
                 return $rule;
             }
         }
@@ -139,8 +149,8 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
         }
 
         $record->name = $model->name;
+        $record->handle = $model->handle;
         $record->enabled = $model->enabled;
-        $record->default = $model->default;
 
         $record->validate();
         $model->addErrors($record->getErrors());
@@ -151,12 +161,6 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
 
             // Now that we have a record ID, save it on the model
             $model->id = $record->id;
-
-            //If this was the default make all others not the default.
-            if ($model->default) {
-                Commerce_ShippingMethodRecord::model()->updateAll(['default' => 0],
-                    'id != ?', [$record->id]);
-            }
 
             return true;
         } else {

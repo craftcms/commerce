@@ -223,7 +223,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
         ];
 
         // Allow plugins to modify the attributes
-        craft()->plugins->call('commerce_modifyOrderSortableAttributes', array(&$attributes));
+        craft()->plugins->call('commerce_modifyOrderSortableAttributes', [&$attributes]);
 
         return $attributes;
     }
@@ -283,7 +283,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
         orders.billingAddressData,
         orders.shippingAddressId,
         orders.shippingAddressData,
-        orders.shippingMethodId,
+        orders.shippingMethod,
         orders.paymentMethodId,
         orders.customerId,
         orders.dateUpdated')

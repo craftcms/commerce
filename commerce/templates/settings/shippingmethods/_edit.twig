@@ -19,7 +19,7 @@
 <form method="post" accept-charset="UTF-8" data-saveshortcut>
 <div id="shippingMethodTab">
 
-    <input type="hidden" name="action" value="commerce/shippingMethod/save">
+    <input type="hidden" name="action" value="commerce/shippingMethods/save">
     <input type="hidden" name="redirect" value="commerce/settings/shippingmethods/{id}#rules">
 
     {{ getCsrfInput() }}
@@ -35,8 +35,20 @@
         errors: shippingMethod.getErrors('name'),
         autofocus: true,
         required: true,
-        translatable: true
     }) }}
+
+    {{ forms.textField({
+        first: true,
+        label: "Handle"|t,
+        instructions: "How this shipping method will be referred to in templates and forms."|t,
+        id: 'handle',
+        name: 'handle',
+        value: shippingMethod.handle,
+        errors: shippingMethod.getErrors('handle'),
+        autofocus: true,
+        required: true,
+    }) }}
+
 
     {{ forms.checkboxField({
         label: "Enable this shipping method on the front end?"|t,
@@ -45,15 +57,6 @@
         value: 1,
         checked: shippingMethod.enabled,
         errors: shippingMethod.getErrors('enabled')
-    }) }}
-
-    {{ forms.checkboxField({
-        label: "New carts get this status by default"|t,
-        id: 'default',
-        name: 'default',
-        value: 1,
-        checked: shippingMethod.default,
-        errors: shippingMethod.getErrors('default')
     }) }}
 
 </div>
@@ -92,14 +95,14 @@
                 Maximum Order Weight: {{ shippingRule.maxWeight }}
             </td>
             <td>
-                Base Rate: {{ shippingRule.baseRate }}<br/>
-                Per Item Rate: {{ shippingRule.perItemRate }}<br/>
+                Base Rate: {{ shippingRule.baseRate|commerceCurrency }}<br/>
+                Per Item Rate: {{ shippingRule.perItemRate|commerceCurrency }}<br/>
                 Weight Rate: {{ shippingRule.weightRate }}<br/>
                 Percentage Rate: {{ shippingRule.percentageRate }}<br/>
                 Minimum Rate: {{ shippingRule.minRate }}<br/>
                 Maximum Rate: {{ shippingRule.maxRate }}
             </td>
-            <td>{{ shippingRule.enabled ? 'Yes'|t : 'No'|t }}</td>
+            <td>{% if shippingRule.enabled %}<span class="status green"/>{% else %}<span class="status"/>{% endif %}</td>
             <td class="thin">
                 <a class="move icon disabled" title="{{ 'Delete'|t }}" role="button"></a>
             </td>
@@ -114,7 +117,8 @@
 {% else %}
     <p>{{ 'No shipping rules exist yet for this shipping method.' }}</p>
 {% endif %}
-<div class="btngroup submit first">
+    <br/>
+<div class="btngroup submit">
     <a href="{{ url('commerce/settings/shippingmethods/'~shippingMethod.id~'/shippingrules/new') }}" class="btn submit">{{ 'New Shipping Rule'|t }}</a>
 </div>
 
@@ -127,11 +131,16 @@
 {% endset %}
 
 {% includejs %}
+{% if not shippingMethod.id %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
 var adminTable = new Craft.AdminTable({
     tableSelector: '#shippingRules',
     deleteAction: 'commerce/shippingRules/delete',
     sortable: true,
-    reorderAction: 'commerce/shippingRule/reorder',
-    confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
+    reorderAction: 'commerce/shippingRules/reorder',
+    reorderSuccessMessage: Craft.t('Rules reordered.'),
+    reorderFailMessage:    Craft.t('Couldn’t reorder rules..'),
+    confirmDeleteMessage:  Craft.t('Are you sure you want to delete “{name}”?'),
+    deleteSuccessMessage:  Craft.t('“{name}” deleted.'),
+    deleteFailMessage:     Craft.t('Couldn’t delete “{name}”.'),
 });
 {% endincludejs %}
