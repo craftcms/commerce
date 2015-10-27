@@ -28,7 +28,7 @@ class CommerceVariantMatrixHelper
 	 *
 	 * @return string The variant matrix HTML
 	 */
-	public function getVariantMatrixHtml(Product $product, $name = 'variants')
+	public static function getVariantMatrixHtml(Product $product, $name = 'variants')
 	{
 		$id = \Craft\craft()->templates->formatInputId($name);
 
