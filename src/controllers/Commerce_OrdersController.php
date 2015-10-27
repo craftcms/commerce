@@ -13,8 +13,6 @@ namespace Craft;
  */
 class Commerce_OrdersController extends Commerce_BaseAdminController
 {
-    protected $allowAnonymous = false;
-
     /**
      * Index of orders
      */
