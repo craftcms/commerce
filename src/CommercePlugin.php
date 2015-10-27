@@ -53,6 +53,7 @@ class CommercePlugin extends BasePlugin
         craft()->on('commerce_orders.onOrderComplete', [craft()->commerce_discounts, 'orderCompleteHandler']);
         craft()->on('commerce_orders.onOrderComplete', [craft()->commerce_variants, 'orderCompleteHandler']);
         craft()->on('i18n.onAddLocale', [craft()->commerce_productTypes, 'addLocaleHandler']);
+
         if (!craft()->isConsole()) {
             craft()->on('userSession.onLogin', [craft()->commerce_customers, 'loginHandler']);
         }
@@ -203,7 +204,7 @@ class CommercePlugin extends BasePlugin
     }
 
     /**
-     * Adds the Commerce twig extensions
+     * Adds the Commerce twig extensions.
      *
      * @return CommerceTwigExtension
      */
