@@ -13,8 +13,6 @@ namespace Craft;
  */
 class Commerce_CartController extends Commerce_BaseFrontEndController
 {
-    protected $allowAnonymous = true;
-
     /**
      * Add a purchasable into the cart
      *
