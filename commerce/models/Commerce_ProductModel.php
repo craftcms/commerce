@@ -151,8 +151,10 @@ class Commerce_ProductModel extends BaseElementModel
      */
     public function getFieldLayout()
     {
-        if ($this->typeId) {
-            return craft()->commerce_productTypes->getById($this->typeId)->asa('productFieldLayout')->getFieldLayout();
+        $productType = $this->getType();
+
+        if ($productType) {
+            return $productType->asa('productFieldLayout')->getFieldLayout();
         }
 
         return null;
