@@ -1,0 +1,129 @@
+{% macro generalVariantFields(variant) %}
+	{% import "_includes/forms" as forms %}
+
+	{{ forms.textField({
+		id: 'sku',
+		label: 'SKU'|t,
+		required: true,
+		name: 'sku',
+		value: variant.sku,
+		placeholder: 'Enter SKU'|t,
+		errors: variant.getErrors('sku')
+	}) }}
+
+	{{ forms.textField({
+		id: 'price',
+		label: 'Price',
+		name: 'price',
+		value: (variant.price ? variant.price|commerceDecimal ?: ''),
+		placeholder: 'Enter price'|t,
+		unit: craft.commerce.settings.defaultCurrency,
+		required: true,
+		errors: variant.getErrors('price')
+	}) }}
+
+	{% set stockInput %}
+		<div class="flex">
+			{{ forms.text({
+				id: 'stock',
+				name: 'stock',
+				value: (variant.stock ?: ''),
+				placeholder: 'Enter stock'|t,
+				disabled: variant.unlimitedStock
+			}) }}
+			{{ forms.checkbox({
+				id: 'unlimited-stock',
+				class: 'unlimited-stock',
+				label: 'Unlimited'|t,
+				name: 'unlimitedStock',
+				checked: variant.unlimitedStock,
+			}) }}
+		</div>
+	{% endset %}
+
+	{{ forms.field({
+		id: 'stock',
+		label: 'Stock',
+		errors: variant.getErrors('unlimitedStock')|merge(variant.getErrors('stock')),
+	}, stockInput) }}
+
+	{% set quantityRangeInput %}
+		<div class="flex">
+			{{ forms.text({
+				id: 'minQty',
+				name: 'minQty',
+				value: variant.minQty,
+				placeholder: 'Any'|t,
+				title: 'Minimum allowed quantity'|t
+			}) }}
+			<span class="label light">{{ 'to'|t }}</span>
+			{{ forms.text({
+				id: 'maxQty',
+				name: 'maxQty',
+				value: variant.maxQty,
+				placeholder: 'Any'|t,
+				title: 'Maximum allowed quantity'|t
+			}) }}
+		</div>
+	{% endset %}
+
+	{{ forms.field({
+		id: 'minQty',
+		label: 'Allowed Qty'|t,
+		errors: variant.getErrors('minQty')|merge(variant.getErrors('maxQty'))
+	}, quantityRangeInput) }}
+{% endmacro %}
+
+{% macro dimensionVariantFields(variant) %}
+	{% import "_includes/forms" as forms %}
+
+	{% set dimensionsInput %}
+		<div class="flex">
+			{{ forms.text({
+				id: 'length',
+				name: 'length',
+				value: (variant.length|commerceDecimal ?: ''),
+				placeholder: 'Length'|t|upper[0:1],
+				title: 'Length'|t,
+				unit: craft.commerce.settings.dimensionUnits,
+				errors: variant.getErrors('length')
+			}) }}
+			<span class="label light">/</span>
+			{{ forms.text({
+				id: 'width',
+				name: 'width',
+				value: (variant.width|commerceDecimal ?: ''),
+				placeholder: 'Width'|t|upper[0:1],
+				title: 'Width'|t,
+				unit: craft.commerce.settings.dimensionUnits,
+				errors: variant.getErrors('width')
+			}) }}
+			<span class="label light">/</span>
+			{{ forms.text({
+				id: 'height',
+				name: 'height',
+				value: (variant.height|commerceDecimal ?: ''),
+				placeholder: 'Height'|t|upper[0:1],
+				title: 'Height'|t,
+				unit: craft.commerce.settings.dimensionUnits,
+				errors: variant.getErrors('height')
+			}) }}
+			<span class="label light">{{ craft.commerce.settings.dimensionUnits }}</span>
+		</div>
+	{% endset %}
+
+	{{ forms.field({
+		label: 'Dimensions'|t,
+		id: 'width'
+	}, dimensionsInput) }}
+
+	{{ forms.textField({
+		id: 'weight',
+		label: 'Weight'|t,
+		name: 'weight',
+		value: (variant.weight|commerceDecimal ?: ''),
+		placeholder: 'Enter weight'|t,
+		unit: craft.commerce.settings.weightUnits,
+		errors: variant.getErrors('weight')
+	}) }}
+{% endmacro %}
