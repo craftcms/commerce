@@ -119,6 +119,16 @@ class CommerceVariable
     }
 
     /**
+     * @return array
+     */
+    public function getTaxCategories()
+    {
+        $taxCategories = craft()->commerce_taxCategories->getAll();
+
+        return \CHtml::listData($taxCategories, 'id', 'name');
+    }
+
+    /**
      * @return Commerce_DiscountModel[]
      */
     public function getDiscounts()
