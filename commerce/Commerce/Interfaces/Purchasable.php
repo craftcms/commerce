@@ -73,4 +73,9 @@ interface Purchasable
      */
     public function validateLineItem(\Craft\Commerce_LineItemModel $lineItem);
 
+    /**
+     * @return bool
+     */
+    public function hasFreeShipping();
+
 }

@@ -77,7 +77,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
         $actions[] = $createDiscountAction;
 
         // Allow plugins to add additional actions
-        $allPluginActions = craft()->plugins->call('commerce_addProductActions', array($source), true);
+        $allPluginActions = craft()->plugins->call('commerce_addProductActions', [$source], true);
 
         foreach ($allPluginActions as $pluginActions) {
             $actions = array_merge($actions, $pluginActions);
@@ -112,7 +112,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
         }
 
         // Allow plugins to modify the sources
-        craft()->plugins->call('commerce_modifyProductSources', array(&$sources, $context));
+        craft()->plugins->call('commerce_modifyProductSources', [&$sources, $context]);
 
         return $sources;
     }
@@ -131,7 +131,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
         ];
 
         // Allow plugins to modify the attributes
-        craft()->plugins->call('commerce_modifyProductTableAttributes', array(&$attributes));
+        craft()->plugins->call('commerce_modifyProductTableAttributes', [&$attributes]);
 
         return $attributes;
     }
@@ -154,7 +154,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
     public function getTableAttributeHtml(BaseElementModel $element, $attribute)
     {
         // First give plugins a chance to set this
-        $pluginAttributeHtml = craft()->plugins->callFirst('commerce_getProductTableAttributeHtml', array($element, $attribute), true);
+        $pluginAttributeHtml = craft()->plugins->callFirst('commerce_getProductTableAttributeHtml', [$element, $attribute], true);
 
         if ($pluginAttributeHtml !== null) {
             return $pluginAttributeHtml;
@@ -177,7 +177,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
         ];
 
         // Allow plugins to modify the attributes
-        craft()->plugins->call('commerce_modifyProductSortableAttributes', array(&$attributes));
+        craft()->plugins->call('commerce_modifyProductSortableAttributes', [&$attributes]);
 
         return $attributes;
     }

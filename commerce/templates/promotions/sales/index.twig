@@ -1,42 +1,45 @@
 {% extends "commerce/_layouts/promotions" %}
-{% set fitted = true %}
+{% set selectedSidebarNavItem = 'sales' %}
 
-{% set title = "Sales"|t %}
 
-{% set content %}
-
+{% block content %}
     <h2>{{ "Sales"|t }}</h2>
+
+    <div id="no-sales"{% if sales|length %} class="hidden"{% endif %}>
+        <p>{{ "No sales exist yet."|t }}</p>
+    </div>
 
     {% if sales|length %}
     <table id="sales" class="data fullwidth collapsible">
         <thead>
         <tr>
             <th scope="col">Name</th>
-            <th scope="col">Dates</th>
+            <th scope="col">Duration</th>
             <th scope="col">Discount Amount</th>
-            <th scope="col">Enabled?</th>
             <td class="thin"></td>
         </tr>
         </thead>
         <tbody>
         {% for sale in sales %}
             <tr data-id="{{ sale.id }}" data-name="{{ sale.name }}">
-                <th scope="row" data-title="Name"><a href="{{ url('commerce/promotions/sales/'~sale.id) }}">{{ sale.name }}</a></th>
-                <td data-title="Dates">
-                    {{ sale.dateFrom ? sale.dateFrom : 'no limit'|t }} - {{ sale.dateTo ? sale.dateTo : 'no limit'|t }}
-                </td>
-                <td data-title="Discount Amount">
-                    {% if sale.discountType == 'percent' %}
-                        {{ sale.discountAmountAsPercent }} {{ "off"|t }}
-                    {% else %}
-                        {{ sale.discountAmountAsFlat|commerceCurrency }} {{ "off"|t }}
-                    {% endif %}
-                </td>
-                <td data-title="Enabled">
+                <th scope="row" data-title="{{ 'Name'|t }}">
                     {% if sale.enabled %}
                         <div class="status enabled"></div>
                     {% else %}
                         <div class="status"></div>
+                    {% endif %}
+                    <a href="{{ url('commerce/promotions/sales/'~sale.id) }}">{{ sale.name }}</a>
+                </th>
+                <td data-title="{{ 'Duration'|t }}">
+                    {{ sale.dateFrom ? sale.dateFrom.localeDate() : '∞'|t }}
+                    -
+                    {{ sale.dateTo ? sale.dateTo.localeDate() : '∞' }}
+                </td>
+                <td data-title="{{ 'Discount Amount'|t }}">
+                    {% if sale.discountType == 'percent' %}
+                        {{ sale.discountAmountAsPercent }} {{ "off"|t }}
+                    {% else %}
+                        {{ sale.discountAmountAsFlat|commerceCurrency }} {{ "off"|t }}
                     {% endif %}
                 </td>
                 <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
@@ -45,21 +48,18 @@
 
         </tbody>
     </table>
-    {% else %}
-        <p>{{ "No sales exist yet."|t }}</p>
     {% endif %}
-    <br/>
-    <div class="btngroup submit first">
-        <a href="{{ url('commerce/promotions/sales/new') }}" class="btn submit">New Sale</a>
-    </div>
 
-{% endset %}
+    <div class="buttons secondary-buttons">
+        <a href="{{ url('commerce/promotions/sales/new') }}" class="btn submit add icon">New sale</a>
+    </div>
+{% endblock %}
 
 
 {% includejs %}
 var adminTable = new Craft.AdminTable({
 tableSelector: '#sales',
-deleteAction: 'commerce/sale/delete',
-confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
+noObjectsSelector: '#no-sales',
+deleteAction: 'commerce/sales/delete'
 });
 {% endincludejs %}

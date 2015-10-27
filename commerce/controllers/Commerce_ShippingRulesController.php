@@ -43,6 +43,16 @@ class Commerce_ShippingRulesController extends Commerce_BaseAdminController
             throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
         }
 
+        if (empty($variables['methodId'])) {
+            throw new HttpException(404);
+        }
+
+        $variables['shippingMethod'] = craft()->commerce_shippingMethods->getById($variables['methodId']);
+
+        if (empty($variables['shippingMethod'])) {
+            throw new HttpException(404);
+        }
+
         if (empty($variables['shippingRule'])) {
             if (!empty($variables['ruleId'])) {
                 $id = $variables['ruleId'];
@@ -106,10 +116,6 @@ class Commerce_ShippingRulesController extends Commerce_BaseAdminController
      */
     public function actionReorder()
     {
-        if (!craft()->userSession->getUser()->can('manageCommerce')) {
-            throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
-        }
-
         $this->requirePostRequest();
         $this->requireAjaxRequest();
 

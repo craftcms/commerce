@@ -1,6 +1,8 @@
 <?php
 namespace Craft;
 
+use Commerce\Helpers\CommerceDbHelper;
+
 /**
  * Class Commerce_ProductsController
  *
@@ -10,13 +12,6 @@ namespace Craft;
  * @see       http://craftcommerce.com
  * @package   craft.plugins.commerce.controllers
  * @since     1.0
- */
-use Commerce\Helpers\CommerceDbHelper;
-
-/**
- * Class Commerce_ProductsController
- *
- * @package Craft
  */
 class Commerce_ProductsController extends Commerce_BaseAdminController
 {

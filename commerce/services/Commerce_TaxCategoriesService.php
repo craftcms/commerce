@@ -14,16 +14,6 @@ namespace Craft;
 class Commerce_TaxCategoriesService extends BaseApplicationComponent
 {
     /**
-     * @return Commerce_TaxCategoryModel[]
-     */
-    public function getAll()
-    {
-        $records = Commerce_TaxCategoryRecord::model()->findAll();
-
-        return Commerce_TaxCategoryModel::populateModels($records);
-    }
-
-    /**
      * @param int $id
      *
      * @return Commerce_TaxCategoryModel
@@ -97,9 +87,25 @@ class Commerce_TaxCategoriesService extends BaseApplicationComponent
 
     /**
      * @param int $id
+     * @return bool
      */
     public function deleteById($id)
     {
-        Commerce_TaxCategoryRecord::model()->deleteByPk($id);
+        $all = $this->getAll();
+        if (count($all) == 1) {
+            return false;
+        }
+
+        return (bool)Commerce_TaxCategoryRecord::model()->deleteByPk($id);
+    }
+
+    /**
+     * @return Commerce_TaxCategoryModel[]
+     */
+    public function getAll()
+    {
+        $records = Commerce_TaxCategoryRecord::model()->findAll();
+
+        return Commerce_TaxCategoryModel::populateModels($records);
     }
 }

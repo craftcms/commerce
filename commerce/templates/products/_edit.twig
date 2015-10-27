@@ -325,13 +325,13 @@
 					}) }}
 
 					{{ forms.checkboxField({
-						label: 'Free Shipping'|t,
+						label: 'Always has free shipping?'|t,
 						name: 'freeShipping',
 						checked: (product.id ? product.freeShipping : 0),
 					}) }}
 
 					{{ forms.checkboxField({
-						label: 'Promotable'|t,
+						label: 'Is this product subject to promotions?'|t,
 						name: 'promotable',
 						checked: (product.id ? product.promotable : 1),
 					}) }}

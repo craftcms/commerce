@@ -1,9 +1,14 @@
 {% extends "commerce/_layouts/settings" %}
 
-{% set content %}
 
+{% block content %}
     <h2>{{ "States"|t }}</h2>
 
+    <div id="no-states"{% if states|length %} class="hidden"{% endif %}>
+        <p>{{ "No states exist yet."|t }}</p>
+    </div>
+
+    {% if states|length %}
     <table id="states" class="data fullwidth collapsible">
         <thead>
         <tr>
@@ -16,28 +21,28 @@
         <tbody>
         {% for state in states %}
             <tr data-id="{{ state.id }}" data-name="{{ state.name }}">
-                <th scope="row" data-title="Name"><a
+                <th scope="row" data-title="{{ 'Name'|t }}"><a
                             href="{{ url('commerce/settings/states/'~state.id) }}">{{ state.name }}</a></th>
-                <td data-title="ISO">{{ state.abbreviation }}</td>
-                <td data-title="Country Name">{{ state.country.name }}</td>
+                <td data-title="{{ 'ISO'|t }}">{{ state.abbreviation }}</td>
+                <td data-title="{{ 'Country Name'|t }}">{{ state.country.name }}</td>
                 <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
             </tr>
         {% endfor %}
 
         </tbody>
     </table>
-    <br/>
-    <div class="btngroup submit first">
-        <a href="{{ url('commerce/settings/states/new') }}" class="btn submit">New State</a>
-    </div>
+    {% endif %}
 
-{% endset %}
+    <div class="buttons secondary-buttons">
+        <a href="{{ url('commerce/settings/states/new') }}" class="btn submit add icon">New state</a>
+    </div>
+{% endblock %}
 
 
 {% includejs %}
 var adminTable = new Craft.AdminTable({
 tableSelector: '#states',
-deleteAction: 'commerce/states/delete',
-confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
+noObjectsSelector: '#no-states',
+deleteAction: 'commerce/states/delete'
 });
 {% endincludejs %}

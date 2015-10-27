@@ -18,7 +18,7 @@ class Commerce_ShippingMethodsController extends Commerce_BaseAdminController
      */
     public function actionIndex()
     {
-        $shippingMethods = craft()->commerce_shippingMethods->getAll();
+        $shippingMethods = craft()->commerce_shippingMethods->getAllCore();
         $this->renderTemplate('commerce/settings/shippingmethods/index', compact('shippingMethods'));
     }
 
@@ -72,8 +72,8 @@ class Commerce_ShippingMethodsController extends Commerce_BaseAdminController
         // Shared attributes
         $shippingMethod->id = craft()->request->getPost('shippingMethodId');
         $shippingMethod->name = craft()->request->getPost('name');
+        $shippingMethod->handle = craft()->request->getPost('handle');
         $shippingMethod->enabled = craft()->request->getPost('enabled');
-        $shippingMethod->default = craft()->request->getPost('default');
         // Save it
         if (craft()->commerce_shippingMethods->save($shippingMethod)) {
             craft()->userSession->setNotice(Craft::t('Shipping method saved.'));
@@ -97,12 +97,6 @@ class Commerce_ShippingMethodsController extends Commerce_BaseAdminController
         $id = craft()->request->getRequiredPost('id');
 
         $method = craft()->commerce_shippingMethods->getById($id);
-
-        if ($method->default) {
-            $this->returnJson([
-                'errors' => [Craft::t('Can not delete the default method.')]
-            ]);
-        }
 
         if (craft()->commerce_shippingMethods->delete($method)) {
             $this->returnJson(['success' => true]);

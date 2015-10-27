@@ -5,14 +5,13 @@
 { label: "Countries"|t, url: url('commerce/settings/countries') },
 ] %}
 
+{% set fullPageForm = true %}
+
 {% import "_includes/forms" as forms %}
 
-{% set content %}
-<form method="post" accept-charset="UTF-8" data-saveshortcut>
+{% block content %}
     <input type="hidden" name="action" value="commerce/countries/save">
     <input type="hidden" name="redirect" value="commerce/settings/countries">
-    {{ getCsrfInput() }}
-
     {% if country.id %}<input type="hidden" name="countryId" value="{{ country.id }}">{% endif %}
 
     {{ forms.textField({
@@ -39,17 +38,11 @@
     }) }}
 
     {{ forms.checkboxField({
-        label: "Require a state to be selected when this country is chosen?"|t,
+        label: "Require a state to be selected when this country is chosen"|t,
         id: 'stateRequired',
         name: 'stateRequired',
         value: 1,
         checked: country.stateRequired,
         errors: country.getErrors('stateRequired')
     }) }}
-
-    <div class="buttons">
-        <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
-    </div>
-</form>
-
-{% endset %}
+{% endblock %}

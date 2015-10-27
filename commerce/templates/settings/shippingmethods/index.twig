@@ -1,63 +1,57 @@
 {% extends "commerce/_layouts/settings" %}
 
-{% set content %}
-
+{% block content %}
     <h2>{{ "Shipping Methods"|t }}</h2>
 
-    <table id="shippingMethods" class="data fullwidth collapsible">
+    <div id="no-shipping-methods"{% if shippingMethods|length %} class="hidden"{% endif %}>
+        <p>{{ "No shipping methods exist yet."|t }}</p>
+    </div>
+
+    {% if shippingMethods|length %}
+    <table id="shipping-methods" class="data fullwidth collapsible">
         <thead>
         <tr>
             <th scope="col">{{ 'Name'|t }}</th>
-            <th scope="col">{{ 'Enabled?'|t }}</th>
-            <th scope="col">{{ 'Default?'|t }}</th>
+            <th scope="col">{{ 'Handle'|t }}</th>
             <td class="thin"></td>
         </tr>
         </thead>
         <tbody>
         {% for shippingMethod in shippingMethods %}
             <tr data-id="{{ shippingMethod.id }}" data-name="{{ shippingMethod.name }}">
-                <th scope="row" data-title="Name"><a href="{{ url('commerce/settings/shippingmethods/'~shippingMethod.id) }}">{{ shippingMethod.name }}</a></th>
-                <td data-title="Enabled">{{ shippingMethod.enabled ? 'Yes'|t : 'No'|t }}</td>
-                <td data-title="Default">{{ shippingMethod.default ? 'Yes'|t : '' }}</td>
+                <th scope="row" data-title="{{ 'Name'|t }}">
+                    {% if shippingMethod.enabled %}
+                        <span class="status green"></span>
+                    {% else %}
+                        <span class="status green"></span>
+                    {% endif %}
+                    <a href="{{ url('commerce/settings/shippingmethods/'~shippingMethod.id) }}">{{ shippingMethod.name }}</a>
+                </th>
+                <td data-title="{{ 'Handle'|t }}" class="code">{{ shippingMethod.handle }}</td>
                 <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
             </tr>
         {% endfor %}
 
         </tbody>
     </table>
-    <br/>
-    <div class="btngroup submit first">
-        <a href="{{ url('commerce/settings/shippingmethods/new') }}" class="btn submit">New Shipping Method</a>
+    {% endif %}
+
+    <div class="buttons secondary-buttons">
+        <a href="{{ url('commerce/settings/shippingmethods/new') }}" class="btn submit add icon">New shipping method</a>
     </div>
-{% endset %}
+{% endblock %}
+
+
 {% includejs %}
 {#<script>#}
-ShippingMethodsTable = Craft.AdminTable.extend({
-    handleDeleteObjectResponse: function(response, $row)
-    {
-        var id = this.getObjectId($row),
-                name = this.getObjectName($row);
 
-        if (response.success)
-        {
-            $row.remove();
-            this.totalObjects--;
-            this.updateUI();
-            this.onDeleteObject(id);
-
-            Craft.cp.displayNotice(Craft.t(this.settings.deleteSuccessMessage, { name: name }));
-        }
-        else
-        {
-            Craft.cp.displayError(Craft.t(this.settings.deleteFailMessage, { name: name })+" "+response.errors[0]);
-        }
-    }
-});
-
-var adminTable = new ShippingMethodsTable({
-    tableSelector: '#shippingMethods',
-    minObjects: 1,
-    deleteAction: 'commerce/shippingMethods/delete'
+var adminTable = new Craft.AdminTable({
+    tableSelector: '#shipping-methods',
+    noObjectsSelector: '#no-shipping-methods',
+    deleteAction: 'commerce/shippingMethods/delete',
+    confirmDeleteMessage:  Craft.t('Are you sure you want to delete “{name}”?'),
+    deleteSuccessMessage:  Craft.t('“{name}” deleted.'),
+    deleteFailMessage:     Craft.t('Couldn’t delete “{name}”.'),
 });
 {#</script>#}
 {% endincludejs %}

@@ -1,5 +1,5 @@
 Craft.CommerceVariantValuesInput = Craft.BaseInputGenerator.extend({
-    startListening: function()
+    startListening: function ()
     {
         if (this.listening)
         {
@@ -17,7 +17,7 @@ Craft.CommerceVariantValuesInput = Craft.BaseInputGenerator.extend({
         var targetVal = this.generateTargetValue(sourceVal);
         this.$target.prop('checked', true);
     },
-    onFormSubmit: function()
+    onFormSubmit: function ()
     {
         if (this.timeout)
         {
