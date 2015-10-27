@@ -34,7 +34,7 @@
 
 
 {% block content %}
-    {% if not productTypes|length > 0 %}
+    {% if not craft.commerce.getProductTypes()|length > 0 %}
         <p class="error">No product types exist yet. <a class="go" href="{{ url('commerce/settings/producttypes/new') }}">Create one</a></p>
     {% else %}
         {{ parent() }}

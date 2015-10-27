@@ -103,6 +103,14 @@ class CommerceVariable
     /**
      * @return array
      */
+    public function getProductTypes()
+    {
+        return craft()->commerce_productTypes->getAll();
+    }
+
+    /**
+     * @return array
+     */
     public function getOrderStatuses()
     {
         return array_map(function ($status) {
