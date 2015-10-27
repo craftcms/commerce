@@ -50,7 +50,7 @@ class Commerce_OrdersController extends Commerce_BaseAdminController
         if (!empty($variables['orderId'])) {
             $variables['title'] = "Order " . substr($variables['order']->number, 0, 7);
         } else {
-            $variables['title'] = Craft::t('Create a new Order');
+            $variables['title'] = Craft::t('Create a new order');
         }
 
         craft()->templates->includeCssResource('commerce/order.css');
