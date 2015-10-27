@@ -24,6 +24,7 @@ Craft.Commerce.VariantMatrix = Garnish.Base.extend(
 	variantSort: null,
 	variantSelect: null,
 	totalNewVariants: 0,
+	singleColumnMode: false,
 
 	init: function(id, fieldBodyHtml, fieldFootHtml, inputNamePrefix)
 	{
@@ -98,6 +99,13 @@ Craft.Commerce.VariantMatrix = Garnish.Base.extend(
 		this.addListener(this.$addVariantBtn, 'click', function() {
 			this.addVariant();
 		});
+
+		this.addListener(this.$container, 'resize', 'handleContainerResize');
+		Garnish.$doc.ready($.proxy(this, 'handleContainerResize'));
+
+		if (this.$container.width()) {
+			this.handleContainerResize();
+		}
 	},
 
 	addVariant: function($insertBefore)
@@ -151,6 +159,10 @@ Craft.Commerce.VariantMatrix = Garnish.Base.extend(
 			footHtml = this.getParsedVariantHtml(this.fieldFootHtml, id);
 
 		$(bodyHtml).appendTo($fieldsContainer);
+
+		if (this.singleColumnMode) {
+			this.setVariantsToSingleColMode($variant);
+		}
 
 		// Animate the variant into position
 		$variant.css(this.getHiddenVariantCss($variant)).velocity({
@@ -245,6 +257,33 @@ Craft.Commerce.VariantMatrix = Garnish.Base.extend(
 		{
 			return '';
 		}
+	},
+
+	handleContainerResize: function() {
+		if (this.$container.width() < 700) {
+			if (!this.singleColumnMode) {
+				this.setVariantsToSingleColMode(this.variantSort.$items);
+				this.singleColumnMode = true;
+			}
+		} else {
+			if (this.singleColumnMode) {
+				this.setVariantsToTwoColMode(this.variantSort.$items);
+				this.variantSort.$items.removeClass('single-col');
+				this.singleColumnMode = false;
+			}
+		}
+	},
+
+	setVariantsToSingleColMode: function($variants) {
+		$variants
+			.addClass('single-col')
+			.find('> .fields > .custom-fields').addClass('meta');
+	},
+
+	setVariantsToTwoColMode: function($variants) {
+		$variants
+			.removeClass('single-col')
+			.find('> .fields > .custom-fields').removeClass('meta');
 	}
 },
 {
