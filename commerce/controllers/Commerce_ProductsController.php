@@ -29,8 +29,6 @@ class Commerce_ProductsController extends Commerce_BaseAdminController
      */
     public function actionProductIndex()
     {
-        $variables['productTypes'] = craft()->commerce_productTypes->getAll();
-        $variables['taxCategories'] = craft()->commerce_taxCategories->getAll();
         $this->renderTemplate('commerce/products/_index', $variables);
     }
 
