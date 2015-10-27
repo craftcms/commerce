@@ -9,7 +9,7 @@
 
 <form method="post" accept-charset="UTF-8" data-saveshortcut>
     <input type="hidden" name="action" value="commerce/orderSettings/save">
-    <input type="hidden" name="redirect" value="commerce/settings/global">
+    <input type="hidden" name="redirect" value="commerce/settings/general">
 
     {{ getCsrfInput() }}
     {% if orderSettings.id %}<input type="hidden" name="orderSettingsId" value="{{ orderSettings.id }}">{% endif %}
