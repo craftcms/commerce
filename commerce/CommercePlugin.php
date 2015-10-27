@@ -189,7 +189,7 @@ class CommercePlugin extends BasePlugin
     }
 
     /**
-     * Adds the Commerce twig extensions
+     * Adds the Commerce twig extensions.
      *
      * @return CommerceTwigExtension
      */
