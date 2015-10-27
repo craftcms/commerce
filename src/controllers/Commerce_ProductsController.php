@@ -27,7 +27,7 @@ class Commerce_ProductsController extends Commerce_BaseAdminController
     /**
      * Index of products
      */
-    public function actionProductIndex()
+    public function actionProductIndex(array $variables = [])
     {
         $this->renderTemplate('commerce/products/_index', $variables);
     }

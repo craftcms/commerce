@@ -95,7 +95,6 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
     public function getSources($context = null)
     {
         $sources = [
-
             '*' => [
                 'label' => Craft::t('All products'),
             ]
@@ -108,6 +107,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
 
             $sources[$key] = [
                 'label' => $productType->name,
+                'data' => array('handle' => $productType->handle),
                 'criteria' => ['typeId' => $productType->id]
             ];
         }
