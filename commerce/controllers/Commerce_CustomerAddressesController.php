@@ -13,8 +13,6 @@ namespace Craft;
  */
 class Commerce_CustomerAddressesController extends Commerce_BaseFrontEndController
 {
-    protected $allowAnonymous = true;
-
     /**
      * Add New Address
      *

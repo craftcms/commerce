@@ -13,6 +13,10 @@ namespace Craft;
  */
 class Commerce_OrderStatusesController extends Commerce_BaseAdminController
 {
+    /**
+     * @param array $variables
+     * @throws HttpException
+     */
     public function actionIndex(array $variables = [])
     {
         $variables['orderStatuses'] = craft()->commerce_orderStatuses->getAll();

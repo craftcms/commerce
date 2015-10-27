@@ -17,6 +17,7 @@ use Omnipay\Common\Currency;
  * @property float $baseShippingCost
  * @property string $email
  * @property DateTime $dateOrdered
+ * @property string $currency
  * @property DateTime $datePaid
  * @property string $lastIp
  * @property string $message

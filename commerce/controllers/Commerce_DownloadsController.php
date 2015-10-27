@@ -11,10 +11,8 @@ namespace Craft;
  * @package   craft.plugins.commerce.controllers
  * @since     1.0
  */
-class Commerce_DownloadsController extends Commerce_BaseController
+class Commerce_DownloadsController extends Commerce_BaseFrontEndController
 {
-    protected $allowAnonymous = ['actionPdf'];
-
     public function actionPdf()
     {
         $template = craft()->commerce_settings->getSettings()->orderPdfPath;
