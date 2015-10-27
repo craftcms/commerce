@@ -46,7 +46,7 @@ class Commerce_ProductsController extends Commerce_BaseAdminController
         if (!empty($variables['product']->id)) {
             $variables['title'] = $variables['product']->title;
         } else {
-            $variables['title'] = Craft::t('Create a new Product');
+            $variables['title'] = Craft::t('Create a new product');
         }
 
         $variables['continueEditingUrl'] = "commerce/products/" . $variables['productTypeHandle'] . "/{id}-{slug}" .
