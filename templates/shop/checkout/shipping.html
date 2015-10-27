@@ -4,7 +4,7 @@
 
     <h1>Shipping</h1>
 
-    {% if cart.shippingMethodId %}
+    {% if cart.shippingMethod %}
         <p>
             <strong>Current Shipping Method:</strong> {{ cart.shippingMethod.name }}
         </p>
@@ -23,14 +23,14 @@
         <input type="hidden" name="redirect" value="commerce/checkout/payment">
         {{ getCsrfInput() }}
 
-        {% for id, method in craft.commerce.getShippingMethods() %}
+        {% for handle, method in craft.commerce.getShippingMethods() %}
             <label>
-                <input type="radio" name="shippingMethodId" value="{{ id }}"
-                       {% if id == cart.shippingMethodId %}checked{% endif %} />
-                <strong><{{ method.name }}/strong> {{ method.amount|commerceCurrency }}
+                <input type="radio" name="shippingMethod" value="{{ handle }}"
+                       {% if handle == cart.shippingMethodHandle %}checked{% endif %} />
+                <strong>{{ method.name }}</strong> {{ method.amount|commerceCurrency }}
             </label>
         {% endfor %}
-        <span class="flash">{{ cart.getErrors('shippingMethodId')|join }}</span>
+        <span class="flash">{{ cart.getErrors('shippingMethod')|join }}</span>
 
         <p><input type="submit" class="button button-primary" value="Select Shipping Method"/></p>
 

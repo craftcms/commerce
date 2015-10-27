@@ -93,8 +93,12 @@ class Commerce_TaxCategoriesController extends Commerce_BaseAdminController
 
         $id = craft()->request->getRequiredPost('id');
 
-        craft()->commerce_taxCategories->deleteById($id);
-        $this->returnJson(['success' => true]);
+        if (craft()->commerce_taxCategories->deleteById($id)) {
+            $this->returnJson(['success' => true]);
+        } else {
+            $this->returnErrorJson(Craft::t('Could not delete tax category'));
+        }
+
     }
 
 }

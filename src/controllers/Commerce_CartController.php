@@ -13,8 +13,6 @@ namespace Craft;
  */
 class Commerce_CartController extends Commerce_BaseFrontEndController
 {
-    protected $allowAnonymous = true;
-
     /**
      * Add a purchasable into the cart
      *
@@ -209,10 +207,10 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
         }
 
         // Set Shipping Method on Cart.
-        if (isset($_POST['shippingMethodId'])) {
-            $shippingMethodId = craft()->request->getParam('shippingMethodId');
-            if (!craft()->commerce_cart->setShippingMethod($cart, $shippingMethodId, $error)) {
-                $cart->addError('shippingMethodId', $error);
+        if (isset($_POST['shippingMethod'])) {
+            $shippingMethod = craft()->request->getParam('shippingMethod');
+            if (!craft()->commerce_cart->setShippingMethod($cart, $shippingMethod, $error)) {
+                $cart->addError('shippingMethod', $error);
             }
         }
 

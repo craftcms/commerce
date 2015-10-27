@@ -1,28 +1,27 @@
 {% extends "commerce/_layouts/settingscp" %}
-{% set title = "Product Types"|t %}
+{% set title = productType.id ? productType.name : 'Create a new product type'|t %}
 
 {% set crumbs = [
 { label: "Commerce Settings"|t, url: url('commerce/settings') },
 { label: "Product Types"|t, url: url('commerce/settings/producttypes') },
 ] %}
 
+{% set tabs = {
+    productTypeSettings: { label: "Settings"|t, url: '#product-type-settings' },
+    productFields:       { label: "Product Fields"|t, url: '#product-fields' },
+    variantFields:       { label: "Variant Fields"|t, url: '#variant-fields', class: (not productType.hasVariants ? 'hidden') }
+} %}
+
+{% set fullPageForm = true %}
+
 
 {% set selectedTab = 'settings' %}
 {% import "_includes/forms" as forms %}
 
-{% set content %}
-<form method="post" accept-charset="UTF-8" data-saveshortcut>
+{% block content %}
     <input type="hidden" name="action" value="commerce/productTypes/saveProductType">
     <input type="hidden" name="redirect" value="commerce/settings/producttypes">
-
-    {{ getCsrfInput() }}
     {% if productType.id %}<input type="hidden" name="productTypeId" value="{{ productType.id }}">{% endif %}
-
-    {% set tabs = {
-        productTypeSettings: { label: "Settings"|t, url: '#product-type-settings' },
-        productFields:       { label: "Product Fields"|t, url: '#product-fields' },
-        variantFields:       { label: "Variant Fields"|t, url: '#variant-fields', class: (not productType.hasVariants ? 'hidden') }
-    } %}
 
     <div id="product-type-settings">
     {{ forms.textField({
@@ -123,11 +122,11 @@
 
     {% from _self import hasUrlsField, templateField, hasVariantsField, titleFormatField  %}
 
-    <hr/>
+    <hr>
     {{ hasVariantsField(productType) }}
 
     {{ titleFormatField(productType) }}
-    <hr/>
+    <hr>
 
     {{ hasUrlsField(productType) }}
 
@@ -211,15 +210,7 @@
     {% endnamespace %}
 
     </div>
-
-    <hr>
-
-    <div class="buttons">
-        <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
-    </div>
-</form>
-
-{% endset %}
+{% endblock %}
 
 {% includejs %}
     {% if not productType.handle %}new Craft.HandleGenerator('#name', '#handle');{% endif %}

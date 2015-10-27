@@ -13,8 +13,6 @@ namespace Craft;
  */
 class Commerce_OrdersController extends Commerce_BaseAdminController
 {
-    protected $allowAnonymous = false;
-
     /**
      * Index of orders
      */
@@ -51,15 +49,6 @@ class Commerce_OrdersController extends Commerce_BaseAdminController
             $variables['title'] = "Order " . substr($variables['order']->number, 0, 7);
         } else {
             $variables['title'] = Craft::t('Create a new Order');
-        }
-
-        $variables['orderStatuses'] = [];
-        foreach (craft()->commerce_orderStatuses->getAll() as $status) {
-            $variables['orderStatuses'][$status->id] = ['color' => $status->color, 'name' => $status->name];
-        }
-
-        if ($variables['order']->orderStatusId == null) {
-            $variables['orderStatuses'] = ['0' => 'No Status'] + $variables['orderStatuses'];
         }
 
         craft()->templates->includeCssResource('commerce/order.css');

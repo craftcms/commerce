@@ -35,17 +35,14 @@
 				<tr>
 					<td><strong>{{ "Status"|t }}</strong></td>
 					{% if order.orderStatus %}
-						<td>{{ order.orderStatus.printName|raw }} &nbsp; <a
+						<td><div id="order-status">{{ order.orderStatus.htmlLabel|raw }} &nbsp; <a
 									href="#"
-									class="updatestatus btn small hidden"
-									data-orderid="{{ order.id }}"
-									data-orderstatuscolor="{{ order.orderStatus.color }}"
-									data-orderstatusname="{{ order.orderStatus.name}}"
-									data-orderstatusid="{{ order.orderStatusId }}"
-									data-statuses="{{ orderStatuses|json_encode }}">{{ "Update Status"|t }}</a>
+									class="updatestatus btn small"
+									data-currentStatus="{{ order.orderStatus.attributes|json_encode() }}"
+									data-orderStatuses="{{ craft.commerce.orderStatuses|json_encode() }}">{{ "Update Status"|t }}</a></div>
 						</td>
 					{% else %}
-						<td><span class="commerce status"></span></td>
+						<td><span class="status"></span></td>
 					{% endif %}
 				<tr>
 					<td><strong>{{ "Total"|t }}</strong></td>
@@ -60,13 +57,13 @@
 		</div>
 
 		<div class="order-addresses right">
-			<div class="order-address-box">
+			<div class="order-address-box billingAddress">
 				<div class="order-address-box-content">
 				{% import "commerce/_includes/orders/address" as addressMacros %}
 
-				<strong>Billing Address </strong><br/>
+				<strong>Billing Address </strong><br>
 				{% if order.dateOrdered %}
-				<a class="small btn right editBillingAddress" data-orderid="{{ order.id }}" data-addresstype="billing" data-address="{{ order.billingAddressData|json_encode }}">Edit</a>
+				{#<a class="small btn right edit" data-orderid="{{ orderId }}" data-addresstype="billing" data-address="{{ order.billingAddressData|json_encode }}">Edit</a>#}
 				{% endif %}
 				<a class="small btn right"
 				   href="http://maps.google.com/maps?q={{ order.billingAddress.address1 }}+{{ order.billingAddress.address2 }}+{{ order.billingAddress.city }}+{{ order.billingAddress.zipCode }}+{{ order.billingAddress.stateText }}+{{ order.billingAddress.countryText }}"
@@ -75,11 +72,11 @@
 				</div>
 			</div>
 
-			<div class="order-address-box">
+			<div class="order-address-box shippingAddress">
 				<div class="order-address-box-content">
-				<strong>Shipping Address </strong><br/>
+				<strong>Shipping Address </strong><br>
 				{% if order.dateOrdered %}
-				<a class="small btn right editShippingAddress" data-orderid="{{ order.id }}" data-addresstype="shipping" data-address="{{ order.shippingAddressData|json_encode }}">Edit</a>
+				{#<a class="small btn right edit" data-addresstype="shipping" data-address="{{ order.shippingAddressData|json_encode }}">Edit</a>#}
 				{% endif %}
 				<a class="small btn right"
 				   href="http://maps.google.com/maps?q={{ order.shippingAddress.address1 }}+{{ order.shippingAddress.address2 }}+{{ order.shippingAddress.city }}+{{ order.shippingAddress.zipCode }}+{{ order.shippingAddress.stateText }}+{{ order.shippingAddress.countryText }}"
@@ -106,11 +103,24 @@
 			<tbody>
 
 			{% for lineItem in order.lineItems %}
-				<tr class="infoRow" data-id="{{lineItem.id}}"
-					data-purchasableid="{% if lineItem.purchasableId and lineItem.purchasable %}{{ lineItem.purchasableId }}{% endif %}"
+				<tr class="infoRow"
+					data-inforow='{% spaceless %}[
+					{"label":"Description","attribute":"description","currency":"false"},
+					{"label":"Tax Category","attribute":"taxcategory","currency":"false"},
+					{"label":"Price","attribute":"price","currency":"true"},
+					{"label":"Sale Amount","attribute":"saleamount","currency":"true"},
+					{"label":"Sale Price","attribute":"saleprice","currency":"true"},
+					{"label":"Tax","attribute":"tax","currency":"true"},
+					{"label":"Shipping Cost","attribute":"shippingcost","currency":"true"},
+					{"label":"Discount","attribute":"discount","currency":"true"},
+					{"label":"Total","attribute":"total","currency":"true"},
+					{"label":"Quantity","attribute":"qty","currency":"false"},
+					{"label":"Note","attribute":"note","currency":"false"},
+					{"label":"onSale","attribute":"onsale","currency":"false"}
+					]'{% endspaceless %}
+					data-id="{{lineItem.id}}"
 					data-description="{{ lineItem.description }}"
 					data-taxcategory="{{ lineItem.taxCategory.name }}"
-					data-taxcategoryurl="{{ lineItem.taxCategory.cpEditUrl }}"
 					data-price="{{ lineItem.price|commerceCurrency }}"
 					data-saleamount="{{ lineItem.saleAmount|commerceCurrency }}"
 					data-saleprice="{{ lineItem.salePrice|commerceCurrency }}"
@@ -124,9 +134,9 @@
 					data-snapshot='{{ lineItem.snapshot|json_encode()}}'>
 					<td>
 						{% if lineItem.purchasableId and lineItem.purchasable %}
-							<a href="{{ lineItem.purchasable.cpEditUrl }}">{{ lineItem.description }} </a>({{ lineItem.sku }})
+							<a href="{{ lineItem.purchasable.cpEditUrl }}">{{ lineItem.description }} </a><br>{{ lineItem.sku }}
 						{% else %}
-							{{ lineItem.description }} ({{ lineItem.sku }})
+							{{ lineItem.description }}<br>({{ lineItem.sku }})
 						{% endif %}
 					</td>
 					<td>
@@ -141,6 +151,16 @@
 						<span class="tableRowInfo" data-icon="info" href="#"></span>
 					</td>
 				</tr>
+			{% endfor %}
+			{% for adjustment in order.adjustments %}
+			<tr>
+				<td><strong>{{ adjustment.type|title|t }} {{ "Adjustment"|t }}</strong><br>{{ adjustment.name|title }} <span class="info"><strong>{{ adjustment.type|title|t }} {{ "Adjustment"|t }}</strong><br> {{ adjustment.description }}</span></td>
+				<td>{{ adjustment.amount|commerceCurrency }}</td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
 			{% endfor %}
 			<tr>
 				<td></td>
@@ -285,7 +305,7 @@
 				<tr data-id="{{ orderHistory.id }}">
 					<td>
 						{% if orderHistory.newStatus %}
-							<a href="{{ orderHistory.newStatus.cpEditUrl }}">{{ orderHistory.newStatus.printName()|raw }}</a>
+							<a href="{{ orderHistory.newStatus.cpEditUrl }}">{{ orderHistory.newStatus.htmlLabel()|raw }}</a> {% if loop.first %}({{ "Current"|t }}){% endif %}
 						{% endif %}
 					</td>
 					<td>
@@ -316,36 +336,47 @@
 				<th scope="col">{{ 'Message'|t }}</th>
 				<th scope="col">{{ 'Amount'|t }}</th>
 				<th scope="col">{{ 'Payment Method'|t }}</th>
+				<th scope="col">{{ 'Info'|t }}</th>
 				<th></th>
 			</tr>
 			</thead>
 			<tbody>
 			{% for transaction in order.transactions %}
-				<tr>
+				<tr class="infoRow"
+					data-inforow='{% spaceless %}[
+					{"label":"Hash","attribute":"hash","currency":"false"},
+					{"label":"Reference","attribute":"reference","currency":"false"},
+					{"label":"Response","attribute":"response","currency":"false"}
+					]'{% endspaceless %}
+					data-hash="{{ transaction.hash }}"
+					data-reference="{{ transaction.reference }}"
+					data-response="{{ transaction.response }}"
+				>
 					<td>{{ transaction.type|title }}</td>
 					<td>{{ transaction.status|title }}</td>
 					<td>{{ transaction.message|title }}</td>
 					<td>{{ transaction.amount|commerceCurrency }}</td>
 					<td>{{ transaction.paymentMethod.name }}</td>
+					<td><span class="tableRowInfo" data-icon="info" href="#"></span></td>
 					<td>
 						{% if transaction.canCapture() %}
 							<form>
 							<a class="small btn submit formsubmit"
 							   data-action="commerce/orders/transactionCapture"
-							   data-confirm="{{ 'Confirm capture?'|t }}"
+							   data-confirm="{{ 'Are you sure you want to capture this transaction?'|t }}"
 							   data-redirect="{{ order.cpEditUrl }}"
 							   data-param="id"
-							   data-value="{{ transaction.id }}">Capture</a>
+							   data-value="{{ transaction.id }}">{{ 'Capture'|t }}</a>
 							</form>
 						{% endif %}
 						{% if transaction.canRefund() %}
 							<form>
 							<a class="small btn submit formsubmit"
 							   data-action="commerce/orders/transactionRefund"
-							   data-confirm="{{ 'Confirm refund?'|t }}"
+							   data-confirm="{{ 'Are you sure you want to refund this transaction?'|t }}"
 							   data-redirect="{{ order.cpEditUrl }}"
 							   data-param="id"
-							   data-value="{{ transaction.id }}">Refund</a>
+							   data-value="{{ transaction.id }}">{{ 'Refund'|t }}</a>
 							</form>
 						{% endif %}
 					</td>
@@ -355,28 +386,30 @@
 		</table>
 	</div>
 	{% endif %}
-
-
 {% endblock %}
+
+
 {% includeJsResource 'commerce/js/classes/TableRowAdditionalInfoIcon.js' %}
 {% includeJsResource 'commerce/js/classes/EditAddressModal.js' %}
 {% includeJsResource 'commerce/js/classes/UpdateOrderStatusModal.js' %}
 {% includeJsResource 'commerce/js/classes/OrderEdit.js' %}
 
-    {% includejs %}
+{% includejs %}
 
-	window.countries = JSON.parse('{{ craft.commerce.countriesList|json_encode|raw }}');
-	window.states = JSON.parse('{{ craft.commerce.statesArray|json_encode|raw }}');
+//window.countries = JSON.parse('{{ craft.commerce.countriesList|json_encode|raw }}');
+//window.states = JSON.parse('{{ craft.commerce.statesArray|json_encode|raw }}');
 
-    $(document).ready(function () {
+$(document).ready(function () {
 
-		new Craft.Commerce.OrderEdit;
+	new Craft.Commerce.OrderEdit({
+		orderId: {{ orderId }}
+	});
 
-		$.each($('.tableRowInfo'), function () {
-			new Craft.Commerce.TableRowAdditionalInfoIcon(this);
-		});
+	$.each($('.tableRowInfo'), function () {
+		new Craft.Commerce.TableRowAdditionalInfoIcon(this);
+	});
 
-    });
+});
 
 
-    {% endincludejs %}
+{% endincludejs %}

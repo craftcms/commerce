@@ -48,7 +48,7 @@ class Commerce_SalesController extends Commerce_BaseAdminController
         if (!empty($variables['id'])) {
             $variables['title'] = $variables['sale']->name;
         } else {
-            $variables['title'] = Craft::t('Create a Sale');
+            $variables['title'] = Craft::t('Create a new sale');
         }
 
         //getting user groups map

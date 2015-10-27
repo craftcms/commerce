@@ -25,7 +25,7 @@ namespace Craft;
  * @property mixed $billingAddressData
  * @property int $shippingAddressId
  * @property mixed $shippingAddressData
- * @property int $shippingMethodId
+ * @property string $shippingMethod
  * @property int $paymentMethodId
  * @property int $customerId
  * @property int $orderStatusId
@@ -33,7 +33,6 @@ namespace Craft;
  * @property Commerce_LineItemRecord[] $lineItems
  * @property Commerce_AddressRecord $billingAddress
  * @property Commerce_AddressRecord $shippingAddress
- * @property Commerce_ShippingMethodRecord $shippingMethod
  * @property Commerce_PaymentMethodRecord $paymentMethod
  * @property Commerce_TransactionRecord[] $transactions
  * @property Commerce_OrderStatusRecord $orderStatus
@@ -75,10 +74,6 @@ class Commerce_OrderRecord extends BaseRecord
                 static::HAS_ONE,
                 'Commerce_DiscountRecord',
                 ['couponCode' => 'code']
-            ],
-            'shippingMethod' => [
-                static::BELONGS_TO,
-                'Commerce_ShippingMethodRecord'
             ],
             'paymentMethod' => [
                 static::BELONGS_TO,
@@ -163,7 +158,7 @@ class Commerce_OrderRecord extends BaseRecord
             'message' => AttributeType::String,
             'returnUrl' => AttributeType::String,
             'cancelUrl' => AttributeType::String,
-
+            'shippingMethod' => AttributeType::String,
             'billingAddressData' => AttributeType::Mixed,
             'shippingAddressData' => AttributeType::Mixed
         ];

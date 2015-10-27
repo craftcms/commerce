@@ -1,22 +1,29 @@
 {% extends "commerce/_layouts/settings" %}
 
-{% set content %}
+
+{% block content %}
     <h2>{{ "Countries"|t }}</h2>
+
+    <div id="no-countries"{% if countries|length %} class="hidden"{% endif %}>
+        <p>{{ "No countries exist yet."|t }}</p>
+    </div>
+
+    {% if countries|length %}
     <table id="countries" class="data fullwidth collapsible">
         <thead>
         <tr>
             <th scope="col">{{ 'Name'|t }}</th>
             <th scope="col">{{ 'Country Code'|t }}</th>
-            <th scope="col">{{ 'State required?'|t }}</th>
+            <th scope="col">{{ 'State Required?'|t }}</th>
             <td class="thin"></td>
         </tr>
         </thead>
         <tbody>
         {% for country in countries %}
             <tr data-id="{{ country.id }}" data-name="{{ country.name }}">
-                <th scope="row" data-title="Name"><a
+                <th scope="row" data-title="{{ 'Name'|t }}"><a
                             href="{{ url('commerce/settings/countries/'~country.id) }}">{{ country.name }}</a></th>
-                <td data-title="ISO">{{ country.iso }}</td>
+                <td data-title="{{ 'ISO'|t }}">{{ country.iso }}</td>
                 <td data-title="State required?">{{ country.stateRequired ? 'Yes'|t : 'No'|t }}</td>
                 <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
             </tr>
@@ -24,18 +31,19 @@
 
         </tbody>
     </table>
-    <br/>
-    <div class="btngroup submit first">
-        <a href="{{ url('commerce/settings/countries/new') }}" class="btn submit">New Country</a>
+    {% endif %}
+
+    <div class="buttons secondary-buttons">
+        <a href="{{ url('commerce/settings/countries/new') }}" class="btn submit add icon">New country</a>
     </div>
-{% endset %}
+{% endblock %}
 
 
 {% includejs %}
 var adminTable = new Craft.AdminTable({
 tableSelector: '#countries',
+noObjectsSelector: '#no-countries',
 deleteAction: 'commerce/countries/delete',
-confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}',
-deleteFailMessage: '{{ "Can not delete “{name}”, it is being used by various addresses."|t }}'
+deleteFailMessage: '{{ "Can not delete “{name}” because it is in use."|t }}'
 });
 {% endincludejs %}

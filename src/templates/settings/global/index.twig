@@ -4,13 +4,13 @@
 
 {% import "_includes/forms" as forms %}
 
-{% set content %}
 
+{% block content %}
     <h2>{{ "Global Settings"|t }}</h2>
 
     <form action="" method="post" accept-charset="UTF-8">
-        <input type="hidden" name="action" value="commerce/settings/saveSettings"/>
-        <input type="hidden" name="redirect" value="commerce/settings"/>
+        <input type="hidden" name="action" value="commerce/settings/saveSettings">
+        <input type="hidden" name="redirect" value="commerce/settings">
         {{ getCsrfInput() }}
 
 
@@ -86,7 +86,7 @@
             required: true,
         }) }}
 
-        <input type="submit" class="btn submit" value="Save"/>
+        <input type="submit" class="btn submit" value="Save">
     </form>
 
-{% endset %}
+{% endblock %}

@@ -13,8 +13,6 @@ namespace Craft;
  */
 class Commerce_ProductTypesController extends Commerce_BaseAdminController
 {
-    protected $allowAnonymous = false;
-
     public function actionIndex()
     {
         $productTypes = craft()->commerce_productTypes->getAll();

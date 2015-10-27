@@ -2,12 +2,13 @@
 {% hook 'commerce.prepCpTemplate' %}
 
 {% set title = "Products"|t %}
+{% set docTitle = title~' - '~'Commerce'|t %}
 {% set elementType = 'Commerce_Product' %}
 {% set selectedTab = 'products' %}
 {% set selectedSubnavItem = "products" %}
 
-{% block sidebar %}
 
+{% block sidebar %}
     {% if productTypes|length and taxCategories|length %}
         <div class="buttons">
             {% if productTypes|length > 1 %}
@@ -29,19 +30,17 @@
     {% endif %}
 
     {{ parent() }}
-
-    {% if not productTypes|length > 0 %}
-
-        <p><span style="color:red">No product types exist!</span><br/>Go to settings and <a
-                    href="{{ url('commerce/settings/producttypes') }}">create a new product type </a>.</p>
-    {% endif %}
-    {% if not taxCategories|length > 0 %}
-
-        <p><span style="color:red">No tax categories exist!</span><br/>Go to settings and <a
-                    href="{{ url('commerce/settings/taxcategories') }}">create a new tax category </a>.</p>
-    {% endif %}
-
 {% endblock %}
+
+
+{% block content %}
+    {% if not productTypes|length > 0 %}
+        <p class="error">No product types exist yet. <a class="go" href="{{ url('commerce/settings/producttypes/new') }}">Create one</a></p>
+    {% else %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}
+
 
 {% block initJs %}
     Craft.elementIndex = Craft.createElementIndex('{{ elementTypeClass }}', $('#main'), {

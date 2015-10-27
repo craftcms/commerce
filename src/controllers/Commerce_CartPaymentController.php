@@ -11,10 +11,8 @@ namespace Craft;
  * @package   craft.plugins.commerce.controllers
  * @since     1.0
  */
-class Commerce_CartPaymentController extends Commerce_BaseController
+class Commerce_CartPaymentController extends Commerce_BaseFrontEndController
 {
-    protected $allowAnonymous = true;
-
     /**
      * @throws HttpException
      */

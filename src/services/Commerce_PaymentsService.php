@@ -128,7 +128,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
                 // redirect to off-site gateway
                 return $response->redirect();
             }
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             $transaction->status = Commerce_TransactionRecord::FAILED;
             $transaction->message = $e->getMessage();
             $this->saveTransaction($transaction);
@@ -246,7 +246,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 
             // If MOLLIE, the transactionReference will be theirs
             $name = $transaction->paymentMethod->getGatewayAdapter()->getGateway()->getName();
-            if ( $name == 'Mollie_Ideal' || $name == 'Mollie' || $name == 'SagePay_Server') {
+            if ($name == 'Mollie_Ideal' || $name == 'Mollie' || $name == 'SagePay_Server') {
                 $params['transactionReference'] = $transaction->reference;
             }
 
@@ -357,9 +357,9 @@ class Commerce_PaymentsService extends BaseApplicationComponent
             'amount' => $transaction->amount,
             'currency' => craft()->commerce_settings->getOption('defaultCurrency'),
             'transactionId' => $transaction->id,
-            'description'   => Craft::t('Order') . ' #'.$transaction->orderId,
+            'description' => Craft::t('Order') . ' #' . $transaction->orderId,
             'clientIp' => craft()->request->getIpAddress(),
-            'transactionReference' =>$transaction->hash,
+            'transactionReference' => $transaction->hash,
             'returnUrl' => UrlHelper::getActionUrl('commerce/cartPayment/complete',
                 ['id' => $transaction->id, 'hash' => $transaction->hash]),
             'cancelUrl' => UrlHelper::getSiteUrl($transaction->order->cancelUrl),
@@ -370,7 +370,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
         // custom gateways may wish to access the order directly
         $request['order'] = $transaction->order;
         $request['orderId'] = $transaction->order->id;
-    
+
         // Paypal only params
         $request['noShipping'] = 1;
         $request['allowNote'] = 0;
@@ -380,10 +380,10 @@ class Commerce_PaymentsService extends BaseApplicationComponent
             $request['card'] = $card;
         }
 
-        $pluginRequest = craft()->plugins->callFirst('modifyCommercePaymentRequest',[$request]);
+        $pluginRequest = craft()->plugins->callFirst('modifyCommercePaymentRequest', [$request]);
 
-        if($pluginRequest){
-            $request = array_merge($request,$pluginRequest);
+        if ($pluginRequest) {
+            $request = array_merge($request, $pluginRequest);
         }
 
         return $request;

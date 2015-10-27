@@ -2,13 +2,15 @@
 
 {% set selectedTab = 'settings' %}
 
-{% set content %}
-        <h2>{{ "Custom Order Statuses"|t }}</h2>
+
+{% block content %}
+        <h2>{{ "Order Statuses"|t }}</h2>
         <p>{{ "Define the statuses that can be set on orders once they've been completed."|t }}</p>
-        <table id="orderStatuses" class="data fullwidth collapsible">
+
+        <table id="order-statuses" class="data fullwidth collapsible">
             <thead>
             <tr>
-                <th scope="col">{{ "Status"|t }}</th>
+                <th scope="col">{{ "Name"|t }}</th>
                 <th scope="col">{{ "Handle"|t }}</th>
                 <th scope="col">{{ "Has Emails?"|t }}</th>
                 <th scope="col">{{ "Default Status?"|t }}</th>
@@ -18,9 +20,9 @@
             <tbody>
             {% for orderStatus in orderStatuses %}
                 <tr data-id="{{ orderStatus.id }}" data-name="{{ orderStatus.handle }}">
-                    <th scope="row" data-title="Name"><a href="{{ orderStatus.getCpEditUrl() }}">{{ orderStatus.printName|raw }}</a></th>
-                    <td data-title="Handle"><code>{{ orderStatus.handle }}</code></td>
-                    <td data-title="Emails">
+                    <th scope="row" data-title="{{ 'Name'|t }}"><a href="{{ orderStatus.getCpEditUrl() }}">{{ orderStatus.htmlLabel|raw }}</a></th>
+                    <td data-title="{{ 'Handle'|t }}" class="code">{{ orderStatus.handle }}</td>
+                    <td data-title="{{ 'Emails'|t }}">
                         {% if orderStatus.emails | length %}
                             {{ orderStatus.emails | length }}
                         {% endif %}
@@ -32,21 +34,17 @@
 
             </tbody>
         </table>
-        <br/>
-        <div class="btngroup submit">
-            <a href="{{ url('commerce/settings/orderstatuses/new') }}" class="btn submit">New Order Status</a>
+
+        <div class="buttons secondary-buttons">
+            <a href="{{ url('commerce/settings/orderstatuses/new') }}" class="btn submit add icon">New order status</a>
         </div>
-
-
-
-{% endset %}
+{% endblock %}
 
 
 {% includejs %}
     new Craft.AdminTable({
-        tableSelector: '#orderStatuses',
+        tableSelector: '#order-statuses',
         deleteAction: 'commerce/orderStatuses/delete',
-        minObjects: 1,
-        confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
+        minObjects: 1
     });
 {% endincludejs %}

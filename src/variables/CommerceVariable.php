@@ -105,12 +105,9 @@ class CommerceVariable
      */
     public function getOrderStatuses()
     {
-        $allStatuses = craft()->commerce_orderStatuses->getAll();
-        $statuses = [];
-        foreach($allStatuses as $status){
-            $statuses[] = $status->attributes;
-        }
-        return $statuses;
+        return array_map(function ($status) {
+            return $status->attributes;
+        }, craft()->commerce_orderStatuses->getAll());
     }
 
     /**
