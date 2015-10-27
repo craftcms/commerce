@@ -45,9 +45,7 @@
 				<div id="fields" class="pane">
 					{% include "_includes/tabs" %}
 
-					{% from "_includes/forms" import textField %}
-
-					{{ textField({
+					{{ forms.textField({
 						label: "Name"|t,
 						locale: product.locale,
 						id: 'title',
