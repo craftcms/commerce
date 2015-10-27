@@ -4,6 +4,7 @@ return [
 
     // Product Routes
     'commerce/products' => ['action' => 'commerce/products/productIndex'],
+    'commerce/products/(?P<productTypeHandle>{handle})' => ['action' => 'commerce/products/productIndex'],
     'commerce/products/(?P<productTypeHandle>{handle})/new/(?P<localeId>\w+)' => ['action' => 'commerce/products/editProduct'],
     'commerce/products/(?P<productTypeHandle>{handle})/new' => ['action' => 'commerce/products/editProduct'],
     'commerce/products/(?P<productTypeHandle>{handle})/(?P<productId>\d+)(?:-{slug})?/(?P<localeId>\w+)' => ['action' => 'commerce/products/editProduct'],
