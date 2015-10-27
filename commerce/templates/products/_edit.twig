@@ -46,7 +46,6 @@
 					{% include "_includes/tabs" %}
 
 					{% from "_includes/forms" import textField %}
-					{% set static = static is defined ? static : false %}
 
 					{{ textField({
 						label: "Name"|t,
@@ -54,11 +53,10 @@
 						id: 'title',
 						name: 'title',
 						value: product.title,
-						errors: (not static ? product.getErrors('title')),
+						errors: product.getErrors('title'),
 						first: true,
 						autofocus: true,
-						required: (not static),
-						disabled: static,
+						required: true,
 						maxlength: 255
 					}) }}
 
@@ -68,7 +66,6 @@
 							{% include "_includes/fields" with {
 							fields: tab.getFields(),
 							element: product,
-							static: (static is defined ? static : false)
 							} only %}
 						</div>
 					{% endfor %}
