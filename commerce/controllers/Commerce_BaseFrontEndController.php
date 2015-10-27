@@ -13,6 +13,8 @@ namespace Craft;
  */
 class Commerce_BaseFrontEndController extends Commerce_BaseController
 {
+    protected $allowAnonymous = true;
+
     /**
      * @param Commerce_OrderModel $cart
      *
