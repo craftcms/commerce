@@ -52,9 +52,6 @@ class Commerce_ProductsController extends Commerce_BaseAdminController
         $variables['continueEditingUrl'] = "commerce/products/" . $variables['productTypeHandle'] . "/{id}-{slug}" .
             (craft()->isLocalized() && craft()->getLanguage() != $variables['localeId'] ? '/' . $variables['localeId'] : '');
 
-        $variables['taxCategories'] = \CHtml::listData(craft()->commerce_taxCategories->getAll(),
-            'id', 'name');
-
         $this->_prepVariables($variables);
 
         if ($variables['product']->getType()->hasVariants) {
