@@ -3,7 +3,8 @@
 {% set selectedSubnavItem = "products" %}
 
 {% set crumbs = [
-{ label: "Products"|t, url: url('commerce/products') }
+	{ label: "Products"|t, url: url('commerce/products') },
+	{ label: productType.name|t, url: url('commerce/products/'~productType.handle) }
 ] %}
 
 {% set fullPageForm = true %}
