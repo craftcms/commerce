@@ -5,7 +5,7 @@
 {% block sidebar %}
     <nav>
         <ul>
-            <li><a href="{{ url('commerce/settings/general') }}"{% if craft.request.segment(3) == 'global' %} class="sel"{% endif %}>{{ "General Settings"|t }}</a></li>
+            <li><a href="{{ url('commerce/settings/general') }}"{% if craft.request.segment(3) == 'general' %} class="sel"{% endif %}>{{ "General Settings"|t }}</a></li>
 
             <li class="heading"><span>{{ "Orders"|t }}</span></li>
 
