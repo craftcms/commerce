@@ -1,5 +1,5 @@
 {% macro generalVariantFields(variant) %}
-	{% import "_includes/forms" as forms %}
+	{%- import "_includes/forms" as forms -%}
 
 	{{ forms.textField({
 		id: 'sku',
@@ -74,8 +74,9 @@
 	}, quantityRangeInput) }}
 {% endmacro %}
 
+
 {% macro dimensionVariantFields(variant) %}
-	{% import "_includes/forms" as forms %}
+	{%- import "_includes/forms" as forms -%}
 
 	{% set dimensionsInput %}
 		<div class="flex">
