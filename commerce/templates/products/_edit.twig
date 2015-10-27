@@ -45,18 +45,7 @@
 				<div id="fields" class="pane">
 					{% include "_includes/tabs" %}
 
-					{{ forms.textField({
-						label: "Title"|t,
-						locale: product.locale,
-						id: 'title',
-						name: 'title',
-						value: product.title,
-						errors: product.getErrors('title'),
-						first: true,
-						autofocus: true,
-						required: true,
-						maxlength: 255
-					}) }}
+					{{ productFields.titleField(product) }}
 
 					{% set allProductTab = productType.asa('productFieldLayout').getFieldLayout().getTabs() %}
 					{% for tab in allProductTab %}
@@ -108,83 +97,12 @@
 					</ul>
 				{% endif %}
 
+				<div class="pane meta">
+					{{ productFields.generalMetaFields(product) }}
+				</div>
 
 				<div class="pane meta">
-					{{ forms.textField({
-						label: "Slug"|t,
-						locale: product.locale,
-						id: 'slug',
-						name: 'slug',
-						value: product.slug,
-						placeholder: 'Enter slug'|t,
-						errors: product.getErrors('slug')|merge(product.getErrors('uri'))
-					}) }}
-
-					{{ forms.dateTimeField({
-						label: 'Post Date'|t,
-						id: 'availableOn',
-						name: 'availableOn',
-						value: product.availableOn,
-						errors: product.getErrors('availableOn')
-					}) }}
-
-					{{ forms.dateTimeField({
-						label: 'Expiry Date'|t,
-						id: 'expiresOn',
-						name: 'expiresOn',
-						value: product.expiresOn,
-						errors: product.getErrors('expiresOn')
-					}) }}
-
-					{% set enabledswitch %}
-						<div class="left">
-							{{ forms.lightswitch({
-								id: 'enabled',
-								name: 'enabled',
-								label: 'Enabled?',
-								on: product.enabled,
-								disabled: false
-							}) }}
-						</div>
-						<div class="right">
-							{% if productId is defined %}
-								<input type="button"
-									   class="btn small formsubmit"
-									   value="{{ 'Delete'|t }}"
-									   data-action="commerce/products/deleteProduct"
-									   data-confirm="{{ 'Are you sure you want to delete this product?'|t }}"
-									   data-redirect="commerce/products">
-							{% endif %}
-						</div>
-					{% endset %}
-
-					{{ forms.field({
-						id:       'status',
-						label:    'Enabled'
-					},enabledswitch) }}
-
-				</div>{#END PANE#}
-
-				<div class="pane meta">
-					{{ forms.selectField({
-						label: 'Tax Category'|t,
-						name: 'taxCategoryId',
-						value: product.taxCategoryId,
-						required: true,
-						options: taxCategories
-					}) }}
-
-					{{ forms.checkboxField({
-						fieldLabel: 'Free Shipping'|t,
-						name: 'freeShipping',
-						checked: (product.id ? product.freeShipping : 0),
-					}) }}
-
-					{{ forms.checkboxField({
-						fieldLabel: 'Promotable'|t,
-						name: 'promotable',
-						checked: (product.id ? product.promotable : 1),
-					}) }}
+					{{ productFields.behavioralMetaFields(product) }}
 				</div>
 
 				{% if not productType.hasVariants %}
