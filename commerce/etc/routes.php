@@ -22,7 +22,7 @@ return [
 
     // Settings
     'commerce/settings' => ['action' => 'commerce/settings/index'],
-    'commerce/settings/global' => ['action' => 'commerce/settings/edit'],
+    'commerce/settings/general' => ['action' => 'commerce/settings/edit'],
     'commerce/settings/taxcategories' => ['action' => 'commerce/taxCategories/index'],
     'commerce/settings/taxcategories/new' => ['action' => 'commerce/taxCategories/edit'],
     'commerce/settings/taxcategories/(?P<id>\d+)' => ['action' => 'commerce/taxCategories/edit'],

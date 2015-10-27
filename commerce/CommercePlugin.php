@@ -217,7 +217,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getSettingsUrl()
     {
-        return 'commerce/settings/global';
+        return 'commerce/settings/general';
     }
 
     /**
