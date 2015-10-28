@@ -98,6 +98,8 @@ class CommercePlugin extends BasePlugin
                         $migration->up();
                     }
 
+                    craft()->db->createCommand()->delete('plugins', 'class=Market');
+
                     CommerceDbHelper::commitStackedTransaction();
                 } catch (Exception $e) {
                     CommerceDbHelper::rollbackStackedTransaction();
