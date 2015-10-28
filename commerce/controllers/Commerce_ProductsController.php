@@ -1,6 +1,9 @@
 <?php
 namespace Craft;
 
+use Commerce\Helpers\CommerceDbHelper;
+use Commerce\Helpers\CommerceVariantMatrixHelper as VariantMatrixHelper;
+
 /**
  * Class Commerce_ProductsController
  *
@@ -11,14 +14,6 @@ namespace Craft;
  * @package   craft.plugins.commerce.controllers
  * @since     1.0
  */
-use Commerce\Helpers\CommerceDbHelper;
-use Commerce\Helpers\CommerceVariantMatrixHelper as VariantMatrixHelper;
-
-/**
- * Class Commerce_ProductsController
- *
- * @package Craft
- */
 class Commerce_ProductsController extends Commerce_BaseAdminController
 {
     /** @var bool All product changes should be by a logged in user */
@@ -27,10 +22,8 @@ class Commerce_ProductsController extends Commerce_BaseAdminController
     /**
      * Index of products
      */
-    public function actionProductIndex()
+    public function actionProductIndex(array $variables = [])
     {
-        $variables['productTypes'] = craft()->commerce_productTypes->getAll();
-        $variables['taxCategories'] = craft()->commerce_taxCategories->getAll();
         $this->renderTemplate('commerce/products/_index', $variables);
     }
 
@@ -48,14 +41,11 @@ class Commerce_ProductsController extends Commerce_BaseAdminController
         if (!empty($variables['product']->id)) {
             $variables['title'] = $variables['product']->title;
         } else {
-            $variables['title'] = Craft::t('Create a new Product');
+            $variables['title'] = Craft::t('Create a new product');
         }
 
         $variables['continueEditingUrl'] = "commerce/products/" . $variables['productTypeHandle'] . "/{id}-{slug}" .
             (craft()->isLocalized() && craft()->getLanguage() != $variables['localeId'] ? '/' . $variables['localeId'] : '');
-
-        $variables['taxCategories'] = \CHtml::listData(craft()->commerce_taxCategories->getAll(),
-            'id', 'name');
 
         $this->_prepVariables($variables);
 
@@ -205,7 +195,7 @@ class Commerce_ProductsController extends Commerce_BaseAdminController
         $this->requirePostRequest();
 
         $product = $this->_setProductFromPost();
-        $variants = $this->_setVariantsFromPost($product);
+        $this->_setVariantsFromPost($product);
 
         $existingProduct = (bool)$product->id;
 
@@ -290,8 +280,9 @@ class Commerce_ProductsController extends Commerce_BaseAdminController
         $variants = [];
         $count = 1;
         foreach ($variantsPost as $key => $variant) {
-            //is new
-            $variantModel = craft()->commerce_variants->getById($key);
+            if (strpos($key, 'new') !== true) {
+                $variantModel = craft()->commerce_variants->getById($key);
+            }
 
             if (!$variantModel) {
                 $variantModel = new Commerce_VariantModel();

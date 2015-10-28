@@ -103,11 +103,29 @@ class CommerceVariable
     /**
      * @return array
      */
+    public function getProductTypes()
+    {
+        return craft()->commerce_productTypes->getAll();
+    }
+
+    /**
+     * @return array
+     */
     public function getOrderStatuses()
     {
         return array_map(function ($status) {
             return $status->attributes;
         }, craft()->commerce_orderStatuses->getAll());
+    }
+
+    /**
+     * @return array
+     */
+    public function getTaxCategories()
+    {
+        $taxCategories = craft()->commerce_taxCategories->getAll();
+
+        return \CHtml::listData($taxCategories, 'id', 'name');
     }
 
     /**

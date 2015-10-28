@@ -1,5 +1,80 @@
+{% macro titleField(product) %}
+	{%- import "_includes/forms" as forms -%}
+
+	{{ forms.textField({
+		label: "Title"|t,
+		locale: product.locale,
+		id: 'title',
+		name: 'title',
+		value: product.title,
+		placeholder: 'Enter title'|t,
+		errors: product.getErrors('title'),
+		first: true,
+		autofocus: true,
+		required: true,
+		maxlength: 255
+	}) }}
+{% endmacro %}
+
+
+{% macro generalMetaFields(product) %}
+	{%- import "_includes/forms" as forms -%}
+
+	{{ forms.textField({
+		label: "Slug"|t,
+		locale: product.locale,
+		id: 'slug',
+		name: 'slug',
+		value: product.slug,
+		placeholder: 'Enter slug'|t,
+		errors: product.getErrors('slug')|merge(product.getErrors('uri'))
+	}) }}
+
+	{{ forms.dateTimeField({
+		label: 'Post Date'|t,
+		id: 'availableOn',
+		name: 'availableOn',
+		value: product.availableOn,
+		errors: product.getErrors('availableOn')
+	}) }}
+
+	{{ forms.dateTimeField({
+		label: 'Expiry Date'|t,
+		id: 'expiresOn',
+		name: 'expiresOn',
+		value: product.expiresOn,
+		errors: product.getErrors('expiresOn')
+	}) }}
+{% endmacro %}
+
+
+{% macro behavioralMetaFields(product) %}
+	{%- import "_includes/forms" as forms -%}
+
+	{{ forms.selectField({
+		label: 'Tax Category'|t,
+		name: 'taxCategoryId',
+		value: product.taxCategoryId,
+		required: true,
+		options: craft.commerce.getTaxCategories()
+	}) }}
+
+	{{ forms.checkboxField({
+		fieldLabel: 'Free Shipping'|t,
+		name: 'freeShipping',
+		checked: product.freeShipping,
+	}) }}
+
+	{{ forms.checkboxField({
+		fieldLabel: 'Promotable'|t,
+		name: 'promotable',
+		checked: product.promotable,
+	}) }}
+{% endmacro %}
+
+
 {% macro generalVariantFields(variant) %}
-	{% import "_includes/forms" as forms %}
+	{%- import "_includes/forms" as forms -%}
 
 	{{ forms.textField({
 		id: 'sku',
@@ -74,8 +149,9 @@
 	}, quantityRangeInput) }}
 {% endmacro %}
 
+
 {% macro dimensionVariantFields(variant) %}
-	{% import "_includes/forms" as forms %}
+	{%- import "_includes/forms" as forms -%}
 
 	{% set dimensionsInput %}
 		<div class="flex">

@@ -19,3 +19,10 @@
 .variant-massEdit-modal .header-body { padding-bottom:0px; }
 .variant-massEdit-modal .fields-body { padding-top:0px; }
 
+/* Variant Matrix styles */
+.variant-matrixblock { padding: 0; }
+.variant-matrixblock > .titlebar { margin: 0; width: 100%; }
+.variant-matrixblock:not(.single-col) > .fields { display: flex; align-items: stretch; }
+.variant-matrixblock:not(.single-col) > .fields > .variant-properties { width: 310px; border-right: 1px solid #e3e5e8; }
+.variant-matrixblock:not(.single-col) > .fields > .custom-fields { padding: 14px 24px; width: calc(100% - 359px); }
+.variant-matrixblock.single-col > .fields > .custom-fields > .field:first-child { border-top: 1px solid #e3e5e8; }

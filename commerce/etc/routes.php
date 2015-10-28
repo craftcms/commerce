@@ -4,6 +4,7 @@ return [
 
     // Product Routes
     'commerce/products' => ['action' => 'commerce/products/productIndex'],
+    'commerce/products/(?P<productTypeHandle>{handle})' => ['action' => 'commerce/products/productIndex'],
     'commerce/products/(?P<productTypeHandle>{handle})/new/(?P<localeId>\w+)' => ['action' => 'commerce/products/editProduct'],
     'commerce/products/(?P<productTypeHandle>{handle})/new' => ['action' => 'commerce/products/editProduct'],
     'commerce/products/(?P<productTypeHandle>{handle})/(?P<productId>\d+)(?:-{slug})?/(?P<localeId>\w+)' => ['action' => 'commerce/products/editProduct'],
@@ -21,7 +22,7 @@ return [
 
     // Settings
     'commerce/settings' => ['action' => 'commerce/settings/index'],
-    'commerce/settings/global' => ['action' => 'commerce/settings/edit'],
+    'commerce/settings/general' => ['action' => 'commerce/settings/edit'],
     'commerce/settings/taxcategories' => ['action' => 'commerce/taxCategories/index'],
     'commerce/settings/taxcategories/new' => ['action' => 'commerce/taxCategories/edit'],
     'commerce/settings/taxcategories/(?P<id>\d+)' => ['action' => 'commerce/taxCategories/edit'],

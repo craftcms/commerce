@@ -1,6 +1,8 @@
 <?php
 namespace Craft;
 
+use Commerce\Helpers\CommerceVariantMatrixHelper as VariantMatrixHelper;
+
 require_once(__DIR__ . '/Commerce_BaseElementType.php');
 
 /**
@@ -15,7 +17,6 @@ require_once(__DIR__ . '/Commerce_BaseElementType.php');
  */
 class Commerce_ProductElementType extends Commerce_BaseElementType
 {
-
     /**
      * @return null|string
      */
@@ -94,7 +95,6 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
     public function getSources($context = null)
     {
         $sources = [
-
             '*' => [
                 'label' => Craft::t('All products'),
             ]
@@ -107,6 +107,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
 
             $sources[$key] = [
                 'label' => $productType->name,
+                'data' => array('handle' => $productType->handle),
                 'criteria' => ['typeId' => $productType->id]
             ];
         }
@@ -334,6 +335,37 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
     }
 
     /**
+     * Returns the HTML for an editor HUD for the given element.
+     *
+     * @param BaseElementModel $element The element being edited.
+     *
+     * @return string The HTML for the editor HUD.
+     */
+    public function getEditorHtml(BaseElementModel $element)
+    {
+        $templatesService = craft()->templates;
+        $html = $templatesService->renderMacro('commerce/products/_fields', 'titleField', array($element));
+        $html .= $templatesService->renderMacro('commerce/products/_fields', 'generalMetaFields', array($element));
+        $html .= $templatesService->renderMacro('commerce/products/_fields', 'behavioralMetaFields', array($element));
+        $html .= parent::getEditorHtml($element);
+
+        if ($element->getType()->hasVariants) {
+            $html .= $templatesService->renderMacro('_includes/forms', 'field', array(
+                array(
+                    'label' => Craft::t('Variants'),
+                ),
+                VariantMatrixHelper::getVariantMatrixHtml($element)
+            ));
+        } else {
+            $primaryVariant = ArrayHelper::getFirstValue($element->getVariants());
+            $html .= $templatesService->renderMacro('commerce/products/_fields', 'generalVariantFields', array($primaryVariant));
+            $html .= $templatesService->renderMacro('commerce/products/_fields', 'dimensionVariantFields', array($primaryVariant));
+        }
+
+        return $html;
+    }
+
+    /**
      * Routes the request when the URI matches a product.
      *
      * @param BaseElementModel $element
@@ -375,4 +407,4 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
         return craft()->commerce_products->save($element);
     }
 
-} 
+}
