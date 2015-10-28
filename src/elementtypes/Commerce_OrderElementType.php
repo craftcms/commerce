@@ -150,16 +150,15 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
                 'dateUpdated' => Craft::t('Last Updated'),
                 'totalPrice' => Craft::t('Total')
             ];
+        } else {
+            $attributes = [
+                'number' => Craft::t('Number'),
+                'orderStatus' => Craft::t('Status'),
+                'totalPrice' => Craft::t('Total Payable'),
+                'dateOrdered' => Craft::t('Completed'),
+                'datePaid' => Craft::t('Paid')
+            ];
         }
-
-        $attributes = [
-            'number' => Craft::t('Number'),
-            'orderStatus' => Craft::t('Status'),
-            'totalPrice' => Craft::t('Total Payable'),
-            'dateOrdered' => Craft::t('Completed'),
-            'datePaid' => Craft::t('Paid')
-        ];
-
 
         // Allow plugins to modify the attributes
         craft()->plugins->call('commerce_modifyOrderTableAttributes', [&$attributes]);
