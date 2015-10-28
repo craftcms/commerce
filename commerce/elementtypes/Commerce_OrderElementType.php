@@ -107,7 +107,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
         foreach (craft()->commerce_orderStatuses->getAll() as $orderStatus) {
             $key = 'orderStatus:' . $orderStatus->handle;
             $sources[$key] = [
-                'statusColor' => $orderStatus->color,
+                'status' => $orderStatus->color,
                 'label' => $orderStatus->name,
                 'criteria' => ['orderStatus' => $orderStatus]
             ];
@@ -138,30 +138,44 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
     }
 
     /**
-     * @param null $source
-     *
      * @return array
      */
-    public function defineTableAttributes($source = null)
+    public function defineAvailableTableAttributes()
     {
-        if (explode(':', $source)[0] == 'carts') {
-            $attributes = [
-                'number' => Craft::t('Number'),
-                'dateUpdated' => Craft::t('Last Updated'),
-                'totalPrice' => Craft::t('Total')
-            ];
-        } else {
-            $attributes = [
-                'number' => Craft::t('Number'),
-                'orderStatus' => Craft::t('Status'),
-                'totalPrice' => Craft::t('Total Payable'),
-                'dateOrdered' => Craft::t('Completed'),
-                'datePaid' => Craft::t('Paid')
-            ];
-        }
+        $attributes = [
+            'number' => ['label' => Craft::t('Number')],
+            'orderStatus' => ['label' => Craft::t('Status')],
+            'totalPrice' => ['label' => Craft::t('Total')],
+            'dateOrdered' => ['label' => Craft::t('Date Ordered')],
+            'datePaid' => ['label' => Craft::t('Date Paid')],
+            'dateCreated' => ['label' => Craft::t('Date Created')],
+            'dateUpdated' => ['label' => Craft::t('Date Updated')],
+        ];
 
         // Allow plugins to modify the attributes
         craft()->plugins->call('commerce_modifyOrderTableAttributes', [&$attributes]);
+
+        return $attributes;
+    }
+
+    /**
+     * @param string|null $source
+     *
+     * @return array
+     */
+    public function getDefaultTableAttributes($source = null)
+    {
+        $attributes = ['number'];
+
+        if (strncmp($source, 'carts:', 6) !== 0) {
+            $attributes[] = 'orderStatus';
+            $attributes[] = 'totalPrice';
+            $attributes[] = 'dateOrdered';
+            $attributes[] = 'datePaid';
+        } else {
+            $attributes[] = 'dateUpdated';
+            $attributes[] = 'totalPrice';
+        }
 
         return $attributes;
     }
@@ -182,7 +196,6 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
      */
     public function getTableAttributeHtml(BaseElementModel $element, $attribute)
     {
-
         // First give plugins a chance to set this
         $pluginAttributeHtml = craft()->plugins->callFirst('commerce_getOrderTableAttributeHtml', [$element, $attribute], true);
 
@@ -195,7 +208,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
                 if ($element->orderStatus) {
                     return $element->orderStatus->htmlLabel();
                 } else {
-                    return sprintf('<span class="commerce status %s"></span> %s', '', '');
+                    return '<span class="status"></span>';
                 }
             }
             case 'totalPrice': {
