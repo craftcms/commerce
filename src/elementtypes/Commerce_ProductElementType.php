@@ -119,20 +119,47 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
     }
 
     /**
-     * @param null $source
-     *
      * @return array
      */
-    public function defineTableAttributes($source = null)
+    public function defineAvailableTableAttributes()
     {
         $attributes = [
-            'title' => Craft::t('Name'),
-            'availableOn' => Craft::t('Available On'),
-            'expiresOn' => Craft::t('Expires On')
+            'title' => ['label' => Craft::t('Title')],
+            'type' => ['label' => Craft::t('Type')],
+            'slug' => ['label' => Craft::t('Slug')],
+            'uri' => ['label' => Craft::t('URI')],
+            'availableOn' => ['label' => Craft::t('Available On')],
+            'expiresOn' => ['label' => Craft::t('Expires On')],
+            'taxCategory' => ['label' => Craft::t('Tax Category')],
+            'freeShipping' => ['label' => Craft::t('Free Shipping?')],
+            'promotable' => ['label' => Craft::t('Promotable?')],
+            'link' => ['label' => Craft::t('Link'), 'icon' => 'world'],
+            'dateCreated' => ['label' => Craft::t('Date Created')],
+            'dateUpdated' => ['label' => Craft::t('Date Updated')],
         ];
 
         // Allow plugins to modify the attributes
         craft()->plugins->call('commerce_modifyProductTableAttributes', [&$attributes]);
+
+        return $attributes;
+    }
+
+    /**
+     * @param string|null $source
+     *
+     * @return array
+     */
+    public function getDefaultTableAttributes($source = null)
+    {
+        $attributes = [];
+
+        if ($source == '*') {
+            $attributes[] = 'type';
+        }
+
+        $attributes[] = 'availableOn';
+        $attributes[] = 'expiresOn';
+        $attributes[] = 'link';
 
         return $attributes;
     }
@@ -161,7 +188,28 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
             return $pluginAttributeHtml;
         }
 
-        return parent::getTableAttributeHtml($element, $attribute);
+        switch ($attribute) {
+            case 'type': {
+                $productType = $element->getType();
+
+                return ($productType ? Craft::t($productType->name) : '');
+            }
+
+            case 'taxCategory': {
+                $taxCategory = $element->getTaxCategory();
+
+                return ($taxCategory ? Craft::t($taxCategory->name) : '');
+            }
+
+            case 'promotable':
+            case 'freeShipping': {
+                return ($element->$attribute ? '<span data-icon="check" title="'.Craft::t('Yes').'"></span>' : '');
+            }
+
+            default: {
+                return parent::getTableAttributeHtml($element, $attribute);
+            }
+        }
     }
 
     /**
