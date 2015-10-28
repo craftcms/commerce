@@ -32,7 +32,7 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
                 '</div>').appendTo($body);
 
             // Build menu button
-            this.$statusSelect = $('<a class="btn menubtn" href="#"><span class="commerce status ' + currentStatus.color + '"></span>' + currentStatus.name + '</a>').appendTo($inputs);
+            this.$statusSelect = $('<a class="btn menubtn" href="#"><span class="status ' + currentStatus.color + '"></span>' + currentStatus.name + '</a>').appendTo($inputs);
             var $menu = $('<div class="menu"/>').appendTo($inputs);
             var $list = $('<ul class="padded"/>').appendTo($menu);
             var classes = "";
@@ -45,7 +45,7 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
                 {
                     classes = "";
                 }
-                $('<li><a data-id="' + orderStatuses[i].id + '" data-color="' + orderStatuses[i].color + '" data-name="' + orderStatuses[i].name + '" class="' + classes + '" href="#"><span class="commerce status ' + orderStatuses[i].color + '"></span>' + orderStatuses[i].name + '</a></li>').appendTo($list);
+                $('<li><a data-id="' + orderStatuses[i].id + '" data-color="' + orderStatuses[i].color + '" data-name="' + orderStatuses[i].name + '" class="' + classes + '" href="#"><span class="status ' + orderStatuses[i].color + '"></span>' + orderStatuses[i].name + '</a></li>').appendTo($list);
             }
 
             // Build message input
@@ -95,7 +95,7 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
                 name: $(ev).data('name'),
                 color: $(ev).data('color')
             };
-            var newHtml = "<span><span class='commerce status " + this.currentStatus.color + "'></span>" + Craft.uppercaseFirst(this.currentStatus.name) + "</span>";
+            var newHtml = "<span><span class='status " + this.currentStatus.color + "'></span>" + Craft.uppercaseFirst(this.currentStatus.name) + "</span>";
             this.$statusSelect.html(newHtml);
         },
         updateStatus: function ()

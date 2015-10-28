@@ -45,11 +45,11 @@
 
     {% set colorField %}
     <div>
-        <a id="color-menu-btn" class="btn menubtn" href="#"><span class="commerce status {{ orderStatus.color }}"></span>{{ orderStatus.color|t|title }}</a>
+        <a id="color-menu-btn" class="btn menubtn" href="#"><span class="status {{ orderStatus.color }}"></span>{{ orderStatus.color|t|title }}</a>
         <div class="menu">
             <ul class="padded">
                 {% for color in ['green','orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'] %}
-                <li><a data-val="{{ color }}" {% if orderStatus.color == color %}class="sel"{% endif %} href="#"><span class="commerce status {{ color }}"></span>{{ color|t|title }}</a></li>
+                <li><a data-val="{{ color }}" {% if orderStatus.color == color %}class="sel"{% endif %} href="#"><span class="status {{ color }}"></span>{{ color|t|title }}</a></li>
                 {% endfor %}
             </ul>
         </div>
@@ -98,7 +98,7 @@ $(function () {
         onOptionSelect: function(data){
             var val = $(data).data('val');
             $('#color').val(val);
-            var html = "<span class='commerce status "+val+"'></span>"+Craft.uppercaseFirst(val);
+            var html = "<span class='status "+val+"'></span>"+Craft.uppercaseFirst(val);
             $colorSelect.html(html);
         }
     });
