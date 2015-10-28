@@ -33,7 +33,7 @@ class Commerce_ShippingAdjuster implements Commerce_AdjusterInterface
             }
         }
 
-        if (!$shippingMethod) {
+        if (!isset($shippingMethod)) {
             return [];
         }
 
