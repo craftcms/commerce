@@ -280,16 +280,16 @@ class Commerce_ProductsController extends Commerce_BaseAdminController
         $variants = [];
         $count = 1;
         foreach ($variantsPost as $key => $variant) {
-            if (strncmp($key, 'new', 3) === 0) {
+            if (strncmp($key, 'new', 3) !== 0) {
                 $variantModel = craft()->commerce_variants->getById($key);
-            }
-
-            if (!$variantModel) {
+            }else{
                 $variantModel = new Commerce_VariantModel();
             }
 
             $variantModel->setAttributes($variant);
-            $variantModel->setContentFromPost($variant['fields']);
+            if(isset($variant['fields'])){
+                $variantModel->setContentFromPost($variant['fields']);
+            }
             $variantModel->sortOrder = $count++;
             $variantModel->setProduct($product);
             $variants[] = $variantModel;
