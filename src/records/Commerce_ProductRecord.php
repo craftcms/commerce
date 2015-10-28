@@ -58,12 +58,6 @@ class Commerce_ProductRecord extends BaseRecord
                 'UserRecord',
                 'onDelete' => static::CASCADE
             ],
-            'implicit' => [
-                static::HAS_ONE,
-                'Commerce_VariantRecord',
-                'productId',
-                'condition' => 'implicit.isImplicit = 1'
-            ],
             'variants' => [
                 static::HAS_MANY,
                 'Commerce_VariantRecord',

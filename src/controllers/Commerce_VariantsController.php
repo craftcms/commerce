@@ -22,6 +22,8 @@ class Commerce_VariantsController extends Commerce_BaseAdminController
      */
     public function actionEdit(array $variables = [])
     {
+
+        craft()->version;
         //getting related product
         if (empty($variables['productId'])) {
             throw new HttpException(400);
@@ -111,7 +113,6 @@ class Commerce_VariantsController extends Commerce_BaseAdminController
             'unlimitedStock',
             'minQty',
             'maxQty',
-            'isImplicit'
         ];
         foreach ($params as $param) {
             $variant->$param = craft()->request->getPost($param);

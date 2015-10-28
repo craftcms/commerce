@@ -36,7 +36,6 @@ class Commerce_ProductsService extends BaseApplicationComponent
      */
     public function save(Commerce_ProductModel $product)
     {
-
         if (!$product->id) {
             $record = new Commerce_ProductRecord();
         } else {
@@ -59,12 +58,36 @@ class Commerce_ProductsService extends BaseApplicationComponent
         $record->validate();
         $product->addErrors($record->getErrors());
 
+        $variantsValid = true;
+        foreach ($product->getVariants() as $variant) {
+            if (!craft()->commerce_variants->validateVariant($variant)) {
+                $variantsValid = false;
+            }
+        }
+
         CommerceDbHelper::beginStackedTransaction();
         try {
-            if (!$product->hasErrors()) {
+            if (!$product->hasErrors() && $variantsValid) {
                 if (craft()->elements->saveElement($product)) {
                     $record->id = $product->id;
                     $record->save(false);
+
+                    $keepVariantIds = [];
+                    $oldVariantIds = craft()->db->createCommand()
+                        ->select('id')
+                        ->from('commerce_variants')
+                        ->where('productId = :productId', [':productId' => $product->id])
+                        ->queryColumn();
+
+                    foreach ($product->getVariants() as $variant) {
+                        $variant->productId = $product->id;
+                        craft()->commerce_variants->save($variant);
+                        $keepVariantIds[] = $variant->id;
+                    }
+
+                    foreach (array_diff($oldVariantIds, $keepVariantIds) as $keepId) {
+                        craft()->commerce_variants->deleteById($keepId);
+                    }
 
                     CommerceDbHelper::commitStackedTransaction();
 
@@ -95,7 +118,7 @@ class Commerce_ProductsService extends BaseApplicationComponent
             $variants = craft()->commerce_variants->getAllByProductId($product->id);
             if (craft()->elements->deleteElementById($product->id)) {
                 foreach ($variants as $v) {
-                    craft()->commerce_variants->deleteById($v->id);
+                    craft()->elements->deleteElementById($v->id);
                 }
 
                 return true;
