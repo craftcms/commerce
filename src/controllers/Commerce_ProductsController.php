@@ -280,7 +280,7 @@ class Commerce_ProductsController extends Commerce_BaseAdminController
         $variants = [];
         $count = 1;
         foreach ($variantsPost as $key => $variant) {
-            if (strpos($key, 'new') !== true) {
+            if (strncmp($key, 'new', 3) === 0) {
                 $variantModel = craft()->commerce_variants->getById($key);
             }
 
