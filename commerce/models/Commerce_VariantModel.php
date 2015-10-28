@@ -8,9 +8,9 @@ use Commerce\Interfaces\Purchasable;
  *
  * @property int $id
  * @property int $productId
- * @property bool $isImplicit
  * @property string $sku
  * @property float $price
+ * @property int $sortOrder
  * @property float $width
  * @property float $height
  * @property float $length
@@ -194,7 +194,7 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
      */
     public function getDescription()
     {
-        if ($this->isImplicit) {
+        if ($this->getProduct() && $this->getProduct()->getType()->hasVariants) {
             return $this->getProduct()->getTitle();
         }
 
@@ -263,13 +263,13 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
         return array_merge(parent::defineAttributes(), [
             'id' => [AttributeType::Number],
             'productId' => [AttributeType::Number],
-            'isImplicit' => [AttributeType::Bool],
             'sku' => [AttributeType::String, 'required' => true, 'label' => 'SKU'],
             'price' => [
                 AttributeType::Number,
                 'decimals' => 4,
                 'required' => true
             ],
+            'sortOrder' => AttributeType::Number,
             'width' => [AttributeType::Number, 'decimals' => 4],
             'height' => [AttributeType::Number, 'decimals' => 4],
             'length' => [AttributeType::Number, 'decimals' => 4],

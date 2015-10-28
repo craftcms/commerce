@@ -119,6 +119,8 @@ class Commerce_ProductModel extends BaseElementModel
 
     /**
      * Gets the products type
+     *
+     * @return Commerce_ProductTypeModel
      */
     public function getType()
     {
@@ -133,6 +135,7 @@ class Commerce_ProductModel extends BaseElementModel
     public function getCpEditUrl()
     {
         $productType = $this->getType();
+        $url = "";
 
         if ($productType) {
             // The slug *might* not be set if this is a Draft and they've deleted it for whatever reason
@@ -141,9 +144,9 @@ class Commerce_ProductModel extends BaseElementModel
             if (craft()->isLocalized() && $this->locale != craft()->language) {
                 $url .= '/' . $this->locale;
             }
-
-            return $url;
         }
+
+        return $url;
     }
 
     /**
@@ -192,28 +195,37 @@ class Commerce_ProductModel extends BaseElementModel
         return true;
     }
 
+
     /**
-     * Either only implicit variant if there is only one or all without implicit
-     * Applies sales to the product before returning
+     * @param $variants
+     */
+    public function setVariants($variants)
+    {
+        $this->_variants = $variants;
+    }
+
+    /**
+     * Returns array of variants with sales applied. Will only return an array containing a single
+     * variant when the product's type is set to have no variants.
      *
      * @return Commerce_VariantModel[]
      */
     public function getVariants()
     {
-        if ($this->_variants === null) {
+        if (empty($this->_variants)) {
             if ($this->id) {
-                $variants = craft()->commerce_variants->getAllByProductId($this->id);
-                craft()->commerce_variants->applySales($variants, $this);
 
-                if ($this->type->hasVariants) {
-                    $this->_variants = array_filter($variants, function ($v) {
-                        return !$v->isImplicit;
-                    });
+                if ($this->getType()->hasVariants) {
+                    $this->_variants = craft()->commerce_variants->getAllByProductId($this->id);
                 } else {
-                    $this->_variants = array_filter($variants, function ($v) {
-                        return $v->isImplicit;
-                    });
+                    $variant = craft()->commerce_variants->getPrimaryVariantByProductId($this->id);
+                    if ($variant) {
+                        $this->_variants = [$variant];
+                    }
                 }
+
+                craft()->commerce_variants->applySales($this->_variants, $this);
+
             }
 
             if (empty($this->_variants)) {
@@ -225,33 +237,6 @@ class Commerce_ProductModel extends BaseElementModel
         }
 
         return $this->_variants;
-    }
-
-    /**
-     * @return bool|mixed
-     * @throws Exception
-     */
-    public function getImplicitVariant()
-    {
-
-        if ($this->id) {
-            $variants = craft()->commerce_variants->getAllByProductId($this->id);
-            craft()->commerce_variants->applySales($variants, $this);
-
-            $implicitVariant = array_filter($variants, function ($v) {
-                return $v->isImplicit;
-            });
-
-            if (count($implicitVariant) == 1) {
-                return array_shift(array_values($implicitVariant));
-            } else {
-                throw new Exception('More than one implicit variant found. Contact Support.');
-
-                return false;
-            }
-        }
-
-        return false;
     }
 
     // Protected Methods

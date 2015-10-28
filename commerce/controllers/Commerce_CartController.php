@@ -185,7 +185,7 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
         // Set guest email address onto guest customer and order.
         if (craft()->userSession->isGuest) {
             if (isset($_POST['email'])) {
-                $email = craft()->request->getParam('email');
+                $email = craft()->request->getParam('email'); // empty string vs null (strict type checking)
                 if (!craft()->commerce_cart->setEmail($cart, $email, $error)) {
                     $cart->addError('email', $error);
                 }

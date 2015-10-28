@@ -154,58 +154,35 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
     {
         $productTypes = \Craft\craft()->commerce_productTypes->getAll();
 
-        //first test product
-        /** @var Commerce_ProductModel $product */
-        $product = Commerce_ProductModel::populateModel([
-            'typeId' => $productTypes[0]->id,
-            'enabled' => 1,
-            'authorId' => \Craft\craft()->userSession->id,
-            'availableOn' => new DateTime(),
-            'expiresOn' => null,
-            'promotable' => 1,
-            'taxCategoryId' => \Craft\craft()->commerce_taxCategories->getDefaultId(),
-        ]);
+        $products = ['Shirt', 'Nicer Shirt'];
 
-        $product->getContent()->title = 'Nice Shirt';
+        foreach ($products as $productName) {
+            //implicit variant
+            /** @var Commerce_VariantModel $variant */
+            $variant = Commerce_VariantModel::populateModel([
+                'sku' => $productName,
+                'price' => 10,
+                'unlimitedStock' => 1,
+            ]);
 
-        \Craft\craft()->commerce_products->save($product);
+            //first test product
+            /** @var Commerce_ProductModel $product */
+            $product = Commerce_ProductModel::populateModel([
+                'typeId' => $productTypes[0]->id,
+                'enabled' => 1,
+                'authorId' => \Craft\craft()->userSession->id,
+                'availableOn' => new DateTime(),
+                'expiresOn' => null,
+                'promotable' => 1,
+                'taxCategoryId' => \Craft\craft()->commerce_taxCategories->getDefaultId(),
+            ]);
 
-        //implicit variant
-        /** @var Commerce_VariantModel $implicitVariant */
-        $implicitVariant = Commerce_VariantModel::populateModel([
-            'productId' => $product->id,
-            'isImplicit' => 1,
-            'sku' => 'ABC',
-            'price' => 10,
-            'unlimitedStock' => 1,
-        ]);
-        \Craft\craft()->commerce_variants->save($implicitVariant);
+            $product->getContent()->title = $productName;
+            $variant->setProduct($product);
+            $product->setVariants([$variant]);
 
-        //another test product
-        /** @var Commerce_ProductModel $product */
-        $product = Commerce_ProductModel::populateModel([
-            'typeId' => $productTypes[0]->id,
-            'enabled' => 1,
-            'authorId' => \Craft\craft()->userSession->id,
-            'availableOn' => new DateTime(),
-            'expiresOn' => null,
-            'promotable' => 1,
-            'taxCategoryId' => \Craft\craft()->commerce_taxCategories->getDefaultId(),
-        ]);
-
-        $product->getContent()->title = 'Really Nice Shirt';
-
-        \Craft\craft()->commerce_products->save($product);
-
-        //implicit variant
-        $implicitVariant = Commerce_VariantModel::populateModel([
-            'productId' => $product->id,
-            'isImplicit' => 1,
-            'sku' => 'CBA',
-            'price' => 20,
-            'unlimitedStock' => 1,
-        ]);
-        \Craft\craft()->commerce_variants->save($implicitVariant);
+            \Craft\craft()->commerce_products->save($product);
+        }
     }
 
     private function paymentMethods()

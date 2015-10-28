@@ -70,7 +70,6 @@ class Commerce_ProductsController extends Commerce_BaseAdminController
     private function _prepProductVariables(&$variables)
     {
         if (craft()->isLocalized()) {
-            // default to all use all locales for now
             $variables['localeIds'] = craft()->i18n->getEditableLocaleIds();
         } else {
             $variables['localeIds'] = [craft()->i18n->getPrimarySiteLocaleId()];
@@ -203,34 +202,22 @@ class Commerce_ProductsController extends Commerce_BaseAdminController
      */
     public function actionSaveProduct()
     {
-        if (!craft()->userSession->getUser()->can('manageCommerce')) {
-            throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
-        }
-
         $this->requirePostRequest();
 
         $product = $this->_setProductFromPost();
-        $implicitVariant = $this->_setImplicitVariantFromPost($product);
+        $variants = $this->_setVariantsFromPost($product);
 
         $existingProduct = (bool)$product->id;
 
         CommerceDbHelper::beginStackedTransaction();
 
         if (craft()->commerce_products->save($product)) {
-            $implicitVariant->productId = $product->id;
 
-            if (craft()->commerce_variants->save($implicitVariant)) {
+            CommerceDbHelper::commitStackedTransaction();
 
-                CommerceDbHelper::commitStackedTransaction();
+            craft()->userSession->setNotice(Craft::t('Product saved.'));
 
-                craft()->userSession->setNotice(Craft::t('Product saved.'));
-
-                if (craft()->request->getPost('redirectToVariant')) {
-                    $this->redirect($product->getCpEditUrl() . '/variants/new');
-                } else {
-                    $this->redirectToPostedUrl($product);
-                }
-            }
+            $this->redirectToPostedUrl($product);
         }
 
         CommerceDbHelper::rollbackStackedTransaction();
@@ -244,8 +231,7 @@ class Commerce_ProductsController extends Commerce_BaseAdminController
 
         craft()->userSession->setNotice(Craft::t("Couldn't save product."));
         craft()->urlManager->setRouteVariables([
-            'product' => $product,
-            'implicitVariant' => $implicitVariant
+            'product' => $product
         ]);
     }
 
@@ -298,13 +284,28 @@ class Commerce_ProductsController extends Commerce_BaseAdminController
      *
      * @return Commerce_VariantModel
      */
-    private function _setImplicitVariantFromPost(Commerce_ProductModel $product)
+    private function _setVariantsFromPost(Commerce_ProductModel $product)
     {
-        $attributes = craft()->request->getPost('implicitVariant');
-        $implicitVariant = $product->getImplicitVariant() ?: new Commerce_VariantModel;
-        $implicitVariant->setAttributes($attributes);
-        $implicitVariant->isImplicit = true;
+        $variantsPost = craft()->request->getPost('variants');
+        $variants = [];
+        $count = 1;
+        foreach ($variantsPost as $key => $variant) {
+            //is new
+            $variantModel = craft()->commerce_variants->getById($key);
 
-        return $implicitVariant;
+            if (!$variantModel) {
+                $variantModel = new Commerce_VariantModel();
+            }
+
+            $variantModel->setAttributes($variant);
+            $variantModel->setContentFromPost($variant['fields']);
+            $variantModel->sortOrder = $count++;
+            $variantModel->setProduct($product);
+            $variants[] = $variantModel;
+        }
+
+        $product->setVariants($variants);
+
+        return $variants;
     }
 }
