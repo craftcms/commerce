@@ -130,6 +130,18 @@ class Commerce_ProductModel extends BaseElementModel
     }
 
     /**
+     * Gets the tax category
+     *
+     * @return Commerce_TaxCategoryModel|null
+     */
+    public function getTaxCategory()
+    {
+        if ($this->taxCategoryId) {
+            return craft()->commerce_taxCategories->getById($this->taxCategoryId);
+        }
+    }
+
+    /**
      * @return null|string
      */
     public function getCpEditUrl()
