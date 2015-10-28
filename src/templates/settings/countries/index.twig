@@ -24,7 +24,7 @@
                 <th scope="row" data-title="{{ 'Name'|t }}"><a
                             href="{{ url('commerce/settings/countries/'~country.id) }}">{{ country.name }}</a></th>
                 <td data-title="{{ 'ISO'|t }}">{{ country.iso }}</td>
-                <td data-title="State required?">{{ country.stateRequired ? 'Yes'|t : 'No'|t }}</td>
+                <td data-title="{{ 'State Required?'|t }}">{% if country.stateRequired %}<span data-icon="check" title="{{ 'Yes'|t }}"></span>{% endif %}</td>
                 <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
             </tr>
         {% endfor %}

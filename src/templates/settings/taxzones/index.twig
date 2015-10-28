@@ -41,7 +41,7 @@
                         {{ taxZone.getStatesNames()|join(', ') }}
                     {% endif %}
                 </td>
-                <td data-title="Is Default?">{{ taxZone.default ? 'Yes'|t : 'No'|t }}</td>
+                <td data-title="{{ 'Default?'|t }}">{% if taxZone.default %}<span data-icon="check" title="{{ 'Yes'|t }}"></span>{% endif %}</td>
                 <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
             </tr>
         {% endfor %}
