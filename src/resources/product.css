@@ -34,9 +34,3 @@ body.ltr #locales li .status { right: 16px; }
 body.rtl #locales li .status { left: 16px; }
 
 #settings .select, #settings .select select { width: 100%; }
-
-.variant-matrixblock { padding: 0; }
-.variant-matrixblock > .titlebar { margin: 0; width: 100%; }
-.variant-matrixblock > .fields { display: flex; align-items: stretch; }
-.variant-matrixblock > .fields > .meta { width: 310px; border-right: 1px solid #e3e5e8; }
-.variant-matrixblock > .fields > .custom-fields { padding: 14px 24px; width: calc(100% - 359px); }

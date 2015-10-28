@@ -38,6 +38,7 @@ class CommercePlugin extends BasePlugin
 
         // If this is a CP request, register the commerce.prepCpTemplate hook
         if (craft()->request->isCpRequest()) {
+            $this->includeCpResources();
             craft()->templates->hook('commerce.prepCpTemplate', [$this, 'prepCpTemplate']);
         }
     }
@@ -52,9 +53,24 @@ class CommercePlugin extends BasePlugin
         craft()->on('commerce_orders.onOrderComplete', [craft()->commerce_discounts, 'orderCompleteHandler']);
         craft()->on('commerce_orders.onOrderComplete', [craft()->commerce_variants, 'orderCompleteHandler']);
         craft()->on('i18n.onAddLocale', [craft()->commerce_productTypes, 'addLocaleHandler']);
+
         if (!craft()->isConsole()) {
             craft()->on('userSession.onLogin', [craft()->commerce_customers, 'loginHandler']);
         }
+    }
+
+    /**
+     * Includes front end resources for Control Panel requests.
+     */
+    private function includeCpResources()
+    {
+        $templatesService = craft()->templates;
+        $templatesService->includeCssResource('commerce/commerce.css');
+        $templatesService->includeJsResource('commerce/js/CommerceProductIndex.js');
+        $templatesService->includeTranslations(
+            'New {productType} product',
+            'New product'
+        );
     }
 
     /**
@@ -188,7 +204,7 @@ class CommercePlugin extends BasePlugin
     }
 
     /**
-     * Adds the Commerce twig extensions
+     * Adds the Commerce twig extensions.
      *
      * @return CommerceTwigExtension
      */
@@ -202,7 +218,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getSettingsUrl()
     {
-        return 'commerce/settings/global';
+        return 'commerce/settings/general';
     }
 
     /**
@@ -221,8 +237,6 @@ class CommercePlugin extends BasePlugin
         if (craft()->userSession->isAdmin()) {
             $context['subnav']['settings'] = ['icon' => 'settings', 'label' => Craft::t('Settings'), 'url' => 'commerce/settings'];
         }
-
-        craft()->templates->includeCssResource('commerce/commerce.css');
     }
 
     /**

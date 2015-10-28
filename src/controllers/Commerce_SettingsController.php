@@ -19,7 +19,7 @@ class Commerce_SettingsController extends Commerce_BaseAdminController
      */
     public function actionIndex()
     {
-        craft()->request->redirect('settings/global');
+        craft()->request->redirect('settings/general');
     }
 
     /**
@@ -33,7 +33,7 @@ class Commerce_SettingsController extends Commerce_BaseAdminController
         $settings->emailSenderAddressPlaceholder = (isset($craftSettings['emailAddress']) ? $craftSettings['emailAddress'] : '');
         $settings->emailSenderNamePlaceholder = (isset($craftSettings['senderName']) ? $craftSettings['senderName'] : '');
 
-        $this->renderTemplate('commerce/settings/global',
+        $this->renderTemplate('commerce/settings/general',
             ['settings' => $settings]);
     }
 
