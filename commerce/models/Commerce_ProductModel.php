@@ -7,8 +7,8 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  * Product model.
  *
  * @property int $id
- * @property DateTime $availableOn
- * @property DateTime $expiresOn
+ * @property DateTime $postDate
+ * @property DateTime $expiryDate
  * @property int $typeId
  * @property int $authorId
  * @property int $taxCategoryId
@@ -173,15 +173,15 @@ class Commerce_ProductModel extends BaseElementModel
     {
         $status = parent::getStatus();
 
-        if ($status == static::ENABLED && $this->availableOn) {
+        if ($status == static::ENABLED && $this->postDate) {
             $currentTime = DateTimeHelper::currentTimeStamp();
-            $availableOn = $this->availableOn->getTimestamp();
-            $expiresOn = ($this->expiresOn ? $this->expiresOn->getTimestamp() : null);
+            $postDate = $this->postDate->getTimestamp();
+            $expiryDate = ($this->expiryDate ? $this->expiryDate->getTimestamp() : null);
 
-            if ($availableOn <= $currentTime && (!$expiresOn || $expiresOn > $currentTime)) {
+            if ($postDate <= $currentTime && (!$expiryDate || $expiryDate > $currentTime)) {
                 return static::LIVE;
             } else {
-                if ($availableOn > $currentTime) {
+                if ($postDate > $currentTime) {
                     return static::PENDING;
                 } else {
                     return static::EXPIRED;
@@ -258,8 +258,8 @@ class Commerce_ProductModel extends BaseElementModel
             'taxCategoryId' => AttributeType::Number,
             'promotable' => AttributeType::Bool,
             'freeShipping' => AttributeType::Bool,
-            'availableOn' => AttributeType::DateTime,
-            'expiresOn' => AttributeType::DateTime
+            'postDate' => AttributeType::DateTime,
+            'expiryDate' => AttributeType::DateTime
         ]);
     }
 }

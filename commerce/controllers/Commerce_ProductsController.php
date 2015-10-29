@@ -383,11 +383,11 @@ class Commerce_ProductsController extends Commerce_BaseCpController
             $product = new Commerce_ProductModel();
         }
 
-        $availableOn = craft()->request->getPost('availableOn');
-        $expiresOn = craft()->request->getPost('expiresOn');
+        $postDate = craft()->request->getPost('postDate');
+        $expiryDate = craft()->request->getPost('expiryDate');
 
-        $product->availableOn = $availableOn ? DateTime::createFromString($availableOn, craft()->timezone) : $product->availableOn;
-        $product->expiresOn = $expiresOn ? DateTime::createFromString($expiresOn, craft()->timezone) : null;
+        $product->postDate = $postDate ? DateTime::createFromString($postDate, craft()->timezone) : $product->postDate;
+        $product->expiryDate = $expiryDate ? DateTime::createFromString($expiryDate, craft()->timezone) : null;
         $product->typeId = craft()->request->getPost('typeId');
         $product->enabled = craft()->request->getPost('enabled');
         $product->promotable = craft()->request->getPost('promotable');
@@ -396,8 +396,8 @@ class Commerce_ProductsController extends Commerce_BaseCpController
         $product->taxCategoryId = craft()->request->getPost('taxCategoryId', $product->taxCategoryId);
         $product->localeEnabled = (bool)craft()->request->getPost('localeEnabled', $product->localeEnabled);
 
-        if (!$product->availableOn) {
-            $product->availableOn = new DateTime();
+        if (!$product->postDate) {
+            $product->postDate = new DateTime();
         }
 
         $product->getContent()->title = craft()->request->getPost('title', $product->title);
