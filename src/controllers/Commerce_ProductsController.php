@@ -14,7 +14,7 @@ use Commerce\Helpers\CommerceVariantMatrixHelper as VariantMatrixHelper;
  * @package   craft.plugins.commerce.controllers
  * @since     1.0
  */
-class Commerce_ProductsController extends Commerce_BaseAdminController
+class Commerce_ProductsController extends Commerce_BaseCpController
 {
     /** @var bool All product changes should be by a logged in user */
     protected $allowAnonymous = false;
@@ -61,7 +61,10 @@ class Commerce_ProductsController extends Commerce_BaseAdminController
     {
         if (craft()->isLocalized()) {
             $variables['localeIds'] = craft()->i18n->getEditableLocaleIds();
-        } else {
+        }
+
+        // If the user has access to no locales, still give them the default
+        if(!count($variables['localeIds'])){
             $variables['localeIds'] = [craft()->i18n->getPrimarySiteLocaleId()];
         }
 
@@ -152,10 +155,6 @@ class Commerce_ProductsController extends Commerce_BaseAdminController
      */
     public function actionDeleteProduct()
     {
-        if (!craft()->userSession->getUser()->can('manageCommerce')) {
-            throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
-        }
-
         $this->requirePostRequest();
 
         $productId = craft()->request->getRequiredPost('productId');
