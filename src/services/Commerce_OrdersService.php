@@ -335,7 +335,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
             new Commerce_TaxAdjuster,
         ];
 
-        $additional = craft()->plugins->call('registerCommerceOrderAdjusters');
+        $additional = craft()->plugins->call('commerce_registerOrderAdjusters');
 
         foreach ($additional as $additionalAdjusters) {
             $adjusters = array_merge($adjusters, $additionalAdjusters);
