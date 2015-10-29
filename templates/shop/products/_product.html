@@ -1,7 +1,5 @@
 {% extends 'commerce/_layouts/main' %}
 {% block main %}
-
-    {% for product in craft.commerce.products.find() %}
         <div class="row">
             <div class="eleven columns">
                 <div class="flash">{{ craft.session.getFlash('commerce') }}</div>
@@ -13,7 +11,7 @@
             </div>
             <div class="ten columns">
 
-                <h5>{{ product.name }}</h5>
+                <h1>{{ product.name }}</h1>
 
                 {% if product.variants|length %}
 
@@ -34,6 +32,5 @@
 
             </div>
         </div>
-    {% endfor %}
 
 {% endblock %}
