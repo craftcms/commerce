@@ -366,8 +366,8 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
         if ($productTypeLocales) {
             $newProductTypeLocales = [];
 
-            foreach ($productTypeLocales as $categoryLocale) {
-                $newProductTypeLocales[] = [$categoryLocale['productTypeId'], $localeId, $categoryLocale['urlFormat']];
+            foreach ($productTypeLocales as $productTypeLocale) {
+                $newProductTypeLocales[] = [$productTypeLocale['productTypeId'], $localeId, $productTypeLocale['urlFormat']];
             }
 
             craft()->db->createCommand()->insertAll('commerce_producttypes_i18n', ['productTypeId', 'locale', 'urlFormat'], $newProductTypeLocales);
