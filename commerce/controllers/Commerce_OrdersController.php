@@ -11,7 +11,7 @@ namespace Craft;
  * @package   craft.plugins.commerce.controllers
  * @since     1.0
  */
-class Commerce_OrdersController extends Commerce_BaseAdminController
+class Commerce_OrdersController extends Commerce_BaseCpController
 {
     /**
      * Index of orders
