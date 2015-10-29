@@ -53,6 +53,38 @@ class Commerce_ProductsController extends Commerce_BaseAdminController
             $variables['variantMatrixHtml'] = VariantMatrixHelper::getVariantMatrixHtml($variables['product']);
         }
 
+        // Enable Live Preview?
+        if (!craft()->request->isMobileBrowser(true) && craft()->commerce_productTypes->isProductTypeTemplateValid($variables['productType'])) {
+            craft()->templates->includeJs('Craft.LivePreview.init('.JsonHelper::encode(array(
+                'fields'        => '#title-field, #fields > div > div > .field',
+                'extraFields'   => '#meta-pane, #variants-pane',
+                'previewUrl'    => $variables['product']->getUrl(),
+                'previewAction' => 'commerce/products/previewProduct',
+                'previewParams' => array(
+                                       'typeId' => $variables['productType']->id,
+                                       'productId' => $variables['product']->id,
+                                       'locale' => $variables['product']->locale,
+                                   )
+            )).');');
+
+            $variables['showPreviewBtn'] = true;
+
+            // Should we show the Share button too?
+            if ($variables['product']->id) {
+                // If the product is enabled, use its main URL as its share URL.
+                if ($variables['product']->getStatus() == Commerce_ProductModel::LIVE) {
+                    $variables['shareUrl'] = $variables['product']->getUrl();
+                } else {
+                    $variables['shareUrl'] = UrlHelper::getActionUrl('commerce/products/shareProduct', array(
+                        'productId' => $variables['product']->id,
+                        'locale' => $variables['product']->locale
+                    ));
+                }
+            }
+        } else {
+            $variables['showPreviewBtn'] = false;
+        }
+
         craft()->templates->includeCssResource('commerce/product.css');
         $this->renderTemplate('commerce/products/_edit', $variables);
     }
@@ -143,6 +175,113 @@ class Commerce_ProductsController extends Commerce_BaseAdminController
         }
 
         $variables['primaryVariant'] = ArrayHelper::getFirstValue($variables['product']->getVariants());
+    }
+
+    /**
+     * Previews a product.
+     *
+     * @throws HttpException
+     * @return null
+     */
+    public function actionPreviewProduct()
+    {
+        $this->requirePostRequest();
+
+        $product = $this->_setProductFromPost();
+        $this->_setVariantsFromPost($product);
+
+        // TODO: permission enforcement
+
+        $this->_showProduct($product);
+    }
+
+    /**
+     * Redirects the client to a URL for viewing a disabled product on the front end.
+     *
+     * @param mixed $productId
+     * @param mixed $locale
+     *
+     * @throws HttpException
+     * @return null
+     */
+    public function actionShareProduct($productId, $locale = null)
+    {
+        $product = craft()->commerce_products->getById($productId, $locale);
+
+        if (!$product)
+        {
+            throw new HttpException(404);
+        }
+
+        // TODO: permission enforcement
+
+        // Make sure the product actually can be viewed
+        if (!craft()->commerce_productTypes->isProductTypeTemplateValid($product->getType()))
+        {
+            throw new HttpException(404);
+        }
+
+        // Create the token and redirect to the product URL with the token in place
+        $token = craft()->tokens->createToken(array(
+            'action' => 'commerce/products/viewSharedProduct',
+            'params' => array('productId' => $productId, 'locale' => $product->locale)
+        ));
+
+        $url = UrlHelper::getUrlWithToken($product->getUrl(), $token);
+        craft()->request->redirect($url);
+    }
+
+    /**
+     * Shows an product/draft/version based on a token.
+     *
+     * @param mixed $productId
+     * @param mixed $locale
+     *
+     * @throws HttpException
+     * @return null
+     */
+    public function actionViewSharedProduct($productId, $locale = null)
+    {
+        $this->requireToken();
+
+        $product = craft()->commerce_products->getById($productId, $locale);
+
+        if (!$product)
+        {
+            throw new HttpException(404);
+        }
+
+        $this->_showProduct($product);
+    }
+
+    /**
+     * Displays a product.
+     *
+     * @param Commerce_ProductModel $product
+     *
+     * @throws HttpException
+     * @return null
+     */
+    private function _showProduct(Commerce_ProductModel $product)
+    {
+        $productType = $product->getType();
+
+        if (!$productType)
+        {
+            Craft::log('Attempting to preview a product that doesn’t have a type', LogLevel::Error);
+            throw new HttpException(404);
+        }
+
+        craft()->setLanguage($product->locale);
+
+        // Have this product override any freshly queried products with the same ID/locale
+        craft()->elements->setPlaceholderElement($product);
+
+        craft()->templates->getTwig()->disableStrictVariables();
+
+        $this->renderTemplate($productType->template, array(
+            'product' => $product
+        ));
     }
 
     /**
