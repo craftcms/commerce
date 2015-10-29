@@ -24,7 +24,6 @@ use Omnipay\Common\Currency;
  * @property string $returnUrl
  * @property string $cancelUrl
  *
- * @property int $typeId
  * @property int $billingAddressId
  * @property mixed $billingAddressData
  * @property int $shippingAddressId
@@ -436,8 +435,6 @@ class Commerce_OrderModel extends BaseElementModel
             'shippingMethod' => AttributeType::String,
             'paymentMethodId' => AttributeType::Number,
             'customerId' => AttributeType::Number,
-            'typeId' => AttributeType::Number,
-
             'shippingAddressData' => AttributeType::Mixed,
             'billingAddressData' => AttributeType::Mixed
         ]);
