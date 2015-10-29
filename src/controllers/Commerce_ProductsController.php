@@ -95,9 +95,9 @@ class Commerce_ProductsController extends Commerce_BaseCpController
             $variables['localeIds'] = craft()->i18n->getEditableLocaleIds();
         }
 
-        // If the user has access to no locales, still give them the default
-        if(!count($variables['localeIds'])){
-            $variables['localeIds'] = [craft()->i18n->getPrimarySiteLocaleId()];
+        if (!$variables['localeIds'])
+        {
+            throw new HttpException(403, Craft::t('Your account doesn’t have permission to edit any of this site’s locales.'));
         }
 
         if (empty($variables['localeId'])) {
