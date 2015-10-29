@@ -6,7 +6,7 @@
                 <div class="actions">
                     <ul>
                         <li><a class="edit"
-                               href="/commerce/customer/addresses/edit?addressId={{ address.id }}&redirect={{ craft.request.path }}">Edit</a>
+                               href="{{ url('commerce/customer/addresses/edit?addressId='~ address.id ~'&redirect='~craft.request.path)}}">Edit</a>
                         </li>
                     </ul>
                 </div>
@@ -29,9 +29,9 @@
                             {% if value %}
                                 <li>
                                     <strong>{{ key|title }}</strong>
-                                            <span class="address-option" data-key="{{ key }}" data-value="{{ value }}">
-                                                {{ key == 'countryId' ? address.countryText : (key == 'stateId' ? address.stateText : value) }}
-                                            </span>
+                                    <span class="address-option" data-key="{{ key }}" data-value="{{ value }}">
+                                        {{ key == 'countryId' ? address.countryText : (key == 'stateId' ? address.stateText : value) }}
+                                    </span>
                                 </li>
                             {% endif %}
 
@@ -55,7 +55,7 @@
         </div>
 
         <div class="body hidden">
-            {% if addressHasErrors %}<span class="flash">{{ cart.getErrors(name)|join }}</span><br/>{% endif %}
+            {% if addressHasErrors %}<span class="flash">{{ cart.getErrors(name)|join }}</span><br>{% endif %}
             {% include 'commerce/_includes/addresses/form' with {
             'modelName': name,
             'address': attribute(cart, name)
