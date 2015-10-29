@@ -47,8 +47,8 @@ class Commerce_ProductsService extends BaseApplicationComponent
             }
         }
 
-        $record->availableOn = $product->availableOn;
-        $record->expiresOn = $product->expiresOn;
+        $record->postDate = $product->postDate;
+        $record->expiryDate = $product->expiryDate;
         $record->typeId = $product->typeId;
         $record->authorId = $product->authorId;
         $record->promotable = $product->promotable;

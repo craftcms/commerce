@@ -32,18 +32,18 @@
 
 	{{ forms.dateTimeField({
 		label: 'Post Date'|t,
-		id: 'availableOn',
-		name: 'availableOn',
-		value: product.availableOn,
-		errors: product.getErrors('availableOn')
+		id: 'postDate',
+		name: 'postDate',
+		value: product.postDate,
+		errors: product.getErrors('postDate')
 	}) }}
 
 	{{ forms.dateTimeField({
 		label: 'Expiry Date'|t,
-		id: 'expiresOn',
-		name: 'expiresOn',
-		value: product.expiresOn,
-		errors: product.getErrors('expiresOn')
+		id: 'expiryDate',
+		name: 'expiryDate',
+		value: product.expiryDate,
+		errors: product.getErrors('expiryDate')
 	}) }}
 {% endmacro %}
 

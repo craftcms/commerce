@@ -171,8 +171,8 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
                 'typeId' => $productTypes[0]->id,
                 'enabled' => 1,
                 'authorId' => \Craft\craft()->userSession->id,
-                'availableOn' => new DateTime(),
-                'expiresOn' => null,
+                'postDate' => new DateTime(),
+                'expiryDate' => null,
                 'promotable' => 1,
                 'taxCategoryId' => \Craft\craft()->commerce_taxCategories->getDefaultId(),
             ]);

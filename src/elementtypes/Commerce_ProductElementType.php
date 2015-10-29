@@ -128,8 +128,8 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
             'type' => ['label' => Craft::t('Type')],
             'slug' => ['label' => Craft::t('Slug')],
             'uri' => ['label' => Craft::t('URI')],
-            'availableOn' => ['label' => Craft::t('Available On')],
-            'expiresOn' => ['label' => Craft::t('Expires On')],
+            'postDate' => ['label' => Craft::t('Post Date')],
+            'expiryDate' => ['label' => Craft::t('Expiry Date')],
             'taxCategory' => ['label' => Craft::t('Tax Category')],
             'freeShipping' => ['label' => Craft::t('Free Shipping?')],
             'promotable' => ['label' => Craft::t('Promotable?')],
@@ -157,8 +157,8 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
             $attributes[] = 'type';
         }
 
-        $attributes[] = 'availableOn';
-        $attributes[] = 'expiresOn';
+        $attributes[] = 'postDate';
+        $attributes[] = 'expiryDate';
         $attributes[] = 'link';
 
         return $attributes;
@@ -221,8 +221,8 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
     {
         $attributes = [
             'title' => Craft::t('Name'),
-            'availableOn' => Craft::t('Available On'),
-            'expiresOn' => Craft::t('Expires On')
+            'postDate' => Craft::t('Available On'),
+            'expiryDate' => Craft::t('Expires On')
         ];
 
         // Allow plugins to modify the attributes
@@ -256,10 +256,10 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
         return [
             'typeId' => AttributeType::Mixed,
             'type' => AttributeType::Mixed,
-            'availableOn' => AttributeType::Mixed,
-            'expiresOn' => AttributeType::Mixed,
+            'postDate' => AttributeType::Mixed,
+            'expiryDate' => AttributeType::Mixed,
             'after' => AttributeType::Mixed,
-            'order' => [AttributeType::String, 'default' => 'availableOn desc'],
+            'order' => [AttributeType::String, 'default' => 'postDate desc'],
             'before' => AttributeType::Mixed,
             'status' => [AttributeType::String, 'default' => Commerce_ProductModel::LIVE],
             'withVariant' => AttributeType::Mixed,
@@ -283,8 +283,8 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
                 return ['and',
                     'elements.enabled = 1',
                     'elements_i18n.enabled = 1',
-                    "products.availableOn <= '{$currentTimeDb}'",
-                    ['or', 'products.expiresOn is null', "products.expiresOn > '{$currentTimeDb}'"]
+                    "products.postDate <= '{$currentTimeDb}'",
+                    ['or', 'products.expiryDate is null', "products.expiryDate > '{$currentTimeDb}'"]
                 ];
             }
 
@@ -292,7 +292,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
                 return ['and',
                     'elements.enabled = 1',
                     'elements_i18n.enabled = 1',
-                    "products.availableOn > '{$currentTimeDb}'"
+                    "products.postDate > '{$currentTimeDb}'"
                 ];
             }
 
@@ -300,8 +300,8 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
                 return ['and',
                     'elements.enabled = 1',
                     'elements_i18n.enabled = 1',
-                    'products.expiresOn is not null',
-                    "products.expiresOn <= '{$currentTimeDb}'"
+                    'products.expiryDate is not null',
+                    "products.expiryDate <= '{$currentTimeDb}'"
                 ];
             }
         }
@@ -317,24 +317,24 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
     public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
     {
         $query
-            ->addSelect("products.id, products.typeId, products.promotable, products.freeShipping, products.availableOn, products.expiresOn, products.taxCategoryId, products.authorId")
+            ->addSelect("products.id, products.typeId, products.promotable, products.freeShipping, products.postDate, products.expiryDate, products.taxCategoryId, products.authorId")
             ->join('commerce_products products', 'products.id = elements.id')
             ->join('commerce_producttypes producttypes', 'producttypes.id = products.typeId');
 
-        if ($criteria->availableOn) {
-            $query->andWhere(DbHelper::parseDateParam('products.availableOn', $criteria->availableOn, $query->params));
+        if ($criteria->postDate) {
+            $query->andWhere(DbHelper::parseDateParam('products.postDate', $criteria->postDate, $query->params));
         } else {
             if ($criteria->after) {
-                $query->andWhere(DbHelper::parseDateParam('products.availableOn', '>=' . $criteria->after, $query->params));
+                $query->andWhere(DbHelper::parseDateParam('products.postDate', '>=' . $criteria->after, $query->params));
             }
 
             if ($criteria->before) {
-                $query->andWhere(DbHelper::parseDateParam('products.availableOn', '<' . $criteria->before, $query->params));
+                $query->andWhere(DbHelper::parseDateParam('products.postDate', '<' . $criteria->before, $query->params));
             }
         }
 
-        if ($criteria->expiresOn) {
-            $query->andWhere(DbHelper::parseDateParam('products.expiresOn', $criteria->expiresOn, $query->params));
+        if ($criteria->expiryDate) {
+            $query->andWhere(DbHelper::parseDateParam('products.expiryDate', $criteria->expiryDate, $query->params));
         }
 
         if ($criteria->type) {
