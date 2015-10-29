@@ -1,10 +1,6 @@
 {% extends 'commerce/_layouts/main' %}
 {% block main %}
-        <div class="row">
-            <div class="eleven columns">
-                <div class="flash">{{ craft.session.getFlash('commerce') }}</div>
-            </div>
-        </div>
+    
         <div class="row">
             <div class="two columns">
                 {% include "commerce/_images/productSmall" with { class: 'u-max-full-width' } %}
