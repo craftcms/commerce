@@ -50,7 +50,6 @@ class Commerce_ProductModel extends BaseElementModel
     // Public Methods
     // =============================================================================
 
-
     /**
      * @return bool
      */
@@ -75,8 +74,7 @@ class Commerce_ProductModel extends BaseElementModel
     public function getSnapshot()
     {
         $data = [
-            'title' => $this->getTitle(),
-            'name' => $this->getTitle()
+            'title' => $this->getTitle()
         ];
 
         return array_merge($this->getAttributes(), $data);
@@ -87,9 +85,6 @@ class Commerce_ProductModel extends BaseElementModel
      *
      * @return string
      */
-    /**
-     * @return mixed
-     */
     public function getName()
     {
         return $this->title;
@@ -97,10 +92,6 @@ class Commerce_ProductModel extends BaseElementModel
 
     /*
      * Url to edit this Product in the control panel.
-     */
-
-    /**
-     * What is the Url Format for this ProductType
      *
      * @return string
      */
