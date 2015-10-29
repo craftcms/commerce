@@ -347,6 +347,36 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
     }
 
     /**
+     * Returns whether a product type’s products have URLs, and if the template path is valid.
+     *
+     * @param Commerce_ProductTypeModel $productType
+     *
+     * @return bool
+     */
+    public function isProductTypeTemplateValid(Commerce_ProductTypeModel $productType)
+    {
+        if ($productType->hasUrls)
+        {
+            // Set Craft to the site template path
+            $oldTemplatesPath = craft()->path->getTemplatesPath();
+            craft()->path->setTemplatesPath(craft()->path->getSiteTemplatesPath());
+
+            // Does the template exist?
+            $templateExists = craft()->templates->doesTemplateExist($productType->template);
+
+            // Restore the original template path
+            craft()->path->setTemplatesPath($oldTemplatesPath);
+
+            if ($templateExists)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * @param Event $event
      *
      * @return bool
@@ -366,8 +396,8 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
         if ($productTypeLocales) {
             $newProductTypeLocales = [];
 
-            foreach ($productTypeLocales as $categoryLocale) {
-                $newProductTypeLocales[] = [$categoryLocale['productTypeId'], $localeId, $categoryLocale['urlFormat']];
+            foreach ($productTypeLocales as $productTypeLocale) {
+                $newProductTypeLocales[] = [$productTypeLocale['productTypeId'], $localeId, $productTypeLocale['urlFormat']];
             }
 
             craft()->db->createCommand()->insertAll('commerce_producttypes_i18n', ['productTypeId', 'locale', 'urlFormat'], $newProductTypeLocales);

@@ -48,6 +48,7 @@
 
 					{{ productFields.titleField(product) }}
 
+					<div>
 					{% set allProductTab = productType.asa('productFieldLayout').getFieldLayout().getTabs() %}
 					{% for tab in allProductTab %}
 						<div id="tab{{ loop.index }}" {% if not loop.first %} class="hidden" {% endif %}>
@@ -57,10 +58,11 @@
 							} only %}
 						</div>
 					{% endfor %}
+					</div>
 				</div>
 
 				{% if productType.hasVariants %}
-					<div class="pane">
+					<div id="variants-pane" class="pane">
 						{% include "_includes/tabs" with {
 							tabs: {
 								variantsTab: { label: 'Variants'|t, url: '#variantsTab' }
@@ -72,7 +74,11 @@
 				{% endif %}
 			</div>
 
-			<div class="item" data-position="right" data-colspan="1">
+			<div id="meta-pane" class="item" data-position="right" data-colspan="1">
+
+				{% if showPreviewBtn %}
+					{% include "_includes/previewbtns" %}
+				{% endif %}
 
 				{% if craft.isLocalized() %}
 					<ul id="locales" class="pane">
