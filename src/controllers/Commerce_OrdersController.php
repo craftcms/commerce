@@ -33,11 +33,15 @@ class Commerce_OrdersController extends Commerce_BaseCpController
     {
         $variables['orderSettings'] = craft()->commerce_orderSettings->getByHandle('order');
 
+        if (!$variables['orderSettings']) {
+            throw new HttpException(404, Craft::t('No order settings found.'));
+        }
+
         if (empty($variables['order'])) {
             if (!empty($variables['orderId'])) {
                 $variables['order'] = craft()->commerce_orders->getById($variables['orderId']);
 
-                if (!$variables['order']->id) {
+                if (!$variables['order']) {
                     throw new HttpException(404);
                 }
             } else {
@@ -109,7 +113,7 @@ class Commerce_OrdersController extends Commerce_BaseCpController
                 craft()->userSession->setError(Craft::t('Capturing error: ') . $message);
             }
         } else {
-            craft()->userSession->setError(Craft::t('Wrong transaction id'));
+            craft()->userSession->setError(Craft::t('Can not capture transaction ID “{id}”', ['id' => $id]));
         }
     }
 

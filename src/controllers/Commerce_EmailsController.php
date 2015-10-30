@@ -37,7 +37,7 @@ class Commerce_EmailsController extends Commerce_BaseAdminController
                 $id = $variables['id'];
                 $variables['email'] = craft()->commerce_emails->getById($id);
 
-                if (!$variables['email']->id) {
+                if (!$variables['email']) {
                     throw new HttpException(404);
                 }
             } else {

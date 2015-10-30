@@ -126,7 +126,7 @@ class Commerce_ProductsController extends Commerce_BaseCpController
             if (!empty($variables['productId'])) {
                 $variables['product'] = craft()->commerce_products->getById($variables['productId'], $variables['localeId']);
 
-                if (!$variables['product']->id) {
+                if (!$variables['product']) {
                     throw new HttpException(404);
                 }
             } else {

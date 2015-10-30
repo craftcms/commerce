@@ -18,12 +18,17 @@ class Commerce_PaymentMethodsService extends BaseApplicationComponent
     /**
      * @param int $id
      *
-     * @return Commerce_PaymentMethodModel
+     * @return Commerce_PaymentMethodModel|null
      */
     public function getById($id)
     {
-        $record = Commerce_PaymentMethodRecord::model()->findById($id);
-        return Commerce_PaymentMethodModel::populateModel($record);
+        $result = Commerce_PaymentMethodRecord::model()->findById($id);
+
+        if ($result) {
+            return Commerce_PaymentMethodModel::populateModel($result);
+        }
+
+        return null;
     }
 
     /**

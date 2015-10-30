@@ -21,33 +21,42 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
      */
     public function getAll()
     {
-        $productTypeRecords = Commerce_ProductTypeRecord::model()->findAll();
+        $results = Commerce_ProductTypeRecord::model()->findAll();
 
-        return Commerce_ProductTypeModel::populateModels($productTypeRecords);
+        return Commerce_ProductTypeModel::populateModels($results);
+
     }
 
     /**
      * @param int $id
      *
-     * @return Commerce_ProductTypeModel
+     * @return Commerce_ProductTypeModel|null
      */
     public function getById($id)
     {
-        $productTypeRecord = Commerce_ProductTypeRecord::model()->findById($id);
+        $result = Commerce_ProductTypeRecord::model()->findById($id);
 
-        return Commerce_ProductTypeModel::populateModel($productTypeRecord);
+        if ($result) {
+            return Commerce_ProductTypeModel::populateModel($result);
+        }
+
+        return null;
     }
 
     /**
      * @param string $handle
      *
-     * @return Commerce_ProductTypeModel
+     * @return Commerce_ProductTypeModel|null
      */
     public function getByHandle($handle)
     {
-        $productTypeRecord = Commerce_ProductTypeRecord::model()->findByAttributes(['handle' => $handle]);
+        $result = Commerce_ProductTypeRecord::model()->findByAttributes(['handle' => $handle]);
 
-        return Commerce_ProductTypeModel::populateModel($productTypeRecord);
+        if($result) {
+            return Commerce_ProductTypeModel::populateModel($result);
+        }
+
+        return null;
     }
 
     /**

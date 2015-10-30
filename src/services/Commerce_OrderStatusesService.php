@@ -15,28 +15,53 @@ use Commerce\Helpers\CommerceDbHelper;
  */
 class Commerce_OrderStatusesService extends BaseApplicationComponent
 {
+
+    /**
+     * @param int $id
+     *
+     * @return Commerce_OrderStatusModel|null
+     */
+    public function getById($id)
+    {
+        $result = Commerce_OrderStatusRecord::model()->findById($id);
+
+        if ($result) {
+            return Commerce_OrderStatusModel::populateModel($result);
+        }
+
+        return null;
+    }
+
     /**
      * @param string $handle
      *
-     * @return Commerce_OrderStatusModel
+     * @return Commerce_OrderStatusModel|null
      */
     public function getByHandle($handle)
     {
-        $orderStatusRecord = Commerce_OrderStatusRecord::model()->findByAttributes(['handle' => $handle]);
+        $result = Commerce_OrderStatusRecord::model()->findByAttributes(['handle' => $handle]);
 
-        return Commerce_OrderStatusModel::populateModel($orderStatusRecord);
+        if ($result) {
+            return Commerce_OrderStatusModel::populateModel($result);
+        }
+
+        return null;
     }
 
     /**
      * Get default order status from the DB
      *
-     * @return Commerce_OrderStatusModel
+     * @return Commerce_OrderStatusModel|null
      */
     public function getDefault()
     {
-        $orderStatus = Commerce_OrderStatusRecord::model()->findByAttributes(['default' => true]);
+        $result = Commerce_OrderStatusRecord::model()->findByAttributes(['default' => true]);
 
-        return Commerce_OrderStatusModel::populateModel($orderStatus);
+        if ($result) {
+            return Commerce_OrderStatusModel::populateModel($result);
+        }
+
+        return null;
     }
 
     /**
@@ -120,7 +145,8 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
     }
 
     /**
-     * @param int $id
+     * @param int
+     * @return bool
      */
     public function deleteById($id)
     {
@@ -217,18 +243,6 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
 
         //put old template path back
         craft()->path->setTemplatesPath($oldPath);
-    }
-
-    /**
-     * @param int $id
-     *
-     * @return Commerce_OrderStatusModel
-     */
-    public function getById($id)
-    {
-        $orderStatusRecord = Commerce_OrderStatusRecord::model()->findById($id);
-
-        return Commerce_OrderStatusModel::populateModel($orderStatusRecord);
     }
 
 }

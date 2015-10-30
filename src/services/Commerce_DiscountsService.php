@@ -18,13 +18,17 @@ class Commerce_DiscountsService extends BaseApplicationComponent
     /**
      * @param int $id
      *
-     * @return Commerce_DiscountModel
+     * @return Commerce_DiscountModel|null
      */
     public function getById($id)
     {
-        $record = Commerce_DiscountRecord::model()->findById($id);
+        $result = Commerce_DiscountRecord::model()->findById($id);
 
-        return Commerce_DiscountModel::populateModel($record);
+        if ($result) {
+            return Commerce_DiscountModel::populateModel($result);
+        }
+
+        return null;
     }
 
     /**
@@ -127,7 +131,7 @@ class Commerce_DiscountsService extends BaseApplicationComponent
     public function checkCode($code, $customerId, &$error = '')
     {
         $model = $this->getByCode($code);
-        if (!$model->id) {
+        if (!$model) {
             $error = Craft::t('Given coupon code not found');
 
             return false;
@@ -179,13 +183,17 @@ class Commerce_DiscountsService extends BaseApplicationComponent
     /**
      * @param string $code
      *
-     * @return Commerce_DiscountModel
+     * @return Commerce_DiscountModel|null
      */
     public function getByCode($code)
     {
-        $record = Commerce_DiscountRecord::model()->findByAttributes(['code' => $code]);
+        $result = Commerce_DiscountRecord::model()->findByAttributes(['code' => $code]);
 
-        return Commerce_DiscountModel::populateModel($record);
+        if ($result) {
+            return Commerce_DiscountModel::populateModel($result);
+        }
+
+        return null;
     }
 
     /**
