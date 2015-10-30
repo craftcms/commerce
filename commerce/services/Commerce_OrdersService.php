@@ -223,6 +223,8 @@ class Commerce_OrdersService extends BaseApplicationComponent
                     $orderRecord->id = $order->id;
                     $orderRecord->save(false);
 
+                    craft()->commerce_customers->setLastUsedAddresses($orderRecord->billingAddressId,$orderRecord->shippingAddressId);
+
                     CommerceDbHelper::commitStackedTransaction();
 
                     //raising event
