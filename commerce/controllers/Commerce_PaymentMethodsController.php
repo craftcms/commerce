@@ -36,7 +36,7 @@ class Commerce_PaymentMethodsController extends Commerce_BaseAdminController
                 $id = $variables['id'];
                 $variables['paymentMethod'] = craft()->commerce_paymentMethods->getById($id);
 
-                if (!$variables['paymentMethod']->id) {
+                if (!$variables['paymentMethod']) {
                     throw new HttpException(404);
                 }
             } else {

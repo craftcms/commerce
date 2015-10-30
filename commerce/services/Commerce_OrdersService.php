@@ -22,7 +22,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
     /**
      * @param int $id
      *
-     * @return Commerce_OrderModel
+     * @return Commerce_OrderModel|null
      */
     public function getById($id)
     {
@@ -144,7 +144,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
         // Set default payment method
         if (!$order->paymentMethodId) {
             $methods = craft()->commerce_paymentMethods->getAllForFrontend();
-            if ($methods) {
+            if (count($methods)) {
                 $order->paymentMethodId = $methods[0]->id;
             }
         }
@@ -384,6 +384,8 @@ class Commerce_OrdersService extends BaseApplicationComponent
         $order->dateOrdered = DateTimeHelper::currentTimeForDb();
         if ($status = craft()->commerce_orderStatuses->getDefault()) {
             $order->orderStatusId = $status->id;
+        }else{
+            throw new Exception(Craft::t('No default Status available to set on completed order.'));
         }
 
         if (!$this->save($order)) {

@@ -16,13 +16,17 @@ class Commerce_AddressesService extends BaseApplicationComponent
     /**
      * @param int $id
      *
-     * @return Commerce_AddressModel
+     * @return Commerce_AddressModel|null
      */
     public function getAddressById($id)
     {
-        $record = Commerce_AddressRecord::model()->findById($id);
+        $result = Commerce_AddressRecord::model()->findById($id);
 
-        return Commerce_AddressModel::populateModel($record);
+        if ($result) {
+            return Commerce_AddressModel::populateModel($result);
+        }
+
+        return null;
     }
 
     /**

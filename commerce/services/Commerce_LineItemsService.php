@@ -34,23 +34,25 @@ class Commerce_LineItemsService extends BaseApplicationComponent
      * @param int $orderId
      * @param int $purchasableId
      *
-     * @return Commerce_LineItemModel
+     * @return Commerce_LineItemModel|null
      */
     public function getByOrderPurchasable($orderId, $purchasableId)
     {
-        $purchasable = Commerce_LineItemRecord::model()->findByAttributes([
+        $result = Commerce_LineItemRecord::model()->findByAttributes([
             'orderId' => $orderId,
             'purchasableId' => $purchasableId,
         ]);
 
-        return Commerce_LineItemModel::populateModel($purchasable);
+        if ($result) {
+            return Commerce_LineItemModel::populateModel($result);
+        }
+
+        return null;
     }
 
 
     /**
      * Update line item and recalculate order
-     *
-     * @TODO check that the line item belongs to the current user
      *
      * @param Commerce_OrderModel $order
      * @param Commerce_LineItemModel $lineItem
@@ -155,21 +157,25 @@ class Commerce_LineItemsService extends BaseApplicationComponent
     /**
      * @param int $id
      *
-     * @return Commerce_LineItemModel
+     * @return Commerce_LineItemModel|null
      */
     public function getById($id)
     {
-        $lineItem = Commerce_LineItemRecord::model()->findById($id);
+        $result = Commerce_LineItemRecord::model()->findById($id);
 
-        return Commerce_LineItemModel::populateModel($lineItem);
+        if ($result) {
+            return Commerce_LineItemModel::populateModel($result);
+        }
+
+        return null;
     }
 
     /**
-     * @param int $purchasableId
-     * @param int $orderId
-     * @param int $qty
-     *
+     * @param $purchasableId
+     * @param $orderId
+     * @param $qty
      * @return Commerce_LineItemModel
+     * @throws Exception
      */
     public function create($purchasableId, $orderId, $qty)
     {

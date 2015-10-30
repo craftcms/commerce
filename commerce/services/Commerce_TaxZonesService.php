@@ -35,13 +35,17 @@ class Commerce_TaxZonesService extends BaseApplicationComponent
     /**
      * @param int $id
      *
-     * @return Commerce_TaxZoneModel
+     * @return Commerce_TaxZoneModel|null
      */
     public function getById($id)
     {
-        $record = Commerce_TaxZoneRecord::model()->findById($id);
+        $result = Commerce_TaxZoneRecord::model()->findById($id);
 
-        return Commerce_TaxZoneModel::populateModel($record);
+        if ($result){
+            return Commerce_TaxZoneModel::populateModel($result);
+        }
+
+        return null;
     }
 
     /**

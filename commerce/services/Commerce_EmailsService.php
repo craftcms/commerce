@@ -16,25 +16,33 @@ class Commerce_EmailsService extends BaseApplicationComponent
     /**
      * @param int $id
      *
-     * @return Commerce_EmailModel
+     * @return Commerce_EmailModel|null
      */
     public function getById($id)
     {
-        $record = Commerce_EmailRecord::model()->findById($id);
+        $result = Commerce_EmailRecord::model()->findById($id);
 
-        return Commerce_EmailModel::populateModel($record);
+        if ($result) {
+            return Commerce_EmailModel::populateModel($result);
+        }
+
+        return null;
     }
 
     /**
      * @param array $attr
      *
-     * @return Commerce_EmailModel
+     * @return Commerce_EmailModel|null
      */
     public function getByAttributes(array $attr)
     {
-        $record = Commerce_EmailRecord::model()->findByAttributes($attr);
+        $result = Commerce_EmailRecord::model()->findByAttributes($attr);
 
-        return Commerce_EmailModel::populateModel($record);
+        if ($result) {
+            return Commerce_EmailModel::populateModel($result);
+        }
+
+        return null;
     }
 
     /**

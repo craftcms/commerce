@@ -16,25 +16,34 @@ class Commerce_TransactionsService extends BaseApplicationComponent
     /**
      * @param int $id
      *
-     * @return Commerce_TransactionModel
+     * @return Commerce_TransactionModel|null
      */
     public function getById($id)
     {
-        $record = Commerce_TransactionRecord::model()->findById($id);
+        $result = Commerce_TransactionRecord::model()->findById($id);
 
-        return Commerce_TransactionModel::populateModel($record);
+        if ($result) {
+            return Commerce_TransactionModel::populateModel($result);
+        }
+
+        return null;
+
     }
 
     /**
      * @param string $hash
      *
-     * @return Commerce_TransactionModel
+     * @return Commerce_TransactionModel|null
      */
     public function getByHash($hash)
     {
-        $record = Commerce_TransactionRecord::model()->findByAttributes(['hash' => $hash]);
+        $result = Commerce_TransactionRecord::model()->findByAttributes(['hash' => $hash]);
 
-        return Commerce_TransactionModel::populateModel($record);
+        if ($result) {
+            return Commerce_TransactionModel::populateModel($result);
+        }
+
+        return null;
     }
 
     /**

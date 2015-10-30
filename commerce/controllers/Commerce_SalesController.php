@@ -37,7 +37,7 @@ class Commerce_SalesController extends Commerce_BaseCpController
                 $id = $variables['id'];
                 $variables['sale'] = craft()->commerce_sales->getById($id);
 
-                if (!$variables['sale']->id) {
+                if (!$variables['sale']) {
                     throw new HttpException(404);
                 }
             } else {

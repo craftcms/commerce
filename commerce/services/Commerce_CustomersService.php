@@ -139,13 +139,17 @@ class Commerce_CustomersService extends BaseApplicationComponent
     /**
      * @param int $id
      *
-     * @return Commerce_CustomerModel
+     * @return Commerce_CustomerModel|null
      */
     public function getById($id)
     {
-        $record = Commerce_CustomerRecord::model()->findById($id);
+        $result = Commerce_CustomerRecord::model()->findById($id);
 
-        return Commerce_CustomerModel::populateModel($record);
+        if ($result) {
+            return Commerce_CustomerModel::populateModel($result);
+        }
+
+        return null;
     }
 
     /**
@@ -211,13 +215,13 @@ class Commerce_CustomersService extends BaseApplicationComponent
     }
 
     /**
-     * Gets all customer by email address.
+     * Gets all customers by email address.
      *
      * @param $email
      *
      * @return array
      */
-    public function getByEmail($email)
+    public function getAllByEmail($email)
     {
         $customers = Commerce_CustomerRecord::model()->findAllByAttributes(['email' => $email]);
 
@@ -294,13 +298,17 @@ class Commerce_CustomersService extends BaseApplicationComponent
     /**
      * @param $id
      *
-     * @return BaseModel
+     * @return Commerce_CustomerModel|null
      */
     public function getByUserId($id)
     {
-        $record = Commerce_CustomerRecord::model()->findByAttributes(['userId' => $id]);
+        $result = Commerce_CustomerRecord::model()->findByAttributes(['userId' => $id]);
 
-        return Commerce_CustomerModel::populateModel($record);
+        if ($result) {
+            return Commerce_CustomerModel::populateModel($result);
+        }
+
+        return null;
     }
 
 }

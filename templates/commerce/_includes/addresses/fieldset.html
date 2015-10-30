@@ -48,7 +48,12 @@
     <div class="address-select">
         <div class="radio">
             {# If we have no addresses expand the 'New Address" fields by default it to being checked. If we have errors on the address also check and expand. #}
-            {% set addressHasErrors = cart.shippingAddress.hasErrors() %}
+
+            {% if attribute(cart,name~'Id') %}
+                {% set addressHasErrors = cart.shippingAddress.hasErrors() %}
+            {% else %}
+                {% set addressHasErrors = false %}
+            {% endif %}
             <input type="radio" name="{{ name }}Id"
                    {% if not addresses|length or addressHasErrors %}checked="checked"{% endif %} value=""/>
             <strong>{{ "New"|t }} {{ title }}</strong>

@@ -30,7 +30,7 @@ class Commerce_AddressesController extends Commerce_BaseCpController
             $id = $variables['id'];
             $variables['address'] = craft()->commerce_addresses->getAddressById($id);
 
-            if (!$variables['address']->id) {
+            if (!$variables['address']) {
                 throw new HttpException(404);
             }
         }
