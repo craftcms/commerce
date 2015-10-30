@@ -173,13 +173,23 @@ class CommercePlugin extends BasePlugin
     }
 
     /**
-     * Commerce Commerce Version.
+     * Commerce Version.
      *
      * @return string
      */
     public function getVersion()
     {
         return '0.9.0000';
+    }
+
+    /**
+     * Commerce Schema Version.
+     *
+     * @return string|null
+     */
+    public function getSchemaVersion()
+    {
+        return '0.9.0';
     }
 
     /**
