@@ -2,7 +2,6 @@
 namespace Craft;
 
 use Commerce\Helpers\CommerceDbHelper;
-use Mockery\CountValidator\Exception;
 
 /**
  * Product type service.
@@ -16,31 +15,81 @@ use Mockery\CountValidator\Exception;
  */
 class Commerce_ProductTypesService extends BaseApplicationComponent
 {
+
     /**
+     * @var bool
+     */
+    private $_fetchedAllProductTypes = false;
+
+    private $_productTypesById;
+
+    /**
+     * Returns all Product Types
+     *
+     * @param string|null $indexBy
      * @return Commerce_ProductTypeModel[]
      */
-    public function getAll()
+    public function getAll($indexBy = null)
     {
-        $results = Commerce_ProductTypeRecord::model()->findAll();
+        if (!$this->_fetchedAllProductTypes) {
+            $results = Commerce_ProductTypeRecord::model()->findAll();
 
-        return Commerce_ProductTypeModel::populateModels($results);
+            foreach($results as $result){
+                $productType = Commerce_ProductTypeModel::populateModel($result);
+                $this->_productTypesById[$productType->id] = $productType;
+            }
 
+            $this->_fetchedAllProductTypes = true;
+        }
+
+        if ($indexBy == 'id')
+        {
+            $productTypes = $this->_productTypesById;
+        }
+        else if (!$indexBy)
+        {
+            $productTypes = array_values($this->_productTypesById);
+        }
+        else
+        {
+            $productTypes = array();
+            foreach ($this->_productTypesById as $productType)
+            {
+                $productTypes[$productType->$indexBy] = $productType;
+            }
+        }
+
+        return $productTypes;
     }
 
     /**
-     * @param int $id
+     * @param int $productTypeId
      *
      * @return Commerce_ProductTypeModel|null
      */
-    public function getById($id)
+    public function getById($productTypeId)
     {
-        $result = Commerce_ProductTypeRecord::model()->findById($id);
+        if(!$this->_fetchedAllProductTypes &&
+            (!isset($this->_productTypesById) || !array_key_exists($productTypeId, $this->_productTypesById))
+        )
+        {
+            $result = Commerce_ProductTypeRecord::model()->findById($productTypeId);
 
-        if ($result) {
-            return Commerce_ProductTypeModel::populateModel($result);
+            if ($result) {
+                $productType = Commerce_ProductTypeModel::populateModel($result);
+            }
+            else
+            {
+                $productType = null;
+            }
+
+            $this->_productTypesById[$productTypeId] = $productType;
         }
 
-        return null;
+        if (isset($this->_productTypesById[$productTypeId]))
+        {
+            return $this->_productTypesById[$productTypeId];
+        }
     }
 
     /**
@@ -52,8 +101,12 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
     {
         $result = Commerce_ProductTypeRecord::model()->findByAttributes(['handle' => $handle]);
 
-        if($result) {
-            return Commerce_ProductTypeModel::populateModel($result);
+        if ($result)
+        {
+            $productType = Commerce_ProductTypeModel::populateModel($result);
+            $this->_productTypesById[$productType->id] = $productType;
+
+            return $productType;
         }
 
         return null;
@@ -183,6 +236,8 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
                 if (!$productType->id) {
                     $productType->id = $productTypeRecord->id;
                 }
+
+                $this->_productTypesById[$productType->id] = $productType;
 
                 $newLocaleData = [];
 
