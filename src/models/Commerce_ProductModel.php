@@ -257,7 +257,7 @@ class Commerce_ProductModel extends BaseElementModel
             'typeId' => AttributeType::Number,
             'authorId' => AttributeType::Number,
             'taxCategoryId' => AttributeType::Number,
-            'promotable' => AttributeType::Bool,
+            'promotable' => [AttributeType::Bool,'default'=>true],
             'freeShipping' => AttributeType::Bool,
             'postDate' => AttributeType::DateTime,
             'expiryDate' => AttributeType::DateTime
