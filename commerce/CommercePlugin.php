@@ -190,12 +190,12 @@ class CommercePlugin extends BasePlugin
     public function onBeforeInstall()
     {
         if (version_compare(craft()->getVersion(), '2.5', '<')) {
-            craft()->userSession->setError(Craft::t('Craft Commerce requires Craft CMS 2.5 in order to run.'));
+            Craft::log('Craft Commerce requires Craft CMS 2.5 in order to run.', LogLevel::Error);
             return false;
         }
 
         if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 50400) {
-            craft()->userSession->setError(Craft::t('Craft Commerce requires PHP 5.4+ in order to run.'));
+            Craft::log('Craft Commerce requires PHP 5.4+ in order to run.', LogLevel::Error);
             return false;
         }
     }
