@@ -20,7 +20,7 @@ class Commerce_OrderSettingsController extends Commerce_BaseAdminController
      */
     public function actionEdit(array $variables = [])
     {
-        $variables['orderSettings'] = craft()->commerce_orderSettings->getByHandle('order');
+        $variables['orderSettings'] = craft()->commerce_orderSettings->getOrderSettingByHandle('order');
 
         $variables['title'] = Craft::t('Order Settings');
 
@@ -49,7 +49,7 @@ class Commerce_OrderSettingsController extends Commerce_BaseAdminController
         $orderSettings->setFieldLayout($fieldLayout);
 
         // Save it
-        if (craft()->commerce_orderSettings->save($orderSettings)) {
+        if (craft()->commerce_orderSettings->saveOrderSetting($orderSettings)) {
             craft()->userSession->setNotice(Craft::t('Order settings saved.'));
             $this->redirectToPostedUrl($orderSettings);
         } else {

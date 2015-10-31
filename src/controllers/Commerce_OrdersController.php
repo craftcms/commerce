@@ -31,7 +31,7 @@ class Commerce_OrdersController extends Commerce_BaseCpController
      */
     public function actionEditOrder(array $variables = [])
     {
-        $variables['orderSettings'] = craft()->commerce_orderSettings->getByHandle('order');
+        $variables['orderSettings'] = craft()->commerce_orderSettings->getOrderSettingByHandle('order');
 
         if (!$variables['orderSettings']) {
             throw new HttpException(404, Craft::t('No order settings found.'));

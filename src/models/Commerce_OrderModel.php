@@ -141,7 +141,7 @@ class Commerce_OrderModel extends BaseElementModel
      */
     public function getFieldLayout()
     {
-        return craft()->commerce_orderSettings->getByHandle('order')->getFieldLayout();
+        return craft()->commerce_orderSettings->getOrderSettingByHandle('order')->getFieldLayout();
     }
 
     /**
