@@ -50,7 +50,7 @@ class Commerce_OrderStatusesController extends Commerce_BaseAdminController
             $variables['title'] = Craft::t('Create a new order status');
         }
 
-        $emails = craft()->commerce_emails->getAll(['order' => 'name']);
+        $emails = craft()->commerce_emails->getAllEmails(['order' => 'name']);
         $variables['emails'] = \CHtml::listData($emails, 'id', 'name');
 
         $this->renderTemplate('commerce/settings/orderstatuses/_edit',

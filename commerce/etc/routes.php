@@ -15,7 +15,6 @@ return [
 
     // Order Routes
     'commerce/orders' => ['action' => 'commerce/orders/orderIndex'],
-    'commerce/orders/new' => ['action' => 'commerce/orders/editOrder'],
     'commerce/orders/(?P<orderId>\d+)' => ['action' => 'commerce/orders/editOrder'],
 
     // Settings

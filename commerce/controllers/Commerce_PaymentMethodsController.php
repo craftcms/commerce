@@ -44,7 +44,7 @@ class Commerce_PaymentMethodsController extends Commerce_BaseAdminController
             }
         }
 
-        $variables['gateways'] = craft()->commerce_gateways->getAll();
+        $variables['gateways'] = craft()->commerce_gateways->getAllGateways();
         $list = [];
         foreach ($variables['gateways'] as $gw) {
             $list[$gw->handle()] = $gw->displayName();
@@ -79,7 +79,7 @@ class Commerce_PaymentMethodsController extends Commerce_BaseAdminController
 
         // Save it
         if (craft()->commerce_paymentMethods->save($paymentMethod)) {
-            craft()->userSession->setNotice(Craft::t('Payment Method saved.'));
+            craft()->userSession->setNotice(Craft::t('Payment method saved.'));
             $this->redirectToPostedUrl($paymentMethod);
         } else {
             craft()->userSession->setError(Craft::t('Couldn’t save payment method.'));

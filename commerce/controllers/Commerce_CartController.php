@@ -37,13 +37,20 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
             if (craft()->request->isAjaxRequest) {
                 $this->returnJson(['success' => true, 'cart' => $this->cartArray($cart)]);
             }
-            craft()->userSession->setNotice(Craft::t('Product has been added'));
+            craft()->userSession->setNotice(Craft::t('Item added.'));
             $this->redirectToPostedUrl();
         } else {
             if (craft()->request->isAjaxRequest) {
                 $this->returnJson(['error' => $error]);
+            } else {
+                if ($error) {
+                    craft()->userSession->setError(Craft::t('Couldn’t add item to cart: {message}', [
+                        'message' => $error
+                    ]));
+                } else {
+                    craft()->userSession->setError(Craft::t('Couldn’t add item to cart.'));
+                }
             }
-            craft()->userSession->setError($error);
         }
     }
 
@@ -62,7 +69,7 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
         $qty = craft()->request->getPost('qty', 0);
         $note = craft()->request->getPost('note');
 
-        $lineItem = craft()->commerce_lineItems->getById($lineItemId);
+        $lineItem = craft()->commerce_lineItems->getLineItemById($lineItemId);
 
         // Error does not reveal the line item doesn't exist, just that it doesn't for the current cart.
         if(!$lineItem){
@@ -78,8 +85,8 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
         $lineItem->note = $note;
         $lineItem->order->setContentFromPost('fields');
 
-        if (craft()->commerce_lineItems->update($cart, $lineItem, $error)) {
-            craft()->userSession->setNotice(Craft::t('Order item has been updated'));
+        if (craft()->commerce_lineItems->updateLineItem($cart, $lineItem, $error)) {
+            craft()->userSession->setNotice(Craft::t('Line item updated.'));
             if (craft()->request->isAjaxRequest) {
                 $this->returnJson(['success' => true, 'cart' => $this->cartArray($cart)]);
             }
@@ -87,8 +94,15 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
         } else {
             if (craft()->request->isAjaxRequest) {
                 $this->returnErrorJson($error);
+            } else {
+                if ($error) {
+                    craft()->userSession->setError(Craft::t('Couldn’t update lite item: {message}', [
+                        'message' => $error
+                    ]));
+                } else {
+                    craft()->userSession->setError(Craft::t('Couldn’t update line item.'));
+                }
             }
-            craft()->userSession->setError($error);
         }
     }
 
@@ -102,7 +116,7 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
         $lineItemId = craft()->request->getPost('lineItemId');
         $cart = craft()->commerce_cart->getCart();
 
-        $lineItem = craft()->commerce_lineItems->getById($lineItemId);
+        $lineItem = craft()->commerce_lineItems->getLineItemById($lineItemId);
 
         // Error does not reveal the line item doesn't exist, just that it doesn't for the current cart.
         if(!$lineItem){
@@ -118,7 +132,7 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
         if (craft()->request->isAjaxRequest) {
             $this->returnJson(['success' => true, 'cart' => $this->cartArray($cart)]);
         }
-        craft()->userSession->setNotice(Craft::t('Product has been removed'));
+        craft()->userSession->setNotice(Craft::t('Line item removed.'));
         $this->redirectToPostedUrl();
     }
 
@@ -135,7 +149,7 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
         if (craft()->request->isAjaxRequest) {
             $this->returnJson(['success' => true, 'cart' => $this->cartArray($cart)]);
         }
-        craft()->userSession->setNotice(Craft::t('All products have been removed'));
+        craft()->userSession->setNotice(Craft::t('Line items removed.'));
         $this->redirectToPostedUrl();
     }
 
@@ -162,7 +176,7 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
                     if ($sameAddress) {
 
                     }
-                    if (!craft()->commerce_orders->setAddresses($cart, $shippingAddress, $shippingAddress)) {
+                    if (!craft()->commerce_orders->setOrderAddresses($cart, $shippingAddress, $shippingAddress)) {
                         $cart->addError('shippingAddressId', Craft::t('Could not save the shipping address.'));
                     }
                 }
@@ -173,9 +187,9 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
             if (!$sameAddress) {
                 $billingAddress = new Commerce_AddressModel();
                 $billingAddress->setAttributes(craft()->request->getParam('billingAddress'));
-                $result = craft()->commerce_orders->setAddresses($cart, $shippingAddress, $billingAddress);
+                $result = craft()->commerce_orders->setOrderAddresses($cart, $shippingAddress, $billingAddress);
             } else {
-                $result = craft()->commerce_orders->setAddresses($cart, $shippingAddress, $shippingAddress);
+                $result = craft()->commerce_orders->setOrderAddresses($cart, $shippingAddress, $shippingAddress);
             }
             if (!$result) {
                 if ($sameAddress) {
@@ -225,17 +239,18 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
         }
 
         if (!$cart->hasErrors()) {
-            craft()->userSession->setNotice(Craft::t('Cart updated'));
+            craft()->userSession->setNotice(Craft::t('Cart updated.'));
             if (craft()->request->isAjaxRequest) {
                 $this->returnJson(['success' => true, 'cart' => $this->cartArray($cart)]);
             }
             $this->redirectToPostedUrl();
         } else {
-            $error = Craft::t('Cart not completely updated');
+            $error = Craft::t('Cart not completely updated.');
             if (craft()->request->isAjaxRequest) {
                 $this->returnErrorJson($error);
+            } else {
+                craft()->userSession->setError($error);
             }
-            craft()->userSession->setError($error);
         }
     }
 }

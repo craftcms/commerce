@@ -86,7 +86,7 @@ class Commerce_GatewaysService extends BaseApplicationComponent
     /**
      * @return BaseGatewayAdapter[] indexed by handle
      */
-    public function getAll()
+    public function getAllGateways()
     {
         return $this->gateways;
     }

@@ -42,7 +42,7 @@ class Commerce_TaxRatesController extends Commerce_BaseAdminController
         $zonesExist = (bool)count($taxZones);
 
         if (!$zonesExist) {
-            craft()->userSession->setError(Craft::t('Create a tax zone before creating a tax rate.'));
+            craft()->userSession->setError(Craft::t('You must create a tax zone before creating a tax rate.'));
             craft()->request->redirect('/admin/commerce/settings/taxrates');
         }
 
@@ -108,7 +108,7 @@ class Commerce_TaxRatesController extends Commerce_BaseAdminController
 
         // Save it
         if (craft()->commerce_taxRates->save($taxRate)) {
-            craft()->userSession->setNotice(Craft::t('Tax Rate saved.'));
+            craft()->userSession->setNotice(Craft::t('Tax rate saved.'));
             $this->redirectToPostedUrl($taxRate);
         } else {
             craft()->userSession->setError(Craft::t('Couldn’t save tax rate.'));

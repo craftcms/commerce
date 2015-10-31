@@ -90,7 +90,7 @@ EOT;
             /** @var Commerce_OrderModel $order */
             $order->orderStatusId = $this->getParams()->orderStatusId;
             $order->message = $this->getParams()->message;
-            craft()->commerce_orders->save($order);
+            craft()->commerce_orders->saveOrder($order);
         }
 
         return true;
