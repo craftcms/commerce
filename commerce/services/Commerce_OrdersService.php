@@ -219,7 +219,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
                 if (craft()->elements->saveElement($order)) {
                     //creating order history record
                     if ($orderRecord->id && $oldStatusId != $orderRecord->orderStatusId) {
-                        if (!craft()->commerce_orderHistories->createFromOrder($order,
+                        if (!craft()->commerce_orderHistories->createOrderHistoryFromOrder($order,
                             $oldStatusId)
                         ) {
                             throw new Exception('Error saving order history');
