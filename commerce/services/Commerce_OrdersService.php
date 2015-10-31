@@ -285,7 +285,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
         }
 
         //calculating adjustments
-        $lineItems = craft()->commerce_lineItems->getAllByOrderId($order->id);
+        $lineItems = craft()->commerce_lineItems->getAllLineItemsByOrderId($order->id);
 
         $order->itemTotal = 0;
         foreach ($lineItems as $item) { //resetting fields calculated by adjusters
@@ -318,7 +318,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
         //recalculating order amount and saving items
         $order->itemTotal = 0;
         foreach ($lineItems as $item) {
-            $result = craft()->commerce_lineItems->save($item);
+            $result = craft()->commerce_lineItems->saveLineItem($item);
 
             $order->itemTotal += $item->total;
 
@@ -496,12 +496,12 @@ class Commerce_OrdersService extends BaseApplicationComponent
     {
         foreach ($order->lineItems as $item) {
             if ($item->refreshFromPurchasable()) {
-                if (!craft()->commerce_lineItems->save($item)) {
+                if (!craft()->commerce_lineItems->saveLineItem($item)) {
                     throw new Exception('Error on saving lite item: ' . implode(', ',
                             $item->getAllErrors()));
                 }
             } else {
-                craft()->commerce_lineItems->delete($item);
+                craft()->commerce_lineItems->deleteLineItem($item);
             }
         }
 
