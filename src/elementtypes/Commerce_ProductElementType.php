@@ -64,18 +64,24 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
      */
     public function getAvailableActions($source = null)
     {
-        $deleteAction = craft()->elements->getAction('Delete');
-        $deleteAction->setParams([
-            'confirmationMessage' => Craft::t('Are you sure you want to delete the selected product and their variants?'),
-            'successMessage' => Craft::t('Products deleted.'),
-        ]);
-        $actions[] = $deleteAction;
+        $actions = [];
 
-        $createSaleAction = craft()->elements->getAction('Commerce_CreateSale');
-        $actions[] = $createSaleAction;
+        // TODO: Replace with a product type permission check when we have them
+        if (craft()->userSession->checkPermission('accessPlugin-commerce'))
+        {
+            $deleteAction = craft()->elements->getAction('Delete');
+            $deleteAction->setParams([
+                'confirmationMessage' => Craft::t('Are you sure you want to delete the selected product and their variants?'),
+                'successMessage' => Craft::t('Products deleted.'),
+            ]);
+            $actions[] = $deleteAction;
 
-        $createDiscountAction = craft()->elements->getAction('Commerce_CreateDiscount');
-        $actions[] = $createDiscountAction;
+            $createSaleAction = craft()->elements->getAction('Commerce_CreateSale');
+            $actions[] = $createSaleAction;
+
+            $createDiscountAction = craft()->elements->getAction('Commerce_CreateDiscount');
+            $actions[] = $createDiscountAction;
+        }
 
         // Allow plugins to add additional actions
         $allPluginActions = craft()->plugins->call('commerce_addProductActions', [$source], true);
@@ -102,12 +108,18 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
 
         $sources[] = ['heading' => "Product Types"];
 
+        // TODO: Replace with per-product type permission checks when we have them
+        $canEditProducts = craft()->userSession->checkPermission('accessPlugin-commerce');
+
         foreach (craft()->commerce_productTypes->getAll() as $productType) {
             $key = 'productType:' . $productType->id;
 
             $sources[$key] = [
                 'label' => $productType->name,
-                'data' => array('handle' => $productType->handle),
+                'data' => [
+                    'handle' => $productType->handle,
+                    'editable' => $canEditProducts
+                ],
                 'criteria' => ['typeId' => $productType->id]
             ];
         }

@@ -357,7 +357,7 @@ class Commerce_ProductsController extends Commerce_BaseCpController
         }
 
 
-        craft()->userSession->setNotice(Craft::t("Couldn't save product."));
+        craft()->userSession->setError(Craft::t('Couldn’t save product.'));
         craft()->urlManager->setRouteVariables([
             'product' => $product
         ]);

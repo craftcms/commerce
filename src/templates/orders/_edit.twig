@@ -398,7 +398,7 @@
 $(document).ready(function () {
 
 	new Craft.Commerce.OrderEdit({
-		orderId: {{ orderId }}
+		orderId: {{ (orderId is defined ? orderId : null)|e('js') }}
 	});
 
 	$.each($('.tableRowInfo'), function () {
