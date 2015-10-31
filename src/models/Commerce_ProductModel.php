@@ -55,7 +55,8 @@ class Commerce_ProductModel extends BaseElementModel
      */
     public function isEditable()
     {
-        return true;
+        // TODO: Replace with a product type permission check when we have them
+        return craft()->userSession->checkPermission('accessPlugin-commerce');
     }
 
     /**
@@ -256,7 +257,7 @@ class Commerce_ProductModel extends BaseElementModel
             'typeId' => AttributeType::Number,
             'authorId' => AttributeType::Number,
             'taxCategoryId' => AttributeType::Number,
-            'promotable' => AttributeType::Bool,
+            'promotable' => [AttributeType::Bool,'default'=>true],
             'freeShipping' => AttributeType::Bool,
             'postDate' => AttributeType::DateTime,
             'expiryDate' => AttributeType::DateTime

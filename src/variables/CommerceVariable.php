@@ -69,7 +69,7 @@ class CommerceVariable
      */
     public function getCountriesList()
     {
-        return craft()->commerce_countries->getFormList();
+        return craft()->commerce_countries->getAllCountriesListData();
     }
 
     /**
@@ -133,7 +133,7 @@ class CommerceVariable
      */
     public function getDiscounts()
     {
-        $discounts = craft()->commerce_discounts->getAll();
+        $discounts = craft()->commerce_discounts->getAllDiscounts();
 
         return $discounts;
     }

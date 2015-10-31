@@ -68,21 +68,34 @@ class Commerce_OrderModel extends BaseElementModel
      * @var string
      */
     protected $elementType = 'Commerce_Order';
+
     /**
      * @var
      */
     private $_shippingAddress;
+
     /**
      * @var
      */
     private $_billingAddress;
 
     /**
+     * @var array
+     */
+    private $_lineItems;
+
+    /**
+     * @var array
+     */
+    private $_orderAdjustments;
+
+    /**
      * @return bool
      */
     public function isEditable()
     {
-        return true;
+        // TODO: Replace with an order permission check when we have one
+        return craft()->userSession->checkPermission('accessPlugin-commerce');
     }
 
     /**
@@ -128,7 +141,7 @@ class Commerce_OrderModel extends BaseElementModel
      */
     public function getFieldLayout()
     {
-        return craft()->commerce_orderSettings->getByHandle('order')->getFieldLayout();
+        return craft()->commerce_orderSettings->getOrderSettingByHandle('order')->getFieldLayout();
     }
 
     /**
@@ -194,7 +207,7 @@ class Commerce_OrderModel extends BaseElementModel
     public function getTotalShippingCost()
     {
         $shippingCost = 0;
-        foreach ($this->lineItems as $item) {
+        foreach ($this->getLineItems() as $item) {
             $shippingCost += $item->shippingCost;
         }
 
@@ -207,7 +220,7 @@ class Commerce_OrderModel extends BaseElementModel
     public function getTotalWeight()
     {
         $weight = 0;
-        foreach ($this->lineItems as $item) {
+        foreach ($this->getLineItems() as $item) {
             $weight += $item->qty * $item->weight;
         }
 
@@ -220,7 +233,7 @@ class Commerce_OrderModel extends BaseElementModel
     public function getTotalLength()
     {
         $value = 0;
-        foreach ($this->lineItems as $item) {
+        foreach ($this->getLineItems() as $item) {
             $value += $item->qty * $item->length;
         }
 
@@ -233,7 +246,7 @@ class Commerce_OrderModel extends BaseElementModel
     public function getTotalWidth()
     {
         $value = 0;
-        foreach ($this->lineItems as $item) {
+        foreach ($this->getLineItems() as $item) {
             $value += $item->qty * $item->width;
         }
 
@@ -247,7 +260,7 @@ class Commerce_OrderModel extends BaseElementModel
     public function getTotalSaleAmount()
     {
         $value = 0;
-        foreach ($this->lineItems as $item) {
+        foreach ($this->getLineItems() as $item) {
             $value += $item->qty * $item->saleAmount;
         }
 
@@ -260,7 +273,7 @@ class Commerce_OrderModel extends BaseElementModel
     public function getItemSubtotalWithSale()
     {
         $value = 0;
-        foreach ($this->lineItems as $item) {
+        foreach ($this->getLineItems() as $item) {
             $value += $item->getSubtotalWithSale();
         }
 
@@ -273,7 +286,7 @@ class Commerce_OrderModel extends BaseElementModel
     public function getTotalHeight()
     {
         $value = 0;
-        foreach ($this->lineItems as $item) {
+        foreach ($this->getLineItems() as $item) {
             $value += $item->qty * $item->height;
         }
 
@@ -285,7 +298,11 @@ class Commerce_OrderModel extends BaseElementModel
      */
     public function getLineItems()
     {
-        return craft()->commerce_lineItems->getAllByOrderId($this->id);
+        if(!$this->_lineItems){
+            $this->_lineItems = craft()->commerce_lineItems->getAllLineItemsByOrderId($this->id);
+        }
+
+        return $this->_lineItems;
     }
 
     /**
@@ -293,7 +310,11 @@ class Commerce_OrderModel extends BaseElementModel
      */
     public function getAdjustments()
     {
-        return craft()->commerce_orderAdjustments->getAllByOrderId($this->id);
+        if(!$this->_orderAdjustments){
+            $this->_orderAdjustments = craft()->commerce_orderAdjustments->getAllOrderAdjustmentsByOrderId($this->id);
+        }
+
+        return $this->_orderAdjustments;
     }
 
     /**
@@ -373,7 +394,7 @@ class Commerce_OrderModel extends BaseElementModel
     {
         craft()->deprecator->log('Commerce_OrderModel::showAddress():removed', 'You should no longer use `cart.showAddress` in twig to determine whether to show the address form. Do your own check in twig like this `{% if cart.linItems|length > 0 %}`');
 
-        return count($this->lineItems) > 0;
+        return count($this->getLineItems()) > 0;
     }
 
     /**
@@ -384,7 +405,7 @@ class Commerce_OrderModel extends BaseElementModel
     {
         craft()->deprecator->log('Commerce_OrderModel::showPayment():removed', 'You should no longer use `cart.showPayment` in twig to determine whether to show the payment form. Do your own check in twig like this `{% if cart.linItems|length > 0 and cart.billingAddressId and cart.shippingAddressId %}`');
 
-        return count($this->lineItems) > 0 && $this->billingAddressId && $this->shippingAddressId;
+        return count($this->getLineItems()) > 0 && $this->billingAddressId && $this->shippingAddressId;
     }
 
     /**

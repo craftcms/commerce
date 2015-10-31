@@ -18,7 +18,7 @@ class Commerce_EmailsService extends BaseApplicationComponent
      *
      * @return Commerce_EmailModel|null
      */
-    public function getById($id)
+    public function getEmailById($id)
     {
         $result = Commerce_EmailRecord::model()->findById($id);
 
@@ -34,7 +34,7 @@ class Commerce_EmailsService extends BaseApplicationComponent
      *
      * @return Commerce_EmailModel|null
      */
-    public function getByAttributes(array $attr)
+    public function getEmailByAttributes(array $attr)
     {
         $result = Commerce_EmailRecord::model()->findByAttributes($attr);
 
@@ -50,7 +50,7 @@ class Commerce_EmailsService extends BaseApplicationComponent
      *
      * @return Commerce_EmailModel[]
      */
-    public function getAll($criteria = [])
+    public function getAllEmails($criteria = [])
     {
         $records = Commerce_EmailRecord::model()->findAll($criteria);
 
@@ -65,7 +65,7 @@ class Commerce_EmailsService extends BaseApplicationComponent
      * @throws \CDbException
      * @throws \Exception
      */
-    public function save(Commerce_EmailModel $model)
+    public function saveEmail(Commerce_EmailModel $model)
     {
         if ($model->id) {
             $record = Commerce_EmailRecord::model()->findById($model->id);
@@ -106,7 +106,7 @@ class Commerce_EmailsService extends BaseApplicationComponent
      *
      * @throws \CDbException
      */
-    public function deleteById($id)
+    public function deleteEmailById($id)
     {
         Commerce_EmailRecord::model()->deleteByPk($id);
     }

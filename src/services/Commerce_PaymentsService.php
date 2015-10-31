@@ -40,12 +40,12 @@ class Commerce_PaymentsService extends BaseApplicationComponent
         //saving cancelUrl and redirect to cart
         $cart->returnUrl = craft()->templates->renderObjectTemplate($redirect, $cart);
         $cart->cancelUrl = craft()->templates->renderObjectTemplate($cancelUrl, $cart);
-        craft()->commerce_orders->save($cart);
+        craft()->commerce_orders->saveOrder($cart);
 
 
         // Cart could have zero totalPrice and already considered 'paid'. Free carts complete immediately.
         if ($cart->isPaid()) {
-            craft()->commerce_orders->complete($cart);
+            craft()->commerce_orders->completeOrder($cart);
             craft()->request->redirect($cart->returnUrl);
         }
 
@@ -63,13 +63,13 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 
         if ($defaultAction == Commerce_TransactionRecord::AUTHORIZE) {
             if (!$gateway->supportsAuthorize()) {
-                $customError = Craft::t("Gateway doesn't support authorize");
+                $customError = Craft::t("Gateway doesn’t support authorize");
 
                 return false;
             }
         } else {
             if (!$gateway->supportsPurchase()) {
-                $customError = Craft::t("Gateway doesn't support purchase");
+                $customError = Craft::t("Gateway doesn’t support purchase");
 
                 return false;
             }
@@ -138,7 +138,9 @@ class Commerce_PaymentsService extends BaseApplicationComponent
         if ($transaction->status == Commerce_TransactionRecord::SUCCESS) {
             return $order->returnUrl;
         } else {
-            craft()->userSession->setError(Craft::t("Payment error: " . $transaction->message));
+            craft()->userSession->setError(Craft::t('Payment error: {message}', [
+                'error' => $transaction->message
+            ]));
 
             return $order->cancelUrl;
         }
@@ -199,7 +201,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
         $request->setTransactionReference($parent->reference);
 
         $order->returnUrl = $order->getCpEditUrl();
-        craft()->commerce_orders->save($order);
+        craft()->commerce_orders->saveOrder($order);
 
         try {
             $response = $request->send();
@@ -230,7 +232,9 @@ class Commerce_PaymentsService extends BaseApplicationComponent
             if ($transaction->status == Commerce_TransactionRecord::SUCCESS) {
                 craft()->request->redirect($order->returnUrl);
             } else {
-                craft()->userSession->setError('Payment error: ' . $transaction->message);
+                craft()->userSession->setError('Payment error: {message}', [
+                    'message' => $transaction->message
+                ]));
                 craft()->request->redirect($order->cancelUrl);
             }
         }

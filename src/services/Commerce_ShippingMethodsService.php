@@ -34,7 +34,7 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
     /**
      * @param string $handle
      *
-     * @return \Commerce\Interfaces\ShippingMethod|bool
+     * @return \Commerce\Interfaces\ShippingMethod|null
      */
     public function getByHandle($handle)
     {
@@ -46,8 +46,7 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
             }
         }
 
-        // No method of this handle found.
-        return false;
+        return null;
     }
 
     /**

@@ -152,6 +152,16 @@ class CommercePlugin extends BasePlugin
     }
 
     /**
+     * Commerce Documentation URL.
+     *
+     * @return string
+     */
+    public function getDocumentationUrl()
+    {
+        return "http://craftcommerce.com/docs";
+    }
+
+    /**
      * Commerce has a control panel section.
      *
      * @return bool

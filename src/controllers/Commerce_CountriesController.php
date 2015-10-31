@@ -18,7 +18,7 @@ class Commerce_CountriesController extends Commerce_BaseAdminController
      */
     public function actionIndex()
     {
-        $countries = craft()->commerce_countries->getAll();
+        $countries = craft()->commerce_countries->getAllCountries();
         $this->renderTemplate('commerce/settings/countries/index',
             compact('countries'));
     }
@@ -35,7 +35,7 @@ class Commerce_CountriesController extends Commerce_BaseAdminController
         if (empty($variables['country'])) {
             if (!empty($variables['id'])) {
                 $id = $variables['id'];
-                $variables['country'] = craft()->commerce_countries->getById($id);
+                $variables['country'] = craft()->commerce_countries->getCountryById($id);
 
                 if (!$variables['country']) {
                     throw new HttpException(404);
@@ -70,7 +70,7 @@ class Commerce_CountriesController extends Commerce_BaseAdminController
         $country->stateRequired = craft()->request->getPost('stateRequired');
 
         // Save it
-        if (craft()->commerce_countries->save($country)) {
+        if (craft()->commerce_countries->saveCountry($country)) {
             craft()->userSession->setNotice(Craft::t('Country saved.'));
             $this->redirectToPostedUrl($country);
         } else {
@@ -92,7 +92,7 @@ class Commerce_CountriesController extends Commerce_BaseAdminController
         $id = craft()->request->getRequiredPost('id');
 
         try {
-            craft()->commerce_countries->deleteById($id);
+            craft()->commerce_countries->deleteCountryById($id);
             $this->returnJson(['success' => true]);
         } catch (\Exception $e) {
             $this->returnErrorJson($e->getMessage());

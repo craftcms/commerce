@@ -45,15 +45,16 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
     private function defaultShippingMethod()
     {
         $method = new Commerce_ShippingMethodRecord();
-        $method->name = 'Default Shipping Method';
+        $method->name = 'Free Shipping';
+        $method->handle = 'freeShipping';
         $method->enabled = true;
         $method->default = true;
         $method->save();
 
         $rule = new Commerce_ShippingRuleRecord();
         $rule->methodId = $method->id;
-        $rule->description = "Catches all countries and states";
-        $rule->name = "Catch All";
+        $rule->description = "All Countries, free shipping.";
+        $rule->name = "Free Everywhere ";
         $rule->enabled = true;
         $rule->save();
     }
@@ -87,7 +88,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
         $fieldLayout->type = 'Commerce_Order';
         $orderSettings->setFieldLayout($fieldLayout);
 
-        \Craft\craft()->commerce_orderSettings->save($orderSettings);
+        \Craft\craft()->commerce_orderSettings->saveOrderSetting($orderSettings);
 
         $data = [
             'name' => 'Processing',
@@ -117,8 +118,8 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
     private function defaultProductTypes()
     {
         $productType = new Commerce_ProductTypeModel;
-        $productType->name = 'Plain Shirts';
-        $productType->handle = 'plainShirts';
+        $productType->name = 'Clothing';
+        $productType->handle = 'clothing';
         $productType->hasDimensions = true;
         $productType->hasUrls = true;
         $productType->hasVariants = false;
@@ -154,18 +155,16 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
     {
         $productTypes = \Craft\craft()->commerce_productTypes->getAll();
 
-        $products = ['Shirt', 'Nicer Shirt'];
-
+        $products = ['A New Toga', 'Parka with Stripes on Back', 'Romper for a Red Eye'];
+        $count = 0;
         foreach ($products as $productName) {
-            //implicit variant
             /** @var Commerce_VariantModel $variant */
             $variant = Commerce_VariantModel::populateModel([
                 'sku' => $productName,
-                'price' => 10,
+                'price' => (10 * $count++),
                 'unlimitedStock' => 1,
             ]);
 
-            //first test product
             /** @var Commerce_ProductModel $product */
             $product = Commerce_ProductModel::populateModel([
                 'typeId' => $productTypes[0]->id,
@@ -188,7 +187,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
     private function paymentMethods()
     {
         /** @var Dummy_GatewayAdapter $adapter */
-        $adapter = \Craft\craft()->commerce_gateways->getAll()['Dummy'];
+        $adapter = \Craft\craft()->commerce_gateways->getAllGateways()['Dummy'];
 
         $model = new Commerce_PaymentMethodModel;
         $model->class = $adapter->handle();

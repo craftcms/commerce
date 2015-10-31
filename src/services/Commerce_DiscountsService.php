@@ -20,7 +20,7 @@ class Commerce_DiscountsService extends BaseApplicationComponent
      *
      * @return Commerce_DiscountModel|null
      */
-    public function getById($id)
+    public function getDiscountById($id)
     {
         $result = Commerce_DiscountRecord::model()->findById($id);
 
@@ -39,7 +39,7 @@ class Commerce_DiscountsService extends BaseApplicationComponent
      *
      * @return Commerce_DiscountModel[]
      */
-    public function getForItems(array $lineItems)
+    public function getDiscountsForItems(array $lineItems)
     {
         //getting ids lists
         $productIds = [];
@@ -50,7 +50,7 @@ class Commerce_DiscountsService extends BaseApplicationComponent
         }
         $productTypeIds = array_unique($productTypeIds);
 
-        $groupIds = $this->getCurrentUserGroups();
+        $groupIds = $this->getCurrentUserGroupsIds();
 
         //building criteria
         $criteria = new \CDbCriteria();
@@ -85,13 +85,13 @@ class Commerce_DiscountsService extends BaseApplicationComponent
         }
 
         //searching
-        return $this->getAll($criteria);
+        return $this->getAllDiscounts($criteria);
     }
 
     /**
      * @return array
      */
-    public function getCurrentUserGroups()
+    public function getCurrentUserGroupsIds()
     {
         $groupIds = [];
         $user = craft()->userSession->getUser();
@@ -111,7 +111,7 @@ class Commerce_DiscountsService extends BaseApplicationComponent
      *
      * @return Commerce_DiscountModel[]
      */
-    public function getAll($criteria = [])
+    public function getAllDiscounts($criteria = [])
     {
         $records = Commerce_DiscountRecord::model()->findAll($criteria);
 
@@ -128,9 +128,9 @@ class Commerce_DiscountsService extends BaseApplicationComponent
      *
      * @return true
      */
-    public function checkCode($code, $customerId, &$error = '')
+    public function matchCode($code, $customerId, &$error = '')
     {
-        $model = $this->getByCode($code);
+        $model = $this->getDiscountByCode($code);
         if (!$model) {
             $error = Craft::t('Given coupon code not found');
 
@@ -156,7 +156,7 @@ class Commerce_DiscountsService extends BaseApplicationComponent
             return false;
         }
 
-        $groupIds = $this->getCurrentUserGroups();
+        $groupIds = $this->getCurrentUserGroupsIds();
         if (!$model->allGroups && !array_intersect($groupIds,
                 $model->getGroupsIds())
         ) {
@@ -185,7 +185,7 @@ class Commerce_DiscountsService extends BaseApplicationComponent
      *
      * @return Commerce_DiscountModel|null
      */
-    public function getByCode($code)
+    public function getDiscountByCode($code)
     {
         $result = Commerce_DiscountRecord::model()->findByAttributes(['code' => $code]);
 
@@ -235,7 +235,7 @@ class Commerce_DiscountsService extends BaseApplicationComponent
             return false;
         }
 
-        $userGroups = $this->getCurrentUserGroups();
+        $userGroups = $this->getCurrentUserGroupsIds();
         if (!$discount->allGroups && !array_intersect($userGroups,
                 $discount->getGroupsIds())
         ) {
@@ -254,7 +254,7 @@ class Commerce_DiscountsService extends BaseApplicationComponent
      * @return bool
      * @throws \Exception
      */
-    public function save(
+    public function saveDiscount(
         Commerce_DiscountModel $model,
         array $groups,
         array $productTypes,
@@ -356,7 +356,7 @@ class Commerce_DiscountsService extends BaseApplicationComponent
     /**
      * @param int $id
      */
-    public function deleteById($id)
+    public function deleteDiscountById($id)
     {
         Commerce_DiscountRecord::model()->deleteByPk($id);
     }

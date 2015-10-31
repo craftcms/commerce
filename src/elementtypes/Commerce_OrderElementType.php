@@ -65,19 +65,24 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
     {
         $actions = [];
 
-        $deleteAction = craft()->elements->getAction('Delete');
-        $deleteAction->setParams([
-            'confirmationMessage' => Craft::t('Are you sure you want to delete the selected orders?'),
-            'successMessage' => Craft::t('Orders deleted.'),
-        ]);
-        $actions[] = $deleteAction;
+        // TODO: Replace with an order permission check when we have one
+        if (craft()->userSession->checkPermission('accessPlugin-commerce'))
+        {
+            $deleteAction = craft()->elements->getAction('Delete');
+            $deleteAction->setParams([
+                'confirmationMessage' => Craft::t('Are you sure you want to delete the selected orders?'),
+                'successMessage' => Craft::t('Orders deleted.'),
+            ]);
+            $actions[] = $deleteAction;
 
-        // Only allow mass updating order status when all selected are of the same status, and not carts.
-        $isStatus = strpos($source, 'orderStatus:');
-        if ($isStatus === 0) {
-            $updateOrderStatusAction = craft()->elements->getAction('Commerce_UpdateOrderStatus');
-            $actions[] = $updateOrderStatusAction;
+            // Only allow mass updating order status when all selected are of the same status, and not carts.
+            $isStatus = strpos($source, 'orderStatus:');
+            if ($isStatus === 0) {
+                $updateOrderStatusAction = craft()->elements->getAction('Commerce_UpdateOrderStatus');
+                $actions[] = $updateOrderStatusAction;
+            }
         }
+
         // Allow plugins to add additional actions
         $allPluginActions = craft()->plugins->call('commerce_addOrderActions', [$source], true);
 
@@ -331,7 +336,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 
         if ($criteria->user) {
             if ($criteria->user instanceof UserModel) {
-                $id = craft()->commerce_customers->getById($criteria->user->id)->id;
+                $id = craft()->commerce_customers->getCustomerById($criteria->user->id)->id;
                 if ($id) {
                     $criteria->customerId = $id;
                     $criteria->customer = null;

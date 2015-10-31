@@ -19,12 +19,23 @@ use Commerce\Helpers\CommerceDbHelper;
  */
 class Commerce_OrdersService extends BaseApplicationComponent
 {
+
+    /**
+     * @var
+     */
+    private $_lineItemsById;
+
+    /**
+     * @var
+     */
+    private $_adjustmentsById;
+
     /**
      * @param int $id
      *
      * @return Commerce_OrderModel|null
      */
-    public function getById($id)
+    public function getOrderById($id)
     {
         return craft()->elements->getElementById($id, 'Commerce_Order');
     }
@@ -32,9 +43,9 @@ class Commerce_OrdersService extends BaseApplicationComponent
     /**
      * @param string $number
      *
-     * @return Commerce_OrderModel
+     * @return Commerce_OrderModel|null
      */
-    public function getByNumber($number)
+    public function getOrderByNumber($number)
     {
         $criteria = craft()->elements->getCriteria('Commerce_Order');
         $criteria->number = $number;
@@ -45,18 +56,14 @@ class Commerce_OrdersService extends BaseApplicationComponent
     /**
      * @param int|Commerce_CustomerModel $customer
      *
-     * @return Commerce_OrderModel[]
+     * @return Commerce_OrderModel[]|null
      */
-    public function getByCustomer($customer)
+    public function getOrdersByCustomer($customer)
     {
-        $id = $customer;
-        if ($customer instanceof Commerce_CustomerModel) {
-            $id = $customer->id;
-        }
+        $criteria = craft()->elements->getCriteria('Commerce_Order');
+        $criteria->customer = $customer;
 
-        $orders = Commerce_OrderRecord::model()->findAllByAttributes(['customerId' => $id]);
-
-        return Commerce_OrderModel::populateModels($orders);
+        return $criteria->first();
     }
 
     /**
@@ -64,7 +71,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
      *
      * @return Commerce_OrderModel[]
      */
-    public function getByEmail($email)
+    public function getOrdersByEmail($email)
     {
         $orders = Commerce_OrderRecord::model()->findAllByAttributes(['email' => $email]);
 
@@ -77,7 +84,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
      * @return bool
      * @throws \CDbException
      */
-    public function delete($order)
+    public function deleteOrder($order)
     {
         return craft()->elements->deleteElementById($order->id);
     }
@@ -99,16 +106,16 @@ class Commerce_OrdersService extends BaseApplicationComponent
             }
         }
 
-        $this->save($order);
+        $this->saveOrder($order);
 
         if (!$order->dateOrdered) {
             if ($order->isPaid()) {
-                craft()->commerce_orders->complete($order);
+                craft()->commerce_orders->completeOrder($order);
             } else {
                 // maybe not paid in full, but authorized enough to complete order.
                 $totalAuthorized = craft()->commerce_payments->getTotalAuthorizedForOrder($order);
                 if ($totalAuthorized >= $order->totalPrice) {
-                    craft()->commerce_orders->complete($order);
+                    craft()->commerce_orders->completeOrder($order);
                 }
             }
         }
@@ -120,7 +127,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
      * @return bool
      * @throws \Exception
      */
-    public function save($order)
+    public function saveOrder($order)
     {
         if ($order->dateOrdered) {
             //raising event
@@ -173,7 +180,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
             $order->customerId = craft()->commerce_customers->getCustomerId();
         }
 
-        $order->email = craft()->commerce_customers->getById($order->customerId)->email;
+        $order->email = craft()->commerce_customers->getCustomerById($order->customerId)->email;
 
         // Will not adjust a completed order, we don't want totals to change.
         $this->calculateAdjustments($order);
@@ -212,7 +219,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
                 if (craft()->elements->saveElement($order)) {
                     //creating order history record
                     if ($orderRecord->id && $oldStatusId != $orderRecord->orderStatusId) {
-                        if (!craft()->commerce_orderHistories->createFromOrder($order,
+                        if (!craft()->commerce_orderHistories->createOrderHistoryFromOrder($order,
                             $oldStatusId)
                         ) {
                             throw new Exception('Error saving order history');
@@ -278,7 +285,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
         }
 
         //calculating adjustments
-        $lineItems = craft()->commerce_lineItems->getAllByOrderId($order->id);
+        $lineItems = craft()->commerce_lineItems->getAllLineItemsByOrderId($order->id);
 
         $order->itemTotal = 0;
         foreach ($lineItems as $item) { //resetting fields calculated by adjusters
@@ -297,10 +304,10 @@ class Commerce_OrdersService extends BaseApplicationComponent
         }
 
         //refreshing adjustments
-        craft()->commerce_orderAdjustments->deleteAllByOrderId($order->id);
+        craft()->commerce_orderAdjustments->deleteAllOrderAdjustmentsByOrderId($order->id);
 
         foreach ($adjustments as $adjustment) {
-            $result = craft()->commerce_orderAdjustments->save($adjustment);
+            $result = craft()->commerce_orderAdjustments->saveOrderAdjustment($adjustment);
             if (!$result) {
                 $errors = $adjustment->getAllErrors();
                 throw new Exception('Error saving order adjustment: ' . implode(', ',
@@ -311,7 +318,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
         //recalculating order amount and saving items
         $order->itemTotal = 0;
         foreach ($lineItems as $item) {
-            $result = craft()->commerce_lineItems->save($item);
+            $result = craft()->commerce_lineItems->saveLineItem($item);
 
             $order->itemTotal += $item->total;
 
@@ -372,7 +379,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
      * @throws Exception
      * @throws \Exception
      */
-    public function complete(Commerce_OrderModel $order)
+    public function completeOrder(Commerce_OrderModel $order)
     {
 
         //raising event on order complete
@@ -388,7 +395,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
             throw new Exception(Craft::t('No default Status available to set on completed order.'));
         }
 
-        if (!$this->save($order)) {
+        if (!$this->saveOrder($order)) {
             return false;
         }
 
@@ -438,7 +445,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
      * @return bool
      * @throws \Exception
      */
-    public function setAddresses(
+    public function setOrderAddresses(
         Commerce_OrderModel $order,
         Commerce_AddressModel $shippingAddress,
         Commerce_AddressModel $billingAddress
@@ -462,7 +469,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
                 $order->shippingAddressId = $shippingAddress->id;
                 $order->billingAddressId = $billingAddress->id;
 
-                $this->save($order);
+                $this->saveOrder($order);
                 CommerceDbHelper::commitStackedTransaction();
 
                 return true;
@@ -485,20 +492,20 @@ class Commerce_OrdersService extends BaseApplicationComponent
      * @throws Exception
      * @throws \Exception
      */
-    public function recalculate(Commerce_OrderModel $order)
+    public function recalculateOrder(Commerce_OrderModel $order)
     {
         foreach ($order->lineItems as $item) {
             if ($item->refreshFromPurchasable()) {
-                if (!craft()->commerce_lineItems->save($item)) {
+                if (!craft()->commerce_lineItems->saveLineItem($item)) {
                     throw new Exception('Error on saving lite item: ' . implode(', ',
                             $item->getAllErrors()));
                 }
             } else {
-                craft()->commerce_lineItems->delete($item);
+                craft()->commerce_lineItems->deleteLineItem($item);
             }
         }
 
-        $this->save($order);
+        $this->saveOrder($order);
     }
 
 }
