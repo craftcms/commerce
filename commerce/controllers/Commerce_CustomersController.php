@@ -11,7 +11,7 @@ namespace Craft;
  * @package   craft.plugins.commerce.controllers
  * @since     1.0
  */
-class Commerce_CustomersController extends Commerce_BaseAdminController
+class Commerce_CustomersController extends Commerce_BaseCpController
 {
     /**
      * @throws HttpException
@@ -39,7 +39,7 @@ class Commerce_CustomersController extends Commerce_BaseAdminController
             $id = $variables['id'];
             $variables['customer'] = craft()->commerce_customers->getById($id);
 
-            if (!$variables['customer']->id) {
+            if (!$variables['customer']) {
                 throw new HttpException(404);
             }
         }
@@ -60,8 +60,8 @@ class Commerce_CustomersController extends Commerce_BaseAdminController
         $id = craft()->request->getRequiredPost('id');
         $customer = craft()->commerce_customers->getById($id);
 
-        if (!$customer->id) {
-            throw new HttpException(400);
+        if (!$customer) {
+            throw new HttpException(400, Craft::t('Cannot find customer.'));
         }
 
         // Shared attributes

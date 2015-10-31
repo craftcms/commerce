@@ -37,7 +37,7 @@ class Commerce_CountriesController extends Commerce_BaseAdminController
                 $id = $variables['id'];
                 $variables['country'] = craft()->commerce_countries->getById($id);
 
-                if (!$variables['country']->id) {
+                if (!$variables['country']) {
                     throw new HttpException(404);
                 }
             } else {

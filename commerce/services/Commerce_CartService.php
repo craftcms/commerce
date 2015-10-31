@@ -44,7 +44,7 @@ class Commerce_CartService extends BaseApplicationComponent
         //filling item model
         $lineItem = craft()->commerce_lineItems->getByOrderPurchasable($order->id, $purchasableId);
 
-        if ($lineItem->id) {
+        if ($lineItem) {
             $lineItem->qty += $qty;
         } else {
             $lineItem = craft()->commerce_lineItems->create($purchasableId, $order->id, $qty);
@@ -184,7 +184,7 @@ class Commerce_CartService extends BaseApplicationComponent
     public function setPaymentMethod(Commerce_OrderModel $cart, $paymentMethodId, &$error = "")
     {
         $method = craft()->commerce_paymentMethods->getById($paymentMethodId);
-        if (!$method->id || !$method->frontendEnabled) {
+        if (!$method || !$method->frontendEnabled) {
             $error = Craft::t('Payment method does not exist or is not allowed.');
             return false;
         }

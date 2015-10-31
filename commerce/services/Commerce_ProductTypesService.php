@@ -2,7 +2,6 @@
 namespace Craft;
 
 use Commerce\Helpers\CommerceDbHelper;
-use Mockery\CountValidator\Exception;
 
 /**
  * Product type service.
@@ -16,38 +15,101 @@ use Mockery\CountValidator\Exception;
  */
 class Commerce_ProductTypesService extends BaseApplicationComponent
 {
+
     /**
+     * @var bool
+     */
+    private $_fetchedAllProductTypes = false;
+
+    private $_productTypesById;
+
+    /**
+     * Returns all Product Types
+     *
+     * @param string|null $indexBy
      * @return Commerce_ProductTypeModel[]
      */
-    public function getAll()
+    public function getAll($indexBy = null)
     {
-        $productTypeRecords = Commerce_ProductTypeRecord::model()->findAll();
+        if (!$this->_fetchedAllProductTypes) {
+            $results = Commerce_ProductTypeRecord::model()->findAll();
 
-        return Commerce_ProductTypeModel::populateModels($productTypeRecords);
+            foreach($results as $result){
+                $productType = Commerce_ProductTypeModel::populateModel($result);
+                $this->_productTypesById[$productType->id] = $productType;
+            }
+
+            $this->_fetchedAllProductTypes = true;
+        }
+
+        if ($indexBy == 'id')
+        {
+            $productTypes = $this->_productTypesById;
+        }
+        else if (!$indexBy)
+        {
+            $productTypes = array_values($this->_productTypesById);
+        }
+        else
+        {
+            $productTypes = array();
+            foreach ($this->_productTypesById as $productType)
+            {
+                $productTypes[$productType->$indexBy] = $productType;
+            }
+        }
+
+        return $productTypes;
     }
 
     /**
-     * @param int $id
+     * @param int $productTypeId
      *
-     * @return Commerce_ProductTypeModel
+     * @return Commerce_ProductTypeModel|null
      */
-    public function getById($id)
+    public function getById($productTypeId)
     {
-        $productTypeRecord = Commerce_ProductTypeRecord::model()->findById($id);
+        if(!$this->_fetchedAllProductTypes &&
+            (!isset($this->_productTypesById) || !array_key_exists($productTypeId, $this->_productTypesById))
+        )
+        {
+            $result = Commerce_ProductTypeRecord::model()->findById($productTypeId);
 
-        return Commerce_ProductTypeModel::populateModel($productTypeRecord);
+            if ($result) {
+                $productType = Commerce_ProductTypeModel::populateModel($result);
+            }
+            else
+            {
+                $productType = null;
+            }
+
+            $this->_productTypesById[$productTypeId] = $productType;
+        }
+
+        if (isset($this->_productTypesById[$productTypeId]))
+        {
+            return $this->_productTypesById[$productTypeId];
+        }
     }
 
     /**
      * @param string $handle
      *
-     * @return Commerce_ProductTypeModel
+     * @return Commerce_ProductTypeModel|null
      */
     public function getByHandle($handle)
     {
-        $productTypeRecord = Commerce_ProductTypeRecord::model()->findByAttributes(['handle' => $handle]);
+        $result = Commerce_ProductTypeRecord::model()->findByAttributes(['handle' => $handle]);
 
-        return Commerce_ProductTypeModel::populateModel($productTypeRecord);
+        if ($result)
+        {
+            $productType = Commerce_ProductTypeModel::populateModel($result);
+            $this->_productTypesById[$productType->id] = $productType;
+
+            return $productType;
+        }
+
+        return null;
     }
 
     /**
@@ -174,6 +236,8 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
                 if (!$productType->id) {
                     $productType->id = $productTypeRecord->id;
                 }
+
+                $this->_productTypesById[$productType->id] = $productType;
 
                 $newLocaleData = [];
 
@@ -347,6 +411,36 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
     }
 
     /**
+     * Returns whether a product type’s products have URLs, and if the template path is valid.
+     *
+     * @param Commerce_ProductTypeModel $productType
+     *
+     * @return bool
+     */
+    public function isProductTypeTemplateValid(Commerce_ProductTypeModel $productType)
+    {
+        if ($productType->hasUrls)
+        {
+            // Set Craft to the site template path
+            $oldTemplatesPath = craft()->path->getTemplatesPath();
+            craft()->path->setTemplatesPath(craft()->path->getSiteTemplatesPath());
+
+            // Does the template exist?
+            $templateExists = craft()->templates->doesTemplateExist($productType->template);
+
+            // Restore the original template path
+            craft()->path->setTemplatesPath($oldTemplatesPath);
+
+            if ($templateExists)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * @param Event $event
      *
      * @return bool
@@ -366,8 +460,8 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
         if ($productTypeLocales) {
             $newProductTypeLocales = [];
 
-            foreach ($productTypeLocales as $categoryLocale) {
-                $newProductTypeLocales[] = [$categoryLocale['productTypeId'], $localeId, $categoryLocale['urlFormat']];
+            foreach ($productTypeLocales as $productTypeLocale) {
+                $newProductTypeLocales[] = [$productTypeLocale['productTypeId'], $localeId, $productTypeLocale['urlFormat']];
             }
 
             craft()->db->createCommand()->insertAll('commerce_producttypes_i18n', ['productTypeId', 'locale', 'urlFormat'], $newProductTypeLocales);

@@ -16,25 +16,33 @@ class Commerce_OrderHistoriesService extends BaseApplicationComponent
     /**
      * @param int $id
      *
-     * @return Commerce_OrderHistoryModel
+     * @return Commerce_OrderHistoryModel|null
      */
     public function getById($id)
     {
-        $record = Commerce_OrderHistoryRecord::model()->findById($id);
+        $result = Commerce_OrderHistoryRecord::model()->findById($id);
 
-        return Commerce_OrderHistoryModel::populateModel($record);
+        if ($result) {
+            return Commerce_OrderHistoryModel::populateModel($result);
+        }
+
+        return null;
     }
 
     /**
      * @param array $attr
      *
-     * @return Commerce_OrderHistoryModel
+     * @return Commerce_OrderHistoryModel|null
      */
     public function getByAttributes(array $attr)
     {
-        $record = Commerce_OrderHistoryRecord::model()->findByAttributes($attr);
+        $result = Commerce_OrderHistoryRecord::model()->findByAttributes($attr);
 
-        return Commerce_OrderHistoryModel::populateModel($record);
+        if ($result) {
+            return Commerce_OrderHistoryModel::populateModel($result);
+        }
+
+        return null;
     }
 
     /**

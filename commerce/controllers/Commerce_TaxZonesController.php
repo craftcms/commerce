@@ -37,7 +37,7 @@ class Commerce_TaxZonesController extends Commerce_BaseAdminController
                 $id = $variables['id'];
                 $variables['taxZone'] = craft()->commerce_taxZones->getById($id);
 
-                if (!$variables['taxZone']->id) {
+                if (!$variables['taxZone']) {
                     throw new HttpException(404);
                 }
             } else {

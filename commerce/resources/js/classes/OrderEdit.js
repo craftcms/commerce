@@ -10,7 +10,7 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend({
     init: function (orderId, settings)
     {
         this.orderId = orderId;
-        this.$status = $('#orderStatus');
+        this.$status = $('#order-status');
 
         this.addListener(this.$status.find('.updatestatus'), 'click', function (ev)
         {

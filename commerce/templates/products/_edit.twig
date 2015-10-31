@@ -3,278 +3,82 @@
 {% set selectedSubnavItem = "products" %}
 
 {% set crumbs = [
-{ label: "Products"|t, url: url('commerce/products') }
+	{ label: "Products"|t, url: url('commerce/products') },
+	{ label: productType.name|t, url: url('commerce/products/'~productType.handle) }
 ] %}
 
+{% set fullPageForm = true %}
+{% set saveShortcutRedirect = continueEditingUrl %}
+
 {% import "_includes/forms" as forms %}
-
-{% macro multiSelectField(options, values, attribute, label) %}
-
-	{% import "_includes/forms" as forms %}
-	{% set multiSelectInput %}
-		{{ forms.multiselect({
-			id:        attribute,
-			name:      attribute,
-			options:   options,
-			values:    values,
-			errors:    product.getErrors(attribute),
-		}) }}
-	{% endset %}
-
-	{{ forms.field({
-		id:       attribute,
-		label:    label
-	}, multiSelectInput) }}
-
-{% endmacro %}
+{% import "commerce/products/_fields" as productFields %}
 
 
-{% macro dateTimeField(product, attribute, label) %}
+{% block saveButton %}
+	<div class="btngroup">
+		<input type="submit" class="btn submit" value="{{ 'Save'|t }}">
+		<div class="btn submit menubtn"></div>
+		<div class="menu">
+			<ul>
+				<li><a class="formsubmit" data-redirect="{{ continueEditingUrl }}">
+					{{ "Save and continue editing"|t }}
+					{{ forms.optionShortcutLabel('S') }}
+				</a></li>
+			</ul>
+		</div>
+	</div>
+{% endblock %}
 
-	{% import "_includes/forms" as forms %}
-
-	{% set dateTimeInput %}
-		{{ forms.date({
-			id:        attribute,
-			name:      attribute,
-			value:     product.getAttribute(attribute),
-			errors:    product.getErrors(attribute),
-		}) }}
-
-		{{ forms.time({
-			id:        attribute,
-			name:      attribute,
-			value:     product.getAttribute(attribute),
-			errors:    product.getErrors(attribute),
-		}) }}
-	{% endset %}
-
-	{{ forms.field({
-		id:       attribute,
-		label:    label,
-		first:    (attribute == 'availableOn'),
-		required: false
-	}, dateTimeInput) }}
-
-{% endmacro %}
-
-
-{% from _self import dateTimeField %}
 
 {% block main %}
-
-	<form id="product-form" method="post" accept-charset="UTF-8"
-		  data-saveshortcut
-		  data-saveshortcut-redirect="{{ continueEditingUrl }}"
-		  data-confirm-unload>
-
 		<input type="hidden" name="action" value="commerce/products/saveProduct">
 		<input type="hidden" name="redirect" value="commerce/products">
 		<input type="hidden" name="typeId" value="{{ productType.id }}">
-		{% if craft.isLocalized() %}<input type="hidden" name="locale"
-										   value="{{ product.locale }}">{% endif %}
+		{% if craft.isLocalized() %}<input type="hidden" name="locale" value="{{ product.locale }}">{% endif %}
 		{{ getCsrfInput() }}
-		{% if product.id %}<input type="hidden" name="productId"
-								  value="{{ product.id }}">{% endif %}
+		{% if product.id %}<input type="hidden" name="productId" value="{{ product.id }}">{% endif %}
 
 
-		<div class="grid first">
+		<div class="grid first" data-max-cols="3">
 			<div class="item" data-position="left" data-min-colspan="2"
 				 data-max-colspan="3">
 
 				<div id="fields" class="pane">
 					{% include "_includes/tabs" %}
 
-					{% from "_includes/forms" import textField %}
-					{% set static = static is defined ? static : false %}
+					{{ productFields.titleField(product) }}
 
-					{{ textField({
-						label: "Name"|t,
-						locale: product.locale,
-						id: 'title',
-						name: 'title',
-						value: product.title,
-						errors: (not static ? product.getErrors('title')),
-						first: true,
-						autofocus: true,
-						required: (not static),
-						disabled: static,
-						maxlength: 255
-					}) }}
-
-					{% set implicitVariantHtml %}
-						{{ forms.text({
-							name:   'implicitVariant[isImplicit]',
-							type:   'hidden',
-							value: '1'
-						}) }}
-						{% if implicitVariant.id %}<input type="hidden"
-														  name="implicitVariant[id]"
-														  value="{{ implicitVariant.id }}">{% endif %}
-						<div id="implicitVariantDetails">
-
-
-							<div class="grid first" data-cols="4">
-
-								<div class="item" data-min-colspan="2"
-									 data-max-colspan="4">
-									{{ forms.textField({
-										label: 'SKU'|t,
-										required: productType.hasVariants ? false : true,
-										name: 'implicitVariant[sku]',
-										value: implicitVariant.sku,
-										errors: implicitVariant.getErrors('sku')
-									}) }}
-								</div>
-
-								<div class="item" data-min-colspan="2"
-									 data-max-colspan="4">
-									{{ forms.textField({
-										label: 'Price'|t,
-										name:   'implicitVariant[price]',
-										required: productType.hasVariants ? false : true,
-										type:   'text',
-										value: implicitVariant.price|commerceDecimal,
-										errors: implicitVariant.getErrors('price')
-									}) }}
-								</div>
-							</div>
-
-							<div class="grid first" data-cols="4">
-								<div class="item" data-min-colspan="2"
-									 data-max-colspan="4">
-									{{ forms.textField({
-										label: 'Min Qty'|t,
-										name:  'implicitVariant[minQty]',
-										type:  'text',
-										value: implicitVariant.minQty,
-										errors: implicitVariant.getErrors('minQty')
-									}) }}
-								</div>
-
-								<div class="item" data-min-colspan="2"
-									 data-max-colspan="4">
-									{{ forms.textField({
-										label:  'Max Qty'|t,
-										name:   'implicitVariant[maxQty]',
-										type:   'text',
-										value: implicitVariant.maxQty,
-										errors: implicitVariant.getErrors('maxQty')
-									}) }}
-								</div>
-							</div>
-
-							<div class="grid first {{ productType.hasDimensions ? '':'hidden' }}"
-								 data-cols="4">
-								<div class="item" data-min-colspan="1"
-									 data-max-colspan="1">
-									{{ forms.textField({
-										label:  'Width'|t~' ('~craft.commerce.settings.dimensionUnits~')',
-										name:   'implicitVariant[width]',
-										type:   'text',
-										value: implicitVariant.width|commerceDecimal,
-										errors: implicitVariant.getErrors('width')
-									}) }}
-								</div>
-
-								<div class="item" data-min-colspan="1"
-									 data-max-colspan="1">
-									{{ forms.textField({
-										label: 'Height'|t~' ('~craft.commerce.settings.dimensionUnits~')',
-										name:  'implicitVariant[height]',
-										type:  'number',
-										value: implicitVariant.height|commerceDecimal,
-										errors: implicitVariant.getErrors('height')
-									}) }}
-								</div>
-
-								<div class="item" data-min-colspan="1"
-									 data-max-colspan="1">
-									{{ forms.textField({
-										label:  'Length'|t~' ('~craft.commerce.settings.dimensionUnits~')',
-										name:   'implicitVariant[length]',
-										type:   'text',
-										value: implicitVariant.length|commerceDecimal,
-										errors: implicitVariant.getErrors('length')
-									}) }}
-								</div>
-
-								<div class="item" data-min-colspan="1"
-									 data-max-colspan="1">
-									{{ forms.textField({
-										label: 'Weight'|t~' ('~craft.commerce.settings.weightUnits~')',
-										name:   'implicitVariant[weight]',
-										type:   'text',
-										value: implicitVariant.weight|commerceDecimal,
-										errors: implicitVariant.getErrors('weight')
-									}) }}
-								</div>
-							</div>
-
-							<div class="grid first" data-cols="4">
-								<div class="item" data-min-colspan="2"
-									 data-max-colspan="4">
-									{{ forms.checkboxField({
-										label: 'Unlimited Stock'|t,
-										name:   'implicitVariant[unlimitedStock]',
-										checked: (implicitVariant.id ? implicitVariant.unlimitedStock : 1),
-										errors: implicitVariant.getErrors('unlimitedStock'),
-										reverseToggle: '.stockToggle'
-									}) }}
-								</div>
-								<div class="item" data-min-colspan="2"
-									 data-max-colspan="4">
-									<div class="stockToggle {% if not implicitVariant.id or implicitVariant.unlimitedStock %}hidden{% endif %}">
-										{{ forms.textField({
-											label:  'Stock'|t,
-											name:   'implicitVariant[stock]',
-											type:   'text',
-											value: implicitVariant.stock,
-											required: productType.hasVariants ? false : true,
-											errors: implicitVariant.getErrors('stock')
-										}) }}
-									</div>
-								</div>
-							</div>
-
-						</div>
-					{% endset %}
-
+					<div>
 					{% set allProductTab = productType.asa('productFieldLayout').getFieldLayout().getTabs() %}
 					{% for tab in allProductTab %}
 						<div id="tab{{ loop.index }}" {% if not loop.first %} class="hidden" {% endif %}>
 							{% include "_includes/fields" with {
 							fields: tab.getFields(),
 							element: product,
-							static: (static is defined ? static : false)
 							} only %}
 						</div>
 					{% endfor %}
-
-
-				</div>{# end pane#}
-
+					</div>
+				</div>
 
 				{% if productType.hasVariants %}
-					<div id="" class="pane">
-					{% set variantTab = {'variantsTab':{'label':'Variants','url':'#variantsTab'}} %}
+					<div id="variants-pane" class="pane">
+						{% include "_includes/tabs" with {
+							tabs: {
+								variantsTab: { label: 'Variants'|t, url: '#variantsTab' }
+							}
+						} %}
 
-					{% include "_includes/tabs" with {'tabs': variantTab } %}
-
-					<div id="implicitVariant"
-						 class="{% if not implicitVariant.hasErrors() %}hidden{% endif %}">
-						{{ implicitVariantHtml }}
+						{{ variantMatrixHtml|raw }}
 					</div>
-
-
-					{% include 'commerce/_includes/variant/_variantElementIndex' %}
-					</div>{# end pane #}
 				{% endif %}
-
-
 			</div>
 
-			<div class="item" data-position="right" data-colspan="1">
+			<div id="meta-pane" class="item" data-position="right" data-colspan="1">
+
+				{% if showPreviewBtn %}
+					{% include "_includes/previewbtns" %}
+				{% endif %}
 
 				{% if craft.isLocalized() %}
 					<ul id="locales" class="pane">
@@ -300,119 +104,53 @@
 					</ul>
 				{% endif %}
 
+				<div class="pane meta">
+					{{ productFields.generalMetaFields(product) }}
 
-				<div class="pane">
-					{{ forms.textField({
-						label: "Slug"|t,
-						locale: product.locale,
-						id: 'slug',
-						name: 'slug',
-						value: product.slug,
-						errors: product.getErrors('slug')|merge(product.getErrors('uri'))
-					}) }}
-
-
-					{% if not productType.hasVariants %}
-						{{ implicitVariantHtml }}
-					{% endif %}
-
-					{{ forms.selectField({
-						label: 'Tax Category'|t,
-						name: 'taxCategoryId',
-						value: product.taxCategoryId,
-						required: true,
-						options: taxCategories
-					}) }}
-
-					{{ forms.checkboxField({
-						label: 'Always has free shipping?'|t,
-						name: 'freeShipping',
-						checked: (product.id ? product.freeShipping : 0),
-					}) }}
-
-					{{ forms.checkboxField({
-						label: 'Is this product subject to promotions?'|t,
-						name: 'promotable',
-						checked: (product.id ? product.promotable : 1),
-					}) }}
-
-					{{ dateTimeField(product, 'availableOn', "Available On"|t) }}
-					{{ dateTimeField(product, 'expiresOn', "Expires On"|t) }}
-
-					{% set enabledswitch %}
+					{% set statusInput %}
 						<div class="left">
 							{{ forms.lightswitch({
 								id: 'enabled',
 								name: 'enabled',
-								label: 'Enabled?',
 								on: product.enabled,
 								disabled: false
 							}) }}
 						</div>
-						<div class="right">
-							{% if productId is defined %}
-								<div class="btngroup">
-									<input type="button"
-										   class="btn small formsubmit"
-										   value="{{ 'Delete'|t }}"
-										   data-action="commerce/products/deleteProduct"
-										   data-confirm="{{ 'Are you sure you want to delete this product?'|t }}"
-										   data-redirect="commerce/products">
-								</div>
-							{% endif %}
-						</div>
+
+						{% if product.id %}
+							<div class="right">
+								<input type="button"
+									   class="btn small formsubmit"
+									   value="{{ 'Delete'|t }}"
+									   data-action="commerce/products/deleteProduct"
+									   data-confirm="{{ 'Are you sure you want to delete this product?'|t }}"
+									   data-redirect="commerce/products">
+							</div>
+						{% endif %}
 					{% endset %}
 
 					{{ forms.field({
-						id:       'status',
-						label:    'Status',
-						first:    true
-					},enabledswitch) }}
+						id: 'enabled',
+						label: 'Enabled'|t
+					}, statusInput) }}
+				</div>
 
-				</div>{#END PANE#}
+				<div class="pane meta">
+					{{ productFields.behavioralMetaFields(product) }}
+				</div>
 
-				<table class="inputs fullwidth">
-					<tr>
-						<td class="thin">
-							<div class="btngroup submit first">
-								<input type="submit" class="btn submit"
-									   value="{{ 'Save'|t }}">
-
-								<div class="btn submit menubtn"></div>
-								<div class="menu">
-									<ul>
-										<li><a class="formsubmit"
-											   data-redirect="{{ continueEditingUrl }}">
-												{{ "Save and continue editing"|t }}
-												{{ forms.optionShortcutLabel('S') }}
-											</a></li>
-
-										{% if productType.hasVariants %}
-											<li><a class="formsubmit"
-												   data-param="entryId"
-												   data-value=""
-												   data-redirect="commerce/products/{type.handle}/{id}/variants/new"
-												   data-value="1">{{ 'Save and add new variant'|t }}</a>
-											</li>
-										{% endif %}
-
-									</ul>
-								</div>
-							</div>
-						</td>
-						<td>
-
-						</td>
-					</tr>
-				</table>
-
+				{% if not productType.hasVariants %}
+					{% namespace 'variants['~(primaryVariant.id ?: 'new1')~']' %}
+						<div class="pane meta">
+							{{ productFields.generalVariantFields(primaryVariant) }}
+						</div>
+						<div class="pane meta">
+							{{ productFields.dimensionVariantFields(primaryVariant) }}
+						</div>
+					{% endnamespace %}
+				{% endif %}
 			</div>
-
 		</div>
-
-
-	</form>
-
 
 	{% if not product.slug %}
 		{% includejs %}

@@ -28,13 +28,17 @@ class Commerce_TaxRatesService extends BaseApplicationComponent
     /**
      * @param int $id
      *
-     * @return Commerce_TaxRateModel
+     * @return Commerce_TaxRateModel|null
      */
     public function getById($id)
     {
-        $record = Commerce_TaxRateRecord::model()->findById($id);
+        $result = Commerce_TaxRateRecord::model()->findById($id);
 
-        return Commerce_TaxRateModel::populateModel($record);
+        if ($result) {
+            return Commerce_TaxRateModel::populateModel($result);
+        }
+
+        return null;
     }
 
     /**
@@ -69,6 +73,11 @@ class Commerce_TaxRatesService extends BaseApplicationComponent
 
         if (!$record->getError('taxZoneId')) {
             $taxZone = craft()->commerce_taxZones->getById($record->taxZoneId);
+
+            if (!$taxZone) {
+                throw new Exception(Craft::t('No tax zone exists with the ID “{id}”', ['id' => $record->taxZoneId]));
+            }
+
             if ($record->include && !$taxZone->default) {
                 $record->addError('taxZoneId',
                     Craft::t('Included tax rates are only allowed for the default tax zone. Zone selected is not default.'));

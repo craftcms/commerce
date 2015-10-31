@@ -2,41 +2,39 @@
 
 {% set title = "Commerce Settings"|t %}
 
+{% set navItems = {
+    'general': { title: "General Settings"|t },
+    'orders-heading': { heading: "Orders"|t },
+    'ordersettings': { title: "Order Fields"|t },
+    'orderstatuses': { title: "Order Statuses"|t },
+    'emails': { title: "Emails"|t },
+    'paymentmethods': { title: "Payment Methods"|t },
+    'products-heading': { heading: "Products"|t },
+    'producttypes': { title: "Product Types"|t },
+    'taxes-heading': { heading: "Taxes"|t },
+    'taxcategories': { title: "Tax Categories"|t },
+    'taxzones': { title: "Tax Zones"|t },
+    'taxrates': { title: "Tax Rates"|t },
+    'shipping-heading': { heading: "Shipping"|t },
+    'countries': { title: "Countries"|t },
+    'states': { title: "States"|t },
+    'shippingmethods': { title: "Shipping Methods"|t },
+} %}
+
+{% set selectedItem = craft.request.getSegment(3) %}
+{% set docTitle = navItems[selectedItem].title~' - '~title %}
+
+
 {% block sidebar %}
     <nav>
         <ul>
-            <li><a href="{{ url('commerce/settings/global') }}"{% if craft.request.segment(3) == 'global' %} class="sel"{% endif %}>{{ "Global Settings"|t }}</a></li>
-
-            <li class="heading"><span>{{ "Orders"|t }}</span></li>
-
-            <li><a href="{{ url('commerce/settings/ordersettings') }}"{% if craft.request.segment(3) == 'ordersettings' %} class="sel"{% endif %}>{{ "Order Fields"|t }}</a></li>
-
-            <li><a href="{{ url('commerce/settings/orderstatuses') }}"{% if craft.request.segment(3) == 'orderstatuses' %} class="sel"{% endif %}>{{ "Order Statuses"|t }}</a></li>
-
-            <li><a href="{{ url('commerce/settings/emails') }}"{% if craft.request.segment(3) == 'emails' %} class="sel"{% endif %}>{{ "Emails"|t }}</a></li>
-
-            <li><a href="{{ url('commerce/settings/paymentmethods') }}"{% if craft.request.segment(3) == 'paymentmethods' %} class="sel"{% endif %}>{{ "Payment Methods"|t }}</a></li>
-
-            <li class="heading"><span>{{ "Products"|t }}</span></li>
-
-            <li><a href="{{ url('commerce/settings/producttypes') }}"{% if craft.request.segment(3) == 'producttypes' %} class="sel"{% endif %}>{{ "Product Types"|t }}</a></li>
-
-            <li class="heading"><span>{{ "Taxes"|t }}</span></li>
-
-            <li><a href="{{ url('commerce/settings/taxcategories') }}"{% if craft.request.segment(3) == 'taxcategories' %} class="sel"{% endif %}>{{ "Tax Categories"|t }}</a></li>
-
-            <li><a href="{{ url('commerce/settings/taxzones') }}"{% if craft.request.segment(3) == 'taxzones' %} class="sel"{% endif %}>{{ "Tax Zones"|t }}</a></li>
-
-            <li><a href="{{ url('commerce/settings/taxrates') }}"{% if craft.request.segment(3) == 'taxrates' %} class="sel"{% endif %}>{{ "Tax Rates"|t }}</a></li>
-
-            <li class="heading"><span>{{ "Shipping"|t }}</span></li>
-
-            <li><a href="{{ url('commerce/settings/countries') }}"{% if craft.request.segment(3) == 'countries' %} class="sel"{% endif %}>{{ "Countries"|t }}</a></li>
-
-            <li><a href="{{ url('commerce/settings/states') }}"{% if craft.request.segment(3) == 'states' %} class="sel"{% endif %}>{{ "States"|t }}</a></li>
-
-            <li><a href="{{ url('commerce/settings/shippingmethods') }}"{% if craft.request.segment(3) == 'shippingmethods' %} class="sel"{% endif %}>{{ "Shipping Methods"|t }}</a></li>
-
+            {% for id, item in navItems %}
+                {% if item.heading is defined %}
+                    <li class="heading"><span>{{ item.heading }}</span></li>
+                {% else %}
+                    <li><a href="{{ url('commerce/settings/'~id) }}"{% if id == selectedItem %} class="sel"{% endif %}>{{ item.title }}</a></li>
+                {% endif %}
+            {% endfor %}
         </ul>
     </nav>
 {% endblock %}

@@ -2,6 +2,7 @@
 namespace Craft;
 
 use Commerce\Helpers\CommerceDbHelper;
+use Commerce\Helpers\CommerceVariantMatrixHelper as VariantMatrixHelper;
 
 /**
  * Class Commerce_ProductsController
@@ -13,7 +14,7 @@ use Commerce\Helpers\CommerceDbHelper;
  * @package   craft.plugins.commerce.controllers
  * @since     1.0
  */
-class Commerce_ProductsController extends Commerce_BaseAdminController
+class Commerce_ProductsController extends Commerce_BaseCpController
 {
     /** @var bool All product changes should be by a logged in user */
     protected $allowAnonymous = false;
@@ -21,10 +22,8 @@ class Commerce_ProductsController extends Commerce_BaseAdminController
     /**
      * Index of products
      */
-    public function actionProductIndex()
+    public function actionProductIndex(array $variables = [])
     {
-        $variables['productTypes'] = craft()->commerce_productTypes->getAll();
-        $variables['taxCategories'] = craft()->commerce_taxCategories->getAll();
         $this->renderTemplate('commerce/products/_index', $variables);
     }
 
@@ -42,16 +41,50 @@ class Commerce_ProductsController extends Commerce_BaseAdminController
         if (!empty($variables['product']->id)) {
             $variables['title'] = $variables['product']->title;
         } else {
-            $variables['title'] = Craft::t('Create a new Product');
+            $variables['title'] = Craft::t('Create a new product');
         }
 
         $variables['continueEditingUrl'] = "commerce/products/" . $variables['productTypeHandle'] . "/{id}-{slug}" .
             (craft()->isLocalized() && craft()->getLanguage() != $variables['localeId'] ? '/' . $variables['localeId'] : '');
 
-        $variables['taxCategories'] = \CHtml::listData(craft()->commerce_taxCategories->getAll(),
-            'id', 'name');
-
         $this->_prepVariables($variables);
+
+        if ($variables['product']->getType()->hasVariants) {
+            $variables['variantMatrixHtml'] = VariantMatrixHelper::getVariantMatrixHtml($variables['product']);
+        }
+
+        // Enable Live Preview?
+        if (!craft()->request->isMobileBrowser(true) && craft()->commerce_productTypes->isProductTypeTemplateValid($variables['productType'])) {
+            craft()->templates->includeJs('Craft.LivePreview.init('.JsonHelper::encode(array(
+                'fields'        => '#title-field, #fields > div > div > .field',
+                'extraFields'   => '#meta-pane, #variants-pane',
+                'previewUrl'    => $variables['product']->getUrl(),
+                'previewAction' => 'commerce/products/previewProduct',
+                'previewParams' => array(
+                                       'typeId' => $variables['productType']->id,
+                                       'productId' => $variables['product']->id,
+                                       'locale' => $variables['product']->locale,
+                                   )
+            )).');');
+
+            $variables['showPreviewBtn'] = true;
+
+            // Should we show the Share button too?
+            if ($variables['product']->id) {
+                // If the product is enabled, use its main URL as its share URL.
+                if ($variables['product']->getStatus() == Commerce_ProductModel::LIVE) {
+                    $variables['shareUrl'] = $variables['product']->getUrl();
+                } else {
+                    $variables['shareUrl'] = UrlHelper::getActionUrl('commerce/products/shareProduct', array(
+                        'productId' => $variables['product']->id,
+                        'locale' => $variables['product']->locale
+                    ));
+                }
+            }
+        } else {
+            $variables['showPreviewBtn'] = false;
+        }
+
         craft()->templates->includeCssResource('commerce/product.css');
         $this->renderTemplate('commerce/products/_edit', $variables);
     }
@@ -59,10 +92,12 @@ class Commerce_ProductsController extends Commerce_BaseAdminController
     private function _prepProductVariables(&$variables)
     {
         if (craft()->isLocalized()) {
-            // default to all use all locales for now
             $variables['localeIds'] = craft()->i18n->getEditableLocaleIds();
-        } else {
-            $variables['localeIds'] = [craft()->i18n->getPrimarySiteLocaleId()];
+        }
+
+        if (!$variables['localeIds'])
+        {
+            throw new HttpException(403, Craft::t('Your account doesn’t have permission to edit any of this site’s locales.'));
         }
 
         if (empty($variables['localeId'])) {
@@ -91,7 +126,7 @@ class Commerce_ProductsController extends Commerce_BaseAdminController
             if (!empty($variables['productId'])) {
                 $variables['product'] = craft()->commerce_products->getById($variables['productId'], $variables['localeId']);
 
-                if (!$variables['product']->id) {
+                if (!$variables['product']) {
                     throw new HttpException(404);
                 }
             } else {
@@ -123,10 +158,6 @@ class Commerce_ProductsController extends Commerce_BaseAdminController
     {
         $variables['tabs'] = [];
 
-        if (empty($variables['implicitVariant'])) {
-            $variables['implicitVariant'] = $variables['product']->implicitVariant ?: new Commerce_VariantModel;
-        }
-
         foreach ($variables['productType']->getFieldLayout()->getTabs() as $index => $tab) {
             // Do any of the fields on this tab have errors?
             $hasErrors = false;
@@ -145,6 +176,115 @@ class Commerce_ProductsController extends Commerce_BaseAdminController
                 'class' => ($hasErrors ? 'error' : null)
             ];
         }
+
+        $variables['primaryVariant'] = ArrayHelper::getFirstValue($variables['product']->getVariants());
+    }
+
+    /**
+     * Previews a product.
+     *
+     * @throws HttpException
+     * @return null
+     */
+    public function actionPreviewProduct()
+    {
+        $this->requirePostRequest();
+
+        $product = $this->_setProductFromPost();
+        $this->_setVariantsFromPost($product);
+
+        // TODO: permission enforcement
+
+        $this->_showProduct($product);
+    }
+
+    /**
+     * Redirects the client to a URL for viewing a disabled product on the front end.
+     *
+     * @param mixed $productId
+     * @param mixed $locale
+     *
+     * @throws HttpException
+     * @return null
+     */
+    public function actionShareProduct($productId, $locale = null)
+    {
+        $product = craft()->commerce_products->getById($productId, $locale);
+
+        if (!$product)
+        {
+            throw new HttpException(404);
+        }
+
+        // TODO: permission enforcement
+
+        // Make sure the product actually can be viewed
+        if (!craft()->commerce_productTypes->isProductTypeTemplateValid($product->getType()))
+        {
+            throw new HttpException(404);
+        }
+
+        // Create the token and redirect to the product URL with the token in place
+        $token = craft()->tokens->createToken(array(
+            'action' => 'commerce/products/viewSharedProduct',
+            'params' => array('productId' => $productId, 'locale' => $product->locale)
+        ));
+
+        $url = UrlHelper::getUrlWithToken($product->getUrl(), $token);
+        craft()->request->redirect($url);
+    }
+
+    /**
+     * Shows an product/draft/version based on a token.
+     *
+     * @param mixed $productId
+     * @param mixed $locale
+     *
+     * @throws HttpException
+     * @return null
+     */
+    public function actionViewSharedProduct($productId, $locale = null)
+    {
+        $this->requireToken();
+
+        $product = craft()->commerce_products->getById($productId, $locale);
+
+        if (!$product)
+        {
+            throw new HttpException(404);
+        }
+
+        $this->_showProduct($product);
+    }
+
+    /**
+     * Displays a product.
+     *
+     * @param Commerce_ProductModel $product
+     *
+     * @throws HttpException
+     * @return null
+     */
+    private function _showProduct(Commerce_ProductModel $product)
+    {
+        $productType = $product->getType();
+
+        if (!$productType)
+        {
+            Craft::log('Attempting to preview a product that doesn’t have a type', LogLevel::Error);
+            throw new HttpException(404);
+        }
+
+        craft()->setLanguage($product->locale);
+
+        // Have this product override any freshly queried products with the same ID/locale
+        craft()->elements->setPlaceholderElement($product);
+
+        craft()->templates->getTwig()->disableStrictVariables();
+
+        $this->renderTemplate($productType->template, array(
+            'product' => $product
+        ));
     }
 
     /**
@@ -154,10 +294,6 @@ class Commerce_ProductsController extends Commerce_BaseAdminController
      */
     public function actionDeleteProduct()
     {
-        if (!craft()->userSession->getUser()->can('manageCommerce')) {
-            throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
-        }
-
         $this->requirePostRequest();
 
         $productId = craft()->request->getRequiredPost('productId');
@@ -194,34 +330,22 @@ class Commerce_ProductsController extends Commerce_BaseAdminController
      */
     public function actionSaveProduct()
     {
-        if (!craft()->userSession->getUser()->can('manageCommerce')) {
-            throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
-        }
-
         $this->requirePostRequest();
 
         $product = $this->_setProductFromPost();
-        $implicitVariant = $this->_setImplicitVariantFromPost($product);
+        $this->_setVariantsFromPost($product);
 
         $existingProduct = (bool)$product->id;
 
         CommerceDbHelper::beginStackedTransaction();
 
         if (craft()->commerce_products->save($product)) {
-            $implicitVariant->productId = $product->id;
 
-            if (craft()->commerce_variants->save($implicitVariant)) {
+            CommerceDbHelper::commitStackedTransaction();
 
-                CommerceDbHelper::commitStackedTransaction();
+            craft()->userSession->setNotice(Craft::t('Product saved.'));
 
-                craft()->userSession->setNotice(Craft::t('Product saved.'));
-
-                if (craft()->request->getPost('redirectToVariant')) {
-                    $this->redirect($product->getCpEditUrl() . '/variants/new');
-                } else {
-                    $this->redirectToPostedUrl($product);
-                }
-            }
+            $this->redirectToPostedUrl($product);
         }
 
         CommerceDbHelper::rollbackStackedTransaction();
@@ -235,8 +359,7 @@ class Commerce_ProductsController extends Commerce_BaseAdminController
 
         craft()->userSession->setNotice(Craft::t("Couldn't save product."));
         craft()->urlManager->setRouteVariables([
-            'product' => $product,
-            'implicitVariant' => $implicitVariant
+            'product' => $product
         ]);
     }
 
@@ -260,11 +383,11 @@ class Commerce_ProductsController extends Commerce_BaseAdminController
             $product = new Commerce_ProductModel();
         }
 
-        $availableOn = craft()->request->getPost('availableOn');
-        $expiresOn = craft()->request->getPost('expiresOn');
+        $postDate = craft()->request->getPost('postDate');
+        $expiryDate = craft()->request->getPost('expiryDate');
 
-        $product->availableOn = $availableOn ? DateTime::createFromString($availableOn, craft()->timezone) : $product->availableOn;
-        $product->expiresOn = $expiresOn ? DateTime::createFromString($expiresOn, craft()->timezone) : null;
+        $product->postDate = $postDate ? DateTime::createFromString($postDate, craft()->timezone) : $product->postDate;
+        $product->expiryDate = $expiryDate ? DateTime::createFromString($expiryDate, craft()->timezone) : null;
         $product->typeId = craft()->request->getPost('typeId');
         $product->enabled = craft()->request->getPost('enabled');
         $product->promotable = craft()->request->getPost('promotable');
@@ -273,8 +396,8 @@ class Commerce_ProductsController extends Commerce_BaseAdminController
         $product->taxCategoryId = craft()->request->getPost('taxCategoryId', $product->taxCategoryId);
         $product->localeEnabled = (bool)craft()->request->getPost('localeEnabled', $product->localeEnabled);
 
-        if (!$product->availableOn) {
-            $product->availableOn = new DateTime();
+        if (!$product->postDate) {
+            $product->postDate = new DateTime();
         }
 
         $product->getContent()->title = craft()->request->getPost('title', $product->title);
@@ -289,13 +412,29 @@ class Commerce_ProductsController extends Commerce_BaseAdminController
      *
      * @return Commerce_VariantModel
      */
-    private function _setImplicitVariantFromPost(Commerce_ProductModel $product)
+    private function _setVariantsFromPost(Commerce_ProductModel $product)
     {
-        $attributes = craft()->request->getPost('implicitVariant');
-        $implicitVariant = $product->getImplicitVariant() ?: new Commerce_VariantModel;
-        $implicitVariant->setAttributes($attributes);
-        $implicitVariant->isImplicit = true;
+        $variantsPost = craft()->request->getPost('variants');
+        $variants = [];
+        $count = 1;
+        foreach ($variantsPost as $key => $variant) {
+            if (strncmp($key, 'new', 3) !== 0) {
+                $variantModel = craft()->commerce_variants->getById($key);
+            }else{
+                $variantModel = new Commerce_VariantModel();
+            }
 
-        return $implicitVariant;
+            $variantModel->setAttributes($variant);
+            if(isset($variant['fields'])){
+                $variantModel->setContentFromPost($variant['fields']);
+            }
+            $variantModel->sortOrder = $count++;
+            $variantModel->setProduct($product);
+            $variants[] = $variantModel;
+        }
+
+        $product->setVariants($variants);
+
+        return $variants;
     }
-} 
+}

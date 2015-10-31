@@ -251,15 +251,11 @@
 		{% include "_includes/tabs" %}
 			{% if order.id %}<input type="hidden" name="orderId" value="{{ order.id }}">{% endif %}
 
-			{% set static = static is defined ? static : false %}
-
 			{% for tab in orderSettings.getFieldLayout().getTabs() %}
-
 				<div id="tab{{ loop.index }}" {% if not loop.first %} class="hidden" {% endif %}>
 					{% include "_includes/fields" with {
 					fields: tab.getFields(),
 					element: order,
-					static: (static is defined ? static : false)
 					} only %}
 				</div>
 			{% endfor %}

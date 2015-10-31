@@ -669,7 +669,7 @@ img.product { width: 100%; }
 
 .variant-input input[type='radio'] { padding: 0px; margin: 0px; }
 
-.flash{ color: #DA5A17; }
+.flash{ color: #DA5A17; margin-bottom:10px;}
 
 
 .address-select { background: #fff; border: 1px solid #eee; margin-bottom: 1em; position: relative; border-radius: 4px; }

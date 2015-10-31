@@ -20,9 +20,9 @@ class Commerce_ShippingRulesService extends BaseApplicationComponent
      */
     public function getAll($criteria = [])
     {
-        $records = Commerce_ShippingRuleRecord::model()->findAll($criteria);
+        $results = Commerce_ShippingRuleRecord::model()->findAll($criteria);
 
-        return Commerce_ShippingRuleModel::populateModels($records);
+        return Commerce_ShippingRuleModel::populateModels($results);
     }
 
     /**
@@ -32,21 +32,25 @@ class Commerce_ShippingRulesService extends BaseApplicationComponent
      */
     public function getAllByMethodId($id)
     {
-        $records = Commerce_ShippingRuleRecord::model()->findAllByAttributes(['methodId' => $id], ['order' => 'priority ASC']);
+        $results = Commerce_ShippingRuleRecord::model()->findAllByAttributes(['methodId' => $id], ['order' => 'priority ASC']);
 
-        return Commerce_ShippingRuleModel::populateModels($records);
+        return Commerce_ShippingRuleModel::populateModels($results);
     }
 
     /**
      * @param int $id
      *
-     * @return Commerce_ShippingRuleModel
+     * @return Commerce_ShippingRuleModel|null
      */
     public function getById($id)
     {
-        $record = Commerce_ShippingRuleRecord::model()->findById($id);
+        $result = Commerce_ShippingRuleRecord::model()->findById($id);
 
-        return Commerce_ShippingRuleModel::populateModel($record);
+        if ($result) {
+            return Commerce_ShippingRuleModel::populateModel($result);
+        }
+
+        return null;
     }
 
     /**

@@ -16,25 +16,33 @@ class Commerce_CountriesService extends BaseApplicationComponent
     /**
      * @param int $id
      *
-     * @return Commerce_CountryModel
+     * @return Commerce_CountryModel|null
      */
     public function getById($id)
     {
-        $record = Commerce_CountryRecord::model()->findById($id);
+        $result = Commerce_CountryRecord::model()->findById($id);
 
-        return Commerce_CountryModel::populateModel($record);
+        if ($result) {
+            return Commerce_CountryModel::populateModel($result);
+        }
+
+        return null;
     }
 
     /**
      * @param array $attr
      *
-     * @return Commerce_CountryModel
+     * @return Commerce_CountryModel|null
      */
     public function getByAttributes(array $attr)
     {
-        $record = Commerce_CountryRecord::model()->findByAttributes($attr);
+        $result = Commerce_CountryRecord::model()->findByAttributes($attr);
 
-        return Commerce_CountryModel::populateModel($record);
+        if ($result) {
+            return Commerce_CountryModel::populateModel($result);
+        }
+
+        return null;
     }
 
     /**

@@ -64,9 +64,14 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
 
         $lineItem = craft()->commerce_lineItems->getById($lineItemId);
 
+        // Error does not reveal the line item doesn't exist, just that it doesn't for the current cart.
+        if(!$lineItem){
+            throw new Exception(Craft::t('Line item not found in current cart'));
+        }
+
         // Only let them update their own cart's line item.
         if (!$lineItem->id || $cart->id != $lineItem->order->id) {
-            throw new Exception(Craft::t('Line item not found for current cart'));
+            throw new Exception(Craft::t('Line item not found in current cart'));
         }
 
         $lineItem->qty = $qty;
@@ -99,9 +104,14 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
 
         $lineItem = craft()->commerce_lineItems->getById($lineItemId);
 
+        // Error does not reveal the line item doesn't exist, just that it doesn't for the current cart.
+        if(!$lineItem){
+            throw new Exception(Craft::t('Line item not found in current cart'));
+        }
+
         // Only let them update their own cart's line item.
-        if (!$lineItem->id || $cart->id != $lineItem->order->id) {
-            throw new Exception(Craft::t('Line item not found for current cart'));
+        if (!$lineItem->id || $cart->id != $lineItem->orderId) {
+            throw new Exception(Craft::t('Line item not found in current cart'));
         }
 
         craft()->commerce_cart->removeFromCart($cart, $lineItemId);
@@ -183,7 +193,7 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
         // Set guest email address onto guest customer and order.
         if (craft()->userSession->isGuest) {
             if (isset($_POST['email'])) {
-                $email = craft()->request->getParam('email');
+                $email = craft()->request->getParam('email'); // empty string vs null (strict type checking)
                 if (!craft()->commerce_cart->setEmail($cart, $email, $error)) {
                     $cart->addError('email', $error);
                 }
