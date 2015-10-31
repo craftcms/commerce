@@ -19,6 +19,17 @@ use Commerce\Helpers\CommerceDbHelper;
  */
 class Commerce_OrdersService extends BaseApplicationComponent
 {
+
+    /**
+     * @var
+     */
+    private $_lineItemsById;
+
+    /**
+     * @var
+     */
+    private $_adjustmentsById;
+
     /**
      * @param int $id
      *
@@ -32,7 +43,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
     /**
      * @param string $number
      *
-     * @return Commerce_OrderModel
+     * @return Commerce_OrderModel|null
      */
     public function getByNumber($number)
     {
@@ -45,18 +56,14 @@ class Commerce_OrdersService extends BaseApplicationComponent
     /**
      * @param int|Commerce_CustomerModel $customer
      *
-     * @return Commerce_OrderModel[]
+     * @return Commerce_OrderModel[]|null
      */
     public function getByCustomer($customer)
     {
-        $id = $customer;
-        if ($customer instanceof Commerce_CustomerModel) {
-            $id = $customer->id;
-        }
+        $criteria = craft()->elements->getCriteria('Commerce_Order');
+        $criteria->customer = $customer;
 
-        $orders = Commerce_OrderRecord::model()->findAllByAttributes(['customerId' => $id]);
-
-        return Commerce_OrderModel::populateModels($orders);
+        return $criteria->first();
     }
 
     /**

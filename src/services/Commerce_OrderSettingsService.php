@@ -16,19 +16,36 @@ use Commerce\Helpers\CommerceDbHelper;
 class Commerce_OrderSettingsService extends BaseApplicationComponent
 {
     /**
-     * @param $id
+     * @var
+     */
+    private $_orderSettingsById;
+
+    /**
+     * @param int $orderSettingsId
      *
      * @return Commerce_OrderSettingsModel|null
      */
-    public function getById($id)
+    public function getById($orderSettingsId)
     {
-        $result = Commerce_OrderSettingsRecord::model()->findByAttributes(['id' => $id]);
+        if (!isset($this->_orderSettingsById) || !array_key_exists($orderSettingsId, $this->_orderSettingsById))
+        {
+            $result = Commerce_OrderSettingsRecord::model()->findById($orderSettingsId);
 
-        if ($result) {
-            return Commerce_OrderSettingsModel::populateModel($result);
+            if ($result) {
+                $orderSetting = Commerce_OrderSettingsModel::populateModel($result);
+            }
+            else
+            {
+                $orderSetting = null;
+            }
+
+            $this->_orderSettingsById[$orderSettingsId] = $orderSetting;
         }
 
-        return null;
+        if (isset($this->_orderSettingsById[$orderSettingsId]))
+        {
+            return $this->_orderSettingsById[$orderSettingsId];
+        }
     }
 
     /**
@@ -40,8 +57,12 @@ class Commerce_OrderSettingsService extends BaseApplicationComponent
     {
         $result = Commerce_OrderSettingsRecord::model()->findByAttributes(['handle' => $handle]);
 
-        if ($result) {
-            return Commerce_OrderSettingsModel::populateModel($result);
+        if ($result)
+        {
+            $orderSetting = Commerce_OrderSettingsModel::populateModel($result);
+            $this->_orderSettingsById[$orderSetting->id] = $orderSetting;
+
+            return $orderSetting;
         }
 
         return null;
@@ -99,6 +120,9 @@ class Commerce_OrderSettingsService extends BaseApplicationComponent
                 if (!$orderSettings->id) {
                     $orderSettings->id = $orderSettingsRecord->id;
                 }
+
+                // Update service's cache
+                $this->_orderSettingsById[$orderSettings->id] = $orderSettings;
 
                 CommerceDbHelper::commitStackedTransaction();
             } catch (\Exception $e) {
