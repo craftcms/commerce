@@ -44,15 +44,13 @@ class Commerce_OrdersController extends Commerce_BaseCpController
                 if (!$variables['order']) {
                     throw new HttpException(404);
                 }
-            } else {
-                $variables['order'] = new Commerce_OrderModel();
-            };
+            }
         }
 
         if (!empty($variables['orderId'])) {
             $variables['title'] = "Order " . substr($variables['order']->number, 0, 7);
         } else {
-            $variables['title'] = Craft::t('Create a new order');
+            throw new HttpException(404);
         }
 
         craft()->templates->includeCssResource('commerce/order.css');
