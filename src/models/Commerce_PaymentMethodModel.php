@@ -51,7 +51,7 @@ class Commerce_PaymentMethodModel extends BaseModel
      */
     public function getGatewayAdapter()
     {
-        $gateways = craft()->commerce_gateways->getAll();
+        $gateways = craft()->commerce_gateways->getAllGateways();
         if (!empty($this->class) && !$this->_gatewayAdapter) {
             $this->_gatewayAdapter = $gateways[$this->class];
             $this->_gatewayAdapter->setAttributes($this->settings);
