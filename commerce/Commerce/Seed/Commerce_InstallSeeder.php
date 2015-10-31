@@ -188,7 +188,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
     private function paymentMethods()
     {
         /** @var Dummy_GatewayAdapter $adapter */
-        $adapter = \Craft\craft()->commerce_gateways->getAll()['Dummy'];
+        $adapter = \Craft\craft()->commerce_gateways->getAllGateways()['Dummy'];
 
         $model = new Commerce_PaymentMethodModel;
         $model->class = $adapter->handle();
