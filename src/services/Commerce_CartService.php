@@ -407,7 +407,7 @@ class Commerce_CartService extends BaseApplicationComponent
      *
      * @return Commerce_OrderModel[]
      */
-    public function getCartsToPurge()
+    private function getCartsToPurge()
     {
 
         $configInterval = craft()->config->get('purgeInactiveCartsDuration', 'commerce');
