@@ -180,7 +180,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
             $order->customerId = craft()->commerce_customers->getCustomerId();
         }
 
-        $order->email = craft()->commerce_customers->getById($order->customerId)->email;
+        $order->email = craft()->commerce_customers->getCustomerById($order->customerId)->email;
 
         // Will not adjust a completed order, we don't want totals to change.
         $this->calculateAdjustments($order);

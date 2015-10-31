@@ -331,7 +331,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 
         if ($criteria->user) {
             if ($criteria->user instanceof UserModel) {
-                $id = craft()->commerce_customers->getById($criteria->user->id)->id;
+                $id = craft()->commerce_customers->getCustomerById($criteria->user->id)->id;
                 if ($id) {
                     $criteria->customerId = $id;
                     $criteria->customer = null;
