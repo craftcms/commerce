@@ -219,7 +219,7 @@ class Commerce_CartService extends BaseApplicationComponent
             $customer = craft()->commerce_customers->getCustomer();
             if (!$customer->userId) {
                 $customer->email = $email;
-                craft()->commerce_customers->save($customer);
+                craft()->commerce_customers->saveCustomer($customer);
                 $cart->email = $customer->email;
                 craft()->commerce_orders->save($cart);
             }
