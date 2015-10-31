@@ -51,7 +51,7 @@ class Commerce_StatesController extends Commerce_BaseAdminController
             $variables['title'] = Craft::t('Create a new state');
         }
 
-        $countriesModels = craft()->commerce_countries->getAll();
+        $countriesModels = craft()->commerce_countries->getAllCountries();
         $countries = [];
         foreach ($countriesModels as $model) {
             $countries[$model->id] = $model->name;
