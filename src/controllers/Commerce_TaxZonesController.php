@@ -51,7 +51,7 @@ class Commerce_TaxZonesController extends Commerce_BaseAdminController
             $variables['title'] = Craft::t('Create a tax zone');
         }
 
-        $countries = craft()->commerce_countries->getAll();
+        $countries = craft()->commerce_countries->getAllCountries();
         $states = craft()->commerce_states->getAll();
 
         $variables['countries'] = \CHtml::listData($countries, 'id', 'name');
