@@ -13,7 +13,7 @@
 	<div class="pane">
 	<div class="order-header">
 	<div class="order-info">
-		{% if orderId is defined %}
+
 		<div class="order-info-box">
 			<table class="fullwidth data borderless">
 				<tr>
@@ -210,9 +210,6 @@
 		</table>
 	</div>
 
-	{% endif %}
-
-
 	<form id="order-actions" method="post" accept-charset="UTF-8">
 		<input type="hidden" name="action" value="">
 		<input type="hidden" name="redirect" value="">
@@ -398,7 +395,7 @@
 $(document).ready(function () {
 
 	new Craft.Commerce.OrderEdit({
-		orderId: {{ (orderId is defined ? orderId : null)|e('js') }}
+		orderId: {{ orderId|e('js') }}
 	});
 
 	$.each($('.tableRowInfo'), function () {
