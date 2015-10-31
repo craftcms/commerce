@@ -25,7 +25,7 @@ class Commerce_OrderSettingsService extends BaseApplicationComponent
      *
      * @return Commerce_OrderSettingsModel|null
      */
-    public function getById($orderSettingsId)
+    public function getOrderSettingById($orderSettingsId)
     {
         if (!isset($this->_orderSettingsById) || !array_key_exists($orderSettingsId, $this->_orderSettingsById))
         {
@@ -53,7 +53,7 @@ class Commerce_OrderSettingsService extends BaseApplicationComponent
      *
      * @return Commerce_OrderSettingsModel|null
      */
-    public function getByHandle($handle)
+    public function getOrderSettingByHandle($handle)
     {
         $result = Commerce_OrderSettingsRecord::model()->findByAttributes(['handle' => $handle]);
 
@@ -75,7 +75,7 @@ class Commerce_OrderSettingsService extends BaseApplicationComponent
      * @throws Exception
      * @throws \Exception
      */
-    public function save(Commerce_OrderSettingsModel $orderSettings)
+    public function saveOrderSetting(Commerce_OrderSettingsModel $orderSettings)
     {
         if ($orderSettings->id) {
             $orderSettingsRecord = Commerce_OrderSettingsRecord::model()->findById($orderSettings->id);

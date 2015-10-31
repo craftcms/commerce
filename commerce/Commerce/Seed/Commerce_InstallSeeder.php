@@ -87,7 +87,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
         $fieldLayout->type = 'Commerce_Order';
         $orderSettings->setFieldLayout($fieldLayout);
 
-        \Craft\craft()->commerce_orderSettings->save($orderSettings);
+        \Craft\craft()->commerce_orderSettings->saveOrderSetting($orderSettings);
 
         $data = [
             'name' => 'Processing',
