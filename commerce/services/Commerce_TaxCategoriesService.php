@@ -13,20 +13,45 @@ namespace Craft;
  */
 class Commerce_TaxCategoriesService extends BaseApplicationComponent
 {
+
     /**
-     * @param int $id
+     * @var bool
+     */
+    private $_fetchedAllTaxCategories = false;
+
+    /**
+     * @var
+     */
+    private $_taxCategoriesById;
+
+    /**
+     * @param int $taxCategoryId
      *
      * @return Commerce_TaxCategoryModel|null
      */
-    public function getById($id)
+    public function getById($taxCategoryId)
     {
-        $result = Commerce_TaxCategoryRecord::model()->findById($id);
+        if(!$this->_fetchedAllTaxCategories &&
+            (!isset($this->_taxCategoriesById) || !array_key_exists($taxCategoryId, $this->_taxCategoriesById))
+        )
+        {
+            $result = Commerce_TaxCategoryRecord::model()->findById($taxCategoryId);
 
-        if ($result){
-            return Commerce_TaxCategoryModel::populateModel($result);
+            if ($result) {
+                $taxCategory = Commerce_TaxCategoryModel::populateModel($result);
+            }
+            else
+            {
+                $taxCategory = null;
+            }
+
+            $this->_taxCategoriesById[$taxCategoryId] = $taxCategory;
         }
 
-        return null;
+        if (isset($this->_taxCategoriesById[$taxCategoryId]))
+        {
+            return $this->_taxCategoriesById[$taxCategoryId];
+        }
     }
 
     /**
@@ -36,9 +61,13 @@ class Commerce_TaxCategoriesService extends BaseApplicationComponent
      */
     public function getDefaultId()
     {
-        $default = Commerce_TaxCategoryRecord::model()->findByAttributes(['default' => true]);
+        foreach($this->getAll() as $taxCategory){
+            if ($taxCategory->default) {
+                return $taxCategory->id;
+            }
+        }
 
-        return $default ? $default->id : null;
+        return null;
     }
 
     /**
@@ -77,11 +106,14 @@ class Commerce_TaxCategoriesService extends BaseApplicationComponent
             // Now that we have a record ID, save it on the model
             $model->id = $record->id;
 
-            //If this was the default make all others not the default.
+            // If this was the default make all others not the default.
             if ($model->default) {
                 Commerce_TaxCategoryRecord::model()->updateAll(['default' => 0],
                     'id != ?', [$record->id]);
             }
+
+            // Update Service cache
+            $this->_taxCategoriesById[$record->id] = $model;
 
             return true;
         } else {
@@ -104,12 +136,41 @@ class Commerce_TaxCategoriesService extends BaseApplicationComponent
     }
 
     /**
+     * Returns all Tax Categories
+     *
+     * @param string|null $indexBy
      * @return Commerce_TaxCategoryModel[]
      */
-    public function getAll()
+    public function getAll($indexBy = null)
     {
-        $records = Commerce_TaxCategoryRecord::model()->findAll();
+        if (!$this->_fetchedAllTaxCategories) {
+            $results = Commerce_TaxCategoryRecord::model()->findAll();
 
-        return Commerce_TaxCategoryModel::populateModels($records);
+            foreach($results as $result){
+                $taxCategory = Commerce_TaxCategoryModel::populateModel($result);
+                $this->_taxCategoriesById[$taxCategory->id] = $taxCategory;
+            }
+
+            $this->_fetchedAllTaxCategories = true;
+        }
+
+        if ($indexBy == 'id')
+        {
+            $taxCategories = $this->_taxCategoriesById;
+        }
+        else if (!$indexBy)
+        {
+            $taxCategories = array_values($this->_taxCategoriesById);
+        }
+        else
+        {
+            $taxCategories = array();
+            foreach ($this->_taxCategoriesById as $taxCategory)
+            {
+                $taxCategories[$taxCategory->$indexBy] = $taxCategory;
+            }
+        }
+
+        return $taxCategories;
     }
 }

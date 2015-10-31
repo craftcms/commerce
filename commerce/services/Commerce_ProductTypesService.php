@@ -21,6 +21,9 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
      */
     private $_fetchedAllProductTypes = false;
 
+    /**
+     * @var
+     */
     private $_productTypesById;
 
     /**
