@@ -47,10 +47,10 @@ class Commerce_SettingsController extends Commerce_BaseAdminController
         $settings = Commerce_SettingsModel::populateModel($postData);
 
         if (!craft()->commerce_settings->save($settings)) {
-            craft()->userSession->setError(Craft::t('Error, Commerce settings not saved.'));
+            craft()->userSession->setError(Craft::t('Couldn’t save settings.'));
             $this->renderTemplate('commerce/settings', ['settings' => $settings]);
         } else {
-            craft()->userSession->setNotice(Craft::t('Success, Commerce settings saved.'));
+            craft()->userSession->setNotice(Craft::t('Settings saved.'));
             $this->redirectToPostedUrl();
         }
     }
