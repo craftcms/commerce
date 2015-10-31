@@ -311,7 +311,7 @@ class Commerce_OrderModel extends BaseElementModel
     public function getAdjustments()
     {
         if(!$this->_orderAdjustments){
-            $this->_orderAdjustments = craft()->commerce_orderAdjustments->getAllByOrderId($this->id);
+            $this->_orderAdjustments = craft()->commerce_orderAdjustments->getAllOrderAdjustmentsByOrderId($this->id);
         }
 
         return $this->_orderAdjustments;

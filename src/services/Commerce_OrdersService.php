@@ -304,10 +304,10 @@ class Commerce_OrdersService extends BaseApplicationComponent
         }
 
         //refreshing adjustments
-        craft()->commerce_orderAdjustments->deleteAllByOrderId($order->id);
+        craft()->commerce_orderAdjustments->deleteAllOrderAdjustmentsByOrderId($order->id);
 
         foreach ($adjustments as $adjustment) {
-            $result = craft()->commerce_orderAdjustments->save($adjustment);
+            $result = craft()->commerce_orderAdjustments->saveOrderAdjustment($adjustment);
             if (!$result) {
                 $errors = $adjustment->getAllErrors();
                 throw new Exception('Error saving order adjustment: ' . implode(', ',
