@@ -13,12 +13,16 @@ var elementTypeClass = 'Commerce_Product';
 Craft.Commerce.ProductIndex = Craft.BaseElementIndex.extend({
 
 	productTypes: null,
+
 	$newProductBtnGroup: null,
 	$newProductBtn: null,
+
+	canCreateProducts: false,
 
 	afterInit: function() {
 		// Find which product types are being shown as sources
 		this.productTypes = [];
+
 		for (var i = 0; i < this.$sources.length; i++) {
 			var $source = this.$sources.eq(i),
 				key = $source.data('key'),
@@ -28,8 +32,13 @@ Craft.Commerce.ProductIndex = Craft.BaseElementIndex.extend({
 				this.productTypes.push({
 					id: parseInt(match[1]),
 					handle: $source.data('handle'),
-					name: $source.text()
+					name: $source.text(),
+					editable: $source.data('editable')
 				});
+
+				if (!this.canCreateProducts && $source.data('editable')) {
+					this.canCreateProducts = true;
+				}
 			}
 		}
 
@@ -73,55 +82,58 @@ Craft.Commerce.ProductIndex = Craft.BaseElementIndex.extend({
 			}
 		}
 
-		this.$newProductBtnGroup = $('<div class="btngroup submit"/>');
-		var $menuBtn;
+		// Are they allowed to create new products?
+		if (this.canCreateProducts) {
+			this.$newProductBtnGroup = $('<div class="btngroup submit"/>');
+			var $menuBtn;
 
-		// If they are, show a primany "New product" button, and a dropdown of the other product types (if any).
-		// Otherwise only show a menu button
-		if (selectedProductType) {
-			var href = this._getProductTypeTriggerHref(selectedProductType),
-				label = (this.settings.context == 'index' ? Craft.t('New product') : Craft.t('New {productType} product', {productType: selectedProductType.name}));
-			this.$newProductBtn = $('<a class="btn submit add icon" '+href+'>'+label+'</a>').appendTo(this.$newProductBtnGroup);
+			// If they are, show a primany "New product" button, and a dropdown of the other product types (if any).
+			// Otherwise only show a menu button
+			if (selectedProductType) {
+				var href = this._getProductTypeTriggerHref(selectedProductType),
+					label = (this.settings.context == 'index' ? Craft.t('New product') : Craft.t('New {productType} product', {productType: selectedProductType.name}));
+				this.$newProductBtn = $('<a class="btn submit add icon" '+href+'>'+label+'</a>').appendTo(this.$newProductBtnGroup);
 
-			if (this.settings.context != 'index') {
-				this.addListener(this.$newProductBtn, 'click', function(ev) {
-					this._openCreateProductModal(ev.currentTarget.getAttribute('data-id'));
-				});
+				if (this.settings.context != 'index') {
+					this.addListener(this.$newProductBtn, 'click', function(ev) {
+						this._openCreateProductModal(ev.currentTarget.getAttribute('data-id'));
+					});
+				}
+
+				if (this.productTypes.length > 1) {
+					$menuBtn = $('<div class="btn submit menubtn"></div>').appendTo(this.$newProductBtnGroup);
+				}
+			} else {
+				this.$newProductBtn = $menuBtn = $('<div class="btn submit add icon menubtn">'+Craft.t('New product')+'</div>').appendTo(this.$newProductBtnGroup);
 			}
 
-			if (this.productTypes.length > 1) {
-				$menuBtn = $('<div class="btn submit menubtn"></div>').appendTo(this.$newProductBtnGroup);
-			}
-		} else {
-			this.$newProductBtn = $menuBtn = $('<div class="btn submit add icon menubtn">'+Craft.t('New product')+'</div>').appendTo(this.$newProductBtnGroup);
-		}
+			if ($menuBtn) {
+				var menuHtml = '<div class="menu"><ul>';
 
-		if ($menuBtn) {
-			var menuHtml = '<div class="menu"><ul>';
+				for (var i = 0; i < this.productTypes.length; i++) {
+					var productType = this.productTypes[i];
 
-			for (var i = 0; i < this.productTypes.length; i++) {
-				var productType = this.productTypes[i];
+					if (this.settings.context == 'index' || productType != selectedProductType) {
+						var href = this._getProductTypeTriggerHref(productType),
+							label = (this.settings.context == 'index' ? productType.name : Craft.t('New {productType} product', {productType: productType.name}));
+						menuHtml += '<li><a '+href+'">'+label+'</a></li>';
+					}
+				}
 
-				if (this.settings.context == 'index' || productType != selectedProductType) {
-					var href = this._getProductTypeTriggerHref(productType),
-						label = (this.settings.context == 'index' ? productType.name : Craft.t('New {productType} product', {productType: productType.name}));
-					menuHtml += '<li><a '+href+'">'+label+'</a></li>';
+				menuHtml += '</ul></div>';
+
+				var $menu = $(menuHtml).appendTo(this.$newProductBtnGroup),
+					menuBtn = new Garnish.MenuBtn($menuBtn);
+
+				if (this.settings.context != 'index') {
+					menuBtn.on('optionSelect', $.proxy(function(ev) {
+						this._openCreateProductModal(ev.option.getAttribute('data-id'));
+					}, this));
 				}
 			}
 
-			menuHtml += '</ul></div>';
-
-			var $menu = $(menuHtml).appendTo(this.$newProductBtnGroup),
-				menuBtn = new Garnish.MenuBtn($menuBtn);
-
-			if (this.settings.context != 'index') {
-				menuBtn.on('optionSelect', $.proxy(function(ev) {
-					this._openCreateProductModal(ev.option.getAttribute('data-id'));
-				}, this));
-			}
+			this.addButton(this.$newProductBtnGroup);
 		}
-
-		this.addButton(this.$newProductBtnGroup);
 
 		// Update the URL if we're on the Products index
 		// ---------------------------------------------------------------------
