@@ -82,7 +82,7 @@ class Commerce_TaxZonesController extends Commerce_BaseAdminController
         if (craft()->commerce_taxZones->save($taxZone, $countriesIds,
             $statesIds)
         ) {
-            craft()->userSession->setNotice(Craft::t('Tax Zone saved.'));
+            craft()->userSession->setNotice(Craft::t('Tax zone saved.'));
             $this->redirectToPostedUrl($taxZone);
         } else {
             craft()->userSession->setError(Craft::t('Couldn’t save tax zone.'));

@@ -37,13 +37,20 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
             if (craft()->request->isAjaxRequest) {
                 $this->returnJson(['success' => true, 'cart' => $this->cartArray($cart)]);
             }
-            craft()->userSession->setNotice(Craft::t('Product has been added'));
+            craft()->userSession->setNotice(Craft::t('Item added.'));
             $this->redirectToPostedUrl();
         } else {
             if (craft()->request->isAjaxRequest) {
                 $this->returnJson(['error' => $error]);
+            } else {
+                if ($error) {
+                    craft()->userSession->setError(Craft::t('Couldn’t add item to cart: {message}', [
+                        'message' => $error
+                    ]));
+                } else {
+                    craft()->userSession->setError(Craft::t('Couldn’t add item to cart.'));
+                }
             }
-            craft()->userSession->setError($error);
         }
     }
 
@@ -79,7 +86,7 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
         $lineItem->order->setContentFromPost('fields');
 
         if (craft()->commerce_lineItems->update($cart, $lineItem, $error)) {
-            craft()->userSession->setNotice(Craft::t('Order item has been updated'));
+            craft()->userSession->setNotice(Craft::t('Line item updated.'));
             if (craft()->request->isAjaxRequest) {
                 $this->returnJson(['success' => true, 'cart' => $this->cartArray($cart)]);
             }
@@ -87,8 +94,15 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
         } else {
             if (craft()->request->isAjaxRequest) {
                 $this->returnErrorJson($error);
+            } else {
+                if ($error) {
+                    craft()->userSession->setError(Craft::t('Couldn’t update lite item: {message}', [
+                        'message' => $error
+                    ]));
+                } else {
+                    craft()->userSession->setError(Craft::t('Couldn’t update line item.'));
+                }
             }
-            craft()->userSession->setError($error);
         }
     }
 
@@ -118,7 +132,7 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
         if (craft()->request->isAjaxRequest) {
             $this->returnJson(['success' => true, 'cart' => $this->cartArray($cart)]);
         }
-        craft()->userSession->setNotice(Craft::t('Product has been removed'));
+        craft()->userSession->setNotice(Craft::t('Line item removed.'));
         $this->redirectToPostedUrl();
     }
 
@@ -135,7 +149,7 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
         if (craft()->request->isAjaxRequest) {
             $this->returnJson(['success' => true, 'cart' => $this->cartArray($cart)]);
         }
-        craft()->userSession->setNotice(Craft::t('All products have been removed'));
+        craft()->userSession->setNotice(Craft::t('Line items removed.'));
         $this->redirectToPostedUrl();
     }
 
@@ -225,17 +239,18 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
         }
 
         if (!$cart->hasErrors()) {
-            craft()->userSession->setNotice(Craft::t('Cart updated'));
+            craft()->userSession->setNotice(Craft::t('Cart updated.'));
             if (craft()->request->isAjaxRequest) {
                 $this->returnJson(['success' => true, 'cart' => $this->cartArray($cart)]);
             }
             $this->redirectToPostedUrl();
         } else {
-            $error = Craft::t('Cart not completely updated');
+            $error = Craft::t('Cart not completely updated.');
             if (craft()->request->isAjaxRequest) {
                 $this->returnErrorJson($error);
+            } else {
+                craft()->userSession->setError($error);
             }
-            craft()->userSession->setError($error);
         }
     }
 }
