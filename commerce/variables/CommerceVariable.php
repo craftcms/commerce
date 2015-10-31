@@ -133,7 +133,7 @@ class CommerceVariable
      */
     public function getDiscounts()
     {
-        $discounts = craft()->commerce_discounts->getAll();
+        $discounts = craft()->commerce_discounts->getAllDiscounts();
 
         return $discounts;
     }

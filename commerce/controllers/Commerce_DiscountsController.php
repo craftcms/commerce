@@ -18,7 +18,7 @@ class Commerce_DiscountsController extends Commerce_BaseCpController
      */
     public function actionIndex()
     {
-        $discounts = craft()->commerce_discounts->getAll(['order' => 'name']);
+        $discounts = craft()->commerce_discounts->getAllDiscounts(['order' => 'name']);
         $this->renderTemplate('commerce/promotions/discounts/index',
             compact('discounts'));
     }
@@ -35,7 +35,7 @@ class Commerce_DiscountsController extends Commerce_BaseCpController
         if (empty($variables['discount'])) {
             if (!empty($variables['id'])) {
                 $id = $variables['id'];
-                $variables['discount'] = craft()->commerce_discounts->getById($id);
+                $variables['discount'] = craft()->commerce_discounts->getDiscountById($id);
 
                 if (!$variables['discount']) {
                     throw new HttpException(404);
@@ -114,7 +114,7 @@ class Commerce_DiscountsController extends Commerce_BaseCpController
         $groups = craft()->request->getPost('groups', []);
 
         // Save it
-        if (craft()->commerce_discounts->save($discount, $groups, $productTypes,
+        if (craft()->commerce_discounts->saveDiscount($discount, $groups, $productTypes,
             $products)
         ) {
             craft()->userSession->setNotice(Craft::t('Discount saved.'));
@@ -137,7 +137,7 @@ class Commerce_DiscountsController extends Commerce_BaseCpController
 
         $id = craft()->request->getRequiredPost('id');
 
-        craft()->commerce_discounts->deleteById($id);
+        craft()->commerce_discounts->deleteDiscountById($id);
         $this->returnJson(['success' => true]);
     }
 

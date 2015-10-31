@@ -124,7 +124,7 @@ class Commerce_CartService extends BaseApplicationComponent
      */
     public function applyCoupon(Commerce_OrderModel $cart, $code, &$error = '')
     {
-        if (empty($code) || craft()->commerce_discounts->checkCode($code,
+        if (empty($code) || craft()->commerce_discounts->matchCode($code,
                 $cart->customerId, $error)
         ) {
             $cart->couponCode = $code ?: null;
