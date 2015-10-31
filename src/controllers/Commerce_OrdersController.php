@@ -39,7 +39,7 @@ class Commerce_OrdersController extends Commerce_BaseCpController
 
         if (empty($variables['order'])) {
             if (!empty($variables['orderId'])) {
-                $variables['order'] = craft()->commerce_orders->getById($variables['orderId']);
+                $variables['order'] = craft()->commerce_orders->getOrderById($variables['orderId']);
 
                 if (!$variables['order']) {
                     throw new HttpException(404);
@@ -157,7 +157,7 @@ class Commerce_OrdersController extends Commerce_BaseCpController
         $orderStatusId = craft()->request->getParam('orderStatusId');
         $message = craft()->request->getParam('message');
 
-        $order = craft()->commerce_orders->getById($orderId);
+        $order = craft()->commerce_orders->getOrderById($orderId);
         $orderStatus = craft()->commerce_orderStatuses->getById($orderStatusId);
 
         if (!$order or !$orderStatus) {
@@ -167,7 +167,7 @@ class Commerce_OrdersController extends Commerce_BaseCpController
         $order->orderStatusId = $orderStatus->id;
         $order->message = $message;
 
-        if (craft()->commerce_orders->save($order)) {
+        if (craft()->commerce_orders->saveOrder($order)) {
             $this->returnJson(['success' => true]);
         }
     }
@@ -183,7 +183,7 @@ class Commerce_OrdersController extends Commerce_BaseCpController
         $addressType = craft()->request->getParam('addressType');
         $address = craft()->request->getParam('address');
 
-        $order = craft()->commerce_orders->getById($orderId);
+        $order = craft()->commerce_orders->getOrderById($orderId);
 
         if ($addressType == 'billing') {
             $billingAddress = Commerce_AddressModel::populateModel($address);
@@ -201,7 +201,7 @@ class Commerce_OrdersController extends Commerce_BaseCpController
             $this->returnErrorJson(Craft::t('Error saving address.'));
         }
 
-        if (craft()->commerce_orders->save($order)) {
+        if (craft()->commerce_orders->saveOrder($order)) {
             $this->returnJson(['success' => true]);
         }
     }
@@ -220,7 +220,7 @@ class Commerce_OrdersController extends Commerce_BaseCpController
         $order = $this->_setOrderFromPost();
         $this->_setContentFromPost($order);
 
-        if (craft()->commerce_orders->save($order)) {
+        if (craft()->commerce_orders->saveOrder($order)) {
             $this->redirectToPostedUrl($order);
         }
 
@@ -239,7 +239,7 @@ class Commerce_OrdersController extends Commerce_BaseCpController
         $orderId = craft()->request->getPost('orderId');
 
         if ($orderId) {
-            $order = craft()->commerce_orders->getById($orderId);
+            $order = craft()->commerce_orders->getOrderById($orderId);
 
             if (!$order) {
                 throw new Exception(Craft::t('No order with the ID “{id}”',
@@ -268,14 +268,14 @@ class Commerce_OrdersController extends Commerce_BaseCpController
         $this->requirePostRequest();
 
         $orderId = craft()->request->getRequiredPost('orderId');
-        $order = craft()->commerce_orders->getById($orderId);
+        $order = craft()->commerce_orders->getOrderById($orderId);
 
         if (!$order) {
             throw new Exception(Craft::t('No order exists with the ID “{id}”.',
                 ['id' => $orderId]));
         }
 
-        if (craft()->commerce_orders->delete($order)) {
+        if (craft()->commerce_orders->deleteOrder($order)) {
             if (craft()->request->isAjaxRequest()) {
                 $this->returnJson(['success' => true]);
             } else {

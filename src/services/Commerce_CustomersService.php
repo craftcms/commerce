@@ -275,14 +275,14 @@ class Commerce_CustomersService extends BaseApplicationComponent
                 $this->saveCustomer($toCustomer);
             }
 
-            $orders = craft()->commerce_orders->getByEmail($toCustomer->email);
+            $orders = craft()->commerce_orders->getOrdersByEmail($toCustomer->email);
 
             foreach ($orders as $order) {
                 // Only consolidate completed orders, not carts
                 if ($order->dateOrdered) {
                     $order->customerId = $toCustomer->id;
                     $order->email = $toCustomer->email;
-                    craft()->commerce_orders->save($order);
+                    craft()->commerce_orders->saveOrder($order);
                 }
             }
 

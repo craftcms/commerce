@@ -89,7 +89,7 @@ class Commerce_CustomerAddressesController extends Commerce_BaseFrontEndControll
                     $cart->billingAddressData = null;
                 }
 
-                craft()->commerce_orders->save($cart);
+                craft()->commerce_orders->saveOrder($cart);
 
                 if (craft()->request->isAjaxRequest) {
                     $this->returnJson(['success' => true]);

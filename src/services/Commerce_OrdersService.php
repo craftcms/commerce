@@ -35,7 +35,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
      *
      * @return Commerce_OrderModel|null
      */
-    public function getById($id)
+    public function getOrderById($id)
     {
         return craft()->elements->getElementById($id, 'Commerce_Order');
     }
@@ -45,7 +45,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
      *
      * @return Commerce_OrderModel|null
      */
-    public function getByNumber($number)
+    public function getOrderByNumber($number)
     {
         $criteria = craft()->elements->getCriteria('Commerce_Order');
         $criteria->number = $number;
@@ -58,7 +58,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
      *
      * @return Commerce_OrderModel[]|null
      */
-    public function getByCustomer($customer)
+    public function getOrdersByCustomer($customer)
     {
         $criteria = craft()->elements->getCriteria('Commerce_Order');
         $criteria->customer = $customer;
@@ -71,7 +71,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
      *
      * @return Commerce_OrderModel[]
      */
-    public function getByEmail($email)
+    public function getOrdersByEmail($email)
     {
         $orders = Commerce_OrderRecord::model()->findAllByAttributes(['email' => $email]);
 
@@ -84,7 +84,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
      * @return bool
      * @throws \CDbException
      */
-    public function delete($order)
+    public function deleteOrder($order)
     {
         return craft()->elements->deleteElementById($order->id);
     }
@@ -106,16 +106,16 @@ class Commerce_OrdersService extends BaseApplicationComponent
             }
         }
 
-        $this->save($order);
+        $this->saveOrder($order);
 
         if (!$order->dateOrdered) {
             if ($order->isPaid()) {
-                craft()->commerce_orders->complete($order);
+                craft()->commerce_orders->completeOrder($order);
             } else {
                 // maybe not paid in full, but authorized enough to complete order.
                 $totalAuthorized = craft()->commerce_payments->getTotalAuthorizedForOrder($order);
                 if ($totalAuthorized >= $order->totalPrice) {
-                    craft()->commerce_orders->complete($order);
+                    craft()->commerce_orders->completeOrder($order);
                 }
             }
         }
@@ -127,7 +127,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
      * @return bool
      * @throws \Exception
      */
-    public function save($order)
+    public function saveOrder($order)
     {
         if ($order->dateOrdered) {
             //raising event
@@ -379,7 +379,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
      * @throws Exception
      * @throws \Exception
      */
-    public function complete(Commerce_OrderModel $order)
+    public function completeOrder(Commerce_OrderModel $order)
     {
 
         //raising event on order complete
@@ -395,7 +395,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
             throw new Exception(Craft::t('No default Status available to set on completed order.'));
         }
 
-        if (!$this->save($order)) {
+        if (!$this->saveOrder($order)) {
             return false;
         }
 
@@ -445,7 +445,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
      * @return bool
      * @throws \Exception
      */
-    public function setAddresses(
+    public function setOrderAddresses(
         Commerce_OrderModel $order,
         Commerce_AddressModel $shippingAddress,
         Commerce_AddressModel $billingAddress
@@ -469,7 +469,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
                 $order->shippingAddressId = $shippingAddress->id;
                 $order->billingAddressId = $billingAddress->id;
 
-                $this->save($order);
+                $this->saveOrder($order);
                 CommerceDbHelper::commitStackedTransaction();
 
                 return true;
@@ -492,7 +492,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
      * @throws Exception
      * @throws \Exception
      */
-    public function recalculate(Commerce_OrderModel $order)
+    public function recalculateOrder(Commerce_OrderModel $order)
     {
         foreach ($order->lineItems as $item) {
             if ($item->refreshFromPurchasable()) {
@@ -505,7 +505,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
             }
         }
 
-        $this->save($order);
+        $this->saveOrder($order);
     }
 
 }
