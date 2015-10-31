@@ -39,7 +39,7 @@ class CommercePlugin extends BasePlugin
         // If this is a CP request, register the commerce.prepCpTemplate hook
         if (craft()->request->isCpRequest()) {
             $this->includeCpResources();
-            craft()->templates->hook('commerce.prepCpTemplate', [$this, 'prepCpTemplate']);
+            craft()->templates->hook('commerce.prepCpTemplate', array($this, 'prepCpTemplate'));
         }
     }
 
@@ -49,13 +49,13 @@ class CommercePlugin extends BasePlugin
     private function initEventHandlers()
     {
         //init global event handlers
-        craft()->on('commerce_orderHistories.onStatusChange', [craft()->commerce_orderStatuses, 'statusChangeHandler']);
-        craft()->on('commerce_orders.onOrderComplete', [craft()->commerce_discounts, 'orderCompleteHandler']);
-        craft()->on('commerce_orders.onOrderComplete', [craft()->commerce_variants, 'orderCompleteHandler']);
-        craft()->on('i18n.onAddLocale', [craft()->commerce_productTypes, 'addLocaleHandler']);
+        craft()->on('commerce_orderHistories.onStatusChange', array(craft()->commerce_orderStatuses, 'statusChangeHandler'));
+        craft()->on('commerce_orders.onOrderComplete', array(craft()->commerce_discounts, 'orderCompleteHandler'));
+        craft()->on('commerce_orders.onOrderComplete', array(craft()->commerce_variants, 'orderCompleteHandler'));
+        craft()->on('i18n.onAddLocale', array(craft()->commerce_productTypes, 'addLocaleHandler'));
 
         if (!craft()->isConsole()) {
-            craft()->on('userSession.onLogin', [craft()->commerce_customers, 'loginHandler']);
+            craft()->on('userSession.onLogin', array(craft()->commerce_customers, 'loginHandler'));
         }
     }
 
@@ -96,7 +96,7 @@ class CommercePlugin extends BasePlugin
                 try {
                     $this->doSeed = false;
 
-                    $migrations = [
+                    $migrations = array(
                         'm150916_010101_Commerce_Rename',
                         'm150917_010101_Commerce_DropEmailTypeColumn',
                         'm150917_010102_Commerce_RenameCodeToHandletaxCatColumn',
@@ -106,7 +106,7 @@ class CommercePlugin extends BasePlugin
                         'm151004_142113_Commerce_PaymentMethods_Name_Unique',
                         'm151018_010101_Commerce_DiscountCodeNull',
                         'm151025_010101_Commerce_AddHandleToShippingMethod'
-                    ];
+                    );
 
                     foreach ($migrations as $migrationClass) {
                         $migration = craft()->migrations->instantiateMigration($migrationClass, $this);
@@ -266,14 +266,14 @@ class CommercePlugin extends BasePlugin
      */
     public function prepCpTemplate(&$context)
     {
-        $context['subnav'] = [
-            'orders' => ['label' => Craft::t('Orders'), 'url' => 'commerce/orders'],
-            'products' => ['label' => Craft::t('Products'), 'url' => 'commerce/products'],
-            'promotions' => ['label' => Craft::t('Promotions'), 'url' => 'commerce/promotions'],
-        ];
+        $context['subnav'] = array(
+            'orders' => array('label' => Craft::t('Orders'), 'url' => 'commerce/orders'),
+            'products' => array('label' => Craft::t('Products'), 'url' => 'commerce/products'),
+            'promotions' => array('label' => Craft::t('Promotions'), 'url' => 'commerce/promotions'),
+        );
 
         if (craft()->userSession->isAdmin()) {
-            $context['subnav']['settings'] = ['icon' => 'settings', 'label' => Craft::t('Settings'), 'url' => 'commerce/settings'];
+            $context['subnav']['settings'] = array('icon' => 'settings', 'label' => Craft::t('Settings'), 'url' => 'commerce/settings');
         }
     }
 
