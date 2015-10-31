@@ -69,7 +69,7 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
         $qty = craft()->request->getPost('qty', 0);
         $note = craft()->request->getPost('note');
 
-        $lineItem = craft()->commerce_lineItems->getById($lineItemId);
+        $lineItem = craft()->commerce_lineItems->getLineItemById($lineItemId);
 
         // Error does not reveal the line item doesn't exist, just that it doesn't for the current cart.
         if(!$lineItem){
@@ -85,7 +85,7 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
         $lineItem->note = $note;
         $lineItem->order->setContentFromPost('fields');
 
-        if (craft()->commerce_lineItems->update($cart, $lineItem, $error)) {
+        if (craft()->commerce_lineItems->updateLineItem($cart, $lineItem, $error)) {
             craft()->userSession->setNotice(Craft::t('Line item updated.'));
             if (craft()->request->isAjaxRequest) {
                 $this->returnJson(['success' => true, 'cart' => $this->cartArray($cart)]);
@@ -116,7 +116,7 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
         $lineItemId = craft()->request->getPost('lineItemId');
         $cart = craft()->commerce_cart->getCart();
 
-        $lineItem = craft()->commerce_lineItems->getById($lineItemId);
+        $lineItem = craft()->commerce_lineItems->getLineItemById($lineItemId);
 
         // Error does not reveal the line item doesn't exist, just that it doesn't for the current cart.
         if(!$lineItem){

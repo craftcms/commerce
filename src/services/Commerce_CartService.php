@@ -42,12 +42,12 @@ class Commerce_CartService extends BaseApplicationComponent
         }
 
         //filling item model
-        $lineItem = craft()->commerce_lineItems->getByOrderPurchasable($order->id, $purchasableId);
+        $lineItem = craft()->commerce_lineItems->getLineItemByOrderPurchasable($order->id, $purchasableId);
 
         if ($lineItem) {
             $lineItem->qty += $qty;
         } else {
-            $lineItem = craft()->commerce_lineItems->create($purchasableId, $order->id, $qty);
+            $lineItem = craft()->commerce_lineItems->createLineItem($purchasableId, $order->id, $qty);
         }
 
         if ($note) {
@@ -55,7 +55,7 @@ class Commerce_CartService extends BaseApplicationComponent
         }
 
         try {
-            if (craft()->commerce_lineItems->save($lineItem)) {
+            if (craft()->commerce_lineItems->saveLineItem($lineItem)) {
                 craft()->commerce_orders->save($order);
                 CommerceDbHelper::commitStackedTransaction();
 
@@ -313,7 +313,7 @@ class Commerce_CartService extends BaseApplicationComponent
      */
     public function removeFromCart(Commerce_OrderModel $cart, $lineItemId)
     {
-        $lineItem = craft()->commerce_lineItems->getById($lineItemId);
+        $lineItem = craft()->commerce_lineItems->getLineItemById($lineItemId);
 
         if (!$lineItem->id) {
             throw new Exception('Line item not found');
@@ -321,7 +321,7 @@ class Commerce_CartService extends BaseApplicationComponent
 
         CommerceDbHelper::beginStackedTransaction();
         try {
-            craft()->commerce_lineItems->delete($lineItem);
+            craft()->commerce_lineItems->deleteLineItem($lineItem);
 
             craft()->commerce_orders->save($cart);
 
@@ -371,7 +371,7 @@ class Commerce_CartService extends BaseApplicationComponent
     {
         CommerceDbHelper::beginStackedTransaction();
         try {
-            craft()->commerce_lineItems->deleteAllByOrderId($cart->id);
+            craft()->commerce_lineItems->deleteAllLineItemsByOrderId($cart->id);
             craft()->commerce_orders->save($cart);
         } catch (\Exception $e) {
             CommerceDbHelper::rollbackStackedTransaction();

@@ -21,7 +21,7 @@ class Commerce_LineItemsService extends BaseApplicationComponent
      *
      * @return Commerce_LineItemModel[]
      */
-    public function getAllByOrderId($id)
+    public function getAllLineItemsByOrderId($id)
     {
         $lineItems = Commerce_LineItemRecord::model()->findAllByAttributes(['orderId' => $id]);
 
@@ -36,7 +36,7 @@ class Commerce_LineItemsService extends BaseApplicationComponent
      *
      * @return Commerce_LineItemModel|null
      */
-    public function getByOrderPurchasable($orderId, $purchasableId)
+    public function getLineItemByOrderPurchasable($orderId, $purchasableId)
     {
         $result = Commerce_LineItemRecord::model()->findByAttributes([
             'orderId' => $orderId,
@@ -61,9 +61,9 @@ class Commerce_LineItemsService extends BaseApplicationComponent
      * @return bool
      * @throws Exception
      */
-    public function update(Commerce_OrderModel $order, Commerce_LineItemModel $lineItem, &$error = '')
+    public function updateLineItem(Commerce_OrderModel $order, Commerce_LineItemModel $lineItem, &$error = '')
     {
-        if ($this->save($lineItem)) {
+        if ($this->saveLineItem($lineItem)) {
             craft()->commerce_orders->save($order);
 
             return true;
@@ -81,11 +81,11 @@ class Commerce_LineItemsService extends BaseApplicationComponent
      * @return bool
      * @throws \Exception
      */
-    public function save(Commerce_LineItemModel $lineItem)
+    public function saveLineItem(Commerce_LineItemModel $lineItem)
     {
 
         if ($lineItem->qty <= 0 && $lineItem->id) {
-            $this->delete($lineItem);
+            $this->deleteLineItem($lineItem);
 
             return true;
         }
@@ -159,7 +159,7 @@ class Commerce_LineItemsService extends BaseApplicationComponent
      *
      * @return Commerce_LineItemModel|null
      */
-    public function getById($id)
+    public function getLineItemById($id)
     {
         $result = Commerce_LineItemRecord::model()->findById($id);
 
@@ -177,7 +177,7 @@ class Commerce_LineItemsService extends BaseApplicationComponent
      * @return Commerce_LineItemModel
      * @throws Exception
      */
-    public function create($purchasableId, $orderId, $qty)
+    public function createLineItem($purchasableId, $orderId, $qty)
     {
         $lineItem = new Commerce_LineItemModel();
         $lineItem->purchasableId = $purchasableId;
@@ -201,7 +201,7 @@ class Commerce_LineItemsService extends BaseApplicationComponent
      *
      * @return int
      */
-    public function delete($lineItem)
+    public function deleteLineItem($lineItem)
     {
         return Commerce_LineItemRecord::model()->deleteByPk($lineItem->id);
     }
@@ -211,7 +211,7 @@ class Commerce_LineItemsService extends BaseApplicationComponent
      *
      * @return int
      */
-    public function deleteAllByOrderId($orderId)
+    public function deleteAllLineItemsByOrderId($orderId)
     {
         return Commerce_LineItemRecord::model()->deleteAllByAttributes(['orderId' => $orderId]);
     }
