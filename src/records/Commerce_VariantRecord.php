@@ -6,9 +6,9 @@ namespace Craft;
  *
  * @property int $id
  * @property int $productId
- * @property bool $isImplicit
  * @property string $sku
  * @property float $price
+ * @property int $sortOrder
  * @property float $width
  * @property float $height
  * @property float $length
@@ -76,17 +76,13 @@ class Commerce_VariantRecord extends BaseRecord
     protected function defineAttributes()
     {
         return [
-            'isImplicit' => [
-                AttributeType::Bool,
-                'default' => 0,
-                'required' => true
-            ],
             'sku' => [AttributeType::String, 'required' => true, 'label' => 'SKU'],
             'price' => [
                 AttributeType::Number,
                 'decimals' => 4,
                 'required' => true
             ],
+            'sortOrder' => AttributeType::Number,
             'width' => [AttributeType::Number, 'decimals' => 4],
             'height' => [AttributeType::Number, 'decimals' => 4],
             'length' => [AttributeType::Number, 'decimals' => 4],

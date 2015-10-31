@@ -15,33 +15,37 @@ use Commerce\Helpers\CommerceDbHelper;
  */
 class Commerce_OrderSettingsService extends BaseApplicationComponent
 {
-
-
     /**
      * @param $id
      *
-     * @return BaseModel
+     * @return Commerce_OrderSettingsModel|null
      */
     public function getById($id)
     {
-        $orderSettingsRecord = Commerce_OrderSettingsRecord::model()->findByAttributes(['id' => $id]);
+        $result = Commerce_OrderSettingsRecord::model()->findByAttributes(['id' => $id]);
 
-        return Commerce_OrderSettingsModel::populateModel($orderSettingsRecord);
+        if ($result) {
+            return Commerce_OrderSettingsModel::populateModel($result);
+        }
+
+        return null;
     }
-
 
     /**
      * @param string $handle
      *
-     * @return Commerce_OrderSettingsModel
+     * @return Commerce_OrderSettingsModel|null
      */
     public function getByHandle($handle)
     {
-        $orderSettingsRecord = Commerce_OrderSettingsRecord::model()->findByAttributes(['handle' => $handle]);
+        $result = Commerce_OrderSettingsRecord::model()->findByAttributes(['handle' => $handle]);
 
-        return Commerce_OrderSettingsModel::populateModel($orderSettingsRecord);
+        if ($result) {
+            return Commerce_OrderSettingsModel::populateModel($result);
+        }
+
+        return null;
     }
-
 
     /**
      * @param Commerce_OrderSettingsModel $orderSettings

@@ -1,6 +1,8 @@
 <?php
 namespace Craft;
 
+use Commerce\Helpers\CommerceVariantMatrixHelper as VariantMatrixHelper;
+
 require_once(__DIR__ . '/Commerce_BaseElementType.php');
 
 /**
@@ -15,7 +17,6 @@ require_once(__DIR__ . '/Commerce_BaseElementType.php');
  */
 class Commerce_ProductElementType extends Commerce_BaseElementType
 {
-
     /**
      * @return null|string
      */
@@ -94,7 +95,6 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
     public function getSources($context = null)
     {
         $sources = [
-
             '*' => [
                 'label' => Craft::t('All products'),
             ]
@@ -107,6 +107,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
 
             $sources[$key] = [
                 'label' => $productType->name,
+                'data' => array('handle' => $productType->handle),
                 'criteria' => ['typeId' => $productType->id]
             ];
         }
@@ -118,20 +119,47 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
     }
 
     /**
-     * @param null $source
-     *
      * @return array
      */
-    public function defineTableAttributes($source = null)
+    public function defineAvailableTableAttributes()
     {
         $attributes = [
-            'title' => Craft::t('Name'),
-            'availableOn' => Craft::t('Available On'),
-            'expiresOn' => Craft::t('Expires On')
+            'title' => ['label' => Craft::t('Title')],
+            'type' => ['label' => Craft::t('Type')],
+            'slug' => ['label' => Craft::t('Slug')],
+            'uri' => ['label' => Craft::t('URI')],
+            'postDate' => ['label' => Craft::t('Post Date')],
+            'expiryDate' => ['label' => Craft::t('Expiry Date')],
+            'taxCategory' => ['label' => Craft::t('Tax Category')],
+            'freeShipping' => ['label' => Craft::t('Free Shipping?')],
+            'promotable' => ['label' => Craft::t('Promotable?')],
+            'link' => ['label' => Craft::t('Link'), 'icon' => 'world'],
+            'dateCreated' => ['label' => Craft::t('Date Created')],
+            'dateUpdated' => ['label' => Craft::t('Date Updated')],
         ];
 
         // Allow plugins to modify the attributes
         craft()->plugins->call('commerce_modifyProductTableAttributes', [&$attributes]);
+
+        return $attributes;
+    }
+
+    /**
+     * @param string|null $source
+     *
+     * @return array
+     */
+    public function getDefaultTableAttributes($source = null)
+    {
+        $attributes = [];
+
+        if ($source == '*') {
+            $attributes[] = 'type';
+        }
+
+        $attributes[] = 'postDate';
+        $attributes[] = 'expiryDate';
+        $attributes[] = 'link';
 
         return $attributes;
     }
@@ -160,7 +188,28 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
             return $pluginAttributeHtml;
         }
 
-        return parent::getTableAttributeHtml($element, $attribute);
+        switch ($attribute) {
+            case 'type': {
+                $productType = $element->getType();
+
+                return ($productType ? Craft::t($productType->name) : '');
+            }
+
+            case 'taxCategory': {
+                $taxCategory = $element->getTaxCategory();
+
+                return ($taxCategory ? Craft::t($taxCategory->name) : '');
+            }
+
+            case 'promotable':
+            case 'freeShipping': {
+                return ($element->$attribute ? '<span data-icon="check" title="'.Craft::t('Yes').'"></span>' : '');
+            }
+
+            default: {
+                return parent::getTableAttributeHtml($element, $attribute);
+            }
+        }
     }
 
     /**
@@ -172,8 +221,8 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
     {
         $attributes = [
             'title' => Craft::t('Name'),
-            'availableOn' => Craft::t('Available On'),
-            'expiresOn' => Craft::t('Expires On')
+            'postDate' => Craft::t('Available On'),
+            'expiryDate' => Craft::t('Expires On')
         ];
 
         // Allow plugins to modify the attributes
@@ -207,10 +256,10 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
         return [
             'typeId' => AttributeType::Mixed,
             'type' => AttributeType::Mixed,
-            'availableOn' => AttributeType::Mixed,
-            'expiresOn' => AttributeType::Mixed,
+            'postDate' => AttributeType::Mixed,
+            'expiryDate' => AttributeType::Mixed,
             'after' => AttributeType::Mixed,
-            'order' => [AttributeType::String, 'default' => 'availableOn desc'],
+            'order' => [AttributeType::String, 'default' => 'postDate desc'],
             'before' => AttributeType::Mixed,
             'status' => [AttributeType::String, 'default' => Commerce_ProductModel::LIVE],
             'withVariant' => AttributeType::Mixed,
@@ -234,8 +283,8 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
                 return ['and',
                     'elements.enabled = 1',
                     'elements_i18n.enabled = 1',
-                    "products.availableOn <= '{$currentTimeDb}'",
-                    ['or', 'products.expiresOn is null', "products.expiresOn > '{$currentTimeDb}'"]
+                    "products.postDate <= '{$currentTimeDb}'",
+                    ['or', 'products.expiryDate is null', "products.expiryDate > '{$currentTimeDb}'"]
                 ];
             }
 
@@ -243,7 +292,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
                 return ['and',
                     'elements.enabled = 1',
                     'elements_i18n.enabled = 1',
-                    "products.availableOn > '{$currentTimeDb}'"
+                    "products.postDate > '{$currentTimeDb}'"
                 ];
             }
 
@@ -251,8 +300,8 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
                 return ['and',
                     'elements.enabled = 1',
                     'elements_i18n.enabled = 1',
-                    'products.expiresOn is not null',
-                    "products.expiresOn <= '{$currentTimeDb}'"
+                    'products.expiryDate is not null',
+                    "products.expiryDate <= '{$currentTimeDb}'"
                 ];
             }
         }
@@ -268,24 +317,24 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
     public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
     {
         $query
-            ->addSelect("products.id, products.typeId, products.promotable, products.freeShipping, products.availableOn, products.expiresOn, products.taxCategoryId, products.authorId")
+            ->addSelect("products.id, products.typeId, products.promotable, products.freeShipping, products.postDate, products.expiryDate, products.taxCategoryId, products.authorId")
             ->join('commerce_products products', 'products.id = elements.id')
             ->join('commerce_producttypes producttypes', 'producttypes.id = products.typeId');
 
-        if ($criteria->availableOn) {
-            $query->andWhere(DbHelper::parseDateParam('products.availableOn', $criteria->availableOn, $query->params));
+        if ($criteria->postDate) {
+            $query->andWhere(DbHelper::parseDateParam('products.postDate', $criteria->postDate, $query->params));
         } else {
             if ($criteria->after) {
-                $query->andWhere(DbHelper::parseDateParam('products.availableOn', '>=' . $criteria->after, $query->params));
+                $query->andWhere(DbHelper::parseDateParam('products.postDate', '>=' . $criteria->after, $query->params));
             }
 
             if ($criteria->before) {
-                $query->andWhere(DbHelper::parseDateParam('products.availableOn', '<' . $criteria->before, $query->params));
+                $query->andWhere(DbHelper::parseDateParam('products.postDate', '<' . $criteria->before, $query->params));
             }
         }
 
-        if ($criteria->expiresOn) {
-            $query->andWhere(DbHelper::parseDateParam('products.expiresOn', $criteria->expiresOn, $query->params));
+        if ($criteria->expiryDate) {
+            $query->andWhere(DbHelper::parseDateParam('products.expiryDate', $criteria->expiryDate, $query->params));
         }
 
         if ($criteria->type) {
@@ -334,6 +383,37 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
     }
 
     /**
+     * Returns the HTML for an editor HUD for the given element.
+     *
+     * @param BaseElementModel $element The element being edited.
+     *
+     * @return string The HTML for the editor HUD.
+     */
+    public function getEditorHtml(BaseElementModel $element)
+    {
+        $templatesService = craft()->templates;
+        $html = $templatesService->renderMacro('commerce/products/_fields', 'titleField', array($element));
+        $html .= $templatesService->renderMacro('commerce/products/_fields', 'generalMetaFields', array($element));
+        $html .= $templatesService->renderMacro('commerce/products/_fields', 'behavioralMetaFields', array($element));
+        $html .= parent::getEditorHtml($element);
+
+        if ($element->getType()->hasVariants) {
+            $html .= $templatesService->renderMacro('_includes/forms', 'field', array(
+                array(
+                    'label' => Craft::t('Variants'),
+                ),
+                VariantMatrixHelper::getVariantMatrixHtml($element)
+            ));
+        } else {
+            $primaryVariant = ArrayHelper::getFirstValue($element->getVariants());
+            $html .= $templatesService->renderMacro('commerce/products/_fields', 'generalVariantFields', array($primaryVariant));
+            $html .= $templatesService->renderMacro('commerce/products/_fields', 'dimensionVariantFields', array($primaryVariant));
+        }
+
+        return $html;
+    }
+
+    /**
      * Routes the request when the URI matches a product.
      *
      * @param BaseElementModel $element
@@ -375,4 +455,4 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
         return craft()->commerce_products->save($element);
     }
 
-} 
+}

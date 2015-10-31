@@ -27,8 +27,8 @@
                     <th scope="row" data-title="{{ 'Name'|t }}"><a
                                 href="{{ url('commerce/settings/taxrates/'~taxRate.id) }}">{{ taxRate.name }}</a></th>
                     <td data-title="{{ 'Rate'|t }}">{{ taxRate.rateAsPercent }}</td>
-                    <td data-title="Include in Price?">{{ taxRate.include ? 'Yes'|t : 'No'|t }}</td>
-                    <td data-title="Show in Label?">{{ taxRate.showInLabel ? 'Yes'|t : 'No'|t }}</td>
+                    <td data-title="{{ 'Include in Price?'|t }}">{% if taxRate.include %}<span data-icon="check" title="{{ 'Yes'|t }}"></span>{% endif %}</td>
+                    <td data-title="{{ 'Show in Label?'|t }}">{% if taxRate.showInLabel %}<span data-icon="check" title="{{ 'Yes'|t }}"></span>{% endif %}</td>
                     <td data-title="{{ 'Tax Zone'|t }}">{{ taxRate.taxZone.name }}</td>
                     <td data-title="{{ 'Tax Category'|t }}">{{ taxRate.taxCategory.name }}</td>
                     <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>

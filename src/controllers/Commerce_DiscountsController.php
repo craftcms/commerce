@@ -11,7 +11,7 @@ namespace Craft;
  * @package   craft.plugins.commerce.controllers
  * @since     1.0
  */
-class Commerce_DiscountsController extends Commerce_BaseAdminController
+class Commerce_DiscountsController extends Commerce_BaseCpController
 {
     /**
      * @throws HttpException
@@ -37,7 +37,7 @@ class Commerce_DiscountsController extends Commerce_BaseAdminController
                 $id = $variables['id'];
                 $variables['discount'] = craft()->commerce_discounts->getById($id);
 
-                if (!$variables['discount']->id) {
+                if (!$variables['discount']) {
                     throw new HttpException(404);
                 }
             } else {

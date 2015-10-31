@@ -16,7 +16,7 @@
                 {% for item in cart.lineItems %}
                     <tr>
                         <td>
-                            <strong>{{ item.purchasable.description }}</strong><br/>
+                            <strong>{{ item.purchasable.description }}</strong><br>
                             {{ item.purchasable.sku }}
                             <form method="POST">
                                 <input type="hidden" name="action" value="commerce/cart/removeLineItem"/>
@@ -39,20 +39,20 @@
                         </td>
                         <td class="text-right">
                             {% if item.onSale %}
-                                <s>Price: {{ item.price|commerceCurrency }}</s><br/>
-                                Sale Off: {{ item.saleAmount|commerceCurrency }}<br/>
-                                Sale Price {{ item.salePrice|commerceCurrency }}<br/>
-                                Sale Price Subtotal: {{ item.subtotalWithSale|commerceCurrency }}<br/>
+                                <s>Price: {{ item.price|commerceCurrency }}</s><br>
+                                Sale Off: {{ item.saleAmount|commerceCurrency }}<br>
+                                Sale Price {{ item.salePrice|commerceCurrency }}<br>
+                                Sale Price Subtotal: {{ item.subtotalWithSale|commerceCurrency }}<br>
                             {% else %}
-                                Price: {{ item.price|commerceCurrency }}<br/>
-                                Sale Price {{ item.salePrice|commerceCurrency }}<br/>
-                                Sale Price Subtotal: {{ item.subtotalWithSale|commerceCurrency }}<br/>
+                                Price: {{ item.price|commerceCurrency }}<br>
+                                Sale Price {{ item.salePrice|commerceCurrency }}<br>
+                                Sale Price Subtotal: {{ item.subtotalWithSale|commerceCurrency }}<br>
                             {% endif %}
 
-                            Discount: {{ item.discount|commerceCurrency }}<br/>
-                            Taxes: {{ item.tax|commerceCurrency }}<br/>
-                            Ship Total: {{ item.shippingCost|commerceCurrency }}<br/>
-                            Total: {{ item.total|commerceCurrency }}<br/>
+                            Discount: {{ item.discount|commerceCurrency }}<br>
+                            Taxes: {{ item.tax|commerceCurrency }}<br>
+                            Shipping: {{ item.shippingCost|commerceCurrency }}<br>
+                            Total: {{ item.total|commerceCurrency }}<br>
                         </td>
                     </tr>
                 {% endfor %}
@@ -61,7 +61,7 @@
                     <tr>
                         <td>{{ adjustment.type }}
                         </td>
-                        <td><strong>{{ adjustment.name }}</strong><br/>({{ adjustment.description }})</td>
+                        <td><strong>{{ adjustment.name }}</strong><br>({{ adjustment.description }})</td>
                         <td class="text-right">{{ adjustment.amount|commerceCurrency }}</td>
                     </tr>
                 {% endfor %}
@@ -82,7 +82,7 @@
                             <input type="hidden" name="redirect" value="commerce/cart">
                             {{ getCsrfInput() }}
                             <input type="text" name="couponCode" width="11" value="{{ cart.couponCode }}"
-                                   placeholder="{{ "Coupon Code"|t }}"><br/>
+                                   placeholder="{{ "Coupon Code"|t }}"><br>
                             <input type="submit" class="button"
                                    value="{% if cart.couponCode %}Change{% else %}Apply{% endif %} Coupon"/>
                         </form>
@@ -91,9 +91,9 @@
                     <td>
                     </td>
                     <td class="text-right">
-                        Item Total: {{ cart.itemTotal|commerceCurrency }}<br/>
-                        Base Discount: {{ cart.baseDiscount|commerceCurrency }}<br/>
-                        Base Shipping Rate: {{ cart.baseShippingCost|commerceCurrency }}<br/>
+                        Item Total: {{ cart.itemTotal|commerceCurrency }}<br>
+                        Base Discount: {{ cart.baseDiscount|commerceCurrency }}<br>
+                        Base Shipping Cost: {{ cart.baseShippingCost|commerceCurrency }}<br>
                         <h4>Total Price: {{ cart.totalPrice|commerceCurrency }}</h4>
                     </td>
                 </tr>

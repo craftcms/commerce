@@ -11,7 +11,7 @@ namespace Craft;
  * @package   craft.plugins.commerce.controllers
  * @since     1.0
  */
-class Commerce_AddressesController extends Commerce_BaseAdminController
+class Commerce_AddressesController extends Commerce_BaseCpController
 {
     /**
      * Edit Address
@@ -30,7 +30,7 @@ class Commerce_AddressesController extends Commerce_BaseAdminController
             $id = $variables['id'];
             $variables['address'] = craft()->commerce_addresses->getAddressById($id);
 
-            if (!$variables['address']->id) {
+            if (!$variables['address']) {
                 throw new HttpException(404);
             }
         }

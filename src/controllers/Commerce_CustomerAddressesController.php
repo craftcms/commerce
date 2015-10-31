@@ -67,6 +67,7 @@ class Commerce_CustomerAddressesController extends Commerce_BaseFrontEndControll
 
         $customerId = craft()->commerce_customers->getCustomerId();
         $addressIds = craft()->commerce_customers->getAddressIds($customerId);
+        $cart = craft()->commerce_cart->getCart();
 
         $id = craft()->request->getPost('id', 0);
 
@@ -77,6 +78,19 @@ class Commerce_CustomerAddressesController extends Commerce_BaseFrontEndControll
         // current customer is the owner of the address
         if (in_array($id, $addressIds)) {
             if (craft()->commerce_addresses->deleteAddressById($id)) {
+
+                if ($cart->shippingAddressId == $id) {
+                    $cart->shippingAddressId = null;
+                    $cart->shippingAddressData = null;
+                }
+
+                if ($cart->billingAddressId == $id) {
+                    $cart->billingAddressId = null;
+                    $cart->billingAddressData = null;
+                }
+
+                craft()->commerce_orders->save($cart);
+
                 if (craft()->request->isAjaxRequest) {
                     $this->returnJson(['success' => true]);
                 }

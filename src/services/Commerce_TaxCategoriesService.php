@@ -16,13 +16,17 @@ class Commerce_TaxCategoriesService extends BaseApplicationComponent
     /**
      * @param int $id
      *
-     * @return Commerce_TaxCategoryModel
+     * @return Commerce_TaxCategoryModel|null
      */
     public function getById($id)
     {
-        $record = Commerce_TaxCategoryRecord::model()->findById($id);
+        $result = Commerce_TaxCategoryRecord::model()->findById($id);
 
-        return Commerce_TaxCategoryModel::populateModel($record);
+        if ($result){
+            return Commerce_TaxCategoryModel::populateModel($result);
+        }
+
+        return null;
     }
 
     /**

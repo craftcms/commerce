@@ -17,12 +17,34 @@ class Commerce_VariantsService extends BaseApplicationComponent
 {
     /**
      * @param int $id
-     *
      * @return Commerce_VariantModel
      */
     public function getById($id)
     {
         return craft()->elements->getElementById($id, 'Commerce_Variant');
+    }
+
+    /**
+     * Returns the first variant as returned by it's sortOrder.
+     *
+     * @param $id
+     * @return mixed|null
+     */
+    public function getPrimaryVariantByProductId($id)
+    {
+        return ArrayHelper::getFirstValue($this->getAllByProductId($id));
+    }
+
+    /**
+     * @param int $id
+     *
+     * @return Commerce_VariantModel[]
+     */
+    public function getAllByProductId($id)
+    {
+        $variants = craft()->elements->getCriteria('Commerce_Variant', ['productId' => $id, 'status'=> null])->find();
+
+        return $variants;
     }
 
     /**
@@ -45,25 +67,32 @@ class Commerce_VariantsService extends BaseApplicationComponent
     }
 
     /**
-     * @param int $id
-     *
-     * @return Commerce_VariantModel[]
-     */
-    public function getAllByProductId($id)
-    {
-        $criteria = ['productId' => $id];
-        $variants = craft()->elements->getCriteria('Commerce_Variant',
-            $criteria)->find();
-
-        return $variants;
-    }
-
-    /**
      * @param $variant
      */
     public function deleteVariant($variant)
     {
         craft()->elements->deleteElementById($variant->id);
+    }
+
+    /**
+     * @param Commerce_VariantModel $variant
+     * @return bool
+     */
+    public function validateVariant(Commerce_VariantModel $variant)
+    {
+        $variant->clearErrors();
+
+        $record = $this->_getVariantRecord($variant);
+        $this->_populateVariantRecord($record, $variant);
+
+        $record->validate();
+        $variant->addErrors($record->getErrors());
+
+        if (!craft()->content->validateContent($variant)) {
+            $variant->addErrors($variant->getContent()->getErrors());
+        }
+
+        return !$variant->hasErrors();
     }
 
     /**
@@ -99,7 +128,7 @@ class Commerce_VariantsService extends BaseApplicationComponent
     }
 
     /**
-     * Save a model into DB
+     * Persists a variant.
      *
      * @param BaseElementModel $model
      *
@@ -109,67 +138,8 @@ class Commerce_VariantsService extends BaseApplicationComponent
      */
     public function save(BaseElementModel $model)
     {
-        $productTypeId = craft()->db->createCommand()
-            ->select('typeId')
-            ->from('commerce_products')
-            ->where('id=:id', [':id' => $model->productId])
-            ->queryScalar();
-
-        $productType = craft()->commerce_productTypes->getById($productTypeId);
-
-        if ($model->id) {
-            $record = Commerce_VariantRecord::model()->findById($model->id);
-
-            if (!$record) {
-                throw new HttpException(404);
-            }
-        } else {
-            $record = new Commerce_VariantRecord();
-        }
-        /* @var Commerce_VariantModel $model */
-        $record->isImplicit = $model->isImplicit;
-        $record->productId = $model->productId;
-
-        // We dont ask for a sku when dealing with a product with variants
-        if ($model->isImplicit && $productType->hasVariants) {
-            $model->sku = 'implicitSkuOfProductId' . $model->productId;
-            $record->sku = $model->sku;
-        } else {
-            $record->sku = $model->sku;
-        }
-
-        if (!$productType->titleFormat) {
-            $productType->titleFormat = "{sku}";
-        }
-
-        // implicit variant has no custom field data so play it safe and default it to sku.
-        if ($model->isImplicit) {
-            $productType->titleFormat = "{sku}";
-        }
-
-        $model->getContent()->title = craft()->templates->renderObjectTemplate($productType->titleFormat, $model);
-
-        $record->price = $model->price;
-        $record->width = $model->width;
-        $record->height = $model->height;
-        $record->length = $model->length;
-        $record->weight = $model->weight;
-        $record->minQty = $model->minQty;
-        $record->maxQty = $model->maxQty;
-        $record->stock = $model->stock;
-        $record->unlimitedStock = $model->unlimitedStock;
-
-        if (!$productType->hasDimensions) {
-            $record->width = $model->width = 0;
-            $record->height = $model->height = 0;
-            $record->length = $model->length = 0;
-            $record->weight = $model->weight = 0;
-        }
-
-        if ($model->unlimitedStock && $record->stock == "") {
-            $model->stock = 0;
-            $record->stock = 0;
-        }
+        $record = $this->_getVariantRecord($model);
+        $this->_populateVariantRecord($record, $model);
 
         $record->validate();
         $model->addErrors($record->getErrors());
@@ -193,6 +163,67 @@ class Commerce_VariantsService extends BaseApplicationComponent
         CommerceDbHelper::rollbackStackedTransaction();
 
         return false;
+    }
+
+    /**
+     * @param BaseElementModel $model
+     * @return BaseRecord|Commerce_VariantRecord
+     * @throws HttpException
+     */
+    private function _getVariantRecord(BaseElementModel $model)
+    {
+        if ($model->id) {
+            $record = Commerce_VariantRecord::model()->findById($model->id);
+
+            if (!$record) {
+                throw new HttpException(404);
+            }
+
+        } else {
+            $record = new Commerce_VariantRecord();
+
+        }
+
+        return $record;
+    }
+
+    /**
+     * @param $record
+     * @param BaseElementModel $model
+     */
+    private function _populateVariantRecord($record, BaseElementModel $model)
+    {
+        $record->productId = $model->productId;
+        $record->sku = $model->sku;
+
+        if (!$model->getProduct()->getType()->titleFormat) {
+            $model->getContent()->title = craft()->templates->renderObjectTemplate("{sku}", $model);
+        } else {
+            $model->getContent()->title = craft()->templates->renderObjectTemplate($model->getProduct()->getType()->titleFormat, $model);
+        }
+
+        $record->price = $model->price;
+        $record->width = $model->width;
+        $record->height = $model->height;
+        $record->length = $model->length;
+        $record->weight = $model->weight;
+        $record->minQty = $model->minQty;
+        $record->maxQty = $model->maxQty;
+        $record->stock = $model->stock;
+        $record->sortOrder = $model->sortOrder;
+        $record->unlimitedStock = $model->unlimitedStock;
+
+        if (!$model->getProduct()->getType()->hasDimensions) {
+            $record->width = $model->width = 0;
+            $record->height = $model->height = 0;
+            $record->length = $model->length = 0;
+            $record->weight = $model->weight = 0;
+        }
+
+        if ($model->unlimitedStock && $record->stock == "") {
+            $model->stock = 0;
+            $record->stock = 0;
+        }
     }
 
     /**

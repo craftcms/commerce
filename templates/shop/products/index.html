@@ -1,0 +1,34 @@
+{% extends 'commerce/_layouts/main' %}
+{% block main %}
+
+    {% for product in craft.commerce.products.find() %}
+        <div class="row">
+            <div class="two columns">
+                {% include "commerce/_images/productSmall" with { class: 'u-max-full-width' } %}
+            </div>
+            <div class="ten columns">
+
+                <h5>{% if product.url %}{{ product.link }}{% else %}{{ product.name }}{% endif %}</h5>
+
+                {% if product.variants|length %}
+
+                    <form method="POST">
+                        <input type="hidden" name="action" value="commerce/cart/add">
+                        <input type="hidden" name="redirect" value="commerce/cart">
+                        <input type="hidden" name="qty" value="1">
+                        <select name="purchasableId">
+                            {% for purchasable in product.variants %}
+                                <option {% if purchasable.stock <= 0 and purchasable.unlimitedStock == false %}disabled {% endif %}
+                                        value="{{ purchasable.purchasableId }}">{{ purchasable.sku }} {{ purchasable.description }} {{ purchasable.price|commerceCurrency }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="submit" value="{{ "Add to cart"|t }}" class="button"/>
+                    </form>
+
+                {% endif %}
+
+            </div>
+        </div>
+    {% endfor %}
+
+{% endblock %}

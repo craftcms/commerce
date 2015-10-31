@@ -69,7 +69,7 @@ class Commerce_GatewaysService extends BaseApplicationComponent
         $adapters = [];
         // Dummy conditional for activation
         if (true) {
-            $adapters = craft()->plugins->call('registerCommerceGatewayAdapters');
+            $adapters = craft()->plugins->call('commerce_registerGatewayAdapters');
             $adapters['Commerce'] = $allAdapters;
         } else {
             $adapters['Commerce'] = ['\Commerce\Gateways\Omnipay\Dummy_GatewayAdapter'];

@@ -16,25 +16,34 @@ class Commerce_TransactionsService extends BaseApplicationComponent
     /**
      * @param int $id
      *
-     * @return Commerce_TransactionModel
+     * @return Commerce_TransactionModel|null
      */
     public function getById($id)
     {
-        $record = Commerce_TransactionRecord::model()->findById($id);
+        $result = Commerce_TransactionRecord::model()->findById($id);
 
-        return Commerce_TransactionModel::populateModel($record);
+        if ($result) {
+            return Commerce_TransactionModel::populateModel($result);
+        }
+
+        return null;
+
     }
 
     /**
      * @param string $hash
      *
-     * @return Commerce_TransactionModel
+     * @return Commerce_TransactionModel|null
      */
     public function getByHash($hash)
     {
-        $record = Commerce_TransactionRecord::model()->findByAttributes(['hash' => $hash]);
+        $result = Commerce_TransactionRecord::model()->findByAttributes(['hash' => $hash]);
 
-        return Commerce_TransactionModel::populateModel($record);
+        if ($result) {
+            return Commerce_TransactionModel::populateModel($result);
+        }
+
+        return null;
     }
 
     /**
@@ -124,6 +133,11 @@ class Commerce_TransactionsService extends BaseApplicationComponent
             $record->save(false);
             $model->id = $record->id;
 
+            $event = new Event($this, [
+                'transaction' => $model
+            ]);
+            $this->onSaveTransaction($event);
+
             return true;
         }
 
@@ -136,6 +150,23 @@ class Commerce_TransactionsService extends BaseApplicationComponent
     public function delete(Commerce_TransactionModel $transaction)
     {
         Commerce_TransactionRecord::model()->deleteByPk($transaction->id);
+    }
+
+    /**
+     * Event: After successfully saving a transaction
+     * Event params: transaction(Commerce_TransactionModel)
+     *
+     * @param \CEvent $event
+     *
+     * @throws \CException
+     */
+    public function onSaveTransaction(\CEvent $event)
+    {
+        $params = $event->params;
+        if (empty($params['transaction']) || !($params['transaction'] instanceof Commerce_TransactionModel)) {
+            throw new Exception('onSaveTransaction event requires "transaction" param with Commerce_TransactionModel instance');
+        }
+        $this->raiseEvent('onSaveTransaction', $event);
     }
 
 }

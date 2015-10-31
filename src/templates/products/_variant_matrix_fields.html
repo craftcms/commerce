@@ -1,0 +1,15 @@
+{% import "commerce/products/_fields" as productFields %}
+
+<div class="variant-properties meta">
+	{% namespace namespace %}
+		{{ productFields.generalVariantFields(variant) }}
+		{{ productFields.dimensionVariantFields(variant) }}
+	{% endnamespace %}
+</div>
+<div class="custom-fields">
+	{% include "_includes/fields" with {
+		namespace: namespace~'[fields]',
+		element: variant,
+		fields: variant.getFieldLayout().getFields()
+	} %}
+</div>

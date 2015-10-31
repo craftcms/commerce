@@ -18,13 +18,17 @@ class Commerce_SalesService extends BaseApplicationComponent
     /**
      * @param int $id
      *
-     * @return Commerce_SaleModel
+     * @return Commerce_SaleModel|null
      */
     public function getById($id)
     {
-        $record = Commerce_SaleRecord::model()->findById($id);
+        $result = Commerce_SaleRecord::model()->findById($id);
 
-        return Commerce_SaleModel::populateModel($record);
+        if ($result) {
+            return Commerce_SaleModel::populateModel($result);
+        }
+
+        return null;
     }
 
     /**

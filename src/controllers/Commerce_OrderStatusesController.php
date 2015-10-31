@@ -35,8 +35,8 @@ class Commerce_OrderStatusesController extends Commerce_BaseAdminController
         if (empty($variables['orderStatus'])) {
             if (!empty($variables['id'])) {
                 $variables['orderStatus'] = craft()->commerce_orderStatuses->getById($variables['id']);
-                $variables['orderStatusId'] = $variables['orderStatus']->id;
-                if (!$variables['orderStatus']->id) {
+                $variables['orderStatusId'] = $variables['orderStatus'];
+                if (!$variables['orderStatus']) {
                     throw new HttpException(404);
                 }
             } else {

@@ -58,7 +58,7 @@ class Commerce_ShippingRulesController extends Commerce_BaseAdminController
                 $id = $variables['ruleId'];
                 $variables['shippingRule'] = craft()->commerce_shippingRules->getById($id);
 
-                if (!$variables['shippingRule']->id) {
+                if (!$variables['shippingRule']) {
                     throw new HttpException(404);
                 }
             } else {

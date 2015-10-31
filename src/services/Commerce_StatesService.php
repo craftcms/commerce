@@ -16,25 +16,33 @@ class Commerce_StatesService extends BaseApplicationComponent
     /**
      * @param int $id
      *
-     * @return Commerce_StateModel
+     * @return Commerce_StateModel|null
      */
     public function getById($id)
     {
-        $record = Commerce_StateRecord::model()->findById($id);
+        $result = Commerce_StateRecord::model()->findById($id);
 
-        return Commerce_StateModel::populateModel($record);
+        if ($result) {
+            return Commerce_StateModel::populateModel($result);
+        }
+
+        return null;
     }
 
     /**
      * @param array $attr
      *
-     * @return Commerce_StateModel
+     * @return Commerce_StateModel|null
      */
     public function getByAttributes(array $attr)
     {
-        $record = Commerce_StateRecord::model()->findByAttributes($attr);
+        $result = Commerce_StateRecord::model()->findByAttributes($attr);
 
-        return Commerce_StateModel::populateModel($record);
+        if ($result) {
+            return Commerce_StateModel::populateModel($result);
+        }
+
+        return null;
     }
 
     /**

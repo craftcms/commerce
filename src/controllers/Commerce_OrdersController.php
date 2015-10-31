@@ -11,7 +11,7 @@ namespace Craft;
  * @package   craft.plugins.commerce.controllers
  * @since     1.0
  */
-class Commerce_OrdersController extends Commerce_BaseAdminController
+class Commerce_OrdersController extends Commerce_BaseCpController
 {
     /**
      * Index of orders
@@ -33,11 +33,15 @@ class Commerce_OrdersController extends Commerce_BaseAdminController
     {
         $variables['orderSettings'] = craft()->commerce_orderSettings->getByHandle('order');
 
+        if (!$variables['orderSettings']) {
+            throw new HttpException(404, Craft::t('No order settings found.'));
+        }
+
         if (empty($variables['order'])) {
             if (!empty($variables['orderId'])) {
                 $variables['order'] = craft()->commerce_orders->getById($variables['orderId']);
 
-                if (!$variables['order']->id) {
+                if (!$variables['order']) {
                     throw new HttpException(404);
                 }
             } else {
@@ -48,7 +52,7 @@ class Commerce_OrdersController extends Commerce_BaseAdminController
         if (!empty($variables['orderId'])) {
             $variables['title'] = "Order " . substr($variables['order']->number, 0, 7);
         } else {
-            $variables['title'] = Craft::t('Create a new Order');
+            $variables['title'] = Craft::t('Create a new order');
         }
 
         craft()->templates->includeCssResource('commerce/order.css');
@@ -109,7 +113,7 @@ class Commerce_OrdersController extends Commerce_BaseAdminController
                 craft()->userSession->setError(Craft::t('Capturing error: ') . $message);
             }
         } else {
-            craft()->userSession->setError(Craft::t('Wrong transaction id'));
+            craft()->userSession->setError(Craft::t('Can not capture transaction ID “{id}”', ['id' => $id]));
         }
     }
 

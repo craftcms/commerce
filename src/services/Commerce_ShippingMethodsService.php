@@ -18,13 +18,17 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
     /**
      * @param int $id
      *
-     * @return Commerce_ShippingMethodModel
+     * @return Commerce_ShippingMethodModel|null
      */
     public function getById($id)
     {
-        $record = Commerce_ShippingMethodRecord::model()->findById($id);
+        $result = Commerce_ShippingMethodRecord::model()->findById($id);
 
-        return Commerce_ShippingMethodModel::populateModel($record);
+        if ($result) {
+            return Commerce_ShippingMethodModel::populateModel($result);
+        }
+
+        return null;
     }
 
     /**
