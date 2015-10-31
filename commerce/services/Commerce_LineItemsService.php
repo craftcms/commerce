@@ -64,7 +64,7 @@ class Commerce_LineItemsService extends BaseApplicationComponent
     public function updateLineItem(Commerce_OrderModel $order, Commerce_LineItemModel $lineItem, &$error = '')
     {
         if ($this->saveLineItem($lineItem)) {
-            craft()->commerce_orders->save($order);
+            craft()->commerce_orders->saveOrder($order);
 
             return true;
         } else {

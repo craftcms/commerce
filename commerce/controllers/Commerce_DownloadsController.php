@@ -18,7 +18,7 @@ class Commerce_DownloadsController extends Commerce_BaseFrontEndController
         $template = craft()->commerce_settings->getSettings()->orderPdfPath;
         $number = craft()->request->getQuery('number');
         $option = craft()->request->getQuery('option', '');
-        $order = craft()->commerce_orders->getByNumber($number);
+        $order = craft()->commerce_orders->getOrderByNumber($number);
         if (!$order) {
             throw new HttpException(404);
         }

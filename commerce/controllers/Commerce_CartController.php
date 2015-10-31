@@ -176,7 +176,7 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
                     if ($sameAddress) {
 
                     }
-                    if (!craft()->commerce_orders->setAddresses($cart, $shippingAddress, $shippingAddress)) {
+                    if (!craft()->commerce_orders->setOrderAddresses($cart, $shippingAddress, $shippingAddress)) {
                         $cart->addError('shippingAddressId', Craft::t('Could not save the shipping address.'));
                     }
                 }
@@ -187,9 +187,9 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
             if (!$sameAddress) {
                 $billingAddress = new Commerce_AddressModel();
                 $billingAddress->setAttributes(craft()->request->getParam('billingAddress'));
-                $result = craft()->commerce_orders->setAddresses($cart, $shippingAddress, $billingAddress);
+                $result = craft()->commerce_orders->setOrderAddresses($cart, $shippingAddress, $billingAddress);
             } else {
-                $result = craft()->commerce_orders->setAddresses($cart, $shippingAddress, $shippingAddress);
+                $result = craft()->commerce_orders->setOrderAddresses($cart, $shippingAddress, $shippingAddress);
             }
             if (!$result) {
                 if ($sameAddress) {
