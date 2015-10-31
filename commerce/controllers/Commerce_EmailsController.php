@@ -18,7 +18,7 @@ class Commerce_EmailsController extends Commerce_BaseAdminController
      */
     public function actionIndex()
     {
-        $emails = craft()->commerce_emails->getAll();
+        $emails = craft()->commerce_emails->getAllEmails();
         $this->renderTemplate('commerce/settings/emails/index',
             compact('emails'));
     }
@@ -35,7 +35,7 @@ class Commerce_EmailsController extends Commerce_BaseAdminController
         if (empty($variables['email'])) {
             if (!empty($variables['id'])) {
                 $id = $variables['id'];
-                $variables['email'] = craft()->commerce_emails->getById($id);
+                $variables['email'] = craft()->commerce_emails->getEmailById($id);
 
                 if (!$variables['email']) {
                     throw new HttpException(404);
@@ -73,7 +73,7 @@ class Commerce_EmailsController extends Commerce_BaseAdminController
         $email->templatePath = craft()->request->getPost('templatePath');
 
         // Save it
-        if (craft()->commerce_emails->save($email)) {
+        if (craft()->commerce_emails->saveEmail($email)) {
             craft()->userSession->setNotice(Craft::t('Email saved.'));
             $this->redirectToPostedUrl($email);
         } else {
@@ -94,7 +94,7 @@ class Commerce_EmailsController extends Commerce_BaseAdminController
 
         $id = craft()->request->getRequiredPost('id');
 
-        craft()->commerce_emails->deleteById($id);
+        craft()->commerce_emails->deleteEmailById($id);
         $this->returnJson(['success' => true]);
     }
 
