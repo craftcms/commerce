@@ -186,12 +186,13 @@ class CommercePlugin extends BasePlugin
      * Make sure requirements are met before installation.
      *
      * @return bool
+     * @throws Exception
      */
     public function onBeforeInstall()
     {
         if (version_compare(craft()->getVersion(), '2.5', '<')) {
-            Craft::log('Craft Commerce requires Craft CMS 2.5 in order to run.', LogLevel::Error);
-            return false;
+            // No way to gracefully handle this, so throw an Exception.
+            throw new Exception('Craft Commerce requires Craft CMS 2.5+ in order to run.');
         }
 
         if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 50400) {
