@@ -57,7 +57,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
         }
 
         //choosing default action
-        $defaultAction = craft()->commerce_settings->getOption('paymentMethod');
+        $defaultAction = $cart->paymentMethod->paymentType;
         $defaultAction = ($defaultAction === Commerce_TransactionRecord::PURCHASE) ? $defaultAction : Commerce_TransactionRecord::AUTHORIZE;
         $gateway = $cart->paymentMethod->getGatewayAdapter()->getGateway();
 

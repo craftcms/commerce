@@ -74,6 +74,7 @@ class Commerce_PaymentMethodsService extends BaseApplicationComponent
 
         $record->settings = $gateway->getAttributes();
         $record->name = $model->name;
+        $record->paymentType = $model->paymentType;
         $record->class = $model->class;
         $record->frontendEnabled = $model->frontendEnabled;
 
