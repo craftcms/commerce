@@ -105,7 +105,8 @@ class CommercePlugin extends BasePlugin
                         'm150919_010101_Commerce_AddHasDimensionsToProductType',
                         'm151004_142113_Commerce_PaymentMethods_Name_Unique',
                         'm151018_010101_Commerce_DiscountCodeNull',
-                        'm151025_010101_Commerce_AddHandleToShippingMethod'
+                        'm151025_010101_Commerce_AddHandleToShippingMethod',
+                        'm151027_010102_Commerce_ProductDateNames'
                     );
 
                     foreach ($migrations as $migrationClass) {
