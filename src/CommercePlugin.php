@@ -27,13 +27,6 @@ class CommercePlugin extends BasePlugin
      */
     public function init()
     {
-        if (!defined('DOMPDF_ENABLE_AUTOLOAD')) {
-            // disable DOMPDF's internal autoloader since we are using Composer
-            define('DOMPDF_ENABLE_AUTOLOAD', false);
-            // include DOMPDF's configuration
-            require_once __DIR__ . '/vendor/dompdf/dompdf/dompdf_config.inc.php';
-        }
-
         $this->initEventHandlers();
 
         // If this is a CP request, register the commerce.prepCpTemplate hook

@@ -1,6 +1,13 @@
 <?php
 namespace Craft;
 
+if (!defined('DOMPDF_ENABLE_AUTOLOAD')) {
+    // disable DOMPDF's internal autoloader since we are using Composer
+    define('DOMPDF_ENABLE_AUTOLOAD', false);
+    // include DOMPDF's configuration
+    require_once __DIR__ . '/../vendor/dompdf/dompdf/dompdf_config.inc.php';
+}
+
 /**
  * Class Commerce_DownloadsController
  *
