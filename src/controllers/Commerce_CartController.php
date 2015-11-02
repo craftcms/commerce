@@ -182,12 +182,21 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
         if (!is_null(craft()->request->getParam('shippingAddressId')) && is_numeric(craft()->request->getParam('shippingAddressId'))) {
             if ($shippingAddressId = craft()->request->getParam('shippingAddressId')) {
                 if ($shippingAddress = craft()->commerce_addresses->getAddressById($shippingAddressId)) {
-
-                    if ($sameAddress) {
-
-                    }
-                    if (!craft()->commerce_orders->setOrderAddresses($cart, $shippingAddress, $shippingAddress)) {
-                        $cart->addError('shippingAddressId', Craft::t('Could not save the shipping address.'));
+                    if (!$sameAddress) {
+                        if ($billingAddressId = craft()->request->getParam('billingAddressId')) {
+                            if ($billingAddress = craft()->commerce_addresses->getAddressById($billingAddressId)) {
+                                if (!craft()->commerce_orders->setOrderAddresses($cart, $shippingAddress, $billingAddress)) {
+                                    $cart->addError('shippingAddressId', Craft::t('Could not save the shipping address.'));
+                                    $cart->addError('billingAddressId', Craft::t('Could not save the billing address.'));
+                                }
+                            }
+                        }else{
+                            $cart->addError('shippingAddressId', Craft::t('Could not save the billing address.'));
+                        }
+                    }else{
+                        if (!craft()->commerce_orders->setOrderAddresses($cart, $shippingAddress, $shippingAddress)) {
+                            $cart->addError('shippingAddressId', Craft::t('Could not save the shipping address.'));
+                        }
                     }
                 }
             };
