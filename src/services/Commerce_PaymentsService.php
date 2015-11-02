@@ -232,9 +232,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
             if ($transaction->status == Commerce_TransactionRecord::SUCCESS) {
                 craft()->request->redirect($order->returnUrl);
             } else {
-                craft()->userSession->setError('Payment error: {message}', [
-                    'message' => $transaction->message
-                ]));
+                craft()->userSession->setError('Payment error: {message}', ['message' => $transaction->message]);
                 craft()->request->redirect($order->cancelUrl);
             }
         }
