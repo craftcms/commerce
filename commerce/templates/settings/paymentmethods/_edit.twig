@@ -22,6 +22,17 @@
         errors: paymentMethod.getErrors('name'),
     }) }}
 
+    {{ forms.selectField({
+        label: "Credit Card Payment Type"|t,
+        instructions: "If set to Authorize Only, you will need to manually capture payments before the funds will be transferred to your account. The Gateway needs to support the selected option."|t,
+        id: 'paymentType',
+        name: 'paymentType',
+        value: paymentMethod.paymentType,
+        options: paymentMethod.getPaymentTypeOptions(),
+        errors: paymentMethod.getErrors('paymentType'),
+        required: true,
+    }) }}
+
     <hr>
 
     {{ forms.selectField({

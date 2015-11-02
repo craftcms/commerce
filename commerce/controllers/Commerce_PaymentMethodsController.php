@@ -73,6 +73,7 @@ class Commerce_PaymentMethodsController extends Commerce_BaseAdminController
         // Shared attributes
         $paymentMethod->id = craft()->request->getRequiredPost('id');
         $paymentMethod->name = craft()->request->getRequiredPost('name');
+        $paymentMethod->paymentType = craft()->request->getRequiredPost('paymentType');
         $paymentMethod->class = craft()->request->getRequiredPost('class');
         $paymentMethod->settings = craft()->request->getPost('settings', []);
         $paymentMethod->frontendEnabled = craft()->request->getPost('frontendEnabled');
