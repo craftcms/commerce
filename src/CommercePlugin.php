@@ -104,7 +104,10 @@ class CommercePlugin extends BasePlugin
 
                     foreach ($migrations as $migrationClass) {
                         $migration = craft()->migrations->instantiateMigration($migrationClass, $this);
-                        $migration->up();
+                        if(!$migration->up()){
+                            Craft::log("Market to Commerce Upgrade Error. Could not run: ".$migrationClass, LogLevel::Error);
+                            throw new Exception('Market to Commerce Upgrade Error.');
+                        }
                     }
 
                     CommerceDbHelper::commitStackedTransaction();
