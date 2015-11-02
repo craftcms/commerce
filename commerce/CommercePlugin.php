@@ -88,7 +88,7 @@ class CommercePlugin extends BasePlugin
             parent::createTables();
         } else {
             if ($pluginInfo['version'] != '0.8.09') {
-                throw new Exception('Market plugin must be upgraded to 0.8.05 before installing Commerce');
+                throw new Exception('Market plugin must be upgraded to 0.8.09 before installing Commerce');
             }
 
             if ($pluginInfo['version'] == '0.8.09') {
