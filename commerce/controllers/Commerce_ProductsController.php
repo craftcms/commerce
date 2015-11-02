@@ -91,9 +91,7 @@ class Commerce_ProductsController extends Commerce_BaseCpController
 
     private function _prepProductVariables(&$variables)
     {
-        if (craft()->isLocalized()) {
-            $variables['localeIds'] = craft()->i18n->getEditableLocaleIds();
-        }
+        $variables['localeIds'] = craft()->i18n->getEditableLocaleIds();
 
         if (!$variables['localeIds'])
         {
