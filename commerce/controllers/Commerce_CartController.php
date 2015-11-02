@@ -168,6 +168,16 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
 
         $sameAddress = craft()->request->getParam('sameAddress');
 
+        if (!is_null(craft()->request->getParam('purchasableId'))) {
+            $purchasableId = craft()->request->getPost('purchasableId');
+            $note = craft()->request->getPost('note',"");
+            $qty = craft()->request->getPost('qty', 1);
+            $error = '';
+            if (!craft()->commerce_cart->addToCart($cart, $purchasableId, $qty, $note, $error)) {
+                $cart->addError('lineItems', Craft::t('Could not add to cart: ').$error);
+            }
+        }
+
         // Set Addresses
         if (!is_null(craft()->request->getParam('shippingAddressId')) && is_numeric(craft()->request->getParam('shippingAddressId'))) {
             if ($shippingAddressId = craft()->request->getParam('shippingAddressId')) {
