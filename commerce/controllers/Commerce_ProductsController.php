@@ -331,7 +331,8 @@ class Commerce_ProductsController extends Commerce_BaseCpController
         $this->requirePostRequest();
 
         $product = $this->_setProductFromPost();
-        $this->_setVariantsFromPost($product);
+        $variants = $this->_setVariantsFromPost($product);
+        $product->setVariants($variants);
 
         $existingProduct = (bool)$product->id;
 
@@ -431,8 +432,6 @@ class Commerce_ProductsController extends Commerce_BaseCpController
             $variantModel->setProduct($product);
             $variants[] = $variantModel;
         }
-
-        $product->setVariants($variants); // move to caller
 
         return $variants;
     }
