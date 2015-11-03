@@ -176,6 +176,25 @@ class Commerce_ProductModel extends BaseElementModel
     }
 
     /**
+     * Gets the default variant.
+     *
+     * @return Commerce_VariantModel
+     */
+    public function getDefaultVariant()
+    {
+        $defaultVariant = null;
+
+        foreach($this->getVariants() as $variant){
+            if ($defaultVariant === null || $variant->isDefault)
+            {
+                $defaultVariant = $variant;
+            }
+        };
+
+        return $defaultVariant;
+    }
+
+    /**
      * @return null|string
      */
     public function getStatus()
