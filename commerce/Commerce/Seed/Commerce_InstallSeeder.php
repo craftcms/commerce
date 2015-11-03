@@ -195,7 +195,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
         $model->settings = $adapter->getGateway()->getDefaultParameters();
         $model->frontendEnabled = true;
 
-        \Craft\craft()->commerce_paymentMethods->save($model);
+        \Craft\craft()->commerce_paymentMethods->savePaymentMethod($model);
     }
 
 

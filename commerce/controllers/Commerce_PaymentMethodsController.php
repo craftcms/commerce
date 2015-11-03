@@ -18,7 +18,7 @@ class Commerce_PaymentMethodsController extends Commerce_BaseAdminController
      */
     public function actionIndex()
     {
-        $paymentMethods = craft()->commerce_paymentMethods->getAll(['order' => 'name']);
+        $paymentMethods = craft()->commerce_paymentMethods->getAllPaymentMethods(['order' => 'name']);
         $this->renderTemplate('commerce/settings/paymentmethods/index', compact('paymentMethods'));
     }
 
@@ -34,7 +34,7 @@ class Commerce_PaymentMethodsController extends Commerce_BaseAdminController
         if (empty($variables['paymentMethod'])) {
             if (!empty($variables['id'])) {
                 $id = $variables['id'];
-                $variables['paymentMethod'] = craft()->commerce_paymentMethods->getById($id);
+                $variables['paymentMethod'] = craft()->commerce_paymentMethods->getPaymentMethodById($id);
 
                 if (!$variables['paymentMethod']) {
                     throw new HttpException(404);
@@ -79,7 +79,7 @@ class Commerce_PaymentMethodsController extends Commerce_BaseAdminController
         $paymentMethod->frontendEnabled = craft()->request->getPost('frontendEnabled');
 
         // Save it
-        if (craft()->commerce_paymentMethods->save($paymentMethod)) {
+        if (craft()->commerce_paymentMethods->savePaymentMethod($paymentMethod)) {
             craft()->userSession->setNotice(Craft::t('Payment method saved.'));
             $this->redirectToPostedUrl($paymentMethod);
         } else {
