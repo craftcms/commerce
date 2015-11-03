@@ -27,22 +27,24 @@ class Commerce_VariantsService extends BaseApplicationComponent
     /**
      * Returns the first variant as returned by it's sortOrder.
      *
-     * @param $id
+     * @param int $id
+     * @param string|null $locale
      * @return mixed|null
      */
-    public function getPrimaryVariantByProductId($id)
+    public function getPrimaryVariantByProductId($id, $locale = null)
     {
         return ArrayHelper::getFirstValue($this->getAllByProductId($id));
     }
 
     /**
      * @param int $id
+     * @param string|null $localeId
      *
      * @return Commerce_VariantModel[]
      */
-    public function getAllByProductId($id)
+    public function getAllByProductId($id, $localeId = null)
     {
-        $variants = craft()->elements->getCriteria('Commerce_Variant', ['productId' => $id, 'status'=> null])->find();
+        $variants = craft()->elements->getCriteria('Commerce_Variant', ['productId' => $id, 'status'=> null, 'locale' => $localeId])->find();
 
         return $variants;
     }

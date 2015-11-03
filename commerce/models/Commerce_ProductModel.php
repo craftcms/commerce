@@ -16,6 +16,14 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  * @property bool $freeShipping
  * @property bool $enabled
  *
+ * @property int defaultVariantId
+ * @property string defaultSku
+ * @property float defaultPrice
+ * @property float defaultHeight
+ * @property float defaultLength
+ * @property float defaultWidth
+ * @property float defaultWeight
+ *
  * @property Commerce_ProductTypeModel $type
  * @property Commerce_TaxCategoryModel $taxCategory
  * @property Commerce_VariantModel[] $variants
@@ -222,9 +230,9 @@ class Commerce_ProductModel extends BaseElementModel
             if ($this->id) {
 
                 if ($this->getType()->hasVariants) {
-                    $this->_variants = craft()->commerce_variants->getAllByProductId($this->id);
+                    $this->_variants = craft()->commerce_variants->getAllByProductId($this->id, $this->locale);
                 } else {
-                    $variant = craft()->commerce_variants->getPrimaryVariantByProductId($this->id);
+                    $variant = craft()->commerce_variants->getPrimaryVariantByProductId($this->id, $this->locale);
                     if ($variant) {
                         $this->_variants = [$variant];
                     }
@@ -260,7 +268,15 @@ class Commerce_ProductModel extends BaseElementModel
             'promotable' => [AttributeType::Bool,'default'=>true],
             'freeShipping' => AttributeType::Bool,
             'postDate' => AttributeType::DateTime,
-            'expiryDate' => AttributeType::DateTime
+            'expiryDate' => AttributeType::DateTime,
+
+            'defaultVariantId' => [AttributeType::Number],
+            'defaultSku' => [AttributeType::String, 'label' => 'SKU'],
+            'defaultPrice' => [AttributeType::Number, 'decimals' => 4],
+            'defaultHeight' => [AttributeType::Number, 'decimals' => 4],
+            'defaultLength' => [AttributeType::Number, 'decimals' => 4],
+            'defaultWidth' => [AttributeType::Number, 'decimals' => 4],
+            'defaultWeight' => [AttributeType::Number, 'decimals' => 4]
         ]);
     }
 }

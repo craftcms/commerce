@@ -426,12 +426,13 @@ class Commerce_ProductsController extends Commerce_BaseCpController
             if(isset($variant['fields'])){
                 $variantModel->setContentFromPost($variant['fields']);
             }
+            $variantModel->locale = $product->locale;
             $variantModel->sortOrder = $count++;
             $variantModel->setProduct($product);
             $variants[] = $variantModel;
         }
 
-        $product->setVariants($variants);
+        $product->setVariants($variants); // move to caller
 
         return $variants;
     }

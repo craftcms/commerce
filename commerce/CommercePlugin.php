@@ -101,7 +101,8 @@ class CommercePlugin extends BasePlugin
                         'm151025_010101_Commerce_AddHandleToShippingMethod',
                         'm151027_010101_Commerce_NewVariantUI',
                         'm151027_010102_Commerce_ProductDateNames',
-                        'm151102_010101_Commerce_PaymentTypeInMethodNotSettings'
+                        'm151102_010101_Commerce_PaymentTypeInMethodNotSettings',
+                        'm151103_010101_Commerce_DefaultVariant'
                     );
 
                     foreach ($migrations as $migrationClass) {
@@ -217,7 +218,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getSchemaVersion()
     {
-        return '0.9.1';
+        return '0.9.2';
     }
 
     /**

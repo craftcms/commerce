@@ -148,6 +148,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
             'link' => ['label' => Craft::t('Link'), 'icon' => 'world'],
             'dateCreated' => ['label' => Craft::t('Date Created')],
             'dateUpdated' => ['label' => Craft::t('Date Updated')],
+            // Add defaults variant values
         ];
 
         // Allow plugins to modify the attributes
@@ -172,6 +173,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
         $attributes[] = 'postDate';
         $attributes[] = 'expiryDate';
         $attributes[] = 'link';
+        // add defaults (price)
 
         return $attributes;
     }
@@ -464,6 +466,28 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
      */
     public function saveElement(BaseElementModel $element, $params)
     {
+        $variantsPost = $params['variants'];
+        $variants = [];
+        $count = 1;
+        foreach ($variantsPost as $key => $variant) {
+            if (strncmp($key, 'new', 3) !== 0) {
+                $variantModel = craft()->commerce_variants->getById($key);
+            }else{
+                $variantModel = new Commerce_VariantModel();
+            }
+
+            $variantModel->setAttributes($variant);
+            if(isset($variant['fields'])){
+                $variantModel->setContentFromPost($variant['fields']);
+            }
+            $variantModel->locale = $element->locale;
+            $variantModel->sortOrder = $count++;
+            $variantModel->setProduct($element);
+            $variants[] = $variantModel;
+        }
+
+        $element->setVariants($variants);
+
         return craft()->commerce_products->save($element);
     }
 

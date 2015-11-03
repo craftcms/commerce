@@ -203,8 +203,18 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
                         /** @var Commerce_ProductModel $product */
                         foreach ($products as $key => $product) {
                             if ($product && $product->getContent()->id) {
+                                $defaultVariant = null;
                                 foreach ($product->getVariants() as $variant) {
-                                    craft()->commerce_variants->deleteById($variant->id);
+                                    if ($defaultVariant === null || $variant->isDefault)
+                                    {
+                                        $defaultVariant = $variant;
+                                    }
+                                }
+                                foreach ($product->getVariants() as $variant) {
+                                    if ($defaultVariant !== $variant)
+                                    {
+                                        craft()->commerce_variants->deleteById($variant->id);
+                                    }
                                 }
                             }
                         }
