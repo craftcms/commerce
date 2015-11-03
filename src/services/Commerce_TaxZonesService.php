@@ -20,7 +20,7 @@ class Commerce_TaxZonesService extends BaseApplicationComponent
      *
      * @return Commerce_TaxZoneModel[]
      */
-    public function getAll($withRelations = true)
+    public function getAllTaxZones($withRelations = true)
     {
         $with = $withRelations ? [
             'countries',
@@ -37,7 +37,7 @@ class Commerce_TaxZonesService extends BaseApplicationComponent
      *
      * @return Commerce_TaxZoneModel|null
      */
-    public function getById($id)
+    public function getTaxZoneById($id)
     {
         $result = Commerce_TaxZoneRecord::model()->findById($id);
 
@@ -56,7 +56,7 @@ class Commerce_TaxZonesService extends BaseApplicationComponent
      * @return bool
      * @throws \Exception
      */
-    public function save(Commerce_TaxZoneModel $model, $countriesIds, $statesIds)
+    public function saveTaxZone(Commerce_TaxZoneModel $model, $countriesIds, $statesIds)
     {
         if ($model->id) {
             $record = Commerce_TaxZoneRecord::model()->findById($model->id);
@@ -164,7 +164,7 @@ class Commerce_TaxZonesService extends BaseApplicationComponent
     /**
      * @param int $id
      */
-    public function deleteById($id)
+    public function deleteTaxZoneById($id)
     {
         Commerce_TaxZoneRecord::model()->deleteByPk($id);
     }
