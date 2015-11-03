@@ -95,6 +95,17 @@ class Commerce_VariantsService extends BaseApplicationComponent
             $variant->addErrors($variant->getContent()->getErrors());
         }
 
+        // If variant validation has not already found a clash check all purchasables
+        if(!$variant->getError('sku')){
+            $existing = craft()->commerce_purchasable->getPurchasableBySku($variant->sku);
+
+            if($existing){
+                if($existing->id != $variant->id){
+                    $variant->addError('sku',Craft::t('SKU has already been taken by another purchasable.'));
+                }
+            }
+        }
+
         return !$variant->hasErrors();
     }
 

@@ -18,6 +18,26 @@ class Commerce_PurchasableService extends BaseApplicationComponent
 {
 
     /**
+     * Returns the purchasable element by the SKU
+     *
+     * @return mixed|null
+     */
+    public function getPurchasableBySku($sku){
+
+        $result = craft()->db->createCommand()
+            ->select('id')
+            ->where("sku=:skux", [':skux' => $sku])
+            ->from('commerce_purchasables')
+            ->queryScalar();
+
+        if($result){
+            return craft()->elements->getElementById($result);
+        }
+
+        return null;
+    }
+
+    /**
      * Saves the element and the purchasable. Use this function where you would usually
      * use `craft()->elements->saveElement()`
      *
