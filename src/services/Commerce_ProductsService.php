@@ -58,16 +58,46 @@ class Commerce_ProductsService extends BaseApplicationComponent
         $record->validate();
         $product->addErrors($record->getErrors());
 
+        $productType = craft()->commerce_productTypes->getById($product->typeId);
+
+        if(!$productType){
+            throw new Exception(Craft::t('No product type exists with the ID “{id}”',
+                ['id' => $product->typeId]));
+        }
+
         $variantsValid = true;
+        $defaultVariant = null;
         foreach ($product->getVariants() as $variant) {
+
+            $titleFormat = $productType->titleFormat ? $productType->titleFormat : '{sku';
+            $variant->getContent()->title = craft()->templates->renderObjectTemplate($titleFormat, $variant);
+
+            // Make the first variant (or the last one that says it isDefault) the default.
+            if ($defaultVariant === null || $variant->isDefault)
+            {
+                $defaultVariant = $variant;
+            }
+
             if (!craft()->commerce_variants->validateVariant($variant)) {
                 $variantsValid = false;
+                if($variant->getError('title') && !$variant->getError('sku')){
+                    $variant->addError('sku',Craft::t('Could not generate the title from variant. Ensure custom fields used to generate the variant title are set to required.'));
+                }
             }
         }
 
         CommerceDbHelper::beginStackedTransaction();
         try {
             if (!$product->hasErrors() && $variantsValid) {
+
+                 $record->defaultVariantId = $defaultVariant->getPurchasableId();
+                 $record->defaultSku = $defaultVariant->getSku();
+                 $record->defaultPrice = $defaultVariant->getPrice();
+                 $record->defaultHeight = $defaultVariant->height;
+                 $record->defaultLength = $defaultVariant->length;
+                 $record->defaultWidth = $defaultVariant->width;
+                 $record->defaultWeight = $defaultVariant->weight;
+
                 if (craft()->elements->saveElement($product)) {
                     $record->id = $product->id;
                     $record->save(false);
@@ -80,6 +110,11 @@ class Commerce_ProductsService extends BaseApplicationComponent
                         ->queryColumn();
 
                     foreach ($product->getVariants() as $variant) {
+                        if($defaultVariant === $variant){
+                            $variant->isDefault = true;
+                        }else{
+                            $variant->isDefault = false;
+                        }
                         $variant->productId = $product->id;
                         craft()->commerce_variants->save($variant);
                         $keepVariantIds[] = $variant->id;

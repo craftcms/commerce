@@ -67,7 +67,7 @@
 				{% endif %}
 				<a class="small btn right"
 				   href="http://maps.google.com/maps?q={{ order.billingAddress.address1 }}+{{ order.billingAddress.address2 }}+{{ order.billingAddress.city }}+{{ order.billingAddress.zipCode }}+{{ order.billingAddress.stateText }}+{{ order.billingAddress.countryText }}"
-				   target="_blank">Map</a>
+				   target="_blank">{{ "View Map"|t }}</a>
 				{{ addressMacros.formatAddress(order.billingAddress) }}
 				</div>
 			</div>
@@ -80,14 +80,14 @@
 				{% endif %}
 				<a class="small btn right"
 				   href="http://maps.google.com/maps?q={{ order.shippingAddress.address1 }}+{{ order.shippingAddress.address2 }}+{{ order.shippingAddress.city }}+{{ order.shippingAddress.zipCode }}+{{ order.shippingAddress.stateText }}+{{ order.shippingAddress.countryText }}"
-				   target="_blank">Map</a>
+				   target="_blank">{{ "View Map"|t }}</a>
 				{{ addressMacros.formatAddress(order.shippingAddress) }}
 				</div>
 			</div> <!-- order address box -->
 		</div><!-- order addresses -->
 
 	</div>
-
+prod
 	<div class="order-details">
 		<table id="" class="data fullwidth collapsible">
 			<thead>
