@@ -19,7 +19,7 @@ class Commerce_VariantsService extends BaseApplicationComponent
      * @param int $id
      * @return Commerce_VariantModel
      */
-    public function getById($id)
+    public function getVariantById($id)
     {
         return craft()->elements->getElementById($id, 'Commerce_Variant');
     }
@@ -33,7 +33,7 @@ class Commerce_VariantsService extends BaseApplicationComponent
      */
     public function getPrimaryVariantByProductId($id, $locale = null)
     {
-        return ArrayHelper::getFirstValue($this->getAllByProductId($id));
+        return ArrayHelper::getFirstValue($this->getAllVariantsByProductId($id));
     }
 
     /**
@@ -42,7 +42,7 @@ class Commerce_VariantsService extends BaseApplicationComponent
      *
      * @return Commerce_VariantModel[]
      */
-    public function getAllByProductId($id, $localeId = null)
+    public function getAllVariantsByProductId($id, $localeId = null)
     {
         $variants = craft()->elements->getCriteria('Commerce_Variant', ['productId' => $id, 'status'=> null, 'locale' => $localeId])->find();
 
@@ -52,7 +52,7 @@ class Commerce_VariantsService extends BaseApplicationComponent
     /**
      * @param int $id
      */
-    public function deleteById($id)
+    public function deleteVariantById($id)
     {
         craft()->elements->deleteElementById($id);
     }
@@ -60,9 +60,10 @@ class Commerce_VariantsService extends BaseApplicationComponent
     /**
      * @param int $productId
      */
-    public function deleteAllByProductId($productId)
+    public function deleteAllVariantsByProductId($productId)
     {
-        $variants = $this->getAllByProductId($productId);
+        $variants = $this->getAllVariantsByProductId($productId);
+        
         foreach ($variants as $variant) {
             $this->deleteVariant($variant);
         }
@@ -73,7 +74,7 @@ class Commerce_VariantsService extends BaseApplicationComponent
      */
     public function deleteVariant($variant)
     {
-        craft()->elements->deleteElementById($variant->id);
+       $this->deleteVariantById($variant->id);
     }
 
     /**
@@ -138,7 +139,7 @@ class Commerce_VariantsService extends BaseApplicationComponent
      * @throws \CDbException
      * @throws \Exception
      */
-    public function save(BaseElementModel $model)
+    public function saveVariant(BaseElementModel $model)
     {
         $record = $this->_getVariantRecord($model);
         $this->_populateVariantRecord($record, $model);

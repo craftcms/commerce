@@ -213,7 +213,7 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
                                 foreach ($product->getVariants() as $variant) {
                                     if ($defaultVariant !== $variant)
                                     {
-                                        craft()->commerce_variants->deleteById($variant->id);
+                                        craft()->commerce_variants->deleteVariantById($variant->id);
                                     }
                                 }
                             }
@@ -264,7 +264,7 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
                         foreach ($products as $key => $product) {
                             if ($product && $product->getContent()->id) {
                                 foreach ($product->getVariants() as $variant) {
-                                    craft()->commerce_variants->save($variant);
+                                    craft()->commerce_variants->saveVariant($variant);
                                 }
                             }
                         }

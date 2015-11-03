@@ -274,7 +274,7 @@ class Commerce_VariantElementType extends Commerce_BaseElementType
      */
     public function saveElement(BaseElementModel $element, $params)
     {
-        return craft()->commerce_variants->save($element);
+        return craft()->commerce_variants->saveVariant($element);
     }
 
 }
