@@ -76,7 +76,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
         }
 
         //creating cart, transaction and request
-        $transaction = craft()->commerce_transactions->create($cart);
+        $transaction = craft()->commerce_transactions->createTransaction($cart);
         $transaction->type = $defaultAction;
         $this->saveTransaction($transaction);
 
@@ -187,7 +187,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
         }
 
         $order = $parent->order;
-        $child = craft()->commerce_transactions->create($order);
+        $child = craft()->commerce_transactions->createTransaction($order);
         $child->parentId = $parent->id;
         $child->paymentMethodId = $parent->paymentMethodId;
         $child->type = $action;
@@ -396,7 +396,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
      */
     private function saveTransaction($child)
     {
-        if (!craft()->commerce_transactions->save($child)) {
+        if (!craft()->commerce_transactions->saveTransaction($child)) {
             throw new Exception(Craft::t('Error saving transaction: ') . implode(', ',
                     $child->getAllErrors()));
         }

@@ -96,7 +96,7 @@ class Commerce_OrdersController extends Commerce_BaseCpController
     public function actionTransactionCapture()
     {
         $id = craft()->request->getParam('id');
-        $transaction = craft()->commerce_transactions->getById($id);
+        $transaction = craft()->commerce_transactions->getTransactionById($id);
 
         if ($transaction->canCapture()) {
             // capture transaction and display result
@@ -125,7 +125,7 @@ class Commerce_OrdersController extends Commerce_BaseCpController
     public function actionTransactionRefund()
     {
         $id = craft()->request->getParam('id');
-        $transaction = craft()->commerce_transactions->getById($id);
+        $transaction = craft()->commerce_transactions->getTransactionById($id);
 
         if ($transaction->canRefund()) {
             // capture transaction and display result
