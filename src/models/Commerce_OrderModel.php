@@ -375,7 +375,7 @@ class Commerce_OrderModel extends BaseElementModel
      */
     public function getShippingMethod()
     {
-        return craft()->commerce_shippingMethods->getByHandle($this->getAttribute('shippingMethod'));
+        return craft()->commerce_shippingMethods->getShippingMethodByHandle($this->getAttribute('shippingMethod'));
     }
 
     /**
