@@ -21,7 +21,7 @@ class Commerce_TaxRatesController extends Commerce_BaseAdminController
         $taxZones = craft()->commerce_taxZones->getAllTaxZones();
         $zonesExist = (bool)count($taxZones);
 
-        $taxRates = craft()->commerce_taxRates->getAll([
+        $taxRates = craft()->commerce_taxRates->getAllTaxRates([
             'with' => ['taxZone', 'taxCategory'],
             'order' => 't.name',
         ]);
@@ -49,7 +49,7 @@ class Commerce_TaxRatesController extends Commerce_BaseAdminController
         if (empty($variables['taxRate'])) {
             if (!empty($variables['id'])) {
                 $id = $variables['id'];
-                $variables['taxRate'] = craft()->commerce_taxRates->getById($id);
+                $variables['taxRate'] = craft()->commerce_taxRates->getTaxRateById($id);
 
                 if (!$variables['taxRate']) {
                     throw new HttpException(404);
@@ -107,7 +107,7 @@ class Commerce_TaxRatesController extends Commerce_BaseAdminController
         };
 
         // Save it
-        if (craft()->commerce_taxRates->save($taxRate)) {
+        if (craft()->commerce_taxRates->saveTaxRate($taxRate)) {
             craft()->userSession->setNotice(Craft::t('Tax rate saved.'));
             $this->redirectToPostedUrl($taxRate);
         } else {
@@ -131,7 +131,7 @@ class Commerce_TaxRatesController extends Commerce_BaseAdminController
 
         $id = craft()->request->getRequiredPost('id');
 
-        craft()->commerce_taxRates->deleteById($id);
+        craft()->commerce_taxRates->deleteTaxRateById($id);
         $this->returnJson(['success' => true]);
     }
 
