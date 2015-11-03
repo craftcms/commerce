@@ -70,7 +70,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
             'default' => 1,
         ]);
 
-        \Craft\craft()->commerce_taxCategories->save($category);
+        \Craft\craft()->commerce_taxCategories->saveTaxCategory($category);
     }
 
     /**
@@ -173,7 +173,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
                 'postDate' => new DateTime(),
                 'expiryDate' => null,
                 'promotable' => 1,
-                'taxCategoryId' => \Craft\craft()->commerce_taxCategories->getDefaultId(),
+                'taxCategoryId' => \Craft\craft()->commerce_taxCategories->getDefaultTaxCategoryId(),
             ]);
 
             $product->getContent()->title = $productName;
