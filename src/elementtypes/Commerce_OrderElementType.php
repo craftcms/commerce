@@ -149,6 +149,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
     {
         $attributes = [
             'number' => ['label' => Craft::t('Number')],
+            'id' => ['label' => Craft::t('ID')],
             'orderStatus' => ['label' => Craft::t('Status')],
             'totalPrice' => ['label' => Craft::t('Total')],
             'totalPaid' => ['label' => Craft::t('Total Paid')],
