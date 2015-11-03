@@ -143,7 +143,7 @@ class CommerceVariable
      */
     public function getSales()
     {
-        $sales = craft()->commerce_sales->getAll();
+        $sales = craft()->commerce_sales->getAllSales();
 
         return $sales;
     }
