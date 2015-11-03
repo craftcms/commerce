@@ -63,7 +63,7 @@ class Commerce_VariantsService extends BaseApplicationComponent
     public function deleteAllVariantsByProductId($productId)
     {
         $variants = $this->getAllVariantsByProductId($productId);
-        
+
         foreach ($variants as $variant) {
             $this->deleteVariant($variant);
         }
