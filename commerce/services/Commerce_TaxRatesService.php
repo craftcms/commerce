@@ -72,7 +72,7 @@ class Commerce_TaxRatesService extends BaseApplicationComponent
         $record->validate();
 
         if (!$record->getError('taxZoneId')) {
-            $taxZone = craft()->commerce_taxZones->getById($record->taxZoneId);
+            $taxZone = craft()->commerce_taxZones->getTaxZoneById($record->taxZoneId);
 
             if (!$taxZone) {
                 throw new Exception(Craft::t('No tax zone exists with the ID “{id}”', ['id' => $record->taxZoneId]));

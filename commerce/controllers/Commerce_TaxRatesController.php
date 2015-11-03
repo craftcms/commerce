@@ -18,7 +18,7 @@ class Commerce_TaxRatesController extends Commerce_BaseAdminController
      */
     public function actionIndex()
     {
-        $taxZones = craft()->commerce_taxZones->getAll();
+        $taxZones = craft()->commerce_taxZones->getAllTaxZones();
         $zonesExist = (bool)count($taxZones);
 
         $taxRates = craft()->commerce_taxRates->getAll([
@@ -38,7 +38,7 @@ class Commerce_TaxRatesController extends Commerce_BaseAdminController
      */
     public function actionEdit(array $variables = [])
     {
-        $taxZones = craft()->commerce_taxZones->getAll();
+        $taxZones = craft()->commerce_taxZones->getAllTaxZones();
         $zonesExist = (bool)count($taxZones);
 
         if (!$zonesExist) {
@@ -65,7 +65,7 @@ class Commerce_TaxRatesController extends Commerce_BaseAdminController
             $variables['title'] = Craft::t('Create a new tax rate');
         }
 
-        $taxZones = craft()->commerce_taxZones->getAll(false);
+        $taxZones = craft()->commerce_taxZones->getAllTaxZones(false);
         $variables['taxZones'] = [];
         foreach ($taxZones as $model) {
             $variables['taxZones'][$model->id] = $model->name;
