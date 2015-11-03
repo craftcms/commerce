@@ -153,14 +153,14 @@ class Commerce_CartService extends BaseApplicationComponent
         &$error = ""
     )
     {
-        $method = craft()->commerce_shippingMethods->getByHandle($shippingMethod);
+        $method = craft()->commerce_shippingMethods->getShippingMethodByHandle($shippingMethod);
 
         if (!$method) {
             $error = Craft::t('Bad shipping method');
             return false;
         }
 
-        if (!craft()->commerce_shippingMethods->getMatchingRule($cart, $method)) {
+        if (!craft()->commerce_shippingMethods->getMatchingShippingRule($cart, $method)) {
             $error = Craft::t('Shipping method not available');
             return false;
         }
