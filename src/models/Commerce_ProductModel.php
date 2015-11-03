@@ -137,7 +137,7 @@ class Commerce_ProductModel extends BaseElementModel
     public function getTaxCategory()
     {
         if ($this->taxCategoryId) {
-            return craft()->commerce_taxCategories->getById($this->taxCategoryId);
+            return craft()->commerce_taxCategories->getTaxCategoryById($this->taxCategoryId);
         }
     }
 
