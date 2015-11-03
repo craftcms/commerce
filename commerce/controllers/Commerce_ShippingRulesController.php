@@ -67,7 +67,7 @@ class Commerce_ShippingRulesController extends Commerce_BaseAdminController
         }
 
         $variables['countries'] = ['' => ''] + craft()->commerce_countries->getAllCountriesListData();
-        $variables['states'] = craft()->commerce_states->getGroupedByCountries();
+        $variables['states'] = craft()->commerce_states->getStatesGroupedByCountries();
 
         if (!empty($variables['ruleId'])) {
             $variables['title'] = $variables['shippingRule']->name;
