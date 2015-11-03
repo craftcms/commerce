@@ -147,7 +147,7 @@ class Commerce_TransactionsService extends BaseApplicationComponent
     /**
      * @param Commerce_TransactionModel $transaction
      */
-    public function delete(Commerce_TransactionModel $transaction)
+    public function deleteTransaction(Commerce_TransactionModel $transaction)
     {
         Commerce_TransactionRecord::model()->deleteByPk($transaction->id);
     }
