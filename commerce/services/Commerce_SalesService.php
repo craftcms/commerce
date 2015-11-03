@@ -20,7 +20,7 @@ class Commerce_SalesService extends BaseApplicationComponent
      *
      * @return Commerce_SaleModel|null
      */
-    public function getById($id)
+    public function getSaleById($id)
     {
         $result = Commerce_SaleRecord::model()->findById($id);
 
@@ -43,7 +43,7 @@ class Commerce_SalesService extends BaseApplicationComponent
         $productIds = [$product->id];
         $productTypeIds = [$product->typeId];
 
-        return $this->getAllByConditions($productIds, $productTypeIds);
+        return $this->getAllSalesByConditions($productIds, $productTypeIds);
     }
 
     /**
@@ -52,7 +52,7 @@ class Commerce_SalesService extends BaseApplicationComponent
      *
      * @return Commerce_SaleModel[]
      */
-    private function getAllByConditions($productIds, $productTypeIds)
+    private function getAllSalesByConditions($productIds, $productTypeIds)
     {
         $criteria = new \CDbCriteria();
         $criteria->group = 't.id';
@@ -87,7 +87,7 @@ class Commerce_SalesService extends BaseApplicationComponent
         }
 
         //searching
-        return $this->getAll($criteria);
+        return $this->getAllSales($criteria);
     }
 
     /**
@@ -95,7 +95,7 @@ class Commerce_SalesService extends BaseApplicationComponent
      *
      * @return Commerce_SaleModel[]
      */
-    public function getAll($criteria = [])
+    public function getAllSales($criteria = [])
     {
         $records = Commerce_SaleRecord::model()->findAll($criteria);
 
@@ -107,12 +107,12 @@ class Commerce_SalesService extends BaseApplicationComponent
      *
      * @return Commerce_SaleModel[]
      */
-    public function getForVariant(Commerce_VariantModel $variant)
+    public function getSalesForVariant(Commerce_VariantModel $variant)
     {
         $productIds = [$variant->productId];
         $productTypeIds = [$variant->product->typeId];
 
-        return $this->getAllByConditions($productIds, $productTypeIds);
+        return $this->getAllSalesByConditions($productIds, $productTypeIds);
     }
 
     /**
@@ -121,7 +121,7 @@ class Commerce_SalesService extends BaseApplicationComponent
      *
      * @return bool
      */
-    public function matchProduct(
+    public function matchProductAndSale(
         Commerce_ProductModel $product,
         Commerce_SaleModel $sale
     )
@@ -157,7 +157,7 @@ class Commerce_SalesService extends BaseApplicationComponent
      * @return bool
      * @throws \Exception
      */
-    public function save(
+    public function saveSale(
         Commerce_SaleModel $model,
         array $groups,
         array $productTypes,
@@ -250,7 +250,7 @@ class Commerce_SalesService extends BaseApplicationComponent
     /**
      * @param int $id
      */
-    public function deleteById($id)
+    public function deleteSaleById($id)
     {
         Commerce_SaleRecord::model()->deleteByPk($id);
     }

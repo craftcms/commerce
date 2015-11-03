@@ -114,7 +114,7 @@ class Commerce_LineItemModel extends BaseModel
 
             $this->taxCategoryId = $purchasable->product->taxCategoryId;
 
-            $sales = craft()->commerce_sales->getForVariant($purchasable);
+            $sales = craft()->commerce_sales->getSalesForVariant($purchasable);
 
             foreach ($sales as $sale) {
                 $this->saleAmount += $sale->calculateTakeoff($this->price);
