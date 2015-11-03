@@ -58,7 +58,7 @@ class Commerce_ProductsService extends BaseApplicationComponent
         $record->validate();
         $product->addErrors($record->getErrors());
 
-        $productType = craft()->commerce_productTypes->getById($product->typeId);
+        $productType = craft()->commerce_productTypes->getProductTypeById($product->typeId);
 
         if(!$productType){
             throw new Exception(Craft::t('No product type exists with the ID “{id}”',
@@ -158,7 +158,7 @@ class Commerce_ProductsService extends BaseApplicationComponent
 
                 return true;
             } else {
-                
+
                 return false;
             }
         }

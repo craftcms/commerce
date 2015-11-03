@@ -105,7 +105,7 @@ class CommerceVariable
      */
     public function getProductTypes()
     {
-        return craft()->commerce_productTypes->getAll();
+        return craft()->commerce_productTypes->getAllProductTypes();
     }
 
     /**

@@ -32,7 +32,7 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
      * @param string|null $indexBy
      * @return Commerce_ProductTypeModel[]
      */
-    public function getAll($indexBy = null)
+    public function getAllProductTypes($indexBy = null)
     {
         if (!$this->_fetchedAllProductTypes) {
             $results = Commerce_ProductTypeRecord::model()->findAll();
@@ -70,7 +70,7 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
      *
      * @return Commerce_ProductTypeModel|null
      */
-    public function getById($productTypeId)
+    public function getProductTypeById($productTypeId)
     {
         if(!$this->_fetchedAllProductTypes &&
             (!isset($this->_productTypesById) || !array_key_exists($productTypeId, $this->_productTypesById))
@@ -390,7 +390,7 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
     {
         CommerceDbHelper::beginStackedTransaction();
         try {
-            $productType = $this->getById($id);
+            $productType = $this->getProductTypeById($id);
 
             $query = craft()->db->createCommand()
                 ->select('id')

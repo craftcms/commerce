@@ -153,7 +153,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
      */
     private function defaultProducts()
     {
-        $productTypes = \Craft\craft()->commerce_productTypes->getAll();
+        $productTypes = \Craft\craft()->commerce_productTypes->getAllProductTypes();
 
         $products = ['A New Toga', 'Parka with Stripes on Back', 'Romper for a Red Eye'];
         $count = 0;

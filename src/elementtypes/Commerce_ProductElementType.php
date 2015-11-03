@@ -110,7 +110,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
         // TODO: Replace with per-product type permission checks when we have them
         $canEditProducts = craft()->userSession->checkPermission('accessPlugin-commerce');
 
-        foreach (craft()->commerce_productTypes->getAll() as $productType) {
+        foreach (craft()->commerce_productTypes->getAllProductTypes() as $productType) {
             $key = 'productType:' . $productType->id;
 
             $sources[$key] = [

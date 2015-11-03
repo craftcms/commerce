@@ -125,7 +125,7 @@ class Commerce_ProductModel extends BaseElementModel
     public function getType()
     {
         if ($this->typeId) {
-            return craft()->commerce_productTypes->getById($this->typeId);
+            return craft()->commerce_productTypes->getProductTypeById($this->typeId);
         }
     }
 
