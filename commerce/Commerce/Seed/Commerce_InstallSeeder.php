@@ -180,7 +180,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
             $variant->setProduct($product);
             $product->setVariants([$variant]);
 
-            \Craft\craft()->commerce_products->save($product);
+            \Craft\craft()->commerce_products->saveProduct($product);
         }
     }
 

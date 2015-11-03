@@ -152,7 +152,7 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
     {
         if ($this->_product === null) {
             if ($this->productId) {
-                $this->_product = craft()->commerce_products->getById($this->productId);
+                $this->_product = craft()->commerce_products->getProductById($this->productId);
             }
             if ($this->_product === null) {
                 $this->_product = false;

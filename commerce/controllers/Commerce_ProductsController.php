@@ -122,7 +122,7 @@ class Commerce_ProductsController extends Commerce_BaseCpController
 
         if (empty($variables['product'])) {
             if (!empty($variables['productId'])) {
-                $variables['product'] = craft()->commerce_products->getById($variables['productId'], $variables['localeId']);
+                $variables['product'] = craft()->commerce_products->getProductById($variables['productId'], $variables['localeId']);
 
                 if (!$variables['product']) {
                     throw new HttpException(404);
@@ -207,7 +207,7 @@ class Commerce_ProductsController extends Commerce_BaseCpController
      */
     public function actionShareProduct($productId, $locale = null)
     {
-        $product = craft()->commerce_products->getById($productId, $locale);
+        $product = craft()->commerce_products->getProductById($productId, $locale);
 
         if (!$product)
         {
@@ -245,7 +245,7 @@ class Commerce_ProductsController extends Commerce_BaseCpController
     {
         $this->requireToken();
 
-        $product = craft()->commerce_products->getById($productId, $locale);
+        $product = craft()->commerce_products->getProductById($productId, $locale);
 
         if (!$product)
         {
@@ -295,14 +295,14 @@ class Commerce_ProductsController extends Commerce_BaseCpController
         $this->requirePostRequest();
 
         $productId = craft()->request->getRequiredPost('productId');
-        $product = craft()->commerce_products->getById($productId);
+        $product = craft()->commerce_products->getProductById($productId);
 
-        if (!$product->id) {
+        if (!$product) {
             throw new Exception(Craft::t('No product exists with the ID “{id}”.',
                 ['id' => $productId]));
         }
 
-        if (craft()->commerce_products->delete($product)) {
+        if (craft()->commerce_products->deleteProduct($product)) {
             if (craft()->request->isAjaxRequest()) {
                 $this->returnJson(['success' => true]);
             } else {
@@ -338,7 +338,7 @@ class Commerce_ProductsController extends Commerce_BaseCpController
 
         CommerceDbHelper::beginStackedTransaction();
 
-        if (craft()->commerce_products->save($product)) {
+        if (craft()->commerce_products->saveProduct($product)) {
 
             CommerceDbHelper::commitStackedTransaction();
 
@@ -372,7 +372,7 @@ class Commerce_ProductsController extends Commerce_BaseCpController
         $locale = craft()->request->getPost('locale');
 
         if ($productId) {
-            $product = craft()->commerce_products->getById($productId, $locale);
+            $product = craft()->commerce_products->getProductById($productId, $locale);
 
             if (!$product) {
                 throw new Exception(Craft::t('No product with the ID “{id}”',
