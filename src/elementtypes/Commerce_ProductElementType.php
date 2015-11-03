@@ -448,7 +448,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
         } else {
             $variant = ArrayHelper::getFirstValue($element->getVariants());
             $namespace = $templatesService->getNamespace();
-            $newNamespace = $templatesService->namespaceInputName('variants['.($variant->id ?: 'new1').']');
+            $newNamespace = 'variants['.($variant->id ?: 'new1').']';
             $templatesService->setNamespace($newNamespace);
             $html .= $templatesService->namespaceInputs($templatesService->renderMacro('commerce/products/_fields', 'generalVariantFields', array($variant)));
             $html .= $templatesService->namespaceInputs($templatesService->renderMacro('commerce/products/_fields', 'dimensionVariantFields', array($variant)));
