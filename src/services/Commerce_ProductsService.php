@@ -116,12 +116,12 @@ class Commerce_ProductsService extends BaseApplicationComponent
                             $variant->isDefault = false;
                         }
                         $variant->productId = $product->id;
-                        craft()->commerce_variants->save($variant);
+                        craft()->commerce_variants->saveVariant($variant);
                         $keepVariantIds[] = $variant->id;
                     }
 
                     foreach (array_diff($oldVariantIds, $keepVariantIds) as $keepId) {
-                        craft()->commerce_variants->deleteById($keepId);
+                        craft()->commerce_variants->deleteVariantById($keepId);
                     }
 
                     CommerceDbHelper::commitStackedTransaction();
@@ -150,7 +150,7 @@ class Commerce_ProductsService extends BaseApplicationComponent
     {
         $product = Commerce_ProductRecord::model()->findById($product->id);
         if ($product) {
-            $variants = craft()->commerce_variants->getAllByProductId($product->id);
+            $variants = craft()->commerce_variants->getAllVariantsByProductId($product->id);
             if (craft()->elements->deleteElementById($product->id)) {
                 foreach ($variants as $v) {
                     craft()->elements->deleteElementById($v->id);

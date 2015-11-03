@@ -249,7 +249,7 @@ class Commerce_ProductModel extends BaseElementModel
             if ($this->id) {
 
                 if ($this->getType()->hasVariants) {
-                    $this->_variants = craft()->commerce_variants->getAllByProductId($this->id, $this->locale);
+                    $this->_variants = craft()->commerce_variants->getAllVariantsByProductId($this->id, $this->locale);
                 } else {
                     $variant = craft()->commerce_variants->getPrimaryVariantByProductId($this->id, $this->locale);
                     if ($variant) {

@@ -418,7 +418,7 @@ class Commerce_ProductsController extends Commerce_BaseCpController
         $count = 1;
         foreach ($variantsPost as $key => $variant) {
             if (strncmp($key, 'new', 3) !== 0) {
-                $variantModel = craft()->commerce_variants->getById($key);
+                $variantModel = craft()->commerce_variants->getVariantById($key);
             }else{
                 $variantModel = new Commerce_VariantModel();
             }
