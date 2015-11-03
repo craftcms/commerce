@@ -204,7 +204,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
         $settings = new Commerce_SettingsModel();
         $settings->orderPdfPath = 'commerce/_pdf/order';
         $settings->paymentMethod = 'purchase';
-        \Craft\craft()->commerce_settings->save($settings);
+        \Craft\craft()->commerce_settings->saveSettings($settings);
     }
 
 }
