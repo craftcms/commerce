@@ -95,7 +95,7 @@ class CommerceVariable
      */
     public function getPaymentMethods()
     {
-        $methods = craft()->commerce_paymentMethods->getAllForFrontend();
+        $methods = craft()->commerce_paymentMethods->getAllFrontEndPaymentMethods();
 
         return \CHtml::listData($methods, 'id', 'name');
     }
