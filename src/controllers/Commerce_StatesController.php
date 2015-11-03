@@ -18,7 +18,7 @@ class Commerce_StatesController extends Commerce_BaseAdminController
      */
     public function actionIndex()
     {
-        $states = craft()->commerce_states->getAll();
+        $states = craft()->commerce_states->getAllStates();
         $this->renderTemplate('commerce/settings/states/index',
             compact('states'));
     }
@@ -35,7 +35,7 @@ class Commerce_StatesController extends Commerce_BaseAdminController
         if (empty($variables['state'])) {
             if (!empty($variables['id'])) {
                 $id = $variables['id'];
-                $variables['state'] = craft()->commerce_states->getById($id);
+                $variables['state'] = craft()->commerce_states->getStateById($id);
 
                 if (!$variables['state']) {
                     throw new HttpException(404);
@@ -77,7 +77,7 @@ class Commerce_StatesController extends Commerce_BaseAdminController
         $state->countryId = craft()->request->getPost('countryId');
 
         // Save it
-        if (craft()->commerce_states->save($state)) {
+        if (craft()->commerce_states->saveState($state)) {
             craft()->userSession->setNotice(Craft::t('State saved.'));
             $this->redirectToPostedUrl($state);
         } else {
@@ -100,7 +100,7 @@ class Commerce_StatesController extends Commerce_BaseAdminController
 
         $id = craft()->request->getRequiredPost('id');
 
-        craft()->commerce_states->deleteById($id);
+        craft()->commerce_states->deleteStateById($id);
         $this->returnJson(['success' => true]);
     }
 

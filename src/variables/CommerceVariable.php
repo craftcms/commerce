@@ -77,7 +77,7 @@ class CommerceVariable
      */
     public function getStatesArray()
     {
-        return craft()->commerce_states->getGroupedByCountries();
+        return craft()->commerce_states->getStatesGroupedByCountries();
     }
 
     /**

@@ -52,7 +52,7 @@ class Commerce_TaxZonesController extends Commerce_BaseAdminController
         }
 
         $countries = craft()->commerce_countries->getAllCountries();
-        $states = craft()->commerce_states->getAll();
+        $states = craft()->commerce_states->getAllStates();
 
         $variables['countries'] = \CHtml::listData($countries, 'id', 'name');
         $variables['states'] = \CHtml::listData($states, 'id', 'name');
