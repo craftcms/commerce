@@ -515,7 +515,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
 
         $element->setVariants($variants);
 
-        return craft()->commerce_products->save($element);
+        return craft()->commerce_products->saveProduct($element);
     }
 
 }

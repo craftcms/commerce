@@ -67,7 +67,10 @@ class Commerce_DiscountsController extends Commerce_BaseCpController
             $productIds = $variables['discount']->getProductsIds();
         }
         foreach ($productIds as $productId) {
-            $products[] = craft()->commerce_products->getById($productId);
+            $product = craft()->commerce_products->getProductById($productId);
+            if($product){
+                $products[] = $product;
+            }
         }
         $variables['products'] = $products;
 

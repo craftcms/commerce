@@ -21,7 +21,7 @@ class Commerce_ProductsService extends BaseApplicationComponent
      *
      * @return Commerce_ProductModel
      */
-    public function getById($id, $localeId = null)
+    public function getProductById($id, $localeId = null)
     {
         return craft()->elements->getElementById($id, 'Commerce_Product', $localeId);
     }
@@ -34,7 +34,7 @@ class Commerce_ProductsService extends BaseApplicationComponent
      * @throws Exception
      * @throws \Exception
      */
-    public function save(Commerce_ProductModel $product)
+    public function saveProduct(Commerce_ProductModel $product)
     {
         if (!$product->id) {
             $record = new Commerce_ProductRecord();
@@ -146,7 +146,7 @@ class Commerce_ProductsService extends BaseApplicationComponent
      * @return bool
      * @throws \CDbException
      */
-    public function delete($product)
+    public function deleteProduct($product)
     {
         $product = Commerce_ProductRecord::model()->findById($product->id);
         if ($product) {
@@ -158,9 +158,9 @@ class Commerce_ProductsService extends BaseApplicationComponent
 
                 return true;
             } else {
+                
                 return false;
             }
         }
     }
-
 }
