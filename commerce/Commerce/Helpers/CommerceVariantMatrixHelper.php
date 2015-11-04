@@ -30,9 +30,10 @@ class CommerceVariantMatrixHelper
 	 */
 	public static function getVariantMatrixHtml(Product $product, $name = 'variants')
 	{
-		$id = \Craft\craft()->templates->formatInputId($name);
+		$templatesService = \Craft\craft()->templates;
+		$id = $templatesService->formatInputId($name);
 
-		$html = \Craft\craft()->templates->render('commerce/products/_variant_matrix', array(
+		$html = $templatesService->render('commerce/products/_variant_matrix', array(
 			'id' => $id,
 			'name' => $name,
 			'variants' => $product->getVariants()
@@ -41,16 +42,16 @@ class CommerceVariantMatrixHelper
 		// Get the field HTML
 		list($fieldBodyHtml, $fieldFootHtml) = self::_getVariantFieldHtml($product, $name);
 
-		\Craft\craft()->templates->includeJsResource('commerce/js/VariantMatrix.js');
+		$templatesService->includeJsResource('commerce/js/VariantMatrix.js');
 
-		\Craft\craft()->templates->includeJs('new Craft.Commerce.VariantMatrix(' .
-			'"'.\Craft\craft()->templates->namespaceInputId($id).'", ' .
+		$templatesService->includeJs('new Craft.Commerce.VariantMatrix(' .
+			'"'.$templatesService->namespaceInputId($id).'", ' .
 			JsonHelper::encode($fieldBodyHtml).', ' .
 			JsonHelper::encode($fieldFootHtml).', ' .
-			'"'.\Craft\craft()->templates->namespaceInputName($name).'"' .
+			'"'.$templatesService->namespaceInputName($name).'"' .
 		');');
 
-		\Craft\craft()->templates->includeTranslations('Disabled', 'Actions', 'Collapse', 'Expand', 'Disable', 'Enable', 'Add variant above', 'Add a variant', 'Are you sure you want to delete the selected variants?');
+		$templatesService->includeTranslations('Disabled', 'Actions', 'Collapse', 'Expand', 'Disable', 'Enable', 'Add variant above', 'Add a variant', 'Are you sure you want to delete the selected variants?');
 
 		return $html;
 	}
@@ -85,14 +86,15 @@ class CommerceVariantMatrixHelper
 			}
 		}
 
-		\Craft\craft()->templates->startJsBuffer();
+		$templatesService = \Craft\craft()->templates;
+		$templatesService->startJsBuffer();
 
-		$bodyHtml = \Craft\craft()->templates->render('commerce/products/_variant_matrix_fields', array(
+		$bodyHtml = $templatesService->render('commerce/products/_variant_matrix_fields', array(
 			'namespace' => $name.'[__VARIANT__]',
 			'variant'   => $variant
 		));
 
-		$footHtml = \Craft\craft()->templates->clearJsBuffer();
+		$footHtml = $templatesService->clearJsBuffer();
 
 		// Reset $_isFresh's
 		foreach ($variantFields as $fieldLayoutField)
