@@ -18,7 +18,7 @@ class Commerce_SalesController extends Commerce_BaseCpController
      */
     public function actionIndex()
     {
-        $sales = craft()->commerce_sales->getAll(['order' => 'name']);
+        $sales = craft()->commerce_sales->getAllSales(['order' => 'name']);
         $this->renderTemplate('commerce/promotions/sales/index',
             compact('sales'));
     }
@@ -35,7 +35,7 @@ class Commerce_SalesController extends Commerce_BaseCpController
         if (empty($variables['sale'])) {
             if (!empty($variables['id'])) {
                 $id = $variables['id'];
-                $variables['sale'] = craft()->commerce_sales->getById($id);
+                $variables['sale'] = craft()->commerce_sales->getSaleById($id);
 
                 if (!$variables['sale']) {
                     throw new HttpException(404);
@@ -56,7 +56,7 @@ class Commerce_SalesController extends Commerce_BaseCpController
         $variables['groups'] = \CHtml::listData($groups, 'id', 'name');
 
         //getting product types maps
-        $types = craft()->commerce_productTypes->getAll();
+        $types = craft()->commerce_productTypes->getAllProductTypes();
         $variables['types'] = \CHtml::listData($types, 'id', 'name');
 
 
@@ -68,7 +68,10 @@ class Commerce_SalesController extends Commerce_BaseCpController
             $productIds = $variables['sale']->getProductsIds();
         }
         foreach ($productIds as $productId) {
-            $products[] = craft()->commerce_products->getById($productId);
+            $product = craft()->commerce_products->getProductById($productId);
+            if($product){
+                $products[] = $product;
+            }
         }
         $variables['products'] = $products;
 
@@ -119,7 +122,7 @@ class Commerce_SalesController extends Commerce_BaseCpController
         $groups = craft()->request->getPost('groups', []);
 
         // Save it
-        if (craft()->commerce_sales->save($sale, $groups, $productTypes, $products)) {
+        if (craft()->commerce_sales->saveSale($sale, $groups, $productTypes, $products)) {
             craft()->userSession->setNotice(Craft::t('Sale saved.'));
             $this->redirectToPostedUrl($sale);
         } else {
@@ -140,7 +143,7 @@ class Commerce_SalesController extends Commerce_BaseCpController
 
         $id = craft()->request->getRequiredPost('id');
 
-        craft()->commerce_sales->deleteById($id);
+        craft()->commerce_sales->deleteSaleById($id);
         $this->returnJson(['success' => true]);
     }
 

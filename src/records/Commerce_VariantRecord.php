@@ -7,6 +7,7 @@ namespace Craft;
  * @property int $id
  * @property int $productId
  * @property string $sku
+ * @property bool $isDefault
  * @property float $price
  * @property int $sortOrder
  * @property float $width
@@ -77,6 +78,7 @@ class Commerce_VariantRecord extends BaseRecord
     {
         return [
             'sku' => [AttributeType::String, 'required' => true, 'label' => 'SKU'],
+            'isDefault' => [AttributeType::Bool],
             'price' => [
                 AttributeType::Number,
                 'decimals' => 4,

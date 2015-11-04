@@ -150,7 +150,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
 
         // Set default payment method
         if (!$order->paymentMethodId) {
-            $methods = craft()->commerce_paymentMethods->getAllForFrontend();
+            $methods = craft()->commerce_paymentMethods->getAllFrontEndPaymentMethods();
             if (count($methods)) {
                 $order->paymentMethodId = $methods[0]->id;
             }
@@ -202,6 +202,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
         $orderRecord->baseShippingCost = $order->baseShippingCost;
         $orderRecord->totalPrice = $order->totalPrice;
         $orderRecord->totalPaid = $order->totalPaid;
+        $orderRecord->currency = $order->currency;
         $orderRecord->customerId = $order->customerId;
         $orderRecord->returnUrl = $order->returnUrl;
         $orderRecord->cancelUrl = $order->cancelUrl;

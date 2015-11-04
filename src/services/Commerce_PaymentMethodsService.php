@@ -20,7 +20,7 @@ class Commerce_PaymentMethodsService extends BaseApplicationComponent
      *
      * @return Commerce_PaymentMethodModel|null
      */
-    public function getById($id)
+    public function getPaymentMethodById($id)
     {
         $result = Commerce_PaymentMethodRecord::model()->findById($id);
 
@@ -36,7 +36,7 @@ class Commerce_PaymentMethodsService extends BaseApplicationComponent
      *
      * @return Commerce_PaymentMethodModel[]
      */
-    public function getAll($criteria = [])
+    public function getAllPaymentMethods($criteria = [])
     {
         $records = Commerce_PaymentMethodRecord::model()->findAll($criteria);
         return Commerce_PaymentMethodModel::populateModels($records);
@@ -45,7 +45,7 @@ class Commerce_PaymentMethodsService extends BaseApplicationComponent
     /**
      * @return Commerce_PaymentMethodModel[]
      */
-    public function getAllForFrontend()
+    public function getAllFrontEndPaymentMethods()
     {
         $records = Commerce_PaymentMethodRecord::model()->findAllByAttributes([self::FRONTEND_ENABLED => true]);
 
@@ -58,7 +58,7 @@ class Commerce_PaymentMethodsService extends BaseApplicationComponent
      * @return bool
      * @throws Exception
      */
-    public function save(Commerce_PaymentMethodModel $model)
+    public function savePaymentMethod(Commerce_PaymentMethodModel $model)
     {
         if ($model->id) {
             $record = Commerce_PaymentMethodRecord::model()->findById($model->id);
@@ -74,6 +74,7 @@ class Commerce_PaymentMethodsService extends BaseApplicationComponent
 
         $record->settings = $gateway->getAttributes();
         $record->name = $model->name;
+        $record->paymentType = $model->paymentType;
         $record->class = $model->class;
         $record->frontendEnabled = $model->frontendEnabled;
 

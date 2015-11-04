@@ -18,7 +18,7 @@ class Commerce_TaxZonesController extends Commerce_BaseAdminController
      */
     public function actionIndex()
     {
-        $taxZones = craft()->commerce_taxZones->getAll();
+        $taxZones = craft()->commerce_taxZones->getAllTaxZones();
         $this->renderTemplate('commerce/settings/taxzones/index',
             compact('taxZones'));
     }
@@ -35,7 +35,7 @@ class Commerce_TaxZonesController extends Commerce_BaseAdminController
         if (empty($variables['taxZone'])) {
             if (!empty($variables['id'])) {
                 $id = $variables['id'];
-                $variables['taxZone'] = craft()->commerce_taxZones->getById($id);
+                $variables['taxZone'] = craft()->commerce_taxZones->getTaxZoneById($id);
 
                 if (!$variables['taxZone']) {
                     throw new HttpException(404);
@@ -52,7 +52,7 @@ class Commerce_TaxZonesController extends Commerce_BaseAdminController
         }
 
         $countries = craft()->commerce_countries->getAllCountries();
-        $states = craft()->commerce_states->getAll();
+        $states = craft()->commerce_states->getAllStates();
 
         $variables['countries'] = \CHtml::listData($countries, 'id', 'name');
         $variables['states'] = \CHtml::listData($states, 'id', 'name');
@@ -79,7 +79,7 @@ class Commerce_TaxZonesController extends Commerce_BaseAdminController
         $statesIds = craft()->request->getPost('states', []);
 
         // Save it
-        if (craft()->commerce_taxZones->save($taxZone, $countriesIds,
+        if (craft()->commerce_taxZones->saveTaxZone($taxZone, $countriesIds,
             $statesIds)
         ) {
             craft()->userSession->setNotice(Craft::t('Tax zone saved.'));
@@ -102,7 +102,7 @@ class Commerce_TaxZonesController extends Commerce_BaseAdminController
 
         $id = craft()->request->getRequiredPost('id');
 
-        craft()->commerce_taxZones->deleteById($id);
+        craft()->commerce_taxZones->deleteTaxZoneById($id);
         $this->returnJson(['success' => true]);
     }
 

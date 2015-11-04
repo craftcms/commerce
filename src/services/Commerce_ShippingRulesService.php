@@ -18,7 +18,7 @@ class Commerce_ShippingRulesService extends BaseApplicationComponent
      *
      * @return Commerce_ShippingRuleModel[]
      */
-    public function getAll($criteria = [])
+    public function getAllShippingRules($criteria = [])
     {
         $results = Commerce_ShippingRuleRecord::model()->findAll($criteria);
 
@@ -30,7 +30,7 @@ class Commerce_ShippingRulesService extends BaseApplicationComponent
      *
      * @return Commerce_ShippingRuleModel[]
      */
-    public function getAllByMethodId($id)
+    public function getAllShippingRulesByShippingMethodId($id)
     {
         $results = Commerce_ShippingRuleRecord::model()->findAllByAttributes(['methodId' => $id], ['order' => 'priority ASC']);
 
@@ -42,7 +42,7 @@ class Commerce_ShippingRulesService extends BaseApplicationComponent
      *
      * @return Commerce_ShippingRuleModel|null
      */
-    public function getById($id)
+    public function getShippingRuleById($id)
     {
         $result = Commerce_ShippingRuleRecord::model()->findById($id);
 
@@ -61,7 +61,7 @@ class Commerce_ShippingRulesService extends BaseApplicationComponent
      * @throws \CDbException
      * @throws \Exception
      */
-    public function save(Commerce_ShippingRuleModel $model)
+    public function saveShippingRule(Commerce_ShippingRuleModel $model)
     {
         if ($model->id) {
             $record = Commerce_ShippingRuleRecord::model()->findById($model->id);
@@ -128,7 +128,7 @@ class Commerce_ShippingRulesService extends BaseApplicationComponent
      *
      * @return bool
      */
-    public function reorder($ids)
+    public function reorderShippingRules($ids)
     {
         foreach ($ids as $sortOrder => $id) {
             craft()->db->createCommand()->update('commerce_shippingrules',
@@ -141,7 +141,7 @@ class Commerce_ShippingRulesService extends BaseApplicationComponent
     /**
      * @param int $id
      */
-    public function deleteById($id)
+    public function deleteShippingRuleById($id)
     {
         Commerce_ShippingRuleRecord::model()->deleteByPk($id);
     }

@@ -16,6 +16,7 @@ namespace Craft;
  * @property string $email
  * @property DateTime $dateOrdered
  * @property DateTime $datePaid
+ * @property string $currency
  * @property string $lastIp
  * @property string $message
  * @property string $returnUrl

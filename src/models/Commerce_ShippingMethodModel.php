@@ -46,7 +46,7 @@ class Commerce_ShippingMethodModel extends BaseModel implements ShippingMethod
      */
     public function getRules()
     {
-        return craft()->commerce_shippingRules->getAllByMethodId($this->id);
+        return craft()->commerce_shippingRules->getAllShippingRulesByShippingMethodId($this->id);
     }
 
     /**

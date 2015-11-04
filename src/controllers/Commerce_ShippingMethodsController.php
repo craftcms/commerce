@@ -18,7 +18,7 @@ class Commerce_ShippingMethodsController extends Commerce_BaseAdminController
      */
     public function actionIndex()
     {
-        $shippingMethods = craft()->commerce_shippingMethods->getAllCore();
+        $shippingMethods = craft()->commerce_shippingMethods->getAllCoreShippingMethods();
         $this->renderTemplate('commerce/settings/shippingmethods/index', compact('shippingMethods'));
     }
 
@@ -36,7 +36,7 @@ class Commerce_ShippingMethodsController extends Commerce_BaseAdminController
         if (empty($variables['shippingMethod'])) {
             if (!empty($variables['id'])) {
                 $id = $variables['id'];
-                $variables['shippingMethod'] = craft()->commerce_shippingMethods->getById($id);
+                $variables['shippingMethod'] = craft()->commerce_shippingMethods->getShippingMethodById($id);
 
                 if (!$variables['shippingMethod']) {
                     throw new HttpException(404);
@@ -54,7 +54,7 @@ class Commerce_ShippingMethodsController extends Commerce_BaseAdminController
             $variables['newMethod'] = true;
         }
 
-        $shippingRules = craft()->commerce_shippingRules->getAllByMethodId($variables['shippingMethod']->id);
+        $shippingRules = craft()->commerce_shippingRules->getAllShippingRulesByShippingMethodId($variables['shippingMethod']->id);
 
         $variables['shippingRules'] = $shippingRules;
 
@@ -75,7 +75,7 @@ class Commerce_ShippingMethodsController extends Commerce_BaseAdminController
         $shippingMethod->handle = craft()->request->getPost('handle');
         $shippingMethod->enabled = craft()->request->getPost('enabled');
         // Save it
-        if (craft()->commerce_shippingMethods->save($shippingMethod)) {
+        if (craft()->commerce_shippingMethods->saveShippingMethod($shippingMethod)) {
             craft()->userSession->setNotice(Craft::t('Shipping method saved.'));
             $this->redirectToPostedUrl($shippingMethod);
         } else {
@@ -96,7 +96,7 @@ class Commerce_ShippingMethodsController extends Commerce_BaseAdminController
 
         $id = craft()->request->getRequiredPost('id');
 
-        $method = craft()->commerce_shippingMethods->getById($id);
+        $method = craft()->commerce_shippingMethods->getShippingMethodById($id);
 
         if($method){
             if (craft()->commerce_shippingMethods->delete($method)) {

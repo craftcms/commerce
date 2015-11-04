@@ -1,7 +1,7 @@
 {% extends 'commerce/_layouts/main' %}
 {% block main %}
 
-    {% for product in craft.commerce.products.find() %}
+    {% for product in craft.commerce.products.limit(5).find() %}
         <div class="row">
             <div class="two columns">
                 {% include "commerce/_images/productSmall" with { class: 'u-max-full-width' } %}

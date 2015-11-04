@@ -9,6 +9,7 @@ use Commerce\Interfaces\Purchasable;
  * @property int $id
  * @property int $productId
  * @property string $sku
+ * @property bool $isDefault
  * @property float $price
  * @property int $sortOrder
  * @property float $width
@@ -151,7 +152,7 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
     {
         if ($this->_product === null) {
             if ($this->productId) {
-                $this->_product = craft()->commerce_products->getById($this->productId);
+                $this->_product = craft()->commerce_products->getProductById($this->productId);
             }
             if ($this->_product === null) {
                 $this->_product = false;
@@ -175,6 +176,10 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
     public function setProduct(Commerce_ProductModel $product)
     {
         $this->_product = $product;
+        $this->locale = $product->locale;
+        if ($product->id) {
+            $this->productId = $product->id;
+        }
     }
 
     /**
@@ -263,6 +268,7 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
         return array_merge(parent::defineAttributes(), [
             'id' => [AttributeType::Number],
             'productId' => [AttributeType::Number],
+            'isDefault' => [AttributeType::Bool],
             'sku' => [AttributeType::String, 'required' => true, 'label' => 'SKU'],
             'price' => [
                 AttributeType::Number,

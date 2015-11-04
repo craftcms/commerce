@@ -57,7 +57,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
         }
 
         //choosing default action
-        $defaultAction = craft()->commerce_settings->getOption('paymentMethod');
+        $defaultAction = $cart->paymentMethod->paymentType;
         $defaultAction = ($defaultAction === Commerce_TransactionRecord::PURCHASE) ? $defaultAction : Commerce_TransactionRecord::AUTHORIZE;
         $gateway = $cart->paymentMethod->getGatewayAdapter()->getGateway();
 
@@ -76,7 +76,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
         }
 
         //creating cart, transaction and request
-        $transaction = craft()->commerce_transactions->create($cart);
+        $transaction = craft()->commerce_transactions->createTransaction($cart);
         $transaction->type = $defaultAction;
         $this->saveTransaction($transaction);
 
@@ -138,9 +138,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
         if ($transaction->status == Commerce_TransactionRecord::SUCCESS) {
             return $order->returnUrl;
         } else {
-            craft()->userSession->setError(Craft::t('Payment error: {message}', [
-                'error' => $transaction->message
-            ]));
+            craft()->userSession->setError(Craft::t('Payment error: {message}', ['message' => $transaction->message]));
 
             return $order->cancelUrl;
         }
@@ -189,7 +187,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
         }
 
         $order = $parent->order;
-        $child = craft()->commerce_transactions->create($order);
+        $child = craft()->commerce_transactions->createTransaction($order);
         $child->parentId = $parent->id;
         $child->paymentMethodId = $parent->paymentMethodId;
         $child->type = $action;
@@ -232,9 +230,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
             if ($transaction->status == Commerce_TransactionRecord::SUCCESS) {
                 craft()->request->redirect($order->returnUrl);
             } else {
-                craft()->userSession->setError('Payment error: {message}', [
-                    'message' => $transaction->message
-                ]));
+                craft()->userSession->setError(Craft::t('Payment error: {message}', ['message' => $transaction->message]));
                 craft()->request->redirect($order->cancelUrl);
             }
         }
@@ -400,7 +396,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
      */
     private function saveTransaction($child)
     {
-        if (!craft()->commerce_transactions->save($child)) {
+        if (!craft()->commerce_transactions->saveTransaction($child)) {
             throw new Exception(Craft::t('Error saving transaction: ') . implode(', ',
                     $child->getAllErrors()));
         }

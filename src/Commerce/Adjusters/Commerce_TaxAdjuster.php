@@ -31,7 +31,7 @@ class Commerce_TaxAdjuster implements Commerce_AdjusterInterface
         $shippingAddress = \Craft\craft()->commerce_addresses->getAddressById($order->shippingAddressId);
 
         $adjustments = [];
-        $taxRates = \Craft\craft()->commerce_taxRates->getAll([
+        $taxRates = \Craft\craft()->commerce_taxRates->getAllTaxRates([
             'with' => ['taxZone', 'taxZone.countries', 'taxZone.states.country'],
         ]);
 

@@ -30,27 +30,44 @@ class CommerceVariantMatrixHelper
 	 */
 	public static function getVariantMatrixHtml(Product $product, $name = 'variants')
 	{
-		$id = \Craft\craft()->templates->formatInputId($name);
+		$templatesService = \Craft\craft()->templates;
+		$id = $templatesService->formatInputId($name);
 
-		$html = \Craft\craft()->templates->render('commerce/products/_variant_matrix', array(
+		$html = $templatesService->render('commerce/products/_variant_matrix', array(
 			'id' => $id,
 			'name' => $name,
 			'variants' => $product->getVariants()
 		));
 
+		// Namespace the name/ID for JS
+		$namespacedName = $templatesService->namespaceInputName($name);
+		$namespacedId = $templatesService->namespaceInputId($id);
+
 		// Get the field HTML
-		list($fieldBodyHtml, $fieldFootHtml) = self::_getVariantFieldHtml($product, $name);
+		list($fieldBodyHtml, $fieldFootHtml) = self::_getVariantFieldHtml($product, $namespacedName);
 
-		\Craft\craft()->templates->includeJsResource('commerce/js/VariantMatrix.js');
+		$templatesService->includeJsResource('commerce/js/VariantMatrix.js');
 
-		\Craft\craft()->templates->includeJs('new Craft.Commerce.VariantMatrix(' .
-			'"'.\Craft\craft()->templates->namespaceInputId($id).'", ' .
+		$templatesService->includeJs('new Craft.Commerce.VariantMatrix(' .
+			'"'.$namespacedId.'", ' .
 			JsonHelper::encode($fieldBodyHtml).', ' .
 			JsonHelper::encode($fieldFootHtml).', ' .
-			'"'.\Craft\craft()->templates->namespaceInputName($name).'"' .
+			'"'.$namespacedName.'"' .
 		');');
 
-		\Craft\craft()->templates->includeTranslations('Disabled', 'Actions', 'Collapse', 'Expand', 'Disable', 'Enable', 'Add variant above', 'Add a variant', 'Are you sure you want to delete the selected variants?');
+		$templatesService->includeTranslations(
+			'Actions',
+			'Add a variant',
+			'Add variant above',
+			'Are you sure you want to delete the selected variants?',
+			'Collapse',
+			'Default',
+			'Disable',
+			'Disabled',
+			'Enable',
+			'Expand',
+			'Set as the default variant'
+		);
 
 		return $html;
 	}
@@ -85,14 +102,15 @@ class CommerceVariantMatrixHelper
 			}
 		}
 
-		\Craft\craft()->templates->startJsBuffer();
+		$templatesService = \Craft\craft()->templates;
+		$templatesService->startJsBuffer();
 
-		$bodyHtml = \Craft\craft()->templates->render('commerce/products/_variant_matrix_fields', array(
+		$bodyHtml = $templatesService->render('commerce/products/_variant_matrix_fields', array(
 			'namespace' => $name.'[__VARIANT__]',
 			'variant'   => $variant
 		));
 
-		$footHtml = \Craft\craft()->templates->clearJsBuffer();
+		$footHtml = $templatesService->clearJsBuffer();
 
 		// Reset $_isFresh's
 		foreach ($variantFields as $fieldLayoutField)

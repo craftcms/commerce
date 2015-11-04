@@ -39,7 +39,7 @@
 		{% if product.id %}<input type="hidden" name="productId" value="{{ product.id }}">{% endif %}
 
 
-		<div class="grid first" data-max-cols="3">
+		<div class="grid first" data-colspan="2">
 			<div class="item" data-position="left" data-min-colspan="2"
 				 data-max-colspan="3">
 
@@ -74,7 +74,7 @@
 				{% endif %}
 			</div>
 
-			<div id="meta-pane" class="item" data-position="right" data-colspan="1">
+			<div id="meta-pane" class="item" data-position="right">
 
 				{% if showPreviewBtn %}
 					{% include "_includes/previewbtns" %}

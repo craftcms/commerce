@@ -240,21 +240,6 @@ class Commerce_VariantElementType extends Commerce_BaseElementType
     }
 
     /**
-     * @param BaseElementModel $element
-     *
-     * @return string
-     */
-    public function getEditorHtml(BaseElementModel $element)
-    {
-        $variant = $element;
-        $html = craft()->templates->render('commerce/_includes/variant/fields', compact('variant'));
-
-        $html .= parent::getEditorHtml($element);
-
-        return $html;
-    }
-
-    /**
      * @param array $row
      *
      * @return BaseModel
@@ -274,11 +259,7 @@ class Commerce_VariantElementType extends Commerce_BaseElementType
      */
     public function saveElement(BaseElementModel $element, $params)
     {
-        foreach ($params as $name => $value) {
-            $element->$name = $value;
-        }
-
-        return craft()->commerce_variants->save($element);
+        return craft()->commerce_variants->saveVariant($element);
     }
 
 }

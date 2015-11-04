@@ -27,13 +27,6 @@ class CommercePlugin extends BasePlugin
      */
     public function init()
     {
-        if (!defined('DOMPDF_ENABLE_AUTOLOAD')) {
-            // disable DOMPDF's internal autoloader since we are using Composer
-            define('DOMPDF_ENABLE_AUTOLOAD', false);
-            // include DOMPDF's configuration
-            require_once __DIR__ . '/vendor/dompdf/dompdf/dompdf_config.inc.php';
-        }
-
         $this->initEventHandlers();
 
         // If this is a CP request, register the commerce.prepCpTemplate hook
@@ -88,7 +81,7 @@ class CommercePlugin extends BasePlugin
             parent::createTables();
         } else {
             if ($pluginInfo['version'] != '0.8.09') {
-                throw new Exception('Market plugin must be upgraded to 0.8.05 before installing Commerce');
+                throw new Exception('Market plugin must be upgraded to 0.8.09 before installing Commerce');
             }
 
             if ($pluginInfo['version'] == '0.8.09') {
@@ -105,12 +98,19 @@ class CommercePlugin extends BasePlugin
                         'm150919_010101_Commerce_AddHasDimensionsToProductType',
                         'm151004_142113_Commerce_PaymentMethods_Name_Unique',
                         'm151018_010101_Commerce_DiscountCodeNull',
-                        'm151025_010101_Commerce_AddHandleToShippingMethod'
+                        'm151025_010101_Commerce_AddHandleToShippingMethod',
+                        'm151027_010101_Commerce_NewVariantUI',
+                        'm151027_010102_Commerce_ProductDateNames',
+                        'm151102_010101_Commerce_PaymentTypeInMethodNotSettings',
+                        'm151103_010101_Commerce_DefaultVariant'
                     );
 
                     foreach ($migrations as $migrationClass) {
                         $migration = craft()->migrations->instantiateMigration($migrationClass, $this);
-                        $migration->up();
+                        if(!$migration->up()){
+                            Craft::log("Market to Commerce Upgrade Error. Could not run: ".$migrationClass, LogLevel::Error);
+                            throw new Exception('Market to Commerce Upgrade Error.');
+                        }
                     }
 
                     CommerceDbHelper::commitStackedTransaction();
@@ -186,16 +186,17 @@ class CommercePlugin extends BasePlugin
      * Make sure requirements are met before installation.
      *
      * @return bool
+     * @throws Exception
      */
     public function onBeforeInstall()
     {
         if (version_compare(craft()->getVersion(), '2.5', '<')) {
-            craft()->userSession->setError(Craft::t('Craft Commerce requires Craft CMS 2.5 in order to run.'));
-            return false;
+            // No way to gracefully handle this, so throw an Exception.
+            throw new Exception('Craft Commerce requires Craft CMS 2.5+ in order to run.');
         }
 
         if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 50400) {
-            craft()->userSession->setError(Craft::t('Craft Commerce requires PHP 5.4+ in order to run.'));
+            Craft::log('Craft Commerce requires PHP 5.4+ in order to run.', LogLevel::Error);
             return false;
         }
     }
@@ -217,7 +218,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getSchemaVersion()
     {
-        return '0.9.0';
+        return '0.9.2';
     }
 
     /**

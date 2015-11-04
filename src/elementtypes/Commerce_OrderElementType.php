@@ -149,12 +149,15 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
     {
         $attributes = [
             'number' => ['label' => Craft::t('Number')],
+            'id' => ['label' => Craft::t('ID')],
             'orderStatus' => ['label' => Craft::t('Status')],
             'totalPrice' => ['label' => Craft::t('Total')],
+            'totalPaid' => ['label' => Craft::t('Total Paid')],
             'dateOrdered' => ['label' => Craft::t('Date Ordered')],
             'datePaid' => ['label' => Craft::t('Date Paid')],
             'dateCreated' => ['label' => Craft::t('Date Created')],
             'dateUpdated' => ['label' => Craft::t('Date Updated')],
+            'email' => ['label' => Craft::t('Email')],
         ];
 
         // Allow plugins to modify the attributes
@@ -176,6 +179,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
             $attributes[] = 'orderStatus';
             $attributes[] = 'totalPrice';
             $attributes[] = 'dateOrdered';
+            $attributes[] = 'totalPaid';
             $attributes[] = 'datePaid';
         } else {
             $attributes[] = 'dateUpdated';
@@ -216,10 +220,11 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
                     return '<span class="status"></span>';
                 }
             }
+            case 'totalPaid':
             case 'totalPrice': {
                 $currency = craft()->commerce_settings->getOption('defaultCurrency');
 
-                return craft()->numberFormatter->formatCurrency($element->totalPrice, strtoupper($currency));
+                return craft()->numberFormatter->formatCurrency($element->$attribute, strtoupper($currency));
             }
             default: {
                 return parent::getTableAttributeHtml($element, $attribute);
@@ -236,6 +241,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
             'number' => Craft::t('Number'),
             'dateOrdered' => Craft::t('Completed At'),
             'totalPrice' => Craft::t('Total Payable'),
+            'totalPaid' => Craft::t('Total Paid'),
             'orderStatusId' => Craft::t('Order Status'),
         ];
 

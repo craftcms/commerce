@@ -67,8 +67,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
         $actions = [];
 
         // TODO: Replace with a product type permission check when we have them
-        if (craft()->userSession->checkPermission('accessPlugin-commerce'))
-        {
+        if (craft()->userSession->checkPermission('accessPlugin-commerce')) {
             $deleteAction = craft()->elements->getAction('Delete');
             $deleteAction->setParams([
                 'confirmationMessage' => Craft::t('Are you sure you want to delete the selected product and their variants?'),
@@ -111,7 +110,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
         // TODO: Replace with per-product type permission checks when we have them
         $canEditProducts = craft()->userSession->checkPermission('accessPlugin-commerce');
 
-        foreach (craft()->commerce_productTypes->getAll() as $productType) {
+        foreach (craft()->commerce_productTypes->getAllProductTypes() as $productType) {
             $key = 'productType:' . $productType->id;
 
             $sources[$key] = [
@@ -148,6 +147,12 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
             'link' => ['label' => Craft::t('Link'), 'icon' => 'world'],
             'dateCreated' => ['label' => Craft::t('Date Created')],
             'dateUpdated' => ['label' => Craft::t('Date Updated')],
+            'defaultPrice' => ['label' => Craft::t('Price')],
+            'defaultSku' => ['label' => Craft::t('SKU')],
+            'defaultWeight' => ['label' => Craft::t('Weight')],
+            'defaultLength' => ['label' => Craft::t('Length')],
+            'defaultWidth' => ['label' => Craft::t('Width')],
+            'defaultHeight' => ['label' => Craft::t('Height')],
         ];
 
         // Allow plugins to modify the attributes
@@ -171,6 +176,8 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
 
         $attributes[] = 'postDate';
         $attributes[] = 'expiryDate';
+        $attributes[] = 'defaultPrice';
+        $attributes[] = 'defaultSku';
         $attributes[] = 'link';
 
         return $attributes;
@@ -200,10 +207,11 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
             return $pluginAttributeHtml;
         }
 
+        /* @var $productType Commerce_ProductTypeModel */
+        $productType = $element->getType();
+
         switch ($attribute) {
             case 'type': {
-                $productType = $element->getType();
-
                 return ($productType ? Craft::t($productType->name) : '');
             }
 
@@ -212,10 +220,30 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
 
                 return ($taxCategory ? Craft::t($taxCategory->name) : '');
             }
+            case 'defaultPrice': {
+                $code = craft()->commerce_settings->getOption('defaultCurrency');
 
+                return craft()->numberFormatter->formatCurrency($element->$attribute, strtoupper($code));
+            }
+            case 'defaultWeight': {
+                if($productType->hasDimensions){
+                    return craft()->numberFormatter->formatDecimal($element->$attribute) . " " . craft()->commerce_settings->getOption('weightUnits');;
+                }else{
+                    return "";
+                }
+            }
+            case 'defaultLength':
+            case 'defaultWidth':
+            case 'defaultHeight': {
+                if($productType->hasDimensions){
+                    return craft()->numberFormatter->formatDecimal($element->$attribute) . " " . craft()->commerce_settings->getOption('dimensionUnits');;
+                }else{
+                    return "";
+                }
+            }
             case 'promotable':
             case 'freeShipping': {
-                return ($element->$attribute ? '<span data-icon="check" title="'.Craft::t('Yes').'"></span>' : '');
+                return ($element->$attribute ? '<span data-icon="check" title="' . Craft::t('Yes') . '"></span>' : '');
             }
 
             default: {
@@ -234,7 +262,8 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
         $attributes = [
             'title' => Craft::t('Name'),
             'postDate' => Craft::t('Available On'),
-            'expiryDate' => Craft::t('Expires On')
+            'expiryDate' => Craft::t('Expires On'),
+            'defaultPrice' => Craft::t('Price')
         ];
 
         // Allow plugins to modify the attributes
@@ -329,7 +358,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
     public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
     {
         $query
-            ->addSelect("products.id, products.typeId, products.promotable, products.freeShipping, products.postDate, products.expiryDate, products.taxCategoryId, products.authorId")
+            ->addSelect("products.id, products.typeId, products.promotable, products.freeShipping, products.postDate, products.expiryDate, products.defaultPrice, products.defaultVariantId, products.defaultSku, products.defaultWeight, products.defaultLength, products.defaultWidth, products.defaultHeight, products.taxCategoryId, products.authorId")
             ->join('commerce_products products', 'products.id = elements.id')
             ->join('commerce_producttypes producttypes', 'producttypes.id = products.typeId');
 
@@ -417,9 +446,13 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
                 VariantMatrixHelper::getVariantMatrixHtml($element)
             ));
         } else {
-            $primaryVariant = ArrayHelper::getFirstValue($element->getVariants());
-            $html .= $templatesService->renderMacro('commerce/products/_fields', 'generalVariantFields', array($primaryVariant));
-            $html .= $templatesService->renderMacro('commerce/products/_fields', 'dimensionVariantFields', array($primaryVariant));
+            $variant = ArrayHelper::getFirstValue($element->getVariants());
+            $namespace = $templatesService->getNamespace();
+            $newNamespace = 'variants['.($variant->id ?: 'new1').']';
+            $templatesService->setNamespace($newNamespace);
+            $html .= $templatesService->namespaceInputs($templatesService->renderMacro('commerce/products/_fields', 'generalVariantFields', array($variant)));
+            $html .= $templatesService->namespaceInputs($templatesService->renderMacro('commerce/products/_fields', 'dimensionVariantFields', array($variant)));
+            $templatesService->setNamespace($namespace);
         }
 
         return $html;
@@ -464,7 +497,29 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
      */
     public function saveElement(BaseElementModel $element, $params)
     {
-        return craft()->commerce_products->save($element);
+        $variantsPost = $params['variants'];
+        $variants = [];
+        $count = 1;
+        foreach ($variantsPost as $key => $variant) {
+            if (strncmp($key, 'new', 3) !== 0) {
+                $variantModel = craft()->commerce_variants->getVariantById($key);
+            } else {
+                $variantModel = new Commerce_VariantModel();
+            }
+
+            $variantModel->setAttributes($variant);
+            if (isset($variant['fields'])) {
+                $variantModel->setContentFromPost($variant['fields']);
+            }
+            $variantModel->locale = $element->locale;
+            $variantModel->sortOrder = $count++;
+            $variantModel->setProduct($element);
+            $variants[] = $variantModel;
+        }
+
+        $element->setVariants($variants);
+
+        return craft()->commerce_products->saveProduct($element);
     }
 
 }

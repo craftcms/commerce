@@ -57,7 +57,7 @@ class Commerce_CartPaymentController extends Commerce_BaseFrontEndController
     public function actionComplete()
     {
         $id = craft()->request->getParam('hash');
-        $transaction = craft()->commerce_transactions->getByHash($id);
+        $transaction = craft()->commerce_transactions->getTransactionByHash($id);
 
         if (!$transaction->id) {
             throw new HttpException(400);

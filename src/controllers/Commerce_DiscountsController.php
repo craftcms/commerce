@@ -56,7 +56,7 @@ class Commerce_DiscountsController extends Commerce_BaseCpController
         $variables['groups'] = \CHtml::listData($groups, 'id', 'name');
 
         //getting product types maps
-        $types = craft()->commerce_productTypes->getAll();
+        $types = craft()->commerce_productTypes->getAllProductTypes();
         $variables['types'] = \CHtml::listData($types, 'id', 'name');
 
         $variables['products'] = null;
@@ -67,7 +67,10 @@ class Commerce_DiscountsController extends Commerce_BaseCpController
             $productIds = $variables['discount']->getProductsIds();
         }
         foreach ($productIds as $productId) {
-            $products[] = craft()->commerce_products->getById($productId);
+            $product = craft()->commerce_products->getProductById($productId);
+            if($product){
+                $products[] = $product;
+            }
         }
         $variables['products'] = $products;
 
