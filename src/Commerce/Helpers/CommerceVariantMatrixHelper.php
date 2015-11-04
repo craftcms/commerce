@@ -55,7 +55,17 @@ class CommerceVariantMatrixHelper
 			'"'.$namespacedName.'"' .
 		');');
 
-		$templatesService->includeTranslations('Disabled', 'Actions', 'Collapse', 'Expand', 'Disable', 'Enable', 'Add variant above', 'Add a variant', 'Are you sure you want to delete the selected variants?');
+		$templatesService->includeTranslations(
+			'Actions',
+			'Add a variant',
+			'Add variant above',
+			'Are you sure you want to delete the selected variants?',
+			'Collapse',
+			'Disable',
+			'Disabled',
+			'Enable',
+			'Expand'
+		);
 
 		return $html;
 	}
