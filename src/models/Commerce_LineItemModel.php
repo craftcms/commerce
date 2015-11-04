@@ -54,6 +54,11 @@ class Commerce_LineItemModel extends BaseModel
         return $this->qty * ($this->price + $this->saleAmount);
     }
 
+    public function getTotal()
+    {
+        return $this->getSubtotalWithSale() + $this->tax + $this->discount + $this->shippingCost;
+    }
+
     /**
      * @return float
      */
