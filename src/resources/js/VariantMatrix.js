@@ -142,7 +142,7 @@ Craft.Commerce.VariantMatrix = Garnish.Base.extend(
 				'<div class="checkbox" title="'+Craft.t('Select')+'"></div>' +
 				'<div class="actions">' +
 					'<div class="status off" title="'+Craft.t('Disabled')+'"></div>' +
-					'<a class="default-btn" title="'+Craft.t('Set as the default variant')+'">'+Craft.t('Default')+'</a>' +
+					'<a class="default-btn" title="'+Craft.t('Set as the default variant')+'">'+Craft.t('Default')+'</a> ' +
 					'<a class="settings icon menubtn" title="'+Craft.t('Actions')+'" role="button"></a> ' +
 					'<div class="menu">' +
 						'<ul class="padded">' +
