@@ -202,6 +202,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
         $orderRecord->baseShippingCost = $order->baseShippingCost;
         $orderRecord->totalPrice = $order->totalPrice;
         $orderRecord->totalPaid = $order->totalPaid;
+        $orderRecord->currency = $order->currency;
         $orderRecord->customerId = $order->customerId;
         $orderRecord->returnUrl = $order->returnUrl;
         $orderRecord->cancelUrl = $order->cancelUrl;

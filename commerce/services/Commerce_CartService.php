@@ -250,6 +250,9 @@ class Commerce_CartService extends BaseApplicationComponent
 
             $this->cart->lastIp = craft()->request->getIpAddress();
 
+            // Right now, orders are only made in the default currency
+            $this->cart->currency = craft()->commerce_settings->getOption('defaultCurrency');
+
             // Update the cart if the customer has changed and recalculate the cart.
             $customer = craft()->commerce_customers->getCustomer();
             if ($customer->id) {
