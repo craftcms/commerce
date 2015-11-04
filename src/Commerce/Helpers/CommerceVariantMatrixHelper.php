@@ -39,16 +39,20 @@ class CommerceVariantMatrixHelper
 			'variants' => $product->getVariants()
 		));
 
+		// Namespace the name/ID for JS
+		$namespacedName = $templatesService->namespaceInputName($name);
+		$namespacedId = $templatesService->namespaceInputId($id);
+
 		// Get the field HTML
-		list($fieldBodyHtml, $fieldFootHtml) = self::_getVariantFieldHtml($product, $name);
+		list($fieldBodyHtml, $fieldFootHtml) = self::_getVariantFieldHtml($product, $namespacedName);
 
 		$templatesService->includeJsResource('commerce/js/VariantMatrix.js');
 
 		$templatesService->includeJs('new Craft.Commerce.VariantMatrix(' .
-			'"'.$templatesService->namespaceInputId($id).'", ' .
+			'"'.$namespacedId.'", ' .
 			JsonHelper::encode($fieldBodyHtml).', ' .
 			JsonHelper::encode($fieldFootHtml).', ' .
-			'"'.$templatesService->namespaceInputName($name).'"' .
+			'"'.$namespacedName.'"' .
 		');');
 
 		$templatesService->includeTranslations('Disabled', 'Actions', 'Collapse', 'Expand', 'Disable', 'Enable', 'Add variant above', 'Add a variant', 'Are you sure you want to delete the selected variants?');
