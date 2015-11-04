@@ -101,9 +101,7 @@ class Commerce_LineItemsService extends BaseApplicationComponent
             }
         }
 
-        $lineItem->total = (($lineItem->price + $lineItem->saleAmount)
-                * $lineItem->qty)
-            + $lineItem->tax + $lineItem->discount + $lineItem->shippingCost;
+        $lineItem->total = $lineItem->getTotal();
 
         $lineItemRecord->purchasableId = $lineItem->purchasableId;
         $lineItemRecord->orderId = $lineItem->orderId;

@@ -153,14 +153,14 @@ class Commerce_CartService extends BaseApplicationComponent
         &$error = ""
     )
     {
-        $method = craft()->commerce_shippingMethods->getByHandle($shippingMethod);
+        $method = craft()->commerce_shippingMethods->getShippingMethodByHandle($shippingMethod);
 
         if (!$method) {
             $error = Craft::t('Bad shipping method');
             return false;
         }
 
-        if (!craft()->commerce_shippingMethods->getMatchingRule($cart, $method)) {
+        if (!craft()->commerce_shippingMethods->getMatchingShippingRule($cart, $method)) {
             $error = Craft::t('Shipping method not available');
             return false;
         }
@@ -183,7 +183,7 @@ class Commerce_CartService extends BaseApplicationComponent
      */
     public function setPaymentMethod(Commerce_OrderModel $cart, $paymentMethodId, &$error = "")
     {
-        $method = craft()->commerce_paymentMethods->getById($paymentMethodId);
+        $method = craft()->commerce_paymentMethods->getPaymentMethodById($paymentMethodId);
         if (!$method || !$method->frontendEnabled) {
             $error = Craft::t('Payment method does not exist or is not allowed.');
             return false;
@@ -249,6 +249,9 @@ class Commerce_CartService extends BaseApplicationComponent
             }
 
             $this->cart->lastIp = craft()->request->getIpAddress();
+
+            // Right now, orders are only made in the default currency
+            $this->cart->currency = craft()->commerce_settings->getOption('defaultCurrency');
 
             // Update the cart if the customer has changed and recalculate the cart.
             $customer = craft()->commerce_customers->getCustomer();

@@ -19,7 +19,7 @@ class Commerce_VariantsService extends BaseApplicationComponent
      * @param int $id
      * @return Commerce_VariantModel
      */
-    public function getById($id)
+    public function getVariantById($id)
     {
         return craft()->elements->getElementById($id, 'Commerce_Variant');
     }
@@ -27,22 +27,24 @@ class Commerce_VariantsService extends BaseApplicationComponent
     /**
      * Returns the first variant as returned by it's sortOrder.
      *
-     * @param $id
+     * @param int $id
+     * @param string|null $locale
      * @return mixed|null
      */
-    public function getPrimaryVariantByProductId($id)
+    public function getPrimaryVariantByProductId($id, $locale = null)
     {
-        return ArrayHelper::getFirstValue($this->getAllByProductId($id));
+        return ArrayHelper::getFirstValue($this->getAllVariantsByProductId($id));
     }
 
     /**
      * @param int $id
+     * @param string|null $localeId
      *
      * @return Commerce_VariantModel[]
      */
-    public function getAllByProductId($id)
+    public function getAllVariantsByProductId($id, $localeId = null)
     {
-        $variants = craft()->elements->getCriteria('Commerce_Variant', ['productId' => $id, 'status'=> null])->find();
+        $variants = craft()->elements->getCriteria('Commerce_Variant', ['productId' => $id, 'status'=> null, 'locale' => $localeId])->find();
 
         return $variants;
     }
@@ -50,7 +52,7 @@ class Commerce_VariantsService extends BaseApplicationComponent
     /**
      * @param int $id
      */
-    public function deleteById($id)
+    public function deleteVariantById($id)
     {
         craft()->elements->deleteElementById($id);
     }
@@ -58,9 +60,10 @@ class Commerce_VariantsService extends BaseApplicationComponent
     /**
      * @param int $productId
      */
-    public function deleteAllByProductId($productId)
+    public function deleteAllVariantsByProductId($productId)
     {
-        $variants = $this->getAllByProductId($productId);
+        $variants = $this->getAllVariantsByProductId($productId);
+
         foreach ($variants as $variant) {
             $this->deleteVariant($variant);
         }
@@ -71,7 +74,7 @@ class Commerce_VariantsService extends BaseApplicationComponent
      */
     public function deleteVariant($variant)
     {
-        craft()->elements->deleteElementById($variant->id);
+       $this->deleteVariantById($variant->id);
     }
 
     /**
@@ -90,6 +93,17 @@ class Commerce_VariantsService extends BaseApplicationComponent
 
         if (!craft()->content->validateContent($variant)) {
             $variant->addErrors($variant->getContent()->getErrors());
+        }
+
+        // If variant validation has not already found a clash check all purchasables
+        if(!$variant->getError('sku')){
+            $existing = craft()->commerce_purchasable->getPurchasableBySku($variant->sku);
+
+            if($existing){
+                if($existing->id != $variant->id){
+                    $variant->addError('sku',Craft::t('SKU has already been taken by another purchasable.'));
+                }
+            }
         }
 
         return !$variant->hasErrors();
@@ -136,7 +150,7 @@ class Commerce_VariantsService extends BaseApplicationComponent
      * @throws \CDbException
      * @throws \Exception
      */
-    public function save(BaseElementModel $model)
+    public function saveVariant(BaseElementModel $model)
     {
         $record = $this->_getVariantRecord($model);
         $this->_populateVariantRecord($record, $model);

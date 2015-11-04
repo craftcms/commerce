@@ -29,7 +29,7 @@ class Commerce_TaxCategoriesService extends BaseApplicationComponent
      *
      * @return Commerce_TaxCategoryModel|null
      */
-    public function getById($taxCategoryId)
+    public function getTaxCategoryById($taxCategoryId)
     {
         if(!$this->_fetchedAllTaxCategories &&
             (!isset($this->_taxCategoriesById) || !array_key_exists($taxCategoryId, $this->_taxCategoriesById))
@@ -59,7 +59,7 @@ class Commerce_TaxCategoriesService extends BaseApplicationComponent
      *
      * @return int|null
      */
-    public function getDefaultId()
+    public function getDefaultTaxCategoryId()
     {
         foreach($this->getAll() as $taxCategory){
             if ($taxCategory->default) {
@@ -78,7 +78,7 @@ class Commerce_TaxCategoriesService extends BaseApplicationComponent
      * @throws \CDbException
      * @throws \Exception
      */
-    public function save(Commerce_TaxCategoryModel $model)
+    public function saveTaxCategory(Commerce_TaxCategoryModel $model)
     {
         if ($model->id) {
             $record = Commerce_TaxCategoryRecord::model()->findById($model->id);
@@ -125,7 +125,7 @@ class Commerce_TaxCategoriesService extends BaseApplicationComponent
      * @param int $id
      * @return bool
      */
-    public function deleteById($id)
+    public function deleteTaxCategoryById($id)
     {
         $all = $this->getAll();
         if (count($all) == 1) {

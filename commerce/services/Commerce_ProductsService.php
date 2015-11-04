@@ -21,7 +21,7 @@ class Commerce_ProductsService extends BaseApplicationComponent
      *
      * @return Commerce_ProductModel
      */
-    public function getById($id, $localeId = null)
+    public function getProductById($id, $localeId = null)
     {
         return craft()->elements->getElementById($id, 'Commerce_Product', $localeId);
     }
@@ -34,7 +34,7 @@ class Commerce_ProductsService extends BaseApplicationComponent
      * @throws Exception
      * @throws \Exception
      */
-    public function save(Commerce_ProductModel $product)
+    public function saveProduct(Commerce_ProductModel $product)
     {
         if (!$product->id) {
             $record = new Commerce_ProductRecord();
@@ -58,16 +58,46 @@ class Commerce_ProductsService extends BaseApplicationComponent
         $record->validate();
         $product->addErrors($record->getErrors());
 
+        $productType = craft()->commerce_productTypes->getProductTypeById($product->typeId);
+
+        if(!$productType){
+            throw new Exception(Craft::t('No product type exists with the ID “{id}”',
+                ['id' => $product->typeId]));
+        }
+
         $variantsValid = true;
+        $defaultVariant = null;
         foreach ($product->getVariants() as $variant) {
+
+            $titleFormat = $productType->titleFormat ? $productType->titleFormat : '{sku';
+            $variant->getContent()->title = craft()->templates->renderObjectTemplate($titleFormat, $variant);
+
+            // Make the first variant (or the last one that says it isDefault) the default.
+            if ($defaultVariant === null || $variant->isDefault)
+            {
+                $defaultVariant = $variant;
+            }
+
             if (!craft()->commerce_variants->validateVariant($variant)) {
                 $variantsValid = false;
+                if($variant->getError('title') && !$variant->getError('sku')){
+                    $variant->addError('sku',Craft::t('Could not generate the title from variant. Ensure custom fields used to generate the variant title are set to required.'));
+                }
             }
         }
 
         CommerceDbHelper::beginStackedTransaction();
         try {
             if (!$product->hasErrors() && $variantsValid) {
+
+                 $record->defaultVariantId = $defaultVariant->getPurchasableId();
+                 $record->defaultSku = $defaultVariant->getSku();
+                 $record->defaultPrice = $defaultVariant->getPrice();
+                 $record->defaultHeight = $defaultVariant->height;
+                 $record->defaultLength = $defaultVariant->length;
+                 $record->defaultWidth = $defaultVariant->width;
+                 $record->defaultWeight = $defaultVariant->weight;
+
                 if (craft()->elements->saveElement($product)) {
                     $record->id = $product->id;
                     $record->save(false);
@@ -80,13 +110,18 @@ class Commerce_ProductsService extends BaseApplicationComponent
                         ->queryColumn();
 
                     foreach ($product->getVariants() as $variant) {
+                        if($defaultVariant === $variant){
+                            $variant->isDefault = true;
+                        }else{
+                            $variant->isDefault = false;
+                        }
                         $variant->productId = $product->id;
-                        craft()->commerce_variants->save($variant);
+                        craft()->commerce_variants->saveVariant($variant);
                         $keepVariantIds[] = $variant->id;
                     }
 
                     foreach (array_diff($oldVariantIds, $keepVariantIds) as $keepId) {
-                        craft()->commerce_variants->deleteById($keepId);
+                        craft()->commerce_variants->deleteVariantById($keepId);
                     }
 
                     CommerceDbHelper::commitStackedTransaction();
@@ -111,11 +146,11 @@ class Commerce_ProductsService extends BaseApplicationComponent
      * @return bool
      * @throws \CDbException
      */
-    public function delete($product)
+    public function deleteProduct($product)
     {
         $product = Commerce_ProductRecord::model()->findById($product->id);
         if ($product) {
-            $variants = craft()->commerce_variants->getAllByProductId($product->id);
+            $variants = craft()->commerce_variants->getAllVariantsByProductId($product->id);
             if (craft()->elements->deleteElementById($product->id)) {
                 foreach ($variants as $v) {
                     craft()->elements->deleteElementById($v->id);
@@ -123,9 +158,9 @@ class Commerce_ProductsService extends BaseApplicationComponent
 
                 return true;
             } else {
+
                 return false;
             }
         }
     }
-
 }

@@ -168,20 +168,39 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
 
         $sameAddress = craft()->request->getParam('sameAddress');
 
+        if (!is_null(craft()->request->getParam('purchasableId'))) {
+            $purchasableId = craft()->request->getPost('purchasableId');
+            $note = craft()->request->getPost('note',"");
+            $qty = craft()->request->getPost('qty', 1);
+            $error = '';
+            if (!craft()->commerce_cart->addToCart($cart, $purchasableId, $qty, $note, $error)) {
+                $cart->addError('lineItems', Craft::t('Could not add to cart: ').$error);
+            }
+        }
+
         // Set Addresses
-        if (isset($_POST['shippingAddressId']) && is_numeric(craft()->request->getParam('shippingAddressId'))) {
+        if (!is_null(craft()->request->getParam('shippingAddressId')) && is_numeric(craft()->request->getParam('shippingAddressId'))) {
             if ($shippingAddressId = craft()->request->getParam('shippingAddressId')) {
                 if ($shippingAddress = craft()->commerce_addresses->getAddressById($shippingAddressId)) {
-
-                    if ($sameAddress) {
-
-                    }
-                    if (!craft()->commerce_orders->setOrderAddresses($cart, $shippingAddress, $shippingAddress)) {
-                        $cart->addError('shippingAddressId', Craft::t('Could not save the shipping address.'));
+                    if (!$sameAddress) {
+                        if ($billingAddressId = craft()->request->getParam('billingAddressId')) {
+                            if ($billingAddress = craft()->commerce_addresses->getAddressById($billingAddressId)) {
+                                if (!craft()->commerce_orders->setOrderAddresses($cart, $shippingAddress, $billingAddress)) {
+                                    $cart->addError('shippingAddressId', Craft::t('Could not save the shipping address.'));
+                                    $cart->addError('billingAddressId', Craft::t('Could not save the billing address.'));
+                                }
+                            }
+                        }else{
+                            $cart->addError('shippingAddressId', Craft::t('Could not save the billing address.'));
+                        }
+                    }else{
+                        if (!craft()->commerce_orders->setOrderAddresses($cart, $shippingAddress, $shippingAddress)) {
+                            $cart->addError('shippingAddressId', Craft::t('Could not save the shipping address.'));
+                        }
                     }
                 }
             };
-        } elseif (isset($_POST['shippingAddress'])) {
+        } elseif (!is_null(craft()->request->getParam('shippingAddress'))) {
             $shippingAddress = new Commerce_AddressModel();
             $shippingAddress->setAttributes(craft()->request->getParam('shippingAddress'));
             if (!$sameAddress) {
@@ -206,7 +225,7 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
 
         // Set guest email address onto guest customer and order.
         if (craft()->userSession->isGuest) {
-            if (isset($_POST['email'])) {
+            if (!is_null(craft()->request->getParam('email'))) {
                 $email = craft()->request->getParam('email'); // empty string vs null (strict type checking)
                 if (!craft()->commerce_cart->setEmail($cart, $email, $error)) {
                     $cart->addError('email', $error);
@@ -215,7 +234,7 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
         }
 
         // Set Coupon on Cart.
-        if (isset($_POST['couponCode'])) {
+        if (!is_null(craft()->request->getParam('couponCode'))) {
             $couponCode = craft()->request->getParam('couponCode');
             if (!craft()->commerce_cart->applyCoupon($cart, $couponCode, $error)) {
                 $cart->addError('couponCode', $error);
@@ -223,7 +242,7 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
         }
 
         // Set Payment Method on Cart.
-        if (isset($_POST['paymentMethodId'])) {
+        if (!is_null(craft()->request->getParam('paymentMethodId'))) {
             $paymentMethodId = craft()->request->getParam('paymentMethodId');
             if (!craft()->commerce_cart->setPaymentMethod($cart, $paymentMethodId, $error)) {
                 $cart->addError('paymentMethodId', $error);
@@ -231,7 +250,7 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
         }
 
         // Set Shipping Method on Cart.
-        if (isset($_POST['shippingMethod'])) {
+        if (!is_null(craft()->request->getParam('shippingMethod'))) {
             $shippingMethod = craft()->request->getParam('shippingMethod');
             if (!craft()->commerce_cart->setShippingMethod($cart, $shippingMethod, $error)) {
                 $cart->addError('shippingMethod', $error);

@@ -15,7 +15,7 @@ class Commerce_ProductTypesController extends Commerce_BaseAdminController
 {
     public function actionIndex()
     {
-        $productTypes = craft()->commerce_productTypes->getAll();
+        $productTypes = craft()->commerce_productTypes->getAllProductTypes();
         $this->renderTemplate('commerce/settings/producttypes/index',
             compact('productTypes'));
     }
@@ -31,7 +31,7 @@ class Commerce_ProductTypesController extends Commerce_BaseAdminController
         if (empty($variables['productType'])) {
             if (!empty($variables['productTypeId'])) {
                 $productTypeId = $variables['productTypeId'];
-                $variables['productType'] = craft()->commerce_productTypes->getById($productTypeId);
+                $variables['productType'] = craft()->commerce_productTypes->getProductTypeById($productTypeId);
 
                 if (!$variables['productType']) {
                     throw new HttpException(404);

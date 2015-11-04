@@ -70,7 +70,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
             'default' => 1,
         ]);
 
-        \Craft\craft()->commerce_taxCategories->save($category);
+        \Craft\craft()->commerce_taxCategories->saveTaxCategory($category);
     }
 
     /**
@@ -153,10 +153,10 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
      */
     private function defaultProducts()
     {
-        $productTypes = \Craft\craft()->commerce_productTypes->getAll();
+        $productTypes = \Craft\craft()->commerce_productTypes->getAllProductTypes();
 
         $products = ['A New Toga', 'Parka with Stripes on Back', 'Romper for a Red Eye'];
-        $count = 0;
+        $count = 1;
         foreach ($products as $productName) {
             /** @var Commerce_VariantModel $variant */
             $variant = Commerce_VariantModel::populateModel([
@@ -173,14 +173,14 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
                 'postDate' => new DateTime(),
                 'expiryDate' => null,
                 'promotable' => 1,
-                'taxCategoryId' => \Craft\craft()->commerce_taxCategories->getDefaultId(),
+                'taxCategoryId' => \Craft\craft()->commerce_taxCategories->getDefaultTaxCategoryId(),
             ]);
 
             $product->getContent()->title = $productName;
             $variant->setProduct($product);
             $product->setVariants([$variant]);
 
-            \Craft\craft()->commerce_products->save($product);
+            \Craft\craft()->commerce_products->saveProduct($product);
         }
     }
 
@@ -195,7 +195,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
         $model->settings = $adapter->getGateway()->getDefaultParameters();
         $model->frontendEnabled = true;
 
-        \Craft\craft()->commerce_paymentMethods->save($model);
+        \Craft\craft()->commerce_paymentMethods->savePaymentMethod($model);
     }
 
 
@@ -203,8 +203,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
     {
         $settings = new Commerce_SettingsModel();
         $settings->orderPdfPath = 'commerce/_pdf/order';
-        $settings->paymentMethod = 'purchase';
-        \Craft\craft()->commerce_settings->save($settings);
+        \Craft\craft()->commerce_settings->saveSettings($settings);
     }
 
 }

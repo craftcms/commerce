@@ -109,7 +109,7 @@
         <div id="variant-settings"{% if not productType.hasVariants %} class="hidden"{% endif %}>
         {{ textField({
             label: "Variant Title Format"|t,
-            instructions: "What the auto-generated variant titles should look like. You can include tags that output variant properties, such as {ex1} or {ex2}. "|t({ ex1: '<code>{sku}</code>', ex2: '<code>{myCustomField}</code>' }),
+            instructions: "What the auto-generated variant titles should look like. You can include tags that output variant properties, such as {ex1} or {ex2}. All custom fields used must be set to required."|t({ ex1: '<code>{sku}</code>', ex2: '<code>{myCustomField}</code>' }),
             id: 'titleFormat',
             class: 'ltr',
             name: 'titleFormat',

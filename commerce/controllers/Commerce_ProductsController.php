@@ -91,9 +91,7 @@ class Commerce_ProductsController extends Commerce_BaseCpController
 
     private function _prepProductVariables(&$variables)
     {
-        if (craft()->isLocalized()) {
-            $variables['localeIds'] = craft()->i18n->getEditableLocaleIds();
-        }
+        $variables['localeIds'] = craft()->i18n->getEditableLocaleIds();
 
         if (!$variables['localeIds'])
         {
@@ -124,7 +122,7 @@ class Commerce_ProductsController extends Commerce_BaseCpController
 
         if (empty($variables['product'])) {
             if (!empty($variables['productId'])) {
-                $variables['product'] = craft()->commerce_products->getById($variables['productId'], $variables['localeId']);
+                $variables['product'] = craft()->commerce_products->getProductById($variables['productId'], $variables['localeId']);
 
                 if (!$variables['product']) {
                     throw new HttpException(404);
@@ -209,7 +207,7 @@ class Commerce_ProductsController extends Commerce_BaseCpController
      */
     public function actionShareProduct($productId, $locale = null)
     {
-        $product = craft()->commerce_products->getById($productId, $locale);
+        $product = craft()->commerce_products->getProductById($productId, $locale);
 
         if (!$product)
         {
@@ -247,7 +245,7 @@ class Commerce_ProductsController extends Commerce_BaseCpController
     {
         $this->requireToken();
 
-        $product = craft()->commerce_products->getById($productId, $locale);
+        $product = craft()->commerce_products->getProductById($productId, $locale);
 
         if (!$product)
         {
@@ -297,14 +295,14 @@ class Commerce_ProductsController extends Commerce_BaseCpController
         $this->requirePostRequest();
 
         $productId = craft()->request->getRequiredPost('productId');
-        $product = craft()->commerce_products->getById($productId);
+        $product = craft()->commerce_products->getProductById($productId);
 
-        if (!$product->id) {
+        if (!$product) {
             throw new Exception(Craft::t('No product exists with the ID “{id}”.',
                 ['id' => $productId]));
         }
 
-        if (craft()->commerce_products->delete($product)) {
+        if (craft()->commerce_products->deleteProduct($product)) {
             if (craft()->request->isAjaxRequest()) {
                 $this->returnJson(['success' => true]);
             } else {
@@ -333,13 +331,14 @@ class Commerce_ProductsController extends Commerce_BaseCpController
         $this->requirePostRequest();
 
         $product = $this->_setProductFromPost();
-        $this->_setVariantsFromPost($product);
+        $variants = $this->_setVariantsFromPost($product);
+        $product->setVariants($variants);
 
         $existingProduct = (bool)$product->id;
 
         CommerceDbHelper::beginStackedTransaction();
 
-        if (craft()->commerce_products->save($product)) {
+        if (craft()->commerce_products->saveProduct($product)) {
 
             CommerceDbHelper::commitStackedTransaction();
 
@@ -373,7 +372,7 @@ class Commerce_ProductsController extends Commerce_BaseCpController
         $locale = craft()->request->getPost('locale');
 
         if ($productId) {
-            $product = craft()->commerce_products->getById($productId, $locale);
+            $product = craft()->commerce_products->getProductById($productId, $locale);
 
             if (!$product) {
                 throw new Exception(Craft::t('No product with the ID “{id}”',
@@ -419,7 +418,7 @@ class Commerce_ProductsController extends Commerce_BaseCpController
         $count = 1;
         foreach ($variantsPost as $key => $variant) {
             if (strncmp($key, 'new', 3) !== 0) {
-                $variantModel = craft()->commerce_variants->getById($key);
+                $variantModel = craft()->commerce_variants->getVariantById($key);
             }else{
                 $variantModel = new Commerce_VariantModel();
             }
@@ -428,12 +427,11 @@ class Commerce_ProductsController extends Commerce_BaseCpController
             if(isset($variant['fields'])){
                 $variantModel->setContentFromPost($variant['fields']);
             }
+            $variantModel->locale = $product->locale;
             $variantModel->sortOrder = $count++;
             $variantModel->setProduct($product);
             $variants[] = $variantModel;
         }
-
-        $product->setVariants($variants);
 
         return $variants;
     }

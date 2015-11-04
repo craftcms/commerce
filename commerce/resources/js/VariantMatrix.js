@@ -23,6 +23,7 @@ Craft.Commerce.VariantMatrix = Garnish.Base.extend(
 
 	variantSort: null,
 	variantSelect: null,
+	defaultVariant: null,
 	totalNewVariants: 0,
 	singleColumnMode: false,
 
@@ -94,6 +95,12 @@ Craft.Commerce.VariantMatrix = Garnish.Base.extend(
 
 			// Init the unlimited stock checkbox
 			this.initUnlimitedStockCheckbox($variant);
+
+			// If this is the first one, set it as the default in case no others are claiming to be
+			if (i == 0 && !this.defaultVariant)
+			{
+				this.setDefaultVariant(variant);
+			}
 		}
 
 		this.addListener(this.$addVariantBtn, 'click', function() {
@@ -108,6 +115,17 @@ Craft.Commerce.VariantMatrix = Garnish.Base.extend(
 		}
 	},
 
+	setDefaultVariant: function(variant)
+	{
+		if (this.defaultVariant)
+		{
+			this.defaultVariant.unsetAsDefault();
+		}
+
+		variant.setAsDefault();
+		this.defaultVariant = variant;
+	},
+
 	addVariant: function($insertBefore)
 	{
 		this.totalNewVariants++;
@@ -117,12 +135,14 @@ Craft.Commerce.VariantMatrix = Garnish.Base.extend(
 		var $variant = $(
 			'<div class="variant-matrixblock matrixblock" data-id="'+id+'">' +
 				'<input type="hidden" name="'+this.inputNamePrefix+'['+id+'][enabled]" value="1"/>' +
+				'<input class="default-input" type="hidden" name="'+this.inputNamePrefix+'[isDefault]" value="">' +
 				'<div class="titlebar">' +
 					'<div class="preview"></div>' +
 				'</div>' +
 				'<div class="checkbox" title="'+Craft.t('Select')+'"></div>' +
 				'<div class="actions">' +
 					'<div class="status off" title="'+Craft.t('Disabled')+'"></div>' +
+					'<a class="default-btn" title="'+Craft.t('Set as the default variant')+'">'+Craft.t('Default')+'</a> ' +
 					'<a class="settings icon menubtn" title="'+Craft.t('Actions')+'" role="button"></a> ' +
 					'<div class="menu">' +
 						'<ul class="padded">' +
@@ -346,6 +366,8 @@ var Variant = Garnish.Base.extend(
 	$previewContainer: null,
 	$actionMenu: null,
 	$collapsedInput: null,
+	$defaultInput: null,
+	$defaultBtn: null,
 
 	isNew: null,
 	id: null,
@@ -359,6 +381,8 @@ var Variant = Garnish.Base.extend(
 		this.$titlebar = $container.children('.titlebar');
 		this.$previewContainer = this.$titlebar.children('.preview');
 		this.$fieldsContainer = $container.children('.fields');
+		this.$defaultInput = this.$container.children('.default-input');
+		this.$defaultBtn = this.$container.find('> .actions > .default-btn');
 
 		this.$container.data('variant', this);
 
@@ -382,6 +406,18 @@ var Variant = Garnish.Base.extend(
 		{
 			ev.preventDefault();
 			this.toggle();
+		});
+
+		// Is this variant the default?
+		if (this.$defaultInput.val() == '1')
+		{
+			this.matrix.setDefaultVariant(this);
+		}
+
+		this.addListener(this.$defaultBtn, 'click', function(ev)
+		{
+			ev.preventDefault();
+			this.matrix.setDefaultVariant(this);
 		});
 	},
 
@@ -582,6 +618,22 @@ var Variant = Garnish.Base.extend(
 			this.$actionMenu.find('a[data-action=disable]:first').parent().removeClass('hidden');
 			this.$actionMenu.find('a[data-action=enable]:first').parent().addClass('hidden');
 		}, this), 200);
+	},
+
+	setAsDefault: function()
+	{
+		this.$defaultInput.val('1');
+		this.$defaultBtn
+			.addClass('sel')
+			.attr('title', '');
+	},
+
+	unsetAsDefault: function()
+	{
+		this.$defaultInput.val('');
+		this.$defaultBtn
+			.removeClass('sel')
+			.attr('title', 'Set as the default variant');
 	},
 
 	onMenuOptionSelect: function(option)

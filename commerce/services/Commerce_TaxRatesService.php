@@ -18,7 +18,7 @@ class Commerce_TaxRatesService extends BaseApplicationComponent
      *
      * @return Commerce_TaxRateModel[]
      */
-    public function getAll($criteria = [])
+    public function getAllTaxRates($criteria = [])
     {
         $records = Commerce_TaxRateRecord::model()->findAll($criteria);
 
@@ -30,7 +30,7 @@ class Commerce_TaxRatesService extends BaseApplicationComponent
      *
      * @return Commerce_TaxRateModel|null
      */
-    public function getById($id)
+    public function getTaxRateById($id)
     {
         $result = Commerce_TaxRateRecord::model()->findById($id);
 
@@ -49,7 +49,7 @@ class Commerce_TaxRatesService extends BaseApplicationComponent
      * @throws \CDbException
      * @throws \Exception
      */
-    public function save(Commerce_TaxRateModel $model)
+    public function saveTaxRate(Commerce_TaxRateModel $model)
     {
         if ($model->id) {
             $record = Commerce_TaxRateRecord::model()->findById($model->id);
@@ -72,7 +72,7 @@ class Commerce_TaxRatesService extends BaseApplicationComponent
         $record->validate();
 
         if (!$record->getError('taxZoneId')) {
-            $taxZone = craft()->commerce_taxZones->getById($record->taxZoneId);
+            $taxZone = craft()->commerce_taxZones->getTaxZoneById($record->taxZoneId);
 
             if (!$taxZone) {
                 throw new Exception(Craft::t('No tax zone exists with the ID “{id}”', ['id' => $record->taxZoneId]));
@@ -105,7 +105,7 @@ class Commerce_TaxRatesService extends BaseApplicationComponent
      *
      * @throws \CDbException
      */
-    public function deleteById($id)
+    public function deleteTaxRateById($id)
     {
         $TaxRate = Commerce_TaxRateRecord::model()->findById($id);
         $TaxRate->delete();

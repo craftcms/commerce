@@ -93,7 +93,7 @@ EOT;
                         $variant->$attribute = $this->getParams()->$attribute;
                     }
                 }
-                craft()->commerce_variants->save($variant);
+                craft()->commerce_variants->saveVariant($variant);
             }
         } catch (Exception $e) {
             CommerceDbHelper::rollbackStackedTransaction();

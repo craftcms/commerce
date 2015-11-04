@@ -13,12 +13,14 @@
 
 			<div class="variant-matrixblock matrixblock{% if not variant.enabled %} disabled{% endif %}" data-id="{{ variantId }}"{#% if variant.collapsed %} data-collapsed{% endif %#}>
 				<input type="hidden" name="{{ namespace }}[enabled]" value="{% if variant.enabled %}1{% endif %}">
+				<input class="default-input" type="hidden" name="{{ namespace }}[isDefault]" value="{% if variant.isDefault %}1{% endif %}">
 				<div class="titlebar">
 					<div class="preview"></div>
 				</div>
 				<div class="checkbox" title="{{ 'Select'|t }}"></div>
 				<div class="actions">
 					<div class="status off" title="{{ 'Disabled'|t }}"></div>
+					<a class="default-btn{% if variant.isDefault %} sel{% endif %}"{% if not variant.isDefault %} title="{{ 'Set as the default variant'|t }}"{% endif %}>{{ "Default"|t }}</a>
 					<a class="settings icon menubtn" title="{{ 'Actions'|t }}" role="button"></a>
 					<div class="menu">
 						<ul class="padded">

@@ -21,9 +21,8 @@ class m151025_010101_Commerce_AddHandleToShippingMethod extends BaseMigration
             craft()->db->createCommand()->update('commerce_shippingmethods', $data, 'id = :id', array(':id' => $method));
         }
 
-
         // remove the order's relation to shippingmethods table
-        $this->dropForeignKey('commerce_orders','shippingMethodId');
+        MigrationHelper::dropForeignKeyIfExists('commerce_orders',['shippingMethodId']);
 
         // rename
         Craft()->db->createCommand("
@@ -42,6 +41,11 @@ class m151025_010101_Commerce_AddHandleToShippingMethod extends BaseMigration
             $data = array('shippingMethod' => "shippingMethod-".$order['shippingMethod']);
             craft()->db->createCommand()->update('commerce_orders', $data, 'id = :id', array(':id' => $order['id']));
         }
+
+
+        // set all orders to the default currency
+        $data = array('currency' => craft()->commerce_settings->getOption('defaultCurrency'));
+        craft()->db->createCommand()->update('commerce_orders', $data);
 
         return true;
     }
