@@ -61,10 +61,12 @@ class CommerceVariantMatrixHelper
 			'Add variant above',
 			'Are you sure you want to delete the selected variants?',
 			'Collapse',
+			'Default',
 			'Disable',
 			'Disabled',
 			'Enable',
-			'Expand'
+			'Expand',
+			'Set as the default variant'
 		);
 
 		return $html;
