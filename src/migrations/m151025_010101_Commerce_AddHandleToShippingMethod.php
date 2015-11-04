@@ -42,6 +42,11 @@ class m151025_010101_Commerce_AddHandleToShippingMethod extends BaseMigration
             craft()->db->createCommand()->update('commerce_orders', $data, 'id = :id', array(':id' => $order['id']));
         }
 
+
+        // set all orders to the default currency
+        $data = array('currency' => craft()->commerce_settings->getOption('defaultCurrency'));
+        craft()->db->createCommand()->update('commerce_orders', $data);
+
         return true;
     }
 }
