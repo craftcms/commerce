@@ -14,47 +14,6 @@ namespace Craft;
 class Commerce_CartController extends Commerce_BaseFrontEndController
 {
     /**
-     * Add a purchasable into the cart
-     *
-     * @throws Exception
-     * @throws HttpException
-     * @throws \Exception
-     */
-    public function actionAdd()
-    {
-        $this->requirePostRequest();
-
-        /** @var Commerce_OrderModel $cart */
-        $cart = craft()->commerce_cart->getCart();
-        $cart->setContentFromPost('fields');
-
-        $purchasableId = craft()->request->getPost('purchasableId');
-        $note = craft()->request->getPost('note');
-        $qty = craft()->request->getPost('qty', 1);
-        $error = '';
-
-        if (craft()->commerce_cart->addToCart($cart, $purchasableId, $qty, $note, $error)) {
-            if (craft()->request->isAjaxRequest) {
-                $this->returnJson(['success' => true, 'cart' => $this->cartArray($cart)]);
-            }
-            craft()->userSession->setNotice(Craft::t('Item added.'));
-            $this->redirectToPostedUrl();
-        } else {
-            if (craft()->request->isAjaxRequest) {
-                $this->returnJson(['error' => $error]);
-            } else {
-                if ($error) {
-                    craft()->userSession->setError(Craft::t('Couldn’t add item to cart: {message}', [
-                        'message' => $error
-                    ]));
-                } else {
-                    craft()->userSession->setError(Craft::t('Couldn’t add item to cart.'));
-                }
-            }
-        }
-    }
-
-    /**
      * Update quantity
      *
      * @throws Exception
@@ -68,6 +27,8 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
         $lineItemId = craft()->request->getPost('lineItemId');
         $qty = craft()->request->getPost('qty', 0);
         $note = craft()->request->getPost('note');
+
+        $cart->setContentFromPost('fields');
 
         $lineItem = craft()->commerce_lineItems->getLineItemById($lineItemId);
 
@@ -116,6 +77,8 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
         $lineItemId = craft()->request->getPost('lineItemId');
         $cart = craft()->commerce_cart->getCart();
 
+        $cart->setContentFromPost('fields');
+
         $lineItem = craft()->commerce_lineItems->getLineItemById($lineItemId);
 
         // Error does not reveal the line item doesn't exist, just that it doesn't for the current cart.
@@ -145,6 +108,8 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
 
         $cart = craft()->commerce_cart->getCart();
 
+        $cart->setContentFromPost('fields');
+
         craft()->commerce_cart->clearCart($cart);
         if (craft()->request->isAjaxRequest) {
             $this->returnJson(['success' => true, 'cart' => $this->cartArray($cart)]);
@@ -157,7 +122,7 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
      * Updates the cart with optional params.
      *
      */
-    public function actionUpdate()
+    public function actionUpdateCart()
     {
 
         $this->requirePostRequest();
