@@ -156,7 +156,12 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
         ];
 
         // Allow plugins to modify the attributes
-        craft()->plugins->call('commerce_modifyProductTableAttributes', [&$attributes]);
+        $pluginAttributes = craft()->plugins->call('commerce_defineAdditionalProductTableAttributes', array(), true);
+
+        foreach ($pluginAttributes as $thisPluginAttributes)
+        {
+            $attributes = array_merge($attributes, $thisPluginAttributes);
+        }
 
         return $attributes;
     }
