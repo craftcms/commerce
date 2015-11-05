@@ -161,7 +161,12 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
         ];
 
         // Allow plugins to modify the attributes
-        craft()->plugins->call('commerce_modifyOrderTableAttributes', [&$attributes]);
+        $pluginAttributes = craft()->plugins->call('commerce_defineAdditionalOrderTableAttributes', array(), true);
+
+        foreach ($pluginAttributes as $thisPluginAttributes)
+        {
+            $attributes = array_merge($attributes, $thisPluginAttributes);
+        }
 
         return $attributes;
     }
