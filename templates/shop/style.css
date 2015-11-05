@@ -690,6 +690,14 @@ img.product { width: 100%; }
 
 .address-select .body { padding: 14px; }
 
-
-
 .hidden { display: none; }
+
+
+.product.row {
+    border-bottom: 1px solid #fafafa;
+    margin-bottom: 2.5rem;
+}
+
+.product-details {
+    padding-top: 2rem;
+}
