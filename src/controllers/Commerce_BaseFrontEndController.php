@@ -45,7 +45,6 @@ class Commerce_BaseFrontEndController extends Commerce_BaseController
         $data['shippingMethod'] = $cart->shippingMethod;
         $data['paymentMethodId'] = $cart->paymentMethodId;
         $data['customerId'] = $cart->customerId;
-        $data['typeId'] = $cart->typeId;
         $data['shippingAddressData'] = $cart->shippingAddressData;
         $data['billingAddressData'] = $cart->billingAddressData;
         $data['isPaid'] = $cart->isPaid();
