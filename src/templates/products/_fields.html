@@ -60,12 +60,14 @@
 	}) }}
 
 	{{ forms.checkboxField({
+		id: 'free-shipping',
 		fieldLabel: 'Free Shipping'|t,
 		name: 'freeShipping',
 		checked: product.freeShipping,
 	}) }}
 
 	{{ forms.checkboxField({
+		id: 'promotable',
 		fieldLabel: 'Promotable'|t,
 		name: 'promotable',
 		checked: product.promotable,
