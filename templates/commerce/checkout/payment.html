@@ -35,7 +35,7 @@
     {% if craft.commerce.paymentMethods|length %}
     <form method="POST" class="form-inline">
 
-        <input type="hidden" name="action" value="commerce/cart/update">
+        <input type="hidden" name="action" value="commerce/cart/updateCart">
         <input type="hidden" name="redirect" value="commerce/checkout/payment">
         {{ getCsrfInput() }}
 
