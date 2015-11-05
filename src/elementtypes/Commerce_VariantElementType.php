@@ -217,7 +217,7 @@ class Commerce_VariantElementType extends Commerce_BaseElementType
     public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
     {
         $query
-            ->addSelect("variants.id,variants.productId,variants.sku,variants.price,variants.sortOrder,variants.width,variants.height,variants.length,variants.weight,variants.stock,variants.unlimitedStock,variants.minQty,variants.maxQty")
+            ->addSelect("variants.id,variants.productId,variants.isDefault,variants.sku,variants.price,variants.sortOrder,variants.width,variants.height,variants.length,variants.weight,variants.stock,variants.unlimitedStock,variants.minQty,variants.maxQty")
             ->join('commerce_variants variants', 'variants.id = elements.id');
 
         if ($criteria->sku) {

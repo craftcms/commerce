@@ -210,10 +210,12 @@ class Commerce_VariantsService extends BaseApplicationComponent
         $record->productId = $model->productId;
         $record->sku = $model->sku;
 
-        if (!$model->getProduct()->getType()->titleFormat) {
-            $model->getContent()->title = craft()->templates->renderObjectTemplate("{sku}", $model);
+        $titleFormat = $model->getProduct()->getType()->titleFormat;
+        if (!$titleFormat) {
+            $model->getContent()->title = $model->sku;
         } else {
-            $model->getContent()->title = craft()->templates->renderObjectTemplate($model->getProduct()->getType()->titleFormat, $model);
+            $title = craft()->templates->renderObjectTemplate($titleFormat, $model);
+            $model->getContent()->title = $title ? $title : $model->sku;
         }
 
         $record->price = $model->price;
@@ -224,6 +226,7 @@ class Commerce_VariantsService extends BaseApplicationComponent
         $record->minQty = $model->minQty;
         $record->maxQty = $model->maxQty;
         $record->stock = $model->stock;
+        $record->isDefault = $model->isDefault;
         $record->sortOrder = $model->sortOrder;
         $record->unlimitedStock = $model->unlimitedStock;
 

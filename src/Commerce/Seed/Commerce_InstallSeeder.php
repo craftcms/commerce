@@ -163,6 +163,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
                 'sku' => $productName,
                 'price' => (10 * $count++),
                 'unlimitedStock' => 1,
+                'isDefault' => 1,
             ]);
 
             /** @var Commerce_ProductModel $product */
