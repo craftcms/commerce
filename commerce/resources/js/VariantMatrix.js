@@ -135,7 +135,7 @@ Craft.Commerce.VariantMatrix = Garnish.Base.extend(
 		var $variant = $(
 			'<div class="variant-matrixblock matrixblock" data-id="'+id+'">' +
 				'<input type="hidden" name="'+this.inputNamePrefix+'['+id+'][enabled]" value="1"/>' +
-				'<input class="default-input" type="hidden" name="'+this.inputNamePrefix+'[isDefault]" value="">' +
+				'<input class="default-input" type="hidden" name="'+this.inputNamePrefix+'['+id+'][isDefault]" value="">' +
 				'<div class="titlebar">' +
 					'<div class="preview"></div>' +
 				'</div>' +
