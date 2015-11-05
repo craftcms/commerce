@@ -2,9 +2,15 @@
 {% block main %}
 
     {% for product in craft.commerce.products.limit(5).find() %}
-        <div class="row">
+        <div class="row product">
             <div class="two columns">
-                {% include "commerce/_images/productSmall" with { class: 'u-max-full-width' } %}
+                {% if product.url %}
+                    <a href="{{ product.url }}">
+                        {% include "commerce/_images/product" with { class: 'u-max-full-width' } %}
+                    </a>
+                {% else %}
+                    {% include "commerce/_images/product" with { class: 'u-max-full-width' } %}
+                {% endif %}
             </div>
             <div class="ten columns">
 
