@@ -48,6 +48,7 @@ class CommercePlugin extends BasePlugin
         craft()->on('i18n.onAddLocale', array(craft()->commerce_productTypes, 'addLocaleHandler'));
 
         if (!craft()->isConsole()) {
+            craft()->on('users.onSaveUser', array(craft()->commerce_customers, 'saveUserHandler'));
             craft()->on('userSession.onLogin', array(craft()->commerce_customers, 'loginHandler'));
         }
     }
