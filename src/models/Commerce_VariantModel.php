@@ -243,14 +243,14 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
         }
 
         if ($lineItem->qty < $this->minQty) {
-            $error = sprintf('Minimal order quantity for this variant is %d',
+            $error = sprintf('Minimum order quantity for this item is %d',
                 $this->minQty);
             $lineItem->addError('qty', $error);
         }
 
         if ($this->maxQty != 0) {
             if ($lineItem->qty > $this->maxQty) {
-                $error = sprintf('Maximum order quantity for this variant is %d',
+                $error = sprintf('Maximum order quantity for this item is %d',
                     $this->maxQty);
                 $lineItem->addError('qty', $error);
             }
