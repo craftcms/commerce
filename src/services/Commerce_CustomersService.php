@@ -251,6 +251,30 @@ class Commerce_CustomersService extends BaseApplicationComponent
     }
 
     /**
+     * @param Event $event
+     *
+     * @throws Exception
+     */
+    public function saveUserHandler(Event $event)
+    {
+        $user = $event->params['user'];
+        $customer = $this->getCustomerByUserId($user->id);
+
+        // Sync the users email with the customer record.
+        if($customer){
+            if($customer->email != $user->email){
+                $customer->email = $user->email;
+                if(!$this->saveCustomer($customer)){
+                    $error = Craft::t('Could not sync user’s email to customers record. CustomerId:{customerId} UserId:{userId}',
+                        ['customerId' => $customer->id, 'userId' => $user->id]);
+                    CommercePlugin::log($error);
+                };
+            }
+        }
+    }
+
+
+    /**
      * @param string $username
      *
      * @return bool
