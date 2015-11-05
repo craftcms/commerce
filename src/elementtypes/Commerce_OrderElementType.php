@@ -275,7 +275,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
             'customerId' => AttributeType::Mixed,
             'user' => AttributeType::Mixed,
             'isPaid' => AttributeType::Bool,
-            'isUnPaid' => AttributeType::Bool
+            'isUnpaid' => AttributeType::Bool
         ];
     }
 
@@ -388,7 +388,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
             $query->andWhere(DbHelper::parseParam('orders.totalPaid', '>= orders.totalPrice', $query->params));
         }
 
-        if ($criteria->isUnPaid == true) {
+        if ($criteria->isUnpaid == true) {
             $query->andWhere(DbHelper::parseParam('orders.totalPaid', '< orders.totalPrice', $query->params));
         }
     }
