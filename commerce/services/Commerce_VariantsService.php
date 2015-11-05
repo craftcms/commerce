@@ -224,6 +224,7 @@ class Commerce_VariantsService extends BaseApplicationComponent
         $record->minQty = $model->minQty;
         $record->maxQty = $model->maxQty;
         $record->stock = $model->stock;
+        $record->isDefault = $model->isDefault;
         $record->sortOrder = $model->sortOrder;
         $record->unlimitedStock = $model->unlimitedStock;
 
