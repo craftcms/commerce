@@ -210,11 +210,14 @@ class Commerce_VariantsService extends BaseApplicationComponent
         $record->productId = $model->productId;
         $record->sku = $model->sku;
 
-        if (!$model->getProduct()->getType()->titleFormat) {
-            $model->getContent()->title = craft()->templates->renderObjectTemplate("{sku}", $model);
+
+        $skuTitle = craft()->templates->renderObjectTemplate("{sku}", $model);
+        $titleFormat = $model->getProduct()->getType()->titleFormat;
+        if (!$titleFormat) {
+            $model->getContent()->title = $skuTitle;
         } else {
-            $title = craft()->templates->renderObjectTemplate($model->getProduct()->getType()->titleFormat, $model);
-            $model->getContent()->title = $title ? $title : craft()->templates->renderObjectTemplate("{sku}", $model);
+            $title = craft()->templates->renderObjectTemplate($titleFormat, $model);
+            $model->getContent()->title = $title ? $title : $skuTitle;
         }
 
         $record->price = $model->price;
