@@ -128,7 +128,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getName()
     {
-        return "Commerce";
+        return "Craft Commerce";
     }
 
     /**
