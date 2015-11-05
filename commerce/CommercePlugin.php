@@ -96,7 +96,7 @@ class CommercePlugin extends BasePlugin
                         'm150918_010101_Commerce_AddProductTypeLocales',
                         'm150918_010102_Commerce_RemoveNonLocaleBasedUrlFormat',
                         'm150919_010101_Commerce_AddHasDimensionsToProductType',
-                        'm151004_142113_Commerce_PaymentMethods_Name_Unique',
+                        'm151004_142113_commerce_PaymentMethods_name_unique',
                         'm151018_010101_Commerce_DiscountCodeNull',
                         'm151025_010101_Commerce_AddHandleToShippingMethod',
                         'm151027_010101_Commerce_NewVariantUI',
