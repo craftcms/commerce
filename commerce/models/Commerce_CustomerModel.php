@@ -48,6 +48,20 @@ class Commerce_CustomerModel extends BaseModel
     }
 
     /**
+     * Returns the user element associated with this customer.
+     *
+     * @return UserModel|null
+     */
+    public function getUser()
+    {
+        if($this->userId){
+            return craft()->users->getUserById($this->userId);
+        }
+
+        return null;
+    }
+
+    /**
      * Gets a single address of a customer by id
      *
      * @param null $id
