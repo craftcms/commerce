@@ -266,8 +266,8 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
     {
         $attributes = [
             'title' => Craft::t('Name'),
-            'postDate' => Craft::t('Available On'),
-            'expiryDate' => Craft::t('Expires On'),
+            'postDate' => Craft::t('Post Date'),
+            'expiryDate' => Craft::t('Expiry Date'),
             'defaultPrice' => Craft::t('Price')
         ];
 
