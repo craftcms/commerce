@@ -131,6 +131,8 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
 
         $cart->setContentFromPost('fields');
 
+        $cartSaved = false;
+
         $sameAddress = craft()->request->getParam('sameAddress');
 
         if (!is_null(craft()->request->getParam('purchasableId'))) {
@@ -140,6 +142,8 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
             $error = '';
             if (!craft()->commerce_cart->addToCart($cart, $purchasableId, $qty, $note, $error)) {
                 $cart->addError('lineItems', Craft::t('Could not add to cart: ').$error);
+            }else{
+                $cartSaved = true;
             }
         }
 
@@ -153,6 +157,8 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
                                 if (!craft()->commerce_orders->setOrderAddresses($cart, $shippingAddress, $billingAddress)) {
                                     $cart->addError('shippingAddressId', Craft::t('Could not save the shipping address.'));
                                     $cart->addError('billingAddressId', Craft::t('Could not save the billing address.'));
+                                }else{
+                                    $cartSaved = true;
                                 }
                             }
                         }else{
@@ -161,6 +167,8 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
                     }else{
                         if (!craft()->commerce_orders->setOrderAddresses($cart, $shippingAddress, $shippingAddress)) {
                             $cart->addError('shippingAddressId', Craft::t('Could not save the shipping address.'));
+                        }else{
+                            $cartSaved = true;
                         }
                     }
                 }
@@ -185,7 +193,9 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
                         $cart->addError('billingAddress', Craft::t('Could not save the Billing Address.'));
                     }
                 }
-            };
+            }else{
+                $cartSaved = true;
+            }
         }
 
         // Set guest email address onto guest customer and order.
@@ -194,6 +204,8 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
                 $email = craft()->request->getParam('email'); // empty string vs null (strict type checking)
                 if (!craft()->commerce_cart->setEmail($cart, $email, $error)) {
                     $cart->addError('email', $error);
+                }else{
+                    $cartSaved = true;
                 }
             }
         }
@@ -203,6 +215,8 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
             $couponCode = craft()->request->getParam('couponCode');
             if (!craft()->commerce_cart->applyCoupon($cart, $couponCode, $error)) {
                 $cart->addError('couponCode', $error);
+            }else{
+                $cartSaved = true;
             }
         }
 
@@ -211,6 +225,8 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
             $paymentMethodId = craft()->request->getParam('paymentMethodId');
             if (!craft()->commerce_cart->setPaymentMethod($cart, $paymentMethodId, $error)) {
                 $cart->addError('paymentMethodId', $error);
+            }else{
+                $cartSaved = true;
             }
         }
 
@@ -219,7 +235,14 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
             $shippingMethod = craft()->request->getParam('shippingMethod');
             if (!craft()->commerce_cart->setShippingMethod($cart, $shippingMethod, $error)) {
                 $cart->addError('shippingMethod', $error);
+            }else{
+                $cartSaved = true;
             }
+        }
+
+        // If they had fields in the post data, but nothing else made the cart save, save the custom fields manually.
+        if (!is_null(craft()->request->getParam('fields')) && !$cartSaved) {
+            craft()->commerce_orders->saveOrder($cart);
         }
 
         if (!$cart->hasErrors()) {
