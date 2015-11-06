@@ -31,13 +31,12 @@
 <div id="no-addresses"{% if addresses|length %} class="hidden"{% endif %}>
     <p>{{ "No addresses exist for this user yet."|t }}</p>
 </div>
-
+<br>
 {% if addresses|length %}
     <table class="data fullwidth collapsible">
         <thead>
         <tr>
             <th scope="col">{{ 'Address'|t }}</th>
-            <th scope="col"></th>
         </tr>
         </thead>
         <tbody>
@@ -45,7 +44,6 @@
             <tr>
                 <td><strong>{{ address.firstName }} {{ address.lastName }}</strong> {{ address.address1 }}
                     ... {{ address.stateText }}, {{ address.countryText }}</td>
-                <td><a href="{{ address.getCpEditUrl }}">Edit</a></td>
             </tr>
         {% endfor %}
         </tbody>

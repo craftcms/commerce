@@ -19,7 +19,7 @@
 				<tr>
 					<td><strong>{{ "Reference"|t }}</strong></td>
 					<td>
-						<span title="{{ "Full Reference Number"|t }}: {{ order.number }}">{{ order.number[0:7] }}</span>
+						<span title="{{ "Full Reference Number"|t }}: {{ order.number }}">{{ order.shortNumber }}</span>
 					</td>
 				</tr>
 				<tr>
@@ -65,10 +65,12 @@
 				{% if order.dateOrdered %}
 				{#<a class="small btn right edit" data-orderid="{{ orderId }}" data-addresstype="billing" data-address="{{ order.billingAddressData|json_encode }}">Edit</a>#}
 				{% endif %}
+				{% if order.billingAddress %}
 				<a class="small btn right"
 				   href="http://maps.google.com/maps?q={{ order.billingAddress.address1 }}+{{ order.billingAddress.address2 }}+{{ order.billingAddress.city }}+{{ order.billingAddress.zipCode }}+{{ order.billingAddress.stateText }}+{{ order.billingAddress.countryText }}"
 				   target="_blank">{{ "View Map"|t }}</a>
 				{{ addressMacros.formatAddress(order.billingAddress) }}
+				{% endif %}
 				</div>
 			</div>
 
@@ -78,10 +80,12 @@
 				{% if order.dateOrdered %}
 				{#<a class="small btn right edit" data-addresstype="shipping" data-address="{{ order.shippingAddressData|json_encode }}">Edit</a>#}
 				{% endif %}
+				{% if order.shippingAddress %}
 				<a class="small btn right"
 				   href="http://maps.google.com/maps?q={{ order.shippingAddress.address1 }}+{{ order.shippingAddress.address2 }}+{{ order.shippingAddress.city }}+{{ order.shippingAddress.zipCode }}+{{ order.shippingAddress.stateText }}+{{ order.shippingAddress.countryText }}"
 				   target="_blank">{{ "View Map"|t }}</a>
 				{{ addressMacros.formatAddress(order.shippingAddress) }}
+				{% endif %}
 				</div>
 			</div> <!-- order address box -->
 		</div><!-- order addresses -->

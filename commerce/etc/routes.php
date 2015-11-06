@@ -65,6 +65,5 @@ return [
 
     // Customers
     'commerce/customers' => ['action' => 'commerce/customers/index'],
-    'commerce/customers/(?P<id>\d+)' => ['action' => 'commerce/customers/edit'],
-    'commerce/addresses/(?P<id>\d+)' => ['action' => 'commerce/addresss/edit'],
+    'commerce/customers/(?P<id>\d+)' => ['action' => 'commerce/customers/edit']
 ];

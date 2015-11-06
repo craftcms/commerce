@@ -107,6 +107,14 @@ class Commerce_OrderModel extends BaseElementModel
     }
 
     /**
+     * @return string
+     */
+    public function getShortNumber()
+    {
+        return substr($this->number, 0, 7);
+    }
+
+    /**
      * @inheritdoc
      * @return string
      */
