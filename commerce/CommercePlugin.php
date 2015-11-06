@@ -129,7 +129,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getName()
     {
-        return "Craft Commerce";
+        return "Commerce";
     }
 
     /**
