@@ -83,7 +83,7 @@ class CommerceVariantMatrixHelper
 	 *
 	 * @return array
 	 */
-	private function _getVariantFieldHtml($product, $name)
+	private static function _getVariantFieldHtml($product, $name)
 	{
 		// Create a fake Variant model so the field types have a way to get at the owner element, if there is one
 		$variant = new Variant();
