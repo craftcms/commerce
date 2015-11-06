@@ -437,13 +437,16 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
      */
     public function getEditorHtml(BaseElementModel $element)
     {
+        /** @ var Commerce_ProductModel $element */
         $templatesService = craft()->templates;
         $html = $templatesService->renderMacro('commerce/products/_fields', 'titleField', array($element));
         $html .= $templatesService->renderMacro('commerce/products/_fields', 'generalMetaFields', array($element));
         $html .= $templatesService->renderMacro('commerce/products/_fields', 'behavioralMetaFields', array($element));
         $html .= parent::getEditorHtml($element);
 
-        if ($element->getType()->hasVariants) {
+        $productType = $element->getType();
+
+        if ($productType->hasVariants) {
             $html .= $templatesService->renderMacro('_includes/forms', 'field', array(
                 array(
                     'label' => Craft::t('Variants'),
@@ -451,12 +454,18 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
                 VariantMatrixHelper::getVariantMatrixHtml($element)
             ));
         } else {
+            /** @var Commerce_VariantModel $variant */
             $variant = ArrayHelper::getFirstValue($element->getVariants());
             $namespace = $templatesService->getNamespace();
             $newNamespace = 'variants['.($variant->id ?: 'new1').']';
             $templatesService->setNamespace($newNamespace);
             $html .= $templatesService->namespaceInputs($templatesService->renderMacro('commerce/products/_fields', 'generalVariantFields', array($variant)));
-            $html .= $templatesService->namespaceInputs($templatesService->renderMacro('commerce/products/_fields', 'dimensionVariantFields', array($variant)));
+
+            if ($productType->hasDimensions)
+            {
+                $html .= $templatesService->namespaceInputs($templatesService->renderMacro('commerce/products/_fields', 'dimensionVariantFields', array($variant)));
+            }
+
             $templatesService->setNamespace($namespace);
         }
 
