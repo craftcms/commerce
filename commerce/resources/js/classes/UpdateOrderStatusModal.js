@@ -79,9 +79,8 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
             this.addListener(this.$cancelBtn, 'click', 'hide');
             this.addListener(this.$updateBtn, 'click', function (ev)
             {
-                var confirm = window.confirm(Craft.t('Are you sure you want to update this order? This action may trigger emails.'));
                 ev.preventDefault();
-                if (!$(ev.target).hasClass('disabled') && confirm)
+                if (!$(ev.target).hasClass('disabled'))
                 {
                     this.updateStatus();
                 }
