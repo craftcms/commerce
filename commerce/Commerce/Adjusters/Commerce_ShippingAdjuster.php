@@ -43,7 +43,7 @@ class Commerce_ShippingAdjuster implements Commerce_AdjusterInterface
             //preparing model
             $adjustment = new Commerce_OrderAdjustmentModel;
             $adjustment->type = self::ADJUSTMENT_TYPE;
-            $adjustment->name = $shippingMethod->name;
+            $adjustment->name = $shippingMethod->getName();
             $adjustment->description = $rule->getDescription();
             $adjustment->orderId = $order->id;
             $adjustment->optionsJson = $rule->getOptions();

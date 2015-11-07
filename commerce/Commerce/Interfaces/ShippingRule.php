@@ -90,4 +90,11 @@ interface ShippingRule
      */
     public function getMinRate();
 
+    /**
+     * Returns a description of the rates applied by this rule;
+     *
+     * @return string
+     */
+    public function getDescription();
+
 }
