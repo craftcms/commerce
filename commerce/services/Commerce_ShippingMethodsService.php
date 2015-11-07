@@ -140,6 +140,7 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
     )
     {
         foreach ($method->getRules() as $rule) {
+            /** @var \Commerce\Interfaces\ShippingRule $rule */
             if ($rule->matchOrder($order)) {
                 return $rule;
             }
