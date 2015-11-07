@@ -3,7 +3,9 @@
 <div class="variant-properties meta">
 	{% namespace namespace %}
 		{{ productFields.generalVariantFields(variant) }}
-		{{ productFields.dimensionVariantFields(variant) }}
+		{% if variant.getProduct().getType().hasDimensions %}
+			{{ productFields.dimensionVariantFields(variant) }}
+		{% endif %}
 	{% endnamespace %}
 </div>
 <div class="custom-fields">
