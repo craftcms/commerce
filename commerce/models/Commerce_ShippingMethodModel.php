@@ -27,6 +27,22 @@ class Commerce_ShippingMethodModel extends BaseModel implements ShippingMethod
     /**
      * @return string
      */
+    public function getType()
+    {
+        return Craft::t('Custom');
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getId()
+    {
+        return $this->getAttribute('id');
+    }
+
+    /**
+     * @return string
+     */
     public function getName()
     {
         return $this->getAttribute('name');
@@ -53,7 +69,7 @@ class Commerce_ShippingMethodModel extends BaseModel implements ShippingMethod
      */
     public function getIsEnabled()
     {
-        return $this->enabled;
+        return $this->getAttribute('enabled');
     }
 
     /**
@@ -63,7 +79,7 @@ class Commerce_ShippingMethodModel extends BaseModel implements ShippingMethod
      */
     public function getCpEditUrl()
     {
-        return "";
+        return UrlHelper::getCpUrl('commerce/settings/shippingmethods'.$this->id);
     }
 
     /**

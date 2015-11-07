@@ -14,6 +14,17 @@ namespace Commerce\Interfaces;
  */
 interface ShippingMethod
 {
+    /**
+     * Returns the type of Shipping Method this is
+     * @return string
+     */
+    public function getType();
+
+    /**
+     * Returns the ID of this Shipping Method, if it is managed by Craft Commerce.
+     * @return int|null The shipping method ID, or null if it is not managed by Craft Commerce
+     */
+    public function getId();
 
     /**
      * Returns the name of this Shipping Method
