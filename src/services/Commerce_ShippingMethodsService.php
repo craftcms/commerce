@@ -2,6 +2,7 @@
 namespace Craft;
 
 use Commerce\Helpers\CommerceDbHelper;
+use Commerce\Interfaces\ShippingMethod;
 
 /**
  * Shipping method service.
@@ -117,7 +118,7 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
                     }
 
                     $availableMethods[$method->getHandle()] = [
-                        'name' => $method->name,
+                        'name' => $method->getName(),
                         'amount' => $amount,
                     ];
                 }
@@ -135,7 +136,7 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
      */
     public function getMatchingShippingRule(
         Commerce_OrderModel $order,
-        Commerce_ShippingMethodModel $method
+        ShippingMethod $method
     )
     {
         foreach ($method->getRules() as $rule) {
