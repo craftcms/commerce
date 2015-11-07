@@ -28,6 +28,14 @@ interface ShippingMethod
     public function getHandle();
 
     /**
+     * Returns the control panel URL to manage this method and it's rules.
+     * An empty string will result in no link.
+     *
+     * @return string
+     */
+    public function getCpEditUrl();
+
+    /**
      *
      * @return \Commerce\Interfaces\ShippingRules[]
      */

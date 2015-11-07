@@ -3,7 +3,7 @@
 {% block content %}
     <h2>{{ "Shipping Methods"|t }}</h2>
 
-    <div id="no-shipping-methods"{% if shippingMethods|length %} class="hidden"{% endif %}>
+    <div id="no-shipping-methods"{% if thirdPartyShippingMethods|length or shippingMethods|length %} class="hidden"{% endif %}>
         <p>{{ "No shipping methods exist yet."|t }}</p>
     </div>
 
@@ -39,6 +39,41 @@
     <div class="buttons secondary-buttons">
         <a href="{{ url('commerce/settings/shippingmethods/new') }}" class="btn submit add icon">New shipping method</a>
     </div>
+
+    <hr>
+
+    <h2>{{ "Additional Shipping Methods"|t }}</h2>
+
+    {% if thirdPartyShippingMethods|length %}
+        <table id="thirdparty-shipping-methods" class="data fullwidth collapsible">
+            <thead>
+            <tr>
+                <th scope="col">{{ 'Name'|t }}</th>
+                <th scope="col">{{ 'Handle'|t }}</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for shippingMethod in thirdPartyShippingMethods %}
+                <tr data-handle="{{ shippingMethod.handle }}" data-name="{{ shippingMethod.name }}">
+                    <th scope="row" data-title="{{ 'Name'|t }}">
+                        {% if shippingMethod.isEnabled %}
+                            <span class="status green"></span>
+                        {% else %}
+                            <span class="status green"></span>
+                        {% endif %}
+                        {% if shippingMethod.cpEditUrl|length %}
+                            <a href="{{ shippingMethod.cpEditUrl }}">{{ shippingMethod.name }}</a>
+                        {% else %}
+                            {{ shippingMethod.name }}
+                        {% endif %}
+                    </th>
+                    <td data-title="{{ 'Handle'|t }}" class="code">{{ shippingMethod.handle }}</td>
+                </tr>
+            {% endfor %}
+
+            </tbody>
+        </table>
+    {% endif %}
 {% endblock %}
 
 
