@@ -55,3 +55,9 @@
         errors: taxCategory.getErrors('default')
     }) }}
 {% endblock %}
+
+{% if not taxCategory.handle %}
+    {% includejs %}
+        new Craft.HandleGenerator('#name', '#handle');
+    {% endincludejs %}
+{% endif %}
