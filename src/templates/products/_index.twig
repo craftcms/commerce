@@ -10,7 +10,7 @@
 
 {% block content %}
     {% if not craft.commerce.getProductTypes()|length > 0 %}
-        <p class="error">No product types exist yet. <a class="go" href="{{ url('commerce/settings/producttypes/new') }}">Create one</a></p>
+        <p class="error">{{ 'No product types exist yet.'|t }} <a class="go" href="{{ url('commerce/settings/producttypes/new') }}">{{ 'Create one'|t }}</a></p>
     {% else %}
         {{ parent() }}
     {% endif %}
