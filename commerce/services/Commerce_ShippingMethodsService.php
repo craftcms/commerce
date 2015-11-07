@@ -130,7 +130,7 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
 
     /**
      * @param Commerce_OrderModel $order
-     * @param Commerce_ShippingMethodModel $method
+     * @param \Commerce\Interfaces\ShippingMethod $method
      *
      * @return bool|Commerce_ShippingRuleModel
      */
