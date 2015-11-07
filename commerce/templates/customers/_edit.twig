@@ -63,7 +63,7 @@
                 <td>{{ address.lastName }}</td>
                 <td>{{ address.country.name }}</td>
                 <td>{{ address.stateText }}</td>
-                <td class="thin"><a href="{{ address.getCpEditUrl() }}">Edit</a></td>
+                <td class="thin"><a href="{{ address.getCpEditUrl() }}">{{ 'Edit'|t }}</a></td>
                 <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
             </tr>
         {% endfor %}

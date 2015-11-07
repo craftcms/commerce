@@ -39,7 +39,7 @@
         </table>
         {% endif %}
         <div class="buttons">
-            <a href="{{ url('commerce/settings/taxrates/new') }}" class="btn submit add icon">New tax rate</a>
+            <a href="{{ url('commerce/settings/taxrates/new') }}" class="btn submit add icon">{{ 'New tax rate'|t }}</a>
         </div>
     {% else %}
         <p class="error">{{ 'No tax zones exist yet.'|t}} <a class="go" href="{{ url('commerce/settings/taxzones/new') }}">{{ 'Create one'|t }}</a></p>
