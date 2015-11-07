@@ -87,6 +87,27 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
     }
 
     /**
+     * Returns the Commerce managed shipping methods
+     *
+     * @param array|\CDbCriteria $criteria
+     *
+     * @return Commerce_ShippingMethodModel[]
+     */
+    public function getAllThirdPartyShippingMethods($criteria = [])
+    {
+        $methods = [];
+
+        $additionalMethods = craft()->plugins->call('commerce_registerShippingMethods');
+
+        foreach ($additionalMethods as $additional) {
+            $methods = array_merge($methods, $additional);
+        }
+
+        return $methods;
+
+    }
+
+    /**
      * @return bool
      */
     public function ShippingMethodExists()

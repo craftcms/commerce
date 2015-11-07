@@ -19,7 +19,8 @@ class Commerce_ShippingMethodsController extends Commerce_BaseAdminController
     public function actionIndex()
     {
         $shippingMethods = craft()->commerce_shippingMethods->getAllCoreShippingMethods();
-        $this->renderTemplate('commerce/settings/shippingmethods/index', compact('shippingMethods'));
+        $thirdPartyShippingMethods = craft()->commerce_shippingMethods->getAllThirdPartyShippingMethods();
+        $this->renderTemplate('commerce/settings/shippingmethods/index', compact('shippingMethods','thirdPartyShippingMethods'));
     }
 
     /**
