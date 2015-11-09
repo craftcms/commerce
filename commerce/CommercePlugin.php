@@ -103,7 +103,8 @@ class CommercePlugin extends BasePlugin
                         'm151027_010101_Commerce_NewVariantUI',
                         'm151027_010102_Commerce_ProductDateNames',
                         'm151102_010101_Commerce_PaymentTypeInMethodNotSettings',
-                        'm151103_010101_Commerce_DefaultVariant'
+                        'm151103_010101_Commerce_DefaultVariant',
+                        'm151109_010101_Commerce_AddCompanyNumberToAddress'
                     );
 
                     foreach ($migrations as $migrationClass) {
@@ -219,7 +220,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getSchemaVersion()
     {
-        return '0.9.2';
+        return '0.9.3';
     }
 
     /**

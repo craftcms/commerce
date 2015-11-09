@@ -14,6 +14,7 @@ namespace Craft;
  * @property string $phone
  * @property string $alternativePhone
  * @property string $company
+ * @property string $companyNumber
  * @property string $stateName
  * @property int $countryId
  * @property int $stateId
@@ -85,6 +86,7 @@ class Commerce_AddressRecord extends BaseRecord
             'phone' => AttributeType::String,
             'alternativePhone' => AttributeType::String,
             'company' => AttributeType::String,
+            'companyNumber' => AttributeType::String,
             'stateName' => AttributeType::String,
             'customerId' => [AttributeType::Number, 'required' => true],
         ];
