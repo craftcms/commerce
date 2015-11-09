@@ -71,7 +71,7 @@ class Commerce_TaxRatesService extends BaseApplicationComponent
 
         $record->validate();
 
-        if (!$record->getError('taxZoneId')) {
+        if ($record->taxZoneId && !$record->getError('taxZoneId')) {
             $taxZone = craft()->commerce_taxZones->getTaxZoneById($record->taxZoneId);
 
             if (!$taxZone) {
