@@ -15,6 +15,16 @@ use Commerce\Helpers\CommerceDbHelper;
  */
 class Commerce_TaxZonesService extends BaseApplicationComponent
 {
+    /*
+     * @var
+     */
+    private $_countriesByTaxZoneId;
+
+    /*
+     * @var
+     */
+    private $_statesByTaxZoneId;
+
     /**
      * @param bool $withRelations
      *
@@ -172,43 +182,54 @@ class Commerce_TaxZonesService extends BaseApplicationComponent
     /**
      * Returns all countries in a tax zone
      *
-     * @param $id
+     * @param $taxZoneId
      * @return array
      */
-    public function getCountriesByTaxZoneId($id)
+    public function getCountriesByTaxZoneId($taxZoneId)
     {
-        $results = Commerce_TaxZoneCountryRecord::model()->with('country')->findAllByAttributes([
-            'taxZoneId' => $id
-        ]);
+        if(!isset($this->_countriesByTaxZoneId) || !array_key_exists($taxZoneId, $this->_countriesByTaxZoneId)){
 
-        $countries = [];
-        foreach($results as $result)
-        {
-            $countries[] = Commerce_CountryModel::populateModel($result->country);
+            $results = Commerce_TaxZoneCountryRecord::model()->with('country')->findAllByAttributes([
+                'taxZoneId' => $taxZoneId
+            ]);
+
+            $countries = [];
+
+            foreach($results as $result)
+            {
+                $countries[] = Commerce_CountryModel::populateModel($result->country);
+            }
+
+            $this->_countriesByTaxZoneId[$taxZoneId] = $countries;
         }
 
-        return $countries;
+        return $this->_countriesByTaxZoneId[$taxZoneId];
     }
 
     /**
      * Returns all states in a tax zone
      *
-     * @param $id
+     * @param $taxZoneId
      * @return array
      */
-    public function getStatesByTaxZoneId($id)
+    public function getStatesByTaxZoneId($taxZoneId)
     {
-        $results = Commerce_TaxZoneStateRecord::model()->with('state')->findAllByAttributes([
-            'taxZoneId' => $id
-        ]);
+        if(!isset($this->_statesByTaxZoneId) || !array_key_exists($taxZoneId, $this->_statesByTaxZoneId)) {
 
-        $states = [];
-        foreach($results as $result)
-        {
-            $states[] =  Commerce_StateModel::populateModel($result->state);
+            $results = Commerce_TaxZoneStateRecord::model()->with('state')->findAllByAttributes([
+            'taxZoneId' => $taxZoneId
+            ]);
+
+            $states = [];
+            foreach($results as $result)
+            {
+                $states[] =  Commerce_StateModel::populateModel($result->state);
+            }
+
+            $this->_statesByTaxZoneId[$taxZoneId] = $states;
         }
 
-        return $states;
+        return $this->_statesByTaxZoneId[$taxZoneId];
     }
 
 }
