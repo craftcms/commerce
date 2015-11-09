@@ -1,0 +1,51 @@
+{% import "_includes/forms" as forms %}
+
+{{ forms.textField({
+    first: true,
+    label: "Name"|t,
+    instructions: "What this tax category will be called in the CP."|t,
+    id: 'name',
+    name: 'name',
+    value: taxCategory is defined ? taxCategory.name,
+    errors: taxCategory is defined ? taxCategory.getErrors('name'),
+    autofocus: true,
+    required: true,
+    translatable: true
+}) }}
+
+{{ forms.textField({
+    label: "Handle"|t,
+    instructions: "How you’ll refer to this tax category in the templates."|t,
+    id: 'handle',
+    class: 'code',
+    name: 'handle',
+    required: true,
+    value: taxCategory is defined ? taxCategory.handle,
+    errors: taxCategory is defined ? taxCategory.getErrors('handle')
+}) }}
+
+{{ forms.textField({
+    label: "Description"|t,
+    id: 'description',
+    name: 'description',
+    value: taxCategory is defined ? taxCategory.description,
+    errors: taxCategory is defined ? taxCategory.getErrors('description')
+}) }}
+
+{{ forms.checkboxField({
+    label: "Use this tax category by default for new products"|t,
+    id: 'default',
+    name: 'default',
+    value: 1,
+    checked: taxCategory is defined ? taxCategory.default,
+    errors: taxCategory is defined ? taxCategory.getErrors('default')
+}) }}
+
+
+{% if taxCategory is not defined or not taxCategory.handle %}
+    {% set nameId = 'name'|namespaceInputId|e('js') %}
+    {% set handleId = 'handle'|namespaceInputId|e('js') %}
+    {% includejs %}
+        new Craft.HandleGenerator('#{{ nameId }}', '#{{ handleId }}');
+    {% endincludejs %}
+{% endif %}
