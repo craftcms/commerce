@@ -19,7 +19,7 @@ class Commerce_SettingsController extends Commerce_BaseAdminController
      */
     public function actionIndex()
     {
-        craft()->request->redirect('settings/general');
+        $this->redirect('commerce/settings/general');
     }
 
     /**
