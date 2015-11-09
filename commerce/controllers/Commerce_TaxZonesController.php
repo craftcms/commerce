@@ -79,13 +79,25 @@ class Commerce_TaxZonesController extends Commerce_BaseAdminController
         $statesIds = craft()->request->getPost('states', []);
 
         // Save it
-        if (craft()->commerce_taxZones->saveTaxZone($taxZone, $countriesIds,
-            $statesIds)
-        ) {
-            craft()->userSession->setNotice(Craft::t('Tax zone saved.'));
-            $this->redirectToPostedUrl($taxZone);
+        if (craft()->commerce_taxZones->saveTaxZone($taxZone, $countriesIds, $statesIds)) {
+            if (craft()->request->isAjaxRequest()) {
+                $this->returnJson([
+                    'success' => true,
+                    'id' => $taxZone->id,
+                    'name' => $taxZone->name,
+                ]);
+            } else {
+                craft()->userSession->setNotice(Craft::t('Tax zone saved.'));
+                $this->redirectToPostedUrl($taxZone);
+            }
         } else {
-            craft()->userSession->setError(Craft::t('Couldn’t save tax zone.'));
+            if (craft()->request->isAjaxRequest()) {
+                $this->returnJson([
+                    'errors' => $taxZone->getErrors()
+                ]);
+            } else {
+                craft()->userSession->setError(Craft::t('Couldn’t save tax zone.'));
+            }
         }
 
         // Send the model back to the template
