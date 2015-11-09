@@ -168,4 +168,47 @@ class Commerce_TaxZonesService extends BaseApplicationComponent
     {
         Commerce_TaxZoneRecord::model()->deleteByPk($id);
     }
+
+    /**
+     * Returns all countries in a tax zone
+     *
+     * @param $id
+     * @return array
+     */
+    public function getCountriesByTaxZoneId($id)
+    {
+        $results = Commerce_TaxZoneCountryRecord::model()->with('country')->findAllByAttributes([
+            'taxZoneId' => $id
+        ]);
+
+        $countries = [];
+        foreach($results as $result)
+        {
+            $countries[] = Commerce_CountryModel::populateModel($result->country);
+        }
+
+        return $countries;
+    }
+
+    /**
+     * Returns all states in a tax zone
+     *
+     * @param $id
+     * @return array
+     */
+    public function getStatesByTaxZoneId($id)
+    {
+        $results = Commerce_TaxZoneStateRecord::model()->with('state')->findAllByAttributes([
+            'taxZoneId' => $id
+        ]);
+
+        $states = [];
+        foreach($results as $result)
+        {
+            $states[] =  Commerce_StateModel::populateModel($result->state);
+        }
+
+        return $states;
+    }
+
 }
