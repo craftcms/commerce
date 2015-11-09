@@ -1,8 +1,6 @@
 <?php
 namespace Craft;
 
-use Commerce\Traits\Commerce_ModelRelationsTrait;
-
 /**
  * Tax zone model.
  *
@@ -24,8 +22,6 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  */
 class Commerce_TaxZoneModel extends BaseModel
 {
-    use Commerce_ModelRelationsTrait;
-
     /**
      * @return string
      */
@@ -39,9 +35,12 @@ class Commerce_TaxZoneModel extends BaseModel
      */
     public function getCountriesIds()
     {
-        return array_map(function ($country) {
-            return $country->id;
-        }, $this->countries);
+        $countries = [];
+        foreach($this->getCountries() as $country){
+            $countries[] = $country->id;
+        }
+
+        return $countries;
     }
 
     /**
@@ -49,9 +48,12 @@ class Commerce_TaxZoneModel extends BaseModel
      */
     public function getStatesIds()
     {
-        return array_map(function ($state) {
-            return $state->id;
-        }, $this->states);
+        $states = [];
+        foreach($this->getStates() as $state){
+            $states[] = $state->id;
+        }
+
+        return $states;
     }
 
     /**
@@ -59,9 +61,12 @@ class Commerce_TaxZoneModel extends BaseModel
      */
     public function getCountriesNames()
     {
-        return array_map(function ($country) {
-            return $country->name;
-        }, $this->countries);
+        $countries = [];
+        foreach($this->getCountries() as $country){
+            $countries[] = $country->name;
+        }
+
+        return $countries;
     }
 
     /**
@@ -69,9 +74,12 @@ class Commerce_TaxZoneModel extends BaseModel
      */
     public function getStatesNames()
     {
-        return array_map(function ($state) {
-            return $state->formatName();
-        }, $this->states);
+        $states = [];
+        foreach($this->getStates() as $state){
+            $states[] = $state->formatName();
+        }
+
+        return $states;
     }
 
     /**
@@ -86,5 +94,21 @@ class Commerce_TaxZoneModel extends BaseModel
             'countryBased' => [AttributeType::Bool, 'default' => 1],
             'default' => [AttributeType::Bool, 'default' => 0],
         ];
+    }
+
+    /**
+     * @return array
+     */
+    public function getCountries()
+    {
+        return craft()->commerce_taxZones->getCountriesByTaxZoneId($this->id);
+    }
+
+    /**
+     * @return array
+     */
+    public function getStates()
+    {
+        return craft()->commerce_taxZones->getStatesByTaxZoneId($this->id);
     }
 }
