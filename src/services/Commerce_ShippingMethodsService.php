@@ -123,7 +123,7 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
     public function calculateForCart(Commerce_OrderModel $cart)
     {
         $availableMethods = [];
-        $methods = $this->getAllShippingMethods(['with' => 'rules']);
+        $methods = $this->getAllShippingMethods();
 
         foreach ($methods as $method) {
             if ($method->getIsEnabled()) {
