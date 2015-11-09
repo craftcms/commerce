@@ -71,10 +71,24 @@ class Commerce_TaxCategoriesController extends Commerce_BaseAdminController
 
         // Save it
         if (craft()->commerce_taxCategories->saveTaxCategory($taxCategory)) {
-            craft()->userSession->setNotice(Craft::t('Tax category saved.'));
-            $this->redirectToPostedUrl($taxCategory);
+            if (craft()->request->isAjaxRequest()) {
+                $this->returnJson([
+                    'success' => true,
+                    'id' => $taxCategory->id,
+                    'name' => $taxCategory->name,
+                ]);
+            } else {
+                craft()->userSession->setNotice(Craft::t('Tax category saved.'));
+                $this->redirectToPostedUrl($taxCategory);
+            }
         } else {
-            craft()->userSession->setError(Craft::t('Couldn’t save tax category.'));
+            if (craft()->request->isAjaxRequest()) {
+                $this->returnJson([
+                    'errors' => $taxCategory->getErrors()
+                ]);
+            } else {
+                craft()->userSession->setError(Craft::t('Couldn’t save tax category.'));
+            }
         }
 
         // Send the tax category back to the template
