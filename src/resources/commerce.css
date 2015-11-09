@@ -1,5 +1,7 @@
 @charset "UTF-8";
 
+.lazy-create-modal { min-width: 200px; overflow: auto; }
+
 /* Variant Matrix styles */
 .variant-matrixblock { padding: 0; }
 .variant-matrixblock > .titlebar { margin: 0; width: 100%; }
