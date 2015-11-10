@@ -69,8 +69,8 @@ class Commerce_AddressesService extends BaseApplicationComponent
         $addressRecord->zipCode = $addressModel->zipCode;
         $addressRecord->phone = $addressModel->phone;
         $addressRecord->alternativePhone = $addressModel->alternativePhone;
-        $addressRecord->company = $addressModel->company;
-        $addressRecord->companyNumber = $addressModel->companyNumber;
+        $addressRecord->businessName = $addressModel->businessName;
+        $addressRecord->businessTaxId = $addressModel->businessTaxId;
         $addressRecord->countryId = $addressModel->countryId;
         $addressRecord->customerId = $addressModel->customerId;
 

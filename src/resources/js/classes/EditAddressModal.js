@@ -35,7 +35,8 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend({
         fields.push({attribute: 'zipCode', label: Craft.t('Zip Code')});
         fields.push({attribute: 'phone', label: Craft.t('Phone')});
         fields.push({attribute: 'alternativePhone', label: Craft.t('Alternative Phone')});
-        fields.push({attribute: 'company', label: Craft.t('Company')});
+        fields.push({attribute: 'businessName', label: Craft.t('Business Name')});
+        fields.push({attribute: 'businessTaxId', label: Craft.t('Business Tax ID')});
 
         for (i = 0; i < fields.length; i++)
         {
@@ -154,7 +155,8 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend({
                 zipCode: this.$body.find("input.zipCode").val(),
                 phone: this.$body.find("input.phone").val(),
                 alternativePhone: this.$body.find("input.alternativePhone").val(),
-                company: this.$body.find("input.company").val(),
+                businessName: this.$body.find("input.businessName").val(),
+                businessTaxId: this.$body.find("input.businessTaxId").val(),
                 countryId: this.$body.find("select.countryId option:selected").val(),
                 stateId: this.$body.find("select.stateId option:selected").val(),
                 stateName: this.$body.find("input.stateName").val()
