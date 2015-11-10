@@ -155,6 +155,11 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
             }
         }
 
+        // Sort cheapest to most expensive
+        usort($availableMethods, function($a, $b) {
+            return $a['amount'] - $b['amount'];
+        });
+
         return $availableMethods;
     }
 
