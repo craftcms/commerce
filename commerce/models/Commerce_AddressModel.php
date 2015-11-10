@@ -15,8 +15,8 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  * @property string $zipCode
  * @property string $phone
  * @property string $alternativePhone
- * @property string $company
- * @property string $companyNumber
+ * @property string $businessName
+ * @property string $businessTaxId
  * @property string $stateName
  * @property int $countryId
  * @property int $stateId
@@ -79,8 +79,8 @@ class Commerce_AddressModel extends BaseModel
             'zipCode' => AttributeType::String,
             'phone' => AttributeType::String,
             'alternativePhone' => AttributeType::String,
-            'company' => AttributeType::String,
-            'companyNumber' => AttributeType::String,
+            'businessName' => AttributeType::String,
+            'businessTaxId' => AttributeType::String,
             'stateName' => AttributeType::String,
             'countryId' => AttributeType::Number,
             'stateId' => AttributeType::Number,

@@ -9,9 +9,13 @@
                 {% if address.lastName is not empty %}
                     {{ address.lastName }}
                 {% endif %}
+                <br>
+                {% if address.businessName is not empty %}
+                    {{ address.businessName }}
+                {% endif %}
 
-                {% if address.company is not empty %}
-                    {{ address.company }}
+                {% if address.businessTaxId is not empty %}
+                    - {{ address.businessTaxId }}
                 {% endif %}
             </strong>
         </li>
