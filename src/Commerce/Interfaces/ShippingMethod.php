@@ -15,25 +15,30 @@ namespace Commerce\Interfaces;
 interface ShippingMethod
 {
     /**
-     * Returns the type of Shipping Method this is
+     * Returns the type of Shipping Method. This might be the name of the plugin or provider.
+     * The core shipping methods have type: `Custom`. This is shown in the control panel only.
+     *
      * @return string
      */
     public function getType();
 
     /**
      * Returns the ID of this Shipping Method, if it is managed by Craft Commerce.
+     *
      * @return int|null The shipping method ID, or null if it is not managed by Craft Commerce
      */
     public function getId();
 
     /**
-     * Returns the name of this Shipping Method
+     * Returns the name of this Shipping Method as displayed to the customer and in the control panel.
+     *
      * @return string
      */
     public function getName();
 
     /**
-     * Returns the unique handle of this Shipping Method
+     * Returns the unique handle of this Shipping Method.
+     *
      * @return string
      */
     public function getHandle();
@@ -47,13 +52,14 @@ interface ShippingMethod
     public function getCpEditUrl();
 
     /**
+     * Returns an array of rules that meet the `ShippingRules` interface.
      *
-     * @return \Commerce\Interfaces\ShippingRules[]
+     * @return \Commerce\Interfaces\ShippingRules[] The array of ShippingRules
      */
     public function getRules();
 
     /**
-     * Is this shipping method enabled for listing and selection
+     * Is this shipping method enabled for listing and selection by customers.
      *
      * @return bool
      */
