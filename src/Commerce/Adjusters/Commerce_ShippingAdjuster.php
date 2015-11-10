@@ -43,10 +43,7 @@ class Commerce_ShippingAdjuster implements Commerce_AdjusterInterface
             //preparing model
             $adjustment = new Commerce_OrderAdjustmentModel;
             $adjustment->type = self::ADJUSTMENT_TYPE;
-            $adjustment->name = $shippingMethod->getName();
-            $adjustment->description = $rule->getDescription();
             $adjustment->orderId = $order->id;
-            $adjustment->optionsJson = $rule->getOptions();
 
             //checking items tax categories
             $weight = $qty = $price = 0;
@@ -79,6 +76,11 @@ class Commerce_ShippingAdjuster implements Commerce_AdjusterInterface
 
             //real shipping base rate (can be a bit artificial because it counts min and max rate as well, but in general it equals to be $rule->baseRate)
             $order->baseShippingCost = $amount - ($itemShippingTotal - $freeShippingAmount);
+
+            // Let the name, options and description come last since since plugins may not have all info up front.
+            $adjustment->name = $shippingMethod->getName();
+            $adjustment->optionsJson = $rule->getOptions();
+            $adjustment->description = $rule->getDescription();
 
             $adjustments[] = $adjustment;
         }
