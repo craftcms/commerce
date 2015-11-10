@@ -48,7 +48,6 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
         $method->name = 'Free Shipping';
         $method->handle = 'freeShipping';
         $method->enabled = true;
-        $method->default = true;
         $method->save();
 
         $rule = new Commerce_ShippingRuleRecord();
