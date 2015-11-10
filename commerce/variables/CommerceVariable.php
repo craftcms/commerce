@@ -83,7 +83,7 @@ class CommerceVariable
     /**
      * @return array
      */
-    public function getShippingMethods()
+    public function getAvailableShippingMethods()
     {
         $cart = craft()->commerce_cart->getCart();
 

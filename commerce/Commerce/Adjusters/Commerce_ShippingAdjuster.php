@@ -85,6 +85,15 @@ class Commerce_ShippingAdjuster implements Commerce_AdjusterInterface
             $adjustments[] = $adjustment;
         }
 
+        // If the selected shippingMethod has no rules matched on this order, remove the method from the order and reset shipping costs.
+        if(empty($adjustments)){
+            $order->shippingMethod = null;
+            $order->baseShippingCost = 0;
+            foreach ($lineItems as $item) {
+                $item->shippingCost = 0;
+            }
+        }
+
         return $adjustments;
     }
 
