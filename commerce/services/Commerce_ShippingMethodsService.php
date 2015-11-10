@@ -140,6 +140,7 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
 
                     $availableMethods[$method->getHandle()] = [
                         'name' => $method->getName(),
+                        'description' => $rule->getDescription(),
                         'amount' => $amount,
                     ];
                 }
