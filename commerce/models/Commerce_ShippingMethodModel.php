@@ -79,7 +79,7 @@ class Commerce_ShippingMethodModel extends BaseModel implements ShippingMethod
      */
     public function getCpEditUrl()
     {
-        return UrlHelper::getCpUrl('commerce/settings/shippingmethods'.$this->id);
+        return UrlHelper::getCpUrl('commerce/settings/shippingmethods/'.$this->id);
     }
 
     /**
