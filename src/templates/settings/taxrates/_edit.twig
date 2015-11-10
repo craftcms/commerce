@@ -7,7 +7,116 @@
 
 {% set fullPageForm = true %}
 
+
+{% macro lazyCreateSelect(selectParams, newOptionLabel, modalHeading, html, js, action, successText) %}
+
+    {% from "_includes/forms" import selectField %}
+    {{ selectField(selectParams) }}
+
+    {% includejs %}
+        (function() {
+            var $select = $('#{{ selectParams.id }}').selectize({
+                dropdownParent: 'body'
+            });
+
+            var selectize = $select.get(0).selectize;
+
+            selectize.addOption({
+                value: 'new',
+                text: '{{ newOptionLabel|e("js") }}'
+            });
+
+            selectize.on('item_add', function(value, $item) {
+                if (value == 'new') {
+                    // Not a real option
+                    selectize.clear();
+
+                    var $form = $(
+                        '<form class="modal fitted lazy-create-modal">' +
+                            '<div class="header">' +
+                                '<h1 class="centeralign">{{ modalHeading }}</h1>' +
+                            '</div>' +
+                            '<div class="body">' +
+                                '{{ html|e("js") }}' +
+                            '</div>' +
+                            '<div class="footer">' +
+                                '<div class="buttons right">' +
+                                    '<div class="btn cancel-btn">{{ "Cancel"|t }}</div>' +
+                                    '<input type="submit" class="btn submit" value="{{ 'Save'|t }}"/>' +
+                                    '<div class="spinner hidden"/>' +
+                                '</div>' +
+                            '</div>' +
+                        '</form>'
+                    );
+
+                    var modal = new Garnish.Modal($form, {
+                        onHide: function() {
+                            modal.destroy();
+                            delete modal;
+                        }
+                    });
+
+                    eval('{{ js|e("js") }}');
+
+                    setTimeout(function() {
+                        $form.find('.text:first').focus();
+
+                        modal.updateSizeAndPosition();
+                        $form.find('.body:first').on('resize', function() {
+                            modal.updateSizeAndPosition();
+                        });
+                    }, 100);
+
+                    $form.on('submit', function(ev) {
+                        ev.preventDefault();
+                        $form.find('.spinner').removeClass('hidden');
+                        var namespacedData = Garnish.getPostData($form),
+                            data = {};
+
+                        for (var name in namespacedData) {
+                            data[name.replace(/^new\[([^\]]+)\]/, '$1')] = namespacedData[name];
+                        }
+
+                        Craft.postActionRequest('{{ action|e("js") }}', data, function(response, textStatus) {
+                            $form.find('.spinner').addClass('hidden');
+                            if (textStatus == 'success') {
+                                if (response.success) {
+                                    Craft.cp.displayNotice('{{ successText|e("js") }}');
+                                    selectize.addOption({
+                                        value: response.id,
+                                        text: response.name,
+                                        $order: selectize.order - 1
+                                    });
+                                    selectize.setValue(response.id);
+                                    modal.hide();
+                                } else {
+                                    Craft.ui.clearErrorsFromField($form.find('.field'));
+
+                                    for (var attribute in response.errors) {
+                                        Craft.ui.addErrorsToField($('#new-'+attribute+'-field'), response.errors[attribute]);
+                                    }
+
+                                    modal.updateSizeAndPosition();
+                                    Garnish.shake($form);
+                                }
+                            }
+                        });
+                    });
+
+                    $form.find('.cancel-btn').on('click', function() {
+                        modal.hide();
+                    });
+                }
+            });
+        })();
+    {% endincludejs %}
+
+{% endmacro %}
+
+
 {% import "_includes/forms" as forms %}
+{% from _self import lazyCreateSelect %}
+
 
 {% block content %}
     <input type="hidden" name="action" value="commerce/taxRates/save">
@@ -50,7 +159,7 @@
         checked: taxRate.showInLabel
     }) }}
 
-    {{ forms.selectField({
+    {% set taxZoneSelectParams = {
         label: "Tax Zone"|t,
         instructions: "Select a tax zone."|t,
         id: 'taxZoneId',
@@ -60,9 +169,19 @@
         required: true,
         options: taxZones,
         class: 'selectize fullwidth',
-    }) }}
+    } %}
 
-    {{ forms.selectField({
+    {{ lazyCreateSelect(
+        taxZoneSelectParams,
+        'New tax zone'|t,
+        'Create a new tax zone'|t,
+        newTaxZoneFields,
+        newTaxZoneJs,
+        'commerce/taxZones/save',
+        'Tax zone saved.'|t
+    ) }}
+
+    {% set taxCategorySelectParams = {
         label: "Tax Category"|t,
         instructions: "Select a tax category."|t,
         id: 'taxCategoryId',
@@ -72,13 +191,16 @@
         required: true,
         options: taxCategories,
         class: 'selectize fullwidth',
-    }) }}
+    } %}
+
+    {{ lazyCreateSelect(
+        taxCategorySelectParams,
+        'New tax category'|t,
+        'Create a new tax category'|t,
+        newTaxCategoryFields,
+        newTaxCategoryJs,
+        'commerce/taxCategories/save',
+        'Tax category saved.'|t
+    ) }}
 {% endblock %}
 
-{% includejs %}
-$(function() {
-    $('#taxZoneId, #taxCategoryId').selectize({
-        dropdownParent: 'body'
-    });
-});
-{% endincludejs %}

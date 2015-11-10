@@ -11,7 +11,6 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  * @property string $name
  * @property string $handle
  * @property bool $enabled
- * @property bool $default
  * @property Commerce_ShippingRuleModel[] $rules
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
@@ -24,6 +23,22 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
 class Commerce_ShippingMethodModel extends BaseModel implements ShippingMethod
 {
     use Commerce_ModelRelationsTrait;
+
+    /**
+     * @return string
+     */
+    public function getType()
+    {
+        return Craft::t('Custom');
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getId()
+    {
+        return $this->getAttribute('id');
+    }
 
     /**
      * @return string
@@ -54,7 +69,17 @@ class Commerce_ShippingMethodModel extends BaseModel implements ShippingMethod
      */
     public function getIsEnabled()
     {
-        return $this->enabled;
+        return $this->getAttribute('enabled');
+    }
+
+    /**
+     * Not applicable since we link to our own.
+     *
+     * @return string
+     */
+    public function getCpEditUrl()
+    {
+        return UrlHelper::getCpUrl('commerce/settings/shippingmethods'.$this->id);
     }
 
     /**
@@ -70,12 +95,7 @@ class Commerce_ShippingMethodModel extends BaseModel implements ShippingMethod
                 AttributeType::Bool,
                 'required' => true,
                 'default' => 1
-            ],
-            'default' => [
-                AttributeType::Bool,
-                'required' => true,
-                'default' => 0
-            ],
+            ]
         ];
     }
 }

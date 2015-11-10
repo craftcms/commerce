@@ -13,7 +13,8 @@ namespace Craft;
  * @property string $zipCode
  * @property string $phone
  * @property string $alternativePhone
- * @property string $company
+ * @property string $businessName
+ * @property string $businessTaxId
  * @property string $stateName
  * @property int $countryId
  * @property int $stateId
@@ -84,7 +85,8 @@ class Commerce_AddressRecord extends BaseRecord
             'zipCode' => AttributeType::String,
             'phone' => AttributeType::String,
             'alternativePhone' => AttributeType::String,
-            'company' => AttributeType::String,
+            'businessName' => AttributeType::String,
+            'businessTaxId' => AttributeType::String,
             'stateName' => AttributeType::String,
             'customerId' => [AttributeType::Number, 'required' => true],
         ];

@@ -13,22 +13,30 @@
         <tr>
             <th scope="col">{{ 'Name'|t }}</th>
             <th scope="col">{{ 'Handle'|t }}</th>
-            <td class="thin"></td>
+            <th scope="col">{{ 'Type'|t }}</th>
+            <th class="thin"></th>
         </tr>
         </thead>
         <tbody>
         {% for shippingMethod in shippingMethods %}
-            <tr data-id="{{ shippingMethod.id }}" data-name="{{ shippingMethod.name }}">
+            {% set id = shippingMethod.getId() %}
+            <tr{% if id %} data-id="{{ id }}" data-name="{{ shippingMethod.getName() }}"{% endif %}>
                 <th scope="row" data-title="{{ 'Name'|t }}">
-                    {% if shippingMethod.enabled %}
-                        <span class="status green"></span>
-                    {% else %}
-                        <span class="status green"></span>
-                    {% endif %}
-                    <a href="{{ url('commerce/settings/shippingmethods/'~shippingMethod.id) }}">{{ shippingMethod.name }}</a>
+                    {%- spaceless %}
+                        {% set url = shippingMethod.getCpEditUrl() %}
+                        {% if url %}<a href="{{ url }}">{% endif %}
+                            <span class="status{% if shippingMethod.getIsEnabled() %} enabled{% endif %}"></span>
+                            <span class="label">{{ shippingMethod.getName() }}</span>
+                        {% if url %}</a>{% endif %}
+                    {% endspaceless -%}
                 </th>
-                <td data-title="{{ 'Handle'|t }}" class="code">{{ shippingMethod.handle }}</td>
-                <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
+                <td data-title="{{ 'Handle'|t }}" class="code">{{ shippingMethod.getHandle() }}</td>
+                <td data-title="{{ 'Type'|t }}">{{ shippingMethod.getType() }}</td>
+                <td class="thin">
+                    {%- if id -%}
+                        <a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a>
+                    {%- endif -%}
+                </td>
             </tr>
         {% endfor %}
 
@@ -36,8 +44,8 @@
     </table>
     {% endif %}
 
-    <div class="buttons secondary-buttons">
-        <a href="{{ url('commerce/settings/shippingmethods/new') }}" class="btn submit add icon">New shipping method</a>
+    <div class="buttons">
+        <a href="{{ url('commerce/settings/shippingmethods/new') }}" class="btn submit add icon">{{ 'New shipping method'|t }}</a>
     </div>
 {% endblock %}
 

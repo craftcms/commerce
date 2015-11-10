@@ -24,7 +24,7 @@ interface ShippingRule
     public function getHandle();
 
     /**
-     * Is this rule a match on the order?
+     * Is this rule a match on the order? If false is returned, the shipping engine tries the next rule.
      *
      * @return bool
      */
@@ -46,6 +46,7 @@ interface ShippingRule
 
     /**
      * Returns the percentage rate that is multiplied per line item subtotal.
+     * Zero will not make any changes.
      *
      * @return float
      */
@@ -53,6 +54,7 @@ interface ShippingRule
 
     /**
      * Returns the flat rate that is multiplied per qty.
+     * Zero will not make any changes.
      *
      * @return float
      */
@@ -60,6 +62,7 @@ interface ShippingRule
 
     /**
      * Returns the rate that is multiplied by the line item's weight.
+     * Zero will not make any changes.
      *
      * @return float
      */
@@ -67,6 +70,7 @@ interface ShippingRule
 
     /**
      * Returns a base shipping cost. This is added at the order level.
+     * Zero will not make any changes.
      *
      * @return float
      */
@@ -85,9 +89,18 @@ interface ShippingRule
      * Returns a min cost this rule should have applied.
      * If the total of your rates as applied to the order are less than this, the baseShippingCost
      * on the order is modified to meet this min rate.
+     * Zero will not make any changes.
      *
      * @return float
      */
     public function getMinRate();
+
+    /**
+     * Returns a description of the rates applied by this rule;
+     * Zero will not make any changes.
+     *
+     * @return string
+     */
+    public function getDescription();
 
 }

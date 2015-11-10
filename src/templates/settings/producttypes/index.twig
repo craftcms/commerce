@@ -34,8 +34,8 @@
     <p>{{ "No product types exist yet."|t }}</p>
     {% endif %}
 
-    <div class="buttons secondary-buttons">
-        <a href="{{ url('commerce/settings/producttypes/new') }}" class="btn submit add icon">New product type</a>
+    <div class="buttons">
+        <a href="{{ url('commerce/settings/producttypes/new') }}" class="btn submit add icon">{{ 'New product type'|t }}</a>
     </div>
 {% endblock %}
 
@@ -46,6 +46,6 @@ tableSelector: '#producttypes',
 noObjectsSelector: '#noproducttypes',
 newObjectBtnSelector: '#newproductTypecontainer',
 deleteAction: 'commerce/productTypes/deleteProductType',
-confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}” and all its products? Please make sure you have a backup of your database before before peforming this desctruction action"|t }}'
+confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}” and all its products? Please make sure you have a backup of your database before performing this destructive action."|t }}'
 });
 {% endincludejs %}

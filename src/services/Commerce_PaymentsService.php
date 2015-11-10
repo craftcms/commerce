@@ -313,7 +313,6 @@ class Commerce_PaymentsService extends BaseApplicationComponent
         $card->setExpiryYear($paymentForm->year);
         $card->setCvv($paymentForm->cvv);
 
-
         if ($order->billingAddressId) {
             $billingAddress = $order->billingAddress;
             $card->setBillingAddress1($billingAddress->address1);
@@ -323,6 +322,8 @@ class Commerce_PaymentsService extends BaseApplicationComponent
             $card->setBillingState($billingAddress->getStateText());
             $card->setBillingCountry($billingAddress->getCountryText());
             $card->setBillingPhone($billingAddress->phone);
+            $card->setBillingCompany($billingAddress->businessName);
+            $card->setCompany($billingAddress->businessName);
         }
 
         if ($order->shippingAddressId) {
@@ -334,7 +335,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
             $card->setShippingState($shippingAddress->getStateText());
             $card->setShippingCountry($shippingAddress->getCountryText());
             $card->setShippingPhone($shippingAddress->phone);
-            $card->setCompany($shippingAddress->company);
+            $card->setShippingCompany($shippingAddress->businessName);
         }
 
         $card->setEmail($order->email);

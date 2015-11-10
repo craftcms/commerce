@@ -2,6 +2,7 @@
 namespace Craft;
 
 use Commerce\Helpers\CommerceDbHelper;
+use Commerce\Interfaces\ShippingMethod;
 
 /**
  * Shipping method service.
@@ -86,6 +87,27 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
     }
 
     /**
+     * Returns the Commerce managed shipping methods
+     *
+     * @param array|\CDbCriteria $criteria
+     *
+     * @return Commerce_ShippingMethodModel[]
+     */
+    public function getAllThirdPartyShippingMethods($criteria = [])
+    {
+        $methods = [];
+
+        $additionalMethods = craft()->plugins->call('commerce_registerShippingMethods');
+
+        foreach ($additionalMethods as $additional) {
+            $methods = array_merge($methods, $additional);
+        }
+
+        return $methods;
+
+    }
+
+    /**
      * @return bool
      */
     public function ShippingMethodExists()
@@ -101,7 +123,7 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
     public function calculateForCart(Commerce_OrderModel $cart)
     {
         $availableMethods = [];
-        $methods = $this->getAllShippingMethods(['with' => 'rules']);
+        $methods = $this->getAllShippingMethods();
 
         foreach ($methods as $method) {
             if ($method->getIsEnabled()) {
@@ -117,7 +139,7 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
                     }
 
                     $availableMethods[$method->getHandle()] = [
-                        'name' => $method->name,
+                        'name' => $method->getName(),
                         'amount' => $amount,
                     ];
                 }
@@ -129,16 +151,17 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
 
     /**
      * @param Commerce_OrderModel $order
-     * @param Commerce_ShippingMethodModel $method
+     * @param \Commerce\Interfaces\ShippingMethod $method
      *
      * @return bool|Commerce_ShippingRuleModel
      */
     public function getMatchingShippingRule(
         Commerce_OrderModel $order,
-        Commerce_ShippingMethodModel $method
+        ShippingMethod $method
     )
     {
         foreach ($method->getRules() as $rule) {
+            /** @var \Commerce\Interfaces\ShippingRule $rule */
             if ($rule->matchOrder($order)) {
                 return $rule;
             }
