@@ -18,17 +18,17 @@
     in a method that matches all addresses.
     #}
 
-    {% if not craft.commerce.shippingMethods|length %}
+    {% if not craft.commerce.availableShippingMethods|length %}
         <p>No shipping methods available, <a href="/commerce/checkout/payment">Continue to payment</a>.</p>
     {% endif %}
 
-    {% if craft.commerce.shippingMethods|length %}
+    {% if craft.commerce.availableShippingMethods|length %}
     <form method="POST">
         <input type="hidden" name="action" value="commerce/cart/updateCart">
         <input type="hidden" name="redirect" value="commerce/checkout/payment">
         {{ getCsrfInput() }}
 
-        {% for handle, method in craft.commerce.getShippingMethods() %}
+        {% for handle, method in craft.commerce.availableShippingMethods %}
             <label>
                 <input type="radio" name="shippingMethod" value="{{ handle }}"
                        {% if handle == cart.shippingMethodHandle %}checked{% endif %} />

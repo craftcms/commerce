@@ -12,9 +12,22 @@
 
         {% for adjustment in cart.adjustments %}
             <li>
-                <strong>{{ adjustment.type }}: </strong> {{ adjustment.amount|commerceCurrency }}
+                <strong>{{ adjustment.name }}: </strong> {{ adjustment.amount|commerceCurrency }} ({{ adjustment.description }})
             </li>
         {% endfor %}
+
+
+        {% if not cart.shippingMethod %}
+
+            {#
+            If the order requires a shipping method be selected, you could redirect back to the shipping page until one is applied to the order.
+            {% redirect "commerce/checkout/shipping" %}
+            #}
+
+            <li>
+                <strong>Shipping: </strong> None selected. <a href="{{ url('commerce/checkout/shipping') }}">Choose a shipping method.</a>
+            </li>
+        {% endif %}
 
         <li>
             <strong>Total:</strong> {{ cart.totalPrice|commerceCurrency }}

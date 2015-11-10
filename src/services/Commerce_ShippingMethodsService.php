@@ -17,6 +17,11 @@ use Commerce\Interfaces\ShippingMethod;
 class Commerce_ShippingMethodsService extends BaseApplicationComponent
 {
     /**
+     * @var bool
+     */
+    private $_shippingMethods;
+
+    /**
      * @param int $id
      *
      * @return Commerce_ShippingMethodModel|null
@@ -57,16 +62,19 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
      */
     public function getAllShippingMethods()
     {
-        $methods = $this->getAllCoreShippingMethods();
+        if (!isset($this->_shippingMethods)) {
+            $methods = $this->getAllCoreShippingMethods();
 
-        $additionalMethods = craft()->plugins->call('commerce_registerShippingMethods');
+            $additionalMethods = craft()->plugins->call('commerce_registerShippingMethods');
 
-        foreach ($additionalMethods as $additional) {
-            $methods = array_merge($methods, $additional);
+            foreach ($additionalMethods as $additional) {
+                $methods = array_merge($methods, $additional);
+            }
+
+            $this->_shippingMethods = $methods;
         }
 
-        return $methods;
-
+        return $this->_shippingMethods;
     }
 
     /**
