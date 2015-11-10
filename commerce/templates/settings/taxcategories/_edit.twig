@@ -13,45 +13,5 @@
     <input type="hidden" name="action" value="commerce/taxCategories/save">
     <input type="hidden" name="redirect" value="commerce/settings/taxcategories">
     {% if taxCategory.id %}<input type="hidden" name="taxCategoryId" value="{{ taxCategory.id }}">{% endif %}
-
-    {{ forms.textField({
-        first: true,
-        label: "Name"|t,
-        instructions: "What this tax category will be called in the CP."|t,
-        id: 'name',
-        name: 'name',
-        value: taxCategory.name,
-        errors: taxCategory.getErrors('name'),
-        autofocus: true,
-        required: true,
-        translatable: true
-    }) }}
-
-    {{ forms.textField({
-        label: "Handle"|t,
-        instructions: "How you’ll refer to this tax category in the templates."|t,
-        id: 'handle',
-        class: 'code',
-        name: 'handle',
-        required: true,
-        value: taxCategory.handle,
-        errors: taxCategory.getErrors('handle')
-    }) }}
-
-    {{ forms.textField({
-        label: "Description"|t,
-        id: 'description',
-        name: 'description',
-        value: taxCategory.description,
-        errors: taxCategory.getErrors('description')
-    }) }}
-
-    {{ forms.checkboxField({
-        label: "Use this tax category by default for new products"|t,
-        id: 'default',
-        name: 'default',
-        value: 1,
-        checked: taxCategory.default,
-        errors: taxCategory.getErrors('default')
-    }) }}
+    {% include "commerce/settings/taxcategories/_fields" %}
 {% endblock %}

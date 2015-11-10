@@ -143,9 +143,11 @@
 						<div class="pane meta">
 							{{ productFields.generalVariantFields(primaryVariant) }}
 						</div>
-						<div class="pane meta">
-							{{ productFields.dimensionVariantFields(primaryVariant) }}
-						</div>
+						{% if productType.hasDimensions %}
+							<div class="pane meta">
+								{{ productFields.dimensionVariantFields(primaryVariant) }}
+							</div>
+						{% endif %}
 					{% endnamespace %}
 				{% endif %}
 			</div>
