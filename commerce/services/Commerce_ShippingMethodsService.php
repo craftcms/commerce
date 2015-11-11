@@ -128,7 +128,7 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
      *
      * @return array
      */
-    public function calculateForCart(Commerce_OrderModel $cart)
+    public function getAvailableShippingMethods(Commerce_OrderModel $cart)
     {
         $availableMethods = [];
         $methods = $this->getAllShippingMethods();
@@ -150,17 +150,30 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
                         'name' => $method->getName(),
                         'description' => $rule->getDescription(),
                         'amount' => $amount,
+                        'handle' => $method->getHandle(),
+                        'type' => $method->getType()
                     ];
                 }
             }
         }
 
-        // Sort cheapest to most expensive
-        usort($availableMethods, function($a, $b) {
+        return $availableMethods;
+    }
+
+    /**
+     * @param Commerce_OrderModel $cart
+     * @return array
+     */
+    public function getOrderedAvailableShippingMethods($cart)
+    {
+        $availableMethods = $this->getAvailableShippingMethods($cart);
+
+        uasort($availableMethods, function($a, $b) {
             return $a['amount'] - $b['amount'];
         });
 
         return $availableMethods;
+
     }
 
     /**
