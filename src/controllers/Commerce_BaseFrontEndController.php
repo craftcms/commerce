@@ -58,6 +58,8 @@ class Commerce_BaseFrontEndController extends Commerce_BaseController
         $data['totalTax'] = $cart->totalTax;
         $data['totalShippingCost'] = $cart->totalShippingCost;
 
+        $data['availableShippingMethods'] = craft()->commerce_shippingMethods->calculateForCart($cart);
+
         $lineItems = [];
         foreach ($cart->lineItems as $lineItem) {
             $lineItemData = [];

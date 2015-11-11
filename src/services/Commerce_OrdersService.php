@@ -297,6 +297,8 @@ class Commerce_OrdersService extends BaseApplicationComponent
             $order->itemTotal += $item->total;
         }
 
+        $order->setLineItems($lineItems);
+
         /** @var Commerce_OrderAdjustmentModel[] $adjustments */
         $adjustments = [];
         foreach ($this->getAdjusters() as $adjuster) {

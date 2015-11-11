@@ -314,6 +314,14 @@ class Commerce_OrderModel extends BaseElementModel
     }
 
     /**
+     * @param Commerce_LineItemModel[] $lineItems
+     */
+    public function setLineItems($lineItems)
+    {
+        $this->_lineItems = $lineItems;
+    }
+
+    /**
      * @return Commerce_OrderAdjustmentModel[]
      */
     public function getAdjustments()
