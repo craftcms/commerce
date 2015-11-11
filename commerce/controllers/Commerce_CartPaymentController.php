@@ -28,6 +28,8 @@ class Commerce_CartPaymentController extends Commerce_BaseFrontEndController
         $cancelUrl = craft()->request->getPost('cancelUrl');
         $cart = craft()->commerce_cart->getCart();
 
+        $cart->setContentFromPost('fields');
+
         if (!$cart->email) {
             craft()->userSession->setFlash('error', Craft::t("No customer email address for cart."));
             craft()->urlManager->setRouteVariables(compact('paymentForm'));
