@@ -122,6 +122,8 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
         $productType->hasDimensions = true;
         $productType->hasUrls = true;
         $productType->hasVariants = false;
+        $productType->hasVariantTitleField = false;
+        $productType->titleFormat = "{product.title}";
         $productType->template = 'commerce/products/_product';
 
         $fieldLayout = FieldLayoutModel::populateModel(['type' => 'Commerce_Product']);

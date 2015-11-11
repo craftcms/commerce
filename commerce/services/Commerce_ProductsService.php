@@ -68,6 +68,12 @@ class Commerce_ProductsService extends BaseApplicationComponent
         $variantsValid = true;
         $defaultVariant = null;
         foreach ($product->getVariants() as $variant) {
+
+            if (!$productType->hasVariantTitleField)
+            {
+                $variant->getContent()->title = craft()->templates->renderObjectTemplate($productType->titleFormat, $variant);
+            }
+
             // Make the first variant (or the last one that says it isDefault) the default.
             if ($defaultVariant === null || $variant->isDefault)
             {
