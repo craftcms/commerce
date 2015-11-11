@@ -12,9 +12,22 @@
 
         {% for adjustment in cart.adjustments %}
             <li>
-                <strong>{{ adjustment.type }}: </strong> {{ adjustment.amount|commerceCurrency }}
+                <strong>{{ adjustment.name }}: </strong> {{ adjustment.amount|commerceCurrency }} ({{ adjustment.description }})
             </li>
         {% endfor %}
+
+
+        {% if not cart.shippingMethod %}
+
+            {#
+            If the order requires a shipping method be selected, you could redirect back to the shipping page until one is applied to the order.
+            {% redirect "commerce/checkout/shipping" %}
+            #}
+
+            <li>
+                <strong>Shipping: </strong> None selected. <a href="{{ url('commerce/checkout/shipping') }}">Choose a shipping method.</a>
+            </li>
+        {% endif %}
 
         <li>
             <strong>Total:</strong> {{ cart.totalPrice|commerceCurrency }}
@@ -33,20 +46,18 @@
     {% endif %}
 
     {% if craft.commerce.paymentMethods|length %}
-    <form method="POST" class="form-inline">
+    <form method="POST" id="paymentMethod" class="form-inline">
 
         <input type="hidden" name="action" value="commerce/cart/updateCart">
         <input type="hidden" name="redirect" value="commerce/checkout/payment">
         {{ getCsrfInput() }}
 
         <label for="">Payment Method</label>
-        <select name="paymentMethodId" class="form-control" >
+        <select id="paymentMethodId" name="paymentMethodId" class="form-control" >
             {% for id,name in craft.commerce.paymentMethods %}
                 <option value="{{ id }}" {% if id == cart.paymentMethod.id %}selected{% endif %}>{{ name }}</option>
             {% endfor %}
         </select>
-
-        <p><input type="submit" class="btn" value="Select Payment Method" /></p>
 
     </form>
     {% endif %}
@@ -182,4 +193,9 @@
         </form>
     {% endif %}
 
+    {% includejs %}
+        $('#paymentMethodId').change(function(){
+            $('form#paymentMethod').submit();
+        });
+    {% endincludejs %}
 {% endblock %}
