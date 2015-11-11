@@ -68,10 +68,10 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
 
         // TODO: Replace with a product type permission check when we have them
         if (craft()->userSession->checkPermission('accessPlugin-commerce')) {
-            $deleteAction = craft()->elements->getAction('Delete');
+            $deleteAction = craft()->elements->getAction('Commerce_DeleteProduct');
             $deleteAction->setParams([
                 'confirmationMessage' => Craft::t('Are you sure you want to delete the selected product and their variants?'),
-                'successMessage' => Craft::t('Products deleted.'),
+                'successMessage' => Craft::t('Products and Variants deleted.'),
             ]);
             $actions[] = $deleteAction;
 
