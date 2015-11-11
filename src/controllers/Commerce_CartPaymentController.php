@@ -21,7 +21,20 @@ class Commerce_CartPaymentController extends Commerce_BaseFrontEndController
         $this->requirePostRequest();
 
         $paymentForm = new Commerce_PaymentFormModel;
-        $paymentForm->attributes = $_POST;
+        $paymentForm->firstName = craft()->request->getParam('firstName');
+        $paymentForm->lastName = craft()->request->getParam('lastName');
+        $paymentForm->number = craft()->request->getParam('number');
+        $paymentForm->month = craft()->request->getParam('month');
+        $paymentForm->year = craft()->request->getParam('year');
+        $paymentForm->cvv = craft()->request->getParam('cvv');
+        $paymentForm->token = craft()->request->getParam('token');
+
+        // Let's be nice and allow 'stripeToken' to be used as 'token', since it is the checkout.js default.
+        $stripeToken = craft()->request->getParam('stripeToken');
+        if($stripeToken){
+            $paymentForm->token = $stripeToken;
+        }
+
         // give the credit card number more of a chance to validate
         $paymentForm->number = preg_replace("/[^0-9]/", "", $paymentForm->number);
         $redirect = craft()->request->getPost('redirect');
