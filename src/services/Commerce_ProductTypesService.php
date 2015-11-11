@@ -163,7 +163,7 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
         }
 
         // If the product type does not have variants, default the title format and
-        if(!$productType->hasVariants){
+        if(!$isNewProductType && !$productType->hasVariants){
             $productType->hasVariantTitleField = false;
             $productType->titleFormat = "{product.title}";
         }
@@ -177,7 +177,7 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
         $productTypeRecord->titleFormat = $productType->titleFormat ? $productType->titleFormat : "{product.title}";
         $productTypeRecord->template = $productType->template;
 
-        if(!$productType->hasVariantTitleField){
+        if(!$isNewProductType && !$productType->hasVariantTitleField){
             if ($productTypeRecord->titleFormat != $oldProductType->titleFormat) {
                 $titleFormatChanged = true;
             }
