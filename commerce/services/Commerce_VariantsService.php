@@ -16,35 +16,38 @@ use Commerce\Helpers\CommerceDbHelper;
 class Commerce_VariantsService extends BaseApplicationComponent
 {
     /**
-     * @param int $id
+     * @param int    $variantId  The variant’s ID.
+     * @param string $localeId The locale to fetch the variant in. Defaults to {@link WebApp::language `craft()->language`}.
+     *
      * @return Commerce_VariantModel
      */
-    public function getVariantById($id)
+    public function getVariantById($variantId, $localeId = null)
     {
-        return craft()->elements->getElementById($id, 'Commerce_Variant');
+        return craft()->elements->getElementById($variantId, 'Commerce_Variant', $localeId);
     }
 
     /**
      * Returns the first variant as returned by it's sortOrder.
      *
-     * @param int $id
-     * @param string|null $locale
-     * @return mixed|null
+     * @param int $variantId
+     * @param string|null $localeId
+     *
+     * @return Commerce_VariantModel
      */
-    public function getPrimaryVariantByProductId($id, $locale = null)
+    public function getPrimaryVariantByProductId($variantId, $localeId = null)
     {
-        return ArrayHelper::getFirstValue($this->getAllVariantsByProductId($id));
+        return ArrayHelper::getFirstValue($this->getAllVariantsByProductId($variantId, $localeId));
     }
 
     /**
-     * @param int $id
+     * @param int $variantId
      * @param string|null $localeId
      *
      * @return Commerce_VariantModel[]
      */
-    public function getAllVariantsByProductId($id, $localeId = null)
+    public function getAllVariantsByProductId($variantId, $localeId = null)
     {
-        $variants = craft()->elements->getCriteria('Commerce_Variant', ['productId' => $id, 'status'=> null, 'locale' => $localeId])->find();
+        $variants = craft()->elements->getCriteria('Commerce_Variant', ['productId' => $variantId, 'status'=> null, 'locale' => $localeId])->find();
 
         return $variants;
     }
@@ -203,20 +206,12 @@ class Commerce_VariantsService extends BaseApplicationComponent
 
     /**
      * @param $record
-     * @param BaseElementModel $model
+     * @param Commerce_VariantModel $model
      */
-    private function _populateVariantRecord($record, BaseElementModel $model)
+    private function _populateVariantRecord($record, Commerce_VariantModel $model)
     {
         $record->productId = $model->productId;
         $record->sku = $model->sku;
-
-        $titleFormat = $model->getProduct()->getType()->titleFormat;
-        if (!$titleFormat) {
-            $model->getContent()->title = $model->sku;
-        } else {
-            $title = craft()->templates->renderObjectTemplate($titleFormat, $model);
-            $model->getContent()->title = $title ? $title : $model->sku;
-        }
 
         $record->price = $model->price;
         $record->width = $model->width;
