@@ -529,9 +529,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
                 $variantModel->setContentFromPost($variant['fields']);
             }
 
-            if(!$variantModel->getProduct()->getType()->hasVariantTitleField){
-                $variantModel->getContent()->title = craft()->templates->renderObjectTemplate($variantModel->getProduct()->getType()->titleFormat, $variantModel);
-            }else{
+            if (isset($variant['title'])) {
                 $variantModel->getContent()->title = $variant['title'];
             }
 
