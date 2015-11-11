@@ -87,7 +87,7 @@ class CommerceVariable
     {
         $cart = craft()->commerce_cart->getCart();
 
-        return craft()->commerce_shippingMethods->calculateForCart($cart);
+        return craft()->commerce_shippingMethods->getOrderedAvailableShippingMethods($cart);
     }
 
     /**
