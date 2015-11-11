@@ -502,32 +502,39 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
     }
 
     /**
-     * @param BaseElementModel $element
+     * @param BaseElementModel $product
      * @param array $params
      *
      * @return bool
      * @throws Exception
      * @throws \Exception
      */
-    public function saveElement(BaseElementModel $element, $params)
+    public function saveElement(BaseElementModel $product, $params)
     {
         $variantsPost = $params['variants'];
         $variants = [];
         $count = 1;
         foreach ($variantsPost as $key => $variant) {
             if (strncmp($key, 'new', 3) !== 0) {
-                $variantModel = craft()->commerce_variants->getVariantById($key);
-            } else {
+                $variantModel = craft()->commerce_variants->getVariantById($key,$product->locale);
+            }else{
                 $variantModel = new Commerce_VariantModel();
             }
 
+            $variantModel->setProduct($product);
             $variantModel->setAttributes($variant);
+            $variantModel->sortOrder = $count++;
+
             if (isset($variant['fields'])) {
                 $variantModel->setContentFromPost($variant['fields']);
             }
-            $variantModel->locale = $element->locale;
-            $variantModel->sortOrder = $count++;
-            $variantModel->setProduct($element);
+
+            if(!$variantModel->getProduct()->getType()->hasVariantTitleField){
+                $variantModel->getContent()->title = craft()->templates->renderObjectTemplate($variantModel->getProduct()->getType()->titleFormat, $variantModel);
+            }else{
+                $variantModel->getContent()->title = $variant['title'];
+            }
+
             $variants[] = $variantModel;
         }
 
