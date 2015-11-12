@@ -1,3 +1,4 @@
+{% if customer %}
 {% set orders = craft.commerce.orders.customer(customer).find() %}
 
 <div id="no-orders"{% if orders|length %} class="hidden"{% endif %}>
@@ -48,4 +49,5 @@
         {% endfor %}
         </tbody>
     </table>
+{% endif %}
 {% endif %}
