@@ -113,7 +113,7 @@ class Commerce_ProductTypeModel extends BaseModel
             'hasVariants' => AttributeType::Bool,
             'hasVariantTitleField' => [AttributeType::Bool,'default' => 1],
             'titleFormat' => [AttributeType::String, 'required' => true, 'default' => '{product.title}'],
-            'skuFormat' => [AttributeType::String, 'required' => true, 'default' => '{product.slug}-{sortOrder}'],
+            'skuFormat' => AttributeType::String,
             'template' => AttributeType::Template,
             'fieldLayoutId' => AttributeType::Number,
             'variantFieldLayoutId' => AttributeType::Number,
