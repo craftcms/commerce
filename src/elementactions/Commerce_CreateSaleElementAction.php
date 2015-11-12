@@ -24,7 +24,7 @@ class Commerce_CreateSaleElementAction extends BaseElementAction
      */
     public function getName()
     {
-        return Craft::t('Create sale from selected products…');
+        return Craft::t('Create sale…');
     }
 
     /**
