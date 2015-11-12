@@ -24,7 +24,7 @@ class Commerce_CreateDiscountElementAction extends BaseElementAction
      */
     public function getName()
     {
-        return Craft::t('Create discount coupon that affects the selected products…');
+        return Craft::t('Create discount…');
     }
 
     /**
