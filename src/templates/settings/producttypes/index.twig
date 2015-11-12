@@ -1,14 +1,13 @@
 {% extends "commerce/_layouts/settings" %}
 
-{% set title = "Product Types"|t %}
-
-{% set selectedTab = 'settings' %}
-
 {% block content %}
-
     <h2>{{ "Product Types"|t }}</h2>
 
-    {%  if productTypes|length %}
+    <div id="no-product-types"{% if productTypes|length %} class="hidden"{% endif %}>
+        <p>{{ "No product types exist yet."|t }}</p>
+    </div>
+
+    {% if productTypes|length %}
     <table id="producttypes" class="data fullwidth collapsible">
         <thead>
         <tr>
@@ -30,8 +29,6 @@
 
         </tbody>
     </table>
-    {% else %}
-    <p>{{ "No product types exist yet."|t }}</p>
     {% endif %}
 
     <div class="buttons">

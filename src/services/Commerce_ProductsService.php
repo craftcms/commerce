@@ -69,8 +69,10 @@ class Commerce_ProductsService extends BaseApplicationComponent
         $defaultVariant = null;
         foreach ($product->getVariants() as $variant) {
 
-            $titleFormat = $productType->titleFormat ? $productType->titleFormat : '{sku';
-            $variant->getContent()->title = craft()->templates->renderObjectTemplate($titleFormat, $variant);
+            if (!$productType->hasVariantTitleField)
+            {
+                $variant->getContent()->title = craft()->templates->renderObjectTemplate($productType->titleFormat, $variant);
+            }
 
             // Make the first variant (or the last one that says it isDefault) the default.
             if ($defaultVariant === null || $variant->isDefault)
@@ -80,8 +82,8 @@ class Commerce_ProductsService extends BaseApplicationComponent
 
             if (!craft()->commerce_variants->validateVariant($variant)) {
                 $variantsValid = false;
-                if($variant->getError('title') && !$variant->getError('sku')){
-                    $variant->addError('sku',Craft::t('Could not generate the title from variant. Ensure custom fields used to generate the variant title are set to required.'));
+                if($variant->getError('title') && !$productType->hasVariantTitleField){
+                    $variant->addError('sku',Craft::t('Could not generate the variant title from product type’s title format.'));
                 }
             }
         }

@@ -62,8 +62,9 @@ class Commerce_OrdersService extends BaseApplicationComponent
     {
         $criteria = craft()->elements->getCriteria('Commerce_Order');
         $criteria->customer = $customer;
+        $criteria->limit = null;
 
-        return $criteria->first();
+        return $criteria->find();
     }
 
     /**

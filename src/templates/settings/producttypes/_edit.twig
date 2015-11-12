@@ -104,18 +104,29 @@
     {% endmacro %}
 
     {% macro titleFormatField(productType) %}
-        {% from "_includes/forms" import textField %}
+        {% from "_includes/forms" import textField, checkboxField %}
 
         <div id="variant-settings"{% if not productType.hasVariants %} class="hidden"{% endif %}>
-        {{ textField({
-            label: "Variant Title Format"|t,
-            instructions: "What the auto-generated variant titles should look like. You can include tags that output variant properties, such as {ex1} or {ex2}. All custom fields used must be set to required."|t({ ex1: '<code>{sku}</code>', ex2: '<code>{myCustomField}</code>' }),
-            id: 'titleFormat',
-            class: 'ltr',
-            name: 'titleFormat',
-            value: productType.titleFormat,
-            errors: productType.getErrors('titleFormat')
+
+        {{ checkboxField({
+            label: "Show the Title field for variants?"|t,
+            name: 'hasVariantTitleField',
+            reverseToggle: 'titleFormat-container',
+            checked: productType.hasVariantTitleField
         }) }}
+
+        <div id="titleFormat-container"{% if productType.hasVariantTitleField %} class="hidden"{% endif %}>
+            {{ textField({
+                label: "Variant Title Format"|t,
+                instructions: "What the auto-generated variant titles should look like. You can include tags that output variant properties, such as {ex1} or {ex2}. All custom fields used must be set to required."|t({ ex1: '<code>{sku}</code>', ex2: '<code>{myVariantsCustomField}</code>' }),
+                id: 'titleFormat',
+                class: 'ltr',
+                name: 'titleFormat',
+                value: productType.titleFormat,
+                errors: productType.getErrors('titleFormat')
+            }) }}
+        </div>
+
         </div>
     {% endmacro %}
 
