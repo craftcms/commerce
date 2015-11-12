@@ -16,6 +16,14 @@
 
                 {{ getCsrfInput() }}
 
+                {% if not order.email %}
+                <label for="">Email</label>
+                <input class="u-full-width" type="text" value="{{ cart.email }}" name="email"
+                       placeholder="email@site.com"/>
+
+                <span class="flash">{{ cart.getErrors('email')|join }}</span><br>
+                {% endif %}
+
                 {% include 'commerce/_includes/addresses/fieldset' with {
                     title: "Shipping Address"|t,
                     class: 'ShippingAddress',
