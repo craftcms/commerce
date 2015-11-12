@@ -74,6 +74,9 @@ class Commerce_ProductsService extends BaseApplicationComponent
                 $variant->getContent()->title = craft()->templates->renderObjectTemplate($productType->titleFormat, $variant);
             }
 
+            $sku = craft()->templates->renderObjectTemplate($productType->skuFormat, $variant);
+            $variant->sku = $variant->sku ? $variant->sku : $sku;
+
             // Make the first variant (or the last one that says it isDefault) the default.
             if ($defaultVariant === null || $variant->isDefault)
             {

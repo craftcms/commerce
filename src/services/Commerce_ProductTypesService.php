@@ -175,6 +175,7 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
         $productTypeRecord->hasVariants = $productType->hasVariants;
         $productTypeRecord->hasVariantTitleField = $productType->hasVariantTitleField;
         $productTypeRecord->titleFormat = $productType->titleFormat ? $productType->titleFormat : "{product.title}";
+        $productTypeRecord->skuFormat = $productType->skuFormat;
         $productTypeRecord->template = $productType->template;
 
         if(!$isNewProductType && !$productType->hasVariantTitleField){

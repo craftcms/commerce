@@ -71,6 +71,7 @@ class Commerce_ProductTypesController extends Commerce_BaseAdminController
         $productType->hasVariantTitleField = craft()->request->getPost('hasVariantTitleField');
         $productType->template = craft()->request->getPost('template');
         $productType->titleFormat = craft()->request->getPost('titleFormat');
+        $productType->skuFormat = craft()->request->getPost('skuFormat');
 
         $locales = [];
 
