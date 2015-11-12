@@ -18,7 +18,7 @@ class Commerce_CartService extends BaseApplicationComponent
     /** @var string Session key for storing the cart number */
     protected $cookieCartId = 'commerce_cookie';
     /** @var Commerce_OrderModel */
-    private $cart;
+    private $_cart;
 
     /**
      * @param Commerce_OrderModel $order
@@ -238,37 +238,35 @@ class Commerce_CartService extends BaseApplicationComponent
     public function getCart()
     {
 
-        if (!isset($this->cart)) {
+        if (!isset($this->_cart)) {
             $number = $this->_getSessionCartNumber();
 
             if ($cart = $this->_getCartRecordByNumber($number)) {
-                $this->cart = Commerce_OrderModel::populateModel($cart);
+                $this->_cart = Commerce_OrderModel::populateModel($cart);
             } else {
-                $this->cart = new Commerce_OrderModel;
-                $this->cart->number = $number;
+                $this->_cart = new Commerce_OrderModel;
+                $this->_cart->number = $number;
             }
 
-            $this->cart->lastIp = craft()->request->getIpAddress();
+            $this->_cart->lastIp = craft()->request->getIpAddress();
 
             // Right now, orders are only made in the default currency
-            $this->cart->currency = craft()->commerce_settings->getOption('defaultCurrency');
+            $this->_cart->currency = craft()->commerce_settings->getOption('defaultCurrency');
 
             // Update the cart if the customer has changed and recalculate the cart.
             $customer = craft()->commerce_customers->getCustomer();
-            if ($customer->id) {
-                if (!$this->cart->isEmpty() && $this->cart->customerId != $customer->id) {
-                    $this->cart->customerId = $customer->id;
-                    $this->cart->email = $customer->email;
-                    $this->cart->billingAddressId = null;
-                    $this->cart->shippingAddressId = null;
-                    $this->cart->billingAddressData = null;
-                    $this->cart->shippingAddressData = null;
-                    craft()->commerce_orders->saveOrder($this->cart);
-                }
+            if (!$this->_cart->isEmpty() && $this->_cart->customerId != $customer->id) {
+                $this->_cart->customerId = $customer->id;
+                $this->_cart->email = $customer->email;
+                $this->_cart->billingAddressId = null;
+                $this->_cart->shippingAddressId = null;
+                $this->_cart->billingAddressData = null;
+                $this->_cart->shippingAddressData = null;
+                craft()->commerce_orders->saveOrder($this->_cart);
             }
         }
 
-        return $this->cart;
+        return $this->_cart;
     }
 
     /**

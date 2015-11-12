@@ -68,6 +68,7 @@ class Commerce_ProductTypesController extends Commerce_BaseAdminController
         $productType->hasDimensions = craft()->request->getPost('hasDimensions');
         $productType->hasUrls = craft()->request->getPost('hasUrls');
         $productType->hasVariants = craft()->request->getPost('hasVariants');
+        $productType->hasVariantTitleField = craft()->request->getPost('hasVariantTitleField');
         $productType->template = craft()->request->getPost('template');
         $productType->titleFormat = craft()->request->getPost('titleFormat');
 
@@ -114,7 +115,7 @@ class Commerce_ProductTypesController extends Commerce_BaseAdminController
 
         $productTypeId = craft()->request->getRequiredPost('id');
 
-        craft()->commerce_productTypes->deleteById($productTypeId);
+        craft()->commerce_productTypes->deleteProductTypeById($productTypeId);
         $this->returnJson(['success' => true]);
     }
 } 

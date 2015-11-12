@@ -62,6 +62,26 @@ class Commerce_CustomerModel extends BaseModel
     }
 
     /**
+     * Returns the addresses associated with this customer.
+     *
+     * @return Commerce_AddressModel[]
+     */
+    public function getAddresses()
+    {
+        return craft()->commerce_addresses->getAddressesByCustomerId($this->id);
+    }
+
+    /**
+     * Returns the order elements associated with this customer.
+     *
+     * @return Commerce_OrderModel[]
+     */
+    public function getOrders()
+    {
+        return craft()->commerce_orders->getOrdersByCustomer($this);
+    }
+
+    /**
      * Returns the last used Billing Address used by the customer if it exists.
      *
      * @return Commerce_AddressModel|null

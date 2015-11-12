@@ -89,6 +89,20 @@
                 </div>
             </div>
 
+            {% if cart.paymentMethod.class == 'Stripe' %}
+                    <script
+                            src="//checkout.stripe.com/checkout.js" class="stripe-button"
+                            data-key="<ENTER YOUR STRIPE PUBLISHABLE KEY HERE>"
+                            data-name="Craft Commerce"
+                            data-description="Purchase"
+                            data-email="{{ cart.email }}"
+                            data-amount="{{ cart.totalPrice * 100 }}"
+                            data-locale="auto">
+                    </script>
+            {% endif %}
+
+
+            {% if cart.paymentMethod.class != 'Stripe' %}
             <fieldset>
                 {% if cart.paymentMethod.requiresCard() %}
                     {% set currentYear = date()|date_modify("+1 year").format('Y') %}
@@ -190,6 +204,7 @@
                 <!-- Submit -->
                 <button class="button button-primary" type="submit">Pay Now</button>
             </fieldset>
+            {% endif %}
         </form>
     {% endif %}
 

@@ -418,18 +418,23 @@ class Commerce_ProductsController extends Commerce_BaseCpController
         $count = 1;
         foreach ($variantsPost as $key => $variant) {
             if (strncmp($key, 'new', 3) !== 0) {
-                $variantModel = craft()->commerce_variants->getVariantById($key);
+                $variantModel = craft()->commerce_variants->getVariantById($key,$product->locale);
             }else{
                 $variantModel = new Commerce_VariantModel();
             }
 
+            $variantModel->setProduct($product);
             $variantModel->setAttributes($variant);
-            if(isset($variant['fields'])){
+            $variantModel->sortOrder = $count++;
+
+            if (isset($variant['fields'])) {
                 $variantModel->setContentFromPost($variant['fields']);
             }
-            $variantModel->locale = $product->locale;
-            $variantModel->sortOrder = $count++;
-            $variantModel->setProduct($product);
+
+            if (isset($variant['title'])) {
+                $variantModel->getContent()->title = $variant['title'];
+            }
+
             $variants[] = $variantModel;
         }
 
