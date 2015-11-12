@@ -281,7 +281,7 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
             'length' => [AttributeType::Number, 'decimals' => 4],
             'weight' => [AttributeType::Number, 'decimals' => 4],
             'stock' => [AttributeType::Number],
-            'unlimitedStock' => [AttributeType::Bool, 'default' => 1],
+            'unlimitedStock' => [AttributeType::Bool, 'default' => 0],
             'minQty' => [AttributeType::Number],
             'maxQty' => [AttributeType::Number]
         ]);
