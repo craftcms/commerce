@@ -1,5 +1,5 @@
 {% if customer %}
-{% set orders = craft.commerce.orders.customer(customer).find() %}
+{% set orders = customer.orders %}
 
 <div id="no-orders"{% if orders|length %} class="hidden"{% endif %}>
     <p>{{ "No orders exist for this user yet."|t }}</p>
