@@ -18,11 +18,11 @@ class Commerce_ShippingRulesService extends BaseApplicationComponent
      *
      * @return Commerce_ShippingRuleModel[]
      */
-    public function getAll($criteria = [])
+    public function getAllShippingRules($criteria = [])
     {
-        $records = Commerce_ShippingRuleRecord::model()->findAll($criteria);
+        $results = Commerce_ShippingRuleRecord::model()->findAll($criteria);
 
-        return Commerce_ShippingRuleModel::populateModels($records);
+        return Commerce_ShippingRuleModel::populateModels($results);
     }
 
     /**
@@ -30,89 +30,27 @@ class Commerce_ShippingRulesService extends BaseApplicationComponent
      *
      * @return Commerce_ShippingRuleModel[]
      */
-    public function getAllByMethodId($id)
+    public function getAllShippingRulesByShippingMethodId($id)
     {
-        $records = Commerce_ShippingRuleRecord::model()->findAllByAttributes(['methodId' => $id], ['order' => 'priority ASC']);
+        $results = Commerce_ShippingRuleRecord::model()->findAllByAttributes(['methodId' => $id], ['order' => 'priority ASC']);
 
-        return Commerce_ShippingRuleModel::populateModels($records);
+        return Commerce_ShippingRuleModel::populateModels($results);
     }
 
     /**
      * @param int $id
      *
-     * @return Commerce_ShippingRuleModel
+     * @return Commerce_ShippingRuleModel|null
      */
-    public function getById($id)
+    public function getShippingRuleById($id)
     {
-        $record = Commerce_ShippingRuleRecord::model()->findById($id);
+        $result = Commerce_ShippingRuleRecord::model()->findById($id);
 
-        return Commerce_ShippingRuleModel::populateModel($record);
-    }
-
-    /**
-     * @param Commerce_ShippingRuleModel $rule
-     * @param Commerce_OrderModel $order
-     *
-     * @return bool
-     */
-    public function matchOrder(
-        Commerce_ShippingRuleModel $rule,
-        Commerce_OrderModel $order
-    )
-    {
-        if (!$rule->enabled) {
-            return false;
+        if ($result) {
+            return Commerce_ShippingRuleModel::populateModel($result);
         }
 
-        $floatFields = ['minTotal', 'maxTotal', 'minWeight', 'maxWeight'];
-        foreach ($floatFields as $field) {
-            $rule->$field *= 1;
-        }
-
-        // if the rule uses a country or state but the order has no shipping address yet
-        // TODO: default shipping country?
-        if ($rule->countryId && !$order->shippingAddressId) {
-            return false;
-        }
-
-        if ($rule->stateId && !$order->shippingAddressId) {
-            return false;
-        }
-
-        // geographical filters
-        if ($rule->countryId && $rule->countryId != $order->shippingAddress->countryId) {
-            return false;
-        }
-        if ($rule->stateId && $rule->state->name != $order->shippingAddress->getStateText()) {
-            return false;
-        }
-
-        // order qty rules are inclusive (min <= x <= max)
-        if ($rule->minQty AND $rule->minQty > $order->totalQty) {
-            return false;
-        }
-        if ($rule->maxQty AND $rule->maxQty < $order->totalQty) {
-            return false;
-        }
-
-        // order total rules exclude maximum limit (min <= x < max)
-        if ($rule->minTotal AND $rule->minTotal > $order->itemTotal) {
-            return false;
-        }
-        if ($rule->maxTotal AND $rule->maxTotal <= $order->itemTotal) {
-            return false;
-        }
-
-        // order weight rules exclude maximum limit (min <= x < max)
-        if ($rule->minWeight AND $rule->minWeight > $order->totalWeight) {
-            return false;
-        }
-        if ($rule->maxWeight AND $rule->maxWeight <= $order->totalWeight) {
-            return false;
-        }
-
-        // all rules match
-        return true;
+        return null;
     }
 
     /**
@@ -123,7 +61,7 @@ class Commerce_ShippingRulesService extends BaseApplicationComponent
      * @throws \CDbException
      * @throws \Exception
      */
-    public function save(Commerce_ShippingRuleModel $model)
+    public function saveShippingRule(Commerce_ShippingRuleModel $model)
     {
         if ($model->id) {
             $record = Commerce_ShippingRuleRecord::model()->findById($model->id);
@@ -190,7 +128,7 @@ class Commerce_ShippingRulesService extends BaseApplicationComponent
      *
      * @return bool
      */
-    public function reorder($ids)
+    public function reorderShippingRules($ids)
     {
         foreach ($ids as $sortOrder => $id) {
             craft()->db->createCommand()->update('commerce_shippingrules',
@@ -203,7 +141,7 @@ class Commerce_ShippingRulesService extends BaseApplicationComponent
     /**
      * @param int $id
      */
-    public function deleteById($id)
+    public function deleteShippingRuleById($id)
     {
         Commerce_ShippingRuleRecord::model()->deleteByPk($id);
     }

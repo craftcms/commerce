@@ -18,7 +18,7 @@ class Commerce_TaxZonesController extends Commerce_BaseAdminController
      */
     public function actionIndex()
     {
-        $taxZones = craft()->commerce_taxZones->getAll();
+        $taxZones = craft()->commerce_taxZones->getAllTaxZones();
         $this->renderTemplate('commerce/settings/taxzones/index',
             compact('taxZones'));
     }
@@ -35,9 +35,9 @@ class Commerce_TaxZonesController extends Commerce_BaseAdminController
         if (empty($variables['taxZone'])) {
             if (!empty($variables['id'])) {
                 $id = $variables['id'];
-                $variables['taxZone'] = craft()->commerce_taxZones->getById($id);
+                $variables['taxZone'] = craft()->commerce_taxZones->getTaxZoneById($id);
 
-                if (!$variables['taxZone']->id) {
+                if (!$variables['taxZone']) {
                     throw new HttpException(404);
                 }
             } else {
@@ -48,11 +48,11 @@ class Commerce_TaxZonesController extends Commerce_BaseAdminController
         if (!empty($variables['id'])) {
             $variables['title'] = $variables['taxZone']->name;
         } else {
-            $variables['title'] = Craft::t('Create a Tax Zone');
+            $variables['title'] = Craft::t('Create a tax zone');
         }
 
-        $countries = craft()->commerce_countries->getAll();
-        $states = craft()->commerce_states->getAll();
+        $countries = craft()->commerce_countries->getAllCountries();
+        $states = craft()->commerce_states->getAllStates();
 
         $variables['countries'] = \CHtml::listData($countries, 'id', 'name');
         $variables['states'] = \CHtml::listData($states, 'id', 'name');
@@ -79,13 +79,25 @@ class Commerce_TaxZonesController extends Commerce_BaseAdminController
         $statesIds = craft()->request->getPost('states', []);
 
         // Save it
-        if (craft()->commerce_taxZones->save($taxZone, $countriesIds,
-            $statesIds)
-        ) {
-            craft()->userSession->setNotice(Craft::t('Tax Zone saved.'));
-            $this->redirectToPostedUrl($taxZone);
+        if (craft()->commerce_taxZones->saveTaxZone($taxZone, $countriesIds, $statesIds)) {
+            if (craft()->request->isAjaxRequest()) {
+                $this->returnJson([
+                    'success' => true,
+                    'id' => $taxZone->id,
+                    'name' => $taxZone->name,
+                ]);
+            } else {
+                craft()->userSession->setNotice(Craft::t('Tax zone saved.'));
+                $this->redirectToPostedUrl($taxZone);
+            }
         } else {
-            craft()->userSession->setError(Craft::t('Couldn’t save tax zone.'));
+            if (craft()->request->isAjaxRequest()) {
+                $this->returnJson([
+                    'errors' => $taxZone->getErrors()
+                ]);
+            } else {
+                craft()->userSession->setError(Craft::t('Couldn’t save tax zone.'));
+            }
         }
 
         // Send the model back to the template
@@ -102,7 +114,7 @@ class Commerce_TaxZonesController extends Commerce_BaseAdminController
 
         $id = craft()->request->getRequiredPost('id');
 
-        craft()->commerce_taxZones->deleteById($id);
+        craft()->commerce_taxZones->deleteTaxZoneById($id);
         $this->returnJson(['success' => true]);
     }
 

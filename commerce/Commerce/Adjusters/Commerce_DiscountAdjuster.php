@@ -30,16 +30,17 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
             return [];
         }
 
-        $discount = \Craft\craft()->commerce_discounts->getByCode($order->couponCode);
-        if (!$discount->id) {
-            return [];
+        $discounts = \Craft\craft()->commerce_discounts->getAllDiscounts([
+            'condition' => 'code = :code OR code IS NULL',
+            'params' => ['code' => $order->couponCode],
+        ]);
+        $adjustments = [];
+        foreach ($discounts as $discount) {
+            if ($adjustment = $this->getAdjustment($order, $lineItems, $discount)) {
+                $adjustments[] = $adjustment;
+            }
         }
-
-        if ($adjustment = $this->getAdjustment($order, $lineItems, $discount)) {
-            return [$adjustment];
-        } else {
-            return [];
-        }
+        return $adjustments;
     }
 
     /**
@@ -62,8 +63,10 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
         //checking items
         $matchingQty = 0;
         $matchingTotal = 0;
+        $matchingLineIds = [];
         foreach ($lineItems as $item) {
             if (\Craft\craft()->commerce_discounts->matchLineItem($item, $discount)) {
+                $matchingLineIds[] = $item->id;
                 $matchingQty += $item->qty;
                 $matchingTotal += $item->getSubtotalWithSale();
             }
@@ -87,19 +90,21 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
         $amount += $discount->percentDiscount * $matchingTotal;
 
         foreach ($lineItems as $item) {
-            $item->discount = $discount->perItemDiscount * $item->qty + $discount->percentDiscount * $item->getSubtotalWithSale();
-            // If the discount is larger than the subtotal
-            // make the discount equal the discount, thus making the item free.
-            if (($item->discount * -1) > $item->getSubtotalWithSale()) {
-                $item->discount = -$item->getSubtotalWithSale();
-            }
+            if (in_array($item->id, $matchingLineIds)) {
+                $item->discount += $discount->perItemDiscount * $item->qty + $discount->percentDiscount * $item->getSubtotalWithSale();
+                // If the discount is larger than the subtotal
+                // make the discount equal the discount, thus making the item free.
+                if (($item->discount * -1) > $item->getSubtotalWithSale()) {
+                    $item->discount = -$item->getSubtotalWithSale();
+                }
 
-            if (!$item->purchasable->product->promotable) {
-                $item->discount = 0;
-            }
+                if (!$item->purchasable->product->promotable) {
+                    $item->discount = 0;
+                }
 
-            if ($discount->freeShipping) {
-                $item->shippingCost = 0;
+                if ($discount->freeShipping) {
+                    $item->shippingCost = 0;
+                }
             }
         }
 
@@ -107,7 +112,7 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
             $order->baseShippingCost = 0;
         }
 
-        $order->baseDiscount = $discount->baseDiscount;
+        $order->baseDiscount += $discount->baseDiscount;
 
         // only display adjustment if an amount was calculated
         if ($amount) {

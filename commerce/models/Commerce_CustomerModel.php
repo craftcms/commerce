@@ -32,8 +32,7 @@ class Commerce_CustomerModel extends BaseModel
      *
      * @return bool
      */
-    public
-    function isEditable()
+    public function isEditable()
     {
         return true;
     }
@@ -43,17 +42,101 @@ class Commerce_CustomerModel extends BaseModel
      *
      * @return string|false
      */
-    public
-    function getCpEditUrl()
+    public function getCpEditUrl()
     {
         return UrlHelper::getCpUrl('commerce/customers/' . $this->id);
     }
 
     /**
+     * Returns the user element associated with this customer.
+     *
+     * @return UserModel|null
+     */
+    public function getUser()
+    {
+        if ($this->userId) {
+            return craft()->users->getUserById($this->userId);
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns the addresses associated with this customer.
+     *
+     * @return Commerce_AddressModel[]
+     */
+    public function getAddresses()
+    {
+        return craft()->commerce_addresses->getAddressesByCustomerId($this->id);
+    }
+
+    /**
+     * Returns the order elements associated with this customer.
+     *
+     * @return Commerce_OrderModel[]
+     */
+    public function getOrders()
+    {
+        return craft()->commerce_orders->getOrdersByCustomer($this);
+    }
+
+    /**
+     * Returns the last used Billing Address used by the customer if it exists.
+     *
+     * @return Commerce_AddressModel|null
+     */
+    public function getLastUsedBillingAddress()
+    {
+        if ($this->lastUsedBillingAddressId) {
+            $address = $this->getAddress($this->lastUsedBillingAddressId);
+            if ($address) {
+                return $address;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Gets a single address of a customer by id
+     *
+     * @param null $id
+     * @return mixed
+     */
+    public function getAddress($id = null)
+    {
+        $addresses = craft()->commerce_addresses->getAddressesByCustomerId($this->id);
+        foreach ($addresses as $address) {
+            if ($id == $address->id) {
+                return $address;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns the last used Shipping Address used by the customer if it exists.
+     *
+     * @return Commerce_AddressModel|null
+     */
+    public function getLastUsedShippingAddress()
+    {
+        if ($this->lastUsedShippingAddressId) {
+            $address = $this->getAddress($this->lastUsedShippingAddressId);
+            if ($address) {
+                return $address;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * @return array
      */
-    protected
-    function defineAttributes()
+    protected function defineAttributes()
     {
         return array_merge(parent::defineAttributes(), [
             'id' => AttributeType::Number,

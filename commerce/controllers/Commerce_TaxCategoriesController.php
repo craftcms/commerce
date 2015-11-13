@@ -34,7 +34,7 @@ class Commerce_TaxCategoriesController extends Commerce_BaseAdminController
         if (empty($variables['taxCategory'])) {
             if (!empty($variables['id'])) {
                 $id = $variables['id'];
-                $variables['taxCategory'] = craft()->commerce_taxCategories->getById($id);
+                $variables['taxCategory'] = craft()->commerce_taxCategories->getTaxCategoryById($id);
 
                 if (!$variables['taxCategory']) {
                     throw new HttpException(404);
@@ -70,11 +70,25 @@ class Commerce_TaxCategoriesController extends Commerce_BaseAdminController
         $taxCategory->default = craft()->request->getPost('default');
 
         // Save it
-        if (craft()->commerce_taxCategories->save($taxCategory)) {
-            craft()->userSession->setNotice(Craft::t('Tax category saved.'));
-            $this->redirectToPostedUrl($taxCategory);
+        if (craft()->commerce_taxCategories->saveTaxCategory($taxCategory)) {
+            if (craft()->request->isAjaxRequest()) {
+                $this->returnJson([
+                    'success' => true,
+                    'id' => $taxCategory->id,
+                    'name' => $taxCategory->name,
+                ]);
+            } else {
+                craft()->userSession->setNotice(Craft::t('Tax category saved.'));
+                $this->redirectToPostedUrl($taxCategory);
+            }
         } else {
-            craft()->userSession->setError(Craft::t('Couldn’t save tax category.'));
+            if (craft()->request->isAjaxRequest()) {
+                $this->returnJson([
+                    'errors' => $taxCategory->getErrors()
+                ]);
+            } else {
+                craft()->userSession->setError(Craft::t('Couldn’t save tax category.'));
+            }
         }
 
         // Send the tax category back to the template
@@ -93,8 +107,12 @@ class Commerce_TaxCategoriesController extends Commerce_BaseAdminController
 
         $id = craft()->request->getRequiredPost('id');
 
-        craft()->commerce_taxCategories->deleteById($id);
-        $this->returnJson(['success' => true]);
+        if (craft()->commerce_taxCategories->deleteTaxCategoryById($id)) {
+            $this->returnJson(['success' => true]);
+        } else {
+            $this->returnErrorJson(Craft::t('Could not delete tax category'));
+        }
+
     }
 
 }

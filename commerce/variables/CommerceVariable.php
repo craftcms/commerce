@@ -69,7 +69,7 @@ class CommerceVariable
      */
     public function getCountriesList()
     {
-        return craft()->commerce_countries->getFormList();
+        return craft()->commerce_countries->getAllCountriesListData();
     }
 
     /**
@@ -77,17 +77,17 @@ class CommerceVariable
      */
     public function getStatesArray()
     {
-        return craft()->commerce_states->getGroupedByCountries();
+        return craft()->commerce_states->getStatesGroupedByCountries();
     }
 
     /**
      * @return array
      */
-    public function getShippingMethods()
+    public function getAvailableShippingMethods()
     {
         $cart = craft()->commerce_cart->getCart();
 
-        return craft()->commerce_shippingMethods->calculateForCart($cart);
+        return craft()->commerce_shippingMethods->getOrderedAvailableShippingMethods($cart);
     }
 
     /**
@@ -95,7 +95,7 @@ class CommerceVariable
      */
     public function getPaymentMethods()
     {
-        $methods = craft()->commerce_paymentMethods->getAllForFrontend();
+        $methods = craft()->commerce_paymentMethods->getAllFrontEndPaymentMethods();
 
         return \CHtml::listData($methods, 'id', 'name');
     }
@@ -103,14 +103,29 @@ class CommerceVariable
     /**
      * @return array
      */
+    public function getProductTypes()
+    {
+        return craft()->commerce_productTypes->getAllProductTypes();
+    }
+
+    /**
+     * @return array
+     */
     public function getOrderStatuses()
     {
-        $allStatuses = craft()->commerce_orderStatuses->getAll();
-        $statuses = [];
-        foreach($allStatuses as $status){
-            $statuses[] = $status->attributes;
-        }
-        return $statuses;
+        return array_map(function ($status) {
+            return $status->attributes;
+        }, craft()->commerce_orderStatuses->getAll());
+    }
+
+    /**
+     * @return array
+     */
+    public function getTaxCategories()
+    {
+        $taxCategories = craft()->commerce_taxCategories->getAll();
+
+        return \CHtml::listData($taxCategories, 'id', 'name');
     }
 
     /**
@@ -118,7 +133,7 @@ class CommerceVariable
      */
     public function getDiscounts()
     {
-        $discounts = craft()->commerce_discounts->getAll();
+        $discounts = craft()->commerce_discounts->getAllDiscounts();
 
         return $discounts;
     }
@@ -128,7 +143,7 @@ class CommerceVariable
      */
     public function getSales()
     {
-        $sales = craft()->commerce_sales->getAll();
+        $sales = craft()->commerce_sales->getAllSales();
 
         return $sales;
     }

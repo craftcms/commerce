@@ -7,14 +7,22 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  * Product model.
  *
  * @property int $id
- * @property DateTime $availableOn
- * @property DateTime $expiresOn
+ * @property DateTime $postDate
+ * @property DateTime $expiryDate
  * @property int $typeId
  * @property int $authorId
  * @property int $taxCategoryId
  * @property bool $promotable
  * @property bool $freeShipping
  * @property bool $enabled
+ *
+ * @property int defaultVariantId
+ * @property string defaultSku
+ * @property float defaultPrice
+ * @property float defaultHeight
+ * @property float defaultLength
+ * @property float defaultWidth
+ * @property float defaultWeight
  *
  * @property Commerce_ProductTypeModel $type
  * @property Commerce_TaxCategoryModel $taxCategory
@@ -42,16 +50,21 @@ class Commerce_ProductModel extends BaseElementModel
      */
     protected $elementType = 'Commerce_Product';
 
+    /**
+     * @var Commerce_VariantModel[] This product’s variants
+     */
+    private $_variants;
+
     // Public Methods
     // =============================================================================
-
 
     /**
      * @return bool
      */
     public function isEditable()
     {
-        return true;
+        // TODO: Replace with a product type permission check when we have them
+        return craft()->userSession->checkPermission('accessPlugin-commerce');
     }
 
     /**
@@ -70,8 +83,7 @@ class Commerce_ProductModel extends BaseElementModel
     public function getSnapshot()
     {
         $data = [
-            'title' => $this->getTitle(),
-            'name' => $this->getTitle()
+            'title' => $this->getTitle()
         ];
 
         return array_merge($this->getAttributes(), $data);
@@ -82,9 +94,6 @@ class Commerce_ProductModel extends BaseElementModel
      *
      * @return string
      */
-    /**
-     * @return mixed
-     */
     public function getName()
     {
         return $this->title;
@@ -92,10 +101,6 @@ class Commerce_ProductModel extends BaseElementModel
 
     /*
      * Url to edit this Product in the control panel.
-     */
-
-    /**
-     * What is the Url Format for this ProductType
      *
      * @return string
      */
@@ -114,11 +119,25 @@ class Commerce_ProductModel extends BaseElementModel
 
     /**
      * Gets the products type
+     *
+     * @return Commerce_ProductTypeModel
      */
     public function getType()
     {
         if ($this->typeId) {
-            return craft()->commerce_productTypes->getById($this->typeId);
+            return craft()->commerce_productTypes->getProductTypeById($this->typeId);
+        }
+    }
+
+    /**
+     * Gets the tax category
+     *
+     * @return Commerce_TaxCategoryModel|null
+     */
+    public function getTaxCategory()
+    {
+        if ($this->taxCategoryId) {
+            return craft()->commerce_taxCategories->getTaxCategoryById($this->taxCategoryId);
         }
     }
 
@@ -128,6 +147,7 @@ class Commerce_ProductModel extends BaseElementModel
     public function getCpEditUrl()
     {
         $productType = $this->getType();
+        $url = "";
 
         if ($productType) {
             // The slug *might* not be set if this is a Draft and they've deleted it for whatever reason
@@ -136,9 +156,9 @@ class Commerce_ProductModel extends BaseElementModel
             if (craft()->isLocalized() && $this->locale != craft()->language) {
                 $url .= '/' . $this->locale;
             }
-
-            return $url;
         }
+
+        return $url;
     }
 
     /**
@@ -146,11 +166,32 @@ class Commerce_ProductModel extends BaseElementModel
      */
     public function getFieldLayout()
     {
-        if ($this->typeId) {
-            return craft()->commerce_productTypes->getById($this->typeId)->asa('productFieldLayout')->getFieldLayout();
+        $productType = $this->getType();
+
+        if ($productType) {
+            return $productType->asa('productFieldLayout')->getFieldLayout();
         }
 
         return null;
+    }
+
+    /**
+     * Gets the default variant.
+     *
+     * @return Commerce_VariantModel
+     */
+    public function getDefaultVariant()
+    {
+        $defaultVariant = null;
+
+        foreach($this->getVariants() as $variant){
+            if ($defaultVariant === null || $variant->isDefault)
+            {
+                $defaultVariant = $variant;
+            }
+        };
+
+        return $defaultVariant;
     }
 
     /**
@@ -160,15 +201,15 @@ class Commerce_ProductModel extends BaseElementModel
     {
         $status = parent::getStatus();
 
-        if ($status == static::ENABLED && $this->availableOn) {
+        if ($status == static::ENABLED && $this->postDate) {
             $currentTime = DateTimeHelper::currentTimeStamp();
-            $availableOn = $this->availableOn->getTimestamp();
-            $expiresOn = ($this->expiresOn ? $this->expiresOn->getTimestamp() : null);
+            $postDate = $this->postDate->getTimestamp();
+            $expiryDate = ($this->expiryDate ? $this->expiryDate->getTimestamp() : null);
 
-            if ($availableOn <= $currentTime && (!$expiresOn || $expiresOn > $currentTime)) {
+            if ($postDate <= $currentTime && (!$expiryDate || $expiryDate > $currentTime)) {
                 return static::LIVE;
             } else {
-                if ($availableOn > $currentTime) {
+                if ($postDate > $currentTime) {
                     return static::PENDING;
                 } else {
                     return static::EXPIRED;
@@ -187,55 +228,48 @@ class Commerce_ProductModel extends BaseElementModel
         return true;
     }
 
+
     /**
-     * Either only implicit variant if there is only one or all without implicit
-     * Applies sales to the product before returning
+     * @param $variants
+     */
+    public function setVariants($variants)
+    {
+        $this->_variants = $variants;
+    }
+
+    /**
+     * Returns array of variants with sales applied. Will only return an array containing a single
+     * variant when the product's type is set to have no variants.
      *
      * @return Commerce_VariantModel[]
      */
     public function getVariants()
     {
-        $variants = craft()->commerce_variants->getAllByProductId($this->id);
-        craft()->commerce_variants->applySales($variants, $this);
+        if (empty($this->_variants)) {
+            if ($this->id) {
 
-        if ($this->type->hasVariants) {
-            $variants = array_filter($variants, function ($v) {
-                return !$v->isImplicit;
-            });
-        } else {
-            $variants = array_filter($variants, function ($v) {
-                return $v->isImplicit;
-            });
-        }
+                if ($this->getType()->hasVariants) {
+                    $this->_variants = craft()->commerce_variants->getAllVariantsByProductId($this->id, $this->locale);
+                } else {
+                    $variant = craft()->commerce_variants->getPrimaryVariantByProductId($this->id, $this->locale);
+                    if ($variant) {
+                        $this->_variants = [$variant];
+                    }
+                }
 
-        return $variants;
-    }
+                craft()->commerce_variants->applySales($this->_variants, $this);
 
-    /**
-     * @return bool|mixed
-     * @throws Exception
-     */
-    public function getImplicitVariant()
-    {
+            }
 
-        if ($this->id) {
-            $variants = craft()->commerce_variants->getAllByProductId($this->id);
-            craft()->commerce_variants->applySales($variants, $this);
-
-            $implicitVariant = array_filter($variants, function ($v) {
-                return $v->isImplicit;
-            });
-
-            if (count($implicitVariant) == 1) {
-                return array_shift(array_values($implicitVariant));
-            } else {
-                throw new Exception('More than one implicit variant found. Contact Support.');
-
-                return false;
+            if (empty($this->_variants)) {
+                // Must have at least one
+                $variant = new Commerce_VariantModel();
+                $variant->setProduct($this);
+                $this->_variants = [$variant];
             }
         }
 
-        return false;
+        return $this->_variants;
     }
 
     // Protected Methods
@@ -250,10 +284,18 @@ class Commerce_ProductModel extends BaseElementModel
             'typeId' => AttributeType::Number,
             'authorId' => AttributeType::Number,
             'taxCategoryId' => AttributeType::Number,
-            'promotable' => AttributeType::Bool,
+            'promotable' => [AttributeType::Bool,'default'=>true],
             'freeShipping' => AttributeType::Bool,
-            'availableOn' => AttributeType::DateTime,
-            'expiresOn' => AttributeType::DateTime
+            'postDate' => AttributeType::DateTime,
+            'expiryDate' => AttributeType::DateTime,
+
+            'defaultVariantId' => [AttributeType::Number],
+            'defaultSku' => [AttributeType::String, 'label' => 'SKU'],
+            'defaultPrice' => [AttributeType::Number, 'decimals' => 4],
+            'defaultHeight' => [AttributeType::Number, 'decimals' => 4],
+            'defaultLength' => [AttributeType::Number, 'decimals' => 4],
+            'defaultWidth' => [AttributeType::Number, 'decimals' => 4],
+            'defaultWeight' => [AttributeType::Number, 'decimals' => 4]
         ]);
     }
 }

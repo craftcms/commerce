@@ -1,0 +1,90 @@
+{% set countries = craft.commerce.countriesList %}
+{% set states = craft.commerce.statesArray %}
+{% set addressFields = {
+    firstName : 1,
+    lastName : 1,
+    businessName: 0,
+    businessTaxId: 0,
+    address1: 0,
+    address2: 0,
+    city: 0,
+    zipCode: 0,
+    phone: 0,
+    alternativePhone: 0,
+} %}
+
+
+{% set modelName = modelName is defined ? modelName : 'address' %}
+{% set model = address is defined ? address : null %}
+
+<div class="addressBox {{ modelName }}">
+    {% for key,required in addressFields %}
+        <div class="form-group {% if model and model.getErrors(key) %}has-error{% endif %}">
+            <label for="{{ modelName }}-{{ key }}">{{ key|title }}{{ required ? '*' : '' }}</label>
+            <input type="text" id="{{ modelName }}-{{ key }}" class="u-full-width" name="{{ modelName }}[{{ key }}]"
+                   value="{{ model ? model[key] : '' }}">
+            {% if model and model.getErrors(key) %}
+                <span class="flash">{{ model.getErrors(key)|join }}</span>
+            {% endif %}
+        </div>
+    {% endfor %}
+
+    <div class="form-group {% if model and model.getErrors('countryId') %}has-error{% endif %}">
+        <label for="{{ modelName }}-countryId">Country</label>
+        <select class="address-country" name="{{ modelName ~ '[countryId]' }}">
+            {% for key, option in countries %}
+                {% set optionValue = (model ? model.countryId : '') %}
+                <option value="{{ key }}" {% if key == optionValue %} selected{% endif %}>{{ option }}</option>
+            {% endfor %}
+        </select>
+        {% if model and model.getErrors('countryId') %}
+            <span class="flash">{{ model.getErrors('countryId')|join }}</span>
+        {% endif %}
+    </div>
+
+    <div class="form-group {% if model and model.getErrors('stateId') %}has-error{% endif %}">
+        <label for="{{ modelName }}-stateId">State</label>
+        <select class="address-state" name="{{ modelName ~ '[stateId]' }}">
+            {% set options = (model and states[model.countryId] is defined ? states[model.countryId] : []) %}
+            {% for key, option in options %}
+                {% set optionValue = (model ? model.stateId : '') %}
+                <option value="{{ key }}" {% if key == optionValue %} selected{% endif %}>{{ option }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-group {% if model and model.getErrors('stateId') %}has-error{% endif %}">
+        <label for="{{ modelName }}-stateName">State Name</label>
+        <input type="text" id="{{ modelName }}-stateName" class="u-full-width" name="{{ modelName }}[stateName]"
+               value="{{ model ? model.stateName : '' }}">
+        {% if model and model.getErrors('stateName') %}
+            <span class="flash">{{ model.getErrors('stateName')|join }}</span>
+        {% endif %}
+    </div>
+
+</div>
+    {% includejs %}
+    var states = {{ craft.commerce.statesArray|json_encode|raw }};
+
+    $('select.address-country').change(function ()
+    {
+        var cid = $(this).val();
+        var $states = $(this).closest('.addressBox').find('select.address-state');
+        $states.find('option').remove();
+
+        if (states.hasOwnProperty(cid))
+        {
+            for (var id in states[cid])
+            {
+                var state = states[cid][id],
+                        $option = $('<option/>');
+
+                $option.attr('value', id).text(state);
+                $states.append($option);
+            }
+        }
+
+    });
+
+    $('select').addClass('form-control input-sm');
+
+    {% endincludejs %}

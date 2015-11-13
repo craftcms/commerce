@@ -2,6 +2,7 @@
 namespace Craft;
 
 use Commerce\Helpers\CommerceDbHelper;
+use Commerce\Interfaces\ShippingMethod;
 
 /**
  * Shipping method service.
@@ -16,51 +17,108 @@ use Commerce\Helpers\CommerceDbHelper;
 class Commerce_ShippingMethodsService extends BaseApplicationComponent
 {
     /**
+     * @var bool
+     */
+    private $_shippingMethods;
+
+    /**
      * @param int $id
      *
-     * @return Commerce_ShippingMethodModel
+     * @return Commerce_ShippingMethodModel|null
      */
-    public function getById($id)
+    public function getShippingMethodById($id)
     {
-        $record = Commerce_ShippingMethodRecord::model()->findById($id);
+        $result = Commerce_ShippingMethodRecord::model()->findById($id);
 
-        return Commerce_ShippingMethodModel::populateModel($record);
-    }
-
-    /**
-     * Gets the default method or first available if no default set.
-     */
-    public function getDefault()
-    {
-        $method = Commerce_ShippingMethodRecord::model()->findByAttributes(['default' => true]);
-        if (!$method) {
-            $records = $this->getAll();
-            if (!$records) {
-                throw new Exception(Craft::t('You have no Shipping Methods set up.'));
-            }
-
-            return $records[0];
+        if ($result) {
+            return Commerce_ShippingMethodModel::populateModel($result);
         }
 
-        return $method;
+        return null;
     }
 
     /**
+     * @param string $handle
+     *
+     * @return \Commerce\Interfaces\ShippingMethod|null
+     */
+    public function getShippingMethodByHandle($handle)
+    {
+        $methods = $this->getAllShippingMethods();
+
+        foreach ($methods as $method) {
+            if ($method->getHandle() == $handle) {
+                return $method;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns the Commerce managed and 3rd party shipping methods
+     *
+     * @return Commerce_ShippingMethodModel[]
+     */
+    public function getAllShippingMethods()
+    {
+        if (!isset($this->_shippingMethods)) {
+            $methods = $this->getAllCoreShippingMethods();
+
+            $additionalMethods = craft()->plugins->call('commerce_registerShippingMethods');
+
+            foreach ($additionalMethods as $additional) {
+                $methods = array_merge($methods, $additional);
+            }
+
+            $this->_shippingMethods = $methods;
+        }
+
+        return $this->_shippingMethods;
+    }
+
+    /**
+     * Returns the Commerce managed shipping methods
+     *
      * @param array|\CDbCriteria $criteria
      *
      * @return Commerce_ShippingMethodModel[]
      */
-    public function getAll($criteria = [])
+    public function getAllCoreShippingMethods($criteria = [])
     {
         $records = Commerce_ShippingMethodRecord::model()->findAll($criteria);
 
-        return Commerce_ShippingMethodModel::populateModels($records);
+        $methods = Commerce_ShippingMethodModel::populateModels($records);
+
+        return $methods;
+
+    }
+
+    /**
+     * Returns the Commerce managed shipping methods
+     *
+     * @param array|\CDbCriteria $criteria
+     *
+     * @return Commerce_ShippingMethodModel[]
+     */
+    public function getAllThirdPartyShippingMethods($criteria = [])
+    {
+        $methods = [];
+
+        $additionalMethods = craft()->plugins->call('commerce_registerShippingMethods');
+
+        foreach ($additionalMethods as $additional) {
+            $methods = array_merge($methods, $additional);
+        }
+
+        return $methods;
+
     }
 
     /**
      * @return bool
      */
-    public function exists()
+    public function ShippingMethodExists()
     {
         return Commerce_ShippingMethodRecord::model()->exists();
     }
@@ -70,27 +128,30 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
      *
      * @return array
      */
-    public function calculateForCart(Commerce_OrderModel $cart)
+    public function getAvailableShippingMethods(Commerce_OrderModel $cart)
     {
         $availableMethods = [];
-        $methods = $this->getAll(['with' => 'rules']);
+        $methods = $this->getAllShippingMethods();
 
         foreach ($methods as $method) {
-            if ($method->enabled) {
-                if ($rule = $this->getMatchingRule($cart, $method)) {
-                    $amount = $rule->baseRate;
-                    $amount += $rule->perItemRate * $cart->totalQty;
-                    $amount += $rule->weightRate * $cart->totalWeight;
-                    $amount += $rule->percentageRate * $cart->itemTotal;
-                    $amount = max($amount, $rule->minRate * 1);
+            if ($method->getIsEnabled()) {
+                if ($rule = $this->getMatchingShippingRule($cart, $method)) {
+                    $amount = $rule->getBaseRate();
+                    $amount += $rule->getPerItemRate() * $cart->totalQty;
+                    $amount += $rule->getWeightRate() * $cart->totalWeight;
+                    $amount += $rule->getPercentageRate() * $cart->itemTotal;
+                    $amount = max($amount, $rule->getMinRate() * 1);
 
-                    if ($rule->maxRate * 1) {
-                        $amount = min($amount, $rule->maxRate * 1);
+                    if ($rule->getMaxRate() * 1) {
+                        $amount = min($amount, $rule->getMaxRate() * 1);
                     }
 
-                    $availableMethods[$method->id] = [
-                        'name' => $method->name,
+                    $availableMethods[$method->getHandle()] = [
+                        'name' => $method->getName(),
+                        'description' => $rule->getDescription(),
                         'amount' => $amount,
+                        'handle' => $method->getHandle(),
+                        'type' => $method->getType()
                     ];
                 }
             }
@@ -100,18 +161,35 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
     }
 
     /**
+     * @param Commerce_OrderModel $cart
+     * @return array
+     */
+    public function getOrderedAvailableShippingMethods($cart)
+    {
+        $availableMethods = $this->getAvailableShippingMethods($cart);
+
+        uasort($availableMethods, function($a, $b) {
+            return $a['amount'] - $b['amount'];
+        });
+
+        return $availableMethods;
+
+    }
+
+    /**
      * @param Commerce_OrderModel $order
-     * @param Commerce_ShippingMethodModel $method
+     * @param \Commerce\Interfaces\ShippingMethod $method
      *
      * @return bool|Commerce_ShippingRuleModel
      */
-    public function getMatchingRule(
+    public function getMatchingShippingRule(
         Commerce_OrderModel $order,
-        Commerce_ShippingMethodModel $method
+        ShippingMethod $method
     )
     {
-        foreach ($method->rules as $rule) {
-            if (craft()->commerce_shippingRules->matchOrder($rule, $order)) {
+        foreach ($method->getRules() as $rule) {
+            /** @var \Commerce\Interfaces\ShippingRule $rule */
+            if ($rule->matchOrder($order)) {
                 return $rule;
             }
         }
@@ -125,7 +203,7 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
      * @return bool
      * @throws \Exception
      */
-    public function save(Commerce_ShippingMethodModel $model)
+    public function saveShippingMethod(Commerce_ShippingMethodModel $model)
     {
         if ($model->id) {
             $record = Commerce_ShippingMethodRecord::model()->findById($model->id);
@@ -139,8 +217,8 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
         }
 
         $record->name = $model->name;
+        $record->handle = $model->handle;
         $record->enabled = $model->enabled;
-        $record->default = $model->default;
 
         $record->validate();
         $model->addErrors($record->getErrors());
@@ -151,12 +229,6 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
 
             // Now that we have a record ID, save it on the model
             $model->id = $record->id;
-
-            //If this was the default make all others not the default.
-            if ($model->default) {
-                Commerce_ShippingMethodRecord::model()->updateAll(['default' => 0],
-                    'id != ?', [$record->id]);
-            }
 
             return true;
         } else {
@@ -176,9 +248,9 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
         CommerceDbHelper::beginStackedTransaction();
         try {
 
-            $rules = craft()->commerce_shippingRules->getAllByMethodId($model->id);
+            $rules = craft()->commerce_shippingRules->getAllShippingRulesByShippingMethodId($model->id);
             foreach ($rules as $rule) {
-                craft()->commerce_shippingRules->deleteById($rule->id);
+                craft()->commerce_shippingRules->deleteShippingRuleById($rule->id);
             }
 
             Commerce_ShippingMethodRecord::model()->deleteByPk($model->id);

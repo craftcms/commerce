@@ -30,7 +30,7 @@ class Commerce_ProductsFieldType extends BaseElementFieldType
      */
     public function getName()
     {
-        return Craft::t('Commerce Product');
+        return Craft::t('Commerce Products');
     }
 
     // Protected Methods
@@ -43,6 +43,6 @@ class Commerce_ProductsFieldType extends BaseElementFieldType
      */
     protected function getAddButtonLabel()
     {
-        return Craft::t('Add a Product');
+        return Craft::t('Add a product');
     }
 }

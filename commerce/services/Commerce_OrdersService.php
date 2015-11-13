@@ -19,101 +19,23 @@ use Commerce\Helpers\CommerceDbHelper;
  */
 class Commerce_OrdersService extends BaseApplicationComponent
 {
-    /**
-     * @param Commerce_OrderModel $order
-     *
-     * @throws Exception
-     */
-    private function calculateAdjustments(Commerce_OrderModel $order)
-    {
-        // Don't recalc the totals of completed orders.
-        if (!$order->id or $order->dateOrdered != null) {
-            return;
-        }
-
-        //calculating adjustments
-        $lineItems = craft()->commerce_lineItems->getAllByOrderId($order->id);
-
-        foreach ($lineItems as $item) { //resetting fields calculated by adjusters
-            $item->tax = 0;
-            $item->shippingCost = 0;
-            $item->discount = 0;
-        }
-
-        /** @var Commerce_OrderAdjustmentModel[] $adjustments */
-        $adjustments = [];
-        foreach ($this->getAdjusters() as $adjuster) {
-            $adjustments = array_merge($adjustments,
-                $adjuster->adjust($order, $lineItems));
-        }
-
-        //refreshing adjustments
-        craft()->commerce_orderAdjustments->deleteAllByOrderId($order->id);
-
-        foreach ($adjustments as $adjustment) {
-            $result = craft()->commerce_orderAdjustments->save($adjustment);
-            if (!$result) {
-                $errors = $adjustment->getAllErrors();
-                throw new Exception('Error saving order adjustment: ' . implode(', ',
-                        $errors));
-            }
-        }
-
-        //recalculating order amount and saving items
-        $order->itemTotal = 0;
-        foreach ($lineItems as $item) {
-            $result = craft()->commerce_lineItems->save($item);
-
-            $order->itemTotal += $item->total;
-
-            if (!$result) {
-                $errors = $item->getAllErrors();
-                throw new Exception('Error saving line item: ' . implode(', ',
-                        $errors));
-            }
-        }
-
-        $order->totalPrice = $order->itemTotal + $order->baseDiscount + $order->baseShippingCost;
-        $order->totalPrice = max(0, $order->totalPrice);
-    }
 
     /**
-     * Completes an Order
-     *
-     * @param Commerce_OrderModel $order
-     *
-     * @return bool
-     * @throws Exception
-     * @throws \Exception
+     * @var
      */
-    public function complete(Commerce_OrderModel $order)
-    {
-        $order->dateOrdered = DateTimeHelper::currentTimeForDb();
-        if ($status = craft()->commerce_orderStatuses->getDefault()) {
-            $order->orderStatusId = $status->id;
-        }
+    private $_lineItemsById;
 
-        if (!$this->save($order)) {
-            return false;
-        }
-
-        craft()->commerce_cart->forgetCart($order);
-
-        //raising event on order complete
-        $event = new Event($this, [
-            'order' => $order
-        ]);
-        $this->onOrderComplete($event);
-
-        return true;
-    }
+    /**
+     * @var
+     */
+    private $_adjustmentsById;
 
     /**
      * @param int $id
      *
-     * @return Commerce_OrderModel
+     * @return Commerce_OrderModel|null
      */
-    public function getById($id)
+    public function getOrderById($id)
     {
         return craft()->elements->getElementById($id, 'Commerce_Order');
     }
@@ -121,9 +43,9 @@ class Commerce_OrdersService extends BaseApplicationComponent
     /**
      * @param string $number
      *
-     * @return Commerce_OrderModel
+     * @return Commerce_OrderModel|null
      */
-    public function getByNumber($number)
+    public function getOrderByNumber($number)
     {
         $criteria = craft()->elements->getCriteria('Commerce_Order');
         $criteria->number = $number;
@@ -131,22 +53,18 @@ class Commerce_OrdersService extends BaseApplicationComponent
         return $criteria->first();
     }
 
-
     /**
      * @param int|Commerce_CustomerModel $customer
      *
-     * @return Commerce_OrderModel[]
+     * @return Commerce_OrderModel[]|null
      */
-    public function getByCustomer($customer)
+    public function getOrdersByCustomer($customer)
     {
-        $id = $customer;
-        if ($customer instanceof Commerce_CustomerModel) {
-            $id = $customer->id;
-        }
+        $criteria = craft()->elements->getCriteria('Commerce_Order');
+        $criteria->customer = $customer;
+        $criteria->limit = null;
 
-        $orders = Commerce_OrderRecord::model()->findAllByAttributes(['customerId' => $id]);
-
-        return Commerce_OrderModel::populateModels($orders);
+        return $criteria->find();
     }
 
     /**
@@ -154,7 +72,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
      *
      * @return Commerce_OrderModel[]
      */
-    public function getByEmail($email)
+    public function getOrdersByEmail($email)
     {
         $orders = Commerce_OrderRecord::model()->findAllByAttributes(['email' => $email]);
 
@@ -167,9 +85,41 @@ class Commerce_OrdersService extends BaseApplicationComponent
      * @return bool
      * @throws \CDbException
      */
-    public function delete($order)
+    public function deleteOrder($order)
     {
         return craft()->elements->deleteElementById($order->id);
+    }
+
+    /**
+     * Updates the orders totalPaid and datePaid date and completes order
+     *
+     * @param Commerce_OrderModel $order
+     */
+    public function updateOrderPaidTotal(Commerce_OrderModel $order)
+    {
+        $totalPaid = craft()->commerce_payments->getTotalPaidForOrder($order);
+
+        $order->totalPaid = $totalPaid;
+
+        if ($order->isPaid()) {
+            if ($order->datePaid == null) {
+                $order->datePaid = DateTimeHelper::currentTimeForDb();
+            }
+        }
+
+        $this->saveOrder($order);
+
+        if (!$order->dateOrdered) {
+            if ($order->isPaid()) {
+                craft()->commerce_orders->completeOrder($order);
+            } else {
+                // maybe not paid in full, but authorized enough to complete order.
+                $totalAuthorized = craft()->commerce_payments->getTotalAuthorizedForOrder($order);
+                if ($totalAuthorized >= $order->totalPrice) {
+                    craft()->commerce_orders->completeOrder($order);
+                }
+            }
+        }
     }
 
     /**
@@ -178,7 +128,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
      * @return bool
      * @throws \Exception
      */
-    public function save($order)
+    public function saveOrder($order)
     {
         if ($order->dateOrdered) {
             //raising event
@@ -199,18 +149,10 @@ class Commerce_OrdersService extends BaseApplicationComponent
             }
         }
 
-        // Set default shipping method
-        if (!$order->shippingMethodId) {
-            $method = craft()->commerce_shippingMethods->getDefault();
-            if ($method) {
-                $order->shippingMethodId = $method->id;
-            }
-        }
-
         // Set default payment method
         if (!$order->paymentMethodId) {
-            $methods = craft()->commerce_paymentMethods->getAllForFrontend();
-            if ($methods) {
+            $methods = craft()->commerce_paymentMethods->getAllFrontEndPaymentMethods();
+            if (count($methods)) {
                 $order->paymentMethodId = $methods[0]->id;
             }
         }
@@ -237,12 +179,9 @@ class Commerce_OrdersService extends BaseApplicationComponent
 
         if (!$order->customerId) {
             $order->customerId = craft()->commerce_customers->getCustomerId();
-        } else {
-            // if there is no email set and we have a customer, get their email.
-            if (!$order->email) {
-                $order->email = craft()->commerce_customers->getById($order->customerId)->email;
-            }
         }
+
+        $order->email = craft()->commerce_customers->getCustomerById($order->customerId)->email;
 
         // Will not adjust a completed order, we don't want totals to change.
         $this->calculateAdjustments($order);
@@ -256,7 +195,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
         $orderRecord->datePaid = $order->datePaid;
         $orderRecord->billingAddressId = $order->billingAddressId;
         $orderRecord->shippingAddressId = $order->shippingAddressId;
-        $orderRecord->shippingMethodId = $order->shippingMethodId;
+        $orderRecord->shippingMethod = $order->getShippingMethodHandle();
         $orderRecord->paymentMethodId = $order->paymentMethodId;
         $orderRecord->orderStatusId = $order->orderStatusId;
         $orderRecord->couponCode = $order->couponCode;
@@ -264,6 +203,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
         $orderRecord->baseShippingCost = $order->baseShippingCost;
         $orderRecord->totalPrice = $order->totalPrice;
         $orderRecord->totalPaid = $order->totalPaid;
+        $orderRecord->currency = $order->currency;
         $orderRecord->customerId = $order->customerId;
         $orderRecord->returnUrl = $order->returnUrl;
         $orderRecord->cancelUrl = $order->cancelUrl;
@@ -281,7 +221,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
                 if (craft()->elements->saveElement($order)) {
                     //creating order history record
                     if ($orderRecord->id && $oldStatusId != $orderRecord->orderStatusId) {
-                        if (!craft()->commerce_orderHistories->createFromOrder($order,
+                        if (!craft()->commerce_orderHistories->createOrderHistoryFromOrder($order,
                             $oldStatusId)
                         ) {
                             throw new Exception('Error saving order history');
@@ -291,6 +231,8 @@ class Commerce_OrdersService extends BaseApplicationComponent
                     //saving order record
                     $orderRecord->id = $order->id;
                     $orderRecord->save(false);
+
+                    craft()->commerce_customers->setLastUsedAddresses($orderRecord->billingAddressId,$orderRecord->shippingAddressId);
 
                     CommerceDbHelper::commitStackedTransaction();
 
@@ -316,35 +258,186 @@ class Commerce_OrdersService extends BaseApplicationComponent
     }
 
     /**
-     * Updates the orders totalPaid and datePaid date and completes order
+     * Event: before saving incomplete order
+     * Event params: order(Commerce_OrderModel)
+     *
+     * @param \CEvent $event
+     *
+     * @throws \CException
+     */
+    public function onBeforeSaveOrder(\CEvent $event)
+    {
+        $params = $event->params;
+        if (empty($params['order']) || !($params['order'] instanceof Commerce_OrderModel)) {
+            throw new Exception('onBeforeSaveOrder event requires "order" param with OrderModel instance');
+        }
+        $this->raiseEvent('onBeforeSaveOrder', $event);
+    }
+
+    /**
+     * @param Commerce_OrderModel $order
+     *
+     * @throws Exception
+     */
+    private function calculateAdjustments(Commerce_OrderModel $order)
+    {
+        // Don't recalc the totals of completed orders.
+        if (!$order->id or $order->dateOrdered != null) {
+            return;
+        }
+
+        //calculating adjustments
+        $lineItems = craft()->commerce_lineItems->getAllLineItemsByOrderId($order->id);
+
+        $order->itemTotal = 0;
+        foreach ($lineItems as $item) { //resetting fields calculated by adjusters
+            $item->tax = 0;
+            $item->shippingCost = 0;
+            $item->discount = 0;
+            // Need to have an initial itemTotal for use by adjusters.
+            $order->itemTotal += $item->total;
+        }
+
+        $order->setLineItems($lineItems);
+
+        /** @var Commerce_OrderAdjustmentModel[] $adjustments */
+        $adjustments = [];
+        foreach ($this->getAdjusters() as $adjuster) {
+            $adjustments = array_merge($adjustments,
+                $adjuster->adjust($order, $lineItems));
+        }
+
+        //refreshing adjustments
+        craft()->commerce_orderAdjustments->deleteAllOrderAdjustmentsByOrderId($order->id);
+
+        foreach ($adjustments as $adjustment) {
+            $result = craft()->commerce_orderAdjustments->saveOrderAdjustment($adjustment);
+            if (!$result) {
+                $errors = $adjustment->getAllErrors();
+                throw new Exception('Error saving order adjustment: ' . implode(', ',
+                        $errors));
+            }
+        }
+
+        //recalculating order amount and saving items
+        $order->itemTotal = 0;
+        foreach ($lineItems as $item) {
+            $result = craft()->commerce_lineItems->saveLineItem($item);
+
+            $order->itemTotal += $item->total;
+
+            if (!$result) {
+                $errors = $item->getAllErrors();
+                throw new Exception('Error saving line item: ' . implode(', ',
+                        $errors));
+            }
+        }
+
+        $order->totalPrice = $order->itemTotal + $order->baseDiscount + $order->baseShippingCost;
+        $order->totalPrice = max(0, $order->totalPrice);
+    }
+
+    /**
+     * @return Commerce_AdjusterInterface[]
+     */
+    private function getAdjusters()
+    {
+        $adjusters = [
+            new Commerce_ShippingAdjuster,
+            new Commerce_DiscountAdjuster,
+            new Commerce_TaxAdjuster,
+        ];
+
+        $additional = craft()->plugins->call('commerce_registerOrderAdjusters');
+
+        foreach ($additional as $additionalAdjusters) {
+            $adjusters = array_merge($adjusters, $additionalAdjusters);
+        }
+
+        return $adjusters;
+    }
+
+    /**
+     * Event: before successful saving incomplete order
+     * Event params: order(Commerce_OrderModel)
+     *
+     * @param \CEvent $event
+     *
+     * @throws \CException
+     */
+    public function onSaveOrder(\CEvent $event)
+    {
+        $params = $event->params;
+        if (empty($params['order']) || !($params['order'] instanceof Commerce_OrderModel)) {
+            throw new Exception('onSaveOrder event requires "order" param with OrderModel instance');
+        }
+        $this->raiseEvent('onSaveOrder', $event);
+    }
+
+    /**
+     * Completes an Order
      *
      * @param Commerce_OrderModel $order
+     *
+     * @return bool
+     * @throws Exception
+     * @throws \Exception
      */
-    public function updateOrderPaidTotal(Commerce_OrderModel $order)
+    public function completeOrder(Commerce_OrderModel $order)
     {
-        $totalPaid = craft()->commerce_payments->getTotalPaidForOrder($order);
 
-        $order->totalPaid = $totalPaid;
+        //raising event on order complete
+        $event = new Event($this, [
+            'order' => $order
+        ]);
+        $this->onBeforeOrderComplete($event);
 
-        if ($order->isPaid()) {
-            if ($order->datePaid == null) {
-                $order->datePaid = DateTimeHelper::currentTimeForDb();
-            }
+        $order->dateOrdered = DateTimeHelper::currentTimeForDb();
+        if ($status = craft()->commerce_orderStatuses->getDefault()) {
+            $order->orderStatusId = $status->id;
+        }else{
+            throw new Exception(Craft::t('No default Status available to set on completed order.'));
         }
 
-        $this->save($order);
-
-        if (!$order->dateOrdered) {
-            if ($order->isPaid()) {
-                craft()->commerce_orders->complete($order);
-            } else {
-                // maybe not paid in full, but authorized enough to complete order.
-                $totalAuthorized = craft()->commerce_payments->getTotalAuthorizedForOrder($order);
-                if ($totalAuthorized >= $order->totalPrice) {
-                    craft()->commerce_orders->complete($order);
-                }
-            }
+        if (!$this->saveOrder($order)) {
+            return false;
         }
+
+        craft()->commerce_cart->forgetCart();
+        craft()->commerce_customers->forgetCustomer();
+
+        //raising event on order complete
+        $event = new Event($this, [
+            'order' => $order
+        ]);
+        $this->onOrderComplete($event);
+
+        return true;
+    }
+
+
+    /**
+     * Event method
+     *
+     * @param \CEvent $event
+     *
+     * @throws \CException
+     */
+    public function onBeforeOrderComplete(\CEvent $event)
+    {
+        $this->raiseEvent('onBeforeOrderComplete', $event);
+    }
+
+    /**
+     * Event method
+     *
+     * @param \CEvent $event
+     *
+     * @throws \CException
+     */
+    public function onOrderComplete(\CEvent $event)
+    {
+        $this->raiseEvent('onOrderComplete', $event);
     }
 
     /**
@@ -357,7 +450,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
      * @return bool
      * @throws \Exception
      */
-    public function setAddresses(
+    public function setOrderAddresses(
         Commerce_OrderModel $order,
         Commerce_AddressModel $shippingAddress,
         Commerce_AddressModel $billingAddress
@@ -381,7 +474,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
                 $order->shippingAddressId = $shippingAddress->id;
                 $order->billingAddressId = $billingAddress->id;
 
-                $this->save($order);
+                $this->saveOrder($order);
                 CommerceDbHelper::commitStackedTransaction();
 
                 return true;
@@ -404,86 +497,20 @@ class Commerce_OrdersService extends BaseApplicationComponent
      * @throws Exception
      * @throws \Exception
      */
-    public function recalculate(Commerce_OrderModel $order)
+    public function recalculateOrder(Commerce_OrderModel $order)
     {
         foreach ($order->lineItems as $item) {
             if ($item->refreshFromPurchasable()) {
-                if (!craft()->commerce_lineItems->save($item)) {
+                if (!craft()->commerce_lineItems->saveLineItem($item)) {
                     throw new Exception('Error on saving lite item: ' . implode(', ',
                             $item->getAllErrors()));
                 }
             } else {
-                craft()->commerce_lineItems->delete($item);
+                craft()->commerce_lineItems->deleteLineItem($item);
             }
         }
 
-        $this->save($order);
-    }
-
-    /**
-     * @return Commerce_AdjusterInterface[]
-     */
-    private function getAdjusters()
-    {
-        $adjusters = [
-            new Commerce_ShippingAdjuster,
-            new Commerce_DiscountAdjuster,
-            new Commerce_TaxAdjuster,
-        ];
-
-        $additional = craft()->plugins->call('registerCommerceOrderAdjusters');
-
-        foreach ($additional as $additionalAdjusters) {
-            $adjusters = array_merge($adjusters, $additionalAdjusters);
-        }
-
-        return $adjusters;
-    }
-
-    /**
-     * Event method
-     *
-     * @param \CEvent $event
-     *
-     * @throws \CException
-     */
-    public function onOrderComplete(\CEvent $event)
-    {
-        $this->raiseEvent('onOrderComplete', $event);
-    }
-
-    /**
-     * Event: before saving incomplete order
-     * Event params: order(Commerce_OrderModel)
-     *
-     * @param \CEvent $event
-     *
-     * @throws \CException
-     */
-    public function onBeforeSaveOrder(\CEvent $event)
-    {
-        $params = $event->params;
-        if (empty($params['order']) || !($params['order'] instanceof Commerce_OrderModel)) {
-            throw new Exception('onBeforeSaveOrder event requires "order" param with OrderModel instance');
-        }
-        $this->raiseEvent('onBeforeSaveOrder', $event);
-    }
-
-    /**
-     * Event: before successful saving incomplete order
-     * Event params: order(Commerce_OrderModel)
-     *
-     * @param \CEvent $event
-     *
-     * @throws \CException
-     */
-    public function onSaveOrder(\CEvent $event)
-    {
-        $params = $event->params;
-        if (empty($params['order']) || !($params['order'] instanceof Commerce_OrderModel)) {
-            throw new Exception('onSaveOrder event requires "order" param with OrderModel instance');
-        }
-        $this->raiseEvent('onSaveOrder', $event);
+        $this->saveOrder($order);
     }
 
 }

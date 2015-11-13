@@ -54,6 +54,11 @@ class Commerce_LineItemModel extends BaseModel
         return $this->qty * ($this->price + $this->saleAmount);
     }
 
+    public function getTotal()
+    {
+        return $this->getSubtotalWithSale() + $this->tax + $this->discount + $this->shippingCost;
+    }
+
     /**
      * @return float
      */
@@ -114,7 +119,7 @@ class Commerce_LineItemModel extends BaseModel
 
             $this->taxCategoryId = $purchasable->product->taxCategoryId;
 
-            $sales = craft()->commerce_sales->getForVariant($purchasable);
+            $sales = craft()->commerce_sales->getSalesForVariant($purchasable);
 
             foreach ($sales as $sale) {
                 $this->saleAmount += $sale->calculateTakeoff($this->price);

@@ -11,14 +11,14 @@ namespace Craft;
  * @package   craft.plugins.commerce.controllers
  * @since     1.0
  */
-class Commerce_DiscountsController extends Commerce_BaseAdminController
+class Commerce_DiscountsController extends Commerce_BaseCpController
 {
     /**
      * @throws HttpException
      */
     public function actionIndex()
     {
-        $discounts = craft()->commerce_discounts->getAll(['order' => 'name']);
+        $discounts = craft()->commerce_discounts->getAllDiscounts(['order' => 'name']);
         $this->renderTemplate('commerce/promotions/discounts/index',
             compact('discounts'));
     }
@@ -35,9 +35,9 @@ class Commerce_DiscountsController extends Commerce_BaseAdminController
         if (empty($variables['discount'])) {
             if (!empty($variables['id'])) {
                 $id = $variables['id'];
-                $variables['discount'] = craft()->commerce_discounts->getById($id);
+                $variables['discount'] = craft()->commerce_discounts->getDiscountById($id);
 
-                if (!$variables['discount']->id) {
+                if (!$variables['discount']) {
                     throw new HttpException(404);
                 }
             } else {
@@ -56,7 +56,7 @@ class Commerce_DiscountsController extends Commerce_BaseAdminController
         $variables['groups'] = \CHtml::listData($groups, 'id', 'name');
 
         //getting product types maps
-        $types = craft()->commerce_productTypes->getAll();
+        $types = craft()->commerce_productTypes->getAllProductTypes();
         $variables['types'] = \CHtml::listData($types, 'id', 'name');
 
         $variables['products'] = null;
@@ -67,7 +67,10 @@ class Commerce_DiscountsController extends Commerce_BaseAdminController
             $productIds = $variables['discount']->getProductsIds();
         }
         foreach ($productIds as $productId) {
-            $products[] = craft()->commerce_products->getById($productId);
+            $product = craft()->commerce_products->getProductById($productId);
+            if($product){
+                $products[] = $product;
+            }
         }
         $variables['products'] = $products;
 
@@ -114,7 +117,7 @@ class Commerce_DiscountsController extends Commerce_BaseAdminController
         $groups = craft()->request->getPost('groups', []);
 
         // Save it
-        if (craft()->commerce_discounts->save($discount, $groups, $productTypes,
+        if (craft()->commerce_discounts->saveDiscount($discount, $groups, $productTypes,
             $products)
         ) {
             craft()->userSession->setNotice(Craft::t('Discount saved.'));
@@ -137,7 +140,7 @@ class Commerce_DiscountsController extends Commerce_BaseAdminController
 
         $id = craft()->request->getRequiredPost('id');
 
-        craft()->commerce_discounts->deleteById($id);
+        craft()->commerce_discounts->deleteDiscountById($id);
         $this->returnJson(['success' => true]);
     }
 

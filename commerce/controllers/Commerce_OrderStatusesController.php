@@ -13,6 +13,10 @@ namespace Craft;
  */
 class Commerce_OrderStatusesController extends Commerce_BaseAdminController
 {
+    /**
+     * @param array $variables
+     * @throws HttpException
+     */
     public function actionIndex(array $variables = [])
     {
         $variables['orderStatuses'] = craft()->commerce_orderStatuses->getAll();
@@ -31,8 +35,8 @@ class Commerce_OrderStatusesController extends Commerce_BaseAdminController
         if (empty($variables['orderStatus'])) {
             if (!empty($variables['id'])) {
                 $variables['orderStatus'] = craft()->commerce_orderStatuses->getById($variables['id']);
-                $variables['orderStatusId'] = $variables['orderStatus']->id;
-                if (!$variables['orderStatus']->id) {
+                $variables['orderStatusId'] = $variables['orderStatus'];
+                if (!$variables['orderStatus']) {
                     throw new HttpException(404);
                 }
             } else {
@@ -43,10 +47,10 @@ class Commerce_OrderStatusesController extends Commerce_BaseAdminController
         if (!empty($variables['orderStatusId'])) {
             $variables['title'] = $variables['orderStatus']->name;
         } else {
-            $variables['title'] = Craft::t('Create a new custom status');
+            $variables['title'] = Craft::t('Create a new order status');
         }
 
-        $emails = craft()->commerce_emails->getAll(['order' => 'name']);
+        $emails = craft()->commerce_emails->getAllEmails(['order' => 'name']);
         $variables['emails'] = \CHtml::listData($emails, 'id', 'name');
 
         $this->renderTemplate('commerce/settings/orderstatuses/_edit',
@@ -97,4 +101,4 @@ class Commerce_OrderStatusesController extends Commerce_BaseAdminController
         };
     }
 
-} 
+}

@@ -18,7 +18,7 @@ class Commerce_ShippingMethodsController extends Commerce_BaseAdminController
      */
     public function actionIndex()
     {
-        $shippingMethods = craft()->commerce_shippingMethods->getAll();
+        $shippingMethods = craft()->commerce_shippingMethods->getAllShippingMethods();
         $this->renderTemplate('commerce/settings/shippingmethods/index', compact('shippingMethods'));
     }
 
@@ -36,9 +36,9 @@ class Commerce_ShippingMethodsController extends Commerce_BaseAdminController
         if (empty($variables['shippingMethod'])) {
             if (!empty($variables['id'])) {
                 $id = $variables['id'];
-                $variables['shippingMethod'] = craft()->commerce_shippingMethods->getById($id);
+                $variables['shippingMethod'] = craft()->commerce_shippingMethods->getShippingMethodById($id);
 
-                if (!$variables['shippingMethod']->id) {
+                if (!$variables['shippingMethod']) {
                     throw new HttpException(404);
                 }
             } else {
@@ -54,7 +54,7 @@ class Commerce_ShippingMethodsController extends Commerce_BaseAdminController
             $variables['newMethod'] = true;
         }
 
-        $shippingRules = craft()->commerce_shippingRules->getAllByMethodId($variables['shippingMethod']->id);
+        $shippingRules = craft()->commerce_shippingRules->getAllShippingRulesByShippingMethodId($variables['shippingMethod']->id);
 
         $variables['shippingRules'] = $shippingRules;
 
@@ -72,10 +72,10 @@ class Commerce_ShippingMethodsController extends Commerce_BaseAdminController
         // Shared attributes
         $shippingMethod->id = craft()->request->getPost('shippingMethodId');
         $shippingMethod->name = craft()->request->getPost('name');
+        $shippingMethod->handle = craft()->request->getPost('handle');
         $shippingMethod->enabled = craft()->request->getPost('enabled');
-        $shippingMethod->default = craft()->request->getPost('default');
         // Save it
-        if (craft()->commerce_shippingMethods->save($shippingMethod)) {
+        if (craft()->commerce_shippingMethods->saveShippingMethod($shippingMethod)) {
             craft()->userSession->setNotice(Craft::t('Shipping method saved.'));
             $this->redirectToPostedUrl($shippingMethod);
         } else {
@@ -96,17 +96,18 @@ class Commerce_ShippingMethodsController extends Commerce_BaseAdminController
 
         $id = craft()->request->getRequiredPost('id');
 
-        $method = craft()->commerce_shippingMethods->getById($id);
+        $method = craft()->commerce_shippingMethods->getShippingMethodById($id);
 
-        if ($method->default) {
-            $this->returnJson([
-                'errors' => [Craft::t('Can not delete the default method.')]
-            ]);
+        if($method){
+            if (craft()->commerce_shippingMethods->delete($method)) {
+                $this->returnJson(['success' => true]);
+            }else{
+                $this->returnErrorJson(Craft::t('Cannot delete shipping method and it’s rules.'));
+            }
+        }else{
+            $this->returnErrorJson(Craft::t('Cannot find shipping method with ID {id}',['id'=>$id]));
         }
 
-        if (craft()->commerce_shippingMethods->delete($method)) {
-            $this->returnJson(['success' => true]);
-        }
     }
 
 }

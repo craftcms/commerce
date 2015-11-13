@@ -5,11 +5,14 @@
 { label: "Payment Methods"|t, url: url('commerce/settings/paymentmethods') },
 ] %}
 
+{% set fullPageForm = true %}
+
 {% import "_includes/forms" as forms %}
 
-{% set content %}
-
-<form method="post" action="" accept-charset="UTF-8">
+{% block content %}
+    <input type="hidden" name="id" value="{{ paymentMethod.id }}">
+    <input type="hidden" name="action" value="commerce/paymentMethods/save">
+    <input type="hidden" name="redirect" value="commerce/settings/paymentmethods">
 
     {{ forms.textField({
         label: 'Name'|t,
@@ -19,11 +22,18 @@
         errors: paymentMethod.getErrors('name'),
     }) }}
 
-    <input type="hidden" name="id" value="{{ paymentMethod.id }}">
-    <input type="hidden" name="action" value="commerce/paymentMethods/save">
-    <input type="hidden" name="redirect" value="commerce/settings/paymentmethods">
+    {{ forms.selectField({
+        label: "Credit Card Payment Type"|t,
+        instructions: "If set to Authorize Only, you will need to manually capture payments before the funds will be transferred to your account. The Gateway needs to support the selected option."|t,
+        id: 'paymentType',
+        name: 'paymentType',
+        value: paymentMethod.paymentType,
+        options: paymentMethod.getPaymentTypeOptions(),
+        errors: paymentMethod.getErrors('paymentType'),
+        required: true,
+    }) }}
 
-    {{ getCsrfInput() }}
+    <hr>
 
     {{ forms.selectField({
         first: true,
@@ -36,7 +46,7 @@
         errors: paymentMethod.getErrors('class'),
     }) }}
 
-    <input type="hidden" name="paymentMethodClass" value="{{ paymentMethod.class }}"/>
+    <input type="hidden" name="paymentMethodClass" value="{{ paymentMethod.class }}">
 
     {% for gateway in gateways %}
         <div class="gateway-settings" id="gateway-{{ gateway.handle }}" data-name="{{ gateway.displayName }}">
@@ -44,29 +54,17 @@
         </div>
     {% endfor %}
 
-    {% set noSettingsGateways = ['Manual','Dummy'] %}
-    {% if paymentMethod.class in noSettingsGateways %}
-        {% set isFirst = true %}
-    {% else %}
-        {% set isFirst = false %}
-    {% endif %}
+    <hr>
+
     {{ forms.checkboxField({
-        first: isFirst,
         label: "Enabled for the front end"|t,
         name: 'frontendEnabled',
         checked: paymentMethod.frontendEnabled,
         errors: paymentMethod.getErrors('frontendEnabled'),
     }) }}
+{% endblock %}
 
-    <div class="buttons">
-        <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
-    </div>
-
-</form>
-
-{% endset %}
-
-{% set js %}
+{% includejs %}
 {#<script>#}
     $(function() {
         $('#class').change(function() {
@@ -77,5 +75,5 @@
         }).change();
 
     });
-{% endset %}
-{% includeJs js %}
+{#</script>#}
+{% endincludejs %}

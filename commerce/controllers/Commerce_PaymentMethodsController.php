@@ -18,7 +18,7 @@ class Commerce_PaymentMethodsController extends Commerce_BaseAdminController
      */
     public function actionIndex()
     {
-        $paymentMethods = craft()->commerce_paymentMethods->getAll(['order' => 'name']);
+        $paymentMethods = craft()->commerce_paymentMethods->getAllPaymentMethods(['order' => 'name']);
         $this->renderTemplate('commerce/settings/paymentmethods/index', compact('paymentMethods'));
     }
 
@@ -34,9 +34,9 @@ class Commerce_PaymentMethodsController extends Commerce_BaseAdminController
         if (empty($variables['paymentMethod'])) {
             if (!empty($variables['id'])) {
                 $id = $variables['id'];
-                $variables['paymentMethod'] = craft()->commerce_paymentMethods->getById($id);
+                $variables['paymentMethod'] = craft()->commerce_paymentMethods->getPaymentMethodById($id);
 
-                if (!$variables['paymentMethod']->id) {
+                if (!$variables['paymentMethod']) {
                     throw new HttpException(404);
                 }
             } else {
@@ -44,7 +44,7 @@ class Commerce_PaymentMethodsController extends Commerce_BaseAdminController
             }
         }
 
-        $variables['gateways'] = craft()->commerce_gateways->getAll();
+        $variables['gateways'] = craft()->commerce_gateways->getAllGateways();
         $list = [];
         foreach ($variables['gateways'] as $gw) {
             $list[$gw->handle()] = $gw->displayName();
@@ -56,7 +56,7 @@ class Commerce_PaymentMethodsController extends Commerce_BaseAdminController
         if ($variables['paymentMethod']->id) {
             $variables['title'] = $variables['paymentMethod']->name;
         } else {
-            $variables['title'] = 'New Payment Method';
+            $variables['title'] = 'Create a new payment method';
         }
         $this->renderTemplate('commerce/settings/paymentmethods/_edit', $variables);
     }
@@ -73,13 +73,14 @@ class Commerce_PaymentMethodsController extends Commerce_BaseAdminController
         // Shared attributes
         $paymentMethod->id = craft()->request->getRequiredPost('id');
         $paymentMethod->name = craft()->request->getRequiredPost('name');
+        $paymentMethod->paymentType = craft()->request->getRequiredPost('paymentType');
         $paymentMethod->class = craft()->request->getRequiredPost('class');
         $paymentMethod->settings = craft()->request->getPost('settings', []);
         $paymentMethod->frontendEnabled = craft()->request->getPost('frontendEnabled');
 
         // Save it
-        if (craft()->commerce_paymentMethods->save($paymentMethod)) {
-            craft()->userSession->setNotice(Craft::t('Payment Method saved.'));
+        if (craft()->commerce_paymentMethods->savePaymentMethod($paymentMethod)) {
+            craft()->userSession->setNotice(Craft::t('Payment method saved.'));
             $this->redirectToPostedUrl($paymentMethod);
         } else {
             craft()->userSession->setError(Craft::t('Couldn’t save payment method.'));

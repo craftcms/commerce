@@ -2,10 +2,9 @@
 
 {% extends 'commerce/_layouts/main' %}
 
-{%  block main %}
+{% block main %}
 
     {% include 'commerce/_includes/meter' %}
-
     <div class="flash">{{ craft.session.getFlash('notice') }}</div>
     <div class="flash">{{ craft.session.getFlash('error') }}</div>
 
@@ -13,4 +12,4 @@
 
     {% endblock %}
 
-{%  endblock %}
+{% endblock %}

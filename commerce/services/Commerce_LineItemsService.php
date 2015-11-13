@@ -21,7 +21,7 @@ class Commerce_LineItemsService extends BaseApplicationComponent
      *
      * @return Commerce_LineItemModel[]
      */
-    public function getAllByOrderId($id)
+    public function getAllLineItemsByOrderId($id)
     {
         $lineItems = Commerce_LineItemRecord::model()->findAllByAttributes(['orderId' => $id]);
 
@@ -34,23 +34,25 @@ class Commerce_LineItemsService extends BaseApplicationComponent
      * @param int $orderId
      * @param int $purchasableId
      *
-     * @return Commerce_LineItemModel
+     * @return Commerce_LineItemModel|null
      */
-    public function getByOrderPurchasable($orderId, $purchasableId)
+    public function getLineItemByOrderPurchasable($orderId, $purchasableId)
     {
-        $purchasable = Commerce_LineItemRecord::model()->findByAttributes([
+        $result = Commerce_LineItemRecord::model()->findByAttributes([
             'orderId' => $orderId,
             'purchasableId' => $purchasableId,
         ]);
 
-        return Commerce_LineItemModel::populateModel($purchasable);
+        if ($result) {
+            return Commerce_LineItemModel::populateModel($result);
+        }
+
+        return null;
     }
 
 
     /**
      * Update line item and recalculate order
-     *
-     * @TODO check that the line item belongs to the current user
      *
      * @param Commerce_OrderModel $order
      * @param Commerce_LineItemModel $lineItem
@@ -59,10 +61,10 @@ class Commerce_LineItemsService extends BaseApplicationComponent
      * @return bool
      * @throws Exception
      */
-    public function update(Commerce_OrderModel $order, Commerce_LineItemModel $lineItem, &$error = '')
+    public function updateLineItem(Commerce_OrderModel $order, Commerce_LineItemModel $lineItem, &$error = '')
     {
-        if ($this->save($lineItem)) {
-            craft()->commerce_orders->save($order);
+        if ($this->saveLineItem($lineItem)) {
+            craft()->commerce_orders->saveOrder($order);
 
             return true;
         } else {
@@ -79,11 +81,11 @@ class Commerce_LineItemsService extends BaseApplicationComponent
      * @return bool
      * @throws \Exception
      */
-    public function save(Commerce_LineItemModel $lineItem)
+    public function saveLineItem(Commerce_LineItemModel $lineItem)
     {
 
         if ($lineItem->qty <= 0 && $lineItem->id) {
-            $this->delete($lineItem);
+            $this->deleteLineItem($lineItem);
 
             return true;
         }
@@ -99,9 +101,7 @@ class Commerce_LineItemsService extends BaseApplicationComponent
             }
         }
 
-        $lineItem->total = (($lineItem->price + $lineItem->saleAmount)
-                * $lineItem->qty)
-            + $lineItem->tax + $lineItem->discount + $lineItem->shippingCost;
+        $lineItem->total = $lineItem->getTotal();
 
         $lineItemRecord->purchasableId = $lineItem->purchasableId;
         $lineItemRecord->orderId = $lineItem->orderId;
@@ -155,23 +155,27 @@ class Commerce_LineItemsService extends BaseApplicationComponent
     /**
      * @param int $id
      *
-     * @return Commerce_LineItemModel
+     * @return Commerce_LineItemModel|null
      */
-    public function getById($id)
+    public function getLineItemById($id)
     {
-        $lineItem = Commerce_LineItemRecord::model()->findById($id);
+        $result = Commerce_LineItemRecord::model()->findById($id);
 
-        return Commerce_LineItemModel::populateModel($lineItem);
+        if ($result) {
+            return Commerce_LineItemModel::populateModel($result);
+        }
+
+        return null;
     }
 
     /**
-     * @param int $purchasableId
-     * @param int $orderId
-     * @param int $qty
-     *
+     * @param $purchasableId
+     * @param $orderId
+     * @param $qty
      * @return Commerce_LineItemModel
+     * @throws Exception
      */
-    public function create($purchasableId, $orderId, $qty)
+    public function createLineItem($purchasableId, $orderId, $qty)
     {
         $lineItem = new Commerce_LineItemModel();
         $lineItem->purchasableId = $purchasableId;
@@ -184,7 +188,7 @@ class Commerce_LineItemsService extends BaseApplicationComponent
         if ($purchasable && $purchasable instanceof Purchasable) {
             $lineItem->fillFromPurchasable($purchasable);
         } else {
-            $lineItem->addError('purchasableId', Craft::t('Item not found or is not a purchasable.'));
+            throw new Exception(Craft::t('Bad purchasableId'));
         }
 
         return $lineItem;
@@ -195,7 +199,7 @@ class Commerce_LineItemsService extends BaseApplicationComponent
      *
      * @return int
      */
-    public function delete($lineItem)
+    public function deleteLineItem($lineItem)
     {
         return Commerce_LineItemRecord::model()->deleteByPk($lineItem->id);
     }
@@ -205,7 +209,7 @@ class Commerce_LineItemsService extends BaseApplicationComponent
      *
      * @return int
      */
-    public function deleteAllByOrderId($orderId)
+    public function deleteAllLineItemsByOrderId($orderId)
     {
         return Commerce_LineItemRecord::model()->deleteAllByAttributes(['orderId' => $orderId]);
     }

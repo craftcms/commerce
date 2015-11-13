@@ -17,18 +17,18 @@ use Omnipay\Common\Currency;
  * @property float $baseShippingCost
  * @property string $email
  * @property DateTime $dateOrdered
+ * @property string $currency
  * @property DateTime $datePaid
  * @property string $lastIp
  * @property string $message
  * @property string $returnUrl
  * @property string $cancelUrl
  *
- * @property int $typeId
  * @property int $billingAddressId
  * @property mixed $billingAddressData
  * @property int $shippingAddressId
  * @property mixed $shippingAddressData
- * @property int $shippingMethodId
+ * @property int $shippingMethod
  * @property int $paymentMethodId
  * @property int $customerId
  * @property int $orderStatusId
@@ -47,7 +47,6 @@ use Omnipay\Common\Currency;
  * @property Commerce_AddressModel $billingAddress
  * @property Commerce_CustomerModel $customer
  * @property Commerce_AddressModel $shippingAddress
- * @property Commerce_ShippingMethodModel $shippingMethod
  * @property Commerce_OrderAdjustmentModel[] $adjustments
  * @property Commerce_PaymentMethodModel $paymentMethod
  * @property Commerce_TransactionModel[] $transactions
@@ -69,27 +68,48 @@ class Commerce_OrderModel extends BaseElementModel
      * @var string
      */
     protected $elementType = 'Commerce_Order';
+
     /**
      * @var
      */
     private $_shippingAddress;
+
     /**
      * @var
      */
     private $_billingAddress;
 
     /**
+     * @var array
+     */
+    private $_lineItems;
+
+    /**
+     * @var array
+     */
+    private $_orderAdjustments;
+
+    /**
      * @return bool
      */
     public function isEditable()
     {
-        return true;
+        // TODO: Replace with an order permission check when we have one
+        return craft()->userSession->checkPermission('accessPlugin-commerce');
     }
 
     /**
      * @return string
      */
     public function __toString()
+    {
+        return substr($this->number, 0, 7);
+    }
+
+    /**
+     * @return string
+     */
+    public function getShortNumber()
     {
         return substr($this->number, 0, 7);
     }
@@ -129,7 +149,7 @@ class Commerce_OrderModel extends BaseElementModel
      */
     public function getFieldLayout()
     {
-        return craft()->commerce_orderSettings->getByHandle('order')->getFieldLayout();
+        return craft()->commerce_orderSettings->getOrderSettingByHandle('order')->getFieldLayout();
     }
 
     /**
@@ -195,7 +215,7 @@ class Commerce_OrderModel extends BaseElementModel
     public function getTotalShippingCost()
     {
         $shippingCost = 0;
-        foreach ($this->lineItems as $item) {
+        foreach ($this->getLineItems() as $item) {
             $shippingCost += $item->shippingCost;
         }
 
@@ -208,7 +228,7 @@ class Commerce_OrderModel extends BaseElementModel
     public function getTotalWeight()
     {
         $weight = 0;
-        foreach ($this->lineItems as $item) {
+        foreach ($this->getLineItems() as $item) {
             $weight += $item->qty * $item->weight;
         }
 
@@ -221,7 +241,7 @@ class Commerce_OrderModel extends BaseElementModel
     public function getTotalLength()
     {
         $value = 0;
-        foreach ($this->lineItems as $item) {
+        foreach ($this->getLineItems() as $item) {
             $value += $item->qty * $item->length;
         }
 
@@ -234,8 +254,22 @@ class Commerce_OrderModel extends BaseElementModel
     public function getTotalWidth()
     {
         $value = 0;
-        foreach ($this->lineItems as $item) {
+        foreach ($this->getLineItems() as $item) {
             $value += $item->qty * $item->width;
+        }
+
+        return $value;
+    }
+
+    /**
+     * Returns the total sale amount.
+     * @return int
+     */
+    public function getTotalSaleAmount()
+    {
+        $value = 0;
+        foreach ($this->getLineItems() as $item) {
+            $value += $item->qty * $item->saleAmount;
         }
 
         return $value;
@@ -247,7 +281,7 @@ class Commerce_OrderModel extends BaseElementModel
     public function getItemSubtotalWithSale()
     {
         $value = 0;
-        foreach ($this->lineItems as $item) {
+        foreach ($this->getLineItems() as $item) {
             $value += $item->getSubtotalWithSale();
         }
 
@@ -260,7 +294,7 @@ class Commerce_OrderModel extends BaseElementModel
     public function getTotalHeight()
     {
         $value = 0;
-        foreach ($this->lineItems as $item) {
+        foreach ($this->getLineItems() as $item) {
             $value += $item->qty * $item->height;
         }
 
@@ -272,7 +306,19 @@ class Commerce_OrderModel extends BaseElementModel
      */
     public function getLineItems()
     {
-        return craft()->commerce_lineItems->getAllByOrderId($this->id);
+        if(!$this->_lineItems){
+            $this->_lineItems = craft()->commerce_lineItems->getAllLineItemsByOrderId($this->id);
+        }
+
+        return $this->_lineItems;
+    }
+
+    /**
+     * @param Commerce_LineItemModel[] $lineItems
+     */
+    public function setLineItems($lineItems)
+    {
+        $this->_lineItems = $lineItems;
     }
 
     /**
@@ -280,7 +326,11 @@ class Commerce_OrderModel extends BaseElementModel
      */
     public function getAdjustments()
     {
-        return craft()->commerce_orderAdjustments->getAllByOrderId($this->id);
+        if(!$this->_orderAdjustments){
+            $this->_orderAdjustments = craft()->commerce_orderAdjustments->getAllOrderAdjustmentsByOrderId($this->id);
+        }
+
+        return $this->_orderAdjustments;
     }
 
     /**
@@ -326,7 +376,6 @@ class Commerce_OrderModel extends BaseElementModel
         return $this->_billingAddress;
     }
 
-
     /**
      *
      * @param Commerce_AddressModel $address
@@ -337,6 +386,21 @@ class Commerce_OrderModel extends BaseElementModel
         $this->_billingAddress = $address;
     }
 
+    /**
+     * @return bool|\Commerce\Interfaces\ShippingMethod
+     */
+    public function getShippingMethod()
+    {
+        return craft()->commerce_shippingMethods->getShippingMethodByHandle($this->getAttribute('shippingMethod'));
+    }
+
+    /**
+     * @return string
+     */
+    public function getShippingMethodHandle()
+    {
+        return $this->getAttribute('shippingMethod');
+    }
 
     /**
      * @deprecated
@@ -346,7 +410,7 @@ class Commerce_OrderModel extends BaseElementModel
     {
         craft()->deprecator->log('Commerce_OrderModel::showAddress():removed', 'You should no longer use `cart.showAddress` in twig to determine whether to show the address form. Do your own check in twig like this `{% if cart.linItems|length > 0 %}`');
 
-        return count($this->lineItems) > 0;
+        return count($this->getLineItems()) > 0;
     }
 
     /**
@@ -357,7 +421,7 @@ class Commerce_OrderModel extends BaseElementModel
     {
         craft()->deprecator->log('Commerce_OrderModel::showPayment():removed', 'You should no longer use `cart.showPayment` in twig to determine whether to show the payment form. Do your own check in twig like this `{% if cart.linItems|length > 0 and cart.billingAddressId and cart.shippingAddressId %}`');
 
-        return count($this->lineItems) > 0 && $this->billingAddressId && $this->shippingAddressId;
+        return count($this->getLineItems()) > 0 && $this->billingAddressId && $this->shippingAddressId;
     }
 
     /**
@@ -405,11 +469,9 @@ class Commerce_OrderModel extends BaseElementModel
             'orderStatusId' => AttributeType::Number,
             'billingAddressId' => AttributeType::Number,
             'shippingAddressId' => AttributeType::Number,
-            'shippingMethodId' => AttributeType::Number,
+            'shippingMethod' => AttributeType::String,
             'paymentMethodId' => AttributeType::Number,
             'customerId' => AttributeType::Number,
-            'typeId' => AttributeType::Number,
-
             'shippingAddressData' => AttributeType::Mixed,
             'billingAddressData' => AttributeType::Mixed
         ]);

@@ -7,6 +7,7 @@ namespace Craft;
  * @property int $id
  * @property string $class
  * @property string $name
+ * @property string $paymentType
  * @property array $settings
  * @property string $type
  * @property bool $cpEnabled
@@ -56,7 +57,7 @@ class Commerce_PaymentMethodRecord extends BaseRecord
      */
     private function gatewayNames()
     {
-        $gateways = craft()->commerce_gateways->getAll();
+        $gateways = craft()->commerce_gateways->getAllGateways();
         return array_keys($gateways);
     }
 
@@ -73,6 +74,12 @@ class Commerce_PaymentMethodRecord extends BaseRecord
                 AttributeType::Bool,
                 'required' => true,
                 'default' => 0
+            ],
+            'paymentType' => [
+                AttributeType::Enum,
+                'values' => ['authorize', 'purchase'],
+                'required' => true,
+                'default' => 'purchase'
             ],
             'frontendEnabled' => [
                 AttributeType::Bool,

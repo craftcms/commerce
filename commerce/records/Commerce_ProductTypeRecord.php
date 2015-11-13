@@ -7,11 +7,13 @@ namespace Craft;
  * @property int $id
  * @property string $name
  * @property string $handle
- * @property bool $hasDimensions
  * @property bool $hasUrls
+ * @property bool $hasDimensions
  * @property bool $hasVariants
+ * @property bool $hasVariantTitleField
  * @property string $template
  * @property string $titleFormat
+ * @property string $skuFormat
  * @property int $fieldLayoutId
  * @property int $variantFieldLayoutId
  *
@@ -74,7 +76,9 @@ class Commerce_ProductTypeRecord extends BaseRecord
             'hasUrls' => AttributeType::Bool,
             'hasDimensions' => AttributeType::Bool,
             'hasVariants' => AttributeType::Bool,
+            'hasVariantTitleField' => [AttributeType::Bool,'default' => 1],
             'titleFormat' => [AttributeType::String, 'required' => true],
+            'skuFormat' => AttributeType::String,
             'template' => AttributeType::Template
         ];
     }

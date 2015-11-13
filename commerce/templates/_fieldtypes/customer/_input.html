@@ -1,40 +1,53 @@
-{% includeCssResource "commerce/commerce.css" %}
-{% set orders = craft.commerce.orders.customer(customer).find() %}
-<table class="data fullwidth collapsible">
-	<thead>
-	<tr>
-		<th scope="col">{{ 'Order'|t }}</th>
-		<th scope="col">{{ 'Order Date'|t }}</th>
-		<th scope="col">{{ 'Total Paid'|t }}</th>
-		<th scope="col">{{ 'Status'|t }}</th>
-	</tr>
-	</thead>
-	<tbody>
-	{% for order in orders %}
-		<tr>
-			<td>{{ order.link }}</td>
-			<td>{{ order.dateOrdered|date }}</td>
-			<td>{{ order.totalPaid|commerceCurrency }}</td>
-			<td>{{ order.orderStatus.printName|raw }}</td>
-		</tr>
-	{% endfor %}
-	</tbody>
-	</table>
-<hr/>
+{% if customer %}
+{% set orders = customer.orders %}
+
+<div id="no-orders"{% if orders|length %} class="hidden"{% endif %}>
+    <p>{{ "No orders exist for this user yet."|t }}</p>
+</div>
+
+{% if orders|length %}
+    <table class="data fullwidth collapsible">
+        <thead>
+        <tr>
+            <th scope="col">{{ 'Order'|t }}</th>
+            <th scope="col">{{ 'Order Date'|t }}</th>
+            <th scope="col">{{ 'Total Paid'|t }}</th>
+            <th scope="col">{{ 'Status'|t }}</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for order in orders %}
+            <tr>
+                <td>{{ order.link }}</td>
+                <td>{{ order.dateOrdered|date }}</td>
+                <td>{{ order.totalPaid|commerceCurrency }}</td>
+                <td>{{ order.orderStatus.htmlLabel|raw }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+
 {% set addresses = customer.addresses %}
-<table class="data fullwidth collapsible">
-	<thead>
-	<tr>
-		<th scope="col">{{ 'Address'|t }}</th>
-		<th scope="col"></th>
-	</tr>
-	</thead>
-	<tbody>
-	{% for address in addresses %}
-		<tr>
-			<td><strong>{{ address.firstName }} {{ address.lastName }}</strong> {{ address.address1 }}... {{ address.stateText }}, {{ address.countryText }}</td>
-			<td><a href="{{ address.getCpEditUrl }}">Edit</a></td>
-		</tr>
-	{% endfor %}
-	</tbody>
-</table>
+<div id="no-addresses"{% if addresses|length %} class="hidden"{% endif %}>
+    <p>{{ "No addresses exist for this user yet."|t }}</p>
+</div>
+<br>
+{% if addresses|length %}
+    <table class="data fullwidth collapsible">
+        <thead>
+        <tr>
+            <th scope="col">{{ 'Address'|t }}</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for address in addresses %}
+            <tr>
+                <td><strong>{{ address.firstName }} {{ address.lastName }}</strong> {{ address.address1 }}
+                    ... {{ address.stateText }}, {{ address.countryText }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+{% endif %}

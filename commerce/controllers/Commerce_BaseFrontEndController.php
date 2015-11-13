@@ -13,6 +13,8 @@ namespace Craft;
  */
 class Commerce_BaseFrontEndController extends Commerce_BaseController
 {
+    protected $allowAnonymous = true;
+
     /**
      * @param Commerce_OrderModel $cart
      *
@@ -40,10 +42,9 @@ class Commerce_BaseFrontEndController extends Commerce_BaseController
         $data['orderStatusId'] = $cart->orderStatusId;
         $data['billingAddressId'] = $cart->billingAddressId;
         $data['shippingAddressId'] = $cart->shippingAddressId;
-        $data['shippingMethodId'] = $cart->shippingMethodId;
+        $data['shippingMethod'] = $cart->getShippingMethodHandle();
         $data['paymentMethodId'] = $cart->paymentMethodId;
         $data['customerId'] = $cart->customerId;
-        $data['typeId'] = $cart->typeId;
         $data['shippingAddressData'] = $cart->shippingAddressData;
         $data['billingAddressData'] = $cart->billingAddressData;
         $data['isPaid'] = $cart->isPaid();
@@ -56,6 +57,8 @@ class Commerce_BaseFrontEndController extends Commerce_BaseController
         $data['totalHeight'] = $cart->totalLength;
         $data['totalTax'] = $cart->totalTax;
         $data['totalShippingCost'] = $cart->totalShippingCost;
+
+        $data['availableShippingMethods'] = craft()->commerce_shippingMethods->getOrderedAvailableShippingMethods($cart);
 
         $lineItems = [];
         foreach ($cart->lineItems as $lineItem) {
