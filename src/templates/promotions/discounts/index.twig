@@ -1,71 +1,61 @@
 {% extends "commerce/_layouts/promotions" %}
-{% set fitted = true %}
+{% set selectedSidebarNavItem = 'discounts' %}
 
-{% set content %}
 
+{% block content %}
     <h2>{{ "Discounts"|t }}</h2>
+
+    <div id="no-discounts"{% if discounts|length %} class="hidden"{% endif %}>
+        <p>{{ "No discounts exist yet."|t }}</p>
+    </div>
+
     {% if discounts|length %}
     <table id="discounts" class="data fullwidth collapsible">
         <thead>
         <tr>
             <th scope="col">Name</th>
-            <th scope="col">Dates</th>
             <th scope="col">Code</th>
-            <th scope="col">Per User Limit</th>
-            <th scope="col">Total Use Limit</th>
+            <th scope="col">Duration</th>
             <th scope="col">Times Used</th>
-            <th scope="col">Purchase Total</th>
-            <th scope="col">Purchase Quantity</th>
-            <th scope="col">Base Discount</th>
-            <th scope="col">Per Item Discount</th>
-            <th scope="col">Percent Discount</th>
-            <th scope="col">Enabled?</th>
             <td class="thin"></td>
         </tr>
         </thead>
         <tbody>
         {% for discount in discounts %}
             <tr data-id="{{ discount.id }}" data-name="{{ discount.name }}">
-                <th scope="row" data-title="Name"><a href="{{ url('commerce/promotions/discounts/'~discount.id) }}">{{ discount.name }}</a></th>
-                <td data-title="Dates">
-                    {{ (discount.dateFrom ? discount.dateFrom : '&infin;')|raw }}<br/> to<br/> {{ (discount.dateTo ? discount.dateTo : '&infin;')|raw }}
-                </td>
-                <td data-title="Code">{{ discount.code }}</td>
-                <td data-title="Per User Limit">{{ discount.perUserLimit }}</td>
-                <td data-title="Total Use Limit">{{ discount.totalUseLimit }}</td>
-                <td data-title="Purchase Total">{{ discount.purchaseTotal }}</td>
-                <td data-title="Times Used">{{ discount.totalUses }}</td>
-                <td data-title="Purchase Quantity">{{ discount.purchaseQty }}</td>
-                <td data-title="Base Discount">{{ discount.baseDiscount|commerceCurrency }}</td>
-                <td data-title="Per Item Discount">{{ discount.perItemDiscount|commerceCurrency }}</td>
-                <td data-title="Percent Discount">{{ discount.percentDiscount|commercePercent }}</td>
-                <td data-title="Enabled">
+                <th scope="row" data-title="{{ 'Name'|t }}">
                     {% if discount.enabled %}
                         <div class="status enabled"></div>
                     {% else %}
                         <div class="status"></div>
                     {% endif %}
+                    <a href="{{ url('commerce/promotions/discounts/'~discount.id) }}">{{ discount.name }}</a>
+                </th>
+                <td data-title="{{ 'Code'|t }}" class="code">{{ discount.code }}</td>
+                <td data-title="{{ 'Duration'|t }}">
+                    {{ (discount.dateFrom ? discount.dateFrom.localeDate() : '∞') }}
+                    -
+                    {{ (discount.dateTo ? discount.dateTo.localeDate() : '∞') }}
                 </td>
+                <td data-title="{{ 'Times Used'|t }}">{{ discount.totalUses }}</td>
                 <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
             </tr>
         {% endfor %}
 
         </tbody>
     </table>
-    {% else %}
-        <p>{{ "No discounts exist yet."|t }}</p>
     {% endif %}
-    <br/>
-    <div class="btngroup submit first">
-        <a href="{{ url('commerce/promotions/discounts/new') }}" class="btn submit">New Discount</a>
+
+    <div class="buttons">
+        <a href="{{ url('commerce/promotions/discounts/new') }}" class="btn submit add icon">{{ 'New discount'|t }}</a>
     </div>
-{% endset %}
+{% endblock %}
 
 
 {% includejs %}
 var adminTable = new Craft.AdminTable({
 tableSelector: '#discounts',
-deleteAction: 'commerce/discounts/delete',
-confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
+noObjectsSelector: '#no-discounts',
+deleteAction: 'commerce/discounts/delete'
 });
 {% endincludejs %}

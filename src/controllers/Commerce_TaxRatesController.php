@@ -18,15 +18,11 @@ class Commerce_TaxRatesController extends Commerce_BaseAdminController
      */
     public function actionIndex()
     {
-        $taxZones = craft()->commerce_taxZones->getAll();
-        $zonesExist = (bool)count($taxZones);
-
-        $taxRates = craft()->commerce_taxRates->getAll([
+        $taxRates = craft()->commerce_taxRates->getAllTaxRates([
             'with' => ['taxZone', 'taxCategory'],
             'order' => 't.name',
         ]);
-        $this->renderTemplate('commerce/settings/taxrates/index',
-            compact('taxRates', 'zonesExist'));
+        $this->renderTemplate('commerce/settings/taxrates/index', compact('taxRates', 'zonesExist'));
     }
 
     /**
@@ -38,18 +34,10 @@ class Commerce_TaxRatesController extends Commerce_BaseAdminController
      */
     public function actionEdit(array $variables = [])
     {
-        $taxZones = craft()->commerce_taxZones->getAll();
-        $zonesExist = (bool)count($taxZones);
-
-        if (!$zonesExist) {
-            craft()->userSession->setError(Craft::t('Create a tax zone before creating a tax rate.'));
-            craft()->request->redirect('/admin/commerce/settings/taxrates');
-        }
-
         if (empty($variables['taxRate'])) {
             if (!empty($variables['id'])) {
                 $id = $variables['id'];
-                $variables['taxRate'] = craft()->commerce_taxRates->getById($id);
+                $variables['taxRate'] = craft()->commerce_taxRates->getTaxRateById($id);
 
                 if (!$variables['taxRate']) {
                     throw new HttpException(404);
@@ -65,7 +53,7 @@ class Commerce_TaxRatesController extends Commerce_BaseAdminController
             $variables['title'] = Craft::t('Create a new tax rate');
         }
 
-        $taxZones = craft()->commerce_taxZones->getAll(false);
+        $taxZones = craft()->commerce_taxZones->getAllTaxZones(false);
         $variables['taxZones'] = [];
         foreach ($taxZones as $model) {
             $variables['taxZones'][$model->id] = $model->name;
@@ -76,6 +64,28 @@ class Commerce_TaxRatesController extends Commerce_BaseAdminController
         foreach ($taxCategories as $model) {
             $variables['taxCategories'][$model->id] = $model->name;
         }
+
+        // Get the HTML and JS for the new tax zone/category modals
+        craft()->templates->setNamespace('new');
+
+        craft()->templates->startJsBuffer();
+        $countries = craft()->commerce_countries->getAllCountries();
+        $states = craft()->commerce_states->getAllStates();
+        $variables['newTaxZoneFields'] = craft()->templates->namespaceInputs(
+                craft()->templates->render('commerce/settings/taxzones/_fields', [
+                'countries' => \CHtml::listData($countries, 'id', 'name'),
+                'states' => \CHtml::listData($states, 'id', 'name'),
+            ])
+        );
+        $variables['newTaxZoneJs'] = craft()->templates->clearJsBuffer(false);
+
+        craft()->templates->startJsBuffer();
+        $variables['newTaxCategoryFields'] = craft()->templates->namespaceInputs(
+            craft()->templates->render('commerce/settings/taxcategories/_fields')
+        );
+        $variables['newTaxCategoryJs'] = craft()->templates->clearJsBuffer(false);
+
+        craft()->templates->setNamespace(null);
 
         $this->renderTemplate('commerce/settings/taxrates/_edit', $variables);
     }
@@ -107,8 +117,8 @@ class Commerce_TaxRatesController extends Commerce_BaseAdminController
         };
 
         // Save it
-        if (craft()->commerce_taxRates->save($taxRate)) {
-            craft()->userSession->setNotice(Craft::t('Tax Rate saved.'));
+        if (craft()->commerce_taxRates->saveTaxRate($taxRate)) {
+            craft()->userSession->setNotice(Craft::t('Tax rate saved.'));
             $this->redirectToPostedUrl($taxRate);
         } else {
             craft()->userSession->setError(Craft::t('Couldn’t save tax rate.'));
@@ -131,7 +141,7 @@ class Commerce_TaxRatesController extends Commerce_BaseAdminController
 
         $id = craft()->request->getRequiredPost('id');
 
-        craft()->commerce_taxRates->deleteById($id);
+        craft()->commerce_taxRates->deleteTaxRateById($id);
         $this->returnJson(['success' => true]);
     }
 

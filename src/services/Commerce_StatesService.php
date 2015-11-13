@@ -16,33 +16,41 @@ class Commerce_StatesService extends BaseApplicationComponent
     /**
      * @param int $id
      *
-     * @return Commerce_StateModel
+     * @return Commerce_StateModel|null
      */
-    public function getById($id)
+    public function getStateById($id)
     {
-        $record = Commerce_StateRecord::model()->findById($id);
+        $result = Commerce_StateRecord::model()->findById($id);
 
-        return Commerce_StateModel::populateModel($record);
+        if ($result) {
+            return Commerce_StateModel::populateModel($result);
+        }
+
+        return null;
     }
 
     /**
      * @param array $attr
      *
-     * @return Commerce_StateModel
+     * @return Commerce_StateModel|null
      */
-    public function getByAttributes(array $attr)
+    public function getStateByAttributes(array $attr)
     {
-        $record = Commerce_StateRecord::model()->findByAttributes($attr);
+        $result = Commerce_StateRecord::model()->findByAttributes($attr);
 
-        return Commerce_StateModel::populateModel($record);
+        if ($result) {
+            return Commerce_StateModel::populateModel($result);
+        }
+
+        return null;
     }
 
     /**
      * @return array [countryId => [stateId => stateName]]
      */
-    public function getGroupedByCountries()
+    public function getStatesGroupedByCountries()
     {
-        $states = craft()->commerce_states->getAll();
+        $states = craft()->commerce_states->getAllStates();
         $cid2state = [];
 
         foreach ($states as $state) {
@@ -56,7 +64,7 @@ class Commerce_StatesService extends BaseApplicationComponent
     /**
      * @return Commerce_StateModel[]
      */
-    public function getAll()
+    public function getAllStates()
     {
         $records = Commerce_StateRecord::model()->with('country')->findAll(['order' => 'country.name, t.name']);
 
@@ -71,7 +79,7 @@ class Commerce_StatesService extends BaseApplicationComponent
      * @throws \CDbException
      * @throws \Exception
      */
-    public function save(Commerce_StateModel $model)
+    public function saveState(Commerce_StateModel $model)
     {
         if ($model->id) {
             $record = Commerce_StateRecord::model()->findById($model->id);
@@ -109,7 +117,7 @@ class Commerce_StatesService extends BaseApplicationComponent
      *
      * @throws \CDbException
      */
-    public function deleteById($id)
+    public function deleteStateById($id)
     {
         $State = Commerce_StateRecord::model()->findById($id);
         $State->delete();

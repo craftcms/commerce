@@ -1,7 +1,8 @@
 {% macro formatAddress(addressModel) %}
 	<div class="address">
 	{{- addressModel.firstName }} {{ addressModel.lastName -}}<br/>
-	{%- if addressModel.company -%}{{- addressModel.company -}}<br/>{%- endif -%}
+	{%- if addressModel.businessName -%}{{- addressModel.businessName -}}<br/>{%- endif -%}
+	{%- if addressModel.businessTaxId -%}{{- addressModel.businessTaxId -}}<br/>{%- endif -%}
 	{%- if addressModel.address1 -%}{{- addressModel.address1 -}}<br/>{%- endif -%}
 	{%- if addressModel.address2 -%}{{- addressModel.address2 -}}<br/>{%- endif -%}
 	{{- addressModel.city }}, {{ addressModel.zipCode -}}<br/>

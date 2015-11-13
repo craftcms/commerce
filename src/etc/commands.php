@@ -3,13 +3,23 @@
 // A&M quick commands.
 return [
     [
-        'name' => 'Manage Orders',
+        'name' => 'Commerce Orders',
         'type' => 'Link',
         'url' => \Craft\UrlHelper::getCpUrl('commerce/orders')
     ],
     [
-        'name' => 'Manage Products',
+        'name' => 'Commerce Products',
         'type' => 'Link',
         'url' => \Craft\UrlHelper::getCpUrl('commerce/products')
+    ],
+    [
+        'name' => 'Commerce Promotions',
+        'type' => 'Link',
+        'url' => \Craft\UrlHelper::getCpUrl('commerce/promotions')
+    ],
+    [
+        'name' => 'Commerce Settings',
+        'type' => 'Link',
+        'url' => \Craft\UrlHelper::getCpUrl('commerce/settings')
     ]
 ];

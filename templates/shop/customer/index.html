@@ -1,34 +1,35 @@
 {% extends 'commerce/_layouts/main' %}
 
-{%  block main %}
-<div class="row">
-    <div class="eleven columns">
+{% block main %}
+    <div class="row">
+        <div class="eleven columns">
             {% if currentUser %}
 
                 <h1>My Orders</h1>
 
                 <table class="u-full-width">
                     <thead>
-                        <tr>
-                            <th>{{ "Order"|t }}</th>
-                            <th>{{ "Date"|t }}</th>
-                            <th>{{ "Total Quantity"|t }}</th>
-                            <th>{{ "Total"|t }}</th>
-                        </tr>
+                    <tr>
+                        <th>{{ "Order"|t }}</th>
+                        <th>{{ "Date"|t }}</th>
+                        <th>{{ "Total Quantity"|t }}</th>
+                        <th>{{ "Total"|t }}</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        {% for order in craft.commerce.orders.customer(craft.commerce.customer).find() %}
-                            <tr>
-                                <td><a href="{{ url('commerce/customer/order', { orderId: order.id }) }}">Order #{{ order.id }}</a></td>
-                                <td>{{ order.dateOrdered }}</li>
-                                <td>{{ order.totalQty }} items</td>
-                                <td>{{ order.totalPrice|commerceCurrency }}</td>
-                            </tr>
-                        {% endfor %}
+                    {% for order in craft.commerce.orders.customer(craft.commerce.customer).find() %}
+                        <tr>
+                            <td><a href="{{ url('commerce/customer/order', { number: order.number }) }}">Order
+                                    #{{ order.id }}</a></td>
+                            <td>{{ order.dateOrdered }}</li>
+                            <td>{{ order.totalQty }} items</td>
+                            <td>{{ order.totalPrice|commerceCurrency }}</td>
+                        </tr>
+                    {% endfor %}
                     </tbody>
                 </table>
 
-        {% endif %}
+            {% endif %}
+        </div>
     </div>
-</div>
 {% endblock %}

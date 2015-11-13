@@ -8,10 +8,18 @@ namespace Craft;
  * @property int $taxCategoryId
  * @property int $typeId
  * @property int $authorId
- * @property DateTime $availableOn
- * @property DateTime $expiresOn
+ * @property DateTime $postDate
+ * @property DateTime $expiryDate
  * @property bool $promotable
  * @property bool $freeShipping
+ *
+ * @property int defaultVariantId
+ * @property string defaultSku
+ * @property float defaultPrice
+ * @property float defaultHeight
+ * @property float defaultLength
+ * @property float defaultWidth
+ * @property float defaultWeight
  *
  * @property Commerce_VariantRecord $implicit
  * @property Commerce_VariantRecord[] $variants
@@ -58,12 +66,6 @@ class Commerce_ProductRecord extends BaseRecord
                 'UserRecord',
                 'onDelete' => static::CASCADE
             ],
-            'implicit' => [
-                static::HAS_ONE,
-                'Commerce_VariantRecord',
-                'productId',
-                'condition' => 'implicit.isImplicit = 1'
-            ],
             'variants' => [
                 static::HAS_MANY,
                 'Commerce_VariantRecord',
@@ -84,8 +86,8 @@ class Commerce_ProductRecord extends BaseRecord
     {
         return [
             ['columns' => ['typeId']],
-            ['columns' => ['availableOn']],
-            ['columns' => ['expiresOn']],
+            ['columns' => ['postDate']],
+            ['columns' => ['expiryDate']],
         ];
     }
 
@@ -95,10 +97,18 @@ class Commerce_ProductRecord extends BaseRecord
     protected function defineAttributes()
     {
         return [
-            'availableOn' => AttributeType::DateTime,
-            'expiresOn' => AttributeType::DateTime,
+            'postDate' => AttributeType::DateTime,
+            'expiryDate' => AttributeType::DateTime,
             'promotable' => AttributeType::Bool,
-            'freeShipping' => AttributeType::Bool
+            'freeShipping' => AttributeType::Bool,
+
+            'defaultVariantId' => [AttributeType::Number, 'unsigned' => true],
+            'defaultSku' => [AttributeType::String, 'label' => 'SKU'],
+            'defaultPrice' => [AttributeType::Number, 'decimals' => 4],
+            'defaultHeight' => [AttributeType::Number, 'decimals' => 4],
+            'defaultLength' => [AttributeType::Number, 'decimals' => 4],
+            'defaultWidth' => [AttributeType::Number, 'decimals' => 4],
+            'defaultWeight' => [AttributeType::Number, 'decimals' => 4]
         ];
     }
 

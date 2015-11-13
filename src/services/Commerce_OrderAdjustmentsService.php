@@ -18,7 +18,7 @@ class Commerce_OrderAdjustmentsService extends BaseApplicationComponent
      *
      * @return Commerce_OrderAdjustmentModel[]
      */
-    public function getAllByOrderId($orderId)
+    public function getAllOrderAdjustmentsByOrderId($orderId)
     {
         $records = Commerce_OrderAdjustmentRecord::model()->findAllByAttributes(['orderId' => $orderId]);
 
@@ -31,7 +31,7 @@ class Commerce_OrderAdjustmentsService extends BaseApplicationComponent
      * @return bool
      * @throws Exception
      */
-    public function save(Commerce_OrderAdjustmentModel $model)
+    public function saveOrderAdjustment(Commerce_OrderAdjustmentModel $model)
     {
         if ($model->id) {
             $record = Commerce_OrderAdjustmentRecord::model()->findById($model->id);
@@ -73,7 +73,7 @@ class Commerce_OrderAdjustmentsService extends BaseApplicationComponent
      *
      * @return int
      */
-    public function deleteAllByOrderId($orderId)
+    public function deleteAllOrderAdjustmentsByOrderId($orderId)
     {
         return Commerce_OrderAdjustmentRecord::model()->deleteAllByAttributes(['orderId' => $orderId]);
     }

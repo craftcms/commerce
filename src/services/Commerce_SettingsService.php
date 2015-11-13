@@ -53,7 +53,7 @@ class Commerce_SettingsService extends BaseApplicationComponent
      *
      * @return bool
      */
-    public function save(Commerce_SettingsModel $settings)
+    public function saveSettings(Commerce_SettingsModel $settings)
     {
 
         if (!$settings->validate()) {

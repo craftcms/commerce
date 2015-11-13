@@ -22,8 +22,8 @@ class Commerce_ShippingRulesController extends Commerce_BaseAdminController
             throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
         }
 
-        $methodsExist = craft()->commerce_shippingMethods->exists();
-        $shippingRules = craft()->commerce_shippingRules->getAll([
+        $methodsExist = craft()->commerce_shippingMethods->ShippingMethodExists();
+        $shippingRules = craft()->commerce_shippingRules->getAllShippingRules([
             'order' => 't.methodId, t.name',
             'with' => ['method', 'country', 'state'],
         ]);
@@ -43,12 +43,22 @@ class Commerce_ShippingRulesController extends Commerce_BaseAdminController
             throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
         }
 
+        if (empty($variables['methodId'])) {
+            throw new HttpException(404);
+        }
+
+        $variables['shippingMethod'] = craft()->commerce_shippingMethods->getShippingMethodById($variables['methodId']);
+
+        if (empty($variables['shippingMethod'])) {
+            throw new HttpException(404);
+        }
+
         if (empty($variables['shippingRule'])) {
             if (!empty($variables['ruleId'])) {
                 $id = $variables['ruleId'];
-                $variables['shippingRule'] = craft()->commerce_shippingRules->getById($id);
+                $variables['shippingRule'] = craft()->commerce_shippingRules->getShippingRuleById($id);
 
-                if (!$variables['shippingRule']->id) {
+                if (!$variables['shippingRule']) {
                     throw new HttpException(404);
                 }
             } else {
@@ -56,8 +66,8 @@ class Commerce_ShippingRulesController extends Commerce_BaseAdminController
             }
         }
 
-        $variables['countries'] = ['' => ''] + craft()->commerce_countries->getFormList();
-        $variables['states'] = craft()->commerce_states->getGroupedByCountries();
+        $variables['countries'] = ['' => ''] + craft()->commerce_countries->getAllCountriesListData();
+        $variables['states'] = craft()->commerce_states->getStatesGroupedByCountries();
 
         if (!empty($variables['ruleId'])) {
             $variables['title'] = $variables['shippingRule']->name;
@@ -89,7 +99,7 @@ class Commerce_ShippingRulesController extends Commerce_BaseAdminController
         }
 
         // Save it
-        if (craft()->commerce_shippingRules->save($shippingRule)) {
+        if (craft()->commerce_shippingRules->saveShippingRule($shippingRule)) {
             craft()->userSession->setNotice(Craft::t('Shipping rule saved.'));
             $this->redirectToPostedUrl($shippingRule);
         } else {
@@ -106,15 +116,11 @@ class Commerce_ShippingRulesController extends Commerce_BaseAdminController
      */
     public function actionReorder()
     {
-        if (!craft()->userSession->getUser()->can('manageCommerce')) {
-            throw new HttpException(403, Craft::t('This action is not allowed for the current user.'));
-        }
-
         $this->requirePostRequest();
         $this->requireAjaxRequest();
 
         $ids = JsonHelper::decode(craft()->request->getRequiredPost('ids'));
-        $success = craft()->commerce_shippingRules->reorder($ids);
+        $success = craft()->commerce_shippingRules->reorderShippingRules($ids);
 
         return $this->returnJson(['success' => $success]);
     }
@@ -129,7 +135,7 @@ class Commerce_ShippingRulesController extends Commerce_BaseAdminController
 
         $id = craft()->request->getRequiredPost('id');
 
-        craft()->commerce_shippingRules->deleteById($id);
+        craft()->commerce_shippingRules->deleteShippingRuleById($id);
         $this->returnJson(['success' => true]);
     }
 

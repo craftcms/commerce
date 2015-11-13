@@ -15,12 +15,22 @@ use Commerce\Helpers\CommerceDbHelper;
  */
 class Commerce_TaxZonesService extends BaseApplicationComponent
 {
+    /*
+     * @var
+     */
+    private $_countriesByTaxZoneId;
+
+    /*
+     * @var
+     */
+    private $_statesByTaxZoneId;
+
     /**
      * @param bool $withRelations
      *
      * @return Commerce_TaxZoneModel[]
      */
-    public function getAll($withRelations = true)
+    public function getAllTaxZones($withRelations = true)
     {
         $with = $withRelations ? [
             'countries',
@@ -35,13 +45,17 @@ class Commerce_TaxZonesService extends BaseApplicationComponent
     /**
      * @param int $id
      *
-     * @return Commerce_TaxZoneModel
+     * @return Commerce_TaxZoneModel|null
      */
-    public function getById($id)
+    public function getTaxZoneById($id)
     {
-        $record = Commerce_TaxZoneRecord::model()->findById($id);
+        $result = Commerce_TaxZoneRecord::model()->findById($id);
 
-        return Commerce_TaxZoneModel::populateModel($record);
+        if ($result){
+            return Commerce_TaxZoneModel::populateModel($result);
+        }
+
+        return null;
     }
 
     /**
@@ -52,7 +66,7 @@ class Commerce_TaxZonesService extends BaseApplicationComponent
      * @return bool
      * @throws \Exception
      */
-    public function save(Commerce_TaxZoneModel $model, $countriesIds, $statesIds)
+    public function saveTaxZone(Commerce_TaxZoneModel $model, $countriesIds, $statesIds)
     {
         if ($model->id) {
             $record = Commerce_TaxZoneRecord::model()->findById($model->id);
@@ -160,8 +174,62 @@ class Commerce_TaxZonesService extends BaseApplicationComponent
     /**
      * @param int $id
      */
-    public function deleteById($id)
+    public function deleteTaxZoneById($id)
     {
         Commerce_TaxZoneRecord::model()->deleteByPk($id);
     }
+
+    /**
+     * Returns all countries in a tax zone
+     *
+     * @param $taxZoneId
+     * @return array
+     */
+    public function getCountriesByTaxZoneId($taxZoneId)
+    {
+        if(!isset($this->_countriesByTaxZoneId) || !array_key_exists($taxZoneId, $this->_countriesByTaxZoneId)){
+
+            $results = Commerce_TaxZoneCountryRecord::model()->with('country')->findAllByAttributes([
+                'taxZoneId' => $taxZoneId
+            ]);
+
+            $countries = [];
+
+            foreach($results as $result)
+            {
+                $countries[] = Commerce_CountryModel::populateModel($result->country);
+            }
+
+            $this->_countriesByTaxZoneId[$taxZoneId] = $countries;
+        }
+
+        return $this->_countriesByTaxZoneId[$taxZoneId];
+    }
+
+    /**
+     * Returns all states in a tax zone
+     *
+     * @param $taxZoneId
+     * @return array
+     */
+    public function getStatesByTaxZoneId($taxZoneId)
+    {
+        if(!isset($this->_statesByTaxZoneId) || !array_key_exists($taxZoneId, $this->_statesByTaxZoneId)) {
+
+            $results = Commerce_TaxZoneStateRecord::model()->with('state')->findAllByAttributes([
+            'taxZoneId' => $taxZoneId
+            ]);
+
+            $states = [];
+            foreach($results as $result)
+            {
+                $states[] =  Commerce_StateModel::populateModel($result->state);
+            }
+
+            $this->_statesByTaxZoneId[$taxZoneId] = $states;
+        }
+
+        return $this->_statesByTaxZoneId[$taxZoneId];
+    }
+
 }

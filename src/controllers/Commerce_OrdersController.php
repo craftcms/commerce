@@ -11,10 +11,8 @@ namespace Craft;
  * @package   craft.plugins.commerce.controllers
  * @since     1.0
  */
-class Commerce_OrdersController extends Commerce_BaseAdminController
+class Commerce_OrdersController extends Commerce_BaseCpController
 {
-    protected $allowAnonymous = false;
-
     /**
      * Index of orders
      */
@@ -33,33 +31,26 @@ class Commerce_OrdersController extends Commerce_BaseAdminController
      */
     public function actionEditOrder(array $variables = [])
     {
-        $variables['orderSettings'] = craft()->commerce_orderSettings->getByHandle('order');
+        $variables['orderSettings'] = craft()->commerce_orderSettings->getOrderSettingByHandle('order');
+
+        if (!$variables['orderSettings']) {
+            throw new HttpException(404, Craft::t('No order settings found.'));
+        }
 
         if (empty($variables['order'])) {
             if (!empty($variables['orderId'])) {
-                $variables['order'] = craft()->commerce_orders->getById($variables['orderId']);
+                $variables['order'] = craft()->commerce_orders->getOrderById($variables['orderId']);
 
-                if (!$variables['order']->id) {
+                if (!$variables['order']) {
                     throw new HttpException(404);
                 }
-            } else {
-                $variables['order'] = new Commerce_OrderModel();
-            };
+            }
         }
 
         if (!empty($variables['orderId'])) {
             $variables['title'] = "Order " . substr($variables['order']->number, 0, 7);
         } else {
-            $variables['title'] = Craft::t('Create a new Order');
-        }
-
-        $variables['orderStatuses'] = [];
-        foreach (craft()->commerce_orderStatuses->getAll() as $status) {
-            $variables['orderStatuses'][$status->id] = ['color' => $status->color, 'name' => $status->name];
-        }
-
-        if ($variables['order']->orderStatusId == null) {
-            $variables['orderStatuses'] = ['0' => 'No Status'] + $variables['orderStatuses'];
+            throw new HttpException(404);
         }
 
         craft()->templates->includeCssResource('commerce/order.css');
@@ -105,7 +96,7 @@ class Commerce_OrdersController extends Commerce_BaseAdminController
     public function actionTransactionCapture()
     {
         $id = craft()->request->getParam('id');
-        $transaction = craft()->commerce_transactions->getById($id);
+        $transaction = craft()->commerce_transactions->getTransactionById($id);
 
         if ($transaction->canCapture()) {
             // capture transaction and display result
@@ -115,12 +106,16 @@ class Commerce_OrdersController extends Commerce_BaseAdminController
 
             if ($child->status == Commerce_TransactionRecord::SUCCESS) {
                 craft()->commerce_orders->updateOrderPaidTotal($child->order);
-                craft()->userSession->setNotice(Craft::t('Transaction has been successfully captured: ') . $message);
+                craft()->userSession->setNotice(Craft::t('Transaction captured successfully: {message}', [
+                    'message' => $message
+                ]));
             } else {
-                craft()->userSession->setError(Craft::t('Capturing error: ') . $message);
+                craft()->userSession->setError(Craft::t('Couldn’t capture transaction: {message}', [
+                    'message' => $message
+                ]));
             }
         } else {
-            craft()->userSession->setError(Craft::t('Wrong transaction id'));
+            craft()->userSession->setError(Craft::t('Couldn’t capture transaction.', ['id' => $id]));
         }
     }
 
@@ -130,7 +125,7 @@ class Commerce_OrdersController extends Commerce_BaseAdminController
     public function actionTransactionRefund()
     {
         $id = craft()->request->getParam('id');
-        $transaction = craft()->commerce_transactions->getById($id);
+        $transaction = craft()->commerce_transactions->getTransactionById($id);
 
         if ($transaction->canRefund()) {
             // capture transaction and display result
@@ -139,12 +134,16 @@ class Commerce_OrdersController extends Commerce_BaseAdminController
             $message = $child->message ? ' (' . $child->message . ')' : '';
 
             if ($child->status == Commerce_TransactionRecord::SUCCESS) {
-                craft()->userSession->setNotice(Craft::t('Transaction has been successfully refunded: ') . $message);
+                craft()->userSession->setNotice(Craft::t('Transaction refunded successfully: {message}', [
+                    'message' => $message
+                ]));
             } else {
-                craft()->userSession->setError(Craft::t('Refunding error: ') . $message);
+                craft()->userSession->setError(Craft::t('Couldn’t refund transaction: {message}', [
+                    'message' => $message
+                ]));
             }
         } else {
-            craft()->userSession->setError(Craft::t('Wrong transaction id'));
+            craft()->userSession->setError(Craft::t('Couldn’t refund transaction.'));
         }
     }
 
@@ -158,7 +157,7 @@ class Commerce_OrdersController extends Commerce_BaseAdminController
         $orderStatusId = craft()->request->getParam('orderStatusId');
         $message = craft()->request->getParam('message');
 
-        $order = craft()->commerce_orders->getById($orderId);
+        $order = craft()->commerce_orders->getOrderById($orderId);
         $orderStatus = craft()->commerce_orderStatuses->getById($orderStatusId);
 
         if (!$order or !$orderStatus) {
@@ -168,7 +167,7 @@ class Commerce_OrdersController extends Commerce_BaseAdminController
         $order->orderStatusId = $orderStatus->id;
         $order->message = $message;
 
-        if (craft()->commerce_orders->save($order)) {
+        if (craft()->commerce_orders->saveOrder($order)) {
             $this->returnJson(['success' => true]);
         }
     }
@@ -184,7 +183,7 @@ class Commerce_OrdersController extends Commerce_BaseAdminController
         $addressType = craft()->request->getParam('addressType');
         $address = craft()->request->getParam('address');
 
-        $order = craft()->commerce_orders->getById($orderId);
+        $order = craft()->commerce_orders->getOrderById($orderId);
 
         if ($addressType == 'billing') {
             $billingAddress = Commerce_AddressModel::populateModel($address);
@@ -202,7 +201,7 @@ class Commerce_OrdersController extends Commerce_BaseAdminController
             $this->returnErrorJson(Craft::t('Error saving address.'));
         }
 
-        if (craft()->commerce_orders->save($order)) {
+        if (craft()->commerce_orders->saveOrder($order)) {
             $this->returnJson(['success' => true]);
         }
     }
@@ -221,11 +220,11 @@ class Commerce_OrdersController extends Commerce_BaseAdminController
         $order = $this->_setOrderFromPost();
         $this->_setContentFromPost($order);
 
-        if (craft()->commerce_orders->save($order)) {
+        if (craft()->commerce_orders->saveOrder($order)) {
             $this->redirectToPostedUrl($order);
         }
 
-        craft()->userSession->setNotice(Craft::t("Couldn't save order."));
+        craft()->userSession->setError(Craft::t("Couldn’t save order."));
         craft()->urlManager->setRouteVariables([
             'order' => $order
         ]);
@@ -240,7 +239,7 @@ class Commerce_OrdersController extends Commerce_BaseAdminController
         $orderId = craft()->request->getPost('orderId');
 
         if ($orderId) {
-            $order = craft()->commerce_orders->getById($orderId);
+            $order = craft()->commerce_orders->getOrderById($orderId);
 
             if (!$order) {
                 throw new Exception(Craft::t('No order with the ID “{id}”',
@@ -269,14 +268,14 @@ class Commerce_OrdersController extends Commerce_BaseAdminController
         $this->requirePostRequest();
 
         $orderId = craft()->request->getRequiredPost('orderId');
-        $order = craft()->commerce_orders->getById($orderId);
+        $order = craft()->commerce_orders->getOrderById($orderId);
 
         if (!$order) {
             throw new Exception(Craft::t('No order exists with the ID “{id}”.',
                 ['id' => $orderId]));
         }
 
-        if (craft()->commerce_orders->delete($order)) {
+        if (craft()->commerce_orders->deleteOrder($order)) {
             if (craft()->request->isAjaxRequest()) {
                 $this->returnJson(['success' => true]);
             } else {

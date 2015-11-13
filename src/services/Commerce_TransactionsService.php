@@ -16,25 +16,34 @@ class Commerce_TransactionsService extends BaseApplicationComponent
     /**
      * @param int $id
      *
-     * @return Commerce_TransactionModel
+     * @return Commerce_TransactionModel|null
      */
-    public function getById($id)
+    public function getTransactionById($id)
     {
-        $record = Commerce_TransactionRecord::model()->findById($id);
+        $result = Commerce_TransactionRecord::model()->findById($id);
 
-        return Commerce_TransactionModel::populateModel($record);
+        if ($result) {
+            return Commerce_TransactionModel::populateModel($result);
+        }
+
+        return null;
+
     }
 
     /**
      * @param string $hash
      *
-     * @return Commerce_TransactionModel
+     * @return Commerce_TransactionModel|null
      */
-    public function getByHash($hash)
+    public function getTransactionByHash($hash)
     {
-        $record = Commerce_TransactionRecord::model()->findByAttributes(['hash' => $hash]);
+        $result = Commerce_TransactionRecord::model()->findByAttributes(['hash' => $hash]);
 
-        return Commerce_TransactionModel::populateModel($record);
+        if ($result) {
+            return Commerce_TransactionModel::populateModel($result);
+        }
+
+        return null;
     }
 
     /**
@@ -42,7 +51,7 @@ class Commerce_TransactionsService extends BaseApplicationComponent
      *
      * @return Commerce_TransactionModel[]
      */
-    public function getAllByOrderId($orderId)
+    public function getAllTransactionsByOrderId($orderId)
     {
         $records = Commerce_TransactionRecord::model()->findAllByAttributes(['orderId' => $orderId]);
 
@@ -54,7 +63,7 @@ class Commerce_TransactionsService extends BaseApplicationComponent
      *
      * @return bool
      */
-    public function exists($criteria = [])
+    public function transactionExists($criteria = [])
     {
         return Commerce_TransactionRecord::model()->exists($criteria);
     }
@@ -64,7 +73,7 @@ class Commerce_TransactionsService extends BaseApplicationComponent
      *
      * @return Commerce_TransactionModel
      */
-    public function create(Commerce_OrderModel $order)
+    public function createTransaction(Commerce_OrderModel $order)
     {
         $transaction = new Commerce_TransactionModel;
         $transaction->status = Commerce_TransactionRecord::PENDING;
@@ -86,7 +95,7 @@ class Commerce_TransactionsService extends BaseApplicationComponent
      * @return bool
      * @throws Exception
      */
-    public function save(Commerce_TransactionModel $model)
+    public function saveTransaction(Commerce_TransactionModel $model)
     {
         if ($model->id) {
             $record = Commerce_TransactionRecord::model()->findById($model->id);
@@ -124,6 +133,11 @@ class Commerce_TransactionsService extends BaseApplicationComponent
             $record->save(false);
             $model->id = $record->id;
 
+            $event = new Event($this, [
+                'transaction' => $model
+            ]);
+            $this->onSaveTransaction($event);
+
             return true;
         }
 
@@ -133,9 +147,26 @@ class Commerce_TransactionsService extends BaseApplicationComponent
     /**
      * @param Commerce_TransactionModel $transaction
      */
-    public function delete(Commerce_TransactionModel $transaction)
+    public function deleteTransaction(Commerce_TransactionModel $transaction)
     {
         Commerce_TransactionRecord::model()->deleteByPk($transaction->id);
+    }
+
+    /**
+     * Event: After successfully saving a transaction
+     * Event params: transaction(Commerce_TransactionModel)
+     *
+     * @param \CEvent $event
+     *
+     * @throws \CException
+     */
+    public function onSaveTransaction(\CEvent $event)
+    {
+        $params = $event->params;
+        if (empty($params['transaction']) || !($params['transaction'] instanceof Commerce_TransactionModel)) {
+            throw new Exception('onSaveTransaction event requires "transaction" param with Commerce_TransactionModel instance');
+        }
+        $this->raiseEvent('onSaveTransaction', $event);
     }
 
 }

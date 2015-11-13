@@ -18,7 +18,7 @@ class Commerce_CustomersService extends BaseApplicationComponent
     const SESSION_CUSTOMER = 'commerce_customer_cookie';
 
     /** @var Commerce_CustomerModel */
-    private $customer = null;
+    private $_customer = null;
 
 
     /**
@@ -40,7 +40,7 @@ class Commerce_CustomersService extends BaseApplicationComponent
     {
         $customer = $this->getCustomer();
         if (!$customer->id) {
-            if ($this->save($customer)) {
+            if ($this->saveCustomer($customer)) {
                 craft()->session->add(self::SESSION_CUSTOMER, $customer->id);
             } else {
                 $errors = implode(', ', $customer->getAllErrors());
@@ -56,18 +56,21 @@ class Commerce_CustomersService extends BaseApplicationComponent
      */
     public function getCustomer()
     {
-        if ($this->customer === null) {
+        if ($this->_customer === null) {
             $user = craft()->userSession->getUser();
 
             if ($user) {
                 $record = Commerce_CustomerRecord::model()->findByAttributes(['userId' => $user->id]);
+                if($record){
+                    craft()->session->add(self::SESSION_CUSTOMER, $record->id);
+                }
             } else {
                 $id = craft()->session->get(self::SESSION_CUSTOMER);
                 if ($id) {
                     $record = Commerce_CustomerRecord::model()->findById($id);
                     // If there is a customer record but it is associated with a real user, don't use it when guest.
                     if ($record && $record->userId) {
-                        $record = false;
+                        $record = null;
                     }
                 }
             }
@@ -81,10 +84,21 @@ class Commerce_CustomersService extends BaseApplicationComponent
                 }
             }
 
-            $this->customer = Commerce_CustomerModel::populateModel($record);
+            $this->_customer = Commerce_CustomerModel::populateModel($record);
         }
 
-        return $this->customer;
+        return $this->_customer;
+    }
+
+    /**
+     * Forgets a Customer by deleting the customer id from session.
+     *
+     * This is be restored if the user is logged in.
+     */
+    public function forgetCustomer()
+    {
+        $this->_customer = null;
+        craft()->session->remove(self::SESSION_CUSTOMER);
     }
 
     /**
@@ -93,7 +107,7 @@ class Commerce_CustomersService extends BaseApplicationComponent
      * @return bool
      * @throws Exception
      */
-    public function save(Commerce_CustomerModel $customer)
+    public function saveCustomer(Commerce_CustomerModel $customer)
     {
         if (!$customer->id) {
             $customerRecord = new Commerce_CustomerRecord();
@@ -129,7 +143,7 @@ class Commerce_CustomersService extends BaseApplicationComponent
      *
      * @return Commerce_CustomerModel[]
      */
-    public function getAll($criteria = [])
+    public function getAllCustomers($criteria = [])
     {
         $records = Commerce_CustomerRecord::model()->findAll($criteria);
 
@@ -139,19 +153,23 @@ class Commerce_CustomersService extends BaseApplicationComponent
     /**
      * @param int $id
      *
-     * @return Commerce_CustomerModel
+     * @return Commerce_CustomerModel|null
      */
-    public function getById($id)
+    public function getCustomerById($id)
     {
-        $record = Commerce_CustomerRecord::model()->findById($id);
+        $result = Commerce_CustomerRecord::model()->findById($id);
 
-        return Commerce_CustomerModel::populateModel($record);
+        if ($result) {
+            return Commerce_CustomerModel::populateModel($result);
+        }
+
+        return null;
     }
 
     /**
      * @return bool
      */
-    public function isSaved()
+    public function isCustomerSaved()
     {
         return !!$this->getCustomer()->id;
     }
@@ -191,7 +209,7 @@ class Commerce_CustomersService extends BaseApplicationComponent
             $customer->lastUsedShippingAddressId = $shippingId;
         }
 
-        return $this->save($customer);
+        return $this->saveCustomer($customer);
     }
 
     /**
@@ -211,13 +229,13 @@ class Commerce_CustomersService extends BaseApplicationComponent
     }
 
     /**
-     * Gets all customer by email address.
+     * Gets all customers by email address.
      *
      * @param $email
      *
      * @return array
      */
-    public function getByEmail($email)
+    public function getAllCustomersByEmail($email)
     {
         $customers = Commerce_CustomerRecord::model()->findAllByAttributes(['email' => $email]);
 
@@ -230,7 +248,7 @@ class Commerce_CustomersService extends BaseApplicationComponent
      *
      * @return mixed
      */
-    public function delete($customer)
+    public function deleteCustomer($customer)
     {
         return Commerce_CustomerRecord::model()->deleteByPk($customer->id);
     }
@@ -245,6 +263,30 @@ class Commerce_CustomersService extends BaseApplicationComponent
         $username = $event->params['username'];
         $this->consolidateOrdersToUser($username);
     }
+
+    /**
+     * @param Event $event
+     *
+     * @throws Exception
+     */
+    public function saveUserHandler(Event $event)
+    {
+        $user = $event->params['user'];
+        $customer = $this->getCustomerByUserId($user->id);
+
+        // Sync the users email with the customer record.
+        if($customer){
+            if($customer->email != $user->email){
+                $customer->email = $user->email;
+                if(!$this->saveCustomer($customer)){
+                    $error = Craft::t('Could not sync user’s email to customers record. CustomerId:{customerId} UserId:{userId}',
+                        ['customerId' => $customer->id, 'userId' => $user->id]);
+                    CommercePlugin::log($error);
+                };
+            }
+        }
+    }
+
 
     /**
      * @param string $username
@@ -262,23 +304,23 @@ class Commerce_CustomersService extends BaseApplicationComponent
             /** @var UserModel $user */
             $user = craft()->users->getUserByUsernameOrEmail($username);
 
-            $toCustomer = $this->getByUserId($user->id);
+            $toCustomer = $this->getCustomerByUserId($user->id);
 
             if (!$toCustomer) {
                 $toCustomer = new Commerce_CustomerModel();
                 $toCustomer->email = $user->email;
                 $toCustomer->userId = $user->id;
-                $this->save($toCustomer);
+                $this->saveCustomer($toCustomer);
             }
 
-            $orders = craft()->commerce_orders->getByEmail($toCustomer->email);
+            $orders = craft()->commerce_orders->getOrdersByEmail($toCustomer->email);
 
             foreach ($orders as $order) {
                 // Only consolidate completed orders, not carts
                 if ($order->dateOrdered) {
                     $order->customerId = $toCustomer->id;
                     $order->email = $toCustomer->email;
-                    craft()->commerce_orders->save($order);
+                    craft()->commerce_orders->saveOrder($order);
                 }
             }
 
@@ -294,13 +336,17 @@ class Commerce_CustomersService extends BaseApplicationComponent
     /**
      * @param $id
      *
-     * @return BaseModel
+     * @return Commerce_CustomerModel|null
      */
-    public function getByUserId($id)
+    public function getCustomerByUserId($id)
     {
-        $record = Commerce_CustomerRecord::model()->findByAttributes(['userId' => $id]);
+        $result = Commerce_CustomerRecord::model()->findByAttributes(['userId' => $id]);
 
-        return Commerce_CustomerModel::populateModel($record);
+        if ($result) {
+            return Commerce_CustomerModel::populateModel($result);
+        }
+
+        return null;
     }
 
 }

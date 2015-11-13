@@ -65,12 +65,23 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
     {
         $actions = [];
 
-        $deleteAction = craft()->elements->getAction('Delete');
-        $deleteAction->setParams([
-            'confirmationMessage' => Craft::t('Are you sure you want to delete the selected product and their variants?'),
-            'successMessage' => Craft::t('Products deleted.'),
-        ]);
-        $actions[] = $deleteAction;
+        // TODO: Replace with an order permission check when we have one
+        if (craft()->userSession->checkPermission('accessPlugin-commerce'))
+        {
+            $deleteAction = craft()->elements->getAction('Delete');
+            $deleteAction->setParams([
+                'confirmationMessage' => Craft::t('Are you sure you want to delete the selected orders?'),
+                'successMessage' => Craft::t('Orders deleted.'),
+            ]);
+            $actions[] = $deleteAction;
+
+            // Only allow mass updating order status when all selected are of the same status, and not carts.
+            $isStatus = strpos($source, 'orderStatus:');
+            if ($isStatus === 0) {
+                $updateOrderStatusAction = craft()->elements->getAction('Commerce_UpdateOrderStatus');
+                $actions[] = $updateOrderStatusAction;
+            }
+        }
 
         // Allow plugins to add additional actions
         $allPluginActions = craft()->plugins->call('commerce_addOrderActions', [$source], true);
@@ -101,7 +112,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
         foreach (craft()->commerce_orderStatuses->getAll() as $orderStatus) {
             $key = 'orderStatus:' . $orderStatus->handle;
             $sources[$key] = [
-                'statusColor' => $orderStatus->color,
+                'status' => $orderStatus->color,
                 'label' => $orderStatus->name,
                 'criteria' => ['orderStatus' => $orderStatus]
             ];
@@ -132,31 +143,53 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
     }
 
     /**
-     * @param null $source
+     * @return array
+     */
+    public function defineAvailableTableAttributes()
+    {
+        $attributes = [
+            'number' => ['label' => Craft::t('Number')],
+            'id' => ['label' => Craft::t('ID')],
+            'orderStatus' => ['label' => Craft::t('Status')],
+            'totalPrice' => ['label' => Craft::t('Total')],
+            'totalPaid' => ['label' => Craft::t('Total Paid')],
+            'dateOrdered' => ['label' => Craft::t('Date Ordered')],
+            'datePaid' => ['label' => Craft::t('Date Paid')],
+            'dateCreated' => ['label' => Craft::t('Date Created')],
+            'dateUpdated' => ['label' => Craft::t('Date Updated')],
+            'email' => ['label' => Craft::t('Email')],
+        ];
+
+        // Allow plugins to modify the attributes
+        $pluginAttributes = craft()->plugins->call('commerce_defineAdditionalOrderTableAttributes', array(), true);
+
+        foreach ($pluginAttributes as $thisPluginAttributes)
+        {
+            $attributes = array_merge($attributes, $thisPluginAttributes);
+        }
+
+        return $attributes;
+    }
+
+    /**
+     * @param string|null $source
      *
      * @return array
      */
-    public function defineTableAttributes($source = null)
+    public function getDefaultTableAttributes($source = null)
     {
-        if (explode(':', $source)[0] == 'carts') {
-            $attributes = [
-                'number' => Craft::t('Number'),
-                'dateUpdated' => Craft::t('Last Updated'),
-                'totalPrice' => Craft::t('Total')
-            ];
+        $attributes = ['number'];
+
+        if (strncmp($source, 'carts:', 6) !== 0) {
+            $attributes[] = 'orderStatus';
+            $attributes[] = 'totalPrice';
+            $attributes[] = 'dateOrdered';
+            $attributes[] = 'totalPaid';
+            $attributes[] = 'datePaid';
+        } else {
+            $attributes[] = 'dateUpdated';
+            $attributes[] = 'totalPrice';
         }
-
-        $attributes = [
-            'number' => Craft::t('Number'),
-            'orderStatus' => Craft::t('Status'),
-            'totalPrice' => Craft::t('Total Payable'),
-            'dateOrdered' => Craft::t('Completed'),
-            'datePaid' => Craft::t('Paid')
-        ];
-
-
-        // Allow plugins to modify the attributes
-        craft()->plugins->call('commerce_modifyOrderTableAttributes', [&$attributes]);
 
         return $attributes;
     }
@@ -177,7 +210,6 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
      */
     public function getTableAttributeHtml(BaseElementModel $element, $attribute)
     {
-
         // First give plugins a chance to set this
         $pluginAttributeHtml = craft()->plugins->callFirst('commerce_getOrderTableAttributeHtml', [$element, $attribute], true);
 
@@ -188,15 +220,16 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
         switch ($attribute) {
             case 'orderStatus': {
                 if ($element->orderStatus) {
-                    return $element->orderStatus->printName();
+                    return $element->orderStatus->htmlLabel();
                 } else {
-                    return sprintf('<span class="commerce status %s"></span> %s', '', '');
+                    return '<span class="status"></span>';
                 }
             }
+            case 'totalPaid':
             case 'totalPrice': {
                 $currency = craft()->commerce_settings->getOption('defaultCurrency');
 
-                return craft()->numberFormatter->formatCurrency($element->totalPrice, strtoupper($currency));
+                return craft()->numberFormatter->formatCurrency($element->$attribute, strtoupper($currency));
             }
             default: {
                 return parent::getTableAttributeHtml($element, $attribute);
@@ -211,13 +244,15 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
     {
         $attributes = [
             'number' => Craft::t('Number'),
+            'id' => Craft::t('ID'),
             'dateOrdered' => Craft::t('Completed At'),
             'totalPrice' => Craft::t('Total Payable'),
+            'totalPaid' => Craft::t('Total Paid'),
             'orderStatusId' => Craft::t('Order Status'),
         ];
 
         // Allow plugins to modify the attributes
-        craft()->plugins->call('commerce_modifyOrderSortableAttributes', array(&$attributes));
+        craft()->plugins->call('commerce_modifyOrderSortableAttributes', [&$attributes]);
 
         return $attributes;
     }
@@ -241,7 +276,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
             'customerId' => AttributeType::Mixed,
             'user' => AttributeType::Mixed,
             'isPaid' => AttributeType::Bool,
-            'isUnPaid' => AttributeType::Bool
+            'isUnpaid' => AttributeType::Bool
         ];
     }
 
@@ -277,7 +312,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
         orders.billingAddressData,
         orders.shippingAddressId,
         orders.shippingAddressData,
-        orders.shippingMethodId,
+        orders.shippingMethod,
         orders.paymentMethodId,
         orders.customerId,
         orders.dateUpdated')
@@ -313,7 +348,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 
         if ($criteria->user) {
             if ($criteria->user instanceof UserModel) {
-                $id = craft()->commerce_customers->getById($criteria->user->id)->id;
+                $id = craft()->commerce_customers->getCustomerById($criteria->user->id)->id;
                 if ($id) {
                     $criteria->customerId = $id;
                     $criteria->customer = null;
@@ -354,7 +389,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
             $query->andWhere(DbHelper::parseParam('orders.totalPaid', '>= orders.totalPrice', $query->params));
         }
 
-        if ($criteria->isUnPaid == true) {
+        if ($criteria->isUnpaid == true) {
             $query->andWhere(DbHelper::parseParam('orders.totalPaid', '< orders.totalPrice', $query->params));
         }
     }

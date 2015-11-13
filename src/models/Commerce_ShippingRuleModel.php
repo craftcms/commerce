@@ -13,7 +13,7 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  * @property int $stateId
  * @property int $methodId
  * @property int $priority
- * @property bool                        $$enabled
+ * @property bool $enabled
  * @property int $minQty
  * @property int $maxQty
  * @property float $minTotal
@@ -38,9 +38,176 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  * @package   craft.plugins.commerce.models
  * @since     1.0
  */
-class Commerce_ShippingRuleModel extends BaseModel
+class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfaces\ShippingRule
 {
     use Commerce_ModelRelationsTrait;
+
+    /**
+     * Hard coded rule handle
+     *
+     * @return string
+     */
+    public function getHandle()
+    {
+        return 'commerceRuleId' . $this->id;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsEnabled()
+    {
+        return $this->enabled;
+    }
+
+    /**
+     * @param Commerce_OrderModel $order
+     * @return bool
+     */
+    public function matchOrder(Commerce_OrderModel $order)
+    {
+        if (!$this->enabled) {
+            return false;
+        }
+
+        $floatFields = ['minTotal', 'maxTotal', 'minWeight', 'maxWeight'];
+        foreach ($floatFields as $field) {
+            $this->$field *= 1;
+        }
+
+        if ($this->countryId && !$order->shippingAddressId) {
+            return false;
+        }
+
+        if ($this->stateId && !$order->shippingAddressId) {
+            return false;
+        }
+
+        // country geographical filters
+        if ($this->countryId && $this->countryId != $order->shippingAddress->countryId) {
+            return false;
+        }
+
+        // state filters
+        if ($this->stateId && $this->state->name != $order->shippingAddress->getStateText()) {
+            return false;
+        }
+
+        // order qty rules are inclusive (min <= x <= max)
+        if ($this->minQty AND $this->minQty > $order->totalQty) {
+            return false;
+        }
+        if ($this->maxQty AND $this->maxQty < $order->totalQty) {
+            return false;
+        }
+
+        // order total rules exclude maximum limit (min <= x < max)
+        if ($this->minTotal AND $this->minTotal > $order->itemTotal) {
+            return false;
+        }
+        if ($this->maxTotal AND $this->maxTotal <= $order->itemTotal) {
+            return false;
+        }
+
+        // order weight rules exclude maximum limit (min <= x < max)
+        if ($this->minWeight AND $this->minWeight > $order->totalWeight) {
+            return false;
+        }
+        if ($this->maxWeight AND $this->maxWeight <= $order->totalWeight) {
+            return false;
+        }
+
+        // all rules match
+        return true;
+    }
+
+    /**
+     * @return array
+     */
+    public function getOptions()
+    {
+        return $this->getAttributes();
+    }
+
+    /**
+     * @return float
+     */
+    public function getPercentageRate()
+    {
+        return $this->getAttribute('percentageRate');
+    }
+
+    /**
+     * @return float
+     */
+    public function getPerItemRate()
+    {
+        return $this->getAttribute('perItemRate');
+    }
+
+    /**
+     * @return float
+     */
+    public function getWeightRate()
+    {
+        return $this->getAttribute('weightRate');
+    }
+
+    /**
+     * @return float
+     */
+    public function getBaseRate()
+    {
+        return $this->getAttribute('baseRate');
+    }
+
+    /**
+     * @return float
+     */
+    public function getMaxRate()
+    {
+        return $this->getAttribute('maxRate');
+    }
+
+    /**
+     * @return float
+     */
+    public function getMinRate()
+    {
+        return $this->getAttribute('minRate');
+    }
+
+    /**
+     * @return string
+     */
+    public function getDescription()
+    {
+        $description = '';
+        if ($this->perItemRate || $this->percentageRate) {
+            if ($this->perItemRate) {
+                $description .= $this->perItemRate * 1 . '$ ';
+            }
+
+            if ($this->percentageRate) {
+                if ($this->perItemRate) {
+                    $description .= Craft::t('and') . ' ';
+                }
+
+                $description .= $this->percentageRate * 100 . '% ';
+            }
+
+            $description .= Craft::t('per item') . ' ';
+        }
+
+        if ($this->baseRate) {
+            if ($description) {
+                $description .= Craft::t('and') . ' ';
+            }
+            $description .= $this->baseRate * 1 . '$ ' . Craft::t('base rate');
+        }
+
+        return $description;
+    }
 
     /**
      * @return array

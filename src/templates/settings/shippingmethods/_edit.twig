@@ -5,24 +5,27 @@
 { label: "Shipping Methods"|t, url: url('commerce/settings/shippingmethods') },
 ] %}
 
+{% set fullPageForm = true %}
+
 {% import "_includes/forms" as forms %}
 
     {% set tabs = {
-    0: {'label':'Shipping Method','url':'#shippingMethodTab'}
+    0: {'label':'Shipping Method','url':'#shipping-method-tab'}
     }
     %}
     {% if not newMethod %}
         {%  set tabs = tabs|merge({1: {'label':'Rules','url':'#rules'}}) %}
     {% endif %}
 
-{% set content %}
-<form method="post" accept-charset="UTF-8" data-saveshortcut>
-<div id="shippingMethodTab">
 
-    <input type="hidden" name="action" value="commerce/shippingMethod/save">
+{% block saveButton %}
+    <input type="submit" class="btn submit" value="{{ newMethod ? 'Save and set rules'|t :'Save'|t }}">
+{% endblock %}
+
+{% block content %}
+<div id="shipping-method-tab">
+    <input type="hidden" name="action" value="commerce/shippingMethods/save">
     <input type="hidden" name="redirect" value="commerce/settings/shippingmethods/{id}#rules">
-
-    {{ getCsrfInput() }}
     {% if shippingMethod.id %}<input type="hidden" name="shippingMethodId" value="{{ shippingMethod.id }}">{% endif %}
 
     {{ forms.textField({
@@ -35,11 +38,24 @@
         errors: shippingMethod.getErrors('name'),
         autofocus: true,
         required: true,
-        translatable: true
     }) }}
 
+    {{ forms.textField({
+        first: true,
+        label: "Handle"|t,
+        instructions: "How this shipping method will be referred to in templates and forms."|t,
+        id: 'handle',
+        class: 'code',
+        name: 'handle',
+        value: shippingMethod.handle,
+        errors: shippingMethod.getErrors('handle'),
+        autofocus: true,
+        required: true,
+    }) }}
+
+
     {{ forms.checkboxField({
-        label: "Enable this shipping method on the front end?"|t,
+        label: "Enable this shipping method on the front end"|t,
         id: 'enabled',
         name: 'enabled',
         value: 1,
@@ -47,31 +63,22 @@
         errors: shippingMethod.getErrors('enabled')
     }) }}
 
-    {{ forms.checkboxField({
-        label: "New carts get this status by default"|t,
-        id: 'default',
-        name: 'default',
-        value: 1,
-        checked: shippingMethod.default,
-        errors: shippingMethod.getErrors('default')
-    }) }}
-
 </div>
 
 <div id="rules" class="hidden">
 
 <h2>{{ "Shipping Rules"|t }}</h2>
+
+<div id="no-shipping-rules"{% if shippingRules|length %} class="hidden"{% endif %}>
+    <p>{{ "No shipping rules exist yet."|t }}</p>
+</div>
+
 {% if shippingRules|length %}
-<table id="shippingRules" class="data fullwidth collapsible">
+<table id="shipping-rules" class="data fullwidth collapsible">
     <thead>
     <tr>
         <th>{{ 'Name'|t }}</th>
-        <th>{{ 'Method'|t }}</th>
-        <th>{{ 'Country'|t }}</th>
-        <th>{{ 'State'|t }}</th>
-        <th>{{ 'Filtering Settings'|t }}</th>
-        <th>{{ 'Charge Settings'|t }}</th>
-        <th>{{ 'Enabled?'|t }}</th>
+        <th>{{ 'Description'|t }}</th>
         <td class="thin"></td>
         <td class="thin"></td>
     </tr>
@@ -79,27 +86,15 @@
     <tbody>
     {% for shippingRule in shippingRules %}
         <tr data-id="{{ shippingRule.id }}" data-name="{{ shippingRule.name }}">
-            <th scope="row" data-title="Name"><a href="{{ url('commerce/settings/shippingmethods/'~shippingRule.methodId~'/shippingrules/'~shippingRule.id) }}">{{ shippingRule.name }}</a></th>
-            <td>{{ shippingRule.method.name }}</td>
-            <td>{{ shippingRule.country.name|default('All') }}</td>
-            <td>{{ shippingRule.state.name|default('All') }}</td>
-            <td>
-                Minimum Order Quantity: {{ shippingRule.minQty }}<br/>
-                Maximum Order Quantity: {{ shippingRule.maxQty }}<br/>
-                Minimum Order Total Price: {{ shippingRule.minTotal }}<br/>
-                Maximum Order Total Price: {{ shippingRule.maxTotal }}<br/>
-                Minimum Order Weight: {{ shippingRule.minWeight }}<br/>
-                Maximum Order Weight: {{ shippingRule.maxWeight }}
-            </td>
-            <td>
-                Base Rate: {{ shippingRule.baseRate }}<br/>
-                Per Item Rate: {{ shippingRule.perItemRate }}<br/>
-                Weight Rate: {{ shippingRule.weightRate }}<br/>
-                Percentage Rate: {{ shippingRule.percentageRate }}<br/>
-                Minimum Rate: {{ shippingRule.minRate }}<br/>
-                Maximum Rate: {{ shippingRule.maxRate }}
-            </td>
-            <td>{{ shippingRule.enabled ? 'Yes'|t : 'No'|t }}</td>
+            <th scope="row" data-title="{{ 'Name'|t }}">
+                {% if shippingRule.enabled %}
+                    <span class="status green"></span>
+                {% else %}
+                    <span class="status"></span>
+                {% endif %}
+                <a href="{{ url('commerce/settings/shippingmethods/'~shippingRule.methodId~'/shippingrules/'~shippingRule.id) }}">{{ shippingRule.name }}</a>
+            </th>
+            <td>{{ shippingRule.description }}</td>
             <td class="thin">
                 <a class="move icon disabled" title="{{ 'Delete'|t }}" role="button"></a>
             </td>
@@ -111,27 +106,27 @@
 
     </tbody>
 </table>
-{% else %}
-    <p>{{ 'No shipping rules exist yet for this shipping method.' }}</p>
 {% endif %}
-<div class="btngroup submit first">
-    <a href="{{ url('commerce/settings/shippingmethods/'~shippingMethod.id~'/shippingrules/new') }}" class="btn submit">{{ 'New Shipping Rule'|t }}</a>
-</div>
-
-</div>
 
 <div class="buttons">
-    <input type="submit" class="btn submit" value="{{ newMethod ? 'Save and set rules'|t :'Save'|t }}">
+    <a href="{{ url('commerce/settings/shippingmethods/'~shippingMethod.id~'/shippingrules/new') }}" class="btn submit add icon">{{ 'New shipping rule'|t }}</a>
 </div>
-</form>
-{% endset %}
+
+</div>
+{% endblock %}
 
 {% includejs %}
+{% if not shippingMethod.id %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
 var adminTable = new Craft.AdminTable({
-    tableSelector: '#shippingRules',
+    tableSelector: '#shipping-rules',
+    noObjectsSelector: '#no-shipping-rules',
     deleteAction: 'commerce/shippingRules/delete',
     sortable: true,
-    reorderAction: 'commerce/shippingRule/reorder',
-    confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
+    reorderAction: 'commerce/shippingRules/reorder',
+    reorderSuccessMessage: Craft.t('Rules reordered.'),
+    reorderFailMessage:    Craft.t('Couldn’t reorder rules..'),
+    confirmDeleteMessage:  Craft.t('Are you sure you want to delete “{name}”?'),
+    deleteSuccessMessage:  Craft.t('“{name}” deleted.'),
+    deleteFailMessage:     Craft.t('Couldn’t delete “{name}”.'),
 });
 {% endincludejs %}

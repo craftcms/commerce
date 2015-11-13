@@ -16,25 +16,33 @@ class Commerce_OrderHistoriesService extends BaseApplicationComponent
     /**
      * @param int $id
      *
-     * @return Commerce_OrderHistoryModel
+     * @return Commerce_OrderHistoryModel|null
      */
-    public function getById($id)
+    public function getOrderHistoryById($id)
     {
-        $record = Commerce_OrderHistoryRecord::model()->findById($id);
+        $result = Commerce_OrderHistoryRecord::model()->findById($id);
 
-        return Commerce_OrderHistoryModel::populateModel($record);
+        if ($result) {
+            return Commerce_OrderHistoryModel::populateModel($result);
+        }
+
+        return null;
     }
 
     /**
      * @param array $attr
      *
-     * @return Commerce_OrderHistoryModel
+     * @return Commerce_OrderHistoryModel|null
      */
-    public function getByAttributes(array $attr)
+    public function getOrderHistoryByAttributes(array $attr)
     {
-        $record = Commerce_OrderHistoryRecord::model()->findByAttributes($attr);
+        $result = Commerce_OrderHistoryRecord::model()->findByAttributes($attr);
 
-        return Commerce_OrderHistoryModel::populateModel($record);
+        if ($result) {
+            return Commerce_OrderHistoryModel::populateModel($result);
+        }
+
+        return null;
     }
 
     /**
@@ -42,7 +50,7 @@ class Commerce_OrderHistoriesService extends BaseApplicationComponent
      *
      * @return Commerce_OrderHistoryModel[]
      */
-    public function getAll(array $criteria = [])
+    public function getAllOrderHistories(array $criteria = [])
     {
         $records = Commerce_OrderHistoryRecord::model()->findAll($criteria);
 
@@ -56,7 +64,7 @@ class Commerce_OrderHistoriesService extends BaseApplicationComponent
      * @return bool
      * @throws Exception
      */
-    public function createFromOrder(Commerce_OrderModel $order, $oldStatusId)
+    public function createOrderHistoryFromOrder(Commerce_OrderModel $order, $oldStatusId)
     {
         $orderHistoryModel = new Commerce_OrderHistoryModel();
         $orderHistoryModel->orderId = $order->id;
@@ -65,7 +73,7 @@ class Commerce_OrderHistoriesService extends BaseApplicationComponent
         $orderHistoryModel->customerId = craft()->commerce_customers->getCustomerId();
         $orderHistoryModel->message = $order->message;
 
-        if (!$this->save($orderHistoryModel)) {
+        if (!$this->saveOrderHistory($orderHistoryModel)) {
             return false;
         }
 
@@ -87,7 +95,7 @@ class Commerce_OrderHistoriesService extends BaseApplicationComponent
      * @throws \CDbException
      * @throws \Exception
      */
-    public function save(Commerce_OrderHistoryModel $model)
+    public function saveOrderHistory(Commerce_OrderHistoryModel $model)
     {
         if ($model->id) {
             $record = Commerce_OrderHistoryRecord::model()->findById($model->id);
@@ -150,7 +158,7 @@ class Commerce_OrderHistoriesService extends BaseApplicationComponent
      *
      * @throws \CDbException
      */
-    public function deleteById($id)
+    public function deleteOrderHistoryById($id)
     {
         Commerce_OrderHistoryRecord::model()->deleteByPk($id);
     }

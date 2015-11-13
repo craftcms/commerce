@@ -2,29 +2,29 @@
 
 {% set crumbs = [
 { label: "Commerce Settings"|t, url: url('commerce/settings') },
-{ label: "Shipping Method"|t, url: url('commerce/settings/shippingmethods/'~methodId) },
+{ label: "Shipping Methods"|t, url: url('commerce/settings/shippingmethods') },
+{ label: shippingMethod.name|t, url: url('commerce/settings/shippingmethods/'~methodId) },
 ] %}
+
+{% set fullPageForm = true %}
 
 {% import "_includes/forms" as forms %}
 {% import "commerce/_includes/forms/commerceForms" as commerceForms %}
 
     {% set tabs = {
-        0: {'label':'Rule','url':'#ruleTab'},
-        1: {'label':'Conditions','url':'#conditionsTab'},
-        2: {'label':'Costs','url':'#costsTab'}
+        0: {'label':'Rule','url':'#rule-tab'},
+        1: {'label':'Conditions','url':'#conditions-tab'},
+        2: {'label':'Costs','url':'#costs-tab'}
     }
     %}
 
-{% set content %}
-<form method="post" accept-charset="UTF-8" data-saveshortcut>
+{% block content %}
     <input type="hidden" name="action" value="commerce/shippingRules/save">
     <input type="hidden" name="redirect" value="commerce/settings/shippingmethods/{{ methodId }}">
     <input type="hidden" name="methodId" value="{{ methodId }}">
-
-    {{ getCsrfInput() }}
     {% if shippingRule.id %}<input type="hidden" name="id" value="{{ shippingRule.id }}">{% endif %}
 
-    <div id="ruleTab">
+    <div id="rule-tab">
     {{ forms.textField({
         first: true,
         label: "Name"|t,
@@ -69,7 +69,7 @@
     }) }}
 
     {{ forms.checkboxField({
-        label: "Enable this shipping rule?"|t,
+        label: "Enable this shipping rule"|t,
         id: 'enabled',
         name: 'enabled',
         value: 1,
@@ -77,7 +77,7 @@
         errors: shippingRule.getErrors('enabled')
     }) }}
     </div>
-    <div id="conditionsTab" class="hidden">
+    <div id="conditions-tab" class="hidden">
     <p>{{ "Filtering conditions which describe to which orders this rule is applicable to. Write 0 to skip a condition."|t }}</p>
 
     {{ commerceForms.numberField({
@@ -145,7 +145,7 @@
     }) }}
 
     </div>
-    <div id="costsTab" class="hidden">
+    <div id="costs-tab" class="hidden">
 
     {{ commerceForms.numberField({
         label: "Base Rate"|t,
@@ -217,13 +217,8 @@
     }) }}
 
     </div>
+{% endblock %}
 
-    <div class="buttons">
-        <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
-    </div>
-</form>
-
-{% endset %}
 
 {% includejs %}
 {#<script>#}

@@ -11,6 +11,7 @@ use Commerce\Gateways\BaseGatewayAdapter;
  * @property int $id
  * @property string $class
  * @property string $name
+ * @property string $paymentType
  * @property array $settings
  * @property bool $cpEnabled
  * @property bool $frontendEnabled
@@ -51,12 +52,33 @@ class Commerce_PaymentMethodModel extends BaseModel
      */
     public function getGatewayAdapter()
     {
+        $gateways = craft()->commerce_gateways->getAllGateways();
         if (!empty($this->class) && !$this->_gatewayAdapter) {
-            $this->_gatewayAdapter = craft()->commerce_gateways->getAll()[$this->class];
+            $this->_gatewayAdapter = $gateways[$this->class];
             $this->_gatewayAdapter->setAttributes($this->settings);
         }
 
         return $this->_gatewayAdapter;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPaymentTypeOptions()
+    {
+        return [
+            'authorize' => Craft::t('Authorize Only (Manually Capture)'),
+            'purchase' => Craft::t('Purchase (Authorize and Capture Immediately)'),
+        ];
+    }
+
+    /**
+     * Whether this payment method supports credit card details
+     * @return bool
+     */
+    public function supportsCard()
+    {
+        return $this->getGatewayAdapter()->requiresCreditCard();
     }
 
     /**
@@ -69,6 +91,12 @@ class Commerce_PaymentMethodModel extends BaseModel
             'class' => AttributeType::String,
             'name' => AttributeType::String,
             'cpEnabled' => AttributeType::Bool,
+            'paymentType' => [
+                AttributeType::Enum,
+                'values' => ['authorize', 'purchase'],
+                'required' => true,
+                'default' => 'purchase'
+            ],
             'frontendEnabled' => AttributeType::Bool,
             'settings' => [AttributeType::Mixed],
         ];

@@ -19,7 +19,7 @@ class Commerce_SettingsController extends Commerce_BaseAdminController
      */
     public function actionIndex()
     {
-        craft()->request->redirect('settings/global');
+        $this->redirect('commerce/settings/general');
     }
 
     /**
@@ -33,7 +33,7 @@ class Commerce_SettingsController extends Commerce_BaseAdminController
         $settings->emailSenderAddressPlaceholder = (isset($craftSettings['emailAddress']) ? $craftSettings['emailAddress'] : '');
         $settings->emailSenderNamePlaceholder = (isset($craftSettings['senderName']) ? $craftSettings['senderName'] : '');
 
-        $this->renderTemplate('commerce/settings/global',
+        $this->renderTemplate('commerce/settings/general',
             ['settings' => $settings]);
     }
 
@@ -46,11 +46,11 @@ class Commerce_SettingsController extends Commerce_BaseAdminController
         $postData = craft()->request->getPost('settings');
         $settings = Commerce_SettingsModel::populateModel($postData);
 
-        if (!craft()->commerce_settings->save($settings)) {
-            craft()->userSession->setError(Craft::t('Error, Commerce settings not saved.'));
+        if (!craft()->commerce_settings->saveSettings($settings)) {
+            craft()->userSession->setError(Craft::t('Couldn’t save settings.'));
             $this->renderTemplate('commerce/settings', ['settings' => $settings]);
         } else {
-            craft()->userSession->setNotice(Craft::t('Success, Commerce settings saved.'));
+            craft()->userSession->setNotice(Craft::t('Settings saved.'));
             $this->redirectToPostedUrl();
         }
     }

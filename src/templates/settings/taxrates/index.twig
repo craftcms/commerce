@@ -1,11 +1,14 @@
 {% extends "commerce/_layouts/settings" %}
 
-{% set content %}
-
+{% block content %}
     <h2>{{ "Tax Rates"|t }}</h2>
 
+    <div id="no-tax-rates"{% if taxRates|length %} class="hidden"{% endif %}>
+        <p>{{ "No tax rates exist yet."|t }}</p>
+    </div>
+
     {% if taxRates|length %}
-    <table id="taxRates" class="data fullwidth collapsible">
+    <table id="tax-rates" class="data fullwidth collapsible">
         <thead>
         <tr>
             <th scope="col">{{ 'Name'|t }}</th>
@@ -20,37 +23,30 @@
         <tbody>
         {% for taxRate in taxRates %}
             <tr data-id="{{ taxRate.id }}" data-name="{{ taxRate.name }}">
-                <th scope="row" data-title="Name"><a
+                <th scope="row" data-title="{{ 'Name'|t }}"><a
                             href="{{ url('commerce/settings/taxrates/'~taxRate.id) }}">{{ taxRate.name }}</a></th>
-                <td data-title="Rate">{{ taxRate.rateAsPercent }}</td>
-                <td data-title="Include in Price?">{{ taxRate.include ? 'Yes'|t : 'No'|t }}</td>
-                <td data-title="Show in Label?">{{ taxRate.showInLabel ? 'Yes'|t : 'No'|t }}</td>
-                <td data-title="Tax Zone">{{ taxRate.taxZone.name }}</td>
-                <td data-title="Tax Category">{{ taxRate.taxCategory.name }}</td>
+                <td data-title="{{ 'Rate'|t }}">{{ taxRate.rateAsPercent }}</td>
+                <td data-title="{{ 'Include in Price?'|t }}">{% if taxRate.include %}<span data-icon="check" title="{{ 'Yes'|t }}"></span>{% endif %}</td>
+                <td data-title="{{ 'Show in Label?'|t }}">{% if taxRate.showInLabel %}<span data-icon="check" title="{{ 'Yes'|t }}"></span>{% endif %}</td>
+                <td data-title="{{ 'Tax Zone'|t }}">{{ taxRate.taxZone.name }}</td>
+                <td data-title="{{ 'Tax Category'|t }}">{{ taxRate.taxCategory.name }}</td>
                 <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
             </tr>
         {% endfor %}
 
         </tbody>
     </table>
-    {% else %}
-        <p>{{ 'No tax rates exist yet.'|t }}</p>
     {% endif %}
-    {% if zonesExist %}
-    <div class="btngroup submit first">
-        <a href="{{ url('commerce/settings/taxrates/new') }}" class="btn submit">New Tax Rate</a>
+    <div class="buttons">
+        <a href="{{ url('commerce/settings/taxrates/new') }}" class="btn submit add icon">{{ 'New tax rate'|t }}</a>
     </div>
-    {% else %}
-        <p class="error">{{ 'No tax zones exist, create a tax zone before creating a tax rate.'|t }}</p>
-    {% endif %}
-
-{% endset %}
+{% endblock %}
 
 
 {% includejs %}
 var adminTable = new Craft.AdminTable({
-tableSelector: '#taxRates',
-deleteAction: 'commerce/taxRates/delete',
-confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t }}'
+tableSelector: '#tax-rates',
+noObjectsSelector: '#no-tax-rates',
+deleteAction: 'commerce/taxRates/delete'
 });
 {% endincludejs %}

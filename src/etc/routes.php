@@ -4,24 +4,22 @@ return [
 
     // Product Routes
     'commerce/products' => ['action' => 'commerce/products/productIndex'],
+    'commerce/products/(?P<productTypeHandle>{handle})' => ['action' => 'commerce/products/productIndex'],
     'commerce/products/(?P<productTypeHandle>{handle})/new/(?P<localeId>\w+)' => ['action' => 'commerce/products/editProduct'],
     'commerce/products/(?P<productTypeHandle>{handle})/new' => ['action' => 'commerce/products/editProduct'],
     'commerce/products/(?P<productTypeHandle>{handle})/(?P<productId>\d+)(?:-{slug})?/(?P<localeId>\w+)' => ['action' => 'commerce/products/editProduct'],
     'commerce/products/(?P<productTypeHandle>{handle})/(?P<productId>\d+)(?:-{slug})' => ['action' => 'commerce/products/editProduct'],
-    'commerce/products/(?P<productTypeHandle>{handle})/(?P<productId>\d+)/variants/new' => ['action' => 'commerce/variants/edit'],
-    'commerce/products/(?P<productTypeHandle>{handle})/(?P<productId>\d+)/variants/(?P<id>\d+)' => ['action' => 'commerce/variants/edit'],
     'commerce/settings/producttypes' => ['action' => 'commerce/productTypes/index'],
     'commerce/settings/producttypes/(?P<productTypeId>\d+)' => ['action' => 'commerce/productTypes/editProductType'],
     'commerce/settings/producttypes/new' => ['action' => 'commerce/productTypes/editProductType'],
 
     // Order Routes
     'commerce/orders' => ['action' => 'commerce/orders/orderIndex'],
-    'commerce/orders/new' => ['action' => 'commerce/orders/editOrder'],
     'commerce/orders/(?P<orderId>\d+)' => ['action' => 'commerce/orders/editOrder'],
 
     // Settings
     'commerce/settings' => ['action' => 'commerce/settings/index'],
-    'commerce/settings/global' => ['action' => 'commerce/settings/edit'],
+    'commerce/settings/general' => ['action' => 'commerce/settings/edit'],
     'commerce/settings/taxcategories' => ['action' => 'commerce/taxCategories/index'],
     'commerce/settings/taxcategories/new' => ['action' => 'commerce/taxCategories/edit'],
     'commerce/settings/taxcategories/(?P<id>\d+)' => ['action' => 'commerce/taxCategories/edit'],
@@ -67,6 +65,5 @@ return [
 
     // Customers
     'commerce/customers' => ['action' => 'commerce/customers/index'],
-    'commerce/customers/(?P<id>\d+)' => ['action' => 'commerce/customers/edit'],
-    'commerce/addresses/(?P<id>\d+)' => ['action' => 'commerce/addresss/edit'],
+    'commerce/customers/(?P<id>\d+)' => ['action' => 'commerce/customers/edit']
 ];

@@ -7,7 +7,6 @@ use Omnipay\Common\Currency;
  * Settings model.
  *
  * @property string $defaultCurrency
- * @property string $paymentMethod
  * @property string $weightUnits
  * @property string $dimensionUnits
  * @property string $emailSenderAddress
@@ -43,12 +42,6 @@ class Commerce_SettingsModel extends BaseModel
                 'default' => 'USD',
                 'required' => true
             ],
-            'paymentMethod' => [
-                AttributeType::Enum,
-                'values' => ['authorize', 'purchase'],
-                'required' => true,
-                'default' => 'purchase'
-            ],
             'weightUnits' => [
                 AttributeType::String,
                 'default' => 'g'
@@ -60,17 +53,6 @@ class Commerce_SettingsModel extends BaseModel
             'emailSenderAddress' => [AttributeType::String],
             'emailSenderName' => [AttributeType::String],
             'orderPdfPath' => [AttributeType::String]
-        ];
-    }
-
-    /**
-     * @return array
-     */
-    public function getPaymentMethodOptions()
-    {
-        return [
-            'authorize' => 'Authorize Only',
-            'purchase' => 'Purchase (Authorize and Capture)',
         ];
     }
 

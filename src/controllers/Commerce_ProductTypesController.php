@@ -13,11 +13,9 @@ namespace Craft;
  */
 class Commerce_ProductTypesController extends Commerce_BaseAdminController
 {
-    protected $allowAnonymous = false;
-
     public function actionIndex()
     {
-        $productTypes = craft()->commerce_productTypes->getAll();
+        $productTypes = craft()->commerce_productTypes->getAllProductTypes();
         $this->renderTemplate('commerce/settings/producttypes/index',
             compact('productTypes'));
     }
@@ -33,7 +31,7 @@ class Commerce_ProductTypesController extends Commerce_BaseAdminController
         if (empty($variables['productType'])) {
             if (!empty($variables['productTypeId'])) {
                 $productTypeId = $variables['productTypeId'];
-                $variables['productType'] = craft()->commerce_productTypes->getById($productTypeId);
+                $variables['productType'] = craft()->commerce_productTypes->getProductTypeById($productTypeId);
 
                 if (!$variables['productType']) {
                     throw new HttpException(404);
@@ -70,8 +68,10 @@ class Commerce_ProductTypesController extends Commerce_BaseAdminController
         $productType->hasDimensions = craft()->request->getPost('hasDimensions');
         $productType->hasUrls = craft()->request->getPost('hasUrls');
         $productType->hasVariants = craft()->request->getPost('hasVariants');
+        $productType->hasVariantTitleField = craft()->request->getPost('hasVariantTitleField');
         $productType->template = craft()->request->getPost('template');
         $productType->titleFormat = craft()->request->getPost('titleFormat');
+        $productType->skuFormat = craft()->request->getPost('skuFormat');
 
         $locales = [];
 
@@ -116,7 +116,7 @@ class Commerce_ProductTypesController extends Commerce_BaseAdminController
 
         $productTypeId = craft()->request->getRequiredPost('id');
 
-        craft()->commerce_productTypes->deleteById($productTypeId);
+        craft()->commerce_productTypes->deleteProductTypeById($productTypeId);
         $this->returnJson(['success' => true]);
     }
 } 

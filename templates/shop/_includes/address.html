@@ -1,13 +1,23 @@
 <ul>
     {% if address.firstName is not empty or address.lastName is not empty %}
         <li>
-            {% if address.firstName is not empty %}
-                {{ address.firstName }}
-            {% endif %}
+            <strong>
+                {% if address.firstName is not empty %}
+                    {{ address.firstName }}
+                {% endif %}
 
-            {% if address.lastName is not empty %}
-                {{ address.lastName }}
-            {% endif %}
+                {% if address.lastName is not empty %}
+                    {{ address.lastName }}
+                {% endif %}
+                <br>
+                {% if address.businessName is not empty %}
+                    {{ address.businessName }}
+                {% endif %}
+
+                {% if address.businessTaxId is not empty %}
+                    - {{ address.businessTaxId }}
+                {% endif %}
+            </strong>
         </li>
     {% endif %}
 
@@ -56,7 +66,5 @@
         <li>{{ address.alternativePhone }}</li>
     {% endif %}
 
-    {% if address.company is not empty %}
-        <li>{{ address.company }}</li>
-    {% endif %}
+
 </ul>

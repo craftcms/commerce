@@ -10,8 +10,10 @@ namespace Craft;
  * @property bool $hasUrls
  * @property bool $hasDimensions
  * @property bool $hasVariants
+ * @property bool $hasVariantTitleField
  * @property string $template
  * @property string $titleFormat
+ * @property string $skuFormat
  * @property int $fieldLayoutId
  * @property int $variantFieldLayoutId
  *
@@ -109,7 +111,9 @@ class Commerce_ProductTypeModel extends BaseModel
             'hasUrls' => AttributeType::Bool,
             'hasDimensions' => AttributeType::Bool,
             'hasVariants' => AttributeType::Bool,
-            'titleFormat' => [AttributeType::String, 'required' => true, 'default' => '{sku}'],
+            'hasVariantTitleField' => [AttributeType::Bool,'default' => 1],
+            'titleFormat' => [AttributeType::String, 'required' => true, 'default' => '{product.title}'],
+            'skuFormat' => AttributeType::String,
             'template' => AttributeType::Template,
             'fieldLayoutId' => AttributeType::Number,
             'variantFieldLayoutId' => AttributeType::Number,

@@ -16,19 +16,46 @@ use Commerce\Helpers\CommerceDbHelper;
 class Commerce_VariantsService extends BaseApplicationComponent
 {
     /**
-     * @param int $id
+     * @param int    $variantId  The variant’s ID.
+     * @param string $localeId The locale to fetch the variant in. Defaults to {@link WebApp::language `craft()->language`}.
      *
      * @return Commerce_VariantModel
      */
-    public function getById($id)
+    public function getVariantById($variantId, $localeId = null)
     {
-        return craft()->elements->getElementById($id, 'Commerce_Variant');
+        return craft()->elements->getElementById($variantId, 'Commerce_Variant', $localeId);
+    }
+
+    /**
+     * Returns the first variant as returned by it's sortOrder.
+     *
+     * @param int $variantId
+     * @param string|null $localeId
+     *
+     * @return Commerce_VariantModel
+     */
+    public function getPrimaryVariantByProductId($variantId, $localeId = null)
+    {
+        return ArrayHelper::getFirstValue($this->getAllVariantsByProductId($variantId, $localeId));
+    }
+
+    /**
+     * @param int $variantId
+     * @param string|null $localeId
+     *
+     * @return Commerce_VariantModel[]
+     */
+    public function getAllVariantsByProductId($variantId, $localeId = null)
+    {
+        $variants = craft()->elements->getCriteria('Commerce_Variant', ['productId' => $variantId, 'status'=> null, 'locale' => $localeId])->find();
+
+        return $variants;
     }
 
     /**
      * @param int $id
      */
-    public function deleteById($id)
+    public function deleteVariantById($id)
     {
         craft()->elements->deleteElementById($id);
     }
@@ -36,26 +63,13 @@ class Commerce_VariantsService extends BaseApplicationComponent
     /**
      * @param int $productId
      */
-    public function deleteAllByProductId($productId)
+    public function deleteAllVariantsByProductId($productId)
     {
-        $variants = $this->getAllByProductId($productId);
+        $variants = $this->getAllVariantsByProductId($productId);
+
         foreach ($variants as $variant) {
             $this->deleteVariant($variant);
         }
-    }
-
-    /**
-     * @param int $id
-     *
-     * @return Commerce_VariantModel[]
-     */
-    public function getAllByProductId($id)
-    {
-        $criteria = ['productId' => $id];
-        $variants = craft()->elements->getCriteria('Commerce_Variant',
-            $criteria)->find();
-
-        return $variants;
     }
 
     /**
@@ -63,7 +77,39 @@ class Commerce_VariantsService extends BaseApplicationComponent
      */
     public function deleteVariant($variant)
     {
-        craft()->elements->deleteElementById($variant->id);
+       $this->deleteVariantById($variant->id);
+    }
+
+    /**
+     * @param Commerce_VariantModel $variant
+     * @return bool
+     */
+    public function validateVariant(Commerce_VariantModel $variant)
+    {
+        $variant->clearErrors();
+
+        $record = $this->_getVariantRecord($variant);
+        $this->_populateVariantRecord($record, $variant);
+
+        $record->validate();
+        $variant->addErrors($record->getErrors());
+
+        if (!craft()->content->validateContent($variant)) {
+            $variant->addErrors($variant->getContent()->getErrors());
+        }
+
+        // If variant validation has not already found a clash check all purchasables
+        if(!$variant->getError('sku')){
+            $existing = craft()->commerce_purchasable->getPurchasableBySku($variant->sku);
+
+            if($existing){
+                if($existing->id != $variant->id){
+                    $variant->addError('sku',Craft::t('SKU has already been taken by another purchasable.'));
+                }
+            }
+        }
+
+        return !$variant->hasErrors();
     }
 
     /**
@@ -99,7 +145,7 @@ class Commerce_VariantsService extends BaseApplicationComponent
     }
 
     /**
-     * Save a model into DB
+     * Persists a variant.
      *
      * @param BaseElementModel $model
      *
@@ -107,69 +153,10 @@ class Commerce_VariantsService extends BaseApplicationComponent
      * @throws \CDbException
      * @throws \Exception
      */
-    public function save(BaseElementModel $model)
+    public function saveVariant(BaseElementModel $model)
     {
-        $productTypeId = craft()->db->createCommand()
-            ->select('typeId')
-            ->from('commerce_products')
-            ->where('id=:id', [':id' => $model->productId])
-            ->queryScalar();
-
-        $productType = craft()->commerce_productTypes->getById($productTypeId);
-
-        if ($model->id) {
-            $record = Commerce_VariantRecord::model()->findById($model->id);
-
-            if (!$record) {
-                throw new HttpException(404);
-            }
-        } else {
-            $record = new Commerce_VariantRecord();
-        }
-        /* @var Commerce_VariantModel $model */
-        $record->isImplicit = $model->isImplicit;
-        $record->productId = $model->productId;
-
-        // We dont ask for a sku when dealing with a product with variants
-        if ($model->isImplicit && $productType->hasVariants) {
-            $model->sku = 'implicitSkuOfProductId' . $model->productId;
-            $record->sku = $model->sku;
-        } else {
-            $record->sku = $model->sku;
-        }
-
-        if (!$productType->titleFormat) {
-            $productType->titleFormat = "{sku}";
-        }
-
-        // implicit variant has no custom field data so play it safe and default it to sku.
-        if ($model->isImplicit) {
-            $productType->titleFormat = "{sku}";
-        }
-
-        $model->getContent()->title = craft()->templates->renderObjectTemplate($productType->titleFormat, $model);
-
-        $record->price = $model->price;
-        $record->width = $model->width;
-        $record->height = $model->height;
-        $record->length = $model->length;
-        $record->weight = $model->weight;
-        $record->minQty = $model->minQty;
-        $record->maxQty = $model->maxQty;
-        $record->stock = $model->stock;
-        $record->unlimitedStock = $model->unlimitedStock;
-
-        if (!$productType->hasDimensions) {
-            $record->width = $model->width = 0;
-            $record->height = $model->height = 0;
-            $record->length = $model->length = 0;
-            $record->weight = $model->weight = 0;
-        }
-
-        if ($model->unlimitedStock && $record->stock == "") {
-            $model->stock = 0;
-            $record->stock = 0;
-        }
+        $record = $this->_getVariantRecord($model);
+        $this->_populateVariantRecord($record, $model);
 
         $record->validate();
         $model->addErrors($record->getErrors());
@@ -193,6 +180,62 @@ class Commerce_VariantsService extends BaseApplicationComponent
         CommerceDbHelper::rollbackStackedTransaction();
 
         return false;
+    }
+
+    /**
+     * @param BaseElementModel $model
+     * @return BaseRecord|Commerce_VariantRecord
+     * @throws HttpException
+     */
+    private function _getVariantRecord(BaseElementModel $model)
+    {
+        if ($model->id) {
+            $record = Commerce_VariantRecord::model()->findById($model->id);
+
+            if (!$record) {
+                throw new HttpException(404);
+            }
+
+        } else {
+            $record = new Commerce_VariantRecord();
+
+        }
+
+        return $record;
+    }
+
+    /**
+     * @param $record
+     * @param Commerce_VariantModel $model
+     */
+    private function _populateVariantRecord($record, Commerce_VariantModel $model)
+    {
+        $record->productId = $model->productId;
+        $record->sku = $model->sku;
+
+        $record->price = $model->price;
+        $record->width = $model->width;
+        $record->height = $model->height;
+        $record->length = $model->length;
+        $record->weight = $model->weight;
+        $record->minQty = $model->minQty;
+        $record->maxQty = $model->maxQty;
+        $record->stock = $model->stock;
+        $record->isDefault = $model->isDefault;
+        $record->sortOrder = $model->sortOrder;
+        $record->unlimitedStock = $model->unlimitedStock;
+
+        if (!$model->getProduct()->getType()->hasDimensions) {
+            $record->width = $model->width = 0;
+            $record->height = $model->height = 0;
+            $record->length = $model->length = 0;
+            $record->weight = $model->weight = 0;
+        }
+
+        if ($model->unlimitedStock && $record->stock == "") {
+            $model->stock = 0;
+            $record->stock = 0;
+        }
     }
 
     /**

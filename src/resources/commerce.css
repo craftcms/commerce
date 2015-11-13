@@ -1,21 +1,14 @@
 @charset "UTF-8";
 
-#variantButtons{
-    margin-top:10px;
-}
+.lazy-create-modal { min-width: 200px; overflow: auto; }
 
-.statusSource {
-    padding-left:8px !important;
-}
-.statusSource .status{
-    margin-right:3px !important;
-}
-
-/*.variant-massEdit-modal .checkbox-text-input{  position:relative;  }*/
-.variant-massEdit-modal {height:650px;}
-.variant-massEdit-modal .checkbox-text-input .checkbox-text-label{  margin-left: 31px;  }
-.variant-massEdit-modal .checkbox-text-input .checkbox-input{  position:relative; top:-25px; width:30px; }
-.variant-massEdit-modal .checkbox-text-input .text{ display:block; position:relative; left: 30px; width:90%; }
-.variant-massEdit-modal .header-body { padding-bottom:0px; }
-.variant-massEdit-modal .fields-body { padding-top:0px; }
-
+/* Variant Matrix styles */
+.variant-matrixblock { padding: 0; }
+.variant-matrixblock > .titlebar { margin: 0; width: 100%; }
+.variant-matrixblock > .actions > .default-btn { display: inline-block; margin: -1px 7px; border-radius: 3px; padding: 0 4px; width: auto !important; height: auto !important; font-size: 11px; text-transform: uppercase; color: hsl(212, 10%, 75%); text-decoration: none !important; font-weight: bold; border: 1px solid rgba(0,0,0,0.25); }
+.variant-matrixblock > .actions > .default-btn:not(.sel):hover { border-color: hsl(212, 90%, 50%); }
+.variant-matrixblock > .actions > .default-btn.sel { color: #eef0f1; background: rgba(0,0,0,0.25); background-clip: padding-box; }
+.variant-matrixblock:not(.single-col) > .fields { display: flex; align-items: stretch; }
+.variant-matrixblock:not(.single-col) > .fields > .variant-properties { width: 310px; border-right: 1px solid #e3e5e8; }
+.variant-matrixblock:not(.single-col) > .fields > .custom-fields { padding: 14px 24px; width: calc(100% - 359px); }
+.variant-matrixblock.single-col > .fields > .custom-fields > .field:first-child { border-top: 1px solid #e3e5e8; }

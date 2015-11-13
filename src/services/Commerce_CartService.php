@@ -18,7 +18,7 @@ class Commerce_CartService extends BaseApplicationComponent
     /** @var string Session key for storing the cart number */
     protected $cookieCartId = 'commerce_cookie';
     /** @var Commerce_OrderModel */
-    private $cart;
+    private $_cart;
 
     /**
      * @param Commerce_OrderModel $order
@@ -36,18 +36,18 @@ class Commerce_CartService extends BaseApplicationComponent
 
         //saving current cart if it's new and empty
         if (!$order->id) {
-            if (!craft()->commerce_orders->save($order)) {
+            if (!craft()->commerce_orders->saveOrder($order)) {
                 throw new Exception(Craft::t('Error on creating empty cart'));
             }
         }
 
         //filling item model
-        $lineItem = craft()->commerce_lineItems->getByOrderPurchasable($order->id, $purchasableId);
+        $lineItem = craft()->commerce_lineItems->getLineItemByOrderPurchasable($order->id, $purchasableId);
 
-        if ($lineItem->id) {
+        if ($lineItem) {
             $lineItem->qty += $qty;
         } else {
-            $lineItem = craft()->commerce_lineItems->create($purchasableId, $order->id, $qty);
+            $lineItem = craft()->commerce_lineItems->createLineItem($purchasableId, $order->id, $qty);
         }
 
         if ($note) {
@@ -55,8 +55,8 @@ class Commerce_CartService extends BaseApplicationComponent
         }
 
         try {
-            if (craft()->commerce_lineItems->save($lineItem)) {
-                craft()->commerce_orders->save($order);
+            if (craft()->commerce_lineItems->saveLineItem($lineItem)) {
+                craft()->commerce_orders->saveOrder($order);
                 CommerceDbHelper::commitStackedTransaction();
 
                 //raising event
@@ -82,6 +82,15 @@ class Commerce_CartService extends BaseApplicationComponent
     }
 
     /**
+     * Forgets a Cart by deleting its cookie.
+     */
+    public function forgetCart()
+    {
+        $cookieId = $this->cookieCartId;
+        craft()->userSession->deleteStateCookie($cookieId);
+    }
+
+    /**
      * Event method.
      * Event params: order(Commerce_OrderModel), lineItem (Commerce_LineItemModel)
      *
@@ -103,6 +112,123 @@ class Commerce_CartService extends BaseApplicationComponent
     }
 
     /**
+     * @param Commerce_OrderModel $cart
+     * @param string $code
+     * @param string $error
+     *
+     * @return bool
+     * @throws Exception
+     * @throws \Exception
+     */
+    public function applyCoupon(Commerce_OrderModel $cart, $code, &$error = '')
+    {
+        if (empty($code) || craft()->commerce_discounts->matchCode($code,
+                $cart->customerId, $error)
+        ) {
+            $cart->couponCode = $code ?: null;
+            craft()->commerce_orders->saveOrder($cart);
+
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Set shipping method to the current order
+     *
+     * @param Commerce_OrderModel $cart
+     * @param int $shippingMethod
+     * @param string $error ;
+     *
+     * @return bool
+     * @throws Exception
+     * @throws \Exception
+     */
+    public function setShippingMethod(
+        Commerce_OrderModel $cart,
+        $shippingMethod,
+        &$error = ""
+    )
+    {
+        $method = craft()->commerce_shippingMethods->getShippingMethodByHandle($shippingMethod);
+
+        if (!$method) {
+            $error = Craft::t('Bad shipping method');
+            return false;
+        }
+
+        if (!craft()->commerce_shippingMethods->getMatchingShippingRule($cart, $method)) {
+            $error = Craft::t('Shipping method not available');
+            return false;
+        }
+
+        $cart->shippingMethod = $shippingMethod;
+        craft()->commerce_orders->saveOrder($cart);
+
+        return true;
+    }
+
+    /**
+     * Set shipping method to the current order
+     *
+     * @param Commerce_OrderModel $cart
+     * @param int $paymentMethodId
+     * @param string $error
+     *
+     * @return bool
+     * @throws \Exception
+     */
+    public function setPaymentMethod(Commerce_OrderModel $cart, $paymentMethodId, &$error = "")
+    {
+        $method = craft()->commerce_paymentMethods->getPaymentMethodById($paymentMethodId);
+        if (!$method || !$method->frontendEnabled) {
+            $error = Craft::t('Payment method does not exist or is not allowed.');
+            return false;
+        }
+
+        $cart->paymentMethodId = $paymentMethodId;
+        craft()->commerce_orders->saveOrder($cart);
+
+        return true;
+    }
+
+    /**
+     * @param Commerce_OrderModel $cart
+     * @param $email
+     * @param string $error
+     *
+     * @return bool
+     */
+    public function setEmail(Commerce_OrderModel $cart, $email, &$error = "")
+    {
+
+        $validator = new \CEmailValidator;
+        $validator->allowEmpty = false;
+
+        if (!$validator->validateValue($email)) {
+            $error = Craft::t('Not a valid email address');
+            return false;
+        }
+
+        try {
+            // we need to force a persisted customer so get a customer id
+            $this->getCart()->customerId = craft()->commerce_customers->getCustomerId();
+            $customer = craft()->commerce_customers->getCustomer();
+            if (!$customer->userId) {
+                $customer->email = $email;
+                craft()->commerce_customers->saveCustomer($customer);
+                $cart->email = $customer->email;
+                craft()->commerce_orders->saveOrder($cart);
+            }
+        } catch (Exception $e) {
+            $error = $e->getMessage();
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * @return mixed
      * @throws Exception
      * @throws \Exception
@@ -110,34 +236,35 @@ class Commerce_CartService extends BaseApplicationComponent
     public function getCart()
     {
 
-        if (!isset($this->cart)) {
+        if (!isset($this->_cart)) {
             $number = $this->_getSessionCartNumber();
 
             if ($cart = $this->_getCartRecordByNumber($number)) {
-                $this->cart = Commerce_OrderModel::populateModel($cart);
+                $this->_cart = Commerce_OrderModel::populateModel($cart);
             } else {
-                $this->cart = new Commerce_OrderModel;
-                $this->cart->number = $number;
+                $this->_cart = new Commerce_OrderModel;
+                $this->_cart->number = $number;
             }
 
-            $this->cart->lastIp = craft()->request->getIpAddress();
+            $this->_cart->lastIp = craft()->request->getIpAddress();
+
+            // Right now, orders are only made in the default currency
+            $this->_cart->currency = craft()->commerce_settings->getOption('defaultCurrency');
 
             // Update the cart if the customer has changed and recalculate the cart.
             $customer = craft()->commerce_customers->getCustomer();
-            if ($customer->id) {
-                if (!$this->cart->isEmpty() && $this->cart->customerId != $customer->id) {
-                    $this->cart->customerId = $customer->id;
-                    $this->cart->email = $customer->email;
-                    $this->cart->billingAddressId = null;
-                    $this->cart->shippingAddressId = null;
-                    $this->cart->billingAddressData = null;
-                    $this->cart->shippingAddressData = null;
-                    craft()->commerce_orders->save($this->cart);
-                }
+            if (!$this->_cart->isEmpty() && $this->_cart->customerId != $customer->id) {
+                $this->_cart->customerId = $customer->id;
+                $this->_cart->email = $customer->email;
+                $this->_cart->billingAddressId = null;
+                $this->_cart->shippingAddressId = null;
+                $this->_cart->billingAddressData = null;
+                $this->_cart->shippingAddressData = null;
+                craft()->commerce_orders->saveOrder($this->_cart);
             }
         }
 
-        return $this->cart;
+        return $this->_cart;
     }
 
     /**
@@ -175,92 +302,6 @@ class Commerce_CartService extends BaseApplicationComponent
     }
 
     /**
-     * Forgets a Cart by deleting its cookie.
-     *
-     * @param Commerce_OrderModel $cart
-     */
-    public function forgetCart(Commerce_OrderModel $cart)
-    {
-        $cookieId = $this->cookieCartId;
-        craft()->userSession->deleteStateCookie($cookieId);
-    }
-
-    /**
-     * @param Commerce_OrderModel $cart
-     * @param string $code
-     * @param string $error
-     *
-     * @return bool
-     * @throws Exception
-     * @throws \Exception
-     */
-    public function applyCoupon(Commerce_OrderModel $cart, $code, &$error = '')
-    {
-        if (empty($code) || craft()->commerce_discounts->checkCode($code,
-                $cart->customerId, $error)
-        ) {
-            $cart->couponCode = $code ?: null;
-            craft()->commerce_orders->save($cart);
-
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Set shipping method to the current order
-     *
-     * @param Commerce_OrderModel $cart
-     * @param int $shippingMethodId
-     *
-     * @return bool
-     * @throws Exception
-     * @throws \Exception
-     */
-    public function setShippingMethod(
-        Commerce_OrderModel $cart,
-        $shippingMethodId
-    )
-    {
-        $method = craft()->commerce_shippingMethods->getById($shippingMethodId);
-        if (!$method->id) {
-            return false;
-        }
-
-        if (!craft()->commerce_shippingMethods->getMatchingRule($cart, $method)) {
-            return false;
-        }
-
-        $cart->shippingMethodId = $shippingMethodId;
-        craft()->commerce_orders->save($cart);
-
-        return true;
-    }
-
-    /**
-     * Set shipping method to the current order
-     *
-     * @param Commerce_OrderModel $cart
-     * @param int $paymentMethodId
-     *
-     * @return bool
-     * @throws \Exception
-     */
-    public function setPaymentMethod(Commerce_OrderModel $cart, $paymentMethodId)
-    {
-        $method = craft()->commerce_paymentMethods->getById($paymentMethodId);
-        if (!$method->id || !$method->frontendEnabled) {
-            return false;
-        }
-
-        $cart->paymentMethodId = $paymentMethodId;
-        craft()->commerce_orders->save($cart);
-
-        return true;
-    }
-
-    /**
      * @TODO check that line item belongs to the current user
      *
      * @param Commerce_OrderModel $cart
@@ -271,7 +312,7 @@ class Commerce_CartService extends BaseApplicationComponent
      */
     public function removeFromCart(Commerce_OrderModel $cart, $lineItemId)
     {
-        $lineItem = craft()->commerce_lineItems->getById($lineItemId);
+        $lineItem = craft()->commerce_lineItems->getLineItemById($lineItemId);
 
         if (!$lineItem->id) {
             throw new Exception('Line item not found');
@@ -279,9 +320,9 @@ class Commerce_CartService extends BaseApplicationComponent
 
         CommerceDbHelper::beginStackedTransaction();
         try {
-            craft()->commerce_lineItems->delete($lineItem);
+            craft()->commerce_lineItems->deleteLineItem($lineItem);
 
-            craft()->commerce_orders->save($cart);
+            craft()->commerce_orders->saveOrder($cart);
 
             //raising event
             $event = new Event($this, [
@@ -329,8 +370,8 @@ class Commerce_CartService extends BaseApplicationComponent
     {
         CommerceDbHelper::beginStackedTransaction();
         try {
-            craft()->commerce_lineItems->deleteAllByOrderId($cart->id);
-            craft()->commerce_orders->save($cart);
+            craft()->commerce_lineItems->deleteAllLineItemsByOrderId($cart->id);
+            craft()->commerce_orders->saveOrder($cart);
         } catch (\Exception $e) {
             CommerceDbHelper::rollbackStackedTransaction();
             throw $e;
@@ -365,7 +406,7 @@ class Commerce_CartService extends BaseApplicationComponent
      *
      * @return Commerce_OrderModel[]
      */
-    public function getCartsToPurge()
+    private function getCartsToPurge()
     {
 
         $configInterval = craft()->config->get('purgeInactiveCartsDuration', 'commerce');

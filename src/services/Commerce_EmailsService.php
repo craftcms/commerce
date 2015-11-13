@@ -16,25 +16,33 @@ class Commerce_EmailsService extends BaseApplicationComponent
     /**
      * @param int $id
      *
-     * @return Commerce_EmailModel
+     * @return Commerce_EmailModel|null
      */
-    public function getById($id)
+    public function getEmailById($id)
     {
-        $record = Commerce_EmailRecord::model()->findById($id);
+        $result = Commerce_EmailRecord::model()->findById($id);
 
-        return Commerce_EmailModel::populateModel($record);
+        if ($result) {
+            return Commerce_EmailModel::populateModel($result);
+        }
+
+        return null;
     }
 
     /**
      * @param array $attr
      *
-     * @return Commerce_EmailModel
+     * @return Commerce_EmailModel|null
      */
-    public function getByAttributes(array $attr)
+    public function getEmailByAttributes(array $attr)
     {
-        $record = Commerce_EmailRecord::model()->findByAttributes($attr);
+        $result = Commerce_EmailRecord::model()->findByAttributes($attr);
 
-        return Commerce_EmailModel::populateModel($record);
+        if ($result) {
+            return Commerce_EmailModel::populateModel($result);
+        }
+
+        return null;
     }
 
     /**
@@ -42,7 +50,7 @@ class Commerce_EmailsService extends BaseApplicationComponent
      *
      * @return Commerce_EmailModel[]
      */
-    public function getAll($criteria = [])
+    public function getAllEmails($criteria = [])
     {
         $records = Commerce_EmailRecord::model()->findAll($criteria);
 
@@ -57,7 +65,7 @@ class Commerce_EmailsService extends BaseApplicationComponent
      * @throws \CDbException
      * @throws \Exception
      */
-    public function save(Commerce_EmailModel $model)
+    public function saveEmail(Commerce_EmailModel $model)
     {
         if ($model->id) {
             $record = Commerce_EmailRecord::model()->findById($model->id);
@@ -98,7 +106,7 @@ class Commerce_EmailsService extends BaseApplicationComponent
      *
      * @throws \CDbException
      */
-    public function deleteById($id)
+    public function deleteEmailById($id)
     {
         Commerce_EmailRecord::model()->deleteByPk($id);
     }

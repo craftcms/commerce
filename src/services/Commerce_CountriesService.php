@@ -16,25 +16,33 @@ class Commerce_CountriesService extends BaseApplicationComponent
     /**
      * @param int $id
      *
-     * @return Commerce_CountryModel
+     * @return Commerce_CountryModel|null
      */
-    public function getById($id)
+    public function getCountryById($id)
     {
-        $record = Commerce_CountryRecord::model()->findById($id);
+        $result = Commerce_CountryRecord::model()->findById($id);
 
-        return Commerce_CountryModel::populateModel($record);
+        if ($result) {
+            return Commerce_CountryModel::populateModel($result);
+        }
+
+        return null;
     }
 
     /**
      * @param array $attr
      *
-     * @return Commerce_CountryModel
+     * @return Commerce_CountryModel|null
      */
-    public function getByAttributes(array $attr)
+    public function getCountryByAttributes(array $attr)
     {
-        $record = Commerce_CountryRecord::model()->findByAttributes($attr);
+        $result = Commerce_CountryRecord::model()->findByAttributes($attr);
 
-        return Commerce_CountryModel::populateModel($record);
+        if ($result) {
+            return Commerce_CountryModel::populateModel($result);
+        }
+
+        return null;
     }
 
     /**
@@ -42,9 +50,9 @@ class Commerce_CountriesService extends BaseApplicationComponent
      *
      * @return array [id => name]
      */
-    public function getFormList()
+    public function getAllCountriesListData()
     {
-        $countries = $this->getAll();
+        $countries = $this->getAllCountries();
 
         return \CHtml::listData($countries, 'id', 'name');
     }
@@ -52,7 +60,7 @@ class Commerce_CountriesService extends BaseApplicationComponent
     /**
      * @return Commerce_CountryModel[]
      */
-    public function getAll()
+    public function getAllCountries()
     {
         $records = Commerce_CountryRecord::model()->findAll(['order' => 'name']);
 
@@ -67,7 +75,7 @@ class Commerce_CountriesService extends BaseApplicationComponent
      * @throws \CDbException
      * @throws \Exception
      */
-    public function save(Commerce_CountryModel $model)
+    public function saveCountry(Commerce_CountryModel $model)
     {
         if ($model->id) {
             $record = Commerce_CountryRecord::model()->findById($model->id);
@@ -105,7 +113,7 @@ class Commerce_CountriesService extends BaseApplicationComponent
      *
      * @throws \CDbException
      */
-    public function deleteById($id)
+    public function deleteCountryById($id)
     {
         Commerce_CountryRecord::model()->deleteByPk($id);
     }

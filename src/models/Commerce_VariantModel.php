@@ -8,9 +8,10 @@ use Commerce\Interfaces\Purchasable;
  *
  * @property int $id
  * @property int $productId
- * @property bool $isImplicit
  * @property string $sku
+ * @property bool $isDefault
  * @property float $price
+ * @property int $sortOrder
  * @property float $width
  * @property float $height
  * @property float $length
@@ -32,14 +33,28 @@ use Commerce\Interfaces\Purchasable;
  */
 class Commerce_VariantModel extends BaseElementModel implements Purchasable
 {
+    // Properties
+    // =========================================================================
+
     /**
      * @var
      */
     public $salePrice;
+
     /**
      * @var string
      */
     protected $elementType = 'Commerce_Variant';
+
+    /**
+     * @var Commerce_ProductModel The product that this variant is associated with.
+     * @see getProduct()
+     * @see setProduct()
+     */
+    private $_product;
+
+    // Public Methods
+    // =========================================================================
 
     /**
      * @return bool
@@ -86,8 +101,8 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
      */
     public function getFieldLayout()
     {
-        if ($this->productId) {
-            return craft()->commerce_productTypes->getById($this->product->typeId)->asa('variantFieldLayout')->getFieldLayout();
+        if (($product = $this->getProduct()) !== null) {
+            return $product->getType()->asa('variantFieldLayout')->getFieldLayout();
         }
 
         return null;
@@ -100,7 +115,7 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
      */
     public function getPrice()
     {
-        return $this->attributes['price'];
+        return $this->getAttribute('price');
     }
 
     /**
@@ -129,15 +144,42 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
     }
 
     /**
-     * @return Commerce_ProductModel|null
+     * Returns the product associated with this variant.
+     *
+     * @return Commerce_ProductModel|null The product associated with this variant, or null if it isn’t known
      */
     public function getProduct()
     {
-        if ($this->productId) {
-            return craft()->commerce_products->getById($this->productId);
+        if ($this->_product === null) {
+            if ($this->productId) {
+                $this->_product = craft()->commerce_products->getProductById($this->productId);
+            }
+            if ($this->_product === null) {
+                $this->_product = false;
+            }
+        }
+
+        if ($this->_product !== false) {
+            return $this->_product;
         }
 
         return null;
+    }
+
+    /**
+     * Sets the product associated with this variant.
+     *
+     * @param Commerce_ProductModel $product The product associated with this variant
+     *
+     * @return void
+     */
+    public function setProduct(Commerce_ProductModel $product)
+    {
+        $this->_product = $product;
+        $this->locale = $product->locale;
+        if ($product->id) {
+            $this->productId = $product->id;
+        }
     }
 
     /**
@@ -147,7 +189,7 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
      */
     public function getSku()
     {
-        return $this->attributes['sku'];
+        return $this->getAttribute('sku');
     }
 
     /**
@@ -157,10 +199,6 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
      */
     public function getDescription()
     {
-        if ($this->isImplicit) {
-            return $this->getProduct()->getTitle();
-        }
-
         return $this->getTitle();
     }
 
@@ -171,7 +209,17 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
      */
     public function getPurchasableId()
     {
-        return $this->attributes['id'];
+        return $this->getAttribute('id');
+    }
+
+    /**
+     * Does this variants product has free shipping set.
+     *
+     * @return bool
+     */
+    public function hasFreeShipping()
+    {
+        return $this->product->freeShipping;
     }
 
     /**
@@ -191,19 +239,22 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
         }
 
         if ($lineItem->qty < $this->minQty) {
-            $error = sprintf('Minimal order quantity for this variant is %d',
+            $error = sprintf('Minimum order quantity for this item is %d',
                 $this->minQty);
             $lineItem->addError('qty', $error);
         }
 
         if ($this->maxQty != 0) {
             if ($lineItem->qty > $this->maxQty) {
-                $error = sprintf('Maximum order quantity for this variant is %d',
+                $error = sprintf('Maximum order quantity for this item is %d',
                     $this->maxQty);
                 $lineItem->addError('qty', $error);
             }
         }
     }
+
+    // Protected Methods
+    // =========================================================================
 
     /**
      * @return array
@@ -213,13 +264,14 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
         return array_merge(parent::defineAttributes(), [
             'id' => [AttributeType::Number],
             'productId' => [AttributeType::Number],
-            'isImplicit' => [AttributeType::Bool],
+            'isDefault' => [AttributeType::Bool],
             'sku' => [AttributeType::String, 'required' => true, 'label' => 'SKU'],
             'price' => [
                 AttributeType::Number,
                 'decimals' => 4,
                 'required' => true
             ],
+            'sortOrder' => AttributeType::Number,
             'width' => [AttributeType::Number, 'decimals' => 4],
             'height' => [AttributeType::Number, 'decimals' => 4],
             'length' => [AttributeType::Number, 'decimals' => 4],

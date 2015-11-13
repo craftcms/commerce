@@ -40,12 +40,12 @@ class Commerce_PaymentsService extends BaseApplicationComponent
         //saving cancelUrl and redirect to cart
         $cart->returnUrl = craft()->templates->renderObjectTemplate($redirect, $cart);
         $cart->cancelUrl = craft()->templates->renderObjectTemplate($cancelUrl, $cart);
-        craft()->commerce_orders->save($cart);
+        craft()->commerce_orders->saveOrder($cart);
 
 
         // Cart could have zero totalPrice and already considered 'paid'. Free carts complete immediately.
         if ($cart->isPaid()) {
-            craft()->commerce_orders->complete($cart);
+            craft()->commerce_orders->completeOrder($cart);
             craft()->request->redirect($cart->returnUrl);
         }
 
@@ -57,26 +57,26 @@ class Commerce_PaymentsService extends BaseApplicationComponent
         }
 
         //choosing default action
-        $defaultAction = craft()->commerce_settings->getOption('paymentMethod');
+        $defaultAction = $cart->paymentMethod->paymentType;
         $defaultAction = ($defaultAction === Commerce_TransactionRecord::PURCHASE) ? $defaultAction : Commerce_TransactionRecord::AUTHORIZE;
         $gateway = $cart->paymentMethod->getGatewayAdapter()->getGateway();
 
         if ($defaultAction == Commerce_TransactionRecord::AUTHORIZE) {
             if (!$gateway->supportsAuthorize()) {
-                $customError = Craft::t("Gateway doesn't support authorize");
+                $customError = Craft::t("Gateway doesn’t support authorize");
 
                 return false;
             }
         } else {
             if (!$gateway->supportsPurchase()) {
-                $customError = Craft::t("Gateway doesn't support purchase");
+                $customError = Craft::t("Gateway doesn’t support purchase");
 
                 return false;
             }
         }
 
         //creating cart, transaction and request
-        $transaction = craft()->commerce_transactions->create($cart);
+        $transaction = craft()->commerce_transactions->createTransaction($cart);
         $transaction->type = $defaultAction;
         $this->saveTransaction($transaction);
 
@@ -97,7 +97,6 @@ class Commerce_PaymentsService extends BaseApplicationComponent
             }
         } catch (\Exception $e) {
             $customError = $e->getMessage();
-            craft()->commerce_transactions->delete($transaction);
 
             return false;
         }
@@ -129,7 +128,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
                 // redirect to off-site gateway
                 return $response->redirect();
             }
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             $transaction->status = Commerce_TransactionRecord::FAILED;
             $transaction->message = $e->getMessage();
             $this->saveTransaction($transaction);
@@ -139,7 +138,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
         if ($transaction->status == Commerce_TransactionRecord::SUCCESS) {
             return $order->returnUrl;
         } else {
-            craft()->userSession->setError(Craft::t("Payment error: " . $transaction->message));
+            craft()->userSession->setError(Craft::t('Payment error: {message}', ['message' => $transaction->message]));
 
             return $order->cancelUrl;
         }
@@ -188,7 +187,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
         }
 
         $order = $parent->order;
-        $child = craft()->commerce_transactions->create($order);
+        $child = craft()->commerce_transactions->createTransaction($order);
         $child->parentId = $parent->id;
         $child->paymentMethodId = $parent->paymentMethodId;
         $child->type = $action;
@@ -200,7 +199,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
         $request->setTransactionReference($parent->reference);
 
         $order->returnUrl = $order->getCpEditUrl();
-        craft()->commerce_orders->save($order);
+        craft()->commerce_orders->saveOrder($order);
 
         try {
             $response = $request->send();
@@ -231,7 +230,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
             if ($transaction->status == Commerce_TransactionRecord::SUCCESS) {
                 craft()->request->redirect($order->returnUrl);
             } else {
-                craft()->userSession->setError('Payment error: ' . $transaction->message);
+                craft()->userSession->setError(Craft::t('Payment error: {message}', ['message' => $transaction->message]));
                 craft()->request->redirect($order->cancelUrl);
             }
         }
@@ -247,7 +246,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 
             // If MOLLIE, the transactionReference will be theirs
             $name = $transaction->paymentMethod->getGatewayAdapter()->getGateway()->getName();
-            if ( $name == 'Mollie_Ideal' || $name == 'Mollie' || $name == 'SagePay_Server') {
+            if ($name == 'Mollie_Ideal' || $name == 'Mollie' || $name == 'SagePay_Server') {
                 $params['transactionReference'] = $transaction->reference;
             }
 
@@ -314,7 +313,6 @@ class Commerce_PaymentsService extends BaseApplicationComponent
         $card->setExpiryYear($paymentForm->year);
         $card->setCvv($paymentForm->cvv);
 
-
         if ($order->billingAddressId) {
             $billingAddress = $order->billingAddress;
             $card->setBillingAddress1($billingAddress->address1);
@@ -324,6 +322,8 @@ class Commerce_PaymentsService extends BaseApplicationComponent
             $card->setBillingState($billingAddress->getStateText());
             $card->setBillingCountry($billingAddress->getCountryText());
             $card->setBillingPhone($billingAddress->phone);
+            $card->setBillingCompany($billingAddress->businessName);
+            $card->setCompany($billingAddress->businessName);
         }
 
         if ($order->shippingAddressId) {
@@ -335,7 +335,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
             $card->setShippingState($shippingAddress->getStateText());
             $card->setShippingCountry($shippingAddress->getCountryText());
             $card->setShippingPhone($shippingAddress->phone);
-            $card->setCompany($shippingAddress->company);
+            $card->setShippingCompany($shippingAddress->businessName);
         }
 
         $card->setEmail($order->email);
@@ -358,9 +358,9 @@ class Commerce_PaymentsService extends BaseApplicationComponent
             'amount' => $transaction->amount,
             'currency' => craft()->commerce_settings->getOption('defaultCurrency'),
             'transactionId' => $transaction->id,
-            'description'   => Craft::t('Order') . ' #'.$transaction->orderId,
+            'description' => Craft::t('Order') . ' #' . $transaction->orderId,
             'clientIp' => craft()->request->getIpAddress(),
-            'transactionReference' =>$transaction->hash,
+            'transactionReference' => $transaction->hash,
             'returnUrl' => UrlHelper::getActionUrl('commerce/cartPayment/complete',
                 ['id' => $transaction->id, 'hash' => $transaction->hash]),
             'cancelUrl' => UrlHelper::getSiteUrl($transaction->order->cancelUrl),
@@ -371,7 +371,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
         // custom gateways may wish to access the order directly
         $request['order'] = $transaction->order;
         $request['orderId'] = $transaction->order->id;
-    
+
         // Paypal only params
         $request['noShipping'] = 1;
         $request['allowNote'] = 0;
@@ -381,10 +381,10 @@ class Commerce_PaymentsService extends BaseApplicationComponent
             $request['card'] = $card;
         }
 
-        $pluginRequest = craft()->plugins->callFirst('modifyCommercePaymentRequest',[$request]);
+        $pluginRequest = craft()->plugins->callFirst('commerce_modifyPaymentRequest', [$request]);
 
-        if($pluginRequest){
-            $request = array_merge($request,$pluginRequest);
+        if ($pluginRequest) {
+            $request = array_merge($request, $pluginRequest);
         }
 
         return $request;
@@ -397,7 +397,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
      */
     private function saveTransaction($child)
     {
-        if (!craft()->commerce_transactions->save($child)) {
+        if (!craft()->commerce_transactions->saveTransaction($child)) {
             throw new Exception(Craft::t('Error saving transaction: ') . implode(', ',
                     $child->getAllErrors()));
         }

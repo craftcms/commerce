@@ -11,14 +11,14 @@ namespace Craft;
  * @package   craft.plugins.commerce.controllers
  * @since     1.0
  */
-class Commerce_CustomersController extends Commerce_BaseAdminController
+class Commerce_CustomersController extends Commerce_BaseCpController
 {
     /**
      * @throws HttpException
      */
     public function actionIndex()
     {
-        $customers = craft()->commerce_customers->getAll(['with' => 'user']);
+        $customers = craft()->commerce_customers->getAllCustomers(['with' => 'user']);
         $this->renderTemplate('commerce/customers/index', compact('customers'));
     }
 
@@ -37,9 +37,9 @@ class Commerce_CustomersController extends Commerce_BaseAdminController
             }
 
             $id = $variables['id'];
-            $variables['customer'] = craft()->commerce_customers->getById($id);
+            $variables['customer'] = craft()->commerce_customers->getCustomerById($id);
 
-            if (!$variables['customer']->id) {
+            if (!$variables['customer']) {
                 throw new HttpException(404);
             }
         }
@@ -58,17 +58,17 @@ class Commerce_CustomersController extends Commerce_BaseAdminController
         $this->requirePostRequest();
 
         $id = craft()->request->getRequiredPost('id');
-        $customer = craft()->commerce_customers->getById($id);
+        $customer = craft()->commerce_customers->getCustomerById($id);
 
-        if (!$customer->id) {
-            throw new HttpException(400);
+        if (!$customer) {
+            throw new HttpException(400, Craft::t('Cannot find customer.'));
         }
 
         // Shared attributes
         $customer->email = craft()->request->getPost('email');
 
         // Save it
-        if (craft()->commerce_customers->save($customer)) {
+        if (craft()->commerce_customers->saveCustomer($customer)) {
             craft()->userSession->setNotice(Craft::t('Customer saved.'));
             $this->redirectToPostedUrl();
         } else {

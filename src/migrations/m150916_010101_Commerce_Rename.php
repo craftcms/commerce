@@ -45,6 +45,9 @@ class m150916_010101_Commerce_Rename extends BaseMigration
         craft()->db->createCommand()->update('elements', ['type' => 'Commerce_Order'], 'type=:elementType', [':elementType' => 'Market_Order']);
         craft()->db->createCommand()->update('elements', ['type' => 'Commerce_Variant'], 'type=:elementType', [':elementType' => 'Market_Variant']);
 
+        craft()->db->createCommand()->update('fields', ['type' => 'Commerce_Products'], 'type=:fieldType', [':fieldType' => 'Market_Products']);
+        craft()->db->createCommand()->update('fields', ['type' => 'Commerce_Customer'], 'type=:fieldType', [':fieldType' => 'Market_Customer']);
+
         craft()->db->createCommand()->delete('plugins', "class = 'Market'");
 
         return true;
