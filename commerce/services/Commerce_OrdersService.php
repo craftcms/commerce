@@ -403,7 +403,8 @@ class Commerce_OrdersService extends BaseApplicationComponent
             return false;
         }
 
-        craft()->commerce_cart->forgetCart($order);
+        craft()->commerce_cart->forgetCart();
+        craft()->commerce_customers->forgetCustomer();
 
         //raising event on order complete
         $event = new Event($this, [

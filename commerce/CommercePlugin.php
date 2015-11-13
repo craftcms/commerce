@@ -106,7 +106,8 @@ class CommercePlugin extends BasePlugin
                         'm151103_010101_Commerce_DefaultVariant',
                         'm151109_010101_Commerce_AddCompanyNumberToAddress',
                         'm151110_010101_Commerce_RenameCompanyToAddress',
-                        'm151111_010101_Commerce_ShowVariantTitleField'
+                        'm151111_010101_Commerce_ShowVariantTitleField',
+                        'm151112_010101_Commerce_AutoSkuFormat'
                     );
 
                     foreach ($migrations as $migrationClass) {
@@ -222,7 +223,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getSchemaVersion()
     {
-        return '0.9.7';
+        return '0.9.8';
     }
 
     /**
