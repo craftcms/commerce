@@ -91,9 +91,7 @@ class Commerce_CustomersService extends BaseApplicationComponent
     }
 
     /**
-     * Forgets a Customer by deleting the customer id from session.
-     *
-     * This is be restored if the user is logged in.
+     * Forgets a Customer by deleting the customer from session and request.
      */
     public function forgetCustomer()
     {
@@ -260,10 +258,8 @@ class Commerce_CustomersService extends BaseApplicationComponent
      */
     public function loginHandler(Event $event)
     {
-        // Remove the customer id as the customer identifier from session.
-        // Will be restored immediately if required by ::getCustomer().
-        craft()->session->remove(self::SESSION_CUSTOMER);
-        $this->_customer = null;
+        // Remove the customer from session.
+        $this->forgetCustomer();
 
         $username = $event->params['username'];
         $this->consolidateOrdersToUser($username);
@@ -276,9 +272,9 @@ class Commerce_CustomersService extends BaseApplicationComponent
      */
     public function logoutHandler(Event $event)
     {
-        // Remove the customer id as the customer identifier from session.
-        craft()->session->remove(self::SESSION_CUSTOMER);
-        $this->_customer = null;
+        // Reset the sessions customer.
+        $this->forgetCustomer();
+
     }
 
     /**
