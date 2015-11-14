@@ -260,8 +260,25 @@ class Commerce_CustomersService extends BaseApplicationComponent
      */
     public function loginHandler(Event $event)
     {
+        // Remove the customer id as the customer identifier from session.
+        // Will be restored immediately if required by ::getCustomer().
+        craft()->session->remove(self::SESSION_CUSTOMER);
+        $this->_customer = null;
+
         $username = $event->params['username'];
         $this->consolidateOrdersToUser($username);
+    }
+
+    /**
+     * @param Event $event
+     *
+     * @throws Exception
+     */
+    public function logoutHandler(Event $event)
+    {
+        // Remove the customer id as the customer identifier from session.
+        craft()->session->remove(self::SESSION_CUSTOMER);
+        $this->_customer = null;
     }
 
     /**
