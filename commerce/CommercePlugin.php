@@ -50,6 +50,7 @@ class CommercePlugin extends BasePlugin
         if (!craft()->isConsole()) {
             craft()->on('users.onSaveUser', array(craft()->commerce_customers, 'saveUserHandler'));
             craft()->on('userSession.onLogin', array(craft()->commerce_customers, 'loginHandler'));
+            craft()->on('userSession.onLogout', array(craft()->commerce_customers, 'logoutHandler'));
         }
     }
 
