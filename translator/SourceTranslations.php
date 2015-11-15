@@ -514,4 +514,3 @@ $lang['base rate'] = 'base rate';
 $lang['off'] = 'off';
 $lang['per item'] = 'per item';
 $lang['to'] = 'to';
-$lang['∞'] = '∞';
