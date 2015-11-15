@@ -58,7 +58,6 @@ $lang['Collapse'] = 'Collapse';
 $lang['Color'] = 'Color';
 $lang['Commerce Customer Info'] = 'Commerce Customer Info';
 $lang['Commerce Products'] = 'Commerce Products';
-$lang['Commerce Settings'] = 'Commerce Settings';
 $lang['Completed At'] = 'Completed At';
 $lang['Conditions'] = 'Conditions';
 $lang['Could not add to cart: '] = 'Could not add to cart: ';
