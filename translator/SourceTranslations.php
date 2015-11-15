@@ -180,7 +180,6 @@ $lang['Enable this discount'] = 'Enable this discount';
 $lang['Enable this sale'] = 'Enable this sale';
 $lang['Enable this shipping method on the front end'] = 'Enable this shipping method on the front end';
 $lang['Enable this shipping rule'] = 'Enable this shipping rule';
-$lang['Enabled'] = 'Enabled';
 $lang['Enabled for the front end'] = 'Enabled for the front end';
 $lang['Enabled?'] = 'Enabled?';
 $lang['End Date'] = 'End Date';
