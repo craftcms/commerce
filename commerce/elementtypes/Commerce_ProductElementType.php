@@ -105,7 +105,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
             ]
         ];
 
-        $sources[] = ['heading' => Craft::t('Product Types'];
+        $sources[] = ['heading' => Craft::t('Product Types')];
 
         // TODO: Replace with per-product type permission checks when we have them
         $canEditProducts = craft()->userSession->checkPermission('accessPlugin-commerce');
