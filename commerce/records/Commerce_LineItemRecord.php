@@ -22,6 +22,8 @@ namespace Craft;
  *
  * @property int $orderId
  * @property int $purchasableId
+ * @property mixed $options
+ * @property string $optionsSignature
  * @property int $taxCategoryId
  *
  * @property Commerce_OrderRecord $order
@@ -51,7 +53,7 @@ class Commerce_LineItemRecord extends BaseRecord
     public function defineIndexes()
     {
         return [
-            ['columns' => ['orderId', 'purchasableId'], 'unique' => true],
+            ['columns' => ['orderId', 'purchasableId', 'optionsSignature'], 'unique' => true],
         ];
     }
 
@@ -89,6 +91,8 @@ class Commerce_LineItemRecord extends BaseRecord
     protected function defineAttributes()
     {
         return [
+            'options' => AttributeType::Mixed,
+            'optionsSignature' => [AttributeType::String, 'required' => true],
             'price' => [
                 AttributeType::Number,
                 'min' => 0,

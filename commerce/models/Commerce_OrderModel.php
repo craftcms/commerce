@@ -40,6 +40,7 @@ use Omnipay\Common\Currency;
  * @property int $totalWidth
  * @property int $totalTax
  * @property int $totalShippingCost
+ * @property int $totalDiscount
  * @property string $pdfUrl
  *
  * @property Commerce_OrderSettingsModel $type
@@ -197,7 +198,7 @@ class Commerce_OrderModel extends BaseElementModel
     }
 
     /**
-     * @return int
+     * @return float
      */
     public function getTotalTax()
     {
@@ -210,7 +211,21 @@ class Commerce_OrderModel extends BaseElementModel
     }
 
     /**
-     * @return int
+     * @return float
+     */
+    public function getTotalDiscount()
+    {
+        $discount = 0;
+        foreach ($this->lineItems as $item) {
+            $discount += $item->discount;
+        }
+
+        return $discount + $this->baseDiscount;
+    }
+
+
+    /**
+     * @return float
      */
     public function getTotalShippingCost()
     {

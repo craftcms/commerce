@@ -44,6 +44,15 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
 
         $lineItem->qty = $qty;
         $lineItem->note = $note;
+
+        // If the options param exists, set it
+        if(!is_null(craft()->request->getPost('options'))){
+            $options = craft()->request->getPost('options',[]);
+            ksort($options);
+            $lineItem->options = $options;
+            $lineItem->optionsSignature = md5(json_encode($options));
+        }
+
         $lineItem->order->setContentFromPost('fields');
 
         if (craft()->commerce_lineItems->updateLineItem($cart, $lineItem, $error)) {
@@ -138,9 +147,10 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
         if (!is_null(craft()->request->getParam('purchasableId'))) {
             $purchasableId = craft()->request->getPost('purchasableId');
             $note = craft()->request->getPost('note',"");
+            $options = craft()->request->getPost('options',[]);
             $qty = craft()->request->getPost('qty', 1);
             $error = '';
-            if (!craft()->commerce_cart->addToCart($cart, $purchasableId, $qty, $note, $error)) {
+            if (!craft()->commerce_cart->addToCart($cart, $purchasableId, $qty, $note, $options, $error)) {
                 $cart->addError('lineItems', Craft::t('Could not add to cart: ').$error);
             }else{
                 $cartSaved = true;
