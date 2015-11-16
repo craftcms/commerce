@@ -105,7 +105,7 @@ class Commerce_ShippingMethodsController extends Commerce_BaseAdminController
                 $this->returnErrorJson(Craft::t('Cannot delete shipping method and it’s rules.'));
             }
         }else{
-            $this->returnErrorJson(Craft::t('Cannot find shipping method with ID {id}',['id'=>$id]));
+            $this->returnErrorJson(Craft::t('Cannot find shipping method with ID “{id}”',['id'=>$id]));
         }
 
     }
