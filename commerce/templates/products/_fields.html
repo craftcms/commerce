@@ -119,7 +119,7 @@
 			{{ forms.text({
 				id: 'stock',
 				name: 'stock',
-				value: (variant.stock ?: ''),
+				value: (variant.unlimitedStock ? '' : (variant.stock == '0' ? '0': '')),
 				placeholder: 'Enter stock'|t,
 				disabled: variant.unlimitedStock
 			}) }}
