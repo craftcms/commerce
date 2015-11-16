@@ -25,12 +25,13 @@ class Commerce_CartService extends BaseApplicationComponent
      * @param int $purchasableId
      * @param int $qty
      * @param string $note
+     * @param array $options
      * @param string $error
      *
      * @return bool
      * @throws \Exception
      */
-    public function addToCart($order, $purchasableId, $qty = 1, $note = '', &$error = '')
+    public function addToCart($order, $purchasableId, $qty = 1, $note = '', $options = [], &$error = '')
     {
         CommerceDbHelper::beginStackedTransaction();
 
@@ -42,12 +43,12 @@ class Commerce_CartService extends BaseApplicationComponent
         }
 
         //filling item model
-        $lineItem = craft()->commerce_lineItems->getLineItemByOrderPurchasable($order->id, $purchasableId);
+        $lineItem = craft()->commerce_lineItems->getLineItemByOrderPurchasableOptions($order->id, $purchasableId, $options);
 
         if ($lineItem) {
             $lineItem->qty += $qty;
         } else {
-            $lineItem = craft()->commerce_lineItems->createLineItem($purchasableId, $order->id, $qty);
+            $lineItem = craft()->commerce_lineItems->createLineItem($purchasableId, $order->id, $options, $qty);
         }
 
         if ($note) {
