@@ -226,8 +226,8 @@ class CommercePlugin extends BasePlugin
      */
     public function getSchemaVersion()
     {
-       return '0.9.9';
-     }
+        return '0.9.9';
+    }
 
     /**
      * A&M Command Palette data. Enables shortcuts to different areas of the
