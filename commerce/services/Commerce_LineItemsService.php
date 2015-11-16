@@ -33,14 +33,18 @@ class Commerce_LineItemsService extends BaseApplicationComponent
      *
      * @param int $orderId
      * @param int $purchasableId
+     * @param array $options
      *
      * @return Commerce_LineItemModel|null
      */
-    public function getLineItemByOrderPurchasable($orderId, $purchasableId)
+    public function getLineItemByOrderPurchasableOptions($orderId, $purchasableId, $options = [])
     {
+        ksort($options);
+        $signature = md5(json_encode($options));
         $result = Commerce_LineItemRecord::model()->findByAttributes([
             'orderId' => $orderId,
             'purchasableId' => $purchasableId,
+            'optionsSignature' => $signature
         ]);
 
         if ($result) {
@@ -107,6 +111,9 @@ class Commerce_LineItemsService extends BaseApplicationComponent
         $lineItemRecord->orderId = $lineItem->orderId;
         $lineItemRecord->taxCategoryId = $lineItem->taxCategoryId;
 
+        $lineItemRecord->options = $lineItem->options;
+        $lineItemRecord->optionsSignature = $lineItem->optionsSignature;
+
         $lineItemRecord->qty = $lineItem->qty;
         $lineItemRecord->price = $lineItem->price;
 
@@ -171,15 +178,19 @@ class Commerce_LineItemsService extends BaseApplicationComponent
     /**
      * @param $purchasableId
      * @param $orderId
+     * @param $options
      * @param $qty
      * @return Commerce_LineItemModel
      * @throws Exception
      */
-    public function createLineItem($purchasableId, $orderId, $qty)
+    public function createLineItem($purchasableId, $orderId, $options, $qty)
     {
         $lineItem = new Commerce_LineItemModel();
         $lineItem->purchasableId = $purchasableId;
         $lineItem->qty = $qty;
+        $lineItem->options = $options;
+        ksort($options);
+        $lineItem->optionsSignature = md5(json_encode($options));
         $lineItem->orderId = $orderId;
 
         /** @var \Commerce\Interfaces\Purchasable $purchasable */
