@@ -24,9 +24,9 @@
 {% endif %}
 
 {% set tabs = {
-    0: {'label':'Sale','url':'#sale','class': saleClasses},
-    1: {'label':'Conditions','url':'#conditions'},
-    2: {'label':'Actions','url':'#actions','class': actionClasses}
+    0: {'label':'Sale'|t,'url':'#sale','class': saleClasses},
+    1: {'label':'Conditions'|t,'url':'#conditions'},
+    2: {'label':'Actions'|t,'url':'#actions','class': actionClasses}
 } %}
 
 
@@ -144,7 +144,7 @@
     {% endspaceless %}{% endset %}
     {{ forms.textField({
         label: "Discount Amount"|t,
-        instructions: "Percentage or a flat value of discount (for example: '3%' for 3% off, and '10' for $10 off)."|t,
+        instructions: "Percentage or a flat value of discount (for example: ‘3%’ for 3% off, and ‘10’ for $10 off)."|t,
         id: 'discountAmount',
         name: 'discountAmount',
         required: true,

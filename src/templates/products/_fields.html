@@ -105,7 +105,7 @@
 
 	{{ forms.textField({
 		id: 'price',
-		label: 'Price',
+		label: 'Price'|t,
 		name: 'price',
 		value: (variant.price ? variant.price|commerceDecimal ?: ''),
 		placeholder: 'Enter price'|t,
@@ -135,7 +135,7 @@
 
 	{{ forms.field({
 		id: 'stock',
-		label: 'Stock',
+		label: 'Stock'|t,
 		errors: variant.getErrors('unlimitedStock')|merge(variant.getErrors('stock')),
 	}, stockInput) }}
 
