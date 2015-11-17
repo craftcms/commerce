@@ -94,6 +94,8 @@ class Commerce_TaxAdjuster implements Commerce_AdjusterInterface
 
                 if (!$taxRate->include) {
                     $item->tax += $itemtax;
+                }else{
+                    $item->taxIncluded += $itemtax;
                 }
 
                 $itemsMatch = true;

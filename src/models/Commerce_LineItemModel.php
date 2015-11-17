@@ -14,6 +14,7 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  * @property float $saleAmount
  * @property float $salePrice
  * @property float $tax
+ * @property float $taxIncluded
  * @property float $shippingCost
  * @property float $discount
  * @property float $weight
@@ -207,6 +208,12 @@ class Commerce_LineItemModel extends BaseModel
                 'default' => 0
             ],
             'tax' => [
+                AttributeType::Number,
+                'decimals' => 4,
+                'required' => true,
+                'default' => 0
+            ],
+            'taxIncluded' => [
                 AttributeType::Number,
                 'decimals' => 4,
                 'required' => true,
