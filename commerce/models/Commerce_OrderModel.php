@@ -213,6 +213,19 @@ class Commerce_OrderModel extends BaseElementModel
     /**
      * @return float
      */
+    public function getTotalTaxIncluded()
+    {
+        $tax = 0;
+        foreach ($this->lineItems as $item) {
+            $tax += $item->taxIncluded;
+        }
+
+        return $tax;
+    }
+
+    /**
+     * @return float
+     */
     public function getTotalDiscount()
     {
         $discount = 0;

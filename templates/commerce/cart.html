@@ -58,6 +58,7 @@
 
                             Discount: {{ item.discount|commerceCurrency }}<br>
                             Taxes: {{ item.tax|commerceCurrency }}<br>
+                            Taxes (Inc): {{ item.taxIncluded|commerceCurrency }}<br>
                             Shipping: {{ item.shippingCost|commerceCurrency }}<br>
                             Total: {{ item.total|commerceCurrency }}<br>
                         </td>
