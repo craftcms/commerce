@@ -52,6 +52,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
         // Validate card if no token provided
         if (!$form->token && $cart->paymentMethod->requiresCard()) {
             if (!$form->validate()) {
+                $customError = Craft::t("Invalid payment information.");
                 return false;
             }
         }
