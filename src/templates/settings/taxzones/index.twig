@@ -14,7 +14,7 @@
             <th scope="col">{{ 'Name'|t }}</th>
             <th scope="col">{{ 'Description'|t }}</th>
             <th scope="col">{{ 'Type'|t }}</th>
-            <th scope="col">{{ 'Countries / States'|t }}</th>
+            <th scope="col">{{ 'Countries/States'|t }}</th>
             <th scope="col">{{ 'Default Zone?'|t }}</th>
             <td class="thin"></td>
         </tr>
@@ -22,11 +22,10 @@
         <tbody>
         {% for taxZone in taxZones %}
             <tr data-id="{{ taxZone.id }}" data-name="{{ taxZone.name }}">
-                <td scope="row" data-title="{{ 'Name'|t }}"><a
-                            href="{{ url('commerce/settings/taxzones/'~taxZone.id) }}">{{ taxZone.name }}</a></td>
+                <td scope="row" data-title="{{ 'Name'|t }}"><a href="{{ url('commerce/settings/taxzones/'~taxZone.id) }}">{{ taxZone.name }}</a></td>
                 <td data-title="{{ 'Description'|t }}">{{ taxZone.description }}</td>
                 <td data-title="{{ 'Type'|t }}">{{ taxZone.countryBased ? 'Country Based'|t : 'State Based'|t }}</td>
-                <td data-title="{{ 'CountryState'|t }}">
+                <td data-title="{{ 'Countries/States'|t }}">
                     {%  set countryCount = taxZone.getCountriesNames()|length%}
                     {% if countryCount > 3 %}
                         {{ taxZone.getCountriesNames()|slice(0,3)|join(', ') }} ({{ (countryCount - 3) ~ " more"|t }}&hellip;)
@@ -41,7 +40,7 @@
                         {{ taxZone.getStatesNames()|join(', ') }}
                     {% endif %}
                 </td>
-                <td data-title="{{ 'Default?'|t }}">{% if taxZone.default %}<span data-icon="check" title="{{ 'Yes'|t }}"></span>{% endif %}</td>
+                <td data-title="{{ 'Default Zone?'|t }}">{% if taxZone.default %}<span data-icon="check" title="{{ 'Yes'|t }}"></span>{% endif %}</td>
                 <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
             </tr>
         {% endfor %}

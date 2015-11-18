@@ -42,7 +42,7 @@ class Commerce_BaseFrontEndController extends Commerce_BaseController
         $data['orderStatusId'] = $cart->orderStatusId;
         $data['billingAddressId'] = $cart->billingAddressId;
         $data['shippingAddressId'] = $cart->shippingAddressId;
-        $data['shippingMethod'] = $cart->shippingMethod;
+        $data['shippingMethod'] = $cart->getShippingMethodHandle();
         $data['paymentMethodId'] = $cart->paymentMethodId;
         $data['customerId'] = $cart->customerId;
         $data['shippingAddressData'] = $cart->shippingAddressData;
@@ -57,6 +57,7 @@ class Commerce_BaseFrontEndController extends Commerce_BaseController
         $data['totalHeight'] = $cart->totalLength;
         $data['totalTax'] = $cart->totalTax;
         $data['totalShippingCost'] = $cart->totalShippingCost;
+        $data['totalDiscount'] = $cart->totalDiscount;
 
         $data['availableShippingMethods'] = craft()->commerce_shippingMethods->getOrderedAvailableShippingMethods($cart);
 

@@ -11,7 +11,7 @@
         <tr>
             <th>{{ "Name"|t }}</th>
             <th>{{ "Gateway"|t }}</th>
-            <th>{{ "Front End Status"|t }}</th>
+            <th>{{ "Enabled?"|t }}</th>
         </tr>
         </thead>
         <tbody>
@@ -19,13 +19,7 @@
             <tr data-id="{{ paymentMethod.class }}" data-name="{{ paymentMethod.name }}">
                 <th scope="row" data-title="{{ 'Name'|t }}"><a href="{{ paymentMethod.cpEditUrl }}">{{ paymentMethod.name }}</a></th>
                 <td data-title="{{ 'Gateway'|t }}">{{ paymentMethod.class }}</td>
-                <td data-title="{{ 'Front End Status'|t }}">
-                    {% if paymentMethod.frontendEnabled %}
-                        <div class="status enabled"></div>
-                    {% else %}
-                        <div class="status"></div>
-                    {% endif %}
-                </td>
+                <td data-title="{{ 'Enabled?'|t }}">{% if paymentMethod.frontendEnabled %}<span data-icon="check" title="{{ 'Yes'|t }}"></span>{% endif %}</td>
             </tr>
         {% endfor %}
 

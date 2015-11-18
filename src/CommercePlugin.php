@@ -50,6 +50,7 @@ class CommercePlugin extends BasePlugin
         if (!craft()->isConsole()) {
             craft()->on('users.onSaveUser', array(craft()->commerce_customers, 'saveUserHandler'));
             craft()->on('userSession.onLogin', array(craft()->commerce_customers, 'loginHandler'));
+            craft()->on('userSession.onLogout', array(craft()->commerce_customers, 'logoutHandler'));
         }
     }
 
@@ -106,7 +107,10 @@ class CommercePlugin extends BasePlugin
                         'm151103_010101_Commerce_DefaultVariant',
                         'm151109_010101_Commerce_AddCompanyNumberToAddress',
                         'm151110_010101_Commerce_RenameCompanyToAddress',
-                        'm151111_010101_Commerce_ShowVariantTitleField'
+                        'm151111_010101_Commerce_ShowVariantTitleField',
+                        'm151112_010101_Commerce_AutoSkuFormat',
+                        'm151109_010102_Commerce_AddOptionsToLineItems',
+                        'm151117_010101_Commerce_TaxIncluded'
                     );
 
                     foreach ($migrations as $migrationClass) {
@@ -222,7 +226,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getSchemaVersion()
     {
-        return '0.9.7';
+        return '0.9.10';
     }
 
     /**

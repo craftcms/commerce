@@ -9,6 +9,7 @@ namespace Craft;
  * @property float $saleAmount
  * @property float $salePrice
  * @property float $tax
+ * @property float $taxIncluded
  * @property float $shippingCost
  * @property float $discount
  * @property float $weight
@@ -22,6 +23,8 @@ namespace Craft;
  *
  * @property int $orderId
  * @property int $purchasableId
+ * @property mixed $options
+ * @property string $optionsSignature
  * @property int $taxCategoryId
  *
  * @property Commerce_OrderRecord $order
@@ -51,7 +54,7 @@ class Commerce_LineItemRecord extends BaseRecord
     public function defineIndexes()
     {
         return [
-            ['columns' => ['orderId', 'purchasableId'], 'unique' => true],
+            ['columns' => ['orderId', 'purchasableId', 'optionsSignature'], 'unique' => true],
         ];
     }
 
@@ -89,6 +92,8 @@ class Commerce_LineItemRecord extends BaseRecord
     protected function defineAttributes()
     {
         return [
+            'options' => AttributeType::Mixed,
+            'optionsSignature' => [AttributeType::String, 'required' => true],
             'price' => [
                 AttributeType::Number,
                 'min' => 0,
@@ -108,6 +113,12 @@ class Commerce_LineItemRecord extends BaseRecord
                 'default' => 0
             ],
             'tax' => [
+                AttributeType::Number,
+                'decimals' => 4,
+                'required' => true,
+                'default' => 0
+            ],
+            'taxIncluded' => [
                 AttributeType::Number,
                 'decimals' => 4,
                 'required' => true,

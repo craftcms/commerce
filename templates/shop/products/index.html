@@ -1,7 +1,7 @@
 {% extends 'commerce/_layouts/main' %}
 {% block main %}
 
-    {% for product in craft.commerce.products.limit(5).find() %}
+    {% for product in craft.commerce.products.search().find() %}
         <div class="row product">
             <div class="two columns">
                 {% if product.url %}
@@ -22,11 +22,16 @@
                         <input type="hidden" name="action" value="commerce/cart/updateCart">
                         <input type="hidden" name="redirect" value="commerce/cart">
                         <input type="hidden" name="qty" value="1">
+                        <select name="options[color]">
+                            <option value="blue">Blue</option>
+                            <option value="white">White</option>
+                            <option value="red">Red</option>
+                        </select>
                         {{ getCsrfInput() }}
                         <select name="purchasableId">
                             {% for purchasable in product.variants %}
                                 <option {% if purchasable.stock <= 0 and purchasable.unlimitedStock == false %}disabled {% endif %}
-                                        value="{{ purchasable.purchasableId }}">{{ purchasable.sku }} {{ purchasable.description }} {{ purchasable.price|commerceCurrency }}</option>
+                                        value="{{ purchasable.purchasableId }}">{{ purchasable.description }} {{ purchasable.price|commerceCurrency }}</option>
                             {% endfor %}
                         </select>
                         <input type="submit" value="{{ "Add to cart"|t }}" class="button"/>

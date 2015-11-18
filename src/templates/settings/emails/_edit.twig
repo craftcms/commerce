@@ -1,7 +1,7 @@
 {% extends "commerce/_layouts/settingscp" %}
 
 {% set crumbs = [
-{ label: "Commerce Settings"|t, url: url('commerce/settings') },
+{ label: "Commerce " ~ "Settings"|t, url: url('commerce/settings') },
 { label: "Emails"|t, url: url('commerce/settings/emails') },
 ] %}
 
@@ -65,8 +65,7 @@
     }) }}
 
     {{ forms.lightswitchField({
-        label: "Enabled"|t,
-        instructions: ""|t,
+        label: "Enabled?"|t,
         id: 'enabled',
         name: 'enabled',
         value: 1,
