@@ -20,6 +20,8 @@ class Commerce_CartPaymentController extends Commerce_BaseFrontEndController
     {
         $this->requirePostRequest();
 
+        $customError = '';
+
         $paymentForm = new Commerce_PaymentFormModel;
         $paymentForm->firstName = craft()->request->getParam('firstName');
         $paymentForm->lastName = craft()->request->getParam('lastName');

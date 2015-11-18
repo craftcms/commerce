@@ -1,6 +1,6 @@
 <div class="address-fieldset {{ class }}">
     <h3>{{ title }}</h3>
-    {% if addresses %}
+    {% if addresses and currentUser%}
         {% for address in addresses %}
             <div class="address-select" data-address-id="{{ address.id }}">
                 <div class="actions">
@@ -46,20 +46,22 @@
     {% endif %}
 
     <div class="address-select">
+        {% if attribute(cart,name~'Id') %}
+            {% set addressHasErrors = cart.shippingAddress.hasErrors() %}
+        {% else %}
+            {% set addressHasErrors = false %}
+        {% endif %}
+
+        {% if currentUser %}
         <div class="radio">
             {# If we have no addresses expand the 'New Address" fields by default it to being checked. If we have errors on the address also check and expand. #}
-
-            {% if attribute(cart,name~'Id') %}
-                {% set addressHasErrors = cart.shippingAddress.hasErrors() %}
-            {% else %}
-                {% set addressHasErrors = false %}
-            {% endif %}
             <input type="radio" name="{{ name }}Id"
                    {% if not addresses|length or addressHasErrors %}checked="checked"{% endif %} value=""/>
             <strong>{{ "New"|t }} {{ title }}</strong>
         </div>
+        {% endif %}
 
-        <div class="body hidden">
+        <div class="body {% if currentUser %}hidden{% endif %}">
             {% if addressHasErrors %}<span class="flash">{{ cart.getErrors(name)|join }}</span><br>{% endif %}
             {% include 'commerce/_includes/addresses/form' with {
             'modelName': name,

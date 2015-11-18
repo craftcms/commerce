@@ -31,7 +31,7 @@
                     <a href="{{ url('commerce/promotions/sales/'~sale.id) }}">{{ sale.name }}</a>
                 </th>
                 <td data-title="{{ 'Duration'|t }}">
-                    {{ sale.dateFrom ? sale.dateFrom.localeDate() : '∞'|t }}
+                    {{ sale.dateFrom ? sale.dateFrom.localeDate() : '∞' }}
                     -
                     {{ sale.dateTo ? sale.dateTo.localeDate() : '∞' }}
                 </td>

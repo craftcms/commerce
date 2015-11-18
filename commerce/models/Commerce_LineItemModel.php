@@ -14,6 +14,7 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  * @property float $saleAmount
  * @property float $salePrice
  * @property float $tax
+ * @property float $taxIncluded
  * @property float $shippingCost
  * @property float $discount
  * @property float $weight
@@ -27,6 +28,8 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  *
  * @property int $orderId
  * @property int $purchasableId
+ * @property string $optionsSignature
+ * @property mixed $options
  * @property int $taxCategoryId
  *
  * @property bool $onSale
@@ -104,7 +107,8 @@ class Commerce_LineItemModel extends BaseModel
             'sku' => $purchasable->getSku(),
             'description' => $purchasable->getDescription(),
             'purchasableId' => $purchasable->getPurchasableId(),
-            'cpEditUrl' => '#'
+            'cpEditUrl' => '#',
+            'options' => $this->options
         ];
 
         // Add our purchasable data to the snapshot, save our sales.
@@ -183,6 +187,8 @@ class Commerce_LineItemModel extends BaseModel
     {
         return [
             'id' => AttributeType::Number,
+            'options' => AttributeType::Mixed,
+            'optionsSignature' => [AttributeType::String, 'required' => true],
             'price' => [
                 AttributeType::Number,
                 'min' => 0,
@@ -202,6 +208,12 @@ class Commerce_LineItemModel extends BaseModel
                 'default' => 0
             ],
             'tax' => [
+                AttributeType::Number,
+                'decimals' => 4,
+                'required' => true,
+                'default' => 0
+            ],
+            'taxIncluded' => [
                 AttributeType::Number,
                 'decimals' => 4,
                 'required' => true,

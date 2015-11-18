@@ -1,7 +1,7 @@
 {% extends "commerce/_layouts/settingscp" %}
 
 {% set crumbs = [
-{ label: "Commerce Settings"|t, url: url('commerce/settings') },
+{ label: "Commerce " ~ "Settings"|t, url: url('commerce/settings') },
 { label: "Payment Methods"|t, url: url('commerce/settings/paymentmethods') },
 ] %}
 
@@ -57,7 +57,7 @@
     <hr>
 
     {{ forms.checkboxField({
-        label: "Enabled for the front end"|t,
+        label: "Enabled?"|t,
         name: 'frontendEnabled',
         checked: paymentMethod.frontendEnabled,
         errors: paymentMethod.getErrors('frontendEnabled'),

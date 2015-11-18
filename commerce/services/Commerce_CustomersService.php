@@ -18,7 +18,7 @@ class Commerce_CustomersService extends BaseApplicationComponent
     const SESSION_CUSTOMER = 'commerce_customer_cookie';
 
     /** @var Commerce_CustomerModel */
-    private $customer = null;
+    private $_customer = null;
 
 
     /**
@@ -56,18 +56,21 @@ class Commerce_CustomersService extends BaseApplicationComponent
      */
     public function getCustomer()
     {
-        if ($this->customer === null) {
+        if ($this->_customer === null) {
             $user = craft()->userSession->getUser();
 
             if ($user) {
                 $record = Commerce_CustomerRecord::model()->findByAttributes(['userId' => $user->id]);
+                if($record){
+                    craft()->session->add(self::SESSION_CUSTOMER, $record->id);
+                }
             } else {
                 $id = craft()->session->get(self::SESSION_CUSTOMER);
                 if ($id) {
                     $record = Commerce_CustomerRecord::model()->findById($id);
                     // If there is a customer record but it is associated with a real user, don't use it when guest.
                     if ($record && $record->userId) {
-                        $record = false;
+                        $record = null;
                     }
                 }
             }
@@ -81,10 +84,19 @@ class Commerce_CustomersService extends BaseApplicationComponent
                 }
             }
 
-            $this->customer = Commerce_CustomerModel::populateModel($record);
+            $this->_customer = Commerce_CustomerModel::populateModel($record);
         }
 
-        return $this->customer;
+        return $this->_customer;
+    }
+
+    /**
+     * Forgets a Customer by deleting the customer from session and request.
+     */
+    public function forgetCustomer()
+    {
+        $this->_customer = null;
+        craft()->session->remove(self::SESSION_CUSTOMER);
     }
 
     /**
@@ -246,8 +258,23 @@ class Commerce_CustomersService extends BaseApplicationComponent
      */
     public function loginHandler(Event $event)
     {
+        // Remove the customer from session.
+        $this->forgetCustomer();
+
         $username = $event->params['username'];
         $this->consolidateOrdersToUser($username);
+    }
+
+    /**
+     * @param Event $event
+     *
+     * @throws Exception
+     */
+    public function logoutHandler(Event $event)
+    {
+        // Reset the sessions customer.
+        $this->forgetCustomer();
+
     }
 
     /**
