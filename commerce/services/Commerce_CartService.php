@@ -83,15 +83,6 @@ class Commerce_CartService extends BaseApplicationComponent
     }
 
     /**
-     * Forgets a Cart by deleting its cookie.
-     */
-    public function forgetCart()
-    {
-        $cookieId = $this->cookieCartId;
-        craft()->userSession->deleteStateCookie($cookieId);
-    }
-
-    /**
      * Event method.
      * Event params: order(Commerce_OrderModel), lineItem (Commerce_LineItemModel)
      *
@@ -110,6 +101,15 @@ class Commerce_CartService extends BaseApplicationComponent
             throw new Exception('onAddToCart event requires "lineItem" param with LineItemModel instance');
         }
         $this->raiseEvent('onAddToCart', $event);
+    }
+
+    /**
+     * Forgets a Cart by deleting its cookie.
+     */
+    public function forgetCart()
+    {
+        $cookieId = $this->cookieCartId;
+        craft()->userSession->deleteStateCookie($cookieId);
     }
 
     /**
@@ -303,7 +303,7 @@ class Commerce_CartService extends BaseApplicationComponent
     }
 
     /**
-     * @TODO check that line item belongs to the current user
+     * Removes a line item from the cart.
      *
      * @param Commerce_OrderModel $cart
      * @param int $lineItemId

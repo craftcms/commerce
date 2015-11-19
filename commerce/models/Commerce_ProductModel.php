@@ -63,8 +63,12 @@ class Commerce_ProductModel extends BaseElementModel
      */
     public function isEditable()
     {
-        // TODO: Replace with a product type permission check when we have them
-        return craft()->userSession->checkPermission('accessPlugin-commerce');
+        if($this->getType()){
+            $id = $this->getType()->id;
+            return craft()->userSession->checkPermission('commerce-manageProductType:'.$id);
+        }
+
+        return false;
     }
 
     /**

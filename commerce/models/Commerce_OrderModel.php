@@ -95,8 +95,12 @@ class Commerce_OrderModel extends BaseElementModel
      */
     public function isEditable()
     {
-        // TODO: Replace with an order permission check when we have one
-        return craft()->userSession->checkPermission('accessPlugin-commerce');
+        // Still a cart, allow full editing.
+        if(!$this->dateOrdered){
+            return true;
+        }else{
+            return craft()->userSession->checkPermission('commerce-manageOrders');
+        }
     }
 
     /**

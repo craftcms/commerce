@@ -13,6 +13,16 @@ namespace Craft;
  */
 class Commerce_DiscountsController extends Commerce_BaseCpController
 {
+
+    /**
+     * @throws HttpException
+     */
+    public function init()
+    {
+        craft()->userSession->requirePermission('commerce-managePromotions');
+        parent::init();
+    }
+
     /**
      * @throws HttpException
      */
