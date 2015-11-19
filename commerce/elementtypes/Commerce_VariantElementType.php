@@ -204,7 +204,7 @@ class Commerce_VariantElementType extends Commerce_BaseElementType
             'sku' => AttributeType::Mixed,
             'product' => AttributeType::Mixed,
             'productId' => AttributeType::Mixed,
-            'order' => [AttributeType::String, 'default' => 'sortOrder asc'],
+            'order' => [AttributeType::String, 'default' => 'variants.sortOrder asc'],
         ];
     }
 
