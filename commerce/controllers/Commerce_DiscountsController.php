@@ -52,8 +52,12 @@ class Commerce_DiscountsController extends Commerce_BaseCpController
         }
 
         //getting user groups map
-        $groups = craft()->userGroups->getAllGroups();
-        $variables['groups'] = \CHtml::listData($groups, 'id', 'name');
+        if (craft()->getEdition() == Craft::Pro) {
+            $groups = craft()->userGroups->getAllGroups();
+            $variables['groups'] = \CHtml::listData($groups, 'id', 'name');
+        } else {
+            $variables['groups'] = [];
+        }
 
         //getting product types maps
         $types = craft()->commerce_productTypes->getAllProductTypes();
