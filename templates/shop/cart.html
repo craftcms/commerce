@@ -17,7 +17,9 @@
                     <tr>
                         <td>
                             <strong>{{ item.purchasable.description }}</strong><br>
-                            {{ item.purchasable.sku }}
+                            ({{ item.purchasable.sku }})
+                            <br>
+                            <code>{{ item.options|json_encode }}</code>
                             <form method="POST">
                                 <input type="hidden" name="action" value="commerce/cart/removeLineItem"/>
                                 <input type="hidden" name="redirect" value="commerce/cart"/>
@@ -34,6 +36,11 @@
                                 <input type="text" placeholder="My Note" size="20" name="note" value="{{ item.note }}">
                                 <input type="number" name="qty" min="1" value="{{ item.qty }}">
                                 {{ getCsrfInput() }}
+                                <select name="options[color]">
+                                    <option value="blue" {% if item.options.color == 'blue' %}selected{% endif %}>Blue</option>
+                                    <option value="white" {% if item.options.color == 'white' %}selected{% endif %}>White</option>
+                                    <option value="red" {% if item.options.color == 'red' %}selected{% endif %}>Red</option>
+                                </select>
                                 <input type="submit" class="button" value="Update"/>
                             </form>
                         </td>
@@ -51,6 +58,7 @@
 
                             Discount: {{ item.discount|commerceCurrency }}<br>
                             Taxes: {{ item.tax|commerceCurrency }}<br>
+                            Taxes (Inc): {{ item.taxIncluded|commerceCurrency }}<br>
                             Shipping: {{ item.shippingCost|commerceCurrency }}<br>
                             Total: {{ item.total|commerceCurrency }}<br>
                         </td>

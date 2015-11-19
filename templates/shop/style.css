@@ -671,6 +671,13 @@ img.product { width: 100%; }
 
 .flash{ color: #DA5A17; margin-bottom:10px;}
 
+.has-error input{
+    border:1px solid #DA5A17;
+}
+
+.has-error .help-block{
+    color: #DA5A17;
+}
 
 .address-select { background: #fff; border: 1px solid #eee; margin-bottom: 1em; position: relative; border-radius: 4px; }
 .address-select .radio input { margin: 0 5px 0 0; position: relative; top: -1px; }
