@@ -301,19 +301,19 @@ class CommercePlugin extends BasePlugin
     {
         $productTypes = craft()->commerce_productTypes->getAllProductTypes('id');
 
-        $productTypePermissions = [];
+        $productTypePermissions = array();
         foreach ($productTypes as $id => $productType) {
             $suffix = ':' . $id;
-            $productTypePermissions["commerce-manageProductType" . $suffix] = [
+            $productTypePermissions["commerce-manageProductType" . $suffix] = array(
                 'label' => Craft::t('Manage') . " " . $productType->name
-            ];
+            );
         }
 
-        return [
-            'commerce-manageProducts' => ['label' => Craft::t('Manage Products'), 'nested' => $productTypePermissions],
-            'commerce-manageOrders' => ['label' => Craft::t('Manage Orders')],
-            'commerce-managePromotions' => ['label' => Craft::t('Manage Promotions')],
-        ];
+        return array(
+            'commerce-manageProducts' => array('label' => Craft::t('Manage Products'), 'nested' => $productTypePermissions),
+            'commerce-manageOrders' => array('label' => Craft::t('Manage Orders')),
+            'commerce-managePromotions' => array('label' => Craft::t('Manage Promotions')),
+        );
     }
 
     /**
