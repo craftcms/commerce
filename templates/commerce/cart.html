@@ -37,9 +37,9 @@
                                 <input type="number" name="qty" min="1" value="{{ item.qty }}">
                                 {{ getCsrfInput() }}
                                 <select name="options[color]">
-                                    <option value="blue">Blue</option>
-                                    <option value="white">White</option>
-                                    <option value="red">Red</option>
+                                    <option value="blue" {% if item.options.color == 'blue' %}selected{% endif %}>Blue</option>
+                                    <option value="white" {% if item.options.color == 'white' %}selected{% endif %}>White</option>
+                                    <option value="red" {% if item.options.color == 'red' %}selected{% endif %}>Red</option>
                                 </select>
                                 <input type="submit" class="button" value="Update"/>
                             </form>
