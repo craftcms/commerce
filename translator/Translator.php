@@ -19,7 +19,7 @@ class Translator
 		$this->_sourcePath = realpath(dirname(__FILE__).'/../commerce').'/';
 		$this->_translationFileSavePath = $this->_sourcePath.'../translator/SourceTranslations.php';
 		$this->_buildPath = '/Users/Brad/Dropbox/Sites/craft.dev/craft/plugins/commerce/';
-		$this->_fileTypes = array('php', 'html', 'js');
+		$this->_fileTypes = array('php', 'html', 'js', 'twig');
 		$this->_exclusions = array(
 			'/vendor',
 		);
@@ -84,7 +84,7 @@ class Translator
 			$pattern = '/\bCraft::t\s*\(\s*(\'.*?(?<!\\\\)\'|".*?(?<!\\\\)")\s*[,\)]/s';
 		}
 		// Match template syntax {{ ""|t }}, but only in .html files.
-		elseif ($extension == 'html')
+		elseif ($extension == 'html' || $extension == 'twig')
 		{
 			$pattern = '/(\'[^\']*?\'|"[^"]*?")\|t/m';
 		}
