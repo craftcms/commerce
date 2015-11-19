@@ -348,10 +348,10 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 
         if ($criteria->user) {
             if ($criteria->user instanceof UserModel) {
-                $id = craft()->commerce_customers->getCustomerById($criteria->user->id)->id;
-                if ($id) {
-                    $criteria->customerId = $id;
-                    $criteria->customer = null;
+                $customer = craft()->commerce_customers->getCustomerByUserId($criteria->user->id);
+                if($customer){
+                    $criteria->customerId = $customer->id;
+                    $criteria->user = null;
                 } else {
                     $query->andWhere(DbHelper::parseParam('orders.customerId', 'IS NULL', $query->params));
                 }
