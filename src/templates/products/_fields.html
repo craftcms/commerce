@@ -123,13 +123,15 @@
 				placeholder: 'Enter stock'|t,
 				disabled: variant.unlimitedStock
 			}) }}
-			{{ forms.checkbox({
-				id: 'unlimited-stock',
-				class: 'unlimited-stock',
-				label: 'Unlimited'|t,
-				name: 'unlimitedStock',
-				checked: variant.unlimitedStock,
-			}) }}
+			<div class="nowrap">
+				{{ forms.checkbox({
+					id: 'unlimited-stock',
+					class: 'unlimited-stock',
+					label: 'Unlimited'|t,
+					name: 'unlimitedStock',
+					checked: variant.unlimitedStock,
+				}) }}
+			</div>
 		</div>
 	{% endset %}
 
