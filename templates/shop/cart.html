@@ -16,8 +16,8 @@
                 {% for item in cart.lineItems %}
                     <tr>
                         <td>
-                            <strong>{{ item.purchasable.description }}</strong><br>
-                            ({{ item.purchasable.sku }})
+                            <strong>{{ item.description }}</strong><br>
+                            ({{ item.sku }})
                             <br>
                             <code>{{ item.options|json_encode }}</code>
                             <form method="POST">
