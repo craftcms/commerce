@@ -95,7 +95,7 @@ class Commerce_ProductTypesController extends Commerce_BaseAdminController
         $productType->asa('variantFieldLayout')->setFieldLayout($variantFieldLayout);
 
         // Save it
-        if (craft()->commerce_productTypes->save($productType)) {
+        if (craft()->commerce_productTypes->saveProductType($productType)) {
             craft()->userSession->setNotice(Craft::t('Product type saved.'));
             $this->redirectToPostedUrl($productType);
         } else {

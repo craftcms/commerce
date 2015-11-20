@@ -134,7 +134,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
         \Craft\craft()->fields->saveLayout($variantFieldLayout);
         $productType->asa('variantFieldLayout')->setFieldLayout($variantFieldLayout);
 
-        \Craft\craft()->commerce_productTypes->save($productType);
+        \Craft\craft()->commerce_productTypes->saveProductType($productType);
 
         $productTypeLocales = \Craft\craft()->i18n->getSiteLocaleIds();
 
