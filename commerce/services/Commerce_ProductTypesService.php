@@ -226,7 +226,7 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
      * @throws \CDbException
      * @throws \Exception
      */
-    public function save(Commerce_ProductTypeModel $productType)
+    public function saveProductType(Commerce_ProductTypeModel $productType)
     {
         $titleFormatChanged = false;
 
