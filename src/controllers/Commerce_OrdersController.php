@@ -14,6 +14,15 @@ namespace Craft;
 class Commerce_OrdersController extends Commerce_BaseCpController
 {
     /**
+     * @throws HttpException
+     */
+    public function init()
+    {
+        craft()->userSession->requirePermission('commerce-manageOrders');
+        parent::init();
+    }
+
+    /**
      * Index of orders
      */
     public function actionOrderIndex()
