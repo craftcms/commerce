@@ -65,8 +65,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
     {
         $actions = [];
 
-        // TODO: Replace with an order permission check when we have one
-        if (craft()->userSession->checkPermission('accessPlugin-commerce'))
+        if (craft()->userSession->checkPermission('commerce-manageOrders'))
         {
             $deleteAction = craft()->elements->getAction('Delete');
             $deleteAction->setParams([

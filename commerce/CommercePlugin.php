@@ -115,8 +115,8 @@ class CommercePlugin extends BasePlugin
 
                     foreach ($migrations as $migrationClass) {
                         $migration = craft()->migrations->instantiateMigration($migrationClass, $this);
-                        if(!$migration->up()){
-                            Craft::log("Market to Commerce Upgrade Error. Could not run: ".$migrationClass, LogLevel::Error);
+                        if (!$migration->up()) {
+                            Craft::log("Market to Commerce Upgrade Error. Could not run: " . $migrationClass, LogLevel::Error);
                             throw new Exception('Market to Commerce Upgrade Error.');
                         }
                     }
@@ -275,15 +275,45 @@ class CommercePlugin extends BasePlugin
      */
     public function prepCpTemplate(&$context)
     {
-        $context['subnav'] = array(
-            'orders' => array('label' => Craft::t('Orders'), 'url' => 'commerce/orders'),
-            'products' => array('label' => Craft::t('Products'), 'url' => 'commerce/products'),
-            'promotions' => array('label' => Craft::t('Promotions'), 'url' => 'commerce/promotions'),
-        );
+        $context['subnav'] = array();
+
+        if (craft()->userSession->checkPermission('commerce-manageOrders')) {
+            $context['subnav']['orders'] = array('label' => Craft::t('Orders'), 'url' => 'commerce/orders');
+        }
+
+        if (craft()->userSession->checkPermission('commerce-manageProducts')) {
+            $context['subnav']['products'] = array('label' => Craft::t('Products'), 'url' => 'commerce/products');
+        }
+
+        if (craft()->userSession->checkPermission('commerce-managePromotions')) {
+            $context['subnav']['promotions'] = array('label' => Craft::t('Promotions'), 'url' => 'commerce/promotions');
+        }
 
         if (craft()->userSession->isAdmin()) {
             $context['subnav']['settings'] = array('icon' => 'settings', 'label' => Craft::t('Settings'), 'url' => 'commerce/settings');
         }
+    }
+
+    /**
+     * @return array
+     */
+    public function registerUserPermissions()
+    {
+        $productTypes = craft()->commerce_productTypes->getAllProductTypes('id');
+
+        $productTypePermissions = array();
+        foreach ($productTypes as $id => $productType) {
+            $suffix = ':' . $id;
+            $productTypePermissions["commerce-manageProductType" . $suffix] = array(
+                'label' => Craft::t('Manage') . " " . $productType->name
+            );
+        }
+
+        return array(
+            'commerce-manageProducts' => array('label' => Craft::t('Manage Products'), 'nested' => $productTypePermissions),
+            'commerce-manageOrders' => array('label' => Craft::t('Manage Orders')),
+            'commerce-managePromotions' => array('label' => Craft::t('Manage Promotions')),
+        );
     }
 
     /**

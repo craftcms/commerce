@@ -1,1 +1,11 @@
-{%  redirect 'commerce/orders' %}
+{% if currentUser.can('commerce-manageOrders') %}
+{% redirect 'commerce/orders' %}
+{% endif %}
+
+{% if currentUser.can('commerce-manageProducts') %}
+    {% redirect 'commerce/products' %}
+{% endif %}
+
+{% if currentUser.can('commerce-managePromotions') %}
+    {% redirect 'commerce/promotions' %}
+{% endif %}
