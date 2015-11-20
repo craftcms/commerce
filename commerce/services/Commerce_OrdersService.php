@@ -297,7 +297,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
             $item->shippingCost = 0;
             $item->discount = 0;
             // Need to have an initial itemTotal for use by adjusters.
-            $order->itemTotal += $item->total;
+            $order->itemTotal += $item->getTotal();
         }
 
         $order->setLineItems($lineItems);
