@@ -49,6 +49,8 @@ class Commerce_LineItemModel extends BaseModel
 {
     use Commerce_ModelRelationsTrait;
 
+    private $_purchasable;
+
     /**
      * @return int
      */
@@ -89,7 +91,11 @@ class Commerce_LineItemModel extends BaseModel
      */
     public function getPurchasable()
     {
-        return craft()->elements->getElementById($this->purchasableId);
+        if (!$this->_purchasable){
+            $this->_purchasable = craft()->elements->getElementById($this->purchasableId);
+        }
+
+        return $this->_purchasable;
     }
 
     /**
