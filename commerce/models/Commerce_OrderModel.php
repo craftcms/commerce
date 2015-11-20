@@ -166,6 +166,29 @@ class Commerce_OrderModel extends BaseElementModel
     }
 
     /**
+     * @return Commerce_CustomerModel|null
+     */
+    public function getCustomer()
+    {
+        if($this->customerId){
+            return craft()->commerce_customers->getCustomerById($this->customerId);
+        }
+    }
+
+    /**
+     * Whether or not this order is made by a guest user.
+     * @return bool
+     */
+    public function isGuest()
+    {
+        if($this->getCustomer()){
+            return (bool) !$this->getCustomer()->userId;
+        }
+
+        return true;
+    }
+
+    /**
      * @return bool
      */
     public function isPaid()
