@@ -38,8 +38,8 @@
 
     {#
     Using the update cart action you could allow the user to select the payment method here.
-    We recommend using ajax to set this, so no page refresh is needed. You can also include This would also allow you to show or hide the credit card form
-    on method change if the method does not require a card and the submit just redirects offsite.
+    We recommend using ajax to set this, so no page refresh is needed. This would also allow you to dynamically show or hide the credit card form
+    on method change.
     #}
     {% if not craft.commerce.paymentMethods|length %}
         <p>No payment methods available.</p>
