@@ -293,6 +293,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
         $order->itemTotal = 0;
         foreach ($lineItems as $item) { //resetting fields calculated by adjusters
             $item->tax = 0;
+            $item->taxIncluded = 0;
             $item->shippingCost = 0;
             $item->discount = 0;
             // Need to have an initial itemTotal for use by adjusters.
