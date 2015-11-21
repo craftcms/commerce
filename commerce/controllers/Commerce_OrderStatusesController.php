@@ -74,17 +74,17 @@ class Commerce_OrderStatusesController extends Commerce_BaseAdminController
         $orderStatus->handle = craft()->request->getPost('handle');
         $orderStatus->color = craft()->request->getPost('color');
         $orderStatus->default = craft()->request->getPost('default');
-        $emailsIds = craft()->request->getPost('emails', []);
+        $emailIds = craft()->request->getPost('emails', []);
 
         // Save it
-        if (craft()->commerce_orderStatuses->save($orderStatus, $emailsIds)) {
+        if (craft()->commerce_orderStatuses->save($orderStatus, $emailIds)) {
             craft()->userSession->setNotice(Craft::t('Order status saved.'));
             $this->redirectToPostedUrl($orderStatus);
         } else {
             craft()->userSession->setError(Craft::t('Couldn’t save order status.'));
         }
 
-        craft()->urlManager->setRouteVariables(compact('orderStatus', 'emailsIds'));
+        craft()->urlManager->setRouteVariables(compact('orderStatus', 'emailIds'));
     }
 
     /**

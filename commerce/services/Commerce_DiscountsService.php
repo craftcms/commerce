@@ -50,7 +50,7 @@ class Commerce_DiscountsService extends BaseApplicationComponent
         }
         $productTypeIds = array_unique($productTypeIds);
 
-        $groupIds = $this->getCurrentUserGroupsIds();
+        $groupIds = $this->getCurrentUserGroupIds();
 
         //building criteria
         $criteria = new \CDbCriteria();
@@ -91,7 +91,7 @@ class Commerce_DiscountsService extends BaseApplicationComponent
     /**
      * @return array
      */
-    public function getCurrentUserGroupsIds()
+    public function getCurrentUserGroupIds()
     {
         $groupIds = [];
         $user = craft()->userSession->getUser();
@@ -156,9 +156,9 @@ class Commerce_DiscountsService extends BaseApplicationComponent
             return false;
         }
 
-        $groupIds = $this->getCurrentUserGroupsIds();
+        $groupIds = $this->getCurrentUserGroupIds();
         if (!$model->allGroups && !array_intersect($groupIds,
-                $model->getGroupsIds())
+                $model->getGroupIds())
         ) {
             $error = Craft::t('Discount is not allowed for the current user');
 
@@ -223,21 +223,21 @@ class Commerce_DiscountsService extends BaseApplicationComponent
 
         $productId = $lineItem->purchasable->productId;
         if (!$discount->allProducts && !in_array($productId,
-                $discount->getProductsIds())
+                $discount->getProductIds())
         ) {
             return false;
         }
 
         $productTypeId = $lineItem->purchasable->product->typeId;
         if (!$discount->allProductTypes && !in_array($productTypeId,
-                $discount->getProductTypesIds())
+                $discount->getProductTypeIds())
         ) {
             return false;
         }
 
-        $userGroups = $this->getCurrentUserGroupsIds();
+        $userGroups = $this->getCurrentUserGroupIds();
         if (!$discount->allGroups && !array_intersect($userGroups,
-                $discount->getGroupsIds())
+                $discount->getGroupIds())
         ) {
             return false;
         }
