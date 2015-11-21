@@ -78,7 +78,7 @@
 {% macro generalVariantFields(variant) %}
 	{%- import "_includes/forms" as forms -%}
 
-	{%  if variant.product.type.hasVariantTitleField %}
+	{%  if variant.product.type.hasVariantTitleField and variant.product.type.hasVariants %}
 		{{ forms.textField({
 			label: "Title"|t,
 			locale: variant.product.locale,

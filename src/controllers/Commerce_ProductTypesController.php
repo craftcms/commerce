@@ -68,7 +68,7 @@ class Commerce_ProductTypesController extends Commerce_BaseAdminController
         $productType->hasDimensions = craft()->request->getPost('hasDimensions');
         $productType->hasUrls = craft()->request->getPost('hasUrls');
         $productType->hasVariants = craft()->request->getPost('hasVariants');
-        $productType->hasVariantTitleField = craft()->request->getPost('hasVariantTitleField');
+        $productType->hasVariantTitleField = $productType->hasVariants ? craft()->request->getPost('hasVariantTitleField') : false;
         $productType->template = craft()->request->getPost('template');
         $productType->titleFormat = craft()->request->getPost('titleFormat');
         $productType->skuFormat = craft()->request->getPost('skuFormat');
