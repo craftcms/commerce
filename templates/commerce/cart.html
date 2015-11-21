@@ -99,6 +99,10 @@
                     <td>
                     </td>
                     <td class="text-right">
+                        Total Discount: {{ cart.totalDiscount|commerceCurrency }}<br>
+                        Total Shipping: {{ cart.totalShippingCost|commerceCurrency }}<br>
+                        Total Tax: {{ cart.totalTax|commerceCurrency }}<br>
+                        Total Tax (inc): {{ cart.totalTaxIncluded|commerceCurrency }}<br>
                         Item Total: {{ cart.itemTotal|commerceCurrency }}<br>
                         Base Discount: {{ cart.baseDiscount|commerceCurrency }}<br>
                         Base Shipping Cost: {{ cart.baseShippingCost|commerceCurrency }}<br>
