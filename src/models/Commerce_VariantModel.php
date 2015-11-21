@@ -231,9 +231,22 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
      */
     public function validateLineItem(Commerce_LineItemModel $lineItem)
     {
+        $order = craft()->commerce_orders->getOrderById($lineItem->orderId);
 
-        if (!$this->unlimitedStock && $lineItem->qty > $this->stock) {
-            $error = Craft::t('There are only {num} items left in stock', ['num' => $this->stock]);
+        $qty = [];
+        foreach ($order->getLineItems() as $item) {
+            if(!isset($qty[$item->purchasableId])){
+                $qty[$item->purchasableId] = 0;
+            }
+            if($item->id == $lineItem->id){
+                $qty[$item->purchasableId] += $lineItem->qty;
+            }else{
+                $qty[$item->purchasableId] += $item->qty;
+            }
+        }
+
+        if (!$this->unlimitedStock && $qty[$lineItem->purchasableId] > $this->stock) {
+            $error = Craft::t('There are only {num} "{description}" items left in stock', ['num' => $this->stock, 'description' => $lineItem->purchasable->getDescription() ]);
             $lineItem->addError('qty', $error);
         }
 
