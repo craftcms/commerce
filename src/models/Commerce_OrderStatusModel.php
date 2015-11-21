@@ -44,7 +44,7 @@ class Commerce_OrderStatusModel extends BaseModel
     /**
      * @return array
      */
-    public function getEmailsIds()
+    public function getEmailIds()
     {
         return array_map(function (Commerce_EmailModel $email) {
             return $email->id;

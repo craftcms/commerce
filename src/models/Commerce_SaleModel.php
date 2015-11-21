@@ -36,7 +36,7 @@ class Commerce_SaleModel extends BaseModel
     /**
      * @return array
      */
-    public function getGroupsIds()
+    public function getGroupIds()
     {
         return array_map(function ($group) {
             return $group->id;
@@ -46,7 +46,7 @@ class Commerce_SaleModel extends BaseModel
     /**
      * @return array
      */
-    public function getProductTypesIds()
+    public function getProductTypeIds()
     {
         return array_map(function ($type) {
             return $type->id;
@@ -56,7 +56,7 @@ class Commerce_SaleModel extends BaseModel
     /**
      * @return array
      */
-    public function getProductsIds()
+    public function getProductIds()
     {
         return array_map(function ($product) {
             return $product->id;

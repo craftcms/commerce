@@ -94,7 +94,7 @@
             id: 'groups',
             name: 'groups',
             options: groups,
-            values: sale.getGroupsIds(),
+            values: sale.getGroupIds(),
             errors: sale.getErrors('groups'),
             class: 'selectize fullwidth',
         }) }}
@@ -106,7 +106,7 @@
         id: 'productTypes',
         name: 'productTypes',
         options: types,
-        values: sale.getProductTypesIds(),
+        values: sale.getProductTypeIds(),
         errors: sale.getErrors('productTypes'),
         class: 'selectize fullwidth',
     }) }}

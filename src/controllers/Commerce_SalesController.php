@@ -79,7 +79,7 @@ class Commerce_SalesController extends Commerce_BaseCpController
         if (empty($variables['id'])) {
             $productIds = explode('|', craft()->request->getParam('productIds'));
         } else {
-            $productIds = $variables['sale']->getProductsIds();
+            $productIds = $variables['sale']->getProductIds();
         }
         foreach ($productIds as $productId) {
             $product = craft()->commerce_products->getProductById($productId);

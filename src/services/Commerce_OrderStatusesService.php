@@ -50,14 +50,14 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
 
     /**
      * @param Commerce_OrderStatusModel $model
-     * @param array $emailsIds
+     * @param array $emailIds
      *
      * @return bool
      * @throws Exception
      * @throws \CDbException
      * @throws \Exception
      */
-    public function save(Commerce_OrderStatusModel $model, array $emailsIds)
+    public function save(Commerce_OrderStatusModel $model, array $emailIds)
     {
         if ($model->id) {
             $record = Commerce_OrderStatusRecord::model()->findById($model->id);
@@ -79,9 +79,9 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
 
         //validating emails ids
         $criteria = new \CDbCriteria();
-        $criteria->addInCondition('id', $emailsIds);
+        $criteria->addInCondition('id', $emailIds);
         $exist = Commerce_EmailRecord::model()->exists($criteria);
-        $hasEmails = (boolean)count($emailsIds);
+        $hasEmails = (boolean)count($emailIds);
 
         if (!$exist && $hasEmails) {
             $model->addError('emails',
@@ -108,7 +108,7 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
                 //Save new links
                 $rows = array_map(function ($id) use ($record) {
                     return [$id, $record->id];
-                }, $emailsIds);
+                }, $emailIds);
                 $cols = ['emailId', 'orderStatusId'];
                 $table = Commerce_OrderStatusEmailRecord::model()->getTableName();
                 craft()->db->createCommand()->insertAll($table, $cols, $rows);
