@@ -55,19 +55,24 @@ class Commerce_CartService extends BaseApplicationComponent
             $lineItem->note = $note;
         }
 
+        $lineItem->validate();
+        $lineItem->purchasable->validateLineItem($lineItem);
+
         try {
-            if (craft()->commerce_lineItems->saveLineItem($lineItem)) {
-                craft()->commerce_orders->saveOrder($order);
-                CommerceDbHelper::commitStackedTransaction();
+            if(!$lineItem->hasErrors()){
+                if (craft()->commerce_lineItems->saveLineItem($lineItem)) {
+                    craft()->commerce_orders->saveOrder($order);
+                    CommerceDbHelper::commitStackedTransaction();
 
-                //raising event
-                $event = new Event($this, [
-                    'lineItem' => $lineItem,
-                    'order' => $order,
-                ]);
-                $this->onAddToCart($event);
+                    //raising event
+                    $event = new Event($this, [
+                        'lineItem' => $lineItem,
+                        'order' => $order,
+                    ]);
+                    $this->onAddToCart($event);
 
-                return true;
+                    return true;
+                }
             }
         } catch (\Exception $e) {
             CommerceDbHelper::rollbackStackedTransaction();

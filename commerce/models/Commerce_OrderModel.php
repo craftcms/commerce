@@ -217,7 +217,7 @@ class Commerce_OrderModel extends BaseElementModel
     public function getTotalQty()
     {
         $qty = 0;
-        foreach ($this->lineItems as $item) {
+        foreach ($this->getLineItems() as $item) {
             $qty += $item->qty;
         }
 
@@ -230,7 +230,7 @@ class Commerce_OrderModel extends BaseElementModel
     public function getTotalTax()
     {
         $tax = 0;
-        foreach ($this->lineItems as $item) {
+        foreach ($this->getLineItems() as $item) {
             $tax += $item->tax;
         }
 
@@ -243,7 +243,7 @@ class Commerce_OrderModel extends BaseElementModel
     public function getTotalTaxIncluded()
     {
         $tax = 0;
-        foreach ($this->lineItems as $item) {
+        foreach ($this->getLineItems() as $item) {
             $tax += $item->taxIncluded;
         }
 
@@ -256,7 +256,7 @@ class Commerce_OrderModel extends BaseElementModel
     public function getTotalDiscount()
     {
         $discount = 0;
-        foreach ($this->lineItems as $item) {
+        foreach ($this->getLineItems() as $item) {
             $discount += $item->discount;
         }
 
