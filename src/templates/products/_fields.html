@@ -107,7 +107,7 @@
 		id: 'price',
 		label: 'Price'|t,
 		name: 'price',
-		value: (variant.price ? variant.price|commerceDecimal ?: ''),
+		value: (variant.price == '0' ? '0'|commerceDecimal : (variant.price ? variant.price|commerceDecimal ?: '')),
 		placeholder: 'Enter price'|t,
 		unit: craft.commerce.settings.defaultCurrency,
 		required: true,
