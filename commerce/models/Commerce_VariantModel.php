@@ -233,21 +233,18 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
     {
 
         if (!$this->unlimitedStock && $lineItem->qty > $this->stock) {
-            $error = sprintf('There are only %d items left in stock',
-                $this->stock);
+            $error = Craft::t('There are only {num} items left in stock', ['num' => $this->stock]);
             $lineItem->addError('qty', $error);
         }
 
         if ($lineItem->qty < $this->minQty) {
-            $error = sprintf('Minimum order quantity for this item is %d',
-                $this->minQty);
+            $error = Craft::t('Minimum order quantity for this item is {num}', ['num' => $this->minQty]);
             $lineItem->addError('qty', $error);
         }
 
         if ($this->maxQty != 0) {
             if ($lineItem->qty > $this->maxQty) {
-                $error = sprintf('Maximum order quantity for this item is %d',
-                    $this->maxQty);
+                $error = Craft::t('Maximum order quantity for this item is {num}', ['num' => $this->maxQty]);
                 $lineItem->addError('qty', $error);
             }
         }
