@@ -397,7 +397,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
         $this->onBeforeOrderComplete($event);
 
         $order->dateOrdered = DateTimeHelper::currentTimeForDb();
-        if ($status = craft()->commerce_orderStatuses->getDefault()) {
+        if ($status = craft()->commerce_orderStatuses->getDefaultOrderStatus()) {
             $order->orderStatusId = $status->id;
         }else{
             throw new Exception(Craft::t('No default Status available to set on completed order.'));

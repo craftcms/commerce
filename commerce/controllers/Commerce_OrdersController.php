@@ -167,7 +167,7 @@ class Commerce_OrdersController extends Commerce_BaseCpController
         $message = craft()->request->getParam('message');
 
         $order = craft()->commerce_orders->getOrderById($orderId);
-        $orderStatus = craft()->commerce_orderStatuses->getById($orderStatusId);
+        $orderStatus = craft()->commerce_orderStatuses->getOrderStatusById($orderStatusId);
 
         if (!$order or !$orderStatus) {
             $this->returnErrorJson(Craft::t('Bad Order or Status'));

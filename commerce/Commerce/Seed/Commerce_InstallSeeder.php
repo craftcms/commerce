@@ -96,7 +96,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
             'default' => true
         ];
         $defaultStatus = Commerce_OrderStatusModel::populateModel($data);
-        \Craft\craft()->commerce_orderStatuses->save($defaultStatus, []);
+        \Craft\craft()->commerce_orderStatuses->saveOrderStatus($defaultStatus, []);
 
         $data = [
             'name' => 'Shipped',
@@ -107,7 +107,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
 
         $status = Commerce_OrderStatusModel::populateModel($data);
 
-        \Craft\craft()->commerce_orderStatuses->save($status, []);
+        \Craft\craft()->commerce_orderStatuses->saveOrderStatus($status, []);
     }
 
     /**

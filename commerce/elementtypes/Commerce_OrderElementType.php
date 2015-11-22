@@ -108,7 +108,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 
         $sources[] = ['heading' => Craft::t("Order Status")];
 
-        foreach (craft()->commerce_orderStatuses->getAll() as $orderStatus) {
+        foreach (craft()->commerce_orderStatuses->getAllOrderStatuses() as $orderStatus) {
             $key = 'orderStatus:' . $orderStatus->handle;
             $sources[$key] = [
                 'status' => $orderStatus->color,
