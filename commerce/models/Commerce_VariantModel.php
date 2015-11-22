@@ -213,6 +213,16 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
     }
 
     /**
+     * Returns the products tax category
+     *
+     * @return int
+     */
+    public function getTaxCategoryId()
+    {
+        return $this->getProduct()->taxCategoryId;
+    }
+
+    /**
      * Does this variants product has free shipping set.
      *
      * @return bool
