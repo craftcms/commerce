@@ -21,7 +21,7 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
      *
      * @return Commerce_OrderStatusModel|null
      */
-    public function getByHandle($handle)
+    public function getOrderStatusByHandle($handle)
     {
         $result = Commerce_OrderStatusRecord::model()->findByAttributes(['handle' => $handle]);
 
@@ -37,7 +37,7 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
      *
      * @return Commerce_OrderStatusModel|null
      */
-    public function getDefault()
+    public function getDefaultOrderStatus()
     {
         $result = Commerce_OrderStatusRecord::model()->findByAttributes(['default' => true]);
 
@@ -57,7 +57,7 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
      * @throws \CDbException
      * @throws \Exception
      */
-    public function save(Commerce_OrderStatusModel $model, array $emailIds)
+    public function saveOrderStatus(Commerce_OrderStatusModel $model, array $emailIds)
     {
         if ($model->id) {
             $record = Commerce_OrderStatusRecord::model()->findById($model->id);
@@ -132,9 +132,9 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
      * @param int
      * @return bool
      */
-    public function deleteById($id)
+    public function deleteOrderStatusById($id)
     {
-        $statuses = $this->getAll();
+        $statuses = $this->getAllOrderStatuses();
 
         if (count($statuses) >= 2) {
             Commerce_OrderStatusRecord::model()->deleteByPk($id);
@@ -150,7 +150,7 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
      *
      * @return Commerce_OrderStatusModel[]
      */
-    public function getAll($criteria = [])
+    public function getAllOrderStatuses($criteria = [])
     {
         $orderStatusRecords = Commerce_OrderStatusRecord::model()->findAll($criteria);
 
@@ -173,7 +173,7 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
             return;
         }
 
-        $status = craft()->commerce_orderStatuses->getById($order->orderStatusId);
+        $status = craft()->commerce_orderStatuses->getOrderStatusById($order->orderStatusId);
         if (!$status || !$status->emails) {
             CommercePlugin::log("Can't send email if no status or emails exist.",
                 LogLevel::Info, true);
@@ -242,7 +242,7 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
      *
      * @return Commerce_OrderStatusModel|null
      */
-    public function getById($id)
+    public function getOrderStatusById($id)
     {
         $result = Commerce_OrderStatusRecord::model()->findById($id);
 

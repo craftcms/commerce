@@ -45,7 +45,7 @@ class Commerce_UpdateOrderStatusElementAction extends BaseElementAction
     public function getTriggerHtml()
     {
 
-        $orderStatuses = JsonHelper::encode(craft()->commerce_orderStatuses->getAll());
+        $orderStatuses = JsonHelper::encode(craft()->commerce_orderStatuses->getAllOrderStatuses());
 
         $js = <<<EOT
 (function()

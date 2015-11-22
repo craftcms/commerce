@@ -115,7 +115,7 @@ class CommerceVariable
     {
         return array_map(function ($status) {
             return $status->attributes;
-        }, craft()->commerce_orderStatuses->getAll());
+        }, craft()->commerce_orderStatuses->getAllOrderStatuses());
     }
 
     /**
