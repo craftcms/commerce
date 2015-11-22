@@ -59,10 +59,10 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 
         //choosing default action
         $defaultAction = $cart->paymentMethod->paymentType;
-        $defaultAction = ($defaultAction === Commerce_TransactionRecord::PURCHASE) ? $defaultAction : Commerce_TransactionRecord::AUTHORIZE;
+        $defaultAction = ($defaultAction === Commerce_TransactionRecord::TYPE_PURCHASE) ? $defaultAction : Commerce_TransactionRecord::TYPE_AUTHORIZE;
         $gateway = $cart->paymentMethod->getGatewayAdapter()->getGateway();
 
-        if ($defaultAction == Commerce_TransactionRecord::AUTHORIZE) {
+        if ($defaultAction == Commerce_TransactionRecord::TYPE_AUTHORIZE) {
             if (!$gateway->supportsAuthorize()) {
                 $customError = Craft::t("Gateway doesn’t support authorize");
 
@@ -93,7 +93,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
         try {
             $redirect = $this->sendPaymentRequest($request, $transaction);
 
-            if ($transaction->status == Commerce_TransactionRecord::SUCCESS) {
+            if ($transaction->status == Commerce_TransactionRecord::STATUS_SUCCESS) {
                 craft()->commerce_orders->updateOrderPaidTotal($cart);
             }
         } catch (\Exception $e) {
@@ -130,13 +130,13 @@ class Commerce_PaymentsService extends BaseApplicationComponent
                 return $response->redirect();
             }
         } catch (\Exception $e) {
-            $transaction->status = Commerce_TransactionRecord::FAILED;
+            $transaction->status = Commerce_TransactionRecord::STATUS_FAILED;
             $transaction->message = $e->getMessage();
             $this->saveTransaction($transaction);
         }
         $order = $transaction->order;
 
-        if ($transaction->status == Commerce_TransactionRecord::SUCCESS) {
+        if ($transaction->status == Commerce_TransactionRecord::STATUS_SUCCESS) {
             return $order->returnUrl;
         } else {
             craft()->userSession->setError(Craft::t('Payment error: {message}', ['message' => $transaction->message]));
@@ -153,7 +153,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
     public function captureTransaction(Commerce_TransactionModel $transaction)
     {
         return $this->processCaptureOrRefund($transaction,
-            Commerce_TransactionRecord::CAPTURE);
+            Commerce_TransactionRecord::TYPE_CAPTURE);
     }
 
     /**
@@ -164,7 +164,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
     public function refundTransaction(Commerce_TransactionModel $transaction)
     {
         return $this->processCaptureOrRefund($transaction,
-            Commerce_TransactionRecord::REFUND);
+            Commerce_TransactionRecord::TYPE_REFUND);
     }
 
     /**
@@ -180,8 +180,8 @@ class Commerce_PaymentsService extends BaseApplicationComponent
     )
     {
         if (!in_array($action, [
-            Commerce_TransactionRecord::CAPTURE,
-            Commerce_TransactionRecord::REFUND
+            Commerce_TransactionRecord::TYPE_CAPTURE,
+            Commerce_TransactionRecord::TYPE_REFUND
         ])
         ) {
             throw new Exception('Wrong action: ' . $action);
@@ -206,7 +206,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
             $response = $request->send();
             $this->updateTransaction($child, $response);
         } catch (\Exception $e) {
-            $child->status = Commerce_TransactionRecord::FAILED;
+            $child->status = Commerce_TransactionRecord::STATUS_FAILED;
             $child->message = $e->getMessage();
 
             $this->saveTransaction($child);
@@ -227,8 +227,8 @@ class Commerce_PaymentsService extends BaseApplicationComponent
         $order = $transaction->order;
 
         // ignore already processed transactions
-        if ($transaction->status != Commerce_TransactionRecord::REDIRECT) {
-            if ($transaction->status == Commerce_TransactionRecord::SUCCESS) {
+        if ($transaction->status != Commerce_TransactionRecord::STATUS_REDIRECT) {
+            if ($transaction->status == Commerce_TransactionRecord::STATUS_SUCCESS) {
                 craft()->request->redirect($order->returnUrl);
             } else {
                 craft()->userSession->setError(Craft::t('Payment error: {message}', ['message' => $transaction->message]));
@@ -256,7 +256,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
             $request = $gateway->$action($params);
             $redirect = $this->sendPaymentRequest($request, $transaction);
 
-            if ($transaction->status == Commerce_TransactionRecord::SUCCESS) {
+            if ($transaction->status == Commerce_TransactionRecord::STATUS_SUCCESS) {
                 craft()->commerce_orders->updateOrderPaidTotal($order);
             }
             craft()->request->redirect($redirect);
@@ -277,11 +277,11 @@ class Commerce_PaymentsService extends BaseApplicationComponent
     )
     {
         if ($response->isSuccessful()) {
-            $transaction->status = Commerce_TransactionRecord::SUCCESS;
+            $transaction->status = Commerce_TransactionRecord::STATUS_SUCCESS;
         } elseif ($response->isRedirect()) {
-            $transaction->status = Commerce_TransactionRecord::REDIRECT;
+            $transaction->status = Commerce_TransactionRecord::STATUS_REDIRECT;
         } else {
-            $transaction->status = Commerce_TransactionRecord::FAILED;
+            $transaction->status = Commerce_TransactionRecord::STATUS_FAILED;
         }
 
         $transaction->reference = $response->getTransactionReference();
@@ -419,9 +419,9 @@ class Commerce_PaymentsService extends BaseApplicationComponent
         $criteria->addCondition(['status = :status', 'orderId = :orderId']);
         $criteria->params = [
             'orderId' => $order->id,
-            'status' => Commerce_TransactionRecord::SUCCESS
+            'status' => Commerce_TransactionRecord::STATUS_SUCCESS
         ];
-        $criteria->addInCondition('type', [Commerce_TransactionRecord::PURCHASE, Commerce_TransactionRecord::CAPTURE]);
+        $criteria->addInCondition('type', [Commerce_TransactionRecord::TYPE_PURCHASE, Commerce_TransactionRecord::TYPE_CAPTURE]);
         $criteria->group = 'orderId';
 
         $transaction = Commerce_TransactionRecord::model()->find($criteria);
@@ -447,9 +447,9 @@ class Commerce_PaymentsService extends BaseApplicationComponent
         $criteria->addCondition(['status = :status', 'orderId = :orderId']);
         $criteria->params = [
             'orderId' => $order->id,
-            'status' => Commerce_TransactionRecord::SUCCESS
+            'status' => Commerce_TransactionRecord::STATUS_SUCCESS
         ];
-        $criteria->addInCondition('type', [Commerce_TransactionRecord::AUTHORIZE, Commerce_TransactionRecord::PURCHASE, Commerce_TransactionRecord::CAPTURE]);
+        $criteria->addInCondition('type', [Commerce_TransactionRecord::TYPE_AUTHORIZE, Commerce_TransactionRecord::TYPE_PURCHASE, Commerce_TransactionRecord::TYPE_CAPTURE]);
         $criteria->group = 'orderId';
 
         $transaction = Commerce_TransactionRecord::model()->find($criteria);
