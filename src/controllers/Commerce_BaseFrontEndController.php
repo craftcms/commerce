@@ -55,9 +55,10 @@ class Commerce_BaseFrontEndController extends Commerce_BaseController
         $data['totalWidth'] = $cart->totalWidth;
         $data['totalHeight'] = $cart->totalHeight;
         $data['totalHeight'] = $cart->totalLength;
-        $data['totalTax'] = $cart->totalTax;
-        $data['totalShippingCost'] = $cart->totalShippingCost;
-        $data['totalDiscount'] = $cart->totalDiscount;
+        $data['totalTax'] = $cart->getTotalTax();
+        $data['totalTax'] = $cart->getTotalTaxIncluded();
+        $data['totalShippingCost'] = $cart->getTotalShippingCost();
+        $data['totalDiscount'] = $cart->getTotalDiscount();
 
         $data['availableShippingMethods'] = craft()->commerce_shippingMethods->getOrderedAvailableShippingMethods($cart);
 
