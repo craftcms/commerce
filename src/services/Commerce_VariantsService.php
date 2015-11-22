@@ -100,7 +100,7 @@ class Commerce_VariantsService extends BaseApplicationComponent
 
         // If variant validation has not already found a clash check all purchasables
         if(!$variant->getError('sku')){
-            $existing = craft()->commerce_purchasable->getPurchasableBySku($variant->sku);
+            $existing = craft()->commerce_purchasables->getPurchasableBySku($variant->sku);
 
             if($existing){
                 if($existing->id != $variant->id){
@@ -164,7 +164,7 @@ class Commerce_VariantsService extends BaseApplicationComponent
         CommerceDbHelper::beginStackedTransaction();
         try {
             if (!$model->hasErrors()) {
-                if (craft()->commerce_purchasable->saveElement($model)) {
+                if (craft()->commerce_purchasables->saveElement($model)) {
                     $record->id = $model->id;
                     $record->save(false);
                     CommerceDbHelper::commitStackedTransaction();
