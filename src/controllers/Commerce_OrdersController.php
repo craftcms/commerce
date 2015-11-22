@@ -113,7 +113,7 @@ class Commerce_OrdersController extends Commerce_BaseCpController
 
             $message = $child->message ? ' (' . $child->message . ')' : '';
 
-            if ($child->status == Commerce_TransactionRecord::SUCCESS) {
+            if ($child->status == Commerce_TransactionRecord::STATUS_SUCCESS) {
                 craft()->commerce_orders->updateOrderPaidTotal($child->order);
                 craft()->userSession->setNotice(Craft::t('Transaction captured successfully: {message}', [
                     'message' => $message
@@ -142,7 +142,7 @@ class Commerce_OrdersController extends Commerce_BaseCpController
 
             $message = $child->message ? ' (' . $child->message . ')' : '';
 
-            if ($child->status == Commerce_TransactionRecord::SUCCESS) {
+            if ($child->status == Commerce_TransactionRecord::STATUS_SUCCESS) {
                 craft()->userSession->setNotice(Craft::t('Transaction refunded successfully: {message}', [
                     'message' => $message
                 ]));

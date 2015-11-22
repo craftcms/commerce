@@ -56,7 +56,7 @@ class Commerce_TransactionModel extends BaseModel
     public function canCapture()
     {
         // can only capture authorize payments
-        if ($this->type != Commerce_TransactionRecord::AUTHORIZE || $this->status != Commerce_TransactionRecord::SUCCESS) {
+        if ($this->type != Commerce_TransactionRecord::TYPE_AUTHORIZE || $this->status != Commerce_TransactionRecord::STATUS_SUCCESS) {
             return false;
         }
 
@@ -74,8 +74,8 @@ class Commerce_TransactionModel extends BaseModel
         $criteria = [
             'condition' => 'type = ? AND status = ? AND orderId = ?',
             'params' => [
-                Commerce_TransactionRecord::CAPTURE,
-                Commerce_TransactionRecord::SUCCESS,
+                Commerce_TransactionRecord::TYPE_CAPTURE,
+                Commerce_TransactionRecord::STATUS_SUCCESS,
                 $this->orderId
             ],
         ];
@@ -91,9 +91,9 @@ class Commerce_TransactionModel extends BaseModel
     {
         // can only refund purchase or capture transactions
         if (!in_array($this->type, [
-                Commerce_TransactionRecord::PURCHASE,
-                Commerce_TransactionRecord::CAPTURE
-            ]) || $this->status != Commerce_TransactionRecord::SUCCESS
+                Commerce_TransactionRecord::TYPE_PURCHASE,
+                Commerce_TransactionRecord::TYPE_CAPTURE
+            ]) || $this->status != Commerce_TransactionRecord::STATUS_SUCCESS
         ) {
             return false;
         }
@@ -112,8 +112,8 @@ class Commerce_TransactionModel extends BaseModel
         $criteria = [
             'condition' => 'type = ? AND status = ? AND orderId = ?',
             'params' => [
-                Commerce_TransactionRecord::REFUND,
-                Commerce_TransactionRecord::SUCCESS,
+                Commerce_TransactionRecord::TYPE_REFUND,
+                Commerce_TransactionRecord::STATUS_SUCCESS,
                 $this->orderId
             ],
         ];
