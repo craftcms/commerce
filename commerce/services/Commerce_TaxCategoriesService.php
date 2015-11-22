@@ -55,6 +55,35 @@ class Commerce_TaxCategoriesService extends BaseApplicationComponent
     }
 
     /**
+     * @param int $taxCategoryHandle
+     *
+     * @return Commerce_TaxCategoryModel|null
+     */
+    public function getTaxCategoryByHandle($taxCategoryHandle)
+    {
+        if ($this->_fetchedAllTaxCategories) {
+            foreach ($this->_taxCategoriesById as $taxCategory) {
+                if ($taxCategory->handle == $taxCategoryHandle) {
+                    return $taxCategory;
+                }
+            }
+        }
+
+        $result = Commerce_TaxCategoryRecord::model()->findByAttributes([
+            'handle' => $taxCategoryHandle
+        ]);
+
+        if ($result) {
+            $taxCategory = Commerce_TaxCategoryModel::populateModel($result);
+            $this->_taxCategoriesById[$taxCategory->id] = $taxCategory;
+
+            return $taxCategory;
+        }
+
+        return null;
+    }
+
+    /**
      * Id of default tax category
      *
      * @return int|null

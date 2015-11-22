@@ -119,9 +119,9 @@ class Commerce_TaxAdjuster implements Commerce_AdjusterInterface
         }
 
         if ($zone->countryBased) {
-            $countriesIds = $zone->getCountriesIds();
+            $countryIds = $zone->getCountryIds();
 
-            if (in_array($address->countryId, $countriesIds)) {
+            if (in_array($address->countryId, $countryIds)) {
                 return true;
             }
         } else {
