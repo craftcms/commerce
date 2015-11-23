@@ -136,7 +136,17 @@ class CommercePlugin extends BasePlugin
      */
     public function getName()
     {
-        return "Commerce";
+        return 'Commerce';
+    }
+
+    /**
+     * The plugin description.
+     *
+     * @return string|null
+     */
+    public function getDescription()
+    {
+        return 'An amazingly powerful and flexible e-commerce platform for Craft CMS.';
     }
 
     /**
@@ -146,7 +156,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getDeveloper()
     {
-        return "Pixel & Tonic";
+        return 'Pixel & Tonic';
     }
 
     /**
@@ -156,7 +166,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getDeveloperUrl()
     {
-        return "http://craftcommerce.com";
+        return 'https://craftcommerce.com';
     }
 
     /**
@@ -166,7 +176,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getDocumentationUrl()
     {
-        return "http://craftcommerce.com/docs";
+        return 'https://craftcommerce.com/docs';
     }
 
     /**
