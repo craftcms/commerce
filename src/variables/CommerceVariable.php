@@ -123,7 +123,7 @@ class CommerceVariable
      */
     public function getTaxCategories()
     {
-        $taxCategories = craft()->commerce_taxCategories->getAll();
+        $taxCategories = craft()->commerce_taxCategories->getAllTaxCategories();
 
         return \CHtml::listData($taxCategories, 'id', 'name');
     }
