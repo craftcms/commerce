@@ -40,10 +40,16 @@ class Commerce_CustomerRecord extends BaseRecord
     {
         return [
             'user' => [static::BELONGS_TO, 'UserRecord'],
+            'customersaddresses' => [
+                static::HAS_MANY,
+                'Commerce_CustomerAddressRecord',
+                'customerId'
+            ],
             'addresses' => [
                 static::HAS_MANY,
                 'Commerce_AddressRecord',
-                'customerId'
+                ['addressId'=>'id'],
+                'through'=> 'customersaddresses'
             ],
             'orders' => [
                 static::HAS_MANY,

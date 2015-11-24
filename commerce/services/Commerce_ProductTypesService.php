@@ -27,6 +27,16 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
     private $_productTypesById;
 
     /**
+     * @var
+     */
+
+    private $_allProductTypeIds;
+    /**
+     * @var
+     */
+    private $_editableProductTypeIds;
+
+    /**
      * Returns all Product Types
      *
      * @param string|null $indexBy
@@ -68,6 +78,79 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
         }
 
         return $productTypes;
+    }
+
+    /**
+     * Returns all of the product type IDs.
+     *
+     * @return array All the product types’ IDs.
+     */
+    public function getAllProductTypeIds()
+    {
+        if (!isset($this->_allProductTypeIds))
+        {
+            $this->_allProductTypeIds = array();
+
+            foreach ($this->getAllProductTypes() as $productType)
+            {
+                $this->_allProductTypeIds[] = $productType->id;
+            }
+        }
+
+        return $this->_allProductTypeIds;
+    }
+
+    /**
+     * Returns all editable product types.
+     *
+     * @param string|null $indexBy
+     *
+     * @return Commerce_ProductTypeModel[] All the editable product types.
+     */
+    public function getEditableProductTypes($indexBy = null)
+    {
+        $editableProductTypeIds = $this->getEditableProductTypeIds();
+        $editableProductTypes = array();
+
+        foreach ($this->getAllProductTypes() as $productTypes)
+        {
+            if (in_array($productTypes->id, $editableProductTypeIds))
+            {
+                if ($indexBy)
+                {
+                    $editableProductTypes[$productTypes->$indexBy] = $productTypes;
+                }
+                else
+                {
+                    $editableProductTypes[] = $productTypes;
+                }
+            }
+        }
+
+        return $editableProductTypes;
+    }
+
+    /**
+     * Returns all of the product type IDs that are editable by the current user.
+     *
+     * @return array All the editable product types’ IDs.
+     */
+    public function getEditableProductTypeIds()
+    {
+        if (!isset($this->_editableProductTypeIds))
+        {
+            $this->_editableProductTypeIds = array();
+
+            foreach ($this->getAllProductTypeIds() as $productTypeId)
+            {
+                if (craft()->userSession->checkPermission('commerce-manageProductType:'.$productTypeId))
+                {
+                    $this->_editableProductTypeIds[] = $productTypeId;
+                }
+            }
+        }
+
+        return $this->_editableProductTypeIds;
     }
 
     /**
@@ -143,7 +226,7 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
      * @throws \CDbException
      * @throws \Exception
      */
-    public function save(Commerce_ProductTypeModel $productType)
+    public function saveProductType(Commerce_ProductTypeModel $productType)
     {
         $titleFormatChanged = false;
 
@@ -374,7 +457,7 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
                                     $criteria->status = null;
                                     $updateProduct = $criteria->first();
 
-                                    // todo: replace the getContent()->id check with 'strictLocale' param once it's added
+                                    // @todo replace the getContent()->id check with 'strictLocale' param once it's added
                                     if ($updateProduct && $updateProduct->getContent()->id) {
                                         craft()->elements->updateElementSlugAndUri($updateProduct, false, false);
                                     }

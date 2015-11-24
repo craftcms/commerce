@@ -66,7 +66,7 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
                 $this->returnErrorJson($error);
             } else {
                 if ($error) {
-                    craft()->userSession->setError(Craft::t('Couldn’t update lite item: {message}', [
+                    craft()->userSession->setError(Craft::t('Couldn’t update line item: {message}', [
                         'message' => $error
                     ]));
                 } else {
@@ -144,6 +144,8 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
 
         $sameAddress = craft()->request->getParam('sameAddress');
 
+        $additionalError = "";
+
         if (!is_null(craft()->request->getParam('purchasableId'))) {
             $purchasableId = craft()->request->getPost('purchasableId');
             $note = craft()->request->getPost('note',"");
@@ -151,7 +153,9 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
             $qty = craft()->request->getPost('qty', 1);
             $error = '';
             if (!craft()->commerce_cart->addToCart($cart, $purchasableId, $qty, $note, $options, $error)) {
-                $cart->addError('lineItems', Craft::t('Could not add to cart: ').$error);
+                $addToCartError = Craft::t('Could not add to cart: ').$error;
+                $cart->addError('lineItems',$addToCartError);
+                $additionalError = $addToCartError;
             }else{
                 $cartSaved = true;
             }
@@ -263,6 +267,9 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
             $this->redirectToPostedUrl();
         } else {
             $error = Craft::t('Cart not completely updated.');
+            if($additionalError){
+                $error = $additionalError;
+            }
             if (craft()->request->isAjaxRequest) {
                 $this->returnErrorJson($error);
             } else {

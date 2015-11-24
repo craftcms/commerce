@@ -20,11 +20,9 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  * @property string $stateName
  * @property int $countryId
  * @property int $stateId
- * @property int $customerId
  *
  * @property Commerce_CountryModel $country
  * @property Commerce_StateModel $state
- * @property Commerce_CustomerModel $customer
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -83,8 +81,7 @@ class Commerce_AddressModel extends BaseModel
             'businessTaxId' => AttributeType::String,
             'stateName' => AttributeType::String,
             'countryId' => AttributeType::Number,
-            'stateId' => AttributeType::Number,
-            'customerId' => AttributeType::Number
+            'stateId' => AttributeType::Number
         ];
     }
 }

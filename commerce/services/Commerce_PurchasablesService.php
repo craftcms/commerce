@@ -14,7 +14,7 @@ use Commerce\Interfaces\Purchasable;
  * @package   craft.plugins.commerce.services
  * @since     1.0
  */
-class Commerce_PurchasableService extends BaseApplicationComponent
+class Commerce_PurchasablesService extends BaseApplicationComponent
 {
 
     /**

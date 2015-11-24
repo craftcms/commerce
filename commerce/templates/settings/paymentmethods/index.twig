@@ -9,6 +9,7 @@
     <table id="payment-methods" class="data fullwidth collapsible">
         <thead>
         <tr>
+            <th class="thin">{{ "ID"|t }}</th>
             <th>{{ "Name"|t }}</th>
             <th>{{ "Gateway"|t }}</th>
             <th>{{ "Enabled?"|t }}</th>
@@ -17,6 +18,7 @@
         <tbody>
         {% for paymentMethod in paymentMethods %}
             <tr data-id="{{ paymentMethod.class }}" data-name="{{ paymentMethod.name }}">
+                <td class="thin" scope="row" data-title="{{ 'ID'|t }}">{{ paymentMethod.id }}</td>
                 <th scope="row" data-title="{{ 'Name'|t }}"><a href="{{ paymentMethod.cpEditUrl }}">{{ paymentMethod.name }}</a></th>
                 <td data-title="{{ 'Gateway'|t }}">{{ paymentMethod.class }}</td>
                 <td data-title="{{ 'Enabled?'|t }}">{% if paymentMethod.frontendEnabled %}<span data-icon="check" title="{{ 'Yes'|t }}"></span>{% endif %}</td>

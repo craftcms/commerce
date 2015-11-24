@@ -78,7 +78,7 @@
 {% macro generalVariantFields(variant) %}
 	{%- import "_includes/forms" as forms -%}
 
-	{%  if variant.product.type.hasVariantTitleField %}
+	{%  if variant.product.type.hasVariantTitleField and variant.product.type.hasVariants %}
 		{{ forms.textField({
 			label: "Title"|t,
 			locale: variant.product.locale,
@@ -107,7 +107,7 @@
 		id: 'price',
 		label: 'Price'|t,
 		name: 'price',
-		value: (variant.price ? variant.price|commerceDecimal ?: ''),
+		value: (variant.price == '0' ? '0'|commerceDecimal : (variant.price ? variant.price|commerceDecimal ?: '')),
 		placeholder: 'Enter price'|t,
 		unit: craft.commerce.settings.defaultCurrency,
 		required: true,
@@ -123,13 +123,15 @@
 				placeholder: 'Enter stock'|t,
 				disabled: variant.unlimitedStock
 			}) }}
-			{{ forms.checkbox({
-				id: 'unlimited-stock',
-				class: 'unlimited-stock',
-				label: 'Unlimited'|t,
-				name: 'unlimitedStock',
-				checked: variant.unlimitedStock,
-			}) }}
+			<div class="nowrap">
+				{{ forms.checkbox({
+					id: 'unlimited-stock',
+					class: 'unlimited-stock',
+					label: 'Unlimited'|t,
+					name: 'unlimitedStock',
+					checked: variant.unlimitedStock,
+				}) }}
+			</div>
 		</div>
 	{% endset %}
 

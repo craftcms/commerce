@@ -30,13 +30,15 @@
                 <div class="four columns">
                     <h4>Shipping Address</h4>
 
+                    {% if order.shippingAddress %}
                     {% include 'commerce/_includes/address' with { address: order.shippingAddress } %}
+                    {% endif %}
                 </div>
                 <div class="four columns">
                     <h4>Billing Address</h4>
-
+                    {% if order.billingAddress %}
                     {% include 'commerce/_includes/address' with { address: order.billingAddress } %}
-
+                    {% endif %}
                 </div>
             </div>
 

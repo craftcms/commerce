@@ -110,13 +110,14 @@ class CommercePlugin extends BasePlugin
                         'm151111_010101_Commerce_ShowVariantTitleField',
                         'm151112_010101_Commerce_AutoSkuFormat',
                         'm151109_010102_Commerce_AddOptionsToLineItems',
-                        'm151117_010101_Commerce_TaxIncluded'
+                        'm151117_010101_Commerce_TaxIncluded',
+                        'm151124_010101_Commerce_AddressManagement'
                     );
 
                     foreach ($migrations as $migrationClass) {
                         $migration = craft()->migrations->instantiateMigration($migrationClass, $this);
-                        if(!$migration->up()){
-                            Craft::log("Market to Commerce Upgrade Error. Could not run: ".$migrationClass, LogLevel::Error);
+                        if (!$migration->up()) {
+                            Craft::log("Market to Commerce Upgrade Error. Could not run: " . $migrationClass, LogLevel::Error);
                             throw new Exception('Market to Commerce Upgrade Error.');
                         }
                     }
@@ -136,7 +137,17 @@ class CommercePlugin extends BasePlugin
      */
     public function getName()
     {
-        return "Commerce";
+        return 'Commerce';
+    }
+
+    /**
+     * The plugin description.
+     *
+     * @return string|null
+     */
+    public function getDescription()
+    {
+        return 'An amazingly powerful and flexible e-commerce platform for Craft CMS.';
     }
 
     /**
@@ -146,7 +157,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getDeveloper()
     {
-        return "Pixel & Tonic";
+        return 'Pixel & Tonic';
     }
 
     /**
@@ -156,7 +167,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getDeveloperUrl()
     {
-        return "http://craftcommerce.com";
+        return 'https://craftcommerce.com';
     }
 
     /**
@@ -166,7 +177,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getDocumentationUrl()
     {
-        return "http://craftcommerce.com/docs";
+        return 'https://craftcommerce.com/docs';
     }
 
     /**
@@ -226,7 +237,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getSchemaVersion()
     {
-        return '0.9.10';
+        return '0.9.11';
     }
 
     /**
@@ -275,15 +286,45 @@ class CommercePlugin extends BasePlugin
      */
     public function prepCpTemplate(&$context)
     {
-        $context['subnav'] = array(
-            'orders' => array('label' => Craft::t('Orders'), 'url' => 'commerce/orders'),
-            'products' => array('label' => Craft::t('Products'), 'url' => 'commerce/products'),
-            'promotions' => array('label' => Craft::t('Promotions'), 'url' => 'commerce/promotions'),
-        );
+        $context['subnav'] = array();
+
+        if (craft()->userSession->checkPermission('commerce-manageOrders')) {
+            $context['subnav']['orders'] = array('label' => Craft::t('Orders'), 'url' => 'commerce/orders');
+        }
+
+        if (craft()->userSession->checkPermission('commerce-manageProducts')) {
+            $context['subnav']['products'] = array('label' => Craft::t('Products'), 'url' => 'commerce/products');
+        }
+
+        if (craft()->userSession->checkPermission('commerce-managePromotions')) {
+            $context['subnav']['promotions'] = array('label' => Craft::t('Promotions'), 'url' => 'commerce/promotions');
+        }
 
         if (craft()->userSession->isAdmin()) {
             $context['subnav']['settings'] = array('icon' => 'settings', 'label' => Craft::t('Settings'), 'url' => 'commerce/settings');
         }
+    }
+
+    /**
+     * @return array
+     */
+    public function registerUserPermissions()
+    {
+        $productTypes = craft()->commerce_productTypes->getAllProductTypes('id');
+
+        $productTypePermissions = array();
+        foreach ($productTypes as $id => $productType) {
+            $suffix = ':' . $id;
+            $productTypePermissions["commerce-manageProductType" . $suffix] = array(
+                'label' => Craft::t('Manage') . " " . $productType->name
+            );
+        }
+
+        return array(
+            'commerce-manageProducts' => array('label' => Craft::t('Manage Products'), 'nested' => $productTypePermissions),
+            'commerce-manageOrders' => array('label' => Craft::t('Manage Orders')),
+            'commerce-managePromotions' => array('label' => Craft::t('Manage Promotions')),
+        );
     }
 
     /**

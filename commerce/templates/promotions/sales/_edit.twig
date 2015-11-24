@@ -87,17 +87,18 @@
         errors: sale.getErrors('dateTo'),
     }) }}
 
-
-    {{ forms.multiselectField({
-        label: 'User Groups'|t,
-        instructions: "Groups for which this sale will be applicable to. Leave blank for all groups"|t,
-        id: 'groups',
-        name: 'groups',
-        options: groups,
-        values: sale.getGroupsIds(),
-        errors: sale.getErrors('groups'),
-        class: 'selectize fullwidth',
-    }) }}
+    {% if groups|length %}
+        {{ forms.multiselectField({
+            label: 'User Groups'|t,
+            instructions: "Groups for which this sale will be applicable to. Leave blank for all groups"|t,
+            id: 'groups',
+            name: 'groups',
+            options: groups,
+            values: sale.getGroupIds(),
+            errors: sale.getErrors('groups'),
+            class: 'selectize fullwidth',
+        }) }}
+    {% endif %}
 
     {{ forms.multiselectField({
         label: 'Product Types'|t,
@@ -105,7 +106,7 @@
         id: 'productTypes',
         name: 'productTypes',
         options: types,
-        values: sale.getProductTypesIds(),
+        values: sale.getProductTypeIds(),
         errors: sale.getErrors('productTypes'),
         class: 'selectize fullwidth',
     }) }}

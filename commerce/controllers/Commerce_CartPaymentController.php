@@ -25,7 +25,8 @@ class Commerce_CartPaymentController extends Commerce_BaseFrontEndController
         $paymentForm = new Commerce_PaymentFormModel;
         $paymentForm->firstName = craft()->request->getParam('firstName');
         $paymentForm->lastName = craft()->request->getParam('lastName');
-        $paymentForm->number = craft()->request->getParam('number');
+        // give the credit card number more of a chance to validate
+        $paymentForm->number = preg_replace("/[^0-9]/", "", craft()->request->getParam('number'));
         $paymentForm->month = craft()->request->getParam('month');
         $paymentForm->year = craft()->request->getParam('year');
         $paymentForm->cvv = craft()->request->getParam('cvv');
@@ -37,18 +38,25 @@ class Commerce_CartPaymentController extends Commerce_BaseFrontEndController
             $paymentForm->token = $stripeToken;
         }
 
-        // give the credit card number more of a chance to validate
-        $paymentForm->number = preg_replace("/[^0-9]/", "", $paymentForm->number);
         $redirect = craft()->request->getPost('redirect');
         $cancelUrl = craft()->request->getPost('cancelUrl');
+
         $cart = craft()->commerce_cart->getCart();
 
         $cart->setContentFromPost('fields');
 
+        $paymentMethodId = craft()->request->getParam('paymentMethodId');
+        if($paymentMethodId){
+            if (!craft()->commerce_cart->setPaymentMethod($cart, $paymentMethodId, $error)) {
+                craft()->userSession->setFlash('error', $error);
+                craft()->urlManager->setRouteVariables(compact('paymentForm'));
+                return;
+            }
+        }
+
         if (!$cart->email) {
             craft()->userSession->setFlash('error', Craft::t("No customer email address for cart."));
             craft()->urlManager->setRouteVariables(compact('paymentForm'));
-
             return;
         }
 
