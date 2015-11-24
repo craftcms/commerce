@@ -400,7 +400,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
         }
 
 
-        if($order->billingAddress){
+        if($order->getCustomer()->userId && $order->billingAddress){
             $snapShotBillingAddress = Commerce_AddressModel::populateModel($order->billingAddress);
             $snapShotBillingAddress->id = null;
             if(craft()->commerce_addresses->saveAddress($snapShotBillingAddress)){
@@ -411,7 +411,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
             };
         }
 
-        if($order->shippingAddress){
+        if($order->getCustomer()->userId && $order->shippingAddress){
             $snapShotShippingAddress = Commerce_AddressModel::populateModel($order->shippingAddress);
             $snapShotShippingAddress->id = null;
             if(craft()->commerce_addresses->saveAddress($snapShotShippingAddress)){
