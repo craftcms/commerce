@@ -25,6 +25,11 @@ class Commerce_TaxCategoriesService extends BaseApplicationComponent
     private $_taxCategoriesById;
 
     /**
+     * @var
+     */
+    private $_taxCategoriesByHandle;
+
+    /**
      * @param int $taxCategoryId
      *
      * @return Commerce_TaxCategoryModel|null
@@ -38,20 +43,14 @@ class Commerce_TaxCategoriesService extends BaseApplicationComponent
             $result = Commerce_TaxCategoryRecord::model()->findById($taxCategoryId);
 
             if ($result) {
-                $taxCategory = Commerce_TaxCategoryModel::populateModel($result);
+                $taxCategory = $this->_populateTaxCategory($result);
+            } else {
+                // Remember that this ID doesn't exist
+                $this->_taxCategoriesById[$taxCategoryId] = null;
             }
-            else
-            {
-                $taxCategory = null;
-            }
-
-            $this->_taxCategoriesById[$taxCategoryId] = $taxCategory;
         }
 
-        if (isset($this->_taxCategoriesById[$taxCategoryId]))
-        {
-            return $this->_taxCategoriesById[$taxCategoryId];
-        }
+        return $this->_taxCategoriesById[$taxCategoryId];
     }
 
     /**
@@ -61,26 +60,23 @@ class Commerce_TaxCategoriesService extends BaseApplicationComponent
      */
     public function getTaxCategoryByHandle($taxCategoryHandle)
     {
-        if ($this->_fetchedAllTaxCategories) {
-            foreach ($this->_taxCategoriesById as $taxCategory) {
-                if ($taxCategory->handle == $taxCategoryHandle) {
-                    return $taxCategory;
-                }
+        if(!$this->_fetchedAllTaxCategories &&
+            (!isset($this->_taxCategoriesByHandle) || !array_key_exists($taxCategoryHandle, $this->_taxCategoriesByHandle))
+        )
+        {
+            $result = Commerce_TaxCategoryRecord::model()->findByAttributes([
+                'handle' => $taxCategoryHandle
+            ]);
+
+            if ($result) {
+                $taxCategory = $this->_populateTaxCategory($result);
+            } else {
+                // Remember that this handle doesn't exist
+                $this->_taxCategoriesByHandle[$taxCategoryHandle] = null;
             }
         }
 
-        $result = Commerce_TaxCategoryRecord::model()->findByAttributes([
-            'handle' => $taxCategoryHandle
-        ]);
-
-        if ($result) {
-            $taxCategory = Commerce_TaxCategoryModel::populateModel($result);
-            $this->_taxCategoriesById[$taxCategory->id] = $taxCategory;
-
-            return $taxCategory;
-        }
-
-        return null;
+        return $this->_taxCategoriesByHandle[$taxCategoryHandle];
     }
 
     /**
@@ -116,6 +112,8 @@ class Commerce_TaxCategoriesService extends BaseApplicationComponent
                 throw new Exception(Craft::t('No tax category exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
+
+            $oldHandle = $record->handle;
         } else {
             $record = new Commerce_TaxCategoryRecord();
         }
@@ -142,7 +140,11 @@ class Commerce_TaxCategoriesService extends BaseApplicationComponent
             }
 
             // Update Service cache
-            $this->_taxCategoriesById[$record->id] = $model;
+            $this->_memoizeTaxCategory($model);
+
+            if (isset($oldHandle) && $model->handel != $oldHandle) {
+                unset($this->_taxCategoriesByHandle[$oldHandle]);
+            }
 
             return true;
         } else {
@@ -176,8 +178,7 @@ class Commerce_TaxCategoriesService extends BaseApplicationComponent
             $results = Commerce_TaxCategoryRecord::model()->findAll();
 
             foreach($results as $result){
-                $taxCategory = Commerce_TaxCategoryModel::populateModel($result);
-                $this->_taxCategoriesById[$taxCategory->id] = $taxCategory;
+                $this->_populateTaxCategory($result);
             }
 
             $this->_fetchedAllTaxCategories = true;
@@ -201,5 +202,36 @@ class Commerce_TaxCategoriesService extends BaseApplicationComponent
         }
 
         return $taxCategories;
+    }
+
+    /**
+     * Populates, memoizes, and returns a tax category model based on a given set of values or model/record.
+     *
+     * @param mixed $values
+     *
+     * @return Commerce_TaxCategoryModel
+     */
+    private function _populateTaxCategory($values)
+    {
+        $taxCategory = Commerce_TaxCategoryModel::populateModel($values);
+
+        if ($taxCategory->id) {
+            $this->_memoizeTaxCategory($taxCategory);
+        }
+
+        return $taxCategory;
+    }
+
+    /**
+     * Memoizes a tax category model by its ID and handle.
+     *
+     * @param Commerce_TaxCategoryModel $taxCategory
+     *
+     * @return void
+     */
+    private function _memoizeTaxCategory(Commerce_TaxCategoryModel $taxCategory)
+    {
+        $this->_taxCategoriesById[$taxCategory->id] = $taxCategory;
+        $this->_taxCategoriesByHandle[$taxCategory->handle] = $taxCategory;
     }
 }
