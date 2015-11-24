@@ -316,14 +316,14 @@ class CommercePlugin extends BasePlugin
         foreach ($productTypes as $id => $productType) {
             $suffix = ':' . $id;
             $productTypePermissions["commerce-manageProductType" . $suffix] = array(
-                'label' => Craft::t('Manage') . " " . $productType->name
+                'label' => Craft::t('Manage “{type}” products', ['type' => $productType->name])
             );
         }
 
         return array(
-            'commerce-manageProducts' => array('label' => Craft::t('Manage Products'), 'nested' => $productTypePermissions),
-            'commerce-manageOrders' => array('label' => Craft::t('Manage Orders')),
-            'commerce-managePromotions' => array('label' => Craft::t('Manage Promotions')),
+            'commerce-manageProducts' => array('label' => Craft::t('Manage products'), 'nested' => $productTypePermissions),
+            'commerce-manageOrders' => array('label' => Craft::t('Manage orders')),
+            'commerce-managePromotions' => array('label' => Craft::t('Manage promotions')),
         );
     }
 
