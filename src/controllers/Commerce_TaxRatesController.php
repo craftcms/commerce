@@ -59,7 +59,7 @@ class Commerce_TaxRatesController extends Commerce_BaseAdminController
             $variables['taxZones'][$model->id] = $model->name;
         }
 
-        $taxCategories = craft()->commerce_taxCategories->getAll();
+        $taxCategories = craft()->commerce_taxCategories->getAllTaxCategories();
         $variables['taxCategories'] = [];
         foreach ($taxCategories as $model) {
             $variables['taxCategories'][$model->id] = $model->name;

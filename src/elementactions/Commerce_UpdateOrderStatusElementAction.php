@@ -28,16 +28,6 @@ class Commerce_UpdateOrderStatusElementAction extends BaseElementAction
     }
 
     /**
-     * @inheritDoc IElementAction::isDestructive()
-     *
-     * @return bool
-     */
-    public function isDestructive()
-    {
-        return true;
-    }
-
-    /**
      * @inheritDoc IElementAction::getTriggerHtml()
      *
      * @return string|null
