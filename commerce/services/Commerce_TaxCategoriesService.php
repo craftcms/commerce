@@ -184,19 +184,14 @@ class Commerce_TaxCategoriesService extends BaseApplicationComponent
             $this->_fetchedAllTaxCategories = true;
         }
 
-        if ($indexBy == 'id')
-        {
-            $taxCategories = $this->_taxCategoriesById;
-        }
-        else if (!$indexBy)
-        {
-            $taxCategories = array_values($this->_taxCategoriesById);
-        }
-        else
-        {
+        if ($indexBy == 'id') {
+            $taxCategories = array_filter($this->_taxCategoriesById);
+        } else if (!$indexBy) {
+            $taxCategories = array_values(array_filter($this->_taxCategoriesById));
+        } else {
             $taxCategories = array();
-            foreach ($this->_taxCategoriesById as $taxCategory)
-            {
+
+            foreach (array_filter($this->_taxCategoriesById) as $taxCategory) {
                 $taxCategories[$taxCategory->$indexBy] = $taxCategory;
             }
         }
