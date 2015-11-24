@@ -90,7 +90,7 @@ class Commerce_TaxCategoriesService extends BaseApplicationComponent
      */
     public function getDefaultTaxCategoryId()
     {
-        foreach($this->getAll() as $taxCategory){
+        foreach($this->getAllTaxCategories() as $taxCategory){
             if ($taxCategory->default) {
                 return $taxCategory->id;
             }
@@ -156,7 +156,7 @@ class Commerce_TaxCategoriesService extends BaseApplicationComponent
      */
     public function deleteTaxCategoryById($id)
     {
-        $all = $this->getAll();
+        $all = $this->getAllTaxCategories();
         if (count($all) == 1) {
             return false;
         }
@@ -170,7 +170,7 @@ class Commerce_TaxCategoriesService extends BaseApplicationComponent
      * @param string|null $indexBy
      * @return Commerce_TaxCategoryModel[]
      */
-    public function getAll($indexBy = null)
+    public function getAllTaxCategories($indexBy = null)
     {
         if (!$this->_fetchedAllTaxCategories) {
             $results = Commerce_TaxCategoryRecord::model()->findAll();

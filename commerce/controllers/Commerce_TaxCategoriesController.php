@@ -18,7 +18,7 @@ class Commerce_TaxCategoriesController extends Commerce_BaseAdminController
      */
     public function actionIndex()
     {
-        $taxCategories = craft()->commerce_taxCategories->getAll();
+        $taxCategories = craft()->commerce_taxCategories->getAllTaxCategories();
         $this->renderTemplate('commerce/settings/taxcategories/index', compact('taxCategories'));
     }
 
