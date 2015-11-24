@@ -62,14 +62,14 @@ class Commerce_BaseFrontEndController extends Commerce_BaseController
         if ($cart->getShippingAddress()){
             $data['shippingAddress'] = $cart->shippingAddress->attributes;
         }else{
-            $data['shippingAddress'] = false;
+            $data['shippingAddress'] = null;
         }
 
         $data['billingAddressId'] = $cart->billingAddressId;
         if ($cart->getBillingAddress()){
             $data['billingAddress'] = $cart->billingAddress->attributes;
         }else{
-            $data['billingAddress'] = false;
+            $data['billingAddress'] = null;
         }
 
         $lineItems = [];
