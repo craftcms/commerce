@@ -110,7 +110,8 @@ class CommercePlugin extends BasePlugin
                         'm151111_010101_Commerce_ShowVariantTitleField',
                         'm151112_010101_Commerce_AutoSkuFormat',
                         'm151109_010102_Commerce_AddOptionsToLineItems',
-                        'm151117_010101_Commerce_TaxIncluded'
+                        'm151117_010101_Commerce_TaxIncluded',
+                        'm151124_010101_Commerce_AddressManagement'
                     );
 
                     foreach ($migrations as $migrationClass) {
