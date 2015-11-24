@@ -264,8 +264,6 @@ class Commerce_CartService extends BaseApplicationComponent
                 $this->_cart->email = $customer->email;
                 $this->_cart->billingAddressId = null;
                 $this->_cart->shippingAddressId = null;
-                $this->_cart->billingAddressData = null;
-                $this->_cart->shippingAddressData = null;
                 craft()->commerce_orders->saveOrder($this->_cart);
             }
         }

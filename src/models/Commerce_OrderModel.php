@@ -25,9 +25,7 @@ use Omnipay\Common\Currency;
  * @property string $cancelUrl
  *
  * @property int $billingAddressId
- * @property mixed $billingAddressData
  * @property int $shippingAddressId
- * @property mixed $shippingAddressData
  * @property int $shippingMethod
  * @property int $paymentMethodId
  * @property int $customerId
@@ -394,12 +392,7 @@ class Commerce_OrderModel extends BaseElementModel
     public function getShippingAddress()
     {
         if (!isset($this->_shippingAddress)) {
-            // Get the live linked address if it is still a cart, else cached
-            if (!$this->dateOrdered) {
-                $this->_shippingAddress = craft()->commerce_addresses->getAddressById($this->shippingAddressId);
-            } else {
-                $this->_shippingAddress = Commerce_AddressModel::populateModel($this->shippingAddressData);
-            }
+            $this->_shippingAddress = craft()->commerce_addresses->getAddressById($this->shippingAddressId);
         }
 
         return $this->_shippingAddress;
@@ -410,7 +403,6 @@ class Commerce_OrderModel extends BaseElementModel
      */
     public function setShippingAddress(Commerce_AddressModel $address)
     {
-        $this->shippingAddressData = JsonHelper::encode($address->attributes);
         $this->_shippingAddress = $address;
     }
 
@@ -420,12 +412,7 @@ class Commerce_OrderModel extends BaseElementModel
     public function getBillingAddress()
     {
         if (!isset($this->_billingAddress)) {
-            // Get the live linked address if it is still a cart, else cached
-            if (!$this->dateOrdered) {
-                $this->_billingAddress = craft()->commerce_addresses->getAddressById($this->billingAddressId);
-            } else {
-                $this->_billingAddress = Commerce_AddressModel::populateModel($this->billingAddressData);
-            }
+            $this->_billingAddress = craft()->commerce_addresses->getAddressById($this->billingAddressId);
         }
 
         return $this->_billingAddress;
@@ -437,7 +424,6 @@ class Commerce_OrderModel extends BaseElementModel
      */
     public function setBillingAddress(Commerce_AddressModel $address)
     {
-        $this->billingAddressData = JsonHelper::encode($address->attributes);
         $this->_billingAddress = $address;
     }
 
@@ -526,9 +512,7 @@ class Commerce_OrderModel extends BaseElementModel
             'shippingAddressId' => AttributeType::Number,
             'shippingMethod' => AttributeType::String,
             'paymentMethodId' => AttributeType::Number,
-            'customerId' => AttributeType::Number,
-            'shippingAddressData' => AttributeType::Mixed,
-            'billingAddressData' => AttributeType::Mixed
+            'customerId' => AttributeType::Number
         ]);
     }
 }
