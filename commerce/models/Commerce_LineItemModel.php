@@ -49,6 +49,8 @@ class Commerce_LineItemModel extends BaseModel
 {
     use Commerce_ModelRelationsTrait;
 
+    private $_purchasable;
+
     /**
      * @return int
      */
@@ -89,7 +91,11 @@ class Commerce_LineItemModel extends BaseModel
      */
     public function getPurchasable()
     {
-        return craft()->elements->getElementById($this->purchasableId);
+        if (!$this->_purchasable){
+            $this->_purchasable = craft()->elements->getElementById($this->purchasableId);
+        }
+
+        return $this->_purchasable;
     }
 
     /**
@@ -98,6 +104,7 @@ class Commerce_LineItemModel extends BaseModel
     public function fillFromPurchasable(Purchasable $purchasable)
     {
         $this->price = $purchasable->getPrice();
+        $this->taxCategoryId = $purchasable->getTaxCategoryId();
 
         // Since sales cannot apply to non core purchasables, set to price at default
         $this->salePrice = $purchasable->getPrice();
@@ -120,8 +127,6 @@ class Commerce_LineItemModel extends BaseModel
             $this->height = $purchasable->height * 1; //converting nulls
             $this->length = $purchasable->length * 1; //converting nulls
             $this->width = $purchasable->width * 1; //converting nulls
-
-            $this->taxCategoryId = $purchasable->product->taxCategoryId;
 
             $sales = craft()->commerce_sales->getSalesForVariant($purchasable);
 

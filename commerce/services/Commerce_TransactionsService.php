@@ -76,7 +76,7 @@ class Commerce_TransactionsService extends BaseApplicationComponent
     public function createTransaction(Commerce_OrderModel $order)
     {
         $transaction = new Commerce_TransactionModel;
-        $transaction->status = Commerce_TransactionRecord::PENDING;
+        $transaction->status = Commerce_TransactionRecord::STATUS_PENDING;
         $transaction->amount = round($order->totalPrice, 2);
         $transaction->orderId = $order->id;
         $transaction->paymentMethodId = $order->paymentMethodId;

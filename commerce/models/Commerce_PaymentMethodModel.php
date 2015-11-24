@@ -31,6 +31,29 @@ class Commerce_PaymentMethodModel extends BaseModel
     private $_gatewayAdapter;
 
     /**
+     * Populates a new model instance with a given set of attributes.
+     *
+     * @param mixed $values
+     *
+     * @return BaseModel
+     */
+    public static function populateModel($values)
+    {
+        $paymentMethod = parent::populateModel($values);
+
+        if ($paymentMethod->id) {
+            // Are its settings being set from the config file?
+            $paymentMethodSettings = craft()->config->get('paymentMethodSettings', 'commerce');
+
+            if (isset($paymentMethodSettings[$paymentMethod->id])) {
+                $paymentMethod->settings = array_merge($paymentMethod->settings, $paymentMethodSettings[$paymentMethod->id]);
+            }
+        }
+
+        return $paymentMethod;
+    }
+
+    /**
      * @return string
      */
     public function getCpEditUrl()

@@ -32,33 +32,33 @@ namespace Craft;
  */
 class Commerce_TransactionRecord extends BaseRecord
 {
-    const AUTHORIZE = 'authorize';
-    const CAPTURE = 'capture';
-    const PURCHASE = 'purchase';
-    const REFUND = 'refund';
+    const TYPE_AUTHORIZE = 'authorize';
+    const TYPE_CAPTURE = 'capture';
+    const TYPE_PURCHASE = 'purchase';
+    const TYPE_REFUND = 'refund';
 
-    const PENDING = 'pending';
-    const REDIRECT = 'redirect';
-    const SUCCESS = 'success';
-    const FAILED = 'failed';
+    const STATUS_PENDING = 'pending';
+    const STATUS_REDIRECT = 'redirect';
+    const STATUS_SUCCESS = 'success';
+    const STATUS_FAILED = 'failed';
     /* @var int $total */
     public $total = 0;
     /* @var array $types */
     private $types = [
-        self::AUTHORIZE,
-        self::CAPTURE,
-        self::PURCHASE,
-        self::REFUND
+        self::TYPE_AUTHORIZE,
+        self::TYPE_CAPTURE,
+        self::TYPE_PURCHASE,
+        self::TYPE_REFUND
     ];
 
     /**
      * @var array
      */
     private $statuses = [
-        self::PENDING,
-        self::REDIRECT,
-        self::SUCCESS,
-        self::FAILED
+        self::STATUS_PENDING,
+        self::STATUS_REDIRECT,
+        self::STATUS_SUCCESS,
+        self::STATUS_FAILED
     ];
 
     /**

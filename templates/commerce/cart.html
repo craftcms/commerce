@@ -16,8 +16,8 @@
                 {% for item in cart.lineItems %}
                     <tr>
                         <td>
-                            <strong>{{ item.purchasable.description }}</strong><br>
-                            ({{ item.purchasable.sku }})
+                            <strong>{{ item.description }}</strong><br>
+                            ({{ item.sku }})
                             <br>
                             <code>{{ item.options|json_encode }}</code>
                             <form method="POST">
@@ -36,11 +36,13 @@
                                 <input type="text" placeholder="My Note" size="20" name="note" value="{{ item.note }}">
                                 <input type="number" name="qty" min="1" value="{{ item.qty }}">
                                 {{ getCsrfInput() }}
+                                {% if item.options.color is defined %}
                                 <select name="options[color]">
                                     <option value="blue" {% if item.options.color == 'blue' %}selected{% endif %}>Blue</option>
                                     <option value="white" {% if item.options.color == 'white' %}selected{% endif %}>White</option>
                                     <option value="red" {% if item.options.color == 'red' %}selected{% endif %}>Red</option>
                                 </select>
+                                {% endif %}
                                 <input type="submit" class="button" value="Update"/>
                             </form>
                         </td>
@@ -99,6 +101,10 @@
                     <td>
                     </td>
                     <td class="text-right">
+                        Total Discount: {{ cart.totalDiscount|commerceCurrency }}<br>
+                        Total Shipping: {{ cart.totalShippingCost|commerceCurrency }}<br>
+                        Total Tax: {{ cart.totalTax|commerceCurrency }}<br>
+                        Total Tax (inc): {{ cart.totalTaxIncluded|commerceCurrency }}<br>
                         Item Total: {{ cart.itemTotal|commerceCurrency }}<br>
                         Base Discount: {{ cart.baseDiscount|commerceCurrency }}<br>
                         Base Shipping Cost: {{ cart.baseShippingCost|commerceCurrency }}<br>

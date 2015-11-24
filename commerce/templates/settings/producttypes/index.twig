@@ -13,6 +13,7 @@
         <tr>
             <th scope="col">{{ "Name"|t }}</th>
             <th scope="col">{{ "Handle"|t }}</th>
+            <th scope="col">{{ "Has Variants?"|t }}</th>
             <td class="thin"></td>
         </tr>
         </thead>
@@ -23,6 +24,7 @@
                             href="{{ url('commerce/settings/producttypes/'~productType.id) }}">{{ productType.name }}</a>
                 </th>
                 <td data-title="{{ 'Handle'|t }}" class="code">{{ productType.handle }}</td>
+                <td data-title="{{ 'Has Variants?'|t }}">{% if productType.hasVariants %}<span data-icon="check" title="{{ 'Yes'|t }}"></span>{% endif %}</td>
                 <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
             </tr>
         {% endfor %}

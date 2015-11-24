@@ -62,9 +62,6 @@
 				{% import "commerce/_includes/orders/address" as addressMacros %}
 
 				<strong>Billing Address </strong><br>
-				{% if order.dateOrdered %}
-				{#<a class="small btn right edit" data-orderid="{{ orderId }}" data-addresstype="billing" data-address="{{ order.billingAddressData|json_encode }}">{{ 'Edit'|t }}</a>#}
-				{% endif %}
 				{% if order.billingAddress %}
 				<a class="small btn right"
 				   href="http://maps.google.com/maps?q={{ order.billingAddress.address1 }}+{{ order.billingAddress.address2 }}+{{ order.billingAddress.city }}+{{ order.billingAddress.zipCode }}+{{ order.billingAddress.stateText }}+{{ order.billingAddress.countryText }}"
@@ -77,9 +74,6 @@
 			<div class="order-address-box shippingAddress">
 				<div class="order-address-box-content">
 				<strong>Shipping Address </strong><br>
-				{% if order.dateOrdered %}
-				{#<a class="small btn right edit" data-addresstype="shipping" data-address="{{ order.shippingAddressData|json_encode }}">{{ 'Edit'|t }}</a>#}
-				{% endif %}
 				{% if order.shippingAddress %}
 				<a class="small btn right"
 				   href="http://maps.google.com/maps?q={{ order.shippingAddress.address1 }}+{{ order.shippingAddress.address2 }}+{{ order.shippingAddress.city }}+{{ order.shippingAddress.zipCode }}+{{ order.shippingAddress.stateText }}+{{ order.shippingAddress.countryText }}"

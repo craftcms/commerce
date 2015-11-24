@@ -36,10 +36,9 @@ class Commerce_AddressesService extends BaseApplicationComponent
      */
     public function getAddressesByCustomerId($id)
     {
-        $records = Commerce_AddressRecord::model()->with('country',
-            'state')->findAllByAttributes(['customerId' => $id]);
+        $record = Commerce_CustomerRecord::model()->with('addresses')->findByAttributes(['id' => $id]);
 
-        return Commerce_AddressModel::populateModels($records);
+        return Commerce_AddressModel::populateModels($record->addresses);
     }
 
     /**
@@ -72,7 +71,6 @@ class Commerce_AddressesService extends BaseApplicationComponent
         $addressRecord->businessName = $addressModel->businessName;
         $addressRecord->businessTaxId = $addressModel->businessTaxId;
         $addressRecord->countryId = $addressModel->countryId;
-        $addressRecord->customerId = $addressModel->customerId;
 
         if (!empty($addressModel->stateValue)) {
             if (is_numeric($addressModel->stateValue)) {

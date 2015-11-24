@@ -65,8 +65,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
     {
         $actions = [];
 
-        // TODO: Replace with an order permission check when we have one
-        if (craft()->userSession->checkPermission('accessPlugin-commerce'))
+        if (craft()->userSession->checkPermission('commerce-manageOrders'))
         {
             $deleteAction = craft()->elements->getAction('Delete');
             $deleteAction->setParams([
@@ -109,7 +108,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 
         $sources[] = ['heading' => Craft::t("Order Status")];
 
-        foreach (craft()->commerce_orderStatuses->getAll() as $orderStatus) {
+        foreach (craft()->commerce_orderStatuses->getAllOrderStatuses() as $orderStatus) {
             $key = 'orderStatus:' . $orderStatus->handle;
             $sources[$key] = [
                 'status' => $orderStatus->color,
@@ -309,9 +308,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
         orders.cancelUrl,
         orders.orderStatusId,
         orders.billingAddressId,
-        orders.billingAddressData,
         orders.shippingAddressId,
-        orders.shippingAddressData,
         orders.shippingMethod,
         orders.paymentMethodId,
         orders.customerId,
@@ -348,10 +345,10 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 
         if ($criteria->user) {
             if ($criteria->user instanceof UserModel) {
-                $id = craft()->commerce_customers->getCustomerById($criteria->user->id)->id;
-                if ($id) {
-                    $criteria->customerId = $id;
-                    $criteria->customer = null;
+                $customer = craft()->commerce_customers->getCustomerByUserId($criteria->user->id);
+                if($customer){
+                    $criteria->customerId = $customer->id;
+                    $criteria->user = null;
                 } else {
                     $query->andWhere(DbHelper::parseParam('orders.customerId', 'IS NULL', $query->params));
                 }

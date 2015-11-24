@@ -60,13 +60,13 @@ class Commerce_TaxZonesService extends BaseApplicationComponent
 
     /**
      * @param Commerce_TaxZoneModel $model
-     * @param array $countriesIds
-     * @param array $statesIds
+     * @param array $countryIds
+     * @param array $stateIds
      *
      * @return bool
      * @throws \Exception
      */
-    public function saveTaxZone(Commerce_TaxZoneModel $model, $countriesIds, $statesIds)
+    public function saveTaxZone(Commerce_TaxZoneModel $model, $countryIds, $stateIds)
     {
         if ($model->id) {
             $record = Commerce_TaxZoneRecord::model()->findById($model->id);
@@ -101,7 +101,7 @@ class Commerce_TaxZonesService extends BaseApplicationComponent
         //validating given ids
         if ($record->countryBased) {
             $criteria = new \CDbCriteria();
-            $criteria->addInCondition('id', $countriesIds);
+            $criteria->addInCondition('id', $countryIds);
             $exist = Commerce_CountryRecord::model()->exists($criteria);
 
             if (!$exist) {
@@ -109,7 +109,7 @@ class Commerce_TaxZonesService extends BaseApplicationComponent
             }
         } else {
             $criteria = new \CDbCriteria();
-            $criteria->addInCondition('id', $statesIds);
+            $criteria->addInCondition('id', $stateIds);
             $exist = Commerce_StateRecord::model()->exists($criteria);
 
             if (!$exist) {
@@ -140,13 +140,13 @@ class Commerce_TaxZonesService extends BaseApplicationComponent
                 if ($model->countryBased) {
                     $rows = array_map(function ($id) use ($model) {
                         return [$id, $model->id];
-                    }, $countriesIds);
+                    }, $countryIds);
                     $cols = ['countryId', 'taxZoneId'];
                     $table = Commerce_TaxZoneCountryRecord::model()->getTableName();
                 } else {
                     $rows = array_map(function ($id) use ($model) {
                         return [$id, $model->id];
-                    }, $statesIds);
+                    }, $stateIds);
                     $cols = ['stateId', 'taxZoneId'];
                     $table = Commerce_TaxZoneStateRecord::model()->getTableName();
                 }
