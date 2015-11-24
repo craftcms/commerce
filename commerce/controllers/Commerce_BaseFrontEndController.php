@@ -40,13 +40,9 @@ class Commerce_BaseFrontEndController extends Commerce_BaseController
         $data['returnUrl'] = $cart->returnUrl;
         $data['cancelUrl'] = $cart->cancelUrl;
         $data['orderStatusId'] = $cart->orderStatusId;
-        $data['billingAddressId'] = $cart->billingAddressId;
-        $data['shippingAddressId'] = $cart->shippingAddressId;
         $data['shippingMethod'] = $cart->getShippingMethodHandle();
         $data['paymentMethodId'] = $cart->paymentMethodId;
         $data['customerId'] = $cart->customerId;
-        $data['shippingAddressData'] = $cart->shippingAddressData;
-        $data['billingAddressData'] = $cart->billingAddressData;
         $data['isPaid'] = $cart->isPaid();
         $data['totalQty'] = $cart->totalQty;
         $data['pdfUrl'] = $cart->getPdfUrl('ajax');
@@ -61,6 +57,20 @@ class Commerce_BaseFrontEndController extends Commerce_BaseController
         $data['totalDiscount'] = $cart->getTotalDiscount();
 
         $data['availableShippingMethods'] = craft()->commerce_shippingMethods->getOrderedAvailableShippingMethods($cart);
+
+        $data['shippingAddressId'] = $cart->shippingAddressId;
+        if ($cart->getShippingAddress()){
+            $data['shippingAddress'] = $cart->shippingAddress->attributes;
+        }else{
+            $data['shippingAddress'] = false;
+        }
+
+        $data['billingAddressId'] = $cart->billingAddressId;
+        if ($cart->getBillingAddress()){
+            $data['billingAddress'] = $cart->billingAddress->attributes;
+        }else{
+            $data['billingAddress'] = false;
+        }
 
         $lineItems = [];
         foreach ($cart->lineItems as $lineItem) {

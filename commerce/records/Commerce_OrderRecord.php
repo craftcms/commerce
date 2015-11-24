@@ -23,9 +23,7 @@ namespace Craft;
  * @property string $cancelUrl
  *
  * @property int $billingAddressId
- * @property mixed $billingAddressData
  * @property int $shippingAddressId
- * @property mixed $shippingAddressData
  * @property string $shippingMethod
  * @property int $paymentMethodId
  * @property int $customerId
@@ -159,9 +157,7 @@ class Commerce_OrderRecord extends BaseRecord
             'message' => AttributeType::String,
             'returnUrl' => AttributeType::String,
             'cancelUrl' => AttributeType::String,
-            'shippingMethod' => AttributeType::String,
-            'billingAddressData' => AttributeType::Mixed,
-            'shippingAddressData' => AttributeType::Mixed
+            'shippingMethod' => AttributeType::String
         ];
     }
 

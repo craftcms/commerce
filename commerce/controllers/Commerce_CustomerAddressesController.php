@@ -81,12 +81,10 @@ class Commerce_CustomerAddressesController extends Commerce_BaseFrontEndControll
 
                 if ($cart->shippingAddressId == $id) {
                     $cart->shippingAddressId = null;
-                    $cart->shippingAddressData = null;
                 }
 
                 if ($cart->billingAddressId == $id) {
                     $cart->billingAddressId = null;
-                    $cart->billingAddressData = null;
                 }
 
                 craft()->commerce_orders->saveOrder($cart);

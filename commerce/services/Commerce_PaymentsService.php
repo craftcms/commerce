@@ -316,27 +316,31 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 
         if ($order->billingAddressId) {
             $billingAddress = $order->billingAddress;
-            $card->setBillingAddress1($billingAddress->address1);
-            $card->setBillingAddress2($billingAddress->address2);
-            $card->setBillingCity($billingAddress->city);
-            $card->setBillingPostcode($billingAddress->zipCode);
-            $card->setBillingState($billingAddress->getStateText());
-            $card->setBillingCountry($billingAddress->getCountryText());
-            $card->setBillingPhone($billingAddress->phone);
-            $card->setBillingCompany($billingAddress->businessName);
-            $card->setCompany($billingAddress->businessName);
+            if($billingAddress){
+                $card->setBillingAddress1($billingAddress->address1);
+                $card->setBillingAddress2($billingAddress->address2);
+                $card->setBillingCity($billingAddress->city);
+                $card->setBillingPostcode($billingAddress->zipCode);
+                $card->setBillingState($billingAddress->getStateText());
+                $card->setBillingCountry($billingAddress->getCountryText());
+                $card->setBillingPhone($billingAddress->phone);
+                $card->setBillingCompany($billingAddress->businessName);
+                $card->setCompany($billingAddress->businessName);
+            }
         }
 
         if ($order->shippingAddressId) {
             $shippingAddress = $order->shippingAddress;
-            $card->setShippingAddress1($shippingAddress->address1);
-            $card->setShippingAddress2($shippingAddress->address2);
-            $card->setShippingCity($shippingAddress->city);
-            $card->setShippingPostcode($shippingAddress->zipCode);
-            $card->setShippingState($shippingAddress->getStateText());
-            $card->setShippingCountry($shippingAddress->getCountryText());
-            $card->setShippingPhone($shippingAddress->phone);
-            $card->setShippingCompany($shippingAddress->businessName);
+            if($shippingAddress){
+                $card->setShippingAddress1($shippingAddress->address1);
+                $card->setShippingAddress2($shippingAddress->address2);
+                $card->setShippingCity($shippingAddress->city);
+                $card->setShippingPostcode($shippingAddress->zipCode);
+                $card->setShippingState($shippingAddress->getStateText());
+                $card->setShippingCountry($shippingAddress->getCountryText());
+                $card->setShippingPhone($shippingAddress->phone);
+                $card->setShippingCompany($shippingAddress->businessName);
+            }
         }
 
         $card->setEmail($order->email);

@@ -209,8 +209,6 @@ class Commerce_OrdersService extends BaseApplicationComponent
         $orderRecord->returnUrl = $order->returnUrl;
         $orderRecord->cancelUrl = $order->cancelUrl;
         $orderRecord->message = $order->message;
-        $orderRecord->shippingAddressData = $order->shippingAddressData;
-        $orderRecord->billingAddressData = $order->billingAddressData;
 
         $orderRecord->validate();
         $order->addErrors($orderRecord->getErrors());
@@ -401,6 +399,29 @@ class Commerce_OrdersService extends BaseApplicationComponent
             throw new Exception(Craft::t('No default Status available to set on completed order.'));
         }
 
+
+        if($order->billingAddress){
+            $snapShotBillingAddress = Commerce_AddressModel::populateModel($order->billingAddress);
+            $snapShotBillingAddress->id = null;
+            if(craft()->commerce_addresses->saveAddress($snapShotBillingAddress)){
+                $order->billingAddressId = $snapShotBillingAddress->id;
+            }else{
+                throw new Exception('Error on saving snapshot billing address during order completion: ' . implode(', ',
+                        $snapShotBillingAddress->getAllErrors()));
+            };
+        }
+
+        if($order->shippingAddress){
+            $snapShotShippingAddress = Commerce_AddressModel::populateModel($order->shippingAddress);
+            $snapShotShippingAddress->id = null;
+            if(craft()->commerce_addresses->saveAddress($snapShotShippingAddress)){
+                $order->shippingAddressId = $snapShotShippingAddress->id;
+            }else{
+                throw new Exception('Error on saving snapshot shipping address during order completion: ' . implode(', ',
+                        $snapShotShippingAddress->getAllErrors()));
+            };
+        }
+
         if (!$this->saveOrder($order)) {
             return false;
         }
@@ -416,7 +437,6 @@ class Commerce_OrdersService extends BaseApplicationComponent
 
         return true;
     }
-
 
     /**
      * Event method
@@ -504,7 +524,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
         foreach ($order->lineItems as $item) {
             if ($item->refreshFromPurchasable()) {
                 if (!craft()->commerce_lineItems->saveLineItem($item)) {
-                    throw new Exception('Error on saving lite item: ' . implode(', ',
+                    throw new Exception('Error on saving line item: ' . implode(', ',
                             $item->getAllErrors()));
                 }
             } else {
