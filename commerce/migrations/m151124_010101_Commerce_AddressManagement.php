@@ -18,8 +18,6 @@ class m151124_010101_Commerce_AddressManagement extends BaseMigration
             ), null, true);
 
             // Add indexes to craft_commerce_customers_addresses
-            craft()->db->createCommand()->createIndex('commerce_customers_addresses', 'customerId', false);
-            craft()->db->createCommand()->createIndex('commerce_customers_addresses', 'addressId', false);
             craft()->db->createCommand()->createIndex('commerce_customers_addresses', 'customerId,addressId', true);
 
             // Add foreign keys to craft_commerce_customers_addresses
@@ -37,7 +35,7 @@ class m151124_010101_Commerce_AddressManagement extends BaseMigration
         foreach ($addresses as $address) {
             if (isset($address['customerId'])) {
                 $data = ['customerId' => $address['customerId'], 'addressId' => $address['id']];
-                if(!craft()->db->createCommand()->select('*')->from('commerce_customers_addresses')->where($data)->queryScalar()){
+                if(!craft()->db->createCommand()->select('*')->from('commerce_customers_addresses')->where($data)->count('id')){
                     craft()->db->createCommand()->insert('commerce_customers_addresses', $data);
                 };
             }
@@ -58,8 +56,11 @@ class m151124_010101_Commerce_AddressManagement extends BaseMigration
             ->queryAll();
 
         // Migration address data in json to address table
+        $addressTypes = ['shippingAddress', 'billingAddress'];
+
         foreach ($orders as $order) {
-            $addressTypes = ['shippingAddress', 'billingAddress'];
+            $newData = [];
+
             foreach ($addressTypes as $type) {
                 if ($order[$type.'Data']) {
                     $address = json_decode($order[$type.'Data'], true);
@@ -72,16 +73,17 @@ class m151124_010101_Commerce_AddressManagement extends BaseMigration
                     $address = array_filter($address);
                     if (!empty($address)) {
                         craft()->db->createCommand()->insert('commerce_addresses', $address);
-                        $id = craft()->db->getLastInsertID();
-                        $insertData = [$type.'Id' => $id, $type.'Data' => json_encode([])];
-                        craft()->db->createCommand()->update('commerce_orders',$insertData,'id = :idx', [':idx' => $order['id']]);
+                        $newData[$type.'Id'] = craft()->db->getLastInsertID();
                     }
                 }
+            }
+
+            if ($newData) {
+                craft()->db->createCommand()->update('commerce_orders', $newData, 'id = :id', [':id' => $order['id']]);
             }
         }
 
         $this->dropColumn('commerce_orders','shippingAddressData');
         $this->dropColumn('commerce_orders','billingAddressData');
-
     }
 }
