@@ -251,7 +251,9 @@ class Commerce_VariantsService extends BaseApplicationComponent
         foreach ($order->lineItems as $lineItem) {
             /** @var Commerce_VariantRecord $record */
             $record = Commerce_VariantRecord::model()->findByAttributes(['id' => $lineItem->purchasableId]);
-            if (!$record->unlimitedStock) {
+
+            // Don't assume that this is a Variant
+            if ($record && !$record->unlimitedStock) {
                 $record->stock = $record->stock - $lineItem->qty;
                 $record->save(false);
             }
