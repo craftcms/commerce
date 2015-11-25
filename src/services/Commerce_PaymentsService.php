@@ -102,9 +102,11 @@ class Commerce_PaymentsService extends BaseApplicationComponent
             return false;
         }
 
-        craft()->request->redirect($redirect);
+        if ($redirect) {
+            craft()->request->redirect($redirect);
+        }
 
-        return true;
+        return ($transaction->status == Commerce_TransactionRecord::STATUS_SUCCESS);
     }
 
     /**
