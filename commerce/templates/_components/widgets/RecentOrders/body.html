@@ -1,0 +1,22 @@
+{# <svg class="chart" viewBox="0 0 300 200" preserveAspectRatio="xMidYMid"></svg> #}
+
+<svg class="chart"></svg>
+
+<div class="recentorders-container">
+    {% if orders|length %}
+        <table class="data fullwidth">
+            {% for order in orders %}
+                <tr>
+                    <td>
+                        <a href="{{ order.getCpEditUrl() }}">{{ order.number[:7] }}</a>
+                        <span class="light">{%- if order.dateOrdered %}{{ order.dateOrdered.uiTimestamp() }}{% endif %}</span>
+                    </td>
+
+                    <td>{{ order.totalPaid|commerceCurrency }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>{{ "No orders exist yet."|t }}</p>
+    {% endif %}
+</div>
