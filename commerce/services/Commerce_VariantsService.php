@@ -34,20 +34,20 @@ class Commerce_VariantsService extends BaseApplicationComponent
      *
      * @return Commerce_VariantModel
      */
-    public function getPrimaryVariantByProductId($variantId, $localeId = null)
+    public function getDefaultVariantByProductId($variantId, $localeId = null)
     {
         return ArrayHelper::getFirstValue($this->getAllVariantsByProductId($variantId, $localeId));
     }
 
     /**
-     * @param int $variantId
+     * @param int $productId
      * @param string|null $localeId
      *
      * @return Commerce_VariantModel[]
      */
-    public function getAllVariantsByProductId($variantId, $localeId = null)
+    public function getAllVariantsByProductId($productId, $localeId = null)
     {
-        $variants = craft()->elements->getCriteria('Commerce_Variant', ['productId' => $variantId, 'status'=> null, 'locale' => $localeId])->find();
+        $variants = craft()->elements->getCriteria('Commerce_Variant', ['productId' => $productId, 'status'=> null, 'locale' => $localeId])->find();
 
         return $variants;
     }
