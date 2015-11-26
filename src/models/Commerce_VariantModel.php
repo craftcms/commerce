@@ -248,34 +248,37 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
     {
         $order = craft()->commerce_orders->getOrderById($lineItem->orderId);
 
-        $qty = [];
-        foreach ($order->getLineItems() as $item) {
-            if(!isset($qty[$item->purchasableId])){
-                $qty[$item->purchasableId] = 0;
+        if($order){
+            $qty = [];
+            foreach ($order->getLineItems() as $item) {
+                if(!isset($qty[$item->purchasableId])){
+                    $qty[$item->purchasableId] = 0;
+                }
+                if($item->id == $lineItem->id){
+                    $qty[$item->purchasableId] += $lineItem->qty;
+                }else{
+                    $qty[$item->purchasableId] += $item->qty;
+                }
             }
-            if($item->id == $lineItem->id){
-                $qty[$item->purchasableId] += $lineItem->qty;
-            }else{
-                $qty[$item->purchasableId] += $item->qty;
-            }
-        }
 
-        if (!$this->unlimitedStock && $qty[$lineItem->purchasableId] > $this->stock) {
-            $error = Craft::t('There are only {num} "{description}" items left in stock', ['num' => $this->stock, 'description' => $lineItem->purchasable->getDescription() ]);
-            $lineItem->addError('qty', $error);
-        }
-
-        if ($lineItem->qty < $this->minQty) {
-            $error = Craft::t('Minimum order quantity for this item is {num}', ['num' => $this->minQty]);
-            $lineItem->addError('qty', $error);
-        }
-
-        if ($this->maxQty != 0) {
-            if ($lineItem->qty > $this->maxQty) {
-                $error = Craft::t('Maximum order quantity for this item is {num}', ['num' => $this->maxQty]);
+            if (!$this->unlimitedStock && $qty[$lineItem->purchasableId] > $this->stock) {
+                $error = Craft::t('There are only {num} "{description}" items left in stock', ['num' => $this->stock, 'description' => $lineItem->purchasable->getDescription() ]);
                 $lineItem->addError('qty', $error);
             }
+
+            if ($lineItem->qty < $this->minQty) {
+                $error = Craft::t('Minimum order quantity for this item is {num}', ['num' => $this->minQty]);
+                $lineItem->addError('qty', $error);
+            }
+
+            if ($this->maxQty != 0) {
+                if ($lineItem->qty > $this->maxQty) {
+                    $error = Craft::t('Maximum order quantity for this item is {num}', ['num' => $this->maxQty]);
+                    $lineItem->addError('qty', $error);
+                }
+            }
         }
+
     }
 
     // Protected Methods
