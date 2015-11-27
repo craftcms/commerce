@@ -25,3 +25,21 @@ body.ltr .indented { margin-left: 150px; }
 body.rtl .indented { margin-right: 150px; }
 
 #license-key-wrapper { display: inline-block; }
+
+@media only screen and (max-width: 768px) {
+	.reg-header { min-height: 0; padding: 0 !important; text-align: center; }
+	.reg-header img { position: static; margin-bottom: 14px; }
+
+
+	.meta > .data { display: block; }
+	.license-meta > .data .heading,
+	.license-meta > .data .value { width: auto; }
+	body.ltr .license-meta > .data .heading { text-align: left; }
+	body.rtl .license-meta > .data .heading { text-align: right; }
+
+	#license-key-wrapper { display: block; margin-bottom: 24px; }
+	#license-key-wrapper input { width: 100%; }
+
+	body.ltr .indented { margin-left: 0; }
+	body.rtl .indented { margin-right: 0; }
+}
