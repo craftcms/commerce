@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css">
     <script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
     <link rel="stylesheet" href="{{ url('/commerce/style.css') }}">
-    {% set cart = craft.commerce.getCart() %}
+    {% set cart = craft.commerce.cart %}
 </head>
 <body class="{{ bodyClass is defined ? bodyClass : '' }}">
 
