@@ -19,6 +19,7 @@ return [
 
     // Settings
     'commerce/settings' => ['action' => 'commerce/settings/index'],
+    'commerce/settings/registration' => ['action' => 'commerce/registration/edit'],
     'commerce/settings/general' => ['action' => 'commerce/settings/edit'],
     'commerce/settings/taxcategories' => ['action' => 'commerce/taxCategories/index'],
     'commerce/settings/taxcategories/new' => ['action' => 'commerce/taxCategories/edit'],
