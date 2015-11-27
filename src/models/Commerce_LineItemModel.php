@@ -186,6 +186,15 @@ class Commerce_LineItemModel extends BaseModel
     }
 
     /**
+     * Returns the options data submitted to the carts line item during purchase
+     */
+    public function getOptions()
+    {
+        return $this->snapshot['options'];
+    }
+
+
+    /**
      * @return array
      */
     protected function defineAttributes()

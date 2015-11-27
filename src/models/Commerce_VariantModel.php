@@ -85,7 +85,7 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
      */
     public function getCpEditUrl()
     {
-        return UrlHelper::getCpUrl('commerce/products/' . $this->product->type->handle . '/' . $this->product->id . '/variants/' . $this->id);
+        return $this->getProduct()->getCpEditUrl();
     }
 
     /**
