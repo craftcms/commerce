@@ -13,78 +13,92 @@ namespace Craft;
  */
 class Commerce_RegistrationController extends Commerce_BaseAdminController
 {
-	public function actionEdit()
-	{
-	    $licenseKey = craft()->plugins->getPluginLicenseKey('Commerce');
-	    $licenseKeyStatus = craft()->plugins->getPluginLicenseKeyStatus('Commerce');
+    public function actionEdit()
+    {
+        $licenseKey = craft()->plugins->getPluginLicenseKey('Commerce');
 
-	    if ($licenseKey) {
-	    	$licenseKey = rtrim(chunk_split($licenseKey, 4, '-'), '-');;
-	    }
+        $this->renderTemplate('commerce/settings/registration', [
+            'hasLicenseKey' => ($licenseKey !== null)
+        ]);
+    }
 
-	    $this->renderTemplate('commerce/settings/registration', [
-	        'licenseKey' => $licenseKey,
-	        'licenseKeyStatus' => $licenseKeyStatus,
-	    ]);
-	}
+    public function actionGetLicenseInfo()
+    {
+        $this->requirePostRequest();
+        $this->requireAjaxRequest();
 
-	public function actionUnregister()
-	{
-		$this->requirePostRequest();
-		$this->requireAjaxRequest();
+        craft()->et->ping();
+        $this->_sendSuccessResponse();
+    }
 
-		// TODO: call the unregisterPlugin Elliott endpoint
+    public function actionUnregister()
+    {
+        $this->requirePostRequest();
+        $this->requireAjaxRequest();
 
-		craft()->plugins->setPluginLicenseKey('Commerce', null);
+        $etResponse = craft()->et->unregisterPlugin('Commerce');
+        $this->_handleEtResponse($etResponse);
+    }
 
-		$this->_sendSuccessResponse();
-	}
+    public function actionUpdateLicenseKey()
+    {
+        $this->requirePostRequest();
+        $this->requireAjaxRequest();
 
-	public function actionUpdateLicenseKey()
-	{
-		$this->requirePostRequest();
-		$this->requireAjaxRequest();
+        $licenseKey = craft()->request->getRequiredPost('licenseKey');
 
-		$licenseKey = craft()->request->getRequiredPost('licenseKey');
+        // Are we registering a new license key?
+        if ($licenseKey) {
+            // Record the license key locally
+            try {
+                craft()->plugins->setPluginLicenseKey('Commerce', $licenseKey);
+            } catch (InvalidLicenseKeyException $e) {
+                $this->returnErrorJson(Craft::t('That license key is invalid.'));
+            }
 
-		// TODO: call the registerPlugin Elliott endpoint
+            // Register it with Elliott
+            $etResponse = craft()->et->registerPlugin('Commerce');
+            $this->_handleEtResponse($etResponse);
+        } else {
+            // Just clear our record of the license key
+            craft()->plugins->setPluginLicenseKey('Commerce', null);
+            craft()->plugins->setPluginLicenseKeyStatus('Commerce', LicenseKeyStatus::Unknown);
+            $this->_sendSuccessResponse();
+        }
+    }
 
-		try {
-			craft()->plugins->setPluginLicenseKey('Commerce', $licenseKey ?: null);
-		} catch (InvalidLicenseKeyException $e) {
-			$this->returnErrorJson(Craft::t('That license key is invalid.'));
-		}
+    public function actionTransfer()
+    {
+        $this->requirePostRequest();
+        $this->requireAjaxRequest();
 
-		if ($licenseKey) {
-			craft()->plugins->setPluginLicenseKeyStatus('Commerce', LicenseKeyStatus::Valid);
-		} else {
-			craft()->plugins->setPluginLicenseKeyStatus('Commerce', LicenseKeyStatus::Unknown);
-		}
+        $etResponse = craft()->et->transferPlugin('Commerce');
+        $this->_handleEtResponse($etResponse);
+    }
 
-		$this->_sendSuccessResponse();
-	}
+    /**
+     * Returns a response based on the EtService response.
+     *
+     * @return bool|string The resonse from EtService
+     */
+    private function _handleEtResponse($etResponse)
+    {
+        if (!empty($etResponse->data['success'])) {
+            $this->_sendSuccessResponse();
+        } else {
+            $this->returnErrorJson(!empty($etResponse->errors) ? $etResponse->errors[0] : Craft::t('An unknown error occurred.'));
+        }
+    }
 
-	public function actionTransfer()
-	{
-		$this->requirePostRequest();
-		$this->requireAjaxRequest();
-
-		// TODO: call the transferPlugin Elliott endpoint
-
-		craft()->plugins->setPluginLicenseKeyStatus('Commerce', LicenseKeyStatus::Valid);
-
-		$this->_sendSuccessResponse();
-	}
-
-	/**
-	 * Returns a successful license update response.
-	 */
-	private function _sendSuccessResponse()
-	{
-		$this->returnJson([
-			'success' => true,
-			'licenseKey' => craft()->plugins->getPluginLicenseKey('Commerce'),
-			'licenseKeyStatus' => craft()->plugins->getPluginLicenseKeyStatus('Commerce'),
-		]);
-	}
+    /**
+     * Returns a successful license update response.
+     */
+    private function _sendSuccessResponse()
+    {
+        $this->returnJson([
+            'success' => true,
+            'licenseKey' => craft()->plugins->getPluginLicenseKey('Commerce'),
+            'licenseKeyStatus' => craft()->plugins->getPluginLicenseKeyStatus('Commerce'),
+        ]);
+    }
 }

@@ -36,7 +36,7 @@ Craft.Commerce.RegistrationForm = Craft.BaseElementIndex.extend({
 	$clearBtn: null,
 	$licenseKeyError: null,
 
-	init: function(licenseKey, licenseKeyStatus) {
+	init: function(hasLicenseKey) {
 		this.$headers = $('.reg-header');
 		this.$views = $('.reg-view');
 
@@ -70,8 +70,31 @@ Craft.Commerce.RegistrationForm = Craft.BaseElementIndex.extend({
 		this.addListener(this.$licenseKeyInput, 'textchange', 'handleLicenseKeyTextChange');
 		this.addListener(this.$clearBtn, 'click', 'handleClearButtonClick');
 
-		this.setLicenseKey(licenseKey);
-		this.setLicenseKeyStatus(licenseKeyStatus);
+		if (hasLicenseKey) {
+			this.loadLicenseInfo();
+		} else {
+			this.unloadLoadingUi();
+			this.setLicenseKey(null);
+			this.setLicenseKeyStatus('unknown');
+		}
+	},
+
+	unloadLoadingUi: function() {
+		$('#loading-license-info').remove();
+		$('#license-view-hr').removeClass('hidden');
+	},
+
+	loadLicenseInfo: function(action) {
+		Craft.postActionRequest('commerce/registration/getLicenseInfo', $.proxy(function(response, textStatus) {
+			if (textStatus == 'success') {
+				this.unloadLoadingUi();
+				this.setLicenseKey(response.licenseKey);
+				this.setLicenseKeyStatus(response.licenseKeyStatus);
+			} else {
+				$('#loading-graphic').addClass('error');
+				$('#loading-status').removeClass('light').text(Craft.t('Unable to load registration status at this time. Please try again later.'));
+			}
+		}, this));
 	},
 
 	setLicenseKey: function(licenseKey) {
@@ -93,19 +116,23 @@ Craft.Commerce.RegistrationForm = Craft.BaseElementIndex.extend({
 
 		// Show the proper form view
 		if (this.licenseKeyStatus == 'valid') {
-			this.showValidLicenseView();
+			this.$validLicenseView.removeClass('hidden');
 		} else {
-			this.showLicenseFormView();
+			this.$updateLicenseView.removeClass('hidden');
+			this.$licenseKeyError.addClass('hidden');
+
+			if (this.licenseKeyStatus == 'invalid') {
+				this.$licenseKeyInput.addClass('error');
+			} else {
+				this.$licenseKeyInput.removeClass('error');
+			}
+
+			if (this.licenseKeyStatus == 'mismatched') {
+				this.$transferLicenseForm.removeClass('hidden');
+			} else {
+				this.$transferLicenseForm.addClass('hidden');
+			}
 		}
-	},
-
-	showValidLicenseView: function() {
-		this.$validLicenseView.removeClass('hidden');
-	},
-
-	showLicenseFormView: function() {
-		this.$updateLicenseView.removeClass('hidden');
-		this.$licenseKeyError.addClass('hidden');
 	},
 
 	normalizeLicenseKey: function(licenseKey) {
@@ -134,8 +161,12 @@ Craft.Commerce.RegistrationForm = Craft.BaseElementIndex.extend({
 		Craft.postActionRequest('commerce/registration/unregister', $.proxy(function(response, textStatus) {
 			this.$unregisterLicenseSpinner.addClass('hidden');
 			if (textStatus == 'success') {
-				this.setLicenseKey(response.licenseKey);
-				this.setLicenseKeyStatus(response.licenseKeyStatus);
+				if (response.success) {
+					this.setLicenseKey(response.licenseKey);
+					this.setLicenseKeyStatus(response.licenseKeyStatus);
+				} else {
+					Craft.cp.displayError(response.error);
+				}
 			}
 		}, this));
 	},
@@ -173,8 +204,12 @@ Craft.Commerce.RegistrationForm = Craft.BaseElementIndex.extend({
 		Craft.postActionRequest('commerce/registration/transfer', $.proxy(function(response, textStatus) {
 			this.$transferLicenseSpinner.addClass('hidden');
 			if (textStatus == 'success') {
-				this.setLicenseKey(response.licenseKey);
-				this.setLicenseKeyStatus(response.licenseKeyStatus);
+				if (response.success) {
+					this.setLicenseKey(response.licenseKey);
+					this.setLicenseKeyStatus(response.licenseKeyStatus);
+				} else {
+					Craft.cp.displayError(response.error);
+				}
 			}
 		}, this));
 	},

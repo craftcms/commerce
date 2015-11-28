@@ -1,3 +1,6 @@
+#loading-graphic.error { background-image: url(../images/error.png); background-size: 24px; }
+#loading-status { display: inline-block; padding: 6px 0; }
+
 .reg-header { position: relative; min-height: 150px; box-sizing: border-box; padding-top: 50px; }
 body.ltr .reg-header { padding-left: 150px; padding-right: 25px; }
 body.rtl .reg-header { padding-right: 150px; padding-left: 25px; }
