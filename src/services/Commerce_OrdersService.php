@@ -288,6 +288,9 @@ class Commerce_OrdersService extends BaseApplicationComponent
         //calculating adjustments
         $lineItems = craft()->commerce_lineItems->getAllLineItemsByOrderId($order->id);
 
+        // reset base totals
+        $order->baseDiscount = 0;
+        $order->baseShippingCost = 0;
         $order->itemTotal = 0;
         foreach ($lineItems as $item) { //resetting fields calculated by adjusters
             $item->tax = 0;

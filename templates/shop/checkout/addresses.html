@@ -3,7 +3,6 @@
 {% block content %}
 
     {% set addresses = craft.commerce.customer.addresses %}
-    {% set order = craft.commerce.getCart() %}
 
     {# UI when at least one address exists #}
 
@@ -16,7 +15,7 @@
 
                 {{ getCsrfInput() }}
 
-                {% if not order.email %}
+                {% if not cart.email %}
                 <label for="">Email</label>
                 <input class="u-full-width" type="text" value="{{ cart.email }}" name="email"
                        placeholder="email@site.com"/>
