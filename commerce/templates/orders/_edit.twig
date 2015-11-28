@@ -137,7 +137,8 @@
 							{{ lineItem.description }}
 						{% endif %}
 						<br>{{ lineItem.sku }}
-						<br><code>{{ lineItem.options|json_encode()|raw }}</code>
+						{% if lineItem.note %}<br>{{ "Note" }}:<code>{{ lineItem.note|raw|nl2br }}</code>{% endif %}
+						{% if lineItem.options|length %}<br>{{ "Options" }}:<code>{{ lineItem.options|json_encode()|raw }}</code>{% endif %}
 					</td>
 					<td>
 						{{ lineItem.salePrice|commerceCurrency }}
