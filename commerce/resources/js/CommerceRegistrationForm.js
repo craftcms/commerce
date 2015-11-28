@@ -192,7 +192,7 @@ Craft.Commerce.RegistrationForm = Craft.BaseElementIndex.extend({
 					this.setLicenseKey(response.licenseKey);
 					this.setLicenseKeyStatus(response.licenseKeyStatus);
 				} else {
-					this.$licenseKeyError.text(response.error || Craft.t('An unknown error occurred.'));
+					this.$licenseKeyError.removeClass('hidden').text(response.error || Craft.t('An unknown error occurred.'));
 				}
 			}
 		}, this));

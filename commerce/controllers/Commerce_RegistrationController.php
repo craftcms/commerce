@@ -86,7 +86,22 @@ class Commerce_RegistrationController extends Commerce_BaseAdminController
         if (!empty($etResponse->data['success'])) {
             $this->_sendSuccessResponse();
         } else {
-            $this->returnErrorJson(!empty($etResponse->errors) ? $etResponse->errors[0] : Craft::t('An unknown error occurred.'));
+            if (!empty($etResponse->errors)) {
+                switch ($etResponse->errors[0]) {
+                    case 'nonexistent_plugin_license':
+                        $error = Craft::t('That license key isn’t valid');
+                        break;
+                    case 'plugin_license_in_use':
+                        $error = Craft::t('That license key is already being used on another Craft site');
+                        break;
+                    default:
+                        $error = $etResponse->errors[0];
+                }
+            } else {
+                $error = Craft::t('An unknown error occurred.');
+            }
+
+            $this->returnErrorJson($error);
         }
     }
 
