@@ -47,8 +47,8 @@
     }) }}
 
     {{ forms.selectField({
-        label: 'Countries'|t,
-        instructions: "Countries for which this rule is applicable to. Leave blank for all."|t,
+        label: 'Country'|t,
+        instructions: "Country for which this rule is applicable to. Leave blank for all."|t,
         id: 'countries',
         name: 'countryId',
         options: countries,
@@ -58,8 +58,8 @@
     }) }}
 
     {{ forms.selectField({
-        label: 'States'|t,
-        instructions: "States for which this rule is applicable to. Leave blank for all."|t,
+        label: 'State'|t,
+        instructions: "State for which this rule is applicable to. Leave blank for all."|t,
         id: 'states',
         name: 'stateId',
         options: states[shippingRule.countryId] is defined ? states[shippingRule.countryId] : null,
