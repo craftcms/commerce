@@ -6,8 +6,8 @@ namespace Craft;
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   http://craftcommerce.com/license Craft Commerce License Agreement
- * @see       http://craftcommerce.com
+ * @license   https://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       https://craftcommerce.com
  * @package   craft.plugins.commerce.controllers
  * @since     1.0
  */
@@ -119,4 +119,4 @@ class Commerce_ProductTypesController extends Commerce_BaseAdminController
         craft()->commerce_productTypes->deleteProductTypeById($productTypeId);
         $this->returnJson(['success' => true]);
     }
-} 
+}
