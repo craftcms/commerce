@@ -59,17 +59,36 @@ class Commerce_LineItemModel extends BaseModel
         return $this->qty * ($this->price + $this->saleAmount);
     }
 
+    /**
+     * @return int
+     */
     public function getTotal()
     {
         return $this->getSubtotalWithSale() + $this->tax + $this->discount + $this->shippingCost;
     }
 
     /**
-     * @return float
+     * @param Commerce_TaxRateRecord::taxables
+     * @return int
      */
-    public function getPriceWithoutShipping()
+    public function getTaxableSubtotal($taxable)
     {
-        return $this->price + $this->discount + $this->saleAmount;
+        switch ($taxable) {
+            case Commerce_TaxRateRecord::TAXABLE_PRICE:
+                $taxableSubtotal = $this->getSubtotalWithSale() + $this->discount;
+                break;
+            case Commerce_TaxRateRecord::TAXABLE_SHIPPING:
+                $taxableSubtotal = $this->shippingCost;
+                break;
+            case Commerce_TaxRateRecord::TAXABLE_PRICE_SHIPPING:
+                $taxableSubtotal = $this->getSubtotalWithSale() + $this->discount + $this->shippingCost;
+                break;
+            default:
+                // default to just price
+                $taxableSubtotal = $this->getSubtotalWithSale() + $this->discount;
+        }
+
+        return $taxableSubtotal;
     }
 
     /**
