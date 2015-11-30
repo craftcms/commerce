@@ -25,7 +25,7 @@
 				<tr>
 					<td><strong>{{ "Customer"|t }}</strong></td>
 					<td>{% if order.customer.userId %}<a
-							href="{{ order.customer.user.cpEditUrl }}">{{ order.email }}</a>{% else %}{{ order.email }}&nbsp;({{ "Guest"|t }} {% endif %}
+							href="{{ order.customer.user.cpEditUrl }}">{{ order.email }}</a>{% else %}{{ order.email }}&nbsp;({{ "Guest"|t }}) {% endif %}
 					</td>
 				</tr>
 				<tr>
