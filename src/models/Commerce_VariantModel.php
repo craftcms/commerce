@@ -144,6 +144,16 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
     }
 
     /**
+     * Returns whether this product is promotable.
+     *
+     * @return bool
+     */
+    public function getIsPromotable()
+    {
+        return $this->getProduct()->promotable;
+    }
+
+    /**
      * Returns the product associated with this variant.
      *
      * @return Commerce_ProductModel|null The product associated with this variant, or null if it isn’t known

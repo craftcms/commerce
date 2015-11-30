@@ -5,7 +5,7 @@
 	{%- if addressModel.businessTaxId -%}{{- addressModel.businessTaxId -}}<br/>{%- endif -%}
 	{%- if addressModel.address1 -%}{{- addressModel.address1 -}}<br/>{%- endif -%}
 	{%- if addressModel.address2 -%}{{- addressModel.address2 -}}<br/>{%- endif -%}
-	{{- addressModel.city }}, {{ addressModel.zipCode -}}<br/>
+	{%- if addressModel.city -%}{{- addressModel.city }}, {% endif %}{% if addressModel.zipCode %}{{ addressModel.zipCode -}}{% endif %}<br/>
 	{%- if addressModel.phone -%}{{- addressModel.phone -}}<br/>{%- endif -%}
 	{%- if addressModel.alternativePhone -%}{{- addressModel.alternativePhone -}}<br/>{%- endif -%}
 	{%- if addressModel.stateText -%}{{- addressModel.stateText -}}<br/>{%- endif -%}

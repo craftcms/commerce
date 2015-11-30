@@ -212,27 +212,37 @@ class Commerce_DiscountsService extends BaseApplicationComponent
             return false;
         }
 
-        if (!$lineItem->purchasable instanceof Commerce_VariantModel) {
-            return false;
-        }
 
         // can't match something not promotable
-        if (!$lineItem->purchasable->product->promotable) {
+        if (!$lineItem->purchasable->getIsPromotable()) {
             return false;
         }
 
-        $productId = $lineItem->purchasable->productId;
-        if (!$discount->allProducts && !in_array($productId,
-                $discount->getProductIds())
-        ) {
-            return false;
+        if ($discount->getProductIds()) {
+            if ($lineItem->purchasable instanceof Commerce_VariantModel) {
+                $productId = $lineItem->purchasable->productId;
+                if (!$discount->allProducts && !in_array($productId,
+                        $discount->getProductIds())
+                ) {
+                    return false;
+                }
+            } else {
+                return false;
+            }
         }
 
-        $productTypeId = $lineItem->purchasable->product->typeId;
-        if (!$discount->allProductTypes && !in_array($productTypeId,
-                $discount->getProductTypeIds())
-        ) {
-            return false;
+
+        if ($discount->getProductTypeIds()) {
+            if ($lineItem->purchasable instanceof Commerce_VariantModel) {
+                $productTypeId = $lineItem->purchasable->product->typeId;
+                if (!$discount->allProductTypes && !in_array($productTypeId,
+                        $discount->getProductTypeIds())
+                ) {
+                    return false;
+                }
+            } else {
+                return false;
+            }
         }
 
         $userGroups = $this->getCurrentUserGroupIds();
@@ -254,7 +264,8 @@ class Commerce_DiscountsService extends BaseApplicationComponent
      * @return bool
      * @throws \Exception
      */
-    public function saveDiscount(
+    public
+    function saveDiscount(
         Commerce_DiscountModel $model,
         array $groups,
         array $productTypes,
@@ -356,7 +367,8 @@ class Commerce_DiscountsService extends BaseApplicationComponent
     /**
      * @param int $id
      */
-    public function deleteDiscountById($id)
+    public
+    function deleteDiscountById($id)
     {
         Commerce_DiscountRecord::model()->deleteByPk($id);
     }
@@ -366,7 +378,8 @@ class Commerce_DiscountsService extends BaseApplicationComponent
      *
      * @param Event $event
      */
-    public function orderCompleteHandler(Event $event)
+    public
+    function orderCompleteHandler(Event $event)
     {
         /** @var Commerce_OrderModel $order */
         $order = $event->params['order'];

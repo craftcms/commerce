@@ -25,7 +25,7 @@
 				<tr>
 					<td><strong>{{ "Customer"|t }}</strong></td>
 					<td>{% if order.customer.userId %}<a
-							href="{{ order.customer.user.cpEditUrl }}">{{ order.email }}</a>{% else %}{{ order.email }}&nbsp;({{ "Guest"|t }} {% endif %}
+							href="{{ order.customer.user.cpEditUrl }}">{{ order.email }}</a>{% else %}{{ order.email }}&nbsp;({{ "Guest"|t }}) {% endif %}
 					</td>
 				</tr>
 				<tr>
@@ -113,8 +113,7 @@
 					{"label":"Discount","attribute":"discount","currency":"true"},
 					{"label":"Total","attribute":"total","currency":"true"},
 					{"label":"Quantity","attribute":"qty","currency":"false"},
-					{"label":"Note","attribute":"note","currency":"false"},
-					{"label":"onSale","attribute":"onsale","currency":"false"}
+					{"label":"Note","attribute":"note","currency":"false"}
 					]'{% endspaceless %}
 					data-id="{{lineItem.id}}"
 					data-description="{{ lineItem.description }}"
@@ -128,11 +127,14 @@
 					data-total="{{ lineItem.total|commerceCurrency }}"
 					data-qty="{{ lineItem.qty }}"
 					data-note="{{ lineItem.note }}"
-					data-onSale="{{ lineItem.onSale }}"
 					data-snapshot='{{ lineItem.snapshot|json_encode()}}'>
 					<td>
 						{% if lineItem.purchasableId and lineItem.purchasable %}
-							<a href="{{ lineItem.purchasable.cpEditUrl }}">{{ lineItem.description }} </a>
+							{% if lineItem.purchasable.cpEditUrl %}
+								<a href="{{ lineItem.purchasable.cpEditUrl }}">{{ lineItem.description }}</a>
+							{% else %}
+								{{ lineItem.description }}
+							{% endif %}
 						{% else %}
 							{{ lineItem.description }}
 						{% endif %}

@@ -131,14 +131,6 @@ class Commerce_OrdersService extends BaseApplicationComponent
      */
     public function saveOrder($order)
     {
-        if ($order->dateOrdered) {
-            //raising event
-            $event = new Event($this, [
-                'order' => $order
-            ]);
-            $this->onBeforeSaveOrder($event);
-        }
-
         if (!$order->id) {
             $orderRecord = new Commerce_OrderRecord();
         } else {
@@ -218,29 +210,36 @@ class Commerce_OrdersService extends BaseApplicationComponent
         try {
             if (!$order->hasErrors()) {
                 if (craft()->elements->saveElement($order)) {
-                    //creating order history record
-                    if ($orderRecord->id && $oldStatusId != $orderRecord->orderStatusId) {
-                        if (!craft()->commerce_orderHistories->createOrderHistoryFromOrder($order,
-                            $oldStatusId)
-                        ) {
-                            throw new Exception('Error saving order history');
-                        }
-                    }
 
-                    //saving order record
                     $orderRecord->id = $order->id;
+
+                    //raising event
+                    $event = new Event($this, [
+                        'order' => $order
+                    ]);
+                    $this->onBeforeSaveOrder($event);
+
                     $orderRecord->save(false);
+                    $order->id = $orderRecord->id;
 
                     craft()->commerce_customers->setLastUsedAddresses($orderRecord->billingAddressId,$orderRecord->shippingAddressId);
 
                     CommerceDbHelper::commitStackedTransaction();
 
                     //raising event
-                    if (!$order->dateOrdered) {
-                        $event = new Event($this, [
-                            'order' => $order
-                        ]);
-                        $this->onSaveOrder($event);
+                    $event = new Event($this, [
+                        'order' => $order
+                    ]);
+                    $this->onSaveOrder($event);
+
+                    //creating order history record
+                    if ($orderRecord->id && $oldStatusId != $orderRecord->orderStatusId) {
+                        if (!craft()->commerce_orderHistories->createOrderHistoryFromOrder($order,
+                            $oldStatusId)
+                        ) {
+                            CommercePlugin::log('Error saving order history after Order save.',LogLevel::Error);
+                            throw new Exception('Error saving order history');
+                        }
                     }
 
                     return true;
@@ -257,7 +256,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
     }
 
     /**
-     * Event: before saving incomplete order
+     * Event: before saving order
      * Event params: order(Commerce_OrderModel)
      *
      * @param \CEvent $event

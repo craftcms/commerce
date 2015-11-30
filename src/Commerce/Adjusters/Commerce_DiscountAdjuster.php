@@ -98,7 +98,7 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
                     $item->discount = -$item->getSubtotalWithSale();
                 }
 
-                if (!$item->purchasable->product->promotable) {
+                if (!$item->purchasable->getIsPromotable()) {
                     $item->discount = 0;
                 }
 
