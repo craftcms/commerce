@@ -87,11 +87,27 @@ class Commerce_AddressesService extends BaseApplicationComponent
         $addressModel->addErrors($addressRecord->getErrors());
 
         if (!$addressModel->hasErrors()) {
-            // Save it!
-            $addressRecord->save(false);
+
+            //raising event
+            $event = new Event($this, [
+                'address' => $addressModel
+            ]);
+            $this->onBeforeSaveAddress($event);
+
+            if ($event->performAction){
+                $addressRecord->save(false);
+            }else{
+                return false;
+            }
 
             // Now that we have a record ID, save it on the model
             $addressModel->id = $addressRecord->id;
+
+            //raising event
+            $event = new Event($this, [
+                'address' => $addressModel
+            ]);
+            $this->onSaveAddress($event);
 
             return true;
         } else {
@@ -108,4 +124,39 @@ class Commerce_AddressesService extends BaseApplicationComponent
     {
         return (bool)Commerce_AddressRecord::model()->deleteByPk($id);
     }
+
+    /**
+     * Event: before saving and address
+     * Event params: address(Commerce_AddressModel)
+     *
+     * @param \CEvent $event
+     *
+     * @throws \CException
+     */
+    public function onBeforeSaveAddress(\CEvent $event)
+    {
+        $params = $event->params;
+        if (empty($params['address']) || !($params['address'] instanceof Commerce_AddressModel)) {
+            throw new Exception('onBeforeSaveAddress event requires "address" param with Commerce_AddressModel instance');
+        }
+        $this->raiseEvent('onBeforeSaveAddress', $event);
+    }
+
+    /**
+     * Event: after saving an address.
+     * Event params: addres(Commerce_AddressModel)
+     *
+     * @param \CEvent $event
+     *
+     * @throws \CException
+     */
+    public function onSaveAddress(\CEvent $event)
+    {
+        $params = $event->params;
+        if (empty($params['address']) || !($params['address'] instanceof Commerce_AddressModel)) {
+            throw new Exception('onSaveAddress event requires "address" param with Commerce_AddressModel instance');
+        }
+        $this->raiseEvent('onSaveAddress', $event);
+    }
+
 }
