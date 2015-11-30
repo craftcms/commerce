@@ -55,7 +55,7 @@ class Commerce_TaxRateModel extends BaseModel
             'name' => AttributeType::String,
             'rate' => [AttributeType::Number, 'default' => .05, 'decimals' => 5],
             'include' => AttributeType::Bool,
-            'taxable' => AttributeType::String,
+            'taxable' => [AttributeType::String, 'default' => Commerce_TaxRateRecord::TAXABLE_PRICE],
             'showInLabel' => AttributeType::Bool,
             'taxCategoryId' => [AttributeType::Number, 'required' => true, 'label' => Craft::t('Tax Category')],
             'taxZoneId' => [AttributeType::Number, 'required' => true, 'label' => Craft::t('Tax Zone')]
