@@ -51,7 +51,7 @@ class Commerce_AddressModel extends BaseModel
      */
     public function getStateText()
     {
-        return $this->stateName ? ($this->stateId ? $this->state->name : '') : '';
+        return $this->stateName ? $this->stateName : ($this->stateId ? $this->getState()->name : '');
     }
 
     /**
@@ -60,6 +60,22 @@ class Commerce_AddressModel extends BaseModel
     public function getCountryText()
     {
         return $this->countryId ? craft()->commerce_countries->getCountryById($this->countryId)->name : '';
+    }
+
+    /*
+     * @return Commerce_StateModel|null
+     */
+    public function getState()
+    {
+        return craft()->commerce_states->getStateById($this->stateId);
+    }
+
+    /*
+     * @return Commerce_CountryModel|null
+     */
+    public function getCountry()
+    {
+        return craft()->commerce_countries->getCountryById($this->countryId);
     }
 
     /**
