@@ -113,8 +113,7 @@
 					{"label":"Discount","attribute":"discount","currency":"true"},
 					{"label":"Total","attribute":"total","currency":"true"},
 					{"label":"Quantity","attribute":"qty","currency":"false"},
-					{"label":"Note","attribute":"note","currency":"false"},
-					{"label":"onSale","attribute":"onsale","currency":"false"}
+					{"label":"Note","attribute":"note","currency":"false"}
 					]'{% endspaceless %}
 					data-id="{{lineItem.id}}"
 					data-description="{{ lineItem.description }}"
@@ -128,7 +127,6 @@
 					data-total="{{ lineItem.total|commerceCurrency }}"
 					data-qty="{{ lineItem.qty }}"
 					data-note="{{ lineItem.note }}"
-					data-onSale="{{ lineItem.onSale }}"
 					data-snapshot='{{ lineItem.snapshot|json_encode()}}'>
 					<td>
 						{% if lineItem.purchasableId and lineItem.purchasable %}
