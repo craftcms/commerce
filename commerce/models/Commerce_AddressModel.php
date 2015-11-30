@@ -59,7 +59,7 @@ class Commerce_AddressModel extends BaseModel
      */
     public function getCountryText()
     {
-        return $this->countryId ? craft()->commerce_countries->getCountryById($this->countryId)->name : '';
+        return $this->countryId ? $this->getCountry()->name : '';
     }
 
     /*
