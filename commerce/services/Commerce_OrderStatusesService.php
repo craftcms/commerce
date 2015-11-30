@@ -136,6 +136,14 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
     {
         $statuses = $this->getAllOrderStatuses();
 
+        $criteria = craft()->elements->getCriteria('Commerce_Order');
+        $criteria->orderStatusId = $id;
+        $order = $criteria->first();
+
+        if($order){
+            return false;
+        }
+
         if (count($statuses) >= 2) {
             Commerce_OrderStatusRecord::model()->deleteByPk($id);
 
