@@ -84,4 +84,9 @@ interface Purchasable
      */
     public function hasFreeShipping();
 
+    /**
+     * @return bool
+     */
+    public function getIsPromotable();
+
 }
