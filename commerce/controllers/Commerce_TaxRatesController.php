@@ -65,6 +65,12 @@ class Commerce_TaxRatesController extends Commerce_BaseAdminController
             $variables['taxCategories'][$model->id] = $model->name;
         }
 
+        $taxable = [];
+        $taxable[Commerce_TaxRateRecord::TAXABLE_PRICE] = Craft::t('Item cost');
+        $taxable[Commerce_TaxRateRecord::TAXABLE_SHIPPING] = Craft::t('Shipping cost');
+        $taxable[Commerce_TaxRateRecord::TAXABLE_PRICE_SHIPPING] = Craft::t('Both (item + shipping costs)');
+        $variables['taxables'] = $taxable;
+
         // Get the HTML and JS for the new tax zone/category modals
         craft()->templates->setNamespace('new');
 
@@ -103,6 +109,7 @@ class Commerce_TaxRatesController extends Commerce_BaseAdminController
         $taxRate->id = craft()->request->getPost('taxRateId');
         $taxRate->name = craft()->request->getPost('name');
         $taxRate->include = craft()->request->getPost('include');
+        $taxRate->taxable = craft()->request->getPost('taxable');
         $taxRate->showInLabel = craft()->request->getPost('showInLabel');
         $taxRate->taxCategoryId = craft()->request->getPost('taxCategoryId');
         $taxRate->taxZoneId = craft()->request->getPost('taxZoneId');

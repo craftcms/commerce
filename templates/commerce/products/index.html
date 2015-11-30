@@ -1,7 +1,7 @@
 {% extends 'commerce/_layouts/main' %}
 {% block main %}
 
-    {% for product in craft.commerce.products.search().find() %}
+    {% for product in craft.commerce.products.limit(5).find() %}
         <div class="row product">
             <div class="two columns">
                 {% if product.url %}
