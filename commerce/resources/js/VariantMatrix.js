@@ -94,7 +94,7 @@ Craft.Commerce.VariantMatrix = Garnish.Base.extend(
 			}
 
 			// Init the unlimited stock checkbox
-			this.initUnlimitedStockCheckbox($variant);
+			Craft.Commerce.initUnlimitedStockCheckbox($variant);
 
 			// If this is the first one, set it as the default in case no others are claiming to be
 			if (i == 0 && !this.defaultVariant)
@@ -193,7 +193,7 @@ Craft.Commerce.VariantMatrix = Garnish.Base.extend(
 			$variant.css('margin-bottom', '');
 			Garnish.$bod.append(footHtml);
 			Craft.initUiElements($fieldsContainer);
-			this.initUnlimitedStockCheckbox($variant);
+			Craft.Commerce.initUnlimitedStockCheckbox($variant);
 			new Variant(this, $variant);
 			this.variantSort.addItems($variant);
 			this.variantSelect.addItems($variant);
@@ -204,26 +204,6 @@ Craft.Commerce.VariantMatrix = Garnish.Base.extend(
 				Garnish.scrollContainerToElement($variant);
 			});
 		}, this));
-	},
-
-	initUnlimitedStockCheckbox: function($variant)
-	{
-		$variant.find('input.unlimited-stock:first').change($.proxy(this, 'handleUnlimitedStockCheckboxChange'));
-	},
-
-	handleUnlimitedStockCheckboxChange: function(ev)
-	{
-		var $checkbox = $(ev.currentTarget),
-			$text = $checkbox.prevAll('.text:first');
-
-		if ($checkbox.prop('checked'))
-		{
-			$text.prop('disabled', true).addClass('disabled').val('');
-		}
-		else
-		{
-			$text.prop('disabled', false).removeClass('disabled').focus();
-		}
 	},
 
 	collapseSelectedVariants: function()

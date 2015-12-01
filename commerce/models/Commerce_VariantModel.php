@@ -256,6 +256,10 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
      */
     public function validateLineItem(Commerce_LineItemModel $lineItem)
     {
+        if(!$lineItem->qty){
+            return;
+        }
+
         $order = craft()->commerce_orders->getOrderById($lineItem->orderId);
 
         if($order){
@@ -269,6 +273,10 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
                 }else{
                     $qty[$item->purchasableId] += $item->qty;
                 }
+            }
+
+            if(!isset($qty[$lineItem->purchasableId])){
+                $qty[$lineItem->purchasableId] = $lineItem->qty;
             }
 
             if (!$this->unlimitedStock && $qty[$lineItem->purchasableId] > $this->stock) {
