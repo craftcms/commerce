@@ -432,7 +432,7 @@ class Commerce_ProductsController extends Commerce_BaseCpController
         $variants = [];
         $count = 1;
 
-        if(empty($variantPost)){
+        if(empty($variantsPost)){
             $variantsPost = [];
         }
 
