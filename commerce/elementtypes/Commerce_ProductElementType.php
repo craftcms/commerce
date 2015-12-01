@@ -515,6 +515,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
             }
 
             $templatesService->setNamespace($namespace);
+            $templatesService->includeJs('Craft.Commerce.initUnlimitedStockCheckbox($(".elementeditor").find(".meta"));');
         }
 
         return $html;

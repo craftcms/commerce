@@ -61,6 +61,7 @@ class CommercePlugin extends BasePlugin
     {
         $templatesService = craft()->templates;
         $templatesService->includeCssResource('commerce/commerce.css');
+        $templatesService->includeJsResource('commerce/js/Commerce.js');
         $templatesService->includeJsResource('commerce/js/CommerceProductIndex.js');
         $templatesService->includeTranslations(
             'New {productType} product',
