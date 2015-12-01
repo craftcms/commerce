@@ -58,6 +58,8 @@ class Commerce_ProductsController extends Commerce_BaseCpController
 
         if ($variables['product']->getType()->hasVariants) {
             $variables['variantMatrixHtml'] = VariantMatrixHelper::getVariantMatrixHtml($variables['product']);
+        }else{
+            craft()->templates->includeJs('Craft.Commerce.initUnlimitedStockCheckbox($("#meta-pane"));');
         }
 
         // Enable Live Preview?
