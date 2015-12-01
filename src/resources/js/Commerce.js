@@ -11,7 +11,7 @@ Craft.Commerce.initUnlimitedStockCheckbox = function ($container){
 Craft.Commerce.handleUnlimitedStockCheckboxChange = function(ev)
 {
     var $checkbox = $(ev.currentTarget),
-        $text = $checkbox.parent().prevAll('.text:first');
+        $text = $checkbox.parent().prevAll('.textwrapper:first').children('.text:first');
 
     if ($checkbox.prop('checked'))
     {
