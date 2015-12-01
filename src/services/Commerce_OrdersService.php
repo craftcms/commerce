@@ -219,8 +219,12 @@ class Commerce_OrdersService extends BaseApplicationComponent
                     ]);
                     $this->onBeforeSaveOrder($event);
 
-                    $orderRecord->save(false);
-                    $order->id = $orderRecord->id;
+                    if($event->performAction){
+                        $orderRecord->save(false);
+                        $order->id = $orderRecord->id;
+                    }else{
+                        return false;
+                    }
 
                     craft()->commerce_customers->setLastUsedAddresses($orderRecord->billingAddressId,$orderRecord->shippingAddressId);
 
