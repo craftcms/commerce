@@ -60,8 +60,22 @@ class Commerce_CartService extends BaseApplicationComponent
 
         try {
             if(!$lineItem->hasErrors()){
+
+                //raising event
+                $event = new Event($this, [
+                    'lineItem' => $lineItem,
+                    'order' => $order,
+                ]);
+                $this->onBeforeAddToCart($event);
+
+                if(!$event->performAction){
+                    CommerceDbHelper::rollbackStackedTransaction();
+                    return false;
+                }
+
                 if (craft()->commerce_lineItems->saveLineItem($lineItem)) {
                     craft()->commerce_orders->saveOrder($order);
+
                     CommerceDbHelper::commitStackedTransaction();
 
                     //raising event
@@ -85,6 +99,27 @@ class Commerce_CartService extends BaseApplicationComponent
         $error = array_pop($errors);
 
         return false;
+    }
+
+    /**
+     * Before Event
+     * Event params: order(Commerce_OrderModel), lineItem (Commerce_LineItemModel)
+     *
+     * @param \CEvent $event
+     *
+     * @throws \CException
+     */
+    public function onBeforeAddToCart(\CEvent $event)
+    {
+        $params = $event->params;
+        if (empty($params['order']) || !($params['order'] instanceof Commerce_OrderModel)) {
+            throw new Exception('onAddToCart event requires "order" param with OrderModel instance');
+        }
+
+        if (empty($params['lineItem']) || !($params['lineItem'] instanceof Commerce_LineItemModel)) {
+            throw new Exception('onAddToCart event requires "lineItem" param with LineItemModel instance');
+        }
+        $this->raiseEvent('onBeforeAddToCart', $event);
     }
 
     /**
