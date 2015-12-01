@@ -91,6 +91,7 @@
 			<thead>
 			<tr>
 				<th scope="col">{{ 'Item'|t }}</th>
+				<th scope="col">{{ 'Note'|t }}</span></th>
 				<th scope="col">{{ 'Price'|t }}</span></th>
 				<th scope="col">{{ 'Quantity'|t }}</th>
 				<th scope="col">{{ 'Total'|t }}</th>
@@ -113,7 +114,8 @@
 					{"label":"Discount","attribute":"discount","currency":"true"},
 					{"label":"Total","attribute":"total","currency":"true"},
 					{"label":"Quantity","attribute":"qty","currency":"false"},
-					{"label":"Note","attribute":"note","currency":"false"}
+					{"label":"Note","attribute":"note","currency":"false"
+					{"label":"Options","attribute":"note","currency":"false"}
 					]'{% endspaceless %}
 					data-id="{{lineItem.id}}"
 					data-description="{{ lineItem.description }}"
@@ -126,8 +128,7 @@
 					data-discount="{{ lineItem.discount|currency(order.currency) }}"
 					data-total="{{ lineItem.total|currency(order.currency) }}"
 					data-qty="{{ lineItem.qty }}"
-					data-note="{{ lineItem.note }}"
-					data-snapshot='{{ lineItem.snapshot|json_encode()}}'>
+					data-note="{{ lineItem.note }}">
 					<td>
 						{% if lineItem.purchasableId and lineItem.purchasable %}
 							{% if lineItem.purchasable.cpEditUrl %}
@@ -139,8 +140,17 @@
 							{{ lineItem.description }}
 						{% endif %}
 						<br>{{ lineItem.sku }}
-						{% if lineItem.note %}<br>{{ "Note" }}:<code>{{ lineItem.note|raw|nl2br }}</code>{% endif %}
-						{% if lineItem.options|length %}<br>{{ "Options" }}:<code>{{ lineItem.options|json_encode()|raw }}</code>{% endif %}
+						{% if lineItem.options|length %}
+						<a class="fieldtoggle first last" data-target="info-{{ lineItem.id}}">{{ "Options" }}</a>
+						<span id="info-{{ lineItem.id}}" class="hidden">
+							{% for key, option in lineItem.options %}
+								{{ key|t }}: {% if option is iterable %}<code>{{ option|json_encode()|raw }}</code>{% else %}{{ option }}{% endif %}<br>
+							{% endfor %}
+						</span>
+						{% endif %}
+					</td>
+					<td>
+					{% if lineItem.note %}{{ lineItem.note|raw|nl2br }}{% endif %}
 					</td>
 					<td>
 						{{ lineItem.salePrice|currency(order.currency) }}
@@ -163,6 +173,7 @@
 				<td></td>
 				<td></td>
 				<td></td>
+				<td></td>
 			</tr>
 			{% endfor %}
 			<tr>
@@ -173,6 +184,7 @@
 					<div class="paidLogo"><span>{{ 'PAID'|t }}</div>
 				{% endif %}
 				</td>
+				<td></td>
 				<td><strong>{{ "Items Total" }}</strong></td>
 				<td>
 					<span class="right">{{ order.itemTotal|currency(order.currency) }}</span>
@@ -180,6 +192,7 @@
 				<td></td>
 			</tr>
 			<tr>
+				<td></td>
 				<td></td>
 				<td></td>
 				<td></td>
