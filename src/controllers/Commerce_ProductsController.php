@@ -58,6 +58,8 @@ class Commerce_ProductsController extends Commerce_BaseCpController
 
         if ($variables['product']->getType()->hasVariants) {
             $variables['variantMatrixHtml'] = VariantMatrixHelper::getVariantMatrixHtml($variables['product']);
+        }else{
+            craft()->templates->includeJs('Craft.Commerce.initUnlimitedStockCheckbox($("#meta-pane"));');
         }
 
         // Enable Live Preview?
@@ -429,6 +431,11 @@ class Commerce_ProductsController extends Commerce_BaseCpController
         $variantsPost = craft()->request->getPost('variants');
         $variants = [];
         $count = 1;
+
+        if(empty($variantsPost)){
+            $variantsPost = [];
+        }
+
         foreach ($variantsPost as $key => $variant) {
             if (strncmp($key, 'new', 3) !== 0) {
                 $variantModel = craft()->commerce_variants->getVariantById($key,$product->locale);

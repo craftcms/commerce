@@ -515,6 +515,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
             }
 
             $templatesService->setNamespace($namespace);
+            $templatesService->includeJs('Craft.Commerce.initUnlimitedStockCheckbox($(".elementeditor").find(".meta"));');
         }
 
         return $html;
@@ -562,6 +563,11 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
         $variantsPost = $params['variants'];
         $variants = [];
         $count = 1;
+
+        if(empty($variantsPost)){
+            $variantsPost = [];
+        }
+
         foreach ($variantsPost as $key => $variant) {
             if (strncmp($key, 'new', 3) !== 0) {
                 $variantModel = craft()->commerce_variants->getVariantById($key,$product->locale);
