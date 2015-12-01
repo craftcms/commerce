@@ -213,11 +213,11 @@ class Commerce_VariantsService extends BaseApplicationComponent
         $record->productId = $model->productId;
         $record->sku = $model->sku;
 
-        $record->price = $model->price;
-        $record->width = $model->width;
-        $record->height = $model->height;
-        $record->length = $model->length;
-        $record->weight = $model->weight;
+        $record->price = LocalizationHelper::normalizeNumber($model->price);
+        $record->width = LocalizationHelper::normalizeNumber($model->width);
+        $record->height = LocalizationHelper::normalizeNumber($model->height);
+        $record->length = LocalizationHelper::normalizeNumber($model->length);
+        $record->weight = LocalizationHelper::normalizeNumber($model->weight);
         $record->minQty = $model->minQty;
         $record->maxQty = $model->maxQty;
         $record->stock = $model->stock;
