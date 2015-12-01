@@ -214,7 +214,7 @@ Craft.Commerce.VariantMatrix = Garnish.Base.extend(
 	handleUnlimitedStockCheckboxChange: function(ev)
 	{
 		var $checkbox = $(ev.currentTarget),
-			$text = $checkbox.prevAll('.text:first');
+			$text = $checkbox.parent().prevAll('.text:first');
 
 		if ($checkbox.prop('checked'))
 		{
