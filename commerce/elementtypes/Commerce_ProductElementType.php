@@ -564,7 +564,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
         $variants = [];
         $count = 1;
 
-        if(empty($variantPost)){
+        if(empty($variantsPost)){
             $variantsPost = [];
         }
 
