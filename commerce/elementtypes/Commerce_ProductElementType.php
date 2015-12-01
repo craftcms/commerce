@@ -563,6 +563,11 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
         $variantsPost = $params['variants'];
         $variants = [];
         $count = 1;
+
+        if(empty($variantPost)){
+            $variantsPost = [];
+        }
+
         foreach ($variantsPost as $key => $variant) {
             if (strncmp($key, 'new', 3) !== 0) {
                 $variantModel = craft()->commerce_variants->getVariantById($key,$product->locale);

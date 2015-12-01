@@ -431,6 +431,11 @@ class Commerce_ProductsController extends Commerce_BaseCpController
         $variantsPost = craft()->request->getPost('variants');
         $variants = [];
         $count = 1;
+
+        if(empty($variantPost)){
+            $variantsPost = [];
+        }
+
         foreach ($variantsPost as $key => $variant) {
             if (strncmp($key, 'new', 3) !== 0) {
                 $variantModel = craft()->commerce_variants->getVariantById($key,$product->locale);
