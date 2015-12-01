@@ -46,11 +46,11 @@
 					{% endif %}
 				<tr>
 					<td><strong>{{ "Total"|t }}</strong></td>
-					<td>{{ order.totalPrice|commerceCurrency }}</td>
+					<td>{{ order.totalPrice|currency(order.currency) }}</td>
 				</tr>
 				<tr>
 					<td><strong>{{ "Paid"|t }} </strong></td>
-					<td>{{ order.totalPaid|commerceCurrency }} {{ order.datePaid|date('D dS M Y') }}</td>
+					<td>{{ order.totalPaid|currency(order.currency) }} {{ order.datePaid|date('D dS M Y') }}</td>
 				</tr>
 			</table>
 		</div>
@@ -118,13 +118,13 @@
 					data-id="{{lineItem.id}}"
 					data-description="{{ lineItem.description }}"
 					data-taxcategory="{{ lineItem.taxCategory.name }}"
-					data-price="{{ lineItem.price|commerceCurrency }}"
-					data-saleamount="{{ lineItem.saleAmount|commerceCurrency }}"
-					data-saleprice="{{ lineItem.salePrice|commerceCurrency }}"
-					data-tax="{{ lineItem.tax|commerceCurrency }}"
-					data-shippingcost="{{ lineItem.shippingCost|commerceCurrency }}"
-					data-discount="{{ lineItem.discount|commerceCurrency }}"
-					data-total="{{ lineItem.total|commerceCurrency }}"
+					data-price="{{ lineItem.price|currency(order.currency) }}"
+					data-saleamount="{{ lineItem.saleAmount|currency(order.currency) }}"
+					data-saleprice="{{ lineItem.salePrice|currency(order.currency) }}"
+					data-tax="{{ lineItem.tax|currency(order.currency) }}"
+					data-shippingcost="{{ lineItem.shippingCost|currency(order.currency) }}"
+					data-discount="{{ lineItem.discount|currency(order.currency) }}"
+					data-total="{{ lineItem.total|currency(order.currency) }}"
 					data-qty="{{ lineItem.qty }}"
 					data-note="{{ lineItem.note }}"
 					data-snapshot='{{ lineItem.snapshot|json_encode()}}'>
@@ -143,12 +143,12 @@
 						{% if lineItem.options|length %}<br>{{ "Options" }}:<code>{{ lineItem.options|json_encode()|raw }}</code>{% endif %}
 					</td>
 					<td>
-						{{ lineItem.salePrice|commerceCurrency }}
+						{{ lineItem.salePrice|currency(order.currency) }}
 					</td>
 					<td>{{ lineItem.qty }}</td>
 					<td></td>
 					<td>
-						<span class="right">{{ lineItem.total|commerceCurrency }}</span>
+						<span class="right">{{ lineItem.total|currency(order.currency) }}</span>
 					</td>
 					<td>
 						<span class="tableRowInfo" data-icon="info" href="#"></span>
@@ -158,7 +158,7 @@
 			{% for adjustment in order.adjustments %}
 			<tr>
 				<td><strong>{{ adjustment.type|title|t }} {{ "Adjustment"|t }}</strong><br>{{ adjustment.name|title }} <span class="info"><strong>{{ adjustment.type|title|t }} {{ "Adjustment"|t }}</strong><br> {{ adjustment.description }}</span></td>
-				<td>{{ adjustment.amount|commerceCurrency }}</td>
+				<td>{{ adjustment.amount|currency(order.currency) }}</td>
 				<td></td>
 				<td></td>
 				<td></td>
@@ -175,7 +175,7 @@
 				</td>
 				<td><strong>{{ "Items Total" }}</strong></td>
 				<td>
-					<span class="right">{{ order.itemTotal|commerceCurrency }}</span>
+					<span class="right">{{ order.itemTotal|currency(order.currency) }}</span>
 				</td>
 				<td></td>
 			</tr>
@@ -185,7 +185,7 @@
 				<td></td>
 				<td><strong>{{ "Base Shipping Cost"|t }}</strong></td>
 				<td>
-					<span class="right">{{ order.baseShippingCost|commerceCurrency }}</span>
+					<span class="right">{{ order.baseShippingCost|currency(order.currency) }}</span>
 				</td>
 				<td></td>
 			</tr>
@@ -195,7 +195,7 @@
 				<td></td>
 				<td><strong>{{ "Base Discount"|t }}</strong></td>
 				<td>
-					<span class="right">{{ order.baseDiscount|commerceCurrency }}</span>
+					<span class="right">{{ order.baseDiscount|currency(order.currency) }}</span>
 				</td>
 				<td></td>
 			</tr>
@@ -205,7 +205,7 @@
 				<td></td>
 				<td><h2>{{ "Total Price"|t }}</h2></td>
 				<td>
-					<h2 class="right">{{ order.totalPrice|commerceCurrency }}</h2>
+					<h2 class="right">{{ order.totalPrice|currency(order.currency) }}</h2>
 				</td>
 				<td></td>
 			</tr>
@@ -350,7 +350,7 @@
 					<td>{{ transaction.type|title }}</td>
 					<td>{{ transaction.status|title }}</td>
 					<td>{{ transaction.message|title }}</td>
-					<td>{{ transaction.amount|commerceCurrency }}</td>
+					<td>{{ transaction.amount|currency(order.currency) }}</td>
 					<td>{{ transaction.paymentMethod.name }}</td>
 					<td><span class="tableRowInfo" data-icon="info" href="#"></span></td>
 					<td>

@@ -56,7 +56,7 @@ class Commerce_PurchasablesService extends BaseApplicationComponent
         try {
             if ($success = craft()->elements->saveElement($model)) {
                 $id = $model->getPurchasableId();
-                $price = $model->getPrice();
+                $price = LocalizationHelper::normalizeNumber($model->getPrice());
                 $sku = $model->getSku();
 
                 $purchasable = Commerce_PurchasableRecord::model()->findById($id);

@@ -19,7 +19,7 @@
                         <select name="purchasableId">
                             {% for purchasable in product.variants %}
                                 <option {% if purchasable.stock <= 0 and purchasable.unlimitedStock == false %}disabled {% endif %}
-                                        value="{{ purchasable.purchasableId }}">{{ purchasable.sku }} {{ purchasable.description }} {{ purchasable.price|commerceCurrency }}</option>
+                                        value="{{ purchasable.purchasableId }}">{{ purchasable.sku }} {{ purchasable.description }} {{ purchasable.price|currency(cart.currency) }}</option>
                             {% endfor %}
                         </select>
                         <input type="submit" value="{{ "Add to cart"|t }}" class="button"/>
