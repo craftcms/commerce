@@ -116,13 +116,15 @@
 
 	{% set stockInput %}
 		<div class="flex">
-			{{ forms.text({
-				id: 'stock',
-				name: 'stock',
-				value: (variant.unlimitedStock ? '' : (variant.stock == '0' ? '0': (variant.stock ? variant.stock : ''))),
-				placeholder: 'Enter stock'|t,
-				disabled: variant.unlimitedStock
-			}) }}
+			<div class="textwrapper">
+				{{ forms.text({
+					id: 'stock',
+					name: 'stock',
+					value: (variant.unlimitedStock ? '' : (variant.stock == '0' ? '0': (variant.stock ? variant.stock : ''))),
+					placeholder: 'Enter stock'|t,
+					disabled: variant.unlimitedStock
+				}) }}
+			</div>
 			<div class="nowrap">
 				{{ forms.checkbox({
 					id: 'unlimited-stock',
@@ -143,21 +145,25 @@
 
 	{% set quantityRangeInput %}
 		<div class="flex">
-			{{ forms.text({
-				id: 'minQty',
-				name: 'minQty',
-				value: variant.minQty,
-				placeholder: 'Any'|t,
-				title: 'Minimum allowed quantity'|t
-			}) }}
-			<span class="label light">{{ 'to'|t }}</span>
-			{{ forms.text({
-				id: 'maxQty',
-				name: 'maxQty',
-				value: variant.maxQty,
-				placeholder: 'Any'|t,
-				title: 'Maximum allowed quantity'|t
-			}) }}
+			<div class="textwrapper">
+				{{ forms.text({
+					id: 'minQty',
+					name: 'minQty',
+					value: variant.minQty,
+					placeholder: 'Any'|t,
+					title: 'Minimum allowed quantity'|t
+				}) }}
+			</div>
+			<div class="label light">{{ 'to'|t }}</div>
+			<div class="textwrapper">
+				{{ forms.text({
+					id: 'maxQty',
+					name: 'maxQty',
+					value: variant.maxQty,
+					placeholder: 'Any'|t,
+					title: 'Maximum allowed quantity'|t
+				}) }}
+			</div>
 		</div>
 	{% endset %}
 
@@ -174,36 +180,42 @@
 
 	{% set dimensionsInput %}
 		<div class="flex">
-			{{ forms.text({
-				id: 'length',
-				name: 'length',
-				value: (variant.length|commerceDecimal ?: ''),
-				placeholder: 'Length'|t|upper[0:1],
-				title: 'Length'|t,
-				unit: craft.commerce.settings.dimensionUnits,
-				errors: variant.getErrors('length')
-			}) }}
-			<span class="label light">/</span>
-			{{ forms.text({
-				id: 'width',
-				name: 'width',
-				value: (variant.width|commerceDecimal ?: ''),
-				placeholder: 'Width'|t|upper[0:1],
-				title: 'Width'|t,
-				unit: craft.commerce.settings.dimensionUnits,
-				errors: variant.getErrors('width')
-			}) }}
-			<span class="label light">/</span>
-			{{ forms.text({
-				id: 'height',
-				name: 'height',
-				value: (variant.height|commerceDecimal ?: ''),
-				placeholder: 'Height'|t|upper[0:1],
-				title: 'Height'|t,
-				unit: craft.commerce.settings.dimensionUnits,
-				errors: variant.getErrors('height')
-			}) }}
-			<span class="label light">{{ craft.commerce.settings.dimensionUnits }}</span>
+			<div class="textwrapper">
+				{{ forms.text({
+					id: 'length',
+					name: 'length',
+					value: (variant.length|commerceDecimal ?: ''),
+					placeholder: 'Length'|t|upper[0:1],
+					title: 'Length'|t,
+					unit: craft.commerce.settings.dimensionUnits,
+					errors: variant.getErrors('length')
+				}) }}
+			</div>
+			<div class="label light">/</div>
+			<div class="textwrapper">
+				{{ forms.text({
+					id: 'width',
+					name: 'width',
+					value: (variant.width|commerceDecimal ?: ''),
+					placeholder: 'Width'|t|upper[0:1],
+					title: 'Width'|t,
+					unit: craft.commerce.settings.dimensionUnits,
+					errors: variant.getErrors('width')
+				}) }}
+			</div>
+			<div class="label light">/</div>
+			<div class="textwrapper">
+				{{ forms.text({
+					id: 'height',
+					name: 'height',
+					value: (variant.height|commerceDecimal ?: ''),
+					placeholder: 'Height'|t|upper[0:1],
+					title: 'Height'|t,
+					unit: craft.commerce.settings.dimensionUnits,
+					errors: variant.getErrors('height')
+				}) }}
+			</div>
+			<div class="label light">{{ craft.commerce.settings.dimensionUnits }}</div>
 		</div>
 	{% endset %}
 
