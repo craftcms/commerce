@@ -96,6 +96,9 @@ class Commerce_PaymentsService extends BaseApplicationComponent
             if ($transaction->status == Commerce_TransactionRecord::STATUS_SUCCESS) {
                 craft()->commerce_orders->updateOrderPaidTotal($cart);
             }
+            if($transaction->status == Commerce_TransactionRecord::STATUS_FAILED){
+                $customError = $transaction->message;
+            }
         } catch (\Exception $e) {
             $customError = $e->getMessage();
 
