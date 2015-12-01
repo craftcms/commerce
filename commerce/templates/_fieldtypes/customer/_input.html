@@ -20,7 +20,7 @@
             <tr>
                 <td>{{ order.link }}</td>
                 <td>{{ order.dateOrdered|date }}</td>
-                <td>{{ order.totalPaid|commerceCurrency }}</td>
+                <td>{{ order.totalPaid|currency(order.currency) }}</td>
                 <td>{{ order.orderStatus.htmlLabel|raw }}</td>
             </tr>
         {% endfor %}

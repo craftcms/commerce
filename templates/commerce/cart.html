@@ -48,21 +48,21 @@
                         </td>
                         <td class="text-right">
                             {% if item.onSale %}
-                                <s>Price: {{ item.price|commerceCurrency }}</s><br>
-                                Sale Off: {{ item.saleAmount|commerceCurrency }}<br>
-                                Sale Price {{ item.salePrice|commerceCurrency }}<br>
-                                Sale Price Subtotal: {{ item.subtotalWithSale|commerceCurrency }}<br>
+                                <s>Price: {{ item.price|currency(cart.currency) }}</s><br>
+                                Sale Off: {{ item.saleAmount|currency(cart.currency) }}<br>
+                                Sale Price {{ item.salePrice|currency(cart.currency) }}<br>
+                                Sale Price Subtotal: {{ item.subtotalWithSale|currency(cart.currency) }}<br>
                             {% else %}
-                                Price: {{ item.price|commerceCurrency }}<br>
-                                Sale Price {{ item.salePrice|commerceCurrency }}<br>
-                                Sale Price Subtotal: {{ item.subtotalWithSale|commerceCurrency }}<br>
+                                Price: {{ item.price|currency(cart.currency) }}<br>
+                                Sale Price {{ item.salePrice|currency(cart.currency) }}<br>
+                                Sale Price Subtotal: {{ item.subtotalWithSale|currency(cart.currency) }}<br>
                             {% endif %}
 
-                            Discount: {{ item.discount|commerceCurrency }}<br>
-                            Taxes: {{ item.tax|commerceCurrency }}<br>
-                            Taxes (Inc): {{ item.taxIncluded|commerceCurrency }}<br>
-                            Shipping: {{ item.shippingCost|commerceCurrency }}<br>
-                            Total: {{ item.total|commerceCurrency }}<br>
+                            Discount: {{ item.discount|currency(cart.currency) }}<br>
+                            Taxes: {{ item.tax|currency(cart.currency) }}<br>
+                            Taxes (Inc): {{ item.taxIncluded|currency(cart.currency) }}<br>
+                            Shipping: {{ item.shippingCost|currency(cart.currency) }}<br>
+                            Total: {{ item.total|currency(cart.currency) }}<br>
                         </td>
                     </tr>
                 {% endfor %}
@@ -72,7 +72,7 @@
                         <td>{{ adjustment.type }}
                         </td>
                         <td><strong>{{ adjustment.name }}</strong><br>({{ adjustment.description }})</td>
-                        <td class="text-right">{{ adjustment.amount|commerceCurrency }}</td>
+                        <td class="text-right">{{ adjustment.amount|currency(cart.currency) }}</td>
                     </tr>
                 {% endfor %}
 
@@ -101,14 +101,14 @@
                     <td>
                     </td>
                     <td class="text-right">
-                        Total Discount: {{ cart.totalDiscount|commerceCurrency }}<br>
-                        Total Shipping: {{ cart.totalShippingCost|commerceCurrency }}<br>
-                        Total Tax: {{ cart.totalTax|commerceCurrency }}<br>
-                        Total Tax (inc): {{ cart.totalTaxIncluded|commerceCurrency }}<br>
-                        Item Total: {{ cart.itemTotal|commerceCurrency }}<br>
-                        Base Discount: {{ cart.baseDiscount|commerceCurrency }}<br>
-                        Base Shipping Cost: {{ cart.baseShippingCost|commerceCurrency }}<br>
-                        <h4>Total Price: {{ cart.totalPrice|commerceCurrency }}</h4>
+                        Total Discount: {{ cart.totalDiscount|currency(cart.currency) }}<br>
+                        Total Shipping: {{ cart.totalShippingCost|currency(cart.currency) }}<br>
+                        Total Tax: {{ cart.totalTax|currency(cart.currency) }}<br>
+                        Total Tax (inc): {{ cart.totalTaxIncluded|currency(cart.currency) }}<br>
+                        Item Total: {{ cart.itemTotal|currency(cart.currency) }}<br>
+                        Base Discount: {{ cart.baseDiscount|currency(cart.currency) }}<br>
+                        Base Shipping Cost: {{ cart.baseShippingCost|currency(cart.currency) }}<br>
+                        <h4>Total Price: {{ cart.totalPrice|currency(cart.currency) }}</h4>
                     </td>
                 </tr>
 

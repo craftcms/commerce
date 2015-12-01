@@ -7,12 +7,12 @@
 
     <ul>
         <li>
-            <strong>Products:</strong> {{ cart.itemTotal|commerceCurrency }}
+            <strong>Products:</strong> {{ cart.itemTotal|currency(cart.currency) }}
         </li>
 
         {% for adjustment in cart.adjustments %}
             <li>
-                <strong>{{ adjustment.name }}: </strong> {{ adjustment.amount|commerceCurrency }} ({{ adjustment.description }})
+                <strong>{{ adjustment.name }}: </strong> {{ adjustment.amount|currency(cart.currency) }} ({{ adjustment.description }})
             </li>
         {% endfor %}
 
@@ -30,7 +30,7 @@
         {% endif %}
 
         <li>
-            <strong>Total:</strong> {{ cart.totalPrice|commerceCurrency }}
+            <strong>Total:</strong> {{ cart.totalPrice|currency(cart.currency) }}
         </li>
     </ul>
 

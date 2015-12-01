@@ -107,7 +107,7 @@
 		id: 'price',
 		label: 'Price'|t,
 		name: 'price',
-		value: (variant.price == '0' ? '0'|commerceDecimal : (variant.price ? variant.price|commerceDecimal ?: '')),
+		value: (variant.price == '0' ? '0'|number : (variant.price ? variant.price|number ?: '')),
 		placeholder: 'Enter price'|t,
 		unit: craft.commerce.settings.defaultCurrency,
 		required: true,
@@ -177,7 +177,7 @@
 			{{ forms.text({
 				id: 'length',
 				name: 'length',
-				value: (variant.length|commerceDecimal ?: ''),
+				value: (variant.length|number ?: ''),
 				placeholder: 'Length'|t|upper[0:1],
 				title: 'Length'|t,
 				unit: craft.commerce.settings.dimensionUnits,
@@ -187,7 +187,7 @@
 			{{ forms.text({
 				id: 'width',
 				name: 'width',
-				value: (variant.width|commerceDecimal ?: ''),
+				value: (variant.width|number ?: ''),
 				placeholder: 'Width'|t|upper[0:1],
 				title: 'Width'|t,
 				unit: craft.commerce.settings.dimensionUnits,
@@ -197,7 +197,7 @@
 			{{ forms.text({
 				id: 'height',
 				name: 'height',
-				value: (variant.height|commerceDecimal ?: ''),
+				value: (variant.height|number ?: ''),
 				placeholder: 'Height'|t|upper[0:1],
 				title: 'Height'|t,
 				unit: craft.commerce.settings.dimensionUnits,
@@ -216,7 +216,7 @@
 		id: 'weight',
 		label: 'Weight'|t,
 		name: 'weight',
-		value: (variant.weight|commerceDecimal ?: ''),
+		value: (variant.weight|number ?: ''),
 		placeholder: 'Enter weight'|t,
 		unit: craft.commerce.settings.weightUnits,
 		errors: variant.getErrors('weight')
