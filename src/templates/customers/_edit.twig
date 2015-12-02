@@ -51,8 +51,6 @@
             <th scope="col" class="header">{{ 'Last Name'|t }}</th>
             <th scope="col" class="header">{{ 'Country'|t }}</th>
             <th scope="col" class="header">{{ 'State'|t }}</th>
-            <th class="thin"></th>
-            <th class="thin"></th>
         </tr>
         </thead>
         <tbody>
@@ -63,8 +61,6 @@
                 <td>{{ address.lastName }}</td>
                 <td>{{ address.country.name }}</td>
                 <td>{{ address.stateText }}</td>
-                <td class="thin"><a href="{{ address.getCpEditUrl() }}">{{ 'Edit'|t }}</a></td>
-                <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
             </tr>
         {% endfor %}
         </tbody>
