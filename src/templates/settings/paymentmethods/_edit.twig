@@ -38,6 +38,7 @@
     {{ forms.selectField({
         first: true,
         label: 'Gateway'|t,
+        warning: (paymentMethod.class ? "Changing this value may affect you ability to refund existing transactions."|t),
         id: 'class',
         name: 'class',
         options : gatewaysList,

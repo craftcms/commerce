@@ -67,7 +67,10 @@ class Commerce_PaymentMethodModel extends BaseModel
      */
     public function requiresCard()
     {
-        return $this->getGatewayAdapter()->requiresCreditCard();
+        if($gateway = $this->getGatewayAdapter()){
+            return $gateway->requiresCreditCard();
+        }
+
     }
 
     /**
@@ -77,8 +80,10 @@ class Commerce_PaymentMethodModel extends BaseModel
     {
         $gateways = craft()->commerce_gateways->getAllGateways();
         if (!empty($this->class) && !$this->_gatewayAdapter) {
-            $this->_gatewayAdapter = $gateways[$this->class];
-            $this->_gatewayAdapter->setAttributes($this->settings);
+            if(array_key_exists($this->class,$gateways)){
+                $this->_gatewayAdapter = $gateways[$this->class];
+                $this->_gatewayAdapter->setAttributes($this->settings);
+            }
         }
 
         return $this->_gatewayAdapter;
@@ -101,7 +106,9 @@ class Commerce_PaymentMethodModel extends BaseModel
      */
     public function supportsCard()
     {
-        return $this->getGatewayAdapter()->requiresCreditCard();
+        if($gateway = $this->getGatewayAdapter()){
+            return $gateway->requiresCreditCard();
+        }
     }
 
     /**
