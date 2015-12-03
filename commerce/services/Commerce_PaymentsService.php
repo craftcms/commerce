@@ -46,7 +46,12 @@ class Commerce_PaymentsService extends BaseApplicationComponent
         // Cart could have zero totalPrice and already considered 'paid'. Free carts complete immediately.
         if ($cart->isPaid()) {
             craft()->commerce_orders->completeOrder($cart);
-            craft()->request->redirect($cart->returnUrl);
+
+            if ($cart->returnUrl) {
+                craft()->request->redirect($cart->returnUrl);
+            }
+
+            return true;
         }
 
         // Validate card if no token provided
