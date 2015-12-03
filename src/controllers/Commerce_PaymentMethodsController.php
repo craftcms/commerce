@@ -56,7 +56,7 @@ class Commerce_PaymentMethodsController extends Commerce_BaseAdminController
         if ($variables['paymentMethod']->id) {
             $variables['title'] = $variables['paymentMethod']->name;
         } else {
-            $variables['title'] = 'Create a new payment method';
+            $variables['title'] = Craft::t('Create a new payment method');
         }
         $this->renderTemplate('commerce/settings/paymentmethods/_edit', $variables);
     }

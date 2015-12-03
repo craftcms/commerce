@@ -62,9 +62,9 @@ class Commerce_SettingsModel extends BaseModel
     public function getWeightUnitsOptions()
     {
         return [
-            'g' => 'Grams (g)',
-            'kg' => 'Kilograms (kg)',
-            'lb' => 'Pounds (lb)',
+            'g' => Craft::t('Grams (g)'),
+            'kg' => Craft::t('Kilograms (kg)'),
+            'lb' => Craft::t('Pounds (lb)')
         ];
     }
 
@@ -74,11 +74,11 @@ class Commerce_SettingsModel extends BaseModel
     public function getDimensionUnits()
     {
         return [
-            'mm' => 'Millimeters (mm)',
-            'cm' => 'Centimeters (cm)',
-            'm' => 'Metres (m)',
-            'ft' => 'Feet (ft)',
-            'in' => 'Inches (in)',
+            'mm' => Craft::t('Millimeters (mm)'),
+            'cm' => Craft::t('Centimeters (cm)'),
+            'm' => Craft::t('Metres (m)'),
+            'ft' => Craft::t('Feet (ft)'),
+            'in' => Craft::t('Inches (in)'),
         ];
     }
 
