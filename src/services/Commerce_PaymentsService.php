@@ -96,7 +96,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
             if ($transaction->status == Commerce_TransactionRecord::STATUS_SUCCESS) {
                 craft()->commerce_orders->updateOrderPaidTotal($cart);
             }
-            if($transaction->status == Commerce_TransactionRecord::STATUS_FAILED){
+            if ($transaction->status == Commerce_TransactionRecord::STATUS_FAILED) {
                 $customError = $transaction->message;
             }
         } catch (\Exception $e) {
@@ -113,190 +113,16 @@ class Commerce_PaymentsService extends BaseApplicationComponent
     }
 
     /**
-     * Send a payment request to the gateway, and redirect appropriately
-     *
-     * @param AbstractRequest $request
-     * @param Commerce_TransactionModel $transaction
-     *
-     * @return string
-     */
-    private function sendPaymentRequest(
-        AbstractRequest $request,
-        Commerce_TransactionModel $transaction
-    )
-    {
-        try {
-            /** @var ResponseInterface $response */
-            $response = $request->send();
-            $this->updateTransaction($transaction, $response);
-
-            if ($response->isRedirect()) {
-                // redirect to off-site gateway
-                return $response->redirect();
-            }
-        } catch (\Exception $e) {
-            $transaction->status = Commerce_TransactionRecord::STATUS_FAILED;
-            $transaction->message = $e->getMessage();
-            $this->saveTransaction($transaction);
-        }
-        $order = $transaction->order;
-
-        if ($transaction->status == Commerce_TransactionRecord::STATUS_SUCCESS) {
-            return $order->returnUrl;
-        } else {
-            craft()->userSession->setError(Craft::t('Payment error: {message}', ['message' => $transaction->message]));
-
-            return $order->cancelUrl;
-        }
-    }
-
-    /**
-     * @param Commerce_TransactionModel $transaction
-     *
-     * @return Commerce_TransactionModel
-     */
-    public function captureTransaction(Commerce_TransactionModel $transaction)
-    {
-        return $this->processCaptureOrRefund($transaction,
-            Commerce_TransactionRecord::TYPE_CAPTURE);
-    }
-
-    /**
-     * @param Commerce_TransactionModel $transaction
-     *
-     * @return Commerce_TransactionModel
-     */
-    public function refundTransaction(Commerce_TransactionModel $transaction)
-    {
-        return $this->processCaptureOrRefund($transaction,
-            Commerce_TransactionRecord::TYPE_REFUND);
-    }
-
-    /**
-     * @param Commerce_TransactionModel $parent
-     * @param string $action
-     *
-     * @return Commerce_TransactionModel
-     * @throws Exception
-     */
-    private function processCaptureOrRefund(
-        Commerce_TransactionModel $parent,
-        $action
-    )
-    {
-        if (!in_array($action, [
-            Commerce_TransactionRecord::TYPE_CAPTURE,
-            Commerce_TransactionRecord::TYPE_REFUND
-        ])
-        ) {
-            throw new Exception('Wrong action: ' . $action);
-        }
-
-        $order = $parent->order;
-        $child = craft()->commerce_transactions->createTransaction($order);
-        $child->parentId = $parent->id;
-        $child->paymentMethodId = $parent->paymentMethodId;
-        $child->type = $action;
-        $child->amount = $parent->amount;
-        $this->saveTransaction($child);
-
-        $gateway = $parent->paymentMethod->getGatewayAdapter()->getGateway();
-        $request = $gateway->$action($this->buildPaymentRequest($child));
-        $request->setTransactionReference($parent->reference);
-
-        $order->returnUrl = $order->getCpEditUrl();
-        craft()->commerce_orders->saveOrder($order);
-
-        try {
-            $response = $request->send();
-            $this->updateTransaction($child, $response);
-        } catch (\Exception $e) {
-            $child->status = Commerce_TransactionRecord::STATUS_FAILED;
-            $child->message = $e->getMessage();
-
-            $this->saveTransaction($child);
-        }
-
-        return $child;
-    }
-
-    /**
-     * Process return from off-site payment
-     *
-     * @param Commerce_TransactionModel $transaction
+     * @param Commerce_TransactionModel $child
      *
      * @throws Exception
      */
-    public function completePayment(Commerce_TransactionModel $transaction)
+    private function saveTransaction($child)
     {
-        $order = $transaction->order;
-
-        // ignore already processed transactions
-        if ($transaction->status != Commerce_TransactionRecord::STATUS_REDIRECT) {
-            if ($transaction->status == Commerce_TransactionRecord::STATUS_SUCCESS) {
-                craft()->request->redirect($order->returnUrl);
-            } else {
-                craft()->userSession->setError(Craft::t('Payment error: {message}', ['message' => $transaction->message]));
-                craft()->request->redirect($order->cancelUrl);
-            }
+        if (!craft()->commerce_transactions->saveTransaction($child)) {
+            throw new Exception(Craft::t('Error saving transaction: ') . implode(', ',
+                    $child->getAllErrors()));
         }
-
-        // load payment driver
-        $gateway = $transaction->paymentMethod->getGatewayAdapter()->getGateway();
-
-        $action = 'complete' . ucfirst($transaction->type);
-        $supportsAction = 'supports' . ucfirst($action);
-        if ($gateway->$supportsAction()) {
-            // don't send notifyUrl for completePurchase
-            $params = $this->buildPaymentRequest($transaction);
-
-            // If MOLLIE, the transactionReference will be theirs
-            $name = $transaction->paymentMethod->getGatewayAdapter()->getGateway()->getName();
-            if ($name == 'Mollie_Ideal' || $name == 'Mollie' || $name == 'SagePay_Server') {
-                $params['transactionReference'] = $transaction->reference;
-            }
-
-            unset($params['notifyUrl']);
-
-            $request = $gateway->$action($params);
-            $redirect = $this->sendPaymentRequest($request, $transaction);
-
-            if ($transaction->status == Commerce_TransactionRecord::STATUS_SUCCESS) {
-                craft()->commerce_orders->updateOrderPaidTotal($order);
-            }
-            craft()->request->redirect($redirect);
-        } else {
-            throw new Exception('Payment return not supported');
-        }
-    }
-
-    /**
-     * @param Commerce_TransactionModel $transaction
-     * @param ResponseInterface $response
-     *
-     * @throws Exception
-     */
-    private function updateTransaction(
-        Commerce_TransactionModel $transaction,
-        ResponseInterface $response
-    )
-    {
-        if ($response->isSuccessful()) {
-            $transaction->status = Commerce_TransactionRecord::STATUS_SUCCESS;
-        } elseif ($response->isRedirect()) {
-            $transaction->status = Commerce_TransactionRecord::STATUS_REDIRECT;
-        } else {
-            $transaction->status = Commerce_TransactionRecord::STATUS_FAILED;
-        }
-
-        $transaction->reference = $response->getTransactionReference();
-        $transaction->message = $response->getMessage();
-
-        if ($response->isSuccessful()) {
-            craft()->commerce_orders->updateOrderPaidTotal($transaction->order);
-        }
-
-        $this->saveTransaction($transaction);
     }
 
     /**
@@ -321,7 +147,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 
         if ($order->billingAddressId) {
             $billingAddress = $order->billingAddress;
-            if($billingAddress){
+            if ($billingAddress) {
                 $card->setBillingAddress1($billingAddress->address1);
                 $card->setBillingAddress2($billingAddress->address2);
                 $card->setBillingCity($billingAddress->city);
@@ -336,7 +162,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 
         if ($order->shippingAddressId) {
             $shippingAddress = $order->shippingAddress;
-            if($shippingAddress){
+            if ($shippingAddress) {
                 $card->setShippingAddress1($shippingAddress->address1);
                 $card->setShippingAddress2($shippingAddress->address2);
                 $card->setShippingCity($shippingAddress->city);
@@ -401,15 +227,254 @@ class Commerce_PaymentsService extends BaseApplicationComponent
     }
 
     /**
-     * @param Commerce_TransactionModel $child
+     * Send a payment request to the gateway, and redirect appropriately
+     *
+     * @param AbstractRequest $request
+     * @param Commerce_TransactionModel $transaction
+     *
+     * @return string
+     */
+    private function sendPaymentRequest(
+        AbstractRequest $request,
+        Commerce_TransactionModel $transaction
+    )
+    {
+        //raising event
+        $event = new Event($this, [
+            'type' => $transaction->type,
+            'request' => $request,
+            'transaction' => $transaction
+        ]);
+        $this->onBeforeGatewayRequestSend($event);
+
+        if (!$event->performAction) {
+            $transaction->status = Commerce_TransactionRecord::STATUS_FAILED;
+            $this->saveTransaction($transaction);
+        }
+
+        if ($event->performAction) {
+            try {
+                /** @var ResponseInterface $response */
+                $response = $request->send();
+                $this->updateTransaction($transaction, $response);
+
+                if ($response->isRedirect()) {
+                    // redirect to off-site gateway
+                    return $response->redirect();
+                }
+            } catch (\Exception $e) {
+                $transaction->status = Commerce_TransactionRecord::STATUS_FAILED;
+                $transaction->message = $e->getMessage();
+                $this->saveTransaction($transaction);
+            }
+        }
+
+        $order = $transaction->order;
+
+        if ($transaction->status == Commerce_TransactionRecord::STATUS_SUCCESS) {
+            return $order->returnUrl;
+        } else {
+            craft()->userSession->setError(Craft::t('Payment error: {message}', ['message' => $transaction->message]));
+
+            return $order->cancelUrl;
+        }
+    }
+
+    /**
+     * Event: before sending a payment request to the gateway
+     * Event params: type(string)
+     *               request(AbstractRequest)
+     *               transaction(Commerce_TransactionModel)
+     *
+     * @param \CEvent $event
+     *
+     * @throws \CException
+     */
+    public function onBeforeGatewayRequestSend(\CEvent $event)
+    {
+        $params = $event->params;
+
+        if (empty($params['type'])) {
+            throw new Exception('onBeforeGatewayRequestSend event requires "type" param');
+        }
+
+        if (empty($params['request']) || !($params['request'] instanceof AbstractRequest)) {
+            throw new Exception('onBeforeGatewayRequestSend event requires "request" param as AbstractRequest');
+        }
+
+        if (empty($params['transaction']) || !($params['transaction'] instanceof Commerce_TransactionModel)) {
+            throw new Exception('onBeforeGatewayRequestSend event requires "request" param as AbstractRequest');
+        }
+
+        $this->raiseEvent('onBeforeGatewayRequestSend', $event);
+    }
+
+    /**
+     * @param Commerce_TransactionModel $transaction
+     * @param ResponseInterface $response
      *
      * @throws Exception
      */
-    private function saveTransaction($child)
+    private function updateTransaction(
+        Commerce_TransactionModel $transaction,
+        ResponseInterface $response
+    )
     {
-        if (!craft()->commerce_transactions->saveTransaction($child)) {
-            throw new Exception(Craft::t('Error saving transaction: ') . implode(', ',
-                    $child->getAllErrors()));
+        if ($response->isSuccessful()) {
+            $transaction->status = Commerce_TransactionRecord::STATUS_SUCCESS;
+        } elseif ($response->isRedirect()) {
+            $transaction->status = Commerce_TransactionRecord::STATUS_REDIRECT;
+        } else {
+            $transaction->status = Commerce_TransactionRecord::STATUS_FAILED;
+        }
+
+        $transaction->reference = $response->getTransactionReference();
+        $transaction->message = $response->getMessage();
+
+        if ($response->isSuccessful()) {
+            craft()->commerce_orders->updateOrderPaidTotal($transaction->order);
+        }
+
+        $this->saveTransaction($transaction);
+    }
+
+    /**
+     * @param Commerce_TransactionModel $transaction
+     *
+     * @return Commerce_TransactionModel
+     */
+    public function captureTransaction(Commerce_TransactionModel $transaction)
+    {
+        return $this->processCaptureOrRefund($transaction,
+            Commerce_TransactionRecord::TYPE_CAPTURE);
+    }
+
+    /**
+     * @param Commerce_TransactionModel $parent
+     * @param string $action
+     *
+     * @return Commerce_TransactionModel
+     * @throws Exception
+     */
+    private function processCaptureOrRefund(
+        Commerce_TransactionModel $parent,
+        $action
+    )
+    {
+        if (!in_array($action, [
+            Commerce_TransactionRecord::TYPE_CAPTURE,
+            Commerce_TransactionRecord::TYPE_REFUND
+        ])
+        ) {
+            throw new Exception('Wrong action: ' . $action);
+        }
+
+        $order = $parent->order;
+        $child = craft()->commerce_transactions->createTransaction($order);
+        $child->parentId = $parent->id;
+        $child->paymentMethodId = $parent->paymentMethodId;
+        $child->type = $action;
+        $child->amount = $parent->amount;
+        $this->saveTransaction($child);
+
+        $gateway = $parent->paymentMethod->getGatewayAdapter()->getGateway();
+        $request = $gateway->$action($this->buildPaymentRequest($child));
+        $request->setTransactionReference($parent->reference);
+
+        $order->returnUrl = $order->getCpEditUrl();
+        craft()->commerce_orders->saveOrder($order);
+
+        try {
+
+            //raising event
+            $event = new Event($this, [
+                'type' => $child->type,
+                'request' => $request,
+                'transaction' => $child
+            ]);
+            $this->onBeforeGatewayRequestSend($event);
+
+            // Don't send the request
+            if (!$event->performAction) {
+                $child->status = Commerce_TransactionRecord::STATUS_FAILED;
+                $this->saveTransaction($child);
+            }
+
+            // Send the request!
+            if ($event->performAction) {
+                $response = $request->send();
+                $this->updateTransaction($child, $response);
+            }
+
+        } catch (\Exception $e) {
+            $child->status = Commerce_TransactionRecord::STATUS_FAILED;
+            $child->message = $e->getMessage();
+
+            $this->saveTransaction($child);
+        }
+
+        return $child;
+    }
+
+    /**
+     * @param Commerce_TransactionModel $transaction
+     *
+     * @return Commerce_TransactionModel
+     */
+    public function refundTransaction(Commerce_TransactionModel $transaction)
+    {
+        return $this->processCaptureOrRefund($transaction,
+            Commerce_TransactionRecord::TYPE_REFUND);
+    }
+
+    /**
+     * Process return from off-site payment
+     *
+     * @param Commerce_TransactionModel $transaction
+     *
+     * @throws Exception
+     */
+    public function completePayment(Commerce_TransactionModel $transaction)
+    {
+        $order = $transaction->order;
+
+        // ignore already processed transactions
+        if ($transaction->status != Commerce_TransactionRecord::STATUS_REDIRECT) {
+            if ($transaction->status == Commerce_TransactionRecord::STATUS_SUCCESS) {
+                craft()->request->redirect($order->returnUrl);
+            } else {
+                craft()->userSession->setError(Craft::t('Payment error: {message}', ['message' => $transaction->message]));
+                craft()->request->redirect($order->cancelUrl);
+            }
+        }
+
+        // load payment driver
+        $gateway = $transaction->paymentMethod->getGatewayAdapter()->getGateway();
+
+        $action = 'complete' . ucfirst($transaction->type);
+        $supportsAction = 'supports' . ucfirst($action);
+        if ($gateway->$supportsAction()) {
+
+            $params = $this->buildPaymentRequest($transaction);
+
+            // If MOLLIE, the transactionReference will be theirs
+            $name = $transaction->paymentMethod->getGatewayAdapter()->getGateway()->getName();
+            if ($name == 'Mollie_Ideal' || $name == 'Mollie' || $name == 'SagePay_Server') {
+                $params['transactionReference'] = $transaction->reference;
+            }
+
+            // don't send notifyUrl for completePurchase
+            unset($params['notifyUrl']);
+
+            $request = $gateway->$action($params);
+            $redirect = $this->sendPaymentRequest($request, $transaction);
+
+            if ($transaction->status == Commerce_TransactionRecord::STATUS_SUCCESS) {
+                craft()->commerce_orders->updateOrderPaidTotal($order);
+            }
+            craft()->request->redirect($redirect);
+        } else {
+            throw new Exception('Payment return not supported');
         }
     }
 
