@@ -17,7 +17,7 @@ interface ShippingRule
 
 
     /**
-     * Returns the unique handle of this Shipping Method
+     * Returns the unique handle of this Shipping Rule
      *
      * @return string
      */
@@ -31,7 +31,7 @@ interface ShippingRule
     public function matchOrder(\Craft\Commerce_OrderModel $order);
 
     /**
-     * Is this shipping method enabled for listing and selection
+     * Is this shipping rule enabled for listing and selection
      *
      * @return bool
      */
