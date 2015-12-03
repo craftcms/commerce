@@ -61,6 +61,14 @@ class Commerce_OrdersController extends Commerce_BaseCpController
         } else {
             throw new HttpException(404);
         }
+        $originalPath = craft()->path->getTemplatesPath();
+        $newPath = craft()->path->getSiteTemplatesPath();
+        craft()->path->setTemplatesPath($newPath);
+        $variables['orderPdfTemplateExists'] = false;
+        if(craft()->commerce_settings->getOption('orderPdfPath')){
+            $variables['orderPdfTemplateExists'] = craft()->templates->doesTemplateExist(craft()->commerce_settings->getOption('orderPdfPath'));
+        }
+        craft()->path->setTemplatesPath($originalPath);
 
         craft()->templates->includeCssResource('commerce/order.css');
 

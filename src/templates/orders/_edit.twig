@@ -232,7 +232,9 @@
 		{{ getCsrfInput() }}
 	<div class="footer">
 		<div class="btngroup right">
+			{% if orderPdfTemplateExists %}
 			<a class="btn" href="{{ order.pdfUrl }}" target="_blank">{{ 'Download PDF'|t }}</a>
+			{% endif %}
 		</div>
 		<div class="btngroup">
 			<input type="button" class="btn formsubmit"
