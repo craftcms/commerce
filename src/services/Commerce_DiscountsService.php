@@ -426,9 +426,14 @@ class Commerce_DiscountsService extends BaseApplicationComponent
     public function onBeforeMatchLineItem(\CEvent $event)
     {
         $params = $event->params;
-        if (empty($params['lineItem']) || !($params['address'] instanceof Commerce_AddressModel)) {
-            throw new Exception('onSaveAddress event requires "address" param with Commerce_AddressModel instance');
+        if (empty($params['lineItem']) || !($params['lineItem'] instanceof Commerce_LineItemModel)) {
+            throw new Exception('onBeforeMatchLineItem event requires "lineItem" param with Commerce_LineItemModel instance');
         }
+
+        if (empty($params['discount']) || !($params['discount'] instanceof Commerce_DiscountModel)) {
+            throw new Exception('onBeforeMatchLineItem event requires "discount" param with Commerce_DiscountModel instance');
+        }
+
         $this->raiseEvent('onSaveAddress', $event);
     }
 
