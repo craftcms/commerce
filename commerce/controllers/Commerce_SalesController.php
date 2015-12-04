@@ -125,7 +125,7 @@ class Commerce_SalesController extends Commerce_BaseCpController
                 $sale->discountAmount = floatval($discountAmount) * -1;
             };
         } else {
-            $sale->discountAmount = -floatval($discountAmount);
+            $sale->discountAmount = floatval($discountAmount) * -1;
         }
 
         $products = craft()->request->getPost('products', []);
