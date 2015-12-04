@@ -434,7 +434,7 @@ class Commerce_DiscountsService extends BaseApplicationComponent
             throw new Exception('onBeforeMatchLineItem event requires "discount" param with Commerce_DiscountModel instance');
         }
 
-        $this->raiseEvent('onSaveAddress', $event);
+        $this->raiseEvent('onBeforeMatchLineItem', $event);
     }
 
 }
