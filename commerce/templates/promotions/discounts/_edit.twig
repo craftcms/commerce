@@ -190,10 +190,10 @@
     <div id="amounts" class="hidden">
     {{ commerceForms.numberField({
         label: "Base Discount"|t,
-        instructions: "Flat value which should be added to the order total price. Write negative number for off-discount"|t,
+        instructions: "The flat value which should discount the order’s total price. i.e '10' for $10 off."|t,
         id: 'baseDiscount',
         name: 'baseDiscount',
-        value: discount.baseDiscount,
+        value: discount.baseDiscount * -1,
         type: 'number',
         step: 'any',
         errors: discount.getErrors('baseDiscount'),
@@ -201,23 +201,21 @@
 
     {{ commerceForms.numberField({
         label: "Per Item Discount"|t,
-        instructions: "Flat value which should be added to each item in the order. Write negative number for off-discount"|t,
+        instructions: "The flat value which should discount each item in the order. i.e '1' for $1 off."|t,
         id: 'perItemDiscount',
         name: 'perItemDiscount',
-        value: discount.perItemDiscount,
+        value: discount.perItemDiscount * -1,
         type: 'number',
         step: 'any',
         errors: discount.getErrors('perItemDiscount'),
     }) }}
 
-    {{ commerceForms.numberField({
+    {{ forms.textField({
         label: "Percent Discount"|t,
-        instructions: "Percentile value which should be added to the total order price. Write negative number for off-discount, i.e. -0,04 for 4% off"|t,
+        instructions: "The percentile value which should each item in the cart. i.e. '4%' for 4% off"|t,
         id: 'percentDiscount',
         name: 'percentDiscount',
-        value: discount.percentDiscount,
-        type: 'number',
-        step: 'any',
+        value: discount.percentDiscountAsPercent,
         errors: discount.getErrors('percentDiscount'),
     }) }}
 

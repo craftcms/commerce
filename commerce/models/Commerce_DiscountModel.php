@@ -74,6 +74,17 @@ class Commerce_DiscountModel extends BaseModel
     }
 
     /**
+     * @return string
+     */
+    public function getPercentDiscountAsPercent()
+    {
+        $localeData = craft()->i18n->getLocaleData();
+        $percentSign = $localeData->getNumberSymbol('percentSign');
+
+        return -$this->percentDiscount * 100 . "" . $percentSign;
+    }
+
+    /**
      * @return array
      */
     protected function defineAttributes()
