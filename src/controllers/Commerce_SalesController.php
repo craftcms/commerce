@@ -122,7 +122,7 @@ class Commerce_SalesController extends Commerce_BaseCpController
             if (strpos($discountAmount, $percentSign) or floatval($discountAmount) >= 1) {
                 $sale->discountAmount = floatval($discountAmount) / -100;
             } else {
-                $sale->discountAmount = floatval($discountAmount);
+                $sale->discountAmount = floatval($discountAmount) * -1;
             };
         } else {
             $sale->discountAmount = -floatval($discountAmount);
