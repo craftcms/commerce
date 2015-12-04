@@ -33,7 +33,7 @@ class Commerce_TaxZoneModel extends BaseModel
     /**
      * @return array
      */
-    public function getCountriesIds()
+    public function getCountryIds()
     {
         $countries = [];
         foreach ($this->getCountries() as $country) {
@@ -56,7 +56,7 @@ class Commerce_TaxZoneModel extends BaseModel
     /**
      * @return array
      */
-    public function getStatesIds()
+    public function getStateIds()
     {
         $states = [];
         foreach ($this->getStates() as $state) {

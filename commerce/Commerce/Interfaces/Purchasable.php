@@ -61,6 +61,12 @@ interface Purchasable
      */
     public function getDescription();
 
+    /**
+     * Returns a Craft Commerce tax category id
+     *
+     * @return int
+     */
+    public function getTaxCategoryId();
 
     /**
      * Validates this purchasable for the line item it is on. Called when Purchasable is added to the cart.
@@ -77,5 +83,10 @@ interface Purchasable
      * @return bool
      */
     public function hasFreeShipping();
+
+    /**
+     * @return bool
+     */
+    public function getIsPromotable();
 
 }

@@ -189,8 +189,8 @@ class Commerce_LineItemsService extends BaseApplicationComponent
         $lineItem = new Commerce_LineItemModel();
         $lineItem->purchasableId = $purchasableId;
         $lineItem->qty = $qty;
-        $lineItem->options = $options;
         ksort($options);
+        $lineItem->options = $options;
         $lineItem->optionsSignature = md5(json_encode($options));
         $lineItem->orderId = $orderId;
 

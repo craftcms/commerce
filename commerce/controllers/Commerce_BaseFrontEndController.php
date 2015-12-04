@@ -40,13 +40,9 @@ class Commerce_BaseFrontEndController extends Commerce_BaseController
         $data['returnUrl'] = $cart->returnUrl;
         $data['cancelUrl'] = $cart->cancelUrl;
         $data['orderStatusId'] = $cart->orderStatusId;
-        $data['billingAddressId'] = $cart->billingAddressId;
-        $data['shippingAddressId'] = $cart->shippingAddressId;
         $data['shippingMethod'] = $cart->getShippingMethodHandle();
         $data['paymentMethodId'] = $cart->paymentMethodId;
         $data['customerId'] = $cart->customerId;
-        $data['shippingAddressData'] = $cart->shippingAddressData;
-        $data['billingAddressData'] = $cart->billingAddressData;
         $data['isPaid'] = $cart->isPaid();
         $data['totalQty'] = $cart->totalQty;
         $data['pdfUrl'] = $cart->getPdfUrl('ajax');
@@ -55,11 +51,26 @@ class Commerce_BaseFrontEndController extends Commerce_BaseController
         $data['totalWidth'] = $cart->totalWidth;
         $data['totalHeight'] = $cart->totalHeight;
         $data['totalHeight'] = $cart->totalLength;
-        $data['totalTax'] = $cart->totalTax;
-        $data['totalShippingCost'] = $cart->totalShippingCost;
-        $data['totalDiscount'] = $cart->totalDiscount;
+        $data['totalTax'] = $cart->getTotalTax();
+        $data['totalTaxIncluded'] = $cart->getTotalTaxIncluded();
+        $data['totalShippingCost'] = $cart->getTotalShippingCost();
+        $data['totalDiscount'] = $cart->getTotalDiscount();
 
         $data['availableShippingMethods'] = craft()->commerce_shippingMethods->getOrderedAvailableShippingMethods($cart);
+
+        $data['shippingAddressId'] = $cart->shippingAddressId;
+        if ($cart->getShippingAddress()){
+            $data['shippingAddress'] = $cart->shippingAddress->attributes;
+        }else{
+            $data['shippingAddress'] = null;
+        }
+
+        $data['billingAddressId'] = $cart->billingAddressId;
+        if ($cart->getBillingAddress()){
+            $data['billingAddress'] = $cart->billingAddress->attributes;
+        }else{
+            $data['billingAddress'] = null;
+        }
 
         $lineItems = [];
         foreach ($cart->lineItems as $lineItem) {

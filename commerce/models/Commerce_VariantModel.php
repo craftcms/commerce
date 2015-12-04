@@ -85,7 +85,7 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
      */
     public function getCpEditUrl()
     {
-        return UrlHelper::getCpUrl('commerce/products/' . $this->product->type->handle . '/' . $this->product->id . '/variants/' . $this->id);
+        return $this->getProduct()->getCpEditUrl();
     }
 
     /**
@@ -144,6 +144,16 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
     }
 
     /**
+     * Returns whether this product is promotable.
+     *
+     * @return bool
+     */
+    public function getIsPromotable()
+    {
+        return $this->getProduct()->promotable;
+    }
+
+    /**
      * Returns the product associated with this variant.
      *
      * @return Commerce_ProductModel|null The product associated with this variant, or null if it isn’t known
@@ -199,7 +209,12 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
      */
     public function getDescription()
     {
-        return $this->getTitle();
+        if($this->getProduct()->getType()->hasVariants){
+            return $this->getProduct()->getTitle().' – '.$this->getTitle();
+        }else{
+            return $this->getTitle();
+        }
+
     }
 
     /**
@@ -210,6 +225,16 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
     public function getPurchasableId()
     {
         return $this->getAttribute('id');
+    }
+
+    /**
+     * Returns the products tax category
+     *
+     * @return int
+     */
+    public function getTaxCategoryId()
+    {
+        return $this->getProduct()->taxCategoryId;
     }
 
     /**
@@ -231,26 +256,47 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
      */
     public function validateLineItem(Commerce_LineItemModel $lineItem)
     {
-
-        if (!$this->unlimitedStock && $lineItem->qty > $this->stock) {
-            $error = sprintf('There are only %d items left in stock',
-                $this->stock);
-            $lineItem->addError('qty', $error);
+        if(!$lineItem->qty){
+            return;
         }
 
-        if ($lineItem->qty < $this->minQty) {
-            $error = sprintf('Minimum order quantity for this item is %d',
-                $this->minQty);
-            $lineItem->addError('qty', $error);
-        }
+        $order = craft()->commerce_orders->getOrderById($lineItem->orderId);
 
-        if ($this->maxQty != 0) {
-            if ($lineItem->qty > $this->maxQty) {
-                $error = sprintf('Maximum order quantity for this item is %d',
-                    $this->maxQty);
+        if($order){
+            $qty = [];
+            foreach ($order->getLineItems() as $item) {
+                if(!isset($qty[$item->purchasableId])){
+                    $qty[$item->purchasableId] = 0;
+                }
+                if($item->id == $lineItem->id){
+                    $qty[$item->purchasableId] += $lineItem->qty;
+                }else{
+                    $qty[$item->purchasableId] += $item->qty;
+                }
+            }
+
+            if(!isset($qty[$lineItem->purchasableId])){
+                $qty[$lineItem->purchasableId] = $lineItem->qty;
+            }
+
+            if (!$this->unlimitedStock && $qty[$lineItem->purchasableId] > $this->stock) {
+                $error = Craft::t('There are only {num} "{description}" items left in stock', ['num' => $this->stock, 'description' => $lineItem->purchasable->getDescription() ]);
                 $lineItem->addError('qty', $error);
             }
+
+            if ($lineItem->qty < $this->minQty) {
+                $error = Craft::t('Minimum order quantity for this item is {num}', ['num' => $this->minQty]);
+                $lineItem->addError('qty', $error);
+            }
+
+            if ($this->maxQty != 0) {
+                if ($lineItem->qty > $this->maxQty) {
+                    $error = Craft::t('Maximum order quantity for this item is {num}', ['num' => $this->maxQty]);
+                    $lineItem->addError('qty', $error);
+                }
+            }
         }
+
     }
 
     // Protected Methods

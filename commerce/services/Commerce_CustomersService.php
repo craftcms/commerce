@@ -183,9 +183,25 @@ class Commerce_CustomersService extends BaseApplicationComponent
     public function saveAddress(Commerce_AddressModel $address)
     {
         $customer = $this->getSavedCustomer();
-        $address->customerId = $customer->id;
+        if(craft()->commerce_addresses->saveAddress($address)){
 
-        return craft()->commerce_addresses->saveAddress($address);
+            $customerAddress = Commerce_CustomerAddressRecord::model()->findByAttributes([
+                'customerId' => $customer->id,
+                'addressId' => $address->id
+            ]);
+
+            if(!$customerAddress){
+                $customerAddress = new Commerce_CustomerAddressRecord;
+            }
+
+            $customerAddress->customerId = $customer->id;
+            $customerAddress->addressId = $address->id;
+            if($customerAddress->save()){
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

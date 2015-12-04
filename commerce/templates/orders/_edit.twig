@@ -25,7 +25,7 @@
 				<tr>
 					<td><strong>{{ "Customer"|t }}</strong></td>
 					<td>{% if order.customer.userId %}<a
-							href="{{ order.customer.user.cpEditUrl }}">{{ order.email }}</a>{% else %}{{ order.email }}&nbsp;({{ "Guest"|t }} {% endif %}
+							href="{{ order.customer.user.cpEditUrl }}">{{ order.email }}</a>{% else %}{{ order.email }}&nbsp;({{ "Guest"|t }}) {% endif %}
 					</td>
 				</tr>
 				<tr>
@@ -46,11 +46,11 @@
 					{% endif %}
 				<tr>
 					<td><strong>{{ "Total"|t }}</strong></td>
-					<td>{{ order.totalPrice|commerceCurrency }}</td>
+					<td>{{ order.totalPrice|currency(order.currency) }}</td>
 				</tr>
 				<tr>
 					<td><strong>{{ "Paid"|t }} </strong></td>
-					<td>{{ order.totalPaid|commerceCurrency }} {{ order.datePaid|date('D dS M Y') }}</td>
+					<td>{{ order.totalPaid|currency(order.currency) }} {{ order.datePaid|date('D dS M Y') }}</td>
 				</tr>
 			</table>
 		</div>
@@ -62,9 +62,6 @@
 				{% import "commerce/_includes/orders/address" as addressMacros %}
 
 				<strong>Billing Address </strong><br>
-				{% if order.dateOrdered %}
-				{#<a class="small btn right edit" data-orderid="{{ orderId }}" data-addresstype="billing" data-address="{{ order.billingAddressData|json_encode }}">{{ 'Edit'|t }}</a>#}
-				{% endif %}
 				{% if order.billingAddress %}
 				<a class="small btn right"
 				   href="http://maps.google.com/maps?q={{ order.billingAddress.address1 }}+{{ order.billingAddress.address2 }}+{{ order.billingAddress.city }}+{{ order.billingAddress.zipCode }}+{{ order.billingAddress.stateText }}+{{ order.billingAddress.countryText }}"
@@ -77,9 +74,6 @@
 			<div class="order-address-box shippingAddress">
 				<div class="order-address-box-content">
 				<strong>Shipping Address </strong><br>
-				{% if order.dateOrdered %}
-				{#<a class="small btn right edit" data-addresstype="shipping" data-address="{{ order.shippingAddressData|json_encode }}">{{ 'Edit'|t }}</a>#}
-				{% endif %}
 				{% if order.shippingAddress %}
 				<a class="small btn right"
 				   href="http://maps.google.com/maps?q={{ order.shippingAddress.address1 }}+{{ order.shippingAddress.address2 }}+{{ order.shippingAddress.city }}+{{ order.shippingAddress.zipCode }}+{{ order.shippingAddress.stateText }}+{{ order.shippingAddress.countryText }}"
@@ -97,6 +91,7 @@
 			<thead>
 			<tr>
 				<th scope="col">{{ 'Item'|t }}</th>
+				<th scope="col">{{ 'Note'|t }}</span></th>
 				<th scope="col">{{ 'Price'|t }}</span></th>
 				<th scope="col">{{ 'Quantity'|t }}</th>
 				<th scope="col">{{ 'Total'|t }}</th>
@@ -119,37 +114,51 @@
 					{"label":"Discount","attribute":"discount","currency":"true"},
 					{"label":"Total","attribute":"total","currency":"true"},
 					{"label":"Quantity","attribute":"qty","currency":"false"},
-					{"label":"Note","attribute":"note","currency":"false"},
-					{"label":"onSale","attribute":"onsale","currency":"false"}
+					{"label":"Note","attribute":"note","currency":"false"
+					{"label":"Options","attribute":"note","currency":"false"}
 					]'{% endspaceless %}
 					data-id="{{lineItem.id}}"
 					data-description="{{ lineItem.description }}"
 					data-taxcategory="{{ lineItem.taxCategory.name }}"
-					data-price="{{ lineItem.price|commerceCurrency }}"
-					data-saleamount="{{ lineItem.saleAmount|commerceCurrency }}"
-					data-saleprice="{{ lineItem.salePrice|commerceCurrency }}"
-					data-tax="{{ lineItem.tax|commerceCurrency }}"
-					data-shippingcost="{{ lineItem.shippingCost|commerceCurrency }}"
-					data-discount="{{ lineItem.discount|commerceCurrency }}"
-					data-total="{{ lineItem.total|commerceCurrency }}"
+					data-price="{{ lineItem.price|currency(order.currency) }}"
+					data-saleamount="{{ lineItem.saleAmount|currency(order.currency) }}"
+					data-saleprice="{{ lineItem.salePrice|currency(order.currency) }}"
+					data-tax="{{ lineItem.tax|currency(order.currency) }}"
+					data-shippingcost="{{ lineItem.shippingCost|currency(order.currency) }}"
+					data-discount="{{ lineItem.discount|currency(order.currency) }}"
+					data-total="{{ lineItem.total|currency(order.currency) }}"
 					data-qty="{{ lineItem.qty }}"
-					data-note="{{ lineItem.note }}"
-					data-onSale="{{ lineItem.onSale }}"
-					data-snapshot='{{ lineItem.snapshot|json_encode()}}'>
+					data-note="{{ lineItem.note }}">
 					<td>
 						{% if lineItem.purchasableId and lineItem.purchasable %}
-							<a href="{{ lineItem.purchasable.cpEditUrl }}">{{ lineItem.description }} </a><br>{{ lineItem.sku }}
+							{% if lineItem.purchasable.cpEditUrl %}
+								<a href="{{ lineItem.purchasable.cpEditUrl }}">{{ lineItem.description }}</a>
+							{% else %}
+								{{ lineItem.description }}
+							{% endif %}
 						{% else %}
-							{{ lineItem.description }}<br>({{ lineItem.sku }})
+							{{ lineItem.description }}
+						{% endif %}
+						<br>{{ lineItem.sku }}
+						{% if lineItem.options|length %}
+						<a class="fieldtoggle first last" data-target="info-{{ lineItem.id}}">{{ "Options" }}</a>
+						<span id="info-{{ lineItem.id}}" class="hidden">
+							{% for key, option in lineItem.options %}
+								{{ key|t }}: {% if option is iterable %}<code>{{ option|json_encode()|raw }}</code>{% else %}{{ option }}{% endif %}<br>
+							{% endfor %}
+						</span>
 						{% endif %}
 					</td>
 					<td>
-						{{ lineItem.salePrice|commerceCurrency }}
+					{% if lineItem.note %}{{ lineItem.note|raw|nl2br }}{% endif %}
+					</td>
+					<td>
+						{{ lineItem.salePrice|currency(order.currency) }}
 					</td>
 					<td>{{ lineItem.qty }}</td>
 					<td></td>
 					<td>
-						<span class="right">{{ lineItem.total|commerceCurrency }}</span>
+						<span class="right">{{ lineItem.total|currency(order.currency) }}</span>
 					</td>
 					<td>
 						<span class="tableRowInfo" data-icon="info" href="#"></span>
@@ -159,7 +168,8 @@
 			{% for adjustment in order.adjustments %}
 			<tr>
 				<td><strong>{{ adjustment.type|title|t }} {{ "Adjustment"|t }}</strong><br>{{ adjustment.name|title }} <span class="info"><strong>{{ adjustment.type|title|t }} {{ "Adjustment"|t }}</strong><br> {{ adjustment.description }}</span></td>
-				<td>{{ adjustment.amount|commerceCurrency }}</td>
+				<td>{{ adjustment.amount|currency(order.currency) }}</td>
+				<td></td>
 				<td></td>
 				<td></td>
 				<td></td>
@@ -174,9 +184,10 @@
 					<div class="paidLogo"><span>{{ 'PAID'|t }}</div>
 				{% endif %}
 				</td>
+				<td></td>
 				<td><strong>{{ "Items Total" }}</strong></td>
 				<td>
-					<span class="right">{{ order.itemTotal|commerceCurrency }}</span>
+					<span class="right">{{ order.itemTotal|currency(order.currency) }}</span>
 				</td>
 				<td></td>
 			</tr>
@@ -184,9 +195,10 @@
 				<td></td>
 				<td></td>
 				<td></td>
+				<td></td>
 				<td><strong>{{ "Base Shipping Cost"|t }}</strong></td>
 				<td>
-					<span class="right">{{ order.baseShippingCost|commerceCurrency }}</span>
+					<span class="right">{{ order.baseShippingCost|currency(order.currency) }}</span>
 				</td>
 				<td></td>
 			</tr>
@@ -196,7 +208,7 @@
 				<td></td>
 				<td><strong>{{ "Base Discount"|t }}</strong></td>
 				<td>
-					<span class="right">{{ order.baseDiscount|commerceCurrency }}</span>
+					<span class="right">{{ order.baseDiscount|currency(order.currency) }}</span>
 				</td>
 				<td></td>
 			</tr>
@@ -206,7 +218,7 @@
 				<td></td>
 				<td><h2>{{ "Total Price"|t }}</h2></td>
 				<td>
-					<h2 class="right">{{ order.totalPrice|commerceCurrency }}</h2>
+					<h2 class="right">{{ order.totalPrice|currency(order.currency) }}</h2>
 				</td>
 				<td></td>
 			</tr>
@@ -351,7 +363,7 @@
 					<td>{{ transaction.type|title }}</td>
 					<td>{{ transaction.status|title }}</td>
 					<td>{{ transaction.message|title }}</td>
-					<td>{{ transaction.amount|commerceCurrency }}</td>
+					<td>{{ transaction.amount|currency(order.currency) }}</td>
 					<td>{{ transaction.paymentMethod.name }}</td>
 					<td><span class="tableRowInfo" data-icon="info" href="#"></span></td>
 					<td>

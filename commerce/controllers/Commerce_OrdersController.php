@@ -14,6 +14,15 @@ namespace Craft;
 class Commerce_OrdersController extends Commerce_BaseCpController
 {
     /**
+     * @throws HttpException
+     */
+    public function init()
+    {
+        craft()->userSession->requirePermission('commerce-manageOrders');
+        parent::init();
+    }
+
+    /**
      * Index of orders
      */
     public function actionOrderIndex()
@@ -104,7 +113,7 @@ class Commerce_OrdersController extends Commerce_BaseCpController
 
             $message = $child->message ? ' (' . $child->message . ')' : '';
 
-            if ($child->status == Commerce_TransactionRecord::SUCCESS) {
+            if ($child->status == Commerce_TransactionRecord::STATUS_SUCCESS) {
                 craft()->commerce_orders->updateOrderPaidTotal($child->order);
                 craft()->userSession->setNotice(Craft::t('Transaction captured successfully: {message}', [
                     'message' => $message
@@ -133,7 +142,7 @@ class Commerce_OrdersController extends Commerce_BaseCpController
 
             $message = $child->message ? ' (' . $child->message . ')' : '';
 
-            if ($child->status == Commerce_TransactionRecord::SUCCESS) {
+            if ($child->status == Commerce_TransactionRecord::STATUS_SUCCESS) {
                 craft()->userSession->setNotice(Craft::t('Transaction refunded successfully: {message}', [
                     'message' => $message
                 ]));
@@ -158,7 +167,7 @@ class Commerce_OrdersController extends Commerce_BaseCpController
         $message = craft()->request->getParam('message');
 
         $order = craft()->commerce_orders->getOrderById($orderId);
-        $orderStatus = craft()->commerce_orderStatuses->getById($orderStatusId);
+        $orderStatus = craft()->commerce_orderStatuses->getOrderStatusById($orderStatusId);
 
         if (!$order or !$orderStatus) {
             $this->returnErrorJson(Craft::t('Bad Order or Status'));

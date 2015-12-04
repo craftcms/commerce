@@ -96,7 +96,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
             'default' => true
         ];
         $defaultStatus = Commerce_OrderStatusModel::populateModel($data);
-        \Craft\craft()->commerce_orderStatuses->save($defaultStatus, []);
+        \Craft\craft()->commerce_orderStatuses->saveOrderStatus($defaultStatus, []);
 
         $data = [
             'name' => 'Shipped',
@@ -107,7 +107,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
 
         $status = Commerce_OrderStatusModel::populateModel($data);
 
-        \Craft\craft()->commerce_orderStatuses->save($status, []);
+        \Craft\craft()->commerce_orderStatuses->saveOrderStatus($status, []);
     }
 
     /**
@@ -134,7 +134,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
         \Craft\craft()->fields->saveLayout($variantFieldLayout);
         $productType->asa('variantFieldLayout')->setFieldLayout($variantFieldLayout);
 
-        \Craft\craft()->commerce_productTypes->save($productType);
+        \Craft\craft()->commerce_productTypes->saveProductType($productType);
 
         $productTypeLocales = \Craft\craft()->i18n->getSiteLocaleIds();
 
@@ -205,6 +205,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
     {
         $settings = new Commerce_SettingsModel();
         $settings->orderPdfPath = 'commerce/_pdf/order';
+        $settings->defaultCurrency = 'USD';
         \Craft\craft()->commerce_settings->saveSettings($settings);
     }
 

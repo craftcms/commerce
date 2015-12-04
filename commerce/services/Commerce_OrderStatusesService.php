@@ -21,7 +21,7 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
      *
      * @return Commerce_OrderStatusModel|null
      */
-    public function getByHandle($handle)
+    public function getOrderStatusByHandle($handle)
     {
         $result = Commerce_OrderStatusRecord::model()->findByAttributes(['handle' => $handle]);
 
@@ -37,7 +37,7 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
      *
      * @return Commerce_OrderStatusModel|null
      */
-    public function getDefault()
+    public function getDefaultOrderStatus()
     {
         $result = Commerce_OrderStatusRecord::model()->findByAttributes(['default' => true]);
 
@@ -50,14 +50,14 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
 
     /**
      * @param Commerce_OrderStatusModel $model
-     * @param array $emailsIds
+     * @param array $emailIds
      *
      * @return bool
      * @throws Exception
      * @throws \CDbException
      * @throws \Exception
      */
-    public function save(Commerce_OrderStatusModel $model, array $emailsIds)
+    public function saveOrderStatus(Commerce_OrderStatusModel $model, array $emailIds)
     {
         if ($model->id) {
             $record = Commerce_OrderStatusRecord::model()->findById($model->id);
@@ -79,9 +79,9 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
 
         //validating emails ids
         $criteria = new \CDbCriteria();
-        $criteria->addInCondition('id', $emailsIds);
+        $criteria->addInCondition('id', $emailIds);
         $exist = Commerce_EmailRecord::model()->exists($criteria);
-        $hasEmails = (boolean)count($emailsIds);
+        $hasEmails = (boolean)count($emailIds);
 
         if (!$exist && $hasEmails) {
             $model->addError('emails',
@@ -108,7 +108,7 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
                 //Save new links
                 $rows = array_map(function ($id) use ($record) {
                     return [$id, $record->id];
-                }, $emailsIds);
+                }, $emailIds);
                 $cols = ['emailId', 'orderStatusId'];
                 $table = Commerce_OrderStatusEmailRecord::model()->getTableName();
                 craft()->db->createCommand()->insertAll($table, $cols, $rows);
@@ -132,9 +132,17 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
      * @param int
      * @return bool
      */
-    public function deleteById($id)
+    public function deleteOrderStatusById($id)
     {
-        $statuses = $this->getAll();
+        $statuses = $this->getAllOrderStatuses();
+
+        $criteria = craft()->elements->getCriteria('Commerce_Order');
+        $criteria->orderStatusId = $id;
+        $order = $criteria->first();
+
+        if($order){
+            return false;
+        }
 
         if (count($statuses) >= 2) {
             Commerce_OrderStatusRecord::model()->deleteByPk($id);
@@ -150,7 +158,7 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
      *
      * @return Commerce_OrderStatusModel[]
      */
-    public function getAll($criteria = [])
+    public function getAllOrderStatuses($criteria = [])
     {
         $orderStatusRecords = Commerce_OrderStatusRecord::model()->findAll($criteria);
 
@@ -173,7 +181,7 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
             return;
         }
 
-        $status = craft()->commerce_orderStatuses->getById($order->orderStatusId);
+        $status = craft()->commerce_orderStatuses->getOrderStatusById($order->orderStatusId);
         if (!$status || !$status->emails) {
             CommercePlugin::log("Can't send email if no status or emails exist.",
                 LogLevel::Info, true);
@@ -242,7 +250,7 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
      *
      * @return Commerce_OrderStatusModel|null
      */
-    public function getById($id)
+    public function getOrderStatusById($id)
     {
         $result = Commerce_OrderStatusRecord::model()->findById($id);
 

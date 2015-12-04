@@ -55,19 +55,24 @@ class Commerce_CartService extends BaseApplicationComponent
             $lineItem->note = $note;
         }
 
+        $lineItem->validate();
+        $lineItem->purchasable->validateLineItem($lineItem);
+
         try {
-            if (craft()->commerce_lineItems->saveLineItem($lineItem)) {
-                craft()->commerce_orders->saveOrder($order);
-                CommerceDbHelper::commitStackedTransaction();
+            if(!$lineItem->hasErrors()){
+                if (craft()->commerce_lineItems->saveLineItem($lineItem)) {
+                    craft()->commerce_orders->saveOrder($order);
+                    CommerceDbHelper::commitStackedTransaction();
 
-                //raising event
-                $event = new Event($this, [
-                    'lineItem' => $lineItem,
-                    'order' => $order,
-                ]);
-                $this->onAddToCart($event);
+                    //raising event
+                    $event = new Event($this, [
+                        'lineItem' => $lineItem,
+                        'order' => $order,
+                    ]);
+                    $this->onAddToCart($event);
 
-                return true;
+                    return true;
+                }
             }
         } catch (\Exception $e) {
             CommerceDbHelper::rollbackStackedTransaction();
@@ -80,15 +85,6 @@ class Commerce_CartService extends BaseApplicationComponent
         $error = array_pop($errors);
 
         return false;
-    }
-
-    /**
-     * Forgets a Cart by deleting its cookie.
-     */
-    public function forgetCart()
-    {
-        $cookieId = $this->cookieCartId;
-        craft()->userSession->deleteStateCookie($cookieId);
     }
 
     /**
@@ -110,6 +106,15 @@ class Commerce_CartService extends BaseApplicationComponent
             throw new Exception('onAddToCart event requires "lineItem" param with LineItemModel instance');
         }
         $this->raiseEvent('onAddToCart', $event);
+    }
+
+    /**
+     * Forgets a Cart by deleting its cookie.
+     */
+    public function forgetCart()
+    {
+        $cookieId = $this->cookieCartId;
+        craft()->userSession->deleteStateCookie($cookieId);
     }
 
     /**
@@ -259,8 +264,6 @@ class Commerce_CartService extends BaseApplicationComponent
                 $this->_cart->email = $customer->email;
                 $this->_cart->billingAddressId = null;
                 $this->_cart->shippingAddressId = null;
-                $this->_cart->billingAddressData = null;
-                $this->_cart->shippingAddressData = null;
                 craft()->commerce_orders->saveOrder($this->_cart);
             }
         }
@@ -303,7 +306,7 @@ class Commerce_CartService extends BaseApplicationComponent
     }
 
     /**
-     * @TODO check that line item belongs to the current user
+     * Removes a line item from the cart.
      *
      * @param Commerce_OrderModel $cart
      * @param int $lineItemId

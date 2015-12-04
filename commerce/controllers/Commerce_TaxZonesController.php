@@ -75,11 +75,11 @@ class Commerce_TaxZonesController extends Commerce_BaseAdminController
         $taxZone->description = craft()->request->getPost('description');
         $taxZone->countryBased = craft()->request->getPost('countryBased');
         $taxZone->default = craft()->request->getPost('default');
-        $countriesIds = craft()->request->getPost('countries', []);
-        $statesIds = craft()->request->getPost('states', []);
+        $countryIds = craft()->request->getPost('countries', []);
+        $stateIds = craft()->request->getPost('states', []);
 
         // Save it
-        if (craft()->commerce_taxZones->saveTaxZone($taxZone, $countriesIds, $statesIds)) {
+        if (craft()->commerce_taxZones->saveTaxZone($taxZone, $countryIds, $stateIds)) {
             if (craft()->request->isAjaxRequest()) {
                 $this->returnJson([
                     'success' => true,

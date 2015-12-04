@@ -14,7 +14,7 @@ use Commerce\Interfaces\Purchasable;
  * @package   craft.plugins.commerce.services
  * @since     1.0
  */
-class Commerce_PurchasableService extends BaseApplicationComponent
+class Commerce_PurchasablesService extends BaseApplicationComponent
 {
 
     /**
@@ -56,7 +56,7 @@ class Commerce_PurchasableService extends BaseApplicationComponent
         try {
             if ($success = craft()->elements->saveElement($model)) {
                 $id = $model->getPurchasableId();
-                $price = $model->getPrice();
+                $price = LocalizationHelper::normalizeNumber($model->getPrice());
                 $sku = $model->getSku();
 
                 $purchasable = Commerce_PurchasableRecord::model()->findById($id);
