@@ -28,16 +28,6 @@ class Commerce_UpdateOrderStatusElementAction extends BaseElementAction
     }
 
     /**
-     * @inheritDoc IElementAction::isDestructive()
-     *
-     * @return bool
-     */
-    public function isDestructive()
-    {
-        return true;
-    }
-
-    /**
      * @inheritDoc IElementAction::getTriggerHtml()
      *
      * @return string|null
@@ -45,7 +35,7 @@ class Commerce_UpdateOrderStatusElementAction extends BaseElementAction
     public function getTriggerHtml()
     {
 
-        $orderStatuses = JsonHelper::encode(craft()->commerce_orderStatuses->getAll());
+        $orderStatuses = JsonHelper::encode(craft()->commerce_orderStatuses->getAllOrderStatuses());
 
         $js = <<<EOT
 (function()

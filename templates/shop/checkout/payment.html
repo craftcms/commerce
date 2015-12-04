@@ -7,12 +7,12 @@
 
     <ul>
         <li>
-            <strong>Products:</strong> {{ cart.itemTotal|commerceCurrency }}
+            <strong>Products:</strong> {{ cart.itemTotal|currency(cart.currency) }}
         </li>
 
         {% for adjustment in cart.adjustments %}
             <li>
-                <strong>{{ adjustment.name }}: </strong> {{ adjustment.amount|commerceCurrency }} ({{ adjustment.description }})
+                <strong>{{ adjustment.name }}: </strong> {{ adjustment.amount|currency(cart.currency) }} ({{ adjustment.description }})
             </li>
         {% endfor %}
 
@@ -30,7 +30,7 @@
         {% endif %}
 
         <li>
-            <strong>Total:</strong> {{ cart.totalPrice|commerceCurrency }}
+            <strong>Total:</strong> {{ cart.totalPrice|currency(cart.currency) }}
         </li>
     </ul>
 
@@ -38,8 +38,8 @@
 
     {#
     Using the update cart action you could allow the user to select the payment method here.
-    We recommend using ajax to set this, so no page refresh is needed. You can also include This would also allow you to show or hide the credit card form
-    on method change if the method does not require a card and the submit just redirects offsite.
+    We recommend using ajax to set this, so no page refresh is needed. This would also allow you to dynamically show or hide the credit card form
+    on method change.
     #}
     {% if not craft.commerce.paymentMethods|length %}
         <p>No payment methods available.</p>
@@ -107,8 +107,8 @@
                 {% if cart.paymentMethod.requiresCard() %}
                     {% set currentYear = date()|date_modify("+1 year").format('Y') %}
                     {% set formValues = {
-                    firstName: paymentForm is defined ? paymentForm.firstName : cart.billingAddress.firstName,
-                    lastName: paymentForm is defined ? paymentForm.lastName : cart.billingAddress.lastName,
+                    firstName: paymentForm is defined ? paymentForm.firstName : (cart.billingAddress ? cart.billingAddress.firstName : ''),
+                    lastName: paymentForm is defined ? paymentForm.lastName : (cart.billingAddress ? cart.billingAddress.lastName : ''),
                     number: paymentForm is defined ? paymentForm.number : '',
                     cvv: paymentForm is defined ? paymentForm.cvv : '',
                     month: paymentForm is defined ? paymentForm.month : 1,

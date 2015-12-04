@@ -59,14 +59,7 @@ class Commerce_AddressRecord extends BaseRecord
                 'Commerce_StateRecord',
                 'onDelete' => self::RESTRICT,
                 'onUpdate' => self::CASCADE
-            ],
-            'customer' => [
-                static::BELONGS_TO,
-                'Commerce_CustomerRecord',
-                'onDelete' => self::CASCADE,
-                'onUpdate' => self::CASCADE,
-                'required' => true
-            ],
+            ]
         ];
     }
 
@@ -79,6 +72,7 @@ class Commerce_AddressRecord extends BaseRecord
             'firstName' => [AttributeType::String, 'required' => true],
             'lastName' => [AttributeType::String, 'required' => true],
             'countryId' => [AttributeType::Number, 'required' => true],
+            'stateId' => AttributeType::Number,
             'address1' => AttributeType::String,
             'address2' => AttributeType::String,
             'city' => AttributeType::String,
@@ -88,7 +82,6 @@ class Commerce_AddressRecord extends BaseRecord
             'businessName' => AttributeType::String,
             'businessTaxId' => AttributeType::String,
             'stateName' => AttributeType::String,
-            'customerId' => [AttributeType::Number, 'required' => true],
         ];
     }
 }

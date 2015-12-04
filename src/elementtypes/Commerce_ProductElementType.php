@@ -64,22 +64,52 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
      */
     public function getAvailableActions($source = null)
     {
+        // Get the section(s) we need to check permissions on
+        switch ($source)
+        {
+            case '*':
+            {
+                $productTypes = craft()->commerce_productTypes->getEditableProductTypes();
+                break;
+            }
+            default:
+            {
+                if (preg_match('/^productType:(\d+)$/', $source, $matches))
+                {
+                    $productType = craft()->commerce_productTypes->getProductTypeById($matches[1]);
+
+                    if ($productType)
+                    {
+                        $productTypes = [$productType];
+                    }
+                }
+            }
+        }
+
         $actions = [];
 
-        // TODO: Replace with a product type permission check when we have them
-        if (craft()->userSession->checkPermission('accessPlugin-commerce')) {
-            $deleteAction = craft()->elements->getAction('Commerce_DeleteProduct');
-            $deleteAction->setParams([
-                'confirmationMessage' => Craft::t('Are you sure you want to delete the selected product and their variants?'),
-                'successMessage' => Craft::t('Products and Variants deleted.'),
-            ]);
-            $actions[] = $deleteAction;
+        if (!empty($productTypes))
+        {
+            $userSessionService = craft()->userSession;
+            $canManage = false;
 
-            $createSaleAction = craft()->elements->getAction('Commerce_CreateSale');
-            $actions[] = $createSaleAction;
+            foreach ($productTypes as $productType) {
+                $canManage = $userSessionService->checkPermission('commerce-manageProductType:'.$productType->id);
+            }
 
-            $createDiscountAction = craft()->elements->getAction('Commerce_CreateDiscount');
-            $actions[] = $createDiscountAction;
+            if ($canManage) {
+                $deleteAction = craft()->elements->getAction('Commerce_DeleteProduct');
+                $deleteAction->setParams([
+                    'confirmationMessage' => Craft::t('Are you sure you want to delete the selected product and their variants?'),
+                    'successMessage' => Craft::t('Products and Variants deleted.'),
+                ]);
+                $actions[] = $deleteAction;
+            }
+
+            if($userSessionService->checkPermission('commerce-managePromotions')){
+                $actions[] = craft()->elements->getAction('Commerce_CreateSale');
+                $actions[] = craft()->elements->getAction('Commerce_CreateDiscount');
+            }
         }
 
         // Allow plugins to add additional actions
@@ -99,27 +129,45 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
      */
     public function getSources($context = null)
     {
+
+
+        if ($context == 'index')
+        {
+            $productTypes = craft()->commerce_productTypes->getEditableProductTypes();
+            $editable = true;
+        }
+        else
+        {
+            $productTypes = craft()->commerce_productTypes->getAllProductTypes();
+            $editable = false;
+        }
+
+        $productTypeIds = array();
+
+        foreach ($productTypes as $productType)
+        {
+            $productTypeIds[] = $productType->id;
+        }
+
         $sources = [
             '*' => [
-                'label' => Craft::t('All products'),
+                'label'       => Craft::t('All products'),
+                'criteria'    => ['typeId' => $productTypeIds, 'editable' => $editable],
+                'defaultSort' => ['postDate', 'desc']
             ]
         ];
 
         $sources[] = ['heading' => Craft::t('Product Types')];
 
-        // TODO: Replace with per-product type permission checks when we have them
-        $canEditProducts = craft()->userSession->checkPermission('accessPlugin-commerce');
-
-        foreach (craft()->commerce_productTypes->getAllProductTypes() as $productType) {
+        foreach ($productTypes as $productType) {
             $key = 'productType:' . $productType->id;
-
             $sources[$key] = [
                 'label' => $productType->name,
                 'data' => [
                     'handle' => $productType->handle,
-                    'editable' => $canEditProducts
+                    'editable' => $editable
                 ],
-                'criteria' => ['typeId' => $productType->id]
+                'criteria' => ['typeId' => $productType->id, 'editable' => $editable]
             ];
         }
 
@@ -467,6 +515,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
             }
 
             $templatesService->setNamespace($namespace);
+            $templatesService->includeJs('Craft.Commerce.initUnlimitedStockCheckbox($(".elementeditor").find(".meta"));');
         }
 
         return $html;
@@ -514,6 +563,11 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
         $variantsPost = $params['variants'];
         $variants = [];
         $count = 1;
+
+        if(empty($variantsPost)){
+            $variantsPost = [];
+        }
+
         foreach ($variantsPost as $key => $variant) {
             if (strncmp($key, 'new', 3) !== 0) {
                 $variantModel = craft()->commerce_variants->getVariantById($key,$product->locale);

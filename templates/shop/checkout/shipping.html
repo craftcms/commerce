@@ -19,7 +19,7 @@
     #}
 
     {% if not craft.commerce.availableShippingMethods|length %}
-        <p>No shipping methods available, <a href="/commerce/checkout/payment">Continue to payment</a>.</p>
+        <p>No shipping methods available.<p><p> <a class="button button-primary" href="/commerce/checkout/payment">Continue to payment</a></p>
     {% endif %}
 
     {% if craft.commerce.availableShippingMethods|length %}
@@ -32,7 +32,7 @@
             <label>
                 <input type="radio" name="shippingMethod" value="{{ handle }}"
                        {% if handle == cart.shippingMethodHandle %}checked{% endif %} />
-                <strong>{{ method.name }}</strong> {{ method.amount|commerceCurrency }}
+                <strong>{{ method.name }}</strong> {{ method.amount|currency(cart.currency) }}
             </label>
         {% endfor %}
         <span class="flash">{{ cart.getErrors('shippingMethod')|join }}</span>

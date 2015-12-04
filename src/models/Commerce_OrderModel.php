@@ -25,9 +25,7 @@ use Omnipay\Common\Currency;
  * @property string $cancelUrl
  *
  * @property int $billingAddressId
- * @property mixed $billingAddressData
  * @property int $shippingAddressId
- * @property mixed $shippingAddressData
  * @property int $shippingMethod
  * @property int $paymentMethodId
  * @property int $customerId
@@ -95,8 +93,12 @@ class Commerce_OrderModel extends BaseElementModel
      */
     public function isEditable()
     {
-        // TODO: Replace with an order permission check when we have one
-        return craft()->userSession->checkPermission('accessPlugin-commerce');
+        // Still a cart, allow full editing.
+        if(!$this->dateOrdered){
+            return true;
+        }else{
+            return craft()->userSession->checkPermission('commerce-manageOrders');
+        }
     }
 
     /**
@@ -162,6 +164,29 @@ class Commerce_OrderModel extends BaseElementModel
     }
 
     /**
+     * @return Commerce_CustomerModel|null
+     */
+    public function getCustomer()
+    {
+        if($this->customerId){
+            return craft()->commerce_customers->getCustomerById($this->customerId);
+        }
+    }
+
+    /**
+     * Whether or not this order is made by a guest user.
+     * @return bool
+     */
+    public function isGuest()
+    {
+        if($this->getCustomer()){
+            return (bool) !$this->getCustomer()->userId;
+        }
+
+        return true;
+    }
+
+    /**
      * @return bool
      */
     public function isPaid()
@@ -190,7 +215,7 @@ class Commerce_OrderModel extends BaseElementModel
     public function getTotalQty()
     {
         $qty = 0;
-        foreach ($this->lineItems as $item) {
+        foreach ($this->getLineItems() as $item) {
             $qty += $item->qty;
         }
 
@@ -203,7 +228,7 @@ class Commerce_OrderModel extends BaseElementModel
     public function getTotalTax()
     {
         $tax = 0;
-        foreach ($this->lineItems as $item) {
+        foreach ($this->getLineItems() as $item) {
             $tax += $item->tax;
         }
 
@@ -216,7 +241,7 @@ class Commerce_OrderModel extends BaseElementModel
     public function getTotalTaxIncluded()
     {
         $tax = 0;
-        foreach ($this->lineItems as $item) {
+        foreach ($this->getLineItems() as $item) {
             $tax += $item->taxIncluded;
         }
 
@@ -229,7 +254,7 @@ class Commerce_OrderModel extends BaseElementModel
     public function getTotalDiscount()
     {
         $discount = 0;
-        foreach ($this->lineItems as $item) {
+        foreach ($this->getLineItems() as $item) {
             $discount += $item->discount;
         }
 
@@ -367,12 +392,7 @@ class Commerce_OrderModel extends BaseElementModel
     public function getShippingAddress()
     {
         if (!isset($this->_shippingAddress)) {
-            // Get the live linked address if it is still a cart, else cached
-            if (!$this->dateOrdered) {
-                $this->_shippingAddress = craft()->commerce_addresses->getAddressById($this->shippingAddressId);
-            } else {
-                $this->_shippingAddress = Commerce_AddressModel::populateModel($this->shippingAddressData);
-            }
+            $this->_shippingAddress = craft()->commerce_addresses->getAddressById($this->shippingAddressId);
         }
 
         return $this->_shippingAddress;
@@ -383,7 +403,6 @@ class Commerce_OrderModel extends BaseElementModel
      */
     public function setShippingAddress(Commerce_AddressModel $address)
     {
-        $this->shippingAddressData = JsonHelper::encode($address->attributes);
         $this->_shippingAddress = $address;
     }
 
@@ -393,12 +412,7 @@ class Commerce_OrderModel extends BaseElementModel
     public function getBillingAddress()
     {
         if (!isset($this->_billingAddress)) {
-            // Get the live linked address if it is still a cart, else cached
-            if (!$this->dateOrdered) {
-                $this->_billingAddress = craft()->commerce_addresses->getAddressById($this->billingAddressId);
-            } else {
-                $this->_billingAddress = Commerce_AddressModel::populateModel($this->billingAddressData);
-            }
+            $this->_billingAddress = craft()->commerce_addresses->getAddressById($this->billingAddressId);
         }
 
         return $this->_billingAddress;
@@ -410,7 +424,6 @@ class Commerce_OrderModel extends BaseElementModel
      */
     public function setBillingAddress(Commerce_AddressModel $address)
     {
-        $this->billingAddressData = JsonHelper::encode($address->attributes);
         $this->_billingAddress = $address;
     }
 
@@ -499,9 +512,7 @@ class Commerce_OrderModel extends BaseElementModel
             'shippingAddressId' => AttributeType::Number,
             'shippingMethod' => AttributeType::String,
             'paymentMethodId' => AttributeType::Number,
-            'customerId' => AttributeType::Number,
-            'shippingAddressData' => AttributeType::Mixed,
-            'billingAddressData' => AttributeType::Mixed
+            'customerId' => AttributeType::Number
         ]);
     }
 }

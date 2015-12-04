@@ -21,10 +21,6 @@
         </li>
     {% endif %}
 
-    {% if address.customer.email is defined %}
-        <li>{{ address.customer.email }}</li>
-    {% endif %}
-
     {% if address.address1 is not empty %}
         <li>{{ address.address1 }}</li>
     {% endif %}

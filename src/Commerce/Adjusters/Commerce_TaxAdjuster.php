@@ -71,7 +71,8 @@ class Commerce_TaxAdjuster implements Commerce_AdjusterInterface
                 //excluding taxes included in price
                 foreach ($lineItems as $item) {
                     if ($item->taxCategoryId == $taxRate->taxCategoryId) {
-                        $item->tax += -($item->getPriceWithoutShipping() - ($item->getPriceWithoutShipping() / (1 + $taxRate->rate))) * $item->qty;
+                        $taxableAmount = $item->getTaxableSubtotal($taxRate->taxable);
+                        $item->tax += -($taxableAmount - ($taxableAmount / (1 + $taxRate->rate)));
                     }
                 }
             }
@@ -85,17 +86,17 @@ class Commerce_TaxAdjuster implements Commerce_AdjusterInterface
 
             if ($item->taxCategoryId == $taxRate->taxCategoryId) {
                 if (!$taxRate->include) {
-                    $itemtax = $taxRate->rate * $item->getPriceWithoutShipping() * $item->qty;
+                    $itemTax = $taxRate->rate * $item->getTaxableSubtotal($taxRate->taxable);
                 } else {
-                    $itemtax = ($item->getPriceWithoutShipping() - ($item->getPriceWithoutShipping() / (1 + $taxRate->rate))) * $item->qty;
+                    $itemTax = ($item->getTaxableSubtotal($taxRate->taxable) - ($item->getTaxableSubtotal($taxRate->taxable) / (1 + $taxRate->rate)));
                 }
 
-                $adjustment->amount += $itemtax;
+                $adjustment->amount += $itemTax;
 
                 if (!$taxRate->include) {
-                    $item->tax += $itemtax;
+                    $item->tax += $itemTax;
                 }else{
-                    $item->taxIncluded += $itemtax;
+                    $item->taxIncluded += $itemTax;
                 }
 
                 $itemsMatch = true;
@@ -119,9 +120,9 @@ class Commerce_TaxAdjuster implements Commerce_AdjusterInterface
         }
 
         if ($zone->countryBased) {
-            $countriesIds = $zone->getCountriesIds();
+            $countryIds = $zone->getCountryIds();
 
-            if (in_array($address->countryId, $countriesIds)) {
+            if (in_array($address->countryId, $countryIds)) {
                 return true;
             }
         } else {

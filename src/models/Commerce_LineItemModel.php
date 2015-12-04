@@ -49,6 +49,8 @@ class Commerce_LineItemModel extends BaseModel
 {
     use Commerce_ModelRelationsTrait;
 
+    private $_purchasable;
+
     /**
      * @return int
      */
@@ -57,17 +59,36 @@ class Commerce_LineItemModel extends BaseModel
         return $this->qty * ($this->price + $this->saleAmount);
     }
 
+    /**
+     * @return int
+     */
     public function getTotal()
     {
         return $this->getSubtotalWithSale() + $this->tax + $this->discount + $this->shippingCost;
     }
 
     /**
-     * @return float
+     * @param Commerce_TaxRateRecord::taxables
+     * @return int
      */
-    public function getPriceWithoutShipping()
+    public function getTaxableSubtotal($taxable)
     {
-        return $this->price + $this->discount + $this->saleAmount;
+        switch ($taxable) {
+            case Commerce_TaxRateRecord::TAXABLE_PRICE:
+                $taxableSubtotal = $this->getSubtotalWithSale() + $this->discount;
+                break;
+            case Commerce_TaxRateRecord::TAXABLE_SHIPPING:
+                $taxableSubtotal = $this->shippingCost;
+                break;
+            case Commerce_TaxRateRecord::TAXABLE_PRICE_SHIPPING:
+                $taxableSubtotal = $this->getSubtotalWithSale() + $this->discount + $this->shippingCost;
+                break;
+            default:
+                // default to just price
+                $taxableSubtotal = $this->getSubtotalWithSale() + $this->discount;
+        }
+
+        return $taxableSubtotal;
     }
 
     /**
@@ -89,7 +110,11 @@ class Commerce_LineItemModel extends BaseModel
      */
     public function getPurchasable()
     {
-        return craft()->elements->getElementById($this->purchasableId);
+        if (!$this->_purchasable){
+            $this->_purchasable = craft()->elements->getElementById($this->purchasableId);
+        }
+
+        return $this->_purchasable;
     }
 
     /**
@@ -98,6 +123,7 @@ class Commerce_LineItemModel extends BaseModel
     public function fillFromPurchasable(Purchasable $purchasable)
     {
         $this->price = $purchasable->getPrice();
+        $this->taxCategoryId = $purchasable->getTaxCategoryId();
 
         // Since sales cannot apply to non core purchasables, set to price at default
         $this->salePrice = $purchasable->getPrice();
@@ -120,8 +146,6 @@ class Commerce_LineItemModel extends BaseModel
             $this->height = $purchasable->height * 1; //converting nulls
             $this->length = $purchasable->length * 1; //converting nulls
             $this->width = $purchasable->width * 1; //converting nulls
-
-            $this->taxCategoryId = $purchasable->product->taxCategoryId;
 
             $sales = craft()->commerce_sales->getSalesForVariant($purchasable);
 

@@ -74,7 +74,7 @@
             id: 'emails',
             name: 'emails',
             options: emails,
-            values: emailsIds is defined ? emailsIds : orderStatus.getEmailsIds(),
+            values: emailIds is defined ? emailIds : orderStatus.getEmailIds(),
             errors: orderStatus.getErrors('emails'),
             class: 'selectize fullwidth',
         }) }}

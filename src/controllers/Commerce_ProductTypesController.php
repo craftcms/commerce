@@ -68,7 +68,7 @@ class Commerce_ProductTypesController extends Commerce_BaseAdminController
         $productType->hasDimensions = craft()->request->getPost('hasDimensions');
         $productType->hasUrls = craft()->request->getPost('hasUrls');
         $productType->hasVariants = craft()->request->getPost('hasVariants');
-        $productType->hasVariantTitleField = craft()->request->getPost('hasVariantTitleField');
+        $productType->hasVariantTitleField = $productType->hasVariants ? craft()->request->getPost('hasVariantTitleField') : false;
         $productType->template = craft()->request->getPost('template');
         $productType->titleFormat = craft()->request->getPost('titleFormat');
         $productType->skuFormat = craft()->request->getPost('skuFormat');
@@ -95,7 +95,7 @@ class Commerce_ProductTypesController extends Commerce_BaseAdminController
         $productType->asa('variantFieldLayout')->setFieldLayout($variantFieldLayout);
 
         // Save it
-        if (craft()->commerce_productTypes->save($productType)) {
+        if (craft()->commerce_productTypes->saveProductType($productType)) {
             craft()->userSession->setNotice(Craft::t('Product type saved.'));
             $this->redirectToPostedUrl($productType);
         } else {

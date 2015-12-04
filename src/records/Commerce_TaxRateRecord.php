@@ -8,6 +8,7 @@ namespace Craft;
  * @property string $name
  * @property float $rate
  * @property bool $include
+ * @property string $taxable
  * @property bool $showInLabel
  * @property int $taxZoneId
  * @property int $taxCategoryId
@@ -24,6 +25,17 @@ namespace Craft;
  */
 class Commerce_TaxRateRecord extends BaseRecord
 {
+
+    const TAXABLE_PRICE = 'price';
+    const TAXABLE_SHIPPING = 'shipping';
+    const TAXABLE_PRICE_SHIPPING = 'price_shipping';
+
+    /* @var array $types */
+    private $taxables = [
+        self::TAXABLE_PRICE,
+        self::TAXABLE_SHIPPING,
+        self::TAXABLE_PRICE_SHIPPING
+    ];
 
     /**
      * @return string
@@ -89,6 +101,11 @@ class Commerce_TaxRateRecord extends BaseRecord
                 'default' => 0,
                 'required' => true
             ],
+            'taxable' => [
+                AttributeType::Enum,
+                'values' => $this->taxables,
+                'required' => true
+            ]
         ];
     }
 }

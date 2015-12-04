@@ -27,15 +27,13 @@ class CommerceTwigExtension extends \Twig_Extension
      */
     public function getFilters()
     {
-        $returnArray['commerceCurrency'] = new \Twig_Filter_Method($this, 'currency');
-        $returnArray['commerceDecimal'] = new \Twig_Filter_Method($this, 'decimal');
         $returnArray['commercePercent'] = new \Twig_Filter_Method($this, 'percent');
 
         return $returnArray;
     }
 
     /**
-     * @param            $string
+     * @param $string
      *
      * @return mixed
      */
@@ -47,28 +45,4 @@ class CommerceTwigExtension extends \Twig_Extension
         return $this->decimal($string) . "" . $percentSign;
     }
 
-    /**
-     * @param            $string
-     * @param bool|false $withGroupSymbol
-     *
-     * @return mixed
-     */
-    public function decimal($string, $withGroupSymbol = false)
-    {
-        return \Craft\craft()->numberFormatter->formatDecimal($string, $withGroupSymbol);
-    }
-
-
-    /**
-     * @param           $content
-     * @param bool|true $stripZeroCents
-     *
-     * @return mixed
-     */
-    public function currency($content, $stripZeroCents = false)
-    {
-        $code = \Craft\craft()->commerce_settings->getOption('defaultCurrency');
-
-        return \Craft\craft()->numberFormatter->formatCurrency($content, strtoupper($code), $stripZeroCents);
-    }
 }

@@ -204,7 +204,9 @@ class Commerce_VariantElementType extends Commerce_BaseElementType
             'sku' => AttributeType::Mixed,
             'product' => AttributeType::Mixed,
             'productId' => AttributeType::Mixed,
-            'order' => [AttributeType::String, 'default' => 'sortOrder asc'],
+            'isDefault' => AttributeType::Mixed,
+            'default' => AttributeType::Mixed,
+            'order' => [AttributeType::String, 'default' => 'variants.sortOrder asc'],
         ];
     }
 
@@ -235,6 +237,14 @@ class Commerce_VariantElementType extends Commerce_BaseElementType
 
         if ($criteria->productId) {
             $query->andWhere(DbHelper::parseParam('variants.productId', $criteria->productId, $query->params));
+        }
+
+        if ($criteria->isDefault) {
+            $query->andWhere(DbHelper::parseParam('variants.isDefault', $criteria->isDefault, $query->params));
+        }
+
+        if ($criteria->default) {
+            $query->andWhere(DbHelper::parseParam('variants.isDefault', $criteria->default, $query->params));
         }
 
     }

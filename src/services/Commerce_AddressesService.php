@@ -36,10 +36,9 @@ class Commerce_AddressesService extends BaseApplicationComponent
      */
     public function getAddressesByCustomerId($id)
     {
-        $records = Commerce_AddressRecord::model()->with('country',
-            'state')->findAllByAttributes(['customerId' => $id]);
+        $record = Commerce_CustomerRecord::model()->with('addresses')->findByAttributes(['id' => $id]);
 
-        return Commerce_AddressModel::populateModels($records);
+        return Commerce_AddressModel::populateModels($record->addresses);
     }
 
     /**
@@ -72,7 +71,6 @@ class Commerce_AddressesService extends BaseApplicationComponent
         $addressRecord->businessName = $addressModel->businessName;
         $addressRecord->businessTaxId = $addressModel->businessTaxId;
         $addressRecord->countryId = $addressModel->countryId;
-        $addressRecord->customerId = $addressModel->customerId;
 
         if (!empty($addressModel->stateValue)) {
             if (is_numeric($addressModel->stateValue)) {
@@ -89,11 +87,27 @@ class Commerce_AddressesService extends BaseApplicationComponent
         $addressModel->addErrors($addressRecord->getErrors());
 
         if (!$addressModel->hasErrors()) {
-            // Save it!
-            $addressRecord->save(false);
+
+            //raising event
+            $event = new Event($this, [
+                'address' => $addressModel
+            ]);
+            $this->onBeforeSaveAddress($event);
+
+            if ($event->performAction){
+                $addressRecord->save(false);
+            }else{
+                return false;
+            }
 
             // Now that we have a record ID, save it on the model
             $addressModel->id = $addressRecord->id;
+
+            //raising event
+            $event = new Event($this, [
+                'address' => $addressModel
+            ]);
+            $this->onSaveAddress($event);
 
             return true;
         } else {
@@ -110,4 +124,39 @@ class Commerce_AddressesService extends BaseApplicationComponent
     {
         return (bool)Commerce_AddressRecord::model()->deleteByPk($id);
     }
+
+    /**
+     * Event: before saving and address
+     * Event params: address(Commerce_AddressModel)
+     *
+     * @param \CEvent $event
+     *
+     * @throws \CException
+     */
+    public function onBeforeSaveAddress(\CEvent $event)
+    {
+        $params = $event->params;
+        if (empty($params['address']) || !($params['address'] instanceof Commerce_AddressModel)) {
+            throw new Exception('onBeforeSaveAddress event requires "address" param with Commerce_AddressModel instance');
+        }
+        $this->raiseEvent('onBeforeSaveAddress', $event);
+    }
+
+    /**
+     * Event: after saving an address.
+     * Event params: addres(Commerce_AddressModel)
+     *
+     * @param \CEvent $event
+     *
+     * @throws \CException
+     */
+    public function onSaveAddress(\CEvent $event)
+    {
+        $params = $event->params;
+        if (empty($params['address']) || !($params['address'] instanceof Commerce_AddressModel)) {
+            throw new Exception('onSaveAddress event requires "address" param with Commerce_AddressModel instance');
+        }
+        $this->raiseEvent('onSaveAddress', $event);
+    }
+
 }

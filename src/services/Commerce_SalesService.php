@@ -78,7 +78,7 @@ class Commerce_SalesService extends BaseApplicationComponent
             $criteria->addCondition("t.allProductTypes = 1");
         }
 
-        $groupIds = craft()->commerce_discounts->getCurrentUserGroupsIds();
+        $groupIds = craft()->commerce_discounts->getCurrentUserGroupIds();
         if ($groupIds) {
             $list = implode(',', $groupIds);
             $criteria->addCondition("sug.userGroupId IN ($list) OR t.allGroups = 1");
@@ -127,20 +127,20 @@ class Commerce_SalesService extends BaseApplicationComponent
     )
     {
         if (!$sale->allProducts && !in_array($product->id,
-                $sale->getProductsIds())
+                $sale->getProductIds())
         ) {
             return false;
         }
 
         if (!$sale->allProductTypes && !in_array($product->typeId,
-                $sale->getProductTypesIds())
+                $sale->getProductTypeIds())
         ) {
             return false;
         }
 
-        $userGroups = craft()->commerce_discounts->getCurrentUserGroupsIds();
+        $userGroups = craft()->commerce_discounts->getCurrentUserGroupIds();
         if (!$sale->allGroups && !array_intersect($userGroups,
-                $sale->getGroupsIds())
+                $sale->getGroupIds())
         ) {
             return false;
         }

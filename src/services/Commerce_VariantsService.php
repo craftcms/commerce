@@ -34,20 +34,20 @@ class Commerce_VariantsService extends BaseApplicationComponent
      *
      * @return Commerce_VariantModel
      */
-    public function getPrimaryVariantByProductId($variantId, $localeId = null)
+    public function getDefaultVariantByProductId($variantId, $localeId = null)
     {
         return ArrayHelper::getFirstValue($this->getAllVariantsByProductId($variantId, $localeId));
     }
 
     /**
-     * @param int $variantId
+     * @param int $productId
      * @param string|null $localeId
      *
      * @return Commerce_VariantModel[]
      */
-    public function getAllVariantsByProductId($variantId, $localeId = null)
+    public function getAllVariantsByProductId($productId, $localeId = null)
     {
-        $variants = craft()->elements->getCriteria('Commerce_Variant', ['productId' => $variantId, 'status'=> null, 'locale' => $localeId])->find();
+        $variants = craft()->elements->getCriteria('Commerce_Variant', ['productId' => $productId, 'status'=> null, 'locale' => $localeId])->find();
 
         return $variants;
     }
@@ -100,7 +100,7 @@ class Commerce_VariantsService extends BaseApplicationComponent
 
         // If variant validation has not already found a clash check all purchasables
         if(!$variant->getError('sku')){
-            $existing = craft()->commerce_purchasable->getPurchasableBySku($variant->sku);
+            $existing = craft()->commerce_purchasables->getPurchasableBySku($variant->sku);
 
             if($existing){
                 if($existing->id != $variant->id){
@@ -164,7 +164,7 @@ class Commerce_VariantsService extends BaseApplicationComponent
         CommerceDbHelper::beginStackedTransaction();
         try {
             if (!$model->hasErrors()) {
-                if (craft()->commerce_purchasable->saveElement($model)) {
+                if (craft()->commerce_purchasables->saveElement($model)) {
                     $record->id = $model->id;
                     $record->save(false);
                     CommerceDbHelper::commitStackedTransaction();
@@ -213,11 +213,11 @@ class Commerce_VariantsService extends BaseApplicationComponent
         $record->productId = $model->productId;
         $record->sku = $model->sku;
 
-        $record->price = $model->price;
-        $record->width = $model->width;
-        $record->height = $model->height;
-        $record->length = $model->length;
-        $record->weight = $model->weight;
+        $record->price = LocalizationHelper::normalizeNumber($model->price);
+        $record->width = LocalizationHelper::normalizeNumber($model->width);
+        $record->height = LocalizationHelper::normalizeNumber($model->height);
+        $record->length = LocalizationHelper::normalizeNumber($model->length);
+        $record->weight = LocalizationHelper::normalizeNumber($model->weight);
         $record->minQty = $model->minQty;
         $record->maxQty = $model->maxQty;
         $record->stock = $model->stock;
@@ -251,7 +251,9 @@ class Commerce_VariantsService extends BaseApplicationComponent
         foreach ($order->lineItems as $lineItem) {
             /** @var Commerce_VariantRecord $record */
             $record = Commerce_VariantRecord::model()->findByAttributes(['id' => $lineItem->purchasableId]);
-            if (!$record->unlimitedStock) {
+
+            // Don't assume that this is a Variant
+            if ($record && !$record->unlimitedStock) {
                 $record->stock = $record->stock - $lineItem->qty;
                 $record->save(false);
             }

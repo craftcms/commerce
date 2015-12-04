@@ -62,6 +62,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
     {
         $criteria = craft()->elements->getCriteria('Commerce_Order');
         $criteria->customer = $customer;
+        $criteria->dateOrdered = "NOT NULL";
         $criteria->limit = null;
 
         return $criteria->find();
@@ -130,14 +131,6 @@ class Commerce_OrdersService extends BaseApplicationComponent
      */
     public function saveOrder($order)
     {
-        if ($order->dateOrdered) {
-            //raising event
-            $event = new Event($this, [
-                'order' => $order
-            ]);
-            $this->onBeforeSaveOrder($event);
-        }
-
         if (!$order->id) {
             $orderRecord = new Commerce_OrderRecord();
         } else {
@@ -208,8 +201,6 @@ class Commerce_OrdersService extends BaseApplicationComponent
         $orderRecord->returnUrl = $order->returnUrl;
         $orderRecord->cancelUrl = $order->cancelUrl;
         $orderRecord->message = $order->message;
-        $orderRecord->shippingAddressData = $order->shippingAddressData;
-        $orderRecord->billingAddressData = $order->billingAddressData;
 
         $orderRecord->validate();
         $order->addErrors($orderRecord->getErrors());
@@ -219,29 +210,40 @@ class Commerce_OrdersService extends BaseApplicationComponent
         try {
             if (!$order->hasErrors()) {
                 if (craft()->elements->saveElement($order)) {
-                    //creating order history record
-                    if ($orderRecord->id && $oldStatusId != $orderRecord->orderStatusId) {
-                        if (!craft()->commerce_orderHistories->createOrderHistoryFromOrder($order,
-                            $oldStatusId)
-                        ) {
-                            throw new Exception('Error saving order history');
-                        }
-                    }
 
-                    //saving order record
                     $orderRecord->id = $order->id;
-                    $orderRecord->save(false);
+
+                    //raising event
+                    $event = new Event($this, [
+                        'order' => $order
+                    ]);
+                    $this->onBeforeSaveOrder($event);
+
+                    if($event->performAction){
+                        $orderRecord->save(false);
+                        $order->id = $orderRecord->id;
+                    }else{
+                        return false;
+                    }
 
                     craft()->commerce_customers->setLastUsedAddresses($orderRecord->billingAddressId,$orderRecord->shippingAddressId);
 
                     CommerceDbHelper::commitStackedTransaction();
 
                     //raising event
-                    if (!$order->dateOrdered) {
-                        $event = new Event($this, [
-                            'order' => $order
-                        ]);
-                        $this->onSaveOrder($event);
+                    $event = new Event($this, [
+                        'order' => $order
+                    ]);
+                    $this->onSaveOrder($event);
+
+                    //creating order history record
+                    if ($orderRecord->id && $oldStatusId != $orderRecord->orderStatusId) {
+                        if (!craft()->commerce_orderHistories->createOrderHistoryFromOrder($order,
+                            $oldStatusId)
+                        ) {
+                            CommercePlugin::log('Error saving order history after Order save.',LogLevel::Error);
+                            throw new Exception('Error saving order history');
+                        }
                     }
 
                     return true;
@@ -258,7 +260,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
     }
 
     /**
-     * Event: before saving incomplete order
+     * Event: before saving order
      * Event params: order(Commerce_OrderModel)
      *
      * @param \CEvent $event
@@ -289,13 +291,17 @@ class Commerce_OrdersService extends BaseApplicationComponent
         //calculating adjustments
         $lineItems = craft()->commerce_lineItems->getAllLineItemsByOrderId($order->id);
 
+        // reset base totals
+        $order->baseDiscount = 0;
+        $order->baseShippingCost = 0;
         $order->itemTotal = 0;
         foreach ($lineItems as $item) { //resetting fields calculated by adjusters
             $item->tax = 0;
+            $item->taxIncluded = 0;
             $item->shippingCost = 0;
             $item->discount = 0;
             // Need to have an initial itemTotal for use by adjusters.
-            $order->itemTotal += $item->total;
+            $order->itemTotal += $item->getTotal();
         }
 
         $order->setLineItems($lineItems);
@@ -393,10 +399,33 @@ class Commerce_OrdersService extends BaseApplicationComponent
         $this->onBeforeOrderComplete($event);
 
         $order->dateOrdered = DateTimeHelper::currentTimeForDb();
-        if ($status = craft()->commerce_orderStatuses->getDefault()) {
+        if ($status = craft()->commerce_orderStatuses->getDefaultOrderStatus()) {
             $order->orderStatusId = $status->id;
         }else{
             throw new Exception(Craft::t('No default Status available to set on completed order.'));
+        }
+
+
+        if($order->getCustomer()->userId && $order->billingAddress){
+            $snapShotBillingAddress = Commerce_AddressModel::populateModel($order->billingAddress);
+            $snapShotBillingAddress->id = null;
+            if(craft()->commerce_addresses->saveAddress($snapShotBillingAddress)){
+                $order->billingAddressId = $snapShotBillingAddress->id;
+            }else{
+                throw new Exception('Error on saving snapshot billing address during order completion: ' . implode(', ',
+                        $snapShotBillingAddress->getAllErrors()));
+            };
+        }
+
+        if($order->getCustomer()->userId && $order->shippingAddress){
+            $snapShotShippingAddress = Commerce_AddressModel::populateModel($order->shippingAddress);
+            $snapShotShippingAddress->id = null;
+            if(craft()->commerce_addresses->saveAddress($snapShotShippingAddress)){
+                $order->shippingAddressId = $snapShotShippingAddress->id;
+            }else{
+                throw new Exception('Error on saving snapshot shipping address during order completion: ' . implode(', ',
+                        $snapShotShippingAddress->getAllErrors()));
+            };
         }
 
         if (!$this->saveOrder($order)) {
@@ -414,7 +443,6 @@ class Commerce_OrdersService extends BaseApplicationComponent
 
         return true;
     }
-
 
     /**
      * Event method
@@ -502,7 +530,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
         foreach ($order->lineItems as $item) {
             if ($item->refreshFromPurchasable()) {
                 if (!craft()->commerce_lineItems->saveLineItem($item)) {
-                    throw new Exception('Error on saving lite item: ' . implode(', ',
+                    throw new Exception('Error on saving line item: ' . implode(', ',
                             $item->getAllErrors()));
                 }
             } else {

@@ -16,8 +16,15 @@ use Commerce\Helpers\CommerceVariantMatrixHelper as VariantMatrixHelper;
  */
 class Commerce_ProductsController extends Commerce_BaseCpController
 {
-    /** @var bool All product changes should be by a logged in user */
-    protected $allowAnonymous = false;
+    /**
+     * @throws HttpException
+     */
+    public function init()
+    {
+        craft()->userSession->requirePermission('commerce-manageProducts');
+        parent::init();
+    }
+
 
     /**
      * Index of products
@@ -51,6 +58,8 @@ class Commerce_ProductsController extends Commerce_BaseCpController
 
         if ($variables['product']->getType()->hasVariants) {
             $variables['variantMatrixHtml'] = VariantMatrixHelper::getVariantMatrixHtml($variables['product']);
+        }else{
+            craft()->templates->includeJs('Craft.Commerce.initUnlimitedStockCheckbox($("#meta-pane"));');
         }
 
         // Enable Live Preview?
@@ -137,6 +146,7 @@ class Commerce_ProductsController extends Commerce_BaseCpController
         }
 
         if (!empty($variables['product']->id)) {
+            $this->enforceProductPermissions($variables['product']);
             $variables['enabledLocales'] = craft()->elements->getEnabledLocalesForElement($variables['product']->id);
         } else {
             $variables['enabledLocales'] = [];
@@ -191,7 +201,7 @@ class Commerce_ProductsController extends Commerce_BaseCpController
         $product = $this->_setProductFromPost();
         $this->_setVariantsFromPost($product);
 
-        // TODO: permission enforcement
+        $this->enforceProductPermissions($product);
 
         $this->_showProduct($product);
     }
@@ -214,7 +224,7 @@ class Commerce_ProductsController extends Commerce_BaseCpController
             throw new HttpException(404);
         }
 
-        // TODO: permission enforcement
+        $this->enforceProductPermissions($product);
 
         // Make sure the product actually can be viewed
         if (!craft()->commerce_productTypes->isProductTypeTemplateValid($product->getType()))
@@ -302,6 +312,8 @@ class Commerce_ProductsController extends Commerce_BaseCpController
                 ['id' => $productId]));
         }
 
+        $this->enforceProductPermissions($product);
+
         if (craft()->commerce_products->deleteProduct($product)) {
             if (craft()->request->isAjaxRequest()) {
                 $this->returnJson(['success' => true]);
@@ -331,6 +343,9 @@ class Commerce_ProductsController extends Commerce_BaseCpController
         $this->requirePostRequest();
 
         $product = $this->_setProductFromPost();
+
+        $this->enforceProductPermissions($product);
+
         $variants = $this->_setVariantsFromPost($product);
         $product->setVariants($variants);
 
@@ -416,6 +431,11 @@ class Commerce_ProductsController extends Commerce_BaseCpController
         $variantsPost = craft()->request->getPost('variants');
         $variants = [];
         $count = 1;
+
+        if(empty($variantsPost)){
+            $variantsPost = [];
+        }
+
         foreach ($variantsPost as $key => $variant) {
             if (strncmp($key, 'new', 3) !== 0) {
                 $variantModel = craft()->commerce_variants->getVariantById($key,$product->locale);
@@ -439,5 +459,22 @@ class Commerce_ProductsController extends Commerce_BaseCpController
         }
 
         return $variants;
+    }
+
+    /**
+     * @param Commerce_ProductModel $product
+     * @throws HttpException
+     */
+    protected function enforceProductPermissions(Commerce_ProductModel $product)
+    {
+
+        if (!$product->getType())
+        {
+            Craft::log('Attempting to access a product that doesn’t have a type', LogLevel::Error);
+            throw new HttpException(404);
+        }
+
+        craft()->userSession->requirePermission('commerce-manageProductType:'.$product->getType()->id);
+
     }
 }

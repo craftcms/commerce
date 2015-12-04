@@ -115,7 +115,7 @@ class CommerceVariable
     {
         return array_map(function ($status) {
             return $status->attributes;
-        }, craft()->commerce_orderStatuses->getAll());
+        }, craft()->commerce_orderStatuses->getAllOrderStatuses());
     }
 
     /**
@@ -123,7 +123,7 @@ class CommerceVariable
      */
     public function getTaxCategories()
     {
-        $taxCategories = craft()->commerce_taxCategories->getAll();
+        $taxCategories = craft()->commerce_taxCategories->getAllTaxCategories();
 
         return \CHtml::listData($taxCategories, 'id', 'name');
     }
