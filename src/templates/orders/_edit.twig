@@ -8,6 +8,8 @@
 
 {% import "_includes/forms" as forms %}
 
+{% set pdfUrl = order.getPdfUrl() %}
+
 
 {% block main %}
 	<div class="pane">
@@ -168,8 +170,8 @@
 			{% for adjustment in order.adjustments %}
 			<tr>
 				<td><strong>{{ adjustment.type|title|t }} {{ "Adjustment"|t }}</strong><br>{{ adjustment.name|title }} <span class="info"><strong>{{ adjustment.type|title|t }} {{ "Adjustment"|t }}</strong><br> {{ adjustment.description }}</span></td>
-				<td></td>
 				<td>{{ adjustment.amount|currency(order.currency) }}</td>
+				<td></td>
 				<td></td>
 				<td></td>
 				<td></td>
@@ -231,11 +233,13 @@
 		<input type="hidden" name="redirect" value="">
 		{{ getCsrfInput() }}
 	<div class="footer">
+		{% if pdfUrl %}
 		<div class="btngroup right">
 			{% if orderPdfTemplateExists %}
 			<a class="btn" href="{{ order.pdfUrl }}" target="_blank">{{ 'Download PDF'|t }}</a>
 			{% endif %}
 		</div>
+		{% endif %}
 		<div class="btngroup">
 			<input type="button" class="btn formsubmit"
 				value="{{ 'Delete Order'|t }}"
