@@ -344,7 +344,7 @@ class CommercePlugin extends BasePlugin
         }
 
         if (craft()->userSession->isAdmin()) {
-            $context['subnav']['settings'] = array('icon' => 'settings', 'label' => Craft::t('Settings'), 'url' => 'commerce/settings');
+            $context['subnav']['settings'] = array('label' => Craft::t('Settings'), 'url' => 'commerce/settings');
         }
     }
 

@@ -136,15 +136,34 @@ class Commerce_OrderModel extends BaseElementModel
     }
 
     /**
-     * Returns the link to the Order's PDF file for download.
+     * Returns the URL to the order’s PDF invoice.
      *
-     * @param string $option
+     * @param string|null $option The option that should be available to the PDF template (e.g. “receipt”)
      *
-     * @return string
+     * @return string|null The URL to the order’s PDF invoice, or null if the PDF template doesn’t exist
      */
-    public function getPdfUrl($option = '')
+    public function getPdfUrl($option = null)
     {
-        return UrlHelper::getActionUrl('commerce/downloads/pdf?number=' . $this->number . "&option=" . $option);
+        $url = null;
+
+        // Make sure the template exists
+        $template = craft()->commerce_settings->getSettings()->orderPdfPath;
+
+        if ($template)
+        {
+            $paths = craft()->path;
+            $templatesPath = $paths->getTemplatesPath();
+            $paths->setTemplatesPath($paths->getSiteTemplatesPath());
+
+            if (craft()->templates->doesTemplateExist($template))
+            {
+                $url = UrlHelper::getActionUrl("commerce/downloads/pdf?number={$this->number}".($option ? "&option={$option}" : null));
+            }
+
+            $paths->setTemplatesPath($templatesPath);
+        }
+
+        return $url;
     }
 
     /**
