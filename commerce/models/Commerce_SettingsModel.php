@@ -76,7 +76,7 @@ class Commerce_SettingsModel extends BaseModel
         return [
             'mm' => Craft::t('Millimeters (mm)'),
             'cm' => Craft::t('Centimeters (cm)'),
-            'm' => Craft::t('Metres (m)'),
+            'm' => Craft::t('Meters (m)'),
             'ft' => Craft::t('Feet (ft)'),
             'in' => Craft::t('Inches (in)'),
         ];
