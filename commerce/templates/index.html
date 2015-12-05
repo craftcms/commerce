@@ -1,5 +1,5 @@
 {% if currentUser.can('commerce-manageOrders') %}
-{% redirect 'commerce/orders' %}
+    {% redirect 'commerce/orders' %}
 {% endif %}
 
 {% if currentUser.can('commerce-manageProducts') %}
