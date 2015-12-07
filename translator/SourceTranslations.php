@@ -472,6 +472,7 @@ $lang['Tax category saved.'] = 'Tax category saved.';
 $lang['Tax rate saved.'] = 'Tax rate saved.';
 $lang['Tax rates are a percentages, (i.e. if the tax rate is 5% then enter ‘5%’. You could also enter ‘10.5%’).'] = 'Tax rates are a percentages, (i.e. if the tax rate is 5% then enter ‘5%’. You could also enter ‘10.5%’).';
 $lang['Tax zone saved.'] = 'Tax zone saved.';
+$lang['Taxable Subject'] = 'Taxable Subject';
 $lang['Taxes'] = 'Taxes';
 $lang['Template Path'] = 'Template Path';
 $lang['Thanks for trying Craft Commerce.'] = 'Thanks for trying Craft Commerce.';
