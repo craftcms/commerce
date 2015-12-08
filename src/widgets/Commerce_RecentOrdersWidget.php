@@ -24,8 +24,14 @@ class Commerce_RecentOrdersWidget extends BaseWidget
      */
     public function getBodyHtml()
     {
+        $options = array();
+        $options['dataUrl'] = UrlHelper::getActionUrl('commerce/reports/orders');
+
+        $js = 'new Craft.CommerceRecentOrdersWidget('.$this->model->id.', '.JsonHelper::encode($options).');';
+
         craft()->templates->includeCssResource('commerce/widgets.css');
         craft()->templates->includeJsResource('commerce/js/CommerceRecentOrdersWidget.js');
+        craft()->templates->includeJs($js);
 
         $orders = $this->_getOrders();
 
@@ -55,6 +61,8 @@ class Commerce_RecentOrdersWidget extends BaseWidget
     private function _getOrders()
     {
         $criteria = craft()->elements->getCriteria('Commerce_Order');
+        $criteria->completed = true;
+        $criteria->dateOrdered = "NOT NULL";
         $criteria->limit = $this->getSettings()->limit;
         $criteria->order = 'elements.dateCreated desc';
 
