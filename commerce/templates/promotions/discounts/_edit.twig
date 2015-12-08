@@ -190,7 +190,7 @@
     <div id="amounts" class="hidden">
     {{ commerceForms.numberField({
         label: "Base Discount"|t,
-        instructions: "The flat value which should discount the order’s total price. i.e '10' for $10 off."|t,
+        instructions: "The flat value which should discount the order’s total price. i.e “10” for $10 off."|t,
         id: 'baseDiscount',
         name: 'baseDiscount',
         value: discount.baseDiscount * -1,
@@ -201,7 +201,7 @@
 
     {{ commerceForms.numberField({
         label: "Per Item Discount"|t,
-        instructions: "The flat value which should discount each item in the order. i.e '1' for $1 off."|t,
+        instructions: "The flat value which should discount each item in the order. i.e “1” for $1 off."|t,
         id: 'perItemDiscount',
         name: 'perItemDiscount',
         value: discount.perItemDiscount * -1,
@@ -212,7 +212,7 @@
 
     {{ forms.textField({
         label: "Percent Discount"|t,
-        instructions: "The percentile value which should each item in the cart. i.e. '4%' for 4% off"|t,
+        instructions: "The percentile value which should discount each item in the cart. i.e. “4%” for 4% off"|t,
         id: 'percentDiscount',
         name: 'percentDiscount',
         value: discount.percentDiscountAsPercent,
