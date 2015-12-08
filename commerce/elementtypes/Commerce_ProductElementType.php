@@ -357,6 +357,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
             'before' => AttributeType::Mixed,
             'status' => [AttributeType::String, 'default' => Commerce_ProductModel::LIVE],
             'withVariant' => AttributeType::Mixed,
+            'editable' => AttributeType::Bool,
         ];
     }
 
@@ -460,6 +461,23 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
             }
 
             $query->andWhere(['in', 'products.id', $productIds]);
+        }
+
+        if ($criteria->editable) {
+            $user = craft()->userSession->getUser();
+
+            if (!$user) {
+                return false;
+            }
+
+            // Limit the query to only the sections the user has permission to edit
+            $editableProductTypeIds = craft()->commerce_productTypes->getEditableProductTypeIds();
+
+            if (!$editableProductTypeIds) {
+                return false;
+            }
+
+            $query->andWhere(array('in', 'products.typeId', $editableProductTypeIds));
         }
 
         return true;
