@@ -569,14 +569,14 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
     }
 
     /**
-     * @param BaseElementModel $product
+     * @param BaseElementModel $element
      * @param array $params
      *
      * @return bool
      * @throws Exception
      * @throws \Exception
      */
-    public function saveElement(BaseElementModel $product, $params)
+    public function saveElement(BaseElementModel $element, $params)
     {
         $variantsPost = $params['variants'];
         $variants = [];
@@ -588,12 +588,12 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
 
         foreach ($variantsPost as $key => $variant) {
             if (strncmp($key, 'new', 3) !== 0) {
-                $variantModel = craft()->commerce_variants->getVariantById($key,$product->locale);
+                $variantModel = craft()->commerce_variants->getVariantById($key, $element->locale);
             }else{
                 $variantModel = new Commerce_VariantModel();
             }
 
-            $variantModel->setProduct($product);
+            $variantModel->setProduct($element);
             $variantModel->setAttributes($variant);
             $variantModel->sortOrder = $count++;
 
