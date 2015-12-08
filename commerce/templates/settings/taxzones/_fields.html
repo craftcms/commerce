@@ -47,7 +47,7 @@
 {{ forms.multiselectField({
     label: 'States'|t,
     id: 'states',
-    instructions: 'Choose the states that this zone applies to.',
+    instructions: 'Choose the states that this zone applies to.'|t,
     name: 'states',
     options: states,
     values: taxZone is defined ? taxZone.getStateIds(),
