@@ -41,6 +41,7 @@ class Commerce_BaseFrontEndController extends Commerce_BaseController
         $data['cancelUrl'] = $cart->cancelUrl;
         $data['orderStatusId'] = $cart->orderStatusId;
         $data['shippingMethod'] = $cart->getShippingMethodHandle();
+        $data['shippingMethodId'] = $cart->getShippingMethodId();
         $data['paymentMethodId'] = $cart->paymentMethodId;
         $data['customerId'] = $cart->customerId;
         $data['isPaid'] = $cart->isPaid();
