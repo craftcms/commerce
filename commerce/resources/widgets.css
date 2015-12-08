@@ -2,7 +2,8 @@
 .chart {
     width: 100%;
     height: 300px;
-    background: red;
+    background: #fafafa;
+    margin-bottom: 24px;
 /*    width: 100%;
     background: #fafafa;
     margin:  14px -24px;
