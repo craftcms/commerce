@@ -43,7 +43,7 @@ class Commerce_CartPaymentController extends Commerce_BaseFrontEndController
 
         // Ensure correct redirect urls are supplied.
         if (empty($cancelUrl) || empty($redirect)) {
-            throw new Exception(Craft::t('Please specify "redirect" and "cancelUrl".'));
+            throw new Exception(Craft::t('The “redirect” and “cancelUrl” parameters are required.'));
         }
 
         $cart = craft()->commerce_cart->getCart();
