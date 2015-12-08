@@ -28,16 +28,6 @@ class Commerce_CustomerModel extends BaseModel
     use Commerce_ModelRelationsTrait;
 
     /**
-     * Returns whether the current user can edit the element.
-     *
-     * @return bool
-     */
-    public function isEditable()
-    {
-        return true;
-    }
-
-    /**
      * Returns the element's CP edit URL.
      *
      * @return string|false
