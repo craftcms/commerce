@@ -218,7 +218,7 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
                 $renderVariables);
 
             if (!craft()->templates->doesTemplateExist($email->templatePath)) {
-                $error = Craft::t('Email template does not exist at “{templatePath}” for email “{email}”. Attempting to send blank email. Order “{order}”.',
+                $error = Craft::t('Email template does not exist at “{templatePath}” for email “{email}”. Order: “{order}”.',
                     ['templatePath' => $email->templatePath, 'email' => $email->name, 'order' => $order->getShortNumber()]);
                 CommercePlugin::log($error, LogLevel::Error, true);
                 continue;
@@ -227,7 +227,7 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
                     $craftEmail->body = $craftEmail->htmlBody = craft()->templates->render($email->templatePath,
                         $renderVariables);
                 } catch (\Exception $e) {
-                    $error = Craft::t('Email template error. For email “{email}”. Order “{order}”. Template Error: “{message}”',
+                    $error = Craft::t('Email template parse error for email “{email}”. Order: “{order}”. Template error: “{message}”',
                         ['email' => $email->name, 'order' => $order->getShortNumber(), 'message' => $e->getMessage()]);
                     CommercePlugin::log($error, LogLevel::Error, true);
                     continue;
@@ -237,7 +237,7 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
             craft()->plugins->callFirst('commerce_modifyEmail', [&$craftEmail, $order]);
 
             if (!craft()->email->sendEmail($craftEmail)) {
-                $error = Craft::t('Email “email” could not be sent for “{order}”. Errors: {errors}',
+                $error = Craft::t('Email “{email}” could not be sent for order “{order}”. Errors: {errors}',
                     ['errors' => implode(", ",$email->getAllErrors()), 'email' => $email->name, 'order' => $order->getShortNumber()]);
 
                 CommercePlugin::log($error, LogLevel::Error, true);

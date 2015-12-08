@@ -200,7 +200,7 @@ class Commerce_LineItemsService extends BaseApplicationComponent
         if ($purchasable && $purchasable instanceof Purchasable) {
             $lineItem->fillFromPurchasable($purchasable);
         } else {
-            throw new Exception(Craft::t('Bad purchasableId'));
+            throw new Exception(Craft::t('Not a purchasable ID'));
         }
 
         return $lineItem;
