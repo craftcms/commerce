@@ -218,26 +218,29 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
                 $renderVariables);
 
             if (!craft()->templates->doesTemplateExist($email->templatePath)) {
-                $error = Craft::t('Email template does not exist at “{templatePath}” for email “email”. Attempting to send blank email. Order “{order}”.',
+                $error = Craft::t('Email template does not exist at “{templatePath}” for email “{email}”. Attempting to send blank email. Order “{order}”.',
                     ['templatePath' => $email->templatePath, 'email' => $email->name, 'order' => $order->getShortNumber()]);
                 CommercePlugin::log($error, LogLevel::Error, true);
-                $craftEmail->body = $craftEmail->htmlBody = "";
+                continue;
             }else{
-                $craftEmail->body = $craftEmail->htmlBody = craft()->templates->render($email->templatePath,
-                    $renderVariables);
+                try{
+                    $craftEmail->body = $craftEmail->htmlBody = craft()->templates->render($email->templatePath,
+                        $renderVariables);
+                } catch (\Exception $e) {
+                    $error = Craft::t('Email template error. For email “{email}”. Order “{order}”. Template Error: “{message}”',
+                        ['email' => $email->name, 'order' => $order->getShortNumber(), 'message' => $e->getMessage()]);
+                    CommercePlugin::log($error, LogLevel::Error, true);
+                    continue;
+                }
             }
 
             craft()->plugins->callFirst('commerce_modifyEmail', [&$craftEmail, $order]);
 
             if (!craft()->email->sendEmail($craftEmail)) {
                 $error = Craft::t('Email “email” could not be sent for “{order}”. Errors: {errors}',
-                    ['errors' => implode(" ",$email->getAllErrors()), 'email' => $email->name, 'order' => $order->getShortNumber()]);
+                    ['errors' => implode(", ",$email->getAllErrors()), 'email' => $email->name, 'order' => $order->getShortNumber()]);
 
                 CommercePlugin::log($error, LogLevel::Error, true);
-            }else{
-                $log = sprintf('Order #%d got new status "%s". Email "%s" %d was sent to %s',
-                    $order->id, $order->orderStatus, $email->name, $email->id, $to);
-                CommercePlugin::log($log, LogLevel::Info, true);
             }
         }
 
