@@ -129,8 +129,6 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
      */
     public function getSources($context = null)
     {
-
-
         if ($context == 'index')
         {
             $productTypes = craft()->commerce_productTypes->getEditableProductTypes();
@@ -161,11 +159,13 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
 
         foreach ($productTypes as $productType) {
             $key = 'productType:' . $productType->id;
+            $canEditProducts = craft()->userSession->checkPermission('commerce-manageProductType:'.$productType->id);
+
             $sources[$key] = [
                 'label' => $productType->name,
                 'data' => [
                     'handle' => $productType->handle,
-                    'editable' => $editable
+                    'editable' => $canEditProducts
                 ],
                 'criteria' => ['typeId' => $productType->id, 'editable' => $editable]
             ];
