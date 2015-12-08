@@ -46,7 +46,7 @@ class Commerce_BaseFrontEndController extends Commerce_BaseController
         $data['customerId'] = $cart->customerId;
         $data['isPaid'] = $cart->isPaid();
         $data['totalQty'] = $cart->totalQty;
-        $data['pdfUrl'] = $cart->getPdfUrl('ajax');
+        $data['pdfUrl'] = $cart->getPdfUrl() ? $cart->getPdfUrl('ajax') : "";
         $data['isEmpty'] = $cart->isEmpty();
         $data['totalWeight'] = $cart->totalWeight;
         $data['totalWidth'] = $cart->totalWidth;
