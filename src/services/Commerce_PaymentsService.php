@@ -479,7 +479,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
             }
             craft()->request->redirect($redirect);
         } else {
-            throw new Exception('Payment return not supported');
+            throw new Exception('Payment Gateway does not support: '.$supportsAction);
         }
     }
 
