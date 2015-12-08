@@ -158,7 +158,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
                 $card->setBillingCity($billingAddress->city);
                 $card->setBillingPostcode($billingAddress->zipCode);
                 $card->setBillingState($billingAddress->getStateText());
-                $card->setBillingCountry($billingAddress->getCountryText());
+                $card->setBillingCountry($billingAddress->getCountry()->iso);
                 $card->setBillingPhone($billingAddress->phone);
                 $card->setBillingCompany($billingAddress->businessName);
                 $card->setCompany($billingAddress->businessName);
@@ -173,7 +173,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
                 $card->setShippingCity($shippingAddress->city);
                 $card->setShippingPostcode($shippingAddress->zipCode);
                 $card->setShippingState($shippingAddress->getStateText());
-                $card->setShippingCountry($shippingAddress->getCountryText());
+                $card->setShippingCountry($shippingAddress->getCountry()->iso);
                 $card->setShippingPhone($shippingAddress->phone);
                 $card->setShippingCompany($shippingAddress->businessName);
             }
