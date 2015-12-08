@@ -61,7 +61,13 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
      */
     public function isEditable()
     {
-        return true;
+        $product = $this->getProduct();
+
+        if ($product) {
+            return $product->isEditable();
+        }
+
+        return false;
     }
 
     /**
