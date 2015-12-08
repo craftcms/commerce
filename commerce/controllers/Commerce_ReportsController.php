@@ -13,7 +13,7 @@ namespace Craft;
  */
 class Commerce_ReportsController extends Commerce_BaseCpController
 {
-    public function actionOrders()
+    public function actionGetOrders()
     {
         $startDate = strtotime("-7 days");
         $endDate = strtotime("now");
