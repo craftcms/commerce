@@ -3,11 +3,9 @@
     width: 100%;
     height: 300px;
     background: #fafafa;
-    margin-bottom: 24px;
-/*    width: 100%;
-    background: #fafafa;
-    margin:  14px -24px;
-    width: calc(100% + 48px);*/
+    margin: 0 0px 7px 0px;
+    border: 1px solid #eee;
+    /*width: calc(100% + 48px);*/
 }
 
 
@@ -18,11 +16,11 @@
     shape-rendering: crispEdges;
 }
 .chart .axis text {
-    fill: #aaa;
+    fill: RGBA(0, 0, 0, .5);
 }
 
 .chart .area {
     stroke: RGBA(0, 138, 202, 1);
-    fill: RGBA(0, 138, 202, .5);
+    fill: RGBA(0, 138, 202, .3);
     stroke-width: 1px;
 }
