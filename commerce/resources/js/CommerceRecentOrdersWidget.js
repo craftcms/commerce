@@ -4,18 +4,38 @@
 Craft.CommerceRecentOrdersWidget = Garnish.Base.extend(
 {
     params: null,
+    data: null,
 
     $widget: null,
     $body: null,
 
     init: function(widgetId, params)
     {
-        console.log('hello widget');
         this.params = params;
         this.$widget = $('#widget'+widgetId);
         this.$body = this.$widget.find('.body:first');
+        this.$error = $('.error', this.$widget);
 
-        this.chart = new Craft.charts.Area('#widget'+widgetId+' .chart', this.params);
+        Craft.postActionRequest('commerce/reports/getOrders', {}, $.proxy(function(response, textStatus)
+        {
+            if(textStatus == 'success' && typeof(response.error) == 'undefined')
+            {
+                this.chart = new Craft.charts.Area('#widget'+widgetId+' .chart', this.params, response);
+            }
+            else
+            {
+                var msg = 'An unknown error occured.';
+
+                if(typeof(response) != 'undefined' && response && typeof(response.error) != 'undefined')
+                {
+                    msg = response.error;
+                }
+
+                this.$error.html(msg);
+                this.$error.removeClass('hidden');
+            }
+
+        }, this));
 
         this.$widget.data('widget').on('destroy', $.proxy(this, 'destroy'));
 
