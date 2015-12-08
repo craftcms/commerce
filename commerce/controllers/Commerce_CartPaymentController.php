@@ -82,10 +82,11 @@ class Commerce_CartPaymentController extends Commerce_BaseFrontEndController
     public function actionComplete()
     {
         $id = craft()->request->getParam('hash');
+
         $transaction = craft()->commerce_transactions->getTransactionByHash($id);
 
-        if (!$transaction->id) {
-            throw new HttpException(400);
+        if (!$transaction) {
+            throw new HttpException(400,Craft::t("Can not complete payment for missing transaction."));
         }
 
         craft()->commerce_payments->completePayment($transaction);
