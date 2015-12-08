@@ -47,7 +47,9 @@ class Commerce_RecentOrdersWidget extends BaseWidget
      */
     public function getSettingsHtml()
     {
-        return craft()->templates->render('commerce/_components/widgets/RecentOrders/settings');
+        return craft()->templates->render('commerce/_components/widgets/RecentOrders/settings', array(
+            'settings' => $this->getSettings()
+        ));
     }
 
     // Protected Methods
