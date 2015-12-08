@@ -447,19 +447,29 @@ class Commerce_OrderModel extends BaseElementModel
     }
 
     /**
-     * @return bool|\Commerce\Interfaces\ShippingMethod
+     * @return \Commerce\Interfaces\ShippingMethod|null
      */
-    public function getShippingMethod()
+    public function getShippingMethodId()
     {
-        return craft()->commerce_shippingMethods->getShippingMethodByHandle($this->getAttribute('shippingMethod'));
+        if($this->getShippingMethod()){
+            return $this->getShippingMethod()->id;
+        };
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getShippingMethodHandle()
     {
         return $this->getAttribute('shippingMethod');
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getShippingMethod()
+    {
+        return craft()->commerce_shippingMethods->getShippingMethodByHandle($this->getShippingMethodHandle());
     }
 
     /**
