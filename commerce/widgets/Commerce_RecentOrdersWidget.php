@@ -29,7 +29,6 @@ class Commerce_RecentOrdersWidget extends BaseWidget
 
         $js = 'new Craft.CommerceRecentOrdersWidget('.$this->model->id.', '.JsonHelper::encode($options).');';
 
-        craft()->templates->includeCssResource('commerce/widgets.css');
         craft()->templates->includeJsResource('commerce/js/CommerceRecentOrdersWidget.js');
         craft()->templates->includeJs($js);
 
