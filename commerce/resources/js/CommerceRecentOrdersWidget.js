@@ -21,6 +21,8 @@ Craft.CommerceRecentOrdersWidget = Garnish.Base.extend(
             if(textStatus == 'success' && typeof(response.error) == 'undefined')
             {
                 this.chart = new Craft.charts.Area('#widget'+widgetId+' .chart', this.params, response);
+
+                window.dashboard.grid.on('refreshCols', $.proxy(this, 'handleGridRefresh'));
             }
             else
             {
@@ -40,6 +42,11 @@ Craft.CommerceRecentOrdersWidget = Garnish.Base.extend(
         this.$widget.data('widget').on('destroy', $.proxy(this, 'destroy'));
 
         Craft.CommerceRecentOrdersWidget.instances.push(this);
+    },
+
+    handleGridRefresh: function()
+    {
+        this.chart.resize();
     },
 
     destroy: function()
