@@ -41,8 +41,12 @@ class Commerce_CartPaymentController extends Commerce_BaseFrontEndController
         $redirect = craft()->request->getPost('redirect');
         $cancelUrl = craft()->request->getPost('cancelUrl');
 
-        $cart = craft()->commerce_cart->getCart();
+        // Ensure correct redirect urls are supplied.
+        if (empty($cancelUrl) || empty($redirect)) {
+            throw new Exception(Craft::t('Please specify "redirect" and "cancelUrl".'));
+        }
 
+        $cart = craft()->commerce_cart->getCart();
         $cart->setContentFromPost('fields');
 
         $paymentMethodId = craft()->request->getParam('paymentMethodId');
@@ -58,11 +62,6 @@ class Commerce_CartPaymentController extends Commerce_BaseFrontEndController
             craft()->userSession->setFlash('error', Craft::t("No customer email address for cart."));
             craft()->urlManager->setRouteVariables(compact('paymentForm'));
             return;
-        }
-
-        // Ensure correct redirect urls are supplied.
-        if (empty($cancelUrl) || empty($redirect)) {
-            throw new Exception(Craft::t('Please specify "redirect" and "cancelUrl".'));
         }
 
         if (!craft()->commerce_payments->processPayment($cart, $paymentForm,
