@@ -488,7 +488,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
         try {
             $result1 = craft()->commerce_customers->saveAddress($shippingAddress);
 
-            if ($billingAddress->id && $billingAddress->id == $shippingAddress->id) {
+            if (($billingAddress->id && $billingAddress->id == $shippingAddress->id) || $shippingAddress === $billingAddress) {
                 $result2 = true;
             } else {
                 $result2 = craft()->commerce_customers->saveAddress($billingAddress);
