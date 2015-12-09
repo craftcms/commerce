@@ -32,9 +32,7 @@ Craft.charts.Area = Garnish.Base.extend(
             this.resize();
         }, this));
 
-        setTimeout($.proxy(function() {
-            this.resize();
-        }, this), 100);
+        this.resize();
     },
 
     initChart: function()
