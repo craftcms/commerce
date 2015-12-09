@@ -2,6 +2,7 @@
 namespace Craft;
 
 use Commerce\Helpers\CommerceVariantMatrixHelper as VariantMatrixHelper;
+use Commerce\Helpers\CommerceProductHelper as CommerceProductHelper;
 
 require_once(__DIR__ . '/Commerce_BaseElementType.php');
 
@@ -578,37 +579,8 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
      */
     public function saveElement(BaseElementModel $element, $params)
     {
-        $variantsPost = $params['variants'];
-        $variants = [];
-        $count = 1;
-
-        if(empty($variantsPost)){
-            $variantsPost = [];
-        }
-
-        foreach ($variantsPost as $key => $variant) {
-            if (strncmp($key, 'new', 3) !== 0) {
-                $variantModel = craft()->commerce_variants->getVariantById($key, $element->locale);
-            }else{
-                $variantModel = new Commerce_VariantModel();
-            }
-
-            $variantModel->setProduct($element);
-            $variantModel->setAttributes($variant);
-            $variantModel->sortOrder = $count++;
-
-            if (isset($variant['fields'])) {
-                $variantModel->setContentFromPost($variant['fields']);
-            }
-
-            if (isset($variant['title'])) {
-                $variantModel->getContent()->title = $variant['title'];
-            }
-
-            $variants[] = $variantModel;
-        }
-
-        $element->setVariants($variants);
+        CommerceProductHelper::populateProductModel($element, $params);
+        CommerceProductHelper::populateProductVariantModels($element, $params['variants']);
 
         return craft()->commerce_products->saveProduct($element);
     }
