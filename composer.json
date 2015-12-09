@@ -1,5 +1,5 @@
 {
-    "homepage": "http://craftcommerce.com",
+    "homepage": "https://craftcommerce.com",
     "config": {
         "cache-files-ttl": 0,
         "process-timeout": 1800,

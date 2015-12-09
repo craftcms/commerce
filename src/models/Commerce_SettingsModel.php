@@ -15,8 +15,8 @@ use Omnipay\Common\Currency;
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   http://craftcommerce.com/license Craft Commerce License Agreement
- * @see       http://craftcommerce.com
+ * @license   https://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       https://craftcommerce.com
  * @package   craft.plugins.commerce.models
  * @since     1.0
  */
@@ -62,9 +62,9 @@ class Commerce_SettingsModel extends BaseModel
     public function getWeightUnitsOptions()
     {
         return [
-            'g' => 'Grams (g)',
-            'kg' => 'Kilograms (kg)',
-            'lb' => 'Pounds (lb)',
+            'g' => Craft::t('Grams (g)'),
+            'kg' => Craft::t('Kilograms (kg)'),
+            'lb' => Craft::t('Pounds (lb)')
         ];
     }
 
@@ -74,11 +74,11 @@ class Commerce_SettingsModel extends BaseModel
     public function getDimensionUnits()
     {
         return [
-            'mm' => 'Millimeters (mm)',
-            'cm' => 'Centimeters (cm)',
-            'm' => 'Metres (m)',
-            'ft' => 'Feet (ft)',
-            'in' => 'Inches (in)',
+            'mm' => Craft::t('Millimeters (mm)'),
+            'cm' => Craft::t('Centimeters (cm)'),
+            'm' => Craft::t('Meters (m)'),
+            'ft' => Craft::t('Feet (ft)'),
+            'in' => Craft::t('Inches (in)'),
         ];
     }
 

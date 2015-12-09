@@ -6,8 +6,8 @@ namespace Craft;
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   http://craftcommerce.com/license Craft Commerce License Agreement
- * @see       http://craftcommerce.com
+ * @license   https://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       https://craftcommerce.com
  * @package   craft.plugins.commerce.controllers
  * @since     1.0
  */
@@ -122,10 +122,10 @@ class Commerce_SalesController extends Commerce_BaseCpController
             if (strpos($discountAmount, $percentSign) or floatval($discountAmount) >= 1) {
                 $sale->discountAmount = floatval($discountAmount) / -100;
             } else {
-                $sale->discountAmount = floatval($discountAmount);
+                $sale->discountAmount = floatval($discountAmount) * -1;
             };
         } else {
-            $sale->discountAmount = -floatval($discountAmount);
+            $sale->discountAmount = floatval($discountAmount) * -1;
         }
 
         $products = craft()->request->getPost('products', []);

@@ -8,8 +8,8 @@ use Commerce\Helpers\CommerceDbHelper;
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   http://craftcommerce.com/license Craft Commerce License Agreement
- * @see       http://craftcommerce.com
+ * @license   https://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       https://craftcommerce.com
  * @package   craft.plugins.commerce.services
  * @since     1.0
  */
@@ -212,9 +212,19 @@ class Commerce_DiscountsService extends BaseApplicationComponent
             return false;
         }
 
-
         // can't match something not promotable
         if (!$lineItem->purchasable->getIsPromotable()) {
+            return false;
+        }
+
+        //raising event
+        $event = new Event($this, [
+            'lineItem' => $lineItem,
+            'discount' => $discount
+        ]);
+        $this->onBeforeMatchLineItem($event);
+
+        if(!$event->performAction){
             return false;
         }
 
@@ -264,8 +274,7 @@ class Commerce_DiscountsService extends BaseApplicationComponent
      * @return bool
      * @throws \Exception
      */
-    public
-    function saveDiscount(
+    public function saveDiscount(
         Commerce_DiscountModel $model,
         array $groups,
         array $productTypes,
@@ -367,8 +376,7 @@ class Commerce_DiscountsService extends BaseApplicationComponent
     /**
      * @param int $id
      */
-    public
-    function deleteDiscountById($id)
+    public function deleteDiscountById($id)
     {
         Commerce_DiscountRecord::model()->deleteByPk($id);
     }
@@ -378,8 +386,7 @@ class Commerce_DiscountsService extends BaseApplicationComponent
      *
      * @param Event $event
      */
-    public
-    function orderCompleteHandler(Event $event)
+    public function orderCompleteHandler(Event $event)
     {
         /** @var Commerce_OrderModel $order */
         $order = $event->params['order'];
@@ -406,6 +413,28 @@ class Commerce_DiscountsService extends BaseApplicationComponent
                 ON DUPLICATE KEY UPDATE uses = uses + 1
             ")->execute(['cid' => $order->customerId, 'did' => $record->id]);
         }
+    }
+
+    /**
+     * Before matching a lineitem
+     * Event params: addres(Commerce_AddressModel)
+     *
+     * @param \CEvent $event
+     *
+     * @throws \CException
+     */
+    public function onBeforeMatchLineItem(\CEvent $event)
+    {
+        $params = $event->params;
+        if (empty($params['lineItem']) || !($params['lineItem'] instanceof Commerce_LineItemModel)) {
+            throw new Exception('onBeforeMatchLineItem event requires "lineItem" param with Commerce_LineItemModel instance');
+        }
+
+        if (empty($params['discount']) || !($params['discount'] instanceof Commerce_DiscountModel)) {
+            throw new Exception('onBeforeMatchLineItem event requires "discount" param with Commerce_DiscountModel instance');
+        }
+
+        $this->raiseEvent('onBeforeMatchLineItem', $event);
     }
 
 }

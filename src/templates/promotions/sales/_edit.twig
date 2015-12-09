@@ -113,7 +113,7 @@
 
     {{ forms.elementSelectField({
         id: 'products',
-        label: 'Products',
+        label: 'Products'|t,
         name: 'products',
         elements: products ? products : null,
         elementType: craft.elements.getElementType('Commerce_Product'),

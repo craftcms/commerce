@@ -2,7 +2,7 @@
 
 return [
 
-    // Product Routes
+    // Products
     'commerce/products' => ['action' => 'commerce/products/productIndex'],
     'commerce/products/(?P<productTypeHandle>{handle})' => ['action' => 'commerce/products/productIndex'],
     'commerce/products/(?P<productTypeHandle>{handle})/new/(?P<localeId>\w+)' => ['action' => 'commerce/products/editProduct'],
@@ -13,13 +13,16 @@ return [
     'commerce/settings/producttypes/(?P<productTypeId>\d+)' => ['action' => 'commerce/productTypes/editProductType'],
     'commerce/settings/producttypes/new' => ['action' => 'commerce/productTypes/editProductType'],
 
-    // Order Routes
+    // Orders
     'commerce/orders' => ['action' => 'commerce/orders/orderIndex'],
     'commerce/orders/(?P<orderId>\d+)' => ['action' => 'commerce/orders/editOrder'],
 
     // Settings
     'commerce/settings' => ['action' => 'commerce/settings/index'],
+    'commerce/settings/registration' => ['action' => 'commerce/registration/edit'],
     'commerce/settings/general' => ['action' => 'commerce/settings/edit'],
+
+    // Taxes
     'commerce/settings/taxcategories' => ['action' => 'commerce/taxCategories/index'],
     'commerce/settings/taxcategories/new' => ['action' => 'commerce/taxCategories/edit'],
     'commerce/settings/taxcategories/(?P<id>\d+)' => ['action' => 'commerce/taxCategories/edit'],
@@ -36,24 +39,30 @@ return [
     'commerce/settings/taxrates/new' => ['action' => 'commerce/taxRates/edit'],
     'commerce/settings/taxrates/(?P<id>\d+)' => ['action' => 'commerce/taxRates/edit'],
 
+    // Order Field Layout
     'commerce/settings/ordersettings' => ['action' => 'commerce/orderSettings/edit'],
+
+    // Payment Methods
     'commerce/settings/paymentmethods' => ['action' => 'commerce/paymentMethods/index'],
     'commerce/settings/paymentmethods/new' => ['action' => 'commerce/paymentMethods/edit'],
     'commerce/settings/paymentmethods/(?P<id>\d+)' => ['action' => 'commerce/paymentMethods/edit'],
 
+    // Shipping Methods
     'commerce/settings/shippingmethods' => ['action' => 'commerce/shippingMethods/index'],
     'commerce/settings/shippingmethods/new' => ['action' => 'commerce/shippingMethods/edit'],
     'commerce/settings/shippingmethods/(?P<id>\d+)' => ['action' => 'commerce/shippingMethods/edit'],
     'commerce/settings/shippingmethods/(?P<methodId>\d+)/shippingrules/new' => ['action' => 'commerce/shippingRules/edit'],
     'commerce/settings/shippingmethods/(?P<methodId>\d+)/shippingrules/(?P<ruleId>\d+)' => ['action' => 'commerce/shippingRules/edit'],
+
+    // Emails
     'commerce/settings/emails' => ['action' => 'commerce/emails/index'],
     'commerce/settings/emails/new' => ['action' => 'commerce/emails/edit'],
     'commerce/settings/emails/(?P<id>\d+)' => ['action' => 'commerce/emails/edit'],
 
+    // Order Statuses
     'commerce/settings/orderstatuses' => ['action' => 'commerce/orderStatuses/index'],
     'commerce/settings/orderstatuses/new' => ['action' => 'commerce/orderStatuses/edit'],
     'commerce/settings/orderstatuses/(?P<id>\d+)' => ['action' => 'commerce/orderStatuses/edit'],
-
 
     // Promotions
     'commerce/promotions/sales' => ['action' => 'commerce/sales/index'],

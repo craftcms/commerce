@@ -20,7 +20,7 @@
             <tr data-id="{{ paymentMethod.class }}" data-name="{{ paymentMethod.name }}">
                 <td class="thin" scope="row" data-title="{{ 'ID'|t }}">{{ paymentMethod.id }}</td>
                 <th scope="row" data-title="{{ 'Name'|t }}"><a href="{{ paymentMethod.cpEditUrl }}">{{ paymentMethod.name }}</a></th>
-                <td data-title="{{ 'Gateway'|t }}">{{ paymentMethod.class }}</td>
+                <td data-title="{{ 'Gateway'|t }}">{% if paymentMethod.getGatewayAdapter() %}{{ paymentMethod.class }}{% else %}<span class="error">{{ paymentMethod.class }}</span>{% endif %}</td>
                 <td data-title="{{ 'Enabled?'|t }}">{% if paymentMethod.frontendEnabled %}<span data-icon="check" title="{{ 'Yes'|t }}"></span>{% endif %}</td>
             </tr>
         {% endfor %}

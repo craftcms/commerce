@@ -6,8 +6,8 @@ namespace Craft;
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   http://craftcommerce.com/license Craft Commerce License Agreement
- * @see       http://craftcommerce.com
+ * @license   https://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       https://craftcommerce.com
  * @package   craft.plugins.commerce.controllers
  * @since     1.0
  */
@@ -41,8 +41,12 @@ class Commerce_CartPaymentController extends Commerce_BaseFrontEndController
         $redirect = craft()->request->getPost('redirect');
         $cancelUrl = craft()->request->getPost('cancelUrl');
 
-        $cart = craft()->commerce_cart->getCart();
+        // Ensure correct redirect urls are supplied.
+        if (empty($cancelUrl) || empty($redirect)) {
+            throw new Exception(Craft::t('The “redirect” and “cancelUrl” parameters are required.'));
+        }
 
+        $cart = craft()->commerce_cart->getCart();
         $cart->setContentFromPost('fields');
 
         $paymentMethodId = craft()->request->getParam('paymentMethodId');
@@ -58,11 +62,6 @@ class Commerce_CartPaymentController extends Commerce_BaseFrontEndController
             craft()->userSession->setFlash('error', Craft::t("No customer email address for cart."));
             craft()->urlManager->setRouteVariables(compact('paymentForm'));
             return;
-        }
-
-        // Ensure correct redirect urls are supplied.
-        if (empty($cancelUrl) || empty($redirect)) {
-            throw new Exception(Craft::t('Please specify "redirect" and "cancelUrl".'));
         }
 
         if (!craft()->commerce_payments->processPayment($cart, $paymentForm,
@@ -82,10 +81,11 @@ class Commerce_CartPaymentController extends Commerce_BaseFrontEndController
     public function actionComplete()
     {
         $id = craft()->request->getParam('hash');
+
         $transaction = craft()->commerce_transactions->getTransactionByHash($id);
 
-        if (!$transaction->id) {
-            throw new HttpException(400);
+        if (!$transaction) {
+            throw new HttpException(400,Craft::t("Can not complete payment for missing transaction."));
         }
 
         craft()->commerce_payments->completePayment($transaction);

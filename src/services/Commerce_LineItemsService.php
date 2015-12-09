@@ -9,8 +9,8 @@ use Commerce\Interfaces\Purchasable;
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   http://craftcommerce.com/license Craft Commerce License Agreement
- * @see       http://craftcommerce.com
+ * @license   https://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       https://craftcommerce.com
  * @package   craft.plugins.commerce.services
  * @since     1.0
  */
@@ -200,7 +200,7 @@ class Commerce_LineItemsService extends BaseApplicationComponent
         if ($purchasable && $purchasable instanceof Purchasable) {
             $lineItem->fillFromPurchasable($purchasable);
         } else {
-            throw new Exception(Craft::t('Bad purchasableId'));
+            throw new Exception(Craft::t('Not a purchasable ID'));
         }
 
         return $lineItem;
