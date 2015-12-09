@@ -1,11 +1,3 @@
-
-{%- includeJsResource 'commerce/lib/d3/d3.js' first %}
-{% includeJsResource 'commerce/js/classes/Chart.js' first %}
-{% includeCssResource 'commerce/charts.css' first %}
-
-<div class="error"></div>
-<svg class="chart"></svg>
-
 <div class="recentorders-container">
     {% if orders|length %}
         <table class="data fullwidth">

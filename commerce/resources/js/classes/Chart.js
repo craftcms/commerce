@@ -17,9 +17,9 @@ Craft.charts.Area = Garnish.Base.extend(
 
     $chart: null,
 
-    init: function(chart, params, data)
+    init: function(chartElement, params, data)
     {
-        this.$chart = d3.select(chart);
+        this.$chart = d3.select(chartElement);
 
         this.width = parseInt(this.$chart.style("width")) - this.margin * 2,
         this.height = parseInt(this.$chart.style("height")) - this.margin * 2;
