@@ -14,20 +14,28 @@ Craft.CommerceRecentOrdersWidget = Garnish.Base.extend(
         this.params = params;
         this.$widget = $('#widget'+widgetId);
         this.$body = this.$widget.find('.body:first');
-        this.$error = $('<div class="error"/>').prependTo(this.$body);
 
+        // Add the chart to the body
         this.$chartContainer = $('<svg class="chart"/>').prependTo(this.$body);
 
+        // Error
+        this.$error = $('<div class="error"/>').prependTo(this.$body);
+
+        // Request orders report
         Craft.postActionRequest('commerce/reports/getOrders', {}, $.proxy(function(response, textStatus)
         {
             if(textStatus == 'success' && typeof(response.error) == 'undefined')
             {
+                // Create chart
                 this.chart = new Craft.charts.Area(this.$chartContainer.get(0), this.params, response);
 
+                // Resize chart when grid is refreshed
                 window.dashboard.grid.on('refreshCols', $.proxy(this, 'handleGridRefresh'));
             }
             else
             {
+                // Error
+
                 var msg = 'An unknown error occured.';
 
                 if(typeof(response) != 'undefined' && response && typeof(response.error) != 'undefined')
