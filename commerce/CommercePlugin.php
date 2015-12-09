@@ -5,7 +5,7 @@ namespace Craft;
 use Commerce\Extensions\CommerceTwigExtension;
 use Commerce\Helpers\CommerceDbHelper;
 
-require 'vendor/autoload.php';
+require __DIR__.'/vendor/autoload.php';
 
 /**
  * Craft Commerce Plugin for Craft CMS.
