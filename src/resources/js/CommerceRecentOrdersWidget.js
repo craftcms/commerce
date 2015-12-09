@@ -14,13 +14,15 @@ Craft.CommerceRecentOrdersWidget = Garnish.Base.extend(
         this.params = params;
         this.$widget = $('#widget'+widgetId);
         this.$body = this.$widget.find('.body:first');
-        this.$error = $('.error', this.$widget);
+        this.$error = $('<div class="error"/>').prependTo(this.$body);
+
+        this.$chartContainer = $('<svg class="chart"/>').prependTo(this.$body);
 
         Craft.postActionRequest('commerce/reports/getOrders', {}, $.proxy(function(response, textStatus)
         {
             if(textStatus == 'success' && typeof(response.error) == 'undefined')
             {
-                this.chart = new Craft.charts.Area('#widget'+widgetId+' .chart', this.params, response);
+                this.chart = new Craft.charts.Area(this.$chartContainer.get(0), this.params, response);
 
                 window.dashboard.grid.on('refreshCols', $.proxy(this, 'handleGridRefresh'));
             }
