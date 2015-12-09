@@ -182,35 +182,7 @@ class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfac
      */
     public function getDescription()
     {
-        if($this->getAttribute('description')){
-            return $this->getAttribute('description');
-        }
-
-        $description = '';
-        if ($this->perItemRate || $this->percentageRate) {
-            if ($this->perItemRate) {
-                $description .= $this->perItemRate * 1 . '$ ';
-            }
-
-            if ($this->percentageRate) {
-                if ($this->perItemRate) {
-                    $description .= Craft::t('and') . ' ';
-                }
-
-                $description .= $this->percentageRate * 100 . '% ';
-            }
-
-            $description .= Craft::t('per item') . ' ';
-        }
-
-        if ($this->baseRate) {
-            if ($description) {
-                $description .= Craft::t('and') . ' ';
-            }
-            $description .= $this->baseRate * 1 . '$ ' . Craft::t('base rate');
-        }
-
-        return $description;
+        return $this->getAttribute('description');
     }
 
     /**
