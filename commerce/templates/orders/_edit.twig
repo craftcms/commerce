@@ -8,6 +8,8 @@
 
 {% import "_includes/forms" as forms %}
 
+{% set pdfUrl = order.getPdfUrl() %}
+
 
 {% block main %}
 	<div class="pane">
@@ -231,9 +233,11 @@
 		<input type="hidden" name="redirect" value="">
 		{{ getCsrfInput() }}
 	<div class="footer">
+		{% if pdfUrl %}
 		<div class="btngroup right">
 			<a class="btn" href="{{ order.pdfUrl }}" target="_blank">{{ 'Download PDF'|t }}</a>
 		</div>
+		{% endif %}
 		<div class="btngroup">
 			<input type="button" class="btn formsubmit"
 				value="{{ 'Delete Order'|t }}"

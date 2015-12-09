@@ -7,8 +7,8 @@ namespace Commerce\Interfaces;
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   http://craftcommerce.com/license Craft Commerce License Agreement
- * @see       http://craftcommerce.com
+ * @license   https://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       https://craftcommerce.com
  * @package   Commerce\Interfaces
  * @since     1.0
  */
@@ -17,7 +17,7 @@ interface ShippingRule
 
 
     /**
-     * Returns the unique handle of this Shipping Method
+     * Returns the unique handle of this Shipping Rule
      *
      * @return string
      */
@@ -31,7 +31,7 @@ interface ShippingRule
     public function matchOrder(\Craft\Commerce_OrderModel $order);
 
     /**
-     * Is this shipping method enabled for listing and selection
+     * Is this shipping rule enabled for listing and selection
      *
      * @return bool
      */

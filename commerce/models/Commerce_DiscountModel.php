@@ -34,8 +34,8 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   http://craftcommerce.com/license Craft Commerce License Agreement
- * @see       http://craftcommerce.com
+ * @license   https://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       https://craftcommerce.com
  * @package   craft.plugins.commerce.models
  * @since     1.0
  */
@@ -71,6 +71,17 @@ class Commerce_DiscountModel extends BaseModel
         return array_map(function ($product) {
             return $product->id;
         }, $this->products);
+    }
+
+    /**
+     * @return string
+     */
+    public function getPercentDiscountAsPercent()
+    {
+        $localeData = craft()->i18n->getLocaleData();
+        $percentSign = $localeData->getNumberSymbol('percentSign');
+
+        return -$this->percentDiscount * 100 . "" . $percentSign;
     }
 
     /**

@@ -9,8 +9,8 @@ use Commerce\Gateways\BaseGatewayAdapter;
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   http://craftcommerce.com/license Craft Commerce License Agreement
- * @see       http://craftcommerce.com
+ * @license   https://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       https://craftcommerce.com
  * @package   craft.plugins.commerce.services
  * @since     1.0
  */
@@ -29,7 +29,6 @@ class Commerce_GatewaysService extends BaseApplicationComponent
      */
     private function _loadGateways()
     {
-
         $allAdapters = [
             '\Commerce\Gateways\Omnipay\AuthorizeNet_AIM_GatewayAdapter',
             '\Commerce\Gateways\Omnipay\AuthorizeNet_SIM_GatewayAdapter',
@@ -67,8 +66,11 @@ class Commerce_GatewaysService extends BaseApplicationComponent
         ];
 
         $adapters = [];
-        // Dummy conditional for activation
-        if (true) {
+
+        $licenseKeyStatus = craft()->plugins->getPluginLicenseKeyStatus('Commerce');
+        $allowedStatuses = [LicenseKeyStatus::Valid, LicenseKeyStatus::Mismatched];
+
+        if (in_array($licenseKeyStatus, $allowedStatuses)) {
             $adapters = craft()->plugins->call('commerce_registerGatewayAdapters');
             $adapters['Commerce'] = $allAdapters;
         } else {

@@ -6,8 +6,8 @@ namespace Craft;
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   http://craftcommerce.com/license Craft Commerce License Agreement
- * @see       http://craftcommerce.com
+ * @license   https://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       https://craftcommerce.com
  * @package   craft.plugins.commerce.controllers
  * @since     1.0
  */
@@ -41,11 +41,12 @@ class Commerce_BaseFrontEndController extends Commerce_BaseController
         $data['cancelUrl'] = $cart->cancelUrl;
         $data['orderStatusId'] = $cart->orderStatusId;
         $data['shippingMethod'] = $cart->getShippingMethodHandle();
+        $data['shippingMethodId'] = $cart->getShippingMethodId();
         $data['paymentMethodId'] = $cart->paymentMethodId;
         $data['customerId'] = $cart->customerId;
         $data['isPaid'] = $cart->isPaid();
         $data['totalQty'] = $cart->totalQty;
-        $data['pdfUrl'] = $cart->getPdfUrl('ajax');
+        $data['pdfUrl'] = $cart->getPdfUrl() ? $cart->getPdfUrl('ajax') : "";
         $data['isEmpty'] = $cart->isEmpty();
         $data['totalWeight'] = $cart->totalWeight;
         $data['totalWidth'] = $cart->totalWidth;

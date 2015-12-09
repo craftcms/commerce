@@ -12,8 +12,8 @@ require 'vendor/autoload.php';
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   http://craftcommerce.com/license Craft Commerce License Agreement
- * @see       http://craftcommerce.com
+ * @license   https://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       https://craftcommerce.com
  * @package   craft.plugins.commerce
  * @since     1.0
  */
@@ -229,7 +229,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getVersion()
     {
-        return '0.9.0000';
+        return '1.0.0000';
     }
 
     /**
@@ -239,7 +239,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getSchemaVersion()
     {
-        return '0.9.12';
+        return '1.0.00';
     }
 
     /**
@@ -274,6 +274,47 @@ class CommercePlugin extends BasePlugin
     }
 
     /**
+     * Adds alerts to the CP.
+     *
+     * @param string|null $path
+     * @param bool        $fetch
+     */
+    public function getCpAlerts($path, $fetch)
+    {
+        if ($path != 'commerce/settings/registration')
+        {
+            $licenseKeyStatus = craft()->plugins->getPluginLicenseKeyStatus('Commerce');
+
+            if ($licenseKeyStatus == LicenseKeyStatus::Invalid)
+            {
+                $message = Craft::t('Your Commerce license key is invalid.');
+            }
+            else if ($licenseKeyStatus == LicenseKeyStatus::Mismatched)
+            {
+                $message = Craft::t('Your Commerce license key is being used on another Craft install.');
+            }
+
+            if (isset($message))
+            {
+                $message .= ' ';
+
+                if (craft()->userSession->isAdmin())
+                {
+                    $message .= '<a class="go" href="'.UrlHelper::getUrl('commerce/settings/registration').'">'.Craft::t('Resolve').'</a>';
+                }
+                else
+                {
+                    $message .= Craft::t('Please notify one of your site’s admins.');
+                }
+
+                return [$message];
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Get Settings URL
      */
     public function getSettingsUrl()
@@ -303,7 +344,7 @@ class CommercePlugin extends BasePlugin
         }
 
         if (craft()->userSession->isAdmin()) {
-            $context['subnav']['settings'] = array('icon' => 'settings', 'label' => Craft::t('Settings'), 'url' => 'commerce/settings');
+            $context['subnav']['settings'] = array('label' => Craft::t('Settings'), 'url' => 'commerce/settings');
         }
     }
 

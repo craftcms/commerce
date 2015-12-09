@@ -6,8 +6,8 @@ namespace Craft;
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   http://craftcommerce.com/license Craft Commerce License Agreement
- * @see       http://craftcommerce.com
+ * @license   https://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       https://craftcommerce.com
  * @package   craft.plugins.commerce.controllers
  * @since     1.0
  */
@@ -56,7 +56,7 @@ class Commerce_PaymentMethodsController extends Commerce_BaseAdminController
         if ($variables['paymentMethod']->id) {
             $variables['title'] = $variables['paymentMethod']->name;
         } else {
-            $variables['title'] = 'Create a new payment method';
+            $variables['title'] = Craft::t('Create a new payment method');
         }
         $this->renderTemplate('commerce/settings/paymentmethods/_edit', $variables);
     }

@@ -2,6 +2,7 @@
 namespace Craft;
 
 use Commerce\Helpers\CommerceDbHelper;
+use Commerce\Helpers\CommerceProductHelper;
 use Commerce\Helpers\CommerceVariantMatrixHelper as VariantMatrixHelper;
 
 /**
@@ -9,8 +10,8 @@ use Commerce\Helpers\CommerceVariantMatrixHelper as VariantMatrixHelper;
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   http://craftcommerce.com/license Craft Commerce License Agreement
- * @see       http://craftcommerce.com
+ * @license   https://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       https://craftcommerce.com
  * @package   craft.plugins.commerce.controllers
  * @since     1.0
  */
@@ -199,7 +200,7 @@ class Commerce_ProductsController extends Commerce_BaseCpController
         $this->requirePostRequest();
 
         $product = $this->_setProductFromPost();
-        $this->_setVariantsFromPost($product);
+        CommerceProductHelper::populateProductVariantModels($product, craft()->request->getPost('variants'));
 
         $this->enforceProductPermissions($product);
 
@@ -343,11 +344,10 @@ class Commerce_ProductsController extends Commerce_BaseCpController
         $this->requirePostRequest();
 
         $product = $this->_setProductFromPost();
+        CommerceProductHelper::populateProductVariantModels($product, craft()->request->getPost('variants'));
 
         $this->enforceProductPermissions($product);
 
-        $variants = $this->_setVariantsFromPost($product);
-        $product->setVariants($variants);
 
         $existingProduct = (bool)$product->id;
 
@@ -397,68 +397,13 @@ class Commerce_ProductsController extends Commerce_BaseCpController
             $product = new Commerce_ProductModel();
         }
 
-        $postDate = craft()->request->getPost('postDate');
-        $expiryDate = craft()->request->getPost('expiryDate');
+        CommerceProductHelper::populateProductModel($product, craft()->request->getPost());
 
-        $product->postDate = $postDate ? DateTime::createFromString($postDate, craft()->timezone) : $product->postDate;
-        $product->expiryDate = $expiryDate ? DateTime::createFromString($expiryDate, craft()->timezone) : null;
-        $product->typeId = craft()->request->getPost('typeId');
-        $product->enabled = craft()->request->getPost('enabled');
-        $product->promotable = craft()->request->getPost('promotable');
-        $product->freeShipping = craft()->request->getPost('freeShipping');
-        $product->authorId = craft()->userSession->id;
-        $product->taxCategoryId = craft()->request->getPost('taxCategoryId', $product->taxCategoryId);
-        $product->localeEnabled = (bool)craft()->request->getPost('localeEnabled', $product->localeEnabled);
-
-        if (!$product->postDate) {
-            $product->postDate = new DateTime();
-        }
-
+        $product->localeEnabled = (bool) craft()->request->getPost('localeEnabled', $product->localeEnabled);
         $product->getContent()->title = craft()->request->getPost('title', $product->title);
-        $product->slug = craft()->request->getPost('slug', $product->slug);
         $product->setContentFromPost('fields');
 
         return $product;
-    }
-
-    /**
-     * @param Commerce_ProductModel $product
-     *
-     * @return Commerce_VariantModel
-     */
-    private function _setVariantsFromPost(Commerce_ProductModel $product)
-    {
-        $variantsPost = craft()->request->getPost('variants');
-        $variants = [];
-        $count = 1;
-
-        if(empty($variantsPost)){
-            $variantsPost = [];
-        }
-
-        foreach ($variantsPost as $key => $variant) {
-            if (strncmp($key, 'new', 3) !== 0) {
-                $variantModel = craft()->commerce_variants->getVariantById($key,$product->locale);
-            }else{
-                $variantModel = new Commerce_VariantModel();
-            }
-
-            $variantModel->setProduct($product);
-            $variantModel->setAttributes($variant);
-            $variantModel->sortOrder = $count++;
-
-            if (isset($variant['fields'])) {
-                $variantModel->setContentFromPost($variant['fields']);
-            }
-
-            if (isset($variant['title'])) {
-                $variantModel->getContent()->title = $variant['title'];
-            }
-
-            $variants[] = $variantModel;
-        }
-
-        return $variants;
     }
 
     /**

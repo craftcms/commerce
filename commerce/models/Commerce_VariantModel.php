@@ -26,8 +26,8 @@ use Commerce\Interfaces\Purchasable;
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   http://craftcommerce.com/license Craft Commerce License Agreement
- * @see       http://craftcommerce.com
+ * @license   https://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       https://craftcommerce.com
  * @package   craft.plugins.commerce.models
  * @since     1.0
  */
@@ -61,7 +61,13 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
      */
     public function isEditable()
     {
-        return true;
+        $product = $this->getProduct();
+
+        if ($product) {
+            return $product->isEditable();
+        }
+
+        return false;
     }
 
     /**

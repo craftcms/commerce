@@ -6,8 +6,8 @@ namespace Craft;
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   http://craftcommerce.com/license Craft Commerce License Agreement
- * @see       http://craftcommerce.com
+ * @license   https://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       https://craftcommerce.com
  * @package   craft.plugins.commerce.controllers
  * @since     1.0
  */
@@ -110,9 +110,6 @@ class Commerce_DiscountsController extends Commerce_BaseCpController
             'enabled',
             'purchaseTotal',
             'purchaseQty',
-            'baseDiscount',
-            'perItemDiscount',
-            'percentDiscount',
             'freeShipping',
             'excludeOnSale',
             'code',
@@ -122,6 +119,24 @@ class Commerce_DiscountsController extends Commerce_BaseCpController
         foreach ($fields as $field) {
             $discount->$field = craft()->request->getPost($field);
         }
+
+        $discountAmountsFields = [
+            'baseDiscount',
+            'perItemDiscount'
+        ];
+        foreach ($discountAmountsFields as $field) {
+            $discount->$field = craft()->request->getPost($field) * -1;
+        }
+
+        // Format into a %
+        $percentDiscountAmount = craft()->request->getPost('percentDiscount');
+        $localeData = craft()->i18n->getLocaleData();
+        $percentSign = $localeData->getNumberSymbol('percentSign');
+        if (strpos($percentDiscountAmount, $percentSign) or floatval($percentDiscountAmount) >= 1) {
+            $discount->percentDiscount = floatval($percentDiscountAmount) / -100;
+        } else {
+            $discount->percentDiscount = floatval($percentDiscountAmount) * -1;
+        };
 
         $products = craft()->request->getPost('products', []);
         if (!$products) {

@@ -2,6 +2,7 @@
 namespace Craft;
 
 use Commerce\Helpers\CommerceVariantMatrixHelper as VariantMatrixHelper;
+use Commerce\Helpers\CommerceProductHelper as CommerceProductHelper;
 
 require_once(__DIR__ . '/Commerce_BaseElementType.php');
 
@@ -10,8 +11,8 @@ require_once(__DIR__ . '/Commerce_BaseElementType.php');
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   http://craftcommerce.com/license Craft Commerce License Agreement
- * @see       http://craftcommerce.com
+ * @license   https://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       https://craftcommerce.com
  * @package   craft.plugins.commerce.elementtypes
  * @since     1.0
  */
@@ -129,8 +130,6 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
      */
     public function getSources($context = null)
     {
-
-
         if ($context == 'index')
         {
             $productTypes = craft()->commerce_productTypes->getEditableProductTypes();
@@ -161,11 +160,13 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
 
         foreach ($productTypes as $productType) {
             $key = 'productType:' . $productType->id;
+            $canEditProducts = craft()->userSession->checkPermission('commerce-manageProductType:'.$productType->id);
+
             $sources[$key] = [
                 'label' => $productType->name,
                 'data' => [
                     'handle' => $productType->handle,
-                    'editable' => $editable
+                    'editable' => $canEditProducts
                 ],
                 'criteria' => ['typeId' => $productType->id, 'editable' => $editable]
             ];
@@ -357,6 +358,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
             'before' => AttributeType::Mixed,
             'status' => [AttributeType::String, 'default' => Commerce_ProductModel::LIVE],
             'withVariant' => AttributeType::Mixed,
+            'editable' => AttributeType::Bool,
         ];
     }
 
@@ -462,6 +464,23 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
             $query->andWhere(['in', 'products.id', $productIds]);
         }
 
+        if ($criteria->editable) {
+            $user = craft()->userSession->getUser();
+
+            if (!$user) {
+                return false;
+            }
+
+            // Limit the query to only the sections the user has permission to edit
+            $editableProductTypeIds = craft()->commerce_productTypes->getEditableProductTypeIds();
+
+            if (!$editableProductTypeIds) {
+                return false;
+            }
+
+            $query->andWhere(array('in', 'products.typeId', $editableProductTypeIds));
+        }
+
         return true;
     }
 
@@ -551,46 +570,17 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
     }
 
     /**
-     * @param BaseElementModel $product
+     * @param BaseElementModel $element
      * @param array $params
      *
      * @return bool
      * @throws Exception
      * @throws \Exception
      */
-    public function saveElement(BaseElementModel $product, $params)
+    public function saveElement(BaseElementModel $element, $params)
     {
-        $variantsPost = $params['variants'];
-        $variants = [];
-        $count = 1;
-
-        if(empty($variantsPost)){
-            $variantsPost = [];
-        }
-
-        foreach ($variantsPost as $key => $variant) {
-            if (strncmp($key, 'new', 3) !== 0) {
-                $variantModel = craft()->commerce_variants->getVariantById($key,$product->locale);
-            }else{
-                $variantModel = new Commerce_VariantModel();
-            }
-
-            $variantModel->setProduct($product);
-            $variantModel->setAttributes($variant);
-            $variantModel->sortOrder = $count++;
-
-            if (isset($variant['fields'])) {
-                $variantModel->setContentFromPost($variant['fields']);
-            }
-
-            if (isset($variant['title'])) {
-                $variantModel->getContent()->title = $variant['title'];
-            }
-
-            $variants[] = $variantModel;
-        }
-
-        $element->setVariants($variants);
+        CommerceProductHelper::populateProductModel($element, $params);
+        CommerceProductHelper::populateProductVariantModels($element, $params['variants']);
 
         return craft()->commerce_products->saveProduct($element);
     }

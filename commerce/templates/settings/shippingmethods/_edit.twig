@@ -10,11 +10,11 @@
 {% import "_includes/forms" as forms %}
 
     {% set tabs = {
-    0: {'label':'Shipping Method','url':'#shipping-method-tab'}
+    0: {'label':'Shipping Method'|t,'url':'#shipping-method-tab'}
     }
     %}
     {% if not newMethod %}
-        {%  set tabs = tabs|merge({1: {'label':'Rules','url':'#rules'}}) %}
+        {%  set tabs = tabs|merge({1: {'label':'Rules'|t,'url':'#rules'}}) %}
     {% endif %}
 
 
