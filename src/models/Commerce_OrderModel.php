@@ -473,6 +473,14 @@ class Commerce_OrderModel extends BaseElementModel
     }
 
     /**
+     * @return Commerce_PaymentMethodModel|null
+     */
+    public function getPaymentMethod()
+    {
+        return craft()->commerce_paymentMethods->getPaymentMethodById($this->getAttribute('paymentMethodId'));
+    }
+
+    /**
      * @deprecated
      * @return bool
      */
