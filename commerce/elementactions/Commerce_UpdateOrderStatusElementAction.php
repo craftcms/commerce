@@ -64,7 +64,7 @@ class Commerce_UpdateOrderStatusElementAction extends BaseElementAction
 })();
 EOT;
 
-        craft()->templates->includeJsResource('commerce/js/classes/updateOrderStatusModal.js');
+        craft()->templates->includeJsResource('commerce/js/classes/UpdateOrderStatusModal.js');
         craft()->templates->includeJs($js);
     }
 
