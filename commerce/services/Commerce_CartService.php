@@ -148,6 +148,7 @@ class Commerce_CartService extends BaseApplicationComponent
      */
     public function forgetCart()
     {
+        unset($this->_cart);
         $cookieId = $this->cookieCartId;
         craft()->userSession->deleteStateCookie($cookieId);
     }
