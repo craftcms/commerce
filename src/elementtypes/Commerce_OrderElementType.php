@@ -264,6 +264,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
     {
         return [
             'number' => AttributeType::Mixed,
+            'email' => AttributeType::Mixed,
             'dateOrdered' => AttributeType::Mixed,
             'updatedOn' => AttributeType::Mixed,
             'updatedAfter' => AttributeType::Mixed,
@@ -328,6 +329,10 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 
         if ($criteria->number) {
             $query->andWhere(DbHelper::parseParam('orders.number', $criteria->number, $query->params));
+        }
+
+        if ($criteria->email) {
+            $query->andWhere(DbHelper::parseParam('orders.email', $criteria->email, $query->params));
         }
 
         if ($criteria->orderStatus) {
