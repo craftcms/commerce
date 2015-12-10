@@ -452,7 +452,7 @@ class Commerce_OrderModel extends BaseElementModel
     public function getShippingMethodId()
     {
         if($this->getShippingMethod()){
-            return $this->getShippingMethod()->id;
+            return $this->getShippingMethod()->getId();
         };
     }
 
