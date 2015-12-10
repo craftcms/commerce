@@ -68,7 +68,7 @@ class Commerce_RecentOrdersWidget extends BaseWidget
         $criteria->completed = true;
         $criteria->dateOrdered = "NOT NULL";
         $criteria->limit = $this->getSettings()->limit;
-        $criteria->order = 'elements.dateCreated desc';
+        $criteria->order = 'dateOrdered desc';
 
         return $criteria->find();
     }
