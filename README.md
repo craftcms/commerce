@@ -6,7 +6,7 @@ not end users.
 # Code License
 Copyright 2015 Pixel & Tonic, Inc. All rights reserved. See LICENSE.md
 
-# Documentation Generation
+# Class Documentation Generation
 
 To generate a phpdoc documentation:
 
