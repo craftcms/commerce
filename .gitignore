@@ -1,5 +1,6 @@
 .DS_Store
 sami.phar
+codecept.phar
 docs/phpdoc/build/
 docs/phpdoc/cache/
 *.idea/*
