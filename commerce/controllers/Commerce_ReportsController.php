@@ -15,19 +15,40 @@ class Commerce_ReportsController extends Commerce_BaseCpController
 {
     public function actionGetOrders()
     {
-        $startDate = strtotime("-7 days");
-        $endDate = strtotime("now");
-
         $data = [];
-        $position = $startDate;
 
-        while($position < $endDate)
+        $startDate = new DateTime('- 7 days');
+        $endDate = new DateTime();
+        $scale = 'day';
+
+
+        $cursorTimestamp = $startDate->getTimestamp();
+
+        while($cursorTimestamp < $endDate->getTimestamp())
         {
-            $position += 60 * 60 * 24;
+            $cursorStart = new DateTime();
+            $cursorStart->setTimestamp($cursorTimestamp);
 
-            $data[] = ['date' => strftime("%e-%b-%y", $position), 'close' => rand(0, 2000)];
+            $cursorTimestamp += (60 * 60 * 24);
+
+            $cursorEnd = new DateTime();
+            $cursorEnd->setTimestamp($cursorTimestamp);
+
+            $orders = $this->_getOrders($cursorStart, $cursorEnd);
+
+            $data[] = ['date' => strftime("%e-%b-%y", $cursorStart->getTimestamp()), 'close' => count($orders)];
         }
 
         $this->returnJson($data);
+    }
+
+    private function _getOrders($start, $end)
+    {
+        $criteria = craft()->elements->getCriteria('Commerce_Order');
+        $criteria->completed = true;
+        $criteria->dateOrdered = ['and', '>= '.$start, '< '.$end];
+        $criteria->order = 'dateOrdered desc';
+
+        return $criteria->find();
     }
 }
