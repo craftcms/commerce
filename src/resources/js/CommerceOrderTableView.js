@@ -48,12 +48,13 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
             {
                 console.log('onSelect');
 
+                inst.inline = true;
+
                 prv = cur;
                 cur = (new Date(inst.selectedYear, inst.selectedMonth, inst.selectedDay)).getTime();
 
                 if ( prv == -1 || prv == cur )
                 {
-                    console.log('a');
                     prv = cur;
                     this.$dateRange.val( dateText );
                 }
@@ -63,7 +64,15 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
                     this.startDate = $.datepicker.formatDate( 'mm/dd/yy', new Date(Math.min(prv,cur)), {} );
                     this.endDate = $.datepicker.formatDate( 'mm/dd/yy', new Date(Math.max(prv,cur)), {} );
                     this.$dateRange.val( this.startDate+' - '+this.endDate );
+                    this.$dateRange.datepicker('hide');
                 }
+
+
+            }, this),
+
+            onClose: $.proxy(function ( dateText, inst )
+            {
+                inst.inline = false;
             }, this),
 
             onChangeMonthYear: function ( year, month, inst )
