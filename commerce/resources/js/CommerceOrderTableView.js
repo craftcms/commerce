@@ -16,8 +16,26 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
         this.$loadReportBtn.prependTo(this.$container);
         this.addListener(this.$loadReportBtn, 'click', 'loadReport');
 
-        this.$startDate = $('<input type="text" value="2015-12-02" />');
-        this.$startDate.prependTo(this.$container);
+        this.$chartControls = $('<div class="chart-controls"></div>');
+        this.$chartControls.prependTo(this.$container);
+
+        this.$startDateWrapper = $('<div class="datewrapper"></div>');
+        this.$startDateWrapper.appendTo(this.$chartControls);
+
+        this.$startDate = $('<input type="text" class="text" size="10" autocomplete="off" value="2015-12-02" />');
+        this.$startDate.appendTo(this.$startDateWrapper);
+        this.$startDate.datepicker($.extend({
+            defaultDate: new Date(2015, 11, 2)
+        }, Craft.datepickerOptions));
+
+        this.$endDateWrapper = $('<div class="datewrapper"></div>');
+        this.$endDateWrapper.appendTo(this.$chartControls);
+
+        this.$endDate = $('<input type="text" class="text" size="10" autocomplete="off" value="2015-12-10" />');
+        this.$endDate.appendTo(this.$endDateWrapper);
+        this.$endDate.datepicker($.extend({
+            defaultDate: new Date(2015, 11, 10)
+        }, Craft.datepickerOptions));
 
         this.loadReport();
 
@@ -26,8 +44,13 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
 
     loadReport: function()
     {
+        var requestData = {
+            startDate: this.$startDate.val(),
+            endDate: this.$endDate.val(),
+        };
+
         // Request orders report
-        Craft.postActionRequest('commerce/reports/getOrders', { startDate: this.$startDate.val() }, $.proxy(function(response, textStatus)
+        Craft.postActionRequest('commerce/reports/getOrders', requestData, $.proxy(function(response, textStatus)
         {
             if(textStatus == 'success' && typeof(response.error) == 'undefined')
             {
