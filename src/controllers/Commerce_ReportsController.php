@@ -17,7 +17,9 @@ class Commerce_ReportsController extends Commerce_BaseCpController
     {
         $data = [];
 
-        $startDate = new DateTime('- 7 days');
+        $startDate = craft()->request->getParam('startDate');
+
+        $startDate = new DateTime($startDate);
         $endDate = new DateTime();
         $scale = 'day';
 

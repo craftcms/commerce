@@ -58,36 +58,61 @@ Craft.charts.Area = Garnish.Base.extend(
     {
         this.data = data;
 
-        // format data
-
-        this.data.forEach(function(d) {
-            d.date = d3.time.format("%d-%b-%y").parse(d.date);
-            d.close = +d.close;
-        });
-
-        this.render();
+        this.parseData();
+        this.scaleDataRange();
+        this.drawChart();
     },
 
-    render: function()
+    drawChart: function()
     {
-        // draw chart
-
-        this.x.scale.domain(d3.extent(this.data, function(d) { return d.date; }));
-        this.y.scale.domain([0, d3.max(this.data, function(d) { return d.close; })]);
-
+        // Draw chart
         this.graph.append("path")
             .datum(this.data)
             .attr("class", "area")
             .attr("d", this.chart);
 
+        // Draw the X axis
         this.graph.append("g")
             .attr("class", "x axis")
             .attr("transform", "translate(0," + this.height + ")")
             .call(this.x.axis);
 
+        // Draw the Y axis
         this.graph.append("g")
                 .attr("class", "y axis")
                 .call(this.y.axis);
+    },
+
+    updateData: function(data)
+    {
+        this.data = data;
+
+        this.parseData();
+        this.scaleDataRange();
+
+        this.$chart.select('.area')
+            .datum(this.data)
+            .attr("d", this.chart);
+
+        this.$chart.select(".x.axis") // change the x axis
+            .call(this.x.axis);
+        this.$chart.select(".y.axis") // change the y axis
+            .call(this.y.axis);
+    },
+
+    parseData: function()
+    {
+        this.data.forEach(function(d) {
+            d.date = d3.time.format("%d-%b-%y").parse(d.date);
+            d.close = +d.close;
+        });
+    },
+
+    scaleDataRange: function()
+    {
+        // Scale the range of the data
+        this.x.scale.domain(d3.extent(this.data, function(d) { return d.date; }));
+        this.y.scale.domain([0, d3.max(this.data, function(d) { return d.close; })]);
     },
 
     initScale: function()
