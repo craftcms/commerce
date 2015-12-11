@@ -18,9 +18,10 @@ class Commerce_ReportsController extends Commerce_BaseCpController
         $data = [];
 
         $startDate = craft()->request->getParam('startDate');
+        $endDate = craft()->request->getParam('endDate');
 
         $startDate = new DateTime($startDate);
-        $endDate = new DateTime();
+        $endDate = new DateTime($endDate);
         $scale = 'day';
 
 
