@@ -78,10 +78,18 @@ class Commerce_ProductsService extends BaseApplicationComponent
 
             // If we have a blank SKU, generate from product type's skuFormat
             if(!$variant->sku){
-                if (!$productType->hasVariants){
-                    $variant->sku = craft()->templates->renderObjectTemplate($productType->skuFormat, $product);
-                }else{
-                    $variant->sku = craft()->templates->renderObjectTemplate($productType->skuFormat, $variant);
+                try
+                {
+                    if (!$productType->hasVariants)
+                    {
+                        $variant->sku = craft()->templates->renderObjectTemplate($productType->skuFormat, $product);
+                    }
+                    else
+                    {
+                        $variant->sku = craft()->templates->renderObjectTemplate($productType->skuFormat, $variant);
+                    }
+                }catch(\Exception $e){
+                    $variant->sku = "";
                 }
             }
 
