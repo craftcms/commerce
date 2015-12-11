@@ -24,3 +24,12 @@
     fill: RGBA(0, 138, 202, .3);
     stroke-width: 1px;
 }
+
+.ui-datepicker-calendar td.date-range-selected a {
+    background: hsl(212, 10%, 50%) !important;
+    color: #fff;
+}
+
+.chart-controls .datewrapper input {
+    width: 200px;
+}
