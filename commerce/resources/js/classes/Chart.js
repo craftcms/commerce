@@ -15,6 +15,8 @@ Craft.charts.Area = Garnish.Base.extend(
     x: { axis: null, scale: null },
     y: { axis: null, scale: null },
 
+    chartElementsInitialized: false,
+
     $chart: null,
 
     init: function(chartElement, params, data)
@@ -59,36 +61,13 @@ Craft.charts.Area = Garnish.Base.extend(
         this.data = data;
 
         this.parseData();
-        this.scaleDataRange();
         this.drawChart();
     },
 
     drawChart: function()
     {
-        // Draw chart
-        this.graph.append("path")
-            .datum(this.data)
-            .attr("class", "area")
-            .attr("d", this.chart);
-
-        // Draw the X axis
-        this.graph.append("g")
-            .attr("class", "x axis")
-            .attr("transform", "translate(0," + this.height + ")")
-            .call(this.x.axis);
-
-        // Draw the Y axis
-        this.graph.append("g")
-                .attr("class", "y axis")
-                .call(this.y.axis);
-    },
-
-    updateData: function(data)
-    {
-        this.data = data;
-
-        this.parseData();
         this.scaleDataRange();
+        this.initChartElements();
 
         this.$chart.select('.area')
             .datum(this.data)
@@ -98,6 +77,28 @@ Craft.charts.Area = Garnish.Base.extend(
             .call(this.x.axis);
         this.$chart.select(".y.axis") // change the y axis
             .call(this.y.axis);
+    },
+
+
+    initChartElements: function()
+    {
+        if(!this.chartElementsInitialized)
+        {
+            this.chartElementsInitialized = true;
+
+            // Draw chart
+            this.graph.append("path")
+                .attr("class", "area");
+
+            // Draw the X axis
+            this.graph.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + this.height + ")");
+
+            // Draw the Y axis
+            this.graph.append("g")
+                    .attr("class", "y axis");
+        }
     },
 
     parseData: function()

@@ -38,7 +38,7 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
                 }
                 else
                 {
-                    this.chart.updateData(response);
+                    this.chart.loadData(response);
                 }
             }
             else
