@@ -79,6 +79,22 @@ class Commerce_AddressModel extends BaseModel
     }
 
     /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->getAttribute('firstName') . " " . $this->getAttribute('lastName');
+    }
+
+    /**
+     * @return string
+     */
+    public function getFullName()
+    {
+        return $this->getName();
+    }
+
+    /**
      * @return array
      */
     protected function defineAttributes()
