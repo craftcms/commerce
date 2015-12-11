@@ -22,7 +22,12 @@ Craft.CommerceRecentOrdersWidget = Garnish.Base.extend(
         this.$error = $('<div class="error"/>').prependTo(this.$body);
 
         // Request orders report
-        Craft.postActionRequest('commerce/reports/getOrders', {}, $.proxy(function(response, textStatus)
+        var requestData = {
+            startDate: '-7 days',
+            endDate: 'now',
+        };
+
+        Craft.postActionRequest('commerce/reports/getOrders', requestData, $.proxy(function(response, textStatus)
         {
             if(textStatus == 'success' && typeof(response.error) == 'undefined')
             {
