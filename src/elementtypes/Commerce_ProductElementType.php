@@ -314,7 +314,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
     public function defineSortableAttributes()
     {
         $attributes = [
-            'title' => Craft::t('Name'),
+            'title' => Craft::t('Title'),
             'postDate' => Craft::t('Post Date'),
             'expiryDate' => Craft::t('Expiry Date'),
             'defaultPrice' => Craft::t('Price')
