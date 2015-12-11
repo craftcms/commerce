@@ -118,6 +118,10 @@ class Commerce_LineItemsService extends BaseApplicationComponent
         $lineItemRecord->price = $lineItem->price;
 
         $lineItemRecord->weight = $lineItem->weight;
+        $lineItemRecord->width = $lineItem->width;
+        $lineItemRecord->length = $lineItem->length;
+        $lineItemRecord->height = $lineItem->height;
+
         $lineItemRecord->snapshot = $lineItem->snapshot;
         $lineItemRecord->note = $lineItem->note;
 
