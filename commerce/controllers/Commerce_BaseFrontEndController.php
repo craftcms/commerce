@@ -51,7 +51,7 @@ class Commerce_BaseFrontEndController extends Commerce_BaseController
         $data['totalWeight'] = $cart->totalWeight;
         $data['totalWidth'] = $cart->totalWidth;
         $data['totalHeight'] = $cart->totalHeight;
-        $data['totalHeight'] = $cart->totalLength;
+        $data['totalLength'] = $cart->totalLength;
         $data['totalTax'] = $cart->getTotalTax();
         $data['totalTaxIncluded'] = $cart->getTotalTaxIncluded();
         $data['totalShippingCost'] = $cart->getTotalShippingCost();
