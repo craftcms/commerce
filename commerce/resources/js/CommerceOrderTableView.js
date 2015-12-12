@@ -56,6 +56,7 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
                     this.$dateRange.val( this.startDate+' - '+this.endDate );
                     this.$dateRange.datepicker('hide');
                     this.loadReport();
+                    cur = -1, prv = -1;
                 }
 
 
