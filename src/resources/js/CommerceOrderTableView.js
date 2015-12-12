@@ -26,7 +26,6 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
         this.$dateRange.appendTo(this.$dateRangeWrapper);
 
 
-
         var cur = -1, prv = -1;
 
         this.$dateRange.datepicker($.extend({
@@ -35,15 +34,11 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
 
             beforeShowDay: function ( date )
             {
-                console.log('beforeShowDay');
-
                 return [true, ( (date.getTime() >= Math.min(prv, cur) && date.getTime() <= Math.max(prv, cur)) ? 'date-range-selected' : '')];
             },
 
             onSelect: $.proxy(function ( dateText, inst )
             {
-                console.log('onSelect');
-
                 inst.inline = true;
 
                 prv = cur;
@@ -56,7 +51,6 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
                 }
                 else
                 {
-                    console.log('b');
                     this.startDate = $.datepicker.formatDate( 'mm/dd/yy', new Date(Math.min(prv,cur)), {} );
                     this.endDate = $.datepicker.formatDate( 'mm/dd/yy', new Date(Math.max(prv,cur)), {} );
                     this.$dateRange.val( this.startDate+' - '+this.endDate );
@@ -70,18 +64,6 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
             {
                 inst.inline = false;
             }, this),
-
-            onChangeMonthYear: function ( year, month, inst )
-            {
-                //prv = cur = -1;
-            },
-
-            onAfterUpdate: function ( inst )
-            {
-                // $('<button type="button" class="ui-datepicker-close ui-state-default ui-priority-primary ui-corner-all" data-handler="hide" data-event="click">Done</button>')
-                //     .appendTo($('#jrange div .ui-datepicker-buttonpane'))
-                //     .on('click', function () { $('#jrange div').hide(); });
-            }
 
         }, Craft.datepickerOptions));
 
