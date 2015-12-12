@@ -91,10 +91,6 @@ class Builder
 		UtilsHelper::createDir($this->_tempDir.'commerce/');
 		UtilsHelper::copyDirectory($this->_sourceBaseDir.'commerce', $this->_tempDir.'commerce/');
 		echo ('Finished copying code from '.$this->_sourceBaseDir.'commerce to '.$this->_tempDir.'commerce/'.PHP_EOL.PHP_EOL);
-
-		echo ('Copying file from '.$this->_sourceBaseDir.'LICENSE.md to '.$this->_tempDir.'LICENSE.md'.PHP_EOL);
-		UtilsHelper::copyFile($this->_sourceBaseDir.'LICENSE.md', $this->_tempDir.'LICENSE.md');
-		echo ('Finished copying file from '.$this->_sourceBaseDir.'LICENSE.md to '.$this->_tempDir.'LICENSE.md'.PHP_EOL.PHP_EOL);
 	}
 
 	/**
