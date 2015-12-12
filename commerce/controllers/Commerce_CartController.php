@@ -33,7 +33,7 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
         $lineItem = craft()->commerce_lineItems->getLineItemById($lineItemId);
 
         // Error does not reveal the line item doesn't exist, just that it doesn't for the current cart.
-        if(!$lineItem){
+        if (!$lineItem) {
             throw new Exception(Craft::t('Line item not found in current cart'));
         }
 
@@ -46,8 +46,8 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
         $lineItem->note = $note;
 
         // If the options param exists, set it
-        if(!is_null(craft()->request->getPost('options'))){
-            $options = craft()->request->getPost('options',[]);
+        if (!is_null(craft()->request->getPost('options'))) {
+            $options = craft()->request->getPost('options', []);
             ksort($options);
             $lineItem->options = $options;
             $lineItem->optionsSignature = md5(json_encode($options));
@@ -91,7 +91,7 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
         $lineItem = craft()->commerce_lineItems->getLineItemById($lineItemId);
 
         // Error does not reveal the line item doesn't exist, just that it doesn't for the current cart.
-        if(!$lineItem){
+        if (!$lineItem) {
             throw new Exception(Craft::t('Line item not found in current cart'));
         }
 
@@ -148,15 +148,15 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
 
         if (!is_null(craft()->request->getParam('purchasableId'))) {
             $purchasableId = craft()->request->getPost('purchasableId');
-            $note = craft()->request->getPost('note',"");
-            $options = craft()->request->getPost('options',[]);
+            $note = craft()->request->getPost('note', "");
+            $options = craft()->request->getPost('options', []);
             $qty = craft()->request->getPost('qty', 1);
             $error = '';
             if (!craft()->commerce_cart->addToCart($cart, $purchasableId, $qty, $note, $options, $error)) {
-                $addToCartError = Craft::t('Could not add to cart: ').$error;
-                $cart->addError('lineItems',$addToCartError);
+                $addToCartError = Craft::t('Could not add to cart: ') . $error;
+                $cart->addError('lineItems', $addToCartError);
                 $additionalError = $addToCartError;
-            }else{
+            } else {
                 $cartSaved = true;
             }
         }
@@ -171,17 +171,17 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
                                 if (!craft()->commerce_orders->setOrderAddresses($cart, $shippingAddress, $billingAddress)) {
                                     $cart->addError('shippingAddressId', Craft::t('Could not save the shipping address.'));
                                     $cart->addError('billingAddressId', Craft::t('Could not save the billing address.'));
-                                }else{
+                                } else {
                                     $cartSaved = true;
                                 }
                             }
-                        }else{
+                        } else {
                             $cart->addError('shippingAddressId', Craft::t('Could not save the billing address.'));
                         }
-                    }else{
+                    } else {
                         if (!craft()->commerce_orders->setOrderAddresses($cart, $shippingAddress, $shippingAddress)) {
                             $cart->addError('shippingAddressId', Craft::t('Could not save the shipping address.'));
-                        }else{
+                        } else {
                             $cartSaved = true;
                         }
                     }
@@ -207,7 +207,7 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
                         $cart->addError('billingAddress', Craft::t('Could not save the Billing Address.'));
                     }
                 }
-            }else{
+            } else {
                 $cartSaved = true;
             }
         }
@@ -218,7 +218,7 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
                 $email = craft()->request->getParam('email'); // empty string vs null (strict type checking)
                 if (!craft()->commerce_cart->setEmail($cart, $email, $error)) {
                     $cart->addError('email', $error);
-                }else{
+                } else {
                     $cartSaved = true;
                 }
             }
@@ -229,7 +229,7 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
             $couponCode = craft()->request->getParam('couponCode');
             if (!craft()->commerce_cart->applyCoupon($cart, $couponCode, $error)) {
                 $cart->addError('couponCode', $error);
-            }else{
+            } else {
                 $cartSaved = true;
             }
         }
@@ -239,7 +239,7 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
             $paymentMethodId = craft()->request->getParam('paymentMethodId');
             if (!craft()->commerce_cart->setPaymentMethod($cart, $paymentMethodId, $error)) {
                 $cart->addError('paymentMethodId', $error);
-            }else{
+            } else {
                 $cartSaved = true;
             }
         }
@@ -249,7 +249,7 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
             $shippingMethod = craft()->request->getParam('shippingMethod');
             if (!craft()->commerce_cart->setShippingMethod($cart, $shippingMethod, $error)) {
                 $cart->addError('shippingMethod', $error);
-            }else{
+            } else {
                 $cartSaved = true;
             }
         }
@@ -267,7 +267,7 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
             $this->redirectToPostedUrl();
         } else {
             $error = Craft::t('Cart not completely updated.');
-            if($additionalError){
+            if ($additionalError) {
                 $error = $additionalError;
             }
             if (craft()->request->isAjaxRequest) {

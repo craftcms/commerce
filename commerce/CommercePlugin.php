@@ -5,7 +5,7 @@ namespace Craft;
 use Commerce\Extensions\CommerceTwigExtension;
 use Commerce\Helpers\CommerceDbHelper;
 
-require 'vendor/autoload.php';
+require __DIR__.'/vendor/autoload.php';
 
 /**
  * Craft Commerce Plugin for Craft CMS.
@@ -113,7 +113,8 @@ class CommercePlugin extends BasePlugin
                         'm151109_010102_Commerce_AddOptionsToLineItems',
                         'm151117_010101_Commerce_TaxIncluded',
                         'm151124_010101_Commerce_AddressManagement',
-                        'm151127_010101_Commerce_TaxRateTaxableOptions'
+                        'm151127_010101_Commerce_TaxRateTaxableOptions',
+                        'm151210_010101_Commerce_FixMissingLineItemDimensionData'
                     );
 
                     foreach ($migrations as $migrationClass) {
@@ -239,7 +240,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getSchemaVersion()
     {
-        return '1.0.00';
+        return '1.0.01';
     }
 
     /**
