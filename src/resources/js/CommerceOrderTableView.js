@@ -37,13 +37,11 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
             endDate: this.dateRange.endDate,
         };
 
-        // Request orders report
         Craft.postActionRequest('commerce/reports/getOrders', requestData, $.proxy(function(response, textStatus)
         {
 
             if(textStatus == 'success' && typeof(response.error) == 'undefined')
             {
-                // Create chart
                 if(!this.chart)
                 {
                     this.chart = new Craft.charts.Area(this.$chartContainer.get(0), this.params, response);
@@ -55,8 +53,6 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
             }
             else
             {
-                // Error
-
                 var msg = 'An unknown error occured.';
 
                 if(typeof(response) != 'undefined' && response && typeof(response.error) != 'undefined')
