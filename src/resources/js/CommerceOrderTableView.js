@@ -16,10 +16,6 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
 		// Error
 		this.$error = $('<div class="error"/>').prependTo(this.$container);
 
-        this.$loadReportBtn = $('<input type="button" value="Update Chart" />');
-        this.$loadReportBtn.prependTo(this.$container);
-        this.addListener(this.$loadReportBtn, 'click', 'loadReport');
-
         this.$chartControls = $('<div class="chart-controls"></div>');
         this.$chartControls.prependTo(this.$container);
 
