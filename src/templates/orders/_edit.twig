@@ -170,8 +170,8 @@
 			{% for adjustment in order.adjustments %}
 			<tr>
 				<td><strong>{{ adjustment.type|title|t }} {{ "Adjustment"|t }}</strong><br>{{ adjustment.name|title }} <span class="info"><strong>{{ adjustment.type|title|t }} {{ "Adjustment"|t }}</strong><br> {{ adjustment.description }}</span></td>
-				<td>{{ adjustment.amount|currency(order.currency) }}</td>
 				<td></td>
+				<td>{{ adjustment.amount|currency(order.currency) }}</td>
 				<td></td>
 				<td></td>
 				<td></td>
@@ -208,6 +208,7 @@
 				<td></td>
 				<td></td>
 				<td></td>
+				<td></td>
 				<td><strong>{{ "Base Discount"|t }}</strong></td>
 				<td>
 					<span class="right">{{ order.baseDiscount|currency(order.currency) }}</span>
@@ -215,6 +216,7 @@
 				<td></td>
 			</tr>
 			<tr>
+				<td></td>
 				<td></td>
 				<td></td>
 				<td></td>

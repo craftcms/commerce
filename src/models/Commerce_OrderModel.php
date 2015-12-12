@@ -452,7 +452,7 @@ class Commerce_OrderModel extends BaseElementModel
     public function getShippingMethodId()
     {
         if($this->getShippingMethod()){
-            return $this->getShippingMethod()->id;
+            return $this->getShippingMethod()->getId();
         };
     }
 
@@ -470,6 +470,14 @@ class Commerce_OrderModel extends BaseElementModel
     public function getShippingMethod()
     {
         return craft()->commerce_shippingMethods->getShippingMethodByHandle($this->getShippingMethodHandle());
+    }
+
+    /**
+     * @return Commerce_PaymentMethodModel|null
+     */
+    public function getPaymentMethod()
+    {
+        return craft()->commerce_paymentMethods->getPaymentMethodById($this->getAttribute('paymentMethodId'));
     }
 
     /**
