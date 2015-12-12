@@ -55,6 +55,7 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
                     this.endDate = $.datepicker.formatDate( 'mm/dd/yy', new Date(Math.max(prv,cur)), {} );
                     this.$dateRange.val( this.startDate+' - '+this.endDate );
                     this.$dateRange.datepicker('hide');
+                    this.loadReport();
                 }
 
 
