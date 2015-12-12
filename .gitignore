@@ -1,5 +1,6 @@
 .DS_Store
 sami.phar
+codecept.phar
 docs/phpdoc/build/
 docs/phpdoc/cache/
 *.idea/*
@@ -11,3 +12,4 @@ docs/phpdoc/cache/
 *aspnet_client/*
 market/vendor/
 commerce/vendor/
+phpstorm.php
