@@ -10,6 +10,10 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
 
 	afterInit: function()
     {
+        this.startDate = new Date();
+        this.startDate.setDate(this.startDate.getDate() - 7);
+        this.endDate = new Date();
+
 		// Add the chart before the table
 		this.$chartContainer = $('<svg class="chart"></svg>').prependTo(this.$container);
 
@@ -22,15 +26,23 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
         this.$dateRangeWrapper = $('<div class="datewrapper"></div>');
         this.$dateRangeWrapper.appendTo(this.$chartControls);
 
-        this.$dateRange = $('<input type="text" class="text" size="20" autocomplete="off" value="2015-12-02" />');
+        var dateRangeString =
+            this.startDate.getMonth()+'/'+this.startDate.getDay()+'/'+this.startDate.getFullYear()+
+            '-'+
+            this.endDate.getMonth()+'/'+this.endDate.getDay()+'/'+this.endDate.getFullYear();
+
+        this.$dateRange = $('<input type="text" class="text" size="20" autocomplete="off" value="'+dateRangeString+'" />');
         this.$dateRange.appendTo(this.$dateRangeWrapper);
 
 
-        var cur = -1, prv = -1;
+        // var cur = -1, prv = -1;
+
+        var cur = this.startDate.getTime(), prv = this.endDate.getTime();
+        var selectionStarted = false;
 
         this.$dateRange.datepicker($.extend({
 
-            defaultDate: new Date(2015, 11, 2),
+            // defaultDate: new Date(2015, 11, 2),
 
             beforeShowDay: function ( date )
             {
@@ -44,8 +56,9 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
                 prv = cur;
                 cur = (new Date(inst.selectedYear, inst.selectedMonth, inst.selectedDay)).getTime();
 
-                if ( prv == -1 || prv == cur )
+                if ( prv == -1 || prv == cur || !selectionStarted)
                 {
+                    selectionStarted = true;
                     prv = cur;
                     this.$dateRange.val( dateText );
                 }
@@ -56,7 +69,8 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
                     this.$dateRange.val( this.startDate+' - '+this.endDate );
                     this.$dateRange.datepicker('hide');
                     this.loadReport();
-                    cur = -1, prv = -1;
+                    selectionStarted = false;
+                    // cur = -1, prv = -1;
                 }
 
 
