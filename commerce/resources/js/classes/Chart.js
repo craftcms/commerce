@@ -12,8 +12,8 @@ Craft.charts.Area = Garnish.Base.extend(
     width: null,
     height: null,
 
-    x: { axis: null, scale: null },
-    y: { axis: null, scale: null },
+    x: { axis: null, scale: null, enableLines: false },
+    y: { axis: null, scale: null, enableLines: true },
 
     chartElementsInitialized: false,
 
@@ -41,6 +41,7 @@ Craft.charts.Area = Garnish.Base.extend(
     {
         this.initScale();
         this.initAxis();
+        this.initLines();
 
         // area
         this.chart = d3.svg.area()
@@ -86,6 +87,30 @@ Craft.charts.Area = Garnish.Base.extend(
         {
             this.chartElementsInitialized = true;
 
+            if(this.x.enableLines)
+            {
+                // draw x lines
+                this.graph.append("g")
+                    .attr("class", "x line")
+                    .attr("transform", "translate(0," + this.height + ")")
+                    .call(this.x.lineAxis
+                        .tickSize(-this.height, 0, 0)
+                        .tick
+                        .tickFormat("")
+                    );
+            }
+
+            if(this.y.enableLines)
+            {
+                // draw y lines
+                this.graph.append("g")
+                    .attr("class", "y line")
+                    .call(this.y.lineAxis
+                        .tickSize(-this.width, 0, 0)
+                        .tickFormat("")
+                    );
+            }
+
             // Draw chart
             this.graph.append("path")
                 .attr("class", "area");
@@ -97,7 +122,12 @@ Craft.charts.Area = Garnish.Base.extend(
 
             // Draw the Y axis
             this.graph.append("g")
-                    .attr("class", "y axis");
+                .attr("class", "y axis");
+
+
+
+
+
         }
     },
 
@@ -129,11 +159,22 @@ Craft.charts.Area = Garnish.Base.extend(
     {
         this.x.axis = d3.svg.axis()
             .scale(this.x.scale)
-            .orient("bottom").tickFormat(d3.time.format("%d/%m"));
+            .orient("top").tickFormat(d3.time.format("%d/%m"));
 
         this.y.axis = d3.svg.axis()
             .scale(this.y.scale)
-            .orient("right");
+            .orient("right").tickFormat(function(d) { return "$" + d; });
+    },
+
+    initLines: function()
+    {
+        this.x.lineAxis = d3.svg.axis()
+            .scale(this.x.scale)
+            .orient("bottom");
+
+        this.y.lineAxis = d3.svg.axis()
+            .scale(this.y.scale)
+            .orient("left");
     },
 
     resize: function()
@@ -145,6 +186,8 @@ Craft.charts.Area = Garnish.Base.extend(
         // ticks
         this.x.axis.ticks(Math.max(this.width/150, 3));
         this.y.axis.ticks(this.height / 50);
+        this.x.lineAxis.ticks(Math.max(this.width/150, 3));
+        this.y.lineAxis.ticks(this.height / 50);
 
         // Update the range of the scale with new width/height
         this.x.scale.range([0, this.width]);
@@ -158,11 +201,44 @@ Craft.charts.Area = Garnish.Base.extend(
         this.graph.select('.y.axis')
             .call(this.y.axis);
 
+        this.graph.select(".x.line")
+            .call(this.x.lineAxis);
+
+        this.graph.select(".y.line")
+            .call(this.y.lineAxis);
+
         // Force D3 to recalculate and update the area
         this.graph.selectAll('.area')
             .attr("d", this.chart);
+
+
+        // hide first ticks
+
+        var xTicks = this.graph.selectAll(".x.axis .tick");
+
+        xTicks.filter(function (d, e) {
+            if(e === 0 || e === (xTicks[0].length - 1))
+            {
+                this.remove();
+            }
+        })
+
+        var yTicks = this.graph.selectAll(".y.axis .tick");
+
+        yTicks.filter(function (d, e) {
+            if(e === 0 || e === (yTicks[0].length - 1))
+            {
+                this.remove();
+            }
+        })
     }
 });
+
+
+
+
+
+
 
 
 /**
