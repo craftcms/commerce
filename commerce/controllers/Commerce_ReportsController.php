@@ -39,7 +39,14 @@ class Commerce_ReportsController extends Commerce_BaseCpController
 
             $orders = $this->_getOrders($cursorStart, $cursorEnd);
 
-            $data[] = ['date' => strftime("%e-%b-%y", $cursorStart->getTimestamp()), 'close' => count($orders)];
+            $totalPaid = 0;
+
+            foreach($orders as $order)
+            {
+                $totalPaid += $order->totalPaid;
+            }
+
+            $data[] = ['date' => strftime("%e-%b-%y", $cursorStart->getTimestamp()), 'close' => $totalPaid];
         }
 
         $this->returnJson($data);
