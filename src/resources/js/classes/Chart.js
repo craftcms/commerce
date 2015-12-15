@@ -258,9 +258,9 @@ Craft.DateRangePicker = Garnish.Base.extend(
         this.$dateRangeWrapper.appendTo(this.$container);
 
         var dateRangeString =
-            this.startDate.getMonth()+'/'+this.startDate.getDay()+'/'+this.startDate.getFullYear()+
+            (this.startDate.getMonth() + 1)+'/'+this.startDate.getDate()+'/'+this.startDate.getFullYear()+
             '-'+
-            this.endDate.getMonth()+'/'+this.endDate.getDay()+'/'+this.endDate.getFullYear();
+            (this.endDate.getMonth() + 1)+'/'+this.endDate.getDate()+'/'+this.endDate.getFullYear();
 
         this.$dateRange = $('<input type="text" class="text" size="20" autocomplete="off" value="'+dateRangeString+'" />');
         this.$dateRange.appendTo(this.$dateRangeWrapper);
