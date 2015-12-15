@@ -129,11 +129,6 @@ Craft.charts.Area = Garnish.Base.extend(
             // Draw the Y axis
             this.graph.append("g")
                 .attr("class", "y axis");
-
-
-
-
-
         }
     },
 
