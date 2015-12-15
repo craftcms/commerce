@@ -22,6 +22,7 @@ class Commerce_ReportsController extends Commerce_BaseCpController
 
         $startDate = new DateTime($startDate);
         $endDate = new DateTime($endDate);
+        $endDate->modify('+1 day');
         $scale = 'day';
 
 
