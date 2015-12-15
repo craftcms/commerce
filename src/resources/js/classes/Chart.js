@@ -98,23 +98,14 @@ Craft.charts.Area = Garnish.Base.extend(
                 // draw x lines
                 this.graph.append("g")
                     .attr("class", "x line")
-                    .attr("transform", "translate(0," + this.height + ")")
-                    .call(this.x.lineAxis
-                        .tickSize(-this.height, 0, 0)
-                        .tick
-                        .tickFormat("")
-                    );
+                    .attr("transform", "translate(0," + this.height + ")");
             }
 
             if(this.y.enableLines)
             {
                 // draw y lines
                 this.graph.append("g")
-                    .attr("class", "y line")
-                    .call(this.y.lineAxis
-                        .tickSize(-this.width, 0, 0)
-                        .tickFormat("")
-                    );
+                    .attr("class", "y line");
             }
 
             // Draw chart
@@ -202,11 +193,18 @@ Craft.charts.Area = Garnish.Base.extend(
         this.graph.select('.y.axis')
             .call(this.y.axis);
 
+        // Update lines with new scale
         this.graph.select(".x.line")
-            .call(this.x.lineAxis);
+            .call(this.x.lineAxis
+                .tickSize(-this.height, 0, 0)
+                .tickFormat("")
+            );
 
         this.graph.select(".y.line")
-            .call(this.y.lineAxis);
+            .call(this.y.lineAxis
+                .tickSize(-this.width, 0, 0)
+                .tickFormat("")
+            );
 
         // Force D3 to recalculate and update the area
         this.graph.selectAll('.area')
