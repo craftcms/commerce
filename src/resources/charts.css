@@ -1,13 +1,13 @@
 /* Chart Controls */
 
-.chart-controls { position: relative; margin-bottom: 24px; }
+.chart-controls { position: relative; margin-bottom: 14px; }
 .chart-controls .datewrapper { width: auto; }
 .chart-controls .datewrapper input { width: 180px; }
 
 
 /* Chart */
 
-.chart { width: 100%; height: 180px; background: #fff; margin: 0 0px 24px 0px; }
+.chart { width: 100%; height: 200px; background: #fff; margin: 0 0px 14px 0px; }
 
 .chart .axis path,
 .chart .axis line { fill: none; stroke: #aaa; shape-rendering: crispEdges; }
