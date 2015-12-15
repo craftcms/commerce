@@ -8,7 +8,13 @@ Craft.charts.Area = Garnish.Base.extend(
     graph: null,
     data: null,
 
-    margin: 30,
+    margin: {
+        top: 0,
+        bottom: 0,
+        left: 0,
+        right: 0,
+    },
+
     width: null,
     height: null,
 
@@ -23,8 +29,8 @@ Craft.charts.Area = Garnish.Base.extend(
     {
         this.$chart = d3.select(chartElement);
 
-        this.width = parseInt(this.$chart.style("width")) - this.margin * 2,
-        this.height = parseInt(this.$chart.style("height")) - this.margin * 2;
+        this.width = parseInt(this.$chart.style("width")) - (this.margin.left + this.margin.right),
+        this.height = parseInt(this.$chart.style("height")) - (this.margin.top + this.margin.bottom);
 
         this.initChart();
 
@@ -51,10 +57,10 @@ Craft.charts.Area = Garnish.Base.extend(
 
         // append graph to chart element
         this.graph = this.$chart
-                .attr("width", this.width + this.margin * 2)
-                .attr("height", this.height + this.margin * 2)
+                .attr("width", this.width + (this.margin.left + this.margin.right))
+                .attr("height", this.height + (this.margin.top + this.margin.bottom))
             .append("g")
-                .attr("transform", "translate(" + this.margin + "," + this.margin + ")");
+                .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
     },
 
     loadData: function(data)
@@ -179,8 +185,8 @@ Craft.charts.Area = Garnish.Base.extend(
 
     resize: function()
     {
-        this.width = parseInt(this.$chart.style("width")) - this.margin * 2,
-        this.height = parseInt(this.$chart.style("height")) - this.margin * 2;
+        this.width = parseInt(this.$chart.style("width")) - (this.margin.left + this.margin.right),
+        this.height = parseInt(this.$chart.style("height")) - (this.margin.top + this.margin.bottom);
 
 
         // ticks
