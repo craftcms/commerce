@@ -81,8 +81,6 @@ class Commerce_ProductsService extends BaseApplicationComponent
                 }
             }
 
-            }
-
             if(!$productType->hasVariants)
             {
 	            // Since VariantModel::getTitle() returns the parent products title when the product has
