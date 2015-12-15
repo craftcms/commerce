@@ -217,7 +217,8 @@ Craft.charts.Area = Garnish.Base.extend(
 
         var xTicks = this.graph.selectAll(".x.axis .tick");
 
-        xTicks.filter(function (d, e) {
+        xTicks.filter(function (d, e)
+        {
             if(e === 0 || e === (xTicks[0].length - 1))
             {
                 this.remove();
@@ -226,8 +227,9 @@ Craft.charts.Area = Garnish.Base.extend(
 
         var yTicks = this.graph.selectAll(".y.axis .tick");
 
-        yTicks.filter(function (d, e) {
-            if(e === 0)
+        yTicks.filter(function (d, e)
+        {
+            if(e === 0 || e === (yTicks[0].length - 1))
             {
                 this.remove();
             }
