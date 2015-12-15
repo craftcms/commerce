@@ -84,6 +84,8 @@ Craft.charts.Area = Garnish.Base.extend(
             .call(this.x.axis);
         this.$chart.select(".y.axis") // change the y axis
             .call(this.y.axis);
+
+        this.resize();
     },
 
 
