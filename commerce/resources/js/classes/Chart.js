@@ -218,7 +218,7 @@ Craft.charts.Area = Garnish.Base.extend(
             .attr("d", this.chart);
 
 
-        // hide first ticks
+        // hide first & last ticks
 
         var xTicks = this.graph.selectAll(".x.axis .tick");
 
@@ -232,7 +232,7 @@ Craft.charts.Area = Garnish.Base.extend(
         var yTicks = this.graph.selectAll(".y.axis .tick");
 
         yTicks.filter(function (d, e) {
-            if(e === 0 || e === (yTicks[0].length - 1))
+            if(e === 0)
             {
                 this.remove();
             }
