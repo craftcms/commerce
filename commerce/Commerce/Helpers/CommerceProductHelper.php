@@ -3,6 +3,7 @@ namespace Commerce\Helpers;
 
 use Craft\Commerce_ProductModel as ProductModel;
 use Craft\Commerce_VariantModel as VariantModel;
+use Craft\LocalizationHelper as LocalizationHelper;
 
 /**
  * Class CommerceVariantMatrixHelper
@@ -70,7 +71,19 @@ class CommerceProductHelper
             }
 
             $variantModel->setProduct($product);
-            $variantModel->setAttributes($variant);
+
+            $variantModel->isDefault = isset($variant['isDefault']) ? $variant['isDefault'] : 0;
+            $variantModel->sku = $variant['sku'];
+            $variantModel->price = LocalizationHelper::normalizeNumber($variant['price']);
+            $variantModel->width = isset($variant['width']) ?LocalizationHelper::normalizeNumber($variant['width']) : null;
+            $variantModel->height = isset($variant['height']) ?LocalizationHelper::normalizeNumber($variant['height']) : null;
+            $variantModel->length = isset($variant['length']) ? LocalizationHelper::normalizeNumber($variant['length']) : null;
+            $variantModel->weight = isset($variant['weight']) ? LocalizationHelper::normalizeNumber($variant['weight']) : null;
+            $variantModel->stock = isset($variant['stock']) ? LocalizationHelper::normalizeNumber($variant['stock']) : null;
+            $variantModel->unlimitedStock = $variant['unlimitedStock'];
+            $variantModel->minQty = LocalizationHelper::normalizeNumber($variant['minQty']);
+            $variantModel->maxQty = LocalizationHelper::normalizeNumber($variant['maxQty']);
+
             $variantModel->sortOrder = $count++;
 
             if (isset($variant['fields'])) {
