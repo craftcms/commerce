@@ -229,7 +229,7 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
      */
     public function getDescription()
     {
-        if($this->getProduct()->getType()->hasVariants){
+        if ($this->getProduct()->getType()->hasVariants) {
             return $this->getProduct()->getTitle().' – '.$this->getTitle();
         }
 
