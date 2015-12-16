@@ -7,6 +7,7 @@
 .chart-explorer .chart-header .datewrapper input { width: 180px; }
 .chart-explorer .chart-header .error { float: right; }
 .chart-explorer .chart-header .spinner { position: absolute; top: 0; right: 0; }
+.chart-explorer .chart-header .total { position: absolute; top: 0; right: 0; }
 
 
 /* Chart */
