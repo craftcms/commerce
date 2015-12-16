@@ -23,14 +23,16 @@ Craft.charts.Area = Garnish.Base.extend(
 
     chartElementsInitialized: false,
 
-    $chart: null,
+    $_chart: null,
 
-    init: function(chartElement, params, data)
+    init: function(container, params, data)
     {
-        this.$chart = d3.select(chartElement);
+        this.$container = container;
+        this.$chart = $('<svg width="200" height="200" />').appendTo(this.$container);
+        this.$_chart = d3.select(this.$chart.get(0));
 
-        this.width = parseInt(this.$chart.style("width")) - (this.margin.left + this.margin.right),
-        this.height = parseInt(this.$chart.style("height")) - (this.margin.top + this.margin.bottom);
+        this.width = parseInt(this.$_chart.style("width")) - (this.margin.left + this.margin.right),
+        this.height = parseInt(this.$_chart.style("height")) - (this.margin.top + this.margin.bottom);
 
         this.initChart();
         this.loadData(data);
@@ -55,7 +57,7 @@ Craft.charts.Area = Garnish.Base.extend(
             .y1($.proxy(function(d) { return this.y.scale(d.close); }, this));
 
         // append graph to chart element
-        this.graph = this.$chart
+        this.graph = this.$_chart
                 .attr("width", this.width + (this.margin.left + this.margin.right))
                 .attr("height", this.height + (this.margin.top + this.margin.bottom))
             .append("g")
@@ -106,13 +108,13 @@ Craft.charts.Area = Garnish.Base.extend(
         this.scaleDataRange();
         this.initChartElements();
 
-        this.$chart.select('.area')
+        this.$_chart.select('.area')
             .datum(this.data)
             .attr("d", this.chart);
 
-        this.$chart.select(".x.axis") // change the x axis
+        this.$_chart.select(".x.axis") // change the x axis
             .call(this.x.axis);
-        this.$chart.select(".y.axis") // change the y axis
+        this.$_chart.select(".y.axis") // change the y axis
             .call(this.y.axis);
 
         this.resize();
@@ -172,8 +174,8 @@ Craft.charts.Area = Garnish.Base.extend(
 
     resize: function()
     {
-        this.width = parseInt(this.$chart.style("width")) - (this.margin.left + this.margin.right),
-        this.height = parseInt(this.$chart.style("height")) - (this.margin.top + this.margin.bottom);
+        this.width = parseInt(this.$_chart.style("width")) - (this.margin.left + this.margin.right),
+        this.height = parseInt(this.$_chart.style("height")) - (this.margin.top + this.margin.bottom);
 
 
         // ticks
