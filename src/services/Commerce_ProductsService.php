@@ -71,9 +71,21 @@ class Commerce_ProductsService extends BaseApplicationComponent
         foreach ($product->getVariants() as $variant) {
 
             // Use the product type's titleFormat if the title field is not shown
-            if (!$productType->hasVariantTitleField)
+            if (!$productType->hasVariantTitleField && $productType->hasVariants)
             {
-                $variant->getContent()->title = craft()->templates->renderObjectTemplate($productType->titleFormat, $variant);
+                try
+                {
+                    $variant->getContent()->title = craft()->templates->renderObjectTemplate($productType->titleFormat, $variant);
+                }catch(\Exception $e){
+                    $variant->getContent()->title = "";
+                }
+            }
+
+            if(!$productType->hasVariants)
+            {
+	            // Since VariantModel::getTitle() returns the parent products title when the product has
+	            // no variants, lets save the products title as the variant title anyway.
+	            $variant->getContent()->title = $product->getTitle();
             }
 
             // If we have a blank SKU, generate from product type's skuFormat
@@ -102,8 +114,12 @@ class Commerce_ProductsService extends BaseApplicationComponent
             if (!craft()->commerce_variants->validateVariant($variant)) {
                 $variantsValid = false;
                 // If we have a title error but hide the title field, put the error onto the sku.
-                if($variant->getError('title') && !$productType->hasVariantTitleField){
+                if($variant->getError('title') && !$productType->hasVariantTitleField && $productType->hasVariants){
                     $variant->addError('sku',Craft::t('Could not generate the variant title from product type’s title format.'));
+                }
+
+                if($variant->getError('title') && !$productType->hasVariants){
+                    $product->addError('title',Craft::t('Title cannot be blank.'));
                 }
             }
         }
@@ -114,11 +130,11 @@ class Commerce_ProductsService extends BaseApplicationComponent
 
                  $record->defaultVariantId = $defaultVariant->getPurchasableId();
                  $record->defaultSku = $defaultVariant->getSku();
-                 $record->defaultPrice = LocalizationHelper::normalizeNumber($defaultVariant->getPrice());
-                 $record->defaultHeight = LocalizationHelper::normalizeNumber($defaultVariant->height);
-                 $record->defaultLength = LocalizationHelper::normalizeNumber($defaultVariant->length);
-                 $record->defaultWidth = LocalizationHelper::normalizeNumber($defaultVariant->width);
-                 $record->defaultWeight = LocalizationHelper::normalizeNumber($defaultVariant->weight);
+                 $record->defaultPrice = $defaultVariant->getPrice();
+                 $record->defaultHeight = $defaultVariant->height;
+                 $record->defaultLength = $defaultVariant->length;
+                 $record->defaultWidth = $defaultVariant->width;
+                 $record->defaultWeight = $defaultVariant->weight;
 
                 if (craft()->elements->saveElement($product)) {
                     $record->id = $product->id;
