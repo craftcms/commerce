@@ -2,6 +2,108 @@
 
 Craft.charts = {};
 
+Craft.charts.Column = Garnish.Base.extend(
+{
+    $container: null,
+    $chart: null,
+
+    margin: {top: 20, right: 20, bottom: 30, left: 40},
+    data: null,
+    width: null,
+    height: null,
+    x: null,
+    y: null,
+    xAxis: null,
+    yAxis: null,
+    svg: null,
+
+    init: function(container)
+    {
+        this.$container = container;
+        this.$chart = $('<div class="chart column" />').appendTo(this.$container);
+
+        d3.select(window).on('resize', $.proxy(function() {
+            this.resize();
+        }, this));
+
+    },
+
+    resize: function()
+    {
+        if(this.data)
+        {
+            this.draw();
+        }
+    },
+
+    draw: function(data)
+    {
+        if(typeof(data) != 'undefined')
+        {
+            this.data = data;
+
+            this.data.forEach(function(d) {
+                d.date = d3.time.format("%d-%b-%y").parse(d.date);
+                d.close = +d.close;
+            });
+        }
+
+        this.$chart.html('');
+
+        this.width = this.$chart.width() - this.margin.left - this.margin.right;
+        this.height = this.$chart.height() - this.margin.top - this.margin.bottom;
+
+        this.x = d3.scale.ordinal().rangeRoundBands([0, this.width], .05);
+        this.y = d3.scale.linear().range([this.height, 0]);
+
+        this.xAxis = d3.svg.axis()
+            .scale(this.x)
+            .orient("bottom")
+            .tickFormat(d3.time.format("%Y-%m"));
+
+        this.yAxis = d3.svg.axis()
+            .scale(this.y)
+            .orient("left")
+            .ticks(10);
+
+        this.svg = d3.select(this.$chart.get(0)).append("svg")
+                .attr("width", this.width + this.margin.left + this.margin.right)
+                .attr("height", this.height + this.margin.top + this.margin.bottom)
+            .append("g")
+                .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
+
+        this.x.domain(this.data.map(function(d) { return d.date; }));
+        this.y.domain([0, d3.max(this.data, function(d) { return d.close; })]);
+
+
+        this.svg.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + this.height + ")")
+            .call(this.xAxis);
+
+        this.svg.append("g")
+                .attr("class", "y axis")
+                .call(this.yAxis)
+            .append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 6)
+                .attr("dy", ".71em")
+                .style("text-anchor", "end")
+                .text("Frequency");
+
+        this.svg.selectAll(".bar")
+                .data(this.data)
+            .enter().append("rect")
+                .attr("class", "bar")
+                .attr("x", $.proxy(function(d) { return this.x(d.date); }, this))
+                .attr("width", this.x.rangeBand())
+                .attr("y", $.proxy(function(d) { return this.y(d.close); }, this))
+                .attr("height", $.proxy(function(d) { return this.height - this.y(d.close); }, this));
+
+    }
+});
+
+
 Craft.charts.Area = Garnish.Base.extend(
 {
     chart: null,
@@ -28,7 +130,7 @@ Craft.charts.Area = Garnish.Base.extend(
     init: function(container)
     {
         this.$container = container;
-        this.$chart = $('<div class="chart" />').appendTo(this.$container);
+        this.$chart = $('<div class="chart area" />').appendTo(this.$container);
         this.$chartSvg = d3.select(this.$chart.get(0)).append('svg');
 
         this.width = parseInt(this.$chartSvg.style("width")) - (this.margin.left + this.margin.right),
