@@ -19,7 +19,6 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
         this.$error = $('<div class="error">Example error.</div>').appendTo(this.$chartHeader);
         this.$spinner = $('<div class="spinner hidden" />').appendTo(this.$chartHeader);
         this.$chartContainer = $('<div class="chart-container"></div>').appendTo(this.$chartExplorer);
-        this.$chart = $('<div class="chart"></div>').appendTo(this.$chartContainer);
 
         this.dateRange = new Craft.DateRangePicker(this.$chartHeader, {
             startDate: this.startDate,
@@ -41,7 +40,6 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
 
         this.$spinner.removeClass('hidden');
         this.$error.addClass('hidden');
-        this.$chart.removeClass('hidden');
         this.$chartContainer.removeClass('error');
 
         Craft.postActionRequest('commerce/reports/getOrders', requestData, $.proxy(function(response, textStatus)
@@ -52,7 +50,7 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
             {
                 if(!this.chart)
                 {
-                    this.chart = new Craft.charts.Area(this.$chart, this.params, response.report);
+                    this.chart = new Craft.charts.Area(this.$chartContainer, this.params, response.report);
                 }
                 else
                 {

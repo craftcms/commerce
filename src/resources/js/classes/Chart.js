@@ -28,10 +28,13 @@ Craft.charts.Area = Garnish.Base.extend(
     init: function(container, params, data)
     {
         this.$container = container;
-        this.$chartSvg = d3.select(this.$container.get(0)).append('svg');
+        this.$chart = $('<div class="chart" />').appendTo(this.$container);
+        this.$chartSvg = d3.select(this.$chart.get(0)).append('svg');
 
         this.width = parseInt(this.$chartSvg.style("width")) - (this.margin.left + this.margin.right),
         this.height = parseInt(this.$chartSvg.style("height")) - (this.margin.top + this.margin.bottom);
+
+        console.log('w,h', this.width, this.height);
 
         this.initChart();
         this.loadData(data);
