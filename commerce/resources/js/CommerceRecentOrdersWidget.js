@@ -16,7 +16,7 @@ Craft.CommerceRecentOrdersWidget = Garnish.Base.extend(
         this.$body = this.$widget.find('.body:first');
 
         // Add the chart to the body
-        this.$chartContainer = $('<svg class="chart"/>').prependTo(this.$body);
+        this.$chartContainer = $('<div class="chart"/>').prependTo(this.$body);
 
         // Error
         this.$error = $('<div class="error"/>').prependTo(this.$body);
@@ -32,7 +32,7 @@ Craft.CommerceRecentOrdersWidget = Garnish.Base.extend(
             if(textStatus == 'success' && typeof(response.error) == 'undefined')
             {
                 // Create chart
-                this.chart = new Craft.charts.Area(this.$chartContainer.get(0), this.params, response);
+                this.chart = new Craft.charts.Area(this.$chartContainer, this.params, response.report);
 
                 // Resize chart when grid is refreshed
                 window.dashboard.grid.on('refreshCols', $.proxy(this, 'handleGridRefresh'));
