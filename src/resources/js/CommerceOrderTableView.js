@@ -15,9 +15,13 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
         this.endDate = new Date();
 
         this.$chartExplorer = $('<div class="chart-explorer"></div>').prependTo(this.$container);
+
         this.$chartHeader = $('<div class="chart-header"></div>').appendTo(this.$chartExplorer);
         this.$error = $('<div class="error">Example error.</div>').appendTo(this.$chartHeader);
         this.$spinner = $('<div class="spinner hidden" />').appendTo(this.$chartHeader);
+        this.$total = $('<div class="total"><strong>Total Revenue:</strong> $</div>').appendTo(this.$chartHeader);
+        this.$totalCount = $('<span class"count">0</span>').appendTo(this.$total);
+
         this.$chartContainer = $('<div class="chart-container"></div>').appendTo(this.$chartExplorer);
 
         this.dateRange = new Craft.DateRangePicker(this.$chartHeader, {
@@ -40,6 +44,7 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
 
         this.$spinner.removeClass('hidden');
         this.$error.addClass('hidden');
+        this.$total.addClass('hidden');
         this.$chartContainer.removeClass('error');
 
         Craft.postActionRequest('commerce/reports/getOrders', requestData, $.proxy(function(response, textStatus)
@@ -56,6 +61,10 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
                 {
                     this.chart.loadData(response.report);
                 }
+
+                this.$totalCount.html(response.total);
+
+                this.$total.removeClass('hidden');
             }
             else
             {
