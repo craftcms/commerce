@@ -6,7 +6,7 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
     startDate: null,
     endDate: null,
 
-	$chartContainer: null,
+	$chartExplorer: null,
 
 	afterInit: function()
     {
@@ -14,12 +14,14 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
         this.startDate.setDate(this.startDate.getDate() - 7);
         this.endDate = new Date();
 
-		this.$chartContainer = $('<svg class="chart"></svg>').prependTo(this.$container);
-		this.$error = $('<div class="error"/>').prependTo(this.$container);
-        this.$chartControls = $('<div class="chart-controls"></div>');
-        this.$chartControls.prependTo(this.$container);
+        this.$chartExplorer = $('<div class="chart-explorer"></div>').prependTo(this.$container);
+        this.$chartHeader = $('<div class="chart-header"></div>').appendTo(this.$chartExplorer);
+        this.$error = $('<div class="error">Example error.</div>').appendTo(this.$chartHeader);
+        this.$spinner = $('<div class="spinner hidden" />').appendTo(this.$chartHeader);
+        this.$chartContainer = $('<div class="chart-container"></div>').appendTo(this.$chartExplorer);
+        this.$chart = $('<div class="chart"></div>').appendTo(this.$chartContainer);
 
-        this.dateRange = new Craft.DateRangePicker(this.$chartControls, {
+        this.dateRange = new Craft.DateRangePicker(this.$chartHeader, {
             startDate: this.startDate,
             endDate: this.endDate,
             onAfterSelect: $.proxy(this, 'loadReport')
@@ -37,8 +39,14 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
             endDate: this.dateRange.endDate,
         };
 
+        this.$spinner.removeClass('hidden');
+        this.$error.addClass('hidden');
+        this.$chart.removeClass('hidden');
+        this.$chartContainer.removeClass('error');
+
         Craft.postActionRequest('commerce/reports/getOrders', requestData, $.proxy(function(response, textStatus)
         {
+            this.$spinner.addClass('hidden');
 
             if(textStatus == 'success' && typeof(response.error) == 'undefined')
             {
@@ -62,6 +70,7 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
 
                 this.$error.html(msg);
                 this.$error.removeClass('hidden');
+                this.$chartContainer.addClass('error');
             }
 
         }, this));

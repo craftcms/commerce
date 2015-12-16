@@ -1,22 +1,68 @@
+.chart-explorer { position: relative; }
+
+
 /* Chart Controls */
 
-.chart-controls { position: relative; margin-bottom: 14px; }
-.chart-controls .datewrapper { width: auto; }
-.chart-controls .datewrapper input { width: 180px; }
+.chart-explorer .chart-header { position: relative; margin-bottom: 14px; }
+.chart-explorer .chart-header .datewrapper { width: auto; }
+.chart-explorer .chart-header .datewrapper input { width: 180px; }
+
+.chart-explorer .chart-header .error { float: right; }
+.chart-explorer .chart-header .spinner { position: absolute; top: 0; right: 0; }
 
 
 /* Chart */
 
-.chart { width: 100%; height: 200px; background: #fff; margin: 0 0px 14px 0px; }
+.chart-explorer .chart-container { position: relative; height: 200px; background: #fcfcfc; margin: 0 0px 14px 0px; }
+.chart-explorer .chart-container.error:after {
 
-.chart .axis path,
-.chart .axis line { fill: none; stroke: #aaa; shape-rendering: crispEdges; }
-.chart .axis text { fill: RGBA(0, 0, 0, .6); }
+    font-family: 'Craft';
+    speak: none;
+    -webkit-font-feature-settings: "liga", "dlig";
+    -moz-font-feature-settings: "liga=1, dlig=1";
+    -moz-font-feature-settings: "liga", "dlig";
+    -ms-font-feature-settings: "liga", "dlig";
+    -o-font-feature-settings: "liga", "dlig";
+    font-feature-settings: "liga", "dlig";
+    text-rendering: optimizeLegibility;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    display: inline-block;
+    text-align: center;
+    font-style: normal;
+    vertical-align: middle;
+    word-wrap: normal !important;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    margin: -1px 5px 0;
+    font-size: 11px;
 
-.chart .area { stroke: RGBA(0, 138, 202, 1); fill: RGBA(0, 138, 202, .3); stroke-width: 1px; }
+    content: 'alert';
+    font-size: 26px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-left: -13px;
+    margin-top: -13px;
+    color: rgba(0, 0, 0, 0.6);
+}
 
-.line .tick { stroke: RGBA(0, 0, 0, .08); stroke-opacity: 0.7; shape-rendering: crispEdges; /* stroke-dasharray: 2; */ }
-.line path { stroke-width: 0; }
+.chart-explorer .chart-container .chart svg { width: 100%; }
+
+.chart-explorer .chart-container .chart .axis path,
+.chart-explorer .chart-container .chart .axis line { fill: none; stroke: #aaa; shape-rendering: crispEdges; }
+.chart-explorer .chart-container .chart .axis text { fill: RGBA(0, 0, 0, .6); }
+
+.chart-explorer .chart-container .chart .area { stroke: RGBA(0, 138, 202, 1); fill: RGBA(0, 138, 202, .3); stroke-width: 1px; }
+
+.chart-explorer .chart-container .line .tick { stroke: RGBA(0, 0, 0, .08); stroke-opacity: 0.7; shape-rendering: crispEdges; /* stroke-dasharray: 2; */ }
+.chart-explorer .chart-container .line path { stroke-width: 0; }
 
 
 /* Date Range Picker */
