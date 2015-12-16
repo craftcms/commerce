@@ -55,12 +55,10 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
             {
                 if(!this.chart)
                 {
-                    this.chart = new Craft.charts.Area(this.$chartContainer, this.params, response.report);
+                    this.chart = new Craft.charts.Area(this.$chartContainer);
                 }
-                else
-                {
-                    this.chart.loadData(response.report);
-                }
+
+                this.chart.draw(response.report);
 
                 this.$totalCount.html(response.total);
 

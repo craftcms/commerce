@@ -25,7 +25,7 @@ Craft.charts.Area = Garnish.Base.extend(
 
     $chartSvg: null,
 
-    init: function(container, params, data)
+    init: function(container)
     {
         this.$container = container;
         this.$chart = $('<div class="chart" />').appendTo(this.$container);
@@ -37,7 +37,6 @@ Craft.charts.Area = Garnish.Base.extend(
         console.log('w,h', this.width, this.height);
 
         this.initChart();
-        this.loadData(data);
 
         d3.select(window).on('resize', $.proxy(function() {
             this.resize();
@@ -97,7 +96,7 @@ Craft.charts.Area = Garnish.Base.extend(
             .orient("left");
     },
 
-    loadData: function(data)
+    draw: function(data)
     {
         this.data = data;
 
