@@ -18,8 +18,8 @@ Craft.charts.Area = Garnish.Base.extend(
     width: null,
     height: null,
 
-    x: { axis: null, scale: null, enableLines: false },
-    y: { axis: null, scale: null, enableLines: true },
+    x: { axis: null, scale: null, enableLines: false, tickFormat: function(d) { var format = d3.time.format("%d/%m"); return format(d); } },
+    y: { axis: null, scale: null, enableLines: true, tickFormat: function(d) { return "$" + d; } },
 
     chartElementsInitialized: false,
 
@@ -33,7 +33,6 @@ Craft.charts.Area = Garnish.Base.extend(
         this.height = parseInt(this.$chart.style("height")) - (this.margin.top + this.margin.bottom);
 
         this.initChart();
-
         this.loadData(data);
 
         d3.select(window).on('resize', $.proxy(function() {
@@ -61,6 +60,37 @@ Craft.charts.Area = Garnish.Base.extend(
                 .attr("height", this.height + (this.margin.top + this.margin.bottom))
             .append("g")
                 .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
+    },
+
+    initScale: function()
+    {
+        this.x.scale = d3.time.scale()
+            .range([0, this.width]);
+
+        this.y.scale = d3.scale.linear()
+            .range([this.height, 0]);
+    },
+
+    initAxis: function()
+    {
+        this.x.axis = d3.svg.axis()
+            .scale(this.x.scale)
+            .orient("top").tickFormat(this.x.tickFormat);
+
+        this.y.axis = d3.svg.axis()
+            .scale(this.y.scale)
+            .orient("right").tickFormat(this.y.tickFormat);
+    },
+
+    initLines: function()
+    {
+        this.x.lineAxis = d3.svg.axis()
+            .scale(this.x.scale)
+            .orient("bottom");
+
+        this.y.lineAxis = d3.svg.axis()
+            .scale(this.y.scale)
+            .orient("left");
     },
 
     loadData: function(data)
@@ -138,37 +168,6 @@ Craft.charts.Area = Garnish.Base.extend(
         // Scale the range of the data
         this.x.scale.domain(d3.extent(this.data, function(d) { return d.date; }));
         this.y.scale.domain([0, d3.max(this.data, function(d) { return d.close; })]);
-    },
-
-    initScale: function()
-    {
-        this.x.scale = d3.time.scale()
-            .range([0, this.width]);
-
-        this.y.scale = d3.scale.linear()
-            .range([this.height, 0]);
-    },
-
-    initAxis: function()
-    {
-        this.x.axis = d3.svg.axis()
-            .scale(this.x.scale)
-            .orient("top").tickFormat(d3.time.format("%d/%m"));
-
-        this.y.axis = d3.svg.axis()
-            .scale(this.y.scale)
-            .orient("right").tickFormat(function(d) { return "$" + d; });
-    },
-
-    initLines: function()
-    {
-        this.x.lineAxis = d3.svg.axis()
-            .scale(this.x.scale)
-            .orient("bottom");
-
-        this.y.lineAxis = d3.svg.axis()
-            .scale(this.y.scale)
-            .orient("left");
     },
 
     resize: function()
