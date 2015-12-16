@@ -44,11 +44,11 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
             {
                 if(!this.chart)
                 {
-                    this.chart = new Craft.charts.Area(this.$chartContainer.get(0), this.params, response);
+                    this.chart = new Craft.charts.Area(this.$chart, this.params, response.report);
                 }
                 else
                 {
-                    this.chart.loadData(response);
+                    this.chart.loadData(response.report);
                 }
             }
             else

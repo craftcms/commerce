@@ -15,7 +15,8 @@ class Commerce_ReportsController extends Commerce_BaseCpController
 {
     public function actionGetOrders()
     {
-        $data = [];
+        $report = [];
+        $total = 0;
 
         $startDate = craft()->request->getParam('startDate');
         $endDate = craft()->request->getParam('endDate');
@@ -47,10 +48,15 @@ class Commerce_ReportsController extends Commerce_BaseCpController
                 $totalPaid += $order->totalPaid;
             }
 
-            $data[] = ['date' => strftime("%e-%b-%y", $cursorStart->getTimestamp()), 'close' => $totalPaid];
+            $report[] = ['date' => strftime("%e-%b-%y", $cursorStart->getTimestamp()), 'close' => $totalPaid];
+
+            $total += $totalPaid;
         }
 
-        $this->returnJson($data);
+        $this->returnJson(array(
+            'report' => $report,
+            'total' => $total
+        ));
     }
 
     private function _getOrders($start, $end)
