@@ -56,7 +56,7 @@ Craft.charts.BaseChart = Garnish.Base.extend(
  */
 Craft.charts.Column = Craft.charts.BaseChart.extend(
 {
-    margin: { top: 0, right: 0, bottom: 40, left: 0 },
+    margin: { top: 0, right: 0, bottom: 30, left: 0 },
     chartClass: 'chart column',
 
     draw: function(data)
