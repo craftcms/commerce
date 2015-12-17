@@ -130,7 +130,10 @@ Craft.charts.Column = Craft.charts.BaseChart.extend(
  */
 Craft.charts.Area = Craft.charts.BaseChart.extend(
 {
+    margin: { top: 10, right: 0, bottom: 0, left: 0 },
     chartClass: 'chart area',
+
+    enablePlots: true,
 
     draw: function(data)
     {
@@ -198,5 +201,15 @@ Craft.charts.Area = Craft.charts.BaseChart.extend(
             .attr("class", "y axis")
             .call(this.yAxis);
 
+        if(this.enablePlots)
+        {
+            // Draw the plots
+            this.svg.selectAll("dot")
+                .data(this.data)
+            .enter().append("circle")
+                .attr("r", 4)
+                .attr("cx", $.proxy(function(d) { return this.x(d.date); }, this))
+                .attr("cy", $.proxy(function(d) { return this.y(d.close); }, this))
+        }
     }
 });

@@ -24,6 +24,7 @@
 .chart .line path { stroke-width: 0; }
 
 .chart.area .area { stroke: RGBA(0, 138, 202, 1); fill: RGBA(0, 138, 202, .3); stroke-width: 1px; }
+.chart.area circle { fill: RGBA(0, 138, 202, 1); }
 
 .chart.column .bar { fill: RGBA(0, 138, 202, .6); }
 /*.chart.column .bar:hover { fill: RGBA(0, 138, 202, .8); cursor: pointer; }*/
