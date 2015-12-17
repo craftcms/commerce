@@ -1,15 +1,21 @@
-// Craft charts
+/**
+ * Craft Charts
+ */
 
 Craft.charts = {};
 
-Craft.charts.Column = Garnish.Base.extend(
+
+/**
+ * Class Craft.charts.BaseChart
+ */
+Craft.charts.BaseChart = Garnish.Base.extend(
 {
     $container: null,
     $chart: null,
 
-    margin: { top: 20, right: 20, bottom: 30, left: 40 },
+    margin: { top: 0, right: 0, bottom: 0, left: 0 },
     data: null,
-    chartClass: 'chart column',
+    chartClass: 'chart',
 
     width: null,
     height: null,
@@ -39,6 +45,15 @@ Craft.charts.Column = Garnish.Base.extend(
             this.draw();
         }
     },
+});
+
+
+/**
+ * Class Craft.charts.Column
+ */
+Craft.charts.Column = Craft.charts.BaseChart.extend(
+{
+    chartClass: 'chart column',
 
     draw: function(data)
     {
@@ -107,48 +122,15 @@ Craft.charts.Column = Garnish.Base.extend(
     }
 });
 
-
-Craft.charts.Area = Garnish.Base.extend(
+/**
+ * Class Craft.charts.Area
+ */
+Craft.charts.Area = Craft.charts.BaseChart.extend(
 {
-    $container: null,
-    $chart: null,
-
-    margin: { top: 20, right: 20, bottom: 30, left: 40 },
-    data: null,
     chartClass: 'chart area',
-
-    width: null,
-    height: null,
-    x: null,
-    y: null,
-    xAxis: null,
-    yAxis: null,
-    svg: null,
 
     xTickFormat: function(d) { var format = d3.time.format("%d/%m"); return format(d); },
     yTickFormat: function(d) { return "$" + d; },
-
-    init: function(container)
-    {
-        this.$container = container;
-        this.$chart = $('<div class="'+this.chartClass+'" />').appendTo(this.$container);
-
-        d3.select(window).on('resize', $.proxy(function() {
-            this.resize();
-        }, this));
-
-    },
-
-    resize: function()
-    {
-        // only redraw if data is set
-
-        if(this.data)
-        {
-            this.draw();
-        }
-    },
-
 
     draw: function(data)
     {
@@ -172,11 +154,15 @@ Craft.charts.Area = Garnish.Base.extend(
 
         this.xAxis = d3.svg.axis()
             .scale(this.x)
-            .orient("top").tickFormat(this.xTickFormat);
+            .orient("top")
+            .tickFormat(this.xTickFormat)
+            .ticks(Math.max(this.width/150, 3));
 
         this.yAxis = d3.svg.axis()
             .scale(this.y)
-            .orient("right").tickFormat(this.yTickFormat);
+            .orient("right")
+            .tickFormat(this.yTickFormat)
+            .ticks(this.height / 50);
 
         // area
         this.area = d3.svg.area()
