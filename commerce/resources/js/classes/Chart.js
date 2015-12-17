@@ -79,11 +79,14 @@ Craft.charts.Column = Craft.charts.BaseChart.extend(
         this.x = d3.scale.ordinal().rangeRoundBands([0, this.width], .05);
         this.y = d3.scale.linear().range([this.height, 0]);
 
+        this.x.domain(this.data.map(function(d) { return d.date; }));
+        this.y.domain([0, d3.max(this.data, function(d) { return d.close; })]);
+
         this.xAxis = d3.svg.axis()
             .scale(this.x)
+            // .tickValues(this.x.domain().filter(function(d, i) { return !(i % 2); }))
             .orient("bottom")
-            .tickFormat(this.xTickFormat)
-            .ticks(Math.max(this.width/150, 3));
+            .tickFormat(this.xTickFormat);
 
         this.yAxis = d3.svg.axis()
             .scale(this.y)
@@ -96,10 +99,6 @@ Craft.charts.Column = Craft.charts.BaseChart.extend(
                 .attr("height", this.height + this.margin.top + this.margin.bottom)
             .append("g")
                 .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
-
-        this.x.domain(this.data.map(function(d) { return d.date; }));
-        this.y.domain([0, d3.max(this.data, function(d) { return d.close; })]);
-
 
         this.svg.append("g")
             .attr("class", "x axis")
