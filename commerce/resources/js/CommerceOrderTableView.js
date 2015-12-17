@@ -24,7 +24,7 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
 
         this.$chartContainer = $('<div class="chart-container"></div>').appendTo(this.$chartExplorer);
 
-        this.dateRange = new Craft.DateRangePicker(this.$chartHeader, {
+        this.dateRange = new Craft.ChartDateRangePicker(this.$chartHeader, {
             startDate: this.startDate,
             endDate: this.endDate,
             onAfterSelect: $.proxy(this, 'loadReport')
