@@ -200,49 +200,101 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
         $newPath = craft()->path->getSiteTemplatesPath();
         craft()->path->setTemplatesPath($newPath);
 
-        foreach ($status->emails as $email) {
-            $craftEmail = new EmailModel();
+	    foreach ($status->emails as $email)
+	    {
+		    $craftEmail = new EmailModel();
 
-            if (craft()->commerce_settings->getSettings()->emailSenderAddress) {
-                $craftEmail->fromEmail = craft()->commerce_settings->getSettings()->emailSenderAddress;
-            }
+		    if (craft()->commerce_settings->getSettings()->emailSenderAddress)
+		    {
+			    $craftEmail->fromEmail = craft()->commerce_settings->getSettings()->emailSenderAddress;
+		    }
 
-            if (craft()->commerce_settings->getSettings()->emailSenderName) {
-                $craftEmail->fromName = craft()->commerce_settings->getSettings()->emailSenderName;
-            }
+		    if (craft()->commerce_settings->getSettings()->emailSenderName)
+		    {
+			    $craftEmail->fromName = craft()->commerce_settings->getSettings()->emailSenderName;
+		    }
 
-            $craftEmail->toEmail = $to = craft()->templates->renderString($email->to,
-                $renderVariables);
-            $craftEmail->bcc = [['email' => craft()->templates->renderString($email->bcc, $renderVariables)]];
-            $craftEmail->subject = craft()->templates->renderString($email->subject,
-                $renderVariables);
+		    // To:
+		    try
+		    {
+			    $craftEmail->toEmail = $to = craft()->templates->renderString($email->to, $renderVariables);
+		    }
+		    catch (\Exception $e)
+		    {
+			    $error = Craft::t('Email template parse error for email “{email}” in “To:”. Order: “{order}”. Template error: “{message}”',
+				    ['email' => $email->name, 'order' => $order->getShortNumber(), 'message' => $e->getMessage()]);
+			    CommercePlugin::log($error, LogLevel::Error, true);
+			    continue;
+		    }
 
-            if (!craft()->templates->doesTemplateExist($email->templatePath)) {
-                $error = Craft::t('Email template does not exist at “{templatePath}” for email “{email}”. Order: “{order}”.',
-                    ['templatePath' => $email->templatePath, 'email' => $email->name, 'order' => $order->getShortNumber()]);
-                CommercePlugin::log($error, LogLevel::Error, true);
-                continue;
-            }else{
-                try{
-                    $craftEmail->body = $craftEmail->htmlBody = craft()->templates->render($email->templatePath,
-                        $renderVariables);
-                } catch (\Exception $e) {
-                    $error = Craft::t('Email template parse error for email “{email}”. Order: “{order}”. Template error: “{message}”',
-                        ['email' => $email->name, 'order' => $order->getShortNumber(), 'message' => $e->getMessage()]);
-                    CommercePlugin::log($error, LogLevel::Error, true);
-                    continue;
-                }
-            }
+		    // BCC:
+		    try
+		    {
+			    $bcc = craft()->templates->renderString($email->bcc, $renderVariables);
+			    $bcc = str_replace(';',',',$bcc);
+			    $bcc = explode(',',$bcc);
+			    $bccEmails = [];
+			    foreach ($bcc as $bccEmail)
+			    {
+				    $bccEmails[] = ['email' => $bccEmail];
+			    }
+			    $craftEmail->bcc = $bccEmails;
+		    }
+		    catch (\Exception $e)
+		    {
+			    $error = Craft::t('Email template parse error for email “{email}” in “BCC:”. Order: “{order}”. Template error: “{message}”',
+				    ['email' => $email->name, 'order' => $order->getShortNumber(), 'message' => $e->getMessage()]);
+			    CommercePlugin::log($error, LogLevel::Error, true);
+			    continue;
+		    }
 
-            craft()->plugins->callFirst('commerce_modifyEmail', [&$craftEmail, $order]);
+		    // Subject:
+		    try
+		    {
+			    $craftEmail->subject = craft()->templates->renderString($email->subject, $renderVariables);
+		    }
+		    catch (\Exception $e)
+		    {
+			    $error = Craft::t('Email template parse error for email “{email}” in “Subject:”. Order: “{order}”. Template error: “{message}”',
+				    ['email' => $email->name, 'order' => $order->getShortNumber(), 'message' => $e->getMessage()]);
+			    CommercePlugin::log($error, LogLevel::Error, true);
+			    continue;
+		    }
 
-            if (!craft()->email->sendEmail($craftEmail)) {
-                $error = Craft::t('Email “{email}” could not be sent for order “{order}”. Errors: {errors}',
-                    ['errors' => implode(", ",$email->getAllErrors()), 'email' => $email->name, 'order' => $order->getShortNumber()]);
+		    // Email Body
+		    if (!craft()->templates->doesTemplateExist($email->templatePath))
+		    {
+			    $error = Craft::t('Email template does not exist at “{templatePath}” for email “{email}”. Order: “{order}”.',
+				    ['templatePath' => $email->templatePath, 'email' => $email->name, 'order' => $order->getShortNumber()]);
+			    CommercePlugin::log($error, LogLevel::Error, true);
+			    continue;
+		    }
+		    else
+		    {
+			    try
+			    {
+				    $craftEmail->body = $craftEmail->htmlBody = craft()->templates->render($email->templatePath,
+					    $renderVariables);
+			    }
+			    catch (\Exception $e)
+			    {
+				    $error = Craft::t('Email template parse error for email “{email}”. Order: “{order}”. Template error: “{message}”',
+					    ['email' => $email->name, 'order' => $order->getShortNumber(), 'message' => $e->getMessage()]);
+				    CommercePlugin::log($error, LogLevel::Error, true);
+				    continue;
+			    }
+		    }
 
-                CommercePlugin::log($error, LogLevel::Error, true);
-            }
-        }
+		    craft()->plugins->callFirst('commerce_modifyEmail', [&$craftEmail, $order]);
+
+		    if (!craft()->email->sendEmail($craftEmail))
+		    {
+			    $error = Craft::t('Email “{email}” could not be sent for order “{order}”. Errors: {errors}',
+				    ['errors' => implode(", ", $email->getAllErrors()), 'email' => $email->name, 'order' => $order->getShortNumber()]);
+
+			    CommercePlugin::log($error, LogLevel::Error, true);
+		    }
+	    }
 
         //put old template path back
         craft()->path->setTemplatesPath($oldPath);

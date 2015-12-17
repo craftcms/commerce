@@ -285,7 +285,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
      * @param DbCommand $query
      * @param ElementCriteriaModel $criteria
      *
-     * @return void
+     * @return bool|false|null|void
      */
     public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
     {
@@ -356,7 +356,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
                     $criteria->customerId = $customer->id;
                     $criteria->user = null;
                 } else {
-                    $query->andWhere(DbHelper::parseParam('orders.customerId', 'IS NULL', $query->params));
+                    return false;
                 }
             }
         }
@@ -367,7 +367,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
                     $criteria->customerId = $criteria->customer->id;
                     $criteria->customer = null;
                 } else {
-                    $query->andWhere(DbHelper::parseParam('orders.customerId', 'IS NULL', $query->params));
+                    return false;
                 }
             }
         }

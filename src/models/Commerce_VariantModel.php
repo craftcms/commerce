@@ -209,7 +209,21 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
     }
 
     /**
-     * We need to be explicit to meet interface
+     * If the product's type has no variants, return the products title.
+     *
+     * @return string
+     */
+    public function getTitle()
+    {
+        if(!$this->getProduct()->getType()->hasVariants){
+            return $this->getProduct()->getTitle();
+        }
+
+        return parent::getTitle();
+    }
+
+    /**
+     * Returns the product title and variants title together for variable products.
      *
      * @return string
      */
@@ -217,10 +231,9 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
     {
         if($this->getProduct()->getType()->hasVariants){
             return $this->getProduct()->getTitle().' – '.$this->getTitle();
-        }else{
-            return $this->getTitle();
         }
 
+        return $this->getTitle();
     }
 
     /**
