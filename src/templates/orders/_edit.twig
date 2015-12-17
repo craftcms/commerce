@@ -111,13 +111,11 @@
 					{"label":"Price","attribute":"price","currency":"true"},
 					{"label":"Sale Amount","attribute":"saleamount","currency":"true"},
 					{"label":"Sale Price","attribute":"saleprice","currency":"true"},
+					{"label":"Quantity","attribute":"qty","currency":"false"},
 					{"label":"Tax","attribute":"tax","currency":"true"},
 					{"label":"Shipping Cost","attribute":"shippingcost","currency":"true"},
 					{"label":"Discount","attribute":"discount","currency":"true"},
-					{"label":"Total","attribute":"total","currency":"true"},
-					{"label":"Quantity","attribute":"qty","currency":"false"},
-					{"label":"Note","attribute":"note","currency":"false"
-					{"label":"Options","attribute":"note","currency":"false"}
+					{"label":"Total","attribute":"total","currency":"true"}
 					]'{% endspaceless %}
 					data-id="{{lineItem.id}}"
 					data-description="{{ lineItem.description }}"
@@ -129,8 +127,7 @@
 					data-shippingcost="{{ lineItem.shippingCost|currency(order.currency) }}"
 					data-discount="{{ lineItem.discount|currency(order.currency) }}"
 					data-total="{{ lineItem.total|currency(order.currency) }}"
-					data-qty="{{ lineItem.qty }}"
-					data-note="{{ lineItem.note }}">
+					data-qty="{{ lineItem.qty }}">
 					<td>
 						{% if lineItem.purchasableId and lineItem.purchasable %}
 							{% if lineItem.purchasable.cpEditUrl %}
