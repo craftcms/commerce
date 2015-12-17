@@ -25,6 +25,9 @@ Craft.charts.BaseChart = Garnish.Base.extend(
     yAxis: null,
     svg: null,
 
+    xTickFormat: function(d) { var format = d3.time.format("%d/%m"); return format(d); },
+    yTickFormat: function(d) { return "$" + d; },
+
     init: function(container)
     {
         this.$container = container;
@@ -53,6 +56,7 @@ Craft.charts.BaseChart = Garnish.Base.extend(
  */
 Craft.charts.Column = Craft.charts.BaseChart.extend(
 {
+    margin: { top: 0, right: 0, bottom: 40, left: 0 },
     chartClass: 'chart column',
 
     draw: function(data)
@@ -78,12 +82,14 @@ Craft.charts.Column = Craft.charts.BaseChart.extend(
         this.xAxis = d3.svg.axis()
             .scale(this.x)
             .orient("bottom")
-            .tickFormat(d3.time.format("%Y-%m"));
+            .tickFormat(this.xTickFormat)
+            .ticks(Math.max(this.width/150, 3));
 
         this.yAxis = d3.svg.axis()
             .scale(this.y)
-            .orient("left")
-            .ticks(10);
+            .orient("right")
+            .tickFormat(this.yTickFormat)
+            .ticks(this.height / 50);
 
         this.svg = d3.select(this.$chart.get(0)).append("svg")
                 .attr("width", this.width + this.margin.left + this.margin.right)
@@ -106,9 +112,7 @@ Craft.charts.Column = Craft.charts.BaseChart.extend(
             .append("text")
                 .attr("transform", "rotate(-90)")
                 .attr("y", 6)
-                .attr("dy", ".71em")
-                .style("text-anchor", "end")
-                .text("Frequency");
+                .attr("dy", ".71em");
 
         this.svg.selectAll(".bar")
                 .data(this.data)
@@ -128,9 +132,6 @@ Craft.charts.Column = Craft.charts.BaseChart.extend(
 Craft.charts.Area = Craft.charts.BaseChart.extend(
 {
     chartClass: 'chart area',
-
-    xTickFormat: function(d) { var format = d3.time.format("%d/%m"); return format(d); },
-    yTickFormat: function(d) { return "$" + d; },
 
     draw: function(data)
     {
