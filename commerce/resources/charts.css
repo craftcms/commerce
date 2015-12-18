@@ -29,6 +29,21 @@
 .chart.column .bar { fill: RGBA(0, 138, 202, .6); }
 /*.chart.column .bar:hover { fill: RGBA(0, 138, 202, .8); cursor: pointer; }*/
 
+
+.tooltip {
+    width: 200px;
+    padding: 14px;
+    height: 60px;
+    background: #fff;
+    position: absolute;
+    z-index: 1000000;
+    margin-left: 20px;
+
+    -webkit-box-shadow: 0 0 5px 0 rgba(0,0,0,.5);
+    box-shadow: 0 0 5px 0 rgba(0,0,0,.5);
+}
+
+
 /* Date Range Picker */
 
 .ui-datepicker-calendar td.date-range-selected a { background: hsl(212, 10%, 50%) !important; color: #fff; }

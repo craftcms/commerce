@@ -203,13 +203,78 @@ Craft.charts.Area = Craft.charts.BaseChart.extend(
 
         if(this.enablePlots)
         {
+            var div = d3.select("body").append("div")
+                .attr("class", "tooltip")
+                .style("opacity", 0);
+
             // Draw the plots
             this.svg.selectAll("dot")
                 .data(this.data)
             .enter().append("circle")
-                .attr("r", 4)
+                .attr("r", 5)
                 .attr("cx", $.proxy(function(d) { return this.x(d.date); }, this))
                 .attr("cy", $.proxy(function(d) { return this.y(d.close); }, this))
+                .on("mouseover", function(d)
+                {
+                    d3.select(this).style("filter", "url(#drop-shadow)");
+
+                    div.transition()
+                        .duration(200)
+                        .style("opacity", 1);
+                    div.html(d.date + "<br/>"  + d.close)
+                        .style("left", (d3.event.pageX) + "px")
+                        .style("top", (d3.event.pageY - 28) + "px");
+                    })
+                .on("mouseout", function(d)
+                {
+                    d3.select(this).style("filter", "");
+
+                    div.transition()
+                        .duration(500)
+                        .style("opacity", 0);
+                });
         }
+
+        this.shadowFilter();
+    },
+
+    shadowFilter: function()
+    {
+        // filters go in defs element
+        var defs = this.svg.append("defs");
+
+        // create filter with id #drop-shadow
+        // height=130% so that the shadow is not clipped
+        var filter = defs.append("filter")
+            .attr("id", "drop-shadow")
+            .attr("width", "200%")
+            .attr("height", "200%")
+            .attr("x", "-50%")
+            .attr("y", "-50%");
+
+        // SourceAlpha refers to opacity of graphic that this filter will be applied to
+        // convolve that with a Gaussian with standard deviation 3 and store result
+        // in blur
+        filter.append("feGaussianBlur")
+            .attr("in", "SourceAlpha")
+            .attr("stdDeviation", 1)
+            .attr("result", "blur");
+
+        // translate output of Gaussian blur to the right and downwards with 2px
+        // store result in offsetBlur
+        filter.append("feOffset")
+            .attr("in", "blur")
+            .attr("dx", 0)
+            .attr("dy", 0)
+            .attr("result", "offsetBlur");
+
+        // overlay original SourceGraphic over translated blurred opacity by using
+        // feMerge filter. Order of specifying inputs is important!
+        var feMerge = filter.append("feMerge");
+
+        feMerge.append("feMergeNode")
+            .attr("in", "offsetBlur")
+        feMerge.append("feMergeNode")
+            .attr("in", "SourceGraphic");
     }
 });
