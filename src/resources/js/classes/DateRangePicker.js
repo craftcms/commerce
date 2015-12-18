@@ -2,7 +2,7 @@
 /**
  * Chart Date Range Picker
  */
-Craft.ChartDateRangePicker = Garnish.Base.extend(
+Craft.DateRangePicker = Garnish.Base.extend(
 {
     init: function(container, options)
     {
