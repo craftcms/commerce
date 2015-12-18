@@ -61,6 +61,7 @@ Craft.charts.Column = Craft.charts.BaseChart.extend(
 
     draw: function(data)
     {
+
         if(typeof(data) != 'undefined')
         {
             this.data = data;
@@ -113,6 +114,12 @@ Craft.charts.Column = Craft.charts.BaseChart.extend(
                 .attr("y", 6)
                 .attr("dy", ".71em");
 
+        /* Initialize tooltip */
+        tip = d3.tip().attr('class', 'd3-tip').html(function(d) { return d.close; });
+
+        /* Invoke the tip in the context of your visualization */
+        this.svg.call(tip)
+
         this.svg.selectAll(".bar")
                 .data(this.data)
             .enter().append("rect")
@@ -120,7 +127,9 @@ Craft.charts.Column = Craft.charts.BaseChart.extend(
                 .attr("x", $.proxy(function(d) { return this.x(d.date); }, this))
                 .attr("width", this.x.rangeBand())
                 .attr("y", $.proxy(function(d) { return this.y(d.close); }, this))
-                .attr("height", $.proxy(function(d) { return this.height - this.y(d.close); }, this));
+                .attr("height", $.proxy(function(d) { return this.height - this.y(d.close); }, this))
+                .on('mouseover', tip.show)
+                .on('mouseout', tip.hide);
 
     }
 });
@@ -184,11 +193,19 @@ Craft.charts.Area = Craft.charts.BaseChart.extend(
         this.y.domain([0, d3.max(this.data, function(d) { return d.close; })]);
 
 
+        /* Initialize tooltip */
+        tip = d3.tip().attr('class', 'd3-tip').html(function(d) { return d.close; });
+
+        /* Invoke the tip in the context of your visualization */
+        this.svg.call(tip)
+
         // Draw chart
         this.svg.append("path")
             .datum(this.data)
             .attr("class", "area")
-            .attr("d", this.area);
+            .attr("d", this.area)
+            .on('mouseover', tip.show)
+            .on('mouseout', tip.hide);
 
         // Draw the X axis
         this.svg.append("g")
