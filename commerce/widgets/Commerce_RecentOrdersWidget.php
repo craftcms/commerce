@@ -24,17 +24,12 @@ class Commerce_RecentOrdersWidget extends BaseWidget
      */
     public function getBodyHtml()
     {
-        craft()->templates->includeJsResource('commerce/lib/d3/d3.js', true);
-        craft()->templates->includeJsResource('commerce/lib/d3-tip.js');
-        craft()->templates->includeJsResource('commerce/js/classes/Chart.js', true);
         craft()->templates->includeJsResource('commerce/js/CommerceRecentOrdersWidget.js');
 
         $options = array();
         $options['dataUrl'] = UrlHelper::getActionUrl('commerce/reports/orders');
         $js = 'new Craft.CommerceRecentOrdersWidget('.$this->model->id.', '.JsonHelper::encode($options).');';
         craft()->templates->includeJs($js);
-
-        craft()->templates->includeCssResource('commerce/charts.css');
 
         $orders = $this->_getOrders();
 
