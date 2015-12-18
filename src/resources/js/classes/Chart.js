@@ -144,6 +144,9 @@ Craft.charts.Area = Craft.charts.BaseChart.extend(
 
     enablePlots: true,
 
+    xLines: false,
+    yLines: true,
+
     draw: function(data)
     {
         if(typeof(data) != 'undefined')
@@ -218,6 +221,9 @@ Craft.charts.Area = Craft.charts.BaseChart.extend(
             .attr("class", "y axis")
             .call(this.yAxis);
 
+
+        // Plots
+
         if(this.enablePlots)
         {
             var div = d3.select("body").append("div")
@@ -251,6 +257,42 @@ Craft.charts.Area = Craft.charts.BaseChart.extend(
                         .style("opacity", 0);
                 });
         }
+
+
+        // Lines
+
+        if(this.xLines)
+        {
+            this.xLineAxis = d3.svg.axis()
+                .scale(this.x)
+                .orient("bottom");
+
+            // draw x lines
+            this.svg.append("g")
+                .attr("class", "x line")
+                .attr("transform", "translate(0," + this.height + ")")
+                .call(this.xLineAxis
+                    .tickSize(-this.height, 0, 0)
+                    .tickFormat("")
+                );
+        }
+
+        if(this.yLines)
+        {
+
+            this.yLineAxis = d3.svg.axis()
+                .scale(this.y)
+                .orient("left");
+
+            // draw y lines
+            this.svg.append("g")
+                .attr("class", "y line")
+                .call(this.yLineAxis
+                    .tickSize(-this.width, 0, 0)
+                    .tickFormat("")
+                );
+        }
+
 
         this.shadowFilter();
     },

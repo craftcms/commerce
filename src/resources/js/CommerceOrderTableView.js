@@ -10,6 +10,7 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
 
 	afterInit: function()
     {
+        console.log('criteria', this.settings.params);
         this.startDate = new Date();
         this.startDate.setDate(this.startDate.getDate() - 7);
         this.endDate = new Date();
