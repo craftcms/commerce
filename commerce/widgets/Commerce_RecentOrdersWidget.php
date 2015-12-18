@@ -25,6 +25,7 @@ class Commerce_RecentOrdersWidget extends BaseWidget
     public function getBodyHtml()
     {
         craft()->templates->includeJsResource('commerce/lib/d3/d3.js', true);
+        craft()->templates->includeJsResource('commerce/lib/d3-tip.js');
         craft()->templates->includeJsResource('commerce/js/classes/Chart.js', true);
         craft()->templates->includeJsResource('commerce/js/CommerceRecentOrdersWidget.js');
 
