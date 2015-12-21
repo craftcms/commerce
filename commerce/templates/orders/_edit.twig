@@ -113,6 +113,7 @@
 					{"label":"Sale Price","attribute":"saleprice","currency":"true"},
 					{"label":"Quantity","attribute":"qty","currency":"false"},
 					{"label":"Tax","attribute":"tax","currency":"true"},
+					{"label":"Tax (Included)","attribute":"taxincluded","currency":"true"},
 					{"label":"Shipping Cost","attribute":"shippingcost","currency":"true"},
 					{"label":"Discount","attribute":"discount","currency":"true"},
 					{"label":"Total","attribute":"total","currency":"true"}
@@ -124,6 +125,7 @@
 					data-saleamount="{{ lineItem.saleAmount|currency(order.currency) }}"
 					data-saleprice="{{ lineItem.salePrice|currency(order.currency) }}"
 					data-tax="{{ lineItem.tax|currency(order.currency) }}"
+					data-taxincluded="{{ lineItem.taxIncluded|currency(order.currency) }}"
 					data-shippingcost="{{ lineItem.shippingCost|currency(order.currency) }}"
 					data-discount="{{ lineItem.discount|currency(order.currency) }}"
 					data-total="{{ lineItem.total|currency(order.currency) }}"
