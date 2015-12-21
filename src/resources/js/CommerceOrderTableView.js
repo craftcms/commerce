@@ -10,7 +10,6 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
 
 	afterInit: function()
     {
-        console.log('criteria', this.settings.params);
         this.startDate = new Date();
         this.startDate.setDate(this.startDate.getDate() - 7);
         this.endDate = new Date();
@@ -38,10 +37,9 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
 
     loadReport: function()
     {
-        var requestData = {
-            startDate: this.dateRange.startDate,
-            endDate: this.dateRange.endDate,
-        };
+        var requestData = this.settings.params;
+        requestData.startDate = this.dateRange.startDate;
+        requestData.endDate = this.dateRange.endDate;
 
         this.$spinner.removeClass('hidden');
         this.$error.addClass('hidden');
