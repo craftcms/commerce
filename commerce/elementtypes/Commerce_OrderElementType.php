@@ -245,9 +245,9 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
             'number' => Craft::t('Number'),
             'id' => Craft::t('ID'),
             'orderStatusId' => Craft::t('Order Status'),
-            'dateOrdered' => Craft::t('Date Ordered'),
             'totalPrice' => Craft::t('Total Payable'),
             'totalPaid' => Craft::t('Total Paid'),
+            'dateOrdered' => Craft::t('Date Ordered'),
             'datePaid' => Craft::t('Date Paid')
         ];
 
