@@ -1,6 +1,8 @@
 <?php
 namespace Commerce\Gateways;
 
+use Craft\Commerce_PaymentMethodModel;
+
 /**
  * Interface GatewayAdapterInterface
  * @package Commerce\Gateways
@@ -9,6 +11,16 @@ namespace Commerce\Gateways;
  */
 interface GatewayAdapterInterface
 {
+	/**
+	 * @return Commerce_PaymentMethodModel|null
+	 */
+	public function getPaymentMethod();
+
+	/**
+	 * @param Commerce_PaymentMethodModel $paymentMethod
+	 */
+	public function setPaymentMethod(Commerce_PaymentMethodModel $paymentMethod);
+
     /** @return string */
     public function handle();
 
