@@ -81,17 +81,12 @@ class Commerce_AddressModel extends BaseModel
     /**
      * @return string
      */
-    public function getName()
-    {
-        return $this->getAttribute('firstName') . " " . $this->getAttribute('lastName');
-    }
-
-    /**
-     * @return string
-     */
     public function getFullName()
     {
-        return $this->getName();
+	    $firstName = trim($this->getAttribute('firstName'));
+	    $lastName = trim($this->getAttribute('lastName'));
+
+	    return $firstName.($firstName && $lastName ? ' ' : '').$lastName;
     }
 
     /**
