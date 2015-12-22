@@ -3,8 +3,7 @@
 .chart-explorer { position: relative; }
 
 .chart-explorer .chart-header { position: relative; margin-bottom: 14px; }
-.chart-explorer .chart-header .datewrapper { width: auto; }
-.chart-explorer .chart-header .datewrapper input { width: 180px; }
+.chart-explorer .chart-header .datewrapper { width: auto; float: right; }
+.chart-explorer .chart-header .datewrapper input { width: 200px; }
 .chart-explorer .chart-header .error { float: right; }
 .chart-explorer .chart-header .spinner { position: absolute; top: 0; right: 0; }
-.chart-explorer .chart-header .total { position: absolute; top: 0; right: 0; }
