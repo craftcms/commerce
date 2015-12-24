@@ -41,6 +41,23 @@ class Commerce_OrdersService extends BaseApplicationComponent
     }
 
     /**
+     * Returns an a array of matching Commerce_OrderModels for the given order IDs.
+     *
+     * @param array $ids    The order IDs to search for.
+     *
+     * @return array|null   The matching Commerce_OrderModels.
+     */
+    public function getOrdersByIds($ids)
+    {
+        if (is_array($ids))
+        {
+            $orders = Commerce_OrderRecord::model()->findAllByPk($ids);
+
+            return Commerce_OrderModel::populateModels($orders);
+        }
+    }
+
+    /**
      * @param string $number
      *
      * @return Commerce_OrderModel|null
