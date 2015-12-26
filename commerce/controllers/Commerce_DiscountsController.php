@@ -142,8 +142,16 @@ class Commerce_DiscountsController extends Commerce_BaseCpController
         if (!$products) {
             $products = [];
         }
+
         $productTypes = craft()->request->getPost('productTypes', []);
+        if (!$productTypes) {
+            $productTypes = [];
+        }
+
         $groups = craft()->request->getPost('groups', []);
+        if (!$groups) {
+            $groups = [];
+        }
 
         // Save it
         if (craft()->commerce_discounts->saveDiscount($discount, $groups, $productTypes,
