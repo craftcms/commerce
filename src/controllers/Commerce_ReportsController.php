@@ -93,6 +93,8 @@ class Commerce_ReportsController extends BaseElementsController
 
         $cursorTimestamp = $startDate->getTimestamp();
 
+        $currency = craft()->commerce_settings->getOption('defaultCurrency');
+
         while($cursorTimestamp < $endDate->getTimestamp())
         {
             $cursorStart = new DateTime();
@@ -112,14 +114,24 @@ class Commerce_ReportsController extends BaseElementsController
                 $totalPaid += $order->totalPaid;
             }
 
-            $report[] = ['date' => strftime("%e-%b-%y", $cursorStart->getTimestamp()), 'close' => $totalPaid];
+            $report[] = [
+                'date' => strftime("%e-%b-%y", $cursorStart->getTimestamp()),
+                'dateHtml' => $cursorStart->localeDate(),
+                'close' => $totalPaid,
+                'closeHtml' => craft()->numberFormatter->formatCurrency($totalPaid, strtoupper($currency))
+            ];
 
             $total += $totalPaid;
         }
 
+        $locale = craft()->i18n->getLocaleData();
+        $currencySymbol = $locale->getCurrencySymbol($currency);
+
         $this->returnJson(array(
             'report' => $report,
-            'total' => $total
+            'total' => $total,
+            'totalHtml' => craft()->numberFormatter->formatCurrency($total, strtoupper($currency)),
+            'currencySymbol' => $currencySymbol,
         ));
     }
 
