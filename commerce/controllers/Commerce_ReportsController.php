@@ -125,13 +125,11 @@ class Commerce_ReportsController extends BaseElementsController
         }
 
         $locale = craft()->i18n->getLocaleData();
-        $currencySymbol = $locale->getCurrencySymbol($currency);
 
         $this->returnJson(array(
             'report' => $report,
             'total' => $total,
             'totalHtml' => craft()->numberFormatter->formatCurrency($total, strtoupper($currency)),
-            'currencySymbol' => $currencySymbol,
         ));
     }
 
