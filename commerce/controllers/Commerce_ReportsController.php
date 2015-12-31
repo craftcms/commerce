@@ -116,9 +116,7 @@ class Commerce_ReportsController extends BaseElementsController
 
             $report[] = [
                 'date' => strftime("%e-%b-%y", $cursorStart->getTimestamp()),
-                'dateHtml' => $cursorStart->localeDate(),
                 'close' => $totalPaid,
-                'closeHtml' => craft()->numberFormatter->formatCurrency($totalPaid, strtoupper($currency))
             ];
 
             $total += $totalPaid;
