@@ -25,6 +25,7 @@ Craft.CommerceRecentOrdersWidget = Garnish.Base.extend(
         var requestData = {
             startDate: '-7 days',
             endDate: 'now',
+            elementType: 'Commerce_Order'
         };
 
         Craft.postActionRequest('commerce/reports/getOrders', requestData, $.proxy(function(response, textStatus)
