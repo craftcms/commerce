@@ -47,7 +47,6 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
 
         this.$spinner.removeClass('hidden');
         this.$error.addClass('hidden');
-        this.$total.addClass('hidden');
         this.$chartContainer.removeClass('error');
 
         Craft.postActionRequest('commerce/reports/getOrders', requestData, $.proxy(function(response, textStatus)
@@ -58,27 +57,29 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
             {
                 if(!this.chart)
                 {
-                    var options = {
+                    this.chart = new Craft.charts.Area(this.$chartContainer, {
 
-                        yTickFormat: function(d)
+                        yTickFormat: function(locale)
                         {
-                            return response.currencySymbol + d;
+                            return locale.numberFormat("$");
                         },
 
-                        tipContentFormat: function(d)
+                        tipContentFormat: function(locale, d)
                         {
-                            return d.dateHtml + '<br />' + d.closeHtml;
-                        }
-                    };
+                            var formatTime = locale.timeFormat("%x");
+                            var formatNumber = locale.numberFormat("$");
 
-                    this.chart = new Craft.charts.Area(this.$chartContainer, options);
+                            return formatTime(d.date)
+                                        + '<br />'
+                                        + formatNumber(d.close);
+                        },
+                    });
                 }
 
                 this.chart.draw(response.report);
 
                 this.$totalCount.html(response.totalHtml);
 
-                this.$total.removeClass('hidden');
             }
             else
             {
