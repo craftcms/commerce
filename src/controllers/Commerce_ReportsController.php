@@ -77,6 +77,42 @@ class Commerce_ReportsController extends BaseElementsController
         }
     }
 
+    public function actionGetOrdersDummy()
+    {
+        // $report = [
+        //     [
+        //         'date' => '1-Dec-15',
+        //         'close' => '5'
+        //     ],
+        //     [
+        //         'date' => '2-Dec-15',
+        //         'close' => '10'
+        //     ],
+        //     [
+        //         'date' => '3-Dec-15',
+        //         'close' => '3'
+        //     ],
+        // ];
+
+        $report = [];
+
+        for($i = 10; $i < 30; $i++)
+        {
+            $report[] = [
+                'date' => $i.'-Dec-15',
+                'close' => rand(0, 1000)
+            ];
+        }
+
+        $total = 0;
+        $totalHtml = '€ 0.00';
+        $this->returnJson(array(
+            'report' => $report,
+            'total' => $total,
+            'totalHtml' => $totalHtml,
+        ));
+    }
+
     public function actionGetOrders()
     {
         $report = [];
@@ -88,22 +124,38 @@ class Commerce_ReportsController extends BaseElementsController
         $startDate = new DateTime($startDate);
         $endDate = new DateTime($endDate);
         $endDate->modify('+1 day');
-        $scale = 'day';
 
 
-        $cursorTimestamp = $startDate->getTimestamp();
+        // auto scale
 
+        $numberOfDays = floor(($endDate->getTimestamp() - $startDate->getTimestamp()) / (60*60*24));
+
+        if ($numberOfDays > 360)
+        {
+            $scale = 'year';
+        }
+        elseif($numberOfDays > 60)
+        {
+            $scale = 'month';
+        }
+        else
+        {
+            $scale = 'day';
+        }
+
+        // currency
         $currency = craft()->commerce_settings->getOption('defaultCurrency');
 
-        while($cursorTimestamp < $endDate->getTimestamp())
+
+        // create report
+
+        $cursorCurrent = new DateTime($startDate);
+
+        while($cursorCurrent->getTimestamp() < $endDate->getTimestamp())
         {
-            $cursorStart = new DateTime();
-            $cursorStart->setTimestamp($cursorTimestamp);
-
-            $cursorTimestamp += (60 * 60 * 24);
-
-            $cursorEnd = new DateTime();
-            $cursorEnd->setTimestamp($cursorTimestamp);
+            $cursorStart = new DateTime($cursorCurrent);
+            $cursorCurrent->modify('+1 '.$scale);
+            $cursorEnd = $cursorCurrent;
 
             $orders = $this->_getOrders($cursorStart, $cursorEnd);
 
@@ -126,6 +178,7 @@ class Commerce_ReportsController extends BaseElementsController
 
         $this->returnJson(array(
             'report' => $report,
+            'scale' => $scale,
             'total' => $total,
             'totalHtml' => craft()->numberFormatter->formatCurrency($total, strtoupper($currency)),
         ));
