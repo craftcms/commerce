@@ -136,7 +136,7 @@ class Commerce_DiscountsController extends Commerce_BaseCpController
             $discount->percentDiscount = floatval($percentDiscountAmount) / -100;
         } else {
             $discount->percentDiscount = floatval($percentDiscountAmount) * -1;
-        };
+        }
 
         $products = craft()->request->getPost('products', []);
         if (!$products) {
