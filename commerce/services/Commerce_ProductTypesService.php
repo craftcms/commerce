@@ -245,7 +245,7 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
             $isNewProductType = true;
         }
 
-        // If the product type does not have variants, default the title format and
+        // If the product type does not have variants, default the title format.
         if(!$isNewProductType && !$productType->hasVariants){
             $productType->hasVariantTitleField = false;
             $productType->titleFormat = "{product.title}";
