@@ -43,9 +43,11 @@ class Commerce_OrdersService extends BaseApplicationComponent
     /**
      * Returns an a array of matching Commerce_OrderModels for the given order IDs.
      *
+     * @since 1.1
+     *
      * @param array $ids    The order IDs to search for.
      *
-     * @return array|null   The matching Commerce_OrderModels.
+     * @return Commerce_OrderModel[]|null The matching order models.
      */
     public function getOrdersByIds($ids)
     {
