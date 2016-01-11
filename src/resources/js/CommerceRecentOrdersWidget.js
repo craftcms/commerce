@@ -35,7 +35,9 @@ Craft.CommerceRecentOrdersWidget = Garnish.Base.extend(
                 // Create chart
                 this.chart = new Craft.charts.Area(this.$chartContainer);
 
-                this.chart.draw(response.report);
+                var chartDataTable = new Craft.charts.DataTable(response.reportDataTable);
+
+                this.chart.draw(chartDataTable);
 
                 // Resize chart when grid is refreshed
                 window.dashboard.grid.on('refreshCols', $.proxy(this, 'handleGridRefresh'));
