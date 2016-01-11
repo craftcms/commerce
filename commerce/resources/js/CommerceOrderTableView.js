@@ -60,7 +60,9 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
                     this.chart = new Craft.charts.Area(this.$chartContainer);
                 }
 
-                this.chart.draw(response.report);
+                var chartDataTable = new Craft.charts.DataTable(response.reportDataTable);
+
+                this.chart.draw(chartDataTable);
 
                 this.$totalCount.html(response.totalHtml);
 
