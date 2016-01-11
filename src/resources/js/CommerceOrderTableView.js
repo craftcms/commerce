@@ -57,23 +57,7 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
             {
                 if(!this.chart)
                 {
-                    this.chart = new Craft.charts.Area(this.$chartContainer, {
-
-                        yTickFormat: function(locale)
-                        {
-                            return locale.numberFormat("$");
-                        },
-
-                        tipContentFormat: function(locale, d)
-                        {
-                            var formatTime = locale.timeFormat("%x");
-                            var formatNumber = locale.numberFormat("$");
-
-                            return formatTime(d.date)
-                                        + '<br />'
-                                        + formatNumber(d.close);
-                        },
-                    });
+                    this.chart = new Craft.charts.Area(this.$chartContainer);
                 }
 
                 this.chart.draw(response.report);
