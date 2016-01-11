@@ -115,7 +115,6 @@ class Commerce_ReportsController extends BaseElementsController
 
     public function actionGetOrders()
     {
-        $report = [];
         $total = 0;
 
         $startDate = craft()->request->getParam('startDate');
@@ -147,7 +146,26 @@ class Commerce_ReportsController extends BaseElementsController
         $currency = craft()->commerce_settings->getOption('defaultCurrency');
 
 
-        // create report
+        // report columns
+
+        $columns = [];
+
+        $columns[] = [
+            'dataType' => 'date',
+            'id' =>  'date',
+            'label' => 'Date',
+        ];
+
+        $columns[] = [
+            'dataType' => 'currency',
+            'id' =>  'revenue',
+            'label' => 'Revenue',
+        ];
+
+
+        // report rows
+
+        $rows = [];
 
         $cursorCurrent = new DateTime($startDate);
 
@@ -166,18 +184,33 @@ class Commerce_ReportsController extends BaseElementsController
                 $totalPaid += $order->totalPaid;
             }
 
-            $report[] = [
-                'date' => strftime("%e-%b-%y", $cursorStart->getTimestamp()),
-                'close' => $totalPaid,
+            $rows[] = [
+
+                // date
+                [
+                    'value' => strftime("%e-%b-%y", $cursorStart->getTimestamp()),
+                    'label' => strftime("%e-%b-%y", $cursorStart->getTimestamp()),
+                ],
+
+                // revenue
+                [
+                    'value' => $totalPaid,
+                    'label' => $totalPaid,
+                ]
             ];
 
             $total += $totalPaid;
         }
 
+        $reportDataTable = [
+            'columns' => $columns,
+            'rows' => $rows
+        ];
+
         $locale = craft()->i18n->getLocaleData();
 
         $this->returnJson(array(
-            'report' => $report,
+            'reportDataTable' => $reportDataTable,
             'scale' => $scale,
             'total' => $total,
             'totalHtml' => craft()->numberFormatter->formatCurrency($total, strtoupper($currency)),
