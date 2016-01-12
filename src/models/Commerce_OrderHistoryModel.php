@@ -39,6 +39,7 @@ class Commerce_OrderHistoryModel extends BaseModel
             'prevStatusId' => [AttributeType::Number],
             'newStatusId' => [AttributeType::Number],
             'customerId' => [AttributeType::Number],
+            'dateCreated' => [AttributeType::DateTime]
         ];
     }
 }
