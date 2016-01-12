@@ -13,6 +13,7 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  * @property int $prevStatusId
  * @property int $newStatusId
  * @property int $customerId
+ * @property DateTime $dateCreated
  *
  * @property Commerce_OrderModel $order
  * @property Commerce_OrderStatusModel $prevStatus
