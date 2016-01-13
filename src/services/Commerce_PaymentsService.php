@@ -269,7 +269,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 
                 if ($response->isRedirect()) {
                     // redirect to off-site gateway
-                    return $response->redirect();
+                    $response->redirect();
                 }
             } catch (\Exception $e) {
                 $transaction->status = Commerce_TransactionRecord::STATUS_FAILED;
