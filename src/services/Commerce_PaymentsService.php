@@ -20,10 +20,8 @@ class Commerce_PaymentsService extends BaseApplicationComponent
     /**
      * @param Commerce_OrderModel $cart
      * @param Commerce_PaymentFormModel $form
-     *
-     * @param                         $redirect
-     * @param                         $cancelUrl
-     * @param string &$customError
+     * @param string|null &$redirect
+     * @param string|null &$customError
      *
      * @return bool
      * @throws Exception
@@ -32,28 +30,17 @@ class Commerce_PaymentsService extends BaseApplicationComponent
     public function processPayment(
         Commerce_OrderModel $cart,
         Commerce_PaymentFormModel $form,
-        $redirect,
-        $cancelUrl,
-        &$customError = ''
+        &$redirect = null,
+        &$customError = null
     )
     {
-        //saving cancelUrl and redirect to cart
-        $cart->returnUrl = craft()->templates->renderObjectTemplate($redirect, $cart);
-        $cart->cancelUrl = craft()->templates->renderObjectTemplate($cancelUrl, $cart);
-        craft()->commerce_orders->saveOrder($cart);
-
-
         // Cart could have zero totalPrice and already considered 'paid'. Free carts complete immediately.
         if ($cart->isPaid()) {
             if(!$cart->datePaid){
                 $cart->datePaid = DateTimeHelper::currentTimeForDb();
             }
-            
-            craft()->commerce_orders->completeOrder($cart);
 
-            if ($cart->returnUrl) {
-                craft()->request->redirect($cart->returnUrl);
-            }
+            craft()->commerce_orders->completeOrder($cart);
 
             return true;
         }
@@ -62,6 +49,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
         if (!$form->token && $cart->paymentMethod->requiresCard()) {
             if (!$form->validate()) {
                 $customError = Craft::t("Invalid payment information.");
+
                 return false;
             }
         }
@@ -100,25 +88,17 @@ class Commerce_PaymentsService extends BaseApplicationComponent
         }
 
         try {
-            $redirect = $this->sendPaymentRequest($request, $transaction);
+            $success = $this->sendPaymentRequest($cart, $request, $transaction, $redirect, $customError);
 
-            if ($transaction->status == Commerce_TransactionRecord::STATUS_SUCCESS) {
+            if ($success) {
                 craft()->commerce_orders->updateOrderPaidTotal($cart);
             }
-            if ($transaction->status == Commerce_TransactionRecord::STATUS_FAILED) {
-                $customError = $transaction->message;
-            }
         } catch (\Exception $e) {
+            $success = false;
             $customError = $e->getMessage();
-
-            return false;
         }
 
-        if ($redirect) {
-            craft()->request->redirect($redirect);
-        }
-
-        return ($transaction->status == Commerce_TransactionRecord::STATUS_SUCCESS);
+        return $success;
     }
 
     /**
@@ -238,14 +218,20 @@ class Commerce_PaymentsService extends BaseApplicationComponent
     /**
      * Send a payment request to the gateway, and redirect appropriately
      *
+     * @param Commerce_OrderModel $order
      * @param AbstractRequest $request
      * @param Commerce_TransactionModel $transaction
+     * @param string|null &$redirect
+     * @param string &$customError
      *
-     * @return string
+     * @return bool
      */
     private function sendPaymentRequest(
+        Commerce_OrderModel $order,
         AbstractRequest $request,
-        Commerce_TransactionModel $transaction
+        Commerce_TransactionModel $transaction,
+        &$redirect = null,
+        &$customError = null
     )
     {
         //raising event
@@ -268,8 +254,20 @@ class Commerce_PaymentsService extends BaseApplicationComponent
                 $this->updateTransaction($transaction, $response);
 
                 if ($response->isRedirect()) {
+                    // Ensure returnUrl and cancelUrl are set on the order
+                    if (empty($order->returnUrl) || empty($order->cancelUrl)) {
+                        throw new Exception('The “returnUrl” and “cancelUrl” parameters are required.');
+                    }
+
                     // redirect to off-site gateway
-                    $response->redirect();
+                    if ($response->getRedirectMethod() == 'GET') {
+                        $redirect = $response->getRedirectUrl();
+                    } else {
+                        // TODO: add a config setting to specify a custom POST redirect template
+                        $response->redirect();
+                    }
+
+                    return true;
                 }
             } catch (\Exception $e) {
                 $transaction->status = Commerce_TransactionRecord::STATUS_FAILED;
@@ -278,14 +276,12 @@ class Commerce_PaymentsService extends BaseApplicationComponent
             }
         }
 
-        $order = $transaction->order;
-
         if ($transaction->status == Commerce_TransactionRecord::STATUS_SUCCESS) {
-            return $order->returnUrl;
+            return true;
         } else {
-            craft()->userSession->setError(Craft::t('Payment error: {message}', ['message' => $transaction->message]));
+            $customError = $transaction->message;
 
-            return $order->cancelUrl;
+            return false;
         }
     }
 
@@ -440,20 +436,24 @@ class Commerce_PaymentsService extends BaseApplicationComponent
      * Process return from off-site payment
      *
      * @param Commerce_TransactionModel $transaction
+     * @param string|null &$customError
      *
+     * @return bool
      * @throws Exception
      */
-    public function completePayment(Commerce_TransactionModel $transaction)
+    public function completePayment(
+        Commerce_TransactionModel $transaction,
+        &$customError = null
+    )
     {
         $order = $transaction->order;
 
         // ignore already processed transactions
         if ($transaction->status != Commerce_TransactionRecord::STATUS_REDIRECT) {
             if ($transaction->status == Commerce_TransactionRecord::STATUS_SUCCESS) {
-                craft()->request->redirect($order->returnUrl);
+                return true;
             } else {
-                craft()->userSession->setError(Craft::t('Payment error: {message}', ['message' => $transaction->message]));
-                craft()->request->redirect($order->cancelUrl);
+                return false;
             }
         }
 
@@ -476,12 +476,14 @@ class Commerce_PaymentsService extends BaseApplicationComponent
             unset($params['notifyUrl']);
 
             $request = $gateway->$action($params);
-            $redirect = $this->sendPaymentRequest($request, $transaction);
+            $success = $this->sendPaymentRequest($order, $request, $transaction, $redirect, $customError);
 
-            if ($transaction->status == Commerce_TransactionRecord::STATUS_SUCCESS) {
+            if ($success) {
                 craft()->commerce_orders->updateOrderPaidTotal($order);
+                return true;
+            } else {
+                return false;
             }
-            craft()->request->redirect($redirect);
         } else {
             throw new Exception('Payment Gateway does not support: '.$supportsAction);
         }
