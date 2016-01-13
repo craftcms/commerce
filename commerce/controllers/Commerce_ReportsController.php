@@ -209,9 +209,36 @@ class Commerce_ReportsController extends BaseElementsController
 
         $locale = craft()->i18n->getLocaleData();
 
+
+        $currency = craft()->commerce_settings->getSettings()->defaultCurrency;
+        $currencySymbol = craft()->locale->getCurrencySymbol($currency);
+        $currencyFormat = craft()->locale->getCurrencyFormat();
+
+        if(strpos($currencyFormat, ";") > 0)
+        {
+            $currencyFormatArray = explode(";", $currencyFormat);
+            $currencyFormat = $currencyFormatArray[0];
+        }
+
+        $pattern = '/[#0,.]/';
+        $replacement = '';
+        $currencyFormat = preg_replace($pattern, $replacement, $currencyFormat);
+
+        if(strpos($currency, "¤") === 0)
+        {
+            // symbol at beginning
+            $currencyD3Format = [str_replace('¤', $currencySymbol, $currencyFormat), ''];
+        }
+        else
+        {
+            // symbol at the end
+            $currencyD3Format = ['', str_replace('¤', $currencySymbol, $currencyFormat)];
+        }
+
         $this->returnJson(array(
             'reportDataTable' => $reportDataTable,
             'scale' => $scale,
+            'currencyFormat' => $currencyD3Format,
             'total' => $total,
             'totalHtml' => craft()->numberFormatter->formatCurrency($total, strtoupper($currency)),
         ));
