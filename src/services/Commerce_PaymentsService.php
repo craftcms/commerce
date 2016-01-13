@@ -23,7 +23,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
      *
      * @param                         $redirect
      * @param                         $cancelUrl
-     * @param string $customError
+     * @param string &$customError
      *
      * @return bool
      * @throws Exception
