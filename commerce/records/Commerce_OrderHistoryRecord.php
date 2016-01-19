@@ -11,6 +11,7 @@ namespace Craft;
  * @property int $prevStatusId
  * @property int $newStatusId
  * @property int $customerId
+ * @property DateTime $dateCreated
  *
  * @property Commerce_OrderRecord $order
  * @property Commerce_OrderStatusRecord $prevStatus
