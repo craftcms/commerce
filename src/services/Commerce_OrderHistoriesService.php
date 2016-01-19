@@ -123,6 +123,7 @@ class Commerce_OrderHistoriesService extends BaseApplicationComponent
 
             // Now that we have a record ID, save it on the model
             $model->id = $record->id;
+            $model->dateCreated = $record->dateCreated;
 
             return true;
         } else {
