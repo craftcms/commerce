@@ -63,7 +63,7 @@
 				<div class="order-address-box-content">
 				{% import "commerce/_includes/orders/address" as addressMacros %}
 
-				<strong>Billing Address </strong><br>
+				<strong>{{ 'Billing Address'|t }} </strong><br>
 				{% if order.billingAddress %}
 				<a class="small btn right"
 				   href="http://maps.google.com/maps?q={{ order.billingAddress.address1 }}+{{ order.billingAddress.address2 }}+{{ order.billingAddress.city }}+{{ order.billingAddress.zipCode }}+{{ order.billingAddress.stateText }}+{{ order.billingAddress.countryText }}"
@@ -75,7 +75,7 @@
 
 			<div class="order-address-box shippingAddress">
 				<div class="order-address-box-content">
-				<strong>Shipping Address </strong><br>
+				<strong>{{ 'Shipping Address'|t }} </strong><br>
 				{% if order.shippingAddress %}
 				<a class="small btn right"
 				   href="http://maps.google.com/maps?q={{ order.shippingAddress.address1 }}+{{ order.shippingAddress.address2 }}+{{ order.shippingAddress.city }}+{{ order.shippingAddress.zipCode }}+{{ order.shippingAddress.stateText }}+{{ order.shippingAddress.countryText }}"
@@ -302,7 +302,7 @@
 
 	{% if order.histories|length %}
 	<div class="pane">
-		<h3>Order Status History</h3>
+		<h3>{{ 'Order Status History'|t }}</h3>
 
 		<table class="data fullwidth">
 			<thead>
