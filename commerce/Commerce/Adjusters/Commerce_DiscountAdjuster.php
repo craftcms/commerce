@@ -31,8 +31,8 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
         }
 
         $discounts = \Craft\craft()->commerce_discounts->getAllDiscounts([
-            'condition' => 'code = :code OR code IS NULL',
-            'params' => ['code' => $order->couponCode],
+            'condition' => '(code = :code OR code IS NULL) and enabled = :enabled',
+            'params' => ['code' => $order->couponCode, 'enabled' => true],
         ]);
         $adjustments = [];
         foreach ($discounts as $discount) {
