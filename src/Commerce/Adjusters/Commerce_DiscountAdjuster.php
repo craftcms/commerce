@@ -57,7 +57,7 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
         $adjustment->type = self::ADJUSTMENT_TYPE;
         $adjustment->name = $discount->name;
         $adjustment->orderId = $order->id;
-        $adjustment->description = $this->getDescription($discount);
+        $adjustment->description = $discount->description ?: $this->getDescription($discount);
         $adjustment->optionsJson = $discount->attributes;
 
         //checking items
