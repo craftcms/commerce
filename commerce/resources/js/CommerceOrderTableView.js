@@ -63,7 +63,8 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
                 var chartDataTable = new Craft.charts.DataTable(response.reportDataTable);
 
                 var chartSettings = {
-                    currency: response.currencyFormat
+                    currency: response.currencyFormat,
+                    dataScale: response.scale
                 };
 
                 this.chart.draw(chartDataTable, chartSettings);
