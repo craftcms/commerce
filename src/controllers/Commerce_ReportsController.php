@@ -151,13 +151,13 @@ class Commerce_ReportsController extends BaseElementsController
         $columns = [];
 
         $columns[] = [
-            'dataType' => 'date',
+            'type' => 'date',
             'id' =>  'date',
             'label' => 'Date',
         ];
 
         $columns[] = [
-            'dataType' => 'currency',
+            'type' => 'currency',
             'id' =>  'revenue',
             'label' => 'Revenue',
         ];
