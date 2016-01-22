@@ -81,7 +81,7 @@
 	{%  if variant.product.type.hasVariantTitleField and variant.product.type.hasVariants %}
 		{{ forms.textField({
 			label: "Title"|t,
-			locale: variant.product.locale,
+			locale: variant.locale,
 			id: 'title',
 			name: 'title',
 			value: variant.title,
