@@ -136,14 +136,22 @@ class Commerce_DiscountsController extends Commerce_BaseCpController
             $discount->percentDiscount = floatval($percentDiscountAmount) / -100;
         } else {
             $discount->percentDiscount = floatval($percentDiscountAmount) * -1;
-        };
+        }
 
         $products = craft()->request->getPost('products', []);
         if (!$products) {
             $products = [];
         }
+
         $productTypes = craft()->request->getPost('productTypes', []);
+        if (!$productTypes) {
+            $productTypes = [];
+        }
+
         $groups = craft()->request->getPost('groups', []);
+        if (!$groups) {
+            $groups = [];
+        }
 
         // Save it
         if (craft()->commerce_discounts->saveDiscount($discount, $groups, $productTypes,

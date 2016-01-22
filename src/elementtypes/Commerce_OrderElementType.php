@@ -244,10 +244,11 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
         $attributes = [
             'number' => Craft::t('Number'),
             'id' => Craft::t('ID'),
-            'dateOrdered' => Craft::t('Completed At'),
+            'orderStatusId' => Craft::t('Order Status'),
             'totalPrice' => Craft::t('Total Payable'),
             'totalPaid' => Craft::t('Total Paid'),
-            'orderStatusId' => Craft::t('Order Status'),
+            'dateOrdered' => Craft::t('Date Ordered'),
+            'datePaid' => Craft::t('Date Paid')
         ];
 
         // Allow plugins to modify the attributes
@@ -284,7 +285,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
      * @param DbCommand $query
      * @param ElementCriteriaModel $criteria
      *
-     * @return void
+     * @return bool|false|null|void
      */
     public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
     {
@@ -355,7 +356,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
                     $criteria->customerId = $customer->id;
                     $criteria->user = null;
                 } else {
-                    $query->andWhere(DbHelper::parseParam('orders.customerId', 'IS NULL', $query->params));
+                    return false;
                 }
             }
         }
@@ -366,7 +367,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
                     $criteria->customerId = $criteria->customer->id;
                     $criteria->customer = null;
                 } else {
-                    $query->andWhere(DbHelper::parseParam('orders.customerId', 'IS NULL', $query->params));
+                    return false;
                 }
             }
         }

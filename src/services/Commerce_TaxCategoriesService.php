@@ -142,7 +142,7 @@ class Commerce_TaxCategoriesService extends BaseApplicationComponent
             // Update Service cache
             $this->_memoizeTaxCategory($model);
 
-            if (isset($oldHandle) && $model->handel != $oldHandle) {
+            if (isset($oldHandle) && $model->handle != $oldHandle) {
                 unset($this->_taxCategoriesByHandle[$oldHandle]);
             }
 

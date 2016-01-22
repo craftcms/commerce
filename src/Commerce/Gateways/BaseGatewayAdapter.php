@@ -3,6 +3,7 @@ namespace Commerce\Gateways;
 
 use Craft\AttributeType;
 use Craft\BaseModel;
+use Craft\Commerce_PaymentMethodModel;
 use Omnipay\Common\AbstractGateway;
 use Omnipay\Common\GatewayFactory;
 
@@ -20,6 +21,8 @@ abstract class BaseGatewayAdapter extends BaseModel implements GatewayAdapterInt
     protected $_booleans = [];
     /** @var GatewayFactory */
     protected static $_factory;
+    /** @var Commerce_PaymentMethodModel */
+    private $_paymentMethod;
 
     /**
      * Commerce_GatewayModel constructor.
@@ -29,6 +32,22 @@ abstract class BaseGatewayAdapter extends BaseModel implements GatewayAdapterInt
     {
         $this->init();
         parent::__construct($attributes);
+    }
+
+    /**
+     * @return Commerce_PaymentMethodModel|null
+     */
+    public function getPaymentMethod()
+    {
+        return $this->_paymentMethod;
+    }
+
+    /**
+     * @param Commerce_PaymentMethodModel $paymentMethod
+     */
+    public function setPaymentMethod(Commerce_PaymentMethodModel $paymentMethod)
+    {
+        $this->_paymentMethod = $paymentMethod;
     }
 
     /**

@@ -4,7 +4,7 @@ This README is designed to be consumed by developers of Craft Commerce,
 not end users.
 
 # Code License
-Copyright 2015 Pixel & Tonic, Inc. All rights reserved. See LICENSE.md
+Use of this software is subject to the License Agreement located at https://craftcommerce.com/license.
 
 # Class Documentation Generation
 
