@@ -12,3 +12,4 @@ docs/phpdoc/cache/
 *aspnet_client/*
 market/vendor/
 commerce/vendor/
+phpstorm.php

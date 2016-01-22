@@ -1,28 +1,48 @@
 {% import "_includes/forms" as forms %}
 
+{% set paymentMethod = adapter.getPaymentMethod() %}
+{% if paymentMethod and paymentMethod.id %}
+    {% set configSettings = craft.config.get('paymentMethodSettings', 'commerce') %}
+    {% set configSettings = configSettings[paymentMethod.id] is defined ? configSettings[paymentMethod.id] : {} %}
+{% else %}
+    {% set configSettings = [] %}
+{% endif %}
+
+
 {% for paramKey, paramValue in adapter.gateway.parameters %}
+    {% set paramLabel = adapter.generateAttributeLabel(paramKey)|replace('/\\bApi\\b/', 'API')|replace('/\\bId\\b/', 'ID')|replace('/\\bSub (?=[A-Z])/', 'Sub-')|t %}
+    {% set inputName = 'settings['~paramKey~']' %}
+    {% set errors = adapter.getErrors(paramKey) %}
+    {% set overridden = (configSettings[paramKey] is defined) %}
+    {% set warning = overridden ? "This is being overridden in {file}."|t({file: 'craft/config/commerce.php'}) %}
+
     {% if paramKey in adapter.booleans %}
-        {{ forms.checkboxField({
-            label: adapter.generateAttributeLabel(paramKey)|t,
-            name: 'settings['~paramKey~']',
-            value: 1,
-            checked : paramValue,
-            errors: adapter.getErrors(paramKey),
+        {{ forms.lightswitchField({
+            label: paramLabel,
+            name: inputName,
+            on: paramValue,
+            errors: errors,
+            disabled: overridden,
+            warning: warning,
         }) }}
     {% elseif adapter.selects[paramKey] is defined %}
         {{ forms.selectField({
-            label: adapter.generateAttributeLabel(paramKey)|t,
-            name: 'settings['~paramKey~']',
+            label: paramLabel,
+            name: inputName,
             options : adapter.selects[paramKey],
             value : paramValue,
-            errors: adapter.getErrors(paramKey),
+            errors: errors,
+            disabled: overridden,
+            warning: warning,
         }) }}
     {% else %}
         {{ forms.textField({
-            label: adapter.generateAttributeLabel(paramKey)|t,
-            name: 'settings['~paramKey~']',
+            label: paramLabel,
+            name: inputName,
             value : paramValue,
-            errors: adapter.getErrors(paramKey),
+            errors: errors,
+            disabled: overridden,
+            warning: warning,
         }) }}
     {% endif %}
 {% endfor %}

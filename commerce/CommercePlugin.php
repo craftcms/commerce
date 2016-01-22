@@ -65,7 +65,25 @@ class CommercePlugin extends BasePlugin
         $templatesService->includeJsResource('commerce/js/CommerceProductIndex.js');
         $templatesService->includeTranslations(
             'New {productType} product',
-            'New product'
+            'New product',
+            'Update Order Status',
+            'Message',
+            'Status change message',
+            'Update',
+            'Cancel',
+            'First Name',
+            'Last Name',
+            'Address Line 1',
+            'Address Line 2',
+            'City',
+            'Zip Code',
+            'Phone',
+            'Alternative Phone',
+            'Business Name',
+            'Business Tax ID',
+            'Country',
+            'State',
+            'Update Address'
         );
     }
 
@@ -113,7 +131,8 @@ class CommercePlugin extends BasePlugin
                         'm151109_010102_Commerce_AddOptionsToLineItems',
                         'm151117_010101_Commerce_TaxIncluded',
                         'm151124_010101_Commerce_AddressManagement',
-                        'm151127_010101_Commerce_TaxRateTaxableOptions'
+                        'm151127_010101_Commerce_TaxRateTaxableOptions',
+                        'm151210_010101_Commerce_FixMissingLineItemDimensionData'
                     );
 
                     foreach ($migrations as $migrationClass) {
@@ -239,7 +258,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getSchemaVersion()
     {
-        return '1.0.00';
+        return '1.0.01';
     }
 
     /**

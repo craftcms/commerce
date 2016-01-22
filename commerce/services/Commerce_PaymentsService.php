@@ -23,7 +23,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
      *
      * @param                         $redirect
      * @param                         $cancelUrl
-     * @param string $customError
+     * @param string &$customError
      *
      * @return bool
      * @throws Exception
@@ -45,6 +45,10 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 
         // Cart could have zero totalPrice and already considered 'paid'. Free carts complete immediately.
         if ($cart->isPaid()) {
+            if(!$cart->datePaid){
+                $cart->datePaid = DateTimeHelper::currentTimeForDb();
+            }
+            
             craft()->commerce_orders->completeOrder($cart);
 
             if ($cart->returnUrl) {
@@ -265,7 +269,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 
                 if ($response->isRedirect()) {
                     // redirect to off-site gateway
-                    return $response->redirect();
+                    $response->redirect();
                 }
             } catch (\Exception $e) {
                 $transaction->status = Commerce_TransactionRecord::STATUS_FAILED;
