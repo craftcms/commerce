@@ -9,5 +9,5 @@ modules:
     enabled:
         - WebDriver:
             url: http://craft2x.craft.dev
-            browser: firefox            
+            browser: firefox
         - \Helper\Acceptance

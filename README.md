@@ -3,10 +3,10 @@
 This README is designed to be consumed by developers of Craft Commerce,
 not end users.
 
-# Code License
+## Code License
 Use of this software is subject to the License Agreement located at https://craftcommerce.com/license.
 
-# Class Documentation Generation
+## Class Documentation Generation
 
 To generate a phpdoc documentation:
 
@@ -17,6 +17,31 @@ To generate a phpdoc documentation:
 Then open the `build/index.html` file in the browser. In chrome the search sidebar will not
 show up due to security issues for local files. Use firefox. Chrome does not have this issue when
 served from a webserver.
+
+## Test Suite
+
+1) Install selenium server standalone. I suggest using [Homebrew](http://brew.sh/).
+```bash
+brew install selenium-server-standalone
+```
+After installing you should be able to run the server with
+
+```bash
+selenium-server
+```
+
+2) Install codeception. [Codeception instructions](http://codeception.com/quickstart)
+
+```bash
+cd tests
+wget http://codeception.com/codecept.phar
+```
+
+2) Run tests from tests directory
+
+```bash
+php codecept.phar run
+```
 
 ## Code Hint Helpers for PHP Storm
 
