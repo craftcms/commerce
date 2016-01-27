@@ -22,8 +22,7 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
 
 
         this.dateRange = new Craft.DateRangePicker(this.$chartHeader, {
-            startDate: this.startDate,
-            endDate: this.endDate,
+            preset: 'd7',
             onAfterSelect: $.proxy(this, 'loadReport')
         });
 
@@ -33,17 +32,17 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
 
         this.$chartContainer = $('<div class="chart-container"></div>').appendTo(this.$chartExplorer);
 
-
-        this.loadReport();
+        this.loadReport(this.dateRange.startDate, this.dateRange.endDate);
 
 		this.base();
 	},
 
-    loadReport: function()
+    loadReport: function(startDate, endDate)
     {
         var requestData = this.settings.params;
-        requestData.startDate = this.dateRange.startDate;
-        requestData.endDate = this.dateRange.endDate;
+
+        requestData.startDate = startDate;
+        requestData.endDate = endDate;
 
         this.$spinner.removeClass('hidden');
         this.$error.addClass('hidden');
