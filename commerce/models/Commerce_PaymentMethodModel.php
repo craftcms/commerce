@@ -74,7 +74,7 @@ class Commerce_PaymentMethodModel extends BaseModel
     }
 
     /**
-     * @return BaseGatewayAdapter
+     * @return BaseGatewayAdapter|null
      */
     public function getGatewayAdapter()
     {
@@ -83,6 +83,7 @@ class Commerce_PaymentMethodModel extends BaseModel
             if(array_key_exists($this->class,$gateways)){
                 $this->_gatewayAdapter = $gateways[$this->class];
                 $this->_gatewayAdapter->setAttributes($this->settings);
+                $this->_gatewayAdapter->setPaymentMethod($this);
             }
         }
 

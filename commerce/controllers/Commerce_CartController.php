@@ -176,7 +176,16 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
                                 }
                             }
                         } else {
-                            $cart->addError('shippingAddressId', Craft::t('Could not save the billing address.'));
+                            $billingAddress = new Commerce_AddressModel();
+                            $billingAddress->setAttributes(craft()->request->getParam('billingAddress'));
+                            $result = craft()->commerce_orders->setOrderAddresses($cart, $shippingAddress, $billingAddress);
+                            if (!$result) {
+                                if ($billingAddress->hasErrors()) {
+                                    $cart->addError('billingAddress', Craft::t('Could not save the Billing Address.'));
+                                }
+                            } else {
+                                $cartSaved = true;
+                            }
                         }
                     } else {
                         if (!craft()->commerce_orders->setOrderAddresses($cart, $shippingAddress, $shippingAddress)) {

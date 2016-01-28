@@ -503,6 +503,14 @@ class Commerce_OrderModel extends BaseElementModel
     }
 
     /**
+     * @return Commerce_OrderStatusModel|null
+     */
+    public function getOrderStatus()
+    {
+        return craft()->commerce_orderStatuses->getOrderStatusById($this->orderStatusId);
+    }
+
+    /**
      * @return array
      */
     protected function defineAttributes()

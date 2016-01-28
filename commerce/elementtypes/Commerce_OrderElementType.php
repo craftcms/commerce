@@ -244,11 +244,11 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
         $attributes = [
             'number' => Craft::t('Number'),
             'id' => Craft::t('ID'),
-            'dateOrdered' => Craft::t('Date Ordered'),
+            'orderStatusId' => Craft::t('Order Status'),
             'totalPrice' => Craft::t('Total Payable'),
             'totalPaid' => Craft::t('Total Paid'),
-            'datePaid' => Craft::t('Date Paid'),
-            'orderStatusId' => Craft::t('Order Status'),
+            'dateOrdered' => Craft::t('Date Ordered'),
+            'datePaid' => Craft::t('Date Paid')
         ];
 
         // Allow plugins to modify the attributes

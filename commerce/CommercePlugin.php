@@ -65,7 +65,25 @@ class CommercePlugin extends BasePlugin
         $templatesService->includeJsResource('commerce/js/CommerceProductIndex.js');
         $templatesService->includeTranslations(
             'New {productType} product',
-            'New product'
+            'New product',
+            'Update Order Status',
+            'Message',
+            'Status change message',
+            'Update',
+            'Cancel',
+            'First Name',
+            'Last Name',
+            'Address Line 1',
+            'Address Line 2',
+            'City',
+            'Zip Code',
+            'Phone',
+            'Alternative Phone',
+            'Business Name',
+            'Business Tax ID',
+            'Country',
+            'State',
+            'Update Address'
         );
     }
 
