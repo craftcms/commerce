@@ -486,6 +486,19 @@ class Commerce_OrdersService extends BaseApplicationComponent
     {
         CommerceDbHelper::beginStackedTransaction();
         try {
+
+            $customerId = craft()->commerce_customers->getCustomerId();
+            $currentCustomerAddressIds = craft()->commerce_customers->getAddressIds($customerId);
+
+            // Customers can only set addresses that are theirs
+            if ($shippingAddress->id && !in_array($shippingAddress->id, $currentCustomerAddressIds)) {
+                return false;
+            }
+            // Customer can only set addresses that are theirs
+            if ($billingAddress->id && !in_array($billingAddress->id, $currentCustomerAddressIds)) {
+                return false;
+            }
+
             $result1 = craft()->commerce_customers->saveAddress($shippingAddress);
 
             if (($billingAddress->id && $billingAddress->id == $shippingAddress->id) || $shippingAddress === $billingAddress) {

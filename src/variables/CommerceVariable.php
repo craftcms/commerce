@@ -139,6 +139,18 @@ class CommerceVariable
     }
 
     /**
+     * @param string $code
+     *
+     * @return Commerce_DiscountModel|null
+     */
+    public function getDiscountByCode($code)
+    {
+        $discount = craft()->commerce_discounts->getDiscountByCode($code);
+
+        return $discount;
+    }
+
+    /**
      * @return Commerce_SaleModel[]
      */
     public function getSales()
