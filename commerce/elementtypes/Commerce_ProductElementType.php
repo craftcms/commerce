@@ -101,7 +101,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
             if ($canManage) {
                 $deleteAction = craft()->elements->getAction('Commerce_DeleteProduct');
                 $deleteAction->setParams([
-                    'confirmationMessage' => Craft::t('Are you sure you want to delete the selected product and their variants?'),
+                    'confirmationMessage' => Craft::t('Are you sure you want to delete the selected product and its variants?'),
                     'successMessage' => Craft::t('Products and Variants deleted.'),
                 ]);
                 $actions[] = $deleteAction;
