@@ -20,10 +20,13 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
         this.$error = $('<div class="error">Example error.</div>').appendTo(this.$chartHeader);
         this.$spinner = $('<div class="spinner hidden" />').appendTo(this.$chartHeader);
 
+        var $dateRangeContainer = $('<div class="datewrapper" />').appendTo(this.$chartHeader);
+        this.$dateRange = $('<input type="text" class="text" />').appendTo($dateRangeContainer);
 
-        this.dateRange = new Craft.DateRangePicker(this.$chartHeader, {
-            preset: 'd7',
-            onAfterSelect: $.proxy(this, 'loadReport')
+
+        this.dateRange = new Craft.DateRangePicker(this.$dateRange, {
+            value: 'd7',
+            onAfterSelect: $.proxy(this, 'onAfterDateRangeSelect')
         });
 
         this.$total = $('<div class="total"><strong>Total Revenue</strong></div>').appendTo(this.$chartHeader);
@@ -36,6 +39,11 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
 
 		this.base();
 	},
+
+    onAfterDateRangeSelect: function(value, startDate, endDate)
+    {
+        this.loadReport(startDate, endDate)
+    },
 
     loadReport: function(startDate, endDate)
     {
