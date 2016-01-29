@@ -200,7 +200,6 @@ class Commerce_ProductsController extends Commerce_BaseCpController
         $this->requirePostRequest();
 
         $product = $this->_setProductFromPost();
-        CommerceProductHelper::populateProductVariantModels($product, craft()->request->getPost('variants'));
 
         $this->enforceProductPermissions($product);
 
