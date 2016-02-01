@@ -14,26 +14,24 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
         this.startDate.setDate(this.startDate.getDate() - 7);
         this.endDate = new Date();
 
-        this.$chartExplorer = $('<div class="chart-explorer"></div>').prependTo(this.$container);
+        var $chartExplorer = $('<div class="chart-explorer"></div>').prependTo(this.$container),
+            $chartHeader = $('<div class="chart-header"></div>').appendTo($chartExplorer),
+            $dateRangeContainer = $('<div class="datewrapper" />').appendTo($chartHeader),
+            $total = $('<div class="total"><strong>Total Revenue</strong></div>').appendTo($chartHeader),
+            $totalCountWrapper = $('<div class="count-wrapper light"></div>').appendTo($total);
 
-        this.$chartHeader = $('<div class="chart-header"></div>').appendTo(this.$chartExplorer);
-        this.$error = $('<div class="error">Example error.</div>').appendTo(this.$chartHeader);
-        this.$spinner = $('<div class="spinner hidden" />').appendTo(this.$chartHeader);
 
-        var $dateRangeContainer = $('<div class="datewrapper" />').appendTo(this.$chartHeader);
+        this.$error = $('<div class="error">Example error.</div>').appendTo($chartHeader);
+        this.$spinner = $('<div class="spinner hidden" />').appendTo($chartHeader);
+        this.$totalCount = $('<span class="count">0</span>').appendTo($totalCountWrapper);
+        this.$chartContainer = $('<div class="chart-container"></div>').appendTo($chartExplorer);
+
         this.$dateRange = $('<input type="text" class="text" />').appendTo($dateRangeContainer);
-
 
         this.dateRange = new Craft.DateRangePicker(this.$dateRange, {
             value: 'd7',
             onAfterSelect: $.proxy(this, 'onAfterDateRangeSelect')
         });
-
-        this.$total = $('<div class="total"><strong>Total Revenue</strong></div>').appendTo(this.$chartHeader);
-        this.$totalCountWrapper = $('<div class="count-wrapper light"></div>').appendTo(this.$total);
-        this.$totalCount = $('<span class="count">0</span>').appendTo(this.$totalCountWrapper);
-
-        this.$chartContainer = $('<div class="chart-container"></div>').appendTo(this.$chartExplorer);
 
         this.loadReport(this.dateRange.startDate, this.dateRange.endDate);
 
