@@ -199,10 +199,22 @@ class Commerce_ReportsController extends BaseElementsController
             'rows' => $rows
         ];
 
-        $locale = craft()->i18n->getLocaleData();
-
-
         $currency = craft()->commerce_settings->getSettings()->defaultCurrency;
+
+        $this->returnJson(array(
+            'reportDataTable' => $reportDataTable,
+            'scale' => $scale,
+            'currencyFormat' => $this->_getCurrencyFormat($currency),
+            'total' => $total,
+            'totalHtml' => craft()->numberFormatter->formatCurrency($total, strtoupper($currency)),
+        ));
+    }
+
+    // Private Methods
+    // =========================================================================
+
+    private function _getCurrencyFormat($currency)
+    {
         $currencySymbol = craft()->locale->getCurrencySymbol($currency);
         $currencyFormat = craft()->locale->getCurrencyFormat();
 
@@ -226,18 +238,7 @@ class Commerce_ReportsController extends BaseElementsController
             // symbol at the end
             $currencyD3Format = ['', str_replace('¤', $currencySymbol, $currencyFormat)];
         }
-
-        $this->returnJson(array(
-            'reportDataTable' => $reportDataTable,
-            'scale' => $scale,
-            'currencyFormat' => $currencyD3Format,
-            'total' => $total,
-            'totalHtml' => craft()->numberFormatter->formatCurrency($total, strtoupper($currency)),
-        ));
     }
-
-    // Private Methods
-    // =========================================================================
 
     private function _getOrders($start, $end)
     {
