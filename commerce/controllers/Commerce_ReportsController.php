@@ -183,17 +183,11 @@ class Commerce_ReportsController extends BaseElementsController
             }
 
             $rows[] = [
-
-                // date
                 [
-                    'value' => strftime("%e-%b-%y", $cursorStart->getTimestamp()),
-                    'label' => strftime("%e-%b-%y", $cursorStart->getTimestamp()),
+                    'value' => strftime("%e-%b-%y", $cursorStart->getTimestamp()), // date
                 ],
-
-                // revenue
                 [
-                    'value' => $totalPaid,
-                    'label' => $totalPaid,
+                    'value' => $totalPaid, // revenue
                 ]
             ];
 
