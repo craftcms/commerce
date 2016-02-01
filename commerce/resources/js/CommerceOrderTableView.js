@@ -14,18 +14,41 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
         this.startDate.setDate(this.startDate.getDate() - 7);
         this.endDate = new Date();
 
-        var $chartExplorer = $('<div class="chart-explorer"></div>').prependTo(this.$container),
+        this.$explorerContainer = $('<div class="chart-explorer-container"></div>').prependTo(this.$container);
+
+        var $chartToggleContainer = $('<div class="chart-toggle-container"></div>').appendTo(this.$explorerContainer);
+        var $chartToggle = $('<a class="btn chart-toggle">Chart Toogle</a>').appendTo($chartToggleContainer);
+
+        this.addListener($chartToggle, 'click', 'toggleChartExplorer');
+
+		this.base();
+	},
+
+    toggleChartExplorer: function(ev)
+    {
+        if(this.$chartExplorer)
+        {
+            this.$chartExplorer.toggleClass('hidden');
+        }
+        else
+        {
+            this.createChartExplorer();
+        }
+    },
+
+    createChartExplorer: function()
+    {
+        var $chartExplorer = $('<div class="chart-explorer"></div>').appendTo(this.$explorerContainer),
             $chartHeader = $('<div class="chart-header"></div>').appendTo($chartExplorer),
             $dateRangeContainer = $('<div class="datewrapper" />').appendTo($chartHeader),
             $total = $('<div class="total"><strong>Total Revenue</strong></div>').appendTo($chartHeader),
             $totalCountWrapper = $('<div class="count-wrapper light"></div>').appendTo($total);
 
-
+        this.$chartExplorer = $chartExplorer;
         this.$error = $('<div class="error">Example error.</div>').appendTo($chartHeader);
         this.$spinner = $('<div class="spinner hidden" />').appendTo($chartHeader);
         this.$totalCount = $('<span class="count">0</span>').appendTo($totalCountWrapper);
         this.$chartContainer = $('<div class="chart-container"></div>').appendTo($chartExplorer);
-
         this.$dateRange = $('<input type="text" class="text" />').appendTo($dateRangeContainer);
 
         this.dateRange = new Craft.DateRangePicker(this.$dateRange, {
@@ -34,9 +57,7 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
         });
 
         this.loadReport(this.dateRange.startDate, this.dateRange.endDate);
-
-		this.base();
-	},
+    },
 
     onAfterDateRangeSelect: function(value, startDate, endDate)
     {
