@@ -2,7 +2,7 @@
 
 namespace Craft;
 
-class Commerce_RecentOrdersWidget extends BaseWidget
+class Commerce_OrdersWidget extends BaseWidget
 {
     // Public Methods
     // =========================================================================
@@ -14,7 +14,7 @@ class Commerce_RecentOrdersWidget extends BaseWidget
      */
     public function getName()
     {
-        return Craft::t('Commerce Recent Orders');
+        return Craft::t('Commerce Orders');
     }
 
     /**
@@ -24,16 +24,9 @@ class Commerce_RecentOrdersWidget extends BaseWidget
      */
     public function getBodyHtml()
     {
-        craft()->templates->includeJsResource('commerce/js/CommerceRecentOrdersWidget.js');
-
-        $options = array();
-        $options['dataUrl'] = UrlHelper::getActionUrl('commerce/reports/orders');
-        $js = 'new Craft.CommerceRecentOrdersWidget('.$this->model->id.', '.JsonHelper::encode($options).');';
-        craft()->templates->includeJs($js);
-
         $orders = $this->_getOrders();
 
-        return craft()->templates->render('commerce/_components/widgets/RecentOrders/body', array(
+        return craft()->templates->render('commerce/_components/widgets/Orders/body', array(
             'orders' => $orders
         ));
     }
@@ -45,7 +38,7 @@ class Commerce_RecentOrdersWidget extends BaseWidget
      */
     public function getSettingsHtml()
     {
-        return craft()->templates->render('commerce/_components/widgets/RecentOrders/settings', array(
+        return craft()->templates->render('commerce/_components/widgets/Orders/settings', array(
             'settings' => $this->getSettings()
         ));
     }
@@ -60,11 +53,19 @@ class Commerce_RecentOrdersWidget extends BaseWidget
      */
     private function _getOrders()
     {
+        $orderStatusId = $this->getSettings()->orderStatusId;
+        $limit = $this->getSettings()->limit;
+
         $criteria = craft()->elements->getCriteria('Commerce_Order');
         $criteria->completed = true;
         $criteria->dateOrdered = "NOT NULL";
-        $criteria->limit = $this->getSettings()->limit;
+        $criteria->limit = $limit;
         $criteria->order = 'dateOrdered desc';
+
+        if($orderStatusId)
+        {
+            $criteria->orderStatusId = $orderStatusId;
+        }
 
         return $criteria->find();
     }
@@ -77,6 +78,7 @@ class Commerce_RecentOrdersWidget extends BaseWidget
     protected function defineSettings()
     {
         return array(
+            'orderStatusId'   => AttributeType::Number,
             'limit'   => array(AttributeType::Number, 'default' => 10),
         );
     }

@@ -1,17 +1,18 @@
 (function($) {
 
 
-Craft.CommerceRecentOrdersWidget = Garnish.Base.extend(
+Craft.CommerceRevenueWidget = Garnish.Base.extend(
 {
-    params: null,
+    settings: null,
     data: null,
 
     $widget: null,
     $body: null,
 
-    init: function(widgetId, params)
+    init: function(widgetId, settings)
     {
-        this.params = params;
+        this.setSettings(settings);
+
         this.$widget = $('#widget'+widgetId);
         this.$body = this.$widget.find('.body:first');
 
@@ -23,6 +24,7 @@ Craft.CommerceRecentOrdersWidget = Garnish.Base.extend(
 
         // Request orders report
         var requestData = {
+            dateRange: this.settings.dateRange,
             startDate: '-7 days',
             endDate: 'now',
             elementType: 'Commerce_Order'
@@ -61,7 +63,7 @@ Craft.CommerceRecentOrdersWidget = Garnish.Base.extend(
 
         this.$widget.data('widget').on('destroy', $.proxy(this, 'destroy'));
 
-        Craft.CommerceRecentOrdersWidget.instances.push(this);
+        Craft.CommerceRevenueWidget.instances.push(this);
     },
 
     handleGridRefresh: function()
@@ -71,7 +73,7 @@ Craft.CommerceRecentOrdersWidget = Garnish.Base.extend(
 
     destroy: function()
     {
-        Craft.CommerceRecentOrdersWidget.instances.splice($.inArray(this, Craft.CommerceRecentOrdersWidget.instances), 1);
+        Craft.CommerceRevenueWidget.instances.splice($.inArray(this, Craft.CommerceRevenueWidget.instances), 1);
         this.base();
     }
 }, {

@@ -77,48 +77,37 @@ class Commerce_ReportsController extends BaseElementsController
         }
     }
 
-    public function actionGetOrdersDummy()
-    {
-        // $report = [
-        //     [
-        //         'date' => '1-Dec-15',
-        //         'close' => '5'
-        //     ],
-        //     [
-        //         'date' => '2-Dec-15',
-        //         'close' => '10'
-        //     ],
-        //     [
-        //         'date' => '3-Dec-15',
-        //         'close' => '3'
-        //     ],
-        // ];
-
-        $report = [];
-
-        for($i = 10; $i < 30; $i++)
-        {
-            $report[] = [
-                'date' => $i.'-Dec-15',
-                'close' => rand(0, 1000)
-            ];
-        }
-
-        $total = 0;
-        $totalHtml = '€ 0.00';
-        $this->returnJson(array(
-            'report' => $report,
-            'total' => $total,
-            'totalHtml' => $totalHtml,
-        ));
-    }
-
     public function actionGetOrders()
     {
         $total = 0;
 
+        $dateRange = craft()->request->getParam('dateRange');
         $startDate = craft()->request->getParam('startDate');
         $endDate = craft()->request->getParam('endDate');
+
+        if($dateRange)
+        {
+            switch ($dateRange)
+            {
+                case 'd7':
+                $startDate = '-7 days';
+                break;
+
+                case 'd30':
+                $startDate = '-30 days';
+                break;
+
+                case 'lastweek':
+                $startDate = '-2 weeks';
+                $endDate = '-1 week';
+                break;
+
+                case 'lastmonth':
+                $startDate = '-2 month';
+                $endDate = '-1 month';
+                break;
+            }
+        }
 
         $startDate = new DateTime($startDate);
         $endDate = new DateTime($endDate);
