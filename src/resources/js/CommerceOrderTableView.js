@@ -14,6 +14,8 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
         this.startDate.setDate(this.startDate.getDate() - 7);
         this.endDate = new Date();
 
+        // this.elementIndex.$toolbar
+
         this.$explorerContainer = $('<div class="chart-explorer-container"></div>').prependTo(this.$container);
 
         var $chartToggleContainer = $('<div class="chart-toggle-container"></div>').appendTo(this.$explorerContainer);
