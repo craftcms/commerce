@@ -79,7 +79,7 @@ class Commerce_CartPaymentController extends Commerce_BaseFrontEndController
                 if ($redirect !== null) {
                     $this->redirect($redirect);
                 } else {
-                    $this->redirectToPostedUrl();
+                    $this->redirectToPostedUrl($cart);
                 }
             }
         } else {
