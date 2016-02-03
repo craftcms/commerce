@@ -148,7 +148,7 @@ class Commerce_CartService extends BaseApplicationComponent
      */
     public function forgetCart()
     {
-        unset($this->_cart);
+        $this->_cart = null;
         $cookieId = $this->cookieCartId;
         craft()->userSession->deleteStateCookie($cookieId);
     }
@@ -288,6 +288,13 @@ class Commerce_CartService extends BaseApplicationComponent
                 $this->_cart->number = $number;
             }
 
+            // We do not want to use the same order number as a completed order.
+            $order = craft()->commerce_orders->getOrderByNumber($number);
+            if ($order && $order->dateOrdered) {
+                $this->forgetCart();
+                $this->getCart();
+            }
+
             $this->_cart->lastIp = craft()->request->getIpAddress();
 
             // Right now, orders are only made in the default currency
@@ -333,10 +340,10 @@ class Commerce_CartService extends BaseApplicationComponent
      */
     private function _getCartRecordByNumber($number)
     {
-        $cart = Commerce_OrderRecord::model()->findByAttributes([
-            'number' => $number,
-            'dateOrdered' => null,
-        ]);
+        $criteria = new \CDbCriteria();
+        $criteria->addCondition(['number = :number', 'dateOrdered IS NULL']);
+        $criteria->params = ['number' => $number];
+        $cart = Commerce_OrderRecord::model()->find($criteria);
 
         return $cart;
     }
