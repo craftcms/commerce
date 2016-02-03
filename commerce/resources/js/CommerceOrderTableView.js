@@ -14,11 +14,16 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
         this.startDate.setDate(this.startDate.getDate() - 7);
         this.endDate = new Date();
 
+        var $viewBtns = $('.viewbtns');
+        $viewBtns.removeClass('hidden');
+
+        console.log('elementIndex', this.elementIndex.$toolbar);
+
         // this.elementIndex.$toolbar
 
         this.$explorerContainer = $('<div class="chart-explorer-container"></div>').prependTo(this.$container);
 
-        var $chartToggleContainer = $('<div class="chart-toggle-container"></div>').appendTo(this.$explorerContainer);
+        var $chartToggleContainer = $('<div class="chart-toggle-container"></div>').appendTo($viewBtns);
         var $chartToggle = $('<a class="btn chart-toggle">Chart Toogle</a>').appendTo($chartToggleContainer);
 
         this.addListener($chartToggle, 'click', 'toggleChartExplorer');
