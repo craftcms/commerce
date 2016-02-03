@@ -72,8 +72,8 @@ class Commerce_ReportsService extends BaseApplicationComponent
             $cursorEnd = $cursorCurrent;
 
             $row = [
-                ['value' => strftime("%e-%b-%y", $cursorStart->getTimestamp())], // date
-                ['value' => 0] // revenue
+                strftime("%e-%b-%y", $cursorStart->getTimestamp()), // date
+                0 // revenue
             ];
 
             foreach($results as $result)
@@ -81,8 +81,8 @@ class Commerce_ReportsService extends BaseApplicationComponent
                 if($result['date'] == strftime("%e-%b-%y", $cursorStart->getTimestamp()))
                 {
                     $row = [
-                        ['value' => $result['date']], // date
-                        ['value' => $result['revenue']] // revenue
+                        $result['date'], // date
+                        $result['revenue'] // revenue
                     ];
                 }
             }
