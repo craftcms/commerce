@@ -7,7 +7,7 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
     endDate: null,
 
 	$chartExplorer: null,
-
+    
 	afterInit: function()
     {
         this.startDate = new Date();
@@ -17,14 +17,18 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
         var $viewBtns = $('.viewbtns');
         $viewBtns.removeClass('hidden');
 
-        console.log('elementIndex', this.elementIndex.$toolbar);
-
-        // this.elementIndex.$toolbar
-
         this.$explorerContainer = $('<div class="chart-explorer-container"></div>').prependTo(this.$container);
 
-        var $chartToggleContainer = $('<div class="chart-toggle-container"></div>').appendTo($viewBtns);
-        var $chartToggle = $('<a class="btn chart-toggle">Chart Toogle</a>').appendTo($chartToggleContainer);
+        if($('.chart-toggle', $viewBtns).length == 0)
+        {
+            var $chartToggleContainer = $('<div class="chart-toggle-container"></div>').appendTo($viewBtns);
+            var $chartToggle = $('<a class="btn chart-toggle">Chart</a>').appendTo($chartToggleContainer);
+        }
+        else
+        {
+            var $chartToggleContainer = $('.chart-toggle-container', $viewBtns);
+            var $chartToggle = $('.chart-toggle', $chartToggleContainer);
+        }
 
         this.addListener($chartToggle, 'click', 'toggleChartExplorer');
 
