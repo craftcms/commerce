@@ -79,8 +79,6 @@ class Commerce_ReportsController extends BaseElementsController
 
     public function actionGetOrders()
     {
-        $total = 0;
-
         $dateRange = craft()->request->getParam('dateRange');
         $startDate = craft()->request->getParam('startDate');
         $endDate = craft()->request->getParam('endDate');
@@ -113,129 +111,13 @@ class Commerce_ReportsController extends BaseElementsController
         $endDate = new DateTime($endDate);
         $endDate->modify('+1 day');
 
+        $revenueReport = craft()->commerce_reports->getRevenueReport($this->_criteria, $startDate, $endDate);
 
-        // auto scale
-
-        $numberOfDays = floor(($endDate->getTimestamp() - $startDate->getTimestamp()) / (60*60*24));
-
-        if ($numberOfDays > 360)
-        {
-            $scale = 'year';
-        }
-        elseif($numberOfDays > 60)
-        {
-            $scale = 'month';
-        }
-        else
-        {
-            $scale = 'day';
-        }
-
-        // currency
-        $currency = craft()->commerce_settings->getOption('defaultCurrency');
-
-
-        // report columns
-
-        $columns = [];
-
-        $columns[] = [
-            'type' => 'date',
-            'label' => 'Date',
-        ];
-
-        $columns[] = [
-            'type' => 'currency',
-            'label' => 'Revenue',
-        ];
-
-
-        // report rows
-
-        $rows = [];
-
-        $cursorCurrent = new DateTime($startDate);
-
-        while($cursorCurrent->getTimestamp() < $endDate->getTimestamp())
-        {
-            $cursorStart = new DateTime($cursorCurrent);
-            $cursorCurrent->modify('+1 '.$scale);
-            $cursorEnd = $cursorCurrent;
-
-            $orders = $this->_getOrders($cursorStart, $cursorEnd);
-
-            $totalPaid = 0;
-
-            foreach($orders as $order)
-            {
-                $totalPaid += $order->totalPaid;
-            }
-
-            $rows[] = [
-                [
-                    'value' => strftime("%e-%b-%y", $cursorStart->getTimestamp()), // date
-                ],
-                [
-                    'value' => $totalPaid, // revenue
-                ]
-            ];
-
-            $total += $totalPaid;
-        }
-
-        $reportDataTable = [
-            'columns' => $columns,
-            'rows' => $rows
-        ];
-
-        $currency = craft()->commerce_settings->getSettings()->defaultCurrency;
-
-        $this->returnJson(array(
-            'reportDataTable' => $reportDataTable,
-            'scale' => $scale,
-            'currencyFormat' => $this->_getCurrencyFormat($currency),
-            'total' => $total,
-            'totalHtml' => craft()->numberFormatter->formatCurrency($total, strtoupper($currency)),
-        ));
+        $this->returnJson($revenueReport);
     }
 
     // Private Methods
     // =========================================================================
-
-    private function _getCurrencyFormat($currency)
-    {
-        $currencySymbol = craft()->locale->getCurrencySymbol($currency);
-        $currencyFormat = craft()->locale->getCurrencyFormat();
-
-        if(strpos($currencyFormat, ";") > 0)
-        {
-            $currencyFormatArray = explode(";", $currencyFormat);
-            $currencyFormat = $currencyFormatArray[0];
-        }
-
-        $pattern = '/[#0,.]/';
-        $replacement = '';
-        $currencyFormat = preg_replace($pattern, $replacement, $currencyFormat);
-
-        if(strpos($currency, "¤") === 0)
-        {
-            // symbol at beginning
-            $currencyD3Format = [str_replace('¤', $currencySymbol, $currencyFormat), ''];
-        }
-        else
-        {
-            // symbol at the end
-            $currencyD3Format = ['', str_replace('¤', $currencySymbol, $currencyFormat)];
-        }
-    }
-
-    private function _getOrders($start, $end)
-    {
-        $this->_criteria->dateOrdered = ['and', '>= '.$start, '< '.$end];
-        $this->_criteria->order = 'dateOrdered desc';
-
-        return $this->_criteria->find();
-    }
 
     /**
      * Returns the selected source info.
