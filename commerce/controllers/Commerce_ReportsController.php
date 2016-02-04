@@ -83,28 +83,12 @@ class Commerce_ReportsController extends BaseElementsController
         $startDate = craft()->request->getParam('startDate');
         $endDate = craft()->request->getParam('endDate');
 
-        if($dateRange)
+        $dateRanges = craft()->commerce_reports->getDateRanges();
+
+        if(!empty($dateRanges[$dateRange]))
         {
-            switch ($dateRange)
-            {
-                case 'd7':
-                $startDate = '-7 days';
-                break;
-
-                case 'd30':
-                $startDate = '-30 days';
-                break;
-
-                case 'lastweek':
-                $startDate = '-2 weeks';
-                $endDate = '-1 week';
-                break;
-
-                case 'lastmonth':
-                $startDate = '-2 month';
-                $endDate = '-1 month';
-                break;
-            }
+            $startDate = $dateRanges[$dateRange]['startDate'];
+            $endDate = $dateRanges[$dateRange]['endDate'];
         }
 
         $startDate = new DateTime($startDate);
