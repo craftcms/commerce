@@ -13,6 +13,9 @@ namespace Craft;
  */
 class Commerce_ReportsService extends BaseApplicationComponent
 {
+    /**
+     * @return array
+     */
     public function getDateRanges()
     {
         $dateRanges = [
@@ -25,6 +28,13 @@ class Commerce_ReportsService extends BaseApplicationComponent
         return $dateRanges;
     }
 
+    /**
+     * @param ElementCriteriaModel $criteria
+     * @param string $startDate
+     * @param string $endDate
+     *
+     * @return array
+     */
     public function getRevenueReport($criteria, $startDate, $endDate)
     {
         $results = craft()->db->createCommand()
@@ -52,6 +62,13 @@ class Commerce_ReportsService extends BaseApplicationComponent
         return $response;
     }
 
+    /**
+     * @param string $startDate
+     * @param string $endDate
+     * @param array $results
+     *
+     * @return array
+     */
     public function getReportDataTable($startDate, $endDate, $results)
     {
         $scale = $this->getScale($startDate, $endDate);
@@ -108,6 +125,12 @@ class Commerce_ReportsService extends BaseApplicationComponent
         ];
     }
 
+    /**
+     * @param string $startDate
+     * @param string $endDate
+     *
+     * @return string
+     */
     public function getScale($startDate, $endDate)
     {
         // auto scale
@@ -130,6 +153,11 @@ class Commerce_ReportsService extends BaseApplicationComponent
         return $scale;
     }
 
+    /**
+     * @param string $currency
+     *
+     * @return string
+     */
     private function getCurrencyFormat($currency)
     {
         $currencySymbol = craft()->locale->getCurrencySymbol($currency);
