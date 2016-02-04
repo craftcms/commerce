@@ -24,14 +24,25 @@ class Commerce_RevenueWidget extends BaseWidget
      */
     public function getBodyHtml()
     {
+        $dateRange = false;
+
         $settings = $this->getSettings();
+
+        $dateRanges = craft()->commerce_reports->getDateRanges();
+
+        if(!empty($dateRanges[$settings->dateRange]))
+        {
+            $dateRange = $dateRanges[$settings->dateRange]['label'];
+        }
 
         craft()->templates->includeJsResource('commerce/js/CommerceRevenueWidget.js');
 
         $js = 'new Craft.CommerceRevenueWidget('.$this->model->id.', '.JsonHelper::encode($settings).');';
         craft()->templates->includeJs($js);
 
-        return craft()->templates->render('commerce/_components/widgets/Revenue/body');
+        return craft()->templates->render('commerce/_components/widgets/Revenue/body', array(
+            'dateRange' => $dateRange
+        ));
     }
 
     /**
