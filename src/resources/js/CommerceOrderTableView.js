@@ -3,13 +3,19 @@
  */
 Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
 
+    chartToggleState: null,
+    dateRangeState: null,
+
     startDate: null,
     endDate: null,
 
 	$chartExplorer: null,
-    
+
 	afterInit: function()
     {
+        this.chartToggleState = Craft.getLocalStorage('CommerceOrdersIndex.chartToggleState', false);
+        this.dateRangeState = Craft.getLocalStorage('CommerceOrdersIndex.dateRangeState', 'd7');
+
         this.startDate = new Date();
         this.startDate.setDate(this.startDate.getDate() - 7);
         this.endDate = new Date();
@@ -32,6 +38,11 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
 
         this.addListener($chartToggle, 'click', 'toggleChartExplorer');
 
+        if(this.chartToggleState)
+        {
+            this.toggleChartExplorer();
+        }
+
 		this.base();
 	},
 
@@ -45,6 +56,15 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
         {
             this.createChartExplorer();
         }
+
+        this.chartToggleState = false;
+
+        if(!this.$chartExplorer.hasClass('hidden'))
+        {
+            this.chartToggleState = true;
+        }
+
+        Craft.setLocalStorage('CommerceOrdersIndex.chartToggleState', this.chartToggleState);
     },
 
     createChartExplorer: function()
@@ -63,7 +83,7 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
         this.$dateRange = $('<input type="text" class="text" />').appendTo($dateRangeContainer);
 
         this.dateRange = new Craft.DateRangePicker(this.$dateRange, {
-            value: 'd7',
+            value: this.dateRangeState,
             onAfterSelect: $.proxy(this, 'onAfterDateRangeSelect')
         });
 
@@ -72,6 +92,8 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
 
     onAfterDateRangeSelect: function(value, startDate, endDate)
     {
+        Craft.setLocalStorage('CommerceOrdersIndex.dateRangeState', value);
+
         this.loadReport(startDate, endDate)
     },
 
