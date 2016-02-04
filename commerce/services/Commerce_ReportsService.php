@@ -48,7 +48,17 @@ class Commerce_ReportsService extends BaseApplicationComponent
         $reportDataTable = $this->getReportDataTable($startDate, $endDate, $results);
         $scale = $this->getScale($startDate, $endDate);
         $currencyFormat = $this->getCurrencyFormat($currency);
+
+
+        // totals
+
         $total = 0;
+
+        foreach($reportDataTable['rows'] as $row)
+        {
+            $total = $total + $row[1];
+        }
+
         $totalHtml = craft()->numberFormatter->formatCurrency($total, strtoupper($currency));
 
         $response = array(
