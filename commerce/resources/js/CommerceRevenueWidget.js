@@ -17,7 +17,7 @@ Craft.CommerceRevenueWidget = Garnish.Base.extend(
         this.$body = this.$widget.find('.body:first');
 
         // Add the chart to the body
-        this.$chartContainer = $('<div class="chart"/>').prependTo(this.$body);
+        this.$chartContainer = $('<div class="chart"/>').appendTo(this.$body);
 
         // Error
         this.$error = $('<div class="error"/>').prependTo(this.$body);
