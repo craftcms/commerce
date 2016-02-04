@@ -77,7 +77,12 @@ class Commerce_ReportsController extends BaseElementsController
         }
     }
 
-    public function actionGetOrders()
+    /**
+     * Get Revenue Report
+     *
+     * @return null
+     */
+    public function actionGetRevenueReport()
     {
         $dateRange = craft()->request->getParam('dateRange');
         $startDate = craft()->request->getParam('startDate');
