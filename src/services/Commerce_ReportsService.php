@@ -13,6 +13,18 @@ namespace Craft;
  */
 class Commerce_ReportsService extends BaseApplicationComponent
 {
+    public function getDateRanges()
+    {
+        $dateRanges = [
+            'd7' => ['label' => 'Last 7 days', 'startDate' => '-7 days'],
+            'd30' => ['label' => 'Last 30 days', 'startDate' => '-30 days'],
+            'lastweek' => ['label' => 'Last Week', 'startDate' => '-2 weeks', 'endDate' => '-1 week'],
+            'lastmonth' => ['label' => 'Last Month', 'startDate' => '-2 months', 'endDate' => '-1 month'],
+        ];
+
+        return $dateRanges;
+    }
+
     public function getRevenueReport($criteria, $startDate, $endDate)
     {
         $results = craft()->db->createCommand()
