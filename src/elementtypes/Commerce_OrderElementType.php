@@ -328,6 +328,12 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
             $query->andWhere(DbHelper::parseParam('orders.dateOrdered', $criteria->dateOrdered, $query->params));
         }
 
+        // If the 'number' parameter is set to any empty value besides `null`, don't return anything
+        if ($criteria->number !== null && empty($criteria->number))
+        {
+            return false;
+        }
+
         if ($criteria->number) {
             $query->andWhere(DbHelper::parseParam('orders.number', $criteria->number, $query->params));
         }
