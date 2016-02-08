@@ -42,15 +42,10 @@ class Commerce_PaymentsService extends BaseApplicationComponent
         $cart->cancelUrl = craft()->templates->renderObjectTemplate($cancelUrl, $cart);
         craft()->commerce_orders->saveOrder($cart);
 
-
         // Cart could have zero totalPrice and already considered 'paid'. Free carts complete immediately.
-        if ($cart->isPaid()) {
-            if(!$cart->datePaid){
-                $cart->datePaid = DateTimeHelper::currentTimeForDb();
-            }
-            
-            craft()->commerce_orders->completeOrder($cart);
-
+        craft()->commerce_orders->updateOrderPaidTotal($cart);
+        if ($cart->datePaid && $cart->dateOrdered)
+        {
             if ($cart->returnUrl) {
                 craft()->request->redirect($cart->returnUrl);
             }

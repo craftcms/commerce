@@ -197,7 +197,7 @@
 
         {{ forms.field({
             label: "Product URL Format"|t,
-            instructions: "What the product URLs should look like. You can include tags that output product properties, such as such as {ex1} or {ex2}."|t({ ex1: '<code>{slug}</code>', ex2: '<code>{publishDate|date(\"Y\")}</code>' }),
+            instructions: "What the product URLs should look like. You can include tags that output product properties, such as {ex1} or {ex2}."|t({ ex1: '<code>{slug}</code>', ex2: '<code>{publishDate|date(\"Y\")}</code>' }),
         }, urlFormatInput) }}
 
         {{ forms.textField({
