@@ -10,14 +10,14 @@
 
             <input type="hidden" class="status-input" name="orderStatusId" value="{{ settings.orderStatusId }}" />
 
-            <a href="#" class="btn menubtn"><span class="status"></span> {{ "All"|t }}</a>
+            <a class="btn menubtn"><span class="status"></span> {{ "All"|t }}</a>
 
             <div class="menu">
                 <ul class="padded">
-                    <li><a href="#"><span class="commerceStatusLabel"><span class="status"></span> {{ "All"|t }}</span></a></li>
+                    <li><a><span class="commerceStatusLabel"><span class="status"></span> {{ "All"|t }}</span></a></li>
 
                     {% for status in orderStatuses %}
-                        <li><a href="#" data-id="{{ status.id }}">{{ status.htmlLabel()|raw }}</a></li>
+                        <li><a data-id="{{ status.id }}">{{ status.htmlLabel()|raw }}</a></li>
                     {% endfor %}
                 </ul>
             </div>
