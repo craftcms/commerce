@@ -35,6 +35,7 @@ class Commerce_RevenueWidget extends BaseWidget
             $dateRange = $dateRanges[$settings->dateRange]['label'];
         }
 
+        craft()->templates->includeCssResource('commerce/CommerceRevenueWidget.css');
         craft()->templates->includeJsResource('commerce/js/CommerceRevenueWidget.js');
 
         $js = 'new Craft.CommerceRevenueWidget('.$this->model->id.', '.JsonHelper::encode($settings).');';
