@@ -37,11 +37,14 @@ class Commerce_ReportsService extends BaseApplicationComponent
      */
     public function getRevenueReport($criteria, $startDate, $endDate)
     {
-        $results = craft()->db->createCommand()
-            ->select('DATE_FORMAT(dateOrdered, "%d-%b-%y") as date, sum(totalPrice) as revenue')
-            ->from('commerce_orders')
-            ->group('YEAR(dateOrdered), MONTH(dateOrdered), DAY(dateOrdered)')
-            ->queryAll();
+        $criteria->limit = null;
+
+        $query = craft()->elements->buildElementsQuery($criteria);
+        $query->select('DATE_FORMAT(orders.dateOrdered, "%d-%b-%y") as date, sum(orders.totalPrice) as revenue');
+        $query->group('YEAR(orders.dateOrdered), MONTH(orders.dateOrdered), DAY(orders.dateOrdered)');
+        // $query->join('select date, revenue from DATE_ADD(date, INTERVAL expr type)');
+
+        $results = $query->queryAll();
 
         $currency = craft()->commerce_settings->getOption('defaultCurrency');
 
