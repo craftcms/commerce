@@ -6,6 +6,7 @@
 {% set elementType = 'Commerce_Order' %}
 {% set selectedTab = 'orders' %}
 {% set selectedSubnavItem = "orders" %}
+{% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commerceorders commerceordersindex" %}
 
 {# {%- includeJsResource 'commerce/lib/d3/d3.js' first %}
 {%- includeJsResource 'commerce/lib/d3-tip.js' %}

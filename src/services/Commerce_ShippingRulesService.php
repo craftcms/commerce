@@ -77,8 +77,6 @@ class Commerce_ShippingRulesService extends BaseApplicationComponent
         $fields = [
             'name',
             'description',
-            'countryId',
-            'stateId',
             'methodId',
             'enabled',
             'minQty',
@@ -97,6 +95,9 @@ class Commerce_ShippingRulesService extends BaseApplicationComponent
         foreach ($fields as $field) {
             $record->$field = $model->$field;
         }
+
+        $record->countryId = $model->countryId ? $model->countryId : null;
+        $record->stateId = $model->stateId ? $model->stateId : null;
 
         if (empty($record->priority) && empty($model->priority)) {
             $count = Commerce_ShippingRuleRecord::model()->countByAttributes(['methodId' => $model->methodId]);

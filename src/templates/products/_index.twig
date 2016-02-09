@@ -6,7 +6,7 @@
 {% set elementType = 'Commerce_Product' %}
 {% set selectedTab = 'products' %}
 {% set selectedSubnavItem = "products" %}
-
+{% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commerceproducts commerceproductsindex" %}
 
 {% block content %}
     {% if not craft.commerce.getProductTypes()|length > 0 %}
