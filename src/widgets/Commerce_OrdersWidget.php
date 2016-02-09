@@ -38,8 +38,19 @@ class Commerce_OrdersWidget extends BaseWidget
      */
     public function getSettingsHtml()
     {
+        $orderStatuses = craft()->commerce_orderStatuses->getAllOrderStatuses();
+
+        craft()->templates->includeJsResource('commerce/js/CommerceOrdersWidgetSettings.js');
+
+        $id = 'analytics-settings-'.StringHelper::randomString();
+        $namespaceId = craft()->templates->namespaceInputId($id);
+
+        craft()->templates->includeJs("new Craft.CommerceOrdersWidgetSettings('".$namespaceId."');");
+
         return craft()->templates->render('commerce/_components/widgets/Orders/settings', array(
-            'settings' => $this->getSettings()
+            'id' => $id,
+            'settings' => $this->getSettings(),
+            'orderStatuses' => $orderStatuses,
         ));
     }
 

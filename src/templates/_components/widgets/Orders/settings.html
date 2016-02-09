@@ -1,23 +1,36 @@
 {% import "_includes/forms" as forms %}
 
+<div id="{{ id }}">
 
-{% set statusOpts = [{ label: 'All', value: '' }] %}
-{% for status in craft.commerce.getOrderStatuses() %}
-    {% set statusOpts = statusOpts|merge([{ label: status.name|t, value: status.id }]) %}
-{% endfor %}
+    <div class="field">
+        <div class="heading">
+            <label>{{ "Order Status"|t }}</label>
+        </div>
+        <div class="input ltr">
 
-{{ forms.selectField({
-    label: "Status"|t,
-    name: 'orderStatusId',
-    options: statusOpts,
-    value: settings.orderStatusId,
-    errors: settings.getErrors('orderStatusId')
-}) }}
+            <input type="hidden" class="status-input" name="orderStatusId" value="{{ settings.orderStatusId }}" />
 
-{{ forms.textField({
-    label: "Limit"|t,
-    name: 'limit',
-    value: settings.limit,
-    size: 2,
-    errors: settings.getErrors('limit')
-}) }}
+            <a href="#" class="btn menubtn"><span class="status"></span> {{ "All"|t }}</a>
+
+            <div class="menu">
+                <ul class="padded">
+                    <li><a href="#"><span class="commerceStatusLabel"><span class="status"></span> {{ "All"|t }}</span></a></li>
+
+                    {% for status in orderStatuses %}
+                        <li><a href="#" data-id="{{ status.id }}">{{ status.htmlLabel()|raw }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+        </div>
+    </div>
+
+    {{ forms.textField({
+        label: "Limit"|t,
+        name: 'limit',
+        value: settings.limit,
+        size: 2,
+        errors: settings.getErrors('limit')
+    }) }}
+
+</div>
