@@ -23,7 +23,11 @@ class Commerce_LineItemsService extends BaseApplicationComponent
      */
     public function getAllLineItemsByOrderId($id)
     {
-        $lineItems = Commerce_LineItemRecord::model()->findAllByAttributes(['orderId' => $id]);
+        $lineItems = [];
+
+        if($id){
+            $lineItems = Commerce_LineItemRecord::model()->findAllByAttributes(['orderId' => $id]);
+        }
 
         return Commerce_LineItemModel::populateModels($lineItems);
     }
