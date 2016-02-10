@@ -53,8 +53,6 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
             $lineItem->optionsSignature = md5(json_encode($options));
         }
 
-        $lineItem->order->setContentFromPost('fields');
-
         if (craft()->commerce_lineItems->updateLineItem($cart, $lineItem, $error)) {
             craft()->userSession->setNotice(Craft::t('Line item updated.'));
             if (craft()->request->isAjaxRequest) {
