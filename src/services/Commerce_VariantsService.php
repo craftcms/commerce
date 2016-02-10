@@ -123,23 +123,22 @@ class Commerce_VariantsService extends BaseApplicationComponent
 
         // set salePrice to be price at default
         foreach ($variants as $variant) {
+            $variant->setProduct($product);
             $variant->salePrice = $variant->price;
         }
 
-        // Don't apply sales when product is not persisted.
-        if ($product->id) {
-            $variant->setProduct($product);
+        // Only bother calculating if the product is persisted and promotable.
+        if ($product->id && $product->promotable) {
             $sales = craft()->commerce_sales->getForProduct($product);
 
             foreach ($sales as $sale) {
                 foreach ($variants as $variant) {
                     // only apply sales to promotable products
-                    if ($product->promotable) {
-                        $variant->salePrice = $variant->price + $sale->calculateTakeoff($variant->price);
-                        if ($variant->salePrice < 0) {
-                            $variant->salePrice = 0;
-                        }
+                    $variant->salePrice = $variant->price + $sale->calculateTakeoff($variant->price);
+                    if ($variant->salePrice < 0) {
+                        $variant->salePrice = 0;
                     }
+
                 }
             }
         }
