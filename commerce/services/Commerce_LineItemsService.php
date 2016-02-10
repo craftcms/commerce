@@ -71,10 +71,11 @@ class Commerce_LineItemsService extends BaseApplicationComponent
      */
     public function updateLineItem(Commerce_OrderModel $order, Commerce_LineItemModel $lineItem, &$error = '')
     {
-        if(!$lineItem->purchasableId){
+        if (!$lineItem->purchasableId) {
             $this->deleteLineItem($lineItem);
             craft()->commerce_orders->saveOrder($order);
             $error = Craft::t("Product no longer for sale. Removed from cart.");
+            
             return false;
         }
 
