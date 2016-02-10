@@ -128,6 +128,7 @@ class Commerce_VariantsService extends BaseApplicationComponent
 
         // Don't apply sales when product is not persisted.
         if ($product->id) {
+            $variant->setProduct($product);
             $sales = craft()->commerce_sales->getForProduct($product);
 
             foreach ($sales as $sale) {
