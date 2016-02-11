@@ -64,11 +64,61 @@ class Commerce_SalesService extends BaseApplicationComponent
     {
 	    if (!isset($this->_allSales))
 	    {
-		    $criteria = new \CDbCriteria();
-		    $criteria->with = ['products','productTypes','groups'];
-		    $records = Commerce_SaleRecord::model()->findAll($criteria);
+		    $sales = craft()->db->createCommand()
+			    ->select('sales.id,
+			    sales.name,
+				sales.description,
+				sales.dateFrom,
+				sales.dateTo,
+				sales.discountType,
+				sales.discountAmount,
+				sales.allGroups,
+				sales.allProducts,
+				sales.allProductTypes,
+				sales.enabled,
+				sp.productId,
+				spt.productTypeId,
+				sug.userGroupId')
+			    ->from('commerce_sales sales')
+			    ->leftJoin('commerce_sale_products sp','sp.saleId=sales.id')
+			    ->leftJoin('commerce_sale_producttypes spt','spt.saleId=sales.id')
+			    ->leftJoin('commerce_sale_usergroups sug','sug.saleId=sales.id')
+		        ->queryAll();
 
-		    $this->_allSales = Commerce_SaleModel::populateModels($records);
+			$allSalesById = [];
+		    $products = [];
+		    $productTypes = [];
+		    $groups = [];
+		    foreach ($sales as $sale)
+		    {
+			    $id = $sale['id'];
+			    if(!isset($allSalesById[$id])){
+				    $allSalesById[$id] = Commerce_SaleModel::populateModel($sale);
+			    }
+
+			    if($sale['productId'])
+			    {
+				    $products[$id][] = $sale['productId'];
+				}
+
+			    if($sale['productTypeId'])
+			    {
+				    $productTypes[$id][] = $sale['productTypeId'];
+			    }
+
+			    if($sale['userGroupId'])
+			    {
+				    $groups[$id][] = $sale['userGroupId'];
+			    }
+		    }
+
+		    foreach($allSalesById as $id => $sale)
+		    {
+			    $sale->products = isset($product[$id]) ? $product[$id] : [];
+			    $sale->productTypes = isset($productTypes[$id]) ? $productTypes[$id] : [];
+			    $sale->groups = isset($groups[$id]) ? $groups[$id] : [];
+		    }
+			$this->_allSales = array_values($allSalesById);
 	    }
 
 	    return $this->_allSales;
