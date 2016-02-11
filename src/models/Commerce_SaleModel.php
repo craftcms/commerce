@@ -34,13 +34,7 @@ class Commerce_SaleModel extends BaseModel
      */
     public function getGroupIds()
     {
-        $ids = [];
-        foreach ($this->groups as $group)
-        {
-            $ids[] = $group->id;
-        }
-
-        return $ids;
+	    return $this->getAttribute('groups');
     }
 
     /**
@@ -48,13 +42,7 @@ class Commerce_SaleModel extends BaseModel
      */
     public function getProductTypeIds()
     {
-        $ids = [];
-        foreach ($this->productTypes as $productType)
-        {
-            $ids[] = $productType->id;
-        }
-
-        return $ids;
+	    return $this->getAttribute('productTypes');
     }
 
     /**
@@ -62,13 +50,7 @@ class Commerce_SaleModel extends BaseModel
      */
     public function getProductIds()
     {
-        $ids = [];
-        foreach ($this->products as $product)
-        {
-            $ids[] = $product->id;
-        }
-
-        return $ids;
+	    return $this->getAttribute('products');
     }
 
     /**
