@@ -239,6 +239,10 @@ class Commerce_ProductModel extends BaseElementModel
     public function setVariants($variants)
     {
         $this->_variants = $variants;
+
+        foreach ($this->_variants as $variant) {
+            $variant->setProduct($this);
+        }
     }
 
     /**
