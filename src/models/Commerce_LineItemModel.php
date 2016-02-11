@@ -118,6 +118,16 @@ class Commerce_LineItemModel extends BaseModel
     }
 
     /**
+     * @param BaseElementModel $purchasable
+     *
+     * @return void
+     */
+    public function setPurchasable(BaseElementModel $purchasable)
+    {
+        $this->_purchasable = $purchasable;
+    }
+
+    /**
      * @param Purchasable $purchasable
      */
     public function fillFromPurchasable(Purchasable $purchasable)
