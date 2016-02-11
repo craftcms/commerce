@@ -123,7 +123,6 @@ class Commerce_VariantsService extends BaseApplicationComponent
 
         // set salePrice to be price at default
         foreach ($variants as $variant) {
-            $variant->setProduct($product);
             $variant->salePrice = $variant->price;
         }
 
