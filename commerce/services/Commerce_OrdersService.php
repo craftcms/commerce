@@ -75,9 +75,12 @@ class Commerce_OrdersService extends BaseApplicationComponent
      */
     public function getOrdersByEmail($email)
     {
-        $orders = Commerce_OrderRecord::model()->findAllByAttributes(['email' => $email]);
+        $criteria = craft()->elements->getCriteria('Commerce_Order');
+        $criteria->email = $email;
+        $criteria->dateOrdered = "NOT NULL";
+        $criteria->limit = null;
 
-        return Commerce_OrderModel::populateModels($orders);
+        return $criteria->find();
     }
 
     /**
