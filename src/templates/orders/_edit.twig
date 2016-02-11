@@ -1,6 +1,7 @@
 {% extends "commerce/_layouts/cp" %}
 
 {% set selectedSubnavItem = "orders" %}
+{% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commerceorders commerceordersedit" %}
 
 {% set crumbs = [
 {    label: "Orders"|t, url: url('commerce/orders') }
