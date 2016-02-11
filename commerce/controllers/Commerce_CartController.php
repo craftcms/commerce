@@ -32,14 +32,12 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
 
         $lineItem = craft()->commerce_lineItems->getLineItemById($lineItemId);
 
-        // Error does not reveal the line item doesn't exist, just that it doesn't for the current cart.
-        if (!$lineItem) {
-            throw new Exception(Craft::t('Line item not found in current cart'));
-        }
-
-        // Only let them update their own cart's line item.
-        if (!$lineItem->id || $cart->id != $lineItem->order->id) {
-            throw new Exception(Craft::t('Line item not found in current cart'));
+        // Fail silently if its not their line item or it doesn't exist.
+        if (!$lineItem || !$lineItem->id || ($cart->id != $lineItem->orderId)) {
+            if (craft()->request->isAjaxRequest) {
+                $this->returnJson(['success' => true, 'cart' => $this->cartArray($cart)]);
+            }
+            $this->redirectToPostedUrl();
         }
 
         $lineItem->qty = $qty;
@@ -88,14 +86,12 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
 
         $lineItem = craft()->commerce_lineItems->getLineItemById($lineItemId);
 
-        // Error does not reveal the line item doesn't exist, just that it doesn't for the current cart.
-        if (!$lineItem) {
-            throw new Exception(Craft::t('Line item not found in current cart'));
-        }
-
-        // Only let them update their own cart's line item.
-        if (!$lineItem->id || $cart->id != $lineItem->orderId) {
-            throw new Exception(Craft::t('Line item not found in current cart'));
+        // Fail silently if its not their line item or it doesn't exist.
+        if (!$lineItem || !$lineItem->id || ($cart->id != $lineItem->orderId)) {
+            if (craft()->request->isAjaxRequest) {
+                $this->returnJson(['success' => true, 'cart' => $this->cartArray($cart)]);
+            }
+            $this->redirectToPostedUrl();
         }
 
         craft()->commerce_cart->removeFromCart($cart, $lineItemId);
