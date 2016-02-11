@@ -71,7 +71,7 @@ class CommerceProductHelper
             }
 
             $variantModel->setProduct($product);
-            $variantModel->enabled = isset($variant['enabled']) ? $variant['enabled'] : 0;
+            $variantModel->enabled = isset($variant['enabled']) ? $variant['enabled'] : 1;
             $variantModel->isDefault = isset($variant['isDefault']) ? $variant['isDefault'] : 0;
             $variantModel->sku = isset($variant['sku']) ? $variant['sku'] : '';
             $variantModel->price = LocalizationHelper::normalizeNumber($variant['price']);
