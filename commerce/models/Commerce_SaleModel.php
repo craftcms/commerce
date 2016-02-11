@@ -1,8 +1,6 @@
 <?php
 namespace Craft;
 
-use Commerce\Traits\Commerce_ModelRelationsTrait;
-
 /**
  * Sale model.
  *
@@ -31,16 +29,12 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  */
 class Commerce_SaleModel extends BaseModel
 {
-    use Commerce_ModelRelationsTrait;
-
     /**
      * @return array
      */
     public function getGroupIds()
     {
-        return array_map(function ($group) {
-            return $group->id;
-        }, $this->groups);
+	    return $this->getAttribute('groups');
     }
 
     /**
@@ -48,9 +42,7 @@ class Commerce_SaleModel extends BaseModel
      */
     public function getProductTypeIds()
     {
-        return array_map(function ($type) {
-            return $type->id;
-        }, $this->productTypes);
+	    return $this->getAttribute('productTypes');
     }
 
     /**
@@ -58,9 +50,7 @@ class Commerce_SaleModel extends BaseModel
      */
     public function getProductIds()
     {
-        return array_map(function ($product) {
-            return $product->id;
-        }, $this->products);
+	    return $this->getAttribute('products');
     }
 
     /**
@@ -104,6 +94,9 @@ class Commerce_SaleModel extends BaseModel
         return [
             'id' => AttributeType::Number,
             'name' => AttributeType::Name,
+            'products' => [AttributeType::Mixed, 'default' => []],
+            'productTypes' => [AttributeType::Mixed, 'default' => []],
+            'groups' => [AttributeType::Mixed, 'default' => []],
             'description' => AttributeType::Mixed,
             'dateFrom' => AttributeType::DateTime,
             'dateTo' => AttributeType::DateTime,
@@ -124,7 +117,7 @@ class Commerce_SaleModel extends BaseModel
                 'required' => true,
                 'default' => 0
             ],
-            'enabled' => AttributeType::Bool,
+            'enabled' => [AttributeType::Bool, 'default' => true],
         ];
     }
 }

@@ -20,7 +20,9 @@ class Commerce_OrderAdjustmentsService extends BaseApplicationComponent
      */
     public function getAllOrderAdjustmentsByOrderId($orderId)
     {
-        $records = Commerce_OrderAdjustmentRecord::model()->findAllByAttributes(['orderId' => $orderId]);
+        $records = $this->_createOrderAdjustmentsQuery()
+            ->where('oa.orderId = :orderId', [':orderId' => $orderId])
+            ->queryAll();
 
         return Commerce_OrderAdjustmentModel::populateModels($records);
     }
@@ -76,5 +78,21 @@ class Commerce_OrderAdjustmentsService extends BaseApplicationComponent
     public function deleteAllOrderAdjustmentsByOrderId($orderId)
     {
         return Commerce_OrderAdjustmentRecord::model()->deleteAllByAttributes(['orderId' => $orderId]);
+    }
+
+    // Private Methods
+    // =========================================================================
+
+    /**
+     * Returns a DbCommand object prepped for retrieving order adjustments.
+     *
+     * @return DbCommand
+     */
+    private function _createOrderAdjustmentsQuery()
+    {
+        return craft()->db->createCommand()
+            ->select('oa.id, oa.type, oa.name, oa.description, oa.amount, oa.optionsJson, oa.orderId')
+            ->from('commerce_orderadjustments oa')
+            ->order('type');
     }
 }
