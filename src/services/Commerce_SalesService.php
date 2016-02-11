@@ -15,6 +15,11 @@ use Commerce\Helpers\CommerceDbHelper;
  */
 class Commerce_SalesService extends BaseApplicationComponent
 {
+
+	private $_allSales;
+
+    private $_allActiveSales;
+
     /**
      * @param int $id
      *
@@ -22,11 +27,11 @@ class Commerce_SalesService extends BaseApplicationComponent
      */
     public function getSaleById($id)
     {
-        $result = Commerce_SaleRecord::model()->findById($id);
-
-        if ($result) {
-            return Commerce_SaleModel::populateModel($result);
-        }
+		foreach ($this->getAllSales() as $sale){
+			if ($sale->id == $id){
+				return $sale;
+			}
+		}
 
         return null;
     }
@@ -40,66 +45,33 @@ class Commerce_SalesService extends BaseApplicationComponent
      */
     public function getForProduct(Commerce_ProductModel $product)
     {
-        $productIds = [$product->id];
-        $productTypeIds = [$product->typeId];
+	    $matchedSales = [];
+	    foreach($this->_getAllActiveSales() as $sale)
+	    {
+		    if ($this->matchProductAndSale($product, $sale))
+		    {
+			    $matchedSales[] = $sale;
+		    }
+	    }
 
-        return $this->getAllSalesByConditions($productIds, $productTypeIds);
+	    return $matchedSales;
     }
 
     /**
-     * @param $productIds
-     * @param $productTypeIds
-     *
      * @return Commerce_SaleModel[]
      */
-    private function getAllSalesByConditions($productIds, $productTypeIds)
+    public function getAllSales()
     {
-        $criteria = new \CDbCriteria();
-        $criteria->group = 't.id';
-        $criteria->addCondition('t.enabled = 1');
-        $criteria->addCondition('t.dateFrom IS NULL OR t.dateFrom <= NOW()');
-        $criteria->addCondition('t.dateTo IS NULL OR t.dateTo >= NOW()');
+	    if (!isset($this->_allSales))
+	    {
+		    $criteria = new \CDbCriteria();
+		    $criteria->with = ['products','productTypes','groups'];
+		    $records = Commerce_SaleRecord::model()->findAll($criteria);
 
-        $criteria->join = 'LEFT JOIN {{' . Commerce_SaleProductRecord::model()->getTableName() . '}} sp ON sp.saleId = t.id ';
-        $criteria->join .= 'LEFT JOIN {{' . Commerce_SaleProductTypeRecord::model()->getTableName() . '}} spt ON spt.saleId = t.id ';
-        $criteria->join .= 'LEFT JOIN {{' . Commerce_SaleUserGroupRecord::model()->getTableName() . '}} sug ON sug.saleId = t.id ';
+		    $this->_allSales = Commerce_SaleModel::populateModels($records);
+	    }
 
-        if ($productIds) {
-            $list = implode(',', $productIds);
-            $criteria->addCondition("sp.productId IN ($list) OR t.allProducts = 1");
-        } else {
-            $criteria->addCondition("t.allProducts = 1");
-        }
-
-        if ($productTypeIds) {
-            $list = implode(',', $productTypeIds);
-            $criteria->addCondition("spt.productTypeId IN ($list) OR t.allProductTypes = 1");
-        } else {
-            $criteria->addCondition("t.allProductTypes = 1");
-        }
-
-        $groupIds = craft()->commerce_discounts->getCurrentUserGroupIds();
-        if ($groupIds) {
-            $list = implode(',', $groupIds);
-            $criteria->addCondition("sug.userGroupId IN ($list) OR t.allGroups = 1");
-        } else {
-            $criteria->addCondition("t.allGroups = 1");
-        }
-
-        //searching
-        return $this->getAllSales($criteria);
-    }
-
-    /**
-     * @param array|\CDbCriteria $criteria
-     *
-     * @return Commerce_SaleModel[]
-     */
-    public function getAllSales($criteria = [])
-    {
-        $records = Commerce_SaleRecord::model()->findAll($criteria);
-
-        return Commerce_SaleModel::populateModels($records);
+	    return $this->_allSales;
     }
 
     /**
@@ -109,10 +81,16 @@ class Commerce_SalesService extends BaseApplicationComponent
      */
     public function getSalesForVariant(Commerce_VariantModel $variant)
     {
-        $productIds = [$variant->productId];
-        $productTypeIds = [$variant->product->typeId];
+	    $matchedSales = [];
+	    foreach($this->_getAllActiveSales() as $sale)
+	    {
+		    if ($this->matchProductAndSale($variant->product, $sale))
+		    {
+			    $matchedSales[] = $sale;
+		    }
+	    }
 
-        return $this->getAllSalesByConditions($productIds, $productTypeIds);
+	    return $matchedSales;
     }
 
     /**
@@ -121,27 +99,24 @@ class Commerce_SalesService extends BaseApplicationComponent
      *
      * @return bool
      */
-    public function matchProductAndSale(
-        Commerce_ProductModel $product,
-        Commerce_SaleModel $sale
-    )
+    public function matchProductAndSale(Commerce_ProductModel $product, Commerce_SaleModel $sale)
     {
-        if (!$sale->allProducts && !in_array($product->id,
-                $sale->getProductIds())
-        ) {
+	    // Product ID match
+        if (!$sale->allProducts && !in_array($product->id, $sale->getProductIds()))
+        {
             return false;
         }
 
-        if (!$sale->allProductTypes && !in_array($product->typeId,
-                $sale->getProductTypeIds())
-        ) {
+	    // Product Type match
+        if (!$sale->allProductTypes && !in_array($product->typeId, $sale->getProductTypeIds()))
+        {
             return false;
         }
 
+	    // User Group match
         $userGroups = craft()->commerce_discounts->getCurrentUserGroupIds();
-        if (!$sale->allGroups && !array_intersect($userGroups,
-                $sale->getGroupIds())
-        ) {
+        if (!$sale->allGroups && !array_intersect($userGroups, $sale->getGroupIds()))
+        {
             return false;
         }
 
@@ -253,5 +228,29 @@ class Commerce_SalesService extends BaseApplicationComponent
     public function deleteSaleById($id)
     {
         Commerce_SaleRecord::model()->deleteByPk($id);
+    }
+
+    private function _getAllActiveSales()
+    {
+        if (!isset($this->_allActiveSales))
+        {
+	        $sales = $this->getAllSales();
+	        $activeSales = [];
+	        foreach ($sales as $sale){
+		        if ($sale->enabled)
+		        {
+			        if ($sale->dateFrom == null || $sale->dateFrom <= DateTimeHelper::currentTimeForDb())
+			        {
+				        if ($sale->dateTo == null || $sale->dateTo >= DateTimeHelper::currentTimeForDb()) {
+					        $activeSales[] = $sale;
+				        }
+			        }
+		        }
+	        }
+
+            $this->_allActiveSales = $activeSales;
+        }
+
+        return $this->_allActiveSales;
     }
 }

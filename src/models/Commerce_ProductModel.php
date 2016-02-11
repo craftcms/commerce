@@ -240,9 +240,13 @@ class Commerce_ProductModel extends BaseElementModel
     {
         $this->_variants = $variants;
 
+        // ensure each has it's parent product set
         foreach ($this->_variants as $variant) {
             $variant->setProduct($this);
         }
+
+        // apply all sales applicable
+        craft()->commerce_variants->applySales($this->_variants, $this);
     }
 
     /**
@@ -255,25 +259,20 @@ class Commerce_ProductModel extends BaseElementModel
     {
         if (empty($this->_variants)) {
             if ($this->id) {
-
                 if ($this->getType()->hasVariants) {
-                    $this->_variants = craft()->commerce_variants->getAllVariantsByProductId($this->id, $this->locale);
+                    $this->setVariants(craft()->commerce_variants->getAllVariantsByProductId($this->id, $this->locale));
                 } else {
                     $variant = craft()->commerce_variants->getDefaultVariantByProductId($this->id, $this->locale);
                     if ($variant) {
-                        $this->_variants = [$variant];
+                        $this->setVariants([$variant]);
                     }
                 }
-
-                craft()->commerce_variants->applySales($this->_variants, $this);
-
             }
 
+            // Must have at least one
             if (empty($this->_variants)) {
-                // Must have at least one
                 $variant = new Commerce_VariantModel();
-                $variant->setProduct($this);
-                $this->_variants = [$variant];
+                $this->setVariants([$variant]);
             }
         }
 
