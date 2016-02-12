@@ -1,8 +1,6 @@
 <?php
 namespace Craft;
 
-use Commerce\Traits\Commerce_ModelRelationsTrait;
-
 /**
  * Tax rate model.
  *
@@ -27,7 +25,6 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  */
 class Commerce_TaxRateModel extends BaseModel
 {
-    use Commerce_ModelRelationsTrait;
 
     /**
      * @return string
@@ -43,6 +40,22 @@ class Commerce_TaxRateModel extends BaseModel
         $percentSign = $localeData->getNumberSymbol('percentSign');
 
         return $this->rate * 100 . "" . $percentSign;
+    }
+
+    /**
+     * @return Commerce_TaxZoneModel|null
+     */
+    public function getTaxZone()
+    {
+        return craft()->commerce_taxZones->getTaxZoneById($this->taxZoneId);
+    }
+
+    /**
+     * @return Commerce_TaxCategoryModel|null
+     */
+    public function getTaxCategory()
+    {
+        return craft()->commerce_taxCategories->getTaxCategoryById($this->taxCategoryId);
     }
 
     /**

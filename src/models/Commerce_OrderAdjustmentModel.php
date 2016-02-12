@@ -1,8 +1,6 @@
 <?php
 namespace Craft;
 
-use Commerce\Traits\Commerce_ModelRelationsTrait;
-
 /**
  * Order adjustment model.
  *
@@ -25,7 +23,14 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  */
 class Commerce_OrderAdjustmentModel extends BaseModel
 {
-    use Commerce_ModelRelationsTrait;
+
+    /**
+     * @return Commerce_OrderModel|null
+     */
+    public function getOrder()
+    {
+        return craft()->commerce_orders->getOrderById($this->id);
+    }
 
     /**
      * @return array
