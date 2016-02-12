@@ -217,17 +217,6 @@ class Commerce_DiscountsService extends BaseApplicationComponent
             return false;
         }
 
-        //raising event
-        $event = new Event($this, [
-            'lineItem' => $lineItem,
-            'discount' => $discount
-        ]);
-        $this->onBeforeMatchLineItem($event);
-
-        if(!$event->performAction){
-            return false;
-        }
-
         if ($discount->getProductIds()) {
             if ($lineItem->purchasable instanceof Commerce_VariantModel) {
                 $productId = $lineItem->purchasable->productId;
@@ -261,6 +250,17 @@ class Commerce_DiscountsService extends BaseApplicationComponent
         ) {
             return false;
         }
+
+	    //raising event
+	    $event = new Event($this, [
+		    'lineItem' => $lineItem,
+		    'discount' => $discount
+	    ]);
+	    $this->onBeforeMatchLineItem($event);
+
+	    if(!$event->performAction){
+		    return false;
+	    }
 
         return true;
     }
