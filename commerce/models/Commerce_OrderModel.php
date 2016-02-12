@@ -503,6 +503,9 @@ class Commerce_OrderModel extends BaseElementModel
         return craft()->commerce_orderHistories->getAllOrderHistoriesByOrderId($this->id);
     }
 
+	/**
+	 * @return Commerce_TransactionModel[]
+	 */
     public function getTransactions()
     {
         return craft()->commerce_transactions->getAllTransactionsByOrderId($this->id);
