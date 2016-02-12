@@ -1,8 +1,6 @@
 <?php
 namespace Craft;
 
-use Commerce\Traits\Commerce_ModelRelationsTrait;
-
 /**
  * Customer model.
  *
@@ -25,8 +23,6 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  */
 class Commerce_CustomerModel extends BaseModel
 {
-    use Commerce_ModelRelationsTrait;
-
     /**
      * Returns the element's CP edit URL.
      *

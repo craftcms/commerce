@@ -2,7 +2,6 @@
 namespace Craft;
 
 use Commerce\Interfaces\ShippingMethod;
-use Commerce\Traits\Commerce_ModelRelationsTrait;
 
 /**
  * Shipping method model.
@@ -22,8 +21,6 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  */
 class Commerce_ShippingMethodModel extends BaseModel implements ShippingMethod
 {
-    use Commerce_ModelRelationsTrait;
-
     /**
      * @return string
      */
