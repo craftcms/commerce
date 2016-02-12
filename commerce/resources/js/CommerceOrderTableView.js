@@ -133,6 +133,13 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
                 var chartDataTable = new Craft.charts.DataTable(response.reportDataTable);
 
                 var chartSettings = {
+                    margin:
+                    {
+                        top: 7,
+                        bottom: 20,
+                        left: 0,
+                        right: 0,
+                    },
                     currency: response.currencyFormat,
                     dataScale: response.scale
                 };
