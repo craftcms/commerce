@@ -28,7 +28,7 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
         if($('.chart-toggle', $viewBtns).length == 0)
         {
             var $chartToggleContainer = $('<div class="chart-toggle-container"></div>').appendTo($viewBtns);
-            var $chartToggle = $('<a class="btn chart-toggle">Chart</a>').appendTo($chartToggleContainer);
+            var $chartToggle = $('<a class="btn chart-toggle" data-icon="area"></a>').appendTo($chartToggleContainer);
         }
         else
         {
@@ -40,7 +40,7 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
 
         if(this.chartToggleState)
         {
-            this.toggleChartExplorer();
+            $chartToggle.trigger('click');
         }
 
 		this.base();
@@ -48,6 +48,8 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
 
     toggleChartExplorer: function(ev)
     {
+        var $chartToggle = $(ev.currentTarget);
+
         if(this.$chartExplorer)
         {
             this.$chartExplorer.toggleClass('hidden');
@@ -62,6 +64,15 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
         if(!this.$chartExplorer.hasClass('hidden'))
         {
             this.chartToggleState = true;
+        }
+
+        if(this.chartToggleState == true)
+        {
+            $chartToggle.addClass('active');
+        }
+        else
+        {
+            $chartToggle.removeClass('active');
         }
 
         Craft.setLocalStorage('CommerceOrdersIndex.chartToggleState', this.chartToggleState);
