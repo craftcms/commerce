@@ -1,8 +1,6 @@
 <?php
 namespace Craft;
 
-use Commerce\Traits\Commerce_ModelRelationsTrait;
-
 /**
  * Order status model.
  *
@@ -23,8 +21,6 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  */
 class Commerce_OrderStatusModel extends BaseModel
 {
-    use Commerce_ModelRelationsTrait;
-
     /**
      * @return string
      */
@@ -42,13 +38,21 @@ class Commerce_OrderStatusModel extends BaseModel
     }
 
     /**
+     * @return Commerce_EmailModel[]
+     */
+    public function getEmails()
+    {
+        return craft()->commerce_orderStatuses->getAllEmailsByOrderStatusId($this->id);
+    }
+
+    /**
      * @return array
      */
     public function getEmailIds()
     {
         return array_map(function (Commerce_EmailModel $email) {
             return $email->id;
-        }, $this->emails);
+        }, $this->getEmails());
     }
 
     /**

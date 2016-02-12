@@ -1,7 +1,6 @@
 <?php
 namespace Craft;
 
-use Commerce\Traits\Commerce_ModelRelationsTrait;
 use Omnipay\Common\Exception\OmnipayException;
 
 /**
@@ -37,8 +36,6 @@ use Omnipay\Common\Exception\OmnipayException;
  */
 class Commerce_TransactionModel extends BaseModel
 {
-    use Commerce_ModelRelationsTrait;
-
     /**
      * @param null $attributes
      */
@@ -121,6 +118,31 @@ class Commerce_TransactionModel extends BaseModel
 
         return !$exists;
     }
+
+    /**
+     * @return Commerce_TransactionModel|null
+     */
+    public function getParent()
+    {
+        return craft()->commerce_transactions->getTransactionById($this->parentId);
+    }
+
+    /**
+     * @return Commerce_OrderModel|null
+     */
+    public function getOrder()
+    {
+        return craft()->commerce_orders->getOrderById($this->orderId);
+    }
+
+    /**
+     * @return Commerce_PaymentMethodModel|null
+     */
+    public function getPaymentMethod()
+    {
+        return craft()->commerce_paymentMethods->getPaymentMethodById($this->paymentMethodId);
+    }
+
 
     /**
      * @return array
