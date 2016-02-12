@@ -1,8 +1,6 @@
 <?php
 namespace Craft;
 
-use Commerce\Traits\Commerce_ModelRelationsTrait;
-
 /**
  * Product model.
  *
@@ -39,7 +37,6 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  */
 class Commerce_ProductModel extends BaseElementModel
 {
-    use Commerce_ModelRelationsTrait;
 
     const LIVE = 'live';
     const PENDING = 'pending';

@@ -1,7 +1,6 @@
 <?php
 namespace Craft;
 
-use Commerce\Traits\Commerce_ModelRelationsTrait;
 use Omnipay\Common\Currency;
 
 /**
@@ -61,8 +60,6 @@ use Omnipay\Common\Currency;
  */
 class Commerce_OrderModel extends BaseElementModel
 {
-    use Commerce_ModelRelationsTrait;
-
     /**
      * @var string
      */
@@ -87,6 +84,24 @@ class Commerce_OrderModel extends BaseElementModel
      * @var array
      */
     private $_orderAdjustments;
+
+	/**
+	 * We need to have getters functions have maximum priority.
+	 * This was in the ModelRelationTrait so it needs to stay for backwards compatibility.
+	 * @param string $name
+	 *
+	 * @return mixed
+	 */
+	public function __get($name)
+	{
+		$getter = 'get'.$name;
+		if (method_exists($this, $getter))
+		{
+			return $this->$getter();
+		}
+
+		return parent::__get($name);
+	}
 
     /**
      * @return bool
@@ -478,6 +493,22 @@ class Commerce_OrderModel extends BaseElementModel
     public function getPaymentMethod()
     {
         return craft()->commerce_paymentMethods->getPaymentMethodById($this->getAttribute('paymentMethodId'));
+    }
+
+    /**
+     * @return Commerce_OrderHistoryModel[]
+     */
+    public function getHistories()
+    {
+        return craft()->commerce_orderHistories->getAllOrderHistoriesByOrderId($this->id);
+    }
+
+	/**
+	 * @return Commerce_TransactionModel[]
+	 */
+    public function getTransactions()
+    {
+        return craft()->commerce_transactions->getAllTransactionsByOrderId($this->id);
     }
 
     /**

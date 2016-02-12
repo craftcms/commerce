@@ -11,14 +11,13 @@ namespace Craft;
  * @property DateTime $dateTo
  * @property string $discountType
  * @property float $discountAmount
+ * @property array $groupIds
+ * @property array $productIds
+ * @property array $productTypeIds
  * @property bool $allGroups
  * @property bool $allProducts
  * @property bool $allProductTypes
  * @property bool $enabled
- *
- * @property Commerce_ProductModel[] $products
- * @property Commerce_ProductTypeModel[] $productTypes
- * @property UserGroupModel[] $groups
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -29,12 +28,13 @@ namespace Craft;
  */
 class Commerce_SaleModel extends BaseModel
 {
+
     /**
      * @return array
      */
     public function getGroupIds()
     {
-	    return $this->getAttribute('groups');
+        return $this->getAttribute('groupIds');
     }
 
     /**
@@ -42,7 +42,7 @@ class Commerce_SaleModel extends BaseModel
      */
     public function getProductTypeIds()
     {
-	    return $this->getAttribute('productTypes');
+        return $this->getAttribute('productTypeIds');
     }
 
     /**
@@ -50,7 +50,7 @@ class Commerce_SaleModel extends BaseModel
      */
     public function getProductIds()
     {
-	    return $this->getAttribute('products');
+        return $this->getAttribute('productIds');
     }
 
     /**
@@ -94,9 +94,9 @@ class Commerce_SaleModel extends BaseModel
         return [
             'id' => AttributeType::Number,
             'name' => AttributeType::Name,
-            'products' => [AttributeType::Mixed, 'default' => []],
-            'productTypes' => [AttributeType::Mixed, 'default' => []],
-            'groups' => [AttributeType::Mixed, 'default' => []],
+            'productIds' => [AttributeType::Mixed, 'default' => []],
+            'productTypeIds' => [AttributeType::Mixed, 'default' => []],
+            'groupIds' => [AttributeType::Mixed, 'default' => []],
             'description' => AttributeType::Mixed,
             'dateFrom' => AttributeType::DateTime,
             'dateTo' => AttributeType::DateTime,

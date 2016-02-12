@@ -1,8 +1,6 @@
 <?php
 namespace Craft;
 
-use Commerce\Traits\Commerce_ModelRelationsTrait;
-
 /**
  * Shipping rule model
  *
@@ -40,8 +38,6 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  */
 class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfaces\ShippingRule
 {
-    use Commerce_ModelRelationsTrait;
-
     /**
      * Hard coded rule handle
      *
@@ -58,6 +54,22 @@ class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfac
     public function getIsEnabled()
     {
         return $this->enabled;
+    }
+
+    /**
+     * @return Commerce_CountryModel|null
+     */
+    public function getCountry()
+    {
+        return craft()->commerce_countries->getCountryById($this->countryId);
+    }
+
+    /**
+     * @return Commerce_StateModel|null
+     */
+    public function getState()
+    {
+        return craft()->commerce_states->getStateById($this->stateId);
     }
 
     /**
