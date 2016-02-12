@@ -8,4 +8,7 @@
 .chart-explorer .chart-header .error { float: right; }
 .chart-explorer .chart-header .spinner { position: absolute; top: 0; right: 0; }
 
-.chart-explorer .chart-container { height: 200px; margin-bottom: 24px;  }
+.chart-explorer .chart-container { position: relative;  }
+.chart-explorer .chart-container .spinner { position: absolute; top: 50%; right: 50%; margin-top: -24px; margin-left: -12px;  }
+.chart-explorer .chart-container .chart { height: 200px; margin: -14px -24px 14px -24px;  }
+.chart-explorer .total .total-value { font-size: 15px;  }

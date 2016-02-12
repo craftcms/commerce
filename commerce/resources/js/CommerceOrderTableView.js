@@ -83,14 +83,17 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
         var $chartExplorer = $('<div class="chart-explorer"></div>').appendTo(this.$explorerContainer),
             $chartHeader = $('<div class="chart-header"></div>').appendTo($chartExplorer),
             $dateRangeContainer = $('<div class="datewrapper" />').appendTo($chartHeader),
-            $total = $('<div class="total"><strong>Total Revenue</strong></div>').appendTo($chartHeader),
-            $totalCountWrapper = $('<div class="count-wrapper light"></div>').appendTo($total);
+            $total = $('<div class="total"></div>').appendTo($chartHeader),
+            $totalLabel = $('<div class="total-label light">Total Revenue</div>').appendTo($total),
+            $totalValueWrapper = $('<div class="total-value-wrapper"></div>').appendTo($total);
+            $totalValue = $('<span class="total-value">0</span>').appendTo($totalValueWrapper);
 
         this.$chartExplorer = $chartExplorer;
         this.$error = $('<div class="error">Example error.</div>').appendTo($chartHeader);
-        this.$spinner = $('<div class="spinner hidden" />').appendTo($chartHeader);
-        this.$totalCount = $('<span class="count">0</span>').appendTo($totalCountWrapper);
+        this.$totalValue = $totalValue;
         this.$chartContainer = $('<div class="chart-container"></div>').appendTo($chartExplorer);
+        this.$spinner = $('<div class="spinner hidden" />').appendTo(this.$chartContainer);
+        this.$chart = $('<div class="chart"></div>').appendTo(this.$chartContainer);
         this.$dateRange = $('<input type="text" class="text" />').appendTo($dateRangeContainer);
 
         this.dateRange = new Craft.DateRangePicker(this.$dateRange, {
@@ -117,7 +120,7 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
 
         this.$spinner.removeClass('hidden');
         this.$error.addClass('hidden');
-        this.$chartContainer.removeClass('error');
+        this.$chart.removeClass('error');
 
         Craft.postActionRequest('commerce/reports/getRevenueReport', requestData, $.proxy(function(response, textStatus)
         {
@@ -127,7 +130,7 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
             {
                 if(!this.chart)
                 {
-                    this.chart = new Craft.charts.Area(this.$chartContainer);
+                    this.chart = new Craft.charts.Area(this.$chart);
                 }
 
                 var chartDataTable = new Craft.charts.DataTable(response.reportDataTable);
@@ -135,10 +138,10 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
                 var chartSettings = {
                     margin:
                     {
-                        top: 7,
-                        bottom: 20,
-                        left: 0,
-                        right: 0,
+                        top: 24,
+                        bottom: 24,
+                        left: 24,
+                        right: 24,
                     },
                     currency: response.currencyFormat,
                     dataScale: response.scale
@@ -146,7 +149,7 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
 
                 this.chart.draw(chartDataTable, chartSettings);
 
-                this.$totalCount.html(response.totalHtml);
+                this.$totalValue.html(response.totalHtml);
 
             }
             else
@@ -160,7 +163,7 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
 
                 this.$error.html(msg);
                 this.$error.removeClass('hidden');
-                this.$chartContainer.addClass('error');
+                this.$chart.addClass('error');
             }
 
         }, this));
