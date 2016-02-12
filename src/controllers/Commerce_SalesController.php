@@ -28,9 +28,8 @@ class Commerce_SalesController extends Commerce_BaseCpController
      */
     public function actionIndex()
     {
-        $sales = craft()->commerce_sales->getAllSales(['order' => 'name']);
-        $this->renderTemplate('commerce/promotions/sales/index',
-            compact('sales'));
+        $sales = craft()->commerce_sales->getAllSales();
+        $this->renderTemplate('commerce/promotions/sales/index', compact('sales'));
     }
 
     /**

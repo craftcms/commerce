@@ -30,6 +30,18 @@ class Commerce_OrderHistoriesService extends BaseApplicationComponent
     }
 
     /**
+     * @param int $id orderId
+     *
+     * @return Commerce_OrderHistoryModel[]
+     */
+    public function getAllOrderHistoriesByOrderId($id)
+    {
+        $results = Commerce_OrderHistoryRecord::model()->findAllByAttributes(['orderId'=>$id]);
+
+        return Commerce_OrderHistoryModel::populateModels($results);
+    }
+
+    /**
      * @param array $attr
      *
      * @return Commerce_OrderHistoryModel|null

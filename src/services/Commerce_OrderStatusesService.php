@@ -32,6 +32,18 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
         return null;
     }
 
+	/**
+	 * @param $id
+	 *
+	 * @return Commerce_EmailModel[]
+	 */
+	public function getAllEmailsByOrderStatusId($id)
+	{
+		$orderStatus = Commerce_OrderStatusRecord::model()->with('emails')->findById($id);
+
+		return Commerce_EmailModel::populateModels($orderStatus->emails);
+	}
+
     /**
      * Get default order status from the DB
      *

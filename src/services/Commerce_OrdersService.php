@@ -75,9 +75,12 @@ class Commerce_OrdersService extends BaseApplicationComponent
      */
     public function getOrdersByEmail($email)
     {
-        $orders = Commerce_OrderRecord::model()->findAllByAttributes(['email' => $email]);
+        $criteria = craft()->elements->getCriteria('Commerce_Order');
+        $criteria->email = $email;
+        $criteria->dateOrdered = "NOT NULL";
+        $criteria->limit = null;
 
-        return Commerce_OrderModel::populateModels($orders);
+        return $criteria->find();
     }
 
     /**
@@ -295,13 +298,22 @@ class Commerce_OrdersService extends BaseApplicationComponent
         $order->baseDiscount = 0;
         $order->baseShippingCost = 0;
         $order->itemTotal = 0;
-        foreach ($lineItems as $item) { //resetting fields calculated by adjusters
+        foreach ($lineItems as $key => $item) { //resetting fields calculated by adjusters
+
+            // remove the item from the cart if the purchasable does not exist anymore.
+            if(!$lineItems[$key]->purchasableId){
+                unset($lineItems[$key]);
+                craft()->commerce_lineItems->deleteLineItem($item);
+                continue;
+            }
+
             $item->tax = 0;
             $item->taxIncluded = 0;
             $item->shippingCost = 0;
             $item->discount = 0;
             // Need to have an initial itemTotal for use by adjusters.
             $order->itemTotal += $item->getTotal();
+
         }
 
         $order->setLineItems($lineItems);

@@ -1,8 +1,6 @@
 <?php
 namespace Craft;
 
-use Commerce\Traits\Commerce_ModelRelationsTrait;
-
 /**
  * State model.
  *
@@ -22,8 +20,6 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  */
 class Commerce_StateModel extends BaseModel
 {
-    use Commerce_ModelRelationsTrait;
-
     /**
      * @return string
      */
@@ -38,6 +34,14 @@ class Commerce_StateModel extends BaseModel
     function __toString()
     {
         return (string)$this->name;
+    }
+
+    /**
+     * @return Commerce_CountryModel|null
+     */
+    public function getCountry()
+    {
+        return craft()->commerce_countries->getCountryById($this->countryId);
     }
 
     /**
