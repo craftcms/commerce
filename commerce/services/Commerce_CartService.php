@@ -340,10 +340,9 @@ class Commerce_CartService extends BaseApplicationComponent
      */
     private function _getCartRecordByNumber($number)
     {
-        $criteria = new \CDbCriteria();
-        $criteria->addCondition(['number = :number', 'dateOrdered IS NULL']);
-        $criteria->params = ['number' => $number];
-        $cart = Commerce_OrderRecord::model()->find($criteria);
+        $cart = $this->_createOrderQuery()
+            ->where('orders.number = :number AND dateOrdered IS NULL', array(':number' => $number))
+            ->queryRow();
 
         return $cart;
     }
@@ -471,5 +470,37 @@ class Commerce_CartService extends BaseApplicationComponent
         );
 
         return Commerce_OrderModel::populateModels($records);
+    }
+
+    /**
+     * Returns a DbCommand object prepped for retrieving order records.
+     *
+     * @return DbCommand
+     */
+    private function _createOrderQuery()
+    {
+        return craft()->db->createCommand()
+            ->select('orders.id,
+                    orders.number,
+                    orders.orderStatusId,
+                    orders.billingAddressId,
+                    orders.shippingAddressId,
+                    orders.customerId,
+                    orders.couponCode,
+                    orders.itemTotal,
+                    orders.baseDiscount,
+                    orders.baseShippingCost,
+                    orders.totalPrice,
+                    orders.totalPaid,
+                    orders.email,
+                    orders.dateOrdered,
+                    orders.datePaid,
+                    orders.currency,
+                    orders.lastIp,
+                    orders.message,
+                    orders.returnUrl,
+                    orders.cancelUrl,
+                    orders.shippingMethod,
+                    orders.paymentMethodId')->from('commerce_orders orders');
     }
 }
