@@ -89,10 +89,10 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
             $totalValue = $('<span class="total-value">0</span>').appendTo($totalValueWrapper);
 
         this.$chartExplorer = $chartExplorer;
-        this.$error = $('<div class="error">Example error.</div>').appendTo($chartHeader);
         this.$totalValue = $totalValue;
         this.$chartContainer = $('<div class="chart-container"></div>').appendTo($chartExplorer);
         this.$spinner = $('<div class="spinner hidden" />').appendTo(this.$chartContainer);
+        this.$error = $('<div class="error"></div>').appendTo(this.$chartContainer);
         this.$chart = $('<div class="chart"></div>').appendTo(this.$chartContainer);
         this.$dateRange = $('<input type="text" class="text" />').appendTo($dateRangeContainer);
 
