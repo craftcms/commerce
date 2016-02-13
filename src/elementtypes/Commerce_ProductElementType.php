@@ -496,6 +496,39 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
     }
 
     /**
+     * @inheritDoc IElementType::getEagerLoadingMap()
+     *
+     * @param BaseElementModel[]  $sourceElements
+     * @param string $handle
+     *
+     * @return array|false
+     */
+    public function getEagerLoadingMap($sourceElements, $handle)
+    {
+        if ($handle == 'variants') {
+            // Get the source element IDs
+            $sourceElementIds = array();
+
+            foreach ($sourceElements as $sourceElement) {
+                $sourceElementIds[] = $sourceElement->id;
+            }
+
+            $map = craft()->db->createCommand()
+                ->select('productId as source, id as target')
+                ->from('commerce_variants')
+                ->where(array('in', 'productId', $sourceElementIds))
+                ->queryAll();
+
+            return array(
+                'elementType' => 'Commerce_Variant',
+                'map' => $map
+            );
+        }
+
+        return parent::getEagerLoadingMap($sourceElements, $handle);
+    }
+
+    /**
      * Returns the HTML for an editor HUD for the given element.
      *
      * @param BaseElementModel $element The element being edited.
