@@ -260,6 +260,39 @@ class Commerce_VariantElementType extends Commerce_BaseElementType
     }
 
     /**
+     * @inheritDoc IElementType::getEagerLoadingMap()
+     *
+     * @param BaseElementModel[]  $sourceElements
+     * @param string $handle
+     *
+     * @return array|false
+     */
+    public function getEagerLoadingMap($sourceElements, $handle)
+    {
+        if ($handle == 'product') {
+            // Get the source element IDs
+            $sourceElementIds = array();
+
+            foreach ($sourceElements as $sourceElement) {
+                $sourceElementIds[] = $sourceElement->id;
+            }
+
+            $map = craft()->db->createCommand()
+                ->select('id as source, productId as target')
+                ->from('commerce_variants')
+                ->where(array('in', 'id', $sourceElementIds))
+                ->queryAll();
+
+            return array(
+                'elementType' => 'Commerce_Product',
+                'map' => $map
+            );
+        }
+
+        return parent::getEagerLoadingMap($sourceElements, $handle);
+    }
+
+    /**
      * @param BaseElementModel $element
      * @param array $params
      *
