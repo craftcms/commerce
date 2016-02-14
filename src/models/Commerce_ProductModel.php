@@ -276,6 +276,21 @@ class Commerce_ProductModel extends BaseElementModel
         return $this->_variants;
     }
 
+    /**
+     * Sets some eager loaded elements on a given handle.
+     *
+     * @param string             $handle   The handle to load the elements with in the future
+     * @param BaseElementModel[] $elements The eager-loaded elements
+     */
+    public function setEagerLoadedElements($handle, $elements)
+    {
+        if ($handle == 'variants') {
+            $this->setVariants($elements);
+        } else {
+            parent::setEagerLoadedElements($handle, $elements);
+        }
+    }
+
     // Protected Methods
     // =============================================================================
 
