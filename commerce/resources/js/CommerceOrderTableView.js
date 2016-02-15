@@ -16,10 +16,6 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
         this.chartToggleState = Craft.getLocalStorage('CommerceOrdersIndex.chartToggleState', false);
         this.dateRangeState = Craft.getLocalStorage('CommerceOrdersIndex.dateRangeState', 'd7');
 
-        this.startDate = new Date();
-        this.startDate.setDate(this.startDate.getDate() - 7);
-        this.endDate = new Date();
-
         var $viewBtns = $('.viewbtns');
         $viewBtns.removeClass('hidden');
 
@@ -128,6 +124,7 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
         this.$spinner.removeClass('hidden');
         this.$error.addClass('hidden');
         this.$chart.removeClass('error');
+
 
         Craft.postActionRequest('commerce/reports/getRevenueReport', requestData, $.proxy(function(response, textStatus)
         {
