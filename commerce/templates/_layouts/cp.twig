@@ -1,2 +1,3 @@
 {% extends "_layouts/cp" %}
 {% hook 'commerce.prepCpTemplate' %}
+{% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commerce" %}

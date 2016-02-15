@@ -75,6 +75,9 @@ class Commerce_OrderStatusesController extends Commerce_BaseAdminController
         $orderStatus->color = craft()->request->getPost('color');
         $orderStatus->default = craft()->request->getPost('default');
         $emailIds = craft()->request->getPost('emails', []);
+        if(!$emailIds){
+            $emailIds = [];
+        }
 
         // Save it
         if (craft()->commerce_orderStatuses->saveOrderStatus($orderStatus, $emailIds)) {

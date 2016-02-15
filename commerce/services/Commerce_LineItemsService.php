@@ -23,7 +23,13 @@ class Commerce_LineItemsService extends BaseApplicationComponent
      */
     public function getAllLineItemsByOrderId($id)
     {
-        $lineItems = Commerce_LineItemRecord::model()->findAllByAttributes(['orderId' => $id]);
+        $lineItems = [];
+
+        if($id){
+            $lineItems = $this->_createLineItemsQuery()
+                ->where('lineitems.orderId = :orderId', [':orderId' => $id])
+                ->queryAll();
+        }
 
         return Commerce_LineItemModel::populateModels($lineItems);
     }
@@ -41,11 +47,10 @@ class Commerce_LineItemsService extends BaseApplicationComponent
     {
         ksort($options);
         $signature = md5(json_encode($options));
-        $result = Commerce_LineItemRecord::model()->findByAttributes([
-            'orderId' => $orderId,
-            'purchasableId' => $purchasableId,
-            'optionsSignature' => $signature
-        ]);
+        $result = $this->_createLineItemsQuery()
+            ->where('lineitems.orderId = :orderId AND lineitems.purchasableId = :purchasableId AND lineitems.optionsSignature = :optionsSignature',
+                [':orderId' => $orderId, ':purchasableId' => $purchasableId, ':optionsSignature' => $signature])
+            ->queryRow();
 
         if ($result) {
             return Commerce_LineItemModel::populateModel($result);
@@ -67,6 +72,14 @@ class Commerce_LineItemsService extends BaseApplicationComponent
      */
     public function updateLineItem(Commerce_OrderModel $order, Commerce_LineItemModel $lineItem, &$error = '')
     {
+        if (!$lineItem->purchasableId) {
+            $this->deleteLineItem($lineItem);
+            craft()->commerce_orders->saveOrder($order);
+            $error = Craft::t("Product no longer for sale. Removed from cart.");
+            
+            return false;
+        }
+
         if ($this->saveLineItem($lineItem)) {
             craft()->commerce_orders->saveOrder($order);
 
@@ -171,7 +184,9 @@ class Commerce_LineItemsService extends BaseApplicationComponent
      */
     public function getLineItemById($id)
     {
-        $result = Commerce_LineItemRecord::model()->findById($id);
+        $result = $this->_createLineItemsQuery()
+            ->where('lineitems.id = :id', [':id' => $id])
+            ->queryRow();
 
         if ($result) {
             return Commerce_LineItemModel::populateModel($result);
@@ -228,5 +243,19 @@ class Commerce_LineItemsService extends BaseApplicationComponent
     public function deleteAllLineItemsByOrderId($orderId)
     {
         return Commerce_LineItemRecord::model()->deleteAllByAttributes(['orderId' => $orderId]);
+    }
+
+    /**
+     * Returns a DbCommand object prepped for retrieving sections.
+     *
+     * @return DbCommand
+     */
+    private function _createLineItemsQuery()
+    {
+
+        return craft()->db->createCommand()
+            ->select('lineitems.id, lineitems.orderId, lineitems.purchasableId, lineitems.options, lineitems.optionsSignature, lineitems.price, lineitems.saleAmount, lineitems.salePrice, lineitems.tax, lineitems.taxIncluded, lineitems.shippingCost, lineitems.discount, lineitems.weight, lineitems.height, lineitems.length, lineitems.width, lineitems.total, lineitems.qty, lineitems.note, lineitems.snapshot, lineitems.taxCategoryId')
+            ->from('commerce_lineitems lineitems')
+            ->order('lineitems.id');
     }
 }
