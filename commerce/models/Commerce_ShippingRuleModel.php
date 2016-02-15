@@ -217,7 +217,7 @@ class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfac
             'enabled' => [
                 AttributeType::Bool,
                 'required' => true,
-                'default' => 1
+                'default' => true
             ],
             //filters
             'minQty' => [
