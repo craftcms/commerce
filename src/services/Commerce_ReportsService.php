@@ -14,21 +14,6 @@ namespace Craft;
 class Commerce_ReportsService extends BaseApplicationComponent
 {
     /**
-     * @return array
-     */
-    public function getDateRanges()
-    {
-        $dateRanges = [
-            'd7' => ['label' => Craft::t('Last 7 days'), 'startDate' => '-7 days', 'endDate' => null],
-            'd30' => ['label' => Craft::t('Last 30 days'), 'startDate' => '-30 days', 'endDate' => null],
-            'lastweek' => ['label' => Craft::t('Last Week'), 'startDate' => '-2 weeks', 'endDate' => '-1 week'],
-            'lastmonth' => ['label' => Craft::t('Last Month'), 'startDate' => '-2 months', 'endDate' => '-1 month'],
-        ];
-
-        return $dateRanges;
-    }
-
-    /**
      * @param ElementCriteriaModel $criteria
      * @param string $startDate
      * @param string $endDate

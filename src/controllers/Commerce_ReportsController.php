@@ -88,7 +88,7 @@ class Commerce_ReportsController extends BaseElementsController
         $startDate = craft()->request->getParam('startDate');
         $endDate = craft()->request->getParam('endDate');
 
-        $dateRanges = craft()->commerce_reports->getDateRanges();
+        $dateRanges = craft()->reports->getDateRanges();
 
         if(!empty($dateRanges[$dateRange]))
         {

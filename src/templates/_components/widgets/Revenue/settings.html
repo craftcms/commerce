@@ -5,23 +5,6 @@
     id: 'dateRange',
     name: 'dateRange',
     value: settings.dateRange,
-    options: [
-        {
-            label: 'Last 7 days'|t,
-            value: 'd7'
-        },
-        {
-            label: 'Last 30 days'|t,
-            value: 'd30'
-        },
-        {
-            label: 'Last Week'|t,
-            value: 'lastweek',
-        },
-        {
-            label: 'Last Month'|t,
-            value: 'lastmonth',
-        },
-    ],
+    options: dateRangeOptions,
     errors: settings.getErrors('dateRange')
 }) }}
