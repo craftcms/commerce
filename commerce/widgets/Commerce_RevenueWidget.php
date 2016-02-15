@@ -28,7 +28,7 @@ class Commerce_RevenueWidget extends BaseWidget
 
         $settings = $this->getSettings();
 
-        $dateRanges = craft()->commerce_reports->getDateRanges();
+        $dateRanges = craft()->reports->getDateRanges();
 
         if(!empty($dateRanges[$settings->dateRange]))
         {
@@ -64,8 +64,21 @@ class Commerce_RevenueWidget extends BaseWidget
      */
     public function getSettingsHtml()
     {
+        $dateRanges = craft()->reports->getDateRanges();
+
+        $dateRangeOptions = [];
+
+        foreach($dateRanges as $key => $dateRange)
+        {
+            $dateRangeOptions[] = [
+                'value' => $key,
+                'label' => $dateRange['label']
+            ];
+        }
+
         return craft()->templates->render('commerce/_components/widgets/Revenue/settings', array(
-            'settings' => $this->getSettings()
+            'settings' => $this->getSettings(),
+            'dateRangeOptions' => $dateRangeOptions
         ));
     }
 
