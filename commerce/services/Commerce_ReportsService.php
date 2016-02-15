@@ -40,34 +40,40 @@ class Commerce_ReportsService extends BaseApplicationComponent
         $criteria->limit = null;
 
         $query = craft()->elements->buildElementsQuery($criteria);
-        $query->select('DATE_FORMAT(orders.dateOrdered, "%d-%b-%y") as date, sum(orders.totalPrice) as revenue');
+        $query->select('DATE_FORMAT(orders.dateOrdered, "%Y-%m-%d") as date, sum(orders.totalPrice) as revenue');
         $query->group('YEAR(orders.dateOrdered), MONTH(orders.dateOrdered), DAY(orders.dateOrdered)');
         // $query->join('select date, revenue from DATE_ADD(date, INTERVAL expr type)');
 
         $results = $query->queryAll();
 
-        $currency = craft()->commerce_settings->getOption('defaultCurrency');
-
-        $reportDataTable = $this->getReportDataTable($startDate, $endDate, $results);
+        $report = $this->getReportDataTable($startDate, $endDate, $results);
         $scale = $this->getScale($startDate, $endDate);
-        $currencyFormat = $this->getCurrencyFormat($currency);
 
 
         // totals
 
         $total = 0;
 
-        foreach($reportDataTable['rows'] as $row)
+        foreach($report as $row)
         {
             $total = $total + $row[1];
         }
 
+        $locale = craft()->i18n->getLocaleData(craft()->language);
+        $orientation = $locale->getOrientation();
+
+        $currency = craft()->commerce_settings->getOption('defaultCurrency');
         $totalHtml = craft()->numberFormatter->formatCurrency($total, strtoupper($currency));
 
+        $currencyFormat = $this->getCurrencyFormat();
+
         $response = array(
-            'reportDataTable' => $reportDataTable,
+            'report' => $report,
             'scale' => $scale,
-            'currencyFormat' => $currencyFormat,
+            'localeDefinition' => [
+                'currencyFormat' => $currencyFormat,
+            ],
+            'orientation' => $orientation,
             'total' => $total,
             'totalHtml' => $totalHtml,
         );
@@ -114,13 +120,13 @@ class Commerce_ReportsService extends BaseApplicationComponent
             $cursorEnd = $cursorCurrent;
 
             $row = [
-                strftime("%e-%b-%y", $cursorStart->getTimestamp()), // date
+                strftime("%Y-%m-%d", $cursorStart->getTimestamp()), // date
                 0 // revenue
             ];
 
             foreach($results as $result)
             {
-                if($result['date'] == strftime("%e-%b-%y", $cursorStart->getTimestamp()))
+                if($result['date'] == strftime("%Y-%m-%d", $cursorStart->getTimestamp()))
                 {
                     $row = [
                         $result['date'], // date
@@ -132,10 +138,18 @@ class Commerce_ReportsService extends BaseApplicationComponent
             $rows[] = $row;
         }
 
-        return [
-            'columns' => $columns,
-            'rows' => $rows
-        ];
+        $chartColumns = [];
+        $chartRows = [];
+
+        foreach($columns as $column)
+        {
+            $chartColumns[] = $column['label'];
+        }
+
+        $chartRows = [$chartColumns];
+        $chartRows = array_merge($chartRows, array_reverse($rows));
+
+        return $chartRows;
     }
 
     /**
@@ -171,8 +185,10 @@ class Commerce_ReportsService extends BaseApplicationComponent
      *
      * @return string
      */
-    private function getCurrencyFormat($currency)
+    public function getCurrencyFormat()
     {
+        $currency = craft()->commerce_settings->getOption('defaultCurrency');
+
         $currencySymbol = craft()->locale->getCurrencySymbol($currency);
         $currencyFormat = craft()->locale->getCurrencyFormat();
 
@@ -186,7 +202,7 @@ class Commerce_ReportsService extends BaseApplicationComponent
         $replacement = '';
         $currencyFormat = preg_replace($pattern, $replacement, $currencyFormat);
 
-        if(strpos($currency, "¤") === 0)
+        if(strpos($currencyFormat, "¤") === 0)
         {
             // symbol at beginning
             $currencyD3Format = [str_replace('¤', $currencySymbol, $currencyFormat), ''];

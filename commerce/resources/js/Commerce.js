@@ -23,4 +23,25 @@ Craft.Commerce.handleUnlimitedStockCheckboxChange = function(ev)
     }
 };
 
+Craft.Commerce.getChartOptions = function(localeDefinition, scale)
+{
+    var options = {
+        axis: {
+            x: {
+                tick: {
+                    format: Craft.charts.getDateFormatFromScale(scale)
+                }
+            },
+
+            y: {
+                tick: {
+                    format: Craft.charts.getCurrencyFormat(localeDefinition.currencyFormat)
+                }
+            },
+        }
+    };
+
+    return $.extend(true, Craft.charts.defaults.area, options);
+}
+
 })(jQuery);
