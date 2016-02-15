@@ -11,5 +11,5 @@ body.rtl .chart-explorer .chart-header .datewrapper { float: left; }
 
 .chart-explorer .chart-container { position: relative;  }
 .chart-explorer .chart-container .spinner { position: absolute; top: 50%; right: 50%; margin-top: -24px; margin-left: -12px;  }
-.chart-explorer .chart-container .chart { height: 200px; margin: -14px -24px 14px -24px;  }
+.chart-explorer .chart-container .chart { height: 200px; margin: 0;  }
 .chart-explorer .total .total-value { font-size: 15px;  }

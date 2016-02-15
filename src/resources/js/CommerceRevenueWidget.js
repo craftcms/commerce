@@ -34,12 +34,17 @@ Craft.CommerceRevenueWidget = Garnish.Base.extend(
         {
             if(textStatus == 'success' && typeof(response.error) == 'undefined')
             {
-                // Create chart
-                this.chart = new Craft.charts.Area(this.$chartContainer);
+                this.chart = new Craft.charts.Chart({
+                    bindto: this.$chartContainer.get(0),
+                    data: {
+                        rows: response.report,
+                    },
+                    'orientation': this.settings.orientation,
+                }, Craft.Commerce.getChartOptions(this.settings.localeDefinition, response.scale));
 
-                var chartDataTable = new Craft.charts.DataTable(response.reportDataTable);
-
-                this.chart.draw(chartDataTable);
+                this.chart.load({
+                    rows: response.report
+                });
 
                 // Resize chart when grid is refreshed
                 window.dashboard.grid.on('refreshCols', $.proxy(this, 'handleGridRefresh'));

@@ -128,29 +128,15 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
 
             if(textStatus == 'success' && typeof(response.error) == 'undefined')
             {
-                if(!this.chart)
-                {
-                    this.chart = new Craft.charts.Area(this.$chart);
-                }
-
-                var chartDataTable = new Craft.charts.DataTable(response.reportDataTable);
-
-                var chartSettings = {
-                    margin:
-                    {
-                        top: 24,
-                        bottom: 24,
-                        left: 24,
-                        right: 24,
+                this.chart = new Craft.charts.Chart({
+                    bindto: this.$chart.get(0),
+                    data: {
+                        rows: response.report,
                     },
-                    currency: response.currencyFormat,
-                    dataScale: response.scale
-                };
-
-                this.chart.draw(chartDataTable, chartSettings);
+                    orientation: response.orientation,
+                }, Craft.Commerce.getChartOptions(response.localeDefinition, response.scale));
 
                 this.$totalValue.html(response.totalHtml);
-
             }
             else
             {
