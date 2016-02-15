@@ -7,16 +7,16 @@ use Commerce\Interfaces\Purchasable as PurchasableInterface;
 use Commerce\Exception\NotImplementedException;
 
 /**
- * Interface Purchasable
+ * Base Purchasable
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
  * @license   https://craftcommerce.com/license Craft Commerce License Agreement
  * @see       https://craftcommerce.com
- * @package   Commerce\Interfaces
+ * @package   Commerce\Base
  * @since     1.0
  */
-class Purchasable extends BaseElementModel implements PurchasableInterface
+abstract class Purchasable extends BaseElementModel implements PurchasableInterface
 {
 
 	/**
