@@ -144,7 +144,7 @@ class Commerce_AddressesService extends BaseApplicationComponent
 
     /**
      * Event: after saving an address.
-     * Event params: addres(Commerce_AddressModel)
+     * Event params: address(Commerce_AddressModel)
      *
      * @param \CEvent $event
      *
