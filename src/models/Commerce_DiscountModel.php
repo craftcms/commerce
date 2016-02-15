@@ -155,7 +155,7 @@ class Commerce_DiscountModel extends BaseModel
             'enabled' => [
                 AttributeType::Bool,
                 'required' => true,
-                'default' => 1
+                'default' => true
             ],
         ];
     }
