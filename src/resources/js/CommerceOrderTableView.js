@@ -139,6 +139,7 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
                     bindto: this.$chart.get(0),
                     data: {
                         rows: response.report,
+                        x: response.report[0][0]
                     },
                     orientation: response.orientation,
                 }, Craft.Commerce.getChartOptions(response.localeDefinition, response.scale));
