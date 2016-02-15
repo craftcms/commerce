@@ -96,17 +96,24 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
         this.$chart = $('<div class="chart"></div>').appendTo(this.$chartContainer);
         this.$dateRange = $('<input type="text" class="text" />').appendTo($dateRangeContainer);
 
+        var customRangeStartDate = Craft.getLocalStorage('CommerceOrdersIndex.customRangeStartDate');
+        var customRangeEndDate = Craft.getLocalStorage('CommerceOrdersIndex.customRangeEndDate');
+
         this.dateRange = new Craft.DateRangePicker(this.$dateRange, {
             value: this.dateRangeState,
-            onAfterSelect: $.proxy(this, 'onAfterDateRangeSelect')
+            onAfterSelect: $.proxy(this, 'onAfterDateRangeSelect'),
+            customRangeStartDate: customRangeStartDate,
+            customRangeEndDate: customRangeEndDate,
         });
 
-        this.loadReport(this.dateRange.startDate, this.dateRange.endDate);
+        this.loadReport(this.dateRange.getStartDate(), this.dateRange.getEndDate());
     },
 
-    onAfterDateRangeSelect: function(value, startDate, endDate)
+    onAfterDateRangeSelect: function(value, startDate, endDate, customRangeStartDate, customRangeEndDate)
     {
         Craft.setLocalStorage('CommerceOrdersIndex.dateRangeState', value);
+        Craft.setLocalStorage('CommerceOrdersIndex.customRangeStartDate', customRangeStartDate);
+        Craft.setLocalStorage('CommerceOrdersIndex.customRangeEndDate', customRangeEndDate);
 
         this.loadReport(startDate, endDate)
     },
