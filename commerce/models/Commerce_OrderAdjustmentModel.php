@@ -45,7 +45,7 @@ class Commerce_OrderAdjustmentModel extends BaseModel
             'amount' => [
                 AttributeType::Number,
                 'required' => true,
-                'decimals' => 5
+                'decimals' => 4
             ],
             'optionsJson' => [AttributeType::Mixed, 'required' => true],
             'orderId' => [AttributeType::Number, 'required' => true],
