@@ -192,6 +192,17 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
      */
     public function getByHandle($handle)
     {
+        craft()->deprecator->log('Commerce_OrderModel::getByHandle():renamed', 'You should no longer use `Commerce_OrderModel::getByHandle($handle)`, it has been renamed to `Commerce_OrderModel::getProductTypeByHandle($handle)`');
+        return $this->getProductTypeByHandle($handle);
+    }
+
+    /**
+     * @param string $handle
+     *
+     * @return Commerce_ProductTypeModel|null
+     */
+    public function getProductTypeByHandle($handle)
+    {
 	    $result = $this->_createProductTypeQuery()
 		    ->where('pt.handle = :handle', array(':handle' => $handle))
 		    ->queryRow();

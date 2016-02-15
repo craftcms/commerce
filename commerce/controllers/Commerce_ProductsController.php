@@ -122,7 +122,7 @@ class Commerce_ProductsController extends Commerce_BaseCpController
         }
 
         if (!empty($variables['productTypeHandle'])) {
-            $variables['productType'] = craft()->commerce_productTypes->getByHandle($variables['productTypeHandle']);
+            $variables['productType'] = craft()->commerce_productTypes->getProductTypeByHandle($variables['productTypeHandle']);
         }
 
         if (empty($variables['productType'])) {
