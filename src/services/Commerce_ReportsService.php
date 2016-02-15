@@ -37,17 +37,31 @@ class Commerce_ReportsService extends BaseApplicationComponent
      */
     public function getRevenueReport($criteria, $startDate, $endDate)
     {
+        $scale = $this->getScale($startDate, $endDate);
+
         $criteria->limit = null;
 
         $query = craft()->elements->buildElementsQuery($criteria);
-        $query->select('DATE_FORMAT(orders.dateOrdered, "%Y-%m-%d") as date, sum(orders.totalPrice) as revenue');
-        $query->group('YEAR(orders.dateOrdered), MONTH(orders.dateOrdered), DAY(orders.dateOrdered)');
+
+        switch ($scale)
+        {
+            case 'month':
+                $query->select('DATE_FORMAT(orders.dateOrdered, "%Y-%m-01") as date, sum(orders.totalPrice) as revenue');
+                $query->group('YEAR(orders.dateOrdered), MONTH(orders.dateOrdered)');
+                break;
+
+            default:
+                $query->select('DATE_FORMAT(orders.dateOrdered, "%Y-%m-%d") as date, sum(orders.totalPrice) as revenue');
+                $query->group('YEAR(orders.dateOrdered), MONTH(orders.dateOrdered), DAY(orders.dateOrdered)');
+                break;
+        }
+
         // $query->join('select date, revenue from DATE_ADD(date, INTERVAL expr type)');
 
         $results = $query->queryAll();
 
         $report = $this->getReportDataTable($startDate, $endDate, $results);
-        $scale = $this->getScale($startDate, $endDate);
+
 
 
         // totals
