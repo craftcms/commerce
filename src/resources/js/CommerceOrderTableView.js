@@ -80,7 +80,7 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
             $chartHeader = $('<div class="chart-header"></div>').appendTo($chartExplorer),
             $dateRangeContainer = $('<div class="datewrapper" />').appendTo($chartHeader),
             $total = $('<div class="total"></div>').appendTo($chartHeader),
-            $totalLabel = $('<div class="total-label light">Total Revenue</div>').appendTo($total),
+            $totalLabel = $('<div class="total-label light">'+Craft.t('Total Revenue')+'</div>').appendTo($total),
             $totalValueWrapper = $('<div class="total-value-wrapper"></div>').appendTo($total);
             $totalValue = $('<span class="total-value">0</span>').appendTo($totalValueWrapper);
 
