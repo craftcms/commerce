@@ -38,6 +38,7 @@ Craft.CommerceRevenueWidget = Garnish.Base.extend(
                     bindto: this.$chartContainer.get(0),
                     data: {
                         rows: response.report,
+                        x: response.report[0][0]
                     },
                     'orientation': this.settings.orientation,
                 }, Craft.Commerce.getChartOptions(this.settings.localeDefinition, response.scale));
