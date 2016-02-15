@@ -60,27 +60,33 @@ class Commerce_CustomersService extends BaseApplicationComponent
             $user = craft()->userSession->getUser();
 
             if ($user) {
-                $record = Commerce_CustomerRecord::model()->findByAttributes(['userId' => $user->id]);
+                $record = $this->_createCustomersQuery()
+                    ->where('customers.userId = :userId', array(':userId' => $user->id))
+                    ->queryRow();
+
                 if($record){
-                    craft()->session->add(self::SESSION_CUSTOMER, $record->id);
+                    craft()->session->add(self::SESSION_CUSTOMER, $record['id']);
                 }
             } else {
                 $id = craft()->session->get(self::SESSION_CUSTOMER);
                 if ($id) {
-                    $record = Commerce_CustomerRecord::model()->findById($id);
+                    $record = $this->_createCustomersQuery()
+                        ->where('customers.id = :xid', array(':xid' => $id))
+                        ->queryRow();
+
                     // If there is a customer record but it is associated with a real user, don't use it when guest.
-                    if ($record && $record->userId) {
+                    if ($record && $record['userId']) {
                         $record = null;
                     }
                 }
             }
 
             if (empty($record)) {
-                $record = new Commerce_CustomerRecord;
+                $record = [];
 
                 if ($user) {
-                    $record->userId = $user->id;
-                    $record->email = $user->email;
+                    $record['userId'] = $user->id;
+                    $record['email'] = $user->email;
                 }
             }
 
@@ -155,7 +161,9 @@ class Commerce_CustomersService extends BaseApplicationComponent
      */
     public function getCustomerById($id)
     {
-        $result = Commerce_CustomerRecord::model()->findById($id);
+        $result = $this->_createCustomersQuery()
+            ->where('customers.id = :xid', array(':xid' => $id))
+            ->queryRow();
 
         if ($result) {
             return Commerce_CustomerModel::populateModel($result);
@@ -251,9 +259,11 @@ class Commerce_CustomersService extends BaseApplicationComponent
      */
     public function getAllCustomersByEmail($email)
     {
-        $customers = Commerce_CustomerRecord::model()->findAllByAttributes(['email' => $email]);
+        $results = $this->_createCustomersQuery()
+            ->where('customers.email = :email', [':email' => $email])
+            ->queryAll();
 
-        return Commerce_CustomerModel::populateModels($customers);
+        return Commerce_CustomerModel::populateModels($results);
     }
 
     /**
@@ -335,6 +345,7 @@ class Commerce_CustomersService extends BaseApplicationComponent
 
             $toCustomer = $this->getCustomerByUserId($user->id);
 
+	        // The user has no previous customer record, create one.
             if (!$toCustomer) {
                 $toCustomer = new Commerce_CustomerModel();
                 $toCustomer->email = $user->email;
@@ -342,8 +353,10 @@ class Commerce_CustomersService extends BaseApplicationComponent
                 $this->saveCustomer($toCustomer);
             }
 
+	        // Grab all the orders for the customer.
             $orders = craft()->commerce_orders->getOrdersByEmail($toCustomer->email);
 
+	        // Assign each completed order to the users' customer and update the email.
             foreach ($orders as $order) {
                 // Only consolidate completed orders, not carts
                 if ($order->dateOrdered) {
@@ -369,7 +382,9 @@ class Commerce_CustomersService extends BaseApplicationComponent
      */
     public function getCustomerByUserId($id)
     {
-        $result = Commerce_CustomerRecord::model()->findByAttributes(['userId' => $id]);
+	    $result = $this->_createCustomersQuery()
+		    ->where('customers.userId = :xid', array(':xid' => $id))
+		    ->queryRow();
 
         if ($result) {
             return Commerce_CustomerModel::populateModel($result);
@@ -378,4 +393,20 @@ class Commerce_CustomersService extends BaseApplicationComponent
         return null;
     }
 
+
+    // Private Methods
+    // =========================================================================
+
+    /**
+     * Returns a DbCommand object prepped for retrieving customers.
+     *
+     * @return DbCommand
+     */
+    private function _createCustomersQuery()
+    {
+        return craft()->db->createCommand()
+            ->select('customers.id, customers.userId, customers.email, customers.lastUsedBillingAddressId, customers.lastUsedShippingAddressId')
+            ->from('commerce_customers customers')
+            ->order('id');
+    }
 }

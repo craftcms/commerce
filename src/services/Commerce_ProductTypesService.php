@@ -45,7 +45,7 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
     public function getAllProductTypes($indexBy = null)
     {
         if (!$this->_fetchedAllProductTypes) {
-            $results = Commerce_ProductTypeRecord::model()->findAll();
+            $results = $this->_createProductTypeQuery()->queryAll();
 
             if (!isset($this->_productTypesById))
             {
@@ -164,7 +164,9 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
             (!isset($this->_productTypesById) || !array_key_exists($productTypeId, $this->_productTypesById))
         )
         {
-            $result = Commerce_ProductTypeRecord::model()->findById($productTypeId);
+	        $result = $this->_createProductTypeQuery()
+		        ->where('pt.id = :id', array(':id' => $productTypeId))
+		        ->queryRow();
 
             if ($result) {
                 $productType = Commerce_ProductTypeModel::populateModel($result);
@@ -190,9 +192,22 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
      */
     public function getByHandle($handle)
     {
-        $result = Commerce_ProductTypeRecord::model()->findByAttributes(['handle' => $handle]);
+        craft()->deprecator->log('Commerce_OrderModel::getByHandle():renamed', 'You should no longer use `Commerce_OrderModel::getByHandle($handle)`, it has been renamed to `Commerce_OrderModel::getProductTypeByHandle($handle)`');
+        return $this->getProductTypeByHandle($handle);
+    }
 
-        if ($result)
+    /**
+     * @param string $handle
+     *
+     * @return Commerce_ProductTypeModel|null
+     */
+    public function getProductTypeByHandle($handle)
+    {
+	    $result = $this->_createProductTypeQuery()
+		    ->where('pt.handle = :handle', array(':handle' => $handle))
+		    ->queryRow();
+
+	    if ($result)
         {
             $productType = Commerce_ProductTypeModel::populateModel($result);
             $this->_productTypesById[$productType->id] = $productType;
@@ -586,4 +601,15 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
         return true;
     }
 
+	/**
+	 * Returns a DbCommand object prepped for retrieving product types.
+	 *
+	 * @return DbCommand
+	 */
+	private function _createProductTypeQuery()
+	{
+		return craft()->db->createCommand()
+			->select('pt.id, pt.name, pt.handle, pt.hasUrls, pt.hasDimensions, pt.hasVariants, pt.hasVariantTitleField, pt.titleFormat, pt.skuFormat, pt.template, pt.fieldLayoutId, pt.variantFieldLayoutId')
+			->from('commerce_producttypes pt');
+	}
 }

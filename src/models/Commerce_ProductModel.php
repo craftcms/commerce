@@ -1,8 +1,6 @@
 <?php
 namespace Craft;
 
-use Commerce\Traits\Commerce_ModelRelationsTrait;
-
 /**
  * Product model.
  *
@@ -39,7 +37,6 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  */
 class Commerce_ProductModel extends BaseElementModel
 {
-    use Commerce_ModelRelationsTrait;
 
     const LIVE = 'live';
     const PENDING = 'pending';
@@ -239,6 +236,14 @@ class Commerce_ProductModel extends BaseElementModel
     public function setVariants($variants)
     {
         $this->_variants = $variants;
+
+        // ensure each has it's parent product set
+        foreach ($this->_variants as $variant) {
+            $variant->setProduct($this);
+        }
+
+        // apply all sales applicable
+        craft()->commerce_variants->applySales($this->_variants, $this);
     }
 
     /**
@@ -251,29 +256,39 @@ class Commerce_ProductModel extends BaseElementModel
     {
         if (empty($this->_variants)) {
             if ($this->id) {
-
                 if ($this->getType()->hasVariants) {
-                    $this->_variants = craft()->commerce_variants->getAllVariantsByProductId($this->id, $this->locale);
+                    $this->setVariants(craft()->commerce_variants->getAllVariantsByProductId($this->id, $this->locale));
                 } else {
                     $variant = craft()->commerce_variants->getDefaultVariantByProductId($this->id, $this->locale);
                     if ($variant) {
-                        $this->_variants = [$variant];
+                        $this->setVariants([$variant]);
                     }
                 }
-
-                craft()->commerce_variants->applySales($this->_variants, $this);
-
             }
 
+            // Must have at least one
             if (empty($this->_variants)) {
-                // Must have at least one
                 $variant = new Commerce_VariantModel();
-                $variant->setProduct($this);
-                $this->_variants = [$variant];
+                $this->setVariants([$variant]);
             }
         }
 
         return $this->_variants;
+    }
+
+    /**
+     * Sets some eager loaded elements on a given handle.
+     *
+     * @param string             $handle   The handle to load the elements with in the future
+     * @param BaseElementModel[] $elements The eager-loaded elements
+     */
+    public function setEagerLoadedElements($handle, $elements)
+    {
+        if ($handle == 'variants') {
+            $this->setVariants($elements);
+        } else {
+            parent::setEagerLoadedElements($handle, $elements);
+        }
     }
 
     // Protected Methods

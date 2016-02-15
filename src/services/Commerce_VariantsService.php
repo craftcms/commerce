@@ -126,18 +126,15 @@ class Commerce_VariantsService extends BaseApplicationComponent
             $variant->salePrice = $variant->price;
         }
 
-        // Don't apply sales when product is not persisted.
-        if ($product->id) {
+        // Only bother calculating if the product is persisted and promotable.
+        if ($product->id && $product->promotable) {
             $sales = craft()->commerce_sales->getForProduct($product);
 
             foreach ($sales as $sale) {
                 foreach ($variants as $variant) {
-                    // only apply sales to promotable products
-                    if ($product->promotable) {
-                        $variant->salePrice = $variant->price + $sale->calculateTakeoff($variant->price);
-                        if ($variant->salePrice < 0) {
-                            $variant->salePrice = 0;
-                        }
+                    $variant->salePrice = $variant->salePrice + $sale->calculateTakeoff($variant->price);
+                    if ($variant->salePrice < 0) {
+                        $variant->salePrice = 0;
                     }
                 }
             }
@@ -213,11 +210,11 @@ class Commerce_VariantsService extends BaseApplicationComponent
         $record->productId = $model->productId;
         $record->sku = $model->sku;
 
-        $record->price = LocalizationHelper::normalizeNumber($model->price);
-        $record->width = LocalizationHelper::normalizeNumber($model->width);
-        $record->height = LocalizationHelper::normalizeNumber($model->height);
-        $record->length = LocalizationHelper::normalizeNumber($model->length);
-        $record->weight = LocalizationHelper::normalizeNumber($model->weight);
+        $record->price = $model->price;
+        $record->width = $model->width;
+        $record->height = $model->height;
+        $record->length = $model->length;
+        $record->weight = $model->weight;
         $record->minQty = $model->minQty;
         $record->maxQty = $model->maxQty;
         $record->stock = $model->stock;

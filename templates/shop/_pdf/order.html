@@ -40,11 +40,15 @@
                     </td>
                     <td>
                         <h5>Shipping Address</h5>
+                        {% if order.shippingAddress %}
                         {% include 'commerce/_includes/address' with { address: order.shippingAddress } %}
+                        {% endif %}
                     </td>
                     <td>
                         <h5>Billing Address</h5>
+                        {% if order.billingAddress %}
                         {% include 'commerce/_includes/address' with { address: order.billingAddress } %}
+                        {% endif %}
                     </td>
                 </tr>
             </table>

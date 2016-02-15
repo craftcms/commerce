@@ -101,7 +101,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
             if ($canManage) {
                 $deleteAction = craft()->elements->getAction('Commerce_DeleteProduct');
                 $deleteAction->setParams([
-                    'confirmationMessage' => Craft::t('Are you sure you want to delete the selected product and their variants?'),
+                    'confirmationMessage' => Craft::t('Are you sure you want to delete the selected product and its variants?'),
                     'successMessage' => Craft::t('Products and Variants deleted.'),
                 ]);
                 $actions[] = $deleteAction;
@@ -493,6 +493,39 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
     public function populateElementModel($row)
     {
         return Commerce_ProductModel::populateModel($row);
+    }
+
+    /**
+     * @inheritDoc IElementType::getEagerLoadingMap()
+     *
+     * @param BaseElementModel[]  $sourceElements
+     * @param string $handle
+     *
+     * @return array|false
+     */
+    public function getEagerLoadingMap($sourceElements, $handle)
+    {
+        if ($handle == 'variants') {
+            // Get the source element IDs
+            $sourceElementIds = array();
+
+            foreach ($sourceElements as $sourceElement) {
+                $sourceElementIds[] = $sourceElement->id;
+            }
+
+            $map = craft()->db->createCommand()
+                ->select('productId as source, id as target')
+                ->from('commerce_variants')
+                ->where(array('in', 'productId', $sourceElementIds))
+                ->queryAll();
+
+            return array(
+                'elementType' => 'Commerce_Variant',
+                'map' => $map
+            );
+        }
+
+        return parent::getEagerLoadingMap($sourceElements, $handle);
     }
 
     /**
