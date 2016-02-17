@@ -8,10 +8,16 @@
 {% set selectedSubnavItem = "orders" %}
 {% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commerceorders commerceordersindex" %}
 
-{# {%- includeJsResource 'commerce/lib/d3/d3.js' first %}
-{%- includeJsResource 'commerce/lib/d3-tip.js' %}
-{%-  includeJsResource 'commerce/js/classes/Chart.js' first %}
-{%-  includeJsResource 'commerce/js/classes/DateRangePicker.js' first %} #}
+{% includeTranslations
+	"Total Revenue",
+	"Last 7 days",
+	"Last 30 days",
+	"Last Week",
+	"Last Month",
+	"Custom Range",
+	"Apply"
+%}
+
 {% includecssresource "commerce/charts-explorer.css" %}
 
 {% includeJsResource 'commerce/js/CommerceOrderIndex.js' %}
