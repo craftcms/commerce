@@ -125,7 +125,16 @@ class Commerce_ReportsService extends BaseApplicationComponent
 
             foreach($results as $result)
             {
-                if($result['date'] == strftime("%Y-%m-%d", $cursorStart->getTimestamp()))
+	            switch($scale)
+	            {
+		            case 'month':
+			            $format = "%Y-%m-01";
+			            break;
+		            default:
+			            $format = "%Y-%m-%d";
+	            }
+
+                if($result['date'] == strftime($format, $cursorStart->getTimestamp()))
                 {
                     $row = [
                         $result['date'], // date
