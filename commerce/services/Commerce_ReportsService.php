@@ -23,20 +23,25 @@ class Commerce_ReportsService extends BaseApplicationComponent
     public function getRevenueReport($criteria, $startDate, $endDate)
     {
         $scale = $this->getScale($startDate, $endDate);
+	    $scaleFormat = $this->getScaleDateFormat($scale);
 
         $criteria->limit = null;
 
         $query = craft()->elements->buildElementsQuery($criteria);
 
+	    $query->select('DATE_FORMAT(orders.dateOrdered, "'.$scaleFormat.'") as date, sum(orders.totalPrice) as revenue');
+
         switch ($scale)
         {
-            case 'month':
-                $query->select('DATE_FORMAT(orders.dateOrdered, "%Y-%m-01") as date, sum(orders.totalPrice) as revenue');
-                $query->group('YEAR(orders.dateOrdered), MONTH(orders.dateOrdered)');
-                break;
+	        case 'year':
+		        $query->group('YEAR(orders.dateOrdered)');
+		        break;
+
+	        case 'month':
+		        $query->group('YEAR(orders.dateOrdered), MONTH(orders.dateOrdered)');
+		        break;
 
             default:
-                $query->select('DATE_FORMAT(orders.dateOrdered, "%Y-%m-%d") as date, sum(orders.totalPrice) as revenue');
                 $query->group('YEAR(orders.dateOrdered), MONTH(orders.dateOrdered), DAY(orders.dateOrdered)');
                 break;
         }
@@ -90,6 +95,7 @@ class Commerce_ReportsService extends BaseApplicationComponent
     public function getReportDataTable($startDate, $endDate, $results)
     {
         $scale = $this->getScale($startDate, $endDate);
+	    $scaleFormat = $this->getScaleDateFormat($scale);
 
         // columns
 
@@ -125,16 +131,7 @@ class Commerce_ReportsService extends BaseApplicationComponent
 
             foreach($results as $result)
             {
-	            switch($scale)
-	            {
-		            case 'month':
-			            $format = "%Y-%m-01";
-			            break;
-		            default:
-			            $format = "%Y-%m-%d";
-	            }
-
-                if($result['date'] == strftime($format, $cursorStart->getTimestamp()))
+                if($result['date'] == strftime($scaleFormat, $cursorStart->getTimestamp()))
                 {
                     $row = [
                         $result['date'], // date
@@ -172,7 +169,7 @@ class Commerce_ReportsService extends BaseApplicationComponent
 
         $numberOfDays = floor(($endDate->getTimestamp() - $startDate->getTimestamp()) / (60*60*24));
 
-        if ($numberOfDays > 360)
+        if ($numberOfDays > (360 * 2))
         {
             $scale = 'year';
         }
@@ -188,6 +185,28 @@ class Commerce_ReportsService extends BaseApplicationComponent
         return $scale;
     }
 
+	/**
+	 * @param string $scale
+	 *
+	 * @return string
+	 */
+	public function getScaleDateFormat($scale)
+	{
+		switch ($scale)
+		{
+			case 'year':
+				return "%Y-01-01";
+				break;
+			case 'month':
+				return "%Y-%m-01";
+				break;
+
+			default:
+				return "%Y-%m-%d";
+				break;
+		}
+	}
+	
     /**
      * @param string $currency
      *
