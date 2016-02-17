@@ -349,16 +349,16 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
     public function defineCriteriaAttributes()
     {
         return [
-            'typeId' => AttributeType::Mixed,
-            'type' => AttributeType::Mixed,
-            'postDate' => AttributeType::Mixed,
-            'expiryDate' => AttributeType::Mixed,
             'after' => AttributeType::Mixed,
-            'order' => [AttributeType::String, 'default' => 'postDate desc'],
             'before' => AttributeType::Mixed,
-            'status' => [AttributeType::String, 'default' => Commerce_ProductModel::LIVE],
-            'withVariant' => AttributeType::Mixed,
             'editable' => AttributeType::Bool,
+            'expiryDate' => AttributeType::Mixed,
+            'order' => [AttributeType::String, 'default' => 'postDate desc'],
+            'postDate' => AttributeType::Mixed,
+            'status' => [AttributeType::String, 'default' => Commerce_ProductModel::LIVE],
+            'type' => AttributeType::Mixed,
+            'typeId' => AttributeType::Mixed,
+            'withVariant' => AttributeType::Mixed,
         ];
     }
 
