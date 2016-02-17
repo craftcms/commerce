@@ -351,6 +351,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
         return [
             'after' => AttributeType::Mixed,
             'before' => AttributeType::Mixed,
+            'defaultPrice' => AttributeType::Mixed,
             'editable' => AttributeType::Bool,
             'expiryDate' => AttributeType::Mixed,
             'order' => [AttributeType::String, 'default' => 'postDate desc'],
@@ -444,6 +445,10 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
 
         if ($criteria->typeId) {
             $query->andWhere(DbHelper::parseParam('products.typeId', $criteria->typeId, $query->params));
+        }
+
+        if ($criteria->defaultPrice) {
+            $query->andWhere(DbHelper::parseParam('products.defaultPrice', $criteria->defaultPrice, $query->params));
         }
 
         if ($criteria->withVariant) {
