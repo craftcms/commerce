@@ -81,7 +81,7 @@ class Commerce_SaleRecord extends BaseRecord
             ],
             'discountAmount' => [
                 AttributeType::Number,
-                'decimals' => 5,
+                'decimals' => 4,
                 'required' => true
             ],
             'allGroups' => [

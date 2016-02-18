@@ -102,7 +102,8 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
         $sources = [
             '*' => [
                 'label' => Craft::t('All Orders'),
-                'criteria' => ['completed' => true]
+                'criteria' => ['completed' => true],
+                'defaultSort' => ['dateOrdered', 'desc']
             ]
         ];
 
@@ -113,7 +114,8 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
             $sources[$key] = [
                 'status' => $orderStatus->color,
                 'label' => $orderStatus->name,
-                'criteria' => ['orderStatus' => $orderStatus]
+                'criteria' => ['orderStatus' => $orderStatus],
+                'defaultSort' => ['dateOrdered', 'desc']
             ];
         }
 
@@ -127,12 +129,14 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 
         $sources['carts:active'] = [
             'label' => Craft::t('Active Carts'),
-            'criteria' => ['updatedAfter' => $edge, 'dateOrdered' => ":empty:"]
+            'criteria' => ['updatedAfter' => $edge, 'dateOrdered' => ":empty:"],
+            'defaultSort' => ['dateUpdated', 'asc']
         ];
 
         $sources['carts:inactive'] = [
             'label' => Craft::t('Inactive Carts'),
-            'criteria' => ['updatedBefore' => $edge, 'dateOrdered' => ":empty:"]
+            'criteria' => ['updatedBefore' => $edge, 'dateOrdered' => ":empty:"],
+            'defaultSort' => ['dateUpdated', 'desc']
         ];
 
         // Allow plugins to modify the sources

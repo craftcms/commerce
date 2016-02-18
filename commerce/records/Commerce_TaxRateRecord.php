@@ -89,7 +89,7 @@ class Commerce_TaxRateRecord extends BaseRecord
             'rate' => [
                 AttributeType::Number,
                 'required' => true,
-                'decimals' => 5
+                'decimals' => 4
             ],
             'include' => [
                 AttributeType::Bool,
