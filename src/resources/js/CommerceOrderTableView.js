@@ -87,7 +87,7 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
         this.$chartExplorer = $chartExplorer;
         this.$totalValue = $totalValue;
         this.$chartContainer = $('<div class="chart-container"></div>').appendTo($chartExplorer);
-        this.$spinner = $('<div class="spinner hidden" />').appendTo(this.$chartContainer);
+        this.$spinner = $('<div class="spinner hidden" />').prependTo($chartHeader);
         this.$error = $('<div class="error"></div>').appendTo(this.$chartContainer);
         this.$chart = $('<div class="chart"></div>').appendTo(this.$chartContainer);
         this.$dateRange = $('<a class="btn menubtn icon" data-icon="date">'+Craft.t('Open Date Range')+'</a>').appendTo($dateRangeContainer);
