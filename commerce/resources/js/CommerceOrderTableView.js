@@ -90,7 +90,7 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
         this.$spinner = $('<div class="spinner hidden" />').prependTo($chartHeader);
         this.$error = $('<div class="error"></div>').appendTo(this.$chartContainer);
         this.$chart = $('<div class="chart"></div>').appendTo(this.$chartContainer);
-        this.$dateRange = $('<a class="btn menubtn icon" data-icon="date">'+Craft.t('Open Date Range')+'</a>').appendTo($dateRangeContainer);
+        this.$dateRange = $('<a class="btn menubtn icon" data-icon="date">'+Craft.t('Date Range')+'</a>').appendTo($dateRangeContainer);
 
         var customRangeStartDate = Craft.getLocalStorage('CommerceOrdersIndex.customRangeStartDate');
         var customRangeEndDate = Craft.getLocalStorage('CommerceOrdersIndex.customRangeEndDate');
@@ -101,6 +101,8 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
             customRangeStartDate: customRangeStartDate,
             customRangeEndDate: customRangeEndDate,
         });
+
+        this.$dateRange.html(this.$dateRange.data('value'));
 
         this.loadReport(this.dateRange.getStartDate(), this.dateRange.getEndDate());
     },
