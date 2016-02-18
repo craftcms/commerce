@@ -4,9 +4,9 @@
 
 .chart-explorer .chart-header { position: relative; margin-bottom: 14px; }
 
-.chart-explorer .chart-header .datewrapper { width: auto; float: right; }
-body.rtl .chart-explorer .chart-header .datewrapper { float: left; }
-.chart-explorer .chart-header .datewrapper input { width: 200px; }
+.chart-explorer .chart-header .date-range { width: auto; float: right; }
+body.rtl .chart-explorer .chart-header .date-range { float: left; }
+.chart-explorer .chart-header .date-range input { width: 200px; }
 .chart-explorer .chart-header .spinner { position: absolute; top: 0; right: 0; }
 
 .chart-explorer .chart-container { position: relative;  }
