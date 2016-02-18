@@ -78,7 +78,7 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
     {
         var $chartExplorer = $('<div class="chart-explorer"></div>').appendTo(this.$explorerContainer),
             $chartHeader = $('<div class="chart-header"></div>').appendTo($chartExplorer),
-            $dateRangeContainer = $('<div class="datewrapper" />').appendTo($chartHeader),
+            $dateRangeContainer = $('<div class="date-range" />').appendTo($chartHeader),
             $total = $('<div class="total"></div>').appendTo($chartHeader),
             $totalLabel = $('<div class="total-label light">'+Craft.t('Total Revenue')+'</div>').appendTo($total),
             $totalValueWrapper = $('<div class="total-value-wrapper"></div>').appendTo($total);
@@ -90,7 +90,7 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
         this.$spinner = $('<div class="spinner hidden" />').appendTo(this.$chartContainer);
         this.$error = $('<div class="error"></div>').appendTo(this.$chartContainer);
         this.$chart = $('<div class="chart"></div>').appendTo(this.$chartContainer);
-        this.$dateRange = $('<input type="text" class="text" />').appendTo($dateRangeContainer);
+        this.$dateRange = $('<a class="btn menubtn icon" data-icon="date">'+Craft.t('Open Date Range')+'</a>').appendTo($dateRangeContainer);
 
         var customRangeStartDate = Craft.getLocalStorage('CommerceOrdersIndex.customRangeStartDate');
         var customRangeEndDate = Craft.getLocalStorage('CommerceOrdersIndex.customRangeEndDate');
@@ -111,7 +111,9 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
         Craft.setLocalStorage('CommerceOrdersIndex.customRangeStartDate', customRangeStartDate);
         Craft.setLocalStorage('CommerceOrdersIndex.customRangeEndDate', customRangeEndDate);
 
-        this.loadReport(startDate, endDate)
+        this.loadReport(startDate, endDate);
+
+        this.$dateRange.html(this.$dateRange.data('value'));
     },
 
     loadReport: function(startDate, endDate)
