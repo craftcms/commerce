@@ -38,14 +38,6 @@ class Commerce_CartPaymentController extends Commerce_BaseFrontEndController
             $paymentForm->token = $stripeToken;
         }
 
-        $redirect = craft()->request->getPost('redirect');
-        $cancelUrl = craft()->request->getPost('cancelUrl');
-
-        // Ensure correct redirect urls are supplied.
-        if (empty($cancelUrl) || empty($redirect)) {
-            throw new Exception(Craft::t('The “redirect” and “cancelUrl” parameters are required.'));
-        }
-
         $cart = craft()->commerce_cart->getCart();
         $cart->setContentFromPost('fields');
 
@@ -64,11 +56,39 @@ class Commerce_CartPaymentController extends Commerce_BaseFrontEndController
             return;
         }
 
-        if (!craft()->commerce_payments->processPayment($cart, $paymentForm,
-            $redirect, $cancelUrl, $customError)
-        ) {
-            craft()->userSession->setFlash('error', $customError);
-            craft()->urlManager->setRouteVariables(compact('paymentForm'));
+        // Save the return and cancel URLs to the cart
+        $returnUrl = craft()->request->getPost('redirect');
+        $cancelUrl = craft()->request->getPost('cancelUrl');
+
+        if ($returnUrl !== null || $cancelUrl !== null) {
+            $cart->returnUrl = craft()->templates->renderObjectTemplate($returnUrl, $cart);
+            $cart->cancelUrl = craft()->templates->renderObjectTemplate($cancelUrl, $cart);
+            craft()->commerce_orders->saveOrder($cart);
+        }
+
+        $success = craft()->commerce_payments->processPayment($cart, $paymentForm, $redirect, $customError);
+
+        if ($success) {
+            if (craft()->request->isAjaxRequest()) {
+                $response = ['success' => true];
+                if ($redirect !== null) {
+                    $response['redirect'] = $redirect;
+                }
+                $this->returnJson($response);
+            } else {
+                if ($redirect !== null) {
+                    $this->redirect($redirect);
+                } else {
+                    $this->redirectToPostedUrl($cart);
+                }
+            }
+        } else {
+            if (craft()->request->isAjaxRequest()) {
+                $this->returnErrorJson($customError);
+            } else {
+                craft()->userSession->setFlash('error', $customError);
+                craft()->urlManager->setRouteVariables(compact('paymentForm'));
+            }
         }
     }
 
@@ -88,6 +108,13 @@ class Commerce_CartPaymentController extends Commerce_BaseFrontEndController
             throw new HttpException(400,Craft::t("Can not complete payment for missing transaction."));
         }
 
-        craft()->commerce_payments->completePayment($transaction);
+        $success = craft()->commerce_payments->completePayment($transaction, $customError);
+
+        if ($success) {
+            $this->redirect($transaction->order->returnUrl);
+        } else {
+            craft()->userSession->setError(Craft::t('Payment error: {message}', ['message' => $customError]));
+            $this->redirect($transaction->order->cancelUrl);
+        }
     }
 }

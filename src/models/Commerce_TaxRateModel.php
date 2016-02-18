@@ -66,7 +66,7 @@ class Commerce_TaxRateModel extends BaseModel
         return [
             'id' => AttributeType::Number,
             'name' => AttributeType::String,
-            'rate' => [AttributeType::Number, 'default' => .05, 'decimals' => 5],
+            'rate' => [AttributeType::Number, 'default' => .05, 'decimals' => 4],
             'include' => AttributeType::Bool,
             'taxable' => [AttributeType::String, 'default' => Commerce_TaxRateRecord::TAXABLE_PRICE],
             'showInLabel' => AttributeType::Bool,
