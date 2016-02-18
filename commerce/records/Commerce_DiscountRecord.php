@@ -124,19 +124,19 @@ class Commerce_DiscountRecord extends BaseRecord
             ],
             'baseDiscount' => [
                 AttributeType::Number,
-                'decimals' => 5,
+                'decimals' => 4,
                 'required' => true,
                 'default' => 0
             ],
             'perItemDiscount' => [
                 AttributeType::Number,
-                'decimals' => 5,
+                'decimals' => 4,
                 'required' => true,
                 'default' => 0
             ],
             'percentDiscount' => [
                 AttributeType::Number,
-                'decimals' => 5,
+                'decimals' => 4,
                 'required' => true,
                 'default' => 0
             ],

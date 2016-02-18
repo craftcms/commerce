@@ -37,8 +37,8 @@ class Commerce_AddressesService extends BaseApplicationComponent
     public function getAddressesByCustomerId($id)
     {
         $record = Commerce_CustomerRecord::model()->with('addresses')->findByAttributes(['id' => $id]);
-
-        return Commerce_AddressModel::populateModels($record->addresses);
+        $addresses = $record ? $record->addresses : [];
+        return Commerce_AddressModel::populateModels($addresses);
     }
 
     /**
