@@ -148,7 +148,7 @@ class Commerce_CartService extends BaseApplicationComponent
      */
     public function forgetCart()
     {
-        unset($this->_cart);
+        $this->_cart = null;
         $cookieId = $this->cookieCartId;
         craft()->userSession->deleteStateCookie($cookieId);
     }
@@ -288,6 +288,13 @@ class Commerce_CartService extends BaseApplicationComponent
                 $this->_cart->number = $number;
             }
 
+            // We do not want to use the same order number as a completed order.
+            $order = craft()->commerce_orders->getOrderByNumber($number);
+            if ($order && $order->dateOrdered) {
+                $this->forgetCart();
+                $this->getCart();
+            }
+
             $this->_cart->lastIp = craft()->request->getIpAddress();
 
             // Right now, orders are only made in the default currency
@@ -333,10 +340,9 @@ class Commerce_CartService extends BaseApplicationComponent
      */
     private function _getCartRecordByNumber($number)
     {
-        $cart = Commerce_OrderRecord::model()->findByAttributes([
-            'number' => $number,
-            'dateOrdered' => null,
-        ]);
+        $cart = $this->_createOrderQuery()
+            ->where('orders.number = :number AND dateOrdered IS NULL', array(':number' => $number))
+            ->queryRow();
 
         return $cart;
     }
@@ -464,5 +470,37 @@ class Commerce_CartService extends BaseApplicationComponent
         );
 
         return Commerce_OrderModel::populateModels($records);
+    }
+
+    /**
+     * Returns a DbCommand object prepped for retrieving order records.
+     *
+     * @return DbCommand
+     */
+    private function _createOrderQuery()
+    {
+        return craft()->db->createCommand()
+            ->select('orders.id,
+                    orders.number,
+                    orders.orderStatusId,
+                    orders.billingAddressId,
+                    orders.shippingAddressId,
+                    orders.customerId,
+                    orders.couponCode,
+                    orders.itemTotal,
+                    orders.baseDiscount,
+                    orders.baseShippingCost,
+                    orders.totalPrice,
+                    orders.totalPaid,
+                    orders.email,
+                    orders.dateOrdered,
+                    orders.datePaid,
+                    orders.currency,
+                    orders.lastIp,
+                    orders.message,
+                    orders.returnUrl,
+                    orders.cancelUrl,
+                    orders.shippingMethod,
+                    orders.paymentMethodId')->from('commerce_orders orders');
     }
 }

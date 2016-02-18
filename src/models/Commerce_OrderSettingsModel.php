@@ -1,8 +1,6 @@
 <?php
 namespace Craft;
 
-use Commerce\Traits\Commerce_ModelRelationsTrait;
-
 /**
  * Order settings model.
  *
@@ -25,8 +23,6 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  */
 class Commerce_OrderSettingsModel extends BaseModel
 {
-    use Commerce_ModelRelationsTrait;
-
     /**
      * @return null|string
      */
@@ -65,5 +61,4 @@ class Commerce_OrderSettingsModel extends BaseModel
             'fieldLayoutId' => AttributeType::Number
         ];
     }
-
 }

@@ -8,7 +8,9 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
         id: null,
         orderStatusId: null,
         currentStatus: null,
+        originalStatusId: null,
         $statusSelect: null,
+        $selectedStatus: null,
         $orderStatusIdInput: null,
         $message: null,
         $error: null,
@@ -22,6 +24,8 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
             this.setSettings(settings, {
                 resizable: false
             });
+
+            this.originalStatusId = currentStatus.id;
 
             this.currentStatus = currentStatus;
 
@@ -48,6 +52,8 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
                 $('<li><a data-id="' + orderStatuses[i].id + '" data-color="' + orderStatuses[i].color + '" data-name="' + orderStatuses[i].name + '" class="' + classes + '" href="#"><span class="status ' + orderStatuses[i].color + '"></span>' + orderStatuses[i].name + '</a></li>').appendTo($list);
             }
 
+            this.$selectedStatus = $('.sel', $list);
+
             // Build message input
             this.$message = $('<div class="field">' +
                 '<div class="heading">' +
@@ -70,6 +76,7 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
             this.$updateBtn = $('<input type="button" class="btn submit" value="' + Craft.t('Update') + '"/>').appendTo($mainBtnGroup);
             this.$cancelBtn = $('<input type="button" class="btn" value="' + Craft.t('Cancel') + '"/>').appendTo($btnGroup);
 
+            this.$updateBtn.addClass('disabled');
 
             // Listeners and
             this.$statusMenuBtn = new Garnish.MenuBtn(this.$statusSelect, {
@@ -87,16 +94,42 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
             });
             this.base($form, settings);
         },
-        onSelectStatus: function (ev)
+
+        onSelectStatus: function (status)
         {
+            this.deselectStatus();
+
+            this.$selectedStatus = $(status);
+
+            this.$selectedStatus.addClass('sel');
+
             this.currentStatus = {
-                id: $(ev).data('id'),
-                name: $(ev).data('name'),
-                color: $(ev).data('color')
+                id: $(status).data('id'),
+                name: $(status).data('name'),
+                color: $(status).data('color')
             };
+
             var newHtml = "<span><span class='status " + this.currentStatus.color + "'></span>" + Craft.uppercaseFirst(this.currentStatus.name) + "</span>";
             this.$statusSelect.html(newHtml);
+
+            if(this.originalStatusId == this.currentStatus.id)
+            {
+                this.$updateBtn.addClass('disabled');
+            }
+            else
+            {
+                this.$updateBtn.removeClass('disabled');
+            }
         },
+
+        deselectStatus: function()
+        {
+            if(this.$selectedStatus)
+            {
+                this.$selectedStatus.removeClass('sel');
+            }
+        },
+
         updateStatus: function ()
         {
             var data = {

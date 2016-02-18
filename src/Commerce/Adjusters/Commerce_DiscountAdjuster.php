@@ -132,27 +132,29 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
     private function getDescription(Commerce_DiscountModel $discount)
     {
         $description = '';
+        $currency = \Craft\craft()->commerce_settings->getSettings()->defaultCurrency;
+
         if ($discount->perItemDiscount || $discount->percentDiscount) {
             if ($discount->perItemDiscount) {
-                $description .= $discount->perItemDiscount * 1 . '$ ';
+                $description .= \Craft\craft()->numberFormatter->formatCurrency($discount->perItemDiscount * -1,$currency);
             }
 
             if ($discount->percentDiscount) {
                 if ($discount->perItemDiscount) {
-                    $description .= 'and ';
+                    $description .= ' and ';
                 }
 
-                $description .= $discount->percentDiscount * 100 . '% ';
+                $description .= \Craft\craft()->numberFormatter->formatPercentage($discount->percentDiscount * -1 . '%');
             }
 
-            $description .= 'per item ';
+            $description .= ' per item ';
         }
 
         if ($discount->baseDiscount) {
             if ($description) {
                 $description .= 'and ';
             }
-            $description .= $discount->baseDiscount * 1 . '$ base rate ';
+            $description .= \Craft\craft()->numberFormatter->formatCurrency($discount->baseDiscount * -1,$currency) . ' base rate ';
         }
 
         if ($discount->freeShipping) {

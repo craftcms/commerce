@@ -41,6 +41,25 @@ class Commerce_OrdersService extends BaseApplicationComponent
     }
 
     /**
+     * Returns an a array of matching Commerce_OrderModels for the given order IDs.
+     *
+     * @since 1.1
+     *
+     * @param array $ids    The order IDs to search for.
+     *
+     * @return Commerce_OrderModel[]|null The matching order models.
+     */
+    public function getOrdersByIds($ids)
+    {
+        if (is_array($ids))
+        {
+            $orders = Commerce_OrderRecord::model()->findAllByPk($ids);
+
+            return Commerce_OrderModel::populateModels($orders);
+        }
+    }
+
+    /**
      * @param string $number
      *
      * @return Commerce_OrderModel|null
@@ -75,9 +94,12 @@ class Commerce_OrdersService extends BaseApplicationComponent
      */
     public function getOrdersByEmail($email)
     {
-        $orders = Commerce_OrderRecord::model()->findAllByAttributes(['email' => $email]);
+        $criteria = craft()->elements->getCriteria('Commerce_Order');
+        $criteria->email = $email;
+        $criteria->dateOrdered = "NOT NULL";
+        $criteria->limit = null;
 
-        return Commerce_OrderModel::populateModels($orders);
+        return $criteria->find();
     }
 
     /**
@@ -295,13 +317,22 @@ class Commerce_OrdersService extends BaseApplicationComponent
         $order->baseDiscount = 0;
         $order->baseShippingCost = 0;
         $order->itemTotal = 0;
-        foreach ($lineItems as $item) { //resetting fields calculated by adjusters
+        foreach ($lineItems as $key => $item) { //resetting fields calculated by adjusters
+
+            // remove the item from the cart if the purchasable does not exist anymore.
+            if(!$lineItems[$key]->purchasableId){
+                unset($lineItems[$key]);
+                craft()->commerce_lineItems->deleteLineItem($item);
+                continue;
+            }
+
             $item->tax = 0;
             $item->taxIncluded = 0;
             $item->shippingCost = 0;
             $item->discount = 0;
             // Need to have an initial itemTotal for use by adjusters.
             $order->itemTotal += $item->getTotal();
+
         }
 
         $order->setLineItems($lineItems);
@@ -486,6 +517,19 @@ class Commerce_OrdersService extends BaseApplicationComponent
     {
         CommerceDbHelper::beginStackedTransaction();
         try {
+
+            $customerId = craft()->commerce_customers->getCustomerId();
+            $currentCustomerAddressIds = craft()->commerce_customers->getAddressIds($customerId);
+
+            // Customers can only set addresses that are theirs
+            if ($shippingAddress->id && !in_array($shippingAddress->id, $currentCustomerAddressIds)) {
+                return false;
+            }
+            // Customer can only set addresses that are theirs
+            if ($billingAddress->id && !in_array($billingAddress->id, $currentCustomerAddressIds)) {
+                return false;
+            }
+
             $result1 = craft()->commerce_customers->saveAddress($shippingAddress);
 
             if (($billingAddress->id && $billingAddress->id == $shippingAddress->id) || $shippingAddress === $billingAddress) {

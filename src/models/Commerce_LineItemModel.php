@@ -2,7 +2,6 @@
 namespace Craft;
 
 use Commerce\Interfaces\Purchasable;
-use Commerce\Traits\Commerce_ModelRelationsTrait;
 
 /**
  * Line Item model representing a line item on an order.
@@ -47,8 +46,6 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  */
 class Commerce_LineItemModel extends BaseModel
 {
-    use Commerce_ModelRelationsTrait;
-
     private $_purchasable;
 
     /**
@@ -115,6 +112,16 @@ class Commerce_LineItemModel extends BaseModel
         }
 
         return $this->_purchasable;
+    }
+
+    /**
+     * @param BaseElementModel $purchasable
+     *
+     * @return void
+     */
+    public function setPurchasable(BaseElementModel $purchasable)
+    {
+        $this->_purchasable = $purchasable;
     }
 
     /**
@@ -202,6 +209,14 @@ class Commerce_LineItemModel extends BaseModel
     public function getSku()
     {
         return $this->snapshot['sku'];
+    }
+
+    /**
+     * @return Commerce_TaxCategoryModel|null
+     */
+    public function getTaxCategory()
+    {
+        return craft()->commerce_taxCategories->getTaxCategoryById($this->taxCategoryId);
     }
 
     /**

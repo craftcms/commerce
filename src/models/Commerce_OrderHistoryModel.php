@@ -1,8 +1,6 @@
 <?php
 namespace Craft;
 
-use Commerce\Traits\Commerce_ModelRelationsTrait;
-
 /**
  * Class Commerce_OrderHistoryModel
  *
@@ -29,7 +27,38 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  */
 class Commerce_OrderHistoryModel extends BaseModel
 {
-    use Commerce_ModelRelationsTrait;
+
+    /**
+     * @return Commerce_OrderModel|null
+     */
+    public function getOrder()
+    {
+        return craft()->commerce_orders->getOrderById($this->orderId);
+    }
+
+    /**
+     * @return Commerce_OrderStatusModel|null
+     */
+    public function getPrevStatus()
+    {
+        return craft()->commerce_orderStatuses->getOrderStatusById($this->prevStatusId);
+    }
+
+    /**
+     * @return Commerce_OrderStatusModel|null
+     */
+    public function getNewStatus()
+    {
+        return craft()->commerce_orderStatuses->getOrderStatusById($this->newStatusId);
+    }
+
+    /**
+     * @return Commerce_CustomerModel|null
+     */
+    public function getCustomer()
+    {
+        return craft()->commerce_customers->getCustomerById($this->customerId);
+    }
 
     protected function defineAttributes()
     {

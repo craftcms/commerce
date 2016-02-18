@@ -71,9 +71,9 @@ class CommerceProductHelper
             }
 
             $variantModel->setProduct($product);
-
+            $variantModel->enabled = isset($variant['enabled']) ? $variant['enabled'] : 1;
             $variantModel->isDefault = isset($variant['isDefault']) ? $variant['isDefault'] : 0;
-            $variantModel->sku = $variant['sku'];
+            $variantModel->sku = isset($variant['sku']) ? $variant['sku'] : '';
             $variantModel->price = LocalizationHelper::normalizeNumber($variant['price']);
             $variantModel->width = isset($variant['width']) ? LocalizationHelper::normalizeNumber($variant['width']) : null;
             $variantModel->height = isset($variant['height']) ? LocalizationHelper::normalizeNumber($variant['height']) : null;

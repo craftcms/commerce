@@ -1,8 +1,6 @@
 <?php
 namespace Craft;
 
-use Commerce\Traits\Commerce_ModelRelationsTrait;
-
 /**
  * Tax rate model.
  *
@@ -27,7 +25,6 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  */
 class Commerce_TaxRateModel extends BaseModel
 {
-    use Commerce_ModelRelationsTrait;
 
     /**
      * @return string
@@ -46,6 +43,22 @@ class Commerce_TaxRateModel extends BaseModel
     }
 
     /**
+     * @return Commerce_TaxZoneModel|null
+     */
+    public function getTaxZone()
+    {
+        return craft()->commerce_taxZones->getTaxZoneById($this->taxZoneId);
+    }
+
+    /**
+     * @return Commerce_TaxCategoryModel|null
+     */
+    public function getTaxCategory()
+    {
+        return craft()->commerce_taxCategories->getTaxCategoryById($this->taxCategoryId);
+    }
+
+    /**
      * @return array
      */
     protected function defineAttributes()
@@ -53,7 +66,7 @@ class Commerce_TaxRateModel extends BaseModel
         return [
             'id' => AttributeType::Number,
             'name' => AttributeType::String,
-            'rate' => [AttributeType::Number, 'default' => .05, 'decimals' => 5],
+            'rate' => [AttributeType::Number, 'default' => .05, 'decimals' => 4],
             'include' => AttributeType::Bool,
             'taxable' => [AttributeType::String, 'default' => Commerce_TaxRateRecord::TAXABLE_PRICE],
             'showInLabel' => AttributeType::Bool,

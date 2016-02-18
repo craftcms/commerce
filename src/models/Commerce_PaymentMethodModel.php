@@ -128,7 +128,7 @@ class Commerce_PaymentMethodModel extends BaseModel
                 'required' => true,
                 'default' => 'purchase'
             ],
-            'frontendEnabled' => AttributeType::Bool,
+            'frontendEnabled' => [AttributeType::Bool, 'default' => true],
             'settings' => [AttributeType::Mixed],
         ];
     }

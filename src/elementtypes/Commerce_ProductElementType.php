@@ -101,7 +101,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
             if ($canManage) {
                 $deleteAction = craft()->elements->getAction('Commerce_DeleteProduct');
                 $deleteAction->setParams([
-                    'confirmationMessage' => Craft::t('Are you sure you want to delete the selected product and their variants?'),
+                    'confirmationMessage' => Craft::t('Are you sure you want to delete the selected product and its variants?'),
                     'successMessage' => Craft::t('Products and Variants deleted.'),
                 ]);
                 $actions[] = $deleteAction;
@@ -349,16 +349,17 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
     public function defineCriteriaAttributes()
     {
         return [
-            'typeId' => AttributeType::Mixed,
-            'type' => AttributeType::Mixed,
-            'postDate' => AttributeType::Mixed,
-            'expiryDate' => AttributeType::Mixed,
             'after' => AttributeType::Mixed,
-            'order' => [AttributeType::String, 'default' => 'postDate desc'],
             'before' => AttributeType::Mixed,
-            'status' => [AttributeType::String, 'default' => Commerce_ProductModel::LIVE],
-            'withVariant' => AttributeType::Mixed,
+            'defaultPrice' => AttributeType::Mixed,
             'editable' => AttributeType::Bool,
+            'expiryDate' => AttributeType::Mixed,
+            'order' => [AttributeType::String, 'default' => 'postDate desc'],
+            'postDate' => AttributeType::Mixed,
+            'status' => [AttributeType::String, 'default' => Commerce_ProductModel::LIVE],
+            'type' => AttributeType::Mixed,
+            'typeId' => AttributeType::Mixed,
+            'withVariant' => AttributeType::Mixed,
         ];
     }
 
@@ -446,6 +447,10 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
             $query->andWhere(DbHelper::parseParam('products.typeId', $criteria->typeId, $query->params));
         }
 
+        if ($criteria->defaultPrice) {
+            $query->andWhere(DbHelper::parseParam('products.defaultPrice', $criteria->defaultPrice, $query->params));
+        }
+
         if ($criteria->withVariant) {
             if ($criteria->withVariant instanceof ElementCriteriaModel) {
                 $variantCriteria = $criteria->withVariant;
@@ -493,6 +498,39 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
     public function populateElementModel($row)
     {
         return Commerce_ProductModel::populateModel($row);
+    }
+
+    /**
+     * @inheritDoc IElementType::getEagerLoadingMap()
+     *
+     * @param BaseElementModel[]  $sourceElements
+     * @param string $handle
+     *
+     * @return array|false
+     */
+    public function getEagerLoadingMap($sourceElements, $handle)
+    {
+        if ($handle == 'variants') {
+            // Get the source element IDs
+            $sourceElementIds = array();
+
+            foreach ($sourceElements as $sourceElement) {
+                $sourceElementIds[] = $sourceElement->id;
+            }
+
+            $map = craft()->db->createCommand()
+                ->select('productId as source, id as target')
+                ->from('commerce_variants')
+                ->where(array('in', 'productId', $sourceElementIds))
+                ->queryAll();
+
+            return array(
+                'elementType' => 'Commerce_Variant',
+                'map' => $map
+            );
+        }
+
+        return parent::getEagerLoadingMap($sourceElements, $handle);
     }
 
     /**
