@@ -1,7 +1,7 @@
 <?php
 namespace Craft;
 
-use Commerce\Interfaces\Purchasable;
+use Commerce\Base\Purchasable as BasePurchasable;
 
 /**
  * Class Commerce_VariantModel
@@ -31,7 +31,7 @@ use Commerce\Interfaces\Purchasable;
  * @package   craft.plugins.commerce.models
  * @since     1.0
  */
-class Commerce_VariantModel extends BaseElementModel implements Purchasable
+class Commerce_VariantModel extends BasePurchasable
 {
     // Properties
     // =========================================================================
@@ -316,6 +316,21 @@ class Commerce_VariantModel extends BaseElementModel implements Purchasable
             }
         }
 
+    }
+
+    /**
+     * Sets some eager loaded elements on a given handle.
+     *
+     * @param string             $handle   The handle to load the elements with in the future
+     * @param BaseElementModel[] $elements The eager-loaded elements
+     */
+    public function setEagerLoadedElements($handle, $elements)
+    {
+        if ($handle == 'product' && isset($elements[0])) {
+            $this->setProduct($elements[0]);
+        } else {
+            parent::setEagerLoadedElements($handle, $elements);
+        }
     }
 
     // Protected Methods

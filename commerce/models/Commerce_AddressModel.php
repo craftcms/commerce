@@ -1,8 +1,6 @@
 <?php
 namespace Craft;
 
-use Commerce\Traits\Commerce_ModelRelationsTrait;
-
 /**
  * Customer address model.
  *
@@ -33,8 +31,6 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  */
 class Commerce_AddressModel extends BaseModel
 {
-    use Commerce_ModelRelationsTrait;
-
     /** @var int|string Either ID of a state or name of state if it's not present in the DB */
     public $stateValue;
 

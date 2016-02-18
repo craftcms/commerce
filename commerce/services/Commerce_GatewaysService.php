@@ -77,6 +77,8 @@ class Commerce_GatewaysService extends BaseApplicationComponent
                 '\Commerce\Gateways\Omnipay\Dummy_GatewayAdapter',
                 '\Commerce\Gateways\Omnipay\Eway_Rapid_GatewayAdapter',
                 '\Commerce\Gateways\Omnipay\Eway_RapidDirect_GatewayAdapter',
+                '\Commerce\Gateways\Omnipay\Eway_Direct_GatewayAdapter',
+                '\Commerce\Gateways\Omnipay\Eway_RapidShared_GatewayAdapter',
                 '\Commerce\Gateways\Omnipay\FirstData_Connect_GatewayAdapter',
                 '\Commerce\Gateways\Omnipay\GoCardless_GatewayAdapter',
                 '\Commerce\Gateways\Omnipay\Manual_GatewayAdapter',

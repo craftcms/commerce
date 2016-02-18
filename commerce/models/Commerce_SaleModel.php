@@ -1,8 +1,6 @@
 <?php
 namespace Craft;
 
-use Commerce\Traits\Commerce_ModelRelationsTrait;
-
 /**
  * Sale model.
  *
@@ -13,14 +11,13 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  * @property DateTime $dateTo
  * @property string $discountType
  * @property float $discountAmount
+ * @property array $groupIds
+ * @property array $productIds
+ * @property array $productTypeIds
  * @property bool $allGroups
  * @property bool $allProducts
  * @property bool $allProductTypes
  * @property bool $enabled
- *
- * @property Commerce_ProductModel[] $products
- * @property Commerce_ProductTypeModel[] $productTypes
- * @property UserGroupModel[] $groups
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -31,16 +28,13 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  */
 class Commerce_SaleModel extends BaseModel
 {
-    use Commerce_ModelRelationsTrait;
 
     /**
      * @return array
      */
     public function getGroupIds()
     {
-        return array_map(function ($group) {
-            return $group->id;
-        }, $this->groups);
+        return $this->getAttribute('groupIds');
     }
 
     /**
@@ -48,9 +42,7 @@ class Commerce_SaleModel extends BaseModel
      */
     public function getProductTypeIds()
     {
-        return array_map(function ($type) {
-            return $type->id;
-        }, $this->productTypes);
+        return $this->getAttribute('productTypeIds');
     }
 
     /**
@@ -58,9 +50,7 @@ class Commerce_SaleModel extends BaseModel
      */
     public function getProductIds()
     {
-        return array_map(function ($product) {
-            return $product->id;
-        }, $this->products);
+        return $this->getAttribute('productIds');
     }
 
     /**
@@ -104,11 +94,19 @@ class Commerce_SaleModel extends BaseModel
         return [
             'id' => AttributeType::Number,
             'name' => AttributeType::Name,
+            'productIds' => [AttributeType::Mixed, 'default' => []],
+            'productTypeIds' => [AttributeType::Mixed, 'default' => []],
+            'groupIds' => [AttributeType::Mixed, 'default' => []],
             'description' => AttributeType::Mixed,
             'dateFrom' => AttributeType::DateTime,
             'dateTo' => AttributeType::DateTime,
-            'discountType' => AttributeType::Enum,
-            'discountAmount' => AttributeType::Number,
+            'discountType' => [
+                AttributeType::Enum,
+                'values' => [Commerce_SaleRecord::TYPE_PERCENT, Commerce_SaleRecord::TYPE_FLAT],
+                'required' => true,
+                'default' => Commerce_SaleRecord::TYPE_FLAT
+            ],
+            'discountAmount' => [AttributeType::Number, 'decimals' => 4, 'default'=>0],
             'allGroups' => [
                 AttributeType::Bool,
                 'required' => true,
@@ -124,7 +122,7 @@ class Commerce_SaleModel extends BaseModel
                 'required' => true,
                 'default' => 0
             ],
-            'enabled' => AttributeType::Bool,
+            'enabled' => [AttributeType::Bool, 'default' => true],
         ];
     }
 }

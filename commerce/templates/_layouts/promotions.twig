@@ -2,6 +2,7 @@
 
 {% set title = "Promotions"|t %}
 {% set selectedSubnavItem = "promotions" %}
+{% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commercepromotions" %}
 
 {% set sidebarNavItems = {
 	sales: { label: 'Sales'|t, url: url('commerce/promotions/sales') },

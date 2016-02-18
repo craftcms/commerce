@@ -54,8 +54,15 @@ class Commerce_StatesService extends BaseApplicationComponent
         $cid2state = [];
 
         foreach ($states as $state) {
+
             $cid2state += [$state->countryId => []];
+
+            if (count($cid2state[$state->countryId]) == 0) {
+                $cid2state[$state->countryId][null] = "";
+            }
+
             $cid2state[$state->countryId][$state->id] = $state->name;
+
         }
 
         return $cid2state;

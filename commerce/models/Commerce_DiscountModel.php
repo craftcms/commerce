@@ -111,19 +111,19 @@ class Commerce_DiscountModel extends BaseModel
             ],
             'baseDiscount' => [
                 AttributeType::Number,
-                'decimals' => 5,
+                'decimals' => 4,
                 'required' => true,
                 'default' => 0
             ],
             'perItemDiscount' => [
                 AttributeType::Number,
-                'decimals' => 5,
+                'decimals' => 4,
                 'required' => true,
                 'default' => 0
             ],
             'percentDiscount' => [
                 AttributeType::Number,
-                'decimals' => 5,
+                'decimals' => 4,
                 'required' => true,
                 'default' => 0
             ],
@@ -155,7 +155,7 @@ class Commerce_DiscountModel extends BaseModel
             'enabled' => [
                 AttributeType::Bool,
                 'required' => true,
-                'default' => 1
+                'default' => true
             ],
         ];
     }

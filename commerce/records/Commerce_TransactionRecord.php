@@ -117,7 +117,7 @@ class Commerce_TransactionRecord extends BaseRecord
                 AttributeType::Number,
                 'min' => -1000000000000,
                 'max' => 1000000000000,
-                'decimals' => 2
+                'decimals' => 4
             ],
             'status' => [
                 AttributeType::Enum,

@@ -1,8 +1,6 @@
 <?php
 namespace Craft;
 
-use Commerce\Traits\Commerce_ModelRelationsTrait;
-
 /**
  * Shipping rule model
  *
@@ -40,8 +38,6 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  */
 class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfaces\ShippingRule
 {
-    use Commerce_ModelRelationsTrait;
-
     /**
      * Hard coded rule handle
      *
@@ -58,6 +54,22 @@ class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfac
     public function getIsEnabled()
     {
         return $this->enabled;
+    }
+
+    /**
+     * @return Commerce_CountryModel|null
+     */
+    public function getCountry()
+    {
+        return craft()->commerce_countries->getCountryById($this->countryId);
+    }
+
+    /**
+     * @return Commerce_StateModel|null
+     */
+    public function getState()
+    {
+        return craft()->commerce_states->getStateById($this->stateId);
     }
 
     /**
@@ -205,7 +217,7 @@ class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfac
             'enabled' => [
                 AttributeType::Bool,
                 'required' => true,
-                'default' => 1
+                'default' => true
             ],
             //filters
             'minQty' => [
@@ -222,62 +234,62 @@ class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfac
                 AttributeType::Number,
                 'required' => true,
                 'default' => 0,
-                'decimals' => 5
+                'decimals' => 4
             ],
             'maxTotal' => [
                 AttributeType::Number,
                 'required' => true,
                 'default' => 0,
-                'decimals' => 5
+                'decimals' => 4
             ],
             'minWeight' => [
                 AttributeType::Number,
                 'required' => true,
                 'default' => 0,
-                'decimals' => 5
+                'decimals' => 4
             ],
             'maxWeight' => [
                 AttributeType::Number,
                 'required' => true,
                 'default' => 0,
-                'decimals' => 5
+                'decimals' => 4
             ],
             //charges
             'baseRate' => [
                 AttributeType::Number,
                 'required' => true,
                 'default' => 0,
-                'decimals' => 5
+                'decimals' => 4
             ],
             'perItemRate' => [
                 AttributeType::Number,
                 'required' => true,
                 'default' => 0,
-                'decimals' => 5
+                'decimals' => 4
             ],
             'weightRate' => [
                 AttributeType::Number,
                 'required' => true,
                 'default' => 0,
-                'decimals' => 5
+                'decimals' => 4
             ],
             'percentageRate' => [
                 AttributeType::Number,
                 'required' => true,
                 'default' => 0,
-                'decimals' => 5
+                'decimals' => 4
             ],
             'minRate' => [
                 AttributeType::Number,
                 'required' => true,
                 'default' => 0,
-                'decimals' => 5
+                'decimals' => 4
             ],
             'maxRate' => [
                 AttributeType::Number,
                 'required' => true,
                 'default' => 0,
-                'decimals' => 5
+                'decimals' => 4
             ],
         ];
     }
