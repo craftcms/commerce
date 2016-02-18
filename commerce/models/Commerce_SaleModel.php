@@ -100,8 +100,13 @@ class Commerce_SaleModel extends BaseModel
             'description' => AttributeType::Mixed,
             'dateFrom' => AttributeType::DateTime,
             'dateTo' => AttributeType::DateTime,
-            'discountType' => AttributeType::Enum,
-            'discountAmount' => AttributeType::Number,
+            'discountType' => [
+                AttributeType::Enum,
+                'values' => [Commerce_SaleRecord::TYPE_PERCENT, Commerce_SaleRecord::TYPE_FLAT],
+                'required' => true,
+                'default' => Commerce_SaleRecord::TYPE_FLAT
+            ],
+            'discountAmount' => [AttributeType::Number, 'decimals' => 4, 'default'=>0],
             'allGroups' => [
                 AttributeType::Bool,
                 'required' => true,

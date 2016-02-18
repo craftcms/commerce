@@ -91,7 +91,7 @@ class Commerce_ShippingMethodModel extends BaseModel implements ShippingMethod
             'enabled' => [
                 AttributeType::Bool,
                 'required' => true,
-                'default' => 1
+                'default' => true
             ]
         ];
     }

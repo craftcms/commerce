@@ -217,7 +217,7 @@ class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfac
             'enabled' => [
                 AttributeType::Bool,
                 'required' => true,
-                'default' => 1
+                'default' => true
             ],
             //filters
             'minQty' => [
@@ -234,62 +234,62 @@ class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfac
                 AttributeType::Number,
                 'required' => true,
                 'default' => 0,
-                'decimals' => 5
+                'decimals' => 4
             ],
             'maxTotal' => [
                 AttributeType::Number,
                 'required' => true,
                 'default' => 0,
-                'decimals' => 5
+                'decimals' => 4
             ],
             'minWeight' => [
                 AttributeType::Number,
                 'required' => true,
                 'default' => 0,
-                'decimals' => 5
+                'decimals' => 4
             ],
             'maxWeight' => [
                 AttributeType::Number,
                 'required' => true,
                 'default' => 0,
-                'decimals' => 5
+                'decimals' => 4
             ],
             //charges
             'baseRate' => [
                 AttributeType::Number,
                 'required' => true,
                 'default' => 0,
-                'decimals' => 5
+                'decimals' => 4
             ],
             'perItemRate' => [
                 AttributeType::Number,
                 'required' => true,
                 'default' => 0,
-                'decimals' => 5
+                'decimals' => 4
             ],
             'weightRate' => [
                 AttributeType::Number,
                 'required' => true,
                 'default' => 0,
-                'decimals' => 5
+                'decimals' => 4
             ],
             'percentageRate' => [
                 AttributeType::Number,
                 'required' => true,
                 'default' => 0,
-                'decimals' => 5
+                'decimals' => 4
             ],
             'minRate' => [
                 AttributeType::Number,
                 'required' => true,
                 'default' => 0,
-                'decimals' => 5
+                'decimals' => 4
             ],
             'maxRate' => [
                 AttributeType::Number,
                 'required' => true,
                 'default' => 0,
-                'decimals' => 5
+                'decimals' => 4
             ],
         ];
     }
