@@ -1,7 +1,7 @@
 <?php
 namespace Craft;
 
-use Commerce\Interfaces\Purchasable;
+use Commerce\Base\Purchasable as BasePurchasable;
 
 /**
  * Class Commerce_VariantModel
@@ -31,7 +31,7 @@ use Commerce\Interfaces\Purchasable;
  * @package   craft.plugins.commerce.models
  * @since     1.0
  */
-class Commerce_VariantModel extends BaseElementModel implements Purchasable
+class Commerce_VariantModel extends BasePurchasable
 {
     // Properties
     // =========================================================================
