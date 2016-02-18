@@ -41,7 +41,7 @@ Craft.Commerce.getChartOptions = function(localeDefinition, scale)
         }
     };
 
-    return $.extend(true, Craft.charts.defaults.area, options);
+    return $.extend(true, {}, Craft.charts.defaults.area, options);
 }
 
 })(jQuery);
