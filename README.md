@@ -1,7 +1,6 @@
 # Craft Commerce
 
-This README is designed to be consumed by developers of Craft Commerce,
-not end users.
+This README is designed to be consumed by developers of Craft Commerce, not end users.
 
 ## Code License
 Use of this software is subject to the License Agreement located at https://craftcommerce.com/license.
@@ -20,7 +19,12 @@ served from a webserver.
 
 ## Test Suite
 
-1) Install selenium server standalone. I suggest using [Homebrew](http://brew.sh/).
+Included is the basic framework for adding acceptence (integration) tests using 
+selenium and codeception.
+Tests are automations of the web app that replay the UI interactions and simulate 
+workflows showing the expected behavior.
+
+1) Install selenium server standalone. Suggest using [Homebrew](http://brew.sh/) on OSX.
 ```bash
 brew install selenium-server-standalone
 ```
@@ -30,7 +34,7 @@ After installing you should be able to run the server with
 selenium-server
 ```
 
-2) Install codeception. [Codeception instructions](http://codeception.com/quickstart)
+2) Install the codeception phar. [Codeception instructions](http://codeception.com/quickstart)
 
 ```bash
 cd tests
