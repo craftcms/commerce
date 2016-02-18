@@ -37,8 +37,8 @@ class Commerce_AddressesService extends BaseApplicationComponent
     public function getAddressesByCustomerId($id)
     {
         $record = Commerce_CustomerRecord::model()->with('addresses')->findByAttributes(['id' => $id]);
-
-        return Commerce_AddressModel::populateModels($record->addresses);
+        $addresses = $record ? $record->addresses : [];
+        return Commerce_AddressModel::populateModels($addresses);
     }
 
     /**
@@ -144,7 +144,7 @@ class Commerce_AddressesService extends BaseApplicationComponent
 
     /**
      * Event: after saving an address.
-     * Event params: addres(Commerce_AddressModel)
+     * Event params: address(Commerce_AddressModel)
      *
      * @param \CEvent $event
      *
