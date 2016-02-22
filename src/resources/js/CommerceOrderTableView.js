@@ -74,7 +74,6 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
     createChartExplorer: function()
     {
         this.startDate = Craft.getLocalStorage('CommerceOrdersIndex.startDate');
-        console.log('this.startDate', this.startDate);
         this.endDate = Craft.getLocalStorage('CommerceOrdersIndex.endDate');
 
         if(!this.startDate)
