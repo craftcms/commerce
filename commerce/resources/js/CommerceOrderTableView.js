@@ -143,7 +143,7 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
                         x: response.report[0][0]
                     },
                     orientation: response.orientation,
-                }, Craft.Commerce.getChartOptions(response.localeDefinition, response.scale));
+                }, Craft.Commerce.getChartOptions(response.localeDefinition, response.scale, response.numberFormat));
 
                 this.$totalValue.html(response.totalHtml);
             }
