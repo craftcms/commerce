@@ -4,8 +4,6 @@
 Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
 
     chartToggleState: null,
-    dateRangeState: null,
-
     startDate: null,
     endDate: null,
 
@@ -14,7 +12,6 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
 	afterInit: function()
     {
         this.chartToggleState = Craft.getLocalStorage('CommerceOrdersIndex.chartToggleState', false);
-        this.dateRangeState = Craft.getLocalStorage('CommerceOrdersIndex.dateRangeState', 'd7');
 
         var $viewBtns = $('.viewbtns');
         $viewBtns.removeClass('hidden');
@@ -76,9 +73,28 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
 
     createChartExplorer: function()
     {
+        this.startDate = Craft.getLocalStorage('CommerceOrdersIndex.startDate');
+        console.log('this.startDate', this.startDate);
+        this.endDate = Craft.getLocalStorage('CommerceOrdersIndex.endDate');
+
+        if(!this.startDate)
+        {
+            var date = new Date();
+            date = date.getTime() - (60 * 60 * 24 * 7 * 1000);
+            this.startDate = new Date(date);
+        }
+
+        if(!this.endDate)
+        {
+            this.endDate = new Date();
+        }
+
         var $chartExplorer = $('<div class="chart-explorer"></div>').appendTo(this.$explorerContainer),
             $chartHeader = $('<div class="chart-header"></div>').appendTo($chartExplorer),
-            $dateRangeContainer = $('<div class="date-range" />').appendTo($chartHeader),
+            $dateRange = $('<div class="date-range" />').appendTo($chartHeader),
+            $startDateContainer = $('<div class="datewrapper"></div>').appendTo($dateRange),
+            $to = $('<span class="to light">to</span>').appendTo($dateRange),
+            $endDateContainer = $('<div class="datewrapper"></div>').appendTo($dateRange),
             $total = $('<div class="total"></div>').appendTo($chartHeader),
             $totalLabel = $('<div class="total-label light">'+Craft.t('Total Revenue')+'</div>').appendTo($total),
             $totalValueWrapper = $('<div class="total-value-wrapper"></div>').appendTo($total);
@@ -90,32 +106,54 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
         this.$spinner = $('<div class="spinner hidden" />').prependTo($chartHeader);
         this.$error = $('<div class="error"></div>').appendTo(this.$chartContainer);
         this.$chart = $('<div class="chart"></div>').appendTo(this.$chartContainer);
-        this.$dateRange = $('<a class="btn menubtn icon" data-icon="date">'+Craft.t('Date Range')+'</a>').appendTo($dateRangeContainer);
 
-        var customRangeStartDate = Craft.getLocalStorage('CommerceOrdersIndex.customRangeStartDate');
-        var customRangeEndDate = Craft.getLocalStorage('CommerceOrdersIndex.customRangeEndDate');
+        this.$startDate = $('<input type="text" value="'+Craft.formatDate(this.startDate)+'" class="text" size="20" autocomplete="off" />').appendTo($startDateContainer);
+        this.$endDate = $('<input type="text" value="'+Craft.formatDate(this.endDate)+'" class="text" size="20" autocomplete="off" />').appendTo($endDateContainer);
 
-        this.dateRange = new Craft.DateRangePicker(this.$dateRange, {
-            value: this.dateRangeState,
-            onAfterSelect: $.proxy(this, 'onAfterDateRangeSelect'),
-            customRangeStartDate: customRangeStartDate,
-            customRangeEndDate: customRangeEndDate,
-        });
+        this.$startDate.datepicker($.extend({
+            onSelect: $.proxy(function(dateText, inst)
+            {
+                var selectedDate = new Date(inst.currentYear, inst.currentMonth, inst.currentDay);
 
-        this.$dateRange.html(this.$dateRange.data('value'));
+                if(selectedDate.getTime() > this.endDate.getTime())
+                {
+                    // if selectedDate > endDate, set endDate at selectedDate plus 7 days
+                    var _endDate = selectedDate.getTime() + (60 * 60 * 24 * 7 * 1000);
+                    _endDate = new Date(_endDate);
+                    this.endDate = _endDate;
+                    this.$endDate.val(Craft.formatDate(this.endDate));
+                    Craft.setLocalStorage('CommerceOrdersIndex.endDate', this.endDate);
+                }
 
-        this.loadReport(this.dateRange.getStartDate(), this.dateRange.getEndDate());
-    },
+                this.startDate = new Date(inst.currentYear, inst.currentMonth, inst.currentDay);
+                this.loadReport(this.startDate, this.endDate);
 
-    onAfterDateRangeSelect: function(value, startDate, endDate, customRangeStartDate, customRangeEndDate)
-    {
-        Craft.setLocalStorage('CommerceOrdersIndex.dateRangeState', value);
-        Craft.setLocalStorage('CommerceOrdersIndex.customRangeStartDate', customRangeStartDate);
-        Craft.setLocalStorage('CommerceOrdersIndex.customRangeEndDate', customRangeEndDate);
+                Craft.setLocalStorage('CommerceOrdersIndex.startDate', this.startDate);
+            }, this)
+        }, Craft.datepickerOptions));
 
-        this.loadReport(startDate, endDate);
+        this.$endDate.datepicker($.extend({
+            onSelect: $.proxy(function(dateText, inst)
+            {
+                var selectedDate = new Date(inst.currentYear, inst.currentMonth, inst.currentDay);
 
-        this.$dateRange.html(this.$dateRange.data('value'));
+                if(selectedDate.getTime() < this.startDate.getTime())
+                {
+                    // if selectedDate < startDate, set startDate at selectedDate minus 7 days
+                    var _startDate = selectedDate.getTime() - (60 * 60 * 24 * 7 * 1000);
+                    _startDate = new Date(_startDate);
+                    this.startDate = _startDate;
+                    this.$startDate.val(Craft.formatDate(this.startDate));
+                }
+
+                this.endDate = new Date(inst.currentYear, inst.currentMonth, inst.currentDay);
+                this.loadReport(this.startDate, this.endDate);
+
+                Craft.setLocalStorage('CommerceOrdersIndex.endDate', this.endDate);
+            }, this)
+        }, Craft.datepickerOptions));
+
+        this.loadReport(this.startDate, this.endDate);
     },
 
     loadReport: function(startDate, endDate)

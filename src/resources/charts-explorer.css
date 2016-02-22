@@ -6,7 +6,7 @@
 
 .chart-explorer .chart-header .date-range { width: auto; float: right; }
 body.rtl .chart-explorer .chart-header .date-range { float: left; }
-.chart-explorer .chart-header .date-range input { width: 200px; }
+.chart-explorer .chart-header .date-range .to { padding: 0 7px; }
 .chart-explorer .chart-header .spinner { position: absolute; top: 0; }
 body.ltr .chart-explorer .chart-header .spinner { right:  -24px; }
 body.rtl .chart-explorer .chart-header .spinner { left: -24px; }
