@@ -23,7 +23,7 @@ Craft.Commerce.handleUnlimitedStockCheckboxChange = function(ev)
     }
 };
 
-Craft.Commerce.getChartOptions = function(localeDefinition, scale)
+Craft.Commerce.getChartOptions = function(localeDefinition, scale, numberFormat)
 {
     var options = {
         axis: {
@@ -35,7 +35,7 @@ Craft.Commerce.getChartOptions = function(localeDefinition, scale)
 
             y: {
                 tick: {
-                    format: Craft.charts.getCurrencyFormat(localeDefinition.currencyFormat)
+                    format: Craft.charts.getCurrencyFormat(localeDefinition.currencyFormat, numberFormat)
                 }
             },
         }

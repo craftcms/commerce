@@ -69,14 +69,13 @@ class Commerce_ReportsService extends BaseApplicationComponent
         $currency = craft()->commerce_settings->getOption('defaultCurrency');
         $totalHtml = craft()->numberFormatter->formatCurrency($total, strtoupper($currency));
 
-        $currencyFormat = $this->getCurrencyFormat();
-
         $response = array(
             'report' => $report,
             'scale' => $scale,
             'localeDefinition' => [
-                'currencyFormat' => $currencyFormat,
+                'currencyFormat' => $this->getCurrencyFormat(),
             ],
+	        'numberFormat' => $this->getNumberFormat(),
             'orientation' => $orientation,
             'total' => $total,
             'totalHtml' => $totalHtml,
@@ -206,40 +205,73 @@ class Commerce_ReportsService extends BaseApplicationComponent
 				break;
 		}
 	}
-	
-    /**
-     * @param string $currency
-     *
-     * @return string
-     */
-    public function getCurrencyFormat()
-    {
-        $currency = craft()->commerce_settings->getOption('defaultCurrency');
 
-        $currencySymbol = craft()->locale->getCurrencySymbol($currency);
-        $currencyFormat = craft()->locale->getCurrencyFormat();
+	/**
+	 * @param string $currency
+	 *
+	 * @return string
+	 */
+	public function getCurrencyFormat()
+	{
+		$currency = craft()->commerce_settings->getOption('defaultCurrency');
 
-        if(strpos($currencyFormat, ";") > 0)
-        {
-            $currencyFormatArray = explode(";", $currencyFormat);
-            $currencyFormat = $currencyFormatArray[0];
-        }
+		$currencySymbol = craft()->locale->getCurrencySymbol($currency);
+		$currencyFormat = craft()->locale->getCurrencyFormat();
 
-        $pattern = '/[#0,.]/';
-        $replacement = '';
-        $currencyFormat = preg_replace($pattern, $replacement, $currencyFormat);
+		if(strpos($currencyFormat, ";") > 0)
+		{
+			$currencyFormatArray = explode(";", $currencyFormat);
+			$currencyFormat = $currencyFormatArray[0];
+		}
 
-        if(strpos($currencyFormat, "¤") === 0)
-        {
-            // symbol at beginning
-            $currencyD3Format = [str_replace('¤', $currencySymbol, $currencyFormat), ''];
-        }
-        else
-        {
-            // symbol at the end
-            $currencyD3Format = ['', str_replace('¤', $currencySymbol, $currencyFormat)];
-        }
+		$pattern = '/[#0,.]/';
+		$replacement = '';
+		$currencyFormat = preg_replace($pattern, $replacement, $currencyFormat);
 
-        return $currencyD3Format;
-    }
+		if(strpos($currencyFormat, "¤") === 0)
+		{
+			// symbol at beginning
+			$currencyD3Format = [str_replace('¤', $currencySymbol, $currencyFormat), ''];
+		}
+		else
+		{
+			// symbol at the end
+			$currencyD3Format = ['', str_replace('¤', $currencySymbol, $currencyFormat)];
+		}
+
+		return $currencyD3Format;
+	}
+
+	/**
+	 * @param string $currency
+	 *
+	 * @return string
+	 */
+	public function getNumberFormat()
+	{
+		$currency = craft()->commerce_settings->getOption('defaultCurrency');
+
+		$currencySymbol = craft()->locale->getCurrencySymbol($currency);
+		$currencyFormat = craft()->locale->getCurrencyFormat();
+
+		if(strpos($currencyFormat, ";") > 0)
+		{
+			$currencyFormatArray = explode(";", $currencyFormat);
+			$currencyFormat = $currencyFormatArray[0];
+		}
+
+		$numberFormat = str_replace('¤', '', $currencyFormat);
+		$numberFormat = trim($numberFormat);
+
+		$yiiToD3Formats = array(
+			'#,##,##0.00' => ',.2f',
+			'#,##0.00' => ',.2f',
+			'#0.00' => '.2f',
+		);
+
+		if(isset($yiiToD3Formats[$numberFormat]))
+		{
+			return $yiiToD3Formats[$numberFormat];
+		}
+	}
 }
