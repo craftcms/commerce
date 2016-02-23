@@ -3,7 +3,6 @@
  */
 Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
 
-    chartToggleState: null,
     startDate: null,
     endDate: null,
 
@@ -11,65 +10,12 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
 
 	afterInit: function()
     {
-        this.chartToggleState = Craft.getLocalStorage('CommerceOrdersIndex.chartToggleState', false);
-
-        var $viewBtns = $('.viewbtns');
-        $viewBtns.removeClass('hidden');
-
         this.$explorerContainer = $('<div class="chart-explorer-container"></div>').prependTo(this.$container);
 
-        if($('.chart-toggle', $viewBtns).length == 0)
-        {
-            var $chartToggleContainer = $('<div class="chart-toggle-container"></div>').appendTo($viewBtns);
-            var $chartToggle = $('<a class="btn chart-toggle" data-icon="area"></a>').appendTo($chartToggleContainer);
-        }
-        else
-        {
-            var $chartToggleContainer = $('.chart-toggle-container', $viewBtns);
-            var $chartToggle = $('.chart-toggle', $chartToggleContainer);
-        }
-
-        this.addListener($chartToggle, 'click', 'toggleChartExplorer');
-
-        if(this.chartToggleState)
-        {
-            $chartToggle.trigger('click');
-        }
+        this.createChartExplorer();
 
 		this.base();
 	},
-
-    toggleChartExplorer: function(ev)
-    {
-        var $chartToggle = $(ev.currentTarget);
-
-        if(this.$chartExplorer)
-        {
-            this.$chartExplorer.toggleClass('hidden');
-        }
-        else
-        {
-            this.createChartExplorer();
-        }
-
-        this.chartToggleState = false;
-
-        if(!this.$chartExplorer.hasClass('hidden'))
-        {
-            this.chartToggleState = true;
-        }
-
-        if(this.chartToggleState == true)
-        {
-            $chartToggle.addClass('active');
-        }
-        else
-        {
-            $chartToggle.removeClass('active');
-        }
-
-        Craft.setLocalStorage('CommerceOrdersIndex.chartToggleState', this.chartToggleState);
-    },
 
     createChartExplorer: function()
     {
@@ -143,6 +89,7 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
                     _startDate = new Date(_startDate);
                     this.startDate = _startDate;
                     this.$startDate.val(Craft.formatDate(this.startDate));
+                    Craft.setLocalStorage('CommerceOrdersIndex.startDate', this.startDate);
                 }
 
                 this.endDate = new Date(inst.currentYear, inst.currentMonth, inst.currentDay);
