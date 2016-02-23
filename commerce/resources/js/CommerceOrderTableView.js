@@ -19,21 +19,33 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
 
     createChartExplorer: function()
     {
+        // start date
         this.startDate = Craft.getLocalStorage('CommerceOrdersIndex.startDate');
-        this.endDate = Craft.getLocalStorage('CommerceOrdersIndex.endDate');
 
-        if(!this.startDate)
+        if(this.startDate)
+        {
+            this.startDate = new Date(this.startDate);
+        }
+        else
         {
             var date = new Date();
             date = date.getTime() - (60 * 60 * 24 * 7 * 1000);
             this.startDate = new Date(date);
         }
 
-        if(!this.endDate)
+        // end date
+        this.endDate = Craft.getLocalStorage('CommerceOrdersIndex.endDate');
+
+        if(this.endDate)
+        {
+            this.endDate = new Date(this.endDate);
+        }
+        else
         {
             this.endDate = new Date();
         }
 
+        // chart explorer
         var $chartExplorer = $('<div class="chart-explorer"></div>').appendTo(this.$explorerContainer),
             $chartHeader = $('<div class="chart-header"></div>').appendTo($chartExplorer),
             $dateRange = $('<div class="date-range" />').appendTo($chartHeader),
