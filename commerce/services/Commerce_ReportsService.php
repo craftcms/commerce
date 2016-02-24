@@ -47,7 +47,6 @@ class Commerce_ReportsService extends BaseApplicationComponent
         }
 
         // $query->join('select date, revenue from DATE_ADD(date, INTERVAL expr type)');
-
         $results = $query->queryAll();
 
         $report = $this->getReportDataTable($startDate, $endDate, $results);
@@ -151,7 +150,7 @@ class Commerce_ReportsService extends BaseApplicationComponent
         }
 
         $chartRows = [$chartColumns];
-        $chartRows = array_merge($chartRows, array_reverse($rows));
+        $chartRows = array_merge($chartRows, $rows);
 
         return $chartRows;
     }
