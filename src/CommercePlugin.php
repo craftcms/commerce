@@ -334,6 +334,38 @@ class CommercePlugin extends BasePlugin
     }
 
     /**
+     * Adds custom link options to Rich Text fields.
+     *
+     * @return array
+     */
+    public function addRichTextLinkOptions()
+    {
+        $linkOptions = [];
+
+        // Include a Product link option if there are any product types that have URLs
+        $productSources = array();
+
+        foreach (craft()->commerce_productTypes->getAllProductTypes() as $productType)
+        {
+            if ($productType->hasUrls)
+            {
+                $productSources[] = 'productType:'.$productType->id;
+            }
+        }
+
+        if ($productSources)
+        {
+            $linkOptions[] = [
+                'optionTitle' => Craft::t('Link to a product'),
+                'elementType' => 'Commerce_Product',
+                'sources' => $productSources,
+            ];
+        }
+
+        return $linkOptions;
+    }
+
+    /**
      * Get Settings URL
      */
     public function getSettingsUrl()
