@@ -15,6 +15,7 @@
                 <th scope="col">{{ "Has Emails?"|t }}</th>
                 <th scope="col">{{ "Default Status?"|t }}</th>
                 <td class="thin"></td>
+                <td class="thin"></td>
             </tr>
             </thead>
             <tbody>
@@ -29,6 +30,9 @@
                     </td>
                     <td>{% if orderStatus.default %}<span data-icon="check" title="{{ 'Yes'|t }}"></span>{% endif %}</td>
                     {% set orderExists = craft.commerce.orders.orderStatusId(orderStatus.id).first() %}
+                    <td class="thin">
+                        <a class="move icon disabled" title="{{ 'Delete'|t }}" role="button"></a>
+                    </td>
                     {% if not orderExists | length %}
                         <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
                     {% else %}
@@ -50,6 +54,10 @@
     new Craft.AdminTable({
         tableSelector: '#order-statuses',
         deleteAction: 'commerce/orderStatuses/delete',
-        minObjects: 1
+        minObjects: 1,
+        sortable: true,
+        reorderAction: 'commerce/orderStatuses/reorder',
+        reorderSuccessMessage: Craft.t('Rules reordered.'),
+        reorderFailMessage:    Craft.t('Couldn’t reorder statuses..')
     });
 {% endincludejs %}
