@@ -41,8 +41,8 @@ class CommerceVariable
     public function orders($criteria = null)
     {
 
-        if (!isset($criteria['dateOrdered'])) {
-            $criteria['dateOrdered'] = ':notempty:';
+        if (!isset($criteria['isCompleted'])) {
+            $criteria['isCompleted'] = true;
         }
 
         return craft()->elements->getCriteria('Commerce_Order', $criteria);

@@ -359,7 +359,7 @@ class Commerce_CustomersService extends BaseApplicationComponent
 	        // Assign each completed order to the users' customer and update the email.
             foreach ($orders as $order) {
                 // Only consolidate completed orders, not carts
-                if ($order->dateOrdered) {
+                if ($order->isCompleted) {
                     $order->customerId = $toCustomer->id;
                     $order->email = $toCustomer->email;
                     craft()->commerce_orders->saveOrder($order);

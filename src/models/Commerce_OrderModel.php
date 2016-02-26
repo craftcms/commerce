@@ -15,6 +15,7 @@ use Omnipay\Common\Currency;
  * @property float $baseDiscount
  * @property float $baseShippingCost
  * @property string $email
+ * @property bool $isCompleted
  * @property DateTime $dateOrdered
  * @property string $currency
  * @property DateTime $datePaid
@@ -109,7 +110,7 @@ class Commerce_OrderModel extends BaseElementModel
     public function isEditable()
     {
         // Still a cart, allow full editing.
-        if(!$this->dateOrdered){
+        if(!$this->isCompleted){
             return true;
         }else{
             return craft()->userSession->checkPermission('commerce-manageOrders');
@@ -576,6 +577,7 @@ class Commerce_OrderModel extends BaseElementModel
                 'default' => 0
             ],
             'email' => AttributeType::String,
+            'isCompleted' => AttributeType::Bool,
             'dateOrdered' => AttributeType::DateTime,
             'datePaid' => AttributeType::DateTime,
             'currency' => AttributeType::String,

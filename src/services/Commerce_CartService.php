@@ -290,8 +290,9 @@ class Commerce_CartService extends BaseApplicationComponent
 
             // We do not want to use the same order number as a completed order.
             $order = craft()->commerce_orders->getOrderByNumber($number);
-            if ($order && $order->dateOrdered) {
+            if ($order && $order->isCompleted) {
                 $this->forgetCart();
+                craft()->commerce_customers->forgetCustomer();
                 $this->getCart();
             }
 

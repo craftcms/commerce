@@ -19,7 +19,7 @@
         {% for order in orders %}
             <tr>
                 <td>{{ order.link }}</td>
-                <td>{{ order.dateOrdered|date }}</td>
+                <td>{% if order.isCompleted %}{{ order.dateOrdered|date('D dS M Y') }}{% endif %}</td>
                 <td>{{ order.totalPaid|currency(order.currency) }}</td>
                 <td>{{ order.orderStatus.htmlLabel|raw }}</td>
             </tr>

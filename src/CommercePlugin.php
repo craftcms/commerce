@@ -135,7 +135,8 @@ class CommercePlugin extends BasePlugin
                         'm151127_010101_Commerce_TaxRateTaxableOptions',
                         'm151210_010101_Commerce_FixMissingLineItemDimensionData',
                         'm160215_010101_Commerce_ConsistentDecimalType',
-                        'm160226_010101_Commerce_OrderStatusSortOrder'
+                        'm160226_010101_Commerce_OrderStatusSortOrder',
+                        'm160226_010102_Commerce_isCompleted'
                     );
 
                     foreach ($migrations as $migrationClass) {
@@ -261,7 +262,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getSchemaVersion()
     {
-        return '1.0.02';
+        return '1.0.03';
     }
 
     /**
