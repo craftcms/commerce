@@ -7,6 +7,7 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
     {
         id: null,
         orderStatusId: null,
+        originalStatus: null,
         currentStatus: null,
         originalStatusId: null,
         $statusSelect: null,
@@ -26,7 +27,6 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
             });
 
             this.originalStatusId = currentStatus.id;
-
             this.currentStatus = currentStatus;
 
             var $form = $('<form class="modal fitted" method="post" accept-charset="UTF-8"/>').appendTo(Garnish.$bod);
@@ -42,14 +42,14 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
             var classes = "";
             for (i = 0; i < orderStatuses.length; i++)
             {
-                if (this.currentStatus.handle == orderStatuses[i].handle)
+                if (this.currentStatus.id == orderStatuses[i].id)
                 {
                     classes = "sel";
                 } else
                 {
                     classes = "";
                 }
-                $('<li><a data-id="' + orderStatuses[i].id + '" data-color="' + orderStatuses[i].color + '" data-name="' + orderStatuses[i].name + '" class="' + classes + '" href="#"><span class="status ' + orderStatuses[i].color + '"></span>' + orderStatuses[i].name + '</a></li>').appendTo($list);
+                $('<li><a data-id="' + orderStatuses[i].id + '" data-color="' + orderStatuses[i].color + '" data-name="' + orderStatuses[i].name + '" class="' + classes + '"><span class="status ' + orderStatuses[i].color + '"></span>' + orderStatuses[i].name + '</a></li>').appendTo($list);
             }
 
             this.$selectedStatus = $('.sel', $list);
@@ -73,7 +73,7 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
             var $footer = $('<div class="footer"/>').appendTo($form);
             var $btnGroup = $('<div class="btngroup"/>').appendTo($footer);
             var $mainBtnGroup = $('<div class="btngroup right"/>').appendTo($footer);
-            this.$updateBtn = $('<input type="button" class="btn submit" value="' + Craft.t('Update') + '"/>').appendTo($mainBtnGroup);
+            this.$updateBtn = $('<input type="button" class="btn submit disabled" value="' + Craft.t('Update') + '"/>').appendTo($mainBtnGroup);
             this.$cancelBtn = $('<input type="button" class="btn" value="' + Craft.t('Cancel') + '"/>').appendTo($btnGroup);
 
             this.$updateBtn.addClass('disabled');
@@ -94,7 +94,6 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
             });
             this.base($form, settings);
         },
-
         onSelectStatus: function (status)
         {
             this.deselectStatus();
@@ -137,7 +136,7 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
                 'message': this.$message.find('textarea[name="message"]').val(),
                 'color': this.currentStatus.color,
                 'name': this.currentStatus.name
-            }
+            };
 
             this.settings.onSubmit(data);
         },

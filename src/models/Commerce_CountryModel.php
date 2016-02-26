@@ -1,6 +1,8 @@
 <?php
 namespace Craft;
 
+use JsonSerializable;
+
 /**
  * Country model.
  *
@@ -16,7 +18,7 @@ namespace Craft;
  * @package   craft.plugins.commerce.models
  * @since     1.0
  */
-class Commerce_CountryModel extends BaseModel
+class Commerce_CountryModel extends BaseModel implements JsonSerializable
 {
     /**
      * @return string
@@ -32,6 +34,19 @@ class Commerce_CountryModel extends BaseModel
     function __toString()
     {
         return $this->name;
+    }
+
+    /**
+     * @return array
+     */
+    function jsonSerialize()
+    {
+        $data = [];
+        $data['id'] = $this->getAttribute('id');
+        $data['name'] = $this->getAttribute('name');
+        $data['iso'] = $this->getAttribute('iso');
+        $data['stateRequired'] = $this->getAttribute('stateRequired');
+        return $data;
     }
 
     /**

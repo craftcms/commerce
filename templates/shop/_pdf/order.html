@@ -26,7 +26,7 @@
 
 {% set orderTable %}
     <div class="row">
-        <div class="eleven columns">
+        <div class="twelve columns">
             <table class="u-full-width heading">
                 <tr>
                     <td>
@@ -41,13 +41,13 @@
                     <td>
                         <h5>Shipping Address</h5>
                         {% if order.shippingAddress %}
-                        {% include 'commerce/_includes/address' with { address: order.shippingAddress } %}
+                        {% include 'commerce/_includes/addresses/address' with { address: order.shippingAddress } %}
                         {% endif %}
                     </td>
                     <td>
                         <h5>Billing Address</h5>
                         {% if order.billingAddress %}
-                        {% include 'commerce/_includes/address' with { address: order.billingAddress } %}
+                        {% include 'commerce/_includes/addresses/address' with { address: order.billingAddress } %}
                         {% endif %}
                     </td>
                 </tr>

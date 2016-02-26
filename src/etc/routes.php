@@ -17,7 +17,10 @@ return [
     'commerce/orders' => ['action' => 'commerce/orders/orderIndex'],
     'commerce/orders/(?P<orderId>\d+)' => ['action' => 'commerce/orders/editOrder'],
 
-    // Settings
+	// Addresses
+    'commerce/addresses/(?P<addressId>\d+)' => ['action' => 'commerce/addresses/edit'],
+
+	// Settings
     'commerce/settings' => ['action' => 'commerce/settings/index'],
     'commerce/settings/registration' => ['action' => 'commerce/registration/edit'],
     'commerce/settings/general' => ['action' => 'commerce/settings/edit'],
