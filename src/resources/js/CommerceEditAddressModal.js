@@ -17,6 +17,8 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend(
         states: null,
         address: null,
         errors: {},
+        modalTitle: null,
+        submitLabel: null,
         init: function (address, settings) {
 
             this.id = Math.floor(Math.random() * 1000000000);
@@ -31,13 +33,21 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend(
             this.$form = $('<form class="modal fitted commerce-address" method="post" accept-charset="UTF-8"/>').appendTo(Garnish.$bod);
             this.$body = $('<div class="body"></div>').appendTo(this.$form);
 
+            if (!this.address.id) {
+                this.modalTitle = Craft.t('Add Address');
+                this.submitLabel = Craft.t('Add');
+            } else {
+                this.modalTitle = Craft.t('Update Address');
+                this.submitLabel = Craft.t('Update');
+            }
+
             this._renderFields();
 
             // Footer and buttons
             var $footer = $('<div class="footer"/>').appendTo(this.$form);
             var $btnGroup = $('<div class="btngroup"/>').appendTo($footer);
             var $mainBtnGroup = $('<div class="btngroup right"/>').appendTo($footer);
-            this.$updateBtn = $('<input type="button" class="btn submit" value="' + Craft.t('Update') + '"/>').appendTo($mainBtnGroup);
+            this.$updateBtn = $('<input type="button" class="btn submit" value="' + this.submitLabel + '"/>').appendTo($mainBtnGroup);
             this.$footerSpinner = $('<div class="spinner right hidden"/>').appendTo($footer);
             this.$cancelBtn = $('<input type="button" class="btn" value="' + Craft.t('Cancel') + '"/>').appendTo($btnGroup);
 
@@ -53,7 +63,7 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend(
             this.$body.empty();
 
             var $inputs = $('<div class="meta">' +
-                '<h2 class="first">' + Craft.t("Update Order Address") + '</h2>' +
+                '<h2 class="first">' + this.modalTitle + '</h2>' +
                 '</div>').appendTo(this.$body);
 
             $('<input name="id" type="hidden" value="' + this.address.id + '">').appendTo($inputs);

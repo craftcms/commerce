@@ -22,12 +22,26 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
     },
     _renderAddress: function () {
         var $header = this.$addressBox.find(".address-box-header");
+
+        // Set the edit button label
+        if (!this.address.id) {
+            var editLabel = Craft.t("New");
+        }else{
+            var editLabel = Craft.t("Edit");
+        }
+
         $header.html("");
         $("<div class='address-header'><strong>" + this.$addressBox.data('title') + "</strong></div>").appendTo($header);
 
         var $buttons = $("<div class='address-buttons'/>").appendTo($header);
-        $("<a class='small btn right' target='_blank' href='http://maps.google.com/maps?q=" + this.address.address1 + "+" + this.address.address2 + "+" + this.address.city + "+" + this.address.zipCode + "+" + this.address.stateText + "+" + this.address.countryText + "'>Map</a>").appendTo($buttons);
-        $("<a class='small btn right edit' href='" + Craft.getCpUrl('commerce/addresses/' + this.address.id, {'redirect': window.location.pathname}) + "'>Edit</a>").appendTo($buttons);
+
+        // Only show the map button if we have an address
+        if (this.address.id) {
+            $("<a class='small btn right' target='_blank' href='http://maps.google.com/maps?q=" + this.address.address1 + "+" + this.address.address2 + "+" + this.address.city + "+" + this.address.zipCode + "+" + this.address.stateText + "+" + this.address.countryText + "'>" + Craft.t('Map') + "</a>").appendTo($buttons);
+        }
+
+        // Edit button
+        $("<a class='small btn right edit' href='" + Craft.getCpUrl('commerce/addresses/' + this.address.id, {'redirect': window.location.pathname}) + "'>" + editLabel + "</a>").appendTo($buttons);
 
         this.$address.html("");
 
@@ -79,6 +93,10 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
             $("<span class='countryText'>" + this.address.countryText + "<br></span>").appendTo(this.$address);
         }
 
+        if (!this.address.id) {
+            $("<span class='newAddress'>No address<br></span>").appendTo(this.$address);
+        }
+
         this._attachListeners();
     },
     _attachListeners: function () {
@@ -88,7 +106,6 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
                 onSubmit: $.proxy(function (data, error) {
                     Craft.postActionRequest('commerce/addresses/save', data.address, $.proxy(function (response) {
                         if (response.success) {
-                            console.log(response.address);
                             this.address = response.address;
                             this._renderAddress();
                             this.editorModal.hide();
