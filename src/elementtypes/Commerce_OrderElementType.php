@@ -325,7 +325,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 
         if ($criteria->completed) {
             if ($criteria->completed == true) {
-                $query->andWhere('orders.isCompleted = true');
+                $query->andWhere('orders.isCompleted = 1');
                 $criteria->completed = null;
             }
         }
