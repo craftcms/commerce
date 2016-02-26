@@ -26,9 +26,7 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend(
             this.states = window.states;
             this.address = address;
 
-            this.setSettings(settings, {
-                resizable: true
-            });
+            this.setSettings(settings, Garnish.Modal.defaults);
 
             this.$form = $('<form class="modal fitted commerce-address" method="post" accept-charset="UTF-8"/>').appendTo(Garnish.$bod);
             this.$body = $('<div class="body"></div>').appendTo(this.$form);
@@ -169,7 +167,6 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend(
 
         },
         updateAddress: function () {
-
             if (this.$updateBtn.hasClass('disabled')) {
                 return;
             }

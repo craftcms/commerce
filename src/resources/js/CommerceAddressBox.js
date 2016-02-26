@@ -14,7 +14,7 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
         this.$address = this.$addressBox.find('.address');
         this.address = this.$addressBox.data('address');
 
-        this.setSettings(settings, {});
+        this.setSettings(settings, this.defaults);
 
         this._renderAddress();
 
@@ -26,7 +26,7 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
         // Set the edit button label
         if (!this.address.id) {
             var editLabel = Craft.t("New");
-        }else{
+        } else {
             var editLabel = Craft.t("Edit");
         }
 
@@ -103,20 +103,25 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
         this.$addressBox.find('.edit').click($.proxy(function (ev) {
             ev.preventDefault();
             this.editorModal = new Craft.Commerce.EditAddressModal(this.address, {
-                onSubmit: $.proxy(function (data, error) {
-                    Craft.postActionRequest('commerce/addresses/save', data.address, $.proxy(function (response) {
-                        if (response.success) {
-                            this.address = response.address;
-                            this._renderAddress();
-                            this.editorModal.hide();
-                            this.editorModal.destroy();
-                        } else {
-                            Garnish.shake(this.editorModal.$form);
-                            error(response.errors);
-                        }
-                    }, this));
-                }, this)
+                onSubmit: $.proxy(this, '_updateAddress')
             });
         }, this));
+    },
+    _updateAddress: function (data, onError) {
+        Craft.postActionRequest('commerce/addresses/save', data.address, $.proxy(function (response) {
+            if (response.success) {
+                this.address = response.address;
+                this.settings.onChange(response.address);
+                this._renderAddress();
+                this.editorModal.hide();
+                this.editorModal.destroy();
+            } else {
+                Garnish.shake(this.editorModal.$form);
+                onError(response.errors);
+            }
+        }, this));
+    },
+    defaults: {
+        onChange: $.noop
     }
 });

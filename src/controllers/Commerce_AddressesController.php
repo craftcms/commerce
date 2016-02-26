@@ -30,7 +30,7 @@ class Commerce_AddressesController extends Commerce_BaseCpController
 	 *
 	 * @throws HttpException
 	 */
-	public function actionEdit (array $variables = [])
+	public function actionEdit(array $variables = [])
 	{
 		if (empty($variables['address']))
 		{
@@ -48,7 +48,7 @@ class Commerce_AddressesController extends Commerce_BaseCpController
 			}
 		}
 
-		$variables['title'] = Craft::t('Edit Address',['id' => $variables['addressId']]);
+		$variables['title'] = Craft::t('Edit Address', ['id' => $variables['addressId']]);
 
 		$variables['countries'] = craft()->commerce_countries->getAllCountriesListData();
 		$variables['states'] = craft()->commerce_states->getStatesGroupedByCountries();
@@ -59,16 +59,16 @@ class Commerce_AddressesController extends Commerce_BaseCpController
 	/**
 	 * @throws HttpException
 	 */
-	public function actionSave ()
+	public function actionSave()
 	{
 		$this->requirePostRequest();
 
 		$id = craft()->request->getRequiredPost('id');
 		$address = craft()->commerce_addresses->getAddressById($id);
 
-		if (!$address->id)
+		if (!$address)
 		{
-			throw new HttpException(400);
+			$address = new Commerce_AddressModel();
 		}
 
 		// Shared attributes
@@ -95,7 +95,8 @@ class Commerce_AddressesController extends Commerce_BaseCpController
 		if (craft()->commerce_addresses->saveAddress($address))
 		{
 
-			if (craft()->request->isAjaxRequest) {
+			if (craft()->request->isAjaxRequest)
+			{
 				$this->returnJson(['success' => true, 'address' => $address->jsonSerialize()]);
 			}
 
@@ -104,9 +105,10 @@ class Commerce_AddressesController extends Commerce_BaseCpController
 		}
 		else
 		{
-			if (craft()->request->isAjaxRequest) {
+			if (craft()->request->isAjaxRequest)
+			{
 				$this->returnJson([
-					'error' => Craft::t("Couldn’t save address."),
+					'error'  => Craft::t("Couldn’t save address."),
 					'errors' => $address->errors
 				]);
 			}
@@ -121,7 +123,7 @@ class Commerce_AddressesController extends Commerce_BaseCpController
 	/**
 	 * @throws HttpException
 	 */
-	public function actionDelete ()
+	public function actionDelete()
 	{
 		$this->requirePostRequest();
 		$this->requireAjaxRequest();
