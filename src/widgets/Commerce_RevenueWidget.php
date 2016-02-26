@@ -35,21 +35,15 @@ class Commerce_RevenueWidget extends BaseWidget
             $dateRange = $dateRanges[$settings->dateRange]['label'];
         }
 
-
-        $locale = craft()->i18n->getLocaleData(craft()->language);
-        $orientation = $locale->getOrientation();
-
-        $options = $settings->getAttributes();
-        $options['localeDefinition'] = [
-            'currencyFormat' => craft()->commerce_reports->getCurrencyFormat()
+        $options = [
+            'dateRange' => $settings->dateRange
         ];
-
-        $options['orientation'] = $orientation;
 
         craft()->templates->includeCssResource('commerce/CommerceRevenueWidget.css');
         craft()->templates->includeJsResource('commerce/js/CommerceRevenueWidget.js');
 
         $js = 'new Craft.CommerceRevenueWidget('.$this->model->id.', '.JsonHelper::encode($options).');';
+
         craft()->templates->includeJs($js);
 
         return craft()->templates->render('commerce/_components/widgets/Revenue/body', array(

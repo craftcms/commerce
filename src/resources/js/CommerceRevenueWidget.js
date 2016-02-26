@@ -15,14 +15,10 @@ Craft.CommerceRevenueWidget = Garnish.Base.extend(
 
         this.$widget = $('#widget'+widgetId);
         this.$body = this.$widget.find('.body:first');
-
-        // Add the chart to the body
-        this.$chartContainer = $('<div class="chart"/>').appendTo(this.$body);
-
-        // Error
+        this.$total = $('.total', this.$body);
+        this.$chart = $('.chart', this.$body);
         this.$error = $('<div class="error"/>').prependTo(this.$body);
 
-        // Request orders report
         var requestData = {
             dateRange: this.settings.dateRange,
             startDate: '-7 days',
@@ -34,18 +30,23 @@ Craft.CommerceRevenueWidget = Garnish.Base.extend(
         {
             if(textStatus == 'success' && typeof(response.error) == 'undefined')
             {
-                this.chart = new Craft.charts.Chart({
-                    bindto: this.$chartContainer.get(0),
-                    data: {
-                        rows: response.report,
-                        x: response.report[0][0]
-                    },
-                    'orientation': this.settings.orientation,
-                }, Craft.Commerce.getChartOptions(this.settings.localeDefinition, response.scale));
+                if(!this.chart)
+                {
+                    this.chart = new Craft.charts.Area(this.$chart);
+                }
 
-                this.chart.load({
-                    rows: response.report
-                });
+                var chartDataTable = new Craft.charts.DataTable(response.report);
+
+                var chartSettings = {
+                    localeDefinition: response.localeDefinition,
+                    orientation: response.orientation,
+                    numberFormats: response.numberFormats,
+                    dataScale: response.scale
+                };
+
+                this.chart.draw(chartDataTable, chartSettings);
+
+                this.$total.html(response.totalHtml);
 
                 // Resize chart when grid is refreshed
                 window.dashboard.grid.on('refreshCols', $.proxy(this, 'handleGridRefresh'));

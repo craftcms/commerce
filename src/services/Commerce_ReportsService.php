@@ -57,7 +57,7 @@ class Commerce_ReportsService extends BaseApplicationComponent
 
         $total = 0;
 
-        foreach($report as $row)
+        foreach($report['rows'] as $row)
         {
             $total = $total + $row[1];
         }
@@ -72,9 +72,10 @@ class Commerce_ReportsService extends BaseApplicationComponent
             'report' => $report,
             'scale' => $scale,
             'localeDefinition' => [
-                'currencyFormat' => $this->getCurrencyFormat(),
+                'currency' => $this->getLocaleDefinitionCurrency(),
             ],
-	        'numberFormat' => $this->getNumberFormat(),
+	        'numberFormats' => craft()->reports->getNumberFormats(),
+            'craftCurrencyFormat' => craft()->locale->getCurrencyFormat(),
             'orientation' => $orientation,
             'total' => $total,
             'totalHtml' => $totalHtml,
@@ -133,7 +134,7 @@ class Commerce_ReportsService extends BaseApplicationComponent
                 {
                     $row = [
                         $result['date'], // date
-                        $result['revenue'] // revenue
+                        (float) $result['revenue'] // revenue
                     ];
                 }
             }
@@ -141,18 +142,10 @@ class Commerce_ReportsService extends BaseApplicationComponent
             $rows[] = $row;
         }
 
-        $chartColumns = [];
-        $chartRows = [];
-
-        foreach($columns as $column)
-        {
-            $chartColumns[] = $column['label'];
-        }
-
-        $chartRows = [$chartColumns];
-        $chartRows = array_merge($chartRows, $rows);
-
-        return $chartRows;
+        return array(
+            'columns' => $columns,
+            'rows' => $rows,
+        );
     }
 
     /**
@@ -210,7 +203,7 @@ class Commerce_ReportsService extends BaseApplicationComponent
 	 *
 	 * @return string
 	 */
-	public function getCurrencyFormat()
+	public function getLocaleDefinitionCurrency()
 	{
 		$currency = craft()->commerce_settings->getOption('defaultCurrency');
 
@@ -239,38 +232,5 @@ class Commerce_ReportsService extends BaseApplicationComponent
 		}
 
 		return $currencyD3Format;
-	}
-
-	/**
-	 * @param string $currency
-	 *
-	 * @return string
-	 */
-	public function getNumberFormat()
-	{
-		$currency = craft()->commerce_settings->getOption('defaultCurrency');
-
-		$currencySymbol = craft()->locale->getCurrencySymbol($currency);
-		$currencyFormat = craft()->locale->getCurrencyFormat();
-
-		if(strpos($currencyFormat, ";") > 0)
-		{
-			$currencyFormatArray = explode(";", $currencyFormat);
-			$currencyFormat = $currencyFormatArray[0];
-		}
-
-		$numberFormat = str_replace('¤', '', $currencyFormat);
-		$numberFormat = trim($numberFormat);
-
-		$yiiToD3Formats = array(
-			'#,##,##0.00' => ',.2f',
-			'#,##0.00' => ',.2f',
-			'#0.00' => '.2f',
-		);
-
-		if(isset($yiiToD3Formats[$numberFormat]))
-		{
-			return $yiiToD3Formats[$numberFormat];
-		}
 	}
 }

@@ -1,3 +1,10 @@
-{% if dateRange %}
-    <p class="dateRange light">{{ dateRange }}</p>
-{% endif %}
+<p class="infos">
+
+    <span class="total">{{ 0|currency(craft.commerce.settings.defaultCurrency) }}</span>
+
+    {% if dateRange %}
+        <span class="dateRange light">{{ dateRange }}</span>
+    {% endif %}
+</p>
+
+<div class="chart"></div>

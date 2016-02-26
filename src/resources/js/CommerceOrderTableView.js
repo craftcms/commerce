@@ -132,14 +132,21 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
 
             if(textStatus == 'success' && typeof(response.error) == 'undefined')
             {
-                this.chart = new Craft.charts.Chart({
-                    bindto: this.$chart.get(0),
-                    data: {
-                        rows: response.report,
-                        x: response.report[0][0]
-                    },
+                if(!this.chart)
+                {
+                    this.chart = new Craft.charts.Area(this.$chart);
+                }
+
+                var chartDataTable = new Craft.charts.DataTable(response.report);
+
+                var chartSettings = {
+                    localeDefinition: response.localeDefinition,
                     orientation: response.orientation,
-                }, Craft.Commerce.getChartOptions(response.localeDefinition, response.scale, response.numberFormat));
+                    numberFormats: response.numberFormats,
+                    dataScale: response.scale
+                };
+
+                this.chart.draw(chartDataTable, chartSettings);
 
                 this.$totalValue.html(response.totalHtml);
             }
@@ -156,7 +163,6 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
                 this.$error.removeClass('hidden');
                 this.$chart.addClass('error');
             }
-
         }, this));
     }
 });
