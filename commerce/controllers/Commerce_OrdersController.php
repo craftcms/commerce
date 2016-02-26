@@ -172,7 +172,7 @@ class Commerce_OrdersController extends Commerce_BaseCpController
             }
         }
 
-        $this->returnErrorJson("Could not mark the order as completed.");
+        $this->returnErrorJson(Craft::t("Could not mark the order as completed."));
     }
 
     /**
