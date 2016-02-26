@@ -32,6 +32,7 @@ class Commerce_BaseFrontEndController extends Commerce_BaseController
         $data['totalPrice'] = $cart->totalPrice;
         $data['totalPaid'] = $cart->totalPaid;
         $data['email'] = $cart->email;
+        $data['isCompleted'] = $cart->isCompleted;
         $data['dateOrdered'] = $cart->dateOrdered;
         $data['datePaid'] = $cart->datePaid;
         $data['currency'] = $cart->currency;

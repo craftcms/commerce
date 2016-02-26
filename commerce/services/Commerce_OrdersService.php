@@ -81,7 +81,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
     {
         $criteria = craft()->elements->getCriteria('Commerce_Order');
         $criteria->customer = $customer;
-        $criteria->dateOrdered = "NOT NULL";
+        $criteria->isCompleted = true;
         $criteria->limit = null;
 
         return $criteria->find();
@@ -96,7 +96,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
     {
         $criteria = craft()->elements->getCriteria('Commerce_Order');
         $criteria->email = $email;
-        $criteria->dateOrdered = "NOT NULL";
+        $criteria->isCompleted = true;
         $criteria->limit = null;
 
         return $criteria->find();
@@ -132,7 +132,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
 
         $this->saveOrder($order);
 
-        if (!$order->dateOrdered) {
+        if (!$order->isCompleted) {
             if ($order->isPaid()) {
                 craft()->commerce_orders->completeOrder($order);
             } else {
@@ -173,7 +173,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
         }
 
         //Only set default addresses on carts
-        if (!$order->dateOrdered) {
+        if (!$order->isCompleted) {
 
             // Set default shipping address if last used is available
             $lastShippingAddressId = craft()->commerce_customers->getCustomer()->lastUsedShippingAddressId;
@@ -206,6 +206,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
         $orderRecord->number = $order->number;
         $orderRecord->itemTotal = $order->itemTotal;
         $orderRecord->email = $order->email;
+        $orderRecord->isCompleted = $order->isCompleted;
         $orderRecord->dateOrdered = $order->dateOrdered;
         $orderRecord->datePaid = $order->datePaid;
         $orderRecord->billingAddressId = $order->billingAddressId;
@@ -306,7 +307,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
     private function calculateAdjustments(Commerce_OrderModel $order)
     {
         // Don't recalc the totals of completed orders.
-        if (!$order->id or $order->dateOrdered != null) {
+        if (!$order->id or $order->isCompleted) {
             return;
         }
 
@@ -429,6 +430,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
         ]);
         $this->onBeforeOrderComplete($event);
 
+        $order->isCompleted = true;
         $order->dateOrdered = DateTimeHelper::currentTimeForDb();
         if ($status = craft()->commerce_orderStatuses->getDefaultOrderStatus()) {
             $order->orderStatusId = $status->id;
@@ -436,7 +438,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
             throw new Exception(Craft::t('No default Status available to set on completed order.'));
         }
 
-
+        //TODO move to event listener.
         if($order->getCustomer()->userId && $order->billingAddress){
             $snapShotBillingAddress = Commerce_AddressModel::populateModel($order->billingAddress);
             $snapShotBillingAddress->id = null;
@@ -448,6 +450,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
             };
         }
 
+        //TODO move to event listener
         if($order->getCustomer()->userId && $order->shippingAddress){
             $snapShotShippingAddress = Commerce_AddressModel::populateModel($order->shippingAddress);
             $snapShotShippingAddress->id = null;
@@ -462,9 +465,6 @@ class Commerce_OrdersService extends BaseApplicationComponent
         if (!$this->saveOrder($order)) {
             return false;
         }
-
-        craft()->commerce_cart->forgetCart();
-        craft()->commerce_customers->forgetCustomer();
 
         //raising event on order complete
         $event = new Event($this, [

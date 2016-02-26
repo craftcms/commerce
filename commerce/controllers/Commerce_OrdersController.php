@@ -156,6 +156,25 @@ class Commerce_OrdersController extends Commerce_BaseCpController
         }
     }
 
+    public function actionCompleteOrder()
+    {
+        $this->requireAjaxRequest();
+        $orderId = craft()->request->getParam('orderId');
+
+        $order = craft()->commerce_orders->getOrderById($orderId);
+
+        if ($order && !$order->isCompleted)
+        {
+            if (craft()->commerce_orders->completeOrder($order))
+            {
+                $date = new DateTime($order->dateOrdered);
+                $this->returnJson(['success' => true, 'dateOrdered' => $date]);
+            }
+        }
+
+        $this->returnErrorJson("Could not mark the order as completed.");
+    }
+
     /**
      * Update Order Status Id
      */
@@ -180,41 +199,6 @@ class Commerce_OrdersController extends Commerce_BaseCpController
             $this->returnJson(['success' => true]);
         }
     }
-
-
-    /**
-     * Update an address on Order.
-     */
-    public function actionUpdateAddress()
-    {
-        $this->requireAjaxRequest();
-        $orderId = craft()->request->getParam('orderId');
-        $addressType = craft()->request->getParam('addressType');
-        $address = craft()->request->getParam('address');
-
-        $order = craft()->commerce_orders->getOrderById($orderId);
-
-        if ($addressType == 'billing') {
-            $billingAddress = Commerce_AddressModel::populateModel($address);
-            $order->setBillingAddress($billingAddress);
-        } else {
-            $shippingAddress = Commerce_AddressModel::populateModel($address);
-            $order->setShippingAddress($shippingAddress);
-        }
-
-        $order->billingAddressId = null;
-        $order->shippingAddressId = null;
-
-
-        if ($order->hasErrors()) {
-            $this->returnErrorJson(Craft::t('Error saving address.'));
-        }
-
-        if (craft()->commerce_orders->saveOrder($order)) {
-            $this->returnJson(['success' => true]);
-        }
-    }
-
 
     /**
      *

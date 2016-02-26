@@ -6,19 +6,27 @@ if (typeof Craft.Commerce === typeof undefined)
 Craft.Commerce.OrderEdit = Garnish.Base.extend({
     orderId: null,
     $status: null,
+    $completion: null,
     statusUpdateModal: null,
     billingAddressBox: null,
     shippingAddressBox: null,
-    init: function (orderId, settings)
+    init: function (order, settings)
     {
-        this.orderId = orderId;
+        this.orderId = order.orderId;
         this.$status = $('#order-status');
+        this.$completion = $('#order-completion');
 
         this.billingAddress = new Craft.Commerce.AddressBox($('#billingAddressBox'),{});
         this.shippingAddress = new Craft.Commerce.AddressBox($('#shippingAddressBox'),{});
 
+        this.$completion.toggleClass('hidden');
+        this.addListener(this.$completion.find('.updatecompletion'), 'click', function (ev)
+        {
+            ev.preventDefault();
+            this._markOrderCompleted();
+        });
 
-
+        this.$status.toggleClass('hidden');
         this.addListener(this.$status.find('.updatestatus'), 'click', function (ev)
         {
             ev.preventDefault();
@@ -26,10 +34,24 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend({
         });
 
     },
+    _markOrderCompleted: function ()
+    {
+        var self = this;
+        Craft.postActionRequest('commerce/orders/completeOrder', {'orderId':this.orderId}, function (response)
+        {
+            if (response.success)
+            {
+                //Reload for now, until we build a full order screen SPA
+                window.location.reload();
+            } else
+            {
+                alert(response.error);
+            }
+        });
+    },
     _openCreateUpdateStatusModal: function ()
     {
         var self = this;
-
         var currentStatus = this.$status.find('.updatestatus').data('currentstatus');
         var statuses = this.$status.find('.updatestatus').data('orderstatuses');
 
