@@ -84,7 +84,12 @@ class CommercePlugin extends BasePlugin
             'Business Tax ID',
             'Country',
             'State',
-            'Update Address'
+            'Update Address',
+            'New',
+            'Edit',
+            'Add Address',
+            'Add',
+            'Update'
         );
     }
 
