@@ -319,7 +319,7 @@ input[type="button"] {
     padding: 0 30px;
     color: #555;
     text-align: center;
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 600;
     line-height: 38px;
     letter-spacing: .1rem;
@@ -331,6 +331,11 @@ input[type="button"] {
     border: 1px solid #bbb;
     cursor: pointer;
     box-sizing: border-box;
+}
+
+.button .fa,
+button .fa {
+    font-size:16px;
 }
 
 .button:hover,
@@ -665,10 +670,6 @@ img.logo{ width:400px; }
 
 img.product { width: 100%; }
 
-.variant-input { margin-bottom: 10px; }
-
-.variant-input input[type='radio'] { padding: 0px; margin: 0px; }
-
 .flash{ color: #DA5A17; margin-bottom:10px;}
 
 .has-error input{
@@ -699,7 +700,6 @@ img.product { width: 100%; }
 
 .hidden { display: none; }
 
-
 .product.row {
     border-bottom: 1px solid #fafafa;
     margin-bottom: 2.5rem;
@@ -707,4 +707,21 @@ img.product { width: 100%; }
 
 .product-details {
     padding-top: 2rem;
+}
+
+.address-card form {
+    display:inline;
+    margin:0px;
+}
+
+.address-card {
+    background-color: transparent;
+    border-radius: 5px;
+    padding:10px 0px 0px 10px;
+    border: 1px solid #DA5A17;
+    margin-bottom: 15px;
+}
+
+.address-card ul {
+    list-style: none;
 }

@@ -1,4 +1,4 @@
-<ul>
+<ul class="address-data">
     {% if address.firstName is not empty or address.lastName is not empty %}
         <li>
             <strong>
@@ -42,16 +42,13 @@
         </li>
     {% endif %}
 
-    {% if address.stateName is not empty %}
-        <li>{{ address.stateName }}</li>
+
+    {% if address.countryText is defined %}
+        <li>{{ address.countryText }}</li>
     {% endif %}
 
-    {% if address.country.name is defined %}
-        <li>{{ address.country.name }}</li>
-    {% endif %}
-
-    {% if address.state.name is defined %}
-        <li>{{ address.state.name }}</li>
+    {% if address.stateText is defined %}
+        <li>{{ address.stateText }}</li>
     {% endif %}
 
     {% if address.phone is not empty %}
@@ -61,6 +58,4 @@
     {% if address.alternativePhone is not empty %}
         <li>{{ address.alternativePhone }}</li>
     {% endif %}
-
-
 </ul>

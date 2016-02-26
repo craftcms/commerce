@@ -65,6 +65,22 @@ class CommerceVariable
     }
 
     /**
+     * @return array
+     */
+    public function getCountries()
+    {
+        return craft()->commerce_countries->getAllCountries();
+    }
+
+    /**
+     * @return array
+     */
+    public function getStates()
+    {
+        return craft()->commerce_states->getAllStates();
+    }
+
+    /**
      * @return array [id => name]
      */
     public function getCountriesList()

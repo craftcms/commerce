@@ -5,42 +5,15 @@
             <div class="address-select" data-address-id="{{ address.id }}">
                 <div class="actions">
                     <ul>
-                        <li><a class="edit"
-                               href="{{ url('commerce/customer/addresses/edit?addressId='~ address.id ~'&redirect='~craft.request.path)}}">Edit</a>
+                        <li><a class="edit" href="{{ url('commerce/customer/addresses/edit?addressId='~ address.id ~'&redirect='~craft.request.path)}}">Edit</a>
                         </li>
                     </ul>
                 </div>
-
                 <div class="radio">
                     <input type="radio" name="{{ name }}Id"
-                           {% if attribute(cart,name~'Id') == address.id %}checked="checked"{% endif %}
-                           value="{{ address.id }}"/>
-
-                    <ul class="address-data">
-                        {% for key,value in address.attributes() %}
-
-                            {% switch key %}
-
-                            {% case "id" %} {# ingore #}
-                            {% case "customerId" %} {# ingore #}
-
-                            {% default %}
-
-                            {% if value %}
-                                <li>
-                                    <strong>{{ key|title }}</strong>
-                                    <span class="address-option" data-key="{{ key }}" data-value="{{ value }}">
-                                        {{ key == 'countryId' ? address.countryText : (key == 'stateId' ? address.stateText : value) }}
-                                    </span>
-                                </li>
-                            {% endif %}
-
-                            {% endswitch %}
-
-                        {% endfor %}
-                    </ul>
+                        {% if attribute(cart,name~'Id') == address.id %}checked="checked"{% endif %} value="{{ address.id }}"/>
+                        {% include 'commerce/_includes/addresses/address' %}
                 </div>
-
             </div>
         {% endfor %}
     {% endif %}

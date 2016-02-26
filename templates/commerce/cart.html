@@ -2,8 +2,9 @@
 
 {% block main %}
     <div class="row">
-        <div class="eleven columns">
+        <div class="twelve columns">
 
+            {% if cart.lineItems|length %}
             <table class="u-full-width">
                 <thead>
                 <tr>
@@ -36,11 +37,10 @@
                                 <input type="text" placeholder="My Note" size="20" name="note" value="{{ item.note }}">
                                 <input type="number" name="qty" min="1" value="{{ item.qty }}">
                                 {{ getCsrfInput() }}
-                                {% if item.options.color is defined %}
-                                <select name="options[color]">
-                                    <option value="blue" {% if item.options.color == 'blue' %}selected{% endif %}>Blue</option>
-                                    <option value="white" {% if item.options.color == 'white' %}selected{% endif %}>White</option>
-                                    <option value="red" {% if item.options.color == 'red' %}selected{% endif %}>Red</option>
+                                {% if item.options.giftWrapped is defined %}
+                                <select name="options[giftWrapped]">
+                                    <option value="no" {% if item.options.giftWrapped == 'no' %}selected{% endif %}>No gift wrap.</option>
+                                    <option value="yes" {% if item.options.giftWrapped == 'yes' %}selected{% endif %}>Gift wrapped.</option>
                                 </select>
                                 {% endif %}
                                 <input type="submit" class="button" value="Update"/>
@@ -116,6 +116,7 @@
             </table>
 
             <a class="button button-primary" href="{{ url('commerce/checkout') }}">Checkout</a>
+            {% endif %}
 
             {% if not cart.lineItems|length %}
                 <p>You have no items in your cart, add some on the <a href="/commerce/products">products page</a>.</p>

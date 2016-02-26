@@ -79,6 +79,7 @@ class CommercePlugin extends BasePlugin
             'Zip Code',
             'Phone',
             'Alternative Phone',
+            'Phone (Alt)',
             'Business Name',
             'Business Tax ID',
             'Country',

@@ -1,11 +1,5 @@
-.order-header .order-addresses{
+.address-boxes{
     width:100%;
-}
-.order-header .order-addresses .order-address-box{
-    border:1px solid rgba(115, 127, 140, 0.15);
-    width:100%;
-    margin:0 0 10px 0;
-    display:inline-block;
 }
 
 .order-header:after {
@@ -23,11 +17,6 @@
     margin-top:20px;
 }
 
-.order-header .order-addresses .order-address-box .order-address-box-content{
-    margin:10px;
-}
-
-
 .order-details .paidLogo{
     font-weight:bold;
     position: absolute;
@@ -41,17 +30,15 @@
 }
 
 @media screen and (min-width : 768px) {
-    .order-header .order-addresses{
-        width:50%;
-    }
-    .order-header .order-addresses .order-address-box {
-        float:right;
-        width:250px;
-        margin:0 10px 10px;
-    }
+    .address-boxes { width: 50%; }
     .order-header .order-info{
         float:left;
         width:50%;
+    }
+    .address-box {
+        float:right;
+        width:250px;
+        margin:0 10px 10px;
     }
 }
 

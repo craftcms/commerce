@@ -38,11 +38,13 @@
 				<tr>
 					<td><strong>{{ "Status"|t }}</strong></td>
 					{% if order.orderStatus %}
-						<td><div id="order-status">{{ order.orderStatus.htmlLabel|raw }} &nbsp; <a
+						<td>
+							<div id="order-status">{{ order.orderStatus.htmlLabel|raw }} &nbsp; <a
 									href="#"
 									class="updatestatus btn small"
 									data-currentStatus="{{ order.orderStatus.attributes|json_encode() }}"
-									data-orderStatuses="{{ craft.commerce.orderStatuses|json_encode() }}">{{ "Update Status"|t }}</a></div>
+									data-orderStatuses="{{ craft.commerce.orderStatuses|json_encode() }}">{{ "Update Status"|t }}</a>
+							</div>
 						</td>
 					{% else %}
 						<td><span class="status"></span></td>
@@ -59,32 +61,26 @@
 		</div>
 		</div>
 
-		<div class="order-addresses right">
-			<div class="order-address-box billingAddress">
-				<div class="order-address-box-content">
-				{% import "commerce/_includes/orders/address" as addressMacros %}
-
-				<strong>{{ 'Billing Address'|t }} </strong><br>
-				{% if order.billingAddress %}
-				<a class="small btn right"
-				   href="http://maps.google.com/maps?q={{ order.billingAddress.address1 }}+{{ order.billingAddress.address2 }}+{{ order.billingAddress.city }}+{{ order.billingAddress.zipCode }}+{{ order.billingAddress.stateText }}+{{ order.billingAddress.countryText }}"
-				   target="_blank">{{ "View Map"|t }}</a>
-				{{ addressMacros.formatAddress(order.billingAddress) }}
-				{% endif %}
+		<div class="address-boxes right">
+			{% set address = order.shippingAddress %}
+			<div id="shippingAddressBox" class="address-box hidden"
+				 data-title='{{ "Shipping Address"|t }}'
+				 data-address='{%- if address and address.id -%}{{ address|json_encode|raw }}{%- endif %}'>
+				<div class="address-box-content">
+					<div class="address-box-header"></div>
+					<div class="address"></div>
 				</div>
 			</div>
 
-			<div class="order-address-box shippingAddress">
-				<div class="order-address-box-content">
-				<strong>{{ 'Shipping Address'|t }} </strong><br>
-				{% if order.shippingAddress %}
-				<a class="small btn right"
-				   href="http://maps.google.com/maps?q={{ order.shippingAddress.address1 }}+{{ order.shippingAddress.address2 }}+{{ order.shippingAddress.city }}+{{ order.shippingAddress.zipCode }}+{{ order.shippingAddress.stateText }}+{{ order.shippingAddress.countryText }}"
-				   target="_blank">{{ "View Map"|t }}</a>
-				{{ addressMacros.formatAddress(order.shippingAddress) }}
-				{% endif %}
+			{% set address = order.billingAddress %}
+			<div id="billingAddressBox" class="address-box hidden"
+				 data-title='{{ "Shipping Address"|t }}'
+				 data-address='{%- if address and address.id -%}{{ address|json_encode|raw }}{%- endif %}'>
+				<div class="address-box-content">
+					<div class="address-box-header"></div>
+					<div class="address"></div>
 				</div>
-			</div> <!-- order address box -->
+			</div>
 		</div><!-- order addresses -->
 
 	</div>
@@ -402,16 +398,17 @@
 	{% endif %}
 {% endblock %}
 
-
 {% includeJsResource 'commerce/js/classes/TableRowAdditionalInfoIcon.js' %}
-{% includeJsResource 'commerce/js/classes/EditAddressModal.js' %}
-{% includeJsResource 'commerce/js/classes/UpdateOrderStatusModal.js' %}
-{% includeJsResource 'commerce/js/classes/OrderEdit.js' %}
+{% includeJsResource 'commerce/js/CommerceUpdateOrderStatusModal.js' %}
+{% includeJsResource 'commerce/js/CommerceAddressBox.js' %}
+{% includeJsResource 'commerce/js/CommerceEditAddressModal.js' %}
+{% includeJsResource 'commerce/js/CommerceOrderEdit.js' %}
+
 
 {% includejs %}
 
-//window.countries = JSON.parse('{{ craft.commerce.countriesList|json_encode|raw }}');
-//window.states = JSON.parse('{{ craft.commerce.statesArray|json_encode|raw }}');
+window.countries = JSON.parse('{{ craft.commerce.countries|json_encode|raw }}');
+window.states = JSON.parse('{{ craft.commerce.states|json_encode|raw }}');
 
 $(document).ready(function () {
 

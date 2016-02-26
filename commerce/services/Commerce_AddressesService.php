@@ -73,9 +73,13 @@ class Commerce_AddressesService extends BaseApplicationComponent
         $addressRecord->countryId = $addressModel->countryId;
 
         if (!empty($addressModel->stateValue)) {
-            if (is_numeric($addressModel->stateValue)) {
+            if (craft()->commerce_states->getStateById($addressModel->stateValue)) {
                 $addressRecord->stateId = $addressModel->stateId = $addressModel->stateValue;
+                $addressRecord->stateName = null;
+                $addressModel->stateName = null;
             } else {
+                $addressRecord->stateId = null;
+                $addressModel->stateId = null;
                 $addressRecord->stateName = $addressModel->stateName = $addressModel->stateValue;
             }
         } else {
