@@ -25,6 +25,9 @@
 					{{ "Save and continue editing"|t }}
 					{{ forms.optionShortcutLabel('S') }}
 				</a></li>
+				{% if product.id %}
+					<li><a class="formsubmit" data-param="productId" data-value="" data-redirect="{{ continueEditingUrl }}">{{ "Save as a new product"|t }}</a></li>
+				{% endif %}
 			</ul>
 		</div>
 	</div>
