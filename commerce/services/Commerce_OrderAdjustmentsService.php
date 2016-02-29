@@ -51,6 +51,7 @@ class Commerce_OrderAdjustmentsService extends BaseApplicationComponent
             'type',
             'description',
             'amount',
+            'included',
             'orderId',
             'optionsJson'
         ];

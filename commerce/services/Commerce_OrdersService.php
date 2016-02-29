@@ -374,8 +374,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
 		$adjustments = [];
 		foreach ($this->getAdjusters() as $adjuster)
 		{
-			$adjustments = array_merge($adjustments,
-				$adjuster->adjust($order, $lineItems));
+			$adjustments = array_merge($adjustments, $adjuster->adjust($order, $lineItems));
 		}
 
 		//refreshing adjustments
@@ -391,6 +390,8 @@ class Commerce_OrdersService extends BaseApplicationComponent
 						$errors));
 			}
 		}
+
+		$order->setAdjustments($adjustments);
 
 		//recalculating order amount and saving items
 		$order->itemTotal = 0;
@@ -408,7 +409,11 @@ class Commerce_OrdersService extends BaseApplicationComponent
 			}
 		}
 
+		$itemSub = $order->getItemSubtotalWithSale();
+		$adjSub = $order->getAdjustmentSubtotal();
+		$totalPrice = $itemSub + $adjSub;
 		$order->totalPrice = $order->itemTotal + $order->baseDiscount + $order->baseShippingCost;
+		$same = $totalPrice == $order->totalPrice;
 		$order->totalPrice = max(0, $order->totalPrice);
 	}
 
