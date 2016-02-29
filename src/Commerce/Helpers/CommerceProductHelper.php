@@ -63,8 +63,10 @@ class CommerceProductHelper
             $variantData = [];
         }
 
+        $productId = $product->id;
+
         foreach ($variantData as $key => $variant) {
-            if (strncmp($key, 'new', 3) !== 0) {
+            if ($productId && strncmp($key, 'new', 3) !== 0) {
                 $variantModel = \Craft\craft()->commerce_variants->getVariantById($key, $product->locale);
             }else{
                 $variantModel = new VariantModel();
