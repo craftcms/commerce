@@ -377,6 +377,23 @@ class Commerce_OrderModel extends BaseElementModel
     }
 
     /**
+     * Returns the total of adjustments made to order.
+     * @return float|int
+     */
+    public function getAdjustmentSubtotal()
+    {
+        $value = 0;
+        foreach ($this->getAdjustments() as $adjustment) {
+            if (!$adjustment->included)
+            {
+                $value += $adjustment->amount;
+            }
+        }
+
+        return $value;
+    }
+
+    /**
      * @return int
      */
     public function getTotalHeight()
@@ -407,6 +424,14 @@ class Commerce_OrderModel extends BaseElementModel
     public function setLineItems($lineItems)
     {
         $this->_lineItems = $lineItems;
+    }
+
+    /**
+     * @param Commerce_OrderAdjustmentModel[] $adjustments
+     */
+    public function setAdjustments($adjustments)
+    {
+        $this->_orderAdjustments = $adjustments;
     }
 
     /**

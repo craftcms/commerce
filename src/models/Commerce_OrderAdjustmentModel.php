@@ -9,6 +9,7 @@ namespace Craft;
  * @property string $description
  * @property string $type
  * @property float $amount
+ * @property bool $included
  * @property string $optionsJson
  * @property int $orderId
  *
@@ -47,6 +48,7 @@ class Commerce_OrderAdjustmentModel extends BaseModel
                 'required' => true,
                 'decimals' => 4
             ],
+            'included' => [AttributeType::Bool, 'default' => false],
             'optionsJson' => [AttributeType::Mixed, 'required' => true],
             'orderId' => [AttributeType::Number, 'required' => true],
         ];

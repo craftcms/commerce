@@ -65,16 +65,28 @@ class Commerce_TaxAdjuster implements Commerce_AdjusterInterface
         $adjustment->orderId = $order->id;
         $adjustment->optionsJson = $taxRate->attributes;
 
+        $affectedLineIds = [];
+
         //checking address
         if (!$this->matchAddress($address, $zone)) {
             if ($taxRate->include) {
                 //excluding taxes included in price
+                $allRemovedTax = 0;
                 foreach ($lineItems as $item) {
                     if ($item->taxCategoryId == $taxRate->taxCategoryId) {
                         $taxableAmount = $item->getTaxableSubtotal($taxRate->taxable);
-                        $item->tax += -($taxableAmount - ($taxableAmount / (1 + $taxRate->rate)));
+                        $amount = -($taxableAmount - ($taxableAmount / (1 + $taxRate->rate)));
+                        $allRemovedTax += $amount;
+                        $item->tax += $amount;
+                        $affectedLineIds[] = $item->id;
                     }
                 }
+
+                // We need to display the adjustment that removed the included tax
+                $adjustment->name = $taxRate->name . " ". \Craft\Craft::t('Removed');
+                $adjustment->amount = $allRemovedTax;
+                $adjustment->optionsJson = array_merge(['lineItemsAffected'=>$affectedLineIds],$adjustment->optionsJson);
+                return $adjustment;
             }
 
             return false;
@@ -96,13 +108,16 @@ class Commerce_TaxAdjuster implements Commerce_AdjusterInterface
                 if (!$taxRate->include) {
                     $item->tax += $itemTax;
                 }else{
+                    $adjustment->included = true;
                     $item->taxIncluded += $itemTax;
                 }
 
+                $affectedLineIds[] = $item->id;
                 $itemsMatch = true;
             }
         }
 
+        $adjustment->optionsJson = array_merge(['lineItemsAffected'=>$affectedLineIds],$adjustment->optionsJson);
         return $itemsMatch ? $adjustment : false;
     }
 
