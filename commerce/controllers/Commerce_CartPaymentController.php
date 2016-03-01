@@ -44,15 +44,24 @@ class Commerce_CartPaymentController extends Commerce_BaseFrontEndController
         $paymentMethodId = craft()->request->getParam('paymentMethodId');
         if($paymentMethodId){
             if (!craft()->commerce_cart->setPaymentMethod($cart, $paymentMethodId, $error)) {
-                craft()->userSession->setFlash('error', $error);
-                craft()->urlManager->setRouteVariables(compact('paymentForm'));
+                if (craft()->request->isAjaxRequest()) {
+                    $this->returnErrorJson($error);
+                } else {
+                    craft()->userSession->setFlash('error', $error);
+                    craft()->urlManager->setRouteVariables(compact('paymentForm'));
+                }
                 return;
             }
         }
 
         if (!$cart->email) {
-            craft()->userSession->setFlash('error', Craft::t("No customer email address for cart."));
-            craft()->urlManager->setRouteVariables(compact('paymentForm'));
+            $customError = Craft::t("No customer email address exists on this cart.");
+            if (craft()->request->isAjaxRequest()) {
+                $this->returnErrorJson($customError);
+            } else {
+                craft()->userSession->setFlash('error', $customError);
+                craft()->urlManager->setRouteVariables(compact('paymentForm'));
+            }
             return;
         }
 
