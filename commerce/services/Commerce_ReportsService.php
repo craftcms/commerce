@@ -29,7 +29,7 @@ class Commerce_ReportsService extends BaseApplicationComponent
 
         $query = craft()->elements->buildElementsQuery($criteria);
 
-	    $query->select('DATE_FORMAT(orders.dateOrdered, "'.$scaleFormat.'") as date, sum(orders.totalPrice) as revenue');
+        $query->select('DATE_FORMAT(orders.dateOrdered, "'.$scaleFormat.'") as date, sum(orders.totalPrice) as revenue');
 
         switch ($scale)
         {
@@ -37,11 +37,15 @@ class Commerce_ReportsService extends BaseApplicationComponent
 		        $query->group('YEAR(orders.dateOrdered)');
 		        break;
 
-	        case 'month':
-		        $query->group('YEAR(orders.dateOrdered), MONTH(orders.dateOrdered)');
-		        break;
+            case 'month':
+                $query->group('YEAR(orders.dateOrdered), MONTH(orders.dateOrdered)');
+                break;
 
-            default:
+            case 'hour':
+                $query->group('YEAR(orders.dateOrdered), MONTH(orders.dateOrdered), DAY(orders.dateOrdered), HOUR(orders.dateOrdered)');
+                break;
+
+            case 'day':
                 $query->group('YEAR(orders.dateOrdered), MONTH(orders.dateOrdered), DAY(orders.dateOrdered)');
                 break;
         }
@@ -50,7 +54,6 @@ class Commerce_ReportsService extends BaseApplicationComponent
         $results = $query->queryAll();
 
         $report = $this->getReportDataTable($startDate, $endDate, $results);
-
 
 
         // totals
@@ -74,7 +77,7 @@ class Commerce_ReportsService extends BaseApplicationComponent
             'localeDefinition' => [
                 'currency' => $this->getLocaleDefinitionCurrency(),
             ],
-	        'numberFormats' => craft()->reports->getNumberFormats(),
+	        'formats' => craft()->charts->getFormats(),
             'craftCurrencyFormat' => craft()->locale->getCurrencyFormat(),
             'orientation' => $orientation,
             'total' => $total,
@@ -100,8 +103,19 @@ class Commerce_ReportsService extends BaseApplicationComponent
 
         $columns = [];
 
+        switch ($scale)
+        {
+            case 'hour':
+                $xType = 'datetime';
+                break;
+
+            default:
+                $xType = 'date';
+                break;
+        }
+
         $columns[] = [
-            'type' => 'date',
+            'type' => $xType,
             'label' => Craft::t('Date'),
         ];
 
@@ -119,12 +133,23 @@ class Commerce_ReportsService extends BaseApplicationComponent
 
         while($cursorCurrent->getTimestamp() < $endDate->getTimestamp())
         {
-            $cursorStart = new DateTime($cursorCurrent);
+            switch($scale)
+            {
+                case 'hour':
+                $cursorFormat = 'Y-m-d H:i';
+                break;
+
+                default:
+                $cursorFormat = 'Y-m-d';
+            }
+
+            $cursorStart = new DateTime($cursorCurrent->format($cursorFormat));
             $cursorCurrent->modify('+1 '.$scale);
+
             $cursorEnd = $cursorCurrent;
 
             $row = [
-                strftime("%Y-%m-%d", $cursorStart->getTimestamp()), // date
+                strftime($scaleFormat, $cursorStart->getTimestamp()), // date
                 0 // revenue
             ];
 
@@ -168,9 +193,13 @@ class Commerce_ReportsService extends BaseApplicationComponent
         {
             $scale = 'month';
         }
-        else
+        elseif($numberOfDays > 2)
         {
             $scale = 'day';
+        }
+        else
+        {
+            $scale = 'hour';
         }
 
         return $scale;
@@ -189,12 +218,17 @@ class Commerce_ReportsService extends BaseApplicationComponent
 				return "%Y-01-01";
 				break;
 			case 'month':
+
 				return "%Y-%m-01";
 				break;
 
-			default:
-				return "%Y-%m-%d";
-				break;
+            case 'day':
+                return "%Y-%m-%d";
+                break;
+
+            case 'hour':
+                return "%Y-%m-%d %H:00:00";
+                break;
 		}
 	}
 

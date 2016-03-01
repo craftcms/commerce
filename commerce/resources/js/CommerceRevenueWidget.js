@@ -40,7 +40,7 @@ Craft.CommerceRevenueWidget = Garnish.Base.extend(
                 var chartSettings = {
                     localeDefinition: response.localeDefinition,
                     orientation: response.orientation,
-                    numberFormats: response.numberFormats,
+                    formats: response.formats,
                     dataScale: response.scale
                 };
 

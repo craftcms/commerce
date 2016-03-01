@@ -28,7 +28,7 @@ class Commerce_RevenueWidget extends BaseWidget
 
         $settings = $this->getSettings();
 
-        $dateRanges = craft()->reports->getDateRanges();
+        $dateRanges = craft()->charts->getDateRanges();
 
         if(!empty($dateRanges[$settings->dateRange]))
         {
@@ -58,7 +58,7 @@ class Commerce_RevenueWidget extends BaseWidget
      */
     public function getSettingsHtml()
     {
-        $dateRanges = craft()->reports->getDateRanges();
+        $dateRanges = craft()->charts->getDateRanges();
 
         $dateRangeOptions = [];
 
