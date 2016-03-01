@@ -14,7 +14,7 @@ namespace Craft;
 class Commerce_ReportsService extends BaseApplicationComponent
 {
     /**
-     * Get revenue report based on a criteria, start date and end date
+     * Returns revenue report based on a criteria, start date and end date
      *
      * @param ElementCriteriaModel $criteria
      * @param string $startDate
@@ -53,6 +53,7 @@ class Commerce_ReportsService extends BaseApplicationComponent
         }
 
         // $query->join('select date, revenue from DATE_ADD(date, INTERVAL expr type)');
+
         $results = $query->queryAll();
 
         $report = $this->getReportDataTable($startDate, $endDate, $results);
@@ -178,6 +179,8 @@ class Commerce_ReportsService extends BaseApplicationComponent
     }
 
 	/**
+     * Returns D3 currency format locale definition
+     *
 	 * @param string $currency
 	 *
 	 * @return string
