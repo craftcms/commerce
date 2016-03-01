@@ -76,9 +76,11 @@
 
 	{% if cart.paymentMethodId %}
 		<form method="POST" class="form-horizontal">
-			<input type="hidden" name="action" value="commerce/cartPayment/pay"/>
+			<input type="hidden" name="action" value="commerce/payments/pay"/>
 			<input type="hidden" name="redirect" value="/commerce/customer/order?number={number}"/>
 			<input type="hidden" name="cancelUrl" value="/commerce/checkout/payment"/>
+			<input type="hidden" name="orderNumber" value="{{ cart.number }}"/>
+			<input type="hidden" name="encryptedCardNumber" value="fsafdsaf834389fnuw8cn9uiwe"/>
 			{{ getCsrfInput() }}
 
 			<div class="row">
@@ -105,7 +107,7 @@
 				<script
 						src="//checkout.stripe.com/checkout.js"
 						class="stripe-button"
-						data-key="<ENTER YOUR STRIPE PUBLISHABLE KEY HERE>"
+						data-key="pk_test_ysElKNu1n56ehhFioJqVK2DJ"
 						data-name="Craft Commerce"
 						data-description="Purchase" {# This is not used for order description in stripe - see Craft Commerce general settings #}
 						data-email="{{ cart.email }}"
