@@ -14,6 +14,8 @@ namespace Craft;
 class Commerce_ReportsService extends BaseApplicationComponent
 {
     /**
+     * Get revenue report based on a criteria, start date and end date
+     *
      * @param ElementCriteriaModel $criteria
      * @param string $startDate
      * @param string $endDate
@@ -22,8 +24,8 @@ class Commerce_ReportsService extends BaseApplicationComponent
      */
     public function getRevenueReport($criteria, $startDate, $endDate)
     {
-        $scale = $this->getScale($startDate, $endDate);
-	    $scaleFormat = $this->getScaleDateFormat($scale);
+        $scale = craft()->charts->getScale($startDate, $endDate);
+	    $scaleFormat = craft()->charts->getScaleDateFormat($scale);
 
         $criteria->limit = null;
 
@@ -88,6 +90,8 @@ class Commerce_ReportsService extends BaseApplicationComponent
     }
 
     /**
+     * Returns report as a data table
+     *
      * @param string $startDate
      * @param string $endDate
      * @param array $results
@@ -96,8 +100,8 @@ class Commerce_ReportsService extends BaseApplicationComponent
      */
     public function getReportDataTable($startDate, $endDate, $results)
     {
-        $scale = $this->getScale($startDate, $endDate);
-	    $scaleFormat = $this->getScaleDateFormat($scale);
+        $scale = craft()->charts->getScale($startDate, $endDate);
+	    $scaleFormat = craft()->charts->getScaleDateFormat($scale);
 
         // columns
 
@@ -172,65 +176,6 @@ class Commerce_ReportsService extends BaseApplicationComponent
             'rows' => $rows,
         );
     }
-
-    /**
-     * @param string $startDate
-     * @param string $endDate
-     *
-     * @return string
-     */
-    public function getScale($startDate, $endDate)
-    {
-        // auto scale
-
-        $numberOfDays = floor(($endDate->getTimestamp() - $startDate->getTimestamp()) / (60*60*24));
-
-        if ($numberOfDays > (360 * 2))
-        {
-            $scale = 'year';
-        }
-        elseif($numberOfDays > 60)
-        {
-            $scale = 'month';
-        }
-        elseif($numberOfDays > 2)
-        {
-            $scale = 'day';
-        }
-        else
-        {
-            $scale = 'hour';
-        }
-
-        return $scale;
-    }
-
-	/**
-	 * @param string $scale
-	 *
-	 * @return string
-	 */
-	public function getScaleDateFormat($scale)
-	{
-		switch ($scale)
-		{
-			case 'year':
-				return "%Y-01-01";
-				break;
-			case 'month':
-
-				return "%Y-%m-01";
-				break;
-
-            case 'day':
-                return "%Y-%m-%d";
-                break;
-
-            case 'hour':
-                return "%Y-%m-%d %H:00:00";
-                break;
-		}
-	}
 
 	/**
 	 * @param string $currency
