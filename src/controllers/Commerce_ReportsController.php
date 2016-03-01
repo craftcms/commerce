@@ -84,20 +84,14 @@ class Commerce_ReportsController extends BaseElementsController
      */
     public function actionGetRevenueReport()
     {
-        $dateRange = craft()->request->getParam('dateRange');
         $startDate = craft()->request->getParam('startDate');
         $endDate = craft()->request->getParam('endDate');
 
-        $dateRanges = craft()->reports->getDateRanges();
+	    $timezone = craft()->timezone;
 
-        if(!empty($dateRanges[$dateRange]))
-        {
-            $startDate = $dateRanges[$dateRange]['startDate'];
-            $endDate = $dateRanges[$dateRange]['endDate'];
-        }
+        $startDate = DateTime::createFromString(array('date' => $startDate), $timezone);
 
-        $startDate = new DateTime($startDate);
-        $endDate = new DateTime($endDate);
+        $endDate = DateTime::createFromString(array('date' => $endDate), $timezone);
         $endDate->modify('+1 day');
 
         $revenueReport = craft()->commerce_reports->getRevenueReport($this->_criteria, $startDate, $endDate);

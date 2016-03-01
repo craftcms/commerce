@@ -55,7 +55,7 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
             $total = $('<div class="total"></div>').appendTo($chartHeader),
             $totalLabel = $('<div class="total-label light">'+Craft.t('Total Revenue')+'</div>').appendTo($total),
             $totalValueWrapper = $('<div class="total-value-wrapper"></div>').appendTo($total);
-            $totalValue = $('<span class="total-value">0</span>').appendTo($totalValueWrapper);
+            $totalValue = $('<span class="total-value">&nbsp;</span>').appendTo($totalValueWrapper);
 
         this.$chartExplorer = $chartExplorer;
         this.$totalValue = $totalValue;
@@ -83,7 +83,7 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
                 }
 
                 this.startDate = new Date(inst.currentYear, inst.currentMonth, inst.currentDay);
-                this.loadReport(this.startDate, this.endDate);
+                this.loadReport(this.$startDate.val(), this.$endDate.val());
 
                 Craft.setLocalStorage('CommerceOrdersIndex.startDate', this.startDate);
             }, this)
@@ -105,13 +105,13 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
                 }
 
                 this.endDate = new Date(inst.currentYear, inst.currentMonth, inst.currentDay);
-                this.loadReport(this.startDate, this.endDate);
+                this.loadReport(this.$startDate.val(), this.$endDate.val());
 
                 Craft.setLocalStorage('CommerceOrdersIndex.endDate', this.endDate);
             }, this)
         }, Craft.datepickerOptions));
 
-        this.loadReport(this.startDate, this.endDate);
+        this.loadReport(this.$startDate.val(), this.$endDate.val());
     },
 
     loadReport: function(startDate, endDate)
@@ -142,7 +142,7 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
                 var chartSettings = {
                     localeDefinition: response.localeDefinition,
                     orientation: response.orientation,
-                    numberFormats: response.numberFormats,
+                    formats: response.formats,
                     dataScale: response.scale
                 };
 
