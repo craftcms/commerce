@@ -32,6 +32,7 @@ class Commerce_ReportsService extends BaseApplicationComponent
         $query = craft()->elements->buildElementsQuery($criteria);
 
         $query->select('DATE_FORMAT(orders.dateOrdered, "'.$scaleFormat.'") as date, sum(orders.totalPrice) as revenue');
+        $query->andWhere(array('and', 'orders.dateOrdered > :startDate', 'orders.dateOrdered < :endDate'), array(':startDate' => $startDate->mySqlDateTime(), ':endDate' => $endDate->mySqlDateTime()));
 
         switch ($scale)
         {
