@@ -17,46 +17,18 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
 		this.base();
 	},
 
+    getStorage: function(key)
+    {
+        return Craft.CommerceOrderTableView.getStorage(this.elementIndex._namespace, key);
+    },
+
+    setStorage: function(key, value)
+    {
+        Craft.CommerceOrderTableView.setStorage(this.elementIndex._namespace, key, value);
+    },
+
     createChartExplorer: function()
     {
-        // start date
-
-        if(typeof(this.elementIndex.startDates) == 'undefined')
-        {
-            this.elementIndex.startDates = [];
-        }
-
-        this.startDate = this.elementIndex.startDates[this.elementIndex.sourceKey];
-
-        if(this.startDate)
-        {
-            this.startDate = new Date(this.startDate);
-        }
-        else
-        {
-            var date = new Date();
-            date = date.getTime() - (60 * 60 * 24 * 7 * 1000);
-            this.startDate = new Date(date);
-        }
-
-        // end date
-
-        if(typeof(this.elementIndex.endDates) == 'undefined')
-        {
-            this.elementIndex.endDates = [];
-        }
-
-        this.endDate = this.elementIndex.endDates[this.elementIndex.sourceKey];
-
-        if(this.endDate)
-        {
-            this.endDate = new Date(this.endDate);
-        }
-        else
-        {
-            this.endDate = new Date();
-        }
-
         // chart explorer
         var $chartExplorer = $('<div class="chart-explorer"></div>').appendTo(this.$explorerContainer),
             $chartHeader = $('<div class="chart-header"></div>').appendTo($chartExplorer),
@@ -76,8 +48,8 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
         this.$error = $('<div class="error"></div>').appendTo(this.$chartContainer);
         this.$chart = $('<div class="chart"></div>').appendTo(this.$chartContainer);
 
-        this.$startDate = $('<input type="text" value="'+Craft.formatDate(this.startDate)+'" class="text" size="20" autocomplete="off" />').appendTo($startDateContainer);
-        this.$endDate = $('<input type="text" value="'+Craft.formatDate(this.endDate)+'" class="text" size="20" autocomplete="off" />').appendTo($endDateContainer);
+        this.$startDate = $('<input type="text" class="text" size="20" autocomplete="off" />').appendTo($startDateContainer);
+        this.$endDate = $('<input type="text" class="text" size="20" autocomplete="off" />').appendTo($endDateContainer);
 
         this.$startDate.datepicker($.extend({
             onSelect: $.proxy(function(dateText, inst)
@@ -95,17 +67,24 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
             }, this)
         }, Craft.datepickerOptions));
 
+        // Set the start/end dates
+        var startTime = this.getStorage('startTime') || ((new Date()).getTime() - (60 * 60 * 24 * 7 * 1000)),
+            endTime = this.getStorage('endTime') || ((new Date()).getTime());
+
+        this.setStartDate(new Date(startTime));
+        this.setEndDate(new Date(endTime));
+
         this.loadReport();
     },
 
     setStartDate: function(date)
     {
         this.startDate = date;
-        this.elementIndex.startDates[this.elementIndex.sourceKey] = this.startDate;
+        this.setStorage('startTime', this.startDate.getTime());
         this.$startDate.val(Craft.formatDate(this.startDate));
 
         // If this is after the current end date, set the end date to match it
-        if (this.startDate.getTime() > this.endDate.getTime())
+        if (this.endDate && this.startDate.getTime() > this.endDate.getTime())
         {
             this.setEndDate(new Date(this.startDate.getTime()));
         }
@@ -114,11 +93,11 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
     setEndDate: function(date)
     {
         this.endDate = date;
-        this.elementIndex.endDates[this.elementIndex.sourceKey] = this.endDate;
+        this.setStorage('endTime', this.endDate.getTime());
         this.$endDate.val(Craft.formatDate(this.endDate));
 
         // If this is before the current start date, set the start date to match it
-        if (this.endDate.getTime() < this.startDate.getTime())
+        if (this.startDate && this.endDate.getTime() < this.startDate.getTime())
         {
             this.setStartDate(new Date(this.endDate.getTime()));
         }
@@ -177,6 +156,28 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
     }
 },
 {
+    storage: {},
+
+    getStorage: function(namespace, key)
+    {
+        if (Craft.CommerceOrderTableView.storage[namespace] && Craft.CommerceOrderTableView.storage[namespace][key])
+        {
+            return Craft.CommerceOrderTableView.storage[namespace][key];
+        }
+
+        return null;
+    },
+
+    setStorage: function(namespace, key, value)
+    {
+        if (typeof Craft.CommerceOrderTableView.storage[namespace] == typeof undefined)
+        {
+            Craft.CommerceOrderTableView.storage[namespace] = {};
+        }
+
+        Craft.CommerceOrderTableView.storage[namespace][key] = value;
+    },
+
     getDateFromDatepickerInstance: function(inst)
     {
         return new Date(inst.currentYear, inst.currentMonth, inst.currentDay);
