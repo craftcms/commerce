@@ -11,7 +11,7 @@ namespace Craft;
  * @package   craft.plugins.commerce.services
  * @since     1.0
  */
-class Commerce_ReportsService extends BaseApplicationComponent
+class Commerce_ChartsService extends BaseApplicationComponent
 {
     /**
      * Returns revenue report based on a criteria, start date and end date
@@ -100,7 +100,7 @@ class Commerce_ReportsService extends BaseApplicationComponent
      *
      * @return array
      */
-    public function getReportDataTable($startDate, $endDate, $results)
+    private function getReportDataTable($startDate, $endDate, $results)
     {
         $scale = craft()->charts->getScale($startDate, $endDate);
 	    $scaleFormat = craft()->charts->getScaleDateFormat($scale);
@@ -186,7 +186,7 @@ class Commerce_ReportsService extends BaseApplicationComponent
 	 *
 	 * @return string
 	 */
-	public function getLocaleDefinitionCurrency()
+	private function getLocaleDefinitionCurrency()
 	{
 		$currency = craft()->commerce_settings->getOption('defaultCurrency');
 

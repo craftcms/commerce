@@ -11,7 +11,8 @@ namespace Craft;
  * @package   craft.plugins.commerce.controllers
  * @since     1.0
  */
-class Commerce_ReportsController extends BaseElementsController
+class Commerce_ChartsController extends BaseElementsController
+// class Commerce_ReportsController extends ElementIndexController
 {
     // Properties
     // =========================================================================
@@ -94,7 +95,7 @@ class Commerce_ReportsController extends BaseElementsController
         $endDate = DateTime::createFromString(array('date' => $endDate), $timezone);
         $endDate->modify('+1 day');
 
-        $revenueReport = craft()->commerce_reports->getRevenueReport($this->_criteria, $startDate, $endDate);
+        $revenueReport = craft()->commerce_charts->getRevenueReport($this->_criteria, $startDate, $endDate);
 
         $this->returnJson($revenueReport);
     }
