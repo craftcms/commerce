@@ -31,7 +31,7 @@ class Commerce_ChartsService extends BaseApplicationComponent
 
         $total = 0;
 
-        foreach($report['rows'] as $row)
+        foreach($dataTable['rows'] as $row)
         {
             $total = $total + $row[1];
         }
@@ -40,16 +40,16 @@ class Commerce_ChartsService extends BaseApplicationComponent
         $totalHtml = craft()->numberFormatter->formatCurrency($total, strtoupper($currency));
 
         return array(
-            'report' => $report,
-            'scale' => $scale,
+            'dataTable' => $dataTable,
+            'total' => $total,
+            'totalHtml' => $totalHtml,
+
+	        'formats' => craft()->charts->getFormats(),
+            'orientation' => craft()->locale->getOrientation(),
+            'scale' => craft()->charts->getScale($startDate, $endDate),
             'localeDefinition' => [
                 'currency' => $this->getLocaleDefinitionCurrency(),
             ],
-	        'formats' => craft()->charts->getFormats(),
-            'craftCurrencyFormat' => craft()->locale->getCurrencyFormat(),
-            'orientation' => craft()->locale->getOrientation(),
-            'total' => $total,
-            'totalHtml' => $totalHtml,
         );
     }
 
