@@ -147,7 +147,7 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
                     this.chart = new Craft.charts.Area(this.$chart);
                 }
 
-                var chartDataTable = new Craft.charts.DataTable(response.report);
+                var chartDataTable = new Craft.charts.DataTable(response.dataTable);
 
                 var chartSettings = {
                     localeDefinition: response.localeDefinition,
