@@ -123,12 +123,13 @@ class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfac
 			$this->$field *= 1;
 		}
 
-		if ($this->shippingZoneId && !$order->shippingAddressId)
+		$shippingZone = $this->getShippingZone();
+		$shippingAddress = $order->getShippingAddress();
+
+		if ($shippingZone && !$shippingAddress)
 		{
 			return false;
 		}
-
-		$shippingZone = $this->getShippingZone();
 
 		if ($shippingZone)
 		{
@@ -136,7 +137,7 @@ class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfac
 			{
 				$countryIds = $shippingZone->getCountryIds();
 
-				if (!in_array($order->getShippingAddress()->countryId, $countryIds))
+				if (!in_array($shippingAddress->countryId, $countryIds))
 				{
 					return false;
 				}
@@ -145,7 +146,7 @@ class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfac
 			{
 				foreach ($shippingZone->states as $state)
 				{
-					if ($state->getCountry()->id != $order->getShippingAddress()->countryId || strcasecmp($state->name, $order->getShippingAddress()->getStateText()) != 0)
+					if ($state->getCountry()->id != $shippingAddress->countryId || strcasecmp($state->name, $shippingAddress->getStateText()) != 0)
 					{
 						return false;
 					}
