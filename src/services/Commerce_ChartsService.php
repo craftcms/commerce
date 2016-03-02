@@ -13,6 +13,9 @@ namespace Craft;
  */
 class Commerce_ChartsService extends BaseApplicationComponent
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * Returns revenue report based on a criteria, start date and end date
      *
@@ -24,8 +27,49 @@ class Commerce_ChartsService extends BaseApplicationComponent
      */
     public function getRevenueReport($criteria, $startDate, $endDate)
     {
+        $dataTable = $this->getRevenueDataTable($startDate, $endDate, $criteria);
+
+        $total = 0;
+
+        foreach($report['rows'] as $row)
+        {
+            $total = $total + $row[1];
+        }
+
+        $currency = craft()->commerce_settings->getOption('defaultCurrency');
+        $totalHtml = craft()->numberFormatter->formatCurrency($total, strtoupper($currency));
+
+        return array(
+            'report' => $report,
+            'scale' => $scale,
+            'localeDefinition' => [
+                'currency' => $this->getLocaleDefinitionCurrency(),
+            ],
+	        'formats' => craft()->charts->getFormats(),
+            'craftCurrencyFormat' => craft()->locale->getCurrencyFormat(),
+            'orientation' => craft()->locale->getOrientation(),
+            'total' => $total,
+            'totalHtml' => $totalHtml,
+        );
+    }
+
+    // Private Methods
+    // =========================================================================
+
+    /**
+     * Returns the revenue as a data table
+     *
+     * @param string $startDate
+     * @param string $endDate
+     * @param int|null $userGroupId
+     *
+     * @return array Returns a data table (array of columns and rows)
+     */
+    private function getRevenueDataTable($startDate, $endDate, $criteria)
+    {
+
         $scale = craft()->charts->getScale($startDate, $endDate);
-	    $scaleFormat = craft()->charts->getScaleDateFormat($scale);
+        $scaleFormat = craft()->charts->getScaleDateFormat($scale);
 
         $criteria->limit = null;
 
@@ -36,9 +80,9 @@ class Commerce_ChartsService extends BaseApplicationComponent
 
         switch ($scale)
         {
-	        case 'year':
-		        $query->group('YEAR(orders.dateOrdered)');
-		        break;
+            case 'year':
+                $query->group('YEAR(orders.dateOrdered)');
+                break;
 
             case 'month':
                 $query->group('YEAR(orders.dateOrdered), MONTH(orders.dateOrdered)');
@@ -57,38 +101,7 @@ class Commerce_ChartsService extends BaseApplicationComponent
 
         $results = $query->queryAll();
 
-        $report = $this->getReportDataTable($startDate, $endDate, $results);
-
-
-        // totals
-
-        $total = 0;
-
-        foreach($report['rows'] as $row)
-        {
-            $total = $total + $row[1];
-        }
-
-        $locale = craft()->i18n->getLocaleData(craft()->language);
-        $orientation = $locale->getOrientation();
-
-        $currency = craft()->commerce_settings->getOption('defaultCurrency');
-        $totalHtml = craft()->numberFormatter->formatCurrency($total, strtoupper($currency));
-
-        $response = array(
-            'report' => $report,
-            'scale' => $scale,
-            'localeDefinition' => [
-                'currency' => $this->getLocaleDefinitionCurrency(),
-            ],
-	        'formats' => craft()->charts->getFormats(),
-            'craftCurrencyFormat' => craft()->locale->getCurrencyFormat(),
-            'orientation' => $orientation,
-            'total' => $total,
-            'totalHtml' => $totalHtml,
-        );
-
-        return $response;
+        return $this->parseResultsToDataTable($startDate, $endDate, $results);
     }
 
     /**
@@ -100,10 +113,11 @@ class Commerce_ChartsService extends BaseApplicationComponent
      *
      * @return array
      */
-    private function getReportDataTable($startDate, $endDate, $results)
+    private function parseResultsToDataTable($startDate, $endDate, $results)
     {
         $scale = craft()->charts->getScale($startDate, $endDate);
 	    $scaleFormat = craft()->charts->getScaleDateFormat($scale);
+
 
         // columns
 
