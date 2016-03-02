@@ -130,27 +130,25 @@ class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfac
 
 		$shippingZone = $this->getShippingZone();
 
-		if ($this->shippingZoneId && !$shippingZone)
+		if ($shippingZone)
 		{
-			return false;
-		}
-
-		if ($shippingZone->countryBased)
-		{
-			$countryIds = $shippingZone->getCountryIds();
-
-			if (!in_array($$order->getShippingAddress()->countryId, $countryIds))
+			if ($shippingZone->countryBased)
 			{
-				return false;
-			}
-		}
-		else
-		{
-			foreach ($shippingZone->states as $state)
-			{
-				if ($state->getCountry()->id != $order->getShippingAddress()->countryId || strcasecmp($state->name, $order->getShippingAddress()->getStateText()) != 0)
+				$countryIds = $shippingZone->getCountryIds();
+
+				if (!in_array($$order->getShippingAddress()->countryId, $countryIds))
 				{
 					return false;
+				}
+			}
+			else
+			{
+				foreach ($shippingZone->states as $state)
+				{
+					if ($state->getCountry()->id != $order->getShippingAddress()->countryId || strcasecmp($state->name, $order->getShippingAddress()->getStateText()) != 0)
+					{
+						return false;
+					}
 				}
 			}
 		}
