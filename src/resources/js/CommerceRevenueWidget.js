@@ -19,10 +19,33 @@ Craft.CommerceRevenueWidget = Garnish.Base.extend(
         this.$chart = $('.chart', this.$body);
         this.$error = $('<div class="error"/>').prependTo(this.$body);
 
+
+        var dateRange = this.settings.dateRange;
+
+        switch(dateRange)
+        {
+            case 'd7':
+                this.startDate = this.getDateByDays('7');
+            break;
+
+            case 'd30':
+                this.startDate = this.getDateByDays('30');
+            break;
+
+            case 'lastweek':
+                this.startDate = this.getDateByDays('14');
+                this.endDate = this.getDateByDays('7');
+            break;
+
+            case 'lastmonth':
+                this.startDate = this.getDateByDays('60');
+                this.endDate = this.getDateByDays('30');
+            break;
+        }
+
         var requestData = {
-            dateRange: this.settings.dateRange,
-            startDate: '-7 days',
-            endDate: 'now',
+            startDate: this.startDate,
+            endDate: this.endDate,
             elementType: 'Commerce_Order'
         };
 
@@ -71,6 +94,13 @@ Craft.CommerceRevenueWidget = Garnish.Base.extend(
         this.$widget.data('widget').on('destroy', $.proxy(this, 'destroy'));
 
         Craft.CommerceRevenueWidget.instances.push(this);
+    },
+
+    getDateByDays: function(days)
+    {
+        var date = new Date();
+        date = date.getTime() - (60 * 60 * 24 * days * 1000);
+        return new Date(date);
     },
 
     handleGridRefresh: function()
