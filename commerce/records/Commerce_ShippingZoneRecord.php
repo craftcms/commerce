@@ -4,14 +4,14 @@ namespace Craft;
 /**
  * Shipping zone record.
  *
- * @property int $id
- * @property string $name
- * @property string $description
- * @property bool $countryBased
- * @property bool $default
+ * @property int                      $id
+ * @property string                   $name
+ * @property string                   $description
+ * @property bool                     $countryBased
+ * @property bool                     $default
  *
  * @property Commerce_CountryRecord[] $countries
- * @property Commerce_StateRecord[] $states
+ * @property Commerce_StateRecord[]   $states
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -23,56 +23,56 @@ namespace Craft;
 class Commerce_ShippingZoneRecord extends BaseRecord
 {
 
-    /**
-     * @return string
-     */
-    public function getTableName()
-    {
-        return 'commerce_shippingzones';
-    }
+	/**
+	 * @return string
+	 */
+	public function getTableName()
+	{
+		return 'commerce_shippingzones';
+	}
 
-    /**
-     * @return array
-     */
-    public function defineIndexes()
-    {
-        return [
-            ['columns' => ['name'], 'unique' => true],
-        ];
-    }
+	/**
+	 * @return array
+	 */
+	public function defineIndexes()
+	{
+		return [
+			['columns' => ['name'], 'unique' => true],
+		];
+	}
 
-    /**
-     * @return array
-     */
-    public function defineRelations()
-    {
-        return [
-            'countries' => [
-                static::MANY_MANY,
-                'Commerce_CountryRecord',
-                'commerce_shippingzone_countries(countryId, shippingZoneId)'
-            ],
-            'states' => [
-                static::MANY_MANY,
-                'Commerce_StateRecord',
-                'commerce_shippingzone_states(stateId, shippingZoneId)'
-            ],
-        ];
-    }
+	/**
+	 * @return array
+	 */
+	public function defineRelations()
+	{
+		return [
+			'countries' => [
+				static::MANY_MANY,
+				'Commerce_CountryRecord',
+				'commerce_shippingzone_countries(countryId, shippingZoneId)'
+			],
+			'states'    => [
+				static::MANY_MANY,
+				'Commerce_StateRecord',
+				'commerce_shippingzone_states(stateId, shippingZoneId)'
+			],
+		];
+	}
 
-    /**
-     * @return array
-     */
-    protected function defineAttributes()
-    {
-        return [
-            'name' => [AttributeType::String, 'required' => true],
-            'description' => AttributeType::String,
-            'countryBased' => [
-                AttributeType::Bool,
-                'required' => true,
-                'default' => 1
-            ]
-        ];
-    }
+	/**
+	 * @return array
+	 */
+	protected function defineAttributes()
+	{
+		return [
+			'name'         => [AttributeType::String, 'required' => true],
+			'description'  => AttributeType::String,
+			'countryBased' => [
+				AttributeType::Bool,
+				'required' => true,
+				'default'  => 1
+			]
+		];
+	}
 }
