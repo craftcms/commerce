@@ -142,7 +142,7 @@ class Commerce_TaxAdjuster implements Commerce_AdjusterInterface
             }
         } else {
             foreach ($zone->states as $state) {
-                if ($state->country->id == $address->countryId && $state->name == $address->getStateText()) {
+                if ($state->country->id == $address->countryId || strcasecmp($state->name,$address->getStateText()) == 0) {
                     return true;
                 }
             }

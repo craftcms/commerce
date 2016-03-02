@@ -69,10 +69,30 @@ class Commerce_ShippingRulesController extends Commerce_BaseAdminController
         $variables['countries'] = ['' => ''] + craft()->commerce_countries->getAllCountriesListData();
         $variables['states'] = craft()->commerce_states->getStatesGroupedByCountries();
 
+        craft()->templates->setNamespace('new');
+
+        craft()->templates->startJsBuffer();
+        $countries = craft()->commerce_countries->getAllCountries();
+        $states = craft()->commerce_states->getAllStates();
+        $variables['newShippingZoneFields'] = craft()->templates->namespaceInputs(
+            craft()->templates->render('commerce/settings/shippingzones/_fields', [
+                'countries' => \CHtml::listData($countries, 'id', 'name'),
+                'states' => \CHtml::listData($states, 'id', 'name'),
+            ])
+        );
+        $variables['newShippingZoneJs'] = craft()->templates->clearJsBuffer(false);
+
         if (!empty($variables['ruleId'])) {
             $variables['title'] = $variables['shippingRule']->name;
         } else {
             $variables['title'] = Craft::t('Create a new shipping rule');
+        }
+
+        $shippingZones = craft()->commerce_shippingZones->getAllShippingZones(false);
+        $variables['shippingZones'] = [];
+        $variables['shippingZones'][] = "Anywhere";
+        foreach ($shippingZones as $model) {
+            $variables['shippingZones'][$model->id] = $model->name;
         }
 
         $this->renderTemplate('commerce/settings/shippingrules/_edit', $variables);
@@ -92,7 +112,7 @@ class Commerce_ShippingRulesController extends Commerce_BaseAdminController
         $shippingRule = new Commerce_ShippingRuleModel();
 
         // Shared attributes
-        $fields = ['id', 'name', 'description', 'countryId', 'stateId', 'methodId', 'enabled', 'minQty', 'maxQty', 'minTotal', 'maxTotal',
+        $fields = ['id', 'name', 'description', 'shippingZoneId', 'methodId', 'enabled', 'minQty', 'maxQty', 'minTotal', 'maxTotal',
             'minWeight', 'maxWeight', 'baseRate', 'perItemRate', 'weightRate', 'percentageRate', 'minRate', 'maxRate'];
         foreach ($fields as $field) {
             $shippingRule->$field = craft()->request->getPost($field);

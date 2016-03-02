@@ -7,8 +7,7 @@ namespace Craft;
  * @property int $id
  * @property string $name
  * @property string $description
- * @property int $countryId
- * @property int $stateId
+ * @property int shippingZoneId
  * @property int $methodId
  * @property int $priority
  * @property bool $enabled
@@ -61,6 +60,7 @@ class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfac
      */
     public function getCountry()
     {
+        // TODO Deprecate
         return craft()->commerce_countries->getCountryById($this->countryId);
     }
 
@@ -69,7 +69,13 @@ class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfac
      */
     public function getState()
     {
+        // TODO Deprecate
         return craft()->commerce_states->getStateById($this->stateId);
+    }
+
+    public function getShippingZone()
+    {
+        return craft()->commerce_shippingZones->getShippingZoneById($this->shippingZoneId);
     }
 
     /**
@@ -87,22 +93,28 @@ class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfac
             $this->$field *= 1;
         }
 
-        if ($this->countryId && !$order->shippingAddressId) {
+        if ($this->shippingZoneId && !$order->shippingAddressId) {
             return false;
         }
 
-        if ($this->stateId && !$order->shippingAddressId) {
+        $shippingZone = $this->getShippingZone();
+
+        if($this->shippingZoneId && !$shippingZone){
             return false;
         }
 
-        // country geographical filters
-        if ($this->countryId && $this->countryId != $order->shippingAddress->countryId) {
-            return false;
-        }
+        if ($shippingZone->countryBased) {
+            $countryIds = $shippingZone->getCountryIds();
 
-        // state filters
-        if ($this->stateId && $this->state->name != $order->shippingAddress->getStateText()) {
-            return false;
+            if (!in_array($$order->getShippingAddress()->countryId, $countryIds)) {
+                return false;
+            }
+        } else {
+            foreach ($shippingZone->states as $state) {
+                if ($state->getCountry()->id != $order->getShippingAddress()->countryId || strcasecmp($state->name,$order->getShippingAddress()->getStateText()) != 0) {
+                    return false;
+                }
+            }
         }
 
         // order qty rules are inclusive (min <= x <= max)
@@ -206,8 +218,7 @@ class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfac
             'id' => [AttributeType::Number],
             'name' => [AttributeType::String, 'required' => true],
             'description' => [AttributeType::String],
-            'countryId' => [AttributeType::Number],
-            'stateId' => [AttributeType::Number],
+            'shippingZoneId' => [AttributeType::Number, 'default' => null],
             'methodId' => [AttributeType::Number, 'required' => true],
             'priority' => [
                 AttributeType::Number,

@@ -48,6 +48,7 @@ This will enable PHP Storm IDE features for services like `craft()->commerce_pro
 * @property Commerce_SettingsService         $commerce_settings
 * @property Commerce_ShippingMethodsService  $commerce_shippingMethods
 * @property Commerce_ShippingRulesService    $commerce_shippingRules
+* @property Commerce_ShippingZonesService    $commerce_shippingZones
 * @property Commerce_StatesService           $commerce_states
 * @property Commerce_TaxCategoriesService    $commerce_taxCategories
 * @property Commerce_TaxRatesService         $commerce_taxRates
