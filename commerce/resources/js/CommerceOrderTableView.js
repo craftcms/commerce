@@ -20,7 +20,13 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
     createChartExplorer: function()
     {
         // start date
-        this.startDate = Craft.getLocalStorage('CommerceOrdersIndex.startDate');
+
+        if(typeof(this.elementIndex.startDates) == 'undefined')
+        {
+            this.elementIndex.startDates = [];
+        }
+
+        this.startDate = this.elementIndex.startDates[this.elementIndex.sourceKey];
 
         if(this.startDate)
         {
@@ -34,7 +40,13 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
         }
 
         // end date
-        this.endDate = Craft.getLocalStorage('CommerceOrdersIndex.endDate');
+
+        if(typeof(this.elementIndex.endDates) == 'undefined')
+        {
+            this.elementIndex.endDates = [];
+        }
+
+        this.endDate = this.elementIndex.endDates[this.elementIndex.sourceKey];
 
         if(this.endDate)
         {
@@ -79,13 +91,12 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
                     _endDate = new Date(_endDate);
                     this.endDate = _endDate;
                     this.$endDate.val(Craft.formatDate(this.endDate));
-                    Craft.setLocalStorage('CommerceOrdersIndex.endDate', this.endDate);
+                    this.elementIndex.endDates[this.elementIndex.sourceKey] = this.endDate;
                 }
 
                 this.startDate = new Date(inst.currentYear, inst.currentMonth, inst.currentDay);
                 this.loadReport(this.$startDate.val(), this.$endDate.val());
-
-                Craft.setLocalStorage('CommerceOrdersIndex.startDate', this.startDate);
+                this.elementIndex.startDates[this.elementIndex.sourceKey] = this.startDate;
             }, this)
         }, Craft.datepickerOptions));
 
@@ -101,13 +112,12 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
                     _startDate = new Date(_startDate);
                     this.startDate = _startDate;
                     this.$startDate.val(Craft.formatDate(this.startDate));
-                    Craft.setLocalStorage('CommerceOrdersIndex.startDate', this.startDate);
+                    this.elementIndex.startDates[this.elementIndex.sourceKey] = this.startDate;
                 }
 
                 this.endDate = new Date(inst.currentYear, inst.currentMonth, inst.currentDay);
                 this.loadReport(this.$startDate.val(), this.$endDate.val());
-
-                Craft.setLocalStorage('CommerceOrdersIndex.endDate', this.endDate);
+                this.elementIndex.endDates[this.elementIndex.sourceKey] = this.endDate;
             }, this)
         }, Craft.datepickerOptions));
 
