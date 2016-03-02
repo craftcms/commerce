@@ -136,7 +136,7 @@ class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfac
 			{
 				$countryIds = $shippingZone->getCountryIds();
 
-				if (!in_array($$order->getShippingAddress()->countryId, $countryIds))
+				if (!in_array($order->getShippingAddress()->countryId, $countryIds))
 				{
 					return false;
 				}
