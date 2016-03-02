@@ -16,7 +16,7 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
 	/**
 	 * @throws HttpException
 	 */
-	public function actionPayCart()
+	public function actionPay()
 	{
 		$this->requirePostRequest();
 
@@ -25,21 +25,27 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
 		$post = craft()->request->getPost();
 		$paymentForm = Commerce_PaymentFormModel::populateModel($post);
 
-		if($number = craft()->request->getParam('orderNumber')){
+		if (($number = craft()->request->getParam('orderNumber')) !== null)
+		{
 			$order = craft()->commerce_orders->getOrderByNumber($number);
-			if(!$order && $number){
+			if (!$order)
+			{
 				$error = Craft::t('Can not find an order to pay.');
-				if (craft()->request->isAjaxRequest()) {
+				if (craft()->request->isAjaxRequest())
+				{
 					$this->returnErrorJson($error);
-				} else {
+				}
+				else
+				{
 					craft()->userSession->setFlash('error', $error);
 				}
+
 				return;
 			}
 		}
 
 		// Get the cart if no order number was passed.
-		if(!isset($order) && !$number)
+		if (!isset($order) && !$number)
 		{
 			$order = craft()->commerce_cart->getCart();
 		}
@@ -48,26 +54,37 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
 
 		// Allow setting the payment method at time of submitting payment.
 		$paymentMethodId = craft()->request->getParam('paymentMethodId');
-		if($paymentMethodId){
-			if (!craft()->commerce_cart->setPaymentMethod($order, $paymentMethodId, $error)) {
-				if (craft()->request->isAjaxRequest()) {
+		if ($paymentMethodId)
+		{
+			if (!craft()->commerce_cart->setPaymentMethod($order, $paymentMethodId, $error))
+			{
+				if (craft()->request->isAjaxRequest())
+				{
 					$this->returnErrorJson($error);
-				} else {
+				}
+				else
+				{
 					craft()->userSession->setFlash('error', $error);
 				}
+
 				return;
 			}
 		}
 
 		// Check email address exists on order.
-		if (!$order->email) {
+		if (!$order->email)
+		{
 			$customError = Craft::t("No customer email address exists on this cart.");
-			if (craft()->request->isAjaxRequest()) {
+			if (craft()->request->isAjaxRequest())
+			{
 				$this->returnErrorJson($customError);
-			} else {
+			}
+			else
+			{
 				craft()->userSession->setFlash('error', $customError);
 				craft()->urlManager->setRouteVariables(compact('paymentForm'));
 			}
+
 			return;
 		}
 
@@ -75,7 +92,8 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
 		$returnUrl = craft()->request->getPost('redirect');
 		$cancelUrl = craft()->request->getPost('cancelUrl');
 
-		if ($returnUrl !== null || $cancelUrl !== null) {
+		if ($returnUrl !== null || $cancelUrl !== null)
+		{
 			$order->returnUrl = craft()->templates->renderObjectTemplate($returnUrl, $order);
 			$order->cancelUrl = craft()->templates->renderObjectTemplate($cancelUrl, $order);
 			craft()->commerce_orders->saveOrder($order);
@@ -84,24 +102,37 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
 		// Submit payment
 		$success = craft()->commerce_payments->processPayment($order, $paymentForm, $redirect, $customError);
 
-		if ($success) {
-			if (craft()->request->isAjaxRequest()) {
+		if ($success)
+		{
+			if (craft()->request->isAjaxRequest())
+			{
 				$response = ['success' => true];
-				if ($redirect !== null) {
+				if ($redirect !== null)
+				{
 					$response['redirect'] = $redirect;
 				}
 				$this->returnJson($response);
-			} else {
-				if ($redirect !== null) {
+			}
+			else
+			{
+				if ($redirect !== null)
+				{
 					$this->redirect($redirect);
-				} else {
+				}
+				else
+				{
 					$this->redirectToPostedUrl($order);
 				}
 			}
-		} else {
-			if (craft()->request->isAjaxRequest()) {
+		}
+		else
+		{
+			if (craft()->request->isAjaxRequest())
+			{
 				$this->returnErrorJson($customError);
-			} else {
+			}
+			else
+			{
 				craft()->userSession->setFlash('error', $customError);
 				craft()->urlManager->setRouteVariables(compact('paymentForm'));
 			}
@@ -120,15 +151,19 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
 
 		$transaction = craft()->commerce_transactions->getTransactionByHash($id);
 
-		if (!$transaction) {
-			throw new HttpException(400,Craft::t("Can not complete payment for missing transaction."));
+		if (!$transaction)
+		{
+			throw new HttpException(400, Craft::t("Can not complete payment for missing transaction."));
 		}
 
 		$success = craft()->commerce_payments->completePayment($transaction, $customError);
 
-		if ($success) {
+		if ($success)
+		{
 			$this->redirect($transaction->order->returnUrl);
-		} else {
+		}
+		else
+		{
 			craft()->userSession->setError(Craft::t('Payment error: {message}', ['message' => $customError]));
 			$this->redirect($transaction->order->cancelUrl);
 		}
