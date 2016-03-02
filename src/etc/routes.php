@@ -50,7 +50,12 @@ return [
     'commerce/settings/paymentmethods/new' => ['action' => 'commerce/paymentMethods/edit'],
     'commerce/settings/paymentmethods/(?P<id>\d+)' => ['action' => 'commerce/paymentMethods/edit'],
 
-    // Shipping Methods
+    // Shipping Zones
+    'commerce/settings/shippingzones' => ['action' => 'commerce/shippingZones/index'],
+    'commerce/settings/shippingzones/new' => ['action' => 'commerce/shippingZones/edit'],
+    'commerce/settings/shippingzones/(?P<id>\d+)' => ['action' => 'commerce/shippingZones/edit'],
+
+	// Shipping Methods
     'commerce/settings/shippingmethods' => ['action' => 'commerce/shippingMethods/index'],
     'commerce/settings/shippingmethods/new' => ['action' => 'commerce/shippingMethods/edit'],
     'commerce/settings/shippingmethods/(?P<id>\d+)' => ['action' => 'commerce/shippingMethods/edit'],

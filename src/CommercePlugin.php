@@ -142,7 +142,8 @@ class CommercePlugin extends BasePlugin
                         'm160215_010101_Commerce_ConsistentDecimalType',
                         'm160226_010101_Commerce_OrderStatusSortOrder',
                         'm160226_010102_Commerce_isCompleted',
-                        'm160227_010101_Commerce_OrderAdjustmentIncludedFlag'
+                        'm160227_010101_Commerce_OrderAdjustmentIncludedFlag',
+                        'm160229_010101_Commerce_ShippingZone'
                     );
 
                     foreach ($migrations as $migrationClass) {
@@ -268,7 +269,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getSchemaVersion()
     {
-        return '1.0.04';
+        return '1.0.06';
     }
 
     /**

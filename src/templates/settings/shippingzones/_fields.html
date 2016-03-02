@@ -1,0 +1,87 @@
+{% import "_includes/forms" as forms %}
+
+{{ forms.textField({
+    first: true,
+    label: "Name"|t,
+    instructions: "What this shipping zone will be called in the CP."|t,
+    id: 'name',
+    name: 'name',
+    value: shippingZone is defined ? shippingZone.name,
+    errors: shippingZone is defined ? shippingZone.getErrors('name'),
+    autofocus: true,
+    required: true,
+    translatable: true
+}) }}
+
+{{ forms.textField({
+    label: "Description"|t,
+    instructions: "Describe this shipping zone."|t,
+    id: 'description',
+    name: 'description',
+    value: shippingZone is defined ? shippingZone.description,
+    errors: shippingZone is defined ? shippingZone.getErrors('description'),
+}) }}
+
+{{ forms.radioGroupField({
+    label: 'Type'|t,
+    id: 'countryBased',
+    name: 'countryBased',
+    options: {1 : 'Country-based'|t, 0 : 'State-based'|t},
+    value: shippingZone is defined ? shippingZone.countryBased,
+    errors: shippingZone is defined ? shippingZone.getErrors('countryBased'),
+    required: true,
+}) }}
+
+{{ forms.multiselectField({
+    label: 'Countries'|t,
+    instructions: 'Choose the countries that this zone applies to.'|t,
+    id: 'countries',
+    name: 'countries',
+    options: countries,
+    values: shippingZone is defined ? shippingZone.getCountryIds(),
+    errors: shippingZone is defined ? shippingZone.getErrors('countries'),
+    required: true,
+    class: 'selectize fullwidth',
+}) }}
+
+{{ forms.multiselectField({
+    label: 'States'|t,
+    id: 'states',
+    instructions: 'Choose the states that this zone applies to.'|t,
+    name: 'states',
+    options: states,
+    values: shippingZone is defined ? shippingZone.getStateIds(),
+    errors: shippingZone is defined ? shippingZone.getErrors('states'),
+    required: true,
+    class: 'selectize fullwidth',
+}) }}
+
+{% set countriesId = 'countries'|namespaceInputId|e('js') %}
+{% set statesId = 'states'|namespaceInputId|e('js') %}
+{% set countryBasedName = 'countryBased'|namespaceInputName|e('js') %}
+
+{% includejs %}
+    $('#{{ countriesId }}, #{{ statesId }}').selectize({
+        plugins: ['remove_button'],
+        dropdownParent: 'body'
+    });
+
+    $('[name="{{ countryBasedName }}"]').change(function () {
+        if (!$(this).is(':checked')) {
+            return;
+        }
+        if ($(this).val() * 1) {
+            $('#{{ countriesId }}')[0].selectize.enable();
+            $('#{{ statesId }}')[0].selectize.disable();
+            $('#{{ countriesId }}-field').show();
+            $('#{{ statesId }}-field').hide();
+        } else {
+            $('#{{ countriesId }}')[0].selectize.disable();
+            $('#{{ statesId }}')[0].selectize.enable();
+            $('#{{ countriesId }}-field').hide();
+            $('#{{ statesId }}-field').show();
+        }
+    });
+
+    $('[name="{{ countryBasedName }}"]:checked').trigger('change');
+{% endincludejs %}
