@@ -82,54 +82,54 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
         this.$startDate.datepicker($.extend({
             onSelect: $.proxy(function(dateText, inst)
             {
-                var selectedDate = new Date(inst.currentYear, inst.currentMonth, inst.currentDay);
-
-                if(selectedDate.getTime() > this.endDate.getTime())
-                {
-                    // if selectedDate > endDate, set endDate at selectedDate plus 7 days
-                    var _endDate = selectedDate.getTime() + (60 * 60 * 24 * 7 * 1000);
-                    _endDate = new Date(_endDate);
-                    this.endDate = _endDate;
-                    this.$endDate.val(Craft.formatDate(this.endDate));
-                    this.elementIndex.endDates[this.elementIndex.sourceKey] = this.endDate;
-                }
-
-                this.startDate = new Date(inst.currentYear, inst.currentMonth, inst.currentDay);
-                this.loadReport(this.$startDate.val(), this.$endDate.val());
-                this.elementIndex.startDates[this.elementIndex.sourceKey] = this.startDate;
+                this.setStartDate(Craft.CommerceOrderTableView.getDateFromDatepickerInstance(inst));
+                this.loadReport();
             }, this)
         }, Craft.datepickerOptions));
 
         this.$endDate.datepicker($.extend({
             onSelect: $.proxy(function(dateText, inst)
             {
-                var selectedDate = new Date(inst.currentYear, inst.currentMonth, inst.currentDay);
-
-                if(selectedDate.getTime() < this.startDate.getTime())
-                {
-                    // if selectedDate < startDate, set startDate at selectedDate minus 7 days
-                    var _startDate = selectedDate.getTime() - (60 * 60 * 24 * 7 * 1000);
-                    _startDate = new Date(_startDate);
-                    this.startDate = _startDate;
-                    this.$startDate.val(Craft.formatDate(this.startDate));
-                    this.elementIndex.startDates[this.elementIndex.sourceKey] = this.startDate;
-                }
-
-                this.endDate = new Date(inst.currentYear, inst.currentMonth, inst.currentDay);
-                this.loadReport(this.$startDate.val(), this.$endDate.val());
-                this.elementIndex.endDates[this.elementIndex.sourceKey] = this.endDate;
+                this.setEndDate(Craft.CommerceOrderTableView.getDateFromDatepickerInstance(inst));
+                this.loadReport();
             }, this)
         }, Craft.datepickerOptions));
 
-        this.loadReport(this.$startDate.val(), this.$endDate.val());
+        this.loadReport();
     },
 
-    loadReport: function(startDate, endDate)
+    setStartDate: function(date)
+    {
+        this.startDate = date;
+        this.elementIndex.startDates[this.elementIndex.sourceKey] = this.startDate;
+        this.$startDate.val(Craft.formatDate(this.startDate));
+
+        // If this is after the current end date, set the end date to match it
+        if (this.startDate.getTime() > this.endDate.getTime())
+        {
+            this.setEndDate(new Date(this.startDate.getTime()));
+        }
+    },
+
+    setEndDate: function(date)
+    {
+        this.endDate = date;
+        this.elementIndex.endDates[this.elementIndex.sourceKey] = this.endDate;
+        this.$endDate.val(Craft.formatDate(this.endDate));
+
+        // If this is before the current start date, set the start date to match it
+        if (this.endDate.getTime() < this.startDate.getTime())
+        {
+            this.setStartDate(new Date(this.endDate.getTime()));
+        }
+    },
+
+    loadReport: function()
     {
         var requestData = this.settings.params;
 
-        requestData.startDate = startDate;
-        requestData.endDate = endDate;
+        requestData.startDate = Craft.CommerceOrderTableView.getDateValue(this.startDate);
+        requestData.endDate = Craft.CommerceOrderTableView.getDateValue(this.endDate);
 
         this.$spinner.removeClass('hidden');
         this.$error.addClass('hidden');
@@ -174,5 +174,16 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
                 this.$chart.addClass('error');
             }
         }, this));
+    }
+},
+{
+    getDateFromDatepickerInstance: function(inst)
+    {
+        return new Date(inst.currentYear, inst.currentMonth, inst.currentDay);
+    },
+
+    getDateValue: function(date)
+    {
+        return date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate();
     }
 });
