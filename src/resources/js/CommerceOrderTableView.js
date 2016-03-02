@@ -126,7 +126,7 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
         this.$chart.removeClass('error');
 
 
-        Craft.postActionRequest('commerce/reports/getRevenueReport', requestData, $.proxy(function(response, textStatus)
+        Craft.postActionRequest('commerce/charts/getRevenueReport', requestData, $.proxy(function(response, textStatus)
         {
             this.$spinner.addClass('hidden');
 
