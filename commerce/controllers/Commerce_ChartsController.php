@@ -86,13 +86,13 @@ class Commerce_ChartsController extends BaseElementsController
     public function actionGetRevenueReport()
     {
         $startDate = craft()->request->getParam('startDate');
-        $endDate = craft()->request->getParam('endDate');
+        $endDate = (craft()->request->getParam('endDate') ? craft()->request->getParam('endDate') : 'now');
 
-	    $timezone = craft()->timezone;
+	    $timezone = new \DateTimeZone(craft()->timezone);
 
-        $startDate = DateTime::createFromString(array('date' => $startDate), $timezone);
-
-        $endDate = DateTime::createFromString(array('date' => $endDate), $timezone);
+        $startDate = new DateTime($startDate, $timezone);
+        
+        $endDate = new Datetime($endDate, $timezone);
         $endDate->modify('+1 day');
 
         $revenueReport = craft()->commerce_charts->getRevenueReport($this->_criteria, $startDate, $endDate);
