@@ -43,9 +43,13 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 				$order->datePaid = DateTimeHelper::currentTimeForDb();
 			}
 
-			craft()->commerce_orders->completeOrder($order);
+			if (!$order->isCompleted)
+			{
+				craft()->commerce_orders->completeOrder($order);
+			}
+			$customError = Craft::t("Order is already paid in full");
 
-			return true;
+			return false;
 		}
 
 		//choosing default action
