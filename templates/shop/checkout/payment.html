@@ -79,8 +79,6 @@
 			<input type="hidden" name="action" value="commerce/payments/pay"/>
 			<input type="hidden" name="redirect" value="/commerce/customer/order?number={number}"/>
 			<input type="hidden" name="cancelUrl" value="/commerce/checkout/payment"/>
-			<input type="hidden" name="orderNumber" value="{{ cart.number }}"/>
-			<input type="hidden" name="encryptedCardNumber" value="fsafdsaf834389fnuw8cn9uiwe"/>
 			{{ getCsrfInput() }}
 
 			<div class="row">
