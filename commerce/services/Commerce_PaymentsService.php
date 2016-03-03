@@ -48,17 +48,6 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 			return true;
 		}
 
-		// Validate card if no token provided
-		if (!$form->token && $order->paymentMethod->requiresCard())
-		{
-			if (!$form->validate())
-			{
-				$customError = Craft::t("Invalid payment information.");
-
-				return false;
-			}
-		}
-
 		//choosing default action
 		$defaultAction = $order->paymentMethod->paymentType;
 		$defaultAction = ($defaultAction === Commerce_TransactionRecord::TYPE_PURCHASE) ? $defaultAction : Commerce_TransactionRecord::TYPE_AUTHORIZE;
@@ -93,7 +82,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 
 		$request = $gateway->$defaultAction($this->buildPaymentRequest($transaction, $card, $itemBag));
 
-		// set token directly on request if available (not in card)
+		// set token directly on request if available
 		if ($form->token)
 		{
 			$request->setToken($form->token);
@@ -173,7 +162,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 
 		if (!$same)
 		{
-			CommercePlugin::log('Item bag total price does not equal the orders totalPrice, some payment gateways will complain.',LogLevel::Warning,true);
+			CommercePlugin::log('Item bag total price does not equal the orders totalPrice, some payment gateways will complain.', LogLevel::Warning, true);
 		}
 
 		return $items;
@@ -240,6 +229,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 	/**
 	 * @param Commerce_TransactionModel $transaction
 	 * @param CreditCard                $card
+	 * @param ItemBag                   $itemBag
 	 *
 	 * @return array
 	 */
@@ -256,7 +246,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 			'description'          => Craft::t('Order').' #'.$transaction->orderId,
 			'clientIp'             => craft()->request->getIpAddress(),
 			'transactionReference' => $transaction->hash,
-			'returnUrl'            => UrlHelper::getActionUrl('commerce/cartPayment/complete',
+			'returnUrl'            => UrlHelper::getActionUrl('commerce/payments/completePayment',
 				['id' => $transaction->id, 'hash' => $transaction->hash]),
 			'cancelUrl'            => UrlHelper::getSiteUrl($transaction->order->cancelUrl),
 		];
@@ -348,7 +338,41 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 					}
 					else
 					{
-						// TODO: add a config setting to specify a custom POST redirect template
+
+						$gatewayPostRedirectTemplate = craft()->config->get('gatewayPostRedirectTemplate', 'commerce');
+
+						if (!empty($gatewayPostRedirectTemplate))
+						{
+							$variables = [];
+							$hiddenFields = '';
+
+							// Gather all post hidden data inputs.
+							foreach ($response->getRedirectData() as $key => $value)
+							{
+								$hiddenFields .= sprintf(
+										'<input type="hidden" name="%1$s" value="%2$s" />',
+										htmlentities($key, ENT_QUOTES, 'UTF-8', false),
+										htmlentities($value, ENT_QUOTES, 'UTF-8', false)
+									)."\n";
+							}
+							$variables['inputs'] = $hiddenFields;
+
+							// Set the action url to the responses redirect url
+							$variables['actionUrl'] = $response->getRedirectUrl();
+
+							// Substitute templates path
+							$oldPath = craft()->path->getTemplatesPath();
+							$newPath = craft()->path->getSiteTemplatesPath();
+							craft()->path->setTemplatesPath($newPath);
+							$template = craft()->templates->render($gatewayPostRedirectTemplate, $variables);
+							craft()->path->setTemplatesPath($oldPath);
+
+							// Send the template back to the user.
+							ob_start();
+							echo $template;
+							craft()->end();
+						}
+
 						$response->redirect();
 					}
 
