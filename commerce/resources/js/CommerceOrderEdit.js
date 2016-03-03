@@ -73,7 +73,7 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend({
                         // Update the current status in header
                         var html = "<span class='commerceStatusLabel'><span class='status " + self.statusUpdateModal.currentStatus.color + "'></span> " + self.statusUpdateModal.currentStatus.name + "</span>";
                         self.$status.find('.commerceStatusLabel').html(html);
-
+                        Craft.cp.displayNotice(Craft.t('Status Updated.'));
                         self.statusUpdateModal.hide();
 
                     } else {

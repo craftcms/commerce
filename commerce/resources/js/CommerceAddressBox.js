@@ -113,6 +113,7 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
                 this.address = response.address;
                 this.settings.onChange(response.address);
                 this._renderAddress();
+                Craft.cp.displayNotice(Craft.t('Address Updated.'));
                 this.editorModal.hide();
                 this.editorModal.destroy();
             } else {
