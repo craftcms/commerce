@@ -69,6 +69,8 @@ class Commerce_OrdersController extends Commerce_BaseCpController
 			throw new HttpException(404);
 		}
 
+		$variables['paymentMethods'] = craft()->commerce_paymentMethods->getAllPaymentMethods();
+
 		craft()->templates->includeCssResource('commerce/order.css');
 
 		$this->prepVariables($variables);

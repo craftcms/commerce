@@ -13,7 +13,6 @@ use Commerce\Gateways\BaseGatewayAdapter;
  * @property string $name
  * @property string $paymentType
  * @property array $settings
- * @property bool $cpEnabled
  * @property bool $frontendEnabled
  * @property bool $isArchived
  * @property bool $dateArchived
