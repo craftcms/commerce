@@ -28,3 +28,10 @@
 .commerce-address.modal h2 { padding-top:24px; padding-left:24px; }
 .commerce-address.modal .input { width: calc(100% - 110px); }
 .commerce-address.modal .heading { width: 110px; }
+
+ul.commerce-sales li { display: inline-block; }
+ul.commerce-sales li a { margin: 1px 5px 1px 7px; position: relative; display: block; padding: 1px 7px 1px 5px; border: 1px solid hsla(240, 100%, 4%, 0.1); border-radius: 0 3px 3px 0; background: #fff; background-clip: padding-box; color: hsl(212, 20%, 20%); }
+ul.commerce-sales li a:before { position: absolute; top: -1.5px; left: -12px; display: block; content: '.'; font-size: 0; width: 0; height: 0; border-style: solid; border-width: 11.5px 11.5px 11.5px 0; border-color: transparent hsla(240, 100%, 4%, 0.1) transparent transparent; }
+ul.commerce-sales li a:after { position: absolute; top: 0; left: -10px; display: block; content: '.'; font-size: 0; width: 0; height: 0; border-style: solid; border-width: 10px 10px 10px 0; border-color: transparent #fff transparent transparent; }
+ul.commerce-sales li a:hover { color: hsl(212, 90%, 50%); text-decoration: none; }
+ul.commerce-sales li a span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 105px; }
