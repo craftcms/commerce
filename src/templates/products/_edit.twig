@@ -161,14 +161,28 @@
 				{% endnamespace %}
 			{% endif %}
 
-			{% if promotions.sales|length %}
-				<div class="pane meta last">
+			{% if product.id %}
+				<div class="pane lightpane meta">
 					<div class="data">
-						{% for promotion in promotions.sales %}
-							<h5 class="heading">{% if loop.first %}{{ "Related Sales"|t }}{% endif %}</h5>
-							<span class="value"><a href="{{ promotion.cpEditUrl }}">{{ promotion.name }}</a></span>
-						{% endfor %}
+						<h5 class="heading">{{ "Date Created"|t }}</h5>
+						<div class="value">{{ product.dateCreated.localeDate() }} {{ product.dateCreated.localeTime() }}</div>
 					</div>
+					<div class="data">
+						<h5 class="heading">{{ "Date Updated"|t }}</h5>
+						<div class="value">{{ product.dateUpdated.localeDate() }} {{ product.dateUpdated.localeTime() }}</div>
+					</div>
+					{% if promotions.sales|length %}
+						<div class="data">
+							<h5 class="heading">{{ "Related Sales"|t }}</h5>
+							<div class="value">
+								<ul class="commerce-sales">
+									{% for promotion in promotions.sales %}
+										<li><a href="{{ promotion.getCpEditUrl() }}"><span>{{ promotion.name }}</span></a></li>
+									{% endfor %}
+								</ul>
+							</div>
+						</div>
+					{% endif %}
 				</div>
 			{% endif %}
 
