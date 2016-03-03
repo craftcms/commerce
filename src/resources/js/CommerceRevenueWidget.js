@@ -15,9 +15,10 @@ Craft.CommerceRevenueWidget = Garnish.Base.extend(
 
         this.$widget = $('#widget'+widgetId);
         this.$body = this.$widget.find('.body:first');
+        this.$infos = $('.infos', this.$body);
         this.$total = $('.total', this.$body);
         this.$chart = $('.chart', this.$body);
-        this.$error = $('<div class="error"/>').prependTo(this.$body);
+        this.$error = $('<div class="error"/>').appendTo(this.$body);
 
 
         var dateRange = this.settings.dateRange;
@@ -53,6 +54,9 @@ Craft.CommerceRevenueWidget = Garnish.Base.extend(
         {
             if(textStatus == 'success' && typeof(response.error) == 'undefined')
             {
+                this.$infos.removeClass('hidden');
+                this.$chart.removeClass('hidden');
+
                 if(!this.chart)
                 {
                     this.chart = new Craft.charts.Area(this.$chart);
@@ -87,6 +91,8 @@ Craft.CommerceRevenueWidget = Garnish.Base.extend(
 
                 this.$error.html(msg);
                 this.$error.removeClass('hidden');
+                this.$infos.addClass('hidden');
+                this.$chart.addClass('hidden');
             }
 
         }, this));
