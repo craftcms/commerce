@@ -150,6 +150,7 @@ class Commerce_ProductsService extends BaseApplicationComponent
                     foreach ($product->getVariants() as $variant) {
                         if($defaultVariant === $variant){
                             $variant->isDefault = true;
+                            $variant->enabled = true; // default must always be enabled.
                         }else{
                             $variant->isDefault = false;
                         }
@@ -158,8 +159,8 @@ class Commerce_ProductsService extends BaseApplicationComponent
                         $keepVariantIds[] = $variant->id;
                     }
 
-                    foreach (array_diff($oldVariantIds, $keepVariantIds) as $keepId) {
-                        craft()->commerce_variants->deleteVariantById($keepId);
+                    foreach (array_diff($oldVariantIds, $keepVariantIds) as $deleteId) {
+                        craft()->commerce_variants->deleteVariantById($deleteId);
                     }
 
                     CommerceDbHelper::commitStackedTransaction();

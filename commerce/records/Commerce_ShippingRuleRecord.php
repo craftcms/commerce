@@ -7,8 +7,7 @@ namespace Craft;
  * @property int $id
  * @property string $name
  * @property string $description
- * @property int $countryId
- * @property int $stateId
+ * @property int $shippingZoneId
  * @property int $methodId
  * @property int $priority
  * @property bool $enabled
@@ -63,8 +62,7 @@ class Commerce_ShippingRuleRecord extends BaseRecord
     public function defineRelations()
     {
         return [
-            'country' => [self::BELONGS_TO, 'Commerce_CountryRecord'],
-            'state' => [self::BELONGS_TO, 'Commerce_StateRecord'],
+            'shippingZone' => [self::BELONGS_TO, 'Commerce_ShippingZoneRecord', 'onDelete' => static::SET_NULL],
             'method' => [
                 self::BELONGS_TO,
                 'Commerce_ShippingMethodRecord',

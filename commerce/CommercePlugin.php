@@ -142,7 +142,8 @@ class CommercePlugin extends BasePlugin
                         'm160215_010101_Commerce_ConsistentDecimalType',
                         'm160226_010101_Commerce_OrderStatusSortOrder',
                         'm160226_010102_Commerce_isCompleted',
-                        'm160227_010101_Commerce_OrderAdjustmentIncludedFlag'
+                        'm160227_010101_Commerce_OrderAdjustmentIncludedFlag',
+                        'm160229_010101_Commerce_ShippingZone'
                     );
 
                     foreach ($migrations as $migrationClass) {
@@ -268,7 +269,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getSchemaVersion()
     {
-        return '1.0.04';
+        return '1.0.06';
     }
 
     /**
@@ -350,7 +351,7 @@ class CommercePlugin extends BasePlugin
      */
     public function addRichTextLinkOptions()
     {
-        $linkOptions = [];
+        $linkOptions = array();
 
         // Include a Product link option if there are any product types that have URLs
         $productSources = array();
@@ -365,11 +366,11 @@ class CommercePlugin extends BasePlugin
 
         if ($productSources)
         {
-            $linkOptions[] = [
+            $linkOptions[] = array(
                 'optionTitle' => Craft::t('Link to a product'),
                 'elementType' => 'Commerce_Product',
                 'sources' => $productSources,
-            ];
+            );
         }
 
         return $linkOptions;
