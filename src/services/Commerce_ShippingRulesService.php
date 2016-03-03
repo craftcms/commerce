@@ -96,8 +96,7 @@ class Commerce_ShippingRulesService extends BaseApplicationComponent
             $record->$field = $model->$field;
         }
 
-        $record->countryId = $model->countryId ? $model->countryId : null;
-        $record->stateId = $model->stateId ? $model->stateId : null;
+        $record->shippingZoneId = $model->shippingZoneId ? $model->shippingZoneId : null;
 
         if (empty($record->priority) && empty($model->priority)) {
             $count = Commerce_ShippingRuleRecord::model()->countByAttributes(['methodId' => $model->methodId]);

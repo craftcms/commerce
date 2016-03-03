@@ -1,0 +1,10 @@
+{% import "_includes/forms" as forms %}
+
+{{ forms.selectField({
+    label: "Date Range"|t,
+    id: 'dateRange',
+    name: 'dateRange',
+    value: settings.dateRange,
+    options: dateRangeOptions,
+    errors: settings.getErrors('dateRange')
+}) }}

@@ -22,11 +22,11 @@ class Commerce_CartService extends BaseApplicationComponent
 
     /**
      * @param Commerce_OrderModel $order
-     * @param int $purchasableId
-     * @param int $qty
-     * @param string $note
-     * @param array $options
-     * @param string $error
+     * @param int                 $purchasableId
+     * @param int                 $qty
+     * @param string              $note
+     * @param array               $options
+     * @param string              $error
      *
      * @return bool
      * @throws \Exception
@@ -36,8 +36,11 @@ class Commerce_CartService extends BaseApplicationComponent
         CommerceDbHelper::beginStackedTransaction();
 
         //saving current cart if it's new and empty
-        if (!$order->id) {
-            if (!craft()->commerce_orders->saveOrder($order)) {
+        if (!$order->id)
+        {
+            if (!craft()->commerce_orders->saveOrder($order))
+            {
+                CommerceDbHelper::rollbackStackedTransaction();
                 throw new Exception(Craft::t('Error on creating empty cart'));
             }
         }
@@ -45,35 +48,45 @@ class Commerce_CartService extends BaseApplicationComponent
         //filling item model
         $lineItem = craft()->commerce_lineItems->getLineItemByOrderPurchasableOptions($order->id, $purchasableId, $options);
 
-        if ($lineItem) {
+        if ($lineItem)
+        {
             $lineItem->qty += $qty;
-        } else {
+        }
+        else
+        {
             $lineItem = craft()->commerce_lineItems->createLineItem($purchasableId, $order->id, $options, $qty);
         }
 
-        if ($note) {
+        if ($note)
+        {
             $lineItem->note = $note;
         }
 
         $lineItem->validate();
+
         $lineItem->purchasable->validateLineItem($lineItem);
 
-        try {
-            if(!$lineItem->hasErrors()){
+        try
+        {
+            if (!$lineItem->hasErrors())
+            {
 
                 //raising event
                 $event = new Event($this, [
                     'lineItem' => $lineItem,
-                    'order' => $order,
+                    'order'    => $order,
                 ]);
                 $this->onBeforeAddToCart($event);
 
-                if(!$event->performAction){
+                if (!$event->performAction)
+                {
                     CommerceDbHelper::rollbackStackedTransaction();
+
                     return false;
                 }
 
-                if (craft()->commerce_lineItems->saveLineItem($lineItem)) {
+                if (craft()->commerce_lineItems->saveLineItem($lineItem))
+                {
                     craft()->commerce_orders->saveOrder($order);
 
                     CommerceDbHelper::commitStackedTransaction();
@@ -81,14 +94,16 @@ class Commerce_CartService extends BaseApplicationComponent
                     //raising event
                     $event = new Event($this, [
                         'lineItem' => $lineItem,
-                        'order' => $order,
+                        'order'    => $order,
                     ]);
                     $this->onAddToCart($event);
 
                     return true;
                 }
             }
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e)
+        {
             CommerceDbHelper::rollbackStackedTransaction();
             throw $e;
         }
@@ -112,11 +127,13 @@ class Commerce_CartService extends BaseApplicationComponent
     public function onBeforeAddToCart(\CEvent $event)
     {
         $params = $event->params;
-        if (empty($params['order']) || !($params['order'] instanceof Commerce_OrderModel)) {
+        if (empty($params['order']) || !($params['order'] instanceof Commerce_OrderModel))
+        {
             throw new Exception('onAddToCart event requires "order" param with OrderModel instance');
         }
 
-        if (empty($params['lineItem']) || !($params['lineItem'] instanceof Commerce_LineItemModel)) {
+        if (empty($params['lineItem']) || !($params['lineItem'] instanceof Commerce_LineItemModel))
+        {
             throw new Exception('onAddToCart event requires "lineItem" param with LineItemModel instance');
         }
         $this->raiseEvent('onBeforeAddToCart', $event);
@@ -133,11 +150,13 @@ class Commerce_CartService extends BaseApplicationComponent
     public function onAddToCart(\CEvent $event)
     {
         $params = $event->params;
-        if (empty($params['order']) || !($params['order'] instanceof Commerce_OrderModel)) {
+        if (empty($params['order']) || !($params['order'] instanceof Commerce_OrderModel))
+        {
             throw new Exception('onAddToCart event requires "order" param with OrderModel instance');
         }
 
-        if (empty($params['lineItem']) || !($params['lineItem'] instanceof Commerce_LineItemModel)) {
+        if (empty($params['lineItem']) || !($params['lineItem'] instanceof Commerce_LineItemModel))
+        {
             throw new Exception('onAddToCart event requires "lineItem" param with LineItemModel instance');
         }
         $this->raiseEvent('onAddToCart', $event);
@@ -155,8 +174,8 @@ class Commerce_CartService extends BaseApplicationComponent
 
     /**
      * @param Commerce_OrderModel $cart
-     * @param string $code
-     * @param string $error
+     * @param string              $code
+     * @param string              $error
      *
      * @return bool
      * @throws Exception
@@ -166,12 +185,15 @@ class Commerce_CartService extends BaseApplicationComponent
     {
         if (empty($code) || craft()->commerce_discounts->matchCode($code,
                 $cart->customerId, $error)
-        ) {
+        )
+        {
             $cart->couponCode = $code ?: null;
             craft()->commerce_orders->saveOrder($cart);
 
             return true;
-        } else {
+        }
+        else
+        {
             return false;
         }
     }
@@ -180,8 +202,8 @@ class Commerce_CartService extends BaseApplicationComponent
      * Set shipping method to the current order
      *
      * @param Commerce_OrderModel $cart
-     * @param int $shippingMethod
-     * @param string $error ;
+     * @param int                 $shippingMethod
+     * @param string              $error ;
      *
      * @return bool
      * @throws Exception
@@ -195,13 +217,17 @@ class Commerce_CartService extends BaseApplicationComponent
     {
         $method = craft()->commerce_shippingMethods->getShippingMethodByHandle($shippingMethod);
 
-        if (!$method) {
+        if (!$method)
+        {
             $error = Craft::t('Bad shipping method');
+
             return false;
         }
 
-        if (!craft()->commerce_shippingMethods->getMatchingShippingRule($cart, $method)) {
+        if (!craft()->commerce_shippingMethods->getMatchingShippingRule($cart, $method))
+        {
             $error = Craft::t('Shipping method not available');
+
             return false;
         }
 
@@ -215,8 +241,8 @@ class Commerce_CartService extends BaseApplicationComponent
      * Set shipping method to the current order
      *
      * @param Commerce_OrderModel $cart
-     * @param int $paymentMethodId
-     * @param string $error
+     * @param int                 $paymentMethodId
+     * @param string              $error
      *
      * @return bool
      * @throws \Exception
@@ -224,8 +250,10 @@ class Commerce_CartService extends BaseApplicationComponent
     public function setPaymentMethod(Commerce_OrderModel $cart, $paymentMethodId, &$error = "")
     {
         $method = craft()->commerce_paymentMethods->getPaymentMethodById($paymentMethodId);
-        if (!$method || !$method->frontendEnabled) {
+        if (!$method || !$method->frontendEnabled)
+        {
             $error = Craft::t('Payment method does not exist or is not allowed.');
+
             return false;
         }
 
@@ -237,8 +265,8 @@ class Commerce_CartService extends BaseApplicationComponent
 
     /**
      * @param Commerce_OrderModel $cart
-     * @param $email
-     * @param string $error
+     * @param                     $email
+     * @param string              $error
      *
      * @return bool
      */
@@ -248,25 +276,33 @@ class Commerce_CartService extends BaseApplicationComponent
         $validator = new \CEmailValidator;
         $validator->allowEmpty = false;
 
-        if (!$validator->validateValue($email)) {
+        if (!$validator->validateValue($email))
+        {
             $error = Craft::t('Not a valid email address');
+
             return false;
         }
 
-        try {
+        try
+        {
             // we need to force a persisted customer so get a customer id
             $this->getCart()->customerId = craft()->commerce_customers->getCustomerId();
             $customer = craft()->commerce_customers->getCustomer();
-            if (!$customer->userId) {
+            if (!$customer->userId)
+            {
                 $customer->email = $email;
                 craft()->commerce_customers->saveCustomer($customer);
                 $cart->email = $customer->email;
                 craft()->commerce_orders->saveOrder($cart);
             }
-        } catch (Exception $e) {
+        }
+        catch (Exception $e)
+        {
             $error = $e->getMessage();
+
             return false;
         }
+
         return true;
     }
 
@@ -278,19 +314,24 @@ class Commerce_CartService extends BaseApplicationComponent
     public function getCart()
     {
 
-        if (!isset($this->_cart)) {
+        if (!isset($this->_cart))
+        {
             $number = $this->_getSessionCartNumber();
 
-            if ($cart = $this->_getCartRecordByNumber($number)) {
+            if ($cart = $this->_getCartRecordByNumber($number))
+            {
                 $this->_cart = Commerce_OrderModel::populateModel($cart);
-            } else {
+            }
+            else
+            {
                 $this->_cart = new Commerce_OrderModel;
                 $this->_cart->number = $number;
             }
 
             // We do not want to use the same order number as a completed order.
             $order = craft()->commerce_orders->getOrderByNumber($number);
-            if ($order && $order->isCompleted) {
+            if ($order && $order->isCompleted)
+            {
                 $this->forgetCart();
                 craft()->commerce_customers->forgetCustomer();
                 $this->getCart();
@@ -303,7 +344,8 @@ class Commerce_CartService extends BaseApplicationComponent
 
             // Update the cart if the customer has changed and recalculate the cart.
             $customer = craft()->commerce_customers->getCustomer();
-            if (!$this->_cart->isEmpty() && $this->_cart->customerId != $customer->id) {
+            if (!$this->_cart->isEmpty() && $this->_cart->customerId != $customer->id)
+            {
                 $this->_cart->customerId = $customer->id;
                 $this->_cart->email = $customer->email;
                 $this->_cart->billingAddressId = null;
@@ -323,7 +365,8 @@ class Commerce_CartService extends BaseApplicationComponent
         $cookieId = $this->cookieCartId;
         $cartNumber = craft()->userSession->getStateCookieValue($cookieId);
 
-        if (!$cartNumber) {
+        if (!$cartNumber)
+        {
             $cartNumber = md5(uniqid(mt_rand(), true));
             $configInterval = craft()->config->get('cartCookieDuration', 'commerce');
             $interval = new DateInterval($configInterval);
@@ -342,7 +385,7 @@ class Commerce_CartService extends BaseApplicationComponent
     private function _getCartRecordByNumber($number)
     {
         $cart = $this->_createOrderQuery()
-            ->where('orders.number = :number AND dateOrdered IS NULL', array(':number' => $number))
+            ->where('orders.number = :number AND dateOrdered IS NULL', [':number' => $number])
             ->queryRow();
 
         return $cart;
@@ -352,7 +395,7 @@ class Commerce_CartService extends BaseApplicationComponent
      * Removes a line item from the cart.
      *
      * @param Commerce_OrderModel $cart
-     * @param int $lineItemId
+     * @param int                 $lineItemId
      *
      * @throws Exception
      * @throws \Exception
@@ -361,12 +404,14 @@ class Commerce_CartService extends BaseApplicationComponent
     {
         $lineItem = craft()->commerce_lineItems->getLineItemById($lineItemId);
 
-        if (!$lineItem->id) {
+        if (!$lineItem->id)
+        {
             throw new Exception('Line item not found');
         }
 
         CommerceDbHelper::beginStackedTransaction();
-        try {
+        try
+        {
             craft()->commerce_lineItems->deleteLineItem($lineItem);
 
             craft()->commerce_orders->saveOrder($cart);
@@ -374,10 +419,12 @@ class Commerce_CartService extends BaseApplicationComponent
             //raising event
             $event = new Event($this, [
                 'lineItemId' => $lineItemId,
-                'order' => $cart
+                'order'      => $cart
             ]);
             $this->onRemoveFromCart($event);
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e)
+        {
             CommerceDbHelper::rollbackStackedTransaction();
             throw $e;
         }
@@ -396,11 +443,13 @@ class Commerce_CartService extends BaseApplicationComponent
     public function onRemoveFromCart(\CEvent $event)
     {
         $params = $event->params;
-        if (empty($params['order']) || !($params['order'] instanceof Commerce_OrderModel)) {
+        if (empty($params['order']) || !($params['order'] instanceof Commerce_OrderModel))
+        {
             throw new Exception('onRemoveFromCart event requires "order" param with OrderModel instance');
         }
 
-        if (empty($params['lineItemId']) || !is_numeric($params['lineItemId'])) {
+        if (empty($params['lineItemId']) || !is_numeric($params['lineItemId']))
+        {
             throw new Exception('onRemoveFromCart event requires "lineItemId" param');
         }
         $this->raiseEvent('onRemoveFromCart', $event);
@@ -416,10 +465,13 @@ class Commerce_CartService extends BaseApplicationComponent
     public function clearCart(Commerce_OrderModel $cart)
     {
         CommerceDbHelper::beginStackedTransaction();
-        try {
+        try
+        {
             craft()->commerce_lineItems->deleteAllLineItemsByOrderId($cart->id);
             craft()->commerce_orders->saveOrder($cart);
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e)
+        {
             CommerceDbHelper::rollbackStackedTransaction();
             throw $e;
         }
@@ -436,8 +488,10 @@ class Commerce_CartService extends BaseApplicationComponent
     public function purgeIncompleteCarts()
     {
         $carts = $this->getCartsToPurge();
-        if ($carts) {
-            $ids = array_map(function (Commerce_OrderModel $cart) {
+        if ($carts)
+        {
+            $ids = array_map(function (Commerce_OrderModel $cart)
+            {
                 return $cart->id;
             }, $carts);
             craft()->elements->deleteElementById($ids);

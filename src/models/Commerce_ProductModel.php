@@ -4,29 +4,29 @@ namespace Craft;
 /**
  * Product model.
  *
- * @property int $id
- * @property DateTime $postDate
- * @property DateTime $expiryDate
- * @property int $typeId
- * @property int $authorId
- * @property int $taxCategoryId
- * @property bool $promotable
- * @property bool $freeShipping
- * @property bool $enabled
+ * @property int                       $id
+ * @property DateTime                  $postDate
+ * @property DateTime                  $expiryDate
+ * @property int                       $typeId
+ * @property int                       $authorId
+ * @property int                       $taxCategoryId
+ * @property bool                      $promotable
+ * @property bool                      $freeShipping
+ * @property bool                      $enabled
  *
- * @property int defaultVariantId
- * @property string defaultSku
- * @property float defaultPrice
- * @property float defaultHeight
- * @property float defaultLength
- * @property float defaultWidth
- * @property float defaultWeight
+ * @property int                       defaultVariantId
+ * @property string                    defaultSku
+ * @property float                     defaultPrice
+ * @property float                     defaultHeight
+ * @property float                     defaultLength
+ * @property float                     defaultWidth
+ * @property float                     defaultWeight
  *
  * @property Commerce_ProductTypeModel $type
  * @property Commerce_TaxCategoryModel $taxCategory
- * @property Commerce_VariantModel[] $variants
+ * @property Commerce_VariantModel[]   $variants
  *
- * @property string $name
+ * @property string                    $name
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -38,283 +38,311 @@ namespace Craft;
 class Commerce_ProductModel extends BaseElementModel
 {
 
-    const LIVE = 'live';
-    const PENDING = 'pending';
-    const EXPIRED = 'expired';
+	const LIVE = 'live';
+	const PENDING = 'pending';
+	const EXPIRED = 'expired';
 
-    /**
-     * @var string
-     */
-    protected $elementType = 'Commerce_Product';
+	/**
+	 * @var string
+	 */
+	protected $elementType = 'Commerce_Product';
 
-    /**
-     * @var Commerce_VariantModel[] This product’s variants
-     */
-    private $_variants;
+	/**
+	 * @var Commerce_VariantModel[] This product’s variants
+	 */
+	private $_variants;
 
-    // Public Methods
-    // =============================================================================
+	// Public Methods
+	// =============================================================================
 
-    /**
-     * @return bool
-     */
-    public function isEditable()
-    {
-        if($this->getType()){
-            $id = $this->getType()->id;
-            return craft()->userSession->checkPermission('commerce-manageProductType:'.$id);
-        }
+	/**
+	 * @return bool
+	 */
+	public function isEditable()
+	{
+		if ($this->getType())
+		{
+			$id = $this->getType()->id;
 
-        return false;
-    }
+			return craft()->userSession->checkPermission('commerce-manageProductType:'.$id);
+		}
 
-    /**
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->title;
-    }
+		return false;
+	}
 
-    /**
-     * Allow the variant to ask the product what data to snapshot
-     *
-     * @return string
-     */
-    public function getSnapshot()
-    {
-        $data = [
-            'title' => $this->getTitle()
-        ];
+	/**
+	 * @return string
+	 */
+	public function __toString()
+	{
+		return $this->title;
+	}
 
-        return array_merge($this->getAttributes(), $data);
-    }
+	/**
+	 * Allow the variant to ask the product what data to snapshot
+	 *
+	 * @return string
+	 */
+	public function getSnapshot()
+	{
+		$data = [
+			'title' => $this->getTitle()
+		];
 
-    /*
-     * Name is an alias to title.
-     *
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->title;
-    }
+		return array_merge($this->getAttributes(), $data);
+	}
 
-    /*
-     * Url to edit this Product in the control panel.
-     *
-     * @return string
-     */
-    public function getUrlFormat()
-    {
-        $productType = $this->getType();
+	/*
+	 * Name is an alias to title.
+	 *
+	 * @return string
+	 */
+	public function getName()
+	{
+		return $this->title;
+	}
 
-        if ($productType && $productType->hasUrls) {
-            $productTypeLocales = $productType->getLocales();
+	/*
+	 * Url to edit this Product in the control panel.
+	 *
+	 * @return string
+	 */
+	public function getUrlFormat()
+	{
+		$productType = $this->getType();
 
-            if (isset($productTypeLocales[$this->locale])) {
-                return $productTypeLocales[$this->locale]->urlFormat;
-            }
-        }
-    }
+		if ($productType && $productType->hasUrls)
+		{
+			$productTypeLocales = $productType->getLocales();
 
-    /**
-     * Gets the products type
-     *
-     * @return Commerce_ProductTypeModel
-     */
-    public function getType()
-    {
-        if ($this->typeId) {
-            return craft()->commerce_productTypes->getProductTypeById($this->typeId);
-        }
-    }
+			if (isset($productTypeLocales[$this->locale]))
+			{
+				return $productTypeLocales[$this->locale]->urlFormat;
+			}
+		}
+	}
 
-    /**
-     * Gets the tax category
-     *
-     * @return Commerce_TaxCategoryModel|null
-     */
-    public function getTaxCategory()
-    {
-        if ($this->taxCategoryId) {
-            return craft()->commerce_taxCategories->getTaxCategoryById($this->taxCategoryId);
-        }
-    }
+	/**
+	 * Gets the products type
+	 *
+	 * @return Commerce_ProductTypeModel
+	 */
+	public function getType()
+	{
+		if ($this->typeId)
+		{
+			return craft()->commerce_productTypes->getProductTypeById($this->typeId);
+		}
+	}
 
-    /**
-     * @return null|string
-     */
-    public function getCpEditUrl()
-    {
-        $productType = $this->getType();
-        $url = "";
+	/**
+	 * Gets the tax category
+	 *
+	 * @return Commerce_TaxCategoryModel|null
+	 */
+	public function getTaxCategory()
+	{
+		if ($this->taxCategoryId)
+		{
+			return craft()->commerce_taxCategories->getTaxCategoryById($this->taxCategoryId);
+		}
+	}
 
-        if ($productType) {
-            // The slug *might* not be set if this is a Draft and they've deleted it for whatever reason
-            $url = UrlHelper::getCpUrl('commerce/products/' . $productType->handle . '/' . $this->id . ($this->slug ? '-' . $this->slug : ''));
+	/**
+	 * @return null|string
+	 */
+	public function getCpEditUrl()
+	{
+		$productType = $this->getType();
+		$url = "";
 
-            if (craft()->isLocalized() && $this->locale != craft()->language) {
-                $url .= '/' . $this->locale;
-            }
-        }
+		if ($productType)
+		{
+			// The slug *might* not be set if this is a Draft and they've deleted it for whatever reason
+			$url = UrlHelper::getCpUrl('commerce/products/'.$productType->handle.'/'.$this->id.($this->slug ? '-'.$this->slug : ''));
 
-        return $url;
-    }
+			if (craft()->isLocalized() && $this->locale != craft()->language)
+			{
+				$url .= '/'.$this->locale;
+			}
+		}
 
-    /**
-     * @return FieldLayoutModel|null
-     */
-    public function getFieldLayout()
-    {
-        $productType = $this->getType();
+		return $url;
+	}
 
-        if ($productType) {
-            return $productType->asa('productFieldLayout')->getFieldLayout();
-        }
+	/**
+	 * @return FieldLayoutModel|null
+	 */
+	public function getFieldLayout()
+	{
+		$productType = $this->getType();
 
-        return null;
-    }
+		if ($productType)
+		{
+			return $productType->asa('productFieldLayout')->getFieldLayout();
+		}
 
-    /**
-     * Gets the default variant.
-     *
-     * @return Commerce_VariantModel
-     */
-    public function getDefaultVariant()
-    {
-        $defaultVariant = null;
+		return null;
+	}
 
-        foreach($this->getVariants() as $variant){
-            if ($defaultVariant === null || $variant->isDefault)
-            {
-                $defaultVariant = $variant;
-            }
-        };
+	/**
+	 * Gets the default variant.
+	 *
+	 * @return Commerce_VariantModel
+	 */
+	public function getDefaultVariant()
+	{
+		$defaultVariant = null;
 
-        return $defaultVariant;
-    }
+		foreach ($this->getVariants() as $variant)
+		{
+			if ($defaultVariant === null || $variant->isDefault)
+			{
+				$defaultVariant = $variant;
+			}
+		};
 
-    /**
-     * @return null|string
-     */
-    public function getStatus()
-    {
-        $status = parent::getStatus();
+		return $defaultVariant;
+	}
 
-        if ($status == static::ENABLED && $this->postDate) {
-            $currentTime = DateTimeHelper::currentTimeStamp();
-            $postDate = $this->postDate->getTimestamp();
-            $expiryDate = ($this->expiryDate ? $this->expiryDate->getTimestamp() : null);
+	/**
+	 * @return null|string
+	 */
+	public function getStatus()
+	{
+		$status = parent::getStatus();
 
-            if ($postDate <= $currentTime && (!$expiryDate || $expiryDate > $currentTime)) {
-                return static::LIVE;
-            } else {
-                if ($postDate > $currentTime) {
-                    return static::PENDING;
-                } else {
-                    return static::EXPIRED;
-                }
-            }
-        }
+		if ($status == static::ENABLED && $this->postDate)
+		{
+			$currentTime = DateTimeHelper::currentTimeStamp();
+			$postDate = $this->postDate->getTimestamp();
+			$expiryDate = ($this->expiryDate ? $this->expiryDate->getTimestamp() : null);
 
-        return $status;
-    }
+			if ($postDate <= $currentTime && (!$expiryDate || $expiryDate > $currentTime))
+			{
+				return static::LIVE;
+			}
+			else
+			{
+				if ($postDate > $currentTime)
+				{
+					return static::PENDING;
+				}
+				else
+				{
+					return static::EXPIRED;
+				}
+			}
+		}
 
-    /**
-     * @return bool
-     */
-    public function isLocalized()
-    {
-        return true;
-    }
+		return $status;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isLocalized()
+	{
+		return true;
+	}
 
 
-    /**
-     * @param $variants
-     */
-    public function setVariants($variants)
-    {
-        $this->_variants = $variants;
+	/**
+	 * @param $variants
+	 */
+	public function setVariants($variants)
+	{
+		$this->_variants = $variants;
 
-        // ensure each has it's parent product set
-        foreach ($this->_variants as $variant) {
-            $variant->setProduct($this);
-        }
+		// ensure each has it's parent product set
+		foreach ($this->_variants as $variant)
+		{
+			$variant->setProduct($this);
+		}
 
-        // apply all sales applicable
-        craft()->commerce_variants->applySales($this->_variants, $this);
-    }
+		// apply all sales applicable
+		craft()->commerce_variants->applySales($this->_variants, $this);
+	}
 
-    /**
-     * Returns array of variants with sales applied. Will only return an array containing a single
-     * variant when the product's type is set to have no variants.
-     *
-     * @return Commerce_VariantModel[]
-     */
-    public function getVariants()
-    {
-        if (empty($this->_variants)) {
-            if ($this->id) {
-                if ($this->getType()->hasVariants) {
-                    $this->setVariants(craft()->commerce_variants->getAllVariantsByProductId($this->id, $this->locale));
-                } else {
-                    $variant = craft()->commerce_variants->getDefaultVariantByProductId($this->id, $this->locale);
-                    if ($variant) {
-                        $this->setVariants([$variant]);
-                    }
-                }
-            }
+	/**
+	 * Returns array of variants with sales applied. Will only return an array containing a single
+	 * variant when the product's type is set to have no variants.
+	 *
+	 * @return Commerce_VariantModel[]
+	 */
+	public function getVariants()
+	{
+		if (empty($this->_variants))
+		{
+			if ($this->id)
+			{
+				if ($this->getType()->hasVariants)
+				{
+					$this->setVariants(craft()->commerce_variants->getAllVariantsByProductId($this->id, $this->locale));
+				}
+				else
+				{
+					$variant = craft()->commerce_variants->getDefaultVariantByProductId($this->id, $this->locale);
+					if ($variant)
+					{
+						$this->setVariants([$variant]);
+					}
+				}
+			}
 
-            // Must have at least one
-            if (empty($this->_variants)) {
-                $variant = new Commerce_VariantModel();
-                $this->setVariants([$variant]);
-            }
-        }
+			// Must have at least one
+			if (empty($this->_variants))
+			{
+				$variant = new Commerce_VariantModel();
+				$this->setVariants([$variant]);
+			}
+		}
 
-        return $this->_variants;
-    }
+		return $this->_variants;
+	}
 
-    /**
-     * Sets some eager loaded elements on a given handle.
-     *
-     * @param string             $handle   The handle to load the elements with in the future
-     * @param BaseElementModel[] $elements The eager-loaded elements
-     */
-    public function setEagerLoadedElements($handle, $elements)
-    {
-        if ($handle == 'variants') {
-            $this->setVariants($elements);
-        } else {
-            parent::setEagerLoadedElements($handle, $elements);
-        }
-    }
+	/**
+	 * Sets some eager loaded elements on a given handle.
+	 *
+	 * @param string             $handle   The handle to load the elements with in the future
+	 * @param BaseElementModel[] $elements The eager-loaded elements
+	 */
+	public function setEagerLoadedElements($handle, $elements)
+	{
+		if ($handle == 'variants')
+		{
+			$this->setVariants($elements);
+		}
+		else
+		{
+			parent::setEagerLoadedElements($handle, $elements);
+		}
+	}
 
-    // Protected Methods
-    // =============================================================================
+	// Protected Methods
+	// =============================================================================
 
-    /**
-     * @return array
-     */
-    protected function defineAttributes()
-    {
-        return array_merge(parent::defineAttributes(), [
-            'typeId' => AttributeType::Number,
-            'authorId' => AttributeType::Number,
-            'taxCategoryId' => AttributeType::Number,
-            'promotable' => [AttributeType::Bool,'default'=>true],
-            'freeShipping' => AttributeType::Bool,
-            'postDate' => AttributeType::DateTime,
-            'expiryDate' => AttributeType::DateTime,
+	/**
+	 * @return array
+	 */
+	protected function defineAttributes()
+	{
+		return array_merge(parent::defineAttributes(), [
+			'typeId'        => AttributeType::Number,
+			'authorId'      => AttributeType::Number,
+			'taxCategoryId' => AttributeType::Number,
+			'promotable'    => [AttributeType::Bool, 'default' => true],
+			'freeShipping'  => AttributeType::Bool,
+			'postDate'      => AttributeType::DateTime,
+			'expiryDate'    => AttributeType::DateTime,
 
-            'defaultVariantId' => [AttributeType::Number],
-            'defaultSku' => [AttributeType::String, 'label' => 'SKU'],
-            'defaultPrice' => [AttributeType::Number, 'decimals' => 4],
-            'defaultHeight' => [AttributeType::Number, 'decimals' => 4],
-            'defaultLength' => [AttributeType::Number, 'decimals' => 4],
-            'defaultWidth' => [AttributeType::Number, 'decimals' => 4],
-            'defaultWeight' => [AttributeType::Number, 'decimals' => 4]
-        ]);
-    }
+			'defaultVariantId' => [AttributeType::Number],
+			'defaultSku'       => [AttributeType::String, 'label' => 'SKU'],
+			'defaultPrice'     => [AttributeType::Number, 'decimals' => 4],
+			'defaultHeight'    => [AttributeType::Number, 'decimals' => 4],
+			'defaultLength'    => [AttributeType::Number, 'decimals' => 4],
+			'defaultWidth'     => [AttributeType::Number, 'decimals' => 4],
+			'defaultWeight'    => [AttributeType::Number, 'decimals' => 4]
+		]);
+	}
 }
