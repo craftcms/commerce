@@ -1,0 +1,32 @@
+<div class="recentorders-container">
+    {% if orders|length %}
+        <table class="data fullwidth">
+            <thead>
+                <tr>
+                    <th>{{ "Number"|t }}</th>
+                    <th>{{ "Status"|t }}</th>
+                    <th>{{ "Total Paid"|t }}</th>
+                    <th>{{ "Date Ordered"|t }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                    <tr>
+                        <td>
+                            <a href="{{ order.getCpEditUrl() }}">Order {{ order.number[:7] }}</a>
+                        </td>
+                        <td>
+                            {% if order.orderStatus %}
+                                {{ order.orderStatus.htmlLabel|raw }}
+                            {% endif %}
+                        </td>
+                        <td>{{ order.totalPaid|currency(order.currency) }}</td>
+                        <td>{{ order.dateOrdered|date }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>{{ "No orders."|t }}</p>
+    {% endif %}
+</div>
