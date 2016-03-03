@@ -19,8 +19,9 @@
     {% endif %}
 
     <div class="address-select">
-        {% if attribute(cart,name~'Id') %}
-            {% set addressHasErrors = cart.shippingAddress.hasErrors() %}
+
+        {% if attribute(cart, name~'Id') %}
+            {% set addressHasErrors = attribute(cart, name).hasErrors() %}
         {% else %}
             {% set addressHasErrors = false %}
         {% endif %}
