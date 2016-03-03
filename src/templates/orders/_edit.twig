@@ -405,6 +405,12 @@
 		</table>
 	</div>
 	{% endif %}
+	{% if not order.isPaid() %}
+	<div class="pane">
+		<h3>{{ "Make Payment"|t }}</h3>
+		{% include "commerce/orders/_paymentForms" %}
+	</div>
+	{% endif %}
 {% endblock %}
 
 {% includeJsResource 'commerce/js/classes/TableRowAdditionalInfoIcon.js' %}
