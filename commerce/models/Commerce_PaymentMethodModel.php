@@ -15,6 +15,9 @@ use Commerce\Gateways\BaseGatewayAdapter;
  * @property array $settings
  * @property bool $cpEnabled
  * @property bool $frontendEnabled
+ * @property bool $isArchived
+ * @property bool $dateArchived
+ *
  *
  * @property BaseGatewayAdapter $gateway
  *
@@ -121,7 +124,6 @@ class Commerce_PaymentMethodModel extends BaseModel
             'id' => AttributeType::Number,
             'class' => AttributeType::String,
             'name' => AttributeType::String,
-            'cpEnabled' => AttributeType::Bool,
             'paymentType' => [
                 AttributeType::Enum,
                 'values' => ['authorize', 'purchase'],
@@ -129,6 +131,8 @@ class Commerce_PaymentMethodModel extends BaseModel
                 'default' => 'purchase'
             ],
             'frontendEnabled' => [AttributeType::Bool, 'default' => true],
+            'isArchived' => [AttributeType::Bool, 'default' => false],
+            'dateArchived' => [AttributeType::DateTime],
             'settings' => [AttributeType::Mixed],
         ];
     }
