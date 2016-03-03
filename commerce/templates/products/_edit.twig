@@ -175,9 +175,9 @@
 						<div class="data">
 							<h5 class="heading">{{ "Related Sales"|t }}</h5>
 							<div class="value">
-								<ul>
+								<ul class="commerce-sales">
 									{% for promotion in promotions.sales %}
-										<li><a href="{{ promotion.getCpEditUrl() }}">{{ promotion.name }}</a></li>
+										<li><a href="{{ promotion.getCpEditUrl() }}"><span>{{ promotion.name }}</span></a></li>
 									{% endfor %}
 								</ul>
 							</div>
