@@ -2,5 +2,6 @@
 return [
     'cartCookieDuration' => 'P3M',
     'paymentMethodSettings' => [],
-    'purgeInactiveCartsDuration' => 'P3M'
+    'purgeInactiveCartsDuration' => 'P3M',
+	'gatewayPostRedirectTemplate' => ''
 ];

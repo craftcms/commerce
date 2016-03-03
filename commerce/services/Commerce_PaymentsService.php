@@ -338,7 +338,41 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 					}
 					else
 					{
-						// TODO: add a config setting to specify a custom POST redirect template
+
+						$gatewayPostRedirectTemplate = craft()->config->get('gatewayPostRedirectTemplate', 'commerce');
+
+						if (!empty($gatewayPostRedirectTemplate))
+						{
+							$variables = [];
+							$hiddenFields = '';
+
+							// Gather all post hidden data inputs.
+							foreach ($response->getRedirectData() as $key => $value)
+							{
+								$hiddenFields .= sprintf(
+										'<input type="hidden" name="%1$s" value="%2$s" />',
+										htmlentities($key, ENT_QUOTES, 'UTF-8', false),
+										htmlentities($value, ENT_QUOTES, 'UTF-8', false)
+									)."\n";
+							}
+							$variables['inputs'] = $hiddenFields;
+
+							// Set the action url to the responses redirect url
+							$variables['actionUrl'] = $response->getRedirectUrl();
+
+							// Substitute templates path
+							$oldPath = craft()->path->getTemplatesPath();
+							$newPath = craft()->path->getSiteTemplatesPath();
+							craft()->path->setTemplatesPath($newPath);
+							$template = craft()->templates->render($gatewayPostRedirectTemplate, $variables);
+							craft()->path->setTemplatesPath($oldPath);
+
+							// Send the template back to the user.
+							ob_start();
+							echo $template;
+							craft()->end();
+						}
+
 						$response->redirect();
 					}
 
