@@ -351,7 +351,7 @@ class CommercePlugin extends BasePlugin
      */
     public function addRichTextLinkOptions()
     {
-        $linkOptions = [];
+        $linkOptions = array();
 
         // Include a Product link option if there are any product types that have URLs
         $productSources = array();
@@ -366,11 +366,11 @@ class CommercePlugin extends BasePlugin
 
         if ($productSources)
         {
-            $linkOptions[] = [
+            $linkOptions[] = array(
                 'optionTitle' => Craft::t('Link to a product'),
                 'elementType' => 'Commerce_Product',
                 'sources' => $productSources,
-            ];
+            );
         }
 
         return $linkOptions;
