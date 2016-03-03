@@ -10,4 +10,5 @@ body.ltr .chart-explorer .chart-header .spinner { right:  -24px; }
 body.rtl .chart-explorer .chart-header .spinner { left: -24px; }
 .chart-explorer .chart-container { position: relative; margin: 0 -24px -14px -24px;  }
 .chart-explorer .chart-container .chart { height: 200px; margin: 0;  }
+.chart-explorer .chart-container .error { margin: 0 24px;  }
 .chart-explorer .total .total-value { font-size: 15px;  }
