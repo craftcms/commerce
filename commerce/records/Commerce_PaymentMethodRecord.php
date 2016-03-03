@@ -10,7 +10,6 @@ namespace Craft;
  * @property string $paymentType
  * @property array  $settings
  * @property string $type
- * @property bool   $cpEnabled
  * @property bool   $frontendEnabled
  * @property bool   $isArchived
  * @property bool   $dateArchived
