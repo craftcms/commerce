@@ -23,14 +23,11 @@ class Commerce_ChartsController extends ElementIndexController
      */
     public function actionGetRevenueReport()
     {
-        $startDate = craft()->request->getParam('startDate');
-        $endDate = (craft()->request->getParam('endDate') ? craft()->request->getParam('endDate') : 'now');
+        $startDateParam = craft()->request->getRequiredPost('startDate');
+        $endDateParam = craft()->request->getRequiredPost('endDate');
 
-	    $timezone = new \DateTimeZone(craft()->timezone);
-
-        $startDate = new DateTime($startDate, $timezone);
-
-        $endDate = new Datetime($endDate, $timezone);
+        $startDate = DateTime::createFromString($startDateParam, craft()->timezone);
+        $endDate = DateTime::createFromString($endDateParam, craft()->timezone);
         $endDate->modify('+1 day');
 
         $criteria = $this->getElementCriteria();

@@ -46,7 +46,7 @@ class Commerce_ChartsService extends BaseApplicationComponent
 
 	        'formats' => craft()->charts->getFormats(),
             'orientation' => craft()->locale->getOrientation(),
-            'scale' => craft()->charts->getScale($startDate, $endDate),
+            'scale' => ChartHelper::getDateChartScale($startDate, $endDate),
             'localeDefinition' => [
                 'currency' => $this->getLocaleDefinitionCurrency(),
             ],
@@ -68,7 +68,7 @@ class Commerce_ChartsService extends BaseApplicationComponent
     private function getRevenueDataTable($startDate, $endDate, $criteria)
     {
 
-        $scale = craft()->charts->getScale($startDate, $endDate);
+        $scale = ChartHelper::getDateChartScale($startDate, $endDate);
         $scaleFormat = craft()->charts->getScaleDateFormat($scale);
 
         $criteria->limit = null;
@@ -115,7 +115,7 @@ class Commerce_ChartsService extends BaseApplicationComponent
      */
     private function parseResultsToDataTable($startDate, $endDate, $results)
     {
-        $scale = craft()->charts->getScale($startDate, $endDate);
+        $scale = ChartHelper::getDateChartScale($startDate, $endDate);
 	    $scaleFormat = craft()->charts->getScaleDateFormat($scale);
 
 
