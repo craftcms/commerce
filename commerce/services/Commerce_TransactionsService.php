@@ -77,7 +77,7 @@ class Commerce_TransactionsService extends BaseApplicationComponent
     {
         $transaction = new Commerce_TransactionModel;
         $transaction->status = Commerce_TransactionRecord::STATUS_PENDING;
-        $transaction->amount = round($order->totalPrice, 2);
+        $transaction->amount = $order->outstandingBalance();
         $transaction->orderId = $order->id;
         $transaction->paymentMethodId = $order->paymentMethodId;
 
