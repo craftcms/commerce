@@ -73,6 +73,22 @@ class Commerce_OrdersController extends Commerce_BaseCpController
 
 		$this->prepVariables($variables);
 
+
+		if (empty($variables['paymentForm']))
+		{
+			$paymentMethod = $variables['order']->getPaymentMethod();
+
+			if ($paymentMethod)
+			{
+				$variables['paymentForm'] = $variables['order']->paymentMethod->getPaymentFormModel();
+			}
+			else
+			{
+				$paymentMethod = ArrayHelper::getFirstValue(craft()->commerce_paymentMethods->getAllPaymentMethods());
+				$variables['paymentForm'] = $paymentMethod->getPaymentFormModel();
+			}
+		}
+
 		$this->renderTemplate('commerce/orders/_edit', $variables);
 	}
 
@@ -84,6 +100,8 @@ class Commerce_OrdersController extends Commerce_BaseCpController
 		$this->requireAjaxRequest();
 
 		$orderId = craft()->request->getParam('orderId');
+		$paymentFormData = craft()->request->getParam('paymentForm');
+
 		$order = craft()->commerce_orders->getOrderById($orderId);
 
 		$paymentMethods = craft()->commerce_paymentMethods->getAllPaymentMethods();
@@ -91,7 +109,26 @@ class Commerce_OrdersController extends Commerce_BaseCpController
 		$formHtml = "";
 		foreach ($paymentMethods as $paymentMethod)
 		{
-			$paymentFormHtml = $paymentMethod->getPaymentFormHtml($order);
+			if ($paymentMethod->id == $order->paymentMethodId)
+			{
+				$paymentFormModel = $order->paymentMethod->getPaymentFormModel();
+
+				if (isset($paymentFormData['attributes']))
+				{
+					$paymentFormModel->attributes = $paymentFormData['attributes'];
+				}
+
+				if (isset($paymentFormData['errors']))
+				{
+					$paymentFormModel->addErrors($paymentFormData['errors']);
+				}
+			}
+			else
+			{
+				$paymentFormModel = $paymentMethod->getPaymentFormModel();
+			}
+
+			$paymentFormHtml = $paymentMethod->getPaymentFormHtml($order, $paymentFormModel);
 			$formHtml .= $paymentFormHtml;
 		}
 

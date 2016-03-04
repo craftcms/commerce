@@ -95,11 +95,11 @@ class Commerce_PaymentMethodModel extends BaseModel
 	 *
 	 * @return bool
 	 */
-	public function getPaymentFormHtml($order = null)
+	public function getPaymentFormHtml($order = null, $paymentForm = null)
 	{
 		if ($gatewayAdapter = $this->getGatewayAdapter())
 		{
-			return $gatewayAdapter->getPaymentFormHtml($order);
+			return $gatewayAdapter->getPaymentFormHtml($order, $paymentForm);
 		}
 	}
 

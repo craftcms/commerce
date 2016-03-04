@@ -118,8 +118,13 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
 			craft()->commerce_orders->saveOrder($order);
 		}
 
-		// Submit payment
-		$success = craft()->commerce_payments->processPayment($order, $paymentForm, $redirect, $customError);
+		$paymentForm->validate();
+		if(!$paymentForm->hasErrors()){
+			$success = craft()->commerce_payments->processPayment($order, $paymentForm, $redirect, $customError);
+		}else{
+			$success = false;
+		}
+
 
 		if ($success)
 		{

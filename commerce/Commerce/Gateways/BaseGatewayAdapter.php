@@ -193,10 +193,15 @@ abstract class BaseGatewayAdapter extends BaseModel implements GatewayAdapterInt
 	/**
 	 * @return string
 	 */
-	public function getPaymentFormHtml($order = null)
+	public function getPaymentFormHtml($order = null, $paymentForm = null)
 	{
 		$paymentMethod = $this->getPaymentMethod();
-		$paymentFormModel = $paymentMethod->getPaymentFormModel();
+
+		if (!$paymentForm)
+		{
+			$paymentForm = $paymentMethod->getPaymentFormModel();
+		}
+
 
 		if (!$paymentMethod)
 		{
@@ -209,7 +214,7 @@ abstract class BaseGatewayAdapter extends BaseModel implements GatewayAdapterInt
 				'adapter' => $this,
 				'paymentMethod' => $paymentMethod,
 				'order' => $order,
-				'paymentForm' => $paymentFormModel
+				'paymentForm' => $paymentForm
 			]);
 		}
 		else
@@ -218,7 +223,7 @@ abstract class BaseGatewayAdapter extends BaseModel implements GatewayAdapterInt
 				'adapter' => $this,
 				'paymentMethod' => $paymentMethod,
 				'order' => $order,
-				'paymentForm' => $paymentFormModel
+				'paymentForm' => $paymentForm
 			]);
 		}
 
