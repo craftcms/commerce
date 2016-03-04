@@ -44,12 +44,10 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend({
 
         if(!this.paymentModal)
         {
-            var $modal = $('<form class="modal fitted confirmmodal"/>').appendTo(Garnish.$bod),
+            var $modal = $('<div class="modal fitted confirmmodal"/>').appendTo(Garnish.$bod),
                 $body = $('<div class="body"/>').appendTo($modal).html(Craft.t("Loading…")),
                 $footer = $('<footer class="footer"/>').appendTo($modal),
-                $buttons = $('<div class="buttons right"/>').appendTo($footer),
-                $cancelBtn = $('<div class="btn">'+Craft.t('Cancel')+'</div>').appendTo($buttons),
-                $okBtn = $('<input type="submit" class="btn submit" value="'+Craft.t('OK')+'"/>').appendTo($buttons);
+                $buttons = $('<div class="buttons right"/>').appendTo($footer);
 
             this.paymentModal = new Garnish.Modal($modal);
 
@@ -72,7 +70,7 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend({
                         $('select#payment-form-select').change($.proxy(function(ev){
                     		var id = $( ev.currentTarget ).val();
                     		$('.payment-method-form').addClass('hidden');
-                    		$('#payment-method-form-'+id).removeClass('hidden');
+                    		$('#payment-method-'+id+'-form').removeClass('hidden');
                             this.paymentModal.updateSizeAndPosition();
                     	}, this));
 

@@ -1,8 +1,9 @@
 <?php
-namespace Craft;
+namespace Commerce\Gateways;
 
 use Omnipay\Common\Helper as OmnipayHelper;
-
+use Craft\BaseModel;
+use Craft\AttributeType;
 /**
  * Payment form model. Used for validation of input, not directly persisted.
  *
@@ -21,7 +22,7 @@ use Omnipay\Common\Helper as OmnipayHelper;
  * @package   craft.plugins.commerce.models
  * @since     1.0
  */
-class Commerce_PaymentFormModel extends BaseModel
+class PaymentFormModel extends BaseModel
 {
 
 	public static function populateModel($values)

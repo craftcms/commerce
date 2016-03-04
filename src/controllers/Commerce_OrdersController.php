@@ -69,8 +69,6 @@ class Commerce_OrdersController extends Commerce_BaseCpController
 			throw new HttpException(404);
 		}
 
-		$variables['paymentMethods'] = craft()->commerce_paymentMethods->getAllPaymentMethods();
-
 		craft()->templates->includeCssResource('commerce/order.css');
 
 		$this->prepVariables($variables);
@@ -86,12 +84,26 @@ class Commerce_OrdersController extends Commerce_BaseCpController
 		$this->requireAjaxRequest();
 
 		$orderId = craft()->request->getParam('orderId');
-
 		$order = craft()->commerce_orders->getOrderById($orderId);
+
+		$paymentMethods = craft()->commerce_paymentMethods->getAllPaymentMethods();
+
+		$formHtml = "";
+		foreach ($paymentMethods as $paymentMethod)
+		{
+
+			$templatesService = craft()->templates;
+			$templatesService->startJsBuffer();
+			$paymentFormHtml = $paymentMethod->getPaymentFormHtml($order);
+			$paymentFormJs = $templatesService->clearJsBuffer(false);
+
+			$formHtml .= $paymentFormHtml;
+		}
 
 		$modalHtml = craft()->templates->render('commerce/orders/_paymentmodal', array(
 			'paymentMethods' => craft()->commerce_paymentMethods->getAllPaymentMethods(),
-			'order' => $order
+			'order' => $order,
+			'paymentForms' => $formHtml
 		));
 
 		$this->returnJson(array(

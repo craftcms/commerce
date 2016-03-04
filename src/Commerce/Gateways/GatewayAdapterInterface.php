@@ -32,4 +32,7 @@ interface GatewayAdapterInterface
 
     /** @return bool */
     public function requiresCreditCard();
+
+	/** @return string */
+	public function getPaymentFormHtml();
 }

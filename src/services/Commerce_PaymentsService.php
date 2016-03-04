@@ -5,6 +5,7 @@ use Omnipay\Common\CreditCard;
 use Omnipay\Common\ItemBag;
 use Omnipay\Common\Message\AbstractRequest;
 use Omnipay\Common\Message\ResponseInterface;
+use Commerce\Gateways\PaymentFormModel;
 
 /**
  * Payments service.
@@ -20,7 +21,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 {
 	/**
 	 * @param Commerce_OrderModel       $order
-	 * @param Commerce_PaymentFormModel $form
+	 * @param PaymentFormModel $form
 	 * @param string|null               &$redirect
 	 * @param string|null               &$customError
 	 *
@@ -30,7 +31,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 	 */
 	public function processPayment(
 		Commerce_OrderModel $order,
-		Commerce_PaymentFormModel $form,
+		PaymentFormModel $form,
 		&$redirect = null,
 		&$customError = null
 	)
@@ -174,13 +175,13 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 
 	/**
 	 * @param Commerce_OrderModel       $order
-	 * @param Commerce_PaymentFormModel $paymentForm
+	 * @param PaymentFormModel $paymentForm
 	 *
 	 * @return CreditCard
 	 */
 	private function createCard(
 		Commerce_OrderModel $order,
-		Commerce_PaymentFormModel $paymentForm
+		PaymentFormModel $paymentForm
 	)
 	{
 		$card = new CreditCard;
@@ -277,6 +278,21 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 		}
 
 		$pluginRequest = craft()->plugins->callFirst('commerce_modifyPaymentRequest', [$request]);
+
+
+if($setEncryptedCardCvv = craft()->request->getPost('encryptedCardCvv')){
+
+       $request->setEncryptedCardCvv($setEncryptedCardCvv);
+
+  }
+
+
+
+if($encryptedCardNumber = craft()->request->getPost('encryptedCardNumber')){
+
+$request->setEncryptedCardNumber($encryptedCardNumber);
+
+}
 
 		if ($pluginRequest)
 		{

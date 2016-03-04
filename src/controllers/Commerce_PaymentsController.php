@@ -1,6 +1,8 @@
 <?php
 namespace Craft;
 
+use \Commerce\Gateways\PaymentFormModel;
+
 /**
  * Class Commerce_PaymentsController
  *
@@ -23,7 +25,8 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
 		$customError = '';
 
 		$post = craft()->request->getPost();
-		$paymentForm = Commerce_PaymentFormModel::populateModel($post);
+
+		$paymentForm = PaymentFormModel::populateModel($post);
 
 		if (($number = craft()->request->getParam('orderNumber')) !== null)
 		{
