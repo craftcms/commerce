@@ -1,0 +1,124 @@
+{% import "_includes/forms" as forms %}
+
+{% set currentYear = date()|date_modify("+1 year").format('Y') %}
+
+<div id="payment-method-{{ paymentMethod.id }}-form" class="payment-method-form {% if order and order.paymentMethodId != paymentMethod.id %}hidden{% endif %}">
+	<form method="POST">
+		<input type="hidden" name="action" value="commerce/payments/pay"/>
+		{% if order %}
+			<input type="hidden" name="orderNumber" value="{{ order.number }}"/>
+		{% endif %}
+		<input type="hidden" name="paymentMethodId" value="{{ paymentMethod.id }}"/>
+		{{ getCsrfInput() }}
+		<div class="grid" data-cols="2">
+			<div class="form-group {% if paymentForm is defined and (paymentForm.hasErrors('firstName') or paymentForm.hasErrors('firstName')) %}has-error{% endif %}">
+
+				<!-- Card Holder Name -->
+				<div class="item" data-colspan="1">
+					{{ forms.text({
+						name: 'firstName',
+						maxlength: 70,
+						placeholder: "First Name"|t,
+						autocomplete: false,
+						class: 'card-holder-first-name',
+						value: paymentForm.firstName,
+						required: true
+					}) }}
+				</div>
+				<div class="item" data-colspan="1">
+					{{ forms.text({
+						name: 'lastName',
+						maxlength: 70,
+						placeholder: "Last Name"|t,
+						autocomplete: false,
+						class: 'card-holder-last-name',
+						value: paymentForm.lastName,
+						required: true
+					}) }}
+				</div>
+			</div>
+
+			<span class="help-block">{% if paymentForm is defined %}{{ paymentForm.getError('firstName') }}{% endif %}</span>
+			<span class="help-block">{% if paymentForm is defined %}{{ paymentForm.getError('lastName') }}{% endif %}</span>
+		</div>
+
+		<!-- Card Number -->
+		<div class="form-group {% if paymentForm is defined and paymentForm.hasErrors('number') %}has-error{% endif %}">
+
+			<div class="multitext">
+				<div class="multitextrow">
+
+					{{ forms.text({
+						name: 'number',
+						maxlength: 19,
+						placeholder: "Card Number"|t,
+						autocomplete: false,
+						class: 'card-number',
+						value: paymentForm.number
+					}) }}
+
+				</div>
+
+				<div class="multitextrow">
+					{{ forms.text({
+						id: 'cc-exp',
+						type: 'tel',
+						placeholder: "MM"|t~' / '~"YY"|t
+					}) }}
+					{{ forms.text({
+						id: 'cc-cvc',
+						type: 'tel',
+						placeholder: "CVC"|t
+					}) }}
+				</div>
+			</div>
+
+			<span class="help-block">{% if paymentForm is defined %}{{ paymentForm.getError('number') }}{% endif %}</span>
+		</div>
+
+		<hr class="disabled">
+
+		<!-- Expiry-->
+		<div class="form-group {% if paymentForm is defined and (paymentForm.hasErrors('month') or paymentForm.hasErrors('year')) %}has-error{% endif %}">
+			<label>Card Expiry Date</label>
+
+			<select class="form-control" name="month">
+				{% for month in 1..12 %}
+					<option value="{{ month }}" {% if paymentForm.month == month %}selected{% endif %}>{{ month }}</option>
+				{% endfor %}
+			</select>
+			<span> / </span>
+			<select class="required form-control"
+					name="year">
+				{% for year in currentYear-1..(currentYear + 12) %}
+					<option value="{{ year }}"
+							{% if paymentForm.year == year %}selected{% endif %}>{{ year }}</option>
+				{% endfor %}
+			</select>
+
+			<span class="help-block">{% if paymentForm is defined %}{{ paymentForm.getError('month') }}{% endif %}</span>
+
+			<span class="help-block">{% if paymentForm is defined %}{{ paymentForm.getError('year') }}{% endif %}</span>
+
+		</div>
+
+		<!-- CVV -->
+		<div class="form-group {% if paymentForm is defined and paymentForm.hasErrors('cvv') %}has-error{% endif %}">
+
+			<label>CVV/CVV2</label>
+			<input type="text" name="cvv"
+				   placeholder="CVV" maxlength="4"
+				   class="card-cvc"
+				   value="{{ paymentForm.cvv }}">
+
+			<span class="help-block">{% if paymentForm is defined %}{{ paymentForm.getError('cvv') }}{% endif %}</span>
+
+		</div>
+
+		<!-- Submit -->
+		<button class="button button-primary" type="submit">
+			Pay {{ order.totalPrice|currency(order.currency) }}
+			Now
+		</button>
+	</form>
+</div>

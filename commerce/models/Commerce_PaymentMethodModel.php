@@ -69,10 +69,31 @@ class Commerce_PaymentMethodModel extends BaseModel
      */
     public function requiresCard()
     {
-        if($gateway = $this->getGatewayAdapter()){
-            return $gateway->requiresCreditCard();
+        if($gatewayAdapter = $this->getGatewayAdapter()){
+            return $gatewayAdapter->requiresCreditCard();
         }
+    }
 
+    /**
+     * Payment Form HTML
+     * @return bool
+     */
+    public function getPaymentFormHtml($order = null)
+    {
+        if($gatewayAdapter = $this->getGatewayAdapter()){
+            return $gatewayAdapter->getPaymentFormHtml($order);
+        }
+    }
+
+    /**
+     * Payment Form HTML
+     * @return bool
+     */
+    public function getPaymentFormModel()
+    {
+        if($gatewayAdapter = $this->getGatewayAdapter()){
+            return $gatewayAdapter->getPaymentFormModel();
+        }
     }
 
     /**
@@ -101,17 +122,6 @@ class Commerce_PaymentMethodModel extends BaseModel
             'authorize' => Craft::t('Authorize Only (Manually Capture)'),
             'purchase' => Craft::t('Purchase (Authorize and Capture Immediately)'),
         ];
-    }
-
-    /**
-     * Whether this payment method supports credit card details
-     * @return bool
-     */
-    public function supportsCard()
-    {
-        if($gateway = $this->getGatewayAdapter()){
-            return $gateway->requiresCreditCard();
-        }
     }
 
     /**

@@ -9,4 +9,13 @@ class Stripe_GatewayAdapter extends BaseGatewayAdapter
     {
         return 'Stripe';
     }
+
+    public function getPaymentFormHtml()
+    {
+        $html = \Craft\craft()->templates->render('commerce/_gateways/_paymentforms/stripe', [
+            'adapter' => $this,
+        ]);
+
+        return $html;
+    }
 }
