@@ -28,6 +28,11 @@ Craft.Commerce.PaymentModal = Garnish.Modal.extend(
 				{
 					this.$container.append(response.modalHtml);
 
+					var $buttons = $('.buttons', this.$container),
+					 	$cancelBtn = $('<div class="btn">'+Craft.t('Cancel')+'</div>').prependTo($buttons);
+
+					this.addListener($cancelBtn, 'click', 'cancelPayment');
+
                     $('select#payment-form-select').change($.proxy(function(ev){
                 		var id = $( ev.currentTarget ).val();
                 		$('.payment-method-form').addClass('hidden');
@@ -56,6 +61,11 @@ Craft.Commerce.PaymentModal = Garnish.Modal.extend(
 		}, this));
 
 	},
+
+	cancelPayment: function()
+	{
+		this.hide();
+	}
 },
 {
 
