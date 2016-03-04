@@ -103,7 +103,6 @@ class Commerce_OrdersController extends Commerce_BaseCpController
 		$paymentFormData = craft()->request->getParam('paymentForm');
 
 		$order = craft()->commerce_orders->getOrderById($orderId);
-
 		$paymentMethods = craft()->commerce_paymentMethods->getAllPaymentMethods();
 
 		$formHtml = "";
@@ -113,14 +112,19 @@ class Commerce_OrdersController extends Commerce_BaseCpController
 			{
 				$paymentFormModel = $order->paymentMethod->getPaymentFormModel();
 
-				if (isset($paymentFormData['attributes']))
+				if ($paymentFormData)
 				{
-					$paymentFormModel->attributes = $paymentFormData['attributes'];
-				}
+					// Re-add submitted data to payment form model
+					if (isset($paymentFormData['attributes']))
+					{
+						$paymentFormModel->attributes = $paymentFormData['attributes'];
+					}
 
-				if (isset($paymentFormData['errors']))
-				{
-					$paymentFormModel->addErrors($paymentFormData['errors']);
+					// Re-add errors to payment form model
+					if (isset($paymentFormData['errors']))
+					{
+						$paymentFormModel->addErrors($paymentFormData['errors']);
+					}
 				}
 			}
 			else
