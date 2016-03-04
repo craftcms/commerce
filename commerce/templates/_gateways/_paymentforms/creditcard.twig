@@ -10,8 +10,11 @@
 		{% endif %}
 		<input type="hidden" name="paymentMethodId" value="{{ paymentMethod.id }}"/>
 		{{ getCsrfInput() }}
-		<div class="grid" data-cols="2">
-			<div class="form-group {% if paymentForm is defined and (paymentForm.hasErrors('firstName') or paymentForm.hasErrors('firstName')) %}has-error{% endif %}">
+
+		<fieldset>
+			<legend>User</legend>
+
+			<div class="grid" data-cols="2">
 
 				<!-- Card Holder Name -->
 				<div class="item" data-colspan="1">
@@ -20,31 +23,29 @@
 						maxlength: 70,
 						placeholder: "First Name"|t,
 						autocomplete: false,
-						class: 'card-holder-first-name',
+						class: 'card-holder-first-name'~(paymentForm.getErrors('firstName') ? ' error'),
 						value: paymentForm.firstName,
-						required: true
+						required: true,
 					}) }}
 				</div>
+
 				<div class="item" data-colspan="1">
 					{{ forms.text({
 						name: 'lastName',
 						maxlength: 70,
 						placeholder: "Last Name"|t,
 						autocomplete: false,
-						class: 'card-holder-last-name',
+						class: 'card-holder-last-name'~(paymentForm.getErrors('lastName') ? ' error'),
 						value: paymentForm.lastName,
-						required: true
+						required: true,
 					}) }}
 				</div>
 			</div>
-
-			<span class="help-block">{% if paymentForm is defined %}{{ paymentForm.getError('firstName') }}{% endif %}</span>
-			<span class="help-block">{% if paymentForm is defined %}{{ paymentForm.getError('lastName') }}{% endif %}</span>
-		</div>
+		</fieldset>
 
 		<!-- Card Number -->
-		<div class="form-group {% if paymentForm is defined and paymentForm.hasErrors('number') %}has-error{% endif %}">
-
+		<fieldselt>
+			<legend>Card</legend>
 			<div class="multitext">
 				<div class="multitextrow">
 
@@ -74,7 +75,7 @@
 			</div>
 
 			<span class="help-block">{% if paymentForm is defined %}{{ paymentForm.getError('number') }}{% endif %}</span>
-		</div>
+		</fieldset>
 
 		<hr class="disabled">
 
