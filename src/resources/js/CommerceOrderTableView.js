@@ -182,7 +182,7 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
             }
             else
             {
-                var msg = 'An unknown error occured.';
+                var msg = Craft.t('An unknown error occurred.');
 
                 if(typeof(response) != 'undefined' && response && typeof(response.error) != 'undefined')
                 {
