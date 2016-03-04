@@ -83,7 +83,6 @@ class Commerce_PaymentMethodModel extends BaseModel
         if($gatewayAdapter = $this->getGatewayAdapter()){
             return $gatewayAdapter->requiresCreditCard();
         }
-<<<<<<< Updated upstream
     }
 
     /**
@@ -106,8 +105,6 @@ class Commerce_PaymentMethodModel extends BaseModel
         if($gatewayAdapter = $this->getGatewayAdapter()){
             return $gatewayAdapter->getPaymentFormModel();
         }
-=======
->>>>>>> Stashed changes
     }
 
     /**
