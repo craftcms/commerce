@@ -56,7 +56,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 		//choosing default action
 		$defaultAction = $order->paymentMethod->paymentType;
 		$defaultAction = ($defaultAction === Commerce_TransactionRecord::TYPE_PURCHASE) ? $defaultAction : Commerce_TransactionRecord::TYPE_AUTHORIZE;
-		$gateway = $order->paymentMethod->getGatewayAdapter()->getGateway();
+		$gateway = $order->paymentMethod->getGateway();
 
 		if ($defaultAction == Commerce_TransactionRecord::TYPE_AUTHORIZE)
 		{
@@ -526,7 +526,7 @@ $request->setEncryptedCardNumber($encryptedCardNumber);
 		$child->amount = $parent->amount;
 		$this->saveTransaction($child);
 
-		$gateway = $parent->paymentMethod->getGatewayAdapter()->getGateway();
+		$gateway = $parent->paymentMethod->getGateway();
 		$request = $gateway->$action($this->buildPaymentRequest($child));
 		$request->setTransactionReference($parent->reference);
 
@@ -610,7 +610,7 @@ $request->setEncryptedCardNumber($encryptedCardNumber);
 		}
 
 		// load payment driver
-		$gateway = $transaction->paymentMethod->getGatewayAdapter()->getGateway();
+		$gateway = $transaction->paymentMethod->getGateway();
 
 		$action = 'complete'.ucfirst($transaction->type);
 		$supportsAction = 'supports'.ucfirst($action);
@@ -620,7 +620,7 @@ $request->setEncryptedCardNumber($encryptedCardNumber);
 			$params = $this->buildPaymentRequest($transaction);
 
 			// If MOLLIE, the transactionReference will be theirs
-			$name = $transaction->paymentMethod->getGatewayAdapter()->getGateway()->getName();
+			$name = $transaction->paymentMethod->getGateway()->getName();
 			if ($name == 'Mollie_Ideal' || $name == 'Mollie' || $name == 'SagePay_Server')
 			{
 				$params['transactionReference'] = $transaction->reference;

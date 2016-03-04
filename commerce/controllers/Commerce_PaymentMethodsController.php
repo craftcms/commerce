@@ -61,7 +61,7 @@ class Commerce_PaymentMethodsController extends Commerce_BaseAdminController
 		}
 		asort($list);
 
-		$variables['paymentMethod']->getGatewayAdapter(); //init gateway settings
+		$variables['paymentMethod']->getGateway(); //init gateway settings
 		$variables['gatewaysList'] = $list;
 		if ($variables['paymentMethod']->id)
 		{
