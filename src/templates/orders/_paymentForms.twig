@@ -147,10 +147,15 @@
 
 				{% endif %}
 				<!-- Submit -->
-				<button class="button button-primary" type="submit">
-					Pay {{ order.totalPrice|currency(order.currency) }}
-					Now
-				</button>
+
+				<div class="buttons">
+
+					<button class="btn submit" type="submit">
+						Pay {{ order.totalPrice|currency(order.currency) }}
+						Now
+					</button>
+					
+				</div>
 			</form>
 		</div>
 	{% endfor %}
