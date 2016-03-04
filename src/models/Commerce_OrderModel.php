@@ -226,10 +226,16 @@ class Commerce_OrderModel extends BaseElementModel
      */
     public function isPaid()
     {
+        return (bool) $this->outstandingBalance() <= 0;
+    }
+
+    public function outstandingBalance()
+    {
         $currency = Currency::find(craft()->commerce_settings->getSettings()->defaultCurrency);
         $totalPaid = round($this->totalPaid, $currency->getDecimals());
         $totalPrice = round($this->totalPrice, $currency->getDecimals());
-        return $totalPaid >= $totalPrice;
+
+        return $totalPrice - $totalPaid;
     }
 
     /**
