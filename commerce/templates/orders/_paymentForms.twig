@@ -1,12 +1,19 @@
+{% import "_includes/forms" as forms %}
+
 <div class="payment-forms">
-	
-	<select id="payment-form-select">
-		<option value="">{{ "Select a payment method"|t }}&hellip;</option>
-		{% for paymentMethod in paymentMethods %}
-			<option value="{{ paymentMethod.id }}"
-					{% if order.paymentMethodId == paymentMethod.id %}selected{% endif %}>{{ paymentMethod.name }}</option>
-		{% endfor %}
-	</select>
+
+	{% set paymentFormOptions = [{ label: "Select a payment method"|t }] %}
+
+	{% for paymentMethod in paymentMethods %}
+		{% set paymentFormOptions = paymentFormOptions|merge([{ label: paymentMethod.name, value: paymentMethod.id }]) %}
+	{% endfor %}
+
+	{{ forms.selectField({
+		id: 'payment-form-select',
+		label: "Payment Method"|t,
+		options: paymentFormOptions,
+		value: order.paymentMethodId,
+	}) }}
 
 	{% for paymentMethod in paymentMethods %}
 		<div id="payment-method-form-{{ paymentMethod.id }}"
@@ -36,18 +43,28 @@
 					<div class="form-group {% if paymentForm is defined and (paymentForm.hasErrors('firstName') or paymentForm.hasErrors('firstName')) %}has-error{% endif %}">
 						<label>Card Holder</label>
 
-						<input type="text" name="firstName"
-							   maxlength="70"
-							   placeholder="First Name"
-							   class="card-holder-first-name u-full-width"
-							   value="{{ formValues.firstName }}">
-
-						<input type="text" name="lastName"
-							   maxlength="70"
-							   placeholder="Last Name"
-							   class="card-holder-last-name u-full-width"
-							   value="{{ formValues.lastName }}">
-
+						<div class="grid" data-cols="2">
+							<div class="item" data-colspan="1">
+								{{ forms.text({
+									name: 'firstName',
+									maxlength: 70,
+									placeholder: "First Name"|t,
+									autocomplete: false,
+									class: 'card-holder-first-name',
+									value: formValues.firstName
+								}) }}
+							</div>
+							<div class="item" data-colspan="1">
+								{{ forms.text({
+									name: 'lastName',
+									maxlength: 70,
+									placeholder: "Last Name"|t,
+									autocomplete: false,
+									class: 'card-holder-last-name',
+									value: formValues.lastName
+								}) }}
+							</div>
+						</div>
 
 						<span class="help-block">{% if paymentForm is defined %}{{ paymentForm.getError('firstName') }}{% endif %}</span>
 						<span class="help-block">{% if paymentForm is defined %}{{ paymentForm.getError('lastName') }}{% endif %}</span>
@@ -55,16 +72,41 @@
 
 					<!-- Card Number -->
 					<div class="form-group {% if paymentForm is defined and paymentForm.hasErrors('number') %}has-error{% endif %}">
-						<label>Card Number</label>
 
-						<input type="text" name="number"
-							   maxlength="19"
-							   placeholder="Card Number"
-							   class="card-number u-full-width"
-							   value="{{ formValues.number }}">
+						<label>Card</label>
+
+						<div class="multitext">
+							<div class="multitextrow">
+
+								{{ forms.text({
+									name: 'number',
+									maxlength: 19,
+									placeholder: "Card Number"|t,
+									autocomplete: false,
+									class: 'card-number',
+									value: formValues.number
+								}) }}
+
+							</div>
+
+							<div class="multitextrow">
+								{{ forms.text({
+									id: 'cc-exp',
+									type: 'tel',
+									placeholder: "MM"|t~' / '~"YY"|t
+								}) }}
+								{{ forms.text({
+									id: 'cc-cvc',
+									type: 'tel',
+									placeholder: "CVC"|t
+								}) }}
+							</div>
+						</div>
 
 						<span class="help-block">{% if paymentForm is defined %}{{ paymentForm.getError('number') }}{% endif %}</span>
 					</div>
+
+					<hr class="disabled">
 
 					<!-- Expiry-->
 					<div class="form-group {% if paymentForm is defined and (paymentForm.hasErrors('month') or paymentForm.hasErrors('year')) %}has-error{% endif %}">
@@ -114,13 +156,3 @@
 	{% endfor %}
 
 </div>
-
-{% includejs %}
-$(document).ready(function () {
-	$('select#payment-form-select').change(function(){
-		var id = $( this ).val();
-		$('.payment-method-form').addClass('hidden');
-		$('#payment-method-form-'+id).removeClass('hidden');
-	});
-});
-{% endincludejs %}
