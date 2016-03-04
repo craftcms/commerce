@@ -427,6 +427,10 @@
 
 window.countries = JSON.parse('{{ craft.commerce.countries|json_encode|raw }}');
 window.states = JSON.parse('{{ craft.commerce.states|json_encode|raw }}');
+window.paymentForm = {
+	'errors' : JSON.parse('{{ paymentForm.getErrors|json_encode|raw }}'),
+	'attributes' : JSON.parse('{{ paymentForm.attributes|json_encode|raw }}')
+};
 
 $(document).ready(function () {
 
