@@ -413,6 +413,7 @@
 			</div>
 		{% endif %}
 	</div>
+
 {% endblock %}
 
 {% includeJsResource 'commerce/js/classes/TableRowAdditionalInfoIcon.js' %}
@@ -427,15 +428,15 @@
 
 window.countries = JSON.parse('{{ craft.commerce.countries|json_encode|raw }}');
 window.states = JSON.parse('{{ craft.commerce.states|json_encode|raw }}');
-window.paymentForm = {
-	'errors' : JSON.parse('{{ paymentForm.getErrors|json_encode|raw }}'),
-	'attributes' : JSON.parse('{{ paymentForm.attributes|json_encode|raw }}')
-};
 
 $(document).ready(function () {
 
 	new Craft.Commerce.OrderEdit({
-		orderId: {{ orderId|e('js') }}
+		orderId: {{ orderId|e('js') }},
+		paymentForm: {
+			errors: {{ paymentForm.errors|json_encode|raw }},
+			attributes: {{ paymentForm.attributes|json_encode|raw }}
+		}
 	});
 
 	$.each($('.tableRowInfo'), function () {
