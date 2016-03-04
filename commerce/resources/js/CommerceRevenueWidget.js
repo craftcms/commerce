@@ -32,23 +32,23 @@ Craft.Commerce.RevenueWidget = Garnish.Base.extend(
         switch(dateRange)
         {
             case 'd7':
-                this.startDate = this.getDateByDays('7');
+                this.startDate = Craft.Commerce.RevenueWidget.getDateByDays('7');
                 this.endDate = new Date();
             break;
 
             case 'd30':
-                this.startDate = this.getDateByDays('30');
+                this.startDate = Craft.Commerce.RevenueWidget.getDateByDays('30');
                 this.endDate = new Date();
             break;
 
             case 'lastweek':
-                this.startDate = this.getDateByDays('14');
-                this.endDate = this.getDateByDays('7');
+                this.startDate = Craft.Commerce.RevenueWidget.getDateByDays('14');
+                this.endDate = Craft.Commerce.RevenueWidget.getDateByDays('7');
             break;
 
             case 'lastmonth':
-                this.startDate = this.getDateByDays('60');
-                this.endDate = this.getDateByDays('30');
+                this.startDate = Craft.Commerce.RevenueWidget.getDateByDays('60');
+                this.endDate = Craft.Commerce.RevenueWidget.getDateByDays('30');
             break;
         }
 
@@ -110,13 +110,6 @@ Craft.Commerce.RevenueWidget = Garnish.Base.extend(
         Craft.Commerce.RevenueWidget.instances.push(this);
     },
 
-    getDateByDays: function(days)
-    {
-        var date = new Date();
-        date = date.getTime() - (60 * 60 * 24 * days * 1000);
-        return new Date(date);
-    },
-
     handleGridRefresh: function()
     {
         this.chart.resize();
@@ -129,6 +122,13 @@ Craft.Commerce.RevenueWidget = Garnish.Base.extend(
     }
 }, {
     instances: [],
+
+    getDateByDays: function(days)
+    {
+        var date = new Date();
+        date = date.getTime() - (60 * 60 * 24 * days * 1000);
+        return new Date(date);
+    },
 
     getDateValue: function(date)
     {
