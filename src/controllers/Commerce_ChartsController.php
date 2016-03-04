@@ -17,11 +17,11 @@ class Commerce_ChartsController extends ElementIndexController
     // =========================================================================
 
     /**
-     * Get Revenue Report
+     * Returns the data needed to display a Revenue chart.
      *
-     * @return null
+     * @return void
      */
-    public function actionGetRevenueReport()
+    public function actionGetRevenueData()
     {
         $startDateParam = craft()->request->getRequiredPost('startDate');
         $endDateParam = craft()->request->getRequiredPost('endDate');

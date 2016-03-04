@@ -50,7 +50,7 @@ Craft.CommerceRevenueWidget = Garnish.Base.extend(
             elementType: 'Commerce_Order'
         };
 
-        Craft.postActionRequest('commerce/charts/getRevenueReport', requestData, $.proxy(function(response, textStatus)
+        Craft.postActionRequest('commerce/charts/getRevenueData', requestData, $.proxy(function(response, textStatus)
         {
             if(textStatus == 'success' && typeof(response.error) == 'undefined')
             {
