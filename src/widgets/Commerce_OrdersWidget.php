@@ -45,7 +45,7 @@ class Commerce_OrdersWidget extends BaseWidget
         $id = 'analytics-settings-'.StringHelper::randomString();
         $namespaceId = craft()->templates->namespaceInputId($id);
 
-        craft()->templates->includeJs("new Craft.CommerceOrdersWidgetSettings('".$namespaceId."');");
+        craft()->templates->includeJs("new Craft.Commerce.OrdersWidgetSettings('".$namespaceId."');");
 
         return craft()->templates->render('commerce/_components/widgets/Orders/settings', array(
             'id' => $id,

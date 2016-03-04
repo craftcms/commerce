@@ -1,5 +1,9 @@
+if (typeof Craft.Commerce === typeof undefined) {
+	Craft.Commerce = {};
+}
+
 /**
- * Commerce Payment Modal
+ * Class Craft.Commerce.PaymentModal
  */
 Craft.Commerce.PaymentModal = Garnish.Modal.extend(
 {

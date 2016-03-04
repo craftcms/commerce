@@ -1,7 +1,13 @@
 (function($) {
 
+if (typeof Craft.Commerce === typeof undefined) {
+    Craft.Commerce = {};
+}
 
-Craft.CommerceRevenueWidget = Garnish.Base.extend(
+/**
+ * Class Craft.Commerce.RevenueWidget
+ */
+Craft.Commerce.RevenueWidget = Garnish.Base.extend(
 {
     settings: null,
     data: null,
@@ -99,7 +105,7 @@ Craft.CommerceRevenueWidget = Garnish.Base.extend(
 
         this.$widget.data('widget').on('destroy', $.proxy(this, 'destroy'));
 
-        Craft.CommerceRevenueWidget.instances.push(this);
+        Craft.Commerce.RevenueWidget.instances.push(this);
     },
 
     getDateByDays: function(days)
@@ -116,7 +122,7 @@ Craft.CommerceRevenueWidget = Garnish.Base.extend(
 
     destroy: function()
     {
-        Craft.CommerceRevenueWidget.instances.splice($.inArray(this, Craft.CommerceRevenueWidget.instances), 1);
+        Craft.Commerce.RevenueWidget.instances.splice($.inArray(this, Craft.Commerce.RevenueWidget.instances), 1);
         this.base();
     }
 }, {
