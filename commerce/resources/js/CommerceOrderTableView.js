@@ -6,7 +6,17 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
     startDate: null,
     endDate: null,
 
+    startDatepicker: null,
+    endDatepicker: null,
+
 	$chartExplorer: null,
+    $totalValue: null,
+    $chartContainer: null,
+    $spinner: null,
+    $error: null,
+    $chart: null,
+    $startDate: null,
+    $endDate: null,
 
 	afterInit: function()
     {
@@ -52,20 +62,18 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
         this.$endDate = $('<input type="text" class="text" size="20" autocomplete="off" />').appendTo($endDateContainer);
 
         this.$startDate.datepicker($.extend({
-            onSelect: $.proxy(function(dateText, inst)
-            {
-                this.setStartDate(Craft.CommerceOrderTableView.getDateFromDatepickerInstance(inst));
-                this.loadReport();
-            }, this)
+            onSelect: $.proxy(this, 'handleStartDateChange')
         }, Craft.datepickerOptions));
 
         this.$endDate.datepicker($.extend({
-            onSelect: $.proxy(function(dateText, inst)
-            {
-                this.setEndDate(Craft.CommerceOrderTableView.getDateFromDatepickerInstance(inst));
-                this.loadReport();
-            }, this)
+            onSelect: $.proxy(this, 'handleEndDateChange')
         }, Craft.datepickerOptions));
+
+        this.startDatepicker = this.$startDate.data('datepicker');
+        this.endDatepicker = this.$endDate.data('datepicker');
+
+        this.addListener(this.$startDate, 'keyup', 'handleStartDateChange');
+        this.addListener(this.$endDate, 'keyup', 'handleEndDateChange');
 
         // Set the start/end dates
         var startTime = this.getStorage('startTime') || ((new Date()).getTime() - (60 * 60 * 24 * 7 * 1000)),
@@ -74,11 +82,34 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
         this.setStartDate(new Date(startTime));
         this.setEndDate(new Date(endTime));
 
+        // Load the report
         this.loadReport();
+    },
+
+    handleStartDateChange: function()
+    {
+        if (this.setStartDate(Craft.CommerceOrderTableView.getDateFromDatepickerInstance(this.startDatepicker)))
+        {
+            this.loadReport();
+        }
+    },
+
+    handleEndDateChange: function()
+    {
+        if (this.setEndDate(Craft.CommerceOrderTableView.getDateFromDatepickerInstance(this.endDatepicker)))
+        {
+            this.loadReport();
+        }
     },
 
     setStartDate: function(date)
     {
+        // Make sure it has actually changed
+        if (this.startDate && date.getTime() == this.startDate.getTime())
+        {
+            return false;
+        }
+
         this.startDate = date;
         this.setStorage('startTime', this.startDate.getTime());
         this.$startDate.val(Craft.formatDate(this.startDate));
@@ -88,10 +119,18 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
         {
             this.setEndDate(new Date(this.startDate.getTime()));
         }
+
+        return true;
     },
 
     setEndDate: function(date)
     {
+        // Make sure it has actually changed
+        if (this.endDate && date.getTime() == this.endDate.getTime())
+        {
+            return false;
+        }
+
         this.endDate = date;
         this.setStorage('endTime', this.endDate.getTime());
         this.$endDate.val(Craft.formatDate(this.endDate));
@@ -101,6 +140,8 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
         {
             this.setStartDate(new Date(this.endDate.getTime()));
         }
+
+        return true;
     },
 
     loadReport: function()
