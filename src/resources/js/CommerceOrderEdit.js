@@ -45,7 +45,7 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend({
         if(!this.paymentModal)
         {
             var $modal = $('<div class="modal fitted confirmmodal"/>').appendTo(Garnish.$bod),
-                $body = $('<div class="body"/>').appendTo($modal).html(Craft.t("Loading…")),
+                $body = $('<div class="body"/>').appendTo($modal).html(Craft.t("Loading…"));
                 
                 // $body = $('<div class="body"/>').appendTo($modal).html(Craft.t("Loading…")),
                 // $footer = $('<footer class="footer"/>').appendTo($modal),
