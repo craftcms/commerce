@@ -149,8 +149,20 @@ class Commerce_ChartsService extends BaseApplicationComponent
 
         $rows = [];
 
-        $cursorCurrent = new DateTime($startDate);
+        $timezone = new \DateTimeZone(craft()->timezone);
 
+
+        switch($scale)
+        {
+            case 'month':
+            $cursorCurrent = new DateTime($startDate, $timezone);
+            $cursorCurrent = new DateTime($cursorCurrent->format('Y-m-01'), $timezone);
+            break;
+
+            default:
+            $cursorCurrent = new DateTime($startDate, $timezone);
+        }
+        
         while($cursorCurrent->getTimestamp() < $endDate->getTimestamp())
         {
             switch($scale)
@@ -163,7 +175,7 @@ class Commerce_ChartsService extends BaseApplicationComponent
                 $cursorFormat = 'Y-m-d';
             }
 
-            $cursorStart = new DateTime($cursorCurrent->format($cursorFormat));
+            $cursorStart = new DateTime($cursorCurrent->format($cursorFormat), $timezone);
             $cursorCurrent->modify('+1 '.$scale);
 
             $cursorEnd = $cursorCurrent;
