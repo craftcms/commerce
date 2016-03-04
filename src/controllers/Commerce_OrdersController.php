@@ -79,6 +79,28 @@ class Commerce_OrdersController extends Commerce_BaseCpController
 	}
 
 	/**
+	 * Return Payment Modal
+	 */
+	public function actionGetPaymentModal()
+	{
+		$this->requireAjaxRequest();
+
+		$orderId = craft()->request->getParam('orderId');
+
+		$order = craft()->commerce_orders->getOrderById($orderId);
+
+		$modalHtml = craft()->templates->render('commerce/orders/_paymentmodal', array(
+			'paymentMethods' => craft()->commerce_paymentMethods->getAllPaymentMethods(),
+			'order' => $order
+		));
+
+		$this->returnJson(array(
+			'success'         => true,
+			'modalHtml'       => $modalHtml,
+		));
+	}
+
+	/**
 	 * Modifies the variables of the request.
 	 *
 	 * @param $variables
