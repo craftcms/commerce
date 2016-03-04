@@ -17,10 +17,4 @@
 
 	{{ paymentForms|raw }}
 
-				<div class="buttons">
-					<input type="submit" class="btn submit" value="{{ "Pay {amount} Now"|t({ amount: order.totalPrice|currency(order.currency) }) }}" />
-				</div>
-			</form>
-		</div>
-	{% endfor %}
 </div>
