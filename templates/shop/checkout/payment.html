@@ -1,9 +1,6 @@
 {% extends 'commerce/_layouts/checkout' %}
 
-
 {% block content %}
-
-
 
 <div class="row">
 	<div class="one-third column">
@@ -105,7 +102,7 @@
 				<script
 						src="//checkout.stripe.com/checkout.js"
 						class="stripe-button"
-						data-key="pk_test_ysElKNu1n56ehhFioJqVK2DJ"
+						data-key="<YOUR PUBLIC API KEY HERE>"
 						data-name="Craft Commerce"
 						data-description="Purchase" {# This is not used for order description in stripe - see Craft Commerce general settings #}
 						data-email="{{ cart.email }}"

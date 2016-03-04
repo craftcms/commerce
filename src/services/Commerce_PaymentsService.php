@@ -1,6 +1,7 @@
 <?php
 namespace Craft;
 
+use Commerce\Gateways\BasePaymentFormModel;
 use Omnipay\Common\CreditCard;
 use Omnipay\Common\ItemBag;
 use Omnipay\Common\Message\AbstractRequest;
@@ -19,10 +20,10 @@ use Omnipay\Common\Message\ResponseInterface;
 class Commerce_PaymentsService extends BaseApplicationComponent
 {
 	/**
-	 * @param Commerce_OrderModel       $order
-	 * @param Commerce_PaymentFormModel $form
-	 * @param string|null               &$redirect
-	 * @param string|null               &$customError
+	 * @param Commerce_OrderModel  $order
+	 * @param BasePaymentFormModel $form
+	 * @param string|null          &$redirect
+	 * @param string|null          &$customError
 	 *
 	 * @return bool
 	 * @throws Exception
@@ -30,7 +31,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 	 */
 	public function processPayment(
 		Commerce_OrderModel $order,
-		Commerce_PaymentFormModel $form,
+		BasePaymentFormModel $form,
 		&$redirect = null,
 		&$customError = null
 	)
@@ -55,7 +56,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 		//choosing default action
 		$defaultAction = $order->paymentMethod->paymentType;
 		$defaultAction = ($defaultAction === Commerce_TransactionRecord::TYPE_PURCHASE) ? $defaultAction : Commerce_TransactionRecord::TYPE_AUTHORIZE;
-		$gateway = $order->paymentMethod->getGatewayAdapter()->getGateway();
+		$gateway = $order->paymentMethod->getGateway();
 
 		if ($defaultAction == Commerce_TransactionRecord::TYPE_AUTHORIZE)
 		{
@@ -173,14 +174,14 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 	}
 
 	/**
-	 * @param Commerce_OrderModel       $order
-	 * @param Commerce_PaymentFormModel $paymentForm
+	 * @param Commerce_OrderModel  $order
+	 * @param BasePaymentFormModel $paymentForm
 	 *
 	 * @return CreditCard
 	 */
 	private function createCard(
 		Commerce_OrderModel $order,
-		Commerce_PaymentFormModel $paymentForm
+		BasePaymentFormModel $paymentForm
 	)
 	{
 		$card = new CreditCard;
@@ -277,6 +278,20 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 		}
 
 		$pluginRequest = craft()->plugins->callFirst('commerce_modifyPaymentRequest', [$request]);
+
+
+		if ($setEncryptedCardCvv = craft()->request->getPost('encryptedCardCvv'))
+		{
+
+			$request->setEncryptedCardCvv($setEncryptedCardCvv);
+		}
+
+
+		if ($encryptedCardNumber = craft()->request->getPost('encryptedCardNumber'))
+		{
+
+			$request->setEncryptedCardNumber($encryptedCardNumber);
+		}
 
 		if ($pluginRequest)
 		{
@@ -510,7 +525,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 		$child->amount = $parent->amount;
 		$this->saveTransaction($child);
 
-		$gateway = $parent->paymentMethod->getGatewayAdapter()->getGateway();
+		$gateway = $parent->paymentMethod->getGateway();
 		$request = $gateway->$action($this->buildPaymentRequest($child));
 		$request->setTransactionReference($parent->reference);
 
@@ -594,7 +609,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 		}
 
 		// load payment driver
-		$gateway = $transaction->paymentMethod->getGatewayAdapter()->getGateway();
+		$gateway = $transaction->paymentMethod->getGateway();
 
 		$action = 'complete'.ucfirst($transaction->type);
 		$supportsAction = 'supports'.ucfirst($action);
@@ -604,7 +619,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 			$params = $this->buildPaymentRequest($transaction);
 
 			// If MOLLIE, the transactionReference will be theirs
-			$name = $transaction->paymentMethod->getGatewayAdapter()->getGateway()->getName();
+			$name = $transaction->paymentMethod->getGateway()->getName();
 			if ($name == 'Mollie_Ideal' || $name == 'Mollie' || $name == 'SagePay_Server')
 			{
 				$params['transactionReference'] = $transaction->reference;

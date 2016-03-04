@@ -80,9 +80,9 @@ class Commerce_PaymentMethodsService extends BaseApplicationComponent
 			$record = new Commerce_PaymentMethodRecord();
 		}
 
-		$gateway = $model->getGatewayAdapter(); //getGatewayAdapter sets gateway settings automatically
+		$gatewayAdapter = $model->getGatewayAdapter(); //getGatewayAdapter sets gatewayAdapter settings automatically
 
-		$record->settings = $gateway ? $gateway->getAttributes() : [];
+		$record->settings = $gatewayAdapter ? $gatewayAdapter->getAttributes() : [];
 		$record->name = $model->name;
 		$record->paymentType = $model->paymentType;
 		$record->class = $model->class;
@@ -93,14 +93,14 @@ class Commerce_PaymentMethodsService extends BaseApplicationComponent
 		$record->validate();
 		$model->addErrors($record->getErrors());
 
-		if (!$gateway)
+		if (!$gatewayAdapter)
 		{
 			$model->clearErrors('class');
 		}
 
-		if ($gateway && !$gateway->validate())
+		if ($gatewayAdapter && !$gatewayAdapter->validate())
 		{
-			$model->addError('settings', $gateway->getErrors());
+			$model->addError('settings', $gatewayAdapter->getErrors());
 		}
 
 		if (!$model->hasErrors())
