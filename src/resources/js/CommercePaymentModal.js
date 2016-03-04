@@ -16,7 +16,7 @@ Craft.Commerce.PaymentModal = Garnish.Modal.extend(
 
         var data = {
             orderId: settings.orderId,
-            paymentForm: window.paymentForm
+            paymentForm: settings.paymentForm
         };
 
 		Craft.postActionRequest('commerce/orders/getPaymentModal', data, $.proxy(function(response, textStatus)
