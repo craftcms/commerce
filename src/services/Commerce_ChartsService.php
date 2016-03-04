@@ -45,7 +45,7 @@ class Commerce_ChartsService extends BaseApplicationComponent
             'total' => $total,
             'totalHtml' => $totalHtml,
 
-	        'formats' => craft()->charts->getFormats(),
+	        'formats' => ChartHelper::getFormats(),
             'orientation' => craft()->locale->getOrientation(),
             'scale' => $intervalUnit,
             'localeDefinition' => [
