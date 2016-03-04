@@ -45,12 +45,15 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend(
         });
 
         this.addListener(this.$makePayment, 'click', 'makePayment');
+
+        if(Object.keys(this.paymentForm.errors).length > 0)
+        {
+            this.openPaymentModal();
+        }
     },
 
-    makePayment: function(ev)
+    openPaymentModal: function()
     {
-        ev.preventDefault();
-
         if(!this.paymentModal)
         {
             this.paymentModal = new Craft.Commerce.PaymentModal({
@@ -62,6 +65,13 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend(
         {
             this.paymentModal.show();
         }
+    },
+
+    makePayment: function(ev)
+    {
+        ev.preventDefault();
+
+        this.openPaymentModal();
     },
 
     _updateOrderAddress: function (name, address) {
