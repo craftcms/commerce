@@ -44,59 +44,11 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend({
 
         if(!this.paymentModal)
         {
-            var $modal = $('<form id="paymentmodal" class="modal fitted confirmmodal loading"/>').appendTo(Garnish.$bod),
-                $body = $('<div class="body"/>').appendTo($modal);
-                
-                // $body = $('<div class="body"/>').appendTo($modal).html(Craft.t("Loading…")),
-                // $footer = $('<footer class="footer"/>').appendTo($modal),
-                // $buttons = $('<div class="buttons right"/>').appendTo($footer),
-                // $cancelBtn = $('<div class="btn">'+Craft.t('Cancel')+'</div>').appendTo($buttons),
-                // $okBtn = $('<input type="submit" class="btn submit" value="'+Craft.t('OK')+'"/>').appendTo($buttons);
-
-            this.paymentModal = new Garnish.Modal($modal);
-
             var orderId = this.$makePayment.data('order-id');
 
-            var data = {
+            this.paymentModal = new Craft.Commerce.PaymentModal({
                 orderId: orderId
-            };
-
-    		Craft.postActionRequest('commerce/orders/getPaymentModal', data, $.proxy(function(response, textStatus)
-    		{
-                $modal.removeClass('loading');
-
-    			if (textStatus == 'success')
-    			{
-    				if (response.success)
-    				{
-    					$body.html(response.modalHtml);
-
-                        $('select#payment-form-select').change($.proxy(function(ev){
-                    		var id = $( ev.currentTarget ).val();
-                    		$('.payment-method-form').addClass('hidden');
-                    		$('#payment-method-form-'+id).removeClass('hidden');
-                            this.paymentModal.updateSizeAndPosition();
-                    	}, this));
-
-                        this.paymentModal.updateSizeAndPosition();
-
-                        Craft.initUiElements($body);
-    				}
-    				else
-    				{
-    					if (response.error)
-    					{
-    						var error = response.error;
-    					}
-    					else
-    					{
-    						var error = Craft.t('An unknown error occurred.');
-    					}
-
-    					$body.append('<div class="error">'+error+'</div>');
-    				}
-    			}
-    		}, this));
+            })
         }
         else
         {
