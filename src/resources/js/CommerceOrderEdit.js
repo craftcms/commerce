@@ -2,15 +2,24 @@ if (typeof Craft.Commerce === typeof undefined) {
     Craft.Commerce = {};
 }
 
-Craft.Commerce.OrderEdit = Garnish.Base.extend({
+Craft.Commerce.OrderEdit = Garnish.Base.extend(
+{
     orderId: null,
+    paymentForm: null,
+
     $status: null,
     $completion: null,
     statusUpdateModal: null,
     billingAddressBox: null,
     shippingAddressBox: null,
-    init: function (order, settings) {
-        this.orderId = order.orderId;
+
+    init: function (settings)
+    {
+        this.setSettings(settings);
+
+        this.orderId = this.settings.orderId;
+        this.paymentForm = this.settings.paymentForm;
+
         this.$status = $('#order-status');
         this.$completion = $('#order-completion');
         this.$makePayment = $('#make-payment');
@@ -44,10 +53,9 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend({
 
         if(!this.paymentModal)
         {
-            var orderId = this.$makePayment.data('order-id');
-
             this.paymentModal = new Craft.Commerce.PaymentModal({
-                orderId: orderId
+                orderId: this.orderId,
+                paymentForm: this.paymentForm,
             })
         }
         else
@@ -107,4 +115,10 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend({
     _getCountries: function () {
         return window.countries;
     }
+},
+{
+	defaults: {
+        orderId: null,
+        paymentForm: null,
+	},
 });
