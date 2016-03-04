@@ -59,8 +59,8 @@ class Commerce_TransactionModel extends BaseModel
 
         // check gateway supports capture
         try {
-            $adapter = $this->paymentMethod->getGatewayAdapter();
-            if (!$adapter || !$adapter->getGateway()->supportsCapture()) {
+            $gateway = $this->paymentMethod->getGateway();
+            if (!$adapter || !$gateway->supportsCapture()) {
                 return false;
             }
         } catch (OmnipayException  $e) {
@@ -97,8 +97,8 @@ class Commerce_TransactionModel extends BaseModel
 
         // check gateway supports refund
         try {
-            $adapter = $this->paymentMethod->getGatewayAdapter();
-            if (!$adapter || !$adapter->getGateway()->supportsRefund()) {
+            $gateway = $this->paymentMethod->getGateway();
+            if (!$adapter || !$gateway->supportsRefund()) {
                 return false;
             }
         } catch (OmnipayException $e) {

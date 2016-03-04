@@ -64,6 +64,17 @@ class Commerce_PaymentMethodModel extends BaseModel
     }
 
     /**
+     * @return mixed
+     */
+    public function getGateway()
+    {
+        if($gateway = $this->getGatewayAdapter()){
+            return $gateway->getGateway();
+        }
+
+    }
+
+    /**
      * Whether this payment method requires credit card details
      * @return bool
      */
@@ -72,6 +83,7 @@ class Commerce_PaymentMethodModel extends BaseModel
         if($gatewayAdapter = $this->getGatewayAdapter()){
             return $gatewayAdapter->requiresCreditCard();
         }
+<<<<<<< Updated upstream
     }
 
     /**
@@ -94,6 +106,8 @@ class Commerce_PaymentMethodModel extends BaseModel
         if($gatewayAdapter = $this->getGatewayAdapter()){
             return $gatewayAdapter->getPaymentFormModel();
         }
+=======
+>>>>>>> Stashed changes
     }
 
     /**
