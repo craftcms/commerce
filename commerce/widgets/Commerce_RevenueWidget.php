@@ -42,7 +42,7 @@ class Commerce_RevenueWidget extends BaseWidget
         craft()->templates->includeCssResource('commerce/CommerceRevenueWidget.css');
         craft()->templates->includeJsResource('commerce/js/CommerceRevenueWidget.js');
 
-        $js = 'new Craft.CommerceRevenueWidget('.$this->model->id.', '.JsonHelper::encode($options).');';
+        $js = 'new Craft.Commerce.RevenueWidget('.$this->model->id.', '.JsonHelper::encode($options).');';
 
         craft()->templates->includeJs($js);
 

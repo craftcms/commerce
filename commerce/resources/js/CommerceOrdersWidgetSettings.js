@@ -1,4 +1,11 @@
-Craft.CommerceOrdersWidgetSettings = Garnish.Base.extend(
+if (typeof Craft.Commerce === typeof undefined) {
+    Craft.Commerce = {};
+}
+
+/**
+ * Class Craft.Commerce.OrdersWidgetSettings
+ */
+Craft.Commerce.OrdersWidgetSettings = Garnish.Base.extend(
 {
     init: function(id, settings)
     {

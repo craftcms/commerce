@@ -1,11 +1,15 @@
+if (typeof Craft.Commerce === typeof undefined) {
+    Craft.Commerce = {};
+}
+
 /**
- * Class Craft.CommerceOrderIndex
+ * Class Craft.Commerce.OrderIndex
  */
-Craft.CommerceOrderIndex = Craft.BaseElementIndex.extend({
+Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
     getViewClass: function(mode) {
         switch (mode) {
             case 'table':
-                return Craft.CommerceOrderTableView;
+                return Craft.Commerce.OrderTableView;
             default:
                 return this.base(mode);
         }
@@ -13,4 +17,4 @@ Craft.CommerceOrderIndex = Craft.BaseElementIndex.extend({
 });
 
 // Register the Commerce order index class
-Craft.registerElementIndexClass('Commerce_Order', Craft.CommerceOrderIndex);
+Craft.registerElementIndexClass('Commerce_Order', Craft.Commerce.OrderIndex);
