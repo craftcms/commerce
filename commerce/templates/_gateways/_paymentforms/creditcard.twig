@@ -115,10 +115,11 @@
 
 		</div>
 
-		<!-- Submit -->
-		<button class="button button-primary" type="submit">
-			Pay {{ order.totalPrice|currency(order.currency) }}
-			Now
-		</button>
+		<div class="footer">
+			<div class="right submit">
+			<input type="submit" class="btn submit" value="Pay {{ order.totalPrice|currency(order.currency,true) }} Now">
+			</div>
+		</div>
+
 	</form>
 </div>
