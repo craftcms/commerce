@@ -9,4 +9,19 @@ class Eway_RapidDirect_GatewayAdapter extends BaseGatewayAdapter
     {
         return 'Eway_RapidDirect';
     }
+
+    public function getInputHtml()
+    {
+        return "<input>";
+    }
+
+    public function modal()
+    {
+        return EwayPaymentModel();
+    }
+
+    public function modifyRequest($model, $request)
+    {
+        $request->setenc($model->ency);
+    }
 }
