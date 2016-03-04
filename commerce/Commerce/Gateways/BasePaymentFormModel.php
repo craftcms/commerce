@@ -1,18 +1,14 @@
 <?php
-namespace Craft;
 
+namespace Commerce\Gateways;
+
+use Craft\BaseModel;
+use Craft\AttributeType;
 use Omnipay\Common\Helper as OmnipayHelper;
 
 /**
- * Payment form model. Used for validation of input, not directly persisted.
+ * Base Payment form model.
  *
- * @property string $firstName
- * @property string $lastName
- * @property int    $month
- * @property int    $year
- * @property int    $cvv
- * @property int    $number
- * @property int    $token
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -21,19 +17,8 @@ use Omnipay\Common\Helper as OmnipayHelper;
  * @package   craft.plugins.commerce.models
  * @since     1.0
  */
-class Commerce_PaymentFormModel extends BaseModel
+abstract class BasePaymentFormModel extends BaseModel
 {
-
-	public static function populateModel($values)
-	{
-		// Let's be nice and allow 'stripeToken' to be used as 'token', since it is the checkout.js default.
-		if(isset($values['stripeToken']) && $values['stripeToken'] != ""){
-			$values['token'] = $values['stripeToken'];
-		}
-
-		return parent::populateModel($values);
-	}
-
 	/**
 	 * @return array
 	 */
@@ -71,7 +56,7 @@ class Commerce_PaymentFormModel extends BaseModel
 	{
 		if (!OmnipayHelper::validateLuhn($this->$attribute))
 		{
-			$this->addError($attribute, Craft::t('Not a valid Credit Card Number'));
+			$this->addError($attribute, \Craft::t('Not a valid Credit Card Number'));
 		}
 	}
 

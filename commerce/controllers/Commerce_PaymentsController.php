@@ -1,6 +1,8 @@
 <?php
 namespace Craft;
 
+use Commerce\Gateways\BasePaymentFormModel;
+
 /**
  * Class Commerce_PaymentsController
  *
@@ -21,9 +23,6 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
 		$this->requirePostRequest();
 
 		$customError = '';
-
-		$post = craft()->request->getPost();
-		$paymentForm = Commerce_PaymentFormModel::populateModel($post);
 
 		if (($number = craft()->request->getParam('orderNumber')) !== null)
 		{
@@ -50,8 +49,6 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
 			$order = craft()->commerce_cart->getCart();
 		}
 
-		$order->setContentFromPost('fields');
-
 		// Allow setting the payment method at time of submitting payment.
 		$paymentMethodId = craft()->request->getParam('paymentMethodId');
 		if ($paymentMethodId)
@@ -70,6 +67,28 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
 				return;
 			}
 		}
+
+
+		// Get the payment method' gateway adapter's expected form model
+		/** @var BaseModel $paymentForm */
+		$paymentForm = $order->paymentMethod->getPaymentFormModel();
+		foreach ($paymentForm->getAttributes() as $attr => $value)
+		{
+			$paymentForm->$attr = craft()->request->getPost($attr);
+		}
+
+		// For now we will hard code this for backwards compatibility.
+		// Will move it to a StripePaymentFormModel when completed.
+		if (craft()->request->getPost('stripeToken') != "")
+		{
+			if ($paymentForm instanceof BasePaymentFormModel)
+			{
+				$paymentForm->token = craft()->request->getPost('stripeToken');
+			}
+		}
+
+
+		$order->setContentFromPost('fields');
 
 		// Check email address exists on order.
 		if (!$order->email)
