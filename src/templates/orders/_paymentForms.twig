@@ -1,7 +1,6 @@
 {% import "_includes/forms" as forms %}
 
 <div class="payment-forms">
-
 	{% set paymentFormOptions = [{ label: "Select a payment method"|t }] %}
 
 	{% for paymentMethod in paymentMethods %}
@@ -146,18 +145,11 @@
 					</div>
 
 				{% endif %}
-				<!-- Submit -->
 
 				<div class="buttons">
-
-					<button class="btn submit" type="submit">
-						Pay {{ order.totalPrice|currency(order.currency) }}
-						Now
-					</button>
-					
+					<input type="submit" class="btn submit" value="{{ "Pay {amount} Now"|t({ amount: order.totalPrice|currency(order.currency) }) }}" />
 				</div>
 			</form>
 		</div>
 	{% endfor %}
-
 </div>
