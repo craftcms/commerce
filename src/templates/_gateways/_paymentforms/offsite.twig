@@ -7,6 +7,12 @@
 		{% endif %}
 		<input type="hidden" name="paymentMethodId" value="{{ paymentMethod.id }}"/>
 		{{ getCsrfInput() }}
-		<input type="submit" value="Submit"/>
+
+		<div class="footer">
+			<div class="right submit">
+				<input type="submit" class="btn submit" value="Pay {{ order.totalPrice|currency(order.currency,true) }} Now">
+			</div>
+		</div>
+
 	</form>
 </div>
