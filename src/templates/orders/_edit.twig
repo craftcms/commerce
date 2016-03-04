@@ -342,75 +342,77 @@
 	</div>
 	{% endif %}
 
-	{% if order.transactions|length %}
 	<div class="pane">
-
 		<h3>{{ "Transactions"|t }}</h3>
 
-		<table class="data fullwidth">
-			<thead>
-			<tr>
-				<th scope="col">{{ 'Type'|t }}</span></th>
-				<th scope="col">{{ 'Status'|t }}</th>
-				<th scope="col">{{ 'Message'|t }}</th>
-				<th scope="col">{{ 'Amount'|t }}</th>
-				<th scope="col">{{ 'Payment Method'|t }}</th>
-				<th scope="col">{{ 'Info'|t }}</th>
-				<th></th>
-			</tr>
-			</thead>
-			<tbody>
-			{% for transaction in order.transactions %}
-				<tr class="infoRow"
-					data-inforow='{% spaceless %}[
-					{"label":"Hash","attribute":"hash","currency":"false"},
-					{"label":"Reference","attribute":"reference","currency":"false"},
-					{"label":"Response","attribute":"response","currency":"false"}
-					]'{% endspaceless %}
-					data-hash="{{ transaction.hash }}"
-					data-reference="{{ transaction.reference }}"
-					data-response="{{ transaction.response }}"
-				>
-					<td>{{ transaction.type|title }}</td>
-					<td>{{ transaction.status|title }}</td>
-					<td>{{ transaction.message|title }}</td>
-					<td>{{ transaction.amount|currency(order.currency) }}</td>
-					<td>{{ transaction.paymentMethod.name }}</td>
-					<td><span class="tableRowInfo" data-icon="info" href="#"></span></td>
-					<td>
-						{% if transaction.canCapture() %}
-							<form>
-							<a class="small btn submit formsubmit"
-							   data-action="commerce/orders/transactionCapture"
-							   data-confirm="{{ 'Are you sure you want to capture this transaction?'|t }}"
-							   data-redirect="{{ order.cpEditUrl }}"
-							   data-param="id"
-							   data-value="{{ transaction.id }}">{{ 'Capture'|t }}</a>
-							</form>
-						{% endif %}
-						{% if transaction.canRefund() %}
-							<form>
-							<a class="small btn submit formsubmit"
-							   data-action="commerce/orders/transactionRefund"
-							   data-confirm="{{ 'Are you sure you want to refund this transaction?'|t }}"
-							   data-redirect="{{ order.cpEditUrl }}"
-							   data-param="id"
-							   data-value="{{ transaction.id }}">{{ 'Refund'|t }}</a>
-							</form>
-						{% endif %}
-					</td>
+		{% if order.transactions|length %}
+			<table class="data fullwidth">
+				<thead>
+				<tr>
+					<th scope="col">{{ 'Type'|t }}</span></th>
+					<th scope="col">{{ 'Status'|t }}</th>
+					<th scope="col">{{ 'Message'|t }}</th>
+					<th scope="col">{{ 'Amount'|t }}</th>
+					<th scope="col">{{ 'Payment Method'|t }}</th>
+					<th scope="col">{{ 'Info'|t }}</th>
+					<th></th>
 				</tr>
-			{% endfor %}
-			</tbody>
-		</table>
+				</thead>
+				<tbody>
+				{% for transaction in order.transactions %}
+					<tr class="infoRow"
+						data-inforow='{% spaceless %}[
+						{"label":"Hash","attribute":"hash","currency":"false"},
+						{"label":"Reference","attribute":"reference","currency":"false"},
+						{"label":"Response","attribute":"response","currency":"false"}
+						]'{% endspaceless %}
+						data-hash="{{ transaction.hash }}"
+						data-reference="{{ transaction.reference }}"
+						data-response="{{ transaction.response }}"
+					>
+						<td>{{ transaction.type|title }}</td>
+						<td>{{ transaction.status|title }}</td>
+						<td>{{ transaction.message|title }}</td>
+						<td>{{ transaction.amount|currency(order.currency) }}</td>
+						<td>{{ transaction.paymentMethod.name }}</td>
+						<td><span class="tableRowInfo" data-icon="info" href="#"></span></td>
+						<td>
+							{% if transaction.canCapture() %}
+								<form>
+								<a class="small btn submit formsubmit"
+								   data-action="commerce/orders/transactionCapture"
+								   data-confirm="{{ 'Are you sure you want to capture this transaction?'|t }}"
+								   data-redirect="{{ order.cpEditUrl }}"
+								   data-param="id"
+								   data-value="{{ transaction.id }}">{{ 'Capture'|t }}</a>
+								</form>
+							{% endif %}
+							{% if transaction.canRefund() %}
+								<form>
+								<a class="small btn submit formsubmit"
+								   data-action="commerce/orders/transactionRefund"
+								   data-confirm="{{ 'Are you sure you want to refund this transaction?'|t }}"
+								   data-redirect="{{ order.cpEditUrl }}"
+								   data-param="id"
+								   data-value="{{ transaction.id }}">{{ 'Refund'|t }}</a>
+								</form>
+							{% endif %}
+						</td>
+					</tr>
+				{% endfor %}
+				</tbody>
+			</table>
+		{% else %}
+		    <p class="light">{{ "No transaction." }}</p>
+		{% endif %}
+
+
+		{% if not order.isPaid() %}
+			<div class="footer">
+				<a class="btn" id="make-payment" data-order-id="{{ order.id }}">Make Payment</a>
+			</div>
+		{% endif %}
 	</div>
-	{% endif %}
-	{% if not order.isPaid() %}
-	<div class="pane">
-		<h3>{{ "Make Payment"|t }}</h3>
-		{% include "commerce/orders/_paymentForms" %}
-	</div>
-	{% endif %}
 {% endblock %}
 
 {% includeJsResource 'commerce/js/classes/TableRowAdditionalInfoIcon.js' %}
