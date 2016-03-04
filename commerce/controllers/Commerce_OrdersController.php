@@ -91,9 +91,7 @@ class Commerce_OrdersController extends Commerce_BaseCpController
 		$formHtml = "";
 		foreach ($paymentMethods as $paymentMethod)
 		{
-			$templatesService = craft()->templates;
 			$paymentFormHtml = $paymentMethod->getPaymentFormHtml($order);
-
 			$formHtml .= $paymentFormHtml;
 		}
 
