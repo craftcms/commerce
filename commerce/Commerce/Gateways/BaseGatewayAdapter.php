@@ -6,7 +6,7 @@ use Craft\BaseModel;
 use Craft\Commerce_PaymentMethodModel;
 use Omnipay\Common\AbstractGateway;
 use Omnipay\Common\GatewayFactory;
-use Commerce\Gateways\PaymentFormModel;
+use Commerce\Gateways\BasePaymentFormModel;
 
 /**
  * Class BaseGatewayAdapter
@@ -183,7 +183,7 @@ abstract class BaseGatewayAdapter extends BaseModel implements GatewayAdapterInt
 	}
 
 	/**
-	 * @return PaymentFormModel
+	 * @return BasePaymentFormModel
 	 */
 	public function getPaymentFormModel()
 	{

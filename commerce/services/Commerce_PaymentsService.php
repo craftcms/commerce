@@ -1,11 +1,11 @@
 <?php
 namespace Craft;
 
+use Commerce\Gateways\BasePaymentFormModel;
 use Omnipay\Common\CreditCard;
 use Omnipay\Common\ItemBag;
 use Omnipay\Common\Message\AbstractRequest;
 use Omnipay\Common\Message\ResponseInterface;
-use Commerce\Gateways\PaymentFormModel;
 
 /**
  * Payments service.
@@ -20,10 +20,10 @@ use Commerce\Gateways\PaymentFormModel;
 class Commerce_PaymentsService extends BaseApplicationComponent
 {
 	/**
-	 * @param Commerce_OrderModel       $order
-	 * @param PaymentFormModel $form
-	 * @param string|null               &$redirect
-	 * @param string|null               &$customError
+	 * @param Commerce_OrderModel  $order
+	 * @param BasePaymentFormModel $form
+	 * @param string|null          &$redirect
+	 * @param string|null          &$customError
 	 *
 	 * @return bool
 	 * @throws Exception
@@ -31,7 +31,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 	 */
 	public function processPayment(
 		Commerce_OrderModel $order,
-		PaymentFormModel $form,
+		BasePaymentFormModel $form,
 		&$redirect = null,
 		&$customError = null
 	)
@@ -174,14 +174,14 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 	}
 
 	/**
-	 * @param Commerce_OrderModel       $order
-	 * @param PaymentFormModel $paymentForm
+	 * @param Commerce_OrderModel  $order
+	 * @param BasePaymentFormModel $paymentForm
 	 *
 	 * @return CreditCard
 	 */
 	private function createCard(
 		Commerce_OrderModel $order,
-		PaymentFormModel $paymentForm
+		BasePaymentFormModel $paymentForm
 	)
 	{
 		$card = new CreditCard;
@@ -280,19 +280,18 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 		$pluginRequest = craft()->plugins->callFirst('commerce_modifyPaymentRequest', [$request]);
 
 
-if($setEncryptedCardCvv = craft()->request->getPost('encryptedCardCvv')){
+		if ($setEncryptedCardCvv = craft()->request->getPost('encryptedCardCvv'))
+		{
 
-       $request->setEncryptedCardCvv($setEncryptedCardCvv);
-
-  }
-
+			$request->setEncryptedCardCvv($setEncryptedCardCvv);
+		}
 
 
-if($encryptedCardNumber = craft()->request->getPost('encryptedCardNumber')){
+		if ($encryptedCardNumber = craft()->request->getPost('encryptedCardNumber'))
+		{
 
-$request->setEncryptedCardNumber($encryptedCardNumber);
-
-}
+			$request->setEncryptedCardNumber($encryptedCardNumber);
+		}
 
 		if ($pluginRequest)
 		{

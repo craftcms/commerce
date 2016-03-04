@@ -91,25 +91,22 @@ class Commerce_OrdersController extends Commerce_BaseCpController
 		$formHtml = "";
 		foreach ($paymentMethods as $paymentMethod)
 		{
-
 			$templatesService = craft()->templates;
-			$templatesService->startJsBuffer();
 			$paymentFormHtml = $paymentMethod->getPaymentFormHtml($order);
-			$paymentFormJs = $templatesService->clearJsBuffer(false);
 
 			$formHtml .= $paymentFormHtml;
 		}
 
-		$modalHtml = craft()->templates->render('commerce/orders/_paymentmodal', array(
+		$modalHtml = craft()->templates->render('commerce/orders/_paymentmodal', [
 			'paymentMethods' => craft()->commerce_paymentMethods->getAllPaymentMethods(),
-			'order' => $order,
-			'paymentForms' => $formHtml
-		));
+			'order'          => $order,
+			'paymentForms'   => $formHtml,
+		]);
 
-		$this->returnJson(array(
-			'success'         => true,
-			'modalHtml'       => $modalHtml,
-		));
+		$this->returnJson([
+			'success'   => true,
+			'modalHtml' => $modalHtml,
+		]);
 	}
 
 	/**
