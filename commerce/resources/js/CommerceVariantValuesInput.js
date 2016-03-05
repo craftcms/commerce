@@ -1,4 +1,11 @@
-Craft.CommerceVariantValuesInput = Craft.BaseInputGenerator.extend({
+if (typeof Craft.Commerce === typeof undefined) {
+    Craft.Commerce = {};
+}
+
+/**
+ * Class Craft.Commerce.RevenueWidget
+ */
+Craft.Commerce.VariantValuesInput = Craft.BaseInputGenerator.extend({
     startListening: function ()
     {
         if (this.listening)

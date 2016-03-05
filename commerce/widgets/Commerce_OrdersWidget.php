@@ -14,7 +14,37 @@ class Commerce_OrdersWidget extends BaseWidget
      */
     public function getName()
     {
-        return Craft::t('Commerce Orders');
+        return Craft::t('Recent Orders');
+    }
+
+    /**
+     * @inheritDoc IWidget::getIconPath()
+     *
+     * @return string
+     */
+    public function getIconPath()
+    {
+        return craft()->path->getPluginsPath().'commerce/resources/icon-mask.svg';
+    }
+
+    /**
+     * @inheritDoc IWidget::getTitle()
+     *
+     * @return string
+     */
+    public function getTitle()
+    {
+        if ($orderStatusId = $this->getSettings()->orderStatusId)
+        {
+            $orderStatus = craft()->commerce_orderStatuses->getOrderStatusById($orderStatusId);
+
+            if ($orderStatus)
+            {
+                return Craft::t('Recent Orders').' – '.Craft::t($orderStatus->name);
+            }
+        }
+
+        return parent::getTitle();
     }
 
     /**
@@ -27,7 +57,8 @@ class Commerce_OrdersWidget extends BaseWidget
         $orders = $this->_getOrders();
 
         return craft()->templates->render('commerce/_components/widgets/Orders/body', array(
-            'orders' => $orders
+            'orders' => $orders,
+            'showStatuses' => empty($this->getSettings()->orderStatusId)
         ));
     }
 
@@ -45,7 +76,7 @@ class Commerce_OrdersWidget extends BaseWidget
         $id = 'analytics-settings-'.StringHelper::randomString();
         $namespaceId = craft()->templates->namespaceInputId($id);
 
-        craft()->templates->includeJs("new Craft.CommerceOrdersWidgetSettings('".$namespaceId."');");
+        craft()->templates->includeJs("new Craft.Commerce.OrdersWidgetSettings('".$namespaceId."');");
 
         return craft()->templates->render('commerce/_components/widgets/Orders/settings', array(
             'id' => $id,

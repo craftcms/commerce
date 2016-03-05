@@ -1,7 +1,11 @@
+if (typeof Craft.Commerce === typeof undefined) {
+    Craft.Commerce = {};
+}
+
 /**
- * Class Craft.CommerceOrderTableView
+ * Class Craft.Commerce.OrderTableView
  */
-Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
+Craft.Commerce.OrderTableView = Craft.TableElementIndexView.extend({
 
     startDate: null,
     endDate: null,
@@ -29,12 +33,12 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
 
     getStorage: function(key)
     {
-        return Craft.CommerceOrderTableView.getStorage(this.elementIndex._namespace, key);
+        return Craft.Commerce.OrderTableView.getStorage(this.elementIndex._namespace, key);
     },
 
     setStorage: function(key, value)
     {
-        Craft.CommerceOrderTableView.setStorage(this.elementIndex._namespace, key, value);
+        Craft.Commerce.OrderTableView.setStorage(this.elementIndex._namespace, key, value);
     },
 
     createChartExplorer: function()
@@ -88,7 +92,7 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
 
     handleStartDateChange: function()
     {
-        if (this.setStartDate(Craft.CommerceOrderTableView.getDateFromDatepickerInstance(this.startDatepicker)))
+        if (this.setStartDate(Craft.Commerce.OrderTableView.getDateFromDatepickerInstance(this.startDatepicker)))
         {
             this.loadReport();
         }
@@ -96,7 +100,7 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
 
     handleEndDateChange: function()
     {
-        if (this.setEndDate(Craft.CommerceOrderTableView.getDateFromDatepickerInstance(this.endDatepicker)))
+        if (this.setEndDate(Craft.Commerce.OrderTableView.getDateFromDatepickerInstance(this.endDatepicker)))
         {
             this.loadReport();
         }
@@ -148,15 +152,15 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
     {
         var requestData = this.settings.params;
 
-        requestData.startDate = Craft.CommerceOrderTableView.getDateValue(this.startDate);
-        requestData.endDate = Craft.CommerceOrderTableView.getDateValue(this.endDate);
+        requestData.startDate = Craft.Commerce.OrderTableView.getDateValue(this.startDate);
+        requestData.endDate = Craft.Commerce.OrderTableView.getDateValue(this.endDate);
 
         this.$spinner.removeClass('hidden');
         this.$error.addClass('hidden');
         this.$chart.removeClass('error');
 
 
-        Craft.postActionRequest('commerce/charts/getRevenueReport', requestData, $.proxy(function(response, textStatus)
+        Craft.postActionRequest('commerce/charts/getRevenueData', requestData, $.proxy(function(response, textStatus)
         {
             this.$spinner.addClass('hidden');
 
@@ -201,9 +205,9 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
 
     getStorage: function(namespace, key)
     {
-        if (Craft.CommerceOrderTableView.storage[namespace] && Craft.CommerceOrderTableView.storage[namespace][key])
+        if (Craft.Commerce.OrderTableView.storage[namespace] && Craft.Commerce.OrderTableView.storage[namespace][key])
         {
-            return Craft.CommerceOrderTableView.storage[namespace][key];
+            return Craft.Commerce.OrderTableView.storage[namespace][key];
         }
 
         return null;
@@ -211,12 +215,12 @@ Craft.CommerceOrderTableView = Craft.TableElementIndexView.extend({
 
     setStorage: function(namespace, key, value)
     {
-        if (typeof Craft.CommerceOrderTableView.storage[namespace] == typeof undefined)
+        if (typeof Craft.Commerce.OrderTableView.storage[namespace] == typeof undefined)
         {
-            Craft.CommerceOrderTableView.storage[namespace] = {};
+            Craft.Commerce.OrderTableView.storage[namespace] = {};
         }
 
-        Craft.CommerceOrderTableView.storage[namespace][key] = value;
+        Craft.Commerce.OrderTableView.storage[namespace][key] = value;
     },
 
     getDateFromDatepickerInstance: function(inst)
