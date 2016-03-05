@@ -14,7 +14,17 @@ class Commerce_RevenueWidget extends BaseWidget
      */
     public function getName()
     {
-        return Craft::t('Commerce Revenue');
+        return Craft::t('Revenue');
+    }
+
+    /**
+     * @inheritDoc IWidget::getIconPath()
+     *
+     * @return string
+     */
+    public function getIconPath()
+    {
+        return craft()->path->getPluginsPath().'commerce/resources/icon-mask.svg';
     }
 
     /**
@@ -46,9 +56,7 @@ class Commerce_RevenueWidget extends BaseWidget
 
         craft()->templates->includeJs($js);
 
-        return craft()->templates->render('commerce/_components/widgets/Revenue/body', array(
-            'dateRange' => $dateRange
-        ));
+        return '<div class="chart hidden"></div>';
     }
 
     /**
