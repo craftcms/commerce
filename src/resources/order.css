@@ -32,6 +32,9 @@
 #paymentmodal.loading { min-width: 300px; min-height: 300px; }
 #paymentmodal.loading { background-image: url(../images/spinner_big.gif); background-repeat: no-repeat; background-position: 50% 50%; }
 
+#paymentmodal fieldset { margin: 24px 0; }
+#paymentmodal fieldset legend { margin-bottom: 4px; }
+
 @media screen and (min-width: 768px) {
     .address-boxes {
         width: 50%;
