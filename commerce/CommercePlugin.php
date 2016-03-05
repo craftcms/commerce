@@ -253,6 +253,28 @@ class CommercePlugin extends BasePlugin
     }
 
     /**
+     * @inheritDoc IPlugin::onBeforeUninstall()
+     *
+     * @return void
+     */
+    public function onBeforeUninstall()
+    {
+        // Delete the order element index settings
+        $ordersElementSettings = ElementIndexSettingsRecord::model()->findByAttributes(['type' => 'Commerce_Order']);
+        if ($ordersElementSettings)
+        {
+            $ordersElementSettings->delete();
+        }
+
+        // Delete the order element index settings
+        $productsElementSettings = ElementIndexSettingsRecord::model()->findByAttributes(['type' => 'Commerce_Product']);
+        if ($productsElementSettings)
+        {
+            $productsElementSettings->delete();
+        }
+    }
+
+    /**
      * Commerce Version.
      *
      * @return string
