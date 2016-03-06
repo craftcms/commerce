@@ -70,9 +70,11 @@
 
 				<div class="multitextrow">
 					{{ forms.text({
-						id: 'cc-exp',
+						class: 'card-expiry'~(paymentForm.getErrors('month') or paymentForm.getErrors('year') ? ' error'),
 						type: 'tel',
-						placeholder: "MM"|t~' / '~"YY"|t
+						name: 'expiry',
+						placeholder: "MM"|t~' / '~"YYYY"|t,
+						value: paymentForm.month~'/'~paymentForm.year
 					}) }}
 
 					{{ forms.text({
