@@ -43,6 +43,7 @@ Craft.Commerce.PaymentModal = Garnish.Modal.extend(
                 		$('.payment-method-form').addClass('hidden');
                 		$('#payment-method-'+id+'-form').removeClass('hidden');
                         this.updateSizeAndPosition();
+                        Craft.initUiElements(this.$container);
                 	}, this));
 
                     this.updateSizeAndPosition();
