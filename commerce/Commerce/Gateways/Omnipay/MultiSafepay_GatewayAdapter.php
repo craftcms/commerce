@@ -1,9 +1,7 @@
 <?php
 namespace Commerce\Gateways\Omnipay;
 
-use Commerce\Gateways\BaseGatewayAdapter;
-
-class MultiSafepay_GatewayAdapter extends BaseGatewayAdapter
+class MultiSafepay_GatewayAdapter extends \Commerce\Gateways\CreditCardGatewayAdapter
 {
     public function handle()
     {
