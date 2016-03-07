@@ -2,7 +2,7 @@
 
 {% set currentYear = date()|date_modify("+1 year").format('Y') %}
 
-<div id="payment-method-{{ paymentMethod.id }}-form" data-publishablekey="{{ paymentMethod.settings.publishableKey }}" class="payment-method-form {% if order and order.paymentMethodId != paymentMethod.id %}hidden{% endif %}">
+<div id="payment-method-{{ paymentMethod.id }}-form" data-publishablekey="{{ (paymentMethod.settings.publishableKey is defined ? paymentMethod.settings.publishableKey) }}" class="payment-method-form {% if order and order.paymentMethodId != paymentMethod.id %}hidden{% endif %}">
 	<form method="POST">
 		<input type="hidden" name="action" value="commerce/payments/pay"/>
 		{% if order %}
@@ -22,24 +22,43 @@
 		</div>
 
 		{% includejs %}
-			{#$("#payment-method-{{ paymentMethod.id }}-form").find('form:first').on('submit',function(e){#}
-				{#e.preventDefault();#}
-				{#var $form = $(this);#}
-				{#var key = $($this).data('publishablekey');#}
-				{#Stripe.setPublishableKey(key);#}
 
-				{#var month = $('[name=expiry]', $form).val(),#}
-				{#var year = $('[name=expiry]', $form).val(),#}
-				{#Stripe.card.createToken({#}
-					{#number: $('[name=number]', $form).val(),#}
-					{#cvc: $('[name=cvv]', $form).val(),#}
-					{#exp_month: $('[name=]', $form).val(),#}
-					{#exp_year: $('[name=]', $form).val(),#}
-				{#}, function(){#}
+			$("#payment-method-{{ paymentMethod.id }}-form form:first").on('submit', function(e)
+			{
+				e.preventDefault();
+				var $form = $(this);
 
-				{#});#}
+				$.getScript( Craft.getResourceUrl('lib/jquery.payment'+(Craft.useCompressedJs ? '.min' : '')+'.js'), function( data, textStatus, jqxhr ) {
 
-			{#});#}
+
+					var key = $form.data('publishablekey');
+					Stripe.setPublishableKey(key);
+
+					var number = $('[name=number]', $form).val(),
+					cvc = $('[name=cvv]', $form).val(),
+					month = $('[name=month]', $form).val(),
+					year = $('[name=year]', $form).val(),
+					expiry = $('[name=expiry]', $form).val();
+
+
+					console.log('expiry', expiry);
+					var cardExpiryVal = $.payment.cardExpiryVal(expiry);
+
+					console.log('cardExpiryVal', cardExpiryVal);
+
+					Stripe.card.createToken({
+					number: number,
+					cvc: cvc,
+					exp_month: month,
+					exp_year: year,
+					}, function(){
+					console.log('success');
+					});
+				});
+
+
+
+			});
 		{% endincludejs %}
 
 	</form>
