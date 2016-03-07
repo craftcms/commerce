@@ -72,10 +72,7 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
 		// Get the payment method' gateway adapter's expected form model
 		/** @var BaseModel $paymentForm */
 		$paymentForm = $order->paymentMethod->getPaymentFormModel();
-		foreach ($paymentForm->getAttributes() as $attr => $value)
-		{
-			$paymentForm->$attr = craft()->request->getPost($attr);
-		}
+		$paymentForm->populateModelFromPost(craft()->request->getPost());
 
 		// For now we will hard code this for backwards compatibility.
 		// Will move it to a StripePaymentFormModel when completed.

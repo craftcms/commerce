@@ -9,6 +9,7 @@ use Omnipay\Common\GatewayFactory;
 use Commerce\Gateways\PaymentFormModels\BasePaymentFormModel;
 use Omnipay\Common\CreditCard;
 use Omnipay\Common\Message\AbstractRequest as OmnipayRequest;
+use Commerce\Exception\NotImplementedException;
 
 /**
  * Class BaseGatewayAdapter
@@ -187,53 +188,26 @@ abstract class BaseGatewayAdapter extends BaseModel implements GatewayAdapterInt
 
 	/**
 	 * @return BasePaymentFormModel
+	 * @throws NotImplementedException
 	 */
 	public function getPaymentFormModel()
 	{
-		return new BasePaymentFormModel();
+		throw new NotImplementedException();
 	}
 
-	/**
-	 * @return string
-	 */
 	public function getPaymentFormHtml(array $params)
 	{
-		$defaults = [
-			'paymentMethod' => $this->getPaymentMethod(),
-			'paymentForm'   => $this->getPaymentMethod()->getPaymentFormModel(),
-			'adapter'       => $this
-		];
-
-		$params = array_merge($defaults, $params);
-
-		return \Craft\craft()->templates->render('commerce/_gateways/_paymentforms/base', $params);
+		throw new NotImplementedException();
 	}
 
-	/**
-	 * @param CreditCard $card
-	 * @param BaseModel  $paymentForm
-	 *
-	 * @return void
-	 */
 	public function populateCard(CreditCard $card, BaseModel $paymentForm)
 	{
-		$card->setFirstName($paymentForm->firstName);
-		$card->setLastName($paymentForm->lastName);
-		$card->setNumber($paymentForm->number);
-		$card->setExpiryMonth($paymentForm->month);
-		$card->setExpiryYear($paymentForm->year);
-		$card->setCvv($paymentForm->cvv);
+		throw new NotImplementedException();
 	}
 
-	/**
-	 * @param OmnipayRequest $request
-	 * @param BaseModel      $paymentForm
-	 *
-	 * @return void
-	 */
 	public function populateRequest(OmnipayRequest $request, BaseModel $paymentForm)
 	{
-		$request->setToken($paymentForm->token);
+		throw new NotImplementedException();
 	}
 
 	/**
