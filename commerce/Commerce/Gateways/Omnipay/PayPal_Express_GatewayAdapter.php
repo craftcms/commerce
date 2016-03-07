@@ -1,17 +1,10 @@
 <?php
 namespace Commerce\Gateways\Omnipay;
 
-use Commerce\Gateways\BaseGatewayAdapter;
-
-class PayPal_Express_GatewayAdapter extends BaseGatewayAdapter
+class PayPal_Express_GatewayAdapter extends \Commerce\Gateways\OffsiteGatewayAdapter
 {
     public function handle()
     {
         return 'PayPal_Express';
-    }
-
-    public function requiresCreditCard()
-    {
-        return false;
     }
 }
