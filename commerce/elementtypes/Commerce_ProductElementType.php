@@ -360,6 +360,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
             'type' => AttributeType::Mixed,
             'typeId' => AttributeType::Mixed,
             'withVariant' => AttributeType::Mixed,
+            'hasVariant' => AttributeType::Mixed,
         ];
     }
 
@@ -452,10 +453,16 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
         }
 
         if ($criteria->withVariant) {
-            if ($criteria->withVariant instanceof ElementCriteriaModel) {
-                $variantCriteria = $criteria->withVariant;
+            $criteria->hasVariant = $criteria->withVariant;
+            craft()->deprecator->log('Commerce:withVariant_param', 'The withVariant product param has been deprecated. Use hasVariant instead.');
+            $criteria->withVariant = null;
+        }
+
+        if ($criteria->hasVariant) {
+            if ($criteria->hasVariant instanceof ElementCriteriaModel) {
+                $variantCriteria = $criteria->hasVariant;
             } else {
-                $variantCriteria = craft()->elements->getCriteria('Commerce_Variant', $criteria->withVariant);
+                $variantCriteria = craft()->elements->getCriteria('Commerce_Variant', $criteria->hasVariant);
             }
 
             $productIds = craft()->elements->buildElementsQuery($variantCriteria)
