@@ -56,7 +56,7 @@ abstract class BasePaymentFormModel extends BaseModel
 	{
 		if (!OmnipayHelper::validateLuhn($this->$attribute))
 		{
-			$this->addError($attribute, \Craft::t('Not a valid Credit Card Number'));
+			$this->addError($attribute, \Craft\Craft::t('Not a valid Credit Card Number'));
 		}
 	}
 
