@@ -6,7 +6,9 @@ use Craft\BaseModel;
 use Craft\Commerce_PaymentMethodModel;
 use Omnipay\Common\AbstractGateway;
 use Omnipay\Common\GatewayFactory;
-use Commerce\Gateways\BasePaymentFormModel;
+use Commerce\Gateways\PaymentFormModels\BasePaymentFormModel;
+use Omnipay\Common\CreditCard;
+use Omnipay\Common\Message\AbstractRequest as OmnipayRequest;
 
 /**
  * Class BaseGatewayAdapter
@@ -55,6 +57,7 @@ abstract class BaseGatewayAdapter extends BaseModel implements GatewayAdapterInt
 
 	/**
 	 * @param mixed $values
+	 *
 	 * @return void
 	 */
 	public function setAttributes($values)
@@ -187,47 +190,50 @@ abstract class BaseGatewayAdapter extends BaseModel implements GatewayAdapterInt
 	 */
 	public function getPaymentFormModel()
 	{
-		return new PaymentFormModel();
+		return new BasePaymentFormModel();
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getPaymentFormHtml($order = null, $paymentForm = null)
+	public function getPaymentFormHtml(array $params)
 	{
-		$paymentMethod = $this->getPaymentMethod();
+		$defaults = [
+			'paymentMethod' => $this->getPaymentMethod(),
+			'paymentForm'   => $this->getPaymentMethod()->getPaymentFormModel(),
+			'adapter'       => $this
+		];
 
-		if (!$paymentForm)
-		{
-			$paymentForm = $paymentMethod->getPaymentFormModel();
-		}
+		$params = array_merge($defaults, $params);
 
+		return \Craft\craft()->templates->render('commerce/_gateways/_paymentforms/base', $params);
+	}
 
-		if (!$paymentMethod)
-		{
-			return '<p>'.Craft::t('No payment method has been set up yet.').'</p>';
-		}
+	/**
+	 * @param CreditCard $card
+	 * @param BaseModel  $paymentForm
+	 *
+	 * @return void
+	 */
+	public function populateCard(CreditCard $card, BaseModel $paymentForm)
+	{
+		$card->setFirstName($paymentForm->firstName);
+		$card->setLastName($paymentForm->lastName);
+		$card->setNumber($paymentForm->number);
+		$card->setExpiryMonth($paymentForm->month);
+		$card->setExpiryYear($paymentForm->year);
+		$card->setCvv($paymentForm->cvv);
+	}
 
-		if ($this->requiresCreditCard())
-		{
-			$html = \Craft\craft()->templates->render('commerce/_gateways/_paymentforms/creditcard', [
-				'adapter' => $this,
-				'paymentMethod' => $paymentMethod,
-				'order' => $order,
-				'paymentForm' => $paymentForm
-			]);
-		}
-		else
-		{
-			$html = \Craft\craft()->templates->render('commerce/_gateways/_paymentforms/offsite', [
-				'adapter' => $this,
-				'paymentMethod' => $paymentMethod,
-				'order' => $order,
-				'paymentForm' => $paymentForm
-			]);
-		}
-
-		return $html;
+	/**
+	 * @param OmnipayRequest $request
+	 * @param BaseModel      $paymentForm
+	 *
+	 * @return void
+	 */
+	public function populateRequest(OmnipayRequest $request, BaseModel $paymentForm)
+	{
+		$request->setToken($paymentForm->token);
 	}
 
 	/**

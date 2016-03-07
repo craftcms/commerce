@@ -78,7 +78,7 @@ class Commerce_OrdersController extends Commerce_BaseCpController
 		{
 			$paymentMethod = $variables['order']->getPaymentMethod();
 
-			if ($paymentMethod)
+			if ($paymentMethod && $paymentMethod->getGatewayAdapter())
 			{
 				$variables['paymentForm'] = $variables['order']->paymentMethod->getPaymentFormModel();
 			}
@@ -106,8 +106,16 @@ class Commerce_OrdersController extends Commerce_BaseCpController
 		$paymentMethods = craft()->commerce_paymentMethods->getAllPaymentMethods();
 
 		$formHtml = "";
-		foreach ($paymentMethods as $paymentMethod)
+		foreach ($paymentMethods as $key => $paymentMethod)
 		{
+			// If adapter is not accessible, don't use it.
+			if (!$paymentMethod->getGatewayAdapter())
+			{
+				unset($paymentMethods[$key]);
+				continue;
+			}
+
+			// Add the errors and data back to the current form model.
 			if ($paymentMethod->id == $order->paymentMethodId)
 			{
 				$paymentFormModel = $order->paymentMethod->getPaymentFormModel();
@@ -132,12 +140,16 @@ class Commerce_OrdersController extends Commerce_BaseCpController
 				$paymentFormModel = $paymentMethod->getPaymentFormModel();
 			}
 
-			$paymentFormHtml = $paymentMethod->getPaymentFormHtml($order, $paymentFormModel);
+			$paymentFormHtml = $paymentMethod->getPaymentFormHtml([
+				'paymentForm' => $paymentFormModel,
+				'order' => $order
+			]);
+
 			$formHtml .= $paymentFormHtml;
 		}
 
 		$modalHtml = craft()->templates->render('commerce/orders/_paymentmodal', [
-			'paymentMethods' => craft()->commerce_paymentMethods->getAllPaymentMethods(),
+			'paymentMethods' => $paymentMethods,
 			'order'          => $order,
 			'paymentForms'   => $formHtml,
 		]);

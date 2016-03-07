@@ -1,17 +1,9 @@
 <?php
 
-namespace Commerce\Gateways;
+namespace Commerce\Gateways\PaymentFormModels;
 
 /**
  * Payment form model. Used for validation of input, not directly persisted.
- *
- * @property string $firstName
- * @property string $lastName
- * @property int    $month
- * @property int    $year
- * @property int    $cvv
- * @property int    $number
- * @property int    $token
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -20,7 +12,26 @@ namespace Commerce\Gateways;
  * @package   craft.plugins.commerce.models
  * @since     1.0
  */
-class PaymentFormModel extends BasePaymentFormModel
+class OffsitePaymentFormModel extends BasePaymentFormModel
 {
 
+	/**
+	 * Offsite gateways require no validation.
+	 *
+	 * @return array
+	 */
+	public function rules()
+	{
+		return [];
+	}
+
+	/**
+	 * Offsite gateways require no user submitted data.
+	 *
+	 * @return array
+	 */
+	protected function defineAttributes()
+	{
+		return [];
+	}
 }

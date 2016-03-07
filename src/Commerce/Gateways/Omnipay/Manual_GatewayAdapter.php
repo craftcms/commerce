@@ -1,17 +1,10 @@
 <?php
 namespace Commerce\Gateways\Omnipay;
 
-use Commerce\Gateways\BaseGatewayAdapter;
-
-class Manual_GatewayAdapter extends BaseGatewayAdapter
+class Manual_GatewayAdapter extends \Commerce\Gateways\OffsiteGatewayAdapter
 {
     public function handle()
     {
         return 'Manual';
-    }
-
-    public function requiresCreditCard()
-    {
-        return false;
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Commerce\Gateways;
+namespace Commerce\Gateways\PaymentFormModels;
 
 use Craft\BaseModel;
 use Craft\AttributeType;
@@ -17,8 +17,28 @@ use Omnipay\Common\Helper as OmnipayHelper;
  * @package   craft.plugins.commerce.models
  * @since     1.0
  */
-abstract class BasePaymentFormModel extends BaseModel
+class BasePaymentFormModel extends BaseModel
 {
+	public function validate()
+	{
+		// change expiry to month and year
+		if (!empty($this->expiry))
+		{
+			$expiry = explode("/", $this->expiry);
+
+			if (isset($expiry[0]))
+			{
+				$this->month = trim($expiry[0]);
+			}
+
+			if (isset($expiry[1]))
+			{
+				$this->year = trim($expiry[1]);
+			}
+		}
+
+		parent::validate();
+	}
 	/**
 	 * @return array
 	 */
@@ -56,7 +76,7 @@ abstract class BasePaymentFormModel extends BaseModel
 	{
 		if (!OmnipayHelper::validateLuhn($this->$attribute))
 		{
-			$this->addError($attribute, \Craft\Craft::t('Not a valid Credit Card Number'));
+			$this->addError($attribute, \Craft::t('Not a valid Credit Card Number'));
 		}
 	}
 
@@ -72,7 +92,8 @@ abstract class BasePaymentFormModel extends BaseModel
 			'month'     => AttributeType::Number,
 			'year'      => AttributeType::Number,
 			'cvv'       => AttributeType::Number,
-			'token'     => AttributeType::String
+			'token'     => AttributeType::String,
+			'expiry'     => AttributeType::String,
 		];
 	}
 }

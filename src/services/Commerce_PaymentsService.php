@@ -1,7 +1,7 @@
 <?php
 namespace Craft;
 
-use Commerce\Gateways\BasePaymentFormModel;
+use Commerce\Gateways\PaymentFormModels\BasePaymentFormModel;
 use Omnipay\Common\CreditCard;
 use Omnipay\Common\ItemBag;
 use Omnipay\Common\Message\AbstractRequest;
@@ -87,11 +87,9 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 
 		$request = $gateway->$defaultAction($this->buildPaymentRequest($transaction, $card, $itemBag));
 
-		// set token directly on request if available
-		if ($form->token)
-		{
-			$request->setToken($form->token);
-		}
+		// Let the payment methods gateway adapter do anything else to the request
+		// including populating the request with things other than the card data.
+		$order->paymentMethod->populateRequest($request,$form);
 
 		try
 		{
@@ -175,23 +173,18 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 
 	/**
 	 * @param Commerce_OrderModel  $order
-	 * @param BasePaymentFormModel $paymentForm
+	 * @param $paymentForm
 	 *
 	 * @return CreditCard
 	 */
 	private function createCard(
 		Commerce_OrderModel $order,
-		BasePaymentFormModel $paymentForm
+		$paymentForm
 	)
 	{
 		$card = new CreditCard;
 
-		$card->setFirstName($paymentForm->firstName);
-		$card->setLastName($paymentForm->lastName);
-		$card->setNumber($paymentForm->number);
-		$card->setExpiryMonth($paymentForm->month);
-		$card->setExpiryYear($paymentForm->year);
-		$card->setCvv($paymentForm->cvv);
+		$order->paymentMethod->populateCard($card, $paymentForm);
 
 		if ($order->billingAddressId)
 		{
@@ -320,6 +313,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 		&$customError = null
 	)
 	{
+
 		//raising event
 		$event = new Event($this, [
 			'type'        => $transaction->type,
