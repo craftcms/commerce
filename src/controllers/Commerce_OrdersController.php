@@ -98,6 +98,7 @@ class Commerce_OrdersController extends Commerce_BaseCpController
 	public function actionGetPaymentModal()
 	{
 		$this->requireAjaxRequest();
+		$templatesService = craft()->templates;
 
 		$orderId = craft()->request->getParam('orderId');
 		$paymentFormData = craft()->request->getParam('paymentForm');
@@ -157,6 +158,8 @@ class Commerce_OrdersController extends Commerce_BaseCpController
 		$this->returnJson([
 			'success'   => true,
 			'modalHtml' => $modalHtml,
+			'headHtml' => $templatesService->getHeadHtml(),
+			'footHtml' => $templatesService->getFootHtml(),
 		]);
 	}
 
