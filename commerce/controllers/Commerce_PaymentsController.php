@@ -74,16 +74,6 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
 		$paymentForm = $order->paymentMethod->getPaymentFormModel();
 		$paymentForm->populateModelFromPost(craft()->request->getPost());
 
-		// For now we will hard code this for backwards compatibility.
-		// Will move it to a StripePaymentFormModel when completed.
-		if (craft()->request->getPost('stripeToken') != "")
-		{
-			if ($paymentForm instanceof BasePaymentFormModel)
-			{
-				$paymentForm->token = craft()->request->getPost('stripeToken');
-			}
-		}
-
 		$order->setContentFromPost('fields');
 
 		// Check email address exists on order.

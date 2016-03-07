@@ -3,7 +3,6 @@
 namespace Commerce\Gateways\PaymentFormModels;
 
 use Craft\AttributeType;
-use Omnipay\Common\Helper as OmnipayHelper;
 
 /**
  * Stripe Payment form model.
@@ -21,22 +20,10 @@ class StripePaymentFormModel extends BasePaymentFormModel
 	public function populateModelFromPost($post)
 	{
 		parent::populateModelFromPost($post);
-
-		if (isset($post['expiry']))
+		if (isset($post['stripeToken']))
 		{
-			$expiry = explode("/", $post['expiry']);
-
-			if (isset($expiry[0]))
-			{
-				$this->month = trim($expiry[0]);
-			}
-
-			if (isset($expiry[1]))
-			{
-				$this->year = trim($expiry[1]);
-			}
+			$this->token = 	$post['stripeToken'];
 		}
-
 	}
 
 	/**
@@ -45,7 +32,7 @@ class StripePaymentFormModel extends BasePaymentFormModel
 	public function rules()
 	{
 		return [
-			['token', 'required'],
+			['token', 'required']
 		];
 	}
 
@@ -57,6 +44,7 @@ class StripePaymentFormModel extends BasePaymentFormModel
 		return [
 			'firstName' => AttributeType::String,
 			'lastName'  => AttributeType::String,
+			'token'  => AttributeType::String,
 		];
 	}
 }
