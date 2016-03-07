@@ -2,64 +2,66 @@
 
 {% set currentYear = date()|date_modify("+1 year").format('Y') %}
 
-<div id="payment-method-{{ paymentMethod.id }}-form" data-publishablekey="{{ (paymentMethod.settings.publishableKey is defined ? paymentMethod.settings.publishableKey) }}" class="payment-method-form {% if order and order.paymentMethodId != paymentMethod.id %}hidden{% endif %}">
-	<form method="POST">
+<div id="payment-method-{{ paymentMethod.id }}-form"
+	 class="payment-method-form {% if order and order.paymentMethodId != paymentMethod.id %}hidden{% endif %}"
+	 xmlns="http://www.w3.org/1999/html">
+	<form method="POST" data-publishablekey="{{ (paymentMethod.settings.publishableKey is defined ? paymentMethod.settings.publishableKey) }}">
 		<input type="hidden" name="action" value="commerce/payments/pay"/>
 		{% if order %}
 			<input type="hidden" name="orderNumber" value="{{ order.number }}"/>
 		{% endif %}
-		<input type="hidden" name="paymentMethodId" value="{{ paymentMethod.id }}"/>
+		<input type="hidden" name="paymentMethodId"
+			   value="{{ paymentMethod.id }}"/>
 
 		{{ getCsrfInput() }}
 
 		{% include "commerce/_gateways/_paymentForms/_creditCardFields" %}
-		<input type="text" name="token" value="{{ paymentForm.token }}"/>
 
 		<div class="footer">
 			<div class="buttons right">
-				<input type="submit" class="btn submit" value="Pay {{ order.totalPrice|currency(order.currency,true) }} Now">
+				<input type="submit" class="btn submit"
+					   value="Pay {{ order.totalPrice|currency(order.currency,true) }} Now">
 			</div>
 		</div>
 
-		{% includejs %}
+			{% includejs %}
 
-			$("#payment-method-{{ paymentMethod.id }}-form form:first").on('submit', function(e)
-			{
+			$("#payment-method-{{ paymentMethod.id }}-form form:first").on('submit', function (e) {
 				e.preventDefault();
 				var $form = $(this);
 
-				$.getScript( Craft.getResourceUrl('lib/jquery.payment'+(Craft.useCompressedJs ? '.min' : '')+'.js'), function( data, textStatus, jqxhr ) {
-
+				$.getScript(Craft.getResourceUrl('lib/jquery.payment' + (Craft.useCompressedJs ? '.min' : '') + '.js'), function (data, textStatus, jqxhr) {
 
 					var key = $form.data('publishablekey');
 					Stripe.setPublishableKey(key);
 
 					var number = $('[name=number]', $form).val(),
-					cvc = $('[name=cvv]', $form).val(),
-					month = $('[name=month]', $form).val(),
-					year = $('[name=year]', $form).val(),
-					expiry = $('[name=expiry]', $form).val();
+							cvc = $('[name=cvv]', $form).val(),
+							expiry = $('[name=expiry]', $form).val();
 
-
-					console.log('expiry', expiry);
 					var cardExpiryVal = $.payment.cardExpiryVal(expiry);
 
-					console.log('cardExpiryVal', cardExpiryVal);
-
 					Stripe.card.createToken({
-					number: number,
-					cvc: cvc,
-					exp_month: month,
-					exp_year: year,
-					}, function(){
-					console.log('success');
+						number: number,
+						cvc: cvc,
+						exp: expiry
+					}, function (status, response) {
+						if (response.error) {
+							var $errors = $form.find('ul.errors');
+							Garnish.shake($('.modal'));
+							console.log(response.error);
+							alert(response.error.message);
+						} else {
+							var token = response.id;
+							$form.append($('<input type="hidden" name="stripeToken" />').val(token));
+							$form.get(0).submit();
+						}
 					});
 				});
 
 
-
 			});
-		{% endincludejs %}
+			{% endincludejs %}
 
 	</form>
 </div>
