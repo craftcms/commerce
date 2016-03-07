@@ -8,8 +8,7 @@
     {% set configSettings = [] %}
 {% endif %}
 
-
-{% for paramKey, paramValue in adapter.gateway.parameters %}
+{% for paramKey, paramValue in adapter.attributes %}
     {% set paramLabel = adapter.generateAttributeLabel(paramKey)|replace('/\\bApi\\b/', 'API')|replace('/\\bId\\b/', 'ID')|replace('/\\bSub (?=[A-Z])/', 'Sub-')|t %}
     {% set inputName = 'settings['~paramKey~']' %}
     {% set errors = adapter.getErrors(paramKey) %}

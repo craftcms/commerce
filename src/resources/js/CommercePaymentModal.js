@@ -32,6 +32,8 @@ Craft.Commerce.PaymentModal = Garnish.Modal.extend(
 				if (response.success)
 				{
 					this.$container.append(response.modalHtml);
+                    Craft.appendHeadHtml(response.headHtml);
+                    Craft.appendFootHtml(response.footHtml);
 
 					var $buttons = $('.buttons', this.$container),
 					 	$cancelBtn = $('<div class="btn">'+Craft.t('Cancel')+'</div>').prependTo($buttons);
