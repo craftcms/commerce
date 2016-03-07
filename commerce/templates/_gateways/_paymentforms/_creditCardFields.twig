@@ -1,0 +1,84 @@
+<fieldset>
+	<legend>Card Holder</legend>
+
+	<div class="grid" data-cols="2">
+
+		<!-- Card Holder Name -->
+		<div class="item" data-colspan="1">
+			{{ forms.text({
+				name: 'firstName',
+				maxlength: 70,
+				placeholder: "First Name"|t,
+				autocomplete: false,
+				class: 'card-holder-first-name'~(paymentForm.getErrors('firstName') ? ' error'),
+				value: paymentForm.firstName,
+				required: true,
+			}) }}
+		</div>
+
+		<div class="item" data-colspan="1">
+			{{ forms.text({
+				name: 'lastName',
+				maxlength: 70,
+				placeholder: "Last Name"|t,
+				autocomplete: false,
+				class: 'card-holder-last-name'~(paymentForm.getErrors('lastName') ? ' error'),
+				value: paymentForm.lastName,
+				required: true,
+			}) }}
+		</div>
+	</div>
+
+	{% set errors = [] %}
+	{% for attributeKey in ['firstName', 'lastName'] %}
+		{% set errors = errors|merge(paymentForm.getErrors(attributeKey)) %}
+	{% endfor %}
+
+	{{ forms.errorList(errors) }}
+</fieldset>
+
+<!-- Card Number -->
+<fieldselt>
+	<legend>Card</legend>
+
+	<div class="multitext">
+		<div class="multitextrow">
+
+			{{ forms.text({
+				name: 'number',
+				maxlength: 19,
+				placeholder: "Card Number"|t,
+				autocomplete: false,
+				class: 'card-number'~(paymentForm.getErrors('number') ? ' error'),
+				value: paymentForm.number
+			}) }}
+
+		</div>
+
+		<div class="multitextrow">
+			{{ forms.text({
+				class: 'card-expiry'~(paymentForm.getErrors('month') or paymentForm.getErrors('year') ? ' error'),
+				type: 'tel',
+				name: 'expiry',
+				placeholder: "MM"|t~' / '~"YYYY"|t,
+				value: paymentForm.expiry
+			}) }}
+
+			{{ forms.text({
+				type: 'tel',
+				name: 'cvv',
+				placeholder: "CVV"|t,
+				class: 'card-cvc'~(paymentForm.getErrors('cvv') ? ' error'),
+				value: paymentForm.cvv
+			}) }}
+		</div>
+	</div>
+
+	{% set errors = [] %}
+	{% for attributeKey in ['number', 'month', 'year', 'cvv'] %}
+		{% set errors = errors|merge(paymentForm.getErrors(attributeKey)) %}
+	{% endfor %}
+
+	{{ forms.errorList(errors) }}
+
+	</fieldset>
