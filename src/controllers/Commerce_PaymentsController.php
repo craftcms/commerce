@@ -77,6 +77,23 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
 			$paymentForm->$attr = craft()->request->getPost($attr);
 		}
 
+		// change expiry to month and year
+		if(craft()->request->getPost('expiry'))
+		{
+			$expiry = craft()->request->getPost('expiry');
+			$expiry = explode("/", $expiry);
+
+			if(isset($expiry[0]))
+			{
+				$paymentForm->month = trim($expiry[0]);
+			}
+
+			if(isset($expiry[1]))
+			{
+				$paymentForm->year = trim($expiry[1]);
+			}
+		}
+
 		// For now we will hard code this for backwards compatibility.
 		// Will move it to a StripePaymentFormModel when completed.
 		if (craft()->request->getPost('stripeToken') != "")
