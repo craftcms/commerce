@@ -1,0 +1,46 @@
+{% import "_includes/forms" as forms %}
+
+{% set currentYear = date()|date_modify("+1 year").format('Y') %}
+
+<div id="payment-method-{{ paymentMethod.id }}-form" data-publishablekey="{{ paymentMethod.settings.publishableKey }}" class="payment-method-form {% if order and order.paymentMethodId != paymentMethod.id %}hidden{% endif %}">
+	<form method="POST">
+		<input type="hidden" name="action" value="commerce/payments/pay"/>
+		{% if order %}
+			<input type="hidden" name="orderNumber" value="{{ order.number }}"/>
+		{% endif %}
+		<input type="hidden" name="paymentMethodId" value="{{ paymentMethod.id }}"/>
+
+		{{ getCsrfInput() }}
+
+		{% include "commerce/_gateways/_paymentForms/_creditCardFields" %}
+		<input type="text" name="token" value="{{ paymentForm.token }}"/>
+
+		<div class="footer">
+			<div class="buttons right">
+				<input type="submit" class="btn submit" value="Pay {{ order.totalPrice|currency(order.currency,true) }} Now">
+			</div>
+		</div>
+
+		{% includejs %}
+			{#$("#payment-method-{{ paymentMethod.id }}-form").find('form:first').on('submit',function(e){#}
+				{#e.preventDefault();#}
+				{#var $form = $(this);#}
+				{#var key = $($this).data('publishablekey');#}
+				{#Stripe.setPublishableKey(key);#}
+
+				{#var month = $('[name=expiry]', $form).val(),#}
+				{#var year = $('[name=expiry]', $form).val(),#}
+				{#Stripe.card.createToken({#}
+					{#number: $('[name=number]', $form).val(),#}
+					{#cvc: $('[name=cvv]', $form).val(),#}
+					{#exp_month: $('[name=]', $form).val(),#}
+					{#exp_year: $('[name=]', $form).val(),#}
+				{#}, function(){#}
+
+				{#});#}
+
+			{#});#}
+		{% endincludejs %}
+
+	</form>
+</div>
