@@ -115,9 +115,12 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
 		}
 
 		$paymentForm->validate();
-		if(!$paymentForm->hasErrors()){
+		if (!$paymentForm->hasErrors())
+		{
 			$success = craft()->commerce_payments->processPayment($order, $paymentForm, $redirect, $customError);
-		}else{
+		}
+		else
+		{
 			$customError = Craft::t('Payment information submitted is invalid.');
 			$success = false;
 		}
