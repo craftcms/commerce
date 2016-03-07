@@ -71,9 +71,9 @@ class Commerce_PaymentMethodModel extends BaseModel
 	 */
 	public function getGateway()
 	{
-		if ($gateway = $this->getGatewayAdapter())
+		if ($gatewayAdapter = $this->getGatewayAdapter())
 		{
-			return $gateway->getGateway();
+			return $gatewayAdapter->getGateway();
 		}
 	}
 
@@ -95,11 +95,11 @@ class Commerce_PaymentMethodModel extends BaseModel
 	 *
 	 * @return bool
 	 */
-	public function getPaymentFormHtml($order = null, $paymentForm = null)
+	public function getPaymentFormHtml($params)
 	{
 		if ($gatewayAdapter = $this->getGatewayAdapter())
 		{
-			return $gatewayAdapter->getPaymentFormHtml($order, $paymentForm);
+			return $gatewayAdapter->getPaymentFormHtml($params);
 		}
 	}
 
@@ -133,6 +133,32 @@ class Commerce_PaymentMethodModel extends BaseModel
 		}
 
 		return $this->_gatewayAdapter;
+	}
+
+	/**
+	 * @param $card
+	 * @param $paymentForm
+	 *
+	 */
+	public function populateCard($card, $paymentForm)
+	{
+		if ($gatewayAdapter = $this->getGatewayAdapter())
+		{
+			$gatewayAdapter->populateCard($card, $paymentForm);
+		}
+	}
+
+	/**
+	 * @param $request
+	 * @param $form
+	 *
+	 */
+	public function populateRequest($request,$form)
+	{
+		if ($gatewayAdapter = $this->getGatewayAdapter())
+		{
+			$gatewayAdapter->populateRequest($request,$form);
+		}
 	}
 
 	/**

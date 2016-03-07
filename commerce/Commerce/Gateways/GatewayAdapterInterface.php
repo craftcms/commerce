@@ -2,6 +2,9 @@
 namespace Commerce\Gateways;
 
 use Craft\Commerce_PaymentMethodModel;
+use Craft\BaseModel;
+use Omnipay\Common\CreditCard;
+use Omnipay\Common\Message\AbstractRequest as OmnipayRequest;
 
 /**
  * Interface GatewayAdapterInterface
@@ -30,9 +33,25 @@ interface GatewayAdapterInterface
     /** @return string */
     public function getSettingsHtml();
 
-    /** @return bool */
-    public function requiresCreditCard();
+	/**
+	 * @param array $params
+	 * @return string
+	 */
+	public function getPaymentFormHtml(array $params);
 
-	/** @return string */
-	public function getPaymentFormHtml();
+	/**
+	 * @param CreditCard $card
+	 * @param BaseModel  $paymentForm
+	 *
+	 * @return mixed
+	 */
+	public function populateCard(CreditCard $card, BaseModel $paymentForm);
+
+	/**
+	 * @param OmnipayRequest $request
+	 * @param BaseModel      $paymentForm
+	 *
+	 * @return mixed
+	 */
+	public function populateRequest(OmnipayRequest $request, BaseModel $paymentForm);
 }
