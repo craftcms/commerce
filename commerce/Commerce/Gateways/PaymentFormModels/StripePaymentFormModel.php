@@ -41,10 +41,19 @@ class StripePaymentFormModel extends BasePaymentFormModel
 	 */
 	protected function defineAttributes()
 	{
+
+		$date = date_create();
+		date_modify($date, '+1 year');
+		$defaultExpiry = date_format($date, 'm/Y');
 		return [
 			'firstName' => AttributeType::String,
 			'lastName'  => AttributeType::String,
-			'token'  => AttributeType::String,
+			'number'    => AttributeType::Number,
+			'month'     => AttributeType::Number,
+			'year'      => AttributeType::Number,
+			'cvv'       => AttributeType::Number,
+			'token'     => AttributeType::String,
+			'expiry'     => [AttributeType::String, 'default' => $defaultExpiry],
 		];
 	}
 }

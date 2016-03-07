@@ -1,6 +1,7 @@
 <?php
 namespace Commerce\Gateways\Omnipay;
 
+use Commerce\Gateways\PaymentFormModels\StripePaymentFormModel;
 use Craft\AttributeType;
 use Craft\BaseModel;
 use Omnipay\Common\CreditCard;
@@ -10,6 +11,11 @@ class Stripe_GatewayAdapter extends \Commerce\Gateways\CreditCardGatewayAdapter
 	public function handle()
 	{
 		return 'Stripe';
+	}
+
+	public function getPaymentFormModel()
+	{
+		return new StripePaymentFormModel();
 	}
 
 	public function getPaymentFormHtml(array $params)
@@ -22,7 +28,7 @@ class Stripe_GatewayAdapter extends \Commerce\Gateways\CreditCardGatewayAdapter
 
 		$params = array_merge($defaults, $params);
 
-		\Craft\craft()->templates->includeJsResource('commerce/js/_gateways/stripe.js');
+		\Craft\craft()->templates->includeJsFile('https://js.stripe.com/v2/');
 		return \Craft\craft()->templates->render('commerce/_gateways/_paymentforms/stripe', $params);
 
 	}
@@ -48,10 +54,5 @@ class Stripe_GatewayAdapter extends \Commerce\Gateways\CreditCardGatewayAdapter
 
 		return $attr;
 	}
-
-
-
-
-
 
 }
