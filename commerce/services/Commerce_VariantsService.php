@@ -180,6 +180,23 @@ class Commerce_VariantsService extends BaseApplicationComponent
     }
 
     /**
+     * Sets a product on the given variants, and applies any applicable sales.
+     *
+     * @param Commerce_ProductModel $product
+     * @param Commerce_VariantModel[] $variants
+     */
+    public function setProductOnVariants($product, $variants)
+    {
+        foreach ($variants as $variant)
+        {
+            $variant->setProduct($product);
+        }
+
+        // apply all sales applicable
+        $this->applySales($variants, $product);
+    }
+
+    /**
      * @param BaseElementModel $model
      * @return BaseRecord|Commerce_VariantRecord
      * @throws HttpException
