@@ -7,4 +7,10 @@ class Dummy_GatewayAdapter extends \Commerce\Gateways\CreditCardGatewayAdapter
     {
         return 'Dummy';
     }
+
+	public function cpPaymentsEnabled()
+	{
+		return true;
+	}
+
 }
