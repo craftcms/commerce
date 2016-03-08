@@ -5,7 +5,7 @@
 <div id="payment-method-{{ paymentMethod.id }}-form"
 	 class="payment-method-form {% if order and order.paymentMethodId != paymentMethod.id %}hidden{% endif %}"
 	 xmlns="http://www.w3.org/1999/html">
-	<form method="POST" data-publishablekey="{{ paymentMethod.settings.publishableKey ?? '' }}">
+	<form method="POST" data-csekey="{{ paymentMethod.settings.CSEKey ?? '' }}">
 		<input type="hidden" name="action" value="commerce/payments/pay"/>
 		{% if order %}
 			<input type="hidden" name="orderNumber" value="{{ order.number }}"/>
@@ -32,9 +32,7 @@
 				$('.error', $form).removeClass('error');
 
 				var $form = $(this);
-				var publishableKey = $form.data('publishablekey');
-
-				Stripe.setPublishableKey(publishableKey);
+				var csekey = $form.data('csekey');
 
 				var $ccNumInput = $('[name=number]', $form),
 					$ccCvcInput = $('[name=cvv]', $form),
@@ -52,19 +50,19 @@
 
 				var validates = true;
 
-				if (!Stripe.validateCardNumber(ccData.number))
+				if (!$.payment.validateCardNumber(ccData.number))
 				{
 					validates = false;
 					$ccNumInput.addClass('error');
 				}
 
-				if (!Stripe.validateCVC(ccData.cvc))
+				if (!$.payment.validateCardCVC(ccData.cvc))
 				{
 					validates = false;
 					$ccCvcInput.addClass('error');
 				}
 
-				if (!Stripe.validateExpiry(ccData.expiry))
+				if (!$.payment.cardExpiryVal(ccData.expiry))
 				{
 					validates = false;
 					$ccExpInput.addClass('error');
@@ -72,26 +70,16 @@
 
 				if(validates)
 				{
-					Stripe.card.createToken({
-							number: ccData.number,
-							cvc: ccData.cvc,
-							exp: ccData.expiry
-						},
-						function (status, response)
-						{
-							if (response.error)
-							{
-								Garnish.shake($('.modal'));
-								alert(response.error.message);
-							}
-							else
-							{
-								var token = response.id;
-								$form.append($('<input type="hidden" name="stripeToken" />').val(token));
-								$form.get(0).submit();
-							}
-						}
-					);
+					var number = $ccNumInput.val();
+					var cvv = $ccCvcInput.val();
+					var encnum = eCrypt.encryptValue(number, csekey);
+					var encvv = eCrypt.encryptValue(cvv, csekey);
+
+					$form.append($('<input type="hidden" name="encryptedCardNumber" />').val(encnum));
+					$form.append($('<input type="hidden" name="encryptedCardCvv" />').val(encvv));
+
+					$form.get(0).submit();
+
 				}
 				else
 				{

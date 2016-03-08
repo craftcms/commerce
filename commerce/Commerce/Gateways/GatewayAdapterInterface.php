@@ -32,26 +32,4 @@ interface GatewayAdapterInterface
 
     /** @return string */
     public function getSettingsHtml();
-
-	/**
-	 * @param array $params
-	 * @return string
-	 */
-	public function getPaymentFormHtml(array $params);
-
-	/**
-	 * @param CreditCard $card
-	 * @param BaseModel  $paymentForm
-	 *
-	 * @return mixed
-	 */
-	public function populateCard(CreditCard $card, BaseModel $paymentForm);
-
-	/**
-	 * @param OmnipayRequest $request
-	 * @param BaseModel      $paymentForm
-	 *
-	 * @return mixed
-	 */
-	public function populateRequest(OmnipayRequest $request, BaseModel $paymentForm);
 }
