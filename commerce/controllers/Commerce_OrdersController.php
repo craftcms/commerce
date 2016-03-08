@@ -116,6 +116,13 @@ class Commerce_OrdersController extends Commerce_BaseCpController
 				continue;
 			}
 
+			// If gateway adapter does no support backend cp payments.
+			if (!$paymentMethod->getGatewayAdapter()->cpPaymentsEnabled())
+			{
+				unset($paymentMethods[$key]);
+				continue;
+			}
+
 			// Add the errors and data back to the current form model.
 			if ($paymentMethod->id == $order->paymentMethodId)
 			{

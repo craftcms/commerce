@@ -14,9 +14,15 @@ class Eway_RapidDirect_GatewayAdapter extends \Commerce\Gateways\CreditCardGatew
 		return 'Eway_RapidDirect';
 	}
 
+	public function cpPaymentsEnabled()
+	{
+		return true;
+	}
+
 	public function getPaymentFormModel()
 	{
-		if ($this->getPaymentMethod()->settings['CSEKey'])
+		$csekey = isset($this->getPaymentMethod()->settings['CSEKey']) && $this->getPaymentMethod()->settings['CSEKey'];
+		if ($csekey)
 		{
 			return new EwayRapidDirectPaymentFormModel();
 		}
@@ -36,7 +42,8 @@ class Eway_RapidDirect_GatewayAdapter extends \Commerce\Gateways\CreditCardGatew
 
 		$params = array_merge($defaults, $params);
 
-		if ($this->getPaymentMethod()->settings['CSEKey'])
+		$csekey = isset($this->getPaymentMethod()->settings['CSEKey']) && $this->getPaymentMethod()->settings['CSEKey'];
+		if ($csekey)
 		{
 			if (\Craft\craft()->config->get('devMode'))
 			{
@@ -50,7 +57,7 @@ class Eway_RapidDirect_GatewayAdapter extends \Commerce\Gateways\CreditCardGatew
 
 		\Craft\craft()->templates->includeJsResource('lib/jquery.payment'.(\Craft\craft()->config->get('useCompressedJs') ? '.min' : '').'.js');
 
-		if ($this->getPaymentMethod()->settings['CSEKey'])
+		if ($csekey)
 		{
 			return \Craft\craft()->templates->render('commerce/_gateways/_paymentforms/ewayrapiddirectencrypt', $params);
 		}
@@ -72,7 +79,8 @@ class Eway_RapidDirect_GatewayAdapter extends \Commerce\Gateways\CreditCardGatew
 
 	public function populateRequest(OmnipayRequest $request, BaseModel $paymentForm)
 	{
-		if ($this->getPaymentMethod()->settings['CSEKey'])
+		$csekey = isset($this->getPaymentMethod()->settings['CSEKey']) && $this->getPaymentMethod()->settings['CSEKey'];
+		if ($csekey)
 		{
 			$request->setEncryptedCardNumber($paymentForm->encryptedCardNumber);
 			$request->setEncryptedCardCvv($paymentForm->encryptedCardCvv);

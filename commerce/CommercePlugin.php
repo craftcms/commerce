@@ -242,9 +242,9 @@ class CommercePlugin extends BasePlugin
      */
     public function onBeforeInstall()
     {
-        if (version_compare(craft()->getVersion(), '2.5', '<')) {
+        if (version_compare(craft()->getVersion(), '2.6', '<')) {
             // No way to gracefully handle this, so throw an Exception.
-            throw new Exception('Craft Commerce requires Craft CMS 2.5+ in order to run.');
+            throw new Exception('Craft Commerce 1.1 requires Craft CMS 2.6+ in order to run.');
         }
 
         if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 50400) {
