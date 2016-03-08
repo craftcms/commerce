@@ -38,6 +38,16 @@ class CommerceVariable
 	 *
 	 * @return ElementCriteriaModel|null
 	 */
+	public function variants($criteria = null)
+	{
+		return craft()->elements->getCriteria('Commerce_Variant', $criteria);
+	}
+
+	/**
+	 * @param array|null $criteria
+	 *
+	 * @return ElementCriteriaModel|null
+	 */
 	public function orders($criteria = null)
 	{
 
