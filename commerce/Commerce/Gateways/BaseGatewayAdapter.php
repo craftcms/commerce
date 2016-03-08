@@ -15,8 +15,6 @@ use Commerce\Exception\NotImplementedException;
  * Class BaseGatewayAdapter
  *
  * @package Commerce\Gateways
- *
- * @method protected array defineAttributes() Use it to define setting parameters, it's labels and rules. Must be protected
  */
 abstract class BaseGatewayAdapter extends BaseModel implements GatewayAdapterInterface
 {
