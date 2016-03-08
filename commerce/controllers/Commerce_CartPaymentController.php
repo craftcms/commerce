@@ -19,7 +19,7 @@ class Commerce_CartPaymentController extends Commerce_BaseFrontEndController
     public function actionPay()
     {
 
-        craft()->deprecator->log('Commerce_CartPaymentController::actionPay():removed', 'You should no longer use controller form action `cartPayment/pay` to pay and complete carts. Controller action `payments/pay` should be used.');
+        craft()->deprecator->log('Commerce_CartPaymentController::actionPay():removed', 'The ”commerce/cartPayment/pay” controller action has been deprecated. Please use ”commerce/payments/pay” instead.');
 
         $this->forward('commerce/payments/pay');
     }
@@ -29,7 +29,7 @@ class Commerce_CartPaymentController extends Commerce_BaseFrontEndController
      */
     public function actionCompletePayment()
     {
-        craft()->deprecator->log('Commerce_CartPaymentController::actionCompletePayment():removed', 'You should no longer use controller form action `cartPayment/completePayment` to complete payments. Controller action `payments/completePayment` should be used.');
+        craft()->deprecator->log('Commerce_CartPaymentController::actionCompletePayment():removed', 'The “commerce/cartPayment/completePayment” controller action has been deprecated. Please use “commerce/payments/completePayment” instead.');
 
         $this->forward('commerce/payments/completePayment');
     }
