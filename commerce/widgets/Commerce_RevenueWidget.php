@@ -8,6 +8,17 @@ class Commerce_RevenueWidget extends BaseWidget
     // =========================================================================
 
     /**
+     * @inheritDoc IComponentType::isSelectable()
+     *
+     * @return bool
+     */
+    public function isSelectable()
+    {
+        // This widget is only available to users that can manage orders
+        return craft()->userSession->checkPermission('commerce-manageOrders');
+    }
+
+    /**
      * @inheritDoc IComponentType::getName()
      *
      * @return string
