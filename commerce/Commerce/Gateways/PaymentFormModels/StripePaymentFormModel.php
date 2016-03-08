@@ -26,14 +26,5 @@ class StripePaymentFormModel extends CreditCardPaymentFormModel
 		}
 	}
 
-	/**
-	 * @return array
-	 */
-	public function rules()
-	{
-		return [
-			['token', 'required']
-		];
-	}
 
 }
