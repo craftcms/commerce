@@ -40,12 +40,6 @@ class Stripe_GatewayAdapter extends \Commerce\Gateways\CreditCardGatewayAdapter
 
 	}
 
-	public function populateCard(CreditCard $card, BaseModel $paymentForm)
-	{
-		$card->setFirstName($paymentForm->firstName);
-		$card->setLastName($paymentForm->lastName);
-	}
-
 	public function defineAttributes()
 	{
 		// In addition to the standard gateway config, here is some custom config that is useful.

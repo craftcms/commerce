@@ -61,6 +61,9 @@ abstract class CreditCardGatewayAdapter extends BaseGatewayAdapter
 	 */
 	public function populateRequest(OmnipayRequest $request, BaseModel $paymentForm)
 	{
-		$request->setToken($paymentForm->token);
+		if ($paymentForm->token)
+		{
+			$request->setToken($paymentForm->token);
+		}
 	}
 }
