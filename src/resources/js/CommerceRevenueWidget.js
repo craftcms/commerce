@@ -90,7 +90,7 @@ Craft.Commerce.RevenueWidget = Garnish.Base.extend(
             {
                 // Error
 
-                var msg = 'An unknown error occured.';
+                var msg = Craft.t('An unknown error occurred.');
 
                 if(typeof(response) != 'undefined' && response && typeof(response.error) != 'undefined')
                 {
