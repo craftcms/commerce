@@ -143,7 +143,8 @@ class CommercePlugin extends BasePlugin
                         'm160226_010101_Commerce_OrderStatusSortOrder',
                         'm160226_010102_Commerce_isCompleted',
                         'm160227_010101_Commerce_OrderAdjustmentIncludedFlag',
-                        'm160229_010101_Commerce_ShippingZone'
+                        'm160229_010101_Commerce_ShippingZone',
+                        'm160229_010104_Commerce_SoftDeleteAndReorderPaymentMethod'
                     );
 
                     foreach ($migrations as $migrationClass) {
