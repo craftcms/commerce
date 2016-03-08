@@ -130,11 +130,11 @@ class Commerce_ProductsService extends BaseApplicationComponent
 
                  $record->defaultVariantId = $defaultVariant->getPurchasableId();
                  $record->defaultSku = $defaultVariant->getSku();
-                 $record->defaultPrice = $defaultVariant->getPrice();
-                 $record->defaultHeight = $defaultVariant->height;
-                 $record->defaultLength = $defaultVariant->length;
-                 $record->defaultWidth = $defaultVariant->width;
-                 $record->defaultWeight = $defaultVariant->weight;
+                 $record->defaultPrice = $defaultVariant->getPrice() * 1;;
+                 $record->defaultHeight = $defaultVariant->height * 1;
+                 $record->defaultLength = $defaultVariant->length * 1;
+                 $record->defaultWidth = $defaultVariant->width * 1;
+                 $record->defaultWeight = $defaultVariant->weight * 1;
 
                 if (craft()->elements->saveElement($product)) {
                     $record->id = $product->id;
