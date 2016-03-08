@@ -2,10 +2,8 @@
 
 namespace Commerce\Gateways\PaymentFormModels;
 
-use Craft\BaseModel;
-
 /**
- * Base Payment form model.
+ * Eway Rapid direct payment form model.
  *
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
@@ -15,17 +13,22 @@ use Craft\BaseModel;
  * @package   Commerce\Gateways\PaymentFormModels
  * @since     1.1
  */
-abstract class BasePaymentFormModel extends BaseModel
+class EwayRapidDirectPaymentFormModel extends CreditCardPaymentFormModel
 {
+	public $encryptedCardNumber;
+	public $encryptedCardCvv;
 
-	/**
-	 * @param $post
-	 */
 	public function populateModelFromPost($post)
 	{
-		foreach ($this->getAttributes() as $attr => $value)
+		parent::populateModelFromPost($post);
+		if (isset($post['encryptedCardNumber']))
 		{
-			$this->$attr = \Craft\craft()->request->getPost($attr);
+			$this->encryptedCardNumber = $post['encryptedCardNumber'];
+		}
+		if (isset($post['encryptedCardCvv']))
+		{
+			$this->encryptedCardCvv = $post['encryptedCardCvv'];
 		}
 	}
+
 }

@@ -143,7 +143,8 @@ class CommercePlugin extends BasePlugin
                         'm160226_010101_Commerce_OrderStatusSortOrder',
                         'm160226_010102_Commerce_isCompleted',
                         'm160227_010101_Commerce_OrderAdjustmentIncludedFlag',
-                        'm160229_010101_Commerce_ShippingZone'
+                        'm160229_010101_Commerce_ShippingZone',
+                        'm160229_010104_Commerce_SoftDeleteAndReorderPaymentMethod'
                     );
 
                     foreach ($migrations as $migrationClass) {
@@ -241,9 +242,9 @@ class CommercePlugin extends BasePlugin
      */
     public function onBeforeInstall()
     {
-        if (version_compare(craft()->getVersion(), '2.5', '<')) {
+        if (version_compare(craft()->getVersion(), '2.6', '<')) {
             // No way to gracefully handle this, so throw an Exception.
-            throw new Exception('Craft Commerce requires Craft CMS 2.5+ in order to run.');
+            throw new Exception('Craft Commerce 1.1 requires Craft CMS 2.6+ in order to run.');
         }
 
         if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 50400) {

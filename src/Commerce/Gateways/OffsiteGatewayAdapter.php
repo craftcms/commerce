@@ -22,6 +22,11 @@ abstract class OffsiteGatewayAdapter extends BaseGatewayAdapter
 		return false;
 	}
 
+	public function cpPaymentsEnabled()
+	{
+		return true;
+	}
+
 	/**
 	 * @return \Commerce\Gateways\PaymentFormModels\BasePaymentFormModel
 	 */

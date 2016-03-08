@@ -18,6 +18,11 @@ class Stripe_GatewayAdapter extends \Commerce\Gateways\CreditCardGatewayAdapter
 		return new StripePaymentFormModel();
 	}
 
+	public function cpPaymentsEnabled()
+	{
+		return true;
+	}
+
 	public function getPaymentFormHtml(array $params)
 	{
 		$defaults = [
@@ -35,12 +40,6 @@ class Stripe_GatewayAdapter extends \Commerce\Gateways\CreditCardGatewayAdapter
 
 	}
 
-	/**
-	 * @param CreditCard $card
-	 * @param BaseModel  $paymentForm
-	 *
-	 * @return void
-	 */
 	public function populateCard(CreditCard $card, BaseModel $paymentForm)
 	{
 		$card->setFirstName($paymentForm->firstName);
