@@ -254,24 +254,40 @@ class Commerce_ProductModel extends BaseElementModel
 	{
 		$this->_variants = $variants;
 
-		// ensure each has it's parent product set
-		foreach ($this->_variants as $variant)
-		{
-			$variant->setProduct($this);
-		}
-
-		// apply all sales applicable
-		craft()->commerce_variants->applySales($this->_variants, $this);
+		$this->_setProductOnVariants($this->_variants);
 	}
 
 	/**
-	 * Returns array of variants with sales applied. Will only return an array containing a single
-	 * variant when the product's type is set to have no variants.
+	 * Returns an array of the product's variants with sales applied.
+	 *
+	 * If the $criteria argument is set, a custom variant query will be
+	 * created based on the parameters it defines.
+	 *
+	 * @param ElementCriteriaModel|array|null $criteria
 	 *
 	 * @return Commerce_VariantModel[]
 	 */
-	public function getVariants()
+	public function getVariants($criteria = null)
 	{
+
+		if ($criteria !== null)
+		{
+			if (!($criteria instanceof ElementCriteriaModel))
+			{
+				$criteria = craft()->elements->getCriteria('Commerce_Variant', $criteria);
+			}
+
+			$criteria->productId = $this->id ?: false;
+			$criteria->locale = $this->locale;
+
+			$variants = $criteria->find();
+
+			$this->_setProductOnVariants($variants);
+
+			return $variants;
+		}
+
+
 		if (empty($this->_variants))
 		{
 			if ($this->id)
@@ -317,6 +333,23 @@ class Commerce_ProductModel extends BaseElementModel
 		{
 			parent::setEagerLoadedElements($handle, $elements);
 		}
+	}
+
+	// Private Methods
+	// =============================================================================
+
+	/**
+	 * @param $variants
+	 */
+	private function _setProductOnVariants($variants)
+	{
+		foreach ($variants as $variant)
+		{
+			$variant->setProduct($this);
+		}
+
+		// apply all sales applicable
+		craft()->commerce_variants->applySales($variants, $this);
 	}
 
 	// Protected Methods
