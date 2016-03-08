@@ -18,6 +18,11 @@ class Stripe_GatewayAdapter extends \Commerce\Gateways\CreditCardGatewayAdapter
 		return new StripePaymentFormModel();
 	}
 
+	public function cpPaymentsEnabled()
+	{
+		return true;
+	}
+
 	public function getPaymentFormHtml(array $params)
 	{
 		$defaults = [

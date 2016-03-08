@@ -5,7 +5,7 @@
 <div id="payment-method-{{ paymentMethod.id }}-form"
 	 class="payment-method-form {% if order and order.paymentMethodId != paymentMethod.id %}hidden{% endif %}"
 	 xmlns="http://www.w3.org/1999/html">
-	<form method="POST" data-csekey="{{ (paymentMethod.settings.CSEKey is defined ? paymentMethod.settings.CSEKey) }}">
+	<form method="POST" data-csekey="{{ paymentMethod.settings.CSEKey ?? '' }}">
 		<input type="hidden" name="action" value="commerce/payments/pay"/>
 		{% if order %}
 			<input type="hidden" name="orderNumber" value="{{ order.number }}"/>

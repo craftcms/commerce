@@ -184,6 +184,11 @@ abstract class BaseGatewayAdapter extends BaseModel implements GatewayAdapterInt
 		return true;
 	}
 
+	public function cpPaymentsEnabled()
+	{
+		return false;
+	}
+
 	/**
 	 * @return BasePaymentFormModel
 	 * @throws NotImplementedException
@@ -195,17 +200,17 @@ abstract class BaseGatewayAdapter extends BaseModel implements GatewayAdapterInt
 
 	public function getPaymentFormHtml(array $params)
 	{
-		throw new NotImplementedException();
+		return "";
 	}
 
 	public function populateCard(CreditCard $card, BaseModel $paymentForm)
 	{
-		throw new NotImplementedException();
+
 	}
 
 	public function populateRequest(OmnipayRequest $request, BaseModel $paymentForm)
 	{
-		throw new NotImplementedException();
+
 	}
 
 	/**
