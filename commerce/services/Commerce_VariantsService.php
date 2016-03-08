@@ -210,11 +210,11 @@ class Commerce_VariantsService extends BaseApplicationComponent
         $record->productId = $model->productId;
         $record->sku = $model->sku;
 
-        $record->price = $model->price;
-        $record->width = $model->width;
-        $record->height = $model->height;
-        $record->length = $model->length;
-        $record->weight = $model->weight;
+        $record->price = $model->price * 1;
+        $record->width = $model->width * 1;
+        $record->height = $model->height * 1;
+        $record->length = $model->length * 1;
+        $record->weight = $model->weight * 1;
         $record->minQty = $model->minQty;
         $record->maxQty = $model->maxQty;
         $record->stock = $model->stock;
