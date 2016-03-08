@@ -2,7 +2,7 @@
 
 namespace Commerce\Gateways\PaymentFormModels;
 
-use Craft\AttributeType;
+use Commerce\Gateways\PaymentFormModels\CreditCardPaymentFormModel;
 
 /**
  * Stripe Payment form model.
@@ -12,10 +12,10 @@ use Craft\AttributeType;
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
  * @license   https://craftcommerce.com/license Craft Commerce License Agreement
  * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.models
- * @since     1.0
+ * @package   Commerce\Gateways\PaymentFormModels\
+ * @since     1.1
  */
-class StripePaymentFormModel extends BasePaymentFormModel
+class StripePaymentFormModel extends CreditCardPaymentFormModel
 {
 	public function populateModelFromPost($post)
 	{
@@ -36,24 +36,4 @@ class StripePaymentFormModel extends BasePaymentFormModel
 		];
 	}
 
-	/**
-	 * @return array
-	 */
-	protected function defineAttributes()
-	{
-
-		$date = date_create();
-		date_modify($date, '+1 year');
-		$defaultExpiry = date_format($date, 'm/Y');
-		return [
-			'firstName' => AttributeType::String,
-			'lastName'  => AttributeType::String,
-			'number'    => AttributeType::Number,
-			'month'     => AttributeType::Number,
-			'year'      => AttributeType::Number,
-			'cvv'       => AttributeType::Number,
-			'token'     => AttributeType::String,
-			'expiry'     => [AttributeType::String, 'default' => $defaultExpiry],
-		];
-	}
 }

@@ -272,20 +272,6 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 
 		$pluginRequest = craft()->plugins->callFirst('commerce_modifyPaymentRequest', [$request]);
 
-
-		if ($setEncryptedCardCvv = craft()->request->getPost('encryptedCardCvv'))
-		{
-
-			$request->setEncryptedCardCvv($setEncryptedCardCvv);
-		}
-
-
-		if ($encryptedCardNumber = craft()->request->getPost('encryptedCardNumber'))
-		{
-
-			$request->setEncryptedCardNumber($encryptedCardNumber);
-		}
-
 		if ($pluginRequest)
 		{
 			$request = array_merge($request, $pluginRequest);

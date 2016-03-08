@@ -14,7 +14,7 @@ use Omnipay\Common\Helper as OmnipayHelper;
  * @license   https://craftcommerce.com/license Craft Commerce License Agreement
  * @see       https://craftcommerce.com
  * @package   craft.plugins.commerce.models
- * @since     1.0
+ * @since     1.1
  */
 class CreditCardPaymentFormModel extends BasePaymentFormModel
 {
@@ -85,15 +85,21 @@ class CreditCardPaymentFormModel extends BasePaymentFormModel
 	 */
 	protected function defineAttributes()
 	{
+
+		$date = date_create();
+		date_modify($date, '+1 year');
+		$defaultExpiry = date_format($date, 'm/Y');
+		$defaultMonth = date_format($date, 'm');
+		$defaultYear = date_format($date, 'Y');
 		return [
 			'firstName' => AttributeType::String,
 			'lastName'  => AttributeType::String,
 			'number'    => AttributeType::Number,
-			'month'     => AttributeType::Number,
-			'year'      => AttributeType::Number,
+			'month'     => [AttributeType::Number, 'default' => $defaultMonth],
+			'year'      => [AttributeType::Number, 'default' => $defaultYear],
 			'cvv'       => AttributeType::Number,
 			'token'     => AttributeType::String,
-			'expiry'     => AttributeType::String,
+			'expiry'     => [AttributeType::String, 'default' => $defaultExpiry],
 		];
 	}
 }
