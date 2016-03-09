@@ -143,7 +143,7 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
 		{
 			if (craft()->request->isAjaxRequest())
 			{
-				$this->returnErrorJson($customError);
+				$this->returnJson(['error' => $customError, 'paymentForm' => $paymentForm->getAllErrors()]);
 			}
 			else
 			{
