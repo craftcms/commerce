@@ -36,6 +36,9 @@ class Commerce_ChartsController extends ElementIndexController
         $criteria = $this->getElementCriteria();
         $criteria->limit = null;
 
+        // Don't use the search
+        $criteria->search = null;
+
         $query = craft()->elements->buildElementsQuery($criteria)
             ->select('sum(orders.totalPrice) as value');
 
