@@ -31,4 +31,27 @@ class EwayRapidDirectPaymentFormModel extends CreditCardPaymentFormModel
 		}
 	}
 
+	/**
+	 * @return array
+	 */
+	public function rules()
+	{
+		return [
+			['firstName, lastName, month, year, encryptedCardCvv, encryptedCardNumber', 'required'],
+			[
+				'month',
+				'numerical',
+				'integerOnly' => true,
+				'min'         => 1,
+				'max'         => 12
+			],
+			[
+				'year',
+				'numerical',
+				'integerOnly' => true,
+				'min'         => date('Y'),
+				'max'         => date('Y') + 12
+			]
+		];
+	}
 }
