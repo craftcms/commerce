@@ -264,12 +264,12 @@ class Commerce_VariantsService extends BaseApplicationComponent
 
         foreach ($order->lineItems as $lineItem) {
             /** @var Commerce_VariantRecord $record */
-            $record = Commerce_VariantRecord::model()->findByAttributes(['id' => $lineItem->purchasableId]);
+            $purchasable = $lineItem->getPurchasable();
 
-            // Don't assume that this is a Variant
-            if ($record && !$record->unlimitedStock) {
-                $record->stock = $record->stock - $lineItem->qty;
-                $record->save(false);
+            if ($purchasable instanceof Commerce_VariantModel && !$purchasable->unlimitedStock)
+            {
+                $purchasable->stock = $purchasable->stock - $lineItem->qty;
+                craft()->commerce_variants->saveVariant($purchasable);
             }
         }
     }
