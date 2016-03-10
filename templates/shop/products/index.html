@@ -23,7 +23,11 @@
                         <option value="no">No gift wrap.</option>
                         <option value="yes">Gift wrapped.</option>
                     </select>
-                    <button type="submit">{{ "Add to cart"|t }}</button>
+                    {% if product.unlimitedStock or (product.unlimitedStock == false and product.totalStock > 0 ) %}
+                        <button type="submit">{{ "Add to cart"|t }}</button>
+                    {% else %}
+                        {{ "Out of Stock"|t }}
+                    {% endif %}
                 </form>
             {% endif %}
         </div>
