@@ -237,6 +237,8 @@ class Commerce_OrdersController extends Commerce_BaseCpController
 		{
 			craft()->userSession->setError(Craft::t('Couldn’t capture transaction.', ['id' => $id]));
 		}
+
+		$this->redirectToPostedUrl();
 	}
 
 	/**
@@ -271,6 +273,8 @@ class Commerce_OrdersController extends Commerce_BaseCpController
 		{
 			craft()->userSession->setError(Craft::t('Couldn’t refund transaction.'));
 		}
+
+		$this->redirectToPostedUrl();
 	}
 
 	public function actionCompleteOrder()
