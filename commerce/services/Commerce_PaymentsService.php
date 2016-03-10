@@ -48,9 +48,8 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 			{
 				craft()->commerce_orders->completeOrder($order);
 			}
-			$customError = Craft::t("Order is already paid in full");
 
-			return false;
+			return true;
 		}
 
 		//choosing default action
