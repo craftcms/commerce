@@ -292,6 +292,35 @@ class Commerce_ProductModel extends BaseElementModel
 		return $this->_variants;
 	}
 
+
+	/**
+	 * Gets the total amount of stock across all variants.
+	 */
+	public function getTotalStock()
+	{
+		$stock = 0;
+		foreach ($this->getVariants() as $variant) {
+			$stock += $variant->stock;
+		}
+
+		return $stock;
+	}
+
+	/**
+	 * Does at least one variant have unlimited stock?
+	 */
+	public function getUnlimitedStock()
+	{
+		foreach ($this->getVariants() as $variant) {
+			if ($variant->unlimitedStock)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	/**
 	 * Sets some eager loaded elements on a given handle.
 	 *
