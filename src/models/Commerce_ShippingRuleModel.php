@@ -144,12 +144,20 @@ class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfac
 			}
 			else
 			{
+				$states = [];
+				$countries = [];
 				foreach ($shippingZone->states as $state)
 				{
-					if ($state->getCountry()->id != $shippingAddress->countryId || strcasecmp($state->name, $shippingAddress->getStateText()) != 0)
-					{
-						return false;
-					}
+					$states[] = $state->id;
+					$countries[] = $state->countryId;
+				}
+
+				$countryAndStateMatch = (bool) (in_array($shippingAddress->countryId, $countries) && in_array($shippingAddress->stateId, $states));
+				$countryAndStateNameMatch = (bool) (in_array($shippingAddress->countryId, $countries) && strcasecmp($state->name, $shippingAddress->getStateText()) == 0);
+
+				if (!($countryAndStateMatch || $countryAndStateNameMatch))
+				{
+					return false;
 				}
 			}
 		}
