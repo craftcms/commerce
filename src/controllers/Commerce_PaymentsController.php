@@ -133,7 +133,14 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
 				}
 				else
 				{
-					$this->redirect($order->returnUrl);
+					if ($order->returnUrl)
+					{
+						$this->redirect($order->returnUrl);
+					}
+					else
+					{
+						$this->redirectToPostedUrl($order);
+					}
 				}
 			}
 		}
