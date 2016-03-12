@@ -1,8 +1,6 @@
 <?php
 namespace Craft;
 
-use Commerce\Gateways\PaymentFormModels\BasePaymentFormModel;
-
 /**
  * Class Commerce_PaymentsController
  *
@@ -135,7 +133,7 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
 				}
 				else
 				{
-					$this->redirectToPostedUrl($order);
+					$this->redirect($order->returnUrl);
 				}
 			}
 		}
