@@ -141,11 +141,23 @@ class Commerce_TaxAdjuster implements Commerce_AdjusterInterface
                 return true;
             }
         } else {
-            foreach ($zone->states as $state) {
-                if ($state->country->id == $address->countryId || strcasecmp($state->name,$address->getStateText()) == 0) {
-                    return true;
-                }
+
+            $states = [];
+            $countries = [];
+            foreach ($zone->states as $state)
+            {
+                $states[] = $state->id;
+                $countries[] = $state->countryId;
             }
+
+            $countryAndStateMatch = (bool) (in_array($address->countryId, $countries) && in_array($address->stateId, $states));
+            $countryAndStateNameMatch = (bool) (in_array($address->countryId, $countries) && strcasecmp($state->name, $address->getStateText()) == 0);
+
+            if ($countryAndStateMatch || $countryAndStateNameMatch)
+            {
+                return true;
+            }
+
         }
 
         return false;
