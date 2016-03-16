@@ -22,6 +22,8 @@ class CreditCardPaymentFormModel extends BasePaymentFormModel
 	{
 		parent::populateModelFromPost($post);
 
+		$this->number = preg_replace('/\D/', '', isset($post['number']) ? $post['number'] : '');
+
 		if (isset($post['expiry']))
 		{
 			$expiry = explode("/", $post['expiry']);
