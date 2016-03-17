@@ -88,7 +88,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 
 		// Let the payment methods gateway adapter do anything else to the request
 		// including populating the request with things other than the card data.
-		$order->paymentMethod->populateRequest($request,$form);
+		$order->paymentMethod->populateRequest($request, $form);
 
 		try
 		{
@@ -125,7 +125,6 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 	private function createItemBag(Commerce_OrderModel $order)
 	{
 		$items = new ItemBag;
-
 		$priceCheck = 0;
 
 		/** @var Commerce_LineItemModel $item */
@@ -135,10 +134,11 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 			$defaultDescription = Craft::t('Item ID')." ".$item->id;
 			$purchasableDescription = $purchasable ? $purchasable->getDescription() : $defaultDescription;
 			$description = isset($item->snapshot['description']) ? $item->snapshot['description'] : $purchasableDescription;
+			$price = craft()->numberFormatter->formatDecimal($item->salePrice, false);
 			$items->add([
 				'name'     => $description,
 				'quantity' => $item->qty,
-				'price'    => $item->salePrice,
+				'price'    => $price,
 			]);
 			$priceCheck = $priceCheck + ($item->qty * $item->salePrice);
 		}
@@ -148,10 +148,11 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 		{
 			if (!$adjustment->included)
 			{
+				$price = craft()->numberFormatter->formatDecimal($adjustment->amount, false);
 				$items->add([
 					'name'     => $adjustment->description,
 					'quantity' => 1,
-					'price'    => $adjustment->amount,
+					'price'    => $price,
 				]);
 				$priceCheck = $priceCheck + $adjustment->amount;
 			}
@@ -171,8 +172,8 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 	}
 
 	/**
-	 * @param Commerce_OrderModel  $order
-	 * @param $paymentForm
+	 * @param Commerce_OrderModel $order
+	 * @param                     $paymentForm
 	 *
 	 * @return CreditCard
 	 */
@@ -249,6 +250,13 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 		];
 
 		$request['notifyUrl'] = $request['returnUrl'];
+
+		// Do not use IPv6 loopback
+		if ($request['clientIp'] == "::1")
+		{
+			$request['clientIp'] = '127.0.0.1';
+		}
+
 
 		// custom gateways may wish to access the order directly
 		$request['order'] = $transaction->order;
