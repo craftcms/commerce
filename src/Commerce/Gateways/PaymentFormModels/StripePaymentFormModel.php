@@ -2,8 +2,6 @@
 
 namespace Commerce\Gateways\PaymentFormModels;
 
-use Commerce\Gateways\PaymentFormModels\CreditCardPaymentFormModel;
-
 /**
  * Stripe Payment form model.
  *
@@ -22,9 +20,19 @@ class StripePaymentFormModel extends CreditCardPaymentFormModel
 		parent::populateModelFromPost($post);
 		if (isset($post['stripeToken']))
 		{
-			$this->token = 	$post['stripeToken'];
+			$this->token = $post['stripeToken'];
 		}
 	}
 
-
+	public function rules()
+	{
+		if (empty($this->token))
+		{
+			return parent::rules();
+		}
+		else
+		{
+			return [];
+		}
+	}
 }
