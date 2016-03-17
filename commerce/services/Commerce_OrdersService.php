@@ -166,34 +166,37 @@ class Commerce_OrdersService extends BaseApplicationComponent
 			}
 		}
 
-		//Only set default addresses on carts belonging to the current user
-		if (!$order->isCompleted && craft()->commerce_customers->getCustomer()->id == $order->customerId)
-		{
-
-			// Set default shipping address if last used is available
-			$lastShippingAddressId = craft()->commerce_customers->getCustomer()->lastUsedShippingAddressId;
-			if (!$order->shippingAddressId && $lastShippingAddressId)
-			{
-				if ($address = craft()->commerce_addresses->getAddressById($lastShippingAddressId))
-				{
-					$order->shippingAddressId = $address->id;
-				}
-			}
-
-			// Set default billing address if last used is available
-			$lastBillingAddressId = craft()->commerce_customers->getCustomer()->lastUsedBillingAddressId;
-			if (!$order->billingAddressId && $lastBillingAddressId)
-			{
-				if ($address = craft()->commerce_addresses->getAddressById($lastBillingAddressId))
-				{
-					$order->billingAddressId = $address->id;
-				}
-			}
-		}
-
-		if (!$order->customerId)
+		// Get the customer ID from the session
+		if (!$order->customerId && !craft()->isConsole())
 		{
 			$order->customerId = craft()->commerce_customers->getCustomerId();
+		}
+
+		// Set default addresses if this is a new cart
+		if (!$order->isCompleted)
+		{
+			if ($customer = craft()->commerce_customers->getCustomerById($order->customerId))
+			{
+				$lastShippingAddressId = $customer->lastUsedShippingAddressId;
+
+				if (!$order->shippingAddressId && $lastShippingAddressId)
+				{
+					if ($address = craft()->commerce_addresses->getAddressById($lastShippingAddressId))
+					{
+						$order->shippingAddressId = $address->id;
+					}
+				}
+
+				$lastBillingAddressId = $customer->lastUsedShippingAddressId;
+
+				if (!$order->shippingAddressId && $lastBillingAddressId)
+				{
+					if ($address = craft()->commerce_addresses->getAddressById($lastBillingAddressId))
+					{
+						$order->billingAddressId = $address->id;
+					}
+				}
+			}
 		}
 
 		$order->email = craft()->commerce_customers->getCustomerById($order->customerId)->email;
@@ -254,8 +257,6 @@ class Commerce_OrdersService extends BaseApplicationComponent
 					{
 						return false;
 					}
-
-					craft()->commerce_customers->setLastUsedAddresses($orderRecord->billingAddressId, $orderRecord->shippingAddressId);
 
 					CommerceDbHelper::commitStackedTransaction();
 
@@ -466,38 +467,6 @@ class Commerce_OrdersService extends BaseApplicationComponent
 			throw new Exception(Craft::t('No default Status available to set on completed order.'));
 		}
 
-		//TODO move to event listener.
-		if ($order->getCustomer()->userId && $order->billingAddress)
-		{
-			$snapShotBillingAddress = Commerce_AddressModel::populateModel($order->billingAddress);
-			$snapShotBillingAddress->id = null;
-			if (craft()->commerce_addresses->saveAddress($snapShotBillingAddress))
-			{
-				$order->billingAddressId = $snapShotBillingAddress->id;
-			}
-			else
-			{
-				throw new Exception('Error on saving snapshot billing address during order completion: '.implode(', ',
-						$snapShotBillingAddress->getAllErrors()));
-			};
-		}
-
-		//TODO move to event listener
-		if ($order->getCustomer()->userId && $order->shippingAddress)
-		{
-			$snapShotShippingAddress = Commerce_AddressModel::populateModel($order->shippingAddress);
-			$snapShotShippingAddress->id = null;
-			if (craft()->commerce_addresses->saveAddress($snapShotShippingAddress))
-			{
-				$order->shippingAddressId = $snapShotShippingAddress->id;
-			}
-			else
-			{
-				throw new Exception('Error on saving snapshot shipping address during order completion: '.implode(', ',
-						$snapShotShippingAddress->getAllErrors()));
-			};
-		}
-
 		if (!$this->saveOrder($order))
 		{
 			return false;
@@ -556,7 +525,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
 		try
 		{
 
-			$customerId = craft()->commerce_customers->getCustomerId();
+			$customerId = $order->customerId;
 			$currentCustomerAddressIds = craft()->commerce_customers->getAddressIds($customerId);
 
 			// Customers can only set addresses that are theirs
