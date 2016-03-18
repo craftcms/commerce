@@ -29,7 +29,7 @@ Craft.Commerce.VariantMatrix = Garnish.Base.extend(
 
 	init: function(id, fieldBodyHtml, fieldFootHtml, inputNamePrefix)
 	{
-		this.id = id
+		this.id = id;
 		this.fieldBodyHtml = fieldBodyHtml;
 		this.fieldFootHtml = fieldFootHtml;
 		this.inputNamePrefix = inputNamePrefix;
@@ -194,7 +194,7 @@ Craft.Commerce.VariantMatrix = Garnish.Base.extend(
 			Garnish.$bod.append(footHtml);
 			Craft.initUiElements($fieldsContainer);
 			Craft.Commerce.initUnlimitedStockCheckbox($variant);
-			new Variant(this, $variant);
+			var variant = new Variant(this, $variant);
 			this.variantSort.addItems($variant);
 			this.variantSelect.addItems($variant);
 
@@ -203,6 +203,12 @@ Craft.Commerce.VariantMatrix = Garnish.Base.extend(
 				// Scroll to the variant
 				Garnish.scrollContainerToElement($variant);
 			});
+
+			// If this is the only variant, set it as the default
+			if (this.$variantContainer.children().length == 1)
+			{
+				this.setDefaultVariant(variant);
+			}
 		}, this));
 	},
 
@@ -578,6 +584,12 @@ var Variant = Garnish.Base.extend(
 
 	disable: function()
 	{
+		if (this.isDefault())
+		{
+			// Can't disable the default variant
+			return false;
+		}
+
 		this.$container.children('input[name$="[enabled]"]:first').val('');
 		this.$container.addClass('disabled');
 
@@ -587,6 +599,8 @@ var Variant = Garnish.Base.extend(
 		}, this), 200);
 
 		this.collapse(true);
+
+		return true;
 	},
 
 	enable: function()
@@ -598,6 +612,8 @@ var Variant = Garnish.Base.extend(
 			this.$actionMenu.find('a[data-action=disable]:first').parent().removeClass('hidden');
 			this.$actionMenu.find('a[data-action=enable]:first').parent().addClass('hidden');
 		}, this), 200);
+
+		return true;
 	},
 
 	setAsDefault: function()
@@ -606,6 +622,10 @@ var Variant = Garnish.Base.extend(
 		this.$defaultBtn
 			.addClass('sel')
 			.attr('title', '');
+
+		// Default variants must be enabled
+		this.enable();
+		this.$actionMenu.find('a[data-action=disable]:first').parent().addClass('disabled');
 	},
 
 	unsetAsDefault: function()
@@ -614,6 +634,13 @@ var Variant = Garnish.Base.extend(
 		this.$defaultBtn
 			.removeClass('sel')
 			.attr('title', 'Set as the default variant');
+
+		this.$actionMenu.find('a[data-action=disable]:first').parent().removeClass('disabled');
+	},
+
+	isDefault: function()
+	{
+		return this.$defaultInput.val() == '1';
 	},
 
 	onMenuOptionSelect: function(option)
@@ -710,6 +737,17 @@ var Variant = Garnish.Base.extend(
 		this.$container.velocity(this.matrix.getHiddenVariantCss(this.$container), 'fast', $.proxy(function()
 		{
 			this.$container.remove();
+
+			// If this is the default variant, set the first variant as default instead
+			if (this.isDefault())
+			{
+				var variant = this.matrix.$variantContainer.children(':first-child').data('variant');
+
+				if (variant)
+				{
+					this.matrix.setDefaultVariant(variant);
+				}
+			}
 		}, this));
 	}
 });

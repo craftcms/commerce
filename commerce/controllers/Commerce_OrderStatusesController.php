@@ -91,6 +91,24 @@ class Commerce_OrderStatusesController extends Commerce_BaseAdminController
     }
 
     /**
+     * @return \HttpResponse
+     * @throws HttpException
+     */
+    public function actionReorder()
+    {
+        $this->requirePostRequest();
+        $this->requireAjaxRequest();
+
+        $ids = JsonHelper::decode(craft()->request->getRequiredPost('ids'));
+        if ($success = craft()->commerce_orderStatuses->reorderOrderStatuses($ids))
+        {
+            return $this->returnJson(['success' => $success]);
+        };
+
+        return $this->returnJson(['error' => Craft::t("Couldn't reorder Order Statuses.")]);
+    }
+
+    /**
      * @throws HttpException
      */
     public function actionDelete()

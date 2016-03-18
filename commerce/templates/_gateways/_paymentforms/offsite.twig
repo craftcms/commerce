@@ -1,0 +1,18 @@
+{% import "_includes/forms" as forms %}
+<div id="payment-method-{{ paymentMethod.id }}-form" class="payment-method-form {% if order and order.paymentMethodId != paymentMethod.id %}hidden{% endif %}">
+	<form method="POST">
+		<input type="hidden" name="action" value="commerce/payments/pay"/>
+		{% if order %}
+		<input type="hidden" name="orderNumber" value="{{ order.number }}"/>
+		{% endif %}
+		<input type="hidden" name="paymentMethodId" value="{{ paymentMethod.id }}"/>
+		{{ getCsrfInput() }}
+
+		<div class="footer">
+			<div class="buttons right">
+				<input type="submit" class="btn submit" value="Pay {{ order.totalPrice|currency(order.currency,true) }} Now">
+			</div>
+		</div>
+
+	</form>
+</div>

@@ -45,6 +45,7 @@ class CommercePlugin extends BasePlugin
         craft()->on('commerce_orderHistories.onStatusChange', array(craft()->commerce_orderStatuses, 'statusChangeHandler'));
         craft()->on('commerce_orders.onOrderComplete', array(craft()->commerce_discounts, 'orderCompleteHandler'));
         craft()->on('commerce_orders.onOrderComplete', array(craft()->commerce_variants, 'orderCompleteHandler'));
+        craft()->on('commerce_orders.onOrderComplete', array(craft()->commerce_customers, 'orderCompleteHandler'));
         craft()->on('i18n.onAddLocale', array(craft()->commerce_productTypes, 'addLocaleHandler'));
 
         if (!craft()->isConsole()) {
@@ -79,11 +80,17 @@ class CommercePlugin extends BasePlugin
             'Zip Code',
             'Phone',
             'Alternative Phone',
+            'Phone (Alt)',
             'Business Name',
             'Business Tax ID',
             'Country',
             'State',
-            'Update Address'
+            'Update Address',
+            'New',
+            'Edit',
+            'Add Address',
+            'Add',
+            'Update'
         );
     }
 
@@ -132,7 +139,13 @@ class CommercePlugin extends BasePlugin
                         'm151117_010101_Commerce_TaxIncluded',
                         'm151124_010101_Commerce_AddressManagement',
                         'm151127_010101_Commerce_TaxRateTaxableOptions',
-                        'm151210_010101_Commerce_FixMissingLineItemDimensionData'
+                        'm151210_010101_Commerce_FixMissingLineItemDimensionData',
+                        'm160215_010101_Commerce_ConsistentDecimalType',
+                        'm160226_010101_Commerce_OrderStatusSortOrder',
+                        'm160226_010102_Commerce_isCompleted',
+                        'm160227_010101_Commerce_OrderAdjustmentIncludedFlag',
+                        'm160229_010101_Commerce_ShippingZone',
+                        'm160229_010104_Commerce_SoftDeleteAndReorderPaymentMethod'
                     );
 
                     foreach ($migrations as $migrationClass) {
@@ -230,14 +243,36 @@ class CommercePlugin extends BasePlugin
      */
     public function onBeforeInstall()
     {
-        if (version_compare(craft()->getVersion(), '2.5', '<')) {
+        if (version_compare(craft()->getVersion(), '2.6', '<')) {
             // No way to gracefully handle this, so throw an Exception.
-            throw new Exception('Craft Commerce requires Craft CMS 2.5+ in order to run.');
+            throw new Exception('Craft Commerce 1.1 requires Craft CMS 2.6+ in order to run.');
         }
 
         if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 50400) {
             Craft::log('Craft Commerce requires PHP 5.4+ in order to run.', LogLevel::Error);
             return false;
+        }
+    }
+
+    /**
+     * @inheritDoc IPlugin::onBeforeUninstall()
+     *
+     * @return void
+     */
+    public function onBeforeUninstall()
+    {
+        // Delete the order element index settings
+        $ordersElementSettings = ElementIndexSettingsRecord::model()->findByAttributes(['type' => 'Commerce_Order']);
+        if ($ordersElementSettings)
+        {
+            $ordersElementSettings->delete();
+        }
+
+        // Delete the order element index settings
+        $productsElementSettings = ElementIndexSettingsRecord::model()->findByAttributes(['type' => 'Commerce_Product']);
+        if ($productsElementSettings)
+        {
+            $productsElementSettings->delete();
         }
     }
 
@@ -248,7 +283,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getVersion()
     {
-        return '1.0.0000';
+        return '1.1.0000';
     }
 
     /**
@@ -258,7 +293,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getSchemaVersion()
     {
-        return '1.0.01';
+        return '1.0.08';
     }
 
     /**
@@ -331,6 +366,38 @@ class CommercePlugin extends BasePlugin
         }
 
         return null;
+    }
+
+    /**
+     * Adds custom link options to Rich Text fields.
+     *
+     * @return array
+     */
+    public function addRichTextLinkOptions()
+    {
+        $linkOptions = array();
+
+        // Include a Product link option if there are any product types that have URLs
+        $productSources = array();
+
+        foreach (craft()->commerce_productTypes->getAllProductTypes() as $productType)
+        {
+            if ($productType->hasUrls)
+            {
+                $productSources[] = 'productType:'.$productType->id;
+            }
+        }
+
+        if ($productSources)
+        {
+            $linkOptions[] = array(
+                'optionTitle' => Craft::t('Link to a product'),
+                'elementType' => 'Commerce_Product',
+                'sources' => $productSources,
+            );
+        }
+
+        return $linkOptions;
     }
 
     /**

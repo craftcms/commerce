@@ -65,16 +65,28 @@ class Commerce_TaxAdjuster implements Commerce_AdjusterInterface
         $adjustment->orderId = $order->id;
         $adjustment->optionsJson = $taxRate->attributes;
 
+        $affectedLineIds = [];
+
         //checking address
         if (!$this->matchAddress($address, $zone)) {
             if ($taxRate->include) {
                 //excluding taxes included in price
+                $allRemovedTax = 0;
                 foreach ($lineItems as $item) {
                     if ($item->taxCategoryId == $taxRate->taxCategoryId) {
                         $taxableAmount = $item->getTaxableSubtotal($taxRate->taxable);
-                        $item->tax += -($taxableAmount - ($taxableAmount / (1 + $taxRate->rate)));
+                        $amount = -($taxableAmount - ($taxableAmount / (1 + $taxRate->rate)));
+                        $allRemovedTax += $amount;
+                        $item->tax += $amount;
+                        $affectedLineIds[] = $item->id;
                     }
                 }
+
+                // We need to display the adjustment that removed the included tax
+                $adjustment->name = $taxRate->name . " ". \Craft\Craft::t('Removed');
+                $adjustment->amount = $allRemovedTax;
+                $adjustment->optionsJson = array_merge(['lineItemsAffected'=>$affectedLineIds],$adjustment->optionsJson);
+                return $adjustment;
             }
 
             return false;
@@ -96,13 +108,16 @@ class Commerce_TaxAdjuster implements Commerce_AdjusterInterface
                 if (!$taxRate->include) {
                     $item->tax += $itemTax;
                 }else{
+                    $adjustment->included = true;
                     $item->taxIncluded += $itemTax;
                 }
 
+                $affectedLineIds[] = $item->id;
                 $itemsMatch = true;
             }
         }
 
+        $adjustment->optionsJson = array_merge(['lineItemsAffected'=>$affectedLineIds],$adjustment->optionsJson);
         return $itemsMatch ? $adjustment : false;
     }
 
@@ -126,11 +141,23 @@ class Commerce_TaxAdjuster implements Commerce_AdjusterInterface
                 return true;
             }
         } else {
-            foreach ($zone->states as $state) {
-                if ($state->country->id == $address->countryId && $state->name == $address->getStateText()) {
-                    return true;
-                }
+
+            $states = [];
+            $countries = [];
+            foreach ($zone->states as $state)
+            {
+                $states[] = $state->id;
+                $countries[] = $state->countryId;
             }
+
+            $countryAndStateMatch = (bool) (in_array($address->countryId, $countries) && in_array($address->stateId, $states));
+            $countryAndStateNameMatch = (bool) (in_array($address->countryId, $countries) && strcasecmp($state->name, $address->getStateText()) == 0);
+
+            if ($countryAndStateMatch || $countryAndStateNameMatch)
+            {
+                return true;
+            }
+
         }
 
         return false;

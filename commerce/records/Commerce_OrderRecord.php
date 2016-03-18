@@ -14,6 +14,7 @@ namespace Craft;
  * @property float $baseDiscount
  * @property float $baseShippingCost
  * @property string $email
+ * @property bool $isCompleted
  * @property DateTime $dateOrdered
  * @property DateTime $datePaid
  * @property string $currency
@@ -150,6 +151,7 @@ class Commerce_OrderRecord extends BaseRecord
                 'default' => 0
             ],
             'email' => AttributeType::String,
+            'isCompleted' => AttributeType::Bool,
             'dateOrdered' => AttributeType::DateTime,
             'datePaid' => AttributeType::DateTime,
             'currency' => AttributeType::String,

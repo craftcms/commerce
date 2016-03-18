@@ -15,6 +15,7 @@ use Omnipay\Common\Currency;
  * @property float $baseDiscount
  * @property float $baseShippingCost
  * @property string $email
+ * @property bool $isCompleted
  * @property DateTime $dateOrdered
  * @property string $currency
  * @property DateTime $datePaid
@@ -109,7 +110,7 @@ class Commerce_OrderModel extends BaseElementModel
     public function isEditable()
     {
         // Still a cart, allow full editing.
-        if(!$this->dateOrdered){
+        if(!$this->isCompleted){
             return true;
         }else{
             return craft()->userSession->checkPermission('commerce-manageOrders');
@@ -225,10 +226,16 @@ class Commerce_OrderModel extends BaseElementModel
      */
     public function isPaid()
     {
+        return (bool) $this->outstandingBalance() <= 0;
+    }
+
+    public function outstandingBalance()
+    {
         $currency = Currency::find(craft()->commerce_settings->getSettings()->defaultCurrency);
         $totalPaid = round($this->totalPaid, $currency->getDecimals());
         $totalPrice = round($this->totalPrice, $currency->getDecimals());
-        return $totalPaid >= $totalPrice;
+
+        return $totalPrice - $totalPaid;
     }
 
     /**
@@ -376,6 +383,23 @@ class Commerce_OrderModel extends BaseElementModel
     }
 
     /**
+     * Returns the total of adjustments made to order.
+     * @return float|int
+     */
+    public function getAdjustmentSubtotal()
+    {
+        $value = 0;
+        foreach ($this->getAdjustments() as $adjustment) {
+            if (!$adjustment->included)
+            {
+                $value += $adjustment->amount;
+            }
+        }
+
+        return $value;
+    }
+
+    /**
      * @return int
      */
     public function getTotalHeight()
@@ -406,6 +430,14 @@ class Commerce_OrderModel extends BaseElementModel
     public function setLineItems($lineItems)
     {
         $this->_lineItems = $lineItems;
+    }
+
+    /**
+     * @param Commerce_OrderAdjustmentModel[] $adjustments
+     */
+    public function setAdjustments($adjustments)
+    {
+        $this->_orderAdjustments = $adjustments;
     }
 
     /**
@@ -576,6 +608,7 @@ class Commerce_OrderModel extends BaseElementModel
                 'default' => 0
             ],
             'email' => AttributeType::String,
+            'isCompleted' => AttributeType::Bool,
             'dateOrdered' => AttributeType::DateTime,
             'datePaid' => AttributeType::DateTime,
             'currency' => AttributeType::String,

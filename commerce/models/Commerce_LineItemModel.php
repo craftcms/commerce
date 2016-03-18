@@ -93,7 +93,7 @@ class Commerce_LineItemModel extends BaseModel
      */
     public function refreshFromPurchasable()
     {
-        if (!$this->getPurchasable() || $this->order->dateOrdered) {
+        if (!$this->getPurchasable() || $this->order->isCompleted) {
             return false;
         }
 

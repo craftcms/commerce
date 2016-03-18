@@ -24,7 +24,28 @@ class Commerce_CustomerAddressesController extends Commerce_BaseFrontEndControll
         $this->requirePostRequest();
 
         $address = new Commerce_AddressModel;
-        $address->attributes = craft()->request->getPost('address');
+
+        $attrs = [
+            'id',
+            'firstName',
+            'lastName',
+            'address1',
+            'address2',
+            'city',
+            'zipCode',
+            'phone',
+            'alternativePhone',
+            'businessName',
+            'businessTaxId',
+            'countryId',
+            'stateId',
+            'stateName',
+            'stateValue'
+        ];
+        foreach ($attrs as $attr)
+        {
+            $address->$attr = craft()->request->getPost('address.'.$attr);
+        }
 
         $customerId = craft()->commerce_customers->getCustomerId();
         $addressIds = craft()->commerce_customers->getAddressIds($customerId);
@@ -92,15 +113,18 @@ class Commerce_CustomerAddressesController extends Commerce_BaseFrontEndControll
                 if (craft()->request->isAjaxRequest) {
                     $this->returnJson(['success' => true]);
                 }
+                craft()->userSession->setNotice(Craft::t('Address removed.'));
                 $this->redirectToPostedUrl();
+            } else {
+                $error = Craft::t('Could not delete address.');
             }
-            craft()->userSession->setNotice(Craft::t('Address removed.'));
         } else {
-            $error = Craft::t('Not allowed to remove that address.');
-            if (craft()->request->isAjaxRequest) {
-                $this->returnJson(['error' => $error]);
-            }
-            craft()->userSession->setFlash('error', $error);
+            $error = Craft::t('Could not delete address.');
         }
+
+        if (craft()->request->isAjaxRequest) {
+            $this->returnJson(['error' => $error]);
+        }
+        craft()->userSession->setFlash('error', $error);
     }
 }

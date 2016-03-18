@@ -8,6 +8,7 @@ namespace Craft;
  * @property string $name
  * @property string $handle
  * @property string $color
+ * @property int $sortOrder
  * @property bool $default
  *
  * @property Commerce_EmailRecord[] $emails
@@ -52,6 +53,7 @@ class Commerce_OrderStatusRecord extends BaseRecord
             'name' => [AttributeType::String, 'required' => true],
             'handle' => [AttributeType::Handle, 'required' => true],
             'color' => [AttributeType::Enum, 'values' => ['green', 'orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'], 'required' => true, 'default' => 'green'],
+            'sortOrder' => AttributeType::Number,
             'default' => [
                 AttributeType::Bool,
                 'default' => 0,

@@ -10,7 +10,7 @@
 {% block main %}
 
     <div class="row">
-        <div class="eleven columns">
+        <div class="twelve columns">
 
             {% if currentUser %}<p><a href="{{ url('commerce/customer') }}">My Orders</a></p>{% endif %}
             <h1>Order #{{ order.id }}</h1>
@@ -31,13 +31,13 @@
                     <h4>Shipping Address</h4>
 
                     {% if order.shippingAddress %}
-                    {% include 'commerce/_includes/address' with { address: order.shippingAddress } %}
+                    {% include 'commerce/_includes/addresses/address' with { address: order.shippingAddress } %}
                     {% endif %}
                 </div>
                 <div class="four columns">
                     <h4>Billing Address</h4>
                     {% if order.billingAddress %}
-                    {% include 'commerce/_includes/address' with { address: order.billingAddress } %}
+                    {% include 'commerce/_includes/addresses/address' with { address: order.billingAddress } %}
                     {% endif %}
                 </div>
             </div>

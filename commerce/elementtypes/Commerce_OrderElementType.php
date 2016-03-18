@@ -270,6 +270,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
         return [
             'number' => AttributeType::Mixed,
             'email' => AttributeType::Mixed,
+            'isCompleted' => AttributeType::Mixed,
             'dateOrdered' => AttributeType::Mixed,
             'updatedOn' => AttributeType::Mixed,
             'updatedAfter' => AttributeType::Mixed,
@@ -305,6 +306,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
         orders.orderStatusId,
         orders.dateOrdered,
         orders.email,
+        orders.isCompleted,
         orders.dateOrdered,
         orders.datePaid,
         orders.currency,
@@ -323,9 +325,13 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 
         if ($criteria->completed) {
             if ($criteria->completed == true) {
-                $query->andWhere('orders.dateOrdered is not null');
+                $query->andWhere('orders.isCompleted = 1');
                 $criteria->completed = null;
             }
+        }
+
+        if ($criteria->isCompleted) {
+            $query->andWhere(DbHelper::parseParam('orders.isCompleted', $criteria->isCompleted, $query->params));
         }
 
         if ($criteria->dateOrdered) {

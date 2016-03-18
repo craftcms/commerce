@@ -40,11 +40,13 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
      * Returns all Product Types
      *
      * @param string|null $indexBy
+     *
      * @return Commerce_ProductTypeModel[]
      */
     public function getAllProductTypes($indexBy = null)
     {
-        if (!$this->_fetchedAllProductTypes) {
+        if (!$this->_fetchedAllProductTypes)
+        {
             $results = $this->_createProductTypeQuery()->queryAll();
 
             if (!isset($this->_productTypesById))
@@ -52,7 +54,8 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
                 $this->_productTypesById = [];
             }
 
-            foreach($results as $result){
+            foreach ($results as $result)
+            {
                 $productType = Commerce_ProductTypeModel::populateModel($result);
                 $this->_productTypesById[$productType->id] = $productType;
             }
@@ -70,7 +73,7 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
         }
         else
         {
-            $productTypes = array();
+            $productTypes = [];
             foreach ($this->_productTypesById as $productType)
             {
                 $productTypes[$productType->$indexBy] = $productType;
@@ -89,7 +92,7 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
     {
         if (!isset($this->_allProductTypeIds))
         {
-            $this->_allProductTypeIds = array();
+            $this->_allProductTypeIds = [];
 
             foreach ($this->getAllProductTypes() as $productType)
             {
@@ -110,7 +113,7 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
     public function getEditableProductTypes($indexBy = null)
     {
         $editableProductTypeIds = $this->getEditableProductTypeIds();
-        $editableProductTypes = array();
+        $editableProductTypes = [];
 
         foreach ($this->getAllProductTypes() as $productTypes)
         {
@@ -139,7 +142,7 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
     {
         if (!isset($this->_editableProductTypeIds))
         {
-            $this->_editableProductTypeIds = array();
+            $this->_editableProductTypeIds = [];
 
             foreach ($this->getAllProductTypeIds() as $productTypeId)
             {
@@ -160,15 +163,16 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
      */
     public function getProductTypeById($productTypeId)
     {
-        if(!$this->_fetchedAllProductTypes &&
+        if (!$this->_fetchedAllProductTypes &&
             (!isset($this->_productTypesById) || !array_key_exists($productTypeId, $this->_productTypesById))
         )
         {
-	        $result = $this->_createProductTypeQuery()
-		        ->where('pt.id = :id', array(':id' => $productTypeId))
-		        ->queryRow();
+            $result = $this->_createProductTypeQuery()
+                ->where('pt.id = :id', [':id' => $productTypeId])
+                ->queryRow();
 
-            if ($result) {
+            if ($result)
+            {
                 $productType = Commerce_ProductTypeModel::populateModel($result);
             }
             else
@@ -193,6 +197,7 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
     public function getByHandle($handle)
     {
         craft()->deprecator->log('Commerce_OrderModel::getByHandle():renamed', 'You should no longer use `Commerce_OrderModel::getByHandle($handle)`, it has been renamed to `Commerce_OrderModel::getProductTypeByHandle($handle)`');
+
         return $this->getProductTypeByHandle($handle);
     }
 
@@ -203,11 +208,11 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
      */
     public function getProductTypeByHandle($handle)
     {
-	    $result = $this->_createProductTypeQuery()
-		    ->where('pt.handle = :handle', array(':handle' => $handle))
-		    ->queryRow();
+        $result = $this->_createProductTypeQuery()
+            ->where('pt.handle = :handle', [':handle' => $handle])
+            ->queryRow();
 
-	    if ($result)
+        if ($result)
         {
             $productType = Commerce_ProductTypeModel::populateModel($result);
             $this->_productTypesById[$productType->id] = $productType;
@@ -245,9 +250,11 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
     {
         $titleFormatChanged = false;
 
-        if ($productType->id) {
+        if ($productType->id)
+        {
             $productTypeRecord = Commerce_ProductTypeRecord::model()->findById($productType->id);
-            if (!$productTypeRecord) {
+            if (!$productTypeRecord)
+            {
                 throw new Exception(Craft::t('No product type exists with the ID “{id}”',
                     ['id' => $productType->id]));
             }
@@ -255,13 +262,16 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
             /** @var Commerce_ProductTypeModel $oldProductType */
             $oldProductType = Commerce_ProductTypeModel::populateModel($productTypeRecord);
             $isNewProductType = false;
-        } else {
+        }
+        else
+        {
             $productTypeRecord = new Commerce_ProductTypeRecord();
             $isNewProductType = true;
         }
 
         // If the product type does not have variants, default the title format.
-        if(!$isNewProductType && !$productType->hasVariants){
+        if (!$isNewProductType && !$productType->hasVariants)
+        {
             $productType->hasVariantTitleField = false;
             $productType->titleFormat = "{product.title}";
         }
@@ -276,8 +286,10 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
         $productTypeRecord->skuFormat = $productType->skuFormat;
         $productTypeRecord->template = $productType->template;
 
-        if(!$isNewProductType && !$productType->hasVariantTitleField){
-            if ($productTypeRecord->titleFormat != $oldProductType->titleFormat) {
+        if (!$isNewProductType && !$productType->hasVariantTitleField)
+        {
+            if ($productTypeRecord->titleFormat != $oldProductType->titleFormat)
+            {
                 $titleFormatChanged = true;
             }
         }
@@ -285,17 +297,23 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
         // Make sure that all of the URL formats are set properly
         $productTypeLocales = $productType->getLocales();
 
-        foreach ($productTypeLocales as $localeId => $productTypeLocale) {
-            if ($productType->hasUrls) {
+        foreach ($productTypeLocales as $localeId => $productTypeLocale)
+        {
+            if ($productType->hasUrls)
+            {
                 $urlFormatAttributes = ['urlFormat'];
                 $productTypeLocale->urlFormatIsRequired = true;
 
-                foreach ($urlFormatAttributes as $attribute) {
-                    if (!$productTypeLocale->validate([$attribute])) {
-                        $productType->addError($attribute . '-' . $localeId, $productTypeLocale->getError($attribute));
+                foreach ($urlFormatAttributes as $attribute)
+                {
+                    if (!$productTypeLocale->validate([$attribute]))
+                    {
+                        $productType->addError($attribute.'-'.$localeId, $productTypeLocale->getError($attribute));
                     }
                 }
-            } else {
+            }
+            else
+            {
                 $productTypeLocale->urlFormat = null;
             }
         }
@@ -303,32 +321,46 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
         $productTypeRecord->validate();
         $productType->addErrors($productTypeRecord->getErrors());
 
-        if (!$productType->hasErrors()) {
+        if (!$productType->hasErrors())
+        {
             CommerceDbHelper::beginStackedTransaction();
-            try {
+            try
+            {
 
-                if (!$isNewProductType) {
+                if (!$isNewProductType)
+                {
                     // If we previously had variants but now don't, delete all non-default variants.
-                    if ($oldProductType->hasVariants && !$productType->hasVariants) {
+                    if ($oldProductType->hasVariants && !$productType->hasVariants)
+                    {
                         $criteria = craft()->elements->getCriteria('Commerce_Product');
                         $criteria->typeId = $productType->id;
                         $products = $criteria->find();
                         /** @var Commerce_ProductModel $product */
-                        foreach ($products as $key => $product) {
-                            if ($product && $product->getContent()->id) {
+                        foreach ($products as $key => $product)
+                        {
+                            if ($product && $product->getContent()->id)
+                            {
                                 $defaultVariant = null;
                                 // find out default variant
-                                foreach ($product->getVariants() as $variant) {
+                                foreach ($product->getVariants() as $variant)
+                                {
                                     if ($defaultVariant === null || $variant->isDefault)
                                     {
                                         $defaultVariant = $variant;
                                     }
                                 }
                                 // delete all non-default variants
-                                foreach ($product->getVariants() as $variant) {
+                                foreach ($product->getVariants() as $variant)
+                                {
                                     if ($defaultVariant !== $variant)
                                     {
                                         craft()->commerce_variants->deleteVariantById($variant->id);
+                                    }
+                                    else
+                                    {
+                                        // The default variant must always be enabled.
+                                        $variant->enabled = true;
+                                        craft()->commerce_variants->saveVariant($variant);
                                     }
                                 }
                             }
@@ -337,7 +369,8 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
                 }
 
                 // Product Field Layout
-                if (!$isNewProductType && $oldProductType->fieldLayoutId) {
+                if (!$isNewProductType && $oldProductType->fieldLayoutId)
+                {
                     // Drop the old field layout
                     craft()->fields->deleteLayoutById($oldProductType->fieldLayoutId);
                 }
@@ -347,7 +380,8 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
                 $productType->fieldLayoutId = $fieldLayout->id;
                 $productTypeRecord->fieldLayoutId = $fieldLayout->id;
 
-                if (!$isNewProductType && $oldProductType->variantFieldLayoutId) {
+                if (!$isNewProductType && $oldProductType->variantFieldLayoutId)
+                {
                     // Drop the old field layout
                     craft()->fields->deleteLayoutById($oldProductType->variantFieldLayoutId);
                 }
@@ -361,7 +395,8 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
                 $productTypeRecord->save(false);
 
                 // Now that we have a product type ID, save it on the model
-                if (!$productType->id) {
+                if (!$productType->id)
+                {
                     $productType->id = $productTypeRecord->id;
                 }
 
@@ -371,13 +406,17 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
                 $newLocaleData = [];
 
                 //Refresh all titles for variants of same product type if titleFormat changed.
-                if ($productType->hasVariants && !$productType->hasVariantTitleField) {
-                    if ($titleFormatChanged) {
+                if ($productType->hasVariants && !$productType->hasVariantTitleField)
+                {
+                    if ($titleFormatChanged)
+                    {
                         $criteria = craft()->elements->getCriteria('Commerce_Product');
                         $criteria->typeId = $productType->id;
                         $products = $criteria->find();
-                        foreach ($products as $product) {
-                            foreach($product->getVariants() as $variant){
+                        foreach ($products as $product)
+                        {
+                            foreach ($product->getVariants() as $variant)
+                            {
                                 $title = craft()->templates->renderObjectTemplate($productType->titleFormat, $variant);
                                 // updates to the same title in all locales
                                 craft()->db->createCommand()->update('content',
@@ -389,7 +428,8 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
                     }
                 }
 
-                if (!$isNewProductType) {
+                if (!$isNewProductType)
+                {
                     // Get the old product type locales
                     $oldLocaleRecords = Commerce_ProductTypeLocaleRecord::model()->findAllByAttributes([
                         'productTypeId' => $productType->id
@@ -400,13 +440,16 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
                 }
 
 
-                foreach ($productTypeLocales as $localeId => $locale) {
+                foreach ($productTypeLocales as $localeId => $locale)
+                {
                     // Was this already selected?
-                    if (!$isNewProductType && isset($oldLocales[$localeId])) {
+                    if (!$isNewProductType && isset($oldLocales[$localeId]))
+                    {
                         $oldLocale = $oldLocales[$localeId];
 
                         // Has the URL format changed?
-                        if ($locale->urlFormat != $oldLocale->urlFormat) {
+                        if ($locale->urlFormat != $oldLocale->urlFormat)
+                        {
                             craft()->db->createCommand()->update('commerce_producttypes_i18n', [
                                 'urlFormat' => $locale->urlFormat
                             ], [
@@ -415,7 +458,9 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
 
                             $changedLocaleIds[] = $localeId;
                         }
-                    } else {
+                    }
+                    else
+                    {
                         $newLocaleData[] = [$productType->id, $localeId, $locale->urlFormat];
                     }
                 }
@@ -426,19 +471,22 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
                     $newLocaleData
                 );
 
-                if (!$isNewProductType) {
+                if (!$isNewProductType)
+                {
                     // Drop any locales that are no longer being used, as well as the associated element
                     // locale rows
 
                     $droppedLocaleIds = array_diff(array_keys($oldLocales), array_keys($productTypeLocales));
 
-                    if ($droppedLocaleIds) {
+                    if ($droppedLocaleIds)
+                    {
                         craft()->db->createCommand()->delete('commerce_producttypes_i18n', ['in', 'locale', $droppedLocaleIds]);
                     }
                 }
 
 
-                if (!$isNewProductType) {
+                if (!$isNewProductType)
+                {
                     // Get all of the product IDs in this group
                     $criteria = craft()->elements->getCriteria('Commerce_Product');
                     $criteria->typeId = $productType->id;
@@ -447,25 +495,32 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
                     $productIds = $criteria->ids();
 
                     // Should we be deleting
-                    if ($productIds && $droppedLocaleIds) {
+                    if ($productIds && $droppedLocaleIds)
+                    {
                         craft()->db->createCommand()->delete('elements_i18n', ['and', ['in', 'elementId', $productIds], ['in', 'locale', $droppedLocaleIds]]);
                         craft()->db->createCommand()->delete('content', ['and', ['in', 'elementId', $productIds], ['in', 'locale', $droppedLocaleIds]]);
                     }
                     // Are there any locales left?
-                    if ($productTypeLocales) {
+                    if ($productTypeLocales)
+                    {
                         // Drop the old productType URIs if the product type no longer has URLs
-                        if (!$productType->hasUrls && $oldProductType->hasUrls) {
+                        if (!$productType->hasUrls && $oldProductType->hasUrls)
+                        {
                             craft()->db->createCommand()->update('elements_i18n',
                                 ['uri' => null],
                                 ['in', 'elementId', $productIds]
                             );
-                        } else if ($changedLocaleIds) {
-                            foreach ($productIds as $productId) {
+                        }
+                        else if ($changedLocaleIds)
+                        {
+                            foreach ($productIds as $productId)
+                            {
                                 craft()->config->maxPowerCaptain();
 
                                 // Loop through each of the changed locales and update all of the products’ slugs and
                                 // URIs
-                                foreach ($changedLocaleIds as $localeId) {
+                                foreach ($changedLocaleIds as $localeId)
+                                {
                                     $criteria = craft()->elements->getCriteria('Commerce_Product');
                                     $criteria->id = $productId;
                                     $criteria->locale = $localeId;
@@ -473,7 +528,8 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
                                     $updateProduct = $criteria->first();
 
                                     // @todo replace the getContent()->id check with 'strictLocale' param once it's added
-                                    if ($updateProduct && $updateProduct->getContent()->id) {
+                                    if ($updateProduct && $updateProduct->getContent()->id)
+                                    {
                                         craft()->elements->updateElementSlugAndUri($updateProduct, false, false);
                                     }
                                 }
@@ -483,14 +539,18 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
                 }
 
                 CommerceDbHelper::commitStackedTransaction();
-            } catch (\Exception $e) {
+            }
+            catch (\Exception $e)
+            {
                 CommerceDbHelper::rollbackStackedTransaction();
 
                 throw $e;
             }
 
             return true;
-        } else {
+        }
+        else
+        {
             return false;
         }
     }
@@ -507,7 +567,8 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
     public function deleteProductTypeById($id)
     {
         CommerceDbHelper::beginStackedTransaction();
-        try {
+        try
+        {
             $productType = $this->getProductTypeById($id);
 
             $criteria = craft()->elements->getCriteria('Commerce_Product');
@@ -516,25 +577,30 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
             $criteria->limit = null;
             $products = $criteria->find();
 
-            foreach ($products as $product) {
+            foreach ($products as $product)
+            {
                 craft()->commerce_products->deleteProduct($product);
             }
 
             $fieldLayoutId = $productType->asa('productFieldLayout')->getFieldLayout()->id;
             craft()->fields->deleteLayoutById($fieldLayoutId);
-            if ($productType->hasVariants) {
+            if ($productType->hasVariants)
+            {
                 craft()->fields->deleteLayoutById($productType->asa('variantFieldLayout')->getFieldLayout()->id);
             }
 
             $productTypeRecord = Commerce_ProductTypeRecord::model()->findById($productType->id);
             $affectedRows = $productTypeRecord->delete();
 
-            if ($affectedRows) {
+            if ($affectedRows)
+            {
                 CommerceDbHelper::commitStackedTransaction();
             }
 
             return (bool)$affectedRows;
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e)
+        {
             CommerceDbHelper::rollbackStackedTransaction();
 
             throw $e;
@@ -588,10 +654,12 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
             ->where('locale = :locale', [':locale' => craft()->i18n->getPrimarySiteLocaleId()])
             ->queryAll();
 
-        if ($productTypeLocales) {
+        if ($productTypeLocales)
+        {
             $newProductTypeLocales = [];
 
-            foreach ($productTypeLocales as $productTypeLocale) {
+            foreach ($productTypeLocales as $productTypeLocale)
+            {
                 $newProductTypeLocales[] = [$productTypeLocale['productTypeId'], $localeId, $productTypeLocale['urlFormat']];
             }
 
@@ -601,15 +669,15 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
         return true;
     }
 
-	/**
-	 * Returns a DbCommand object prepped for retrieving product types.
-	 *
-	 * @return DbCommand
-	 */
-	private function _createProductTypeQuery()
-	{
-		return craft()->db->createCommand()
-			->select('pt.id, pt.name, pt.handle, pt.hasUrls, pt.hasDimensions, pt.hasVariants, pt.hasVariantTitleField, pt.titleFormat, pt.skuFormat, pt.template, pt.fieldLayoutId, pt.variantFieldLayoutId')
-			->from('commerce_producttypes pt');
-	}
+    /**
+     * Returns a DbCommand object prepped for retrieving product types.
+     *
+     * @return DbCommand
+     */
+    private function _createProductTypeQuery()
+    {
+        return craft()->db->createCommand()
+            ->select('pt.id, pt.name, pt.handle, pt.hasUrls, pt.hasDimensions, pt.hasVariants, pt.hasVariantTitleField, pt.titleFormat, pt.skuFormat, pt.template, pt.fieldLayoutId, pt.variantFieldLayoutId')
+            ->from('commerce_producttypes pt');
+    }
 }

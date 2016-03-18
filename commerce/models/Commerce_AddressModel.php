@@ -1,6 +1,8 @@
 <?php
 namespace Craft;
 
+use JsonSerializable;
+
 /**
  * Customer address model.
  *
@@ -29,10 +31,19 @@ namespace Craft;
  * @package   craft.plugins.commerce.models
  * @since     1.0
  */
-class Commerce_AddressModel extends BaseModel
+class Commerce_AddressModel extends BaseModel implements JsonSerializable
 {
     /** @var int|string Either ID of a state or name of state if it's not present in the DB */
     public $stateValue;
+
+    public function jsonSerialize()
+    {
+        $data = $this->attributes;
+        $data['stateValue'] = $this->getStateValue();
+        $data['stateText'] = $this->getStateText();
+        $data['countryText'] = $this->getCountryText();
+        return $data;
+    }
 
     /**
      * @return string
@@ -56,6 +67,14 @@ class Commerce_AddressModel extends BaseModel
     public function getCountryText()
     {
         return $this->countryId ? $this->getCountry()->name : '';
+    }
+
+    /**
+     * @return string
+     */
+    public function getStateValue()
+    {
+        return $this->stateId ? $this->stateId : ($this->stateName ? $this->stateName : '');
     }
 
     /*
@@ -83,6 +102,23 @@ class Commerce_AddressModel extends BaseModel
 	    $lastName = trim($this->getAttribute('lastName'));
 
 	    return $firstName.($firstName && $lastName ? ' ' : '').$lastName;
+    }
+
+    /**
+     * @return void
+     */
+    public function setAttributes($values)
+    {
+        if ($values instanceof \CModel){
+            $this->stateValue = $values->stateValue;
+        }
+
+        if(is_array($values))
+        {
+            $this->stateValue = isset($values['stateValue']) ? $values['stateValue'] : null;
+        }
+
+	    parent::setAttributes($values);
     }
 
     /**
