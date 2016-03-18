@@ -2,6 +2,9 @@
 namespace Commerce\Gateways;
 
 use Craft\Commerce_PaymentMethodModel;
+use Craft\BaseModel;
+use Omnipay\Common\CreditCard;
+use Omnipay\Common\Message\AbstractRequest as OmnipayRequest;
 
 /**
  * Interface GatewayAdapterInterface
@@ -29,7 +32,4 @@ interface GatewayAdapterInterface
 
     /** @return string */
     public function getSettingsHtml();
-
-    /** @return bool */
-    public function requiresCreditCard();
 }

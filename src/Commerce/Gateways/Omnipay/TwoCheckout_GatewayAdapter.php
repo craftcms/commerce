@@ -1,9 +1,7 @@
 <?php
 namespace Commerce\Gateways\Omnipay;
 
-use Commerce\Gateways\BaseGatewayAdapter;
-
-class TwoCheckout_GatewayAdapter extends BaseGatewayAdapter
+class TwoCheckout_GatewayAdapter extends \Commerce\Gateways\OffsiteGatewayAdapter
 {
     public function handle()
     {

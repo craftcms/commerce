@@ -60,6 +60,8 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
         $adjustment->description = $discount->description ?: $this->getDescription($discount);
         $adjustment->optionsJson = $discount->attributes;
 
+        $affectedLineIds = [];
+
         //checking items
         $matchingQty = 0;
         $matchingTotal = 0;
@@ -105,6 +107,8 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
                 if ($discount->freeShipping) {
                     $item->shippingCost = 0;
                 }
+
+                $affectedLineIds[] = $item->id;
             }
         }
 
@@ -116,8 +120,9 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
 
         // only display adjustment if an amount was calculated
         if ($amount) {
+            // Record which line items this discount affected.
+            $adjustment->optionsJson = array_merge(['lineItemsAffected'=>$affectedLineIds],$adjustment->optionsJson);
             $adjustment->amount = $amount;
-
             return $adjustment;
         } else {
             return false;

@@ -44,6 +44,14 @@ class Commerce_DiscountModel extends BaseModel
     use Commerce_ModelRelationsTrait;
 
     /**
+     * @return string|false
+     */
+    public function getCpEditUrl()
+    {
+        return UrlHelper::getCpUrl('commerce/promotions/discounts/'.$this->id);
+    }
+
+    /**
      * @return array
      */
     public function getGroupIds()

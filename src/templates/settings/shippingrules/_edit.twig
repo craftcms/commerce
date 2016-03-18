@@ -8,249 +8,321 @@
 
 {% set fullPageForm = true %}
 
+{% macro lazyCreateSelect(selectParams, newOptionLabel, modalHeading, html, js, action, successText) %}
+
+	{% from "_includes/forms" import selectField %}
+	{{ selectField(selectParams) }}
+
+	{% includejs %}
+		(function () {
+			var $select = $('#{{ selectParams.id }}').selectize({
+				dropdownParent: 'body'
+			});
+
+			var selectize = $select.get(0).selectize;
+
+			selectize.addOption({
+				value: 'new',
+				text: '{{ newOptionLabel|e("js") }}'
+			});
+
+			selectize.on('item_add', function (value, $item) {
+				if (value == 'new') {
+					// Not a real option
+					selectize.clear();
+
+					var $form = $(
+							'<form class="modal fitted lazy-create-modal">' +
+							'<div class="header">' +
+							'<h1 class="centeralign">{{ modalHeading }}</h1>' +
+							'</div>' +
+							'<div class="body">' +
+							'{{ html|e("js") }}' +
+							'</div>' +
+							'<div class="footer">' +
+							'<div class="buttons right">' +
+							'<div class="btn cancel-btn">{{ "Cancel"|t }}</div>' +
+							'<input type="submit" class="btn submit" value="{{ 'Save'|t }}"/>' +
+							'<div class="spinner hidden"/>' +
+							'</div>' +
+							'</div>' +
+							'</form>'
+					);
+
+					var modal = new Garnish.Modal($form, {
+						onHide: function () {
+							modal.destroy();
+							delete modal;
+						}
+					});
+
+					eval('{{ js|e("js") }}');
+
+					setTimeout(function () {
+						$form.find('.text:first').focus();
+
+						modal.updateSizeAndPosition();
+						$form.find('.body:first').on('resize', function () {
+							modal.updateSizeAndPosition();
+						});
+					}, 100);
+
+					$form.on('submit', function (ev) {
+						ev.preventDefault();
+						$form.find('.spinner').removeClass('hidden');
+						var namespacedData = Garnish.getPostData($form),
+								data = {};
+
+						for (var name in namespacedData) {
+							data[name.replace(/^new\[([^\]]+)\]/, '$1')] = namespacedData[name];
+						}
+
+						Craft.postActionRequest('{{ action|e("js") }}', data, function (response, textStatus) {
+							$form.find('.spinner').addClass('hidden');
+							if (textStatus == 'success') {
+								if (response.success) {
+									Craft.cp.displayNotice('{{ successText|e("js") }}');
+									selectize.addOption({
+										value: response.id,
+										text: response.name,
+										$order: selectize.order - 1
+									});
+									selectize.setValue(response.id);
+									modal.hide();
+								} else {
+									Craft.ui.clearErrorsFromField($form.find('.field'));
+
+									for (var attribute in response.errors) {
+										Craft.ui.addErrorsToField($('#new-' + attribute + '-field'), response.errors[attribute]);
+									}
+
+									modal.updateSizeAndPosition();
+									Garnish.shake($form);
+								}
+							}
+						});
+					});
+
+					$form.find('.cancel-btn').on('click', function () {
+						modal.hide();
+					});
+				}
+			});
+		})();
+	{% endincludejs %}
+
+{% endmacro %}
+
+
+{% from _self import lazyCreateSelect %}
 {% import "_includes/forms" as forms %}
 {% import "commerce/_includes/forms/commerceForms" as commerceForms %}
 
     {% set tabs = {
-        0: {'label':'Rule'|t,'url':'#rule-tab'},
-        1: {'label':'Conditions'|t,'url':'#conditions-tab'},
-        2: {'label':'Costs'|t,'url':'#costs-tab'}
-    }
-    %}
+	0: {'label':'Rule'|t,'url':'#rule-tab'},
+	1: {'label':'Conditions'|t,'url':'#conditions-tab'},
+	2: {'label':'Costs'|t,'url':'#costs-tab'}
+	} %}
 
 {% block content %}
-    <input type="hidden" name="action" value="commerce/shippingRules/save">
-    <input type="hidden" name="redirect" value="commerce/settings/shippingmethods/{{ methodId }}#rules">
-    <input type="hidden" name="methodId" value="{{ methodId }}">
-    {% if shippingRule.id %}<input type="hidden" name="id" value="{{ shippingRule.id }}">{% endif %}
+	<input type="hidden" name="action" value="commerce/shippingRules/save">
+	<input type="hidden" name="redirect"
+		   value="commerce/settings/shippingmethods/{{ methodId }}#rules">
+	<input type="hidden" name="methodId" value="{{ methodId }}">
+	{% if shippingRule.id %}<input type="hidden" name="id"
+								   value="{{ shippingRule.id }}">{% endif %}
 
-    <div id="rule-tab">
-    {{ forms.textField({
-        first: true,
-        label: "Name"|t,
-        instructions: "What this shipping rule will be called in the CP."|t,
-        id: 'name',
-        name: 'name',
-        value: shippingRule.name,
-        errors: shippingRule.getErrors('name'),
-        autofocus: true,
-        required: true,
-    }) }}
+	<div id="rule-tab">
+		{{ forms.textField({
+			first: true,
+			label: "Name"|t,
+			instructions: "What this shipping rule will be called in the CP."|t,
+			id: 'name',
+			name: 'name',
+			value: shippingRule.name,
+			errors: shippingRule.getErrors('name'),
+			autofocus: true,
+			required: true,
+		}) }}
 
-    {{ forms.textField({
-        first: true,
-        label: "Description"|t,
-        instructions: "Describe this rule."|t,
-        name: 'description',
-        value: shippingRule.description,
-        errors: shippingRule.getErrors('description'),
-    }) }}
+		{{ forms.textField({
+			first: true,
+			label: "Description"|t,
+			instructions: "Describe this rule."|t,
+			name: 'description',
+			value: shippingRule.description,
+			errors: shippingRule.getErrors('description'),
+		}) }}
 
-    {{ forms.selectField({
-        label: 'Country'|t,
-        instructions: "Country for which this rule is applicable to. Leave blank for all."|t,
-        id: 'countries',
-        name: 'countryId',
-        options: countries,
-        class: 'selectize fullwidth',
-        value: shippingRule.countryId,
-        errors: shippingRule.getErrors('countries'),
-    }) }}
+		{% set shippingZoneSelectParams = {
+			label: "Shipping Zone"|t,
+			instructions: "Select a shipping zone."|t,
+			id: 'shippingZoneId',
+			name: 'shippingZoneId',
+			value: shippingRule.shippingZoneId,
+			errors: shippingRule.getErrors('shippingZoneId'),
+			required: false,
+			options: shippingZones,
+			class: 'selectize fullwidth',
+		} %}
 
-    {{ forms.selectField({
-        label: 'State'|t,
-        instructions: "State for which this rule is applicable to. Leave blank for all."|t,
-        id: 'states',
-        name: 'stateId',
-        options: states[shippingRule.countryId] is defined ? states[shippingRule.countryId] : null,
-        class: 'selectize fullwidth',
-        value: shippingRule.stateId,
-        errors: shippingRule.getErrors('states'),
-    }) }}
+		{{ lazyCreateSelect(
+			shippingZoneSelectParams,
+			'New shipping zone'|t,
+			'Create a new shipping zone'|t,
+			newShippingZoneFields,
+			newShippingZoneJs,
+			'commerce/shippingZones/save',
+			'Shipping zone saved.'|t
+		) }}
 
-    {{ forms.checkboxField({
-        label: "Enable this shipping rule"|t,
-        id: 'enabled',
-        name: 'enabled',
-        value: 1,
-        checked: shippingRule.enabled,
-        errors: shippingRule.getErrors('enabled')
-    }) }}
-    </div>
-    <div id="conditions-tab" class="hidden">
-    <p>{{ "Filtering conditions which describe to which orders this rule is applicable to. Write 0 to skip a condition."|t }}</p>
+		{{ forms.checkboxField({
+			label: "Enable this shipping rule"|t,
+			id: 'enabled',
+			name: 'enabled',
+			value: 1,
+			checked: shippingRule.enabled,
+			errors: shippingRule.getErrors('enabled')
+		}) }}
+	</div>
+	<div id="conditions-tab" class="hidden">
+		<p>{{ "Filtering conditions which describe to which orders this rule is applicable to. Write 0 to skip a condition."|t }}</p>
 
-    {{ commerceForms.numberField({
-        label: "Minimum Order Quantity"|t,
-        name: 'minQty',
-        value: shippingRule.minQty,
-        type: 'number',
-        min: 0,
-        errors: shippingRule.getErrors('minQty'),
-        required: true,
-    }) }}
+		{{ commerceForms.numberField({
+			label: "Minimum Order Quantity"|t,
+			name: 'minQty',
+			value: shippingRule.minQty,
+			type: 'number',
+			min: 0,
+			errors: shippingRule.getErrors('minQty'),
+			required: true,
+		}) }}
 
-    {{ commerceForms.numberField({
-        label: "Maximum Order Quantity"|t,
-        name: 'maxQty',
-        value: shippingRule.maxQty,
-        type: 'number',
-        min: 0,
-        errors: shippingRule.getErrors('maxQty'),
-        required: true,
-    }) }}
+		{{ commerceForms.numberField({
+			label: "Maximum Order Quantity"|t,
+			name: 'maxQty',
+			value: shippingRule.maxQty,
+			type: 'number',
+			min: 0,
+			errors: shippingRule.getErrors('maxQty'),
+			required: true,
+		}) }}
 
-    {{ commerceForms.numberField({
-        label: "Minimum Order Total Price"|t,
-        name: 'minTotal',
-        value: shippingRule.minTotal,
-        type: 'number',
-        min: 0,
-        step: 'any',
-        errors: shippingRule.getErrors('minTotal'),
-        required: true,
-    }) }}
+		{{ commerceForms.numberField({
+			label: "Minimum Order Total Price"|t,
+			name: 'minTotal',
+			value: shippingRule.minTotal,
+			type: 'number',
+			min: 0,
+			step: 'any',
+			errors: shippingRule.getErrors('minTotal'),
+			required: true,
+		}) }}
 
-    {{ commerceForms.numberField({
-        label: "Maximum Order Total Price"|t,
-        name: 'maxTotal',
-        value: shippingRule.maxTotal,
-        type: 'number',
-        min: 0,
-        step: 'any',
-        errors: shippingRule.getErrors('maxTotal'),
-        required: true,
-    }) }}
+		{{ commerceForms.numberField({
+			label: "Maximum Order Total Price"|t,
+			name: 'maxTotal',
+			value: shippingRule.maxTotal,
+			type: 'number',
+			min: 0,
+			step: 'any',
+			errors: shippingRule.getErrors('maxTotal'),
+			required: true,
+		}) }}
 
-    {{ commerceForms.numberField({
-        label: "Minimum Order Total Weight"|t,
-        name: 'minWeight',
-        value: shippingRule.minWeight,
-        type: 'number',
-        min: 0,
-        step: 'any',
-        errors: shippingRule.getErrors('minWeight'),
-        required: true,
-    }) }}
+		{{ commerceForms.numberField({
+			label: "Minimum Order Total Weight"|t,
+			name: 'minWeight',
+			value: shippingRule.minWeight,
+			type: 'number',
+			min: 0,
+			step: 'any',
+			errors: shippingRule.getErrors('minWeight'),
+			required: true,
+		}) }}
 
-    {{ commerceForms.numberField({
-        label: "Maximum Order Total Weight"|t,
-        name: 'maxWeight',
-        value: shippingRule.maxWeight,
-        type: 'number',
-        min: 0,
-        step: 'any',
-        errors: shippingRule.getErrors('maxWeight'),
-        required: true,
-    }) }}
+		{{ commerceForms.numberField({
+			label: "Maximum Order Total Weight"|t,
+			name: 'maxWeight',
+			value: shippingRule.maxWeight,
+			type: 'number',
+			min: 0,
+			step: 'any',
+			errors: shippingRule.getErrors('maxWeight'),
+			required: true,
+		}) }}
 
-    </div>
-    <div id="costs-tab" class="hidden">
+	</div>
+	<div id="costs-tab" class="hidden">
 
-    {{ commerceForms.numberField({
-        label: "Base Rate"|t,
-        name: 'baseRate',
-        value: shippingRule.baseRate,
-        type: 'number',
-        min: 0,
-        step: 'any',
-        errors: shippingRule.getErrors('baseRate'),
-        required: true,
-    }) }}
+		{{ commerceForms.numberField({
+			label: "Base Rate"|t,
+			name: 'baseRate',
+			value: shippingRule.baseRate,
+			type: 'number',
+			min: 0,
+			step: 'any',
+			errors: shippingRule.getErrors('baseRate'),
+			required: true,
+		}) }}
 
-    {{ commerceForms.numberField({
-        label: "Per Item Rate"|t,
-        name: 'perItemRate',
-        value: shippingRule.perItemRate,
-        type: 'number',
-        min: 0,
-        step: 'any',
-        errors: shippingRule.getErrors('perItemRate'),
-        required: true,
-    }) }}
+		{{ commerceForms.numberField({
+			label: "Per Item Rate"|t,
+			name: 'perItemRate',
+			value: shippingRule.perItemRate,
+			type: 'number',
+			min: 0,
+			step: 'any',
+			errors: shippingRule.getErrors('perItemRate'),
+			required: true,
+		}) }}
 
-    {{ commerceForms.numberField({
-        label: "Weight Rate"|t,
-        name: 'weightRate',
-        value: shippingRule.weightRate,
-        type: 'number',
-        min: 0,
-        step: 'any',
-        errors: shippingRule.getErrors('weightRate'),
-        required: true,
-    }) }}
+		{{ commerceForms.numberField({
+			label: "Weight Rate"|t,
+			name: 'weightRate',
+			value: shippingRule.weightRate,
+			type: 'number',
+			min: 0,
+			step: 'any',
+			errors: shippingRule.getErrors('weightRate'),
+			required: true,
+		}) }}
 
-    {{ commerceForms.numberField({
-        label: "Percentage Rate"|t,
-        name: 'percentageRate',
-        instructions: "The minimum the person should spend on shippping. Set zero to disable this check."|t,
-        value: shippingRule.percentageRate,
-        type: 'number',
-        min: 0,
-        step: 'any',
-        errors: shippingRule.getErrors('percentageRate'),
-        required: true,
-    }) }}
+		{{ commerceForms.numberField({
+			label: "Percentage Rate"|t,
+			name: 'percentageRate',
+			instructions: "The minimum the person should spend on shippping. Set zero to disable this check."|t,
+			value: shippingRule.percentageRate,
+			type: 'number',
+			min: 0,
+			step: 'any',
+			errors: shippingRule.getErrors('percentageRate'),
+			required: true,
+		}) }}
 
-    {{ commerceForms.numberField({
-        label: "Minimum Rate"|t,
-        name: 'minRate',
-        instructions: "The minimum the person should spend on shippping. Set zero to disable this check."|t,
-        value: shippingRule.minRate,
-        type: 'number',
-        min: 0,
-        step: 'any',
-        errors: shippingRule.getErrors('minRate'),
-        required: true,
-    }) }}
+		{{ commerceForms.numberField({
+			label: "Minimum Rate"|t,
+			name: 'minRate',
+			instructions: "The minimum the person should spend on shippping. Set zero to disable this check."|t,
+			value: shippingRule.minRate,
+			type: 'number',
+			min: 0,
+			step: 'any',
+			errors: shippingRule.getErrors('minRate'),
+			required: true,
+		}) }}
 
-    {{ commerceForms.numberField({
-        label: "Maximum Base Rate"|t,
-        instructions: "The maximum the person should spend on shippping. Set zero to disable this check."|t,
-        name: 'maxRate',
-        value: shippingRule.maxRate,
-        type: 'number',
-        min: 0,
-        step: 'any',
-        errors: shippingRule.getErrors('maxRate'),
-        required: true,
-    }) }}
+		{{ commerceForms.numberField({
+			label: "Maximum Base Rate"|t,
+			instructions: "The maximum the person should spend on shippping. Set zero to disable this check."|t,
+			name: 'maxRate',
+			value: shippingRule.maxRate,
+			type: 'number',
+			min: 0,
+			step: 'any',
+			errors: shippingRule.getErrors('maxRate'),
+			required: true,
+		}) }}
 
-    </div>
+	</div>
 {% endblock %}
-
-
-{% includejs %}
-{#<script>#}
-var states = {{ states|json_encode|raw }};
-
-$(function () {
-    $('#countries, #states').selectize({
-        plugins: ['remove_button'],
-        dropdownParent: 'body'
-    });
-
-    var statesSelectize = $('#states')[0].selectize;
-
-    $('#countries').change(function() {
-        var cid = $(this).val();
-
-        statesSelectize.clear();
-        statesSelectize.clearOptions();
-
-        if(states.hasOwnProperty(cid)) {
-            var statesList = [];
-            for(var id in states[cid]) {
-                statesList.push({
-                    text: states[cid][id],
-                    value: id
-                });
-            }
-
-            statesSelectize.load(function(callback) {
-                callback(statesList);
-            });
-        }
-    });
-});
-{% endincludejs %}

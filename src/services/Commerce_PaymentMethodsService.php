@@ -13,87 +13,153 @@ namespace Craft;
  */
 class Commerce_PaymentMethodsService extends BaseApplicationComponent
 {
-    const FRONTEND_ENABLED = 'frontendEnabled';
+	const FRONTEND_ENABLED = 'frontendEnabled';
 
-    /**
-     * @param int $id
-     *
-     * @return Commerce_PaymentMethodModel|null
-     */
-    public function getPaymentMethodById($id)
-    {
-        $result = Commerce_PaymentMethodRecord::model()->findById($id);
+	/**
+	 * @param int $id
+	 *
+	 * @return Commerce_PaymentMethodModel|null
+	 */
+	public function getPaymentMethodById($id)
+	{
+		$result = Commerce_PaymentMethodRecord::model()->findById($id);
 
-        if ($result) {
-            return Commerce_PaymentMethodModel::populateModel($result);
-        }
+		if ($result)
+		{
+			return Commerce_PaymentMethodModel::populateModel($result);
+		}
 
-        return null;
-    }
+		return null;
+	}
 
-    /**
-     * @param array|\CDbCriteria $criteria
-     *
-     * @return Commerce_PaymentMethodModel[]
-     */
-    public function getAllPaymentMethods($criteria = [])
-    {
-        $records = Commerce_PaymentMethodRecord::model()->findAll($criteria);
-        return Commerce_PaymentMethodModel::populateModels($records);
-    }
+	/**
+	 * @param array|\CDbCriteria $criteria
+	 *
+	 * @return Commerce_PaymentMethodModel[]
+	 */
+	public function getAllPaymentMethods($criteria = [])
+	{
+		$records = Commerce_PaymentMethodRecord::model()->findAll($criteria);
 
-    /**
-     * @return Commerce_PaymentMethodModel[]
-     */
-    public function getAllFrontEndPaymentMethods()
-    {
-        $records = Commerce_PaymentMethodRecord::model()->findAllByAttributes([self::FRONTEND_ENABLED => true]);
+		return Commerce_PaymentMethodModel::populateModels($records);
+	}
 
-        return Commerce_PaymentMethodModel::populateModels($records);
-    }
+	/**
+	 * @return Commerce_PaymentMethodModel[]
+	 */
+	public function getAllFrontEndPaymentMethods()
+	{
+		$criteria = new \CDbCriteria();
+		$criteria->addCondition("frontEndEnabled=:xFrontEndEnabled");
+		$criteria->addCondition("isArchived=:xIsArchived");
+		$criteria->params = [':xFrontEndEnabled' => true, ':xIsArchived' => false];
+		$criteria->order = 'sortOrder';
 
-    /**
-     * @param Commerce_PaymentMethodModel $model
-     *
-     * @return bool
-     * @throws Exception
-     */
-    public function savePaymentMethod(Commerce_PaymentMethodModel $model)
-    {
-        if ($model->id) {
-            $record = Commerce_PaymentMethodRecord::model()->findById($model->id);
+		return $this->getAllPaymentMethods($criteria);
+	}
 
-            if (!$record) {
-                throw new Exception(Craft::t('No payment method exists with the ID “{id}”', ['id' => $model->id]));
-            }
-        } else {
-            $record = new Commerce_PaymentMethodRecord();
-        }
+	/**
+	 * @param Commerce_PaymentMethodModel $model
+	 *
+	 * @return bool
+	 * @throws Exception
+	 */
+	public function savePaymentMethod(Commerce_PaymentMethodModel $model)
+	{
+		if ($model->id)
+		{
+			$record = Commerce_PaymentMethodRecord::model()->findById($model->id);
 
-        $gateway = $model->getGatewayAdapter(); //getGatewayAdapter sets gateway settings automatically
+			if (!$record)
+			{
+				throw new Exception(Craft::t('No payment method exists with the ID “{id}”', ['id' => $model->id]));
+			}
+		}
+		else
+		{
+			$record = new Commerce_PaymentMethodRecord();
+		}
 
-        $record->settings = $gateway->getAttributes();
-        $record->name = $model->name;
-        $record->paymentType = $model->paymentType;
-        $record->class = $model->class;
-        $record->frontendEnabled = $model->frontendEnabled;
+		$gatewayAdapter = $model->getGatewayAdapter(); //getGatewayAdapter sets gatewayAdapter settings automatically
 
-        $record->validate();
-        $model->addErrors($record->getErrors());
+		$record->settings = $gatewayAdapter ? $gatewayAdapter->getAttributes() : [];
+		$record->name = $model->name;
+		$record->paymentType = $model->paymentType;
+		$record->class = $model->class;
+		$record->frontendEnabled = $model->frontendEnabled;
+		$record->isArchived = $model->isArchived;
+		$record->dateArchived = $model->dateArchived;
 
-        if (!$gateway->validate()) {
-            $model->addError('settings', $gateway->getErrors());
-        }
-        if (!$model->hasErrors()) {
-            // Save it!
-            $record->save(false);
+		$record->validate();
+		$model->addErrors($record->getErrors());
 
-            // Now that we have a record ID, save it on the model
-            $model->id = $record->id;
+		if (!$gatewayAdapter)
+		{
+			$model->clearErrors('class');
+		}
 
-            return true;
-        } else {
-            return false;
-        }
-    }
+		if ($gatewayAdapter && !$gatewayAdapter->validate())
+		{
+			$model->addError('settings', $gatewayAdapter->getErrors());
+		}
+
+		if (!$model->hasErrors())
+		{
+			// Save it!
+			$record->save(false);
+
+			// Now that we have a record ID, save it on the model
+			$model->id = $record->id;
+
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	/**
+	 * @param $id
+	 *
+	 * @return bool
+	 * @throws Exception
+	 */
+	public function archivePaymentMethod($id)
+	{
+		$paymentMethod = $this->getPaymentMethodById($id);
+
+		$paymentMethod->isArchived = true;
+		$paymentMethod->dateArchived = DateTimeHelper::currentTimeForDb();
+
+		return $this->savePaymentMethod($paymentMethod);
+	}
+
+	/**
+	 * @param $ids
+	 *
+	 * @return bool
+	 */
+	public function reorderPaymentMethods($ids)
+	{
+		$paymentMethods = $this->getAllPaymentMethods();
+
+		$count = 999;
+		// Append those not in the table an put them at 999+
+		foreach ($paymentMethods as $paymentMethod)
+		{
+			if ($paymentMethod->isArchived)
+			{
+				$ids[$count++] = $paymentMethod->id;
+			}
+		}
+
+		foreach ($ids as $sortOrder => $id)
+		{
+			craft()->db->createCommand()->update('commerce_paymentMethods',
+				['sortOrder' => $sortOrder + 1], ['id' => $id]);
+		}
+
+		return true;
+	}
 }

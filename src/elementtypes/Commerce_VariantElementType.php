@@ -206,6 +206,7 @@ class Commerce_VariantElementType extends Commerce_BaseElementType
             'productId' => AttributeType::Mixed,
             'isDefault' => AttributeType::Mixed,
             'default' => AttributeType::Mixed,
+            'stock' => AttributeType::Mixed,
             'order' => [AttributeType::String, 'default' => 'variants.sortOrder asc'],
         ];
     }
@@ -218,6 +219,9 @@ class Commerce_VariantElementType extends Commerce_BaseElementType
      */
     public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
     {
+        // Clear out existing onPopulateElements handlers on the criteria
+        $criteria->detachEventHandler('onPopulateElements', array($this, 'setProductOnVariant'));
+
         $query
             ->addSelect("variants.id,variants.productId,variants.isDefault,variants.sku,variants.price,variants.sortOrder,variants.width,variants.height,variants.length,variants.weight,variants.stock,variants.unlimitedStock,variants.minQty,variants.maxQty")
             ->join('commerce_variants variants', 'variants.id = elements.id');
@@ -228,8 +232,11 @@ class Commerce_VariantElementType extends Commerce_BaseElementType
 
         if ($criteria->product) {
             if ($criteria->product instanceof Commerce_ProductModel) {
-                $criteria->productId = $criteria->product->id;
-                $criteria->product = null;
+                //$criteria->productId = $criteria->product->id;
+                //$criteria->product = null;
+                $query->andWhere(DbHelper::parseParam('variants.productId', $criteria->product->id, $query->params));
+
+                $criteria->attachEventHandler('onPopulateElements', array($this, 'setProductOnVariant'));
             } else {
                 $query->andWhere(DbHelper::parseParam('variants.productId', $criteria->product, $query->params));
             }
@@ -247,6 +254,30 @@ class Commerce_VariantElementType extends Commerce_BaseElementType
             $query->andWhere(DbHelper::parseParam('variants.isDefault', $criteria->default, $query->params));
         }
 
+        if ($criteria->stock) {
+            $query->andWhere(DbHelper::parseParam('variants.stock', $criteria->stock, $query->params));
+        }
+    }
+
+    /**
+     * Sets the product on the resulting variants.
+     *
+     * @param Event $event
+     *
+     * @return void
+     */
+    public function setProductOnVariant(Event $event)
+    {
+        /** @var ElementCriteriaModel $criteria */
+        $criteria = $event->sender;
+
+        /** @var Commerce_VariantModel[] $variants */
+        $variants = $event->params['elements'];
+
+        if ($criteria->product instanceof Commerce_ProductModel)
+        {
+            craft()->commerce_variants->setProductOnVariants($criteria->product, $variants);
+        }
     }
 
     /**

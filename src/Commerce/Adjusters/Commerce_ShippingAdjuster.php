@@ -45,6 +45,8 @@ class Commerce_ShippingAdjuster implements Commerce_AdjusterInterface
             $adjustment->type = self::ADJUSTMENT_TYPE;
             $adjustment->orderId = $order->id;
 
+            $affectedLineIds = [];
+
             //checking items tax categories
             $weight = $qty = $price = 0;
             $itemShippingTotal = 0;
@@ -55,13 +57,17 @@ class Commerce_ShippingAdjuster implements Commerce_AdjusterInterface
                 $price += $item->getSubtotalWithSale();
 
                 $item->shippingCost = ($item->getSubtotalWithSale() * $rule->getPercentageRate()) + ($rule->getPerItemRate() * $item->qty) + ($item->weight * $rule->getWeightRate());
+
+                if($item->shippingCost && !$item->purchasable->hasFreeShipping()){
+                    $affectedLineIds[] = $item->id;
+                }
+
                 $itemShippingTotal += $item->shippingCost;
 
                 if ($item->purchasable->hasFreeShipping()) {
                     $freeShippingAmount += $item->shippingCost;
                     $item->shippingCost = 0;
                 }
-
             }
 
             //amount for displaying in adjustment
@@ -80,6 +86,7 @@ class Commerce_ShippingAdjuster implements Commerce_AdjusterInterface
             // Let the name, options and description come last since since plugins may not have all info up front.
             $adjustment->name = $shippingMethod->getName();
             $adjustment->optionsJson = $rule->getOptions();
+            $adjustment->optionsJson = array_merge(['lineItemsAffected'=>$affectedLineIds],$adjustment->optionsJson);
             $adjustment->description = $rule->getDescription();
 
             $adjustments[] = $adjustment;

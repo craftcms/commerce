@@ -33,16 +33,27 @@
 				</tr>
 				<tr>
 					<td><strong>{{ "Order Date"|t }}</strong></td>
-					<td>{{ order.dateOrdered|date('D dS M Y') }}</td>
+					<td><div id="order-completion" class="hidden">
+						{% if order.isCompleted %}
+							{{ order.dateOrdered|date('D dS M Y') }}
+						{% else %}
+							<div id="order-completionStatus">
+								<a href="#" class="updatecompletion btn small"> {{ "Mark as Complete"|t }}</a>
+							</div>
+						{% endif %}
+						</div>
+					</td>
 				</tr>
 				<tr>
 					<td><strong>{{ "Status"|t }}</strong></td>
 					{% if order.orderStatus %}
-						<td><div id="order-status">{{ order.orderStatus.htmlLabel|raw }} &nbsp; <a
+						<td>
+							<div id="order-status" class="hidden">{{ order.orderStatus.htmlLabel|raw }} &nbsp; <a
 									href="#"
 									class="updatestatus btn small"
 									data-currentStatus="{{ order.orderStatus.attributes|json_encode() }}"
-									data-orderStatuses="{{ craft.commerce.orderStatuses|json_encode() }}">{{ "Update Status"|t }}</a></div>
+									data-orderStatuses="{{ craft.commerce.orderStatuses|json_encode() }}">{{ "Update Status"|t }}</a>
+							</div>
 						</td>
 					{% else %}
 						<td><span class="status"></span></td>
@@ -59,32 +70,26 @@
 		</div>
 		</div>
 
-		<div class="order-addresses right">
-			<div class="order-address-box billingAddress">
-				<div class="order-address-box-content">
-				{% import "commerce/_includes/orders/address" as addressMacros %}
-
-				<strong>{{ 'Billing Address'|t }} </strong><br>
-				{% if order.billingAddress %}
-				<a class="small btn right"
-				   href="http://maps.google.com/maps?q={{ order.billingAddress.address1 }}+{{ order.billingAddress.address2 }}+{{ order.billingAddress.city }}+{{ order.billingAddress.zipCode }}+{{ order.billingAddress.stateText }}+{{ order.billingAddress.countryText }}"
-				   target="_blank">{{ "View Map"|t }}</a>
-				{{ addressMacros.formatAddress(order.billingAddress) }}
-				{% endif %}
+		<div class="address-boxes right">
+			{% set address = order.shippingAddress %}
+			<div id="shippingAddressBox" class="address-box hidden"
+				 data-title='{{ "Shipping Address"|t }}'
+				 data-address='{%- if address and address.id -%}{{ address|json_encode|raw }}{%- endif %}'>
+				<div class="address-box-content">
+					<div class="address-box-header"></div>
+					<div class="address"></div>
 				</div>
 			</div>
 
-			<div class="order-address-box shippingAddress">
-				<div class="order-address-box-content">
-				<strong>{{ 'Shipping Address'|t }} </strong><br>
-				{% if order.shippingAddress %}
-				<a class="small btn right"
-				   href="http://maps.google.com/maps?q={{ order.shippingAddress.address1 }}+{{ order.shippingAddress.address2 }}+{{ order.shippingAddress.city }}+{{ order.shippingAddress.zipCode }}+{{ order.shippingAddress.stateText }}+{{ order.shippingAddress.countryText }}"
-				   target="_blank">{{ "View Map"|t }}</a>
-				{{ addressMacros.formatAddress(order.shippingAddress) }}
-				{% endif %}
+			{% set address = order.billingAddress %}
+			<div id="billingAddressBox" class="address-box hidden"
+				 data-title='{{ "Billing Address"|t }}'
+				 data-address='{%- if address and address.id -%}{{ address|json_encode|raw }}{%- endif %}'>
+				<div class="address-box-content">
+					<div class="address-box-header"></div>
+					<div class="address"></div>
 				</div>
-			</div> <!-- order address box -->
+			</div>
 		</div><!-- order addresses -->
 
 	</div>
@@ -337,86 +342,101 @@
 	</div>
 	{% endif %}
 
-	{% if order.transactions|length %}
 	<div class="pane">
-
 		<h3>{{ "Transactions"|t }}</h3>
 
-		<table class="data fullwidth">
-			<thead>
-			<tr>
-				<th scope="col">{{ 'Type'|t }}</span></th>
-				<th scope="col">{{ 'Status'|t }}</th>
-				<th scope="col">{{ 'Message'|t }}</th>
-				<th scope="col">{{ 'Amount'|t }}</th>
-				<th scope="col">{{ 'Payment Method'|t }}</th>
-				<th scope="col">{{ 'Info'|t }}</th>
-				<th></th>
-			</tr>
-			</thead>
-			<tbody>
-			{% for transaction in order.transactions %}
-				<tr class="infoRow"
-					data-inforow='{% spaceless %}[
-					{"label":"Hash","attribute":"hash","currency":"false"},
-					{"label":"Reference","attribute":"reference","currency":"false"},
-					{"label":"Response","attribute":"response","currency":"false"}
-					]'{% endspaceless %}
-					data-hash="{{ transaction.hash }}"
-					data-reference="{{ transaction.reference }}"
-					data-response="{{ transaction.response }}"
-				>
-					<td>{{ transaction.type|title }}</td>
-					<td>{{ transaction.status|title }}</td>
-					<td>{{ transaction.message|title }}</td>
-					<td>{{ transaction.amount|currency(order.currency) }}</td>
-					<td>{{ transaction.paymentMethod.name }}</td>
-					<td><span class="tableRowInfo" data-icon="info" href="#"></span></td>
-					<td>
-						{% if transaction.canCapture() %}
-							<form>
-							<a class="small btn submit formsubmit"
-							   data-action="commerce/orders/transactionCapture"
-							   data-confirm="{{ 'Are you sure you want to capture this transaction?'|t }}"
-							   data-redirect="{{ order.cpEditUrl }}"
-							   data-param="id"
-							   data-value="{{ transaction.id }}">{{ 'Capture'|t }}</a>
-							</form>
-						{% endif %}
-						{% if transaction.canRefund() %}
-							<form>
-							<a class="small btn submit formsubmit"
-							   data-action="commerce/orders/transactionRefund"
-							   data-confirm="{{ 'Are you sure you want to refund this transaction?'|t }}"
-							   data-redirect="{{ order.cpEditUrl }}"
-							   data-param="id"
-							   data-value="{{ transaction.id }}">{{ 'Refund'|t }}</a>
-							</form>
-						{% endif %}
-					</td>
+		{% if order.transactions|length %}
+			<table class="data fullwidth">
+				<thead>
+				<tr>
+					<th scope="col">{{ 'Type'|t }}</span></th>
+					<th scope="col">{{ 'Status'|t }}</th>
+					<th scope="col">{{ 'Message'|t }}</th>
+					<th scope="col">{{ 'Amount'|t }}</th>
+					<th scope="col">{{ 'Payment Method'|t }}</th>
+					<th scope="col">{{ 'Info'|t }}</th>
+					<th></th>
 				</tr>
-			{% endfor %}
-			</tbody>
-		</table>
+				</thead>
+				<tbody>
+				{% for transaction in order.transactions %}
+					<tr class="infoRow"
+						data-inforow='{% spaceless %}[
+						{"label":"Hash","attribute":"hash","currency":"false"},
+						{"label":"Reference","attribute":"reference","currency":"false"},
+						{"label":"Response","attribute":"response","currency":"false"}
+						]'{% endspaceless %}
+						data-hash="{{ transaction.hash }}"
+						data-reference="{{ transaction.reference }}"
+						data-response="{{ transaction.response }}"
+					>
+						<td>{{ transaction.type|title }}</td>
+						<td>{{ transaction.status|title }}</td>
+						<td>{{ transaction.message|title }}</td>
+						<td>{{ transaction.amount|currency(order.currency) }}</td>
+						<td>{{ transaction.paymentMethod.name }}</td>
+						<td><span class="tableRowInfo" data-icon="info" href="#"></span></td>
+						<td>
+							{% if transaction.canCapture() %}
+								<form>
+								<a class="small btn submit formsubmit"
+								   data-action="commerce/orders/transactionCapture"
+								   data-confirm="{{ 'Are you sure you want to capture this transaction?'|t }}"
+								   data-redirect="{{ order.cpEditUrl }}"
+								   data-param="id"
+								   data-value="{{ transaction.id }}">{{ 'Capture'|t }}</a>
+								</form>
+							{% endif %}
+							{% if transaction.canRefund() %}
+								<form>
+								<a class="small btn submit formsubmit"
+								   data-action="commerce/orders/transactionRefund"
+								   data-confirm="{{ 'Are you sure you want to refund this transaction?'|t }}"
+								   data-redirect="{{ order.cpEditUrl }}"
+								   data-param="id"
+								   data-value="{{ transaction.id }}">{{ 'Refund'|t }}</a>
+								</form>
+							{% endif %}
+						</td>
+					</tr>
+				{% endfor %}
+				</tbody>
+			</table>
+		{% else %}
+		    <p class="light">{{ "No transaction." }}</p>
+		{% endif %}
+
+
+		{% if not order.isPaid() %}
+			<div class="footer">
+				<a class="btn" id="make-payment" data-order-id="{{ order.id }}">Make Payment</a>
+			</div>
+		{% endif %}
 	</div>
-	{% endif %}
+
 {% endblock %}
 
-
 {% includeJsResource 'commerce/js/classes/TableRowAdditionalInfoIcon.js' %}
-{% includeJsResource 'commerce/js/classes/EditAddressModal.js' %}
-{% includeJsResource 'commerce/js/classes/UpdateOrderStatusModal.js' %}
-{% includeJsResource 'commerce/js/classes/OrderEdit.js' %}
+{% includeJsResource 'commerce/js/CommerceUpdateOrderStatusModal.js' %}
+{% includeJsResource 'commerce/js/CommerceAddressBox.js' %}
+{% includeJsResource 'commerce/js/CommerceEditAddressModal.js' %}
+{% includeJsResource 'commerce/js/CommercePaymentModal.js' %}
+{% includeJsResource 'commerce/js/CommerceOrderEdit.js' %}
+
 
 {% includejs %}
 
-//window.countries = JSON.parse('{{ craft.commerce.countriesList|json_encode|raw }}');
-//window.states = JSON.parse('{{ craft.commerce.statesArray|json_encode|raw }}');
+window.countries = JSON.parse('{{ craft.commerce.countries|json_encode|raw }}');
+window.states = JSON.parse('{{ craft.commerce.states|json_encode|raw }}');
 
 $(document).ready(function () {
 
 	new Craft.Commerce.OrderEdit({
-		orderId: {{ orderId|e('js') }}
+		orderId: {{ orderId|e('js') }},
+		paymentForm: {
+			errors: {{ paymentForm.errors|json_encode|raw }},
+			attributes: {{ paymentForm.attributes|json_encode|raw }}
+		}
 	});
 
 	$.each($('.tableRowInfo'), function () {

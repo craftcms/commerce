@@ -84,6 +84,7 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
         $record->name = $model->name;
         $record->handle = $model->handle;
         $record->color = $model->color;
+        $record->sortOrder = $model->sortOrder ? $model->sortOrder : 999;
         $record->default = $model->default;
 
         $record->validate();
@@ -172,6 +173,7 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
      */
     public function getAllOrderStatuses($criteria = [])
     {
+	    $criteria['order'] = 'sortOrder ASC';
         $orderStatusRecords = Commerce_OrderStatusRecord::model()->findAll($criteria);
 
         return Commerce_OrderStatusModel::populateModels($orderStatusRecords);
@@ -327,5 +329,20 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
 
         return null;
     }
+
+	/**
+	 * @param $ids
+	 *
+	 * @return bool
+	 */
+	public function reorderOrderStatuses($ids)
+	{
+		foreach ($ids as $sortOrder => $id) {
+			craft()->db->createCommand()->update('commerce_orderstatuses',
+				['sortOrder' => $sortOrder + 1], ['id' => $id]);
+		}
+
+		return true;
+	}
 
 }

@@ -36,7 +36,7 @@ class Commerce_OrderHistoriesService extends BaseApplicationComponent
      */
     public function getAllOrderHistoriesByOrderId($id)
     {
-        $results = Commerce_OrderHistoryRecord::model()->findAllByAttributes(['orderId'=>$id]);
+        $results = Commerce_OrderHistoryRecord::model()->findAllByAttributes(['orderId'=>$id],['order'=>'dateCreated DESC']);
 
         return Commerce_OrderHistoryModel::populateModels($results);
     }

@@ -1,0 +1,20 @@
+{% import "_includes/forms" as forms %}
+
+<div class="payment-forms">
+	{% set paymentFormOptions = [{ label: "Select a payment method"|t }] %}
+
+	{% for paymentMethod in paymentMethods %}
+		{% set paymentFormOptions = paymentFormOptions|merge([{ label: paymentMethod.name, value: paymentMethod.id }]) %}
+	{% endfor %}
+
+	{{ forms.selectField({
+		id: 'payment-form-select',
+		label: "Payment Method"|t,
+		name: 'paymentMethodId',
+		options: paymentFormOptions,
+		value: order.paymentMethodId,
+	}) }}
+
+	{{ paymentForms|raw }}
+
+</div>

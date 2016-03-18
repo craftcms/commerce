@@ -1,12 +1,16 @@
 <?php
 namespace Commerce\Gateways\Omnipay;
 
-use Commerce\Gateways\BaseGatewayAdapter;
-
-class Dummy_GatewayAdapter extends BaseGatewayAdapter
+class Dummy_GatewayAdapter extends \Commerce\Gateways\CreditCardGatewayAdapter
 {
     public function handle()
     {
         return 'Dummy';
     }
+
+	public function cpPaymentsEnabled()
+	{
+		return true;
+	}
+
 }

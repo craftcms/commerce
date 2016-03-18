@@ -2,26 +2,22 @@
 
     {% set page = craft.request.getSegment(2) %}
 
-    <a class="button {% if page == '' %}button-primary{% endif %}" href="/commerce">
-        {{ "Home"|t }}
-    </a>
-
-    <a class="button {% if page == 'products' %}button-primary{% endif %}" href="/commerce/products">
+    <a class="button {% if page == 'products' %}button-primary{% endif %}" href="{{ url('commerce/products') }}">
         {{ "Products"|t }}
     </a>
 
-    <a class="button {% if page == 'cart' %}button-primary{% endif %}" href="/commerce/cart">
-        {{ "Cart"|t }} ({{ cart.lineItems|length }})
+    <a class="button {% if page == 'cart' %}button-primary{% endif %}" href="{{ url('commerce/cart') }}">
+        <i class="fa fa-shopping-cart"></i> {{ "Cart"|t }} ({{ cart.lineItems|length }})
     </a>
 
     <span class="right">
-      {% if currentUser %}
-          <a href="/commerce/customer">{{ "My Orders"|t }}</a>
-          — <a href="/commerce/customer/addresses">{{ "My Addresses"|t }}</a>
+        {% if currentUser %}
+          <a href="{{ url('commerce/customer') }}">{{ "My Orders"|t }}</a>
+          — <a href="{{ url('commerce/customer/addresses') }}">{{ "My Addresses"|t }}</a>
           — <a href="{{ logoutUrl }}">Logout</a>
-      {% else %}
+        {% else %}
           {{ "Guest"|t }}
-      {% endif %}
+        {% endif %}
     </span>
 
 </nav>

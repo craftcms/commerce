@@ -106,7 +106,7 @@ class Commerce_GatewaysService extends BaseApplicationComponent
                 '\Commerce\Gateways\Omnipay\WorldPay_GatewayAdapter',
             ];
 
-            // Let plugins register more clasess
+            // Let plugins register more classes
             $allPluginClasses = craft()->plugins->call('commerce_registerGatewayAdapters', [], true);
 
             foreach ($allPluginClasses as $pluginClasses) {

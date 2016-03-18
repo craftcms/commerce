@@ -33,6 +33,10 @@ namespace Craft;
  */
 class Commerce_AddressRecord extends BaseRecord
 {
+
+    /** @var int|string Either ID of a state or name of state if it's not present in the DB */
+    public $stateValue;
+
     /**
      * @return string
      */

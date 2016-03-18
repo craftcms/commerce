@@ -8,6 +8,7 @@ namespace Craft;
  * @property string $name
  * @property string $handle
  * @property string $color
+ * @property int $sortOrder
  * @property bool $default
  *
  * @property Commerce_EmailModel[] $emails
@@ -74,6 +75,7 @@ class Commerce_OrderStatusModel extends BaseModel
             'name' => [AttributeType::String, 'required' => true],
             'handle' => [AttributeType::Handle, 'required' => true],
             'color' => [AttributeType::String, 'default' => 'green'],
+            'sortOrder' => AttributeType::Number,
             'default' => [
                 AttributeType::Bool,
                 'default' => 0,

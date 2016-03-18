@@ -1,0 +1,14 @@
+/* Chart Explorer */
+
+.chart-explorer { position: relative;  padding: 24px; border-radius: 3px;  border: 1px solid HSLA(240, 4%, 91%, .5);  margin-bottom: 24px;  }
+.chart-explorer .chart-header { position: relative; margin: margin-bottom: 14px; }
+.chart-explorer .chart-header .date-range { width: auto; float: right; }
+body.rtl .chart-explorer .chart-header .date-range { float: left; }
+.chart-explorer .chart-header .date-range .to { padding: 0 7px; }
+.chart-explorer .chart-header .spinner { position: absolute; top: 0; }
+body.ltr .chart-explorer .chart-header .spinner { right:  -24px; }
+body.rtl .chart-explorer .chart-header .spinner { left: -24px; }
+.chart-explorer .chart-container { position: relative; margin: 0 -24px -14px -24px;  }
+.chart-explorer .chart-container .chart { height: 200px; margin: 0;  }
+.chart-explorer .chart-container .error { margin: 0 24px;  }
+.chart-explorer .total .total-value { font-size: 15px;  }

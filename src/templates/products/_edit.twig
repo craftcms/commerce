@@ -4,8 +4,8 @@
 {% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commerceproducts commerceproductsedit" %}
 
 {% set crumbs = [
-	{ label: "Products"|t, url: url('commerce/products') },
-	{ label: productType.name|t, url: url('commerce/products/'~productType.handle) }
+{ label: "Products"|t, url: url('commerce/products') },
+{ label: productType.name|t, url: url('commerce/products/'~productType.handle) }
 ] %}
 
 {% set fullPageForm = true %}
@@ -21,10 +21,17 @@
 		<div class="btn submit menubtn"></div>
 		<div class="menu">
 			<ul>
-				<li><a class="formsubmit" data-redirect="{{ continueEditingUrl }}">
-					{{ "Save and continue editing"|t }}
-					{{ forms.optionShortcutLabel('S') }}
-				</a></li>
+				<li><a class="formsubmit"
+					   data-redirect="{{ continueEditingUrl }}">
+						{{ "Save and continue editing"|t }}
+						{{ forms.optionShortcutLabel('S') }}
+					</a></li>
+				{% if product.id %}
+					<li><a class="formsubmit" data-param="productId"
+						   data-value=""
+						   data-redirect="{{ continueEditingUrl }}">{{ "Save as a new product"|t }}</a>
+					</li>
+				{% endif %}
 			</ul>
 		</div>
 	</div>
@@ -32,23 +39,25 @@
 
 
 {% block main %}
-		<input type="hidden" name="action" value="commerce/products/saveProduct">
-		<input type="hidden" name="redirect" value="commerce/products">
-		<input type="hidden" name="typeId" value="{{ productType.id }}">
-		{% if craft.isLocalized() %}<input type="hidden" name="locale" value="{{ product.locale }}">{% endif %}
-		{{ getCsrfInput() }}
-		{% if product.id %}<input type="hidden" name="productId" value="{{ product.id }}">{% endif %}
+	<input type="hidden" name="action" value="commerce/products/saveProduct">
+	<input type="hidden" name="redirect" value="commerce/products">
+	<input type="hidden" name="typeId" value="{{ productType.id }}">
+	{% if craft.isLocalized() %}<input type="hidden" name="locale"
+									   value="{{ product.locale }}">{% endif %}
+	{{ getCsrfInput() }}
+	{% if product.id %}<input type="hidden" name="productId"
+							  value="{{ product.id }}">{% endif %}
 
 
-		<div class="grid first" data-max-cols="3">
-			<div class="item" data-position="left" data-colspan="2">
+	<div class="grid first" data-max-cols="3">
+		<div class="item" data-position="left" data-colspan="2">
 
-				<div id="fields" class="pane">
-					{% include "_includes/tabs" %}
+			<div id="fields" class="pane">
+				{% include "_includes/tabs" %}
 
-					{{ productFields.titleField(product) }}
+				{{ productFields.titleField(product) }}
 
-					<div>
+				<div>
 					{% set allProductTab = productType.asa('productFieldLayout').getFieldLayout().getTabs() %}
 					{% for tab in allProductTab %}
 						<div id="tab{{ loop.index }}" {% if not loop.first %} class="hidden" {% endif %}>
@@ -58,105 +67,131 @@
 							} only %}
 						</div>
 					{% endfor %}
-					</div>
 				</div>
-
-				{% if productType.hasVariants %}
-					<div id="variants-pane" class="pane">
-						{% include "_includes/tabs" with {
-							tabs: {
-								variantsTab: { label: 'Variants'|t, url: '#variantsTab' }
-							}
-						} %}
-
-						{{ variantMatrixHtml|raw }}
-					</div>
-				{% endif %}
 			</div>
 
-			<div id="meta-pane" class="item" data-position="right">
+			{% if productType.hasVariants %}
+				<div id="variants-pane" class="pane">
+					{% include "_includes/tabs" with {
+					tabs: {
+					variantsTab: { label: 'Variants'|t, url: '#variantsTab' }
+					}
+					} %}
 
-				{% if showPreviewBtn %}
-					{% include "_includes/previewbtns" %}
-				{% endif %}
-
-				{% if craft.isLocalized() %}
-					<ul id="locales" class="pane">
-						{% for localeId in localeIds %}
-							{% set localeName = craft.i18n.getLocaleById(localeId).name %}
-							<li{% if localeId == product.locale %} class="sel"{% endif %}>
-								{%- if localeId == product.locale -%}
-									{{ localeName }}
-									{{ forms.lightswitch({
-										name: 'localeEnabled',
-										on:   product.localeEnabled,
-										small: true
-									}) }}
-								{%- else -%}
-									{% set localeUrl = url(
-									'commerce/products/'~productType.handle~'/'~craft.request.getSegment(4)~'/'~localeId
-									) -%}
-									<a href="{{ localeUrl }}">{{ localeName }}</a>
-									<div class="status {{ localeId in enabledLocales ? 'enabled' : 'disabled' }}"></div>
-								{%- endif -%}
-							</li>
-						{% endfor %}
-					</ul>
-				{% endif %}
-
-				<div class="pane meta">
-					{{ productFields.generalMetaFields(product) }}
-
-					{% set statusInput %}
-						<div class="left">
-							{{ forms.lightswitch({
-								id: 'enabled',
-								name: 'enabled',
-								on: product.enabled,
-								disabled: false
-							}) }}
-						</div>
-
-						{% if product.id %}
-							<div class="right">
-								<input type="button"
-									   class="btn small formsubmit"
-									   value="{{ 'Delete'|t }}"
-									   data-action="commerce/products/deleteProduct"
-									   data-confirm="{{ 'Are you sure you want to delete this product?'|t }}"
-									   data-redirect="commerce/products">
-							</div>
-						{% endif %}
-					{% endset %}
-
-					{{ forms.field({
-						id: 'enabled',
-						label: 'Enabled?'|t
-					}, statusInput) }}
+					{{ variantMatrixHtml|raw }}
 				</div>
-
-				<div class="pane meta">
-					{{ productFields.behavioralMetaFields(product) }}
-				</div>
-
-				{% if not productType.hasVariants %}
-					{% namespace 'variants['~(primaryVariant.id ?: 'new1')~']' %}
-						<div class="pane meta">
-							{{ productFields.generalVariantFields(primaryVariant) }}
-						</div>
-						{% if productType.hasDimensions %}
-							<div class="pane meta">
-								{{ productFields.dimensionVariantFields(primaryVariant) }}
-							</div>
-						{% endif %}
-					{% endnamespace %}
-				{% endif %}
-			</div>
+			{% endif %}
 		</div>
+
+		<div id="meta-pane" class="item" data-position="right">
+
+			{% if showPreviewBtn %}
+				{% include "_includes/previewbtns" %}
+			{% endif %}
+
+			{% if craft.isLocalized() %}
+				<ul id="locales" class="pane">
+					{% for localeId in localeIds %}
+						{% set localeName = craft.i18n.getLocaleById(localeId).name %}
+						<li{% if localeId == product.locale %} class="sel"{% endif %}>
+							{%- if localeId == product.locale -%}
+								{{ localeName }}
+								{{ forms.lightswitch({
+									name: 'localeEnabled',
+									on:   product.localeEnabled,
+									small: true
+								}) }}
+							{%- else -%}
+								{% set localeUrl = url(
+								'commerce/products/'~productType.handle~'/'~craft.request.getSegment(4)~'/'~localeId
+								) -%}
+								<a href="{{ localeUrl }}">{{ localeName }}</a>
+								<div class="status {{ localeId in enabledLocales ? 'enabled' : 'disabled' }}"></div>
+							{%- endif -%}
+						</li>
+					{% endfor %}
+				</ul>
+			{% endif %}
+
+			<div class="pane meta">
+				{{ productFields.generalMetaFields(product) }}
+
+				{% set statusInput %}
+					<div class="left">
+						{{ forms.lightswitch({
+							id: 'enabled',
+							name: 'enabled',
+							on: product.enabled,
+							disabled: false
+						}) }}
+					</div>
+
+					{% if product.id %}
+						<div class="right">
+							<input type="button"
+								   class="btn small formsubmit"
+								   value="{{ 'Delete'|t }}"
+								   data-action="commerce/products/deleteProduct"
+								   data-confirm="{{ 'Are you sure you want to delete this product?'|t }}"
+								   data-redirect="commerce/products">
+						</div>
+					{% endif %}
+				{% endset %}
+
+				{{ forms.field({
+					id: 'enabled',
+					label: 'Enabled?'|t
+				}, statusInput) }}
+			</div>
+
+			<div class="pane meta">
+				{{ productFields.behavioralMetaFields(product) }}
+			</div>
+
+			{% if not productType.hasVariants %}
+				{% namespace 'variants['~(primaryVariant.id ?: 'new1')~']' %}
+				<div class="pane meta">
+					{{ productFields.generalVariantFields(primaryVariant) }}
+				</div>
+				{% if productType.hasDimensions %}
+					<div class="pane meta">
+						{{ productFields.dimensionVariantFields(primaryVariant) }}
+					</div>
+				{% endif %}
+				{% endnamespace %}
+			{% endif %}
+
+			{% if product.id %}
+				<div class="pane lightpane meta">
+					<div class="data">
+						<h5 class="heading">{{ "Date Created"|t }}</h5>
+						<div class="value">{{ product.dateCreated.localeDate() }} {{ product.dateCreated.localeTime() }}</div>
+					</div>
+					<div class="data">
+						<h5 class="heading">{{ "Date Updated"|t }}</h5>
+						<div class="value">{{ product.dateUpdated.localeDate() }} {{ product.dateUpdated.localeTime() }}</div>
+					</div>
+					{% if promotions.sales|length %}
+						<div class="data">
+							<h5 class="heading">{{ "Associated Sales"|t }}</h5>
+							<div class="value">
+								<ul class="commerce-sales">
+									{% for promotion in promotions.sales %}
+										<li><a href="{{ promotion.getCpEditUrl() }}"><span>{{ promotion.name }}</span></a></li>
+									{% endfor %}
+								</ul>
+							</div>
+						</div>
+					{% endif %}
+				</div>
+			{% endif %}
+
+		</div>
+	</div>
 
 	{% if not product.slug %}
 		{% includejs %}
-			window.slugGenerator = new Craft.SlugGenerator('#title', '#slug');
+		window.slugGenerator = new Craft.SlugGenerator('#title', '#slug');
 		{% endincludejs %}
 	{% endif %}
 

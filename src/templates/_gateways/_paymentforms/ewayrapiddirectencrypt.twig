@@ -1,0 +1,92 @@
+{% import "_includes/forms" as forms %}
+
+{% set currentYear = date()|date_modify("+1 year").format('Y') %}
+
+<div id="payment-method-{{ paymentMethod.id }}-form"
+	 class="payment-method-form {% if order and order.paymentMethodId != paymentMethod.id %}hidden{% endif %}"
+	 xmlns="http://www.w3.org/1999/html">
+	<form method="POST" data-csekey="{{ paymentMethod.settings.CSEKey ?? '' }}">
+		<input type="hidden" name="action" value="commerce/payments/pay"/>
+		{% if order %}
+			<input type="hidden" name="orderNumber" value="{{ order.number }}"/>
+		{% endif %}
+		<input type="hidden" name="paymentMethodId"
+			   value="{{ paymentMethod.id }}"/>
+
+		{{ getCsrfInput() }}
+
+		{% include "commerce/_gateways/_paymentForms/_creditCardFields" %}
+
+		<div class="footer">
+			<div class="buttons right">
+				<input type="submit" class="btn submit"
+					   value="Pay {{ order.totalPrice|currency(order.currency,true) }} Now">
+			</div>
+		</div>
+
+		{% includejs %}
+
+			$("#payment-method-{{ paymentMethod.id }}-form form:first").on('submit', function (e)
+			{
+				e.preventDefault();
+				$('.error', $form).removeClass('error');
+
+				var $form = $(this);
+				var csekey = $form.data('csekey');
+
+				var $ccNumInput = $('[name=number]', $form),
+					$ccCvcInput = $('[name=cvv]', $form),
+					$ccExpInput = $('[name=expiry]', $form);
+
+				var ccData = {
+					number: $ccNumInput.val(),
+					cvc: $ccCvcInput.val(),
+					expiry: $ccExpInput.val(),
+				};
+
+				$ccNumInput.payment('formatCardNumber');
+				$ccExpInput.payment('formatCardExpiry');
+				$ccCvcInput.payment('formatCardCVC');
+
+				var validates = true;
+
+				if (!$.payment.validateCardNumber(ccData.number))
+				{
+					validates = false;
+					$ccNumInput.addClass('error');
+				}
+
+				if (!$.payment.validateCardCVC(ccData.cvc))
+				{
+					validates = false;
+					$ccCvcInput.addClass('error');
+				}
+
+				if (!$.payment.cardExpiryVal(ccData.expiry))
+				{
+					validates = false;
+					$ccExpInput.addClass('error');
+				}
+
+				if(validates)
+				{
+					var number = $ccNumInput.val();
+					var cvv = $ccCvcInput.val();
+					var encnum = eCrypt.encryptValue(number, csekey);
+					var encvv = eCrypt.encryptValue(cvv, csekey);
+
+					$form.append($('<input type="hidden" name="encryptedCardNumber" />').val(encnum));
+					$form.append($('<input type="hidden" name="encryptedCardCvv" />').val(encvv));
+
+					$form.get(0).submit();
+
+				}
+				else
+				{
+					Garnish.shake($('.modal'));
+				}
+			});
+		{% endincludejs %}
+
+	</form>
+</div>

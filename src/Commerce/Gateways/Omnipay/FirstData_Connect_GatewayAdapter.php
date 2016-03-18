@@ -1,9 +1,7 @@
 <?php
 namespace Commerce\Gateways\Omnipay;
 
-use Commerce\Gateways\BaseGatewayAdapter;
-
-class FirstData_Connect_GatewayAdapter extends BaseGatewayAdapter
+class FirstData_Connect_GatewayAdapter extends \Commerce\Gateways\OffsiteGatewayAdapter
 {
     public function handle()
     {

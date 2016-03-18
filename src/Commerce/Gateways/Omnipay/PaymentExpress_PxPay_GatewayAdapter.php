@@ -1,9 +1,7 @@
 <?php
 namespace Commerce\Gateways\Omnipay;
 
-use Commerce\Gateways\BaseGatewayAdapter;
-
-class PaymentExpress_PxPay_GatewayAdapter extends BaseGatewayAdapter
+class PaymentExpress_PxPay_GatewayAdapter extends \Commerce\Gateways\OffsiteGatewayAdapter
 {
     public function handle()
     {
