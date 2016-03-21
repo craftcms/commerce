@@ -33,7 +33,7 @@ $I->fillField(['name' => 'shippingAddress[zipCode]'], '6011');
 $I->fillField(['name' => 'shippingAddress[phone]'], '0435553357');
 $I->fillField(['name' => 'shippingAddress[alternativePhone]'], '0437293021');
 $I->selectOption('select[name="shippingAddress[countryId]"]', 'Australia');
-$I->selectOption('select[name="shippingAddress[stateId]"]', 'Western Australia');
+$I->selectOption('select[name="shippingAddress[stateValue]"]', 'Western Australia');
 
 $I->click('Confirm addresses');
 $I->see('Cart updated.');
