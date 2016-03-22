@@ -83,7 +83,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 
 		$card = $this->createCard($order, $form);
 
-		if (craft()->config->get('includeCartInformationOnGatewayRequest', 'commerce'))
+		if (craft()->config->get('sendCartInfoToGateways', 'commerce'))
 		{
 			$itemBag = $this->createItemBag($order);
 		}
