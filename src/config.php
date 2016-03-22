@@ -4,5 +4,5 @@ return [
 	'paymentMethodSettings'       => [],
 	'purgeInactiveCartsDuration'  => 'P3M',
 	'gatewayPostRedirectTemplate' => '',
-	'includeCartInformationOnGatewayRequest' => true
+	'sendCartInfoToGateways'      => true
 ];
