@@ -299,8 +299,12 @@ class Commerce_ProductModel extends BaseElementModel
 	public function getTotalStock()
 	{
 		$stock = 0;
-		foreach ($this->getVariants() as $variant) {
-			$stock += $variant->stock;
+		foreach ($this->getVariants() as $variant)
+		{
+			if (!$variant->unlimitedStock)
+			{
+				$stock += $variant->stock;
+			}
 		}
 
 		return $stock;
@@ -311,7 +315,8 @@ class Commerce_ProductModel extends BaseElementModel
 	 */
 	public function getUnlimitedStock()
 	{
-		foreach ($this->getVariants() as $variant) {
+		foreach ($this->getVariants() as $variant)
+		{
 			if ($variant->unlimitedStock)
 			{
 				return true;
