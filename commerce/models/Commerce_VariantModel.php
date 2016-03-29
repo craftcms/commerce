@@ -209,17 +209,20 @@ class Commerce_VariantModel extends BasePurchasable
 	/**
 	 * Sets the product associated with this variant.
 	 *
-	 * @param Commerce_ProductModel $product The product associated with this variant
+	 * @param Commerce_ProductModel|null $product The product associated with this variant
 	 *
 	 * @return void
 	 */
-	public function setProduct(Commerce_ProductModel $product)
+	public function setProduct(Commerce_ProductModel $product = null)
 	{
 		$this->_product = $product;
-		$this->locale = $product->locale;
-		if ($product->id)
-		{
-			$this->productId = $product->id;
+
+		if ($product !== null) {
+			$this->locale = $product->locale;
+
+			if ($product->id) {
+				$this->productId = $product->id;
+			}
 		}
 	}
 
@@ -369,12 +372,10 @@ class Commerce_VariantModel extends BasePurchasable
 	 */
 	public function setEagerLoadedElements($handle, $elements)
 	{
-		if ($handle == 'product' && isset($elements[0]))
-		{
-			$this->setProduct($elements[0]);
-		}
-		else
-		{
+		if ($handle == 'product') {
+			$product = isset($elements[0]) ? $elements[0] : null;
+			$this->setProduct($product);
+		} else {
 			parent::setEagerLoadedElements($handle, $elements);
 		}
 	}
