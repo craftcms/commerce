@@ -209,10 +209,10 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
             'update' => $event->params['orderHistory'],
         ];
 
-        //substitute templates path
-        $oldPath = craft()->path->getTemplatesPath();
-        $newPath = craft()->path->getSiteTemplatesPath();
-        craft()->path->setTemplatesPath($newPath);
+        // Set Craft to the site template mode
+        $templatesService = craft()->templates;
+        $oldTemplateMode = $templatesService->getTemplateMode();
+        $templatesService->setTemplateMode(TemplateMode::Site);
 
 	    foreach ($status->emails as $email)
 	    {
@@ -231,7 +231,7 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
 		    // To:
 		    try
 		    {
-			    $craftEmail->toEmail = $to = craft()->templates->renderString($email->to, $renderVariables);
+			    $craftEmail->toEmail = $to = $templatesService->renderString($email->to, $renderVariables);
 		    }
 		    catch (\Exception $e)
 		    {
@@ -244,7 +244,7 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
 		    // BCC:
 		    try
 		    {
-			    $bcc = craft()->templates->renderString($email->bcc, $renderVariables);
+			    $bcc = $templatesService->renderString($email->bcc, $renderVariables);
 			    $bcc = str_replace(';',',',$bcc);
 			    $bcc = explode(',',$bcc);
 			    $bccEmails = [];
@@ -265,7 +265,7 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
 		    // Subject:
 		    try
 		    {
-			    $craftEmail->subject = craft()->templates->renderString($email->subject, $renderVariables);
+			    $craftEmail->subject = $templatesService->renderString($email->subject, $renderVariables);
 		    }
 		    catch (\Exception $e)
 		    {
@@ -276,7 +276,7 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
 		    }
 
 		    // Email Body
-		    if (!craft()->templates->doesTemplateExist($email->templatePath))
+		    if (!$templatesService->doesTemplateExist($email->templatePath))
 		    {
 			    $error = Craft::t('Email template does not exist at “{templatePath}” for email “{email}”. Order: “{order}”.',
 				    ['templatePath' => $email->templatePath, 'email' => $email->name, 'order' => $order->getShortNumber()]);
@@ -287,7 +287,7 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
 		    {
 			    try
 			    {
-				    $craftEmail->body = $craftEmail->htmlBody = craft()->templates->render($email->templatePath,
+				    $craftEmail->body = $craftEmail->htmlBody = $templatesService->render($email->templatePath,
 					    $renderVariables);
 			    }
 			    catch (\Exception $e)
@@ -310,8 +310,8 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
 		    }
 	    }
 
-        //put old template path back
-        craft()->path->setTemplatesPath($oldPath);
+        // Restore the original template mode
+        $templatesService->setTemplateMode($oldTemplateMode);
     }
 
     /**

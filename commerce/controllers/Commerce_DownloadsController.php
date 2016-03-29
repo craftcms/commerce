@@ -24,13 +24,16 @@ class Commerce_DownloadsController extends Commerce_BaseFrontEndController
     {
         $template = craft()->commerce_settings->getSettings()->orderPdfPath;
 
-        $originalPath = craft()->path->getTemplatesPath();
-        $newPath = craft()->path->getSiteTemplatesPath();
-        craft()->path->setTemplatesPath($newPath);
+        // Set Craft to the site template mode
+        $templatesService = craft()->templates;
+        $oldTemplateMode = $templatesService->getTemplateMode();
+        $templatesService->setTemplateMode(TemplateMode::Site);
 
-        if(!$template || !craft()->templates->doesTemplateExist($template))
+        if(!$template || !$templatesService->doesTemplateExist($template))
         {
-            craft()->path->setTemplatesPath($originalPath);
+            // Restore the original template mode
+            $templatesService->setTemplateMode($oldTemplateMode);
+
             throw new HttpException(404, 'Template does not exist.');
         };
 
@@ -41,7 +44,7 @@ class Commerce_DownloadsController extends Commerce_BaseFrontEndController
             throw new HttpException(404);
         }
 
-        $html = craft()->templates->render($template, compact('order', 'option'));
+        $html = $templatesService->render($template, compact('order', 'option'));
 
         $dompdf = new \DOMPDF();
 
@@ -60,7 +63,9 @@ class Commerce_DownloadsController extends Commerce_BaseFrontEndController
         $dompdf->render();
         $dompdf->stream("Order-" . $number . ".pdf");
 
-        craft()->path->setTemplatesPath($originalPath);
+        // Restore the original template mode
+        $templatesService->setTemplateMode($oldTemplateMode);
+
         craft()->end();
     }
 }

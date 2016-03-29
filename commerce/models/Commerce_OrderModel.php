@@ -167,16 +167,18 @@ class Commerce_OrderModel extends BaseElementModel
 
         if ($template)
         {
-            $paths = craft()->path;
-            $templatesPath = $paths->getTemplatesPath();
-            $paths->setTemplatesPath($paths->getSiteTemplatesPath());
+            // Set Craft to the site template mode
+            $templatesService = craft()->templates;
+            $oldTemplateMode = $templatesService->getTemplateMode();
+            $templatesService->setTemplateMode(TemplateMode::Site);
 
-            if (craft()->templates->doesTemplateExist($template))
+            if ($templatesService->doesTemplateExist($template))
             {
                 $url = UrlHelper::getActionUrl("commerce/downloads/pdf?number={$this->number}".($option ? "&option={$option}" : null));
             }
 
-            $paths->setTemplatesPath($templatesPath);
+            // Restore the original template mode
+            $templatesService->setTemplateMode($oldTemplateMode);
         }
 
         return $url;

@@ -375,12 +375,15 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 							// Set the action url to the responses redirect url
 							$variables['actionUrl'] = $response->getRedirectUrl();
 
-							// Substitute templates path
-							$oldPath = craft()->path->getTemplatesPath();
-							$newPath = craft()->path->getSiteTemplatesPath();
-							craft()->path->setTemplatesPath($newPath);
-							$template = craft()->templates->render($gatewayPostRedirectTemplate, $variables);
-							craft()->path->setTemplatesPath($oldPath);
+							// Set Craft to the site template mode
+							$templatesService = craft()->templates;
+							$oldTemplateMode = $templatesService->getTemplateMode();
+							$templatesService->setTemplateMode(TemplateMode::Site);
+
+							$template = $templatesService->render($gatewayPostRedirectTemplate, $variables);
+
+							// Restore the original template mode
+							$templatesService->setTemplateMode($oldTemplateMode);
 
 							// Send the template back to the user.
 							ob_start();
