@@ -44,6 +44,18 @@ class Commerce_DownloadsController extends Commerce_BaseFrontEndController
         $html = craft()->templates->render($template, compact('order', 'option'));
 
         $dompdf = new \DOMPDF();
+
+        // Set the config options
+        $pathService = craft()->path;
+        $dompdfTempDir = $pathService->getTempPath().'commerce_dompdf';
+        $dompdfFontCache = $pathService->getCachePath().'commerce_dompdf';
+        $dompdfLogFile = $pathService->getLogPath().'commerce_dompdf.htm';
+        IOHelper::ensureFolderExists($dompdfTempDir);
+        IOHelper::ensureFolderExists($dompdfFontCache);
+        $dompdf->set_option('temp_dir', $dompdfTempDir);
+        $dompdf->set_option('font_cache', $dompdfFontCache);
+        $dompdf->set_option('log_output_file', $dompdfLogFile);
+
         $dompdf->load_html($html);
         $dompdf->render();
         $dompdf->stream("Order-" . $number . ".pdf");
