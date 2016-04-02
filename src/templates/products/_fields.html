@@ -140,6 +140,7 @@
 	{{ forms.field({
 		id: 'stock',
 		label: 'Stock'|t,
+		required: true,
 		errors: variant.getErrors('unlimitedStock')|merge(variant.getErrors('stock')),
 	}, stockInput) }}
 
