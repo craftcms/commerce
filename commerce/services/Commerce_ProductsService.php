@@ -130,7 +130,7 @@ class Commerce_ProductsService extends BaseApplicationComponent
 
                  $record->defaultVariantId = $defaultVariant->getPurchasableId();
                  $record->defaultSku = $defaultVariant->getSku();
-                 $record->defaultPrice = $defaultVariant->getPrice() * 1;;
+                 $record->defaultPrice = $defaultVariant->price * 1;
                  $record->defaultHeight = $defaultVariant->height * 1;
                  $record->defaultLength = $defaultVariant->length * 1;
                  $record->defaultWidth = $defaultVariant->width * 1;
