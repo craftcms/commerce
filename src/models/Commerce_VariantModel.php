@@ -92,7 +92,7 @@ class Commerce_VariantModel extends BasePurchasable
 	 */
 	public function getCpEditUrl()
 	{
-		return $this->getProduct()->getCpEditUrl();
+		return $this->getProduct() ? $this->getProduct()->getCpEditUrl() : null;
 	}
 
 	/**
