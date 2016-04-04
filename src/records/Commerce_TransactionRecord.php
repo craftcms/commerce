@@ -96,7 +96,7 @@ class Commerce_TransactionRecord extends BaseRecord
             'user' => [
                 self::BELONGS_TO,
                 'UserRecord',
-                'onDelete' => self::RESTRICT
+                'onDelete' => self::SET_NULL
             ],
         ];
     }

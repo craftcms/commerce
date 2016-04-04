@@ -27,7 +27,7 @@
 				</tr>
 				<tr>
 					<td><strong>{{ "Customer"|t }}</strong></td>
-					<td>{% if order.customer.userId %}<a
+					<td>{% if order.customer.user %}<a
 							href="{{ order.customer.user.cpEditUrl }}">{{ order.email }}</a>{% else %}{{ order.email }}&nbsp;({{ "Guest"|t }}) {% endif %}
 					</td>
 				</tr>
@@ -137,7 +137,7 @@
 					data-total="{{ lineItem.total|currency(order.currency) }}"
 					data-qty="{{ lineItem.qty }}">
 					<td>
-						{% if lineItem.purchasableId and lineItem.purchasable %}
+						{% if lineItem.purchasable %}
 							{% if lineItem.purchasable.cpEditUrl %}
 								<a href="{{ lineItem.purchasable.cpEditUrl }}">{{ lineItem.description }}</a>
 							{% else %}
