@@ -46,6 +46,7 @@ class CommercePlugin extends BasePlugin
         craft()->on('commerce_orders.onOrderComplete', array(craft()->commerce_discounts, 'orderCompleteHandler'));
         craft()->on('commerce_orders.onOrderComplete', array(craft()->commerce_variants, 'orderCompleteHandler'));
         craft()->on('commerce_orders.onOrderComplete', array(craft()->commerce_customers, 'orderCompleteHandler'));
+        craft()->on('users.onBeforeDeleteUser', array(craft()->commerce_products, 'userDeleteHandler'));
         craft()->on('i18n.onAddLocale', array(craft()->commerce_productTypes, 'addLocaleHandler'));
 
         if (!craft()->isConsole()) {
