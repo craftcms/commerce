@@ -185,8 +185,17 @@ class Commerce_ProductsService extends BaseApplicationComponent
 				        {
 					        $variant->isDefault = false;
 				        }
-				        $variant->productId = $product->id;
+				        $variant->setProduct($product);
+
 				        craft()->commerce_variants->saveVariant($variant);
+
+				        // Need to manually update the product's default variant ID now that we have a saved ID
+				        if ($product->defaultVariantId === null && $defaultVariant === $variant)
+				        {
+					        $product->defaultVariantId = $variant->id;
+					        craft()->db->createCommand()->update('commerce_products', ['defaultVariantId' => $variant->id], ['id' => $product->id]);
+				        }
+
 				        $keepVariantIds[] = $variant->id;
 			        }
 

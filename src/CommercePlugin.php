@@ -147,7 +147,8 @@ class CommercePlugin extends BasePlugin
                         'm160227_010101_Commerce_OrderAdjustmentIncludedFlag',
                         'm160229_010101_Commerce_ShippingZone',
                         'm160229_010104_Commerce_SoftDeleteAndReorderPaymentMethod',
-                        'm160401_010101_Commerce_KeepAllTransactions'
+                        'm160401_010101_Commerce_KeepAllTransactions',
+                        'm160405_010101_Commerce_FixDefaultVariantId'
                     );
 
                     foreach ($migrations as $migrationClass) {
@@ -295,7 +296,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getSchemaVersion()
     {
-        return '1.0.09';
+        return '1.0.10';
     }
 
     /**
