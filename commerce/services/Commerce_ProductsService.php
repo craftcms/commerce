@@ -53,7 +53,6 @@ class Commerce_ProductsService extends BaseApplicationComponent
         $record->postDate = $product->postDate;
         $record->expiryDate = $product->expiryDate;
         $record->typeId = $product->typeId;
-        $record->authorId = $product->authorId;
         $record->promotable = $product->promotable;
         $record->freeShipping = $product->freeShipping;
         $record->taxCategoryId = $product->taxCategoryId;
@@ -250,34 +249,6 @@ class Commerce_ProductsService extends BaseApplicationComponent
                 return false;
             }
         }
-    }
-
-    public function userDeleteHandler(Event $event)
-    {
-        /** @var UserModel $user */
-        $user = $event->params['user'];
-
-        /** @var UserModel|null $user */
-        $transferContentTo = $event->params['transferContentTo'];
-
-        // Should we transfer the product content to a new user?
-        if ($transferContentTo)
-        {
-            // Get the entry IDs that belong to this user
-            $productIds = craft()->db->createCommand()
-                ->select('id')
-                ->from('commerce_products')
-                ->where(['authorId' => $user->id])
-                ->queryColumn();
-
-            // Delete the template caches for any products authored by this user
-            craft()->templateCache->deleteCachesByElementId($productIds);
-
-            // update all authorIds to the new author
-            craft()->db->createCommand()->update('commerce_products', ['authorId' => $transferContentTo->id], ['authorId' => $user->id]);
-
-        }
-
     }
 
 	/**

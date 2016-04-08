@@ -171,7 +171,6 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
             $product = Commerce_ProductModel::populateModel([
                 'typeId' => $productTypes[0]->id,
                 'enabled' => 1,
-                'authorId' => \Craft\craft()->userSession->id,
                 'postDate' => new DateTime(),
                 'expiryDate' => null,
                 'promotable' => 1,

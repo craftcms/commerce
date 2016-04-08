@@ -8,7 +8,6 @@ namespace Craft;
  * @property DateTime                  $postDate
  * @property DateTime                  $expiryDate
  * @property int                       $typeId
- * @property int                       $authorId
  * @property int                       $taxCategoryId
  * @property bool                      $promotable
  * @property bool                      $freeShipping
@@ -354,7 +353,6 @@ class Commerce_ProductModel extends BaseElementModel
 	{
 		return array_merge(parent::defineAttributes(), [
 			'typeId'        => AttributeType::Number,
-			'authorId'      => AttributeType::Number,
 			'taxCategoryId' => AttributeType::Number,
 			'promotable'    => [AttributeType::Bool, 'default' => true],
 			'freeShipping'  => AttributeType::Bool,

@@ -46,7 +46,6 @@ class CommercePlugin extends BasePlugin
         craft()->on('commerce_orders.onOrderComplete', array(craft()->commerce_discounts, 'orderCompleteHandler'));
         craft()->on('commerce_orders.onOrderComplete', array(craft()->commerce_variants, 'orderCompleteHandler'));
         craft()->on('commerce_orders.onOrderComplete', array(craft()->commerce_customers, 'orderCompleteHandler'));
-        craft()->on('users.onBeforeDeleteUser', array(craft()->commerce_products, 'userDeleteHandler'));
         craft()->on('i18n.onAddLocale', array(craft()->commerce_productTypes, 'addLocaleHandler'));
 
         if (!craft()->isConsole()) {
@@ -148,7 +147,8 @@ class CommercePlugin extends BasePlugin
                         'm160229_010101_Commerce_ShippingZone',
                         'm160229_010104_Commerce_SoftDeleteAndReorderPaymentMethod',
                         'm160401_010101_Commerce_KeepAllTransactions',
-                        'm160405_010101_Commerce_FixDefaultVariantId'
+                        'm160405_010101_Commerce_FixDefaultVariantId'.
+                        'm160406_010101_Commerce_RemoveUnusedAuthorId'
                     );
 
                     foreach ($migrations as $migrationClass) {
@@ -296,7 +296,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getSchemaVersion()
     {
-        return '1.0.10';
+        return '1.0.11';
     }
 
     /**
