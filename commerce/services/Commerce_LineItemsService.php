@@ -75,8 +75,8 @@ class Commerce_LineItemsService extends BaseApplicationComponent
         if (!$lineItem->purchasableId) {
             $this->deleteLineItem($lineItem);
             craft()->commerce_orders->saveOrder($order);
-            $error = Craft::t("Product no longer for sale. Removed from cart.");
-            
+            $error = Craft::t("Item no longer for sale. Removed from cart.");
+
             return false;
         }
 
@@ -106,6 +106,8 @@ class Commerce_LineItemsService extends BaseApplicationComponent
 
             return true;
         }
+
+	    $isNewLineItem = !$lineItem->id;
 
         if (!$lineItem->id) {
             $lineItemRecord = new Commerce_LineItemRecord();
@@ -159,22 +161,51 @@ class Commerce_LineItemsService extends BaseApplicationComponent
 
         $lineItem->addErrors($lineItemRecord->getErrors());
 
+        if ($lineItem->hasErrors()) {
+            return false;
+        }
+
+        //raising event
+        $event = new Event($this, [
+            'lineItem' => $lineItem,
+            'isNewLineItem'    => $isNewLineItem,
+        ]);
+        $this->onBeforeSaveLineItem($event);
+
         CommerceDbHelper::beginStackedTransaction();
         try {
-            if (!$lineItem->hasErrors()) {
-                $lineItemRecord->save(false);
-                $lineItemRecord->id = $lineItem->id;
+            if ($event->performAction) {
 
-                CommerceDbHelper::commitStackedTransaction();
+                $success = $lineItemRecord->save(false);
 
-                return true;
+	            if ($success)
+	            {
+		            if ($isNewLineItem)
+		            {
+			            $lineItem->id = $lineItemRecord->id;
+		            }
+
+		            CommerceDbHelper::commitStackedTransaction();
+	            }
+
+            }else{
+	            $success = false;
             }
         } catch (\Exception $e) {
             CommerceDbHelper::rollbackStackedTransaction();
             throw $e;
         }
 
-        return false;
+	    if ($success)
+	    {
+		    // Fire an 'onSaveLineItem' event
+		    $this->onSaveLineItem(new Event($this, [
+			    'lineItem' => $lineItem,
+			    'isNewLineItem'    => $isNewLineItem,
+		    ]));
+	    }
+
+	    return $success;
     }
 
     /**
@@ -245,6 +276,52 @@ class Commerce_LineItemsService extends BaseApplicationComponent
         return Commerce_LineItemRecord::model()->deleteAllByAttributes(['orderId' => $orderId]);
     }
 
+	/**
+	 * This event is raised before a line item is saved
+	 *
+	 * @param \CEvent $event
+	 *
+	 * @throws \CException
+	 */
+	public function onBeforeSaveLineItem(\CEvent $event)
+	{
+		$params = $event->params;
+		if (empty($params['lineItem']) || !($params['lineItem'] instanceof Commerce_LineItemModel))
+		{
+			throw new Exception('onBeforeSaveLineItem event requires "lineItem" param with Commerce_LineItemModel instance that is being saved.');
+		}
+
+		if (!isset($params['isNewLineItem']))
+		{
+			throw new Exception('onBeforeSaveLineItem event requires "isNewLineItem" param with a boolean to determine if the line item is new.');
+		}
+
+		$this->raiseEvent('onBeforeSaveLineItem', $event);
+	}
+
+	/**
+	 * This event is raised after a line item has been successfully saved
+	 *
+	 * @param \CEvent $event
+	 *
+	 * @throws \CException
+	 */
+	public function onSaveLineItem(\CEvent $event)
+	{
+		$params = $event->params;
+		if (empty($params['lineItem']) || !($params['lineItem'] instanceof Commerce_LineItemModel))
+		{
+			throw new Exception('onSaveLineItem event requires "lineItem" param with Commerce_LineItemModel instance that is being saved.');
+		}
+
+		if (!isset($params['isNewLineItem']))
+		{
+			throw new Exception('onSaveLineItem event requires "isNewLineItem" param with a boolean to determine if the line item is new.');
+		}
+
+		$this->raiseEvent('onSaveLineItem', $event);
+	}
+
     /**
      * Returns a DbCommand object prepped for retrieving sections.
      *
@@ -258,4 +335,6 @@ class Commerce_LineItemsService extends BaseApplicationComponent
             ->from('commerce_lineitems lineitems')
             ->order('lineitems.id');
     }
+
+
 }
