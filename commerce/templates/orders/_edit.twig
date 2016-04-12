@@ -151,13 +151,13 @@
 						<a class="fieldtoggle first last" data-target="info-{{ lineItem.id}}">{{ "Options" }}</a>
 						<span id="info-{{ lineItem.id}}" class="hidden">
 							{% for key, option in lineItem.options %}
-								{{ key|t }}: {% if option is iterable %}<code>{{ option|json_encode()|raw }}</code>{% else %}{{ option }}{% endif %}<br>
+								{{ key|t }}: {% if option is iterable %}<code>{{ option|json_encode|raw }}</code>{% else %}{{ option }}{% endif %}<br>
 							{% endfor %}
 						</span>
 						{% endif %}
 					</td>
 					<td>
-					{% if lineItem.note %}{{ lineItem.note|raw|nl2br }}{% endif %}
+					{% if lineItem.note %}{{ lineItem.note|nl2br }}{% endif %}
 					</td>
 					<td>
 						{{ lineItem.salePrice|currency(order.currency) }}
