@@ -187,9 +187,9 @@ class Commerce_OrdersService extends BaseApplicationComponent
 					}
 				}
 
-				$lastBillingAddressId = $customer->lastUsedShippingAddressId;
+				$lastBillingAddressId = $customer->lastUsedBillingAddressId;
 
-				if (!$order->shippingAddressId && $lastBillingAddressId)
+				if (!$order->billingAddressId && $lastBillingAddressId)
 				{
 					if ($address = craft()->commerce_addresses->getAddressById($lastBillingAddressId))
 					{
