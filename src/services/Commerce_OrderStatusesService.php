@@ -334,45 +334,50 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
 			}
 			catch (\Exception $e)
 			{
-				CommercePlugin::log($e->getMessage(), LogLevel::Error, true);
+				$error = Craft::t('Email “{email}” could not be sent for order “{order}”. Error: {error}',
+					['error' => $e->getMessage(), 'email' => $email->name, 'order' => $order->getShortNumber()]);
+
+				CommercePlugin::log($error, LogLevel::Error, true);
 			}
 
 			// Restore the original template mode
 			$templatesService->setTemplateMode($oldTemplateMode);
 		}
-
-		/**
-		 * @param int $id
-		 *
-		 * @return Commerce_OrderStatusModel|null
-		 */
-		public
-		function getOrderStatusById($id)
-		{
-			$result = Commerce_OrderStatusRecord::model()->findById($id);
-
-			if ($result)
-			{
-				return Commerce_OrderStatusModel::populateModel($result);
-			}
-
-			return null;
-		}
-
-		/**
-		 * @param $ids
-		 *
-		 * @return bool
-		 */
-		public
-		function reorderOrderStatuses($ids)
-		{
-			foreach ($ids as $sortOrder => $id)
-			{
-				craft()->db->createCommand()->update('commerce_orderstatuses',
-					['sortOrder' => $sortOrder + 1], ['id' => $id]);
-			}
-
-			return true;
-		}
 	}
+
+
+	/**
+	 * @param int $id
+	 *
+	 * @return Commerce_OrderStatusModel|null
+	 */
+	public
+	function getOrderStatusById($id)
+	{
+		$result = Commerce_OrderStatusRecord::model()->findById($id);
+
+		if ($result)
+		{
+			return Commerce_OrderStatusModel::populateModel($result);
+		}
+
+		return null;
+	}
+
+	/**
+	 * @param $ids
+	 *
+	 * @return bool
+	 */
+	public
+	function reorderOrderStatuses($ids)
+	{
+		foreach ($ids as $sortOrder => $id)
+		{
+			craft()->db->createCommand()->update('commerce_orderstatuses',
+				['sortOrder' => $sortOrder + 1], ['id' => $id]);
+		}
+
+		return true;
+	}
+}
