@@ -253,6 +253,12 @@ class Commerce_LineItemsService extends BaseApplicationComponent
             throw new Exception(Craft::t('Not a purchasable ID'));
         }
 
+	    //raising event
+	    $event = new Event($this, [
+		    'lineItem' => $lineItem
+	    ]);
+	    $this->onCreateLineItem($event);
+
         return $lineItem;
     }
 
@@ -320,6 +326,24 @@ class Commerce_LineItemsService extends BaseApplicationComponent
 		}
 
 		$this->raiseEvent('onSaveLineItem', $event);
+	}
+
+	/**
+	 * This event is raised when a new line item is created generated from a purchasable
+	 *
+	 * @param \CEvent $event
+	 *
+	 * @throws \CException
+	 */
+	public function onCreateLineItem(\CEvent $event)
+	{
+		$params = $event->params;
+		if (empty($params['lineItem']) || !($params['lineItem'] instanceof Commerce_LineItemModel))
+		{
+			throw new Exception('onCreateLineItem event requires "lineItem" param with Commerce_LineItemModel instance that is being created.');
+		}
+
+		$this->raiseEvent('onCreateLineItem', $event);
 	}
 
     /**
