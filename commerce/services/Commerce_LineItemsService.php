@@ -122,6 +122,13 @@ class Commerce_LineItemsService extends BaseApplicationComponent
 
         $lineItem->total = $lineItem->getTotal();
 
+	    //raising event
+	    $event = new Event($this, [
+		    'lineItem' => $lineItem,
+		    'isNewLineItem'    => $isNewLineItem,
+	    ]);
+	    $this->onBeforeSaveLineItem($event);
+
         $lineItemRecord->purchasableId = $lineItem->purchasableId;
         $lineItemRecord->orderId = $lineItem->orderId;
         $lineItemRecord->taxCategoryId = $lineItem->taxCategoryId;
@@ -164,13 +171,6 @@ class Commerce_LineItemsService extends BaseApplicationComponent
         if ($lineItem->hasErrors()) {
             return false;
         }
-
-        //raising event
-        $event = new Event($this, [
-            'lineItem' => $lineItem,
-            'isNewLineItem'    => $isNewLineItem,
-        ]);
-        $this->onBeforeSaveLineItem($event);
 
         CommerceDbHelper::beginStackedTransaction();
         try {
