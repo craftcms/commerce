@@ -206,6 +206,12 @@ class Commerce_OrdersService extends BaseApplicationComponent
 
 		$oldStatusId = $orderRecord->orderStatusId;
 
+		//raising event
+		$event = new Event($this, [
+			'order' => $order
+		]);
+		$this->onBeforeSaveOrder($event);
+
 		$orderRecord->number = $order->number;
 		$orderRecord->itemTotal = $order->itemTotal;
 		$orderRecord->email = $order->email;
@@ -235,28 +241,13 @@ class Commerce_OrdersService extends BaseApplicationComponent
 
 		try
 		{
-			if (!$order->hasErrors())
+			if (!$order->hasErrors() && $event->performAction)
 			{
 				if (craft()->elements->saveElement($order))
 				{
 
 					$orderRecord->id = $order->id;
-
-					//raising event
-					$event = new Event($this, [
-						'order' => $order
-					]);
-					$this->onBeforeSaveOrder($event);
-
-					if ($event->performAction)
-					{
-						$orderRecord->save(false);
-						$order->id = $orderRecord->id;
-					}
-					else
-					{
-						return false;
-					}
+					$orderRecord->save(false);
 
 					CommerceDbHelper::commitStackedTransaction();
 
