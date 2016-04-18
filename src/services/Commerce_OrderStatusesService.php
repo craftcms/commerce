@@ -42,7 +42,12 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
 	{
 		$orderStatus = Commerce_OrderStatusRecord::model()->with('emails')->findById($id);
 
-		return Commerce_EmailModel::populateModels($orderStatus->emails);
+		if ($orderStatus)
+		{
+			return Commerce_EmailModel::populateModels($orderStatus->emails);
+		}
+
+		return [];
 	}
 
 	/**
