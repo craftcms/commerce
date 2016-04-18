@@ -156,6 +156,8 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
             'orderStatus' => ['label' => Craft::t('Status')],
             'totalPrice' => ['label' => Craft::t('Total')],
             'totalPaid' => ['label' => Craft::t('Total Paid')],
+            'totalDiscount' => ['label' => Craft::t('Total Discount')],
+            'totalShippingCost' => ['label' => Craft::t('Total Shipping')],
             'dateOrdered' => ['label' => Craft::t('Date Ordered')],
             'datePaid' => ['label' => Craft::t('Date Paid')],
             'dateCreated' => ['label' => Craft::t('Date Created')],
@@ -229,10 +231,22 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
                 }
             }
             case 'totalPaid':
-            case 'totalPrice': {
-                $currency = craft()->commerce_settings->getOption('defaultCurrency');
+            case 'totalPrice':
+            case 'totalShippingCost':
+            case 'totalDiscount': {
 
-                return craft()->numberFormatter->formatCurrency($element->$attribute, strtoupper($currency));
+                if ($element->$attribute == 0)
+                {
+                    return "";
+                }
+
+                if ($element->$attribute > 0)
+                {
+                    return craft()->numberFormatter->formatCurrency($element->$attribute, $element->currency);
+                }else{
+                    return craft()->numberFormatter->formatCurrency($element->$attribute*-1, $element->currency);
+                }
+
             }
             default: {
                 return parent::getTableAttributeHtml($element, $attribute);

@@ -49,6 +49,9 @@ class Commerce_AddressesService extends BaseApplicationComponent
      */
     public function saveAddress(Commerce_AddressModel $addressModel)
     {
+
+        $isNewAddress = !$addressModel->id;
+
         if ($addressModel->id) {
             $addressRecord = Commerce_AddressRecord::model()->findById($addressModel->id);
 
@@ -59,6 +62,13 @@ class Commerce_AddressesService extends BaseApplicationComponent
         } else {
             $addressRecord = new Commerce_AddressRecord();
         }
+
+        //raising event
+        $event = new Event($this, [
+            'address' => $addressModel,
+            'isNewAddress' => $isNewAddress
+        ]);
+        $this->onBeforeSaveAddress($event);
 
         $addressRecord->firstName = $addressModel->firstName;
         $addressRecord->lastName = $addressModel->lastName;
@@ -90,22 +100,14 @@ class Commerce_AddressesService extends BaseApplicationComponent
         $addressRecord->validate();
         $addressModel->addErrors($addressRecord->getErrors());
 
-        if (!$addressModel->hasErrors()) {
+        if (!$addressModel->hasErrors() && $event->performAction) {
 
-            //raising event
-            $event = new Event($this, [
-                'address' => $addressModel
-            ]);
-            $this->onBeforeSaveAddress($event);
+            $addressRecord->save(false);
 
-            if ($event->performAction){
-                $addressRecord->save(false);
-            }else{
-                return false;
+            if($isNewAddress){
+                // Now that we have a record ID, save it on the model
+                $addressModel->id = $addressRecord->id;
             }
-
-            // Now that we have a record ID, save it on the model
-            $addressModel->id = $addressRecord->id;
 
             //raising event
             $event = new Event($this, [

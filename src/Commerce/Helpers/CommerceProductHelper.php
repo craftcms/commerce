@@ -42,7 +42,6 @@ class CommerceProductHelper
 
         $product->promotable = $data['promotable'];
         $product->freeShipping = $data['freeShipping'];
-        $product->authorId = \Craft\craft()->userSession->id;
         $product->taxCategoryId = $data['taxCategoryId'] ? $data['taxCategoryId'] : $product->taxCategoryId;
         $product->slug = $data['slug'] ? $data['slug'] : $product->slug;
     }
