@@ -333,6 +333,14 @@ class Commerce_OrdersService extends BaseApplicationComponent
 				continue;
 			}
 
+			// remove the item from the cart if the purchasable is a variant and not enabled
+			if ($lineItems[$key]->purchasable instanceof Commerce_VariantModel && $lineItems[$key]->purchasable->getStatus() != BaseElementModel::ENABLED)
+			{
+				unset($lineItems[$key]);
+				craft()->commerce_lineItems->deleteLineItem($item);
+				continue;
+			}
+
 			$item->tax = 0;
 			$item->taxIncluded = 0;
 			$item->shippingCost = 0;
