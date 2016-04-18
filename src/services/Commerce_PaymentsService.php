@@ -341,6 +341,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 		{
 			try
 			{
+
 				$response = $this->_sendRequest($request, $transaction);
 
 				$this->updateTransaction($transaction, $response);
@@ -725,13 +726,13 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 	{
 		$data = $request->getData();
 
-		$modifiedData = craft()->plugins->callFirst('commerce_modifyRawGatewayRequestData', [$data, $transaction->type, $transaction], true);
+		$modifiedData = craft()->plugins->callFirst('commerce_modifyGatewayRequestData', [$data, $transaction->type, $transaction], true);
 
 		// We can't merge the $data with $modifiedData since the $data is not always an array.
 		// For example it could be a XML object, json, or anything else really.
 		if ($modifiedData !== null)
 		{
-			$response = $request->sendData($data);
+			$response = $request->sendData($modifiedData);
 
 			return $response;
 		}
