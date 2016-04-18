@@ -341,18 +341,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 		{
 			try
 			{
-				$data = $request->getData();
-
-				$modifiedData = craft()->plugins->callFirst('commerce_modifyRawGatewayRequestData', [$data, $transaction->type, $transaction], true);
-
-				// We can't merge the $data with $modifiedData since the $data is not always an array.
-				// For example it could be a XML object, json, or anything else really.
-				if ($modifiedData !== null)
-				{
-					$response = $request->sendData($data);
-				}else{
-					$response = $request->send();
-				}
+				$response = $this->_sendRequest($request, $transaction);
 
 				$this->updateTransaction($transaction, $response);
 
@@ -571,18 +560,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 			if ($event->performAction)
 			{
 
-				$data = $request->getData();
-
-				$modifiedData = craft()->plugins->callFirst('commerce_modifyRawGatewayRequestData', [$data, $child->type, $child], true);
-
-				// We can't merge the $data with $modifiedData since the $data is not always an array.
-				// For example it could be a XML object, json, or anything else really.
-				if ($modifiedData !== null)
-				{
-					$response = $request->sendData($data);
-				}else{
-					$response = $request->send();
-				}
+				$response = $this->_sendRequest($request, $child);
 
 				$this->updateTransaction($child, $response);
 			}
@@ -735,5 +713,31 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 		}
 
 		return 0;
+	}
+
+	/**
+	 * @param $request
+	 * @param $transaction
+	 *
+	 * @return mixed
+	 */
+	private function _sendRequest($request, $transaction)
+	{
+		$data = $request->getData();
+
+		$modifiedData = craft()->plugins->callFirst('commerce_modifyRawGatewayRequestData', [$data, $transaction->type, $transaction], true);
+
+		// We can't merge the $data with $modifiedData since the $data is not always an array.
+		// For example it could be a XML object, json, or anything else really.
+		if ($modifiedData !== null)
+		{
+			$response = $request->sendData($data);
+
+			return $response;
+		}
+
+		$response = $request->send();
+
+		return $response;
 	}
 }
