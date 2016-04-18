@@ -21,6 +21,11 @@ abstract class CreditCardGatewayAdapter extends BaseGatewayAdapter
 		return new CreditCardPaymentFormModel();
 	}
 
+	public function cpPaymentsEnabled()
+	{
+		return true;
+	}
+
 	/**
 	 * @return string
 	 */

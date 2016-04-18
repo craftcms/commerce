@@ -7,7 +7,6 @@ namespace Craft;
  * @property int $id
  * @property int $taxCategoryId
  * @property int $typeId
- * @property int $authorId
  * @property DateTime $postDate
  * @property DateTime $expiryDate
  * @property bool $promotable
@@ -59,11 +58,6 @@ class Commerce_ProductRecord extends BaseRecord
             'type' => [
                 static::BELONGS_TO,
                 'Commerce_ProductTypeRecord',
-                'onDelete' => static::CASCADE
-            ],
-            'author' => [
-                static::BELONGS_TO,
-                'UserRecord',
                 'onDelete' => static::CASCADE
             ],
             'variants' => [

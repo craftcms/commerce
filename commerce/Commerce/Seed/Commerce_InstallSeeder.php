@@ -156,8 +156,15 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
     {
         $productTypes = \Craft\craft()->commerce_productTypes->getAllProductTypes();
 
-        $products = ['A New Toga', 'Parka with Stripes on Back', 'Romper for a Red Eye'];
+        $products = [
+            'A New Toga',
+            'Parka with Stripes on Back',
+            'Romper for a Red Eye',
+            'The Fleece Awakens'
+        ];
+
         $count = 1;
+
         foreach ($products as $productName) {
             /** @var Commerce_VariantModel $variant */
             $variant = Commerce_VariantModel::populateModel([
@@ -171,7 +178,6 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
             $product = Commerce_ProductModel::populateModel([
                 'typeId' => $productTypes[0]->id,
                 'enabled' => 1,
-                'authorId' => \Craft\craft()->userSession->id,
                 'postDate' => new DateTime(),
                 'expiryDate' => null,
                 'promotable' => 1,

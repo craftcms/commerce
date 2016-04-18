@@ -187,9 +187,9 @@ class Commerce_OrdersService extends BaseApplicationComponent
 					}
 				}
 
-				$lastBillingAddressId = $customer->lastUsedShippingAddressId;
+				$lastBillingAddressId = $customer->lastUsedBillingAddressId;
 
-				if (!$order->shippingAddressId && $lastBillingAddressId)
+				if (!$order->billingAddressId && $lastBillingAddressId)
 				{
 					if ($address = craft()->commerce_addresses->getAddressById($lastBillingAddressId))
 					{
@@ -205,6 +205,12 @@ class Commerce_OrdersService extends BaseApplicationComponent
 		$this->calculateAdjustments($order);
 
 		$oldStatusId = $orderRecord->orderStatusId;
+
+		//raising event
+		$event = new Event($this, [
+			'order' => $order
+		]);
+		$this->onBeforeSaveOrder($event);
 
 		$orderRecord->number = $order->number;
 		$orderRecord->itemTotal = $order->itemTotal;
@@ -235,28 +241,13 @@ class Commerce_OrdersService extends BaseApplicationComponent
 
 		try
 		{
-			if (!$order->hasErrors())
+			if (!$order->hasErrors() && $event->performAction)
 			{
 				if (craft()->elements->saveElement($order))
 				{
 
 					$orderRecord->id = $order->id;
-
-					//raising event
-					$event = new Event($this, [
-						'order' => $order
-					]);
-					$this->onBeforeSaveOrder($event);
-
-					if ($event->performAction)
-					{
-						$orderRecord->save(false);
-						$order->id = $orderRecord->id;
-					}
-					else
-					{
-						return false;
-					}
+					$orderRecord->save(false);
 
 					CommerceDbHelper::commitStackedTransaction();
 
@@ -336,6 +327,14 @@ class Commerce_OrdersService extends BaseApplicationComponent
 
 			// remove the item from the cart if the purchasable does not exist anymore.
 			if (!$lineItems[$key]->purchasableId)
+			{
+				unset($lineItems[$key]);
+				craft()->commerce_lineItems->deleteLineItem($item);
+				continue;
+			}
+
+			// remove the item from the cart if the purchasable is a variant and not enabled
+			if ($lineItems[$key]->purchasable instanceof Commerce_VariantModel && $lineItems[$key]->purchasable->getStatus() != BaseElementModel::ENABLED)
 			{
 				unset($lineItems[$key]);
 				craft()->commerce_lineItems->deleteLineItem($item);

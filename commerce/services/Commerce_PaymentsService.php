@@ -136,32 +136,39 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 		$items = new ItemBag;
 		$priceCheck = 0;
 
+		$count = -1;
 		/** @var Commerce_LineItemModel $item */
 		foreach ($order->lineItems as $item)
 		{
+			$count++;
 			$purchasable = $item->getPurchasable();
 			$defaultDescription = Craft::t('Item ID')." ".$item->id;
 			$purchasableDescription = $purchasable ? $purchasable->getDescription() : $defaultDescription;
 			$description = isset($item->snapshot['description']) ? $item->snapshot['description'] : $purchasableDescription;
+			$description = empty($description) ? "Item ".$count : $description;
 			$price = craft()->numberFormatter->formatDecimal($item->salePrice, false);
 			$items->add([
-				'name'     => $description,
-				'quantity' => $item->qty,
-				'price'    => $price,
+				'name'        => $description,
+				'description' => $description,
+				'quantity'    => $item->qty,
+				'price'       => $price,
 			]);
 			$priceCheck = $priceCheck + ($item->qty * $item->salePrice);
 		}
 
+		$count = -1;
 		/** @var Commerce_OrderAdjustmentModel $adjustment */
 		foreach ($order->adjustments as $adjustment)
 		{
 			if (!$adjustment->included)
 			{
+				$count++;
 				$price = craft()->numberFormatter->formatDecimal($adjustment->amount, false);
 				$items->add([
-					'name'     => $adjustment->description,
-					'quantity' => 1,
-					'price'    => $price,
+					'name'        => empty($adjustment->name) ? $adjustment->type." ".$count : $adjustment->name,
+					'description' => empty($adjustment->description) ? $adjustment->type." ".$count : $adjustment->description,
+					'quantity'    => 1,
+					'price'       => $price,
 				]);
 				$priceCheck = $priceCheck + $adjustment->amount;
 			}
