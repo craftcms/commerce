@@ -66,16 +66,21 @@ class Commerce_OrderStatusesController extends Commerce_BaseAdminController
     {
         $this->requirePostRequest();
 
-        $orderStatus = new Commerce_OrderStatusModel();
+	    $id = craft()->request->getPost('orderStatusId');
+        $orderStatus = craft()->commerce_orderStatuses->getOrderStatusById($id);
 
-        // Shared attributes
-        $orderStatus->id = craft()->request->getPost('orderStatusId');
+        if (!$orderStatus)
+        {
+            $orderStatus = new Commerce_OrderStatusModel();
+        }
+
         $orderStatus->name = craft()->request->getPost('name');
         $orderStatus->handle = craft()->request->getPost('handle');
         $orderStatus->color = craft()->request->getPost('color');
         $orderStatus->default = craft()->request->getPost('default');
         $emailIds = craft()->request->getPost('emails', []);
-        if(!$emailIds){
+
+        if (!$emailIds){
             $emailIds = [];
         }
 
