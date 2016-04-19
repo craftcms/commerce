@@ -396,6 +396,20 @@ class Commerce_OrdersService extends BaseApplicationComponent
 		$order->totalPrice = $order->itemTotal + $order->baseDiscount + $order->baseShippingCost;
 		$same = $totalPrice == $order->totalPrice;
 		$order->totalPrice = max(0, $order->totalPrice);
+
+
+		// Since shipping adjusters run on the original price, pre discount, let's recalculate
+		// if the currently selected shipping method is now not available.
+		$availableMethods = craft()->commerce_shippingMethods->getAvailableShippingMethods($order);
+		if ($availableMethods && $order->getShippingMethodHandle())
+		{
+			if (!isset($availableMethods[$order->getShippingMethodHandle()]))
+			{
+				$order->shippingMethod = null;
+				$this->calculateAdjustments($order);
+			}
+		}
+		
 	}
 
 	/**
