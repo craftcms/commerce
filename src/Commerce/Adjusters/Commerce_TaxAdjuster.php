@@ -152,8 +152,9 @@ class Commerce_TaxAdjuster implements Commerce_AdjusterInterface
 
             $countryAndStateMatch = (bool) (in_array($address->countryId, $countries) && in_array($address->stateId, $states));
             $countryAndStateNameMatch = (bool) (in_array($address->countryId, $countries) && strcasecmp($state->name, $address->getStateText()) == 0);
+            $countryAndStateAbbrMatch = (bool) (in_array($address->countryId, $countries) && strcasecmp($state->abbreviation, $address->getStateText()) == 0);
 
-            if ($countryAndStateMatch || $countryAndStateNameMatch)
+            if ($countryAndStateMatch || $countryAndStateNameMatch || $countryAndStateAbbrMatch)
             {
                 return true;
             }
