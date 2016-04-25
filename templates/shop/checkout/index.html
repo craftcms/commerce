@@ -17,7 +17,7 @@
 
                 <input type="hidden" name="action" value="users/login">
                 <input type="hidden" name="redirect" value="commerce/checkout/addresses">
-                {{ getCsrfInput() }}
+
                 <label for="loginName">Email</label>
                 <input id="loginName" class="u-full-width" type="text" name="loginName" placeholder="email@site.com"
                        value="{{ craft.session.rememberedUsername }}">

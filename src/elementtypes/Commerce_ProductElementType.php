@@ -242,7 +242,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
      */
     public function defineSearchableAttributes()
     {
-        return ['title'];
+        return ['title','defaultSku'];
     }
 
 

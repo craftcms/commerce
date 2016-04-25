@@ -102,7 +102,7 @@ class Commerce_ProductModel extends BaseElementModel
 	}
 
 	/*
-	 * Url to edit this Product in the control panel.
+	 * Returns the URL format used to generate this element's URL.
 	 *
 	 * @return string
 	 */
