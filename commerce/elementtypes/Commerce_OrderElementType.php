@@ -130,13 +130,13 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
         $sources['carts:active'] = [
             'label' => Craft::t('Active Carts'),
             'criteria' => ['updatedAfter' => $edge, 'isCompleted' => 'not 1'],
-            'defaultSort' => ['dateUpdated', 'asc']
+            'defaultSort' => ['orders.dateUpdated', 'asc']
         ];
 
         $sources['carts:inactive'] = [
             'label' => Craft::t('Inactive Carts'),
             'criteria' => ['updatedBefore' => $edge, 'isCompleted' => 'not 1'],
-            'defaultSort' => ['dateUpdated', 'desc']
+            'defaultSort' => ['orders.dateUpdated', 'desc']
         ];
 
         // Allow plugins to modify the sources
@@ -266,6 +266,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
             'totalPrice' => Craft::t('Total Payable'),
             'totalPaid' => Craft::t('Total Paid'),
             'dateOrdered' => Craft::t('Date Ordered'),
+            'orders.dateUpdated' => Craft::t('Date Updated'),
             'datePaid' => Craft::t('Date Paid')
         ];
 
