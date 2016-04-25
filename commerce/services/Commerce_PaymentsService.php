@@ -341,8 +341,9 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 		{
 			try
 			{
-				/** @var ResponseInterface $response */
-				$response = $request->send();
+
+				$response = $this->_sendRequest($request, $transaction);
+
 				$this->updateTransaction($transaction, $response);
 
 				if ($response->isRedirect())
@@ -559,7 +560,9 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 			// Send the request!
 			if ($event->performAction)
 			{
-				$response = $request->send();
+
+				$response = $this->_sendRequest($request, $child);
+
 				$this->updateTransaction($child, $response);
 			}
 		}
@@ -711,5 +714,31 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 		}
 
 		return 0;
+	}
+
+	/**
+	 * @param $request
+	 * @param $transaction
+	 *
+	 * @return mixed
+	 */
+	private function _sendRequest($request, $transaction)
+	{
+		$data = $request->getData();
+
+		$modifiedData = craft()->plugins->callFirst('commerce_modifyGatewayRequestData', [$data, $transaction->type, $transaction], true);
+
+		// We can't merge the $data with $modifiedData since the $data is not always an array.
+		// For example it could be a XML object, json, or anything else really.
+		if ($modifiedData !== null)
+		{
+			$response = $request->sendData($modifiedData);
+
+			return $response;
+		}
+
+		$response = $request->send();
+
+		return $response;
 	}
 }
