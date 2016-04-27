@@ -211,8 +211,11 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 				$card->setBillingAddress2($billingAddress->address2);
 				$card->setBillingCity($billingAddress->city);
 				$card->setBillingPostcode($billingAddress->zipCode);
+				if ($billingAddress->getCountry())
+				{
+					$card->setBillingCountry($billingAddress->getCountry()->iso);
+				}
 				$card->setBillingState($billingAddress->getStateText());
-				$card->setBillingCountry($billingAddress->getCountry()->iso);
 				$card->setBillingPhone($billingAddress->phone);
 				$card->setBillingCompany($billingAddress->businessName);
 				$card->setCompany($billingAddress->businessName);
@@ -228,8 +231,11 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 				$card->setShippingAddress2($shippingAddress->address2);
 				$card->setShippingCity($shippingAddress->city);
 				$card->setShippingPostcode($shippingAddress->zipCode);
+				if ($shippingAddress->getCountry())
+				{
+					$card->setShippingCountry($shippingAddress->getCountry()->iso);
+				}
 				$card->setShippingState($shippingAddress->getStateText());
-				$card->setShippingCountry($shippingAddress->getCountry()->iso);
 				$card->setShippingPhone($shippingAddress->phone);
 				$card->setShippingCompany($shippingAddress->businessName);
 			}
