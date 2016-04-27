@@ -6,23 +6,23 @@ use JsonSerializable;
 /**
  * Customer address model.
  *
- * @property int $id
- * @property string $firstName
- * @property string $lastName
- * @property string $address1
- * @property string $address2
- * @property string $city
- * @property string $zipCode
- * @property string $phone
- * @property string $alternativePhone
- * @property string $businessName
- * @property string $businessTaxId
- * @property string $stateName
- * @property int $countryId
- * @property int $stateId
+ * @property int                   $id
+ * @property string                $firstName
+ * @property string                $lastName
+ * @property string                $address1
+ * @property string                $address2
+ * @property string                $city
+ * @property string                $zipCode
+ * @property string                $phone
+ * @property string                $alternativePhone
+ * @property string                $businessName
+ * @property string                $businessTaxId
+ * @property string                $stateName
+ * @property int                   $countryId
+ * @property int                   $stateId
  *
  * @property Commerce_CountryModel $country
- * @property Commerce_StateModel $state
+ * @property Commerce_StateModel   $state
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -33,114 +33,116 @@ use JsonSerializable;
  */
 class Commerce_AddressModel extends BaseModel implements JsonSerializable
 {
-    /** @var int|string Either ID of a state or name of state if it's not present in the DB */
-    public $stateValue;
+	/** @var int|string Either ID of a state or name of state if it's not present in the DB */
+	public $stateValue;
 
-    public function jsonSerialize()
-    {
-        $data = $this->attributes;
-        $data['stateValue'] = $this->getStateValue();
-        $data['stateText'] = $this->getStateText();
-        $data['countryText'] = $this->getCountryText();
-        return $data;
-    }
+	public function jsonSerialize()
+	{
+		$data = $this->attributes;
+		$data['stateValue'] = $this->getStateValue();
+		$data['stateText'] = $this->getStateText();
+		$data['countryText'] = $this->getCountryText();
 
-    /**
-     * @return string
-     */
-    public function getCpEditUrl()
-    {
-        return UrlHelper::getCpUrl('commerce/addresses/' . $this->id);
-    }
+		return $data;
+	}
 
-    /**
-     * @return string
-     */
-    public function getStateText()
-    {
-        return $this->stateName ? $this->stateName : ($this->stateId ? $this->getState()->name : '');
-    }
+	/**
+	 * @return string
+	 */
+	public function getCpEditUrl()
+	{
+		return UrlHelper::getCpUrl('commerce/addresses/'.$this->id);
+	}
 
-    /**
-     * @return string
-     */
-    public function getCountryText()
-    {
-        return $this->countryId ? $this->getCountry()->name : '';
-    }
+	/**
+	 * @return string
+	 */
+	public function getStateText()
+	{
+		return $this->stateName ? $this->stateName : ($this->stateId ? $this->getState()->name : '');
+	}
 
-    /**
-     * @return string
-     */
-    public function getStateValue()
-    {
-        return $this->stateId ? $this->stateId : ($this->stateName ? $this->stateName : '');
-    }
+	/**
+	 * @return string
+	 */
+	public function getCountryText()
+	{
+		return $this->countryId ? $this->getCountry()->name : '';
+	}
 
-    /*
-     * @return Commerce_StateModel|null
-     */
-    public function getState()
-    {
-        return craft()->commerce_states->getStateById($this->stateId);
-    }
+	/**
+	 * @return string
+	 */
+	public function getStateValue()
+	{
+		return $this->stateId ? $this->stateId : ($this->stateName ? $this->stateName : '');
+	}
 
-    /*
-     * @return Commerce_CountryModel|null
-     */
-    public function getCountry()
-    {
-        return craft()->commerce_countries->getCountryById($this->countryId);
-    }
+	/*
+	 * @return Commerce_StateModel|null
+	 */
+	public function getState()
+	{
+		return craft()->commerce_states->getStateById($this->stateId);
+	}
 
-    /**
-     * @return string
-     */
-    public function getFullName()
-    {
-	    $firstName = trim($this->getAttribute('firstName'));
-	    $lastName = trim($this->getAttribute('lastName'));
+	/*
+	 * @return Commerce_CountryModel|null
+	 */
+	public function getCountry()
+	{
+		return craft()->commerce_countries->getCountryById($this->countryId);
+	}
 
-	    return $firstName.($firstName && $lastName ? ' ' : '').$lastName;
-    }
+	/**
+	 * @return string
+	 */
+	public function getFullName()
+	{
+		$firstName = trim($this->getAttribute('firstName'));
+		$lastName = trim($this->getAttribute('lastName'));
 
-    /**
-     * @return void
-     */
-    public function setAttributes($values)
-    {
-        if ($values instanceof \CModel){
-            $this->stateValue = $values->stateValue;
-        }
+		return $firstName.($firstName && $lastName ? ' ' : '').$lastName;
+	}
 
-        if(is_array($values))
-        {
-            $this->stateValue = isset($values['stateValue']) ? $values['stateValue'] : null;
-        }
+	/**
+	 * @return void
+	 */
+	public function setAttributes($values)
+	{
+		if ($values instanceof \CModel)
+		{
+			$this->stateValue = $values->stateValue;
+		}
 
-	    parent::setAttributes($values);
-    }
+		if (is_array($values))
+		{
+			$this->stateValue = isset($values['stateValue']) ? $values['stateValue'] : null;
+		}
 
-    /**
-     * @return array
-     */
-    protected function defineAttributes()
-    {
-        return [
-            'id' => AttributeType::Number,
-            'firstName' => AttributeType::String,
-            'lastName' => AttributeType::String,
-            'address1' => AttributeType::String,
-            'address2' => AttributeType::String,
-            'city' => AttributeType::String,
-            'zipCode' => AttributeType::String,
-            'phone' => AttributeType::String,
-            'alternativePhone' => AttributeType::String,
-            'businessName' => AttributeType::String,
-            'businessTaxId' => AttributeType::String,
-            'stateName' => AttributeType::String,
-            'countryId' => AttributeType::Number,
-            'stateId' => AttributeType::Number
-        ];
-    }
+		parent::setAttributes($values);
+	}
+	
+	/**
+	 * @return array
+	 */
+	protected function defineAttributes()
+	{
+		return [
+			'id'               => AttributeType::Number,
+			'firstName'        => AttributeType::String,
+			'lastName'         => AttributeType::String,
+			'address1'         => AttributeType::String,
+			'address2'         => AttributeType::String,
+			'city'             => AttributeType::String,
+			'zipCode'          => AttributeType::String,
+			'phone'            => AttributeType::String,
+			'alternativePhone' => AttributeType::String,
+			'businessName'     => AttributeType::String,
+			'businessTaxId'    => AttributeType::String,
+			'stateName'        => AttributeType::String,
+			'countryId'        => [AttributeType::Number, 'required' => true],
+			'stateId'          => AttributeType::Number
+		];
+	}
 }

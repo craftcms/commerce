@@ -44,6 +44,7 @@ var adminTable = new Craft.AdminTable({
 tableSelector: '#countries',
 noObjectsSelector: '#no-countries',
 deleteAction: 'commerce/countries/delete',
+confirmDeleteMessage:  Craft.t('Warning, deleting this country will remove it from all addresses and zones, are you sure you want to delete “{name}”?'),
 deleteFailMessage: '{{ "Can not delete “{name}” because it is in use."|t }}'
 });
 {% endincludejs %}
