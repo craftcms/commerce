@@ -86,29 +86,6 @@ class Commerce_VariantElementType extends Commerce_BaseElementType
      *
      * @return array
      */
-    public function getAvailableActions($source = null)
-    {
-        $deleteAction = craft()->elements->getAction('Delete');
-        $deleteAction->setParams([
-            'confirmationMessage' => Craft::t('Are you sure you want to delete the selected variants?'),
-            'successMessage' => Craft::t('Variants deleted.'),
-        ]);
-        $actions[] = $deleteAction;
-
-        $editAction = craft()->elements->getAction('Edit');
-        $actions[] = $editAction;
-
-        $setValuesAction = craft()->elements->getAction('Commerce_SetVariantValues');
-        $actions[] = $setValuesAction;
-
-        return $actions;
-    }
-
-    /**
-     * @param null $source
-     *
-     * @return array
-     */
     public function defineTableAttributes($source = null)
     {
         return [
@@ -130,68 +107,6 @@ class Commerce_VariantElementType extends Commerce_BaseElementType
     public function defineSearchableAttributes()
     {
         return ['sku', 'price', 'width', 'height', 'length', 'weight', 'stock', 'unlimitedStock', 'minQty', 'maxQty'];
-    }
-
-    /**
-     * @param BaseElementModel $element
-     * @param string $attribute
-     *
-     * @return mixed|string
-     */
-    public function getTableAttributeHtml(BaseElementModel $element, $attribute)
-    {
-        $infinity = "<span style=\"color:#E5E5E5\">&infin;</span>";
-        $numbers = ['weight', 'height', 'length', 'width'];
-        if (in_array($attribute, $numbers)) {
-            $formatter = craft()->getNumberFormatter();
-            if ($element->$attribute == 0) {
-                return "<span style=\"color:#E5E5E5\">" . $formatter->formatDecimal($element->$attribute) . "</span>";
-            } else {
-                return $formatter->formatDecimal($element->$attribute);
-            }
-        }
-
-        if ($attribute == 'stock' && $element->unlimitedStock) {
-            return $infinity;
-        }
-
-        if ($attribute == 'price') {
-            $formatter = craft()->getNumberFormatter();
-
-            return $formatter->formatCurrency($element->$attribute, craft()->commerce_settings->getSettings()->defaultCurrency);
-        }
-
-        if ($attribute == 'minQty') {
-            if (!$element->minQty && !$element->maxQty) {
-                return $infinity;
-            } else {
-                $min = $element->minQty ? $element->minQty : '1';
-                $max = $element->maxQty ? $element->maxQty : $infinity;
-
-                return $min . " - " . $max;
-            }
-        }
-
-        return parent::getTableAttributeHtml($element, $attribute);
-    }
-
-    /**
-     * @return array
-     */
-    public function defineSortableAttributes()
-    {
-        return [
-            'sku' => Craft::t('SKU'),
-            'price' => Craft::t('Price'),
-            'width' => Craft::t('Width'),
-            'height' => Craft::t('Height'),
-            'length' => Craft::t('Length'),
-            'weight' => Craft::t('Weight'),
-            'stock' => Craft::t('Stock'),
-            'unlimitedStock' => Craft::t('Unlimited Stock'),
-            'minQty' => Craft::t('Min Qty'),
-            'maxQty' => Craft::t('Max Qty')
-        ];
     }
 
     /**
