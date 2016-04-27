@@ -111,7 +111,6 @@ class Commerce_VariantElementType extends Commerce_BaseElementType
      */
     public function defineTableAttributes($source = null)
     {
-        // TODO do not show dimensions if product type hasDimentions == false. Leaving until custom columns is implemented.
         return [
             'title' => Craft::t('Title'),
             'sku' => Craft::t('SKU'),
