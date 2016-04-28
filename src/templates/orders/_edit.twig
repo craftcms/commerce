@@ -66,6 +66,12 @@
 					<td><strong>{{ "Paid"|t }} </strong></td>
 					<td>{{ order.totalPaid|currency(order.currency) }} {{ order.datePaid|date('D dS M Y') }}</td>
 				</tr>
+				{% if order.couponCode %}
+				<tr>
+					<td><strong>{{ "Coupon Used"|t }} </strong></td>
+					<td>{{ order.couponCode }}</td>
+				</tr>
+				{% endif %}
 			</table>
 		</div>
 		</div>
