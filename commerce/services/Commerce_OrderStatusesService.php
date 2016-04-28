@@ -343,11 +343,14 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
 					['error' => $e->getMessage(), 'email' => $email->name, 'order' => $order->getShortNumber()]);
 
 				CommercePlugin::log($error, LogLevel::Error, true);
+
+				continue;
 			}
 
-			// Restore the original template mode
-			$templatesService->setTemplateMode($oldTemplateMode);
 		}
+
+		// Restore the original template mode
+		$templatesService->setTemplateMode($oldTemplateMode);
 	}
 
 
