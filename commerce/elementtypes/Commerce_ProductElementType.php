@@ -242,7 +242,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
      */
     public function defineSearchableAttributes()
     {
-        return ['title'];
+        return ['title','defaultSku'];
     }
 
 
@@ -415,7 +415,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
     public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
     {
         $query
-            ->addSelect("products.id, products.typeId, products.promotable, products.freeShipping, products.postDate, products.expiryDate, products.defaultPrice, products.defaultVariantId, products.defaultSku, products.defaultWeight, products.defaultLength, products.defaultWidth, products.defaultHeight, products.taxCategoryId, products.authorId")
+            ->addSelect("products.id, products.typeId, products.promotable, products.freeShipping, products.postDate, products.expiryDate, products.defaultPrice, products.defaultVariantId, products.defaultSku, products.defaultWeight, products.defaultLength, products.defaultWidth, products.defaultHeight, products.taxCategoryId")
             ->join('commerce_products products', 'products.id = elements.id')
             ->join('commerce_producttypes producttypes', 'producttypes.id = products.typeId');
 

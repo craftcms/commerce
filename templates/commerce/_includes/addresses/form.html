@@ -1,18 +1,5 @@
 {% set countries = craft.commerce.countriesList %}
 {% set states = craft.commerce.statesArray %}
-{% set addressFields = [
-    { key: 'firstName', label: 'First Name', required: true },
-    { key: 'lastName', label: 'Last Name', required: true },
-    { key: 'businessName', label: 'Business Name', required: false },
-    { key: 'businessTaxId', label: 'Business Tax ID', required: false },
-    { key: 'address1', label: 'Address 1', required: false },
-    { key: 'address2', label: 'Address 2', required: false },
-    { key: 'city', label: 'City', required: false },
-    { key: 'zipCode', label: 'Zip Code', required: false },
-    { key: 'phone', label: 'Phone', required: false },
-    { key: 'alternativePhone', label: 'Alternative Phone', required: false },
-] %}
-
 
 {% set modelName = modelName is defined ? modelName : 'address' %}
 {% set model = address is defined ? address : null %}
@@ -107,7 +94,7 @@
 
 	<div class="row">
 		<div class="six columns">
-			<label for="{{ modelName }}-countryId">Country</label>
+			<label for="{{ modelName }}-countryId">Country *</label>
 			<select class="address-country u-full-width" name="{{ modelName }}[countryId]">
 				{% for key, option in countries %}
 					{% set optionValue = (model ? model.countryId : '') %}

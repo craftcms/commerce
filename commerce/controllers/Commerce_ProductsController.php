@@ -17,6 +17,12 @@ use Commerce\Helpers\CommerceVariantMatrixHelper as VariantMatrixHelper;
  */
 class Commerce_ProductsController extends Commerce_BaseCpController
 {
+
+	/**
+	 * @inheritdoc
+	 */
+	protected $allowAnonymous = ['actionViewSharedProduct'];
+
 	/**
 	 * @throws HttpException
 	 */

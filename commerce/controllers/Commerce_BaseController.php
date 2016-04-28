@@ -4,12 +4,12 @@ namespace Craft;
 /**
  * The Base Controller for all Commerce Commerce Controllers
  *
- * @author    Make with Morph. <support@makewithmorph.com>
- * @copyright Copyright (c) 2015, Luke Holder.
- * @license   http://makewithmorph.com/commerce/license Commerce License Agreement
- * @see       http://makewithmorph.com
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   http://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       http://craftcommerce.com
  * @package   craft.plugins.commerce.controllers
- * @since     0.1
+ * @since     1.0
  */
 abstract class Commerce_BaseController extends BaseController
 {

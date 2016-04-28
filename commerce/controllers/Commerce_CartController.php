@@ -194,8 +194,13 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
             $shippingAddress = new Commerce_AddressModel();
             $shippingAddress->setAttributes(craft()->request->getParam('shippingAddress'));
             if (!$sameAddress) {
-                $billingAddress = new Commerce_AddressModel();
-                $billingAddress->setAttributes(craft()->request->getParam('billingAddress'));
+                if ($billingAddressId = craft()->request->getParam('billingAddressId')) {
+                    $billingAddress = craft()->commerce_addresses->getAddressById($billingAddressId);
+                } else {
+                    $billingAddress = new Commerce_AddressModel();
+                    $billingAddress->setAttributes(craft()->request->getParam('billingAddress'));
+                }
+
                 $result = craft()->commerce_orders->setOrderAddresses($cart, $shippingAddress, $billingAddress);
             } else {
                 $result = craft()->commerce_orders->setOrderAddresses($cart, $shippingAddress, $shippingAddress);

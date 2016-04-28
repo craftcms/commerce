@@ -88,8 +88,27 @@ class Commerce_PaymentMethodsController extends Commerce_BaseAdminController
 		$paymentMethod->name = craft()->request->getRequiredPost('name');
 		$paymentMethod->paymentType = craft()->request->getRequiredPost('paymentType');
 		$paymentMethod->class = craft()->request->getRequiredPost('class');
-		$paymentMethod->settings = craft()->request->getPost('settings', []);
 		$paymentMethod->frontendEnabled = craft()->request->getPost('frontendEnabled');
+
+
+		// Check if settings have been overridden in config.
+		$configSettings = craft()->config->get('paymentMethodSettings', 'commerce');
+		if (!isset($configSettings[$paymentMethod->id]))
+		{
+			$paymentMethod->settings = craft()->request->getPost('settings', []);
+		}
+		else
+		{
+			if ($paymentMethod->id)
+			{
+				// We need to get this directly from the database since the model populateModel fills from config file.
+				$method = craft()->db->createCommand()->select('*')->where('id = '.$paymentMethod->id)->from('commerce_paymentmethods')->queryRow();
+				if ($method)
+				{
+					$paymentMethod->settings = $method['settings'];
+				}
+			}
+		}
 
 		// Save it
 		if (craft()->commerce_paymentMethods->savePaymentMethod($paymentMethod))

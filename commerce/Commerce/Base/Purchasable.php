@@ -2,9 +2,9 @@
 
 namespace Commerce\Base;
 
-use Craft\BaseElementModel;
-use Commerce\Interfaces\Purchasable as PurchasableInterface;
 use Commerce\Exception\NotImplementedException;
+use Commerce\Interfaces\Purchasable as PurchasableInterface;
+use Craft\BaseElementModel;
 
 /**
  * Base Purchasable
@@ -30,6 +30,12 @@ abstract class Purchasable extends BaseElementModel implements PurchasableInterf
 		throw new NotImplementedException();
 	}
 
+	/**
+	 * Gathers data to be serialized and saved to the lineItem when adding to the cart.
+	 * Include any information that might be useful after the purchasable has been deleted.
+	 *
+	 * @return array
+	 */
 	public function getSnapshot()
 	{
 		return [];
@@ -46,7 +52,7 @@ abstract class Purchasable extends BaseElementModel implements PurchasableInterf
 	}
 
 	/**
-	 * This must be a unique code. Unique as per the commerce_purchasables table.
+	 * This must be a unique code. A unique SKU as per the commerce_purchasables table.
 	 *
 	 * @return string
 	 */
@@ -90,6 +96,8 @@ abstract class Purchasable extends BaseElementModel implements PurchasableInterf
 	}
 
 	/**
+	 * Lets the system know if this purchasable has free shipping.
+	 *
 	 * @return bool
 	 */
 	public function hasFreeShipping()
@@ -98,6 +106,8 @@ abstract class Purchasable extends BaseElementModel implements PurchasableInterf
 	}
 
 	/**
+	 * Lets the system know if this purchasable can be subject to discounts or sales.
+	 *
 	 * @return bool
 	 */
 	public function getIsPromotable()

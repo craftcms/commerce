@@ -187,9 +187,9 @@ class Commerce_OrdersService extends BaseApplicationComponent
 					}
 				}
 
-				$lastBillingAddressId = $customer->lastUsedShippingAddressId;
+				$lastBillingAddressId = $customer->lastUsedBillingAddressId;
 
-				if (!$order->shippingAddressId && $lastBillingAddressId)
+				if (!$order->billingAddressId && $lastBillingAddressId)
 				{
 					if ($address = craft()->commerce_addresses->getAddressById($lastBillingAddressId))
 					{
@@ -205,6 +205,12 @@ class Commerce_OrdersService extends BaseApplicationComponent
 		$this->calculateAdjustments($order);
 
 		$oldStatusId = $orderRecord->orderStatusId;
+
+		//raising event
+		$event = new Event($this, [
+			'order' => $order
+		]);
+		$this->onBeforeSaveOrder($event);
 
 		$orderRecord->number = $order->number;
 		$orderRecord->itemTotal = $order->itemTotal;
@@ -235,28 +241,13 @@ class Commerce_OrdersService extends BaseApplicationComponent
 
 		try
 		{
-			if (!$order->hasErrors())
+			if (!$order->hasErrors() && $event->performAction)
 			{
 				if (craft()->elements->saveElement($order))
 				{
 
 					$orderRecord->id = $order->id;
-
-					//raising event
-					$event = new Event($this, [
-						'order' => $order
-					]);
-					$this->onBeforeSaveOrder($event);
-
-					if ($event->performAction)
-					{
-						$orderRecord->save(false);
-						$order->id = $orderRecord->id;
-					}
-					else
-					{
-						return false;
-					}
+					$orderRecord->save(false);
 
 					CommerceDbHelper::commitStackedTransaction();
 
@@ -342,6 +333,14 @@ class Commerce_OrdersService extends BaseApplicationComponent
 				continue;
 			}
 
+			// remove the item from the cart if the purchasable is a variant and not enabled
+			if ($lineItems[$key]->purchasable instanceof Commerce_VariantModel && $lineItems[$key]->purchasable->getStatus() != BaseElementModel::ENABLED)
+			{
+				unset($lineItems[$key]);
+				craft()->commerce_lineItems->deleteLineItem($item);
+				continue;
+			}
+
 			$item->tax = 0;
 			$item->taxIncluded = 0;
 			$item->shippingCost = 0;
@@ -397,6 +396,20 @@ class Commerce_OrdersService extends BaseApplicationComponent
 		$order->totalPrice = $order->itemTotal + $order->baseDiscount + $order->baseShippingCost;
 		$same = $totalPrice == $order->totalPrice;
 		$order->totalPrice = max(0, $order->totalPrice);
+
+
+		// Since shipping adjusters run on the original price, pre discount, let's recalculate
+		// if the currently selected shipping method is now not available.
+		$availableMethods = craft()->commerce_shippingMethods->getAvailableShippingMethods($order);
+		if ($availableMethods && $order->getShippingMethodHandle())
+		{
+			if (!isset($availableMethods[$order->getShippingMethodHandle()]))
+			{
+				$order->shippingMethod = null;
+				$this->calculateAdjustments($order);
+			}
+		}
+		
 	}
 
 	/**

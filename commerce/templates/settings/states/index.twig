@@ -43,6 +43,7 @@
 var adminTable = new Craft.AdminTable({
 tableSelector: '#states',
 noObjectsSelector: '#no-states',
+confirmDeleteMessage:  Craft.t('Warning, deleting this state will remove it from all addresses and zones, are you sure you want to delete “{name}”?'),
 deleteAction: 'commerce/states/delete'
 });
 {% endincludejs %}
