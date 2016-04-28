@@ -6,6 +6,7 @@ use Craft\Commerce_DiscountModel;
 use Craft\Commerce_LineItemModel;
 use Craft\Commerce_OrderAdjustmentModel;
 use Craft\Commerce_OrderModel;
+use Craft\StringHelper;
 
 /**
  * Discount Adjustments
@@ -168,6 +169,14 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
             }
 
             $description .= 'free shipping ';
+        }
+
+        if ($discount->code) {
+            if ($description) {
+                $description .= 'and ';
+            }
+
+            $description .= 'using code '.StringHelper::toUpperCase($discount->code);
         }
 
         return $description;
