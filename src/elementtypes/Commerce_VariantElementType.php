@@ -121,6 +121,7 @@ class Commerce_VariantElementType extends Commerce_BaseElementType
             'isDefault' => AttributeType::Mixed,
             'default' => AttributeType::Mixed,
             'stock' => AttributeType::Mixed,
+            'hasStock' => AttributeType::Mixed,
             'order' => [AttributeType::String, 'default' => 'variants.sortOrder asc'],
         ];
     }
@@ -146,10 +147,7 @@ class Commerce_VariantElementType extends Commerce_BaseElementType
 
         if ($criteria->product) {
             if ($criteria->product instanceof Commerce_ProductModel) {
-                //$criteria->productId = $criteria->product->id;
-                //$criteria->product = null;
                 $query->andWhere(DbHelper::parseParam('variants.productId', $criteria->product->id, $query->params));
-
                 $criteria->attachEventHandler('onPopulateElements', array($this, 'setProductOnVariant'));
             } else {
                 $query->andWhere(DbHelper::parseParam('variants.productId', $criteria->product, $query->params));
@@ -168,9 +166,22 @@ class Commerce_VariantElementType extends Commerce_BaseElementType
             $query->andWhere(DbHelper::parseParam('variants.isDefault', $criteria->default, $query->params));
         }
 
-        if ($criteria->stock) {
-            $query->andWhere(DbHelper::parseParam('variants.stock', $criteria->stock, $query->params));
-        }
+	    if ($criteria->stock)
+	    {
+		    $query->andWhere(DbHelper::parseParam('variants.stock', $criteria->stock, $query->params));
+	    }
+
+	    if (isset($criteria->hasStock) && $criteria->hasStock === true)
+	    {
+		    $hasStockCondition = ['or', '(variants.stock > 0 AND variants.unlimitedStock != 1)', 'variants.unlimitedStock = 1'];
+		    $query->andWhere($hasStockCondition);
+	    }
+
+	    if (isset($criteria->hasStock) && $criteria->hasStock === false)
+	    {
+		    $hasStockCondition = ['and', 'variants.stock < 1', 'variants.unlimitedStock != 1'];
+		    $query->andWhere($hasStockCondition);
+	    }
     }
 
     /**
