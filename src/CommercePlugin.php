@@ -148,7 +148,8 @@ class CommercePlugin extends BasePlugin
                         'm160229_010104_Commerce_SoftDeleteAndReorderPaymentMethod',
                         'm160401_010101_Commerce_KeepAllTransactions',
                         'm160405_010101_Commerce_FixDefaultVariantId'.
-                        'm160406_010101_Commerce_RemoveUnusedAuthorId'
+                        'm160406_010101_Commerce_RemoveUnusedAuthorId',
+                        'm160425_010101_Commerce_DeleteCountriesAndStates',
                     );
 
                     foreach ($migrations as $migrationClass) {
