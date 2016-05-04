@@ -531,8 +531,10 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
 
             $map = craft()->db->createCommand()
                 ->select('productId as source, id as target')
+                ->limit(null)
                 ->from('commerce_variants')
                 ->where(array('in', 'productId', $sourceElementIds))
+                ->order('sortOrder asc')
                 ->queryAll();
 
             return array(
