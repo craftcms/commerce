@@ -120,7 +120,7 @@ class Commerce_LineItemsService extends BaseApplicationComponent
 			}
 
 			$purchasable = $lineItem->getPurchasable();
-			if (!$purchasable || $purchasable->stock <= 0)
+			if (!$purchasable)
 			{
 				$this->deleteLineItem($lineItem);
 
