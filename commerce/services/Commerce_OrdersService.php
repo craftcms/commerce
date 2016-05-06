@@ -379,7 +379,15 @@ class Commerce_OrdersService extends BaseApplicationComponent
 		foreach ($lineItems as $item)
 		{
 			$result = craft()->commerce_lineItems->saveLineItem($item);
+
 			$order->itemTotal += $item->total;
+
+			if (!$result)
+			{
+				$errors = $item->getAllErrors();
+				throw new Exception('Error saving line item: '.implode(', ',
+						$errors));
+			}
 		}
 
 		$itemSub = $order->getItemSubtotalWithSale();
