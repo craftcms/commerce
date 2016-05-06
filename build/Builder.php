@@ -68,10 +68,7 @@ class Builder
 		$this->_executeComposer('self-update');
 
 		// Now update Commerce dependencies
-		$this->_executeComposer('install');
-
-		// Remove dev dependencies
-		$this->_executeComposer('remove --update-no-dev');
+		$this->_executeComposer('install --no-dev');
 
 		// Optimize that shiz.
 		$this->_executeComposer('dumpautoload -o');
