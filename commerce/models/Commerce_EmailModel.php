@@ -30,6 +30,7 @@ class Commerce_EmailModel extends BaseModel
             'id' => [AttributeType::Number, 'required' => true],
             'name' => [AttributeType::String, 'required' => true],
             'subject' => [AttributeType::String, 'required' => true],
+            'recipientType' => [AttributeType::Enum, 'values' => ['customer', 'custom'], 'default' => 'customer'],
             'to' => [AttributeType::String, 'required' => true],
             'bcc' => AttributeType::String,
             'enabled' => [
