@@ -163,6 +163,10 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
             'dateCreated' => ['label' => Craft::t('Date Created')],
             'dateUpdated' => ['label' => Craft::t('Date Updated')],
             'email' => ['label' => Craft::t('Email')],
+            'shippingFullName' => ['label' => Craft::t('Shipping Full Name')],
+            'billingFullName' => ['label' => Craft::t('Billing Full Name')],
+            'shippingBusinessName' => ['label' => Craft::t('Shipping Business Name')],
+            'billingBusinessName' => ['label' => Craft::t('Billing Business Name')],
         ];
 
         // Allow plugins to modify the attributes
@@ -208,7 +212,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
     }
 
     /**
-     * @param BaseElementModel $element
+     * @param BaseElementModel|Commerce_OrderModel $element
      * @param string $attribute
      *
      * @return mixed|string
@@ -228,6 +232,30 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
                     return $element->orderStatus->htmlLabel();
                 } else {
                     return '<span class="status"></span>';
+                }
+            }
+            case 'shippingFullName': {
+                if ($element->shippingAddress)
+                {
+                    return $element->shippingAddress->getFullName();
+                }
+            }
+            case 'billingFullName': {
+                if ($element->billingAddress)
+                {
+                    return $element->billingAddress->getFullName();
+                }
+            }
+            case 'shippingBusinessName': {
+                if ($element->shippingAddress)
+                {
+                    return $element->shippingAddress->businessName;
+                }
+            }
+            case 'billingBusinessName': {
+                if ($element->billingAddress)
+                {
+                    return $element->billingAddress->businessName;
                 }
             }
             case 'totalPaid':
