@@ -126,6 +126,17 @@ class Commerce_LineItemsService extends BaseApplicationComponent
 
 				return true;
 			}
+
+			// TODO move the availability to the purchasable interface
+			if ($purchasable instanceof Commerce_VariantModel)
+			{
+				if ($purchasable->stock < 1 && !$purchasable->unlimitedStock)
+				{
+					$this->deleteLineItem($lineItem);
+					$order->addError('lineItems',Craft::t('"{description}" is now out of stock, and removed from cart', ['description' => $lineItem->purchasable->getDescription()]));
+					return true;
+				}
+			}
 		}
 
 
