@@ -172,27 +172,27 @@
         {% endmacro %}
 
         {% set urlFormatInput %}
-            <table class="data fullwidth">
-                <thead>
-                {% if craft.isLocalized() %}
-                    <th></th>
-                {% endif %}
-                <th scope="col">{{ "Product Type"|t }}</th>
-                </thead>
-                <tbody>
-                {% for locale in craft.i18n.getSiteLocales() %}
-                    <tr>
-                        {% if craft.isLocalized() %}
-                            <th class="thin nowrap">{{ locale.id }}</th>
-                        {% endif %}
-                        <td class="topalign">
-                            {% set value = (productType.locales[locale.id] is defined ? productType.locales[locale.id].urlFormat : null) %}
-                            {{ _self.urlFormatText(locale, productType, 'urlFormat', value) }}
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+            {% if craft.isLocalized() %}
+                <table class="data fullwidth">
+                    <tbody>
+                    {% for locale in craft.i18n.getSiteLocales() %}
+                        <tr>
+                            {% if craft.isLocalized() %}
+                                <th class="thin nowrap">{{ locale.id }}</th>
+                            {% endif %}
+                            <td class="topalign">
+                                {% set value = (productType.locales[locale.id] is defined ? productType.locales[locale.id].urlFormat : null) %}
+                                {{ _self.urlFormatText(locale, productType, 'urlFormat', value) }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                {% set locale = craft.i18n.getPrimarySiteLocale() %}
+                {% set value = (productType.locales[locale.id] is defined ? productType.locales[locale.id].urlFormat : null) %}
+                {{ _self.urlFormatText(locale, productType, 'urlFormat', value) }}
+            {% endif %}
         {% endset %}
 
         {{ forms.field({

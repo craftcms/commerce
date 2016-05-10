@@ -201,12 +201,18 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 		$card = new CreditCard;
 
 		$order->paymentMethod->populateCard($card, $paymentForm);
-
+		
 		if ($order->billingAddressId)
 		{
 			$billingAddress = $order->billingAddress;
 			if ($billingAddress)
 			{
+				// Set top level names to the billing names
+				$card->setFirstName($billingAddress->firstName);
+				$card->setLastName($billingAddress->lastName);
+
+				$card->setBillingFirstName($billingAddress->firstName);
+				$card->setBillingLastName($billingAddress->lastName);
 				$card->setBillingAddress1($billingAddress->address1);
 				$card->setBillingAddress2($billingAddress->address2);
 				$card->setBillingCity($billingAddress->city);
@@ -227,6 +233,8 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 			$shippingAddress = $order->shippingAddress;
 			if ($shippingAddress)
 			{
+				$card->setShippingFirstName($shippingAddress->firstName);
+				$card->setShippingLastName($shippingAddress->lastName);
 				$card->setShippingAddress1($shippingAddress->address1);
 				$card->setShippingAddress2($shippingAddress->address2);
 				$card->setShippingCity($shippingAddress->city);

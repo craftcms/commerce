@@ -465,13 +465,17 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
                 $variantCriteria = craft()->elements->getCriteria('Commerce_Variant', $criteria->hasVariant);
             }
 
-            $productIds = craft()->elements->buildElementsQuery($variantCriteria)
+	        $variantCriteria->limit = null;
+	        $productIds = craft()->elements->buildElementsQuery($variantCriteria)
                 ->selectDistinct('productId')
                 ->queryColumn();
 
             if (!$productIds) {
                 return false;
             }
+
+            // Remove any blank product IDs (if any)
+            $productIds = array_filter($productIds);
 
             $query->andWhere(['in', 'products.id', $productIds]);
         }
@@ -527,8 +531,10 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
 
             $map = craft()->db->createCommand()
                 ->select('productId as source, id as target')
+                ->limit(null)
                 ->from('commerce_variants')
                 ->where(array('in', 'productId', $sourceElementIds))
+                ->order('sortOrder asc')
                 ->queryAll();
 
             return array(

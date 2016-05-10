@@ -122,7 +122,7 @@ class Commerce_OrderModel extends BaseElementModel
      */
     public function __toString()
     {
-        return substr($this->number, 0, 7);
+        return $this->getShortNumber();
     }
 
     /**
