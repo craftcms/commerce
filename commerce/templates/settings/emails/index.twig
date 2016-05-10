@@ -32,7 +32,11 @@
                     <a href="{{ url('commerce/settings/emails/'~email.id) }}">{{ email.name }}</a>
                 </th>
                 <td data-title="{{ 'Subject'|t }}">{{ email.subject }}</td>
+                {% if email.recipientType == 'custom' %}
                 <td data-title="{{ 'To'|t }}">{{ email.to }}</td>
+                {% else %}
+                <td data-title="{{ 'To'|t }}">{{ 'Customer' }}</td>
+                {% endif %}
                 <td data-title="{{ 'Bcc'|t }}">{{ email.bcc }}</td>
                 <td data-title="{{ 'Template Path'|t }}">{{ email.templatePath }}</td>
                 <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
