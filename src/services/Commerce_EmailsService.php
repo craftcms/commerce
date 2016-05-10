@@ -80,6 +80,7 @@ class Commerce_EmailsService extends BaseApplicationComponent
 
         $record->name = $model->name;
         $record->subject = $model->subject;
+        $record->recipientType = $model->recipientType;
         $record->to = $model->to;
         $record->bcc = $model->bcc;
         $record->enabled = $model->enabled;
