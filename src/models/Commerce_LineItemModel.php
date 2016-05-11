@@ -197,7 +197,8 @@ class Commerce_LineItemModel extends BaseModel
 
 		if ($purchasable instanceof Commerce_VariantModel)
 		{
-
+			// Since we do not have a proper stock reservation system, we need to do this quietly.
+			// If this occurs in the payment request, the user will be notified.
 			if ($this->qty > $purchasable->stock)
 			{
 				$this->qty = $purchasable->stock;
