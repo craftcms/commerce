@@ -323,22 +323,21 @@ class Commerce_OrdersService extends BaseApplicationComponent
 		$order->baseShippingCost = 0;
 		$order->itemTotal = 0;
 		foreach ($lineItems as $key => $item)
-		{ //resetting fields calculated by adjusters
-
-			// remove the item from the cart if the purchasable does not exist anymore.
-			if (!$lineItems[$key]->purchasableId)
+		{
+			if ($item->refreshFromPurchasable())
 			{
-				unset($lineItems[$key]);
-				craft()->commerce_lineItems->deleteLineItem($item);
-				continue;
+				if (!craft()->commerce_lineItems->saveLineItem($item))
+				{
+					throw new Exception('Error on saving line item: '.implode(', ', $item->getAllErrors()));
+				}
 			}
-
-			// remove the item from the cart if the purchasable is a variant and not enabled
-			if ($lineItems[$key]->purchasable instanceof Commerce_VariantModel && $lineItems[$key]->purchasable->getStatus() != BaseElementModel::ENABLED)
+			else
 			{
-				unset($lineItems[$key]);
-				craft()->commerce_lineItems->deleteLineItem($item);
-				continue;
+				$this->removeLineItemFromOrder($order, $item);
+
+				// We have changed the cart contents so recalculate the order.
+				$this->calculateAdjustments($order);
+				return;
 			}
 
 			$item->tax = 0;
@@ -348,8 +347,6 @@ class Commerce_OrdersService extends BaseApplicationComponent
 			// Need to have an initial itemTotal for use by adjusters.
 			$order->itemTotal += $item->getTotal();
 		}
-
-		$order->setLineItems($lineItems);
 
 		/** @var Commerce_OrderAdjustmentModel[] $adjustments */
 		$adjustments = [];
@@ -399,6 +396,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
 			{
 				$order->shippingMethod = null;
 				$this->calculateAdjustments($order);
+				return;
 			}
 		}
 		
@@ -591,23 +589,34 @@ class Commerce_OrdersService extends BaseApplicationComponent
 	 */
 	public function recalculateOrder(Commerce_OrderModel $order)
 	{
-		foreach ($order->lineItems as $item)
+		
+
+		$this->saveOrder($order);
+	}
+
+	/**
+	 * @param Commerce_OrderModel    $order
+	 * @param Commerce_LineItemModel $lineItem
+	 *
+	 * @return bool
+	 */
+	public function removeLineItemFromOrder(Commerce_OrderModel $order, Commerce_LineItemModel $lineItem)
+	{
+		$success = false;
+		$lineItems = $order->getLineItems();
+		foreach ($lineItems as $key => $item)
 		{
-			if ($item->refreshFromPurchasable())
+			if ($lineItem->id == $item->id)
 			{
-				if (!craft()->commerce_lineItems->saveLineItem($item))
+				if ($success = Commerce_LineItemRecord::model()->deleteByPk($lineItem->id));
 				{
-					throw new Exception('Error on saving line item: '.implode(', ',
-							$item->getAllErrors()));
+					unset($lineItems[$key]);
+					$order->setLineItems($lineItems);
 				}
-			}
-			else
-			{
-				craft()->commerce_lineItems->deleteLineItem($item);
 			}
 		}
 
-		$this->saveOrder($order);
+		return $success;
 	}
 
 }

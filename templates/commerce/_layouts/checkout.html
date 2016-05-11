@@ -11,6 +11,9 @@
                 <div class="flash">{{ craft.session.getFlash('notice') }}</div>
                 <div class="flash">{{ craft.session.getFlash('error') }}</div>
 
+                {% if cart.isEmpty %}
+                    <div class="flash">Your cart is empty.</div>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -18,10 +21,6 @@
 
 
 {% block main %}
-
-    {% if cart.isEmpty %}
-        {% redirect 'commerce/products' %}
-    {% endif %}
 
     {% include 'commerce/_includes/meter' %}
 
