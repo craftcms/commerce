@@ -420,7 +420,7 @@ class Commerce_OrderModel extends BaseElementModel
     public function getLineItems()
     {
         if (!isset($this->_lineItems)){
-            $this->_lineItems = craft()->commerce_lineItems->getAllLineItemsByOrderId($this->id);
+            $this->setLineItems(craft()->commerce_lineItems->getAllLineItemsByOrderId($this->id));
         }
 
         return $this->_lineItems;

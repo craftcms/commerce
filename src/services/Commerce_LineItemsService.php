@@ -106,40 +106,6 @@ class Commerce_LineItemsService extends BaseApplicationComponent
 	 */
 	public function saveLineItem(Commerce_LineItemModel $lineItem)
 	{
-
-		$order = craft()->commerce_orders->getOrderById($lineItem->orderId);
-
-		// If this is a cart still
-		if ($order && !$order->isCompleted)
-		{
-			if ($lineItem->qty <= 0 && $lineItem->id)
-			{
-				$this->deleteLineItem($lineItem);
-
-				return true;
-			}
-
-			$purchasable = $lineItem->getPurchasable();
-			if (!$purchasable || $purchasable->stock <= 0)
-			{
-				$this->deleteLineItem($lineItem);
-
-				return true;
-			}
-
-			// TODO move the availability to the purchasable interface
-			if ($purchasable instanceof Commerce_VariantModel)
-			{
-				if ($purchasable->stock < 1 && !$purchasable->unlimitedStock)
-				{
-					$this->deleteLineItem($lineItem);
-					$order->addError('lineItems',Craft::t('"{description}" is now out of stock, and removed from cart', ['description' => $lineItem->purchasable->getDescription()]));
-					return true;
-				}
-			}
-		}
-
-
 		$isNewLineItem = !$lineItem->id;
 
 		if (!$lineItem->id)
