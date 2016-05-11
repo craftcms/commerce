@@ -83,15 +83,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 
 		$card = $this->createCard($order, $form);
 
-		if (craft()->config->get('sendCartInfoToGateways', 'commerce'))
-		{
-			$itemBag = $this->createItemBag($order);
-		}
-		else
-		{
-			$itemBag = null;
-		}
-
+		$itemBag = $this->createItemBag($order);
 
 		$request = $gateway->$defaultAction($this->buildPaymentRequest($transaction, $card, $itemBag));
 
@@ -133,7 +125,14 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 
 	private function createItemBag(Commerce_OrderModel $order)
 	{
-		$items = new ItemBag;
+
+		if (!craft()->config->get('sendCartInfoToGateways', 'commerce'))
+		{
+			return null;
+		}
+
+		$items = $order->getPaymentMethod()->getGatewayAdapter()->createItemBag();
+
 		$priceCheck = 0;
 
 		$count = -1;
@@ -201,7 +200,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 		$card = new CreditCard;
 
 		$order->paymentMethod->populateCard($card, $paymentForm);
-		
+
 		if ($order->billingAddressId)
 		{
 			$billingAddress = $order->billingAddress;
