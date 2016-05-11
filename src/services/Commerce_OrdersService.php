@@ -324,17 +324,9 @@ class Commerce_OrdersService extends BaseApplicationComponent
 		$order->itemTotal = 0;
 		foreach ($lineItems as $key => $item)
 		{
-			if ($item->refreshFromPurchasable())
-			{
-				if (!craft()->commerce_lineItems->saveLineItem($item))
-				{
-					throw new Exception('Error on saving line item: '.implode(', ', $item->getAllErrors()));
-				}
-			}
-			else
+			if (!$item->refreshFromPurchasable())
 			{
 				$this->removeLineItemFromOrder($order, $item);
-
 				// We have changed the cart contents so recalculate the order.
 				$this->calculateAdjustments($order);
 				return;

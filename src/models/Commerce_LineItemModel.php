@@ -198,6 +198,11 @@ class Commerce_LineItemModel extends BaseModel
 		if ($purchasable instanceof Commerce_VariantModel)
 		{
 
+			if ($this->qty > $purchasable->stock)
+			{
+				$this->qty = $purchasable->stock;
+			}
+
 			$this->weight = $purchasable->weight * 1; //converting nulls
 			$this->height = $purchasable->height * 1; //converting nulls
 			$this->length = $purchasable->length * 1; //converting nulls
