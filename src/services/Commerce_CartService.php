@@ -52,7 +52,7 @@ class Commerce_CartService extends BaseApplicationComponent
 
         if ($lineItem)
         {
-	        foreach ($order->getLineItems() as $$item)
+	        foreach ($order->getLineItems() as $item)
 	        {
 		        if ($item->id == $lineItem->id)
 		        {
