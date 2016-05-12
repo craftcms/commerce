@@ -30,7 +30,13 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
 
         $cart->setContentFromPost('fields');
 
-        $lineItem = craft()->commerce_lineItems->getLineItemById($lineItemId);
+	    foreach ($cart->getLineItems() as $item)
+	    {
+		    if ($item->id == $lineItemId)
+		    {
+			    $lineItem = $item;
+		    }
+	    }
 
         // Fail silently if its not their line item or it doesn't exist.
         if (!$lineItem || !$lineItem->id || ($cart->id != $lineItem->orderId)) {
@@ -84,7 +90,13 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
 
         $cart->setContentFromPost('fields');
 
-        $lineItem = craft()->commerce_lineItems->getLineItemById($lineItemId);
+        foreach ($cart->getLineItems() as $item)
+        {
+            if ($item->id == $lineItemId)
+            {
+                $lineItem = $item;
+            }
+        }
 
         // Fail silently if its not their line item or it doesn't exist.
         if (!$lineItem || !$lineItem->id || ($cart->id != $lineItem->orderId)) {

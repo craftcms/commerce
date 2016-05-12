@@ -35,6 +35,8 @@ class Commerce_CartService extends BaseApplicationComponent
     {
         CommerceDbHelper::beginStackedTransaction();
 
+	    $isNewLineItem = false;
+
         //saving current cart if it's new and empty
         if (!$order->id)
         {
@@ -46,7 +48,7 @@ class Commerce_CartService extends BaseApplicationComponent
         }
 
         //filling item model
-        $lineItem = craft()->commerce_lineItems->getLineItemByOrderPurchasableOptions($order->id, $purchasableId, $options);
+        $lineItem = craft()->commerce_lineItems->getLineItemByOrderPurchasableOptions($order, $purchasableId, $options);
 
         if ($lineItem)
         {
@@ -54,7 +56,8 @@ class Commerce_CartService extends BaseApplicationComponent
         }
         else
         {
-            $lineItem = craft()->commerce_lineItems->createLineItem($purchasableId, $order->id, $options, $qty);
+            $lineItem = craft()->commerce_lineItems->createLineItem($purchasableId, $order, $options, $qty);
+	        $isNewLineItem = true;
         }
 
         if ($note)
@@ -70,7 +73,6 @@ class Commerce_CartService extends BaseApplicationComponent
         {
             if (!$lineItem->hasErrors())
             {
-
                 //raising event
                 $event = new Event($this, [
                     'lineItem' => $lineItem,
@@ -87,6 +89,13 @@ class Commerce_CartService extends BaseApplicationComponent
 
                 if (craft()->commerce_lineItems->saveLineItem($lineItem))
                 {
+	                if ($isNewLineItem)
+	                {
+		                $linesItems = $order->getLineItems();
+		                $linesItems[] = $lineItem;
+		                $order->setLineItems($linesItems);
+	                }
+
                     craft()->commerce_orders->saveOrder($order);
 
                     CommerceDbHelper::commitStackedTransaction();
@@ -413,8 +422,16 @@ class Commerce_CartService extends BaseApplicationComponent
         CommerceDbHelper::beginStackedTransaction();
         try
         {
-            craft()->commerce_lineItems->deleteLineItem($lineItem);
-
+	        $lineItems = $cart->getLineItems();
+	        foreach ($lineItems as $key => $item)
+	        {
+		        if ($item->id == $lineItem->id)
+		        {
+			        unset($lineItems[$key]);
+			        $cart->setLineItems($lineItems);
+		        }
+	        }
+	        craft()->commerce_lineItems->deleteLineItem($lineItem);
             craft()->commerce_orders->saveOrder($cart);
 
             //raising event
