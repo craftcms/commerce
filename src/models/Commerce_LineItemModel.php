@@ -68,6 +68,7 @@ class Commerce_LineItemModel extends BaseModel
 	 */
 	public function setOrder(Commerce_OrderModel $order)
 	{
+		$this->orderId = $order->id;
 		$this->_order = $order;
 	}
 

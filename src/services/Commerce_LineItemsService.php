@@ -38,24 +38,30 @@ class Commerce_LineItemsService extends BaseApplicationComponent
 	/**
 	 * Find line item by order and variant
 	 *
-	 * @param int   $orderId
+	 * @param Commerce_OrderModel $order
 	 * @param int   $purchasableId
 	 * @param array $options
 	 *
 	 * @return Commerce_LineItemModel|null
 	 */
-	public function getLineItemByOrderPurchasableOptions($orderId, $purchasableId, $options = [])
+	public function getLineItemByOrderPurchasableOptions($order, $purchasableId, $options = [])
 	{
 		ksort($options);
 		$signature = md5(json_encode($options));
 		$result = $this->_createLineItemsQuery()
 			->where('lineitems.orderId = :orderId AND lineitems.purchasableId = :purchasableId AND lineitems.optionsSignature = :optionsSignature',
-				[':orderId' => $orderId, ':purchasableId' => $purchasableId, ':optionsSignature' => $signature])
+				[':orderId' => $order->id, ':purchasableId' => $purchasableId, ':optionsSignature' => $signature])
 			->queryRow();
 
 		if ($result)
 		{
-			return Commerce_LineItemModel::populateModel($result);
+			foreach ($order->getLineItems() as $lineItem)
+			{
+				if ($lineItem->id == $result['id'])
+				{
+					return $lineItem;
+				}
+			}
 		}
 
 		return null;
@@ -243,14 +249,14 @@ class Commerce_LineItemsService extends BaseApplicationComponent
 
 	/**
 	 * @param $purchasableId
-	 * @param $orderId
+	 * @param $order
 	 * @param $options
 	 * @param $qty
 	 *
 	 * @return Commerce_LineItemModel
 	 * @throws Exception
 	 */
-	public function createLineItem($purchasableId, $orderId, $options, $qty)
+	public function createLineItem($purchasableId, $order, $options, $qty)
 	{
 		$lineItem = new Commerce_LineItemModel();
 		$lineItem->purchasableId = $purchasableId;
@@ -258,7 +264,7 @@ class Commerce_LineItemsService extends BaseApplicationComponent
 		ksort($options);
 		$lineItem->options = $options;
 		$lineItem->optionsSignature = md5(json_encode($options));
-		$lineItem->orderId = $orderId;
+		$lineItem->setOrder($order);
 
 		/** @var \Commerce\Interfaces\Purchasable $purchasable */
 		$purchasable = craft()->elements->getElementById($purchasableId);
