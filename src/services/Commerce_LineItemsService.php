@@ -38,30 +38,24 @@ class Commerce_LineItemsService extends BaseApplicationComponent
 	/**
 	 * Find line item by order and variant
 	 *
-	 * @param Commerce_OrderModel $order
+	 * @param int $order
 	 * @param int   $purchasableId
 	 * @param array $options
 	 *
 	 * @return Commerce_LineItemModel|null
 	 */
-	public function getLineItemByOrderPurchasableOptions($order, $purchasableId, $options = [])
+	public function getLineItemByOrderPurchasableOptions($orderId, $purchasableId, $options = [])
 	{
 		ksort($options);
 		$signature = md5(json_encode($options));
 		$result = $this->_createLineItemsQuery()
 			->where('lineitems.orderId = :orderId AND lineitems.purchasableId = :purchasableId AND lineitems.optionsSignature = :optionsSignature',
-				[':orderId' => $order->id, ':purchasableId' => $purchasableId, ':optionsSignature' => $signature])
+				[':orderId' => $orderId, ':purchasableId' => $purchasableId, ':optionsSignature' => $signature])
 			->queryRow();
 
 		if ($result)
 		{
-			foreach ($order->getLineItems() as $lineItem)
-			{
-				if ($lineItem->id == $result['id'])
-				{
-					return $lineItem;
-				}
-			}
+			return Commerce_LineItemModel::populateModel($result);
 		}
 
 		return null;

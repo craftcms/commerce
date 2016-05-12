@@ -48,10 +48,17 @@ class Commerce_CartService extends BaseApplicationComponent
         }
 
         //filling item model
-        $lineItem = craft()->commerce_lineItems->getLineItemByOrderPurchasableOptions($order, $purchasableId, $options);
+        $lineItem = craft()->commerce_lineItems->getLineItemByOrderPurchasableOptions($order->id, $purchasableId, $options);
 
         if ($lineItem)
         {
+	        foreach ($order->getLineItems() as $$item)
+	        {
+		        if ($item->id == $lineItem->id)
+		        {
+			        $lineItem = $item;
+		        }
+	        }
             $lineItem->qty += $qty;
         }
         else
