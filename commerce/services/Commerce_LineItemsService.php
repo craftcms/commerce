@@ -38,7 +38,7 @@ class Commerce_LineItemsService extends BaseApplicationComponent
 	/**
 	 * Find line item by order and variant
 	 *
-	 * @param int   $orderId
+	 * @param int $order
 	 * @param int   $purchasableId
 	 * @param array $options
 	 *
@@ -243,14 +243,14 @@ class Commerce_LineItemsService extends BaseApplicationComponent
 
 	/**
 	 * @param $purchasableId
-	 * @param $orderId
+	 * @param $order
 	 * @param $options
 	 * @param $qty
 	 *
 	 * @return Commerce_LineItemModel
 	 * @throws Exception
 	 */
-	public function createLineItem($purchasableId, $orderId, $options, $qty)
+	public function createLineItem($purchasableId, $order, $options, $qty)
 	{
 		$lineItem = new Commerce_LineItemModel();
 		$lineItem->purchasableId = $purchasableId;
@@ -258,7 +258,7 @@ class Commerce_LineItemsService extends BaseApplicationComponent
 		ksort($options);
 		$lineItem->options = $options;
 		$lineItem->optionsSignature = md5(json_encode($options));
-		$lineItem->orderId = $orderId;
+		$lineItem->setOrder($order);
 
 		/** @var \Commerce\Interfaces\Purchasable $purchasable */
 		$purchasable = craft()->elements->getElementById($purchasableId);

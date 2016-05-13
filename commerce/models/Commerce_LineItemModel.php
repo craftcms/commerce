@@ -68,6 +68,7 @@ class Commerce_LineItemModel extends BaseModel
 	 */
 	public function setOrder(Commerce_OrderModel $order)
 	{
+		$this->orderId = $order->id;
 		$this->_order = $order;
 	}
 
@@ -199,7 +200,7 @@ class Commerce_LineItemModel extends BaseModel
 		{
 			// Since we do not have a proper stock reservation system, we need to do this quietly.
 			// If this occurs in the payment request, the user will be notified.
-			if ($this->qty > $purchasable->stock)
+			if (($this->qty > $purchasable->stock) && !$purchasable->unlimitedStock)
 			{
 				$this->qty = $purchasable->stock;
 			}
