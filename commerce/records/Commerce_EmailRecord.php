@@ -7,6 +7,7 @@ namespace Craft;
  * @property int $id
  * @property string $name
  * @property string $subject
+ * @property string $recipientType
  * @property string $to
  * @property string $bcc
  * @property bool $enabled
@@ -21,6 +22,8 @@ namespace Craft;
  */
 class Commerce_EmailRecord extends BaseRecord
 {
+    const TYPE_CUSTOMER = 'customer';
+    const TYPE_CUSTOM = 'custom';
     /**
      * @return string
      */
@@ -37,7 +40,8 @@ class Commerce_EmailRecord extends BaseRecord
         return [
             'name' => [AttributeType::String, 'required' => true],
             'subject' => [AttributeType::String, 'required' => true],
-            'to' => [AttributeType::String, 'required' => true],
+            'recipientType' => [AttributeType::Enum, 'values' => [self::TYPE_CUSTOMER, self::TYPE_CUSTOM], 'default' => self::TYPE_CUSTOM],
+            'to' => AttributeType::String,
             'bcc' => AttributeType::String,
             'enabled' => [AttributeType::Bool, 'required' => true],
             'templatePath' => [AttributeType::String, 'required' => true],
