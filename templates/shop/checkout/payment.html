@@ -64,7 +64,7 @@
 						class="form-control">
 					{% for id,name in craft.commerce.paymentMethods %}
 						<option value="{{ id }}"
-								{% if id == cart.paymentMethod.id %}selected{% endif %}>{{ name }}</option>
+								{% if id == cart.paymentMethodId %}selected{% endif %}>{{ name }}</option>
 					{% endfor %}
 				</select>
 
