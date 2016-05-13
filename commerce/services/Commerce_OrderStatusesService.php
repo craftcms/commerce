@@ -223,7 +223,10 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
 			{
 				foreach ($status->emails as $email)
 				{
-					$this->_sendStatusChangeEmail($email, $order, $update);
+					if ($email->enabled)
+					{
+						$this->_sendStatusChangeEmail($email, $order, $update);
+					}
 				}
 			}
 		}
@@ -296,16 +299,25 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
 			$newEmail->fromName = craft()->commerce_settings->getSettings()->emailSenderName;
 		}
 
-		if ($email->recipientType == 'customer')
+		if ($email->recipientType == Commerce_EmailRecord::TYPE_CUSTOMER)
 		{
 			if ($order->getCustomer())
 			{
-				
+				$newEmail->toEmail = $order->getCustomer()->email;
 			}
-			$newEmail->toEmail = $order->getCustomer()->email;
+			else
+			{
+				$newEmail->toEmail = $order->email;
+			}
+
+			// If we can't get an email, we can't send an email to the customer.
+			if (empty($newEmail->toEmail))
+			{
+				return;
+			}
 		}
 
-		if ($email->recipientType == 'custom')
+		if ($email->recipientType == Commerce_EmailRecord::TYPE_CUSTOM)
 		{
 			// To:
 			try
