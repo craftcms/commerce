@@ -50,6 +50,14 @@ class Commerce_ProductsService extends BaseApplicationComponent
             }
         }
 
+	    // Fire an 'onBeforeSaveEntry' event
+	    $event = new Event($this, array(
+		    'product'      => $product,
+		    'isNewProduct' => $isNewProduct
+	    ));
+
+	    $this->onBeforeSaveProduct($event);
+
         $record->postDate = $product->postDate;
         $record->expiryDate = $product->expiryDate;
         $record->typeId = $product->typeId;
@@ -142,14 +150,6 @@ class Commerce_ProductsService extends BaseApplicationComponent
              $record->defaultLength = $defaultVariant->length * 1;
              $record->defaultWidth = $defaultVariant->width * 1;
              $record->defaultWeight = $defaultVariant->weight * 1;
-
-	        // Fire an 'onBeforeSaveEntry' event
-	        $event = new Event($this, array(
-		        'product'      => $product,
-		        'isNewProduct' => $isNewProduct
-	        ));
-
-	        $this->onBeforeSaveProduct($event);
 	        
 	        if ($event->performAction)
 	        {
