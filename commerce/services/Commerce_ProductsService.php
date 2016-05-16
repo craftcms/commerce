@@ -51,10 +51,10 @@ class Commerce_ProductsService extends BaseApplicationComponent
         }
 
 	    // Fire an 'onBeforeSaveProduct' event
-	    $event = new Event($this, array(
+	    $event = new Event($this, [
 		    'product'      => $product,
 		    'isNewProduct' => $isNewProduct
-	    ));
+	    ]);
 
 	    $this->onBeforeSaveProduct($event);
 
