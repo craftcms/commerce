@@ -183,6 +183,7 @@ class Commerce_LineItemModel extends BaseModel
 
 		// Since sales cannot apply to non core purchasables, set to price at default
 		$this->salePrice = $purchasable->getPrice();
+		$this->saleAmount = 0;
 
 		$snapshot = [
 			'price'         => $purchasable->getPrice(),
@@ -230,11 +231,6 @@ class Commerce_LineItemModel extends BaseModel
 			}
 
 			$this->salePrice = $this->saleAmount + $this->price;
-		}
-		else
-		{
-			// Non core commerce purchasables cannot have sales applied (yet)
-			$this->saleAmount = 0;
 		}
 	}
 
