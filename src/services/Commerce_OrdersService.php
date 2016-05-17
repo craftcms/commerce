@@ -362,6 +362,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
 		}
 
 		$order->setAdjustments($adjustments);
+		$order->setLineItems($lineItems);
 
 		//recalculating order amount and saving items
 		$order->itemTotal = 0;
@@ -604,7 +605,6 @@ class Commerce_OrdersService extends BaseApplicationComponent
 				if ($success = Commerce_LineItemRecord::model()->deleteByPk($lineItem->id));
 				{
 					unset($lineItems[$key]);
-					$order->setLineItems($lineItems);
 				}
 			}
 		}
