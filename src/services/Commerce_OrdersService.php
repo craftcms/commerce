@@ -576,12 +576,13 @@ class Commerce_OrdersService extends BaseApplicationComponent
 	 *
 	 * @param Commerce_OrderModel $order
 	 *
-	 * @throws Exception
+	 * @deprecated Use the saveOrder method instead.
+	 *
 	 * @throws \Exception
 	 */
 	public function recalculateOrder(Commerce_OrderModel $order)
 	{
-		
+		craft()->deprecator->log('Commerce_OrderService::recalculateOrder():removed', 'You should no longer use the `Commerce_OrderService::recalculateOrder()` method. You can simply save the order with `Commerce_OrderService::saveOrder()` while `order.isCompleted` is false, which will recalculate the order.');
 
 		$this->saveOrder($order);
 	}
