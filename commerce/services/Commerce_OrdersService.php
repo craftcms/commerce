@@ -605,6 +605,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
 				if ($success = Commerce_LineItemRecord::model()->deleteByPk($lineItem->id));
 				{
 					unset($lineItems[$key]);
+					$order->setLineItems($lineItems);
 				}
 			}
 		}
