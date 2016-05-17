@@ -14,15 +14,6 @@ namespace Commerce\Interfaces;
  */
 interface ShippingRule
 {
-
-
-    /**
-     * Returns the unique handle of this Shipping Rule
-     *
-     * @return string
-     */
-    public function getHandle();
-
     /**
      * Is this rule a match on the order? If false is returned, the shipping engine tries the next rule.
      *

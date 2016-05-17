@@ -36,16 +36,6 @@ namespace Craft;
 class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfaces\ShippingRule
 {
 	/**
-	 * Hard coded rule handle
-	 *
-	 * @return string
-	 */
-	public function getHandle()
-	{
-		return 'commerceRuleId'.$this->id;
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function getIsEnabled()
