@@ -225,33 +225,24 @@ class Commerce_CartService extends BaseApplicationComponent
      * @throws Exception
      * @throws \Exception
      */
-    public function setShippingMethod(
-        Commerce_OrderModel $cart,
-        $shippingMethod,
-        &$error = ""
-    )
-    {
-        $method = craft()->commerce_shippingMethods->getShippingMethodByHandle($shippingMethod);
+	public function setShippingMethod(Commerce_OrderModel $cart, $shippingMethod, &$error = "")
+	{
+		$methods = craft()->commerce_shippingMethods->getAvailableShippingMethods($cart);
 
-        if (!$method)
-        {
-            $error = Craft::t('Bad shipping method');
+		foreach ($methods as $method)
+		{
+			if ($method['handle'] == $shippingMethod)
+			{
+				$cart->shippingMethod = $shippingMethod;
 
-            return false;
-        }
+				return craft()->commerce_orders->saveOrder($cart);
+			}
+		}
 
-        if (!craft()->commerce_shippingMethods->getMatchingShippingRule($cart, $method))
-        {
-            $error = Craft::t('Shipping method not available');
+		$error = Craft::t('Shipping method not available');
 
-            return false;
-        }
-
-        $cart->shippingMethod = $shippingMethod;
-        craft()->commerce_orders->saveOrder($cart);
-
-        return true;
-    }
+		return false;
+	}
 
     /**
      * Set shipping method to the current order
