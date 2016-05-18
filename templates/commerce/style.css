@@ -490,7 +490,7 @@ ol ul {
 }
 
 li {
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
 }
 
 /* Code
@@ -709,19 +709,17 @@ img.product { width: 100%; }
     padding-top: 2rem;
 }
 
-.address-card form {
-    display:inline;
-    margin:0px;
-}
 
-.address-card {
-    background-color: transparent;
-    border-radius: 5px;
-    padding:10px 0px 0px 10px;
-    border: 1px solid #DA5A17;
-    margin-bottom: 15px;
-}
+.address-card { background-color: transparent; border-radius: 5px; padding:20px 0px 0px 20px; border: 1px solid #E1E1E1; margin-bottom: 15px; position: relative;  }
+.address-card form { display:inline; margin:0px; }
+.address-card .edit { position: absolute; top: 20px; right: 20px; }
+.address-card ul { list-style: none; }
 
-.address-card ul {
-    list-style: none;
-}
+
+
+.shipping-select { background: #fff; border: 1px solid #eee; margin-bottom: 1em; position: relative; border-radius: 4px; }
+.shipping-select input { margin: 0 5px 0 0; }
+.shipping-select label { padding: 10px 14px; }
+.shipping-select .price { float: right; padding: 4px 4px; font-size: 0.9em; font-weight: normal; }
+
+
