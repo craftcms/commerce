@@ -107,6 +107,21 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
 			// Has the order changed in a significant way?
 			if ($totalPriceChanged || $totalQtyChanged || $totalAdjustmentsChanged)
 			{
+				if ($totalPriceChanged)
+				{
+					$order->addError('totalPrice', Craft::t("The total price of the order changed."));
+				}
+
+				if ($totalQtyChanged)
+				{
+					$order->addError('totalQty', Craft::t("The total quantity of items within the order changed."));
+				}
+
+				if ($totalAdjustmentsChanged)
+				{
+					$order->addError('totalAdjustments', Craft::t("The total number of order adjustments changed."));
+				}
+
 				$customError = Craft::t('Something changed with the order before payment, please review your order and submit payment again.');
 				if (craft()->request->isAjaxRequest())
 				{
