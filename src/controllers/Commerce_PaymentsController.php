@@ -49,7 +49,7 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
 
 		// These are used to compare if the order changed during it's final
 		// recalculation before payment.
-		$originalTotalPrice = $order->totalPrice;
+		$originalTotalPrice = $order->outstandingBalance();
 		$originalTotalQty = $order->getTotalQty();
 		$originalTotalAdjustments = count($order->getAdjustments());
 
@@ -100,7 +100,7 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
 		// This also confirms the products are available and discounts are current.
 		if (craft()->commerce_orders->saveOrder($order))
 		{
-			$totalPriceChanged = $originalTotalPrice != $order->totalPrice;
+			$totalPriceChanged = $originalTotalPrice != $order->outstandingBalance();
 			$totalQtyChanged = $originalTotalQty != $order->getTotalQty();
 			$totalAdjustmentsChanged = $originalTotalAdjustments != count($order->getAdjustments());
 
