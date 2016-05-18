@@ -178,26 +178,15 @@ class Commerce_LineItemModel extends BaseModel
 	 */
 	public function fillFromPurchasable(Purchasable $purchasable)
 	{
-
-//		$priceOverride = craft()->plugins->callFirst('commerce_overridePurchasblePrice', ['purchasable' => $purchasable, 'lineItem' => $this], true);
-//
-//		if ($priceOverride !== null)
-//		{
-//			$this->price = $priceOverride;
-//		}
-//		else
-//		{
 		$this->price = $purchasable->getPrice();
-//		}
-
 		$this->taxCategoryId = $purchasable->getTaxCategoryId();
 
 		// Since sales cannot apply to non core purchasables, set to price at default
-		$this->salePrice = $this->price;
+		$this->salePrice = $purchasable->getPrice();
 		$this->saleAmount = 0;
 
 		$snapshot = [
-			'price'         => $this->price,
+			'price'         => $purchasable->getPrice(),
 			'sku'           => $purchasable->getSku(),
 			'description'   => $purchasable->getDescription(),
 			'purchasableId' => $purchasable->getPurchasableId(),

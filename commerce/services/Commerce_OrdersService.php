@@ -362,6 +362,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
 		}
 
 		$order->setAdjustments($adjustments);
+		$order->setLineItems($lineItems);
 
 		//recalculating order amount and saving items
 		$order->itemTotal = 0;

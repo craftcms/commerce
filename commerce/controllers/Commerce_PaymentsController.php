@@ -49,7 +49,7 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
 
 		// These are used to compare if the order changed during it's final
 		// recalculation before payment.
-		$originalTotalPrice = $order->totalPrice;
+		$originalTotalPrice = $order->outstandingBalance();
 		$originalTotalQty = $order->getTotalQty();
 		$originalTotalAdjustments = count($order->getAdjustments());
 
@@ -100,13 +100,28 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
 		// This also confirms the products are available and discounts are current.
 		if (craft()->commerce_orders->saveOrder($order))
 		{
-			$totalPriceChanged = $originalTotalPrice != $order->totalPrice;
+			$totalPriceChanged = $originalTotalPrice != $order->outstandingBalance();
 			$totalQtyChanged = $originalTotalQty != $order->getTotalQty();
 			$totalAdjustmentsChanged = $originalTotalAdjustments != count($order->getAdjustments());
 
 			// Has the order changed in a significant way?
 			if ($totalPriceChanged || $totalQtyChanged || $totalAdjustmentsChanged)
 			{
+				if ($totalPriceChanged)
+				{
+					$order->addError('totalPrice', Craft::t("The total price of the order changed."));
+				}
+
+				if ($totalQtyChanged)
+				{
+					$order->addError('totalQty', Craft::t("The total quantity of items within the order changed."));
+				}
+
+				if ($totalAdjustmentsChanged)
+				{
+					$order->addError('totalAdjustments', Craft::t("The total number of order adjustments changed."));
+				}
+
 				$customError = Craft::t('Something changed with the order before payment, please review your order and submit payment again.');
 				if (craft()->request->isAjaxRequest())
 				{
