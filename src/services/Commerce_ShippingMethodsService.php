@@ -134,12 +134,7 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
 
         $methods = $this->getAllCoreShippingMethods();
 
-        $additionalMethods = craft()->plugins->call('commerce_registerAvailableShippingMethods', ['order' => $cart], true);
-
-	    if (count($additionalMethods) == 0)
-	    {
-		    $additionalMethods = craft()->plugins->call('commerce_registerShippingMethods', [], true);
-	    }
+        $additionalMethods = craft()->plugins->call('commerce_registerShippingMethods', ['order' => $cart], true);
 
         foreach ($additionalMethods as $additional)
         {
