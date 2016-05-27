@@ -1,8 +1,8 @@
 <?php
 namespace Craft;
 
-use Commerce\Helpers\CommerceVariantMatrixHelper as VariantMatrixHelper;
 use Commerce\Helpers\CommerceProductHelper as CommerceProductHelper;
+use Commerce\Helpers\CommerceVariantMatrixHelper as VariantMatrixHelper;
 
 require_once(__DIR__ . '/Commerce_BaseElementType.php');
 
@@ -361,6 +361,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
             'typeId' => AttributeType::Mixed,
             'withVariant' => AttributeType::Mixed,
             'hasVariant' => AttributeType::Mixed,
+            'hasSales' => AttributeType::Mixed,
         ];
     }
 
@@ -497,7 +498,36 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
             $query->andWhere(array('in', 'products.typeId', $editableProductTypeIds));
         }
 
-        return true;
+
+	    if ($criteria->hasSales !== null)
+	    {
+		    $productsCriteria = craft()->elements->getCriteria('Commerce_Product', $criteria);
+		    $productsCriteria->hasSales = null;
+		    $products = $productsCriteria->find();
+
+		    $productIds = [];
+		    foreach ($products as $product)
+		    {
+			    $sales = craft()->commerce_sales->getSalesForProduct($product);
+
+			    if ($criteria->hasSales === true && count($sales) > 0)
+			    {
+				    $productIds[] = $product->id;
+			    }
+
+			    if ($criteria->hasSales === false && count($sales) == 0)
+			    {
+				    $productIds[] = $product->id;
+			    }
+		    }
+
+		    // Remove any blank product IDs (if any)
+		    $productIds = array_filter($productIds);
+
+		    $query->andWhere(['in', 'products.id', $productIds]);
+	    }
+
+	    return true;
     }
 
 
