@@ -129,14 +129,14 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 
         $sources['carts:active'] = [
             'label' => Craft::t('Active Carts'),
-            'criteria' => ['updatedAfter' => $edge, 'dateOrdered' => ":empty:"],
-            'defaultSort' => ['dateUpdated', 'asc']
+            'criteria' => ['updatedAfter' => $edge, 'isCompleted' => 'not 1'],
+            'defaultSort' => ['orders.dateUpdated', 'asc']
         ];
 
         $sources['carts:inactive'] = [
             'label' => Craft::t('Inactive Carts'),
-            'criteria' => ['updatedBefore' => $edge, 'dateOrdered' => ":empty:"],
-            'defaultSort' => ['dateUpdated', 'desc']
+            'criteria' => ['updatedBefore' => $edge, 'isCompleted' => 'not 1'],
+            'defaultSort' => ['orders.dateUpdated', 'desc']
         ];
 
         // Allow plugins to modify the sources
@@ -156,11 +156,17 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
             'orderStatus' => ['label' => Craft::t('Status')],
             'totalPrice' => ['label' => Craft::t('Total')],
             'totalPaid' => ['label' => Craft::t('Total Paid')],
+            'totalDiscount' => ['label' => Craft::t('Total Discount')],
+            'totalShippingCost' => ['label' => Craft::t('Total Shipping')],
             'dateOrdered' => ['label' => Craft::t('Date Ordered')],
             'datePaid' => ['label' => Craft::t('Date Paid')],
             'dateCreated' => ['label' => Craft::t('Date Created')],
             'dateUpdated' => ['label' => Craft::t('Date Updated')],
             'email' => ['label' => Craft::t('Email')],
+            'shippingFullName' => ['label' => Craft::t('Shipping Full Name')],
+            'billingFullName' => ['label' => Craft::t('Billing Full Name')],
+            'shippingBusinessName' => ['label' => Craft::t('Shipping Business Name')],
+            'billingBusinessName' => ['label' => Craft::t('Billing Business Name')],
         ];
 
         // Allow plugins to modify the attributes
@@ -206,7 +212,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
     }
 
     /**
-     * @param BaseElementModel $element
+     * @param BaseElementModel|Commerce_OrderModel $element
      * @param string $attribute
      *
      * @return mixed|string
@@ -228,11 +234,47 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
                     return '<span class="status"></span>';
                 }
             }
+            case 'shippingFullName': {
+                if ($element->shippingAddress)
+                {
+                    return $element->shippingAddress->getFullName();
+                }
+            }
+            case 'billingFullName': {
+                if ($element->billingAddress)
+                {
+                    return $element->billingAddress->getFullName();
+                }
+            }
+            case 'shippingBusinessName': {
+                if ($element->shippingAddress)
+                {
+                    return $element->shippingAddress->businessName;
+                }
+            }
+            case 'billingBusinessName': {
+                if ($element->billingAddress)
+                {
+                    return $element->billingAddress->businessName;
+                }
+            }
             case 'totalPaid':
-            case 'totalPrice': {
-                $currency = craft()->commerce_settings->getOption('defaultCurrency');
+            case 'totalPrice':
+            case 'totalShippingCost':
+            case 'totalDiscount': {
 
-                return craft()->numberFormatter->formatCurrency($element->$attribute, strtoupper($currency));
+                if ($element->$attribute == 0)
+                {
+                    return "";
+                }
+
+                if ($element->$attribute > 0)
+                {
+                    return craft()->numberFormatter->formatCurrency($element->$attribute, $element->currency);
+                }else{
+                    return craft()->numberFormatter->formatCurrency($element->$attribute*-1, $element->currency);
+                }
+
             }
             default: {
                 return parent::getTableAttributeHtml($element, $attribute);
@@ -252,6 +294,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
             'totalPrice' => Craft::t('Total Payable'),
             'totalPaid' => Craft::t('Total Paid'),
             'dateOrdered' => Craft::t('Date Ordered'),
+            'orders.dateUpdated' => Craft::t('Date Updated'),
             'datePaid' => Craft::t('Date Paid')
         ];
 

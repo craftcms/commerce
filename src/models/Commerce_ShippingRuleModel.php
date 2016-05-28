@@ -36,16 +36,6 @@ namespace Craft;
 class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfaces\ShippingRule
 {
 	/**
-	 * Hard coded rule handle
-	 *
-	 * @return string
-	 */
-	public function getHandle()
-	{
-		return 'commerceRuleId'.$this->id;
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function getIsEnabled()
@@ -154,8 +144,9 @@ class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfac
 
 				$countryAndStateMatch = (bool) (in_array($shippingAddress->countryId, $countries) && in_array($shippingAddress->stateId, $states));
 				$countryAndStateNameMatch = (bool) (in_array($shippingAddress->countryId, $countries) && strcasecmp($state->name, $shippingAddress->getStateText()) == 0);
+				$countryAndStateAbbrMatch = (bool) (in_array($shippingAddress->countryId, $countries) && strcasecmp($state->abbreviation, $shippingAddress->getStateText()) == 0);
 
-				if (!($countryAndStateMatch || $countryAndStateNameMatch))
+				if (!($countryAndStateMatch || $countryAndStateNameMatch || $countryAndStateAbbrMatch))
 				{
 					return false;
 				}

@@ -30,7 +30,13 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
 
         $cart->setContentFromPost('fields');
 
-        $lineItem = craft()->commerce_lineItems->getLineItemById($lineItemId);
+	    foreach ($cart->getLineItems() as $item)
+	    {
+		    if ($item->id == $lineItemId)
+		    {
+			    $lineItem = $item;
+		    }
+	    }
 
         // Fail silently if its not their line item or it doesn't exist.
         if (!$lineItem || !$lineItem->id || ($cart->id != $lineItem->orderId)) {
@@ -84,7 +90,13 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
 
         $cart->setContentFromPost('fields');
 
-        $lineItem = craft()->commerce_lineItems->getLineItemById($lineItemId);
+        foreach ($cart->getLineItems() as $item)
+        {
+            if ($item->id == $lineItemId)
+            {
+                $lineItem = $item;
+            }
+        }
 
         // Fail silently if its not their line item or it doesn't exist.
         if (!$lineItem || !$lineItem->id || ($cart->id != $lineItem->orderId)) {
@@ -194,8 +206,13 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
             $shippingAddress = new Commerce_AddressModel();
             $shippingAddress->setAttributes(craft()->request->getParam('shippingAddress'));
             if (!$sameAddress) {
-                $billingAddress = new Commerce_AddressModel();
-                $billingAddress->setAttributes(craft()->request->getParam('billingAddress'));
+                if ($billingAddressId = craft()->request->getParam('billingAddressId')) {
+                    $billingAddress = craft()->commerce_addresses->getAddressById($billingAddressId);
+                } else {
+                    $billingAddress = new Commerce_AddressModel();
+                    $billingAddress->setAttributes(craft()->request->getParam('billingAddress'));
+                }
+
                 $result = craft()->commerce_orders->setOrderAddresses($cart, $shippingAddress, $billingAddress);
             } else {
                 $result = craft()->commerce_orders->setOrderAddresses($cart, $shippingAddress, $shippingAddress);

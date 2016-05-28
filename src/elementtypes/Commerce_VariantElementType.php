@@ -86,32 +86,8 @@ class Commerce_VariantElementType extends Commerce_BaseElementType
      *
      * @return array
      */
-    public function getAvailableActions($source = null)
-    {
-        $deleteAction = craft()->elements->getAction('Delete');
-        $deleteAction->setParams([
-            'confirmationMessage' => Craft::t('Are you sure you want to delete the selected variants?'),
-            'successMessage' => Craft::t('Variants deleted.'),
-        ]);
-        $actions[] = $deleteAction;
-
-        $editAction = craft()->elements->getAction('Edit');
-        $actions[] = $editAction;
-
-        $setValuesAction = craft()->elements->getAction('Commerce_SetVariantValues');
-        $actions[] = $setValuesAction;
-
-        return $actions;
-    }
-
-    /**
-     * @param null $source
-     *
-     * @return array
-     */
     public function defineTableAttributes($source = null)
     {
-        // TODO do not show dimensions if product type hasDimentions == false. Leaving until custom columns is implemented.
         return [
             'title' => Craft::t('Title'),
             'sku' => Craft::t('SKU'),
@@ -134,68 +110,6 @@ class Commerce_VariantElementType extends Commerce_BaseElementType
     }
 
     /**
-     * @param BaseElementModel $element
-     * @param string $attribute
-     *
-     * @return mixed|string
-     */
-    public function getTableAttributeHtml(BaseElementModel $element, $attribute)
-    {
-        $infinity = "<span style=\"color:#E5E5E5\">&infin;</span>";
-        $numbers = ['weight', 'height', 'length', 'width'];
-        if (in_array($attribute, $numbers)) {
-            $formatter = craft()->getNumberFormatter();
-            if ($element->$attribute == 0) {
-                return "<span style=\"color:#E5E5E5\">" . $formatter->formatDecimal($element->$attribute) . "</span>";
-            } else {
-                return $formatter->formatDecimal($element->$attribute);
-            }
-        }
-
-        if ($attribute == 'stock' && $element->unlimitedStock) {
-            return $infinity;
-        }
-
-        if ($attribute == 'price') {
-            $formatter = craft()->getNumberFormatter();
-
-            return $formatter->formatCurrency($element->$attribute, craft()->commerce_settings->getSettings()->defaultCurrency);
-        }
-
-        if ($attribute == 'minQty') {
-            if (!$element->minQty && !$element->maxQty) {
-                return $infinity;
-            } else {
-                $min = $element->minQty ? $element->minQty : '1';
-                $max = $element->maxQty ? $element->maxQty : $infinity;
-
-                return $min . " - " . $max;
-            }
-        }
-
-        return parent::getTableAttributeHtml($element, $attribute);
-    }
-
-    /**
-     * @return array
-     */
-    public function defineSortableAttributes()
-    {
-        return [
-            'sku' => Craft::t('SKU'),
-            'price' => Craft::t('Price'),
-            'width' => Craft::t('Width'),
-            'height' => Craft::t('Height'),
-            'length' => Craft::t('Length'),
-            'weight' => Craft::t('Weight'),
-            'stock' => Craft::t('Stock'),
-            'unlimitedStock' => Craft::t('Unlimited Stock'),
-            'minQty' => Craft::t('Min Qty'),
-            'maxQty' => Craft::t('Max Qty')
-        ];
-    }
-
-    /**
      * @return array
      */
     public function defineCriteriaAttributes()
@@ -207,6 +121,7 @@ class Commerce_VariantElementType extends Commerce_BaseElementType
             'isDefault' => AttributeType::Mixed,
             'default' => AttributeType::Mixed,
             'stock' => AttributeType::Mixed,
+            'hasStock' => AttributeType::Mixed,
             'order' => [AttributeType::String, 'default' => 'variants.sortOrder asc'],
         ];
     }
@@ -232,10 +147,7 @@ class Commerce_VariantElementType extends Commerce_BaseElementType
 
         if ($criteria->product) {
             if ($criteria->product instanceof Commerce_ProductModel) {
-                //$criteria->productId = $criteria->product->id;
-                //$criteria->product = null;
                 $query->andWhere(DbHelper::parseParam('variants.productId', $criteria->product->id, $query->params));
-
                 $criteria->attachEventHandler('onPopulateElements', array($this, 'setProductOnVariant'));
             } else {
                 $query->andWhere(DbHelper::parseParam('variants.productId', $criteria->product, $query->params));
@@ -254,9 +166,22 @@ class Commerce_VariantElementType extends Commerce_BaseElementType
             $query->andWhere(DbHelper::parseParam('variants.isDefault', $criteria->default, $query->params));
         }
 
-        if ($criteria->stock) {
-            $query->andWhere(DbHelper::parseParam('variants.stock', $criteria->stock, $query->params));
-        }
+	    if ($criteria->stock)
+	    {
+		    $query->andWhere(DbHelper::parseParam('variants.stock', $criteria->stock, $query->params));
+	    }
+
+	    if (isset($criteria->hasStock) && $criteria->hasStock === true)
+	    {
+		    $hasStockCondition = ['or', '(variants.stock > 0 AND variants.unlimitedStock != 1)', 'variants.unlimitedStock = 1'];
+		    $query->andWhere($hasStockCondition);
+	    }
+
+	    if (isset($criteria->hasStock) && $criteria->hasStock === false)
+	    {
+		    $hasStockCondition = ['and', 'variants.stock < 1', 'variants.unlimitedStock != 1'];
+		    $query->andWhere($hasStockCondition);
+	    }
     }
 
     /**

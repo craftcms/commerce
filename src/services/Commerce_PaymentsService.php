@@ -82,6 +82,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 		$this->saveTransaction($transaction);
 
 		$card = $this->createCard($order, $form);
+
 		$itemBag = $this->createItemBag($order);
 
 		$request = $gateway->$defaultAction($this->buildPaymentRequest($transaction, $card, $itemBag));
@@ -124,35 +125,49 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 
 	private function createItemBag(Commerce_OrderModel $order)
 	{
-		$items = new ItemBag;
+
+		if (!craft()->config->get('sendCartInfoToGateways', 'commerce'))
+		{
+			return null;
+		}
+
+		$items = $order->getPaymentMethod()->getGatewayAdapter()->createItemBag();
+
 		$priceCheck = 0;
 
+		$count = -1;
 		/** @var Commerce_LineItemModel $item */
 		foreach ($order->lineItems as $item)
 		{
+			$count++;
 			$purchasable = $item->getPurchasable();
 			$defaultDescription = Craft::t('Item ID')." ".$item->id;
 			$purchasableDescription = $purchasable ? $purchasable->getDescription() : $defaultDescription;
 			$description = isset($item->snapshot['description']) ? $item->snapshot['description'] : $purchasableDescription;
+			$description = empty($description) ? "Item ".$count : $description;
 			$price = craft()->numberFormatter->formatDecimal($item->salePrice, false);
 			$items->add([
-				'name'     => $description,
-				'quantity' => $item->qty,
-				'price'    => $price,
+				'name'        => $description,
+				'description' => $description,
+				'quantity'    => $item->qty,
+				'price'       => $price,
 			]);
 			$priceCheck = $priceCheck + ($item->qty * $item->salePrice);
 		}
 
+		$count = -1;
 		/** @var Commerce_OrderAdjustmentModel $adjustment */
 		foreach ($order->adjustments as $adjustment)
 		{
 			if (!$adjustment->included)
 			{
+				$count++;
 				$price = craft()->numberFormatter->formatDecimal($adjustment->amount, false);
 				$items->add([
-					'name'     => $adjustment->description,
-					'quantity' => 1,
-					'price'    => $price,
+					'name'        => empty($adjustment->name) ? $adjustment->type." ".$count : $adjustment->name,
+					'description' => empty($adjustment->description) ? $adjustment->type." ".$count : $adjustment->description,
+					'quantity'    => 1,
+					'price'       => $price,
 				]);
 				$priceCheck = $priceCheck + $adjustment->amount;
 			}
@@ -191,12 +206,21 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 			$billingAddress = $order->billingAddress;
 			if ($billingAddress)
 			{
+				// Set top level names to the billing names
+				$card->setFirstName($billingAddress->firstName);
+				$card->setLastName($billingAddress->lastName);
+
+				$card->setBillingFirstName($billingAddress->firstName);
+				$card->setBillingLastName($billingAddress->lastName);
 				$card->setBillingAddress1($billingAddress->address1);
 				$card->setBillingAddress2($billingAddress->address2);
 				$card->setBillingCity($billingAddress->city);
 				$card->setBillingPostcode($billingAddress->zipCode);
+				if ($billingAddress->getCountry())
+				{
+					$card->setBillingCountry($billingAddress->getCountry()->iso);
+				}
 				$card->setBillingState($billingAddress->getStateText());
-				$card->setBillingCountry($billingAddress->getCountry()->iso);
 				$card->setBillingPhone($billingAddress->phone);
 				$card->setBillingCompany($billingAddress->businessName);
 				$card->setCompany($billingAddress->businessName);
@@ -208,12 +232,17 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 			$shippingAddress = $order->shippingAddress;
 			if ($shippingAddress)
 			{
+				$card->setShippingFirstName($shippingAddress->firstName);
+				$card->setShippingLastName($shippingAddress->lastName);
 				$card->setShippingAddress1($shippingAddress->address1);
 				$card->setShippingAddress2($shippingAddress->address2);
 				$card->setShippingCity($shippingAddress->city);
 				$card->setShippingPostcode($shippingAddress->zipCode);
+				if ($shippingAddress->getCountry())
+				{
+					$card->setShippingCountry($shippingAddress->getCountry()->iso);
+				}
 				$card->setShippingState($shippingAddress->getStateText());
-				$card->setShippingCountry($shippingAddress->getCountry()->iso);
 				$card->setShippingPhone($shippingAddress->phone);
 				$card->setShippingCompany($shippingAddress->businessName);
 			}
@@ -325,8 +354,9 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 		{
 			try
 			{
-				/** @var ResponseInterface $response */
-				$response = $request->send();
+
+				$response = $this->_sendRequest($request, $transaction);
+
 				$this->updateTransaction($transaction, $response);
 
 				if ($response->isRedirect())
@@ -366,12 +396,15 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 							// Set the action url to the responses redirect url
 							$variables['actionUrl'] = $response->getRedirectUrl();
 
-							// Substitute templates path
-							$oldPath = craft()->path->getTemplatesPath();
-							$newPath = craft()->path->getSiteTemplatesPath();
-							craft()->path->setTemplatesPath($newPath);
-							$template = craft()->templates->render($gatewayPostRedirectTemplate, $variables);
-							craft()->path->setTemplatesPath($oldPath);
+							// Set Craft to the site template mode
+							$templatesService = craft()->templates;
+							$oldTemplateMode = $templatesService->getTemplateMode();
+							$templatesService->setTemplateMode(TemplateMode::Site);
+
+							$template = $templatesService->render($gatewayPostRedirectTemplate, $variables);
+
+							// Restore the original template mode
+							$templatesService->setTemplateMode($oldTemplateMode);
 
 							// Send the template back to the user.
 							ob_start();
@@ -540,7 +573,9 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 			// Send the request!
 			if ($event->performAction)
 			{
-				$response = $request->send();
+
+				$response = $this->_sendRequest($request, $child);
+
 				$this->updateTransaction($child, $response);
 			}
 		}
@@ -692,5 +727,31 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 		}
 
 		return 0;
+	}
+
+	/**
+	 * @param $request
+	 * @param $transaction
+	 *
+	 * @return mixed
+	 */
+	private function _sendRequest($request, $transaction)
+	{
+		$data = $request->getData();
+
+		$modifiedData = craft()->plugins->callFirst('commerce_modifyGatewayRequestData', [$data, $transaction->type, $transaction], true);
+
+		// We can't merge the $data with $modifiedData since the $data is not always an array.
+		// For example it could be a XML object, json, or anything else really.
+		if ($modifiedData !== null)
+		{
+			$response = $request->sendData($modifiedData);
+
+			return $response;
+		}
+
+		$response = $request->send();
+
+		return $response;
 	}
 }

@@ -35,6 +35,8 @@ class Commerce_CartService extends BaseApplicationComponent
     {
         CommerceDbHelper::beginStackedTransaction();
 
+	    $isNewLineItem = false;
+
         //saving current cart if it's new and empty
         if (!$order->id)
         {
@@ -50,11 +52,19 @@ class Commerce_CartService extends BaseApplicationComponent
 
         if ($lineItem)
         {
+	        foreach ($order->getLineItems() as $item)
+	        {
+		        if ($item->id == $lineItem->id)
+		        {
+			        $lineItem = $item;
+		        }
+	        }
             $lineItem->qty += $qty;
         }
         else
         {
-            $lineItem = craft()->commerce_lineItems->createLineItem($purchasableId, $order->id, $options, $qty);
+            $lineItem = craft()->commerce_lineItems->createLineItem($purchasableId, $order, $options, $qty);
+	        $isNewLineItem = true;
         }
 
         if ($note)
@@ -70,7 +80,6 @@ class Commerce_CartService extends BaseApplicationComponent
         {
             if (!$lineItem->hasErrors())
             {
-
                 //raising event
                 $event = new Event($this, [
                     'lineItem' => $lineItem,
@@ -87,6 +96,13 @@ class Commerce_CartService extends BaseApplicationComponent
 
                 if (craft()->commerce_lineItems->saveLineItem($lineItem))
                 {
+	                if ($isNewLineItem)
+	                {
+		                $linesItems = $order->getLineItems();
+		                $linesItems[] = $lineItem;
+		                $order->setLineItems($linesItems);
+	                }
+
                     craft()->commerce_orders->saveOrder($order);
 
                     CommerceDbHelper::commitStackedTransaction();
@@ -209,33 +225,24 @@ class Commerce_CartService extends BaseApplicationComponent
      * @throws Exception
      * @throws \Exception
      */
-    public function setShippingMethod(
-        Commerce_OrderModel $cart,
-        $shippingMethod,
-        &$error = ""
-    )
-    {
-        $method = craft()->commerce_shippingMethods->getShippingMethodByHandle($shippingMethod);
+	public function setShippingMethod(Commerce_OrderModel $cart, $shippingMethod, &$error = "")
+	{
+		$methods = craft()->commerce_shippingMethods->getAvailableShippingMethods($cart);
 
-        if (!$method)
-        {
-            $error = Craft::t('Bad shipping method');
+		foreach ($methods as $method)
+		{
+			if ($method['handle'] == $shippingMethod)
+			{
+				$cart->shippingMethod = $shippingMethod;
 
-            return false;
-        }
+				return craft()->commerce_orders->saveOrder($cart);
+			}
+		}
 
-        if (!craft()->commerce_shippingMethods->getMatchingShippingRule($cart, $method))
-        {
-            $error = Craft::t('Shipping method not available');
+		$error = Craft::t('Shipping method not available');
 
-            return false;
-        }
-
-        $cart->shippingMethod = $shippingMethod;
-        craft()->commerce_orders->saveOrder($cart);
-
-        return true;
-    }
+		return false;
+	}
 
     /**
      * Set shipping method to the current order
@@ -413,8 +420,16 @@ class Commerce_CartService extends BaseApplicationComponent
         CommerceDbHelper::beginStackedTransaction();
         try
         {
-            craft()->commerce_lineItems->deleteLineItem($lineItem);
-
+	        $lineItems = $cart->getLineItems();
+	        foreach ($lineItems as $key => $item)
+	        {
+		        if ($item->id == $lineItem->id)
+		        {
+			        unset($lineItems[$key]);
+			        $cart->setLineItems($lineItems);
+		        }
+	        }
+	        craft()->commerce_lineItems->deleteLineItem($lineItem);
             craft()->commerce_orders->saveOrder($cart);
 
             //raising event

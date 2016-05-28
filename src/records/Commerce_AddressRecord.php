@@ -54,15 +54,12 @@ class Commerce_AddressRecord extends BaseRecord
             'country' => [
                 static::BELONGS_TO,
                 'Commerce_CountryRecord',
-                'onDelete' => self::RESTRICT,
-                'onUpdate' => self::CASCADE,
-                'required' => true
+                'onDelete' => self::SET_NULL,
             ],
             'state' => [
                 static::BELONGS_TO,
                 'Commerce_StateRecord',
-                'onDelete' => self::RESTRICT,
-                'onUpdate' => self::CASCADE
+                'onDelete' => self::SET_NULL
             ]
         ];
     }
@@ -75,7 +72,7 @@ class Commerce_AddressRecord extends BaseRecord
         return [
             'firstName' => [AttributeType::String, 'required' => true],
             'lastName' => [AttributeType::String, 'required' => true],
-            'countryId' => [AttributeType::Number, 'required' => true],
+            'countryId' => AttributeType::Number,
             'stateId' => AttributeType::Number,
             'address1' => AttributeType::String,
             'address2' => AttributeType::String,

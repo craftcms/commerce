@@ -96,6 +96,8 @@ class Commerce_BaseFrontEndController extends Commerce_BaseController
             $lineItemData['orderId'] = $lineItem->orderId;
             $lineItemData['taxCategoryId'] = $lineItem->taxCategoryId;
             $lineItemData['onSale'] = $lineItem->getOnSale();
+            $lineItemData['options'] = $lineItem->options;
+            $lineItemData['optionsSignature'] = $lineItem->optionsSignature;
             $lineItems[$lineItem->id] = $lineItemData;
         }
         $data['lineItems'] = $lineItems;
