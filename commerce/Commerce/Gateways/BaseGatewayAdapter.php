@@ -10,6 +10,7 @@ use Commerce\Gateways\PaymentFormModels\BasePaymentFormModel;
 use Omnipay\Common\CreditCard;
 use Omnipay\Common\Message\AbstractRequest as OmnipayRequest;
 use Commerce\Exception\NotImplementedException;
+use Omnipay\Common\ItemBag;
 
 /**
  * Class BaseGatewayAdapter
@@ -92,6 +93,16 @@ abstract class BaseGatewayAdapter extends BaseModel implements GatewayAdapterInt
 		}
 	}
 
+	/**
+	 * Returns an item bag of the right type for this gateway adapter
+	 *
+	 * @return ItemBag
+	 */
+	public function createItemBag()
+	{
+		return new ItemBag();
+	}
+	
 	/**
 	 * @return string
 	 */

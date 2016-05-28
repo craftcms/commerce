@@ -8,7 +8,6 @@ namespace Craft;
  * @property DateTime                  $postDate
  * @property DateTime                  $expiryDate
  * @property int                       $typeId
- * @property int                       $authorId
  * @property int                       $taxCategoryId
  * @property bool                      $promotable
  * @property bool                      $freeShipping
@@ -103,7 +102,7 @@ class Commerce_ProductModel extends BaseElementModel
 	}
 
 	/*
-	 * Url to edit this Product in the control panel.
+	 * Returns the URL format used to generate this element's URL.
 	 *
 	 * @return string
 	 */
@@ -299,8 +298,12 @@ class Commerce_ProductModel extends BaseElementModel
 	public function getTotalStock()
 	{
 		$stock = 0;
-		foreach ($this->getVariants() as $variant) {
-			$stock += $variant->stock;
+		foreach ($this->getVariants() as $variant)
+		{
+			if (!$variant->unlimitedStock)
+			{
+				$stock += $variant->stock;
+			}
 		}
 
 		return $stock;
@@ -311,7 +314,8 @@ class Commerce_ProductModel extends BaseElementModel
 	 */
 	public function getUnlimitedStock()
 	{
-		foreach ($this->getVariants() as $variant) {
+		foreach ($this->getVariants() as $variant)
+		{
 			if ($variant->unlimitedStock)
 			{
 				return true;
@@ -349,7 +353,6 @@ class Commerce_ProductModel extends BaseElementModel
 	{
 		return array_merge(parent::defineAttributes(), [
 			'typeId'        => AttributeType::Number,
-			'authorId'      => AttributeType::Number,
 			'taxCategoryId' => AttributeType::Number,
 			'promotable'    => [AttributeType::Bool, 'default' => true],
 			'freeShipping'  => AttributeType::Bool,

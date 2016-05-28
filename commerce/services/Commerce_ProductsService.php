@@ -36,6 +36,9 @@ class Commerce_ProductsService extends BaseApplicationComponent
      */
     public function saveProduct(Commerce_ProductModel $product)
     {
+
+	    $isNewProduct = !$product->id;
+
         if (!$product->id) {
             $record = new Commerce_ProductRecord();
         } else {
@@ -47,10 +50,17 @@ class Commerce_ProductsService extends BaseApplicationComponent
             }
         }
 
+	    // Fire an 'onBeforeSaveProduct' event
+	    $event = new Event($this, [
+		    'product'      => $product,
+		    'isNewProduct' => $isNewProduct
+	    ]);
+
+	    $this->onBeforeSaveProduct($event);
+
         $record->postDate = $product->postDate;
         $record->expiryDate = $product->expiryDate;
         $record->typeId = $product->typeId;
-        $record->authorId = $product->authorId;
         $record->promotable = $product->promotable;
         $record->freeShipping = $product->freeShipping;
         $record->taxCategoryId = $product->taxCategoryId;
@@ -124,82 +134,273 @@ class Commerce_ProductsService extends BaseApplicationComponent
             }
         }
 
+        if ($product->hasErrors() || !$variantsValid)
+        {
+            return false;
+        }
+
+
         CommerceDbHelper::beginStackedTransaction();
         try {
-            if (!$product->hasErrors() && $variantsValid) {
 
-                 $record->defaultVariantId = $defaultVariant->getPurchasableId();
-                 $record->defaultSku = $defaultVariant->getSku();
-                 $record->defaultPrice = $defaultVariant->getPrice() * 1;;
-                 $record->defaultHeight = $defaultVariant->height * 1;
-                 $record->defaultLength = $defaultVariant->length * 1;
-                 $record->defaultWidth = $defaultVariant->width * 1;
-                 $record->defaultWeight = $defaultVariant->weight * 1;
+             $record->defaultVariantId = $defaultVariant->getPurchasableId();
+             $record->defaultSku = $defaultVariant->getSku();
+             $record->defaultPrice = $defaultVariant->price * 1;
+             $record->defaultHeight = $defaultVariant->height * 1;
+             $record->defaultLength = $defaultVariant->length * 1;
+             $record->defaultWidth = $defaultVariant->width * 1;
+             $record->defaultWeight = $defaultVariant->weight * 1;
+	        
+	        if ($event->performAction)
+	        {
 
-                if (craft()->elements->saveElement($product)) {
-                    $record->id = $product->id;
-                    $record->save(false);
+		        $success = craft()->elements->saveElement($product);
 
-                    $keepVariantIds = [];
-                    $oldVariantIds = craft()->db->createCommand()
-                        ->select('id')
-                        ->from('commerce_variants')
-                        ->where('productId = :productId', [':productId' => $product->id])
-                        ->queryColumn();
+		        if ($success)
+		        {
+			        // Now that we have an element ID, save it on the other stuff
+			        if ($isNewProduct)
+			        {
+				        $record->id = $product->id;
+			        }
 
-                    foreach ($product->getVariants() as $variant) {
-                        if($defaultVariant === $variant){
-                            $variant->isDefault = true;
-                            $variant->enabled = true; // default must always be enabled.
-                        }else{
-                            $variant->isDefault = false;
-                        }
-                        $variant->productId = $product->id;
-                        craft()->commerce_variants->saveVariant($variant);
-                        $keepVariantIds[] = $variant->id;
-                    }
+			        $record->save(false);
 
-                    foreach (array_diff($oldVariantIds, $keepVariantIds) as $deleteId) {
-                        craft()->commerce_variants->deleteVariantById($deleteId);
-                    }
+			        $keepVariantIds = [];
+			        $oldVariantIds = craft()->db->createCommand()
+				        ->select('id')
+				        ->from('commerce_variants')
+				        ->where('productId = :productId', [':productId' => $product->id])
+				        ->queryColumn();
 
-                    CommerceDbHelper::commitStackedTransaction();
+			        foreach ($product->getVariants() as $variant)
+			        {
+				        if ($defaultVariant === $variant)
+				        {
+					        $variant->isDefault = true;
+					        $variant->enabled = true; // default must always be enabled.
+				        }
+				        else
+				        {
+					        $variant->isDefault = false;
+				        }
+				        $variant->setProduct($product);
 
-                    return true;
-                }
-            }
+				        craft()->commerce_variants->saveVariant($variant);
+
+				        // Need to manually update the product's default variant ID now that we have a saved ID
+				        if ($product->defaultVariantId === null && $defaultVariant === $variant)
+				        {
+					        $product->defaultVariantId = $variant->id;
+					        craft()->db->createCommand()->update('commerce_products', ['defaultVariantId' => $variant->id], ['id' => $product->id]);
+				        }
+
+				        $keepVariantIds[] = $variant->id;
+			        }
+
+			        foreach (array_diff($oldVariantIds, $keepVariantIds) as $deleteId)
+			        {
+				        craft()->commerce_variants->deleteVariantById($deleteId);
+			        }
+
+			        CommerceDbHelper::commitStackedTransaction();
+		        }
+
+            }else{
+		        $success = false;
+	        }
         } catch (\Exception $e) {
             CommerceDbHelper::rollbackStackedTransaction();
             throw $e;
         }
 
-        CommerceDbHelper::rollbackStackedTransaction();
+	    if ($success)
+	    {
+		    // Fire an 'onSaveProduct' event
+		    $this->onSaveProduct(new Event($this, [
+			    'product'      => $product,
+			    'isNewProduct' => $isNewProduct
+		    ]));
+	    }
 
-        return false;
+        return $success;
     }
 
+	/**
+	 * @param Commerce_ProductModel|Commerce_ProductModel[] $products
+	 *
+	 * @return bool
+	 * @throws \CDbException
+	 * @throws \Exception
+	 */
+	public function deleteProduct($products)
+	{
+		if (!$products)
+		{
+			return false;
+		}
 
-    /**
-     * @param Commerce_ProductModel $product
-     *
-     * @return bool
-     * @throws \CDbException
-     */
-    public function deleteProduct($product)
-    {
-        $product = Commerce_ProductRecord::model()->findById($product->id);
-        if ($product) {
-            $variants = craft()->commerce_variants->getAllVariantsByProductId($product->id);
-            if (craft()->elements->deleteElementById($product->id)) {
-                foreach ($variants as $v) {
-                    craft()->elements->deleteElementById($v->id);
-                }
+		$transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
 
-                return true;
-            } else {
+		try
+		{
+			if (!is_array($products))
+			{
+				$products = [$products];
+			}
 
-                return false;
-            }
-        }
-    }
+			$productIds = [];
+			$variantsByProductId = [];
+
+			foreach ($products as $product)
+			{
+				// Fire an 'onBeforeDeleteProduct' event
+				$event = new Event($this, [
+					'product' => $product
+				]);
+
+				$this->onBeforeDeleteProduct($event);
+
+				if ($event->performAction)
+				{
+					$productIds[] = $product->id;
+					$variantsByProductId[$product->id] = craft()->commerce_variants->getAllVariantsByProductId($product->id);
+				}
+			}
+
+			if ($productIds)
+			{
+				// Delete 'em
+				$success = craft()->elements->deleteElementById($productIds);
+			}
+			else
+			{
+				$success = false;
+			}
+
+			if ($transaction !== null)
+			{
+				$transaction->commit();
+			}
+		}
+		catch (\Exception $e)
+		{
+			if ($transaction !== null)
+			{
+				$transaction->rollback();
+			}
+
+			throw $e;
+		}
+
+		if ($success)
+		{
+			foreach ($products as $product)
+			{
+
+				// Delete all child variants.
+				$variants = $variantsByProductId[$product->id];
+				$ids = [];
+				foreach ($variants as $v)
+				{
+					$ids[] = $v->id;
+				}
+				craft()->elements->deleteElementById($ids);
+				
+				// Fire an 'onDeleteProduct' event
+				$this->onDeleteProduct(new Event($this, [
+					'product' => $product
+				]));
+			}
+
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	/**
+	 * This event is raised before a product is saved
+	 *
+	 * @param \CEvent $event
+	 *
+	 * @throws \CException
+	 */
+	public function onBeforeSaveProduct(\CEvent $event)
+	{
+		$params = $event->params;
+		if (empty($params['product']) || !($params['product'] instanceof Commerce_ProductModel))
+		{
+			throw new Exception('onBeforeSaveProduct event requires "product" param with Commerce_ProductModel instance that is being saved.');
+		}
+
+		if (!isset($params['isNewProduct']))
+		{
+			throw new Exception('onBeforeSaveProduct event requires "isNewProduct" param with a boolean to determine if the product is new.');
+		}
+
+		$this->raiseEvent('onBeforeSaveProduct', $event);
+	}
+
+	/**
+	 * This event is raised after a product has been successfully saved
+	 *
+	 * @param \CEvent $event
+	 *
+	 * @throws \CException
+	 */
+	public function onSaveProduct(\CEvent $event)
+	{
+		$params = $event->params;
+		if (empty($params['product']) || !($params['product'] instanceof Commerce_ProductModel))
+		{
+			throw new Exception('onSaveProduct event requires "product" param with Commerce_ProductModel instance that is being saved.');
+		}
+
+		if (!isset($params['isNewProduct']))
+		{
+			throw new Exception('onSaveProduct event requires "isNewProduct" param with a boolean to determine if the product is new.');
+		}
+
+		$this->raiseEvent('onSaveProduct', $event);
+	}
+
+
+	/**
+	 * This event is raised before a product is saved
+	 *
+	 * @param \CEvent $event
+	 *
+	 * @throws \CException
+	 */
+	public function onBeforeDeleteProduct(\CEvent $event)
+	{
+		$params = $event->params;
+		if (empty($params['product']) || !($params['product'] instanceof Commerce_ProductModel))
+		{
+			throw new Exception('onBeforeDeleteProduct event requires "product" param with Commerce_ProductModel instance that is being deleted.');
+		}
+
+		$this->raiseEvent('onBeforeDeleteProduct', $event);
+	}
+
+	/**
+	 * This event is raised after a product has been successfully saved
+	 *
+	 * @param \CEvent $event
+	 *
+	 * @throws \CException
+	 */
+	public function onDeleteProduct(\CEvent $event)
+	{
+		$params = $event->params;
+		if (empty($params['product']) || !($params['product'] instanceof Commerce_ProductModel))
+		{
+			throw new Exception('onDeleteProduct event requires "product" param with Commerce_ProductModel instance that is being deleted.');
+		}
+
+		$this->raiseEvent('onDeleteProduct', $event);
+	}
 }

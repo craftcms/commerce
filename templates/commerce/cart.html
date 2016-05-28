@@ -35,7 +35,9 @@
                                 <input type="hidden" name="redirect" value="commerce/cart">
                                 <input type="hidden" name="lineItemId" value="{{ item.id }}">
                                 <input type="text" placeholder="My Note" size="20" name="note" value="{{ item.note }}">
-                                <input type="number" name="qty" min="1" value="{{ item.qty }}">
+                                <span {% if item.getError('qty') %}class="has-error"{% endif %}>
+                                <input  type="number" name="qty" min="1" value="{{ item.qty }}">
+                                </span>
                                 {{ getCsrfInput() }}
                                 {% if item.options.giftWrapped is defined %}
                                 <select name="options[giftWrapped]">

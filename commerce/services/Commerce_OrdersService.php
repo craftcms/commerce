@@ -187,9 +187,9 @@ class Commerce_OrdersService extends BaseApplicationComponent
 					}
 				}
 
-				$lastBillingAddressId = $customer->lastUsedShippingAddressId;
+				$lastBillingAddressId = $customer->lastUsedBillingAddressId;
 
-				if (!$order->shippingAddressId && $lastBillingAddressId)
+				if (!$order->billingAddressId && $lastBillingAddressId)
 				{
 					if ($address = craft()->commerce_addresses->getAddressById($lastBillingAddressId))
 					{
@@ -205,6 +205,12 @@ class Commerce_OrdersService extends BaseApplicationComponent
 		$this->calculateAdjustments($order);
 
 		$oldStatusId = $orderRecord->orderStatusId;
+
+		//raising event
+		$event = new Event($this, [
+			'order' => $order
+		]);
+		$this->onBeforeSaveOrder($event);
 
 		$orderRecord->number = $order->number;
 		$orderRecord->itemTotal = $order->itemTotal;
@@ -235,28 +241,13 @@ class Commerce_OrdersService extends BaseApplicationComponent
 
 		try
 		{
-			if (!$order->hasErrors())
+			if (!$order->hasErrors() && $event->performAction)
 			{
 				if (craft()->elements->saveElement($order))
 				{
 
 					$orderRecord->id = $order->id;
-
-					//raising event
-					$event = new Event($this, [
-						'order' => $order
-					]);
-					$this->onBeforeSaveOrder($event);
-
-					if ($event->performAction)
-					{
-						$orderRecord->save(false);
-						$order->id = $orderRecord->id;
-					}
-					else
-					{
-						return false;
-					}
+					$orderRecord->save(false);
 
 					CommerceDbHelper::commitStackedTransaction();
 
@@ -332,14 +323,13 @@ class Commerce_OrdersService extends BaseApplicationComponent
 		$order->baseShippingCost = 0;
 		$order->itemTotal = 0;
 		foreach ($lineItems as $key => $item)
-		{ //resetting fields calculated by adjusters
-
-			// remove the item from the cart if the purchasable does not exist anymore.
-			if (!$lineItems[$key]->purchasableId)
+		{
+			if (!$item->refreshFromPurchasable())
 			{
-				unset($lineItems[$key]);
-				craft()->commerce_lineItems->deleteLineItem($item);
-				continue;
+				$this->removeLineItemFromOrder($order, $item);
+				// We have changed the cart contents so recalculate the order.
+				$this->calculateAdjustments($order);
+				return;
 			}
 
 			$item->tax = 0;
@@ -349,8 +339,6 @@ class Commerce_OrdersService extends BaseApplicationComponent
 			// Need to have an initial itemTotal for use by adjusters.
 			$order->itemTotal += $item->getTotal();
 		}
-
-		$order->setLineItems($lineItems);
 
 		/** @var Commerce_OrderAdjustmentModel[] $adjustments */
 		$adjustments = [];
@@ -374,21 +362,14 @@ class Commerce_OrdersService extends BaseApplicationComponent
 		}
 
 		$order->setAdjustments($adjustments);
+		$order->setLineItems($lineItems);
 
 		//recalculating order amount and saving items
 		$order->itemTotal = 0;
 		foreach ($lineItems as $item)
 		{
 			$result = craft()->commerce_lineItems->saveLineItem($item);
-
 			$order->itemTotal += $item->total;
-
-			if (!$result)
-			{
-				$errors = $item->getAllErrors();
-				throw new Exception('Error saving line item: '.implode(', ',
-						$errors));
-			}
 		}
 
 		$itemSub = $order->getItemSubtotalWithSale();
@@ -397,6 +378,21 @@ class Commerce_OrdersService extends BaseApplicationComponent
 		$order->totalPrice = $order->itemTotal + $order->baseDiscount + $order->baseShippingCost;
 		$same = $totalPrice == $order->totalPrice;
 		$order->totalPrice = max(0, $order->totalPrice);
+
+
+		// Since shipping adjusters run on the original price, pre discount, let's recalculate
+		// if the currently selected shipping method is now not available.
+		$availableMethods = craft()->commerce_shippingMethods->getAvailableShippingMethods($order);
+		if ($availableMethods && $order->getShippingMethodHandle())
+		{
+			if (!isset($availableMethods[$order->getShippingMethodHandle()]))
+			{
+				$order->shippingMethod = null;
+				$this->calculateAdjustments($order);
+				return;
+			}
+		}
+		
 	}
 
 	/**
@@ -581,28 +577,40 @@ class Commerce_OrdersService extends BaseApplicationComponent
 	 *
 	 * @param Commerce_OrderModel $order
 	 *
-	 * @throws Exception
+	 * @deprecated Use the saveOrder method instead.
+	 *
 	 * @throws \Exception
 	 */
 	public function recalculateOrder(Commerce_OrderModel $order)
 	{
-		foreach ($order->lineItems as $item)
+		craft()->deprecator->log('Commerce_OrderService::recalculateOrder():removed', 'You should no longer use the `Commerce_OrderService::recalculateOrder()` method. You can simply save the order with `Commerce_OrderService::saveOrder()` while `order.isCompleted` is false, which will recalculate the order.');
+
+		$this->saveOrder($order);
+	}
+
+	/**
+	 * @param Commerce_OrderModel    $order
+	 * @param Commerce_LineItemModel $lineItem
+	 *
+	 * @return bool
+	 */
+	public function removeLineItemFromOrder(Commerce_OrderModel $order, Commerce_LineItemModel $lineItem)
+	{
+		$success = false;
+		$lineItems = $order->getLineItems();
+		foreach ($lineItems as $key => $item)
 		{
-			if ($item->refreshFromPurchasable())
+			if ($lineItem->id == $item->id)
 			{
-				if (!craft()->commerce_lineItems->saveLineItem($item))
+				if ($success = Commerce_LineItemRecord::model()->deleteByPk($lineItem->id));
 				{
-					throw new Exception('Error on saving line item: '.implode(', ',
-							$item->getAllErrors()));
+					unset($lineItems[$key]);
+					$order->setLineItems($lineItems);
 				}
-			}
-			else
-			{
-				craft()->commerce_lineItems->deleteLineItem($item);
 			}
 		}
 
-		$this->saveOrder($order);
+		return $success;
 	}
 
 }

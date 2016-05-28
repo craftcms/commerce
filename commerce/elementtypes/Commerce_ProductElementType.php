@@ -1,8 +1,8 @@
 <?php
 namespace Craft;
 
-use Commerce\Helpers\CommerceVariantMatrixHelper as VariantMatrixHelper;
 use Commerce\Helpers\CommerceProductHelper as CommerceProductHelper;
+use Commerce\Helpers\CommerceVariantMatrixHelper as VariantMatrixHelper;
 
 require_once(__DIR__ . '/Commerce_BaseElementType.php');
 
@@ -242,7 +242,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
      */
     public function defineSearchableAttributes()
     {
-        return ['title'];
+        return ['title','defaultSku'];
     }
 
 
@@ -361,6 +361,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
             'typeId' => AttributeType::Mixed,
             'withVariant' => AttributeType::Mixed,
             'hasVariant' => AttributeType::Mixed,
+            'hasSales' => AttributeType::Mixed,
         ];
     }
 
@@ -415,7 +416,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
     public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
     {
         $query
-            ->addSelect("products.id, products.typeId, products.promotable, products.freeShipping, products.postDate, products.expiryDate, products.defaultPrice, products.defaultVariantId, products.defaultSku, products.defaultWeight, products.defaultLength, products.defaultWidth, products.defaultHeight, products.taxCategoryId, products.authorId")
+            ->addSelect("products.id, products.typeId, products.promotable, products.freeShipping, products.postDate, products.expiryDate, products.defaultPrice, products.defaultVariantId, products.defaultSku, products.defaultWeight, products.defaultLength, products.defaultWidth, products.defaultHeight, products.taxCategoryId")
             ->join('commerce_products products', 'products.id = elements.id')
             ->join('commerce_producttypes producttypes', 'producttypes.id = products.typeId');
 
@@ -465,13 +466,17 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
                 $variantCriteria = craft()->elements->getCriteria('Commerce_Variant', $criteria->hasVariant);
             }
 
-            $productIds = craft()->elements->buildElementsQuery($variantCriteria)
+	        $variantCriteria->limit = null;
+	        $productIds = craft()->elements->buildElementsQuery($variantCriteria)
                 ->selectDistinct('productId')
                 ->queryColumn();
 
             if (!$productIds) {
                 return false;
             }
+
+            // Remove any blank product IDs (if any)
+            $productIds = array_filter($productIds);
 
             $query->andWhere(['in', 'products.id', $productIds]);
         }
@@ -493,7 +498,36 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
             $query->andWhere(array('in', 'products.typeId', $editableProductTypeIds));
         }
 
-        return true;
+
+	    if ($criteria->hasSales !== null)
+	    {
+		    $productsCriteria = craft()->elements->getCriteria('Commerce_Product', $criteria);
+		    $productsCriteria->hasSales = null;
+		    $products = $productsCriteria->find();
+
+		    $productIds = [];
+		    foreach ($products as $product)
+		    {
+			    $sales = craft()->commerce_sales->getSalesForProduct($product);
+
+			    if ($criteria->hasSales === true && count($sales) > 0)
+			    {
+				    $productIds[] = $product->id;
+			    }
+
+			    if ($criteria->hasSales === false && count($sales) == 0)
+			    {
+				    $productIds[] = $product->id;
+			    }
+		    }
+
+		    // Remove any blank product IDs (if any)
+		    $productIds = array_filter($productIds);
+
+		    $query->andWhere(['in', 'products.id', $productIds]);
+	    }
+
+	    return true;
     }
 
 
@@ -527,8 +561,10 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
 
             $map = craft()->db->createCommand()
                 ->select('productId as source, id as target')
+                ->limit(null)
                 ->from('commerce_variants')
                 ->where(array('in', 'productId', $sourceElementIds))
+                ->order('sortOrder asc')
                 ->queryAll();
 
             return array(

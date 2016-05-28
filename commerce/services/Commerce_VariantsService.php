@@ -246,7 +246,7 @@ class Commerce_VariantsService extends BaseApplicationComponent
 		$record->productId = $model->productId;
 		$record->sku = $model->sku;
 
-		$record->price = $model->price * 1;
+		$record->price = $model->price;
 		$record->width = $model->width * 1;
 		$record->height = $model->height * 1;
 		$record->length = $model->length * 1;
@@ -298,12 +298,29 @@ class Commerce_VariantsService extends BaseApplicationComponent
 
 			if ($purchasable instanceof Commerce_VariantModel && !$purchasable->unlimitedStock)
 			{
-				$purchasable->stock = $purchasable->stock - $lineItem->qty;
-				craft()->commerce_variants->saveVariant($purchasable);
+
+				// Update the qty in the db
+				craft()->db->createCommand()->update('commerce_variants',
+					['stock' => new \CDbExpression('stock - :qty', [':qty' => $lineItem->qty])],
+					'id = :variantId',
+					[':variantId' => $purchasable->id]);
+
+				// Update the stock
+				$purchasable->stock = craft()->db->createCommand()
+					->select('stock')
+					->from('commerce_variants')
+					->where('id = :variantId', [':variantId' => $purchasable->id])
+					->queryScalar();
+
+
 			}
 
-			// make an array of each variant purchased
-			$variants[$purchasable->id] = $purchasable;
+			if ($purchasable instanceof Commerce_VariantModel)
+			{
+				// make an array of each variant purchased
+				$variants[$purchasable->id] = $purchasable;
+			}
+
 		}
 
 		foreach ($variants as $variant)

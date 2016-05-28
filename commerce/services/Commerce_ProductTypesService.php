@@ -618,15 +618,16 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
     {
         if ($productType->hasUrls)
         {
-            // Set Craft to the site template path
-            $oldTemplatesPath = craft()->path->getTemplatesPath();
-            craft()->path->setTemplatesPath(craft()->path->getSiteTemplatesPath());
+            // Set Craft to the site template mode
+            $templatesService = craft()->templates;
+            $oldTemplateMode = $templatesService->getTemplateMode();
+            $templatesService->setTemplateMode(TemplateMode::Site);
 
             // Does the template exist?
-            $templateExists = craft()->templates->doesTemplateExist($productType->template);
+            $templateExists = $templatesService->doesTemplateExist($productType->template);
 
-            // Restore the original template path
-            craft()->path->setTemplatesPath($oldTemplatesPath);
+            // Restore the original template mode
+            $templatesService->setTemplateMode($oldTemplateMode);
 
             if ($templateExists)
             {

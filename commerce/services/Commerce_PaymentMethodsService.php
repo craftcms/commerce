@@ -156,7 +156,7 @@ class Commerce_PaymentMethodsService extends BaseApplicationComponent
 
 		foreach ($ids as $sortOrder => $id)
 		{
-			craft()->db->createCommand()->update('commerce_paymentMethods',
+			craft()->db->createCommand()->update('commerce_paymentmethods',
 				['sortOrder' => $sortOrder + 1], ['id' => $id]);
 		}
 

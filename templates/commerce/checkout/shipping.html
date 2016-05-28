@@ -1,38 +1,10 @@
 {% extends 'commerce/_layouts/checkout' %}
 
 {% block content %}
-
-    <h1>Shipping Options</h1>
-
-
+    <h3>Shipping Method</h3>
     <div class="row">
-        <div class="address-card one-third column">
-            <h3>Shipping Address</h3>
-            {% if cart.shippingAddress %}
-                {% include 'commerce/_includes/addresses/address' with {'address': cart.shippingAddress} %}
-            {% else %}
-                <p>No shipping address selected.</p>
-            {% endif %}
-            {% if currentUser %}<a class="button button-primary" href="/commerce/customer/addresses/edit?addressId={{ cart.shippingAddressId }}&redirect={{ craft.request.path }}">Edit</a>{% endif %}
-        </div>
-        <div class="address-card one-third column">
-            <h3>Billing Address</h3>
-            {% if cart.billingAddress %}
-            {% include 'commerce/_includes/addresses/address' with {'address': cart.billingAddress} %}
-                {% if currentUser %}<a class="button button-primary" href="/commerce/customer/addresses/edit?addressId={{ cart.billingAddressId }}&redirect={{ craft.request.path }}">Edit</a>{% endif %}
-            {% else %}
-                <p>No billing address selected.</p>
-            {% endif %}
-        </div>
-        <div class="one-third column">
-            <h3>Shipping Method</h3>
 
-
-        {% if cart.shippingMethod %}
-            <p>
-                <strong>Current Shipping Method:</strong> {{ cart.shippingMethod.name }}
-            </p>
-        {% endif %}
+        <div class="two-thirds column">
 
         {#
         Choosing a shipping method.
@@ -53,11 +25,18 @@
             {{ getCsrfInput() }}
 
             {% for handle, method in craft.commerce.availableShippingMethods %}
-                <label>
-                    <input type="radio" name="shippingMethod" value="{{ handle }}"
-                           {% if handle == cart.shippingMethodHandle %}checked{% endif %} />
-                    <strong>{{ method.name }}</strong> {{ method.amount|currency(cart.currency) }}
-                </label>
+                <div class="shipping-select">
+                    <label>
+
+                        <input type="radio" name="shippingMethod" value="{{ handle }}"
+                               {% if handle == cart.shippingMethodHandle %}checked{% endif %} />
+                        <strong>{{ method.name }}</strong>
+
+                        <span class="price">
+                            {{ method.amount|currency(cart.currency) }}
+                        </span>
+                    </label>
+                </div>
             {% endfor %}
             <span class="flash">{{ cart.getErrors('shippingMethod')|join }}</span>
 
@@ -66,6 +45,27 @@
         </form>
         {% endif %}
 
+        </div>
+        
+        <div class="one-third column">
+            <div class="address-card">
+                <h5 class="label">Shipping Address</h5>
+                {% if cart.shippingAddress %}
+                    {% include 'commerce/_includes/addresses/address' with {'address': cart.shippingAddress} %}
+                {% else %}
+                    <p>No shipping address selected.</p>
+                {% endif %}
+                {% if currentUser %}<a class="edit" href="/commerce/customer/addresses/edit?addressId={{ cart.shippingAddressId }}&redirect={{ craft.request.path }}">Edit</a>{% endif %}
+            </div>
+            <div class="address-card">
+                <h5 class="label">Billing Address</h5>
+                {% if cart.billingAddress %}
+                    {% include 'commerce/_includes/addresses/address' with {'address': cart.billingAddress} %}
+                    {% if currentUser %}<a class="edit" href="/commerce/customer/addresses/edit?addressId={{ cart.billingAddressId }}&redirect={{ craft.request.path }}">Edit</a>{% endif %}
+                {% else %}
+                    <p>No billing address selected.</p>
+                {% endif %}
+            </div>
         </div>
     </div>
 {% endblock %}

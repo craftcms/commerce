@@ -47,6 +47,12 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
 			$order = craft()->commerce_cart->getCart();
 		}
 
+		// These are used to compare if the order changed during it's final
+		// recalculation before payment.
+		$originalTotalPrice = $order->outstandingBalance();
+		$originalTotalQty = $order->getTotalQty();
+		$originalTotalAdjustments = count($order->getAdjustments());
+
 		// Allow setting the payment method at time of submitting payment.
 		$paymentMethodId = craft()->request->getParam('paymentMethodId');
 		if ($paymentMethodId)
@@ -65,7 +71,6 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
 				return;
 			}
 		}
-
 
 		// Get the payment method' gateway adapter's expected form model
 		/** @var BaseModel $paymentForm */
@@ -89,6 +94,47 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
 			}
 
 			return;
+		}
+
+		// Do one final save to confirm the price does not change out from under the customer.
+		// This also confirms the products are available and discounts are current.
+		if (craft()->commerce_orders->saveOrder($order))
+		{
+			$totalPriceChanged = $originalTotalPrice != $order->outstandingBalance();
+			$totalQtyChanged = $originalTotalQty != $order->getTotalQty();
+			$totalAdjustmentsChanged = $originalTotalAdjustments != count($order->getAdjustments());
+
+			// Has the order changed in a significant way?
+			if ($totalPriceChanged || $totalQtyChanged || $totalAdjustmentsChanged)
+			{
+				if ($totalPriceChanged)
+				{
+					$order->addError('totalPrice', Craft::t("The total price of the order changed."));
+				}
+
+				if ($totalQtyChanged)
+				{
+					$order->addError('totalQty', Craft::t("The total quantity of items within the order changed."));
+				}
+
+				if ($totalAdjustmentsChanged)
+				{
+					$order->addError('totalAdjustments', Craft::t("The total number of order adjustments changed."));
+				}
+
+				$customError = Craft::t('Something changed with the order before payment, please review your order and submit payment again.');
+				if (craft()->request->isAjaxRequest())
+				{
+					$this->returnErrorJson($customError);
+				}
+				else
+				{
+					craft()->userSession->setFlash('error', $customError);
+					craft()->urlManager->setRouteVariables(compact('paymentForm'));
+				}
+
+				return;
+			}
 		}
 
 		// Save the return and cancel URLs to the order
