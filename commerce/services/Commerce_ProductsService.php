@@ -50,11 +50,11 @@ class Commerce_ProductsService extends BaseApplicationComponent
             }
         }
 
-	    // Fire an 'onBeforeSaveEntry' event
-	    $event = new Event($this, array(
+	    // Fire an 'onBeforeSaveProduct' event
+	    $event = new Event($this, [
 		    'product'      => $product,
 		    'isNewProduct' => $isNewProduct
-	    ));
+	    ]);
 
 	    $this->onBeforeSaveProduct($event);
 
@@ -216,7 +216,7 @@ class Commerce_ProductsService extends BaseApplicationComponent
 
 	    if ($success)
 	    {
-		    // Fire an 'onSaveEntry' event
+		    // Fire an 'onSaveProduct' event
 		    $this->onSaveProduct(new Event($this, [
 			    'product'      => $product,
 			    'isNewProduct' => $isNewProduct
@@ -226,30 +226,100 @@ class Commerce_ProductsService extends BaseApplicationComponent
         return $success;
     }
 
+	/**
+	 * @param Commerce_ProductModel|Commerce_ProductModel[] $products
+	 *
+	 * @return bool
+	 * @throws \CDbException
+	 * @throws \Exception
+	 */
+	public function deleteProduct($products)
+	{
+		if (!$products)
+		{
+			return false;
+		}
 
-    /**
-     * @param Commerce_ProductModel $product
-     *
-     * @return bool
-     * @throws \CDbException
-     */
-    public function deleteProduct($product)
-    {
-        $product = Commerce_ProductRecord::model()->findById($product->id);
-        if ($product) {
-            $variants = craft()->commerce_variants->getAllVariantsByProductId($product->id);
-            if (craft()->elements->deleteElementById($product->id)) {
-                foreach ($variants as $v) {
-                    craft()->elements->deleteElementById($v->id);
-                }
+		$transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
 
-                return true;
-            } else {
+		try
+		{
+			if (!is_array($products))
+			{
+				$products = [$products];
+			}
 
-                return false;
-            }
-        }
-    }
+			$productIds = [];
+			$variantsByProductId = [];
+
+			foreach ($products as $product)
+			{
+				// Fire an 'onBeforeDeleteProduct' event
+				$event = new Event($this, [
+					'product' => $product
+				]);
+
+				$this->onBeforeDeleteProduct($event);
+
+				if ($event->performAction)
+				{
+					$productIds[] = $product->id;
+					$variantsByProductId[$product->id] = craft()->commerce_variants->getAllVariantsByProductId($product->id);
+				}
+			}
+
+			if ($productIds)
+			{
+				// Delete 'em
+				$success = craft()->elements->deleteElementById($productIds);
+			}
+			else
+			{
+				$success = false;
+			}
+
+			if ($transaction !== null)
+			{
+				$transaction->commit();
+			}
+		}
+		catch (\Exception $e)
+		{
+			if ($transaction !== null)
+			{
+				$transaction->rollback();
+			}
+
+			throw $e;
+		}
+
+		if ($success)
+		{
+			foreach ($products as $product)
+			{
+
+				// Delete all child variants.
+				$variants = $variantsByProductId[$product->id];
+				$ids = [];
+				foreach ($variants as $v)
+				{
+					$ids[] = $v->id;
+				}
+				craft()->elements->deleteElementById($ids);
+				
+				// Fire an 'onDeleteProduct' event
+				$this->onDeleteProduct(new Event($this, [
+					'product' => $product
+				]));
+			}
+
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
 
 	/**
 	 * This event is raised before a product is saved
@@ -295,5 +365,42 @@ class Commerce_ProductsService extends BaseApplicationComponent
 		}
 
 		$this->raiseEvent('onSaveProduct', $event);
+	}
+
+
+	/**
+	 * This event is raised before a product is saved
+	 *
+	 * @param \CEvent $event
+	 *
+	 * @throws \CException
+	 */
+	public function onBeforeDeleteProduct(\CEvent $event)
+	{
+		$params = $event->params;
+		if (empty($params['product']) || !($params['product'] instanceof Commerce_ProductModel))
+		{
+			throw new Exception('onBeforeDeleteProduct event requires "product" param with Commerce_ProductModel instance that is being deleted.');
+		}
+
+		$this->raiseEvent('onBeforeDeleteProduct', $event);
+	}
+
+	/**
+	 * This event is raised after a product has been successfully saved
+	 *
+	 * @param \CEvent $event
+	 *
+	 * @throws \CException
+	 */
+	public function onDeleteProduct(\CEvent $event)
+	{
+		$params = $event->params;
+		if (empty($params['product']) || !($params['product'] instanceof Commerce_ProductModel))
+		{
+			throw new Exception('onDeleteProduct event requires "product" param with Commerce_ProductModel instance that is being deleted.');
+		}
+
+		$this->raiseEvent('onDeleteProduct', $event);
 	}
 }

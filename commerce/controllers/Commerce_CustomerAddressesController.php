@@ -63,6 +63,14 @@ class Commerce_CustomerAddressesController extends Commerce_BaseFrontEndControll
         }
 
         if (craft()->commerce_customers->saveAddress($address)) {
+
+            // Refresh the cart, if this address was being used.
+            $cart = craft()->commerce_cart->getCart();
+            if ($cart->shippingAddressId = $address->id)
+            {
+                craft()->commerce_orders->saveOrder($cart);
+            }
+
             if (craft()->request->isAjaxRequest) {
                 $this->returnJson(['success' => true]);
             }

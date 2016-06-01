@@ -2,128 +2,94 @@
 
 {% block content %}
 
-<div class="row">
-	<div class="one-third column">
-		<h3>Order Review</h3>
-		<ul>
-			<li>
-				<strong>Products</strong> {{ cart.itemTotal|currency(cart.currency) }}
-			</li>
+	<div class="row">
 
-			{% for adjustment in cart.adjustments %}
-				<li>
-					<strong>{{ adjustment.name }}</strong> {{ adjustment.amount|currency(cart.currency) }}
-					({{ adjustment.description }})
-				</li>
-			{% endfor %}
+		<div class="two-thirds column">
+			<h3>Payment</h3>
 
+			{#
+			Using the update cart action you could allow the user to select the payment method here.
+			We recommend using ajax to set this, so no page refresh is needed. This would also allow you to dynamically show or hide the credit card form
+			on method change.
+			#}
 
-			{% if not cart.shippingMethod %}
-
-				{#
-				If the order requires a shipping method be selected, you could redirect back to the shipping page until one is applied to the order.
-				{% redirect "commerce/checkout/shipping" %}
-				You might also want to add a php plugin hook to require 
-				#}
-
-				<li>
-					<strong>Shipping</strong> None selected. <a href="{{ url('commerce/checkout/shipping') }}">Choose a shipping method.</a>
-				</li>
+			{% if not craft.commerce.paymentMethods|length %}
+				<p>No payment methods available.</p>
 			{% endif %}
 
-			<li>
-				<strong>Total:</strong> {{ cart.totalPrice|currency(cart.currency) }}
-			</li>
-		</ul>
+			{% if craft.commerce.paymentMethods|length %}
+				<form method="POST" id="paymentMethod" class="form-inline">
 
-	</div>
+					<input type="hidden" name="action" value="commerce/cart/updateCart">
+					<input type="hidden" name="redirect"
+						   value="commerce/checkout/payment">
+					{{ getCsrfInput() }}
 
-	<div class="two-thirds column">
-		<h3>Payment</h3>
+					<label for="paymentMethodId">Select a payment method:</label>
+					<select id="paymentMethodId" name="paymentMethodId"
+							class="form-control">
+						{% for id,name in craft.commerce.paymentMethods %}
+							<option value="{{ id }}"
+									{% if id == cart.paymentMethodId %}selected{% endif %}>{{ name }}</option>
+						{% endfor %}
+					</select>
 
-		{#
-		Using the update cart action you could allow the user to select the payment method here.
-		We recommend using ajax to set this, so no page refresh is needed. This would also allow you to dynamically show or hide the credit card form
-		on method change.
-		#}
+				</form>
+			{% endif %}
 
-		{% if not craft.commerce.paymentMethods|length %}
-			<p>No payment methods available.</p>
-		{% endif %}
+			{% if cart.paymentMethodId %}
+				<form method="POST" class="form-horizontal">
+					<input type="hidden" name="action" value="commerce/payments/pay"/>
+					<input type="hidden" name="redirect" value="/commerce/customer/order?number={number}"/>
+					<input type="hidden" name="cancelUrl" value="/commerce/checkout/payment"/>
+					{{ getCsrfInput() }}
 
-		{% if craft.commerce.paymentMethods|length %}
-			<form method="POST" id="paymentMethod" class="form-inline">
+					<div class="row">
+						<div class="twelve columns">
+							<noscript>
+								<div class="bs-callout bs-callout-danger">
+									<h4>JavaScript is not enabled!</h4>
 
-				<input type="hidden" name="action" value="commerce/cart/updateCart">
-				<input type="hidden" name="redirect"
-					   value="commerce/checkout/payment">
-				{{ getCsrfInput() }}
+									<p>This payment form requires your browser to have
+										JavaScript enabled. Please activate
+										JavaScript and reload this page. Check <a
+												href="http://enable-javascript.com"
+												target="_blank">enable-javascript.com</a>
+										for
+										more informations.</p>
+								</div>
+							</noscript>
 
-				<label for="">Payment Method</label>
-				<select id="paymentMethodId" name="paymentMethodId"
-						class="form-control">
-					{% for id,name in craft.commerce.paymentMethods %}
-						<option value="{{ id }}"
-								{% if id == cart.paymentMethodId %}selected{% endif %}>{{ name }}</option>
-					{% endfor %}
-				</select>
-
-			</form>
-		{% endif %}
-
-	{% if cart.paymentMethodId %}
-		<form method="POST" class="form-horizontal">
-			<input type="hidden" name="action" value="commerce/payments/pay"/>
-			<input type="hidden" name="redirect" value="/commerce/customer/order?number={number}"/>
-			<input type="hidden" name="cancelUrl" value="/commerce/checkout/payment"/>
-			{{ getCsrfInput() }}
-
-			<div class="row">
-				<div class="twelve columns">
-					<noscript>
-						<div class="bs-callout bs-callout-danger">
-							<h4>JavaScript is not enabled!</h4>
-
-							<p>This payment form requires your browser to have
-								JavaScript enabled. Please activate
-								JavaScript and reload this page. Check <a
-										href="http://enable-javascript.com"
-										target="_blank">enable-javascript.com</a>
-								for
-								more informations.</p>
+							<span class="payment-success"></span>
 						</div>
-					</noscript>
+					</div>
 
-					<span class="payment-success"></span>
-				</div>
-			</div>
-
-			{% if cart.paymentMethod.class == 'Stripe' %}
-				<script
-						src="//checkout.stripe.com/checkout.js"
-						class="stripe-button"
-						data-key="{{ cart.paymentMethod.settings.publishableKey ?? '' }}"
-						data-name="Craft Commerce"
-						data-description="Purchase" {# This is not used for order description in stripe - see Craft Commerce general settings #}
-						data-email="{{ cart.email }}"
-						data-amount="{{ cart.totalPrice * 100 }}"
-						data-locale="auto">
-				</script>
-			{% endif %}
+					{% if cart.paymentMethod.class == 'Stripe' %}
+						<script
+								src="//checkout.stripe.com/checkout.js"
+								class="stripe-button"
+								data-key="{{ cart.paymentMethod.settings.publishableKey ?? '' }}"
+								data-name="Craft Commerce"
+								data-description="Purchase" {# This is not used for order description in stripe - see Craft Commerce general settings #}
+								data-email="{{ cart.email }}"
+								data-amount="{{ cart.totalPrice * 100 }}"
+								data-locale="auto">
+						</script>
+					{% endif %}
 
 
-			{% if cart.paymentMethod.class != 'Stripe' %}
-				<fieldset>
-					{% if cart.paymentMethod.requiresCard() %}
-						{% set currentYear = date()|date_modify("+1 year").format('Y') %}
-						{% set formValues = {
-						firstName: paymentForm is defined ? paymentForm.firstName : (cart.billingAddress ? cart.billingAddress.firstName : ''),
-						lastName: paymentForm is defined ? paymentForm.lastName : (cart.billingAddress ? cart.billingAddress.lastName : ''),
-						number: paymentForm is defined ? paymentForm.number : '',
-						cvv: paymentForm is defined ? paymentForm.cvv : '',
-						month: paymentForm is defined ? paymentForm.month : 1,
-						year: paymentForm is defined ? paymentForm.year : currentYear,
-						} %}
+					{% if cart.paymentMethod.class != 'Stripe' %}
+						<fieldset>
+							{% if cart.paymentMethod.requiresCard() %}
+								{% set currentYear = date()|date_modify("+1 year").format('Y') %}
+								{% set formValues = {
+								firstName: paymentForm is defined ? paymentForm.firstName : (cart.billingAddress ? cart.billingAddress.firstName : ''),
+								lastName: paymentForm is defined ? paymentForm.lastName : (cart.billingAddress ? cart.billingAddress.lastName : ''),
+								number: paymentForm is defined ? paymentForm.number : '',
+								cvv: paymentForm is defined ? paymentForm.cvv : '',
+								month: paymentForm is defined ? paymentForm.month : 1,
+								year: paymentForm is defined ? paymentForm.year : currentYear,
+								} %}
 
 
 								<!-- Card Holder Name -->
@@ -208,17 +174,54 @@
 
 								</div>
 
+							{% endif %}
+
+							<!-- Submit -->
+							<button class="button button-primary" type="submit">Pay {{ cart.totalPrice|currency(cart.currency) }}
+								Now
+							</button>
+						</fieldset>
+					{% endif %}
+				</form>
+			{% endif %}
+		</div>
+		<div class="one-third column">
+
+			<div class="review-card">
+				<h5>Order Review</h5>
+				<ul>
+					<li>
+						<strong>Products</strong> {{ cart.itemTotal|currency(cart.currency) }}
+					</li>
+
+					{% for adjustment in cart.adjustments %}
+						<li>
+							<strong>{{ adjustment.name }}</strong> {{ adjustment.amount|currency(cart.currency) }}
+							({{ adjustment.description }})
+						</li>
+					{% endfor %}
+
+
+					{% if not cart.shippingMethod %}
+
+						{#
+						If the order requires a shipping method be selected, you could redirect back to the shipping page until one is applied to the order.
+						{% redirect "commerce/checkout/shipping" %}
+						You might also want to add a php plugin hook to require
+						#}
+
+						<li>
+							<strong>Shipping</strong> None selected. <a href="{{ url('commerce/checkout/shipping') }}">Choose a shipping method.</a>
+						</li>
 					{% endif %}
 
-					<!-- Submit -->
-					<button class="button button-primary" type="submit">Pay {{ cart.totalPrice|currency(cart.currency) }}
-						Now
-					</button>
-				</fieldset>
-			{% endif %}
-		</form>
-	{% endif %}
-	</div>
+					<li>
+						<strong>Total:</strong> {{ cart.totalPrice|currency(cart.currency) }}
+					</li>
+				</ul>
+			</div>
+
+		</div>
 	</div>
 
 	{% includejs %}
