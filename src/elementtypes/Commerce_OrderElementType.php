@@ -462,12 +462,10 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 	    {
 		    $purchasableIds = [];
 
-
 		    if (!is_array($criteria->hasPurchasables))
 		    {
 			    $criteria->hasPurchasables = [$criteria->hasPurchasables];
 		    }
-
 
 		    foreach ($criteria->hasPurchasables as $purchasable)
 		    {
@@ -487,7 +485,6 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 
 		    $query->join('commerce_lineItems lineItems', 'lineItems.orderId = elements.id');
 		    $query->andWhere(['in', 'lineItems.purchasableId', $purchasableIds]);
-
 	    }
     }
 
