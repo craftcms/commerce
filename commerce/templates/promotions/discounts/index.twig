@@ -37,7 +37,7 @@
                     -
                     {{ (discount.dateTo ? discount.dateTo.localeDate() : '∞') }}
                 </td>
-                <td data-title="{{ 'Times Used'|t }}">{{ discount.totalUses }}</td>
+                <td data-title="{{ 'Times Coupon Used'|t }}">{{ discount.totalUses }}</td>
                 <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
             </tr>
         {% endfor %}
