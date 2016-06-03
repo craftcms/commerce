@@ -181,4 +181,19 @@ class Commerce_DiscountsController extends Commerce_BaseCpController
         $this->returnJson(['success' => true]);
     }
 
+    /**
+     * @throws HttpException
+     */
+    public function actionClearCouponUsageHistory()
+    {
+        $this->requirePostRequest();
+        $this->requireAjaxRequest();
+
+        $id = craft()->request->getRequiredPost('id');
+
+        craft()->commerce_discounts->clearCouponUsageHistory($id);
+        
+        $this->returnJson(['success' => true]);
+    }
+
 }

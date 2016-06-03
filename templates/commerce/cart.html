@@ -89,14 +89,15 @@
                         </form>
 
                         {# Update Coupon form uses the single update controller action: #}
+                        {% if cart.getError('couponCode') %}<span class="flash">{{ cart.getError('couponCode') }}</span>{% endif %}
                         <form method="POST">
                             <input type="hidden" name="action" value="commerce/cart/updateCart">
                             <input type="hidden" name="redirect" value="commerce/cart">
                             {{ getCsrfInput() }}
-                            <input type="text" name="couponCode" width="11" value="{{ cart.couponCode }}"
-                                   placeholder="{{ "Coupon Code"|t }}"><br>
-                            <input type="submit" class="button"
-                                   value="{% if cart.couponCode %}Change{% else %}Apply{% endif %} Coupon"/>
+                            <span class="{% if cart.getError('couponCode') %}has-error{% endif %}">
+                            <input type="text" name="couponCode" width="11" class="{% if cart.getError('couponCode') %}has-error{% endif %}" value="{{ cart.couponCode }}" placeholder="{{ "Coupon Code"|t }}">
+							</span>
+                            <input type="submit" class="button" value="{% if cart.couponCode %}Change{% else %}Apply{% endif %} Coupon"/>
                         </form>
 
                     </td>

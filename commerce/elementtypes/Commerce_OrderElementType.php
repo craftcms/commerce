@@ -1,6 +1,8 @@
 <?php
 namespace Craft;
 
+use Commerce\Base\Purchasable;
+
 require_once(__DIR__ . '/Commerce_BaseElementType.php');
 
 /**
@@ -325,7 +327,8 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
             'customerId' => AttributeType::Mixed,
             'user' => AttributeType::Mixed,
             'isPaid' => AttributeType::Bool,
-            'isUnpaid' => AttributeType::Bool
+            'isUnpaid' => AttributeType::Bool,
+            'hasPurchasables' => AttributeType::Mixed
         ];
     }
 
@@ -337,8 +340,9 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
      */
     public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
     {
-        $query
-            ->addSelect('orders.id,
+
+	    $query
+		    ->addSelect('orders.id,
         orders.number,
         orders.couponCode,
         orders.itemTotal,
@@ -454,6 +458,35 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
         if ($criteria->isUnpaid == true) {
             $query->andWhere(DbHelper::parseParam('orders.totalPaid', '< orders.totalPrice', $query->params));
         }
+
+	    if ($criteria->hasPurchasables !== null)
+	    {
+		    $purchasableIds = [];
+
+		    if (!is_array($criteria->hasPurchasables))
+		    {
+			    $criteria->hasPurchasables = [$criteria->hasPurchasables];
+		    }
+
+		    foreach ($criteria->hasPurchasables as $purchasable)
+		    {
+			    if ($purchasable instanceof Purchasable)
+			    {
+				    $purchasableIds[] = $purchasable->getPurchasableId();
+			    }
+
+			    if (is_numeric($purchasable))
+			    {
+				    $purchasableIds[] = $purchasable;
+			    }
+		    }
+
+		    // Remove any blank purchasable IDs (if any)
+		    $purchasableIds = array_filter($purchasableIds);
+
+		    $query->join('commerce_lineItems lineItems', 'lineItems.orderId = elements.id');
+		    $query->andWhere(['in', 'lineItems.purchasableId', $purchasableIds]);
+	    }
     }
 
 

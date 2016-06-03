@@ -130,21 +130,22 @@ class Commerce_DiscountsService extends BaseApplicationComponent
      */
     public function matchCode($code, $customerId, &$error = '')
     {
+
         $model = $this->getDiscountByCode($code);
         if (!$model) {
-            $error = Craft::t('Given coupon code not found');
+            $error = Craft::t('Coupon not valid');
 
             return false;
         }
 
         if (!$model->enabled) {
-            $error = Craft::t('Discount is not active');
+            $error = Craft::t('Discount is not available');
 
             return false;
         }
 
         if ($model->totalUseLimit > 0 && $model->totalUses >= $model->totalUseLimit) {
-            $error = Craft::t('Discount is out of limit');
+            $error = Craft::t('Discount use has reached it’s limit');
 
             return false;
         }
@@ -165,7 +166,18 @@ class Commerce_DiscountsService extends BaseApplicationComponent
             return false;
         }
 
-        if ($customerId) {
+	    if ($customerId)
+	    {
+		    // The 'Per User Limit' can only be tracked against logged in users since guest customers are re-generated often
+		    $customer = craft()->commerce_customers->getCustomerById($customerId);
+		    $currentCustomerIsCurrentUser = ($customer->user && craft()->userSession->isLoggedIn());
+		    if (!$currentCustomerIsCurrentUser && $model->perUserLimit > 0)
+		    {
+			    $error = Craft::t('Discount is limited to use by logged in users only.');
+
+			    return false;
+		    }
+
             $uses = Commerce_CustomerDiscountUseRecord::model()->findByAttributes([
                 'customerId' => $customerId,
                 'discountId' => $model->id
@@ -381,6 +393,27 @@ class Commerce_DiscountsService extends BaseApplicationComponent
         Commerce_DiscountRecord::model()->deleteByPk($id);
     }
 
+	public function clearCouponUsageHistory($id)
+	{
+		$discount = $this->getDiscountById($id);
+
+		if ($discount)
+		{
+			Commerce_CustomerDiscountUseRecord::model()->deleteAllByAttributes(['discountId' => $discount->id]);
+
+			if ($discount->code)
+			{
+				$discount = Commerce_DiscountRecord::model()->findByAttributes(['code' => $discount->code]);
+
+				if ($discount)
+				{
+					$discount->totalUses = 0;
+					$discount->save();
+				}
+			}
+		}
+	}
+
     /**
      * Update discount uses counters
      *
@@ -406,12 +439,21 @@ class Commerce_DiscountsService extends BaseApplicationComponent
         }
 
         if ($record->perUserLimit && $order->customerId) {
-            $table = Commerce_CustomerDiscountUseRecord::model()->getTableName();
-            craft()->db->createCommand("
-                INSERT INTO {{" . $table . "}} (customerId, discountId, uses)
-                VALUES (:cid, :did, 1)
-                ON DUPLICATE KEY UPDATE uses = uses + 1
-            ")->execute(['cid' => $order->customerId, 'did' => $record->id]);
+
+            $customerDiscountUseRecord = Commerce_CustomerDiscountUseRecord::model()->findByAttributes([
+                'customerId' => $order->customerId,
+                'discountId' => $record->id
+            ]);
+
+            if (!$customerDiscountUseRecord) {
+                $customerDiscountUseRecord = new Commerce_CustomerDiscountUseRecord();
+                $customerDiscountUseRecord->customerId = $order->customerId;
+                $customerDiscountUseRecord->discountId = $record->id;
+                $customerDiscountUseRecord->uses = 1;
+                $customerDiscountUseRecord->save();
+            }else{
+                $customerDiscountUseRecord->saveCounters(['uses' => 1]);
+            }
         }
     }
 
