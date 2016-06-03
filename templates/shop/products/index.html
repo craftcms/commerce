@@ -29,6 +29,14 @@
                         {{ "Out of Stock"|t }}
                     {% endif %}
                 </form>
+
+                {% if currentUser %}
+                {% set order = craft.commerce.orders.user(currentUser).hasPurchasables(product.defaultVariant).find() %}
+                {% if order|length %}
+                    <strong>I already own this product: </strong> <a href="customer/order?orderNumber={{ order[0].number }}">Order #{{ order[0].shortNumber }}</a>
+                {% endif %}
+                {% endif %}
+
             {% endif %}
         </div>
     </div>
