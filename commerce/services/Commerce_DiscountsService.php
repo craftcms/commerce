@@ -406,12 +406,21 @@ class Commerce_DiscountsService extends BaseApplicationComponent
         }
 
         if ($record->perUserLimit && $order->customerId) {
-            $table = Commerce_CustomerDiscountUseRecord::model()->getTableName();
-            craft()->db->createCommand("
-                INSERT INTO {{" . $table . "}} (customerId, discountId, uses)
-                VALUES (:cid, :did, 1)
-                ON DUPLICATE KEY UPDATE uses = uses + 1
-            ")->execute(['cid' => $order->customerId, 'did' => $record->id]);
+
+            $customerDiscountUseRecord = Commerce_CustomerDiscountUseRecord::model()->findByAttributes([
+                'customerId' => $order->customerId,
+                'discountId' => $record->id
+            ]);
+
+            if (!$customerDiscountUseRecord) {
+                $customerDiscountUseRecord = new Commerce_CustomerDiscountUseRecord();
+                $customerDiscountUseRecord->customerId = $order->customerId;
+                $customerDiscountUseRecord->discountId = $record->id;
+                $customerDiscountUseRecord->uses = 1;
+                $customerDiscountUseRecord->save();
+            }else{
+                $customerDiscountUseRecord->saveCounters(['uses' => 1]);
+            }
         }
     }
 
