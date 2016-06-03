@@ -19,14 +19,20 @@
 {% endif %}
 
 {% set conditionsClasses = "" %}
+{% if(discount.getErrors('startDate') or discount.getErrors('endDate') or discount.getErrors('productTypes')) %}
+    {% set conditionsClasses = "error" %}
+{% endif %}
+
+{% set couponClasses = "" %}
 {% if(discount.getErrors('code')) %}
     {% set conditionsClasses = "error" %}
 {% endif %}
 
 {% set tabs = {
     0: {'label':'Discount'|t,'url':'#discount','class':discountClasses},
-    1: {'label':'Conditions'|t,'url':'#conditions','class':conditionsClasses},
-    2: {'label':'Amounts'|t,'url':'#amounts'}
+    1: {'label':'Coupon'|t,'url':'#coupon','class':couponClasses},
+    2: {'label':'Conditions'|t,'url':'#conditions','class':conditionsClasses},
+    3: {'label':'Amounts'|t,'url':'#amounts'}
 } %}
 
 
@@ -67,19 +73,22 @@
     }) }}
 
     </div>
-    <div id="conditions" class="hidden">
-    {{ forms.textField({
-        label: "Coupon Code"|t,
-        instructions: "A user will have to enter it to activate this discount. Leave blank to always attempt to match this discount."|t,
-        id: 'code',
-        name: 'code',
-        value: discount.code,
-        errors: discount.getErrors('code'),
-    }) }}
 
+    <div id="coupon" class="hidden">
+
+	{{ forms.textField({
+		label: "Coupon Code"|t,
+		instructions: "A user will have to enter this code to activate this discount. A blank coupon code here will always match this discount."|t,
+		id: 'code',
+		name: 'code',
+		value: discount.code,
+		errors: discount.getErrors('code'),
+	}) }}
+
+    <div id="coupon-fields" class="{% if not discount.code|length %}hidden{% endif %}">
     {{ commerceForms.numberField({
-        label: "Per User Limit"|t,
-        instructions: "How many times one user is allowed to use this discount. Set zero for unlimited use."|t,
+        label: "Per User Coupon Limit"|t,
+        instructions: "How many times one user is allowed to use this discount. Setting this requires a user to be logged in to use the discount. Setting this will not allow guests to use the discount. Set to zero for unlimited use by guests or users."|t,
         id: 'perUserLimit',
         name: 'perUserLimit',
         value: discount.perUserLimit,
@@ -88,8 +97,8 @@
     }) }}
 
     {{ commerceForms.numberField({
-        label: "Total Use Limit"|t,
-        instructions: "How many times this discount can be used in total. Set zero for unlimited use."|t,
+        label: "Total Coupon Use Limit"|t,
+        instructions: "How many times this coupon can be used in total by guests or logged in users. Set zero for unlimited use."|t,
         id: 'totalUseLimit',
         name: 'totalUseLimit',
         value: discount.totalUseLimit,
@@ -99,9 +108,22 @@
 
     {{
         forms.field({
-            'label': 'Times used'|t
+            'label': 'Times Coupon Used'|t,
+			'id': 'total-coupon-use-counter',
+            'instructions': "How many times this coupon has been used, if a total coupon usage limit has been set."|t,
         }, '<input disabled class="text disabled fullwidth" value="' ~ discount.totalUses ~ ' times">')
     }}
+
+    {% if discount.id and discount.code|length %}
+    <div id="clear-coupon-history" class="btn">
+        {{ "Clear all coupon usage history for this discount"|t }}
+    </div><div id="clear-coupon-history-spinner" class="spinner hidden"></div>
+    {% endif %}
+
+    </div>
+	</div>
+
+    <div id="conditions" class="hidden">
 
     {{ forms.dateField({
         label: "Start Date"|t,
@@ -239,6 +261,33 @@ $(function() {
     $('#groups, #productTypes').selectize({
         plugins: ['remove_button'],
         dropdownParent: 'body'
+    });
+
+	$('#code').on('keyup blur', function(event) {
+		if(this.value.length === 0){
+			$('#coupon-fields').addClass('hidden');
+		}else{
+			$('#coupon-fields').removeClass('hidden');
+		}
+	});
+
+    $('#clear-coupon-history').click(function(event){
+
+        var r = confirm("Are you sure you want to clear all usage history for this discount?");
+
+        if (r == true) {
+            $('#clear-coupon-history-spinner').toggleClass('hidden');
+            $.post('', {
+                action: 'commerce/discounts/clearCouponUsageHistory',
+                id: '{% if discount.id %}{{ discount.id }}{% endif %}'
+            }, function (result) {
+                $('#clear-coupon-history-spinner').toggleClass('hidden');
+				$('#total-coupon-use-counter').val(0);
+				alert(Craft.t('All coupon usage counters have been cleared'));
+				$('#clear-coupon-history').hide();
+            });
+        }
+
     });
 });
 {% endincludejs %}
