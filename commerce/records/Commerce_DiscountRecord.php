@@ -10,6 +10,7 @@ namespace Craft;
  * @property string $description
  * @property string $code
  * @property int $perUserLimit
+ * @property int $perEmailLimit
  * @property int $totalUseLimit
  * @property int $totalUses
  * @property DateTime $dateFrom
@@ -93,6 +94,12 @@ class Commerce_DiscountRecord extends BaseRecord
             'description' => AttributeType::Mixed,
             'code' => AttributeType::String,
             'perUserLimit' => [
+                AttributeType::Number,
+                'required' => true,
+                'min' => 0,
+                'default' => 0
+            ],
+            'perEmailLimit' => [
                 AttributeType::Number,
                 'required' => true,
                 'min' => 0,

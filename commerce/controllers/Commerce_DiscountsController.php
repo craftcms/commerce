@@ -114,6 +114,7 @@ class Commerce_DiscountsController extends Commerce_BaseCpController
             'excludeOnSale',
             'code',
             'perUserLimit',
+            'perEmailLimit',
             'totalUseLimit'
         ];
         foreach ($fields as $field) {
