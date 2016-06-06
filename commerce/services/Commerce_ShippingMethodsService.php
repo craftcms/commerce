@@ -150,7 +150,7 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
                         if ($item->purchasable && !$item->purchasable->hasFreeShipping())
                         {
                             $amount += $rule->getPerItemRate() * $item->qty;
-                            $amount += $rule->getWeightRate() * $item->weight;
+                            $amount += $rule->getWeightRate() * ($item->qty * $item->weight);
                             $amount += $rule->getPercentageRate() * $item->getSubtotalWithSale();
                         }
                     }
