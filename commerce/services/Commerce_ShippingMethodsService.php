@@ -151,7 +151,7 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
                         {
                             $amount += $rule->getPerItemRate() * $item->qty;
                             $amount += $rule->getWeightRate() * ($item->qty * $item->weight);
-                            $amount += $rule->getPercentageRate() * $item->getSubtotalWithSale();
+                            $amount += $rule->getPercentageRate() * $item->getSubtotal();
                         }
                     }
 

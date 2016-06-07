@@ -58,9 +58,9 @@ class Commerce_ShippingAdjuster implements Commerce_AdjusterInterface
             foreach ($lineItems as $item) {
                 $weight += $item->qty * $item->weight;
                 $qty += $item->qty;
-                $price += $item->getSubtotalWithSale();
+                $price += $item->getSubtotal();
 
-                $item->shippingCost = ($item->getSubtotalWithSale() * $rule->getPercentageRate()) + ($rule->getPerItemRate() * $item->qty) + (($item->weight * $item->qty) * $rule->getWeightRate());
+                $item->shippingCost = ($item->getSubtotal() * $rule->getPercentageRate()) + ($rule->getPerItemRate() * $item->qty) + (($item->weight * $item->qty) * $rule->getWeightRate());
 
                 if($item->shippingCost && !$item->purchasable->hasFreeShipping()){
                     $affectedLineIds[] = $item->id;
