@@ -266,6 +266,14 @@ class Commerce_LineItemsService extends BaseApplicationComponent
 		if ($purchasable && $purchasable instanceof Purchasable)
 		{
 			$lineItem->fillFromPurchasable($purchasable);
+
+			//raising onPopulate event
+			$event = new Event($this, [
+				'lineItem' => $lineItem,
+				'purchasable' => $purchasable
+			]);
+			$this->onPopulateLineItem($event);
+
 		}
 		else
 		{
@@ -363,6 +371,29 @@ class Commerce_LineItemsService extends BaseApplicationComponent
 		}
 
 		$this->raiseEvent('onCreateLineItem', $event);
+	}
+
+	/**
+	 * This event is raised when a new line has been populated from a purchasable
+	 *
+	 * @param \CEvent $event
+	 *
+	 * @throws \CException
+	 */
+	public function onPopulateLineItem(\CEvent $event)
+	{
+		$params = $event->params;
+		if (empty($params['lineItem']) || !($params['lineItem'] instanceof Commerce_LineItemModel))
+		{
+			throw new Exception('onPopulateLineItem event requires "lineItem" param with Commerce_LineItemModel instance that is being populated from the purchasable.');
+		}
+
+		if (empty($params['purchasable']) || !($params['purchasable'] instanceof Purchasable))
+		{
+			throw new Exception('onPopulateLineItem event requires "purchasable" param with a Purchasable.');
+		}
+
+		$this->raiseEvent('onPopulateLineItem', $event);
 	}
 
 	/**
