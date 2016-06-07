@@ -160,6 +160,13 @@ class Commerce_LineItemModel extends BaseModel
 
 		$this->fillFromPurchasable($this->purchasable);
 
+		//raising onPopulate event
+		$event = new Event($this, [
+			'lineItem' => $this,
+			'purchasable' => $this->purchasable
+		]);
+		craft()->commerce_lineItems->onPopulateLineItem($event);
+
 		return true;
 	}
 
@@ -194,7 +201,7 @@ class Commerce_LineItemModel extends BaseModel
 		$this->price = $purchasable->getPrice();
 		$this->taxCategoryId = $purchasable->getTaxCategoryId();
 
-		// Since sales cannot apply to non core purchasables, set to price at default
+		// Since sales cannot apply to non core purchasables yet, set to price at default
 		$this->salePrice = $purchasable->getPrice();
 		$this->saleAmount = 0;
 
@@ -245,6 +252,8 @@ class Commerce_LineItemModel extends BaseModel
 
 			$this->salePrice = $this->saleAmount + $this->price;
 		}
+
+
 	}
 
 	/**
