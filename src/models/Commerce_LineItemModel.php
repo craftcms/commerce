@@ -81,6 +81,7 @@ class Commerce_LineItemModel extends BaseModel
 	}
 
 	/**
+	 * @deprecated You should now use getSubtotal()
 	 * @return float
 	 */
 	public function getSubtotalWithSale()
