@@ -378,7 +378,7 @@ class Commerce_OrderModel extends BaseElementModel
     {
         $value = 0;
         foreach ($this->getLineItems() as $item) {
-            $value += $item->getSubtotalWithSale();
+            $value += $item->getSubtotal();
         }
 
         return $value;
