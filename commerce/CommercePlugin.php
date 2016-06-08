@@ -149,7 +149,8 @@ class CommercePlugin extends BasePlugin
                         'm160405_010101_Commerce_FixDefaultVariantId'.
                         'm160406_010101_Commerce_RemoveUnusedAuthorId',
                         'm160425_010101_Commerce_DeleteCountriesAndStates',
-                        'm160606_010101_Commerce_PerEmailLimitOnDiscount'
+                        'm160606_010101_Commerce_PerEmailLimitOnDiscount',
+                        'm160510_010101_Commerce_EmailRecipientType'
                     );
 
                     foreach ($migrations as $migrationClass) {
@@ -297,7 +298,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getSchemaVersion()
     {
-        return '1.0.13';
+        return '1.2.02';
     }
 
     /**
