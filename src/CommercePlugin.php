@@ -149,6 +149,7 @@ class CommercePlugin extends BasePlugin
                         'm160405_010101_Commerce_FixDefaultVariantId'.
                         'm160406_010101_Commerce_RemoveUnusedAuthorId',
                         'm160425_010101_Commerce_DeleteCountriesAndStates',
+                        'm160606_010101_Commerce_PerEmailLimitOnDiscount'
                     );
 
                     foreach ($migrations as $migrationClass) {

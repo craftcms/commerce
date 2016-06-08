@@ -71,7 +71,7 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
             if (\Craft\craft()->commerce_discounts->matchLineItem($item, $discount)) {
                 $matchingLineIds[] = $item->id;
                 $matchingQty += $item->qty;
-                $matchingTotal += $item->getSubtotalWithSale();
+                $matchingTotal += $item->getSubtotal();
             }
         }
 
@@ -94,11 +94,11 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
 
         foreach ($lineItems as $item) {
             if (in_array($item->id, $matchingLineIds)) {
-                $item->discount += $discount->perItemDiscount * $item->qty + $discount->percentDiscount * $item->getSubtotalWithSale();
+                $item->discount += $discount->perItemDiscount * $item->qty + $discount->percentDiscount * $item->getSubtotal();
                 // If the discount is larger than the subtotal
                 // make the discount equal to the item, thus making the item free.
-                if (($item->discount * -1) > $item->getSubtotalWithSale()) {
-                    $item->discount = -$item->getSubtotalWithSale();
+                if (($item->discount * -1) > $item->getSubtotal()) {
+                    $item->discount = -$item->getSubtotal();
                 }
 
                 if (!$item->purchasable->getIsPromotable()) {
