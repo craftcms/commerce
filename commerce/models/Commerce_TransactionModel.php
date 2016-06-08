@@ -36,6 +36,17 @@ use Omnipay\Common\Exception\OmnipayException;
  */
 class Commerce_TransactionModel extends BaseModel
 {
+    /*
+     * @var
+     */
+    private $_paymentMethod;
+
+    /*
+     * @var
+     */
+    private $_parentTransaction;
+
+
     /**
      * @param null $attributes
      */
@@ -124,7 +135,12 @@ class Commerce_TransactionModel extends BaseModel
      */
     public function getParent()
     {
-        return craft()->commerce_transactions->getTransactionById($this->parentId);
+        if (!isset($this->_parentTransaction))
+        {
+            $this->_parentTransaction = craft()->commerce_transactions->getTransactionById($this->parentId);
+        }
+
+        return $this->_parentTransaction;
     }
 
     /**
@@ -140,7 +156,22 @@ class Commerce_TransactionModel extends BaseModel
      */
     public function getPaymentMethod()
     {
-        return craft()->commerce_paymentMethods->getPaymentMethodById($this->paymentMethodId);
+        if (!isset($this->_paymentMethod))
+        {
+            $this->_paymentMethod = craft()->commerce_paymentMethods->getPaymentMethodById($this->paymentMethodId);
+        }
+
+        return $this->_paymentMethod;
+    }
+
+    /**
+     * @param $paymentMethod Commerce_PaymentMethodModel
+     *
+     * @return void
+     */
+    public function setPaymentMethod(Commerce_PaymentMethodModel $paymentMethod)
+    {
+        $this->_paymentMethod = $paymentMethod;
     }
 
 
