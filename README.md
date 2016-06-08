@@ -28,10 +28,14 @@ workflows showing the expected behavior.
 ```bash
 brew install selenium-server-standalone
 ```
-After installing you should be able to run the server with
 
+To have launchd start selenium-server-standalone now and restart at login:
 ```bash
-selenium-server
+brew services start selenium-server-standalone
+```
+Or, if you don't want/need a background service you can just run:
+```bash
+  selenium-server -p 4444
 ```
 
 2) Install the codeception phar. [Codeception instructions](http://codeception.com/quickstart)

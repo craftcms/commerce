@@ -38,5 +38,18 @@ $I->selectOption('select[name="shippingAddress[stateValue]"]', 'Western Australi
 $I->click('Confirm addresses');
 $I->see('Cart updated.');
 
+$I->selectOption('form input[name=shippingMethod]', 'Free Shipping');
+$I->click('Select Shipping Method');
+
+$I->see('Cart updated.');
+
+$I->selectOption('form select[name=paymentMethodId]', 'Dummy');
+$I->fillField(['name' => 'firstName'], 'Luke'); 
+$I->fillField(['name' => 'lastName'], 'Holder');
+$I->fillField(['name' => 'number'], '4242424242424242');
+$I->fillField(['name' => 'cvv'], '123');
+$I->click('Pay');
+$I->amOnPage('/commerce/customer/order')
+
 
 ?>
