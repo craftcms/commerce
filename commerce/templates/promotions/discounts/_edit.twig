@@ -97,6 +97,16 @@
     }) }}
 
     {{ commerceForms.numberField({
+        label: "Per Email Address Coupon Limit"|t,
+        instructions: "How many times one email address is allowed to use this discount. This applies to all previous orders, whether guest or user. Set to zero for unlimited use by guests or users."|t,
+        id: 'perEmailLimit',
+        name: 'perEmailLimit',
+        value: discount.perEmailLimit,
+        min: '0',
+        errors: discount.getErrors('perEmailLimit'),
+    }) }}
+
+    {{ commerceForms.numberField({
         label: "Total Coupon Use Limit"|t,
         instructions: "How many times this coupon can be used in total by guests or logged in users. Set zero for unlimited use."|t,
         id: 'totalUseLimit',
@@ -115,9 +125,15 @@
     }}
 
     {% if discount.id and discount.code|length %}
-    <div id="clear-coupon-history" class="btn">
-        {{ "Clear all coupon usage history for this discount"|t }}
-    </div><div id="clear-coupon-history-spinner" class="spinner hidden"></div>
+    <div id="clear-coupon-history">
+    {{
+    forms.field({
+        'label': 'Clear all coupon usage history for this discount'|t,
+        'id': 'clear-coupon',
+        'instructions': "This will clear all 'Per User Coupon Limit' and 'Total Use Limit' counters. It will not clear any 'Per Email Address Coupon Limit' counters."|t,
+    }, '<div id="clear-coupon-btn" class="btn">' ~ "Clear counters"|t ~'</div><div id="clear-coupon-history-spinner" class="spinner hidden"></div>')
+    }}
+    </div>
     {% endif %}
 
     </div>
@@ -271,7 +287,7 @@ $(function() {
 		}
 	});
 
-    $('#clear-coupon-history').click(function(event){
+    $('#clear-coupon-btn').click(function(event){
 
         var r = confirm("Are you sure you want to clear all usage history for this discount?");
 

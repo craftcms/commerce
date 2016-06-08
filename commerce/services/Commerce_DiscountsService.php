@@ -189,6 +189,38 @@ class Commerce_DiscountsService extends BaseApplicationComponent
             }
         }
 
+	    if ($model->perEmailLimit > 0)
+	    {
+		    $cart = craft()->commerce_cart->getCart();
+		    $email = $cart->email;
+
+		    if (!$email && $model->perEmailLimit)
+		    {
+			    $error = Craft::t('This coupon can only be used once we know your email address');
+
+			    return false;
+		    }
+
+		    $previousOrders = craft()->commerce_orders->getOrdersByEmail($email);
+
+		    $usedCount = 0;
+		    foreach ($previousOrders as $order)
+		    {
+			    if ($order->couponCode == $code)
+			    {
+				    $usedCount = $usedCount + 1;
+			    }
+		    }
+
+		    if ($usedCount >= $model->perEmailLimit)
+		    {
+			    $error = Craft::t('This coupon limited to '.$model->perEmailLimit.' uses.');
+
+			    return false;
+		    }
+	    }
+
+
         return true;
     }
 
@@ -319,6 +351,7 @@ class Commerce_DiscountsService extends BaseApplicationComponent
             'freeShipping',
             'excludeOnSale',
             'perUserLimit',
+            'perEmailLimit',
             'totalUseLimit'
         ];
         foreach ($fields as $field) {

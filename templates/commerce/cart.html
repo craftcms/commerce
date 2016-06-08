@@ -53,11 +53,11 @@
                                 <s>Price: {{ item.price|currency(cart.currency) }}</s><br>
                                 Sale Off: {{ item.saleAmount|currency(cart.currency) }}<br>
                                 Sale Price {{ item.salePrice|currency(cart.currency) }}<br>
-                                Sale Price Subtotal: {{ item.subtotalWithSale|currency(cart.currency) }}<br>
+                                Sale Price Subtotal: {{ item.subtotal|currency(cart.currency) }}<br>
                             {% else %}
                                 Price: {{ item.price|currency(cart.currency) }}<br>
                                 Sale Price {{ item.salePrice|currency(cart.currency) }}<br>
-                                Sale Price Subtotal: {{ item.subtotalWithSale|currency(cart.currency) }}<br>
+                                Sale Price Subtotal: {{ item.subtotal|currency(cart.currency) }}<br>
                             {% endif %}
 
                             Discount: {{ item.discount|currency(cart.currency) }}<br>

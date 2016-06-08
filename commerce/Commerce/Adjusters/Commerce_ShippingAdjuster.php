@@ -2,6 +2,7 @@
 
 namespace Commerce\Adjusters;
 
+use Commerce\Interfaces\ShippingMethod;
 use Craft\Commerce_LineItemModel;
 use Craft\Commerce_OrderAdjustmentModel;
 use Craft\Commerce_OrderModel;
@@ -29,6 +30,7 @@ class Commerce_ShippingAdjuster implements Commerce_AdjusterInterface
 
         foreach ($shippingMethods as $method) {
             if ($method->getIsEnabled() == true && $method->getHandle() == $order->getShippingMethodHandle()) {
+                /** @var ShippingMethod $shippingMethod */
                 $shippingMethod = $method;
             }
         }
@@ -39,7 +41,9 @@ class Commerce_ShippingAdjuster implements Commerce_AdjusterInterface
 
         $adjustments = [];
 
+
         if ($rule = \Craft\craft()->commerce_shippingMethods->getMatchingShippingRule($order, $shippingMethod)) {
+
             //preparing model
             $adjustment = new Commerce_OrderAdjustmentModel;
             $adjustment->type = self::ADJUSTMENT_TYPE;
@@ -54,9 +58,9 @@ class Commerce_ShippingAdjuster implements Commerce_AdjusterInterface
             foreach ($lineItems as $item) {
                 $weight += $item->qty * $item->weight;
                 $qty += $item->qty;
-                $price += $item->getSubtotalWithSale();
+                $price += $item->getSubtotal();
 
-                $item->shippingCost = ($item->getSubtotalWithSale() * $rule->getPercentageRate()) + ($rule->getPerItemRate() * $item->qty) + ($item->weight * $rule->getWeightRate());
+                $item->shippingCost = ($item->getSubtotal() * $rule->getPercentageRate()) + ($rule->getPerItemRate() * $item->qty) + (($item->weight * $item->qty) * $rule->getWeightRate());
 
                 if($item->shippingCost && !$item->purchasable->hasFreeShipping()){
                     $affectedLineIds[] = $item->id;

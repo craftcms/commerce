@@ -73,19 +73,32 @@ class Commerce_LineItemModel extends BaseModel
 	}
 
 	/**
-	 * @return int
+	 * @return float
 	 */
-	public function getSubtotalWithSale()
+	public function getSubtotal()
 	{
 		return $this->qty * ($this->price + $this->saleAmount);
 	}
 
 	/**
-	 * @return int
+	 * @deprecated You should now use getSubtotal()
+	 * @return float
+	 */
+	public function getSubtotalWithSale()
+	{
+		craft()->deprecator->log('Commerce_LineItemModel::getSubtotalWithSale():removed', 'You should no longer use `lineItem.subtotalWithSale` for the line item’s subtotal. Use `lineItem.subtotal`. Same goes for $lineItem->getSubtotalWithSale() in PHP.');
+
+		return $this->getSubtotal();
+	}
+
+	/**
+	 * Returns the Purchasable’s sale price multiplied by the quantity of the line item.
+	 *
+	 * @return float
 	 */
 	public function getTotal()
 	{
-		return $this->getSubtotalWithSale() + $this->tax + $this->discount + $this->shippingCost;
+		return $this->getSubtotal() + $this->tax + $this->discount + $this->shippingCost;
 	}
 
 	/**
@@ -98,17 +111,17 @@ class Commerce_LineItemModel extends BaseModel
 		switch ($taxable)
 		{
 			case Commerce_TaxRateRecord::TAXABLE_PRICE:
-				$taxableSubtotal = $this->getSubtotalWithSale() + $this->discount;
+				$taxableSubtotal = $this->getSubtotal() + $this->discount;
 				break;
 			case Commerce_TaxRateRecord::TAXABLE_SHIPPING:
 				$taxableSubtotal = $this->shippingCost;
 				break;
 			case Commerce_TaxRateRecord::TAXABLE_PRICE_SHIPPING:
-				$taxableSubtotal = $this->getSubtotalWithSale() + $this->discount + $this->shippingCost;
+				$taxableSubtotal = $this->getSubtotal() + $this->discount + $this->shippingCost;
 				break;
 			default:
 				// default to just price
-				$taxableSubtotal = $this->getSubtotalWithSale() + $this->discount;
+				$taxableSubtotal = $this->getSubtotal() + $this->discount;
 		}
 
 		return $taxableSubtotal;
@@ -147,6 +160,13 @@ class Commerce_LineItemModel extends BaseModel
 
 		$this->fillFromPurchasable($this->purchasable);
 
+		//raising onPopulate event
+		$event = new Event($this, [
+			'lineItem' => $this,
+			'purchasable' => $this->purchasable
+		]);
+		craft()->commerce_lineItems->onPopulateLineItem($event);
+
 		return true;
 	}
 
@@ -181,7 +201,7 @@ class Commerce_LineItemModel extends BaseModel
 		$this->price = $purchasable->getPrice();
 		$this->taxCategoryId = $purchasable->getTaxCategoryId();
 
-		// Since sales cannot apply to non core purchasables, set to price at default
+		// Since sales cannot apply to non core purchasables yet, set to price at default
 		$this->salePrice = $purchasable->getPrice();
 		$this->saleAmount = 0;
 
@@ -232,6 +252,8 @@ class Commerce_LineItemModel extends BaseModel
 
 			$this->salePrice = $this->saleAmount + $this->price;
 		}
+
+
 	}
 
 	/**

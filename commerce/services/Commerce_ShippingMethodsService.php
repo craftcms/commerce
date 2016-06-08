@@ -145,9 +145,16 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
             if ($method->getIsEnabled()) {
                 if ($rule = $this->getMatchingShippingRule($cart, $method)) {
                     $amount = $rule->getBaseRate();
-                    $amount += $rule->getPerItemRate() * $cart->totalQty;
-                    $amount += $rule->getWeightRate() * $cart->totalWeight;
-                    $amount += $rule->getPercentageRate() * $cart->itemTotal;
+
+                    foreach ($cart->lineItems as $item){
+                        if ($item->purchasable && !$item->purchasable->hasFreeShipping())
+                        {
+                            $amount += $rule->getPerItemRate() * $item->qty;
+                            $amount += $rule->getWeightRate() * ($item->qty * $item->weight);
+                            $amount += $rule->getPercentageRate() * $item->getSubtotal();
+                        }
+                    }
+
                     $amount = max($amount, $rule->getMinRate() * 1);
 
                     if ($rule->getMaxRate() * 1) {

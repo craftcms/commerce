@@ -12,6 +12,7 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  * @property string $description
  * @property string $code
  * @property int $perUserLimit
+ * @property int $perEmailLimit
  * @property int $totalUseLimit
  * @property int $totalUses
  * @property DateTime $dateFrom
@@ -102,6 +103,7 @@ class Commerce_DiscountModel extends BaseModel
             'name' => [AttributeType::Name, 'required' => true],
             'code' => AttributeType::String,
             'perUserLimit' => [AttributeType::Number, 'default' => 0],
+            'perEmailLimit' => [AttributeType::Number, 'default' => 0],
             'totalUseLimit' => [AttributeType::Number, 'default' => 0],
             'totalUses' => [AttributeType::Number, 'default' => 0],
             'description' => AttributeType::Mixed,
