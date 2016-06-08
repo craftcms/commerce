@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" style="" class=" js flexbox flexboxlegacy canvas canvastext webgl no-touch geolocation postmessage no-websqldatabase indexeddb hashchange history draganddrop websockets rgba hsla multiplebgs backgroundsize borderimage borderradius boxshadow textshadow opacity cssanimations csscolumns cssgradients no-cssreflections csstransforms csstransforms3d csstransitions fontface generatedcontent video audio localstorage sessionstorage webworkers applicationcache svg inlinesvg smil svgclippaths"><head>
+	<meta charset="utf-8" />
+	<meta content="ie=edge" http-equiv="x-ua-compatible" />
+
+	<title>Craft Commerce</title>
+
+	<meta content="The example templates for Craft Commerce" name="description" />
+	<meta content="width=device-width, initial-scale=1" name="viewport" />
+
+	<script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
+	<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+	<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" type="text/css" rel="stylesheet" />
+	<link href="//fonts.googleapis.com/css?family=Open+Sans:400,300,600" type="text/css" rel="stylesheet" />
+	<link href="//cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css" type="text/css" rel="stylesheet" />
+	<link href="http://craft2x.craft.dev/commerce/style.css" type="text/css" rel="stylesheet" />
+
+</head>
+<body>
+<!--[if lt IE 8]>
+<p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+<![endif]-->
+
+
+    <div class="container" id="header">
+        <div class="row">
+            <div class="twelve columns">
+                <a href="http://craft2x.craft.dev/commerce"><svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 713 120" height="50" width="300" preserveAspectRatio="xMidYMid slice" class="logo"><title>craft-commerce-logo</title><defs><path d="M0 120h712.222V.624H.002" id="a"/><path d="M0 120h712.222V.624H.002V120z" id="c"/></defs><g fill-rule="evenodd" fill="none"><path fill="#D95947" d="M207.346 51.38h17.826l2.076-10.903h-17.825l3.038-15.945h-.06l-13.52 10.603-1.014 5.342h-14.003l4.093-21.485c.964-8.106 13.308-5.652 15.147-5.193l1.973-10.354c-22.198-8.532-28.68 15.546-28.68 15.546l-4.09 21.485h-.072L158.332 51.38h11.898L157.157 120h11.56l13.07-68.62h14.002l-5.12 26.86c-3.252 19.556 16.336 17.414 22.586 16.158l1.955-10.243c-14.953 3.376-12.982-5.916-12.982-5.916l5.118-26.86zM138.977 79.545c-12.028 12.34-19.73 4.26-19.73 4.26-5.214-5.077.55-10.29.55-10.29 7.956-7.272 20.13.717 20.13.717l-.95 5.313zm2.66-14.885s-16.56-8.5-28.152.966c0 0-6.79 4.527-6.79 13.58 0 9.057 8.3 13.924 8.3 13.924s12.483 6.587 22.257-3.94l-1.08 4.9h10.933l6.87-32.59c5.156-32.16-33.16-20.762-33.16-20.762l-2.087 11.56c28.245-12.308 23.487 9.14 23.487 9.14l-.577 3.222zM111.027 40.51c-8.914.094-17.015 5.068-17.015 5.068l1.035-4.88h-10.7l-9.762 53.49h10.933L92.136 59c4.892-9.94 16.986-6.85 16.986-6.85l1.905-11.638z"/><mask fill="#fff" id="b"><use xlink:href="#a"/></mask><path mask="url(#b)" fill="#D95947" d="M69.312 17.586c.553.418 1.077.86 1.592 1.31l8.298-6.51.258-.336a38.284 38.284 0 0 0-4.113-3.614C56.307-5.936 27.532.08 11.083 21.876-5.365 43.672-3.263 72.987 15.78 87.36c15.548 11.734 37.578 9.873 54.095-3.066l-.017-.034-7.9-6.196c-12.237 7.87-27.422 8.437-38.406.147C8.925 67.17 7.312 44.65 19.945 27.91c12.637-16.74 34.74-21.362 49.367-10.322"/><path fill="#D95947" d="M281.18 89.77c-2.342 1.49-4.914 2.71-7.71 3.656-2.8.944-5.822 1.41-9.075 1.398-3.837-.017-7.38-.72-10.625-2.112-3.248-1.39-6.034-3.297-8.355-5.73-2.326-2.427-4.15-5.272-5.466-8.53-1.322-3.257-1.975-6.763-1.958-10.515.016-3.753.678-7.273 1.985-10.563 1.307-3.287 3.157-6.156 5.544-8.606 2.388-2.45 5.21-4.376 8.468-5.78 3.26-1.403 6.81-2.097 10.646-2.08 3.253.014 6.27.508 9.062 1.48 2.788.97 5.348 2.212 7.676 3.723l-2.14 3.12a34.608 34.608 0 0 0-6.68-3.345c-2.37-.886-5.017-1.336-7.934-1.348-3.338-.016-6.384.577-9.142 1.773-2.757 1.198-5.12 2.812-7.09 4.847-1.97 2.035-3.5 4.47-4.597 7.297-1.097 2.83-1.654 5.873-1.668 9.125-.014 3.252.514 6.32 1.587 9.2 1.067 2.883 2.58 5.39 4.53 7.528 1.95 2.134 4.298 3.813 7.046 5.034 2.746 1.223 5.788 1.84 9.125 1.854 2.918.012 5.57-.413 7.948-1.28a34.51 34.51 0 0 0 6.71-3.284l2.112 3.137zM334.814 68.113c.014-3.253-.472-6.297-1.46-9.138-.99-2.838-2.415-5.305-4.283-7.4-1.867-2.09-4.11-3.75-6.732-4.97-2.622-1.22-5.518-1.84-8.686-1.853-3.17-.014-6.048.58-8.64 1.776a20.738 20.738 0 0 0-6.714 4.91c-1.887 2.08-3.337 4.533-4.35 7.362-1.01 2.833-1.527 5.874-1.54 9.126-.015 3.25.473 6.32 1.46 9.2.987 2.882 2.393 5.37 4.22 7.462 1.827 2.094 4.05 3.752 6.67 4.972 2.623 1.222 5.516 1.837 8.687 1.85 3.17.015 6.048-.575 8.64-1.774a20.314 20.314 0 0 0 6.716-4.974c1.886-2.12 3.355-4.59 4.41-7.423 1.055-2.83 1.59-5.875 1.604-9.127m4.128-.107c-.016 3.753-.678 7.296-1.985 10.625-1.307 3.332-3.094 6.2-5.354 8.61-2.262 2.408-4.96 4.314-8.094 5.718-3.134 1.403-6.537 2.098-10.206 2.08-3.67-.015-7.045-.718-10.122-2.107-3.08-1.39-5.722-3.297-7.92-5.727-2.2-2.428-3.918-5.29-5.152-8.592-1.237-3.297-1.845-6.825-1.83-10.578.018-3.753.675-7.27 1.987-10.56 1.305-3.29 3.09-6.158 5.353-8.61a23.93 23.93 0 0 1 8.03-5.718c3.09-1.362 6.474-2.036 10.145-2.02 3.668.017 7.04.72 10.122 2.11 3.077 1.39 5.738 3.278 7.98 5.663 2.243 2.388 3.98 5.232 5.217 8.53 1.237 3.303 1.845 6.826 1.828 10.58M422.89 94.523l.154-34.9c.04-9.51-4.026-14.28-12.198-14.318-3.754-.016-7.345 1.054-10.773 3.206-3.43 2.156-6.485 5.02-9.17 8.594l-.164 37.276-4.002-.018.155-34.9c.04-9.508-4.025-14.28-12.197-14.316-3.837-.017-7.408 1.052-10.71 3.206-3.304 2.155-6.38 4.81-9.23 7.965l-.166 37.903-4.002-.017.23-51.915 3.877.018-.044 9.757a39.86 39.86 0 0 1 4.022-3.922 32.575 32.575 0 0 1 4.83-3.418 26.93 26.93 0 0 1 5.58-2.415 20.84 20.84 0 0 1 6.258-.91c3.502.015 6.58.988 9.24 2.918 2.66 1.932 4.44 4.898 5.34 8.906 2.516-3.157 5.658-5.895 9.42-8.215 3.763-2.318 7.814-3.468 12.15-3.45 2.085.01 4.063.353 5.94 1.028 1.868.677 3.53 1.75 4.987 3.213 1.452 1.467 2.59 3.307 3.413 5.52.824 2.213 1.23 4.864 1.215 7.948l-.154 35.277-4-.017zM513.582 94.924l.154-34.9c.04-9.51-4.025-14.28-12.197-14.316-3.755-.017-7.347 1.05-10.775 3.206-3.428 2.154-6.483 5.016-9.168 8.59l-.165 37.277-4.002-.016.156-34.902c.04-9.506-4.03-14.278-12.2-14.314-3.838-.02-7.408 1.053-10.71 3.206-3.303 2.153-6.38 4.81-9.23 7.964l-.168 37.903-4-.015.23-51.914 3.877.018-.044 9.758a39.77 39.77 0 0 1 4.023-3.923 32.303 32.303 0 0 1 4.83-3.42 26.793 26.793 0 0 1 5.58-2.414 20.78 20.78 0 0 1 6.258-.912c3.503.015 6.582.99 9.243 2.918 2.66 1.932 4.44 4.898 5.338 8.906 2.518-3.157 5.66-5.895 9.423-8.216 3.762-2.316 7.813-3.468 12.15-3.45 2.084.01 4.064.354 5.94 1.03 1.868.676 3.53 1.747 4.987 3.21 1.452 1.468 2.59 3.308 3.413 5.52.824 2.214 1.23 4.865 1.214 7.95l-.152 35.276-4.003-.018zM571.253 65.656c-.07-2.752-.52-5.338-1.34-7.76-.824-2.423-1.98-4.514-3.476-6.27-1.493-1.76-3.363-3.164-5.61-4.22-2.247-1.05-4.87-1.583-7.873-1.596-2.837-.013-5.426.476-7.764 1.467-2.34.99-4.35 2.358-6.022 4.1-1.678 1.745-3.02 3.826-4.032 6.238-1.01 2.415-1.648 5.04-1.913 7.873l38.03.168zm4.114 3.52l-42.282-.186c-.014 3.336.472 6.444 1.46 9.327.988 2.88 2.433 5.368 4.344 7.46 1.907 2.096 4.298 3.733 7.17 4.913 2.874 1.18 6.227 1.777 10.065 1.794 2.668.013 5.294-.29 7.885-.903 2.587-.612 5.01-1.456 7.264-2.53.25.668.453 1.252.62 1.752l.493 1.754c-2.34 1.16-4.974 2.04-7.893 2.655-2.922.613-5.717.915-8.386.902-4.504-.02-8.463-.725-11.875-2.116-3.415-1.39-6.24-3.3-8.48-5.73-2.243-2.428-3.938-5.29-5.093-8.592-1.154-3.297-1.72-6.826-1.703-10.578.016-3.752.593-7.27 1.736-10.562 1.14-3.29 2.777-6.16 4.917-8.61a22.515 22.515 0 0 1 7.656-5.72c2.965-1.364 6.283-2.037 9.953-2.02 3.67.016 6.876.677 9.622 1.98 2.745 1.306 5.053 3.087 6.92 5.347 1.866 2.262 3.272 4.938 4.22 8.027.942 3.09 1.41 6.43 1.392 10.014l-.007 1.627zM610.37 46.064c-3.59.235-7.137 1.45-10.647 3.644-3.514 2.194-6.366 5.496-8.553 9.906l-.157 35.652-4-.017.228-51.915 3.878.016-.05 10.885c2.27-3.492 5.075-6.4 8.422-8.72 3.344-2.318 6.978-3.47 10.897-3.454l-.017 4.004zM658.827 91.436c-2.342 1.49-4.914 2.713-7.71 3.657-2.8.947-5.822 1.412-9.075 1.4-3.837-.017-7.38-.72-10.625-2.112-3.248-1.388-6.033-3.297-8.353-5.727-2.325-2.43-4.15-5.274-5.466-8.53-1.32-3.258-1.973-6.766-1.957-10.517.018-3.754.68-7.273 1.987-10.563 1.307-3.288 3.156-6.157 5.543-8.606 2.386-2.45 5.208-4.375 8.466-5.78 3.26-1.404 6.808-2.096 10.645-2.08 3.254.013 6.273.508 9.064 1.48 2.788.97 5.347 2.212 7.675 3.72l-2.14 3.12a34.576 34.576 0 0 0-6.68-3.343c-2.37-.888-5.018-1.337-7.935-1.35-3.337-.014-6.383.578-9.142 1.774-2.757 1.197-5.12 2.813-7.09 4.847-1.97 2.035-3.5 4.468-4.595 7.298-1.095 2.833-1.652 5.873-1.666 9.126-.013 3.25.514 6.319 1.586 9.2 1.07 2.882 2.58 5.39 4.53 7.525 1.95 2.137 4.297 3.815 7.045 5.035 2.747 1.224 5.79 1.84 9.125 1.855 2.917.01 5.57-.413 7.947-1.28a34.523 34.523 0 0 0 6.71-3.285l2.112 3.136z"/><g><mask fill="#fff" id="d"><use xlink:href="#c"/></mask><path mask="url(#d)" fill="#D95947" d="M708.1 66.26c-.07-2.752-.52-5.337-1.34-7.76-.823-2.423-1.98-4.512-3.475-6.27-1.494-1.76-3.364-3.163-5.61-4.217-2.247-1.05-4.872-1.585-7.874-1.6-2.836-.01-5.425.478-7.762 1.47-2.34.99-4.35 2.357-6.022 4.1-1.68 1.743-3.02 3.824-4.032 6.236-1.01 2.416-1.65 5.04-1.913 7.873l38.03.168zm4.114 3.522l-42.28-.186c-.016 3.336.47 6.444 1.46 9.325.986 2.882 2.432 5.37 4.343 7.463 1.908 2.095 4.3 3.732 7.172 4.91 2.872 1.183 6.225 1.78 10.063 1.796a33.407 33.407 0 0 0 7.885-.902c2.587-.615 5.01-1.46 7.264-2.533.25.668.453 1.252.62 1.752l.493 1.754c-2.34 1.16-4.975 2.042-7.894 2.656-2.92.614-5.716.914-8.385.902-4.503-.02-8.462-.726-11.875-2.117-3.415-1.39-6.24-3.297-8.48-5.73-2.242-2.425-3.94-5.29-5.093-8.59-1.153-3.298-1.72-6.827-1.702-10.58.016-3.75.593-7.27 1.735-10.56 1.142-3.29 2.778-6.16 4.917-8.61a22.508 22.508 0 0 1 7.657-5.722c2.964-1.362 6.283-2.036 9.953-2.02 3.67.016 6.877.678 9.623 1.982 2.745 1.305 5.053 3.088 6.92 5.347 1.866 2.26 3.27 4.936 4.218 8.025.944 3.09 1.41 6.43 1.394 10.014l-.008 1.626z"/></g></g></svg></a>
+
+                <div class="flash">Cart updated.</div>
+                <div class="flash"></div>
+
+            </div>
+        </div>
+    </div>
+
+	<div class="container" id="main">
+		
+    
+    
+    
+<div class="row">
+    <div class="twelve columns">
+
+        <div class="steps">
+            <ul>
+                
+                                        
+                                                                
+
+                    <li class="done"><a href="http://craft2x.craft.dev/commerce/checkout">Start Order</a></li>
+
+                
+                                                                                                                                    
+                    
+
+                    <li class="sel"><a href="http://craft2x.craft.dev/commerce/checkout/addresses">Address</a></li>
+
+                
+                                        
+                    
+
+                    <li class=""><a href="http://craft2x.craft.dev/commerce/checkout/shipping">Shipping</a></li>
+
+                
+                                        
+                    
+
+                    <li class=""><a href="http://craft2x.craft.dev/commerce/checkout/payment">Payment</a></li>
+
+                            </ul>
+
+            <div class="meter">
+                <span style="width: 30%"></span>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+    
+    
+    
+    <div class="row">
+        <div class="twelve columns">
+            <form method="post">
+
+                <input type="hidden" value="commerce/cart/updateCart" name="action" />
+                <input type="hidden" value="commerce/checkout/shipping" name="redirect" />
+
+                
+
+                
+                <div class="address-fieldset ShippingAddress">
+    <h3>Shipping Address</h3>
+    
+    <div class="address-select">
+
+                            
+        
+        <div class="body ">
+                        
+
+
+<div class="addressBox shippingAddress">
+
+	<div class="row">
+		<div class="six columns">
+			<label for="shippingAddress-firstName">First Name *</label>
+			<input type="text" value="" name="shippingAddress[firstName]" class="u-full-width" id="shippingAddress-firstName" />
+					</div>
+		<div class="six columns">
+			<label for="shippingAddress-lastName">Last Name *</label>
+			<input type="text" value="" name="shippingAddress[lastName]" class="u-full-width" id="shippingAddress-lastName" />
+			    	</div>
+	</div>
+
+	<div class="row">
+		<div class="six columns">
+			<label for="shippingAddress-businessName">Business Name</label>
+			<input type="text" value="" name="shippingAddress[businessName]" class="u-full-width" id="shippingAddress-businessName" />
+			    	</div>
+		<div class="six columns">
+			<label for="shippingAddress-businessTaxId">Business Tax ID</label>
+			<input type="text" value="" name="shippingAddress[businessTaxId]" class="u-full-width" id="shippingAddress-businessTaxId" />
+			    	</div>
+	</div>
+
+	<div class="row">
+		<div class="three columns">
+			<label for="shippingAddress-address1">Address 1</label>
+			<input type="text" value="" name="shippingAddress[address1]" class="u-full-width" id="shippingAddress-address1" />
+					</div>
+
+		<div class="three columns">
+			<label for="shippingAddress-address2">Address 2</label>
+			<input type="text" value="" name="shippingAddress[address2]" class="u-full-width" id="shippingAddress-address2" />
+			    	</div>
+
+		<div class="three columns">
+			<label for="shippingAddress-city">City</label>
+			<input type="text" value="" name="shippingAddress[city]" class="u-full-width" id="shippingAddress-city" />
+			    	</div>
+
+		<div class="three columns">
+			<label for="shippingAddress-zipCode">Zip Code</label>
+			<input type="text" value="" name="shippingAddress[zipCode]" class="u-full-width" id="shippingAddress-zipCode" />
+					</div>
+	</div>
+
+	<div class="row">
+		<div class="six columns">
+			<label for="shippingAddress-phone">Phone</label>
+			<input type="text" value="" name="shippingAddress[phone]" class="u-full-width" id="shippingAddress-phone" />
+					</div>
+
+		<div class="six columns">
+			<label for="shippingAddress-alternativePhone">Alternative Phone</label>
+			<input type="text" value="" name="shippingAddress[alternativePhone]" class="u-full-width" id="shippingAddress-alternativePhone" />
+					</div>
+	</div>
+
+	<div class="row">
+		<div class="six columns">
+			<label for="shippingAddress-countryId">Country</label>
+			<select name="shippingAddress[countryId]" class="address-country u-full-width form-control input-sm">
+														<option value="3">Afghanistan</option>
+														<option value="15">Aland Islands</option>
+														<option value="6">Albania</option>
+														<option value="62">Algeria</option>
+														<option value="11">American Samoa</option>
+														<option value="1">Andorra</option>
+														<option value="8">Angola</option>
+														<option value="5">Anguilla</option>
+														<option value="9">Antarctica</option>
+														<option value="4">Antigua and Barbuda</option>
+														<option value="10">Argentina</option>
+														<option value="7">Armenia</option>
+														<option value="14">Aruba</option>
+														<option value="13">Australia</option>
+														<option value="12">Austria</option>
+														<option value="16">Azerbaijan</option>
+														<option value="32">Bahamas</option>
+														<option value="23">Bahrain</option>
+														<option value="19">Bangladesh</option>
+														<option value="18">Barbados</option>
+														<option value="36">Belarus</option>
+														<option value="20">Belgium</option>
+														<option value="37">Belize</option>
+														<option value="25">Benin</option>
+														<option value="27">Bermuda</option>
+														<option value="33">Bhutan</option>
+														<option value="29">Bolivia</option>
+														<option value="30">Bonaire, Sint Eustatius and Saba</option>
+														<option value="17">Bosnia and Herzegovina</option>
+														<option value="35">Botswana</option>
+														<option value="34">Bouvet Island</option>
+														<option value="31">Brazil</option>
+														<option value="106">British Indian Ocean Territory</option>
+														<option value="28">Brunei Darussalam</option>
+														<option value="22">Bulgaria</option>
+														<option value="21">Burkina Faso</option>
+														<option value="146">Burma (Myanmar)</option>
+														<option value="24">Burundi</option>
+														<option value="117">Cambodia</option>
+														<option value="47">Cameroon</option>
+														<option value="38">Canada</option>
+														<option value="52">Cape Verde</option>
+														<option value="124">Cayman Islands</option>
+														<option value="41">Central African Republic</option>
+														<option value="215">Chad</option>
+														<option value="46">Chile</option>
+														<option value="48">China</option>
+														<option value="54">Christmas Island</option>
+														<option value="39">Cocos (Keeling) Islands</option>
+														<option value="49">Colombia</option>
+														<option value="119">Comoros</option>
+														<option value="42">Congo</option>
+														<option value="45">Cook Islands</option>
+														<option value="50">Costa Rica</option>
+														<option value="98">Croatia (Hrvatska)</option>
+														<option value="51">Cuba</option>
+														<option value="53">Curacao</option>
+														<option value="55">Cyprus</option>
+														<option value="56">Czech Republic</option>
+														<option value="40">Democratic Republic of Congo</option>
+														<option value="59">Denmark</option>
+														<option value="58">Djibouti</option>
+														<option value="60">Dominica</option>
+														<option value="61">Dominican Republic</option>
+														<option value="63">Ecuador</option>
+														<option value="65">Egypt</option>
+														<option value="210">El Salvador</option>
+														<option value="88">Equatorial Guinea</option>
+														<option value="67">Eritrea</option>
+														<option value="64">Estonia</option>
+														<option value="69">Ethiopia</option>
+														<option value="72">Falkland Islands (Malvinas)</option>
+														<option value="74">Faroe Islands</option>
+														<option value="71">Fiji</option>
+														<option value="70">Finland</option>
+														<option value="75">France</option>
+														<option value="80">French Guiana</option>
+														<option value="175">French Polynesia</option>
+														<option value="216">French Southern Territories</option>
+														<option value="76">Gabon</option>
+														<option value="85">Gambia</option>
+														<option value="79">Georgia</option>
+														<option value="57">Germany</option>
+														<option value="82">Ghana</option>
+														<option value="83">Gibraltar</option>
+														<option value="89">Greece</option>
+														<option value="84">Greenland</option>
+														<option value="78">Grenada</option>
+														<option value="87">Guadeloupe</option>
+														<option value="92">Guam</option>
+														<option value="91">Guatemala</option>
+														<option value="81">Guernsey</option>
+														<option value="86">Guinea</option>
+														<option value="93">Guinea-Bissau</option>
+														<option value="94">Guyana</option>
+														<option value="99">Haiti</option>
+														<option value="96">Heard and McDonald Islands</option>
+														<option value="97">Honduras</option>
+														<option value="95">Hong Kong</option>
+														<option value="100">Hungary</option>
+														<option value="109">Iceland</option>
+														<option value="105">India</option>
+														<option value="101">Indonesia</option>
+														<option value="108">Iran</option>
+														<option value="107">Iraq</option>
+														<option value="102">Ireland</option>
+														<option value="104">Isle Of Man</option>
+														<option value="103">Israel</option>
+														<option value="110">Italy</option>
+														<option value="44">Ivory Coast</option>
+														<option value="112">Jamaica</option>
+														<option value="114">Japan</option>
+														<option value="111">Jersey</option>
+														<option value="113">Jordan</option>
+														<option value="125">Kazakhstan</option>
+														<option value="115">Kenya</option>
+														<option value="118">Kiribati</option>
+														<option value="121">Korea (North)</option>
+														<option value="122">Korea (South)</option>
+														<option value="123">Kuwait</option>
+														<option value="116">Kyrgyzstan</option>
+														<option value="126">Laos</option>
+														<option value="135">Latvia</option>
+														<option value="127">Lebanon</option>
+														<option value="132">Lesotho</option>
+														<option value="131">Liberia</option>
+														<option value="136">Libya</option>
+														<option value="129">Liechtenstein</option>
+														<option value="133">Lithuania</option>
+														<option value="134">Luxembourg</option>
+														<option value="148">Macau</option>
+														<option value="144">Macedonia</option>
+														<option value="142">Madagascar</option>
+														<option value="156">Malawi</option>
+														<option value="158">Malaysia</option>
+														<option value="155">Maldives</option>
+														<option value="145">Mali</option>
+														<option value="153">Malta</option>
+														<option value="143">Marshall Islands</option>
+														<option value="150">Martinique</option>
+														<option value="151">Mauritania</option>
+														<option value="154">Mauritius</option>
+														<option value="246">Mayotte</option>
+														<option value="157">Mexico</option>
+														<option value="73">Micronesia</option>
+														<option value="139">Moldova</option>
+														<option value="138">Monaco</option>
+														<option value="147">Mongolia</option>
+														<option value="140">Montenegro</option>
+														<option value="152">Montserrat</option>
+														<option value="137">Morocco</option>
+														<option value="159">Mozambique</option>
+														<option value="160">Namibia</option>
+														<option value="169">Nauru</option>
+														<option value="168">Nepal</option>
+														<option value="166">Netherlands</option>
+														<option value="161">New Caledonia</option>
+														<option value="171">New Zealand</option>
+														<option value="165">Nicaragua</option>
+														<option value="162">Niger</option>
+														<option value="164">Nigeria</option>
+														<option value="170">Niue</option>
+														<option value="163">Norfolk Island</option>
+														<option value="149">Northern Mariana Islands</option>
+														<option value="167">Norway</option>
+														<option value="172">Oman</option>
+														<option value="178">Pakistan</option>
+														<option value="185">Palau</option>
+														<option value="183">Palestinian Territory, Occupied</option>
+														<option value="173">Panama</option>
+														<option value="176">Papua New Guinea</option>
+														<option value="186">Paraguay</option>
+														<option value="174">Peru</option>
+														<option value="177">Philippines</option>
+														<option value="181">Pitcairn</option>
+														<option value="179">Poland</option>
+														<option value="184">Portugal</option>
+														<option value="182">Puerto Rico</option>
+														<option value="187">Qatar</option>
+														<option value="190">Republic of Serbia</option>
+														<option value="188">Reunion</option>
+														<option value="189">Romania</option>
+														<option value="191">Russia</option>
+														<option value="192">Rwanda</option>
+														<option value="90">S. Georgia and S. Sandwich Isls.</option>
+														<option value="26">Saint Barthelemy</option>
+														<option value="120">Saint Kitts and Nevis</option>
+														<option value="128">Saint Lucia</option>
+														<option value="141">Saint Martin (French part)</option>
+														<option value="237">Saint Vincent and the Grenadines</option>
+														<option value="244">Samoa</option>
+														<option value="204">San Marino</option>
+														<option value="209">Sao Tome and Principe</option>
+														<option value="193">Saudi Arabia</option>
+														<option value="205">Senegal</option>
+														<option value="195">Seychelles</option>
+														<option value="203">Sierra Leone</option>
+														<option value="198">Singapore</option>
+														<option value="211">Sint Maarten (Dutch part)</option>
+														<option value="202">Slovak Republic</option>
+														<option value="200">Slovenia</option>
+														<option value="194">Solomon Islands</option>
+														<option value="206">Somalia</option>
+														<option value="247">South Africa</option>
+														<option value="208">South Sudan</option>
+														<option value="68">Spain</option>
+														<option value="130">Sri Lanka</option>
+														<option value="199">St. Helena</option>
+														<option value="180">St. Pierre and Miquelon</option>
+														<option value="196">Sudan</option>
+														<option value="207">Suriname</option>
+														<option value="201">Svalbard and Jan Mayen Islands</option>
+														<option value="213">Swaziland</option>
+														<option value="197">Sweden</option>
+														<option value="43">Switzerland</option>
+														<option value="212">Syria</option>
+														<option value="228">Taiwan</option>
+														<option value="219">Tajikistan</option>
+														<option value="229">Tanzania</option>
+														<option value="218">Thailand</option>
+														<option value="221">Timor-Leste</option>
+														<option value="217">Togo</option>
+														<option value="220">Tokelau</option>
+														<option value="224">Tonga</option>
+														<option value="226">Trinidad and Tobago</option>
+														<option value="223">Tunisia</option>
+														<option value="225">Turkey</option>
+														<option value="222">Turkmenistan</option>
+														<option value="214">Turks and Caicos Islands</option>
+														<option value="227">Tuvalu</option>
+														<option value="231">Uganda</option>
+														<option value="230">Ukraine</option>
+														<option value="2">United Arab Emirates</option>
+														<option value="77">United Kingdom</option>
+														<option value="233">United States</option>
+														<option value="232">United States Minor Outlying Islands</option>
+														<option value="234">Uruguay</option>
+														<option value="235">Uzbekistan</option>
+														<option value="242">Vanuatu</option>
+														<option value="236">Vatican City State (Holy See)</option>
+														<option value="238">Venezuela</option>
+														<option value="241">Viet Nam</option>
+														<option value="239">Virgin Islands (British)</option>
+														<option value="240">Virgin Islands (U.S.)</option>
+														<option value="243">Wallis and Futuna Islands</option>
+														<option value="66">Western Sahara</option>
+														<option value="245">Yemen</option>
+														<option value="248">Zambia</option>
+														<option value="249">Zimbabwe</option>
+							</select>
+					</div>
+
+		<div class="six columns">
+			<label for="shippingAddress-state">State</label>
+						<select name="shippingAddress[stateValue]" class="address-stateId u-full-width form-control input-sm" data-modelname="shippingAddress" id="shippingAddress-stateId">
+							<option value="1">Australian Capital Territory</option><option value="2">New South Wales</option><option value="3">Northern Territory</option><option value="4">Queensland</option><option value="5">South Australia</option><option value="6">Tasmania</option><option value="7">Victoria</option><option value="8">Western Australia</option><option value=""></option></select>
+			<input type="text" class="address-stateName  u-full-width hidden" id="shippingAddress-stateName" data-modelname="shippingAddress" />
+		</div>
+	</div>
+
+</div>
+
+    
+        </div>
+    </div>
+</div>
+
+                <input type="hidden" value="0" name="sameAddress" />
+
+                <label for="sameAddress"><input type="checkbox" checked="checked" name="sameAddress" id="sameAddress" /><span class="label-body">Use same address for
+                billing</span></label>
+
+                <br />
+
+                <div class="address-fieldset BillingAddress hidden">
+    <h3>Billing Address</h3>
+    
+    <div class="address-select">
+
+                            
+        
+        <div class="body ">
+                        
+
+
+<div class="addressBox billingAddress">
+
+	<div class="row">
+		<div class="six columns">
+			<label for="billingAddress-firstName">First Name *</label>
+			<input type="text" value="" name="billingAddress[firstName]" class="u-full-width" id="billingAddress-firstName" />
+					</div>
+		<div class="six columns">
+			<label for="billingAddress-lastName">Last Name *</label>
+			<input type="text" value="" name="billingAddress[lastName]" class="u-full-width" id="billingAddress-lastName" />
+			    	</div>
+	</div>
+
+	<div class="row">
+		<div class="six columns">
+			<label for="billingAddress-businessName">Business Name</label>
+			<input type="text" value="" name="billingAddress[businessName]" class="u-full-width" id="billingAddress-businessName" />
+			    	</div>
+		<div class="six columns">
+			<label for="billingAddress-businessTaxId">Business Tax ID</label>
+			<input type="text" value="" name="billingAddress[businessTaxId]" class="u-full-width" id="billingAddress-businessTaxId" />
+			    	</div>
+	</div>
+
+	<div class="row">
+		<div class="three columns">
+			<label for="billingAddress-address1">Address 1</label>
+			<input type="text" value="" name="billingAddress[address1]" class="u-full-width" id="billingAddress-address1" />
+					</div>
+
+		<div class="three columns">
+			<label for="billingAddress-address2">Address 2</label>
+			<input type="text" value="" name="billingAddress[address2]" class="u-full-width" id="billingAddress-address2" />
+			    	</div>
+
+		<div class="three columns">
+			<label for="billingAddress-city">City</label>
+			<input type="text" value="" name="billingAddress[city]" class="u-full-width" id="billingAddress-city" />
+			    	</div>
+
+		<div class="three columns">
+			<label for="billingAddress-zipCode">Zip Code</label>
+			<input type="text" value="" name="billingAddress[zipCode]" class="u-full-width" id="billingAddress-zipCode" />
+					</div>
+	</div>
+
+	<div class="row">
+		<div class="six columns">
+			<label for="billingAddress-phone">Phone</label>
+			<input type="text" value="" name="billingAddress[phone]" class="u-full-width" id="billingAddress-phone" />
+					</div>
+
+		<div class="six columns">
+			<label for="billingAddress-alternativePhone">Alternative Phone</label>
+			<input type="text" value="" name="billingAddress[alternativePhone]" class="u-full-width" id="billingAddress-alternativePhone" />
+					</div>
+	</div>
+
+	<div class="row">
+		<div class="six columns">
+			<label for="billingAddress-countryId">Country</label>
+			<select name="billingAddress[countryId]" class="address-country u-full-width form-control input-sm">
+														<option value="3">Afghanistan</option>
+														<option value="15">Aland Islands</option>
+														<option value="6">Albania</option>
+														<option value="62">Algeria</option>
+														<option value="11">American Samoa</option>
+														<option value="1">Andorra</option>
+														<option value="8">Angola</option>
+														<option value="5">Anguilla</option>
+														<option value="9">Antarctica</option>
+														<option value="4">Antigua and Barbuda</option>
+														<option value="10">Argentina</option>
+														<option value="7">Armenia</option>
+														<option value="14">Aruba</option>
+														<option value="13">Australia</option>
+														<option value="12">Austria</option>
+														<option value="16">Azerbaijan</option>
+														<option value="32">Bahamas</option>
+														<option value="23">Bahrain</option>
+														<option value="19">Bangladesh</option>
+														<option value="18">Barbados</option>
+														<option value="36">Belarus</option>
+														<option value="20">Belgium</option>
+														<option value="37">Belize</option>
+														<option value="25">Benin</option>
+														<option value="27">Bermuda</option>
+														<option value="33">Bhutan</option>
+														<option value="29">Bolivia</option>
+														<option value="30">Bonaire, Sint Eustatius and Saba</option>
+														<option value="17">Bosnia and Herzegovina</option>
+														<option value="35">Botswana</option>
+														<option value="34">Bouvet Island</option>
+														<option value="31">Brazil</option>
+														<option value="106">British Indian Ocean Territory</option>
+														<option value="28">Brunei Darussalam</option>
+														<option value="22">Bulgaria</option>
+														<option value="21">Burkina Faso</option>
+														<option value="146">Burma (Myanmar)</option>
+														<option value="24">Burundi</option>
+														<option value="117">Cambodia</option>
+														<option value="47">Cameroon</option>
+														<option value="38">Canada</option>
+														<option value="52">Cape Verde</option>
+														<option value="124">Cayman Islands</option>
+														<option value="41">Central African Republic</option>
+														<option value="215">Chad</option>
+														<option value="46">Chile</option>
+														<option value="48">China</option>
+														<option value="54">Christmas Island</option>
+														<option value="39">Cocos (Keeling) Islands</option>
+														<option value="49">Colombia</option>
+														<option value="119">Comoros</option>
+														<option value="42">Congo</option>
+														<option value="45">Cook Islands</option>
+														<option value="50">Costa Rica</option>
+														<option value="98">Croatia (Hrvatska)</option>
+														<option value="51">Cuba</option>
+														<option value="53">Curacao</option>
+														<option value="55">Cyprus</option>
+														<option value="56">Czech Republic</option>
+														<option value="40">Democratic Republic of Congo</option>
+														<option value="59">Denmark</option>
+														<option value="58">Djibouti</option>
+														<option value="60">Dominica</option>
+														<option value="61">Dominican Republic</option>
+														<option value="63">Ecuador</option>
+														<option value="65">Egypt</option>
+														<option value="210">El Salvador</option>
+														<option value="88">Equatorial Guinea</option>
+														<option value="67">Eritrea</option>
+														<option value="64">Estonia</option>
+														<option value="69">Ethiopia</option>
+														<option value="72">Falkland Islands (Malvinas)</option>
+														<option value="74">Faroe Islands</option>
+														<option value="71">Fiji</option>
+														<option value="70">Finland</option>
+														<option value="75">France</option>
+														<option value="80">French Guiana</option>
+														<option value="175">French Polynesia</option>
+														<option value="216">French Southern Territories</option>
+														<option value="76">Gabon</option>
+														<option value="85">Gambia</option>
+														<option value="79">Georgia</option>
+														<option value="57">Germany</option>
+														<option value="82">Ghana</option>
+														<option value="83">Gibraltar</option>
+														<option value="89">Greece</option>
+														<option value="84">Greenland</option>
+														<option value="78">Grenada</option>
+														<option value="87">Guadeloupe</option>
+														<option value="92">Guam</option>
+														<option value="91">Guatemala</option>
+														<option value="81">Guernsey</option>
+														<option value="86">Guinea</option>
+														<option value="93">Guinea-Bissau</option>
+														<option value="94">Guyana</option>
+														<option value="99">Haiti</option>
+														<option value="96">Heard and McDonald Islands</option>
+														<option value="97">Honduras</option>
+														<option value="95">Hong Kong</option>
+														<option value="100">Hungary</option>
+														<option value="109">Iceland</option>
+														<option value="105">India</option>
+														<option value="101">Indonesia</option>
+														<option value="108">Iran</option>
+														<option value="107">Iraq</option>
+														<option value="102">Ireland</option>
+														<option value="104">Isle Of Man</option>
+														<option value="103">Israel</option>
+														<option value="110">Italy</option>
+														<option value="44">Ivory Coast</option>
+														<option value="112">Jamaica</option>
+														<option value="114">Japan</option>
+														<option value="111">Jersey</option>
+														<option value="113">Jordan</option>
+														<option value="125">Kazakhstan</option>
+														<option value="115">Kenya</option>
+														<option value="118">Kiribati</option>
+														<option value="121">Korea (North)</option>
+														<option value="122">Korea (South)</option>
+														<option value="123">Kuwait</option>
+														<option value="116">Kyrgyzstan</option>
+														<option value="126">Laos</option>
+														<option value="135">Latvia</option>
+														<option value="127">Lebanon</option>
+														<option value="132">Lesotho</option>
+														<option value="131">Liberia</option>
+														<option value="136">Libya</option>
+														<option value="129">Liechtenstein</option>
+														<option value="133">Lithuania</option>
+														<option value="134">Luxembourg</option>
+														<option value="148">Macau</option>
+														<option value="144">Macedonia</option>
+														<option value="142">Madagascar</option>
+														<option value="156">Malawi</option>
+														<option value="158">Malaysia</option>
+														<option value="155">Maldives</option>
+														<option value="145">Mali</option>
+														<option value="153">Malta</option>
+														<option value="143">Marshall Islands</option>
+														<option value="150">Martinique</option>
+														<option value="151">Mauritania</option>
+														<option value="154">Mauritius</option>
+														<option value="246">Mayotte</option>
+														<option value="157">Mexico</option>
+														<option value="73">Micronesia</option>
+														<option value="139">Moldova</option>
+														<option value="138">Monaco</option>
+														<option value="147">Mongolia</option>
+														<option value="140">Montenegro</option>
+														<option value="152">Montserrat</option>
+														<option value="137">Morocco</option>
+														<option value="159">Mozambique</option>
+														<option value="160">Namibia</option>
+														<option value="169">Nauru</option>
+														<option value="168">Nepal</option>
+														<option value="166">Netherlands</option>
+														<option value="161">New Caledonia</option>
+														<option value="171">New Zealand</option>
+														<option value="165">Nicaragua</option>
+														<option value="162">Niger</option>
+														<option value="164">Nigeria</option>
+														<option value="170">Niue</option>
+														<option value="163">Norfolk Island</option>
+														<option value="149">Northern Mariana Islands</option>
+														<option value="167">Norway</option>
+														<option value="172">Oman</option>
+														<option value="178">Pakistan</option>
+														<option value="185">Palau</option>
+														<option value="183">Palestinian Territory, Occupied</option>
+														<option value="173">Panama</option>
+														<option value="176">Papua New Guinea</option>
+														<option value="186">Paraguay</option>
+														<option value="174">Peru</option>
+														<option value="177">Philippines</option>
+														<option value="181">Pitcairn</option>
+														<option value="179">Poland</option>
+														<option value="184">Portugal</option>
+														<option value="182">Puerto Rico</option>
+														<option value="187">Qatar</option>
+														<option value="190">Republic of Serbia</option>
+														<option value="188">Reunion</option>
+														<option value="189">Romania</option>
+														<option value="191">Russia</option>
+														<option value="192">Rwanda</option>
+														<option value="90">S. Georgia and S. Sandwich Isls.</option>
+														<option value="26">Saint Barthelemy</option>
+														<option value="120">Saint Kitts and Nevis</option>
+														<option value="128">Saint Lucia</option>
+														<option value="141">Saint Martin (French part)</option>
+														<option value="237">Saint Vincent and the Grenadines</option>
+														<option value="244">Samoa</option>
+														<option value="204">San Marino</option>
+														<option value="209">Sao Tome and Principe</option>
+														<option value="193">Saudi Arabia</option>
+														<option value="205">Senegal</option>
+														<option value="195">Seychelles</option>
+														<option value="203">Sierra Leone</option>
+														<option value="198">Singapore</option>
+														<option value="211">Sint Maarten (Dutch part)</option>
+														<option value="202">Slovak Republic</option>
+														<option value="200">Slovenia</option>
+														<option value="194">Solomon Islands</option>
+														<option value="206">Somalia</option>
+														<option value="247">South Africa</option>
+														<option value="208">South Sudan</option>
+														<option value="68">Spain</option>
+														<option value="130">Sri Lanka</option>
+														<option value="199">St. Helena</option>
+														<option value="180">St. Pierre and Miquelon</option>
+														<option value="196">Sudan</option>
+														<option value="207">Suriname</option>
+														<option value="201">Svalbard and Jan Mayen Islands</option>
+														<option value="213">Swaziland</option>
+														<option value="197">Sweden</option>
+														<option value="43">Switzerland</option>
+														<option value="212">Syria</option>
+														<option value="228">Taiwan</option>
+														<option value="219">Tajikistan</option>
+														<option value="229">Tanzania</option>
+														<option value="218">Thailand</option>
+														<option value="221">Timor-Leste</option>
+														<option value="217">Togo</option>
+														<option value="220">Tokelau</option>
+														<option value="224">Tonga</option>
+														<option value="226">Trinidad and Tobago</option>
+														<option value="223">Tunisia</option>
+														<option value="225">Turkey</option>
+														<option value="222">Turkmenistan</option>
+														<option value="214">Turks and Caicos Islands</option>
+														<option value="227">Tuvalu</option>
+														<option value="231">Uganda</option>
+														<option value="230">Ukraine</option>
+														<option value="2">United Arab Emirates</option>
+														<option value="77">United Kingdom</option>
+														<option value="233">United States</option>
+														<option value="232">United States Minor Outlying Islands</option>
+														<option value="234">Uruguay</option>
+														<option value="235">Uzbekistan</option>
+														<option value="242">Vanuatu</option>
+														<option value="236">Vatican City State (Holy See)</option>
+														<option value="238">Venezuela</option>
+														<option value="241">Viet Nam</option>
+														<option value="239">Virgin Islands (British)</option>
+														<option value="240">Virgin Islands (U.S.)</option>
+														<option value="243">Wallis and Futuna Islands</option>
+														<option value="66">Western Sahara</option>
+														<option value="245">Yemen</option>
+														<option value="248">Zambia</option>
+														<option value="249">Zimbabwe</option>
+							</select>
+					</div>
+
+		<div class="six columns">
+			<label for="billingAddress-state">State</label>
+						<select name="billingAddress[stateValue]" class="address-stateId u-full-width hidden form-control input-sm" data-modelname="billingAddress" id="billingAddress-stateId">
+							</select>
+			<input type="text" class="address-stateName  u-full-width" id="billingAddress-stateName" data-modelname="billingAddress" />
+		</div>
+	</div>
+
+</div>
+
+    
+        </div>
+    </div>
+</div>
+
+                <input type="submit" value="Confirm addresses" class="button button-primary" />
+
+            </form>
+
+
+        </div>
+    </div>
+
+    
+
+	</div>
+<script type="text/javascript">
+/*&lt;![CDATA[*/
+var states = {"13":{"":"","1":"Australian Capital Territory","2":"New South Wales","3":"Northern Territory","4":"Queensland","5":"South Australia","6":"Tasmania","7":"Victoria","8":"Western Australia"},"38":{"":"","9":"Alberta","10":"British Columbia","11":"Manitoba","12":"New Brunswick","13":"Newfoundland and Labrador","14":"Northwest Territories","15":"Nova Scotia","16":"Nunavut","17":"Ontario","18":"Prince Edward Island","19":"Quebec","20":"Saskatchewan","21":"Yukon"},"233":{"":"","22":"Alabama","23":"Alaska","24":"Arizona","25":"Arkansas","26":"California","27":"Colorado","28":"Connecticut","29":"Delaware","30":"District of Columbia","31":"Florida","32":"Georgia","33":"Hawaii","34":"Idaho","35":"Illinois","36":"Indiana","37":"Iowa","38":"Kansas","39":"Kentucky","40":"Louisiana","41":"Maine","42":"Maryland","43":"Massachusetts","44":"Michigan","45":"Minnesota","46":"Mississippi","47":"Missouri","48":"Montana","49":"Nebraska","50":"Nevada","51":"New Hampshire","52":"New Jersey","53":"New Mexico","54":"New York","55":"North Carolina","56":"North Dakota","57":"Ohio","58":"Oklahoma","59":"Oregon","60":"Pennsylvania","61":"Rhode Island","62":"South Carolina","63":"South Dakota","64":"Tennessee","65":"Texas","66":"Utah","67":"Vermont","68":"Virginia","69":"Washington","70":"West Virginia","71":"Wisconsin","72":"Wyoming"}};
+
+    $('select.address-country').change(function ()
+    {
+		// get the value of the selected country.
+        var cid = $(this).val();
+        var $states = $(this).closest('.addressBox').find('select.address-stateId');
+        var $stateName = $(this).closest('.addressBox').find('input.address-stateName');
+        $states.find('option').remove();
+
+        if (states.hasOwnProperty(cid))
+        {
+			// We have states for this country, show the states drop down.
+			$states.removeClass('hidden');
+			$states.attr('name', $states.data('modelname')+'[stateValue]');
+
+			// We have states for this country, hide the stateName input.
+			$stateName.removeAttr('name');
+			$stateName.addClass('hidden');
+			$stateName.val('');
+
+			// Add all states as options to drop down.
+            for (var id in states[cid])
+            {
+                var state = states[cid][id];
+                var $option = $('&lt;option/&gt;');
+                $option.attr('value', id).text(state);
+                $states.append($option);
+            }
+
+        }else{
+			// hide the states dropdown, since this country has none.
+			$states.addClass('hidden');
+			$states.removeAttr('name');
+
+			// show the stateName
+			$stateName.removeClass('hidden');
+			$stateName.attr('name', $stateName.data('modelname')+'[stateValue]');
+		}
+
+    });
+
+    $('select').addClass('form-control input-sm');
+
+var states = {"13":{"":"","1":"Australian Capital Territory","2":"New South Wales","3":"Northern Territory","4":"Queensland","5":"South Australia","6":"Tasmania","7":"Victoria","8":"Western Australia"},"38":{"":"","9":"Alberta","10":"British Columbia","11":"Manitoba","12":"New Brunswick","13":"Newfoundland and Labrador","14":"Northwest Territories","15":"Nova Scotia","16":"Nunavut","17":"Ontario","18":"Prince Edward Island","19":"Quebec","20":"Saskatchewan","21":"Yukon"},"233":{"":"","22":"Alabama","23":"Alaska","24":"Arizona","25":"Arkansas","26":"California","27":"Colorado","28":"Connecticut","29":"Delaware","30":"District of Columbia","31":"Florida","32":"Georgia","33":"Hawaii","34":"Idaho","35":"Illinois","36":"Indiana","37":"Iowa","38":"Kansas","39":"Kentucky","40":"Louisiana","41":"Maine","42":"Maryland","43":"Massachusetts","44":"Michigan","45":"Minnesota","46":"Mississippi","47":"Missouri","48":"Montana","49":"Nebraska","50":"Nevada","51":"New Hampshire","52":"New Jersey","53":"New Mexico","54":"New York","55":"North Carolina","56":"North Dakota","57":"Ohio","58":"Oklahoma","59":"Oregon","60":"Pennsylvania","61":"Rhode Island","62":"South Carolina","63":"South Dakota","64":"Tennessee","65":"Texas","66":"Utah","67":"Vermont","68":"Virginia","69":"Washington","70":"West Virginia","71":"Wisconsin","72":"Wyoming"}};
+
+    $('select.address-country').change(function ()
+    {
+		// get the value of the selected country.
+        var cid = $(this).val();
+        var $states = $(this).closest('.addressBox').find('select.address-stateId');
+        var $stateName = $(this).closest('.addressBox').find('input.address-stateName');
+        $states.find('option').remove();
+
+        if (states.hasOwnProperty(cid))
+        {
+			// We have states for this country, show the states drop down.
+			$states.removeClass('hidden');
+			$states.attr('name', $states.data('modelname')+'[stateValue]');
+
+			// We have states for this country, hide the stateName input.
+			$stateName.removeAttr('name');
+			$stateName.addClass('hidden');
+			$stateName.val('');
+
+			// Add all states as options to drop down.
+            for (var id in states[cid])
+            {
+                var state = states[cid][id];
+                var $option = $('&lt;option/&gt;');
+                $option.attr('value', id).text(state);
+                $states.append($option);
+            }
+
+        }else{
+			// hide the states dropdown, since this country has none.
+			$states.addClass('hidden');
+			$states.removeAttr('name');
+
+			// show the stateName
+			$stateName.removeClass('hidden');
+			$stateName.attr('name', $stateName.data('modelname')+'[stateValue]');
+		}
+
+    });
+
+    $('select').addClass('form-control input-sm');
+
+var $fieldsets = $('.address-fieldset');
+
+    $fieldsets.each(function () {
+
+        var $addressFieldset = $(this);
+
+        $('.address-select', $addressFieldset).each(function () {
+
+            this.$element = $(this);
+            this.$radio = $('.radio input', this.$element);
+            this.$body = $('.body', this.$element);
+
+            this.$radio.change($.proxy(function () {
+                $('.body', $addressFieldset).addClass('hidden');
+                this.$body.removeClass('hidden');
+            }, this));
+
+            if (this.$radio.is(':checked')) {
+            this.$body.removeClass('hidden');
+            }
+        });
+
+    });
+
+    $("#sameAddress").change(function (e) {
+        $('.address-fieldset.BillingAddress').toggleClass('hidden');
+    });
+/*]]&gt;*/
+</script>
+
+<script type="text/javascript">
+/*&lt;![CDATA[*/
+if (typeof(console) == 'object' &amp;&amp; typeof(console.groupCollapsed) == 'function')
+{
+	console.groupCollapsed("Application Log");
+
+		console.groupCollapsed("GET Info");
+	console.log("[14:06:01.225][info][application]\n$_GET=array (\n  \'p\' =&gt; \'commerce/checkout/addresses\',\n)\n\n");
+	console.groupEnd();
+	console.groupCollapsed("COOKIE Info");
+	console.log("[14:06:01.225][info][application]\n$_COOKIE=array (\n  \'CraftSessionId\' =&gt; \'75e4dc9aaf2df0aad04374b4ca72bde9\',\n  \'b62c44584a23647a6706aaa5282f7e48commerce_cookie\' =&gt; \'d9abc358d8f8e925406a8e7255f28cfe0f8c9e50s:96:\"400bf59287dce4391ad45e82a56bd21f41d05161czozMjoiMGE0M2ZkZTViM2VkMjljYjNiMjViZmU5MWU2MmNlYzYiOw==\";\',\n)\n\n");
+	console.groupEnd();
+	console.groupCollapsed("SESSION Info");
+	console.log("[14:06:01.225][info][application]\n$_SESSION=array (\n  \'commerce_customer_cookie\' =&gt; \'5\',\n)\n\n");
+	console.groupEnd();
+	console.groupCollapsed("SERVER Info");
+	console.log("[14:06:01.225][info][application]\n$_SERVER=array (\n  \'REDIRECT_STATUS\' =&gt; \'200\',\n  \'HTTP_HOST\' =&gt; \'craft2x.craft.dev\',\n  \'HTTP_USER_AGENT\' =&gt; \'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:44.0) Gecko/20100101 Firefox/44.0\',\n  \'HTTP_ACCEPT\' =&gt; \'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\',\n  \'HTTP_ACCEPT_LANGUAGE\' =&gt; \'en-US,en;q=0.5\',\n  \'HTTP_ACCEPT_ENCODING\' =&gt; \'gzip, deflate\',\n  \'HTTP_REFERER\' =&gt; \'http://craft2x.craft.dev/commerce/checkout\',\n  \'HTTP_COOKIE\' =&gt; \'CraftSessionId=75e4dc9aaf2df0aad04374b4ca72bde9; b62c44584a23647a6706aaa5282f7e48commerce_cookie=d9abc358d8f8e925406a8e7255f28cfe0f8c9e50s%3A96%3A%22400bf59287dce4391ad45e82a56bd21f41d05161czozMjoiMGE0M2ZkZTViM2VkMjljYjNiMjViZmU5MWU2MmNlYzYiOw%3D%3D%22%3B\',\n  \'HTTP_CONNECTION\' =&gt; \'keep-alive\',\n  \'PATH\' =&gt; \'/usr/bin:/bin:/usr/sbin:/sbin\',\n  \'SERVER_SIGNATURE\' =&gt; \'\',\n  \'SERVER_SOFTWARE\' =&gt; \'Apache\',\n  \'SERVER_NAME\' =&gt; \'craft2x.craft.dev\',\n  \'SERVER_ADDR\' =&gt; \'::1\',\n  \'SERVER_PORT\' =&gt; \'80\',\n  \'REMOTE_ADDR\' =&gt; \'::1\',\n  \'DOCUMENT_ROOT\' =&gt; \'/Users/lh/Code/Projects/craft2x.craft.dev/public\',\n  \'SERVER_ADMIN\' =&gt; \'you@example.com\',\n  \'SCRIPT_FILENAME\' =&gt; \'/Users/lh/Code/Projects/craft2x.craft.dev/public/index.php\',\n  \'REMOTE_PORT\' =&gt; \'65498\',\n  \'REDIRECT_QUERY_STRING\' =&gt; \'p=commerce/checkout/addresses\',\n  \'REDIRECT_URL\' =&gt; \'/commerce/checkout/addresses\',\n  \'GATEWAY_INTERFACE\' =&gt; \'CGI/1.1\',\n  \'SERVER_PROTOCOL\' =&gt; \'HTTP/1.1\',\n  \'REQUEST_METHOD\' =&gt; \'GET\',\n  \'QUERY_STRING\' =&gt; \'p=commerce/checkout/addresses\',\n  \'REQUEST_URI\' =&gt; \'/commerce/checkout/addresses\',\n  \'SCRIPT_NAME\' =&gt; \'/index.php\',\n  \'PHP_SELF\' =&gt; \'/index.php\',\n  \'REQUEST_TIME_FLOAT\' =&gt; 1458309961.2200000286102294921875,\n  \'REQUEST_TIME\' =&gt; 1458309961,\n  \'argv\' =&gt; \n  array (\n    0 =&gt; \'p=commerce/checkout/addresses\',\n  ),\n  \'argc\' =&gt; 1,\n)");
+	console.groupEnd();
+	console.groupCollapsed("Logs");
+	console.log("[14:06:01.252][trace][system.CModule]\nLoading \"cache\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (166)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/bootstrap.php (189)");
+	console.log("[14:06:01.254][trace][system.CModule]\nLoading \"path\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/cache/FileCache.php (41)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CacheService.php (104)");
+	console.log("[14:06:01.255][trace][system.CModule]\nLoading \"request\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (167)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/bootstrap.php (189)");
+	console.log("[14:06:01.259][trace][system.caching.Craft\\FileCache]\nServing \"usePathInfo\" from cache\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CacheService.php (169)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/ConfigService.php (392)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/HttpRequestService.php (1135)");
+	console.log("[14:06:01.286][trace][system.CModule]\nLoading \"log\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (168)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/bootstrap.php (189)");
+	console.log("[14:06:01.289][trace][system.CModule]\nLoading \"coreMessages\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (171)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/bootstrap.php (189)");
+	console.log("[14:06:01.292][trace][system.db.CDbConnection]\nOpening DB connection\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/behaviors/AppBehavior.php (824)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (618)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/behaviors/AppBehavior.php (80)");
+	console.log("[14:06:01.298][trace][system.db.CDbCommand]\nQuerying SQL: SHOW TABLES LIKE \'craft_%\'\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/db/schemas/MysqlSchema.php (295)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/db/DbConnection.php (90)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/behaviors/AppBehavior.php (98)");
+	console.log("[14:06:01.298][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SHOW TABLES LIKE \'craft_%\')");
+	console.log("[14:06:01.298][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SHOW TABLES LIKE \'craft_%\')");
+	console.log("[14:06:01.300][trace][system.db.CDbCommand]\nQuerying SQL: SELECT *\nFROM `craft_info` LIMIT 1\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/behaviors/AppBehavior.php (492)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/behaviors/AppBehavior.php (187)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (779)");
+	console.log("[14:06:01.300][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT *\nFROM `craft_info` LIMIT 1)");
+	console.log("[14:06:01.300][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT *\nFROM `craft_info` LIMIT 1)");
+	console.log("[14:06:01.306][trace][system.CModule]\nLoading \"userSession\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (196)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/index.php (62)");
+	console.log("[14:06:01.309][trace][system.CModule]\nLoading \"security\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/CookieCollection.php (41)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/HttpRequestService.php (882)");
+	console.log("[14:06:01.310][trace][system.CModule]\nLoading \"statePersister\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/CookieCollection.php (41)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/HttpRequestService.php (882)");
+	console.log("[14:06:01.311][trace][system.caching.Craft\\FileCache]\nServing \"Yii.CStatePersister./Users/lh/Code/Projects/craft2x.craft.dev/craft/storage/runtime/state/state.bin\" from cache\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CacheService.php (169)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/CookieCollection.php (41)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/HttpRequestService.php (882)");
+	console.log("[14:06:01.312][trace][system.CModule]\nLoading \"httpSession\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (515)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/UserSessionService.php (92)");
+	console.log("[14:06:01.313][trace][system.CModule]\nLoading \"session\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/UserSessionService.php (1092)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/UserSessionService.php (376)");
+	console.log("[14:06:01.314][trace][system.CModule]\nLoading \"updates\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (244)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/index.php (62)");
+	console.log("[14:06:01.315][trace][system.CModule]\nLoading \"plugins\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (284)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/index.php (62)");
+	console.log("[14:06:01.317][trace][system.db.CDbCommand]\nQuerying SQL: SELECT *\nFROM `craft_plugins`\nWHERE enabled=1\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/PluginsService.php (104)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (284)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/index.php (62)");
+	console.log("[14:06:01.317][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT *\nFROM `craft_plugins`\nWHERE enabled=1)");
+	console.log("[14:06:01.317][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT *\nFROM `craft_plugins`\nWHERE enabled=1)");
+	console.log("[14:06:01.339][trace][system.CModule]\nLoading \"commerce_orderStatuses\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/Commerce/commerce/CommercePlugin.php (45)\nin /Users/lh/Code/Projects/Commerce/commerce/CommercePlugin.php (30)");
+	console.log("[14:06:01.340][trace][system.CModule]\nLoading \"commerce_discounts\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/Commerce/commerce/CommercePlugin.php (46)\nin /Users/lh/Code/Projects/Commerce/commerce/CommercePlugin.php (30)");
+	console.log("[14:06:01.341][trace][system.CModule]\nLoading \"commerce_variants\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/Commerce/commerce/CommercePlugin.php (47)\nin /Users/lh/Code/Projects/Commerce/commerce/CommercePlugin.php (30)");
+	console.log("[14:06:01.342][trace][system.CModule]\nLoading \"commerce_customers\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/Commerce/commerce/CommercePlugin.php (48)\nin /Users/lh/Code/Projects/Commerce/commerce/CommercePlugin.php (30)");
+	console.log("[14:06:01.342][trace][system.CModule]\nLoading \"commerce_productTypes\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/Commerce/commerce/CommercePlugin.php (49)\nin /Users/lh/Code/Projects/Commerce/commerce/CommercePlugin.php (30)");
+	console.log("[14:06:01.344][trace][system.CModule]\nLoading \"urlManager\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (317)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/index.php (62)");
+	console.log("[14:06:01.346][trace][system.CModule]\nLoading \"elements\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/UrlManager.php (278)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/UrlManager.php (137)");
+	console.log("[14:06:01.349][trace][system.CModule]\nLoading \"i18n\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/behaviors/AppBehavior.php (796)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/behaviors/AppBehavior.php (570)");
+	console.log("[14:06:01.350][trace][system.db.CDbCommand]\nQuerying SQL: SELECT `locale`\nFROM `craft_locales`\nORDER BY `sortOrder`\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/LocalizationService.php (126)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/LocalizationService.php (150)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/LocalizationService.php (162)");
+	console.log("[14:06:01.350][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT `locale`\nFROM `craft_locales`\nORDER BY `sortOrder`)");
+	console.log("[14:06:01.350][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT `locale`\nFROM `craft_locales`\nORDER BY `sortOrder`)");
+	console.log("[14:06:01.350][trace][system.db.CDbCommand]\nQuerying SQL: SELECT `elements`.`id`, `elements`.`type`\nFROM `craft_elements` `elements`\nJOIN `craft_elements_i18n` `elements_i18n` ON elements_i18n.elementId = elements.id\nWHERE (elements_i18n.uri = :uri) AND (elements_i18n.locale = :locale) AND (elements_i18n.enabled = 1) AND (elements.enabled = 1) AND (elements.archived = 0). Bound with :uri=\'commerce/checkout/addresses\', :locale=\'en_us\'\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/ElementsService.php (152)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/UrlManager.php (278)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/UrlManager.php (137)");
+	console.log("[14:06:01.350][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT `elements`.`id`, `elements`.`type`\nFROM `craft_elements` `elements`\nJOIN `craft_elements_i18n` `elements_i18n` ON elements_i18n.elementId = elements.id\nWHERE (elements_i18n.uri = :uri) AND (elements_i18n.locale = :locale) AND (elements_i18n.enabled = 1) AND (elements.enabled = 1) AND (elements.archived = 0). Bound with :uri=\'commerce/checkout/addresses\', :locale=\'en_us\')");
+	console.log("[14:06:01.351][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT `elements`.`id`, `elements`.`type`\nFROM `craft_elements` `elements`\nJOIN `craft_elements_i18n` `elements_i18n` ON elements_i18n.elementId = elements.id\nWHERE (elements_i18n.uri = :uri) AND (elements_i18n.locale = :locale) AND (elements_i18n.enabled = 1) AND (elements.enabled = 1) AND (elements.archived = 0). Bound with :uri=\'commerce/checkout/addresses\', :locale=\'en_us\')");
+	console.log("[14:06:01.351][trace][system.CModule]\nLoading \"routes\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/UrlManager.php (336)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/UrlManager.php (153)");
+	console.log("[14:06:01.352][trace][system.db.CDbCommand]\nQuerying SQL: SELECT `urlPattern`, `template`\nFROM `craft_routes`\nWHERE (locale is null) OR (locale = :locale)\nORDER BY `sortOrder`. Bound with :locale=\'en_us\'\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/RoutesService.php (65)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/UrlManager.php (343)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/UrlManager.php (153)");
+	console.log("[14:06:01.352][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT `urlPattern`, `template`\nFROM `craft_routes`\nWHERE (locale is null) OR (locale = :locale)\nORDER BY `sortOrder`. Bound with :locale=\'en_us\')");
+	console.log("[14:06:01.352][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT `urlPattern`, `template`\nFROM `craft_routes`\nWHERE (locale is null) OR (locale = :locale)\nORDER BY `sortOrder`. Bound with :locale=\'en_us\')");
+	console.log("[14:06:01.355][trace][system.CModule]\nLoading \"templates\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/controllers/TemplatesController.php (53)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (317)");
+	console.log("[14:06:01.376][trace][system.CModule]\nLoading \"globals\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/templating/twigextensions/CraftTwigExtension.php (510)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/vendor/twig/twig/lib/Twig/Environment.php (1276)");
+	console.log("[14:06:01.376][trace][system.CModule]\nLoading \"components\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/ElementsService.php (2025)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/ElementsService.php (56)");
+	console.log("[14:06:01.382][trace][system.CModule]\nLoading \"content\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/elementtypes/BaseElementType.php (426)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/elementtypes/BaseElementType.php (448)");
+	console.log("[14:06:01.382][trace][system.CModule]\nLoading \"fields\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/elementtypes/BaseElementType.php (430)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/elementtypes/BaseElementType.php (448)");
+	console.log("[14:06:01.384][trace][system.db.CDbCommand]\nQuerying SQL: SELECT `f`.`id`, `f`.`groupId`, `f`.`name`, `f`.`handle`, `f`.`context`, `f`.`instructions`, `f`.`translatable`, `f`.`type`, `f`.`settings`\nFROM `craft_fields` `f`\nWHERE `f`.`context` IN (\'global\')\nORDER BY `f`.`name`\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/FieldsService.php (251)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/elementtypes/BaseElementType.php (430)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/elementtypes/BaseElementType.php (448)");
+	console.log("[14:06:01.384][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT `f`.`id`, `f`.`groupId`, `f`.`name`, `f`.`handle`, `f`.`context`, `f`.`instructions`, `f`.`translatable`, `f`.`type`, `f`.`settings`\nFROM `craft_fields` `f`\nWHERE `f`.`context` IN (\'global\')\nORDER BY `f`.`name`)");
+	console.log("[14:06:01.384][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT `f`.`id`, `f`.`groupId`, `f`.`name`, `f`.`handle`, `f`.`context`, `f`.`instructions`, `f`.`translatable`, `f`.`type`, `f`.`settings`\nFROM `craft_fields` `f`\nWHERE `f`.`context` IN (\'global\')\nORDER BY `f`.`name`)");
+	console.log("[14:06:01.389][trace][system.CModule]\nLoading \"messages\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/Craft.php (382)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/plugins/fruitlinkit/models/FruitLinkIt_LinkSettingsModel.php (26)");
+	console.log("[14:06:01.403][trace][system.db.CDbCommand]\nQuerying SQL: SELECT `elements`.`id`, `elements`.`type`, `elements`.`enabled`, `elements`.`archived`, `elements`.`dateCreated`, `elements`.`dateUpdated`, `elements_i18n`.`slug`, `elements_i18n`.`uri`, `elements_i18n`.`enabled` AS `localeEnabled`, `content`.`id` AS `contentId`, `content`.`field_body`, `content`.`field_multilInk`, `globalsets`.`name`, `globalsets`.`handle`, `globalsets`.`fieldLayoutId`\nFROM `craft_elements` `elements`\nJOIN `craft_elements_i18n` `elements_i18n` ON elements_i18n.elementId = elements.id\nJOIN `craft_content` `content` ON content.elementId = elements.id\nJOIN `craft_globalsets` `globalsets` ON globalsets.id = elements.id\nWHERE ((((elements_i18n.locale = :locale) AND (content.locale = :locale)) AND (elements.archived = 0)) AND (elements.enabled = 1)) AND (elements_i18n.enabled = 1)\nGROUP BY `elements`.`id`\nORDER BY `name` LIMIT 100. Bound with :locale=\'en_us\'\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/ElementsService.php (214)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/models/ElementCriteriaModel.php (254)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/GlobalsService.php (96)");
+	console.log("[14:06:01.403][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT `elements`.`id`, `elements`.`type`, `elements`.`enabled`, `elements`.`archived`, `elements`.`dateCreated`, `elements`.`dateUpdated`, `elements_i18n`.`slug`, `elements_i18n`.`uri`, `elements_i18n`.`enabled` AS `localeEnabled`, `content`.`id` AS `contentId`, `content`.`field_body`, `content`.`field_multilInk`, `globalsets`.`name`, `globalsets`.`handle`, `globalsets`.`fieldLayoutId`\nFROM `craft_elements` `elements`\nJOIN `craft_elements_i18n` `elements_i18n` ON elements_i18n.elementId = elements.id\nJOIN `craft_content` `content` ON content.elementId = elements.id\nJOIN `craft_globalsets` `globalsets` ON globalsets.id = elements.id\nWHERE ((((elements_i18n.locale = :locale) AND (content.locale = :locale)) AND (elements.archived = 0)) AND (elements.enabled = 1)) AND (elements_i18n.enabled = 1)\nGROUP BY `elements`.`id`\nORDER BY `name` LIMIT 100. Bound with :locale=\'en_us\')");
+	console.log("[14:06:01.404][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT `elements`.`id`, `elements`.`type`, `elements`.`enabled`, `elements`.`archived`, `elements`.`dateCreated`, `elements`.`dateUpdated`, `elements_i18n`.`slug`, `elements_i18n`.`uri`, `elements_i18n`.`enabled` AS `localeEnabled`, `content`.`id` AS `contentId`, `content`.`field_body`, `content`.`field_multilInk`, `globalsets`.`name`, `globalsets`.`handle`, `globalsets`.`fieldLayoutId`\nFROM `craft_elements` `elements`\nJOIN `craft_elements_i18n` `elements_i18n` ON elements_i18n.elementId = elements.id\nJOIN `craft_content` `content` ON content.elementId = elements.id\nJOIN `craft_globalsets` `globalsets` ON globalsets.id = elements.id\nWHERE ((((elements_i18n.locale = :locale) AND (content.locale = :locale)) AND (elements.archived = 0)) AND (elements.enabled = 1)) AND (elements_i18n.enabled = 1)\nGROUP BY `elements`.`id`\nORDER BY `name` LIMIT 100. Bound with :locale=\'en_us\')");
+	console.log("[14:06:01.405][trace][system.CModule]\nLoading \"commerce_cart\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/Commerce/commerce/variables/CommerceVariable.php (67)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/vendor/twig/twig/lib/Twig/Template.php (609)");
+	console.log("[14:06:01.407][trace][system.db.CDbCommand]\nQuerying SQL: SELECT `orders`.`id`, `orders`.`number`, `orders`.`orderStatusId`, `orders`.`billingAddressId`, `orders`.`shippingAddressId`, `orders`.`customerId`, `orders`.`couponCode`, `orders`.`itemTotal`, `orders`.`baseDiscount`, `orders`.`baseShippingCost`, `orders`.`totalPrice`, `orders`.`totalPaid`, `orders`.`email`, `orders`.`dateOrdered`, `orders`.`datePaid`, `orders`.`currency`, `orders`.`lastIp`, `orders`.`message`, `orders`.`returnUrl`, `orders`.`cancelUrl`, `orders`.`shippingMethod`, `orders`.`paymentMethodId`\nFROM `craft_commerce_orders` `orders`\nWHERE orders.number = :number AND dateOrdered IS NULL. Bound with :number=\'0a43fde5b3ed29cb3b25bfe91e62cec6\'\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_CartService.php (390)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_CartService.php (322)\nin /Users/lh/Code/Projects/Commerce/commerce/variables/CommerceVariable.php (67)");
+	console.log("[14:06:01.407][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT `orders`.`id`, `orders`.`number`, `orders`.`orderStatusId`, `orders`.`billingAddressId`, `orders`.`shippingAddressId`, `orders`.`customerId`, `orders`.`couponCode`, `orders`.`itemTotal`, `orders`.`baseDiscount`, `orders`.`baseShippingCost`, `orders`.`totalPrice`, `orders`.`totalPaid`, `orders`.`email`, `orders`.`dateOrdered`, `orders`.`datePaid`, `orders`.`currency`, `orders`.`lastIp`, `orders`.`message`, `orders`.`returnUrl`, `orders`.`cancelUrl`, `orders`.`shippingMethod`, `orders`.`paymentMethodId`\nFROM `craft_commerce_orders` `orders`\nWHERE orders.number = :number AND dateOrdered IS NULL. Bound with :number=\'0a43fde5b3ed29cb3b25bfe91e62cec6\')");
+	console.log("[14:06:01.407][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT `orders`.`id`, `orders`.`number`, `orders`.`orderStatusId`, `orders`.`billingAddressId`, `orders`.`shippingAddressId`, `orders`.`customerId`, `orders`.`couponCode`, `orders`.`itemTotal`, `orders`.`baseDiscount`, `orders`.`baseShippingCost`, `orders`.`totalPrice`, `orders`.`totalPaid`, `orders`.`email`, `orders`.`dateOrdered`, `orders`.`datePaid`, `orders`.`currency`, `orders`.`lastIp`, `orders`.`message`, `orders`.`returnUrl`, `orders`.`cancelUrl`, `orders`.`shippingMethod`, `orders`.`paymentMethodId`\nFROM `craft_commerce_orders` `orders`\nWHERE orders.number = :number AND dateOrdered IS NULL. Bound with :number=\'0a43fde5b3ed29cb3b25bfe91e62cec6\')");
+	console.log("[14:06:01.409][trace][system.CModule]\nLoading \"commerce_orders\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_CartService.php (333)\nin /Users/lh/Code/Projects/Commerce/commerce/variables/CommerceVariable.php (67)");
+	console.log("[14:06:01.418][trace][system.db.CDbCommand]\nQuerying SQL: SELECT `elements`.`id`, `elements`.`type`, `elements`.`enabled`, `elements`.`archived`, `elements`.`dateCreated`, `elements`.`dateUpdated`, `elements_i18n`.`slug`, `elements_i18n`.`uri`, `elements_i18n`.`enabled` AS `localeEnabled`, `content`.`id` AS `contentId`, `content`.`field_body`, `content`.`field_multilInk`, `orders`.`id`, `orders`.`number`, `orders`.`couponCode`, `orders`.`itemTotal`, `orders`.`baseDiscount`, `orders`.`baseShippingCost`, `orders`.`totalPrice`, `orders`.`totalPaid`, `orders`.`orderStatusId`, `orders`.`dateOrdered`, `orders`.`email`, `orders`.`isCompleted`, `orders`.`dateOrdered`, `orders`.`datePaid`, `orders`.`currency`, `orders`.`lastIp`, `orders`.`message`, `orders`.`returnUrl`, `orders`.`cancelUrl`, `orders`.`orderStatusId`, `orders`.`billingAddressId`, `orders`.`shippingAddressId`, `orders`.`shippingMethod`, `orders`.`paymentMethodId`, `orders`.`customerId`, `orders`.`dateUpdated`\nFROM `craft_elements` `elements`\nJOIN `craft_elements_i18n` `elements_i18n` ON elements_i18n.elementId = elements.id\nJOIN `craft_content` `content` ON content.elementId = elements.id\nJOIN `craft_commerce_orders` `orders` ON orders.id = elements.id\nWHERE (((((elements_i18n.locale = :locale) AND (content.locale = :locale)) AND (elements.archived = 0)) AND (elements.enabled = 1)) AND (elements_i18n.enabled = 1)) AND (orders.number=:ordersnumber1)\nGROUP BY `elements`.`id`\nORDER BY `elements`.`dateCreated` DESC LIMIT 1. Bound with :locale=\'en_us\', :ordersnumber1=\'0a43fde5b3ed29cb3b25bfe91e62cec6\'\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/ElementsService.php (214)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/models/ElementCriteriaModel.php (254)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/models/ElementCriteriaModel.php (275)");
+	console.log("[14:06:01.418][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT `elements`.`id`, `elements`.`type`, `elements`.`enabled`, `elements`.`archived`, `elements`.`dateCreated`, `elements`.`dateUpdated`, `elements_i18n`.`slug`, `elements_i18n`.`uri`, `elements_i18n`.`enabled` AS `localeEnabled`, `content`.`id` AS `contentId`, `content`.`field_body`, `content`.`field_multilInk`, `orders`.`id`, `orders`.`number`, `orders`.`couponCode`, `orders`.`itemTotal`, `orders`.`baseDiscount`, `orders`.`baseShippingCost`, `orders`.`totalPrice`, `orders`.`totalPaid`, `orders`.`orderStatusId`, `orders`.`dateOrdered`, `orders`.`email`, `orders`.`isCompleted`, `orders`.`dateOrdered`, `orders`.`datePaid`, `orders`.`currency`, `orders`.`lastIp`, `orders`.`message`, `orders`.`returnUrl`, `orders`.`cancelUrl`, `orders`.`orderStatusId`, `orders`.`billingAddressId`, `orders`.`shippingAddressId`, `orders`.`shippingMethod`, `orders`.`paymentMethodId`, `orders`.`customerId`, `orders`.`dateUpdated`\nFROM `craft_elements` `elements`\nJOIN `craft_elements_i18n` `elements_i18n` ON elements_i18n.elementId = elements.id\nJOIN `craft_content` `content` ON content.elementId = elements.id\nJOIN `craft_commerce_orders` `orders` ON orders.id = elements.id\nWHERE (((((elements_i18n.locale = :locale) AND (content.locale = :locale)) AND (elements.archived = 0)) AND (elements.enabled = 1)) AND (elements_i18n.enabled = 1)) AND (orders.number=:ordersnumber1)\nGROUP BY `elements`.`id`\nORDER BY `elements`.`dateCreated` DESC LIMIT 1. Bound with :locale=\'en_us\', :ordersnumber1=\'0a43fde5b3ed29cb3b25bfe91e62cec6\')");
+	console.log("[14:06:01.419][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT `elements`.`id`, `elements`.`type`, `elements`.`enabled`, `elements`.`archived`, `elements`.`dateCreated`, `elements`.`dateUpdated`, `elements_i18n`.`slug`, `elements_i18n`.`uri`, `elements_i18n`.`enabled` AS `localeEnabled`, `content`.`id` AS `contentId`, `content`.`field_body`, `content`.`field_multilInk`, `orders`.`id`, `orders`.`number`, `orders`.`couponCode`, `orders`.`itemTotal`, `orders`.`baseDiscount`, `orders`.`baseShippingCost`, `orders`.`totalPrice`, `orders`.`totalPaid`, `orders`.`orderStatusId`, `orders`.`dateOrdered`, `orders`.`email`, `orders`.`isCompleted`, `orders`.`dateOrdered`, `orders`.`datePaid`, `orders`.`currency`, `orders`.`lastIp`, `orders`.`message`, `orders`.`returnUrl`, `orders`.`cancelUrl`, `orders`.`orderStatusId`, `orders`.`billingAddressId`, `orders`.`shippingAddressId`, `orders`.`shippingMethod`, `orders`.`paymentMethodId`, `orders`.`customerId`, `orders`.`dateUpdated`\nFROM `craft_elements` `elements`\nJOIN `craft_elements_i18n` `elements_i18n` ON elements_i18n.elementId = elements.id\nJOIN `craft_content` `content` ON content.elementId = elements.id\nJOIN `craft_commerce_orders` `orders` ON orders.id = elements.id\nWHERE (((((elements_i18n.locale = :locale) AND (content.locale = :locale)) AND (elements.archived = 0)) AND (elements.enabled = 1)) AND (elements_i18n.enabled = 1)) AND (orders.number=:ordersnumber1)\nGROUP BY `elements`.`id`\nORDER BY `elements`.`dateCreated` DESC LIMIT 1. Bound with :locale=\'en_us\', :ordersnumber1=\'0a43fde5b3ed29cb3b25bfe91e62cec6\')");
+	console.log("[14:06:01.422][trace][system.CModule]\nLoading \"commerce_settings\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_CartService.php (344)\nin /Users/lh/Code/Projects/Commerce/commerce/variables/CommerceVariable.php (67)");
+	console.log("[14:06:01.423][trace][system.db.CDbCommand]\nQuerying SQL: SELECT `customers`.`id`, `customers`.`userId`, `customers`.`email`, `customers`.`lastUsedBillingAddressId`, `customers`.`lastUsedShippingAddressId`\nFROM `craft_commerce_customers` `customers`\nWHERE customers.id = :xid\nORDER BY `id`. Bound with :xid=\'5\'\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_CustomersService.php (85)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_CartService.php (347)\nin /Users/lh/Code/Projects/Commerce/commerce/variables/CommerceVariable.php (67)");
+	console.log("[14:06:01.423][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT `customers`.`id`, `customers`.`userId`, `customers`.`email`, `customers`.`lastUsedBillingAddressId`, `customers`.`lastUsedShippingAddressId`\nFROM `craft_commerce_customers` `customers`\nWHERE customers.id = :xid\nORDER BY `id`. Bound with :xid=\'5\')");
+	console.log("[14:06:01.423][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT `customers`.`id`, `customers`.`userId`, `customers`.`email`, `customers`.`lastUsedBillingAddressId`, `customers`.`lastUsedShippingAddressId`\nFROM `craft_commerce_customers` `customers`\nWHERE customers.id = :xid\nORDER BY `id`. Bound with :xid=\'5\')");
+	console.log("[14:06:01.424][trace][system.CModule]\nLoading \"commerce_lineItems\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_OrderModel.php (421)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_OrderModel.php (259)");
+	console.log("[14:06:01.425][trace][system.db.CDbCommand]\nQuerying SQL: SELECT `lineitems`.`id`, `lineitems`.`orderId`, `lineitems`.`purchasableId`, `lineitems`.`options`, `lineitems`.`optionsSignature`, `lineitems`.`price`, `lineitems`.`saleAmount`, `lineitems`.`salePrice`, `lineitems`.`tax`, `lineitems`.`taxIncluded`, `lineitems`.`shippingCost`, `lineitems`.`discount`, `lineitems`.`weight`, `lineitems`.`height`, `lineitems`.`length`, `lineitems`.`width`, `lineitems`.`total`, `lineitems`.`qty`, `lineitems`.`note`, `lineitems`.`snapshot`, `lineitems`.`taxCategoryId`\nFROM `craft_commerce_lineitems` `lineitems`\nWHERE lineitems.orderId = :orderId\nORDER BY `lineitems`.`id`. Bound with :orderId=\'33\'\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_LineItemsService.php (31)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_OrderModel.php (421)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_OrderModel.php (259)");
+	console.log("[14:06:01.425][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT `lineitems`.`id`, `lineitems`.`orderId`, `lineitems`.`purchasableId`, `lineitems`.`options`, `lineitems`.`optionsSignature`, `lineitems`.`price`, `lineitems`.`saleAmount`, `lineitems`.`salePrice`, `lineitems`.`tax`, `lineitems`.`taxIncluded`, `lineitems`.`shippingCost`, `lineitems`.`discount`, `lineitems`.`weight`, `lineitems`.`height`, `lineitems`.`length`, `lineitems`.`width`, `lineitems`.`total`, `lineitems`.`qty`, `lineitems`.`note`, `lineitems`.`snapshot`, `lineitems`.`taxCategoryId`\nFROM `craft_commerce_lineitems` `lineitems`\nWHERE lineitems.orderId = :orderId\nORDER BY `lineitems`.`id`. Bound with :orderId=\'33\')");
+	console.log("[14:06:01.425][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT `lineitems`.`id`, `lineitems`.`orderId`, `lineitems`.`purchasableId`, `lineitems`.`options`, `lineitems`.`optionsSignature`, `lineitems`.`price`, `lineitems`.`saleAmount`, `lineitems`.`salePrice`, `lineitems`.`tax`, `lineitems`.`taxIncluded`, `lineitems`.`shippingCost`, `lineitems`.`discount`, `lineitems`.`weight`, `lineitems`.`height`, `lineitems`.`length`, `lineitems`.`width`, `lineitems`.`total`, `lineitems`.`qty`, `lineitems`.`note`, `lineitems`.`snapshot`, `lineitems`.`taxCategoryId`\nFROM `craft_commerce_lineitems` `lineitems`\nWHERE lineitems.orderId = :orderId\nORDER BY `lineitems`.`id`. Bound with :orderId=\'33\')");
+	console.log("[14:06:01.429][trace][system.db.CDbCommand]\nQuerying SQL: SELECT `handle`, `context`\nFROM `craft_fields`\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/FieldsService.php (395)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/FieldsService.php (355)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/models/BaseElementModel.php (1113)");
+	console.log("[14:06:01.429][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT `handle`, `context`\nFROM `craft_fields`)");
+	console.log("[14:06:01.429][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT `handle`, `context`\nFROM `craft_fields`)");
+	console.log("[14:06:01.432][trace][system.CModule]\nLoading \"commerce_addresses\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_CustomerModel.php (57)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/models/BaseModel.php (153)");
+	console.log("[14:06:01.437][trace][system.db.ar.CActiveRecord]\nCraft\\Commerce_CustomerRecord.findByAttributes()\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_AddressesService.php (39)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_CustomerModel.php (57)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/models/BaseModel.php (153)");
+	console.log("[14:06:01.438][trace][system.db.CDbCommand]\nQuerying SQL: SHOW FULL COLUMNS FROM `craft_commerce_customers`\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_AddressesService.php (39)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_CustomerModel.php (57)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/models/BaseModel.php (153)");
+	console.log("[14:06:01.438][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SHOW FULL COLUMNS FROM `craft_commerce_customers`)");
+	console.log("[14:06:01.439][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SHOW FULL COLUMNS FROM `craft_commerce_customers`)");
+	console.log("[14:06:01.440][trace][system.db.CDbCommand]\nQuerying SQL: SHOW CREATE TABLE `craft_commerce_customers`\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_AddressesService.php (39)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_CustomerModel.php (57)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/models/BaseModel.php (153)");
+	console.log("[14:06:01.440][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SHOW CREATE TABLE `craft_commerce_customers`)");
+	console.log("[14:06:01.440][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SHOW CREATE TABLE `craft_commerce_customers`)");
+	console.log("[14:06:01.444][trace][system.db.CDbCommand]\nQuerying SQL: SHOW FULL COLUMNS FROM `craft_commerce_addresses`\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_AddressesService.php (39)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_CustomerModel.php (57)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/models/BaseModel.php (153)");
+	console.log("[14:06:01.444][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SHOW FULL COLUMNS FROM `craft_commerce_addresses`)");
+	console.log("[14:06:01.446][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SHOW FULL COLUMNS FROM `craft_commerce_addresses`)");
+	console.log("[14:06:01.447][trace][system.db.CDbCommand]\nQuerying SQL: SHOW CREATE TABLE `craft_commerce_addresses`\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_AddressesService.php (39)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_CustomerModel.php (57)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/models/BaseModel.php (153)");
+	console.log("[14:06:01.447][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SHOW CREATE TABLE `craft_commerce_addresses`)");
+	console.log("[14:06:01.447][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SHOW CREATE TABLE `craft_commerce_addresses`)");
+	console.log("[14:06:01.448][trace][system.db.CDbCommand]\nQuerying SQL: SHOW FULL COLUMNS FROM `craft_commerce_customers_addresses`\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_AddressesService.php (39)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_CustomerModel.php (57)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/models/BaseModel.php (153)");
+	console.log("[14:06:01.448][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SHOW FULL COLUMNS FROM `craft_commerce_customers_addresses`)");
+	console.log("[14:06:01.449][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SHOW FULL COLUMNS FROM `craft_commerce_customers_addresses`)");
+	console.log("[14:06:01.450][trace][system.db.CDbCommand]\nQuerying SQL: SHOW CREATE TABLE `craft_commerce_customers_addresses`\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_AddressesService.php (39)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_CustomerModel.php (57)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/models/BaseModel.php (153)");
+	console.log("[14:06:01.450][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SHOW CREATE TABLE `craft_commerce_customers_addresses`)");
+	console.log("[14:06:01.450][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SHOW CREATE TABLE `craft_commerce_customers_addresses`)");
+	console.log("[14:06:01.450][trace][system.db.CDbCommand]\nQuerying SQL: SELECT `t`.`id` AS `t0_c0`, `t`.`userId` AS `t0_c1`, `t`.`email` AS `t0_c2`, `t`.`lastUsedBillingAddressId` AS `t0_c3`, `t`.`lastUsedShippingAddressId` AS `t0_c4`, `t`.`dateCreated` AS `t0_c5`, `t`.`dateUpdated` AS `t0_c6`, `t`.`uid` AS `t0_c7`, `addresses`.`id` AS `t1_c0`, `addresses`.`firstName` AS `t1_c1`, `addresses`.`lastName` AS `t1_c2`, `addresses`.`countryId` AS `t1_c3`, `addresses`.`stateId` AS `t1_c4`, `addresses`.`address1` AS `t1_c5`, `addresses`.`address2` AS `t1_c6`, `addresses`.`city` AS `t1_c7`, `addresses`.`zipCode` AS `t1_c8`, `addresses`.`phone` AS `t1_c9`, `addresses`.`alternativePhone` AS `t1_c10`, `addresses`.`businessName` AS `t1_c11`, `addresses`.`businessTaxId` AS `t1_c12`, `addresses`.`stateName` AS `t1_c13`, `addresses`.`dateCreated` AS `t1_c14`, `addresses`.`dateUpdated` AS `t1_c15`, `addresses`.`uid` AS `t1_c16` FROM `craft_commerce_customers` `t`  LEFT OUTER JOIN `craft_commerce_customers_addresses` `customersaddresses` ON (`customersaddresses`.`customerId`=`t`.`id`) LEFT OUTER JOIN `craft_commerce_addresses` `addresses` ON (`customersaddresses`.`addressId`=`addresses`.`id`) WHERE (`t`.`id`=:yp0). Bound with :yp0=\'5\'\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_AddressesService.php (39)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_CustomerModel.php (57)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/models/BaseModel.php (153)");
+	console.log("[14:06:01.450][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT `t`.`id` AS `t0_c0`, `t`.`userId` AS `t0_c1`, `t`.`email` AS `t0_c2`, `t`.`lastUsedBillingAddressId` AS `t0_c3`, `t`.`lastUsedShippingAddressId` AS `t0_c4`, `t`.`dateCreated` AS `t0_c5`, `t`.`dateUpdated` AS `t0_c6`, `t`.`uid` AS `t0_c7`, `addresses`.`id` AS `t1_c0`, `addresses`.`firstName` AS `t1_c1`, `addresses`.`lastName` AS `t1_c2`, `addresses`.`countryId` AS `t1_c3`, `addresses`.`stateId` AS `t1_c4`, `addresses`.`address1` AS `t1_c5`, `addresses`.`address2` AS `t1_c6`, `addresses`.`city` AS `t1_c7`, `addresses`.`zipCode` AS `t1_c8`, `addresses`.`phone` AS `t1_c9`, `addresses`.`alternativePhone` AS `t1_c10`, `addresses`.`businessName` AS `t1_c11`, `addresses`.`businessTaxId` AS `t1_c12`, `addresses`.`stateName` AS `t1_c13`, `addresses`.`dateCreated` AS `t1_c14`, `addresses`.`dateUpdated` AS `t1_c15`, `addresses`.`uid` AS `t1_c16` FROM `craft_commerce_customers` `t`  LEFT OUTER JOIN `craft_commerce_customers_addresses` `customersaddresses` ON (`customersaddresses`.`customerId`=`t`.`id`) LEFT OUTER JOIN `craft_commerce_addresses` `addresses` ON (`customersaddresses`.`addressId`=`addresses`.`id`) WHERE (`t`.`id`=:yp0). Bound with :yp0=\'5\')");
+	console.log("[14:06:01.451][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT `t`.`id` AS `t0_c0`, `t`.`userId` AS `t0_c1`, `t`.`email` AS `t0_c2`, `t`.`lastUsedBillingAddressId` AS `t0_c3`, `t`.`lastUsedShippingAddressId` AS `t0_c4`, `t`.`dateCreated` AS `t0_c5`, `t`.`dateUpdated` AS `t0_c6`, `t`.`uid` AS `t0_c7`, `addresses`.`id` AS `t1_c0`, `addresses`.`firstName` AS `t1_c1`, `addresses`.`lastName` AS `t1_c2`, `addresses`.`countryId` AS `t1_c3`, `addresses`.`stateId` AS `t1_c4`, `addresses`.`address1` AS `t1_c5`, `addresses`.`address2` AS `t1_c6`, `addresses`.`city` AS `t1_c7`, `addresses`.`zipCode` AS `t1_c8`, `addresses`.`phone` AS `t1_c9`, `addresses`.`alternativePhone` AS `t1_c10`, `addresses`.`businessName` AS `t1_c11`, `addresses`.`businessTaxId` AS `t1_c12`, `addresses`.`stateName` AS `t1_c13`, `addresses`.`dateCreated` AS `t1_c14`, `addresses`.`dateUpdated` AS `t1_c15`, `addresses`.`uid` AS `t1_c16` FROM `craft_commerce_customers` `t`  LEFT OUTER JOIN `craft_commerce_customers_addresses` `customersaddresses` ON (`customersaddresses`.`customerId`=`t`.`id`) LEFT OUTER JOIN `craft_commerce_addresses` `addresses` ON (`customersaddresses`.`addressId`=`addresses`.`id`) WHERE (`t`.`id`=:yp0). Bound with :yp0=\'5\')");
+	console.log("[14:06:01.452][trace][system.db.ar.CActiveRecord]\nCraft\\Commerce_CustomerRecord.findByAttributes()\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_AddressesService.php (39)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_CustomerModel.php (57)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/models/BaseModel.php (87)");
+	console.log("[14:06:01.453][trace][system.db.CDbCommand]\nQuerying SQL: SELECT `t`.`id` AS `t0_c0`, `t`.`userId` AS `t0_c1`, `t`.`email` AS `t0_c2`, `t`.`lastUsedBillingAddressId` AS `t0_c3`, `t`.`lastUsedShippingAddressId` AS `t0_c4`, `t`.`dateCreated` AS `t0_c5`, `t`.`dateUpdated` AS `t0_c6`, `t`.`uid` AS `t0_c7`, `addresses`.`id` AS `t1_c0`, `addresses`.`firstName` AS `t1_c1`, `addresses`.`lastName` AS `t1_c2`, `addresses`.`countryId` AS `t1_c3`, `addresses`.`stateId` AS `t1_c4`, `addresses`.`address1` AS `t1_c5`, `addresses`.`address2` AS `t1_c6`, `addresses`.`city` AS `t1_c7`, `addresses`.`zipCode` AS `t1_c8`, `addresses`.`phone` AS `t1_c9`, `addresses`.`alternativePhone` AS `t1_c10`, `addresses`.`businessName` AS `t1_c11`, `addresses`.`businessTaxId` AS `t1_c12`, `addresses`.`stateName` AS `t1_c13`, `addresses`.`dateCreated` AS `t1_c14`, `addresses`.`dateUpdated` AS `t1_c15`, `addresses`.`uid` AS `t1_c16` FROM `craft_commerce_customers` `t`  LEFT OUTER JOIN `craft_commerce_customers_addresses` `customersaddresses` ON (`customersaddresses`.`customerId`=`t`.`id`) LEFT OUTER JOIN `craft_commerce_addresses` `addresses` ON (`customersaddresses`.`addressId`=`addresses`.`id`) WHERE (`t`.`id`=:yp0). Bound with :yp0=\'5\'\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_AddressesService.php (39)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_CustomerModel.php (57)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/models/BaseModel.php (87)");
+	console.log("[14:06:01.453][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT `t`.`id` AS `t0_c0`, `t`.`userId` AS `t0_c1`, `t`.`email` AS `t0_c2`, `t`.`lastUsedBillingAddressId` AS `t0_c3`, `t`.`lastUsedShippingAddressId` AS `t0_c4`, `t`.`dateCreated` AS `t0_c5`, `t`.`dateUpdated` AS `t0_c6`, `t`.`uid` AS `t0_c7`, `addresses`.`id` AS `t1_c0`, `addresses`.`firstName` AS `t1_c1`, `addresses`.`lastName` AS `t1_c2`, `addresses`.`countryId` AS `t1_c3`, `addresses`.`stateId` AS `t1_c4`, `addresses`.`address1` AS `t1_c5`, `addresses`.`address2` AS `t1_c6`, `addresses`.`city` AS `t1_c7`, `addresses`.`zipCode` AS `t1_c8`, `addresses`.`phone` AS `t1_c9`, `addresses`.`alternativePhone` AS `t1_c10`, `addresses`.`businessName` AS `t1_c11`, `addresses`.`businessTaxId` AS `t1_c12`, `addresses`.`stateName` AS `t1_c13`, `addresses`.`dateCreated` AS `t1_c14`, `addresses`.`dateUpdated` AS `t1_c15`, `addresses`.`uid` AS `t1_c16` FROM `craft_commerce_customers` `t`  LEFT OUTER JOIN `craft_commerce_customers_addresses` `customersaddresses` ON (`customersaddresses`.`customerId`=`t`.`id`) LEFT OUTER JOIN `craft_commerce_addresses` `addresses` ON (`customersaddresses`.`addressId`=`addresses`.`id`) WHERE (`t`.`id`=:yp0). Bound with :yp0=\'5\')");
+	console.log("[14:06:01.453][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT `t`.`id` AS `t0_c0`, `t`.`userId` AS `t0_c1`, `t`.`email` AS `t0_c2`, `t`.`lastUsedBillingAddressId` AS `t0_c3`, `t`.`lastUsedShippingAddressId` AS `t0_c4`, `t`.`dateCreated` AS `t0_c5`, `t`.`dateUpdated` AS `t0_c6`, `t`.`uid` AS `t0_c7`, `addresses`.`id` AS `t1_c0`, `addresses`.`firstName` AS `t1_c1`, `addresses`.`lastName` AS `t1_c2`, `addresses`.`countryId` AS `t1_c3`, `addresses`.`stateId` AS `t1_c4`, `addresses`.`address1` AS `t1_c5`, `addresses`.`address2` AS `t1_c6`, `addresses`.`city` AS `t1_c7`, `addresses`.`zipCode` AS `t1_c8`, `addresses`.`phone` AS `t1_c9`, `addresses`.`alternativePhone` AS `t1_c10`, `addresses`.`businessName` AS `t1_c11`, `addresses`.`businessTaxId` AS `t1_c12`, `addresses`.`stateName` AS `t1_c13`, `addresses`.`dateCreated` AS `t1_c14`, `addresses`.`dateUpdated` AS `t1_c15`, `addresses`.`uid` AS `t1_c16` FROM `craft_commerce_customers` `t`  LEFT OUTER JOIN `craft_commerce_customers_addresses` `customersaddresses` ON (`customersaddresses`.`customerId`=`t`.`id`) LEFT OUTER JOIN `craft_commerce_addresses` `addresses` ON (`customersaddresses`.`addressId`=`addresses`.`id`) WHERE (`t`.`id`=:yp0). Bound with :yp0=\'5\')");
+	console.log("[14:06:01.652][trace][system.db.ar.CActiveRecord]\nCraft\\Commerce_AddressRecord.findByPk()\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/records/BaseRecord.php (423)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_AddressesService.php (23)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_OrderModel.php (461)");
+	console.log("[14:06:01.652][trace][system.db.CDbCommand]\nQuerying SQL: SELECT * FROM `craft_commerce_addresses` `t` WHERE `t`.`id` IS NULL LIMIT 1\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/records/BaseRecord.php (423)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_AddressesService.php (23)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_OrderModel.php (461)");
+	console.log("[14:06:01.652][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT * FROM `craft_commerce_addresses` `t` WHERE `t`.`id` IS NULL LIMIT 1)");
+	console.log("[14:06:01.653][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT * FROM `craft_commerce_addresses` `t` WHERE `t`.`id` IS NULL LIMIT 1)");
+	console.log("[14:06:01.653][trace][system.db.ar.CActiveRecord]\nCraft\\Commerce_AddressRecord.findByPk()\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/records/BaseRecord.php (423)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_AddressesService.php (23)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_OrderModel.php (461)");
+	console.log("[14:06:01.653][trace][system.db.CDbCommand]\nQuerying SQL: SELECT * FROM `craft_commerce_addresses` `t` WHERE `t`.`id` IS NULL LIMIT 1\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/records/BaseRecord.php (423)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_AddressesService.php (23)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_OrderModel.php (461)");
+	console.log("[14:06:01.653][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT * FROM `craft_commerce_addresses` `t` WHERE `t`.`id` IS NULL LIMIT 1)");
+	console.log("[14:06:01.653][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT * FROM `craft_commerce_addresses` `t` WHERE `t`.`id` IS NULL LIMIT 1)");
+	console.log("[14:06:01.654][trace][system.CModule]\nLoading \"commerce_countries\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/Commerce/commerce/variables/CommerceVariable.php (99)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/vendor/twig/twig/lib/Twig/Template.php (609)");
+	console.log("[14:06:01.655][trace][system.db.ar.CActiveRecord]\nCraft\\Commerce_CountryRecord.findAll()\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_CountriesService.php (65)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_CountriesService.php (55)\nin /Users/lh/Code/Projects/Commerce/commerce/variables/CommerceVariable.php (99)");
+	console.log("[14:06:01.655][trace][system.db.CDbCommand]\nQuerying SQL: SHOW FULL COLUMNS FROM `craft_commerce_countries`\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_CountriesService.php (65)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_CountriesService.php (55)\nin /Users/lh/Code/Projects/Commerce/commerce/variables/CommerceVariable.php (99)");
+	console.log("[14:06:01.655][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SHOW FULL COLUMNS FROM `craft_commerce_countries`)");
+	console.log("[14:06:01.656][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SHOW FULL COLUMNS FROM `craft_commerce_countries`)");
+	console.log("[14:06:01.657][trace][system.db.CDbCommand]\nQuerying SQL: SHOW CREATE TABLE `craft_commerce_countries`\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_CountriesService.php (65)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_CountriesService.php (55)\nin /Users/lh/Code/Projects/Commerce/commerce/variables/CommerceVariable.php (99)");
+	console.log("[14:06:01.657][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SHOW CREATE TABLE `craft_commerce_countries`)");
+	console.log("[14:06:01.657][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SHOW CREATE TABLE `craft_commerce_countries`)");
+	console.log("[14:06:01.657][trace][system.db.CDbCommand]\nQuerying SQL: SELECT * FROM `craft_commerce_countries` `t` ORDER BY name\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_CountriesService.php (65)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_CountriesService.php (55)\nin /Users/lh/Code/Projects/Commerce/commerce/variables/CommerceVariable.php (99)");
+	console.log("[14:06:01.657][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT * FROM `craft_commerce_countries` `t` ORDER BY name)");
+	console.log("[14:06:01.659][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT * FROM `craft_commerce_countries` `t` ORDER BY name)");
+	console.log("[14:06:01.801][trace][system.CModule]\nLoading \"commerce_states\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/Commerce/commerce/variables/CommerceVariable.php (107)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/vendor/twig/twig/lib/Twig/Template.php (609)");
+	console.log("[14:06:01.802][trace][system.db.ar.CActiveRecord]\nCraft\\Commerce_StateRecord.findAll()\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_StatesService.php (76)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_StatesService.php (53)\nin /Users/lh/Code/Projects/Commerce/commerce/variables/CommerceVariable.php (107)");
+	console.log("[14:06:01.802][trace][system.db.CDbCommand]\nQuerying SQL: SHOW FULL COLUMNS FROM `craft_commerce_states`\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_StatesService.php (76)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_StatesService.php (53)\nin /Users/lh/Code/Projects/Commerce/commerce/variables/CommerceVariable.php (107)");
+	console.log("[14:06:01.802][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SHOW FULL COLUMNS FROM `craft_commerce_states`)");
+	console.log("[14:06:01.803][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SHOW FULL COLUMNS FROM `craft_commerce_states`)");
+	console.log("[14:06:01.804][trace][system.db.CDbCommand]\nQuerying SQL: SHOW CREATE TABLE `craft_commerce_states`\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_StatesService.php (76)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_StatesService.php (53)\nin /Users/lh/Code/Projects/Commerce/commerce/variables/CommerceVariable.php (107)");
+	console.log("[14:06:01.804][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SHOW CREATE TABLE `craft_commerce_states`)");
+	console.log("[14:06:01.804][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SHOW CREATE TABLE `craft_commerce_states`)");
+	console.log("[14:06:01.805][trace][system.db.CDbCommand]\nQuerying SQL: SELECT `t`.`id` AS `t0_c0`, `t`.`name` AS `t0_c1`, `t`.`abbreviation` AS `t0_c2`, `t`.`countryId` AS `t0_c3`, `t`.`dateCreated` AS `t0_c4`, `t`.`dateUpdated` AS `t0_c5`, `t`.`uid` AS `t0_c6`, `country`.`id` AS `t1_c0`, `country`.`name` AS `t1_c1`, `country`.`iso` AS `t1_c2`, `country`.`stateRequired` AS `t1_c3`, `country`.`dateCreated` AS `t1_c4`, `country`.`dateUpdated` AS `t1_c5`, `country`.`uid` AS `t1_c6` FROM `craft_commerce_states` `t`  LEFT OUTER JOIN `craft_commerce_countries` `country` ON (`t`.`countryId`=`country`.`id`) ORDER BY country.name, t.name\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_StatesService.php (76)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_StatesService.php (53)\nin /Users/lh/Code/Projects/Commerce/commerce/variables/CommerceVariable.php (107)");
+	console.log("[14:06:01.805][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT `t`.`id` AS `t0_c0`, `t`.`name` AS `t0_c1`, `t`.`abbreviation` AS `t0_c2`, `t`.`countryId` AS `t0_c3`, `t`.`dateCreated` AS `t0_c4`, `t`.`dateUpdated` AS `t0_c5`, `t`.`uid` AS `t0_c6`, `country`.`id` AS `t1_c0`, `country`.`name` AS `t1_c1`, `country`.`iso` AS `t1_c2`, `country`.`stateRequired` AS `t1_c3`, `country`.`dateCreated` AS `t1_c4`, `country`.`dateUpdated` AS `t1_c5`, `country`.`uid` AS `t1_c6` FROM `craft_commerce_states` `t`  LEFT OUTER JOIN `craft_commerce_countries` `country` ON (`t`.`countryId`=`country`.`id`) ORDER BY country.name, t.name)");
+	console.log("[14:06:01.807][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT `t`.`id` AS `t0_c0`, `t`.`name` AS `t0_c1`, `t`.`abbreviation` AS `t0_c2`, `t`.`countryId` AS `t0_c3`, `t`.`dateCreated` AS `t0_c4`, `t`.`dateUpdated` AS `t0_c5`, `t`.`uid` AS `t0_c6`, `country`.`id` AS `t1_c0`, `country`.`name` AS `t1_c1`, `country`.`iso` AS `t1_c2`, `country`.`stateRequired` AS `t1_c3`, `country`.`dateCreated` AS `t1_c4`, `country`.`dateUpdated` AS `t1_c5`, `country`.`uid` AS `t1_c6` FROM `craft_commerce_states` `t`  LEFT OUTER JOIN `craft_commerce_countries` `country` ON (`t`.`countryId`=`country`.`id`) ORDER BY country.name, t.name)");
+	console.log("[14:06:01.851][trace][system.db.ar.CActiveRecord]\nCraft\\Commerce_StateRecord.findAll()\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_StatesService.php (76)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_StatesService.php (53)\nin /Users/lh/Code/Projects/Commerce/commerce/variables/CommerceVariable.php (107)");
+	console.log("[14:06:01.852][trace][system.db.CDbCommand]\nQuerying SQL: SELECT `t`.`id` AS `t0_c0`, `t`.`name` AS `t0_c1`, `t`.`abbreviation` AS `t0_c2`, `t`.`countryId` AS `t0_c3`, `t`.`dateCreated` AS `t0_c4`, `t`.`dateUpdated` AS `t0_c5`, `t`.`uid` AS `t0_c6`, `country`.`id` AS `t1_c0`, `country`.`name` AS `t1_c1`, `country`.`iso` AS `t1_c2`, `country`.`stateRequired` AS `t1_c3`, `country`.`dateCreated` AS `t1_c4`, `country`.`dateUpdated` AS `t1_c5`, `country`.`uid` AS `t1_c6` FROM `craft_commerce_states` `t`  LEFT OUTER JOIN `craft_commerce_countries` `country` ON (`t`.`countryId`=`country`.`id`) ORDER BY country.name, t.name\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_StatesService.php (76)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_StatesService.php (53)\nin /Users/lh/Code/Projects/Commerce/commerce/variables/CommerceVariable.php (107)");
+	console.log("[14:06:01.852][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT `t`.`id` AS `t0_c0`, `t`.`name` AS `t0_c1`, `t`.`abbreviation` AS `t0_c2`, `t`.`countryId` AS `t0_c3`, `t`.`dateCreated` AS `t0_c4`, `t`.`dateUpdated` AS `t0_c5`, `t`.`uid` AS `t0_c6`, `country`.`id` AS `t1_c0`, `country`.`name` AS `t1_c1`, `country`.`iso` AS `t1_c2`, `country`.`stateRequired` AS `t1_c3`, `country`.`dateCreated` AS `t1_c4`, `country`.`dateUpdated` AS `t1_c5`, `country`.`uid` AS `t1_c6` FROM `craft_commerce_states` `t`  LEFT OUTER JOIN `craft_commerce_countries` `country` ON (`t`.`countryId`=`country`.`id`) ORDER BY country.name, t.name)");
+	console.log("[14:06:01.853][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT `t`.`id` AS `t0_c0`, `t`.`name` AS `t0_c1`, `t`.`abbreviation` AS `t0_c2`, `t`.`countryId` AS `t0_c3`, `t`.`dateCreated` AS `t0_c4`, `t`.`dateUpdated` AS `t0_c5`, `t`.`uid` AS `t0_c6`, `country`.`id` AS `t1_c0`, `country`.`name` AS `t1_c1`, `country`.`iso` AS `t1_c2`, `country`.`stateRequired` AS `t1_c3`, `country`.`dateCreated` AS `t1_c4`, `country`.`dateUpdated` AS `t1_c5`, `country`.`uid` AS `t1_c6` FROM `craft_commerce_states` `t`  LEFT OUTER JOIN `craft_commerce_countries` `country` ON (`t`.`countryId`=`country`.`id`) ORDER BY country.name, t.name)");
+	console.log("[14:06:01.894][trace][system.db.ar.CActiveRecord]\nCraft\\Commerce_AddressRecord.findByPk()\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/records/BaseRecord.php (423)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_AddressesService.php (23)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_OrderModel.php (481)");
+	console.log("[14:06:01.894][trace][system.db.CDbCommand]\nQuerying SQL: SELECT * FROM `craft_commerce_addresses` `t` WHERE `t`.`id` IS NULL LIMIT 1\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/records/BaseRecord.php (423)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_AddressesService.php (23)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_OrderModel.php (481)");
+	console.log("[14:06:01.894][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT * FROM `craft_commerce_addresses` `t` WHERE `t`.`id` IS NULL LIMIT 1)");
+	console.log("[14:06:01.895][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT * FROM `craft_commerce_addresses` `t` WHERE `t`.`id` IS NULL LIMIT 1)");
+	console.log("[14:06:01.895][trace][system.db.ar.CActiveRecord]\nCraft\\Commerce_AddressRecord.findByPk()\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/records/BaseRecord.php (423)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_AddressesService.php (23)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_OrderModel.php (481)");
+	console.log("[14:06:01.895][trace][system.db.CDbCommand]\nQuerying SQL: SELECT * FROM `craft_commerce_addresses` `t` WHERE `t`.`id` IS NULL LIMIT 1\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/records/BaseRecord.php (423)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_AddressesService.php (23)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_OrderModel.php (481)");
+	console.log("[14:06:01.895][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT * FROM `craft_commerce_addresses` `t` WHERE `t`.`id` IS NULL LIMIT 1)");
+	console.log("[14:06:01.895][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT * FROM `craft_commerce_addresses` `t` WHERE `t`.`id` IS NULL LIMIT 1)");
+	console.log("[14:06:01.895][trace][system.db.ar.CActiveRecord]\nCraft\\Commerce_CountryRecord.findAll()\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_CountriesService.php (65)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_CountriesService.php (55)\nin /Users/lh/Code/Projects/Commerce/commerce/variables/CommerceVariable.php (99)");
+	console.log("[14:06:01.896][trace][system.db.CDbCommand]\nQuerying SQL: SELECT * FROM `craft_commerce_countries` `t` ORDER BY name\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_CountriesService.php (65)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_CountriesService.php (55)\nin /Users/lh/Code/Projects/Commerce/commerce/variables/CommerceVariable.php (99)");
+	console.log("[14:06:01.896][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT * FROM `craft_commerce_countries` `t` ORDER BY name)");
+	console.log("[14:06:01.897][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT * FROM `craft_commerce_countries` `t` ORDER BY name)");
+	console.log("[14:06:02.047][trace][system.db.ar.CActiveRecord]\nCraft\\Commerce_StateRecord.findAll()\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_StatesService.php (76)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_StatesService.php (53)\nin /Users/lh/Code/Projects/Commerce/commerce/variables/CommerceVariable.php (107)");
+	console.log("[14:06:02.048][trace][system.db.CDbCommand]\nQuerying SQL: SELECT `t`.`id` AS `t0_c0`, `t`.`name` AS `t0_c1`, `t`.`abbreviation` AS `t0_c2`, `t`.`countryId` AS `t0_c3`, `t`.`dateCreated` AS `t0_c4`, `t`.`dateUpdated` AS `t0_c5`, `t`.`uid` AS `t0_c6`, `country`.`id` AS `t1_c0`, `country`.`name` AS `t1_c1`, `country`.`iso` AS `t1_c2`, `country`.`stateRequired` AS `t1_c3`, `country`.`dateCreated` AS `t1_c4`, `country`.`dateUpdated` AS `t1_c5`, `country`.`uid` AS `t1_c6` FROM `craft_commerce_states` `t`  LEFT OUTER JOIN `craft_commerce_countries` `country` ON (`t`.`countryId`=`country`.`id`) ORDER BY country.name, t.name\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_StatesService.php (76)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_StatesService.php (53)\nin /Users/lh/Code/Projects/Commerce/commerce/variables/CommerceVariable.php (107)");
+	console.log("[14:06:02.048][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT `t`.`id` AS `t0_c0`, `t`.`name` AS `t0_c1`, `t`.`abbreviation` AS `t0_c2`, `t`.`countryId` AS `t0_c3`, `t`.`dateCreated` AS `t0_c4`, `t`.`dateUpdated` AS `t0_c5`, `t`.`uid` AS `t0_c6`, `country`.`id` AS `t1_c0`, `country`.`name` AS `t1_c1`, `country`.`iso` AS `t1_c2`, `country`.`stateRequired` AS `t1_c3`, `country`.`dateCreated` AS `t1_c4`, `country`.`dateUpdated` AS `t1_c5`, `country`.`uid` AS `t1_c6` FROM `craft_commerce_states` `t`  LEFT OUTER JOIN `craft_commerce_countries` `country` ON (`t`.`countryId`=`country`.`id`) ORDER BY country.name, t.name)");
+	console.log("[14:06:02.050][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT `t`.`id` AS `t0_c0`, `t`.`name` AS `t0_c1`, `t`.`abbreviation` AS `t0_c2`, `t`.`countryId` AS `t0_c3`, `t`.`dateCreated` AS `t0_c4`, `t`.`dateUpdated` AS `t0_c5`, `t`.`uid` AS `t0_c6`, `country`.`id` AS `t1_c0`, `country`.`name` AS `t1_c1`, `country`.`iso` AS `t1_c2`, `country`.`stateRequired` AS `t1_c3`, `country`.`dateCreated` AS `t1_c4`, `country`.`dateUpdated` AS `t1_c5`, `country`.`uid` AS `t1_c6` FROM `craft_commerce_states` `t`  LEFT OUTER JOIN `craft_commerce_countries` `country` ON (`t`.`countryId`=`country`.`id`) ORDER BY country.name, t.name)");
+	console.log("[14:06:02.108][trace][system.db.ar.CActiveRecord]\nCraft\\Commerce_StateRecord.findAll()\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_StatesService.php (76)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_StatesService.php (53)\nin /Users/lh/Code/Projects/Commerce/commerce/variables/CommerceVariable.php (107)");
+	console.log("[14:06:02.109][trace][system.db.CDbCommand]\nQuerying SQL: SELECT `t`.`id` AS `t0_c0`, `t`.`name` AS `t0_c1`, `t`.`abbreviation` AS `t0_c2`, `t`.`countryId` AS `t0_c3`, `t`.`dateCreated` AS `t0_c4`, `t`.`dateUpdated` AS `t0_c5`, `t`.`uid` AS `t0_c6`, `country`.`id` AS `t1_c0`, `country`.`name` AS `t1_c1`, `country`.`iso` AS `t1_c2`, `country`.`stateRequired` AS `t1_c3`, `country`.`dateCreated` AS `t1_c4`, `country`.`dateUpdated` AS `t1_c5`, `country`.`uid` AS `t1_c6` FROM `craft_commerce_states` `t`  LEFT OUTER JOIN `craft_commerce_countries` `country` ON (`t`.`countryId`=`country`.`id`) ORDER BY country.name, t.name\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_StatesService.php (76)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_StatesService.php (53)\nin /Users/lh/Code/Projects/Commerce/commerce/variables/CommerceVariable.php (107)");
+	console.log("[14:06:02.109][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT `t`.`id` AS `t0_c0`, `t`.`name` AS `t0_c1`, `t`.`abbreviation` AS `t0_c2`, `t`.`countryId` AS `t0_c3`, `t`.`dateCreated` AS `t0_c4`, `t`.`dateUpdated` AS `t0_c5`, `t`.`uid` AS `t0_c6`, `country`.`id` AS `t1_c0`, `country`.`name` AS `t1_c1`, `country`.`iso` AS `t1_c2`, `country`.`stateRequired` AS `t1_c3`, `country`.`dateCreated` AS `t1_c4`, `country`.`dateUpdated` AS `t1_c5`, `country`.`uid` AS `t1_c6` FROM `craft_commerce_states` `t`  LEFT OUTER JOIN `craft_commerce_countries` `country` ON (`t`.`countryId`=`country`.`id`) ORDER BY country.name, t.name)");
+	console.log("[14:06:02.110][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT `t`.`id` AS `t0_c0`, `t`.`name` AS `t0_c1`, `t`.`abbreviation` AS `t0_c2`, `t`.`countryId` AS `t0_c3`, `t`.`dateCreated` AS `t0_c4`, `t`.`dateUpdated` AS `t0_c5`, `t`.`uid` AS `t0_c6`, `country`.`id` AS `t1_c0`, `country`.`name` AS `t1_c1`, `country`.`iso` AS `t1_c2`, `country`.`stateRequired` AS `t1_c3`, `country`.`dateCreated` AS `t1_c4`, `country`.`dateUpdated` AS `t1_c5`, `country`.`uid` AS `t1_c6` FROM `craft_commerce_states` `t`  LEFT OUTER JOIN `craft_commerce_countries` `country` ON (`t`.`countryId`=`country`.`id`) ORDER BY country.name, t.name)");
+	console.log("[14:06:02.184][trace][system.caching.Craft\\FileCache]\nServing \"useWriteFileLock\" from cache\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CacheService.php (169)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/logging/FileLogRoute.php (86)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/controllers/BaseController.php (145)");
+	console.groupEnd();
+
+	console.groupEnd();
+}
+/*]]&gt;*/
+</script>
+<script type="text/javascript">
+/*&lt;![CDATA[*/
+if (typeof(console) == 'object' &amp;&amp; typeof console.groupCollapsed == 'function')
+{
+	console.groupCollapsed("Profiling Summary Report");
+	console.log("Time:   0.96566s\n");
+	console.log("Memory: 20,141Kb\n");
+	console.log("Total Queries: 27\n");
+	console.log(" count   total   average    min      max   ");
+
+		console.log("     4  0.00500  0.00125  0.00096  0.00165    system.db.CDbCommand.query(SELECT `t`.`id` AS `t0_c0`, `t`.`name` AS `t0_c1`, `t`.`abbreviation` AS `t0_c2`, `t`.`countryId` AS `t0_c3`, `t`.`dateCreated` AS `t0_c4`, `t`.`dateUpdated` AS `t0_c5`, `t`.`uid` AS `t0_c6`, `country`.`id` AS `t1_c0`, `country`.`name` AS `t1_c1`, `country`.`iso` AS `t1_c2`, `country`.`stateRequired` AS `t1_c3`, `country`.`dateCreated` AS `t1_c4`, `country`.`dateUpdated` AS `t1_c5`, `country`.`uid` AS `t1_c6` FROM `craft_commerce_states` `t`  LEFT OUTER JOIN `craft_commerce_countries` `country` ON (`t`.`countryId`=`country`.`id`) ORDER BY country.name, t.name)");
+	console.log("     2  0.00340  0.00170  0.00139  0.00200    system.db.CDbCommand.query(SELECT * FROM `craft_commerce_countries` `t` ORDER BY name)");
+	console.log("     1  0.00152  0.00152  0.00152  0.00152    system.db.CDbCommand.query(SHOW FULL COLUMNS FROM `craft_commerce_addresses`)");
+	console.log("     1  0.00140  0.00140  0.00140  0.00140    system.db.CDbCommand.query(SELECT `elements`.`id`, `elements`.`type`, `elements`.`enabled`, `elements`.`archived`, `elements`.`dateCreated`, `elements`.`dateUpdated`, `elements_i18n`.`slug`, `elements_i18n`.`uri`, `elements_i18n`.`enabled` AS `localeEnabled`, `content`.`id` AS `contentId`, `content`.`field_body`, `content`.`field_multilInk`, `orders`.`id`, `orders`.`number`, `orders`.`couponCode`, `orders`.`itemTotal`, `orders`.`baseDiscount`, `orders`.`baseShippingCost`, `orders`.`totalPrice`, `orders`.`totalPaid`, `orders`.`orderStatusId`, `orders`.`dateOrdered`, `orders`.`email`, `orders`.`isCompleted`, `orders`.`dateOrdered`, `orders`.`datePaid`, `orders`.`currency`, `orders`.`lastIp`, `orders`.`message`, `orders`.`returnUrl`, `orders`.`cancelUrl`, `orders`.`orderStatusId`, `orders`.`billingAddressId`, `orders`.`shippingAddressId`, `orders`.`shippingMethod`, `orders`.`paymentMethodId`, `orders`.`customerId`, `orders`.`dateUpdated`\nFROM `craft_elements` `elements`\nJOIN `craft_elements_i18n` `elements_i18n` ON elements_i18n.elementId = elements.id\nJOIN `craft_content` `content` ON content.elementId = elements.id\nJOIN `craft_commerce_orders` `orders` ON orders.id = elements.id\nWHERE (((((elements_i18n.locale = :locale) AND (content.locale = :locale)) AND (elements.archived = 0)) AND (elements.enabled = 1)) AND (elements_i18n.enabled = 1)) AND (orders.number=:ordersnumber1)\nGROUP BY `elements`.`id`\nORDER BY `elements`.`dateCreated` DESC LIMIT 1. Bound with :locale=\'en_us\', :ordersnumber1=\'0a43fde5b3ed29cb3b25bfe91e62cec6\')");
+	console.log("     1  0.00131  0.00131  0.00131  0.00131    system.db.CDbCommand.query(SHOW FULL COLUMNS FROM `craft_commerce_countries`)");
+	console.log("     1  0.00110  0.00110  0.00110  0.00110    system.db.CDbCommand.query(SHOW FULL COLUMNS FROM `craft_commerce_states`)");
+	console.log("     1  0.00108  0.00108  0.00108  0.00108    system.db.CDbCommand.query(SELECT `elements`.`id`, `elements`.`type`, `elements`.`enabled`, `elements`.`archived`, `elements`.`dateCreated`, `elements`.`dateUpdated`, `elements_i18n`.`slug`, `elements_i18n`.`uri`, `elements_i18n`.`enabled` AS `localeEnabled`, `content`.`id` AS `contentId`, `content`.`field_body`, `content`.`field_multilInk`, `globalsets`.`name`, `globalsets`.`handle`, `globalsets`.`fieldLayoutId`\nFROM `craft_elements` `elements`\nJOIN `craft_elements_i18n` `elements_i18n` ON elements_i18n.elementId = elements.id\nJOIN `craft_content` `content` ON content.elementId = elements.id\nJOIN `craft_globalsets` `globalsets` ON globalsets.id = elements.id\nWHERE ((((elements_i18n.locale = :locale) AND (content.locale = :locale)) AND (elements.archived = 0)) AND (elements.enabled = 1)) AND (elements_i18n.enabled = 1)\nGROUP BY `elements`.`id`\nORDER BY `name` LIMIT 100. Bound with :locale=\'en_us\')");
+	console.log("     1  0.00105  0.00105  0.00105  0.00105    system.db.CDbCommand.query(SHOW FULL COLUMNS FROM `craft_commerce_customers`)");
+	console.log("     1  0.00097  0.00097  0.00097  0.00097    system.db.CDbCommand.query(SHOW FULL COLUMNS FROM `craft_commerce_customers_addresses`)");
+	console.log("     4  0.00082  0.00020  0.00014  0.00027    system.db.CDbCommand.query(SELECT * FROM `craft_commerce_addresses` `t` WHERE `t`.`id` IS NULL LIMIT 1)");
+	console.log("     2  0.00059  0.00029  0.00027  0.00031    system.db.CDbCommand.query(SELECT `t`.`id` AS `t0_c0`, `t`.`userId` AS `t0_c1`, `t`.`email` AS `t0_c2`, `t`.`lastUsedBillingAddressId` AS `t0_c3`, `t`.`lastUsedShippingAddressId` AS `t0_c4`, `t`.`dateCreated` AS `t0_c5`, `t`.`dateUpdated` AS `t0_c6`, `t`.`uid` AS `t0_c7`, `addresses`.`id` AS `t1_c0`, `addresses`.`firstName` AS `t1_c1`, `addresses`.`lastName` AS `t1_c2`, `addresses`.`countryId` AS `t1_c3`, `addresses`.`stateId` AS `t1_c4`, `addresses`.`address1` AS `t1_c5`, `addresses`.`address2` AS `t1_c6`, `addresses`.`city` AS `t1_c7`, `addresses`.`zipCode` AS `t1_c8`, `addresses`.`phone` AS `t1_c9`, `addresses`.`alternativePhone` AS `t1_c10`, `addresses`.`businessName` AS `t1_c11`, `addresses`.`businessTaxId` AS `t1_c12`, `addresses`.`stateName` AS `t1_c13`, `addresses`.`dateCreated` AS `t1_c14`, `addresses`.`dateUpdated` AS `t1_c15`, `addresses`.`uid` AS `t1_c16` FROM `craft_commerce_customers` `t`  LEFT OUTER JOIN `craft_commerce_customers_addresses` `customersaddresses` ON (`customersaddresses`.`customerId`=`t`.`id`) LEFT OUTER JOIN `craft_commerce_addresses` `addresses` ON (`customersaddresses`.`addressId`=`addresses`.`id`) WHERE (`t`.`id`=:yp0). Bound with :yp0=\'5\')");
+	console.log("     1  0.00053  0.00053  0.00053  0.00053    system.db.CDbCommand.query(SHOW TABLES LIKE \'craft_%\')");
+	console.log("     1  0.00033  0.00033  0.00033  0.00033    system.db.CDbCommand.query(SELECT `f`.`id`, `f`.`groupId`, `f`.`name`, `f`.`handle`, `f`.`context`, `f`.`instructions`, `f`.`translatable`, `f`.`type`, `f`.`settings`\nFROM `craft_fields` `f`\nWHERE `f`.`context` IN (\'global\')\nORDER BY `f`.`name`)");
+	console.log("     1  0.00028  0.00028  0.00028  0.00028    system.db.CDbCommand.query(SELECT `orders`.`id`, `orders`.`number`, `orders`.`orderStatusId`, `orders`.`billingAddressId`, `orders`.`shippingAddressId`, `orders`.`customerId`, `orders`.`couponCode`, `orders`.`itemTotal`, `orders`.`baseDiscount`, `orders`.`baseShippingCost`, `orders`.`totalPrice`, `orders`.`totalPaid`, `orders`.`email`, `orders`.`dateOrdered`, `orders`.`datePaid`, `orders`.`currency`, `orders`.`lastIp`, `orders`.`message`, `orders`.`returnUrl`, `orders`.`cancelUrl`, `orders`.`shippingMethod`, `orders`.`paymentMethodId`\nFROM `craft_commerce_orders` `orders`\nWHERE orders.number = :number AND dateOrdered IS NULL. Bound with :number=\'0a43fde5b3ed29cb3b25bfe91e62cec6\')");
+	console.log("     1  0.00028  0.00028  0.00028  0.00028    system.db.CDbCommand.query(SELECT *\nFROM `craft_plugins`\nWHERE enabled=1)");
+	console.log("     1  0.00025  0.00025  0.00025  0.00025    system.db.CDbCommand.query(SELECT `lineitems`.`id`, `lineitems`.`orderId`, `lineitems`.`purchasableId`, `lineitems`.`options`, `lineitems`.`optionsSignature`, `lineitems`.`price`, `lineitems`.`saleAmount`, `lineitems`.`salePrice`, `lineitems`.`tax`, `lineitems`.`taxIncluded`, `lineitems`.`shippingCost`, `lineitems`.`discount`, `lineitems`.`weight`, `lineitems`.`height`, `lineitems`.`length`, `lineitems`.`width`, `lineitems`.`total`, `lineitems`.`qty`, `lineitems`.`note`, `lineitems`.`snapshot`, `lineitems`.`taxCategoryId`\nFROM `craft_commerce_lineitems` `lineitems`\nWHERE lineitems.orderId = :orderId\nORDER BY `lineitems`.`id`. Bound with :orderId=\'33\')");
+	console.log("     1  0.00024  0.00024  0.00024  0.00024    system.db.CDbCommand.query(SELECT `elements`.`id`, `elements`.`type`\nFROM `craft_elements` `elements`\nJOIN `craft_elements_i18n` `elements_i18n` ON elements_i18n.elementId = elements.id\nWHERE (elements_i18n.uri = :uri) AND (elements_i18n.locale = :locale) AND (elements_i18n.enabled = 1) AND (elements.enabled = 1) AND (elements.archived = 0). Bound with :uri=\'commerce/checkout/addresses\', :locale=\'en_us\')");
+	console.log("     1  0.00023  0.00023  0.00023  0.00023    system.db.CDbCommand.query(SELECT `locale`\nFROM `craft_locales`\nORDER BY `sortOrder`)");
+	console.log("     1  0.00022  0.00022  0.00022  0.00022    system.db.CDbCommand.query(SHOW CREATE TABLE `craft_commerce_addresses`)");
+	console.log("     1  0.00020  0.00020  0.00020  0.00020    system.db.CDbCommand.query(SELECT *\nFROM `craft_info` LIMIT 1)");
+	console.log("     1  0.00020  0.00020  0.00020  0.00020    system.db.CDbCommand.query(SELECT `urlPattern`, `template`\nFROM `craft_routes`\nWHERE (locale is null) OR (locale = :locale)\nORDER BY `sortOrder`. Bound with :locale=\'en_us\')");
+	console.log("     1  0.00019  0.00019  0.00019  0.00019    system.db.CDbCommand.query(SELECT `customers`.`id`, `customers`.`userId`, `customers`.`email`, `customers`.`lastUsedBillingAddressId`, `customers`.`lastUsedShippingAddressId`\nFROM `craft_commerce_customers` `customers`\nWHERE customers.id = :xid\nORDER BY `id`. Bound with :xid=\'5\')");
+	console.log("     1  0.00017  0.00017  0.00017  0.00017    system.db.CDbCommand.query(SHOW CREATE TABLE `craft_commerce_countries`)");
+	console.log("     1  0.00016  0.00016  0.00016  0.00016    system.db.CDbCommand.query(SHOW CREATE TABLE `craft_commerce_states`)");
+	console.log("     1  0.00016  0.00016  0.00016  0.00016    system.db.CDbCommand.query(SELECT `handle`, `context`\nFROM `craft_fields`)");
+	console.log("     1  0.00015  0.00015  0.00015  0.00015    system.db.CDbCommand.query(SHOW CREATE TABLE `craft_commerce_customers`)");
+	console.log("     1  0.00015  0.00015  0.00015  0.00015    system.db.CDbCommand.query(SHOW CREATE TABLE `craft_commerce_customers_addresses`)");
+
+	console.groupEnd();
+}
+/*]]&gt;*/
+</script>
+</body><canvas id="fxdriver-screenshot-canvas" style="display: none;" width="1437" height="916"></canvas></html>
