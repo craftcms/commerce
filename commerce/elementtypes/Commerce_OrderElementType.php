@@ -459,6 +459,19 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
             $query->andWhere(DbHelper::parseParam('orders.totalPaid', '< orders.totalPrice', $query->params));
         }
 
+        if ($criteria->paymentMethod) {
+            if ($criteria->paymentMethod instanceof Commerce_PaymentMethodModel) {
+                $criteria->paymentMethodId = $criteria->paymentMethod->id;
+                $criteria->paymentMethod = null;
+            } else {
+                $query->andWhere(DbHelper::parseParam('orders.orderStatusId', $criteria->paymentMethod, $query->params));
+            }
+        }
+
+        if ($criteria->paymentMethodId) {
+            $query->andWhere(DbHelper::parseParam('orders.orderStatusId', $criteria->paymentMethodId, $query->params));
+        }
+
 	    if ($criteria->hasPurchasables !== null)
 	    {
 		    $purchasableIds = [];
