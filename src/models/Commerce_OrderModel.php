@@ -231,6 +231,14 @@ class Commerce_OrderModel extends BaseElementModel
         return (bool) $this->outstandingBalance() <= 0;
     }
 
+    /**
+     * @return bool
+     */
+    public function isUnpaid()
+    {
+        return (bool) $this->outstandingBalance() > 0;
+    }
+
     public function outstandingBalance()
     {
         $currency = Currency::find(craft()->commerce_settings->getSettings()->defaultCurrency);
