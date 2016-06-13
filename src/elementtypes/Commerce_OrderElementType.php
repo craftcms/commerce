@@ -2,6 +2,7 @@
 namespace Craft;
 
 use Commerce\Base\Purchasable;
+use Omnipay\Common\Currency;
 
 require_once(__DIR__ . '/Commerce_BaseElementType.php');
 
@@ -328,7 +329,9 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
             'user' => AttributeType::Mixed,
             'isPaid' => AttributeType::Bool,
             'isUnpaid' => AttributeType::Bool,
-            'hasPurchasables' => AttributeType::Mixed
+            'hasPurchasables' => AttributeType::Mixed,
+            'paymentMethod' => AttributeType::Mixed,
+            'paymentMethodId' => AttributeType::Mixed
         ];
     }
 
@@ -451,12 +454,16 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
             }
         }
 
-        if ($criteria->isPaid == true) {
-            $query->andWhere(DbHelper::parseParam('orders.totalPaid', '>= orders.totalPrice', $query->params));
+        if ($criteria->isPaid === true) {
+	        $currency = Currency::find(craft()->commerce_settings->getSettings()->defaultCurrency);
+	        $decimals = $currency->getDecimals();
+            $query->andWhere('ROUND(orders.totalPaid,'.$decimals.') >= ROUND(orders.totalPrice,'.$decimals.')');
         }
 
-        if ($criteria->isUnpaid == true) {
-            $query->andWhere(DbHelper::parseParam('orders.totalPaid', '< orders.totalPrice', $query->params));
+        if ($criteria->isUnpaid === true) {
+	        $currency = Currency::find(craft()->commerce_settings->getSettings()->defaultCurrency);
+	        $decimals = $currency->getDecimals();
+	        $query->andWhere('ROUND(orders.totalPaid,'.$decimals.') < ROUND(orders.totalPrice,'.$decimals.')');
         }
 
         if ($criteria->paymentMethod) {
