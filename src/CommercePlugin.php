@@ -288,7 +288,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getVersion()
     {
-        return '1.1.0000';
+        return '1.2.0000';
     }
 
     /**
@@ -298,7 +298,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getSchemaVersion()
     {
-        return '1.2.02';
+        return '1.2.03';
     }
 
     /**
