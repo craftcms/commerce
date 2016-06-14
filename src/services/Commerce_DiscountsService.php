@@ -169,12 +169,10 @@ class Commerce_DiscountsService extends BaseApplicationComponent
 	    if ($customerId)
 	    {
 		    // The 'Per User Limit' can only be tracked against logged in users since guest customers are re-generated often
-		    $customer = craft()->commerce_customers->getCustomerById($customerId);
-		    $currentCustomerIsCurrentUser = ($customer->user && craft()->userSession->isLoggedIn());
-		    if (!$currentCustomerIsCurrentUser && $model->perUserLimit > 0)
+		    if ($model->perUserLimit > 0 && !craft()->userSession->isLoggedIn())
 		    {
 			    $error = Craft::t('Discount is limited to use by logged in users only.');
-
+			    
 			    return false;
 		    }
 
