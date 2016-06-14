@@ -63,27 +63,32 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
         $affectedLineIds = [];
 
 
-	    // Since we will allow the coupon to be added to an anonymous cart with no email, we need to remove it
-	    // if a limit has been set.
-        if ($order->email && ($order->couponCode == $discount->code) & $discount->perEmailLimit)
-        {
-            $previousOrders = \Craft\craft()->commerce_orders->getOrdersByEmail($order->email);
+	    // Handle special coupon rules
+	    if ($order->couponCode == $discount->code)
+	    {
+		    // Since we will allow the coupon to be added to an anonymous cart with no email, we need to remove it
+		    // if a limit has been set.
+		    if ($order->email && $discount->perEmailLimit)
+		    {
+			    $previousOrders = \Craft\craft()->commerce_orders->getOrdersByEmail($order->email);
 
-            $usedCount = 0;
-            foreach ($previousOrders as $previousOrder)
-            {
-                if ($previousOrder->couponCode == $discount->code)
-                {
-                    $usedCount = $usedCount + 1;
-                }
-            }
+			    $usedCount = 0;
+			    foreach ($previousOrders as $previousOrder)
+			    {
+				    if ($previousOrder->couponCode == $discount->code)
+				    {
+					    $usedCount = $usedCount + 1;
+				    }
+			    }
 
-            if ($usedCount >= $discount->perEmailLimit)
-            {
-	            $order->couponCode = "";
-                return false;
-            }
-        }
+			    if ($usedCount >= $discount->perEmailLimit)
+			    {
+				    $order->couponCode = "";
+
+				    return false;
+			    }
+		    }
+	    }
 
 
         //checking items
