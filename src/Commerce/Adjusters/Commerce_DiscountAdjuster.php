@@ -60,8 +60,31 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
         $adjustment->orderId = $order->id;
         $adjustment->description = $discount->description ?: $this->getDescription($discount);
         $adjustment->optionsJson = $discount->attributes;
-
         $affectedLineIds = [];
+
+
+	    // Since we will allow the coupon to be added to an anonymous cart with no email, we need to remove it
+	    // if a limit has been set.
+        if ($order->email && ($order->couponCode == $discount->code) & $discount->perEmailLimit)
+        {
+            $previousOrders = \Craft\craft()->commerce_orders->getOrdersByEmail($order->email);
+
+            $usedCount = 0;
+            foreach ($previousOrders as $previousOrder)
+            {
+                if ($previousOrder->couponCode == $discount->code)
+                {
+                    $usedCount = $usedCount + 1;
+                }
+            }
+
+            if ($usedCount >= $discount->perEmailLimit)
+            {
+	            $order->couponCode = "";
+                return false;
+            }
+        }
+
 
         //checking items
         $matchingQty = 0;
