@@ -504,8 +504,8 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 		    // Remove any blank purchasable IDs (if any)
 		    $purchasableIds = array_filter($purchasableIds);
 
-		    $query->join('commerce_lineItems lineItems', 'lineItems.orderId = elements.id');
-		    $query->andWhere(['in', 'lineItems.purchasableId', $purchasableIds]);
+		    $query->join('commerce_lineitems lineitems', 'lineitems.orderId = elements.id');
+		    $query->andWhere(['in', 'lineitems.purchasableId', $purchasableIds]);
 	    }
     }
 

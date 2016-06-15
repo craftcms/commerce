@@ -396,6 +396,14 @@ class Commerce_CustomersService extends BaseApplicationComponent
 					CommercePlugin::log($error);
 				};
 			}
+
+			$orders = craft()->commerce_orders->getOrdersByCustomer($customer);
+
+			foreach ($orders as $order)
+			{
+				$order->email = $user->email;
+				craft()->commerce_orders->saveOrder($order);
+			}
 		}
 	}
 

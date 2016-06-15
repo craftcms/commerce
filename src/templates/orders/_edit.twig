@@ -124,6 +124,7 @@
 					{"label":"Sale Amount","attribute":"saleamount","currency":"true"},
 					{"label":"Sale Price","attribute":"saleprice","currency":"true"},
 					{"label":"Quantity","attribute":"qty","currency":"false"},
+					{"label":"Sub-total","attribute":"subtotal","currency":"true"},
 					{"label":"Tax","attribute":"tax","currency":"true"},
 					{"label":"Tax (Included)","attribute":"taxincluded","currency":"true"},
 					{"label":"Shipping Cost","attribute":"shippingcost","currency":"true"},
@@ -141,6 +142,7 @@
 					data-shippingcost="{{ lineItem.shippingCost|currency(order.currency) }}"
 					data-discount="{{ lineItem.discount|currency(order.currency) }}"
 					data-total="{{ lineItem.total|currency(order.currency) }}"
+					data-subtotal="{{ lineItem.subtotal|currency(order.currency) }}"
 					data-qty="{{ lineItem.qty }}">
 					<td>
 						{% if lineItem.purchasable %}
@@ -171,7 +173,7 @@
 					<td>{{ lineItem.qty }}</td>
 					<td></td>
 					<td>
-						<span class="right">{{ lineItem.total|currency(order.currency) }}</span>
+						<span class="right">{{ lineItem.subtotal|currency(order.currency) }}</span>
 					</td>
 					<td>
 						<span class="tableRowInfo" data-icon="info" href="#"></span>
@@ -182,10 +184,10 @@
 			<tr>
 				<td><strong>{{ adjustment.type|title|t }} {{ "Adjustment"|t }}</strong><br>{{ adjustment.name|title }} <span class="info"><strong>{{ adjustment.type|title|t }} {{ "Adjustment"|t }}</strong><br> {{ adjustment.description }}</span></td>
 				<td></td>
-				<td>{{ adjustment.amount|currency(order.currency) }}</td>
 				<td></td>
 				<td></td>
 				<td></td>
+				<td><span class="right">{{ adjustment.amount|currency(order.currency) }}</span></td>
 				<td></td>
 			</tr>
 			{% endfor %}
