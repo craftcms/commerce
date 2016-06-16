@@ -333,7 +333,7 @@ class Commerce_OrderModel extends BaseElementModel
     {
         $weight = 0;
         foreach ($this->getLineItems() as $item) {
-            $weight += $item->qty * $item->weight;
+            $weight += ($item->qty * $item->weight);
         }
 
         return $weight;
@@ -346,7 +346,7 @@ class Commerce_OrderModel extends BaseElementModel
     {
         $value = 0;
         foreach ($this->getLineItems() as $item) {
-            $value += $item->qty * $item->length;
+            $value += ($item->qty * $item->length);
         }
 
         return $value;
@@ -359,7 +359,7 @@ class Commerce_OrderModel extends BaseElementModel
     {
         $value = 0;
         foreach ($this->getLineItems() as $item) {
-            $value += $item->qty * $item->width;
+            $value += ($item->qty * $item->width);
         }
 
         return $value;
@@ -373,7 +373,7 @@ class Commerce_OrderModel extends BaseElementModel
     {
         $value = 0;
         foreach ($this->getLineItems() as $item) {
-            $value += $item->qty * $item->saleAmount;
+            $value += ($item->qty * $item->saleAmount);
         }
 
         return $value;
@@ -384,6 +384,17 @@ class Commerce_OrderModel extends BaseElementModel
      */
     public function getItemSubtotalWithSale()
     {
+        craft()->deprecator->log('Commerce_OrderModel::getItemSubtotalWithSale():removed', 'You should no longer use `order.itemSubtotalWithSale` for the line item’s subtotal. Use `order.subtotal`. Same goes for order->getItemSubtotalWithSale() in PHP.');
+
+        return $this->getItemSubtotal();
+    }
+
+    /**
+     * Returns the total of all line item's subtotals.
+     * @return int
+     */
+    public function getItemSubtotal()
+    {
         $value = 0;
         foreach ($this->getLineItems() as $item) {
             $value += $item->getSubtotal();
@@ -391,7 +402,7 @@ class Commerce_OrderModel extends BaseElementModel
 
         return $value;
     }
-
+    
     /**
      * Returns the total of adjustments made to order.
      * @return float|int
