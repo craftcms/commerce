@@ -72,9 +72,24 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
 			}
 		}
 
+		$paymentMethod = $order->getPaymentMethod();
+
+		if (!$paymentMethod)
+		{
+			$error = Craft::t("There is no payment method selected for this order.");
+			if (craft()->request->isAjaxRequest())
+			{
+				$this->returnErrorJson($error);
+			}
+			else
+			{
+				craft()->userSession->setFlash('error', $error);
+			}
+			return;
+		}
+
 		// Get the payment method' gateway adapter's expected form model
-		/** @var BaseModel $paymentForm */
-		$paymentForm = $order->paymentMethod->getPaymentFormModel();
+		$paymentForm = $paymentMethod->getPaymentFormModel();
 		$paymentForm->populateModelFromPost(craft()->request->getPost());
 
 		$order->setContentFromPost('fields');
