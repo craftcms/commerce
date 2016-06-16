@@ -154,31 +154,31 @@ class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfac
 		}
 
 		// order qty rules are inclusive (min <= x <= max)
-		if ($this->minQty AND $this->minQty > $order->totalQty)
+		if ($this->minQty && $this->minQty > $order->totalQty)
 		{
 			return false;
 		}
-		if ($this->maxQty AND $this->maxQty < $order->totalQty)
+		if ($this->maxQty && $this->maxQty < $order->totalQty)
 		{
 			return false;
 		}
 
 		// order total rules exclude maximum limit (min <= x < max)
-		if ($this->minTotal AND $this->minTotal > $order->itemTotal)
+		if ($this->minTotal && $this->minTotal > $order->itemTotal)
 		{
 			return false;
 		}
-		if ($this->maxTotal AND $this->maxTotal <= $order->itemTotal)
+		if ($this->maxTotal && $this->maxTotal <= $order->itemTotal)
 		{
 			return false;
 		}
 
 		// order weight rules exclude maximum limit (min <= x < max)
-		if ($this->minWeight AND $this->minWeight > $order->totalWeight)
+		if ($this->minWeight && $this->minWeight > $order->totalWeight)
 		{
 			return false;
 		}
-		if ($this->maxWeight AND $this->maxWeight <= $order->totalWeight)
+		if ($this->maxWeight && $this->maxWeight <= $order->totalWeight)
 		{
 			return false;
 		}
