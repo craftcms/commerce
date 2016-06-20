@@ -68,6 +68,7 @@ class Commerce_CustomerAddressesController extends Commerce_BaseFrontEndControll
             $cart = craft()->commerce_cart->getCart();
             if ($cart->shippingAddressId = $address->id)
             {
+                $cart->setContentFromPost('fields');
                 craft()->commerce_orders->saveOrder($cart);
             }
 

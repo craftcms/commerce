@@ -60,7 +60,9 @@ class Commerce_ShippingAdjuster implements Commerce_AdjusterInterface
                 $qty += $item->qty;
                 $price += $item->getSubtotal();
 
-                $item->shippingCost = ($item->getSubtotal() * $rule->getPercentageRate()) + ($rule->getPerItemRate() * $item->qty) + (($item->weight * $item->qty) * $rule->getWeightRate());
+				$currency = \Omnipay\Common\Currency::find(\Craft\craft()->commerce_settings->getSettings()->defaultCurrency);
+
+				$item->shippingCost = round(($item->getSubtotal() * $rule->getPercentageRate()) + ($rule->getPerItemRate() * $item->qty) + (($item->weight * $item->qty) * $rule->getWeightRate()),$currency->getDecimals());
 
                 if($item->shippingCost && !$item->purchasable->hasFreeShipping()){
                     $affectedLineIds[] = $item->id;
