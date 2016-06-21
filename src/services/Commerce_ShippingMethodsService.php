@@ -166,7 +166,8 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
                         'description' => $rule->getDescription(),
                         'amount' => $amount,
                         'handle' => $method->getHandle(),
-                        'type' => $method->getType()
+                        'type' => $method->getType(),
+                        'method' => $method
                     ];
                 }
             }
