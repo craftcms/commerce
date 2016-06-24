@@ -227,7 +227,7 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
 	 */
 	public function actionCompletePayment()
 	{
-		$id = craft()->request->getParam('hash');
+		$id = craft()->request->getParam('commerceTransactionHash');
 
 		$transaction = craft()->commerce_transactions->getTransactionByHash($id);
 
