@@ -274,7 +274,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 			'clientIp'             => craft()->request->getIpAddress(),
 			'transactionReference' => $transaction->hash,
 			'returnUrl'            => UrlHelper::getActionUrl('commerce/payments/completePayment',
-				['id' => $transaction->id, 'hash' => $transaction->hash]),
+				['commerceTransactionId' => $transaction->id, 'commerceTransactionHash' => $transaction->hash]),
 			'cancelUrl'            => UrlHelper::getSiteUrl($transaction->order->cancelUrl),
 		];
 
