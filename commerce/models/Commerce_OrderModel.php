@@ -376,7 +376,7 @@ class Commerce_OrderModel extends BaseElementModel
      */
     public function getItemSubtotalWithSale()
     {
-        craft()->deprecator->log('Commerce_OrderModel::getItemSubtotalWithSale():removed', 'You should no longer use `order.itemSubtotalWithSale` for the line item’s subtotal. Use `order.subtotal`. Same goes for order->getItemSubtotalWithSale() in PHP.');
+        craft()->deprecator->log('Commerce_OrderModel::getItemSubtotalWithSale():removed', 'You should no longer use `order.itemSubtotalWithSale` for the line item’s subtotal. Use `order.itemSubtotal`. Same goes for order->getItemSubtotalWithSale() in PHP.');
 
         return $this->getItemSubtotal();
     }
