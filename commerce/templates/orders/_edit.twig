@@ -324,7 +324,7 @@
 				<th scope="col">{{ 'Order Status'|t }}</th>
 				<th scope="col">{{ 'Customer'|t }}</th>
 				<th scope="col">{{ 'Message'|t }}</th>
-				<th></th>
+				<th scope="col">{{ 'Date'|t }}</th>
 			</tr>
 			</thead>
 			<tbody>
@@ -343,6 +343,7 @@
 						{% endif %}
 					</td>
 					<td>{{ orderHistory.message }}</td>
+					<td>{{ orderHistory.dateCreated|date }}</td>
 				</tr>
 			{% endfor %}
 			</tbody>
@@ -362,6 +363,7 @@
 					<th scope="col">{{ 'Message'|t }}</th>
 					<th scope="col">{{ 'Amount'|t }}</th>
 					<th scope="col">{{ 'Payment Method'|t }}</th>
+					<th scope="col">{{ 'Date'|t }}</th>
 					<th scope="col">{{ 'Info'|t }}</th>
 					<th></th>
 				</tr>
@@ -383,6 +385,7 @@
 						<td>{{ transaction.message|title }}</td>
 						<td>{{ transaction.amount|currency(order.currency) }}</td>
 						<td>{{ transaction.paymentMethod.name }}</td>
+						<td>{{ transaction.dateUpdated|date }}</td>
 						<td><span class="tableRowInfo" data-icon="info" href="#"></span></td>
 						<td>
 							{% if transaction.canCapture() %}
