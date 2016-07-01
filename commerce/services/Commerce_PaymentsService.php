@@ -426,6 +426,41 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 			}
 		}
 
+		// For gateways that call us directly and usually do not like redirects.
+		// TODO: Move this into the gateway adapter interface.
+		$gateways = array(
+			'AuthorizeNet_SIM',
+			'Realex_Redirect',
+			'SecurePay_DirectPost',
+			'WorldPay',
+		);
+
+		if (in_array($transaction->paymentMethod->getGatewayAdapter()->handle(), $gateways)) {
+
+			$url = UrlHelper::getActionUrl('commerce/payments/completePayment', ['commerceTransactionId' => $transaction->id, 'commerceTransactionHash' => $transaction->hash]);
+			$url = htmlspecialchars($url, ENT_QUOTES);
+
+			$template = <<<EOF
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="refresh" content="1;URL=$url" />
+    <title>Redirecting...</title>
+</head>
+<body onload="document.payment.submit();">
+    <p>Please wait while we redirect you back...</p>
+    <form name="payment" action="$url" method="post">
+        <p><input type="submit" value="Continue" /></p>
+    </form>
+</body>
+</html>
+EOF;
+			ob_start();
+			echo $template;
+			craft()->end();
+
+		}
+
 		if ($transaction->status == Commerce_TransactionRecord::STATUS_SUCCESS)
 		{
 			return true;
