@@ -657,6 +657,8 @@ EOF;
 		{
 			if ($transaction->status == Commerce_TransactionRecord::STATUS_SUCCESS)
 			{
+				// If we already have completed this transaction, make sure the order total is correct
+				craft()->commerce_orders->updateOrderPaidTotal($order);		
 				return true;
 			}
 			else
