@@ -124,7 +124,14 @@ class CommerceVariable
 	{
 		$methods = craft()->commerce_paymentMethods->getAllFrontEndPaymentMethods();
 
-		return \CHtml::listData($methods, 'id', 'name');
+		// Need to put the methods into an array keyed by method ID for backwards compatibility.
+		$available = [];
+		foreach ($methods as $method)
+		{
+			$available[$method->id] = $method;
+		}
+
+		return $methods;
 	}
 
 	/**
