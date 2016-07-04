@@ -274,7 +274,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 			'clientIp'             => craft()->request->getIpAddress(),
 			'transactionReference' => $transaction->hash,
 			'returnUrl'            => UrlHelper::getActionUrl('commerce/payments/completePayment',
-				['id' => $transaction->id, 'hash' => $transaction->hash]),
+				['commerceTransactionId' => $transaction->id, 'commerceTransactionHash' => $transaction->hash]),
 			'cancelUrl'            => UrlHelper::getSiteUrl($transaction->order->cancelUrl),
 		];
 
@@ -424,6 +424,41 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 				$transaction->message = $e->getMessage();
 				$this->saveTransaction($transaction);
 			}
+		}
+
+		// For gateways that call us directly and usually do not like redirects.
+		// TODO: Move this into the gateway adapter interface.
+		$gateways = array(
+			'AuthorizeNet_SIM',
+			'Realex_Redirect',
+			'SecurePay_DirectPost',
+			'WorldPay',
+		);
+
+		if (in_array($transaction->paymentMethod->getGatewayAdapter()->handle(), $gateways)) {
+
+			$url = UrlHelper::getActionUrl('commerce/payments/completePayment', ['commerceTransactionId' => $transaction->id, 'commerceTransactionHash' => $transaction->hash]);
+			$url = htmlspecialchars($url, ENT_QUOTES);
+
+			$template = <<<EOF
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="refresh" content="1;URL=$url" />
+    <title>Redirecting...</title>
+</head>
+<body onload="document.payment.submit();">
+    <p>Please wait while we redirect you back...</p>
+    <form name="payment" action="$url" method="post">
+        <p><input type="submit" value="Continue" /></p>
+    </form>
+</body>
+</html>
+EOF;
+			ob_start();
+			echo $template;
+			craft()->end();
+
 		}
 
 		if ($transaction->status == Commerce_TransactionRecord::STATUS_SUCCESS)
