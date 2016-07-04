@@ -237,28 +237,48 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
                     return '<span class="status"></span>';
                 }
             }
-            case 'shippingFullName': {
+            case 'shippingFullName':
+            {
                 if ($element->shippingAddress)
                 {
                     return $element->shippingAddress->getFullName();
                 }
+                else
+                {
+                    return "";
+                }
             }
-            case 'billingFullName': {
+            case 'billingFullName':
+            {
                 if ($element->billingAddress)
                 {
                     return $element->billingAddress->getFullName();
                 }
+                else
+                {
+                    return "";
+                }
             }
-            case 'shippingBusinessName': {
+            case 'shippingBusinessName':
+            {
                 if ($element->shippingAddress)
                 {
                     return $element->shippingAddress->businessName;
                 }
+                else
+                {
+                    return "";
+                }
             }
-            case 'billingBusinessName': {
+            case 'billingBusinessName':
+            {
                 if ($element->billingAddress)
                 {
                     return $element->billingAddress->businessName;
+                }
+                else
+                {
+                    return "";
                 }
             }
             case 'totalPaid':

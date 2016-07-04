@@ -34,6 +34,16 @@ class Commerce_PaymentMethodModel extends BaseModel
 	private $_gatewayAdapter;
 
 	/**
+	 * Returns the name of this payment method.
+	 *
+	 * @return string
+	 */
+	public function __toString()
+	{
+		return (string) $this->getAttribute('name');
+	}
+
+	/**
 	 * Populates a new model instance with a given set of attributes.
 	 *
 	 * @param mixed $values
