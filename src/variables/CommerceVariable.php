@@ -131,7 +131,7 @@ class CommerceVariable
 			$available[$method->id] = $method;
 		}
 
-		return $methods;
+		return $available;
 	}
 
 	/**
