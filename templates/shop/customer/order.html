@@ -23,6 +23,7 @@
                     <ul>
                         <li><strong>{{ "Customer"|t }}:</strong> {{ order.customer.email }}</li>
                         <li><strong>{{ "Total"|t }}:</strong> {{ order.totalPrice|currency(order.currency) }}</li>
+                        <li><strong>{{ "Amount Paid"|t }}:</strong> {{ order.totalPaid|currency(order.currency) }}</li>
                         <li><strong>{{ "Date"|t }}:</strong> {{ order.dateOrdered }}</li>
                     </ul>
 

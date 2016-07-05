@@ -193,6 +193,7 @@ class Commerce_TransactionModel extends BaseModel
             'reference' => AttributeType::String,
             'message' => AttributeType::String,
             'response' => AttributeType::String,
+            'dateUpdated' => AttributeType::String,
         ];
     }
 }

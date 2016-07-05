@@ -372,7 +372,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
 			$order->itemTotal += $item->total;
 		}
 
-		$itemSub = $order->getItemSubtotalWithSale();
+		$itemSub = $order->getItemSubtotal();
 		$adjSub = $order->getAdjustmentSubtotal();
 		$totalPrice = $itemSub + $adjSub;
 		$order->totalPrice = $order->itemTotal + $order->baseDiscount + $order->baseShippingCost;
