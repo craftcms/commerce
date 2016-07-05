@@ -187,6 +187,8 @@ class Commerce_TransactionModel extends BaseModel
             'userId' => AttributeType::Number,
             'hash' => AttributeType::String,
             'paymentMethodId' => AttributeType::Number,
+            'currency' => AttributeType::String,
+            'currencyRate' => AttributeType::String,
             'type' => AttributeType::String,
             'amount' => AttributeType::Number,
             'status' => AttributeType::String,

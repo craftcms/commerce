@@ -1,0 +1,50 @@
+{% extends "commerce/_layouts/settings" %}
+
+
+{% block content %}
+    <h2>{{ "Currencies"|t }}</h2>
+
+    <div id="no-currencies"{% if currencies|length %} class="hidden"{% endif %}>
+        <p>{{ "No additional payment currencies exist yet."|t }}</p>
+    </div>
+
+    {% if currencies|length %}
+    <table id="currencies" class="data fullwidth collapsible">
+        <thead>
+        <tr>
+            <th scope="col">{{ 'Name'|t }}</th>
+            <th scope="col">{{ 'Currency Code'|t }}</th>
+            <th scope="col">{{ 'Rate'|t }}</th>
+            <td class="thin"></td>
+        </tr>
+        </thead>
+        <tbody>
+        {% for currency in currencies %}
+            <tr data-id="{{ currency.id }}" data-name="{{ currency.name }}">
+                <th scope="row" data-title="{{ 'Name'|t }}"><a
+                            href="{{ url('commerce/settings/currencies/'~currency.id) }}">{{ currency.name }}</a></th>
+                <td data-title="{{ 'ISO'|t }}">{{ currency.iso }}</td>
+                <td data-rate="{{ 'Rate'|t }}">{{ currency.rate|number }}</td>
+                <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
+            </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+    {% endif %}
+
+    <div class="buttons">
+        <a href="{{ url('commerce/settings/currencies/new') }}" class="btn submit add icon">{{ 'New currency'|t }}</a>
+    </div>
+{% endblock %}
+
+
+{% includejs %}
+var adminTable = new Craft.AdminTable({
+tableSelector: '#currencies',
+noObjectsSelector: '#no-currencies',
+deleteAction: 'commerce/currencies/delete',
+confirmDeleteMessage:  Craft.t('Warning, deleting this currency will stop all payments and refunds in this currency, are you sure you want to delete “{name}”?'),
+deleteFailMessage: '{{ "Can not delete “{name}” because it is in use."|t }}'
+});
+{% endincludejs %}

@@ -115,8 +115,6 @@ class Commerce_TransactionRecord extends BaseRecord
             ],
             'amount' => [
                 AttributeType::Number,
-                'min' => -1000000000000,
-                'max' => 1000000000000,
                 'decimals' => 4
             ],
             'status' => [
