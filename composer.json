@@ -5,7 +5,7 @@
         "process-timeout": 1800,
         "vendor-dir": "commerce/vendor",
         "github-oauth": {
-            "github.com": "fc31fa76ff0fb8a2a9828c4c5bdb1c8d233b9894"
+            "github.com": "a79205599a3380a4272eae6e3764f7839437c091"
         }
     },
     "minimum-stability": "dev",

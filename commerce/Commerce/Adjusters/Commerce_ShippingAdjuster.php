@@ -26,12 +26,12 @@ class Commerce_ShippingAdjuster implements Commerce_AdjusterInterface
      */
     public function adjust(Commerce_OrderModel &$order, array $lineItems = [])
     {
-        $shippingMethods = \Craft\craft()->commerce_shippingMethods->getAllShippingMethods();
+        $shippingMethods = \Craft\craft()->commerce_shippingMethods->getAvailableShippingMethods($order);
 
         foreach ($shippingMethods as $method) {
-            if ($method->getIsEnabled() == true && $method->getHandle() == $order->getShippingMethodHandle()) {
+            if ($method['method']->getIsEnabled() == true && ($method['method']->getHandle() == $order->getShippingMethodHandle())) {
                 /** @var ShippingMethod $shippingMethod */
-                $shippingMethod = $method;
+                $shippingMethod = $method['method'];
             }
         }
 
@@ -60,7 +60,9 @@ class Commerce_ShippingAdjuster implements Commerce_AdjusterInterface
                 $qty += $item->qty;
                 $price += $item->getSubtotal();
 
-                $item->shippingCost = ($item->getSubtotal() * $rule->getPercentageRate()) + ($rule->getPerItemRate() * $item->qty) + (($item->weight * $item->qty) * $rule->getWeightRate());
+				$currency = \Omnipay\Common\Currency::find(\Craft\craft()->commerce_settings->getSettings()->defaultCurrency);
+
+				$item->shippingCost = round(($item->getSubtotal() * $rule->getPercentageRate()) + ($rule->getPerItemRate() * $item->qty) + (($item->weight * $item->qty) * $rule->getWeightRate()),$currency->getDecimals());
 
                 if($item->shippingCost && !$item->purchasable->hasFreeShipping()){
                     $affectedLineIds[] = $item->id;

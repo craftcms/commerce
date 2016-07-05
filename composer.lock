@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "2421a27287ef618225407f14bafe0a5c",
+    "hash": "15935447a6d93c87dab0b3a53b1b1a51",
     "content-hash": "9f26c1e20bb69175630dfbe8d0b8ecc8",
     "packages": [
         {
@@ -141,6 +141,7 @@
                 "rest",
                 "web service"
             ],
+            "abandoned": "guzzlehttp/guzzle",
             "time": "2015-04-29 17:06:53"
         },
         {
@@ -246,20 +247,20 @@
         },
         {
             "name": "omnipay/authorizenet",
-            "version": "2.3.1",
+            "version": "2.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/omnipay-authorizenet.git",
-                "reference": "e2e813b0b6306ef97b8763037f05476456546b3e"
+                "reference": "439bb6e649a4c57cddc24d6d704301a8ee5c3c3f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-authorizenet/zipball/e2e813b0b6306ef97b8763037f05476456546b3e",
-                "reference": "e2e813b0b6306ef97b8763037f05476456546b3e",
+                "url": "https://api.github.com/repos/thephpleague/omnipay-authorizenet/zipball/439bb6e649a4c57cddc24d6d704301a8ee5c3c3f",
+                "reference": "439bb6e649a4c57cddc24d6d704301a8ee5c3c3f",
                 "shasum": ""
             },
             "require": {
-                "omnipay/common": "~2.0"
+                "omnipay/common": "~2.2"
             },
             "require-dev": {
                 "omnipay/tests": "~2.0"
@@ -301,7 +302,7 @@
                 "pay",
                 "payment"
             ],
-            "time": "2016-03-10 11:35:24"
+            "time": "2016-06-16 10:06:24"
         },
         {
             "name": "omnipay/buckaroo",
@@ -309,12 +310,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/omnipay-buckaroo.git",
-                "reference": "7f14dadb8adfdb5f84f2d7e021c40b5420ca47e8"
+                "reference": "aeadff6281fb4ecba1ff341bb8288e3e4a54d50e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-buckaroo/zipball/7f14dadb8adfdb5f84f2d7e021c40b5420ca47e8",
-                "reference": "7f14dadb8adfdb5f84f2d7e021c40b5420ca47e8",
+                "url": "https://api.github.com/repos/thephpleague/omnipay-buckaroo/zipball/aeadff6281fb4ecba1ff341bb8288e3e4a54d50e",
+                "reference": "aeadff6281fb4ecba1ff341bb8288e3e4a54d50e",
                 "shasum": ""
             },
             "require": {
@@ -358,7 +359,7 @@
                 "pay",
                 "payment"
             ],
-            "time": "2016-04-21 12:05:21"
+            "time": "2016-06-22 07:37:02"
         },
         {
             "name": "omnipay/cardsave",
@@ -1896,12 +1897,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/event-dispatcher.git",
-                "reference": "a158f13992a3147d466af7a23b564ac719a4ddd8"
+                "reference": "b180b70439dca70049b6b9b7e21d75e6e5d7aca9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/event-dispatcher/zipball/a158f13992a3147d466af7a23b564ac719a4ddd8",
-                "reference": "a158f13992a3147d466af7a23b564ac719a4ddd8",
+                "url": "https://api.github.com/repos/symfony/event-dispatcher/zipball/b180b70439dca70049b6b9b7e21d75e6e5d7aca9",
+                "reference": "b180b70439dca70049b6b9b7e21d75e6e5d7aca9",
                 "shasum": ""
             },
             "require": {
@@ -1948,7 +1949,7 @@
             ],
             "description": "Symfony EventDispatcher Component",
             "homepage": "https://symfony.com",
-            "time": "2016-05-03 18:59:18"
+            "time": "2016-06-29 05:29:29"
         },
         {
             "name": "symfony/http-foundation",
@@ -1956,12 +1957,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-foundation.git",
-                "reference": "ed9357bf86f041bd69a197742ee22c97989467d7"
+                "reference": "6bef10a6c7f06627db4d4dd6ab683b9f85387d6d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/ed9357bf86f041bd69a197742ee22c97989467d7",
-                "reference": "ed9357bf86f041bd69a197742ee22c97989467d7",
+                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/6bef10a6c7f06627db4d4dd6ab683b9f85387d6d",
+                "reference": "6bef10a6c7f06627db4d4dd6ab683b9f85387d6d",
                 "shasum": ""
             },
             "require": {
@@ -2003,7 +2004,7 @@
             ],
             "description": "Symfony HttpFoundation Component",
             "homepage": "https://symfony.com",
-            "time": "2016-04-05 16:36:54"
+            "time": "2016-07-01 15:02:03"
         },
         {
             "name": "symfony/polyfill-mbstring",
@@ -2011,12 +2012,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-mbstring.git",
-                "reference": "6bab34bbffa5f5ac079fdc4a68e143f158e87b7d"
+                "reference": "8a6bdec191138e01c92ae026e5aacb7b3e66267d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/6bab34bbffa5f5ac079fdc4a68e143f158e87b7d",
-                "reference": "6bab34bbffa5f5ac079fdc4a68e143f158e87b7d",
+                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/8a6bdec191138e01c92ae026e5aacb7b3e66267d",
+                "reference": "8a6bdec191138e01c92ae026e5aacb7b3e66267d",
                 "shasum": ""
             },
             "require": {
@@ -2028,7 +2029,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.1-dev"
+                    "dev-master": "1.2-dev"
                 }
             },
             "autoload": {
@@ -2062,7 +2063,7 @@
                 "portable",
                 "shim"
             ],
-            "time": "2016-04-15 07:04:29"
+            "time": "2016-06-29 14:58:48"
         },
         {
             "name": "symfony/polyfill-php54",
@@ -2070,12 +2071,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-php54.git",
-                "reference": "95e9a5cc46972bb8bd38dc7a960a3041c5813075"
+                "reference": "34d761992f6f2cc6092cc0e5e93f38b53ba5e4f1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-php54/zipball/95e9a5cc46972bb8bd38dc7a960a3041c5813075",
-                "reference": "95e9a5cc46972bb8bd38dc7a960a3041c5813075",
+                "url": "https://api.github.com/repos/symfony/polyfill-php54/zipball/34d761992f6f2cc6092cc0e5e93f38b53ba5e4f1",
+                "reference": "34d761992f6f2cc6092cc0e5e93f38b53ba5e4f1",
                 "shasum": ""
             },
             "require": {
@@ -2084,7 +2085,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.1-dev"
+                    "dev-master": "1.2-dev"
                 }
             },
             "autoload": {
@@ -2120,7 +2121,7 @@
                 "portable",
                 "shim"
             ],
-            "time": "2016-03-29 10:16:13"
+            "time": "2016-05-18 14:26:46"
         },
         {
             "name": "symfony/polyfill-php55",
@@ -2128,12 +2129,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-php55.git",
-                "reference": "b4f3f07d91702f8f926339fc4fcf81671d8c27e6"
+                "reference": "bf2ff9ad6be1a4772cb873e4eea94d70daa95c6d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-php55/zipball/b4f3f07d91702f8f926339fc4fcf81671d8c27e6",
-                "reference": "b4f3f07d91702f8f926339fc4fcf81671d8c27e6",
+                "url": "https://api.github.com/repos/symfony/polyfill-php55/zipball/bf2ff9ad6be1a4772cb873e4eea94d70daa95c6d",
+                "reference": "bf2ff9ad6be1a4772cb873e4eea94d70daa95c6d",
                 "shasum": ""
             },
             "require": {
@@ -2143,7 +2144,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.1-dev"
+                    "dev-master": "1.2-dev"
                 }
             },
             "autoload": {
@@ -2176,7 +2177,7 @@
                 "portable",
                 "shim"
             ],
-            "time": "2016-01-20 09:13:37"
+            "time": "2016-05-18 14:26:46"
         }
     ],
     "packages-dev": [],

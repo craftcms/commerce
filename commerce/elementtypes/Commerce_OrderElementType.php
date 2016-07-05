@@ -2,6 +2,7 @@
 namespace Craft;
 
 use Commerce\Base\Purchasable;
+use Omnipay\Common\Currency;
 
 require_once(__DIR__ . '/Commerce_BaseElementType.php');
 
@@ -236,28 +237,48 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
                     return '<span class="status"></span>';
                 }
             }
-            case 'shippingFullName': {
+            case 'shippingFullName':
+            {
                 if ($element->shippingAddress)
                 {
                     return $element->shippingAddress->getFullName();
                 }
+                else
+                {
+                    return "";
+                }
             }
-            case 'billingFullName': {
+            case 'billingFullName':
+            {
                 if ($element->billingAddress)
                 {
                     return $element->billingAddress->getFullName();
                 }
+                else
+                {
+                    return "";
+                }
             }
-            case 'shippingBusinessName': {
+            case 'shippingBusinessName':
+            {
                 if ($element->shippingAddress)
                 {
                     return $element->shippingAddress->businessName;
                 }
+                else
+                {
+                    return "";
+                }
             }
-            case 'billingBusinessName': {
+            case 'billingBusinessName':
+            {
                 if ($element->billingAddress)
                 {
                     return $element->billingAddress->businessName;
+                }
+                else
+                {
+                    return "";
                 }
             }
             case 'totalPaid':
@@ -328,7 +349,9 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
             'user' => AttributeType::Mixed,
             'isPaid' => AttributeType::Bool,
             'isUnpaid' => AttributeType::Bool,
-            'hasPurchasables' => AttributeType::Mixed
+            'hasPurchasables' => AttributeType::Mixed,
+            'paymentMethod' => AttributeType::Mixed,
+            'paymentMethodId' => AttributeType::Mixed
         ];
     }
 
@@ -451,12 +474,29 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
             }
         }
 
-        if ($criteria->isPaid == true) {
-            $query->andWhere(DbHelper::parseParam('orders.totalPaid', '>= orders.totalPrice', $query->params));
+        if ($criteria->isPaid === true) {
+	        $currency = Currency::find(craft()->commerce_settings->getSettings()->defaultCurrency);
+	        $decimals = $currency->getDecimals();
+            $query->andWhere('ROUND(orders.totalPaid,'.$decimals.') >= ROUND(orders.totalPrice,'.$decimals.')');
         }
 
-        if ($criteria->isUnpaid == true) {
-            $query->andWhere(DbHelper::parseParam('orders.totalPaid', '< orders.totalPrice', $query->params));
+        if ($criteria->isUnpaid === true) {
+	        $currency = Currency::find(craft()->commerce_settings->getSettings()->defaultCurrency);
+	        $decimals = $currency->getDecimals();
+	        $query->andWhere('ROUND(orders.totalPaid,'.$decimals.') < ROUND(orders.totalPrice,'.$decimals.')');
+        }
+
+        if ($criteria->paymentMethod) {
+            if ($criteria->paymentMethod instanceof Commerce_PaymentMethodModel) {
+                $criteria->paymentMethodId = $criteria->paymentMethod->id;
+                $criteria->paymentMethod = null;
+            } else {
+                $query->andWhere(DbHelper::parseParam('orders.orderStatusId', $criteria->paymentMethod, $query->params));
+            }
+        }
+
+        if ($criteria->paymentMethodId) {
+            $query->andWhere(DbHelper::parseParam('orders.orderStatusId', $criteria->paymentMethodId, $query->params));
         }
 
 	    if ($criteria->hasPurchasables !== null)
@@ -484,8 +524,8 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 		    // Remove any blank purchasable IDs (if any)
 		    $purchasableIds = array_filter($purchasableIds);
 
-		    $query->join('commerce_lineItems lineItems', 'lineItems.orderId = elements.id');
-		    $query->andWhere(['in', 'lineItems.purchasableId', $purchasableIds]);
+		    $query->join('commerce_lineitems lineitems', 'lineitems.orderId = elements.id');
+		    $query->andWhere(['in', 'lineitems.purchasableId', $purchasableIds]);
 	    }
     }
 

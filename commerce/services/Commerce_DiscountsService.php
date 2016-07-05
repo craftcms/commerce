@@ -169,12 +169,10 @@ class Commerce_DiscountsService extends BaseApplicationComponent
 	    if ($customerId)
 	    {
 		    // The 'Per User Limit' can only be tracked against logged in users since guest customers are re-generated often
-		    $customer = craft()->commerce_customers->getCustomerById($customerId);
-		    $currentCustomerIsCurrentUser = ($customer->user && craft()->userSession->isLoggedIn());
-		    if (!$currentCustomerIsCurrentUser && $model->perUserLimit > 0)
+		    if ($model->perUserLimit > 0 && !craft()->userSession->isLoggedIn())
 		    {
 			    $error = Craft::t('Discount is limited to use by logged in users only.');
-
+			    
 			    return false;
 		    }
 
@@ -194,29 +192,25 @@ class Commerce_DiscountsService extends BaseApplicationComponent
 		    $cart = craft()->commerce_cart->getCart();
 		    $email = $cart->email;
 
-		    if (!$email && $model->perEmailLimit)
+		    if ($email)
 		    {
-			    $error = Craft::t('This coupon can only be used once we know your email address');
+			    $previousOrders = craft()->commerce_orders->getOrdersByEmail($email);
 
-			    return false;
-		    }
-
-		    $previousOrders = craft()->commerce_orders->getOrdersByEmail($email);
-
-		    $usedCount = 0;
-		    foreach ($previousOrders as $order)
-		    {
-			    if ($order->couponCode == $code)
+			    $usedCount = 0;
+			    foreach ($previousOrders as $order)
 			    {
-				    $usedCount = $usedCount + 1;
+				    if ($order->couponCode == $code)
+				    {
+					    $usedCount = $usedCount + 1;
+				    }
 			    }
-		    }
 
-		    if ($usedCount >= $model->perEmailLimit)
-		    {
-			    $error = Craft::t('This coupon limited to '.$model->perEmailLimit.' uses.');
+			    if ($usedCount >= $model->perEmailLimit)
+			    {
+				    $error = Craft::t('This coupon limited to '.$model->perEmailLimit.' uses.');
 
-			    return false;
+				    return false;
+			    }
 		    }
 	    }
 
