@@ -50,6 +50,11 @@ return [
     'commerce/settings/paymentmethods/new' => ['action' => 'commerce/paymentMethods/edit'],
     'commerce/settings/paymentmethods/(?P<id>\d+)' => ['action' => 'commerce/paymentMethods/edit'],
 
+	// Payment Currencies
+    'commerce/settings/currencies' => ['action' => 'commerce/currencies/index'],
+    'commerce/settings/currencies/new' => ['action' => 'commerce/currencies/edit'],
+    'commerce/settings/currencies/(?P<id>\d+)' => ['action' => 'commerce/currencies/edit'],
+
     // Shipping Zones
     'commerce/settings/shippingzones' => ['action' => 'commerce/shippingZones/index'],
     'commerce/settings/shippingzones/new' => ['action' => 'commerce/shippingZones/edit'],
