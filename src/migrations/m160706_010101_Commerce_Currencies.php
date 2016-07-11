@@ -25,7 +25,7 @@ class m160706_010101_Commerce_Currencies extends BaseMigration
 		$settings = craft()->db->createCommand()->select('settings')->from('plugins')->where("class = :xclass", [':xclass' => 'Commerce'])->queryScalar();
 		$settings = JsonHelper::decode($settings);
 		$defaultCurrency = $settings['defaultCurrency'];
-		craft()->db->createCommand()->insert('commerce_currencies', ['name' => 'Default Currency', 'iso' => $defaultCurrency, 'rate' => 1, 'default' => 1]);
+		craft()->db->createCommand()->insert('commerce_currencies', ['name' => 'Store Currency', 'iso' => $defaultCurrency, 'rate' => 1, 'default' => 1]);
 
 		$data = ['paymentCurrency' => $defaultCurrency, 'currency' => $defaultCurrency, 'paymentRate' => 1, 'paymentAmount' => new \CDbExpression('amount')];
 		craft()->db->createCommand()->update('commerce_transactions', $data);
