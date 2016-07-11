@@ -9,6 +9,7 @@ use JsonSerializable;
  * @property int    $id
  * @property string $name
  * @property string $iso
+ * @property bool $default
  * @property float $rate
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
@@ -33,7 +34,7 @@ class Commerce_CurrencyModel extends BaseModel implements JsonSerializable
 	 */
 	function __toString()
 	{
-		return $this->name;
+		return $this->iso;
 	}
 
 	/**
@@ -45,6 +46,7 @@ class Commerce_CurrencyModel extends BaseModel implements JsonSerializable
 		$data['id'] = $this->getAttribute('id');
 		$data['name'] = $this->getAttribute('name');
 		$data['iso'] = $this->getAttribute('iso');
+		$data['default'] = $this->getAttribute('default');
 		$data['rate'] = $this->getAttribute('rate');
 
 		return $data;
@@ -59,6 +61,7 @@ class Commerce_CurrencyModel extends BaseModel implements JsonSerializable
 			'id'   => AttributeType::Number,
 			'name' => AttributeType::String,
 			'iso'  => AttributeType::String,
+			'default'  => AttributeType::Bool,
 			'rate'  => AttributeType::Number
 		];
 	}

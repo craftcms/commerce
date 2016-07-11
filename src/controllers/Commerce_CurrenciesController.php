@@ -51,8 +51,7 @@ class Commerce_CurrenciesController extends Commerce_BaseAdminController
             $variables['title'] = Craft::t('Create a new currency');
         }
 
-        $settings = craft()->commerce_settings->getSettings();
-        $variables['storeCurrency'] = $settings->defaultCurrency;
+        $variables['storeCurrency'] = craft()->commerce_currencies->getDefaultCurrencyIso();
 
         $this->renderTemplate('commerce/settings/currencies/_edit', $variables);
     }

@@ -12,6 +12,10 @@ use Omnipay\Common\Exception\OmnipayException;
  * @property string $hash
  * @property string $type
  * @property float $amount
+ * @property float $paymentAmount
+ * @property string $currency
+ * @property string $paymentCurrency
+ * @property float $paymentRate
  * @property string $status
  * @property string $reference
  * @property string $message
@@ -188,7 +192,9 @@ class Commerce_TransactionModel extends BaseModel
             'hash' => AttributeType::String,
             'paymentMethodId' => AttributeType::Number,
             'currency' => AttributeType::String,
-            'currencyRate' => AttributeType::String,
+            'paymentAmount' => AttributeType::Number,
+            'paymentCurrency' => AttributeType::String,
+            'paymentRate'=> AttributeType::Number,
             'type' => AttributeType::String,
             'amount' => AttributeType::Number,
             'status' => AttributeType::String,

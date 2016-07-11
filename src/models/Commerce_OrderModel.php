@@ -1,7 +1,7 @@
 <?php
 namespace Craft;
 
-use Omnipay\Common\Currency;
+use Commerce\Helpers\CommerceCurrencyHelper;
 
 /**
  * Order or Cart model.
@@ -18,6 +18,7 @@ use Omnipay\Common\Currency;
  * @property bool $isCompleted
  * @property DateTime $dateOrdered
  * @property string $currency
+ * @property string $paymentCurrency
  * @property DateTime $datePaid
  * @property string $lastIp
  * @property string $message
@@ -241,10 +242,10 @@ class Commerce_OrderModel extends BaseElementModel
 
     public function outstandingBalance()
     {
-        $currency = Currency::find(craft()->commerce_settings->getSettings()->defaultCurrency);
-        $totalPaid = round($this->totalPaid, $currency->getDecimals());
-        $totalPrice = round($this->totalPrice, $currency->getDecimals());
 
+        $totalPaid = CommerceCurrencyHelper::round($this->totalPaid);
+        $totalPrice = CommerceCurrencyHelper::round($this->totalPrice);
+	    
         return $totalPrice - $totalPaid;
     }
 
@@ -633,6 +634,7 @@ class Commerce_OrderModel extends BaseElementModel
             'dateOrdered' => AttributeType::DateTime,
             'datePaid' => AttributeType::DateTime,
             'currency' => AttributeType::String,
+            'paymentCurrency' => AttributeType::String,
             'lastIp' => AttributeType::String,
             'message' => AttributeType::String,
             'returnUrl' => AttributeType::String,

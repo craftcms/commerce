@@ -117,6 +117,15 @@ class Commerce_TransactionRecord extends BaseRecord
                 AttributeType::Number,
                 'decimals' => 4
             ],
+            'paymentAmount' => [
+                AttributeType::Number,
+                'decimals' => 4
+            ],
+            'paymentCurrency' => AttributeType::String,
+            'paymentRate'=> [
+                AttributeType::Number,
+                'decimals' => 4
+            ],
             'status' => [
                 AttributeType::Enum,
                 'values' => $this->statuses,

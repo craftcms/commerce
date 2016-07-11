@@ -58,7 +58,7 @@ class Commerce_ChartsController extends ElementIndexController
         }
 
         // Return everything
-        $currency = craft()->commerce_settings->getOption('defaultCurrency');
+        $currency = craft()->commerce_currencies->getDefaultCurrencyIso();
         $totalHtml = craft()->numberFormatter->formatCurrency($total, strtoupper($currency));
 
         $this->returnJson(array(
@@ -82,7 +82,7 @@ class Commerce_ChartsController extends ElementIndexController
      */
     private function _getLocaleDefinitionCurrency()
     {
-        $currency = craft()->commerce_settings->getOption('defaultCurrency');
+        $currency = craft()->commerce_currencies->getDefaultCurrencyIso();
 
         $currencySymbol = craft()->locale->getCurrencySymbol($currency);
         $currencyFormat = craft()->locale->getCurrencyFormat();

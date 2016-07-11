@@ -36,6 +36,7 @@ class Commerce_BaseFrontEndController extends Commerce_BaseController
         $data['dateOrdered'] = $cart->dateOrdered;
         $data['datePaid'] = $cart->datePaid;
         $data['currency'] = $cart->currency;
+        $data['paymentCurrency'] = $cart->paymentCurrency;
         $data['lastIp'] = $cart->lastIp;
         $data['message'] = $cart->message;
         $data['returnUrl'] = $cart->returnUrl;

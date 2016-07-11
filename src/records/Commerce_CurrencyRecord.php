@@ -7,6 +7,7 @@ namespace Craft;
  * @property int $id
  * @property string $name
  * @property string $iso
+ * @property bool $default
  * @property float $rate
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
@@ -50,6 +51,7 @@ class Commerce_CurrencyRecord extends BaseRecord
                 'maxLength' => 3,
                 'minLength' => 3
             ],
+	        'default' => AttributeType::Bool,
             'rate' => [
                 AttributeType::Number,
                 'decimals' => 4,
