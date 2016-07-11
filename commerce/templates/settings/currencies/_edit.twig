@@ -1,0 +1,48 @@
+{% extends "commerce/_layouts/settingscp" %}
+
+{% set crumbs = [
+{ label: "Commerce " ~ "Settings"|t, url: url('commerce/settings') },
+{ label: "Currencies"|t, url: url('commerce/settings/currencies') },
+] %}
+
+{% set fullPageForm = true %}
+
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+    <input type="hidden" name="action" value="commerce/currencies/save">
+    <input type="hidden" name="redirect" value="commerce/settings/currencies">
+    {% if currency.id %}<input type="hidden" name="currencyId" value="{{ currency.id }}">{% endif %}
+
+    {{ forms.textField({
+        first: true,
+        label: "Name"|t,
+        instructions: "What this currency will be called."|t,
+        id: 'name',
+        name: 'name',
+        value: currency.name,
+        errors: currency.getErrors('name'),
+        autofocus: true,
+        required: true,
+        translatable: true
+    }) }}
+
+    {{ forms.textField({
+        label: "ISO"|t,
+        instructions: "The three-letter ISO currency code."|t,
+        id: 'iso',
+        name: 'iso',
+        value: currency.iso,
+        errors: currency.getErrors('iso'),
+        required: true,
+    }) }}
+
+    {{ forms.textField({
+        label: "Conversion Rate"|t,
+        instructions: "This is the rate that is multipled by the stanard currency amount. For example, if your order costs "~storeCurrency~" "~10|currency(storeCurrency)~" and you enter `1.5` here then this payments in this currency will be 15."|t,
+        id: 'rate',
+        name: 'rate',
+        value: currency.rate ?: 1,
+        errors: currency.getErrors('rate')
+    }) }}
+{% endblock %}

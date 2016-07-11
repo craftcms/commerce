@@ -229,6 +229,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
 		$orderRecord->totalPrice = $order->totalPrice;
 		$orderRecord->totalPaid = $order->totalPaid;
 		$orderRecord->currency = $order->currency;
+		$orderRecord->paymentCurrency = $order->paymentCurrency;
 		$orderRecord->customerId = $order->customerId;
 		$orderRecord->returnUrl = $order->returnUrl;
 		$orderRecord->cancelUrl = $order->cancelUrl;
@@ -500,7 +501,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
 	{
 		$this->raiseEvent('onOrderComplete', $event);
 	}
-
+	
 	/**
 	 * Save and set the given addresses to the current cart/order
 	 *

@@ -361,7 +361,11 @@
 					<th scope="col">{{ 'Type'|t }}</span></th>
 					<th scope="col">{{ 'Status'|t }}</th>
 					<th scope="col">{{ 'Message'|t }}</th>
+					<th scope="col">{{ 'Order Currency'|t }}</th>
 					<th scope="col">{{ 'Amount'|t }}</th>
+					<th scope="col">{{ 'Payment Currency'|t }}</th>
+					<th scope="col">{{ 'Payment Amount'|t }}</th>
+					<th scope="col">{{ 'Conversion Rate'|t }}</th>
 					<th scope="col">{{ 'Payment Method'|t }}</th>
 					<th scope="col">{{ 'Date'|t }}</th>
 					<th scope="col">{{ 'Info'|t }}</th>
@@ -383,7 +387,11 @@
 						<td>{{ transaction.type|title }}</td>
 						<td>{{ transaction.status|title }}</td>
 						<td>{{ transaction.message|title }}</td>
-						<td>{{ transaction.amount|currency(order.currency) }}</td>
+						<td>{{ transaction.currency }}</td>
+						<td>{{ transaction.amount|currency(transaction.currency) }}</td>
+						<td>{{ transaction.paymentCurrency }}</td>
+						<td>{{ transaction.paymentAmount|currency(transaction.paymentCurrency) }}</td>
+						<td>{{ transaction.paymentRate|number }}</td>
 						<td>{{ transaction.paymentMethod.name }}</td>
 						<td>{{ transaction.dateUpdated|date }}</td>
 						<td><span class="tableRowInfo" data-icon="info" href="#"></span></td>

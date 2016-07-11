@@ -34,6 +34,15 @@
 						{% endfor %}
 					</select>
 
+					{% set currencies = craft.commerce.currencies %}
+					{% if currencies|length > 1 %}
+					<select id="paymentCurrency" name="paymentCurrency"
+							class="form-control">
+						{% for currency in currencies %}
+							<option value="{{ currency.iso }}" {% if currency.iso == cart.paymentCurrency %}selected{% endif %}>{{ currency.name }} {{  currency.iso }} - {{ cart.totalPrice|cc(currency.iso)|currency(currency.iso) }}</option>
+						{% endfor %}
+					</select>
+					{% endif %}
 				</form>
 			{% endif %}
 
@@ -72,7 +81,7 @@
 								data-name="Craft Commerce"
 								data-description="Purchase" {# This is not used for order description in stripe - see Craft Commerce general settings #}
 								data-email="{{ cart.email }}"
-								data-amount="{{ cart.totalPrice * 100 }}"
+								data-amount="{{ cart.totalPrice|cc(cart.paymentCurrency) * 100 }}"
 								data-locale="auto">
 						</script>
 					{% endif %}
@@ -177,7 +186,7 @@
 							{% endif %}
 
 							<!-- Submit -->
-							<button class="button button-primary" type="submit">Pay {{ cart.totalPrice|currency(cart.currency) }}
+							<button class="button button-primary" type="submit">Pay {{ cart.totalPrice|cc(cart.paymentCurrency)|currency(cart.paymentCurrency) }}
 								Now
 							</button>
 						</fieldset>
@@ -190,14 +199,17 @@
 			<div class="review-card">
 				<h5>Order Review</h5>
 				<ul>
-					<li>
-						<strong>Products</strong> {{ cart.itemTotal|currency(cart.currency) }}
-					</li>
+					{% for item in cart.lineItems %}
+						<li>
+							<span>{{ item.description }}</span><span class="right">{{ item.subtotal|currency(cart.currency) }}</span>
+						</li>
+					{% endfor %}
+
 
 					{% for adjustment in cart.adjustments %}
 						<li>
-							<strong>{{ adjustment.name }}</strong> {{ adjustment.amount|currency(cart.currency) }}
-							({{ adjustment.description }})
+							<strong>{{ adjustment.name }}</strong> <span class="right">{{ adjustment.amount|currency(cart.currency) }}
+							({{ adjustment.description }})</span>
 						</li>
 					{% endfor %}
 
@@ -216,8 +228,13 @@
 					{% endif %}
 
 					<li>
-						<strong>Total:</strong> {{ cart.totalPrice|currency(cart.currency) }}
+						<strong>Total {{ cart.currency }}:</strong> <span class="right">{{ cart.totalPrice|currency(cart.currency) }}</span>
 					</li>
+					{% if cart.currency != cart.paymentCurrency %}
+					<li>
+						<strong>Payment {{ cart.paymentCurrency }}:</strong> <span class="right">{{ cart.totalPrice|cc(cart.paymentCurrency)|currency(cart.paymentCurrency) }}</span>
+					</li>
+					{% endif %}
 				</ul>
 			</div>
 
@@ -225,7 +242,7 @@
 	</div>
 
 	{% includejs %}
-	$('#paymentMethodId').change(function(){
+	$('#paymentMethodId , #paymentCurrency').change(function(){
 		$('form#paymentMethod').submit();
 	});
 	{% endincludejs %}

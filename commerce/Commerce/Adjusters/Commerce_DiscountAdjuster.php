@@ -166,7 +166,7 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
     private function getDescription(Commerce_DiscountModel $discount)
     {
         $description = '';
-        $currency = \Craft\craft()->commerce_settings->getSettings()->defaultCurrency;
+        $currency = \Craft\craft()->commerce_currencies->getDefaultCurrencyIso();
 
         if ($discount->perItemDiscount || $discount->percentDiscount) {
             if ($discount->perItemDiscount) {

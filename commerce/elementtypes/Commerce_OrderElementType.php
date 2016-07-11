@@ -2,6 +2,7 @@
 namespace Craft;
 
 use Commerce\Base\Purchasable;
+use Commerce\Helpers\CommerceCurrencyHelper;
 use Omnipay\Common\Currency;
 
 require_once(__DIR__ . '/Commerce_BaseElementType.php');
@@ -380,6 +381,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
         orders.dateOrdered,
         orders.datePaid,
         orders.currency,
+        orders.paymentCurrency,
         orders.lastIp,
         orders.message,
         orders.returnUrl,
@@ -475,14 +477,12 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
         }
 
         if ($criteria->isPaid === true) {
-	        $currency = Currency::find(craft()->commerce_settings->getSettings()->defaultCurrency);
-	        $decimals = $currency->getDecimals();
+	        $decimals = CommerceCurrencyHelper::defaultDecimals();
             $query->andWhere('ROUND(orders.totalPaid,'.$decimals.') >= ROUND(orders.totalPrice,'.$decimals.')');
         }
 
         if ($criteria->isUnpaid === true) {
-	        $currency = Currency::find(craft()->commerce_settings->getSettings()->defaultCurrency);
-	        $decimals = $currency->getDecimals();
+	        $decimals = CommerceCurrencyHelper::defaultDecimals();
 	        $query->andWhere('ROUND(orders.totalPaid,'.$decimals.') < ROUND(orders.totalPrice,'.$decimals.')');
         }
 

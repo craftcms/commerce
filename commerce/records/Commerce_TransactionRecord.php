@@ -115,8 +115,15 @@ class Commerce_TransactionRecord extends BaseRecord
             ],
             'amount' => [
                 AttributeType::Number,
-                'min' => -1000000000000,
-                'max' => 1000000000000,
+                'decimals' => 4
+            ],
+            'paymentAmount' => [
+                AttributeType::Number,
+                'decimals' => 4
+            ],
+            'paymentCurrency' => AttributeType::String,
+            'paymentRate'=> [
+                AttributeType::Number,
                 'decimals' => 4
             ],
             'status' => [
