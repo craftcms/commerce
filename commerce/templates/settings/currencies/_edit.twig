@@ -39,10 +39,15 @@
 
     {{ forms.textField({
         label: "Conversion Rate"|t,
-        instructions: "This is the rate that is multipled by the stanard currency amount. For example, if your order costs "~storeCurrency~" "~10|currency(storeCurrency)~" and you enter `1.5` here then this payments in this currency will be 15."|t,
+        instructions: "This is the rate that is multipled by the store’s currency amount. For example, if your order costs "~storeCurrency~" "~10|currency(storeCurrency)~" and you enter `1.5` here then this payments in this currency will be 15."|t,
         id: 'rate',
         name: 'rate',
+        disabled: currency.default,
         value: currency.rate ?: 1,
         errors: currency.getErrors('rate')
     }) }}
+
+    {% if currency.default %}
+        <p class="warning">This is the current store’s currency. This is the currency all values in the database are stored in. <br>If you change this currency, all previous orders will show as being in the currency. Get this currency correct before starting your store.</p>
+    {% endif %}
 {% endblock %}

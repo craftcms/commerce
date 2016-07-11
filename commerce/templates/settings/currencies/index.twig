@@ -15,6 +15,7 @@
             <th scope="col">{{ 'Name'|t }}</th>
             <th scope="col">{{ 'Currency Code'|t }}</th>
             <th scope="col">{{ 'Rate'|t }}</th>
+            <th scope="col">{{ 'Store Currency'|t }}</th>
             <td class="thin"></td>
         </tr>
         </thead>
@@ -25,6 +26,7 @@
                             href="{{ url('commerce/settings/currencies/'~currency.id) }}">{{ currency.name }}</a></th>
                 <td data-title="{{ 'ISO'|t }}">{{ currency.iso }}</td>
                 <td data-rate="{{ 'Rate'|t }}">{{ currency.rate|number }}</td>
+                <td data-title="{{ 'Store Currency'|t }}">{% if currency.default %}<span data-icon="check" title="{{ 'Yes'|t }}"></span>{% endif %}</td>
                 <td class="thin">{%  if not currency.default %}<a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a>{% endif %}</td>
             </tr>
         {% endfor %}
