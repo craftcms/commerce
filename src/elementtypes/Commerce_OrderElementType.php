@@ -360,34 +360,32 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
      */
     public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
     {
-
-	    $query
-		    ->addSelect('orders.id,
-        orders.number,
-        orders.couponCode,
-        orders.itemTotal,
-        orders.baseDiscount,
-        orders.baseShippingCost,
-        orders.totalPrice,
-        orders.totalPaid,
-        orders.orderStatusId,
-        orders.dateOrdered,
-        orders.email,
-        orders.isCompleted,
-        orders.dateOrdered,
-        orders.datePaid,
-        orders.currency,
-        orders.lastIp,
-        orders.message,
-        orders.returnUrl,
-        orders.cancelUrl,
-        orders.orderStatusId,
-        orders.billingAddressId,
-        orders.shippingAddressId,
-        orders.shippingMethod,
-        orders.paymentMethodId,
-        orders.customerId,
-        orders.dateUpdated')
+        $query
+            ->addSelect(
+                'orders.id,
+                orders.number,
+                orders.couponCode,
+                orders.itemTotal,
+                orders.baseDiscount,
+                orders.baseShippingCost,
+                orders.totalPrice,
+                orders.totalPaid,
+                orders.orderStatusId,
+                orders.dateOrdered,
+                orders.email,
+                orders.isCompleted,
+                orders.datePaid,
+                orders.currency,
+                orders.lastIp,
+                orders.message,
+                orders.returnUrl,
+                orders.cancelUrl,
+                orders.billingAddressId,
+                orders.shippingAddressId,
+                orders.shippingMethod,
+                orders.paymentMethodId,
+                orders.customerId,
+                orders.dateUpdated')
             ->join('commerce_orders orders', 'orders.id = elements.id');
 
         if ($criteria->completed) {
