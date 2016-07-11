@@ -17,7 +17,8 @@ class Commerce_CartService extends BaseApplicationComponent
 {
     /** @var string Session key for storing the cart number */
     protected $cookieCartId = 'commerce_cookie';
-    /** @var Commerce_OrderModel */
+
+	/** @var Commerce_OrderModel */
     private $_cart;
 
     /**
@@ -215,6 +216,36 @@ class Commerce_CartService extends BaseApplicationComponent
     }
 
     /**
+     * Sets the payment currency on the order.
+     * @param $order
+     * @param $currency
+     * @param $error
+     *
+     * @return bool
+     * @throws Exception
+     * @throws \Exception
+     */
+    public function setPaymentCurrency($order, $currency, $error)
+    {
+        $currency = craft()->commerce_currencies->getCurrencyByIso($currency);
+
+        if (!$currency)
+        {
+            $error = Craft::t("Not an available payment currency");
+            return false;
+        }
+
+	    $order->paymentCurrency = $currency->iso;
+
+	    if(!craft()->commerce_orders->saveOrder($order))
+	    {
+		    return false;
+	    };
+
+	    return true;
+    }
+
+    /**
      * Set shipping method to the current order
      *
      * @param Commerce_OrderModel $cart
@@ -326,9 +357,15 @@ class Commerce_CartService extends BaseApplicationComponent
         {
             $number = $this->_getSessionCartNumber();
 
-            if ($cart = $this->_getCartRecordByNumber($number))
+            if ($this->_cart = craft()->commerce_orders->getOrderByNumber($number))
             {
-                $this->_cart = Commerce_OrderModel::populateModel($cart);
+	            // We do not want to use the same order number as a completed order.
+	            if ($this->_cart->isCompleted)
+	            {
+		            $this->forgetCart();
+		            craft()->commerce_customers->forgetCustomer();
+		            $this->getCart();
+	            }
             }
             else
             {
@@ -336,19 +373,15 @@ class Commerce_CartService extends BaseApplicationComponent
                 $this->_cart->number = $number;
             }
 
-            // We do not want to use the same order number as a completed order.
-            $order = craft()->commerce_orders->getOrderByNumber($number);
-            if ($order && $order->isCompleted)
-            {
-                $this->forgetCart();
-                craft()->commerce_customers->forgetCustomer();
-                $this->getCart();
-            }
 
             $this->_cart->lastIp = craft()->request->getIpAddress();
 
-            // Right now, orders are only made in the default currency
-            $this->_cart->currency = craft()->commerce_settings->getOption('defaultCurrency');
+            // Right now, orders are all stored in the default currency
+            $this->_cart->currency = craft()->commerce_currencies->getDefaultCurrencyIso();
+
+	        // Payment currency is always set to the store currency unless already set to something else.
+	        
+            $this->_cart->paymentCurrency = $this->_cart->paymentCurrency ?: craft()->commerce_currencies->getDefaultCurrencyIso();
 
             // Update the cart if the customer has changed and recalculate the cart.
             $customer = craft()->commerce_customers->getCustomer();
@@ -383,20 +416,6 @@ class Commerce_CartService extends BaseApplicationComponent
         }
 
         return $cartNumber;
-    }
-
-    /**
-     * @param string $number
-     *
-     * @return Commerce_OrderRecord
-     */
-    private function _getCartRecordByNumber($number)
-    {
-        $cart = $this->_createOrderQuery()
-            ->where('orders.number = :number AND dateOrdered IS NULL', [':number' => $number])
-            ->queryRow();
-
-        return $cart;
     }
 
     /**

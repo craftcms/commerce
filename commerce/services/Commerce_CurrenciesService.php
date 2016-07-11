@@ -13,6 +13,9 @@ namespace Craft;
  */
 class Commerce_CurrenciesService extends BaseApplicationComponent
 {
+
+	private $_allCurrencies;
+
     /**
      * @param int $id
      *
@@ -20,13 +23,13 @@ class Commerce_CurrenciesService extends BaseApplicationComponent
      */
     public function getCurrencyById($id)
     {
-        $result = Commerce_CurrencyRecord::model()->findById($id);
-
-        if ($result) {
-            return Commerce_CurrencyModel::populateModel($result);
-        }
-
-        return null;
+	    foreach ($this->getAllCurrencies() as $currency)
+	    {
+		    if ($currency->id == $id)
+		    {
+			    return $currency;
+		    }
+	    }
     }
 
     /**
@@ -45,17 +48,72 @@ class Commerce_CurrenciesService extends BaseApplicationComponent
         return null;
     }
 
+
+    /**
+     * @param string $iso
+     *
+     * @return Commerce_CurrencyModel|null
+     */
+    public function getCurrencyByIso($iso)
+    {
+	    foreach ($this->getAllCurrencies() as $currency)
+	    {
+		    if ($currency->iso == $iso)
+		    {
+			    return $currency;
+		    }
+	    }
+    }
+
+
     /**
      * @return Commerce_CurrencyModel[]
      */
     public function getAllCurrencies()
     {
-        $records = Commerce_CurrencyRecord::model()->findAll(['order' => 'name']);
+	    if (!isset($this->_allCurrencies))
+	    {
+		    $records = Commerce_CurrencyRecord::model()->findAll(['order' => 'name']);
+		    $this->_allCurrencies = Commerce_CurrencyModel::populateModels($records);
+	    }
 
-        return Commerce_CurrencyModel::populateModels($records);
+	    return $this->_allCurrencies;
     }
 
-    /**
+	/**
+	 * Returns the default currency all prices are entered as.
+	 *
+	 * @return Commerce_CurrencyModel
+	 */
+	public function getDefaultCurrency()
+	{
+		foreach ($this->getAllCurrencies() as $currency)
+		{
+			if ($currency->default)
+			{
+				return $currency;
+			}
+		}
+	}
+
+	/**
+	 * Return the default currencies ISO code as a string.
+	 *
+	 * @return string
+	 */
+	public function getDefaultCurrencyIso()
+	{
+		return $this->getDefaultCurrency()->iso;
+	}
+
+
+	public function convertPrice($price, $currency)
+	{
+		$destinationCurrency = craft()->commerce_currencies->getCurrencyByIso($currency);
+		return $price * $destinationCurrency->rate;
+	}
+
+	/**
      * @param Commerce_CurrencyModel $model
      *
      * @return bool
@@ -78,13 +136,20 @@ class Commerce_CurrenciesService extends BaseApplicationComponent
 
         $record->name = $model->name;
         $record->iso = strtoupper($model->iso);
-        $record->rate = $model->rate;
+        $record->default = $model->default;
+        // If this rate is default, the rate must be 1 since it is now the rate all prices are enter in as.
+        $record->rate =  $model->default ? 1 : $model->rate;
 
         $record->validate();
         $model->addErrors($record->getErrors());
 
         if (!$model->hasErrors()) {
-            // Save it!
+
+            if ($record->default)
+            {
+                Commerce_OrderStatusRecord::model()->updateAll(['default' => 0]);
+            }
+
             $record->save(false);
 
             // Now that we have a record ID, save it on the model

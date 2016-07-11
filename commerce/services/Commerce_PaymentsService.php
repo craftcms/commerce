@@ -173,7 +173,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 			}
 		}
 
-		$currency = \Omnipay\Common\Currency::find($order->currency);
+		$currency = \Omnipay\Common\Currency::find($order->paymentCurrency);
 		$priceCheck = round($priceCheck, $currency->getDecimals());
 		$totalPrice = round($order->totalPrice, $currency->getDecimals());
 		$same = (bool)($priceCheck == $totalPrice);
@@ -267,8 +267,8 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 	)
 	{
 		$request = [
-			'amount'               => $transaction->amount,
-			'currency'             => craft()->commerce_settings->getOption('defaultCurrency'),
+			'amount'               => $transaction->paymentAmount,
+			'currency'             => $transaction->paymentCurrency,
 			'transactionId'        => $transaction->id,
 			'description'          => Craft::t('Order').' #'.$transaction->orderId,
 			'clientIp'             => craft()->request->getIpAddress(),
@@ -578,6 +578,10 @@ EOF;
 		$child->paymentMethodId = $parent->paymentMethodId;
 		$child->type = $action;
 		$child->amount = $parent->amount;
+		$child->paymentAmount = $parent->paymentAmount;
+		$child->currency = $parent->currency;
+		$child->paymentCurrency = $parent->paymentCurrency;
+		$child->paymentRate = $parent->paymentRate;
 		$this->saveTransaction($child);
 
 		$gateway = $parent->paymentMethod->getGateway();

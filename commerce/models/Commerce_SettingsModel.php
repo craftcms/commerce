@@ -6,7 +6,6 @@ use Omnipay\Common\Currency;
 /**
  * Settings model.
  *
- * @property string $defaultCurrency
  * @property string $weightUnits
  * @property string $dimensionUnits
  * @property string $emailSenderAddress
@@ -31,17 +30,23 @@ class Commerce_SettingsModel extends BaseModel
      */
     public $emailSenderNamePlaceholder;
 
+	/**currency moved from plugin settings to currency table in DB.
+	 *
+	 * @return string
+	 */
+    public function getDefaultCurrency()
+    {
+        craft()->deprecator->log('Commerce_SettingsModel::defaultCurrency:removed', 'You should no longer use `craft.commerce.settings.defaultCurrency`  to get the store currency. Use `craft.commerce.defaultCurrency`.');
+
+        return craft()->commerce_currencies->getDefaultCurrencyIso();
+    }
+
     /**
      * @return array
      */
     public function defineAttributes()
     {
         return [
-            'defaultCurrency' => [
-                AttributeType::String,
-                'default' => 'USD',
-                'required' => true
-            ],
             'weightUnits' => [
                 AttributeType::String,
                 'default' => 'g'

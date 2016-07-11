@@ -235,12 +235,24 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
         // Set guest email address onto guest customer and order.
         if (craft()->userSession->isGuest) {
             if (!is_null(craft()->request->getParam('email'))) {
+                $error = '';
                 $email = craft()->request->getParam('email'); // empty string vs null (strict type checking)
                 if (!craft()->commerce_cart->setEmail($cart, $email, $error)) {
                     $cart->addError('email', $error);
                 } else {
                     $cartSaved = true;
                 }
+            }
+        }
+
+        // Set guest email address onto guest customer and order.
+        if (!is_null(craft()->request->getParam('paymentCurrency'))) {
+            $currency = craft()->request->getParam('paymentCurrency'); // empty string vs null (strict type checking)
+            $error = '';
+            if (!craft()->commerce_cart->setPaymentCurrency($cart, $currency, $error)) {
+                $cart->addError('paymentCurrency', $error);
+            } else {
+                $cartSaved = true;
             }
         }
 

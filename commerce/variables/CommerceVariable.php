@@ -194,4 +194,24 @@ class CommerceVariable
 
 		return $sales;
 	}
+
+	/**
+	 * @return Commerce_CurrencyModel[]
+	 */
+	public function getCurrencies()
+	{
+		$currencies = craft()->commerce_currencies->getAllCurrencies();
+
+		return $currencies;
+	}
+
+	/**
+	 * @return Commerce_CurrencyModel
+	 */
+	public function getDefaultCurrency()
+	{
+		$currencies = craft()->commerce_currencies->getDefaultCurrency();
+
+		return $currencies;
+	}
 }

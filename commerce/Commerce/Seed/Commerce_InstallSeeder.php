@@ -2,6 +2,7 @@
 
 namespace Commerce\Seed;
 
+use Craft\Commerce_CurrencyRecord;
 use Craft\Commerce_OrderSettingsModel;
 use Craft\Commerce_OrderStatusModel;
 use Craft\Commerce_PaymentMethodModel;
@@ -30,6 +31,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
 
     public function seed()
     {
+        $this->defaultCurrency();
         $this->defaultShippingMethod();
         $this->defaultTaxCategories();
         $this->defaultOrderSettings();
@@ -37,6 +39,16 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
         $this->defaultProducts();
         $this->paymentMethods();
         $this->defaultSettings();
+    }
+
+    public function defaultCurrency()
+    {
+        $method = new Commerce_CurrencyRecord();
+        $method->name = 'Default Currency';
+        $method->iso = 'USD';
+        $method->rate = 1;
+        $method->default = true;
+        $method->save();
     }
 
     /**
@@ -211,7 +223,6 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
     {
         $settings = new Commerce_SettingsModel();
         $settings->orderPdfPath = 'commerce/_pdf/order';
-        $settings->defaultCurrency = 'USD';
         \Craft\craft()->commerce_settings->saveSettings($settings);
     }
 

@@ -28,8 +28,22 @@ class CommerceTwigExtension extends \Twig_Extension
     public function getFilters()
     {
         $returnArray['commercePercent'] = new \Twig_Filter_Method($this, 'percent');
+        $returnArray['commerceCurrencyCovert'] = new \Twig_Filter_Method($this, 'currencyCovert');
+        $returnArray['cc'] = new \Twig_Filter_Method($this, 'currencyCovert');
 
         return $returnArray;
+    }
+
+    public function currencyCovert($amount, $currency)
+    {
+        $currency = \Craft\craft()->commerce_currencies->getCurrencyByIso($currency);
+
+        if(!$currency)
+        {
+            throw new \Twig_Error(\Craft\Craft::t('Not a valid currency code for conversion'));
+        }
+
+        return $amount * $currency->rate;
     }
 
     /**

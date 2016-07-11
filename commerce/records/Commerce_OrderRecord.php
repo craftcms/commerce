@@ -18,6 +18,7 @@ namespace Craft;
  * @property DateTime $dateOrdered
  * @property DateTime $datePaid
  * @property string $currency
+ * @property string $paymentCurrency
  * @property string $lastIp
  * @property string $message
  * @property string $returnUrl
@@ -155,6 +156,7 @@ class Commerce_OrderRecord extends BaseRecord
             'dateOrdered' => AttributeType::DateTime,
             'datePaid' => AttributeType::DateTime,
             'currency' => AttributeType::String,
+            'paymentCurrency' => AttributeType::String,
             'lastIp' => AttributeType::String,
             'message' => AttributeType::String,
             'returnUrl' => AttributeType::String,
