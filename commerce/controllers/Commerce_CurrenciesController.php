@@ -92,13 +92,16 @@ class Commerce_CurrenciesController extends Commerce_BaseAdminController
         $this->requireAjaxRequest();
 
         $id = craft()->request->getRequiredPost('id');
+        $currency = craft()->commerce_currencies->getCurrencyById($id);
 
-        try {
+        if ($currency && !$currency->default)
+        {
             craft()->commerce_currencies->deleteCurrencyById($id);
             $this->returnJson(['success' => true]);
-        } catch (\Exception $e) {
-            $this->returnErrorJson($e->getMessage());
         }
+
+        $message = Craft::t('You can not delete that currency.');
+        $this->returnErrorJson($message);
     }
 
 }

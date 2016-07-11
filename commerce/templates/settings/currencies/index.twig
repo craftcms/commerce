@@ -25,7 +25,7 @@
                             href="{{ url('commerce/settings/currencies/'~currency.id) }}">{{ currency.name }}</a></th>
                 <td data-title="{{ 'ISO'|t }}">{{ currency.iso }}</td>
                 <td data-rate="{{ 'Rate'|t }}">{{ currency.rate|number }}</td>
-                <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
+                <td class="thin">{%  if not currency.default %}<a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a>{% endif %}</td>
             </tr>
         {% endfor %}
 
