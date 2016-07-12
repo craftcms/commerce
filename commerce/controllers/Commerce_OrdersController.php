@@ -88,6 +88,8 @@ class Commerce_OrdersController extends Commerce_BaseCpController
 				$variables['paymentForm'] = $paymentMethod->getPaymentFormModel();
 			}
 		}
+		
+		$variables['orderStatusesJson'] = JsonHelper::encode(craft()->commerce_orderStatuses->getAllOrderStatuses());
 
 		$this->renderTemplate('commerce/orders/_edit', $variables);
 	}
