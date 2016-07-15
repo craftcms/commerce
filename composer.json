@@ -14,8 +14,42 @@
             "Commerce\\": "commerce/Commerce"
         }
     },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "/Users/lh/Code/Projects/omnipay-netbanx"
+        }
+    ],
     "require": {
-        "omnipay/omnipay": "2.3.2",
+
+        "omnipay/2checkout" :  "~2.1",
+        "omnipay/authorizenet" :  "~2.4",
+        "omnipay/buckaroo" : "~2.0",
+        "omnipay/cardsave" :  "~2.1",
+        "omnipay/coinbase" : "~2.0",
+        "omnipay/common" :  "~2.3",
+        "omnipay/dummy" :  "~2.1",
+        "omnipay/eway" :  "~2.2",
+        "omnipay/firstdata" :  "~2.3",
+        "omnipay/gocardless" :  "~2.2",
+        "omnipay/manual" :  "~2.2",
+        "omnipay/migs" :  "~2.1",
+        "omnipay/mollie" :  "~3.0",
+        "omnipay/multisafepay" :  "~2.3",
+        "omnipay/netaxept" :  "~2.3",
+        "omnipay/netbanx" :  "*",
+        "omnipay/omnipay" :  "~2.3",
+        "omnipay/payfast" :  "~2.1",
+        "omnipay/payflow" :  "~2.2",
+        "omnipay/paymentexpress" :  "~2.2",
+        "omnipay/paypal" :  "~2.5",
+        "omnipay/pin" :  "~2.2",
+        "omnipay/sagepay" :  "~2.3",
+        "omnipay/securepay" : "~2.1",
+        "omnipay/stripe" :  "~2.3",
+        "omnipay/targetpay" :  "~2.2",
+        "omnipay/worldpay" :  "~2.2",
+
         "dompdf/dompdf" : "0.6.1"
     }
 }
