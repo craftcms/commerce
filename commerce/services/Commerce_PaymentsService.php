@@ -132,6 +132,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 		}
 
 		$items = $order->getPaymentMethod()->getGatewayAdapter()->createItemBag();
+		$currency = \Omnipay\Common\Currency::find($order->currency);
 
 		$priceCheck = 0;
 
@@ -145,7 +146,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 			$purchasableDescription = $purchasable ? $purchasable->getDescription() : $defaultDescription;
 			$description = isset($item->snapshot['description']) ? $item->snapshot['description'] : $purchasableDescription;
 			$description = empty($description) ? "Item ".$count : $description;
-			$price = craft()->numberFormatter->formatDecimal($item->salePrice, false);
+			$price = round($item->salePrice, $currency->getDecimals());
 			$items->add([
 				'name'        => $description,
 				'description' => $description,
@@ -162,7 +163,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 			if (!$adjustment->included)
 			{
 				$count++;
-				$price = craft()->numberFormatter->formatDecimal($adjustment->amount, false);
+				$price = round($adjustment->amount, $currency->getDecimals());
 				$items->add([
 					'name'        => empty($adjustment->name) ? $adjustment->type." ".$count : $adjustment->name,
 					'description' => empty($adjustment->description) ? $adjustment->type." ".$count : $adjustment->description,
