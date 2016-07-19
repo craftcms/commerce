@@ -132,6 +132,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 		}
 
 		$items = $order->getPaymentMethod()->getGatewayAdapter()->createItemBag();
+		$currency = \Omnipay\Common\Currency::find($order->currency);
 
 		$priceCheck = 0;
 
@@ -139,30 +140,38 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 		/** @var Commerce_LineItemModel $item */
 		foreach ($order->lineItems as $item)
 		{
-			$count++;
-			$purchasable = $item->getPurchasable();
-			$defaultDescription = Craft::t('Item ID')." ".$item->id;
-			$purchasableDescription = $purchasable ? $purchasable->getDescription() : $defaultDescription;
-			$description = isset($item->snapshot['description']) ? $item->snapshot['description'] : $purchasableDescription;
-			$description = empty($description) ? "Item ".$count : $description;
-			$price = craft()->numberFormatter->formatDecimal($item->salePrice, false);
-			$items->add([
-				'name'        => $description,
-				'description' => $description,
-				'quantity'    => $item->qty,
-				'price'       => $price,
-			]);
-			$priceCheck = $priceCheck + ($item->qty * $item->salePrice);
+			$price = round($item->salePrice, $currency->getDecimals());
+			// Can not accept zero amount items. See item (4) here:
+			// https://developer.paypal.com/docs/classic/express-checkout/integration-guide/ECCustomizing/#setting-order-details-on-the-paypal-review-page
+			if ($price != 0)
+			{
+				$count++;
+				$purchasable = $item->getPurchasable();
+				$defaultDescription = Craft::t('Item ID')." ".$item->id;
+				$purchasableDescription = $purchasable ? $purchasable->getDescription() : $defaultDescription;
+				$description = isset($item->snapshot['description']) ? $item->snapshot['description'] : $purchasableDescription;
+				$description = empty($description) ? "Item ".$count : $description;
+				$items->add([
+					'name'        => $description,
+					'description' => $description,
+					'quantity'    => $item->qty,
+					'price'       => $price,
+				]);
+				$priceCheck = $priceCheck + ($item->qty * $item->salePrice);
+			}
 		}
 
 		$count = -1;
 		/** @var Commerce_OrderAdjustmentModel $adjustment */
 		foreach ($order->adjustments as $adjustment)
 		{
-			if (!$adjustment->included)
+			$price = round($adjustment->amount, $currency->getDecimals());
+
+			// Do not include the 'included' adjustments, and do not send zero value items
+			// See item (4) https://developer.paypal.com/docs/classic/express-checkout/integration-guide/ECCustomizing/#setting-order-details-on-the-paypal-review-page
+			if (($adjustment->included == 0 || $adjustment->included == false) && $price != 0)
 			{
 				$count++;
-				$price = craft()->numberFormatter->formatDecimal($adjustment->amount, false);
 				$items->add([
 					'name'        => empty($adjustment->name) ? $adjustment->type." ".$count : $adjustment->name,
 					'description' => empty($adjustment->description) ? $adjustment->type." ".$count : $adjustment->description,
@@ -173,7 +182,6 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 			}
 		}
 
-		$currency = \Omnipay\Common\Currency::find($order->paymentCurrency);
 		$priceCheck = round($priceCheck, $currency->getDecimals());
 		$totalPrice = round($order->totalPrice, $currency->getDecimals());
 		$same = (bool)($priceCheck == $totalPrice);
@@ -679,10 +687,7 @@ EOF;
 		if ($gateway->$supportsAction())
 		{
 
-			// Some gateways need the cart data again on the order complete
-			$itemBag = $this->createItemBag($order);
-
-			$params = $this->buildPaymentRequest($transaction,null,$itemBag);
+			$params = $this->buildPaymentRequest($transaction);
 
 			// If MOLLIE, the transactionReference will be theirs
 			$name = $transaction->paymentMethod->getGateway()->getName();
@@ -695,7 +700,6 @@ EOF;
 			unset($params['notifyUrl']);
 
 			$request = $gateway->$action($params);
-
 			$success = $this->sendPaymentRequest($order, $request, $transaction, $redirect, $customError);
 
 			if ($success)
