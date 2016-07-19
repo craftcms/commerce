@@ -2,7 +2,6 @@
 namespace Craft;
 
 use Commerce\Base\Purchasable;
-use Commerce\Helpers\CommerceCurrencyHelper;
 use Omnipay\Common\Currency;
 
 require_once(__DIR__ . '/Commerce_BaseElementType.php');
