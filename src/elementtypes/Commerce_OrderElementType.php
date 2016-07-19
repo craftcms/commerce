@@ -350,7 +350,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 			'user' => AttributeType::Mixed,
 			'isPaid' => AttributeType::Bool,
 			'isUnpaid' => AttributeType::Bool,
-			'hasPurchasables' => AttributeType::Mixed
+			'hasPurchasables' => AttributeType::Mixed,
             'paymentMethod' => AttributeType::Mixed,
             'paymentMethodId' => AttributeType::Mixed
 		];
