@@ -380,6 +380,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 				orders.isCompleted,
 				orders.datePaid,
 				orders.currency,
+				orders.paymentCurrency,
 				orders.lastIp,
 				orders.message,
 				orders.returnUrl,
