@@ -1,4 +1,4 @@
-{% extends 'commerce/_layouts/main' %}
+{% extends 'shop/_layouts/main' %}
 
 {% block main %}
 
@@ -14,21 +14,21 @@
         {% if redirect %}
             <input type="hidden" name="redirect" value="{{ redirect }}">
         {% else %}
-            <input type="hidden" name="redirect" value="commerce/customer/addresses">
+            <input type="hidden" name="redirect" value="shop/customer/addresses">
         {% endif %}
 
         {% if addressId %}
             <input type="hidden" name="address[id]" value="{{ addressId }}">
         {% endif %}
 
-        {% include 'commerce/_includes/addresses/form' %}
+        {% include 'shop/_includes/addresses/form' %}
 
         <input type="submit" value="Save Address">
     </form>
     {% if redirect %}
         <a href="/{{ redirect }}">Cancel</a>
     {% else %}
-        <a href="/commerce/customer/addresses">Cancel</a>
+        <a href="{{ url('shop/customer/addresses') }}">Cancel</a>
     {% endif %}
 
 {% endblock %}
