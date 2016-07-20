@@ -1,4 +1,4 @@
-{% extends 'commerce/_layouts/checkout' %}
+{% extends 'shop/_layouts/checkout' %}
 
 {% block content %}
     <h3>Shipping Method</h3>
@@ -15,13 +15,13 @@
         #}
 
         {% if not craft.commerce.availableShippingMethods|length %}
-            <p>No shipping methods available.<p><p> <a class="button button-primary" href="/commerce/checkout/payment">Continue to payment</a></p>
+            <p>No shipping methods available.<p><p> <a class="button button-primary" href="{{ url('shop/checkout/payment') }}">Continue to payment</a></p>
         {% endif %}
 
         {% if craft.commerce.availableShippingMethods|length %}
         <form method="POST">
             <input type="hidden" name="action" value="commerce/cart/updateCart">
-            <input type="hidden" name="redirect" value="commerce/checkout/payment">
+            <input type="hidden" name="redirect" value="shop/checkout/payment">
             {{ getCsrfInput() }}
 
             {% for handle, method in craft.commerce.availableShippingMethods %}
@@ -51,17 +51,17 @@
             <div class="address-card">
                 <h5 class="label">Shipping Address</h5>
                 {% if cart.shippingAddress %}
-                    {% include 'commerce/_includes/addresses/address' with {'address': cart.shippingAddress} %}
+                    {% include 'shop/_includes/addresses/address' with {'address': cart.shippingAddress} %}
                 {% else %}
                     <p>No shipping address selected.</p>
                 {% endif %}
-                {% if currentUser %}<a class="edit" href="/commerce/customer/addresses/edit?addressId={{ cart.shippingAddressId }}&redirect={{ craft.request.path }}">Edit</a>{% endif %}
+                {% if currentUser %}<a class="edit" href="{{ url('shop/customer/addresses/edit') }}?addressId={{ cart.shippingAddressId }}&redirect={{ craft.request.path }}">Edit</a>{% endif %}
             </div>
             <div class="address-card">
                 <h5 class="label">Billing Address</h5>
                 {% if cart.billingAddress %}
-                    {% include 'commerce/_includes/addresses/address' with {'address': cart.billingAddress} %}
-                    {% if currentUser %}<a class="edit" href="/commerce/customer/addresses/edit?addressId={{ cart.billingAddressId }}&redirect={{ craft.request.path }}">Edit</a>{% endif %}
+                    {% include 'shop/_includes/addresses/address' with {'address': cart.billingAddress} %}
+                    {% if currentUser %}<a class="edit" href="{{ url('shop/customer/addresses/edit') }}?addressId={{ cart.billingAddressId }}&redirect={{ craft.request.path }}">Edit</a>{% endif %}
                 {% else %}
                     <p>No billing address selected.</p>
                 {% endif %}

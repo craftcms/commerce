@@ -5,14 +5,14 @@
             <div class="address-select" data-address-id="{{ address.id }}">
                 <div class="actions">
                     <ul>
-                        <li><a class="edit" href="{{ url('commerce/customer/addresses/edit?addressId='~ address.id ~'&redirect='~craft.request.path)}}">Edit</a>
+                        <li><a class="edit" href="{{ url('shop/customer/addresses/edit?addressId='~ address.id ~'&redirect='~craft.request.path)}}">Edit</a>
                         </li>
                     </ul>
                 </div>
                 <div class="radio">
                     <input type="radio" name="{{ name }}Id"
                         {% if attribute(cart,name~'Id') == address.id %}checked="checked"{% endif %} value="{{ address.id }}"/>
-                        {% include 'commerce/_includes/addresses/address' %}
+                        {% include 'shop/_includes/addresses/address' %}
                 </div>
             </div>
         {% endfor %}
@@ -37,7 +37,7 @@
 
         <div class="body {% if currentUser %}hidden{% endif %}">
             {% if addressHasErrors %}<span class="flash">{{ cart.getErrors(name)|join }}</span><br>{% endif %}
-            {% include 'commerce/_includes/addresses/form' with {
+            {% include 'shop/_includes/addresses/form' with {
             'modelName': name,
             'address': attribute(cart, name)
             } %}
