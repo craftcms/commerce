@@ -310,7 +310,7 @@ a:hover {
 /* Buttons
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 .button,
-button,
+button:not(.stripe-button-el),
 input[type="submit"],
 input[type="reset"],
 input[type="button"] {
