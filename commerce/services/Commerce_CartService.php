@@ -2,6 +2,7 @@
 namespace Craft;
 
 use Commerce\Helpers\CommerceDbHelper;
+use yii\helpers\ArrayHelper as YiiArrayHelper;
 
 /**
  * Cart service.
@@ -379,9 +380,17 @@ class Commerce_CartService extends BaseApplicationComponent
             // Right now, orders are all stored in the default currency
             $this->_cart->currency = craft()->commerce_currencies->getDefaultCurrencyIso();
 
-	        // Payment currency is always set to the store currency unless already set to something else.
-	        
-            $this->_cart->paymentCurrency = $this->_cart->paymentCurrency ?: craft()->commerce_currencies->getDefaultCurrencyIso();
+	        // Payment currency is always set to the store currency unless it is set to an allowed currency.
+	        $currencies = YiiArrayHelper::getColumn(craft()->commerce_currencies->getAllCurrencies(),'iso');
+	        if (in_array($this->_cart->paymentCurrency, $currencies))
+	        {
+		        $this->_cart->paymentCurrency = $this->_cart->paymentCurrency ?: craft()->commerce_currencies->getDefaultCurrencyIso();
+	        }
+	        else
+	        {
+		        $this->_cart->paymentCurrency = craft()->commerce_currencies->getDefaultCurrencyIso();
+	        }
+
 
             // Update the cart if the customer has changed and recalculate the cart.
             $customer = craft()->commerce_customers->getCustomer();
