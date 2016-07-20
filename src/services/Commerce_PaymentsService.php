@@ -683,7 +683,10 @@ EOF;
 		if ($gateway->$supportsAction())
 		{
 
-			$params = $this->buildPaymentRequest($transaction);
+			// Some gateways need the cart data again on the order complete
+			$itemBag = $this->createItemBag($order);
+
+			$params = $this->buildPaymentRequest($transaction,null,$itemBag);
 
 			// If MOLLIE, the transactionReference will be theirs
 			$name = $transaction->paymentMethod->getGateway()->getName();
@@ -696,6 +699,7 @@ EOF;
 			unset($params['notifyUrl']);
 
 			$request = $gateway->$action($params);
+
 			$success = $this->sendPaymentRequest($order, $request, $transaction, $redirect, $customError);
 
 			if ($success)
