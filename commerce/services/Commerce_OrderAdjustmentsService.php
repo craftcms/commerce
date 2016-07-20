@@ -92,7 +92,7 @@ class Commerce_OrderAdjustmentsService extends BaseApplicationComponent
     private function _createOrderAdjustmentsQuery()
     {
         return craft()->db->createCommand()
-            ->select('oa.id, oa.type, oa.name, oa.description, oa.amount, oa.optionsJson, oa.orderId')
+            ->select('oa.id, oa.type, oa.name, oa.included, oa.description, oa.amount, oa.optionsJson, oa.orderId')
             ->from('commerce_orderadjustments oa')
             ->order('type');
     }
