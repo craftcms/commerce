@@ -118,11 +118,17 @@ class CommerceVariable
 	}
 
 	/**
+	 * @param bool $asList Whether we should return the payment methods as a simple list suitable for a html select box
 	 * @return Commerce_PaymentMethodModel[] array
 	 */
-	public function getPaymentMethods()
+	public function getPaymentMethods($asList = false)
 	{
 		$methods = craft()->commerce_paymentMethods->getAllFrontEndPaymentMethods();
+
+		if ($asList)
+		{
+			return \CHtml::listData($methods, 'id', 'name');
+		}
 
 		// Need to put the methods into an array keyed by method ID for backwards compatibility.
 		return $this->arrayKeyedByAttribute($methods, 'id');
@@ -145,11 +151,17 @@ class CommerceVariable
 	}
 
 	/**
+	 * @param bool $asList Whether we should return the tax categories as a simple list suitable for a html select box
 	 * @return Commerce_TaxCategoryModel[] array
 	 */
-	public function getTaxCategories()
+	public function getTaxCategories($asList = false)
 	{
 		$taxCategories = craft()->commerce_taxCategories->getAllTaxCategories();
+
+		if ($asList)
+		{
+			return \CHtml::listData($taxCategories, 'id', 'name');
+		}
 
 		// Need to put the methods into an array keyed by method ID for backwards compatibility.
 		return $this->arrayKeyedByAttribute($taxCategories, 'id');
@@ -211,9 +223,9 @@ class CommerceVariable
 	// =========================================================================
 
 	/**
-	 * TODO Move this into an array helper?
+	 * TODO Move this into an array
 	 *
-	 * @param BaseModel[] $array
+	 * @param BaseModel[] $array All models using this method must implement __string() to be backwards compatible with \CHtml::listData
 	 * @param string      $attribute The attribute you want the array keyed by.
 	 *
 	 * @return array
