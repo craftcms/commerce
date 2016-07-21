@@ -360,29 +360,12 @@
 				<tbody>
 				{% for transaction in order.transactions %}
 
-					{% set convertedPrice = transaction.paymentAmount|currency(transaction.paymentCurrency)~" <small class=\"light\">(1 "~transaction.currency~" = "~transaction.paymentRate|number~" "~transaction.paymentCurrency~")</small>" %}
-
 					{% set info = [
-						{
-							label: "Hash",
-							value: transaction.hash
-						},
-						{
-							label: "Reference",
-							value: transaction.reference
-						},
-						{
-							label: "Response",
-							value: transaction.response
-						},
-						{
-							label: "Converted Price",
-							value: convertedPrice
-						},
-						{
-							label: "Message",
-							value: transaction.message|title
-						},
+						{ label: "Hash", value: transaction.hash },
+						{ label: "Reference", value: transaction.reference },
+						{ label: "Response", value: transaction.response },
+						{ label: "Converted Price", value: transaction.paymentAmount|currency(transaction.paymentCurrency)~" <small class=\"light\">(1 "~transaction.currency~" = "~transaction.paymentRate|number~" "~transaction.paymentCurrency~")</small>" },
+						{ label: "Message", value: transaction.message|title },
 					] %}
 
 					<tr class="infoRow" data-info="{{ info|json_encode }}">
