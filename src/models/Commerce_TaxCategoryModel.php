@@ -20,6 +20,16 @@ namespace Craft;
 class Commerce_TaxCategoryModel extends BaseModel
 {
     /**
+     * Returns the name of this tax category.
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return (string) $this->getAttribute('name');
+    }
+
+    /**
      * @return string
      */
     public function getCpEditUrl()

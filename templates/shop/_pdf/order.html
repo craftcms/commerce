@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css">
     <style>
-    {% include 'commerce/style.css' %}
+    {% include 'shop/style.css' %}
     .paidLogo{
         font-weight:bold;
         position: absolute;
@@ -41,13 +41,13 @@
                     <td>
                         <h5>Shipping Address</h5>
                         {% if order.shippingAddress %}
-                        {% include 'commerce/_includes/addresses/address' with { address: order.shippingAddress } %}
+                        {% include 'shop/_includes/addresses/address' with { address: order.shippingAddress } %}
                         {% endif %}
                     </td>
                     <td>
                         <h5>Billing Address</h5>
                         {% if order.billingAddress %}
-                        {% include 'commerce/_includes/addresses/address' with { address: order.billingAddress } %}
+                        {% include 'shop/_includes/addresses/address' with { address: order.billingAddress } %}
                         {% endif %}
                     </td>
                 </tr>

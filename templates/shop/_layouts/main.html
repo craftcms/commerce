@@ -15,7 +15,7 @@
 	<link rel="stylesheet" type='text/css' href="//maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 	<link rel='stylesheet' type='text/css' href='//fonts.googleapis.com/css?family=Open+Sans:400,300,600'>
 	<link rel="stylesheet" type='text/css' href="//cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css">
-	<link rel="stylesheet" type='text/css' href="{{ url('commerce/style.css') }}">
+	<link rel="stylesheet" type='text/css' href="{{ url('shop/style.css') }}">
 
 </head>
 <body>
@@ -29,9 +29,9 @@
 	<div id="header" class="container">
 		<div class="row">
 			<div class="twelve columns">
-				<a href="{{ url('commerce') }}">{%- include "commerce/_images/logo" with {'class': 'logo'} -%}</a>
+				<a href="{{ url('shop') }}">{%- include "shop/_images/logo" with {'class': 'logo'} -%}</a>
 
-				{% include "commerce/_includes/nav" %}
+				{% include "shop/_includes/nav" %}
 
 				<div class="flash">{{ craft.session.getFlash('notice') }}</div>
 				<div class="flash">{{ craft.session.getFlash('error') }}</div>

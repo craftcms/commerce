@@ -1,4 +1,4 @@
-{% extends 'commerce/_layouts/checkout' %}
+{% extends 'shop/_layouts/checkout' %}
 
 {% block content %}
 
@@ -22,7 +22,7 @@
 
 					<input type="hidden" name="action" value="commerce/cart/updateCart">
 					<input type="hidden" name="redirect"
-						   value="commerce/checkout/payment">
+						   value="shop/checkout/payment">
 					{{ getCsrfInput() }}
 
 					<label for="paymentMethodId">Select a payment method:</label>
@@ -49,8 +49,8 @@
 			{% if cart.paymentMethodId %}
 				<form method="POST" class="form-horizontal">
 					<input type="hidden" name="action" value="commerce/payments/pay"/>
-					<input type="hidden" name="redirect" value="/commerce/customer/order?number={number}"/>
-					<input type="hidden" name="cancelUrl" value="/commerce/checkout/payment"/>
+					<input type="hidden" name="redirect" value="/shop/customer/order?number={number}"/>
+					<input type="hidden" name="cancelUrl" value="/shop/checkout/payment"/>
 					{{ getCsrfInput() }}
 
 					<div class="row">
@@ -218,12 +218,12 @@
 
 						{#
 						If the order requires a shipping method be selected, you could redirect back to the shipping page until one is applied to the order.
-						{% redirect "commerce/checkout/shipping" %}
+						{% redirect "shop/checkout/shipping" %}
 						You might also want to add a php plugin hook to require
 						#}
 
 						<li>
-							<strong>Shipping</strong> None selected. <a href="{{ url('commerce/checkout/shipping') }}">Choose a shipping method.</a>
+							<strong>Shipping</strong> None selected. <a href="{{ url('shop/checkout/shipping') }}">Choose a shipping method.</a>
 						</li>
 					{% endif %}
 

@@ -35,7 +35,7 @@ class Commerce_OrderStatusModel extends BaseModel
      */
     public function __toString()
     {
-        return (string)$this->name;
+        return (string) $this->getAttribute('name');
     }
 
     /**
