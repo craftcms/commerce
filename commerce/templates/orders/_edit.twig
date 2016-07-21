@@ -372,19 +372,35 @@
 				</thead>
 				<tbody>
 				{% for transaction in order.transactions %}
-					<tr class="infoRow"
-						data-inforow='{% spaceless %}[
-						{"label":"Hash","attribute":"hash","currency":"false"},
-						{"label":"Reference","attribute":"reference","currency":"false"},
-						{"label":"Response","attribute":"response","currency":"false"}
-						]'{% endspaceless %}
-						data-hash="{{ transaction.hash }}"
-						data-reference="{{ transaction.reference }}"
-						data-response="{{ transaction.response }}"
-					>
+
+					{% set convertedPrice = transaction.paymentAmount|currency(transaction.paymentCurrency)~" <small class=\"light\">(1 "~transaction.currency~" = "~transaction.paymentRate|number~" "~transaction.paymentCurrency~")</small>" %}
+
+					{% set info = [
+						{
+							label: "Hash",
+							value: transaction.hash
+						},
+						{
+							label: "Reference",
+							value: transaction.reference
+						},
+						{
+							label: "Response",
+							value: transaction.response
+						},
+						{
+							label: "Converted Price",
+							value: convertedPrice
+						},
+						{
+							label: "Message",
+							value: transaction.message|title
+						},
+					] %}
+
+					<tr class="infoRow" data-info="{{ info|json_encode }}">
 						<td>{{ transaction.type|title }}</td>
 						<td>{{ transaction.status|title }}</td>
-						<td>{{ transaction.message|title }}</td>
 						<td>{{ transaction.amount|currency(transaction.currency) }} <small class="light">({{ transaction.currency }})</small></td>
 						<td>{{ transaction.paymentAmount|currency(transaction.paymentCurrency) }} <small class="light">({{ transaction.paymentCurrency }})</small></td>
 						<td>{{ transaction.paymentRate|number }}</td>
@@ -459,6 +475,5 @@ $(document).ready(function () {
 	});
 
 });
-
 
 {% endincludejs %}
