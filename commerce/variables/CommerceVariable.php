@@ -108,7 +108,7 @@ class CommerceVariable
 	}
 
 	/**
-	 * @return array
+	 * @return ShippingMethod[] array
 	 */
 	public function getAvailableShippingMethods()
 	{
@@ -118,24 +118,24 @@ class CommerceVariable
 	}
 
 	/**
-	 * @return array
+	 * @param bool $asList Whether we should return the payment methods as a simple list suitable for a html select box
+	 * @return Commerce_PaymentMethodModel[] array
 	 */
-	public function getPaymentMethods()
+	public function getPaymentMethods($asList = false)
 	{
 		$methods = craft()->commerce_paymentMethods->getAllFrontEndPaymentMethods();
 
-		// Need to put the methods into an array keyed by method ID for backwards compatibility.
-		$available = [];
-		foreach ($methods as $method)
+		if ($asList)
 		{
-			$available[$method->id] = $method;
+			return \CHtml::listData($methods, 'id', 'name');
 		}
 
-		return $available;
+		// Need to put the methods into an array keyed by method ID for backwards compatibility.
+		return $this->arrayKeyedByAttribute($methods, 'id');
 	}
 
 	/**
-	 * @return array
+	 * @return Commerce_ProductTypeModel[] array
 	 */
 	public function getProductTypes()
 	{
@@ -143,24 +143,28 @@ class CommerceVariable
 	}
 
 	/**
-	 * @return array
+	 * @return Commerce_OrderStatusModel[] array
 	 */
 	public function getOrderStatuses()
 	{
-		return array_map(function ($status)
-		{
-			return $status->attributes;
-		}, craft()->commerce_orderStatuses->getAllOrderStatuses());
+		return craft()->commerce_orderStatuses->getAllOrderStatuses();
 	}
 
 	/**
-	 * @return array
+	 * @param bool $asList Whether we should return the tax categories as a simple list suitable for a html select box
+	 * @return Commerce_TaxCategoryModel[] array
 	 */
-	public function getTaxCategories()
+	public function getTaxCategories($asList = false)
 	{
 		$taxCategories = craft()->commerce_taxCategories->getAllTaxCategories();
 
-		return \CHtml::listData($taxCategories, 'id', 'name');
+		if ($asList)
+		{
+			return \CHtml::listData($taxCategories, 'id', 'name');
+		}
+
+		// Need to put the methods into an array keyed by method ID for backwards compatibility.
+		return $this->arrayKeyedByAttribute($taxCategories, 'id');
 	}
 
 	/**
@@ -210,8 +214,30 @@ class CommerceVariable
 	 */
 	public function getDefaultCurrency()
 	{
-		$currencies = craft()->commerce_currencies->getDefaultCurrency();
+		$currency = craft()->commerce_currencies->getDefaultCurrency();
 
-		return $currencies;
+		return $currency;
+	}
+
+	// Private Methods
+	// =========================================================================
+
+	/**
+	 * TODO Move this into an array
+	 *
+	 * @param BaseModel[] $array All models using this method must implement __string() to be backwards compatible with \CHtml::listData
+	 * @param string      $attribute The attribute you want the array keyed by.
+	 *
+	 * @return array
+	 */
+	private function arrayKeyedByAttribute($array, $attribute)
+	{
+		$newArray = [];
+		foreach ($array as $model)
+		{
+			$newArray[$model->{$attribute}] = $model;
+		}
+
+		return $newArray;
 	}
 }

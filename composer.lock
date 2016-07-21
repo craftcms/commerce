@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "15935447a6d93c87dab0b3a53b1b1a51",
-    "content-hash": "9f26c1e20bb69175630dfbe8d0b8ecc8",
+    "hash": "945ad93679a41fc8be13be1f37740495",
+    "content-hash": "c2cf1b4c6d12e57a0273220ae14efa3f",
     "packages": [
         {
             "name": "dompdf/dompdf",
@@ -1111,17 +1111,12 @@
         },
         {
             "name": "omnipay/netbanx",
-            "version": "v2.1.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/thephpleague/omnipay-netbanx.git",
-                "reference": "a56900120e676385cc42d67c82985fcaaa752140"
-            },
+            "version": "dev-master",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-netbanx/zipball/a56900120e676385cc42d67c82985fcaaa752140",
+                "type": "path",
+                "url": "/Users/lh/Code/Projects/omnipay-netbanx",
                 "reference": "a56900120e676385cc42d67c82985fcaaa752140",
-                "shasum": ""
+                "shasum": null
             },
             "require": {
                 "omnipay/common": "~2.0"
@@ -1140,7 +1135,6 @@
                     "Omnipay\\NetBanx\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -1148,6 +1142,10 @@
                 {
                     "name": "Adrian Macneil",
                     "email": "adrian@adrianmacneil.com"
+                },
+                {
+                    "name": "Luke Holder",
+                    "email": "luke@pixelandtonic.com"
                 },
                 {
                     "name": "Omnipay Contributors",
@@ -1163,8 +1161,7 @@
                 "omnipay",
                 "pay",
                 "payment"
-            ],
-            "time": "2014-09-17 00:38:46"
+            ]
         },
         {
             "name": "omnipay/omnipay",

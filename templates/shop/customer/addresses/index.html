@@ -1,4 +1,4 @@
-{% extends 'commerce/_layouts/main' %}
+{% extends 'shop/_layouts/main' %}
 
 {% block main %}
 
@@ -7,7 +7,7 @@
         <h1>Manage Addresses</h1>
     </div>
     <div class="one-half column">
-        <a class="button button-primary right" href="/commerce/customer/addresses/edit">Add New Address</a>
+        <a class="button button-primary right" href="{{ url('shop/customer/addresses/edit') }}">Add New Address</a>
     </div>
 
     </div>
@@ -17,8 +17,8 @@
         <div class="row">
         {% endif %}
             <div class="address-card one-third column">
-                {% include 'commerce/_includes/addresses/address' with {'address': address} %}
-                <a class="button button-primary" href="/commerce/customer/addresses/edit?addressId={{ address.id }}">Edit</a>
+                {% include 'shop/_includes/addresses/address' with {'address': address} %}
+                <a class="button button-primary" href="{{ url('shop/customer/addresses/edit') }}?addressId={{ address.id }}">Edit</a>
                 <form method="POST">
                     <input type="hidden" name="action" value="commerce/customerAddresses/delete">
                     <input type="hidden" name="id" value="{{ address.id }}"/>

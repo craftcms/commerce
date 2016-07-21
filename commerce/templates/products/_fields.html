@@ -56,7 +56,7 @@
 		name: 'taxCategoryId',
 		value: product.taxCategoryId,
 		required: true,
-		options: craft.commerce.getTaxCategories()
+		options: craft.commerce.getTaxCategories(true)
 	}) }}
 
 	{{ forms.checkboxField({

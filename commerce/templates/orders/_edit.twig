@@ -52,7 +52,7 @@
 									href="#"
 									class="updatestatus btn small"
 									data-currentStatus="{{ order.orderStatus.attributes|json_encode() }}"
-									data-orderStatuses="{{ craft.commerce.orderStatuses|json_encode() }}">{{ "Update Status"|t }}</a>
+									data-orderStatuses="{{ orderStatusesJson }}">{{ "Update Status"|t }}</a>
 							</div>
 						</td>
 					{% else %}
