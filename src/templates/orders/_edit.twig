@@ -116,34 +116,23 @@
 			<tbody>
 
 			{% for lineItem in order.lineItems %}
-				<tr class="infoRow"
-					data-inforow='{% spaceless %}[
-					{"label":"Description","attribute":"description","currency":"false"},
-					{"label":"Tax Category","attribute":"taxcategory","currency":"false"},
-					{"label":"Price","attribute":"price","currency":"true"},
-					{"label":"Sale Amount","attribute":"saleamount","currency":"true"},
-					{"label":"Sale Price","attribute":"saleprice","currency":"true"},
-					{"label":"Quantity","attribute":"qty","currency":"false"},
-					{"label":"Sub-total","attribute":"subtotal","currency":"true"},
-					{"label":"Tax","attribute":"tax","currency":"true"},
-					{"label":"Tax (Included)","attribute":"taxincluded","currency":"true"},
-					{"label":"Shipping Cost","attribute":"shippingcost","currency":"true"},
-					{"label":"Discount","attribute":"discount","currency":"true"},
-					{"label":"Total","attribute":"total","currency":"true"}
-					]'{% endspaceless %}
-					data-id="{{lineItem.id}}"
-					data-description="{{ lineItem.description }}"
-					data-taxcategory="{{ lineItem.taxCategory.name }}"
-					data-price="{{ lineItem.price|currency(order.currency) }}"
-					data-saleamount="{{ lineItem.saleAmount|currency(order.currency) }}"
-					data-saleprice="{{ lineItem.salePrice|currency(order.currency) }}"
-					data-tax="{{ lineItem.tax|currency(order.currency) }}"
-					data-taxincluded="{{ lineItem.taxIncluded|currency(order.currency) }}"
-					data-shippingcost="{{ lineItem.shippingCost|currency(order.currency) }}"
-					data-discount="{{ lineItem.discount|currency(order.currency) }}"
-					data-total="{{ lineItem.total|currency(order.currency) }}"
-					data-subtotal="{{ lineItem.subtotal|currency(order.currency) }}"
-					data-qty="{{ lineItem.qty }}">
+
+				{% set info = [
+					{ label: "Description", value: lineItem.description, attribute: "description", currency: "false"},
+					{ label: "Tax Category", value: lineItem.taxCategory.name, attribute: "taxcategory", currency: "false"},
+					{ label: "Price", value: lineItem.price|currency(order.currency), attribute: "price", currency: "true"},
+					{ label: "Sale Amount", value: lineItem.saleAmount|currency(order.currency), attribute: "saleamount", currency: "true"},
+					{ label: "Sale Price", value: lineItem.salePrice|currency(order.currency), attribute: "saleprice", currency: "true"},
+					{ label: "Quantity", value: lineItem.qty, attribute: "qty", currency: "false"},
+					{ label: "Sub-total", value: lineItem.subtotal|currency(order.currency), attribute: "subtotal", currency: "true"},
+					{ label: "Tax", value: lineItem.tax|currency(order.currency), attribute: "tax", currency: "true"},
+					{ label: "Tax (Included)", value: lineItem.taxIncluded|currency(order.currency), attribute: "taxincluded", currency: "true"},
+					{ label: "Shipping Cost", value: lineItem.shippingCost|currency(order.currency), attribute: "shippingcost", currency: "true"},
+					{ label: "Discount", value: lineItem.discount|currency(order.currency), attribute: "discount", currency: "true"},
+					{ label: "Total", value: lineItem.subtotal|currency(order.currency), attribute: "total", currency: "true"}
+				] %}
+
+				<tr class="infoRow" data-id="{{lineItem.id}}" data-info="{{ info|json_encode }}">>
 					<td>
 						{% if lineItem.purchasable %}
 							{% if lineItem.purchasable.cpEditUrl %}
