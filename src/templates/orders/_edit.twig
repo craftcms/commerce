@@ -132,7 +132,7 @@
 					{ label: "Total", value: lineItem.subtotal|currency(order.currency), attribute: "total", currency: "true"}
 				] %}
 
-				<tr class="infoRow" data-id="{{lineItem.id}}" data-info="{{ info|json_encode }}">>
+				<tr class="infoRow" data-id="{{lineItem.id}}" data-info="{{ info|json_encode }}">
 					<td>
 						{% if lineItem.purchasable %}
 							{% if lineItem.purchasable.cpEditUrl %}
