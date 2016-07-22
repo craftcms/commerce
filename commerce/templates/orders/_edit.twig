@@ -118,18 +118,18 @@
 			{% for lineItem in order.lineItems %}
 
 				{% set info = [
-					{ label: "Description", value: lineItem.description, attribute: "description", currency: "false"},
-					{ label: "Tax Category", value: lineItem.taxCategory.name, attribute: "taxcategory", currency: "false"},
-					{ label: "Price", value: lineItem.price|currency(order.currency), attribute: "price", currency: "true"},
-					{ label: "Sale Amount", value: lineItem.saleAmount|currency(order.currency), attribute: "saleamount", currency: "true"},
-					{ label: "Sale Price", value: lineItem.salePrice|currency(order.currency), attribute: "saleprice", currency: "true"},
-					{ label: "Quantity", value: lineItem.qty, attribute: "qty", currency: "false"},
-					{ label: "Sub-total", value: lineItem.subtotal|currency(order.currency), attribute: "subtotal", currency: "true"},
-					{ label: "Tax", value: lineItem.tax|currency(order.currency), attribute: "tax", currency: "true"},
-					{ label: "Tax (Included)", value: lineItem.taxIncluded|currency(order.currency), attribute: "taxincluded", currency: "true"},
-					{ label: "Shipping Cost", value: lineItem.shippingCost|currency(order.currency), attribute: "shippingcost", currency: "true"},
-					{ label: "Discount", value: lineItem.discount|currency(order.currency), attribute: "discount", currency: "true"},
-					{ label: "Total", value: lineItem.subtotal|currency(order.currency), attribute: "total", currency: "true"}
+					{ label: "Description", value: lineItem.description },
+					{ label: "Tax Category", value: lineItem.taxCategory.name },
+					{ label: "Price", value: lineItem.price|currency(order.currency) },
+					{ label: "Sale Amount", value: lineItem.saleAmount|currency(order.currency) },
+					{ label: "Sale Price", value: lineItem.salePrice|currency(order.currency) },
+					{ label: "Quantity", value: lineItem.qty },
+					{ label: "Sub-total", value: lineItem.subtotal|currency(order.currency) },
+					{ label: "Tax", value: lineItem.tax|currency(order.currency) },
+					{ label: "Tax (Included)", value: lineItem.taxIncluded|currency(order.currency) },
+					{ label: "Shipping Cost", value: lineItem.shippingCost|currency(order.currency) },
+					{ label: "Discount", value: lineItem.discount|currency(order.currency) },
+					{ label: "Total", value: lineItem.subtotal|currency(order.currency) },
 				] %}
 
 				<tr class="infoRow" data-id="{{lineItem.id}}" data-info="{{ info|json_encode }}">
