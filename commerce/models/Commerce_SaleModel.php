@@ -69,7 +69,12 @@ class Commerce_SaleModel extends BaseModel
 		$localeData = craft()->i18n->getLocaleData();
 		$percentSign = $localeData->getNumberSymbol('percentSign');
 
-		return -$this->discountAmount * 100 ."".$percentSign;
+		if ($this->discountAmount != 0)
+		{
+			return -$this->discountAmount * 100 ."".$percentSign;
+		}
+
+		return "0".$percentSign;
 	}
 
 	/**
@@ -77,7 +82,7 @@ class Commerce_SaleModel extends BaseModel
 	 */
 	public function getDiscountAmountAsFlat()
 	{
-		return -$this->discountAmount;
+		return $this->discountAmount != 0 ? $this->discountAmount * -1 : 0;
 	}
 
 	/**
