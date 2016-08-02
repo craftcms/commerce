@@ -90,7 +90,12 @@ class Commerce_DiscountModel extends BaseModel
         $localeData = craft()->i18n->getLocaleData();
         $percentSign = $localeData->getNumberSymbol('percentSign');
 
-        return -$this->percentDiscount * 100 . "" . $percentSign;
+        if ($this->percentDiscount != 0)
+        {
+            return -$this->percentDiscount * 100 . "" . $percentSign;
+        }
+
+        return "0" . $percentSign;
     }
 
     /**
