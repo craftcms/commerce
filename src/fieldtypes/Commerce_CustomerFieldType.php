@@ -75,6 +75,6 @@ class Commerce_CustomerFieldType extends BaseFieldType
      */
     public function prepValue($value)
     {
-        return $value;
+        return $this->getCustomer();
     }
 }
