@@ -23,15 +23,17 @@ namespace Craft;
  */
 class Commerce_CustomerModel extends BaseModel
 {
-    /**
-     * Returns the element's CP edit URL.
-     *
-     * @return string|false
-     */
-    public function getCpEditUrl()
-    {
-        return UrlHelper::getCpUrl('commerce/customers/' . $this->id);
-    }
+    private $_user;
+
+	/*
+	 * Returns the email address of the customer as the string output.
+	 *
+	 * @return string
+	 */
+	public function __toString()
+	{
+		return (string)$this->getAttribute('email');
+	}
 
     /**
      * Returns the user element associated with this customer.
@@ -40,11 +42,11 @@ class Commerce_CustomerModel extends BaseModel
      */
     public function getUser()
     {
-        if ($this->userId) {
-            return craft()->users->getUserById($this->userId);
+        if (!isset($this->_user)) {
+            $this->_user = craft()->users->getUserById($this->userId);
         }
 
-        return null;
+        return $this->_user;
     }
 
     /**
