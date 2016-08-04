@@ -236,6 +236,7 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
 			throw new HttpException(400, Craft::t("Can not complete payment for missing transaction."));
 		}
 
+		$customError = "";
 		$success = craft()->commerce_payments->completePayment($transaction, $customError);
 
 		if ($success)
