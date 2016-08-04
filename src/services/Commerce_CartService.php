@@ -382,7 +382,7 @@ class Commerce_CartService extends BaseApplicationComponent
 	        // Payment currency is always set to the store currency unless it is set to an allowed currency.
 	        $currencies = \array_column(craft()->commerce_currencies->getAllCurrencies(),'iso');
 
-	        if (defined('COMMERCE_CURRENCY') && !$this->_cart->paymentCurrency)
+	        if (defined('COMMERCE_CURRENCY'))
 	        {
 		        $this->_cart->paymentCurrency = StringHelper::toUpperCase(COMMERCE_CURRENCY);
 	        }
