@@ -36,6 +36,7 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
 		    if ($item->id == $lineItemId)
 		    {
 			    $lineItem = $item;
+			    break;
 		    }
 	    }
 
@@ -97,6 +98,7 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
             if ($item->id == $lineItemId)
             {
                 $lineItem = $item;
+	            break;
             }
         }
 
