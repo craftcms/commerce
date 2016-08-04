@@ -369,12 +369,6 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 
 				if ($response->isRedirect())
 				{
-					// Ensure returnUrl and cancelUrl are set on the order
-					if (empty($order->returnUrl) || empty($order->cancelUrl))
-					{
-						throw new Exception('The “returnUrl” and “cancelUrl” parameters are required.');
-					}
-
 					// redirect to off-site gateway
 					if ($response->getRedirectMethod() == 'GET')
 					{
