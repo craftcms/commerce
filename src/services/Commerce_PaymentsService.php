@@ -671,6 +671,7 @@ EOF;
 			}
 			else
 			{
+				$customError = $transaction->status;
 				return false;
 			}
 		}
