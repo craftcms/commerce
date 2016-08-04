@@ -4,7 +4,7 @@ namespace Craft;
 use Commerce\Gateways\PaymentFormModels\BasePaymentFormModel;
 use Omnipay\Common\CreditCard;
 use Omnipay\Common\ItemBag;
-use Omnipay\Common\Message\AbstractRequest;
+use Omnipay\Common\Message\RequestInterface;
 use Omnipay\Common\Message\ResponseInterface;
 
 /**
@@ -328,7 +328,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 	 * Send a payment request to the gateway, and redirect appropriately
 	 *
 	 * @param Commerce_OrderModel       $order
-	 * @param AbstractRequest           $request
+	 * @param RequestInterface           $request
 	 * @param Commerce_TransactionModel $transaction
 	 * @param string|null               &$redirect
 	 * @param string                    &$customError
@@ -337,7 +337,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 	 */
 	private function sendPaymentRequest(
 		Commerce_OrderModel $order,
-		AbstractRequest $request,
+		RequestInterface $request,
 		Commerce_TransactionModel $transaction,
 		&$redirect = null,
 		&$customError = null
@@ -484,7 +484,7 @@ EOF;
 	/**
 	 * Event: before sending a payment request to the gateway
 	 * Event params: type(string)
-	 *               request(AbstractRequest)
+	 *               request(RequestInterface)
 	 *               transaction(Commerce_TransactionModel)
 	 *
 	 * @param \CEvent $event
@@ -500,14 +500,14 @@ EOF;
 			throw new Exception('onBeforeGatewayRequestSend event requires "type" param');
 		}
 
-		if (empty($params['request']) || !($params['request'] instanceof AbstractRequest))
+		if (empty($params['request']) || !($params['request'] instanceof RequestInterface))
 		{
-			throw new Exception('onBeforeGatewayRequestSend event requires "request" param as AbstractRequest');
+			throw new Exception('onBeforeGatewayRequestSend event requires "request" param as RequestInterface');
 		}
 
 		if (empty($params['transaction']) || !($params['transaction'] instanceof Commerce_TransactionModel))
 		{
-			throw new Exception('onBeforeGatewayRequestSend event requires "request" param as AbstractRequest');
+			throw new Exception('onBeforeGatewayRequestSend event requires "transaction" param as a Commerce_TransactionModel');
 		}
 
 		$this->raiseEvent('onBeforeGatewayRequestSend', $event);
