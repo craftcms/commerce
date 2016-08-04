@@ -50,6 +50,7 @@
         "omnipay/targetpay" :  "~2.2",
         "omnipay/worldpay" :  "~2.2",
 
-        "dompdf/dompdf" : "0.6.1"
+        "dompdf/dompdf" : "0.6.1",
+        "ramsey/array_column": "^1.1"
     }
 }
