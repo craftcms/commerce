@@ -419,12 +419,34 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 
 					return true;
 				}
+
+				$url = UrlHelper::getActionUrl('commerce/payments/completePayment', ['commerceTransactionId' => $transaction->id, 'commerceTransactionHash' => $transaction->hash]);
+				$message = "Status=OK\r\nRedirectUrl=".$url."\r\nStatusDetail=OK";
+
+				// Exception required for SagePay Server
+				if (method_exists($response, 'confirm')) {
+					ob_start();
+					echo $message;
+					exit(200);
+				}
+
 			}
 			catch (\Exception $e)
 			{
 				$transaction->status = Commerce_TransactionRecord::STATUS_FAILED;
 				$transaction->message = $e->getMessage();
+				CommercePlugin::log("Omnipay Gateway Communication Error: ".$e->getMessage());
 				$this->saveTransaction($transaction);
+
+				// Exception required for SagePay Server (and possibly others)
+				if ($transaction->paymentMethod->getGatewayAdapter()->handle() == "SagePay_Server") {
+					$url = UrlHelper::getSiteUrl($order->cancelUrl);
+					$message = "Status=INVALID\r\nRedirectUrl=".$url."\r\nStatusDetail=".$e->getMessage();
+					ob_start();
+					echo $message;
+					exit(200);
+				}
+
 			}
 		}
 
@@ -684,8 +706,8 @@ EOF;
 			$params = $this->buildPaymentRequest($transaction,null,$itemBag);
 
 			// If MOLLIE, the transactionReference will be theirs
-			$name = $transaction->paymentMethod->getGateway()->getName();
-			if ($name == 'Mollie_Ideal' || $name == 'Mollie' || $name == 'SagePay_Server')
+			$handle = $transaction->paymentMethod->getGatewayAdapter()->handle();
+			if ($handle == 'Mollie_Ideal' || $handle == 'Mollie' || $handle == 'SagePay_Server')
 			{
 				$params['transactionReference'] = $transaction->reference;
 			}
