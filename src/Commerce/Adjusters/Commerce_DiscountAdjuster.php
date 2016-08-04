@@ -120,6 +120,8 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
         $amount += $discount->perItemDiscount * $matchingQty;
         $amount += $discount->percentDiscount * $matchingTotal;
 
+        $shippingRemoved = 0;
+
         foreach ($lineItems as $item) {
             if (in_array($item->id, $matchingLineIds)) {
                 $item->discount += $discount->perItemDiscount * $item->qty + $discount->percentDiscount * $item->getSubtotal();
@@ -133,25 +135,28 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
                     $item->discount = 0;
                 }
 
-                if ($discount->freeShipping) {
-                    $item->shippingCost = 0;
-                }
-
                 $affectedLineIds[] = $item->id;
+
+	            if ($discount->freeShipping) {
+		            $shippingRemoved = $shippingRemoved + $item->shippingCost;
+		            $item->shippingCost = 0;
+	            }
             }
+
         }
 
         if ($discount->freeShipping) {
+            $shippingRemoved = $shippingRemoved + $order->baseShippingCost;
             $order->baseShippingCost = 0;
         }
 
         $order->baseDiscount += $discount->baseDiscount;
 
         // only display adjustment if an amount was calculated
-        if ($amount) {
+        if ($amount || $shippingRemoved) {
             // Record which line items this discount affected.
             $adjustment->optionsJson = array_merge(['lineItemsAffected'=>$affectedLineIds],$adjustment->optionsJson);
-            $adjustment->amount = $amount;
+            $adjustment->amount = $amount + ($shippingRemoved * -1);
             return $adjustment;
         } else {
             return false;
