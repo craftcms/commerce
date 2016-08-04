@@ -421,11 +421,11 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 					return true;
 				}
 
-				$url = UrlHelper::getActionUrl('commerce/payments/completePayment', ['commerceTransactionId' => $transaction->id, 'commerceTransactionHash' => $transaction->hash]);
-				$message = "Status=OK\r\nRedirectUrl=".$url."\r\nStatusDetail=OK";
-
 				// Exception required for SagePay Server
-				if (method_exists($response, 'confirm')) {
+				if ($transaction->paymentMethod->getGatewayAdapter()->handle() == "SagePay_Server" && method_exists($response, 'confirm'))
+				{
+					$url = UrlHelper::getActionUrl('commerce/payments/completePayment', ['commerceTransactionId' => $transaction->id, 'commerceTransactionHash' => $transaction->hash]);
+					$message = "Status=OK\r\nRedirectUrl=".$url."\r\nStatusDetail=OK";
 					ob_start();
 					echo $message;
 					exit(200);
@@ -439,8 +439,9 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 				CommercePlugin::log("Omnipay Gateway Communication Error: ".$e->getMessage());
 				$this->saveTransaction($transaction);
 
-				// Exception required for SagePay Server (and possibly others)
-				if ($transaction->paymentMethod->getGatewayAdapter()->handle() == "SagePay_Server") {
+				// Exception required for SagePay Server
+				if ($transaction->paymentMethod->getGatewayAdapter()->handle() == "SagePay_Server")
+				{
 					$url = UrlHelper::getSiteUrl($order->cancelUrl);
 					$message = "Status=INVALID\r\nRedirectUrl=".$url."\r\nStatusDetail=".$e->getMessage();
 					ob_start();
