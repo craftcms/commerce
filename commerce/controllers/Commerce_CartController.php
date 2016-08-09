@@ -30,11 +30,13 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
 
         $cart->setContentFromPost('fields');
 
+        $lineItem = null;
 	    foreach ($cart->getLineItems() as $item)
 	    {
 		    if ($item->id == $lineItemId)
 		    {
 			    $lineItem = $item;
+			    break;
 		    }
 	    }
 
@@ -90,11 +92,13 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
 
         $cart->setContentFromPost('fields');
 
+        $lineItem = null;
         foreach ($cart->getLineItems() as $item)
         {
             if ($item->id == $lineItemId)
             {
                 $lineItem = $item;
+	            break;
             }
         }
 

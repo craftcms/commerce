@@ -66,7 +66,7 @@ class Commerce_CustomerAddressesController extends Commerce_BaseFrontEndControll
 
             // Refresh the cart, if this address was being used.
             $cart = craft()->commerce_cart->getCart();
-            if ($cart->shippingAddressId = $address->id)
+            if ($cart->shippingAddressId == $address->id)
             {
                 $cart->setContentFromPost('fields');
                 craft()->commerce_orders->saveOrder($cart);
