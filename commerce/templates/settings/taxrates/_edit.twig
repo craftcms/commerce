@@ -161,13 +161,6 @@
         errors: taxRate.getErrors('include'),
     }) }}
 
-    {{ forms.checkboxField({
-        label: "Show in Label"|t,
-        name: 'showInLabel',
-        value: 1,
-        checked: taxRate.showInLabel
-    }) }}
-
     {% set taxZoneSelectParams = {
         label: "Tax Zone"|t,
         instructions: "Select a tax zone."|t,
