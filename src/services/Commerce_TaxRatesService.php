@@ -65,6 +65,7 @@ class Commerce_TaxRatesService extends BaseApplicationComponent
         $record->name = $model->name;
         $record->rate = $model->rate;
         $record->include = $model->include;
+        $record->isVat = $model->isVat;
         $record->taxable = $model->taxable;
         $record->taxCategoryId = $model->taxCategoryId;
         $record->taxZoneId = $model->taxZoneId;
