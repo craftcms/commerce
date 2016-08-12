@@ -14,6 +14,7 @@
             <th scope="col">{{ 'Name'|t }}</th>
             <th scope="col">{{ 'Rate'|t }}</th>
             <th scope="col">{{ 'Include in Price?'|t }}</th>
+            <th scope="col">{{ 'Is Vat?'|t }}</th>
             <th scope="col">{{ 'Tax Zone'|t }}</th>
             <th scope="col">{{ 'Tax Category'|t }}</th>
             <td class="thin"></td>
@@ -26,6 +27,7 @@
                             href="{{ url('commerce/settings/taxrates/'~taxRate.id) }}">{{ taxRate.name }}</a></th>
                 <td data-title="{{ 'Rate'|t }}">{{ taxRate.rateAsPercent }}</td>
                 <td data-title="{{ 'Include in Price?'|t }}">{% if taxRate.include %}<span data-icon="check" title="{{ 'Yes'|t }}"></span>{% endif %}</td>
+                <td data-title="{{ 'Is Vat?'|t }}">{% if taxRate.isVat %}<span data-icon="check" title="{{ 'Yes'|t }}"></span>{% endif %}</td>
                 <td data-title="{{ 'Tax Zone'|t }}">{{ taxRate.taxZone.name }}</td>
                 <td data-title="{{ 'Tax Category'|t }}">{{ taxRate.taxCategory.name }}</td>
                 <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>

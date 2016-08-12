@@ -8,6 +8,7 @@ namespace Craft;
  * @property string $name
  * @property float $rate
  * @property bool $include
+ * @property bool $isVat
  * @property string $taxable
  * @property int $taxZoneId
  * @property int $taxCategoryId
@@ -91,6 +92,11 @@ class Commerce_TaxRateRecord extends BaseRecord
                 'decimals' => 4
             ],
             'include' => [
+                AttributeType::Bool,
+                'default' => 0,
+                'required' => true
+            ],
+            'isVat' => [
                 AttributeType::Bool,
                 'default' => 0,
                 'required' => true
