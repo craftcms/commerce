@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "23465bce3688cc9f1789e22f9e5598d1",
-    "content-hash": "2e4ea4e666944a68f9c572f2f3de02ca",
+    "hash": "44ff96ef96f6dff61022a91316ab3f79",
+    "content-hash": "250f4e5bc428cdb93651e44c3a1998c1",
     "packages": [
         {
             "name": "dompdf/dompdf",
@@ -1934,6 +1934,58 @@
             "time": "2015-03-20 22:07:39"
         },
         {
+            "name": "snowcap/vat-validation",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/snowcap/vat-validation.git",
+                "reference": "21e7d996bd30dc680244d59d0fa18be3671e68ee"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/snowcap/vat-validation/zipball/21e7d996bd30dc680244d59d0fa18be3671e68ee",
+                "reference": "21e7d996bd30dc680244d59d0fa18be3671e68ee",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Snowcap\\Vat": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Pierre Vanliefland",
+                    "email": "pierre@snowcap.be"
+                },
+                {
+                    "name": "Edwin Hermans",
+                    "email": "edwin@snowcap.be"
+                },
+                {
+                    "name": "Jérôme Poskin",
+                    "email": "jerome@snowcap.be"
+                },
+                {
+                    "name": "Snowcap",
+                    "homepage": "http://www.snowcap.be"
+                }
+            ],
+            "description": "EU VAT number validation",
+            "homepage": "https://github.com/snowcap/vat-validation",
+            "keywords": [
+                "utility"
+            ],
+            "time": "2014-05-29 12:01:15"
+        },
+        {
             "name": "symfony/event-dispatcher",
             "version": "2.8.x-dev",
             "source": {
@@ -2225,7 +2277,9 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "snowcap/vat-validation": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],

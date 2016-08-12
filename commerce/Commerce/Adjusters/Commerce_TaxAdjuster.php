@@ -8,6 +8,7 @@ use Craft\Commerce_OrderAdjustmentModel;
 use Craft\Commerce_OrderModel;
 use Craft\Commerce_TaxRateModel;
 use Craft\Commerce_TaxZoneModel;
+use Snowcap\Vat\Validation;
 
 /**
  * Tax Adjustments
@@ -94,7 +95,23 @@ class Commerce_TaxAdjuster implements Commerce_AdjusterInterface
 
         //checking items tax categories
         $itemsMatch = false;
-        foreach ($lineItems as $item) {
+
+        // Valid VAT ID and Address Matches then do not apply this tax
+	    if ($taxRate->isVat && $address->businessTaxId && $address->country)
+	    {
+		    $vatValidation = new Validation(['debug' => false]);
+
+		    if ($vatValidation->checkNumber($address->businessTaxId))
+		    {
+			    $country = $vatValidation->getCountry();
+			    if ($country == $address->country->iso)
+			    {
+				    return false;
+			    }
+		    }
+	    }
+
+	    foreach ($lineItems as $item) {
 
             if ($item->taxCategoryId == $taxRate->taxCategoryId) {
                 if (!$taxRate->include) {

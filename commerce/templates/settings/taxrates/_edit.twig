@@ -153,14 +153,6 @@
         required: true,
     }) }}
 
-    {{ forms.checkboxField({
-        label: "Include in Price"|t,
-        name: 'include',
-        value: 1,
-        checked: taxRate.include,
-        errors: taxRate.getErrors('include'),
-    }) }}
-
     {% set taxZoneSelectParams = {
         label: "Tax Zone"|t,
         instructions: "Select a tax zone."|t,
@@ -204,5 +196,26 @@
         'commerce/taxCategories/save',
         'Tax category saved.'|t
     ) }}
+
+	{{ forms.checkboxField({
+		label: "Include in Price"|t,
+		name: 'include',
+		value: 1,
+		checked: taxRate.include,
+		errors: taxRate.getErrors('include'),
+	}) }}
+
+	{{ forms.checkboxField({
+		label: "This is a VAT tax"|t,
+		name: 'isVat',
+		value: 1,
+		checked: taxRate.isVat,
+		errors: taxRate.getErrors('isVat'),
+		toggle: '#isVat'
+	}) }}
+	<p id="isVat" {% if not taxRate.isVat %} class="hidden"{% endif %}>
+		{{ "This tax rate will not be applied if a valid businessTaxId is entered into the shipping address."|t }}
+	</p>
+
 {% endblock %}
 
