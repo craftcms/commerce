@@ -28,8 +28,8 @@
                 <td data-title="{{ 'Rate'|t }}">{{ taxRate.rateAsPercent }}</td>
                 <td data-title="{{ 'Include in Price?'|t }}">{% if taxRate.include %}<span data-icon="check" title="{{ 'Yes'|t }}"></span>{% endif %}</td>
                 <td data-title="{{ 'Is Vat?'|t }}">{% if taxRate.isVat %}<span data-icon="check" title="{{ 'Yes'|t }}"></span>{% endif %}</td>
-                <td data-title="{{ 'Tax Zone'|t }}">{{ taxRate.taxZone.name }}</td>
-                <td data-title="{{ 'Tax Category'|t }}">{{ taxRate.taxCategory.name }}</td>
+                <td data-title="{{ 'Tax Zone'|t }}"><a href="{{ taxRate.taxZone.cpEditUrl}}">{{ taxRate.taxZone.name }}</a></td>
+                <td data-title="{{ 'Tax Category'|t }}"><a href="{{ taxRate.taxCategory.cpEditUrl}}">{{ taxRate.taxCategory.name }}</a></td>
                 <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
             </tr>
         {% endfor %}
