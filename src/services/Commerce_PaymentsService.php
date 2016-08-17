@@ -294,10 +294,12 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 			$request['clientIp'] = '127.0.0.1';
 		}
 
-
 		// custom gateways may wish to access the order directly
 		$request['order'] = $transaction->order;
 		$request['orderId'] = $transaction->order->id;
+
+		// Stripe only params
+		$request['receiptEmail'] = $transaction->order->email;
 
 		// Paypal only params
 		$request['noShipping'] = 1;
