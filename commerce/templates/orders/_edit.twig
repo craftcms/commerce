@@ -339,6 +339,7 @@
 				{% for transaction in order.transactions %}
 
 					{% set info = [
+						{ label: "ID", value: transaction.id },
 						{ label: "Hash", value: transaction.hash },
 						{ label: "Reference", value: transaction.reference },
 						{ label: "Response", value: transaction.response },
