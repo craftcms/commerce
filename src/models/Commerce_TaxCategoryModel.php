@@ -30,6 +30,25 @@ class Commerce_TaxCategoryModel extends BaseModel
     }
 
     /**
+     * @return Commerce_TaxRateModel[]
+     */
+    public function getTaxRates()
+    {
+	    $allTaxRates = craft()->commerce_taxRates->getAllTaxRates();
+	    $taxRates = [];
+	    /** @var Commerce_TaxRateModel $rate */
+	    foreach ($allTaxRates as $rate)
+	    {
+		    if ($this->id == $rate->taxCategoryId)
+		    {
+			    $taxRates[] = $rate;
+		    }
+	    }
+
+	    return $taxRates;
+    }
+
+    /**
      * @return string
      */
     public function getCpEditUrl()
