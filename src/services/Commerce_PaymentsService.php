@@ -450,7 +450,6 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 					echo $message;
 					exit(200);
 				}
-
 			}
 		}
 
@@ -715,7 +714,7 @@ EOF;
 
 			// If MOLLIE, the transactionReference will be theirs
 			$handle = $transaction->paymentMethod->getGatewayAdapter()->handle();
-			if ($handle == 'Mollie_Ideal' || $handle == 'Mollie' || $handle == 'SagePay_Server')
+			if ($handle == 'Mollie_Ideal' || $handle == 'Mollie' || $handle == 'SagePay_Server' || $handle == 'NetBanx_Hosted')
 			{
 				$params['transactionReference'] = $transaction->reference;
 			}
