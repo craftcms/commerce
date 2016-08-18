@@ -213,7 +213,7 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
 			}
 			else
 			{
-				craft()->userSession->setFlash('error', $customError);
+				craft()->userSession->setError($customError);
 				craft()->urlManager->setRouteVariables(compact('paymentForm'));
 			}
 		}
