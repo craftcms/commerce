@@ -63,60 +63,51 @@ class Commerce_GatewaysService extends BaseApplicationComponent
      */
     private function _getGatewayClasses()
     {
-        $licenseKeyStatus = craft()->plugins->getPluginLicenseKeyStatus('Commerce');
-        $allowedStatuses = [LicenseKeyStatus::Valid, LicenseKeyStatus::Mismatched];
+	    $classes = [
+            '\Commerce\Gateways\Omnipay\AuthorizeNet_AIM_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\AuthorizeNet_SIM_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\Buckaroo_Ideal_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\Buckaroo_PayPal_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\CardSave_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\Coinbase_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\Dummy_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\Eway_Rapid_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\Eway_RapidDirect_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\Eway_Direct_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\Eway_RapidShared_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\FirstData_Connect_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\GoCardless_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\Manual_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\Migs_ThreeParty_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\Migs_TwoParty_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\Mollie_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\MultiSafepay_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\Netaxept_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\NetBanx_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\NetBanx_Hosted_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\PayFast_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\Payflow_Pro_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\PaymentExpress_PxPay_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\PaymentExpress_PxPost_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\PayPal_Express_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\PayPal_Pro_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\Pin_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\SagePay_Direct_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\SagePay_Server_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\SecurePay_DirectPost_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\Stripe_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\TargetPay_Directebanking_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\TargetPay_Ideal_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\TargetPay_Mrcash_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\TwoCheckout_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\WorldPay_GatewayAdapter',
+        ];
 
-        if (in_array($licenseKeyStatus, $allowedStatuses)) {
-            $classes = [
-                '\Commerce\Gateways\Omnipay\AuthorizeNet_AIM_GatewayAdapter',
-                '\Commerce\Gateways\Omnipay\AuthorizeNet_SIM_GatewayAdapter',
-                '\Commerce\Gateways\Omnipay\Buckaroo_Ideal_GatewayAdapter',
-                '\Commerce\Gateways\Omnipay\Buckaroo_PayPal_GatewayAdapter',
-                '\Commerce\Gateways\Omnipay\CardSave_GatewayAdapter',
-                '\Commerce\Gateways\Omnipay\Coinbase_GatewayAdapter',
-                '\Commerce\Gateways\Omnipay\Dummy_GatewayAdapter',
-                '\Commerce\Gateways\Omnipay\Eway_Rapid_GatewayAdapter',
-                '\Commerce\Gateways\Omnipay\Eway_RapidDirect_GatewayAdapter',
-                '\Commerce\Gateways\Omnipay\Eway_Direct_GatewayAdapter',
-                '\Commerce\Gateways\Omnipay\Eway_RapidShared_GatewayAdapter',
-                '\Commerce\Gateways\Omnipay\FirstData_Connect_GatewayAdapter',
-                '\Commerce\Gateways\Omnipay\GoCardless_GatewayAdapter',
-                '\Commerce\Gateways\Omnipay\Manual_GatewayAdapter',
-                '\Commerce\Gateways\Omnipay\Migs_ThreeParty_GatewayAdapter',
-                '\Commerce\Gateways\Omnipay\Migs_TwoParty_GatewayAdapter',
-                '\Commerce\Gateways\Omnipay\Mollie_GatewayAdapter',
-                '\Commerce\Gateways\Omnipay\MultiSafepay_GatewayAdapter',
-                '\Commerce\Gateways\Omnipay\Netaxept_GatewayAdapter',
-                '\Commerce\Gateways\Omnipay\NetBanx_GatewayAdapter',
-                '\Commerce\Gateways\Omnipay\NetBanx_Hosted_GatewayAdapter',
-                '\Commerce\Gateways\Omnipay\PayFast_GatewayAdapter',
-                '\Commerce\Gateways\Omnipay\Payflow_Pro_GatewayAdapter',
-                '\Commerce\Gateways\Omnipay\PaymentExpress_PxPay_GatewayAdapter',
-                '\Commerce\Gateways\Omnipay\PaymentExpress_PxPost_GatewayAdapter',
-                '\Commerce\Gateways\Omnipay\PayPal_Express_GatewayAdapter',
-                '\Commerce\Gateways\Omnipay\PayPal_Pro_GatewayAdapter',
-                '\Commerce\Gateways\Omnipay\Pin_GatewayAdapter',
-                '\Commerce\Gateways\Omnipay\SagePay_Direct_GatewayAdapter',
-                '\Commerce\Gateways\Omnipay\SagePay_Server_GatewayAdapter',
-                '\Commerce\Gateways\Omnipay\SecurePay_DirectPost_GatewayAdapter',
-                '\Commerce\Gateways\Omnipay\Stripe_GatewayAdapter',
-                '\Commerce\Gateways\Omnipay\TargetPay_Directebanking_GatewayAdapter',
-                '\Commerce\Gateways\Omnipay\TargetPay_Ideal_GatewayAdapter',
-                '\Commerce\Gateways\Omnipay\TargetPay_Mrcash_GatewayAdapter',
-                '\Commerce\Gateways\Omnipay\TwoCheckout_GatewayAdapter',
-                '\Commerce\Gateways\Omnipay\WorldPay_GatewayAdapter',
-            ];
+        // Let plugins register more gateway adapters classes
+        $allPluginClasses = craft()->plugins->call('commerce_registerGatewayAdapters', [], true);
 
-            // Let plugins register more classes
-            $allPluginClasses = craft()->plugins->call('commerce_registerGatewayAdapters', [], true);
-
-            foreach ($allPluginClasses as $pluginClasses) {
-                $classes = array_merge($classes, $pluginClasses);
-            }
-        } else {
-            $classes = [
-                '\Commerce\Gateways\Omnipay\Dummy_GatewayAdapter',
-            ];
+        foreach ($allPluginClasses as $pluginClasses) {
+            $classes = array_merge($classes, $pluginClasses);
         }
 
         return $classes;
