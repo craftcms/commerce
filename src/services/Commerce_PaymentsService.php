@@ -305,6 +305,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
 		$request['noShipping'] = 1;
 		$request['allowNote'] = 0;
 		$request['addressOverride'] = 1;
+		$request['buttonSource'] = 'ccommerce_SP';
 
 		if ($card)
 		{
