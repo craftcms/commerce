@@ -345,7 +345,14 @@ class CommercePlugin extends BasePlugin
         {
             $licenseKeyStatus = craft()->plugins->getPluginLicenseKeyStatus('Commerce');
 
-            if ($licenseKeyStatus == LicenseKeyStatus::Invalid)
+            if ($licenseKeyStatus == LicenseKeyStatus::Unknown)
+            {
+                if (!craft()->canTestEditions())
+                {
+                    $message = Craft::t('You haven’t entered your Commerce license key yet.');
+                }
+            }
+            else if ($licenseKeyStatus == LicenseKeyStatus::Invalid)
             {
                 $message = Craft::t('Your Commerce license key is invalid.');
             }
