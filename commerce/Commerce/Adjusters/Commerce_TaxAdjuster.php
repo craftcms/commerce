@@ -2,6 +2,7 @@
 
 namespace Commerce\Adjusters;
 
+use Commerce\Helpers\CommerceCurrencyHelper;
 use Craft\Commerce_AddressModel;
 use Craft\Commerce_LineItemModel;
 use Craft\Commerce_OrderAdjustmentModel;
@@ -77,6 +78,7 @@ class Commerce_TaxAdjuster implements Commerce_AdjusterInterface
                     if ($item->taxCategoryId == $taxRate->taxCategoryId) {
                         $taxableAmount = $item->getTaxableSubtotal($taxRate->taxable);
                         $amount = -($taxableAmount - ($taxableAmount / (1 + $taxRate->rate)));
+                        $amount = CommerceCurrencyHelper::round($amount);
                         $allRemovedTax += $amount;
                         $item->tax += $amount;
                         $affectedLineIds[] = $item->id;
@@ -115,9 +117,11 @@ class Commerce_TaxAdjuster implements Commerce_AdjusterInterface
 
             if ($item->taxCategoryId == $taxRate->taxCategoryId) {
                 if (!$taxRate->include) {
-                    $itemTax = $taxRate->rate * $item->getTaxableSubtotal($taxRate->taxable);
+                    $amount = $taxRate->rate * $item->getTaxableSubtotal($taxRate->taxable);
+                    $itemTax = CommerceCurrencyHelper::round($amount);
                 } else {
-                    $itemTax = ($item->getTaxableSubtotal($taxRate->taxable) - ($item->getTaxableSubtotal($taxRate->taxable) / (1 + $taxRate->rate)));
+                    $amount = $item->getTaxableSubtotal($taxRate->taxable) - ($item->getTaxableSubtotal($taxRate->taxable) / (1 + $taxRate->rate));
+                    $itemTax = CommerceCurrencyHelper::round($amount);
                 }
 
                 $adjustment->amount += $itemTax;
