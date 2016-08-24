@@ -44,19 +44,13 @@ class Commerce_SalesService extends BaseApplicationComponent
 	 * @param Commerce_ProductModel $product
 	 *
 	 * @return Commerce_SaleModel[]
+	 * @deprecated in 1.2. Use getSalesForProduct() instead.
 	 */
 	public function getForProduct(Commerce_ProductModel $product)
 	{
-		$matchedSales = [];
-		foreach ($this->_getAllActiveSales() as $sale)
-		{
-			if ($this->matchProductAndSale($product, $sale))
-			{
-				$matchedSales[] = $sale;
-			}
-		}
+		Craft::$app->getDeprecator()->log('Commerce_SalesService::getForProduct()', 'Commerce_SalesService::getForProduct() has been deprecated. Use Commerce_SalesService::getSalesForProduct() instead.');
 
-		return $matchedSales;
+		return $this->getSalesForProduct($product);
 	}
 
 	/**
