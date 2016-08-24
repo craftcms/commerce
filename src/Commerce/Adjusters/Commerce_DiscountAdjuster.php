@@ -2,6 +2,7 @@
 
 namespace Commerce\Adjusters;
 
+use Commerce\Helpers\CommerceCurrencyHelper;
 use Craft\Commerce_DiscountModel;
 use Craft\Commerce_LineItemModel;
 use Craft\Commerce_OrderAdjustmentModel;
@@ -117,14 +118,17 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
 
         // calculate discount (adjustment amount should be negative)
         $amount = $discount->baseDiscount;
-        $amount += $discount->perItemDiscount * $matchingQty;
-        $amount += $discount->percentDiscount * $matchingTotal;
+        $amount += CommerceCurrencyHelper::round($discount->perItemDiscount * $matchingQty);
+        $amount += CommerceCurrencyHelper::round($discount->percentDiscount * $matchingTotal);
 
         $shippingRemoved = 0;
 
         foreach ($lineItems as $item) {
             if (in_array($item->id, $matchingLineIds)) {
-                $item->discount += $discount->perItemDiscount * $item->qty + $discount->percentDiscount * $item->getSubtotal();
+
+	            $amountPerItem = CommerceCurrencyHelper::round($discount->perItemDiscount * $item->qty);
+	            $amountPercentage = CommerceCurrencyHelper::round($discount->percentDiscount * $item->getSubtotal());
+                $item->discount +=  $amountPerItem + $amountPercentage;
                 // If the discount is larger than the subtotal
                 // make the discount equal to the item, thus making the item free.
                 if (($item->discount * -1) > $item->getSubtotal()) {

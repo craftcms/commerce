@@ -5,6 +5,7 @@ use Commerce\Adjusters\Commerce_AdjusterInterface;
 use Commerce\Adjusters\Commerce_DiscountAdjuster;
 use Commerce\Adjusters\Commerce_ShippingAdjuster;
 use Commerce\Adjusters\Commerce_TaxAdjuster;
+use Commerce\Helpers\CommerceCurrencyHelper;
 use Commerce\Helpers\CommerceDbHelper;
 
 /**
@@ -373,14 +374,24 @@ class Commerce_OrdersService extends BaseApplicationComponent
 			$order->itemTotal += $item->total;
 		}
 
-		$itemSub = $order->getItemSubtotal();
-		$adjSub = $order->getAdjustmentSubtotal();
-		$totalPrice = $itemSub + $adjSub;
-		$order->totalPrice = $order->itemTotal + $order->baseDiscount + $order->baseShippingCost;
-		$same = $totalPrice == $order->totalPrice;
-		$order->totalPrice = max(0, $order->totalPrice);
+		$itemSubtotal = $order->getItemSubtotal();
+		$adjustmentSubtotal = $order->getAdjustmentSubtotal();
+		$totalPrice = ($itemSubtotal + $adjustmentSubtotal);
 
+		$baseDiscount = $order->baseDiscount;
+		$baseShipping = $order->baseShippingCost;
+		$itemTotal = $order->itemTotal;
+		$order->totalPrice = ($baseDiscount + $baseShipping + $itemTotal);
 
+		$same = (bool)$totalPrice == $order->totalPrice;
+
+		if (!$same)
+		{
+			CommercePlugin::log(Craft::t('Total of line items after adjustments does not equal total of adjustment amounts plus original sale prices for order #{orderNumber}', ['orderNumber' => $order->number]), LogLevel::Warning, true);
+		}
+
+		$order->totalPrice = CommerceCurrencyHelper::round(max(0, $order->totalPrice));
+		
 		// Since shipping adjusters run on the original price, pre discount, let's recalculate
 		// if the currently selected shipping method is now not available.
 		$availableMethods = craft()->commerce_shippingMethods->getAvailableShippingMethods($order);
