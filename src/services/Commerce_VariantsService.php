@@ -136,7 +136,7 @@ class Commerce_VariantsService extends BaseApplicationComponent
 		// Only bother calculating if the product is persisted and promotable.
 		if ($product->id && $product->promotable)
 		{
-			$sales = craft()->commerce_sales->getForProduct($product);
+			$sales = craft()->commerce_sales->getSalesForProduct($product);
 
 			foreach ($sales as $sale)
 			{
