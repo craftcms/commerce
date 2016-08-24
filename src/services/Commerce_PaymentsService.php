@@ -560,12 +560,12 @@ EOF;
 		$transaction->reference = $response->getTransactionReference();
 		$transaction->message = $response->getMessage();
 
+		$this->saveTransaction($transaction);
+
 		if ($response->isSuccessful())
 		{
 			craft()->commerce_orders->updateOrderPaidTotal($transaction->order);
 		}
-
-		$this->saveTransaction($transaction);
 	}
 
 	/**
