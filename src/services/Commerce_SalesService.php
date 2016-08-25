@@ -179,11 +179,14 @@ class Commerce_SalesService extends BaseApplicationComponent
 			return false;
 		}
 
-		// User Group match
-		$userGroups = craft()->commerce_discounts->getCurrentUserGroupIds();
-		if (!$sale->allGroups && !array_intersect($userGroups, $sale->getGroupIds()))
+		if (!$sale->allGroups )
 		{
-			return false;
+			// User Group match
+			$userGroups = craft()->commerce_discounts->getCurrentUserGroupIds();
+			if (!$userGroups || !array_intersect($userGroups, $sale->getGroupIds()))
+			{
+				return false;
+			}
 		}
 
 		return true;
