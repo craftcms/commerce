@@ -281,6 +281,8 @@
 	</form>
 	{% endif %}
 
+	{% hook "cp.commerce.order.edit" %}
+
 	{% if order.histories|length %}
 	<div class="pane">
 		<h3>{{ 'Order Status History'|t }}</h3>
