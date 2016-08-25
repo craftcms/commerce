@@ -72,7 +72,7 @@ return array(
 	'Centimeters (cm)' => 'Centimetres (cm)',
 	'Changing this value may affect your ability to refund existing transactions.' => 'Changing this value may affect your ability to refund existing transactions.',
 	'Choose a color to represent the order’s status' => 'Choose a colour to represent the order’s status',
-	'Choose the countries that this zone applies to.' => 'Wählen Sie die Länder, für die diese Zonen gültig sein sollen.',
+	'Choose the countries that this zone applies to.' => 'Choose the countries that this zone applies to.',
 	'Choose the states that this zone applies to.' => 'Choose the states that this zone applies to.',
 	'City' => 'City',
 	'Clear' => 'Clear',
