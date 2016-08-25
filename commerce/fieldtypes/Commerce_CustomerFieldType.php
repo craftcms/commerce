@@ -13,12 +13,6 @@ namespace Craft;
  */
 class Commerce_CustomerFieldType extends BaseFieldType
 {
-    // Properties
-    // =========================================================================
-
-    /** @var  Commerce_CustomerModel $_customer */
-    private $_customer;
-
     /**
      * @inheritDoc IComponentType::getName()
      *
@@ -61,11 +55,7 @@ class Commerce_CustomerFieldType extends BaseFieldType
      */
     private function getCustomer()
     {
-        if (!$this->_customer) {
-            $this->_customer = craft()->commerce_customers->getCustomerByUserId($this->element->id);
-        }
-
-        return $this->_customer;
+         return craft()->commerce_customers->getCustomerByUserId($this->element->id);
     }
 
     /**
