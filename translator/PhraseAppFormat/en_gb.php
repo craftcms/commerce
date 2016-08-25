@@ -71,6 +71,7 @@ $lang['Carts'] = 'Carts';
 $lang['Centimeters (cm)'] = 'Centimetres (cm)';
 $lang['Changing this value may affect your ability to refund existing transactions.'] = 'Changing this value may affect your ability to refund existing transactions.';
 $lang['Choose a color to represent the order’s status'] = 'Choose a colour to represent the order’s status';
+$lang['Choose the countries that this zone applies to.'] = 'Choose the countries that this zone applies to.';
 $lang['Choose the states that this zone applies to.'] = 'Choose the states that this zone applies to.';
 $lang['City'] = 'City';
 $lang['Clear'] = 'Clear';
