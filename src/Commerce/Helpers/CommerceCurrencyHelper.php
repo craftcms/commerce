@@ -30,10 +30,10 @@ class CommerceCurrencyHelper
 	{
 		if (!$currency)
 		{
-			$currency = \Craft\craft()->commerce_currencies->getDefaultCurrency();
+			$currency = \Craft\craft()->commerce_settings->getSettings()->defaultCurrency;
 		}
 
-		$decimals = Currency::find($currency->iso)->getDecimals();
+		$decimals = Currency::find($currency)->getDecimals();
 
 		return round($amount, $decimals);
 	}
@@ -41,7 +41,7 @@ class CommerceCurrencyHelper
 
 	public static function defaultDecimals()
 	{
-		$currency = \Craft\craft()->commerce_currencies->getDefaultCurrencyIso();
+		$currency = \Craft\craft()->commerce_settings->getSettings()->defaultCurrency;
 
 		$decimals = Currency::find($currency)->getDecimals();
 
