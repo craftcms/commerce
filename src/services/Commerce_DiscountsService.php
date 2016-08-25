@@ -32,79 +32,27 @@ class Commerce_DiscountsService extends BaseApplicationComponent
     }
 
     /**
-     * Getting all discounts applicable for the current user and given items
-     * list
+     * Returns the user groups of the user param but defaults to the current user
      *
-     * @param Commerce_LineItemModel[] $lineItems
-     *
-     * @return Commerce_DiscountModel[]
-     */
-    public function getDiscountsForItems(array $lineItems)
-    {
-        //getting ids lists
-        $productIds = [];
-        $productTypeIds = [];
-        foreach ($lineItems as $item) {
-            $productIds[] = $item->purchasable->productId;
-            $productTypeIds[] = $item->purchasable->product->typeId;
-        }
-        $productTypeIds = array_unique($productTypeIds);
-
-        $groupIds = $this->getCurrentUserGroupIds();
-
-        //building criteria
-        $criteria = new \CDbCriteria();
-        $criteria->group = 't.id';
-        $criteria->addCondition('t.enabled = 1');
-        $criteria->addCondition('t.dateFrom IS NULL OR t.dateFrom <= NOW()');
-        $criteria->addCondition('t.dateTo IS NULL OR t.dateTo >= NOW()');
-
-        $criteria->join = 'LEFT JOIN {{' . Commerce_DiscountProductRecord::model()->getTableName() . '}} dp ON dp.discountId = t.id ';
-        $criteria->join .= 'LEFT JOIN {{' . Commerce_DiscountProductTypeRecord::model()->getTableName() . '}} dpt ON dpt.discountId = t.id ';
-        $criteria->join .= 'LEFT JOIN {{' . Commerce_DiscountUserGroupRecord::model()->getTableName() . '}} dug ON dug.discountId = t.id ';
-
-        if ($productIds) {
-            $list = implode(',', $productIds);
-            $criteria->addCondition("dp.productId IN ($list) OR t.allProducts = 1");
-        } else {
-            $criteria->addCondition("t.allProducts = 1");
-        }
-
-        if ($productTypeIds) {
-            $list = implode(',', $productTypeIds);
-            $criteria->addCondition("dpt.productTypeId IN ($list) OR t.allProductTypes = 1");
-        } else {
-            $criteria->addCondition("t.allProductTypes = 1");
-        }
-
-        if ($groupIds) {
-            $list = implode(',', $groupIds);
-            $criteria->addCondition("dug.userGroupId IN ($list) OR t.allGroups = 1");
-        } else {
-            $criteria->addCondition("t.allGroups = 1");
-        }
-
-        //searching
-        return $this->getAllDiscounts($criteria);
-    }
-
-    /**
+     * @param UserModel $user
      * @return array
      */
-    public function getCurrentUserGroupIds()
-    {
-        $groupIds = [];
-        $user = craft()->userSession->getUser();
-        if ($user) {
-            foreach ($user->getGroups() as $group) {
-                $groupIds[] = $group->id;
-            }
+	public function getCurrentUserGroupIds($user = null)
+	{
+		$groupIds = [];
+		$currentUser = $user ? $user : craft()->userSession->getUser();
+		if ($currentUser)
+		{
+			foreach ($currentUser->getGroups() as $group)
+			{
+				$groupIds[] = $group->id;
+			}
 
-            return $groupIds;
-        }
+			return $groupIds;
+		}
 
-        return $groupIds;
-    }
+		return $groupIds;
+	}
 
     /**
      * @param array|\CDbCriteria $criteria
@@ -157,14 +105,19 @@ class Commerce_DiscountsService extends BaseApplicationComponent
             return false;
         }
 
-        $groupIds = $this->getCurrentUserGroupIds();
-        if (!$model->allGroups && !array_intersect($groupIds,
-                $model->getGroupIds())
-        ) {
-            $error = Craft::t('Discount is not allowed for the current user');
+	    if (!$model->allGroups)
+	    {
+		    $customer = craft()->commerce_customers->getCustomerById($customerId);
+		    $user = $customer ? $customer->getUser() : null;
+		    $groupIds = $this->getCurrentUserGroupIds($user);
+		    if (!$user || !array_intersect($groupIds, $model->getGroupIds()))
+		    {
+			    $error = Craft::t('Discount is not allowed for the customer');
 
-            return false;
-        }
+			    return false;
+		    }
+	    }
+
 
 	    if ($customerId)
 	    {
@@ -172,20 +125,18 @@ class Commerce_DiscountsService extends BaseApplicationComponent
 		    if ($model->perUserLimit > 0 && !craft()->userSession->isLoggedIn())
 		    {
 			    $error = Craft::t('Discount is limited to use by logged in users only.');
-			    
+
 			    return false;
 		    }
 
-            $uses = Commerce_CustomerDiscountUseRecord::model()->findByAttributes([
-                'customerId' => $customerId,
-                'discountId' => $model->id
-            ]);
-            if ($uses && $uses->uses >= $model->perUserLimit) {
-                $error = Craft::t('You can not use this discount anymore');
+		    $uses = Commerce_CustomerDiscountUseRecord::model()->findByAttributes(['customerId' => $customerId, 'discountId' => $model->id]);
+		    if ($uses && $uses->uses >= $model->perUserLimit)
+		    {
+			    $error = Craft::t('You can not use this discount anymore');
 
-                return false;
-            }
-        }
+			    return false;
+		    }
+	    }
 
 	    if ($model->perEmailLimit > 0)
 	    {
@@ -282,12 +233,17 @@ class Commerce_DiscountsService extends BaseApplicationComponent
             }
         }
 
-        $userGroups = $this->getCurrentUserGroupIds();
-        if (!$discount->allGroups && !array_intersect($userGroups,
-                $discount->getGroupIds())
-        ) {
-            return false;
-        }
+	    if (!$discount->allGroups)
+	    {
+		    $customer = $lineItem->getOrder()->getCustomer();
+		    $user = $customer ? $customer->getUser() : null;
+		    $userGroups = $this->getCurrentUserGroupIds($user);
+		    if (!$user || !array_intersect($userGroups, $discount->getGroupIds()))
+		    {
+			    return false;
+		    }
+	    }
+
 
 	    //raising event
 	    $event = new Event($this, [
