@@ -112,11 +112,22 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
 			return false;
 		}
 
+		// Have they entered a max qty?
+		if ($discount->maxPurchaseQty > 0)
+		{
+			if ($matchingQty > $discount->maxPurchaseQty)
+			{
+				return false;
+			}
+		}
+
+		// Reject if they have not added enough matching items
 		if ($matchingQty < $discount->purchaseQty)
 		{
 			return false;
 		}
 
+		// Reject if the matching items values is not enough
 		if ($matchingTotal < $discount->purchaseTotal)
 		{
 			return false;
