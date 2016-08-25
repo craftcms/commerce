@@ -19,6 +19,7 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  * @property DateTime $dateTo
  * @property int $purchaseTotal
  * @property int $purchaseQty
+ * @property int $maxPurchaseQty
  * @property float $baseDiscount
  * @property float $perItemDiscount
  * @property float $percentDiscount
@@ -120,6 +121,11 @@ class Commerce_DiscountModel extends BaseModel
                 'default' => 0
             ],
             'purchaseQty' => [
+                AttributeType::Number,
+                'required' => true,
+                'default' => 0
+            ],
+            'maxPurchaseQty' => [
                 AttributeType::Number,
                 'required' => true,
                 'default' => 0

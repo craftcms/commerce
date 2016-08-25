@@ -205,8 +205,8 @@
     }) }}
 
     {{ forms.textField({
-        label: "Purchase Quantity"|t,
-        instructions: "How many items of a product must be ordered to apply this discount to the product"|t,
+        label: "Minimum Purchase Quantity"|t,
+        instructions: "Minimum number of matching items that need to be ordered for this discount to apply."|t,
         id: 'purchaseQty',
         name: 'purchaseQty',
         value: discount.purchaseQty,
@@ -214,8 +214,18 @@
         errors: discount.getErrors('purchaseQty'),
     }) }}
 
+	{{ forms.textField({
+		label: "Maximum Purchase Quantity"|t,
+		instructions: "Maximum number of matching items that can be ordered for this discount to apply. A zero value here will skip this condition."|t,
+		id: 'maxPurchaseQty',
+		name: 'maxPurchaseQty',
+		value: discount.maxPurchaseQty,
+		type: 'number',
+		errors: discount.getErrors('maxPurchaseQty'),
+	}) }}
+
     {{ forms.checkboxField({
-        label: "Exclude this discount for products that are on sale"|t,
+        label: "Exclude this discount for products that are already on sale"|t,
         id: 'excludeOnSale',
         name: 'excludeOnSale',
         value: 1,

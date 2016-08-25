@@ -110,6 +110,7 @@ class Commerce_DiscountsController extends Commerce_BaseCpController
             'enabled',
             'purchaseTotal',
             'purchaseQty',
+            'maxPurchaseQty',
             'freeShipping',
             'excludeOnSale',
             'code',

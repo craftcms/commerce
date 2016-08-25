@@ -17,6 +17,7 @@ namespace Craft;
  * @property DateTime $dateTo
  * @property int $purchaseTotal
  * @property int $purchaseQty
+ * @property int $maxPurchaseQty
  * @property float $baseDiscount
  * @property float $perItemDiscount
  * @property float $percentDiscount
@@ -125,6 +126,11 @@ class Commerce_DiscountRecord extends BaseRecord
                 'default' => 0
             ],
             'purchaseQty' => [
+                AttributeType::Number,
+                'required' => true,
+                'default' => 0
+            ],
+            'maxPurchaseQty' => [
                 AttributeType::Number,
                 'required' => true,
                 'default' => 0
