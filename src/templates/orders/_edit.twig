@@ -278,6 +278,7 @@
 
 	</div>
 	{# End custom fields pane #}
+	<input type="text" name="changeNotes" class="fullwidth textline" placeholder="{{ 'Notes about your changes'|t }}" autocomplete="off">
 	</form>
 	{% endif %}
 
@@ -285,12 +286,13 @@
 
 	{% if order.histories|length %}
 	<div class="pane">
-		<h3>{{ 'Order Status History'|t }}</h3>
+		<h3>{{ 'Order History'|t }}</h3>
 
 		<table class="data fullwidth">
 			<thead>
 			<tr>
-				<th scope="col">{{ 'Order Status'|t }}</th>
+				<th scope="col">{{ 'Status'|t }}</th>
+				<th scope="col">{{ 'Previous Status'|t }}</th>
 				<th scope="col">{{ 'Customer'|t }}</th>
 				<th scope="col">{{ 'Message'|t }}</th>
 				<th scope="col">{{ 'Date'|t }}</th>
@@ -302,6 +304,11 @@
 					<td>
 						{% if orderHistory.newStatus %}
 							<a href="{{ orderHistory.newStatus.cpEditUrl }}">{{ orderHistory.newStatus.htmlLabel()|raw }}</a> {% if loop.first %}({{ "Current"|t }}){% endif %}
+						{% endif %}
+					</td>
+					<td>
+						{% if orderHistory.prevStatus %}
+							<a href="{{ orderHistory.prevStatus.cpEditUrl }}">{{ orderHistory.prevStatus.htmlLabel()|raw }}</a>
 						{% endif %}
 					</td>
 					<td>
