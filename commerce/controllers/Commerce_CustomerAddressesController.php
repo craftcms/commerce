@@ -27,6 +27,8 @@ class Commerce_CustomerAddressesController extends Commerce_BaseFrontEndControll
 
         $attrs = [
             'id',
+            'attention',
+            'title',
             'firstName',
             'lastName',
             'address1',
@@ -37,6 +39,7 @@ class Commerce_CustomerAddressesController extends Commerce_BaseFrontEndControll
             'alternativePhone',
             'businessName',
             'businessTaxId',
+            'businessId',
             'countryId',
             'stateId',
             'stateName',

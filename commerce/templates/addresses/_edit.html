@@ -15,6 +15,21 @@
 
 		{{ getCsrfInput() }}
 
+
+		{{ forms.textField({
+			label: "Attention"|t,
+			name: 'attention',
+			value: address.attention,
+			errors: address.getErrors('attention')
+		}) }}
+
+		{{ forms.textField({
+			label: "Title"|t,
+			name: 'title',
+			value: address.title,
+			errors: address.getErrors('title')
+		}) }}
+
 		{{ forms.textField({
 			label: "First Name"|t,
 			name: 'firstName',
@@ -86,6 +101,13 @@
 			name: 'businessTaxId',
 			value: address.businessTaxId,
 			errors: address.getErrors('businessTaxId'),
+		}) }}
+
+		{{ forms.textField({
+			label: "Business ID"|t,
+			name: 'businessId',
+			value: address.businessId,
+			errors: address.getErrors('businessId'),
 		}) }}
 
 		{{ forms.selectField({

@@ -7,6 +7,8 @@ use JsonSerializable;
  * Customer address model.
  *
  * @property int                   $id
+ * @property string                $attention
+ * @property string                $title
  * @property string                $firstName
  * @property string                $lastName
  * @property string                $address1
@@ -17,6 +19,7 @@ use JsonSerializable;
  * @property string                $alternativePhone
  * @property string                $businessName
  * @property string                $businessTaxId
+ * @property string                $businessId
  * @property string                $stateName
  * @property int                   $countryId
  * @property int                   $stateId
@@ -49,9 +52,9 @@ class Commerce_AddressModel extends BaseModel implements JsonSerializable
 	/**
 	 * @return string
 	 */
-	public function getCpEditUrl()
+	public function getStateValue()
 	{
-		return UrlHelper::getCpUrl('commerce/addresses/'.$this->id);
+		return $this->stateId ? $this->stateId : ($this->stateName ? $this->stateName : '');
 	}
 
 	/**
@@ -62,6 +65,11 @@ class Commerce_AddressModel extends BaseModel implements JsonSerializable
 		return $this->stateName ? $this->stateName : ($this->stateId ? $this->getState()->name : '');
 	}
 
+	public function getState()
+	{
+		return craft()->commerce_states->getStateById($this->stateId);
+	}
+
 	/**
 	 * @return string
 	 */
@@ -70,28 +78,25 @@ class Commerce_AddressModel extends BaseModel implements JsonSerializable
 		return $this->countryId ? $this->getCountry()->name : '';
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getStateValue()
-	{
-		return $this->stateId ? $this->stateId : ($this->stateName ? $this->stateName : '');
-	}
-
 	/*
 	 * @return Commerce_StateModel|null
 	 */
-	public function getState()
+
+	public function getCountry()
 	{
-		return craft()->commerce_states->getStateById($this->stateId);
+		return craft()->commerce_countries->getCountryById($this->countryId);
 	}
 
 	/*
 	 * @return Commerce_CountryModel|null
 	 */
-	public function getCountry()
+
+	/**
+	 * @return string
+	 */
+	public function getCpEditUrl()
 	{
-		return craft()->commerce_countries->getCountryById($this->countryId);
+		return UrlHelper::getCpUrl('commerce/addresses/'.$this->id);
 	}
 
 	/**
@@ -122,7 +127,7 @@ class Commerce_AddressModel extends BaseModel implements JsonSerializable
 
 		parent::setAttributes($values);
 	}
-	
+
 	/**
 	 * @return array
 	 */
@@ -130,6 +135,8 @@ class Commerce_AddressModel extends BaseModel implements JsonSerializable
 	{
 		return [
 			'id'               => AttributeType::Number,
+			'attention'        => AttributeType::String,
+			'title'            => AttributeType::String,
 			'firstName'        => AttributeType::String,
 			'lastName'         => AttributeType::String,
 			'address1'         => AttributeType::String,
@@ -140,8 +147,12 @@ class Commerce_AddressModel extends BaseModel implements JsonSerializable
 			'alternativePhone' => AttributeType::String,
 			'businessName'     => AttributeType::String,
 			'businessTaxId'    => AttributeType::String,
+			'businessId'       => AttributeType::String,
 			'stateName'        => AttributeType::String,
-			'countryId'        => [AttributeType::Number, 'required' => true],
+			'countryId'        => [
+				AttributeType::Number,
+				'required' => true
+			],
 			'stateId'          => AttributeType::Number
 		];
 	}

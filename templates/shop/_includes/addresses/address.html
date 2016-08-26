@@ -2,6 +2,14 @@
     {% if address.firstName is not empty or address.lastName is not empty %}
         <li>
             <strong>
+                {% if address.attention is not empty %}
+                    Att: {{ address.attention }}
+                {% endif %}
+				<br>
+                {% if address.title is not empty %}
+                    {{ address.title }}
+                {% endif %}
+
                 {% if address.firstName is not empty %}
                     {{ address.firstName }}
                 {% endif %}
@@ -9,7 +17,7 @@
                 {% if address.lastName is not empty %}
                     {{ address.lastName }}
                 {% endif %}
-                <br>
+                <br><br>
                 {% if address.businessName is not empty %}
                     {{ address.businessName }}
                 {% endif %}

@@ -353,7 +353,7 @@
 						<td>{{ transaction.type|title }}</td>
 						<td class="transaction-status transaction-status-{{ transaction.status }}">{{ transaction.status|title|t }}</td>
 						<td>{{ transaction.amount|currency(transaction.currency) }} <small class="light">({{ transaction.currency }})</small></td>
-						<td>{{ transaction.paymentAmount|currency(transaction.paymentCurrency) }} <small class="light">({{ transaction.paymentCurrency }})</small></td>
+						<td>{{ transaction.paymentAmount }}{{ transaction.paymentAmount|currency(transaction.paymentCurrency) }} <small class="light">({{ transaction.paymentCurrency }})</small></td>
 						<td>{{ transaction.paymentMethod.name }}</td>
 						<td>{{ transaction.dateUpdated|date }}</td>
 						<td><span class="tableRowInfo" data-icon="info" href="#"></span></td>
