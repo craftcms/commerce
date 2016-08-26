@@ -386,6 +386,24 @@ class Commerce_OrdersController extends Commerce_BaseCpController
 		$order = $this->_setOrderFromPost();
 		$this->_setContentFromPost($order);
 
+		$changeNotes = craft()->request->getParam('changeNotes');
+		if ($changeNotes)
+		{
+			craft()->on('commerce_orders.onSaveOrder',function($event) use ($changeNotes)
+			{
+				/** @var Commerce_OrderModel $order */
+				$order = $event->params['order'];
+				$orderHistory = new Commerce_OrderHistoryModel();
+				$orderHistory->customerId = craft()->commerce_customers->getCustomerId();
+				$orderHistory->message = $changeNotes;
+				$orderHistory->orderId = $order->id;
+				$orderHistory->newStatusId = $order->orderStatusId;
+				$orderHistory->prevStatusId = null;
+
+				craft()->commerce_orderHistories->saveOrderHistory($orderHistory);
+			});
+		}
+
 		if (craft()->commerce_orders->saveOrder($order))
 		{
 			$this->redirectToPostedUrl($order);
