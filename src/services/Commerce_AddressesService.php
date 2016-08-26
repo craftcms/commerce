@@ -70,6 +70,8 @@ class Commerce_AddressesService extends BaseApplicationComponent
         ]);
         $this->onBeforeSaveAddress($event);
 
+        $addressRecord->attention = $addressModel->attention;
+        $addressRecord->title = $addressModel->title;
         $addressRecord->firstName = $addressModel->firstName;
         $addressRecord->lastName = $addressModel->lastName;
         $addressRecord->address1 = $addressModel->address1;
@@ -80,6 +82,7 @@ class Commerce_AddressesService extends BaseApplicationComponent
         $addressRecord->alternativePhone = $addressModel->alternativePhone;
         $addressRecord->businessName = $addressModel->businessName;
         $addressRecord->businessTaxId = $addressModel->businessTaxId;
+        $addressRecord->businessId = $addressModel->businessId;
         $addressRecord->countryId = $addressModel->countryId;
 
         if (!empty($addressModel->stateValue)) {

@@ -45,6 +45,14 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
 
         this.$address.html("");
 
+        if (this.address.attention) {
+            $("<span class='attention'>" + this.address.attention + "<br></span>").appendTo(this.$address);
+        }
+
+        if (this.address.title) {
+            $("<span class='title'>" + this.address.title + "<br></span>").appendTo(this.$address);
+        }
+
         if (this.address.firstName) {
             $("<span class='firstName'>" + this.address.firstName + "<br></span>").appendTo(this.$address);
         }
@@ -59,6 +67,10 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
 
         if (this.address.businessTaxId) {
             $("<span class='businessTaxId'>" + this.address.businessTaxId + "<br></span>").appendTo(this.$address);
+        }
+
+        if (this.address.businessId) {
+            $("<span class='businessId'>" + this.address.businessId + "<br></span>").appendTo(this.$address);
         }
 
         if (this.address.phone) {

@@ -73,6 +73,8 @@ class Commerce_AddressesController extends Commerce_BaseCpController
 
 		// Shared attributes
 		$attrs = [
+			'attention',
+			'title',
 			'firstName',
 			'lastName',
 			'address1',
@@ -83,6 +85,7 @@ class Commerce_AddressesController extends Commerce_BaseCpController
 			'alternativePhone',
 			'businessName',
 			'businessTaxId',
+			'businessId',
 			'countryId',
 			'stateValue'
 		];
