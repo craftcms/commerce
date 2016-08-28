@@ -120,7 +120,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
 		{
 			if ($order->isPaid())
 			{
-				craft()->commerce_orders->completeOrder($order);
+				$this->completeOrder($order);
 			}
 			else
 			{
@@ -128,7 +128,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
 				$totalAuthorized = craft()->commerce_payments->getTotalAuthorizedForOrder($order);
 				if ($totalAuthorized >= $order->totalPrice)
 				{
-					craft()->commerce_orders->completeOrder($order);
+					$this->completeOrder($order);
 				}
 			}
 		}
