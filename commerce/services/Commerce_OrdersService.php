@@ -458,6 +458,11 @@ class Commerce_OrdersService extends BaseApplicationComponent
 	public function completeOrder(Commerce_OrderModel $order)
 	{
 
+		if ($order->isCompleted)
+		{
+			return true;
+		}
+
 		//raising event on order complete
 		$event = new Event($this, [
 			'order' => $order
