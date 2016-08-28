@@ -184,7 +184,7 @@
 				<td></td>
 				<td></td>
 				<td>
-				{%  if order.isPaid %}
+				{%  if order.isPaid and order.totalPrice > 0 %}
 					<div class="paidLogo"><span>{{ 'PAID'|t }}</div>
 				{% endif %}
 				</td>
