@@ -98,30 +98,27 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
                 $canManage = $userSessionService->checkPermission('commerce-manageProductType:'.$productType->id);
             }
 
-            if ($canManage) {
-	            // Allow deletion
+            if ($canManage)
+            {
+                // Allow deletion
                 $deleteAction = craft()->elements->getAction('Commerce_DeleteProduct');
-                $deleteAction->setParams([
-                    'confirmationMessage' => Craft::t('Are you sure you want to delete the selected product and its variants?'),
-                    'successMessage' => Craft::t('Products and Variants deleted.'),
-                ]);
+                $deleteAction->setParams(['confirmationMessage' => Craft::t('Are you sure you want to delete the selected product and its variants?'),
+                                          'successMessage'      => Craft::t('Products and Variants deleted.'),]);
                 $actions[] = $deleteAction;
 
-	            // Allow setting status
-	            $setStatusAction = craft()->elements->getAction('SetStatus');
-	            $setStatusAction->onSetStatus = function(Event $event)
-	            {
-		            if ($event->params['status'] == BaseElementModel::ENABLED)
-		            {
-			            // Set a Post Date as well
-			            craft()->db->createCommand()->update(
-				            'entries',
-				            ['postDate' => DateTimeHelper::currentTimeForDb()],
-				            ['and', array('in', 'id', $event->params['elementIds']), 'postDate is null']
-			            );
-		            }
-	            };
-	            $actions[] = $setStatusAction;
+                // Allow setting status
+                $setStatusAction = craft()->elements->getAction('SetStatus');
+                $setStatusAction->onSetStatus = function (Event $event)
+                {
+                    if ($event->params['status'] == BaseElementModel::ENABLED)
+                    {
+                        // Set a Post Date as well
+                        craft()->db->createCommand()->update('entries',
+                            ['postDate' => DateTimeHelper::currentTimeForDb()],
+                            ['and',['in','id', $event->params['elementIds']], 'postDate is null']);
+                    }
+                };
+                $actions[] = $setStatusAction;
             }
 
             if($userSessionService->checkPermission('commerce-managePromotions')){
