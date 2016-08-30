@@ -182,6 +182,11 @@ class Commerce_DiscountsService extends BaseApplicationComponent
 	 */
 	public function getDiscountByCode($code)
 	{
+		if(!$code)
+		{
+			return null;
+		}
+
 		$result = Commerce_DiscountRecord::model()->findByAttributes(['code' => $code]);
 
 		if ($result)
