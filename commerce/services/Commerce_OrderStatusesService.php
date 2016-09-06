@@ -206,16 +206,13 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
 	/**
 	 * Handler for order status change event
 	 *
-	 * @param Event $event
+	 * @param Commerce_OrderModel $order
+	 * @param Commerce_OrderHistoryModel $orderHistory
 	 *
 	 * @throws Exception
 	 */
-	public function statusChangeHandler(Event $event)
+	public function statusChangeHandler($order, $orderHistory)
 	{
-		/** @var Commerce_OrderModel $order */
-		$order = $event->params['order'];
-		$update = $event->params['orderHistory'];
-
 		if ($order->orderStatusId)
 		{
 			$status = craft()->commerce_orderStatuses->getOrderStatusById($order->orderStatusId);
@@ -225,7 +222,7 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
 				{
 					if ($email->enabled)
 					{
-						$this->_sendStatusChangeEmail($email, $order, $update);
+						$this->_sendStatusChangeEmail($email, $order, $orderHistory);
 					}
 				}
 			}

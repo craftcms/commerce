@@ -395,13 +395,10 @@ class Commerce_DiscountsService extends BaseApplicationComponent
 	/**
 	 * Update discount uses counters
 	 *
-	 * @param Event $event
+	 * @param Commerce_OrderModel $order
 	 */
-	public function orderCompleteHandler(Event $event)
+	public function orderCompleteHandler($order)
 	{
-		/** @var Commerce_OrderModel $order */
-		$order = $event->params['order'];
-
 		if (!$order->couponCode)
 		{
 			return;
