@@ -67,6 +67,23 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
 		return null;
 	}
 
+    /**
+     * Get default order status ID from the DB
+     *
+     * @return int|null
+     */
+    public function getDefaultOrderStatusId()
+    {
+        $defaultStatus = $this->getDefaultOrderStatus();
+
+        if ($defaultStatus && $defaultStatus->id)
+        {
+            return $defaultStatus->id;
+        }
+
+        return null;
+    }
+
 	/**
 	 * @param Commerce_OrderStatusModel $model
 	 * @param array                     $emailIds
