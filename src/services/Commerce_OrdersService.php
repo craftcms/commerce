@@ -485,6 +485,11 @@ class Commerce_OrdersService extends BaseApplicationComponent
 			return false;
 		}
 
+        // Run order complete handlers directly.
+		craft()->commerce_discounts->orderCompleteHandler($order);
+		craft()->commerce_variants->orderCompleteHandler($order);
+		craft()->commerce_customers->orderCompleteHandler($order);
+
 		//raising event on order complete
 		$event = new Event($this, [
 			'order' => $order

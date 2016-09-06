@@ -276,13 +276,10 @@ class Commerce_VariantsService extends BaseApplicationComponent
 	/**
 	 * Update Stock count from completed order
 	 *
-	 * @param Event $event
+	 * @param Commerce_OrderModel $order
 	 */
-	public function orderCompleteHandler(Event $event)
+	public function orderCompleteHandler($order)
 	{
-		/** @var Commerce_OrderModel $order */
-		$order = $event->params['order'];
-
 		$variants = [];
 
 		foreach ($order->lineItems as $lineItem)

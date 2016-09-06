@@ -333,13 +333,10 @@ class Commerce_CustomersService extends BaseApplicationComponent
 	 * Duplicates the address records used for the order so they are independent to the
 	 * customers address book.
 	 *
-	 * @param $event
+	 * @param Commerce_OrderModel $order
 	 */
-	public function orderCompleteHandler($event)
+	public function orderCompleteHandler($order)
 	{
-		/** @var Commerce_OrderModel $order */
-		$order = $event->params['order'];
-
 		// set the last used addresses before duplicating the addresses on the order
 		if (!craft()->isConsole())
 		{

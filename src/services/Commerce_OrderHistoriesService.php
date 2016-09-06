@@ -88,7 +88,9 @@ class Commerce_OrderHistoriesService extends BaseApplicationComponent
         if (!$this->saveOrderHistory($orderHistoryModel)) {
             return false;
         }
-
+        
+        craft()->commerce_orderStatuses->statusChangeHandler($order, $orderHistoryModel);
+        
         //raising event on status change
         $event = new Event($this, [
             'orderHistory' => $orderHistoryModel,
