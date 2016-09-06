@@ -464,9 +464,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
 		}
 
 		//raising event on order complete
-		$event = new Event($this, [
-			'order' => $order
-		]);
+		$event = new Event($this, ['order' => $order]);
 		$this->onBeforeOrderComplete($event);
 
 		$order->isCompleted = true;
@@ -474,20 +472,20 @@ class Commerce_OrdersService extends BaseApplicationComponent
 		$order->orderStatusId = craft()->commerce_orderStatuses->getDefaultOrderStatusId();
 
 		if ($this->saveOrder($order))
-        {
-            // Run order complete handlers directly.
-            craft()->commerce_discounts->orderCompleteHandler($order);
-            craft()->commerce_variants->orderCompleteHandler($order);
-            craft()->commerce_customers->orderCompleteHandler($order);
+		{
+			// Run order complete handlers directly.
+			craft()->commerce_discounts->orderCompleteHandler($order);
+			craft()->commerce_variants->orderCompleteHandler($order);
+			craft()->commerce_customers->orderCompleteHandler($order);
 
-            //raising event on order complete
-            $event = new Event($this, ['order' => $order]);
-            $this->onOrderComplete($event);
+			//raising event on order complete
+			$event = new Event($this, ['order' => $order]);
+			$this->onOrderComplete($event);
 
-            return true;
-        }
+			return true;
+		}
 
-        return false;
+		return false;
 	}
 
 	/**
