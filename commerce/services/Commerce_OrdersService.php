@@ -471,32 +471,23 @@ class Commerce_OrdersService extends BaseApplicationComponent
 
 		$order->isCompleted = true;
 		$order->dateOrdered = DateTimeHelper::currentTimeForDb();
-		if ($status = craft()->commerce_orderStatuses->getDefaultOrderStatus())
-		{
-			$order->orderStatusId = $status->id;
-		}
-		else
-		{
-			throw new Exception(Craft::t('No default Status available to set on completed order.'));
-		}
+		$order->orderStatusId = craft()->commerce_orderStatuses->getDefaultOrderStatusId();
 
-		if (!$this->saveOrder($order))
-		{
-			return false;
-		}
+		if ($this->saveOrder($order))
+        {
+            // Run order complete handlers directly.
+            craft()->commerce_discounts->orderCompleteHandler($order);
+            craft()->commerce_variants->orderCompleteHandler($order);
+            craft()->commerce_customers->orderCompleteHandler($order);
 
-        // Run order complete handlers directly.
-		craft()->commerce_discounts->orderCompleteHandler($order);
-		craft()->commerce_variants->orderCompleteHandler($order);
-		craft()->commerce_customers->orderCompleteHandler($order);
+            //raising event on order complete
+            $event = new Event($this, ['order' => $order]);
+            $this->onOrderComplete($event);
 
-		//raising event on order complete
-		$event = new Event($this, [
-			'order' => $order
-		]);
-		$this->onOrderComplete($event);
+            return true;
+        }
 
-		return true;
+        return false;
 	}
 
 	/**
