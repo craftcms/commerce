@@ -170,7 +170,7 @@ function cleanDestinationDirectories()
 {
     global $buildRepoPath;
 
-    $dsStores = UtilsHelper::findFiles($this->_tempDir, array('fileTypes' => array('DS_Store'), 'level' => -1));
+    $dsStores = UtilsHelper::findFiles($buildRepoPath, array('fileTypes' => array('DS_Store'), 'level' => -1));
 
     echo ('Found '.count($dsStores).' DS_Store files. Nuking them.'.PHP_EOL);
     foreach ($dsStores as $dsStore) {
