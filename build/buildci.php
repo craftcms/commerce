@@ -1,6 +1,6 @@
 <?php
 
-require_once "./UtilsHelper.php";
+require_once "./build/UtilsHelper.php";
 
 $branch = getenv('CIRCLE_BRANCH');
 $parts = explode('/', $branch);
