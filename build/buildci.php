@@ -29,8 +29,7 @@ if (in_array($branch, $allBranches)) {
         exec('cd /home/ubuntu/gitreposci;git clone https://github.com/takobell/commerce-'.$aBranch);
     }
 
-    //$newBuildNumber = (int)getLastBuildNumberFromTag() + 1;
-    $newBuildNumber = 1300;
+    $newBuildNumber = (int)getLastBuildNumberFromTag() + 1;
 
     echo "Purging ".$buildRepoPath.PHP_EOL.PHP_EOL;
     UtilsHelper::purgeDirectory($buildRepoPath);
