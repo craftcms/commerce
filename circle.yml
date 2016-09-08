@@ -22,9 +22,9 @@ machine:
 # Customize checkout
 checkout:
   post:
-    - composer install --no-dev -d commerce
-    - composer dumpautoload -o -d commerce
-    - php ./Utils/buildci.php
+    - composer install --no-dev
+    - composer dumpautoload -o
+    - php ./build/buildci.php
 
 ## Customize dependencies
 # dependencies:
@@ -76,3 +76,4 @@ checkout:
 # general:
 #  branches:
 #    only:
+#      - release/dev
