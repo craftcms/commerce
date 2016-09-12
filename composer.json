@@ -18,6 +18,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/pixelandtonic/omnipay-netbanx"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/pixelandtonic/omnipay-paypal"
         }
     ],
     "require": {
@@ -41,7 +45,7 @@
         "omnipay/payfast" :  "~2.1",
         "omnipay/payflow" :  "~2.2",
         "omnipay/paymentexpress" :  "~2.2",
-        "omnipay/paypal" :  "~2.5",
+        "omnipay/paypal" :  "dev-error10486handler",
         "omnipay/pin" :  "~2.2",
         "omnipay/sagepay" :  "~2.3",
         "omnipay/securepay" : "~2.1",
