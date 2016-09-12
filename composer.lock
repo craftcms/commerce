@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "ffb3c69735dca5810511072bb9eaadc4",
-    "content-hash": "5ad807caa2b0c97582749ba161af1ad5",
+    "hash": "aa1d1582d316115086798446f013d860",
+    "content-hash": "2ebc5b0c30ed83a271a7acdc2c87a2b0",
     "packages": [
         {
             "name": "dompdf/dompdf",
@@ -440,12 +440,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/omnipay-common.git",
-                "reference": "82d6f01e66c919f24468df6c7103bce6042e639e"
+                "reference": "8217d0e8b80a97f0d1fab0e1763200636daf1c00"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-common/zipball/82d6f01e66c919f24468df6c7103bce6042e639e",
-                "reference": "82d6f01e66c919f24468df6c7103bce6042e639e",
+                "url": "https://api.github.com/repos/thephpleague/omnipay-common/zipball/8217d0e8b80a97f0d1fab0e1763200636daf1c00",
+                "reference": "8217d0e8b80a97f0d1fab0e1763200636daf1c00",
                 "shasum": ""
             },
             "require": {
@@ -530,7 +530,7 @@
                 "payment",
                 "purchase"
             ],
-            "time": "2016-08-19 08:49:55"
+            "time": "2016-08-31 09:04:51"
         },
         {
             "name": "omnipay/dummy",
@@ -1287,16 +1287,16 @@
         },
         {
             "name": "omnipay/paypal",
-            "version": "v2.5.5",
+            "version": "dev-error10486handler",
             "source": {
                 "type": "git",
-                "url": "https://github.com/thephpleague/omnipay-paypal.git",
-                "reference": "ec7fc864ae0699dd832cd727da26286a5354a35e"
+                "url": "https://github.com/pixelandtonic/omnipay-paypal.git",
+                "reference": "8aac7ab17aba1237cb5c998ee56b1f3e9e03b094"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-paypal/zipball/ec7fc864ae0699dd832cd727da26286a5354a35e",
-                "reference": "ec7fc864ae0699dd832cd727da26286a5354a35e",
+                "url": "https://api.github.com/repos/pixelandtonic/omnipay-paypal/zipball/8aac7ab17aba1237cb5c998ee56b1f3e9e03b094",
+                "reference": "8aac7ab17aba1237cb5c998ee56b1f3e9e03b094",
                 "shasum": ""
             },
             "require": {
@@ -1316,7 +1316,6 @@
                     "Omnipay\\PayPal\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -1341,7 +1340,10 @@
                 "paypal",
                 "purchase"
             ],
-            "time": "2016-07-15 04:26:38"
+            "support": {
+                "source": "https://github.com/pixelandtonic/omnipay-paypal/tree/error10486handler"
+            },
+            "time": "2016-09-12 13:45:50"
         },
         {
             "name": "omnipay/pin",
@@ -1884,12 +1886,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-foundation.git",
-                "reference": "f1e825ebf8947be664ecfd4b3c8dfd927104a5ea"
+                "reference": "d7b31206638f0d9492679e5a525e4f2abf7a990b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/f1e825ebf8947be664ecfd4b3c8dfd927104a5ea",
-                "reference": "f1e825ebf8947be664ecfd4b3c8dfd927104a5ea",
+                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/d7b31206638f0d9492679e5a525e4f2abf7a990b",
+                "reference": "d7b31206638f0d9492679e5a525e4f2abf7a990b",
                 "shasum": ""
             },
             "require": {
@@ -1929,7 +1931,7 @@
             ],
             "description": "Symfony HttpFoundation Component",
             "homepage": "https://symfony.com",
-            "time": "2016-08-22 12:11:39"
+            "time": "2016-09-06 11:07:23"
         },
         {
             "name": "symfony/polyfill-mbstring",
@@ -1937,12 +1939,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-mbstring.git",
-                "reference": "988cbed31ec9493057bcfc545b13447521849702"
+                "reference": "53ad9faffe141fbe8f98cd6a7fd9a5e84513f56c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/988cbed31ec9493057bcfc545b13447521849702",
-                "reference": "988cbed31ec9493057bcfc545b13447521849702",
+                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/53ad9faffe141fbe8f98cd6a7fd9a5e84513f56c",
+                "reference": "53ad9faffe141fbe8f98cd6a7fd9a5e84513f56c",
                 "shasum": ""
             },
             "require": {
@@ -1988,7 +1990,7 @@
                 "portable",
                 "shim"
             ],
-            "time": "2016-08-17 08:39:54"
+            "time": "2016-08-30 17:06:17"
         }
     ],
     "packages-dev": [],
@@ -1996,6 +1998,7 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "omnipay/netbanx": 20,
+        "omnipay/paypal": 20,
         "snowcap/vat-validation": 20
     },
     "prefer-stable": false,
