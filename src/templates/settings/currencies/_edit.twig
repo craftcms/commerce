@@ -48,6 +48,10 @@
     }) }}
 
     {% if currency.default %}
+        <input type="hidden" name="default" value="1"/>
+    {% endif %}
+
+    {% if currency.default %}
         <p class="warning">This is the current store’s currency. This is the currency all values in the database are stored in. <br>If you change this currency, all previous orders will show as being in the currency. Get this currency correct before starting your store.</p>
     {% endif %}
 {% endblock %}
