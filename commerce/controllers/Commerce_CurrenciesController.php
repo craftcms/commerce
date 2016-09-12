@@ -70,6 +70,7 @@ class Commerce_CurrenciesController extends Commerce_BaseAdminController
         $currency->name = craft()->request->getPost('name');
         $currency->iso = craft()->request->getPost('iso');
         $currency->rate = craft()->request->getPost('rate');
+        $currency->default = craft()->request->getPost('default');
 
         // Save it
         if (craft()->commerce_currencies->saveCurrency($currency)) {
