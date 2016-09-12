@@ -727,10 +727,16 @@ EOF;
 
 			$success = $this->sendPaymentRequest($order, $request, $transaction, $redirect, $customError);
 
+			// Some gateways response might be a redirect on complete payment
+			if ($success && $redirect)
+			{
+				craft()->commerce_orders->updateOrderPaidTotal($order);
+				craft()->request->redirect($redirect);
+			}
+
 			if ($success)
 			{
 				craft()->commerce_orders->updateOrderPaidTotal($order);
-
 				return true;
 			}
 			else
