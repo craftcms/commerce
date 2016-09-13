@@ -53,6 +53,27 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
 		$originalTotalQty = $order->getTotalQty();
 		$originalTotalAdjustments = count($order->getAdjustments());
 
+		// Set guest email address onto guest customer and order.
+		if (!is_null(craft()->request->getParam('paymentCurrency')))
+		{
+			$currency = craft()->request->getParam('paymentCurrency'); // empty string vs null (strict type checking)
+			$error = '';
+			if (!craft()->commerce_cart->setPaymentCurrency($order, $currency, $error))
+			{
+				if (craft()->request->isAjaxRequest())
+				{
+					$this->returnErrorJson($error);
+				}
+				else
+				{
+					$order->addError('paymentCurrency', $error);
+					craft()->userSession->setFlash('error', $error);
+				}
+
+				return;
+			}
+		}
+
 		// Allow setting the payment method at time of submitting payment.
 		$paymentMethodId = craft()->request->getParam('paymentMethodId');
 		if ($paymentMethodId)
