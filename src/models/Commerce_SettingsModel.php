@@ -11,6 +11,7 @@ use Omnipay\Common\Currency;
  * @property string $emailSenderAddress
  * @property string $emailSenderName
  * @property string $orderPdfPath
+ * @property string $orderPdfFileNameFormat
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -57,7 +58,8 @@ class Commerce_SettingsModel extends BaseModel
             ],
             'emailSenderAddress' => [AttributeType::String],
             'emailSenderName' => [AttributeType::String],
-            'orderPdfPath' => [AttributeType::String]
+            'orderPdfPath' => [AttributeType::String],
+            'orderPdfFileNameFormat' => [AttributeType::String]
         ];
     }
 
@@ -85,22 +87,5 @@ class Commerce_SettingsModel extends BaseModel
             'ft' => Craft::t('Feet (ft)'),
             'in' => Craft::t('Inches (in)'),
         ];
-    }
-
-    /**
-     * @return array
-     */
-    public function getCurrencies()
-    {
-
-        $currencies = Currency::all();
-
-        foreach ($currencies as $key => &$value) {
-            $value = $key;
-        }
-
-        ksort($currencies, SORT_STRING);
-
-        return $currencies;
     }
 }

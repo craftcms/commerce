@@ -63,6 +63,16 @@
             required: true,
         }) }}
 
+        {{ forms.textField({
+            label: "Order PDF File Name Format"|t,
+            instructions: "The generated file name format. Do not include the file extension."|t,
+            id: 'orderPdfFileNameFormat',
+            name: 'settings[orderPdfFileNameFormat]',
+            value: settings.orderPdfFileNameFormat,
+            errors: settings.getErrors('orderPdfFileNameFormat'),
+            required: true,
+        }) }}
+
         <input type="submit" class="btn submit" value="{{ "Save"|t }}">
     </form>
 
