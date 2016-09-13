@@ -220,7 +220,7 @@ class Commerce_CartService extends BaseApplicationComponent
 	 */
 	public function setPaymentCurrency($order, $currency, $error)
 	{
-		$currency = craft()->commerce_currencies->getCurrencyByIso($currency);
+		$currency = craft()->commerce_paymentCurrencies->getPaymentCurrencyByIso($currency);
 
 		if (!$currency)
 		{
@@ -371,10 +371,10 @@ class Commerce_CartService extends BaseApplicationComponent
 			$this->_cart->lastIp = craft()->request->getIpAddress();
 
 			// Right now, orders are all stored in the default currency
-			$this->_cart->currency = craft()->commerce_currencies->getDefaultCurrencyIso();
+			$this->_cart->currency = craft()->commerce_paymentCurrencies->getDefaultPaymentCurrencyIso();
 
 			// Payment currency is always set to the store currency unless it is set to an allowed currency.
-			$currencies = \array_column(craft()->commerce_currencies->getAllCurrencies(), 'iso');
+			$currencies = \array_column(craft()->commerce_paymentCurrencies->getAllPaymentCurrencies(), 'iso');
 
 			if (defined('COMMERCE_CURRENCY'))
 			{
@@ -383,11 +383,11 @@ class Commerce_CartService extends BaseApplicationComponent
 
 			if ($this->_cart->paymentCurrency && in_array($this->_cart->paymentCurrency, $currencies))
 			{
-				$this->_cart->paymentCurrency = $this->_cart->paymentCurrency ?: craft()->commerce_currencies->getDefaultCurrencyIso();
+				$this->_cart->paymentCurrency = $this->_cart->paymentCurrency ?: craft()->commerce_paymentCurrencies->getDefaultPaymentCurrencyIso();
 			}
 			else
 			{
-				$this->_cart->paymentCurrency = craft()->commerce_currencies->getDefaultCurrencyIso();
+				$this->_cart->paymentCurrency = craft()->commerce_paymentCurrencies->getDefaultPaymentCurrencyIso();
 			}
 
 			// Update the cart if the customer has changed and recalculate the cart.

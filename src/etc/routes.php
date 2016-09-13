@@ -51,9 +51,9 @@ return [
     'commerce/settings/paymentmethods/(?P<id>\d+)' => ['action' => 'commerce/paymentMethods/edit'],
 
 	// Payment Currencies
-    'commerce/settings/currencies' => ['action' => 'commerce/currencies/index'],
-    'commerce/settings/currencies/new' => ['action' => 'commerce/currencies/edit'],
-    'commerce/settings/currencies/(?P<id>\d+)' => ['action' => 'commerce/currencies/edit'],
+    'commerce/settings/paymentcurrencies' => ['action' => 'commerce/paymentCurrencies/index'],
+    'commerce/settings/paymentcurrencies/new' => ['action' => 'commerce/paymentCurrencies/edit'],
+    'commerce/settings/paymentcurrencies/(?P<id>\d+)' => ['action' => 'commerce/paymentCurrencies/edit'],
 
     // Shipping Zones
     'commerce/settings/shippingzones' => ['action' => 'commerce/shippingZones/index'],

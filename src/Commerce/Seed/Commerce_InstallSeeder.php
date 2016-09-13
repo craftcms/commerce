@@ -2,7 +2,7 @@
 
 namespace Commerce\Seed;
 
-use Craft\Commerce_CurrencyRecord;
+use Craft\Commerce_PaymentCurrencyRecord;
 use Craft\Commerce_OrderSettingsModel;
 use Craft\Commerce_OrderStatusModel;
 use Craft\Commerce_PaymentMethodModel;
@@ -43,7 +43,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
 
     public function defaultCurrency()
     {
-        $method = new Commerce_CurrencyRecord();
+        $method = new Commerce_PaymentCurrencyRecord();
         $method->name = 'Default Currency';
         $method->iso = 'USD';
         $method->rate = 1;

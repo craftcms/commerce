@@ -18,11 +18,11 @@ class CommerceCurrencyHelper
 {
 
 	/**
-	 * Rounds the amount as per the omnipay decimal information. Not passing
+	 * Rounds the amount as per the currency minor unit information. Not passing
 	 * a currency model results in rounding in default currency.
 	 *
-	 * @param float                              $amount
-	 * @param \Craft\Commerce_CurrencyModel|null $currency
+	 * @param float                                     $amount
+	 * @param \Craft\Commerce_PaymentCurrencyModel|null $currency
 	 *
 	 * @return float
 	 */
@@ -30,10 +30,11 @@ class CommerceCurrencyHelper
 	{
 		if (!$currency)
 		{
-			$currency = \Craft\craft()->commerce_currencies->getDefaultCurrency();
+			$defaultPaymentCurrency = \Craft\craft()->commerce_paymentCurrencies->getDefaultPaymentCurrency();
+			$currency = \Craft\craft()->commerce_currencies->getCurrencyByIso($defaultPaymentCurrency->iso);
 		}
 
-		$decimals = Currency::find($currency->iso)->getDecimals();
+		$decimals = $currency->minorUnit;
 
 		return round($amount, $decimals);
 	}
@@ -41,9 +42,9 @@ class CommerceCurrencyHelper
 
 	public static function defaultDecimals()
 	{
-		$currency = \Craft\craft()->commerce_currencies->getDefaultCurrencyIso();
+		$currency = \Craft\craft()->commerce_paymentCurrencies->getDefaultPaymentCurrencyIso();
 
-		$decimals = Currency::find($currency)->getDecimals();
+		$decimals = \Craft\craft()->commerce_currencies->getCurrencyByIso($currency)->minorUnit;
 
 		return $decimals;
 	}
