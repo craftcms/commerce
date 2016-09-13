@@ -23,6 +23,7 @@ class Commerce_DownloadsController extends Commerce_BaseFrontEndController
     public function actionPdf()
     {
         $template = craft()->commerce_settings->getSettings()->orderPdfPath;
+	    $filenameFormat = craft()->commerce_settings->getSettings()->orderPdfFileNameFormat;
 
         // Set Craft to the site template mode
         $templatesService = craft()->templates;
@@ -44,6 +45,13 @@ class Commerce_DownloadsController extends Commerce_BaseFrontEndController
             throw new HttpException(404);
         }
 
+        $fileName = craft()->templates->renderObjectTemplate($filenameFormat, $order);
+
+	    if (!$fileName)
+	    {
+	    	$fileName = "Order-".$order->number;
+	    }
+
         $html = $templatesService->render($template, compact('order', 'option'));
 
         $dompdf = new \DOMPDF();
@@ -61,7 +69,7 @@ class Commerce_DownloadsController extends Commerce_BaseFrontEndController
 
         $dompdf->load_html($html);
         $dompdf->render();
-        $dompdf->stream("Order-" . $number . ".pdf");
+        $dompdf->stream($fileName . ".pdf");
 
         // Restore the original template mode
         $templatesService->setTemplateMode($oldTemplateMode);

@@ -151,7 +151,8 @@ class CommercePlugin extends BasePlugin
 	                    'm160806_010102_Commerce_AddVatTaxRateOption.php',
 	                    'm160825_010101_Commerce_AddMaxQtyToDiscount.php',
 	                    'm160826_010101_Commerce_NewAddressFields.php',
-	                    'm160915_010101_Commerce_RenameCurrencies'
+	                    'm160915_010101_Commerce_RenameCurrencies',
+	                    'm160916_010102_Commerce_PdfNameFormat'
                     );
 
                     foreach ($migrations as $migrationClass) {
@@ -299,7 +300,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getSchemaVersion()
     {
-        return '1.2.45';
+        return '1.2.55';
     }
 
     /**
