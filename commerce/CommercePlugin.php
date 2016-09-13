@@ -147,7 +147,12 @@ class CommercePlugin extends BasePlugin
                         'm160425_010101_Commerce_DeleteCountriesAndStates',
                         'm160606_010101_Commerce_PerEmailLimitOnDiscount',
                         'm160510_010101_Commerce_EmailRecipientType',
-                        'm160510_010101_Commerce_Currencies'
+                        'm160510_010101_Commerce_Currencies',
+	                    'm160806_010101_Commerce_RemoveShowInLabel.php',
+	                    'm160806_010102_Commerce_AddVatTaxRateOption.php',
+	                    'm160825_010101_Commerce_AddMaxQtyToDiscount.php',
+	                    'm160826_010101_Commerce_NewAddressFields.php',
+                        'm160915_010101_Commerce_RenameCurrencies'
                     );
 
                     foreach ($migrations as $migrationClass) {
@@ -295,7 +300,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getSchemaVersion()
     {
-        return '1.2.35';
+        return '1.2.45';
     }
 
     /**

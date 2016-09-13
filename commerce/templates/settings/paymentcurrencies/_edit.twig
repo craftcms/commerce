@@ -2,7 +2,7 @@
 
 {% set crumbs = [
 { label: "Commerce " ~ "Settings"|t, url: url('commerce/settings') },
-{ label: "Currencies"|t, url: url('commerce/settings/currencies') },
+{ label: "Currencies"|t, url: url('commerce/settings/paymentcurrencies') },
 ] %}
 
 {% set fullPageForm = true %}
@@ -10,8 +10,8 @@
 {% import "_includes/forms" as forms %}
 
 {% block content %}
-    <input type="hidden" name="action" value="commerce/currencies/save">
-    <input type="hidden" name="redirect" value="commerce/settings/currencies">
+    <input type="hidden" name="action" value="commerce/paymentCurrencies/save">
+    <input type="hidden" name="redirect" value="commerce/settings/paymentcurrencies">
     {% if currency.id %}<input type="hidden" name="currencyId" value="{{ currency.id }}">{% endif %}
 
     {{ forms.textField({
@@ -27,15 +27,15 @@
         translatable: true
     }) }}
 
-    {{ forms.textField({
-        label: "ISO"|t,
-        instructions: "The three-letter ISO currency code."|t,
-        id: 'iso',
-        name: 'iso',
-        value: currency.iso,
-        errors: currency.getErrors('iso'),
-        required: true,
-    }) }}
+	{{ forms.selectField({
+		label: 'Currency ISO'|t,
+		instructions: 'Select the currency ISO.'|t,
+		id: 'iso',
+		name: 'iso',
+		value: currency.iso,
+		errors: currency.getErrors('iso'),
+		class: 'selectize fullwidth',
+	}) }}
 
     {{ forms.textField({
         label: "Conversion Rate"|t,
@@ -55,3 +55,36 @@
         <p class="warning">This is the current store’s currency. This is the currency all values in the database are stored in. <br>If you change this currency, all previous orders will show as being in the currency. Get this currency correct before starting your store.</p>
     {% endif %}
 {% endblock %}
+
+{% includejs %}
+window.currencies = $.map(JSON.parse('{{ craft.commerce.currencies|json_encode|raw }}'), function(el) { return el });
+window.currency = JSON.parse('{{ [currency.iso]|json_encode|raw }}');
+$(function () {
+    $('#iso').selectize({
+		options: window.currencies,
+		items : window.currency,
+		render: {
+			item: function(item, escape) {
+			return '<div>' +
+				(item.currency ? '<span class="currency">' + escape(item.currency) + '</span>' : '') +
+				(item.alphabeticCode ? ' (<span class="alphabeticCode">' + escape(item.alphabeticCode) + '</span>)' : '') +
+				'</div>';
+			},
+			option: function(item, escape) {
+			var label = item.currency || item.alphabeticCode;
+			var caption = item.currency ? item.alphabeticCode : null;
+			return '<div>' +
+				'<span class="label">' + escape(label) + '</span>' +
+				(caption ? ' (<span class="caption">' + escape(caption) + '</span>)' : '') +
+				'</div>';
+			}
+		},
+		valueField: 'alphabeticCode',
+		labelField: 'currency',
+		sortField: 'currency',
+		searchField: ['currency', 'iso'],
+        dropdownParent: 'body',
+		maxItems: 1
+    });
+});
+{% endincludejs %}

@@ -34,7 +34,7 @@
 						{% endfor %}
 					</select>
 
-					{% set currencies = craft.commerce.currencies %}
+					{% set currencies = craft.commerce.paymentCurrencies %}
 					{% if currencies|length > 1 %}
 					<select id="paymentCurrency" name="paymentCurrency"
 							class="form-control">
@@ -99,7 +99,6 @@
 								month: paymentForm is defined ? paymentForm.month : 1,
 								year: paymentForm is defined ? paymentForm.year : currentYear,
 								} %}
-
 
 								<!-- Card Holder Name -->
 								<div class="form-group {% if paymentForm is defined and (paymentForm.hasErrors('firstName') or paymentForm.hasErrors('firstName')) %}has-error{% endif %}">

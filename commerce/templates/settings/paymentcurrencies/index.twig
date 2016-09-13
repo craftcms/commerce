@@ -23,10 +23,10 @@
         {% for currency in currencies %}
             <tr data-id="{{ currency.id }}" data-name="{{ currency.name }}">
                 <th scope="row" data-title="{{ 'Name'|t }}"><a
-                            href="{{ url('commerce/settings/currencies/'~currency.id) }}">{{ currency.name }}</a></th>
+                            href="{{ currency.cpEditUrl }}">{{ currency.name }}</a></th>
                 <td data-title="{{ 'ISO'|t }}">{{ currency.iso }}</td>
                 <td data-rate="{{ 'Rate'|t }}">{{ currency.rate|number }}</td>
-                <td data-title="{{ 'Store Currency'|t }}">{% if currency.default %}<span data-icon="check" title="{{ 'Yes'|t }}"></span>{% endif %}</td>
+                <td data-title="{{ 'Currency'|t }}">{% if currency.default %}<span data-icon="check" title="{{ 'Yes'|t }}"></span>{% endif %}</td>
                 <td class="thin">{%  if not currency.default %}<a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a>{% endif %}</td>
             </tr>
         {% endfor %}
@@ -36,7 +36,7 @@
     {% endif %}
 
     <div class="buttons">
-        <a href="{{ url('commerce/settings/currencies/new') }}" class="btn submit add icon">{{ 'New currency'|t }}</a>
+        <a href="{{ url('commerce/settings/paymentcurrencies/new') }}" class="btn submit add icon">{{ 'New currency'|t }}</a>
     </div>
 {% endblock %}
 
@@ -45,7 +45,7 @@
 var adminTable = new Craft.AdminTable({
 tableSelector: '#currencies',
 noObjectsSelector: '#no-currencies',
-deleteAction: 'commerce/currencies/delete',
+deleteAction: 'commerce/paymentCurrencies/delete',
 confirmDeleteMessage:  Craft.t('Warning, deleting this currency will stop all payments and refunds in this currency, are you sure you want to delete “{name}”?'),
 deleteFailMessage: '{{ "Can not delete “{name}” because it is in use."|t }}'
 });

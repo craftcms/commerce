@@ -200,7 +200,17 @@ class CommerceVariable
 	}
 
 	/**
-	 * @return Commerce_CurrencyModel[]
+	 * @return Commerce_PaymentCurrencyModel[]
+	 */
+	public function getPaymentCurrencies()
+	{
+		$currencies = craft()->commerce_paymentCurrencies->getAllPaymentCurrencies();
+
+		return $currencies;
+	}
+
+	/**
+	 * @return Commerce_PaymentCurrencyModel[]
 	 */
 	public function getCurrencies()
 	{
@@ -210,11 +220,11 @@ class CommerceVariable
 	}
 
 	/**
-	 * @return Commerce_CurrencyModel
+	 * @return Commerce_PaymentCurrencyModel
 	 */
 	public function getDefaultCurrency()
 	{
-		$currency = craft()->commerce_currencies->getDefaultCurrency();
+		$currency = craft()->commerce_paymentCurrencies->getDefaultPaymentCurrency();
 
 		return $currency;
 	}

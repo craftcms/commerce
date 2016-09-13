@@ -14,99 +14,112 @@ namespace Commerce\Extensions;
 class CommerceTwigExtension extends \Twig_Extension
 {
 
-    /**
-     * @return string
-     */
-    public function getName()
-    {
-        return 'Craft Commerce Twig Extension';
-    }
+	/**
+	 * @return string
+	 */
+	public function getName()
+	{
+		return 'Craft Commerce Twig Extension';
+	}
 
-    /**
-     * @return mixed
-     */
-    public function getFilters()
-    {
-        $returnArray['commercePercent'] = new \Twig_Filter_Method($this, 'percent');
+	/**
+	 * @return mixed
+	 */
+	public function getFilters()
+	{
+		$returnArray['commercePercent'] = new \Twig_Filter_Method($this, 'percent');
 		$returnArray['json_encode_filtered'] = new \Twig_Filter_Method($this, 'jsonEncodeFiltered');
 
-        $returnArray['commerceCurrencyCovert'] = new \Twig_Filter_Method($this, 'currencyCovert');
-        $returnArray['cc'] = new \Twig_Filter_Method($this, 'currencyCovert');
+		$returnArray['commerceCurrencyCovert'] = new \Twig_Filter_Method($this, 'currencyCovert');
+		$returnArray['cc'] = new \Twig_Filter_Method($this, 'currencyCovert');
 
-        return $returnArray;
-    }
+		return $returnArray;
+	}
 
-    public function currencyCovert($amount, $currency)
-    {
-        $currency = \Craft\craft()->commerce_currencies->getCurrencyByIso($currency);
+	/**
+	 * Converts an amount from the store currency to a different payment currency
+	 * @param $amount
+	 * @param $currency
+	 *
+	 * @return float
+	 * @throws \Twig_Error
+	 */
+	public function currencyCovert($amount, $currency)
+	{
+		$currency = \Craft\craft()->commerce_paymentCurrencies->getPaymentCurrencyByIso($currency);
 
-        if(!$currency)
-        {
-            throw new \Twig_Error(\Craft\Craft::t('Not a valid currency code for conversion'));
-        }
+		if (!$currency)
+		{
+			throw new \Twig_Error(\Craft\Craft::t('Not a valid currency code for conversion'));
+		}
 
-        return $amount * $currency->rate;
-    }
+		return \Craft\craft()->commerce_paymentCurrencies->convert($amount, $currency);
+	}
 
-    /**
-     * @param $string
-     *
-     * @return mixed
-     */
-    public function percent($string)
-    {
-        $localeData = \Craft\craft()->i18n->getLocaleData();
-        $percentSign = $localeData->getNumberSymbol('percentSign');
+	/**
+	 * @param $string
+	 *
+	 * @return mixed
+	 */
+	public function percent($string)
+	{
+		$localeData = \Craft\craft()->i18n->getLocaleData();
+		$percentSign = $localeData->getNumberSymbol('percentSign');
 
-        return $this->decimal($string) . "" . $percentSign;
-    }
+		return $this->decimal($string)."".$percentSign;
+	}
 
-    public function jsonEncodeFiltered($input)
-    {
-        $array = $this->recursiveSanitizeArray($input);
+	public function jsonEncodeFiltered($input)
+	{
+		$array = $this->recursiveSanitizeArray($input);
 
-        return json_encode($array);
-    }
+		return json_encode($array);
+	}
 
-    public static function sanitize($input)
-    {
-        $sanitized = $input;
+	private function recursiveSanitizeArray($array)
+	{
+		$finalArray = [];
 
-        if ( ! is_int($sanitized)) {
-            $sanitized = filter_var($sanitized, FILTER_SANITIZE_SPECIAL_CHARS);
-        } else {
-            $newValue = filter_var($sanitized, FILTER_SANITIZE_SPECIAL_CHARS);
+		foreach ($array as $key => $value)
+		{
+			$newKey = self::sanitize($key);
 
-            if (is_numeric($newValue))
-            {
-                $sanitized = intval($newValue);
-            } else {
-                $sanitized = $newValue;
-            }
-        }
+			if (is_array($value))
+			{
+				$finalArray[$newKey] = $this->recursiveSanitizeArray($value);
+			}
+			else
+			{
+				$finalArray[$newKey] = self::sanitize($value);
+			}
+		}
 
-        return $sanitized;
-    }
+		return $finalArray;
+	}
 
-    public function recursiveSanitizeArray($array)
-    {
-        $finalArray = [];
+	public static function sanitize($input)
+	{
+		$sanitized = $input;
 
-        foreach ($array as $key => $value)
-        {
-            $newKey = self::sanitize($key);
+		if (!is_int($sanitized))
+		{
+			$sanitized = filter_var($sanitized, FILTER_SANITIZE_SPECIAL_CHARS);
+		}
+		else
+		{
+			$newValue = filter_var($sanitized, FILTER_SANITIZE_SPECIAL_CHARS);
 
-            if (is_array($value))
-            {
-                $finalArray[$newKey] = $this->recursiveSanitizeArray($value);
-            }
-            else
-            {
-                $finalArray[$newKey] = self::sanitize($value);
-            }
-        }
+			if (is_numeric($newValue))
+			{
+				$sanitized = intval($newValue);
+			}
+			else
+			{
+				$sanitized = $newValue;
+			}
+		}
 
-        return $finalArray;
-    }
+		return $sanitized;
+	}
 
 }

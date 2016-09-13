@@ -6,11 +6,11 @@ use JsonSerializable;
 /**
  * Currency model.
  *
- * @property int    $id
- * @property string $name
- * @property string $iso
- * @property bool $default
- * @property float $rate
+ * @property string $alphabeticCode
+ * @property string $currency
+ * @property string $entity
+ * @property int    $minorUnit
+ * @property int    $numericCode
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -21,13 +21,6 @@ use JsonSerializable;
  */
 class Commerce_CurrencyModel extends BaseModel implements JsonSerializable
 {
-	/**
-	 * @return string
-	 */
-	public function getCpEditUrl()
-	{
-		return UrlHelper::getCpUrl('commerce/settings/currencies/'.$this->id);
-	}
 
 	/**
 	 * @return string
@@ -43,11 +36,11 @@ class Commerce_CurrencyModel extends BaseModel implements JsonSerializable
 	function jsonSerialize()
 	{
 		$data = [];
-		$data['id'] = $this->getAttribute('id');
-		$data['name'] = $this->getAttribute('name');
-		$data['iso'] = $this->getAttribute('iso');
-		$data['default'] = $this->getAttribute('default');
-		$data['rate'] = $this->getAttribute('rate');
+		$data['alphabeticCode'] = $this->getAttribute('alphabeticCode');
+		$data['currency'] = $this->getAttribute('currency');
+		$data['entity'] = $this->getAttribute('entity');
+		$data['minorUnit'] = $this->getAttribute('minorUnit');
+		$data['numericCode'] = $this->getAttribute('numericCode');
 
 		return $data;
 	}
@@ -57,13 +50,11 @@ class Commerce_CurrencyModel extends BaseModel implements JsonSerializable
 	 */
 	protected function defineAttributes()
 	{
-		return [
-			'id'   => AttributeType::Number,
-			'name' => AttributeType::String,
-			'iso'  => AttributeType::String,
-			'default'  => AttributeType::Bool,
-			'rate'  => AttributeType::Number
-		];
+		return ['alphabeticCode' => AttributeType::String,
+		        'currency'       => AttributeType::String,
+		        'entity'         => AttributeType::String,
+		        'minorUnit'      => AttributeType::Number,
+		        'numericCode'    => AttributeType::Number];
 	}
 
 }

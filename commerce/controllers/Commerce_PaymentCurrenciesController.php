@@ -11,16 +11,15 @@ namespace Craft;
  * @package   craft.plugins.commerce.controllers
  * @since     1.0
  */
-class Commerce_CurrenciesController extends Commerce_BaseAdminController
+class Commerce_PaymentCurrenciesController extends Commerce_BaseAdminController
 {
     /**
      * @throws HttpException
      */
     public function actionIndex()
     {
-        $currencies = craft()->commerce_currencies->getAllCurrencies();
-        $this->renderTemplate('commerce/settings/currencies/index',
-            compact('currencies'));
+        $currencies = craft()->commerce_paymentCurrencies->getAllPaymentCurrencies();
+        $this->renderTemplate('commerce/settings/paymentcurrencies/index', compact('currencies'));
     }
 
     /**
@@ -35,13 +34,13 @@ class Commerce_CurrenciesController extends Commerce_BaseAdminController
         if (empty($variables['currency'])) {
             if (!empty($variables['id'])) {
                 $id = $variables['id'];
-                $variables['currency'] = craft()->commerce_currencies->getCurrencyById($id);
+                $variables['currency'] = craft()->commerce_paymentCurrencies->getPaymentCurrencyById($id);
 
                 if (!$variables['currency']) {
                     throw new HttpException(404);
                 }
             } else {
-                $variables['currency'] = new Commerce_CurrencyModel();
+                $variables['currency'] = new Commerce_PaymentCurrencyModel();
             }
         }
 
@@ -51,9 +50,10 @@ class Commerce_CurrenciesController extends Commerce_BaseAdminController
             $variables['title'] = Craft::t('Create a new currency');
         }
 
-        $variables['storeCurrency'] = craft()->commerce_currencies->getDefaultCurrencyIso();
+        $variables['storeCurrency'] = craft()->commerce_paymentCurrencies->getDefaultPaymentCurrencyIso();
+        $variables['currencies'] = array_keys(craft()->commerce_currencies->getAllCurrencies());
 
-        $this->renderTemplate('commerce/settings/currencies/_edit', $variables);
+        $this->renderTemplate('commerce/settings/paymentcurrencies/_edit', $variables);
     }
 
     /**
@@ -63,7 +63,7 @@ class Commerce_CurrenciesController extends Commerce_BaseAdminController
     {
         $this->requirePostRequest();
 
-        $currency = new Commerce_CurrencyModel();
+        $currency = new Commerce_PaymentCurrencyModel();
 
         // Shared attributes
         $currency->id = craft()->request->getPost('currencyId');
@@ -73,7 +73,7 @@ class Commerce_CurrenciesController extends Commerce_BaseAdminController
         $currency->default = craft()->request->getPost('default');
 
         // Save it
-        if (craft()->commerce_currencies->saveCurrency($currency)) {
+        if (craft()->commerce_paymentCurrencies->savePaymentCurrency($currency)) {
             craft()->userSession->setNotice(Craft::t('Currency saved.'));
             $this->redirectToPostedUrl($currency);
         } else {
@@ -93,11 +93,11 @@ class Commerce_CurrenciesController extends Commerce_BaseAdminController
         $this->requireAjaxRequest();
 
         $id = craft()->request->getRequiredPost('id');
-        $currency = craft()->commerce_currencies->getCurrencyById($id);
+        $currency = craft()->commerce_paymentCurrencies->getPaymentCurrencyById($id);
 
         if ($currency && !$currency->default)
         {
-            craft()->commerce_currencies->deleteCurrencyById($id);
+            craft()->commerce_paymentCurrencies->deletePaymentCurrencyById($id);
             $this->returnJson(['success' => true]);
         }
 

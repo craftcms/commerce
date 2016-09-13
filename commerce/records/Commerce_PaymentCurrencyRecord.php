@@ -17,7 +17,7 @@ namespace Craft;
  * @package   craft.plugins.commerce.records
  * @since     1.0
  */
-class Commerce_CurrencyRecord extends BaseRecord
+class Commerce_PaymentCurrencyRecord extends BaseRecord
 {
 
     /**
@@ -25,7 +25,7 @@ class Commerce_CurrencyRecord extends BaseRecord
      */
     public function getTableName()
     {
-        return 'commerce_currencies';
+        return 'commerce_paymentcurrencies';
     }
 
     /**

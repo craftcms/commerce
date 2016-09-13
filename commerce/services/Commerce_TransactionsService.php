@@ -77,8 +77,8 @@ class Commerce_TransactionsService extends BaseApplicationComponent
      */
 	public function createTransaction(Commerce_OrderModel $order)
 	{
-		$paymentCurrency = craft()->commerce_currencies->getCurrencyByIso($order->paymentCurrency);
-		$currency = craft()->commerce_currencies->getCurrencyByIso($order->currency);
+		$paymentCurrency = craft()->commerce_paymentCurrencies->getPaymentCurrencyByIso($order->paymentCurrency);
+		$currency = craft()->commerce_paymentCurrencies->getPaymentCurrencyByIso($order->currency);
 
 		$paymentAmount = $order->outstandingBalance() * $paymentCurrency->rate;
 
