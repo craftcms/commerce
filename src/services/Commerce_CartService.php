@@ -376,19 +376,16 @@ class Commerce_CartService extends BaseApplicationComponent
 			// Payment currency is always set to the store currency unless it is set to an allowed currency.
 			$currencies = \array_column(craft()->commerce_paymentCurrencies->getAllPaymentCurrencies(), 'iso');
 
-			if (defined('COMMERCE_CURRENCY'))
+			if (defined('COMMERCE_PAYMENT_CURRENCY'))
 			{
-				$this->_cart->paymentCurrency = StringHelper::toUpperCase(COMMERCE_CURRENCY);
+				$currency = StringHelper::toUpperCase(COMMERCE_PAYMENT_CURRENCY);
+				if (in_array($currency, $currencies))
+				{
+					$this->_cart->paymentCurrency = $currency;
+				}
 			}
 
-			if ($this->_cart->paymentCurrency && in_array($this->_cart->paymentCurrency, $currencies))
-			{
-				$this->_cart->paymentCurrency = $this->_cart->paymentCurrency ?: craft()->commerce_paymentCurrencies->getDefaultPaymentCurrencyIso();
-			}
-			else
-			{
-				$this->_cart->paymentCurrency = craft()->commerce_paymentCurrencies->getDefaultPaymentCurrencyIso();
-			}
+			$this->_cart->paymentCurrency = $this->_cart->paymentCurrency ?: craft()->commerce_paymentCurrencies->getDefaultPaymentCurrencyIso();
 
 			// Update the cart if the customer has changed and recalculate the cart.
 			$customer = craft()->commerce_customers->getCustomer();
