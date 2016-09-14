@@ -534,6 +534,86 @@ EOF;
 	}
 
 	/**
+	 * Event: Before attempting to capture a transaction.
+	 * Event params: transaction(Commerce_TransactionModel)
+	 *
+	 * @param \CEvent $event
+	 *
+	 * @throws \CException
+	 */
+	public function onBeforeCaptureTransaction(\CEvent $event)
+	{
+		$params = $event->params;
+
+		if (empty($params['transaction']) || !($params['transaction'] instanceof Commerce_TransactionModel))
+		{
+			throw new Exception('onBeforeCaptureTransaction event requires "transaction" to be a Commerce_TransactionModel');
+		}
+
+		$this->raiseEvent('onBeforeCaptureTransaction', $event);
+	}
+
+	/**
+	 * Event: After attempting to capture a transaction
+	 * Event params: transaction(Commerce_TransactionModel)
+	 *
+	 * @param \CEvent $event
+	 *
+	 * @throws \CException
+	 */
+	public function onCaptureTransaction(\CEvent $event)
+	{
+		$params = $event->params;
+
+		if (empty($params['transaction']) || !($params['transaction'] instanceof Commerce_TransactionModel))
+		{
+			throw new Exception('onCaptureTransaction event requires "transaction" to be a Commerce_TransactionModel');
+		}
+
+		$this->raiseEvent('onCaptureTransaction', $event);
+	}
+
+	/**
+	 * Event: Before attempting to refund a transaction.
+	 * Event params: transaction(Commerce_TransactionModel)
+	 *
+	 * @param \CEvent $event
+	 *
+	 * @throws \CException
+	 */
+	public function onBeforeRefundTransaction(\CEvent $event)
+	{
+		$params = $event->params;
+
+		if (empty($params['transaction']) || !($params['transaction'] instanceof Commerce_TransactionModel))
+		{
+			throw new Exception('onBeforeRefundTransaction event requires "transaction" to be a Commerce_TransactionModel');
+		}
+
+		$this->raiseEvent('onBeforeRefundTransaction', $event);
+	}
+
+	/**
+	 * Event: After attempting to refund a transaction
+	 * Event params: transaction(Commerce_TransactionModel)
+	 *
+	 * @param \CEvent $event
+	 *
+	 * @throws \CException
+	 */
+	public function onRefundTransaction(\CEvent $event)
+	{
+		$params = $event->params;
+
+		if (empty($params['transaction']) || !($params['transaction'] instanceof Commerce_TransactionModel))
+		{
+			throw new Exception('onRefundTransaction event requires "transaction" to be a Commerce_TransactionModel');
+		}
+
+		$this->raiseEvent('onRefundTransaction', $event);
+	}
+
+	/**
 	 * @param Commerce_TransactionModel $transaction
 	 * @param ResponseInterface         $response
 	 *
@@ -575,8 +655,17 @@ EOF;
 	 */
 	public function captureTransaction(Commerce_TransactionModel $transaction)
 	{
-		return $this->processCaptureOrRefund($transaction,
-			Commerce_TransactionRecord::TYPE_CAPTURE);
+		//raising event
+		$event = new Event($this, ['transaction' => $transaction,]);
+		$this->onBeforeCaptureTransaction($event);
+
+		$transaction = $this->processCaptureOrRefund($transaction, Commerce_TransactionRecord::TYPE_CAPTURE);
+
+		//raising event
+		$event = new Event($this, ['transaction' => $transaction,]);
+		$this->onCaptureTransaction($event);
+
+		return $transaction;
 	}
 
 	/**
@@ -664,8 +753,17 @@ EOF;
 	 */
 	public function refundTransaction(Commerce_TransactionModel $transaction)
 	{
-		return $this->processCaptureOrRefund($transaction,
-			Commerce_TransactionRecord::TYPE_REFUND);
+		//raising event
+		$event = new Event($this, ['transaction' => $transaction,]);
+		$this->onBeforeRefundTransaction($event);
+
+		$transaction = $this->processCaptureOrRefund($transaction, Commerce_TransactionRecord::TYPE_REFUND);
+
+		//raising event
+		$event = new Event($this, ['transaction' => $transaction,]);
+		$this->onRefundTransaction($event);
+
+		return $transaction;
 	}
 
 	/**
