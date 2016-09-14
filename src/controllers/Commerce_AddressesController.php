@@ -100,7 +100,7 @@ class Commerce_AddressesController extends Commerce_BaseCpController
 
 			if (craft()->request->isAjaxRequest)
 			{
-				$this->returnJson(['success' => true, 'address' => $address->jsonSerialize()]);
+				$this->returnJson(['success' => true, 'address' => $address]);
 			}
 
 			craft()->userSession->setNotice(Craft::t('Address saved.'));

@@ -34,19 +34,18 @@ use JsonSerializable;
  * @package   craft.plugins.commerce.models
  * @since     1.0
  */
-class Commerce_AddressModel extends BaseModel implements JsonSerializable
+class Commerce_AddressModel extends BaseModel
 {
 	/** @var int|string Either ID of a state or name of state if it's not present in the DB */
 	public $stateValue;
 
-	public function jsonSerialize()
+	public function getIterator()
 	{
-		$data = $this->attributes;
-		$data['stateValue'] = $this->getStateValue();
-		$data['stateText'] = $this->getStateText();
-		$data['countryText'] = $this->getCountryText();
-
-		return $data;
+		$attributes=$this->getAttributes();
+		$attributes['stateValue'] = $this->getStateValue();
+		$attributes['stateText'] = $this->getStateText();
+		$attributes['countryText'] = $this->getCountryText();
+		return new \CMapIterator($attributes);
 	}
 
 	/**
