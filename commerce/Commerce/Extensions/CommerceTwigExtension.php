@@ -27,8 +27,6 @@ class CommerceTwigExtension extends \Twig_Extension
 	 */
 	public function getFilters()
 	{
-		$returnArray['commercePercent'] = new \Twig_Filter_Method($this, 'percent');
-		$returnArray['commercePercent'] = new \Twig_Filter_Method($this, 'percent');
 		$returnArray['json_encode_filtered'] = new \Twig_Filter_Method($this, 'jsonEncodeFiltered');
 
 		$returnArray['currencyConvert'] = new \Twig_Filter_Method($this, 'currencyCovert');
@@ -84,19 +82,6 @@ class CommerceTwigExtension extends \Twig_Extension
 		$amount = $this->currencyCovert($amount, $currency);
 
 		return $this->currencyFormat($amount, $currency, $stripZeroCents);
-	}
-
-	/**
-	 * @param $string
-	 *
-	 * @return mixed
-	 */
-	public function percent($string)
-	{
-		$localeData = \Craft\craft()->i18n->getLocaleData();
-		$percentSign = $localeData->getNumberSymbol('percentSign');
-
-		return $this->decimal($string)."".$percentSign;
 	}
 
 	public function jsonEncodeFiltered($input)
