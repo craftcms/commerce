@@ -28,32 +28,62 @@ class CommerceTwigExtension extends \Twig_Extension
 	public function getFilters()
 	{
 		$returnArray['commercePercent'] = new \Twig_Filter_Method($this, 'percent');
+		$returnArray['commercePercent'] = new \Twig_Filter_Method($this, 'percent');
 		$returnArray['json_encode_filtered'] = new \Twig_Filter_Method($this, 'jsonEncodeFiltered');
 
-		$returnArray['commerceCurrencyCovert'] = new \Twig_Filter_Method($this, 'currencyCovert');
-		$returnArray['cc'] = new \Twig_Filter_Method($this, 'currencyCovert');
+		$returnArray['currencyConvert'] = new \Twig_Filter_Method($this, 'currencyCovert');
+		$returnArray['currencyFormat'] = new \Twig_Filter_Method($this, 'currencyFormat');
+		$returnArray['currencyConvertFormat'] = new \Twig_Filter_Method($this, 'currencyCovertFormat');
+
 
 		return $returnArray;
 	}
 
 	/**
-	 * Converts an amount from the store currency to a different payment currency
+	 * Converts an amount into the other payment currency as per the rate setup in payment currencies.
 	 * @param $amount
 	 * @param $currency
 	 *
 	 * @return float
-	 * @throws \Twig_Error
 	 */
 	public function currencyCovert($amount, $currency)
 	{
-		$currency = \Craft\craft()->commerce_paymentCurrencies->getPaymentCurrencyByIso($currency);
-
-		if (!$currency)
-		{
-			throw new \Twig_Error(\Craft\Craft::t('Not a valid currency code for conversion'));
-		}
+		$this->_validatePaymentCurrency($currency);
 
 		return \Craft\craft()->commerce_paymentCurrencies->convert($amount, $currency);
+	}
+
+	/**
+	 * Formats an amount as a currency based on the current locle
+	 *
+	 * @param      $amount
+	 * @param      $currency
+	 * @param bool $stripZeroCents
+	 *
+	 * @return mixed
+	 */
+	public function currencyFormat($amount, $currency, $stripZeroCents = false)
+	{
+		$this->_validatePaymentCurrency($currency);
+
+		return \Craft\craft()->numberFormatter->formatCurrency($amount, $currency, $stripZeroCents);
+	}
+
+	/**
+	 * Both converts into another payment currency and formats an amount as a currency.
+	 *
+	 * @param      $amount
+	 * @param      $currency
+	 * @param bool $stripZeroCents
+	 *
+	 * @return mixed
+	 */
+	public function currencyCovertFormat($amount, $currency, $stripZeroCents = false)
+	{
+		$this->_validatePaymentCurrency($currency);
+		$amount = $this->currencyCovert($amount, $currency);
+
+		return $this->currencyFormat($amount, $currency, $stripZeroCents);
 	}
 
 	/**
@@ -122,4 +152,13 @@ class CommerceTwigExtension extends \Twig_Extension
 		return $sanitized;
 	}
 
+	private function _validatePaymentCurrency($currency)
+	{
+		$currency = \Craft\craft()->commerce_paymentCurrencies->getPaymentCurrencyByIso($currency);
+
+		if (!$currency)
+		{
+			throw new \Twig_Error(\Craft\Craft::t('Not a valid payment currency code'));
+		}
+	}
 }

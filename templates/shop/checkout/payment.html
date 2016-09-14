@@ -39,7 +39,7 @@
 					<select id="paymentCurrency" name="paymentCurrency"
 							class="form-control">
 						{% for currency in currencies %}
-							<option value="{{ currency.iso }}" {% if currency.iso == cart.paymentCurrency %}selected{% endif %}>{{ currency.name }} {{  currency.iso }} - {{ cart.totalPrice|cc(currency.iso)|currency(currency.iso) }}</option>
+							<option value="{{ currency.iso }}" {% if currency.iso == cart.paymentCurrency %}selected{% endif %}>{{ currency.name }} {{  currency.iso }} - {{ cart.totalPrice|currencyConvertFormat(currency.iso) }}</option>
 						{% endfor %}
 					</select>
 					{% endif %}
@@ -81,7 +81,7 @@
 								data-name="Craft Commerce"
 								data-description="Purchase" {# This is not used for order description in stripe - see Craft Commerce general settings #}
 								data-email="{{ cart.email }}"
-								data-amount="{{ cart.totalPrice|cc(cart.paymentCurrency) * 100 }}"
+								data-amount="{{ cart.totalPrice|currencyConvert(cart.paymentCurrency) * 100 }}"
 								data-locale="auto">
 						</script>
 					{% endif %}
@@ -185,7 +185,7 @@
 							{% endif %}
 
 							<!-- Submit -->
-							<button class="button button-primary" type="submit">Pay {{ cart.totalPrice|cc(cart.paymentCurrency)|currency(cart.paymentCurrency) }}
+							<button class="button button-primary" type="submit">Pay {{ cart.totalPrice|currencyConvertFormat(cart.paymentCurrency) }}
 								Now
 							</button>
 						</fieldset>
@@ -231,7 +231,7 @@
 					</li>
 					{% if cart.currency != cart.paymentCurrency %}
 					<li>
-						<strong>Payment {{ cart.paymentCurrency }}:</strong> <span class="right">{{ cart.totalPrice|cc(cart.paymentCurrency)|currency(cart.paymentCurrency) }}</span>
+						<strong>Payment {{ cart.paymentCurrency }}:</strong> <span class="right">{{ cart.totalPrice|currencyConvertFormat(cart.paymentCurrency) }}</span>
 					</li>
 					{% endif %}
 				</ul>
