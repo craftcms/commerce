@@ -1291,12 +1291,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/pixelandtonic/omnipay-paypal.git",
-                "reference": "8aac7ab17aba1237cb5c998ee56b1f3e9e03b094"
+                "reference": "07c8127710081b38d02b151f6dc2b31602896724"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pixelandtonic/omnipay-paypal/zipball/8aac7ab17aba1237cb5c998ee56b1f3e9e03b094",
-                "reference": "8aac7ab17aba1237cb5c998ee56b1f3e9e03b094",
+                "url": "https://api.github.com/repos/pixelandtonic/omnipay-paypal/zipball/07c8127710081b38d02b151f6dc2b31602896724",
+                "reference": "07c8127710081b38d02b151f6dc2b31602896724",
                 "shasum": ""
             },
             "require": {
@@ -1343,7 +1343,7 @@
             "support": {
                 "source": "https://github.com/pixelandtonic/omnipay-paypal/tree/error10486handler"
             },
-            "time": "2016-09-12 13:45:50"
+            "time": "2016-09-14 02:11:55"
         },
         {
             "name": "omnipay/pin",
