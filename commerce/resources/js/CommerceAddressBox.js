@@ -37,7 +37,9 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
 
         // Only show the map button if we have an address
         if (this.address.id) {
-            $("<a class='small btn right' target='_blank' href='http://maps.google.com/maps?q=" + this.address.address1 + "+" + this.address.address2 + "+" + this.address.city + "+" + this.address.zipCode + "+" + this.address.stateText + "+" + this.address.countryText + "'>" + Craft.t('Map') + "</a>").appendTo($buttons);
+            var address = [this.address.address1,this.address.address2,this.address.city,this.address.zipCode,this.address.stateText, this.address.countryText];
+            var addressStr = address.join(' ');
+            $("<a class='small btn right' target='_blank' href='http://maps.google.com/maps?q=" + addressStr + "'>" + Craft.t('Map') + "</a>").appendTo($buttons);
         }
 
         // Edit button
