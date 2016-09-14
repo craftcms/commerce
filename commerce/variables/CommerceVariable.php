@@ -168,6 +168,14 @@ class CommerceVariable
 	}
 
 	/**
+	 * @return Commerce_TaxRateModel[]
+	 */
+	public function getTaxRates()
+	{
+		return craft()->commerce_taxRates->getAllTaxRates();
+	}
+
+	/**
 	 * @return Commerce_DiscountModel[]
 	 */
 	public function getDiscounts()
