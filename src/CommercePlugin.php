@@ -89,7 +89,8 @@ class CommercePlugin extends BasePlugin
             'Edit',
             'Add Address',
             'Add',
-            'Update'
+            'Update',
+            'No Address'
         );
     }
 
