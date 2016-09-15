@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "aa1d1582d316115086798446f013d860",
-    "content-hash": "2ebc5b0c30ed83a271a7acdc2c87a2b0",
+    "hash": "9f2b6b727123e3e5c78988d44143b65e",
+    "content-hash": "6915db4129043dfda6118c8982bfdab2",
     "packages": [
         {
             "name": "dompdf/dompdf",
@@ -1991,6 +1991,58 @@
                 "shim"
             ],
             "time": "2016-08-30 17:06:17"
+        },
+        {
+            "name": "triplepoint/php-units-of-measure",
+            "version": "v2.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/PhpUnitsOfMeasure/php-units-of-measure.git",
+                "reference": "25f476e9c50e11af8cf044d22ffc271c96aa5248"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/PhpUnitsOfMeasure/php-units-of-measure/zipball/25f476e9c50e11af8cf044d22ffc271c96aa5248",
+                "reference": "25f476e9c50e11af8cf044d22ffc271c96aa5248",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4.0"
+            },
+            "replace": {
+                "triplepoint/php-units-of-measure": "*"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "4.8.*",
+                "squizlabs/php_codesniffer": "2.2.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PhpUnitsOfMeasure\\": "source/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jonathan Hanson",
+                    "email": "jonathan@jonathan-hanson.org",
+                    "homepage": "http://www.jonathan-hanson.org/",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A PHP library for converting between standard units of measure.",
+            "homepage": "https://github.com/PhpUnitsOfMeasure/php-units-of-measure",
+            "keywords": [
+                "conversion",
+                "data",
+                "measurements"
+            ],
+            "abandoned": "php-units-of-measure/php-units-of-measure",
+            "time": "2016-07-24 22:36:00"
         }
     ],
     "packages-dev": [],
