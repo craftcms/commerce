@@ -33,7 +33,7 @@
                         <strong>{{ method.name }}</strong>
 
                         <span class="price">
-                            {{ method.amount|currency(cart.currency) }}
+                            {{ method.amount|commerceCurrency(cart.currency) }}
                         </span>
                     </label>
                 </div>
