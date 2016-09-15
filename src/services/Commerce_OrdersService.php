@@ -518,6 +518,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
 	 * @param Commerce_OrderModel   $order
 	 * @param Commerce_AddressModel $shippingAddress
 	 * @param Commerce_AddressModel $billingAddress
+	 * @param string $error
 	 *
 	 * @return bool
 	 * @throws \Exception
@@ -525,7 +526,8 @@ class Commerce_OrdersService extends BaseApplicationComponent
 	public function setOrderAddresses(
 		Commerce_OrderModel $order,
 		Commerce_AddressModel $shippingAddress,
-		Commerce_AddressModel $billingAddress
+		Commerce_AddressModel $billingAddress,
+		&$error = ''
 	)
 	{
 		CommerceDbHelper::beginStackedTransaction();
@@ -535,15 +537,21 @@ class Commerce_OrdersService extends BaseApplicationComponent
 			$customerId = $order->customerId;
 			$currentCustomerAddressIds = craft()->commerce_customers->getAddressIds($customerId);
 
+			$ownAddress = true;
 			// Customers can only set addresses that are theirs
 			if ($shippingAddress->id && !in_array($shippingAddress->id, $currentCustomerAddressIds))
 			{
-				return false;
+				$ownAddress = false;
 			}
 			// Customer can only set addresses that are theirs
 			if ($billingAddress->id && !in_array($billingAddress->id, $currentCustomerAddressIds))
 			{
-				return false;
+				$ownAddress = false;
+			}
+
+			if (!$ownAddress)
+			{
+				$error = Craft::t('Can not choose an address ID that does not belong to the customer.');
 			}
 
 			$result1 = craft()->commerce_customers->saveAddress($shippingAddress);
