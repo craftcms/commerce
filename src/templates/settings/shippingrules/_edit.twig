@@ -258,6 +258,7 @@
 		{{ commerceForms.numberField({
 			label: "Base Rate"|t,
 			name: 'baseRate',
+			instructions: "Shipping costs added to the order as a whole before percentage, item, and weight rates are applied. Set to zero to disable this rate."|t,
 			value: shippingRule.baseRate,
 			type: 'number',
 			min: 0,
@@ -269,6 +270,7 @@
 		{{ commerceForms.numberField({
 			label: "Per Item Rate"|t,
 			name: 'perItemRate',
+			instructions: "Shipping costs amount added to each item on the order. Set to zero to disable this rate."|t,
 			value: shippingRule.perItemRate,
 			type: 'number',
 			min: 0,
@@ -280,6 +282,7 @@
 		{{ commerceForms.numberField({
 			label: "Weight Rate"|t,
 			name: 'weightRate',
+			instructions: "Shipping costs added to each item by multiplying the weight of the product by this rate. If you entered `1.1` here, and the weight of a product was 500, the shipping costs added would be 550. Set to zero to disable this rate."|t,
 			value: shippingRule.weightRate,
 			type: 'number',
 			min: 0,
@@ -291,7 +294,7 @@
 		{{ commerceForms.numberField({
 			label: "Percentage Rate"|t,
 			name: 'percentageRate',
-			instructions: "The minimum the person should spend on shippping. Set zero to disable this check."|t,
+			instructions: "Shipping costs amount added to each item on the order as a percentage of the each items price. Set to zero to disable this rate."|t,
 			value: shippingRule.percentageRate,
 			type: 'number',
 			min: 0,
@@ -301,9 +304,9 @@
 		}) }}
 
 		{{ commerceForms.numberField({
-			label: "Minimum Rate"|t,
+			label: "Minimum Total Shipping Cost"|t,
 			name: 'minRate',
-			instructions: "The minimum the person should spend on shippping. Set zero to disable this check."|t,
+			instructions: "The minimum the customer should spend on shippping. Set to zero to disable."|t,
 			value: shippingRule.minRate,
 			type: 'number',
 			min: 0,
@@ -313,8 +316,8 @@
 		}) }}
 
 		{{ commerceForms.numberField({
-			label: "Maximum Base Rate"|t,
-			instructions: "The maximum the person should spend on shippping. Set zero to disable this check."|t,
+			label: "Maximum Total Shipping Cost"|t,
+			instructions: "The maximum the customer should spend on shippping. Set to zero to disable."|t,
 			name: 'maxRate',
 			value: shippingRule.maxRate,
 			type: 'number',
