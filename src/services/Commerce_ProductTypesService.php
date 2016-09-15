@@ -536,6 +536,29 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
                             }
                         }
                     }
+
+                    if (!$isNewProductType)
+                    {
+                        $criteria = craft()->elements->getCriteria('Commerce_Product');
+
+                        // Get the most-primary locale that this section was already enabled in
+                        $locales = array_values(craft()->i18n->getSiteLocaleIds());
+
+                        if ($locales)
+                        {
+                            $criteria->locale = $locales[0];
+                            $criteria->productTypeId = $productType->id;
+                            $criteria->status = null;
+                            $criteria->localeEnabled = null;
+                            $criteria->limit = null;
+
+                            craft()->tasks->createTask('ResaveElements', Craft::t('Resaving {productType} products', ['productType' => $productType->name]),
+                            [
+                                'elementType' => 'Commerce_Product',
+                                'criteria'    => $criteria->getAttributes()
+                            ]);
+                        }
+                    }
                 }
 
                 CommerceDbHelper::commitStackedTransaction();
