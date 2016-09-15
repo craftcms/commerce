@@ -29,59 +29,45 @@ class CommerceTwigExtension extends \Twig_Extension
 	{
 		$returnArray['json_encode_filtered'] = new \Twig_Filter_Method($this, 'jsonEncodeFiltered');
 
-		$returnArray['currencyConvert'] = new \Twig_Filter_Method($this, 'currencyCovert');
-		$returnArray['currencyFormat'] = new \Twig_Filter_Method($this, 'currencyFormat');
-		$returnArray['currencyConvertFormat'] = new \Twig_Filter_Method($this, 'currencyCovertFormat');
+		$returnArray['commerceCurrency'] = new \Twig_Filter_Method($this, 'commerceCurrency');
 
 
 		return $returnArray;
 	}
 
+
+
 	/**
-	 * Converts an amount into the other payment currency as per the rate setup in payment currencies.
-	 * @param $amount
-	 * @param $currency
+	 * Formats and optionally converts a currency amount into the supplied valid payment currency as per the rate setup in payment currencies.
+	 * @param      $amount
+	 * @param      $currency
+	 * @param bool $convert
+	 * @param bool $format
+	 * @param bool $stripZeros
 	 *
 	 * @return float
 	 */
-	public function currencyCovert($amount, $currency)
+	public function commerceCurrency($amount, $currency, $convert = false, $format = true, $stripZeros = false)
 	{
 		$this->_validatePaymentCurrency($currency);
 
-		return \Craft\craft()->commerce_paymentCurrencies->convert($amount, $currency);
-	}
+		// return input if no currency passed, and both convert and format are false.
+		if (!$convert && !$format)
+		{
+			return $amount;
+		}
 
-	/**
-	 * Formats an amount as a currency based on the current locle
-	 *
-	 * @param      $amount
-	 * @param      $currency
-	 * @param bool $stripZeroCents
-	 *
-	 * @return mixed
-	 */
-	public function currencyFormat($amount, $currency, $stripZeroCents = false)
-	{
-		$this->_validatePaymentCurrency($currency);
+		if ($convert)
+		{
+			$amount = \Craft\craft()->commerce_paymentCurrencies->convert($amount, $currency);
+		}
 
-		return \Craft\craft()->numberFormatter->formatCurrency($amount, $currency, $stripZeroCents);
-	}
+		if ($format)
+		{
+			$amount = \Craft\craft()->numberFormatter->formatCurrency($amount, $currency, $stripZeros);
+		}
 
-	/**
-	 * Both converts into another payment currency and formats an amount as a currency.
-	 *
-	 * @param      $amount
-	 * @param      $currency
-	 * @param bool $stripZeroCents
-	 *
-	 * @return mixed
-	 */
-	public function currencyCovertFormat($amount, $currency, $stripZeroCents = false)
-	{
-		$this->_validatePaymentCurrency($currency);
-		$amount = $this->currencyCovert($amount, $currency);
-
-		return $this->currencyFormat($amount, $currency, $stripZeroCents);
+		return $amount;
 	}
 
 	public function jsonEncodeFiltered($input)
@@ -143,7 +129,7 @@ class CommerceTwigExtension extends \Twig_Extension
 
 		if (!$currency)
 		{
-			throw new \Twig_Error(\Craft\Craft::t('Not a valid payment currency code'));
+			throw new \Twig_Error(\Craft\Craft::t('Not a valid currency code'));
 		}
 	}
 }

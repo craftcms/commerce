@@ -16,7 +16,7 @@
                     {{ getCsrfInput() }}
                     <select name="purchasableId">
                         {%- for purchasable in product.variants -%}
-                            <option {% if purchasable.stock <= 0 and purchasable.unlimitedStock == false %}disabled {% endif %} value="{{ purchasable.purchasableId }}">{{ purchasable.description }} {{ purchasable.salePrice|currency(cart.currency) }}</option>
+                            <option {% if purchasable.stock <= 0 and purchasable.unlimitedStock == false %}disabled {% endif %} value="{{ purchasable.purchasableId }}">{{ purchasable.description }} {{ purchasable.salePrice|commerceCurrency(cart.currency) }}</option>
                         {%- endfor -%}
                     </select>
                     <select name="options[giftWrapped]">
