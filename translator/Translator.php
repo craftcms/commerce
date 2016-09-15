@@ -18,7 +18,7 @@ class Translator
 	{
 		$this->_sourcePath = realpath(dirname(__FILE__).'/../commerce').'/';
 		$this->_translationFileSavePath = $this->_sourcePath.'../translator/SourceTranslations.php';
-		$this->_buildPath = '/Users/Brad/Dropbox/Sites/craft.dev/craft/plugins/commerce/';
+		$this->_buildPath = '/Users/Brad/dev/craft.dev/craft/plugins/commerce/';
 		$this->_fileTypes = array('php', 'html', 'js', 'twig');
 		$this->_exclusions = array(
 			'/vendor',

@@ -156,7 +156,7 @@
 						{% endif %}
 						<br>{{ lineItem.sku }}
 						{% if lineItem.options|length %}
-						<a class="fieldtoggle first last" data-target="info-{{ lineItem.id}}">{{ "Options" }}</a>
+						<a class="fieldtoggle first last" data-target="info-{{ lineItem.id}}">{{ "Options"|t }}</a>
 						<span id="info-{{ lineItem.id}}" class="hidden">
 							{% for key, option in lineItem.options %}
 								{{ key|t }}: {% if option is iterable %}<code>{{ option|json_encode|raw }}</code>{% else %}{{ option }}{% endif %}<br>
