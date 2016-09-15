@@ -284,6 +284,7 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
         $productTypeRecord->hasVariantTitleField = $productType->hasVariantTitleField;
         $productTypeRecord->titleFormat = $productType->titleFormat ? $productType->titleFormat : "{product.title}";
         $productTypeRecord->skuFormat = $productType->skuFormat;
+        $productTypeRecord->descriptionFormat = $productType->descriptionFormat;
         $productTypeRecord->template = $productType->template;
 
         if (!$isNewProductType && !$productType->hasVariantTitleField)
@@ -701,7 +702,7 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
     private function _createProductTypeQuery()
     {
         return craft()->db->createCommand()
-            ->select('pt.id, pt.name, pt.handle, pt.hasUrls, pt.hasDimensions, pt.hasVariants, pt.hasVariantTitleField, pt.titleFormat, pt.skuFormat, pt.template, pt.fieldLayoutId, pt.variantFieldLayoutId')
+            ->select('pt.id, pt.name, pt.handle, pt.hasUrls, pt.hasDimensions, pt.hasVariants, pt.hasVariantTitleField, pt.titleFormat, pt.skuFormat, pt.descriptionFormat, pt.template, pt.fieldLayoutId, pt.variantFieldLayoutId')
             ->from('commerce_producttypes pt');
     }
 }

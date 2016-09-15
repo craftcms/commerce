@@ -14,6 +14,7 @@ namespace Craft;
  * @property string $template
  * @property string $titleFormat
  * @property string $skuFormat
+ * @property string $descriptionFormat
  * @property int $fieldLayoutId
  * @property int $variantFieldLayoutId
  *
@@ -79,6 +80,7 @@ class Commerce_ProductTypeRecord extends BaseRecord
             'hasVariantTitleField' => [AttributeType::Bool,'default' => 1],
             'titleFormat' => [AttributeType::String, 'required' => true],
             'skuFormat' => AttributeType::String,
+            'descriptionFormat' => AttributeType::String,
             'template' => AttributeType::Template
         ];
     }
