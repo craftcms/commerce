@@ -49,8 +49,18 @@
     }) }}
 
     {{ forms.textField({
+        label: "Order Decription Format"|t,
+        instructions: "How this product will be described on a line item in an order. You can include tags that output properties, such as {ex1} or {ex2}"|t({ ex1: '<code>{product.title}</code>', ex2: '<code>{myVariantCustomField}</code>' }),
+        id: 'descriptionFormat',
+        class: 'ltr',
+        name: 'descriptionFormat',
+        value: productType.descriptionFormat,
+        errors: productType.getErrors('descriptionFormat')
+    }) }}
+
+    {{ forms.textField({
         label: "Automatic SKU Format"|t,
-        instructions: "What the unique auto-generated SKUs should look like, when a SKU field is submitted without a value. You can include tags that output properties, such as {ex1} or {ex2}"|t({ ex1: '<code>{product.slug}</code>', ex2: '<code>{myCustomField}</code>' }),
+        instructions: "What the unique auto-generated SKUs should look like, when a SKU field is submitted without a value. You can include tags that output properties, such as {ex1} or {ex2}"|t({ ex1: '<code>{product.slug}</code>', ex2: '<code>{myVariantCustomField}</code>' }),
         id: 'skuFormat',
         class: 'ltr',
         name: 'skuFormat',
