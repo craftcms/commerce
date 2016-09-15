@@ -100,7 +100,7 @@ class CommerceVariable
 	}
 
 	/**
-	 * @return array
+	 * @return array [countryId => [id => name]]
 	 */
 	public function getStatesArray()
 	{
@@ -108,7 +108,7 @@ class CommerceVariable
 	}
 
 	/**
-	 * @return ShippingMethod[] array
+	 * @return array
 	 */
 	public function getAvailableShippingMethods()
 	{
@@ -118,8 +118,24 @@ class CommerceVariable
 	}
 
 	/**
+	 * @return Commerce_ShippingMethodModel[]
+	 */
+	public function getShippingMethods()
+	{
+		return craft()->commerce_shippingMethods->getAllShippingMethods();
+	}
+
+	/**
+	 * @return Commerce_ShippingZoneModel[]
+	 */
+	public function getShippingZones()
+	{
+		return craft()->commerce_shippingZones->getAllShippingZones();
+	}
+
+	/**
 	 * @param bool $asList Whether we should return the payment methods as a simple list suitable for a html select box
-	 * @return Commerce_PaymentMethodModel[] array
+	 * @return Commerce_PaymentMethodModel[]
 	 */
 	public function getPaymentMethods($asList = false)
 	{
@@ -135,7 +151,7 @@ class CommerceVariable
 	}
 
 	/**
-	 * @return Commerce_ProductTypeModel[] array
+	 * @return Commerce_ProductTypeModel[]
 	 */
 	public function getProductTypes()
 	{
@@ -143,7 +159,7 @@ class CommerceVariable
 	}
 
 	/**
-	 * @return Commerce_OrderStatusModel[] array
+	 * @return Commerce_OrderStatusModel[]
 	 */
 	public function getOrderStatuses()
 	{
@@ -152,7 +168,7 @@ class CommerceVariable
 
 	/**
 	 * @param bool $asList Whether we should return the tax categories as a simple list suitable for a html select box
-	 * @return Commerce_TaxCategoryModel[] array
+	 * @return Commerce_TaxCategoryModel[]
 	 */
 	public function getTaxCategories($asList = false)
 	{
@@ -173,6 +189,14 @@ class CommerceVariable
 	public function getTaxRates()
 	{
 		return craft()->commerce_taxRates->getAllTaxRates();
+	}
+
+	/**
+	 * @return Commerce_TaxZoneModel[]
+	 */
+	public function getTaxZones()
+	{
+		return craft()->commerce_taxZones->getAllTaxZones();
 	}
 
 	/**
