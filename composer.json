@@ -55,6 +55,7 @@
 
         "dompdf/dompdf" : "0.6.1",
         "ramsey/array_column": "^1.1",
-        "snowcap/vat-validation": "dev-master"
+        "snowcap/vat-validation": "dev-master",
+        "triplepoint/php-units-of-measure": "^2.1"
     }
 }
