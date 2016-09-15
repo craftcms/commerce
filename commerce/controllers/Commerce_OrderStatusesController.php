@@ -66,7 +66,7 @@ class Commerce_OrderStatusesController extends Commerce_BaseAdminController
     {
         $this->requirePostRequest();
 
-	    $id = craft()->request->getPost('orderStatusId');
+        $id = craft()->request->getPost('orderStatusId');
         $orderStatus = craft()->commerce_orderStatuses->getOrderStatusById($id);
 
         if (!$orderStatus)

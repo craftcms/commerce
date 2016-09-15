@@ -34,18 +34,18 @@ class Commerce_TaxCategoryModel extends BaseModel
      */
     public function getTaxRates()
     {
-	    $allTaxRates = craft()->commerce_taxRates->getAllTaxRates();
-	    $taxRates = [];
-	    /** @var Commerce_TaxRateModel $rate */
-	    foreach ($allTaxRates as $rate)
-	    {
-		    if ($this->id == $rate->taxCategoryId)
-		    {
-			    $taxRates[] = $rate;
-		    }
-	    }
+        $allTaxRates = craft()->commerce_taxRates->getAllTaxRates();
+        $taxRates = [];
+        /** @var Commerce_TaxRateModel $rate */
+        foreach ($allTaxRates as $rate)
+        {
+            if ($this->id == $rate->taxCategoryId)
+            {
+                $taxRates[] = $rate;
+            }
+        }
 
-	    return $taxRates;
+        return $taxRates;
     }
 
     /**

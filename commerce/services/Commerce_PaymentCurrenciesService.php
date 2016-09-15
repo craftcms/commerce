@@ -14,7 +14,7 @@ namespace Craft;
 class Commerce_PaymentCurrenciesService extends BaseApplicationComponent
 {
 
-	private $_allCurrencies;
+    private $_allCurrencies;
 
     /**
      * @param int $id
@@ -23,13 +23,13 @@ class Commerce_PaymentCurrenciesService extends BaseApplicationComponent
      */
     public function getPaymentCurrencyById($id)
     {
-	    foreach ($this->getAllPaymentCurrencies() as $currency)
-	    {
-		    if ($currency->id == $id)
-		    {
-			    return $currency;
-		    }
-	    }
+        foreach ($this->getAllPaymentCurrencies() as $currency)
+        {
+            if ($currency->id == $id)
+            {
+                return $currency;
+            }
+        }
     }
 
     /**
@@ -56,13 +56,13 @@ class Commerce_PaymentCurrenciesService extends BaseApplicationComponent
      */
     public function getPaymentCurrencyByIso($iso)
     {
-	    foreach ($this->getAllPaymentCurrencies() as $currency)
-	    {
-		    if ($currency->iso == $iso)
-		    {
-			    return $currency;
-		    }
-	    }
+        foreach ($this->getAllPaymentCurrencies() as $currency)
+        {
+            if ($currency->iso == $iso)
+            {
+                return $currency;
+            }
+        }
     }
 
 
@@ -71,55 +71,55 @@ class Commerce_PaymentCurrenciesService extends BaseApplicationComponent
      */
     public function getAllPaymentCurrencies()
     {
-	    if (!isset($this->_allCurrencies))
-	    {
-		    $records = Commerce_PaymentCurrencyRecord::model()->findAll(['order' => 'name']);
-		    $this->_allCurrencies = Commerce_PaymentCurrencyModel::populateModels($records);
-	    }
+        if (!isset($this->_allCurrencies))
+        {
+            $records = Commerce_PaymentCurrencyRecord::model()->findAll(['order' => 'name']);
+            $this->_allCurrencies = Commerce_PaymentCurrencyModel::populateModels($records);
+        }
 
-	    return $this->_allCurrencies;
+        return $this->_allCurrencies;
     }
 
-	/**
-	 * Returns the default currency all prices are entered as.
-	 *
-	 * @return Commerce_PaymentCurrencyModel
-	 */
-	public function getDefaultPaymentCurrency()
-	{
-		foreach ($this->getAllPaymentCurrencies() as $currency)
-		{
-			if ($currency->default)
-			{
-				return $currency;
-			}
-		}
-	}
+    /**
+     * Returns the default currency all prices are entered as.
+     *
+     * @return Commerce_PaymentCurrencyModel
+     */
+    public function getDefaultPaymentCurrency()
+    {
+        foreach ($this->getAllPaymentCurrencies() as $currency)
+        {
+            if ($currency->default)
+            {
+                return $currency;
+            }
+        }
+    }
 
-	/**
-	 * Return the default currencies ISO code as a string.
-	 *
-	 * @return string
-	 */
-	public function getDefaultPaymentCurrencyIso()
-	{
-		return $this->getDefaultPaymentCurrency()->iso;
-	}
+    /**
+     * Return the default currencies ISO code as a string.
+     *
+     * @return string
+     */
+    public function getDefaultPaymentCurrencyIso()
+    {
+        return $this->getDefaultPaymentCurrency()->iso;
+    }
 
-	/**
-	 * @param float $amount This is the unit of price in the default store currency
-	 * @param string $currency
-	 *
-	 * @return float
-	 */
-	public function convert($amount, $currency)
-	{
-		$destinationCurrency = craft()->commerce_paymentCurrencies->getPaymentCurrencyByIso($currency);
+    /**
+     * @param float $amount This is the unit of price in the default store currency
+     * @param string $currency
+     *
+     * @return float
+     */
+    public function convert($amount, $currency)
+    {
+        $destinationCurrency = craft()->commerce_paymentCurrencies->getPaymentCurrencyByIso($currency);
 
-		return $amount * $destinationCurrency->rate;
-	}
+        return $amount * $destinationCurrency->rate;
+    }
 
-	/**
+    /**
      * @param Commerce_PaymentCurrencyModel $model
      *
      * @return bool

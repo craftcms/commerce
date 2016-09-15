@@ -35,315 +35,315 @@ namespace Craft;
  */
 class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfaces\ShippingRule
 {
-	/**
-	 * @return bool
-	 */
-	public function getIsEnabled()
-	{
-		return $this->enabled;
-	}
+    /**
+     * @return bool
+     */
+    public function getIsEnabled()
+    {
+        return $this->enabled;
+    }
 
-	/**
-	 * @deprecated
-	 * @return Commerce_CountryModel|null
-	 */
-	public function getCountry()
-	{
+    /**
+     * @deprecated
+     * @return Commerce_CountryModel|null
+     */
+    public function getCountry()
+    {
 
-		craft()->deprecator->log('Commerce_ShippingRuleModel::getCountry():removed', 'You should no longer try to get a single country (`$rule->getCountry()` or `$rule->country`) from a shipping rule, since shipping zones are now used which support multiple countries');
+        craft()->deprecator->log('Commerce_ShippingRuleModel::getCountry():removed', 'You should no longer try to get a single country (`$rule->getCountry()` or `$rule->country`) from a shipping rule, since shipping zones are now used which support multiple countries');
 
-		$zone = $this->getShippingZone();
+        $zone = $this->getShippingZone();
 
-		if ($zone && $zone->countryBased)
-		{
-			$countries = craft()->commerce_shippingZones->getCountriesByShippingZoneId($zone->id);
+        if ($zone && $zone->countryBased)
+        {
+            $countries = craft()->commerce_shippingZones->getCountriesByShippingZoneId($zone->id);
 
-			if (!empty($countries))
-			{
-				return ArrayHelper::getFirstValue($countries);
-			}
-		}
+            if (!empty($countries))
+            {
+                return ArrayHelper::getFirstValue($countries);
+            }
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	/**
-	 * @deprecated
-	 * @return Commerce_StateModel|null
-	 */
-	public function getState()
-	{
-		craft()->deprecator->log('Commerce_ShippingRuleModel::getState():removed', 'You should no longer try to get a single state (`$rule->getState()` or `$rule->state`) from a shipping rule, since shipping zones are now used which support multiple states.');
+    /**
+     * @deprecated
+     * @return Commerce_StateModel|null
+     */
+    public function getState()
+    {
+        craft()->deprecator->log('Commerce_ShippingRuleModel::getState():removed', 'You should no longer try to get a single state (`$rule->getState()` or `$rule->state`) from a shipping rule, since shipping zones are now used which support multiple states.');
 
-		$zone = $this->getShippingZone();
+        $zone = $this->getShippingZone();
 
-		if ($zone && !$zone->countryBased)
-		{
-			$states = craft()->commerce_shippingZones->getStatesByShippingZoneId($zone->id);
+        if ($zone && !$zone->countryBased)
+        {
+            $states = craft()->commerce_shippingZones->getStatesByShippingZoneId($zone->id);
 
-			if (!empty($states))
-			{
-				return ArrayHelper::getFirstValue($states);
-			}
-		}
+            if (!empty($states))
+            {
+                return ArrayHelper::getFirstValue($states);
+            }
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	public function getShippingZone()
-	{
-		return craft()->commerce_shippingZones->getShippingZoneById($this->shippingZoneId);
-	}
+    public function getShippingZone()
+    {
+        return craft()->commerce_shippingZones->getShippingZoneById($this->shippingZoneId);
+    }
 
-	/**
-	 * @param Commerce_OrderModel $order
-	 *
-	 * @return bool
-	 */
-	public function matchOrder(Commerce_OrderModel $order)
-	{
-		if (!$this->enabled)
-		{
-			return false;
-		}
+    /**
+     * @param Commerce_OrderModel $order
+     *
+     * @return bool
+     */
+    public function matchOrder(Commerce_OrderModel $order)
+    {
+        if (!$this->enabled)
+        {
+            return false;
+        }
 
-		$floatFields = ['minTotal', 'maxTotal', 'minWeight', 'maxWeight'];
-		foreach ($floatFields as $field)
-		{
-			$this->$field *= 1;
-		}
+        $floatFields = ['minTotal', 'maxTotal', 'minWeight', 'maxWeight'];
+        foreach ($floatFields as $field)
+        {
+            $this->$field *= 1;
+        }
 
-		$shippingZone = $this->getShippingZone();
-		$shippingAddress = $order->getShippingAddress();
+        $shippingZone = $this->getShippingZone();
+        $shippingAddress = $order->getShippingAddress();
 
-		if ($shippingZone && !$shippingAddress)
-		{
-			return false;
-		}
+        if ($shippingZone && !$shippingAddress)
+        {
+            return false;
+        }
 
-		if ($shippingZone)
-		{
-			if ($shippingZone->countryBased)
-			{
-				$countryIds = $shippingZone->getCountryIds();
+        if ($shippingZone)
+        {
+            if ($shippingZone->countryBased)
+            {
+                $countryIds = $shippingZone->getCountryIds();
 
-				if (!in_array($shippingAddress->countryId, $countryIds))
-				{
-					return false;
-				}
-			}
-			else
-			{
-				$states = [];
-				$countries = [];
-				foreach ($shippingZone->states as $state)
-				{
-					$states[] = $state->id;
-					$countries[] = $state->countryId;
-				}
+                if (!in_array($shippingAddress->countryId, $countryIds))
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                $states = [];
+                $countries = [];
+                foreach ($shippingZone->states as $state)
+                {
+                    $states[] = $state->id;
+                    $countries[] = $state->countryId;
+                }
 
-				$countryAndStateMatch = (bool) (in_array($shippingAddress->countryId, $countries) && in_array($shippingAddress->stateId, $states));
-				$countryAndStateNameMatch = (bool) (in_array($shippingAddress->countryId, $countries) && strcasecmp($state->name, $shippingAddress->getStateText()) == 0);
-				$countryAndStateAbbrMatch = (bool) (in_array($shippingAddress->countryId, $countries) && strcasecmp($state->abbreviation, $shippingAddress->getStateText()) == 0);
+                $countryAndStateMatch = (bool) (in_array($shippingAddress->countryId, $countries) && in_array($shippingAddress->stateId, $states));
+                $countryAndStateNameMatch = (bool) (in_array($shippingAddress->countryId, $countries) && strcasecmp($state->name, $shippingAddress->getStateText()) == 0);
+                $countryAndStateAbbrMatch = (bool) (in_array($shippingAddress->countryId, $countries) && strcasecmp($state->abbreviation, $shippingAddress->getStateText()) == 0);
 
-				if (!($countryAndStateMatch || $countryAndStateNameMatch || $countryAndStateAbbrMatch))
-				{
-					return false;
-				}
-			}
-		}
+                if (!($countryAndStateMatch || $countryAndStateNameMatch || $countryAndStateAbbrMatch))
+                {
+                    return false;
+                }
+            }
+        }
 
-		// order qty rules are inclusive (min <= x <= max)
-		if ($this->minQty && $this->minQty > $order->totalQty)
-		{
-			return false;
-		}
-		if ($this->maxQty && $this->maxQty < $order->totalQty)
-		{
-			return false;
-		}
+        // order qty rules are inclusive (min <= x <= max)
+        if ($this->minQty && $this->minQty > $order->totalQty)
+        {
+            return false;
+        }
+        if ($this->maxQty && $this->maxQty < $order->totalQty)
+        {
+            return false;
+        }
 
-		// order total rules exclude maximum limit (min <= x < max)
-		if ($this->minTotal && $this->minTotal > $order->itemTotal)
-		{
-			return false;
-		}
-		if ($this->maxTotal && $this->maxTotal <= $order->itemTotal)
-		{
-			return false;
-		}
+        // order total rules exclude maximum limit (min <= x < max)
+        if ($this->minTotal && $this->minTotal > $order->itemTotal)
+        {
+            return false;
+        }
+        if ($this->maxTotal && $this->maxTotal <= $order->itemTotal)
+        {
+            return false;
+        }
 
-		// order weight rules exclude maximum limit (min <= x < max)
-		if ($this->minWeight && $this->minWeight > $order->totalWeight)
-		{
-			return false;
-		}
-		if ($this->maxWeight && $this->maxWeight <= $order->totalWeight)
-		{
-			return false;
-		}
+        // order weight rules exclude maximum limit (min <= x < max)
+        if ($this->minWeight && $this->minWeight > $order->totalWeight)
+        {
+            return false;
+        }
+        if ($this->maxWeight && $this->maxWeight <= $order->totalWeight)
+        {
+            return false;
+        }
 
-		// all rules match
-		return true;
-	}
+        // all rules match
+        return true;
+    }
 
-	/**
-	 * @return array
-	 */
-	public function getOptions()
-	{
-		return $this->getAttributes();
-	}
+    /**
+     * @return array
+     */
+    public function getOptions()
+    {
+        return $this->getAttributes();
+    }
 
-	/**
-	 * @return float
-	 */
-	public function getPercentageRate()
-	{
-		return $this->getAttribute('percentageRate');
-	}
+    /**
+     * @return float
+     */
+    public function getPercentageRate()
+    {
+        return $this->getAttribute('percentageRate');
+    }
 
-	/**
-	 * @return float
-	 */
-	public function getPerItemRate()
-	{
-		return $this->getAttribute('perItemRate');
-	}
+    /**
+     * @return float
+     */
+    public function getPerItemRate()
+    {
+        return $this->getAttribute('perItemRate');
+    }
 
-	/**
-	 * @return float
-	 */
-	public function getWeightRate()
-	{
-		return $this->getAttribute('weightRate');
-	}
+    /**
+     * @return float
+     */
+    public function getWeightRate()
+    {
+        return $this->getAttribute('weightRate');
+    }
 
-	/**
-	 * @return float
-	 */
-	public function getBaseRate()
-	{
-		return $this->getAttribute('baseRate');
-	}
+    /**
+     * @return float
+     */
+    public function getBaseRate()
+    {
+        return $this->getAttribute('baseRate');
+    }
 
-	/**
-	 * @return float
-	 */
-	public function getMaxRate()
-	{
-		return $this->getAttribute('maxRate');
-	}
+    /**
+     * @return float
+     */
+    public function getMaxRate()
+    {
+        return $this->getAttribute('maxRate');
+    }
 
-	/**
-	 * @return float
-	 */
-	public function getMinRate()
-	{
-		return $this->getAttribute('minRate');
-	}
+    /**
+     * @return float
+     */
+    public function getMinRate()
+    {
+        return $this->getAttribute('minRate');
+    }
 
-	/**
-	 * @return string
-	 */
-	public function getDescription()
-	{
-		return $this->getAttribute('description');
-	}
+    /**
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->getAttribute('description');
+    }
 
-	/**
-	 * @return array
-	 */
-	protected function defineAttributes()
-	{
-		return [
-			'id'             => [AttributeType::Number],
-			'name'           => [AttributeType::String, 'required' => true],
-			'description'    => [AttributeType::String],
-			'shippingZoneId' => [AttributeType::Number, 'default' => null],
-			'methodId'       => [AttributeType::Number, 'required' => true],
-			'priority'       => [
-				AttributeType::Number,
-				'required' => true,
-				'default'  => 0
-			],
-			'enabled'        => [
-				AttributeType::Bool,
-				'required' => true,
-				'default'  => true
-			],
-			//filters
-			'minQty'         => [
-				AttributeType::Number,
-				'required' => true,
-				'default'  => 0
-			],
-			'maxQty'         => [
-				AttributeType::Number,
-				'required' => true,
-				'default'  => 0
-			],
-			'minTotal'       => [
-				AttributeType::Number,
-				'required' => true,
-				'default'  => 0,
-				'decimals' => 4
-			],
-			'maxTotal'       => [
-				AttributeType::Number,
-				'required' => true,
-				'default'  => 0,
-				'decimals' => 4
-			],
-			'minWeight'      => [
-				AttributeType::Number,
-				'required' => true,
-				'default'  => 0,
-				'decimals' => 4
-			],
-			'maxWeight'      => [
-				AttributeType::Number,
-				'required' => true,
-				'default'  => 0,
-				'decimals' => 4
-			],
-			//charges
-			'baseRate'       => [
-				AttributeType::Number,
-				'required' => true,
-				'default'  => 0,
-				'decimals' => 4
-			],
-			'perItemRate'    => [
-				AttributeType::Number,
-				'required' => true,
-				'default'  => 0,
-				'decimals' => 4
-			],
-			'weightRate'     => [
-				AttributeType::Number,
-				'required' => true,
-				'default'  => 0,
-				'decimals' => 4
-			],
-			'percentageRate' => [
-				AttributeType::Number,
-				'required' => true,
-				'default'  => 0,
-				'decimals' => 4
-			],
-			'minRate'        => [
-				AttributeType::Number,
-				'required' => true,
-				'default'  => 0,
-				'decimals' => 4
-			],
-			'maxRate'        => [
-				AttributeType::Number,
-				'required' => true,
-				'default'  => 0,
-				'decimals' => 4
-			],
-		];
-	}
+    /**
+     * @return array
+     */
+    protected function defineAttributes()
+    {
+        return [
+            'id'             => [AttributeType::Number],
+            'name'           => [AttributeType::String, 'required' => true],
+            'description'    => [AttributeType::String],
+            'shippingZoneId' => [AttributeType::Number, 'default' => null],
+            'methodId'       => [AttributeType::Number, 'required' => true],
+            'priority'       => [
+                AttributeType::Number,
+                'required' => true,
+                'default'  => 0
+            ],
+            'enabled'        => [
+                AttributeType::Bool,
+                'required' => true,
+                'default'  => true
+            ],
+            //filters
+            'minQty'         => [
+                AttributeType::Number,
+                'required' => true,
+                'default'  => 0
+            ],
+            'maxQty'         => [
+                AttributeType::Number,
+                'required' => true,
+                'default'  => 0
+            ],
+            'minTotal'       => [
+                AttributeType::Number,
+                'required' => true,
+                'default'  => 0,
+                'decimals' => 4
+            ],
+            'maxTotal'       => [
+                AttributeType::Number,
+                'required' => true,
+                'default'  => 0,
+                'decimals' => 4
+            ],
+            'minWeight'      => [
+                AttributeType::Number,
+                'required' => true,
+                'default'  => 0,
+                'decimals' => 4
+            ],
+            'maxWeight'      => [
+                AttributeType::Number,
+                'required' => true,
+                'default'  => 0,
+                'decimals' => 4
+            ],
+            //charges
+            'baseRate'       => [
+                AttributeType::Number,
+                'required' => true,
+                'default'  => 0,
+                'decimals' => 4
+            ],
+            'perItemRate'    => [
+                AttributeType::Number,
+                'required' => true,
+                'default'  => 0,
+                'decimals' => 4
+            ],
+            'weightRate'     => [
+                AttributeType::Number,
+                'required' => true,
+                'default'  => 0,
+                'decimals' => 4
+            ],
+            'percentageRate' => [
+                AttributeType::Number,
+                'required' => true,
+                'default'  => 0,
+                'decimals' => 4
+            ],
+            'minRate'        => [
+                AttributeType::Number,
+                'required' => true,
+                'default'  => 0,
+                'decimals' => 4
+            ],
+            'maxRate'        => [
+                AttributeType::Number,
+                'required' => true,
+                'default'  => 0,
+                'decimals' => 4
+            ],
+        ];
+    }
 }

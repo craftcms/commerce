@@ -75,31 +75,31 @@ class Commerce_TransactionsService extends BaseApplicationComponent
      *
      * @return Commerce_TransactionModel
      */
-	public function createTransaction(Commerce_OrderModel $order)
-	{
-		$paymentCurrency = craft()->commerce_paymentCurrencies->getPaymentCurrencyByIso($order->paymentCurrency);
-		$currency = craft()->commerce_paymentCurrencies->getPaymentCurrencyByIso($order->currency);
+    public function createTransaction(Commerce_OrderModel $order)
+    {
+        $paymentCurrency = craft()->commerce_paymentCurrencies->getPaymentCurrencyByIso($order->paymentCurrency);
+        $currency = craft()->commerce_paymentCurrencies->getPaymentCurrencyByIso($order->currency);
 
-		$paymentAmount = $order->outstandingBalance() * $paymentCurrency->rate;
+        $paymentAmount = $order->outstandingBalance() * $paymentCurrency->rate;
 
-		$transaction = new Commerce_TransactionModel;
-		$transaction->status = Commerce_TransactionRecord::STATUS_PENDING;
-		$transaction->amount = $order->outstandingBalance();
-		$transaction->orderId = $order->id;
-		$transaction->currency = $currency->iso;
-		$transaction->paymentAmount = CommerceCurrencyHelper::round($paymentAmount, $paymentCurrency);
-		$transaction->paymentCurrency = $paymentCurrency->iso;
-		$transaction->paymentRate = $paymentCurrency->rate;
-		$transaction->paymentMethodId = $order->paymentMethodId;
+        $transaction = new Commerce_TransactionModel;
+        $transaction->status = Commerce_TransactionRecord::STATUS_PENDING;
+        $transaction->amount = $order->outstandingBalance();
+        $transaction->orderId = $order->id;
+        $transaction->currency = $currency->iso;
+        $transaction->paymentAmount = CommerceCurrencyHelper::round($paymentAmount, $paymentCurrency);
+        $transaction->paymentCurrency = $paymentCurrency->iso;
+        $transaction->paymentRate = $paymentCurrency->rate;
+        $transaction->paymentMethodId = $order->paymentMethodId;
 
-		$user = craft()->userSession->getUser();
-		if ($user)
-		{
-			$transaction->userId = $user->id;
-		}
+        $user = craft()->userSession->getUser();
+        if ($user)
+        {
+            $transaction->userId = $user->id;
+        }
 
-		return $transaction;
-	}
+        return $transaction;
+    }
 
     /**
      * @param Commerce_TransactionModel $model

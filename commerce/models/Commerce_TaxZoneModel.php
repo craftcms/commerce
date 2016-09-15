@@ -30,24 +30,24 @@ class Commerce_TaxZoneModel extends BaseModel
         return UrlHelper::getCpUrl('commerce/settings/taxzones/' . $this->id);
     }
 
-	/**
-	 * @return Commerce_TaxRateModel[]
-	 */
-	public function getTaxRates()
-	{
-		$allTaxRates = craft()->commerce_taxRates->getAllTaxRates();
-		$taxRates = [];
-		/** @var Commerce_TaxRateModel $rate */
-		foreach ($allTaxRates as $rate)
-		{
-			if ($this->id == $rate->taxZoneId)
-			{
-				$taxRates[] = $rate;
-			}
-		}
+    /**
+     * @return Commerce_TaxRateModel[]
+     */
+    public function getTaxRates()
+    {
+        $allTaxRates = craft()->commerce_taxRates->getAllTaxRates();
+        $taxRates = [];
+        /** @var Commerce_TaxRateModel $rate */
+        foreach ($allTaxRates as $rate)
+        {
+            if ($this->id == $rate->taxZoneId)
+            {
+                $taxRates[] = $rate;
+            }
+        }
 
-		return $taxRates;
-	}
+        return $taxRates;
+    }
 
     /**
      * @return array

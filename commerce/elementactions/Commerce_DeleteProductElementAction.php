@@ -13,70 +13,70 @@ namespace Craft;
  */
 class Commerce_DeleteProductElementAction extends BaseElementAction
 {
-	// Public Methods
-	// =========================================================================
+    // Public Methods
+    // =========================================================================
 
-	/**
-	 * @inheritDoc IComponentType::getName()
-	 *
-	 * @return string
-	 */
-	public function getName()
-	{
-		return Craft::t('Delete…');
-	}
+    /**
+     * @inheritDoc IComponentType::getName()
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return Craft::t('Delete…');
+    }
 
-	/**
-	 * @inheritDoc IElementAction::isDestructive()
-	 *
-	 * @return bool
-	 */
-	public function isDestructive()
-	{
-		return true;
-	}
+    /**
+     * @inheritDoc IElementAction::isDestructive()
+     *
+     * @return bool
+     */
+    public function isDestructive()
+    {
+        return true;
+    }
 
-	/**
-	 * @inheritDoc IElementAction::getConfirmationMessage()
-	 *
-	 * @return string|null
-	 */
-	public function getConfirmationMessage()
-	{
-		return $this->getParams()->confirmationMessage;
-	}
+    /**
+     * @inheritDoc IElementAction::getConfirmationMessage()
+     *
+     * @return string|null
+     */
+    public function getConfirmationMessage()
+    {
+        return $this->getParams()->confirmationMessage;
+    }
 
-	/**
-	 * @inheritDoc IElementAction::performAction()
-	 *
-	 * @param ElementCriteriaModel $criteria
-	 *
-	 * @return bool
-	 */
-	public function performAction(ElementCriteriaModel $criteria)
-	{
-		foreach($criteria->find() as $product){
-			craft()->commerce_products->deleteProduct($product);
-		}
+    /**
+     * @inheritDoc IElementAction::performAction()
+     *
+     * @param ElementCriteriaModel $criteria
+     *
+     * @return bool
+     */
+    public function performAction(ElementCriteriaModel $criteria)
+    {
+        foreach($criteria->find() as $product){
+            craft()->commerce_products->deleteProduct($product);
+        }
 
-		$this->setMessage($this->getParams()->successMessage);
+        $this->setMessage($this->getParams()->successMessage);
 
-		return true;
-	}
+        return true;
+    }
 
-	// Protected Methods
-	// =========================================================================
+    // Protected Methods
+    // =========================================================================
 
-	/**
-	 * @inheritDoc BaseElementAction::defineParams()
-	 *
-	 * @return array
-	 */
-	protected function defineParams()
-	{
-		return array(
-			'confirmationMessage' => array(AttributeType::String),
-			'successMessage'      => array(AttributeType::String),
-		);
-	}
+    /**
+     * @inheritDoc BaseElementAction::defineParams()
+     *
+     * @return array
+     */
+    protected function defineParams()
+    {
+        return array(
+            'confirmationMessage' => array(AttributeType::String),
+            'successMessage'      => array(AttributeType::String),
+        );
+    }
 }
