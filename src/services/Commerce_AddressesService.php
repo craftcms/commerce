@@ -100,6 +100,20 @@ class Commerce_AddressesService extends BaseApplicationComponent
             $addressRecord->stateName = $addressModel->stateName;
         }
 
+        /** @var Commerce_CountryModel $state */
+        $country = craft()->commerce_countries->getCountryById($addressRecord->countryId);
+        /** @var Commerce_StateModel $state */
+        $state = craft()->commerce_states->getStateById($addressRecord->stateId);
+
+        // Check country’s stateRequired option
+        if($country)
+        {
+            if ($country->stateRequired && (!$state || ($state && $state->countryId !== $country->id)))
+            {
+                $addressModel->addError('stateId', Craft::t('Country requires a related state selected.'));
+            }
+        }
+
         $addressRecord->validate();
         $addressModel->addErrors($addressRecord->getErrors());
 
