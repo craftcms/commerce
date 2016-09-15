@@ -40,27 +40,27 @@ class Commerce_UpdateOrderStatusElementAction extends BaseElementAction
         $js = <<<EOT
 (function()
 {
-	var trigger = new Craft.ElementActionTrigger({
-		handle: 'Commerce_UpdateOrderStatus',
-		batch: true,
-		activate: function(\$selectedItems)
-		{
-		    var currentSourceStatusHandle = Craft.elementIndex.sourceKey.split(':')[1];
-		    var currentOrderStatus = null;
-		    var orderStatuses = $orderStatuses;
-		    for (i = 0; i < orderStatuses.length; i++) {
-		        if(orderStatuses[i].handle == currentSourceStatusHandle){
-		            currentOrderStatus = orderStatuses[i];
-		        }
-		    }
+    var trigger = new Craft.ElementActionTrigger({
+        handle: 'Commerce_UpdateOrderStatus',
+        batch: true,
+        activate: function(\$selectedItems)
+        {
+            var currentSourceStatusHandle = Craft.elementIndex.sourceKey.split(':')[1];
+            var currentOrderStatus = null;
+            var orderStatuses = $orderStatuses;
+            for (i = 0; i < orderStatuses.length; i++) {
+                if(orderStatuses[i].handle == currentSourceStatusHandle){
+                    currentOrderStatus = orderStatuses[i];
+                }
+            }
             var modal = new Craft.Commerce.UpdateOrderStatusModal(currentOrderStatus,orderStatuses, {
                 onSubmit: function(data){
                    Craft.elementIndex.submitAction('Commerce_UpdateOrderStatus', data);
                    modal.hide();
                 }
             });
-		}
-	});
+        }
+    });
 })();
 EOT;
 

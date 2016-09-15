@@ -51,7 +51,7 @@ class Commerce_PaymentCurrencyRecord extends BaseRecord
                 'maxLength' => 3,
                 'minLength' => 3
             ],
-	        'default' => AttributeType::Bool,
+            'default' => AttributeType::Bool,
             'rate' => [
                 AttributeType::Number,
                 'decimals' => 4,

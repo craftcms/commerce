@@ -87,23 +87,23 @@ class Commerce_OrderModel extends BaseElementModel
      */
     private $_orderAdjustments;
 
-	/**
-	 * We need to have getters functions have maximum priority.
-	 * This was in the ModelRelationTrait so it needs to stay for backwards compatibility.
-	 * @param string $name
-	 *
-	 * @return mixed
-	 */
-	public function __get($name)
-	{
-		$getter = 'get'.$name;
-		if (method_exists($this, $getter))
-		{
-			return $this->$getter();
-		}
+    /**
+     * We need to have getters functions have maximum priority.
+     * This was in the ModelRelationTrait so it needs to stay for backwards compatibility.
+     * @param string $name
+     *
+     * @return mixed
+     */
+    public function __get($name)
+    {
+        $getter = 'get'.$name;
+        if (method_exists($this, $getter))
+        {
+            return $this->$getter();
+        }
 
-		return parent::__get($name);
-	}
+        return parent::__get($name);
+    }
 
     /**
      * @return bool
@@ -190,7 +190,7 @@ class Commerce_OrderModel extends BaseElementModel
      */
     public function getFieldLayout()
     {
-	    /** @var Commerce_OrderSettingsModel $orderSettings */
+        /** @var Commerce_OrderSettingsModel $orderSettings */
         $orderSettings = craft()->commerce_orderSettings->getOrderSettingByHandle('order');
 
         if ($orderSettings)
@@ -251,7 +251,7 @@ class Commerce_OrderModel extends BaseElementModel
 
         $totalPaid = CommerceCurrencyHelper::round($this->totalPaid);
         $totalPrice = CommerceCurrencyHelper::round($this->totalPrice);
-	    
+        
         return $totalPrice - $totalPaid;
     }
 
@@ -563,9 +563,9 @@ class Commerce_OrderModel extends BaseElementModel
         return craft()->commerce_orderHistories->getAllOrderHistoriesByOrderId($this->id);
     }
 
-	/**
-	 * @return Commerce_TransactionModel[]
-	 */
+    /**
+     * @return Commerce_TransactionModel[]
+     */
     public function getTransactions()
     {
         return craft()->commerce_transactions->getAllTransactionsByOrderId($this->id);

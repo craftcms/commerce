@@ -47,14 +47,14 @@ class Commerce_CreateDiscountElementAction extends BaseElementAction
         $js = <<<EOT
 (function()
 {
-	var trigger = new Craft.ElementActionTrigger({
-		handle: 'Commerce_CreateDiscount',
-		batch: true,
-		activate: function(\$selectedItems)
-		{
-			Craft.redirectTo(Craft.getUrl('commerce/promotions/discounts/new', 'productIds='+Craft.elementIndex.getSelectedElementIds().join('|')));
-		}
-	});
+    var trigger = new Craft.ElementActionTrigger({
+        handle: 'Commerce_CreateDiscount',
+        batch: true,
+        activate: function(\$selectedItems)
+        {
+            Craft.redirectTo(Craft.getUrl('commerce/promotions/discounts/new', 'productIds='+Craft.elementIndex.getSelectedElementIds().join('|')));
+        }
+    });
 })();
 EOT;
 

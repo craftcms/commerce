@@ -31,10 +31,10 @@ class Commerce_SettingsModel extends BaseModel
      */
     public $emailSenderNamePlaceholder;
 
-	/**currency moved from plugin settings to currency table in DB.
-	 *
-	 * @return string
-	 */
+    /**currency moved from plugin settings to currency table in DB.
+     *
+     * @return string
+     */
     public function getDefaultCurrency()
     {
         craft()->deprecator->log('Commerce_SettingsModel::defaultCurrency:removed', 'You should no longer use `craft.commerce.settings.defaultCurrency`  to get the store currency. Use `craft.commerce.defaultCurrency`.');

@@ -25,15 +25,15 @@ class Commerce_CustomerModel extends BaseModel
 {
     private $_user;
 
-	/*
-	 * Returns the email address of the customer as the string output.
-	 *
-	 * @return string
-	 */
-	public function __toString()
-	{
-		return (string)$this->getAttribute('email');
-	}
+    /*
+     * Returns the email address of the customer as the string output.
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return (string)$this->getAttribute('email');
+    }
 
     /**
      * Returns the user element associated with this customer.

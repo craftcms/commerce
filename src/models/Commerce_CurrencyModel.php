@@ -22,39 +22,39 @@ use JsonSerializable;
 class Commerce_CurrencyModel extends BaseModel implements JsonSerializable
 {
 
-	/**
-	 * @return string
-	 */
-	function __toString()
-	{
-		return $this->iso;
-	}
+    /**
+     * @return string
+     */
+    function __toString()
+    {
+        return $this->iso;
+    }
 
-	/**
-	 * @return array
-	 */
-	function jsonSerialize()
-	{
-		$data = [];
-		$data['alphabeticCode'] = $this->getAttribute('alphabeticCode');
-		$data['currency'] = $this->getAttribute('currency');
-		$data['entity'] = $this->getAttribute('entity');
-		$data['minorUnit'] = $this->getAttribute('minorUnit');
-		$data['numericCode'] = $this->getAttribute('numericCode');
+    /**
+     * @return array
+     */
+    function jsonSerialize()
+    {
+        $data = [];
+        $data['alphabeticCode'] = $this->getAttribute('alphabeticCode');
+        $data['currency'] = $this->getAttribute('currency');
+        $data['entity'] = $this->getAttribute('entity');
+        $data['minorUnit'] = $this->getAttribute('minorUnit');
+        $data['numericCode'] = $this->getAttribute('numericCode');
 
-		return $data;
-	}
+        return $data;
+    }
 
-	/**
-	 * @return array
-	 */
-	protected function defineAttributes()
-	{
-		return ['alphabeticCode' => AttributeType::String,
-		        'currency'       => AttributeType::String,
-		        'entity'         => AttributeType::String,
-		        'minorUnit'      => AttributeType::Number,
-		        'numericCode'    => AttributeType::Number];
-	}
+    /**
+     * @return array
+     */
+    protected function defineAttributes()
+    {
+        return ['alphabeticCode' => AttributeType::String,
+                'currency'       => AttributeType::String,
+                'entity'         => AttributeType::String,
+                'minorUnit'      => AttributeType::Number,
+                'numericCode'    => AttributeType::Number];
+    }
 
 }

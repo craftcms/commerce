@@ -63,7 +63,7 @@ class Commerce_GatewaysService extends BaseApplicationComponent
      */
     private function _getGatewayClasses()
     {
-	    $classes = [
+        $classes = [
             '\Commerce\Gateways\Omnipay\AuthorizeNet_AIM_GatewayAdapter',
             '\Commerce\Gateways\Omnipay\AuthorizeNet_SIM_GatewayAdapter',
             '\Commerce\Gateways\Omnipay\Buckaroo_Ideal_GatewayAdapter',
