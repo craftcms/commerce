@@ -198,7 +198,7 @@
     ) }}
 
 	{{ forms.checkboxField({
-		label: "Include in Price"|t,
+		label: "This tax is already included in the entered prices of all products."|t,
 		name: 'include',
 		value: 1,
 		checked: taxRate.include,
@@ -206,7 +206,7 @@
 	}) }}
 
 	{{ forms.checkboxField({
-		label: "This is a VAT tax"|t,
+		label: "Do not apply this tax when a valid VAT ID is supplied on the shipping address 'Business Tax ID' field."|t,
 		name: 'isVat',
 		value: 1,
 		checked: taxRate.isVat,
