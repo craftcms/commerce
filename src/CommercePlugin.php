@@ -254,7 +254,7 @@ class CommercePlugin extends BasePlugin
     {
         if (version_compare(craft()->getVersion(), '2.6', '<')) {
             // No way to gracefully handle this, so throw an Exception.
-            throw new Exception('Craft Commerce 1.1 requires Craft CMS 2.6+ in order to run.');
+            throw new Exception('Craft Commerce 1.2 requires Craft CMS 2.6+ in order to run.');
         }
 
         if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 50400) {
@@ -337,10 +337,11 @@ class CommercePlugin extends BasePlugin
     }
 
     /**
-     * Adds alerts to the CP.
+     * Adds alerts to the control panel
+     * @param $path
+     * @param $fetch
      *
-     * @param string|null $path
-     * @param bool        $fetch
+     * @return array|null
      */
     public function getCpAlerts($path, $fetch)
     {
