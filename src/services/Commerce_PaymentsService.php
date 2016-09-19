@@ -628,6 +628,7 @@ EOF;
             $transaction->status = Commerce_TransactionRecord::STATUS_FAILED;
         }
 
+        $transaction->response = $response->getData();
         $transaction->reference = $response->getTransactionReference();
         $transaction->message = $response->getMessage();
 
@@ -894,6 +895,7 @@ EOF;
         }
 
 
+        $transaction->response = $response->getData();
         $transaction->reference = $request->getTransactionReference();
         $transaction->message = $request->getMessage();
         $this->saveTransaction($transaction);
