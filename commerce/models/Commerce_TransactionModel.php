@@ -102,18 +102,16 @@ class Commerce_TransactionModel extends BaseModel
     public function canRefund()
     {
         // can only refund purchase or capture transactions
-        if (!in_array($this->type, [
-                Commerce_TransactionRecord::TYPE_PURCHASE,
-                Commerce_TransactionRecord::TYPE_CAPTURE
-            ]) || $this->status != Commerce_TransactionRecord::STATUS_SUCCESS
-        ) {
+        $noRefundTransactions = [Commerce_TransactionRecord::TYPE_PURCHASE, Commerce_TransactionRecord::TYPE_CAPTURE];
+        if (!in_array($this->type, $noRefundTransactions) || $this->status != Commerce_TransactionRecord::STATUS_SUCCESS) {
             return false;
         }
 
         // check gateway supports refund
         try {
             $gateway = $this->paymentMethod->getGateway();
-            if (!$gateway || !$gateway->supportsRefund()) {
+            $supportsRefund = $gateway->supportsRefund();
+            if (!$gateway || !$supportsRefund) {
                 return false;
             }
         } catch (OmnipayException $e) {
