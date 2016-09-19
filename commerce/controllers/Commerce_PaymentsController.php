@@ -181,7 +181,6 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
         {
             $order->returnUrl = craft()->templates->renderObjectTemplate($returnUrl, $order);
             $order->cancelUrl = craft()->templates->renderObjectTemplate($cancelUrl, $order);
-            craft()->commerce_orders->saveOrder($order);
         }
 
         $paymentForm->validate();

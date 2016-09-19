@@ -633,11 +633,6 @@ EOF;
         $transaction->message = $response->getMessage();
 
         $this->saveTransaction($transaction);
-
-        if ($response->isSuccessful())
-        {
-            craft()->commerce_orders->updateOrderPaidTotal($transaction->order);
-        }
     }
 
     /**
@@ -779,8 +774,6 @@ EOF;
         {
             if ($transaction->status == Commerce_TransactionRecord::STATUS_SUCCESS)
             {
-                // If we already have completed this transaction, make sure the order total is correct
-                craft()->commerce_orders->updateOrderPaidTotal($order);
                 return true;
             }
             else
@@ -819,13 +812,11 @@ EOF;
             // Some gateways response might be a redirect on complete payment
             if ($success && $redirect)
             {
-                craft()->commerce_orders->updateOrderPaidTotal($order);
                 craft()->request->redirect($redirect);
             }
 
             if ($success)
             {
-                craft()->commerce_orders->updateOrderPaidTotal($order);
                 return true;
             }
             else
