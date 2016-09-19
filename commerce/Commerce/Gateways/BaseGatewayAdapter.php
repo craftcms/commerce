@@ -200,6 +200,11 @@ abstract class BaseGatewayAdapter extends BaseModel implements GatewayAdapterInt
 		return false;
 	}
 
+    public function useNotifyUrl()
+    {
+        return false;
+    }
+
 	/**
 	 * @return BasePaymentFormModel
 	 * @throws NotImplementedException
