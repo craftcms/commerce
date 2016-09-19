@@ -868,14 +868,6 @@ EOF;
             $response->invalid($url, 'Signature not valid - goodbye');
         }
 
-        if ($transaction->status == Commerce_TransactionRecord::STATUS_SUCCESS)
-        {
-            $error = 'This transaction has already been paid';
-            $url = UrlHelper::getSiteUrl($transaction->order->returnUrl);
-            CommercePlugin::log("Notification request error: ". $error .' '.json_encode($request->getData(), JSON_PRETTY_PRINT),LogLevel::Info,true);
-            $response->error($url, 'This transaction has already been paid');
-        }
-
         // All raw data - just log it for later analysis:
         $request->getData();
 
@@ -894,7 +886,6 @@ EOF;
             $transaction->status = Commerce_TransactionRecord::STATUS_FAILED;
         }
 
-
         $transaction->response = $response->getData();
         $transaction->reference = $request->getTransactionReference();
         $transaction->message = $request->getMessage();
@@ -909,6 +900,7 @@ EOF;
                                                                              'commerceTransactionHash' => $transaction->hash]);
 
         CommercePlugin::log('Confirming Notification: '.json_encode($request->getData(), JSON_PRETTY_PRINT),LogLevel::Info,true);
+
         $response->confirm($url);
     }
 

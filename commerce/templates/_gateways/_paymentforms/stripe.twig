@@ -8,6 +8,8 @@
 	<form method="POST" data-publishablekey="{{ paymentMethod.settings.publishableKey ?? '' }}">
 		<input type="hidden" name="action" value="commerce/payments/pay"/>
 		{% if order %}
+			<input type="hidden" name="redirect" value="{{ order.cpEditUrl }}"/>
+			<input type="hidden" name="cancelUrl" value="{{ order.cpEditUrl }}"/>
 			<input type="hidden" name="orderNumber" value="{{ order.number }}"/>
 		{% endif %}
 		<input type="hidden" name="paymentMethodId"
