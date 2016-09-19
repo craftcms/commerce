@@ -47,7 +47,7 @@
         "omnipay/paymentexpress" :  "~2.2",
         "omnipay/paypal" :  "dev-error10486handler",
         "omnipay/pin" :  "~2.2",
-        "omnipay/sagepay" :  "~2.3",
+        "omnipay/sagepay" :  "dev-master",
         "omnipay/securepay" : "~2.1",
         "omnipay/stripe" :  "~2.3",
         "omnipay/targetpay" :  "~2.2",
