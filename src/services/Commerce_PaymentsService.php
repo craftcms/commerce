@@ -281,12 +281,23 @@ class Commerce_PaymentsService extends BaseApplicationComponent
             'description'          => Craft::t('Order').' #'.$transaction->orderId,
             'clientIp'             => craft()->request->getIpAddress(),
             'transactionReference' => $transaction->hash,
-            'returnUrl'            => UrlHelper::getActionUrl('commerce/payments/completePayment',
-                ['commerceTransactionId' => $transaction->id, 'commerceTransactionHash' => $transaction->hash]),
+            'returnUrl'            => UrlHelper::getActionUrl('commerce/payments/completePayment', ['commerceTransactionId' => $transaction->id, 'commerceTransactionHash' => $transaction->hash]),
             'cancelUrl'            => UrlHelper::getSiteUrl($transaction->order->cancelUrl),
         ];
 
-        $request['notifyUrl'] = $request['returnUrl'];
+        // Each gateway adapter needs to know whether to use our acceptNotification handler because most omnipay gateways
+        // implement the notification API differently. Hoping Omnipay v3 will improve this.
+        // For now, the standard paymentComplete handler is the default unless the gateway has been tested with our acceptNotification handler.
+        // TODO: move the handler logic into the gateway adapter itself if the Omnipay v2 interface cannot standardise.
+        if ($transaction->paymentMethod->getGatewayAdapter()->useNotifyUrl())
+        {
+            $request['notifyUrl'] = UrlHelper::getActionUrl('commerce/payments/acceptNotification', ['commerceTransactionId'   => $transaction->id, 'commerceTransactionHash' => $transaction->hash]);
+            unset($request['returnUrl']);
+        }
+        else
+        {
+            $request['notifyUrl'] = $request['returnUrl'];
+        }
 
         // Do not use IPv6 loopback
         if ($request['clientIp'] == "::1")
@@ -424,16 +435,6 @@ class Commerce_PaymentsService extends BaseApplicationComponent
                     return true;
                 }
 
-                // Exception required for SagePay Server
-                if ($transaction->paymentMethod->getGatewayAdapter()->handle() == "SagePay_Server" && method_exists($response, 'confirm'))
-                {
-                    $url = UrlHelper::getActionUrl('commerce/payments/completePayment', ['commerceTransactionId' => $transaction->id, 'commerceTransactionHash' => $transaction->hash]);
-                    $message = "Status=OK\r\nRedirectUrl=".$url."\r\nStatusDetail=OK";
-                    ob_start();
-                    echo $message;
-                    exit(200);
-                }
-
             }
             catch (\Exception $e)
             {
@@ -441,16 +442,6 @@ class Commerce_PaymentsService extends BaseApplicationComponent
                 $transaction->message = $e->getMessage();
                 CommercePlugin::log("Omnipay Gateway Communication Error: ".$e->getMessage());
                 $this->saveTransaction($transaction);
-
-                // Exception required for SagePay Server
-                if ($transaction->paymentMethod->getGatewayAdapter()->handle() == "SagePay_Server")
-                {
-                    $url = UrlHelper::getSiteUrl($order->cancelUrl);
-                    $message = "Status=INVALID\r\nRedirectUrl=".$url."\r\nStatusDetail=".$e->getMessage();
-                    ob_start();
-                    echo $message;
-                    exit(200);
-                }
             }
         }
 
@@ -788,7 +779,7 @@ EOF;
             if ($transaction->status == Commerce_TransactionRecord::STATUS_SUCCESS)
             {
                 // If we already have completed this transaction, make sure the order total is correct
-                craft()->commerce_orders->updateOrderPaidTotal($order);     
+                craft()->commerce_orders->updateOrderPaidTotal($order);
                 return true;
             }
             else
@@ -805,7 +796,6 @@ EOF;
         $supportsAction = 'supports'.ucfirst($action);
         if ($gateway->$supportsAction())
         {
-
             // Some gateways need the cart data again on the order complete
             $itemBag = $this->createItemBag($order);
 
@@ -813,7 +803,7 @@ EOF;
 
             // If MOLLIE, the transactionReference will be theirs
             $handle = $transaction->paymentMethod->getGatewayAdapter()->handle();
-            if ($handle == 'Mollie_Ideal' || $handle == 'Mollie' || $handle == 'SagePay_Server' || $handle == 'NetBanx_Hosted')
+            if ($handle == 'Mollie_Ideal' || $handle == 'Mollie' || $handle == 'NetBanx_Hosted')
             {
                 $params['transactionReference'] = $transaction->reference;
             }
@@ -846,6 +836,78 @@ EOF;
         {
             throw new Exception('Payment Gateway does not support: '.$supportsAction);
         }
+    }
+
+    /**
+     * This is a special handler for gateway which support the notification API in Omnipay.
+     * TODO: Currently only tested with SagePay. Will likely need to be modified for other gateways with different notification API
+     *
+     * @param $transactionHash
+     */
+    public function acceptNotification($transactionHash)
+    {
+        $transaction = craft()->commerce_transactions->getTransactionByHash($transactionHash);
+
+        // We need to turn devMode off because the gateways return text strings and we don't want `<script..` tags appending on the end.
+        craft()->config->set('devMode', false);
+
+        // load payment driver
+        $gateway = $transaction->paymentMethod->getGateway();
+
+        $request = $gateway->acceptNotification();
+
+        $request->setTransactionReference($transaction->reference);
+
+        $response = $request->send();
+
+        if (!$request->isValid())
+        {
+            $url = UrlHelper::getSiteUrl($transaction->order->cancelUrl);
+            CommercePlugin::log('Notification request is not valid: '.json_encode($request->getData(), JSON_PRETTY_PRINT),LogLevel::Info,true);
+            $response->invalid($url, 'Signature not valid - goodbye');
+        }
+
+        if ($transaction->status == Commerce_TransactionRecord::STATUS_SUCCESS)
+        {
+            $error = 'This transaction has already been paid';
+            $url = UrlHelper::getSiteUrl($transaction->order->returnUrl);
+            CommercePlugin::log("Notification request error: ". $error .' '.json_encode($request->getData(), JSON_PRETTY_PRINT),LogLevel::Info,true);
+            $response->error($url, 'This transaction has already been paid');
+        }
+
+        // All raw data - just log it for later analysis:
+        $request->getData();
+
+        $status = $request->getTransactionStatus();
+
+        if ($status == $request::STATUS_COMPLETED)
+        {
+            $transaction->status = Commerce_TransactionRecord::STATUS_SUCCESS;
+        }
+        elseif ($status == $request::STATUS_PENDING)
+        {
+            $transaction->pending = Commerce_TransactionRecord::STATUS_SUCCESS;
+        }
+        elseif ($status == $request::STATUS_FAILED)
+        {
+            $transaction->status = Commerce_TransactionRecord::STATUS_FAILED;
+        }
+
+
+        $transaction->reference = $request->getTransactionReference();
+        $transaction->message = $request->getMessage();
+        $this->saveTransaction($transaction);
+
+        if ($transaction->status == Commerce_TransactionRecord::STATUS_SUCCESS)
+        {
+            craft()->commerce_orders->updateOrderPaidTotal($transaction->order);
+        }
+
+        $url = UrlHelper::getActionUrl('commerce/payments/completePayment', ['commerceTransactionId'   => $transaction->id,
+                                                                             'commerceTransactionHash' => $transaction->hash]);
+
+        CommercePlugin::log('Confirming Notification: '.json_encode($request->getData(), JSON_PRETTY_PRINT),LogLevel::Info,true);
+        $response->confirm($url);
     }
 
     /**

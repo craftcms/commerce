@@ -270,4 +270,20 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
             $this->redirect($transaction->order->cancelUrl);
         }
     }
+
+    /**
+     * Process return from off-site payment
+     *
+     * @throws Exception
+     * @throws HttpException
+     */
+    public function actionAcceptNotification()
+    {
+        $id = craft()->request->getParam('commerceTransactionHash');
+
+        CommercePlugin::log(json_encode($_REQUEST,JSON_PRETTY_PRINT));
+
+        craft()->commerce_payments->acceptNotification($id);
+    }
+
 }
