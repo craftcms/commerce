@@ -324,12 +324,6 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
             {
                 $newEmail->toEmail = $order->email;
             }
-
-            // If we can't get an email, we can't send an email to the customer.
-            if (empty($newEmail->toEmail))
-            {
-                return;
-            }
         }
 
         if ($email->recipientType == Commerce_EmailRecord::TYPE_CUSTOM)
@@ -351,6 +345,14 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
             }
         }
 
+        if (empty($newEmail->toEmail))
+        {
+            $error = Craft::t('Email error. No email address found for order. Order: “{order}”',
+                ['order' => $order->getShortNumber()]);
+            CommercePlugin::log($error, LogLevel::Error, true);
+
+            return;
+        }
 
         // BCC:
         try
