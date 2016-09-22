@@ -298,7 +298,8 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
         //sending emails
         $renderVariables = [
             'order'  => $order,
-            'update' => $update
+            'update' => $update, // TODO: Remove and deprecate 'update' variable in 2.0
+            'orderHistory' => $update
         ];
 
         $newEmail = new EmailModel();
