@@ -22,7 +22,8 @@ class Commerce_EmailsService extends BaseApplicationComponent
     {
         $result = Commerce_EmailRecord::model()->findById($id);
 
-        if ($result) {
+        if ($result)
+        {
             return Commerce_EmailModel::populateModel($result);
         }
 
@@ -38,7 +39,8 @@ class Commerce_EmailsService extends BaseApplicationComponent
     {
         $result = Commerce_EmailRecord::model()->findByAttributes($attr);
 
-        if ($result) {
+        if ($result)
+        {
             return Commerce_EmailModel::populateModel($result);
         }
 
@@ -67,14 +69,17 @@ class Commerce_EmailsService extends BaseApplicationComponent
      */
     public function saveEmail(Commerce_EmailModel $model)
     {
-        if ($model->id) {
+        if ($model->id)
+        {
             $record = Commerce_EmailRecord::model()->findById($model->id);
 
-            if (!$record) {
-                throw new Exception(Craft::t('No email exists with the ID “{id}”',
-                    ['id' => $model->id]));
+            if (!$record)
+            {
+                throw new Exception(Craft::t('No email exists with the ID “{id}”', ['id' => $model->id]));
             }
-        } else {
+        }
+        else
+        {
             $record = new Commerce_EmailRecord();
         }
 
@@ -89,7 +94,8 @@ class Commerce_EmailsService extends BaseApplicationComponent
         $record->validate();
         $model->addErrors($record->getErrors());
 
-        if (!$model->hasErrors()) {
+        if (!$model->hasErrors())
+        {
             // Save it!
             $record->save(false);
 
@@ -97,7 +103,9 @@ class Commerce_EmailsService extends BaseApplicationComponent
             $model->id = $record->id;
 
             return true;
-        } else {
+        }
+        else
+        {
             return false;
         }
     }
@@ -110,5 +118,287 @@ class Commerce_EmailsService extends BaseApplicationComponent
     public function deleteEmailById($id)
     {
         Commerce_EmailRecord::model()->deleteByPk($id);
+    }
+
+    /**
+     * Sends a commerce email
+     *
+     * @param Commerce_EmailModel        $email
+     * @param Commerce_OrderModel        $order
+     * @param Commerce_OrderHistoryModel $orderHistory
+     */
+    public function sendEmail($email, $order, $orderHistory)
+    {
+
+        if (!$email->enabled)
+        {
+            return;
+        }
+
+        // Set Craft to the site template mode
+        $templatesService = craft()->templates;
+        $oldTemplateMode = $templatesService->getTemplateMode();
+        $templatesService->setTemplateMode(TemplateMode::Site);
+
+        //sending emails
+        $renderVariables = ['order'        => $order,
+                            'update'       => $orderHistory, // TODO: Remove and deprecate 'update' variable in 2.0
+                            'orderHistory' => $orderHistory];
+
+        $newEmail = new EmailModel();
+
+        if (craft()->commerce_settings->getSettings()->emailSenderAddress)
+        {
+            $newEmail->fromEmail = craft()->commerce_settings->getSettings()->emailSenderAddress;
+        }
+
+        if (craft()->commerce_settings->getSettings()->emailSenderName)
+        {
+            $newEmail->fromName = craft()->commerce_settings->getSettings()->emailSenderName;
+        }
+
+        if ($email->recipientType == Commerce_EmailRecord::TYPE_CUSTOMER)
+        {
+            if ($order->getCustomer())
+            {
+                $newEmail->toEmail = $order->getCustomer()->email;
+            }
+            else
+            {
+                $newEmail->toEmail = $order->email;
+            }
+        }
+
+        if ($email->recipientType == Commerce_EmailRecord::TYPE_CUSTOM)
+        {
+            // To:
+            try
+            {
+                $newEmail->toEmail = $templatesService->renderString($email->to, $renderVariables);
+            }
+            catch (\Exception $e)
+            {
+                $error = Craft::t('Email template parse error for custom email “{email}” in “To:”. Order: “{order}”. Template error: “{message}”', ['email'   => $email->name,
+                                                                                                                                                    'order'   => $order->getShortNumber(),
+                                                                                                                                                    'message' => $e->getMessage()]);
+                CommercePlugin::log($error, LogLevel::Error, true);
+
+                $templatesService->setTemplateMode($oldTemplateMode);
+
+                return;
+            }
+        }
+
+        if (empty($newEmail->toEmail))
+        {
+            $error = Craft::t('Email error. No email address found for order. Order: “{order}”', ['order' => $order->getShortNumber()]);
+            CommercePlugin::log($error, LogLevel::Error, true);
+
+            return;
+        }
+
+        // BCC:
+        try
+        {
+            $bcc = $templatesService->renderString($email->bcc, $renderVariables);
+            $bcc = str_replace(';', ',', $bcc);
+            $bcc = explode(',', $bcc);
+            $bccEmails = [];
+            foreach ($bcc as $bccEmail)
+            {
+                $bccEmails[] = ['email' => $bccEmail];
+            }
+            $newEmail->bcc = $bccEmails;
+        }
+        catch (\Exception $e)
+        {
+            $error = Craft::t('Email template parse error for email “{email}” in “BCC:”. Order: “{order}”. Template error: “{message}”', ['email'   => $email->name,
+                                                                                                                                          'order'   => $order->getShortNumber(),
+                                                                                                                                          'message' => $e->getMessage()]);
+            CommercePlugin::log($error, LogLevel::Error, true);
+
+            $templatesService->setTemplateMode($oldTemplateMode);
+
+            return;
+        }
+
+        // Subject:
+        try
+        {
+            $newEmail->subject = $templatesService->renderString($email->subject, $renderVariables);
+        }
+        catch (\Exception $e)
+        {
+            $error = Craft::t('Email template parse error for email “{email}” in “Subject:”. Order: “{order}”. Template error: “{message}”', ['email'   => $email->name,
+                                                                                                                                              'order'   => $order->getShortNumber(),
+                                                                                                                                              'message' => $e->getMessage()]);
+            CommercePlugin::log($error, LogLevel::Error, true);
+
+            $templatesService->setTemplateMode($oldTemplateMode);
+
+            return;
+        }
+
+        // Email Body
+        if (!$templatesService->doesTemplateExist($email->templatePath))
+        {
+            $error = Craft::t('Email template does not exist at “{templatePath}” for email “{email}”. Order: “{order}”.', ['templatePath' => $email->templatePath,
+                                                                                                                           'email'        => $email->name,
+                                                                                                                           'order'        => $order->getShortNumber()]);
+            CommercePlugin::log($error, LogLevel::Error, true);
+
+            $templatesService->setTemplateMode($oldTemplateMode);
+
+            return;
+        }
+        else
+        {
+            try
+            {
+                $newEmail->body = $newEmail->htmlBody = $templatesService->render($email->templatePath, $renderVariables);
+            }
+            catch (\Exception $e)
+            {
+                $error = Craft::t('Email template parse error for email “{email}”. Order: “{order}”. Template error: “{message}”', ['email'   => $email->name,
+                                                                                                                                    'order'   => $order->getShortNumber(),
+                                                                                                                                    'message' => $e->getMessage()]);
+                CommercePlugin::log($error, LogLevel::Error, true);
+
+                $templatesService->setTemplateMode($oldTemplateMode);
+
+                return;
+            }
+        }
+
+        craft()->plugins->callFirst('commerce_modifyEmail', [&$newEmail,
+            $order]);
+
+        try
+        {
+            //raising event
+            $event = new Event($this, ['craftEmail'    => $newEmail,
+                                       'commerceEmail' => $email,
+                                       'order'         => $order,
+                                       'orderHistory'  => $orderHistory]);
+            $this->onBeforeSendEmail($event);
+
+            if ($event->performAction == false)
+            {
+                $error = Craft::t('Email “{email}”, for order "{order}" was cancelled by plugin.', ['email' => $email->name,
+                                                                                                    'order' => $order->getShortNumber()]);
+
+                CommercePlugin::log($error, LogLevel::Info, true);
+
+                $templatesService->setTemplateMode($oldTemplateMode);
+
+                return;
+            }
+
+            if (!craft()->email->sendEmail($newEmail))
+            {
+                $error = Craft::t('Email “{email}” could not be sent for order “{order}”. Errors: {errors}', ['errors' => implode(", ", $email->getAllErrors()),
+                                                                                                              'email'  => $email->name,
+                                                                                                              'order'  => $order->getShortNumber()]);
+
+                CommercePlugin::log($error, LogLevel::Error, true);
+            }
+            else
+            {
+                //raising event
+                $event = new Event($this, ['craftEmail'    => $newEmail,
+                                           'commerceEmail' => $email,
+                                           'order'         => $order,
+                                           'orderHistory'  => $orderHistory]);
+                $this->onSendEmail($event);
+            }
+        }
+        catch (\Exception $e)
+        {
+            $error = Craft::t('Email “{email}” could not be sent for order “{order}”. Error: {error}', ['error' => $e->getMessage(),
+                                                                                                        'email' => $email->name,
+                                                                                                        'order' => $order->getShortNumber()]);
+
+            CommercePlugin::log($error, LogLevel::Error, true);
+        }
+
+
+        // Restore the original template mode
+        $templatesService->setTemplateMode($oldTemplateMode);
+    }
+
+    /**
+     * Event: before sending email
+     * Event params:    craftEmail(EmailModel)
+     *                  commerceEmail(Commerce_EmailModel)
+     *                  order(Commerce_OrderModel)
+     *                  orderHistory(Commerce_OrderHistoryModel)
+     *
+     * @param \CEvent $event
+     *
+     * @throws \CException
+     */
+    public function onBeforeSendEmail(\CEvent $event)
+    {
+        $params = $event->params;
+
+        if (empty($params['craftEmail']) || !($params['craftEmail'] instanceof EmailModel))
+        {
+            throw new Exception('onBeforeSendEmail event requires "craftEmail" param with EmailModel instance');
+        }
+
+        if (empty($params['commerceEmail']) || !($params['commerceEmail'] instanceof Commerce_EmailModel))
+        {
+            throw new Exception('onBeforeSendEmail event requires "commerceEmail" param with Commerce_EmailModel instance');
+        }
+
+        if (empty($params['order']) || !($params['order'] instanceof Commerce_OrderModel))
+        {
+            throw new Exception('onBeforeSendEmail event requires "order" param with Commerce_OrderModel instance');
+        }
+
+        if (empty($params['orderHistory']) || !($params['orderHistory'] instanceof Commerce_OrderHistoryModel))
+        {
+            throw new Exception('onBeforeSendEmail event requires "orderHistory" param with Commerce_OrderHistoryModel instance');
+        }
+
+        $this->raiseEvent('onBeforeSendEmail', $event);
+    }
+
+    /**
+     * Event: before sending email
+     * Event params:    craftEmail(EmailModel)
+     *                  commerceEmail(Commerce_EmailModel)
+     *                  order(Commerce_OrderModel)
+     *                  orderHistory(Commerce_OrderHistoryModel)
+     *
+     * @param \CEvent $event
+     *
+     * @throws \CException
+     */
+    public function onSendEmail(\CEvent $event)
+    {
+        $params = $event->params;
+
+        if (empty($params['craftEmail']) || !($params['craftEmail'] instanceof EmailModel))
+        {
+            throw new Exception('onSendEmail event requires "craftEmail" param with EmailModel instance');
+        }
+
+        if (empty($params['commerceEmail']) || !($params['commerceEmail'] instanceof Commerce_EmailModel))
+        {
+            throw new Exception('onSendEmail event requires "commerceEmail" param with Commerce_EmailModel instance');
+        }
+
+        if (empty($params['order']) || !($params['order'] instanceof Commerce_OrderModel))
+        {
+            throw new Exception('onSendEmail event requires "order" param with Commerce_OrderModel instance');
+        }
+
+        if (empty($params['orderHistory']) || !($params['orderHistory'] instanceof Commerce_OrderHistoryModel))
+        {
+            throw new Exception('onSendEmail event requires "orderHistory" param with Commerce_OrderHistoryModel instance');
+        }
+
+        $this->raiseEvent('onSendEmail', $event);
     }
 }
