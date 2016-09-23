@@ -21,6 +21,7 @@ use Commerce\Helpers\CommerceCurrencyHelper;
  * @property string $paymentCurrency
  * @property DateTime $datePaid
  * @property string $lastIp
+ * @property string $orderLocale
  * @property string $message
  * @property string $returnUrl
  * @property string $cancelUrl
@@ -642,6 +643,7 @@ class Commerce_OrderModel extends BaseElementModel
             'currency' => AttributeType::String,
             'paymentCurrency' => AttributeType::String,
             'lastIp' => AttributeType::String,
+            'orderLocale' => AttributeType::String,
             'message' => AttributeType::String,
             'returnUrl' => AttributeType::String,
             'cancelUrl' => AttributeType::String,

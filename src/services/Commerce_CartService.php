@@ -367,8 +367,8 @@ class Commerce_CartService extends BaseApplicationComponent
                 $this->_cart->number = $number;
             }
 
-
             $this->_cart->lastIp = craft()->request->getIpAddress();
+            $this->_cart->orderLocale = craft()->language;
 
             // Right now, orders are all stored in the default currency
             $this->_cart->currency = craft()->commerce_paymentCurrencies->getDefaultPaymentCurrencyIso();

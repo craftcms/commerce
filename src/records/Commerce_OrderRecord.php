@@ -20,6 +20,7 @@ namespace Craft;
  * @property string $currency
  * @property string $paymentCurrency
  * @property string $lastIp
+ * @property string $orderLocale
  * @property string $message
  * @property string $returnUrl
  * @property string $cancelUrl
@@ -158,6 +159,7 @@ class Commerce_OrderRecord extends BaseRecord
             'currency' => AttributeType::String,
             'paymentCurrency' => AttributeType::String,
             'lastIp' => AttributeType::String,
+            'orderLocale' => AttributeType::Locale,
             'message' => AttributeType::String,
             'returnUrl' => AttributeType::String,
             'cancelUrl' => AttributeType::String,
