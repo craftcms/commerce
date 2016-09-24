@@ -147,6 +147,8 @@ class Commerce_EmailsService extends BaseApplicationComponent
 
         $newEmail = new EmailModel();
 
+        $originalLanguage = craft()->language;
+
         if (craft()->commerce_settings->getSettings()->emailSenderAddress)
         {
             $newEmail->fromEmail = craft()->commerce_settings->getSettings()->emailSenderAddress;
@@ -159,6 +161,10 @@ class Commerce_EmailsService extends BaseApplicationComponent
 
         if ($email->recipientType == Commerce_EmailRecord::TYPE_CUSTOMER)
         {
+            // use the order's language for template rendering the email fields and body.
+            $orderLanguage = $order->orderLocale ? $order->orderLocale : $originalLanguage;
+            craft()->setLanguage($orderLanguage);
+
             if ($order->getCustomer())
             {
                 $newEmail->toEmail = $order->getCustomer()->email;
@@ -183,6 +189,7 @@ class Commerce_EmailsService extends BaseApplicationComponent
                                                                                                                                                     'message' => $e->getMessage()]);
                 CommercePlugin::log($error, LogLevel::Error, true);
 
+                craft()->setLanguage($originalLanguage);
                 $templatesService->setTemplateMode($oldTemplateMode);
 
                 return;
@@ -193,6 +200,9 @@ class Commerce_EmailsService extends BaseApplicationComponent
         {
             $error = Craft::t('Email error. No email address found for order. Order: “{order}”', ['order' => $order->getShortNumber()]);
             CommercePlugin::log($error, LogLevel::Error, true);
+
+            craft()->setLanguage($originalLanguage);
+            $templatesService->setTemplateMode($oldTemplateMode);
 
             return;
         }
@@ -217,6 +227,7 @@ class Commerce_EmailsService extends BaseApplicationComponent
                                                                                                                                           'message' => $e->getMessage()]);
             CommercePlugin::log($error, LogLevel::Error, true);
 
+            craft()->setLanguage($originalLanguage);
             $templatesService->setTemplateMode($oldTemplateMode);
 
             return;
@@ -234,6 +245,7 @@ class Commerce_EmailsService extends BaseApplicationComponent
                                                                                                                                               'message' => $e->getMessage()]);
             CommercePlugin::log($error, LogLevel::Error, true);
 
+            craft()->setLanguage($originalLanguage);
             $templatesService->setTemplateMode($oldTemplateMode);
 
             return;
@@ -247,6 +259,7 @@ class Commerce_EmailsService extends BaseApplicationComponent
                                                                                                                            'order'        => $order->getShortNumber()]);
             CommercePlugin::log($error, LogLevel::Error, true);
 
+            craft()->setLanguage($originalLanguage);
             $templatesService->setTemplateMode($oldTemplateMode);
 
             return;
@@ -264,14 +277,14 @@ class Commerce_EmailsService extends BaseApplicationComponent
                                                                                                                                     'message' => $e->getMessage()]);
                 CommercePlugin::log($error, LogLevel::Error, true);
 
+                craft()->setLanguage($originalLanguage);
                 $templatesService->setTemplateMode($oldTemplateMode);
 
                 return;
             }
         }
 
-        craft()->plugins->callFirst('commerce_modifyEmail', [&$newEmail,
-            $order]);
+        craft()->plugins->callFirst('commerce_modifyEmail', [&$newEmail, $order]);
 
         try
         {
@@ -288,8 +301,6 @@ class Commerce_EmailsService extends BaseApplicationComponent
                                                                                                     'order' => $order->getShortNumber()]);
 
                 CommercePlugin::log($error, LogLevel::Info, true);
-
-                $templatesService->setTemplateMode($oldTemplateMode);
 
                 return;
             }
@@ -322,7 +333,8 @@ class Commerce_EmailsService extends BaseApplicationComponent
         }
 
 
-        // Restore the original template mode
+        // Restore original values
+        craft()->setLanguage($originalLanguage);
         $templatesService->setTemplateMode($oldTemplateMode);
     }
 
