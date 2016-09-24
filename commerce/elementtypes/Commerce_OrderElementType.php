@@ -381,6 +381,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 				orders.currency,
 				orders.paymentCurrency,
 				orders.lastIp,
+				orders.orderLocale,
 				orders.message,
 				orders.returnUrl,
 				orders.cancelUrl,
