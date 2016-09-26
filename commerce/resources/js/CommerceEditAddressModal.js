@@ -149,6 +149,9 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend(
                 }
             });
 
+            // add any custom state value that could not be in the standard list of states.
+            this.states.push({'name':this.address.stateValue,'id':this.address.stateValue});
+            
             this.fields['stateValue'].appendTo($inputs);
             this.fields['stateValue'].find('select').selectize({
                 valueField: 'id',
