@@ -172,7 +172,7 @@ class Commerce_DiscountsService extends BaseApplicationComponent
 		    if ($model->perUserLimit > 0 && !craft()->userSession->isLoggedIn())
 		    {
 			    $error = Craft::t('Discount is limited to use by logged in users only.');
-			    
+
 			    return false;
 		    }
 
@@ -207,7 +207,7 @@ class Commerce_DiscountsService extends BaseApplicationComponent
 
 			    if ($usedCount >= $model->perEmailLimit)
 			    {
-				    $error = Craft::t('This coupon limited to '.$model->perEmailLimit.' uses.');
+				    $error = Craft::t('This coupon limited to {limit} uses.', ['limit' => $model->perEmailLimit]);
 
 				    return false;
 			    }
