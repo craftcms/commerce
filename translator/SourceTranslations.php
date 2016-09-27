@@ -568,7 +568,7 @@ $lang['The unit of measurement that should be used when specifying product weigh
 $lang['There are only {num} "{description}" items left in stock'] = 'There are only {num} "{description}" items left in stock';
 $lang['There is no payment method selected for this order.'] = 'There is no payment method selected for this order.';
 $lang['This action is not allowed for the current user.'] = 'This action is not allowed for the current user.';
-$lang['This coupon limited to '.$model->perEmailLimit.' uses.'] = 'This coupon limited to '.$model->perEmailLimit.' uses.';
+$lang['This coupon limited to {limit} uses.'] = 'This coupon limited to {limit} uses.';
 $lang['This is being overridden in {file}.'] = 'This is being overridden in {file}.';
 $lang['This will clear all 'Per User Coupon Limit' and 'Total Use Limit' counters. It will not clear any 'Per Email Address Coupon Limit' counters.'] = 'This will clear all 'Per User Coupon Limit' and 'Total Use Limit' counters. It will not clear any 'Per Email Address Coupon Limit' counters.';
 $lang['Times Coupon Used'] = 'Times Coupon Used';
