@@ -247,6 +247,17 @@ class Commerce_OrderModel extends BaseElementModel
         return (bool) $this->outstandingBalance() > 0;
     }
 
+    /**
+     * Is this order the users current active cart.
+     * @return bool
+     */
+    public function isActiveCart()
+    {
+        $cart = craft()->commerce_cart->getCart();
+
+        return ($cart && $cart->id == $this->id);
+    }
+
     public function outstandingBalance()
     {
 
