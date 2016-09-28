@@ -113,7 +113,11 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
         $paymentForm = $paymentMethod->getPaymentFormModel();
         $paymentForm->populateModelFromPost(craft()->request->getPost());
 
-        $order->setContentFromPost('fields');
+        // Allowed to update order's custom fields?
+        if ($order->isActiveCart() || craft()->userSession->checkPermission('commerce-manageOrders'))
+        {
+            $order->setContentFromPost('fields');
+        }
 
         // Check email address exists on order.
         if (!$order->email)
