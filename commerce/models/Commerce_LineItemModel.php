@@ -245,7 +245,7 @@ class Commerce_LineItemModel extends BaseModel
             }
 
             // If the product is not promotable but has saleAmount, reset saleAmount to zero
-            if (!$purchasable->product->promotable && $this->saleAmount)
+            if (!$purchasable->getIsPromotable() && $this->saleAmount)
             {
                 $this->saleAmount = 0;
             }
