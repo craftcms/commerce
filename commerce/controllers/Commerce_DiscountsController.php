@@ -105,8 +105,6 @@ class Commerce_DiscountsController extends Commerce_BaseCpController
             'id',
             'name',
             'description',
-            'dateFrom',
-            'dateTo',
             'enabled',
             'purchaseTotal',
             'purchaseQty',
@@ -128,6 +126,14 @@ class Commerce_DiscountsController extends Commerce_BaseCpController
         ];
         foreach ($discountAmountsFields as $field) {
             $discount->$field = craft()->request->getPost($field) * -1;
+        }
+
+        $dateFields = [
+            'dateFrom',
+            'dateTo'
+        ];
+        foreach ($dateFields as $field) {
+            $discount->$field = (($date = craft()->request->getPost($field)) ? DateTime::createFromString($date, craft()->timezone) : null);
         }
 
         // Format into a %

@@ -141,7 +141,7 @@
 
     <div id="conditions" class="hidden">
 
-    {{ forms.dateField({
+    {{ forms.dateTimeField({
         label: "Start Date"|t,
         instructions: "Date from which the discount will be active. Leave blank for unlimited start date"|t,
         id: 'dateFrom',
@@ -150,7 +150,7 @@
         errors: discount.getErrors('dateFrom'),
     }) }}
 
-    {{ forms.dateField({
+    {{ forms.dateTimeField({
         label: "End Date"|t,
         instructions: "Date when the discount will be finished. Leave blank for unlimited end date"|t,
         id: 'dateTo',
