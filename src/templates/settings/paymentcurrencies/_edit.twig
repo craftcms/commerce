@@ -17,7 +17,7 @@
     {{ forms.textField({
         first: true,
         label: "Name"|t,
-        instructions: "What this currency will be called."|t,
+        instructions: "What this currency will be called in the CP."|t,
         id: 'name',
         name: 'name',
         value: currency.name,
@@ -28,8 +28,8 @@
     }) }}
 
 	{{ forms.selectField({
-		label: 'Currency ISO'|t,
-		instructions: 'Select the currency ISO.'|t,
+		label: 'Currency Code'|t,
+		instructions: 'Choose the currency’s ISO code.'|t,
 		id: 'iso',
 		name: 'iso',
 		value: currency.iso,
@@ -39,7 +39,11 @@
 
     {{ forms.textField({
         label: "Conversion Rate"|t,
-        instructions: "This is the rate that is multipled by the store’s currency amount. For example, if your order costs "~storeCurrency~" "~10|currency(storeCurrency)~" and you enter `1.5` here then this payments in this currency will be 15."|t,
+        instructions: "The conversion rate that will be used when converting an amount to this currency. For example, if an item costs {amount1}, a conversion rate of {rate} would result in {amount2} in the alternate currency."|t({
+			amount1: 10|currency(craft.commerce.getDefaultCurrency().iso),
+			rate: 1.5,
+			amount2: 15
+		}),
         id: 'rate',
         name: 'rate',
         disabled: currency.default,
