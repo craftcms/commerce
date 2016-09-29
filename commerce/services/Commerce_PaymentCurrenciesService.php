@@ -73,7 +73,11 @@ class Commerce_PaymentCurrenciesService extends BaseApplicationComponent
     {
         if (!isset($this->_allCurrencies))
         {
-            $records = Commerce_PaymentCurrencyRecord::model()->findAll(['order' => 'name']);
+            $schema = craft()->db->schema;
+            $records = Commerce_PaymentCurrencyRecord::model()->findAll([
+                'order' => new \CDbExpression('('.$schema->quoteColumnName('default').' = 1) desc, '.$schema->quoteColumnName('name'))
+            ]);
+
             $this->_allCurrencies = Commerce_PaymentCurrencyModel::populateModels($records);
         }
 
