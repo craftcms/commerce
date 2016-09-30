@@ -47,7 +47,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
         $method->name = 'USD';
         $method->iso = 'USD';
         $method->rate = 1;
-        $method->default = true;
+        $method->primary = true;
         $method->save();
     }
 
