@@ -45,7 +45,7 @@ class Commerce_PaymentCurrenciesController extends Commerce_BaseAdminController
         }
 
         if (!empty($variables['id'])) {
-            $variables['title'] = $variables['currency']->name.($variables['currency']->default ? ' '.Craft::t('(Primary)') : '');
+            $variables['title'] = $variables['currency']->name.($variables['currency']->primary ? ' '.Craft::t('(Primary)') : '');
         } else {
             $variables['title'] = Craft::t('Create a new currency');
         }
@@ -70,7 +70,7 @@ class Commerce_PaymentCurrenciesController extends Commerce_BaseAdminController
         $currency->name = craft()->request->getPost('name');
         $currency->iso = craft()->request->getPost('iso');
         $currency->rate = craft()->request->getPost('rate');
-        $currency->default = craft()->request->getPost('default');
+        $currency->primary = craft()->request->getPost('primary');
 
         // Save it
         if (craft()->commerce_paymentCurrencies->savePaymentCurrency($currency)) {
@@ -95,7 +95,7 @@ class Commerce_PaymentCurrenciesController extends Commerce_BaseAdminController
         $id = craft()->request->getRequiredPost('id');
         $currency = craft()->commerce_paymentCurrencies->getPaymentCurrencyById($id);
 
-        if ($currency && !$currency->default)
+        if ($currency && !$currency->primary)
         {
             craft()->commerce_paymentCurrencies->deletePaymentCurrencyById($id);
             $this->returnJson(['success' => true]);

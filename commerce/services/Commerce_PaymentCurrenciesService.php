@@ -75,7 +75,7 @@ class Commerce_PaymentCurrenciesService extends BaseApplicationComponent
         {
             $schema = craft()->db->schema;
             $records = Commerce_PaymentCurrencyRecord::model()->findAll([
-                'order' => new \CDbExpression('('.$schema->quoteColumnName('default').' = 1) desc, '.$schema->quoteColumnName('name'))
+                'order' => new \CDbExpression('('.$schema->quoteColumnName('primary').' = 1) desc, '.$schema->quoteColumnName('name'))
             ]);
 
             $this->_allCurrencies = Commerce_PaymentCurrencyModel::populateModels($records);
@@ -85,7 +85,7 @@ class Commerce_PaymentCurrenciesService extends BaseApplicationComponent
     }
 
     /**
-     * Returns the default currency all prices are entered as.
+     * Returns the primary currency all prices are entered as.
      *
      * @return Commerce_PaymentCurrencyModel
      */
@@ -93,7 +93,7 @@ class Commerce_PaymentCurrenciesService extends BaseApplicationComponent
     {
         foreach ($this->getAllPaymentCurrencies() as $currency)
         {
-            if ($currency->default)
+            if ($currency->primary)
             {
                 return $currency;
             }
@@ -101,7 +101,7 @@ class Commerce_PaymentCurrenciesService extends BaseApplicationComponent
     }
 
     /**
-     * Return the default currencies ISO code as a string.
+     * Return the primary currencies ISO code as a string.
      *
      * @return string
      */
@@ -111,7 +111,7 @@ class Commerce_PaymentCurrenciesService extends BaseApplicationComponent
     }
 
     /**
-     * @param float $amount This is the unit of price in the default store currency
+     * @param float $amount This is the unit of price in the primary store currency
      * @param string $currency
      *
      * @return float
@@ -146,18 +146,18 @@ class Commerce_PaymentCurrenciesService extends BaseApplicationComponent
 
         $record->name = $model->name;
         $record->iso = strtoupper($model->iso);
-        $record->default = $model->default;
-        // If this rate is default, the rate must be 1 since it is now the rate all prices are enter in as.
-        $record->rate =  $model->default ? 1 : $model->rate;
+        $record->primary = $model->primary;
+        // If this rate is primary, the rate must be 1 since it is now the rate all prices are enter in as.
+        $record->rate =  $model->primary ? 1 : $model->rate;
 
         $record->validate();
         $model->addErrors($record->getErrors());
 
         if (!$model->hasErrors()) {
 
-            if ($record->default)
+            if ($record->primary)
             {
-                Commerce_OrderStatusRecord::model()->updateAll(['default' => 0]);
+                Commerce_PaymentCurrencyRecord::model()->updateAll(['primary' => 0]);
             }
 
             $record->save(false);
