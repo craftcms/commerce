@@ -45,7 +45,7 @@ class Commerce_PaymentCurrenciesController extends Commerce_BaseAdminController
         }
 
         if (!empty($variables['id'])) {
-            $variables['title'] = $variables['currency']->name;
+            $variables['title'] = $variables['currency']->name.($variables['currency']->default ? ' '.Craft::t('(Primary)') : '');
         } else {
             $variables['title'] = Craft::t('Create a new currency');
         }
