@@ -535,6 +535,14 @@ class Commerce_OrdersService extends BaseApplicationComponent
         CommerceDbHelper::beginStackedTransaction();
         try
         {
+            if (!$order->id)
+            {
+                if (!$this->saveOrder($order))
+                {
+                    CommerceDbHelper::rollbackStackedTransaction();
+                    throw new Exception(Craft::t('Error on creating empty cart'));
+                }
+            }
 
             $customerId = $order->customerId;
             $currentCustomerAddressIds = craft()->commerce_customers->getAddressIds($customerId);
