@@ -121,6 +121,7 @@ class Commerce_TransactionRecord extends BaseRecord
                 AttributeType::Number,
                 'decimals' => 4
             ],
+            'currency' => AttributeType::String,
             'paymentCurrency' => AttributeType::String,
             'paymentRate'=> [
                 AttributeType::Number,
