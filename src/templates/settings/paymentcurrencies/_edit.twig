@@ -46,17 +46,13 @@
 		}),
         id: 'rate',
         name: 'rate',
-        disabled: currency.default,
-        value: currency.rate ?: 1,
+        disabled: currency.primary,
+        value: currency.rate ? currency.rate + 0 : 1,
         errors: currency.getErrors('rate')
     }) }}
 
-    {% if currency.default %}
-        <input type="hidden" name="default" value="1"/>
-    {% endif %}
-
-    {% if currency.default %}
-        <p class="warning">This is the current store’s currency. This is the currency all values in the database are stored in. <br>If you change this currency, all previous orders will show as being in the currency. Get this currency correct before starting your store.</p>
+    {% if currency.primary %}
+        <input type="hidden" name="primary" value="1"/>
     {% endif %}
 {% endblock %}
 

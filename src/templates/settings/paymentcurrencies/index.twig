@@ -21,10 +21,10 @@
         <tbody>
         {% for currency in currencies %}
             <tr data-id="{{ currency.id }}" data-name="{{ currency.name }}">
-                <th scope="row" data-title="{{ 'Name'|t }}"><a href="{{ currency.cpEditUrl }}">{{ currency.name|t }}{% if currency.default %} {{ "(Primary)"|t }}{% endif %}</a></th>
+                <th scope="row" data-title="{{ 'Name'|t }}"><a href="{{ currency.cpEditUrl }}">{{ currency.name|t }}{% if currency.primary %} {{ "(Primary)"|t }}{% endif %}</a></th>
                 <td data-title="{{ 'ISO'|t }}">{{ currency.iso }}</td>
-                <td data-title="{{ 'Conversion Rate'|t }}">{% if currency.default %}<span class="token">{{ "Base"|t }}{% else %}{{ currency.rate|number }}{% endif %}</td>
-                <td class="thin">{%  if not currency.default %}<a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a>{% endif %}</td>
+                <td data-title="{{ 'Conversion Rate'|t }}">{% if currency.primary %}<span class="token">{{ "Base"|t }}{% else %}{{ currency.rate|number }}{% endif %}</td>
+                <td class="thin">{%  if not currency.primary %}<a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a>{% endif %}</td>
             </tr>
         {% endfor %}
 
