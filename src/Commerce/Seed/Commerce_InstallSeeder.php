@@ -44,7 +44,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
     public function defaultCurrency()
     {
         $method = new Commerce_PaymentCurrencyRecord();
-        $method->name = 'Default Currency';
+        $method->name = 'USD';
         $method->iso = 'USD';
         $method->rate = 1;
         $method->default = true;

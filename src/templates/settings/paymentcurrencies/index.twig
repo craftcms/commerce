@@ -14,19 +14,16 @@
         <tr>
             <th scope="col">{{ 'Name'|t }}</th>
             <th scope="col">{{ 'Currency Code'|t }}</th>
-            <th scope="col">{{ 'Rate'|t }}</th>
-            <th scope="col">{{ 'Store Currency'|t }}</th>
+            <th scope="col">{{ 'Conversion Rate'|t }}</th>
             <td class="thin"></td>
         </tr>
         </thead>
         <tbody>
         {% for currency in currencies %}
             <tr data-id="{{ currency.id }}" data-name="{{ currency.name }}">
-                <th scope="row" data-title="{{ 'Name'|t }}"><a
-                            href="{{ currency.cpEditUrl }}">{{ currency.name }}</a></th>
+                <th scope="row" data-title="{{ 'Name'|t }}"><a href="{{ currency.cpEditUrl }}">{{ currency.name|t }}{% if currency.default %} {{ "(Primary)"|t }}{% endif %}</a></th>
                 <td data-title="{{ 'ISO'|t }}">{{ currency.iso }}</td>
-                <td data-rate="{{ 'Rate'|t }}">{{ currency.rate|number }}</td>
-                <td data-title="{{ 'Currency'|t }}">{% if currency.default %}<span data-icon="check" title="{{ 'Yes'|t }}"></span>{% endif %}</td>
+                <td data-title="{{ 'Conversion Rate'|t }}">{% if currency.default %}<span class="token">{{ "Base"|t }}{% else %}{{ currency.rate|number }}{% endif %}</td>
                 <td class="thin">{%  if not currency.default %}<a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a>{% endif %}</td>
             </tr>
         {% endfor %}
