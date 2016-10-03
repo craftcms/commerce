@@ -17,6 +17,8 @@
             <th scope="col">{{ "Code"|t }}</th>
             <th scope="col">{{ "Duration"|t }}</th>
             <th scope="col">{{ "Times Used"|t }}</th>
+            <th scope="col">{{ "Can Stop Processing?"|t }}</th>
+            <td class="thin"></td>
             <td class="thin"></td>
         </tr>
         </thead>
@@ -38,6 +40,10 @@
                     {{ (discount.dateTo ? discount.dateTo.localeDate() : '∞') }}
                 </td>
                 <td data-title="{{ 'Times Coupon Used'|t }}">{{ discount.totalUses }}</td>
+                <td data-title="{{ 'Can Stop Processing?'|t }}">{% if discount.stopProcessing %}<span data-icon="check" title="{{ 'Yes'|t }}"></span>{% endif %}</td>
+                <td class="thin">
+                    <a class="move icon disabled" title="{{ 'Delete'|t }}" role="button"></a>
+                </td>
                 <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
             </tr>
         {% endfor %}
@@ -54,8 +60,12 @@
 
 {% includejs %}
 var adminTable = new Craft.AdminTable({
-tableSelector: '#discounts',
-noObjectsSelector: '#no-discounts',
-deleteAction: 'commerce/discounts/delete'
+	tableSelector: '#discounts',
+	noObjectsSelector: '#no-discounts',
+	deleteAction: 'commerce/discounts/delete',
+	sortable: true,
+	reorderAction: 'commerce/discounts/reorder',
+	reorderSuccessMessage: Craft.t('Discounts reordered.'),
+	reorderFailMessage:    Craft.t('Couldn’t reorder discounts.')
 });
 {% endincludejs %}

@@ -39,7 +39,10 @@
 {% block content %}
     <input type="hidden" name="action" value="commerce/discounts/save">
     <input type="hidden" name="redirect" value="commerce/promotions/discounts">
-    {% if discount.id %}<input type="hidden" name="id" value="{{ discount.id }}">{% endif %}
+    {% if discount.id %}
+        <input type="hidden" name="sortOrder" value="{{ discount.sortOrder }}">
+        <input type="hidden" name="id" value="{{ discount.id }}">
+	{% endif %}
 
     <div id="discount">
     {{ forms.textField({
@@ -72,7 +75,16 @@
         errors: discount.getErrors('enabled')
     }) }}
 
-    </div>
+    {{ forms.checkboxField({
+        label: "Stop processing further discounts after this discount matches."|t,
+        id: 'stopProcessing',
+        name: 'stopProcessing',
+        value: 1,
+        checked: discount.stopProcessing,
+        errors: discount.getErrors('stopProcessing')
+    }) }}
+
+	</div>
 
     <div id="coupon" class="hidden">
 

@@ -27,6 +27,8 @@ namespace Craft;
  * @property bool $allProducts
  * @property bool $allProductTypes
  * @property bool $enabled
+ * @property bool $stopProcessing
+ * @property bool $sortOrder
  *
  * @property Commerce_ProductRecord[] $products
  * @property Commerce_ProductTypeRecord[] $productTypes
@@ -183,6 +185,12 @@ class Commerce_DiscountRecord extends BaseRecord
                 'required' => true,
                 'default' => 1
             ],
+            'stopProcessing' => [
+                AttributeType::Bool,
+                'required' => true,
+                'default' => false
+            ],
+            'sortOrder' => AttributeType::Number
         ];
     }
 

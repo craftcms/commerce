@@ -299,12 +299,13 @@ class Commerce_DiscountsService extends BaseApplicationComponent
             $record = new Commerce_DiscountRecord();
         }
 
-        $fields = ['id', 'name', 'description', 'dateFrom', 'dateTo', 'enabled', 'purchaseTotal', 'purchaseQty', 'maxPurchaseQty', 'baseDiscount', 'perItemDiscount', 'percentDiscount', 'freeShipping', 'excludeOnSale', 'perUserLimit', 'perEmailLimit', 'totalUseLimit'];
+        $fields = ['id', 'name', 'description', 'dateFrom', 'dateTo', 'enabled', 'stopProcessing', 'purchaseTotal', 'purchaseQty', 'maxPurchaseQty', 'baseDiscount', 'perItemDiscount', 'percentDiscount', 'freeShipping', 'excludeOnSale', 'perUserLimit', 'perEmailLimit', 'totalUseLimit'];
         foreach ($fields as $field)
         {
             $record->$field = $model->$field;
         }
 
+        $record->sortOrder = $model->sortOrder ? $model->sortOrder : 999;
         $record->code = $model->code ?: null;
 
         $record->allGroups = $model->allGroups = empty($groups);
@@ -390,6 +391,22 @@ class Commerce_DiscountsService extends BaseApplicationComponent
                 }
             }
         }
+    }
+
+    /**
+     * @param $ids
+     *
+     * @return bool
+     */
+    public function reorderDiscounts($ids)
+    {
+        foreach ($ids as $sortOrder => $id)
+        {
+            craft()->db->createCommand()->update('commerce_discounts',
+                ['sortOrder' => $sortOrder + 1], ['id' => $id]);
+        }
+
+        return true;
     }
 
     /**

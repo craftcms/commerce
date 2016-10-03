@@ -33,7 +33,7 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
 			return [];
 		}
 
-		$discounts = \Craft\craft()->commerce_discounts->getAllDiscounts(['condition' => '(code = :code OR code IS NULL) and enabled = :enabled', 'params' => ['code' => $order->couponCode, 'enabled' => true],]);
+		$discounts = \Craft\craft()->commerce_discounts->getAllDiscounts(['condition' => '(code = :code OR code IS NULL) and enabled = :enabled', 'params' => ['code' => $order->couponCode, 'enabled' => true],'order'=>'sortOrder']);
 		$adjustments = [];
 		foreach ($discounts as $discount)
 		{
@@ -41,6 +41,11 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
 			{
 				$adjustments[] = $adjustment;
 			}
+
+			if($discount->stopProcessing)
+            {
+                break;
+            }
 		}
 
 		return $adjustments;
