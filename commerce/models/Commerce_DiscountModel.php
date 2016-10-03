@@ -29,6 +29,7 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  * @property bool $allProducts
  * @property bool $allProductTypes
  * @property bool $enabled
+ * @property int $sortOrder
  *
  * @property Commerce_ProductModel[] $products
  * @property Commerce_ProductTypeModel[] $productTypes
@@ -178,6 +179,7 @@ class Commerce_DiscountModel extends BaseModel
                 'required' => true,
                 'default' => true
             ],
+            'sortOrder' => AttributeType::Number
         ];
     }
 

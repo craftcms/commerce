@@ -28,7 +28,7 @@ class Commerce_DiscountsController extends Commerce_BaseCpController
      */
     public function actionIndex()
     {
-        $discounts = craft()->commerce_discounts->getAllDiscounts(['order' => 'name']);
+        $discounts = craft()->commerce_discounts->getAllDiscounts(['order' => 'sortOrder']);
         $this->renderTemplate('commerce/promotions/discounts/index',
             compact('discounts'));
     }
@@ -106,6 +106,7 @@ class Commerce_DiscountsController extends Commerce_BaseCpController
             'name',
             'description',
             'enabled',
+            'sortOrder',
             'purchaseTotal',
             'purchaseQty',
             'maxPurchaseQty',
@@ -173,6 +174,24 @@ class Commerce_DiscountsController extends Commerce_BaseCpController
 
         // Send the model back to the template
         craft()->urlManager->setRouteVariables(['discount' => $discount]);
+    }
+
+    /**
+     * @return \HttpResponse
+     * @throws HttpException
+     */
+    public function actionReorder()
+    {
+        $this->requirePostRequest();
+        $this->requireAjaxRequest();
+
+        $ids = JsonHelper::decode(craft()->request->getRequiredPost('ids'));
+        if ($success = craft()->commerce_discounts->reorderDiscounts($ids))
+        {
+            return $this->returnJson(['success' => $success]);
+        };
+
+        return $this->returnJson(['error' => Craft::t("Couldn't reorder Discounts.")]);
     }
 
     /**
