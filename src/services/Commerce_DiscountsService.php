@@ -305,6 +305,7 @@ class Commerce_DiscountsService extends BaseApplicationComponent
             $record->$field = $model->$field;
         }
 
+        $record->sortOrder = $model->sortOrder ? $model->sortOrder : 999;
         $record->code = $model->code ?: null;
 
         $record->allGroups = $model->allGroups = empty($groups);
@@ -390,6 +391,22 @@ class Commerce_DiscountsService extends BaseApplicationComponent
                 }
             }
         }
+    }
+
+    /**
+     * @param $ids
+     *
+     * @return bool
+     */
+    public function reorderDiscounts($ids)
+    {
+        foreach ($ids as $sortOrder => $id)
+        {
+            craft()->db->createCommand()->update('commerce_discounts',
+                ['sortOrder' => $sortOrder + 1], ['id' => $id]);
+        }
+
+        return true;
     }
 
     /**
