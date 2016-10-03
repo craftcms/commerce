@@ -157,7 +157,11 @@ class CommercePlugin extends BasePlugin
                         'm160917_010103_Commerce_DescriptionFormat',
                         'm160917_010104_Commerce_ShippingCategories',
                         'm160917_010104_Commerce_OrderLocale',
-                        'm160927_010101_Commerce_ShippingRuleCategories'
+                        'm160927_010101_Commerce_ShippingRuleCategories',
+                        'm160930_010101_Commerce_RenameDefaultCurrencyToPrimary',
+                        'm161001_010101_Commerce_LineItemShippingCat',
+                        'm161001_010102_Commerce_DiscountOrdering',
+                        'm161001_010103_Commerce_DiscountStopProcessing'
                     );
 
                     foreach ($migrations as $migrationClass) {
