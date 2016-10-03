@@ -106,6 +106,7 @@ class Commerce_DiscountsController extends Commerce_BaseCpController
             'name',
             'description',
             'enabled',
+            'stopProcessing',
             'sortOrder',
             'purchaseTotal',
             'purchaseQty',
