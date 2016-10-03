@@ -53,6 +53,16 @@ class Commerce_ProductTypeRecord extends BaseRecord
     public function defineRelations()
     {
         return [
+            'shippingCategories' => [
+                static::MANY_MANY,
+                'Commerce_ShippingCategoryRecord',
+                'commerce_producttypes_shippingcategories(shippingCategoryId, productTypeId)'
+            ],
+            'taxCategories' => [
+                static::MANY_MANY,
+                'Commerce_TaxCategoryRecord',
+                'commerce_producttypes_taxcategories(taxCategoryId, productTypeId)'
+            ],
             'fieldLayout' => [
                 static::BELONGS_TO,
                 'FieldLayoutRecord',

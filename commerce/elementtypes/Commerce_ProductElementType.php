@@ -205,6 +205,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
             'postDate' => ['label' => Craft::t('Post Date')],
             'expiryDate' => ['label' => Craft::t('Expiry Date')],
             'taxCategory' => ['label' => Craft::t('Tax Category')],
+            'shippingCategory' => ['label' => Craft::t('Shipping Category')],
             'freeShipping' => ['label' => Craft::t('Free Shipping?')],
             'promotable' => ['label' => Craft::t('Promotable?')],
             'link' => ['label' => Craft::t('Link'), 'icon' => 'world'],
@@ -287,6 +288,11 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
                 $taxCategory = $element->getTaxCategory();
 
                 return ($taxCategory ? Craft::t($taxCategory->name) : '');
+            }
+            case 'shippingCategory': {
+                $shippingCategory = $element->getShippingCategory();
+
+                return ($shippingCategory ? Craft::t($shippingCategory->name) : '');
             }
             case 'defaultPrice': {
                 $code = craft()->commerce_paymentCurrencies->getDefaultPaymentCurrencyIso();
@@ -430,7 +436,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
     public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
     {
         $query
-            ->addSelect("products.id, products.typeId, products.promotable, products.freeShipping, products.postDate, products.expiryDate, products.defaultPrice, products.defaultVariantId, products.defaultSku, products.defaultWeight, products.defaultLength, products.defaultWidth, products.defaultHeight, products.taxCategoryId")
+            ->addSelect("products.id, products.typeId, products.promotable, products.freeShipping, products.postDate, products.expiryDate, products.defaultPrice, products.defaultVariantId, products.defaultSku, products.defaultWeight, products.defaultLength, products.defaultWidth, products.defaultHeight, products.taxCategoryId, products.shippingCategoryId")
             ->join('commerce_products products', 'products.id = elements.id')
             ->join('commerce_producttypes producttypes', 'producttypes.id = products.typeId');
 

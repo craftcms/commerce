@@ -4,6 +4,36 @@
     <div class="row">
         <div class="twelve columns">
 
+			{% if not craft.commerce.availableShippingMethods|length %}
+				<p>No shipping methods available.<p><p> <a class="button button-primary" href="{{ url('shop/checkout/payment') }}">Continue to payment</a></p>
+			{% endif %}
+
+			{% if craft.commerce.availableShippingMethods|length %}
+				<form method="POST">
+					<input type="hidden" name="action" value="commerce/cart/updateCart">
+					{{ getCsrfInput() }}
+
+					{% for handle, method in craft.commerce.availableShippingMethods %}
+						<div class="shipping-select">
+							<label>
+
+								<input type="radio" name="shippingMethod" value="{{ handle }}"
+									   {% if handle == cart.shippingMethodHandle %}checked{% endif %} />
+								<strong>{{ method.name }}</strong>
+
+								<span class="price">
+                            {{ method.amount|commerceCurrency(cart.currency) }}
+                        </span>
+							</label>
+						</div>
+					{% endfor %}
+					<span class="flash">{{ cart.getErrors('shippingMethod')|join }}</span>
+
+					<p><input type="submit" class="button button-primary" value="Select Shipping Method"/></p>
+
+				</form>
+			{% endif %}
+
             {% if cart.lineItems|length %}
             <table class="u-full-width">
                 <thead>

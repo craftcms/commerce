@@ -108,6 +108,13 @@ class Commerce_ShippingRulesController extends Commerce_BaseAdminController
             $variables['shippingZones'][$model->id] = $model->name;
         }
 
+        $variables['categoryShippingOptions'] = [];
+        $variables['categoryShippingOptions'][] = ['label' => Craft::t('Allow'), 'value' =>  Commerce_ShippingRuleCategoryRecord::CONDITION_ALLOW];
+        $variables['categoryShippingOptions'][] = ['label' => Craft::t('Disallow'), 'value' =>  Commerce_ShippingRuleCategoryRecord::CONDITION_DISALLOW];
+        $variables['categoryShippingOptions'][] = ['label' => Craft::t('Require'), 'value' =>  Commerce_ShippingRuleCategoryRecord::CONDITION_REQUIRE];
+
+
+
         $this->renderTemplate('commerce/settings/shippingrules/_edit', $variables);
     }
 
@@ -132,6 +139,15 @@ class Commerce_ShippingRulesController extends Commerce_BaseAdminController
         {
             $shippingRule->$field = craft()->request->getPost($field);
         }
+
+        $ruleCategories = [];
+        foreach (craft()->request->getPost('ruleCategories') as $key => $ruleCategory)
+        {
+            $ruleCategories[$key] = Commerce_ShippingRuleCategoryModel::populateModel($ruleCategory);
+            $ruleCategories[$key]->shippingCategoryId = $key;
+        }
+
+        $shippingRule->setShippingRuleCategories($ruleCategories);
 
         // Save it
         if (craft()->commerce_shippingRules->saveShippingRule($shippingRule))

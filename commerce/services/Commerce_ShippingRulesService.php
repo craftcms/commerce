@@ -53,6 +53,13 @@ class Commerce_ShippingRulesService extends BaseApplicationComponent
         return null;
     }
 
+    public function getShippingRuleCategoryByRuleId($id)
+    {
+        $result = Commerce_ShippingRuleCategoryRecord::model()->findAllByAttributes(['shippingRuleId' => $id]);
+
+        return Commerce_ShippingRuleCategoryModel::populateModels($result,'shippingCategoryId');
+    }
+
     /**
      * @param Commerce_ShippingRuleModel $model
      *
@@ -107,6 +114,8 @@ class Commerce_ShippingRulesService extends BaseApplicationComponent
             $model->priority = $record->priority;
         }
 
+
+
         $record->validate();
         $model->addErrors($record->getErrors());
 
@@ -116,6 +125,37 @@ class Commerce_ShippingRulesService extends BaseApplicationComponent
 
             // Now that we have a record ID, save it on the model
             $model->id = $record->id;
+
+            Commerce_ShippingRuleCategoryRecord::model()->deleteAllByAttributes([
+                'shippingRuleId' => $model->id
+            ]);
+
+            // Generate a rule category record for all categories regardless of data submitted
+            foreach (craft()->commerce_shippingCategories->getAllShippingCategories() as $shippingCategory)
+            {
+                /** @var Commerce_ShippingRuleCategoryModel $ruleCategory */
+                if(isset($model->getShippingRuleCategories()[$shippingCategory->id]) && $ruleCategory = $model->getShippingRuleCategories()[$shippingCategory->id])
+                {
+                    $data = [
+                      'shippingRuleId' => $model->id,
+                      'shippingCategoryId' => $shippingCategory->id,
+                      'condition' => $ruleCategory->condition,
+                      'perItemRate' => is_numeric($ruleCategory->perItemRate) ? $ruleCategory->perItemRate : null,
+                      'weightRate' => is_numeric($ruleCategory->weightRate) ? $ruleCategory->weightRate : null,
+                      'percentageRate' => is_numeric($ruleCategory->percentageRate) ? $ruleCategory->percentageRate : null
+                    ];
+                    craft()->db->createCommand()->insert('commerce_shippingrule_categories',$data);
+                }else
+                {
+                    $data = [
+                      'shippingRuleId' => $model->id,
+                      'shippingCategoryId' => $shippingCategory->id,
+                      'condition' => Commerce_ShippingRuleCategoryRecord::CONDITION_ALLOW
+                    ];
+                    craft()->db->createCommand()->insert('commerce_shippingrule_categories',$data);
+                }
+            }
+
 
             return true;
         } else {

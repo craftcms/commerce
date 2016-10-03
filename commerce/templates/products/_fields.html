@@ -51,13 +51,35 @@
 {% macro behavioralMetaFields(product) %}
 	{%- import "_includes/forms" as forms -%}
 
+	{% if product.type.taxCategories|length > 1 %}
 	{{ forms.selectField({
 		label: 'Tax Category'|t,
 		name: 'taxCategoryId',
 		value: product.taxCategoryId,
 		required: true,
-		options: craft.commerce.getTaxCategories(true)
+		options: product.type.getTaxCategories(true)
 	}) }}
+	{% else %}
+		{{ forms.hidden({
+			name: "taxCategoryId",
+			value: product.taxCategoryId
+		}) }}
+	{% endif %}
+
+	{% if product.type.shippingCategories|length > 1 %}
+	{{ forms.selectField({
+		label: 'Shipping Category'|t,
+		name: 'shippingCategoryId',
+		value: product.shippingCategoryId,
+		required: true,
+		options: product.type.getShippingCategories(true)
+	}) }}
+	{% else %}
+		{{ forms.hidden({
+			name: "shippingCategoryId",
+			value: product.shippingCategoryId
+		}) }}
+	{% endif %}
 
 	{{ forms.checkboxField({
 		id: 'free-shipping',

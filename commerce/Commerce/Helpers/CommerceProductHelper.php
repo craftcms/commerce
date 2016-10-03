@@ -4,6 +4,7 @@ namespace Commerce\Helpers;
 use Craft\Commerce_ProductModel as ProductModel;
 use Craft\Commerce_VariantModel as VariantModel;
 use Craft\LocalizationHelper as LocalizationHelper;
+use Craft\DateTime as CraftDateTime;
 
 /**
  * Class CommerceVariantMatrixHelper
@@ -34,15 +35,16 @@ class CommerceProductHelper
             $product->enabled = $data['enabled'];
         }
 
-        $product->postDate = $data['postDate'] ? \Craft\DateTime::createFromString($data['postDate'], \Craft\craft()->timezone) : $product->postDate;
+        $product->postDate = (($postDate = $data['postDate']) ? CraftDateTime::createFromString($postDate, \Craft\craft()->timezone) : $product->postDate);
         if (!$product->postDate) {
-            $product->postDate = new \Craft\DateTime();
+            $product->postDate = new CraftDateTime();
         }
-        $product->expiryDate = $data['expiryDate'] ? \Craft\DateTime::createFromString($data['expiryDate'], \Craft\craft()->timezone) : null;
+        $product->expiryDate    = (($expiryDate = $data['expiryDate']) ? CraftDateTime::createFromString($expiryDate, \Craft\craft()->timezone) : null);
 
         $product->promotable = $data['promotable'];
         $product->freeShipping = $data['freeShipping'];
         $product->taxCategoryId = $data['taxCategoryId'] ? $data['taxCategoryId'] : $product->taxCategoryId;
+        $product->shippingCategoryId = $data['shippingCategoryId'] ? $data['shippingCategoryId'] : $product->shippingCategoryId;
         $product->slug = $data['slug'] ? $data['slug'] : $product->slug;
     }
 

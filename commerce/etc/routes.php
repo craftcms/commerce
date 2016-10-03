@@ -60,6 +60,11 @@ return [
     'commerce/settings/shippingzones/new' => ['action' => 'commerce/shippingZones/edit'],
     'commerce/settings/shippingzones/(?P<id>\d+)' => ['action' => 'commerce/shippingZones/edit'],
 
+    // Shipping Categories
+    'commerce/settings/shippingcategories' => ['action' => 'commerce/shippingCategories/index'],
+    'commerce/settings/shippingcategories/new' => ['action' => 'commerce/shippingCategories/edit'],
+    'commerce/settings/shippingcategories/(?P<id>\d+)' => ['action' => 'commerce/shippingCategories/edit'],
+
     // Shipping Methods
     'commerce/settings/shippingmethods' => ['action' => 'commerce/shippingMethods/index'],
     'commerce/settings/shippingmethods/new' => ['action' => 'commerce/shippingMethods/edit'],

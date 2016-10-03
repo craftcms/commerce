@@ -30,12 +30,14 @@ use Commerce\Interfaces\Purchasable;
  * @property string                    $optionsSignature
  * @property mixed                     $options
  * @property int                       $taxCategoryId
+ * @property int                       $shippingCategoryId
  *
  * @property bool                      $onSale
  * @property Purchasable               $purchasable
  *
  * @property Commerce_OrderModel       $order
  * @property Commerce_TaxCategoryModel $taxCategory
+ * @property Commerce_ShippingCategoryModel $shippingCategory
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -200,6 +202,7 @@ class Commerce_LineItemModel extends BaseModel
     {
         $this->price = $purchasable->getPrice();
         $this->taxCategoryId = $purchasable->getTaxCategoryId();
+        $this->shippingCategoryId = $purchasable->getShippingCategoryId();
 
         // Since sales cannot apply to non core purchasables yet, set to price at default
         $this->salePrice = $purchasable->getPrice();
@@ -299,6 +302,14 @@ class Commerce_LineItemModel extends BaseModel
     }
 
     /**
+     * @return Commerce_TaxCategoryModel|null
+     */
+    public function getShippingCategory()
+    {
+        return craft()->commerce_shippingCategories->getShippingCategoryById($this->shippingCategoryId);
+    }
+
+    /**
      * @return array
      */
     protected function defineAttributes()
@@ -395,6 +406,7 @@ class Commerce_LineItemModel extends BaseModel
             'purchasableId'    => AttributeType::Number,
             'orderId'          => AttributeType::Number,
             'taxCategoryId'    => [AttributeType::Number, 'required' => true],
+            'shippingCategoryId'    => [AttributeType::Number, 'required' => true],
         ];
     }
 }

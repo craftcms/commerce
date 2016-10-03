@@ -134,6 +134,22 @@ class CommerceVariable
     }
 
     /**
+     * @return array
+     */
+    public function getShippingCategories($asList = false)
+    {
+        $shippingCategories = craft()->commerce_shippingCategories->getAllShippingCategories();
+
+        if ($asList)
+        {
+            return \CHtml::listData($shippingCategories, 'id', 'name');
+        }
+
+        // Need to put the methods into an array keyed by method ID for backwards compatibility.
+        return $this->arrayKeyedByAttribute($shippingCategories, 'id');
+    }
+
+    /**
      * @param bool $asList Whether we should return the payment methods as a simple list suitable for a html select box
      * @return Commerce_PaymentMethodModel[]
      */

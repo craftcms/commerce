@@ -289,6 +289,16 @@ class Commerce_VariantModel extends BasePurchasable
     }
 
     /**
+     * Returns the products shipping category
+     *
+     * @return int
+     */
+    public function getShippingCategoryId()
+    {
+        return $this->getProduct()->shippingCategoryId;
+    }
+
+    /**
      * Does this variants product has free shipping set.
      *
      * @return bool

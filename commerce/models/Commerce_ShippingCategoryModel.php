@@ -2,7 +2,7 @@
 namespace Craft;
 
 /**
- * Tax Category model.
+ * Shipping Category model.
  *
  * @property int $id
  * @property string $name
@@ -17,7 +17,7 @@ namespace Craft;
  * @package   craft.plugins.commerce.models
  * @since     1.0
  */
-class Commerce_TaxCategoryModel extends BaseModel implements \JsonSerializable
+class Commerce_ShippingCategoryModel extends BaseModel implements \JsonSerializable
 {
     public function jsonSerialize()
     {
@@ -25,7 +25,7 @@ class Commerce_TaxCategoryModel extends BaseModel implements \JsonSerializable
     }
 
     /**
-     * Returns the name of this tax category.
+     * Returns the name of this shipping category.
      *
      * @return string
      */
@@ -35,30 +35,11 @@ class Commerce_TaxCategoryModel extends BaseModel implements \JsonSerializable
     }
 
     /**
-     * @return Commerce_TaxRateModel[]
-     */
-    public function getTaxRates()
-    {
-        $allTaxRates = craft()->commerce_taxRates->getAllTaxRates();
-        $taxRates = [];
-        /** @var Commerce_TaxRateModel $rate */
-        foreach ($allTaxRates as $rate)
-        {
-            if ($this->id == $rate->taxCategoryId)
-            {
-                $taxRates[] = $rate;
-            }
-        }
-
-        return $taxRates;
-    }
-
-    /**
      * @return string
      */
     public function getCpEditUrl()
     {
-        return UrlHelper::getCpUrl('commerce/settings/taxcategories/' . $this->id);
+        return UrlHelper::getCpUrl('commerce/settings/shippingcategories/' . $this->id);
     }
 
     /**

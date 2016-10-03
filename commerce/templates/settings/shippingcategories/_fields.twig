@@ -1,0 +1,51 @@
+{% import "_includes/forms" as forms %}
+
+{{ forms.textField({
+    first: true,
+    label: "Name"|t,
+    instructions: "What this shipping category will be called in the CP."|t,
+    id: 'name',
+    name: 'name',
+    value: shippingCategory is defined ? shippingCategory.name,
+    errors: shippingCategory is defined ? shippingCategory.getErrors('name'),
+    autofocus: true,
+    required: true,
+    translatable: true
+}) }}
+
+{{ forms.textField({
+    label: "Handle"|t,
+    instructions: "How you’ll refer to this shipping category in the templates."|t,
+    id: 'handle',
+    class: 'code',
+    name: 'handle',
+    required: true,
+    value: shippingCategory is defined ? shippingCategory.handle,
+    errors: shippingCategory is defined ? shippingCategory.getErrors('handle')
+}) }}
+
+{{ forms.textField({
+    label: "Description"|t,
+    id: 'description',
+    name: 'description',
+    value: shippingCategory is defined ? shippingCategory.description,
+    errors: shippingCategory is defined ? shippingCategory.getErrors('description')
+}) }}
+
+{{ forms.checkboxField({
+    label: "Use this shipping category by default for new products"|t,
+    id: 'default',
+    name: 'default',
+    value: 1,
+    checked: shippingCategory is defined ? shippingCategory.default,
+    errors: shippingCategory is defined ? shippingCategory.getErrors('default')
+}) }}
+
+
+{% if shippingCategory is not defined or not shippingCategory.handle %}
+    {% set nameId = 'name'|namespaceInputId|e('js') %}
+    {% set handleId = 'handle'|namespaceInputId|e('js') %}
+    {% includejs %}
+        new Craft.HandleGenerator('#{{ nameId }}', '#{{ handleId }}');
+    {% endincludejs %}
+{% endif %}

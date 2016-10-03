@@ -9,6 +9,7 @@ namespace Craft;
  * @property DateTime                  $expiryDate
  * @property int                       $typeId
  * @property int                       $taxCategoryId
+ * @property int                       $shippingCategoryId
  * @property bool                      $promotable
  * @property bool                      $freeShipping
  * @property bool                      $enabled
@@ -144,6 +145,19 @@ class Commerce_ProductModel extends BaseElementModel
         if ($this->taxCategoryId)
         {
             return craft()->commerce_taxCategories->getTaxCategoryById($this->taxCategoryId);
+        }
+    }
+
+    /**
+     * Gets the shipping category
+     *
+     * @return Commerce_ShippingCategoryModel|null
+     */
+    public function getShippingCategory()
+    {
+        if ($this->shippingCategoryId)
+        {
+            return craft()->commerce_shippingCategories->getShippingCategoryById($this->shippingCategoryId);
         }
     }
 
@@ -354,6 +368,7 @@ class Commerce_ProductModel extends BaseElementModel
         return array_merge(parent::defineAttributes(), [
             'typeId'        => AttributeType::Number,
             'taxCategoryId' => AttributeType::Number,
+            'shippingCategoryId' => AttributeType::Number,
             'promotable'    => [AttributeType::Bool, 'default' => true],
             'freeShipping'  => AttributeType::Bool,
             'postDate'      => AttributeType::DateTime,
