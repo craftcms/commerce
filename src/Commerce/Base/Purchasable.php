@@ -78,8 +78,18 @@ abstract class Purchasable extends BaseElementModel implements PurchasableInterf
 	 */
 	public function getTaxCategoryId()
 	{
-		return craft()->commerce_taxCategories->getDefaultTaxCategoryId();
+		return craft()->commerce_taxCategories->getDefaultTaxCategory()->id;
 	}
+
+    /**
+     * Returns a Craft Commerce shipping category id
+     *
+     * @return int
+     */
+    public function getShippingCategoryId()
+    {
+        return craft()->commerce_shippingCategories->getDefaultShippingCategory()->id;
+    }
 
 	/**
 	 * Validates this purchasable for the line item it is on. Called when Purchasable is added to the cart.

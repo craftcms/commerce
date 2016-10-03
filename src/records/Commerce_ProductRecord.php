@@ -6,6 +6,7 @@ namespace Craft;
  *
  * @property int $id
  * @property int $taxCategoryId
+ * @property int $shippingCategoryId
  * @property int $typeId
  * @property DateTime $postDate
  * @property DateTime $expiryDate
@@ -68,6 +69,11 @@ class Commerce_ProductRecord extends BaseRecord
             'taxCategory' => [
                 static::BELONGS_TO,
                 'Commerce_TaxCategoryRecord',
+                'required' => true
+            ],
+            'shippingCategory' => [
+                static::BELONGS_TO,
+                'Commerce_ShippingCategoryRecord',
                 'required' => true
             ],
         ];

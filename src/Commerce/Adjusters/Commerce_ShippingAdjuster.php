@@ -7,6 +7,7 @@ use Commerce\Interfaces\ShippingMethod;
 use Craft\Commerce_LineItemModel;
 use Craft\Commerce_OrderAdjustmentModel;
 use Craft\Commerce_OrderModel;
+use Craft\Commerce_ShippingRuleCategoryModel;
 
 /**
  * Tax Adjustments
@@ -53,15 +54,18 @@ class Commerce_ShippingAdjuster implements Commerce_AdjusterInterface
             $affectedLineIds = [];
 
             //checking items tax categories
-            $weight = $qty = $price = 0;
             $itemShippingTotal = 0;
             $freeShippingAmount = 0;
             foreach ($lineItems as $item) {
-                $weight += $item->qty * $item->weight;
-                $qty += $item->qty;
-                $price += $item->getSubtotal();
-                
-				$item->shippingCost = CommerceCurrencyHelper::round($item->getSubtotal() * $rule->getPercentageRate()) + ($rule->getPerItemRate() * $item->qty) + (($item->weight * $item->qty) * $rule->getWeightRate());
+
+                $percentageRate = $rule->getPercentageRate($item->shippingCategoryId);
+                $perItemRate = $rule->getPerItemRate($item->shippingCategoryId);
+                $weightRate = $rule->getWeightRate($item->shippingCategoryId);
+
+                $percentageAmount = $item->getSubtotal() * $percentageRate;
+                $perItemAmount =  $item->qty * $perItemRate;
+                $weightAmount = ($item->weight * $item->qty) * $weightRate;
+				$item->shippingCost = CommerceCurrencyHelper::round($percentageAmount + $perItemAmount + $weightAmount);
 
                 if($item->shippingCost && !$item->purchasable->hasFreeShipping()){
                     $affectedLineIds[] = $item->id;

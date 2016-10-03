@@ -173,6 +173,11 @@ class Commerce_ProductsController extends Commerce_BaseCpController
             {
                 $variables['product'] = new Commerce_ProductModel();
                 $variables['product']->typeId = $variables['productType']->id;
+                $taxCategories = $variables['productType']->getTaxCategories();
+                $variables['product']->taxCategoryId = key($taxCategories);
+                $shippingCategories = $variables['productType']->getShippingCategories();
+                $variables['product']->shippingCategoryId = key($shippingCategories);
+                $variables['product']->typeId = $variables['productType']->id;
                 if ($variables['localeId'])
                 {
                     $variables['product']->locale = $variables['localeId'];

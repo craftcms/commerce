@@ -64,6 +64,7 @@ class Commerce_ProductsService extends BaseApplicationComponent
         $record->promotable = $product->promotable;
         $record->freeShipping = $product->freeShipping;
         $record->taxCategoryId = $product->taxCategoryId;
+        $record->shippingCategoryId = $product->shippingCategoryId;
 
         $record->validate();
         $product->addErrors($record->getErrors());

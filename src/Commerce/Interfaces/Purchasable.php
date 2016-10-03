@@ -69,6 +69,13 @@ interface Purchasable
     public function getTaxCategoryId();
 
     /**
+     * Returns a Craft Commerce shipping category id
+     *
+     * @return int
+     */
+    public function getShippingCategoryId();
+
+    /**
      * Validates this purchasable for the line item it is on. Called when Purchasable is added to the cart.
      *
      * You can add model errors to the line item like this: `$lineItem->addError('qty', $errorText);`

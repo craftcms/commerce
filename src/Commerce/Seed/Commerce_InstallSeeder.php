@@ -12,6 +12,7 @@ use Craft\Commerce_SettingsModel;
 use Craft\Commerce_ShippingMethodRecord;
 use Craft\Commerce_ShippingRuleRecord;
 use Craft\Commerce_TaxCategoryModel;
+use Craft\Commerce_ShippingCategoryModel;
 use Craft\Commerce_VariantModel;
 use Craft\DateTime;
 use Craft\FieldLayoutModel;
@@ -34,6 +35,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
         $this->defaultCurrency();
         $this->defaultShippingMethod();
         $this->defaultTaxCategories();
+        $this->defaultShippingCategories();
         $this->defaultOrderSettings();
         $this->defaultProductTypes();
         $this->defaultProducts();
@@ -82,6 +84,21 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
         ]);
 
         \Craft\craft()->commerce_taxCategories->saveTaxCategory($category);
+    }
+
+
+    /**
+     * @throws \Craft\Exception
+     */
+    private function defaultShippingCategories()
+    {
+        $category = Commerce_ShippingCategoryModel::populateModel([
+            'name' => 'General',
+            'handle' => 'general',
+            'default' => 1,
+        ]);
+
+        \Craft\craft()->commerce_shippingCategories->saveShippingCategory($category);
     }
 
     /**
@@ -193,7 +210,8 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
                 'postDate' => new DateTime(),
                 'expiryDate' => null,
                 'promotable' => 1,
-                'taxCategoryId' => \Craft\craft()->commerce_taxCategories->getDefaultTaxCategoryId(),
+                'taxCategoryId' => 1,
+                'shippingCategoryId' => 1,
             ]);
 
             $product->getContent()->title = $productName;

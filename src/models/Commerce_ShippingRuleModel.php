@@ -35,6 +35,9 @@ namespace Craft;
  */
 class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfaces\ShippingRule
 {
+
+    private $_shippingRuleCategories;
+
     /**
      * @return bool
      */
@@ -107,6 +110,51 @@ class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfac
             return false;
         }
 
+        $shippingRuleCategories = $this->getShippingRuleCategories();
+
+        $orderShippingCategories = [];
+        foreach ($order->lineItems as $lineItem)
+        {
+            $orderShippingCategories[] = $lineItem->shippingCategoryId;
+        }
+        $orderShippingCategories = array_unique($orderShippingCategories);
+
+        $disallowedCategories = [];
+        $allowedCategories = [];
+        $requiredCategories = [];
+        foreach ($shippingRuleCategories as $ruleCategory)
+        {
+            if ($ruleCategory->condition == Commerce_ShippingRuleCategoryRecord::CONDITION_DISALLOW)
+            {
+                $disallowedCategories[] = $ruleCategory->shippingCategoryId;
+            }
+
+            if ($ruleCategory->condition == Commerce_ShippingRuleCategoryRecord::CONDITION_ALLOW)
+            {
+                $allowedCategories[] = $ruleCategory->shippingCategoryId;
+            }
+
+            if ($ruleCategory->condition == Commerce_ShippingRuleCategoryRecord::CONDITION_REQUIRE)
+            {
+                $requiredCategories[] = $ruleCategory->shippingCategoryId;
+            }
+        }
+
+        // Does the order have any disallowed categories in the cart?
+        $result = array_intersect($orderShippingCategories, $disallowedCategories);
+        if (!empty($result))
+        {
+            return false;
+        }
+
+        // Does the order have all required categories in the cart?
+        $result = !array_diff($requiredCategories, $orderShippingCategories);
+        if (!$result)
+        {
+            return false;
+        }
+
+        $this->getShippingRuleCategories();
         $floatFields = ['minTotal', 'maxTotal', 'minWeight', 'maxWeight'];
         foreach ($floatFields as $field)
         {
@@ -188,6 +236,29 @@ class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfac
     }
 
     /**
+     * @return Commerce_ShippingRuleCategoryModel[]
+     */
+    public function getShippingRuleCategories()
+    {
+        if(!isset($this->_shippingRuleCategories))
+        {
+            $this->_shippingRuleCategories = craft()->commerce_shippingRules->getShippingRuleCategoryByRuleId($this->id);
+        }
+
+        return $this->_shippingRuleCategories;
+    }
+
+    /**
+     * @param Commerce_ShippingRuleCategoryModel[] $models
+     *
+     * @return array
+     */
+    public function setShippingRuleCategories(array $models)
+    {
+        $this->_shippingRuleCategories = $models;
+    }
+
+    /**
      * @return array
      */
     public function getOptions()
@@ -198,25 +269,43 @@ class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfac
     /**
      * @return float
      */
-    public function getPercentageRate()
+    public function getPercentageRate($shippingCategoryId = null)
     {
-        return $this->getAttribute('percentageRate');
+        return $this->_getRate('percentageRate', $shippingCategoryId);
     }
 
     /**
      * @return float
      */
-    public function getPerItemRate()
+    public function getPerItemRate($shippingCategoryId = null)
     {
-        return $this->getAttribute('perItemRate');
+        return $this->_getRate('perItemRate', $shippingCategoryId);
     }
 
     /**
      * @return float
      */
-    public function getWeightRate()
+    public function getWeightRate($shippingCategoryId = null)
     {
-        return $this->getAttribute('weightRate');
+        return $this->_getRate('weightRate', $shippingCategoryId);
+    }
+
+    private function _getRate($attribute, $shippingCategoryId = null)
+    {
+        if (!$shippingCategoryId)
+        {
+            return $this->getAttribute($attribute);
+        }
+
+        foreach ($this->getShippingRuleCategories() as $ruleCategory)
+        {
+            if ($shippingCategoryId == $ruleCategory->shippingCategoryId && $ruleCategory->$attribute !== null)
+            {
+                return $ruleCategory->$attribute;
+            }
+        }
+
+        return $this->getAttribute($attribute);
     }
 
     /**

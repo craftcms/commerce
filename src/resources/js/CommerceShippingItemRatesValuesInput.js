@@ -5,7 +5,7 @@ if (typeof Craft.Commerce === typeof undefined) {
 /**
  * Class Craft.Commerce.RevenueWidget
  */
-Craft.Commerce.VariantValuesInput = Craft.BaseInputGenerator.extend({
+Craft.Commerce.CommerceShippingItemRatesValuesInput = Craft.BaseInputGenerator.extend({
     startListening: function ()
     {
         if (this.listening)
@@ -23,7 +23,7 @@ Craft.Commerce.VariantValuesInput = Craft.BaseInputGenerator.extend({
         var sourceVal = this.$source.val();
         var targetVal = this.generateTargetValue(sourceVal);
         console.log(sourceVal);
-        this.$target.prop('checked', true);
+        this.$target.prop('placeholder', targetVal);
     },
     onFormSubmit: function ()
     {

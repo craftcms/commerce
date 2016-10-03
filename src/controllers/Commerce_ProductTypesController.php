@@ -85,6 +85,9 @@ class Commerce_ProductTypesController extends Commerce_BaseAdminController
 
         $productType->setLocales($locales);
 
+        $productType->setTaxCategories(craft()->request->getPost('taxCategories'));
+        $productType->setShippingCategories(craft()->request->getPost('shippingCategories'));
+
         // Set the product type field layout
         $fieldLayout = craft()->fields->assembleLayoutFromPost();
         $fieldLayout->type = 'Commerce_Product';

@@ -239,6 +239,44 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
     }
 
     /**
+     * @param      $productTypeId
+     * @param null $indexBy
+     *
+     * @return array
+     */
+    public function getProductTypeShippingCategories($productTypeId, $indexBy = null)
+    {
+        $productType = Commerce_ProductTypeRecord::model()->with('shippingCategories')->findByAttributes(['id' => $productTypeId]);
+        if ($productType && $productType->shippingCategories)
+        {
+            $shippingCategories = $productType->shippingCategories;
+        }else{
+            $shippingCategories = [craft()->commerce_shippingCategories->getDefaultShippingCategory()];
+        }
+
+        return Commerce_ShippingCategoryModel::populateModels($shippingCategories, $indexBy);
+    }
+
+    /**
+     * @param      $productTypeId
+     * @param null $indexBy
+     *
+     * @return array
+     */
+    public function getProductTypeTaxCategories($productTypeId, $indexBy = null)
+    {
+        $productType = Commerce_ProductTypeRecord::model()->with('taxCategories')->findByAttributes(['id' => $productTypeId]);
+        if ($productType && $productType->taxCategories)
+        {
+            $taxCategories = $productType->taxCategories;
+        }else{
+            $taxCategories = [craft()->commerce_taxCategories->getDefaultTaxCategory()];
+        }
+        return Commerce_TaxCategoryModel::populateModels($taxCategories, $indexBy);
+    }
+
+
+    /**
      * @param Commerce_ProductTypeModel $productType
      *
      * @return bool
@@ -403,6 +441,21 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
 
                 // Update the service level cache
                 $this->_productTypesById[$productType->id] = $productType;
+
+                craft()->db->createCommand()->delete('commerce_producttypes_shippingcategories','productTypeId = :xid',[':xid'=>$productType->id]);
+                craft()->db->createCommand()->delete('commerce_producttypes_taxcategories','productTypeId = :xid',[':xid'=>$productType->id]);
+
+                foreach ($productType->getShippingCategories() as $category)
+                {
+                    $data = ['productTypeId'=>$productType->id,'shippingCategoryId'=>$category->id];
+                    craft()->db->createCommand()->insert('commerce_producttypes_shippingcategories',$data);
+                }
+
+                foreach ($productType->getTaxCategories() as $category)
+                {
+                    $data = ['productTypeId'=>$productType->id,'taxCategoryId'=>$category->id];
+                    craft()->db->createCommand()->insert('commerce_producttypes_taxcategories',$data);
+                }
 
                 $newLocaleData = [];
 
@@ -593,7 +646,7 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
         CommerceDbHelper::beginStackedTransaction();
         try
         {
-            $productType = $this->getProductTypeById($id);
+            $productType = $this->Id($id);
 
             $criteria = craft()->elements->getCriteria('Commerce_Product');
             $criteria->typeId = $productType->id;

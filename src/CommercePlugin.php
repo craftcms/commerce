@@ -154,7 +154,10 @@ class CommercePlugin extends BasePlugin
 	                    'm160826_010101_Commerce_NewAddressFields.php',
 	                    'm160915_010101_Commerce_RenameCurrencies',
 	                    'm160916_010102_Commerce_PdfNameFormat',
-                        'm160917_010103_Commerce_DescriptionFormat'
+                        'm160917_010103_Commerce_DescriptionFormat',
+                        'm160917_010104_Commerce_ShippingCategories',
+                        'm160917_010104_Commerce_OrderLocale',
+                        'm160927_010101_Commerce_ShippingRuleCategories'
                     );
 
                     foreach ($migrations as $migrationClass) {
@@ -302,7 +305,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getSchemaVersion()
     {
-        return '1.2.61';
+        return '1.2.63';
     }
 
     /**

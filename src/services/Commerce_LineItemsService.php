@@ -135,6 +135,7 @@ class Commerce_LineItemsService extends BaseApplicationComponent
         $lineItemRecord->purchasableId = $lineItem->purchasableId;
         $lineItemRecord->orderId = $lineItem->orderId;
         $lineItemRecord->taxCategoryId = $lineItem->taxCategoryId;
+        $lineItemRecord->shippingCategoryId = $lineItem->shippingCategoryId;
 
         $lineItemRecord->options = $lineItem->options;
         $lineItemRecord->optionsSignature = $lineItem->optionsSignature;
@@ -405,7 +406,7 @@ class Commerce_LineItemsService extends BaseApplicationComponent
     {
 
         return craft()->db->createCommand()
-            ->select('lineitems.id, lineitems.orderId, lineitems.purchasableId, lineitems.options, lineitems.optionsSignature, lineitems.price, lineitems.saleAmount, lineitems.salePrice, lineitems.tax, lineitems.taxIncluded, lineitems.shippingCost, lineitems.discount, lineitems.weight, lineitems.height, lineitems.length, lineitems.width, lineitems.total, lineitems.qty, lineitems.note, lineitems.snapshot, lineitems.taxCategoryId')
+            ->select('lineitems.id, lineitems.orderId, lineitems.purchasableId, lineitems.options, lineitems.optionsSignature, lineitems.price, lineitems.saleAmount, lineitems.salePrice, lineitems.tax, lineitems.taxIncluded, lineitems.shippingCost, lineitems.discount, lineitems.weight, lineitems.height, lineitems.length, lineitems.width, lineitems.total, lineitems.qty, lineitems.note, lineitems.snapshot, lineitems.taxCategoryId, lineitems.shippingCategoryId')
             ->from('commerce_lineitems lineitems')
             ->order('lineitems.id');
     }
