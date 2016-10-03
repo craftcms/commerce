@@ -29,6 +29,7 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  * @property bool $allProducts
  * @property bool $allProductTypes
  * @property bool $enabled
+ * @property bool $stopProcessing
  * @property int $sortOrder
  *
  * @property Commerce_ProductModel[] $products
@@ -178,6 +179,11 @@ class Commerce_DiscountModel extends BaseModel
                 AttributeType::Bool,
                 'required' => true,
                 'default' => true
+            ],
+            'stopProcessing' => [
+                AttributeType::Bool,
+                'required' => true,
+                'default' => false
             ],
             'sortOrder' => AttributeType::Number
         ];

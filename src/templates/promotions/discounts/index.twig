@@ -17,6 +17,7 @@
             <th scope="col">{{ "Code"|t }}</th>
             <th scope="col">{{ "Duration"|t }}</th>
             <th scope="col">{{ "Times Used"|t }}</th>
+            <th scope="col">{{ "Can Stop Processing?"|t }}</th>
             <td class="thin"></td>
             <td class="thin"></td>
         </tr>
@@ -39,9 +40,10 @@
                     {{ (discount.dateTo ? discount.dateTo.localeDate() : '∞') }}
                 </td>
                 <td data-title="{{ 'Times Coupon Used'|t }}">{{ discount.totalUses }}</td>
-				<td class="thin">
-					<a class="move icon disabled" title="{{ 'Delete'|t }}" role="button"></a>
-				</td>
+                <td data-title="{{ 'Can Stop Processing?'|t }}">{% if discount.stopProcessing %}<span data-icon="check" title="{{ 'Yes'|t }}"></span>{% endif %}</td>
+                <td class="thin">
+                    <a class="move icon disabled" title="{{ 'Delete'|t }}" role="button"></a>
+                </td>
                 <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
             </tr>
         {% endfor %}

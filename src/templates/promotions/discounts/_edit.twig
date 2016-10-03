@@ -75,7 +75,16 @@
         errors: discount.getErrors('enabled')
     }) }}
 
-    </div>
+    {{ forms.checkboxField({
+        label: "Stop processing further discounts after this discount matches."|t,
+        id: 'stopProcessing',
+        name: 'stopProcessing',
+        value: 1,
+        checked: discount.stopProcessing,
+        errors: discount.getErrors('stopProcessing')
+    }) }}
+
+	</div>
 
     <div id="coupon" class="hidden">
 

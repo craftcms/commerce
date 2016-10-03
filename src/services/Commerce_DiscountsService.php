@@ -299,7 +299,7 @@ class Commerce_DiscountsService extends BaseApplicationComponent
             $record = new Commerce_DiscountRecord();
         }
 
-        $fields = ['id', 'name', 'description', 'dateFrom', 'dateTo', 'enabled', 'purchaseTotal', 'purchaseQty', 'maxPurchaseQty', 'baseDiscount', 'perItemDiscount', 'percentDiscount', 'freeShipping', 'excludeOnSale', 'perUserLimit', 'perEmailLimit', 'totalUseLimit'];
+        $fields = ['id', 'name', 'description', 'dateFrom', 'dateTo', 'enabled', 'stopProcessing', 'purchaseTotal', 'purchaseQty', 'maxPurchaseQty', 'baseDiscount', 'perItemDiscount', 'percentDiscount', 'freeShipping', 'excludeOnSale', 'perUserLimit', 'perEmailLimit', 'totalUseLimit'];
         foreach ($fields as $field)
         {
             $record->$field = $model->$field;
