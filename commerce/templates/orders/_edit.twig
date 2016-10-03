@@ -66,6 +66,10 @@
 					<td><strong>{{ "Paid"|t }} </strong></td>
 					<td>{{ order.totalPaid|currency(order.currency) }} {{ order.datePaid|date('D dS M Y') }}</td>
 				</tr>
+                <tr>
+                    <td><strong>{{ "IP Address"|t }} </strong></td>
+                    <td>{{ order.lastIp }}</td>
+                </tr>
 				<tr>
 					<td><strong>{{ "Order Currency"|t }} </strong></td>
 					<td>{{ order.currency }}</td>
