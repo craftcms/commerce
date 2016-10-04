@@ -178,8 +178,8 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
         }
 
         // Save the return and cancel URLs to the order
-        $returnUrl = craft()->request->getPost('redirect');
-        $cancelUrl = craft()->request->getPost('cancelUrl');
+        $returnUrl = craft()->request->getValidatedPost('redirect');
+        $cancelUrl = craft()->request->getValidatedPost('cancelUrl');
 
         if ($returnUrl !== null || $cancelUrl !== null)
         {
