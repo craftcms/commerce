@@ -441,7 +441,7 @@ window.shippingCategories = $.map(JSON.parse('{{ craft.commerce.shippingCategori
 $("select[name^='ruleCategories']").change(function() {
     var id = $(this).closest('tr').data('id');
     var value = $(this).val();
-    var $rateRow = $("#shipping-categories-rates").find("tr[data-id="+id+"]").addClass('hidden');
+    var $rateRow = $("#shipping-categories-rates").find("tr[data-id="+id+"]");
     if (value == 'disallow')
     {
         $rateRow.addClass('hidden');
