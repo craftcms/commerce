@@ -47,7 +47,7 @@ class Commerce_VariantsService extends BaseApplicationComponent
      */
     public function getAllVariantsByProductId($productId, $localeId = null)
     {
-        $variants = craft()->elements->getCriteria('Commerce_Variant', ['productId' => $productId, 'status' => null, 'locale' => $localeId])->find();
+        $variants = craft()->elements->getCriteria('Commerce_Variant', ['productId' => $productId, 'status' => null, 'limit' => null, 'locale' => $localeId])->find();
 
         return $variants;
     }
