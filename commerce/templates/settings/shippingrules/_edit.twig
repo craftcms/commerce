@@ -261,7 +261,7 @@
 		<h3>{{ "Shipping Category Conditions"|t }}</h3>
 		{% set shippingCategories = craft.commerce.shippingCategories%}
 		{% if shippingCategories %}
-		<table id="shipping-categories" class="data fullwidth collapsible">
+		<table id="shipping-categories-conditions" class="data fullwidth collapsible">
 			<thead>
 			<tr>
 				<th scope="col">{{ 'Name'|t }}</th>
@@ -329,7 +329,7 @@
 		<h3>{{ "Item Rates"|t }}</h3>
 		{% set shippingCategories = craft.commerce.shippingCategories %}
 		{% if shippingCategories %}
-			<table id="shipping-categories" class="data fullwidth collapsible">
+			<table id="shipping-categories-rates" class="data fullwidth collapsible">
 				<thead>
 				<tr>
 					<th scope="col">{{ 'Name'|t }}</th>
@@ -386,8 +386,9 @@
 					{% set perItemRate = shippingRule.getShippingRuleCategories[shippingCategory.id].perItemRate ?? '' %}
 					{% set weightRate = shippingRule.getShippingRuleCategories[shippingCategory.id].weightRate ?? '' %}
 					{% set percentageRate = shippingRule.getShippingRuleCategories[shippingCategory.id].percentageRate ?? '' %}
+					{% set categoryCondition = shippingRule.getShippingRuleCategories[shippingCategory.id].condition ?? '' %}
 					{% set id = shippingCategory.id %}
-					<tr{% if id %} data-id="{{ id }}" data-name="{{ shippingCategory.name }}"{% endif %}>
+					<tr{% if id %} data-id="{{ id }}" data-name="{{ shippingCategory.name }}"{% endif %} class="{% if categoryCondition == 'disallow' %}hidden{% endif %}">
 						<th scope="row" data-title="{{ 'Name'|t }}">
 							{{ shippingCategory.name }}
 						</th>
@@ -433,3 +434,19 @@
 {% includejs "window.perItemPricePlaceholder = new Craft.Commerce.CommerceShippingItemRatesValuesInput('input[name=\"perItemRate\"]', '.categoryPerItemRate');" %}
 {% includejs "window.weightRatePricePlaceholder = new Craft.Commerce.CommerceShippingItemRatesValuesInput('input[name=\"weightRate\"]', '.categoryWeightRate');" %}
 {% includejs "window.percentagePricePlaceholder = new Craft.Commerce.CommerceShippingItemRatesValuesInput('input[name=\"percentageRate\"]', '.categoryPercentageRate');" %}
+
+{% includeJs %}
+window.shippingCategories = $.map(JSON.parse('{{ craft.commerce.shippingCategories|json_encode|raw }}'), function(value, index) { return [value] });
+
+$("select[name^='ruleCategories']").change(function() {
+    var id = $(this).closest('tr').data('id');
+    var value = $(this).val();
+    var $rateRow = $("#shipping-categories-rates").find("tr[data-id="+id+"]").addClass('hidden');
+    if (value == 'disallow')
+    {
+        $rateRow.addClass('hidden');
+    }else{
+        $rateRow.removeClass('hidden');
+    }
+});
+{% endincludejs %}
