@@ -47,6 +47,18 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
             $order = craft()->commerce_cart->getCart();
         }
 
+        // Are we paying anonymously?
+        if (!$order->isActiveCart() && !craft()->userSession->checkPermission('commerce-manageOrders'))
+        {
+            if (craft()->config->get('requireEmailForAnonymousPayments','commerce'))
+            {
+                if($order->email !== craft()->request->getParam('email'))
+                {
+                    throw new HttpException(401, Craft::t("Not authorized to make payments on this order."));
+                }
+            }
+        }
+
         // These are used to compare if the order changed during it's final
         // recalculation before payment.
         $originalTotalPrice = $order->outstandingBalance();
