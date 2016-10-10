@@ -601,11 +601,11 @@ $lang['The flat value which should discount each item in the order. i.e “1” 
 $lang['The flat value which should discount the order’s total price. i.e “10” for $10 off.'] = 'The flat value which should discount the order’s total price. i.e “10” for $10 off.';
 $lang['The generated file name format. Do not include the file extension.'] = 'The generated file name format. Do not include the file extension.';
 $lang['The maximum number of items in the cart to match this rule. Zero matches all carts.'] = 'The maximum number of items in the cart to match this rule. Zero matches all carts.';
-$lang['The maximum the customer should spend on shippping. Set to zero to disable.'] = 'The maximum the customer should spend on shippping. Set to zero to disable.';
+$lang['The maximum the customer should spend on shipping. Set to zero to disable.'] = 'The maximum the customer should spend on shipping. Set to zero to disable.';
 $lang['The maximum total price of the cart to match this rule. Zero matches all carts.'] = 'The maximum total price of the cart to match this rule. Zero matches all carts.';
 $lang['The maximum weight of the cart to match this rule. Zero matches all carts.'] = 'The maximum weight of the cart to match this rule. Zero matches all carts.';
 $lang['The minimum number of items in the cart to match this rule. Zero matches all carts.'] = 'The minimum number of items in the cart to match this rule. Zero matches all carts.';
-$lang['The minimum the customer should spend on shippping. Set to zero to disable.'] = 'The minimum the customer should spend on shippping. Set to zero to disable.';
+$lang['The minimum the customer should spend on shipping. Set to zero to disable.'] = 'The minimum the customer should spend on shipping. Set to zero to disable.';
 $lang['The minimum total price of the cart to match this rule. Zero matches all carts.'] = 'The minimum total price of the cart to match this rule. Zero matches all carts.';
 $lang['The minimum weight of the cart to match this rule. Zero matches all carts.'] = 'The minimum weight of the cart to match this rule. Zero matches all carts.';
 $lang['The path to the template used for generating order PDFs'] = 'The path to the template used for generating order PDFs';
