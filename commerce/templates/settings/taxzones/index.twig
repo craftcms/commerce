@@ -1,5 +1,8 @@
 {% extends "commerce/_layouts/settings" %}
 
+{% from "commerce/_includes/settings" import indexInlineList %}
+
+
 {% block content %}
     <h2>{{ "Tax Zones"|t }}</h2>
 
@@ -27,18 +30,10 @@
                 <td data-title="{{ 'Description'|t }}">{{ taxZone.description }}</td>
                 <td data-title="{{ 'Type'|t }}">{{ taxZone.countryBased ? 'Country Based'|t : 'State Based'|t }}</td>
                 <td data-title="{{ 'Countries/States'|t }}">
-                    {%  set countryCount = taxZone.getCountriesNames()|length%}
-                    {% if countryCount > 3 %}
-                        {{ taxZone.getCountriesNames()|slice(0,3)|join(', ') }} ({{ (countryCount - 3) ~ " more"|t }}&hellip;)
+                    {% if taxZone.countryBased %}
+                        {{ indexInlineList(taxZone.getCountriesNames()) }}
                     {% else %}
-                        {{ taxZone.getCountriesNames()|join(', ') }}
-                    {% endif %}
-
-                    {%  set stateCount = taxZone.getStatesNames()|length%}
-                    {% if stateCount > 3 %}
-                        {{ taxZone.getStatesNames()|slice(0,3)|join(', ') }} ({{ (stateCount - 3) ~ " more"|t }}&hellip;)
-                    {% else %}
-                        {{ taxZone.getStatesNames()|join(', ') }}
+                        {{ indexInlineList(taxZone.getStatesNames()) }}
                     {% endif %}
                 </td>
                 <td data-title="{{ 'Used By Tax Rates'|t }}">

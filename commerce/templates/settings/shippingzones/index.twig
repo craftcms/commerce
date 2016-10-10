@@ -1,5 +1,8 @@
 {% extends "commerce/_layouts/settings" %}
 
+{% from "commerce/_includes/settings" import indexInlineList %}
+
+
 {% block content %}
     <h2>{{ "Shipping Zones"|t }}</h2>
 
@@ -25,18 +28,10 @@
                 <td data-title="{{ 'Description'|t }}">{{ shippingZone.description }}</td>
                 <td data-title="{{ 'Type'|t }}">{{ shippingZone.countryBased ? 'Country Based'|t : 'State Based'|t }}</td>
                 <td data-title="{{ 'Countries/States'|t }}">
-                    {%  set countryCount = shippingZone.getCountriesNames()|length%}
-                    {% if countryCount > 3 %}
-                        {{ shippingZone.getCountriesNames()|slice(0,3)|join(', ') }} ({{ (countryCount - 3) ~ " more"|t }}&hellip;)
+                    {% if shippingZone.countryBased %}
+                        {{ indexInlineList(shippingZone.getCountriesNames()) }}
                     {% else %}
-                        {{ shippingZone.getCountriesNames()|join(', ') }}
-                    {% endif %}
-
-                    {%  set stateCount = shippingZone.getStatesNames()|length%}
-                    {% if stateCount > 3 %}
-                        {{ shippingZone.getStatesNames()|slice(0,3)|join(', ') }} ({{ (stateCount - 3) ~ " more"|t }}&hellip;)
-                    {% else %}
-                        {{ shippingZone.getStatesNames()|join(', ') }}
+                        {{ indexInlineList(shippingZone.getStatesNames()) }}
                     {% endif %}
                 </td>
                 <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
