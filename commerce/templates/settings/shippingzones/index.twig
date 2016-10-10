@@ -26,7 +26,7 @@
             <tr data-id="{{ shippingZone.id }}" data-name="{{ shippingZone.name }}">
                 <td scope="row" data-title="{{ 'Name'|t }}"><a href="{{ url('commerce/settings/shippingzones/'~shippingZone.id) }}">{{ shippingZone.name }}</a></td>
                 <td data-title="{{ 'Description'|t }}">{{ shippingZone.description }}</td>
-                <td data-title="{{ 'Type'|t }}">{{ shippingZone.countryBased ? 'Country Based'|t : 'State Based'|t }}</td>
+                <td data-title="{{ 'Type'|t }}">{{ shippingZone.countryBased ? 'Country-based'|t : 'State-based'|t }}</td>
                 <td data-title="{{ 'Countries/States'|t }}">
                     {% if shippingZone.countryBased %}
                         {{ indexInlineList(shippingZone.getCountriesNames()) }}

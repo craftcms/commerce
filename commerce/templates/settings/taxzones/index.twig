@@ -28,7 +28,7 @@
             <tr data-id="{{ taxZone.id }}" data-name="{{ taxZone.name }}">
                 <td scope="row" data-title="{{ 'Name'|t }}"><a href="{{ url('commerce/settings/taxzones/'~taxZone.id) }}">{{ taxZone.name }}</a></td>
                 <td data-title="{{ 'Description'|t }}">{{ taxZone.description }}</td>
-                <td data-title="{{ 'Type'|t }}">{{ taxZone.countryBased ? 'Country Based'|t : 'State Based'|t }}</td>
+                <td data-title="{{ 'Type'|t }}">{{ taxZone.countryBased ? 'Country-based'|t : 'State-based'|t }}</td>
                 <td data-title="{{ 'Countries/States'|t }}">
                     {% if taxZone.countryBased %}
                         {{ indexInlineList(taxZone.getCountriesNames()) }}
