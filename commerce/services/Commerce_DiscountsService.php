@@ -164,7 +164,9 @@ class Commerce_DiscountsService extends BaseApplicationComponent
 
                 if ($usedCount >= $model->perEmailLimit)
                 {
-                    $error = Craft::t('This coupon limited to '.$model->perEmailLimit.' uses.');
+                    $error = Craft::t('This coupon limited to {limit} uses.', [
+                        'limit' => $model->perEmailLimit,
+                    ]);
 
                     return false;
                 }

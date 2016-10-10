@@ -159,7 +159,7 @@ class Commerce_PaymentMethodsController extends Commerce_BaseAdminController
             return $this->returnJson(['success' => $success]);
         };
 
-        return $this->returnJson(['error' => Craft::t("Couldn't reorder Payment Methods.")]);
+        return $this->returnJson(['error' => Craft::t('Couldn’t reorder Payment Methods.')]);
     }
 
 }
