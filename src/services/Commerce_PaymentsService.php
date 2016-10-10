@@ -118,8 +118,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
     {
         if (!craft()->commerce_transactions->saveTransaction($child))
         {
-            throw new Exception(Craft::t('Error saving transaction: ').implode(', ',
-                    $child->getAllErrors()));
+            throw new Exception('Error saving transaction: '.implode(', ', $child->getAllErrors()));
         }
     }
 
