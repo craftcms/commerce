@@ -20,13 +20,18 @@ class m160706_010101_Commerce_Currencies extends BaseMigration
 		$this->addColumnAfter('commerce_transactions', 'paymentRate', 'decimal(14,4) DEFAULT NULL', 'amount');
 		$this->addColumnAfter('commerce_transactions', 'paymentAmount', 'decimal(14,4) DEFAULT NULL', 'amount');
 
-		// Create default currency
+		// Create primary currency
 		$settings = craft()->db->createCommand()->select('settings')->from('plugins')->where("class = :xclass", [':xclass' => 'Commerce'])->queryScalar();
 		$settings = JsonHelper::decode($settings);
-		$defaultCurrency = $settings['defaultCurrency'];
-		craft()->db->createCommand()->insert('commerce_currencies', ['iso' => $defaultCurrency, 'rate' => 1, 'default' => 1]);
+		$primaryCurrency = $settings['defaultCurrency'];
+		craft()->db->createCommand()->insert('commerce_currencies', ['iso' => $primaryCurrency, 'rate' => 1, 'default' => 1]);
 
-		$data = ['paymentCurrency' => $defaultCurrency, 'currency' => $defaultCurrency, 'paymentRate' => 1, 'paymentAmount' => new \CDbExpression('amount')];
+        // set all orders to the original currency
+        $data = array('paymentCurrency' => $primaryCurrency, 'currency' => $primaryCurrency);
+        craft()->db->createCommand()->update('commerce_orders', $data);
+
+        // set all transactions to the original currency
+		$data = ['paymentCurrency' => $primaryCurrency, 'currency' => $primaryCurrency, 'paymentRate' => 1, 'paymentAmount' => new \CDbExpression('amount')];
 		craft()->db->createCommand()->update('commerce_transactions', $data);
 	}
 }
