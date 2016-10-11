@@ -11,7 +11,7 @@ use Omnipay\Common\Currency;
  * @property string $emailSenderAddress
  * @property string $emailSenderName
  * @property string $orderPdfPath
- * @property string $orderPdfFileNameFormat
+ * @property string $orderPdfFilenameFormat
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -59,7 +59,7 @@ class Commerce_SettingsModel extends BaseModel
             'emailSenderAddress' => [AttributeType::String],
             'emailSenderName' => [AttributeType::String],
             'orderPdfPath' => [AttributeType::String],
-            'orderPdfFileNameFormat' => [AttributeType::String]
+            'orderPdfFilenameFormat' => [AttributeType::String]
         ];
     }
 

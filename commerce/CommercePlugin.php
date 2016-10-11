@@ -310,7 +310,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getSchemaVersion()
     {
-        return '1.2.66';
+        return '1.2.67';
     }
 
     /**
