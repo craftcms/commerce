@@ -313,7 +313,7 @@ class Commerce_VariantModel extends BasePurchasable
      *
      * @param Commerce_LineItemModel $lineItem
      *
-     * @return mixed
+     * @return null
      */
     public function validateLineItem(Commerce_LineItemModel $lineItem)
     {
@@ -374,6 +374,66 @@ class Commerce_VariantModel extends BasePurchasable
                 }
             }
         }
+    }
+
+    /**
+     * @param Commerce_LineItemModel $lineItem
+     *
+     * @return null
+     */
+    public function populateLineItem(Commerce_LineItemModel $lineItem)
+    {
+        // Since we do not have a proper stock reservation system, we need deduct stock if they have more in the cart than is available, and to do this quietly.
+        // If this occurs in the payment request, the user will be notified the order has changed.
+        if (($lineItem->qty > $this->stock) && !$this->unlimitedStock)
+        {
+            $lineItem->qty = $this->stock;
+        }
+
+        $lineItem->weight = $this->weight * 1; //converting nulls
+        $lineItem->height = $this->height * 1; //converting nulls
+        $lineItem->length = $this->length * 1; //converting nulls
+        $lineItem->width = $this->width * 1; //converting nulls
+
+        $sales = craft()->commerce_sales->getSalesForVariant($this);
+
+        foreach ($sales as $sale)
+        {
+            $lineItem->saleAmount += $sale->calculateTakeoff($lineItem->price);
+        }
+
+        // Don't let sale amount be more than the price.
+        if (-$lineItem->saleAmount > $lineItem->price)
+        {
+            $lineItem->saleAmount = -$lineItem->price;
+        }
+
+        // If the product is not promotable but has saleAmount, reset saleAmount to zero
+        if (!$this->getIsPromotable() && $lineItem->saleAmount)
+        {
+            $lineItem->saleAmount = 0;
+        }
+    }
+
+    /**
+     * Is this variant still available for purchase?
+     *
+     * @return bool
+     */
+    public function getIsAvailable()
+    {
+        // remove the item from the cart if the product is not enabled
+        if ($this->getStatus() != BaseElementModel::ENABLED)
+        {
+            return false;
+        }
+
+        if ($this->stock < 1 && !$this->unlimitedStock)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     /**

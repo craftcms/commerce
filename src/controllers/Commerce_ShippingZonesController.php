@@ -83,11 +83,31 @@ class Commerce_ShippingZonesController extends Commerce_BaseAdminController
         $shippingZone->description = craft()->request->getPost('description');
         $shippingZone->countryBased = craft()->request->getPost('countryBased');
         $shippingZone->countryBased = craft()->request->getPost('countryBased');
-        $countryIds = craft()->request->getPost('countries', []);
-        $stateIds = craft()->request->getPost('states', []);
+        $countryIds = craft()->request->getPost('countries') ? craft()->request->getPost('countries') : [];
+        $stateIds = craft()->request->getPost('states') ? craft()->request->getPost('states') : [];
+
+        $countries = [];
+        foreach ($countryIds as $id)
+        {
+            if ($country = craft()->commerce_countries->getCountryById($id))
+            {
+                $countries[] = $country;
+            }
+        }
+        $shippingZone->setCountries($countries);
+
+        $states = [];
+        foreach ($stateIds as $id)
+        {
+            if ($state = craft()->commerce_states->getStateById($id))
+            {
+                $states[] = $state;
+            }
+        }
+        $shippingZone->setStates($states);
 
         // Save it
-        if (craft()->commerce_shippingZones->saveShippingZone($shippingZone, $countryIds, $stateIds))
+        if (craft()->commerce_shippingZones->saveShippingZone($shippingZone, $shippingZone->getCountryIds(), $shippingZone->getStateIds()))
         {
             if (craft()->request->isAjaxRequest())
             {

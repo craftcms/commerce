@@ -40,12 +40,12 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
 			if ($adjustment = $this->getAdjustment($order, $lineItems, $discount))
 			{
 				$adjustments[] = $adjustment;
-			}
 
-			if($discount->stopProcessing)
-            {
-                break;
-            }
+				if($discount->stopProcessing)
+				{
+					break;
+				}
+			}
 		}
 
 		return $adjustments;

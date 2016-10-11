@@ -134,33 +134,20 @@ class Commerce_LineItemModel extends BaseModel
      */
     public function refreshFromPurchasable()
     {
-        if (!$purchasable = $this->getPurchasable())
-        {
-            return false;
-        }
 
         if ($this->qty <= 0 && $this->id)
         {
             return false;
         }
 
-        // TODO move the 'availability' to the purchasable interface
-        if ($purchasable instanceof Commerce_VariantModel)
+        /* @var $purchasable Purchasable */
+        $purchasable = $this->getPurchasable();
+        if (!$purchasable || !$purchasable->getIsAvailable())
         {
-            // remove the item from the cart if the purchasable is a variant and not enabled
-            if ($purchasable->getStatus() != BaseElementModel::ENABLED)
-            {
-                return false;
-            }
-
-            if ($purchasable->stock < 1 && !$purchasable->unlimitedStock)
-            {
-                return false;
-            }
+            return false;
         }
 
-
-        $this->fillFromPurchasable($this->purchasable);
+        $this->fillFromPurchasable($purchasable);
 
         //raising onPopulate event
         $event = new Event($this, [
@@ -220,43 +207,10 @@ class Commerce_LineItemModel extends BaseModel
         // Add our purchasable data to the snapshot, save our sales.
         $this->snapshot = array_merge($purchasable->getSnapShot(), $snapshot);
 
-        if ($purchasable instanceof Commerce_VariantModel)
-        {
-            // Since we do not have a proper stock reservation system, we need to do this quietly.
-            // If this occurs in the payment request, the user will be notified.
-            if (($this->qty > $purchasable->stock) && !$purchasable->unlimitedStock)
-            {
-                $this->qty = $purchasable->stock;
-            }
+        $purchasable->populateLineItem($this);
 
-            $this->weight = $purchasable->weight * 1; //converting nulls
-            $this->height = $purchasable->height * 1; //converting nulls
-            $this->length = $purchasable->length * 1; //converting nulls
-            $this->width = $purchasable->width * 1; //converting nulls
-
-            $sales = craft()->commerce_sales->getSalesForVariant($purchasable);
-
-            foreach ($sales as $sale)
-            {
-                $this->saleAmount += $sale->calculateTakeoff($this->price);
-            }
-
-            // Don't let sale amount be more than the price.
-            if (-$this->saleAmount > $this->price)
-            {
-                $this->saleAmount = -$this->price;
-            }
-
-            // If the product is not promotable but has saleAmount, reset saleAmount to zero
-            if (!$purchasable->getIsPromotable() && $this->saleAmount)
-            {
-                $this->saleAmount = 0;
-            }
-
-            $this->salePrice = $this->saleAmount + $this->price;
-        }
-
-
+        // Always make sure salePrice is equal to the price and saleAmount
+        $this->salePrice = $this->saleAmount + $this->price;
     }
 
     /**

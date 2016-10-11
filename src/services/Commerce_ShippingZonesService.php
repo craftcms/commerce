@@ -84,20 +84,6 @@ class Commerce_ShippingZonesService extends BaseApplicationComponent
             $record = new Commerce_ShippingZoneRecord();
         }
 
-        //remembering which links should be clean
-        $deleteOldCountries = $deleteOldStates = false;
-        if ($record->id)
-        {
-            if ($record->countryBased)
-            {
-                $deleteOldCountries = true;
-            }
-            else
-            {
-                $deleteOldStates = true;
-            }
-        }
-
         //setting attributes
         $record->name = $model->name;
         $record->description = $model->description;
@@ -143,15 +129,8 @@ class Commerce_ShippingZonesService extends BaseApplicationComponent
                 $model->id = $record->id;
 
                 //deleting old links
-                if ($deleteOldCountries)
-                {
-                    Commerce_ShippingZoneCountryRecord::model()->deleteAllByAttributes(['shippingZoneId' => $record->id]);
-                }
-
-                if ($deleteOldStates)
-                {
-                    Commerce_ShippingZoneStateRecord::model()->deleteAllByAttributes(['shippingZoneId' => $record->id]);
-                }
+                Commerce_ShippingZoneCountryRecord::model()->deleteAllByAttributes(['shippingZoneId' => $record->id]);
+                Commerce_ShippingZoneStateRecord::model()->deleteAllByAttributes(['shippingZoneId' => $record->id]);
 
                 //saving new links
                 if ($model->countryBased)
