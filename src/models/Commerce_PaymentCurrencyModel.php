@@ -110,6 +110,16 @@ class Commerce_PaymentCurrencyModel extends BaseModel implements JsonSerializabl
     }
 
     /**
+     * Alias of getCurrency()
+     *
+     * @return string|null
+     */
+    public function getName()
+    {
+        return $this->getCurrency();
+    }
+
+    /**
      * @return string|null
      */
     public function getCurrency()
