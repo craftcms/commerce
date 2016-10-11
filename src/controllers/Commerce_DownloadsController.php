@@ -23,7 +23,7 @@ class Commerce_DownloadsController extends Commerce_BaseFrontEndController
     public function actionPdf()
     {
         $template = craft()->commerce_settings->getSettings()->orderPdfPath;
-        $filenameFormat = craft()->commerce_settings->getSettings()->orderPdfFileNameFormat;
+        $filenameFormat = craft()->commerce_settings->getSettings()->orderPdfFilenameFormat;
 
         // Set Craft to the site template mode
         $templatesService = craft()->templates;

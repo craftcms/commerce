@@ -241,7 +241,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
     {
         $settings = new Commerce_SettingsModel();
         $settings->orderPdfPath = 'commerce/_pdf/order';
-        $settings->orderPdfFileNameFormat = 'Order-{number}';
+        $settings->orderPdfFilenameFormat = 'Order-{number}';
         \Craft\craft()->commerce_settings->saveSettings($settings);
     }
 
