@@ -43,8 +43,10 @@ class m151025_010101_Commerce_AddHandleToShippingMethod extends BaseMigration
         }
         
         // set all orders to the default currency
-        $settings = craft()->commerce_settings->getSettings();
-        $data = array('currency' => $settings->getDefaultCurrency());
+        $settings = craft()->db->createCommand()->select('settings')->from('plugins')->where("class = :xclass", [':xclass' => 'Commerce'])->queryScalar();
+        $settings = JsonHelper::decode($settings);
+        $defaultCurrency = $settings['defaultCurrency'];
+        $data = array('currency' => $defaultCurrency);
         craft()->db->createCommand()->update('commerce_orders', $data);
 
         return true;
