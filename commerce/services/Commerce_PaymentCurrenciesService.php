@@ -75,7 +75,7 @@ class Commerce_PaymentCurrenciesService extends BaseApplicationComponent
         {
             $schema = craft()->db->schema;
             $records = Commerce_PaymentCurrencyRecord::model()->findAll([
-                'order' => new \CDbExpression('('.$schema->quoteColumnName('primary').' = 1) desc, '.$schema->quoteColumnName('name'))
+                'order' => new \CDbExpression('('.$schema->quoteColumnName('primary').' = 1) desc, '.$schema->quoteColumnName('iso'))
             ]);
 
             $this->_allCurrencies = Commerce_PaymentCurrencyModel::populateModels($records);
@@ -144,7 +144,6 @@ class Commerce_PaymentCurrenciesService extends BaseApplicationComponent
             $record = new Commerce_PaymentCurrencyRecord();
         }
 
-        $record->name = $model->name;
         $record->iso = strtoupper($model->iso);
         $record->primary = $model->primary;
         // If this rate is primary, the rate must be 1 since it is now the rate all prices are enter in as.

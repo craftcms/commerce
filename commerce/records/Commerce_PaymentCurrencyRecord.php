@@ -5,7 +5,6 @@ namespace Craft;
  * Currency record.
  *
  * @property int $id
- * @property string $name
  * @property string $iso
  * @property bool $primary
  * @property float $rate
@@ -44,7 +43,6 @@ class Commerce_PaymentCurrencyRecord extends BaseRecord
     protected function defineAttributes()
     {
         return [
-            'name' => [AttributeType::String, 'required' => true],
             'iso' => [
                 AttributeType::String,
                 'required' => true,

@@ -12,17 +12,17 @@
     <table id="currencies" class="data fullwidth collapsible">
         <thead>
         <tr>
-            <th scope="col">{{ 'Name'|t }}</th>
-            <th scope="col">{{ 'Currency Code'|t }}</th>
+            <th scope="col">{{ 'Currency'|t }}</th>
+            <th scope="col">{{ 'Code'|t }}</th>
             <th scope="col">{{ 'Conversion Rate'|t }}</th>
             <td class="thin"></td>
         </tr>
         </thead>
         <tbody>
         {% for currency in currencies %}
-            <tr data-id="{{ currency.id }}" data-name="{{ currency.name }}">
-                <th scope="row" data-title="{{ 'Name'|t }}"><a href="{{ currency.cpEditUrl }}">{{ currency.primary ? "{name} (Primary)"|t({ name: currency.name|t }) : currency.name|t }}</a></th>
-                <td data-title="{{ 'ISO'|t }}">{{ currency.iso }}</td>
+            <tr data-id="{{ currency.id }}" data-name="{{ currency.currency }}">
+                <th scope="row" data-title="{{ 'Currency'|t }}"><a href="{{ currency.cpEditUrl }}">{{ currency.primary ? "{name} (Primary)"|t({ name: currency.currency|t }) : currency.currency|t }}</td>
+                <td data-title="{{ 'Code'|t }}"><code>{{ currency.iso }}</code></td>
                 <td data-title="{{ 'Conversion Rate'|t }}">{% if currency.primary %}<span class="token">{{ "Base"|t }}{% else %}{{ currency.rate|number }}{% endif %}</td>
                 <td class="thin">{%  if not currency.primary %}<a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a>{% endif %}</td>
             </tr>

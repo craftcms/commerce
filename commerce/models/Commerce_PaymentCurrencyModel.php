@@ -7,7 +7,6 @@ use JsonSerializable;
  * Currency model.
  *
  * @property int    $id
- * @property string $name
  * @property string $iso
  * @property bool   $primary
  * @property float  $rate
@@ -76,7 +75,6 @@ class Commerce_PaymentCurrencyModel extends BaseModel implements JsonSerializabl
     {
         $data = [];
         $data['id'] = $this->getAttribute('id');
-        $data['name'] = $this->getAttribute('name');
         $data['iso'] = $this->getAttribute('iso');
         $data['primary'] = $this->getAttribute('primary');
         $data['rate'] = $this->getAttribute('rate');
@@ -160,7 +158,6 @@ class Commerce_PaymentCurrencyModel extends BaseModel implements JsonSerializabl
     protected function defineAttributes()
     {
         return ['id'      => AttributeType::Number,
-                'name'    => AttributeType::String,
                 'iso'     => AttributeType::String,
                 'primary' => AttributeType::Bool,
                 'rate'    => AttributeType::Number];
