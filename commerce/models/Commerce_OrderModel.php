@@ -248,6 +248,20 @@ class Commerce_OrderModel extends BaseElementModel
     }
 
     /**
+     * Returns the difference between the order amount and amount paid.
+     *
+     * @return float
+     */
+    public function outstandingBalance()
+    {
+
+        $totalPaid = CommerceCurrencyHelper::round($this->totalPaid);
+        $totalPrice = CommerceCurrencyHelper::round($this->totalPrice);
+        
+        return $totalPrice - $totalPaid;
+    }
+
+    /**
      * Is this order the users current active cart.
      * @return bool
      */
@@ -256,15 +270,6 @@ class Commerce_OrderModel extends BaseElementModel
         $cart = craft()->commerce_cart->getCart();
 
         return ($cart && $cart->id == $this->id);
-    }
-
-    public function outstandingBalance()
-    {
-
-        $totalPaid = CommerceCurrencyHelper::round($this->totalPaid);
-        $totalPrice = CommerceCurrencyHelper::round($this->totalPrice);
-        
-        return $totalPrice - $totalPaid;
     }
 
     /**
