@@ -371,9 +371,9 @@ class Commerce_CartService extends BaseApplicationComponent
             $this->_cart->orderLocale = craft()->language;
 
             // Right now, orders are all stored in the default currency
-            $this->_cart->currency = craft()->commerce_paymentCurrencies->getDefaultPaymentCurrencyIso();
+            $this->_cart->currency = craft()->commerce_paymentCurrencies->getPrimaryPaymentCurrencyIso();
 
-            // Payment currency is always set to the store currency unless it is set to an allowed currency.
+            // Payment currency is always set to the stores primary currency unless it is set to an allowed currency.
             $currencies = \array_column(craft()->commerce_paymentCurrencies->getAllPaymentCurrencies(), 'iso');
 
             if (defined('COMMERCE_PAYMENT_CURRENCY'))
@@ -385,7 +385,7 @@ class Commerce_CartService extends BaseApplicationComponent
                 }
             }
 
-            $this->_cart->paymentCurrency = $this->_cart->paymentCurrency ?: craft()->commerce_paymentCurrencies->getDefaultPaymentCurrencyIso();
+            $this->_cart->paymentCurrency = $this->_cart->paymentCurrency ?: craft()->commerce_paymentCurrencies->getPrimaryPaymentCurrencyIso();
 
             // Update the cart if the customer has changed and recalculate the cart.
             $customer = craft()->commerce_customers->getCustomer();

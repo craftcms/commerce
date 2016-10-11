@@ -89,7 +89,7 @@ class Commerce_PaymentCurrenciesService extends BaseApplicationComponent
      *
      * @return Commerce_PaymentCurrencyModel
      */
-    public function getDefaultPaymentCurrency()
+    public function getPrimaryPaymentCurrency()
     {
         foreach ($this->getAllPaymentCurrencies() as $currency)
         {
@@ -105,9 +105,9 @@ class Commerce_PaymentCurrenciesService extends BaseApplicationComponent
      *
      * @return string
      */
-    public function getDefaultPaymentCurrencyIso()
+    public function getPrimaryPaymentCurrencyIso()
     {
-        return $this->getDefaultPaymentCurrency()->iso;
+        return $this->getPrimaryPaymentCurrency()->iso;
     }
 
     /**

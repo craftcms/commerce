@@ -258,7 +258,7 @@ class CommerceVariable
     }
 
     /**
-     * @return Commerce_PaymentCurrencyModel[]
+     * @return Commerce_CurrencyModel[]
      */
     public function getCurrencies()
     {
@@ -270,11 +270,9 @@ class CommerceVariable
     /**
      * @return Commerce_PaymentCurrencyModel
      */
-    public function getDefaultCurrency()
+    public function getPrimaryPaymentCurrency()
     {
-        $currency = craft()->commerce_paymentCurrencies->getDefaultPaymentCurrency();
-
-        return $currency;
+        return craft()->commerce_paymentCurrencies->getPrimaryPaymentCurrency();
     }
 
     // Private Methods
