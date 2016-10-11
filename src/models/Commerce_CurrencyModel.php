@@ -17,7 +17,7 @@ use JsonSerializable;
  * @license   https://craftcommerce.com/license Craft Commerce License Agreement
  * @see       https://craftcommerce.com
  * @package   craft.plugins.commerce.models
- * @since     1.0
+ * @since     1.2
  */
 class Commerce_CurrencyModel extends BaseModel implements JsonSerializable
 {
