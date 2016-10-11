@@ -5,5 +5,6 @@ return [
         'purgeInactiveCartsDuration'       => 'P3M',
         'gatewayPostRedirectTemplate'      => '',
         'sendCartInfoToGateways'           => true,
-        'requireEmailForAnonymousPayments' => false
+        'requireEmailForAnonymousPayments' => false,
+        'useBillingAddressForTax'          => false
 ];
