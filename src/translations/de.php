@@ -705,4 +705,6 @@ return array(
 	'Zone' => 'Zone',
 	'{name} (Primary)' => '{name} (Hauptname)',
 	'{number} more…' => '{number} mehr …',
+	'Order Description Format' => 'Format für Bestellbeschreibung',
+	'Order PDF Filename Format' => 'Dateinamensformat für Bestell-PDF',
 );
