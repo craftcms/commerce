@@ -30,7 +30,7 @@ class CommerceCurrencyHelper
 	{
 		if (!$currency)
 		{
-			$defaultPaymentCurrency = \Craft\craft()->commerce_paymentCurrencies->getDefaultPaymentCurrency();
+			$defaultPaymentCurrency = \Craft\craft()->commerce_paymentCurrencies->getPrimaryPaymentCurrency();
 			$currency = \Craft\craft()->commerce_currencies->getCurrencyByIso($defaultPaymentCurrency->iso);
 		}
 
@@ -42,7 +42,7 @@ class CommerceCurrencyHelper
 
 	public static function defaultDecimals()
 	{
-		$currency = \Craft\craft()->commerce_paymentCurrencies->getDefaultPaymentCurrencyIso();
+		$currency = \Craft\craft()->commerce_paymentCurrencies->getPrimaryPaymentCurrencyIso();
 
 		$decimals = \Craft\craft()->commerce_currencies->getCurrencyByIso($currency)->minorUnit;
 

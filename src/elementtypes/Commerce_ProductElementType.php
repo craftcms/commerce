@@ -295,7 +295,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
                 return ($shippingCategory ? Craft::t($shippingCategory->name) : '');
             }
             case 'defaultPrice': {
-                $code = craft()->commerce_paymentCurrencies->getDefaultPaymentCurrencyIso();
+                $code = craft()->commerce_paymentCurrencies->getPrimaryPaymentCurrencyIso();
 
                 return craft()->numberFormatter->formatCurrency($element->$attribute, strtoupper($code));
             }

@@ -37,9 +37,9 @@ class Commerce_SettingsModel extends BaseModel
      */
     public function getDefaultCurrency()
     {
-        craft()->deprecator->log('Commerce_SettingsModel::defaultCurrency:removed', 'You should no longer use `craft.commerce.settings.defaultCurrency`  to get the store currency. Use `craft.commerce.defaultCurrency`.');
+        craft()->deprecator->log('Commerce_SettingsModel::defaultCurrency:removed', 'You should no longer use `craft.commerce.settings.defaultCurrency`  to get the store currency. Use `craft.commerce.primaryPaymentCurrency`.');
 
-        return craft()->commerce_paymentCurrencies->getDefaultPaymentCurrencyIso();
+        return craft()->commerce_paymentCurrencies->getPrimaryPaymentCurrencyIso();
     }
 
     /**
