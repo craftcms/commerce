@@ -30,7 +30,12 @@ class Commerce_TaxAdjuster implements Commerce_AdjusterInterface
      */
     public function adjust(Commerce_OrderModel &$order, array $lineItems = [])
     {
-        $shippingAddress = \Craft\craft()->commerce_addresses->getAddressById($order->shippingAddressId);
+        $address = \Craft\craft()->commerce_addresses->getAddressById($order->shippingAddressId);
+
+        if (\Craft\craft()->config->get('useBillingAddressForTax','commerce'))
+        {
+            $address = \Craft\craft()->commerce_addresses->getAddressById($order->billingAddressId);
+        }
 
         $adjustments = [];
         $taxRates = \Craft\craft()->commerce_taxRates->getAllTaxRates([
@@ -39,7 +44,7 @@ class Commerce_TaxAdjuster implements Commerce_AdjusterInterface
 
         /** @var Commerce_TaxRateModel $rate */
         foreach ($taxRates as $rate) {
-            if ($adjustment = $this->getAdjustment($order, $lineItems, $shippingAddress, $rate)) {
+            if ($adjustment = $this->getAdjustment($order, $lineItems, $address, $rate)) {
                 $adjustments[] = $adjustment;
             }
         }

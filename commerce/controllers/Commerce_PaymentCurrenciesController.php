@@ -9,7 +9,7 @@ namespace Craft;
  * @license   https://craftcommerce.com/license Craft Commerce License Agreement
  * @see       https://craftcommerce.com
  * @package   craft.plugins.commerce.controllers
- * @since     1.0
+ * @since     1.2
  */
 class Commerce_PaymentCurrenciesController extends Commerce_BaseAdminController
 {

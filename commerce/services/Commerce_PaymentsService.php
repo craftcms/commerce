@@ -628,6 +628,7 @@ EOF;
         }
 
         $transaction->response = $response->getData();
+        $transaction->code = $response->getCode();
         $transaction->reference = $response->getTransactionReference();
         $transaction->message = $response->getMessage();
 
@@ -877,6 +878,7 @@ EOF;
         }
 
         $transaction->response = $response->getData();
+        $transaction->code = $response->getCode();
         $transaction->reference = $request->getTransactionReference();
         $transaction->message = $request->getMessage();
         $this->saveTransaction($transaction);

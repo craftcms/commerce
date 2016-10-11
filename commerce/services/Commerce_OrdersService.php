@@ -314,7 +314,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
     private function calculateAdjustments(Commerce_OrderModel $order)
     {
         // Don't recalc the totals of completed orders.
-        if (!$order->id or $order->isCompleted)
+        if (!$order->id || $order->isCompleted)
         {
             return;
         }
