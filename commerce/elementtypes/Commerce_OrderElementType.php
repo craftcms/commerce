@@ -2,6 +2,7 @@
 namespace Craft;
 
 use Commerce\Base\Purchasable;
+use Omnipay\Common\Currency;
 
 require_once(__DIR__ . '/Commerce_BaseElementType.php');
 
@@ -348,7 +349,9 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 			'user' => AttributeType::Mixed,
 			'isPaid' => AttributeType::Bool,
 			'isUnpaid' => AttributeType::Bool,
-			'hasPurchasables' => AttributeType::Mixed
+			'hasPurchasables' => AttributeType::Mixed,
+            'paymentMethod' => AttributeType::Mixed,
+            'paymentMethodId' => AttributeType::Mixed
 		];
 	}
 
@@ -376,7 +379,9 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 				orders.isCompleted,
 				orders.datePaid,
 				orders.currency,
+				orders.paymentCurrency,
 				orders.lastIp,
+				orders.orderLocale,
 				orders.message,
 				orders.returnUrl,
 				orders.cancelUrl,
@@ -463,8 +468,8 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 			if ($criteria->updatedAfter) {
 				$query->andWhere(DbHelper::parseDateParam('orders.dateUpdated', '>=' . $criteria->updatedAfter, $query->params));
 			}
-
 			if ($criteria->updatedBefore) {
+
 				$query->andWhere(DbHelper::parseDateParam('orders.dateUpdated', '<' . $criteria->updatedBefore, $query->params));
 			}
 		}

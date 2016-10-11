@@ -1,0 +1,35 @@
+{% extends 'shop/_layouts/main' %}
+
+{% block main %}
+
+    <div class="row">
+    <div class="one-half column">
+        <h1>Manage Addresses</h1>
+    </div>
+    <div class="one-half column">
+        <a class="button button-primary right" href="{{ url('shop/customer/addresses/edit') }}">Add New Address</a>
+    </div>
+
+    </div>
+    {% for address in craft.commerce.customer.addresses %}
+
+        {% if loop.index0 is divisible by(3) %}
+        <div class="row">
+        {% endif %}
+            <div class="address-card one-third column">
+                {% include 'shop/_includes/addresses/address' with {'address': address} %}
+                <a class="button button-primary" href="{{ url('shop/customer/addresses/edit') }}?addressId={{ address.id }}">Edit</a>
+                <form method="POST">
+                    {{ getCsrfInput() }}
+                    <input type="hidden" name="action" value="commerce/customerAddresses/delete">
+                    <input type="hidden" name="id" value="{{ address.id }}"/>
+                    <input type="submit" value="delete"/>
+                </form>
+            </div>
+        {% if loop.index is divisible by(3) %}
+        </div>
+        {% endif %}
+
+
+    {% endfor %}
+{% endblock %}

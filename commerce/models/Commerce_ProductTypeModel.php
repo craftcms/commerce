@@ -14,6 +14,7 @@ namespace Craft;
  * @property string $template
  * @property string $titleFormat
  * @property string $skuFormat
+ * @property string $descriptionFormat
  * @property int $fieldLayoutId
  * @property int $variantFieldLayoutId
  *
@@ -29,6 +30,16 @@ namespace Craft;
  */
 class Commerce_ProductTypeModel extends BaseModel
 {
+
+    /**
+     * @var Commerce_TaxCategoryModel[]
+     */
+    private $_taxCategories;
+
+    /**
+     * @var Commerce_ShippingCategoryModel[]
+     */
+    private $_shippingCategories;
 
     /**
      * @var LocaleModel[]
@@ -87,6 +98,98 @@ class Commerce_ProductTypeModel extends BaseModel
     }
 
     /**
+     * @return Commerce_ShippingCategoryModel[]
+     */
+    public function getShippingCategories($asList = false)
+    {
+        if (!$this->_shippingCategories)
+        {
+            $this->_shippingCategories =  craft()->commerce_productTypes->getProductTypeShippingCategories($this->id,'id');
+        }
+
+        if ($asList)
+        {
+            return \CHtml::listData($this->_shippingCategories, 'id', 'name');
+        }
+
+        return $this->_shippingCategories;
+    }
+
+    /**
+     * @return Commerce_TaxCategoryModel[]
+     */
+    public function getTaxCategories($asList = false)
+    {
+        if (!$this->_taxCategories)
+        {
+            $this->_taxCategories =  craft()->commerce_productTypes->getProductTypeTaxCategories($this->id,'id');
+        }
+
+        if ($asList)
+        {
+            return \CHtml::listData($this->_taxCategories, 'id', 'name');
+        }
+
+        return $this->_taxCategories;
+    }
+
+    /**
+     * @param int[]|Commerce_TaxCategoryModel[] $taxCategories
+     */
+    public function setTaxCategories($taxCategories)
+    {
+        $categories = [];
+        foreach ($taxCategories as $category)
+        {
+            if (is_numeric($category))
+            {
+                if($category = craft()->commerce_taxCategories->getTaxCategoryById($category))
+                {
+                    $categories[] = $category;
+                }
+            }else{
+                if($category instanceof Commerce_TaxCategoryModel)
+                {
+                    if($category = craft()->commerce_taxCategories->getTaxCategoryById($category))
+                    {
+                        $categories[] = $category;
+                    }
+                }
+            }
+        }
+
+        $this->_taxCategories = $categories;
+    }
+
+    /**
+     * @param int[]|Commerce_ShippingCategoryModel[] $shippingCategories
+     */
+    public function setShippingCategories($shippingCategories)
+    {
+        $categories = [];
+        foreach ($shippingCategories as $category)
+        {
+            if (is_numeric($category))
+            {
+                if($category = craft()->commerce_shippingCategories->getShippingCategoryById($category))
+                {
+                    $categories[] = $category;
+                }
+            }else{
+                if($category instanceof Commerce_ShippingCategoryModel)
+                {
+                    if($category = craft()->commerce_shippingCategories->getShippingCategoryById($category))
+                    {
+                        $categories[] = $category;
+                    }
+                }
+            }
+        }
+
+        $this->_shippingCategories = $categories;
+    }
+
+    /**
      * @return array
      */
     public function behaviors()
@@ -114,6 +217,8 @@ class Commerce_ProductTypeModel extends BaseModel
             'hasVariantTitleField' => [AttributeType::Bool,'default' => 1],
             'titleFormat' => [AttributeType::String, 'required' => true, 'default' => '{product.title}'],
             'skuFormat' => AttributeType::String,
+            'descriptionFormat' => AttributeType::String,
+            'lineItemFormat' => AttributeType::String,
             'template' => AttributeType::Template,
             'fieldLayoutId' => AttributeType::Number,
             'variantFieldLayoutId' => AttributeType::Number,

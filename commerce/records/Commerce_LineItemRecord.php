@@ -26,6 +26,7 @@ namespace Craft;
  * @property mixed $options
  * @property string $optionsSignature
  * @property int $taxCategoryId
+ * @property int $shippingCategoryId
  *
  * @property Commerce_OrderRecord $order
  * @property Commerce_VariantRecord $variant
@@ -79,6 +80,13 @@ class Commerce_LineItemRecord extends BaseRecord
             'taxCategory' => [
                 static::BELONGS_TO,
                 'Commerce_TaxCategoryRecord',
+                'onUpdate' => self::CASCADE,
+                'onDelete' => self::RESTRICT,
+                'required' => true
+            ],
+            'shippingCategory' => [
+                static::BELONGS_TO,
+                'Commerce_ShippingCategoryRecord',
                 'onUpdate' => self::CASCADE,
                 'onDelete' => self::RESTRICT,
                 'required' => true
@@ -180,6 +188,7 @@ class Commerce_LineItemRecord extends BaseRecord
             'note' => AttributeType::Mixed,
             'snapshot' => [AttributeType::Mixed, 'required' => true],
             'taxCategoryId' => [AttributeType::Number, 'required' => true],
+            'shippingCategoryId' => [AttributeType::Number, 'required' => true],
         ];
     }
 }

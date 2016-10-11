@@ -1,0 +1,23 @@
+<nav>
+
+    {% set page = craft.request.getSegment(2) %}
+
+    <a class="button {% if page == 'products' %}button-primary{% endif %}" href="{{ url('shop/products') }}">
+        {{ "Products"|t }}
+    </a>
+
+    <a class="button {% if page == 'cart' %}button-primary{% endif %}" href="{{ url('shop/cart') }}">
+        <i class="fa fa-shopping-cart"></i> {{ "Cart"|t }} ({{ cart.lineItems|length }})
+    </a>
+
+    <span class="right">
+        {% if currentUser %}
+          <a href="{{ url('shop/customer') }}">{{ "My Orders"|t }}</a>
+          — <a href="{{ url('shop/customer/addresses') }}">{{ "My Addresses"|t }}</a>
+          — <a href="{{ logoutUrl }}">Logout</a>
+        {% else %}
+          {{ "Guest"|t }}
+        {% endif %}
+    </span>
+
+</nav>

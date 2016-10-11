@@ -19,6 +19,7 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  * @property DateTime $dateTo
  * @property int $purchaseTotal
  * @property int $purchaseQty
+ * @property int $maxPurchaseQty
  * @property float $baseDiscount
  * @property float $perItemDiscount
  * @property float $percentDiscount
@@ -28,6 +29,8 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  * @property bool $allProducts
  * @property bool $allProductTypes
  * @property bool $enabled
+ * @property bool $stopProcessing
+ * @property int $sortOrder
  *
  * @property Commerce_ProductModel[] $products
  * @property Commerce_ProductTypeModel[] $productTypes
@@ -90,7 +93,12 @@ class Commerce_DiscountModel extends BaseModel
         $localeData = craft()->i18n->getLocaleData();
         $percentSign = $localeData->getNumberSymbol('percentSign');
 
-        return -$this->percentDiscount * 100 . "" . $percentSign;
+        if ($this->percentDiscount != 0)
+        {
+            return -$this->percentDiscount * 100 . "" . $percentSign;
+        }
+
+        return "0" . $percentSign;
     }
 
     /**
@@ -115,6 +123,11 @@ class Commerce_DiscountModel extends BaseModel
                 'default' => 0
             ],
             'purchaseQty' => [
+                AttributeType::Number,
+                'required' => true,
+                'default' => 0
+            ],
+            'maxPurchaseQty' => [
                 AttributeType::Number,
                 'required' => true,
                 'default' => 0
@@ -167,6 +180,12 @@ class Commerce_DiscountModel extends BaseModel
                 'required' => true,
                 'default' => true
             ],
+            'stopProcessing' => [
+                AttributeType::Bool,
+                'required' => true,
+                'default' => false
+            ],
+            'sortOrder' => AttributeType::Number
         ];
     }
 

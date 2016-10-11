@@ -13,18 +13,6 @@
         <input type="hidden" name="redirect" value="commerce/settings">
         {{ getCsrfInput() }}
 
-
-        {{ forms.selectField({
-            label: "Currency"|t,
-            instructions: "The currency that the store uses. All payment methods must support this currency."|t,
-            id: 'defaultCurrency',
-            name: 'settings[defaultCurrency]',
-            value: settings.defaultCurrency,
-            options: settings.getCurrencies(),
-            errors: settings.getErrors('defaultCurrency'),
-            required: true,
-        }) }}
-
         {{ forms.textField({
             label: 'Status Email Address'|t,
             instructions: "The email address that order status emails are sent from. Leave blank to use the System Email Address defined in Craft’s General Settings."|t,
@@ -67,11 +55,25 @@
 
         {{ forms.textField({
             label: "Order PDF Template"|t,
-            instructions: "The path to the template used for generating order PDFs"|t,
+            instructions: "The path to the template used for generating order PDFs."|t,
             id: 'orderPdfPath',
             name: 'settings[orderPdfPath]',
             value: settings.orderPdfPath,
             errors: settings.getErrors('orderPdfPath'),
+            required: true,
+        }) }}
+
+        {{ forms.textField({
+            label: "Order PDF Filename Format"|t,
+            instructions: "What the order PDF filenames should look like (sans extension). You can include tags that output order properties, such as {ex1} or {ex2}."|t({
+                ex1: '<code>{number}</code>',
+                ex2: '<code>{myOrderCustomField}</code>'
+            }),
+            id: 'orderPdfFilenameFormat',
+            name: 'settings[orderPdfFilenameFormat]',
+            value: settings.orderPdfFilenameFormat,
+            class: 'code ltr',
+            errors: settings.getErrors('orderPdfFilenameFormat'),
             required: true,
         }) }}
 

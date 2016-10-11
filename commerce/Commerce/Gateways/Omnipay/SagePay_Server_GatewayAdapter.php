@@ -7,4 +7,9 @@ class SagePay_Server_GatewayAdapter extends \Commerce\Gateways\OffsiteGatewayAda
     {
         return 'SagePay_Server';
     }
+
+    public function useNotifyUrl()
+    {
+        return true;
+    }
 }

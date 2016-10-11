@@ -17,10 +17,10 @@ return [
     'commerce/orders' => ['action' => 'commerce/orders/orderIndex'],
     'commerce/orders/(?P<orderId>\d+)' => ['action' => 'commerce/orders/editOrder'],
 
-	// Addresses
+    // Addresses
     'commerce/addresses/(?P<addressId>\d+)' => ['action' => 'commerce/addresses/edit'],
 
-	// Settings
+    // Settings
     'commerce/settings' => ['action' => 'commerce/settings/index'],
     'commerce/settings/registration' => ['action' => 'commerce/registration/edit'],
     'commerce/settings/general' => ['action' => 'commerce/settings/edit'],
@@ -50,12 +50,22 @@ return [
     'commerce/settings/paymentmethods/new' => ['action' => 'commerce/paymentMethods/edit'],
     'commerce/settings/paymentmethods/(?P<id>\d+)' => ['action' => 'commerce/paymentMethods/edit'],
 
+    // Payment Currencies
+    'commerce/settings/paymentcurrencies' => ['action' => 'commerce/paymentCurrencies/index'],
+    'commerce/settings/paymentcurrencies/new' => ['action' => 'commerce/paymentCurrencies/edit'],
+    'commerce/settings/paymentcurrencies/(?P<id>\d+)' => ['action' => 'commerce/paymentCurrencies/edit'],
+
     // Shipping Zones
     'commerce/settings/shippingzones' => ['action' => 'commerce/shippingZones/index'],
     'commerce/settings/shippingzones/new' => ['action' => 'commerce/shippingZones/edit'],
     'commerce/settings/shippingzones/(?P<id>\d+)' => ['action' => 'commerce/shippingZones/edit'],
 
-	// Shipping Methods
+    // Shipping Categories
+    'commerce/settings/shippingcategories' => ['action' => 'commerce/shippingCategories/index'],
+    'commerce/settings/shippingcategories/new' => ['action' => 'commerce/shippingCategories/edit'],
+    'commerce/settings/shippingcategories/(?P<id>\d+)' => ['action' => 'commerce/shippingCategories/edit'],
+
+    // Shipping Methods
     'commerce/settings/shippingmethods' => ['action' => 'commerce/shippingMethods/index'],
     'commerce/settings/shippingmethods/new' => ['action' => 'commerce/shippingMethods/edit'],
     'commerce/settings/shippingmethods/(?P<id>\d+)' => ['action' => 'commerce/shippingMethods/edit'],

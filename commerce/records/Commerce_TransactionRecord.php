@@ -12,6 +12,7 @@ namespace Craft;
  * @property string $reference
  * @property string $message
  * @property string $response
+ * @property string $code
  *
  * @property int $parentId
  * @property int $userId
@@ -115,8 +116,16 @@ class Commerce_TransactionRecord extends BaseRecord
             ],
             'amount' => [
                 AttributeType::Number,
-                'min' => -1000000000000,
-                'max' => 1000000000000,
+                'decimals' => 4
+            ],
+            'paymentAmount' => [
+                AttributeType::Number,
+                'decimals' => 4
+            ],
+            'currency' => AttributeType::String,
+            'paymentCurrency' => AttributeType::String,
+            'paymentRate'=> [
+                AttributeType::Number,
                 'decimals' => 4
             ],
             'status' => [
@@ -125,6 +134,7 @@ class Commerce_TransactionRecord extends BaseRecord
                 'required' => true
             ],
             'reference' => [AttributeType::String],
+            'code' => [AttributeType::String],
             'message' => [AttributeType::Mixed], //TODO change to string
             'response' => [AttributeType::Mixed],
             'orderId' => [AttributeType::Number, 'required' => true],

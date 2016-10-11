@@ -19,19 +19,22 @@ Craft.Commerce.TableRowAdditionalInfoIcon = Garnish.Base.extend(
         {
             if (!this.hud)
             {
-
                 var item = this.$icon.closest('.infoRow');
-                var $hudbody = $("<div/>");
-                var $table = $("<div><h2>Details</h2><table class='data fullwidth'><tbody></tbody></table>").appendTo($hudbody);
-
+                var $hudBody = $("<div />");
+                var $title = $('<h2>Details</h2>').appendTo($hudBody);
+                var $table = $("<table class='data fullwidth'><tbody></tbody></table>").appendTo($hudBody);
                 var $tbody = $table.find('tbody');
 
-                var rows = item.data('inforow');
-                for(i=0;i<rows.length;i++){
-                    $('<tr><td><strong>'+Craft.t(rows[i].label)+'</strong></td><td>'+item.data(rows[i].attribute)+'</td></tr>').appendTo($tbody);
+                var info = item.data('info');
+
+                for(i=0; i < info.length; i++)
+                {
+                    var $tr = $('<tr />').appendTo($tbody);
+                    var $label = $('<td><strong>'+Craft.t(info[i].label)+'</strong></td><td>').appendTo($tr);
+                    var $value = $('<td>'+info[i].value+'</td>').appendTo($tr);
                 }
 
-                this.hud = new Garnish.HUD(this.$icon, $hudbody, {
+                this.hud = new Garnish.HUD(this.$icon, $hudBody, {
                     hudClass: 'hud',
                 });
             }

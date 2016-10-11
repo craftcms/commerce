@@ -12,8 +12,13 @@ use Omnipay\Common\Exception\OmnipayException;
  * @property string $hash
  * @property string $type
  * @property float $amount
+ * @property float $paymentAmount
+ * @property string $currency
+ * @property string $paymentCurrency
+ * @property float $paymentRate
  * @property string $status
  * @property string $reference
+ * @property string $code
  * @property string $message
  * @property string $response
  *
@@ -36,6 +41,17 @@ use Omnipay\Common\Exception\OmnipayException;
  */
 class Commerce_TransactionModel extends BaseModel
 {
+    /*
+     * @var
+     */
+    private $_paymentMethod;
+
+    /*
+     * @var
+     */
+    private $_parentTransaction;
+
+
     /**
      * @param null $attributes
      */
@@ -87,18 +103,16 @@ class Commerce_TransactionModel extends BaseModel
     public function canRefund()
     {
         // can only refund purchase or capture transactions
-        if (!in_array($this->type, [
-                Commerce_TransactionRecord::TYPE_PURCHASE,
-                Commerce_TransactionRecord::TYPE_CAPTURE
-            ]) || $this->status != Commerce_TransactionRecord::STATUS_SUCCESS
-        ) {
+        $noRefundTransactions = [Commerce_TransactionRecord::TYPE_PURCHASE, Commerce_TransactionRecord::TYPE_CAPTURE];
+        if (!in_array($this->type, $noRefundTransactions) || $this->status != Commerce_TransactionRecord::STATUS_SUCCESS) {
             return false;
         }
 
         // check gateway supports refund
         try {
             $gateway = $this->paymentMethod->getGateway();
-            if (!$gateway || !$gateway->supportsRefund()) {
+            $supportsRefund = $gateway->supportsRefund();
+            if (!$gateway || !$supportsRefund) {
                 return false;
             }
         } catch (OmnipayException $e) {
@@ -124,7 +138,12 @@ class Commerce_TransactionModel extends BaseModel
      */
     public function getParent()
     {
-        return craft()->commerce_transactions->getTransactionById($this->parentId);
+        if (!isset($this->_parentTransaction))
+        {
+            $this->_parentTransaction = craft()->commerce_transactions->getTransactionById($this->parentId);
+        }
+
+        return $this->_parentTransaction;
     }
 
     /**
@@ -140,7 +159,22 @@ class Commerce_TransactionModel extends BaseModel
      */
     public function getPaymentMethod()
     {
-        return craft()->commerce_paymentMethods->getPaymentMethodById($this->paymentMethodId);
+        if (!isset($this->_paymentMethod))
+        {
+            $this->_paymentMethod = craft()->commerce_paymentMethods->getPaymentMethodById($this->paymentMethodId);
+        }
+
+        return $this->_paymentMethod;
+    }
+
+    /**
+     * @param $paymentMethod Commerce_PaymentMethodModel
+     *
+     * @return void
+     */
+    public function setPaymentMethod(Commerce_PaymentMethodModel $paymentMethod)
+    {
+        $this->_paymentMethod = $paymentMethod;
     }
 
 
@@ -156,10 +190,15 @@ class Commerce_TransactionModel extends BaseModel
             'userId' => AttributeType::Number,
             'hash' => AttributeType::String,
             'paymentMethodId' => AttributeType::Number,
+            'currency' => AttributeType::String,
+            'paymentAmount' => AttributeType::Number,
+            'paymentCurrency' => AttributeType::String,
+            'paymentRate'=> AttributeType::Number,
             'type' => AttributeType::String,
             'amount' => AttributeType::Number,
             'status' => AttributeType::String,
             'reference' => AttributeType::String,
+            'code' => AttributeType::String,
             'message' => AttributeType::String,
             'response' => AttributeType::String,
             'dateUpdated' => AttributeType::String,

@@ -37,13 +37,23 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
 
         // Only show the map button if we have an address
         if (this.address.id) {
-            $("<a class='small btn right' target='_blank' href='http://maps.google.com/maps?q=" + this.address.address1 + "+" + this.address.address2 + "+" + this.address.city + "+" + this.address.zipCode + "+" + this.address.stateText + "+" + this.address.countryText + "'>" + Craft.t('Map') + "</a>").appendTo($buttons);
+            var address = [this.address.address1,this.address.address2,this.address.city,this.address.zipCode,this.address.stateText, this.address.countryText];
+            var addressStr = address.join(' ');
+            $("<a class='small btn right' target='_blank' href='http://maps.google.com/maps?q=" + addressStr + "'>" + Craft.t('Map') + "</a>").appendTo($buttons);
         }
 
         // Edit button
         $("<a class='small btn right edit' href='" + Craft.getCpUrl('commerce/addresses/' + this.address.id, {'redirect': window.location.pathname}) + "'>" + editLabel + "</a>").appendTo($buttons);
 
         this.$address.html("");
+
+        if (this.address.attention) {
+            $("<span class='attention'>" + this.address.attention + "<br></span>").appendTo(this.$address);
+        }
+
+        if (this.address.title) {
+            $("<span class='title'>" + this.address.title + "<br></span>").appendTo(this.$address);
+        }
 
         if (this.address.firstName) {
             $("<span class='firstName'>" + this.address.firstName + "<br></span>").appendTo(this.$address);
@@ -59,6 +69,10 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
 
         if (this.address.businessTaxId) {
             $("<span class='businessTaxId'>" + this.address.businessTaxId + "<br></span>").appendTo(this.$address);
+        }
+
+        if (this.address.businessId) {
+            $("<span class='businessId'>" + this.address.businessId + "<br></span>").appendTo(this.$address);
         }
 
         if (this.address.phone) {

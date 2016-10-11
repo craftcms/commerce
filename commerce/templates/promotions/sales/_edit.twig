@@ -69,7 +69,7 @@
     </div>
 
     <div id="conditions" class="hidden">
-    {{ forms.dateField({
+    {{ forms.dateTimeField({
         label: "Start Date"|t,
         instructions: "Date from which the sale will be active. Leave blank for unlimited start date"|t,
         id: 'dateFrom',
@@ -78,7 +78,7 @@
         errors: sale.getErrors('dateFrom'),
     }) }}
 
-    {{ forms.dateField({
+    {{ forms.dateTimeField({
         label: "End Date"|t,
         instructions: "Date when the sale will be finished. Leave blank for unlimited end date"|t,
         id: 'dateTo',

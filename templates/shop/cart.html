@@ -1,0 +1,130 @@
+{% extends "shop/_layouts/main" %}
+
+{% block main %}
+    <div class="row">
+        <div class="twelve columns">
+
+            {% if cart.lineItems|length %}
+            <table class="u-full-width">
+                <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Qty</th>
+                    <th class="text-right">Price</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for item in cart.lineItems %}
+                    <tr>
+                        <td>
+                            <strong>{{ item.description }}</strong><br>
+                            ({{ item.sku }})
+                            <br>
+                            <code>{{ item.options|json_encode }}</code>
+                            <form method="POST">
+                                <input type="hidden" name="action" value="commerce/cart/removeLineItem"/>
+                                <input type="hidden" name="redirect" value="shop/cart"/>
+                                {{ getCsrfInput() }}
+                                <input type="hidden" name="lineItemId" value="{{ item.id }}"/>
+                                <input type="submit" class="button link" value="Remove"/>
+                            </form>
+                        </td>
+                        <td>
+                            <form method="POST">
+                                <input type="hidden" name="action" value="commerce/cart/updateLineItem">
+                                <input type="hidden" name="redirect" value="shop/cart">
+                                <input type="hidden" name="lineItemId" value="{{ item.id }}">
+                                <input type="text" placeholder="My Note" size="20" name="note" value="{{ item.note }}">
+                                <span {% if item.getError('qty') %}class="has-error"{% endif %}>
+                                <input  type="number" name="qty" min="1" value="{{ item.qty }}">
+                                </span>
+                                {{ getCsrfInput() }}
+                                {% if item.options.giftWrapped is defined %}
+                                <select name="options[giftWrapped]">
+                                    <option value="no" {% if item.options.giftWrapped == 'no' %}selected{% endif %}>No gift wrap.</option>
+                                    <option value="yes" {% if item.options.giftWrapped == 'yes' %}selected{% endif %}>Gift wrapped.</option>
+                                </select>
+                                {% endif %}
+                                <input type="submit" class="button" value="Update"/>
+                            </form>
+                        </td>
+                        <td class="text-right">
+                            {% if item.onSale %}
+                                <s>Price: {{ item.price|commerceCurrency(cart.currency) }}</s><br>
+                                Sale Off: {{ item.saleAmount|commerceCurrency(cart.currency) }}<br>
+                                Sale Price {{ item.salePrice|commerceCurrency(cart.currency) }}<br>
+                                Sale Price Subtotal: {{ item.subtotal|commerceCurrency(cart.currency) }}<br>
+                            {% else %}
+                                Price: {{ item.price|commerceCurrency(cart.currency) }}<br>
+                                Sale Price {{ item.salePrice|commerceCurrency(cart.currency) }}<br>
+                                Sale Price Subtotal: {{ item.subtotal|commerceCurrency(cart.currency) }}<br>
+                            {% endif %}
+
+                            Discount: {{ item.discount|commerceCurrency(cart.currency) }}<br>
+                            Taxes: {{ item.tax|commerceCurrency(cart.currency) }}<br>
+                            Taxes (Inc): {{ item.taxIncluded|commerceCurrency(cart.currency) }}<br>
+                            Shipping: {{ item.shippingCost|commerceCurrency(cart.currency) }}<br>
+                            Total: {{ item.total|commerceCurrency(cart.currency) }}<br>
+                        </td>
+                    </tr>
+                {% endfor %}
+
+                {% for adjustment in cart.adjustments %}
+                    <tr>
+                        <td>{{ adjustment.type }}
+                        </td>
+                        <td><strong>{{ adjustment.name }}</strong><br>({{ adjustment.description }})</td>
+                        <td class="text-right">{{ adjustment.amount|commerceCurrency(cart.currency) }}</td>
+                    </tr>
+                {% endfor %}
+
+                <tr>
+                    <td>
+                        {# Remove all line items to empty the cart: #}
+                        <form method="POST">
+                            <input type="hidden" name="action" value="commerce/cart/removeAllLineItems"/>
+                            <input type="hidden" name="redirect" value="shop/cart"/>
+                            {{ getCsrfInput() }}
+                            <input class="button link" type="submit" value="Empty the Cart"/>
+                        </form>
+
+                        {# Update Coupon form uses the single update controller action: #}
+                        {% if cart.getError('couponCode') %}<span class="flash">{{ cart.getError('couponCode') }}</span>{% endif %}
+                        <form method="POST">
+                            <input type="hidden" name="action" value="commerce/cart/updateCart">
+                            <input type="hidden" name="redirect" value="shop/cart">
+                            {{ getCsrfInput() }}
+                            <span class="{% if cart.getError('couponCode') %}has-error{% endif %}">
+                            <input type="text" name="couponCode" width="11" class="{% if cart.getError('couponCode') %}has-error{% endif %}" value="{{ cart.couponCode }}" placeholder="{{ "Coupon Code"|t }}">
+							</span>
+                            <input type="submit" class="button" value="{% if cart.couponCode %}Change{% else %}Apply{% endif %} Coupon"/>
+                        </form>
+
+                    </td>
+                    <td>
+                    </td>
+                    <td class="text-right">
+                        Total Discount: {{ cart.totalDiscount|commerceCurrency(cart.currency) }}<br>
+                        Total Shipping: {{ cart.totalShippingCost|commerceCurrency(cart.currency) }}<br>
+                        Total Tax: {{ cart.totalTax|commerceCurrency(cart.currency) }}<br>
+                        Total Tax (inc): {{ cart.totalTaxIncluded|commerceCurrency(cart.currency) }}<br>
+                        Item Total: {{ cart.itemTotal|commerceCurrency(cart.currency) }}<br>
+                        Base Discount: {{ cart.baseDiscount|commerceCurrency(cart.currency) }}<br>
+                        Base Shipping Cost: {{ cart.baseShippingCost|commerceCurrency(cart.currency) }}<br>
+                        <h4>Total Price: {{ cart.totalPrice|commerceCurrency(cart.currency) }}</h4>
+                    </td>
+                </tr>
+
+                </tbody>
+            </table>
+
+            <a class="button button-primary" href="{{ url('shop/checkout') }}">Checkout</a>
+            {% endif %}
+
+            {% if not cart.lineItems|length %}
+                <p>You have no items in your cart, add some on the <a href="{{ url('shop/products') }}">products page</a>.</p>
+            {% endif %}
+
+        </div>
+    </div>
+{% endblock %}

@@ -17,6 +17,7 @@ class Commerce_CartService extends BaseApplicationComponent
 {
     /** @var string Session key for storing the cart number */
     protected $cookieCartId = 'commerce_cookie';
+
     /** @var Commerce_OrderModel */
     private $_cart;
 
@@ -35,7 +36,7 @@ class Commerce_CartService extends BaseApplicationComponent
     {
         CommerceDbHelper::beginStackedTransaction();
 
-	    $isNewLineItem = false;
+        $isNewLineItem = false;
 
         //saving current cart if it's new and empty
         if (!$order->id)
@@ -52,19 +53,19 @@ class Commerce_CartService extends BaseApplicationComponent
 
         if ($lineItem)
         {
-	        foreach ($order->getLineItems() as $item)
-	        {
-		        if ($item->id == $lineItem->id)
-		        {
-			        $lineItem = $item;
-		        }
-	        }
+            foreach ($order->getLineItems() as $item)
+            {
+                if ($item->id == $lineItem->id)
+                {
+                    $lineItem = $item;
+                }
+            }
             $lineItem->qty += $qty;
         }
         else
         {
             $lineItem = craft()->commerce_lineItems->createLineItem($purchasableId, $order, $options, $qty);
-	        $isNewLineItem = true;
+            $isNewLineItem = true;
         }
 
         if ($note)
@@ -81,10 +82,7 @@ class Commerce_CartService extends BaseApplicationComponent
             if (!$lineItem->hasErrors())
             {
                 //raising event
-                $event = new Event($this, [
-                    'lineItem' => $lineItem,
-                    'order'    => $order,
-                ]);
+                $event = new Event($this, ['lineItem' => $lineItem, 'order' => $order,]);
                 $this->onBeforeAddToCart($event);
 
                 if (!$event->performAction)
@@ -96,22 +94,19 @@ class Commerce_CartService extends BaseApplicationComponent
 
                 if (craft()->commerce_lineItems->saveLineItem($lineItem))
                 {
-	                if ($isNewLineItem)
-	                {
-		                $linesItems = $order->getLineItems();
-		                $linesItems[] = $lineItem;
-		                $order->setLineItems($linesItems);
-	                }
+                    if ($isNewLineItem)
+                    {
+                        $linesItems = $order->getLineItems();
+                        $linesItems[] = $lineItem;
+                        $order->setLineItems($linesItems);
+                    }
 
                     craft()->commerce_orders->saveOrder($order);
 
                     CommerceDbHelper::commitStackedTransaction();
 
                     //raising event
-                    $event = new Event($this, [
-                        'lineItem' => $lineItem,
-                        'order'    => $order,
-                    ]);
+                    $event = new Event($this, ['lineItem' => $lineItem, 'order' => $order,]);
                     $this->onAddToCart($event);
 
                     return true;
@@ -199,9 +194,7 @@ class Commerce_CartService extends BaseApplicationComponent
      */
     public function applyCoupon(Commerce_OrderModel $cart, $code, &$error = '')
     {
-        if (empty($code) || craft()->commerce_discounts->matchCode($code,
-                $cart->customerId, $error)
-        )
+        if (empty($code) || craft()->commerce_discounts->matchCode($code, $cart->customerId, $error))
         {
             $cart->couponCode = $code ?: null;
             craft()->commerce_orders->saveOrder($cart);
@@ -215,6 +208,38 @@ class Commerce_CartService extends BaseApplicationComponent
     }
 
     /**
+     * Sets the payment currency on the order.
+     *
+     * @param $order
+     * @param $currency
+     * @param $error
+     *
+     * @return bool
+     * @throws Exception
+     * @throws \Exception
+     */
+    public function setPaymentCurrency($order, $currency, $error)
+    {
+        $currency = craft()->commerce_paymentCurrencies->getPaymentCurrencyByIso($currency);
+
+        if (!$currency)
+        {
+            $error = Craft::t("Not an available payment currency");
+
+            return false;
+        }
+
+        $order->paymentCurrency = $currency->iso;
+
+        if (!craft()->commerce_orders->saveOrder($order))
+        {
+            return false;
+        };
+
+        return true;
+    }
+
+    /**
      * Set shipping method to the current order
      *
      * @param Commerce_OrderModel $cart
@@ -225,24 +250,24 @@ class Commerce_CartService extends BaseApplicationComponent
      * @throws Exception
      * @throws \Exception
      */
-	public function setShippingMethod(Commerce_OrderModel $cart, $shippingMethod, &$error = "")
-	{
-		$methods = craft()->commerce_shippingMethods->getAvailableShippingMethods($cart);
+    public function setShippingMethod(Commerce_OrderModel $cart, $shippingMethod, &$error = "")
+    {
+        $methods = craft()->commerce_shippingMethods->getAvailableShippingMethods($cart);
 
-		foreach ($methods as $method)
-		{
-			if ($method['handle'] == $shippingMethod)
-			{
-				$cart->shippingMethod = $shippingMethod;
+        foreach ($methods as $method)
+        {
+            if ($method['handle'] == $shippingMethod)
+            {
+                $cart->shippingMethod = $shippingMethod;
 
-				return craft()->commerce_orders->saveOrder($cart);
-			}
-		}
+                return craft()->commerce_orders->saveOrder($cart);
+            }
+        }
 
-		$error = Craft::t('Shipping method not available');
+        $error = Craft::t('Shipping method not available');
 
-		return false;
-	}
+        return false;
+    }
 
     /**
      * Set shipping method to the current order
@@ -326,9 +351,15 @@ class Commerce_CartService extends BaseApplicationComponent
         {
             $number = $this->_getSessionCartNumber();
 
-            if ($cart = $this->_getCartRecordByNumber($number))
+            if ($this->_cart = craft()->commerce_orders->getOrderByNumber($number))
             {
-                $this->_cart = Commerce_OrderModel::populateModel($cart);
+                // We do not want to use the same order number as a completed order.
+                if ($this->_cart->isCompleted)
+                {
+                    $this->forgetCart();
+                    craft()->commerce_customers->forgetCustomer();
+                    $this->getCart();
+                }
             }
             else
             {
@@ -336,19 +367,25 @@ class Commerce_CartService extends BaseApplicationComponent
                 $this->_cart->number = $number;
             }
 
-            // We do not want to use the same order number as a completed order.
-            $order = craft()->commerce_orders->getOrderByNumber($number);
-            if ($order && $order->isCompleted)
+            $this->_cart->lastIp = craft()->request->getIpAddress();
+            $this->_cart->orderLocale = craft()->language;
+
+            // Right now, orders are all stored in the default currency
+            $this->_cart->currency = craft()->commerce_paymentCurrencies->getPrimaryPaymentCurrencyIso();
+
+            // Payment currency is always set to the stores primary currency unless it is set to an allowed currency.
+            $currencies = \array_column(craft()->commerce_paymentCurrencies->getAllPaymentCurrencies(), 'iso');
+
+            if (defined('COMMERCE_PAYMENT_CURRENCY'))
             {
-                $this->forgetCart();
-                craft()->commerce_customers->forgetCustomer();
-                $this->getCart();
+                $currency = StringHelper::toUpperCase(COMMERCE_PAYMENT_CURRENCY);
+                if (in_array($currency, $currencies))
+                {
+                    $this->_cart->paymentCurrency = $currency;
+                }
             }
 
-            $this->_cart->lastIp = craft()->request->getIpAddress();
-
-            // Right now, orders are only made in the default currency
-            $this->_cart->currency = craft()->commerce_settings->getOption('defaultCurrency');
+            $this->_cart->paymentCurrency = $this->_cart->paymentCurrency ?: craft()->commerce_paymentCurrencies->getPrimaryPaymentCurrencyIso();
 
             // Update the cart if the customer has changed and recalculate the cart.
             $customer = craft()->commerce_customers->getCustomer();
@@ -386,20 +423,6 @@ class Commerce_CartService extends BaseApplicationComponent
     }
 
     /**
-     * @param string $number
-     *
-     * @return Commerce_OrderRecord
-     */
-    private function _getCartRecordByNumber($number)
-    {
-        $cart = $this->_createOrderQuery()
-            ->where('orders.number = :number AND dateOrdered IS NULL', [':number' => $number])
-            ->queryRow();
-
-        return $cart;
-    }
-
-    /**
      * Removes a line item from the cart.
      *
      * @param Commerce_OrderModel $cart
@@ -407,45 +430,83 @@ class Commerce_CartService extends BaseApplicationComponent
      *
      * @throws Exception
      * @throws \Exception
+     *
+     * @return bool
      */
     public function removeFromCart(Commerce_OrderModel $cart, $lineItemId)
     {
         $lineItem = craft()->commerce_lineItems->getLineItemById($lineItemId);
 
-        if (!$lineItem->id)
+        // Fail if the line item does not belong to the cart.
+        if (!$lineItem || ($cart->id != $lineItem->orderId))
         {
-            throw new Exception('Line item not found');
+            return false;
         }
 
-        CommerceDbHelper::beginStackedTransaction();
-        try
-        {
-	        $lineItems = $cart->getLineItems();
-	        foreach ($lineItems as $key => $item)
-	        {
-		        if ($item->id == $lineItem->id)
-		        {
-			        unset($lineItems[$key]);
-			        $cart->setLineItems($lineItems);
-		        }
-	        }
-	        craft()->commerce_lineItems->deleteLineItem($lineItem);
-            craft()->commerce_orders->saveOrder($cart);
+        //raising event
+        $event = new Event($this, ['lineItem' => $lineItem, 'order' => $cart]);
+        $this->onBeforeRemoveFromCart($event);
 
-            //raising event
-            $event = new Event($this, [
-                'lineItemId' => $lineItemId,
-                'order'      => $cart
-            ]);
-            $this->onRemoveFromCart($event);
-        }
-        catch (\Exception $e)
+        if (!$event->performAction)
         {
-            CommerceDbHelper::rollbackStackedTransaction();
-            throw $e;
+            return false;
+        }
+        else
+        {
+            CommerceDbHelper::beginStackedTransaction();
+            try
+            {
+                $lineItems = $cart->getLineItems();
+                foreach ($lineItems as $key => $item)
+                {
+                    if ($item->id == $lineItem->id)
+                    {
+                        unset($lineItems[$key]);
+                        $cart->setLineItems($lineItems);
+                    }
+                }
+                craft()->commerce_lineItems->deleteLineItem($lineItem);
+                craft()->commerce_orders->saveOrder($cart);
+
+                //raising event
+                $event = new Event($this, ['lineItemId' => $lineItemId, 'order' => $cart]);
+                $this->onRemoveFromCart($event);
+            }
+            catch (\Exception $e)
+            {
+                CommerceDbHelper::rollbackStackedTransaction();
+                CommercePlugin::log($e->getMessage(), LogLevel::Error, true);
+
+                return false;
+            }
+
+            CommerceDbHelper::commitStackedTransaction();
         }
 
-        CommerceDbHelper::commitStackedTransaction();
+        return true;
+    }
+
+    /**
+     * Event method.
+     * Event params: order(Commerce_OrderModel), lineItemId (int)
+     *
+     * @param \CEvent $event
+     *
+     * @throws \CException
+     */
+    public function onBeforeRemoveFromCart(\CEvent $event)
+    {
+        $params = $event->params;
+        if (empty($params['order']) || !($params['order'] instanceof Commerce_OrderModel))
+        {
+            throw new Exception('onBeforeRemoveFromCart event requires "order" param with OrderModel instance');
+        }
+
+        if (empty($params['lineItem']) || !($params['lineItem'] instanceof Commerce_LineItemModel))
+        {
+            throw new Exception('onBeforeRemoveFromCart event requires "lineItem" param to be an Commerce_LineItemModel');
+        }
+        $this->raiseEvent('onBeforeRemoveFromCart', $event);
     }
 
     /**
@@ -532,13 +593,7 @@ class Commerce_CartService extends BaseApplicationComponent
         $interval->invert = 1;
         $edge->add($interval);
 
-        $records = Commerce_OrderRecord::model()->findAllByAttributes(
-            [
-                'dateOrdered' => null,
-            ],
-            'dateUpdated <= :edge',
-            ['edge' => $edge->format('Y-m-d H:i:s')]
-        );
+        $records = Commerce_OrderRecord::model()->findAllByAttributes(['dateOrdered' => null,], 'dateUpdated <= :edge', ['edge' => $edge->format('Y-m-d H:i:s')]);
 
         return Commerce_OrderModel::populateModels($records);
     }
@@ -550,8 +605,7 @@ class Commerce_CartService extends BaseApplicationComponent
      */
     private function _createOrderQuery()
     {
-        return craft()->db->createCommand()
-            ->select('orders.id,
+        return craft()->db->createCommand()->select('orders.id,
                     orders.number,
                     orders.orderStatusId,
                     orders.billingAddressId,

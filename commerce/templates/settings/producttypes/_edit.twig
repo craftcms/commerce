@@ -2,7 +2,7 @@
 {% set title = productType.id ? productType.name : 'Create a new product type'|t %}
 
 {% set crumbs = [
-{ label: "Commerce " ~ "Settings"|t, url: url('commerce/settings') },
+{ label: "Commerce Settings"|t, url: url('commerce/settings') },
 { label: "Product Types"|t, url: url('commerce/settings/producttypes') },
 ] %}
 
@@ -50,12 +50,43 @@
 
     {{ forms.textField({
         label: "Automatic SKU Format"|t,
-        instructions: "What the unique auto-generated SKUs should look like, when a SKU field is submitted without a value. You can include tags that output properties, such as {ex1} or {ex2}"|t({ ex1: '<code>{product.slug}</code>', ex2: '<code>{myCustomField}</code>' }),
+        instructions: "What the unique auto-generated SKUs should look like, when a SKU field is submitted without a value. You can include tags that output properties, such as {ex1} or {ex2}"|t({ ex1: '<code>{product.slug}</code>', ex2: '<code>{myVariantCustomField}</code>' }),
         id: 'skuFormat',
-        class: 'ltr',
+        class: 'code ltr',
         name: 'skuFormat',
         value: productType.skuFormat,
         errors: productType.getErrors('skuFormat')
+    }) }}
+
+
+     {{ forms.textField({
+        label: "Order Description Format"|t,
+        instructions: "How this product will be described on a line item in an order. You can include tags that output properties, such as {ex1} or {ex2}"|t({ ex1: '<code>{product.title}</code>', ex2: '<code>{myVariantCustomField}</code>' }),
+        id: 'descriptionFormat',
+        class: 'code ltr',
+        name: 'descriptionFormat',
+        value: productType.descriptionFormat,
+        errors: productType.getErrors('descriptionFormat')
+    }) }}
+
+    {{ forms.multiSelectField({
+        label: 'Available Tax Categories'|t,
+        instructions: 'Choose the tax categories products of this type can belong to. Minimum of one required.'|t,
+        id: 'taxCategories',
+        name: 'taxCategories',
+		required: true,
+        errors: productType.getErrors('taxCategories'),
+        class: 'selectize fullwidth',
+    }) }}
+
+    {{ forms.multiSelectField({
+        label: 'Available Shipping Categories'|t,
+        instructions: 'Choose the shipping categories products of this type can belong to. Minimum of one required.'|t,
+        id: 'shippingCategories',
+        name: 'shippingCategories',
+		required: true,
+        errors: productType.getErrors('shippingCategories'),
+        class: 'selectize fullwidth',
     }) }}
 
     {{ forms.checkboxField({
@@ -130,7 +161,7 @@
                     label: "Variant Title Format"|t,
                     instructions: "What the auto-generated variant titles should look like. You can include tags that output variant properties, such as {ex1} or {ex2}. All custom fields used must be set to required."|t({ ex1: '<code>{sku}</code>', ex2: '<code>{myVariantsCustomField}</code>' }),
                     id: 'titleFormat',
-                    class: 'ltr',
+                    class: 'code ltr',
                     name: 'titleFormat',
                     value: productType.titleFormat,
                     errors: productType.getErrors('titleFormat')
@@ -242,11 +273,64 @@
         {% endif %}
     {% endfor %}
 
-    $('#hasVariants').on('change', function() {
-        if ($(this).prop('checked')) {
-            $('#tab-variantFields').removeClass('hidden');
-        } else {
-            $('#tab-variantFields').addClass('hidden');
-        }
-    });
+	$('#hasVariants').on('change', function () {
+		if ($(this).prop('checked')) {
+			$('#tab-variantFields').removeClass('hidden');
+		} else {
+			$('#tab-variantFields').addClass('hidden');
+		}
+	});
+
+	window.productTypeShippingCategories = JSON.parse('{{ productType.shippingCategories|keys|json_encode|raw }}');
+	window.shippingCategories = $.map(JSON.parse('{{ craft.commerce.shippingCategories|json_encode|raw }}'), function(value, index) { return [value] });
+
+	$.each(window.shippingCategories, function (key, shippingCategory) {
+		if (shippingCategory.default == 1) {
+			window.defaultShippingCategory = shippingCategory;
+		}
+	});
+
+	$(function () {
+		var $shippingCategories = $('#shippingCategories').selectize({
+			options: window.shippingCategories,
+			items: window.productTypeShippingCategories,
+			valueField: 'id',
+			labelField: 'name',
+			plugins: ['remove_button'],
+			create: false,
+			dropdownParent: 'body',
+			onItemRemove: function () {
+				if (!$shippingCategories[0].selectize.items.length) {
+					$shippingCategories[0].selectize.addItem(window.defaultShippingCategory.id);
+				}
+			}
+		});
+	});
+
+	window.productTypeTaxCategories = JSON.parse('{{ productType.taxCategories|keys|json_encode|raw }}');
+	window.taxCategories = $.map(JSON.parse('{{ craft.commerce.taxCategories|json_encode|raw }}'), function(value, index) { return [value] });
+
+	$.each(window.taxCategories, function (key, taxCategory) {
+		if (taxCategory.default == 1) {
+			window.defaultTaxCategory = taxCategory;
+		}
+	});
+
+	$(function () {
+		var $taxCategories = $('#taxCategories').selectize({
+			options: window.taxCategories,
+			items: window.productTypeTaxCategories,
+			valueField: 'id',
+			labelField: 'name',
+			plugins: ['remove_button'],
+			create: false,
+			dropdownParent: 'body',
+			onItemRemove: function () {
+				if (!$taxCategories[0].selectize.items.length) {
+					$taxCategories[0].selectize.addItem(window.defaultTaxCategory.id);
+				}
+			}
+		});
+	});
+
 {% endincludejs %}

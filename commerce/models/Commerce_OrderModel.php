@@ -1,7 +1,7 @@
 <?php
 namespace Craft;
 
-use Omnipay\Common\Currency;
+use Commerce\Helpers\CommerceCurrencyHelper;
 
 /**
  * Order or Cart model.
@@ -18,8 +18,10 @@ use Omnipay\Common\Currency;
  * @property bool $isCompleted
  * @property DateTime $dateOrdered
  * @property string $currency
+ * @property string $paymentCurrency
  * @property DateTime $datePaid
  * @property string $lastIp
+ * @property string $orderLocale
  * @property string $message
  * @property string $returnUrl
  * @property string $cancelUrl
@@ -86,23 +88,23 @@ class Commerce_OrderModel extends BaseElementModel
      */
     private $_orderAdjustments;
 
-	/**
-	 * We need to have getters functions have maximum priority.
-	 * This was in the ModelRelationTrait so it needs to stay for backwards compatibility.
-	 * @param string $name
-	 *
-	 * @return mixed
-	 */
-	public function __get($name)
-	{
-		$getter = 'get'.$name;
-		if (method_exists($this, $getter))
-		{
-			return $this->$getter();
-		}
+    /**
+     * We need to have getters functions have maximum priority.
+     * This was in the ModelRelationTrait so it needs to stay for backwards compatibility.
+     * @param string $name
+     *
+     * @return mixed
+     */
+    public function __get($name)
+    {
+        $getter = 'get'.$name;
+        if (method_exists($this, $getter))
+        {
+            return $this->$getter();
+        }
 
-		return parent::__get($name);
-	}
+        return parent::__get($name);
+    }
 
     /**
      * @return bool
@@ -189,7 +191,7 @@ class Commerce_OrderModel extends BaseElementModel
      */
     public function getFieldLayout()
     {
-	    /** @var Commerce_OrderSettingsModel $orderSettings */
+        /** @var Commerce_OrderSettingsModel $orderSettings */
         $orderSettings = craft()->commerce_orderSettings->getOrderSettingByHandle('order');
 
         if ($orderSettings)
@@ -237,13 +239,37 @@ class Commerce_OrderModel extends BaseElementModel
         return (bool) $this->outstandingBalance() <= 0;
     }
 
+    /**
+     * @return bool
+     */
+    public function isUnpaid()
+    {
+        return (bool) $this->outstandingBalance() > 0;
+    }
+
+    /**
+     * Returns the difference between the order amount and amount paid.
+     *
+     * @return float
+     */
     public function outstandingBalance()
     {
-        $currency = Currency::find(craft()->commerce_settings->getSettings()->defaultCurrency);
-        $totalPaid = round($this->totalPaid, $currency->getDecimals());
-        $totalPrice = round($this->totalPrice, $currency->getDecimals());
 
+        $totalPaid = CommerceCurrencyHelper::round($this->totalPaid);
+        $totalPrice = CommerceCurrencyHelper::round($this->totalPrice);
+        
         return $totalPrice - $totalPaid;
+    }
+
+    /**
+     * Is this order the users current active cart.
+     * @return bool
+     */
+    public function isActiveCart()
+    {
+        $cart = craft()->commerce_cart->getCart();
+
+        return ($cart && $cart->id == $this->id);
     }
 
     /**
@@ -554,9 +580,9 @@ class Commerce_OrderModel extends BaseElementModel
         return craft()->commerce_orderHistories->getAllOrderHistoriesByOrderId($this->id);
     }
 
-	/**
-	 * @return Commerce_TransactionModel[]
-	 */
+    /**
+     * @return Commerce_TransactionModel[]
+     */
     public function getTransactions()
     {
         return craft()->commerce_transactions->getAllTransactionsByOrderId($this->id);
@@ -631,7 +657,9 @@ class Commerce_OrderModel extends BaseElementModel
             'dateOrdered' => AttributeType::DateTime,
             'datePaid' => AttributeType::DateTime,
             'currency' => AttributeType::String,
+            'paymentCurrency' => AttributeType::String,
             'lastIp' => AttributeType::String,
+            'orderLocale' => AttributeType::String,
             'message' => AttributeType::String,
             'returnUrl' => AttributeType::String,
             'cancelUrl' => AttributeType::String,

@@ -67,6 +67,7 @@ class Commerce_EmailsController extends Commerce_BaseAdminController
         $email->id = craft()->request->getPost('emailId');
         $email->name = craft()->request->getPost('name');
         $email->subject = craft()->request->getPost('subject');
+        $email->recipientType = craft()->request->getPost('recipientType');
         $email->to = craft()->request->getPost('to');
         $email->bcc = craft()->request->getPost('bcc');
         $email->enabled = craft()->request->getPost('enabled');

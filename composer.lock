@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "15935447a6d93c87dab0b3a53b1b1a51",
-    "content-hash": "9f26c1e20bb69175630dfbe8d0b8ecc8",
+    "hash": "7768d9471d1541e461d62cb76c33ec3a",
+    "content-hash": "0d9fd59c399c2ae48f9aa6e824962a08",
     "packages": [
         {
             "name": "dompdf/dompdf",
@@ -145,48 +145,6 @@
             "time": "2015-04-29 17:06:53"
         },
         {
-            "name": "ircmaxell/password-compat",
-            "version": "1.0.x-dev",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/ircmaxell/password_compat.git",
-                "reference": "9b99377557a33a4129c9194e60a97a685fab21e0"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/ircmaxell/password_compat/zipball/9b99377557a33a4129c9194e60a97a685fab21e0",
-                "reference": "9b99377557a33a4129c9194e60a97a685fab21e0",
-                "shasum": ""
-            },
-            "require-dev": {
-                "phpunit/phpunit": "4.*"
-            },
-            "type": "library",
-            "autoload": {
-                "files": [
-                    "lib/password.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Anthony Ferrara",
-                    "email": "ircmaxell@php.net",
-                    "homepage": "http://blog.ircmaxell.com"
-                }
-            ],
-            "description": "A compatibility library for the proposed simplified password hashing algorithm: https://wiki.php.net/rfc/password_hash",
-            "homepage": "https://github.com/ircmaxell/password_compat",
-            "keywords": [
-                "hashing",
-                "password"
-            ],
-            "time": "2014-11-20 19:18:42"
-        },
-        {
             "name": "omnipay/2checkout",
             "version": "v2.1.1",
             "source": {
@@ -247,16 +205,16 @@
         },
         {
             "name": "omnipay/authorizenet",
-            "version": "2.4.1",
+            "version": "2.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/omnipay-authorizenet.git",
-                "reference": "439bb6e649a4c57cddc24d6d704301a8ee5c3c3f"
+                "reference": "6e1990f5d22f0f8e4dfe363b89c9776d0d803c34"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-authorizenet/zipball/439bb6e649a4c57cddc24d6d704301a8ee5c3c3f",
-                "reference": "439bb6e649a4c57cddc24d6d704301a8ee5c3c3f",
+                "url": "https://api.github.com/repos/thephpleague/omnipay-authorizenet/zipball/6e1990f5d22f0f8e4dfe363b89c9776d0d803c34",
+                "reference": "6e1990f5d22f0f8e4dfe363b89c9776d0d803c34",
                 "shasum": ""
             },
             "require": {
@@ -302,20 +260,20 @@
                 "pay",
                 "payment"
             ],
-            "time": "2016-06-16 10:06:24"
+            "time": "2016-07-16 21:00:00"
         },
         {
             "name": "omnipay/buckaroo",
-            "version": "dev-master",
+            "version": "v2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/omnipay-buckaroo.git",
-                "reference": "aeadff6281fb4ecba1ff341bb8288e3e4a54d50e"
+                "reference": "7fccd4382ba87f6535cb399892c687928615dad7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-buckaroo/zipball/aeadff6281fb4ecba1ff341bb8288e3e4a54d50e",
-                "reference": "aeadff6281fb4ecba1ff341bb8288e3e4a54d50e",
+                "url": "https://api.github.com/repos/thephpleague/omnipay-buckaroo/zipball/7fccd4382ba87f6535cb399892c687928615dad7",
+                "reference": "7fccd4382ba87f6535cb399892c687928615dad7",
                 "shasum": ""
             },
             "require": {
@@ -359,7 +317,7 @@
                 "pay",
                 "payment"
             ],
-            "time": "2016-06-22 07:37:02"
+            "time": "2016-08-10 04:41:17"
         },
         {
             "name": "omnipay/cardsave",
@@ -478,35 +436,36 @@
         },
         {
             "name": "omnipay/common",
-            "version": "v2.3.4",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/omnipay-common.git",
-                "reference": "fcd5a606713d11536c89315a5ae02d965a737c21"
+                "reference": "3c112d401a97be85fb9627f61ea2bb86581c6a60"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-common/zipball/fcd5a606713d11536c89315a5ae02d965a737c21",
-                "reference": "fcd5a606713d11536c89315a5ae02d965a737c21",
+                "url": "https://api.github.com/repos/thephpleague/omnipay-common/zipball/3c112d401a97be85fb9627f61ea2bb86581c6a60",
+                "reference": "3c112d401a97be85fb9627f61ea2bb86581c6a60",
                 "shasum": ""
             },
             "require": {
                 "guzzle/guzzle": "~3.9",
                 "php": ">=5.3.2",
-                "symfony/http-foundation": "~2.1"
+                "symfony/http-foundation": "~2.1|~3.0"
             },
             "require-dev": {
-                "omnipay/tests": "~2.0"
+                "omnipay/tests": "~2.0",
+                "squizlabs/php_codesniffer": "~1.5"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.0.x-dev"
+                    "dev-master": "2.5.x-dev"
                 },
                 "gateways": [
                     "AuthorizeNet_AIM",
                     "AuthorizeNet_SIM",
-                    "Buckaroo",
+                    "Buckaroo_CreditCard",
                     "Buckaroo_Ideal",
                     "Buckaroo_PayPal",
                     "CardSave",
@@ -536,26 +495,7 @@
                     "TargetPay_Directebanking",
                     "TargetPay_Ideal",
                     "TargetPay_Mrcash",
-                    "TwoCheckout",
-                    "WorldPay",
-                    "Alipay Bank",
-                    "AliPay Dual Func",
-                    "Alipay Express",
-                    "Alipay Mobile Express",
-                    "Alipay Secured",
-                    "Alipay Wap Express",
-                    "Cybersource",
-                    "DataCash",
-                    "Ecopayz",
-                    "Neteller",
-                    "Pacnet",
-                    "PaymentSense",
-                    "Realex Remote",
-                    "SecPay (PayPoint.net)",
-                    "Sisow",
-                    "Skrill",
-                    "YandexMoney",
-                    "YandexMoneyIndividual"
+                    "WorldPay"
                 ]
             },
             "autoload": {
@@ -590,20 +530,20 @@
                 "payment",
                 "purchase"
             ],
-            "time": "2015-03-30 14:34:46"
+            "time": "2016-10-03 21:05:37"
         },
         {
             "name": "omnipay/dummy",
-            "version": "v2.1.1",
+            "version": "v2.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/omnipay-dummy.git",
-                "reference": "2e4d4b37114917b7b843bed3cd19bafdf22ad420"
+                "reference": "8232954c15a24b848057c30ef25470d10dcfc956"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-dummy/zipball/2e4d4b37114917b7b843bed3cd19bafdf22ad420",
-                "reference": "2e4d4b37114917b7b843bed3cd19bafdf22ad420",
+                "url": "https://api.github.com/repos/thephpleague/omnipay-dummy/zipball/8232954c15a24b848057c30ef25470d10dcfc956",
+                "reference": "8232954c15a24b848057c30ef25470d10dcfc956",
                 "shasum": ""
             },
             "require": {
@@ -647,7 +587,7 @@
                 "pay",
                 "payment"
             ],
-            "time": "2014-09-17 00:39:36"
+            "time": "2016-07-30 04:18:49"
         },
         {
             "name": "omnipay/eway",
@@ -881,16 +821,16 @@
         },
         {
             "name": "omnipay/migs",
-            "version": "v2.1.1",
+            "version": "v2.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/omnipay-migs.git",
-                "reference": "b49e9f2816a5cdd3c1ba2bcb46a0c73dc43c0b3b"
+                "reference": "c15be0960ae578d60cabc7c0a2895da41430821f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-migs/zipball/b49e9f2816a5cdd3c1ba2bcb46a0c73dc43c0b3b",
-                "reference": "b49e9f2816a5cdd3c1ba2bcb46a0c73dc43c0b3b",
+                "url": "https://api.github.com/repos/thephpleague/omnipay-migs/zipball/c15be0960ae578d60cabc7c0a2895da41430821f",
+                "reference": "c15be0960ae578d60cabc7c0a2895da41430821f",
                 "shasum": ""
             },
             "require": {
@@ -935,20 +875,20 @@
                 "pay",
                 "payment"
             ],
-            "time": "2014-09-17 00:38:25"
+            "time": "2016-09-22 01:58:30"
         },
         {
             "name": "omnipay/mollie",
-            "version": "3.0.5",
+            "version": "v3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/omnipay-mollie.git",
-                "reference": "efd491fdac7d1243e2dd1da5a964514e3aab2a5a"
+                "reference": "66342a755df2d01954f753ee59656115da6f57d0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-mollie/zipball/efd491fdac7d1243e2dd1da5a964514e3aab2a5a",
-                "reference": "efd491fdac7d1243e2dd1da5a964514e3aab2a5a",
+                "url": "https://api.github.com/repos/thephpleague/omnipay-mollie/zipball/66342a755df2d01954f753ee59656115da6f57d0",
+                "reference": "66342a755df2d01954f753ee59656115da6f57d0",
                 "shasum": ""
             },
             "require": {
@@ -992,7 +932,7 @@
                 "pay",
                 "payment"
             ],
-            "time": "2016-02-21 22:00:30"
+            "time": "2016-09-14 09:25:40"
         },
         {
             "name": "omnipay/multisafepay",
@@ -1111,16 +1051,16 @@
         },
         {
             "name": "omnipay/netbanx",
-            "version": "v2.1.1",
+            "version": "dev-dev-hostedpayments",
             "source": {
                 "type": "git",
-                "url": "https://github.com/thephpleague/omnipay-netbanx.git",
-                "reference": "a56900120e676385cc42d67c82985fcaaa752140"
+                "url": "https://github.com/pixelandtonic/omnipay-netbanx.git",
+                "reference": "55c92d3d2fa8eef5968c186a442ac967b83f50d0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-netbanx/zipball/a56900120e676385cc42d67c82985fcaaa752140",
-                "reference": "a56900120e676385cc42d67c82985fcaaa752140",
+                "url": "https://api.github.com/repos/pixelandtonic/omnipay-netbanx/zipball/55c92d3d2fa8eef5968c186a442ac967b83f50d0",
+                "reference": "55c92d3d2fa8eef5968c186a442ac967b83f50d0",
                 "shasum": ""
             },
             "require": {
@@ -1140,7 +1080,6 @@
                     "Omnipay\\NetBanx\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -1164,132 +1103,23 @@
                 "pay",
                 "payment"
             ],
-            "time": "2014-09-17 00:38:46"
-        },
-        {
-            "name": "omnipay/omnipay",
-            "version": "2.3.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/thephpleague/omnipay.git",
-                "reference": "e9e6d95a2e7c3641ba31c985334d82e39dbd6078"
+            "support": {
+                "source": "https://github.com/pixelandtonic/omnipay-netbanx/tree/dev-hostedpayments"
             },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay/zipball/e9e6d95a2e7c3641ba31c985334d82e39dbd6078",
-                "reference": "e9e6d95a2e7c3641ba31c985334d82e39dbd6078",
-                "shasum": ""
-            },
-            "require": {
-                "omnipay/2checkout": "~2.0",
-                "omnipay/authorizenet": "~2.0",
-                "omnipay/buckaroo": "~2.0",
-                "omnipay/cardsave": "~2.0",
-                "omnipay/coinbase": "~2.0",
-                "omnipay/common": "~2.3.0",
-                "omnipay/dummy": "~2.0",
-                "omnipay/eway": "~2.0",
-                "omnipay/firstdata": "~2.0",
-                "omnipay/gocardless": "~2.0",
-                "omnipay/manual": "~2.0",
-                "omnipay/migs": "~2.0",
-                "omnipay/mollie": "~3.0",
-                "omnipay/multisafepay": "~2.0",
-                "omnipay/netaxept": "~2.0",
-                "omnipay/netbanx": "~2.0",
-                "omnipay/payfast": "~2.0",
-                "omnipay/payflow": "~2.0",
-                "omnipay/paymentexpress": "~2.0",
-                "omnipay/paypal": "~2.0",
-                "omnipay/pin": "~2.0",
-                "omnipay/sagepay": "~2.0",
-                "omnipay/securepay": "~2.0",
-                "omnipay/stripe": "~2.0",
-                "omnipay/targetpay": "~2.0",
-                "omnipay/worldpay": "~2.0"
-            },
-            "require-dev": {
-                "omnipay/tests": "~2.0"
-            },
-            "type": "metapackage",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.0.x-dev"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Adrian Macneil",
-                    "email": "adrian@adrianmacneil.com"
-                },
-                {
-                    "name": "Omnipay Community",
-                    "homepage": "https://github.com/thephpleague/omnipay/graphs/contributors"
-                }
-            ],
-            "description": "Includes Omnipay payment processing library and all officially supported gateways",
-            "homepage": "https://github.com/thephpleague/omnipay",
-            "keywords": [
-                "2checkout",
-                "2co",
-                "auth.net",
-                "authorize",
-                "authorize.net",
-                "buckaroo",
-                "cardsave",
-                "coinbase",
-                "commweb",
-                "dps",
-                "egate",
-                "eway",
-                "express",
-                "first data",
-                "firstdata",
-                "gateway",
-                "gocardless",
-                "ideal",
-                "merchant",
-                "migs",
-                "mollie",
-                "multisafepay",
-                "netaxept",
-                "netbanx",
-                "pay",
-                "payfast",
-                "payflow",
-                "payment",
-                "paymentexpress",
-                "paypal",
-                "pin",
-                "purchase",
-                "rapid",
-                "sagepay",
-                "securepay",
-                "stripe",
-                "tala",
-                "tala-payments",
-                "targetpay",
-                "twocheckout",
-                "worldpay"
-            ],
-            "time": "2014-12-10 13:55:00"
+            "time": "2016-09-15 07:21:47"
         },
         {
             "name": "omnipay/payfast",
-            "version": "v2.1.1",
+            "version": "v2.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/omnipay-payfast.git",
-                "reference": "b5b0a0ce86a6471871e2b149643fc8cb836c465f"
+                "reference": "f352e89e5901756e861ddcadaed9b8693aaaa239"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-payfast/zipball/b5b0a0ce86a6471871e2b149643fc8cb836c465f",
-                "reference": "b5b0a0ce86a6471871e2b149643fc8cb836c465f",
+                "url": "https://api.github.com/repos/thephpleague/omnipay-payfast/zipball/f352e89e5901756e861ddcadaed9b8693aaaa239",
+                "reference": "f352e89e5901756e861ddcadaed9b8693aaaa239",
                 "shasum": ""
             },
             "require": {
@@ -1333,20 +1163,20 @@
                 "payfast",
                 "payment"
             ],
-            "time": "2014-09-17 00:39:04"
+            "time": "2014-09-29 01:07:03"
         },
         {
             "name": "omnipay/payflow",
-            "version": "2.2.0",
+            "version": "v2.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/omnipay-payflow.git",
-                "reference": "1d5963fd57bf16cfb8134900d3c34d9e30ca59a9"
+                "reference": "4a89c0450b356fca57c0ee4d3ea08145ea93449f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-payflow/zipball/1d5963fd57bf16cfb8134900d3c34d9e30ca59a9",
-                "reference": "1d5963fd57bf16cfb8134900d3c34d9e30ca59a9",
+                "url": "https://api.github.com/repos/thephpleague/omnipay-payflow/zipball/4a89c0450b356fca57c0ee4d3ea08145ea93449f",
+                "reference": "4a89c0450b356fca57c0ee4d3ea08145ea93449f",
                 "shasum": ""
             },
             "require": {
@@ -1390,7 +1220,7 @@
                 "payflow",
                 "payment"
             ],
-            "time": "2015-11-03 20:55:42"
+            "time": "2016-07-30 08:33:58"
         },
         {
             "name": "omnipay/paymentexpress",
@@ -1457,16 +1287,16 @@
         },
         {
             "name": "omnipay/paypal",
-            "version": "v2.5.4",
+            "version": "dev-error10486handler",
             "source": {
                 "type": "git",
-                "url": "https://github.com/thephpleague/omnipay-paypal.git",
-                "reference": "3d39ab63f9c1e31893ec61bbab9eda98df5f1a6f"
+                "url": "https://github.com/pixelandtonic/omnipay-paypal.git",
+                "reference": "07c8127710081b38d02b151f6dc2b31602896724"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-paypal/zipball/3d39ab63f9c1e31893ec61bbab9eda98df5f1a6f",
-                "reference": "3d39ab63f9c1e31893ec61bbab9eda98df5f1a6f",
+                "url": "https://api.github.com/repos/pixelandtonic/omnipay-paypal/zipball/07c8127710081b38d02b151f6dc2b31602896724",
+                "reference": "07c8127710081b38d02b151f6dc2b31602896724",
                 "shasum": ""
             },
             "require": {
@@ -1486,7 +1316,6 @@
                     "Omnipay\\PayPal\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -1511,7 +1340,10 @@
                 "paypal",
                 "purchase"
             ],
-            "time": "2016-03-25 10:40:17"
+            "support": {
+                "source": "https://github.com/pixelandtonic/omnipay-paypal/tree/error10486handler"
+            },
+            "time": "2016-09-14 02:11:55"
         },
         {
             "name": "omnipay/pin",
@@ -1572,16 +1404,16 @@
         },
         {
             "name": "omnipay/sagepay",
-            "version": "2.3.1",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/omnipay-sagepay.git",
-                "reference": "ca992b28a0d7ec7dbf218852dab36ec309dee07e"
+                "reference": "8c6d1fdd45001a6062dd989a9f7c5fb4e6d73c5e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-sagepay/zipball/ca992b28a0d7ec7dbf218852dab36ec309dee07e",
-                "reference": "ca992b28a0d7ec7dbf218852dab36ec309dee07e",
+                "url": "https://api.github.com/repos/thephpleague/omnipay-sagepay/zipball/8c6d1fdd45001a6062dd989a9f7c5fb4e6d73c5e",
+                "reference": "8c6d1fdd45001a6062dd989a9f7c5fb4e6d73c5e",
                 "shasum": ""
             },
             "require": {
@@ -1627,7 +1459,7 @@
                 "sage pay",
                 "sagepay"
             ],
-            "time": "2016-02-07 13:25:23"
+            "time": "2016-09-24 21:21:00"
         },
         {
             "name": "omnipay/securepay",
@@ -1688,16 +1520,16 @@
         },
         {
             "name": "omnipay/stripe",
-            "version": "v2.3.3",
+            "version": "v2.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/omnipay-stripe.git",
-                "reference": "0ea7a647ee01e29c152814e11c2ea6307e5b0db9"
+                "reference": "6eab75f838e11e2c951af52cf3939aeb37d11059"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-stripe/zipball/0ea7a647ee01e29c152814e11c2ea6307e5b0db9",
-                "reference": "0ea7a647ee01e29c152814e11c2ea6307e5b0db9",
+                "url": "https://api.github.com/repos/thephpleague/omnipay-stripe/zipball/6eab75f838e11e2c951af52cf3939aeb37d11059",
+                "reference": "6eab75f838e11e2c951af52cf3939aeb37d11059",
                 "shasum": ""
             },
             "require": {
@@ -1741,7 +1573,7 @@
                 "payment",
                 "stripe"
             ],
-            "time": "2016-04-26 08:34:50"
+            "time": "2016-09-14 09:11:40"
         },
         {
             "name": "omnipay/targetpay",
@@ -1892,17 +1724,114 @@
             "time": "2014-02-01 15:22:28"
         },
         {
+            "name": "ramsey/array_column",
+            "version": "1.1.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ramsey/array_column.git",
+                "reference": "f8e52eb28e67eb50e613b451dd916abcf783c1db"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ramsey/array_column/zipball/f8e52eb28e67eb50e613b451dd916abcf783c1db",
+                "reference": "f8e52eb28e67eb50e613b451dd916abcf783c1db",
+                "shasum": ""
+            },
+            "require-dev": {
+                "jakub-onderka/php-parallel-lint": "0.8.*",
+                "phpunit/phpunit": "~4.5",
+                "satooshi/php-coveralls": "0.6.*",
+                "squizlabs/php_codesniffer": "~2.2"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/array_column.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ben Ramsey",
+                    "homepage": "http://benramsey.com"
+                }
+            ],
+            "description": "Provides functionality for array_column() to projects using PHP earlier than version 5.5.",
+            "homepage": "https://github.com/ramsey/array_column",
+            "keywords": [
+                "array",
+                "array_column",
+                "column"
+            ],
+            "time": "2015-03-20 22:07:39"
+        },
+        {
+            "name": "snowcap/vat-validation",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/snowcap/vat-validation.git",
+                "reference": "21e7d996bd30dc680244d59d0fa18be3671e68ee"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/snowcap/vat-validation/zipball/21e7d996bd30dc680244d59d0fa18be3671e68ee",
+                "reference": "21e7d996bd30dc680244d59d0fa18be3671e68ee",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Snowcap\\Vat": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Pierre Vanliefland",
+                    "email": "pierre@snowcap.be"
+                },
+                {
+                    "name": "Edwin Hermans",
+                    "email": "edwin@snowcap.be"
+                },
+                {
+                    "name": "Jérôme Poskin",
+                    "email": "jerome@snowcap.be"
+                },
+                {
+                    "name": "Snowcap",
+                    "homepage": "http://www.snowcap.be"
+                }
+            ],
+            "description": "EU VAT number validation",
+            "homepage": "https://github.com/snowcap/vat-validation",
+            "keywords": [
+                "utility"
+            ],
+            "time": "2014-05-29 12:01:15"
+        },
+        {
             "name": "symfony/event-dispatcher",
             "version": "2.8.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/event-dispatcher.git",
-                "reference": "b180b70439dca70049b6b9b7e21d75e6e5d7aca9"
+                "reference": "889983a79a043dfda68f38c38b6dba092dd49cd8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/event-dispatcher/zipball/b180b70439dca70049b6b9b7e21d75e6e5d7aca9",
-                "reference": "b180b70439dca70049b6b9b7e21d75e6e5d7aca9",
+                "url": "https://api.github.com/repos/symfony/event-dispatcher/zipball/889983a79a043dfda68f38c38b6dba092dd49cd8",
+                "reference": "889983a79a043dfda68f38c38b6dba092dd49cd8",
                 "shasum": ""
             },
             "require": {
@@ -1949,35 +1878,33 @@
             ],
             "description": "Symfony EventDispatcher Component",
             "homepage": "https://symfony.com",
-            "time": "2016-06-29 05:29:29"
+            "time": "2016-07-28 16:56:28"
         },
         {
             "name": "symfony/http-foundation",
-            "version": "2.8.x-dev",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-foundation.git",
-                "reference": "6bef10a6c7f06627db4d4dd6ab683b9f85387d6d"
+                "reference": "a253dca70944b62ea371d26a03db5c9cbb657525"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/6bef10a6c7f06627db4d4dd6ab683b9f85387d6d",
-                "reference": "6bef10a6c7f06627db4d4dd6ab683b9f85387d6d",
+                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/a253dca70944b62ea371d26a03db5c9cbb657525",
+                "reference": "a253dca70944b62ea371d26a03db5c9cbb657525",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.9",
-                "symfony/polyfill-mbstring": "~1.1",
-                "symfony/polyfill-php54": "~1.0",
-                "symfony/polyfill-php55": "~1.0"
+                "php": ">=5.5.9",
+                "symfony/polyfill-mbstring": "~1.1"
             },
             "require-dev": {
-                "symfony/expression-language": "~2.4|~3.0.0"
+                "symfony/expression-language": "~2.8|~3.0"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.8-dev"
+                    "dev-master": "3.2-dev"
                 }
             },
             "autoload": {
@@ -2004,7 +1931,7 @@
             ],
             "description": "Symfony HttpFoundation Component",
             "homepage": "https://symfony.com",
-            "time": "2016-07-01 15:02:03"
+            "time": "2016-10-07 19:50:49"
         },
         {
             "name": "symfony/polyfill-mbstring",
@@ -2012,12 +1939,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-mbstring.git",
-                "reference": "8a6bdec191138e01c92ae026e5aacb7b3e66267d"
+                "reference": "53ad9faffe141fbe8f98cd6a7fd9a5e84513f56c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/8a6bdec191138e01c92ae026e5aacb7b3e66267d",
-                "reference": "8a6bdec191138e01c92ae026e5aacb7b3e66267d",
+                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/53ad9faffe141fbe8f98cd6a7fd9a5e84513f56c",
+                "reference": "53ad9faffe141fbe8f98cd6a7fd9a5e84513f56c",
                 "shasum": ""
             },
             "require": {
@@ -2063,41 +1990,37 @@
                 "portable",
                 "shim"
             ],
-            "time": "2016-06-29 14:58:48"
+            "time": "2016-08-30 17:06:17"
         },
         {
-            "name": "symfony/polyfill-php54",
-            "version": "dev-master",
+            "name": "triplepoint/php-units-of-measure",
+            "version": "v2.1.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/symfony/polyfill-php54.git",
-                "reference": "34d761992f6f2cc6092cc0e5e93f38b53ba5e4f1"
+                "url": "https://github.com/PhpUnitsOfMeasure/php-units-of-measure.git",
+                "reference": "25f476e9c50e11af8cf044d22ffc271c96aa5248"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-php54/zipball/34d761992f6f2cc6092cc0e5e93f38b53ba5e4f1",
-                "reference": "34d761992f6f2cc6092cc0e5e93f38b53ba5e4f1",
+                "url": "https://api.github.com/repos/PhpUnitsOfMeasure/php-units-of-measure/zipball/25f476e9c50e11af8cf044d22ffc271c96aa5248",
+                "reference": "25f476e9c50e11af8cf044d22ffc271c96aa5248",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.3"
+                "php": ">=5.4.0"
+            },
+            "replace": {
+                "triplepoint/php-units-of-measure": "*"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "4.8.*",
+                "squizlabs/php_codesniffer": "2.2.*"
             },
             "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.2-dev"
-                }
-            },
             "autoload": {
                 "psr-4": {
-                    "Symfony\\Polyfill\\Php54\\": ""
-                },
-                "files": [
-                    "bootstrap.php"
-                ],
-                "classmap": [
-                    "Resources/stubs"
-                ]
+                    "PhpUnitsOfMeasure\\": "source/"
+                }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -2105,85 +2028,32 @@
             ],
             "authors": [
                 {
-                    "name": "Nicolas Grekas",
-                    "email": "p@tchwork.com"
-                },
-                {
-                    "name": "Symfony Community",
-                    "homepage": "https://symfony.com/contributors"
+                    "name": "Jonathan Hanson",
+                    "email": "jonathan@jonathan-hanson.org",
+                    "homepage": "http://www.jonathan-hanson.org/",
+                    "role": "Developer"
                 }
             ],
-            "description": "Symfony polyfill backporting some PHP 5.4+ features to lower PHP versions",
-            "homepage": "https://symfony.com",
+            "description": "A PHP library for converting between standard units of measure.",
+            "homepage": "https://github.com/PhpUnitsOfMeasure/php-units-of-measure",
             "keywords": [
-                "compatibility",
-                "polyfill",
-                "portable",
-                "shim"
+                "conversion",
+                "data",
+                "measurements"
             ],
-            "time": "2016-05-18 14:26:46"
-        },
-        {
-            "name": "symfony/polyfill-php55",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/symfony/polyfill-php55.git",
-                "reference": "bf2ff9ad6be1a4772cb873e4eea94d70daa95c6d"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-php55/zipball/bf2ff9ad6be1a4772cb873e4eea94d70daa95c6d",
-                "reference": "bf2ff9ad6be1a4772cb873e4eea94d70daa95c6d",
-                "shasum": ""
-            },
-            "require": {
-                "ircmaxell/password-compat": "~1.0",
-                "php": ">=5.3.3"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.2-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Symfony\\Polyfill\\Php55\\": ""
-                },
-                "files": [
-                    "bootstrap.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Nicolas Grekas",
-                    "email": "p@tchwork.com"
-                },
-                {
-                    "name": "Symfony Community",
-                    "homepage": "https://symfony.com/contributors"
-                }
-            ],
-            "description": "Symfony polyfill backporting some PHP 5.5+ features to lower PHP versions",
-            "homepage": "https://symfony.com",
-            "keywords": [
-                "compatibility",
-                "polyfill",
-                "portable",
-                "shim"
-            ],
-            "time": "2016-05-18 14:26:46"
+            "abandoned": "php-units-of-measure/php-units-of-measure",
+            "time": "2016-07-24 22:36:00"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "omnipay/netbanx": 20,
+        "omnipay/paypal": 20,
+        "omnipay/sagepay": 20,
+        "snowcap/vat-validation": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],

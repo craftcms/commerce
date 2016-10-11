@@ -41,10 +41,6 @@ class CommercePlugin extends BasePlugin
     private function initEventHandlers()
     {
         //init global event handlers
-        craft()->on('commerce_orderHistories.onStatusChange', array(craft()->commerce_orderStatuses, 'statusChangeHandler'));
-        craft()->on('commerce_orders.onOrderComplete', array(craft()->commerce_discounts, 'orderCompleteHandler'));
-        craft()->on('commerce_orders.onOrderComplete', array(craft()->commerce_variants, 'orderCompleteHandler'));
-        craft()->on('commerce_orders.onOrderComplete', array(craft()->commerce_customers, 'orderCompleteHandler'));
         craft()->on('i18n.onAddLocale', array(craft()->commerce_productTypes, 'addLocaleHandler'));
 
         if (!craft()->isConsole()) {
@@ -118,39 +114,56 @@ class CommercePlugin extends BasePlugin
                     $this->doSeed = false;
 
                     $migrations = array(
-                        'm150916_010101_Commerce_Rename',
-                        'm150917_010101_Commerce_DropEmailTypeColumn',
-                        'm150917_010102_Commerce_RenameCodeToHandletaxCatColumn',
-                        'm150918_010101_Commerce_AddProductTypeLocales',
-                        'm150918_010102_Commerce_RemoveNonLocaleBasedUrlFormat',
-                        'm150919_010101_Commerce_AddHasDimensionsToProductType',
-                        'm151004_142113_commerce_PaymentMethods_name_unique',
-                        'm151018_010101_Commerce_DiscountCodeNull',
-                        'm151025_010101_Commerce_AddHandleToShippingMethod',
-                        'm151027_010101_Commerce_NewVariantUI',
-                        'm151027_010102_Commerce_ProductDateNames',
-                        'm151102_010101_Commerce_PaymentTypeInMethodNotSettings',
-                        'm151103_010101_Commerce_DefaultVariant',
-                        'm151109_010101_Commerce_AddCompanyNumberToAddress',
-                        'm151110_010101_Commerce_RenameCompanyToAddress',
-                        'm151111_010101_Commerce_ShowVariantTitleField',
-                        'm151112_010101_Commerce_AutoSkuFormat',
-                        'm151109_010102_Commerce_AddOptionsToLineItems',
-                        'm151117_010101_Commerce_TaxIncluded',
-                        'm151124_010101_Commerce_AddressManagement',
-                        'm151127_010101_Commerce_TaxRateTaxableOptions',
-                        'm151210_010101_Commerce_FixMissingLineItemDimensionData',
-                        'm160215_010101_Commerce_ConsistentDecimalType',
-                        'm160226_010101_Commerce_OrderStatusSortOrder',
-                        'm160226_010102_Commerce_isCompleted',
-                        'm160227_010101_Commerce_OrderAdjustmentIncludedFlag',
-                        'm160229_010101_Commerce_ShippingZone',
-                        'm160229_010104_Commerce_SoftDeleteAndReorderPaymentMethod',
-                        'm160401_010101_Commerce_KeepAllTransactions',
-                        'm160405_010101_Commerce_FixDefaultVariantId'.
-                        'm160406_010101_Commerce_RemoveUnusedAuthorId',
-                        'm160425_010101_Commerce_DeleteCountriesAndStates',
-                        'm160606_010101_Commerce_PerEmailLimitOnDiscount'
+	                    'm150916_010101_Commerce_Rename',
+	                    'm150917_010101_Commerce_DropEmailTypeColumn',
+	                    'm150917_010102_Commerce_RenameCodeToHandletaxCatColumn',
+	                    'm150918_010101_Commerce_AddProductTypeLocales',
+	                    'm150918_010102_Commerce_RemoveNonLocaleBasedUrlFormat',
+	                    'm150919_010101_Commerce_AddHasDimensionsToProductType',
+	                    'm151004_142113_commerce_PaymentMethods_name_unique',
+	                    'm151018_010101_Commerce_DiscountCodeNull',
+	                    'm151025_010101_Commerce_AddHandleToShippingMethod',
+	                    'm151027_010101_Commerce_NewVariantUI',
+	                    'm151027_010102_Commerce_ProductDateNames',
+	                    'm151102_010101_Commerce_PaymentTypeInMethodNotSettings',
+	                    'm151103_010101_Commerce_DefaultVariant',
+	                    'm151109_010101_Commerce_AddCompanyNumberToAddress',
+	                    'm151110_010101_Commerce_RenameCompanyToAddress',
+	                    'm151111_010101_Commerce_ShowVariantTitleField',
+	                    'm151112_010101_Commerce_AutoSkuFormat',
+	                    'm151109_010102_Commerce_AddOptionsToLineItems',
+	                    'm151117_010101_Commerce_TaxIncluded',
+	                    'm151124_010101_Commerce_AddressManagement',
+	                    'm151127_010101_Commerce_TaxRateTaxableOptions',
+	                    'm151210_010101_Commerce_FixMissingLineItemDimensionData',
+	                    'm160215_010101_Commerce_ConsistentDecimalType',
+	                    'm160226_010101_Commerce_OrderStatusSortOrder',
+	                    'm160226_010102_Commerce_isCompleted',
+	                    'm160227_010101_Commerce_OrderAdjustmentIncludedFlag',
+	                    'm160229_010101_Commerce_ShippingZone',
+	                    'm160229_010104_Commerce_SoftDeleteAndReorderPaymentMethod',
+	                    'm160401_010101_Commerce_KeepAllTransactions',
+	                    'm160405_010101_Commerce_FixDefaultVariantId',
+	                    'm160406_010101_Commerce_RemoveUnusedAuthorId',
+	                    'm160425_010101_Commerce_DeleteCountriesAndStates',
+	                    'm160510_010101_Commerce_EmailRecipientType',
+	                    'm160606_010101_Commerce_PerEmailLimitOnDiscount',
+	                    'm160510_010101_Commerce_Currencies',
+	                    'm160806_010101_Commerce_RemoveShowInLabel.php',
+	                    'm160806_010102_Commerce_AddVatTaxRateOption.php',
+	                    'm160825_010101_Commerce_AddMaxQtyToDiscount.php',
+	                    'm160826_010101_Commerce_NewAddressFields.php',
+	                    'm160915_010101_Commerce_RenameCurrencies',
+	                    'm160916_010102_Commerce_PdfNameFormat',
+                        'm160917_010103_Commerce_DescriptionFormat',
+                        'm160917_010104_Commerce_ShippingCategories',
+                        'm160917_010104_Commerce_OrderLocale',
+                        'm160927_010101_Commerce_ShippingRuleCategories',
+                        'm160930_010101_Commerce_RenameDefaultCurrencyToPrimary',
+                        'm161001_010101_Commerce_LineItemShippingCat',
+                        'm161001_010102_Commerce_DiscountOrdering',
+                        'm161001_010103_Commerce_DiscountStopProcessing',
+                        'm161001_010104_Commerce_SaveTransactionCode'
                     );
 
                     foreach ($migrations as $migrationClass) {
@@ -250,7 +263,7 @@ class CommercePlugin extends BasePlugin
     {
         if (version_compare(craft()->getVersion(), '2.6', '<')) {
             // No way to gracefully handle this, so throw an Exception.
-            throw new Exception('Craft Commerce 1.1 requires Craft CMS 2.6+ in order to run.');
+            throw new Exception('Craft Commerce 1.2 requires Craft CMS 2.6+ in order to run.');
         }
 
         if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 50400) {
@@ -288,7 +301,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getVersion()
     {
-        return '1.1.0000';
+        return '1.2.0000';
     }
 
     /**
@@ -298,7 +311,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getSchemaVersion()
     {
-        return '1.0.13';
+        return '1.2.67';
     }
 
     /**
@@ -333,10 +346,11 @@ class CommercePlugin extends BasePlugin
     }
 
     /**
-     * Adds alerts to the CP.
+     * Adds alerts to the control panel
+     * @param $path
+     * @param $fetch
      *
-     * @param string|null $path
-     * @param bool        $fetch
+     * @return array|null
      */
     public function getCpAlerts($path, $fetch)
     {
@@ -344,7 +358,14 @@ class CommercePlugin extends BasePlugin
         {
             $licenseKeyStatus = craft()->plugins->getPluginLicenseKeyStatus('Commerce');
 
-            if ($licenseKeyStatus == LicenseKeyStatus::Invalid)
+            if ($licenseKeyStatus == LicenseKeyStatus::Unknown)
+            {
+                if (!craft()->canTestEditions())
+                {
+                    $message = Craft::t('You haven’t entered your Commerce license key yet.');
+                }
+            }
+            else if ($licenseKeyStatus == LicenseKeyStatus::Invalid)
             {
                 $message = Craft::t('Your Commerce license key is invalid.');
             }

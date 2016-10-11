@@ -1,7 +1,7 @@
 {% extends "commerce/_layouts/settingscp" %}
 
 {% set crumbs = [
-{ label: "Commerce " ~ "Settings"|t, url: url('commerce/settings') },
+{ label: "Commerce Settings"|t, url: url('commerce/settings') },
 { label: "Shipping Methods"|t, url: url('commerce/settings/shippingmethods') },
 { label: shippingMethod.name|t, url: url('commerce/settings/shippingmethods/'~methodId) },
 ] %}
@@ -154,28 +154,6 @@
 			errors: shippingRule.getErrors('description'),
 		}) }}
 
-		{% set shippingZoneSelectParams = {
-			label: "Shipping Zone"|t,
-			instructions: "Select a shipping zone."|t,
-			id: 'shippingZoneId',
-			name: 'shippingZoneId',
-			value: shippingRule.shippingZoneId,
-			errors: shippingRule.getErrors('shippingZoneId'),
-			required: false,
-			options: shippingZones,
-			class: 'selectize fullwidth',
-		} %}
-
-		{{ lazyCreateSelect(
-			shippingZoneSelectParams,
-			'New shipping zone'|t,
-			'Create a new shipping zone'|t,
-			newShippingZoneFields,
-			newShippingZoneJs,
-			'commerce/shippingZones/save',
-			'Shipping zone saved.'|t
-		) }}
-
 		{{ forms.checkboxField({
 			label: "Enable this shipping rule"|t,
 			id: 'enabled',
@@ -188,10 +166,33 @@
 	<div id="conditions-tab" class="hidden">
 		<p>{{ "Filtering conditions which describe to which orders this rule is applicable to. Write 0 to skip a condition."|t }}</p>
 
+		{% set shippingZoneSelectParams = {
+		label: "Shipping Zone"|t,
+		instructions: "Select a shipping zone."|t,
+		id: 'shippingZoneId',
+		name: 'shippingZoneId',
+		value: shippingRule.shippingZoneId,
+		errors: shippingRule.getErrors('shippingZoneId'),
+		required: false,
+		options: shippingZones,
+		class: 'selectize fullwidth',
+		} %}
+
+		{{ lazyCreateSelect(
+		shippingZoneSelectParams,
+		'New shipping zone'|t,
+		'Create a new shipping zone'|t,
+		newShippingZoneFields,
+		newShippingZoneJs,
+		'commerce/shippingZones/save',
+		'Shipping zone saved.'|t
+		) }}
+
 		{{ commerceForms.numberField({
 			label: "Minimum Order Quantity"|t,
 			name: 'minQty',
-			value: shippingRule.minQty,
+			instructions: "The minimum number of items in the cart to match this rule. Zero matches all carts."|t,
+			value: shippingRule.minQty + 0,
 			type: 'number',
 			min: 0,
 			errors: shippingRule.getErrors('minQty'),
@@ -201,7 +202,8 @@
 		{{ commerceForms.numberField({
 			label: "Maximum Order Quantity"|t,
 			name: 'maxQty',
-			value: shippingRule.maxQty,
+			instructions: "The maximum number of items in the cart to match this rule. Zero matches all carts."|t,
+			value: shippingRule.maxQty + 0,
 			type: 'number',
 			min: 0,
 			errors: shippingRule.getErrors('maxQty'),
@@ -211,7 +213,8 @@
 		{{ commerceForms.numberField({
 			label: "Minimum Order Total Price"|t,
 			name: 'minTotal',
-			value: shippingRule.minTotal,
+			instructions: "The minimum total price of the cart to match this rule. Zero matches all carts."|t,
+			value: shippingRule.minTotal + 0,
 			type: 'number',
 			min: 0,
 			step: 'any',
@@ -222,7 +225,8 @@
 		{{ commerceForms.numberField({
 			label: "Maximum Order Total Price"|t,
 			name: 'maxTotal',
-			value: shippingRule.maxTotal,
+			instructions: "The maximum total price of the cart to match this rule. Zero matches all carts."|t,
+			value: shippingRule.maxTotal + 0,
 			type: 'number',
 			min: 0,
 			step: 'any',
@@ -233,7 +237,8 @@
 		{{ commerceForms.numberField({
 			label: "Minimum Order Total Weight"|t,
 			name: 'minWeight',
-			value: shippingRule.minWeight,
+			instructions: "The minimum weight of the cart to match this rule. Zero matches all carts."|t,
+			value: shippingRule.minWeight + 0,
 			type: 'number',
 			min: 0,
 			step: 'any',
@@ -244,7 +249,8 @@
 		{{ commerceForms.numberField({
 			label: "Maximum Order Total Weight"|t,
 			name: 'maxWeight',
-			value: shippingRule.maxWeight,
+			instructions: "The maximum weight of the cart to match this rule. Zero matches all carts."|t,
+			value: shippingRule.maxWeight + 0,
 			type: 'number',
 			min: 0,
 			step: 'any',
@@ -252,13 +258,43 @@
 			required: true,
 		}) }}
 
+		<h3>{{ "Shipping Category Conditions"|t }}</h3>
+		{% set shippingCategories = craft.commerce.shippingCategories%}
+		{% if shippingCategories %}
+		<table id="shipping-categories-conditions" class="data fullwidth collapsible">
+			<thead>
+			<tr>
+				<th scope="col">{{ 'Name'|t }}</th>
+				<th scope="col">{{ 'Condition'|t }}</th>
+			</tr>
+			</thead>
+			<tbody>
+			{% for shippingCategory in shippingCategories %}
+			{% set id = shippingCategory.id %}
+			<tr{% if id %} data-id="{{ id }}" data-name="{{ shippingCategory.name }}"{% endif %}>
+				<th scope="row" data-title="{{ 'Name'|t }}">
+				{{ shippingCategory.name }}
+				</th>
+				<td data-title="{{ 'Condition'|t }}">
+					{{ forms.selectField({
+						name: 'ruleCategories['~shippingCategory.id~'][condition]',
+						value: shippingRule.getShippingRuleCategories[shippingCategory.id].condition ?? 'allow',
+						options: categoryShippingOptions
+					}) }}
+				</td>
+			</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+		{% endif %}
 	</div>
 	<div id="costs-tab" class="hidden">
 
 		{{ commerceForms.numberField({
 			label: "Base Rate"|t,
 			name: 'baseRate',
-			value: shippingRule.baseRate,
+			instructions: "Shipping costs added to the order as a whole before percentage, item, and weight rates are applied. Set to zero to disable this rate."|t,
+			value: shippingRule.baseRate + 0,
 			type: 'number',
 			min: 0,
 			step: 'any',
@@ -267,44 +303,10 @@
 		}) }}
 
 		{{ commerceForms.numberField({
-			label: "Per Item Rate"|t,
-			name: 'perItemRate',
-			value: shippingRule.perItemRate,
-			type: 'number',
-			min: 0,
-			step: 'any',
-			errors: shippingRule.getErrors('perItemRate'),
-			required: true,
-		}) }}
-
-		{{ commerceForms.numberField({
-			label: "Weight Rate"|t,
-			name: 'weightRate',
-			value: shippingRule.weightRate,
-			type: 'number',
-			min: 0,
-			step: 'any',
-			errors: shippingRule.getErrors('weightRate'),
-			required: true,
-		}) }}
-
-		{{ commerceForms.numberField({
-			label: "Percentage Rate"|t,
-			name: 'percentageRate',
-			instructions: "The minimum the person should spend on shippping. Set zero to disable this check."|t,
-			value: shippingRule.percentageRate,
-			type: 'number',
-			min: 0,
-			step: 'any',
-			errors: shippingRule.getErrors('percentageRate'),
-			required: true,
-		}) }}
-
-		{{ commerceForms.numberField({
-			label: "Minimum Rate"|t,
+			label: "Minimum Total Shipping Cost"|t,
 			name: 'minRate',
-			instructions: "The minimum the person should spend on shippping. Set zero to disable this check."|t,
-			value: shippingRule.minRate,
+			instructions: "The minimum the customer should spend on shipping. Set to zero to disable."|t,
+			value: shippingRule.minRate + 0,
 			type: 'number',
 			min: 0,
 			step: 'any',
@@ -313,10 +315,10 @@
 		}) }}
 
 		{{ commerceForms.numberField({
-			label: "Maximum Base Rate"|t,
-			instructions: "The maximum the person should spend on shippping. Set zero to disable this check."|t,
+			label: "Maximum Total Shipping Cost"|t,
+			instructions: "The maximum the customer should spend on shipping. Set to zero to disable."|t,
 			name: 'maxRate',
-			value: shippingRule.maxRate,
+			value: shippingRule.maxRate + 0,
 			type: 'number',
 			min: 0,
 			step: 'any',
@@ -324,5 +326,127 @@
 			required: true,
 		}) }}
 
+		<h3>{{ "Item Rates"|t }}</h3>
+		{% set shippingCategories = craft.commerce.shippingCategories %}
+		{% if shippingCategories %}
+			<table id="shipping-categories-rates" class="data fullwidth collapsible">
+				<thead>
+				<tr>
+					<th scope="col">{{ 'Name'|t }}</th>
+					<th scope="col">{{ 'Per Item Rate'|t }}</th>
+					<th scope="col">{{ 'Weight Rate'|t }}</th>
+					<th scope="col">{{ 'Percentage Rate'|t }}</th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr>
+					<td scope="row" data-title="{{ 'Name'|t }}">
+
+					</td>
+					<td data-title="{{ 'Per Item Rate'|t }}">
+						{{ commerceForms.numberField({
+							name: 'perItemRate',
+							value: shippingRule.perItemRate + 0,
+							type: 'number',
+							min: 0,
+							step: 'any',
+							errors: shippingRule.getErrors('perItemRate'),
+							required: true,
+						}) }}
+					</td>
+					<td data-title="{{ 'Weight Rate'|t }}">
+						{{ commerceForms.numberField({
+							name: 'weightRate',
+							value: shippingRule.weightRate + 0,
+							type: 'number',
+							min: 0,
+							step: 'any',
+							errors: shippingRule.getErrors('weightRate'),
+							required: true,
+						}) }}
+					</td>
+					<td data-title="{{ 'Percentage Rate'|t }}">
+						{{ commerceForms.numberField({
+							name: 'percentageRate',
+							value: shippingRule.percentageRate + 0,
+							type: 'number',
+							min: 0,
+							step: 'any',
+							errors: shippingRule.getErrors('percentageRate'),
+							required: true,
+						}) }}
+					</td>
+				</tr>
+				<tr>
+					<th colspan="4" data-title="{{ 'Category Rate Overrides'|t }}">
+						{{  "Category Rate Overrides"|t }}
+					</th>
+				</tr>
+				{% for shippingCategory in shippingCategories %}
+					{% set perItemRate = shippingRule.getShippingRuleCategories[shippingCategory.id].perItemRate ?? '' %}
+					{% set weightRate = shippingRule.getShippingRuleCategories[shippingCategory.id].weightRate ?? '' %}
+					{% set percentageRate = shippingRule.getShippingRuleCategories[shippingCategory.id].percentageRate ?? '' %}
+					{% set categoryCondition = shippingRule.getShippingRuleCategories[shippingCategory.id].condition ?? '' %}
+					{% set id = shippingCategory.id %}
+					<tr{% if id %} data-id="{{ id }}" data-name="{{ shippingCategory.name }}"{% endif %} class="{% if categoryCondition == 'disallow' %}hidden{% endif %}">
+						<th scope="row" data-title="{{ 'Name'|t }}">
+							{{ shippingCategory.name }}
+						</th>
+						<td data-title="{{ 'Per Item Rate'|t }}">
+							{{ commerceForms.numberField({
+								name: 'ruleCategories['~shippingCategory.id~'][perItemRate]',
+								placeholder: shippingRule.perItemRate + 0,
+								class: 'categoryPerItemRate',
+								value: perItemRate ? perItemRate + 0 : '',
+								type: 'number',
+								step: 'any'
+							}) }}
+						</td>
+						<td data-title="{{ 'Weight Rate'|t }}">
+							{{ commerceForms.numberField({
+								name: 'ruleCategories['~shippingCategory.id~'][weightRate]',
+								class: 'categoryWeightRate',
+								placeholder: shippingRule.weightRate + 0,
+								value: weightRate ? weightRate + 0 : '',
+								type: 'number',
+								step: 'any'
+							}) }}
+						</td>
+						<td data-title="{{ 'Percentage Rate'|t }}">
+							{{ commerceForms.numberField({
+								name: 'ruleCategories['~shippingCategory.id~'][percentageRate]',
+								class: 'categoryPercentageRate',
+								placeholder: shippingRule.percentageRate + 0,
+								value: percentageRate ? percentageRate + 0 : '',
+								type: 'number',
+								step: 'any'
+							}) }}
+						</td>
+					</tr>
+				{% endfor %}
+				</tbody>
+			</table>
+		{% endif %}
 	</div>
 {% endblock %}
+
+{% includeJsResource 'commerce/js/CommerceShippingItemRatesValuesInput.js' %}
+{% includejs "window.perItemPricePlaceholder = new Craft.Commerce.CommerceShippingItemRatesValuesInput('input[name=\"perItemRate\"]', '.categoryPerItemRate');" %}
+{% includejs "window.weightRatePricePlaceholder = new Craft.Commerce.CommerceShippingItemRatesValuesInput('input[name=\"weightRate\"]', '.categoryWeightRate');" %}
+{% includejs "window.percentagePricePlaceholder = new Craft.Commerce.CommerceShippingItemRatesValuesInput('input[name=\"percentageRate\"]', '.categoryPercentageRate');" %}
+
+{% includeJs %}
+window.shippingCategories = $.map(JSON.parse('{{ craft.commerce.shippingCategories|json_encode|raw }}'), function(value, index) { return [value] });
+
+$("select[name^='ruleCategories']").change(function() {
+    var id = $(this).closest('tr').data('id');
+    var value = $(this).val();
+    var $rateRow = $("#shipping-categories-rates").find("tr[data-id="+id+"]");
+    if (value == 'disallow')
+    {
+        $rateRow.addClass('hidden');
+    }else{
+        $rateRow.removeClass('hidden');
+    }
+});
+{% endincludejs %}

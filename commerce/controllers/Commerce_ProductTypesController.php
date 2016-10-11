@@ -72,6 +72,7 @@ class Commerce_ProductTypesController extends Commerce_BaseAdminController
         $productType->template = craft()->request->getPost('template');
         $productType->titleFormat = craft()->request->getPost('titleFormat');
         $productType->skuFormat = craft()->request->getPost('skuFormat');
+        $productType->descriptionFormat = craft()->request->getPost('descriptionFormat');
 
         $locales = [];
 
@@ -83,6 +84,9 @@ class Commerce_ProductTypesController extends Commerce_BaseAdminController
         }
 
         $productType->setLocales($locales);
+
+        $productType->setTaxCategories(craft()->request->getPost('taxCategories'));
+        $productType->setShippingCategories(craft()->request->getPost('shippingCategories'));
 
         // Set the product type field layout
         $fieldLayout = craft()->fields->assembleLayoutFromPost();

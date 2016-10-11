@@ -9,6 +9,7 @@ use Craft\Commerce_OrderAdjustmentModel;
 use Craft\Commerce_OrderModel;
 use Craft\Commerce_TaxRateModel;
 use Craft\Commerce_TaxZoneModel;
+use Snowcap\Vat\Validation;
 
 /**
  * Tax Adjustments
@@ -29,7 +30,12 @@ class Commerce_TaxAdjuster implements Commerce_AdjusterInterface
      */
     public function adjust(Commerce_OrderModel &$order, array $lineItems = [])
     {
-        $shippingAddress = \Craft\craft()->commerce_addresses->getAddressById($order->shippingAddressId);
+        $address = \Craft\craft()->commerce_addresses->getAddressById($order->shippingAddressId);
+
+        if (\Craft\craft()->config->get('useBillingAddressForTax','commerce'))
+        {
+            $address = \Craft\craft()->commerce_addresses->getAddressById($order->billingAddressId);
+        }
 
         $adjustments = [];
         $taxRates = \Craft\craft()->commerce_taxRates->getAllTaxRates([
@@ -38,7 +44,7 @@ class Commerce_TaxAdjuster implements Commerce_AdjusterInterface
 
         /** @var Commerce_TaxRateModel $rate */
         foreach ($taxRates as $rate) {
-            if ($adjustment = $this->getAdjustment($order, $lineItems, $shippingAddress, $rate)) {
+            if ($adjustment = $this->getAdjustment($order, $lineItems, $address, $rate)) {
                 $adjustments[] = $adjustment;
             }
         }
@@ -77,7 +83,7 @@ class Commerce_TaxAdjuster implements Commerce_AdjusterInterface
                     if ($item->taxCategoryId == $taxRate->taxCategoryId) {
                         $taxableAmount = $item->getTaxableSubtotal($taxRate->taxable);
                         $amount = -($taxableAmount - ($taxableAmount / (1 + $taxRate->rate)));
-	                    $amount = CommerceCurrencyHelper::round($amount);
+                        $amount = CommerceCurrencyHelper::round($amount);
                         $allRemovedTax += $amount;
                         $item->tax += $amount;
                         $affectedLineIds[] = $item->id;
@@ -96,14 +102,30 @@ class Commerce_TaxAdjuster implements Commerce_AdjusterInterface
 
         //checking items tax categories
         $itemsMatch = false;
-        foreach ($lineItems as $item) {
+
+        // Valid VAT ID and Address Matches then do not apply this tax
+	    if ($taxRate->isVat && $address->businessTaxId && $address->country)
+	    {
+		    $vatValidation = new Validation(['debug' => false]);
+
+		    if ($vatValidation->checkNumber($address->businessTaxId))
+		    {
+			    $country = $vatValidation->getCountry();
+			    if ($country == $address->country->iso)
+			    {
+				    return false;
+			    }
+		    }
+	    }
+
+	    foreach ($lineItems as $item) {
 
             if ($item->taxCategoryId == $taxRate->taxCategoryId) {
                 if (!$taxRate->include) {
-	                $amount = $taxRate->rate * $item->getTaxableSubtotal($taxRate->taxable);
+                    $amount = $taxRate->rate * $item->getTaxableSubtotal($taxRate->taxable);
                     $itemTax = CommerceCurrencyHelper::round($amount);
                 } else {
-	                $amount = ($item->getTaxableSubtotal($taxRate->taxable) - ($item->getTaxableSubtotal($taxRate->taxable) / (1 + $taxRate->rate)));
+                    $amount = $item->getTaxableSubtotal($taxRate->taxable) - ($item->getTaxableSubtotal($taxRate->taxable) / (1 + $taxRate->rate));
                     $itemTax = CommerceCurrencyHelper::round($amount);
                 }
 

@@ -2,10 +2,12 @@
 
 namespace Commerce\Adjusters;
 
+use Commerce\Helpers\CommerceCurrencyHelper;
 use Commerce\Interfaces\ShippingMethod;
 use Craft\Commerce_LineItemModel;
 use Craft\Commerce_OrderAdjustmentModel;
 use Craft\Commerce_OrderModel;
+use Craft\Commerce_ShippingRuleCategoryModel;
 
 /**
  * Tax Adjustments
@@ -52,17 +54,18 @@ class Commerce_ShippingAdjuster implements Commerce_AdjusterInterface
             $affectedLineIds = [];
 
             //checking items tax categories
-            $weight = $qty = $price = 0;
             $itemShippingTotal = 0;
             $freeShippingAmount = 0;
             foreach ($lineItems as $item) {
-                $weight += $item->qty * $item->weight;
-                $qty += $item->qty;
-                $price += $item->getSubtotal();
 
-				$currency = \Omnipay\Common\Currency::find(\Craft\craft()->commerce_settings->getSettings()->defaultCurrency);
+                $percentageRate = $rule->getPercentageRate($item->shippingCategoryId);
+                $perItemRate = $rule->getPerItemRate($item->shippingCategoryId);
+                $weightRate = $rule->getWeightRate($item->shippingCategoryId);
 
-				$item->shippingCost = round(($item->getSubtotal() * $rule->getPercentageRate()) + ($rule->getPerItemRate() * $item->qty) + (($item->weight * $item->qty) * $rule->getWeightRate()),$currency->getDecimals());
+                $percentageAmount = $item->getSubtotal() * $percentageRate;
+                $perItemAmount =  $item->qty * $perItemRate;
+                $weightAmount = ($item->weight * $item->qty) * $weightRate;
+				$item->shippingCost = CommerceCurrencyHelper::round($percentageAmount + $perItemAmount + $weightAmount);
 
                 if($item->shippingCost && !$item->purchasable->hasFreeShipping()){
                     $affectedLineIds[] = $item->id;
@@ -77,11 +80,11 @@ class Commerce_ShippingAdjuster implements Commerce_AdjusterInterface
             }
 
             //amount for displaying in adjustment
-            $amount = $rule->getBaseRate() + $itemShippingTotal - $freeShippingAmount;
-            $amount = max($amount, $rule->getMinRate() * 1);
+            $amount = CommerceCurrencyHelper::round($rule->getBaseRate()) + $itemShippingTotal - $freeShippingAmount;
+            $amount = max($amount, CommerceCurrencyHelper::round($rule->getMinRate() * 1));
 
             if ($rule->getMaxRate() * 1) {
-                $amount = min($amount, $rule->getMaxRate() * 1);
+                $amount = min($amount, CommerceCurrencyHelper::round($rule->getMaxRate() * 1));
             }
 
             $adjustment->amount = $amount;

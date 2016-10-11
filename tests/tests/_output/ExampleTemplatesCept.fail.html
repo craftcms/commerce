@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" style="" class=" js flexbox flexboxlegacy canvas canvastext webgl no-touch geolocation postmessage no-websqldatabase indexeddb hashchange history draganddrop websockets rgba hsla multiplebgs backgroundsize borderimage borderradius boxshadow textshadow opacity cssanimations csscolumns cssgradients no-cssreflections csstransforms csstransforms3d csstransitions fontface generatedcontent video audio localstorage sessionstorage webworkers applicationcache svg inlinesvg smil svgclippaths"><head>
+	<meta charset="utf-8" />
+	<meta content="ie=edge" http-equiv="x-ua-compatible" />
+
+	<title>Craft Commerce</title>
+
+	<meta content="The example templates for Craft Commerce" name="description" />
+	<meta content="width=device-width, initial-scale=1" name="viewport" />
+
+	<script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
+	<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+	<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" type="text/css" rel="stylesheet" />
+	<link href="//fonts.googleapis.com/css?family=Open+Sans:400,300,600" type="text/css" rel="stylesheet" />
+	<link href="//cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css" type="text/css" rel="stylesheet" />
+	<link href="http://craft2x.craft.dev/commerce/style.css" type="text/css" rel="stylesheet" />
+
+</head>
+<body>
+<!--[if lt IE 8]>
+<p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+<![endif]-->
+
+
+    <div class="container" id="header">
+        <div class="row">
+            <div class="twelve columns">
+                <a href="http://craft2x.craft.dev/commerce"><svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 713 120" height="50" width="300" preserveAspectRatio="xMidYMid slice" class="logo"><title>craft-commerce-logo</title><defs><path d="M0 120h712.222V.624H.002" id="a"/><path d="M0 120h712.222V.624H.002V120z" id="c"/></defs><g fill-rule="evenodd" fill="none"><path fill="#D95947" d="M207.346 51.38h17.826l2.076-10.903h-17.825l3.038-15.945h-.06l-13.52 10.603-1.014 5.342h-14.003l4.093-21.485c.964-8.106 13.308-5.652 15.147-5.193l1.973-10.354c-22.198-8.532-28.68 15.546-28.68 15.546l-4.09 21.485h-.072L158.332 51.38h11.898L157.157 120h11.56l13.07-68.62h14.002l-5.12 26.86c-3.252 19.556 16.336 17.414 22.586 16.158l1.955-10.243c-14.953 3.376-12.982-5.916-12.982-5.916l5.118-26.86zM138.977 79.545c-12.028 12.34-19.73 4.26-19.73 4.26-5.214-5.077.55-10.29.55-10.29 7.956-7.272 20.13.717 20.13.717l-.95 5.313zm2.66-14.885s-16.56-8.5-28.152.966c0 0-6.79 4.527-6.79 13.58 0 9.057 8.3 13.924 8.3 13.924s12.483 6.587 22.257-3.94l-1.08 4.9h10.933l6.87-32.59c5.156-32.16-33.16-20.762-33.16-20.762l-2.087 11.56c28.245-12.308 23.487 9.14 23.487 9.14l-.577 3.222zM111.027 40.51c-8.914.094-17.015 5.068-17.015 5.068l1.035-4.88h-10.7l-9.762 53.49h10.933L92.136 59c4.892-9.94 16.986-6.85 16.986-6.85l1.905-11.638z"/><mask fill="#fff" id="b"><use xlink:href="#a"/></mask><path mask="url(#b)" fill="#D95947" d="M69.312 17.586c.553.418 1.077.86 1.592 1.31l8.298-6.51.258-.336a38.284 38.284 0 0 0-4.113-3.614C56.307-5.936 27.532.08 11.083 21.876-5.365 43.672-3.263 72.987 15.78 87.36c15.548 11.734 37.578 9.873 54.095-3.066l-.017-.034-7.9-6.196c-12.237 7.87-27.422 8.437-38.406.147C8.925 67.17 7.312 44.65 19.945 27.91c12.637-16.74 34.74-21.362 49.367-10.322"/><path fill="#D95947" d="M281.18 89.77c-2.342 1.49-4.914 2.71-7.71 3.656-2.8.944-5.822 1.41-9.075 1.398-3.837-.017-7.38-.72-10.625-2.112-3.248-1.39-6.034-3.297-8.355-5.73-2.326-2.427-4.15-5.272-5.466-8.53-1.322-3.257-1.975-6.763-1.958-10.515.016-3.753.678-7.273 1.985-10.563 1.307-3.287 3.157-6.156 5.544-8.606 2.388-2.45 5.21-4.376 8.468-5.78 3.26-1.403 6.81-2.097 10.646-2.08 3.253.014 6.27.508 9.062 1.48 2.788.97 5.348 2.212 7.676 3.723l-2.14 3.12a34.608 34.608 0 0 0-6.68-3.345c-2.37-.886-5.017-1.336-7.934-1.348-3.338-.016-6.384.577-9.142 1.773-2.757 1.198-5.12 2.812-7.09 4.847-1.97 2.035-3.5 4.47-4.597 7.297-1.097 2.83-1.654 5.873-1.668 9.125-.014 3.252.514 6.32 1.587 9.2 1.067 2.883 2.58 5.39 4.53 7.528 1.95 2.134 4.298 3.813 7.046 5.034 2.746 1.223 5.788 1.84 9.125 1.854 2.918.012 5.57-.413 7.948-1.28a34.51 34.51 0 0 0 6.71-3.284l2.112 3.137zM334.814 68.113c.014-3.253-.472-6.297-1.46-9.138-.99-2.838-2.415-5.305-4.283-7.4-1.867-2.09-4.11-3.75-6.732-4.97-2.622-1.22-5.518-1.84-8.686-1.853-3.17-.014-6.048.58-8.64 1.776a20.738 20.738 0 0 0-6.714 4.91c-1.887 2.08-3.337 4.533-4.35 7.362-1.01 2.833-1.527 5.874-1.54 9.126-.015 3.25.473 6.32 1.46 9.2.987 2.882 2.393 5.37 4.22 7.462 1.827 2.094 4.05 3.752 6.67 4.972 2.623 1.222 5.516 1.837 8.687 1.85 3.17.015 6.048-.575 8.64-1.774a20.314 20.314 0 0 0 6.716-4.974c1.886-2.12 3.355-4.59 4.41-7.423 1.055-2.83 1.59-5.875 1.604-9.127m4.128-.107c-.016 3.753-.678 7.296-1.985 10.625-1.307 3.332-3.094 6.2-5.354 8.61-2.262 2.408-4.96 4.314-8.094 5.718-3.134 1.403-6.537 2.098-10.206 2.08-3.67-.015-7.045-.718-10.122-2.107-3.08-1.39-5.722-3.297-7.92-5.727-2.2-2.428-3.918-5.29-5.152-8.592-1.237-3.297-1.845-6.825-1.83-10.578.018-3.753.675-7.27 1.987-10.56 1.305-3.29 3.09-6.158 5.353-8.61a23.93 23.93 0 0 1 8.03-5.718c3.09-1.362 6.474-2.036 10.145-2.02 3.668.017 7.04.72 10.122 2.11 3.077 1.39 5.738 3.278 7.98 5.663 2.243 2.388 3.98 5.232 5.217 8.53 1.237 3.303 1.845 6.826 1.828 10.58M422.89 94.523l.154-34.9c.04-9.51-4.026-14.28-12.198-14.318-3.754-.016-7.345 1.054-10.773 3.206-3.43 2.156-6.485 5.02-9.17 8.594l-.164 37.276-4.002-.018.155-34.9c.04-9.508-4.025-14.28-12.197-14.316-3.837-.017-7.408 1.052-10.71 3.206-3.304 2.155-6.38 4.81-9.23 7.965l-.166 37.903-4.002-.017.23-51.915 3.877.018-.044 9.757a39.86 39.86 0 0 1 4.022-3.922 32.575 32.575 0 0 1 4.83-3.418 26.93 26.93 0 0 1 5.58-2.415 20.84 20.84 0 0 1 6.258-.91c3.502.015 6.58.988 9.24 2.918 2.66 1.932 4.44 4.898 5.34 8.906 2.516-3.157 5.658-5.895 9.42-8.215 3.763-2.318 7.814-3.468 12.15-3.45 2.085.01 4.063.353 5.94 1.028 1.868.677 3.53 1.75 4.987 3.213 1.452 1.467 2.59 3.307 3.413 5.52.824 2.213 1.23 4.864 1.215 7.948l-.154 35.277-4-.017zM513.582 94.924l.154-34.9c.04-9.51-4.025-14.28-12.197-14.316-3.755-.017-7.347 1.05-10.775 3.206-3.428 2.154-6.483 5.016-9.168 8.59l-.165 37.277-4.002-.016.156-34.902c.04-9.506-4.03-14.278-12.2-14.314-3.838-.02-7.408 1.053-10.71 3.206-3.303 2.153-6.38 4.81-9.23 7.964l-.168 37.903-4-.015.23-51.914 3.877.018-.044 9.758a39.77 39.77 0 0 1 4.023-3.923 32.303 32.303 0 0 1 4.83-3.42 26.793 26.793 0 0 1 5.58-2.414 20.78 20.78 0 0 1 6.258-.912c3.503.015 6.582.99 9.243 2.918 2.66 1.932 4.44 4.898 5.338 8.906 2.518-3.157 5.66-5.895 9.423-8.216 3.762-2.316 7.813-3.468 12.15-3.45 2.084.01 4.064.354 5.94 1.03 1.868.676 3.53 1.747 4.987 3.21 1.452 1.468 2.59 3.308 3.413 5.52.824 2.214 1.23 4.865 1.214 7.95l-.152 35.276-4.003-.018zM571.253 65.656c-.07-2.752-.52-5.338-1.34-7.76-.824-2.423-1.98-4.514-3.476-6.27-1.493-1.76-3.363-3.164-5.61-4.22-2.247-1.05-4.87-1.583-7.873-1.596-2.837-.013-5.426.476-7.764 1.467-2.34.99-4.35 2.358-6.022 4.1-1.678 1.745-3.02 3.826-4.032 6.238-1.01 2.415-1.648 5.04-1.913 7.873l38.03.168zm4.114 3.52l-42.282-.186c-.014 3.336.472 6.444 1.46 9.327.988 2.88 2.433 5.368 4.344 7.46 1.907 2.096 4.298 3.733 7.17 4.913 2.874 1.18 6.227 1.777 10.065 1.794 2.668.013 5.294-.29 7.885-.903 2.587-.612 5.01-1.456 7.264-2.53.25.668.453 1.252.62 1.752l.493 1.754c-2.34 1.16-4.974 2.04-7.893 2.655-2.922.613-5.717.915-8.386.902-4.504-.02-8.463-.725-11.875-2.116-3.415-1.39-6.24-3.3-8.48-5.73-2.243-2.428-3.938-5.29-5.093-8.592-1.154-3.297-1.72-6.826-1.703-10.578.016-3.752.593-7.27 1.736-10.562 1.14-3.29 2.777-6.16 4.917-8.61a22.515 22.515 0 0 1 7.656-5.72c2.965-1.364 6.283-2.037 9.953-2.02 3.67.016 6.876.677 9.622 1.98 2.745 1.306 5.053 3.087 6.92 5.347 1.866 2.262 3.272 4.938 4.22 8.027.942 3.09 1.41 6.43 1.392 10.014l-.007 1.627zM610.37 46.064c-3.59.235-7.137 1.45-10.647 3.644-3.514 2.194-6.366 5.496-8.553 9.906l-.157 35.652-4-.017.228-51.915 3.878.016-.05 10.885c2.27-3.492 5.075-6.4 8.422-8.72 3.344-2.318 6.978-3.47 10.897-3.454l-.017 4.004zM658.827 91.436c-2.342 1.49-4.914 2.713-7.71 3.657-2.8.947-5.822 1.412-9.075 1.4-3.837-.017-7.38-.72-10.625-2.112-3.248-1.388-6.033-3.297-8.353-5.727-2.325-2.43-4.15-5.274-5.466-8.53-1.32-3.258-1.973-6.766-1.957-10.517.018-3.754.68-7.273 1.987-10.563 1.307-3.288 3.156-6.157 5.543-8.606 2.386-2.45 5.208-4.375 8.466-5.78 3.26-1.404 6.808-2.096 10.645-2.08 3.254.013 6.273.508 9.064 1.48 2.788.97 5.347 2.212 7.675 3.72l-2.14 3.12a34.576 34.576 0 0 0-6.68-3.343c-2.37-.888-5.018-1.337-7.935-1.35-3.337-.014-6.383.578-9.142 1.774-2.757 1.197-5.12 2.813-7.09 4.847-1.97 2.035-3.5 4.468-4.595 7.298-1.095 2.833-1.652 5.873-1.666 9.126-.013 3.25.514 6.319 1.586 9.2 1.07 2.882 2.58 5.39 4.53 7.525 1.95 2.137 4.297 3.815 7.045 5.035 2.747 1.224 5.79 1.84 9.125 1.855 2.917.01 5.57-.413 7.947-1.28a34.523 34.523 0 0 0 6.71-3.285l2.112 3.136z"/><g><mask fill="#fff" id="d"><use xlink:href="#c"/></mask><path mask="url(#d)" fill="#D95947" d="M708.1 66.26c-.07-2.752-.52-5.337-1.34-7.76-.823-2.423-1.98-4.512-3.475-6.27-1.494-1.76-3.364-3.163-5.61-4.217-2.247-1.05-4.872-1.585-7.874-1.6-2.836-.01-5.425.478-7.762 1.47-2.34.99-4.35 2.357-6.022 4.1-1.68 1.743-3.02 3.824-4.032 6.236-1.01 2.416-1.65 5.04-1.913 7.873l38.03.168zm4.114 3.522l-42.28-.186c-.016 3.336.47 6.444 1.46 9.325.986 2.882 2.432 5.37 4.343 7.463 1.908 2.095 4.3 3.732 7.172 4.91 2.872 1.183 6.225 1.78 10.063 1.796a33.407 33.407 0 0 0 7.885-.902c2.587-.615 5.01-1.46 7.264-2.533.25.668.453 1.252.62 1.752l.493 1.754c-2.34 1.16-4.975 2.042-7.894 2.656-2.92.614-5.716.914-8.385.902-4.503-.02-8.462-.726-11.875-2.117-3.415-1.39-6.24-3.297-8.48-5.73-2.242-2.425-3.94-5.29-5.093-8.59-1.153-3.298-1.72-6.827-1.702-10.58.016-3.75.593-7.27 1.735-10.56 1.142-3.29 2.778-6.16 4.917-8.61a22.508 22.508 0 0 1 7.657-5.722c2.964-1.362 6.283-2.036 9.953-2.02 3.67.016 6.877.678 9.623 1.982 2.745 1.305 5.053 3.088 6.92 5.347 1.866 2.26 3.27 4.936 4.218 8.025.944 3.09 1.41 6.43 1.394 10.014l-.008 1.626z"/></g></g></svg></a>
+
+                <div class="flash"></div>
+                <div class="flash"></div>
+
+                            </div>
+        </div>
+    </div>
+
+	<div class="container" id="main">
+		
+    
+    
+<div class="row">
+    <div class="twelve columns">
+
+        <div class="steps">
+            <ul>
+                
+                                        
+                                                                
+
+                    <li class="done"><a href="http://craft2x.craft.dev/commerce/checkout">Start Order</a></li>
+
+                
+                                        
+                                                                
+
+                    <li class="done"><a href="http://craft2x.craft.dev/commerce/checkout/addresses">Address</a></li>
+
+                
+                                        
+                                                                
+
+                    <li class="done"><a href="http://craft2x.craft.dev/commerce/checkout/shipping">Shipping</a></li>
+
+                
+                                                                                                                                    
+                    
+
+                    <li class="sel"><a href="http://craft2x.craft.dev/commerce/checkout/payment">Payment</a></li>
+
+                            </ul>
+
+            <div class="meter">
+                <span style="width: 80%"></span>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+    
+	<div class="row">
+
+		<div class="two-thirds column">
+			<h3>Payment</h3>
+
+			
+			
+							<form class="form-inline" id="paymentMethod" method="POST">
+
+					<input type="hidden" value="commerce/cart/updateCart" name="action" />
+					<input type="hidden" value="commerce/checkout/payment" name="redirect" />
+					
+
+					<label for="paymentMethodId">Select a payment method:</label>
+					<select class="form-control" name="paymentMethodId" id="paymentMethodId">
+													<option selected="selected" value="1">Dummy</option>
+											</select>
+
+				</form>
+			
+							<form class="form-horizontal" method="POST">
+					<input type="hidden" value="commerce/payments/pay" name="action" />
+					<input type="hidden" value="/commerce/customer/order?number={number}" name="redirect" />
+					<input type="hidden" value="/commerce/checkout/payment" name="cancelUrl" />
+					
+
+					<div class="row">
+						<div class="twelve columns">
+							<noscript>
+								&lt;div class="bs-callout bs-callout-danger"&gt;
+									&lt;h4&gt;JavaScript is not enabled!&lt;/h4&gt;
+
+									&lt;p&gt;This payment form requires your browser to have
+										JavaScript enabled. Please activate
+										JavaScript and reload this page. Check &lt;a
+												href="http://enable-javascript.com"
+												target="_blank"&gt;enable-javascript.com&lt;/a&gt;
+										for
+										more informations.&lt;/p&gt;
+								&lt;/div&gt;
+							</noscript>
+
+							<span class="payment-success"></span>
+						</div>
+					</div>
+
+					
+
+											<fieldset>
+																							
+
+								<!-- Card Holder Name -->
+								<div class="form-group ">
+									<label>Card Holder</label>
+
+									<div class="row">
+										<div class="six columns">
+
+											<input type="text" value="Luke" class="card-holder-first-name u-full-width" placeholder="First Name" maxlength="70" name="firstName" />
+
+										</div>
+
+										<div class="six columns">
+											<input type="text" value="Holder" class="card-holder-last-name u-full-width" placeholder="Last Name" maxlength="70" name="lastName" />
+
+										</div>
+									</div>
+
+
+									<span class="help-block"></span>
+
+									<span class="help-block"></span>
+								</div>
+
+								<!-- Card Number -->
+								<div class="form-group ">
+									<label>Card Number</label>
+
+									<input type="text" value="" class="card-number u-full-width" placeholder="Card Number" maxlength="19" name="number" />
+
+									<span class="help-block"></span>
+								</div>
+
+								<!-- Expiry-->
+								<div class="form-group ">
+									<label>Card Expiry Date</label>
+
+									<select name="month" class="form-control">
+																					<option selected="selected" value="1">1</option>
+																					<option value="2">2</option>
+																					<option value="3">3</option>
+																					<option value="4">4</option>
+																					<option value="5">5</option>
+																					<option value="6">6</option>
+																					<option value="7">7</option>
+																					<option value="8">8</option>
+																					<option value="9">9</option>
+																					<option value="10">10</option>
+																					<option value="11">11</option>
+																					<option value="12">12</option>
+																			</select>
+									<span> / </span>
+									<select name="year" class="required form-control">
+																					<option value="2016">2016</option>
+																					<option selected="selected" value="2017">2017</option>
+																					<option value="2018">2018</option>
+																					<option value="2019">2019</option>
+																					<option value="2020">2020</option>
+																					<option value="2021">2021</option>
+																					<option value="2022">2022</option>
+																					<option value="2023">2023</option>
+																					<option value="2024">2024</option>
+																					<option value="2025">2025</option>
+																					<option value="2026">2026</option>
+																					<option value="2027">2027</option>
+																					<option value="2028">2028</option>
+																					<option value="2029">2029</option>
+																			</select>
+
+									<span class="help-block"></span>
+
+									<span class="help-block"></span>
+
+								</div>
+
+								<!-- CVV -->
+								<div class="form-group ">
+
+									<label>CVV/CVV2</label>
+									<input type="text" value="" class="card-cvc" maxlength="4" placeholder="CVV" name="cvv" />
+
+									<span class="help-block"></span>
+
+								</div>
+
+							
+							<!-- Submit -->
+							<button type="submit" class="button button-primary">Pay $10.00
+								Now
+							</button>
+						</fieldset>
+									</form>
+					</div>
+		<div class="one-third column">
+
+			<div class="review-card">
+				<h5>Order Review</h5>
+				<ul>
+					<li>
+						<strong>Products</strong> $10.00
+					</li>
+
+											<li>
+							<strong>Free Shipping</strong> $0.00
+							(All Countries, free shipping.)
+						</li>
+					
+
+					
+					<li>
+						<strong>Total:</strong> $10.00
+					</li>
+				</ul>
+			</div>
+
+		</div>
+	</div>
+
+	
+	</div>
+<script type="text/javascript">
+/*&lt;![CDATA[*/
+$('#paymentMethodId').change(function(){
+		$('form#paymentMethod').submit();
+	});
+/*]]&gt;*/
+</script>
+
+<script type="text/javascript">
+/*&lt;![CDATA[*/
+if (typeof(console) == 'object' &amp;&amp; typeof(console.groupCollapsed) == 'function')
+{
+	console.groupCollapsed("Application Log");
+
+		console.groupCollapsed("GET Info");
+	console.log("[08:45:22.826][info][application]\n$_GET=array (\n  \'p\' =&gt; \'commerce/checkout/payment\',\n)\n\n");
+	console.groupEnd();
+	console.groupCollapsed("COOKIE Info");
+	console.log("[08:45:22.826][info][application]\n$_COOKIE=array (\n  \'CraftSessionId\' =&gt; \'11cefd1851cc76323c3703d4b7f0db02\',\n  \'b62c44584a23647a6706aaa5282f7e48commerce_cookie\' =&gt; \'a1d8d7a721b2d209eae3b61220e7909776e6874ds:96:\"017e10920465fd6133e056ce339d4a70d42526baczozMjoiMDMyNGE0YzYxZDBkNWUzNzhkYzY0MmI0NWViZDY0YmYiOw==\";\',\n)\n\n");
+	console.groupEnd();
+	console.groupCollapsed("SESSION Info");
+	console.log("[08:45:22.826][info][application]\n$_SESSION=array (\n  \'commerce_customer_cookie\' =&gt; \'7\',\n)\n\n");
+	console.groupEnd();
+	console.groupCollapsed("SERVER Info");
+	console.log("[08:45:22.826][info][application]\n$_SERVER=array (\n  \'REDIRECT_STATUS\' =&gt; \'200\',\n  \'HTTP_HOST\' =&gt; \'craft2x.craft.dev\',\n  \'HTTP_USER_AGENT\' =&gt; \'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:46.0) Gecko/20100101 Firefox/46.0\',\n  \'HTTP_ACCEPT\' =&gt; \'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\',\n  \'HTTP_ACCEPT_LANGUAGE\' =&gt; \'en-US,en;q=0.5\',\n  \'HTTP_ACCEPT_ENCODING\' =&gt; \'gzip, deflate\',\n  \'HTTP_REFERER\' =&gt; \'http://craft2x.craft.dev/commerce/checkout/payment\',\n  \'HTTP_COOKIE\' =&gt; \'CraftSessionId=11cefd1851cc76323c3703d4b7f0db02; b62c44584a23647a6706aaa5282f7e48commerce_cookie=a1d8d7a721b2d209eae3b61220e7909776e6874ds%3A96%3A%22017e10920465fd6133e056ce339d4a70d42526baczozMjoiMDMyNGE0YzYxZDBkNWUzNzhkYzY0MmI0NWViZDY0YmYiOw%3D%3D%22%3B\',\n  \'HTTP_CONNECTION\' =&gt; \'keep-alive\',\n  \'PATH\' =&gt; \'/usr/bin:/bin:/usr/sbin:/sbin\',\n  \'SERVER_SIGNATURE\' =&gt; \'\',\n  \'SERVER_SOFTWARE\' =&gt; \'Apache\',\n  \'SERVER_NAME\' =&gt; \'craft2x.craft.dev\',\n  \'SERVER_ADDR\' =&gt; \'::1\',\n  \'SERVER_PORT\' =&gt; \'80\',\n  \'REMOTE_ADDR\' =&gt; \'::1\',\n  \'DOCUMENT_ROOT\' =&gt; \'/Users/lh/Code/Projects/craft2x.craft.dev/public\',\n  \'SERVER_ADMIN\' =&gt; \'you@example.com\',\n  \'SCRIPT_FILENAME\' =&gt; \'/Users/lh/Code/Projects/craft2x.craft.dev/public/index.php\',\n  \'REMOTE_PORT\' =&gt; \'58788\',\n  \'REDIRECT_QUERY_STRING\' =&gt; \'p=commerce/checkout/payment\',\n  \'REDIRECT_URL\' =&gt; \'/commerce/checkout/payment\',\n  \'GATEWAY_INTERFACE\' =&gt; \'CGI/1.1\',\n  \'SERVER_PROTOCOL\' =&gt; \'HTTP/1.1\',\n  \'REQUEST_METHOD\' =&gt; \'GET\',\n  \'QUERY_STRING\' =&gt; \'p=commerce/checkout/payment\',\n  \'REQUEST_URI\' =&gt; \'/commerce/checkout/payment\',\n  \'SCRIPT_NAME\' =&gt; \'/index.php\',\n  \'PHP_SELF\' =&gt; \'/index.php\',\n  \'REQUEST_TIME_FLOAT\' =&gt; 1465375522.8229999542236328125,\n  \'REQUEST_TIME\' =&gt; 1465375522,\n  \'argv\' =&gt; \n  array (\n    0 =&gt; \'p=commerce/checkout/payment\',\n  ),\n  \'argc\' =&gt; 1,\n)");
+	console.groupEnd();
+	console.groupCollapsed("Logs");
+	console.log("[08:45:22.854][trace][system.CModule]\nLoading \"cache\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (623)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (167)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/bootstrap.php (189)");
+	console.log("[08:45:22.856][trace][system.CModule]\nLoading \"path\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (623)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/cache/FileCache.php (41)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CacheService.php (104)");
+	console.log("[08:45:22.857][trace][system.CModule]\nLoading \"request\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (623)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (168)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/bootstrap.php (189)");
+	console.log("[08:45:22.862][trace][system.caching.Craft\\FileCache]\nServing \"usePathInfo\" from cache\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CacheService.php (170)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/ConfigService.php (392)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/HttpRequestService.php (1135)");
+	console.log("[08:45:22.890][trace][system.CModule]\nLoading \"log\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (623)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (169)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/bootstrap.php (189)");
+	console.log("[08:45:22.893][trace][system.CModule]\nLoading \"coreMessages\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (623)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (172)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/bootstrap.php (189)");
+	console.log("[08:45:22.896][trace][system.db.CDbConnection]\nOpening DB connection\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/behaviors/AppBehavior.php (824)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (619)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/behaviors/AppBehavior.php (80)");
+	console.log("[08:45:22.902][trace][system.db.CDbCommand]\nQuerying SQL: SHOW TABLES LIKE \'craft_%\'\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/db/schemas/MysqlSchema.php (295)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/db/DbConnection.php (90)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/behaviors/AppBehavior.php (98)");
+	console.log("[08:45:22.902][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SHOW TABLES LIKE \'craft_%\')");
+	console.log("[08:45:22.902][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SHOW TABLES LIKE \'craft_%\')");
+	console.log("[08:45:22.904][trace][system.db.CDbCommand]\nQuerying SQL: SELECT *\nFROM `craft_info` LIMIT 1\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/behaviors/AppBehavior.php (492)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/behaviors/AppBehavior.php (187)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (780)");
+	console.log("[08:45:22.904][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT *\nFROM `craft_info` LIMIT 1)");
+	console.log("[08:45:22.904][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT *\nFROM `craft_info` LIMIT 1)");
+	console.log("[08:45:22.910][trace][system.CModule]\nLoading \"userSession\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (623)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (197)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/index.php (62)");
+	console.log("[08:45:22.913][trace][system.CModule]\nLoading \"security\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (623)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/CookieCollection.php (41)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/HttpRequestService.php (882)");
+	console.log("[08:45:22.915][trace][system.CModule]\nLoading \"statePersister\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (623)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/CookieCollection.php (41)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/HttpRequestService.php (882)");
+	console.log("[08:45:22.915][trace][system.caching.Craft\\FileCache]\nServing \"Yii.CStatePersister./Users/lh/Code/Projects/craft2x.craft.dev/craft/storage/runtime/state/state.bin\" from cache\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CacheService.php (170)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/CookieCollection.php (41)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/HttpRequestService.php (882)");
+	console.log("[08:45:22.916][trace][system.CModule]\nLoading \"httpSession\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (623)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (516)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/UserSessionService.php (93)");
+	console.log("[08:45:22.917][trace][system.CModule]\nLoading \"session\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (623)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/UserSessionService.php (1059)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/UserSessionService.php (343)");
+	console.log("[08:45:22.918][trace][system.CModule]\nLoading \"updates\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (623)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (245)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/index.php (62)");
+	console.log("[08:45:22.920][trace][system.CModule]\nLoading \"plugins\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (623)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (285)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/index.php (62)");
+	console.log("[08:45:22.921][trace][system.db.CDbCommand]\nQuerying SQL: SELECT *\nFROM `craft_plugins`\nWHERE enabled=1\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/PluginsService.php (104)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (285)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/index.php (62)");
+	console.log("[08:45:22.921][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT *\nFROM `craft_plugins`\nWHERE enabled=1)");
+	console.log("[08:45:22.922][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT *\nFROM `craft_plugins`\nWHERE enabled=1)");
+	console.log("[08:45:22.925][trace][system.CModule]\nLoading \"messages\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (623)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/Craft.php (382)\nin /Users/lh/Code/Playground/CraftCMS-DevImages/devimages/DevImagesPlugin.php (8)");
+	console.log("[08:45:22.925][trace][system.CModule]\nLoading \"i18n\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (623)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/behaviors/AppBehavior.php (796)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/behaviors/AppBehavior.php (570)");
+	console.log("[08:45:22.926][trace][system.db.CDbCommand]\nQuerying SQL: SELECT `locale`\nFROM `craft_locales`\nORDER BY `sortOrder`\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/LocalizationService.php (126)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/LocalizationService.php (150)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/LocalizationService.php (162)");
+	console.log("[08:45:22.926][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT `locale`\nFROM `craft_locales`\nORDER BY `sortOrder`)");
+	console.log("[08:45:22.927][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT `locale`\nFROM `craft_locales`\nORDER BY `sortOrder`)");
+	console.log("[08:45:22.950][trace][system.CModule]\nLoading \"commerce_orderStatuses\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (623)\nin /Users/lh/Code/Projects/Commerce/commerce/CommercePlugin.php (44)\nin /Users/lh/Code/Projects/Commerce/commerce/CommercePlugin.php (29)");
+	console.log("[08:45:22.951][trace][system.CModule]\nLoading \"commerce_discounts\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (623)\nin /Users/lh/Code/Projects/Commerce/commerce/CommercePlugin.php (45)\nin /Users/lh/Code/Projects/Commerce/commerce/CommercePlugin.php (29)");
+	console.log("[08:45:22.952][trace][system.CModule]\nLoading \"commerce_variants\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (623)\nin /Users/lh/Code/Projects/Commerce/commerce/CommercePlugin.php (46)\nin /Users/lh/Code/Projects/Commerce/commerce/CommercePlugin.php (29)");
+	console.log("[08:45:22.952][trace][system.CModule]\nLoading \"commerce_customers\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (623)\nin /Users/lh/Code/Projects/Commerce/commerce/CommercePlugin.php (47)\nin /Users/lh/Code/Projects/Commerce/commerce/CommercePlugin.php (29)");
+	console.log("[08:45:22.953][trace][system.CModule]\nLoading \"commerce_productTypes\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (623)\nin /Users/lh/Code/Projects/Commerce/commerce/CommercePlugin.php (48)\nin /Users/lh/Code/Projects/Commerce/commerce/CommercePlugin.php (29)");
+	console.log("[08:45:22.955][trace][system.CModule]\nLoading \"urlManager\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (623)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (318)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/index.php (62)");
+	console.log("[08:45:22.956][trace][system.CModule]\nLoading \"elements\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (623)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/UrlManager.php (278)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/UrlManager.php (137)");
+	console.log("[08:45:22.959][trace][system.db.CDbCommand]\nQuerying SQL: SELECT `elements`.`id`, `elements`.`type`\nFROM `craft_elements` `elements`\nJOIN `craft_elements_i18n` `elements_i18n` ON elements_i18n.elementId = elements.id\nWHERE (elements_i18n.uri = :uri) AND (elements_i18n.locale = :locale) AND (elements_i18n.enabled = 1) AND (elements.enabled = 1) AND (elements.archived = 0). Bound with :uri=\'commerce/checkout/payment\', :locale=\'en_us\'\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/ElementsService.php (152)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/UrlManager.php (278)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/UrlManager.php (137)");
+	console.log("[08:45:22.959][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT `elements`.`id`, `elements`.`type`\nFROM `craft_elements` `elements`\nJOIN `craft_elements_i18n` `elements_i18n` ON elements_i18n.elementId = elements.id\nWHERE (elements_i18n.uri = :uri) AND (elements_i18n.locale = :locale) AND (elements_i18n.enabled = 1) AND (elements.enabled = 1) AND (elements.archived = 0). Bound with :uri=\'commerce/checkout/payment\', :locale=\'en_us\')");
+	console.log("[08:45:22.960][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT `elements`.`id`, `elements`.`type`\nFROM `craft_elements` `elements`\nJOIN `craft_elements_i18n` `elements_i18n` ON elements_i18n.elementId = elements.id\nWHERE (elements_i18n.uri = :uri) AND (elements_i18n.locale = :locale) AND (elements_i18n.enabled = 1) AND (elements.enabled = 1) AND (elements.archived = 0). Bound with :uri=\'commerce/checkout/payment\', :locale=\'en_us\')");
+	console.log("[08:45:22.960][trace][system.CModule]\nLoading \"routes\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (623)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/UrlManager.php (336)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/UrlManager.php (153)");
+	console.log("[08:45:22.960][trace][system.db.CDbCommand]\nQuerying SQL: SELECT `urlPattern`, `template`\nFROM `craft_routes`\nWHERE (locale is null) OR (locale = :locale)\nORDER BY `sortOrder`. Bound with :locale=\'en_us\'\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/RoutesService.php (65)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/UrlManager.php (343)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/UrlManager.php (153)");
+	console.log("[08:45:22.960][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT `urlPattern`, `template`\nFROM `craft_routes`\nWHERE (locale is null) OR (locale = :locale)\nORDER BY `sortOrder`. Bound with :locale=\'en_us\')");
+	console.log("[08:45:22.961][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT `urlPattern`, `template`\nFROM `craft_routes`\nWHERE (locale is null) OR (locale = :locale)\nORDER BY `sortOrder`. Bound with :locale=\'en_us\')");
+	console.log("[08:45:22.964][trace][system.CModule]\nLoading \"templates\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (623)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/controllers/TemplatesController.php (53)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (318)");
+	console.log("[08:45:22.981][trace][system.CModule]\nLoading \"globals\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (623)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/templating/twigextensions/CraftTwigExtension.php (581)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/vendor/twig/twig/lib/Twig/Environment.php (1276)");
+	console.log("[08:45:22.981][trace][system.CModule]\nLoading \"components\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (623)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/ElementsService.php (2057)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/ElementsService.php (56)");
+	console.log("[08:45:22.986][trace][system.CModule]\nLoading \"content\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (623)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/elementtypes/BaseElementType.php (441)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/elementtypes/BaseElementType.php (463)");
+	console.log("[08:45:22.987][trace][system.CModule]\nLoading \"fields\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (623)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/elementtypes/BaseElementType.php (445)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/elementtypes/BaseElementType.php (463)");
+	console.log("[08:45:22.989][trace][system.db.CDbCommand]\nQuerying SQL: SELECT `f`.`id`, `f`.`groupId`, `f`.`name`, `f`.`handle`, `f`.`context`, `f`.`instructions`, `f`.`translatable`, `f`.`type`, `f`.`settings`\nFROM `craft_fields` `f`\nWHERE `f`.`context` IN (\'global\')\nORDER BY `f`.`name`\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/FieldsService.php (251)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/elementtypes/BaseElementType.php (445)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/elementtypes/BaseElementType.php (463)");
+	console.log("[08:45:22.989][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT `f`.`id`, `f`.`groupId`, `f`.`name`, `f`.`handle`, `f`.`context`, `f`.`instructions`, `f`.`translatable`, `f`.`type`, `f`.`settings`\nFROM `craft_fields` `f`\nWHERE `f`.`context` IN (\'global\')\nORDER BY `f`.`name`)");
+	console.log("[08:45:22.989][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT `f`.`id`, `f`.`groupId`, `f`.`name`, `f`.`handle`, `f`.`context`, `f`.`instructions`, `f`.`translatable`, `f`.`type`, `f`.`settings`\nFROM `craft_fields` `f`\nWHERE `f`.`context` IN (\'global\')\nORDER BY `f`.`name`)");
+	console.log("[08:45:23.013][trace][system.db.CDbCommand]\nQuerying SQL: SELECT `elements`.`id`, `elements`.`type`, `elements`.`enabled`, `elements`.`archived`, `elements`.`dateCreated`, `elements`.`dateUpdated`, `elements_i18n`.`slug`, `elements_i18n`.`uri`, `elements_i18n`.`enabled` AS `localeEnabled`, `content`.`id` AS `contentId`, `content`.`field_bodyText`, `content`.`field_callOutHeading`, `content`.`field_callOutNumber`, `content`.`field_contactInfo`, `content`.`field_customerReference`, `content`.`field_description`, `content`.`field_followLinks`, `content`.`field_pegboardSpecs`, `content`.`field_plainText`, `content`.`field_previewCaption`, `content`.`field_richText`, `content`.`field_showColors`, `content`.`field_sinkSpecs`, `content`.`field_subtitle`, `globalsets`.`name`, `globalsets`.`handle`, `globalsets`.`fieldLayoutId`\nFROM `craft_elements` `elements`\nJOIN `craft_elements_i18n` `elements_i18n` ON elements_i18n.elementId = elements.id\nJOIN `craft_content` `content` ON content.elementId = elements.id\nJOIN `craft_globalsets` `globalsets` ON globalsets.id = elements.id\nWHERE ((((elements_i18n.locale = :locale) AND (content.locale = :locale)) AND (elements.archived = 0)) AND (elements.enabled = 1)) AND (elements_i18n.enabled = 1)\nGROUP BY `elements`.`id`\nORDER BY `name` LIMIT 100. Bound with :locale=\'en_us\'\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/ElementsService.php (214)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/models/ElementCriteriaModel.php (254)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/GlobalsService.php (96)");
+	console.log("[08:45:23.013][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT `elements`.`id`, `elements`.`type`, `elements`.`enabled`, `elements`.`archived`, `elements`.`dateCreated`, `elements`.`dateUpdated`, `elements_i18n`.`slug`, `elements_i18n`.`uri`, `elements_i18n`.`enabled` AS `localeEnabled`, `content`.`id` AS `contentId`, `content`.`field_bodyText`, `content`.`field_callOutHeading`, `content`.`field_callOutNumber`, `content`.`field_contactInfo`, `content`.`field_customerReference`, `content`.`field_description`, `content`.`field_followLinks`, `content`.`field_pegboardSpecs`, `content`.`field_plainText`, `content`.`field_previewCaption`, `content`.`field_richText`, `content`.`field_showColors`, `content`.`field_sinkSpecs`, `content`.`field_subtitle`, `globalsets`.`name`, `globalsets`.`handle`, `globalsets`.`fieldLayoutId`\nFROM `craft_elements` `elements`\nJOIN `craft_elements_i18n` `elements_i18n` ON elements_i18n.elementId = elements.id\nJOIN `craft_content` `content` ON content.elementId = elements.id\nJOIN `craft_globalsets` `globalsets` ON globalsets.id = elements.id\nWHERE ((((elements_i18n.locale = :locale) AND (content.locale = :locale)) AND (elements.archived = 0)) AND (elements.enabled = 1)) AND (elements_i18n.enabled = 1)\nGROUP BY `elements`.`id`\nORDER BY `name` LIMIT 100. Bound with :locale=\'en_us\')");
+	console.log("[08:45:23.016][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT `elements`.`id`, `elements`.`type`, `elements`.`enabled`, `elements`.`archived`, `elements`.`dateCreated`, `elements`.`dateUpdated`, `elements_i18n`.`slug`, `elements_i18n`.`uri`, `elements_i18n`.`enabled` AS `localeEnabled`, `content`.`id` AS `contentId`, `content`.`field_bodyText`, `content`.`field_callOutHeading`, `content`.`field_callOutNumber`, `content`.`field_contactInfo`, `content`.`field_customerReference`, `content`.`field_description`, `content`.`field_followLinks`, `content`.`field_pegboardSpecs`, `content`.`field_plainText`, `content`.`field_previewCaption`, `content`.`field_richText`, `content`.`field_showColors`, `content`.`field_sinkSpecs`, `content`.`field_subtitle`, `globalsets`.`name`, `globalsets`.`handle`, `globalsets`.`fieldLayoutId`\nFROM `craft_elements` `elements`\nJOIN `craft_elements_i18n` `elements_i18n` ON elements_i18n.elementId = elements.id\nJOIN `craft_content` `content` ON content.elementId = elements.id\nJOIN `craft_globalsets` `globalsets` ON globalsets.id = elements.id\nWHERE ((((elements_i18n.locale = :locale) AND (content.locale = :locale)) AND (elements.archived = 0)) AND (elements.enabled = 1)) AND (elements_i18n.enabled = 1)\nGROUP BY `elements`.`id`\nORDER BY `name` LIMIT 100. Bound with :locale=\'en_us\')");
+	console.log("[08:45:23.045][trace][system.CModule]\nLoading \"commerce_cart\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (623)\nin /Users/lh/Code/Projects/Commerce/commerce/variables/CommerceVariable.php (67)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/vendor/twig/twig/lib/Twig/Template.php (609)");
+	console.log("[08:45:23.047][trace][system.db.CDbCommand]\nQuerying SQL: SELECT `orders`.`id`, `orders`.`number`, `orders`.`orderStatusId`, `orders`.`billingAddressId`, `orders`.`shippingAddressId`, `orders`.`customerId`, `orders`.`couponCode`, `orders`.`itemTotal`, `orders`.`baseDiscount`, `orders`.`baseShippingCost`, `orders`.`totalPrice`, `orders`.`totalPaid`, `orders`.`email`, `orders`.`dateOrdered`, `orders`.`datePaid`, `orders`.`currency`, `orders`.`lastIp`, `orders`.`message`, `orders`.`returnUrl`, `orders`.`cancelUrl`, `orders`.`shippingMethod`, `orders`.`paymentMethodId`\nFROM `craft_commerce_orders` `orders`\nWHERE orders.number = :number AND dateOrdered IS NULL. Bound with :number=\'0324a4c61d0d5e378dc642b45ebd64bf\'\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_CartService.php (397)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_CartService.php (329)\nin /Users/lh/Code/Projects/Commerce/commerce/variables/CommerceVariable.php (67)");
+	console.log("[08:45:23.047][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT `orders`.`id`, `orders`.`number`, `orders`.`orderStatusId`, `orders`.`billingAddressId`, `orders`.`shippingAddressId`, `orders`.`customerId`, `orders`.`couponCode`, `orders`.`itemTotal`, `orders`.`baseDiscount`, `orders`.`baseShippingCost`, `orders`.`totalPrice`, `orders`.`totalPaid`, `orders`.`email`, `orders`.`dateOrdered`, `orders`.`datePaid`, `orders`.`currency`, `orders`.`lastIp`, `orders`.`message`, `orders`.`returnUrl`, `orders`.`cancelUrl`, `orders`.`shippingMethod`, `orders`.`paymentMethodId`\nFROM `craft_commerce_orders` `orders`\nWHERE orders.number = :number AND dateOrdered IS NULL. Bound with :number=\'0324a4c61d0d5e378dc642b45ebd64bf\')");
+	console.log("[08:45:23.047][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT `orders`.`id`, `orders`.`number`, `orders`.`orderStatusId`, `orders`.`billingAddressId`, `orders`.`shippingAddressId`, `orders`.`customerId`, `orders`.`couponCode`, `orders`.`itemTotal`, `orders`.`baseDiscount`, `orders`.`baseShippingCost`, `orders`.`totalPrice`, `orders`.`totalPaid`, `orders`.`email`, `orders`.`dateOrdered`, `orders`.`datePaid`, `orders`.`currency`, `orders`.`lastIp`, `orders`.`message`, `orders`.`returnUrl`, `orders`.`cancelUrl`, `orders`.`shippingMethod`, `orders`.`paymentMethodId`\nFROM `craft_commerce_orders` `orders`\nWHERE orders.number = :number AND dateOrdered IS NULL. Bound with :number=\'0324a4c61d0d5e378dc642b45ebd64bf\')");
+	console.log("[08:45:23.050][trace][system.CModule]\nLoading \"commerce_orders\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (623)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_CartService.php (340)\nin /Users/lh/Code/Projects/Commerce/commerce/variables/CommerceVariable.php (67)");
+	console.log("[08:45:23.059][trace][system.db.CDbCommand]\nQuerying SQL: SELECT `elements`.`id`, `elements`.`type`, `elements`.`enabled`, `elements`.`archived`, `elements`.`dateCreated`, `elements`.`dateUpdated`, `elements_i18n`.`slug`, `elements_i18n`.`uri`, `elements_i18n`.`enabled` AS `localeEnabled`, `content`.`id` AS `contentId`, `content`.`field_bodyText`, `content`.`field_callOutHeading`, `content`.`field_callOutNumber`, `content`.`field_contactInfo`, `content`.`field_customerReference`, `content`.`field_description`, `content`.`field_followLinks`, `content`.`field_pegboardSpecs`, `content`.`field_plainText`, `content`.`field_previewCaption`, `content`.`field_richText`, `content`.`field_showColors`, `content`.`field_sinkSpecs`, `content`.`field_subtitle`, `orders`.`id`, `orders`.`number`, `orders`.`couponCode`, `orders`.`itemTotal`, `orders`.`baseDiscount`, `orders`.`baseShippingCost`, `orders`.`totalPrice`, `orders`.`totalPaid`, `orders`.`orderStatusId`, `orders`.`dateOrdered`, `orders`.`email`, `orders`.`isCompleted`, `orders`.`dateOrdered`, `orders`.`datePaid`, `orders`.`currency`, `orders`.`lastIp`, `orders`.`message`, `orders`.`returnUrl`, `orders`.`cancelUrl`, `orders`.`orderStatusId`, `orders`.`billingAddressId`, `orders`.`shippingAddressId`, `orders`.`shippingMethod`, `orders`.`paymentMethodId`, `orders`.`customerId`, `orders`.`dateUpdated`\nFROM `craft_elements` `elements`\nJOIN `craft_elements_i18n` `elements_i18n` ON elements_i18n.elementId = elements.id\nJOIN `craft_content` `content` ON content.elementId = elements.id\nJOIN `craft_commerce_orders` `orders` ON orders.id = elements.id\nWHERE (((((elements_i18n.locale = :locale) AND (content.locale = :locale)) AND (elements.archived = 0)) AND (elements.enabled = 1)) AND (elements_i18n.enabled = 1)) AND (orders.number=:ordersnumber1)\nGROUP BY `elements`.`id`\nORDER BY `elements`.`dateCreated` DESC LIMIT 1. Bound with :locale=\'en_us\', :ordersnumber1=\'0324a4c61d0d5e378dc642b45ebd64bf\'\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/ElementsService.php (214)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/models/ElementCriteriaModel.php (254)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/models/ElementCriteriaModel.php (281)");
+	console.log("[08:45:23.059][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT `elements`.`id`, `elements`.`type`, `elements`.`enabled`, `elements`.`archived`, `elements`.`dateCreated`, `elements`.`dateUpdated`, `elements_i18n`.`slug`, `elements_i18n`.`uri`, `elements_i18n`.`enabled` AS `localeEnabled`, `content`.`id` AS `contentId`, `content`.`field_bodyText`, `content`.`field_callOutHeading`, `content`.`field_callOutNumber`, `content`.`field_contactInfo`, `content`.`field_customerReference`, `content`.`field_description`, `content`.`field_followLinks`, `content`.`field_pegboardSpecs`, `content`.`field_plainText`, `content`.`field_previewCaption`, `content`.`field_richText`, `content`.`field_showColors`, `content`.`field_sinkSpecs`, `content`.`field_subtitle`, `orders`.`id`, `orders`.`number`, `orders`.`couponCode`, `orders`.`itemTotal`, `orders`.`baseDiscount`, `orders`.`baseShippingCost`, `orders`.`totalPrice`, `orders`.`totalPaid`, `orders`.`orderStatusId`, `orders`.`dateOrdered`, `orders`.`email`, `orders`.`isCompleted`, `orders`.`dateOrdered`, `orders`.`datePaid`, `orders`.`currency`, `orders`.`lastIp`, `orders`.`message`, `orders`.`returnUrl`, `orders`.`cancelUrl`, `orders`.`orderStatusId`, `orders`.`billingAddressId`, `orders`.`shippingAddressId`, `orders`.`shippingMethod`, `orders`.`paymentMethodId`, `orders`.`customerId`, `orders`.`dateUpdated`\nFROM `craft_elements` `elements`\nJOIN `craft_elements_i18n` `elements_i18n` ON elements_i18n.elementId = elements.id\nJOIN `craft_content` `content` ON content.elementId = elements.id\nJOIN `craft_commerce_orders` `orders` ON orders.id = elements.id\nWHERE (((((elements_i18n.locale = :locale) AND (content.locale = :locale)) AND (elements.archived = 0)) AND (elements.enabled = 1)) AND (elements_i18n.enabled = 1)) AND (orders.number=:ordersnumber1)\nGROUP BY `elements`.`id`\nORDER BY `elements`.`dateCreated` DESC LIMIT 1. Bound with :locale=\'en_us\', :ordersnumber1=\'0324a4c61d0d5e378dc642b45ebd64bf\')");
+	console.log("[08:45:23.060][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT `elements`.`id`, `elements`.`type`, `elements`.`enabled`, `elements`.`archived`, `elements`.`dateCreated`, `elements`.`dateUpdated`, `elements_i18n`.`slug`, `elements_i18n`.`uri`, `elements_i18n`.`enabled` AS `localeEnabled`, `content`.`id` AS `contentId`, `content`.`field_bodyText`, `content`.`field_callOutHeading`, `content`.`field_callOutNumber`, `content`.`field_contactInfo`, `content`.`field_customerReference`, `content`.`field_description`, `content`.`field_followLinks`, `content`.`field_pegboardSpecs`, `content`.`field_plainText`, `content`.`field_previewCaption`, `content`.`field_richText`, `content`.`field_showColors`, `content`.`field_sinkSpecs`, `content`.`field_subtitle`, `orders`.`id`, `orders`.`number`, `orders`.`couponCode`, `orders`.`itemTotal`, `orders`.`baseDiscount`, `orders`.`baseShippingCost`, `orders`.`totalPrice`, `orders`.`totalPaid`, `orders`.`orderStatusId`, `orders`.`dateOrdered`, `orders`.`email`, `orders`.`isCompleted`, `orders`.`dateOrdered`, `orders`.`datePaid`, `orders`.`currency`, `orders`.`lastIp`, `orders`.`message`, `orders`.`returnUrl`, `orders`.`cancelUrl`, `orders`.`orderStatusId`, `orders`.`billingAddressId`, `orders`.`shippingAddressId`, `orders`.`shippingMethod`, `orders`.`paymentMethodId`, `orders`.`customerId`, `orders`.`dateUpdated`\nFROM `craft_elements` `elements`\nJOIN `craft_elements_i18n` `elements_i18n` ON elements_i18n.elementId = elements.id\nJOIN `craft_content` `content` ON content.elementId = elements.id\nJOIN `craft_commerce_orders` `orders` ON orders.id = elements.id\nWHERE (((((elements_i18n.locale = :locale) AND (content.locale = :locale)) AND (elements.archived = 0)) AND (elements.enabled = 1)) AND (elements_i18n.enabled = 1)) AND (orders.number=:ordersnumber1)\nGROUP BY `elements`.`id`\nORDER BY `elements`.`dateCreated` DESC LIMIT 1. Bound with :locale=\'en_us\', :ordersnumber1=\'0324a4c61d0d5e378dc642b45ebd64bf\')");
+	console.log("[08:45:23.064][trace][system.CModule]\nLoading \"commerce_settings\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (623)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_CartService.php (351)\nin /Users/lh/Code/Projects/Commerce/commerce/variables/CommerceVariable.php (67)");
+	console.log("[08:45:23.065][trace][system.db.CDbCommand]\nQuerying SQL: SELECT `customers`.`id`, `customers`.`userId`, `customers`.`email`, `customers`.`lastUsedBillingAddressId`, `customers`.`lastUsedShippingAddressId`\nFROM `craft_commerce_customers` `customers`\nWHERE customers.id = :xid\nORDER BY `id`. Bound with :xid=\'7\'\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_CustomersService.php (85)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_CartService.php (354)\nin /Users/lh/Code/Projects/Commerce/commerce/variables/CommerceVariable.php (67)");
+	console.log("[08:45:23.065][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT `customers`.`id`, `customers`.`userId`, `customers`.`email`, `customers`.`lastUsedBillingAddressId`, `customers`.`lastUsedShippingAddressId`\nFROM `craft_commerce_customers` `customers`\nWHERE customers.id = :xid\nORDER BY `id`. Bound with :xid=\'7\')");
+	console.log("[08:45:23.065][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT `customers`.`id`, `customers`.`userId`, `customers`.`email`, `customers`.`lastUsedBillingAddressId`, `customers`.`lastUsedShippingAddressId`\nFROM `craft_commerce_customers` `customers`\nWHERE customers.id = :xid\nORDER BY `id`. Bound with :xid=\'7\')");
+	console.log("[08:45:23.065][trace][system.CModule]\nLoading \"commerce_lineItems\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (623)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_OrderModel.php (423)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_OrderModel.php (261)");
+	console.log("[08:45:23.066][trace][system.db.CDbCommand]\nQuerying SQL: SELECT `lineitems`.`id`, `lineitems`.`orderId`, `lineitems`.`purchasableId`, `lineitems`.`options`, `lineitems`.`optionsSignature`, `lineitems`.`price`, `lineitems`.`saleAmount`, `lineitems`.`salePrice`, `lineitems`.`tax`, `lineitems`.`taxIncluded`, `lineitems`.`shippingCost`, `lineitems`.`discount`, `lineitems`.`weight`, `lineitems`.`height`, `lineitems`.`length`, `lineitems`.`width`, `lineitems`.`total`, `lineitems`.`qty`, `lineitems`.`note`, `lineitems`.`snapshot`, `lineitems`.`taxCategoryId`\nFROM `craft_commerce_lineitems` `lineitems`\nWHERE lineitems.orderId = :orderId\nORDER BY `lineitems`.`id`. Bound with :orderId=\'1642\'\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_LineItemsService.php (32)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_OrderModel.php (423)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_OrderModel.php (261)");
+	console.log("[08:45:23.066][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT `lineitems`.`id`, `lineitems`.`orderId`, `lineitems`.`purchasableId`, `lineitems`.`options`, `lineitems`.`optionsSignature`, `lineitems`.`price`, `lineitems`.`saleAmount`, `lineitems`.`salePrice`, `lineitems`.`tax`, `lineitems`.`taxIncluded`, `lineitems`.`shippingCost`, `lineitems`.`discount`, `lineitems`.`weight`, `lineitems`.`height`, `lineitems`.`length`, `lineitems`.`width`, `lineitems`.`total`, `lineitems`.`qty`, `lineitems`.`note`, `lineitems`.`snapshot`, `lineitems`.`taxCategoryId`\nFROM `craft_commerce_lineitems` `lineitems`\nWHERE lineitems.orderId = :orderId\nORDER BY `lineitems`.`id`. Bound with :orderId=\'1642\')");
+	console.log("[08:45:23.067][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT `lineitems`.`id`, `lineitems`.`orderId`, `lineitems`.`purchasableId`, `lineitems`.`options`, `lineitems`.`optionsSignature`, `lineitems`.`price`, `lineitems`.`saleAmount`, `lineitems`.`salePrice`, `lineitems`.`tax`, `lineitems`.`taxIncluded`, `lineitems`.`shippingCost`, `lineitems`.`discount`, `lineitems`.`weight`, `lineitems`.`height`, `lineitems`.`length`, `lineitems`.`width`, `lineitems`.`total`, `lineitems`.`qty`, `lineitems`.`note`, `lineitems`.`snapshot`, `lineitems`.`taxCategoryId`\nFROM `craft_commerce_lineitems` `lineitems`\nWHERE lineitems.orderId = :orderId\nORDER BY `lineitems`.`id`. Bound with :orderId=\'1642\')");
+	console.log("[08:45:23.071][trace][system.db.CDbCommand]\nQuerying SQL: SELECT `handle`, `context`\nFROM `craft_fields`\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/FieldsService.php (395)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/FieldsService.php (355)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/models/BaseElementModel.php (1125)");
+	console.log("[08:45:23.071][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT `handle`, `context`\nFROM `craft_fields`)");
+	console.log("[08:45:23.071][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT `handle`, `context`\nFROM `craft_fields`)");
+	console.log("[08:45:23.074][trace][system.CModule]\nLoading \"commerce_paymentMethods\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (623)\nin /Users/lh/Code/Projects/Commerce/commerce/variables/CommerceVariable.php (125)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/vendor/twig/twig/lib/Twig/Template.php (609)");
+	console.log("[08:45:23.081][trace][system.db.ar.CActiveRecord]\nCraft\\Commerce_PaymentMethodRecord.findAll()\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_PaymentMethodsService.php (42)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_PaymentMethodsService.php (58)\nin /Users/lh/Code/Projects/Commerce/commerce/variables/CommerceVariable.php (125)");
+	console.log("[08:45:23.082][trace][system.db.CDbCommand]\nQuerying SQL: SHOW FULL COLUMNS FROM `craft_commerce_paymentmethods`\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_PaymentMethodsService.php (42)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_PaymentMethodsService.php (58)\nin /Users/lh/Code/Projects/Commerce/commerce/variables/CommerceVariable.php (125)");
+	console.log("[08:45:23.082][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SHOW FULL COLUMNS FROM `craft_commerce_paymentmethods`)");
+	console.log("[08:45:23.083][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SHOW FULL COLUMNS FROM `craft_commerce_paymentmethods`)");
+	console.log("[08:45:23.085][trace][system.db.CDbCommand]\nQuerying SQL: SHOW CREATE TABLE `craft_commerce_paymentmethods`\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_PaymentMethodsService.php (42)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_PaymentMethodsService.php (58)\nin /Users/lh/Code/Projects/Commerce/commerce/variables/CommerceVariable.php (125)");
+	console.log("[08:45:23.085][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SHOW CREATE TABLE `craft_commerce_paymentmethods`)");
+	console.log("[08:45:23.085][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SHOW CREATE TABLE `craft_commerce_paymentmethods`)");
+	console.log("[08:45:23.085][trace][system.db.CDbCommand]\nQuerying SQL: SELECT * FROM `craft_commerce_paymentmethods` `t` WHERE (frontEndEnabled=:xFrontEndEnabled) AND (isArchived=:xIsArchived) ORDER BY sortOrder. Bound with :xFrontEndEnabled=true, :xIsArchived=false\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_PaymentMethodsService.php (42)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_PaymentMethodsService.php (58)\nin /Users/lh/Code/Projects/Commerce/commerce/variables/CommerceVariable.php (125)");
+	console.log("[08:45:23.085][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT * FROM `craft_commerce_paymentmethods` `t` WHERE (frontEndEnabled=:xFrontEndEnabled) AND (isArchived=:xIsArchived) ORDER BY sortOrder. Bound with :xFrontEndEnabled=true, :xIsArchived=false)");
+	console.log("[08:45:23.085][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT * FROM `craft_commerce_paymentmethods` `t` WHERE (frontEndEnabled=:xFrontEndEnabled) AND (isArchived=:xIsArchived) ORDER BY sortOrder. Bound with :xFrontEndEnabled=true, :xIsArchived=false)");
+	console.log("[08:45:23.092][trace][system.db.ar.CActiveRecord]\nCraft\\Commerce_PaymentMethodRecord.findAll()\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_PaymentMethodsService.php (42)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_PaymentMethodsService.php (58)\nin /Users/lh/Code/Projects/Commerce/commerce/variables/CommerceVariable.php (125)");
+	console.log("[08:45:23.092][trace][system.db.CDbCommand]\nQuerying SQL: SELECT * FROM `craft_commerce_paymentmethods` `t` WHERE (frontEndEnabled=:xFrontEndEnabled) AND (isArchived=:xIsArchived) ORDER BY sortOrder. Bound with :xFrontEndEnabled=true, :xIsArchived=false\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_PaymentMethodsService.php (42)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_PaymentMethodsService.php (58)\nin /Users/lh/Code/Projects/Commerce/commerce/variables/CommerceVariable.php (125)");
+	console.log("[08:45:23.092][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT * FROM `craft_commerce_paymentmethods` `t` WHERE (frontEndEnabled=:xFrontEndEnabled) AND (isArchived=:xIsArchived) ORDER BY sortOrder. Bound with :xFrontEndEnabled=true, :xIsArchived=false)");
+	console.log("[08:45:23.093][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT * FROM `craft_commerce_paymentmethods` `t` WHERE (frontEndEnabled=:xFrontEndEnabled) AND (isArchived=:xIsArchived) ORDER BY sortOrder. Bound with :xFrontEndEnabled=true, :xIsArchived=false)");
+	console.log("[08:45:23.095][trace][system.db.ar.CActiveRecord]\nCraft\\Commerce_PaymentMethodRecord.findAll()\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_PaymentMethodsService.php (42)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_PaymentMethodsService.php (58)\nin /Users/lh/Code/Projects/Commerce/commerce/variables/CommerceVariable.php (125)");
+	console.log("[08:45:23.096][trace][system.db.CDbCommand]\nQuerying SQL: SELECT * FROM `craft_commerce_paymentmethods` `t` WHERE (frontEndEnabled=:xFrontEndEnabled) AND (isArchived=:xIsArchived) ORDER BY sortOrder. Bound with :xFrontEndEnabled=true, :xIsArchived=false\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_PaymentMethodsService.php (42)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_PaymentMethodsService.php (58)\nin /Users/lh/Code/Projects/Commerce/commerce/variables/CommerceVariable.php (125)");
+	console.log("[08:45:23.096][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT * FROM `craft_commerce_paymentmethods` `t` WHERE (frontEndEnabled=:xFrontEndEnabled) AND (isArchived=:xIsArchived) ORDER BY sortOrder. Bound with :xFrontEndEnabled=true, :xIsArchived=false)");
+	console.log("[08:45:23.096][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT * FROM `craft_commerce_paymentmethods` `t` WHERE (frontEndEnabled=:xFrontEndEnabled) AND (isArchived=:xIsArchived) ORDER BY sortOrder. Bound with :xFrontEndEnabled=true, :xIsArchived=false)");
+	console.log("[08:45:23.098][trace][system.db.ar.CActiveRecord]\nCraft\\Commerce_PaymentMethodRecord.findByPk()\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/records/BaseRecord.php (423)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_PaymentMethodsService.php (25)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_OrderModel.php (529)");
+	console.log("[08:45:23.099][trace][system.db.CDbCommand]\nQuerying SQL: SELECT * FROM `craft_commerce_paymentmethods` `t` WHERE `t`.`id`=1 LIMIT 1\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/records/BaseRecord.php (423)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_PaymentMethodsService.php (25)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_OrderModel.php (529)");
+	console.log("[08:45:23.099][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT * FROM `craft_commerce_paymentmethods` `t` WHERE `t`.`id`=1 LIMIT 1)");
+	console.log("[08:45:23.099][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT * FROM `craft_commerce_paymentmethods` `t` WHERE `t`.`id`=1 LIMIT 1)");
+	console.log("[08:45:23.100][trace][system.db.ar.CActiveRecord]\nCraft\\Commerce_PaymentMethodRecord.findByPk()\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/records/BaseRecord.php (423)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_PaymentMethodsService.php (25)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_OrderModel.php (529)");
+	console.log("[08:45:23.100][trace][system.db.CDbCommand]\nQuerying SQL: SELECT * FROM `craft_commerce_paymentmethods` `t` WHERE `t`.`id`=1 LIMIT 1\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/records/BaseRecord.php (423)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_PaymentMethodsService.php (25)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_OrderModel.php (529)");
+	console.log("[08:45:23.100][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT * FROM `craft_commerce_paymentmethods` `t` WHERE `t`.`id`=1 LIMIT 1)");
+	console.log("[08:45:23.101][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT * FROM `craft_commerce_paymentmethods` `t` WHERE `t`.`id`=1 LIMIT 1)");
+	console.log("[08:45:23.102][trace][system.db.ar.CActiveRecord]\nCraft\\Commerce_PaymentMethodRecord.findByPk()\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/records/BaseRecord.php (423)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_PaymentMethodsService.php (25)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_OrderModel.php (529)");
+	console.log("[08:45:23.102][trace][system.db.CDbCommand]\nQuerying SQL: SELECT * FROM `craft_commerce_paymentmethods` `t` WHERE `t`.`id`=1 LIMIT 1\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/records/BaseRecord.php (423)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_PaymentMethodsService.php (25)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_OrderModel.php (529)");
+	console.log("[08:45:23.102][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT * FROM `craft_commerce_paymentmethods` `t` WHERE `t`.`id`=1 LIMIT 1)");
+	console.log("[08:45:23.102][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT * FROM `craft_commerce_paymentmethods` `t` WHERE `t`.`id`=1 LIMIT 1)");
+	console.log("[08:45:23.103][trace][system.db.ar.CActiveRecord]\nCraft\\Commerce_PaymentMethodRecord.findByPk()\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/records/BaseRecord.php (423)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_PaymentMethodsService.php (25)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_OrderModel.php (529)");
+	console.log("[08:45:23.104][trace][system.db.CDbCommand]\nQuerying SQL: SELECT * FROM `craft_commerce_paymentmethods` `t` WHERE `t`.`id`=1 LIMIT 1\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/records/BaseRecord.php (423)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_PaymentMethodsService.php (25)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_OrderModel.php (529)");
+	console.log("[08:45:23.104][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT * FROM `craft_commerce_paymentmethods` `t` WHERE `t`.`id`=1 LIMIT 1)");
+	console.log("[08:45:23.104][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT * FROM `craft_commerce_paymentmethods` `t` WHERE `t`.`id`=1 LIMIT 1)");
+	console.log("[08:45:23.105][trace][system.db.ar.CActiveRecord]\nCraft\\Commerce_PaymentMethodRecord.findByPk()\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/records/BaseRecord.php (423)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_PaymentMethodsService.php (25)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_OrderModel.php (529)");
+	console.log("[08:45:23.105][trace][system.db.CDbCommand]\nQuerying SQL: SELECT * FROM `craft_commerce_paymentmethods` `t` WHERE `t`.`id`=1 LIMIT 1\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/records/BaseRecord.php (423)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_PaymentMethodsService.php (25)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_OrderModel.php (529)");
+	console.log("[08:45:23.105][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT * FROM `craft_commerce_paymentmethods` `t` WHERE `t`.`id`=1 LIMIT 1)");
+	console.log("[08:45:23.106][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT * FROM `craft_commerce_paymentmethods` `t` WHERE `t`.`id`=1 LIMIT 1)");
+	console.log("[08:45:23.107][trace][system.db.ar.CActiveRecord]\nCraft\\Commerce_PaymentMethodRecord.findByPk()\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/records/BaseRecord.php (423)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_PaymentMethodsService.php (25)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_OrderModel.php (529)");
+	console.log("[08:45:23.107][trace][system.db.CDbCommand]\nQuerying SQL: SELECT * FROM `craft_commerce_paymentmethods` `t` WHERE `t`.`id`=1 LIMIT 1\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/records/BaseRecord.php (423)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_PaymentMethodsService.php (25)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_OrderModel.php (529)");
+	console.log("[08:45:23.107][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT * FROM `craft_commerce_paymentmethods` `t` WHERE `t`.`id`=1 LIMIT 1)");
+	console.log("[08:45:23.107][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT * FROM `craft_commerce_paymentmethods` `t` WHERE `t`.`id`=1 LIMIT 1)");
+	console.log("[08:45:23.108][trace][system.CModule]\nLoading \"commerce_gateways\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (623)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_PaymentMethodModel.php (124)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_PaymentMethodModel.php (87)");
+	console.log("[08:45:23.119][trace][system.CModule]\nLoading \"commerce_addresses\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (623)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_OrderModel.php (483)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/models/BaseModel.php (153)");
+	console.log("[08:45:23.120][trace][system.db.ar.CActiveRecord]\nCraft\\Commerce_AddressRecord.findByPk()\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/records/BaseRecord.php (423)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_AddressesService.php (23)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_OrderModel.php (483)");
+	console.log("[08:45:23.120][trace][system.db.CDbCommand]\nQuerying SQL: SHOW FULL COLUMNS FROM `craft_commerce_addresses`\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/records/BaseRecord.php (423)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_AddressesService.php (23)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_OrderModel.php (483)");
+	console.log("[08:45:23.120][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SHOW FULL COLUMNS FROM `craft_commerce_addresses`)");
+	console.log("[08:45:23.122][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SHOW FULL COLUMNS FROM `craft_commerce_addresses`)");
+	console.log("[08:45:23.122][trace][system.db.CDbCommand]\nQuerying SQL: SHOW CREATE TABLE `craft_commerce_addresses`\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/records/BaseRecord.php (423)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_AddressesService.php (23)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_OrderModel.php (483)");
+	console.log("[08:45:23.123][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SHOW CREATE TABLE `craft_commerce_addresses`)");
+	console.log("[08:45:23.123][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SHOW CREATE TABLE `craft_commerce_addresses`)");
+	console.log("[08:45:23.123][trace][system.db.CDbCommand]\nQuerying SQL: SELECT * FROM `craft_commerce_addresses` `t` WHERE `t`.`id`=9 LIMIT 1\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/records/BaseRecord.php (423)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_AddressesService.php (23)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_OrderModel.php (483)");
+	console.log("[08:45:23.123][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT * FROM `craft_commerce_addresses` `t` WHERE `t`.`id`=9 LIMIT 1)");
+	console.log("[08:45:23.123][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT * FROM `craft_commerce_addresses` `t` WHERE `t`.`id`=9 LIMIT 1)");
+	console.log("[08:45:23.128][trace][system.CModule]\nLoading \"commerce_orderAdjustments\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (623)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_OrderModel.php (451)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/models/BaseModel.php (153)");
+	console.log("[08:45:23.129][trace][system.db.CDbCommand]\nQuerying SQL: SELECT `oa`.`id`, `oa`.`type`, `oa`.`name`, `oa`.`description`, `oa`.`amount`, `oa`.`optionsJson`, `oa`.`orderId`\nFROM `craft_commerce_orderadjustments` `oa`\nWHERE oa.orderId = :orderId\nORDER BY `type`. Bound with :orderId=\'1642\'\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_OrderAdjustmentsService.php (25)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_OrderModel.php (451)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/models/BaseModel.php (153)");
+	console.log("[08:45:23.129][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT `oa`.`id`, `oa`.`type`, `oa`.`name`, `oa`.`description`, `oa`.`amount`, `oa`.`optionsJson`, `oa`.`orderId`\nFROM `craft_commerce_orderadjustments` `oa`\nWHERE oa.orderId = :orderId\nORDER BY `type`. Bound with :orderId=\'1642\')");
+	console.log("[08:45:23.129][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT `oa`.`id`, `oa`.`type`, `oa`.`name`, `oa`.`description`, `oa`.`amount`, `oa`.`optionsJson`, `oa`.`orderId`\nFROM `craft_commerce_orderadjustments` `oa`\nWHERE oa.orderId = :orderId\nORDER BY `type`. Bound with :orderId=\'1642\')");
+	console.log("[08:45:23.130][trace][system.CModule]\nLoading \"commerce_shippingMethods\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (623)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_OrderModel.php (521)\nin /Users/lh/Code/Projects/Commerce/commerce/models/Commerce_OrderModel.php (101)");
+	console.log("[08:45:23.131][trace][system.db.ar.CActiveRecord]\nCraft\\Commerce_ShippingMethodRecord.findAll()\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_ShippingMethodsService.php (89)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_ShippingMethodsService.php (66)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_ShippingMethodsService.php (47)");
+	console.log("[08:45:23.131][trace][system.db.CDbCommand]\nQuerying SQL: SHOW FULL COLUMNS FROM `craft_commerce_shippingmethods`\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_ShippingMethodsService.php (89)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_ShippingMethodsService.php (66)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_ShippingMethodsService.php (47)");
+	console.log("[08:45:23.131][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SHOW FULL COLUMNS FROM `craft_commerce_shippingmethods`)");
+	console.log("[08:45:23.132][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SHOW FULL COLUMNS FROM `craft_commerce_shippingmethods`)");
+	console.log("[08:45:23.133][trace][system.db.CDbCommand]\nQuerying SQL: SHOW CREATE TABLE `craft_commerce_shippingmethods`\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_ShippingMethodsService.php (89)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_ShippingMethodsService.php (66)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_ShippingMethodsService.php (47)");
+	console.log("[08:45:23.133][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SHOW CREATE TABLE `craft_commerce_shippingmethods`)");
+	console.log("[08:45:23.133][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SHOW CREATE TABLE `craft_commerce_shippingmethods`)");
+	console.log("[08:45:23.133][trace][system.db.CDbCommand]\nQuerying SQL: SELECT * FROM `craft_commerce_shippingmethods` `t`\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_ShippingMethodsService.php (89)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_ShippingMethodsService.php (66)\nin /Users/lh/Code/Projects/Commerce/commerce/services/Commerce_ShippingMethodsService.php (47)");
+	console.log("[08:45:23.133][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT * FROM `craft_commerce_shippingmethods` `t`)");
+	console.log("[08:45:23.133][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT * FROM `craft_commerce_shippingmethods` `t`)");
+	console.log("[08:45:23.149][trace][system.caching.Craft\\FileCache]\nServing \"useWriteFileLock\" from cache\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CacheService.php (170)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/logging/FileLogRoute.php (86)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/controllers/BaseController.php (145)");
+	console.groupEnd();
+
+	console.groupEnd();
+}
+/*]]&gt;*/
+</script>
+<script type="text/javascript">
+/*&lt;![CDATA[*/
+if (typeof(console) == 'object' &amp;&amp; typeof console.groupCollapsed == 'function')
+{
+	console.groupCollapsed("Profiling Summary Report");
+	console.log("Time:   0.32908s\n");
+	console.log("Memory: 16,759Kb\n");
+	console.log("Total Queries: 24\n");
+	console.log(" count   total   average    min      max   ");
+
+		console.log("     1  0.00274  0.00274  0.00274  0.00274    system.db.CDbCommand.query(SELECT `elements`.`id`, `elements`.`type`, `elements`.`enabled`, `elements`.`archived`, `elements`.`dateCreated`, `elements`.`dateUpdated`, `elements_i18n`.`slug`, `elements_i18n`.`uri`, `elements_i18n`.`enabled` AS `localeEnabled`, `content`.`id` AS `contentId`, `content`.`field_bodyText`, `content`.`field_callOutHeading`, `content`.`field_callOutNumber`, `content`.`field_contactInfo`, `content`.`field_customerReference`, `content`.`field_description`, `content`.`field_followLinks`, `content`.`field_pegboardSpecs`, `content`.`field_plainText`, `content`.`field_previewCaption`, `content`.`field_richText`, `content`.`field_showColors`, `content`.`field_sinkSpecs`, `content`.`field_subtitle`, `globalsets`.`name`, `globalsets`.`handle`, `globalsets`.`fieldLayoutId`\nFROM `craft_elements` `elements`\nJOIN `craft_elements_i18n` `elements_i18n` ON elements_i18n.elementId = elements.id\nJOIN `craft_content` `content` ON content.elementId = elements.id\nJOIN `craft_globalsets` `globalsets` ON globalsets.id = elements.id\nWHERE ((((elements_i18n.locale = :locale) AND (content.locale = :locale)) AND (elements.archived = 0)) AND (elements.enabled = 1)) AND (elements_i18n.enabled = 1)\nGROUP BY `elements`.`id`\nORDER BY `name` LIMIT 100. Bound with :locale=\'en_us\')");
+	console.log("     1  0.00172  0.00172  0.00172  0.00172    system.db.CDbCommand.query(SHOW FULL COLUMNS FROM `craft_commerce_addresses`)");
+	console.log("     1  0.00139  0.00139  0.00139  0.00139    system.db.CDbCommand.query(SHOW FULL COLUMNS FROM `craft_commerce_paymentmethods`)");
+	console.log("     1  0.00135  0.00135  0.00135  0.00135    system.db.CDbCommand.query(SELECT `elements`.`id`, `elements`.`type`, `elements`.`enabled`, `elements`.`archived`, `elements`.`dateCreated`, `elements`.`dateUpdated`, `elements_i18n`.`slug`, `elements_i18n`.`uri`, `elements_i18n`.`enabled` AS `localeEnabled`, `content`.`id` AS `contentId`, `content`.`field_bodyText`, `content`.`field_callOutHeading`, `content`.`field_callOutNumber`, `content`.`field_contactInfo`, `content`.`field_customerReference`, `content`.`field_description`, `content`.`field_followLinks`, `content`.`field_pegboardSpecs`, `content`.`field_plainText`, `content`.`field_previewCaption`, `content`.`field_richText`, `content`.`field_showColors`, `content`.`field_sinkSpecs`, `content`.`field_subtitle`, `orders`.`id`, `orders`.`number`, `orders`.`couponCode`, `orders`.`itemTotal`, `orders`.`baseDiscount`, `orders`.`baseShippingCost`, `orders`.`totalPrice`, `orders`.`totalPaid`, `orders`.`orderStatusId`, `orders`.`dateOrdered`, `orders`.`email`, `orders`.`isCompleted`, `orders`.`dateOrdered`, `orders`.`datePaid`, `orders`.`currency`, `orders`.`lastIp`, `orders`.`message`, `orders`.`returnUrl`, `orders`.`cancelUrl`, `orders`.`orderStatusId`, `orders`.`billingAddressId`, `orders`.`shippingAddressId`, `orders`.`shippingMethod`, `orders`.`paymentMethodId`, `orders`.`customerId`, `orders`.`dateUpdated`\nFROM `craft_elements` `elements`\nJOIN `craft_elements_i18n` `elements_i18n` ON elements_i18n.elementId = elements.id\nJOIN `craft_content` `content` ON content.elementId = elements.id\nJOIN `craft_commerce_orders` `orders` ON orders.id = elements.id\nWHERE (((((elements_i18n.locale = :locale) AND (content.locale = :locale)) AND (elements.archived = 0)) AND (elements.enabled = 1)) AND (elements_i18n.enabled = 1)) AND (orders.number=:ordersnumber1)\nGROUP BY `elements`.`id`\nORDER BY `elements`.`dateCreated` DESC LIMIT 1. Bound with :locale=\'en_us\', :ordersnumber1=\'0324a4c61d0d5e378dc642b45ebd64bf\')");
+	console.log("     1  0.00126  0.00126  0.00126  0.00126    system.db.CDbCommand.query(SHOW FULL COLUMNS FROM `craft_commerce_shippingmethods`)");
+	console.log("     6  0.00115  0.00019  0.00015  0.00022    system.db.CDbCommand.query(SELECT * FROM `craft_commerce_paymentmethods` `t` WHERE `t`.`id`=1 LIMIT 1)");
+	console.log("     3  0.00089  0.00030  0.00027  0.00035    system.db.CDbCommand.query(SELECT * FROM `craft_commerce_paymentmethods` `t` WHERE (frontEndEnabled=:xFrontEndEnabled) AND (isArchived=:xIsArchived) ORDER BY sortOrder. Bound with :xFrontEndEnabled=true, :xIsArchived=false)");
+	console.log("     1  0.00074  0.00074  0.00074  0.00074    system.db.CDbCommand.query(SELECT `f`.`id`, `f`.`groupId`, `f`.`name`, `f`.`handle`, `f`.`context`, `f`.`instructions`, `f`.`translatable`, `f`.`type`, `f`.`settings`\nFROM `craft_fields` `f`\nWHERE `f`.`context` IN (\'global\')\nORDER BY `f`.`name`)");
+	console.log("     1  0.00056  0.00056  0.00056  0.00056    system.db.CDbCommand.query(SHOW TABLES LIKE \'craft_%\')");
+	console.log("     1  0.00054  0.00054  0.00054  0.00054    system.db.CDbCommand.query(SELECT `orders`.`id`, `orders`.`number`, `orders`.`orderStatusId`, `orders`.`billingAddressId`, `orders`.`shippingAddressId`, `orders`.`customerId`, `orders`.`couponCode`, `orders`.`itemTotal`, `orders`.`baseDiscount`, `orders`.`baseShippingCost`, `orders`.`totalPrice`, `orders`.`totalPaid`, `orders`.`email`, `orders`.`dateOrdered`, `orders`.`datePaid`, `orders`.`currency`, `orders`.`lastIp`, `orders`.`message`, `orders`.`returnUrl`, `orders`.`cancelUrl`, `orders`.`shippingMethod`, `orders`.`paymentMethodId`\nFROM `craft_commerce_orders` `orders`\nWHERE orders.number = :number AND dateOrdered IS NULL. Bound with :number=\'0324a4c61d0d5e378dc642b45ebd64bf\')");
+	console.log("     1  0.00045  0.00045  0.00045  0.00045    system.db.CDbCommand.query(SELECT `handle`, `context`\nFROM `craft_fields`)");
+	console.log("     1  0.00038  0.00038  0.00038  0.00038    system.db.CDbCommand.query(SELECT `elements`.`id`, `elements`.`type`\nFROM `craft_elements` `elements`\nJOIN `craft_elements_i18n` `elements_i18n` ON elements_i18n.elementId = elements.id\nWHERE (elements_i18n.uri = :uri) AND (elements_i18n.locale = :locale) AND (elements_i18n.enabled = 1) AND (elements.enabled = 1) AND (elements.archived = 0). Bound with :uri=\'commerce/checkout/payment\', :locale=\'en_us\')");
+	console.log("     1  0.00034  0.00034  0.00034  0.00034    system.db.CDbCommand.query(SELECT *\nFROM `craft_plugins`\nWHERE enabled=1)");
+	console.log("     1  0.00029  0.00029  0.00029  0.00029    system.db.CDbCommand.query(SELECT `oa`.`id`, `oa`.`type`, `oa`.`name`, `oa`.`description`, `oa`.`amount`, `oa`.`optionsJson`, `oa`.`orderId`\nFROM `craft_commerce_orderadjustments` `oa`\nWHERE oa.orderId = :orderId\nORDER BY `type`. Bound with :orderId=\'1642\')");
+	console.log("     1  0.00027  0.00027  0.00027  0.00027    system.db.CDbCommand.query(SELECT `urlPattern`, `template`\nFROM `craft_routes`\nWHERE (locale is null) OR (locale = :locale)\nORDER BY `sortOrder`. Bound with :locale=\'en_us\')");
+	console.log("     1  0.00026  0.00026  0.00026  0.00026    system.db.CDbCommand.query(SELECT `lineitems`.`id`, `lineitems`.`orderId`, `lineitems`.`purchasableId`, `lineitems`.`options`, `lineitems`.`optionsSignature`, `lineitems`.`price`, `lineitems`.`saleAmount`, `lineitems`.`salePrice`, `lineitems`.`tax`, `lineitems`.`taxIncluded`, `lineitems`.`shippingCost`, `lineitems`.`discount`, `lineitems`.`weight`, `lineitems`.`height`, `lineitems`.`length`, `lineitems`.`width`, `lineitems`.`total`, `lineitems`.`qty`, `lineitems`.`note`, `lineitems`.`snapshot`, `lineitems`.`taxCategoryId`\nFROM `craft_commerce_lineitems` `lineitems`\nWHERE lineitems.orderId = :orderId\nORDER BY `lineitems`.`id`. Bound with :orderId=\'1642\')");
+	console.log("     1  0.00023  0.00023  0.00023  0.00023    system.db.CDbCommand.query(SELECT `customers`.`id`, `customers`.`userId`, `customers`.`email`, `customers`.`lastUsedBillingAddressId`, `customers`.`lastUsedShippingAddressId`\nFROM `craft_commerce_customers` `customers`\nWHERE customers.id = :xid\nORDER BY `id`. Bound with :xid=\'7\')");
+	console.log("     1  0.00023  0.00023  0.00023  0.00023    system.db.CDbCommand.query(SELECT *\nFROM `craft_info` LIMIT 1)");
+	console.log("     1  0.00021  0.00021  0.00021  0.00021    system.db.CDbCommand.query(SELECT * FROM `craft_commerce_addresses` `t` WHERE `t`.`id`=9 LIMIT 1)");
+	console.log("     1  0.00019  0.00019  0.00019  0.00019    system.db.CDbCommand.query(SELECT `locale`\nFROM `craft_locales`\nORDER BY `sortOrder`)");
+	console.log("     1  0.00017  0.00017  0.00017  0.00017    system.db.CDbCommand.query(SHOW CREATE TABLE `craft_commerce_paymentmethods`)");
+	console.log("     1  0.00017  0.00017  0.00017  0.00017    system.db.CDbCommand.query(SELECT * FROM `craft_commerce_shippingmethods` `t`)");
+	console.log("     1  0.00015  0.00015  0.00015  0.00015    system.db.CDbCommand.query(SHOW CREATE TABLE `craft_commerce_addresses`)");
+	console.log("     1  0.00015  0.00015  0.00015  0.00015    system.db.CDbCommand.query(SHOW CREATE TABLE `craft_commerce_shippingmethods`)");
+
+	console.groupEnd();
+}
+/*]]&gt;*/
+</script>
+</body><canvas id="fxdriver-screenshot-canvas" style="display: none;" width="1280" height="961"></canvas></html>

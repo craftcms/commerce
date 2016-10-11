@@ -5,6 +5,8 @@ namespace Craft;
  * Address record.
  *
  * @property int $id
+ * @property string $attention
+ * @property string $title
  * @property string $firstName
  * @property string $lastName
  * @property string $address1
@@ -15,6 +17,7 @@ namespace Craft;
  * @property string $alternativePhone
  * @property string $businessName
  * @property string $businessTaxId
+ * @property string $businessId
  * @property string $stateName
  * @property int $countryId
  * @property int $stateId
@@ -70,19 +73,28 @@ class Commerce_AddressRecord extends BaseRecord
     protected function defineAttributes()
     {
         return [
-            'firstName' => [AttributeType::String, 'required' => true],
-            'lastName' => [AttributeType::String, 'required' => true],
-            'countryId' => AttributeType::Number,
-            'stateId' => AttributeType::Number,
-            'address1' => AttributeType::String,
-            'address2' => AttributeType::String,
-            'city' => AttributeType::String,
-            'zipCode' => AttributeType::String,
-            'phone' => AttributeType::String,
+            'attention'        => AttributeType::String,
+            'title'            => AttributeType::String,
+            'firstName'        => [
+                AttributeType::String,
+                'required' => true
+            ],
+            'lastName'         => [
+                AttributeType::String,
+                'required' => true
+            ],
+            'countryId'        => AttributeType::Number,
+            'stateId'          => AttributeType::Number,
+            'address1'         => AttributeType::String,
+            'address2'         => AttributeType::String,
+            'city'             => AttributeType::String,
+            'zipCode'          => AttributeType::String,
+            'phone'            => AttributeType::String,
             'alternativePhone' => AttributeType::String,
-            'businessName' => AttributeType::String,
-            'businessTaxId' => AttributeType::String,
-            'stateName' => AttributeType::String,
+            'businessName'     => AttributeType::String,
+            'businessTaxId'    => AttributeType::String,
+            'businessId'       => AttributeType::String,
+            'stateName'        => AttributeType::String,
         ];
     }
 }

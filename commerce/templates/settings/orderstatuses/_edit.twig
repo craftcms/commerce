@@ -13,7 +13,11 @@
 {% block content %}
     <input type="hidden" name="action" value="commerce/orderStatuses/save">
     <input type="hidden" name="redirect" value="commerce/settings/orderstatuses">
-    {% if orderStatus.id %}<input type="hidden" name="orderStatusId" value="{{ orderStatus.id }}">{% endif %}
+
+    {% if orderStatus.id %}
+        <input type="hidden" name="sortOrder" value="{{ orderStatus.sortOrder }}">
+        <input type="hidden" name="orderStatusId" value="{{ orderStatus.id }}">
+	{% endif %}
 
     {{ forms.textField({
         label: "Name"|t,

@@ -105,13 +105,19 @@ class Commerce_SalesController extends Commerce_BaseCpController
             'id',
             'name',
             'description',
-            'dateFrom',
-            'dateTo',
             'discountType',
             'enabled'
         ];
         foreach ($fields as $field) {
             $sale->$field = craft()->request->getPost($field);
+        }
+
+        $dateFields = [
+            'dateFrom',
+            'dateTo'
+        ];
+        foreach ($dateFields as $field) {
+            $sale->$field = (($date = craft()->request->getPost($field)) ? DateTime::createFromString($date, craft()->timezone) : null);
         }
 
         $discountAmount = craft()->request->getPost('discountAmount');

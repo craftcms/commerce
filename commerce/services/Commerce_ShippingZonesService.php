@@ -15,245 +15,224 @@ use Commerce\Helpers\CommerceDbHelper;
  */
 class Commerce_ShippingZonesService extends BaseApplicationComponent
 {
-	/*
-	 * @var
-	 */
-	private $_countriesByShippingZoneId;
+    /*
+     * @var
+     */
+    private $_countriesByShippingZoneId;
 
-	/*
-	 * @var
-	 */
-	private $_statesByShippingZoneId;
+    /*
+     * @var
+     */
+    private $_statesByShippingZoneId;
 
-	/**
-	 * @param bool $withRelations
-	 *
-	 * @return Commerce_ShippingZoneModel[]
-	 */
-	public function getAllShippingZones($withRelations = true)
-	{
-		$with = $withRelations ? [
-			'countries',
-			'states',
-			'states.country'
-		] : [];
-		$records = Commerce_ShippingZoneRecord::model()->with($with)->findAll(['order' => 't.name']);
+    /**
+     * @param bool $withRelations
+     *
+     * @return Commerce_ShippingZoneModel[]
+     */
+    public function getAllShippingZones($withRelations = true)
+    {
+        $with = $withRelations ? [
+            'countries',
+            'states',
+            'states.country'
+        ] : [];
+        $records = Commerce_ShippingZoneRecord::model()->with($with)->findAll(['order' => 't.name']);
 
-		return Commerce_ShippingZoneModel::populateModels($records);
-	}
+        return Commerce_ShippingZoneModel::populateModels($records);
+    }
 
-	/**
-	 * @param int $id
-	 *
-	 * @return Commerce_ShippingZoneModel|null
-	 */
-	public function getShippingZoneById($id)
-	{
-		$result = Commerce_ShippingZoneRecord::model()->findById($id);
+    /**
+     * @param int $id
+     *
+     * @return Commerce_ShippingZoneModel|null
+     */
+    public function getShippingZoneById($id)
+    {
+        $result = Commerce_ShippingZoneRecord::model()->findById($id);
 
-		if ($result)
-		{
-			return Commerce_ShippingZoneModel::populateModel($result);
-		}
+        if ($result)
+        {
+            return Commerce_ShippingZoneModel::populateModel($result);
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	/**
-	 * @param Commerce_ShippingZoneModel $model
-	 * @param array                      $countryIds
-	 * @param array                      $stateIds
-	 *
-	 * @return bool
-	 * @throws \Exception
-	 */
-	public function saveShippingZone(Commerce_ShippingZoneModel $model, $countryIds, $stateIds)
-	{
-		if ($model->id)
-		{
-			$record = Commerce_ShippingZoneRecord::model()->findById($model->id);
+    /**
+     * @param Commerce_ShippingZoneModel $model
+     * @param array                      $countryIds
+     * @param array                      $stateIds
+     *
+     * @return bool
+     * @throws \Exception
+     */
+    public function saveShippingZone(Commerce_ShippingZoneModel $model, $countryIds, $stateIds)
+    {
+        if ($model->id)
+        {
+            $record = Commerce_ShippingZoneRecord::model()->findById($model->id);
 
-			if (!$record)
-			{
-				throw new Exception(Craft::t('No shipping zone exists with the ID “{id}”',
-					['id' => $model->id]));
-			}
-		}
-		else
-		{
-			$record = new Commerce_ShippingZoneRecord();
-		}
+            if (!$record)
+            {
+                throw new Exception(Craft::t('No shipping zone exists with the ID “{id}”',
+                    ['id' => $model->id]));
+            }
+        }
+        else
+        {
+            $record = new Commerce_ShippingZoneRecord();
+        }
 
-		//remembering which links should be clean
-		$deleteOldCountries = $deleteOldStates = false;
-		if ($record->id)
-		{
-			if ($record->countryBased)
-			{
-				$deleteOldCountries = true;
-			}
-			else
-			{
-				$deleteOldStates = true;
-			}
-		}
+        //setting attributes
+        $record->name = $model->name;
+        $record->description = $model->description;
+        $record->countryBased = $model->countryBased;
 
-		//setting attributes
-		$record->name = $model->name;
-		$record->description = $model->description;
-		$record->countryBased = $model->countryBased;
+        $record->validate();
+        $model->addErrors($record->getErrors());
 
-		$record->validate();
-		$model->addErrors($record->getErrors());
+        //validating given ids
+        if ($record->countryBased)
+        {
+            $criteria = new \CDbCriteria();
+            $criteria->addInCondition('id', $countryIds);
+            $exist = Commerce_CountryRecord::model()->exists($criteria);
 
-		//validating given ids
-		if ($record->countryBased)
-		{
-			$criteria = new \CDbCriteria();
-			$criteria->addInCondition('id', $countryIds);
-			$exist = Commerce_CountryRecord::model()->exists($criteria);
+            if (!$exist)
+            {
+                $model->addError('countries', 'Please select some countries');
+            }
+        }
+        else
+        {
+            $criteria = new \CDbCriteria();
+            $criteria->addInCondition('id', $stateIds);
+            $exist = Commerce_StateRecord::model()->exists($criteria);
 
-			if (!$exist)
-			{
-				$model->addError('countries', 'Please select some countries');
-			}
-		}
-		else
-		{
-			$criteria = new \CDbCriteria();
-			$criteria->addInCondition('id', $stateIds);
-			$exist = Commerce_StateRecord::model()->exists($criteria);
+            if (!$exist)
+            {
+                $model->addError('states', 'Please select some states');
+            }
+        }
 
-			if (!$exist)
-			{
-				$model->addError('states', 'Please select some states');
-			}
-		}
+        //saving
+        if (!$model->hasErrors())
+        {
+            CommerceDbHelper::beginStackedTransaction();
+            try
+            {
+                // Save it!
+                $record->save(false);
 
-		//saving
-		if (!$model->hasErrors())
-		{
-			CommerceDbHelper::beginStackedTransaction();
-			try
-			{
-				// Save it!
-				$record->save(false);
+                // Now that we have a record ID, save it on the model
+                $model->id = $record->id;
 
-				// Now that we have a record ID, save it on the model
-				$model->id = $record->id;
+                //deleting old links
+                Commerce_ShippingZoneCountryRecord::model()->deleteAllByAttributes(['shippingZoneId' => $record->id]);
+                Commerce_ShippingZoneStateRecord::model()->deleteAllByAttributes(['shippingZoneId' => $record->id]);
 
-				//deleting old links
-				if ($deleteOldCountries)
-				{
-					Commerce_ShippingZoneCountryRecord::model()->deleteAllByAttributes(['shippingZoneId' => $record->id]);
-				}
+                //saving new links
+                if ($model->countryBased)
+                {
+                    $rows = array_map(function ($id) use ($model)
+                    {
+                        return [$id, $model->id];
+                    }, $countryIds);
+                    $cols = ['countryId', 'shippingZoneId'];
+                    $table = Commerce_ShippingZoneCountryRecord::model()->getTableName();
+                }
+                else
+                {
+                    $rows = array_map(function ($id) use ($model)
+                    {
+                        return [$id, $model->id];
+                    }, $stateIds);
+                    $cols = ['stateId', 'shippingZoneId'];
+                    $table = Commerce_ShippingZoneStateRecord::model()->getTableName();
+                }
+                craft()->db->createCommand()->insertAll($table, $cols, $rows);
 
-				if ($deleteOldStates)
-				{
-					Commerce_ShippingZoneStateRecord::model()->deleteAllByAttributes(['shippingZoneId' => $record->id]);
-				}
+                CommerceDbHelper::commitStackedTransaction();
+            }
+            catch (\Exception $e)
+            {
+                CommerceDbHelper::rollbackStackedTransaction();
 
-				//saving new links
-				if ($model->countryBased)
-				{
-					$rows = array_map(function ($id) use ($model)
-					{
-						return [$id, $model->id];
-					}, $countryIds);
-					$cols = ['countryId', 'shippingZoneId'];
-					$table = Commerce_ShippingZoneCountryRecord::model()->getTableName();
-				}
-				else
-				{
-					$rows = array_map(function ($id) use ($model)
-					{
-						return [$id, $model->id];
-					}, $stateIds);
-					$cols = ['stateId', 'shippingZoneId'];
-					$table = Commerce_ShippingZoneStateRecord::model()->getTableName();
-				}
-				craft()->db->createCommand()->insertAll($table, $cols, $rows);
+                throw $e;
+            }
 
-				CommerceDbHelper::commitStackedTransaction();
-			}
-			catch (\Exception $e)
-			{
-				CommerceDbHelper::rollbackStackedTransaction();
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
 
-				throw $e;
-			}
+    /**
+     * @param int $id
+     */
+    public function deleteShippingZoneById($id)
+    {
+        Commerce_ShippingZoneRecord::model()->deleteByPk($id);
+    }
 
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
+    /**
+     * Returns all countries in a shipping zone
+     *
+     * @param $shippingZoneId
+     *
+     * @return array
+     */
+    public function getCountriesByShippingZoneId($shippingZoneId)
+    {
+        if (!isset($this->_countriesByShippingZoneId) || !array_key_exists($shippingZoneId, $this->_countriesByShippingZoneId))
+        {
 
-	/**
-	 * @param int $id
-	 */
-	public function deleteShippingZoneById($id)
-	{
-		Commerce_ShippingZoneRecord::model()->deleteByPk($id);
-	}
+            $results = Commerce_ShippingZoneCountryRecord::model()->with('country')->findAllByAttributes([
+                'shippingZoneId' => $shippingZoneId
+            ]);
 
-	/**
-	 * Returns all countries in a shipping zone
-	 *
-	 * @param $shippingZoneId
-	 *
-	 * @return array
-	 */
-	public function getCountriesByShippingZoneId($shippingZoneId)
-	{
-		if (!isset($this->_countriesByShippingZoneId) || !array_key_exists($shippingZoneId, $this->_countriesByShippingZoneId))
-		{
+            $countries = [];
 
-			$results = Commerce_ShippingZoneCountryRecord::model()->with('country')->findAllByAttributes([
-				'shippingZoneId' => $shippingZoneId
-			]);
+            foreach ($results as $result)
+            {
+                $countries[] = Commerce_CountryModel::populateModel($result->country);
+            }
 
-			$countries = [];
+            $this->_countriesByShippingZoneId[$shippingZoneId] = $countries;
+        }
 
-			foreach ($results as $result)
-			{
-				$countries[] = Commerce_CountryModel::populateModel($result->country);
-			}
+        return $this->_countriesByShippingZoneId[$shippingZoneId];
+    }
 
-			$this->_countriesByShippingZoneId[$shippingZoneId] = $countries;
-		}
+    /**
+     * Returns all states in a shipping zone
+     *
+     * @param $shippingZoneId
+     *
+     * @return array
+     */
+    public function getStatesByShippingZoneId($shippingZoneId)
+    {
+        if (!isset($this->_statesByShippingZoneId) || !array_key_exists($shippingZoneId, $this->_statesByShippingZoneId))
+        {
 
-		return $this->_countriesByShippingZoneId[$shippingZoneId];
-	}
+            $results = Commerce_ShippingZoneStateRecord::model()->with('state')->findAllByAttributes([
+                'shippingZoneId' => $shippingZoneId
+            ]);
 
-	/**
-	 * Returns all states in a shipping zone
-	 *
-	 * @param $shippingZoneId
-	 *
-	 * @return array
-	 */
-	public function getStatesByShippingZoneId($shippingZoneId)
-	{
-		if (!isset($this->_statesByShippingZoneId) || !array_key_exists($shippingZoneId, $this->_statesByShippingZoneId))
-		{
+            $states = [];
+            foreach ($results as $result)
+            {
+                $states[] = Commerce_StateModel::populateModel($result->state);
+            }
 
-			$results = Commerce_ShippingZoneStateRecord::model()->with('state')->findAllByAttributes([
-				'shippingZoneId' => $shippingZoneId
-			]);
+            $this->_statesByShippingZoneId[$shippingZoneId] = $states;
+        }
 
-			$states = [];
-			foreach ($results as $result)
-			{
-				$states[] = Commerce_StateModel::populateModel($result->state);
-			}
-
-			$this->_statesByShippingZoneId[$shippingZoneId] = $states;
-		}
-
-		return $this->_statesByShippingZoneId[$shippingZoneId];
-	}
+        return $this->_statesByShippingZoneId[$shippingZoneId];
+    }
 
 }

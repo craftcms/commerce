@@ -1,7 +1,7 @@
 {% extends "commerce/_layouts/settingscp" %}
 
 {% set crumbs = [
-{ label: "Commerce " ~ "Settings"|t, url: url('commerce/settings') },
+{ label: "Commerce Settings"|t, url: url('commerce/settings') },
 { label: "Emails"|t, url: url('commerce/settings/emails') },
 ] %}
 
@@ -36,15 +36,38 @@
         required: true,
     }) }}
 
-    {{ forms.textField({
+    {% set recipientInput %}
+        <div class="flex">
+            <div>
+                {{ forms.select({
+                    id: 'recipient-type',
+                    name: 'recipientType',
+                    options: [
+                        { label: "Send to the customer"|t, value: 'customer' },
+                        { label: "Send to custom recipients"|t, value: 'custom' }
+                    ],
+                    value: email.recipientType,
+                    toggle: true,
+                    targetPrefix: 'to-option-'
+                }) }}
+            </div>
+            <div id="to-option-custom" class="flex-grow{% if email.recipientType != 'custom' %} hidden{% endif %}">
+                {{ forms.text({
+                    id: 'to',
+                    name: 'to',
+                    value: email.to,
+                    placeholder: 'jane@acme.com, joe@acme.com'
+                }) }}
+            </div>
+        </div>
+    {% endset %}
+
+    {{ forms.field({
+        id: 'recipient-type',
         label: 'Recipient'|t,
-        instructions: 'Receiver of this email.'|t,
-        id: 'to',
-        name: 'to',
-        value: email.to,
         errors: email.getErrors('to'),
         required: true,
-    }) }}
+    }, recipientInput) }}
 
     {{ forms.textField({
         label: 'BCC’d Recipient'|t,

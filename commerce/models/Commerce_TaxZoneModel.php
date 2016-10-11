@@ -22,12 +22,37 @@ namespace Craft;
  */
 class Commerce_TaxZoneModel extends BaseModel
 {
+    /** @var Commerce_CountryModel[] $_countries */
+    private $_countries;
+
+    /** @var Commerce_CountryModel[] $_states */
+    private $_states;
+
     /**
      * @return string
      */
     public function getCpEditUrl()
     {
         return UrlHelper::getCpUrl('commerce/settings/taxzones/' . $this->id);
+    }
+
+    /**
+     * @return Commerce_TaxRateModel[]
+     */
+    public function getTaxRates()
+    {
+        $allTaxRates = craft()->commerce_taxRates->getAllTaxRates();
+        $taxRates = [];
+        /** @var Commerce_TaxRateModel $rate */
+        foreach ($allTaxRates as $rate)
+        {
+            if ($this->id == $rate->taxZoneId)
+            {
+                $taxRates[] = $rate;
+            }
+        }
+
+        return $taxRates;
     }
 
     /**
@@ -50,7 +75,24 @@ class Commerce_TaxZoneModel extends BaseModel
      */
     public function getCountries()
     {
-        return craft()->commerce_taxZones->getCountriesByTaxZoneId($this->id);
+        if (!isset($this->_countries))
+        {
+            $this->_countries = craft()->commerce_taxZones->getCountriesByTaxZoneId($this->id);;
+        }
+
+        return $this->_countries;
+    }
+
+    /**
+     * Set countries in this Tax Zone.
+     *
+     * @param Commerce_CountryModel[] $countries
+     *
+     * @return null
+     */
+    public function setCountries($countries)
+    {
+        $this->_countries = $countries;
     }
 
     /**
@@ -73,7 +115,24 @@ class Commerce_TaxZoneModel extends BaseModel
      */
     public function getStates()
     {
-        return craft()->commerce_taxZones->getStatesByTaxZoneId($this->id);
+        if (!isset($this->_states))
+        {
+            $this->_states = craft()->commerce_taxZones->getStatesByTaxZoneId($this->id);
+        }
+
+        return $this->_states;
+    }
+
+    /**
+     * Set states in this Tax Zone.
+     *
+     * @param Commerce_StateModel[] $states
+     *
+     * @return null
+     */
+    public function setStates($states)
+    {
+        $this->_states = $states;
     }
 
     /**

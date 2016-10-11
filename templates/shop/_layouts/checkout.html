@@ -1,0 +1,31 @@
+{% set showNav = false %}
+
+{% extends 'shop/_layouts/main' %}
+
+{% block header %}
+    <div id="header" class="container">
+        <div class="row">
+            <div class="twelve columns">
+                <a href="{{ url('shop') }}">{%- include "shop/_images/logo" with {'class': 'logo'} -%}</a>
+
+                <div class="flash">{{ craft.session.getFlash('notice') }}</div>
+                <div class="flash">{{ craft.session.getFlash('error') }}</div>
+
+                {% if cart.isEmpty %}
+                    <div class="flash">Your cart is empty.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block main %}
+
+    {% include 'shop/_includes/meter' %}
+
+    {% block content %}
+
+    {% endblock %}
+
+{% endblock %}

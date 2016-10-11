@@ -22,105 +22,145 @@ namespace Craft;
  */
 class Commerce_ShippingZoneModel extends BaseModel
 {
-	/**
-	 * @return string
-	 */
-	public function getCpEditUrl()
-	{
-		return UrlHelper::getCpUrl('commerce/settings/shippingzones/'.$this->id);
-	}
+    /** @var Commerce_CountryModel[] $_countries */
+    private $_countries;
 
-	/**
-	 * @return array
-	 */
-	public function getCountryIds()
-	{
-		$countries = [];
-		foreach ($this->getCountries() as $country)
-		{
-			$countries[] = $country->id;
-		}
+    /** @var Commerce_CountryModel[] $_states */
+    private $_states;
 
-		return $countries;
-	}
+    /**
+     * @return string
+     */
+    public function getCpEditUrl()
+    {
+        return UrlHelper::getCpUrl('commerce/settings/shippingzones/'.$this->id);
+    }
 
-	/**
-	 * All countries in this Shipping Zone.
-	 *
-	 * @return array
-	 */
-	public function getCountries()
-	{
-		return craft()->commerce_shippingZones->getCountriesByShippingZoneId($this->id);
-	}
+    /**
+     * @return array
+     */
+    public function getCountryIds()
+    {
+        $countries = [];
+        foreach ($this->getCountries() as $country)
+        {
+            $countries[] = $country->id;
+        }
 
-	/**
-	 * @return array
-	 */
-	public function getStateIds()
-	{
-		$states = [];
-		foreach ($this->getStates() as $state)
-		{
-			$states[] = $state->id;
-		}
+        return $countries;
+    }
 
-		return $states;
-	}
+    /**
+     * All countries in this Shipping Zone.
+     *
+     * @return array
+     */
+    public function getCountries()
+    {
+        if (!isset($this->_countries))
+        {
+            $this->_countries = craft()->commerce_shippingZones->getCountriesByShippingZoneId($this->id);;
+        }
 
-	/**
-	 * All states in this Shipping Zone.
-	 *
-	 * @return array
-	 */
-	public function getStates()
-	{
-		return craft()->commerce_shippingZones->getStatesByShippingZoneId($this->id);
-	}
+        return $this->_countries;
+    }
 
-	/**
-	 * The names of all countries in this Shipping Zone.
-	 *
-	 * @return array
-	 */
-	public function getCountriesNames()
-	{
-		$countries = [];
-		foreach ($this->getCountries() as $country)
-		{
-			$countries[] = $country->name;
-		}
+    /**
+     * Set countries in this Tax Zone.
+     *
+     * @param Commerce_CountryModel[] $countries
+     *
+     * @return null
+     */
+    public function setCountries($countries)
+    {
+        $this->_countries = $countries;
+    }
 
-		return $countries;
-	}
+    /**
+     * @return array
+     */
+    public function getStateIds()
+    {
+        $states = [];
+        foreach ($this->getStates() as $state)
+        {
+            $states[] = $state->id;
+        }
 
-	/**
-	 * The names of all states in this Shipping Zone.
-	 *
-	 * @return array
-	 */
-	public function getStatesNames()
-	{
-		$states = [];
-		foreach ($this->getStates() as $state)
-		{
-			$states[] = $state->formatName();
-		}
+        return $states;
+    }
 
-		return $states;
-	}
+    /**
+     * All states in this Shipping Zone.
+     *
+     * @return array
+     */
+    public function getStates()
+    {
+        if (!isset($this->_states))
+        {
+            $this->_states = craft()->commerce_shippingZones->getStatesByShippingZoneId($this->id);;
+        }
 
-	/**
-	 * @return array
-	 */
-	protected function defineAttributes()
-	{
-		return [
-			'id'           => AttributeType::Number,
-			'name'         => AttributeType::String,
-			'description'  => AttributeType::String,
-			'countryBased' => [AttributeType::Bool, 'default' => 1],
-			'default'      => [AttributeType::Bool, 'default' => 0],
-		];
-	}
+        return $this->_states;
+    }
+
+    /**
+     * Set states in this shipping Zone.
+     *
+     * @param Commerce_StateModel[] $states
+     *
+     * @return null
+     */
+    public function setStates($states)
+    {
+        $this->_states = $states;
+    }
+
+    /**
+     * The names of all countries in this Shipping Zone.
+     *
+     * @return array
+     */
+    public function getCountriesNames()
+    {
+        $countries = [];
+        foreach ($this->getCountries() as $country)
+        {
+            $countries[] = $country->name;
+        }
+
+        return $countries;
+    }
+
+    /**
+     * The names of all states in this Shipping Zone.
+     *
+     * @return array
+     */
+    public function getStatesNames()
+    {
+        $states = [];
+        foreach ($this->getStates() as $state)
+        {
+            $states[] = $state->formatName();
+        }
+
+        return $states;
+    }
+
+    /**
+     * @return array
+     */
+    protected function defineAttributes()
+    {
+        return [
+            'id'           => AttributeType::Number,
+            'name'         => AttributeType::String,
+            'description'  => AttributeType::String,
+            'countryBased' => [AttributeType::Bool, 'default' => 1],
+            'default'      => [AttributeType::Bool, 'default' => 0],
+        ];
+    }
 }

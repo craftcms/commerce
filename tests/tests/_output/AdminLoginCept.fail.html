@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en-US" xmlns="http://www.w3.org/1999/xhtml"><head>
+		<meta content="IE=edge" http-equiv="X-UA-Compatible" />
+	<meta charset="utf-8" />
+	<title>Login - Craft2x Craft</title>
+	<link href="http://craft2x.craft.dev/admin/resources/css/craft.css?d=1457451752" type="text/css" rel="stylesheet" />
+<link href="http://craft2x.craft.dev/admin/resources/commerce/commerce.css?d=1458309759" type="text/css" rel="stylesheet" />
+<link href="http://craft2x.craft.dev/admin/resources/css/login.css?d=1457451754" type="text/css" rel="stylesheet" />
+<link href="http://craft2x.craft.dev/admin/resources/lib/selectize/selectize.css?d=1457451749" type="text/css" rel="stylesheet" />
+	<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
+
+	<link href="http://craft2x.craft.dev/admin/resources/images/touch-icons/ipad_1x.png?x=JFZ5xkAMF" sizes="76x76" rel="apple-touch-icon" />
+	<link href="http://craft2x.craft.dev/admin/resources/images/touch-icons/iphone_2x.png?x=JFZ5xkAMF" sizes="120x120" rel="apple-touch-icon" />
+	<link href="http://craft2x.craft.dev/admin/resources/images/touch-icons/ipad_2x.png?x=JFZ5xkAMF" sizes="152x152" rel="apple-touch-icon" />
+	<link href="http://craft2x.craft.dev/admin/resources/images/touch-icons/ipad-pro_2x.png?x=JFZ5xkAMF" sizes="167x167" rel="apple-touch-icon" />
+	<link href="http://craft2x.craft.dev/admin/resources/images/touch-icons/iphone_3x.png?x=JFZ5xkAMF" sizes="180x180" rel="apple-touch-icon" />
+
+	<script type="text/javascript">
+		// Fix for Firefox autofocus CSS bug
+		// See: http://stackoverflow.com/questions/18943276/html-5-autofocus-messes-up-css-loading/18945951#18945951
+	</script>
+	</head>
+<body class="login ltr">
+	    <script type="text/javascript">
+		var cookieTest = 'CraftCookieTest='+Math.floor(Math.random() * 1000000);
+		document.cookie = cookieTest;
+		var cookiesEnabled = document.cookie.search(cookieTest) != -1;
+		if (cookiesEnabled)
+		{
+			document.cookie = cookieTest + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+
+			document.write(
+				''+
+				'&lt;form id="login-form" method="post" accept-charset="UTF-8" &gt;' +
+					'&lt;h1&gt;Craft2x Craft&lt;/h1&gt;'+
+					'' +
+					'\x09\x09\x09\x09\x09\x09\x3Cdiv\x20class\x3D\x22field\x22\x20id\x3D\x22loginName\x2Dfield\x22\x3E\x0A\x09\x09\x3Cdiv\x20class\x3D\x22input\x20ltr\x22\x3E\x0A\x09\x09\x09\x3Cinput\x20class\x3D\x22text\x20fullwidth\x22\x20type\x3D\x22text\x22\x20id\x3D\x22loginName\x22\x20name\x3D\x22username\x22\x20value\x3D\x22\x22\x20autocomplete\x3D\x22off\x22\x20placeholder\x3D\x22Username\x20or\x20Email\x22\x3E\x0A\x09\x3C\x2Fdiv\x3E\x0A\x09\x09\x3C\x2Fdiv\x3E\x0A\x0A' +
+
+					'&lt;div id="login-fields" class="nested-fields"&gt;' +
+						'\x09\x09\x3Cdiv\x20class\x3D\x22field\x22\x20id\x3D\x22password\x2Dfield\x22\x3E\x0A\x09\x09\x3Cdiv\x20class\x3D\x22input\x20ltr\x22\x3E\x0A\x09\x09\x09\x3Cdiv\x20class\x3D\x22passwordwrapper\x22\x3E\x3Cinput\x20class\x3D\x22text\x20password\x20fullwidth\x22\x20type\x3D\x22password\x22\x20id\x3D\x22password\x22\x20name\x3D\x22password\x22\x20autocomplete\x3D\x22off\x22\x20placeholder\x3D\x22Password\x22\x3E\x3C\x2Fdiv\x3E\x0A\x09\x3C\x2Fdiv\x3E\x0A\x09\x09\x3C\x2Fdiv\x3E\x0A\x0A' +
+						'&lt;a id="forgot-password"&gt;Forget your password?&lt;/a&gt;' +
+													'\x09\x09\x09\x3Cdiv\x20class\x3D\x22field\x20checkboxfield\x22\x20id\x3D\x22rememberMe\x2Dfield\x22\x3E\x0A\x09\x09\x09\x09\x3Cinput\x20type\x3D\x22checkbox\x22\x20value\x3D\x221\x22\x20id\x3D\x22rememberMe\x22\x09class\x3D\x22checkbox\x22\x3E\x3Clabel\x20for\x3D\x22rememberMe\x22\x3EKeep\x20me\x20logged\x20in\x3C\x2Flabel\x3E\x0A\x09\x09\x09\x09\x09\x3C\x2Fdiv\x3E\x0A\x09' +
+											'&lt;/div&gt;' +
+
+					'&lt;div class="buttons"&gt;' +
+						'' +
+						'&lt;input id="submit" class="btn submit disabled" type="submit" value="Login"&gt;' +
+						'&lt;div id="spinner" class="spinner hidden"&gt;&lt;/div&gt;' +
+					'&lt;/div&gt;' +
+					'&lt;a id="poweredby" href="http://craftcms.com/" title="Powered by Craft CMS"&gt;&lt;img src="http://craft2x.craft.dev/admin/resources/images/craftcms.svg?d=1457451749" /&gt;&lt;/a&gt;'+
+				'&lt;/form&gt;'
+			);
+
+							document.getElementById("loginName").focus();
+					}
+		else
+		{
+			document.write(
+				'&lt;div class="no-access"&gt;' +
+					'&lt;div class="pane"&gt;' +
+						'&lt;div class="pane-body"&gt;' +
+							'&lt;div class="notice"&gt;' +
+								'&lt;div class="icon"&gt;&lt;/div&gt;' +
+								'&lt;p&gt;Cookies must be enabled to access the Craft CMS control panel.&lt;br&gt;' +
+									'&lt;a class="go nowrap" href=""&gt;See how&lt;/a&gt;' +
+								'&lt;/p&gt;' +
+							'&lt;/div&gt;' +
+						'&lt;/div&gt;' +
+					'&lt;/div&gt;' +
+				'&lt;/div&gt;'
+			);
+		}
+	</script><form accept-charset="UTF-8" method="post" id="login-form"><h1>Craft2x Craft</h1>						<div id="loginName-field" class="field">
+		<div class="input ltr">
+			<input type="text" placeholder="Username or Email" autocomplete="off" value="" name="username" id="loginName" class="text fullwidth" />
+	</div>
+		</div>
+
+<div class="nested-fields" id="login-fields">		<div id="password-field" class="field">
+		<div class="input ltr">
+			<div class="passwordwrapper"><input type="password" placeholder="Password" autocomplete="off" name="password" id="password" class="text password fullwidth" /><a style="" class="password-toggle">Show</a></div>
+	</div>
+		</div>
+
+<a id="forgot-password">Forget your password?</a>			<div id="rememberMe-field" class="field checkboxfield">
+				<input type="checkbox" class="checkbox" id="rememberMe" value="1" /><label for="rememberMe">Keep me logged in</label>
+					</div>
+	</div><div class="buttons"><input type="submit" value="Login" class="btn submit active" id="submit" /><div class="spinner" id="spinner"></div></div><a title="Powered by Craft CMS" href="http://craftcms.com/" id="poweredby"><img src="http://craft2x.craft.dev/admin/resources/images/craftcms.svg?d=1457451749" /></a></form>
+	
+	<noscript>
+		&lt;div class="message-container no-access"&gt;
+			&lt;div class="pane notice"&gt;
+				&lt;p&gt;JavaScript must be enabled to access the Craft control panel.&lt;/p&gt;
+			&lt;/div&gt;
+		&lt;/div&gt;
+	</noscript>
+
+	<script type="text/javascript">
+		// Create the Craft object
+		window.Craft = {
+			siteUid:               "51f59cc8\x2D7aa9\x2D4457\x2Dba22\x2Db6e79a75733b",
+			baseUrl:               "http\x3A\x2F\x2Fcraft2x.craft.dev\x2Fadmin",
+			baseCpUrl:             "http\x3A\x2F\x2Fcraft2x.craft.dev\x2Fadmin",
+			baseSiteUrl:           "http\x3A\x2F\x2Fcraft2x.craft.dev\x2F",
+			actionUrl:             "http\x3A\x2F\x2Fcraft2x.craft.dev\x2Findex.php\x2Fadmin\x2Factions",
+			resourceUrl:           "http\x3A\x2F\x2Fcraft2x.craft.dev\x2Fadmin\x2Fresources",
+			scriptName:            "index.php",
+			omitScriptNameInUrls:  true,
+			usePathInfo:           true,
+			useCompressedJs:       false,
+			resourceTrigger:       "resources",
+			actionTrigger:         "actions",
+			path:                  "login",
+			locale:                "en_us",
+			orientation:           "ltr",
+			left:                  "left",
+			right:                 "right",
+			username:              null,
+			authTimeout:           0,
+			Personal:              0,
+			Client:                1,
+			Pro:                   2,
+			edition:               2,
+			isLocalized:           true,
+			translations:          [],
+			maxUploadSize:         16777216,
+			forceConfirmUnload:    false,
+						runTasksAutomatically: true,
+			slugWordSeparator:     "\x2D",
+			limitAutoSlugsToAscii: false,
+			fileKinds:             {"access":{"label":"Access","extensions":["adp","accdb","mdb","accde","accdt","accdr"]},"audio":{"label":"Audio","extensions":["3gp","aac","act","aif","aiff","aifc","alac","amr","au","dct","dss","dvf","flac","gsm","iklax","ivs","m4a","m4p","mmf","mp3","mpc","msv","oga","ogg","opus","ra","tta","vox","wav","wma","wv"]},"compressed":{"label":"Compressed","extensions":["bz2","tar","gz","7z","s7z","dmg","rar","zip","tgz","zipx"]},"excel":{"label":"Excel","extensions":["xls","xlsx","xlsm","xltx","xltm"]},"flash":{"label":"Flash","extensions":["fla","flv","swf","swt","swc"]},"html":{"label":"HTML","extensions":["html","htm"]},"illustrator":{"label":"Illustrator","extensions":["ai"]},"image":{"label":"Image","extensions":["jfif","jp2","jpx","jpg","jpeg","jpe","tiff","tif","png","gif","bmp","webp","ppm","pgm","pnm","pfm","pam","svg"]},"javascript":{"label":"Javascript","extensions":["js"]},"json":{"label":"JSON","extensions":["json"]},"pdf":{"label":"PDF","extensions":["pdf"]},"photoshop":{"label":"Photoshop","extensions":["psd","psb"]},"php":{"label":"PHP","extensions":["php"]},"powerpoint":{"label":"PowerPoint","extensions":["pps","ppsm","ppsx","ppt","pptm","pptx","potx"]},"text":{"label":"Text","extensions":["txt","text"]},"video":{"label":"Video","extensions":["avchd","asf","asx","avi","flv","fla","mov","m4v","mng","mpeg","mpg","m1s","mp2v","m2v","m2s","mp4","mkv","qt","flv","mp4","ogg","ogv","rm","wmv","webm","vob"]},"word":{"label":"Word","extensions":["doc","docx","dot","docm","dotm"]},"xml":{"label":"XML","extensions":["xml"]}},
+			datepickerOptions: {
+				constrainInput: false,
+				dateFormat: "m\x2Fd\x2Fyy",
+				prevText: 'Prev',
+				nextText: 'Next',
+				firstDay: 0,
+				dayNames: ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],
+				dayNamesShort: ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],
+				dayNamesMin: ["S","M","T","W","T","F","S"],
+				monthNames: ["January","February","March","April","May","June","July","August","September","October","November","December"],
+				monthNamesShort: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+			},
+			publishableSections: [
+							],
+			editableCategoryGroups: [
+																]
+		};
+
+		// Picture element HTML5 shiv
+		document.createElement('picture');
+	</script>
+<script src="http://craft2x.craft.dev/admin/resources/lib/d3/d3.js?d=1457451749" type="text/javascript"></script>
+<script src="http://craft2x.craft.dev/admin/resources/lib/xregexp-all.js?d=1457451749" type="text/javascript"></script>
+<script src="http://craft2x.craft.dev/admin/resources/lib/jquery-2.2.1.js?d=1457451749" type="text/javascript"></script>
+<script src="http://craft2x.craft.dev/admin/resources/lib/jquery-ui.js?d=1457451749" type="text/javascript"></script>
+<script src="http://craft2x.craft.dev/admin/resources/lib/velocity.js?d=1457451749" type="text/javascript"></script>
+<script src="http://craft2x.craft.dev/admin/resources/lib/selectize/selectize.js?d=1457451749" type="text/javascript"></script>
+<script src="http://craft2x.craft.dev/admin/resources/lib/fileupload/jquery.ui.widget.js?d=1457451749" type="text/javascript"></script>
+<script src="http://craft2x.craft.dev/admin/resources/lib/fileupload/jquery.fileupload.js?d=1457451749" type="text/javascript"></script>
+<script src="http://craft2x.craft.dev/admin/resources/lib/picturefill.js?d=1457451749" type="text/javascript"></script>
+<script src="http://craft2x.craft.dev/admin/resources/lib/element-resize-detector.js?d=1457451749" type="text/javascript"></script>
+<script src="http://craft2x.craft.dev/admin/resources/lib/garnish-0.1.js?d=1457451749" type="text/javascript"></script>
+<script src="http://craft2x.craft.dev/admin/resources/js/craft.js?d=1457451754" type="text/javascript"></script>
+<script src="http://craft2x.craft.dev/admin/resources/js/cp.js?d=1457451754" type="text/javascript"></script>
+<script src="http://craft2x.craft.dev/admin/resources/lib/d3-i18n/en-US.js?d=1457451749" type="text/javascript"></script>
+<script src="http://craft2x.craft.dev/admin/resources/commerce/js/Commerce.js?d=1457421060" type="text/javascript"></script>
+<script src="http://craft2x.craft.dev/admin/resources/commerce/js/CommerceProductIndex.js?d=1446779610" type="text/javascript"></script>
+<script src="http://craft2x.craft.dev/admin/resources/js/login.js?d=1457451754" type="text/javascript"></script>
+
+<script type="text/javascript">
+/*&lt;![CDATA[*/
+if (typeof(console) == 'object' &amp;&amp; typeof(console.groupCollapsed) == 'function')
+{
+	console.groupCollapsed("Application Log");
+
+		console.groupCollapsed("GET Info");
+	console.log("[14:39:13.207][info][application]\n$_GET=array (\n  \'p\' =&gt; \'admin/login\',\n)\n\n");
+	console.groupEnd();
+	console.groupCollapsed("COOKIE Info");
+	console.log("[14:39:13.207][info][application]\n$_COOKIE=array (\n  \'CraftSessionId\' =&gt; \'6859471317821eb81878e507ecb73e93\',\n)\n\n");
+	console.groupEnd();
+	console.groupCollapsed("SESSION Info");
+	console.log("[14:39:13.207][info][application]\n$_SESSION=array (\n  \'b62c44584a23647a6706aaa5282f7e48__returnUrl\' =&gt; \'\',\n)\n\n");
+	console.groupEnd();
+	console.groupCollapsed("SERVER Info");
+	console.log("[14:39:13.207][info][application]\n$_SERVER=array (\n  \'REDIRECT_STATUS\' =&gt; \'200\',\n  \'HTTP_HOST\' =&gt; \'craft2x.craft.dev\',\n  \'HTTP_USER_AGENT\' =&gt; \'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:44.0) Gecko/20100101 Firefox/44.0\',\n  \'HTTP_ACCEPT\' =&gt; \'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\',\n  \'HTTP_ACCEPT_LANGUAGE\' =&gt; \'en-US,en;q=0.5\',\n  \'HTTP_ACCEPT_ENCODING\' =&gt; \'gzip, deflate\',\n  \'HTTP_COOKIE\' =&gt; \'CraftSessionId=6859471317821eb81878e507ecb73e93\',\n  \'HTTP_CONNECTION\' =&gt; \'keep-alive\',\n  \'PATH\' =&gt; \'/usr/bin:/bin:/usr/sbin:/sbin\',\n  \'SERVER_SIGNATURE\' =&gt; \'\',\n  \'SERVER_SOFTWARE\' =&gt; \'Apache\',\n  \'SERVER_NAME\' =&gt; \'craft2x.craft.dev\',\n  \'SERVER_ADDR\' =&gt; \'::1\',\n  \'SERVER_PORT\' =&gt; \'80\',\n  \'REMOTE_ADDR\' =&gt; \'::1\',\n  \'DOCUMENT_ROOT\' =&gt; \'/Users/lh/Code/Projects/craft2x.craft.dev/public\',\n  \'SERVER_ADMIN\' =&gt; \'you@example.com\',\n  \'SCRIPT_FILENAME\' =&gt; \'/Users/lh/Code/Projects/craft2x.craft.dev/public/index.php\',\n  \'REMOTE_PORT\' =&gt; \'52102\',\n  \'REDIRECT_QUERY_STRING\' =&gt; \'p=admin/login\',\n  \'REDIRECT_URL\' =&gt; \'/admin/login\',\n  \'GATEWAY_INTERFACE\' =&gt; \'CGI/1.1\',\n  \'SERVER_PROTOCOL\' =&gt; \'HTTP/1.1\',\n  \'REQUEST_METHOD\' =&gt; \'GET\',\n  \'QUERY_STRING\' =&gt; \'p=admin/login\',\n  \'REQUEST_URI\' =&gt; \'/admin/login\',\n  \'SCRIPT_NAME\' =&gt; \'/index.php\',\n  \'PHP_SELF\' =&gt; \'/index.php\',\n  \'REQUEST_TIME_FLOAT\' =&gt; 1458311953.203999996185302734375,\n  \'REQUEST_TIME\' =&gt; 1458311953,\n  \'argv\' =&gt; \n  array (\n    0 =&gt; \'p=admin/login\',\n  ),\n  \'argc\' =&gt; 1,\n)");
+	console.groupEnd();
+	console.groupCollapsed("Logs");
+	console.log("[14:39:13.232][trace][system.CModule]\nLoading \"cache\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (166)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/bootstrap.php (189)");
+	console.log("[14:39:13.234][trace][system.CModule]\nLoading \"path\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/cache/FileCache.php (41)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CacheService.php (104)");
+	console.log("[14:39:13.235][trace][system.CModule]\nLoading \"request\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (167)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/bootstrap.php (189)");
+	console.log("[14:39:13.238][trace][system.caching.Craft\\FileCache]\nServing \"usePathInfo\" from cache\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CacheService.php (169)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/ConfigService.php (392)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/HttpRequestService.php (1135)");
+	console.log("[14:39:13.264][trace][system.CModule]\nLoading \"log\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (168)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/bootstrap.php (189)");
+	console.log("[14:39:13.267][trace][system.CModule]\nLoading \"coreMessages\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (171)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/bootstrap.php (189)");
+	console.log("[14:39:13.271][trace][system.db.CDbConnection]\nOpening DB connection\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/behaviors/AppBehavior.php (824)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (618)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/behaviors/AppBehavior.php (80)");
+	console.log("[14:39:13.277][trace][system.db.CDbCommand]\nQuerying SQL: SHOW TABLES LIKE \'craft_%\'\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/db/schemas/MysqlSchema.php (295)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/db/DbConnection.php (90)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/behaviors/AppBehavior.php (98)");
+	console.log("[14:39:13.277][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SHOW TABLES LIKE \'craft_%\')");
+	console.log("[14:39:13.278][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SHOW TABLES LIKE \'craft_%\')");
+	console.log("[14:39:13.280][trace][system.db.CDbCommand]\nQuerying SQL: SELECT *\nFROM `craft_info` LIMIT 1\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/behaviors/AppBehavior.php (492)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/behaviors/AppBehavior.php (187)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (779)");
+	console.log("[14:39:13.280][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT *\nFROM `craft_info` LIMIT 1)");
+	console.log("[14:39:13.280][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT *\nFROM `craft_info` LIMIT 1)");
+	console.log("[14:39:13.286][trace][system.CModule]\nLoading \"userSession\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (196)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/index.php (62)");
+	console.log("[14:39:13.289][trace][system.CModule]\nLoading \"security\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/CookieCollection.php (41)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/HttpRequestService.php (882)");
+	console.log("[14:39:13.290][trace][system.CModule]\nLoading \"statePersister\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/CookieCollection.php (41)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/HttpRequestService.php (882)");
+	console.log("[14:39:13.292][trace][system.caching.Craft\\FileCache]\nServing \"Yii.CStatePersister./Users/lh/Code/Projects/craft2x.craft.dev/craft/storage/runtime/state/state.bin\" from cache\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CacheService.php (169)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/CookieCollection.php (41)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/HttpRequestService.php (882)");
+	console.log("[14:39:13.292][trace][system.CModule]\nLoading \"httpSession\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (515)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/UserSessionService.php (92)");
+	console.log("[14:39:13.294][trace][system.CModule]\nLoading \"session\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/UserSessionService.php (1092)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/UserSessionService.php (376)");
+	console.log("[14:39:13.295][trace][system.caching.Craft\\FileCache]\nServing \"appPath\" from cache\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CacheService.php (169)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (896)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (241)");
+	console.log("[14:39:13.295][trace][system.CModule]\nLoading \"updates\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (244)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/index.php (62)");
+	console.log("[14:39:13.297][trace][system.CModule]\nLoading \"plugins\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (284)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/index.php (62)");
+	console.log("[14:39:13.299][trace][system.db.CDbCommand]\nQuerying SQL: SELECT *\nFROM `craft_plugins`\nWHERE enabled=1\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/PluginsService.php (104)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (284)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/index.php (62)");
+	console.log("[14:39:13.299][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT *\nFROM `craft_plugins`\nWHERE enabled=1)");
+	console.log("[14:39:13.299][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT *\nFROM `craft_plugins`\nWHERE enabled=1)");
+	console.log("[14:39:13.321][trace][system.CModule]\nLoading \"commerce_orderStatuses\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/Commerce/commerce/CommercePlugin.php (45)\nin /Users/lh/Code/Projects/Commerce/commerce/CommercePlugin.php (30)");
+	console.log("[14:39:13.321][trace][system.CModule]\nLoading \"commerce_discounts\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/Commerce/commerce/CommercePlugin.php (46)\nin /Users/lh/Code/Projects/Commerce/commerce/CommercePlugin.php (30)");
+	console.log("[14:39:13.322][trace][system.CModule]\nLoading \"commerce_variants\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/Commerce/commerce/CommercePlugin.php (47)\nin /Users/lh/Code/Projects/Commerce/commerce/CommercePlugin.php (30)");
+	console.log("[14:39:13.323][trace][system.CModule]\nLoading \"commerce_customers\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/Commerce/commerce/CommercePlugin.php (48)\nin /Users/lh/Code/Projects/Commerce/commerce/CommercePlugin.php (30)");
+	console.log("[14:39:13.324][trace][system.CModule]\nLoading \"commerce_productTypes\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/Commerce/commerce/CommercePlugin.php (49)\nin /Users/lh/Code/Projects/Commerce/commerce/CommercePlugin.php (30)");
+	console.log("[14:39:13.325][trace][system.CModule]\nLoading \"templates\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/Commerce/commerce/CommercePlugin.php (63)\nin /Users/lh/Code/Projects/Commerce/commerce/CommercePlugin.php (34)");
+	console.log("[14:39:13.327][trace][system.CModule]\nLoading \"resources\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/helpers/UrlHelper.php (271)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/TemplatesService.php (431)");
+	console.log("[14:39:13.328][trace][system.caching.Craft\\FileCache]\nServing \"resourcePath:commerce/commerce.css\" from cache\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CacheService.php (169)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/ResourcesService.php (36)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/helpers/UrlHelper.php (275)");
+	console.log("[14:39:13.329][trace][system.caching.Craft\\FileCache]\nServing \"resourcePath:commerce/js/Commerce.js\" from cache\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CacheService.php (169)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/ResourcesService.php (36)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/helpers/UrlHelper.php (275)");
+	console.log("[14:39:13.329][trace][system.caching.Craft\\FileCache]\nServing \"resourcePath:commerce/js/CommerceProductIndex.js\" from cache\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CacheService.php (169)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/ResourcesService.php (36)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/helpers/UrlHelper.php (275)");
+	console.log("[14:39:13.330][trace][system.CModule]\nLoading \"messages\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/Craft.php (382)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/TemplatesService.php (708)");
+	console.log("[14:39:13.330][trace][system.CModule]\nLoading \"i18n\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/behaviors/AppBehavior.php (737)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/behaviors/AppBehavior.php (570)");
+	console.log("[14:39:13.331][trace][system.db.CDbCommand]\nQuerying SQL: SELECT `locale`\nFROM `craft_locales`\nORDER BY `sortOrder`\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/LocalizationService.php (126)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/LocalizationService.php (173)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/behaviors/AppBehavior.php (737)");
+	console.log("[14:39:13.331][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT `locale`\nFROM `craft_locales`\nORDER BY `sortOrder`)");
+	console.log("[14:39:13.331][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT `locale`\nFROM `craft_locales`\nORDER BY `sortOrder`)");
+	console.log("[14:39:13.346][trace][system.CModule]\nLoading \"urlManager\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/controllers/BaseController.php (50)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (844)");
+	console.log("[14:39:13.378][trace][system.caching.Craft\\FileCache]\nServing \"resourcePath:css/login.css\" from cache\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CacheService.php (169)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/ResourcesService.php (36)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/helpers/UrlHelper.php (275)");
+	console.log("[14:39:13.378][trace][system.caching.Craft\\FileCache]\nServing \"resourcePath:js/login.js\" from cache\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CacheService.php (169)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/ResourcesService.php (36)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/helpers/UrlHelper.php (275)");
+	console.log("[14:39:13.385][trace][system.caching.Craft\\FileCache]\nServing \"resourcePath:lib/d3-i18n/en-US.js\" from cache\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CacheService.php (169)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/ResourcesService.php (36)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/helpers/UrlHelper.php (275)");
+	console.log("[14:39:13.385][trace][system.caching.Craft\\FileCache]\nServing \"resourcePath:js/cp.js\" from cache\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CacheService.php (169)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/ResourcesService.php (36)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/helpers/UrlHelper.php (275)");
+	console.log("[14:39:13.386][trace][system.caching.Craft\\FileCache]\nServing \"resourcePath:js/craft.js\" from cache\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CacheService.php (169)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/ResourcesService.php (36)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/helpers/UrlHelper.php (275)");
+	console.log("[14:39:13.386][trace][system.caching.Craft\\FileCache]\nServing \"resourcePath:lib/garnish-0.1.js\" from cache\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CacheService.php (169)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/ResourcesService.php (36)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/helpers/UrlHelper.php (275)");
+	console.log("[14:39:13.387][trace][system.caching.Craft\\FileCache]\nServing \"resourcePath:lib/element-resize-detector.js\" from cache\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CacheService.php (169)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/ResourcesService.php (36)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/helpers/UrlHelper.php (275)");
+	console.log("[14:39:13.387][trace][system.caching.Craft\\FileCache]\nServing \"resourcePath:lib/picturefill.js\" from cache\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CacheService.php (169)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/ResourcesService.php (36)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/helpers/UrlHelper.php (275)");
+	console.log("[14:39:13.388][trace][system.caching.Craft\\FileCache]\nServing \"resourcePath:lib/fileupload/jquery.fileupload.js\" from cache\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CacheService.php (169)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/ResourcesService.php (36)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/helpers/UrlHelper.php (275)");
+	console.log("[14:39:13.389][trace][system.caching.Craft\\FileCache]\nServing \"resourcePath:lib/fileupload/jquery.ui.widget.js\" from cache\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CacheService.php (169)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/ResourcesService.php (36)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/helpers/UrlHelper.php (275)");
+	console.log("[14:39:13.389][trace][system.caching.Craft\\FileCache]\nServing \"resourcePath:lib/selectize/selectize.js\" from cache\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CacheService.php (169)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/ResourcesService.php (36)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/helpers/UrlHelper.php (275)");
+	console.log("[14:39:13.390][trace][system.caching.Craft\\FileCache]\nServing \"resourcePath:lib/selectize/selectize.css\" from cache\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CacheService.php (169)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/ResourcesService.php (36)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/helpers/UrlHelper.php (275)");
+	console.log("[14:39:13.390][trace][system.caching.Craft\\FileCache]\nServing \"resourcePath:lib/velocity.js\" from cache\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CacheService.php (169)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/ResourcesService.php (36)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/helpers/UrlHelper.php (275)");
+	console.log("[14:39:13.391][trace][system.caching.Craft\\FileCache]\nServing \"resourcePath:lib/jquery-ui.js\" from cache\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CacheService.php (169)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/ResourcesService.php (36)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/helpers/UrlHelper.php (275)");
+	console.log("[14:39:13.391][trace][system.caching.Craft\\FileCache]\nServing \"resourcePath:lib/jquery-2.2.1.js\" from cache\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CacheService.php (169)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/ResourcesService.php (36)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/helpers/UrlHelper.php (275)");
+	console.log("[14:39:13.392][trace][system.caching.Craft\\FileCache]\nServing \"resourcePath:lib/xregexp-all.js\" from cache\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CacheService.php (169)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/ResourcesService.php (36)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/helpers/UrlHelper.php (275)");
+	console.log("[14:39:13.392][trace][system.caching.Craft\\FileCache]\nServing \"resourcePath:lib/d3/d3.js\" from cache\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CacheService.php (169)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/ResourcesService.php (36)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/helpers/UrlHelper.php (275)");
+	console.log("[14:39:13.393][trace][system.caching.Craft\\FileCache]\nServing \"resourcePath:css/craft.css\" from cache\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CacheService.php (169)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/ResourcesService.php (36)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/helpers/UrlHelper.php (275)");
+	console.log("[14:39:13.407][trace][system.caching.Craft\\FileCache]\nServing \"resourcePath:images/craftcms.svg\" from cache\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CacheService.php (169)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/ResourcesService.php (36)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/helpers/UrlHelper.php (275)");
+	console.log("[14:39:13.414][trace][system.CModule]\nLoading \"categories\" application component\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/web/WebApp.php (622)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/variables/CategoryGroupsVariable.php (60)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/vendor/twig/twig/lib/Twig/Template.php (609)");
+	console.log("[14:39:13.416][trace][system.db.CDbCommand]\nQuerying SQL: SELECT `id`\nFROM `craft_categorygroups`\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CategoriesService.php (63)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CategoriesService.php (81)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CategoriesService.php (149)");
+	console.log("[14:39:13.416][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT `id`\nFROM `craft_categorygroups`)");
+	console.log("[14:39:13.416][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT `id`\nFROM `craft_categorygroups`)");
+	console.log("[14:39:13.422][trace][system.db.CDbCommand]\nQuerying SQL: SHOW FULL COLUMNS FROM `craft_categorygroups`\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CategoriesService.php (104)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CategoriesService.php (152)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/variables/CategoryGroupsVariable.php (60)");
+	console.log("[14:39:13.422][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SHOW FULL COLUMNS FROM `craft_categorygroups`)");
+	console.log("[14:39:13.424][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SHOW FULL COLUMNS FROM `craft_categorygroups`)");
+	console.log("[14:39:13.425][trace][system.db.CDbCommand]\nQuerying SQL: SHOW CREATE TABLE `craft_categorygroups`\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CategoriesService.php (104)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CategoriesService.php (152)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/variables/CategoryGroupsVariable.php (60)");
+	console.log("[14:39:13.425][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SHOW CREATE TABLE `craft_categorygroups`)");
+	console.log("[14:39:13.425][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SHOW CREATE TABLE `craft_categorygroups`)");
+	console.log("[14:39:13.425][trace][system.db.ar.CActiveRecord]\nCraft\\CategoryGroupRecord.findAll()\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CategoriesService.php (104)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CategoriesService.php (152)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/variables/CategoryGroupsVariable.php (60)");
+	console.log("[14:39:13.430][trace][system.db.CDbCommand]\nQuerying SQL: SHOW FULL COLUMNS FROM `craft_structures`\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CategoriesService.php (104)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CategoriesService.php (152)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/variables/CategoryGroupsVariable.php (60)");
+	console.log("[14:39:13.430][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SHOW FULL COLUMNS FROM `craft_structures`)");
+	console.log("[14:39:13.431][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SHOW FULL COLUMNS FROM `craft_structures`)");
+	console.log("[14:39:13.431][trace][system.db.CDbCommand]\nQuerying SQL: SHOW CREATE TABLE `craft_structures`\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CategoriesService.php (104)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CategoriesService.php (152)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/variables/CategoryGroupsVariable.php (60)");
+	console.log("[14:39:13.431][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SHOW CREATE TABLE `craft_structures`)");
+	console.log("[14:39:13.432][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SHOW CREATE TABLE `craft_structures`)");
+	console.log("[14:39:13.432][trace][system.db.CDbCommand]\nQuerying SQL: SELECT `t`.`id` AS `t0_c0`, `t`.`structureId` AS `t0_c1`, `t`.`fieldLayoutId` AS `t0_c2`, `t`.`name` AS `t0_c3`, `t`.`handle` AS `t0_c4`, `t`.`hasUrls` AS `t0_c5`, `t`.`template` AS `t0_c6`, `t`.`dateCreated` AS `t0_c7`, `t`.`dateUpdated` AS `t0_c8`, `t`.`uid` AS `t0_c9`, `structure`.`id` AS `t1_c0`, `structure`.`maxLevels` AS `t1_c1`, `structure`.`dateCreated` AS `t1_c2`, `structure`.`dateUpdated` AS `t1_c3`, `structure`.`uid` AS `t1_c4` FROM `craft_categorygroups` `t`  LEFT OUTER JOIN `craft_structures` `structure` ON (`t`.`structureId`=`structure`.`id`) ORDER BY name\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CategoriesService.php (104)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CategoriesService.php (152)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/variables/CategoryGroupsVariable.php (60)");
+	console.log("[14:39:13.432][profile][system.db.CDbCommand.query]\nbegin:system.db.CDbCommand.query(SELECT `t`.`id` AS `t0_c0`, `t`.`structureId` AS `t0_c1`, `t`.`fieldLayoutId` AS `t0_c2`, `t`.`name` AS `t0_c3`, `t`.`handle` AS `t0_c4`, `t`.`hasUrls` AS `t0_c5`, `t`.`template` AS `t0_c6`, `t`.`dateCreated` AS `t0_c7`, `t`.`dateUpdated` AS `t0_c8`, `t`.`uid` AS `t0_c9`, `structure`.`id` AS `t1_c0`, `structure`.`maxLevels` AS `t1_c1`, `structure`.`dateCreated` AS `t1_c2`, `structure`.`dateUpdated` AS `t1_c3`, `structure`.`uid` AS `t1_c4` FROM `craft_categorygroups` `t`  LEFT OUTER JOIN `craft_structures` `structure` ON (`t`.`structureId`=`structure`.`id`) ORDER BY name)");
+	console.log("[14:39:13.432][profile][system.db.CDbCommand.query]\nend:system.db.CDbCommand.query(SELECT `t`.`id` AS `t0_c0`, `t`.`structureId` AS `t0_c1`, `t`.`fieldLayoutId` AS `t0_c2`, `t`.`name` AS `t0_c3`, `t`.`handle` AS `t0_c4`, `t`.`hasUrls` AS `t0_c5`, `t`.`template` AS `t0_c6`, `t`.`dateCreated` AS `t0_c7`, `t`.`dateUpdated` AS `t0_c8`, `t`.`uid` AS `t0_c9`, `structure`.`id` AS `t1_c0`, `structure`.`maxLevels` AS `t1_c1`, `structure`.`dateCreated` AS `t1_c2`, `structure`.`dateUpdated` AS `t1_c3`, `structure`.`uid` AS `t1_c4` FROM `craft_categorygroups` `t`  LEFT OUTER JOIN `craft_structures` `structure` ON (`t`.`structureId`=`structure`.`id`) ORDER BY name)");
+	console.log("[14:39:13.446][trace][system.caching.Craft\\FileCache]\nServing \"useWriteFileLock\" from cache\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/services/CacheService.php (169)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/etc/logging/FileLogRoute.php (86)\nin /Users/lh/Code/Projects/craft2x.craft.dev/craft/app/controllers/BaseController.php (145)");
+	console.groupEnd();
+
+	console.groupEnd();
+}
+/*]]&gt;*/
+</script>
+<script type="text/javascript">
+/*&lt;![CDATA[*/
+if (typeof(console) == 'object' &amp;&amp; typeof console.groupCollapsed == 'function')
+{
+	console.groupCollapsed("Profiling Summary Report");
+	console.log("Time:   0.24303s\n");
+	console.log("Memory: 14,203Kb\n");
+	console.log("Total Queries: 10\n");
+	console.log(" count   total   average    min      max   ");
+
+		console.log("     1  0.00159  0.00159  0.00159  0.00159    system.db.CDbCommand.query(SHOW FULL COLUMNS FROM `craft_categorygroups`)");
+	console.log("     1  0.00096  0.00096  0.00096  0.00096    system.db.CDbCommand.query(SHOW FULL COLUMNS FROM `craft_structures`)");
+	console.log("     1  0.00058  0.00058  0.00058  0.00058    system.db.CDbCommand.query(SHOW TABLES LIKE \'craft_%\')");
+	console.log("     1  0.00045  0.00045  0.00045  0.00045    system.db.CDbCommand.query(SELECT `id`\nFROM `craft_categorygroups`)");
+	console.log("     1  0.00032  0.00032  0.00032  0.00032    system.db.CDbCommand.query(SELECT *\nFROM `craft_info` LIMIT 1)");
+	console.log("     1  0.00029  0.00029  0.00029  0.00029    system.db.CDbCommand.query(SELECT `t`.`id` AS `t0_c0`, `t`.`structureId` AS `t0_c1`, `t`.`fieldLayoutId` AS `t0_c2`, `t`.`name` AS `t0_c3`, `t`.`handle` AS `t0_c4`, `t`.`hasUrls` AS `t0_c5`, `t`.`template` AS `t0_c6`, `t`.`dateCreated` AS `t0_c7`, `t`.`dateUpdated` AS `t0_c8`, `t`.`uid` AS `t0_c9`, `structure`.`id` AS `t1_c0`, `structure`.`maxLevels` AS `t1_c1`, `structure`.`dateCreated` AS `t1_c2`, `structure`.`dateUpdated` AS `t1_c3`, `structure`.`uid` AS `t1_c4` FROM `craft_categorygroups` `t`  LEFT OUTER JOIN `craft_structures` `structure` ON (`t`.`structureId`=`structure`.`id`) ORDER BY name)");
+	console.log("     1  0.00025  0.00025  0.00025  0.00025    system.db.CDbCommand.query(SELECT *\nFROM `craft_plugins`\nWHERE enabled=1)");
+	console.log("     1  0.00023  0.00023  0.00023  0.00023    system.db.CDbCommand.query(SELECT `locale`\nFROM `craft_locales`\nORDER BY `sortOrder`)");
+	console.log("     1  0.00019  0.00019  0.00019  0.00019    system.db.CDbCommand.query(SHOW CREATE TABLE `craft_categorygroups`)");
+	console.log("     1  0.00015  0.00015  0.00015  0.00015    system.db.CDbCommand.query(SHOW CREATE TABLE `craft_structures`)");
+
+	console.groupEnd();
+}
+/*]]&gt;*/
+</script>
+</body><canvas id="fxdriver-screenshot-canvas" style="display: none;" width="1437" height="803"></canvas></html>

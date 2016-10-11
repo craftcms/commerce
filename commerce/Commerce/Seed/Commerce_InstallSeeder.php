@@ -2,6 +2,7 @@
 
 namespace Commerce\Seed;
 
+use Craft\Commerce_PaymentCurrencyRecord;
 use Craft\Commerce_OrderSettingsModel;
 use Craft\Commerce_OrderStatusModel;
 use Craft\Commerce_PaymentMethodModel;
@@ -11,6 +12,7 @@ use Craft\Commerce_SettingsModel;
 use Craft\Commerce_ShippingMethodRecord;
 use Craft\Commerce_ShippingRuleRecord;
 use Craft\Commerce_TaxCategoryModel;
+use Craft\Commerce_ShippingCategoryModel;
 use Craft\Commerce_VariantModel;
 use Craft\DateTime;
 use Craft\FieldLayoutModel;
@@ -30,13 +32,24 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
 
     public function seed()
     {
+        $this->defaultCurrency();
         $this->defaultShippingMethod();
         $this->defaultTaxCategories();
+        $this->defaultShippingCategories();
         $this->defaultOrderSettings();
         $this->defaultProductTypes();
         $this->defaultProducts();
         $this->paymentMethods();
         $this->defaultSettings();
+    }
+
+    public function defaultCurrency()
+    {
+        $method = new Commerce_PaymentCurrencyRecord();
+        $method->iso = 'USD';
+        $method->rate = 1;
+        $method->primary = true;
+        $method->save();
     }
 
     /**
@@ -70,6 +83,21 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
         ]);
 
         \Craft\craft()->commerce_taxCategories->saveTaxCategory($category);
+    }
+
+
+    /**
+     * @throws \Craft\Exception
+     */
+    private function defaultShippingCategories()
+    {
+        $category = Commerce_ShippingCategoryModel::populateModel([
+            'name' => 'General',
+            'handle' => 'general',
+            'default' => 1,
+        ]);
+
+        \Craft\craft()->commerce_shippingCategories->saveShippingCategory($category);
     }
 
     /**
@@ -181,7 +209,8 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
                 'postDate' => new DateTime(),
                 'expiryDate' => null,
                 'promotable' => 1,
-                'taxCategoryId' => \Craft\craft()->commerce_taxCategories->getDefaultTaxCategoryId(),
+                'taxCategoryId' => 1,
+                'shippingCategoryId' => 1,
             ]);
 
             $product->getContent()->title = $productName;
@@ -211,7 +240,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
     {
         $settings = new Commerce_SettingsModel();
         $settings->orderPdfPath = 'commerce/_pdf/order';
-        $settings->defaultCurrency = 'USD';
+        $settings->orderPdfFilenameFormat = 'Order-{number}';
         \Craft\craft()->commerce_settings->saveSettings($settings);
     }
 

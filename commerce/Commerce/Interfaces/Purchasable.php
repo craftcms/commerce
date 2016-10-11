@@ -2,6 +2,8 @@
 
 namespace Commerce\Interfaces;
 
+use Craft\Commerce_LineItemModel;
+
 /**
  * Interface Purchasable
  *
@@ -69,6 +71,29 @@ interface Purchasable
     public function getTaxCategoryId();
 
     /**
+     * Returns a Craft Commerce shipping category id
+     *
+     * @return int
+     */
+    public function getShippingCategoryId();
+
+    /**
+     * Returns whether the purchasable is still available for purchase.
+     *
+     * @return bool
+     */
+    public function getIsAvailable();
+
+    /**
+     * Populates the line item when this purchasable is found on it. Called when Purchasable is added to the cart and when the cart recalculates.
+     *
+     * @param \Craft\Commerce_LineItemModel $lineItem
+     *
+     * @return null
+     */
+    public function populateLineItem(Commerce_LineItemModel $lineItem);
+
+    /**
      * Validates this purchasable for the line item it is on. Called when Purchasable is added to the cart.
      *
      * You can add model errors to the line item like this: `$lineItem->addError('qty', $errorText);`
@@ -77,7 +102,7 @@ interface Purchasable
      *
      * @return mixed
      */
-    public function validateLineItem(\Craft\Commerce_LineItemModel $lineItem);
+    public function validateLineItem(Commerce_LineItemModel $lineItem);
 
     /**
      * @return bool

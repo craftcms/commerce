@@ -1,7 +1,7 @@
 {% extends "commerce/_layouts/settingscp" %}
 
 {% set crumbs = [
-{ label: "Commerce " ~ "Settings"|t, url: url('commerce/settings') },
+{ label: "Commerce Settings"|t, url: url('commerce/settings') },
 { label: "Tax Rates"|t, url: url('commerce/settings/taxrates') },
 ] %}
 
@@ -153,21 +153,6 @@
         required: true,
     }) }}
 
-    {{ forms.checkboxField({
-        label: "Include in Price"|t,
-        name: 'include',
-        value: 1,
-        checked: taxRate.include,
-        errors: taxRate.getErrors('include'),
-    }) }}
-
-    {{ forms.checkboxField({
-        label: "Show in Label"|t,
-        name: 'showInLabel',
-        value: 1,
-        checked: taxRate.showInLabel
-    }) }}
-
     {% set taxZoneSelectParams = {
         label: "Tax Zone"|t,
         instructions: "Select a tax zone."|t,
@@ -211,5 +196,26 @@
         'commerce/taxCategories/save',
         'Tax category saved.'|t
     ) }}
+
+	{{ forms.checkboxField({
+		label: "This tax is already included in the entered prices of all products"|t,
+		name: 'include',
+		value: 1,
+		checked: taxRate.include,
+		errors: taxRate.getErrors('include'),
+	}) }}
+
+	{{ forms.checkboxField({
+		label: "Don’t apply this tax when the shipping address has a valid VAT ID"|t,
+		name: 'isVat',
+		value: 1,
+		checked: taxRate.isVat,
+		errors: taxRate.getErrors('isVat'),
+		toggle: '#isVat'
+	}) }}
+	<p id="isVat" {% if not taxRate.isVat %} class="hidden"{% endif %}>
+		{{ "This tax rate will not be applied if a valid businessTaxId is entered into the shipping address."|t }}
+	</p>
+
 {% endblock %}
 

@@ -1,0 +1,99 @@
+{% extends 'shop/_layouts/main' %}
+
+{% set number = craft.request.param('number') %}
+{% set order = craft.commerce.orders.number(number).first() %}
+
+{% if not order %}
+    {% redirect 'shop/customer' %}
+{% endif %}
+
+{% block main %}
+
+    <div class="row">
+        <div class="twelve columns">
+
+            {% if currentUser %}<p><a href="{{ url('shop/customer') }}">My Orders</a></p>{% endif %}
+            <h1>Order #{{ order.id }}</h1>
+
+
+            <div class="row">
+                <div class="four columns">
+                    <h4>Details</h4>
+
+                    <ul>
+                        <li><strong>{{ "Customer"|t }}:</strong> {{ order.customer.email }}</li>
+                        <li><strong>{{ "Total"|t }}:</strong> {{ order.totalPrice|commerceCurrency(cart.currency) }}</li>
+                        <li><strong>{{ "Amount Paid"|t }}:</strong> {{ order.totalPaid|commerceCurrency(cart.currency) }}</li>
+                        <li><strong>{{ "Date"|t }}:</strong> {{ order.dateOrdered }}</li>
+                    </ul>
+
+                </div>
+                <div class="four columns">
+                    <h4>Shipping Address</h4>
+
+                    {% if order.shippingAddress %}
+                    {% include 'shop/_includes/addresses/address' with { address: order.shippingAddress } %}
+                    {% endif %}
+                </div>
+                <div class="four columns">
+                    <h4>Billing Address</h4>
+                    {% if order.billingAddress %}
+                    {% include 'shop/_includes/addresses/address' with { address: order.billingAddress } %}
+                    {% endif %}
+                </div>
+            </div>
+
+
+            {% if order.pdfUrl %}
+            <h4>Receipt (<a href="{{ order.getPdfUrl('receipt') }}">Download</a>)</h4>
+            {% endif %}
+
+            <table class="u-full-width">
+                <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Unit Price</th>
+                    <th>Quantity</th>
+                    <th class="text-right">Total</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for item in order.lineItems %}
+                    <tr>
+                        <td>
+                            <strong>{{ item.description }}</strong><br>
+                            SKU: {{ item.sku }}
+                        </td>
+                        <td>
+                            {% if item.onSale %}
+                                <strike>{{ item.price|commerceCurrency(cart.currency) }}</strike>   {{ item.salePrice|commerceCurrency(cart.currency) }}
+                            {% else %}
+                                {{ item.price|commerceCurrency(cart.currency) }}
+                            {% endif %}
+                        </td>
+                        <td>{{ item.qty }}</td>
+                        <td class="text-right">{{ item.subtotal|commerceCurrency(cart.currency) }}</td>
+                    </tr>
+                {% endfor %}
+
+                {% for adjustment in order.adjustments %}
+                    <tr>
+                        <td>{{ adjustment.type }}</td>
+                        <td colspan="2"><strong>{{ adjustment.name }}</strong><br>({{ adjustment.description }})</td>
+                        <td class="text-right">{{ adjustment.amount|commerceCurrency(cart.currency) }}</td>
+                    </tr>
+                {% endfor %}
+
+                <tr>
+                    <td colspan="4" class="text-right">
+                        Item Total: {{ order.itemTotal|commerceCurrency(cart.currency) }}<br>
+                        <h4>Total: {{ order.totalPrice|commerceCurrency(cart.currency) }}</h4>
+                    </td>
+                </tr>
+
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+{% endblock %}

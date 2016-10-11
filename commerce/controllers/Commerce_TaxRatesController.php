@@ -109,8 +109,8 @@ class Commerce_TaxRatesController extends Commerce_BaseAdminController
         $taxRate->id = craft()->request->getPost('taxRateId');
         $taxRate->name = craft()->request->getPost('name');
         $taxRate->include = craft()->request->getPost('include');
+        $taxRate->isVat = craft()->request->getPost('isVat');
         $taxRate->taxable = craft()->request->getPost('taxable');
-        $taxRate->showInLabel = craft()->request->getPost('showInLabel');
         $taxRate->taxCategoryId = craft()->request->getPost('taxCategoryId');
         $taxRate->taxZoneId = craft()->request->getPost('taxZoneId');
 

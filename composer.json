@@ -14,8 +14,48 @@
             "Commerce\\": "commerce/Commerce"
         }
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/pixelandtonic/omnipay-netbanx"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/pixelandtonic/omnipay-paypal"
+        }
+    ],
     "require": {
-        "omnipay/omnipay": "2.3.2",
-        "dompdf/dompdf" : "0.6.1"
+
+        "omnipay/2checkout" :  "~2.1",
+        "omnipay/authorizenet" :  "~2.4",
+        "omnipay/buckaroo" : "~2.0",
+        "omnipay/cardsave" :  "~2.1",
+        "omnipay/coinbase" : "~2.0",
+        "omnipay/common" :  "~2.3",
+        "omnipay/dummy" :  "~2.1",
+        "omnipay/eway" :  "~2.2",
+        "omnipay/firstdata" :  "~2.3",
+        "omnipay/gocardless" :  "~2.2",
+        "omnipay/manual" :  "~2.2",
+        "omnipay/migs" :  "~2.1",
+        "omnipay/mollie" :  "~3.0",
+        "omnipay/multisafepay" :  "~2.3",
+        "omnipay/netaxept" :  "~2.3",
+        "omnipay/netbanx" :  "dev-dev-hostedpayments",
+        "omnipay/payfast" :  "~2.1",
+        "omnipay/payflow" :  "~2.2",
+        "omnipay/paymentexpress" :  "~2.2",
+        "omnipay/paypal" :  "dev-error10486handler",
+        "omnipay/pin" :  "~2.2",
+        "omnipay/sagepay" :  "dev-master#8c6d1fdd45001a6062dd989a9f7c5fb4e6d73c5e",
+        "omnipay/securepay" : "~2.1",
+        "omnipay/stripe" :  "~2.3",
+        "omnipay/targetpay" :  "~2.2",
+        "omnipay/worldpay" :  "~2.2",
+
+        "dompdf/dompdf" : "0.6.1",
+        "ramsey/array_column": "^1.1",
+        "snowcap/vat-validation": "dev-master#21e7d996bd30dc680244d59d0fa18be3671e68ee",
+        "triplepoint/php-units-of-measure": "^2.1"
     }
 }

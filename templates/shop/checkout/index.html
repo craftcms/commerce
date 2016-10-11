@@ -1,0 +1,65 @@
+{% if currentUser %}
+    {% redirect 'shop/checkout/addresses' %}
+{% endif %}
+
+{% extends 'shop/_layouts/checkout' %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="six columns">
+
+            <h3>Already Registered ?</h3>
+
+            <form method="post" accept-charset="UTF-8">
+
+                {{ getCsrfInput() }}
+
+                <input type="hidden" name="action" value="users/login">
+                <input type="hidden" name="redirect" value="shop/checkout/addresses">
+
+                <label for="loginName">Email</label>
+                <input id="loginName" class="u-full-width" type="text" name="loginName" placeholder="email@site.com"
+                       value="{{ craft.session.rememberedUsername }}">
+
+                <label for="password">Password</label>
+                <input id="password" class="u-full-width" type="password" name="password">
+
+                <label>
+                    <input type="checkbox" name="rememberMe" value="1">
+                    Remember me
+                </label>
+
+                <input type="submit" value="Login" class="button button-primary"/>
+
+            </form>
+
+            <p><a href="{{ url('forgotpassword') }}">Forget your password?</a></p>
+
+        </div>
+
+        <div class="six columns">
+
+            <h3>Guest Checkout</h3>
+
+            {#
+            Setting the guest email address on the guest customer and order.
+            This will have no affect if the user is currently logged in as the cart uses the currentUsers email address.
+            #}
+
+            <form method="POST">
+                <input type="hidden" name="action" value="commerce/cart/updateCart">
+                <input type="hidden" name="redirect" value="shop/checkout/addresses">
+                {{ getCsrfInput() }}
+                <label for="">Email</label>
+                <input class="u-full-width" type="text" value="{{ cart.email }}" name="email"
+                       placeholder="email@site.com"/>
+
+                <span class="flash">{{ cart.getErrors('email')|join }}</span><br>
+
+                <input type="submit" value="Continue as Guest" class="button button-primary"/>
+
+            </form>
+        </div>
+    </div>
+{% endblock %}

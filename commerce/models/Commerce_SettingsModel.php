@@ -6,12 +6,12 @@ use Omnipay\Common\Currency;
 /**
  * Settings model.
  *
- * @property string $defaultCurrency
  * @property string $weightUnits
  * @property string $dimensionUnits
  * @property string $emailSenderAddress
  * @property string $emailSenderName
  * @property string $orderPdfPath
+ * @property string $orderPdfFilenameFormat
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -31,17 +31,23 @@ class Commerce_SettingsModel extends BaseModel
      */
     public $emailSenderNamePlaceholder;
 
+    /**currency moved from plugin settings to currency table in DB.
+     *
+     * @return string
+     */
+    public function getDefaultCurrency()
+    {
+        craft()->deprecator->log('Commerce_SettingsModel::defaultCurrency:removed', 'You should no longer use `craft.commerce.settings.defaultCurrency`  to get the store currency. Use `craft.commerce.primaryPaymentCurrency`.');
+
+        return craft()->commerce_paymentCurrencies->getPrimaryPaymentCurrencyIso();
+    }
+
     /**
      * @return array
      */
     public function defineAttributes()
     {
         return [
-            'defaultCurrency' => [
-                AttributeType::String,
-                'default' => 'USD',
-                'required' => true
-            ],
             'weightUnits' => [
                 AttributeType::String,
                 'default' => 'g'
@@ -52,7 +58,8 @@ class Commerce_SettingsModel extends BaseModel
             ],
             'emailSenderAddress' => [AttributeType::String],
             'emailSenderName' => [AttributeType::String],
-            'orderPdfPath' => [AttributeType::String]
+            'orderPdfPath' => [AttributeType::String],
+            'orderPdfFilenameFormat' => [AttributeType::String]
         ];
     }
 
@@ -80,22 +87,5 @@ class Commerce_SettingsModel extends BaseModel
             'ft' => Craft::t('Feet (ft)'),
             'in' => Craft::t('Inches (in)'),
         ];
-    }
-
-    /**
-     * @return array
-     */
-    public function getCurrencies()
-    {
-
-        $currencies = Currency::all();
-
-        foreach ($currencies as $key => &$value) {
-            $value = $key;
-        }
-
-        ksort($currencies, SORT_STRING);
-
-        return $currencies;
     }
 }

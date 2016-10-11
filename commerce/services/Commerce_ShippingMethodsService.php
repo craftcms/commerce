@@ -149,9 +149,15 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
                     foreach ($cart->lineItems as $item){
                         if ($item->purchasable && !$item->purchasable->hasFreeShipping())
                         {
-                            $amount += $rule->getPerItemRate() * $item->qty;
-                            $amount += $rule->getWeightRate() * ($item->qty * $item->weight);
-                            $amount += $rule->getPercentageRate() * $item->getSubtotal();
+                            $percentageRate = $rule->getPercentageRate($item->shippingCategoryId);
+                            $perItemRate = $rule->getPerItemRate($item->shippingCategoryId);
+                            $weightRate = $rule->getWeightRate($item->shippingCategoryId);
+
+                            $percentageAmount = $item->getSubtotal() * $percentageRate;
+                            $perItemAmount =  $item->qty * $perItemRate;
+                            $weightAmount = ($item->weight * $item->qty) * $weightRate;
+
+                            $amount += ($percentageAmount + $perItemAmount + $weightAmount);
                         }
                     }
 

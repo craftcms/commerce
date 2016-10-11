@@ -52,7 +52,7 @@
 									href="#"
 									class="updatestatus btn small"
 									data-currentStatus="{{ order.orderStatus.attributes|json_encode() }}"
-									data-orderStatuses="{{ craft.commerce.orderStatuses|json_encode() }}">{{ "Update Status"|t }}</a>
+									data-orderStatuses="{{ orderStatusesJson }}">{{ "Update Status"|t }}</a>
 							</div>
 						</td>
 					{% else %}
@@ -66,6 +66,20 @@
 					<td><strong>{{ "Paid"|t }} </strong></td>
 					<td>{{ order.totalPaid|currency(order.currency) }} {{ order.datePaid|date('D dS M Y') }}</td>
 				</tr>
+                <tr>
+                    <td><strong>{{ "IP Address"|t }} </strong></td>
+                    <td>{{ order.lastIp }}</td>
+                </tr>
+				<tr>
+					<td><strong>{{ "Order Currency"|t }} </strong></td>
+					<td>{{ order.currency }}</td>
+				</tr>
+				{% if order.currency != order.paymentCurrency %}
+				<tr>
+					<td><strong>{{ "Payment Currency"|t }} </strong></td>
+					<td>{{ order.paymentCurrency }}</td>
+				</tr>
+				{% endif %}
 				{% if order.couponCode %}
 				<tr>
 					<td><strong>{{ "Coupon"|t }} </strong></td>
@@ -100,6 +114,7 @@
 
 	</div>
 
+    {% if order.lineItems | length %}
 	<div class="order-details">
 		<table id="" class="data fullwidth collapsible">
 			<thead>
@@ -116,34 +131,23 @@
 			<tbody>
 
 			{% for lineItem in order.lineItems %}
-				<tr class="infoRow"
-					data-inforow='{% spaceless %}[
-					{"label":"Description","attribute":"description","currency":"false"},
-					{"label":"Tax Category","attribute":"taxcategory","currency":"false"},
-					{"label":"Price","attribute":"price","currency":"true"},
-					{"label":"Sale Amount","attribute":"saleamount","currency":"true"},
-					{"label":"Sale Price","attribute":"saleprice","currency":"true"},
-					{"label":"Quantity","attribute":"qty","currency":"false"},
-					{"label":"Sub-total","attribute":"subtotal","currency":"true"},
-					{"label":"Tax","attribute":"tax","currency":"true"},
-					{"label":"Tax (Included)","attribute":"taxincluded","currency":"true"},
-					{"label":"Shipping Cost","attribute":"shippingcost","currency":"true"},
-					{"label":"Discount","attribute":"discount","currency":"true"},
-					{"label":"Total","attribute":"total","currency":"true"}
-					]'{% endspaceless %}
-					data-id="{{lineItem.id}}"
-					data-description="{{ lineItem.description }}"
-					data-taxcategory="{{ lineItem.taxCategory.name }}"
-					data-price="{{ lineItem.price|currency(order.currency) }}"
-					data-saleamount="{{ lineItem.saleAmount|currency(order.currency) }}"
-					data-saleprice="{{ lineItem.salePrice|currency(order.currency) }}"
-					data-tax="{{ lineItem.tax|currency(order.currency) }}"
-					data-taxincluded="{{ lineItem.taxIncluded|currency(order.currency) }}"
-					data-shippingcost="{{ lineItem.shippingCost|currency(order.currency) }}"
-					data-discount="{{ lineItem.discount|currency(order.currency) }}"
-					data-total="{{ lineItem.total|currency(order.currency) }}"
-					data-subtotal="{{ lineItem.subtotal|currency(order.currency) }}"
-					data-qty="{{ lineItem.qty }}">
+
+				{% set info = [
+					{ label: "Description", value: lineItem.description },
+					{ label: "Tax Category", value: lineItem.taxCategory.name },
+					{ label: "Price", value: lineItem.price|currency(order.currency) },
+					{ label: "Sale Amount", value: lineItem.saleAmount|currency(order.currency) },
+					{ label: "Sale Price", value: lineItem.salePrice|currency(order.currency) },
+					{ label: "Quantity", value: lineItem.qty },
+					{ label: "Sub-total", value: lineItem.subtotal|currency(order.currency) },
+					{ label: "Tax", value: lineItem.tax|currency(order.currency) },
+					{ label: "Tax (Included)", value: lineItem.taxIncluded|currency(order.currency) },
+					{ label: "Shipping Cost", value: lineItem.shippingCost|currency(order.currency) },
+					{ label: "Discount", value: lineItem.discount|currency(order.currency) },
+					{ label: "Total", value: lineItem.subtotal|currency(order.currency) },
+				] %}
+
+				<tr class="infoRow" data-id="{{lineItem.id}}" data-info="{{ info|json_encode }}">
 					<td>
 						{% if lineItem.purchasable %}
 							{% if lineItem.purchasable.cpEditUrl %}
@@ -195,7 +199,7 @@
 				<td></td>
 				<td></td>
 				<td>
-				{%  if order.isPaid %}
+				{%  if order.isPaid and order.totalPrice > 0 %}
 					<div class="paidLogo"><span>{{ 'PAID'|t }}</div>
 				{% endif %}
 				</td>
@@ -203,28 +207,6 @@
 				<td><strong>{{ "Items Total" }}</strong></td>
 				<td>
 					<span class="right">{{ order.itemTotal|currency(order.currency) }}</span>
-				</td>
-				<td></td>
-			</tr>
-			<tr>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td><strong>{{ "Base Shipping Cost"|t }}</strong></td>
-				<td>
-					<span class="right">{{ order.baseShippingCost|currency(order.currency) }}</span>
-				</td>
-				<td></td>
-			</tr>
-			<tr>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td><strong>{{ "Base Discount"|t }}</strong></td>
-				<td>
-					<span class="right">{{ order.baseDiscount|currency(order.currency) }}</span>
 				</td>
 				<td></td>
 			</tr>
@@ -242,6 +224,7 @@
 			</tbody>
 		</table>
 	</div>
+    {%  endif %}
 
 	<form id="order-actions" method="post" accept-charset="UTF-8">
 		<input type="hidden" name="action" value="">
@@ -262,9 +245,9 @@
 				data-param="orderId"
 				data-value="{{ order.id }}">
 		</div>
-	</div>
 	</div>{# end pane #}
 	</form>
+    </div>
 
 
 	{% if orderSettings.getFieldLayout().getTabs()|length %}
@@ -310,18 +293,20 @@
 			</div>
 
 	</div>
-	{# End custom fields pane #}
 	</form>
 	{% endif %}
 
+	{% hook "cp.commerce.order.edit" %}
+
 	{% if order.histories|length %}
 	<div class="pane">
-		<h3>{{ 'Order Status History'|t }}</h3>
+		<h3>{{ 'Order History'|t }}</h3>
 
 		<table class="data fullwidth">
 			<thead>
 			<tr>
-				<th scope="col">{{ 'Order Status'|t }}</th>
+				<th scope="col">{{ 'Status'|t }}</th>
+				<th scope="col">{{ 'Previous Status'|t }}</th>
 				<th scope="col">{{ 'Customer'|t }}</th>
 				<th scope="col">{{ 'Message'|t }}</th>
 				<th scope="col">{{ 'Date'|t }}</th>
@@ -333,6 +318,11 @@
 					<td>
 						{% if orderHistory.newStatus %}
 							<a href="{{ orderHistory.newStatus.cpEditUrl }}">{{ orderHistory.newStatus.htmlLabel()|raw }}</a> {% if loop.first %}({{ "Current"|t }}){% endif %}
+						{% endif %}
+					</td>
+					<td>
+						{% if orderHistory.prevStatus %}
+							<a href="{{ orderHistory.prevStatus.cpEditUrl }}">{{ orderHistory.prevStatus.htmlLabel()|raw }}</a>
 						{% endif %}
 					</td>
 					<td>
@@ -360,9 +350,9 @@
 				<tr>
 					<th scope="col">{{ 'Type'|t }}</span></th>
 					<th scope="col">{{ 'Status'|t }}</th>
-					<th scope="col">{{ 'Message'|t }}</th>
 					<th scope="col">{{ 'Amount'|t }}</th>
-					<th scope="col">{{ 'Payment Method'|t }}</th>
+					<th scope="col">{{ 'Payment Amount'|t }}</th>
+					<th scope="col">{{ 'Method'|t }}</th>
 					<th scope="col">{{ 'Date'|t }}</th>
 					<th scope="col">{{ 'Info'|t }}</th>
 					<th></th>
@@ -370,20 +360,22 @@
 				</thead>
 				<tbody>
 				{% for transaction in order.transactions %}
-					<tr class="infoRow"
-						data-inforow='{% spaceless %}[
-						{"label":"Hash","attribute":"hash","currency":"false"},
-						{"label":"Reference","attribute":"reference","currency":"false"},
-						{"label":"Response","attribute":"response","currency":"false"}
-						]'{% endspaceless %}
-						data-hash="{{ transaction.hash }}"
-						data-reference="{{ transaction.reference }}"
-						data-response="{{ transaction.response }}"
-					>
+
+					{% set info = [
+						{ label: "ID", value: transaction.id },
+						{ label: "Hash", value: transaction.hash },
+						{ label: "Reference", value: transaction.reference },
+						{ label: "Message", value: transaction.message|title },
+						{ label: "Code", value: transaction.code },
+						{ label: "Converted Price", value: transaction.paymentAmount|currency(transaction.paymentCurrency)~" <small class=\"light\">(1 "~transaction.currency~" = "~transaction.paymentRate|number~" "~transaction.paymentCurrency~")</small>" },
+						{ label: "Response", value: "<code>"~transaction.response|json_encode|raw~"</code>" },
+					] %}
+
+					<tr class="infoRow" data-info="{{ info|json_encode }}">
 						<td>{{ transaction.type|title }}</td>
-						<td>{{ transaction.status|title }}</td>
-						<td>{{ transaction.message|title }}</td>
-						<td>{{ transaction.amount|currency(order.currency) }}</td>
+						<td class="transaction-status transaction-status-{{ transaction.status }}">{{ transaction.status|title|t }}</td>
+						<td>{{ transaction.amount|currency(transaction.currency) }} <small class="light">({{ transaction.currency }})</small></td>
+						<td>{{ transaction.paymentAmount|currency(transaction.paymentCurrency) }} <small class="light">({{ transaction.paymentCurrency }})</small></td>
 						<td>{{ transaction.paymentMethod.name }}</td>
 						<td>{{ transaction.dateUpdated|date }}</td>
 						<td><span class="tableRowInfo" data-icon="info" href="#"></span></td>
@@ -455,6 +447,5 @@ $(document).ready(function () {
 	});
 
 });
-
 
 {% endincludejs %}

@@ -39,7 +39,10 @@
 {% block content %}
     <input type="hidden" name="action" value="commerce/discounts/save">
     <input type="hidden" name="redirect" value="commerce/promotions/discounts">
-    {% if discount.id %}<input type="hidden" name="id" value="{{ discount.id }}">{% endif %}
+    {% if discount.id %}
+        <input type="hidden" name="sortOrder" value="{{ discount.sortOrder }}">
+        <input type="hidden" name="id" value="{{ discount.id }}">
+	{% endif %}
 
     <div id="discount">
     {{ forms.textField({
@@ -72,7 +75,16 @@
         errors: discount.getErrors('enabled')
     }) }}
 
-    </div>
+    {{ forms.checkboxField({
+        label: "Don’t apply subsequent discounts if this discount is applied"|t,
+        id: 'stopProcessing',
+        name: 'stopProcessing',
+        value: 1,
+        checked: discount.stopProcessing,
+        errors: discount.getErrors('stopProcessing')
+    }) }}
+
+	</div>
 
     <div id="coupon" class="hidden">
 
@@ -130,7 +142,7 @@
     forms.field({
         'label': 'Clear all coupon usage history for this discount'|t,
         'id': 'clear-coupon',
-        'instructions': "This will clear all 'Per User Coupon Limit' and 'Total Use Limit' counters. It will not clear any 'Per Email Address Coupon Limit' counters."|t,
+        'instructions': "This will clear all “Per User Coupon Limit” and “Total Use Limit” counters. It will not clear any “Per Email Address Coupon Limit” counters."|t,
     }, '<div id="clear-coupon-btn" class="btn">' ~ "Clear counters"|t ~'</div><div id="clear-coupon-history-spinner" class="spinner hidden"></div>')
     }}
     </div>
@@ -141,7 +153,7 @@
 
     <div id="conditions" class="hidden">
 
-    {{ forms.dateField({
+    {{ forms.dateTimeField({
         label: "Start Date"|t,
         instructions: "Date from which the discount will be active. Leave blank for unlimited start date"|t,
         id: 'dateFrom',
@@ -150,7 +162,7 @@
         errors: discount.getErrors('dateFrom'),
     }) }}
 
-    {{ forms.dateField({
+    {{ forms.dateTimeField({
         label: "End Date"|t,
         instructions: "Date when the discount will be finished. Leave blank for unlimited end date"|t,
         id: 'dateTo',
@@ -205,8 +217,8 @@
     }) }}
 
     {{ forms.textField({
-        label: "Purchase Quantity"|t,
-        instructions: "How many items of a product must be ordered to apply this discount to the product"|t,
+        label: "Minimum Purchase Quantity"|t,
+        instructions: "Minimum number of matching items that need to be ordered for this discount to apply."|t,
         id: 'purchaseQty',
         name: 'purchaseQty',
         value: discount.purchaseQty,
@@ -214,8 +226,18 @@
         errors: discount.getErrors('purchaseQty'),
     }) }}
 
+	{{ forms.textField({
+		label: "Maximum Purchase Quantity"|t,
+		instructions: "Maximum number of matching items that can be ordered for this discount to apply. A zero value here will skip this condition."|t,
+		id: 'maxPurchaseQty',
+		name: 'maxPurchaseQty',
+		value: discount.maxPurchaseQty,
+		type: 'number',
+		errors: discount.getErrors('maxPurchaseQty'),
+	}) }}
+
     {{ forms.checkboxField({
-        label: "Exclude this discount for products that are on sale"|t,
+        label: "Exclude this discount for products that are already on sale"|t,
         id: 'excludeOnSale',
         name: 'excludeOnSale',
         value: 1,
@@ -231,7 +253,7 @@
         instructions: "The flat value which should discount the order’s total price. i.e “10” for $10 off."|t,
         id: 'baseDiscount',
         name: 'baseDiscount',
-        value: discount.baseDiscount * -1,
+        value: discount.baseDiscount != 0 ? discount.baseDiscount * -1 : 0,
         type: 'number',
         step: 'any',
         errors: discount.getErrors('baseDiscount'),
@@ -242,7 +264,7 @@
         instructions: "The flat value which should discount each item in the order. i.e “1” for $1 off."|t,
         id: 'perItemDiscount',
         name: 'perItemDiscount',
-        value: discount.perItemDiscount * -1,
+        value: discount.perItemDiscount != 0 ? discount.perItemDiscount * -1 : 0,
         type: 'number',
         step: 'any',
         errors: discount.getErrors('perItemDiscount'),

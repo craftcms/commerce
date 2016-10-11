@@ -70,6 +70,8 @@ class Commerce_AddressesService extends BaseApplicationComponent
         ]);
         $this->onBeforeSaveAddress($event);
 
+        $addressRecord->attention = $addressModel->attention;
+        $addressRecord->title = $addressModel->title;
         $addressRecord->firstName = $addressModel->firstName;
         $addressRecord->lastName = $addressModel->lastName;
         $addressRecord->address1 = $addressModel->address1;
@@ -80,6 +82,7 @@ class Commerce_AddressesService extends BaseApplicationComponent
         $addressRecord->alternativePhone = $addressModel->alternativePhone;
         $addressRecord->businessName = $addressModel->businessName;
         $addressRecord->businessTaxId = $addressModel->businessTaxId;
+        $addressRecord->businessId = $addressModel->businessId;
         $addressRecord->countryId = $addressModel->countryId;
 
         if (!empty($addressModel->stateValue)) {
@@ -95,6 +98,20 @@ class Commerce_AddressesService extends BaseApplicationComponent
         } else {
             $addressRecord->stateId = $addressModel->stateId;
             $addressRecord->stateName = $addressModel->stateName;
+        }
+
+        /** @var Commerce_CountryModel $state */
+        $country = craft()->commerce_countries->getCountryById($addressRecord->countryId);
+        /** @var Commerce_StateModel $state */
+        $state = craft()->commerce_states->getStateById($addressRecord->stateId);
+
+        // Check country’s stateRequired option
+        if($country)
+        {
+            if ($country->stateRequired && (!$state || ($state && $state->countryId !== $country->id)))
+            {
+                $addressModel->addError('stateId', Craft::t('Country requires a related state selected.'));
+            }
         }
 
         $addressRecord->validate();

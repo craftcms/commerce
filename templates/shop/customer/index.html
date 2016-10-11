@@ -1,0 +1,34 @@
+{% extends 'shop/_layouts/main' %}
+
+{% block main %}
+    <div class="row">
+        <div class="twelve columns">
+            {% if currentUser %}
+
+                <h1>My Orders</h1>
+
+                <table class="u-full-width">
+                    <thead>
+                    <tr>
+                        <th>{{ "Order"|t }}</th>
+                        <th>{{ "Date"|t }}</th>
+                        <th>{{ "Total Quantity"|t }}</th>
+                        <th>{{ "Total"|t }}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for order in craft.commerce.orders.customer(craft.commerce.customer).find() %}
+                        <tr>
+                            <td><a href="{{ url('shop/customer/order', { number: order.number }) }}">Order #{{ order.id }}</a></td>
+                            <td>{{ order.dateOrdered }}</td>
+                            <td>{{ order.totalQty }} items</td>
+                            <td>{{ order.totalPrice|commerceCurrency(cart.currency) }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

@@ -71,7 +71,7 @@ class Commerce_OrderHistoriesService extends BaseApplicationComponent
 
     /**
      * @param Commerce_OrderModel $order
-     * @param int $oldStatusId
+     * @param int                 $oldStatusId
      *
      * @return bool
      * @throws Exception
@@ -85,15 +85,16 @@ class Commerce_OrderHistoriesService extends BaseApplicationComponent
         $orderHistoryModel->customerId = craft()->commerce_customers->getCustomerId();
         $orderHistoryModel->message = $order->message;
 
-        if (!$this->saveOrderHistory($orderHistoryModel)) {
+        if (!$this->saveOrderHistory($orderHistoryModel))
+        {
             return false;
         }
 
+        craft()->commerce_orderStatuses->statusChangeHandler($order, $orderHistoryModel);
+
         //raising event on status change
-        $event = new Event($this, [
-            'orderHistory' => $orderHistoryModel,
-            'order' => $order
-        ]);
+        $event = new Event($this, ['orderHistory' => $orderHistoryModel,
+                                   'order'        => $order]);
         $this->onStatusChange($event);
 
         return true;

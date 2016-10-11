@@ -28,7 +28,7 @@ class Commerce_DiscountsController extends Commerce_BaseCpController
      */
     public function actionIndex()
     {
-        $discounts = craft()->commerce_discounts->getAllDiscounts(['order' => 'name']);
+        $discounts = craft()->commerce_discounts->getAllDiscounts(['order' => 'sortOrder']);
         $this->renderTemplate('commerce/promotions/discounts/index',
             compact('discounts'));
     }
@@ -105,11 +105,12 @@ class Commerce_DiscountsController extends Commerce_BaseCpController
             'id',
             'name',
             'description',
-            'dateFrom',
-            'dateTo',
             'enabled',
+            'stopProcessing',
+            'sortOrder',
             'purchaseTotal',
             'purchaseQty',
+            'maxPurchaseQty',
             'freeShipping',
             'excludeOnSale',
             'code',
@@ -127,6 +128,14 @@ class Commerce_DiscountsController extends Commerce_BaseCpController
         ];
         foreach ($discountAmountsFields as $field) {
             $discount->$field = craft()->request->getPost($field) * -1;
+        }
+
+        $dateFields = [
+            'dateFrom',
+            'dateTo'
+        ];
+        foreach ($dateFields as $field) {
+            $discount->$field = (($date = craft()->request->getPost($field)) ? DateTime::createFromString($date, craft()->timezone) : null);
         }
 
         // Format into a %
@@ -169,6 +178,24 @@ class Commerce_DiscountsController extends Commerce_BaseCpController
     }
 
     /**
+     * @return \HttpResponse
+     * @throws HttpException
+     */
+    public function actionReorder()
+    {
+        $this->requirePostRequest();
+        $this->requireAjaxRequest();
+
+        $ids = JsonHelper::decode(craft()->request->getRequiredPost('ids'));
+        if ($success = craft()->commerce_discounts->reorderDiscounts($ids))
+        {
+            return $this->returnJson(['success' => $success]);
+        };
+
+        return $this->returnJson(['error' => Craft::t("Couldn’t reorder discounts.")]);
+    }
+
+    /**
      * @throws HttpException
      */
     public function actionDelete()
@@ -193,7 +220,7 @@ class Commerce_DiscountsController extends Commerce_BaseCpController
         $id = craft()->request->getRequiredPost('id');
 
         craft()->commerce_discounts->clearCouponUsageHistory($id);
-        
+
         $this->returnJson(['success' => true]);
     }
 

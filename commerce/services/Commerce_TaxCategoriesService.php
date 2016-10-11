@@ -80,15 +80,15 @@ class Commerce_TaxCategoriesService extends BaseApplicationComponent
     }
 
     /**
-     * Id of default tax category
+     * Default tax category
      *
      * @return int|null
      */
-    public function getDefaultTaxCategoryId()
+    public function getDefaultTaxCategory()
     {
         foreach($this->getAllTaxCategories() as $taxCategory){
             if ($taxCategory->default) {
-                return $taxCategory->id;
+                return $taxCategory;
             }
         }
 

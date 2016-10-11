@@ -98,13 +98,27 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
                 $canManage = $userSessionService->checkPermission('commerce-manageProductType:'.$productType->id);
             }
 
-            if ($canManage) {
+            if ($canManage)
+            {
+                // Allow deletion
                 $deleteAction = craft()->elements->getAction('Commerce_DeleteProduct');
-                $deleteAction->setParams([
-                    'confirmationMessage' => Craft::t('Are you sure you want to delete the selected product and its variants?'),
-                    'successMessage' => Craft::t('Products and Variants deleted.'),
-                ]);
+                $deleteAction->setParams(['confirmationMessage' => Craft::t('Are you sure you want to delete the selected product and its variants?'),
+                                          'successMessage'      => Craft::t('Products and Variants deleted.'),]);
                 $actions[] = $deleteAction;
+
+                // Allow setting status
+                $setStatusAction = craft()->elements->getAction('SetStatus');
+                $setStatusAction->onSetStatus = function (Event $event)
+                {
+                    if ($event->params['status'] == BaseElementModel::ENABLED)
+                    {
+                        // Set a Post Date as well
+                        craft()->db->createCommand()->update('entries',
+                            ['postDate' => DateTimeHelper::currentTimeForDb()],
+                            ['and',['in','id', $event->params['elementIds']], 'postDate is null']);
+                    }
+                };
+                $actions[] = $setStatusAction;
             }
 
             if($userSessionService->checkPermission('commerce-managePromotions')){
@@ -191,6 +205,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
             'postDate' => ['label' => Craft::t('Post Date')],
             'expiryDate' => ['label' => Craft::t('Expiry Date')],
             'taxCategory' => ['label' => Craft::t('Tax Category')],
+            'shippingCategory' => ['label' => Craft::t('Shipping Category')],
             'freeShipping' => ['label' => Craft::t('Free Shipping?')],
             'promotable' => ['label' => Craft::t('Promotable?')],
             'link' => ['label' => Craft::t('Link'), 'icon' => 'world'],
@@ -274,8 +289,13 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
 
                 return ($taxCategory ? Craft::t($taxCategory->name) : '');
             }
+            case 'shippingCategory': {
+                $shippingCategory = $element->getShippingCategory();
+
+                return ($shippingCategory ? Craft::t($shippingCategory->name) : '');
+            }
             case 'defaultPrice': {
-                $code = craft()->commerce_settings->getOption('defaultCurrency');
+                $code = craft()->commerce_paymentCurrencies->getPrimaryPaymentCurrencyIso();
 
                 return craft()->numberFormatter->formatCurrency($element->$attribute, strtoupper($code));
             }
@@ -416,7 +436,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
     public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
     {
         $query
-            ->addSelect("products.id, products.typeId, products.promotable, products.freeShipping, products.postDate, products.expiryDate, products.defaultPrice, products.defaultVariantId, products.defaultSku, products.defaultWeight, products.defaultLength, products.defaultWidth, products.defaultHeight, products.taxCategoryId")
+            ->addSelect("products.id, products.typeId, products.promotable, products.freeShipping, products.postDate, products.expiryDate, products.defaultPrice, products.defaultVariantId, products.defaultSku, products.defaultWeight, products.defaultLength, products.defaultWidth, products.defaultHeight, products.taxCategoryId, products.shippingCategoryId")
             ->join('commerce_products products', 'products.id = elements.id')
             ->join('commerce_producttypes producttypes', 'producttypes.id = products.typeId');
 

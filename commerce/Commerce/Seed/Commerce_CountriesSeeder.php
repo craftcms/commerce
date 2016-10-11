@@ -272,6 +272,15 @@ class Commerce_CountriesSeeder implements Commerce_SeederInterface
             ['ZW', 'Zimbabwe'],
         ];
 
-        \Craft\craft()->db->createCommand()->insertAll($table, ['iso', 'name'], $countries);
+        // Not doing builk insert incase someone wants to repopulate deleted countries will all countries
+        foreach ($countries as $country)
+        {
+            $keyCols = [];
+            $columns = [];
+            $keyCols['iso'] = $country[0];
+            $columns['name'] = $country[1];
+            \Craft\craft()->db->createCommand()->insertOrUpdate($table, $keyCols, $columns);
+        }
+
     }
 }

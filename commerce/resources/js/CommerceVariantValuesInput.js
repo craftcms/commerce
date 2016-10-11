@@ -22,6 +22,7 @@ Craft.Commerce.VariantValuesInput = Craft.BaseInputGenerator.extend({
     {
         var sourceVal = this.$source.val();
         var targetVal = this.generateTargetValue(sourceVal);
+        console.log(sourceVal);
         this.$target.prop('checked', true);
     },
     onFormSubmit: function ()
