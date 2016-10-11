@@ -65,7 +65,10 @@
 
         {{ forms.textField({
             label: "Order PDF Filename Format"|t,
-            instructions: "The generated file name format. Do not include the file extension."|t,
+            instructions: "What the order PDF filenames should look like (sans extension). You can include tags that output order properties, such as {ex1} or {ex2}."|t({
+                ex1: '<code>{number}</code>',
+                ex2: '<code>{myOrderCustomField}</code>'
+            }),
             id: 'orderPdfFilenameFormat',
             name: 'settings[orderPdfFilenameFormat]',
             value: settings.orderPdfFilenameFormat,
