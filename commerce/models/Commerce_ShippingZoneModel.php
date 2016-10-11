@@ -22,6 +22,12 @@ namespace Craft;
  */
 class Commerce_ShippingZoneModel extends BaseModel
 {
+    /** @var Commerce_CountryModel[] $_countries */
+    private $_countries;
+
+    /** @var Commerce_CountryModel[] $_states */
+    private $_states;
+
     /**
      * @return string
      */
@@ -51,7 +57,24 @@ class Commerce_ShippingZoneModel extends BaseModel
      */
     public function getCountries()
     {
-        return craft()->commerce_shippingZones->getCountriesByShippingZoneId($this->id);
+        if (!isset($this->_countries))
+        {
+            $this->_countries = craft()->commerce_shippingZones->getCountriesByShippingZoneId($this->id);;
+        }
+
+        return $this->_countries;
+    }
+
+    /**
+     * Set countries in this Tax Zone.
+     *
+     * @param Commerce_CountryModel[] $countries
+     *
+     * @return null
+     */
+    public function setCountries($countries)
+    {
+        $this->_countries = $countries;
     }
 
     /**
@@ -75,7 +98,24 @@ class Commerce_ShippingZoneModel extends BaseModel
      */
     public function getStates()
     {
-        return craft()->commerce_shippingZones->getStatesByShippingZoneId($this->id);
+        if (!isset($this->_states))
+        {
+            $this->_states = craft()->commerce_shippingZones->getStatesByShippingZoneId($this->id);;
+        }
+
+        return $this->_states;
+    }
+
+    /**
+     * Set states in this shipping Zone.
+     *
+     * @param Commerce_StateModel[] $states
+     *
+     * @return null
+     */
+    public function setStates($states)
+    {
+        $this->_states = $states;
     }
 
     /**
