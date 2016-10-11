@@ -79,16 +79,6 @@ class Commerce_TaxZonesService extends BaseApplicationComponent
             $record = new Commerce_TaxZoneRecord();
         }
 
-        //remembering which links should be clean
-        $deleteOldCountries = $deleteOldStates = false;
-        if ($record->id) {
-            if ($record->countryBased) {
-                $deleteOldCountries = true;
-            } else {
-                $deleteOldStates = true;
-            }
-        }
-
         //setting attributes
         $record->name = $model->name;
         $record->description = $model->description;
@@ -127,14 +117,9 @@ class Commerce_TaxZonesService extends BaseApplicationComponent
                 // Now that we have a record ID, save it on the model
                 $model->id = $record->id;
 
-                //deleting old links
-                if ($deleteOldCountries) {
-                    Commerce_TaxZoneCountryRecord::model()->deleteAllByAttributes(['taxZoneId' => $record->id]);
-                }
-
-                if ($deleteOldStates) {
-                    Commerce_TaxZoneStateRecord::model()->deleteAllByAttributes(['taxZoneId' => $record->id]);
-                }
+                // Clean out all old links
+                Commerce_TaxZoneCountryRecord::model()->deleteAllByAttributes(['taxZoneId' => $record->id]);
+                Commerce_TaxZoneStateRecord::model()->deleteAllByAttributes(['taxZoneId' => $record->id]);
 
                 //saving new links
                 if ($model->countryBased) {

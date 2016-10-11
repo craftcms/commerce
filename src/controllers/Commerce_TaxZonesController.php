@@ -75,11 +75,31 @@ class Commerce_TaxZonesController extends Commerce_BaseAdminController
         $taxZone->description = craft()->request->getPost('description');
         $taxZone->countryBased = craft()->request->getPost('countryBased');
         $taxZone->default = craft()->request->getPost('default');
-        $countryIds = craft()->request->getPost('countries', []);
-        $stateIds = craft()->request->getPost('states', []);
+        $countryIds = craft()->request->getPost('countries') ? craft()->request->getPost('countries') : [];
+        $stateIds = craft()->request->getPost('states') ? craft()->request->getPost('states') : [];
 
-        // Save it
-        if (craft()->commerce_taxZones->saveTaxZone($taxZone, $countryIds, $stateIds)) {
+        $countries = [];
+        foreach ($countryIds as $id)
+        {
+            if ($country = craft()->commerce_countries->getCountryById($id))
+            {
+               $countries[] = $country;
+            }
+        }
+        $taxZone->setCountries($countries);
+
+        $states = [];
+        foreach ($stateIds as $id)
+        {
+            if ($state = craft()->commerce_states->getStateById($id))
+            {
+                $states[] = $state;
+            }
+        }
+        $taxZone->setStates($states);
+
+        // TODO: refactor to remove ids params which are not needed.
+        if (craft()->commerce_taxZones->saveTaxZone($taxZone, $taxZone->getCountryIds(), $taxZone->getStateIds())) {
             if (craft()->request->isAjaxRequest()) {
                 $this->returnJson([
                     'success' => true,
