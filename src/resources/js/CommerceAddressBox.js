@@ -108,7 +108,7 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
         }
 
         if (!this.address.id) {
-            $("<span class='newAddress'>No address<br></span>").appendTo(this.$address);
+            $("<span class='newAddress'>" + Craft.t("No address") + "<br></span>").appendTo(this.$address);
         }
 
         this._attachListeners();
