@@ -246,7 +246,12 @@ class Commerce_OrderModel extends BaseElementModel
     {
         return (bool) $this->outstandingBalance() > 0;
     }
-    
+
+    /**
+     * Returns the difference between the order amount and amount paid.
+     *
+     * @return float
+     */
     public function outstandingBalance()
     {
 
