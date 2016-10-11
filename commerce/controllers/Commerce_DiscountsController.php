@@ -192,7 +192,7 @@ class Commerce_DiscountsController extends Commerce_BaseCpController
             return $this->returnJson(['success' => $success]);
         };
 
-        return $this->returnJson(['error' => Craft::t("Couldn't reorder Discounts.")]);
+        return $this->returnJson(['error' => Craft::t("Couldn’t reorder discounts.")]);
     }
 
     /**
@@ -220,7 +220,7 @@ class Commerce_DiscountsController extends Commerce_BaseCpController
         $id = craft()->request->getRequiredPost('id');
 
         craft()->commerce_discounts->clearCouponUsageHistory($id);
-        
+
         $this->returnJson(['success' => true]);
     }
 

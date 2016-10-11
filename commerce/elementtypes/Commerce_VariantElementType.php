@@ -92,10 +92,10 @@ class Commerce_VariantElementType extends Commerce_BaseElementType
             'title' => Craft::t('Title'),
             'sku' => Craft::t('SKU'),
             'price' => Craft::t('Price'),
-            'width' => Craft::t('Width ') . "(" . craft()->commerce_settings->getOption('dimensionUnits') . ")",
-            'height' => Craft::t('Height ') . "(" . craft()->commerce_settings->getOption('dimensionUnits') . ")",
-            'length' => Craft::t('Length ') . "(" . craft()->commerce_settings->getOption('dimensionUnits') . ")",
-            'weight' => Craft::t('Weight ') . "(" . craft()->commerce_settings->getOption('weightUnits') . ")",
+            'width' => Craft::t('Width ({unit})', ['unit' => craft()->commerce_settings->getOption('dimensionUnits')]),
+            'height' => Craft::t('Height ({unit})', ['unit' => craft()->commerce_settings->getOption('dimensionUnits')]),
+            'length' => Craft::t('Length ({unit})', ['unit' => craft()->commerce_settings->getOption('dimensionUnits')]),
+            'weight' => Craft::t('Weight ({unit})', ['unit' => craft()->commerce_settings->getOption('weightUnits')]),
             'stock' => Craft::t('Stock'),
             'minQty' => Craft::t('Quantities')
         ];
