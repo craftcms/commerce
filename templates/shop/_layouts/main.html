@@ -36,7 +36,16 @@
 				<div class="flash">{{ craft.session.getFlash('notice') }}</div>
 				<div class="flash">{{ craft.session.getFlash('error') }}</div>
 
-			</div>
+                <div class="row">
+                    <div class="twelve columns">
+                        {% for error in cart.errors %}
+                            <div class="flash">{{ error|join(' ') }}</div>
+                        {% endfor  %}
+                    </div>
+                </div>
+
+
+            </div>
 		</div>
 	</div>
 {% endblock %}
