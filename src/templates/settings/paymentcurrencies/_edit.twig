@@ -14,19 +14,6 @@
     <input type="hidden" name="redirect" value="commerce/settings/paymentcurrencies">
     {% if currency.id %}<input type="hidden" name="currencyId" value="{{ currency.id }}">{% endif %}
 
-    {{ forms.textField({
-        first: true,
-        label: "Name"|t,
-        instructions: "What this currency will be called in the CP."|t,
-        id: 'name',
-        name: 'name',
-        value: currency.name,
-        errors: currency.getErrors('name'),
-        autofocus: true,
-        required: true,
-        translatable: true
-    }) }}
-
 	{{ forms.selectField({
 		label: 'Currency Code'|t,
 		instructions: 'Choose the currency’s ISO code.'|t,

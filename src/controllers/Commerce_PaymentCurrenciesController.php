@@ -45,12 +45,11 @@ class Commerce_PaymentCurrenciesController extends Commerce_BaseAdminController
         }
 
         if (!empty($variables['id'])) {
-            if ($variables['currency']->primary) {
-                $variables['title'] = Craft::t('{name} (Primary)', [
-                    'name' => $variables['currency']->name,
-                ]);
-            } else {
-                $variables['title'] = $variables['currency']->name;
+            if ($variables['currency']->primary)
+            {
+                $variables['title'] = $variables['currency']->currency.' ('.$variables['currency']->iso.')';
+            }else{
+                $variables['title'] = $variables['currency']->currency.' ('.$variables['currency']->iso.')';
             }
         } else {
             $variables['title'] = Craft::t('Create a new currency');
@@ -73,7 +72,6 @@ class Commerce_PaymentCurrenciesController extends Commerce_BaseAdminController
 
         // Shared attributes
         $currency->id = craft()->request->getPost('currencyId');
-        $currency->name = craft()->request->getPost('name');
         $currency->iso = craft()->request->getPost('iso');
         $currency->rate = craft()->request->getPost('rate');
         $currency->primary = craft()->request->getPost('primary');
