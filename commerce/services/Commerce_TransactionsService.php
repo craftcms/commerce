@@ -134,6 +134,7 @@ class Commerce_TransactionsService extends BaseApplicationComponent
             'paymentRate',
             'reference',
             'message',
+            'code',
             'response',
             'userId',
             'parentId'

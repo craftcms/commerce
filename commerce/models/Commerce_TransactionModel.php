@@ -18,6 +18,7 @@ use Omnipay\Common\Exception\OmnipayException;
  * @property float $paymentRate
  * @property string $status
  * @property string $reference
+ * @property string $code
  * @property string $message
  * @property string $response
  *
@@ -197,6 +198,7 @@ class Commerce_TransactionModel extends BaseModel
             'amount' => AttributeType::Number,
             'status' => AttributeType::String,
             'reference' => AttributeType::String,
+            'code' => AttributeType::String,
             'message' => AttributeType::String,
             'response' => AttributeType::String,
             'dateUpdated' => AttributeType::String,
