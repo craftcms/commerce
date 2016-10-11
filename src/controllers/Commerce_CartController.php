@@ -171,7 +171,9 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
             $error = '';
             if (!craft()->commerce_cart->addToCart($cart, $purchasableId, $qty, $note, $options, $error))
             {
-                $addToCartError = Craft::t('Could not add to cart: ').$error;
+                $addToCartError = Craft::t('Could not add to cart: {error}', [
+                    'error' => $error,
+                ]);
                 $updateErrors['lineItems'] = $addToCartError;
             }
             else
