@@ -440,8 +440,10 @@ return array(
 	'Order Currency' => 'Order Currency',
 	'Order Date' => 'Order Date',
 	'Order deleted.' => 'Order deleted.',
+	'Order Description Format' => 'Order Description Format',
 	'Order Fields' => 'Order Fields',
 	'Order History' => 'Order History',
+	'Order PDF Filename Format' => 'Order PDF Filename Format',
 	'Order PDF Template' => 'Order PDF Template',
 	'Order Settings' => 'Order Settings',
 	'Order settings saved.' => 'Order settings saved.',
@@ -705,6 +707,4 @@ return array(
 	'Zone' => 'Zone',
 	'{name} (Primary)' => '{name} (Primary)',
 	'{number} more…' => '{number} more…',
-	'Order Description Format' => 'Order Description Format',
-	'Order PDF Filename Format' => 'Order PDF Filename Format',
 );

@@ -440,8 +440,10 @@ return array(
 	'Order Currency' => 'Mena objednávky',
 	'Order Date' => 'Dátum Objednávky',
 	'Order deleted.' => 'Objednávka zmazaná.',
+	'Order Description Format' => 'Formát opisu objednávky',
 	'Order Fields' => 'Polia Objednávky',
 	'Order History' => 'História objednávok',
+	'Order PDF Filename Format' => 'Formát názvu PDF súboru k objednávke',
 	'Order PDF Template' => 'PDF Šablóna Objednávky',
 	'Order Settings' => 'Nastavenia Objednávky',
 	'Order settings saved.' => 'Nastavenia objednávky uložené.',
@@ -705,6 +707,4 @@ return array(
 	'Zone' => 'Zóna',
 	'{name} (Primary)' => '{name} (Hlavná)',
 	'{number} more…' => 'Ešte {number}…',
-	'Order Description Format' => 'Formát opisu objednávky',
-	'Order PDF Filename Format' => 'Formát názvu PDF súboru k objednávke',
 );
