@@ -186,7 +186,7 @@ class CommerceVariable
      * @param bool $asList Whether we should return the tax categories as a simple list suitable for a html select box
      * @return Commerce_TaxCategoryModel[]
      */
-    public function getTaxCategories($asList = true)
+    public function getTaxCategories($asList = false)
     {
         $taxCategories = craft()->commerce_taxCategories->getAllTaxCategories();
 
