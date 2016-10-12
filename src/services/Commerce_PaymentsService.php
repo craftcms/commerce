@@ -633,11 +633,6 @@ EOF;
         $transaction->message = $response->getMessage();
 
         $this->saveTransaction($transaction);
-
-        if ($transaction->status == Commerce_TransactionRecord::STATUS_SUCCESS)
-        {
-            craft()->commerce_orders->updateOrderPaidTotal($transaction->order);
-        }
     }
 
     /**
@@ -822,6 +817,11 @@ EOF;
 
             if ($success)
             {
+                if ($transaction->status == Commerce_TransactionRecord::STATUS_SUCCESS)
+                {
+                    craft()->commerce_orders->updateOrderPaidTotal($transaction->order);
+                }
+
                 return true;
             }
             else
