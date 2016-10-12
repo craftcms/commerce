@@ -15,10 +15,10 @@ $iterator = Finder::create()
     ->exclude('tests')
     ->exclude('migrations')
     ->exclude('vendor')
-    ->in(__DIR__.'/../../plugins/market');
+    ->in(__DIR__.'/../../commerce');
 
 $options = array(
-    'title'                => 'Market Plugin for Craft CMS',
+    'title'                => 'Craft Commerce for Craft CMS',
     'build_dir'            => __DIR__.'/build',
     'cache_dir'            => __DIR__.'/cache',
     'default_opened_level' => 2

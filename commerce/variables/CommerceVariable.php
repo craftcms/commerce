@@ -134,6 +134,8 @@ class CommerceVariable
     }
 
     /**
+     * @param bool $asList should the categories be returned as a simple list suitable for a html select box
+     *
      * @return array
      */
     public function getShippingCategories($asList = false)
@@ -151,7 +153,8 @@ class CommerceVariable
 
     /**
      * @param bool $asList Whether we should return the payment methods as a simple list suitable for a html select box
-     * @return Commerce_PaymentMethodModel[]
+     *
+     * @return array|Commerce_PaymentMethodModel[]
      */
     public function getPaymentMethods($asList = false)
     {
@@ -183,8 +186,9 @@ class CommerceVariable
     }
 
     /**
-     * @param bool $asList Whether we should return the tax categories as a simple list suitable for a html select box
-     * @return Commerce_TaxCategoryModel[]
+     * @param bool $asList should the categories be returned as a simple list suitable for a html select box
+     *
+     * @return array|Commerce_TaxCategoryModel[]
      */
     public function getTaxCategories($asList = false)
     {

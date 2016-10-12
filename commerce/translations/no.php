@@ -440,8 +440,10 @@ return array(
 	'Order Currency' => 'Bestillingsvaluta',
 	'Order Date' => 'Ordredato',
 	'Order deleted.' => 'Ordre lettet.',
+	'Order Description Format' => 'Ordrebeskrivelse format',
 	'Order Fields' => 'Bestillingsfelt',
 	'Order History' => 'Ordrehistorie',
+	'Order PDF Filename Format' => 'Bestillings PDF-filnavn format',
 	'Order PDF Template' => 'PDF-mal for bestilling',
 	'Order Settings' => 'Ordreinnstillinger',
 	'Order settings saved.' => 'Ordreinnstillinger lagret.',
@@ -705,6 +707,4 @@ return array(
 	'Zone' => 'Sone',
 	'{name} (Primary)' => '{name} (Primære)',
 	'{number} more…' => '{number} mer…',
-	'Order Description Format' => 'Ordrebeskrivelse format',
-	'Order PDF Filename Format' => 'Bestillings PDF-filnavn format',
 );

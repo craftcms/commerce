@@ -440,8 +440,10 @@ return array(
 	'Order Currency' => 'Devise de la commande',
 	'Order Date' => 'Date de commande',
 	'Order deleted.' => 'Commande supprimée',
+	'Order Description Format' => 'Format de la description de la commande',
 	'Order Fields' => 'Champs de commande',
 	'Order History' => 'Historique des commandes',
+	'Order PDF Filename Format' => 'Format de nom de fichier PDF de commandes',
 	'Order PDF Template' => 'Modèle PDF de la commande',
 	'Order Settings' => 'Paramètres de commande',
 	'Order settings saved.' => 'Paramètres de commande enregistrés',
@@ -705,6 +707,4 @@ return array(
 	'Zone' => 'Zone',
 	'{name} (Primary)' => '{name} (Primary)',
 	'{number} more…' => '{number} de plus…',
-	'Order Description Format' => 'Format de la description de la commande',
-	'Order PDF Filename Format' => 'Format de nom de fichier PDF de commandes',
 );

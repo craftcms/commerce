@@ -646,7 +646,7 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
         CommerceDbHelper::beginStackedTransaction();
         try
         {
-            $productType = $this->Id($id);
+            $productType = $this->getProductTypeById($id);
 
             $criteria = craft()->elements->getCriteria('Commerce_Product');
             $criteria->typeId = $productType->id;
