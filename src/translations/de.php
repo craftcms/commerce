@@ -440,8 +440,10 @@ return array(
 	'Order Currency' => 'Bestellwährung',
 	'Order Date' => 'Bestelldatum',
 	'Order deleted.' => 'Bestellung gelöscht.',
+	'Order Description Format' => 'Format für Bestellbeschreibung',
 	'Order Fields' => 'Bestellfelder',
 	'Order History' => 'Bestellverlauf',
+	'Order PDF Filename Format' => 'Dateinamensformat für Bestell-PDF',
 	'Order PDF Template' => 'Template für Bestell-PDFs',
 	'Order Settings' => 'Bestelleinstellungen',
 	'Order settings saved.' => 'Bestelleinstellungen gespeichert.',
@@ -705,6 +707,4 @@ return array(
 	'Zone' => 'Zone',
 	'{name} (Primary)' => '{name} (Hauptname)',
 	'{number} more…' => '{number} mehr …',
-	'Order Description Format' => 'Format für Bestellbeschreibung',
-	'Order PDF Filename Format' => 'Dateinamensformat für Bestell-PDF',
 );
