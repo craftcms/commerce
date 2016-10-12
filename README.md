@@ -9,13 +9,11 @@ Use of this software is subject to the License Agreement located at https://craf
 
 To generate a phpdoc documentation:
 
-1. `cd docs/phpdoc`
+1. `cd classdocs`
 2. `curl -O http://get.sensiolabs.org/sami.phar`
-3. `php sami.phar update config.php -v`
+3. `php sami.phar update sami-config.php -v`
 
-Then open the `build/index.html` file in the browser. In chrome the search sidebar will not
-show up due to security issues for local files. Use firefox. Chrome does not have this issue when
-served from a webserver.
+Then open the `build/index.html` file in the browser.
 
 ## Test Suite
 
