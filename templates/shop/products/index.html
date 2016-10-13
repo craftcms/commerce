@@ -1,6 +1,6 @@
 {% extends 'shop/_layouts/main' %}
 {% block main %}
-
+    {% cache %}
 {% for product in craft.commerce.products.limit(5).find() %}
     <div class="row product">
         <div class="two columns">
@@ -14,11 +14,13 @@
                     <input type="hidden" name="redirect" value="shop/cart">
                     <input type="hidden" name="qty" value="1">
                     {{ getCsrfInput() }}
+
                     <select name="purchasableId">
                         {%- for purchasable in product.variants -%}
-                            <option {% if purchasable.stock <= 0 and purchasable.unlimitedStock == false %}disabled {% endif %} value="{{ purchasable.purchasableId }}">{{ purchasable.description }} {{ purchasable.salePrice|commerceCurrency(cart.currency) }}</option>
+                            <option {% if purchasable.stock <= 0 and purchasable.unlimitedStock == false %}disabled {% endif %} value="{{ purchasable.purchasableId }}">{{ purchasable.description }} {{ purchasable.salePrice|commerceCurrency(cart.currency) }}  Stock: {{ purchasable.stock }}</option>
                         {%- endfor -%}
                     </select>
+
                     <select name="options[giftWrapped]">
                         <option value="no">No gift wrap.</option>
                         <option value="yes">Gift wrapped.</option>
@@ -41,5 +43,5 @@
         </div>
     </div>
 {% endfor %}
-
+    {% endcache %}
 {% endblock %}
