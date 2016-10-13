@@ -79,7 +79,7 @@ abstract class Purchasable extends BaseElementModel implements PurchasableInterf
      */
     public function getTaxCategoryId()
     {
-        return craft()->commerce_taxCategories->getDefaultTaxCategory()->id;
+        return \Craft\craft()->commerce_taxCategories->getDefaultTaxCategory()->id;
     }
 
     /**
@@ -89,7 +89,7 @@ abstract class Purchasable extends BaseElementModel implements PurchasableInterf
      */
     public function getShippingCategoryId()
     {
-        return craft()->commerce_shippingCategories->getDefaultShippingCategory()->id;
+        return \Craft\craft()->commerce_shippingCategories->getDefaultShippingCategory()->id;
     }
 
 

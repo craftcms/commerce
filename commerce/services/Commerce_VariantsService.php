@@ -293,6 +293,7 @@ class Commerce_VariantsService extends BaseApplicationComponent
                 continue;
             }
 
+            $clearCacheOfElementIds = [];
             if ($purchasable instanceof Commerce_VariantModel && !$purchasable->unlimitedStock)
             {
 
@@ -309,8 +310,13 @@ class Commerce_VariantsService extends BaseApplicationComponent
                     ->where('id = :variantId', [':variantId' => $purchasable->id])
                     ->queryScalar();
 
-
+                // Clear the cache since the stock changed
+                $clearCacheOfElementIds[] = $purchasable->id;
+                $clearCacheOfElementIds[] = $purchasable->product->id;
             }
+
+            $clearCacheOfElementIds = array_unique($clearCacheOfElementIds);
+            craft()->templateCache->deleteCachesByElementId($clearCacheOfElementIds);
 
             if ($purchasable instanceof Commerce_VariantModel)
             {

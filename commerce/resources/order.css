@@ -58,3 +58,5 @@
 
 .transaction-status.transaction-status-failed { color: #D0021B; }
 .transaction-status.transaction-status-success { color: #27AE60; }
+
+.transaction-response { display: block; min-width: 250px; height:50px; font-family: Menlo, monospace; font-size: 0.9em !important;}
