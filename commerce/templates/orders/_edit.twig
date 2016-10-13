@@ -368,7 +368,7 @@
 						{ label: "Message", value: transaction.message|title },
 						{ label: "Code", value: transaction.code },
 						{ label: "Converted Price", value: transaction.paymentAmount|currency(transaction.paymentCurrency)~" <small class=\"light\">(1 "~transaction.currency~" = "~transaction.paymentRate|number~" "~transaction.paymentCurrency~")</small>" },
-						{ label: "Response", value: "<code>"~transaction.response|json_encode|raw~"</code>" },
+						{ label: "Response", value: "<code class=\"transaction-response\">"~transaction.response|json_encode|raw~"</code>" },
 					] %}
 
 					<tr class="infoRow" data-info="{{ info|json_encode }}">
