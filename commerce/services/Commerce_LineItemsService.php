@@ -38,7 +38,7 @@ class Commerce_LineItemsService extends BaseApplicationComponent
     /**
      * Find line item by order and variant
      *
-     * @param int $order
+     * @param int $orderId
      * @param int   $purchasableId
      * @param array $options
      *
