@@ -41,7 +41,7 @@ class m151124_010101_Commerce_AddressManagement extends BaseMigration
             }
         }
 
-        $table = craft()->db->schema->getTable('craft_commerce_addresses');
+        $table = craft()->db->schema->getTable('commerce_addresses');
         if (isset($table->columns['customerId'])) {
             $this->dropColumn('commerce_addresses', 'customerId');
         }
