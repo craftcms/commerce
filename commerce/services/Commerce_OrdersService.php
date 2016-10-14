@@ -487,6 +487,8 @@ class Commerce_OrdersService extends BaseApplicationComponent
             return true;
         }
 
+        CommercePlugin::log(Craft::t('Could not mark order {number} as complete. Order save failed during order completion with errors: {errors}',
+            ['number' => $order->number, 'order' => json_encode($order->getAllErrors())]), LogLevel::Error, true);
         return false;
     }
 
