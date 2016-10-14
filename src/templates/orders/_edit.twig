@@ -114,7 +114,7 @@
 
 	</div>
 
-    {% if order.lineItems | length %}
+    {% if order.lineItems | length or order.totalPrice > 0 %}
 	<div class="order-details">
 		<table id="" class="data fullwidth collapsible">
 			<thead>
