@@ -588,12 +588,12 @@ class Commerce_CartService extends BaseApplicationComponent
     {
 
         $configInterval = craft()->config->get('purgeInactiveCartsDuration', 'commerce');
-        $edge = new DateTime();
-        $interval = new DateInterval($configInterval);
+        $edge = new \DateTime();
+        $interval = new \DateInterval($configInterval);
         $interval->invert = 1;
         $edge->add($interval);
 
-        $records = Commerce_OrderRecord::model()->findAllByAttributes(['dateOrdered' => null,], 'dateUpdated <= :edge', ['edge' => $edge->format('Y-m-d H:i:s')]);
+        $records = Commerce_OrderRecord::model()->findAllByAttributes(['isCompleted'=>false],'dateUpdated <= :edge', ['edge' => $edge->format('Y-m-d H:i:s')]);
 
         return Commerce_OrderModel::populateModels($records);
     }
