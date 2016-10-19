@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "1a5c9162904363b764a62b06542f2b2b",
-    "content-hash": "1313b4ddba472b903d76808876e13713",
+    "hash": "6a2fb93ae7f4e5e149eb6c06d3ac1bd4",
+    "content-hash": "3172f5f0df6bf26b444aa7eea7bfcb3b",
     "packages": [
         {
             "name": "dompdf/dompdf",
@@ -1722,6 +1722,57 @@
             "time": "2014-02-01 15:22:28"
         },
         {
+            "name": "php-units-of-measure/php-units-of-measure",
+            "version": "v2.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/PhpUnitsOfMeasure/php-units-of-measure.git",
+                "reference": "25f476e9c50e11af8cf044d22ffc271c96aa5248"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/PhpUnitsOfMeasure/php-units-of-measure/zipball/25f476e9c50e11af8cf044d22ffc271c96aa5248",
+                "reference": "25f476e9c50e11af8cf044d22ffc271c96aa5248",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4.0"
+            },
+            "replace": {
+                "triplepoint/php-units-of-measure": "*"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "4.8.*",
+                "squizlabs/php_codesniffer": "2.2.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PhpUnitsOfMeasure\\": "source/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jonathan Hanson",
+                    "email": "jonathan@jonathan-hanson.org",
+                    "homepage": "http://www.jonathan-hanson.org/",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A PHP library for converting between standard units of measure.",
+            "homepage": "https://github.com/PhpUnitsOfMeasure/php-units-of-measure",
+            "keywords": [
+                "conversion",
+                "data",
+                "measurements"
+            ],
+            "time": "2016-07-24 22:36:00"
+        },
+        {
             "name": "ramsey/array_column",
             "version": "1.1.3",
             "source": {
@@ -1884,12 +1935,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-foundation.git",
-                "reference": "7dab09393d0ac080eeaf5133f762daa698f02cd2"
+                "reference": "47bb765b2181b1eba556efae03526ce4730176ae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/7dab09393d0ac080eeaf5133f762daa698f02cd2",
-                "reference": "7dab09393d0ac080eeaf5133f762daa698f02cd2",
+                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/47bb765b2181b1eba556efae03526ce4730176ae",
+                "reference": "47bb765b2181b1eba556efae03526ce4730176ae",
                 "shasum": ""
             },
             "require": {
@@ -1929,7 +1980,7 @@
             ],
             "description": "Symfony HttpFoundation Component",
             "homepage": "https://symfony.com",
-            "time": "2016-10-14 01:32:06"
+            "time": "2016-10-18 04:30:21"
         },
         {
             "name": "symfony/polyfill-mbstring",
@@ -1989,58 +2040,6 @@
                 "shim"
             ],
             "time": "2016-08-30 17:06:17"
-        },
-        {
-            "name": "triplepoint/php-units-of-measure",
-            "version": "v2.1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/PhpUnitsOfMeasure/php-units-of-measure.git",
-                "reference": "25f476e9c50e11af8cf044d22ffc271c96aa5248"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/PhpUnitsOfMeasure/php-units-of-measure/zipball/25f476e9c50e11af8cf044d22ffc271c96aa5248",
-                "reference": "25f476e9c50e11af8cf044d22ffc271c96aa5248",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.4.0"
-            },
-            "replace": {
-                "triplepoint/php-units-of-measure": "*"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "4.8.*",
-                "squizlabs/php_codesniffer": "2.2.*"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "PhpUnitsOfMeasure\\": "source/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Jonathan Hanson",
-                    "email": "jonathan@jonathan-hanson.org",
-                    "homepage": "http://www.jonathan-hanson.org/",
-                    "role": "Developer"
-                }
-            ],
-            "description": "A PHP library for converting between standard units of measure.",
-            "homepage": "https://github.com/PhpUnitsOfMeasure/php-units-of-measure",
-            "keywords": [
-                "conversion",
-                "data",
-                "measurements"
-            ],
-            "abandoned": "php-units-of-measure/php-units-of-measure",
-            "time": "2016-07-24 22:36:00"
         }
     ],
     "packages-dev": [],
