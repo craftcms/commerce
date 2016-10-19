@@ -32,7 +32,7 @@
         "omnipay/firstdata" :  "~2.3",
         "omnipay/gocardless" :  "~2.2",
         "omnipay/manual" :  "~2.2",
-        "omnipay/migs" :  "~2.1",
+        "omnipay/migs" :  "~2.2",
         "omnipay/mollie" :  "~3.0",
         "omnipay/multisafepay" :  "~2.3",
         "omnipay/netaxept" :  "~2.3",
@@ -50,6 +50,6 @@
         "dompdf/dompdf" : "0.6.1",
         "ramsey/array_column": "^1.1",
         "snowcap/vat-validation": "dev-master#21e7d996bd30dc680244d59d0fa18be3671e68ee",
-        "triplepoint/php-units-of-measure": "^2.1"
+        "php-units-of-measure/php-units-of-measure": "~2.1"
     }
 }
