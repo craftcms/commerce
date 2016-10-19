@@ -15,10 +15,6 @@
         }
     },
     "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/pixelandtonic/omnipay-netbanx"
-        }
     ],
     "require": {
         "omnipay/2checkout" :  "~2.1",
@@ -36,7 +32,7 @@
         "omnipay/mollie" :  "~3.0",
         "omnipay/multisafepay" :  "~2.3",
         "omnipay/netaxept" :  "~2.3",
-        "omnipay/netbanx" :  "dev-dev-hostedpayments",
+        "omnipay/netbanx" :  "~2.2",
         "omnipay/payfast" :  "~2.1",
         "omnipay/payflow" :  "~2.2",
         "omnipay/paymentexpress" :  "~2.2",
