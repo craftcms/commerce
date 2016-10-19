@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "6a2fb93ae7f4e5e149eb6c06d3ac1bd4",
-    "content-hash": "3172f5f0df6bf26b444aa7eea7bfcb3b",
+    "hash": "263b4b5fd73a8c0f48e59fd0de165c81",
+    "content-hash": "fcb814a2e708c4bd22a4bde162cd69e1",
     "packages": [
         {
             "name": "dompdf/dompdf",
@@ -1051,16 +1051,16 @@
         },
         {
             "name": "omnipay/netbanx",
-            "version": "dev-dev-hostedpayments",
+            "version": "v2.2",
             "source": {
                 "type": "git",
-                "url": "https://github.com/pixelandtonic/omnipay-netbanx.git",
-                "reference": "55c92d3d2fa8eef5968c186a442ac967b83f50d0"
+                "url": "https://github.com/thephpleague/omnipay-netbanx.git",
+                "reference": "3684bbbf0dbdb977c1484d7252d776d81c68c813"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pixelandtonic/omnipay-netbanx/zipball/55c92d3d2fa8eef5968c186a442ac967b83f50d0",
-                "reference": "55c92d3d2fa8eef5968c186a442ac967b83f50d0",
+                "url": "https://api.github.com/repos/thephpleague/omnipay-netbanx/zipball/3684bbbf0dbdb977c1484d7252d776d81c68c813",
+                "reference": "3684bbbf0dbdb977c1484d7252d776d81c68c813",
                 "shasum": ""
             },
             "require": {
@@ -1080,6 +1080,7 @@
                     "Omnipay\\NetBanx\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -1103,10 +1104,7 @@
                 "pay",
                 "payment"
             ],
-            "support": {
-                "source": "https://github.com/pixelandtonic/omnipay-netbanx/tree/dev-hostedpayments"
-            },
-            "time": "2016-09-15 07:21:47"
+            "time": "2016-09-21 10:52:03"
         },
         {
             "name": "omnipay/payfast",
@@ -2046,7 +2044,6 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "omnipay/netbanx": 20,
         "omnipay/sagepay": 20,
         "snowcap/vat-validation": 20
     },
