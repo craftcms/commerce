@@ -11,10 +11,14 @@ use Symfony\Component\Finder\Finder;
 $iterator = Finder::create()
     ->files()
     ->name('*.php')
+    ->notName('sami.phar')
     ->exclude('resources')
     ->exclude('tests')
+    ->exclude('build')
+    ->exclude('cache')
     ->exclude('migrations')
     ->exclude('vendor')
+    ->exclude('templates')
     ->in(__DIR__.'/../../commerce');
 
 $options = array(
