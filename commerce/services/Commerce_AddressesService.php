@@ -43,11 +43,12 @@ class Commerce_AddressesService extends BaseApplicationComponent
 
     /**
      * @param Commerce_AddressModel $addressModel
+     * @param bool $validate should we validate this address before saving.
      *
      * @return bool
      * @throws Exception
      */
-    public function saveAddress(Commerce_AddressModel $addressModel)
+    public function saveAddress(Commerce_AddressModel $addressModel, $validate = true)
     {
 
         $isNewAddress = !$addressModel->id;
@@ -114,8 +115,11 @@ class Commerce_AddressesService extends BaseApplicationComponent
             }
         }
 
-        $addressRecord->validate();
-        $addressModel->addErrors($addressRecord->getErrors());
+        if ($validate)
+        {
+            $addressRecord->validate();
+            $addressModel->addErrors($addressRecord->getErrors());
+        }
 
         if (!$addressModel->hasErrors() && $event->performAction) {
 
