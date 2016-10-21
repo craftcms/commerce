@@ -76,6 +76,18 @@ class Commerce_ProductsService extends BaseApplicationComponent
                 ['id' => $product->typeId]));
         }
 
+        $taxCategoryIds = array_keys($productType->getTaxCategories());
+        if (!in_array($product->taxCategoryId, $taxCategoryIds))
+        {
+            $record->taxCategoryId = $product->taxCategoryId = $taxCategoryIds[0];
+        }
+
+        $shippingCategoryIds = array_keys($productType->getShippingCategories());
+        if (!in_array($product->shippingCategoryId, $shippingCategoryIds))
+        {
+            $record->shippingCategoryId = $product->shippingCategoryId = $shippingCategoryIds[0];
+        }
+
         // Final prep of variants and validation
         $variantsValid = true;
         $defaultVariant = null;
