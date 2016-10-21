@@ -350,20 +350,28 @@ class Commerce_CustomersService extends BaseApplicationComponent
         if ($order->billingAddress)
         {
             $snapShotBillingAddress = Commerce_AddressModel::populateModel($order->billingAddress);
+            $originalBillingAddressId = $snapShotBillingAddress->id;
             $snapShotBillingAddress->id = null;
-            if (craft()->commerce_addresses->saveAddress($snapShotBillingAddress))
+            if (craft()->commerce_addresses->saveAddress($snapShotBillingAddress, false))
             {
                 $order->billingAddressId = $snapShotBillingAddress->id;
+            }else{
+                CommercePlugin::log(Craft::t('Unable to duplicate the billing address on order completion. Original billing address ID: {addressId}. Order ID: {orderId}',
+                    ['addressId' => $originalBillingAddressId, 'orderId'   => $order->id]), LogLevel::Error, true);
             }
         }
 
         if ($order->shippingAddress)
         {
             $snapShotShippingAddress = Commerce_AddressModel::populateModel($order->shippingAddress);
+            $originalShippingAddressId = $snapShotShippingAddress->id;
             $snapShotShippingAddress->id = null;
-            if (craft()->commerce_addresses->saveAddress($snapShotShippingAddress))
+            if (craft()->commerce_addresses->saveAddress($snapShotShippingAddress, false))
             {
                 $order->shippingAddressId = $snapShotShippingAddress->id;
+            }else{
+                CommercePlugin::log(Craft::t('Unable to duplicate the shipping address on order completion. Original shipping address ID: {addressId}. Order ID: {orderId}',
+                    ['addressId' => $originalShippingAddressId, 'orderId'   => $order->id]), LogLevel::Error, true);
             }
         }
 
