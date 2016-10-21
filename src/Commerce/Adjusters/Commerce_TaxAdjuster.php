@@ -121,11 +121,12 @@ class Commerce_TaxAdjuster implements Commerce_AdjusterInterface
 	    foreach ($lineItems as $item) {
 
             if ($item->taxCategoryId == $taxRate->taxCategoryId) {
+                $taxableAmount = $item->getTaxableSubtotal($taxRate->taxable);
                 if (!$taxRate->include) {
-                    $amount = $taxRate->rate * $item->getTaxableSubtotal($taxRate->taxable);
+                    $amount = $taxRate->rate * $taxableAmount;
                     $itemTax = CommerceCurrencyHelper::round($amount);
                 } else {
-                    $amount = $item->getTaxableSubtotal($taxRate->taxable) - ($item->getTaxableSubtotal($taxRate->taxable) / (1 + $taxRate->rate));
+                    $amount = $taxableAmount - ($taxableAmount / (1 + $taxRate->rate));
                     $itemTax = CommerceCurrencyHelper::round($amount);
                 }
 
