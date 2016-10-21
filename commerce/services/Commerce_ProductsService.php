@@ -144,13 +144,13 @@ class Commerce_ProductsService extends BaseApplicationComponent
         CommerceDbHelper::beginStackedTransaction();
         try {
 
-             $record->defaultVariantId = $defaultVariant->getPurchasableId();
-             $record->defaultSku = $defaultVariant->getSku();
-             $record->defaultPrice = $defaultVariant->price * 1;
-             $record->defaultHeight = $defaultVariant->height * 1;
-             $record->defaultLength = $defaultVariant->length * 1;
-             $record->defaultWidth = $defaultVariant->width * 1;
-             $record->defaultWeight = $defaultVariant->weight * 1;
+             $record->defaultVariantId = $product->defaultVariantId = $defaultVariant->getPurchasableId();
+             $record->defaultSku = $product->defaultSku = $defaultVariant->getSku();
+             $record->defaultPrice = $product->defaultPrice = $defaultVariant->price * 1;
+             $record->defaultHeight = $product->defaultHeight = $defaultVariant->height * 1;
+             $record->defaultLength = $product->defaultLength = $defaultVariant->length * 1;
+             $record->defaultWidth = $product->defaultWidth = $defaultVariant->width * 1;
+             $record->defaultWeight = $product->defaultWeight = $defaultVariant->weight * 1;
             
             if ($event->performAction)
             {
