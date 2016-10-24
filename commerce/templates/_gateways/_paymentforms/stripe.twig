@@ -89,6 +89,8 @@
 							else
 							{
 								var token = response.id;
+								$form.find('input[name="number"]').removeAttr("name")
+								$form.find('input[name="cvv"]').removeAttr("name");
 								$form.append($('<input type="hidden" name="stripeToken" />').val(token));
 								$form.get(0).submit();
 							}
