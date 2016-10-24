@@ -145,14 +145,14 @@ class Commerce_ProductTypeModel extends BaseModel
             {
                 if($category = craft()->commerce_taxCategories->getTaxCategoryById($category))
                 {
-                    $categories[] = $category;
+                    $categories[$category->id] = $category;
                 }
             }else{
                 if($category instanceof Commerce_TaxCategoryModel)
                 {
                     if($category = craft()->commerce_taxCategories->getTaxCategoryById($category))
                     {
-                        $categories[] = $category;
+                        $categories[$category->id] = $category;
                     }
                 }
             }
@@ -173,14 +173,14 @@ class Commerce_ProductTypeModel extends BaseModel
             {
                 if($category = craft()->commerce_shippingCategories->getShippingCategoryById($category))
                 {
-                    $categories[] = $category;
+                    $categories[$category->id] = $category;
                 }
             }else{
                 if($category instanceof Commerce_ShippingCategoryModel)
                 {
                     if($category = craft()->commerce_shippingCategories->getShippingCategoryById($category))
                     {
-                        $categories[] = $category;
+                        $categories[$category->id] = $category;
                     }
                 }
             }
