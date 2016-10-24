@@ -442,6 +442,11 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
                 // Update the service level cache
                 $this->_productTypesById[$productType->id] = $productType;
 
+
+                // Get all previous categories
+                $oldShippingCategories = $oldProductType->getShippingCategories();
+                $oldTaxCategories = $oldProductType->getTaxCategories();
+
                 craft()->db->createCommand()->delete('commerce_producttypes_shippingcategories','productTypeId = :xid',[':xid'=>$productType->id]);
                 craft()->db->createCommand()->delete('commerce_producttypes_taxcategories','productTypeId = :xid',[':xid'=>$productType->id]);
 
@@ -455,6 +460,38 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
                 {
                     $data = ['productTypeId'=>$productType->id,'taxCategoryId'=>$category->id];
                     craft()->db->createCommand()->insert('commerce_producttypes_taxcategories',$data);
+                }
+
+                $newShippingCategories = $productType->getShippingCategories();
+                $newTaxCategories = $productType->getTaxCategories();
+
+                $removedShippingCategoryIds = array_diff(array_keys($oldShippingCategories),array_keys($newShippingCategories));
+                $removedTaxCategoryIds = array_diff(array_keys($oldTaxCategories),array_keys($newTaxCategories));
+
+                if ($removedShippingCategoryIds)
+                {
+                    $defaultShippingCategory = array_values($productType->getShippingCategories())[0];
+                    if ($defaultShippingCategory)
+                    {
+                        $data = ['shippingCategoryId' => $defaultShippingCategory->id];
+                        $criteria = new \CDbCriteria;
+                        $criteria->addInCondition( "shippingCategoryId" , $removedShippingCategoryIds );
+                        $criteria->addCondition('typeId='.$productType->id);
+                        Commerce_ProductRecord::model()->updateAll($data, $criteria);
+                    }
+                }
+
+                if ($removedTaxCategoryIds)
+                {
+                    $defaultTaxCategory = array_values($productType->getTaxCategories())[0];
+                    if ($defaultTaxCategory)
+                    {
+                        $data = ['taxCategoryId' => $defaultTaxCategory->id];
+                        $criteria = new \CDbCriteria;
+                        $criteria->addInCondition( "taxCategoryId" , $removedTaxCategoryIds );
+                        $criteria->addCondition('typeId='.$productType->id);
+                        Commerce_ProductRecord::model()->updateAll($data, $criteria);
+                    }
                 }
 
                 $newLocaleData = [];
@@ -589,6 +626,11 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
                                 }
                             }
                         }
+                    }
+
+                    if (!$isNewProductType)
+                    {
+
                     }
 
                     if (!$isNewProductType)
