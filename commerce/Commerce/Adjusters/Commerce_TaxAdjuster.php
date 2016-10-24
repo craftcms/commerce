@@ -104,21 +104,22 @@ class Commerce_TaxAdjuster implements Commerce_AdjusterInterface
         $itemsMatch = false;
 
         // Valid VAT ID and Address Matches then do not apply this tax
-	    if ($taxRate->isVat && $address->businessTaxId && $address->country)
-	    {
-		    $vatValidation = new Validation(['debug' => false]);
+        if ($taxRate->isVat && ($address && $address->businessTaxId && $address->country))
+        {
+            $vatValidation = new Validation(['debug' => false]);
 
-		    if ($vatValidation->checkNumber($address->businessTaxId))
-		    {
-			    $country = $vatValidation->getCountry();
-			    if ($country == $address->country->iso)
-			    {
-				    return false;
-			    }
-		    }
-	    }
+            if ($vatValidation->checkNumber($address->businessTaxId))
+            {
+                $country = $vatValidation->getCountry();
+                if ($country == $address->country->iso)
+                {
+                    return false;
+                }
+            }
+        }
 
-	    foreach ($lineItems as $item) {
+        foreach ($lineItems as $item)
+        {
 
             if ($item->taxCategoryId == $taxRate->taxCategoryId) {
                 $taxableAmount = $item->getTaxableSubtotal($taxRate->taxable);
