@@ -76,6 +76,18 @@ class Commerce_ProductsService extends BaseApplicationComponent
                 ['id' => $product->typeId]));
         }
 
+        $taxCategoryIds = array_keys($productType->getTaxCategories());
+        if (!in_array($product->taxCategoryId, $taxCategoryIds))
+        {
+            $record->taxCategoryId = $product->taxCategoryId = $taxCategoryIds[0];
+        }
+
+        $shippingCategoryIds = array_keys($productType->getShippingCategories());
+        if (!in_array($product->shippingCategoryId, $shippingCategoryIds))
+        {
+            $record->shippingCategoryId = $product->shippingCategoryId = $shippingCategoryIds[0];
+        }
+
         // Final prep of variants and validation
         $variantsValid = true;
         $defaultVariant = null;
@@ -144,13 +156,13 @@ class Commerce_ProductsService extends BaseApplicationComponent
         CommerceDbHelper::beginStackedTransaction();
         try {
 
-             $record->defaultVariantId = $defaultVariant->getPurchasableId();
-             $record->defaultSku = $defaultVariant->getSku();
-             $record->defaultPrice = $defaultVariant->price * 1;
-             $record->defaultHeight = $defaultVariant->height * 1;
-             $record->defaultLength = $defaultVariant->length * 1;
-             $record->defaultWidth = $defaultVariant->width * 1;
-             $record->defaultWeight = $defaultVariant->weight * 1;
+             $record->defaultVariantId = $product->defaultVariantId = $defaultVariant->getPurchasableId();
+             $record->defaultSku = $product->defaultSku = $defaultVariant->getSku();
+             $record->defaultPrice = $product->defaultPrice = $defaultVariant->price * 1;
+             $record->defaultHeight = $product->defaultHeight = $defaultVariant->height * 1;
+             $record->defaultLength = $product->defaultLength = $defaultVariant->length * 1;
+             $record->defaultWidth = $product->defaultWidth = $defaultVariant->width * 1;
+             $record->defaultWeight = $product->defaultWeight = $defaultVariant->weight * 1;
             
             if ($event->performAction)
             {

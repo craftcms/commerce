@@ -397,9 +397,9 @@ class Commerce_OrdersService extends BaseApplicationComponent
         // Since shipping adjusters run on the original price, pre discount, let's recalculate
         // if the currently selected shipping method is now not available.
         $availableMethods = craft()->commerce_shippingMethods->getAvailableShippingMethods($order);
-        if ($availableMethods && $order->getShippingMethodHandle())
+        if ($order->getShippingMethodHandle())
         {
-            if (!isset($availableMethods[$order->getShippingMethodHandle()]))
+            if (!isset($availableMethods[$order->getShippingMethodHandle()]) || empty($availableMethods))
             {
                 $order->shippingMethod = null;
                 $this->calculateAdjustments($order);
@@ -487,6 +487,8 @@ class Commerce_OrdersService extends BaseApplicationComponent
             return true;
         }
 
+        CommercePlugin::log(Craft::t('Could not mark order {number} as complete. Order save failed during order completion with errors: {errors}',
+            ['number' => $order->number, 'order' => json_encode($order->getAllErrors())]), LogLevel::Error, true);
         return false;
     }
 
