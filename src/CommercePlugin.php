@@ -163,7 +163,9 @@ class CommercePlugin extends BasePlugin
                         'm161001_010101_Commerce_LineItemShippingCat',
                         'm161001_010102_Commerce_DiscountOrdering',
                         'm161001_010103_Commerce_DiscountStopProcessing',
-                        'm161001_010104_Commerce_SaveTransactionCode'
+                        'm161001_010104_Commerce_SaveTransactionCode',
+                        'm161001_010105_Commerce_RemovePaymentCurrencyName',
+                        'm161024_010101_Commerce_FixDefaultShippingAndTaxCategoriesOnProducts'
                     );
 
                     foreach ($migrations as $migrationClass) {
@@ -311,7 +313,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getSchemaVersion()
     {
-        return '1.2.67';
+        return '1.2.72';
     }
 
     /**
