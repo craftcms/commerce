@@ -601,7 +601,7 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
                         if ($locales)
                         {
                             $criteria->locale = $locales[0];
-                            $criteria->productTypeId = $productType->id;
+                            $criteria->typeId = $productType->id;
                             $criteria->status = null;
                             $criteria->localeEnabled = null;
                             $criteria->limit = null;
