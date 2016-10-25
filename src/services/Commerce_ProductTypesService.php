@@ -443,13 +443,19 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
                 $this->_productTypesById[$productType->id] = $productType;
 
 
-                // Get all previous categories
-                $oldShippingCategories = $oldProductType->getShippingCategories();
-                $oldTaxCategories = $oldProductType->getTaxCategories();
+                // Have any of the product type categories changed?
+                if (!$isNewProductType)
+                {
+                    // Get all previous categories
+                    $oldShippingCategories = $oldProductType->getShippingCategories();
+                    $oldTaxCategories = $oldProductType->getTaxCategories();
+                }
 
+                // Remove all existing categories
                 craft()->db->createCommand()->delete('commerce_producttypes_shippingcategories','productTypeId = :xid',[':xid'=>$productType->id]);
                 craft()->db->createCommand()->delete('commerce_producttypes_taxcategories','productTypeId = :xid',[':xid'=>$productType->id]);
 
+                // Add back the new categories
                 foreach ($productType->getShippingCategories() as $category)
                 {
                     $data = ['productTypeId'=>$productType->id,'shippingCategoryId'=>$category->id];
@@ -462,35 +468,43 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
                     craft()->db->createCommand()->insert('commerce_producttypes_taxcategories',$data);
                 }
 
-                $newShippingCategories = $productType->getShippingCategories();
-                $newTaxCategories = $productType->getTaxCategories();
-
-                $removedShippingCategoryIds = array_diff(array_keys($oldShippingCategories),array_keys($newShippingCategories));
-                $removedTaxCategoryIds = array_diff(array_keys($oldTaxCategories),array_keys($newTaxCategories));
-
-                if ($removedShippingCategoryIds)
+                // Update all products that used the removed tax & shipping categories
+                if (!$isNewProductType && (isset($oldShippingCategories) || isset($oldTaxCategories)))
                 {
-                    $defaultShippingCategory = array_values($productType->getShippingCategories())[0];
-                    if ($defaultShippingCategory)
+                    // Grab the new categories
+                    $newShippingCategories = $productType->getShippingCategories();
+                    $newTaxCategories = $productType->getTaxCategories();
+
+                    // Were any categories removed?
+                    $removedShippingCategoryIds = array_diff(array_keys($oldShippingCategories), array_keys($newShippingCategories));
+                    $removedTaxCategoryIds = array_diff(array_keys($oldTaxCategories), array_keys($newTaxCategories));
+
+                    // Update all products that used the removed product type shipping categories
+                    if ($removedShippingCategoryIds)
                     {
-                        $data = ['shippingCategoryId' => $defaultShippingCategory->id];
-                        $criteria = new \CDbCriteria;
-                        $criteria->addInCondition( "shippingCategoryId" , $removedShippingCategoryIds );
-                        $criteria->addCondition('typeId='.$productType->id);
-                        Commerce_ProductRecord::model()->updateAll($data, $criteria);
+                        $defaultShippingCategory = array_values($productType->getShippingCategories())[0];
+                        if ($defaultShippingCategory)
+                        {
+                            $data = ['shippingCategoryId' => $defaultShippingCategory->id];
+                            $criteria = new \CDbCriteria;
+                            $criteria->addInCondition("shippingCategoryId", $removedShippingCategoryIds);
+                            $criteria->addCondition('typeId='.$productType->id);
+                            Commerce_ProductRecord::model()->updateAll($data, $criteria);
+                        }
                     }
-                }
 
-                if ($removedTaxCategoryIds)
-                {
-                    $defaultTaxCategory = array_values($productType->getTaxCategories())[0];
-                    if ($defaultTaxCategory)
+                    // Update all products that used the removed product type tax categories
+                    if ($removedTaxCategoryIds)
                     {
-                        $data = ['taxCategoryId' => $defaultTaxCategory->id];
-                        $criteria = new \CDbCriteria;
-                        $criteria->addInCondition( "taxCategoryId" , $removedTaxCategoryIds );
-                        $criteria->addCondition('typeId='.$productType->id);
-                        Commerce_ProductRecord::model()->updateAll($data, $criteria);
+                        $defaultTaxCategory = array_values($productType->getTaxCategories())[0];
+                        if ($defaultTaxCategory)
+                        {
+                            $data = ['taxCategoryId' => $defaultTaxCategory->id];
+                            $criteria = new \CDbCriteria;
+                            $criteria->addInCondition("taxCategoryId", $removedTaxCategoryIds);
+                            $criteria->addCondition('typeId='.$productType->id);
+                            Commerce_ProductRecord::model()->updateAll($data, $criteria);
+                        }
                     }
                 }
 
