@@ -251,12 +251,31 @@ class Commerce_EmailsService extends BaseApplicationComponent
             return;
         }
 
-        // Email Body
-        if (!$templatesService->doesTemplateExist($email->templatePath))
+        // Template Path
+        try
         {
-            $error = Craft::t('Email template does not exist at “{templatePath}” for email “{email}”. Order: “{order}”.', ['templatePath' => $email->templatePath,
-                                                                                                                           'email'        => $email->name,
-                                                                                                                           'order'        => $order->getShortNumber()]);
+            $templatePath = $templatesService->renderString($email->templatePath, $renderVariables);
+        }
+        catch (\Exception $e)
+        {
+            $error = Craft::t('Email template path parse error for email “{email}” in “Template Path”. Order: “{order}”. Template error: “{message}”', ['email'   => $email->name,
+                                                                                                                                                        'order'   => $order->getShortNumber(),
+                                                                                                                                                        'message' => $e->getMessage()]);
+            CommercePlugin::log($error, LogLevel::Error, true);
+
+            craft()->setLanguage($originalLanguage);
+            $templatesService->setTemplateMode($oldTemplateMode);
+
+            return;
+        }
+
+        // Email Body
+        if (!$templatesService->doesTemplateExist($templatePath))
+        {
+            $error = Craft::t('Email template does not exist at “{templatePath}” which resulted in “{templateParsedPath}” for email “{email}”. Order: “{order}”.', ['templatePath'        => $email->templatePath,
+                                                                                                                                                                 'templateParsedPath'  => $templatePath,
+                                                                                                                                                                 'email'               => $email->name,
+                                                                                                                                                                 'order'               => $order->getShortNumber()]);
             CommercePlugin::log($error, LogLevel::Error, true);
 
             craft()->setLanguage($originalLanguage);
@@ -268,7 +287,7 @@ class Commerce_EmailsService extends BaseApplicationComponent
         {
             try
             {
-                $newEmail->body = $newEmail->htmlBody = $templatesService->render($email->templatePath, $renderVariables);
+                $newEmail->body = $newEmail->htmlBody = $templatesService->render($templatePath, $renderVariables);
             }
             catch (\Exception $e)
             {
