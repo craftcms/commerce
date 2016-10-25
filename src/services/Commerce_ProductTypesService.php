@@ -469,7 +469,7 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
                 }
 
                 // Update all products that used the removed tax & shipping categories
-                if (!$isNewProductType && (isset($oldShippingCategories) || isset($oldTaxCategories)))
+                if (!$isNewProductType)
                 {
                     // Grab the new categories
                     $newShippingCategories = $productType->getShippingCategories();
