@@ -119,6 +119,11 @@ class Commerce_BaseFrontEndController extends Commerce_BaseController
         $data['adjustments'] = $adjustments;
         $data['totalAdjustments'] = count($adjustments);
 
+        if ($cart->getErrors() )
+        {
+            $data['errors'] = $cart->getErrors();
+        }
+
         // remove un-needed base element attributes
         $remove = ['archived', 'cancelUrl', 'lft', 'level', 'rgt', 'slug', 'uri', 'root'];
         foreach ($remove as $r) {

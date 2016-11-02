@@ -388,7 +388,7 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
 
             if (craft()->request->isAjaxRequest)
             {
-                $this->returnErrorJson($error);
+                $this->returnJson(['error' => $error, 'cart' => $this->cartArray($cart)]);
             }
             else
             {
