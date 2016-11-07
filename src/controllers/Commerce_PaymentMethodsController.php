@@ -18,11 +18,7 @@ class Commerce_PaymentMethodsController extends Commerce_BaseAdminController
      */
     public function actionIndex()
     {
-        $criteria = new \CDbCriteria();
-        $criteria->addCondition("isArchived=:xIsArchived");
-        $criteria->params = [':xIsArchived' => false];
-        $criteria->order = 'sortOrder';
-        $paymentMethods = craft()->commerce_paymentMethods->getAllPaymentMethods($criteria);
+        $paymentMethods = craft()->commerce_paymentMethods->getAllPaymentMethods();
         $this->renderTemplate('commerce/settings/paymentmethods/index', compact('paymentMethods'));
     }
 
