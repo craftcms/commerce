@@ -39,8 +39,15 @@ class Commerce_PaymentMethodsService extends BaseApplicationComponent
      */
     public function getAllPaymentMethods($criteria = [])
     {
-        $records = Commerce_PaymentMethodRecord::model()->findAll($criteria);
+        if(!$criteria)
+        {
+            $criteria = new \CDbCriteria();
+            $criteria->addCondition("isArchived=:xIsArchived");
+            $criteria->order = 'sortOrder';
+            $criteria->params = [':xIsArchived' => false];
+        }
 
+        $records = Commerce_PaymentMethodRecord::model()->findAll($criteria);
         return Commerce_PaymentMethodModel::populateModels($records);
     }
 
