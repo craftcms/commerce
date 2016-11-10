@@ -119,7 +119,7 @@ class Commerce_BaseFrontEndController extends Commerce_BaseController
         $data['adjustments'] = $adjustments;
         $data['totalAdjustments'] = count($adjustments);
 
-        if ($cart->getErrors() )
+        if ($cart->getErrors())
         {
             $data['errors'] = $cart->getErrors();
         }
