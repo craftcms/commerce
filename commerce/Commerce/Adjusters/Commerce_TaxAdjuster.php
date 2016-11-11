@@ -110,8 +110,8 @@ class Commerce_TaxAdjuster implements Commerce_AdjusterInterface
 
             if ($vatValidation->checkNumber($address->businessTaxId))
             {
-                $country = $vatValidation->getCountry();
-                if ($country == $address->country->iso)
+                $country = $vatValidation->getData();
+                if (isset($country['country']) && $country['country'] == $address->country->iso)
                 {
                     return false;
                 }
