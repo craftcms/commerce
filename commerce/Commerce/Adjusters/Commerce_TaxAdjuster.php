@@ -74,8 +74,31 @@ class Commerce_TaxAdjuster implements Commerce_AdjusterInterface
 
         $affectedLineIds = [];
 
-        //checking address
-        if (!$this->matchAddress($address, $zone)) {
+        $removeVat = false;
+        // Valid VAT ID and Address Matches then do not apply this tax
+        if ($taxRate->isVat && ($address && $address->businessTaxId && $address->country))
+        {
+            $vatValidation = new Validation(['debug' => false]);
+
+            $validBusinessTaxIdData = \Craft\craft()->cache->get('commerce:validVatId:'.$address->businessTaxId);
+            if ($validBusinessTaxIdData || $vatValidation->checkNumber($address->businessTaxId))
+            {
+                // A valid vat ID from API was found, cache result.
+                if (!$validBusinessTaxIdData)
+                {
+                    $validBusinessTaxIdData = $vatValidation->getData();
+                    \Craft\craft()->cache->set('commerce:validVatId:'.$address->businessTaxId, $validBusinessTaxIdData);
+                }
+
+                if (isset($validBusinessTaxIdData['country']) && $validBusinessTaxIdData['country'] == $address->country->iso)
+                {
+                    $removeVat = true;
+                }
+            }
+        }
+
+        //checking addresses
+        if (!$this->matchAddress($address, $zone) || $removeVat) {
             if ($taxRate->include) {
                 //excluding taxes included in price
                 $allRemovedTax = 0;
@@ -102,21 +125,6 @@ class Commerce_TaxAdjuster implements Commerce_AdjusterInterface
 
         //checking items tax categories
         $itemsMatch = false;
-
-        // Valid VAT ID and Address Matches then do not apply this tax
-        if ($taxRate->isVat && ($address && $address->businessTaxId && $address->country))
-        {
-            $vatValidation = new Validation(['debug' => false]);
-
-            if ($vatValidation->checkNumber($address->businessTaxId))
-            {
-                $country = $vatValidation->getData();
-                if (isset($country['country']) && $country['country'] == $address->country->iso)
-                {
-                    return false;
-                }
-            }
-        }
 
         foreach ($lineItems as $item)
         {
