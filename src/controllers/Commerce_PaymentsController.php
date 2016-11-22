@@ -148,6 +148,16 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
             return;
         }
 
+        // Save the return and cancel URLs to the order
+        $returnUrl = craft()->request->getValidatedPost('redirect');
+        $cancelUrl = craft()->request->getValidatedPost('cancelUrl');
+
+        if ($returnUrl !== null || $cancelUrl !== null)
+        {
+            $order->returnUrl = craft()->templates->renderObjectTemplate($returnUrl, $order);
+            $order->cancelUrl = craft()->templates->renderObjectTemplate($cancelUrl, $order);
+        }
+
         // Do one final save to confirm the price does not change out from under the customer.
         // This also confirms the products are available and discounts are current.
         if (craft()->commerce_orders->saveOrder($order))
@@ -187,16 +197,6 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
 
                 return;
             }
-        }
-
-        // Save the return and cancel URLs to the order
-        $returnUrl = craft()->request->getValidatedPost('redirect');
-        $cancelUrl = craft()->request->getValidatedPost('cancelUrl');
-
-        if ($returnUrl !== null || $cancelUrl !== null)
-        {
-            $order->returnUrl = craft()->templates->renderObjectTemplate($returnUrl, $order);
-            $order->cancelUrl = craft()->templates->renderObjectTemplate($cancelUrl, $order);
         }
 
         $paymentForm->validate();
