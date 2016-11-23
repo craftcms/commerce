@@ -82,6 +82,7 @@ class Commerce_GatewaysService extends BaseApplicationComponent
             '\Commerce\Gateways\Omnipay\Migs_TwoParty_GatewayAdapter',
             '\Commerce\Gateways\Omnipay\Mollie_GatewayAdapter',
             '\Commerce\Gateways\Omnipay\MultiSafepay_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\MultiSafepay_RestGatewayAdapter',
             '\Commerce\Gateways\Omnipay\Netaxept_GatewayAdapter',
             '\Commerce\Gateways\Omnipay\NetBanx_GatewayAdapter',
             '\Commerce\Gateways\Omnipay\NetBanx_Hosted_GatewayAdapter',
