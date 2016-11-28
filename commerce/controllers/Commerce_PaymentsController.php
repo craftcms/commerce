@@ -200,6 +200,7 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
             }
         }
 
+        $redirect = "";
         $paymentForm->validate();
         if (!$paymentForm->hasErrors())
         {
