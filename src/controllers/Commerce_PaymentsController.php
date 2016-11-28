@@ -88,7 +88,7 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
 
         // Allow setting the payment method at time of submitting payment.
         $paymentMethodId = craft()->request->getParam('paymentMethodId');
-        if ($paymentMethodId)
+        if ($paymentMethodId && $order->paymentMethodId != $paymentMethodId)
         {
             if (!craft()->commerce_cart->setPaymentMethod($order, $paymentMethodId, $error))
             {
