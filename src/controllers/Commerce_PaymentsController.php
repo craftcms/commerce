@@ -90,6 +90,7 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
         $paymentMethodId = craft()->request->getParam('paymentMethodId');
         if ($paymentMethodId && $order->paymentMethodId != $paymentMethodId)
         {
+            $error = "";
             if (!craft()->commerce_cart->setPaymentMethod($order, $paymentMethodId, $error))
             {
                 if (craft()->request->isAjaxRequest())
