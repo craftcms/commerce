@@ -4,7 +4,7 @@ namespace Craft;
 /**
  * The class name is the UTC timestamp in the format of mYYMMDD_HHMMSS_pluginHandle_migrationName
  */
-class m151004_142113_Commerce_PaymentMethods_Name_Unique extends BaseMigration
+class m151004_142113_commerce_PaymentMethods_name_unique extends BaseMigration
 {
     /**
      * Any migration code in here is wrapped inside of a transaction.

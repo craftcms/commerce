@@ -82,7 +82,7 @@ class Commerce_OrderHistoriesService extends BaseApplicationComponent
         $orderHistoryModel->orderId = $order->id;
         $orderHistoryModel->prevStatusId = $oldStatusId;
         $orderHistoryModel->newStatusId = $order->orderStatusId;
-        $orderHistoryModel->customerId = craft()->commerce_customers->getCustomerId();
+        $orderHistoryModel->customerId = craft()->isConsole() ? $order->customerId : craft()->commerce_customers->getCustomerId();
         $orderHistoryModel->message = $order->message;
 
         if (!$this->saveOrderHistory($orderHistoryModel))

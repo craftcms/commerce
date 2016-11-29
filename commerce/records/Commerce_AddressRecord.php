@@ -77,11 +77,13 @@ class Commerce_AddressRecord extends BaseRecord
             'title'            => AttributeType::String,
             'firstName'        => [
                 AttributeType::String,
-                'required' => true
+                'required' => true,
+                'label' => 'First Name',
             ],
             'lastName'         => [
                 AttributeType::String,
-                'required' => true
+                'required' => true,
+                'label' => 'Last Name',
             ],
             'countryId'        => AttributeType::Number,
             'stateId'          => AttributeType::Number,

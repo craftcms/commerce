@@ -2,6 +2,7 @@
 namespace Craft;
 
 use Commerce\Gateways\PaymentFormModels\BasePaymentFormModel;
+use Commerce\Helpers\CommerceCurrencyHelper;
 use Omnipay\Common\CreditCard;
 use Omnipay\Common\ItemBag;
 use Omnipay\Common\Message\RequestInterface;
@@ -131,7 +132,6 @@ class Commerce_PaymentsService extends BaseApplicationComponent
         }
 
         $items = $order->getPaymentMethod()->getGatewayAdapter()->createItemBag();
-        $currency = \Omnipay\Common\Currency::find($order->currency);
 
         $priceCheck = 0;
 
@@ -139,7 +139,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
         /** @var Commerce_LineItemModel $item */
         foreach ($order->lineItems as $item)
         {
-            $price = round($item->salePrice, $currency->getDecimals());
+            $price = CommerceCurrencyHelper::round($item->salePrice);
             // Can not accept zero amount items. See item (4) here:
             // https://developer.paypal.com/docs/classic/express-checkout/integration-guide/ECCustomizing/#setting-order-details-on-the-paypal-review-page
             if ($price != 0)
@@ -164,7 +164,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
         /** @var Commerce_OrderAdjustmentModel $adjustment */
         foreach ($order->adjustments as $adjustment)
         {
-            $price = round($adjustment->amount, $currency->getDecimals());
+            $price = CommerceCurrencyHelper::round($adjustment->amount);
 
             // Do not include the 'included' adjustments, and do not send zero value items
             // See item (4) https://developer.paypal.com/docs/classic/express-checkout/integration-guide/ECCustomizing/#setting-order-details-on-the-paypal-review-page
@@ -181,8 +181,8 @@ class Commerce_PaymentsService extends BaseApplicationComponent
             }
         }
 
-        $priceCheck = round($priceCheck, $currency->getDecimals());
-        $totalPrice = round($order->totalPrice, $currency->getDecimals());
+        $priceCheck = CommerceCurrencyHelper::round($priceCheck);
+        $totalPrice = CommerceCurrencyHelper::round($order->totalPrice);
         $same = (bool)($priceCheck == $totalPrice);
 
         if (!$same)

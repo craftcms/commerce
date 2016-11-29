@@ -482,7 +482,7 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
                     // Update all products that used the removed product type shipping categories
                     if ($removedShippingCategoryIds)
                     {
-                        $defaultShippingCategory = array_values($productType->getShippingCategories())[0];
+                        $defaultShippingCategory = array_values($newShippingCategories)[0];
                         if ($defaultShippingCategory)
                         {
                             $data = ['shippingCategoryId' => $defaultShippingCategory->id];
@@ -496,7 +496,7 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
                     // Update all products that used the removed product type tax categories
                     if ($removedTaxCategoryIds)
                     {
-                        $defaultTaxCategory = array_values($productType->getTaxCategories())[0];
+                        $defaultTaxCategory = array_values($newTaxCategories)[0];
                         if ($defaultTaxCategory)
                         {
                             $data = ['taxCategoryId' => $defaultTaxCategory->id];
