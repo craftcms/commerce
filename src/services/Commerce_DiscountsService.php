@@ -104,7 +104,9 @@ class Commerce_DiscountsService extends BaseApplicationComponent
         }
 
         $now = new DateTime();
-        if ($model->dateFrom && $model->dateFrom > $now || $model->dateTo && $model->dateTo < $now)
+        $from = $model->dateFrom;
+        $to = $model->dateTo;
+        if ($from && $from > $now || $to && $to < $now)
         {
             $error = Craft::t('Discount is out of date');
 
