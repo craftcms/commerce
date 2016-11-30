@@ -28,6 +28,7 @@ class Commerce_BaseFrontEndController extends Commerce_BaseController
         $data['couponCode'] = $cart->couponCode;
         $data['itemTotal'] = $cart->itemTotal;
         $data['baseDiscount'] = $cart->baseDiscount;
+        $data['baseTax'] = $cart->baseTax;
         $data['baseShippingCost'] = $cart->baseShippingCost;
         $data['totalPrice'] = $cart->totalPrice;
         $data['totalPaid'] = $cart->totalPaid;

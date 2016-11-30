@@ -111,6 +111,7 @@
                         Item Total: {{ cart.itemTotal|commerceCurrency(cart.currency) }}<br>
                         Base Discount: {{ cart.baseDiscount|commerceCurrency(cart.currency) }}<br>
                         Base Shipping Cost: {{ cart.baseShippingCost|commerceCurrency(cart.currency) }}<br>
+                        Base Tax: {{ cart.baseTax|commerceCurrency(cart.currency) }}<br>
                         <h4>Total Price: {{ cart.totalPrice|commerceCurrency(cart.currency) }}</h4>
                     </td>
                 </tr>

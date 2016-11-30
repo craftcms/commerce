@@ -13,6 +13,7 @@ namespace Craft;
  * @property float $totalPaid
  * @property float $baseDiscount
  * @property float $baseShippingCost
+ * @property float $baseTax
  * @property string $email
  * @property bool $isCompleted
  * @property DateTime $dateOrdered
@@ -138,6 +139,11 @@ class Commerce_OrderRecord extends BaseRecord
                 'default' => 0
             ],
             'baseShippingCost' => [
+                AttributeType::Number,
+                'decimals' => 4,
+                'default' => 0
+            ],
+            'baseTax' => [
                 AttributeType::Number,
                 'decimals' => 4,
                 'default' => 0

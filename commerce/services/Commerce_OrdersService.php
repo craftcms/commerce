@@ -227,6 +227,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
         $orderRecord->couponCode = $order->couponCode;
         $orderRecord->baseDiscount = $order->baseDiscount;
         $orderRecord->baseShippingCost = $order->baseShippingCost;
+        $orderRecord->baseTax = $order->baseTax;
         $orderRecord->totalPrice = $order->totalPrice;
         $orderRecord->totalPaid = $order->totalPaid;
         $orderRecord->currency = $order->currency;
@@ -325,6 +326,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
         // reset base totals
         $order->baseDiscount = 0;
         $order->baseShippingCost = 0;
+        $order->baseTax = 0;
         $order->itemTotal = 0;
         foreach ($lineItems as $key => $item)
         {
@@ -382,8 +384,9 @@ class Commerce_OrdersService extends BaseApplicationComponent
 
         $baseDiscount = $order->baseDiscount;
         $baseShipping = $order->baseShippingCost;
+        $baseTax = $order->baseTax;
         $itemTotal = $order->itemTotal;
-        $order->totalPrice = ($baseDiscount + $baseShipping + $itemTotal);
+        $order->totalPrice = ($baseDiscount + $baseShipping + $baseTax + $itemTotal);
 
         $same = (bool)$totalPrice == $order->totalPrice;
 
