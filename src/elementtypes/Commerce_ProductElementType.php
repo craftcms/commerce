@@ -523,6 +523,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
 	    {
 		    $productsCriteria = craft()->elements->getCriteria('Commerce_Product', $criteria);
 		    $productsCriteria->hasSales = null;
+		    $productsCriteria->limit = null;
 		    $products = $productsCriteria->find();
 
 		    $productIds = [];
