@@ -98,6 +98,14 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
 		}
 
 
+		$now = new \Craft\DateTime();
+        $from = $discount->dateFrom;
+        $to = $discount->dateTo;
+        if ($from && $from > $now || $to && $to < $now)
+        {
+            return false;
+        }
+
 		//checking items
 		$matchingQty = 0;
 		$matchingTotal = 0;
