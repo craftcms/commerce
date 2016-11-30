@@ -218,7 +218,7 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
             if (craft()->request->isAjaxRequest())
             {
                 $response = ['success' => true];
-                if ($redirect !== null)
+                if ($redirect)
                 {
                     $response['redirect'] = $redirect;
                 }
@@ -226,7 +226,7 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
             }
             else
             {
-                if ($redirect !== null)
+                if ($redirect)
                 {
                     $this->redirect($redirect);
                 }
