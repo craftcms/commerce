@@ -101,17 +101,18 @@
                         </form>
 
                     </td>
-                    <td>
-                    </td>
-                    <td class="text-right">
+                    <td colspan="2" class="text-right">
+                        Item Total: {{ cart.itemTotal|commerceCurrency(cart.currency) }}<br>
+                        <br>
+                        Base Discount: {{ cart.baseDiscount|commerceCurrency(cart.currency) }}<br>
+                        Base Shipping Cost: {{ cart.baseShippingCost|commerceCurrency(cart.currency) }}<br>
+                        Base Tax: {{ cart.baseTax|commerceCurrency(cart.currency) }}<br>
+                        <br>
                         Total Discount: {{ cart.totalDiscount|commerceCurrency(cart.currency) }}<br>
                         Total Shipping: {{ cart.totalShippingCost|commerceCurrency(cart.currency) }}<br>
                         Total Tax: {{ cart.totalTax|commerceCurrency(cart.currency) }}<br>
                         Total Tax (inc): {{ cart.totalTaxIncluded|commerceCurrency(cart.currency) }}<br>
-                        Item Total: {{ cart.itemTotal|commerceCurrency(cart.currency) }}<br>
-                        Base Discount: {{ cart.baseDiscount|commerceCurrency(cart.currency) }}<br>
-                        Base Shipping Cost: {{ cart.baseShippingCost|commerceCurrency(cart.currency) }}<br>
-                        Base Tax: {{ cart.baseTax|commerceCurrency(cart.currency) }}<br>
+
                         <h4>Total Price: {{ cart.totalPrice|commerceCurrency(cart.currency) }}</h4>
                     </td>
                 </tr>
