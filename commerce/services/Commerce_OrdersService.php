@@ -418,17 +418,32 @@ class Commerce_OrdersService extends BaseApplicationComponent
     private function getAdjusters()
     {
         $adjusters = [
-            new Commerce_ShippingAdjuster,
-            new Commerce_DiscountAdjuster,
-            new Commerce_TaxAdjuster,
+            200 => new Commerce_ShippingAdjuster,
+            400 => new Commerce_DiscountAdjuster,
+            600 => new Commerce_TaxAdjuster,
         ];
 
+        // Additional adjuster can be returned by the plugins.
         $additional = craft()->plugins->call('commerce_registerOrderAdjusters');
 
+        $orderIndex = 800;
         foreach ($additional as $additionalAdjusters)
         {
-            $adjusters = array_merge($adjusters, $additionalAdjusters);
+            foreach ($additionalAdjusters as $key => $additionalAdjuster)
+            {
+                $orderIndex += 1;
+
+                if ($key < 200 || $key > 800)
+                {
+                    $additionalAdjusters[$orderIndex] = $additionalAdjusters[$key];
+                    unset($additionalAdjusters[$key]);
+                }
+            }
+
+            $adjusters = $adjusters + $additionalAdjusters;
         }
+
+        ksort($adjusters);
 
         return $adjusters;
     }
