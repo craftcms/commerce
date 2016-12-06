@@ -433,7 +433,8 @@ class Commerce_OrdersService extends BaseApplicationComponent
             {
                 $orderIndex += 1;
 
-                if ($key < 200 || $key > 800)
+                // Not expecting more than 100 adjusters per plugin.
+                if ($key < 100 || $key > 800)
                 {
                     $additionalAdjusters[$orderIndex] = $additionalAdjusters[$key];
                     unset($additionalAdjusters[$key]);
