@@ -102,6 +102,8 @@
 
                     </td>
                     <td colspan="2" class="text-right">
+                        Item Sub Total: {{ cart.itemSubTotal|commerceCurrency(cart.currency) }}<br>
+
                         Item Total: {{ cart.itemTotal|commerceCurrency(cart.currency) }}<br>
                         <br>
                         Base Discount: {{ cart.baseDiscount|commerceCurrency(cart.currency) }}<br>
