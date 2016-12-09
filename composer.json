@@ -25,7 +25,7 @@
         "omnipay/common" :  "~2.3",
         "omnipay/dummy" :  "~2.1",
         "omnipay/eway" :  "~2.2",
-        "omnipay/firstdata" :  "~2.3",
+        "omnipay/firstdata" :  "dev-master#5bcac83ee7b622b0d937c99f43719c3fc7b21bba",
         "omnipay/gocardless" :  "~2.2",
         "omnipay/manual" :  "~2.2",
         "omnipay/migs" :  "~2.2",
