@@ -42,6 +42,11 @@ class Commerce_VariantModel extends BasePurchasable
     public $salePrice;
 
     /**
+     * @var
+     */
+    private $_salesApplied;
+
+    /**
      * @var string
      */
     protected $elementType = 'Commerce_Variant';
@@ -374,6 +379,26 @@ class Commerce_VariantModel extends BasePurchasable
                 }
             }
         }
+    }
+
+    /**
+     * sets an array of sales models which are currently affecting the salePrice of this purchasable.
+     *
+     * @param Commerce_SaleModel[] $sales
+     */
+    public function setSalesApplied($sales)
+    {
+        $this->_salesApplied = $sales;
+    }
+
+    /**
+     * An array of sales models which are currently affecting the salePrice of this purchasable.
+     *
+     * @return Commerce_SaleModel[]
+     */
+    public function getSalesApplied()
+    {
+        return $this->_salesApplied;
     }
 
     /**

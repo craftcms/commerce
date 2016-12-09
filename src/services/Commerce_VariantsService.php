@@ -126,10 +126,10 @@ class Commerce_VariantsService extends BaseApplicationComponent
      */
     public function applySales(array $variants, Commerce_ProductModel $product)
     {
-
-        // set salePrice to be price at default
+        // reset the salePrice to be the same as price, and clear any sales applied.
         foreach ($variants as $variant)
         {
+            $variant->setSalesApplied([]);
             $variant->salePrice = $variant->price;
         }
 
@@ -147,6 +147,8 @@ class Commerce_VariantsService extends BaseApplicationComponent
                     {
                         $variant->salePrice = 0;
                     }
+
+                    $variant->setSalesApplied($sales);
                 }
             }
         }

@@ -1,6 +1,6 @@
 {% extends 'shop/_layouts/main' %}
 {% block main %}
-    {% cache %}
+
 {% for product in craft.commerce.products.limit(5).find() %}
     <div class="row product">
         <div class="two columns">
@@ -15,9 +15,13 @@
                     <input type="hidden" name="qty" value="1">
                     {{ getCsrfInput() }}
 
-                    <select name="purchasableId">
+                    <select name="purchasableId" class="purchasableId">
                         {%- for purchasable in product.variants -%}
-                            <option {% if purchasable.stock <= 0 and purchasable.unlimitedStock == false %}disabled {% endif %} value="{{ purchasable.purchasableId }}">{{ purchasable.description }} {{ purchasable.salePrice|commerceCurrency(cart.currency) }}  {% if not purchasable.unlimitedStock %}Stock: {{ purchasable.stock }}{% endif %}</option>
+                            <option {% if purchasable.stock <= 0 and purchasable.unlimitedStock == false %}disabled {% endif %}
+                                    data-info="product-{{ product.id }}-purchasable-{{ purchasable.id }}"
+                                    value="{{ purchasable.purchasableId }}">
+                                    {{ purchasable.description }} {{ purchasable.salePrice|commerceCurrency(cart.currency) }}
+                            </option>
                         {%- endfor -%}
                     </select>
 
@@ -39,9 +43,27 @@
                 {% endif %}
                 {% endif %}
 
+                {%- for purchasable in product.variants -%}
+                    <div id="product-{{ product.id }}-purchasable-{{ purchasable.id }}" class="purchasableInfo" style="display:none;">
+                        <strong>Regular Price: </strong><strike>{{ purchasable.price|commerceCurrency(cart.currency) }}</strike><br>
+                        <strong>Now: </strong>{{ purchasable.salePrice|commerceCurrency(cart.currency) }}<br>
+                        {% if purchasable.salesApplied %}<strong>Sales Applied:</strong><br>{% endif %}
+                        <ul>
+                            {% for sale in purchasable.salesApplied  %}
+                            <li><strong>{{ sale.name }}</strong> {{ sale.description }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {%- endfor -%}
+
             {% endif %}
         </div>
     </div>
 {% endfor %}
-    {% endcache %}
+{% includejs %}
+    $( ".purchasableId" ).change(function(e) {
+        $(".purchasableInfo").hide();
+        $("#"+($(this).find(":selected").data('info'))).toggle();
+    });
+{% endincludejs %}
 {% endblock %}
