@@ -83,9 +83,12 @@ class Commerce_BaseFrontEndController extends Commerce_BaseController
             $lineItemData['price'] = $lineItem->price;
             $lineItemData['saleAmount'] = $lineItem->saleAmount;
             $lineItemData['salePrice'] = $lineItem->salePrice;
+            $lineItemData['qty'] = $lineItem->qty;
+            $lineItemData['subtotal'] = $lineItem->getSubtotal();
             $lineItemData['tax'] = $lineItem->tax;
             $lineItemData['shippingCost'] = $lineItem->shippingCost;
             $lineItemData['discount'] = $lineItem->discount;
+            $lineItemData['total'] = $lineItem->total;
             $lineItemData['weight'] = $lineItem->weight;
             $lineItemData['length'] = $lineItem->length;
             $lineItemData['height'] = $lineItem->height;
@@ -94,9 +97,10 @@ class Commerce_BaseFrontEndController extends Commerce_BaseController
             $lineItemData['qty'] = $lineItem->qty;
             $lineItemData['snapshot'] = $lineItem->snapshot;
             $lineItemData['note'] = $lineItem->note;
-            $lineItemData['purchasableId'] = $lineItem->purchasableId;
             $lineItemData['orderId'] = $lineItem->orderId;
+            $lineItemData['purchasableId'] = $lineItem->purchasableId;
             $lineItemData['taxCategoryId'] = $lineItem->taxCategoryId;
+            $lineItemData['shippingCategoryId'] = $lineItem->shippingCategoryId;
             $lineItemData['onSale'] = $lineItem->getOnSale();
             $lineItemData['options'] = $lineItem->options;
             $lineItemData['optionsSignature'] = $lineItem->optionsSignature;
