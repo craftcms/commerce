@@ -484,13 +484,13 @@ class Commerce_OrdersService extends BaseApplicationComponent
             return true;
         }
 
-        //raising event on order complete
-        $event = new Event($this, ['order' => $order]);
-        $this->onBeforeOrderComplete($event);
-
         $order->isCompleted = true;
         $order->dateOrdered = DateTimeHelper::currentTimeForDb();
         $order->orderStatusId = craft()->commerce_orderStatuses->getDefaultOrderStatusId();
+
+        //raising event on order complete
+        $event = new Event($this, ['order' => $order]);
+        $this->onBeforeOrderComplete($event);
 
         if ($this->saveOrder($order))
         {
