@@ -167,6 +167,12 @@ class Commerce_SalesService extends BaseApplicationComponent
      */
     public function matchProductAndSale(Commerce_ProductModel $product, Commerce_SaleModel $sale)
     {
+        // can't match something not promotable
+        if (!$product->promotable)
+        {
+            return false;
+        }
+
         // Product ID match
         if (!$sale->allProducts && !in_array($product->id, $sale->getProductIds()))
         {
