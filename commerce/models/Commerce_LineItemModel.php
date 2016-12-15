@@ -151,13 +151,6 @@ class Commerce_LineItemModel extends BaseModel
 
         $this->fillFromPurchasable($purchasable);
 
-        //raising onPopulate event
-        $event = new Event($this, [
-            'lineItem' => $this,
-            'purchasable' => $this->purchasable
-        ]);
-        craft()->commerce_lineItems->onPopulateLineItem($event);
-
         return true;
     }
 
@@ -210,6 +203,13 @@ class Commerce_LineItemModel extends BaseModel
         $this->snapshot = array_merge($purchasable->getSnapShot(), $snapshot);
 
         $purchasable->populateLineItem($this);
+
+        //raising onPopulate event
+        $event = new Event($this, [
+            'lineItem' => $this,
+            'purchasable' => $this->purchasable
+        ]);
+        craft()->commerce_lineItems->onPopulateLineItem($event);
 
         // Always make sure salePrice is equal to the price and saleAmount
         $this->salePrice = CommerceCurrencyHelper::round($this->saleAmount + $this->price);
