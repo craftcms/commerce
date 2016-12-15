@@ -190,6 +190,8 @@ class Commerce_PaymentsService extends BaseApplicationComponent
             CommercePlugin::log('Item bag total price does not equal the orders totalPrice, some payment gateways will complain.', LogLevel::Warning, true);
         }
 
+        craft()->plugins->call('commerce_modifyItemBag', [&$items, $order]);
+
         return $items;
     }
 
