@@ -268,13 +268,6 @@ class Commerce_LineItemsService extends BaseApplicationComponent
         {
             $lineItem->fillFromPurchasable($purchasable);
 
-            //raising onPopulate event
-            $event = new Event($this, [
-                'lineItem' => $lineItem,
-                'purchasable' => $purchasable
-            ]);
-            $this->onPopulateLineItem($event);
-
         }
         else
         {
