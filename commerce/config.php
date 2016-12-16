@@ -6,5 +6,6 @@ return [
         'gatewayPostRedirectTemplate'      => '',
         'sendCartInfoToGateways'           => true,
         'requireEmailForAnonymousPayments' => false,
-        'useBillingAddressForTax'          => false
+        'useBillingAddressForTax'          => false,
+        'requireShippingAddressAtCheckout' => false
 ];
