@@ -36,10 +36,7 @@ class Commerce_VariantModel extends BasePurchasable
     // Properties
     // =========================================================================
 
-    /**
-     * @var
-     */
-    public $salePrice;
+    private $_salePrice;
 
     /**
      * @var
@@ -137,6 +134,27 @@ class Commerce_VariantModel extends BasePurchasable
         }
 
         return null;
+    }
+
+    /**
+     * Getter provides opportunity to populate the salePrice if sales have not already been applied.
+     *
+     * @return null|float
+     */
+    public function getSalePrice()
+    {
+        if ($this->_salesApplied === null)
+        {
+            craft()->commerce_variants->applySales([$this], $this->getProduct());
+        }
+
+        return $this->_salePrice;
+    }
+
+
+    public function setSalePrice($value)
+    {
+        $this->_salePrice = $value;
     }
 
     /**
