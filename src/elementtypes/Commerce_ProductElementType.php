@@ -382,6 +382,10 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
             'withVariant' => AttributeType::Mixed,
             'hasVariant' => AttributeType::Mixed,
             'hasSales' => AttributeType::Mixed,
+            'defaultHeight' => AttributeType::Mixed,
+            'defaultLength' => AttributeType::Mixed,
+            'defaultWidth' => AttributeType::Mixed,
+            'defaultWeight' => AttributeType::Mixed
         ];
     }
 
@@ -471,6 +475,22 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
 
         if ($criteria->defaultPrice) {
             $query->andWhere(DbHelper::parseParam('products.defaultPrice', $criteria->defaultPrice, $query->params));
+        }
+
+        if ($criteria->defaultHeight) {
+            $query->andWhere(DbHelper::parseParam('products.defaultHeight', $criteria->defaultHeight, $query->params));
+        }
+
+        if ($criteria->defaultLength) {
+            $query->andWhere(DbHelper::parseParam('products.defaultLength', $criteria->defaultLength, $query->params));
+        }
+
+        if ($criteria->defaultWidth) {
+            $query->andWhere(DbHelper::parseParam('products.defaultWidth', $criteria->defaultWidth, $query->params));
+        }
+
+        if ($criteria->defaultWeight) {
+            $query->andWhere(DbHelper::parseParam('products.defaultWeight', $criteria->defaultWeight, $query->params));
         }
 
         if ($criteria->withVariant) {
