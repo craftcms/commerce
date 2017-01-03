@@ -404,16 +404,11 @@ class Commerce_OrdersController extends Commerce_BaseCpController
     private function _setOrderFromPost()
     {
         $orderId = craft()->request->getPost('orderId');
+        $order = craft()->commerce_orders->getOrderById($orderId);
 
-        if ($orderId)
+        if (!$order)
         {
-            $order = craft()->commerce_orders->getOrderById($orderId);
-
-            if (!$order)
-            {
-                throw new Exception(Craft::t('No order with the ID “{id}”',
-                    ['id' => $orderId]));
-            }
+            throw new Exception(Craft::t('No order with the ID “{id}”', ['id' => $orderId]));
         }
 
         return $order;
