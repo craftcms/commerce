@@ -130,7 +130,7 @@ class Commerce_VariantsService extends BaseApplicationComponent
         foreach ($variants as $variant)
         {
             $variant->setSalesApplied([]);
-            $variant->salePrice = $variant->price;
+            $variant->setSalePrice($variant->price);
         }
 
         // Only bother calculating if the product is persisted and promotable.
@@ -142,13 +142,13 @@ class Commerce_VariantsService extends BaseApplicationComponent
             {
                 foreach ($variants as $variant)
                 {
-                    $variant->salePrice = $variant->salePrice + $sale->calculateTakeoff($variant->price);
-                    if ($variant->salePrice < 0)
-                    {
-                        $variant->salePrice = 0;
-                    }
-
                     $variant->setSalesApplied($sales);
+
+                    $variant->setSalePrice($variant->getSalePrice() + $sale->calculateTakeoff($variant->price));
+                    if ($variant->getSalePrice() < 0)
+                    {
+                        $variant->setSalePrice(0);
+                    }
                 }
             }
         }

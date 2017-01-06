@@ -143,7 +143,7 @@ class Commerce_VariantModel extends BasePurchasable
      */
     public function getSalePrice()
     {
-        if ($this->_salesApplied === null)
+        if ($this->getSalesApplied() === null)
         {
             craft()->commerce_variants->applySales([$this], $this->getProduct());
         }
