@@ -830,7 +830,6 @@ EOF;
 
             ob_start();
             echo $template;
-            CommercePlugin::log($template);
             craft()->end();
 
         }
