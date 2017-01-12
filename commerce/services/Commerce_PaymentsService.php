@@ -446,41 +446,6 @@ class Commerce_PaymentsService extends BaseApplicationComponent
             }
         }
 
-        // For gateways that call us directly and usually do not like redirects.
-        // TODO: Move this into the gateway adapter interface.
-        $gateways = array(
-            'AuthorizeNet_SIM',
-            'Realex_Redirect',
-            'SecurePay_DirectPost',
-            'WorldPay',
-        );
-
-        if (in_array($transaction->paymentMethod->getGatewayAdapter()->handle(), $gateways)) {
-
-            $url = UrlHelper::getActionUrl('commerce/payments/completePayment', ['commerceTransactionId' => $transaction->id, 'commerceTransactionHash' => $transaction->hash]);
-            $url = htmlspecialchars($url, ENT_QUOTES);
-
-            $template = <<<EOF
-<!DOCTYPE html>
-<html>
-<head>
-    <meta http-equiv="refresh" content="1;URL=$url" />
-    <title>Redirecting...</title>
-</head>
-<body onload="document.payment.submit();">
-    <p>Please wait while we redirect you back...</p>
-    <form name="payment" action="$url" method="post">
-        <p><input type="submit" value="Continue" /></p>
-    </form>
-</body>
-</html>
-EOF;
-            ob_start();
-            echo $template;
-            craft()->end();
-
-        }
-
         if ($transaction->status == Commerce_TransactionRecord::STATUS_SUCCESS)
         {
             return true;
@@ -780,61 +745,101 @@ EOF;
             }
             else
             {
-                $customError = $transaction->status;
+                $customError = $transaction->message;
                 return false;
             }
         }
 
-        // load payment driver
+        // Load payment driver for the transaction we are trying to complete
         $gateway = $transaction->paymentMethod->getGateway();
 
+        // Check if the driver supports completePurchase or completeAuthorize
         $action = 'complete'.ucfirst($transaction->type);
+
         $supportsAction = 'supports'.ucfirst($action);
-        if ($gateway->$supportsAction())
+        if (!$gateway->$supportsAction())
         {
-            // Some gateways need the cart data again on the order complete
-            $itemBag = $this->createItemBag($order);
-
-            $params = $this->buildPaymentRequest($transaction,null,$itemBag);
-
-            // If MOLLIE, the transactionReference will be theirs
-            $handle = $transaction->paymentMethod->getGatewayAdapter()->handle();
-            if ($handle == 'Mollie_Ideal' || $handle == 'Mollie' || $handle == 'NetBanx_Hosted')
-            {
-                $params['transactionReference'] = $transaction->reference;
-            }
-
-            // don't send notifyUrl for completePurchase
-            unset($params['notifyUrl']);
-
-            $request = $gateway->$action($params);
-
-            $success = $this->sendPaymentRequest($order, $request, $transaction, $redirect, $customError);
-
-            // Some gateways response might be a redirect on complete payment
-            if ($success && $redirect)
-            {
-                craft()->request->redirect($redirect);
-            }
-
-            if ($success)
-            {
-                if ($transaction->status == Commerce_TransactionRecord::STATUS_SUCCESS)
-                {
-                    craft()->commerce_orders->updateOrderPaidTotal($transaction->order);
-                }
-
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            $message = 'Payment Gateway does not support: '.$supportsAction;
+            CommercePlugin::log($message);
+            throw new Exception($message);
         }
-        else
+
+        // Some gateways need the cart data again on the order complete
+        $itemBag = $this->createItemBag($order);
+        $params = $this->buildPaymentRequest($transaction,null,$itemBag);
+
+        // If MOLLIE, the transactionReference will be theirs
+        // Netbanx Hosted requires the transactionReference is the same
+        // Authorize.net SIM https://github.com/thephpleague/omnipay-authorizenet/issues/19
+        // TODO: Move this into the gateway adapter.
+        $handle = $transaction->paymentMethod->getGatewayAdapter()->handle();
+        if ($handle == 'Mollie_Ideal' || $handle == 'Mollie' || $handle == 'NetBanx_Hosted' || $handle == 'AuthorizeNet_SIM')
         {
-            throw new Exception('Payment Gateway does not support: '.$supportsAction);
+            $params['transactionReference'] = $transaction->reference;
         }
+
+        // Don't send notifyUrl for completePurchase or completeAuthorize
+        unset($params['notifyUrl']);
+
+        $request = $gateway->$action($params);
+
+        // Success can mean 2 things in this context.
+        // 1) The transaction completed successfully with the gateway, and is now marked as complete.
+        // 2) The result of the gateway request was successful but also got a redirect response. We now need to redirect if $redirect is not null.
+        $success = $this->sendPaymentRequest($order, $request, $transaction, $redirect, $customError);
+
+        if ($success && $transaction->status == Commerce_TransactionRecord::STATUS_SUCCESS)
+        {
+            craft()->commerce_orders->updateOrderPaidTotal($transaction->order);
+        }
+
+        // For gateways that call us directly and usually do not like redirects.
+        // TODO: Move this into the gateway adapter interface.
+        $gateways = array(
+            'AuthorizeNet_SIM',
+            'Realex_Redirect',
+            'SecurePay_DirectPost',
+            'WorldPay',
+        );
+
+        if (in_array($transaction->paymentMethod->getGatewayAdapter()->handle(), $gateways)) {
+
+            // Need to turn devMode off so the redirect template does not have any debug data attached.
+            craft()->config->set('devMode', false);
+
+            // We redirect to a place that take us back to the completePayment endpoint, but this is ok
+            // as complete payment can return early if the transaction was marked successful the previous time.
+            $url = UrlHelper::getActionUrl('commerce/payments/completePayment', ['commerceTransactionId' => $transaction->id, 'commerceTransactionHash' => $transaction->hash]);
+            $url = htmlspecialchars($url, ENT_QUOTES);
+
+            $template = <<<EOF
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="refresh" content="1;URL=$url" />
+    <title>Redirecting...</title>
+</head>
+<body onload="document.payment.submit();">
+    <p>Please wait while we redirect you back...</p>
+    <form name="payment" action="$url" method="post">
+        <p><input type="submit" value="Continue" /></p>
+    </form>
+</body>
+</html>
+EOF;
+
+            ob_start();
+            echo $template;
+            craft()->end();
+
+        }
+
+        if ($success && $redirect && $transaction->status == Commerce_TransactionRecord::STATUS_REDIRECT)
+        {
+            craft()->request->redirect($redirect);
+        }
+
+        return $success;
     }
 
     /**
