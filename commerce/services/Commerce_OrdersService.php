@@ -346,17 +346,20 @@ class Commerce_OrdersService extends BaseApplicationComponent
             $order->itemTotal += $item->getTotal();
         }
 
-        /** @var Commerce_OrderAdjustmentModel[] $adjustments */
-        $adjustments = [];
-        foreach ($this->getAdjusters() as $adjuster)
-        {
-            $adjustments = array_merge($adjustments, $adjuster->adjust($order, $lineItems));
-        }
+        $order->setLineItems($lineItems);
 
-        //refreshing adjustments
+        // refreshing adjustments
+        $order->setAdjustments([]);
         craft()->commerce_orderAdjustments->deleteAllOrderAdjustmentsByOrderId($order->id);
 
-        foreach ($adjustments as $adjustment)
+        foreach ($this->getAdjusters() as $adjuster)
+        {
+            $adjustments = $adjuster->adjust($order, $lineItems);
+            $order->setAdjustments(array_merge($order->getAdjustments(),$adjustments));
+        }
+
+        // save new adjustment mdoels
+        foreach ($order->getAdjustments() as $adjustment)
         {
             $result = craft()->commerce_orderAdjustments->saveOrderAdjustment($adjustment);
             if (!$result)
@@ -366,9 +369,6 @@ class Commerce_OrdersService extends BaseApplicationComponent
                         $errors));
             }
         }
-
-        $order->setAdjustments($adjustments);
-        $order->setLineItems($lineItems);
 
         //recalculating order amount and saving items
         $order->itemTotal = 0;
