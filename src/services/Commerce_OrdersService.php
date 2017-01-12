@@ -348,25 +348,25 @@ class Commerce_OrdersService extends BaseApplicationComponent
 
         $order->setLineItems($lineItems);
 
-        // refreshing adjustments
+        // reset adjustments
         $order->setAdjustments([]);
         craft()->commerce_orderAdjustments->deleteAllOrderAdjustmentsByOrderId($order->id);
 
+        // collect new adjustments
         foreach ($this->getAdjusters() as $adjuster)
         {
             $adjustments = $adjuster->adjust($order, $lineItems);
-            $order->setAdjustments(array_merge($order->getAdjustments(),$adjustments));
+            $order->setAdjustments(array_merge($order->getAdjustments(), $adjustments));
         }
 
-        // save new adjustment mdoels
+        // save new adjustment models
         foreach ($order->getAdjustments() as $adjustment)
         {
             $result = craft()->commerce_orderAdjustments->saveOrderAdjustment($adjustment);
             if (!$result)
             {
                 $errors = $adjustment->getAllErrors();
-                throw new Exception('Error saving order adjustment: '.implode(', ',
-                        $errors));
+                throw new Exception('Error saving order adjustment: '.implode(', ', $errors));
             }
         }
 
