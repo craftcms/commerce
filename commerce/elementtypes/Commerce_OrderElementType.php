@@ -170,6 +170,8 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 			'billingFullName' => ['label' => Craft::t('Billing Full Name')],
 			'shippingBusinessName' => ['label' => Craft::t('Shipping Business Name')],
 			'billingBusinessName' => ['label' => Craft::t('Billing Business Name')],
+            'shippingMethodName' => ['label' => Craft::t('Shipping Method')],
+            'paymentMethodName' => ['label' => Craft::t('Payment Method')]
 		];
 
 		// Allow plugins to modify the attributes
@@ -281,6 +283,28 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 					return "";
 				}
 			}
+            case 'shippingMethodName':
+            {
+                if ($element->shippingMethod)
+                {
+                    return $element->shippingMethod->name;
+                }
+                else
+                {
+                    return "";
+                }
+            }
+            case 'paymentMethodName':
+            {
+                if ($element->paymentMethod)
+                {
+                    return $element->paymentMethod->name;
+                }
+                else
+                {
+                    return "";
+                }
+            }
 			case 'totalPaid':
 			case 'totalPrice':
 			case 'totalShippingCost':
