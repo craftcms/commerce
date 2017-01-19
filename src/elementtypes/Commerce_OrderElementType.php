@@ -370,6 +370,8 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 			'completed' => AttributeType::Bool,
 			'customer' => AttributeType::Mixed,
 			'customerId' => AttributeType::Mixed,
+            'paymentMethod' => AttributeType::Mixed,
+            'paymentMethodId' => AttributeType::Mixed,
 			'user' => AttributeType::Mixed,
 			'isPaid' => AttributeType::Bool,
 			'isUnpaid' => AttributeType::Bool,
@@ -486,6 +488,21 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 		if ($criteria->customerId) {
 			$query->andWhere(DbHelper::parseParam('orders.customerId', $criteria->customerId, $query->params));
 		}
+
+        if ($criteria->paymentMethod) {
+            if ($criteria->paymentMethod instanceof Commerce_PaymentMethodModel) {
+                if ($criteria->paymentMethod->id) {
+                    $criteria->paymentMethodId = $criteria->paymentMethod->id;
+                    $criteria->paymentMethod = null;
+                } else {
+                    return false;
+                }
+            }
+        }
+
+        if ($criteria->paymentMethodId) {
+            $query->andWhere(DbHelper::parseParam('orders.paymentMethodId', $criteria->paymentMethodId, $query->params));
+        }
 
 		if ($criteria->updatedOn) {
 			$query->andWhere(DbHelper::parseDateParam('orders.dateUpdated', $criteria->updatedOn, $query->params));
