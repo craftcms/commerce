@@ -2,6 +2,7 @@
 return [
         'cartCookieDuration'               => 'P3M',
         'paymentMethodSettings'            => [],
+        'purgeInactiveCarts'               => true,
         'purgeInactiveCartsDuration'       => 'P3M',
         'gatewayPostRedirectTemplate'      => '',
         'sendCartInfoToGateways'           => true,
