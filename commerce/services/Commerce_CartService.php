@@ -559,14 +559,21 @@ class Commerce_CartService extends BaseApplicationComponent
     /**
      * Removes all carts that are incomplete and older than the config setting.
      *
-     * @return int
+     * @return int The number of carts purged from the database
      * @throws \Exception
      */
     public function purgeIncompleteCarts()
     {
+        $doPurge = craft()->config->get('purgeInactiveCarts', 'commerce');
         $cartIds = $this->getCartsIdsToPurge();
-        craft()->elements->deleteElementById($cartIds);
-        return count($cartIds);
+
+        if ($cartIds && $doPurge)
+        {
+            craft()->elements->deleteElementById($cartIds);
+            return count($cartIds);
+        }
+
+        return 0;
     }
 
     /**
