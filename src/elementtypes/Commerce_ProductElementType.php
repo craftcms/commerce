@@ -511,7 +511,6 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
             if ($elementQuery) {
                 $productIds = craft()->elements->buildElementsQuery($variantCriteria)
                     ->selectDistinct('productId')
-                    ->limit(null)
                     ->queryColumn();
             }
 
