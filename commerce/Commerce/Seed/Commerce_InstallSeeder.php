@@ -152,7 +152,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
         $productType->hasVariants = false;
         $productType->hasVariantTitleField = false;
         $productType->titleFormat = "{product.title}";
-        $productType->template = 'commerce/products/_product';
+        $productType->template = 'shop/products/_product';
 
         $fieldLayout = FieldLayoutModel::populateModel(['type' => 'Commerce_Product']);
         \Craft\craft()->fields->saveLayout($fieldLayout);
@@ -170,7 +170,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
             \Craft\craft()->db->createCommand()->insert('commerce_producttypes_i18n', [
                 'productTypeId' => $productType->id,
                 'locale' => $locale,
-                'urlFormat' => 'commerce/products/{slug}'
+                'urlFormat' => 'shop/products/{slug}'
             ]);
         }
     }
@@ -239,7 +239,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
     private function defaultSettings()
     {
         $settings = new Commerce_SettingsModel();
-        $settings->orderPdfPath = 'commerce/_pdf/order';
+        $settings->orderPdfPath = 'shop/_pdf/order';
         $settings->orderPdfFilenameFormat = 'Order-{number}';
         \Craft\craft()->commerce_settings->saveSettings($settings);
     }
