@@ -506,6 +506,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
                 $variantCriteria = craft()->elements->getCriteria('Commerce_Variant', $criteria->hasVariant);
             }
 
+            $variantCriteria->limit = null;
             $elementQuery = craft()->elements->buildElementsQuery($variantCriteria);
             $productIds = null;
             if ($elementQuery) {
