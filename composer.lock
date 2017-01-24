@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "d28491b940c05c36b11655cedcbc1be1",
-    "content-hash": "e09ee4ad3b37bf663b8ebc357df015f3",
+    "hash": "27274351e72f450bea74addf7291df03",
+    "content-hash": "52942aa3dd26a1cf953f027e98a7827e",
     "packages": [
         {
             "name": "dompdf/dompdf",
@@ -440,12 +440,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/omnipay-common.git",
-                "reference": "54910f2ece6b1be64f5e53e2111dd1254d50ee49"
+                "reference": "b1440bd7c0b4fb28ba8250d93695c61ac887685d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-common/zipball/54910f2ece6b1be64f5e53e2111dd1254d50ee49",
-                "reference": "54910f2ece6b1be64f5e53e2111dd1254d50ee49",
+                "url": "https://api.github.com/repos/thephpleague/omnipay-common/zipball/b1440bd7c0b4fb28ba8250d93695c61ac887685d",
+                "reference": "b1440bd7c0b4fb28ba8250d93695c61ac887685d",
                 "shasum": ""
             },
             "require": {
@@ -530,7 +530,7 @@
                 "payment",
                 "purchase"
             ],
-            "time": "2016-11-07 06:10:23"
+            "time": "2017-01-08 16:58:11"
         },
         {
             "name": "omnipay/dummy",
@@ -764,16 +764,16 @@
         },
         {
             "name": "omnipay/manual",
-            "version": "v2.2.0",
+            "version": "v2.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/omnipay-manual.git",
-                "reference": "db31b81dc3a9ccbc61a805dd9f922b7bfd0eb0e9"
+                "reference": "d896909093422f25a9deec13232b31ea69a72994"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-manual/zipball/db31b81dc3a9ccbc61a805dd9f922b7bfd0eb0e9",
-                "reference": "db31b81dc3a9ccbc61a805dd9f922b7bfd0eb0e9",
+                "url": "https://api.github.com/repos/thephpleague/omnipay-manual/zipball/d896909093422f25a9deec13232b31ea69a72994",
+                "reference": "d896909093422f25a9deec13232b31ea69a72994",
                 "shasum": ""
             },
             "require": {
@@ -817,7 +817,7 @@
                 "pay",
                 "payment"
             ],
-            "time": "2016-03-29 17:52:49"
+            "time": "2016-12-28 03:02:15"
         },
         {
             "name": "omnipay/migs",
@@ -1285,16 +1285,16 @@
         },
         {
             "name": "omnipay/paypal",
-            "version": "v2.6.2",
+            "version": "v2.6.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/omnipay-paypal.git",
-                "reference": "0f894c67112424e6259eb59f42ea35d4188b67e2"
+                "reference": "e06c8814deacc793715bb9fd3fcae5995b5d8d6b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-paypal/zipball/0f894c67112424e6259eb59f42ea35d4188b67e2",
-                "reference": "0f894c67112424e6259eb59f42ea35d4188b67e2",
+                "url": "https://api.github.com/repos/thephpleague/omnipay-paypal/zipball/e06c8814deacc793715bb9fd3fcae5995b5d8d6b",
+                "reference": "e06c8814deacc793715bb9fd3fcae5995b5d8d6b",
                 "shasum": ""
             },
             "require": {
@@ -1339,7 +1339,7 @@
                 "paypal",
                 "purchase"
             ],
-            "time": "2016-10-18 01:32:46"
+            "time": "2016-12-22 12:35:25"
         },
         {
             "name": "omnipay/pin",
@@ -1516,16 +1516,16 @@
         },
         {
             "name": "omnipay/stripe",
-            "version": "v2.4.1",
+            "version": "v2.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/omnipay-stripe.git",
-                "reference": "6eab75f838e11e2c951af52cf3939aeb37d11059"
+                "reference": "50bdec8d7d1562c52dd56928243be4a04bcf20e6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-stripe/zipball/6eab75f838e11e2c951af52cf3939aeb37d11059",
-                "reference": "6eab75f838e11e2c951af52cf3939aeb37d11059",
+                "url": "https://api.github.com/repos/thephpleague/omnipay-stripe/zipball/50bdec8d7d1562c52dd56928243be4a04bcf20e6",
+                "reference": "50bdec8d7d1562c52dd56928243be4a04bcf20e6",
                 "shasum": ""
             },
             "require": {
@@ -1569,7 +1569,7 @@
                 "payment",
                 "stripe"
             ],
-            "time": "2016-09-14 09:11:40"
+            "time": "2016-12-15 09:42:45"
         },
         {
             "name": "omnipay/targetpay",
@@ -1873,12 +1873,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/event-dispatcher.git",
-                "reference": "25c576abd4e0f212e678fe8b2bd9a9a98c7ea934"
+                "reference": "74877977f90fb9c3e46378d5764217c55f32df34"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/event-dispatcher/zipball/25c576abd4e0f212e678fe8b2bd9a9a98c7ea934",
-                "reference": "25c576abd4e0f212e678fe8b2bd9a9a98c7ea934",
+                "url": "https://api.github.com/repos/symfony/event-dispatcher/zipball/74877977f90fb9c3e46378d5764217c55f32df34",
+                "reference": "74877977f90fb9c3e46378d5764217c55f32df34",
                 "shasum": ""
             },
             "require": {
@@ -1925,7 +1925,7 @@
             ],
             "description": "Symfony EventDispatcher Component",
             "homepage": "https://symfony.com",
-            "time": "2016-10-13 01:43:15"
+            "time": "2017-01-02 20:30:24"
         },
         {
             "name": "symfony/http-foundation",
@@ -1933,12 +1933,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-foundation.git",
-                "reference": "33fc1f26c15ee23be2af9407795ce7affa37671a"
+                "reference": "d003867e0f7dfdbbcd1225a7e089c022d5b37c59"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/33fc1f26c15ee23be2af9407795ce7affa37671a",
-                "reference": "33fc1f26c15ee23be2af9407795ce7affa37671a",
+                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/d003867e0f7dfdbbcd1225a7e089c022d5b37c59",
+                "reference": "d003867e0f7dfdbbcd1225a7e089c022d5b37c59",
                 "shasum": ""
             },
             "require": {
@@ -1978,7 +1978,7 @@
             ],
             "description": "Symfony HttpFoundation Component",
             "homepage": "https://symfony.com",
-            "time": "2016-11-27 04:22:04"
+            "time": "2017-01-18 09:20:49"
         },
         {
             "name": "symfony/polyfill-mbstring",
