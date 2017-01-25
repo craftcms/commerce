@@ -9,6 +9,8 @@ use Craft\Commerce_OrderAdjustmentModel;
 use Craft\Commerce_OrderModel;
 use Craft\Commerce_TaxRateModel;
 use Craft\Commerce_TaxZoneModel;
+use Craft\CommercePlugin;
+use Craft\LogLevel;
 use Snowcap\Vat\Validation;
 
 /**
@@ -21,6 +23,8 @@ use Snowcap\Vat\Validation;
 class Commerce_TaxAdjuster implements Commerce_AdjusterInterface
 {
     const ADJUSTMENT_TYPE = 'Tax';
+
+    private $_vatValidator;
 
     /**
      * @param Commerce_OrderModel      $order
@@ -78,23 +82,26 @@ class Commerce_TaxAdjuster implements Commerce_AdjusterInterface
 
         $removeVat = false;
         // Valid VAT ID and Address Matches then do not apply this tax
-        if ($taxRate->isVat && ($address && $address->businessTaxId && $address->country))
+        if ($taxRate->isVat && ($address && $address->businessTaxId && $address->country) && $this->matchAddress($address, $zone))
         {
-            $vatValidation = new Validation(['debug' => false]);
-
             $validBusinessTaxIdData = \Craft\craft()->cache->get('commerce:validVatId:'.$address->businessTaxId);
-            if ($validBusinessTaxIdData || $vatValidation->checkNumber($address->businessTaxId))
+            if ($validBusinessTaxIdData || $this->validateVatNumber($address->businessTaxId))
             {
                 // A valid vat ID from API was found, cache result.
                 if (!$validBusinessTaxIdData)
                 {
-                    $validBusinessTaxIdData = $vatValidation->getData();
+                    $validBusinessTaxIdData = $this->getVatValidator()->getData();
                     \Craft\craft()->cache->set('commerce:validVatId:'.$address->businessTaxId, $validBusinessTaxIdData);
                 }
 
                 if (isset($validBusinessTaxIdData['country']) && $validBusinessTaxIdData['country'] == $address->country->iso)
                 {
                     $removeVat = true;
+                }
+                else
+                {
+                    // delete validated vat ID in cache if the address country no longer matches.
+                    \Craft\craft()->cache->delete('commerce:validVatId:'.$address->businessTaxId);
                 }
             }
         }
@@ -217,5 +224,39 @@ class Commerce_TaxAdjuster implements Commerce_AdjusterInterface
         }
 
         return false;
+    }
+
+    /**
+     * @param string $businessVatId
+     *
+     * @return bool
+     */
+    private function validateVatNumber($businessVatId)
+    {
+        try
+        {
+            $result = $this->getVatValidator()->checkNumber($businessVatId);
+
+            return $result;
+        }
+        catch (\Exception $e)
+        {
+            CommercePlugin::log("Communication with VAT API failed: ".$e->getMessage(), LogLevel::Error, true);
+
+            return false;
+        }
+    }
+
+    /**
+     * @return Validation
+     */
+    private function getVatValidator()
+    {
+        if ($this->_vatValidator === null)
+        {
+            $this->_vatValidator = new Validation(['debug' => false]);
+        }
+
+        return $this->_vatValidator;
     }
 }
