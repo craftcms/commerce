@@ -229,7 +229,15 @@ class Commerce_PaymentsService extends BaseApplicationComponent
                 {
                     $card->setBillingCountry($billingAddress->getCountry()->iso);
                 }
-                $card->setBillingState($billingAddress->getStateText());
+                if ($billingAddress->getState())
+                {
+                    $state = $billingAddress->getState()->abbreviation ?: $billingAddress->getState()->name;
+                    $card->setBillingState($state);
+                }
+                else
+                {
+                    $card->setBillingState($billingAddress->getStateText());
+                }
                 $card->setBillingPhone($billingAddress->phone);
                 $card->setBillingCompany($billingAddress->businessName);
                 $card->setCompany($billingAddress->businessName);
@@ -250,6 +258,15 @@ class Commerce_PaymentsService extends BaseApplicationComponent
                 if ($shippingAddress->getCountry())
                 {
                     $card->setShippingCountry($shippingAddress->getCountry()->iso);
+                }
+                if ($shippingAddress->getState())
+                {
+                    $state = $shippingAddress->getState()->abbreviation ?: $shippingAddress->getState()->name;
+                    $card->setShippingState($state);
+                }
+                else
+                {
+                    $card->setShippingState($shippingAddress->getStateText());
                 }
                 $card->setShippingState($shippingAddress->getStateText());
                 $card->setShippingPhone($shippingAddress->phone);
