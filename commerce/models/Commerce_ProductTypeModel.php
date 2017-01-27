@@ -51,7 +51,7 @@ class Commerce_ProductTypeModel extends BaseModel
      */
     function __toString()
     {
-        return Craft::t($this->handle);
+        return $this->handle;
     }
 
     /**
