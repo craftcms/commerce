@@ -353,7 +353,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
         craft()->commerce_orderAdjustments->deleteAllOrderAdjustmentsByOrderId($order->id);
 
         // collect new adjustments
-        foreach ($this->getAdjusters() as $adjuster)
+        foreach ($this->getAdjusters($order) as $adjuster)
         {
             $adjustments = $adjuster->adjust($order, $lineItems);
             $order->setAdjustments(array_merge($order->getAdjustments(), $adjustments));
@@ -413,9 +413,10 @@ class Commerce_OrdersService extends BaseApplicationComponent
     }
 
     /**
+     * @param Commerce_OrderModel $order
      * @return Commerce_AdjusterInterface[]
      */
-    private function getAdjusters()
+    private function getAdjusters($order = null)
     {
         $adjusters = [
             200 => new Commerce_ShippingAdjuster,
@@ -424,7 +425,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
         ];
 
         // Additional adjuster can be returned by the plugins.
-        $additional = craft()->plugins->call('commerce_registerOrderAdjusters');
+        $additional = craft()->plugins->call('commerce_registerOrderAdjusters', [&$adjusters, $order]);
 
         $orderIndex = 800;
         foreach ($additional as $additionalAdjusters)
@@ -445,6 +446,9 @@ class Commerce_OrdersService extends BaseApplicationComponent
         }
 
         ksort($adjusters);
+
+        // Allow plugins to modify the adjusters
+        craft()->plugins->call('commerce_modifyOrderAdjusters', [&$adjusters, $order]);
 
         return $adjusters;
     }
