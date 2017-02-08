@@ -1,4 +1,5 @@
 {
+    "name": "craftcms/commerce",
     "homepage": "https://craftcommerce.com",
     "config": {
         "cache-files-ttl": 0,
@@ -14,9 +15,8 @@
             "Commerce\\": "commerce/Commerce"
         }
     },
-    "repositories": [
-    ],
     "require": {
+        "php": ">=7.0.0",
         "omnipay/2checkout" :  "~2.1",
         "omnipay/authorizenet" :  "~2.4",
         "omnipay/buckaroo" : "~2.0",
