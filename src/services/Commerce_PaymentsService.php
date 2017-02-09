@@ -255,10 +255,12 @@ class Commerce_PaymentsService extends BaseApplicationComponent
                 $card->setShippingAddress2($shippingAddress->address2);
                 $card->setShippingCity($shippingAddress->city);
                 $card->setShippingPostcode($shippingAddress->zipCode);
+
                 if ($shippingAddress->getCountry())
                 {
                     $card->setShippingCountry($shippingAddress->getCountry()->iso);
                 }
+                
                 if ($shippingAddress->getState())
                 {
                     $state = $shippingAddress->getState()->abbreviation ?: $shippingAddress->getState()->name;
@@ -268,7 +270,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
                 {
                     $card->setShippingState($shippingAddress->getStateText());
                 }
-                $card->setShippingState($shippingAddress->getStateText());
+
                 $card->setShippingPhone($shippingAddress->phone);
                 $card->setShippingCompany($shippingAddress->businessName);
             }
