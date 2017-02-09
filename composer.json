@@ -1,51 +1,32 @@
 {
-    "name": "craftcms/commerce",
-    "homepage": "https://craftcommerce.com",
-    "config": {
-        "cache-files-ttl": 0,
-        "process-timeout": 1800,
-        "vendor-dir": "commerce/vendor",
-        "github-oauth": {
-            "github.com": "a79205599a3380a4272eae6e3764f7839437c091"
-        }
-    },
-    "minimum-stability": "dev",
-    "autoload": {
-        "psr-4": {
-            "Commerce\\": "commerce/Commerce"
-        }
-    },
-    "require": {
-        "php": ">=7.0.0",
-        "omnipay/2checkout" :  "~2.1",
-        "omnipay/authorizenet" :  "~2.4",
-        "omnipay/buckaroo" : "~2.0",
-        "omnipay/cardsave" :  "~2.1",
-        "omnipay/coinbase" : "~2.0",
-        "omnipay/common" :  "~2.3",
-        "omnipay/dummy" :  "~2.1",
-        "omnipay/eway" :  "~2.2",
-        "omnipay/firstdata" :  "dev-master#5bcac83ee7b622b0d937c99f43719c3fc7b21bba",
-        "omnipay/gocardless" :  "~2.2",
-        "omnipay/manual" :  "~2.2",
-        "omnipay/migs" :  "~2.2",
-        "omnipay/mollie" :  "~3.0",
-        "omnipay/multisafepay" :  "~2.3",
-        "omnipay/netaxept" :  "~2.3",
-        "omnipay/netbanx" :  "~2.2",
-        "omnipay/payfast" :  "~2.1",
-        "omnipay/payflow" :  "~2.2",
-        "omnipay/paymentexpress" :  "~2.2",
-        "omnipay/paypal" :  "~2.6",
-        "omnipay/pin" :  "~2.2",
-        "omnipay/sagepay" :  "dev-master#8c6d1fdd45001a6062dd989a9f7c5fb4e6d73c5e",
-        "omnipay/securepay" : "~2.1",
-        "omnipay/stripe" :  "~2.4",
-        "omnipay/targetpay" :  "~2.2",
-        "omnipay/worldpay" :  "~2.2",
-        "dompdf/dompdf" : "0.6.1",
-        "ramsey/array_column": "^1.1",
-        "snowcap/vat-validation": "dev-master#21e7d996bd30dc680244d59d0fa18be3671e68ee",
-        "php-units-of-measure/php-units-of-measure": "~2.1"
+  "name": "craftcms/commerce",
+  "description": "An amazingly powerful and flexible e-commerce platform for Craft CMS.",
+  "type": "craft-plugin",
+  "homepage": "https://craftcommerce.com",
+  "minimum-stability": "dev",
+  "autoload": {
+    "psr-4": {
+      "craft\\commerce\\": "src"
     }
+  },
+  "extra": {
+    "handle": "commerce",
+    "name": "Craft Commerce",
+    "developer": "Pixel & Tonic",
+    "version": "2.0.0-alpha.1",
+    "developerUrl": "https://craftcommerce.com",
+    "hasCpSection": true,
+    "description": "An amazingly powerful and flexible e-commerce platform for Craft CMS."
+  },
+  "require": {
+    "craftcms/cms": "~3.0.0-beta.3",
+    "omnipay/common": "~2.3",
+    "omnipay/dummy": "~2.1",
+    "omnipay/manual": "~2.2",
+    "omnipay/paypal": "~2.6",
+    "omnipay/stripe": "~2.4",
+    "dompdf/dompdf": "0.7.0",
+    "snowcap/vat-validation": "dev-master#21e7d996bd30dc680244d59d0fa18be3671e68ee",
+    "php-units-of-measure/php-units-of-measure": "~2.1"
+  }
 }
