@@ -3,7 +3,7 @@
 {% set crumbs = [
 { label: "Commerce Settings"|t, url: url('commerce/settings') },
 { label: "Shipping Methods"|t, url: url('commerce/settings/shippingmethods') },
-{ label: shippingMethod.name|t, url: url('commerce/settings/shippingmethods/'~methodId) },
+{ label: shippingMethod.getName()|t, url: url('commerce/settings/shippingmethods/'~methodId) },
 ] %}
 
 {% set fullPageForm = true %}

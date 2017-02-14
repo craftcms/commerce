@@ -287,7 +287,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
             {
                 if ($element->shippingMethod)
                 {
-                    return $element->shippingMethod->name;
+                    return $element->shippingMethod->getName();
                 }
                 else
                 {
