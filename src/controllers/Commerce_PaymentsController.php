@@ -283,9 +283,9 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
      */
     public function actionCompletePayment()
     {
-        $id = craft()->request->getParam('commerceTransactionHash');
+        $hash = craft()->request->getParam('commerceTransactionHash');
 
-        $transaction = craft()->commerce_transactions->getTransactionByHash($id);
+        $transaction = craft()->commerce_transactions->getTransactionByHash($hash);
 
         if (!$transaction)
         {
@@ -314,11 +314,11 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
      */
     public function actionAcceptNotification()
     {
-        $id = craft()->request->getParam('commerceTransactionHash');
+        $hash = craft()->request->getParam('commerceTransactionHash');
 
         CommercePlugin::log(json_encode($_REQUEST,JSON_PRETTY_PRINT));
 
-        craft()->commerce_payments->acceptNotification($id);
+        craft()->commerce_payments->acceptNotification($hash);
     }
 
 }
