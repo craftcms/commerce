@@ -600,7 +600,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
         ResponseInterface $response
     )
     {
-        if ($response->isSuccessful())
+        if ($response->isSuccessful() && !$response->isRedirect())
         {
             $transaction->status = Commerce_TransactionRecord::STATUS_SUCCESS;
         }
