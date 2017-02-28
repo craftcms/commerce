@@ -51,9 +51,23 @@ class Commerce_ShippingRuleRecord extends BaseRecord
     public function defineIndexes()
     {
         return [
-            ['columns' => ['name'], 'unique' => true],
+            ['columns' => ['name']],
             ['columns' => ['methodId']],
         ];
+    }
+
+    /**
+     * @inheritDoc BaseRecord::rules()
+     *
+     * @return array
+     */
+    public function rules()
+    {
+        $rules = parent::rules();
+
+        $rules[] = ['name', 'Craft\CompositeUniqueValidator', 'with' => 'methodId'];
+
+        return $rules;
     }
 
     /**
