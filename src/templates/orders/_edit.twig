@@ -11,6 +11,7 @@
 
 {% set pdfUrl = order.getPdfUrl() %}
 
+{% hook "cp.commerce.order.edit" %}
 
 {% block main %}
 	<div class="pane">
@@ -295,8 +296,6 @@
 	</div>
 	</form>
 	{% endif %}
-
-	{% hook "cp.commerce.order.edit" %}
 
 	{% if order.histories|length %}
 	<div class="pane">
