@@ -11,6 +11,8 @@
 {% set fullPageForm = true %}
 {% set saveShortcutRedirect = continueEditingUrl %}
 
+{% hook "cp.commerce.product.edit" %}
+
 {% import "_includes/forms" as forms %}
 {% import "commerce/products/_fields" as productFields %}
 
