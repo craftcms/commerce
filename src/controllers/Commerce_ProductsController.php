@@ -199,6 +199,13 @@ class Commerce_ProductsController extends Commerce_BaseCpController
                 $variables['enabledLocales'][] = $locale;
             }
         }
+
+        //raising event
+        $event = new Event($this, [
+            'product' => $variables['product']
+        ]);
+
+        craft()->commerce_products->onBeforeEditProduct($event);
     }
 
     /**

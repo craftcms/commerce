@@ -416,4 +416,22 @@ class Commerce_ProductsService extends BaseApplicationComponent
 
         $this->raiseEvent('onDeleteProduct', $event);
     }
+
+    /**
+     * Event: The product loaded for editing
+     * Event params: product(Commerce_ProductModel)
+     *
+     * @param \CEvent $event
+     *
+     * @throws \CException
+     */
+    public function onBeforeEditProduct(\CEvent $event)
+    {
+        $params = $event->params;
+        if (empty($params['product']) || !($params['product'] instanceof Commerce_ProductModel))
+        {
+            throw new Exception('onBeforeEditProduct event requires "product" param with ProductModel instance');
+        }
+        $this->raiseEvent('onBeforeEditProduct', $event);
+    }
 }
