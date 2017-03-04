@@ -14,10 +14,10 @@ class m151210_010101_Commerce_FixMissingLineItemDimensionData extends BaseMigrat
 		foreach ($variants as $variant)
 		{
 			$data = [
-				'weight' => $variant['weight'] * 1,
-				'height' => $variant['height'] * 1,
-				'length' => $variant['length'] * 1,
-				'width'  => $variant['width'] * 1
+				'weight' => (float) $variant['weight'],
+				'height' => (float) $variant['height'],
+				'length' => (float) $variant['length'],
+				'width'  => (float) $variant['width']
 			];
 
 			craft()->db->createCommand()->update('commerce_lineitems', $data, 'purchasableId = :idx', [':idx' => $variant['id']]);

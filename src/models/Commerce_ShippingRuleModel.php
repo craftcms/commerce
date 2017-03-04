@@ -313,7 +313,7 @@ class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfac
      */
     public function getBaseRate()
     {
-        return $this->getAttribute('baseRate');
+        return (float) $this->getAttribute('baseRate');
     }
 
     /**
@@ -321,7 +321,7 @@ class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfac
      */
     public function getMaxRate()
     {
-        return $this->getAttribute('maxRate');
+        return (float) $this->getAttribute('maxRate');
     }
 
     /**
@@ -329,7 +329,7 @@ class Commerce_ShippingRuleModel extends BaseModel implements \Commerce\Interfac
      */
     public function getMinRate()
     {
-        return $this->getAttribute('minRate');
+        return (float) $this->getAttribute('minRate');
     }
 
     /**

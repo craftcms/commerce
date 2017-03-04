@@ -118,9 +118,9 @@ class Commerce_TaxRatesController extends Commerce_BaseAdminController
         $percentSign = $localeData->getNumberSymbol('percentSign');
         $rate = craft()->request->getPost('rate');
         if (strpos($rate, $percentSign) or $rate >= 1) {
-            $taxRate->rate = floatval($rate) / 100;
+            $taxRate->rate = (float) $rate / 100;
         } else {
-            $taxRate->rate = floatval($rate);
+            $taxRate->rate = (float) $rate;
         };
 
         // Save it

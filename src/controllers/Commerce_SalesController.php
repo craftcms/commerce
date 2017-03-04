@@ -124,13 +124,13 @@ class Commerce_SalesController extends Commerce_BaseCpController
         if ($sale->discountType == 'percent') {
             $localeData = craft()->i18n->getLocaleData();
             $percentSign = $localeData->getNumberSymbol('percentSign');
-            if (strpos($discountAmount, $percentSign) or floatval($discountAmount) >= 1) {
-                $sale->discountAmount = floatval($discountAmount) / -100;
+            if (strpos($discountAmount, $percentSign) or (float)$discountAmount >= 1) {
+                $sale->discountAmount = (float) $discountAmount / -100;
             } else {
-                $sale->discountAmount = floatval($discountAmount) * -1;
+                $sale->discountAmount = (float) $discountAmount * -1;
             };
         } else {
-            $sale->discountAmount = floatval($discountAmount) * -1;
+            $sale->discountAmount = (float) $discountAmount * -1;
         }
 
         $products = craft()->request->getPost('products', []);

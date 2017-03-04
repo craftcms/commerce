@@ -433,10 +433,10 @@ class Commerce_VariantModel extends BasePurchasable
             $lineItem->qty = $this->stock;
         }
 
-        $lineItem->weight = $this->weight * 1; //converting nulls
-        $lineItem->height = $this->height * 1; //converting nulls
-        $lineItem->length = $this->length * 1; //converting nulls
-        $lineItem->width = $this->width * 1; //converting nulls
+        $lineItem->weight = (float) $this->weight;
+        $lineItem->height = (float) $this->height;
+        $lineItem->length = (float) $this->length;
+        $lineItem->width = (float) $this->width;
 
         $sales = craft()->commerce_sales->getSalesForVariant($this);
 

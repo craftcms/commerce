@@ -1,6 +1,11 @@
 Commerce Changelog
 ==================
 
+## Unreleased
+
+### Fixed
+- Fixed some PHP errors that appeared on PHP 7.1
+
 ## 1.2.1334 - 2017-01-30
 
 ### Added

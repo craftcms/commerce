@@ -158,11 +158,11 @@ class Commerce_ProductsService extends BaseApplicationComponent
 
              $record->defaultVariantId = $product->defaultVariantId = $defaultVariant->getPurchasableId();
              $record->defaultSku = $product->defaultSku = $defaultVariant->getSku();
-             $record->defaultPrice = $product->defaultPrice = $defaultVariant->price * 1;
-             $record->defaultHeight = $product->defaultHeight = $defaultVariant->height * 1;
-             $record->defaultLength = $product->defaultLength = $defaultVariant->length * 1;
-             $record->defaultWidth = $product->defaultWidth = $defaultVariant->width * 1;
-             $record->defaultWeight = $product->defaultWeight = $defaultVariant->weight * 1;
+             $record->defaultPrice = $product->defaultPrice = (float) $defaultVariant->price;
+             $record->defaultHeight = $product->defaultHeight = (float) $defaultVariant->height;
+             $record->defaultLength = $product->defaultLength = (float) $defaultVariant->length;
+             $record->defaultWidth = $product->defaultWidth = (float) $defaultVariant->width;
+             $record->defaultWeight = $product->defaultWeight = (float) $defaultVariant->weight;
             
             if ($event->performAction)
             {
