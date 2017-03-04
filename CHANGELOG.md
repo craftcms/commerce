@@ -5,6 +5,7 @@ Commerce Changelog
 
 ### Fixed
 - Fixed some PHP errors that appeared on PHP 7.1
+- Fixed a bug where a line item would be removed when submiting a request with a missing `qty` param.
 
 ## 1.2.1334 - 2017-01-30
 
