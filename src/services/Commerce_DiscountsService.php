@@ -459,7 +459,7 @@ class Commerce_DiscountsService extends BaseApplicationComponent
 
     /**
      * Before matching a lineitem
-     * Event params: addres(Commerce_AddressModel)
+     * Event params: address(Commerce_AddressModel)
      *
      * @param \CEvent $event
      *
