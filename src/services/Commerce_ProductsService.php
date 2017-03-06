@@ -124,6 +124,7 @@ class Commerce_ProductsService extends BaseApplicationComponent
                         $variant->sku = craft()->templates->renderObjectTemplate($productType->skuFormat, $variant);
                     }
                 }catch(\Exception $e){
+                    CommercePlugin::log("Could not generate SKU format: ".$e->getMessage(), LogLevel::Warning, true);
                     $variant->sku = "";
                 }
             }
