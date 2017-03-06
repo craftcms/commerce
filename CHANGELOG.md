@@ -8,6 +8,7 @@ Commerce Changelog
 - Fixed a bug where a line item would be removed when submiting a request with a missing `qty` param.
 
 ### Added
+- Added a new `commerce_sale.onBeforeMatchProductAndSale` event to allow plugins to add additional matching logic to sales being applied.
 - Now logging the reason a product’s SKU format could not be generated.
 
 ## 1.2.1334 - 2017-01-30

@@ -195,6 +195,15 @@ class Commerce_SalesService extends BaseApplicationComponent
             }
         }
 
+        //raising event
+        $event = new Event($this, ['product' => $product, 'sale' => $sale]);
+        $this->onBeforeMatchProductAndSale($event);
+
+        if (!$event->performAction)
+        {
+            return false;
+        }
+
         return true;
     }
 
@@ -344,5 +353,30 @@ class Commerce_SalesService extends BaseApplicationComponent
         }
 
         return $this->_allActiveSales;
+    }
+
+    /**
+     * Before matching a product to a sale
+     *
+     * Event params: product(Commerce_ProductModel)
+     *
+     * @param \CEvent $event
+     *
+     * @throws \CException
+     */
+    public function onBeforeMatchProductAndSale(\CEvent $event)
+    {
+        $params = $event->params;
+        if (empty($params['product']) || !($params['product'] instanceof Commerce_ProductModel))
+        {
+            throw new Exception('onBeforeMatchProductAndSale event requires "product" param with Commerce_ProductModel instance');
+        }
+
+        if (empty($params['sale']) || !($params['sale'] instanceof Commerce_SaleModel))
+        {
+            throw new Exception('onBeforeMatchProductAndSale event requires "sale" param with Commerce_SaleModel instance');
+        }
+
+        $this->raiseEvent('onBeforeMatchProductAndSale', $event);
     }
 }
