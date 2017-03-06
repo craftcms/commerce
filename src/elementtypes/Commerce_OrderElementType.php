@@ -312,7 +312,7 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 
 				if ($element->$attribute == 0)
 				{
-					return "";
+					return craft()->numberFormatter->formatCurrency($element->$attribute, $element->currency);
 				}
 
 				if ($element->$attribute > 0)
