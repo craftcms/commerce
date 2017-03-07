@@ -517,11 +517,11 @@ class Commerce_OrderElementType extends Commerce_BaseElementType
 		}
 
 		if ($criteria->isPaid == true) {
-			$query->andWhere(DbHelper::parseParam('orders.totalPaid', '>= orders.totalPrice', $query->params));
+            $query->andWhere('orders.totalPaid >= orders.totalPrice');
 		}
 
 		if ($criteria->isUnpaid == true) {
-			$query->andWhere(DbHelper::parseParam('orders.totalPaid', '< orders.totalPrice', $query->params));
+            $query->andWhere('orders.totalPaid < orders.totalPrice');
 		}
 
 		if ($criteria->hasPurchasables !== null)
