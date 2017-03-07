@@ -111,9 +111,9 @@ class Commerce_SalesService extends BaseApplicationComponent
 
             foreach ($allSalesById as $id => $sale)
             {
-                $sale->productIds = isset($products[$id]) ? $products[$id] : [];
-                $sale->productTypeIds = isset($productTypes[$id]) ? $productTypes[$id] : [];
-                $sale->groupIds = isset($groups[$id]) ? $groups[$id] : [];
+                $sale->productIds = isset($products[$id]) ? array_unique($products[$id]) : [];
+                $sale->productTypeIds = isset($productTypes[$id]) ? array_unique($productTypes[$id]) : [];
+                $sale->groupIds = isset($groups[$id]) ? array_unique($groups[$id]) : [];
             }
             $this->_allSales = array_values($allSalesById);
         }

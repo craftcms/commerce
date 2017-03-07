@@ -137,16 +137,19 @@ class Commerce_SalesController extends Commerce_BaseCpController
         if (!$products) {
             $products = [];
         }
+        $products = array_unique($products);
 
         $productTypes = craft()->request->getPost('productTypes', []);
         if (!$productTypes) {
             $productTypes = [];
         }
+        $productTypes = array_unique($productTypes);
 
         $groups = craft()->request->getPost('groups', []);
         if (!$groups) {
             $groups = [];
         }
+        $groups = array_unique($groups);
 
         // Save it
         if (craft()->commerce_sales->saveSale($sale, $groups, $productTypes, $products)) {
