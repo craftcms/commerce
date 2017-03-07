@@ -5,14 +5,22 @@ Commerce Changelog
 
 ### Fixed
 - Fixed some PHP errors that appeared on PHP 7.1
-- Fixed a bug where a line item would be removed when submiting a request with a missing `qty` param.
+- Fixed a bug that removed a line item if the `qty` param was missing from a `commerce/cart/updateLineItem` request.
 - The order listing screen now shows all zero value currency amounts, instead of a blank field.
-- Fixed bug which caused duplicate products in sales condition when user group conditions were used.
+- Fixed bug which caused duplicate products in a sales condition to show up if a user group condition was used.
 - Fixed a bug where the `isUnpaid` and `isPaid` order element criteria params did not work correctly.
+- Fixed a PHP error that occured if a plugin’s custom shipping method object did not inherit BaseModel.
+- Fixed an issue with the Multi-safepay gateway, which marked the payment as successful before redirecting.
+- Fixed an validation issue when saving a shipping rule, the name should have been unique only within same shipping method.
 
 ### Added
-- Added a new `commerce_sale.onBeforeMatchProductAndSale` event to allow plugins to add additional matching logic to sales being applied.
+- Added a new `commerce_sale.onBeforeMatchProductAndSale` event to allow plugins to add additional matching logic to sales.
+- Added an `commerce_products.onBeforeEditProduct` event, useful for eager loading product variant fields on the product edit screen in the control panel if needed.
+- Added the `cp.commerce.product.edit` template hook to the product edit page in the control panel.
 - Now logging the reason a product’s SKU format could not be generated.
+
+## Changed
+- The `cp.commerce.product.edit` template hook has been moved to the top of the Order edit template.
 
 ## 1.2.1334 - 2017-01-30
 
