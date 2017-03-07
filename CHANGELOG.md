@@ -7,6 +7,7 @@ Commerce Changelog
 - Fixed some PHP errors that appeared on PHP 7.1
 - Fixed a bug where a line item would be removed when submiting a request with a missing `qty` param.
 - The order listing screen now shows all zero value currency amounts, instead of a blank field.
+- Fixed bug which caused duplicate products in sales condition when user group conditions were used.
 
 ### Added
 - Added a new `commerce_sale.onBeforeMatchProductAndSale` event to allow plugins to add additional matching logic to sales being applied.
