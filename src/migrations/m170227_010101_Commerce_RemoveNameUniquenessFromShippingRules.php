@@ -8,7 +8,9 @@ class m170227_010101_Commerce_RemoveNameUniquenessFromShippingRules extends Base
         $table = MigrationHelper::getTable('commerce_shippingrules');
 
         MigrationHelper::dropAllForeignKeysOnTable($table);
-        MigrationHelper::dropAllIndexesOnTable($table);
+        
+        MigrationHelper::dropIndexIfExists('commerce_shippingrules',['methodId']);
+        MigrationHelper::dropIndexIfExists('commerce_shippingrules',['name']);
 
         craft()->db->createCommand()->createIndex('commerce_shippingrules', 'name', false);
         craft()->db->createCommand()->createIndex('commerce_shippingrules', 'methodId', false);
