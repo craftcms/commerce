@@ -14,8 +14,8 @@ Commerce Changelog
 - Fixed an validation issue when saving a shipping rule; the name should have only been unique within same shipping method.
 
 ### Added
-- Added a new `commerce_sale.onBeforeMatchProductAndSale` event to allow plugins to add additional matching logic to sales.
-- Added an `commerce_products.onBeforeEditProduct` event, useful for eager loading product variant fields on the product edit screen within the control panel.
+- Added a new [commerce_sale.onBeforeMatchProductAndSale event](https://craftcommerce.com/docs/events-reference#commerce_sales.onbeforematchproductandsale) which allows plugins to add additional matching logic to sales.
+- Added a new [commerce_products.onBeforeEditProduct event](https://craftcommerce.com/docs/events-reference#commerce_products.onbeforeeditproduct), useful for eager loading product variant fields on the product edit screen within the control panel.
 - Added the `cp.commerce.product.edit` template hook to the product edit page within the control panel.
 - Now logging the reason a product’s SKU format could not be generated.
 
