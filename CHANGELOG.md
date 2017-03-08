@@ -3,6 +3,8 @@ Commerce Changelog
 
 ## Unreleased
 
+## 1.2.1336 - 2017-03-08
+
 ### Added
 - Added the [commerce_sale.onBeforeMatchProductAndSale](https://craftcommerce.com/docs/events-reference#commerce_sales.onbeforematchproductandsale) event, which enables plugins to add custom matching logic to sales.
 - Added the [commerce_products.onBeforeEditProduct](https://craftcommerce.com/docs/events-reference#commerce_products.onbeforeeditproduct) event.
