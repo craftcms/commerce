@@ -3,24 +3,23 @@ Commerce Changelog
 
 ## Unreleased
 
-### Fixed
-- Fixed some PHP errors that appeared on PHP 7.1
-- Fixed a bug that removed a line item if the `qty` param was missing from a `commerce/cart/updateLineItem` request.
-- The order listing screen now shows all zero value currency amounts, instead of a blank field.
-- Fixed bug when editing sales that caused duplicate products to show up if a user group condition was used.
-- Fixed a bug where the `isUnpaid` and `isPaid` order element criteria params did not work correctly.
-- Fixed a PHP error that occured if a plugin’s custom shipping method object did not inherit BaseModel.
-- Fixed an issue with the Multi-safepay gateway, which incorrectly marked the payment as successful before redirecting.
-- Fixed an validation issue when saving a shipping rule; the name should have only been unique within same shipping method.
-
 ### Added
-- Added a new [commerce_sale.onBeforeMatchProductAndSale event](https://craftcommerce.com/docs/events-reference#commerce_sales.onbeforematchproductandsale) which allows plugins to add additional matching logic to sales.
-- Added a new [commerce_products.onBeforeEditProduct event](https://craftcommerce.com/docs/events-reference#commerce_products.onbeforeeditproduct), useful for eager loading product variant fields on the product edit screen within the control panel.
-- Added the `cp.commerce.product.edit` template hook to the product edit page within the control panel.
-- Now logging the reason a product’s SKU format could not be generated.
+- Added the [commerce_sale.onBeforeMatchProductAndSale](https://craftcommerce.com/docs/events-reference#commerce_sales.onbeforematchproductandsale) event, which enables plugins to add custom matching logic to sales.
+- Added the [commerce_products.onBeforeEditProduct](https://craftcommerce.com/docs/events-reference#commerce_products.onbeforeeditproduct) event.
+- Added the `cp.commerce.product.edit` template hook to the Edit Product page.
 
-## Changed
-- The `cp.commerce.product.edit` template hook has been moved to the top of the Order edit template.
+### Changed
+- If a product SKU can’t be generated from its product type’s Automatic SKU Format, Commerce now logs why.
+
+### Fixed
+- Fixed some PHP errors that occurred on servers running PHP 7.1.
+- Fixed a bug where line items could be removed if their `qty` param was missing from a `commerce/cart/updateLineItem` request.
+- The Orders index page now displays zero-value currency amounts, instead of leaving the cell blank.
+- Fixed bug where duplicate products could be displayed when editing sales when the User Groups condition was in use.
+- Fixed a bug where the `isUnpaid` and `isPaid` order element criteria params did not work correctly.
+- Fixed a PHP error that occurred if a plugin’s custom shipping method object didn’t inherit `BaseModel`.
+- Fixed a bug where payments made with MultiSafepay would be marked as successful before the user was redirected to the offsite gateway.
+- Fixed a bug where shipping rule names were required to be unique across the entire installation, rather than per-shipping method.
 
 ## 1.2.1334 - 2017-01-30
 
