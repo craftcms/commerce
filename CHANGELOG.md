@@ -3,6 +3,9 @@ Commerce Changelog
 
 ## Unreleased
 
+### Added 
+- Added the [requireBillingAddressAtCheckout](https://craftcommerce.com/docs/configuration#requirebillingaddressatcheckout) config setting.
+
 ## 1.2.1337 - 2017-03-08
 
 ### Added

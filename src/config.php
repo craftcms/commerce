@@ -8,5 +8,6 @@ return [
         'sendCartInfoToGateways'           => true,
         'requireEmailForAnonymousPayments' => false,
         'useBillingAddressForTax'          => false,
-        'requireShippingAddressAtCheckout' => false
+        'requireShippingAddressAtCheckout' => false,
+        'requireBillingAddressAtCheckout' => false
 ];

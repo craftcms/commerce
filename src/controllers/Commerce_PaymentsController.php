@@ -77,6 +77,24 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
             }
         }
 
+        if (craft()->config->get('requireBillingAddressAtCheckout', 'commerce'))
+        {
+            if (!$order->billingAddressId)
+            {
+                $error = Craft::t('Billing address required.');
+                if (craft()->request->isAjaxRequest())
+                {
+                    $this->returnErrorJson($error);
+                }
+                else
+                {
+                    craft()->userSession->setFlash('error', $error);
+                }
+
+                return;
+            }
+        }
+
         // These are used to compare if the order changed during it's final
         // recalculation before payment.
         $originalTotalPrice = $order->outstandingBalance();
