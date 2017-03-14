@@ -219,7 +219,9 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
         {
             if ($discount->perItemDiscount)
             {
-                $description .= \Craft\craft()->numberFormatter->formatCurrency($discount->perItemDiscount * -1, $currency);
+                $perItemDiscount = (float) $discount->perItemDiscount;
+                $perItemDiscount = $perItemDiscount * -1;
+                $description .= \Craft\craft()->numberFormatter->formatCurrency($perItemDiscount, $currency);
             }
 
             if ($discount->percentDiscount)
@@ -228,8 +230,9 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
                 {
                     $description .= ' and ';
                 }
-
-                $description .= \Craft\craft()->numberFormatter->formatPercentage($discount->percentDiscount * -1 .'%');
+                $percentDiscount = (float) $discount->percentDiscount;
+                $percentDiscount = $percentDiscount * -1;
+                $description .= \Craft\craft()->numberFormatter->formatPercentage($percentDiscount.'%');
             }
 
             $description .= ' per item ';
@@ -241,7 +244,9 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
             {
                 $description .= 'and ';
             }
-            $description .= \Craft\craft()->numberFormatter->formatCurrency($discount->baseDiscount * -1, $currency).' base rate ';
+            $baseDiscount = (float) $discount->baseDiscount;
+            $baseDiscount = $baseDiscount * -1;
+            $description .= \Craft\craft()->numberFormatter->formatCurrency($baseDiscount, $currency).' base rate ';
         }
 
         if ($discount->freeShipping)
