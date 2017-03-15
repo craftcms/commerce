@@ -232,7 +232,7 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
                 }
                 $percentDiscount = (float) $discount->percentDiscount;
                 $percentDiscount = $percentDiscount * -1;
-                $description .= \Craft\craft()->numberFormatter->formatPercentage($percentDiscount.'%');
+                $description .= \Craft\craft()->numberFormatter->formatPercentage($percentDiscount);
             }
 
             $description .= ' per item ';
