@@ -322,6 +322,16 @@ class Commerce_VariantModel extends BasePurchasable
     }
 
     /**
+     * Does this variants have stock?
+     *
+     * @return bool
+     */
+    public function hasStock()
+    {
+        return (bool)($this->stock > 0 || $this->unlimitedStock);
+    }
+
+    /**
      * Does this variants product has free shipping set.
      *
      * @return bool
