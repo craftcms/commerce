@@ -5,6 +5,7 @@ Commerce Changelog
 
 ### Added 
 - Added the [requireBillingAddressAtCheckout](https://craftcommerce.com/docs/configuration#requirebillingaddressatcheckout) config setting.
+- Added the `cp.commerce.order.main-pane` template hook to the Edit Order page.
 
 ## 1.2.1337 - 2017-03-08
 
