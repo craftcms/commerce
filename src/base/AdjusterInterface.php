@@ -1,8 +1,8 @@
 <?php
 
-namespace Commerce\Adjusters;
+namespace craft\commerce\base;
 
-use Craft\Commerce_OrderModel;
+use craft\commerce\elements\Order;
 
 /**
  * A method all adjusters must implement
@@ -11,17 +11,17 @@ use Craft\Commerce_OrderModel;
  *
  * @package Commerce\Adjusters
  */
-interface Commerce_AdjusterInterface
+interface AdjusterInterface
 {
     /**
      * The adjust method modifies the order values (like baseShippingCost),
      * and records all adjustments by returning one or more orderAdjusterModels
      * to be saved on the order.
      *
-     * @param Commerce_OrderModel $order
-     * @param array               $lineItems
+     * @param Order $order
+     * @param array $lineItems
      *
-     * @return \Craft\Commerce_OrderAdjustmentModel[]
+     * @return \craft\commerce\models\OrderAdjustment[]
      */
-    public function adjust(Commerce_OrderModel &$order, array $lineItems = []);
+    public function adjust(Order &$order, array $lineItems = []);
 }

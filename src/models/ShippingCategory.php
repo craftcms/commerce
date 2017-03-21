@@ -1,5 +1,5 @@
 <?php
-namespace Craft;
+namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
 use craft\helpers\UrlHelper;

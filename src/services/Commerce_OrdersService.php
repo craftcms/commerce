@@ -2,7 +2,7 @@
 namespace Craft;
 
 use Commerce\Adjusters\Commerce_AdjusterInterface;
-use Commerce\Adjusters\Commerce_DiscountAdjuster;
+use \craft\commerce\adjusters\Discount;
 use Commerce\Adjusters\Commerce_ShippingAdjuster;
 use Commerce\Adjusters\Commerce_TaxAdjuster;
 use craft\commerce\helpers\Currency;
@@ -419,9 +419,9 @@ class Commerce_OrdersService extends BaseApplicationComponent
     private function getAdjusters($order = null)
     {
         $adjusters = [
-            200 => new Commerce_ShippingAdjuster,
-            400 => new Commerce_DiscountAdjuster,
-            600 => new Commerce_TaxAdjuster,
+            200 => new \craft\commerce\adjusters\Shipping,
+            400 => new \craft\commerce\adjusters\Discount,
+            600 => new \craft\commerce\adjusters\Tax,
         ];
 
         // Additional adjuster can be returned by the plugins.

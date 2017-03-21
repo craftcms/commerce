@@ -1,45 +1,47 @@
 <?php
 namespace craft\commerce\models;
 
-use craft\commerce\helpers\Currency;
 use craft\commerce\base\Model;
 use craft\commerce\base\Purchasable;
+use craft\commerce\elements\Order;
+use craft\commerce\helpers\Currency;
+use craft\commerce\base\Element;
 
 /**
  * Line Item model representing a line item on an order.
  *
  * @package   Craft
  *
- * @property int                            $id
- * @property float                          $price
- * @property float                          $saleAmount
- * @property float                          $salePrice
- * @property float                          $tax
- * @property float                          $taxIncluded
- * @property float                          $shippingCost
- * @property float                          $discount
- * @property float                          $weight
- * @property float                          $height
- * @property float                          $width
- * @property float                          $length
- * @property float                          $total
- * @property int                            $qty
- * @property string                         $note
- * @property string                         $snapshot
+ * @property int                                     $id
+ * @property float                                   $price
+ * @property float                                   $saleAmount
+ * @property float                                   $salePrice
+ * @property float                                   $tax
+ * @property float                                   $taxIncluded
+ * @property float                                   $shippingCost
+ * @property float                                   $discount
+ * @property float                                   $weight
+ * @property float                                   $height
+ * @property float                                   $width
+ * @property float                                   $length
+ * @property float                                   $total
+ * @property int                                     $qty
+ * @property string                                  $note
+ * @property string                                  $snapshot
  *
- * @property int                            $orderId
- * @property int                            $purchasableId
- * @property string                         $optionsSignature
- * @property mixed                          $options
- * @property int                            $taxCategoryId
- * @property int                            $shippingCategoryId
+ * @property int                                     $orderId
+ * @property int                                     $purchasableId
+ * @property string                                  $optionsSignature
+ * @property mixed                                   $options
+ * @property int                                     $taxCategoryId
+ * @property int                                     $shippingCategoryId
  *
- * @property bool                           $onSale
- * @property Purchasable                    $purchasable
+ * @property bool                                    $onSale
+ * @property Purchasable                             $purchasable
  *
- * @property \craft\commerce\elements\Order $order
- * @property Commerce_TaxCategoryModel      $taxCategory
- * @property Commerce_ShippingCategoryModel $shippingCategory
+ * @property \craft\commerce\elements\Order          $order
+ * @property \craft\commerce\models\TaxCategory      $taxCategory
+ * @property \craft\commerce\models\ShippingCategory $shippingCategory
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -48,8 +50,120 @@ use craft\commerce\base\Purchasable;
  * @package   craft.plugins.commerce.models
  * @since     1.0
  */
-class Commerce_LineItemModel extends Model
+class LineItem extends Model
 {
+
+    /**
+     * @var int ID
+     */
+    public $id;
+
+    /**
+     * @var mixed Options
+     */
+    public $options;
+
+    /**
+     * @var string Options Signature Hash
+     */
+    public $optionsSignature;
+
+    /**
+     * @var float Price
+     */
+    public $price = 0;
+
+    /**
+     * @var float Sale amount
+     */
+    public $saleAmount = 0;
+
+    /**
+     * @var float Sale price
+     */
+    public $salePrice = 0;
+
+    /**
+     * @var float tax
+     */
+    public $tax = 0;
+
+    /**
+     * @var float Tax included amount
+     */
+    public $taxIncluded = 0;
+
+    /**
+     * @var float Shipping Cost
+     */
+    public $shippingCost = 0;
+
+    /**
+     * @var float Discount
+     */
+    public $discount = 0;
+
+    /**
+     * @var float Weight
+     */
+    public $weight = 0;
+
+    /**
+     * @var float Length
+     */
+    public $length = 0;
+
+    /**
+     * @var float Height
+     */
+    public $height = 0;
+
+    /**
+     * @var float Width
+     */
+    public $width = 0;
+
+    /**
+     * @var float Total
+     */
+    public $total = 0;
+
+    /**
+     * @var int Quantity
+     */
+    public $qty;
+
+    /**
+     * @var mixed Snapshot
+     */
+    public $snapshot;
+
+    /**
+     * @var string Note
+     */
+    public $note;
+
+    /**
+     * @var int Purchasable ID
+     */
+    public $purchasableId;
+
+    /**
+     * @var int Order ID
+     */
+    public $orderId;
+
+    /**
+     * @var int Tax category ID
+     */
+    public $taxCategoryId;
+
+    /**
+     * @var int Shipping category ID
+     */
+    public $shippingCategoryId;
+
+
     /**
      * @var \craft\commerce\base\PurchasableInterface Purchasable
      */
@@ -75,10 +189,37 @@ class Commerce_LineItemModel extends Model
     /**
      * @param \craft\commerce\elements\Order $order
      */
-    public function setOrder(\craft\commerce\elements\Order $order)
+    public function setOrder(Order $order)
     {
         $this->orderId = $order->id;
         $this->_order = $order;
+    }
+
+    public function rules()
+    {
+        return [
+            [
+                [
+                    'optionsSignature',
+                    'price',
+                    'saleAmount',
+                    'salePrice',
+                    'tax',
+                    'taxIncluded',
+                    'shippingCost',
+                    'discount',
+                    'weight',
+                    'length',
+                    'height',
+                    'width',
+                    'total',
+                    'qty',
+                    'snapshot',
+                    'taxCategoryId',
+                    'shippingCategoryId'
+                ], 'required'
+            ]
+        ];
     }
 
     /**
@@ -158,7 +299,7 @@ class Commerce_LineItemModel extends Model
     }
 
     /**
-     * @return BaseElementModel|null
+     * @return \craft\commerce\base\Element|null
      */
     public function getPurchasable()
     {
@@ -170,11 +311,11 @@ class Commerce_LineItemModel extends Model
     }
 
     /**
-     * @param BaseElementModel $purchasable
+     * @param \craft\commerce\base\Element $purchasable
      *
      * @return void
      */
-    public function setPurchasable(BaseElementModel $purchasable)
+    public function setPurchasable(Element $purchasable)
     {
         $this->_purchasable = $purchasable;
     }
@@ -220,16 +361,6 @@ class Commerce_LineItemModel extends Model
     /**
      * @return bool
      */
-    public function getUnderSale()
-    {
-        craft()->deprecator->log('\craft\commerce\elements\LineItem::underSale():removed', 'You should no longer use `underSale` on the lineItem. Use `onSale`.');
-
-        return $this->getOnSale();
-    }
-
-    /**
-     * @return bool
-     */
     public function getOnSale()
     {
         return is_null($this->salePrice) ? false : ($this->salePrice != $this->price);
@@ -252,7 +383,7 @@ class Commerce_LineItemModel extends Model
     }
 
     /**
-     * @return Commerce_TaxCategoryModel|null
+     * @return \craft\commerce\models\TaxCategory|null
      */
     public function getTaxCategory()
     {
@@ -260,111 +391,11 @@ class Commerce_LineItemModel extends Model
     }
 
     /**
-     * @return Commerce_TaxCategoryModel|null
+     * @return \craft\commerce\models\TaxCategory|null
      */
     public function getShippingCategory()
     {
         return craft()->commerce_shippingCategories->getShippingCategoryById($this->shippingCategoryId);
     }
 
-    /**
-     * @return array
-     */
-    protected function defineAttributes()
-    {
-        return [
-            'id' => AttributeType::Number,
-            'options' => AttributeType::Mixed,
-            'optionsSignature' => [AttributeType::String, 'required' => true],
-            'price' => [
-                AttributeType::Number,
-                'min' => 0,
-                'decimals' => 4,
-                'required' => true
-            ],
-            'saleAmount' => [
-                AttributeType::Number,
-                'decimals' => 4,
-                'required' => true,
-                'default' => 0
-            ],
-            'salePrice' => [
-                AttributeType::Number,
-                'decimals' => 4,
-                'required' => true,
-                'default' => 0
-            ],
-            'tax' => [
-                AttributeType::Number,
-                'decimals' => 4,
-                'required' => true,
-                'default' => 0
-            ],
-            'taxIncluded' => [
-                AttributeType::Number,
-                'decimals' => 4,
-                'required' => true,
-                'default' => 0
-            ],
-            'shippingCost' => [
-                AttributeType::Number,
-                'min' => 0,
-                'decimals' => 4,
-                'required' => true,
-                'default' => 0
-            ],
-            'discount' => [
-                AttributeType::Number,
-                'decimals' => 4,
-                'required' => true,
-                'default' => 0
-            ],
-            'weight' => [
-                AttributeType::Number,
-                'min' => 0,
-                'decimals' => 4,
-                'required' => true,
-                'default' => 0
-            ],
-            'length' => [
-                AttributeType::Number,
-                'min' => 0,
-                'decimals' => 4,
-                'required' => true,
-                'default' => 0
-            ],
-            'height' => [
-                AttributeType::Number,
-                'min' => 0,
-                'decimals' => 4,
-                'required' => true,
-                'default' => 0
-            ],
-            'width' => [
-                AttributeType::Number,
-                'min' => 0,
-                'decimals' => 4,
-                'required' => true,
-                'default' => 0
-            ],
-            'total' => [
-                AttributeType::Number,
-                'min' => 0,
-                'decimals' => 4,
-                'required' => true,
-                'default' => 0
-            ],
-            'qty' => [
-                AttributeType::Number,
-                'min' => 0,
-                'required' => true
-            ],
-            'snapshot' => [AttributeType::Mixed, 'required' => true],
-            'note' => AttributeType::Mixed,
-            'purchasableId' => AttributeType::Number,
-            'orderId' => AttributeType::Number,
-            'taxCategoryId' => [AttributeType::Number, 'required' => true],
-            'shippingCategoryId' => [AttributeType::Number, 'required' => true],
-        ];
-    }
 }
