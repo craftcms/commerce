@@ -49,7 +49,7 @@ class Commerce_PaymentMethodsController extends Commerce_BaseAdminController
             }
         }
 
-        $variables['gateways'] = craft()->commerce_gateways->getAllGateways();
+        $variables['gateways'] = Plugin::getInstance()->getGateways()->getAllGateways();
         $list = [];
         foreach ($variables['gateways'] as $gw)
         {

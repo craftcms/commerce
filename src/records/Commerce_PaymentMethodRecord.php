@@ -58,7 +58,7 @@ class Commerce_PaymentMethodRecord extends BaseRecord
      */
     private function gatewayNames()
     {
-        $gateways = craft()->commerce_gateways->getAllGateways();
+        $gateways = Plugin::getInstance()->getGateways()->getAllGateways();
 
         return array_keys($gateways);
     }

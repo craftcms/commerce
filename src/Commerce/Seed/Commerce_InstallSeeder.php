@@ -2,17 +2,18 @@
 
 namespace Commerce\Seed;
 
-use Craft\Commerce_PaymentCurrencyRecord;
+use craft\commerce\Plugin;
 use Craft\Commerce_OrderSettingsModel;
 use Craft\Commerce_OrderStatusModel;
+use Craft\Commerce_PaymentCurrencyRecord;
 use Craft\Commerce_PaymentMethodModel;
 use Craft\Commerce_ProductModel;
 use Craft\Commerce_ProductTypeModel;
 use Craft\Commerce_SettingsModel;
+use Craft\Commerce_ShippingCategoryModel;
 use Craft\Commerce_ShippingMethodRecord;
 use Craft\Commerce_ShippingRuleRecord;
 use Craft\Commerce_TaxCategoryModel;
-use Craft\Commerce_ShippingCategoryModel;
 use Craft\Commerce_VariantModel;
 use Craft\DateTime;
 use Craft\FieldLayoutModel;
@@ -224,7 +225,7 @@ class Commerce_InstallSeeder implements Commerce_SeederInterface
     private function paymentMethods()
     {
         /** @var Dummy_GatewayAdapter $adapter */
-        $adapter = \Craft\craft()->commerce_gateways->getAllGateways()['Dummy'];
+        $adapter = Plugin::getInstance()->getGateways()->getAllGateways()['Dummy'];
 
         $model = new Commerce_PaymentMethodModel;
         $model->class = $adapter->handle();

@@ -1,16 +1,16 @@
 <?php
 namespace Commerce\Gateways;
 
+use Commerce\Exception\NotImplementedException;
+use Commerce\Gateways\PaymentFormModels\BasePaymentFormModel;
 use Craft\AttributeType;
 use Craft\BaseModel;
 use Craft\Commerce_PaymentMethodModel;
 use Omnipay\Common\AbstractGateway;
-use Omnipay\Common\GatewayFactory;
-use Commerce\Gateways\PaymentFormModels\BasePaymentFormModel;
 use Omnipay\Common\CreditCard;
-use Omnipay\Common\Message\AbstractRequest as OmnipayRequest;
-use Commerce\Exception\NotImplementedException;
+use Omnipay\Common\GatewayFactory;
 use Omnipay\Common\ItemBag;
+use Omnipay\Common\Message\AbstractRequest as OmnipayRequest;
 
 /**
  * Class BaseGatewayAdapter
@@ -19,226 +19,212 @@ use Omnipay\Common\ItemBag;
  */
 abstract class BaseGatewayAdapter extends BaseModel implements GatewayAdapterInterface
 {
-	/** @var AbstractGateway */
-	protected $_gateway;
-	protected $_selects = [];
-	protected $_booleans = [];
-	/** @var GatewayFactory */
-	protected static $_factory;
-	/** @var Commerce_PaymentMethodModel */
-	private $_paymentMethod;
+    /** @var GatewayFactory */
+    protected static $_factory;
+    /** @var AbstractGateway */
+    protected $_gateway;
+    protected $_selects = [];
+    protected $_booleans = [];
+    /** @var Commerce_PaymentMethodModel */
+    private $_paymentMethod;
 
-	/**
-	 * Commerce_GatewayModel constructor.
-	 *
-	 * @param array $attributes
-	 */
-	public function __construct($attributes = null)
-	{
-		$this->init();
-		parent::__construct($attributes);
-	}
+    /**
+     * Commerce_GatewayModel constructor.
+     *
+     * @param array $attributes
+     */
+    public function __construct($attributes = null)
+    {
+        $this->init();
+        parent::__construct($attributes);
+    }
 
-	/**
-	 * @return Commerce_PaymentMethodModel|null
-	 */
-	public function getPaymentMethod()
-	{
-		return $this->_paymentMethod;
-	}
+    /**
+     * Initialize Omnipay Gateway
+     */
+    public function init()
+    {
+        $defaults = $this->getGateway()->getDefaultParameters();
 
-	/**
-	 * @param Commerce_PaymentMethodModel $paymentMethod
-	 */
-	public function setPaymentMethod(Commerce_PaymentMethodModel $paymentMethod)
-	{
-		$this->_paymentMethod = $paymentMethod;
-	}
+        //fill selects
+        $this->_selects = array_filter($defaults, 'is_array');
+        foreach ($this->_selects as $param => &$values) {
+            $values = array_combine($values, $values);
+        }
 
-	/**
-	 * @param mixed $values
-	 *
-	 * @return void
-	 */
-	public function setAttributes($values)
-	{
-		parent::setAttributes($values);
-		if (is_array($values))
-		{
-			$this->getGateway()->initialize($values);
-		}
-	}
+        //fill booleans
+        foreach ($defaults as $key => $value) {
+            if (is_bool($value)) {
+                $this->_booleans[] = $key;
+            }
+        }
+    }
 
-	/**
-	 * Initialize Omnipay Gateway
-	 */
-	public function init()
-	{
-		$defaults = $this->getGateway()->getDefaultParameters();
+    /**
+     * @return AbstractGateway
+     */
+    public function getGateway()
+    {
+        if (!$this->_gateway) {
+            $this->_gateway = self::getFactory()->create($this->handle());
+        }
 
-		//fill selects
-		$this->_selects = array_filter($defaults, 'is_array');
-		foreach ($this->_selects as $param => &$values)
-		{
-			$values = array_combine($values, $values);
-		}
+        return $this->_gateway;
+    }
 
-		//fill booleans
-		foreach ($defaults as $key => $value)
-		{
-			if (is_bool($value))
-			{
-				$this->_booleans[] = $key;
-			}
-		}
-	}
+    /**
+     * @return GatewayFactory
+     */
+    protected static function getFactory()
+    {
+        if (!self::$_factory) {
+            self::$_factory = new GatewayFactory();
+        }
 
-	/**
-	 * Returns an item bag of the right type for this gateway adapter
-	 *
-	 * @return ItemBag
-	 */
-	public function createItemBag()
-	{
-		return new ItemBag();
-	}
-	
-	/**
-	 * @return string
-	 */
-	public function displayName()
-	{
-		return $this->getGateway()->getName();
-	}
+        return self::$_factory;
+    }
 
-	/**
-	 * @return string
-	 */
-	public function getSettingsHtml()
-	{
-		return \Craft\craft()->templates->render('commerce/_gateways/omnipay', [
-			'adapter' => $this,
-		]);
-	}
+    /**
+     * @return Commerce_PaymentMethodModel|null
+     */
+    public function getPaymentMethod()
+    {
+        return $this->_paymentMethod;
+    }
 
-	/**
-	 * @return AbstractGateway
-	 */
-	public function getGateway()
-	{
-		if (!$this->_gateway)
-		{
-			$this->_gateway = self::getFactory()->create($this->handle());
-		}
+    /**
+     * @param Commerce_PaymentMethodModel $paymentMethod
+     */
+    public function setPaymentMethod(Commerce_PaymentMethodModel $paymentMethod)
+    {
+        $this->_paymentMethod = $paymentMethod;
+    }
 
-		return $this->_gateway;
-	}
+    /**
+     * @param mixed $values
+     *
+     * @return void
+     */
+    public function setAttributes($values)
+    {
+        parent::setAttributes($values);
+        if (is_array($values)) {
+            $this->getGateway()->initialize($values);
+        }
+    }
 
-	/**
-	 * Settings fields which should be displayed as select-boxes
-	 *
-	 * @return array [setting name => [choices list]]
-	 */
-	public function getSelects()
-	{
-		return $this->_selects;
-	}
+    /**
+     * Returns an item bag of the right type for this gateway adapter
+     *
+     * @return ItemBag
+     */
+    public function createItemBag()
+    {
+        return new ItemBag();
+    }
 
-	/**
-	 * Settings fields which should be displayed as check-boxes
-	 *
-	 * @return array
-	 */
-	public function getBooleans()
-	{
-		return $this->_booleans;
-	}
+    /**
+     * @return string
+     */
+    public function displayName()
+    {
+        return $this->getGateway()->getName();
+    }
 
-	/**
-	 * Returns the list of attribute names of the model.
-	 *
-	 * @return array list of attribute names.
-	 */
-	public function defineAttributes()
-	{
-		$params = $this->getGateway()->getParameters();
-		$booleans = $this->getBooleans();
-		$selects = $this->getSelects();
+    /**
+     * @return string
+     */
+    public function getSettingsHtml()
+    {
+        return \Craft\craft()->templates->render('commerce/_gateways/omnipay', [
+            'adapter' => $this,
+        ]);
+    }
 
-		$result = [];
-		foreach (array_keys($params) as $key)
-		{
-			if (in_array($key, $booleans))
-			{
-				$result[$key] = [AttributeType::Bool];
-			}
-			elseif (isset($selects[$key]))
-			{
-				$result[$key] = [AttributeType::Enum, 'values' => array_values($selects[$key])];
-			}
-			else
-			{
-				$result[$key] = [AttributeType::String];
-			}
+    /**
+     * Returns the list of attribute names of the model.
+     *
+     * @return array list of attribute names.
+     */
+    public function defineAttributes()
+    {
+        $params = $this->getGateway()->getParameters();
+        $booleans = $this->getBooleans();
+        $selects = $this->getSelects();
 
-			$result[$key]['label'] = $this->generateAttributeLabel($key);
-		}
+        $result = [];
+        foreach (array_keys($params) as $key) {
+            if (in_array($key, $booleans)) {
+                $result[$key] = [AttributeType::Bool];
+            } elseif (isset($selects[$key])) {
+                $result[$key] = [AttributeType::Enum, 'values' => array_values($selects[$key])];
+            } else {
+                $result[$key] = [AttributeType::String];
+            }
 
-		return $result;
-	}
+            $result[$key]['label'] = $this->generateAttributeLabel($key);
+        }
 
-	/**
-	 * @return bool
-	 */
-	public function requiresCreditCard()
-	{
-		return true;
-	}
+        return $result;
+    }
 
-	public function cpPaymentsEnabled()
-	{
-		return false;
-	}
+    /**
+     * Settings fields which should be displayed as check-boxes
+     *
+     * @return array
+     */
+    public function getBooleans()
+    {
+        return $this->_booleans;
+    }
+
+    /**
+     * Settings fields which should be displayed as select-boxes
+     *
+     * @return array [setting name => [choices list]]
+     */
+    public function getSelects()
+    {
+        return $this->_selects;
+    }
+
+    /**
+     * @return bool
+     */
+    public function requiresCreditCard()
+    {
+        return true;
+    }
+
+    public function cpPaymentsEnabled()
+    {
+        return false;
+    }
 
     public function useNotifyUrl()
     {
         return false;
     }
 
-	/**
-	 * @return BasePaymentFormModel
-	 * @throws NotImplementedException
-	 */
-	public function getPaymentFormModel()
-	{
-		throw new NotImplementedException();
-	}
+    /**
+     * @return BasePaymentFormModel
+     * @throws NotImplementedException
+     */
+    public function getPaymentFormModel()
+    {
+        throw new NotImplementedException();
+    }
 
-	public function getPaymentFormHtml(array $params)
-	{
-		return "";
-	}
+    public function getPaymentFormHtml(array $params)
+    {
+        return "";
+    }
 
-	public function populateCard(CreditCard $card, BaseModel $paymentForm)
-	{
+    public function populateCard(CreditCard $card, BaseModel $paymentForm)
+    {
+    }
 
-	}
-
-	public function populateRequest(OmnipayRequest $request, BaseModel $paymentForm)
-	{
-
-	}
-
-	/**
-	 * @return GatewayFactory
-	 */
-	protected static function getFactory()
-	{
-		if (!self::$_factory)
-		{
-			self::$_factory = new GatewayFactory();
-		}
-
-		return self::$_factory;
-	}
+    public function populateRequest(OmnipayRequest $request, BaseModel $paymentForm)
+    {
+    }
 }

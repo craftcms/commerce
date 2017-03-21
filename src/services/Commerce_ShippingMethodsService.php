@@ -209,7 +209,7 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
         ShippingMethod $method
     )
     {
-        foreach ($method->getRules() as $rule) {
+        foreach ($method->getShippingRules() as $rule) {
             /** @var \Commerce\Interfaces\ShippingRule $rule */
             if ($rule->matchOrder($order)) {
                 return $rule;

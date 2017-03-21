@@ -1,0 +1,213 @@
+<?php
+namespace craft\commerce\models;
+
+use craft\commerce\base\Model;
+use craft\commerce\Plugin;
+use craft\helpers\UrlHelper;
+
+/**
+ * Address Model
+ *
+ * @property int|string                     $stateValue
+ * @property \craft\commerce\models\Country $country
+ * @property \craft\commerce\models\State   $state
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2017, Pixel & Tonic, Inc.
+ * @license   https://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       https://craftcommerce.com
+ * @package   craft.commerce
+ * @since     2.0
+ */
+class Address extends Model
+{
+    // Properties
+    // =========================================================================
+
+    /*
+     * @var int Address ID
+     */
+    public $id;
+
+    /*
+     * @var string Attention
+     */
+    public $attention;
+
+    /*
+     * @var string Title
+     */
+    public $title;
+
+    /*
+     * @var string First Name
+     */
+    public $firstName;
+
+    /*
+     * @var string Last Name
+     */
+    public $lastName;
+
+    /*
+     * @var string Address Line 1
+     */
+    public $address1;
+
+    /*
+     * @var string Address Line 2
+     */
+    public $address2;
+
+    /*
+     * @var string City
+     */
+    public $city;
+
+    /*
+     * @var string Zip
+     */
+    public $zipCode;
+
+    /*
+     * @var string Phone
+     */
+    public $phone;
+
+    /*
+     * @var string Alternative Phone
+     */
+    public $alternativePhone;
+
+    /*
+     * @var string Business Name
+     */
+    public $businessName;
+
+    /*
+     * @var string Business Tax ID
+     */
+    public $businessTaxId;
+
+    /*
+     * @var string Business ID
+     */
+    public $businessId;
+
+    /*
+     * @var string State Name
+     */
+    public $stateName;
+
+    /*
+     * @var int Country ID
+     */
+    public $countryId;
+
+    /*
+     * @var int Country ID
+     */
+    public $stateId;
+
+    /*
+     * @var int|string Can be a State ID or State Name
+     */
+    private $_stateValue;
+
+    /**
+     * @return string
+     */
+    public function getCpEditUrl(): string
+    {
+        return UrlHelper::cpUrl('commerce/addresses/'.$this->id);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        $fields['fullName'] = function() {
+            return $this->getFullName();
+        };
+
+        $fields['countryText'] = function() {
+            return $this->getCountryText();
+        };
+
+        $fields['stateText'] = function() {
+            return $this->getStateText();
+        };
+
+        $fields['stateValue'] = function() {
+            return $this->getStateValue();
+        };
+
+        return $fields;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFullName()
+    {
+        $firstName = trim($this->firstName);
+        $lastName = trim($this->lastName);
+
+        return $firstName.($firstName && $lastName ? ' ' : '').$lastName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCountryText()
+    {
+        return $this->countryId ? $this->getCountry()->name : '';
+    }
+
+    /**
+     * @return \craft\commerce\models\Country|null
+     */
+    public function getCountry()
+    {
+        return Plugin::getInstance()->getCountries()->getCountryById($this->countryId);
+    }
+
+    /**
+     * @return string
+     */
+    public function getStateText()
+    {
+        return $this->stateId ? $this->getState()->name : ($this->stateName ? $this->stateName : '');
+    }
+
+    /**
+     * @return \craft\commerce\models\State|null
+     */
+    public function getState()
+    {
+        return Plugin::getInstance()->getStates()->getStateById($this->stateId);
+    }
+
+    /**
+     * @return int|string
+     */
+    public function getStateValue()
+    {
+        if ($this->_stateValue === null) {
+            return $this->stateId ? $this->stateId : ($this->stateName ? $this->stateName : '');
+        }
+
+        return $this->_stateValue;
+    }
+
+    /**
+     * @param $value
+     */
+    public function setStateValue($value)
+    {
+        $this->_stateValue = $value;
+    }
+}
