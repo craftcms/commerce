@@ -1,7 +1,7 @@
 <?php
 namespace Craft;
 
-use Commerce\Helpers\CommerceDbHelper;
+use craft\commerce\helpers\Db;
 
 /**
  * Order status service.
@@ -133,7 +133,7 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
         //saving
         if (!$model->hasErrors())
         {
-            CommerceDbHelper::beginStackedTransaction();
+            Db::beginStackedTransaction();
             try
             {
                 //only one default status can be among statuses of one order type
@@ -163,11 +163,11 @@ class Commerce_OrderStatusesService extends BaseApplicationComponent
                 // Now that we have a calendar ID, save it on the model
                 $model->id = $record->id;
 
-                CommerceDbHelper::commitStackedTransaction();
+                Db::commitStackedTransaction();
             }
             catch (\Exception $e)
             {
-                CommerceDbHelper::rollbackStackedTransaction();
+                Db::rollbackStackedTransaction();
                 throw $e;
             }
 

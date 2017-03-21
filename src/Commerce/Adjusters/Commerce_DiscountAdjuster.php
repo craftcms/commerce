@@ -2,7 +2,7 @@
 
 namespace Commerce\Adjusters;
 
-use Commerce\Helpers\CommerceCurrencyHelper;
+use craft\commerce\helpers\Currency;
 use Craft\Commerce_DiscountModel;
 use Craft\Commerce_LineItemModel;
 use Craft\Commerce_OrderAdjustmentModel;
@@ -28,24 +28,24 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
      */
     public function adjust(Commerce_OrderModel &$order, array $lineItems = [])
     {
-        if (empty($lineItems))
-        {
+        if (empty($lineItems)) {
             return [];
         }
 
-        $discounts = \Craft\craft()->commerce_discounts->getAllDiscounts(['condition' => '(code = :code OR code IS NULL) and enabled = :enabled',
-                                                                          'params'    => ['code'    => $order->couponCode,
-                                                                                          'enabled' => true],
-                                                                          'order'     => 'sortOrder']);
+        $discounts = \Craft\craft()->commerce_discounts->getAllDiscounts([
+            'condition' => '(code = :code OR code IS NULL) and enabled = :enabled',
+            'params' => [
+                'code' => $order->couponCode,
+                'enabled' => true
+            ],
+            'order' => 'sortOrder'
+        ]);
         $adjustments = [];
-        foreach ($discounts as $discount)
-        {
-            if ($adjustment = $this->getAdjustment($order, $lineItems, $discount))
-            {
+        foreach ($discounts as $discount) {
+            if ($adjustment = $this->getAdjustment($order, $lineItems, $discount)) {
                 $adjustments[] = $adjustment;
 
-                if ($discount->stopProcessing)
-                {
+                if ($discount->stopProcessing) {
                     break;
                 }
             }
@@ -74,25 +74,20 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
 
 
         // Handle special coupon rules
-        if ($order->couponCode == $discount->code)
-        {
+        if ($order->couponCode == $discount->code) {
             // Since we will allow the coupon to be added to an anonymous cart with no email, we need to remove it
             // if a limit has been set.
-            if ($order->email && $discount->perEmailLimit)
-            {
+            if ($order->email && $discount->perEmailLimit) {
                 $previousOrders = \Craft\craft()->commerce_orders->getOrdersByEmail($order->email);
 
                 $usedCount = 0;
-                foreach ($previousOrders as $previousOrder)
-                {
-                    if ($previousOrder->couponCode == $discount->code)
-                    {
+                foreach ($previousOrders as $previousOrder) {
+                    if ($previousOrder->couponCode == $discount->code) {
                         $usedCount = $usedCount + 1;
                     }
                 }
 
-                if ($usedCount >= $discount->perEmailLimit)
-                {
+                if ($usedCount >= $discount->perEmailLimit) {
                     $order->couponCode = "";
 
                     return false;
@@ -104,8 +99,7 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
         $now = new \Craft\DateTime();
         $from = $discount->dateFrom;
         $to = $discount->dateTo;
-        if ($from && $from > $now || $to && $to < $now)
-        {
+        if ($from && $from > $now || $to && $to < $now) {
             return false;
         }
 
@@ -113,58 +107,48 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
         $matchingQty = 0;
         $matchingTotal = 0;
         $matchingLineIds = [];
-        foreach ($lineItems as $item)
-        {
-            if (\Craft\craft()->commerce_discounts->matchLineItem($item, $discount))
-            {
+        foreach ($lineItems as $item) {
+            if (\Craft\craft()->commerce_discounts->matchLineItem($item, $discount)) {
                 $matchingLineIds[] = $item->id;
                 $matchingQty += $item->qty;
                 $matchingTotal += $item->getSubtotal();
             }
         }
 
-        if (!$matchingQty)
-        {
+        if (!$matchingQty) {
             return false;
         }
 
         // Have they entered a max qty?
-        if ($discount->maxPurchaseQty > 0)
-        {
-            if ($matchingQty > $discount->maxPurchaseQty)
-            {
+        if ($discount->maxPurchaseQty > 0) {
+            if ($matchingQty > $discount->maxPurchaseQty) {
                 return false;
             }
         }
 
         // Reject if they have not added enough matching items
-        if ($matchingQty < $discount->purchaseQty)
-        {
+        if ($matchingQty < $discount->purchaseQty) {
             return false;
         }
 
         // Reject if the matching items values is not enough
-        if ($matchingTotal < $discount->purchaseTotal)
-        {
+        if ($matchingTotal < $discount->purchaseTotal) {
             return false;
         }
 
         $amount = $discount->baseDiscount;
         $shippingRemoved = 0;
 
-        foreach ($lineItems as $item)
-        {
-            if (in_array($item->id, $matchingLineIds))
-            {
-                $amountPerItem = CommerceCurrencyHelper::round($discount->perItemDiscount * $item->qty);
-                $amountPercentage = CommerceCurrencyHelper::round($discount->percentDiscount * $item->getSubtotal());
+        foreach ($lineItems as $item) {
+            if (in_array($item->id, $matchingLineIds)) {
+                $amountPerItem = Currency::round($discount->perItemDiscount * $item->qty);
+                $amountPercentage = Currency::round($discount->percentDiscount * $item->getSubtotal());
 
                 $amount += $amountPerItem + $amountPercentage;
                 $item->discount += $amountPerItem + $amountPercentage;
 
                 // If the discount is now larger than the subtotal only make the discount amount the same as the total of the line.
-                if (($item->discount * -1) > $item->getSubtotal())
-                {
+                if (($item->discount * -1) > $item->getSubtotal()) {
                     $diff = ($item->discount * -1) - $item->getSubtotal();
                     $item->discount = -$item->getSubtotal();
                     // Make sure the adjustment amount is reduced by the amount we modified the discount by
@@ -174,16 +158,14 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
 
                 $affectedLineIds[] = $item->id;
 
-                if ($discount->freeShipping)
-                {
+                if ($discount->freeShipping) {
                     $shippingRemoved = $shippingRemoved + $item->shippingCost;
                     $item->shippingCost = 0;
                 }
             }
         }
 
-        if ($discount->freeShipping)
-        {
+        if ($discount->freeShipping) {
             $shippingRemoved = $shippingRemoved + $order->baseShippingCost;
             $order->baseShippingCost = 0;
         }
@@ -191,16 +173,13 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
         $order->baseDiscount += $discount->baseDiscount;
 
         // only display adjustment if an amount was calculated
-        if ($amount || $shippingRemoved)
-        {
+        if ($amount || $shippingRemoved) {
             // Record which line items this discount affected.
             $adjustment->optionsJson = array_merge(['lineItemsAffected' => $affectedLineIds], $adjustment->optionsJson);
             $adjustment->amount = $amount + ($shippingRemoved * -1);
 
             return $adjustment;
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
@@ -215,17 +194,13 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
         $description = '';
         $currency = \Craft\craft()->commerce_paymentCurrencies->getPrimaryPaymentCurrencyIso();
 
-        if ($discount->perItemDiscount || $discount->percentDiscount)
-        {
-            if ($discount->perItemDiscount)
-            {
+        if ($discount->perItemDiscount || $discount->percentDiscount) {
+            if ($discount->perItemDiscount) {
                 $description .= \Craft\craft()->numberFormatter->formatCurrency($discount->perItemDiscount * -1, $currency);
             }
 
-            if ($discount->percentDiscount)
-            {
-                if ($discount->perItemDiscount)
-                {
+            if ($discount->percentDiscount) {
+                if ($discount->perItemDiscount) {
                     $description .= ' and ';
                 }
 
@@ -235,29 +210,23 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
             $description .= ' per item ';
         }
 
-        if ($discount->baseDiscount)
-        {
-            if ($description)
-            {
+        if ($discount->baseDiscount) {
+            if ($description) {
                 $description .= 'and ';
             }
             $description .= \Craft\craft()->numberFormatter->formatCurrency($discount->baseDiscount * -1, $currency).' base rate ';
         }
 
-        if ($discount->freeShipping)
-        {
-            if ($description)
-            {
+        if ($discount->freeShipping) {
+            if ($description) {
                 $description .= 'and ';
             }
 
             $description .= 'free shipping ';
         }
 
-        if ($discount->code)
-        {
-            if ($description)
-            {
+        if ($discount->code) {
+            if ($description) {
                 $description .= 'and ';
             }
 

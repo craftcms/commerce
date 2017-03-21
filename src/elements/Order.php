@@ -1,7 +1,7 @@
 <?php
 namespace craft\commerce\elements;
 
-use Commerce\Helpers\CommerceCurrencyHelper;
+use craft\commerce\helpers\Currency;
 use craft\commerce\base\Element;
 
 /**
@@ -242,8 +242,8 @@ class Order extends Element
     public function outstandingBalance()
     {
 
-        $totalPaid = CommerceCurrencyHelper::round($this->totalPaid);
-        $totalPrice = CommerceCurrencyHelper::round($this->totalPrice);
+        $totalPaid = Currency::round($this->totalPaid);
+        $totalPrice = Currency::round($this->totalPrice);
 
         return $totalPrice - $totalPaid;
     }

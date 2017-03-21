@@ -1,7 +1,7 @@
 <?php
 namespace Craft;
 
-use Commerce\Helpers\CommerceDbHelper;
+use craft\commerce\helpers\Db;
 use Commerce\Interfaces\Purchasable;
 
 /**
@@ -182,7 +182,7 @@ class Commerce_LineItemsService extends BaseApplicationComponent
             return false;
         }
 
-        CommerceDbHelper::beginStackedTransaction();
+        Db::beginStackedTransaction();
         try
         {
             if ($event->performAction)
@@ -197,7 +197,7 @@ class Commerce_LineItemsService extends BaseApplicationComponent
                         $lineItem->id = $lineItemRecord->id;
                     }
 
-                    CommerceDbHelper::commitStackedTransaction();
+                    Db::commitStackedTransaction();
                 }
             }
             else
@@ -207,7 +207,7 @@ class Commerce_LineItemsService extends BaseApplicationComponent
         }
         catch (\Exception $e)
         {
-            CommerceDbHelper::rollbackStackedTransaction();
+            Db::rollbackStackedTransaction();
             throw $e;
         }
 

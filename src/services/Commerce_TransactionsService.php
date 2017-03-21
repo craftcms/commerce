@@ -1,7 +1,7 @@
 <?php
 namespace Craft;
 
-use Commerce\Helpers\CommerceCurrencyHelper;
+use craft\commerce\helpers\Currency;
 
 /**
  * Transaction service.
@@ -87,7 +87,7 @@ class Commerce_TransactionsService extends BaseApplicationComponent
         $transaction->amount = $order->outstandingBalance();
         $transaction->orderId = $order->id;
         $transaction->currency = $currency->iso;
-        $transaction->paymentAmount = CommerceCurrencyHelper::round($paymentAmount, $paymentCurrency);
+        $transaction->paymentAmount = Currency::round($paymentAmount, $paymentCurrency);
         $transaction->paymentCurrency = $paymentCurrency->iso;
         $transaction->paymentRate = $paymentCurrency->rate;
         $transaction->paymentMethodId = $order->paymentMethodId;

@@ -2,7 +2,7 @@
 
 namespace Commerce\Adjusters;
 
-use Commerce\Helpers\CommerceCurrencyHelper;
+use craft\commerce\helpers\Currency;
 use Commerce\Interfaces\ShippingMethod;
 use Craft\Commerce_LineItemModel;
 use Craft\Commerce_OrderAdjustmentModel;
@@ -69,7 +69,7 @@ class Commerce_ShippingAdjuster implements Commerce_AdjusterInterface
                 $percentageAmount = $item->getSubtotal() * $percentageRate;
                 $perItemAmount = $item->qty * $perItemRate;
                 $weightAmount = ($item->weight * $item->qty) * $weightRate;
-                $item->shippingCost = CommerceCurrencyHelper::round($percentageAmount + $perItemAmount + $weightAmount);
+                $item->shippingCost = Currency::round($percentageAmount + $perItemAmount + $weightAmount);
 
                 if ($item->shippingCost && !$item->purchasable->hasFreeShipping())
                 {
@@ -86,12 +86,12 @@ class Commerce_ShippingAdjuster implements Commerce_AdjusterInterface
             }
 
             //amount for displaying in adjustment
-            $amount = CommerceCurrencyHelper::round($rule->getBaseRate()) + $itemShippingTotal - $freeShippingAmount;
-            $amount = max($amount, CommerceCurrencyHelper::round($rule->getMinRate() * 1));
+            $amount = Currency::round($rule->getBaseRate()) + $itemShippingTotal - $freeShippingAmount;
+            $amount = max($amount, Currency::round($rule->getMinRate() * 1));
 
             if ($rule->getMaxRate() * 1)
             {
-                $amount = min($amount, CommerceCurrencyHelper::round($rule->getMaxRate() * 1));
+                $amount = min($amount, Currency::round($rule->getMaxRate() * 1));
             }
 
             $adjustment->amount = $amount;

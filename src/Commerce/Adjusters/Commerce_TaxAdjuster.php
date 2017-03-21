@@ -2,7 +2,7 @@
 
 namespace Commerce\Adjusters;
 
-use Commerce\Helpers\CommerceCurrencyHelper;
+use craft\commerce\helpers\Currency;
 use Craft\Commerce_AddressModel;
 use Craft\Commerce_LineItemModel;
 use Craft\Commerce_OrderAdjustmentModel;
@@ -119,7 +119,7 @@ class Commerce_TaxAdjuster implements Commerce_AdjusterInterface
                     {
                         $taxableAmount = $item->getTaxableSubtotal($taxRate->taxable);
                         $amount = -($taxableAmount - ($taxableAmount / (1 + $taxRate->rate)));
-                        $amount = CommerceCurrencyHelper::round($amount);
+                        $amount = Currency::round($amount);
                         $allRemovedTax += $amount;
                         $item->tax += $amount;
                         $affectedLineIds[] = $item->id;
@@ -149,12 +149,12 @@ class Commerce_TaxAdjuster implements Commerce_AdjusterInterface
                 if (!$taxRate->include)
                 {
                     $amount = $taxRate->rate * $taxableAmount;
-                    $itemTax = CommerceCurrencyHelper::round($amount);
+                    $itemTax = Currency::round($amount);
                 }
                 else
                 {
                     $amount = $taxableAmount - ($taxableAmount / (1 + $taxRate->rate));
-                    $itemTax = CommerceCurrencyHelper::round($amount);
+                    $itemTax = Currency::round($amount);
                 }
 
                 $adjustment->amount += $itemTax;

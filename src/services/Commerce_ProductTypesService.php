@@ -1,7 +1,7 @@
 <?php
 namespace Craft;
 
-use Commerce\Helpers\CommerceDbHelper;
+use craft\commerce\helpers\Db;
 
 /**
  * Product type service.
@@ -362,7 +362,7 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
 
         if (!$productType->hasErrors())
         {
-            CommerceDbHelper::beginStackedTransaction();
+            Db::beginStackedTransaction();
             try
             {
 
@@ -671,11 +671,11 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
                     }
                 }
 
-                CommerceDbHelper::commitStackedTransaction();
+                Db::commitStackedTransaction();
             }
             catch (\Exception $e)
             {
-                CommerceDbHelper::rollbackStackedTransaction();
+                Db::rollbackStackedTransaction();
 
                 throw $e;
             }
@@ -699,7 +699,7 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
      */
     public function deleteProductTypeById($id)
     {
-        CommerceDbHelper::beginStackedTransaction();
+        Db::beginStackedTransaction();
         try
         {
             $productType = $this->getProductTypeById($id);
@@ -727,14 +727,14 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
 
             if ($affectedRows)
             {
-                CommerceDbHelper::commitStackedTransaction();
+                Db::commitStackedTransaction();
             }
 
             return (bool)$affectedRows;
         }
         catch (\Exception $e)
         {
-            CommerceDbHelper::rollbackStackedTransaction();
+            Db::rollbackStackedTransaction();
 
             throw $e;
         }

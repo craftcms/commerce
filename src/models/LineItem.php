@@ -1,7 +1,7 @@
 <?php
 namespace craft\commerce\models;
 
-use Commerce\Helpers\CommerceCurrencyHelper;
+use craft\commerce\helpers\Currency;
 use craft\commerce\base\Model;
 use craft\commerce\base\Purchasable;
 
@@ -98,7 +98,7 @@ class Commerce_LineItemModel extends Model
     public function getSubtotal()
     {
         // The subtotal should always be rounded.
-        return $this->qty * CommerceCurrencyHelper::round($this->salePrice);
+        return $this->qty * Currency::round($this->salePrice);
     }
 
     /**
@@ -214,7 +214,7 @@ class Commerce_LineItemModel extends Model
         craft()->commerce_lineItems->onPopulateLineItem($event);
 
         // Always make sure salePrice is equal to the price and saleAmount
-        $this->salePrice = CommerceCurrencyHelper::round($this->saleAmount + $this->price);
+        $this->salePrice = Currency::round($this->saleAmount + $this->price);
     }
 
     /**

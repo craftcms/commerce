@@ -2,9 +2,9 @@
 namespace Craft;
 
 use Commerce\Helpers\CommerceProductHelper as CommerceProductHelper;
-use Commerce\Helpers\CommerceVariantMatrixHelper as VariantMatrixHelper;
+use craft\commerce\helpers\VariantMatrix;
 
-require_once(__DIR__ . '/Commerce_BaseElementType.php');
+require_once(__DIR__.'/Commerce_BaseElementType.php');
 
 /**
  * Class Commerce_ProductElementType
@@ -66,21 +66,16 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
     public function getAvailableActions($source = null)
     {
         // Get the section(s) we need to check permissions on
-        switch ($source)
-        {
-            case '*':
-            {
+        switch ($source) {
+            case '*': {
                 $productTypes = craft()->commerce_productTypes->getEditableProductTypes();
                 break;
             }
-            default:
-            {
-                if (preg_match('/^productType:(\d+)$/', $source, $matches))
-                {
+            default: {
+                if (preg_match('/^productType:(\d+)$/', $source, $matches)) {
                     $productType = craft()->commerce_productTypes->getProductTypeById($matches[1]);
 
-                    if ($productType)
-                    {
+                    if ($productType) {
                         $productTypes = [$productType];
                     }
                 }
@@ -89,8 +84,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
 
         $actions = [];
 
-        if (!empty($productTypes))
-        {
+        if (!empty($productTypes)) {
             $userSessionService = craft()->userSession;
             $canManage = false;
 
@@ -98,30 +92,29 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
                 $canManage = $userSessionService->checkPermission('commerce-manageProductType:'.$productType->id);
             }
 
-            if ($canManage)
-            {
+            if ($canManage) {
                 // Allow deletion
                 $deleteAction = craft()->elements->getAction('Commerce_DeleteProduct');
-                $deleteAction->setParams(['confirmationMessage' => Craft::t('Are you sure you want to delete the selected product and its variants?'),
-                                          'successMessage'      => Craft::t('Products and Variants deleted.'),]);
+                $deleteAction->setParams([
+                    'confirmationMessage' => Craft::t('Are you sure you want to delete the selected product and its variants?'),
+                    'successMessage' => Craft::t('Products and Variants deleted.'),
+                ]);
                 $actions[] = $deleteAction;
 
                 // Allow setting status
                 $setStatusAction = craft()->elements->getAction('SetStatus');
-                $setStatusAction->onSetStatus = function (Event $event)
-                {
-                    if ($event->params['status'] == BaseElementModel::ENABLED)
-                    {
+                $setStatusAction->onSetStatus = function(Event $event) {
+                    if ($event->params['status'] == BaseElementModel::ENABLED) {
                         // Set a Post Date as well
                         craft()->db->createCommand()->update('entries',
                             ['postDate' => DateTimeHelper::currentTimeForDb()],
-                            ['and',['in','id', $event->params['elementIds']], 'postDate is null']);
+                            ['and', ['in', 'id', $event->params['elementIds']], 'postDate is null']);
                     }
                 };
                 $actions[] = $setStatusAction;
             }
 
-            if($userSessionService->checkPermission('commerce-managePromotions')){
+            if ($userSessionService->checkPermission('commerce-managePromotions')) {
                 $actions[] = craft()->elements->getAction('Commerce_CreateSale');
                 $actions[] = craft()->elements->getAction('Commerce_CreateDiscount');
             }
@@ -144,28 +137,24 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
      */
     public function getSources($context = null)
     {
-        if ($context == 'index')
-        {
+        if ($context == 'index') {
             $productTypes = craft()->commerce_productTypes->getEditableProductTypes();
             $editable = true;
-        }
-        else
-        {
+        } else {
             $productTypes = craft()->commerce_productTypes->getAllProductTypes();
             $editable = false;
         }
 
-        $productTypeIds = array();
+        $productTypeIds = [];
 
-        foreach ($productTypes as $productType)
-        {
+        foreach ($productTypes as $productType) {
             $productTypeIds[] = $productType->id;
         }
 
         $sources = [
             '*' => [
-                'label'       => Craft::t('All products'),
-                'criteria'    => ['typeId' => $productTypeIds, 'editable' => $editable],
+                'label' => Craft::t('All products'),
+                'criteria' => ['typeId' => $productTypeIds, 'editable' => $editable],
                 'defaultSort' => ['postDate', 'desc']
             ]
         ];
@@ -173,7 +162,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
         $sources[] = ['heading' => Craft::t('Product Types')];
 
         foreach ($productTypes as $productType) {
-            $key = 'productType:' . $productType->id;
+            $key = 'productType:'.$productType->id;
             $canEditProducts = craft()->userSession->checkPermission('commerce-manageProductType:'.$productType->id);
 
             $sources[$key] = [
@@ -220,10 +209,9 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
         ];
 
         // Allow plugins to modify the attributes
-        $pluginAttributes = craft()->plugins->call('commerce_defineAdditionalProductTableAttributes', array(), true);
+        $pluginAttributes = craft()->plugins->call('commerce_defineAdditionalProductTableAttributes', [], true);
 
-        foreach ($pluginAttributes as $thisPluginAttributes)
-        {
+        foreach ($pluginAttributes as $thisPluginAttributes) {
             $attributes = array_merge($attributes, $thisPluginAttributes);
         }
 
@@ -257,13 +245,13 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
      */
     public function defineSearchableAttributes()
     {
-        return ['title','defaultSku'];
+        return ['title', 'defaultSku'];
     }
 
 
     /**
      * @param BaseElementModel $element
-     * @param string $attribute
+     * @param string           $attribute
      *
      * @return mixed|string
      */
@@ -300,24 +288,24 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
                 return craft()->numberFormatter->formatCurrency($element->$attribute, strtoupper($code));
             }
             case 'defaultWeight': {
-                if($productType->hasDimensions){
-                    return craft()->numberFormatter->formatDecimal($element->$attribute) . " " . craft()->commerce_settings->getOption('weightUnits');;
-                }else{
+                if ($productType->hasDimensions) {
+                    return craft()->numberFormatter->formatDecimal($element->$attribute)." ".craft()->commerce_settings->getOption('weightUnits');;
+                } else {
                     return "";
                 }
             }
             case 'defaultLength':
             case 'defaultWidth':
             case 'defaultHeight': {
-                if($productType->hasDimensions){
-                    return craft()->numberFormatter->formatDecimal($element->$attribute) . " " . craft()->commerce_settings->getOption('dimensionUnits');;
-                }else{
+                if ($productType->hasDimensions) {
+                    return craft()->numberFormatter->formatDecimal($element->$attribute)." ".craft()->commerce_settings->getOption('dimensionUnits');;
+                } else {
                     return "";
                 }
             }
             case 'promotable':
             case 'freeShipping': {
-                return ($element->$attribute ? '<span data-icon="check" title="' . Craft::t('Yes') . '"></span>' : '');
+                return ($element->$attribute ? '<span data-icon="check" title="'.Craft::t('Yes').'"></span>' : '');
             }
 
             default: {
@@ -393,7 +381,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
      * @inheritDoc IElementType::getElementQueryStatusCondition()
      *
      * @param DbCommand $query
-     * @param string $status
+     * @param string    $status
      *
      * @return array|false|string|void
      */
@@ -403,7 +391,8 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
 
         switch ($status) {
             case Commerce_ProductModel::LIVE: {
-                return ['and',
+                return [
+                    'and',
                     'elements.enabled = 1',
                     'elements_i18n.enabled = 1',
                     "products.postDate <= '{$currentTimeDb}'",
@@ -412,7 +401,8 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
             }
 
             case Commerce_ProductModel::PENDING: {
-                return ['and',
+                return [
+                    'and',
                     'elements.enabled = 1',
                     'elements_i18n.enabled = 1',
                     "products.postDate > '{$currentTimeDb}'"
@@ -420,7 +410,8 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
             }
 
             case Commerce_ProductModel::EXPIRED: {
-                return ['and',
+                return [
+                    'and',
                     'elements.enabled = 1',
                     'elements_i18n.enabled = 1',
                     'products.expiryDate is not null',
@@ -432,8 +423,9 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
 
 
     /**
-     * @param DbCommand $query
+     * @param DbCommand            $query
      * @param ElementCriteriaModel $criteria
+     *
      * @return bool
      * @throws Exception
      */
@@ -448,11 +440,11 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
             $query->andWhere(DbHelper::parseDateParam('products.postDate', $criteria->postDate, $query->params));
         } else {
             if ($criteria->after) {
-                $query->andWhere(DbHelper::parseDateParam('products.postDate', '>=' . $criteria->after, $query->params));
+                $query->andWhere(DbHelper::parseDateParam('products.postDate', '>='.$criteria->after, $query->params));
             }
 
             if ($criteria->before) {
-                $query->andWhere(DbHelper::parseDateParam('products.postDate', '<' . $criteria->before, $query->params));
+                $query->andWhere(DbHelper::parseDateParam('products.postDate', '<'.$criteria->before, $query->params));
             }
         }
 
@@ -539,40 +531,36 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
                 return false;
             }
 
-            $query->andWhere(array('in', 'products.typeId', $editableProductTypeIds));
+            $query->andWhere(['in', 'products.typeId', $editableProductTypeIds]);
         }
 
 
-	    if ($criteria->hasSales !== null)
-	    {
-		    $productsCriteria = craft()->elements->getCriteria('Commerce_Product', $criteria);
-		    $productsCriteria->hasSales = null;
-		    $productsCriteria->limit = null;
-		    $products = $productsCriteria->find();
+        if ($criteria->hasSales !== null) {
+            $productsCriteria = craft()->elements->getCriteria('Commerce_Product', $criteria);
+            $productsCriteria->hasSales = null;
+            $productsCriteria->limit = null;
+            $products = $productsCriteria->find();
 
-		    $productIds = [];
-		    foreach ($products as $product)
-		    {
-			    $sales = craft()->commerce_sales->getSalesForProduct($product);
+            $productIds = [];
+            foreach ($products as $product) {
+                $sales = craft()->commerce_sales->getSalesForProduct($product);
 
-			    if ($criteria->hasSales === true && count($sales) > 0)
-			    {
-				    $productIds[] = $product->id;
-			    }
+                if ($criteria->hasSales === true && count($sales) > 0) {
+                    $productIds[] = $product->id;
+                }
 
-			    if ($criteria->hasSales === false && count($sales) == 0)
-			    {
-				    $productIds[] = $product->id;
-			    }
-		    }
+                if ($criteria->hasSales === false && count($sales) == 0) {
+                    $productIds[] = $product->id;
+                }
+            }
 
-		    // Remove any blank product IDs (if any)
-		    $productIds = array_filter($productIds);
+            // Remove any blank product IDs (if any)
+            $productIds = array_filter($productIds);
 
-		    $query->andWhere(['in', 'products.id', $productIds]);
-	    }
+            $query->andWhere(['in', 'products.id', $productIds]);
+        }
 
-	    return true;
+        return true;
     }
 
 
@@ -589,8 +577,8 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
     /**
      * @inheritDoc IElementType::getEagerLoadingMap()
      *
-     * @param BaseElementModel[]  $sourceElements
-     * @param string $handle
+     * @param BaseElementModel[] $sourceElements
+     * @param string             $handle
      *
      * @return array|false
      */
@@ -598,7 +586,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
     {
         if ($handle == 'variants') {
             // Get the source element IDs
-            $sourceElementIds = array();
+            $sourceElementIds = [];
 
             foreach ($sourceElements as $sourceElement) {
                 $sourceElementIds[] = $sourceElement->id;
@@ -607,14 +595,14 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
             $map = craft()->db->createCommand()
                 ->select('productId as source, id as target')
                 ->from('commerce_variants')
-                ->where(array('in', 'productId', $sourceElementIds))
+                ->where(['in', 'productId', $sourceElementIds])
                 ->order('sortOrder asc')
                 ->queryAll();
 
-            return array(
+            return [
                 'elementType' => 'Commerce_Variant',
                 'map' => $map
-            );
+            ];
         }
 
         return parent::getEagerLoadingMap($sourceElements, $handle);
@@ -631,31 +619,30 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
     {
         /** @ var Commerce_ProductModel $element */
         $templatesService = craft()->templates;
-        $html = $templatesService->renderMacro('commerce/products/_fields', 'titleField', array($element));
-        $html .= $templatesService->renderMacro('commerce/products/_fields', 'generalMetaFields', array($element));
-        $html .= $templatesService->renderMacro('commerce/products/_fields', 'behavioralMetaFields', array($element));
+        $html = $templatesService->renderMacro('commerce/products/_fields', 'titleField', [$element]);
+        $html .= $templatesService->renderMacro('commerce/products/_fields', 'generalMetaFields', [$element]);
+        $html .= $templatesService->renderMacro('commerce/products/_fields', 'behavioralMetaFields', [$element]);
         $html .= parent::getEditorHtml($element);
 
         $productType = $element->getType();
 
         if ($productType->hasVariants) {
-            $html .= $templatesService->renderMacro('_includes/forms', 'field', array(
-                array(
+            $html .= $templatesService->renderMacro('_includes/forms', 'field', [
+                [
                     'label' => Craft::t('Variants'),
-                ),
-                VariantMatrixHelper::getVariantMatrixHtml($element)
-            ));
+                ],
+                VariantMatrix::getVariantMatrixHtml($element)
+            ]);
         } else {
             /** @var Commerce_VariantModel $variant */
             $variant = ArrayHelper::getFirstValue($element->getVariants());
             $namespace = $templatesService->getNamespace();
             $newNamespace = 'variants['.($variant->id ?: 'new1').']';
             $templatesService->setNamespace($newNamespace);
-            $html .= $templatesService->namespaceInputs($templatesService->renderMacro('commerce/products/_fields', 'generalVariantFields', array($variant)));
+            $html .= $templatesService->namespaceInputs($templatesService->renderMacro('commerce/products/_fields', 'generalVariantFields', [$variant]));
 
-            if ($productType->hasDimensions)
-            {
-                $html .= $templatesService->namespaceInputs($templatesService->renderMacro('commerce/products/_fields', 'dimensionVariantFields', array($variant)));
+            if ($productType->hasDimensions) {
+                $html .= $templatesService->namespaceInputs($templatesService->renderMacro('commerce/products/_fields', 'dimensionVariantFields', [$variant]));
             }
 
             $templatesService->setNamespace($namespace);
@@ -696,7 +683,7 @@ class Commerce_ProductElementType extends Commerce_BaseElementType
 
     /**
      * @param BaseElementModel $element
-     * @param array $params
+     * @param array            $params
      *
      * @return bool
      * @throws Exception

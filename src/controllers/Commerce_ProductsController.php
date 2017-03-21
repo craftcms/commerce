@@ -1,9 +1,9 @@
 <?php
 namespace Craft;
 
-use Commerce\Helpers\CommerceDbHelper;
+use craft\commerce\helpers\Db;
 use Commerce\Helpers\CommerceProductHelper;
-use Commerce\Helpers\CommerceVariantMatrixHelper as VariantMatrixHelper;
+use craft\commerce\helpers\VariantMatrix;
 
 /**
  * Class Commerce_ProductsController
@@ -68,7 +68,7 @@ class Commerce_ProductsController extends Commerce_BaseCpController
 
         if ($variables['product']->getType()->hasVariants)
         {
-            $variables['variantMatrixHtml'] = VariantMatrixHelper::getVariantMatrixHtml($variables['product']);
+            $variables['variantMatrixHtml'] = VariantMatrix::getVariantMatrixHtml($variables['product']);
         }
         else
         {
@@ -407,19 +407,19 @@ class Commerce_ProductsController extends Commerce_BaseCpController
 
         $existingProduct = (bool)$product->id;
 
-        CommerceDbHelper::beginStackedTransaction();
+        Db::beginStackedTransaction();
 
         if (craft()->commerce_products->saveProduct($product))
         {
 
-            CommerceDbHelper::commitStackedTransaction();
+            Db::commitStackedTransaction();
 
             craft()->userSession->setNotice(Craft::t('Product saved.'));
 
             $this->redirectToPostedUrl($product);
         }
 
-        CommerceDbHelper::rollbackStackedTransaction();
+        Db::rollbackStackedTransaction();
         // Since Product may have been ok to save and an ID assigned,
         // but child model validation failed and the transaction rolled back.
         // Since action failed, lets remove the ID that was no persisted.

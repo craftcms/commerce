@@ -5,8 +5,8 @@ use Commerce\Adjusters\Commerce_AdjusterInterface;
 use Commerce\Adjusters\Commerce_DiscountAdjuster;
 use Commerce\Adjusters\Commerce_ShippingAdjuster;
 use Commerce\Adjusters\Commerce_TaxAdjuster;
-use Commerce\Helpers\CommerceCurrencyHelper;
-use Commerce\Helpers\CommerceDbHelper;
+use craft\commerce\helpers\Currency;
+use craft\commerce\helpers\Db;
 
 /**
  * Class Commerce_OrdersService
@@ -242,7 +242,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
         $orderRecord->validate();
         $order->addErrors($orderRecord->getErrors());
 
-        CommerceDbHelper::beginStackedTransaction();
+        Db::beginStackedTransaction();
 
         try
         {
@@ -254,7 +254,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
                     $orderRecord->id = $order->id;
                     $orderRecord->save(false);
 
-                    CommerceDbHelper::commitStackedTransaction();
+                    Db::commitStackedTransaction();
 
                     //raising event
                     $event = new Event($this, [
@@ -280,11 +280,11 @@ class Commerce_OrdersService extends BaseApplicationComponent
         }
         catch (\Exception $e)
         {
-            CommerceDbHelper::rollbackStackedTransaction();
+            Db::rollbackStackedTransaction();
             throw $e;
         }
 
-        CommerceDbHelper::rollbackStackedTransaction();
+        Db::rollbackStackedTransaction();
 
         return false;
     }
@@ -395,7 +395,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
             CommercePlugin::log(Craft::t('Total of line items after adjustments does not equal total of adjustment amounts plus original sale prices for order #{orderNumber}', ['orderNumber' => $order->number]), LogLevel::Warning, true);
         }
 
-        $order->totalPrice = CommerceCurrencyHelper::round(max(0, $order->totalPrice));
+        $order->totalPrice = Currency::round(max(0, $order->totalPrice));
         
         // Since shipping adjusters run on the original price, pre discount, let's recalculate
         // if the currently selected shipping method is now not available.
@@ -557,14 +557,14 @@ class Commerce_OrdersService extends BaseApplicationComponent
         &$error = ''
     )
     {
-        CommerceDbHelper::beginStackedTransaction();
+        Db::beginStackedTransaction();
         try
         {
             if (!$order->id)
             {
                 if (!$this->saveOrder($order))
                 {
-                    CommerceDbHelper::rollbackStackedTransaction();
+                    Db::rollbackStackedTransaction();
                     throw new Exception(Craft::t('Error on creating empty cart'));
                 }
             }
@@ -610,18 +610,18 @@ class Commerce_OrdersService extends BaseApplicationComponent
                 $order->billingAddressId = $billingAddress->id;
 
                 $this->saveOrder($order);
-                CommerceDbHelper::commitStackedTransaction();
+                Db::commitStackedTransaction();
 
                 return true;
             }
         }
         catch (\Exception $e)
         {
-            CommerceDbHelper::rollbackStackedTransaction();
+            Db::rollbackStackedTransaction();
             throw $e;
         }
 
-        CommerceDbHelper::rollbackStackedTransaction();
+        Db::rollbackStackedTransaction();
 
         return false;
     }

@@ -1,7 +1,7 @@
 <?php
 namespace Craft;
 
-use Commerce\Helpers\CommerceDbHelper;
+use craft\commerce\helpers\Db;
 
 /**
  * Cart service.
@@ -34,7 +34,7 @@ class Commerce_CartService extends BaseApplicationComponent
      */
     public function addToCart($order, $purchasableId, $qty = 1, $note = '', $options = [], &$error = '')
     {
-        CommerceDbHelper::beginStackedTransaction();
+        Db::beginStackedTransaction();
 
         $isNewLineItem = false;
 
@@ -43,7 +43,7 @@ class Commerce_CartService extends BaseApplicationComponent
         {
             if (!craft()->commerce_orders->saveOrder($order))
             {
-                CommerceDbHelper::rollbackStackedTransaction();
+                Db::rollbackStackedTransaction();
                 throw new Exception(Craft::t('Error on creating empty cart'));
             }
         }
@@ -87,7 +87,7 @@ class Commerce_CartService extends BaseApplicationComponent
 
                 if (!$event->performAction)
                 {
-                    CommerceDbHelper::rollbackStackedTransaction();
+                    Db::rollbackStackedTransaction();
 
                     return false;
                 }
@@ -103,7 +103,7 @@ class Commerce_CartService extends BaseApplicationComponent
 
                     craft()->commerce_orders->saveOrder($order);
 
-                    CommerceDbHelper::commitStackedTransaction();
+                    Db::commitStackedTransaction();
 
                     //raising event
                     $event = new Event($this, ['lineItem' => $lineItem, 'order' => $order,]);
@@ -115,11 +115,11 @@ class Commerce_CartService extends BaseApplicationComponent
         }
         catch (\Exception $e)
         {
-            CommerceDbHelper::rollbackStackedTransaction();
+            Db::rollbackStackedTransaction();
             throw $e;
         }
 
-        CommerceDbHelper::rollbackStackedTransaction();
+        Db::rollbackStackedTransaction();
 
         $errors = $lineItem->getAllErrors();
         $error = array_pop($errors);
@@ -453,7 +453,7 @@ class Commerce_CartService extends BaseApplicationComponent
         }
         else
         {
-            CommerceDbHelper::beginStackedTransaction();
+            Db::beginStackedTransaction();
             try
             {
                 $lineItems = $cart->getLineItems();
@@ -474,13 +474,13 @@ class Commerce_CartService extends BaseApplicationComponent
             }
             catch (\Exception $e)
             {
-                CommerceDbHelper::rollbackStackedTransaction();
+                Db::rollbackStackedTransaction();
                 CommercePlugin::log($e->getMessage(), LogLevel::Error, true);
 
                 return false;
             }
 
-            CommerceDbHelper::commitStackedTransaction();
+            Db::commitStackedTransaction();
         }
 
         return true;
@@ -541,7 +541,7 @@ class Commerce_CartService extends BaseApplicationComponent
      */
     public function clearCart(Commerce_OrderModel $cart)
     {
-        CommerceDbHelper::beginStackedTransaction();
+        Db::beginStackedTransaction();
         try
         {
             craft()->commerce_lineItems->deleteAllLineItemsByOrderId($cart->id);
@@ -549,11 +549,11 @@ class Commerce_CartService extends BaseApplicationComponent
         }
         catch (\Exception $e)
         {
-            CommerceDbHelper::rollbackStackedTransaction();
+            Db::rollbackStackedTransaction();
             throw $e;
         }
 
-        CommerceDbHelper::commitStackedTransaction();
+        Db::commitStackedTransaction();
     }
 
     /**

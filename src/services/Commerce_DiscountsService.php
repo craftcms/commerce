@@ -1,7 +1,7 @@
 <?php
 namespace Craft;
 
-use Commerce\Helpers\CommerceDbHelper;
+use craft\commerce\helpers\Db;
 
 /**
  * Discount service.
@@ -319,7 +319,7 @@ class Commerce_DiscountsService extends BaseApplicationComponent
         $record->validate();
         $model->addErrors($record->getErrors());
 
-        CommerceDbHelper::beginStackedTransaction();
+        Db::beginStackedTransaction();
         try
         {
             if (!$model->hasErrors())
@@ -352,18 +352,18 @@ class Commerce_DiscountsService extends BaseApplicationComponent
                     $relation->insert();
                 }
 
-                CommerceDbHelper::commitStackedTransaction();
+                Db::commitStackedTransaction();
 
                 return true;
             }
         }
         catch (\Exception $e)
         {
-            CommerceDbHelper::rollbackStackedTransaction();
+            Db::rollbackStackedTransaction();
             throw $e;
         }
 
-        CommerceDbHelper::rollbackStackedTransaction();
+        Db::rollbackStackedTransaction();
 
         return false;
     }

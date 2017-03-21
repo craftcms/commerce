@@ -1,10 +1,9 @@
 <?php
-namespace Commerce\Helpers;
+namespace craft\commerce\helpers;
 
-use Craft\Commerce_ProductModel as ProductModel;
-use Craft\Commerce_VariantModel as VariantModel;
-use Craft\LocalizationHelper as LocalizationHelper;
-use Craft\DateTime as CraftDateTime;
+use craft\commerce\elements\Product as ProductModel;
+use craft\commerce\elements\Variant as VariantModel;
+use craft\helpers\Localization as LocalizationHelper;
 
 /**
  * Class CommerceVariantMatrixHelper
@@ -16,7 +15,7 @@ use Craft\DateTime as CraftDateTime;
  * @package   Commerce\Helpers
  * @since     1.0
  */
-class CommerceProductHelper
+class Product
 {
 
     /**
@@ -35,11 +34,11 @@ class CommerceProductHelper
             $product->enabled = $data['enabled'];
         }
 
-        $product->postDate = (($postDate = $data['postDate']) ? CraftDateTime::createFromString($postDate, \Craft\craft()->timezone) : $product->postDate);
+        $product->postDate = (($postDate = $data['postDate']) ? \DateTime::createFromString($postDate, \Craft\craft()->timezone) : $product->postDate);
         if (!$product->postDate) {
-            $product->postDate = new CraftDateTime();
+            $product->postDate = new \DateTime();
         }
-        $product->expiryDate    = (($expiryDate = $data['expiryDate']) ? CraftDateTime::createFromString($expiryDate, \Craft\craft()->timezone) : null);
+        $product->expiryDate    = (($expiryDate = $data['expiryDate']) ? \DateTime::createFromString($expiryDate, \Craft\craft()->timezone) : null);
 
         $product->promotable = $data['promotable'];
         $product->freeShipping = $data['freeShipping'];
