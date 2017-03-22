@@ -1,8 +1,15 @@
 <?php
-namespace Craft;
+namespace craft\commerce\elements\actions;
+
+use Craft;
+use craft\base\ElementAction;
+use craft\commerce\elements\Order;
+use craft\elements\db\ElementQueryInterface;
+use craft\helpers\Json;
+use craft\commerce\Plugin;
 
 /**
- * Class Commerce_UpdateOrderStatusElementAction
+ * Class Update Order Status
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -11,20 +18,31 @@ namespace Craft;
  * @package   craft.plugins.commerce.elementactions
  * @since     1.0
  */
-class Commerce_UpdateOrderStatusElementAction extends BaseElementAction
+class UpdateOrderStatus extends ElementAction
 {
+
+    // Public Properties
+    // =========================================================================
+
+    /**
+     * @var int
+     */
+    public $orderStatusId;
+
+    /**
+     * @var string
+     */
+    public $message;
 
     // Public Methods
     // =========================================================================
 
     /**
-     * @inheritDoc IComponentType::getName()
-     *
-     * @return string
+     * @inheritDoc
      */
     public function getName()
     {
-        return Craft::t('Update Order Status…');
+        return Craft::t('commerce', 'Update Order Status…');
     }
 
     /**
@@ -35,7 +53,7 @@ class Commerce_UpdateOrderStatusElementAction extends BaseElementAction
     public function getTriggerHtml()
     {
 
-        $orderStatuses = JsonHelper::encode(craft()->commerce_orderStatuses->getAllOrderStatuses());
+        $orderStatuses = Json::encode(Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses());
 
         $js = <<<EOT
 (function()
@@ -64,38 +82,24 @@ class Commerce_UpdateOrderStatusElementAction extends BaseElementAction
 })();
 EOT;
 
-        craft()->templates->includeJsResource('commerce/js/CommerceUpdateOrderStatusModal.js');
-        craft()->templates->includeJs($js);
+        Craft::$app->getView()->includeJsResource('commerce/js/CommerceUpdateOrderStatusModal.js');
+        Craft::$app->getView()->includeJs($js);
     }
 
     /**
-     * @param ElementCriteriaModel $criteria
-     * @return bool
+     * @inheritdoc
      */
-    public function performAction(ElementCriteriaModel $criteria)
+    public function performAction(ElementQueryInterface $query): bool
     {
-        $orders = $criteria->find();
+        $orders = $query->all();
 
         foreach ($orders as $order) {
-            /** @var Commerce_OrderModel $order */
-            $order->orderStatusId = $this->getParams()->orderStatusId;
-            $order->message = $this->getParams()->message;
-            craft()->commerce_orders->saveOrder($order);
+            /** @var Order $order */
+            $order->orderStatusId = $this->orderStatusId;
+            $order->message = $this->message;
+            Plugin::getInstance()->getOrders()->saveOrder($order);
         }
 
         return true;
-    }
-
-    /**
-     * @inheritDoc BaseElementAction::defineParams()
-     *
-     * @return array
-     */
-    protected function defineParams()
-    {
-        return array(
-            'orderStatusId' => AttributeType::Number,
-            'message' => AttributeType::String,
-        );
     }
 }

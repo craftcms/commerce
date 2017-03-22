@@ -1,8 +1,11 @@
 <?php
-namespace Craft;
+namespace craft\commerce\elements\actions;
+
+use Craft;
+use craft\base\ElementAction;
 
 /**
- * Class Commerce_CreateDiscountElementAction
+ * Class Create Discount
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -11,7 +14,7 @@ namespace Craft;
  * @package   craft.plugins.commerce.elementactions
  * @since     1.0
  */
-class Commerce_CreateDiscountElementAction extends BaseElementAction
+class CreateDiscount extends ElementAction
 {
 
     // Public Methods
@@ -24,15 +27,13 @@ class Commerce_CreateDiscountElementAction extends BaseElementAction
      */
     public function getName()
     {
-        return Craft::t('Create discount…');
+        return Craft::t('commerce', 'Create discount…');
     }
 
     /**
-     * @inheritDoc IElementAction::isDestructive()
-     *
-     * @return bool
+     * @inheritDoc
      */
-    public function isDestructive()
+    public static function isDestructive(): bool
     {
         return false;
     }
@@ -48,7 +49,7 @@ class Commerce_CreateDiscountElementAction extends BaseElementAction
 (function()
 {
     var trigger = new Craft.ElementActionTrigger({
-        handle: 'Commerce_CreateDiscount',
+        handle: 'CreateDiscount',
         batch: true,
         activate: function(\$selectedItems)
         {
@@ -58,16 +59,7 @@ class Commerce_CreateDiscountElementAction extends BaseElementAction
 })();
 EOT;
 
-        craft()->templates->includeJs($js);
+        Craft::$app->getView()->includeJs($js);
     }
 
-    /**
-     * @inheritDoc BaseElementAction::defineParams()
-     *
-     * @return array
-     */
-    protected function defineParams()
-    {
-        return [];
-    }
 }

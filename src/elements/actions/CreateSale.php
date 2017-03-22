@@ -1,8 +1,11 @@
 <?php
-namespace Craft;
+namespace craft\commerce\elements\actions;
+
+use Craft;
+use craft\base\ElementAction;
 
 /**
- * Class Commerce_CreateSaleElementAction
+ * Class Create Sale
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -11,36 +14,30 @@ namespace Craft;
  * @package   craft.plugins.commerce.elementactions
  * @since     1.0
  */
-class Commerce_CreateSaleElementAction extends BaseElementAction
+class CreateSale extends ElementAction
 {
 
     // Public Methods
     // =========================================================================
 
     /**
-     * @inheritDoc IComponentType::getName()
-     *
-     * @return string
+     * @inheritDoc
      */
     public function getName()
     {
-        return Craft::t('Create sale…');
+        return Craft::t('commerce', 'Create sale…');
     }
 
     /**
-     * @inheritDoc IElementAction::isDestructive()
-     *
-     * @return bool
+     * @inheritDoc
      */
-    public function isDestructive()
+    public static function isDestructive(): bool
     {
         return false;
     }
 
     /**
-     * @inheritDoc IElementAction::getTriggerHtml()
-     *
-     * @return string|null
+     * @inheritDoc
      */
     public function getTriggerHtml()
     {
@@ -58,16 +55,6 @@ class Commerce_CreateSaleElementAction extends BaseElementAction
 })();
 EOT;
 
-        craft()->templates->includeJs($js);
-    }
-
-    /**
-     * @inheritDoc BaseElementAction::defineParams()
-     *
-     * @return array
-     */
-    protected function defineParams()
-    {
-        return [];
+        Craft::$app->getView()->includeJs($js);
     }
 }

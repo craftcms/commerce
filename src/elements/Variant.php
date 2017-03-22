@@ -185,7 +185,7 @@ class Variant extends Element
     /**
      * Returns the product associated with this variant.
      *
-     * @return Commerce_ProductModel|null The product associated with this variant, or null if it isn’t known
+     * @return Product|null The product associated with this variant, or null if it isn’t known
      */
     public function getProduct()
     {
@@ -276,14 +276,6 @@ class Variant extends Element
             return $product->isEditable();
         }
 
-        return false;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isLocalized()
-    {
         return false;
     }
 
@@ -422,7 +414,7 @@ class Variant extends Element
         }
 
         if ($lineItem->purchasable->getStatus() != Element::STATUS_ENABLED) {
-            $lineItem->addError('purchasableId', Craft::t('Not enabled for sale.'));
+            $lineItem->addError('purchasableId', Craft::t('commerce', 'commerce', 'Not enabled for sale.'));
         }
 
         $order = Plugin::getInstance()->getOrders()->getOrderById($lineItem->orderId);
@@ -445,18 +437,18 @@ class Variant extends Element
             }
 
             if (!$this->unlimitedStock && $qty[$lineItem->purchasableId] > $this->stock) {
-                $error = Craft::t('There are only {num} "{description}" items left in stock', ['num' => $this->stock, 'description' => $lineItem->purchasable->getDescription()]);
+                $error = Craft::t('commerce', 'commerce', 'There are only {num} "{description}" items left in stock', ['num' => $this->stock, 'description' => $lineItem->purchasable->getDescription()]);
                 $lineItem->addError('qty', $error);
             }
 
             if ($lineItem->qty < $this->minQty) {
-                $error = Craft::t('Minimum order quantity for this item is {num}', ['num' => $this->minQty]);
+                $error = Craft::t('commerce', 'commerce', 'Minimum order quantity for this item is {num}', ['num' => $this->minQty]);
                 $lineItem->addError('qty', $error);
             }
 
             if ($this->maxQty != 0) {
                 if ($lineItem->qty > $this->maxQty) {
-                    $error = Craft::t('Maximum order quantity for this item is {num}', ['num' => $this->maxQty]);
+                    $error = Craft::t('commerce', 'commerce', 'Maximum order quantity for this item is {num}', ['num' => $this->maxQty]);
                     $lineItem->addError('qty', $error);
                 }
             }
@@ -559,4 +551,247 @@ class Variant extends Element
             parent::setEagerLoadedElements($handle, $elements);
         }
     }
+
+    // Original Element methods:
+
+
+    /**
+     * @return null|string
+     */
+    public function getName()
+    {
+        return Craft::t('commerce', 'Variants');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function hasContent(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function hasTitles(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function hasStatuses(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function isSelectable(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function isLocalized(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @param null $context
+     *
+     * @return array
+     */
+    public function getSources($context = null)
+    {
+        $sources = [
+
+            '*' => [
+                'label' => Craft::t('commerce', 'All product\'s variants'),
+            ]
+        ];
+
+        return $sources;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function defineTableAttributes($source = null): array
+    {
+        return [
+            'title' => Craft::t('commerce', 'Title'),
+            'sku' => Craft::t('commerce', 'SKU'),
+            'price' => Craft::t('commerce', 'Price'),
+            'width' => Craft::t('commerce', 'Width ({unit})', ['unit' => Plugin::getInstance()->getSettings()->getOption('dimensionUnits')]),
+            'height' => Craft::t('commerce', 'Height ({unit})', ['unit' => Plugin::getInstance()->getSettings()->getOption('dimensionUnits')]),
+            'length' => Craft::t('commerce', 'Length ({unit})', ['unit' => Plugin::getInstance()->getSettings()->getOption('dimensionUnits')]),
+            'weight' => Craft::t('commerce', 'Weight ({unit})', ['unit' => Plugin::getInstance()->getSettings()->getOption('weightUnits')]),
+            'stock' => Craft::t('commerce', 'Stock'),
+            'minQty' => Craft::t('commerce', 'Quantities')
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public static function defineSearchableAttributes(): array
+    {
+        return ['sku', 'price', 'width', 'height', 'length', 'weight', 'stock', 'unlimitedStock', 'minQty', 'maxQty'];
+    }
+
+    /**
+     * @return array
+     */
+    public function defineCriteriaAttributes()
+    {
+        return [
+            'sku' => AttributeType::Mixed,
+            'product' => AttributeType::Mixed,
+            'productId' => AttributeType::Mixed,
+            'isDefault' => AttributeType::Mixed,
+            'default' => AttributeType::Mixed,
+            'stock' => AttributeType::Mixed,
+            'hasStock' => AttributeType::Mixed,
+            'order' => [AttributeType::String, 'default' => 'variants.sortOrder asc'],
+        ];
+    }
+
+    /**
+     * @param DbCommand            $query
+     * @param ElementCriteriaModel $criteria
+     *
+     * @return void
+     */
+    public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
+    {
+        // Clear out existing onPopulateElements handlers on the criteria
+        $criteria->detachEventHandler('onPopulateElements', [$this, 'setProductOnVariant']);
+
+        $query
+            ->addSelect("variants.id,variants.productId,variants.isDefault,variants.sku,variants.price,variants.sortOrder,variants.width,variants.height,variants.length,variants.weight,variants.stock,variants.unlimitedStock,variants.minQty,variants.maxQty")
+            ->join('commerce_variants variants', 'variants.id = elements.id');
+
+        if ($criteria->sku) {
+            $query->andWhere(DbHelper::parseParam('variants.sku', $criteria->sku, $query->params));
+        }
+
+        if ($criteria->product) {
+            if ($criteria->product instanceof Product) {
+                $query->andWhere(DbHelper::parseParam('variants.productId', $criteria->product->id, $query->params));
+                $criteria->attachEventHandler('onPopulateElements', [$this, 'setProductOnVariant']);
+            } else {
+                $query->andWhere(DbHelper::parseParam('variants.productId', $criteria->product, $query->params));
+            }
+        }
+
+        if ($criteria->productId) {
+            $query->andWhere(DbHelper::parseParam('variants.productId', $criteria->productId, $query->params));
+        }
+
+        if ($criteria->isDefault) {
+            $query->andWhere(DbHelper::parseParam('variants.isDefault', $criteria->isDefault, $query->params));
+        }
+
+        if ($criteria->default) {
+            $query->andWhere(DbHelper::parseParam('variants.isDefault', $criteria->default, $query->params));
+        }
+
+        if ($criteria->stock) {
+            $query->andWhere(DbHelper::parseParam('variants.stock', $criteria->stock, $query->params));
+        }
+
+        if (isset($criteria->hasStock) && $criteria->hasStock === true) {
+            $hasStockCondition = ['or', '(variants.stock > 0 AND variants.unlimitedStock != 1)', 'variants.unlimitedStock = 1'];
+            $query->andWhere($hasStockCondition);
+        }
+
+        if (isset($criteria->hasStock) && $criteria->hasStock === false) {
+            $hasStockCondition = ['and', 'variants.stock < 1', 'variants.unlimitedStock != 1'];
+            $query->andWhere($hasStockCondition);
+        }
+    }
+
+    /**
+     * Sets the product on the resulting variants.
+     *
+     * @param Event $event
+     *
+     * @return void
+     */
+    public function setProductOnVariant(Event $event)
+    {
+        /** @var ElementCriteriaModel $criteria */
+        $criteria = $event->sender;
+
+        /** @var Variant[] $variants */
+        $variants = $event->params['elements'];
+
+        if ($criteria->product instanceof Product) {
+            Plugin::getInstance()->getVariants()->setProductOnVariants($criteria->product, $variants);
+        }
+    }
+
+    /**
+     * @param array $row
+     *
+     * @return BaseModel
+     */
+    public function populateElementModel($row)
+    {
+        return new Variant($row);
+    }
+
+    /**
+     * @inheritDoc IElementType::getEagerLoadingMap()
+     *
+     * @param BaseElementModel[] $sourceElements
+     * @param string             $handle
+     *
+     * @return array|false
+     */
+    public function getEagerLoadingMap($sourceElements, $handle)
+    {
+        if ($handle == 'product') {
+            // Get the source element IDs
+            $sourceElementIds = [];
+
+            foreach ($sourceElements as $sourceElement) {
+                $sourceElementIds[] = $sourceElement->id;
+            }
+
+            $map = Craft::$app->getDb()->createCommand()
+                ->select('id as source, productId as target')
+                ->from('commerce_variants')
+                ->where(['in', 'id', $sourceElementIds])
+                ->queryAll();
+
+            return [
+                'elementType' => 'Commerce_Product',
+                'map' => $map
+            ];
+        }
+
+        return parent::getEagerLoadingMap($sourceElements, $handle);
+    }
+
+    /**
+     * @param BaseElementModel $element
+     * @param array            $params
+     *
+     * @return bool
+     * @throws HttpException
+     * @throws \Exception
+     */
+    public function saveElement(BaseElementModel $element, $params)
+    {
+        return Plugin::getInstance()->getVariants()->saveVariant($element);
+    }
+
 }
