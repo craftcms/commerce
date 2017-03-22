@@ -4,6 +4,8 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\models\PaymentMethod;
 use craft\commerce\Plugin;
+use craft\db\Query;
+use craft\helpers\Db;
 use craft\helpers\Json;
 use yii\web\HttpException;
 
@@ -91,7 +93,11 @@ class PaymentMethodsController extends BaseAdminController
         } else {
             if ($paymentMethod->id) {
                 // We need to get this directly from the database since the model populateModel fills from config file.
-                $method = Craft::$app->getDb()->createCommand()->select('*')->where('id = '.$paymentMethod->id)->from('commerce_paymentmethods')->queryRow();
+                $method = (new Query())
+                    ->select(['*'])
+                    ->from(['{{%commerce_paymentmethods}}'])
+                    ->where(Db::parseParam('id', $paymentMethod->id))
+                    ->one();
                 if ($method) {
                     $paymentMethod->settings = $method['settings'];
                 }
