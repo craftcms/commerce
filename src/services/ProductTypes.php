@@ -351,21 +351,21 @@ class ProductTypes extends Component
                 // Product Field Layout
                 if (!$isNewProductType && $oldProductType->fieldLayoutId) {
                     // Drop the old field layout
-                    craft()->fields->deleteLayoutById($oldProductType->fieldLayoutId);
+                    Craft::$app->getFields()->deleteLayoutById($oldProductType->fieldLayoutId);
                 }
                 // Save the new one
                 $fieldLayout = $productType->asa('productFieldLayout')->getFieldLayout();
-                craft()->fields->saveLayout($fieldLayout);
+                Craft::$app->getFields()->saveLayout($fieldLayout);
                 $productType->fieldLayoutId = $fieldLayout->id;
                 $productTypeRecord->fieldLayoutId = $fieldLayout->id;
 
                 if (!$isNewProductType && $oldProductType->variantFieldLayoutId) {
                     // Drop the old field layout
-                    craft()->fields->deleteLayoutById($oldProductType->variantFieldLayoutId);
+                    Craft::$app->getFields()->deleteLayoutById($oldProductType->variantFieldLayoutId);
                 }
                 // Save the new one
                 $variantFieldLayout = $productType->asa('variantFieldLayout')->getFieldLayout();
-                craft()->fields->saveLayout($variantFieldLayout);
+                Craft::$app->getFields()->saveLayout($variantFieldLayout);
                 $productType->variantFieldLayoutId = $variantFieldLayout->id;
                 $productTypeRecord->variantFieldLayoutId = $variantFieldLayout->id;
 
@@ -614,9 +614,9 @@ class ProductTypes extends Component
             }
 
             $fieldLayoutId = $productType->asa('productFieldLayout')->getFieldLayout()->id;
-            craft()->fields->deleteLayoutById($fieldLayoutId);
+            Craft::$app->getFields()->deleteLayoutById($fieldLayoutId);
             if ($productType->hasVariants) {
-                craft()->fields->deleteLayoutById($productType->asa('variantFieldLayout')->getFieldLayout()->id);
+                Craft::$app->getFields()->deleteLayoutById($productType->asa('variantFieldLayout')->getFieldLayout()->id);
             }
 
             $productTypeRecord = ProductType::model()->findById($productType->id);

@@ -67,8 +67,12 @@ class Products extends BaseCp
             $variables['title'] = Craft::t('commerce', 'Create a new product');
         }
 
-        $variables['continueEditingUrl'] = "commerce/products/".$variables['productTypeHandle']."/{id}-{slug}".
-            (craft()->isLocalized() && craft()->getLanguage() != $variables['localeId'] ? '/'.$variables['localeId'] : '');
+        // Can't just use the entry's getCpEditUrl() because that might include the site handle when we don't want it
+        $variables['baseCpEditUrl'] = 'commerce/products/'.$variables['productTypeHandle'].'/{id}-{slug}';
+
+        // Set the "Continue Editing" URL
+        $variables['continueEditingUrl'] = $variables['baseCpEditUrl'].
+            (Craft::$app->getIsMultiSite() && Craft::$app->getSites()->currentSite->id != $site->id ? '/'.$site->handle : '');
 
         $this->_prepVariables($variables);
 

@@ -5,8 +5,10 @@ use Craft;
 use craft\commerce\base\Element;
 use craft\commerce\helpers\VariantMatrix;
 use craft\commerce\models\TaxCategory;
-use craft\commerce\records\ProductType;
-use craft\helpers\ArrayHelper;
+use craft\commerce\Plugin;
+use craft\commerce\models\ProductType;
+use craft\helpers\UrlHelper;
+use yii\base\InvalidConfigException;
 
 /**
  * Product model.
@@ -71,16 +73,25 @@ class Product extends Element
         return false;
     }
 
+
     /**
-     * Gets the products type
+     * Gets the products product type.
      *
      * @return ProductType
+     * @throws InvalidConfigException
      */
-    public function getType()
+    public function getType(): ProductType
     {
-        if ($this->typeId) {
-            return Plugin::getInstance()->getProductTypes()->getProductTypeById($this->typeId);
+
+        if ($this->typeId === null) {
+            throw new InvalidConfigException('Product is missing its product type ID');
         }
+
+        if (($productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($this->typeId)) === null) {
+            throw new InvalidConfigException('Invalid product type ID: '.$this->typeId);
+        }
+
+        return $productType;
     }
 
     /**
@@ -165,15 +176,12 @@ class Product extends Element
     public function getCpEditUrl()
     {
         $productType = $this->getType();
-        $url = "";
 
-        if ($productType) {
-            // The slug *might* not be set if this is a Draft and they've deleted it for whatever reason
-            $url = UrlHelper::getCpUrl('commerce/products/'.$productType->handle.'/'.$this->id.($this->slug ? '-'.$this->slug : ''));
+        // The slug *might* not be set if this is a Draft and they've deleted it for whatever reason
+        $url = UrlHelper::cpUrl('commerce/products/'.$productType->handle.'/'.$this->id.($this->slug ? '-'.$this->slug : ''));
 
-            if (craft()->isLocalized() && $this->locale != craft()->language) {
-                $url .= '/'.$this->locale;
-            }
+        if (Craft::$app->getIsMultiSite() && $this->siteId != Craft::$app->getSites()->currentSite->id) {
+            $url .= '/'.$this->getSite()->handle;
         }
 
         return $url;

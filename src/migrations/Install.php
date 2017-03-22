@@ -1091,7 +1091,7 @@ class Install extends Migration
         $orderSettings->handle = 'order';
 
         // Set the field layout
-        $fieldLayout = craft()->fields->assembleLayout([], []);
+        $fieldLayout = Craft::$app->getFields()->assembleLayout([], []);
         $fieldLayout->type = 'Commerce_Order';
         $orderSettings->setFieldLayout($fieldLayout);
 
@@ -1135,11 +1135,11 @@ class Install extends Migration
         $productType->template = 'shop/products/_product';
 
         $fieldLayout = FieldLayoutModel::populateModel(['type' => 'Commerce_Product']);
-        craft()->fields->saveLayout($fieldLayout);
+        Craft::$app->getFields()->saveLayout($fieldLayout);
         $productType->asa('productFieldLayout')->setFieldLayout($fieldLayout);
 
         $variantFieldLayout = FieldLayoutModel::populateModel(['type' => 'Commerce_Variant']);
-        craft()->fields->saveLayout($variantFieldLayout);
+        Craft::$app->getFields()->saveLayout($variantFieldLayout);
         $productType->asa('variantFieldLayout')->setFieldLayout($variantFieldLayout);
 
         Plugin::getInstance()->getProductTypes()->saveProductType($productType);

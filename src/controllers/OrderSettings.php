@@ -50,7 +50,7 @@ class OrderSettings extends BaseAdmin
         $orderSettings->handle = 'order';
 
         // Set the field layout
-        $fieldLayout = craft()->fields->assembleLayoutFromPost();
+        $fieldLayout = Craft::$app->getFields()->assembleLayoutFromPost();
         $fieldLayout->type = 'Commerce_Order';
         $orderSettings->setFieldLayout($fieldLayout);
 

@@ -1,14 +1,16 @@
 <?php
 namespace craft\commerce;
 
-use craft\commerce\base\PluginTrait;
+use craft\commerce\plugin\Routes;
+use craft\commerce\plugin\Services as CommerceServices;
 
 class Plugin extends \craft\base\Plugin
 {
     // Traits
     // =========================================================================
 
-    use PluginTrait;
+    use CommerceServices;
+    use Routes;
 
     // Constants
     // =========================================================================
@@ -27,4 +29,17 @@ class Plugin extends \craft\base\Plugin
 
         $this->_init();
     }
+
+    /**
+     * Initialize the plugin.
+     */
+    private function _init()
+    {
+        $this->_setPluginComponents();
+        $this->_registerCpRoutes();
+
+        // Fire an 'afterInit' event
+        $this->trigger(Plugin::EVENT_AFTER_INIT);
+    }
+
 }

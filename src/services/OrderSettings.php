@@ -100,12 +100,12 @@ class OrderSettings extends Component
             try {
                 if (!$isNewOrderSettings && $oldOrderSettings->fieldLayoutId) {
                     // Drop the old field layout
-                    craft()->fields->deleteLayoutById($oldOrderSettings->fieldLayoutId);
+                    Craft::$app->getFields()->deleteLayoutById($oldOrderSettings->fieldLayoutId);
                 }
 
                 // Save the new one
                 $fieldLayout = $orderSettings->getFieldLayout();
-                craft()->fields->saveLayout($fieldLayout);
+                Craft::$app->getFields()->saveLayout($fieldLayout);
 
                 // Update the calendar record/model with the new layout ID
                 $orderSettings->fieldLayoutId = $fieldLayout->id;
