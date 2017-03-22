@@ -4,9 +4,9 @@ namespace craft\commerce\elements;
 use Craft;
 use craft\commerce\base\Element;
 use craft\commerce\helpers\VariantMatrix;
+use craft\commerce\models\ProductType;
 use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
-use craft\commerce\models\ProductType;
 use craft\helpers\UrlHelper;
 use yii\base\InvalidConfigException;
 
@@ -14,8 +14,8 @@ use yii\base\InvalidConfigException;
  * Product model.
  *
  * @property int         $id
- * @property \DateTime    $postDate
- * @property \DateTime    $expiryDate
+ * @property \DateTime   $postDate
+ * @property \DateTime   $expiryDate
  * @property int         $typeId
  * @property int         $taxCategoryId
  * @property int         $shippingCategoryId

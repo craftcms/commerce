@@ -94,7 +94,6 @@ trait Routes
 
             $event->rules['commerce/customers'] = 'commerce/customers/index';
             $event->rules['commerce/customers/(?P<id>\d+)'] = 'commerce/customers/edit';
-
         });
     }
 }

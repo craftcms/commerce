@@ -199,7 +199,9 @@ class PaymentMethod extends Model
 
     /**
      * Payment Form HTML
+     *
      * @param array $params
+     *
      * @return bool
      */
     public function getPaymentFormHtml($params)
