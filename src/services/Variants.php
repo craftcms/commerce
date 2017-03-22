@@ -1,0 +1,335 @@
+<?php
+namespace craft\commerce\services;
+
+use craft\commerce\elements\Order;
+use craft\commerce\elements\Product;
+use craft\commerce\elements\Variant;
+use craft\commerce\helpers\Db;
+use craft\commerce\Plugin;
+use craft\commerce\records\Variant as VariantRecord;
+use yii\base\Component;
+
+/**
+ * Variant service.
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   https://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       https://craftcommerce.com
+ * @package   craft.plugins.commerce.services
+ * @since     1.0
+ */
+class Variants extends Component
+{
+    /**
+     * @param int    $variantId The variant’s ID.
+     * @param string $localeId  The locale to fetch the variant in. Defaults to {@link WebApp::language `craft()->language`}.
+     *
+     * @return Variant
+     */
+    public function getVariantById($variantId, $localeId = null)
+    {
+        return Craft::$app->getElements()->getElementById($variantId, 'Commerce_Variant', $localeId);
+    }
+
+    /**
+     * Returns the first variant as returned by it's sortOrder.
+     *
+     * @param int         $variantId
+     * @param string|null $localeId
+     *
+     * @return Variant
+     */
+    public function getDefaultVariantByProductId($variantId, $localeId = null)
+    {
+        return reset($this->getAllVariantsByProductId($variantId, $localeId));
+    }
+
+    /**
+     * @param int         $productId
+     * @param string|null $localeId
+     *
+     * @return Variant[]
+     */
+    public function getAllVariantsByProductId($productId, $localeId = null)
+    {
+        $variants = Craft::$app->getElements()->getCriteria('Commerce_Variant', ['productId' => $productId, 'status' => null, 'limit' => null, 'locale' => $localeId])->find();
+
+        return $variants;
+    }
+
+    /**
+     * @param int $productId
+     */
+    public function deleteAllVariantsByProductId($productId)
+    {
+        $variants = $this->getAllVariantsByProductId($productId);
+
+        foreach ($variants as $variant) {
+            $this->deleteVariant($variant);
+        }
+    }
+
+    /**
+     * @param $variant
+     */
+    public function deleteVariant($variant)
+    {
+        $this->deleteVariantById($variant->id);
+    }
+
+    /**
+     * @param int $id
+     */
+    public function deleteVariantById($id)
+    {
+        Craft::$app->getElements()->deleteElementById($id);
+    }
+
+    /**
+     * @param Variant $variant
+     *
+     * @return bool
+     */
+    public function validateVariant(Variant $variant)
+    {
+        $variant->clearErrors();
+
+        $record = $this->_getVariantRecord($variant);
+        $this->_populateVariantRecord($record, $variant);
+
+        $record->validate();
+        $variant->addErrors($record->getErrors());
+
+        if (!craft()->content->validateContent($variant)) {
+            $variant->addErrors($variant->getContent()->getErrors());
+        }
+
+        // If variant validation has not already found a clash check all purchasables
+        if (!$variant->getFirstError('sku')) {
+            $existing = Plugin::getInstance()->getPurchasables()->getPurchasableBySku($variant->sku);
+
+            if ($existing) {
+                if ($existing->id != $variant->id) {
+                    $variant->addError('sku', Craft::t('commerce', 'commerce', 'SKU has already been taken by another purchasable.'));
+                }
+            }
+        }
+
+        return !$variant->hasErrors();
+    }
+
+    /**
+     * @param Variant $model
+     *
+     * @return VariantRecord
+     */
+    private function _getVariantRecord(Variant $model)
+    {
+        if ($model->id) {
+            $record = VariantRecord::model()->findById($model->id);
+
+            if (!$record) {
+                throw new HttpException(404);
+            }
+        } else {
+            $record = new VariantRecord();
+        }
+
+        return $record;
+    }
+
+    /**
+     * @param                       $record
+     * @param Variant               $model
+     */
+    private function _populateVariantRecord($record, Variant $model)
+    {
+        $record->productId = $model->productId;
+        $record->sku = $model->sku;
+
+        $record->price = $model->price;
+        $record->width = $model->width * 1;
+        $record->height = $model->height * 1;
+        $record->length = $model->length * 1;
+        $record->weight = $model->weight * 1;
+        $record->minQty = $model->minQty;
+        $record->maxQty = $model->maxQty;
+        $record->stock = $model->stock;
+        $record->isDefault = $model->isDefault;
+        $record->sortOrder = $model->sortOrder;
+        $record->unlimitedStock = $model->unlimitedStock;
+
+        if (!$model->getProduct()->getType()->hasDimensions) {
+            $record->width = $model->width = 0;
+            $record->height = $model->height = 0;
+            $record->length = $model->length = 0;
+            $record->weight = $model->weight = 0;
+        }
+
+        if ($model->unlimitedStock && $record->stock == "") {
+            $model->stock = 0;
+            $record->stock = 0;
+        }
+    }
+
+    /**
+     * Persists a variant.
+     *
+     * @param BaseElementModel $model
+     *
+     * @return bool
+     * @throws \CDbException
+     * @throws \Exception
+     */
+    public function saveVariant(BaseElementModel $model)
+    {
+        $record = $this->_getVariantRecord($model);
+        $this->_populateVariantRecord($record, $model);
+
+        $record->validate();
+        $model->addErrors($record->getErrors());
+
+        Db::beginStackedTransaction();
+        try {
+            if (!$model->hasErrors()) {
+                if (Plugin::getInstance()->getPurchasables()->saveElement($model)) {
+                    $record->id = $model->id;
+                    $record->save(false);
+                    Db::commitStackedTransaction();
+
+                    return true;
+                }
+            }
+        } catch (\Exception $e) {
+            Db::rollbackStackedTransaction();
+            throw $e;
+        }
+
+        Db::rollbackStackedTransaction();
+
+        return false;
+    }
+
+    /**
+     * Sets a product on the given variants, and applies any applicable sales.
+     *
+     * @param Product   $product
+     * @param Variant[] $variants
+     */
+    public function setProductOnVariants($product, $variants)
+    {
+        foreach ($variants as $variant) {
+            $variant->setProduct($product);
+        }
+
+        // apply all sales applicable
+        $this->applySales($variants, $product);
+    }
+
+    /**
+     * Apply sales, associated with the given product, to all given variants
+     *
+     * @param Variant[] $variants
+     * @param Product   $product
+     */
+    public function applySales(array $variants, Product $product)
+    {
+        // reset the salePrice to be the same as price, and clear any sales applied.
+        foreach ($variants as $variant) {
+            $variant->setSalesApplied([]);
+            $variant->setSalePrice($variant->price);
+        }
+
+        // Only bother calculating if the product is persisted and promotable.
+        if ($product->id && $product->promotable) {
+            $sales = Plugin::getInstance()->getSales()->getSalesForProduct($product);
+
+            foreach ($sales as $sale) {
+                foreach ($variants as $variant) {
+                    $variant->setSalesApplied($sales);
+
+                    $variant->setSalePrice($variant->getSalePrice() + $sale->calculateTakeoff($variant->price));
+                    if ($variant->getSalePrice() < 0) {
+                        $variant->setSalePrice(0);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Update Stock count from completed order
+     *
+     * @param Order $order
+     */
+    public function orderCompleteHandler(Order $order)
+    {
+        $variants = [];
+
+        foreach ($order->lineItems as $lineItem) {
+            /** @var Variant $record */
+            $purchasable = $lineItem->getPurchasable();
+
+            // Only reduce variant stock if the variant exists in db
+            if (!$purchasable) {
+                continue;
+            }
+
+            $clearCacheOfElementIds = [];
+            if ($purchasable instanceof Variant && !$purchasable->unlimitedStock) {
+
+                // Update the qty in the db
+                Craft::$app->getDb()->createCommand()->update('commerce_variants',
+                    ['stock' => new \CDbExpression('stock - :qty', [':qty' => $lineItem->qty])],
+                    'id = :variantId',
+                    [':variantId' => $purchasable->id]);
+
+                // Update the stock
+                $purchasable->stock = Craft::$app->getDb()->createCommand()
+                    ->select('stock')
+                    ->from('commerce_variants')
+                    ->where('id = :variantId', [':variantId' => $purchasable->id])
+                    ->queryScalar();
+
+                // Clear the cache since the stock changed
+                $clearCacheOfElementIds[] = $purchasable->id;
+                $clearCacheOfElementIds[] = $purchasable->product->id;
+            }
+
+            $clearCacheOfElementIds = array_unique($clearCacheOfElementIds);
+            craft()->templateCache->deleteCachesByElementId($clearCacheOfElementIds);
+
+            if ($purchasable instanceof Variant) {
+                // make an array of each variant purchased
+                $variants[$purchasable->id] = $purchasable;
+            }
+        }
+
+        foreach ($variants as $variant) {
+            //raising event
+            $event = new Event($this, [
+                'variant' => $variant
+            ]);
+            $this->onOrderVariant($event);
+        }
+    }
+
+    /**
+     * This event is raise when an order has been completed, and the variant
+     * is considered ordered.
+     *
+     * @param \CEvent $event
+     *
+     * @throws \CException
+     */
+    public function onOrderVariant(\CEvent $event)
+    {
+        $params = $event->params;
+        if (empty($params['variant']) || !($params['variant'] instanceof Variant)) {
+            throw new Exception('onOrderVariant event requires "variant" param with VariantModel instance that was ordered.');
+        }
+        $this->raiseEvent('onOrderVariant', $event);
+    }
+
+}
