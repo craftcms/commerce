@@ -2,6 +2,7 @@
 
 namespace craft\commerce\adjusters;
 
+use Craft;
 use craft\commerce\base\AdjusterInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\Currency;
@@ -10,14 +11,11 @@ use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\TaxRate;
 use craft\commerce\models\TaxZone;
-use Craft\CommercePlugin;
-use Craft\LogLevel;
+use craft\commerce\Plugin;
 use Snowcap\Vat\Validation;
 
 /**
  * Tax Adjustments
- *
- * Class Commerce_TaxAdjuster
  *
  * @package Commerce\Adjusters
  */
@@ -35,14 +33,14 @@ class Tax implements AdjusterInterface
      */
     public function adjust(Order &$order, array $lineItems = [])
     {
-        $address = \Craft\craft()->commerce_addresses->getAddressById($order->shippingAddressId);
+        $address = Plugin::getInstance()->getAddresses()->getAddressById($order->shippingAddressId);
 
-        if (\Craft\craft()->config->get('useBillingAddressForTax', 'commerce')) {
-            $address = \Craft\craft()->commerce_addresses->getAddressById($order->billingAddressId);
+        if (Craft::$app->getConfig()->get('useBillingAddressForTax', 'commerce')) {
+            $address = Plugin::getInstance()->getAddresses()->getAddressById($order->billingAddressId);
         }
 
         $adjustments = [];
-        $taxRates = \Craft\craft()->commerce_taxRates->getAllTaxRates([
+        $taxRates = Plugin::getInstance()->getTaxRates()->getAllTaxRates([
             'with' => [
                 'taxZone',
                 'taxZone.countries',
@@ -85,19 +83,19 @@ class Tax implements AdjusterInterface
         $removeVat = false;
         // Valid VAT ID and Address Matches then do not apply this tax
         if ($taxRate->isVat && ($address && $address->businessTaxId && $address->country) && $this->matchAddress($address, $zone)) {
-            $validBusinessTaxIdData = \Craft\craft()->cache->get('commerce:validVatId:'.$address->businessTaxId);
+            $validBusinessTaxIdData = Craft::$app->getCache()->get('commerce:validVatId:'.$address->businessTaxId);
             if ($validBusinessTaxIdData || $this->validateVatNumber($address->businessTaxId)) {
                 // A valid vat ID from API was found, cache result.
                 if (!$validBusinessTaxIdData) {
                     $validBusinessTaxIdData = $this->getVatValidator()->getData();
-                    \Craft\craft()->cache->set('commerce:validVatId:'.$address->businessTaxId, $validBusinessTaxIdData);
+                    Craft::$app->getCache()->set('commerce:validVatId:'.$address->businessTaxId, $validBusinessTaxIdData);
                 }
 
                 if (isset($validBusinessTaxIdData['country']) && $validBusinessTaxIdData['country'] == $address->country->iso) {
                     $removeVat = true;
                 } else {
                     // delete validated vat ID in cache if the address country no longer matches.
-                    \Craft\craft()->cache->delete('commerce:validVatId:'.$address->businessTaxId);
+                    Craft::$app->getCache()->delete('commerce:validVatId:'.$address->businessTaxId);
                 }
             }
         }
@@ -119,7 +117,7 @@ class Tax implements AdjusterInterface
                 }
 
                 // We need to display the adjustment that removed the included tax
-                $adjustment->name = $taxRate->name." ".\Craft\Craft::t('Removed');
+                $adjustment->name = $taxRate->name." ".Craft::t('commerce', 'commerce', 'Removed');
                 $adjustment->amount = $allRemovedTax;
                 $adjustment->optionsJson = array_merge(['lineItemsAffected' => $affectedLineIds], $adjustment->optionsJson);
 
@@ -192,8 +190,8 @@ class Tax implements AdjusterInterface
             }
 
             $countryAndStateMatch = (bool)(in_array($address->countryId, $countries) && in_array($address->stateId, $states));
-            $countryAndStateNameMatch = (bool)(in_array($address->countryId, $countries) && strcasecmp($state->name, $address->getStateText()) == 0);
-            $countryAndStateAbbrMatch = (bool)(in_array($address->countryId, $countries) && strcasecmp($state->abbreviation, $address->getStateText()) == 0);
+            $countryAndStateNameMatch = (bool)(in_array($address->countryId, $countries) && strcasecmp($address->state->name ?? '', $address->getStateText()) == 0);
+            $countryAndStateAbbrMatch = (bool)(in_array($address->countryId, $countries) && strcasecmp($address->state->abbreviation ?? '', $address->getStateText()) == 0);
 
             if ($countryAndStateMatch || $countryAndStateNameMatch || $countryAndStateAbbrMatch) {
                 return true;
@@ -215,7 +213,7 @@ class Tax implements AdjusterInterface
 
             return $result;
         } catch (\Exception $e) {
-            CommercePlugin::log("Communication with VAT API failed: ".$e->getMessage(), LogLevel::Error, true);
+            Craft::error("Communication with VAT API failed: ".$e->getMessage(), __METHOD__);
 
             return false;
         }

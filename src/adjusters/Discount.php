@@ -8,11 +8,10 @@ use craft\commerce\helpers\Currency;
 use craft\commerce\models\Discount as DiscountModel;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
+use craft\commerce\Plugin;
 
 /**
- * Discount Adjustments
- *
- * Class Commerce_DiscountAdjuster
+ * Discount Adjuster
  *
  * @package Commerce\Adjusters
  */
@@ -21,7 +20,7 @@ class Discount implements AdjusterInterface
     const ADJUSTMENT_TYPE = 'Discount';
 
     /**
-     * @param \craft\commerce\elements\Order      $order
+     * @param \craft\commerce\elements\Order    $order
      * @param \craft\commerce\models\LineItem[] $lineItems
      *
      * @return \craft\commerce\models\OrderAdjustment[]
@@ -32,7 +31,7 @@ class Discount implements AdjusterInterface
             return [];
         }
 
-        $discounts = \Craft\craft()->commerce_discounts->getAllDiscounts([
+        $discounts = Plugin::getInstance()->getDiscounts()->getAllDiscounts([
             'condition' => '(code = :code OR code IS NULL) and enabled = :enabled',
             'params' => [
                 'code' => $order->couponCode,
@@ -55,9 +54,9 @@ class Discount implements AdjusterInterface
     }
 
     /**
-     * @param Order      $order
-     * @param LineItem[] $lineItems
-     * @param Discount   $discount
+     * @param Order         $order
+     * @param LineItem[]    $lineItems
+     * @param DiscountModel $discount
      *
      * @return OrderAdjustment|false
      */
@@ -78,7 +77,7 @@ class Discount implements AdjusterInterface
             // Since we will allow the coupon to be added to an anonymous cart with no email, we need to remove it
             // if a limit has been set.
             if ($order->email && $discount->perEmailLimit) {
-                $previousOrders = \Craft\craft()->commerce_orders->getOrdersByEmail($order->email);
+                $previousOrders = Plugin::getInstance()->getOrders()->getOrdersByEmail($order->email);
 
                 $usedCount = 0;
                 foreach ($previousOrders as $previousOrder) {
@@ -108,7 +107,7 @@ class Discount implements AdjusterInterface
         $matchingTotal = 0;
         $matchingLineIds = [];
         foreach ($lineItems as $item) {
-            if (\Craft\craft()->commerce_discounts->matchLineItem($item, $discount)) {
+            if (Plugin::getInstance()->getDiscounts()->matchLineItem($item, $discount)) {
                 $matchingLineIds[] = $item->id;
                 $matchingQty += $item->qty;
                 $matchingTotal += $item->getSubtotal();

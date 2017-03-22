@@ -1,22 +1,23 @@
 <?php
 
-namespace Commerce\Adjusters;
+namespace craft\commerce\adjusters;
 
 use craft\commerce\base\AdjusterInterface;
-use craft\commerce\helpers\Currency;
 use craft\commerce\base\ShippingMethodInterface;
+use craft\commerce\elements\Order;
+use craft\commerce\helpers\Currency;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
-use craft\commerce\elements\Order;
+use craft\commerce\models\ShippingMethod;
+use craft\commerce\models\ShippingRule;
+use craft\commerce\Plugin;
 
 /**
  * Tax Adjustments
  *
- * Class Commerce_ShippingAdjuster
- *
  * @package Commerce\Adjusters
  */
-class Commerce_ShippingAdjuster implements AdjusterInterface
+class Shipping implements AdjusterInterface
 {
     const ADJUSTMENT_TYPE = 'Shipping';
 
@@ -28,27 +29,24 @@ class Commerce_ShippingAdjuster implements AdjusterInterface
      */
     public function adjust(Order &$order, array $lineItems = [])
     {
-        $shippingMethods = \Craft\craft()->commerce_shippingMethods->getAvailableShippingMethods($order);
+        $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($order);
 
-        foreach ($shippingMethods as $method)
-        {
-            if ($method['method']->getIsEnabled() == true && ($method['method']->getHandle() == $order->getShippingMethodHandle()))
-            {
+        /** @var ShippingMethod $method */
+        foreach ($shippingMethods as $method) {
+            if ($method['method']->getIsEnabled() == true && ($method['method']->getHandle() == $order->getShippingMethodHandle())) {
                 /** @var ShippingMethodInterface $shippingMethod */
                 $shippingMethod = $method['method'];
             }
         }
 
-        if (!isset($shippingMethod))
-        {
+        if (!isset($shippingMethod)) {
             return [];
         }
 
         $adjustments = [];
 
-
-        if ($rule = \Craft\craft()->commerce_shippingMethods->getMatchingShippingRule($order, $shippingMethod))
-        {
+        /** @var ShippingRule $rule */
+        if ($rule = Plugin::getInstance()->getShippingMethods()->getMatchingShippingRule($order, $shippingMethod)) {
 
             //preparing model
             $adjustment = new OrderAdjustment;
@@ -60,9 +58,7 @@ class Commerce_ShippingAdjuster implements AdjusterInterface
             //checking items tax categories
             $itemShippingTotal = 0;
             $freeShippingAmount = 0;
-            foreach ($lineItems as $item)
-            {
-
+            foreach ($lineItems as $item) {
                 $percentageRate = $rule->getPercentageRate($item->shippingCategoryId);
                 $perItemRate = $rule->getPerItemRate($item->shippingCategoryId);
                 $weightRate = $rule->getWeightRate($item->shippingCategoryId);
@@ -72,15 +68,13 @@ class Commerce_ShippingAdjuster implements AdjusterInterface
                 $weightAmount = ($item->weight * $item->qty) * $weightRate;
                 $item->shippingCost = Currency::round($percentageAmount + $perItemAmount + $weightAmount);
 
-                if ($item->shippingCost && !$item->purchasable->hasFreeShipping())
-                {
+                if ($item->shippingCost && !$item->purchasable->hasFreeShipping()) {
                     $affectedLineIds[] = $item->id;
                 }
 
                 $itemShippingTotal += $item->shippingCost;
 
-                if ($item->purchasable->hasFreeShipping())
-                {
+                if ($item->purchasable->hasFreeShipping()) {
                     $freeShippingAmount += $item->shippingCost;
                     $item->shippingCost = 0;
                 }
@@ -90,8 +84,7 @@ class Commerce_ShippingAdjuster implements AdjusterInterface
             $amount = Currency::round($rule->getBaseRate()) + $itemShippingTotal - $freeShippingAmount;
             $amount = max($amount, Currency::round($rule->getMinRate() * 1));
 
-            if ($rule->getMaxRate() * 1)
-            {
+            if ($rule->getMaxRate() * 1) {
                 $amount = min($amount, Currency::round($rule->getMaxRate() * 1));
             }
 
@@ -110,12 +103,10 @@ class Commerce_ShippingAdjuster implements AdjusterInterface
         }
 
         // If the selected shippingMethod has no rules matched on this order, remove the method from the order and reset shipping costs.
-        if (empty($adjustments))
-        {
+        if (empty($adjustments)) {
             $order->shippingMethod = null;
             $order->baseShippingCost = 0;
-            foreach ($lineItems as $item)
-            {
+            foreach ($lineItems as $item) {
                 $item->shippingCost = 0;
             }
         }
