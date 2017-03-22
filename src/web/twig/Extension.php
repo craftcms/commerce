@@ -1,6 +1,9 @@
 <?php
 namespace craft\commerce\web\twig;
 
+use Craft;
+use craft\commerce\Plugin;
+
 /**
  * Class CommerceTwigExtension
  *
@@ -23,16 +26,15 @@ class Extension extends \Twig_Extension
     }
 
     /**
-     * @return mixed
+     * @return array
      */
-    public function getFilters()
+    public function getFilters(): array
     {
-        $returnArray['json_encode_filtered'] = new \Twig_Filter_Method($this, 'jsonEncodeFiltered');
+        return [
+            new \Twig_SimpleFilter('json_encode_filtered', [$this, 'jsonEncodeFiltered']),
+            new \Twig_SimpleFilter('commerceCurrency', [$this, 'commerceCurrency']),
 
-        $returnArray['commerceCurrency'] = new \Twig_Filter_Method($this, 'commerceCurrency');
-
-
-        return $returnArray;
+        ];
     }
 
 

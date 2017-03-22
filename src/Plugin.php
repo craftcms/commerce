@@ -150,7 +150,6 @@ class Plugin extends \craft\base\Plugin
         $this->_prepCpTemplate();
         $this->_registerRichTextLinks();
         $this->_registerPermissions();
-        $this->_registerCpNavItems();
         $this->_registerSessionEventListeners();
         $this->_registerCpAlerts();
 
@@ -266,11 +265,11 @@ class Plugin extends \craft\base\Plugin
      */
     private function _registerSessionEventListeners()
     {
-        Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [Plugin::getInstance()->getProductTypes(), 'addLocaleHandler']);
+        Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getProductTypes(), 'addLocaleHandler']);
         if (!Craft::$app->getRequest()->getIsConsoleRequest()) {
-            Event::on(UserElement::class, UserElement::EVENT_AFTER_SAVE, [Plugin::getInstance()->getCustomers(), 'saveUserHandler']);
-            Event::on(User::class, User::EVENT_AFTER_LOGIN, [Plugin::getInstance()->getCustomers(), 'loginHandler']);
-            Event::on(User::class, User::EVENT_AFTER_LOGOUT, [Plugin::getInstance()->getCustomers(), 'logoutHandler']);
+            Event::on(UserElement::class, UserElement::EVENT_AFTER_SAVE, [$this->getCustomers(), 'saveUserHandler']);
+            Event::on(User::class, User::EVENT_AFTER_LOGIN, [$this->getCustomers(), 'loginHandler']);
+            Event::on(User::class, User::EVENT_AFTER_LOGOUT, [$this->getCustomers(), 'logoutHandler']);
         }
     }
 
@@ -281,7 +280,7 @@ class Plugin extends \craft\base\Plugin
     {
         Event::on(Cp::class, Cp::EVENT_REGISTER_ALERTS, function(RegisterCpAlertsEvent $event) {
 
-            if (Craft::$app->getRequest()->path != 'commerce/settings/registration') {
+            if (Craft::$app->getRequest()->getFullPath() != 'commerce/settings/registration') {
                 $licenseKeyStatus = Craft::$app->getPlugins()->getPluginLicenseKeyStatus('Commerce');
 
                 if ($licenseKeyStatus == LicenseKeyStatus::Unknown) {
