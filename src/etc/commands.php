@@ -5,21 +5,21 @@ return [
     [
         'name' => 'Commerce Orders',
         'type' => 'Link',
-        'url' => \Craft\UrlHelper::getCpUrl('commerce/orders')
+        'url' => \craft\helpers\UrlHelper::cpUrl('commerce/orders')
     ],
     [
         'name' => 'Commerce Products',
         'type' => 'Link',
-        'url' => \Craft\UrlHelper::getCpUrl('commerce/products')
+        'url' => \craft\helpers\UrlHelper::cpUrl('commerce/products')
     ],
     [
         'name' => 'Commerce Promotions',
         'type' => 'Link',
-        'url' => \Craft\UrlHelper::getCpUrl('commerce/promotions')
+        'url' => \craft\helpers\UrlHelper::cpUrl('commerce/promotions')
     ],
     [
         'name' => 'Commerce Settings',
         'type' => 'Link',
-        'url' => \Craft\UrlHelper::getCpUrl('commerce/settings')
+        'url' => \craft\helpers\UrlHelper::cpUrl('commerce/settings')
     ]
 ];
