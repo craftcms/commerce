@@ -283,7 +283,7 @@ class Commerce_CartService extends BaseApplicationComponent
     {
         $method = craft()->commerce_paymentMethods->getPaymentMethodById($paymentMethodId);
 
-        if (!$method)
+        if (!$method || !$method->frontendEnabled)
         {
             $error = Craft::t('Payment method does not exist or is not allowed.');
 
