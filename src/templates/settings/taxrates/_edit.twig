@@ -14,101 +14,120 @@
     {{ selectField(selectParams) }}
 
     {% includejs %}
-        (function() {
-            var $select = $('#{{ selectParams.id }}').selectize({
-                dropdownParent: 'body'
-            });
+    (function() {
+    var $select = $('#{{ selectParams.id }}').selectize({
+    dropdownParent: 'body'
+    });
 
-            var selectize = $select.get(0).selectize;
+    var selectize = $select.get(0).selectize;
 
-            selectize.addOption({
-                value: 'new',
-                text: '{{ newOptionLabel|e("js") }}'
-            });
+    selectize.addOption({
+    value: 'new',
+    text: '{{ newOptionLabel|e("js") }}'
+    });
 
-            selectize.on('item_add', function(value, $item) {
-                if (value == 'new') {
-                    // Not a real option
-                    selectize.clear();
+    selectize.on('item_add', function(value, $item) {
+    if (value == 'new') {
+    // Not a real option
+    selectize.clear();
 
-                    var $form = $(
-                        '<form class="modal fitted lazy-create-modal">' +
-                            '<div class="header">' +
-                                '<h1 class="centeralign">{{ modalHeading }}</h1>' +
-                            '</div>' +
-                            '<div class="body">' +
-                                '{{ html|e("js") }}' +
-                            '</div>' +
-                            '<div class="footer">' +
-                                '<div class="buttons right">' +
-                                    '<div class="btn cancel-btn">{{ "Cancel"|t }}</div>' +
-                                    '<input type="submit" class="btn submit" value="{{ 'Save'|t }}"/>' +
-                                    '<div class="spinner hidden"/>' +
-                                '</div>' +
-                            '</div>' +
-                        '</form>'
-                    );
+    var $form = $(
+    '
+    <form class="modal fitted lazy-create-modal">' +
+        '
+        <div class="header">' +
+            '<h1 class="centeralign">{{ modalHeading }}</h1>' +
+            '
+        </div>
+        ' +
+        '
+        <div class="body">' +
+            '{{ html|e("js") }}' +
+            '
+        </div>
+        ' +
+        '
+        <div class="footer">' +
+            '
+            <div class="buttons right">' +
+                '
+                <div class="btn cancel-btn">{{ "Cancel"|t }}</div>
+                ' +
+                '<input type="submit" class="btn submit"
+                        value="{{ 'Save'|t }}"/>' +
+                '
+                <div class="spinner hidden"/>
+                ' +
+                '
+            </div>
+            ' +
+            '
+        </div>
+        ' +
+        '
+    </form>'
+    );
 
-                    var modal = new Garnish.Modal($form, {
-                        onHide: function() {
-                            modal.destroy();
-                            delete modal;
-                        }
-                    });
+    var modal = new Garnish.Modal($form, {
+    onHide: function() {
+    modal.destroy();
+    delete modal;
+    }
+    });
 
-                    eval('{{ js|e("js") }}');
+    eval('{{ js|e("js") }}');
 
-                    setTimeout(function() {
-                        $form.find('.text:first').focus();
+    setTimeout(function() {
+    $form.find('.text:first').focus();
 
-                        modal.updateSizeAndPosition();
-                        $form.find('.body:first').on('resize', function() {
-                            modal.updateSizeAndPosition();
-                        });
-                    }, 100);
+    modal.updateSizeAndPosition();
+    $form.find('.body:first').on('resize', function() {
+    modal.updateSizeAndPosition();
+    });
+    }, 100);
 
-                    $form.on('submit', function(ev) {
-                        ev.preventDefault();
-                        $form.find('.spinner').removeClass('hidden');
-                        var namespacedData = Garnish.getPostData($form),
-                            data = {};
+    $form.on('submit', function(ev) {
+    ev.preventDefault();
+    $form.find('.spinner').removeClass('hidden');
+    var namespacedData = Garnish.getPostData($form),
+    data = {};
 
-                        for (var name in namespacedData) {
-                            data[name.replace(/^new\[([^\]]+)\]/, '$1')] = namespacedData[name];
-                        }
+    for (var name in namespacedData) {
+    data[name.replace(/^new\[([^\]]+)\]/, '$1')] = namespacedData[name];
+    }
 
-                        Craft.postActionRequest('{{ action|e("js") }}', data, function(response, textStatus) {
-                            $form.find('.spinner').addClass('hidden');
-                            if (textStatus == 'success') {
-                                if (response.success) {
-                                    Craft.cp.displayNotice('{{ successText|e("js") }}');
-                                    selectize.addOption({
-                                        value: response.id,
-                                        text: response.name,
-                                        $order: selectize.order - 1
-                                    });
-                                    selectize.setValue(response.id);
-                                    modal.hide();
-                                } else {
-                                    Craft.ui.clearErrorsFromField($form.find('.field'));
+    Craft.postActionRequest('{{ action|e("js") }}', data, function(response, textStatus) {
+    $form.find('.spinner').addClass('hidden');
+    if (textStatus == 'success') {
+    if (response.success) {
+    Craft.cp.displayNotice('{{ successText|e("js") }}');
+    selectize.addOption({
+    value: response.id,
+    text: response.name,
+    $order: selectize.order - 1
+    });
+    selectize.setValue(response.id);
+    modal.hide();
+    } else {
+    Craft.ui.clearErrorsFromField($form.find('.field'));
 
-                                    for (var attribute in response.errors) {
-                                        Craft.ui.addErrorsToField($('#new-'+attribute+'-field'), response.errors[attribute]);
-                                    }
+    for (var attribute in response.errors) {
+    Craft.ui.addErrorsToField($('#new-'+attribute+'-field'), response.errors[attribute]);
+    }
 
-                                    modal.updateSizeAndPosition();
-                                    Garnish.shake($form);
-                                }
-                            }
-                        });
-                    });
+    modal.updateSizeAndPosition();
+    Garnish.shake($form);
+    }
+    }
+    });
+    });
 
-                    $form.find('.cancel-btn').on('click', function() {
-                        modal.hide();
-                    });
-                }
-            });
-        })();
+    $form.find('.cancel-btn').on('click', function() {
+    modal.hide();
+    });
+    }
+    });
+    })();
     {% endincludejs %}
 
 {% endmacro %}
@@ -121,7 +140,8 @@
 {% block content %}
     <input type="hidden" name="action" value="commerce/taxRates/save">
     <input type="hidden" name="redirect" value="commerce/settings/taxrates">
-    {% if taxRate.id %}<input type="hidden" name="taxRateId" value="{{ taxRate.id }}">{% endif %}
+    {% if taxRate.id %}<input type="hidden" name="taxRateId"
+                              value="{{ taxRate.id }}">{% endif %}
 
     {{ forms.textField({
         first: true,
@@ -154,68 +174,68 @@
     }) }}
 
     {% set taxZoneSelectParams = {
-        label: "Tax Zone"|t,
-        instructions: "Select a tax zone."|t,
-        id: 'taxZoneId',
-        name: 'taxZoneId',
-        value: taxRate.taxZoneId,
-        errors: taxRate.getErrors('taxZoneId'),
-        required: true,
-        options: taxZones,
-        class: 'selectize fullwidth',
+    label: "Tax Zone"|t,
+    instructions: "Select a tax zone."|t,
+    id: 'taxZoneId',
+    name: 'taxZoneId',
+    value: taxRate.taxZoneId,
+    errors: taxRate.getErrors('taxZoneId'),
+    required: true,
+    options: taxZones,
+    class: 'selectize fullwidth',
     } %}
 
     {{ lazyCreateSelect(
-        taxZoneSelectParams,
-        'New tax zone'|t,
-        'Create a new tax zone'|t,
-        newTaxZoneFields,
-        newTaxZoneJs,
-        'commerce/taxZones/save',
-        'Tax zone saved.'|t
+    taxZoneSelectParams,
+    'New tax zone'|t,
+    'Create a new tax zone'|t,
+    newTaxZoneFields,
+    newTaxZoneJs,
+    'commerce/taxZones/save',
+    'Tax zone saved.'|t
     ) }}
 
     {% set taxCategorySelectParams = {
-        label: "Tax Category"|t,
-        instructions: "Select a tax category."|t,
-        id: 'taxCategoryId',
-        name: 'taxCategoryId',
-        value: taxRate.taxCategoryId,
-        errors: taxRate.getErrors('taxCategoryId'),
-        required: true,
-        options: taxCategories,
-        class: 'selectize fullwidth',
+    label: "Tax Category"|t,
+    instructions: "Select a tax category."|t,
+    id: 'taxCategoryId',
+    name: 'taxCategoryId',
+    value: taxRate.taxCategoryId,
+    errors: taxRate.getErrors('taxCategoryId'),
+    required: true,
+    options: taxCategories,
+    class: 'selectize fullwidth',
     } %}
 
     {{ lazyCreateSelect(
-        taxCategorySelectParams,
-        'New tax category'|t,
-        'Create a new tax category'|t,
-        newTaxCategoryFields,
-        newTaxCategoryJs,
-        'commerce/taxCategories/save',
-        'Tax category saved.'|t
+    taxCategorySelectParams,
+    'New tax category'|t,
+    'Create a new tax category'|t,
+    newTaxCategoryFields,
+    newTaxCategoryJs,
+    'commerce/taxCategories/save',
+    'Tax category saved.'|t
     ) }}
 
-	{{ forms.checkboxField({
-		label: "This tax is already included in the entered prices of all products"|t,
-		name: 'include',
-		value: 1,
-		checked: taxRate.include,
-		errors: taxRate.getErrors('include'),
-	}) }}
+    {{ forms.checkboxField({
+        label: "This tax is already included in the entered prices of all products"|t,
+        name: 'include',
+        value: 1,
+        checked: taxRate.include,
+        errors: taxRate.getErrors('include'),
+    }) }}
 
-	{{ forms.checkboxField({
-		label: "Don’t apply this tax when the shipping address has a valid VAT ID"|t,
-		name: 'isVat',
-		value: 1,
-		checked: taxRate.isVat,
-		errors: taxRate.getErrors('isVat'),
-		toggle: '#isVat'
-	}) }}
-	<p id="isVat" {% if not taxRate.isVat %} class="hidden"{% endif %}>
-		{{ "This tax rate will not be applied if a valid businessTaxId is entered into the shipping address."|t }}
-	</p>
+    {{ forms.checkboxField({
+        label: "Don’t apply this tax when the shipping address has a valid VAT ID"|t,
+        name: 'isVat',
+        value: 1,
+        checked: taxRate.isVat,
+        errors: taxRate.getErrors('isVat'),
+        toggle: '#isVat'
+    }) }}
+    <p id="isVat" {% if not taxRate.isVat %} class="hidden"{% endif %}>
+        {{ "This tax rate will not be applied if a valid businessTaxId is entered into the shipping address."|t }}
+    </p>
 
 {% endblock %}
 

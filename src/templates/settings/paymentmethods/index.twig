@@ -18,13 +18,24 @@
         </thead>
         <tbody>
         {% for paymentMethod in paymentMethods %}
-            <tr data-id="{{ paymentMethod.id }}" data-name="{{ paymentMethod.name }}">
-                <td class="thin" scope="row" data-title="{{ 'ID'|t }}">{{ paymentMethod.id }}</td>
-                <th scope="row" data-title="{{ 'Name'|t }}"><a href="{{ paymentMethod.cpEditUrl }}">{{ paymentMethod.name }}</a></th>
-                <td data-title="{{ 'Gateway'|t }}">{% if paymentMethod.getGatewayAdapter() %}{{ paymentMethod.getGatewayAdapter().displayName() }}{% else %}<span class="error">{{ paymentMethod.class }}</span>{% endif %}</td>
-                <td data-title="{{ 'Customer Enabled?'|t }}">{% if paymentMethod.frontendEnabled %}<span data-icon="check" title="{{ 'Yes'|t }}"></span>{% endif %}</td>
-                <td class="thin"><a class="move icon" title="{{ 'Delete'|t }}" role="button"></a></td>
-                <td class="thin"><a class="delete icon" title="{{ 'Archive'|t }}" role="button"></a></td>
+            <tr data-id="{{ paymentMethod.id }}"
+                data-name="{{ paymentMethod.name }}">
+                <td class="thin" scope="row"
+                    data-title="{{ 'ID'|t }}">{{ paymentMethod.id }}</td>
+                <th scope="row" data-title="{{ 'Name'|t }}"><a
+                            href="{{ paymentMethod.cpEditUrl }}">{{ paymentMethod.name }}</a>
+                </th>
+                <td data-title="{{ 'Gateway'|t }}">{% if paymentMethod.getGatewayAdapter() %}{{ paymentMethod.getGatewayAdapter().displayName() }}{% else %}
+                        <span class="error">{{ paymentMethod.class }}</span>{% endif %}
+                </td>
+                <td data-title="{{ 'Customer Enabled?'|t }}">{% if paymentMethod.frontendEnabled %}
+                        <span data-icon="check"
+                              title="{{ 'Yes'|t }}"></span>{% endif %}</td>
+                <td class="thin"><a class="move icon" title="{{ 'Delete'|t }}"
+                                    role="button"></a></td>
+                <td class="thin"><a class="delete icon"
+                                    title="{{ 'Archive'|t }}" role="button"></a>
+                </td>
             </tr>
         {% endfor %}
 
@@ -32,19 +43,20 @@
     </table>
 
     <div class="buttons">
-        <a href="{{ url('commerce/settings/paymentmethods/new') }}" class="btn submit add icon">{{ 'New payment method'|t }}</a>
+        <a href="{{ url('commerce/settings/paymentmethods/new') }}"
+           class="btn submit add icon">{{ 'New payment method'|t }}</a>
     </div>
 {% endblock %}
 
 
 {% includejs %}
 new Craft.AdminTable({
-	tableSelector: '#payment-methods',
-	deleteAction: 'commerce/paymentMethods/archive',
-	minObjects: 0,
-	sortable: true,
-	reorderAction: 'commerce/paymentMethods/reorder',
-	reorderSuccessMessage: Craft.t('Payment methods reordered.'),
-	reorderFailMessage:    Craft.t('Couldn’t reorder statuses..')
+tableSelector: '#payment-methods',
+deleteAction: 'commerce/paymentMethods/archive',
+minObjects: 0,
+sortable: true,
+reorderAction: 'commerce/paymentMethods/reorder',
+reorderSuccessMessage: Craft.t('Payment methods reordered.'),
+reorderFailMessage:    Craft.t('Couldn’t reorder statuses..')
 });
 {% endincludejs %}

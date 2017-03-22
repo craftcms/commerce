@@ -17,19 +17,26 @@
         </thead>
         <tbody>
         {% for taxCategory in taxCategories %}
-            <tr data-id="{{ taxCategory.id }}" data-name="{{ taxCategory.name }}">
+            <tr data-id="{{ taxCategory.id }}"
+                data-name="{{ taxCategory.name }}">
                 <th scope="row" data-title="{{ 'Name'|t }}"><a
                             href="{{ url('commerce/settings/taxcategories/'~taxCategory.id) }}">{{ taxCategory.name }}</a>
                 </th>
-                <td data-title="{{ 'Handle'|t }}" class="code">{{ taxCategory.handle }}</td>
+                <td data-title="{{ 'Handle'|t }}"
+                    class="code">{{ taxCategory.handle }}</td>
                 <td data-title="{{ 'Description'|t }}">{{ taxCategory.description }}</td>
                 <td data-title="{{ 'Used By Tax Rates'|t }}">
-					{% for rate in taxCategory.taxRates %}
-						<a href="{{ rate.getCpEditUrl}}">{{ rate.name }}</a><br>
-					{% endfor %}
-				</td>
-                <td data-title="{{ 'Default?'|t }}">{% if taxCategory.default %}<span data-icon="check" title="{{ 'Yes'|t }}"></span>{% endif %}</td>
-                <td class="thin">{% if not taxCategory.taxRates|length %}<a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a>{% endif %}</td>
+                    {% for rate in taxCategory.taxRates %}
+                        <a href="{{ rate.getCpEditUrl }}">{{ rate.name }}</a>
+                        <br>
+                    {% endfor %}
+                </td>
+                <td data-title="{{ 'Default?'|t }}">{% if taxCategory.default %}
+                        <span data-icon="check"
+                              title="{{ 'Yes'|t }}"></span>{% endif %}</td>
+                <td class="thin">{% if not taxCategory.taxRates|length %}<a
+                        class="delete icon" title="{{ 'Delete'|t }}"
+                        role="button"></a>{% endif %}</td>
             </tr>
         {% endfor %}
 
@@ -37,7 +44,8 @@
     </table>
 
     <div class="buttons">
-        <a href="{{ url('commerce/settings/taxcategories/new') }}" class="btn submit add icon">{{ 'New tax category'|t }}</a>
+        <a href="{{ url('commerce/settings/taxcategories/new') }}"
+           class="btn submit add icon">{{ 'New tax category'|t }}</a>
     </div>
 {% endblock %}
 

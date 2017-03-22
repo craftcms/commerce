@@ -1,8 +1,8 @@
 {% extends "commerce/_layouts/settingscp" %}
 
 {% set crumbs = [
-    { label: 'Commerce ' ~ 'Settings'|t, url: url('commerce/settings') },
-    { label: 'Order Statuses'|t, url: url('commerce/settings/orderstatuses') }
+{ label: 'Commerce ' ~ 'Settings'|t, url: url('commerce/settings') },
+{ label: 'Order Statuses'|t, url: url('commerce/settings/orderstatuses') }
 ] %}
 
 {% set fullPageForm = true %}
@@ -12,12 +12,14 @@
 
 {% block content %}
     <input type="hidden" name="action" value="commerce/orderStatuses/save">
-    <input type="hidden" name="redirect" value="commerce/settings/orderstatuses">
+    <input type="hidden" name="redirect"
+           value="commerce/settings/orderstatuses">
 
     {% if orderStatus.id %}
-        <input type="hidden" name="sortOrder" value="{{ orderStatus.sortOrder }}">
+        <input type="hidden" name="sortOrder"
+               value="{{ orderStatus.sortOrder }}">
         <input type="hidden" name="orderStatusId" value="{{ orderStatus.id }}">
-	{% endif %}
+    {% endif %}
 
     {{ forms.textField({
         label: "Name"|t,
@@ -48,16 +50,22 @@
     }) }}
 
     {% set colorField %}
-    <div>
-        <a id="color-menu-btn" class="btn menubtn" href="#"><span class="status {{ orderStatus.color }}"></span>{{ orderStatus.color|t|title }}</a>
-        <div class="menu">
-            <ul class="padded">
-                {% for color in ['green','orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'] %}
-                <li><a data-val="{{ color }}" {% if orderStatus.color == color %}class="sel"{% endif %} href="#"><span class="status {{ color }}"></span>{{ color|t|title }}</a></li>
-                {% endfor %}
-            </ul>
+        <div>
+            <a id="color-menu-btn" class="btn menubtn" href="#"><span
+                        class="status {{ orderStatus.color }}"></span>{{ orderStatus.color|t|title }}
+            </a>
+            <div class="menu">
+                <ul class="padded">
+                    {% for color in ['green','orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'] %}
+                        <li><a data-val="{{ color }}"
+                               {% if orderStatus.color == color %}class="sel"{% endif %}
+                               href="#"><span
+                                        class="status {{ color }}"></span>{{ color|t|title }}
+                            </a></li>
+                    {% endfor %}
+                </ul>
+            </div>
         </div>
-    </div>
     {% endset %}
     {{ forms.field({
         label: 'Color'|t,
@@ -97,20 +105,20 @@
 {% if not orderStatus.handle %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
 $(function () {
 
-    $colorSelect = $('#color-menu-btn');
-    new Garnish.MenuBtn($colorSelect, {
-        onOptionSelect: function(data){
-            var val = $(data).data('val');
-            $('#color').val(val);
-            var html = "<span class='status "+val+"'></span>"+Craft.uppercaseFirst(val);
-            $colorSelect.html(html);
-        }
-    });
+$colorSelect = $('#color-menu-btn');
+new Garnish.MenuBtn($colorSelect, {
+onOptionSelect: function(data){
+var val = $(data).data('val');
+$('#color').val(val);
+var html = "<span class='status "+val+"'></span>"+Craft.uppercaseFirst(val);
+$colorSelect.html(html);
+}
+});
 
 
-    $('#emails').selectize({
-        plugins: ['remove_button'],
-        dropdownParent: 'body'
-    });
+$('#emails').selectize({
+plugins: ['remove_button'],
+dropdownParent: 'body'
+});
 });
 {% endincludejs %}

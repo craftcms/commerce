@@ -61,27 +61,27 @@
 {% set countryBasedName = 'countryBased'|namespaceInputName|e('js') %}
 
 {% includejs %}
-    $('#{{ countriesId }}, #{{ statesId }}').selectize({
-        plugins: ['remove_button'],
-        dropdownParent: 'body'
-    });
+$('#{{ countriesId }}, #{{ statesId }}').selectize({
+plugins: ['remove_button'],
+dropdownParent: 'body'
+});
 
-    $('[name="{{ countryBasedName }}"]').change(function () {
-        if (!$(this).is(':checked')) {
-            return;
-        }
-        if ($(this).val() * 1) {
-            $('#{{ countriesId }}')[0].selectize.enable();
-            $('#{{ statesId }}')[0].selectize.disable();
-            $('#{{ countriesId }}-field').show();
-            $('#{{ statesId }}-field').hide();
-        } else {
-            $('#{{ countriesId }}')[0].selectize.disable();
-            $('#{{ statesId }}')[0].selectize.enable();
-            $('#{{ countriesId }}-field').hide();
-            $('#{{ statesId }}-field').show();
-        }
-    });
+$('[name="{{ countryBasedName }}"]').change(function () {
+if (!$(this).is(':checked')) {
+return;
+}
+if ($(this).val() * 1) {
+$('#{{ countriesId }}')[0].selectize.enable();
+$('#{{ statesId }}')[0].selectize.disable();
+$('#{{ countriesId }}-field').show();
+$('#{{ statesId }}-field').hide();
+} else {
+$('#{{ countriesId }}')[0].selectize.disable();
+$('#{{ statesId }}')[0].selectize.enable();
+$('#{{ countriesId }}-field').hide();
+$('#{{ statesId }}-field').show();
+}
+});
 
-    $('[name="{{ countryBasedName }}"]:checked').trigger('change');
+$('[name="{{ countryBasedName }}"]:checked').trigger('change');
 {% endincludejs %}

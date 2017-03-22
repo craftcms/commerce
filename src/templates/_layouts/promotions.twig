@@ -5,13 +5,13 @@
 {% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commercepromotions" %}
 
 {% set sidebarNavItems = {
-	sales: { label: 'Sales'|t, url: url('commerce/promotions/sales') },
-	discounts: { label: 'Discounts'|t, url: url('commerce/promotions/discounts') }
+sales: { label: 'Sales'|t, url: url('commerce/promotions/sales') },
+discounts: { label: 'Discounts'|t, url: url('commerce/promotions/discounts') }
 } %}
 
 {% set docTitle = sidebarNavItems[selectedSidebarNavItem].label~' - '~title~' - '~'Commerce' %}
 
 
 {% block sidebar %}
-	{% include "_includes/nav" with { items: sidebarNavItems, selectedItem: selectedSidebarNavItem } only %}
+    {% include "_includes/nav" with { items: sidebarNavItems, selectedItem: selectedSidebarNavItem } only %}
 {% endblock %}

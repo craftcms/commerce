@@ -7,9 +7,9 @@
 ] %}
 
 {% set tabs = {
-    productTypeSettings: { label: "Settings"|t, url: '#product-type-settings' },
-    productFields:       { label: "Product Fields"|t, url: '#product-fields' },
-    variantFields:       { label: "Variant Fields"|t, url: '#variant-fields', class: (not productType.hasVariants ? 'hidden') }
+productTypeSettings: { label: "Settings"|t, url: '#product-type-settings' },
+productFields:       { label: "Product Fields"|t, url: '#product-fields' },
+variantFields:       { label: "Variant Fields"|t, url: '#variant-fields', class: (not productType.hasVariants ? 'hidden') }
 } %}
 
 {% set fullPageForm = true %}
@@ -19,247 +19,250 @@
 {% import "_includes/forms" as forms %}
 
 {% block content %}
-    <input type="hidden" name="action" value="commerce/productTypes/saveProductType">
+    <input type="hidden" name="action"
+           value="commerce/productTypes/saveProductType">
     <input type="hidden" name="redirect" value="commerce/settings/producttypes">
-    {% if productType.id %}<input type="hidden" name="productTypeId" value="{{ productType.id }}">{% endif %}
+    {% if productType.id %}<input type="hidden" name="productTypeId"
+                                  value="{{ productType.id }}">{% endif %}
 
     <div id="product-type-settings">
-    {{ forms.textField({
-        first: true,
-        label: "Name"|t,
-        instructions: "What this product type will be called in the CP."|t,
-        id: 'name',
-        name: 'name',
-        value: productType.name,
-        errors: productType.getErrors('name'),
-        autofocus: true,
-        required: true,
-        translatable: true
-    }) }}
-
-    {{ forms.textField({
-        label: "Handle"|t,
-        instructions: "How you’ll refer to this product type in the templates."|t,
-        id: 'handle',
-        class: 'code',
-        name: 'handle',
-        value: productType.handle,
-        errors: productType.getErrors('handle'),
-        required: true
-    }) }}
-
-    {{ forms.textField({
-        label: "Automatic SKU Format"|t,
-        instructions: "What the unique auto-generated SKUs should look like, when a SKU field is submitted without a value. You can include tags that output properties, such as {ex1} or {ex2}"|t({ ex1: '<code>{product.slug}</code>', ex2: '<code>{myVariantCustomField}</code>' }),
-        id: 'skuFormat',
-        class: 'code ltr',
-        name: 'skuFormat',
-        value: productType.skuFormat,
-        errors: productType.getErrors('skuFormat')
-    }) }}
-
-
-     {{ forms.textField({
-        label: "Order Description Format"|t,
-        instructions: "How this product will be described on a line item in an order. You can include tags that output properties, such as {ex1} or {ex2}"|t({ ex1: '<code>{product.title}</code>', ex2: '<code>{myVariantCustomField}</code>' }),
-        id: 'descriptionFormat',
-        class: 'code ltr',
-        name: 'descriptionFormat',
-        value: productType.descriptionFormat,
-        errors: productType.getErrors('descriptionFormat')
-    }) }}
-
-    {{ forms.multiSelectField({
-        label: 'Available Tax Categories'|t,
-        instructions: 'Choose the tax categories products of this type can belong to. Minimum of one required.'|t,
-        id: 'taxCategories',
-        name: 'taxCategories',
-		required: true,
-        errors: productType.getErrors('taxCategories'),
-        class: 'selectize fullwidth',
-    }) }}
-
-    {{ forms.multiSelectField({
-        label: 'Available Shipping Categories'|t,
-        instructions: 'Choose the shipping categories products of this type can belong to. Minimum of one required.'|t,
-        id: 'shippingCategories',
-        name: 'shippingCategories',
-		required: true,
-        errors: productType.getErrors('shippingCategories'),
-        class: 'selectize fullwidth',
-    }) }}
-
-    {{ forms.checkboxField({
-        label: "Show the Dimensions and Weight fields for products of this type"|t,
-        id: 'hasDimensions',
-        name: 'hasDimensions',
-        checked: productType.hasDimensions,
-    }) }}
-
-    {% macro hasVariantsField(productType) %}
-        {% from "_includes/forms" import checkboxField %}
-
-        {% set hasVariantsInstructions %}
-            {%- spaceless %}
-                {% if productType.id and productType.hasVariants %}
-                    <span class="error">{{ "Careful—your existing variant data will be deleted if you change this." }}</span>
-                {% endif %}
-            {% endspaceless -%}
-        {% endset %}
-
-        {{ checkboxField({
-            label: "Products of this type have multiple variants"|t,
-            instructions: hasVariantsInstructions,
-            id: 'hasVariants',
-            name: 'hasVariants',
-            checked: productType.hasVariants,
-            toggle: '#variant-settings'
+        {{ forms.textField({
+            first: true,
+            label: "Name"|t,
+            instructions: "What this product type will be called in the CP."|t,
+            id: 'name',
+            name: 'name',
+            value: productType.name,
+            errors: productType.getErrors('name'),
+            autofocus: true,
+            required: true,
+            translatable: true
         }) }}
-    {% endmacro %}
-
-    {% macro hasUrlsField(productType) %}
-        {% from "_includes/forms" import checkboxField %}
-
-        {{ checkboxField({
-            label: "Products of this type have their own URLs"|t,
-            id: 'hasUrls',
-            name: 'hasUrls',
-            checked: productType.hasUrls,
-            toggle: 'url-settings'
-        }) }}
-    {% endmacro %}
-
-
-    {% macro templateField(productType) %}
-        {% from "_includes/forms" import textField %}
-
-        {{ textField({
-            label: "Product Template"|t,
-            instructions: "The template to use when a product’s URL is requested."|t,
-            id: 'template',
-            class: 'ltr',
-            name: 'template',
-            value: productType.template,
-            errors: productType.getErrors('template')
-        }) }}
-    {% endmacro %}
-
-    {% macro titleFormatField(productType) %}
-        {% from "_includes/forms" import textField, checkboxField %}
-
-        <div id="variant-settings"{% if not productType.hasVariants %} class="hidden"{% endif %}>
-
-            {{ checkboxField({
-                label: "Show the Title field for variants"|t,
-                name: 'hasVariantTitleField',
-                reverseToggle: 'titleFormat-container',
-                checked: productType.hasVariantTitleField
-            }) }}
-
-            <div id="titleFormat-container"{% if productType.hasVariantTitleField %} class="hidden"{% endif %}>
-                {{ textField({
-                    label: "Variant Title Format"|t,
-                    instructions: "What the auto-generated variant titles should look like. You can include tags that output variant properties, such as {ex1} or {ex2}. All custom fields used must be set to required."|t({ ex1: '<code>{sku}</code>', ex2: '<code>{myVariantsCustomField}</code>' }),
-                    id: 'titleFormat',
-                    class: 'code ltr',
-                    name: 'titleFormat',
-                    value: productType.titleFormat,
-                    errors: productType.getErrors('titleFormat')
-                }) }}
-            </div>
-
-        </div>
-    {% endmacro %}
-
-
-    {% from _self import hasUrlsField, templateField, hasVariantsField, titleFormatField  %}
-
-    <hr>
-    {{ hasVariantsField(productType) }}
-
-    {{ titleFormatField(productType) }}
-    <hr>
-
-    {{ hasUrlsField(productType) }}
-
-
-    <div id="url-settings" class="nested-fields{% if not productType.hasUrls %} hidden{% endif %}">
-
-        {% macro urlFormatText(locale, productType, name, value) %}
-            {% from "_includes/forms" import text, errorList %}
-            {% set errors = productType.getErrors(name~'-'~locale.id) %}
-
-            <div class="input{% if errors %} errors{% endif %}">
-                {{ text({
-                    id: name~'-'~locale.id,
-                    class: 'code ltr',
-                    name: name~'['~locale.id~']',
-                    value: (value != '__home__' ? value : null),
-                    errors: errors
-                }) }}
-            </div>
-
-            {{ errorList(errors) }}
-        {% endmacro %}
-
-        {% set urlFormatInput %}
-            {% if craft.isLocalized() %}
-                <table class="data fullwidth">
-                    <tbody>
-                    {% for locale in craft.i18n.getSiteLocales() %}
-                        <tr>
-                            {% if craft.isLocalized() %}
-                                <th class="thin nowrap">{{ locale.id }}</th>
-                            {% endif %}
-                            <td class="topalign">
-                                {% set value = (productType.locales[locale.id] is defined ? productType.locales[locale.id].urlFormat : null) %}
-                                {{ _self.urlFormatText(locale, productType, 'urlFormat', value) }}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            {% else %}
-                {% set locale = craft.i18n.getPrimarySiteLocale() %}
-                {% set value = (productType.locales[locale.id] is defined ? productType.locales[locale.id].urlFormat : null) %}
-                {{ _self.urlFormatText(locale, productType, 'urlFormat', value) }}
-            {% endif %}
-        {% endset %}
-
-        {{ forms.field({
-            label: "Product URL Format"|t,
-            instructions: "What the product URLs should look like. You can include tags that output product properties, such as {ex1} or {ex2}."|t({ ex1: '<code>{slug}</code>', ex2: '<code>{publishDate|date(\"Y\")}</code>' }),
-        }, urlFormatInput) }}
 
         {{ forms.textField({
-            label: "Product Template"|t,
-            instructions: "The template to use when a product’s URL is requested."|t,
-            id: 'template',
-            class: 'ltr',
-            name: 'template',
-            value: productType.template,
-            errors: productType.getErrors('template')
+            label: "Handle"|t,
+            instructions: "How you’ll refer to this product type in the templates."|t,
+            id: 'handle',
+            class: 'code',
+            name: 'handle',
+            value: productType.handle,
+            errors: productType.getErrors('handle'),
+            required: true
         }) }}
-    </div>
+
+        {{ forms.textField({
+            label: "Automatic SKU Format"|t,
+            instructions: "What the unique auto-generated SKUs should look like, when a SKU field is submitted without a value. You can include tags that output properties, such as {ex1} or {ex2}"|t({ ex1: '<code>{product.slug}</code>', ex2: '<code>{myVariantCustomField}</code>' }),
+            id: 'skuFormat',
+            class: 'code ltr',
+            name: 'skuFormat',
+            value: productType.skuFormat,
+            errors: productType.getErrors('skuFormat')
+        }) }}
+
+
+        {{ forms.textField({
+            label: "Order Description Format"|t,
+            instructions: "How this product will be described on a line item in an order. You can include tags that output properties, such as {ex1} or {ex2}"|t({ ex1: '<code>{product.title}</code>', ex2: '<code>{myVariantCustomField}</code>' }),
+            id: 'descriptionFormat',
+            class: 'code ltr',
+            name: 'descriptionFormat',
+            value: productType.descriptionFormat,
+            errors: productType.getErrors('descriptionFormat')
+        }) }}
+
+        {{ forms.multiSelectField({
+            label: 'Available Tax Categories'|t,
+            instructions: 'Choose the tax categories products of this type can belong to. Minimum of one required.'|t,
+            id: 'taxCategories',
+            name: 'taxCategories',
+            required: true,
+            errors: productType.getErrors('taxCategories'),
+            class: 'selectize fullwidth',
+        }) }}
+
+        {{ forms.multiSelectField({
+            label: 'Available Shipping Categories'|t,
+            instructions: 'Choose the shipping categories products of this type can belong to. Minimum of one required.'|t,
+            id: 'shippingCategories',
+            name: 'shippingCategories',
+            required: true,
+            errors: productType.getErrors('shippingCategories'),
+            class: 'selectize fullwidth',
+        }) }}
+
+        {{ forms.checkboxField({
+            label: "Show the Dimensions and Weight fields for products of this type"|t,
+            id: 'hasDimensions',
+            name: 'hasDimensions',
+            checked: productType.hasDimensions,
+        }) }}
+
+        {% macro hasVariantsField(productType) %}
+            {% from "_includes/forms" import checkboxField %}
+
+            {% set hasVariantsInstructions %}
+                {%- spaceless %}
+                    {% if productType.id and productType.hasVariants %}
+                        <span class="error">{{ "Careful—your existing variant data will be deleted if you change this." }}</span>
+                    {% endif %}
+                {% endspaceless -%}
+            {% endset %}
+
+            {{ checkboxField({
+                label: "Products of this type have multiple variants"|t,
+                instructions: hasVariantsInstructions,
+                id: 'hasVariants',
+                name: 'hasVariants',
+                checked: productType.hasVariants,
+                toggle: '#variant-settings'
+            }) }}
+        {% endmacro %}
+
+        {% macro hasUrlsField(productType) %}
+            {% from "_includes/forms" import checkboxField %}
+
+            {{ checkboxField({
+                label: "Products of this type have their own URLs"|t,
+                id: 'hasUrls',
+                name: 'hasUrls',
+                checked: productType.hasUrls,
+                toggle: 'url-settings'
+            }) }}
+        {% endmacro %}
+
+
+        {% macro templateField(productType) %}
+            {% from "_includes/forms" import textField %}
+
+            {{ textField({
+                label: "Product Template"|t,
+                instructions: "The template to use when a product’s URL is requested."|t,
+                id: 'template',
+                class: 'ltr',
+                name: 'template',
+                value: productType.template,
+                errors: productType.getErrors('template')
+            }) }}
+        {% endmacro %}
+
+        {% macro titleFormatField(productType) %}
+            {% from "_includes/forms" import textField, checkboxField %}
+
+            <div id="variant-settings"{% if not productType.hasVariants %} class="hidden"{% endif %}>
+
+                {{ checkboxField({
+                    label: "Show the Title field for variants"|t,
+                    name: 'hasVariantTitleField',
+                    reverseToggle: 'titleFormat-container',
+                    checked: productType.hasVariantTitleField
+                }) }}
+
+                <div id="titleFormat-container"{% if productType.hasVariantTitleField %} class="hidden"{% endif %}>
+                    {{ textField({
+                        label: "Variant Title Format"|t,
+                        instructions: "What the auto-generated variant titles should look like. You can include tags that output variant properties, such as {ex1} or {ex2}. All custom fields used must be set to required."|t({ ex1: '<code>{sku}</code>', ex2: '<code>{myVariantsCustomField}</code>' }),
+                        id: 'titleFormat',
+                        class: 'code ltr',
+                        name: 'titleFormat',
+                        value: productType.titleFormat,
+                        errors: productType.getErrors('titleFormat')
+                    }) }}
+                </div>
+
+            </div>
+        {% endmacro %}
+
+
+        {% from _self import hasUrlsField, templateField, hasVariantsField, titleFormatField %}
+
+        <hr>
+        {{ hasVariantsField(productType) }}
+
+        {{ titleFormatField(productType) }}
+        <hr>
+
+        {{ hasUrlsField(productType) }}
+
+
+        <div id="url-settings"
+             class="nested-fields{% if not productType.hasUrls %} hidden{% endif %}">
+
+            {% macro urlFormatText(locale, productType, name, value) %}
+                {% from "_includes/forms" import text, errorList %}
+                {% set errors = productType.getErrors(name~'-'~locale.id) %}
+
+                <div class="input{% if errors %} errors{% endif %}">
+                    {{ text({
+                        id: name~'-'~locale.id,
+                        class: 'code ltr',
+                        name: name~'['~locale.id~']',
+                        value: (value != '__home__' ? value : null),
+                        errors: errors
+                    }) }}
+                </div>
+
+                {{ errorList(errors) }}
+            {% endmacro %}
+
+            {% set urlFormatInput %}
+                {% if craft.isLocalized() %}
+                    <table class="data fullwidth">
+                        <tbody>
+                        {% for locale in craft.i18n.getSiteLocales() %}
+                            <tr>
+                                {% if craft.isLocalized() %}
+                                    <th class="thin nowrap">{{ locale.id }}</th>
+                                {% endif %}
+                                <td class="topalign">
+                                    {% set value = (productType.locales[locale.id] is defined ? productType.locales[locale.id].urlFormat : null) %}
+                                    {{ _self.urlFormatText(locale, productType, 'urlFormat', value) }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    {% set locale = craft.i18n.getPrimarySiteLocale() %}
+                    {% set value = (productType.locales[locale.id] is defined ? productType.locales[locale.id].urlFormat : null) %}
+                    {{ _self.urlFormatText(locale, productType, 'urlFormat', value) }}
+                {% endif %}
+            {% endset %}
+
+            {{ forms.field({
+                label: "Product URL Format"|t,
+                instructions: "What the product URLs should look like. You can include tags that output product properties, such as {ex1} or {ex2}."|t({ ex1: '<code>{slug}</code>', ex2: '<code>{publishDate|date(\"Y\")}</code>' }),
+            }, urlFormatInput) }}
+
+            {{ forms.textField({
+                label: "Product Template"|t,
+                instructions: "The template to use when a product’s URL is requested."|t,
+                id: 'template',
+                class: 'ltr',
+                name: 'template',
+                value: productType.template,
+                errors: productType.getErrors('template')
+            }) }}
+        </div>
 
     </div>
 
     <div id="product-fields" class="hidden">
 
-    {% include "_includes/fieldlayoutdesigner" with {
-    fieldLayout: productType.asa('productFieldLayout').getFieldLayout(),
-    } only %}
+        {% include "_includes/fieldlayoutdesigner" with {
+        fieldLayout: productType.asa('productFieldLayout').getFieldLayout(),
+        } only %}
 
     </div>
 
     <div id="variant-fields" class="hidden">
 
-    {% namespace "variant-layout" %}
-    {% include "_includes/fieldlayoutdesigner" with {
+        {% namespace "variant-layout" %}
+        {% include "_includes/fieldlayoutdesigner" with {
         fieldLayout: productType.asa('variantFieldLayout').getFieldLayout(),
         customizableTabs: false
-    } only %}
-    {% endnamespace %}
+        } only %}
+        {% endnamespace %}
 
     </div>
 {% endblock %}
@@ -273,64 +276,64 @@
         {% endif %}
     {% endfor %}
 
-	$('#hasVariants').on('change', function () {
-		if ($(this).prop('checked')) {
-			$('#tab-variantFields').removeClass('hidden');
-		} else {
-			$('#tab-variantFields').addClass('hidden');
-		}
-	});
+$('#hasVariants').on('change', function () {
+if ($(this).prop('checked')) {
+$('#tab-variantFields').removeClass('hidden');
+} else {
+$('#tab-variantFields').addClass('hidden');
+}
+});
 
-	window.productTypeShippingCategories = JSON.parse('{{ productType.shippingCategories|keys|json_encode|raw }}');
-	window.shippingCategories = $.map(JSON.parse('{{ craft.commerce.shippingCategories|json_encode|raw }}'), function(value, index) { return [value] });
+window.productTypeShippingCategories = JSON.parse('{{ productType.shippingCategories|keys|json_encode|raw }}');
+window.shippingCategories = $.map(JSON.parse('{{ craft.commerce.shippingCategories|json_encode|raw }}'), function(value, index) { return [value] });
 
-	$.each(window.shippingCategories, function (key, shippingCategory) {
-		if (shippingCategory.default == 1) {
-			window.defaultShippingCategory = shippingCategory;
-		}
-	});
+$.each(window.shippingCategories, function (key, shippingCategory) {
+if (shippingCategory.default == 1) {
+window.defaultShippingCategory = shippingCategory;
+}
+});
 
-	$(function () {
-		var $shippingCategories = $('#shippingCategories').selectize({
-			options: window.shippingCategories,
-			items: window.productTypeShippingCategories,
-			valueField: 'id',
-			labelField: 'name',
-			plugins: ['remove_button'],
-			create: false,
-			dropdownParent: 'body',
-			onItemRemove: function () {
-				if (!$shippingCategories[0].selectize.items.length) {
-					$shippingCategories[0].selectize.addItem(window.defaultShippingCategory.id);
-				}
-			}
-		});
-	});
+$(function () {
+var $shippingCategories = $('#shippingCategories').selectize({
+options: window.shippingCategories,
+items: window.productTypeShippingCategories,
+valueField: 'id',
+labelField: 'name',
+plugins: ['remove_button'],
+create: false,
+dropdownParent: 'body',
+onItemRemove: function () {
+if (!$shippingCategories[0].selectize.items.length) {
+$shippingCategories[0].selectize.addItem(window.defaultShippingCategory.id);
+}
+}
+});
+});
 
-	window.productTypeTaxCategories = JSON.parse('{{ productType.taxCategories|keys|json_encode|raw }}');
-	window.taxCategories = $.map(JSON.parse('{{ craft.commerce.taxCategories|json_encode|raw }}'), function(value, index) { return [value] });
+window.productTypeTaxCategories = JSON.parse('{{ productType.taxCategories|keys|json_encode|raw }}');
+window.taxCategories = $.map(JSON.parse('{{ craft.commerce.taxCategories|json_encode|raw }}'), function(value, index) { return [value] });
 
-	$.each(window.taxCategories, function (key, taxCategory) {
-		if (taxCategory.default == 1) {
-			window.defaultTaxCategory = taxCategory;
-		}
-	});
+$.each(window.taxCategories, function (key, taxCategory) {
+if (taxCategory.default == 1) {
+window.defaultTaxCategory = taxCategory;
+}
+});
 
-	$(function () {
-		var $taxCategories = $('#taxCategories').selectize({
-			options: window.taxCategories,
-			items: window.productTypeTaxCategories,
-			valueField: 'id',
-			labelField: 'name',
-			plugins: ['remove_button'],
-			create: false,
-			dropdownParent: 'body',
-			onItemRemove: function () {
-				if (!$taxCategories[0].selectize.items.length) {
-					$taxCategories[0].selectize.addItem(window.defaultTaxCategory.id);
-				}
-			}
-		});
-	});
+$(function () {
+var $taxCategories = $('#taxCategories').selectize({
+options: window.taxCategories,
+items: window.productTypeTaxCategories,
+valueField: 'id',
+labelField: 'name',
+plugins: ['remove_button'],
+create: false,
+dropdownParent: 'body',
+onItemRemove: function () {
+if (!$taxCategories[0].selectize.items.length) {
+$taxCategories[0].selectize.addItem(window.defaultTaxCategory.id);
+}
+}
+});
+});
 
 {% endincludejs %}

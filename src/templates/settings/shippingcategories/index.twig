@@ -16,14 +16,19 @@
         </thead>
         <tbody>
         {% for shippingCategory in shippingCategories %}
-            <tr data-id="{{ shippingCategory.id }}" data-name="{{ shippingCategory.name }}">
+            <tr data-id="{{ shippingCategory.id }}"
+                data-name="{{ shippingCategory.name }}">
                 <th scope="row" data-title="{{ 'Name'|t }}"><a
                             href="{{ url('commerce/settings/shippingcategories/'~shippingCategory.id) }}">{{ shippingCategory.name }}</a>
                 </th>
-                <td data-title="{{ 'Handle'|t }}" class="code">{{ shippingCategory.handle }}</td>
+                <td data-title="{{ 'Handle'|t }}"
+                    class="code">{{ shippingCategory.handle }}</td>
                 <td data-title="{{ 'Description'|t }}">{{ shippingCategory.description }}</td>
-                <td data-title="{{ 'Default?'|t }}">{% if shippingCategory.default %}<span data-icon="check" title="{{ 'Yes'|t }}"></span>{% endif %}</td>
-                <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
+                <td data-title="{{ 'Default?'|t }}">{% if shippingCategory.default %}
+                        <span data-icon="check"
+                              title="{{ 'Yes'|t }}"></span>{% endif %}</td>
+                <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}"
+                                    role="button"></a></td>
             </tr>
         {% endfor %}
 
@@ -31,7 +36,8 @@
     </table>
 
     <div class="buttons">
-        <a href="{{ url('commerce/settings/shippingcategories/new') }}" class="btn submit add icon">{{ 'New shipping category'|t }}</a>
+        <a href="{{ url('commerce/settings/shippingcategories/new') }}"
+           class="btn submit add icon">{{ 'New shipping category'|t }}</a>
     </div>
 {% endblock %}
 

@@ -9,32 +9,38 @@
     </div>
 
     {% if countries|length %}
-    <table id="countries" class="data fullwidth collapsible">
-        <thead>
-        <tr>
-            <th scope="col">{{ 'Name'|t }}</th>
-            <th scope="col">{{ 'Country Code'|t }}</th>
-            <th scope="col">{{ 'State Required?'|t }}</th>
-            <td class="thin"></td>
-        </tr>
-        </thead>
-        <tbody>
-        {% for country in countries %}
-            <tr data-id="{{ country.id }}" data-name="{{ country.name }}">
-                <th scope="row" data-title="{{ 'Name'|t }}"><a
-                            href="{{ url('commerce/settings/countries/'~country.id) }}">{{ country.name }}</a></th>
-                <td data-title="{{ 'ISO'|t }}">{{ country.iso }}</td>
-                <td data-title="{{ 'State Required?'|t }}">{% if country.stateRequired %}<span data-icon="check" title="{{ 'Yes'|t }}"></span>{% endif %}</td>
-                <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
+        <table id="countries" class="data fullwidth collapsible">
+            <thead>
+            <tr>
+                <th scope="col">{{ 'Name'|t }}</th>
+                <th scope="col">{{ 'Country Code'|t }}</th>
+                <th scope="col">{{ 'State Required?'|t }}</th>
+                <td class="thin"></td>
             </tr>
-        {% endfor %}
+            </thead>
+            <tbody>
+            {% for country in countries %}
+                <tr data-id="{{ country.id }}" data-name="{{ country.name }}">
+                    <th scope="row" data-title="{{ 'Name'|t }}"><a
+                                href="{{ url('commerce/settings/countries/'~country.id) }}">{{ country.name }}</a>
+                    </th>
+                    <td data-title="{{ 'ISO'|t }}">{{ country.iso }}</td>
+                    <td data-title="{{ 'State Required?'|t }}">{% if country.stateRequired %}
+                            <span data-icon="check"
+                                  title="{{ 'Yes'|t }}"></span>{% endif %}</td>
+                    <td class="thin"><a class="delete icon"
+                                        title="{{ 'Delete'|t }}"
+                                        role="button"></a></td>
+                </tr>
+            {% endfor %}
 
-        </tbody>
-    </table>
+            </tbody>
+        </table>
     {% endif %}
 
     <div class="buttons">
-        <a href="{{ url('commerce/settings/countries/new') }}" class="btn submit add icon">{{ 'New country'|t }}</a>
+        <a href="{{ url('commerce/settings/countries/new') }}"
+           class="btn submit add icon">{{ 'New country'|t }}</a>
     </div>
 {% endblock %}
 

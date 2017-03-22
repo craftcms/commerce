@@ -8,37 +8,49 @@
     </div>
 
     {% if taxRates|length %}
-    <table id="tax-rates" class="data fullwidth collapsible">
-        <thead>
-        <tr>
-            <th scope="col">{{ 'Name'|t }}</th>
-            <th scope="col">{{ 'Rate'|t }}</th>
-            <th scope="col">{{ 'Include in Price?'|t }}</th>
-            <th scope="col">{{ 'Is Vat?'|t }}</th>
-            <th scope="col">{{ 'Tax Zone'|t }}</th>
-            <th scope="col">{{ 'Tax Category'|t }}</th>
-            <td class="thin"></td>
-        </tr>
-        </thead>
-        <tbody>
-        {% for taxRate in taxRates %}
-            <tr data-id="{{ taxRate.id }}" data-name="{{ taxRate.name }}">
-                <th scope="row" data-title="{{ 'Name'|t }}"><a
-                            href="{{ url('commerce/settings/taxrates/'~taxRate.id) }}">{{ taxRate.name }}</a></th>
-                <td data-title="{{ 'Rate'|t }}">{{ taxRate.rateAsPercent }}</td>
-                <td data-title="{{ 'Include in Price?'|t }}">{% if taxRate.include %}<span data-icon="check" title="{{ 'Yes'|t }}"></span>{% endif %}</td>
-                <td data-title="{{ 'Is Vat?'|t }}">{% if taxRate.isVat %}<span data-icon="check" title="{{ 'Yes'|t }}"></span>{% endif %}</td>
-                <td data-title="{{ 'Tax Zone'|t }}"><a href="{{ taxRate.taxZone.cpEditUrl}}">{{ taxRate.taxZone.name }}</a></td>
-                <td data-title="{{ 'Tax Category'|t }}"><a href="{{ taxRate.taxCategory.cpEditUrl}}">{{ taxRate.taxCategory.name }}</a></td>
-                <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
+        <table id="tax-rates" class="data fullwidth collapsible">
+            <thead>
+            <tr>
+                <th scope="col">{{ 'Name'|t }}</th>
+                <th scope="col">{{ 'Rate'|t }}</th>
+                <th scope="col">{{ 'Include in Price?'|t }}</th>
+                <th scope="col">{{ 'Is Vat?'|t }}</th>
+                <th scope="col">{{ 'Tax Zone'|t }}</th>
+                <th scope="col">{{ 'Tax Category'|t }}</th>
+                <td class="thin"></td>
             </tr>
-        {% endfor %}
+            </thead>
+            <tbody>
+            {% for taxRate in taxRates %}
+                <tr data-id="{{ taxRate.id }}" data-name="{{ taxRate.name }}">
+                    <th scope="row" data-title="{{ 'Name'|t }}"><a
+                                href="{{ url('commerce/settings/taxrates/'~taxRate.id) }}">{{ taxRate.name }}</a>
+                    </th>
+                    <td data-title="{{ 'Rate'|t }}">{{ taxRate.rateAsPercent }}</td>
+                    <td data-title="{{ 'Include in Price?'|t }}">{% if taxRate.include %}
+                            <span data-icon="check"
+                                  title="{{ 'Yes'|t }}"></span>{% endif %}</td>
+                    <td data-title="{{ 'Is Vat?'|t }}">{% if taxRate.isVat %}
+                            <span data-icon="check"
+                                  title="{{ 'Yes'|t }}"></span>{% endif %}</td>
+                    <td data-title="{{ 'Tax Zone'|t }}"><a
+                                href="{{ taxRate.taxZone.cpEditUrl }}">{{ taxRate.taxZone.name }}</a>
+                    </td>
+                    <td data-title="{{ 'Tax Category'|t }}"><a
+                                href="{{ taxRate.taxCategory.cpEditUrl }}">{{ taxRate.taxCategory.name }}</a>
+                    </td>
+                    <td class="thin"><a class="delete icon"
+                                        title="{{ 'Delete'|t }}"
+                                        role="button"></a></td>
+                </tr>
+            {% endfor %}
 
-        </tbody>
-    </table>
+            </tbody>
+        </table>
     {% endif %}
     <div class="buttons">
-        <a href="{{ url('commerce/settings/taxrates/new') }}" class="btn submit add icon">{{ 'New tax rate'|t }}</a>
+        <a href="{{ url('commerce/settings/taxrates/new') }}"
+           class="btn submit add icon">{{ 'New tax rate'|t }}</a>
     </div>
 {% endblock %}
 

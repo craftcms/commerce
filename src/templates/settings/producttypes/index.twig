@@ -8,33 +8,40 @@
     </div>
 
     {% if productTypes|length %}
-    <table id="producttypes" class="data fullwidth collapsible">
-        <thead>
-        <tr>
-            <th scope="col">{{ "Name"|t }}</th>
-            <th scope="col">{{ "Handle"|t }}</th>
-            <th scope="col">{{ "Has Variants?"|t }}</th>
-            <td class="thin"></td>
-        </tr>
-        </thead>
-        <tbody>
-        {% for productType in productTypes %}
-            <tr data-id="{{ productType.id }}" data-name="{{ productType.name }}">
-                <th scope="row" data-title="{{ 'Name'|t }}"><a
-                            href="{{ url('commerce/settings/producttypes/'~productType.id) }}">{{ productType.name }}</a>
-                </th>
-                <td data-title="{{ 'Handle'|t }}" class="code">{{ productType.handle }}</td>
-                <td data-title="{{ 'Has Variants?'|t }}">{% if productType.hasVariants %}<span data-icon="check" title="{{ 'Yes'|t }}"></span>{% endif %}</td>
-                <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
+        <table id="producttypes" class="data fullwidth collapsible">
+            <thead>
+            <tr>
+                <th scope="col">{{ "Name"|t }}</th>
+                <th scope="col">{{ "Handle"|t }}</th>
+                <th scope="col">{{ "Has Variants?"|t }}</th>
+                <td class="thin"></td>
             </tr>
-        {% endfor %}
+            </thead>
+            <tbody>
+            {% for productType in productTypes %}
+                <tr data-id="{{ productType.id }}"
+                    data-name="{{ productType.name }}">
+                    <th scope="row" data-title="{{ 'Name'|t }}"><a
+                                href="{{ url('commerce/settings/producttypes/'~productType.id) }}">{{ productType.name }}</a>
+                    </th>
+                    <td data-title="{{ 'Handle'|t }}"
+                        class="code">{{ productType.handle }}</td>
+                    <td data-title="{{ 'Has Variants?'|t }}">{% if productType.hasVariants %}
+                            <span data-icon="check"
+                                  title="{{ 'Yes'|t }}"></span>{% endif %}</td>
+                    <td class="thin"><a class="delete icon"
+                                        title="{{ 'Delete'|t }}"
+                                        role="button"></a></td>
+                </tr>
+            {% endfor %}
 
-        </tbody>
-    </table>
+            </tbody>
+        </table>
     {% endif %}
 
     <div class="buttons">
-        <a href="{{ url('commerce/settings/producttypes/new') }}" class="btn submit add icon">{{ 'New product type'|t }}</a>
+        <a href="{{ url('commerce/settings/producttypes/new') }}"
+           class="btn submit add icon">{{ 'New product type'|t }}</a>
     </div>
 {% endblock %}
 

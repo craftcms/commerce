@@ -8,16 +8,22 @@
         </div>
         <div class="input ltr">
 
-            <input type="hidden" class="status-input" name="orderStatusId" value="{{ settings.orderStatusId }}" />
+            <input type="hidden" class="status-input" name="orderStatusId"
+                   value="{{ settings.orderStatusId }}"/>
 
-            <a class="btn menubtn"><span class="status"></span> {{ "All"|t }}</a>
+            <a class="btn menubtn"><span class="status"></span> {{ "All"|t }}
+            </a>
 
             <div class="menu">
                 <ul class="padded">
-                    <li><a><span class="commerceStatusLabel"><span class="status"></span> {{ "All"|t }}</span></a></li>
+                    <li><a><span class="commerceStatusLabel"><span
+                                        class="status"></span> {{ "All"|t }}</span></a>
+                    </li>
 
                     {% for status in orderStatuses %}
-                        <li><a data-id="{{ status.id }}">{{ status.htmlLabel()|raw }}</a></li>
+                        <li>
+                            <a data-id="{{ status.id }}">{{ status.htmlLabel()|raw }}</a>
+                        </li>
                     {% endfor %}
                 </ul>
             </div>

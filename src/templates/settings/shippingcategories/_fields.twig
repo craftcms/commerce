@@ -46,6 +46,6 @@
     {% set nameId = 'name'|namespaceInputId|e('js') %}
     {% set handleId = 'handle'|namespaceInputId|e('js') %}
     {% includejs %}
-        new Craft.HandleGenerator('#{{ nameId }}', '#{{ handleId }}');
+    new Craft.HandleGenerator('#{{ nameId }}', '#{{ handleId }}');
     {% endincludejs %}
 {% endif %}

@@ -12,7 +12,8 @@
 {% block content %}
     <input type="hidden" name="id" value="{{ paymentMethod.id }}">
     <input type="hidden" name="action" value="commerce/paymentMethods/save">
-    <input type="hidden" name="redirect" value="commerce/settings/paymentmethods">
+    <input type="hidden" name="redirect"
+           value="commerce/settings/paymentmethods">
 
     {{ forms.textField({
         label: 'Name'|t,
@@ -47,10 +48,12 @@
         errors: paymentMethod.getErrors('class'),
     }) }}
 
-    <input type="hidden" name="paymentMethodClass" value="{{ paymentMethod.class }}">
+    <input type="hidden" name="paymentMethodClass"
+           value="{{ paymentMethod.class }}">
 
     {% for gateway in gateways %}
-        <div class="gateway-settings" id="gateway-{{ gateway.handle }}" data-name="{{ gateway.displayName }}">
+        <div class="gateway-settings" id="gateway-{{ gateway.handle }}"
+             data-name="{{ gateway.displayName }}">
             {{ gateway.getSettingsHtml(paymentMethod)|raw }}
         </div>
     {% endfor %}
@@ -68,14 +71,14 @@
 
 {% includejs %}
 {#<script>#}
-    $(function() {
-        $('#class').change(function() {
-            $('.gateway-settings').hide().find('select, input, textarea').prop('disabled', true);
-            if($(this).val()) {
-                $('#gateway-' + $(this).val()).show().find('select, input, textarea').prop('disabled', false);
-            }
-        }).change();
+$(function() {
+$('#class').change(function() {
+$('.gateway-settings').hide().find('select, input, textarea').prop('disabled', true);
+if($(this).val()) {
+$('#gateway-' + $(this).val()).show().find('select, input, textarea').prop('disabled', false);
+}
+}).change();
 
-    });
+});
 {#</script>#}
 {% endincludejs %}

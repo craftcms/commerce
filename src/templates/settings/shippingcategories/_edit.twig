@@ -11,7 +11,9 @@
 
 {% block content %}
     <input type="hidden" name="action" value="commerce/shippingCategories/save">
-    <input type="hidden" name="redirect" value="commerce/settings/shippingcategories">
-    {% if shippingCategory.id %}<input type="hidden" name="shippingCategoryId" value="{{ shippingCategory.id }}">{% endif %}
+    <input type="hidden" name="redirect"
+           value="commerce/settings/shippingcategories">
+    {% if shippingCategory.id %}<input type="hidden" name="shippingCategoryId"
+                                       value="{{ shippingCategory.id }}">{% endif %}
     {% include "commerce/settings/shippingcategories/_fields" %}
 {% endblock %}

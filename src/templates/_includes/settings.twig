@@ -1,6 +1,7 @@
 {% macro indexInlineList(things) %}
-	{{ things|slice(0, 3)|join(', ') }}
-	{%- if things|length > 3 -%}
-		, <a onclick="jQuery(this).replaceWith('{{ things|slice(3)|join(', ')|e('js') }}')">{{ "{number} more…"|t({ number: things|length - 3 }) }}</a>
-	{% endif %}
+    {{ things|slice(0, 3)|join(', ') }}
+    {%- if things|length > 3 -%}
+        , <a
+            onclick="jQuery(this).replaceWith('{{ things|slice(3)|join(', ')|e('js') }}')">{{ "{number} more…"|t({ number: things|length - 3 }) }}</a>
+    {% endif %}
 {% endmacro %}

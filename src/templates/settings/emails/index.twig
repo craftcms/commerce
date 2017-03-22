@@ -9,46 +9,49 @@
     </div>
 
     {% if emails|length %}
-    <table id="emails" class="data fullwidth collapsible">
-        <thead>
-        <tr>
-            <th scope="col">{{ "Name"|t }}</th>
-            <th scope="col">{{ "Subject"|t }}</th>
-            <th scope="col">{{ "To"|t }}</th>
-            <th scope="col">{{ "Bcc"|t }}</th>
-            <th scope="col">{{ "Template Path"|t }}</th>
-            <td class="thin"></td>
-        </tr>
-        </thead>
-        <tbody>
-        {% for email in emails %}
-            <tr data-id="{{ email.id }}" data-name="{{ email.name }}">
-                <th scope="row" data-title="{{ 'Name'|t }}">
-                    {% if email.enabled %}
-                        <span class="status green"></span>
-                    {% else %}
-                        <span class="status"></span>
-                    {% endif %}
-                    <a href="{{ url('commerce/settings/emails/'~email.id) }}">{{ email.name }}</a>
-                </th>
-                <td data-title="{{ 'Subject'|t }}">{{ email.subject }}</td>
-                {% if email.recipientType == 'custom' %}
-                <td data-title="{{ 'To'|t }}">{{ email.to }}</td>
-                {% else %}
-                <td data-title="{{ 'To'|t }}">{{ 'Customer' }}</td>
-                {% endif %}
-                <td data-title="{{ 'Bcc'|t }}">{{ email.bcc }}</td>
-                <td data-title="{{ 'Template Path'|t }}">{{ email.templatePath }}</td>
-                <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
+        <table id="emails" class="data fullwidth collapsible">
+            <thead>
+            <tr>
+                <th scope="col">{{ "Name"|t }}</th>
+                <th scope="col">{{ "Subject"|t }}</th>
+                <th scope="col">{{ "To"|t }}</th>
+                <th scope="col">{{ "Bcc"|t }}</th>
+                <th scope="col">{{ "Template Path"|t }}</th>
+                <td class="thin"></td>
             </tr>
-        {% endfor %}
+            </thead>
+            <tbody>
+            {% for email in emails %}
+                <tr data-id="{{ email.id }}" data-name="{{ email.name }}">
+                    <th scope="row" data-title="{{ 'Name'|t }}">
+                        {% if email.enabled %}
+                            <span class="status green"></span>
+                        {% else %}
+                            <span class="status"></span>
+                        {% endif %}
+                        <a href="{{ url('commerce/settings/emails/'~email.id) }}">{{ email.name }}</a>
+                    </th>
+                    <td data-title="{{ 'Subject'|t }}">{{ email.subject }}</td>
+                    {% if email.recipientType == 'custom' %}
+                        <td data-title="{{ 'To'|t }}">{{ email.to }}</td>
+                    {% else %}
+                        <td data-title="{{ 'To'|t }}">{{ 'Customer' }}</td>
+                    {% endif %}
+                    <td data-title="{{ 'Bcc'|t }}">{{ email.bcc }}</td>
+                    <td data-title="{{ 'Template Path'|t }}">{{ email.templatePath }}</td>
+                    <td class="thin"><a class="delete icon"
+                                        title="{{ 'Delete'|t }}"
+                                        role="button"></a></td>
+                </tr>
+            {% endfor %}
 
-        </tbody>
-    </table>
+            </tbody>
+        </table>
     {% endif %}
 
     <div class="buttons">
-        <a href="{{ url('commerce/settings/emails/new') }}" class="btn submit add icon">{{ 'New email'|t }}</a>
+        <a href="{{ url('commerce/settings/emails/new') }}"
+           class="btn submit add icon">{{ 'New email'|t }}</a>
     </div>
 {% endblock %}
 

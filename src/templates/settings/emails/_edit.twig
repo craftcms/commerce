@@ -12,7 +12,8 @@
 {% block content %}
     <input type="hidden" name="action" value="commerce/emails/save">
     <input type="hidden" name="redirect" value="commerce/settings/emails">
-    {% if email.id %}<input type="hidden" name="emailId" value="{{ email.id }}">{% endif %}
+    {% if email.id %}<input type="hidden" name="emailId"
+                            value="{{ email.id }}">{% endif %}
 
     {{ forms.textField({
         first: true,
@@ -43,15 +44,16 @@
                     id: 'recipient-type',
                     name: 'recipientType',
                     options: [
-                        { label: "Send to the customer"|t, value: 'customer' },
-                        { label: "Send to custom recipients"|t, value: 'custom' }
+                    { label: "Send to the customer"|t, value: 'customer' },
+                    { label: "Send to custom recipients"|t, value: 'custom' }
                     ],
                     value: email.recipientType,
                     toggle: true,
                     targetPrefix: 'to-option-'
                 }) }}
             </div>
-            <div id="to-option-custom" class="flex-grow{% if email.recipientType != 'custom' %} hidden{% endif %}">
+            <div id="to-option-custom"
+                 class="flex-grow{% if email.recipientType != 'custom' %} hidden{% endif %}">
                 {{ forms.text({
                     id: 'to',
                     name: 'to',

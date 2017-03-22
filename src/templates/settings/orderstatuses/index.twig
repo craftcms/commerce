@@ -4,60 +4,70 @@
 
 
 {% block content %}
-        <h2>{{ "Order Statuses"|t }}</h2>
-        <p>{{ "Define the statuses that can be set on orders once they’ve been completed."|t }}</p>
+    <h2>{{ "Order Statuses"|t }}</h2>
+    <p>{{ "Define the statuses that can be set on orders once they’ve been completed."|t }}</p>
 
-        <table id="order-statuses" class="data fullwidth collapsible">
-            <thead>
-            <tr>
-                <th scope="col">{{ "Name"|t }}</th>
-                <th scope="col">{{ "Handle"|t }}</th>
-                <th scope="col">{{ "Has Emails?"|t }}</th>
-                <th scope="col">{{ "Default Status?"|t }}</th>
-                <td class="thin"></td>
-                <td class="thin"></td>
-            </tr>
-            </thead>
-            <tbody>
-            {% for orderStatus in orderStatuses %}
-                <tr data-id="{{ orderStatus.id }}" data-name="{{ orderStatus.handle }}">
-                    <th scope="row" data-title="{{ 'Name'|t }}"><a href="{{ orderStatus.getCpEditUrl() }}">{{ orderStatus.htmlLabel|raw }}</a></th>
-                    <td data-title="{{ 'Handle'|t }}" class="code">{{ orderStatus.handle }}</td>
-                    <td data-title="{{ 'Emails'|t }}">
-                        {% if orderStatus.emails | length %}
-                            {{ orderStatus.emails | length }}
-                        {% endif %}
-                    </td>
-                    <td>{% if orderStatus.default %}<span data-icon="check" title="{{ 'Yes'|t }}"></span>{% endif %}</td>
-                    {% set orderExists = craft.commerce.orders.orderStatusId(orderStatus.id).first() %}
-                    <td class="thin">
-                        <a class="move icon disabled" title="{{ 'Delete'|t }}" role="button"></a>
-                    </td>
-                    {% if not orderExists | length %}
-                        <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
-                    {% else %}
-                        <td class="thin"></td>
+    <table id="order-statuses" class="data fullwidth collapsible">
+        <thead>
+        <tr>
+            <th scope="col">{{ "Name"|t }}</th>
+            <th scope="col">{{ "Handle"|t }}</th>
+            <th scope="col">{{ "Has Emails?"|t }}</th>
+            <th scope="col">{{ "Default Status?"|t }}</th>
+            <td class="thin"></td>
+            <td class="thin"></td>
+        </tr>
+        </thead>
+        <tbody>
+        {% for orderStatus in orderStatuses %}
+            <tr data-id="{{ orderStatus.id }}"
+                data-name="{{ orderStatus.handle }}">
+                <th scope="row" data-title="{{ 'Name'|t }}"><a
+                            href="{{ orderStatus.getCpEditUrl() }}">{{ orderStatus.htmlLabel|raw }}</a>
+                </th>
+                <td data-title="{{ 'Handle'|t }}"
+                    class="code">{{ orderStatus.handle }}</td>
+                <td data-title="{{ 'Emails'|t }}">
+                    {% if orderStatus.emails | length %}
+                        {{ orderStatus.emails | length }}
                     {% endif %}
-                </tr>
-            {% endfor %}
+                </td>
+                <td>{% if orderStatus.default %}<span data-icon="check"
+                                                      title="{{ 'Yes'|t }}"></span>{% endif %}
+                </td>
+                {% set orderExists = craft.commerce.orders.orderStatusId(orderStatus.id).first() %}
+                <td class="thin">
+                    <a class="move icon disabled" title="{{ 'Delete'|t }}"
+                       role="button"></a>
+                </td>
+                {% if not orderExists | length %}
+                    <td class="thin"><a class="delete icon"
+                                        title="{{ 'Delete'|t }}"
+                                        role="button"></a></td>
+                {% else %}
+                    <td class="thin"></td>
+                {% endif %}
+            </tr>
+        {% endfor %}
 
-            </tbody>
-        </table>
+        </tbody>
+    </table>
 
-        <div class="buttons">
-            <a href="{{ url('commerce/settings/orderstatuses/new') }}" class="btn submit add icon">{{ 'New order status'|t }}</a>
-        </div>
+    <div class="buttons">
+        <a href="{{ url('commerce/settings/orderstatuses/new') }}"
+           class="btn submit add icon">{{ 'New order status'|t }}</a>
+    </div>
 {% endblock %}
 
 
 {% includejs %}
-    new Craft.AdminTable({
-        tableSelector: '#order-statuses',
-        deleteAction: 'commerce/orderStatuses/delete',
-        minObjects: 1,
-        sortable: true,
-        reorderAction: 'commerce/orderStatuses/reorder',
-        reorderSuccessMessage: Craft.t('Order statuses reordered.'),
-        reorderFailMessage:    Craft.t('Couldn’t reorder statuses.')
-    });
+new Craft.AdminTable({
+tableSelector: '#order-statuses',
+deleteAction: 'commerce/orderStatuses/delete',
+minObjects: 1,
+sortable: true,
+reorderAction: 'commerce/orderStatuses/reorder',
+reorderSuccessMessage: Craft.t('Order statuses reordered.'),
+reorderFailMessage:    Craft.t('Couldn’t reorder statuses.')
+});
 {% endincludejs %}

@@ -3,106 +3,109 @@
 {% set currentYear = date()|date_modify("+1 year").format('Y') %}
 
 <div id="payment-method-{{ paymentMethod.id }}-form"
-	 class="payment-method-form {% if order and order.paymentMethodId != paymentMethod.id %}hidden{% endif %}"
-	 xmlns="http://www.w3.org/1999/html">
-	<form method="POST" data-publishablekey="{{ paymentMethod.settings.publishableKey ?? '' }}">
-		<input type="hidden" name="action" value="commerce/payments/pay"/>
-		{% if order %}
-			<input type="hidden" name="redirect" value="{{ order.cpEditUrl }}"/>
-			<input type="hidden" name="cancelUrl" value="{{ order.cpEditUrl }}"/>
-			<input type="hidden" name="orderNumber" value="{{ order.number }}"/>
-		{% endif %}
-		<input type="hidden" name="paymentMethodId"
-			   value="{{ paymentMethod.id }}"/>
+     class="payment-method-form {% if order and order.paymentMethodId != paymentMethod.id %}hidden{% endif %}"
+     xmlns="http://www.w3.org/1999/html">
+    <form method="POST"
+          data-publishablekey="{{ paymentMethod.settings.publishableKey ?? '' }}">
+        <input type="hidden" name="action" value="commerce/payments/pay"/>
+        {% if order %}
+            <input type="hidden" name="redirect" value="{{ order.cpEditUrl }}"/>
+            <input type="hidden" name="cancelUrl"
+                   value="{{ order.cpEditUrl }}"/>
+            <input type="hidden" name="orderNumber" value="{{ order.number }}"/>
+        {% endif %}
+        <input type="hidden" name="paymentMethodId"
+               value="{{ paymentMethod.id }}"/>
 
-		{{ getCsrfInput() }}
+        {{ getCsrfInput() }}
 
-		{% include "commerce/_gateways/_paymentforms/_creditCardFields" %}
+        {% include "commerce/_gateways/_paymentforms/_creditCardFields" %}
 
-		<div class="footer">
-			<div class="buttons right">
-				<input type="submit" class="btn submit"
-					   value="Pay {{ order.totalPrice|currency(order.currency,true) }} Now">
-			</div>
-		</div>
+        <div class="footer">
+            <div class="buttons right">
+                <input type="submit" class="btn submit"
+                       value="Pay {{ order.totalPrice|currency(order.currency,true) }} Now">
+            </div>
+        </div>
 
-		{% includejs %}
+        {% includejs %}
 
-			$("#payment-method-{{ paymentMethod.id }}-form form:first").on('submit', function (e)
-			{
-				e.preventDefault();
-				$('.error', $form).removeClass('error');
+        $("#payment-method-{{ paymentMethod.id }}-form form:first").on('submit',
+        function (e)
+        {
+        e.preventDefault();
+        $('.error', $form).removeClass('error');
 
-				var $form = $(this);
-				var publishableKey = $form.data('publishablekey');
+        var $form = $(this);
+        var publishableKey = $form.data('publishablekey');
 
-				Stripe.setPublishableKey(publishableKey);
+        Stripe.setPublishableKey(publishableKey);
 
-				var $ccNumInput = $('[name=number]', $form),
-					$ccCvcInput = $('[name=cvv]', $form),
-					$ccExpInput = $('[name=expiry]', $form);
+        var $ccNumInput = $('[name=number]', $form),
+        $ccCvcInput = $('[name=cvv]', $form),
+        $ccExpInput = $('[name=expiry]', $form);
 
-				var ccData = {
-					number: $ccNumInput.val(),
-					cvc: $ccCvcInput.val(),
-					expiry: $ccExpInput.val(),
-				};
+        var ccData = {
+        number: $ccNumInput.val(),
+        cvc: $ccCvcInput.val(),
+        expiry: $ccExpInput.val(),
+        };
 
-				$ccNumInput.payment('formatCardNumber');
-				$ccExpInput.payment('formatCardExpiry');
-				$ccCvcInput.payment('formatCardCVC');
+        $ccNumInput.payment('formatCardNumber');
+        $ccExpInput.payment('formatCardExpiry');
+        $ccCvcInput.payment('formatCardCVC');
 
-				var validates = true;
+        var validates = true;
 
-				if (!Stripe.validateCardNumber(ccData.number))
-				{
-					validates = false;
-					$ccNumInput.addClass('error');
-				}
+        if (!Stripe.validateCardNumber(ccData.number))
+        {
+        validates = false;
+        $ccNumInput.addClass('error');
+        }
 
-				if (!Stripe.validateCVC(ccData.cvc))
-				{
-					validates = false;
-					$ccCvcInput.addClass('error');
-				}
+        if (!Stripe.validateCVC(ccData.cvc))
+        {
+        validates = false;
+        $ccCvcInput.addClass('error');
+        }
 
-				if (!Stripe.validateExpiry(ccData.expiry))
-				{
-					validates = false;
-					$ccExpInput.addClass('error');
-				}
+        if (!Stripe.validateExpiry(ccData.expiry))
+        {
+        validates = false;
+        $ccExpInput.addClass('error');
+        }
 
-				if(validates)
-				{
-					Stripe.card.createToken({
-							number: ccData.number,
-							cvc: ccData.cvc,
-							exp: ccData.expiry
-						},
-						function (status, response)
-						{
-							if (response.error)
-							{
-								Garnish.shake($('.modal'));
-								alert(response.error.message);
-							}
-							else
-							{
-								var token = response.id;
-								$form.find('input[name="number"]').removeAttr("name")
-								$form.find('input[name="cvv"]').removeAttr("name");
-								$form.append($('<input type="hidden" name="stripeToken" />').val(token));
-								$form.get(0).submit();
-							}
-						}
-					);
-				}
-				else
-				{
-					Garnish.shake($('.modal'));
-				}
-			});
-		{% endincludejs %}
+        if(validates)
+        {
+        Stripe.card.createToken({
+        number: ccData.number,
+        cvc: ccData.cvc,
+        exp: ccData.expiry
+        },
+        function (status, response)
+        {
+        if (response.error)
+        {
+        Garnish.shake($('.modal'));
+        alert(response.error.message);
+        }
+        else
+        {
+        var token = response.id;
+        $form.find('input[name="number"]').removeAttr("name")
+        $form.find('input[name="cvv"]').removeAttr("name");
+        $form.append($('<input type="hidden" name="stripeToken"/>').val(token));
+        $form.get(0).submit();
+        }
+        }
+        );
+        }
+        else
+        {
+        Garnish.shake($('.modal'));
+        }
+        });
+        {% endincludejs %}
 
-	</form>
+    </form>
 </div>

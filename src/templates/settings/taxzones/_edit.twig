@@ -12,6 +12,7 @@
 {% block content %}
     <input type="hidden" name="action" value="commerce/taxZones/save">
     <input type="hidden" name="redirect" value="commerce/settings/taxzones">
-    {% if taxZone.id %}<input type="hidden" name="taxZoneId" value="{{ taxZone.id }}">{% endif %}
+    {% if taxZone.id %}<input type="hidden" name="taxZoneId"
+                              value="{{ taxZone.id }}">{% endif %}
     {% include "commerce/settings/taxzones/_fields" %}
 {% endblock %}

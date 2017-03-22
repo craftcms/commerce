@@ -13,409 +13,437 @@
 
 
 {% block main %}
-	<div class="pane">
-	<div class="order-header">
-	<div class="order-info">
+    <div class="pane">
+        <div class="order-header">
+            <div class="order-info">
 
-		<div class="order-info-box">
-			<table class="fullwidth data borderless">
-				<tr>
-					<td><strong>{{ "Reference"|t }}</strong></td>
-					<td>
-						<span title="{{ "Full Reference Number"|t }}: {{ order.number }}">{{ order.shortNumber }}</span>
-					</td>
-				</tr>
-				<tr>
-					<td><strong>{{ "Customer"|t }}</strong></td>
-					<td>{% if order.customer.user %}<a
-							href="{{ order.customer.user.cpEditUrl }}">{{ order.email }}</a>{% else %}{{ order.email }}&nbsp;({{ "Guest"|t }}) {% endif %}
-					</td>
-				</tr>
-				<tr>
-					<td><strong>{{ "Order Date"|t }}</strong></td>
-					<td><div id="order-completion" class="hidden">
-						{% if order.isCompleted %}
-							{{ order.dateOrdered|date('D dS M Y') }}
-						{% else %}
-							<div id="order-completionStatus">
-								<a href="#" class="updatecompletion btn small"> {{ "Mark as Complete"|t }}</a>
-							</div>
-						{% endif %}
-						</div>
-					</td>
-				</tr>
-				<tr>
-					<td><strong>{{ "Status"|t }}</strong></td>
-					{% if order.orderStatus %}
-						<td>
-							<div id="order-status" class="hidden">{{ order.orderStatus.htmlLabel|raw }} &nbsp; <a
-									href="#"
-									class="updatestatus btn small"
-									data-currentStatus="{{ order.orderStatus.attributes|json_encode() }}"
-									data-orderStatuses="{{ orderStatusesJson }}">{{ "Update Status"|t }}</a>
-							</div>
-						</td>
-					{% else %}
-						<td><span class="status"></span></td>
-					{% endif %}
-				<tr>
-					<td><strong>{{ "Total"|t }}</strong></td>
-					<td>{{ order.totalPrice|currency(order.currency) }}</td>
-				</tr>
-				<tr>
-					<td><strong>{{ "Paid"|t }} </strong></td>
-					<td>{{ order.totalPaid|currency(order.currency) }} {{ order.datePaid|date('D dS M Y') }}</td>
-				</tr>
-                <tr>
-                    <td><strong>{{ "IP Address"|t }} </strong></td>
-                    <td>{{ order.lastIp }}</td>
-                </tr>
-				<tr>
-					<td><strong>{{ "Order Currency"|t }} </strong></td>
-					<td>{{ order.currency }}</td>
-				</tr>
-				{% if order.currency != order.paymentCurrency %}
-				<tr>
-					<td><strong>{{ "Payment Currency"|t }} </strong></td>
-					<td>{{ order.paymentCurrency }}</td>
-				</tr>
-				{% endif %}
-				{% if order.couponCode %}
-				<tr>
-					<td><strong>{{ "Coupon"|t }} </strong></td>
-					<td>{{ order.couponCode }}</td>
-				</tr>
-				{% endif %}
-			</table>
-		</div>
-		</div>
+                <div class="order-info-box">
+                    <table class="fullwidth data borderless">
+                        <tr>
+                            <td><strong>{{ "Reference"|t }}</strong></td>
+                            <td>
+                                <span title="{{ "Full Reference Number"|t }}: {{ order.number }}">{{ order.shortNumber }}</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>{{ "Customer"|t }}</strong></td>
+                            <td>{% if order.customer.user %}<a
+                                    href="{{ order.customer.user.cpEditUrl }}">{{ order.email }}</a>{% else %}{{ order.email }}&nbsp;({{ "Guest"|t }}) {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>{{ "Order Date"|t }}</strong></td>
+                            <td>
+                                <div id="order-completion" class="hidden">
+                                    {% if order.isCompleted %}
+                                        {{ order.dateOrdered|date('D dS M Y') }}
+                                    {% else %}
+                                        <div id="order-completionStatus">
+                                            <a href="#"
+                                               class="updatecompletion btn small"> {{ "Mark as Complete"|t }}</a>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>{{ "Status"|t }}</strong></td>
+                            {% if order.orderStatus %}
+                                <td>
+                                    <div id="order-status"
+                                         class="hidden">{{ order.orderStatus.htmlLabel|raw }}
+                                        &nbsp; <a
+                                                href="#"
+                                                class="updatestatus btn small"
+                                                data-currentStatus="{{ order.orderStatus.attributes|json_encode() }}"
+                                                data-orderStatuses="{{ orderStatusesJson }}">{{ "Update Status"|t }}</a>
+                                    </div>
+                                </td>
+                            {% else %}
+                                <td><span class="status"></span></td>
+                            {% endif %}
+                        <tr>
+                            <td><strong>{{ "Total"|t }}</strong></td>
+                            <td>{{ order.totalPrice|currency(order.currency) }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>{{ "Paid"|t }} </strong></td>
+                            <td>{{ order.totalPaid|currency(order.currency) }} {{ order.datePaid|date('D dS M Y') }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>{{ "IP Address"|t }} </strong></td>
+                            <td>{{ order.lastIp }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>{{ "Order Currency"|t }} </strong></td>
+                            <td>{{ order.currency }}</td>
+                        </tr>
+                        {% if order.currency != order.paymentCurrency %}
+                            <tr>
+                                <td><strong>{{ "Payment Currency"|t }} </strong>
+                                </td>
+                                <td>{{ order.paymentCurrency }}</td>
+                            </tr>
+                        {% endif %}
+                        {% if order.couponCode %}
+                            <tr>
+                                <td><strong>{{ "Coupon"|t }} </strong></td>
+                                <td>{{ order.couponCode }}</td>
+                            </tr>
+                        {% endif %}
+                    </table>
+                </div>
+            </div>
 
-		<div class="address-boxes right">
-			{% set address = order.shippingAddress %}
-			<div id="shippingAddressBox" class="address-box hidden"
-				 data-title='{{ "Shipping Address"|t }}'
-				 data-address='{%- if address and address.id -%}{{ address|json_encode_filtered }}{%- endif %}'>
-				<div class="address-box-content">
-					<div class="address-box-header"></div>
-					<div class="address"></div>
-				</div>
-			</div>
+            <div class="address-boxes right">
+                {% set address = order.shippingAddress %}
+                <div id="shippingAddressBox" class="address-box hidden"
+                     data-title='{{ "Shipping Address"|t }}'
+                     data-address='{%- if address and address.id -%}{{ address|json_encode_filtered }}{%- endif %}'>
+                    <div class="address-box-content">
+                        <div class="address-box-header"></div>
+                        <div class="address"></div>
+                    </div>
+                </div>
 
-			{% set address = order.billingAddress %}
-			<div id="billingAddressBox" class="address-box hidden"
-				 data-title='{{ "Billing Address"|t }}'
-				 data-address='{%- if address and address.id -%}{{ address|json_encode_filtered }}{%- endif %}'>
-				<div class="address-box-content">
-					<div class="address-box-header"></div>
-					<div class="address"></div>
-				</div>
-			</div>
-		</div><!-- order addresses -->
+                {% set address = order.billingAddress %}
+                <div id="billingAddressBox" class="address-box hidden"
+                     data-title='{{ "Billing Address"|t }}'
+                     data-address='{%- if address and address.id -%}{{ address|json_encode_filtered }}{%- endif %}'>
+                    <div class="address-box-content">
+                        <div class="address-box-header"></div>
+                        <div class="address"></div>
+                    </div>
+                </div>
+            </div><!-- order addresses -->
 
-	</div>
+        </div>
 
-    {% if order.lineItems | length or order.totalPrice > 0 %}
-	<div class="order-details">
-		<table id="" class="data fullwidth collapsible">
-			<thead>
-			<tr>
-				<th scope="col">{{ 'Item'|t }}</th>
-				<th scope="col">{{ 'Note'|t }}</span></th>
-				<th scope="col">{{ 'Price'|t }}</span></th>
-				<th scope="col">{{ 'Quantity'|t }}</th>
-				<th scope="col">{{ 'Total'|t }}</th>
-				<th scope="col"></th>
-				<th scope="col"></th>
-			</tr>
-			</thead>
-			<tbody>
+        {% if order.lineItems | length or order.totalPrice > 0 %}
+            <div class="order-details">
+                <table id="" class="data fullwidth collapsible">
+                    <thead>
+                    <tr>
+                        <th scope="col">{{ 'Item'|t }}</th>
+                        <th scope="col">{{ 'Note'|t }}</span></th>
+                        <th scope="col">{{ 'Price'|t }}</span></th>
+                        <th scope="col">{{ 'Quantity'|t }}</th>
+                        <th scope="col">{{ 'Total'|t }}</th>
+                        <th scope="col"></th>
+                        <th scope="col"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
 
-			{% for lineItem in order.lineItems %}
+                    {% for lineItem in order.lineItems %}
 
-				{% set info = [
-					{ label: "Description", value: lineItem.description },
-					{ label: "Tax Category", value: lineItem.taxCategory.name },
-					{ label: "Price", value: lineItem.price|currency(order.currency) },
-					{ label: "Sale Amount", value: lineItem.saleAmount|currency(order.currency) },
-					{ label: "Sale Price", value: lineItem.salePrice|currency(order.currency) },
-					{ label: "Quantity", value: lineItem.qty },
-					{ label: "Sub-total", value: lineItem.subtotal|currency(order.currency) },
-					{ label: "Tax", value: lineItem.tax|currency(order.currency) },
-					{ label: "Tax (Included)", value: lineItem.taxIncluded|currency(order.currency) },
-					{ label: "Shipping Cost", value: lineItem.shippingCost|currency(order.currency) },
-					{ label: "Discount", value: lineItem.discount|currency(order.currency) },
-					{ label: "Total", value: lineItem.subtotal|currency(order.currency) },
-				] %}
+                        {% set info = [
+                        { label: "Description", value: lineItem.description },
+                        { label: "Tax Category", value: lineItem.taxCategory.name },
+                        { label: "Price", value: lineItem.price|currency(order.currency) },
+                        { label: "Sale Amount", value: lineItem.saleAmount|currency(order.currency) },
+                        { label: "Sale Price", value: lineItem.salePrice|currency(order.currency) },
+                        { label: "Quantity", value: lineItem.qty },
+                        { label: "Sub-total", value: lineItem.subtotal|currency(order.currency) },
+                        { label: "Tax", value: lineItem.tax|currency(order.currency) },
+                        { label: "Tax (Included)", value: lineItem.taxIncluded|currency(order.currency) },
+                        { label: "Shipping Cost", value: lineItem.shippingCost|currency(order.currency) },
+                        { label: "Discount", value: lineItem.discount|currency(order.currency) },
+                        { label: "Total", value: lineItem.subtotal|currency(order.currency) },
+                        ] %}
 
-				<tr class="infoRow" data-id="{{lineItem.id}}" data-info="{{ info|json_encode }}">
-					<td>
-						{% if lineItem.purchasable %}
-							{% if lineItem.purchasable.cpEditUrl %}
-								<a href="{{ lineItem.purchasable.cpEditUrl }}">{{ lineItem.description }}</a>
-							{% else %}
-								{{ lineItem.description }}
-							{% endif %}
-						{% else %}
-							{{ lineItem.description }}
-						{% endif %}
-						<br>{{ lineItem.sku }}
-						{% if lineItem.options|length %}
-						<a class="fieldtoggle first last" data-target="info-{{ lineItem.id}}">{{ "Options"|t }}</a>
-						<span id="info-{{ lineItem.id}}" class="hidden">
+                        <tr class="infoRow" data-id="{{ lineItem.id }}"
+                            data-info="{{ info|json_encode }}">
+                            <td>
+                                {% if lineItem.purchasable %}
+                                    {% if lineItem.purchasable.cpEditUrl %}
+                                        <a href="{{ lineItem.purchasable.cpEditUrl }}">{{ lineItem.description }}</a>
+                                    {% else %}
+                                        {{ lineItem.description }}
+                                    {% endif %}
+                                {% else %}
+                                    {{ lineItem.description }}
+                                {% endif %}
+                                <br>{{ lineItem.sku }}
+                                {% if lineItem.options|length %}
+                                    <a class="fieldtoggle first last"
+                                       data-target="info-{{ lineItem.id }}">{{ "Options"|t }}</a>
+                                    <span id="info-{{ lineItem.id }}"
+                                          class="hidden">
 							{% for key, option in lineItem.options %}
-								{{ key|t }}: {% if option is iterable %}<code>{{ option|json_encode|raw }}</code>{% else %}{{ option }}{% endif %}<br>
-							{% endfor %}
+                                {{ key|t }}: {% if option is iterable %}
+                                <code>{{ option|json_encode|raw }}</code>{% else %}{{ option }}{% endif %}
+                                <br>
+                            {% endfor %}
 						</span>
-						{% endif %}
-					</td>
-					<td>
-					{% if lineItem.note %}{{ lineItem.note|nl2br }}{% endif %}
-					</td>
-					<td>
-						{{ lineItem.salePrice|currency(order.currency) }}
-					</td>
-					<td>{{ lineItem.qty }}</td>
-					<td></td>
-					<td>
-						<span class="right">{{ lineItem.subtotal|currency(order.currency) }}</span>
-					</td>
-					<td>
-						<span class="tableRowInfo" data-icon="info" href="#"></span>
-					</td>
-				</tr>
-			{% endfor %}
-			{% for adjustment in order.adjustments %}
-			<tr>
-				<td><strong>{{ adjustment.type|title|t }} {{ "Adjustment"|t }}</strong><br>{{ adjustment.name|title }} <span class="info"><strong>{{ adjustment.type|title|t }} {{ "Adjustment"|t }}</strong><br> {{ adjustment.description }}</span></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td><span class="right">{{ adjustment.amount|currency(order.currency) }}</span></td>
-				<td></td>
-			</tr>
-			{% endfor %}
-			<tr>
-				<td></td>
-				<td></td>
-				<td>
-				{%  if order.isPaid and order.totalPrice > 0 %}
-					<div class="paidLogo"><span>{{ 'PAID'|t }}</div>
-				{% endif %}
-				</td>
-				<td></td>
-				<td><strong>{{ "Items Total" }}</strong></td>
-				<td>
-					<span class="right">{{ order.itemTotal|currency(order.currency) }}</span>
-				</td>
-				<td></td>
-			</tr>
-			<tr>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td><h2>{{ "Total Price"|t }}</h2></td>
-				<td>
-					<h2 class="right">{{ order.totalPrice|currency(order.currency) }}</h2>
-				</td>
-				<td></td>
-			</tr>
-			</tbody>
-		</table>
-	</div>
-    {%  endif %}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if lineItem.note %}{{ lineItem.note|nl2br }}{% endif %}
+                            </td>
+                            <td>
+                                {{ lineItem.salePrice|currency(order.currency) }}
+                            </td>
+                            <td>{{ lineItem.qty }}</td>
+                            <td></td>
+                            <td>
+                                <span class="right">{{ lineItem.subtotal|currency(order.currency) }}</span>
+                            </td>
+                            <td>
+                                <span class="tableRowInfo" data-icon="info"
+                                      href="#"></span>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    {% for adjustment in order.adjustments %}
+                        <tr>
+                            <td>
+                                <strong>{{ adjustment.type|title|t }} {{ "Adjustment"|t }}</strong><br>{{ adjustment.name|title }}
+                                <span class="info"><strong>{{ adjustment.type|title|t }} {{ "Adjustment"|t }}</strong><br> {{ adjustment.description }}</span>
+                            </td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>
+                                <span class="right">{{ adjustment.amount|currency(order.currency) }}</span>
+                            </td>
+                            <td></td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td>
+                            {% if order.isPaid and order.totalPrice > 0 %}
+                                <div class="paidLogo"><span>{{ 'PAID'|t }}</div>
+                            {% endif %}
+                        </td>
+                        <td></td>
+                        <td><strong>{{ "Items Total" }}</strong></td>
+                        <td>
+                            <span class="right">{{ order.itemTotal|currency(order.currency) }}</span>
+                        </td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td><h2>{{ "Total Price"|t }}</h2></td>
+                        <td>
+                            <h2 class="right">{{ order.totalPrice|currency(order.currency) }}</h2>
+                        </td>
+                        <td></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
 
-	<form id="order-actions" method="post" accept-charset="UTF-8">
-		<input type="hidden" name="action" value="">
-		<input type="hidden" name="redirect" value="">
-		{{ getCsrfInput() }}
-	<div class="footer">
-		{% if pdfUrl %}
-		<div class="btngroup right">
-			<a class="btn" href="{{ order.pdfUrl }}" target="_blank">{{ 'Download PDF'|t }}</a>
-		</div>
-		{% endif %}
-		<div class="btngroup">
-			<input type="button" class="btn formsubmit"
-				value="{{ 'Delete Order'|t }}"
-				data-action="commerce/orders/deleteOrder"
-				data-confirm="{{ 'Are you sure you want to delete this order? Please note, this does not refund the customer.'|t }}"
-				data-redirect="commerce/orders"
-				data-param="orderId"
-				data-value="{{ order.id }}">
-		</div>
-	</div>{# end pane #}
-	</form>
+        <form id="order-actions" method="post" accept-charset="UTF-8">
+            <input type="hidden" name="action" value="">
+            <input type="hidden" name="redirect" value="">
+            {{ getCsrfInput() }}
+            <div class="footer">
+                {% if pdfUrl %}
+                    <div class="btngroup right">
+                        <a class="btn" href="{{ order.pdfUrl }}"
+                           target="_blank">{{ 'Download PDF'|t }}</a>
+                    </div>
+                {% endif %}
+                <div class="btngroup">
+                    <input type="button" class="btn formsubmit"
+                           value="{{ 'Delete Order'|t }}"
+                           data-action="commerce/orders/deleteOrder"
+                           data-confirm="{{ 'Are you sure you want to delete this order? Please note, this does not refund the customer.'|t }}"
+                           data-redirect="commerce/orders"
+                           data-param="orderId"
+                           data-value="{{ order.id }}">
+                </div>
+            </div>{# end pane #}
+        </form>
     </div>
 
 
-	{% if orderSettings.getFieldLayout().getTabs()|length %}
-	<form id="order-form" method="post" accept-charset="UTF-8"
-		  data-saveshortcut
-		  data-saveshortcut-redirect="{{ order.cpEditUrl }}"
-		  data-confirm-unload>
-		<input type="hidden" name="action" value="commerce/orders/saveOrder">
-		<input type="hidden" name="redirect" value="commerce/orders">
-		{{ getCsrfInput() }}
+    {% if orderSettings.getFieldLayout().getTabs()|length %}
+        <form id="order-form" method="post" accept-charset="UTF-8"
+              data-saveshortcut
+              data-saveshortcut-redirect="{{ order.cpEditUrl }}"
+              data-confirm-unload>
+            <input type="hidden" name="action"
+                   value="commerce/orders/saveOrder">
+            <input type="hidden" name="redirect" value="commerce/orders">
+            {{ getCsrfInput() }}
 
 
-	{# Custom fields pane #}
-	<div id="fields" class="pane">
-		{% include "_includes/tabs" %}
-			{% if order.id %}<input type="hidden" name="orderId" value="{{ order.id }}">{% endif %}
+            {# Custom fields pane #}
+            <div id="fields" class="pane">
+                {% include "_includes/tabs" %}
+                {% if order.id %}<input type="hidden" name="orderId"
+                                        value="{{ order.id }}">{% endif %}
 
-			{% for tab in orderSettings.getFieldLayout().getTabs() %}
-				<div id="tab{{ loop.index }}" {% if not loop.first %} class="hidden" {% endif %}>
-					{% include "_includes/fields" with {
-					fields: tab.getFields(),
-					element: order,
-					} only %}
-				</div>
-			{% endfor %}
-			<div class="footer">
-				<div class="btngroup right submit first">
-					<input type="submit" class="btn submit"
-						   value="{{ 'Save'|t }}">
+                {% for tab in orderSettings.getFieldLayout().getTabs() %}
+                    <div id="tab{{ loop.index }}" {% if not loop.first %} class="hidden" {% endif %}>
+                        {% include "_includes/fields" with {
+                        fields: tab.getFields(),
+                        element: order,
+                        } only %}
+                    </div>
+                {% endfor %}
+                <div class="footer">
+                    <div class="btngroup right submit first">
+                        <input type="submit" class="btn submit"
+                               value="{{ 'Save'|t }}">
 
-					<div class="btn submit menubtn"></div>
-					<div class="menu">
-						<ul>
-							<li><a class="formsubmit"
-								   data-redirect="{{ order.cpEditUrl }}">
-									{{ "Save and continue editing"|t }}
-									{{ forms.optionShortcutLabel('S') }}
-								</a>
-							</li>
-						</ul>
-					</div>
-				</div>
-			</div>
+                        <div class="btn submit menubtn"></div>
+                        <div class="menu">
+                            <ul>
+                                <li><a class="formsubmit"
+                                       data-redirect="{{ order.cpEditUrl }}">
+                                        {{ "Save and continue editing"|t }}
+                                        {{ forms.optionShortcutLabel('S') }}
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
 
-	</div>
-	</form>
-	{% endif %}
+            </div>
+        </form>
+    {% endif %}
 
-	{% hook "cp.commerce.order.edit" %}
+    {% hook "cp.commerce.order.edit" %}
 
-	{% if order.histories|length %}
-	<div class="pane">
-		<h3>{{ 'Order History'|t }}</h3>
+    {% if order.histories|length %}
+        <div class="pane">
+            <h3>{{ 'Order History'|t }}</h3>
 
-		<table class="data fullwidth">
-			<thead>
-			<tr>
-				<th scope="col">{{ 'Status'|t }}</th>
-				<th scope="col">{{ 'Previous Status'|t }}</th>
-				<th scope="col">{{ 'Customer'|t }}</th>
-				<th scope="col">{{ 'Message'|t }}</th>
-				<th scope="col">{{ 'Date'|t }}</th>
-			</tr>
-			</thead>
-			<tbody>
-			{% for orderHistory in order.histories %}
-				<tr data-id="{{ orderHistory.id }}">
-					<td>
-						{% if orderHistory.newStatus %}
-							<a href="{{ orderHistory.newStatus.cpEditUrl }}">{{ orderHistory.newStatus.htmlLabel()|raw }}</a> {% if loop.first %}({{ "Current"|t }}){% endif %}
-						{% endif %}
-					</td>
-					<td>
-						{% if orderHistory.prevStatus %}
-							<a href="{{ orderHistory.prevStatus.cpEditUrl }}">{{ orderHistory.prevStatus.htmlLabel()|raw }}</a>
-						{% endif %}
-					</td>
-					<td>
-						{% if orderHistory.customer.userId %}
-							<a href="{{ orderHistory.customer.user.cpEditUrl }}">{{ orderHistory.customer.user.friendlyName }}</a>
-						{% else %}
-							{{ orderHistory.order.email }}
-						{% endif %}
-					</td>
-					<td>{{ orderHistory.message }}</td>
-					<td>{{ orderHistory.dateCreated|date }}</td>
-				</tr>
-			{% endfor %}
-			</tbody>
-		</table>
-	</div>
-	{% endif %}
+            <table class="data fullwidth">
+                <thead>
+                <tr>
+                    <th scope="col">{{ 'Status'|t }}</th>
+                    <th scope="col">{{ 'Previous Status'|t }}</th>
+                    <th scope="col">{{ 'Customer'|t }}</th>
+                    <th scope="col">{{ 'Message'|t }}</th>
+                    <th scope="col">{{ 'Date'|t }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for orderHistory in order.histories %}
+                    <tr data-id="{{ orderHistory.id }}">
+                        <td>
+                            {% if orderHistory.newStatus %}
+                                <a href="{{ orderHistory.newStatus.cpEditUrl }}">{{ orderHistory.newStatus.htmlLabel()|raw }}</a> {% if loop.first %}({{ "Current"|t }}){% endif %}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if orderHistory.prevStatus %}
+                                <a href="{{ orderHistory.prevStatus.cpEditUrl }}">{{ orderHistory.prevStatus.htmlLabel()|raw }}</a>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if orderHistory.customer.userId %}
+                                <a href="{{ orderHistory.customer.user.cpEditUrl }}">{{ orderHistory.customer.user.friendlyName }}</a>
+                            {% else %}
+                                {{ orderHistory.order.email }}
+                            {% endif %}
+                        </td>
+                        <td>{{ orderHistory.message }}</td>
+                        <td>{{ orderHistory.dateCreated|date }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
 
-	<div class="pane">
-		<h3>{{ "Transactions"|t }}</h3>
+    <div class="pane">
+        <h3>{{ "Transactions"|t }}</h3>
 
-		{% if order.transactions|length %}
-			<table class="data fullwidth">
-				<thead>
-				<tr>
-					<th scope="col">{{ 'Type'|t }}</span></th>
-					<th scope="col">{{ 'Status'|t }}</th>
-					<th scope="col">{{ 'Amount'|t }}</th>
-					<th scope="col">{{ 'Payment Amount'|t }}</th>
-					<th scope="col">{{ 'Method'|t }}</th>
-					<th scope="col">{{ 'Date'|t }}</th>
-					<th scope="col">{{ 'Info'|t }}</th>
-					<th></th>
-				</tr>
-				</thead>
-				<tbody>
-				{% for transaction in order.transactions %}
+        {% if order.transactions|length %}
+            <table class="data fullwidth">
+                <thead>
+                <tr>
+                    <th scope="col">{{ 'Type'|t }}</span></th>
+                    <th scope="col">{{ 'Status'|t }}</th>
+                    <th scope="col">{{ 'Amount'|t }}</th>
+                    <th scope="col">{{ 'Payment Amount'|t }}</th>
+                    <th scope="col">{{ 'Method'|t }}</th>
+                    <th scope="col">{{ 'Date'|t }}</th>
+                    <th scope="col">{{ 'Info'|t }}</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for transaction in order.transactions %}
 
-					{% set info = [
-						{ label: "ID", value: transaction.id },
-						{ label: "Hash", value: transaction.hash },
-						{ label: "Reference", value: transaction.reference },
-						{ label: "Message", value: transaction.message|title },
-						{ label: "Code", value: transaction.code },
-						{ label: "Converted Price", value: transaction.paymentAmount|currency(transaction.paymentCurrency)~" <small class=\"light\">(1 "~transaction.currency~" = "~transaction.paymentRate|number~" "~transaction.paymentCurrency~")</small>" },
-						{ label: "Response", value: "<textarea class=\"transaction-response\">"~transaction.response|json_encode|raw~"</textarea>" },
-					] %}
+                    {% set info = [
+                    { label: "ID", value: transaction.id },
+                    { label: "Hash", value: transaction.hash },
+                    { label: "Reference", value: transaction.reference },
+                    { label: "Message", value: transaction.message|title },
+                    { label: "Code", value: transaction.code },
+                    { label: "Converted Price", value: transaction.paymentAmount|currency(transaction.paymentCurrency)~" <small class=\"light\">(1 "~transaction.currency~" = "~transaction.paymentRate|number~" "~transaction.paymentCurrency~")</small>" },
+                    { label: "Response", value: "<textarea class=\"transaction-response\">"~transaction.response|json_encode|raw~"</textarea>" },
+                    ] %}
 
-					<tr class="infoRow" data-info="{{ info|json_encode }}">
-						<td>{{ transaction.type|title }}</td>
-						<td class="transaction-status transaction-status-{{ transaction.status }}">{{ transaction.status|title|t }}</td>
-						<td>{{ transaction.amount|currency(transaction.currency) }} <small class="light">({{ transaction.currency }})</small></td>
-						<td>{{ transaction.paymentAmount|currency(transaction.paymentCurrency) }} <small class="light">({{ transaction.paymentCurrency }})</small></td>
-						<td>{{ transaction.paymentMethod.name }}</td>
-						<td>{{ transaction.dateUpdated|date }}</td>
-						<td><span class="tableRowInfo" data-icon="info" href="#"></span></td>
-						<td>
-							{% if transaction.canCapture() %}
-								<form>
-								<a class="small btn submit formsubmit"
-								   data-action="commerce/orders/transactionCapture"
-								   data-confirm="{{ 'Are you sure you want to capture this transaction?'|t }}"
-								   data-redirect="{{ order.cpEditUrl }}"
-								   data-param="id"
-								   data-value="{{ transaction.id }}">{{ 'Capture'|t }}</a>
-								</form>
-							{% endif %}
-							{% if transaction.canRefund() %}
-								<form>
-								<a class="small btn submit formsubmit"
-								   data-action="commerce/orders/transactionRefund"
-								   data-confirm="{{ 'Are you sure you want to refund this transaction?'|t }}"
-								   data-redirect="{{ order.cpEditUrl }}"
-								   data-param="id"
-								   data-value="{{ transaction.id }}">{{ 'Refund'|t }}</a>
-								</form>
-							{% endif %}
-						</td>
-					</tr>
-				{% endfor %}
-				</tbody>
-			</table>
-		{% else %}
-		    <p class="light">{{ "No transaction." }}</p>
-		{% endif %}
+                    <tr class="infoRow" data-info="{{ info|json_encode }}">
+                        <td>{{ transaction.type|title }}</td>
+                        <td class="transaction-status transaction-status-{{ transaction.status }}">{{ transaction.status|title|t }}</td>
+                        <td>{{ transaction.amount|currency(transaction.currency) }}
+                            <small class="light">({{ transaction.currency }})
+                            </small>
+                        </td>
+                        <td>{{ transaction.paymentAmount|currency(transaction.paymentCurrency) }}
+                            <small class="light">
+                                ({{ transaction.paymentCurrency }})
+                            </small>
+                        </td>
+                        <td>{{ transaction.paymentMethod.name }}</td>
+                        <td>{{ transaction.dateUpdated|date }}</td>
+                        <td><span class="tableRowInfo" data-icon="info"
+                                  href="#"></span></td>
+                        <td>
+                            {% if transaction.canCapture() %}
+                                <form>
+                                    <a class="small btn submit formsubmit"
+                                       data-action="commerce/orders/transactionCapture"
+                                       data-confirm="{{ 'Are you sure you want to capture this transaction?'|t }}"
+                                       data-redirect="{{ order.cpEditUrl }}"
+                                       data-param="id"
+                                       data-value="{{ transaction.id }}">{{ 'Capture'|t }}</a>
+                                </form>
+                            {% endif %}
+                            {% if transaction.canRefund() %}
+                                <form>
+                                    <a class="small btn submit formsubmit"
+                                       data-action="commerce/orders/transactionRefund"
+                                       data-confirm="{{ 'Are you sure you want to refund this transaction?'|t }}"
+                                       data-redirect="{{ order.cpEditUrl }}"
+                                       data-param="id"
+                                       data-value="{{ transaction.id }}">{{ 'Refund'|t }}</a>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="light">{{ "No transaction." }}</p>
+        {% endif %}
 
 
-		{% if not order.isPaid() %}
-			<div class="footer">
-				<a class="btn" id="make-payment" data-order-id="{{ order.id }}">Make Payment</a>
-			</div>
-		{% endif %}
-	</div>
+        {% if not order.isPaid() %}
+            <div class="footer">
+                <a class="btn" id="make-payment" data-order-id="{{ order.id }}">Make
+                    Payment</a>
+            </div>
+        {% endif %}
+    </div>
 
 {% endblock %}
 
@@ -434,17 +462,17 @@ window.states = JSON.parse('{{ craft.commerce.states|json_encode|raw }}');
 
 $(document).ready(function () {
 
-	new Craft.Commerce.OrderEdit({
-		orderId: {{ orderId|e('js') }},
-		paymentForm: {
-			errors: {{ paymentForm.errors|json_encode|raw }},
-			attributes: {{ paymentForm.attributes|json_encode|raw }}
-		}
-	});
+new Craft.Commerce.OrderEdit({
+orderId: {{ orderId|e('js') }},
+paymentForm: {
+errors: {{ paymentForm.errors|json_encode|raw }},
+attributes: {{ paymentForm.attributes|json_encode|raw }}
+}
+});
 
-	$.each($('.tableRowInfo'), function () {
-		new Craft.Commerce.TableRowAdditionalInfoIcon(this);
-	});
+$.each($('.tableRowInfo'), function () {
+new Craft.Commerce.TableRowAdditionalInfoIcon(this);
+});
 
 });
 
