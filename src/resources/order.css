@@ -29,11 +29,24 @@
     transform: rotate(-20deg);
 }
 
-#paymentmodal.loading { min-width: 300px; min-height: 300px; }
-#paymentmodal.loading { background-image: url(../images/spinner_big.gif); background-repeat: no-repeat; background-position: 50% 50%; }
+#paymentmodal.loading {
+    min-width: 300px;
+    min-height: 300px;
+}
 
-#paymentmodal fieldset { margin: 24px 0; }
-#paymentmodal fieldset legend { margin-bottom: 4px; }
+#paymentmodal.loading {
+    background-image: url(../images/spinner_big.gif);
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+}
+
+#paymentmodal fieldset {
+    margin: 24px 0;
+}
+
+#paymentmodal fieldset legend {
+    margin-bottom: 4px;
+}
 
 @media screen and (min-width: 768px) {
     .address-boxes {
@@ -56,7 +69,18 @@
     border: none !important;
 }
 
-.transaction-status.transaction-status-failed { color: #D0021B; }
-.transaction-status.transaction-status-success { color: #27AE60; }
+.transaction-status.transaction-status-failed {
+    color: #D0021B;
+}
 
-.transaction-response { display: block; min-width: 250px; height:50px; font-family: Menlo, monospace; font-size: 0.9em !important;}
+.transaction-status.transaction-status-success {
+    color: #27AE60;
+}
+
+.transaction-response {
+    display: block;
+    min-width: 250px;
+    height: 50px;
+    font-family: Menlo, monospace;
+    font-size: 0.9em !important;
+}

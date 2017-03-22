@@ -19,7 +19,7 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend(
         errors: {},
         modalTitle: null,
         submitLabel: null,
-        init: function (address, settings) {
+        init: function(address, settings) {
 
             this.id = Math.floor(Math.random() * 1000000000);
             this.countries = window.countries;
@@ -50,14 +50,14 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend(
             this.$cancelBtn = $('<input type="button" class="btn" value="' + Craft.t('Cancel') + '"/>').appendTo($btnGroup);
 
             this.addListener(this.$cancelBtn, 'click', 'hide');
-            this.addListener(this.$updateBtn, 'click', function (ev) {
+            this.addListener(this.$updateBtn, 'click', function(ev) {
                 ev.preventDefault();
                 this.updateAddress();
             });
 
             this.base(this.$form, settings);
         },
-        _renderFields: function () {
+        _renderFields: function() {
             this.$body.empty();
 
             var $inputs = $('<div class="meta">' +
@@ -151,13 +151,13 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend(
                 dropdownParent: 'body',
                 inputClass: 'selectize-input text',
                 allowEmptyOption: false,
-                onDropdownOpen: function ($dropdown) {
+                onDropdownOpen: function($dropdown) {
                     $dropdown.css('z-index', 3000);
                 }
             });
 
             // add any custom state value that could not be in the standard list of states.
-            this.states.push({'name':this.address.stateValue,'id':this.address.stateValue});
+            this.states.push({'name': this.address.stateValue, 'id': this.address.stateValue});
 
             this.fields['stateValue'].appendTo($inputs);
             this.fields['stateValue'].find('select').selectize({
@@ -170,13 +170,13 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend(
                 dropdownParent: 'body',
                 inputClass: 'selectize-input text',
                 allowEmptyOption: false,
-                onDropdownOpen: function ($dropdown) {
+                onDropdownOpen: function($dropdown) {
                     $dropdown.css('z-index', 3000);
                 }
             });
 
         },
-        updateAddress: function () {
+        updateAddress: function() {
             if (this.$updateBtn.hasClass('disabled')) {
                 return;
             }
@@ -207,7 +207,7 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend(
 
 
             var self = this;
-            this.settings.onSubmit({'address': this.address}, $.proxy(function (errors) {
+            this.settings.onSubmit({'address': this.address}, $.proxy(function(errors) {
                 self.errors = errors;
                 self.hideFooterSpinner();
                 self.enableUpdateBtn();
@@ -217,17 +217,17 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend(
 
 
         },
-        enableUpdateBtn: function () {
+        enableUpdateBtn: function() {
             this.$updateBtn.removeClass('disabled');
         },
-        disableUpdateBtn: function () {
+        disableUpdateBtn: function() {
             this.$updateBtn.addClass('disabled');
         },
-        showFooterSpinner: function () {
+        showFooterSpinner: function() {
             this.$footerSpinner.removeClass('hidden');
         },
 
-        hideFooterSpinner: function () {
+        hideFooterSpinner: function() {
             this.$footerSpinner.addClass('hidden');
         },
         defaults: {

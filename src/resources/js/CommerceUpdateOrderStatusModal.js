@@ -1,5 +1,4 @@
-if (typeof Craft.Commerce === typeof undefined)
-{
+if (typeof Craft.Commerce === typeof undefined) {
     Craft.Commerce = {};
 }
 
@@ -18,8 +17,7 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
         $updateBtn: null,
         $statusMenuBtn: null,
         $cancelBtn: null,
-        init: function (currentStatus, orderStatuses, settings)
-        {
+        init: function(currentStatus, orderStatuses, settings) {
             this.id = Math.floor(Math.random() * 1000000000);
 
             this.setSettings(settings, {
@@ -40,13 +38,10 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
             var $menu = $('<div class="menu"/>').appendTo($inputs);
             var $list = $('<ul class="padded"/>').appendTo($menu);
             var classes = "";
-            for (i = 0; i < orderStatuses.length; i++)
-            {
-                if (this.currentStatus.id == orderStatuses[i].id)
-                {
+            for (i = 0; i < orderStatuses.length; i++) {
+                if (this.currentStatus.id == orderStatuses[i].id) {
                     classes = "sel";
-                } else
-                {
+                } else {
                     classes = "";
                 }
                 $('<li><a data-id="' + orderStatuses[i].id + '" data-color="' + orderStatuses[i].color + '" data-name="' + orderStatuses[i].name + '" class="' + classes + '"><span class="status ' + orderStatuses[i].color + '"></span>' + orderStatuses[i].name + '</a></li>').appendTo($list);
@@ -84,18 +79,15 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
             });
 
             this.addListener(this.$cancelBtn, 'click', 'hide');
-            this.addListener(this.$updateBtn, 'click', function (ev)
-            {
+            this.addListener(this.$updateBtn, 'click', function(ev) {
                 ev.preventDefault();
-                if (!$(ev.target).hasClass('disabled'))
-                {
+                if (!$(ev.target).hasClass('disabled')) {
                     this.updateStatus();
                 }
             });
             this.base($form, settings);
         },
-        onSelectStatus: function (status)
-        {
+        onSelectStatus: function(status) {
             this.deselectStatus();
 
             this.$selectedStatus = $(status);
@@ -111,26 +103,21 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
             var newHtml = "<span><span class='status " + this.currentStatus.color + "'></span>" + Craft.uppercaseFirst(this.currentStatus.name) + "</span>";
             this.$statusSelect.html(newHtml);
 
-            if(this.originalStatusId == this.currentStatus.id)
-            {
+            if (this.originalStatusId == this.currentStatus.id) {
                 this.$updateBtn.addClass('disabled');
             }
-            else
-            {
+            else {
                 this.$updateBtn.removeClass('disabled');
             }
         },
 
-        deselectStatus: function()
-        {
-            if(this.$selectedStatus)
-            {
+        deselectStatus: function() {
+            if (this.$selectedStatus) {
                 this.$selectedStatus.removeClass('sel');
             }
         },
 
-        updateStatus: function ()
-        {
+        updateStatus: function() {
             var data = {
                 'orderStatusId': this.currentStatus.id,
                 'message': this.$message.find('textarea[name="message"]').val(),

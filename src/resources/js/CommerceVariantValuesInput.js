@@ -6,10 +6,8 @@ if (typeof Craft.Commerce === typeof undefined) {
  * Class Craft.Commerce.RevenueWidget
  */
 Craft.Commerce.VariantValuesInput = Craft.BaseInputGenerator.extend({
-    startListening: function ()
-    {
-        if (this.listening)
-        {
+    startListening: function() {
+        if (this.listening) {
             return;
         }
 
@@ -18,17 +16,14 @@ Craft.Commerce.VariantValuesInput = Craft.BaseInputGenerator.extend({
         this.addListener(this.$source, 'textchange', 'onTextChange');
         this.addListener(this.$form, 'submit', 'onFormSubmit');
     },
-    updateTarget: function ()
-    {
+    updateTarget: function() {
         var sourceVal = this.$source.val();
         var targetVal = this.generateTargetValue(sourceVal);
         console.log(sourceVal);
         this.$target.prop('checked', true);
     },
-    onFormSubmit: function ()
-    {
-        if (this.timeout)
-        {
+    onFormSubmit: function() {
+        if (this.timeout) {
             clearTimeout(this.timeout);
         }
     }

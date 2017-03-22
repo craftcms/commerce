@@ -6,47 +6,43 @@ if (typeof Craft.Commerce === typeof undefined) {
  * Class Craft.Commerce.OrdersWidgetSettings
  */
 Craft.Commerce.OrdersWidgetSettings = Garnish.Base.extend(
-{
-    init: function(id, settings)
     {
-        this.$container = $('#'+id);
-        this.$menuBtn = $('.menubtn', this.$container);
-        this.$statusInput = $('.status-input', this.$container);
+        init: function(id, settings) {
+            this.$container = $('#' + id);
+            this.$menuBtn = $('.menubtn', this.$container);
+            this.$statusInput = $('.status-input', this.$container);
 
-        this.menuBtn = new Garnish.MenuBtn(this.$menuBtn, {
-            onOptionSelect: $.proxy(this, 'onSelectStatus')
-        });
+            this.menuBtn = new Garnish.MenuBtn(this.$menuBtn, {
+                onOptionSelect: $.proxy(this, 'onSelectStatus')
+            });
 
-        var statusId = this.$statusInput.val();
+            var statusId = this.$statusInput.val();
 
-        var $currentStatus = $('[data-id="'+statusId+'"]', this.menuBtn.menu.$container);
+            var $currentStatus = $('[data-id="' + statusId + '"]', this.menuBtn.menu.$container);
 
-        $currentStatus.trigger('click');
-    },
+            $currentStatus.trigger('click');
+        },
 
-    onSelectStatus: function(status)
-    {
-        this.deselectStatus();
+        onSelectStatus: function(status) {
+            this.deselectStatus();
 
-        $status = $(status);
-        $status.addClass('sel');
+            $status = $(status);
+            $status.addClass('sel');
 
-        this.selectedStatus = $status;
+            this.selectedStatus = $status;
 
-        this.$statusInput.val($status.data('id'));
+            this.$statusInput.val($status.data('id'));
 
-        // clone selected status item to menu menu
-        $label = $('.commerceStatusLabel', $status);
-        this.$menuBtn.empty();
-        $label.clone().appendTo(this.$menuBtn);
-    },
+            // clone selected status item to menu menu
+            $label = $('.commerceStatusLabel', $status);
+            this.$menuBtn.empty();
+            $label.clone().appendTo(this.$menuBtn);
+        },
 
-    deselectStatus: function()
-    {
-        if(this.selectedStatus)
-        {
-            this.selectedStatus.removeClass('sel');
+        deselectStatus: function() {
+            if (this.selectedStatus) {
+                this.selectedStatus.removeClass('sel');
+            }
         }
-    }
-});
+    });
 

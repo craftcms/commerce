@@ -8,7 +8,7 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
     $content: null,
     address: null,
     editorModal: null,
-    init: function ($element, settings) {
+    init: function($element, settings) {
         this.$addressBox = $element;
 
         this.$address = this.$addressBox.find('.address');
@@ -20,7 +20,7 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
 
         this.$addressBox.toggleClass('hidden');
     },
-    _renderAddress: function () {
+    _renderAddress: function() {
         var $header = this.$addressBox.find(".address-box-header");
 
         // Set the edit button label
@@ -37,7 +37,7 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
 
         // Only show the map button if we have an address
         if (this.address.id) {
-            var address = [this.address.address1,this.address.address2,this.address.city,this.address.zipCode,this.address.stateText, this.address.countryText];
+            var address = [this.address.address1, this.address.address2, this.address.city, this.address.zipCode, this.address.stateText, this.address.countryText];
             var addressStr = address.join(' ');
             $("<a class='small btn right' target='_blank' href='http://maps.google.com/maps?q=" + addressStr + "'>" + Craft.t('Map') + "</a>").appendTo($buttons);
         }
@@ -113,16 +113,16 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
 
         this._attachListeners();
     },
-    _attachListeners: function () {
-        this.$addressBox.find('.edit').click($.proxy(function (ev) {
+    _attachListeners: function() {
+        this.$addressBox.find('.edit').click($.proxy(function(ev) {
             ev.preventDefault();
             this.editorModal = new Craft.Commerce.EditAddressModal(this.address, {
                 onSubmit: $.proxy(this, '_updateAddress')
             });
         }, this));
     },
-    _updateAddress: function (data, onError) {
-        Craft.postActionRequest('commerce/addresses/save', data.address, $.proxy(function (response) {
+    _updateAddress: function(data, onError) {
+        Craft.postActionRequest('commerce/addresses/save', data.address, $.proxy(function(response) {
             if (response.success) {
                 this.address = response.address;
                 this.settings.onChange(response.address);
