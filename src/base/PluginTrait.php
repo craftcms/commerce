@@ -2,6 +2,38 @@
 namespace craft\commerce\base;
 
 use craft\commerce\Plugin;
+use craft\commerce\services\Addresses;
+use craft\commerce\services\Cart;
+use craft\commerce\services\Countries;
+use craft\commerce\services\Currencies;
+use craft\commerce\services\Customers;
+use craft\commerce\services\Discounts;
+use craft\commerce\services\Emails;
+use craft\commerce\services\Gateways;
+use craft\commerce\services\LineItems;
+use craft\commerce\services\OrderAdjustments;
+use craft\commerce\services\OrderHistories;
+use craft\commerce\services\Orders;
+use craft\commerce\services\OrderSettings;
+use craft\commerce\services\OrderStatuses;
+use craft\commerce\services\PaymentCurrencies;
+use craft\commerce\services\PaymentMethods;
+use craft\commerce\services\Payments;
+use craft\commerce\services\Products;
+use craft\commerce\services\ProductTypes;
+use craft\commerce\services\Purchasables;
+use craft\commerce\services\Sales;
+use craft\commerce\services\Settings;
+use craft\commerce\services\ShippingCategories;
+use craft\commerce\services\ShippingMethods;
+use craft\commerce\services\ShippingRules;
+use craft\commerce\services\ShippingZones;
+use craft\commerce\services\States;
+use craft\commerce\services\TaxCategories;
+use craft\commerce\services\TaxRates;
+use craft\commerce\services\TaxZones;
+use craft\commerce\services\Transactions;
+use craft\commerce\services\Variants;
 
 /**
  * PluginTrait
@@ -12,7 +44,7 @@ trait PluginTrait
     /**
      * Returns the address service
      *
-     * @return \craft\commerce\services\Addresses The address service
+     * @return Addresses The address service
      */
     public function getAddresses()
     {
@@ -22,7 +54,7 @@ trait PluginTrait
     /**
      * Returns the cart service
      *
-     * @return \craft\commerce\services\Cart The cart service
+     * @return Cart The cart service
      */
     public function getCart()
     {
@@ -32,7 +64,7 @@ trait PluginTrait
     /**
      * Returns the countries service
      *
-     * @return \craft\commerce\services\Countries The countries service
+     * @return Countries The countries service
      */
     public function getCountries()
     {
@@ -42,7 +74,7 @@ trait PluginTrait
     /**
      * Returns the currencies service
      *
-     * @return \craft\commerce\services\Currencies The currencies service
+     * @return Currencies The currencies service
      */
     public function getCurrencies()
     {
@@ -52,7 +84,7 @@ trait PluginTrait
     /**
      * Returns the customers service
      *
-     * @return \craft\commerce\services\Customers The customers service
+     * @return Customers The customers service
      */
     public function getCustomers()
     {
@@ -62,7 +94,7 @@ trait PluginTrait
     /**
      * Returns the discounts service
      *
-     * @return \craft\commerce\services\Discounts The discounts service
+     * @return Discounts The discounts service
      */
     public function getDiscounts()
     {
@@ -72,7 +104,7 @@ trait PluginTrait
     /**
      * Returns the emails service
      *
-     * @return \craft\commerce\services\Emails The emails service
+     * @return Emails The emails service
      */
     public function getEmails()
     {
@@ -82,7 +114,7 @@ trait PluginTrait
     /**
      * Returns the gateways service
      *
-     * @return \craft\commerce\services\Gateways The gateways service
+     * @return Gateways The gateways service
      */
     public function getGateways()
     {
@@ -92,7 +124,7 @@ trait PluginTrait
     /**
      * Returns the lineItems service
      *
-     * @return \craft\commerce\services\LineItems The lineItems service
+     * @return LineItems The lineItems service
      */
     public function getLineItems()
     {
@@ -102,7 +134,7 @@ trait PluginTrait
     /**
      * Returns the orderAdjustments service
      *
-     * @return \craft\commerce\services\OrderAdjustments The orderAdjustments service
+     * @return OrderAdjustments The orderAdjustments service
      */
     public function getOrderAdjustments()
     {
@@ -112,7 +144,7 @@ trait PluginTrait
     /**
      * Returns the orderHistories service
      *
-     * @return \craft\commerce\services\OrderHistories The orderHistories service
+     * @return OrderHistories The orderHistories service
      */
     public function getOrderHistories()
     {
@@ -122,7 +154,7 @@ trait PluginTrait
     /**
      * Returns the orders service
      *
-     * @return \craft\commerce\services\Orders The orders service
+     * @return Orders The orders service
      */
     public function getOrders()
     {
@@ -132,7 +164,7 @@ trait PluginTrait
     /**
      * Returns the orderSettings service
      *
-     * @return \craft\commerce\services\OrderSettings The orderSettings service
+     * @return OrderSettings The orderSettings service
      */
     public function getOrderSettings()
     {
@@ -142,7 +174,7 @@ trait PluginTrait
     /**
      * Returns the orderStatuses service
      *
-     * @return \craft\commerce\services\OrderStatuses The orderStatuses service
+     * @return OrderStatuses The orderStatuses service
      */
     public function getOrderStatuses()
     {
@@ -152,7 +184,7 @@ trait PluginTrait
     /**
      * Returns the paymentMethods service
      *
-     * @return \craft\commerce\services\PaymentMethods The paymentMethods service
+     * @return PaymentMethods The paymentMethods service
      */
     public function getPaymentMethods()
     {
@@ -162,7 +194,7 @@ trait PluginTrait
     /**
      * Returns the paymentCurrencies service
      *
-     * @return \craft\commerce\services\PaymentCurrencies The paymentCurrencies service
+     * @return PaymentCurrencies The paymentCurrencies service
      */
     public function getPaymentCurrencies()
     {
@@ -172,7 +204,7 @@ trait PluginTrait
     /**
      * Returns the payments service
      *
-     * @return \craft\commerce\services\Payments The payments service
+     * @return Payments The payments service
      */
     public function getPayments()
     {
@@ -182,7 +214,7 @@ trait PluginTrait
     /**
      * Returns the products service
      *
-     * @return \craft\commerce\services\Products The products service
+     * @return Products The products service
      */
     public function getProducts()
     {
@@ -192,7 +224,7 @@ trait PluginTrait
     /**
      * Returns the productTypes service
      *
-     * @return \craft\commerce\services\ProductTypes The productTypes service
+     * @return ProductTypes The productTypes service
      */
     public function getProductTypes()
     {
@@ -202,7 +234,7 @@ trait PluginTrait
     /**
      * Returns the purchasables service
      *
-     * @return \craft\commerce\services\Purchasables The purchasables service
+     * @return Purchasables The purchasables service
      */
     public function getPurchasables()
     {
@@ -212,7 +244,7 @@ trait PluginTrait
     /**
      * Returns the sales service
      *
-     * @return \craft\commerce\services\Sales The sales service
+     * @return Sales The sales service
      */
     public function getSales()
     {
@@ -220,19 +252,9 @@ trait PluginTrait
     }
 
     /**
-     * Returns the seed service
-     *
-     * @return \craft\commerce\services\Seed The seed service
-     */
-    public function getSeed()
-    {
-        return $this->get('seed');
-    }
-
-    /**
      * Returns the settings service
      *
-     * @return \craft\commerce\services\Settings The settings service
+     * @return Settings The settings service
      */
     public function getSettings()
     {
@@ -242,7 +264,7 @@ trait PluginTrait
     /**
      * Returns the shippingMethods service
      *
-     * @return \craft\commerce\services\ShippingMethods The shippingMethods service
+     * @return ShippingMethods The shippingMethods service
      */
     public function getShippingMethods()
     {
@@ -252,7 +274,7 @@ trait PluginTrait
     /**
      * Returns the shippingRules service
      *
-     * @return \craft\commerce\services\ShippingRules The shippingRules service
+     * @return ShippingRules The shippingRules service
      */
     public function getShippingRules()
     {
@@ -262,7 +284,7 @@ trait PluginTrait
     /**
      * Returns the shippingCategories service
      *
-     * @return \craft\commerce\services\ShippingCategories The shippingCategories service
+     * @return ShippingCategories The shippingCategories service
      */
     public function getShippingCategories()
     {
@@ -272,7 +294,7 @@ trait PluginTrait
     /**
      * Returns the shippingZones service
      *
-     * @return \craft\commerce\services\ShippingZones The shippingZones service
+     * @return ShippingZones The shippingZones service
      */
     public function getShippingZones()
     {
@@ -282,7 +304,7 @@ trait PluginTrait
     /**
      * Returns the states service
      *
-     * @return \craft\commerce\services\States The states service
+     * @return States The states service
      */
     public function getStates()
     {
@@ -292,7 +314,7 @@ trait PluginTrait
     /**
      * Returns the taxCategories service
      *
-     * @return \craft\commerce\services\TaxCategories The taxCategories service
+     * @return TaxCategories The taxCategories service
      */
     public function getTaxCategories()
     {
@@ -302,7 +324,7 @@ trait PluginTrait
     /**
      * Returns the taxRates service
      *
-     * @return \craft\commerce\services\TaxRates The taxRates service
+     * @return TaxRates The taxRates service
      */
     public function getTaxRates()
     {
@@ -312,7 +334,7 @@ trait PluginTrait
     /**
      * Returns the taxZones service
      *
-     * @return \craft\commerce\services\TaxZones The taxZones service
+     * @return TaxZones The taxZones service
      */
     public function getTaxZones()
     {
@@ -322,7 +344,7 @@ trait PluginTrait
     /**
      * Returns the transactions service
      *
-     * @return \craft\commerce\services\Transactions The transactions service
+     * @return Transactions The transactions service
      */
     public function getTransactions()
     {
@@ -332,7 +354,7 @@ trait PluginTrait
     /**
      * Returns the variants service
      *
-     * @return \craft\commerce\services\Variants The variants service
+     * @return Variants The variants service
      */
     public function getVariants()
     {
@@ -355,39 +377,38 @@ trait PluginTrait
     private function _setPluginComponents()
     {
         $this->setComponents([
-            'addresses' => \craft\commerce\services\Addresses::class,
-            'cart' => \craft\commerce\services\Cart::class,
-            'countries' => \craft\commerce\services\Countries::class,
-            'currencies' => \craft\commerce\services\Currencies::class,
-            'customers' => \craft\commerce\services\Customers::class,
-            'discounts' => \craft\commerce\services\Discounts::class,
-            'emails' => \craft\commerce\services\Emails::class,
-            'gateways' => \craft\commerce\services\Gateways::class,
-            'lineItems' => \craft\commerce\services\LineItems::class,
-            'orderAdjustments' => \craft\commerce\services\OrderAdjustments::class,
-            'orderHistories' => \craft\commerce\services\OrderHistories::class,
-            'orders' => \craft\commerce\services\Orders::class,
-            'orderSettings' => \craft\commerce\services\OrderSettings::class,
-            'orderStatuses' => \craft\commerce\services\OrderStatuses::class,
-            'paymentMethods' => \craft\commerce\services\PaymentMethods::class,
-            'paymentCurrencies' => \craft\commerce\services\PaymentCurrencies::class,
-            'payments' => \craft\commerce\services\Payments::class,
-            'products' => \craft\commerce\services\Products::class,
-            'productTypes' => \craft\commerce\services\ProductTypes::class,
-            'purchasables' => \craft\commerce\services\Purchasables::class,
-            'sales' => \craft\commerce\services\Sales::class,
-            'seed' => \craft\commerce\services\Seed::class,
-            'settings' => \craft\commerce\services\Settings::class,
-            'shippingMethods' => \craft\commerce\services\ShippingMethods::class,
-            'shippingRules' => \craft\commerce\services\ShippingRules::class,
-            'shippingCategories' => \craft\commerce\services\ShippingCategories::class,
-            'shippingZones' => \craft\commerce\services\ShippingZones::class,
-            'states' => \craft\commerce\services\States::class,
-            'taxCategories' => \craft\commerce\services\TaxCategories::class,
-            'taxRates' => \craft\commerce\services\TaxRates::class,
-            'taxZones' => \craft\commerce\services\TaxZones::class,
-            'transactions' => \craft\commerce\services\Transactions::class,
-            'variants' => \craft\commerce\services\Variants::class
+            'addresses' => Addresses::class,
+            'cart' => Cart::class,
+            'countries' => Countries::class,
+            'currencies' => Currencies::class,
+            'customers' => Customers::class,
+            'discounts' => Discounts::class,
+            'emails' => Emails::class,
+            'gateways' => Gateways::class,
+            'lineItems' => LineItems::class,
+            'orderAdjustments' => OrderAdjustments::class,
+            'orderHistories' => OrderHistories::class,
+            'orders' => Orders::class,
+            'orderSettings' => OrderSettings::class,
+            'orderStatuses' => OrderStatuses::class,
+            'paymentMethods' => PaymentMethods::class,
+            'paymentCurrencies' => PaymentCurrencies::class,
+            'payments' => Payments::class,
+            'products' => Products::class,
+            'productTypes' => ProductTypes::class,
+            'purchasables' => Purchasables::class,
+            'sales' => Sales::class,
+            'settings' => Settings::class,
+            'shippingMethods' => ShippingMethods::class,
+            'shippingRules' => ShippingRules::class,
+            'shippingCategories' => ShippingCategories::class,
+            'shippingZones' => ShippingZones::class,
+            'states' => States::class,
+            'taxCategories' => TaxCategories::class,
+            'taxRates' => TaxRates::class,
+            'taxZones' => TaxZones::class,
+            'transactions' => Transactions::class,
+            'variants' => Variants::class
         ]);
     }
 }

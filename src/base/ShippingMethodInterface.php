@@ -54,7 +54,7 @@ interface ShippingMethodInterface
     /**
      * Returns an array of rules that meet the `ShippingRules` interface.
      *
-     * @return \Commerce\Interfaces\ShippingRules[] The array of ShippingRules
+     * @return ShippingRuleInterface[] The array of ShippingRules
      */
     public function getShippingRules();
 

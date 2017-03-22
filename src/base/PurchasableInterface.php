@@ -16,7 +16,7 @@ use craft\commerce\models\LineItem;
 interface PurchasableInterface
 {
     /**
-     * Returns the Id of the Purchasable element that should be added to the lineitem.
+     * Returns the Id of the Purchasable element that should be added to the line item.
      * This elements model should meet the Purchasable Interface.
      *
      * @return int
@@ -85,7 +85,7 @@ interface PurchasableInterface
     /**
      * Populates the line item when this purchasable is found on it. Called when Purchasable is added to the cart and when the cart recalculates.
      *
-     * @param craft\commerce\models\LineItem $lineItem
+     * @param LineItem $lineItem
      *
      * @return null
      */
@@ -96,7 +96,7 @@ interface PurchasableInterface
      *
      * You can add model errors to the line item like this: `$lineItem->addError('qty', $errorText);`
      *
-     * @param craft\commerce\models\LineItem $lineItem
+     * @param LineItem $lineItem
      *
      * @return mixed
      */

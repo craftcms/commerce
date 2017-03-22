@@ -16,7 +16,7 @@ use craft\commerce\Plugin;
  * @package   craft.commerce
  * @since     2.0
  */
-abstract class Purchasable extends Element implements craft\commerce\base\PurchasableInterface
+abstract class Purchasable extends Element implements PurchasableInterface
 {
 
     /**
@@ -108,7 +108,7 @@ abstract class Purchasable extends Element implements craft\commerce\base\Purcha
      * This is your chance to modify the weight, height, width, length, price and saleAmount.
      * This is called before any onPopulateLineItem event listener.
      *
-     * @param \craft\commerce\models\LineItem $lineItem
+     * @param LineItem $lineItem
      *
      * @return null
      */
@@ -122,7 +122,7 @@ abstract class Purchasable extends Element implements craft\commerce\base\Purcha
      *
      * You can add model errors to the line item like this: `$lineItem->addError('qty', $errorText);`
      *
-     * @param \craft\commerce\models\LineItem $lineItem
+     * @param LineItem $lineItem
      *
      * @return mixed
      */
