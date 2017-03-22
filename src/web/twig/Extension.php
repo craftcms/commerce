@@ -57,11 +57,11 @@ class Extension extends \Twig_Extension
         }
 
         if ($convert) {
-            $amount = \Craft\craft()->commerce_paymentCurrencies->convert($amount, $currency);
+            $amount = Plugin::getInstance()->getPaymentCurrencies()->convert($amount, $currency);
         }
 
         if ($format) {
-            $amount = \Craft\craft()->numberFormatter->formatCurrency($amount, $currency, $stripZeros);
+            $amount = craft()->numberFormatter->formatCurrency($amount, $currency, $stripZeros);
         }
 
         return $amount;
@@ -69,10 +69,10 @@ class Extension extends \Twig_Extension
 
     private function _validatePaymentCurrency($currency)
     {
-        $currency = \Craft\craft()->commerce_paymentCurrencies->getPaymentCurrencyByIso($currency);
+        $currency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($currency);
 
         if (!$currency) {
-            throw new \Twig_Error(\Craft\Craft::t('Not a valid currency code'));
+            throw new \Twig_Error(Craft::t('commerce', 'commerce', 'Not a valid currency code'));
         }
     }
 
