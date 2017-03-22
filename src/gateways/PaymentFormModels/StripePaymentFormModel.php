@@ -1,6 +1,5 @@
 <?php
-
-namespace Commerce\Gateways\PaymentFormModels;
+namespace craft\commerce\gateway\models;
 
 /**
  * Stripe Payment form model.
@@ -15,24 +14,20 @@ namespace Commerce\Gateways\PaymentFormModels;
  */
 class StripePaymentFormModel extends CreditCardPaymentFormModel
 {
-	public function populateModelFromPost($post)
-	{
-		parent::populateModelFromPost($post);
-		if (isset($post['stripeToken']))
-		{
-			$this->token = $post['stripeToken'];
-		}
-	}
+    public function populateModelFromPost($post)
+    {
+        parent::populateModelFromPost($post);
+        if (isset($post['stripeToken'])) {
+            $this->token = $post['stripeToken'];
+        }
+    }
 
-	public function rules()
-	{
-		if (empty($this->token))
-		{
-			return parent::rules();
-		}
-		else
-		{
-			return [];
-		}
-	}
+    public function rules()
+    {
+        if (empty($this->token)) {
+            return parent::rules();
+        } else {
+            return [];
+        }
+    }
 }

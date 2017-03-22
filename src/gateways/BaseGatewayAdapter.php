@@ -1,19 +1,16 @@
 <?php
-namespace Commerce\Gateways;
+namespace craft\commerce\gateways;
 
+use Craft;
+use craft\base\Model;
 use craft\commerce\models\PaymentMethod;
-use Omnipay\Common\AbstractGateway;
-use Omnipay\Common\CreditCard;
-use Omnipay\Common\GatewayFactory;
-use Omnipay\Common\ItemBag;
-use Omnipay\Common\Message\AbstractRequest as OmnipayRequest;
 
 /**
  * Class BaseGatewayAdapter
  *
  * @package Commerce\Gateways
  */
-abstract class BaseGatewayAdapter extends BaseModel implements GatewayAdapterInterface
+abstract class BaseGatewayAdapter extends Model implements GatewayAdapterInterface
 {
     /** @var GatewayFactory */
     protected static $_factory;
@@ -132,7 +129,7 @@ abstract class BaseGatewayAdapter extends BaseModel implements GatewayAdapterInt
      */
     public function getSettingsHtml()
     {
-        return \Craft\Craft::$app->getView()->render('commerce/_gateways/omnipay', [
+        return Craft::$app->getView()->render('commerce/_gateways/omnipay', [
             'adapter' => $this,
         ]);
     }

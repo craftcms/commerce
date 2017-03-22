@@ -4,6 +4,7 @@ namespace Craft;
 
 use Commerce\Extensions\CommerceTwigExtension;
 use craft\commerce\helpers\Db;
+use craft\commerce\models\Settings;
 
 require __DIR__.'/vendor/autoload.php';
 
@@ -29,9 +30,9 @@ class CommercePlugin extends BasePlugin
         $this->initEventHandlers();
 
         // If this is a CP request, register the commerce.prepCpTemplate hook
-        if (craft()->request->isCpRequest()) {
+        if (Craft::$app->getRequest()->isCpRequest()) {
             $this->includeCpResources();
-            craft()->templates->hook('commerce.prepCpTemplate', array($this, 'prepCpTemplate'));
+            Craft::$app->getView()->hook('commerce.prepCpTemplate', array($this, 'prepCpTemplate'));
         }
     }
 
@@ -41,12 +42,12 @@ class CommercePlugin extends BasePlugin
     private function initEventHandlers()
     {
         //init global event handlers
-        craft()->on('i18n.onAddLocale', array(craft()->commerce_productTypes, 'addLocaleHandler'));
+        craft()->on('i18n.onAddLocale', array(Plugin::getInstance()->getProductTypes(), 'addLocaleHandler'));
 
         if (!craft()->isConsole()) {
-            craft()->on('users.onSaveUser', array(craft()->commerce_customers, 'saveUserHandler'));
-            craft()->on('userSession.onLogin', array(craft()->commerce_customers, 'loginHandler'));
-            craft()->on('userSession.onLogout', array(craft()->commerce_customers, 'logoutHandler'));
+            craft()->on('users.onSaveUser', array(Plugin::getInstance()->getCustomers(), 'saveUserHandler'));
+            craft()->on('userSession.onLogin', array(Plugin::getInstance()->getCustomers(), 'loginHandler'));
+            craft()->on('userSession.onLogout', array(Plugin::getInstance()->getCustomers(), 'logoutHandler'));
         }
     }
 
@@ -55,7 +56,7 @@ class CommercePlugin extends BasePlugin
      */
     private function includeCpResources()
     {
-        $templatesService = craft()->templates;
+        $templatesService = Craft::$app->getView();
         $templatesService->includeCssResource('commerce/commerce.css');
         $templatesService->includeJsResource('commerce/js/Commerce.js');
         $templatesService->includeJsResource('commerce/js/CommerceProductIndex.js');
@@ -88,120 +89,6 @@ class CommercePlugin extends BasePlugin
             'Update',
             'No Address'
         );
-    }
-
-    /**
-     * Handle rename.
-     */
-    public function createTables()
-    {
-        $pluginInfo = craft()->db->createCommand()
-            ->select('id, version')
-            ->from('plugins')
-            ->where("class = 'Market'")
-            ->queryRow();
-
-        if (!$pluginInfo) {
-            parent::createTables();
-        } else {
-            if ($pluginInfo['version'] != '0.8.09') {
-                throw new Exception('Market plugin must be upgraded to 0.8.09 before installing Commerce');
-            }
-
-            if ($pluginInfo['version'] == '0.8.09') {
-                Db::beginStackedTransaction();
-                try {
-                    $this->doSeed = false;
-
-                    $migrations = array(
-                        'm150916_010101_Commerce_Rename',
-                        'm150917_010101_Commerce_DropEmailTypeColumn',
-                        'm150917_010102_Commerce_RenameCodeToHandletaxCatColumn',
-                        'm150918_010101_Commerce_AddProductTypeLocales',
-                        'm150918_010102_Commerce_RemoveNonLocaleBasedUrlFormat',
-                        'm150919_010101_Commerce_AddHasDimensionsToProductType',
-                        'm151004_142113_commerce_PaymentMethods_name_unique',
-                        'm151018_010101_Commerce_DiscountCodeNull',
-                        'm151025_010101_Commerce_AddHandleToShippingMethod',
-                        'm151027_010101_Commerce_NewVariantUI',
-                        'm151027_010102_Commerce_ProductDateNames',
-                        'm151102_010101_Commerce_PaymentTypeInMethodNotSettings',
-                        'm151103_010101_Commerce_DefaultVariant',
-                        'm151109_010101_Commerce_AddCompanyNumberToAddress',
-                        'm151110_010101_Commerce_RenameCompanyToAddress',
-                        'm151111_010101_Commerce_ShowVariantTitleField',
-                        'm151112_010101_Commerce_AutoSkuFormat',
-                        'm151109_010102_Commerce_AddOptionsToLineItems',
-                        'm151117_010101_Commerce_TaxIncluded',
-                        'm151124_010101_Commerce_AddressManagement',
-                        'm151127_010101_Commerce_TaxRateTaxableOptions',
-                        'm151210_010101_Commerce_FixMissingLineItemDimensionData',
-                        'm160215_010101_Commerce_ConsistentDecimalType',
-                        'm160226_010101_Commerce_OrderStatusSortOrder',
-                        'm160226_010102_Commerce_isCompleted',
-                        'm160227_010101_Commerce_OrderAdjustmentIncludedFlag',
-                        'm160229_010101_Commerce_ShippingZone',
-                        'm160229_010104_Commerce_SoftDeleteAndReorderPaymentMethod',
-                        'm160401_010101_Commerce_KeepAllTransactions',
-                        'm160405_010101_Commerce_FixDefaultVariantId',
-                        'm160406_010101_Commerce_RemoveUnusedAuthorId',
-                        'm160425_010101_Commerce_DeleteCountriesAndStates',
-                        'm160510_010101_Commerce_EmailRecipientType',
-                        'm160606_010101_Commerce_PerEmailLimitOnDiscount',
-                        'm160510_010101_Commerce_Currencies',
-                        'm160806_010101_Commerce_RemoveShowInLabel.php',
-                        'm160806_010102_Commerce_AddVatTaxRateOption.php',
-                        'm160825_010101_Commerce_AddMaxQtyToDiscount.php',
-                        'm160826_010101_Commerce_NewAddressFields.php',
-                        'm160915_010101_Commerce_RenameCurrencies',
-                        'm160916_010102_Commerce_PdfFilenameFormat',
-                        'm160917_010103_Commerce_DescriptionFormat',
-                        'm160917_010104_Commerce_ShippingCategories',
-                        'm160917_010104_Commerce_OrderLocale',
-                        'm160927_010101_Commerce_ShippingRuleCategories',
-                        'm160930_010101_Commerce_RenameDefaultCurrencyToPrimary',
-                        'm161001_010101_Commerce_LineItemShippingCat',
-                        'm161001_010102_Commerce_DiscountOrdering',
-                        'm161001_010103_Commerce_DiscountStopProcessing',
-                        'm161001_010104_Commerce_SaveTransactionCode',
-                        'm161001_010105_Commerce_RemovePaymentCurrencyName',
-                        'm161024_010101_Commerce_FixDefaultShippingAndTaxCategoriesOnProducts'
-                    );
-
-                    foreach ($migrations as $migrationClass) {
-                        $migration = craft()->migrations->instantiateMigration($migrationClass, $this);
-                        if (!$migration->up()) {
-                            Craft::log("Market to Commerce Upgrade Error. Could not run: " . $migrationClass, LogLevel::Error);
-                            throw new Exception('Market to Commerce Upgrade Error.');
-                        }
-                    }
-
-                    Db::commitStackedTransaction();
-                } catch (Exception $e) {
-                    Db::rollbackStackedTransaction();
-                }
-            }
-        }
-    }
-
-    /**
-     * The plugin name.
-     *
-     * @return string
-     */
-    public function getName()
-    {
-        return 'Commerce';
-    }
-
-    /**
-     * The plugin description.
-     *
-     * @return string|null
-     */
-    public function getDescription()
-    {
-        return 'An amazingly powerful and flexible e-commerce platform for Craft CMS.';
     }
 
     /**
@@ -242,17 +129,6 @@ class CommercePlugin extends BasePlugin
     public function hasCpSection()
     {
         return true;
-    }
-
-    /**
-     * After install, run seeders and optional test data.
-     *
-     */
-    public function onAfterInstall()
-    {
-        if ($this->doSeed) {
-            craft()->commerce_seed->afterInstall();
-        }
     }
 
     /**
@@ -380,7 +256,7 @@ class CommercePlugin extends BasePlugin
             {
                 $message .= ' ';
 
-                if (craft()->userSession->isAdmin())
+                if (Craft::$app->getUser()->isAdmin())
                 {
                     $message .= '<a class="go" href="'.UrlHelper::getUrl('commerce/settings/registration').'">'.Craft::t('Resolve').'</a>';
                 }
@@ -408,7 +284,7 @@ class CommercePlugin extends BasePlugin
         // Include a Product link option if there are any product types that have URLs
         $productSources = array();
 
-        foreach (craft()->commerce_productTypes->getAllProductTypes() as $productType)
+        foreach (Plugin::getInstance()->getProductTypes()->getAllProductTypes() as $productType)
         {
             if ($productType->hasUrls)
             {
@@ -445,19 +321,19 @@ class CommercePlugin extends BasePlugin
     {
         $context['subnav'] = array();
 
-        if (craft()->userSession->checkPermission('commerce-manageOrders')) {
+        if (Craft::$app->getUser()->checkPermission('commerce-manageOrders')) {
             $context['subnav']['orders'] = array('label' => Craft::t('Orders'), 'url' => 'commerce/orders');
         }
 
-        if (craft()->userSession->checkPermission('commerce-manageProducts')) {
+        if (Craft::$app->getUser()->checkPermission('commerce-manageProducts')) {
             $context['subnav']['products'] = array('label' => Craft::t('Products'), 'url' => 'commerce/products');
         }
 
-        if (craft()->userSession->checkPermission('commerce-managePromotions')) {
+        if (Craft::$app->getUser()->checkPermission('commerce-managePromotions')) {
             $context['subnav']['promotions'] = array('label' => Craft::t('Promotions'), 'url' => 'commerce/promotions');
         }
 
-        if (craft()->userSession->isAdmin()) {
+        if (Craft::$app->getUser()->isAdmin()) {
             $context['subnav']['settings'] = array('label' => Craft::t('Settings'), 'url' => 'commerce/settings');
         }
     }
@@ -467,7 +343,7 @@ class CommercePlugin extends BasePlugin
      */
     public function registerUserPermissions()
     {
-        $productTypes = craft()->commerce_productTypes->getAllProductTypes('id');
+        $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes('id');
 
         $productTypePermissions = array();
         foreach ($productTypes as $id => $productType) {
@@ -491,9 +367,9 @@ class CommercePlugin extends BasePlugin
      */
     protected function defineSettings()
     {
-        $settingModel = new Commerce_SettingsModel;
+        $settingModel = new Settings();
 
-        return $settingModel->defineAttributes();
+        return $settingModel->attributes;
     }
 
 }

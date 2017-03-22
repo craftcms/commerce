@@ -1,6 +1,5 @@
 <?php
-
-namespace Commerce\Gateways\PaymentFormModels;
+namespace craft\commerce\gateway\models;
 
 /**
  * Payment form model. Used for validation of input, not directly persisted.
@@ -15,23 +14,23 @@ namespace Commerce\Gateways\PaymentFormModels;
 class OffsitePaymentFormModel extends BasePaymentFormModel
 {
 
-	/**
-	 * Offsite gateways require no validation.
-	 *
-	 * @return array
-	 */
-	public function rules()
-	{
-		return [];
-	}
+    /**
+     * Offsite gateways require no validation.
+     *
+     * @return array
+     */
+    public function rules()
+    {
+        return [];
+    }
 
-	/**
-	 * Offsite gateways require no user submitted data.
-	 *
-	 * @return array
-	 */
-	protected function defineAttributes()
-	{
-		return [];
-	}
+    /**
+     * Offsite gateways require no user submitted data.
+     *
+     * @return array
+     */
+    protected function defineAttributes()
+    {
+        return [];
+    }
 }

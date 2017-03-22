@@ -1,31 +1,17 @@
 <?php
+namespace craft\commerce\gateway\models;
 
-namespace Commerce\Gateways\PaymentFormModels;
+use craft\base\Model;
 
-use Craft\BaseModel;
-
-/**
- * Base Payment form model.
- *
- *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   Commerce\Gateways\PaymentFormModels
- * @since     1.1
- */
-abstract class BasePaymentFormModel extends BaseModel
+abstract class BasePaymentFormModel extends Model
 {
-
-	/**
-	 * @param $post
-	 */
-	public function populateModelFromPost($post)
-	{
-		foreach ($this->getAttributes() as $attr => $value)
-		{
-			$this->$attr = \Craft\Craft::$app->getRequest()->getPost($attr);
-		}
-	}
+    /**
+     * @param $post
+     */
+    public function populateModelFromPost($post)
+    {
+        foreach ($this->getAttributes() as $attr => $value) {
+            $this->$attr = $post;
+        }
+    }
 }

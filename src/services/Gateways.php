@@ -65,11 +65,11 @@ class Gateways extends Component
     private function _getGatewayClasses()
     {
         $classes = [
-            '\Commerce\Gateways\Omnipay\Dummy_GatewayAdapter',
-            '\Commerce\Gateways\Omnipay\Manual_GatewayAdapter',
-            '\Commerce\Gateways\Omnipay\PayPal_Express_GatewayAdapter',
-            '\Commerce\Gateways\Omnipay\PayPal_Pro_GatewayAdapter',
-            '\Commerce\Gateways\Omnipay\Stripe_GatewayAdapter',
+            'craft\commerce\gateways\Dummy_GatewayAdapter',
+            'craft\commerce\gateways\Manual_GatewayAdapter',
+            'craft\commerce\gateways\PayPal_Express_GatewayAdapter',
+            'craft\commerce\gateways\PayPal_Pro_GatewayAdapter',
+            'craft\commerce\gateways\Stripe_GatewayAdapter',
         ];
 
         // Let plugins register more gateway adapters classes

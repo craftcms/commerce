@@ -1,7 +1,7 @@
 <?php
-namespace Commerce\Gateways\Omnipay;
+namespace craft\commerce\gateways;
 
-class Manual_GatewayAdapter extends \Commerce\Gateways\OffsiteGatewayAdapter
+class Manual_GatewayAdapter extends OffsiteGatewayAdapter
 {
     public function handle()
     {

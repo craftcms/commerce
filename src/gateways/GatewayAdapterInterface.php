@@ -1,5 +1,5 @@
 <?php
-namespace Commerce\Gateways;
+namespace craft\commerce\gateways;
 
 use craft\commerce\models\PaymentMethod;
 

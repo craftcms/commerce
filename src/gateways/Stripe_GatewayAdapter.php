@@ -1,53 +1,50 @@
 <?php
-namespace Commerce\Gateways\Omnipay;
+namespace craft\commerce\gateways;
 
-use Commerce\Gateways\PaymentFormModels\StripePaymentFormModel;
-use Craft\AttributeType;
-use Craft\BaseModel;
-use Omnipay\Common\CreditCard;
+use Craft;
+use craft\commerce\gateway\models\StripePaymentFormModel;
 
-class Stripe_GatewayAdapter extends \Commerce\Gateways\CreditCardGatewayAdapter
+class Stripe_GatewayAdapter extends CreditCardGatewayAdapter
 {
-	public function handle()
-	{
-		return 'Stripe';
-	}
+    public function handle()
+    {
+        return 'Stripe';
+    }
 
-	public function getPaymentFormModel()
-	{
-		return new StripePaymentFormModel();
-	}
+    public function getPaymentFormModel()
+    {
+        return new StripePaymentFormModel();
+    }
 
-	public function cpPaymentsEnabled()
-	{
-		return true;
-	}
+    public function cpPaymentsEnabled()
+    {
+        return true;
+    }
 
-	public function getPaymentFormHtml(array $params)
-	{
-		$defaults = [
-			'paymentMethod' => $this->getPaymentMethod(),
-			'paymentForm'   => $this->getPaymentMethod()->getPaymentFormModel(),
-			'adapter'       => $this
-		];
+    public function getPaymentFormHtml(array $params)
+    {
+        $defaults = [
+            'paymentMethod' => $this->getPaymentMethod(),
+            'paymentForm' => $this->getPaymentMethod()->getPaymentFormModel(),
+            'adapter' => $this
+        ];
 
-		$params = array_merge($defaults, $params);
+        $params = array_merge($defaults, $params);
 
-		\Craft\Craft::$app->getView()->includeJsFile('https://js.stripe.com/v2/');
-		\Craft\Craft::$app->getView()->includeJsResource('lib/jquery.payment'.(\Craft\Craft::$app->getConfig()->get('useCompressedJs') ? '.min' : '').'.js');
+        Craft::$app->getView()->includeJsFile('https://js.stripe.com/v2/');
+        Craft::$app->getView()->includeJsResource('lib/jquery.payment'.(Craft::$app->getConfig()->get('useCompressedJs') ? '.min' : '').'.js');
 
-		return \Craft\Craft::$app->getView()->render('commerce/_gateways/_paymentforms/stripe', $params);
+        return Craft::$app->getView()->render('commerce/_gateways/_paymentforms/stripe', $params);
+    }
 
-	}
+    public function defineAttributes()
+    {
+        // In addition to the standard gateway config, here is some custom config that is useful.
+        $attr = parent::defineAttributes();
+        $attr['publishableKey'] = [AttributeType::String];
+        $attr['publishableKey']['label'] = $this->generateAttributeLabel('publishableKey');
 
-	public function defineAttributes()
-	{
-		// In addition to the standard gateway config, here is some custom config that is useful.
-		$attr = parent::defineAttributes();
-		$attr['publishableKey'] = [AttributeType::String];
-		$attr['publishableKey']['label'] = $this->generateAttributeLabel('publishableKey');
-
-		return $attr;
-	}
+        return $attr;
+    }
 
 }

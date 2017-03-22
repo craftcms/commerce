@@ -3,7 +3,6 @@ namespace craft\commerce\services;
 
 use craft\commerce\models\Country;
 use craft\commerce\records\Country as CountryRecord;
-use craft\commerce\records\Country as CountryRecord;
 use craft\helpers\ArrayHelper;
 use yii\base\Component;
 use yii\base\Exception;
