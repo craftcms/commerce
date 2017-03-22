@@ -12,7 +12,8 @@
     <div class="row">
         <div class="twelve columns">
 
-            {% if currentUser %}<p><a href="{{ url('shop/customer') }}">My Orders</a></p>{% endif %}
+            {% if currentUser %}<p><a href="{{ url('shop/customer') }}">My
+                    Orders</a></p>{% endif %}
             <h1>Order #{{ order.id }}</h1>
 
 
@@ -21,10 +22,16 @@
                     <h4>Details</h4>
 
                     <ul>
-                        <li><strong>{{ "Customer"|t }}:</strong> {{ order.customer.email }}</li>
-                        <li><strong>{{ "Total"|t }}:</strong> {{ order.totalPrice|commerceCurrency(cart.currency) }}</li>
-                        <li><strong>{{ "Amount Paid"|t }}:</strong> {{ order.totalPaid|commerceCurrency(cart.currency) }}</li>
-                        <li><strong>{{ "Date"|t }}:</strong> {{ order.dateOrdered }}</li>
+                        <li><strong>{{ "Customer"|t }}
+                                :</strong> {{ order.customer.email }}</li>
+                        <li><strong>{{ "Total"|t }}
+                                :</strong> {{ order.totalPrice|commerceCurrency(cart.currency) }}
+                        </li>
+                        <li><strong>{{ "Amount Paid"|t }}
+                                :</strong> {{ order.totalPaid|commerceCurrency(cart.currency) }}
+                        </li>
+                        <li><strong>{{ "Date"|t }}
+                                :</strong> {{ order.dateOrdered }}</li>
                     </ul>
 
                 </div>
@@ -32,20 +39,22 @@
                     <h4>Shipping Address</h4>
 
                     {% if order.shippingAddress %}
-                    {% include 'shop/_includes/addresses/address' with { address: order.shippingAddress } %}
+                        {% include 'shop/_includes/addresses/address' with { address: order.shippingAddress } %}
                     {% endif %}
                 </div>
                 <div class="four columns">
                     <h4>Billing Address</h4>
                     {% if order.billingAddress %}
-                    {% include 'shop/_includes/addresses/address' with { address: order.billingAddress } %}
+                        {% include 'shop/_includes/addresses/address' with { address: order.billingAddress } %}
                     {% endif %}
                 </div>
             </div>
 
 
             {% if order.pdfUrl %}
-            <h4>Receipt (<a href="{{ order.getPdfUrl('receipt') }}">Download</a>)</h4>
+                <h4>Receipt (<a
+                            href="{{ order.getPdfUrl('receipt') }}">Download</a>)
+                </h4>
             {% endif %}
 
             <table class="u-full-width">
@@ -79,15 +88,21 @@
                 {% for adjustment in order.adjustments %}
                     <tr>
                         <td>{{ adjustment.type }}</td>
-                        <td colspan="2"><strong>{{ adjustment.name }}</strong><br>({{ adjustment.description }})</td>
+                        <td colspan="2">
+                            <strong>{{ adjustment.name }}</strong><br>({{ adjustment.description }}
+                            )
+                        </td>
                         <td class="text-right">{{ adjustment.amount|commerceCurrency(cart.currency) }}</td>
                     </tr>
                 {% endfor %}
 
                 <tr>
                     <td colspan="4" class="text-right">
-                        Item Total: {{ order.itemTotal|commerceCurrency(cart.currency) }}<br>
-                        <h4>Total: {{ order.totalPrice|commerceCurrency(cart.currency) }}</h4>
+                        Item
+                        Total: {{ order.itemTotal|commerceCurrency(cart.currency) }}
+                        <br>
+                        <h4>
+                            Total: {{ order.totalPrice|commerceCurrency(cart.currency) }}</h4>
                     </td>
                 </tr>
 

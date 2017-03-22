@@ -2,23 +2,25 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css">
+    <link rel="stylesheet"
+          href="http://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css">
     <style>
-    {% include 'shop/style.css' %}
-    .paidLogo{
-        font-weight:bold;
-        position: absolute;
-        left:30%;
-        font-family: 'Helvetica', serif;
-        color:rgb(211, 65, 50);
-        font-size:48px;
-        -ms-transform: rotate(-20deg); /* IE 9 */
-        -webkit-transform: rotate(-20deg); /* Safari */
-        transform: rotate(-20deg);
-    }
-    table.heading td{
-        vertical-align: top;
-    }
+        {% include 'shop/style.css' %}
+        .paidLogo {
+            font-weight: bold;
+            position: absolute;
+            left: 30%;
+            font-family: 'Helvetica', serif;
+            color: rgb(211, 65, 50);
+            font-size: 48px;
+            -ms-transform: rotate(-20deg); /* IE 9 */
+            -webkit-transform: rotate(-20deg); /* Safari */
+            transform: rotate(-20deg);
+        }
+
+        table.heading td {
+            vertical-align: top;
+        }
     </style>
 </head>
 
@@ -32,22 +34,28 @@
                     <td>
                         <h5>Details</h5>
                         <ul>
-                            <li><strong>{{ "Customer"|t }}:</strong> {{ order.customer.email }}</li>
-                            <li><strong>{{ "Total"|t }}:</strong> {{ order.totalPrice|commerceCurrency(order.currency) }}</li>
-                            <li><strong>{{ "Paid"|t }}:</strong>{{ order.totalPaid|commerceCurrency(order.currency) }} {{ order.datePaid|date('D dS M Y') }}</li>
-                            <li><strong>{{ "Date"|t }}:</strong> {{ order.dateOrdered }}</li>
+                            <li><strong>{{ "Customer"|t }}
+                                    :</strong> {{ order.customer.email }}</li>
+                            <li><strong>{{ "Total"|t }}
+                                    :</strong> {{ order.totalPrice|commerceCurrency(order.currency) }}
+                            </li>
+                            <li><strong>{{ "Paid"|t }}
+                                    :</strong>{{ order.totalPaid|commerceCurrency(order.currency) }} {{ order.datePaid|date('D dS M Y') }}
+                            </li>
+                            <li><strong>{{ "Date"|t }}
+                                    :</strong> {{ order.dateOrdered }}</li>
                         </ul>
                     </td>
                     <td>
                         <h5>Shipping Address</h5>
                         {% if order.shippingAddress %}
-                        {% include 'shop/_includes/addresses/address' with { address: order.shippingAddress } %}
+                            {% include 'shop/_includes/addresses/address' with { address: order.shippingAddress } %}
                         {% endif %}
                     </td>
                     <td>
                         <h5>Billing Address</h5>
                         {% if order.billingAddress %}
-                        {% include 'shop/_includes/addresses/address' with { address: order.billingAddress } %}
+                            {% include 'shop/_includes/addresses/address' with { address: order.billingAddress } %}
                         {% endif %}
                     </td>
                 </tr>
@@ -83,18 +91,35 @@
                 {% for adjustment in order.adjustments %}
                     <tr>
                         <td>{{ adjustment.type }}</td>
-                        <td colspan="2"><strong>{{ adjustment.name }}</strong><br>({{ adjustment.description }})</td>
+                        <td colspan="2">
+                            <strong>{{ adjustment.name }}</strong><br>({{ adjustment.description }}
+                            )
+                        </td>
                         <td class="text-right">{{ adjustment.amount|commerceCurrency(order.currency) }}</td>
                     </tr>
                 {% endfor %}
-                <tr><td colspan="2"><div class="paidLogo"><span>{{ 'PAID'|t }}</div></td><td colspan="2"></td></tr>
+                <tr>
+                    <td colspan="2">
+                        <div class="paidLogo"><span>{{ 'PAID'|t }}</div>
+                    </td>
+                    <td colspan="2"></td>
+                </tr>
                 <tr>
                     <td colspan="4" class="text-right">
-                        Item Total: {{ order.itemTotal|commerceCurrency(order.currency) }}<br>
-                        Base Discount: {{ order.baseDiscount|commerceCurrency(order.currency) }}<br>
-                        Base Tax: {{ order.baseTax|commerceCurrency(order.currency) }}<br>
-                        Base Shipping Cost: {{ order.baseShippingCost|commerceCurrency(order.currency) }}<br>
-                        <h4>Total: {{ order.totalPrice|commerceCurrency(order.currency) }}</h4>
+                        Item
+                        Total: {{ order.itemTotal|commerceCurrency(order.currency) }}
+                        <br>
+                        Base
+                        Discount: {{ order.baseDiscount|commerceCurrency(order.currency) }}
+                        <br>
+                        Base
+                        Tax: {{ order.baseTax|commerceCurrency(order.currency) }}
+                        <br>
+                        Base Shipping
+                        Cost: {{ order.baseShippingCost|commerceCurrency(order.currency) }}
+                        <br>
+                        <h4>
+                            Total: {{ order.totalPrice|commerceCurrency(order.currency) }}</h4>
                     </td>
                 </tr>
 
@@ -108,13 +133,13 @@
 {# Use the option param passed into the pdf template to show different order pdf's depending on the context #}
 {% switch option %}
 {% case "receipt" %}
-    <h1>Receipt for Order #{{ order.number[:7] }}</h1>
-    {{ orderTable }}
+<h1>Receipt for Order #{{ order.number[:7] }}</h1>
+{{ orderTable }}
 {% case "ajax" %}
-    <h1>NA</h1>
+<h1>NA</h1>
 {% default %}
-    <h1>Order #{{ order.number[:7] }}</h1>
-    {{ orderTable }}
+<h1>Order #{{ order.number[:7] }}</h1>
+{{ orderTable }}
 {% endswitch %}
 
 
