@@ -1,6 +1,14 @@
 <?php
 namespace Craft;
 
+use craft\commerce\fieldtypes\Customer;
+use craft\commerce\models\ShippingZone;
+use craft\commerce\models\TaxCategory;
+use craft\commerce\models\TaxRate;
+use craft\commerce\models\TaxZone;
+use craft\commerce\Plugin;
+use craft\helpers\ArrayHelper;
+
 /**
  * Variable class.
  *
@@ -20,7 +28,7 @@ class CommerceVariable
      */
     public function settings()
     {
-        return craft()->commerce_settings->getSettings();
+        return Plugin::getInstance()->getSettings()->getSettings();
     }
 
     /**
@@ -30,7 +38,7 @@ class CommerceVariable
      */
     public function products($criteria = null)
     {
-        return craft()->elements->getCriteria('Commerce_Product', $criteria);
+        return Craft::$app->getElements()->getCriteria('Commerce_Product', $criteria);
     }
 
     /**
@@ -40,7 +48,7 @@ class CommerceVariable
      */
     public function variants($criteria = null)
     {
-        return craft()->elements->getCriteria('Commerce_Variant', $criteria);
+        return Craft::$app->getElements()->getCriteria('Commerce_Variant', $criteria);
     }
 
     /**
@@ -51,28 +59,27 @@ class CommerceVariable
     public function orders($criteria = null)
     {
 
-        if (!isset($criteria['isCompleted']))
-        {
+        if (!isset($criteria['isCompleted'])) {
             $criteria['isCompleted'] = true;
         }
 
-        return craft()->elements->getCriteria('Commerce_Order', $criteria);
+        return Craft::$app->getElements()->getCriteria('Commerce_Order', $criteria);
     }
 
     /**
-     * @return Commerce_OrderModel
+     * @return Order
      */
     public function getCart()
     {
-        return craft()->commerce_cart->getCart();
+        return Plugin::getInstance()->getCart()->getCart();
     }
 
     /**
-     * @return Commerce_CustomerModel
+     * @return Customer
      */
     public function getCustomer()
     {
-        return craft()->commerce_customers->getCustomer();
+        return Plugin::getInstance()->getCustomers()->getCustomer();
     }
 
     /**
@@ -80,7 +87,7 @@ class CommerceVariable
      */
     public function getCountries()
     {
-        return craft()->commerce_countries->getAllCountries();
+        return Plugin::getInstance()->getCountries()->getAllCountries();
     }
 
     /**
@@ -88,7 +95,7 @@ class CommerceVariable
      */
     public function getStates()
     {
-        return craft()->commerce_states->getAllStates();
+        return Plugin::getInstance()->getStates()->getAllStates();
     }
 
     /**
@@ -96,7 +103,7 @@ class CommerceVariable
      */
     public function getCountriesList()
     {
-        return craft()->commerce_countries->getAllCountriesListData();
+        return Plugin::getInstance()->getCountries()->getAllCountriesListData();
     }
 
     /**
@@ -104,7 +111,7 @@ class CommerceVariable
      */
     public function getStatesArray()
     {
-        return craft()->commerce_states->getStatesGroupedByCountries();
+        return Plugin::getInstance()->getStates()->getStatesGroupedByCountries();
     }
 
     /**
@@ -112,25 +119,25 @@ class CommerceVariable
      */
     public function getAvailableShippingMethods()
     {
-        $cart = craft()->commerce_cart->getCart();
+        $cart = Plugin::getInstance()->getCart()->getCart();
 
-        return craft()->commerce_shippingMethods->getOrderedAvailableShippingMethods($cart);
+        return Plugin::getInstance()->getShippingMethods()->getOrderedAvailableShippingMethods($cart);
     }
 
     /**
-     * @return Commerce_ShippingMethodModel[]
+     * @return ShippingMethod[]
      */
     public function getShippingMethods()
     {
-        return craft()->commerce_shippingMethods->getAllShippingMethods();
+        return Plugin::getInstance()->getShippingMethods()->getAllShippingMethods();
     }
 
     /**
-     * @return Commerce_ShippingZoneModel[]
+     * @return ShippingZone[]
      */
     public function getShippingZones()
     {
-        return craft()->commerce_shippingZones->getAllShippingZones();
+        return Plugin::getInstance()->getShippingZones()->getAllShippingZones();
     }
 
     /**
@@ -140,11 +147,10 @@ class CommerceVariable
      */
     public function getShippingCategories($asList = false)
     {
-        $shippingCategories = craft()->commerce_shippingCategories->getAllShippingCategories();
+        $shippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategories();
 
-        if ($asList)
-        {
-            return \CHtml::listData($shippingCategories, 'id', 'name');
+        if ($asList) {
+            return ArrayHelper::map($shippingCategories, 'id', 'name');
         }
 
         // Need to put the methods into an array keyed by method ID for backwards compatibility.
@@ -152,140 +158,9 @@ class CommerceVariable
     }
 
     /**
-     * @param bool $asList Whether we should return the payment methods as a simple list suitable for a html select box
-     *
-     * @return array|Commerce_PaymentMethodModel[]
-     */
-    public function getPaymentMethods($asList = false)
-    {
-        $methods = craft()->commerce_paymentMethods->getAllFrontEndPaymentMethods();
-
-        if ($asList)
-        {
-            return \CHtml::listData($methods, 'id', 'name');
-        }
-
-        // Need to put the methods into an array keyed by method ID for backwards compatibility.
-        return $this->arrayKeyedByAttribute($methods, 'id');
-    }
-
-    /**
-     * @return Commerce_ProductTypeModel[]
-     */
-    public function getProductTypes()
-    {
-        return craft()->commerce_productTypes->getAllProductTypes();
-    }
-
-    /**
-     * @return Commerce_OrderStatusModel[]
-     */
-    public function getOrderStatuses()
-    {
-        return craft()->commerce_orderStatuses->getAllOrderStatuses();
-    }
-
-    /**
-     * @param bool $asList should the categories be returned as a simple list suitable for a html select box
-     *
-     * @return array|Commerce_TaxCategoryModel[]
-     */
-    public function getTaxCategories($asList = false)
-    {
-        $taxCategories = craft()->commerce_taxCategories->getAllTaxCategories();
-
-        if ($asList)
-        {
-            return \CHtml::listData($taxCategories, 'id', 'name');
-        }
-
-        // Need to put the methods into an array keyed by method ID for backwards compatibility.
-        return $this->arrayKeyedByAttribute($taxCategories, 'id');
-    }
-
-    /**
-     * @return Commerce_TaxRateModel[]
-     */
-    public function getTaxRates()
-    {
-        return craft()->commerce_taxRates->getAllTaxRates();
-    }
-
-    /**
-     * @return Commerce_TaxZoneModel[]
-     */
-    public function getTaxZones()
-    {
-        return craft()->commerce_taxZones->getAllTaxZones();
-    }
-
-    /**
-     * @return Commerce_DiscountModel[]
-     */
-    public function getDiscounts()
-    {
-        $discounts = craft()->commerce_discounts->getAllDiscounts();
-
-        return $discounts;
-    }
-
-    /**
-     * @param string $code
-     *
-     * @return Commerce_DiscountModel|null
-     */
-    public function getDiscountByCode($code)
-    {
-        $discount = craft()->commerce_discounts->getDiscountByCode($code);
-
-        return $discount;
-    }
-
-    /**
-     * @return Commerce_SaleModel[]
-     */
-    public function getSales()
-    {
-        $sales = craft()->commerce_sales->getAllSales();
-
-        return $sales;
-    }
-
-    /**
-     * @return Commerce_PaymentCurrencyModel[]
-     */
-    public function getPaymentCurrencies()
-    {
-        $currencies = craft()->commerce_paymentCurrencies->getAllPaymentCurrencies();
-
-        return $currencies;
-    }
-
-    /**
-     * @return Commerce_CurrencyModel[]
-     */
-    public function getCurrencies()
-    {
-        $currencies = craft()->commerce_currencies->getAllCurrencies();
-
-        return $currencies;
-    }
-
-    /**
-     * @return Commerce_PaymentCurrencyModel
-     */
-    public function getPrimaryPaymentCurrency()
-    {
-        return craft()->commerce_paymentCurrencies->getPrimaryPaymentCurrency();
-    }
-
-    // Private Methods
-    // =========================================================================
-
-    /**
      * TODO Move this into an array
      *
-     * @param BaseModel[] $array All models using this method must implement __string() to be backwards compatible with \CHtml::listData
+     * @param BaseModel[] $array     All models using this method must implement __string() to be backwards compatible with ArrayHelper::map
      * @param string      $attribute The attribute you want the array keyed by.
      *
      * @return array
@@ -293,11 +168,139 @@ class CommerceVariable
     private function arrayKeyedByAttribute($array, $attribute)
     {
         $newArray = [];
-        foreach ($array as $model)
-        {
+        foreach ($array as $model) {
             $newArray[$model->{$attribute}] = $model;
         }
 
         return $newArray;
+    }
+
+    /**
+     * @param bool $asList Whether we should return the payment methods as a simple list suitable for a html select box
+     *
+     * @return array|PaymentMethod[]
+     */
+    public function getPaymentMethods($asList = false)
+    {
+        $methods = Plugin::getInstance()->getPaymentMethods()->getAllFrontEndPaymentMethods();
+
+        if ($asList) {
+            return ArrayHelper::map($methods, 'id', 'name');
+        }
+
+        // Need to put the methods into an array keyed by method ID for backwards compatibility.
+        return $this->arrayKeyedByAttribute($methods, 'id');
+    }
+
+    /**
+     * @return ProductType[]
+     */
+    public function getProductTypes()
+    {
+        return Plugin::getInstance()->getProductTypes()->getAllProductTypes();
+    }
+
+    /**
+     * @return OrderStatus[]
+     */
+    public function getOrderStatuses()
+    {
+        return Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
+    }
+
+    /**
+     * @param bool $asList should the categories be returned as a simple list suitable for a html select box
+     *
+     * @return array|TaxCategory[]
+     */
+    public function getTaxCategories($asList = false)
+    {
+        $taxCategories = Plugin::getInstance()->getTaxCategories()->getAllTaxCategories();
+
+        if ($asList) {
+            return ArrayHelper::map($taxCategories, 'id', 'name');
+        }
+
+        // Need to put the methods into an array keyed by method ID for backwards compatibility.
+        return $this->arrayKeyedByAttribute($taxCategories, 'id');
+    }
+
+    /**
+     * @return TaxRate[]
+     */
+    public function getTaxRates()
+    {
+        return Plugin::getInstance()->getTaxRates()->getAllTaxRates();
+    }
+
+    /**
+     * @return TaxZone[]
+     */
+    public function getTaxZones()
+    {
+        return Plugin::getInstance()->getTaxZones()->getAllTaxZones();
+    }
+
+    /**
+     * @return Discount[]
+     */
+    public function getDiscounts()
+    {
+        $discounts = Plugin::getInstance()->getDiscounts()->getAllDiscounts();
+
+        return $discounts;
+    }
+
+    /**
+     * @param string $code
+     *
+     * @return Discount|null
+     */
+    public function getDiscountByCode($code)
+    {
+        $discount = Plugin::getInstance()->getDiscounts()->getDiscountByCode($code);
+
+        return $discount;
+    }
+
+    /**
+     * @return Sale[]
+     */
+    public function getSales()
+    {
+        $sales = Plugin::getInstance()->getSales()->getAllSales();
+
+        return $sales;
+    }
+
+    /**
+     * @return PaymentCurrency[]
+     */
+    public function getPaymentCurrencies()
+    {
+        $currencies = Plugin::getInstance()->getPaymentCurrencies()->getAllPaymentCurrencies();
+
+        return $currencies;
+    }
+
+    /**
+     * @return Currency[]
+     */
+    public function getCurrencies()
+    {
+        $currencies = Plugin::getInstance()->getCurrencies()->getAllCurrencies();
+
+        return $currencies;
+    }
+
+    // Private Methods
+    // =========================================================================
+
+    /**
+     * @return PaymentCurrency
+     */
+    public function getPrimaryPaymentCurrency()
+    {
+        return Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrency();
     }
 }
