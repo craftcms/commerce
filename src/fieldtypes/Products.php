@@ -1,8 +1,10 @@
 <?php
-namespace Craft;
+namespace craft\commerce\fieldtypes;
+
+use craft\base\Field;
 
 /**
- * Class Commerce_ProductsFieldType
+ * Class Product Field
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -11,7 +13,7 @@ namespace Craft;
  * @package   craft.plugins.commerce.fieldtypes
  * @since     1.0
  */
-class Commerce_ProductsFieldType extends BaseElementFieldType
+class Products extends Field
 {
     // Properties
     // =========================================================================
@@ -30,7 +32,7 @@ class Commerce_ProductsFieldType extends BaseElementFieldType
      */
     public function getName()
     {
-        return Craft::t('Commerce Products');
+        return Craft::t('commerce', 'Commerce Products');
     }
 
     // Protected Methods
@@ -43,6 +45,6 @@ class Commerce_ProductsFieldType extends BaseElementFieldType
      */
     protected function getAddButtonLabel()
     {
-        return Craft::t('Add a product');
+        return Craft::t('commerce', 'Add a product');
     }
 }

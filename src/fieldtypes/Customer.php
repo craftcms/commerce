@@ -1,8 +1,14 @@
 <?php
-namespace Craft;
+namespace craft\commerce\fieldtypes;
+
+use Craft;
+use craft\base\ElementInterface;
+use craft\base\Field;
+use craft\commerce\Plugin;
+use craft\elements\User;
 
 /**
- * Class Commerce_CustomerFieldType
+ * Class Customer
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -11,7 +17,7 @@ namespace Craft;
  * @package   craft.plugins.commerce.fieldtypes
  * @since     1.0
  */
-class Commerce_CustomerFieldType extends BaseFieldType
+class Customer extends Field
 {
     /**
      * @inheritDoc IComponentType::getName()
@@ -20,7 +26,7 @@ class Commerce_CustomerFieldType extends BaseFieldType
      */
     public function getName()
     {
-        return Craft::t('Commerce Customer Info');
+        return Craft::t('commerce', 'commerce', 'Commerce Customer Info');
     }
 
     /**
@@ -33,29 +39,25 @@ class Commerce_CustomerFieldType extends BaseFieldType
     }
 
     /**
-     * @inheritDoc BaseElementFieldType::getInputHtml()
-     * @param string $name
-     * @param mixed $value
-     *
-     * @return string
+     * @inheritDoc
      */
-    public function getInputHtml($name, $value)
+    public function getInputHtml($value, ElementInterface $element = null) : string
     {
-        if (!($this->element instanceof UserModel)) {
-            return '<span style="color: #da5a47">' . Craft::t('Error. Commerce Customer Info field is for user profiles only.') . '</span>';
+        if (!($element instanceof User)) {
+            return '<span style="color: #da5a47">'.Craft::t('commerce', 'Commerce Customer Info field is for user profiles only.').'</span>';
         }
 
-        return craft()->templates->render('commerce/_fieldtypes/customer/_input', [
+        return Craft::$app->getView()->render('commerce/_fieldtypes/customer/_input', [
             'customer' => $this->getCustomer()
         ]);
     }
 
     /**
-     * @return BaseModel|Commerce_CustomerModel
+     * @return \craft\commerce\models\Customer
      */
     private function getCustomer()
     {
-         return craft()->commerce_customers->getCustomerByUserId($this->element->id);
+        return Plugin::getInstance()->getCustomers()->getCustomerByUserId($this->element->id);
     }
 
     /**
