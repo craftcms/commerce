@@ -1,6 +1,7 @@
 <?php
 namespace craft\commerce\helpers;
 
+use Craft;
 use craft\commerce\elements\Product as ProductModel;
 use craft\commerce\elements\Variant as VariantModel;
 use craft\commerce\Plugin;
@@ -35,11 +36,11 @@ class Product
             $product->enabled = $data['enabled'];
         }
 
-        $product->postDate = (($postDate = $data['postDate']) ? \DateTime::createFromString($postDate, craft()->timezone) : $product->postDate);
+        $product->postDate = (($postDate = $data['postDate']) ? \DateTime::createFromString($postDate, Craft::$app->getTimezone()) : $product->postDate);
         if (!$product->postDate) {
             $product->postDate = new \DateTime();
         }
-        $product->expiryDate = (($expiryDate = $data['expiryDate']) ? \DateTime::createFromString($expiryDate, craft()->timezone) : null);
+        $product->expiryDate = (($expiryDate = $data['expiryDate']) ? \DateTime::createFromString($expiryDate, Craft::$app->getTimezone()) : null);
 
         $product->promotable = $data['promotable'];
         $product->freeShipping = $data['freeShipping'];

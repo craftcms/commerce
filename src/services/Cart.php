@@ -314,7 +314,7 @@ class Cart extends Component
             }
 
             $this->_cart->lastIp = Craft::$app->getRequest()->getIpAddress();
-            $this->_cart->orderLocale = craft()->language;
+            $this->_cart->orderLocale = Craft::$app->language;
 
             // Right now, orders are all stored in the default currency
             $this->_cart->currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();

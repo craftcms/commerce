@@ -122,14 +122,14 @@ class Products extends BaseCp
 
     private function _prepProductVariables(&$variables)
     {
-        $variables['localeIds'] = craft()->i18n->getEditableLocaleIds();
+        $variables['localeIds'] = Craft::$app->getI18n()->getEditableLocaleIds();
 
         if (!$variables['localeIds']) {
             throw new HttpException(403, Craft::t('commerce', 'Your account doesn’t have permission to edit any of this site’s locales.'));
         }
 
         if (empty($variables['localeId'])) {
-            $variables['localeId'] = craft()->language;
+            $variables['localeId'] = Craft::$app->language;
 
             if (!in_array($variables['localeId'], $variables['localeIds'])) {
                 $variables['localeId'] = $variables['localeIds'][0];
@@ -177,7 +177,7 @@ class Products extends BaseCp
         } else {
             $variables['enabledLocales'] = [];
 
-            foreach (craft()->i18n->getEditableLocaleIds() as $locale) {
+            foreach (Craft::$app->getI18n()->getEditableLocaleIds() as $locale) {
                 $variables['enabledLocales'][] = $locale;
             }
         }
@@ -328,7 +328,7 @@ class Products extends BaseCp
         }
 
         // Create the token and redirect to the product URL with the token in place
-        $token = craft()->tokens->createToken([
+        $token = Craft::$app->getTokens()->createToken([
             'action' => 'commerce/products/viewSharedProduct',
             'params' => ['productId' => $productId, 'locale' => $product->locale]
         ]);

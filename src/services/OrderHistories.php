@@ -1,6 +1,7 @@
 <?php
 namespace craft\commerce\services;
 
+use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\Plugin;
@@ -88,7 +89,7 @@ class OrderHistories extends Component
         $orderHistoryModel->orderId = $order->id;
         $orderHistoryModel->prevStatusId = $oldStatusId;
         $orderHistoryModel->newStatusId = $order->orderStatusId;
-        $orderHistoryModel->customerId = craft()->isConsole() ? $order->customerId : Plugin::getInstance()->getCustomers()->getCustomerId();
+        $orderHistoryModel->customerId = Craft::$app->request->isConsoleRequest ? $order->customerId : Plugin::getInstance()->getCustomers()->getCustomerId();
         $orderHistoryModel->message = $order->message;
 
         if (!$this->saveOrderHistory($orderHistoryModel)) {

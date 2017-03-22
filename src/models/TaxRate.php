@@ -82,7 +82,7 @@ class TaxRate extends Model
      */
     public function getRateAsPercent()
     {
-        $localeData = craft()->i18n->getLocaleData();
+        $localeData = Craft::$app->getI18n()->getLocaleData();
         $percentSign = $localeData->getNumberSymbol('percentSign');
 
         return $this->rate * 100 ."".$percentSign;

@@ -70,7 +70,7 @@ class ShippingMethods extends Component
         if (!isset($this->_shippingMethods)) {
             $methods = $this->getAllCoreShippingMethods();
 
-            $additionalMethods = craft()->plugins->call('commerce_registerShippingMethods');
+            $additionalMethods = Craft::$app->getPlugins()->call('commerce_registerShippingMethods');
 
             foreach ($additionalMethods as $additional) {
                 $methods = array_merge($methods, $additional);
@@ -109,7 +109,7 @@ class ShippingMethods extends Component
     {
         $methods = [];
 
-        $additionalMethods = craft()->plugins->call('commerce_registerShippingMethods');
+        $additionalMethods = Craft::$app->getPlugins()->call('commerce_registerShippingMethods');
 
         foreach ($additionalMethods as $additional) {
             $methods = array_merge($methods, $additional);
@@ -153,7 +153,7 @@ class ShippingMethods extends Component
 
         $methods = $this->getAllCoreShippingMethods();
 
-        $additionalMethods = craft()->plugins->call('commerce_registerShippingMethods', ['order' => $cart], true);
+        $additionalMethods = Craft::$app->getPlugins()->call('commerce_registerShippingMethods', ['order' => $cart], true);
 
         foreach ($additionalMethods as $additional) {
             $methods = array_merge($methods, $additional);

@@ -14,6 +14,7 @@
     "name": "Craft Commerce",
     "developer": "Pixel & Tonic",
     "version": "2.0.0-alpha.1",
+    "schemaVersion": "2.0.0",
     "developerUrl": "https://craftcommerce.com",
     "hasCpSection": true,
     "description": "An amazingly powerful and flexible e-commerce platform for Craft CMS."

@@ -33,7 +33,7 @@ class Settings extends BaseAdmin
     {
         $settings = Plugin::getInstance()->getSettings()->getSettings();
 
-        $craftSettings = craft()->email->getSettings();
+        $craftSettings = Craft::$app->getEmail()->getSettings();
         $settings->emailSenderAddressPlaceholder = (isset($craftSettings['emailAddress']) ? $craftSettings['emailAddress'] : '');
         $settings->emailSenderNamePlaceholder = (isset($craftSettings['senderName']) ? $craftSettings['senderName'] : '');
 

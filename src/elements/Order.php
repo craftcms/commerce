@@ -445,16 +445,6 @@ class Order extends Element
     }
 
     /**
-     * @return int
-     */
-    public function getItemSubtotalWithSale()
-    {
-        craft()->deprecator->log('\craft\commerce\elements\Order::getItemSubtotalWithSale():removed', 'You should no longer use `order.itemSubtotalWithSale` for the line item’s subtotal. Use `order.itemSubtotal`. Same goes for order->getItemSubtotalWithSale() in PHP.');
-
-        return $this->getItemSubtotal();
-    }
-
-    /**
      * Returns the total of all line item's subtotals.
      *
      * @return int
@@ -613,28 +603,6 @@ class Order extends Element
     }
 
     /**
-     * @deprecated
-     * @return bool
-     */
-    public function showAddress()
-    {
-        craft()->deprecator->log('\craft\commerce\elements\Order::showAddress():removed', 'You should no longer use `cart.showAddress` in twig to determine whether to show the address form. Do your own check in twig like this `{% if cart.linItems|length > 0 %}`');
-
-        return count($this->getLineItems()) > 0;
-    }
-
-    /**
-     * @deprecated
-     * @return bool
-     */
-    public function showPayment()
-    {
-        craft()->deprecator->log('\craft\commerce\elements\Order::showPayment():removed', 'You should no longer use `cart.showPayment` in twig to determine whether to show the payment form. Do your own check in twig like this `{% if cart.linItems|length > 0 and cart.billingAddressId and cart.shippingAddressId %}`');
-
-        return count($this->getLineItems()) > 0 && $this->billingAddressId && $this->shippingAddressId;
-    }
-
-    /**
      * @return \craft\commerce\models\OrderStatus|null
      */
     public function getOrderStatus()
@@ -676,7 +644,7 @@ class Order extends Element
         }
 
         // Allow plugins to add additional actions
-        $allPluginActions = craft()->plugins->call('commerce_addOrderActions', [$source], true);
+        $allPluginActions = Craft::$app->getPlugins()->call('commerce_addOrderActions', [$source], true);
 
         foreach ($allPluginActions as $pluginActions) {
             $actions = array_merge($actions, $pluginActions);
@@ -733,7 +701,7 @@ class Order extends Element
         ];
 
         // Allow plugins to modify the sources
-        craft()->plugins->call('commerce_modifyOrderSources', [&$sources, $context]);
+        Craft::$app->getPlugins()->call('commerce_modifyOrderSources', [&$sources, $context]);
 
         return $sources;
     }
@@ -765,7 +733,7 @@ class Order extends Element
         ];
 
         // Allow plugins to modify the attributes
-        $pluginAttributes = craft()->plugins->call('commerce_defineAdditionalOrderTableAttributes', [], true);
+        $pluginAttributes = Craft::$app->getPlugins()->call('commerce_defineAdditionalOrderTableAttributes', [], true);
 
         foreach ($pluginAttributes as $thisPluginAttributes) {
             $attributes = array_merge($attributes, $thisPluginAttributes);
@@ -892,7 +860,7 @@ class Order extends Element
         ];
 
         // Allow plugins to modify the attributes
-        craft()->plugins->call('commerce_modifyOrderSortableAttributes', [&$attributes]);
+        Craft::$app->getPlugins()->call('commerce_modifyOrderSortableAttributes', [&$attributes]);
 
         return $attributes;
     }

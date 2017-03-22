@@ -428,7 +428,7 @@ class Product extends Element
         }
 
         // Allow plugins to add additional actions
-        $allPluginActions = craft()->plugins->call('commerce_addProductActions', [$source], true);
+        $allPluginActions = Craft::$app->getPlugins()->call('commerce_addProductActions', [$source], true);
 
         foreach ($allPluginActions as $pluginActions) {
             $actions = array_merge($actions, $pluginActions);
@@ -483,7 +483,7 @@ class Product extends Element
         }
 
         // Allow plugins to modify the sources
-        craft()->plugins->call('commerce_modifyProductSources', [&$sources, $context]);
+        Craft::$app->getPlugins()->call('commerce_modifyProductSources', [&$sources, $context]);
 
         return $sources;
     }
@@ -516,7 +516,7 @@ class Product extends Element
         ];
 
         // Allow plugins to modify the attributes
-        $pluginAttributes = craft()->plugins->call('commerce_defineAdditionalProductTableAttributes', [], true);
+        $pluginAttributes = Craft::$app->getPlugins()->call('commerce_defineAdditionalProductTableAttributes', [], true);
 
         foreach ($pluginAttributes as $thisPluginAttributes) {
             $attributes = array_merge($attributes, $thisPluginAttributes);
@@ -625,7 +625,7 @@ class Product extends Element
         ];
 
         // Allow plugins to modify the attributes
-        craft()->plugins->call('commerce_modifyProductSortableAttributes', [&$attributes]);
+        Craft::$app->getPlugins()->call('commerce_modifyProductSortableAttributes', [&$attributes]);
 
         return $attributes;
     }

@@ -73,7 +73,7 @@ class Gateways extends Component
         ];
 
         // Let plugins register more gateway adapters classes
-        $allPluginClasses = craft()->plugins->call('commerce_registerGatewayAdapters', [], true);
+        $allPluginClasses = Craft::$app->getPlugins()->call('commerce_registerGatewayAdapters', [], true);
 
         foreach ($allPluginClasses as $pluginClasses) {
             $classes = array_merge($classes, $pluginClasses);

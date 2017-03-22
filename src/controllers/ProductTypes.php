@@ -82,7 +82,7 @@ class ProductTypes extends BaseAdmin
 
         $locales = [];
 
-        foreach (craft()->i18n->getSiteLocaleIds() as $localeId) {
+        foreach (Craft::$app->getI18n()->getSiteLocaleIds() as $localeId) {
             $locales[$localeId] = new ProductTypeLocale([
                 'locale' => $localeId,
                 'urlFormat' => Craft::$app->getRequest()->getParam('urlFormat.'.$localeId)

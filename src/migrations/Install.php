@@ -1144,7 +1144,7 @@ class Install extends Migration
 
         Plugin::getInstance()->getProductTypes()->saveProductType($productType);
 
-        $productTypeLocales = craft()->i18n->getSiteLocaleIds();
+        $productTypeLocales = Craft::$app->getI18n()->getSiteLocaleIds();
 
         foreach ($productTypeLocales as $locale) {
             Craft::$app->getDb()->createCommand()->insert('commerce_producttypes_i18n', [

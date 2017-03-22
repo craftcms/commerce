@@ -119,7 +119,7 @@ class TaxRates extends BaseAdmin
         $taxRate->taxCategoryId = Craft::$app->getRequest()->getParam('taxCategoryId');
         $taxRate->taxZoneId = Craft::$app->getRequest()->getParam('taxZoneId');
 
-        $localeData = craft()->i18n->getLocaleData();
+        $localeData = Craft::$app->getI18n()->getLocaleData();
         $percentSign = $localeData->getNumberSymbol('percentSign');
         $rate = Craft::$app->getRequest()->getParam('rate');
         if (strpos($rate, $percentSign) or $rate >= 1) {

@@ -118,7 +118,7 @@ class Sale extends Model
      */
     public function getDiscountAmountAsPercent()
     {
-        $localeData = craft()->i18n->getLocaleData();
+        $localeData = Craft::$app->getI18n()->getLocaleData();
         $percentSign = $localeData->getNumberSymbol('percentSign');
 
         if ($this->discountAmount != 0) {

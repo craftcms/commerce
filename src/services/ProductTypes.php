@@ -1,6 +1,8 @@
 <?php
 namespace craft\commerce\services;
 
+use Craft;
+use craft\commerce\elements\Product;
 use craft\commerce\helpers\Db;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\ProductTypeLocale;
@@ -9,6 +11,7 @@ use craft\commerce\models\TaxCategory;
 use craft\commerce\records\Product as ProductRecord;
 use craft\commerce\records\ProductType as ProductTypeRecord;
 use craft\commerce\records\ProductTypeLocale as ProductTypeLocaleRecord;
+use craft\tasks\ResaveElements;
 use yii\base\Component;
 
 /**
@@ -155,18 +158,6 @@ class ProductTypes extends Component
         return Craft::$app->getDb()->createCommand()
             ->select('pt.id, pt.name, pt.handle, pt.hasUrls, pt.hasDimensions, pt.hasVariants, pt.hasVariantTitleField, pt.titleFormat, pt.skuFormat, pt.descriptionFormat, pt.template, pt.fieldLayoutId, pt.variantFieldLayoutId')
             ->from('commerce_producttypes pt');
-    }
-
-    /**
-     * @param string $handle
-     *
-     * @return ProductType|null
-     */
-    public function getByHandle($handle)
-    {
-        craft()->deprecator->log('Order::getByHandle():renamed', 'You should no longer use `Order::getByHandle($handle)`, it has been renamed to `Order::getProductTypeByHandle($handle)`');
-
-        return $this->getProductTypeByHandle($handle);
     }
 
     /**
@@ -554,23 +545,23 @@ class ProductTypes extends Component
                     }
 
                     if (!$isNewProductType) {
-                        $criteria = Craft::$app->getElements()->getCriteria('Commerce_Product');
 
                         // Get the most-primary locale that this section was already enabled in
-                        $locales = array_values(craft()->i18n->getSiteLocaleIds());
+                        $locales = array_values(Craft::$app->getI18n()->getSiteLocaleIds());
 
                         if ($locales) {
-                            $criteria->locale = $locales[0];
-                            $criteria->typeId = $productType->id;
-                            $criteria->status = null;
-                            $criteria->localeEnabled = null;
-                            $criteria->limit = null;
-
-                            craft()->tasks->createTask('ResaveElements', Craft::t('commerce', 'commerce', 'Resaving {productType} products', ['productType' => $productType->name]),
-                                [
-                                    'elementType' => 'Commerce_Product',
-                                    'criteria' => $criteria->getAttributes()
-                                ]);
+                            Craft::$app->getTasks()->queueTask([
+                                'type' => ResaveElements::class,
+                                'description' => Craft::t('app', 'Resaving {productType} products', ['productType' => $productType->name]),
+                                'elementType' => Product::class,
+                                'criteria' => [
+                                    'siteId' => $locales[0],
+                                    'typeId' => $productType->id,
+                                    'status' => null,
+                                    'enabledForSite' => false,
+                                    'limit' => null,
+                                ]
+                            ]);
                         }
                     }
                 }
@@ -705,7 +696,7 @@ class ProductTypes extends Component
         $productTypeLocales = Craft::$app->getDb()->createCommand()
             ->select('productTypeId, urlFormat')
             ->from('commerce_producttypes_i18n')
-            ->where('locale = :locale', [':locale' => craft()->i18n->getPrimarySiteLocaleId()])
+            ->where('locale = :locale', [':locale' => Craft::$app->getI18n()->getPrimarySiteLocaleId()])
             ->queryAll();
 
         if ($productTypeLocales) {

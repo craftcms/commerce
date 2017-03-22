@@ -163,7 +163,7 @@ class Orders extends Component
         }
 
         // Get the customer ID from the session
-        if (!$order->customerId && !craft()->isConsole()) {
+        if (!$order->customerId && !Craft::$app->request->isConsoleRequest) {
             $order->customerId = Plugin::getInstance()->getCustomers()->getCustomerId();
         }
 
@@ -405,7 +405,7 @@ class Orders extends Component
         ];
 
         // Additional adjuster can be returned by the plugins.
-        $additional = craft()->plugins->call('commerce_registerOrderAdjusters', [&$adjusters, $order]);
+        $additional = Craft::$app->getPlugins()->call('commerce_registerOrderAdjusters', [&$adjusters, $order]);
 
         $orderIndex = 800;
         foreach ($additional as $additionalAdjusters) {
@@ -425,7 +425,7 @@ class Orders extends Component
         ksort($adjusters);
 
         // Allow plugins to modify the adjusters
-        craft()->plugins->call('commerce_modifyOrderAdjusters', [&$adjusters, $order]);
+        Craft::$app->getPlugins()->call('commerce_modifyOrderAdjusters', [&$adjusters, $order]);
 
         return $adjusters;
     }

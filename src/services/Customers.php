@@ -1,12 +1,16 @@
 <?php
 namespace craft\commerce\services;
 
+use Craft;
 use craft\commerce\helpers\Db;
 use craft\commerce\models\Address;
 use craft\commerce\models\Customer;
+use craft\commerce\Plugin;
 use craft\commerce\records\Customer as CustomerRecord;
 use craft\commerce\records\CustomerAddress as CustomerAddressRecord;
+use craft\elements\User;
 use yii\base\Component;
+use yii\base\Exception;
 
 /**
  * Customer service.
@@ -90,10 +94,10 @@ class Customers extends Component
                     ->queryRow();
 
                 if ($record) {
-                    craft()->session->add(self::SESSION_CUSTOMER, $record['id']);
+                    Craft::$app->getSession()->set(self::SESSION_CUSTOMER, $record['id']);
                 }
             } else {
-                $id = craft()->session->get(self::SESSION_CUSTOMER);
+                $id = Craft::$app->getSession()->get(self::SESSION_CUSTOMER);
                 if ($id) {
                     $record = $this->_createCustomersQuery()
                         ->where('customers.id = :xid', [':xid' => $id])
@@ -162,7 +166,7 @@ class Customers extends Component
         $customer = $this->getCustomer();
         if (!$customer->id) {
             if ($this->saveCustomer($customer)) {
-                craft()->session->add(self::SESSION_CUSTOMER, $customer->id);
+                Craft::$app->getSession()->set(self::SESSION_CUSTOMER, $customer->id);
             } else {
                 $errors = implode(', ', $customer->getAllErrors());
                 throw new Exception('Error saving customer: '.$errors);
@@ -272,7 +276,7 @@ class Customers extends Component
     public function forgetCustomer()
     {
         $this->_customer = null;
-        craft()->session->remove(self::SESSION_CUSTOMER);
+        Craft::$app->getSession()->remove(self::SESSION_CUSTOMER);
     }
 
     /**
@@ -288,8 +292,8 @@ class Customers extends Component
 
         try {
 
-            /** @var UserModel $user */
-            $user = craft()->users->getUserByUsernameOrEmail($username);
+            /** @var User $user */
+            $user = Craft::$app->getUsers()->getUserByUsernameOrEmail($username);
 
             $toCustomer = $this->getCustomerByUserId($user->id);
 
@@ -363,7 +367,7 @@ class Customers extends Component
     public function orderCompleteHandler($order)
     {
         // set the last used addresses before duplicating the addresses on the order
-        if (!craft()->isConsole()) {
+        if (!Craft::$app->request->isConsoleRequest) {
             if ($order->customerId == $this->getCustomerId()) {
                 $this->setLastUsedAddresses($order->billingAddressId, $order->shippingAddressId);
             }

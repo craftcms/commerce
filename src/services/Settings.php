@@ -24,7 +24,7 @@ class Settings extends Component
      */
     public function init()
     {
-        $this->_plugin = craft()->plugins->getPlugin('commerce');
+        $this->_plugin = Craft::$app->getPlugins()->getPlugin('commerce');
     }
 
     /**
@@ -65,7 +65,7 @@ class Settings extends Component
             return false;
         }
 
-        craft()->plugins->savePluginSettings($this->_plugin, $settings);
+        Craft::$app->getPlugins()->savePluginSettings($this->_plugin, $settings);
 
         return true;
     }

@@ -2,6 +2,7 @@
 namespace craft\commerce\services;
 
 use Commerce\Gateways\PaymentFormModels\BasePaymentFormModel;
+use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\Transaction;
@@ -254,7 +255,7 @@ class Payments extends Component
             CommercePlugin::log('Item bag total price does not equal the orders totalPrice, some payment gateways will complain.', LogLevel::Warning, true);
         }
 
-        craft()->plugins->call('commerce_modifyItemBag', [&$items, $order]);
+        Craft::$app->getPlugins()->call('commerce_modifyItemBag', [&$items, $order]);
 
         return $items;
     }
@@ -319,7 +320,7 @@ class Payments extends Component
             $request['items'] = $itemBag;
         }
 
-        $pluginRequest = craft()->plugins->callFirst('commerce_modifyPaymentRequest', [$request]);
+        $pluginRequest = Craft::$app->getPlugins()->callFirst('commerce_modifyPaymentRequest', [$request]);
 
         if ($pluginRequest) {
             $request = array_merge($request, $pluginRequest);
@@ -405,7 +406,7 @@ class Payments extends Component
                             // Send the template back to the user.
                             ob_start();
                             echo $template;
-                            craft()->end();
+                            Craft::$app->end();
                         }
 
                         // If the developer did not provide a gatewayPostRedirectTemplate, use the built in Omnipay Post html form.
@@ -470,7 +471,7 @@ class Payments extends Component
     {
         $data = $request->getData();
 
-        $modifiedData = craft()->plugins->callFirst('commerce_modifyGatewayRequestData', [$data, $transaction->type, $transaction], true);
+        $modifiedData = Craft::$app->getPlugins()->callFirst('commerce_modifyGatewayRequestData', [$data, $transaction->type, $transaction], true);
 
         // We can't merge the $data with $modifiedData since the $data is not always an array.
         // For example it could be a XML object, json, or anything else really.
@@ -801,7 +802,7 @@ EOF;
 
             ob_start();
             echo $template;
-            craft()->end();
+            Craft::$app->end();
         }
 
         if ($success && $redirect && $transaction->status == TransactionRecord::STATUS_REDIRECT) {

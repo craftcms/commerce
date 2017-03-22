@@ -122,12 +122,12 @@ class Sales extends BaseCp
             'dateTo'
         ];
         foreach ($dateFields as $field) {
-            $sale->$field = (($date = Craft::$app->getRequest()->getParam($field)) ? DateTime::createFromString($date, craft()->timezone) : null);
+            $sale->$field = (($date = Craft::$app->getRequest()->getParam($field)) ? DateTime::createFromString($date, Craft::$app->getTimeZone()) : null);
         }
 
         $discountAmount = Craft::$app->getRequest()->getParam('discountAmount');
         if ($sale->discountType == 'percent') {
-            $localeData = craft()->i18n->getLocaleData();
+            $localeData = Craft::$app->getI18n()->getLocaleData();
             $percentSign = $localeData->getNumberSymbol('percentSign');
             if (strpos($discountAmount, $percentSign) or floatval($discountAmount) >= 1) {
                 $sale->discountAmount = floatval($discountAmount) / -100;

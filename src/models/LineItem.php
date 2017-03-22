@@ -224,17 +224,6 @@ class LineItem extends Model
     }
 
     /**
-     * @deprecated You should now use getSubtotal()
-     * @return float
-     */
-    public function getSubtotalWithSale()
-    {
-        craft()->deprecator->log('\craft\commerce\elements\LineItem::getSubtotalWithSale():removed', 'You should no longer use `lineItem.subtotalWithSale` for the line item’s subtotal. Use `lineItem.subtotal`. Same goes for $lineItem->getSubtotalWithSale() in PHP.');
-
-        return $this->getSubtotal();
-    }
-
-    /**
      * @return float
      */
     public function getSubtotal()
