@@ -1,21 +1,21 @@
 <?php
+namespace craft\commerce\widgets;
 
-namespace Craft;
+use Craft;
+use craft\base\Widget;
 
-class Commerce_RevenueWidget extends BaseWidget
+class Revenue extends Widget
 {
     // Public Methods
     // =========================================================================
 
     /**
-     * @inheritDoc IComponentType::isSelectable()
-     *
-     * @return bool
+     * @inheritDoc
      */
-    public function isSelectable()
+    public static function isSelectable(): bool
     {
         // This widget is only available to users that can manage orders
-        return craft()->userSession->checkPermission('commerce-manageOrders');
+        return Craft::$app->getUser()->checkPermission('commerce-manageOrders');
     }
 
     /**
@@ -25,7 +25,7 @@ class Commerce_RevenueWidget extends BaseWidget
      */
     public function getName()
     {
-        return Craft::t('Revenue');
+        return Craft::t('commerce', 'Revenue');
     }
 
     /**
@@ -51,8 +51,7 @@ class Commerce_RevenueWidget extends BaseWidget
 
         $dateRanges = ChartHelper::getDateRanges();
 
-        if(!empty($dateRanges[$settings->dateRange]))
-        {
+        if (!empty($dateRanges[$settings->dateRange])) {
             $dateRange = $dateRanges[$settings->dateRange]['label'];
         }
 
@@ -60,12 +59,12 @@ class Commerce_RevenueWidget extends BaseWidget
             'dateRange' => $settings->dateRange
         ];
 
-        craft()->templates->includeCssResource('commerce/CommerceRevenueWidget.css');
-        craft()->templates->includeJsResource('commerce/js/CommerceRevenueWidget.js');
+        Craft::$app->getView()->includeCssResource('commerce/CommerceRevenueWidget.css');
+        Craft::$app->getView()->includeJsResource('commerce/js/CommerceRevenueWidget.js');
 
         $js = 'new Craft.Commerce.RevenueWidget('.$this->model->id.', '.JsonHelper::encode($options).');';
 
-        craft()->templates->includeJs($js);
+        Craft::$app->getView()->includeJs($js);
 
         return '<div class="chart hidden"></div>';
     }
@@ -81,18 +80,17 @@ class Commerce_RevenueWidget extends BaseWidget
 
         $dateRangeOptions = [];
 
-        foreach($dateRanges as $key => $dateRange)
-        {
+        foreach ($dateRanges as $key => $dateRange) {
             $dateRangeOptions[] = [
                 'value' => $key,
                 'label' => $dateRange['label']
             ];
         }
 
-        return craft()->templates->render('commerce/_components/widgets/Revenue/settings', array(
+        return Craft::$app->getView()->render('commerce/_components/widgets/Revenue/settings', [
             'settings' => $this->getSettings(),
             'dateRangeOptions' => $dateRangeOptions
-        ));
+        ]);
     }
 
     // Protected Methods
@@ -105,8 +103,8 @@ class Commerce_RevenueWidget extends BaseWidget
      */
     protected function defineSettings()
     {
-        return array(
-            'dateRange'   => AttributeType::String,
-        );
+        return [
+            'dateRange' => AttributeType::String,
+        ];
     }
 }
