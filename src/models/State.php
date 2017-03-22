@@ -7,12 +7,12 @@ use craft\helpers\UrlHelper;
 /**
  * State model.
  *
- * @property int                    $id
- * @property string                 $name
- * @property string                 $abbreviation
- * @property int                    $countryId
+ * @property int     $id
+ * @property string  $name
+ * @property string  $abbreviation
+ * @property int     $countryId
  *
- * @property Commerce_CountryRecord $country
+ * @property Country $country
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -71,7 +71,7 @@ class State extends Model
      */
     public function getCountry()
     {
-        return craft()->commerce_countries->getCountryById($this->countryId);
+        return Plugin::getInstance()->getCountries()->getCountryById($this->countryId);
     }
 
     /**

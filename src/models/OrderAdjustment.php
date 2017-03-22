@@ -2,20 +2,21 @@
 namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
+use craft\commerce\elements\Order;
 
 /**
  * Order adjustment model.
  *
- * @property int                  $id
- * @property string               $name
- * @property string               $description
- * @property string               $type
- * @property float                $amount
- * @property bool                 $included
- * @property string               $optionsJson
- * @property int                  $orderId
+ * @property int    $id
+ * @property string $name
+ * @property string $description
+ * @property string $type
+ * @property float  $amount
+ * @property bool   $included
+ * @property string $optionsJson
+ * @property int    $orderId
  *
- * @property Commerce_OrderRecord $order
+ * @property Order  $order
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2017, Pixel & Tonic, Inc.

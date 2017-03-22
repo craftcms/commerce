@@ -93,7 +93,7 @@ class TaxRate extends Model
      */
     public function getTaxZone()
     {
-        return craft()->commerce_taxZones->getTaxZoneById($this->taxZoneId);
+        return Plugin::getInstance()->getTaxZones()->getTaxZoneById($this->taxZoneId);
     }
 
     /**
@@ -101,6 +101,6 @@ class TaxRate extends Model
      */
     public function getTaxCategory()
     {
-        return craft()->commerce_taxCategories->getTaxCategoryById($this->taxCategoryId);
+        return Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($this->taxCategoryId);
     }
 }

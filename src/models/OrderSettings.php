@@ -3,15 +3,16 @@ namespace craft\commerce\models;
 
 use craft\behaviors\FieldLayoutBehavior;
 use craft\commerce\base\Model;
-use craft\helpers\UrlHelper;
 use craft\commerce\elements\Order;
+use craft\helpers\UrlHelper;
+
 /**
  * Order settings model.
  *
- * @property int               $id
- * @property string            $name
- * @property string            $handle
- * @property int               $fieldLayoutId
+ * @property int                       $id
+ * @property string                    $name
+ * @property string                    $handle
+ * @property int                       $fieldLayoutId
  *
  * @property \craft\models\FieldLayout $fieldLayout
  *

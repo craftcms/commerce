@@ -1,10 +1,11 @@
 <?php
 namespace craft\commerce\models;
 
-use craft\commerce\base\Model;
 use craft\behaviors\FieldLayoutBehavior;
+use craft\commerce\base\Model;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
+use craft\helpers\ArrayHelper;
 use craft\helpers\UrlHelper;
 use craft\validators\HandleValidator;
 
@@ -98,12 +99,12 @@ class ProductType extends Model
     public $variantFieldLayoutId;
 
     /**
-     * @var Commerce_TaxCategoryModel[]
+     * @var TaxCategory[]
      */
     private $_taxCategories;
 
     /**
-     * @var Commerce_ShippingCategoryModel[]
+     * @var ShippingCategory[]
      */
     private $_shippingCategories;
 
@@ -160,7 +161,7 @@ class ProductType extends Model
     {
         if (!isset($this->_locales)) {
             if ($this->id) {
-                $this->_locales = craft()->commerce_productTypes->getProductTypeLocales($this->id, 'locale');
+                $this->_locales = Plugin::getInstance()->getProductTypes()->getProductTypeLocales($this->id, 'locale');
             } else {
                 $this->_locales = [];
             }
@@ -185,30 +186,30 @@ class ProductType extends Model
     public function getShippingCategories($asList = false)
     {
         if (!$this->_shippingCategories) {
-            $this->_shippingCategories = craft()->commerce_productTypes->getProductTypeShippingCategories($this->id, 'id');
+            $this->_shippingCategories = Plugin::getInstance()->getProductTypes()->getProductTypeShippingCategories($this->id, 'id');
         }
 
         if ($asList) {
-            return \CHtml::listData($this->_shippingCategories, 'id', 'name');
+            return ArrayHelper::map($this->_shippingCategories, 'id', 'name');
         }
 
         return $this->_shippingCategories;
     }
 
     /**
-     * @param int[]|Commerce_ShippingCategoryModel[] $shippingCategories
+     * @param int[]|ShippingCategory[] $shippingCategories
      */
     public function setShippingCategories($shippingCategories)
     {
         $categories = [];
         foreach ($shippingCategories as $category) {
             if (is_numeric($category)) {
-                if ($category = craft()->commerce_shippingCategories->getShippingCategoryById($category)) {
+                if ($category = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($category)) {
                     $categories[$category->id] = $category;
                 }
             } else {
-                if ($category instanceof Commerce_ShippingCategoryModel) {
-                    if ($category = craft()->commerce_shippingCategories->getShippingCategoryById($category)) {
+                if ($category instanceof ShippingCategory) {
+                    if ($category = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($category)) {
                         $categories[$category->id] = $category;
                     }
                 }
@@ -219,35 +220,35 @@ class ProductType extends Model
     }
 
     /**
-     * @return Commerce_TaxCategoryModel[]
+     * @return TaxCategory[]
      */
     public function getTaxCategories($asList = false)
     {
         if (!$this->_taxCategories) {
-            $this->_taxCategories = craft()->commerce_productTypes->getProductTypeTaxCategories($this->id, 'id');
+            $this->_taxCategories = Plugin::getInstance()->getProductTypes()->getProductTypeTaxCategories($this->id, 'id');
         }
 
         if ($asList) {
-            return \CHtml::listData($this->_taxCategories, 'id', 'name');
+            return ArrayHelper::map($this->_taxCategories, 'id', 'name');
         }
 
         return $this->_taxCategories;
     }
 
     /**
-     * @param int[]|Commerce_TaxCategoryModel[] $taxCategories
+     * @param int[]|TaxCategory[] $taxCategories
      */
     public function setTaxCategories($taxCategories)
     {
         $categories = [];
         foreach ($taxCategories as $category) {
             if (is_numeric($category)) {
-                if ($category = craft()->commerce_taxCategories->getTaxCategoryById($category)) {
+                if ($category = Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($category)) {
                     $categories[$category->id] = $category;
                 }
             } else {
-                if ($category instanceof Commerce_TaxCategoryModel) {
-                    if ($category = craft()->commerce_taxCategories->getTaxCategoryById($category)) {
+                if ($category instanceof TaxCategory) {
+                    if ($category = Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($category)) {
                         $categories[$category->id] = $category;
                     }
                 }

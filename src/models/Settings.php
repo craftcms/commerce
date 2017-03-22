@@ -1,5 +1,7 @@
 <?php
-namespace Craft;
+namespace craft\commerce\models;
+
+use craft\commerce\base\Model;
 
 /**
  * Settings model.
@@ -18,7 +20,7 @@ namespace Craft;
  * @package   craft.plugins.commerce.models
  * @since     1.0
  */
-class Commerce_SettingsModel extends BaseModel
+class Settings extends Model
 {
     /**
      * @var string Weight Units
@@ -60,26 +62,15 @@ class Commerce_SettingsModel extends BaseModel
      */
     public $emailSenderNamePlaceholder;
 
-    /**currency moved from plugin settings to currency table in DB.
-     *
-     * @return string
-     */
-    public function getDefaultCurrency()
-    {
-        craft()->deprecator->log('Commerce_SettingsModel::defaultCurrency:removed', 'You should no longer use `craft.commerce.settings.defaultCurrency`  to get the store currency. Use `craft.commerce.primaryPaymentCurrency`.');
-
-        return craft()->commerce_paymentCurrencies->getPrimaryPaymentCurrencyIso();
-    }
-
     /**
      * @return array
      */
     public function getWeightUnitsOptions()
     {
         return [
-            'g' => Craft::t('Grams (g)'),
-            'kg' => Craft::t('Kilograms (kg)'),
-            'lb' => Craft::t('Pounds (lb)')
+            'g' => Craft::t('commerce', 'commerce', 'Grams (g)'),
+            'kg' => Craft::t('commerce', 'commerce', 'Kilograms (kg)'),
+            'lb' => Craft::t('commerce', 'commerce', 'Pounds (lb)')
         ];
     }
 
@@ -89,11 +80,11 @@ class Commerce_SettingsModel extends BaseModel
     public function getDimensionUnits()
     {
         return [
-            'mm' => Craft::t('Millimeters (mm)'),
-            'cm' => Craft::t('Centimeters (cm)'),
-            'm' => Craft::t('Meters (m)'),
-            'ft' => Craft::t('Feet (ft)'),
-            'in' => Craft::t('Inches (in)'),
+            'mm' => Craft::t('commerce', 'commerce', 'Millimeters (mm)'),
+            'cm' => Craft::t('commerce', 'commerce', 'Centimeters (cm)'),
+            'm' => Craft::t('commerce', 'commerce', 'Meters (m)'),
+            'ft' => Craft::t('commerce', 'commerce', 'Feet (ft)'),
+            'in' => Craft::t('commerce', 'commerce', 'Inches (in)'),
         ];
     }
 }

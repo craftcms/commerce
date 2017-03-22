@@ -1,11 +1,12 @@
 <?php
 namespace craft\commerce\models;
 
+use craft\commerce\base\Element;
 use craft\commerce\base\Model;
 use craft\commerce\base\Purchasable;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\Currency;
-use craft\commerce\base\Element;
+use craft\commerce\records\TaxRate as TaxRateRecord;
 
 /**
  * Line Item model representing a line item on an order.
@@ -180,7 +181,7 @@ class LineItem extends Model
     public function getOrder()
     {
         if (!$this->_order) {
-            $this->_order = craft()->commerce_orders->getOrderById($this->orderId);
+            $this->_order = Plugin::getInstance()->getOrders()->getOrderById($this->orderId);
         }
 
         return $this->_order;
@@ -253,20 +254,20 @@ class LineItem extends Model
     }
 
     /**
-     * @param Commerce_TaxRateRecord ::taxables
+     * @param TaxRate ::taxables
      *
      * @return int
      */
     public function getTaxableSubtotal($taxable)
     {
         switch ($taxable) {
-            case Commerce_TaxRateRecord::TAXABLE_PRICE:
+            case TaxRateRecord::TAXABLE_PRICE:
                 $taxableSubtotal = $this->getSubtotal() + $this->discount;
                 break;
-            case Commerce_TaxRateRecord::TAXABLE_SHIPPING:
+            case TaxRateRecord::TAXABLE_SHIPPING:
                 $taxableSubtotal = $this->shippingCost;
                 break;
-            case Commerce_TaxRateRecord::TAXABLE_PRICE_SHIPPING:
+            case TaxRateRecord::TAXABLE_PRICE_SHIPPING:
                 $taxableSubtotal = $this->getSubtotal() + $this->discount + $this->shippingCost;
                 break;
             default:
@@ -304,7 +305,7 @@ class LineItem extends Model
     public function getPurchasable()
     {
         if (!$this->_purchasable) {
-            $this->_purchasable = craft()->elements->getElementById($this->purchasableId);
+            $this->_purchasable = Craft::$app->getElements()->getElementById($this->purchasableId);
         }
 
         return $this->_purchasable;
@@ -352,7 +353,7 @@ class LineItem extends Model
             'lineItem' => $this,
             'purchasable' => $this->purchasable
         ]);
-        craft()->commerce_lineItems->onPopulateLineItem($event);
+        Plugin::getInstance()->getLineItems()->onPopulateLineItem($event);
 
         // Always make sure salePrice is equal to the price and saleAmount
         $this->salePrice = Currency::round($this->saleAmount + $this->price);
@@ -387,7 +388,7 @@ class LineItem extends Model
      */
     public function getTaxCategory()
     {
-        return craft()->commerce_taxCategories->getTaxCategoryById($this->taxCategoryId);
+        return Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($this->taxCategoryId);
     }
 
     /**
@@ -395,7 +396,7 @@ class LineItem extends Model
      */
     public function getShippingCategory()
     {
-        return craft()->commerce_shippingCategories->getShippingCategoryById($this->shippingCategoryId);
+        return Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($this->shippingCategoryId);
     }
 
 }

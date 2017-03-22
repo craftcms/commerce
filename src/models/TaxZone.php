@@ -63,7 +63,7 @@ class TaxZone extends Model
      */
     public function getTaxRates()
     {
-        $allTaxRates = craft()->commerce_taxRates->getAllTaxRates();
+        $allTaxRates = Plugin::getInstance()->getTaxRates()->getAllTaxRates();
         $taxRates = [];
         /** @var \craft\commerce\models\TaxRate $rate */
         foreach ($allTaxRates as $rate) {
@@ -96,7 +96,7 @@ class TaxZone extends Model
     public function getCountries()
     {
         if (!isset($this->_countries)) {
-            $this->_countries = craft()->commerce_taxZones->getCountriesByTaxZoneId($this->id);;
+            $this->_countries = Plugin::getInstance()->getTaxZones()->getCountriesByTaxZoneId($this->id);;
         }
 
         return $this->_countries;
@@ -135,7 +135,7 @@ class TaxZone extends Model
     public function getStates()
     {
         if (!isset($this->_states)) {
-            $this->_states = craft()->commerce_taxZones->getStatesByTaxZoneId($this->id);
+            $this->_states = Plugin::getInstance()->getTaxZones()->getStatesByTaxZoneId($this->id);
         }
 
         return $this->_states;

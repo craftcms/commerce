@@ -2,6 +2,7 @@
 namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
+
 /**
  * Currency model.
  *
@@ -31,11 +32,11 @@ class PaymentCurrency extends Model
         if ($values instanceof \CModel) {
             $values = $values->getAttributes();
         }
-        /** @var Commerce_PaymentCurrencyModel $currency */
+        /** @var PaymentCurrency $currency */
         $currency = parent::populateModel($values);
 
         $iso = $values['iso'];
-        if ($currencyModel = craft()->commerce_currencies->getCurrencyByIso($iso)) {
+        if ($currencyModel = Plugin::getInstance()->getCurrencies()->getCurrencyByIso($iso)) {
             $currency->setCurrency($currencyModel);
         }
 
@@ -64,19 +65,19 @@ class PaymentCurrency extends Model
     function fields()
     {
         $fields = parent::fields();
-        $fields['minorUnits'] = function($model){
+        $fields['minorUnits'] = function($model) {
             return $model->getMinorUnits();
         };
-        $fields['alphabeticCode'] = function($model){
+        $fields['alphabeticCode'] = function($model) {
             return $model->getAlphabeticCode();
         };
-        $fields['currency'] = function($model){
+        $fields['currency'] = function($model) {
             return $model->getCurrency();
         };
-        $fields['numericCode'] = function($model){
+        $fields['numericCode'] = function($model) {
             return $model->getNumericCode();
         };
-        $fields['entity'] = function($model){
+        $fields['entity'] = function($model) {
             return $model->getEntity();
         };
 
@@ -91,26 +92,6 @@ class PaymentCurrency extends Model
         if (isset($this->_currency)) {
             return $this->_currency->alphabeticCode;
         }
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getCurrency()
-    {
-        if (isset($this->_currency)) {
-            return $this->_currency->currency;
-        }
-    }
-
-    /**
-     * Sets the Currency Model data on the Payment Currency
-     *
-     * @param $currency
-     */
-    public function setCurrency(\craft\commerce\models\Currency $currency)
-    {
-        $this->_currency = $currency;
     }
 
     /**
@@ -151,6 +132,26 @@ class PaymentCurrency extends Model
     public function getName()
     {
         return $this->getCurrency();
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCurrency()
+    {
+        if (isset($this->_currency)) {
+            return $this->_currency->currency;
+        }
+    }
+
+    /**
+     * Sets the Currency Model data on the Payment Currency
+     *
+     * @param $currency
+     */
+    public function setCurrency(\craft\commerce\models\Currency $currency)
+    {
+        $this->_currency = $currency;
     }
 
     /**

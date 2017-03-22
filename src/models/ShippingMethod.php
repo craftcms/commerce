@@ -48,7 +48,7 @@ class ShippingMethod extends Model implements ShippingMethodInterface
      */
     public function getType()
     {
-        return Craft::t('Custom');
+        return Craft::t('commerce', 'commerce', 'Custom');
     }
 
     /**
@@ -80,7 +80,7 @@ class ShippingMethod extends Model implements ShippingMethodInterface
      */
     public function getShippingRules()
     {
-        return craft()->commerce_shippingRules->getAllShippingRulesByShippingMethodId($this->id);
+        return Plugin::getInstance()->getShippingRules()->getAllShippingRulesByShippingMethodId($this->id);
     }
 
     /**

@@ -3,6 +3,7 @@ namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
 use craft\commerce\base\ShippingRuleInterface;
+use craft\commerce\records\ShippingRuleCategory;
 
 /**
  * Shipping rule model
@@ -16,7 +17,7 @@ use craft\commerce\base\ShippingRuleInterface;
  * @package   craft.plugins.commerce.models
  * @since     1.0
  */
-class Commerce_ShippingRuleModel extends Model implements ShippingRuleInterface
+class ShippingRule extends Model implements ShippingRuleInterface
 {
 
     // Properties
@@ -174,15 +175,15 @@ class Commerce_ShippingRuleModel extends Model implements ShippingRuleInterface
         $allowedCategories = [];
         $requiredCategories = [];
         foreach ($shippingRuleCategories as $ruleCategory) {
-            if ($ruleCategory->condition == Commerce_ShippingRuleCategoryRecord::CONDITION_DISALLOW) {
+            if ($ruleCategory->condition == ShippingRuleCategory::CONDITION_DISALLOW) {
                 $disallowedCategories[] = $ruleCategory->shippingCategoryId;
             }
 
-            if ($ruleCategory->condition == Commerce_ShippingRuleCategoryRecord::CONDITION_ALLOW) {
+            if ($ruleCategory->condition == ShippingRuleCategory::CONDITION_ALLOW) {
                 $allowedCategories[] = $ruleCategory->shippingCategoryId;
             }
 
-            if ($ruleCategory->condition == Commerce_ShippingRuleCategoryRecord::CONDITION_REQUIRE) {
+            if ($ruleCategory->condition == ShippingRuleCategory::CONDITION_REQUIRE) {
                 $requiredCategories[] = $ruleCategory->shippingCategoryId;
             }
         }
@@ -266,12 +267,12 @@ class Commerce_ShippingRuleModel extends Model implements ShippingRuleInterface
     }
 
     /**
-     * @return \craft\commerce\models\Commerce_ShippingRuleCategory[]
+     * @return Model\ShippingRuleCategory[]
      */
     public function getShippingRuleCategories()
     {
         if (!isset($this->_shippingRuleCategories)) {
-            $this->_shippingRuleCategories = craft()->commerce_shippingRules->getShippingRuleCategoryByRuleId($this->id);
+            $this->_shippingRuleCategories = Plugin::getInstance()->getShippingRules()->getShippingRuleCategoryByRuleId($this->id);
         }
 
         return $this->_shippingRuleCategories;
@@ -292,7 +293,7 @@ class Commerce_ShippingRuleModel extends Model implements ShippingRuleInterface
      */
     public function getShippingZone()
     {
-        return craft()->commerce_shippingZones->getShippingZoneById($this->shippingZoneId);
+        return Plugin::getInstance()->getShippingZones()->getShippingZoneById($this->shippingZoneId);
     }
 
     /**

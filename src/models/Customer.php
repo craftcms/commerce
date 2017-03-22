@@ -1,5 +1,5 @@
 <?php
-namespace Craft;
+namespace craft\commerce\models;
 
 use Craft;
 use craft\commerce\base\Model;

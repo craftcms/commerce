@@ -8,7 +8,7 @@ use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
 
 /**
- * Class Commerce_PaymentMethodModel
+ * Class Payment Method Model
  *
  * @package   Craft
  *
@@ -104,7 +104,7 @@ class PaymentMethod extends Model
 
         if ($paymentMethod->id) {
             // Are its settings being set from the config file?
-            $paymentMethodSettings = craft()->config->get('paymentMethodSettings', 'commerce');
+            $paymentMethodSettings = Craft::$app->getConfig()->get('paymentMethodSettings', 'commerce');
 
             if (isset($paymentMethodSettings[$paymentMethod->id])) {
                 $paymentMethod->settings = array_merge($paymentMethod->settings, $paymentMethodSettings[$paymentMethod->id]);
@@ -199,7 +199,7 @@ class PaymentMethod extends Model
 
     /**
      * Payment Form HTML
-     *
+     * @param array $params
      * @return bool
      */
     public function getPaymentFormHtml($params)
@@ -251,8 +251,8 @@ class PaymentMethod extends Model
     public function getPaymentTypeOptions()
     {
         return [
-            'authorize' => Craft::t('Authorize Only (Manually Capture)'),
-            'purchase' => Craft::t('Purchase (Authorize and Capture Immediately)'),
+            'authorize' => Craft::t('commerce', 'commerce', 'Authorize Only (Manually Capture)'),
+            'purchase' => Craft::t('commerce', 'commerce', 'Purchase (Authorize and Capture Immediately)'),
         ];
     }
 }

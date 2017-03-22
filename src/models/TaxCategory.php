@@ -57,7 +57,7 @@ class TaxCategory extends Model
      */
     public function getTaxRates()
     {
-        $allTaxRates = craft()->commerce_taxRates->getAllTaxRates();
+        $allTaxRates = Plugin::getInstance()->getTaxRates()->getAllTaxRates();
         $taxRates = [];
         /** @var \craft\commerce\models\TaxRate $rate */
         foreach ($allTaxRates as $rate) {

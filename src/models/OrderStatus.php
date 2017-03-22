@@ -111,7 +111,7 @@ class OrderStatus extends Model
      */
     public function getEmails()
     {
-        return craft()->commerce_orderStatuses->getAllEmailsByOrderStatusId($this->id);
+        return Plugin::getInstance()->getOrderStatuses()->getAllEmailsByOrderStatusId($this->id);
     }
 
     /**

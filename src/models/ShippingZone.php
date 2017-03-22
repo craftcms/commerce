@@ -7,14 +7,14 @@ use craft\helpers\UrlHelper;
 /**
  * Shipping zone model.
  *
- * @property int                              $id
- * @property string                           $name
- * @property string                           $description
- * @property bool                             $countryBased
- * @property bool                             $default
+ * @property int       $id
+ * @property string    $name
+ * @property string    $description
+ * @property bool      $countryBased
+ * @property bool      $default
  *
- * @property \craft\commerce\models\Country[] $countries
- * @property Commerce_StateModel[]            $states
+ * @property Country[] $countries
+ * @property State[]   $states
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -85,7 +85,7 @@ class ShippingZone extends Model
     public function getCountries()
     {
         if (!isset($this->_countries)) {
-            $this->_countries = craft()->commerce_shippingZones->getCountriesByShippingZoneId($this->id);;
+            $this->_countries = Plugin::getInstance()->getShippingZones()->getCountriesByShippingZoneId($this->id);;
         }
 
         return $this->_countries;
@@ -124,7 +124,7 @@ class ShippingZone extends Model
     public function getStates()
     {
         if (!isset($this->_states)) {
-            $this->_states = craft()->commerce_shippingZones->getStatesByShippingZoneId($this->id);;
+            $this->_states = Plugin::getInstance()->getShippingZones()->getStatesByShippingZoneId($this->id);;
         }
 
         return $this->_states;
@@ -133,7 +133,7 @@ class ShippingZone extends Model
     /**
      * Set states in this shipping Zone.
      *
-     * @param Commerce_StateModel[] $states
+     * @param State[] $states
      *
      * @return null
      */

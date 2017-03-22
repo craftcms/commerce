@@ -2,23 +2,24 @@
 namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
+use craft\commerce\elements\Order;
 
 /**
- * Class Commerce_OrderHistoryModel
+ * Class Order History Class
  *
- * @property int                                $id
- * @property string                             $message
+ * @property int         $id
+ * @property string      $message
  *
- * @property int                                $orderId
- * @property int                                $prevStatusId
- * @property int                                $newStatusId
- * @property int                                $customerId
- * @property DateTime                           $dateCreated
+ * @property int         $orderId
+ * @property int         $prevStatusId
+ * @property int         $newStatusId
+ * @property int         $customerId
+ * @property \DateTime   $dateCreated
  *
- * @property \craft\commerce\elements\Order     $order
- * @property \craft\commerce\models\OrderStatus $prevStatus
- * @property \craft\commerce\models\OrderStatus $newStatus
- * @property \craft\commerce\models\Customer    $customer
+ * @property Order       $order
+ * @property OrderStatus $prevStatus
+ * @property OrderStatus $newStatus
+ * @property Customer    $customer
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2017, Pixel & Tonic, Inc.

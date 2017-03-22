@@ -237,7 +237,7 @@ class Discount extends Model
     }
 
     /**
-     * @return \craft\commerce\models\ProductType[]|null
+     * @return ProductType[]|null
      */
     public function getProductTypes()
     {
@@ -245,7 +245,7 @@ class Discount extends Model
     }
 
     /**
-     * @param \craft\commerce\models\ProductType[] $productsTypes
+     * @param ProductType[] $productTypes
      */
     public function setProductTypes($productTypes)
     {

@@ -2,12 +2,14 @@
 namespace craft\commerce\base\Model;
 
 use craft\commerce\base\Model;
+use craft\commerce\models\ShippingCategory;
+use craft\commerce\models\ShippingRule;
 
 /**
  * Shipping rule model
  *
- * @property Commerce_ShippingRuleRecord     $shippingRule
- * @property Commerce_ShippingCategoryRecord $shippingCategory
+ * @property ShippingRule     $shippingRule
+ * @property ShippingCategory $shippingCategory
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -18,7 +20,6 @@ use craft\commerce\base\Model;
  */
 class ShippingRuleCategory extends Model
 {
-
     /**
      * @var int Rule ID
      */
@@ -69,7 +70,7 @@ class ShippingRuleCategory extends Model
      */
     public function getRule()
     {
-        return craft()->commerce_shippingRules->getShippingRuleById($this->shippingRuleId);
+        return Plugin::getInstance()->getShippingRules()->getShippingRuleById($this->shippingRuleId);
     }
 
     /**
@@ -77,7 +78,7 @@ class ShippingRuleCategory extends Model
      */
     public function getCategory()
     {
-        return craft()->commerce_shippingCategories->getShippingCategoryById($this->shippingCategoryId);
+        return Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($this->shippingCategoryId);
     }
 
 }

@@ -13,7 +13,6 @@ use craft\commerce\base\Model;
  * @package   craft.plugins.commerce.models
  * @since     1.0
  */
-
 class ProductTypeLocale extends Model
 {
     // Properties

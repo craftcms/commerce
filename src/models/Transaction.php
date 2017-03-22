@@ -3,10 +3,11 @@ namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
+use craft\commerce\records\Transaction as TransactionRecord;
 use Omnipay\Common\Exception\OmnipayException;
 
 /**
- * Class Commerce_TransactionModel
+ * Class Transaction
  *
  * @property \craft\commerce\models\Transaction   $parent
  * @property \craft\commerce\models\PaymentMethod $paymentMethod
@@ -140,7 +141,7 @@ class Transaction extends Model
     public function canCapture()
     {
         // can only capture authorize payments
-        if ($this->type != Commerce_TransactionRecord::TYPE_AUTHORIZE || $this->status != Commerce_TransactionRecord::STATUS_SUCCESS) {
+        if ($this->type != TransactionRecord::TYPE_AUTHORIZE || $this->status != TransactionRecord::STATUS_SUCCESS) {
             return false;
         }
 
@@ -158,12 +159,12 @@ class Transaction extends Model
         $criteria = [
             'condition' => 'type = ? AND status = ? AND orderId = ?',
             'params' => [
-                Commerce_TransactionRecord::TYPE_CAPTURE,
-                Commerce_TransactionRecord::STATUS_SUCCESS,
+                TransactionRecord::TYPE_CAPTURE,
+                TransactionRecord::STATUS_SUCCESS,
                 $this->orderId
             ],
         ];
-        $exists = craft()->commerce_transactions->transactionExists($criteria);
+        $exists = Plugin::getInstance()->getTransactions()->transactionExists($criteria);
 
         return !$exists;
     }
@@ -174,8 +175,8 @@ class Transaction extends Model
     public function canRefund()
     {
         // can only refund purchase or capture transactions
-        $noRefundTransactions = [Commerce_TransactionRecord::TYPE_PURCHASE, Commerce_TransactionRecord::TYPE_CAPTURE];
-        if (!in_array($this->type, $noRefundTransactions) || $this->status != Commerce_TransactionRecord::STATUS_SUCCESS) {
+        $noRefundTransactions = [TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE];
+        if (!in_array($this->type, $noRefundTransactions) || $this->status != TransactionRecord::STATUS_SUCCESS) {
             return false;
         }
 
@@ -194,23 +195,23 @@ class Transaction extends Model
         $criteria = [
             'condition' => 'type = ? AND status = ? AND orderId = ?',
             'params' => [
-                Commerce_TransactionRecord::TYPE_REFUND,
-                Commerce_TransactionRecord::STATUS_SUCCESS,
+                TransactionRecord::TYPE_REFUND,
+                TransactionRecord::STATUS_SUCCESS,
                 $this->orderId
             ],
         ];
-        $exists = craft()->commerce_transactions->transactionExists($criteria);
+        $exists = Plugin::getInstance()->getTransactions()->transactionExists($criteria);
 
         return !$exists;
     }
 
     /**
-     * @return Commerce_TransactionModel|null
+     * @return Transaction|null
      */
     public function getParent()
     {
         if (!isset($this->_parentTransaction)) {
-            $this->_parentTransaction = craft()->commerce_transactions->getTransactionById($this->parentId);
+            $this->_parentTransaction = Plugin::getInstance()->getTransactions()->getTransactionById($this->parentId);
         }
 
         return $this->_parentTransaction;
@@ -230,7 +231,7 @@ class Transaction extends Model
     public function getPaymentMethod()
     {
         if (!isset($this->_paymentMethod)) {
-            $this->_paymentMethod = craft()->commerce_paymentMethods->getPaymentMethodById($this->paymentMethodId);
+            $this->_paymentMethod = Plugin::getInstance()->getPaymentMethods()->getPaymentMethodById($this->paymentMethodId);
         }
 
         return $this->_paymentMethod;
