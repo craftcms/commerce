@@ -3,6 +3,7 @@ namespace craft\commerce\helpers;
 
 use craft\commerce\elements\Product as ProductModel;
 use craft\commerce\elements\Variant as VariantModel;
+use craft\commerce\Plugin;
 use craft\helpers\Localization as LocalizationHelper;
 
 /**
@@ -22,7 +23,7 @@ class Product
      * Populates a Product model from HUD or POST data
      *
      * @param ProductModel $product
-     * @param $data
+     * @param              $data
      */
     public static function populateProductModel(ProductModel &$product, $data)
     {
@@ -34,11 +35,11 @@ class Product
             $product->enabled = $data['enabled'];
         }
 
-        $product->postDate = (($postDate = $data['postDate']) ? \DateTime::createFromString($postDate, \Craft\craft()->timezone) : $product->postDate);
+        $product->postDate = (($postDate = $data['postDate']) ? \DateTime::createFromString($postDate, craft()->timezone) : $product->postDate);
         if (!$product->postDate) {
             $product->postDate = new \DateTime();
         }
-        $product->expiryDate    = (($expiryDate = $data['expiryDate']) ? \DateTime::createFromString($expiryDate, \Craft\craft()->timezone) : null);
+        $product->expiryDate = (($expiryDate = $data['expiryDate']) ? \DateTime::createFromString($expiryDate, craft()->timezone) : null);
 
         $product->promotable = $data['promotable'];
         $product->freeShipping = $data['freeShipping'];
@@ -51,7 +52,7 @@ class Product
      * Populates all Variant Models from HUD or POST data
      *
      * @param ProductModel $product
-     * @param $data
+     * @param              $data
      */
     public static function populateProductVariantModels(ProductModel &$product, $data)
     {
@@ -59,7 +60,7 @@ class Product
         $variants = [];
         $count = 1;
 
-        if(empty($variantData)){
+        if (empty($variantData)) {
             $variantData = [];
         }
 
@@ -67,8 +68,8 @@ class Product
 
         foreach ($variantData as $key => $variant) {
             if ($productId && strncmp($key, 'new', 3) !== 0) {
-                $variantModel = \Craft\craft()->commerce_variants->getVariantById($key, $product->locale);
-            }else{
+                $variantModel = Plugin::getInstance()->getVariants()->getVariantById($key, $product->locale);
+            } else {
                 $variantModel = new VariantModel();
             }
 

@@ -30,7 +30,7 @@ class VariantMatrix
      */
     public static function getVariantMatrixHtml(Product $product, $name = 'variants')
     {
-        $templatesService = \Craft\craft()->templates;
+        $templatesService = Craft::$app->getView();
         $id = $templatesService->formatInputId($name);
 
         $html = $templatesService->render('commerce/products/_variant_matrix', [
@@ -100,7 +100,7 @@ class VariantMatrix
             }
         }
 
-        $templatesService = \Craft\craft()->templates;
+        $templatesService = Craft::$app->getView();
         $templatesService->startJsBuffer();
 
         $bodyHtml = $templatesService->render('commerce/products/_variant_matrix_fields', [

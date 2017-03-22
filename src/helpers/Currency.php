@@ -2,6 +2,7 @@
 
 namespace craft\commerce\helpers;
 
+use craft\commerce\Plugin;
 
 /**
  * Class Currency
@@ -20,16 +21,16 @@ class Currency
      * Rounds the amount as per the currency minor unit information. Not passing
      * a currency model results in rounding in default currency.
      *
-     * @param float                                     $amount
-     * @param \Craft\Commerce_PaymentCurrencyModel|null $currency
+     * @param float                $amount
+     * @param PaymentCurrency|null $currency
      *
      * @return float
      */
     public static function round($amount, $currency = null)
     {
         if (!$currency) {
-            $defaultPaymentCurrency = \Craft\craft()->commerce_paymentCurrencies->getPrimaryPaymentCurrency();
-            $currency = \Craft\craft()->commerce_currencies->getCurrencyByIso($defaultPaymentCurrency->iso);
+            $defaultPaymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrency();
+            $currency = Plugin::getInstance()->getCurrencies()->getCurrencyByIso($defaultPaymentCurrency->iso);
         }
 
         $decimals = $currency->minorUnit;
@@ -40,9 +41,9 @@ class Currency
 
     public static function defaultDecimals()
     {
-        $currency = \Craft\craft()->commerce_paymentCurrencies->getPrimaryPaymentCurrencyIso();
+        $currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
 
-        $decimals = \Craft\craft()->commerce_currencies->getCurrencyByIso($currency)->minorUnit;
+        $decimals = Plugin::getInstance()->getCurrencies()->getCurrencyByIso($currency)->minorUnit;
 
         return $decimals;
     }
