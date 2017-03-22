@@ -19,7 +19,7 @@ use yii\web\HttpException;
  */
 class ProductTypes extends BaseAdmin
 {
-    public function actionIndex()
+    public function actionProductTypeIndex()
     {
         $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
         $this->renderTemplate('commerce/settings/producttypes/index',
@@ -95,12 +95,12 @@ class ProductTypes extends BaseAdmin
         $productType->setShippingCategories(Craft::$app->getRequest()->getParam('shippingCategories'));
 
         // Set the product type field layout
-        $fieldLayout = craft()->fields->assembleLayoutFromPost();
+        $fieldLayout = Craft::$app->getFields()->assembleLayoutFromPost();
         $fieldLayout->type = 'Commerce_Product';
         $productType->asa('productFieldLayout')->setFieldLayout($fieldLayout);
 
         // Set the variant field layout
-        $variantFieldLayout = craft()->fields->assembleLayoutFromPost('variant-layout');
+        $variantFieldLayout = Craft::$app->getFields()->assembleLayoutFromPost('variant-layout');
         $variantFieldLayout->type = 'Commerce_Variant';
         $productType->asa('variantFieldLayout')->setFieldLayout($variantFieldLayout);
 

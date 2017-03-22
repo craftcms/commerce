@@ -1,7 +1,6 @@
 <?php
-namespace craft\commerce\base;
+namespace craft\commerce\plugin;
 
-use craft\commerce\Plugin;
 use craft\commerce\services\Addresses;
 use craft\commerce\services\Cart;
 use craft\commerce\services\Countries;
@@ -39,7 +38,7 @@ use craft\commerce\services\Variants;
  * PluginTrait
  *
  */
-trait PluginTrait
+trait Services
 {
     /**
      * Returns the address service
@@ -359,16 +358,6 @@ trait PluginTrait
     public function getVariants()
     {
         return $this->get('variants');
-    }
-
-    /**
-     * Initialize the plugin.
-     */
-    private function _init()
-    {
-        $this->_setPluginComponents();
-        // Fire an 'afterInit' event
-        $this->trigger(Plugin::EVENT_AFTER_INIT);
     }
 
     /**
