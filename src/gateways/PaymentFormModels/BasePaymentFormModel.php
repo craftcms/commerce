@@ -25,7 +25,7 @@ abstract class BasePaymentFormModel extends BaseModel
 	{
 		foreach ($this->getAttributes() as $attr => $value)
 		{
-			$this->$attr = \Craft\craft()->request->getPost($attr);
+			$this->$attr = \Craft\Craft::$app->getRequest()->getPost($attr);
 		}
 	}
 }

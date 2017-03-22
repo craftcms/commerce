@@ -50,7 +50,7 @@ abstract class OffsiteGatewayAdapter extends BaseGatewayAdapter
 
 		$params = array_merge($defaults, $params);
 
-		return \Craft\craft()->templates->render('commerce/_gateways/_paymentforms/offsite', $params);
+		return \Craft\Craft::$app->getView()->render('commerce/_gateways/_paymentforms/offsite', $params);
 	}
 
 	/**

@@ -33,10 +33,10 @@ class Stripe_GatewayAdapter extends \Commerce\Gateways\CreditCardGatewayAdapter
 
 		$params = array_merge($defaults, $params);
 
-		\Craft\craft()->templates->includeJsFile('https://js.stripe.com/v2/');
-		\Craft\craft()->templates->includeJsResource('lib/jquery.payment'.(\Craft\craft()->config->get('useCompressedJs') ? '.min' : '').'.js');
+		\Craft\Craft::$app->getView()->includeJsFile('https://js.stripe.com/v2/');
+		\Craft\Craft::$app->getView()->includeJsResource('lib/jquery.payment'.(\Craft\Craft::$app->getConfig()->get('useCompressedJs') ? '.min' : '').'.js');
 
-		return \Craft\craft()->templates->render('commerce/_gateways/_paymentforms/stripe', $params);
+		return \Craft\Craft::$app->getView()->render('commerce/_gateways/_paymentforms/stripe', $params);
 
 	}
 

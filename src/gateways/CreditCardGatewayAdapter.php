@@ -39,7 +39,7 @@ abstract class CreditCardGatewayAdapter extends BaseGatewayAdapter
 
 		$params = array_merge($defaults, $params);
 
-		return \Craft\craft()->templates->render('commerce/_gateways/_paymentforms/creditcard', $params);
+		return \Craft\Craft::$app->getView()->render('commerce/_gateways/_paymentforms/creditcard', $params);
 	}
 
 	/**

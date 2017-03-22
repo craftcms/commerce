@@ -1,11 +1,7 @@
 <?php
 namespace Commerce\Gateways;
 
-use Commerce\Exception\NotImplementedException;
-use Commerce\Gateways\PaymentFormModels\BasePaymentFormModel;
-use Craft\AttributeType;
-use Craft\BaseModel;
-use Craft\Commerce_PaymentMethodModel;
+use craft\commerce\models\PaymentMethod;
 use Omnipay\Common\AbstractGateway;
 use Omnipay\Common\CreditCard;
 use Omnipay\Common\GatewayFactory;
@@ -25,11 +21,11 @@ abstract class BaseGatewayAdapter extends BaseModel implements GatewayAdapterInt
     protected $_gateway;
     protected $_selects = [];
     protected $_booleans = [];
-    /** @var Commerce_PaymentMethodModel */
+    /** @var PaymentMethod */
     private $_paymentMethod;
 
     /**
-     * Commerce_GatewayModel constructor.
+     * Gateway constructor.
      *
      * @param array $attributes
      */
@@ -85,7 +81,7 @@ abstract class BaseGatewayAdapter extends BaseModel implements GatewayAdapterInt
     }
 
     /**
-     * @return Commerce_PaymentMethodModel|null
+     * @return PaymentMethod|null
      */
     public function getPaymentMethod()
     {
@@ -93,9 +89,9 @@ abstract class BaseGatewayAdapter extends BaseModel implements GatewayAdapterInt
     }
 
     /**
-     * @param Commerce_PaymentMethodModel $paymentMethod
+     * @param PaymentMethod $paymentMethod
      */
-    public function setPaymentMethod(Commerce_PaymentMethodModel $paymentMethod)
+    public function setPaymentMethod(PaymentMethod $paymentMethod)
     {
         $this->_paymentMethod = $paymentMethod;
     }
@@ -136,7 +132,7 @@ abstract class BaseGatewayAdapter extends BaseModel implements GatewayAdapterInt
      */
     public function getSettingsHtml()
     {
-        return \Craft\craft()->templates->render('commerce/_gateways/omnipay', [
+        return \Craft\Craft::$app->getView()->render('commerce/_gateways/omnipay', [
             'adapter' => $this,
         ]);
     }
