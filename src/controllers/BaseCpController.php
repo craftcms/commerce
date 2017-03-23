@@ -1,7 +1,6 @@
 <?php
 namespace craft\commerce\controllers;
 
-use Craft;
 use yii\web\HttpException;
 
 /**
