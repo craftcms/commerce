@@ -33,6 +33,8 @@ class PaymentCurrencies extends Component
                 return $currency;
             }
         }
+
+        return null;
     }
 
     /**
@@ -80,6 +82,8 @@ class PaymentCurrencies extends Component
                 return $currency;
             }
         }
+
+        return null;
     }
 
     /**
@@ -104,6 +108,8 @@ class PaymentCurrencies extends Component
                 return $currency;
             }
         }
+
+        return null;
     }
 
     /**

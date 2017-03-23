@@ -7,7 +7,6 @@ use craft\commerce\helpers\Db;
 use craft\commerce\helpers\Product as ProductHelper;
 use craft\commerce\helpers\VariantMatrix;
 use craft\commerce\Plugin;
-use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use yii\web\HttpException;

@@ -325,6 +325,8 @@ class Customers extends Component
             CommercePlugin::log("Could not consolidate orders to username: ".$username.". Reason: ".$e->getMessage());
             Db::rollbackStackedTransaction();
         }
+
+        return false;
     }
 
     /**

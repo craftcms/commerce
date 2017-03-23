@@ -4,9 +4,9 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\Plugin;
 use craft\helpers\FileHelper;
+use craft\web\View;
 use Dompdf\Dompdf;
 use Dompdf\Options;
-use craft\web\View;
 use yii\web\HttpException;
 
 if (!defined('DOMPDF_ENABLE_AUTOLOAD')) {

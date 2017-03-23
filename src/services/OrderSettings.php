@@ -42,9 +42,11 @@ class OrderSettings extends Component
             $this->_orderSettingsById[$orderSettingsId] = $orderSetting;
         }
 
-        if (isset($this->_orderSettingsById[$orderSettingsId])) {
-            return $this->_orderSettingsById[$orderSettingsId];
+        if (!isset($this->_orderSettingsById[$orderSettingsId])) {
+            return null;
         }
+
+        return $this->_orderSettingsById[$orderSettingsId];
     }
 
     /**

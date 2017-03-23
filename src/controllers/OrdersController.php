@@ -5,7 +5,6 @@ use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
-use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use yii\base\Exception;
 use yii\web\HttpException;

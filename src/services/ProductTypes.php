@@ -632,9 +632,8 @@ class ProductTypes extends Component
      */
     public function getProductTypeById($productTypeId)
     {
-        if (!$this->_fetchedAllProductTypes &&
-            (!isset($this->_productTypesById) || !array_key_exists($productTypeId, $this->_productTypesById))
-        ) {
+        
+        if (!$this->_fetchedAllProductTypes && (!isset($this->_productTypesById) || !array_key_exists($productTypeId, $this->_productTypesById))) {
             $result = $this->_createProductTypeQuery()
                 ->where('pt.id = :id', [':id' => $productTypeId])
                 ->queryRow();
@@ -648,9 +647,11 @@ class ProductTypes extends Component
             $this->_productTypesById[$productTypeId] = $productType;
         }
 
-        if (isset($this->_productTypesById[$productTypeId])) {
-            return $this->_productTypesById[$productTypeId];
+        if (!isset($this->_productTypesById[$productTypeId])) {
+            return null;
         }
+
+        return $this->_productTypesById[$productTypeId];
     }
 
     /**
