@@ -31,6 +31,8 @@ class Currencies extends Component
                 return $currency;
             }
         }
+
+        return null;
     }
 
     /**
