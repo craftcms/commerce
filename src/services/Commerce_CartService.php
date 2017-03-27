@@ -385,7 +385,11 @@ class Commerce_CartService extends BaseApplicationComponent
                 }
             }
 
-            $this->_cart->paymentCurrency = $this->_cart->paymentCurrency ?: craft()->commerce_paymentCurrencies->getPrimaryPaymentCurrencyIso();
+            // If payment currency is not set or not available anymore, default to the primary currency
+            if (!in_array($this->_cart->paymentCurrency, $currencies))
+            {
+                $this->_cart->paymentCurrency = craft()->commerce_paymentCurrencies->getPrimaryPaymentCurrencyIso();
+            }
 
             // Update the cart if the customer has changed and recalculate the cart.
             $customer = craft()->commerce_customers->getCustomer();
