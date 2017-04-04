@@ -6,6 +6,12 @@ Commerce Changelog
 ### Added 
 - Added the [requireBillingAddressAtCheckout](https://craftcommerce.com/docs/configuration#requirebillingaddressatcheckout) config setting.
 - Added the `cp.commerce.order.main-pane` template hook to the Edit Order page.
+- Added [Commerce_VariantModel::hasStock()](https://craftcommerce.com/docs/variant-model#hasstock)
+
+### Fixed
+- Fixed some PHP errors that occurred when saving products on servers running PHP 7.1.
+- Fixed a bug where a front-end disabled payment method could be submitted to the `commerce/payments/pay` action.
+- Fixed a bug where a old carts did not default to the primary payment currency when their current payment currency was no longer valid.
 
 ## 1.2.1337 - 2017-03-08
 
