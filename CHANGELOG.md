@@ -3,7 +3,9 @@ Commerce Changelog
 
 ## Unreleased
 
-### Added 
+## 1.2.1338 - 2017-04-04
+
+### Added
 - Added the [`requireBillingAddressAtCheckout`](https://craftcommerce.com/docs/configuration#requirebillingaddressatcheckout) config setting.
 - Added the `cp.commerce.order.main-pane` template hook to the Edit Order page.
 - Added [`Commerce_VariantModel::hasStock()`](https://craftcommerce.com/docs/variant-model#hasstock).
@@ -319,7 +321,7 @@ Commerce Changelog
 ## 1.1.1202 - 2016-05-03
 
 ### Added
-- Added the [commerce_lineItems.onCreateLineItem](https://craftcommerce.com/docs/events-reference#commerce_lineitems.oncreatelineitem) event.  
+- Added the [commerce_lineItems.onCreateLineItem](https://craftcommerce.com/docs/events-reference#commerce_lineitems.oncreatelineitem) event.
 - Added the [hasStock](https://craftcommerce.com/docs/craft-commerce-products#hasstock) variant criteria param, which can be set to `true` to find variants that have stock (including variants with unlimited stock).
 
 ### Changed
