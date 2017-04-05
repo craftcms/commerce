@@ -11,7 +11,7 @@ Commerce Changelog
 ### Fixed
 - Fixed some PHP errors that occurred when saving products on servers running PHP 7.1.
 - Fixed a bug where a front-end disabled payment method could be submitted to the `commerce/payments/pay` action.
-- Fixed a bug where a old carts did not default to the primary payment currency when their current payment currency was no longer valid.
+- Fixed a bug where old carts did not default to the primary payment currency when their current payment currency was no longer valid.
 
 ## 1.2.1337 - 2017-03-08
 
