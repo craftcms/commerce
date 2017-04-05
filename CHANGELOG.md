@@ -4,9 +4,9 @@ Commerce Changelog
 ## Unreleased
 
 ### Added 
-- Added the `[requireBillingAddressAtCheckout](https://craftcommerce.com/docs/configuration#requirebillingaddressatcheckout)` config setting.
+- Added the [`requireBillingAddressAtCheckout`](https://craftcommerce.com/docs/configuration#requirebillingaddressatcheckout) config setting.
 - Added the `cp.commerce.order.main-pane` template hook to the Edit Order page.
-- Added `[Commerce_VariantModel::hasStock()](https://craftcommerce.com/docs/variant-model#hasstock)`.
+- Added [`Commerce_VariantModel::hasStock()`](https://craftcommerce.com/docs/variant-model#hasstock).
 
 ### Fixed
 - Fixed some PHP errors that occurred when saving products on servers running PHP 7.1.
