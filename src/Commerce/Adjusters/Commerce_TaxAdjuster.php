@@ -8,6 +8,7 @@ use Craft\Commerce_LineItemModel;
 use Craft\Commerce_OrderAdjustmentModel;
 use Craft\Commerce_OrderModel;
 use Craft\Commerce_TaxRateModel;
+use Craft\Commerce_TaxRateRecord;
 use Craft\Commerce_TaxZoneModel;
 use Craft\CommercePlugin;
 use Craft\LogLevel;
@@ -111,8 +112,34 @@ class Commerce_TaxAdjuster implements Commerce_AdjusterInterface
         {
             if ($taxRate->include)
             {
-                //excluding taxes included in price
                 $allRemovedTax = 0;
+
+                // Is this an order level tax rate?
+                if (in_array($taxRate->taxable,[Commerce_TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE, Commerce_TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING]))
+                {
+                    if ($taxRate->taxable == Commerce_TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE) {
+                        $orderTaxableAmount = $order->totalPrice;
+                    }
+
+                    if ($taxRate->taxable == Commerce_TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING) {
+                        $orderTaxableAmount = $order->totalShippingCost;
+                    }
+
+                    $amount = -($orderTaxableAmount - ($orderTaxableAmount / (1 + $taxRate->rate)));
+                    $amount = CommerceCurrencyHelper::round($amount);
+                    $allRemovedTax += $amount;
+                    $order->baseTax += $amount;
+                    $affectedLineIds = [];
+
+                    // We need to display the adjustment that removed the included tax
+                    $adjustment->name = $taxRate->name." ".\Craft\Craft::t('Removed');
+                    $adjustment->amount = $allRemovedTax;
+                    $adjustment->optionsJson = array_merge(['lineItemsAffected' => $affectedLineIds], $adjustment->optionsJson);
+
+                    return $adjustment;
+                }
+
+                // Not an order level taxable, modify the line items.
                 foreach ($lineItems as $item)
                 {
                     if ($item->taxCategoryId == $taxRate->taxCategoryId)
@@ -137,9 +164,47 @@ class Commerce_TaxAdjuster implements Commerce_AdjusterInterface
             return false;
         }
 
-        //checking items tax categories
-        $itemsMatch = false;
+        // Is this an order level tax rate?
+        if (in_array($taxRate->taxable,[Commerce_TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE, Commerce_TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING]))
+        {
+            if ($taxRate->taxable == Commerce_TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE) {
+                $orderTaxableAmount = $order->totalPrice;
+            }
 
+            if ($taxRate->taxable == Commerce_TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING) {
+                $orderTaxableAmount = $order->totalShippingCost;
+            }
+
+            if (!$taxRate->include)
+            {
+                $amount = $taxRate->rate * $orderTaxableAmount;
+                $orderTax = CommerceCurrencyHelper::round($amount);
+            }
+            else
+            {
+                $amount = $orderTaxableAmount - ($orderTaxableAmount / (1 + $taxRate->rate));
+                $orderTax = CommerceCurrencyHelper::round($amount);
+            }
+
+            $adjustment->amount += $orderTax;
+
+            if (!$taxRate->include)
+            {
+                $order->baseTax += $orderTax;
+            }
+            else
+            {
+                $adjustment->included = true;
+                $order->baseTaxIncluded += $orderTax;
+            }
+
+            return $adjustment;
+
+        }
+
+
+        // not an order level tax rate, modify line items.
+        $itemsMatch = false;
         foreach ($lineItems as $item)
         {
 

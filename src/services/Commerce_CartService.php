@@ -616,6 +616,7 @@ class Commerce_CartService extends BaseApplicationComponent
                     orders.itemTotal,
                     orders.baseDiscount,
                     orders.baseTax,
+                    orders.baseTaxIncluded,
                     orders.baseShippingCost,
                     orders.totalPrice,
                     orders.totalPaid,

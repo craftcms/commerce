@@ -15,6 +15,7 @@ use Commerce\Helpers\CommerceCurrencyHelper;
  * @property float $baseDiscount
  * @property float $baseShippingCost
  * @property float $baseTax
+ * @property float $baseTaxIncluded
  * @property string $email
  * @property bool $isCompleted
  * @property DateTime $dateOrdered
@@ -321,7 +322,7 @@ class Commerce_OrderModel extends BaseElementModel
             $tax += $item->taxIncluded;
         }
 
-        return $tax;
+        return $tax + $this->baseTaxIncluded;
     }
 
     /**
@@ -644,6 +645,11 @@ class Commerce_OrderModel extends BaseElementModel
                 'default' => 0
             ],
             'baseTax' => [
+                AttributeType::Number,
+                'decimals' => 4,
+                'default' => 0
+            ],
+            'baseTaxIncluded' => [
                 AttributeType::Number,
                 'decimals' => 4,
                 'default' => 0

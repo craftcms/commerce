@@ -198,7 +198,7 @@
     ) }}
 
 	{{ forms.checkboxField({
-		label: "This tax is already included in the entered prices of all products"|t,
+		label: "This tax is already included in the taxable subject"|t,
 		name: 'include',
 		value: 1,
 		checked: taxRate.include,
@@ -216,6 +216,30 @@
 	<p id="isVat" {% if not taxRate.isVat %} class="hidden"{% endif %}>
 		{{ "This tax rate will not be applied if a valid businessTaxId is entered into the shipping address."|t }}
 	</p>
+
+    {% includeJs %}
+    (function() {
+        window.taxableValue = "{{ taxRate.taxable }}";
+
+        function toggleCategory(val)
+        {
+            if (val == 'order_total_shipping' || val == 'order_total_price')
+            {
+                $('#taxCategoryId-field').hide();
+            }else{
+                $('#taxCategoryId-field').show();
+            }
+        }
+
+        toggleCategory(window.taxableValue);
+
+        $('#taxable').change(function(e){
+            toggleCategory($(this).val());
+        });
+
+    })();
+
+    {% endincludejs %}
 
 {% endblock %}
 

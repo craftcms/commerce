@@ -66,9 +66,11 @@ class Commerce_TaxRatesController extends Commerce_BaseAdminController
         }
 
         $taxable = [];
-        $taxable[Commerce_TaxRateRecord::TAXABLE_PRICE] = Craft::t('Item cost');
-        $taxable[Commerce_TaxRateRecord::TAXABLE_SHIPPING] = Craft::t('Shipping cost');
-        $taxable[Commerce_TaxRateRecord::TAXABLE_PRICE_SHIPPING] = Craft::t('Both (item + shipping costs)');
+        $taxable[Commerce_TaxRateRecord::TAXABLE_PRICE] = Craft::t('Line item price');
+        $taxable[Commerce_TaxRateRecord::TAXABLE_SHIPPING] = Craft::t('Line item shipping cost');
+        $taxable[Commerce_TaxRateRecord::TAXABLE_PRICE_SHIPPING] = Craft::t('Both (Line item price + Line item shipping costs)');
+        $taxable[Commerce_TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING] = Craft::t('Order total shipping cost');
+        $taxable[Commerce_TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE] = Craft::t('Order total price');
         $variables['taxables'] = $taxable;
 
         // Get the HTML and JS for the new tax zone/category modals

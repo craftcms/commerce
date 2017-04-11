@@ -228,6 +228,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
         $orderRecord->baseDiscount = $order->baseDiscount;
         $orderRecord->baseShippingCost = $order->baseShippingCost;
         $orderRecord->baseTax = $order->baseTax;
+        $orderRecord->baseTaxIncluded = $order->baseTaxIncluded;
         $orderRecord->totalPrice = $order->totalPrice;
         $orderRecord->totalPaid = $order->totalPaid;
         $orderRecord->currency = $order->currency;
@@ -327,6 +328,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
         $order->baseDiscount = 0;
         $order->baseShippingCost = 0;
         $order->baseTax = 0;
+        $order->baseTaxIncluded = 0;
         $order->itemTotal = 0;
         foreach ($lineItems as $key => $item)
         {
