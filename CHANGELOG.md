@@ -7,6 +7,15 @@ Commerce Changelog
 - Added new taxable subject options to tax rates. These allow taxes to be applied at the order level.
 - Added the [`datePaid`](https://craftcommerce.com/docs/craft-commerce-orders#datepaid) order element criteria attribute.
 
+### Fixed
+- Fixed some PHP errors that occurred when rendering PDFs on servers running PHP 7.1.
+
+### Changed
+- Updated the Dompdf package to 0.8.
+- Updated the Omnipay Mollie driver to 3.2.
+- Updated the Omnipay Authorize.net driver to 2.5.
+- Updated the Omnipay MultiSafePay driver to 2.3.4.
+
 ## 1.2.1338 - 2017-04-04
 
 ### Added

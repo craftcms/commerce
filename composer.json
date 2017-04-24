@@ -43,7 +43,7 @@
         "omnipay/stripe" :  "~2.4",
         "omnipay/targetpay" :  "~2.2",
         "omnipay/worldpay" :  "~2.2",
-        "dompdf/dompdf" : "0.6.1",
+        "dompdf/dompdf" : "~0.8",
         "snowcap/vat-validation": "dev-master#21e7d996bd30dc680244d59d0fa18be3671e68ee",
         "php-units-of-measure/php-units-of-measure": "~2.1"
     }
