@@ -3,6 +3,8 @@ Commerce Changelog
 
 ## Unreleased
 
+## 1.2.1339 - 2017-04-24
+
 ### Added
 - Added new “Taxable Subject” options to Tax Rates, enabling taxes to be applied at the order level.
 - Added the [`datePaid`](https://craftcommerce.com/docs/craft-commerce-orders#datepaid) order element criteria attribute.
