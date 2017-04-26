@@ -165,7 +165,11 @@ class CommercePlugin extends BasePlugin
                         'm161001_010103_Commerce_DiscountStopProcessing',
                         'm161001_010104_Commerce_SaveTransactionCode',
                         'm161001_010105_Commerce_RemovePaymentCurrencyName',
-                        'm161024_010101_Commerce_FixDefaultShippingAndTaxCategoriesOnProducts'
+                        'm161024_010101_Commerce_FixDefaultShippingAndTaxCategoriesOnProducts',
+                        'm161101_010101_Commerce_AddBaseTaxToOrder',
+                        'm170227_010101_Commerce_RemoveNameUniquenessFromShippingRules',
+                        'm170411_010101_Commerce_AdditionalTaxRateTaxables',
+                        'm170411_010102_Commerce_OrderBaseTaxIncluded'
                     );
 
                     foreach ($migrations as $migrationClass) {
