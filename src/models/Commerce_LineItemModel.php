@@ -238,7 +238,7 @@ class Commerce_LineItemModel extends BaseModel
      */
     public function getDescription()
     {
-        return $this->snapshot['description'];
+        return HtmlHelper::decode($this->snapshot['description']);
     }
 
     /**
@@ -246,7 +246,7 @@ class Commerce_LineItemModel extends BaseModel
      */
     public function getSku()
     {
-        return $this->snapshot['sku'];
+        return HtmlHelper::decode($this->snapshot['sku']);
     }
 
     /**
