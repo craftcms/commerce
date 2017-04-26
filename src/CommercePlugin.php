@@ -169,7 +169,8 @@ class CommercePlugin extends BasePlugin
                         'm161101_010101_Commerce_AddBaseTaxToOrder',
                         'm170227_010101_Commerce_RemoveNameUniquenessFromShippingRules',
                         'm170411_010101_Commerce_AdditionalTaxRateTaxables',
-                        'm170411_010102_Commerce_OrderBaseTaxIncluded'
+                        'm170411_010102_Commerce_OrderBaseTaxIncluded',
+                        'm170426_010101_Commerce_IncreaseTaxRateDecimal'
                     );
 
                     foreach ($migrations as $migrationClass) {
@@ -317,7 +318,7 @@ class CommercePlugin extends BasePlugin
      */
     public function getSchemaVersion()
     {
-        return '1.2.76';
+        return '1.2.77';
     }
 
     /**
