@@ -260,7 +260,7 @@ class Commerce_OrderModel extends BaseElementModel
         $totalPaid = CommerceCurrencyHelper::round($this->totalPaid);
         $totalPrice = CommerceCurrencyHelper::round($this->totalPrice);
         
-        return $totalPrice - $totalPaid;
+        return max(0,$totalPrice - $totalPaid);
     }
 
     /**
