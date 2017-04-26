@@ -238,7 +238,7 @@ class Commerce_OrderModel extends BaseElementModel
      */
     public function isPaid()
     {
-        return (bool) $this->outstandingBalance() <= 0;
+        return (bool) max(0, $this->outstandingBalance() <= 0);
     }
 
     /**
@@ -246,7 +246,7 @@ class Commerce_OrderModel extends BaseElementModel
      */
     public function isUnpaid()
     {
-        return (bool) $this->outstandingBalance() > 0;
+        return (bool) max(0, $this->outstandingBalance() > 0);
     }
 
     /**
@@ -256,11 +256,10 @@ class Commerce_OrderModel extends BaseElementModel
      */
     public function outstandingBalance()
     {
-
         $totalPaid = CommerceCurrencyHelper::round($this->totalPaid);
         $totalPrice = CommerceCurrencyHelper::round($this->totalPrice);
         
-        return max(0,$totalPrice - $totalPaid);
+        return $totalPrice - $totalPaid;
     }
 
     /**
