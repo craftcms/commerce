@@ -3,8 +3,14 @@ Commerce Changelog
 
 ## Unreleased
 
+
 ## Changed
+- Increased the tax rate decimal storage length to allow 3 decimal places in tax rate percentages.
 - The `CommerceDbHelper` class has be deprected.
+
+## Fixed
+- Fixed a product name display issue on the order edit screen when special characters were used in a product‘s title.
+- Fixed an issue where an order incorrectly recalculated it's adjustments when receiving notifications from the SagePay payment gateway.
 
 ## 1.2.1339 - 2017-04-24
 
