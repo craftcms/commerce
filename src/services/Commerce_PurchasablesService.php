@@ -1,7 +1,6 @@
 <?php
 namespace Craft;
 
-use Commerce\Helpers\CommerceDbHelper;
 use Commerce\Interfaces\Purchasable;
 
 /**
@@ -52,7 +51,7 @@ class Commerce_PurchasablesService extends BaseApplicationComponent
             throw new Exception('Trying to save a purchasable element that is not a purchasable.');
         }
 
-        CommerceDbHelper::beginStackedTransaction();
+        $transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
         try {
             if ($success = craft()->elements->saveElement($model)) {
                 $id = $model->getPurchasableId();
@@ -73,15 +72,24 @@ class Commerce_PurchasablesService extends BaseApplicationComponent
 
                 if (!$success) {
                     $model->addErrors($purchasable->getErrors());
-                    CommerceDbHelper::rollbackStackedTransaction();
+                    if ($transaction !== null)
+                    {
+                        $transaction->rollback();
+                    }
 
                     return $success;
                 }
 
-                CommerceDbHelper::commitStackedTransaction();
+                if ($transaction !== null)
+                {
+                    $transaction->commit();
+                }
             }
         } catch (\Exception $e) {
-            CommerceDbHelper::rollbackStackedTransaction();
+            if ($transaction !== null)
+            {
+                $transaction->rollback();
+            }
             throw $e;
         }
 

@@ -1,7 +1,6 @@
 <?php
 namespace Craft;
 
-use Commerce\Helpers\CommerceDbHelper;
 
 /**
  * Product type service.
@@ -362,7 +361,7 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
 
         if (!$productType->hasErrors())
         {
-            CommerceDbHelper::beginStackedTransaction();
+            $transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
             try
             {
 
@@ -671,11 +670,17 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
                     }
                 }
 
-                CommerceDbHelper::commitStackedTransaction();
+                if ($transaction !== null)
+                {
+                    $transaction->commit();
+                }
             }
             catch (\Exception $e)
             {
-                CommerceDbHelper::rollbackStackedTransaction();
+                if ($transaction !== null)
+                {
+                    $transaction->rollback();
+                }
 
                 throw $e;
             }
@@ -699,7 +704,7 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
      */
     public function deleteProductTypeById($id)
     {
-        CommerceDbHelper::beginStackedTransaction();
+        $transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
         try
         {
             $productType = $this->getProductTypeById($id);
@@ -727,14 +732,20 @@ class Commerce_ProductTypesService extends BaseApplicationComponent
 
             if ($affectedRows)
             {
-                CommerceDbHelper::commitStackedTransaction();
+                if ($transaction !== null)
+                {
+                    $transaction->commit();
+                }
             }
 
             return (bool)$affectedRows;
         }
         catch (\Exception $e)
         {
-            CommerceDbHelper::rollbackStackedTransaction();
+            if ($transaction !== null)
+            {
+                $transaction->rollback();
+            }
 
             throw $e;
         }

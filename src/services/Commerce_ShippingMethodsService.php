@@ -1,7 +1,6 @@
 <?php
 namespace Craft;
 
-use Commerce\Helpers\CommerceDbHelper;
 use Commerce\Interfaces\ShippingMethod;
 
 /**
@@ -267,7 +266,7 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
     public function delete($model)
     {
         // Delete all rules first.
-        CommerceDbHelper::beginStackedTransaction();
+        $transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
         try {
 
             $rules = craft()->commerce_shippingRules->getAllShippingRulesByShippingMethodId($model->id);
@@ -277,16 +276,25 @@ class Commerce_ShippingMethodsService extends BaseApplicationComponent
 
             Commerce_ShippingMethodRecord::model()->deleteByPk($model->id);
 
-            CommerceDbHelper::commitStackedTransaction();
+            if ($transaction !== null)
+            {
+                $transaction->commit();
+            }
 
             return true;
         } catch (\Exception $e) {
-            CommerceDbHelper::rollbackStackedTransaction();
+            if ($transaction !== null)
+            {
+                $transaction->rollback();
+            }
 
             return false;
         }
 
-        CommerceDbHelper::rollbackStackedTransaction();
+        if ($transaction !== null)
+        {
+            $transaction->rollback();
+        }
 
         return false;
     }

@@ -1,7 +1,6 @@
 <?php
 namespace Craft;
 
-use Commerce\Helpers\CommerceDbHelper;
 
 /**
  * Order settings service.
@@ -98,7 +97,7 @@ class Commerce_OrderSettingsService extends BaseApplicationComponent
         $orderSettings->addErrors($orderSettingsRecord->getErrors());
 
         if (!$orderSettings->hasErrors()) {
-            CommerceDbHelper::beginStackedTransaction();
+            $transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
             try {
                 if (!$isNewOrderSettings && $oldOrderSettings->fieldLayoutId) {
                     // Drop the old field layout
@@ -124,9 +123,15 @@ class Commerce_OrderSettingsService extends BaseApplicationComponent
                 // Update service's cache
                 $this->_orderSettingsById[$orderSettings->id] = $orderSettings;
 
-                CommerceDbHelper::commitStackedTransaction();
+                if ($transaction !== null)
+                {
+                    $transaction->commit();
+                }
             } catch (\Exception $e) {
-                CommerceDbHelper::rollbackStackedTransaction();
+                if ($transaction !== null)
+                {
+                    $transaction->rollback();
+                }
                 throw $e;
             }
 

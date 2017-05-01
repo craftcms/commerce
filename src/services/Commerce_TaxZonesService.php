@@ -1,7 +1,6 @@
 <?php
 namespace Craft;
 
-use Commerce\Helpers\CommerceDbHelper;
 
 /**
  * Tax zone service.
@@ -109,7 +108,7 @@ class Commerce_TaxZonesService extends BaseApplicationComponent
 
         //saving
         if (!$model->hasErrors()) {
-            CommerceDbHelper::beginStackedTransaction();
+            $transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
             try {
                 // Save it!
                 $record->save(false);
@@ -143,9 +142,15 @@ class Commerce_TaxZonesService extends BaseApplicationComponent
                         'id != ?', [$record->id]);
                 }
 
-                CommerceDbHelper::commitStackedTransaction();
+                if ($transaction !== null)
+                {
+                    $transaction->commit();
+                }
             } catch (\Exception $e) {
-                CommerceDbHelper::rollbackStackedTransaction();
+                if ($transaction !== null)
+                {
+                    $transaction->rollback();
+                }
 
                 throw $e;
             }

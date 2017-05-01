@@ -3,6 +3,9 @@ Commerce Changelog
 
 ## Unreleased
 
+## Changed
+- The `CommerceDbHelper` class has be deprected.
+
 ## 1.2.1339 - 2017-04-24
 
 ### Added

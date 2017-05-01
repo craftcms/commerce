@@ -1,7 +1,6 @@
 <?php
 namespace Craft;
 
-use Commerce\Helpers\CommerceDbHelper;
 
 /**
  * Customer service.
@@ -422,7 +421,7 @@ class Commerce_CustomersService extends BaseApplicationComponent
      */
     public function consolidateOrdersToUser($username)
     {
-        CommerceDbHelper::beginStackedTransaction();
+        $transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
 
         try
         {
@@ -456,14 +455,20 @@ class Commerce_CustomersService extends BaseApplicationComponent
                 }
             }
 
-            CommerceDbHelper::commitStackedTransaction();
+            if ($transaction !== null)
+            {
+                $transaction->commit();
+            }
 
             return true;
         }
         catch (\Exception $e)
         {
             CommercePlugin::log("Could not consolidate orders to username: ".$username.". Reason: ".$e->getMessage());
-            CommerceDbHelper::rollbackStackedTransaction();
+            if ($transaction !== null)
+            {
+                $transaction->rollback();
+            }
         }
     }
 

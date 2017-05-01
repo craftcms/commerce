@@ -1,7 +1,6 @@
 <?php
 namespace Craft;
 
-use Commerce\Helpers\CommerceDbHelper;
 
 /**
  * Product service.
@@ -154,7 +153,7 @@ class Commerce_ProductsService extends BaseApplicationComponent
         }
 
 
-        CommerceDbHelper::beginStackedTransaction();
+        $transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
         try {
 
              $record->defaultVariantId = $product->defaultVariantId = $defaultVariant->getPurchasableId();
@@ -217,14 +216,20 @@ class Commerce_ProductsService extends BaseApplicationComponent
                         craft()->commerce_variants->deleteVariantById($deleteId);
                     }
 
-                    CommerceDbHelper::commitStackedTransaction();
+                    if ($transaction !== null)
+                    {
+                        $transaction->commit();
+                    }
                 }
 
             }else{
                 $success = false;
             }
         } catch (\Exception $e) {
-            CommerceDbHelper::rollbackStackedTransaction();
+            if ($transaction !== null)
+            {
+                $transaction->rollback();
+            }
             throw $e;
         }
 

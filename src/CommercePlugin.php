@@ -3,7 +3,6 @@
 namespace Craft;
 
 use Commerce\Extensions\CommerceTwigExtension;
-use Commerce\Helpers\CommerceDbHelper;
 
 require __DIR__.'/vendor/autoload.php';
 
@@ -109,7 +108,7 @@ class CommercePlugin extends BasePlugin
             }
 
             if ($pluginInfo['version'] == '0.8.09') {
-                CommerceDbHelper::beginStackedTransaction();
+                $transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
                 try {
                     $this->doSeed = false;
 
@@ -181,9 +180,15 @@ class CommercePlugin extends BasePlugin
                         }
                     }
 
-                    CommerceDbHelper::commitStackedTransaction();
+                    if ($transaction !== null)
+                    {
+                        $transaction->commit();
+                    }
                 } catch (Exception $e) {
-                    CommerceDbHelper::rollbackStackedTransaction();
+                    if ($transaction !== null)
+                    {
+                        $transaction->rollback();
+                    }
                 }
             }
         }

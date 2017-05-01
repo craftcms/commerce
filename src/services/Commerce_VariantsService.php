@@ -1,7 +1,6 @@
 <?php
 namespace Craft;
 
-use Commerce\Helpers\CommerceDbHelper;
 
 /**
  * Variant service.
@@ -171,7 +170,7 @@ class Commerce_VariantsService extends BaseApplicationComponent
         $record->validate();
         $model->addErrors($record->getErrors());
 
-        CommerceDbHelper::beginStackedTransaction();
+        $transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
         try
         {
             if (!$model->hasErrors())
@@ -180,7 +179,10 @@ class Commerce_VariantsService extends BaseApplicationComponent
                 {
                     $record->id = $model->id;
                     $record->save(false);
-                    CommerceDbHelper::commitStackedTransaction();
+                    if ($transaction !== null)
+                    {
+                        $transaction->commit();
+                    }
 
                     return true;
                 }
@@ -188,11 +190,17 @@ class Commerce_VariantsService extends BaseApplicationComponent
         }
         catch (\Exception $e)
         {
-            CommerceDbHelper::rollbackStackedTransaction();
+            if ($transaction !== null)
+            {
+                $transaction->rollback();
+            }
             throw $e;
         }
 
-        CommerceDbHelper::rollbackStackedTransaction();
+        if ($transaction !== null)
+        {
+            $transaction->rollback();
+        }
 
         return false;
     }

@@ -1,7 +1,6 @@
 <?php
 namespace Craft;
 
-use Commerce\Helpers\CommerceDbHelper;
 
 /**
  * Shipping zone service.
@@ -119,7 +118,7 @@ class Commerce_ShippingZonesService extends BaseApplicationComponent
         //saving
         if (!$model->hasErrors())
         {
-            CommerceDbHelper::beginStackedTransaction();
+            $transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
             try
             {
                 // Save it!
@@ -153,11 +152,17 @@ class Commerce_ShippingZonesService extends BaseApplicationComponent
                 }
                 craft()->db->createCommand()->insertAll($table, $cols, $rows);
 
-                CommerceDbHelper::commitStackedTransaction();
+                if ($transaction !== null)
+                {
+                    $transaction->commit();
+                }
             }
             catch (\Exception $e)
             {
-                CommerceDbHelper::rollbackStackedTransaction();
+                if ($transaction !== null)
+                {
+                    $transaction->rollback();
+                }
 
                 throw $e;
             }

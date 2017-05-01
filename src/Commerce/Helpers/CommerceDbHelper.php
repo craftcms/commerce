@@ -23,6 +23,8 @@ class CommerceDbHelper
      */
     public static function beginStackedTransaction()
     {
+        \Craft\craft()->deprecator->log('CommerceDbHelper::beginStackedTransaction()', 'Craft::beginStackedTransaction() has been deprecated.');
+
         if (self::$transactionsStackSize == 0) {
             if (\Craft\craft()->db->getCurrentTransaction() === null) {
                 self::$transaction = \Craft\craft()->db->beginTransaction();
@@ -39,6 +41,8 @@ class CommerceDbHelper
 
     public static function commitStackedTransaction()
     {
+        \Craft\craft()->deprecator->log('CommerceDbHelper::commitStackedTransaction()', 'Craft::commitStackedTransaction() has been deprecated.');
+
         self::$transactionsStackSize && --self::$transactionsStackSize; //decrement only when positive
 
         if (self::$transactionsStackSize == 0) {
@@ -48,6 +52,8 @@ class CommerceDbHelper
 
     public static function rollbackStackedTransaction()
     {
+        \Craft\craft()->deprecator->log('CommerceDbHelper::rollbackStackedTransaction()', 'Craft::rollbackStackedTransaction() has been deprecated.');
+
         self::$transactionsStackSize && --self::$transactionsStackSize; //decrement only when positive
 
         if (self::$transactionsStackSize == 0) {
