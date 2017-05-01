@@ -91,6 +91,11 @@ class Commerce_OrderModel extends BaseElementModel
     private $_orderAdjustments;
 
     /**
+     * @var bool $_recalcuate
+     */
+    private $_recalcuate = true;
+
+    /**
      * We need to have getters functions have maximum priority.
      * This was in the ModelRelationTrait so it needs to stay for backwards compatibility.
      * @param string $name
@@ -127,6 +132,24 @@ class Commerce_OrderModel extends BaseElementModel
     public function __toString()
     {
         return $this->getShortNumber();
+    }
+
+    /**
+     * @return bool Should this order recalculate before being saved
+     */
+    public function getShouldRecalculateAdjustments()
+    {
+        return (bool) (!$this->isCompleted && $this->_recalcuate);
+    }
+
+    /**
+     * @param bool $value
+     *
+     * @return void
+     */
+    public function setShouldRecalculateAdjustments($value)
+    {
+        $this->_recalcuate = $value;
     }
 
     /**

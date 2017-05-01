@@ -114,7 +114,9 @@ class Commerce_OrdersService extends BaseApplicationComponent
             }
         }
 
+        $order->setShouldRecalculateAdjustments(false);
         $this->saveOrder($order);
+        $order->setShouldRecalculateAdjustments(true);
 
         if (!$order->isCompleted)
         {
@@ -315,8 +317,7 @@ class Commerce_OrdersService extends BaseApplicationComponent
      */
     private function calculateAdjustments(Commerce_OrderModel $order)
     {
-        // Don't recalc the totals of completed orders.
-        if (!$order->id || $order->isCompleted)
+        if (!$order->id || !$order->getShouldRecalculateAdjustments())
         {
             return;
         }
