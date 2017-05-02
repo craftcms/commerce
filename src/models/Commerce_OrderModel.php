@@ -311,6 +311,17 @@ class Commerce_OrderModel extends BaseElementModel
      *
      * @return int
      */
+    public function getTotalTaxablePrice()
+    {
+        return $this->getItemSubtotal() + $this->getTotalDiscount() + $this->getTotalShippingCost();
+    }
+
+
+    /**
+     * Total number of items.
+     *
+     * @return int
+     */
     public function getTotalQty()
     {
         $qty = 0;

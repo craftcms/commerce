@@ -118,7 +118,7 @@ class Commerce_TaxAdjuster implements Commerce_AdjusterInterface
                 if (in_array($taxRate->taxable,[Commerce_TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE, Commerce_TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING]))
                 {
                     if ($taxRate->taxable == Commerce_TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE) {
-                        $orderTaxableAmount = $order->totalPrice;
+                        $orderTaxableAmount = $order->getTotalTaxablePrice();
                     }
 
                     if ($taxRate->taxable == Commerce_TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING) {
@@ -168,7 +168,7 @@ class Commerce_TaxAdjuster implements Commerce_AdjusterInterface
         if (in_array($taxRate->taxable,[Commerce_TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE, Commerce_TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING]))
         {
             if ($taxRate->taxable == Commerce_TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE) {
-                $orderTaxableAmount = $order->totalPrice;
+                $orderTaxableAmount = $order->getTotalTaxablePrice();
             }
 
             if ($taxRate->taxable == Commerce_TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING) {
