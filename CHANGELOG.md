@@ -3,6 +3,8 @@ Commerce Changelog
 
 ## Unreleased
 
+## 1.2.1341 - 2017-05-02
+
 ### Changed
 - Increased the tax rate decimal storage length to allow 3 decimal places in tax rate percentages.
 - The `CommerceDbHelper` class has be deprecated.
