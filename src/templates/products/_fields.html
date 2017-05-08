@@ -207,7 +207,7 @@
 				{{ forms.text({
 					id: 'length',
 					name: 'length',
-					value: (variant.length|number ?: ''),
+					value: (variant.length ? variant.length|number : ''),
 					placeholder: 'Length'|t|upper[0:1],
 					title: 'Length'|t,
 					unit: craft.commerce.settings.dimensionUnits,
@@ -219,7 +219,7 @@
 				{{ forms.text({
 					id: 'width',
 					name: 'width',
-					value: (variant.width|number ?: ''),
+					value: (variant.width ? variant.width|number : ''),
 					placeholder: 'Width'|t|upper[0:1],
 					title: 'Width'|t,
 					unit: craft.commerce.settings.dimensionUnits,
@@ -231,7 +231,7 @@
 				{{ forms.text({
 					id: 'height',
 					name: 'height',
-					value: (variant.height|number ?: ''),
+					value: (variant.height ? variant.height|number : ''),
 					placeholder: 'Height'|t|upper[0:1],
 					title: 'Height'|t,
 					unit: craft.commerce.settings.dimensionUnits,
@@ -251,7 +251,7 @@
 		id: 'weight',
 		label: 'Weight'|t,
 		name: 'weight',
-		value: (variant.weight|number ?: ''),
+		value: (variant.weight ? variant.weight|number : ''),
 		placeholder: 'Enter weight'|t,
 		unit: craft.commerce.settings.weightUnits,
 		errors: variant.getErrors('weight')
