@@ -113,9 +113,10 @@ class Commerce_OrdersService extends BaseApplicationComponent
             }
         }
 
+        $originalShouldRecalculate = $order->getShouldRecalculateAdjustments();
         $order->setShouldRecalculateAdjustments(false);
         $this->saveOrder($order);
-        $order->setShouldRecalculateAdjustments(true);
+        $order->setShouldRecalculateAdjustments($originalShouldRecalculate);
 
         if (!$order->isCompleted)
         {
