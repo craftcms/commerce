@@ -1,6 +1,8 @@
 <?php
 namespace Craft;
 
+use Commerce\Helpers\CommerceCurrencyHelper;
+
 
 /**
  * Variant service.
@@ -143,7 +145,7 @@ class Commerce_VariantsService extends BaseApplicationComponent
                 {
                     $variant->setSalesApplied($sales);
 
-                    $variant->setSalePrice($variant->getSalePrice() + $sale->calculateTakeoff($variant->price));
+                    $variant->setSalePrice(CommerceCurrencyHelper::round($variant->getSalePrice() + $sale->calculateTakeoff($variant->price)));
                     if ($variant->getSalePrice() < 0)
                     {
                         $variant->setSalePrice(0);
