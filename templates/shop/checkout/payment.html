@@ -47,7 +47,7 @@
 			{% endif %}
 
 			{% if cart.paymentMethodId %}
-				<form method="POST" class="form-horizontal">
+				<form method="POST" class="form-horizontal" id="paymentForm">
 					<input type="hidden" name="action" value="commerce/payments/pay"/>
 					<input type="hidden" name="redirect" value="/shop/customer/order?number={number}"/>
 					<input type="hidden" name="cancelUrl" value="/shop/checkout/payment"/>
@@ -87,8 +87,34 @@
 						</script>
 					{% endif %}
 
+					{% if cart.paymentMethod.class == 'WorldPay_Json' %}
+					<script src="https://cdn.worldpay.com/v1/worldpay.js"></script>
+					<div id='paymentSection'></div>
+					<script type='text/javascript'>
+                        window.onload = function() {
+                            Worldpay.useTemplateForm({
+                                'clientKey':'{{ cart.paymentMethod.settings.clientKey ?? "" }}',
+                                'form':'paymentForm',
+                                'paymentSection':'paymentSection',
+                                'display':'inline',
+                                'reusable':true,
+                                'callback': function(obj) {
+                                    if (obj && obj.token) {
+                                        var _el = document.createElement('input');
+                                        _el.value = obj.token;
+                                        _el.type = 'hidden';
+                                        _el.name = 'token';
+                                        document.getElementById('paymentForm').appendChild(_el);
+                                        document.getElementById('paymentForm').submit();
+                                    }
+                                }
+                            });
+                        }
+					</script>
 
-					{% if cart.paymentMethod.class != 'Stripe' %}
+					{% endif %}
+
+					{% if (cart.paymentMethod.class != 'Stripe') and (cart.paymentMethod.class != 'WorldPay_Json') %}
 						<fieldset>
 							{% if cart.paymentMethod.requiresCard() %}
 								{% set currentYear = date()|date_modify("+1 year").format('Y') %}

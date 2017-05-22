@@ -103,6 +103,7 @@ class Commerce_GatewaysService extends BaseApplicationComponent
             '\Commerce\Gateways\Omnipay\TargetPay_Mrcash_GatewayAdapter',
             '\Commerce\Gateways\Omnipay\TwoCheckout_GatewayAdapter',
             '\Commerce\Gateways\Omnipay\WorldPay_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\WorldPay_Json_GatewayAdapter',
         ];
 
         // Let plugins register more gateway adapters classes
