@@ -2,6 +2,7 @@
 namespace Craft;
 
 use Commerce\Base\Purchasable as BasePurchasable;
+use Commerce\Helpers\CommerceCurrencyHelper;
 
 /**
  * Class Commerce_VariantModel
@@ -189,7 +190,7 @@ class Commerce_VariantModel extends BasePurchasable
      */
     public function getOnSale()
     {
-        return is_null($this->salePrice) ? false : ($this->salePrice != $this->price);
+        return $this->salePrice === null ? false : (CommerceCurrencyHelper::round($this->salePrice) != CommerceCurrencyHelper::round($this->price));
     }
 
     /**
