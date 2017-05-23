@@ -43,7 +43,7 @@ class ShippingCategories extends Component
         if (!$this->_fetchedAllShippingCategories &&
             (!isset($this->_shippingCategoriesById) || !array_key_exists($shippingCategoryId, $this->_shippingCategoriesById))
         ) {
-            $result = ShippingCategoryRecord::model()->findById($shippingCategoryId);
+            $result = ShippingCategoryRecord::findOne($shippingCategoryId);
 
             if ($result) {
                 $shippingCategory = $this->_populateShippingCategory($result);
@@ -97,9 +97,9 @@ class ShippingCategories extends Component
         if (!$this->_fetchedAllShippingCategories &&
             (!isset($this->_shippingCategoriesByHandle) || !array_key_exists($shippingCategoryHandle, $this->_shippingCategoriesByHandle))
         ) {
-            $result = ShippingCategoryRecord::model()->findByAttributes([
+            $result = ShippingCategoryRecord::find()->where([
                 'handle' => $shippingCategoryHandle
-            ]);
+            ])->all();
 
             if ($result) {
                 $shippingCategory = $this->_populateShippingCategory($result);
@@ -138,7 +138,7 @@ class ShippingCategories extends Component
     public function getAllShippingCategories($indexBy = null)
     {
         if (!$this->_fetchedAllShippingCategories) {
-            $results = ShippingCategoryRecord::model()->findAll();
+            $results = ShippingCategoryRecord::findAll();
 
             foreach ($results as $result) {
                 $this->_populateShippingCategory($result);
@@ -173,7 +173,7 @@ class ShippingCategories extends Component
     public function saveShippingCategory(ShippingCategory $model)
     {
         if ($model->id) {
-            $record = ShippingCategoryRecord::model()->findById($model->id);
+            $record = ShippingCategoryRecord::findOne($model->id);
 
             if (!$record) {
                 throw new Exception(Craft::t('commerce', 'commerce', 'No shipping category exists with the ID “{id}”',
@@ -202,8 +202,7 @@ class ShippingCategories extends Component
 
             // If this was the default make all others not the default.
             if ($model->default) {
-                ShippingCategoryRecord::model()->updateAll(['default' => 0],
-                    'id != ?', [$record->id]);
+                ShippingCategoryRecord::updateAll(['default' => 0], ['id' => $record->id]);
             }
 
             // Update Service cache
@@ -231,6 +230,12 @@ class ShippingCategories extends Component
             return false;
         }
 
-        return (bool)ShippingCategoryRecord::model()->deleteByPk($id);
+        $record = ShippingCategoryRecord::findOne($id);
+
+        if($record)
+        {
+            $record->delete();
+        }
+
     }
 }

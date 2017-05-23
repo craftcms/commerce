@@ -118,7 +118,12 @@ class LineItems extends Component
      */
     public function deleteLineItem(LineItem $lineItem)
     {
-        return LineItemRecord::model()->deleteByPk($lineItem->id);
+        $lineItem = LineItemRecord::findOne($lineItem->id);
+
+        if ($lineItem)
+        {
+            return $lineItem->delete();
+        }
     }
 
     /**
@@ -134,7 +139,7 @@ class LineItems extends Component
         if (!$lineItem->id) {
             $lineItemRecord = new LineItem();
         } else {
-            $lineItemRecord = LineItemRecord::model()->findById($lineItem->id);
+            $lineItemRecord = LineItemRecord::findOne($lineItem->id);
 
             if (!$lineItemRecord) {
                 throw new Exception(Craft::t('commerce', 'commerce', 'No line item exists with the ID “{id}”',
@@ -351,7 +356,7 @@ class LineItems extends Component
      */
     public function deleteAllLineItemsByOrderId($orderId)
     {
-        return LineItemRecord::model()->deleteAllByAttributes(['orderId' => $orderId]);
+        return LineItemRecord::deleteAll(['orderId' => $orderId]);
     }
 
     /**

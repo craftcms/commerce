@@ -28,10 +28,7 @@ class ShippingRulesController extends BaseAdminController
         }
 
         $methodsExist = Plugin::getInstance()->getShippingMethods()->ShippingMethodExists();
-        $shippingRules = Plugin::getInstance()->getShippingRules()->getAllShippingRules([
-            'order' => 't.methodId, t.name',
-            'with' => ['method', 'country', 'state'],
-        ]);
+        $shippingRules = Plugin::getInstance()->getShippingRules()->getAllShippingRules();
         $this->renderTemplate('commerce/settings/shippingrules/index', compact('shippingRules', 'methodsExist'));
     }
 

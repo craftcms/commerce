@@ -26,7 +26,7 @@ class Transactions extends Component
      */
     public function getTransactionById($id)
     {
-        $result = TransactionRecord::model()->findById($id);
+        $result = TransactionRecord::findOne($id);
 
         if ($result) {
             return new Transaction($result);
@@ -112,7 +112,7 @@ class Transactions extends Component
     public function saveTransaction(Transaction $model)
     {
         if ($model->id) {
-            $record = TransactionRecord::model()->findById($model->id);
+            $record = TransactionRecord::findOne($model->id);
 
             if (!$record) {
                 throw new Exception(Craft::t('commerce', 'commerce', 'No transaction exists with the ID “{id}”',

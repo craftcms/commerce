@@ -42,10 +42,10 @@ class Countries extends Component
      */
     public function getCountryByAttributes(array $attr)
     {
-        $result = CountryRecord::model()->findByAttributes($attr);
+        $result = CountryRecord::find()->where($attr)->one();
 
         if ($result) {
-            return Country::populateModel($result);
+            return new Country($result);
         }
 
         return null;
@@ -66,9 +66,9 @@ class Countries extends Component
     /**
      * @return Country[]
      */
-    public function getAllCountries()
+    public function getAllCountries(): array
     {
-        $records = CountryRecord::model()->findAll(['order' => 'name']);
+        $records = CountryRecord::find()->orderBy('name')->all();
 
         return Country::populateModels($records);
     }
@@ -82,7 +82,7 @@ class Countries extends Component
     public function saveCountry(Country $model)
     {
         if ($model->id) {
-            $record = CountryRecord::model()->findById($model->id);
+            $record = CountryRecord::findOne($model->id);
 
             if (!$record) {
                 throw new Exception(Craft::t('commerce', 'commerce', 'No country exists with the ID “{id}”',
@@ -119,6 +119,10 @@ class Countries extends Component
      */
     public function deleteCountryById($id)
     {
-        CountryRecord::model()->deleteByPk($id);
+        $country = CountryRecord::findOne($id);
+        if ($country)
+        {
+            $country->delete();
+        }
     }
 }

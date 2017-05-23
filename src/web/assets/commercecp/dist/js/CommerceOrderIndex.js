@@ -17,4 +17,4 @@ Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
 });
 
 // Register the Commerce order index class
-Craft.registerElementIndexClass('Commerce_Order', Craft.Commerce.OrderIndex);
+Craft.registerElementIndexClass('\\craft\\commerce\\elements\\Order', Craft.Commerce.OrderIndex);

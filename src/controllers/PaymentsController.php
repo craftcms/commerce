@@ -48,14 +48,14 @@ class PaymentsController extends BaseFrontEndController
 
         // Are we paying anonymously?
         if (!$order->isActiveCart() && !Craft::$app->getUser()->checkPermission('commerce-manageOrders')) {
-            if (Craft::$app->getConfig()->get('requireEmailForAnonymousPayments', 'commerce')) {
+            if (Plugin::getInstance()->getSettings()->getSettings()->requireEmailForAnonymousPayments) {
                 if ($order->email !== Craft::$app->getRequest()->getParam('email')) {
                     throw new HttpException(401, Craft::t("commerce", "Not authorized to make payments on this order."));
                 }
             }
         }
 
-        if (Craft::$app->getConfig()->get('requireShippingAddressAtCheckout', 'commerce')) {
+        if (Plugin::getInstance()->getSettings()->getSettings()->requireShippingAddressAtCheckout) {
             if (!$order->shippingAddressId) {
                 $error = Craft::t('commerce', 'Shipping address required.');
                 if (Craft::$app->getRequest()->isAjax()) {
@@ -257,7 +257,7 @@ class PaymentsController extends BaseFrontEndController
     {
         $id = Craft::$app->getRequest()->getParam('commerceTransactionHash');
 
-        CommercePlugin::log(json_encode($_REQUEST, JSON_PRETTY_PRINT));
+        Craft::info(json_encode($_REQUEST, JSON_PRETTY_PRINT),__METHOD__);
 
         Plugin::getInstance()->getPayments()->acceptNotification($id);
     }

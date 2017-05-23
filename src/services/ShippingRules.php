@@ -4,6 +4,7 @@ namespace craft\commerce\services;
 use craft\commerce\base\Model\ShippingRuleCategory;
 use craft\commerce\models\ShippingCategory;
 use craft\commerce\models\ShippingRule;
+use craft\commerce\Plugin;
 use craft\commerce\records\ShippingRule as ShippingRuleRecord;
 use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 use yii\base\Component;
@@ -21,13 +22,12 @@ use yii\base\Component;
 class ShippingRules extends Component
 {
     /**
-     * @param array|\CDbCriteria $criteria
      *
      * @return ShippingRule[]
      */
-    public function getAllShippingRules($criteria = [])
+    public function getAllShippingRules()
     {
-        $results = ShippingRuleRecord::model()->findAll($criteria);
+        $results = ShippingRuleRecord::find()->with(['method', 'country', 'state'])->orderBy(['methodId','name'])->all();
 
         return ShippingRule::populateModels($results);
     }
@@ -39,7 +39,7 @@ class ShippingRules extends Component
      */
     public function getAllShippingRulesByShippingMethodId($id)
     {
-        $results = ShippingRuleRecord::model()->findAllByAttributes(['methodId' => $id], ['order' => 'priority ASC']);
+        $results = ShippingRuleRecord::find()->where(['methodId' => $id])->orderBy('priority')->all();
 
         return ShippingRule::populateModels($results);
     }
@@ -51,7 +51,7 @@ class ShippingRules extends Component
      */
     public function getShippingRuleById($id)
     {
-        $result = ShippingRuleRecord::model()->findById($id);
+        $result = ShippingRuleRecord::findOne($id);
 
         if ($result) {
             return ShippingRule::populateModel($result);
@@ -62,7 +62,7 @@ class ShippingRules extends Component
 
     public function getShippingRuleCategoryByRuleId($id)
     {
-        $result = ShippingRuleCategoryRecord::model()->findAllByAttributes(['shippingRuleId' => $id]);
+        $result = ShippingRuleCategoryRecord::find()->where(['shippingRuleId' => $id])->all();
 
         return ShippingRuleCategory::populateModels($result, 'shippingCategoryId');
     }
@@ -78,7 +78,7 @@ class ShippingRules extends Component
     public function saveShippingRule(ShippingRule $model)
     {
         if ($model->id) {
-            $record = ShippingRuleRecord::model()->findById($model->id);
+            $record = ShippingRuleRecord::findOne($model->id);
 
             if (!$record) {
                 throw new Exception(Craft::t('commerce', 'commerce', 'No shipping rule exists with the ID “{id}”',
@@ -113,7 +113,7 @@ class ShippingRules extends Component
         $record->shippingZoneId = $model->shippingZoneId ? $model->shippingZoneId : null;
 
         if (empty($record->priority) && empty($model->priority)) {
-            $count = ShippingRuleRecord::model()->countByAttributes(['methodId' => $model->methodId]);
+            $count = ShippingRuleRecord::find()->where(['methodId' => $model->methodId])->count();
             $record->priority = $model->priority = $count + 1;
         } elseif ($model->priority) {
             $record->priority = $model->priority;
@@ -132,7 +132,7 @@ class ShippingRules extends Component
             // Now that we have a record ID, save it on the model
             $model->id = $record->id;
 
-            ShippingRuleCategoryRecord::model()->deleteAllByAttributes([
+            ShippingRuleCategoryRecord::deleteAll([
                 'shippingRuleId' => $model->id
             ]);
 
@@ -186,6 +186,11 @@ class ShippingRules extends Component
      */
     public function deleteShippingRuleById($id)
     {
-        ShippingRuleRecord::model()->deleteByPk($id);
+        $record = ShippingRuleRecord::findOne($id);
+
+        if($record)
+        {
+            $record->delete();
+        }
     }
 }

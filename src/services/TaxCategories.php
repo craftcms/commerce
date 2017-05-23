@@ -43,7 +43,7 @@ class TaxCategories extends Component
         if (!$this->_fetchedAllTaxCategories &&
             (!isset($this->_taxCategoriesById) || !array_key_exists($taxCategoryId, $this->_taxCategoriesById))
         ) {
-            $result = TaxCategoryRecord::model()->findById($taxCategoryId);
+            $result = TaxCategoryRecord::findOne($taxCategoryId);
 
             if ($result) {
                 $taxCategory = $this->_populateTaxCategory($result);
@@ -173,7 +173,7 @@ class TaxCategories extends Component
     public function saveTaxCategory(TaxCategory $model)
     {
         if ($model->id) {
-            $record = TaxCategoryRecord::model()->findById($model->id);
+            $record = TaxCategoryRecord::findOne($model->id);
 
             if (!$record) {
                 throw new Exception(Craft::t('commerce', 'commerce', 'No tax category exists with the ID “{id}”',

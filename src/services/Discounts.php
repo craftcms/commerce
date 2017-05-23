@@ -26,15 +26,15 @@ use yii\base\Component;
 class Discounts extends Component
 {
     /**
-     * @param array|\CDbCriteria $criteria
      *
      * @return Discount[]
      */
-    public function getAllDiscounts($criteria = [])
+    public function getAllDiscounts()
     {
-        $records = DiscountRecord::model()->findAll($criteria);
+        $records = DiscountRecord::find();
+        $records->orderBy('sortOrder');
 
-        return Discount::populateModels($records);
+        return Discount::populateModels($records->all());
     }
 
     /**
@@ -98,7 +98,7 @@ class Discounts extends Component
                 return false;
             }
 
-            $uses = CustomerDiscountUseRecord::model()->findByAttributes(['customerId' => $customerId, 'discountId' => $model->id]);
+            $uses = CustomerDiscountUseRecord::find()->where(['customerId' => $customerId, 'discountId' => $model->id])->all();
             if ($uses && $uses->uses >= $model->perUserLimit) {
                 $error = Craft::t('commerce', 'commerce', 'You can not use this discount anymore');
 
@@ -145,7 +145,7 @@ class Discounts extends Component
             return null;
         }
 
-        $result = DiscountRecord::model()->findByAttributes(['code' => $code]);
+        $result = DiscountRecord::find()->where(['code' => $code])->all();
 
         if ($result) {
             return Discount::populateModel($result);
@@ -272,7 +272,7 @@ class Discounts extends Component
     public function saveDiscount(Discount $model, array $groups, array $productTypes, array $products)
     {
         if ($model->id) {
-            $record = DiscountRecord::model()->findById($model->id);
+            $record = DiscountRecord::findOne($model->id);
 
             if (!$record) {
                 throw new Exception(Craft::t('commerce', 'commerce', 'No discount exists with the ID “{id}”', ['id' => $model->id]));
@@ -302,9 +302,9 @@ class Discounts extends Component
                 $record->save(false);
                 $model->id = $record->id;
 
-                DiscountUserGroupRecord::model()->deleteAllByAttributes(['discountId' => $model->id]);
-                DiscountProductRecord::model()->deleteAllByAttributes(['discountId' => $model->id]);
-                DiscountProductTypeRecord::model()->deleteAllByAttributes(['discountId' => $model->id]);
+                DiscountUserGroupRecord::deleteAll(['discountId' => $model->id]);
+                DiscountProductRecord::deleteAll(['discountId' => $model->id]);
+                DiscountProductTypeRecord::deleteAll(['discountId' => $model->id]);
 
                 foreach ($groups as $groupId) {
                     $relation = new DiscountUserGroupRecord;
@@ -343,7 +343,12 @@ class Discounts extends Component
      */
     public function deleteDiscountById($id)
     {
-        DiscountRecord::model()->deleteByPk($id);
+        $record = DiscountRecord::findOne($id);
+
+        if ($record)
+        {
+            $record->delete();
+        }
     }
 
     public function clearCouponUsageHistory($id)
@@ -351,10 +356,10 @@ class Discounts extends Component
         $discount = $this->getDiscountById($id);
 
         if ($discount) {
-            CustomerDiscountUseRecord::model()->deleteAllByAttributes(['discountId' => $discount->id]);
+            CustomerDiscountUseRecord::deleteAll(['discountId' => $discount->id]);
 
             if ($discount->code) {
-                $discount = DiscountRecord::model()->findByAttributes(['code' => $discount->code]);
+                $discount = DiscountRecord::find()->where(['code' => $discount->code])->one();
 
                 if ($discount) {
                     $discount->totalUses = 0;
@@ -371,7 +376,7 @@ class Discounts extends Component
      */
     public function getDiscountById($id)
     {
-        $result = DiscountRecord::model()->findById($id);
+        $result = DiscountRecord::findOne($id);
 
         if ($result) {
             return new Discount($result);
@@ -407,18 +412,18 @@ class Discounts extends Component
         }
 
         /** @var DiscountRecord $record */
-        $record = DiscountRecord::model()->findByAttributes(['code' => $order->couponCode]);
+        $record = DiscountRecord::find()->where(['code' => $order->couponCode])->one();
         if (!$record || !$record->id) {
             return;
         }
 
         if ($record->totalUseLimit) {
-            $record->saveCounters(['totalUses' => 1]);
+            $record->updateCounters(['totalUses' => 1]);
         }
 
         if ($record->perUserLimit && $order->customerId) {
 
-            $customerDiscountUseRecord = CustomerDiscountUseRecord::model()->findByAttributes(['customerId' => $order->customerId, 'discountId' => $record->id]);
+            $customerDiscountUseRecord = CustomerDiscountUseRecord::find()->where(['customerId' => $order->customerId, 'discountId' => $record->id])->one();
 
             if (!$customerDiscountUseRecord) {
                 $customerDiscountUseRecord = new CustomerDiscountUseRecord();

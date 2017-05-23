@@ -9,15 +9,13 @@
         {% set address = craft.commerce.customer.address(addressId) %}
     {% endif %}
 
-    <form method="POST">
+    <form method="post">
         {{ getCsrfInput() }}
-        <input type="hidden" name="action"
-               value="commerce/customer-addresses/save">
+        <input type="hidden" name="action" value="commerce/customerAddresses/save">
         {% if redirect %}
             <input type="hidden" name="redirect" value="{{ redirect }}">
         {% else %}
-            <input type="hidden" name="redirect"
-                   value="shop/customer/addresses">
+            <input type="hidden" name="redirect" value="shop/customer/addresses">
         {% endif %}
 
         {% if addressId %}
@@ -25,7 +23,7 @@
         {% endif %}
 
         {% include 'shop/_includes/addresses/form' %}
-        {{ csrfInput() }}
+
         <input type="submit" value="Save Address">
     </form>
     {% if redirect %}

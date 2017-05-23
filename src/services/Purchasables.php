@@ -62,7 +62,7 @@ class Purchasables extends Component
                 $price = $model->getPrice();
                 $sku = $model->getSku();
 
-                $purchasable = PurchasableRecord::model()->findById($id);
+                $purchasable = PurchasableRecord::findOne($id);
 
                 if (!$purchasable) {
                     $purchasable = new PurchasableRecord();

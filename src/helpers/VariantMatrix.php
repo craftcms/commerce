@@ -4,6 +4,7 @@ namespace craft\commerce\helpers;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\helpers\Json;
+use yii\web\View;
 
 /**
  * Class VariantMatrix
@@ -30,32 +31,33 @@ class VariantMatrix
      */
     public static function getVariantMatrixHtml(Product $product, $name = 'variants')
     {
-        $templatesService = Craft::$app->getView();
-        $id = $templatesService->formatInputId($name);
+        /** @var \craft\web\View $viewService */
+        $viewService = Craft::$app->getView();
+        $id = $viewService->formatInputId($name);
 
-        $html = $templatesService->render('commerce/products/_variant_matrix', [
+        $html = $viewService->render('commerce/products/_variant_matrix', [
             'id' => $id,
             'name' => $name,
             'variants' => $product->getVariants()
         ]);
 
         // Namespace the name/ID for JS
-        $namespacedName = $templatesService->namespaceInputName($name);
-        $namespacedId = $templatesService->namespaceInputId($id);
+        $namespacedName = $viewService->namespaceInputName($name);
+        $namespacedId = $viewService->namespaceInputId($id);
 
         // Get the field HTML
         list($fieldBodyHtml, $fieldFootHtml) = self::_getVariantFieldHtml($product, $namespacedName);
 
-        $templatesService->includeJsResource('commerce/js/VariantMatrix.js');
+        $viewService->includeJsResource('commerce/js/VariantMatrix.js');
 
-        $templatesService->includeJs('new Craft.Commerce.VariantMatrix('.
+        $viewService->includeJs('new Craft.Commerce.VariantMatrix('.
             '"'.$namespacedId.'", '.
             Json::encode($fieldBodyHtml).', '.
             Json::encode($fieldFootHtml).', '.
             '"'.$namespacedName.'"'.
             ');');
 
-        $templatesService->includeTranslations(
+        $viewService->registerTranslations(
             'Actions',
             'Add a variant',
             'Add variant above',

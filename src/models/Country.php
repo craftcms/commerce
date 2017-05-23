@@ -1,4 +1,5 @@
 <?php
+
 namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
@@ -44,13 +45,13 @@ class Country extends Model
      */
     function __toString()
     {
-        return $this->name;
+        return (string)$this->name;
     }
 
     /**
      * @return string
      */
-    public function getCpEditUrl()
+    public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/settings/countries/'.$this->id);
     }

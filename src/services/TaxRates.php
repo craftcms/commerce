@@ -36,7 +36,7 @@ class TaxRates extends Component
      */
     public function getTaxRateById($id)
     {
-        $result = TaxRateRecord::model()->findById($id);
+        $result = TaxRateRecord::findOne($id);
 
         if ($result) {
             return new TaxRate($result);
@@ -56,7 +56,7 @@ class TaxRates extends Component
     public function saveTaxRate(TaxRate $model)
     {
         if ($model->id) {
-            $record = TaxRateRecord::model()->findById($model->id);
+            $record = TaxRateRecord::findOne($model->id);
 
             if (!$record) {
                 throw new Exception(Craft::t('commerce', 'commerce', 'No tax rate exists with the ID “{id}”',

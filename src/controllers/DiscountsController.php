@@ -36,7 +36,7 @@ class DiscountsController extends BaseCpController
      */
     public function actionIndex()
     {
-        $discounts = Plugin::getInstance()->getDiscounts()->getAllDiscounts(['order' => 'sortOrder']);
+        $discounts = Plugin::getInstance()->getDiscounts()->getAllDiscounts();
         $this->renderTemplate('commerce/promotions/discounts/index',
             compact('discounts'));
     }

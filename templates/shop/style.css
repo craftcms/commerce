@@ -335,7 +335,7 @@ input[type="button"] {
 
 .button .fa,
 button .fa {
-    font-size: 16px;
+    font-size:16px;
 }
 
 .button:hover,
@@ -377,17 +377,16 @@ input[type="button"].button-primary:focus {
     background-color: #DA5A17;
     border-color: #DA5A17;
 }
-
 .button.link {
-    display: inline;
-    border: none;
+    display:inline;
+    border:none;
     text-transform: none;
     padding: 0px;
     font-size: 1em; /* currently ems cause chrome bug misinterpreting rems on body element */
     line-height: 1;
     font-weight: 400;
-    color: #DA5A17;
-    text-align: left;
+    color:#DA5A17;
+    text-align:left;
     height: auto;
 }
 
@@ -607,11 +606,11 @@ hr {
     border-radius: 4px;
 }
 
-.right {
-    float: right;
+.right{
+    float:right;
 }
 
-.text-right {
+.text-right{
     text-align: right;
 }
 
@@ -641,194 +640,65 @@ hr {
 /* Steps
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 
-.steps {
-    margin-bottom: 40px;
-}
-
-.steps ul {
-    display: flex;
-    display: -webkit-flex;
-    margin-bottom: 0;
-}
-
-.steps ul li {
-    list-style: none;
-    display: block;
-    flex: 1;
-}
-
-.steps ul li {
-    color: #aaa;
-}
-
-.steps ul li a {
-    color: #aaa;
-}
-
-.steps ul li.done {
-    color: #DA5A17;
-    opacity: .5;
-}
-
-.steps ul li.done a {
-    color: #DA5A17;
-}
-
-.steps ul li.sel {
-    color: #DA5A17;
-    opacity: 1;
-}
-
-.steps ul li.sel a {
-    color: #DA5A17;
-}
-
-.steps .meter {
-    height: 10px;
-    position: relative;
-    border: 1px solid #bbb;
-    -moz-border-radius: 10px;
-    -webkit-border-radius: 10px;
-    border-radius: 10px;
-    padding: 3px;
-    margin-bottom: 10px;
-}
-
-.steps .meter > span {
-    display: block;
-    height: 100%;
-    border-top-right-radius: 2px;
-    border-bottom-right-radius: 2px;
-    border-top-left-radius: 10px;
-    border-bottom-left-radius: 10px;
-    background-color: #DA5A17;
-    position: relative;
-    overflow: hidden;
-}
+.steps { margin-bottom: 40px; }
+.steps ul { display: flex; display: -webkit-flex; margin-bottom: 0; }
+.steps ul li { list-style: none; display: block; flex:1; }
+.steps ul li { color: #aaa; }
+.steps ul li a { color: #aaa; }
+.steps ul li.done { color: #DA5A17; opacity: .5; }
+.steps ul li.done a { color: #DA5A17; }
+.steps ul li.sel { color: #DA5A17; opacity: 1; }
+.steps ul li.sel a { color: #DA5A17; }
+.steps .meter { height: 10px; position: relative; border: 1px solid #bbb; -moz-border-radius: 10px; -webkit-border-radius: 10px; border-radius: 10px; padding: 3px; margin-bottom: 10px; }
+.steps .meter > span { display: block; height: 100%; border-top-right-radius: 2px; border-bottom-right-radius: 2px; border-top-left-radius: 10px; border-bottom-left-radius: 10px; background-color: #DA5A17; position: relative; overflow: hidden; }
 
 @media (max-width: 750px) {
-    .steps ul {
-        display: block;
-        margin-left: 24px;
-    }
-
-    .steps ul li {
-        list-style: decimal;
-        display: list-item;
-    }
-
-    .steps .meter {
-        display: none;
-    }
+    .steps ul { display: block; margin-left: 24px; }
+    .steps ul li { list-style: decimal; display: list-item; }
+    .steps .meter { display: none; }
 }
 
 /* Commerce Design
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
-img.logo {
-    width: 400px;
+img.logo{ width:400px; }
+
+#header { margin-top: 50px; }
+
+#header nav { margin-top: 25px; }
+
+#main { margin-top: 25px; }
+
+img.product { width: 100%; }
+
+.flash{ color: #DA5A17; margin-bottom:10px;}
+
+.has-error input{
+    border:1px solid #DA5A17;
 }
 
-#header {
-    margin-top: 50px;
-}
-
-#header nav {
-    margin-top: 25px;
-}
-
-#main {
-    margin-top: 25px;
-}
-
-img.product {
-    width: 100%;
-}
-
-.flash {
-    color: #DA5A17;
-    margin-bottom: 10px;
-}
-
-.has-error input {
-    border: 1px solid #DA5A17;
-}
-
-.has-error .help-block {
+.has-error .help-block{
     color: #DA5A17;
 }
 
-.address-select {
-    background: #fff;
-    border: 1px solid #eee;
-    margin-bottom: 1em;
-    position: relative;
-    border-radius: 4px;
-}
+.address-select { background: #fff; border: 1px solid #eee; margin-bottom: 1em; position: relative; border-radius: 4px; }
+.address-select .radio input { margin: 0 5px 0 0; position: relative; top: -1px; }
 
-.address-select .radio input {
-    margin: 0 5px 0 0;
-    position: relative;
-    top: -1px;
-}
+.address-select .radio { padding: 14px 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.address-select ul.address-data { display: inline; }
+.address-select ul.address-data li { display: inline; }
+.address-select ul.address-data li { display: inline; }
+.address-select ul.address-data li strong { display: none; }
+.address-select ul.address-data li span[data-key=firstName] { font-weight: bold; }
+.address-select ul.address-data li span[data-key=lastName] { font-weight: bold; }
 
-.address-select .radio {
-    padding: 14px 15px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+.address-select .actions { float: right; padding: 14px 15px; font-size: 0.9em; }
+.address-select .actions ul { margin:0; }
+.address-select .actions ul li { display: inline-block; margin: 0 0 0 1em; }
+.address-select .actions ul li a { color: #999; text-decoration: underline; }
 
-.address-select ul.address-data {
-    display: inline;
-}
+.address-select .body { padding: 14px; }
 
-.address-select ul.address-data li {
-    display: inline;
-}
-
-.address-select ul.address-data li {
-    display: inline;
-}
-
-.address-select ul.address-data li strong {
-    display: none;
-}
-
-.address-select ul.address-data li span[data-key=firstName] {
-    font-weight: bold;
-}
-
-.address-select ul.address-data li span[data-key=lastName] {
-    font-weight: bold;
-}
-
-.address-select .actions {
-    float: right;
-    padding: 14px 15px;
-    font-size: 0.9em;
-}
-
-.address-select .actions ul {
-    margin: 0;
-}
-
-.address-select .actions ul li {
-    display: inline-block;
-    margin: 0 0 0 1em;
-}
-
-.address-select .actions ul li a {
-    color: #999;
-    text-decoration: underline;
-}
-
-.address-select .body {
-    padding: 14px;
-}
-
-.hidden {
-    display: none;
-}
+.hidden { display: none; }
 
 .product.row {
     border-bottom: 1px solid #fafafa;
@@ -839,68 +709,17 @@ img.product {
     padding-top: 2rem;
 }
 
-.address-card {
-    background-color: transparent;
-    border-radius: 5px;
-    padding: 20px 0px 0px 20px;
-    border: 1px solid #E1E1E1;
-    margin-bottom: 15px;
-    position: relative;
-}
 
-.address-card form {
-    display: inline;
-    margin: 0px;
-}
+.address-card { background-color: transparent; border-radius: 5px; padding:20px 0px 0px 20px; border: 1px solid #E1E1E1; margin-bottom: 15px; position: relative;  }
+.address-card form { display:inline; margin:0px; }
+.address-card .edit { position: absolute; top: 20px; right: 20px; }
+.address-card ul { list-style: none; }
 
-.address-card .edit {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-}
+.shipping-select { background: #fff; border: 1px solid #eee; margin-bottom: 1em; position: relative; border-radius: 4px; }
+.shipping-select input { margin: 0 5px 0 0; }
+.shipping-select label { padding: 10px 14px; }
+.shipping-select .price { float: right; padding: 4px 4px; font-size: 0.9em; font-weight: normal; }
 
-.address-card ul {
-    list-style: none;
-}
-
-.shipping-select {
-    background: #fff;
-    border: 1px solid #eee;
-    margin-bottom: 1em;
-    position: relative;
-    border-radius: 4px;
-}
-
-.shipping-select input {
-    margin: 0 5px 0 0;
-}
-
-.shipping-select label {
-    padding: 10px 14px;
-}
-
-.shipping-select .price {
-    float: right;
-    padding: 4px 4px;
-    font-size: 0.9em;
-    font-weight: normal;
-}
-
-.review-card {
-    background-color: transparent;
-    border-radius: 5px;
-    padding: 20px;
-    border: 1px solid #E1E1E1;
-    margin-bottom: 15px;
-    position: relative;
-}
-
-.review-card ul {
-    list-style: none;
-    margin: 0;
-}
-
-.review-card ul li {
-    border-top: 1px solid #E1E1E1;
-    padding: 10px 0;
-}
+.review-card { background-color: transparent; border-radius: 5px; padding:20px; border: 1px solid #E1E1E1; margin-bottom: 15px; position: relative;  }
+.review-card ul { list-style: none; margin: 0; }
+.review-card ul li { border-top: 1px solid #E1E1E1; padding: 10px 0;  }

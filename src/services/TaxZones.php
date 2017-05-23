@@ -58,7 +58,7 @@ class TaxZones extends Component
      */
     public function getTaxZoneById($id)
     {
-        $result = TaxZoneRecord::model()->findById($id);
+        $result = TaxZoneRecord::findOne($id);
 
         if ($result) {
             return new TaxZone($result);
@@ -78,7 +78,7 @@ class TaxZones extends Component
     public function saveTaxZone(TaxZone $model, $countryIds, $stateIds)
     {
         if ($model->id) {
-            $record = TaxZoneRecord::model()->findById($model->id);
+            $record = TaxZoneRecord::findOne($model->id);
 
             if (!$record) {
                 throw new Exception(Craft::t('commerce', 'commerce', 'No tax zone exists with the ID “{id}”',

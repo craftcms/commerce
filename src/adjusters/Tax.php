@@ -35,7 +35,7 @@ class Tax implements AdjusterInterface
     {
         $address = Plugin::getInstance()->getAddresses()->getAddressById($order->shippingAddressId);
 
-        if (Craft::$app->getConfig()->get('useBillingAddressForTax', 'commerce')) {
+        if (Plugin::getInstance()->getSettings()->getSettings()->useBillingAddressForTax) {
             $address = Plugin::getInstance()->getAddresses()->getAddressById($order->billingAddressId);
         }
 

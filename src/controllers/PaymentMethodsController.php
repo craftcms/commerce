@@ -87,7 +87,7 @@ class PaymentMethodsController extends BaseAdminController
 
 
         // Check if settings have been overridden in config.
-        $configSettings = Craft::$app->getConfig()->get('paymentMethodSettings', 'commerce');
+        $configSettings = Plugin::getInstance()->getSettings()->getSettings()->paymentMethodSettings;
         if (!isset($configSettings[$paymentMethod->id])) {
             $paymentMethod->settings = Craft::$app->getRequest()->getParam('settings', []);
         } else {

@@ -53,7 +53,7 @@ class OrderAdjustments extends Component
     public function saveOrderAdjustment(OrderAdjustment $model)
     {
         if ($model->id) {
-            $record = OrderAdjustmentRecord::model()->findById($model->id);
+            $record = OrderAdjustmentRecord::findOne($model->id);
 
             if (!$record) {
                 throw new Exception(Craft::t('commerce', 'commerce', 'No order Adjustment exists with the ID “{id}”',
@@ -98,6 +98,6 @@ class OrderAdjustments extends Component
      */
     public function deleteAllOrderAdjustmentsByOrderId($orderId)
     {
-        return OrderAdjustmentRecord::model()->deleteAllByAttributes(['orderId' => $orderId]);
+        return OrderAdjustmentRecord::deleteAll(['orderId' => $orderId]);
     }
 }

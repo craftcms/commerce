@@ -11,6 +11,7 @@ use craft\commerce\records\ShippingZoneCountry as ShippingZoneCountryRecord;
 use craft\commerce\records\ShippingZoneState as ShippingZoneStateRecord;
 use craft\commerce\records\State as StateRecord;
 use yii\base\Component;
+use Craft;
 
 /**
  * Shipping zone service.
@@ -46,7 +47,7 @@ class ShippingZones extends Component
             'states',
             'states.country'
         ] : [];
-        $records = ShippingZoneRecord::model()->with($with)->findAll(['order' => 't.name']);
+        $records = ShippingZoneRecord::find()->with($with)->orderBy(['name'])->all();
 
         return ShippingZone::populateModels($records);
     }
@@ -58,7 +59,7 @@ class ShippingZones extends Component
      */
     public function getShippingZoneById($id)
     {
-        $result = ShippingZoneRecord::model()->findById($id);
+        $result = ShippingZoneRecord::findOne($id);
 
         if ($result) {
             return ShippingZone::populateModel($result);
@@ -78,7 +79,7 @@ class ShippingZones extends Component
     public function saveShippingZone(ShippingZone $model, $countryIds, $stateIds)
     {
         if ($model->id) {
-            $record = ShippingZoneRecord::model()->findById($model->id);
+            $record = ShippingZoneRecord::findOne($model->id);
 
             if (!$record) {
                 throw new Exception(Craft::t('commerce', 'commerce', 'No shipping zone exists with the ID “{id}”',
@@ -98,17 +99,14 @@ class ShippingZones extends Component
 
         //validating given ids
         if ($record->countryBased) {
-            $criteria = new \CDbCriteria();
-            $criteria->addInCondition('id', $countryIds);
-            $exist = CountryRecord::model()->exists($criteria);
+
+            $exist = CountryRecord::find()->where(['id'=>$countryIds])->exists();
 
             if (!$exist) {
                 $model->addError('countries', 'Please select some countries');
             }
         } else {
-            $criteria = new \CDbCriteria();
-            $criteria->addInCondition('id', $stateIds);
-            $exist = StateRecord::model()->exists($criteria);
+            $exist = StateRecord::find()->where(['id' => $stateIds])->exists();
 
             if (!$exist) {
                 $model->addError('states', 'Please select some states');
@@ -126,8 +124,8 @@ class ShippingZones extends Component
                 $model->id = $record->id;
 
                 //deleting old links
-                ShippingZoneCountryRecord::model()->deleteAllByAttributes(['shippingZoneId' => $record->id]);
-                ShippingZoneStateRecord::model()->deleteAllByAttributes(['shippingZoneId' => $record->id]);
+                ShippingZoneCountryRecord::deleteAll(['shippingZoneId' => $record->id]);
+                ShippingZoneStateRecord::deleteAll(['shippingZoneId' => $record->id]);
 
                 //saving new links
                 if ($model->countryBased) {
@@ -135,15 +133,15 @@ class ShippingZones extends Component
                         return [$id, $model->id];
                     }, $countryIds);
                     $cols = ['countryId', 'shippingZoneId'];
-                    $table = ShippingZoneCountryRecord::model()->getTableName();
+                    $table = ShippingZoneCountryRecord::tableName();
                 } else {
                     $rows = array_map(function($id) use ($model) {
                         return [$id, $model->id];
                     }, $stateIds);
                     $cols = ['stateId', 'shippingZoneId'];
-                    $table = ShippingZoneStateRecord::model()->getTableName();
+                    $table = ShippingZoneStateRecord::tableName();
                 }
-                Craft::$app->getDb()->createCommand()->insertAll($table, $cols, $rows);
+                Craft::$app->getDb()->createCommand()->batchInsert($table, $cols, $rows);
 
                 Db::commitStackedTransaction();
             } catch (\Exception $e) {
@@ -163,7 +161,12 @@ class ShippingZones extends Component
      */
     public function deleteShippingZoneById($id)
     {
-        ShippingZoneRecord::model()->deleteByPk($id);
+        $record = ShippingZoneRecord::findOne($id);
+
+        if($record)
+        {
+            $record->delete();
+        }
     }
 
     /**
@@ -177,9 +180,9 @@ class ShippingZones extends Component
     {
         if (!isset($this->_countriesByShippingZoneId) || !array_key_exists($shippingZoneId, $this->_countriesByShippingZoneId)) {
 
-            $results = ShippingZoneCountryRecord::model()->with('country')->findAllByAttributes([
+            $results = ShippingZoneCountryRecord::find()->with('country')->where([
                 'shippingZoneId' => $shippingZoneId
-            ]);
+            ])->all();
 
             $countries = [];
 

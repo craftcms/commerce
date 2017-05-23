@@ -46,7 +46,7 @@ class Products extends Component
         if (!$product->id) {
             $record = new ProductRecord();
         } else {
-            $record = ProductRecord::model()->findById($product->id);
+            $record = ProductRecord::findOne($product->id);
 
             if (!$record) {
                 throw new Exception(Craft::t('commerce', 'commerce', 'No product exists with the ID “{id}”',

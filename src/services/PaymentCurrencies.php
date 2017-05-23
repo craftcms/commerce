@@ -5,6 +5,7 @@ use Craft;
 use craft\commerce\models\PaymentCurrency;
 use craft\commerce\records\PaymentCurrency as PaymentCurrencyRecord;
 use yii\base\Component;
+use yii\db\Expression;
 
 /**
  * Payment currency service.
@@ -44,30 +45,14 @@ class PaymentCurrencies extends Component
     {
         if (!isset($this->_allCurrencies)) {
             $schema = Craft::$app->getDb()->schema;
-            $records = PaymentCurrencyRecord::model()->findAll([
-                'order' => new \CDbExpression('('.$schema->quoteColumnName('primary').' = 1) desc, '.$schema->quoteColumnName('iso'))
-            ]);
+            $records = PaymentCurrencyRecord::find()->orderBy(
+                new Expression('('.$schema->quoteColumnName('primary').' = 1) desc, '.$schema->quoteColumnName('iso'))
+            );
 
             $this->_allCurrencies = PaymentCurrency::populateModels($records);
         }
 
         return $this->_allCurrencies;
-    }
-
-    /**
-     * @param array $attr
-     *
-     * @return PaymentCurrency|null
-     */
-    public function getPaymentCurrencyByAttributes(array $attr)
-    {
-        $result = PaymentCurrencyRecord::model()->findByAttributes($attr);
-
-        if ($result) {
-            return new PaymentCurrency($result);
-        }
-
-        return null;
     }
 
     /**
@@ -136,7 +121,7 @@ class PaymentCurrencies extends Component
     public function savePaymentCurrency(PaymentCurrency $model)
     {
         if ($model->id) {
-            $record = PaymentCurrencyRecord::model()->findById($model->id);
+            $record = PaymentCurrencyRecord::findOne($model->id);
 
             if (!$record) {
                 throw new Exception(Craft::t('commerce', 'commerce', 'No currency exists with the ID “{id}”',
@@ -157,7 +142,7 @@ class PaymentCurrencies extends Component
         if (!$model->hasErrors()) {
 
             if ($record->primary) {
-                PaymentCurrencyRecord::model()->updateAll(['primary' => 0]);
+                PaymentCurrencyRecord::updateAll(['primary' => 0]);
             }
 
             $record->save(false);
@@ -174,10 +159,14 @@ class PaymentCurrencies extends Component
     /**
      * @param int $id
      *
-     * @throws \CDbException
      */
     public function deletePaymentCurrencyById($id)
     {
-        PaymentCurrencyRecord::model()->deleteByPk($id);
+        $paymentCurrency = PaymentCurrencyRecord::findOne($id);
+
+        if ($paymentCurrency)
+        {
+            $paymentCurrency->delete();
+        }
     }
 }

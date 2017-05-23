@@ -5,13 +5,27 @@ use craft\base\Model as BaseModel;
 
 class Model extends BaseModel
 {
-    public static function populateModels($rows)
+    public static function populateModels($data, $indexBy = null)
     {
-        $output = [];
-        foreach ($rows as $row) {
-            $output[] = new static($row);
+        $models = array();
+
+        if (is_array($data))
+        {
+            foreach ($data as $values)
+            {
+                $model = new static($values);
+
+                if ($indexBy)
+                {
+                    $models[$model->$indexBy] = $model;
+                }
+                else
+                {
+                    $models[] = $model;
+                }
+            }
         }
 
-        return $output;
+        return $models;
     }
 }

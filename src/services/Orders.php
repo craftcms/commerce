@@ -46,7 +46,15 @@ class Orders extends Component
      */
     public function getOrderById($id)
     {
-        return Craft::$app->getElements()->getElementById($id, 'Commerce_Order');
+        if (!$id) {
+            return null;
+        }
+
+        $query = Order::find();
+        $query->id($id);
+        $query->status(null);
+
+        return $query->one();
     }
 
     /**
@@ -56,10 +64,10 @@ class Orders extends Component
      */
     public function getOrderByNumber($number)
     {
-        $criteria = Craft::$app->getElements()->getCriteria('Commerce_Order');
-        $criteria->number = $number;
+        $query = Order::find();
+        $query->number($number);
 
-        return $criteria->first();
+        return $query->one();
     }
 
     /**
@@ -69,12 +77,12 @@ class Orders extends Component
      */
     public function getOrdersByCustomer($customer)
     {
-        $criteria = Craft::$app->getElements()->getCriteria('Commerce_Order');
-        $criteria->customer = $customer;
-        $criteria->isCompleted = true;
-        $criteria->limit = null;
+        $query = Order::find();
+        $query->customer($customer);
+        $query->isCompleted(true);
+        $query->limit(null);
 
-        return $criteria->find();
+        return $query->all();
     }
 
     /**
@@ -84,12 +92,12 @@ class Orders extends Component
      */
     public function getOrdersByEmail($email)
     {
-        $criteria = Craft::$app->getElements()->getCriteria('Commerce_Order');
-        $criteria->email = $email;
-        $criteria->isCompleted = true;
-        $criteria->limit = null;
+        $query = Order::find();
+        $query->email($email);
+        $query->isCompleted(true);
+        $query->limit(null);
 
-        return $criteria->find();
+        return $query->all();
     }
 
     /**
@@ -98,7 +106,7 @@ class Orders extends Component
      * @return bool
      * @throws \CDbException
      */
-    public function deleteOrder($order)
+    public function deleteOrder($order): bool
     {
         return Craft::$app->getElements()->deleteElementById($order->id);
     }
@@ -168,23 +176,17 @@ class Orders extends Component
         }
 
         // Set default addresses if this is a new cart
-        if (!$order->isCompleted) {
-            if ($customer = Plugin::getInstance()->getCustomers()->getCustomerById($order->customerId)) {
-                $lastShippingAddressId = $customer->lastUsedShippingAddressId;
+        if (!$order->isCompleted && $customer = Plugin::getInstance()->getCustomers()->getCustomerById($order->customerId)) {
+            $lastShippingAddressId = $customer->lastUsedShippingAddressId;
 
-                if (!$order->shippingAddressId && $lastShippingAddressId) {
-                    if ($address = Plugin::getInstance()->getAddresses()->getAddressById($lastShippingAddressId)) {
-                        $order->shippingAddressId = $address->id;
-                    }
-                }
+            if (!$order->shippingAddressId && $lastShippingAddressId && $address = Plugin::getInstance()->getAddresses()->getAddressById($lastShippingAddressId)) {
+                    $order->shippingAddressId = $address->id;
+            }
 
-                $lastBillingAddressId = $customer->lastUsedBillingAddressId;
+            $lastBillingAddressId = $customer->lastUsedBillingAddressId;
 
-                if (!$order->billingAddressId && $lastBillingAddressId) {
-                    if ($address = Plugin::getInstance()->getAddresses()->getAddressById($lastBillingAddressId)) {
-                        $order->billingAddressId = $address->id;
-                    }
-                }
+            if (!$order->billingAddressId && $lastBillingAddressId && $address = Plugin::getInstance()->getAddresses()->getAddressById($lastBillingAddressId)) {
+                    $order->billingAddressId = $address->id;
             }
         }
 
@@ -252,7 +254,7 @@ class Orders extends Component
                         if (!Plugin::getInstance()->getOrderHistories()->createOrderHistoryFromOrder($order,
                             $oldStatusId)
                         ) {
-                            CommercePlugin::log('Error saving order history after Order save.', LogLevel::Error);
+                            Craft::log('Error saving order history after Order save.', __METHOD__);
                             throw new Exception('Error saving order history');
                         }
                     }
@@ -348,7 +350,7 @@ class Orders extends Component
         $same = (bool)$totalPrice == $order->totalPrice;
 
         if (!$same) {
-            CommercePlugin::log(Craft::t('commerce', 'commerce', 'Total of line items after adjustments does not equal total of adjustment amounts plus original sale prices for order #{orderNumber}', ['orderNumber' => $order->number]), LogLevel::Warning, true);
+            Craft::(Craft::t('commerce', 'commerce', 'Total of line items after adjustments does not equal total of adjustment amounts plus original sale prices for order #{orderNumber}', ['orderNumber' => $order->number]), LogLevel::Warning, true);
         }
 
         $order->totalPrice = Currency::round(max(0, $order->totalPrice));
@@ -378,12 +380,16 @@ class Orders extends Component
         $lineItems = $order->getLineItems();
         foreach ($lineItems as $key => $item) {
             if ($lineItem->id == $item->id) {
-                if ($success = LineItemRecord::model()->deleteByPk($lineItem->id)) {
-                    ;
-                }
+                if ($lineItem->id == $item->id)
                 {
-                    unset($lineItems[$key]);
-                    $order->setLineItems($lineItems);
+                    $lineItem = LineItemRecord::findOne($lineItem->id);
+
+                    if ($lineItem && $lineItem->delete())
+                    {
+                        $success = true;
+                        unset($lineItems[$key]);
+                        $order->setLineItems($lineItems);
+                    }
                 }
             }
         }

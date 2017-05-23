@@ -3,32 +3,16 @@ namespace craft\commerce\elements\db;
 
 use craft\db\Query;
 use craft\elements\db\ElementQuery;
-use craft\elements\Tag;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
-use craft\models\TagGroup;
-use yii\db\Connection;
 
 /**
- * TagQuery represents a SELECT SQL statement for tags in a way that is independent of DBMS.
- *
- * @property string|string[]|TagGroup $group The handle(s) of the tag group(s) that resulting tags must belong to.
- *
- * @method Tag[]|array all($db = null)
- * @method Tag|array|null one($db = null)
- * @method Tag|array|null nth(int $n, Connection $db = null)
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  3.0
  */
 class ProductQuery extends ElementQuery
 {
-    // Properties
-    // =========================================================================
-
-    // General parameters
-    // -------------------------------------------------------------------------
-
     /**
      * @var bool Whether to only return entries that the user has permission to edit.
      */

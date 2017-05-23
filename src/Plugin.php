@@ -6,6 +6,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\plugin\Routes;
 use craft\commerce\plugin\Services as CommerceServices;
+use craft\commerce\variables\Commerce;
 use craft\commerce\web\twig\Extension;
 use craft\elements\User as UserElement;
 use craft\enums\LicenseKeyStatus;
@@ -80,7 +81,7 @@ class Plugin extends \craft\base\Plugin
      */
     public function beforeUnInstall(): bool
     {
-        $this->_dropAllTables($records);
+        $this->_dropAllTables();
 
         Craft::$app->getDb()->createCommand()
             ->delete(
@@ -147,7 +148,7 @@ class Plugin extends \craft\base\Plugin
         $this->_setPluginComponents();
         $this->_registerCpRoutes();
         $this->_addTwigExtensions();
-        $this->_prepCpTemplate();
+        $this->_registerFieldTypes();
         $this->_registerRichTextLinks();
         $this->_registerPermissions();
         $this->_registerSessionEventListeners();
@@ -163,53 +164,6 @@ class Plugin extends \craft\base\Plugin
     private function _addTwigExtensions()
     {
         Craft::$app->view->twig->addExtension(new Extension);
-    }
-
-    /**
-     * Prepare the control panel templates with CSS, JS, and translations
-     */
-    private function _prepCpTemplate()
-    {
-        if (Craft::$app->getRequest()->isCpRequest) {
-
-            $templatesService = Craft::$app->getView();
-            $templatesService->registerCssFile('commerce/commerce.css');
-            $templatesService->registerJsFile('commerce/js/Commerce.js');
-            $templatesService->registerJsFile('commerce/js/CommerceProductIndex.js');
-            $templatesService->registerTranslations('commerce',
-                [
-                    'New {productType} product',
-                    'New product',
-                    'Update Order Status',
-                    'Message',
-                    'Status change message',
-                    'Update',
-                    'Cancel',
-                    'First Name',
-                    'Last Name',
-                    'Address Line 1',
-                    'Address Line 2',
-                    'City',
-                    'Zip Code',
-                    'Phone',
-                    'Alternative Phone',
-                    'Phone (Alt)',
-                    'Business Name',
-                    'Business Tax ID',
-                    'Country',
-                    'State',
-                    'Update Address',
-                    'New',
-                    'Edit',
-                    'Add Address',
-                    'Add',
-                    'Update',
-                    'No Address'
-                ]
-            );
-
-            Craft::$app->getView()->hook('commerce.prepCpTemplate', [$this, 'prepCpTemplate']);
-        }
     }
 
     /**
@@ -266,6 +220,7 @@ class Plugin extends \craft\base\Plugin
     private function _registerSessionEventListeners()
     {
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getProductTypes(), 'addLocaleHandler']);
+
         if (!Craft::$app->getRequest()->getIsConsoleRequest()) {
             Event::on(UserElement::class, UserElement::EVENT_AFTER_SAVE, [$this->getCustomers(), 'saveUserHandler']);
             Event::on(User::class, User::EVENT_AFTER_LOGIN, [$this->getCustomers(), 'loginHandler']);
@@ -308,19 +263,36 @@ class Plugin extends \craft\base\Plugin
         });
     }
 
-
     private function _dropAllTables()
     {
         // TODO: Drop all Commerce Tables
 
         // Drop all foreign keys first
-//        foreach ($records as $record) {
-//            $record->dropForeignKeys();
-//        }
+        // foreach ($records as $record) {
+           // $record->dropForeignKeys();
+        // }
 
         // Then drop the tables
-//        foreach ($records as $record) {
-//            $record->dropTable();
-//        }
+        // foreach ($records as $record) {
+           // $record->dropTable();
+        // }
+    }
+
+    private function _registerFieldTypes()
+    {
+//        Event::on(Fields::className(),
+//            Fields::EVENT_REGISTER_FIELD_TYPES,
+//            function (RegisterComponentTypesEvent $event) {
+//                $event->types[] = ManField::class;
+//            }
+//        );
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function defineTemplateComponent()
+    {
+        return Commerce::class;
     }
 }

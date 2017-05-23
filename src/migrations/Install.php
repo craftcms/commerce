@@ -3,8 +3,11 @@
 namespace craft\commerce\migrations;
 
 use Craft;
+use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
+use craft\commerce\fieldtypes\Customer;
+use craft\commerce\fieldtypes\Products;
 use craft\commerce\models\OrderSettings;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\models\PaymentCurrency;
@@ -18,6 +21,8 @@ use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\commerce\records\Country;
 use craft\commerce\records\State;
+use craft\commerce\widgets\Orders;
+use craft\commerce\widgets\Revenue;
 use craft\db\ActiveRecord;
 use craft\db\Migration;
 use craft\services\Config;
@@ -43,6 +48,47 @@ class Install extends Migration
         $this->createIndexes();
         $this->addForeignKeys();
         $this->insertDefaultData();
+
+        // Fetch the old plugin row, if it was installed
+        $row = (new \craft\db\Query())
+            ->select(['id', 'settings'])
+            ->from(['{{%plugins}}'])
+            ->where(['handle' => 'commerce'])
+            ->one();
+
+        if ($row !== false) {
+            // The plugin was installed
+
+            // Update this one's settings to old values
+            $this->update('{{%plugins}}', [
+                'settings' => $row['settings']
+            ], ['handle' => 'commerce']);
+
+            // Delete the old row
+            $this->delete('{{%plugins}}', ['id' => $row['id']]);
+
+            $this->update('{{%elements}}', [
+                'type' => Order::class
+            ], ['type' => 'Commerce_Order']);
+
+            $this->update('{{%fields}}', [
+                'type' => Customer::class
+            ], ['type' => 'Commerce_Customer']);
+
+            $this->update('{{%fields}}', [
+                'type' => Products::class
+            ], ['type' => 'Commerce_Products']);
+
+            $this->update('{{%widgets}}', [
+                'type' => Orders::class
+            ], ['type' => 'Commerce_Orders']);
+
+            $this->update('{{%widgets}}', [
+                'type' => Revenue::class
+            ], ['type' => 'Commerce_Revenue']);
+
+        }
+
     }
 
     public function createTables()

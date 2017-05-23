@@ -10,7 +10,9 @@ use craft\commerce\records\Customer as CustomerRecord;
 use craft\commerce\records\CustomerAddress as CustomerAddressRecord;
 use craft\elements\User;
 use yii\base\Component;
+use yii\base\Event;
 use yii\base\Exception;
+use yii\web\UserEvent;
 
 /**
  * Customer service.
@@ -36,7 +38,7 @@ class Customers extends Component
      */
     public function getAllCustomers($criteria = [])
     {
-        $records = CustomerRecord::model()->findAll($criteria);
+        $records = CustomerRecord::findAll($criteria);
 
         return Customer::populateModels($records);
     }
@@ -253,7 +255,12 @@ class Customers extends Component
      */
     public function deleteCustomer($customer)
     {
-        return CustomerRecord::model()->deleteByPk($customer->id);
+        $customer = CustomerRecord::findOne($customer->id);
+
+        if ($customer)
+        {
+            $customer->delete();
+        }
     }
 
     /**
@@ -322,7 +329,7 @@ class Customers extends Component
 
             return true;
         } catch (\Exception $e) {
-            CommercePlugin::log("Could not consolidate orders to username: ".$username.". Reason: ".$e->getMessage());
+            Craft::error("Could not consolidate orders to username: ".$username.". Reason: ".$e->getMessage(),__METHOD__);
             Db::rollbackStackedTransaction();
         }
 
@@ -348,11 +355,11 @@ class Customers extends Component
     }
 
     /**
-     * @param Event $event
+     * @param UserEvent $event
      *
      * @throws Exception
      */
-    public function logoutHandler(Event $event)
+    public function logoutHandler(UserEvent $event)
     {
         // Reset the sessions customer.
         $this->forgetCustomer();
@@ -383,8 +390,8 @@ class Customers extends Component
             if (Plugin::getInstance()->getAddresses()->saveAddress($snapShotBillingAddress, false)) {
                 $order->billingAddressId = $snapShotBillingAddress->id;
             } else {
-                CommercePlugin::log(Craft::t('commerce', 'commerce', 'Unable to duplicate the billing address on order completion. Original billing address ID: {addressId}. Order ID: {orderId}',
-                    ['addressId' => $originalBillingAddressId, 'orderId' => $order->id]), LogLevel::Error, true);
+                Craft::error(Craft::t('commerce', 'commerce', 'Unable to duplicate the billing address on order completion. Original billing address ID: {addressId}. Order ID: {orderId}',
+                    ['addressId' => $originalBillingAddressId, 'orderId' => $order->id]), __METHOD__);
             }
         }
 
@@ -395,8 +402,8 @@ class Customers extends Component
             if (Plugin::getInstance()->getAddresses()->saveAddress($snapShotShippingAddress, false)) {
                 $order->shippingAddressId = $snapShotShippingAddress->id;
             } else {
-                CommercePlugin::log(Craft::t('commerce', 'commerce', 'Unable to duplicate the shipping address on order completion. Original shipping address ID: {addressId}. Order ID: {orderId}',
-                    ['addressId' => $originalShippingAddressId, 'orderId' => $order->id]), LogLevel::Error, true);
+                Craft::error(Craft::t('commerce', 'commerce', 'Unable to duplicate the shipping address on order completion. Original shipping address ID: {addressId}. Order ID: {orderId}',
+                    ['addressId' => $originalShippingAddressId, 'orderId' => $order->id]), __METHOD__);
             }
         }
 
@@ -457,7 +464,7 @@ class Customers extends Component
                 if (!$this->saveCustomer($customer)) {
                     $error = Craft::t('commerce', 'commerce', 'Could not sync user’s email to customers record. CustomerId:{customerId} UserId:{userId}',
                         ['customerId' => $customer->id, 'userId' => $user->id]);
-                    CommercePlugin::log($error);
+                    Craft::error($error,__METHOD__);
                 };
             }
 

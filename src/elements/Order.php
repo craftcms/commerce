@@ -1,8 +1,11 @@
 <?php
+
 namespace craft\commerce\elements;
 
+use Craft;
 use craft\commerce\base\Element;
 use craft\commerce\base\ShippingMethodInterface;
+use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\Address;
 use craft\commerce\models\Customer;
@@ -13,7 +16,9 @@ use craft\commerce\models\OrderSettings;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\models\PaymentMethod;
 use craft\commerce\models\Transaction;
+use craft\elements\db\ElementQueryInterface;
 use craft\models\FieldLayout;
+use craft\commerce\Plugin;
 
 /**
  * Order or Cart model.
@@ -76,6 +81,137 @@ use craft\models\FieldLayout;
  */
 class Order extends Element
 {
+
+    /**
+     * @var int ID
+     */
+    public $id;
+
+    /**
+     * @var string Number
+     */
+    public $number;
+
+    /**
+     * @var string Coupon Code
+     */
+    public $couponCode;
+
+    /**
+     * @var float Item Total
+     */
+    public $itemTotal = 0;
+
+    /**
+     * @var float Base Discount
+     */
+    public $baseDiscount = 0;
+
+    /**
+     * @var float Base Shipping Cost
+     */
+    public $baseShippingCost = 0;
+
+    /**
+     * @var float Base Tax
+     */
+    public $baseTax = 0;
+
+    /**
+     * @var float Total Price
+     */
+    public $totalPrice = 0;
+
+    /**
+     * @var float Total Paid
+     */
+    public $totalPaid = 0;
+
+    /**
+     * @var string Email
+     */
+    public $email = 0;
+
+    /**
+     * @var bool Is completed
+     */
+    public $isCompleted = 0;
+
+    /**
+     * @var \DateTime Date ordered
+     */
+    public $dateOrdered;
+
+    /**
+     * @var \DateTime Date paid
+     */
+    public $datePaid;
+
+    /**
+     * @var string Currency
+     */
+    public $currency;
+
+    /**
+     * @var string Payment Currency
+     */
+    public $paymentCurrency;
+
+    /**
+     * @var string Last IP
+     */
+    public $lastIp;
+
+    /**
+     * @var string Order locale
+     */
+    public $orderLocale;
+
+    /**
+     * @var string Message
+     */
+    public $message;
+
+    /**
+     * @var string Return URL
+     */
+    public $returnUrl;
+
+    /**
+     * @var string Cancel URL
+     */
+    public $cancelUrl;
+
+    /**
+     * @var int Order status ID
+     */
+    public $orderStatusId;
+
+    /**
+     * @var int Billing address ID
+     */
+    public $billingAddressId;
+
+    /**
+     * @var int Shipping address ID
+     */
+    public $shippingAddressId;
+
+    /**
+     * @var string Shipping Method Handle
+     */
+    public $shippingMethod;
+
+    /**
+     * @var int Payment Method ID
+     */
+    public $paymentMethodId;
+
+    /**
+     * @var int Customer ID
+     */
+    public $customerId;
+
     /**
      * @var
      */
@@ -95,6 +231,38 @@ class Order extends Element
      * @var array
      */
     private $_orderAdjustments;
+
+    public function afterSave(bool $isNew)
+    {
+        if ($isNew) {
+//            Craft::$app->db->createCommand()
+//                ->insert('{{%products}}', [
+//                    'id' => $this->id,
+//                    'price' => $this->price,
+//                    'currency' => $this->currency,
+//                ])
+//                ->execute();
+        } else {
+//            Craft::$app->db->createCommand()
+//                ->update('{{%products}}', [
+//                    'price' => $this->price,
+//                    'currency' => $this->currency,
+//                ], ['id' => $this->id])
+//                ->execute();
+        }
+
+        parent::afterSave($isNew);
+    }
+
+    /**
+     * @inheritdoc
+     *
+     * @return OrderQuery The newly created [[OrderQuery]] instance.
+     */
+    public static function find(): ElementQueryInterface
+    {
+        return new OrderQuery(static::class);
+    }
 
     /**
      * @inheritdoc
@@ -623,7 +791,7 @@ class Order extends Element
      *
      * @return array
      */
-    public function getAvailableActions($source = null)
+    public function getAvailableActions($source = null): array
     {
         $actions = [];
 
@@ -644,24 +812,26 @@ class Order extends Element
         }
 
         // Allow plugins to add additional actions
-        $allPluginActions = Craft::$app->getPlugins()->call('commerce_addOrderActions', [$source], true);
-
-        foreach ($allPluginActions as $pluginActions) {
-            $actions = array_merge($actions, $pluginActions);
-        }
+        // TODO Update to events for Commerce 2
+//        $allPluginActions = Craft::$app->getPlugins()->call('commerce_addOrderActions', [$source], true);
+//
+//        foreach ($allPluginActions as $pluginActions) {
+//            $actions = array_merge($actions, $pluginActions);
+//        }
 
         return $actions;
     }
 
     /**
-     * @param null $context
+     * @param string|null $context
      *
      * @return array
      */
-    public function getSources($context = null)
+    protected static function defineSources(string $context = null): array
     {
         $sources = [
             '*' => [
+                'key' => '*',
                 'label' => Craft::t('commerce', 'All Orders'),
                 'criteria' => ['completed' => true],
                 'defaultSort' => ['dateOrdered', 'desc']
@@ -672,7 +842,8 @@ class Order extends Element
 
         foreach (Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses() as $orderStatus) {
             $key = 'orderStatus:'.$orderStatus->handle;
-            $sources[$key] = [
+            $sources[] = [
+                'key' => $key,
                 'status' => $orderStatus->color,
                 'label' => $orderStatus->name,
                 'criteria' => ['orderStatus' => $orderStatus],
@@ -680,28 +851,30 @@ class Order extends Element
             ];
         }
 
-
         $sources[] = ['heading' => Craft::t("commerce", "Carts")];
 
-        $edge = new DateTime();
-        $interval = new DateInterval("PT1H");
+        $edge = new \DateTime();
+        $interval = new \DateInterval("PT1H");
         $interval->invert = 1;
         $edge->add($interval);
 
-        $sources['carts:active'] = [
+        $sources[] = [
+            'key' => 'carts:active',
             'label' => Craft::t('commerce', 'Active Carts'),
             'criteria' => ['updatedAfter' => $edge, 'isCompleted' => 'not 1'],
             'defaultSort' => ['orders.dateUpdated', 'asc']
         ];
 
-        $sources['carts:inactive'] = [
+        $sources[] = [
+            'key' => 'carts:inactive',
             'label' => Craft::t('commerce', 'Inactive Carts'),
             'criteria' => ['updatedBefore' => $edge, 'isCompleted' => 'not 1'],
             'defaultSort' => ['orders.dateUpdated', 'desc']
         ];
 
         // Allow plugins to modify the sources
-        Craft::$app->getPlugins()->call('commerce_modifyOrderSources', [&$sources, $context]);
+        // TODO Make this an event for Commerce 2
+//        Craft::$app->getPlugins()->call('commerce_modifyOrderSources', [&$sources, $context]);
 
         return $sources;
     }
@@ -709,7 +882,7 @@ class Order extends Element
     /**
      * @return array
      */
-    public function defineAvailableTableAttributes()
+    public function defineAvailableTableAttributes(): array
     {
         $attributes = [
             'number' => ['label' => Craft::t('commerce', 'Number')],
@@ -733,11 +906,12 @@ class Order extends Element
         ];
 
         // Allow plugins to modify the attributes
-        $pluginAttributes = Craft::$app->getPlugins()->call('commerce_defineAdditionalOrderTableAttributes', [], true);
+        // TODO switch to an event in Commerce 2
+        //$pluginAttributes = Craft::$app->getPlugins()->call('commerce_defineAdditionalOrderTableAttributes', [], true);
 
-        foreach ($pluginAttributes as $thisPluginAttributes) {
-            $attributes = array_merge($attributes, $thisPluginAttributes);
-        }
+//        foreach ($pluginAttributes as $thisPluginAttributes) {
+//            $attributes = array_merge($attributes, $thisPluginAttributes);
+//        }
 
         return $attributes;
     }
@@ -747,11 +921,11 @@ class Order extends Element
      *
      * @return array
      */
-    public function getDefaultTableAttributes($source = null)
+    public static function defineDefaultTableAttributes(string $source = null): array
     {
         $attributes = ['number'];
 
-        if (strncmp($source, 'carts:', 6) !== 0) {
+        if (0 !== strpos($source, 'carts:', 6)) {
             $attributes[] = 'orderStatus';
             $attributes[] = 'totalPrice';
             $attributes[] = 'dateOrdered';
@@ -846,7 +1020,7 @@ class Order extends Element
     /**
      * @return array
      */
-    public function defineSortableAttributes()
+    public function defineSortableAttributes(): array
     {
         $attributes = [
             'number' => Craft::t('commerce', 'Number'),
@@ -860,205 +1034,10 @@ class Order extends Element
         ];
 
         // Allow plugins to modify the attributes
-        Craft::$app->getPlugins()->call('commerce_modifyOrderSortableAttributes', [&$attributes]);
+        // TODO update to events for Commerce 2
+        //Craft::$app->getPlugins()->call('commerce_modifyOrderSortableAttributes', [&$attributes]);
 
         return $attributes;
-    }
-
-    /**
-     * @return array
-     */
-    public function defineCriteriaAttributes()
-    {
-        return [
-            'number' => AttributeType::Mixed,
-            'email' => AttributeType::Mixed,
-            'isCompleted' => AttributeType::Mixed,
-            'dateOrdered' => AttributeType::Mixed,
-            'updatedOn' => AttributeType::Mixed,
-            'updatedAfter' => AttributeType::Mixed,
-            'updatedBefore' => AttributeType::Mixed,
-            'orderStatus' => AttributeType::Mixed,
-            'orderStatusId' => AttributeType::Mixed,
-            'completed' => AttributeType::Bool,
-            'customer' => AttributeType::Mixed,
-            'customerId' => AttributeType::Mixed,
-            'paymentMethod' => AttributeType::Mixed,
-            'paymentMethodId' => AttributeType::Mixed,
-            'user' => AttributeType::Mixed,
-            'isPaid' => AttributeType::Bool,
-            'isUnpaid' => AttributeType::Bool,
-            'hasPurchasables' => AttributeType::Mixed,
-            'paymentMethod' => AttributeType::Mixed,
-            'paymentMethodId' => AttributeType::Mixed
-        ];
-    }
-
-    /**
-     * @param DbCommand            $query
-     * @param ElementCriteriaModel $criteria
-     *
-     * @return bool|false|null|void
-     */
-    public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
-    {
-        $query
-            ->addSelect(
-                'orders.id,
-				orders.number,
-				orders.couponCode,
-				orders.itemTotal,
-				orders.baseDiscount,
-				orders.baseTax,
-				orders.baseShippingCost,
-				orders.totalPrice,
-				orders.totalPaid,
-				orders.orderStatusId,
-				orders.dateOrdered,
-				orders.email,
-				orders.isCompleted,
-				orders.datePaid,
-				orders.currency,
-				orders.paymentCurrency,
-				orders.lastIp,
-				orders.orderLocale,
-				orders.message,
-				orders.returnUrl,
-				orders.cancelUrl,
-				orders.billingAddressId,
-				orders.shippingAddressId,
-				orders.shippingMethod,
-				orders.paymentMethodId,
-				orders.customerId,
-				orders.dateUpdated')
-            ->join('commerce_orders orders', 'orders.id = elements.id');
-
-        if ($criteria->completed) {
-            if ($criteria->completed == true) {
-                $query->andWhere('orders.isCompleted = 1');
-                $criteria->completed = null;
-            }
-        }
-
-        if ($criteria->isCompleted) {
-            $query->andWhere(DbHelper::parseParam('orders.isCompleted', $criteria->isCompleted, $query->params));
-        }
-
-        if ($criteria->dateOrdered) {
-            $query->andWhere(DbHelper::parseParam('orders.dateOrdered', $criteria->dateOrdered, $query->params));
-        }
-
-        // If the 'number' parameter is set to any empty value besides `null`, don't return anything
-        if ($criteria->number !== null && empty($criteria->number)) {
-            return false;
-        }
-
-        if ($criteria->number) {
-            $query->andWhere(DbHelper::parseParam('orders.number', $criteria->number, $query->params));
-        }
-
-        if ($criteria->email) {
-            $query->andWhere(DbHelper::parseParam('orders.email', $criteria->email, $query->params));
-        }
-
-        if ($criteria->orderStatus) {
-            if ($criteria->orderStatus instanceof OrderStatus) {
-                $criteria->orderStatusId = $criteria->orderStatus->id;
-                $criteria->orderStatus = null;
-            } else {
-                $query->andWhere(DbHelper::parseParam('orders.orderStatusId', $criteria->orderStatus, $query->params));
-            }
-        }
-
-        if ($criteria->orderStatusId) {
-            $query->andWhere(DbHelper::parseParam('orders.orderStatusId', $criteria->orderStatusId, $query->params));
-        }
-
-        if ($criteria->user) {
-            if ($criteria->user instanceof UserModel) {
-                $customer = Plugin::getInstance()->getCustomers()->getCustomerByUserId($criteria->user->id);
-                if ($customer) {
-                    $criteria->customerId = $customer->id;
-                    $criteria->user = null;
-                } else {
-                    return false;
-                }
-            }
-        }
-
-        if ($criteria->customer) {
-            if ($criteria->customer instanceof Customer) {
-                if ($criteria->customer->id) {
-                    $criteria->customerId = $criteria->customer->id;
-                    $criteria->customer = null;
-                } else {
-                    return false;
-                }
-            }
-        }
-
-        if ($criteria->customerId) {
-            $query->andWhere(DbHelper::parseParam('orders.customerId', $criteria->customerId, $query->params));
-        }
-
-        if ($criteria->paymentMethod) {
-            if ($criteria->paymentMethod instanceof PaymentMethod) {
-                if ($criteria->paymentMethod->id) {
-                    $criteria->paymentMethodId = $criteria->paymentMethod->id;
-                    $criteria->paymentMethod = null;
-                } else {
-                    return false;
-                }
-            }
-        }
-
-        if ($criteria->paymentMethodId) {
-            $query->andWhere(DbHelper::parseParam('orders.paymentMethodId', $criteria->paymentMethodId, $query->params));
-        }
-
-        if ($criteria->updatedOn) {
-            $query->andWhere(DbHelper::parseDateParam('orders.dateUpdated', $criteria->updatedOn, $query->params));
-        } else {
-            if ($criteria->updatedAfter) {
-                $query->andWhere(DbHelper::parseDateParam('orders.dateUpdated', '>='.$criteria->updatedAfter, $query->params));
-            }
-            if ($criteria->updatedBefore) {
-
-                $query->andWhere(DbHelper::parseDateParam('orders.dateUpdated', '<'.$criteria->updatedBefore, $query->params));
-            }
-        }
-
-        if ($criteria->isPaid == true) {
-            $query->andWhere(DbHelper::parseParam('orders.totalPaid', '>= orders.totalPrice', $query->params));
-        }
-
-        if ($criteria->isUnpaid == true) {
-            $query->andWhere(DbHelper::parseParam('orders.totalPaid', '< orders.totalPrice', $query->params));
-        }
-
-        if ($criteria->hasPurchasables !== null) {
-            $purchasableIds = [];
-
-            if (!is_array($criteria->hasPurchasables)) {
-                $criteria->hasPurchasables = [$criteria->hasPurchasables];
-            }
-
-            foreach ($criteria->hasPurchasables as $purchasable) {
-                if ($purchasable instanceof Purchasable) {
-                    $purchasableIds[] = $purchasable->getPurchasableId();
-                }
-
-                if (is_numeric($purchasable)) {
-                    $purchasableIds[] = $purchasable;
-                }
-            }
-
-            // Remove any blank purchasable IDs (if any)
-            $purchasableIds = array_filter($purchasableIds);
-
-            $query->join('commerce_lineitems lineitems', 'lineitems.orderId = elements.id');
-            $query->andWhere(['in', 'lineitems.purchasableId', $purchasableIds]);
-        }
     }
 
     /**
@@ -1068,68 +1047,9 @@ class Order extends Element
      *
      * @return Element
      */
-    public function populateElementModel($row)
+    public function populateElementModel($row): Element
     {
         return new Order($row);
-    }
-
-    /**
-     * @return array
-     */
-    protected function defineAttributes()
-    {
-        return array_merge(parent::defineAttributes(), [
-            'id' => AttributeType::Number,
-            'number' => AttributeType::String,
-            'couponCode' => AttributeType::String,
-            'itemTotal' => [
-                AttributeType::Number,
-                'decimals' => 4,
-                'default' => 0
-            ],
-            'baseDiscount' => [
-                AttributeType::Number,
-                'decimals' => 4,
-                'default' => 0
-            ],
-            'baseShippingCost' => [
-                AttributeType::Number,
-                'decimals' => 4,
-                'default' => 0
-            ],
-            'baseTax' => [
-                AttributeType::Number,
-                'decimals' => 4,
-                'default' => 0
-            ],
-            'totalPrice' => [
-                AttributeType::Number,
-                'decimals' => 4,
-                'default' => 0
-            ],
-            'totalPaid' => [
-                AttributeType::Number,
-                'decimals' => 4,
-                'default' => 0
-            ],
-            'email' => AttributeType::String,
-            'isCompleted' => AttributeType::Bool,
-            'dateOrdered' => AttributeType::DateTime,
-            'datePaid' => AttributeType::DateTime,
-            'currency' => AttributeType::String,
-            'paymentCurrency' => AttributeType::String,
-            'lastIp' => AttributeType::String,
-            'orderLocale' => AttributeType::String,
-            'message' => AttributeType::String,
-            'returnUrl' => AttributeType::String,
-            'cancelUrl' => AttributeType::String,
-            'orderStatusId' => AttributeType::Number,
-            'billingAddressId' => AttributeType::Number,
-            'shippingAddressId' => AttributeType::Number,
-            'shippingMethod' => AttributeType::String,
-            'paymentMethodId' => AttributeType::Number,
-            'customerId' => AttributeType::Number
-        ]);
     }
 
 }

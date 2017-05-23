@@ -53,7 +53,7 @@
                 var requestData = {
                     startDate: Craft.Commerce.RevenueWidget.getDateValue(this.startDate),
                     endDate: Craft.Commerce.RevenueWidget.getDateValue(this.endDate),
-                    elementType: 'Commerce_Order'
+                    elementType: '\\craft\\commerce\\elements\\Order'
                 };
 
                 Craft.postActionRequest('commerce/charts/getRevenueData', requestData, $.proxy(function(response, textStatus) {

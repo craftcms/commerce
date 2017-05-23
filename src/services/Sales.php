@@ -230,7 +230,7 @@ class Sales extends Component
         array $products
     ) {
         if ($model->id) {
-            $record = SaleRecord::model()->findById($model->id);
+            $record = SaleRecord::findOne($model->id);
 
             if (!$record) {
                 throw new Exception(Craft::t('commerce', 'commerce', 'No sale exists with the ID “{id}”',
@@ -267,9 +267,9 @@ class Sales extends Component
                 $record->save(false);
                 $model->id = $record->id;
 
-                SaleUserGroupRecord::model()->deleteAllByAttributes(['saleId' => $model->id]);
-                SaleProductRecord::model()->deleteAllByAttributes(['saleId' => $model->id]);
-                SaleProductTypeRecord::model()->deleteAllByAttributes(['saleId' => $model->id]);
+                SaleUserGroupRecord::deleteAll(['saleId' => $model->id]);
+                SaleProductRecord::deleteAll(['saleId' => $model->id]);
+                SaleProductTypeRecord::deleteAll(['saleId' => $model->id]);
 
                 foreach ($groups as $groupId) {
                     $relation = new SaleUserGroupRecord();
@@ -314,9 +314,16 @@ class Sales extends Component
 
     /**
      * @param int $id
+     *
+     * @return bool
      */
     public function deleteSaleById($id)
     {
-        SaleRecord::model()->deleteByPk($id);
+        $sale = SaleRecord::findOne($id);
+
+        if ($sale)
+        {
+            return $sale->delete();
+        }
     }
 }

@@ -70,7 +70,7 @@ class OrdersController extends BaseCpController
             throw new HttpException(404);
         }
 
-        Craft::$app->getView()->includeCssResource('commerce/order.css');
+        Craft::$app->getView()->registerCssFile('commerce/order.css');
 
         $this->prepVariables($variables);
 

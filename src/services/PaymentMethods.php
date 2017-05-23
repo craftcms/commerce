@@ -22,15 +22,11 @@ class PaymentMethods extends Component
     /**
      * @return PaymentMethod[]
      */
-    public function getAllFrontEndPaymentMethods()
+    public function getAllFrontEndPaymentMethods(): array
     {
-        $criteria = new \CDbCriteria();
-        $criteria->addCondition("frontEndEnabled=:xFrontEndEnabled");
-        $criteria->addCondition("isArchived=:xIsArchived");
-        $criteria->params = [':xFrontEndEnabled' => true, ':xIsArchived' => false];
-        $criteria->order = 'sortOrder';
+        $records = PaymentMethodRecord::find()->where('isArchived=:xIsArchived,frontEndEnabled=:xFrontEndEnabled', [[':xFrontEndEnabled' => true, ':xIsArchived' => false])->orderBy('sortOrder')->all();
 
-        return $this->getAllPaymentMethods($criteria);
+        return PaymentMethod::populateModels($records);
     }
 
     /**
@@ -40,16 +36,9 @@ class PaymentMethods extends Component
      */
     public function getAllPaymentMethods($criteria = [])
     {
-        if (!$criteria) {
-            $criteria = new \CDbCriteria();
-            $criteria->addCondition("isArchived=:xIsArchived");
-            $criteria->order = 'sortOrder';
-            $criteria->params = [':xIsArchived' => false];
-        }
+        $records = PaymentMethodRecord::find()->where('isArchived=:xIsArchived', [':xIsArchived' => false])->orderBy('sortOrder')->all();
 
-        $records = PaymentMethodRecord::model()->findAll($criteria);
-
-        return new PaymentMethod($records);
+        return PaymentMethod::populateModels($records);
     }
 
     /**
@@ -75,7 +64,7 @@ class PaymentMethods extends Component
      */
     public function getPaymentMethodById($id)
     {
-        $result = PaymentMethodRecord::model()->findById($id);
+        $result = PaymentMethodRecord::findOne($id);
 
         if ($result) {
             return PaymentMethod::populateModel($result);
@@ -93,7 +82,7 @@ class PaymentMethods extends Component
     public function savePaymentMethod(PaymentMethod $model)
     {
         if ($model->id) {
-            $record = PaymentMethodRecord::model()->findById($model->id);
+            $record = PaymentMethodRecord::findOne($model->id);
 
             if (!$record) {
                 throw new Exception(Craft::t('commerce', 'commerce', 'No payment method exists with the ID “{id}”', ['id' => $model->id]));

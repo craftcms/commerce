@@ -1,6 +1,8 @@
 <?php
+
 namespace craft\commerce\services;
 
+use craft\commerce\elements\Order;
 use craft\commerce\helpers\Db;
 use craft\commerce\models\Email;
 use craft\commerce\models\OrderStatus;
@@ -8,6 +10,7 @@ use craft\commerce\records\Email as EmailRecord;
 use craft\commerce\records\OrderStatus as OrderStatusRecord;
 use craft\commerce\records\OrderStatusEmail as OrderStatusEmailRecord;
 use yii\base\Component;
+use Craft;
 
 /**
  * Order status service.
@@ -29,10 +32,10 @@ class OrderStatuses extends Component
      */
     public function getOrderStatusByHandle($handle)
     {
-        $result = OrderStatusRecord::model()->findByAttributes(['handle' => $handle]);
+        $result = OrderStatusRecord::find()->where(['handle' => $handle])->one();
 
         if ($result) {
-            return OrderStatus::populateModel($result);
+            return new OrderStatus($result);
         }
 
         return null;
@@ -45,7 +48,7 @@ class OrderStatuses extends Component
      */
     public function getAllEmailsByOrderStatusId($id)
     {
-        $orderStatus = OrderStatusRecord::model()->with('emails')->findById($id);
+        $orderStatus = OrderStatusRecord::find()->with('emails')->where(['id' => $id])->one();
 
         if ($orderStatus) {
             return Email::populateModels($orderStatus->emails);
@@ -77,10 +80,10 @@ class OrderStatuses extends Component
      */
     public function getDefaultOrderStatus()
     {
-        $result = OrderStatusRecord::model()->findByAttributes(['default' => true]);
+        $result = OrderStatusRecord::find()->where(['default' => true])->one();
 
         if ($result) {
-            return OrderStatus::populateModel($result);
+            return new OrderStatus($result);
         }
 
         return null;
@@ -98,7 +101,7 @@ class OrderStatuses extends Component
     public function saveOrderStatus(OrderStatus $model, array $emailIds)
     {
         if ($model->id) {
-            $record = OrderStatusRecord::model()->findById($model->id);
+            $record = OrderStatusRecord::findOne($model->id);
             if (!$record->id) {
                 throw new Exception(Craft::t('commerce', 'commerce', 'No order status exists with the ID “{id}”',
                     ['id' => $model->id]));
@@ -117,9 +120,7 @@ class OrderStatuses extends Component
         $model->addErrors($record->getErrors());
 
         //validating emails ids
-        $criteria = new \CDbCriteria();
-        $criteria->addInCondition('id', $emailIds);
-        $exist = EmailRecord::model()->exists($criteria);
+        $exist = EmailRecord::find()->where(['in', 'id', $emailIds])->exists();
         $hasEmails = (boolean)count($emailIds);
 
         if (!$exist && $hasEmails) {
@@ -133,7 +134,7 @@ class OrderStatuses extends Component
             try {
                 //only one default status can be among statuses of one order type
                 if ($record->default) {
-                    OrderStatusRecord::model()->updateAll(['default' => 0]);
+                    OrderStatusRecord::updateAll(['default' => 0]);
                 }
 
                 // Save it!
@@ -141,7 +142,12 @@ class OrderStatuses extends Component
 
                 //Delete old links
                 if ($model->id) {
-                    OrderStatusEmailRecord::model()->deleteAllByAttributes(['orderStatusId' => $model->id]);
+                    $records = OrderStatusEmailRecord::find()->where(['orderStatusId' => $model->id])->all();
+
+                    foreach ($records as $record)
+                    {
+                        $record->delete();
+                    }
                 }
 
                 //Save new links
@@ -149,8 +155,8 @@ class OrderStatuses extends Component
                     return [$id, $record->id];
                 }, $emailIds);
                 $cols = ['emailId', 'orderStatusId'];
-                $table = OrderStatusEmailRecord::model()->getTableName();
-                Craft::$app->getDb()->createCommand()->insertAll($table, $cols, $rows);
+                $table = OrderStatusEmailRecord::tableName();
+                Craft::$app->getDb()->createCommand()->batchInsert($table, $cols, $rows);
 
                 // Now that we have a calendar ID, save it on the model
                 $model->id = $record->id;
@@ -176,16 +182,20 @@ class OrderStatuses extends Component
     {
         $statuses = $this->getAllOrderStatuses();
 
-        $criteria = Craft::$app->getElements()->getCriteria('Commerce_Order');
-        $criteria->orderStatusId = $id;
-        $order = $criteria->first();
+        $query = Order::find();
+        $query->orderStatusId($id);
+        $order = $query->one();
 
         if ($order) {
             return false;
         }
 
         if (count($statuses) >= 2) {
-            OrderStatusRecord::model()->deleteByPk($id);
+
+            $models = OrderStatusRecord::find()->where('id = :id',[':id' => $id])->all();
+            foreach ($models as $model) {
+                $model->delete();
+            }
 
             return true;
         }
@@ -194,14 +204,12 @@ class OrderStatuses extends Component
     }
 
     /**
-     * @param array|\CDbCriteria $criteria
      *
      * @return OrderStatus[]
      */
-    public function getAllOrderStatuses($criteria = [])
+    public function getAllOrderStatuses(): array
     {
-        $criteria['order'] = 'sortOrder ASC';
-        $orderStatusRecords = OrderStatusRecord::model()->findAll($criteria);
+        $orderStatusRecords = OrderStatusRecord::find()->orderBy('sortOrder')->all();
 
         return OrderStatus::populateModels($orderStatusRecords);
     }
@@ -234,7 +242,7 @@ class OrderStatuses extends Component
      */
     public function getOrderStatusById($id)
     {
-        $result = OrderStatusRecord::model()->findById($id);
+        $result = OrderStatusRecord::findOne($id);
 
         if ($result) {
             return new OrderStatus($result);

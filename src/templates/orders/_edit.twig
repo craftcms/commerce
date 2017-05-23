@@ -455,7 +455,7 @@
 {% includeJsResource 'commerce/js/CommerceOrderEdit.js' %}
 
 
-{% includejs %}
+{% js %}
 
 window.countries = JSON.parse('{{ craft.commerce.countries|json_encode|raw }}');
 window.states = JSON.parse('{{ craft.commerce.states|json_encode|raw }}');
@@ -476,4 +476,4 @@ new Craft.Commerce.TableRowAdditionalInfoIcon(this);
 
 });
 
-{% endincludejs %}
+{% endjs %}

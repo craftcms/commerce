@@ -6,6 +6,7 @@ use craft\commerce\base\ShippingRuleInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\Db;
 use craft\commerce\models\ShippingMethod;
+use craft\commerce\Plugin;
 use craft\commerce\records\ShippingMethod as ShippingMethodRecord;
 use yii\base\Component;
 
@@ -33,7 +34,7 @@ class ShippingMethods extends Component
      */
     public function getShippingMethodById($id)
     {
-        $result = ShippingMethodRecord::model()->findById($id);
+        $result = ShippingMethodRecord::findOne($id);
 
         if ($result) {
             return new ShippingMethod($result);
@@ -85,13 +86,12 @@ class ShippingMethods extends Component
     /**
      * Returns the Commerce managed shipping methods
      *
-     * @param array|\CDbCriteria $criteria
      *
      * @return ShippingMethod[]
      */
-    public function getAllCoreShippingMethods($criteria = [])
+    public function getAllCoreShippingMethods()
     {
-        $records = ShippingMethodRecord::model()->findAll($criteria);
+        $records = ShippingMethodRecord::findAll();
 
         $methods = ShippingMethod::populateModels($records);
 
@@ -123,7 +123,7 @@ class ShippingMethods extends Component
      */
     public function ShippingMethodExists()
     {
-        return ShippingMethodRecord::model()->exists();
+        return ShippingMethodRecord::find()->exists();
     }
 
     /**
@@ -228,7 +228,7 @@ class ShippingMethods extends Component
     public function saveShippingMethod(ShippingMethod $model)
     {
         if ($model->id) {
-            $record = ShippingMethodRecord::model()->findById($model->id);
+            $record = ShippingMethodRecord::findOne($model->id);
 
             if (!$record) {
                 throw new Exception(Craft::t('commerce', 'commerce', 'No shipping method exists with the ID “{id}”',
@@ -275,7 +275,8 @@ class ShippingMethods extends Component
                 Plugin::getInstance()->getShippingRules()->deleteShippingRuleById($rule->id);
             }
 
-            ShippingMethodRecord::model()->deleteByPk($model->id);
+            $record = ShippingMethodRecord::findOne($model->id);
+            $record->delete();
 
             Db::commitStackedTransaction();
 

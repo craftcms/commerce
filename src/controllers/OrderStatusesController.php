@@ -58,7 +58,7 @@ class OrderStatusesController extends BaseAdminController
             $variables['title'] = Craft::t('commerce', 'Create a new order status');
         }
 
-        $emails = Plugin::getInstance()->getEmails()->getAllEmails(['order' => 'name']);
+        $emails = Plugin::getInstance()->getEmails()->getAllEmails();
         $variables['emails'] = ArrayHelper::map($emails, 'id', 'name');
 
         $this->renderTemplate('commerce/settings/orderstatuses/_edit',

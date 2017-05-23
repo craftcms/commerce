@@ -25,7 +25,7 @@ class States extends Component
      */
     public function getStateById($id)
     {
-        $result = StateRecord::model()->findById($id);
+        $result = StateRecord::findOne($id);
 
         if ($result) {
             return State::populateModel($result);
@@ -93,7 +93,7 @@ class States extends Component
     public function saveState(State $model)
     {
         if ($model->id) {
-            $record = StateRecord::model()->findById($model->id);
+            $record = StateRecord::findOne($model->id);
 
             if (!$record) {
                 throw new Exception(Craft::t('commerce', 'commerce', 'No state exists with the ID “{id}”',
@@ -130,7 +130,7 @@ class States extends Component
      */
     public function deleteStateById($id)
     {
-        $State = StateRecord::model()->findById($id);
+        $State = StateRecord::findOne($id);
         $State->delete();
     }
 }

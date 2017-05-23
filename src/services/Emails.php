@@ -29,23 +29,7 @@ class Emails extends Component
      */
     public function getEmailById($id)
     {
-        $result = EmailRecord::model()->findById($id);
-
-        if ($result) {
-            return Email::populateModel($result);
-        }
-
-        return null;
-    }
-
-    /**
-     * @param array $attr
-     *
-     * @return Email|null
-     */
-    public function getEmailByAttributes(array $attr)
-    {
-        $result = EmailRecord::model()->findByAttributes($attr);
+        $result = EmailRecord::findOne($id);
 
         if ($result) {
             return new Email($result);
@@ -55,13 +39,12 @@ class Emails extends Component
     }
 
     /**
-     * @param array|\CDbCriteria $criteria
      *
      * @return Email[]
      */
-    public function getAllEmails($criteria = [])
+    public function getAllEmails()
     {
-        $records = EmailRecord::model()->findAll($criteria);
+        $records = EmailRecord::find()->orderBy('name')->all();
 
         return Email::populateModels($records);
     }
@@ -117,7 +100,12 @@ class Emails extends Component
      */
     public function deleteEmailById($id)
     {
-        EmailRecord::model()->deleteByPk($id);
+        $email = EmailRecord::findOne($id);
+
+        if ($email)
+        {
+            return $email->delete();
+        }
     }
 
     /**

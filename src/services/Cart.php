@@ -492,10 +492,10 @@ class Cart extends Component
      */
     public function purgeIncompleteCarts()
     {
-        $doPurge = Craft::$app->getConfig()->get('purgeInactiveCarts', 'commerce');
-        $cartIds = $this->getCartsIdsToPurge();
+        $doPurge = Plugin::getInstance()->getSettings()->getSettings()->purgeInactiveCarts;
 
-        if ($cartIds && $doPurge) {
+        if ($doPurge) {
+            $cartIds = $this->getCartsIdsToPurge();
             foreach ($cartIds as $id) {
                 Craft::$app->getElements()->deleteElementById($id);
             }
@@ -513,7 +513,7 @@ class Cart extends Component
      */
     private function getCartsIdsToPurge()
     {
-        $configInterval = Craft::$app->getConfig()->get('purgeInactiveCartsDuration', 'commerce');
+        $configInterval = Plugin::getInstance()->getSettings()->getSettings()->purgeInactiveCartsDuration;
         $edge = new \DateTime();
         $interval = new \DateInterval($configInterval);
         $interval->invert = 1;

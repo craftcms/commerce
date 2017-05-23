@@ -31,7 +31,7 @@ class OrderSettings extends Component
     public function getOrderSettingById($orderSettingsId)
     {
         if (!isset($this->_orderSettingsById) || !array_key_exists($orderSettingsId, $this->_orderSettingsById)) {
-            $result = OrderSettingsRecord::model()->findById($orderSettingsId);
+            $result = OrderSettingsRecord::findOne($orderSettingsId);
 
             if ($result) {
                 $orderSetting = new OrderSettingsModel($result);
@@ -56,7 +56,7 @@ class OrderSettings extends Component
      */
     public function getOrderSettingByHandle($handle)
     {
-        $result = OrderSettingsRecord::model()->findByAttributes(['handle' => $handle]);
+        $result = OrderSettingsRecord::find()->where(['handle' => $handle])->all();
 
         if ($result) {
             $orderSetting = new OrderSettingsModel($result);
@@ -78,7 +78,7 @@ class OrderSettings extends Component
     public function saveOrderSetting(OrderSettingsModel $orderSettings)
     {
         if ($orderSettings->id) {
-            $orderSettingsRecord = OrderSettingsRecord::model()->findById($orderSettings->id);
+            $orderSettingsRecord = OrderSettingsRecord::findOne($orderSettings->id);
             if (!$orderSettingsRecord) {
                 throw new Exception(Craft::t('commerce', 'commerce', 'No order settings exists with the ID “{id}”',
                     ['id' => $orderSettings->id]));

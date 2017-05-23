@@ -104,7 +104,7 @@ class PaymentMethod extends Model
 
         if ($paymentMethod->id) {
             // Are its settings being set from the config file?
-            $paymentMethodSettings = Craft::$app->getConfig()->get('paymentMethodSettings', 'commerce');
+            $paymentMethodSettings = Plugin::getInstance()->getSettings()->getSettings()->paymentMethodSettings;
 
             if (isset($paymentMethodSettings[$paymentMethod->id])) {
                 $paymentMethod->settings = array_merge($paymentMethod->settings, $paymentMethodSettings[$paymentMethod->id]);

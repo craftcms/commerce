@@ -2,6 +2,7 @@
 namespace craft\commerce\services;
 
 use craft\commerce\models\Settings as SettingsModel;
+use craft\commerce\Plugin;
 use yii\base\Component;
 
 /**
@@ -24,7 +25,7 @@ class Settings extends Component
      */
     public function init()
     {
-        $this->_plugin = Craft::$app->getPlugins()->getPlugin('commerce');
+        $this->_plugin = Plugin::getInstance();
     }
 
     /**
@@ -46,7 +47,7 @@ class Settings extends Component
     {
         $data = $this->_plugin->getSettings();
 
-        return SettingsModel::populateModel($data);
+        return new SettingsModel($data);
     }
 
     /**

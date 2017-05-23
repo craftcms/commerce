@@ -1,4 +1,5 @@
 <?php
+
 namespace craft\commerce\services;
 
 use Craft;
@@ -27,10 +28,10 @@ class OrderHistories extends Component
      */
     public function getOrderHistoryById($id)
     {
-        $result = OrderHistoryRecord::model()->findById($id);
+        $result = OrderHistoryRecord::findOne($id);
 
         if ($result) {
-            return OrderHistory::populateModel($result);
+            return new OrderHistory($result);
         }
 
         return null;
@@ -43,37 +44,9 @@ class OrderHistories extends Component
      */
     public function getAllOrderHistoriesByOrderId($id)
     {
-        $results = OrderHistoryRecord::model()->findAllByAttributes(['orderId' => $id], ['order' => 'dateCreated DESC']);
+        $results = OrderHistoryRecord::find()->where(['orderId' => $id])->orderBy('dateCreated')->all();
 
         return OrderHistory::populateModels($results);
-    }
-
-    /**
-     * @param array $attr
-     *
-     * @return OrderHistory|null
-     */
-    public function getOrderHistoryByAttributes(array $attr)
-    {
-        $result = OrderHistoryRecord::model()->findByAttributes($attr);
-
-        if ($result) {
-            return OrderHistory::populateModel($result);
-        }
-
-        return null;
-    }
-
-    /**
-     * @param \CDbCriteria|array $criteria
-     *
-     * @return OrderHistory[]
-     */
-    public function getAllOrderHistories(array $criteria = [])
-    {
-        $records = OrderHistoryRecord::model()->findAll($criteria);
-
-        return OrderHistory::populateModels($records);
     }
 
     /**
@@ -119,7 +92,7 @@ class OrderHistories extends Component
     public function saveOrderHistory(OrderHistory $model)
     {
         if ($model->id) {
-            $record = OrderHistoryRecord::model()->findById($model->id);
+            $record = OrderHistoryRecord::findOne($model->id);
 
             if (!$record) {
                 throw new Exception(Craft::t('commerce', 'commerce', 'No order history exists with the ID “{id}”',
@@ -176,12 +149,16 @@ class OrderHistories extends Component
     }
 
     /**
-     * @param int $id
+     * @param $id
      *
-     * @throws \CDbException
+     * @return bool|int
      */
     public function deleteOrderHistoryById($id)
     {
-        OrderHistoryRecord::model()->deleteByPk($id);
+        $orderHistory = OrderHistoryRecord::findOne($id);
+
+        if ($orderHistory) {
+            return $orderHistory->delete();
+        }
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace craft\commerce\services;
 
 use Commerce\Gateways\PaymentFormModels\BasePaymentFormModel;
@@ -8,6 +9,7 @@ use craft\commerce\helpers\Currency;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
+use craft\db\Query;
 use craft\helpers\DateTimeHelper;
 use Omnipay\Common\CreditCard;
 use Omnipay\Common\ItemBag;
@@ -197,7 +199,7 @@ class Payments extends Component
     private function createItemBag(Order $order)
     {
 
-        if (!Craft::$app->getConfig()->get('sendCartInfoToGateways', 'commerce')) {
+        if (!Plugin::getInstance()->getSettings()->getSettings()->sendCartInfoToGateways) {
             return null;
         }
 
@@ -252,7 +254,7 @@ class Payments extends Component
         $same = (bool)($priceCheck == $totalPrice);
 
         if (!$same) {
-            CommercePlugin::log('Item bag total price does not equal the orders totalPrice, some payment gateways will complain.', LogLevel::Warning, true);
+            Craft::error('Item bag total price does not equal the orders totalPrice, some payment gateways will complain.', __METHOD__);
         }
 
         Craft::$app->getPlugins()->call('commerce_modifyItemBag', [&$items, $order]);
@@ -374,7 +376,7 @@ class Payments extends Component
                         $redirect = $response->getRedirectUrl();
                     } else {
 
-                        $gatewayPostRedirectTemplate = Craft::$app->getConfig()->get('gatewayPostRedirectTemplate', 'commerce');
+                        $gatewayPostRedirectTemplate = Plugin::getInstance()->getSettings()->getSettings()->gatewayPostRedirectTemplate;
 
                         if (!empty($gatewayPostRedirectTemplate)) {
                             $variables = [];
@@ -418,7 +420,7 @@ class Payments extends Component
             } catch (\Exception $e) {
                 $transaction->status = TransactionRecord::STATUS_FAILED;
                 $transaction->message = $e->getMessage();
-                CommercePlugin::log("Omnipay Gateway Communication Error: ".$e->getMessage());
+                Craft::error("Omnipay Gateway Communication Error: ".$e->getMessage(), __METHOD__);
                 $this->saveTransaction($transaction);
             }
         }
@@ -734,7 +736,7 @@ class Payments extends Component
         $supportsAction = 'supports'.ucfirst($action);
         if (!$gateway->$supportsAction()) {
             $message = 'Payment Gateway does not support: '.$supportsAction;
-            CommercePlugin::log($message);
+            Craft::error($message, __METHOD__);
             throw new Exception($message);
         }
 
@@ -836,7 +838,7 @@ EOF;
 
         if (!$request->isValid()) {
             $url = UrlHelper::getSiteUrl($transaction->order->cancelUrl);
-            CommercePlugin::log('Notification request is not valid: '.json_encode($request->getData(), JSON_PRETTY_PRINT), LogLevel::Info, true);
+            Craft::error('Notification request is not valid: '.json_encode($request->getData(), JSON_PRETTY_PRINT), __METHOD__);
             $response->invalid($url, 'Signature not valid - goodbye');
         }
 
@@ -868,7 +870,7 @@ EOF;
             'commerceTransactionHash' => $transaction->hash
         ]);
 
-        CommercePlugin::log('Confirming Notification: '.json_encode($request->getData(), JSON_PRETTY_PRINT), LogLevel::Info, true);
+        Craft::info('Confirming Notification: '.json_encode($request->getData(), JSON_PRETTY_PRINT), __METHOD__);
 
         $response->confirm($url);
     }
@@ -879,24 +881,24 @@ EOF;
      *
      * @param Order $order
      *
-     * @return static[]
+     * @return float
      */
     public function getTotalPaidForOrder(Order $order)
     {
-        $criteria = new \CDbCriteria();
-        $criteria->select = 'sum(amount) AS total, orderId';
-        $criteria->addCondition(['status = :status', 'orderId = :orderId']);
-        $criteria->params = [
-            'orderId' => $order->id,
-            'status' => TransactionRecord::STATUS_SUCCESS
-        ];
-        $criteria->addInCondition('type', [TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE]);
-        $criteria->group = 'orderId';
-
-        $transaction = TransactionRecord::model()->find($criteria);
+        $transaction = (new Query())
+            ->select('sum(amount) AS total, orderId')
+            ->from(['{{%commerce_transactions}}'])
+            ->where([
+                'orderId' => $order->id,
+                'status' => TransactionRecord::STATUS_SUCCESS
+            ])
+            ->andWhere('type', [TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE])
+            ->groupBy('orderId')
+            ->all();
 
         if ($transaction) {
-            return $transaction->total;
+
+            return $transaction['total'];
         }
 
         return 0;
@@ -907,24 +909,23 @@ EOF;
      *
      * @param Order $order
      *
-     * @return static[]
+     * @return float
      */
     public function getTotalAuthorizedForOrder(Order $order)
     {
-        $criteria = new \CDbCriteria();
-        $criteria->select = 'sum(amount) AS total, orderId';
-        $criteria->addCondition(['status = :status', 'orderId = :orderId']);
-        $criteria->params = [
-            'orderId' => $order->id,
-            'status' => TransactionRecord::STATUS_SUCCESS
-        ];
-        $criteria->addInCondition('type', [TransactionRecord::TYPE_AUTHORIZE, TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE]);
-        $criteria->group = 'orderId';
-
-        $transaction = TransactionRecord::model()->find($criteria);
+        $transaction = (new Query())
+            ->select('sum(amount) AS total, orderId')
+            ->from(['{{%commerce_transactions}}'])
+            ->where([
+                'orderId' => $order->id,
+                'status' => TransactionRecord::STATUS_SUCCESS
+            ])
+            ->andWhere('type', [TransactionRecord::TYPE_AUTHORIZE, TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE])
+            ->groupBy('orderId')
+            ->all();
 
         if ($transaction) {
-            return $transaction->total;
+            return $transaction['total'];
         }
 
         return 0;

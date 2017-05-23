@@ -1,4 +1,5 @@
 <?php
+
 namespace craft\commerce\services;
 
 use Craft;
@@ -11,6 +12,7 @@ use craft\commerce\models\TaxCategory;
 use craft\commerce\records\Product as ProductRecord;
 use craft\commerce\records\ProductType as ProductTypeRecord;
 use craft\commerce\records\ProductTypeLocale as ProductTypeLocaleRecord;
+use craft\db\Query;
 use craft\tasks\ResaveElements;
 use yii\base\Component;
 
@@ -120,7 +122,7 @@ class ProductTypes extends Component
     public function getAllProductTypes($indexBy = null)
     {
         if (!$this->_fetchedAllProductTypes) {
-            $results = $this->_createProductTypeQuery()->queryAll();
+            $results = $this->_createProductTypeQuery()->all();
 
             if (!isset($this->_productTypesById)) {
                 $this->_productTypesById = [];
@@ -151,13 +153,27 @@ class ProductTypes extends Component
     /**
      * Returns a DbCommand object prepped for retrieving product types.
      *
-     * @return DbCommand
+     * @return Query
      */
-    private function _createProductTypeQuery()
+    private function _createProductTypeQuery(): Query
     {
-        return Craft::$app->getDb()->createCommand()
-            ->select('pt.id, pt.name, pt.handle, pt.hasUrls, pt.hasDimensions, pt.hasVariants, pt.hasVariantTitleField, pt.titleFormat, pt.skuFormat, pt.descriptionFormat, pt.template, pt.fieldLayoutId, pt.variantFieldLayoutId')
-            ->from('commerce_producttypes pt');
+        return (new Query())
+            ->select([
+                'id',
+                'name',
+                'handle',
+                'hasUrls',
+                'hasDimensions',
+                'hasVariants',
+                'hasVariantTitleField',
+                'titleFormat',
+                'skuFormat',
+                'descriptionFormat',
+                'template',
+                'fieldLayoutId',
+                'variantFieldLayoutId',
+            ])
+            ->from(['{{%commerce_producttypes}}']);
     }
 
     /**
@@ -168,8 +184,8 @@ class ProductTypes extends Component
     public function getProductTypeByHandle($handle)
     {
         $result = $this->_createProductTypeQuery()
-            ->where('pt.handle = :handle', [':handle' => $handle])
-            ->queryRow();
+            ->where('handle = :handle', [':handle' => $handle])
+            ->one();
 
         if ($result) {
             $productType = new ProductType($result);
@@ -183,17 +199,16 @@ class ProductTypes extends Component
 
     /**
      * @param      $productTypeId
-     * @param null $indexBy
      *
      * @return array
      */
-    public function getProductTypeLocales($productTypeId, $indexBy = null)
+    public function getProductTypeLocales($productTypeId)
     {
-        $records = ProductTypeLocaleRecord::model()->findAllByAttributes([
+        $records = ProductTypeLocaleRecord::find()->where([
             'productTypeId' => $productTypeId
-        ]);
+        ])->all();
 
-        return ProductTypeLocale::populateModels($records, $indexBy);
+        return ProductTypeLocale::populateModels($records);
     }
 
     /**
@@ -204,7 +219,7 @@ class ProductTypes extends Component
      */
     public function getProductTypeShippingCategories($productTypeId, $indexBy = null)
     {
-        $productType = ProductTypeRecord::model()->with('shippingCategories')->findByAttributes(['id' => $productTypeId]);
+        $productType = ProductTypeRecord::find()->with('shippingCategories')->where(['id' => $productTypeId])->all();
         if ($productType && $productType->shippingCategories) {
             $shippingCategories = $productType->shippingCategories;
         } else {
@@ -222,7 +237,7 @@ class ProductTypes extends Component
      */
     public function getProductTypeTaxCategories($productTypeId, $indexBy = null)
     {
-        $productType = ProductTypeRecord::model()->with('taxCategories')->findByAttributes(['id' => $productTypeId]);
+        $productType = ProductTypeRecord::find()->with('taxCategories')->where(['id' => $productTypeId])->all();
         if ($productType && $productType->taxCategories) {
             $taxCategories = $productType->taxCategories;
         } else {
@@ -246,7 +261,7 @@ class ProductTypes extends Component
         $titleFormatChanged = false;
 
         if ($productType->id) {
-            $productTypeRecord = ProductTypeRecord::model()->findById($productType->id);
+            $productTypeRecord = ProductTypeRecord::findOne($productType->id);
             if (!$productTypeRecord) {
                 throw new Exception(Craft::t('commerce', 'commerce', 'No product type exists with the ID “{id}”',
                     ['id' => $productType->id]));
@@ -409,10 +424,10 @@ class ProductTypes extends Component
                         $defaultShippingCategory = array_values($newShippingCategories)[0];
                         if ($defaultShippingCategory) {
                             $data = ['shippingCategoryId' => $defaultShippingCategory->id];
-                            $criteria = new \CDbCriteria;
-                            $criteria->addInCondition("shippingCategoryId", $removedShippingCategoryIds);
-                            $criteria->addCondition('typeId='.$productType->id);
-                            ProductRecord::model()->updateAll($data, $criteria);
+                            ProductRecord::updateAll($data, [
+                                'shippingCategoryId' => $removedShippingCategoryIds,
+                                'typeId' => $productType->id
+                            ]);
                         }
                     }
 
@@ -421,10 +436,10 @@ class ProductTypes extends Component
                         $defaultTaxCategory = array_values($newTaxCategories)[0];
                         if ($defaultTaxCategory) {
                             $data = ['taxCategoryId' => $defaultTaxCategory->id];
-                            $criteria = new \CDbCriteria;
-                            $criteria->addInCondition("taxCategoryId", $removedTaxCategoryIds);
-                            $criteria->addCondition('typeId='.$productType->id);
-                            ProductRecord::model()->updateAll($data, $criteria);
+                            ProductRecord::updateAll($data, [
+                                'taxCategoryId' => $removedTaxCategoryIds,
+                                'typeId' => $productType->id
+                            ]);
                         }
                     }
                 }
@@ -452,9 +467,9 @@ class ProductTypes extends Component
 
                 if (!$isNewProductType) {
                     // Get the old product type locales
-                    $oldLocaleRecords = ProductTypeLocaleRecord::model()->findAllByAttributes([
+                    $oldLocaleRecords = ProductTypeLocaleRecord::find()->where([
                         'productTypeId' => $productType->id
-                    ]);
+                    ])->all();
                     $oldLocales = ProductTypeLocale::populateModels($oldLocaleRecords, 'locale');
 
                     $changedLocaleIds = [];
@@ -610,7 +625,7 @@ class ProductTypes extends Component
                 Craft::$app->getFields()->deleteLayoutById($productType->asa('variantFieldLayout')->getFieldLayout()->id);
             }
 
-            $productTypeRecord = ProductType::model()->findById($productType->id);
+            $productTypeRecord = ProductType::findOne($productType->id);
             $affectedRows = $productTypeRecord->delete();
 
             if ($affectedRows) {
@@ -632,11 +647,11 @@ class ProductTypes extends Component
      */
     public function getProductTypeById($productTypeId)
     {
-        
+
         if (!$this->_fetchedAllProductTypes && (!isset($this->_productTypesById) || !array_key_exists($productTypeId, $this->_productTypesById))) {
             $result = $this->_createProductTypeQuery()
-                ->where('pt.id = :id', [':id' => $productTypeId])
-                ->queryRow();
+                ->where('id = :id', [':id' => $productTypeId])
+                ->one();
 
             if ($result) {
                 $productType = ProductType::populateModel($result);

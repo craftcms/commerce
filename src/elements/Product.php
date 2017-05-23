@@ -3,6 +3,7 @@ namespace craft\commerce\elements;
 
 use Craft;
 use craft\commerce\base\Element;
+use craft\commerce\elements\db\ProductQuery;
 use craft\commerce\helpers\VariantMatrix;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\TaxCategory;
@@ -58,6 +59,17 @@ class Product extends Element
 
     // Public Methods
     // =============================================================================
+
+
+    /**
+     * @inheritdoc
+     *
+     * @return ProductQuery The newly created [[ProductQuery]] instance.
+     */
+    public static function find(): ProductQuery
+    {
+        return new ProductQuery(static::class);
+    }
 
     /**
      * @return bool
@@ -585,7 +597,7 @@ class Product extends Element
             }
             case 'defaultWeight': {
                 if ($productType->hasDimensions) {
-                    return craft()->numberFormatter->formatDecimal($this->$attribute)." ".Plugin::getInstance()->getSettings()->getOption('weightUnits');;
+                    return craft()->numberFormatter->formatDecimal($this->$attribute)." ".Plugin::getInstance()->getSettings()->getSettings()->weightUnits;
                 } else {
                     return "";
                 }
@@ -594,7 +606,7 @@ class Product extends Element
             case 'defaultWidth':
             case 'defaultHeight': {
                 if ($productType->hasDimensions) {
-                    return craft()->numberFormatter->formatDecimal($this->$attribute)." ".Plugin::getInstance()->getSettings()->getOption('dimensionUnits');;
+                    return craft()->numberFormatter->formatDecimal($this->$attribute)." ".Plugin::getInstance()->getSettings()->getSettings()->dimensionUnits;
                 } else {
                     return "";
                 }

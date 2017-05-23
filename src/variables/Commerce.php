@@ -1,12 +1,20 @@
 <?php
-namespace Craft;
 
+namespace craft\commerce\variables;
+
+use craft\commerce\elements\db\OrderQuery;
+use craft\commerce\elements\db\ProductQuery;
+use craft\commerce\elements\db\VariantQuery;
+use craft\commerce\elements\Order;
+use craft\commerce\elements\Product;
+use craft\commerce\elements\Variant;
 use craft\commerce\fieldtypes\Customer;
 use craft\commerce\models\ShippingZone;
 use craft\commerce\models\TaxCategory;
 use craft\commerce\models\TaxRate;
 use craft\commerce\models\TaxZone;
 use craft\commerce\Plugin;
+use Craft;
 use craft\helpers\ArrayHelper;
 
 /**
@@ -19,7 +27,7 @@ use craft\helpers\ArrayHelper;
  * @package   craft.plugins.commerce.variables
  * @since     1.0
  */
-class CommerceVariable
+class Commerce
 {
     /**
      * Get Commerce settings
@@ -32,38 +40,54 @@ class CommerceVariable
     }
 
     /**
-     * @param array|null $criteria
+     * Returns a new ProductQuery instance.
      *
-     * @return ElementCriteriaModel|null
-     */
-    public function products($criteria = null)
-    {
-        return Craft::$app->getElements()->getCriteria('Commerce_Product', $criteria);
-    }
-
-    /**
-     * @param array|null $criteria
+     * @param mixed $criteria
      *
-     * @return ElementCriteriaModel|null
+     * @return ProductQuery
      */
-    public function variants($criteria = null)
+    public function products($criteria = null): ProductQuery
     {
-        return Craft::$app->getElements()->getCriteria('Commerce_Variant', $criteria);
-    }
-
-    /**
-     * @param array|null $criteria
-     *
-     * @return ElementCriteriaModel|null
-     */
-    public function orders($criteria = null)
-    {
-
-        if (!isset($criteria['isCompleted'])) {
-            $criteria['isCompleted'] = true;
+        $query = Product::find();
+        if ($criteria) {
+            Craft::configure($query, $criteria);
         }
 
-        return Craft::$app->getElements()->getCriteria('Commerce_Order', $criteria);
+        return $query;
+    }
+
+    /**
+     * Returns a new VariantQuery instance.
+     *
+     * @param mixed $criteria
+     *
+     * @return VariantQuery
+     */
+    public function variants($criteria = null): VariantQuery
+    {
+        $query = Variant::find();
+        if ($criteria) {
+            Craft::configure($query, $criteria);
+        }
+
+        return $query;
+    }
+
+    /**
+     * Returns a new OrderQuery instance.
+     *
+     * @param mixed $criteria
+     *
+     * @return OrderQuery
+     */
+    public function orders($criteria = null): OrderQuery
+    {
+        $query = Order::find();
+        if ($criteria) {
+            Craft::configure($query, $criteria);
+        }
+
+        return $query;
     }
 
     /**

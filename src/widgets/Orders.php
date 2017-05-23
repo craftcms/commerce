@@ -3,6 +3,7 @@ namespace craft\commerce\widgets;
 
 use Craft;
 use craft\base\Widget;
+use craft\commerce\elements\Order;
 
 class Orders extends Widget
 {
@@ -81,17 +82,17 @@ class Orders extends Widget
         $orderStatusId = $this->getSettings()->orderStatusId;
         $limit = $this->getSettings()->limit;
 
-        $criteria = Craft::$app->getElements()->getCriteria('Commerce_Order');
-        $criteria->completed = true;
-        $criteria->dateOrdered = "NOT NULL";
-        $criteria->limit = $limit;
-        $criteria->order = 'dateOrdered desc';
+        $query = Order::find();
+        $query->isCompleted(true);
+        $query->dateOrdered('NOT NULL');
+        $query->limit($limit);
+        $query->orderBy('dateOrdered');
 
         if ($orderStatusId) {
-            $criteria->orderStatusId = $orderStatusId;
+            $query->orderStatusId($orderStatusId);
         }
 
-        return $criteria->find();
+        return $query->all();
     }
 
     // Protected Methods

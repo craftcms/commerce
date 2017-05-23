@@ -53,9 +53,10 @@
     {% endif %}
 {% endif %}
 
-{% includeCssResource 'commerce/commerce.css' %}
-{% includeJsResource 'commerce/js/CommerceAddressBox.js' %}
-{% includeJsResource 'commerce/js/CommerceEditAddressModal.js' %}
+{% do craft.app.view.registerCssFile("commerce/commerce.css") %}
+{% do craft.app.view.registerJsFile("commerce/js/CommerceAddressBox.js") %}
+{% do craft.app.view.registerJsFile("commerce/js/CommerceEditAddressModal.js" %}
+
 {% includecss %}
 .address-heading-label { margin-bottom:4px; }
 {% endincludecss %}

@@ -13,6 +13,16 @@ use craft\commerce\base\Model;
  * @property string $orderPdfPath
  * @property string $orderPdfFilenameFormat
  *
+ * @property string cartCookieDuration
+ * @property mixed paymentMethodSettings
+ * @property bool purgeInactiveCarts
+ * @property bool purgeInactiveCartsDuration
+ * @property string gatewayPostRedirectTemplate
+ * @property bool sendCartInfoToGateways
+ * @property bool requireEmailForAnonymousPayments
+ * @property bool useBillingAddressForTax
+ * @property bool requireShippingAddressAtCheckout
+ *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
  * @license   https://craftcommerce.com/license Craft Commerce License Agreement
@@ -61,6 +71,51 @@ class Settings extends Model
      * @var string
      */
     public $emailSenderNamePlaceholder;
+
+    /**
+     * @var string
+     */
+    public $cartCookieDuration = 'P3M';
+
+    /**
+     * @var array
+     */
+    public $paymentMethodSettings = [];
+
+    /**
+     * @var bool
+     */
+    public $purgeInactiveCarts = true;
+
+    /**
+     * @var string
+     */
+    public $purgeInactiveCartsDuration = 'P3M';
+
+    /**
+     * @var string
+     */
+    public $gatewayPostRedirectTemplate = '';
+
+    /**
+     * @var bool
+     */
+    public $sendCartInfoToGateways = true;
+
+    /**
+     * @var bool
+     */
+    public $requireEmailForAnonymousPayments = false;
+
+    /**
+     * @var bool
+     */
+    public $useBillingAddressForTax = false;
+
+    /**
+     * @var bool
+     */
+    public $requireShippingAddressAtCheckout = false;
 
     /**
      * @return array

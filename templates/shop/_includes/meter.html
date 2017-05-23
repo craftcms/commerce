@@ -40,9 +40,7 @@ url: 'shop/checkout/payment'
                     {% endif %}
 
 
-                    <li class="{{ class }}"><a
-                                href="{{ url( step.url ) }}">{{ step.label }}</a>
-                    </li>
+                    <li class="{{ class }}"><a href="{{ url( step.url ) }}">{{ step.label }}</a></li>
 
                 {% endfor %}
             </ul>

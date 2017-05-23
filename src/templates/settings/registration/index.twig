@@ -2,9 +2,12 @@
 
 {% set selectedTab = 'registration' %}
 
-{% includecssresource 'commerce/registration.css' %}
-{% includeTranslations
-"Unable to load registration status at this time. Please try again later." %}
+{% do craft.app.view.registerCssResource("commerce/charts-explorer.css") %}
+{% do craft.app.view.registerCssResource("commerce/registration.css") %}
+
+{% do craft.app.view.registerTranslations('commerce', [
+    "Unable to load registration status at this time. Please try again later."
+]) %}
 
 {% import "_includes/forms" as forms %}
 

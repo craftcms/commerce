@@ -127,7 +127,7 @@ class Variants extends Component
     private function _getVariantRecord(Variant $model)
     {
         if ($model->id) {
-            $record = VariantRecord::model()->findById($model->id);
+            $record = VariantRecord::findOne($model->id);
 
             if (!$record) {
                 throw new HttpException(404);
