@@ -11,8 +11,7 @@ trait Routes
     {
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
 
-            $event->rules['cocktails/new'] = ['template' => 'cocktails/_edit'];
-            $event->rules['cocktails/<widgetId:\d+>'] = 'cocktails/edit-cocktail';
+            $event->rules['commerce'] = ['template' => 'commerce/index'];
 
             $event->rules['commerce/products'] = 'commerce/products/product-index';
             $event->rules['commerce/products/(?P<productTypeHandle>{handle})'] = 'commerce/products/product-index';
