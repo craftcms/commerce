@@ -156,15 +156,11 @@ class Transaction extends Model
         }
 
         // check transaction hasn't already been captured
-        $criteria = [
-            'condition' => 'type = ? AND status = ? AND orderId = ?',
-            'params' => [
-                TransactionRecord::TYPE_CAPTURE,
-                TransactionRecord::STATUS_SUCCESS,
-                $this->orderId
-            ],
-        ];
-        $exists = Plugin::getInstance()->getTransactions()->transactionExists($criteria);
+        $exists =  TransactionRecord::find()->where(['type'=>':type','status'=>':status','orderId'=>':orderId'],[
+            ':type'=>TransactionRecord::TYPE_CAPTURE,
+            ':status' => TransactionRecord::STATUS_SUCCESS,
+            ':orderId'=>$this->orderId
+        ])->exists();
 
         return !$exists;
     }
@@ -192,15 +188,11 @@ class Transaction extends Model
         }
 
         // check transaction hasn't already been refunded
-        $criteria = [
-            'condition' => 'type = ? AND status = ? AND orderId = ?',
-            'params' => [
-                TransactionRecord::TYPE_REFUND,
-                TransactionRecord::STATUS_SUCCESS,
-                $this->orderId
-            ],
-        ];
-        $exists = Plugin::getInstance()->getTransactions()->transactionExists($criteria);
+        $exists =  TransactionRecord::find()->where(['type'=>':type','status'=>':status','orderId'=>':orderId'],[
+            ':type'=>TransactionRecord::TYPE_REFUND,
+            ':status' => TransactionRecord::STATUS_SUCCESS,
+            ':orderId'=>$this->orderId
+        ])->exists();
 
         return !$exists;
     }

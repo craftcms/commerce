@@ -41,10 +41,10 @@ class States extends Component
      */
     public function getStateByAttributes(array $attr)
     {
-        $result = StateRecord::model()->findByAttributes($attr);
+        $result = StateRecord::find()->where($attr)->all();
 
         if ($result) {
-            return State::populateModel($result);
+            return new State($result);
         }
 
         return null;
@@ -75,9 +75,9 @@ class States extends Component
     /**
      * @return State[]
      */
-    public function getAllStates()
+    public function getAllStates(): array
     {
-        $records = StateRecord::model()->with('country')->findAll(['order' => 'country.name, t.name']);
+        $records = StateRecord::find()->with('country c')->alias('s')->orderBy('c.name, s.name')->all();
 
         return State::populateModels($records);
     }

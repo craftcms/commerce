@@ -23,10 +23,8 @@ class TaxRatesController extends BaseAdminController
      */
     public function actionIndex()
     {
-        $taxRates = Plugin::getInstance()->getTaxRates()->getAllTaxRates([
-            'with' => ['taxZone', 'taxCategory'],
-            'order' => 't.name',
-        ]);
+        $taxRates = Plugin::getInstance()->getTaxRates()->getAllTaxRatesWithZoneAndCategories();
+
         $this->renderTemplate('commerce/settings/taxrates/index', compact('taxRates', 'zonesExist'));
     }
 

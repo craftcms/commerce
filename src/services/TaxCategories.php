@@ -97,9 +97,9 @@ class TaxCategories extends Component
         if (!$this->_fetchedAllTaxCategories &&
             (!isset($this->_taxCategoriesByHandle) || !array_key_exists($taxCategoryHandle, $this->_taxCategoriesByHandle))
         ) {
-            $result = TaxCategoryRecord::model()->findByAttributes([
+            $result = TaxCategoryRecord::find()->where([
                 'handle' => $taxCategoryHandle
-            ]);
+            ])->one();
 
             if ($result) {
                 $taxCategory = $this->_populateTaxCategory($result);
@@ -138,7 +138,7 @@ class TaxCategories extends Component
     public function getAllTaxCategories($indexBy = null)
     {
         if (!$this->_fetchedAllTaxCategories) {
-            $results = TaxCategoryRecord::model()->findAll();
+            $results = TaxCategoryRecord::find()->all();
 
             foreach ($results as $result) {
                 $this->_populateTaxCategory($result);
@@ -202,8 +202,7 @@ class TaxCategories extends Component
 
             // If this was the default make all others not the default.
             if ($model->default) {
-                TaxCategoryRecord::model()->updateAll(['default' => 0],
-                    'id != ?', [$record->id]);
+                TaxCategoryRecord::updateAll(['default' => 0], 'id != ?', [$record->id]);
             }
 
             // Update Service cache
@@ -231,6 +230,11 @@ class TaxCategories extends Component
             return false;
         }
 
-        return (bool)TaxCategoryRecord::model()->deleteByPk($id);
+        $record = TaxCategoryRecord::findOne($id);
+
+        if ($record)
+        {
+            return (bool) $record->delete();
+        }
     }
 }

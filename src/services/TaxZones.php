@@ -46,7 +46,7 @@ class TaxZones extends Component
             'states',
             'states.country'
         ] : [];
-        $records = TaxZoneRecord::model()->with($with)->findAll(['order' => 't.name']);
+        $records = TaxZoneRecord::find()->with($with)->orderBy('name')->all();
 
         return TaxZone::populateModels($records);
     }
@@ -99,17 +99,13 @@ class TaxZones extends Component
 
         //validating given ids
         if ($record->countryBased) {
-            $criteria = new \CDbCriteria();
-            $criteria->addInCondition('id', $countryIds);
-            $exist = CountryRecord::model()->exists($criteria);
+            $exist = CountryRecord::find()->where(['id'=>$countryIds])->exists();
 
             if (!$exist) {
                 $model->addError('countries', 'Please select some countries');
             }
         } else {
-            $criteria = new \CDbCriteria();
-            $criteria->addInCondition('id', $stateIds);
-            $exist = StateRecord::model()->exists($criteria);
+            $exist = StateRecord::find()->where(['id'=>$stateIds])->exists();
 
             if (!$exist) {
                 $model->addError('states', 'Please select some states');
@@ -127,8 +123,8 @@ class TaxZones extends Component
                 $model->id = $record->id;
 
                 // Clean out all old links
-                TaxZoneCountryRecord::model()->deleteAllByAttributes(['taxZoneId' => $record->id]);
-                TaxZoneStateRecord::model()->deleteAllByAttributes(['taxZoneId' => $record->id]);
+                TaxZoneCountryRecord::deleteAll(['taxZoneId' => $record->id]);
+                TaxZoneStateRecord::deleteAll(['taxZoneId' => $record->id]);
 
                 //saving new links
                 if ($model->countryBased) {
@@ -136,20 +132,19 @@ class TaxZones extends Component
                         return [$id, $model->id];
                     }, $countryIds);
                     $cols = ['countryId', 'taxZoneId'];
-                    $table = TaxZoneCountryRecord::model()->getTableName();
+                    $table = TaxZoneCountryRecord::tableName();
                 } else {
                     $rows = array_map(function($id) use ($model) {
                         return [$id, $model->id];
                     }, $stateIds);
                     $cols = ['stateId', 'taxZoneId'];
-                    $table = TaxZoneStateRecord::model()->getTableName();
+                    $table = TaxZoneStateRecord::tableName();
                 }
                 Craft::$app->getDb()->createCommand()->insertAll($table, $cols, $rows);
 
                 //If this was the default make all others not the default.
                 if ($model->default) {
-                    TaxZoneRecord::model()->updateAll(['default' => 0],
-                        'id != ?', [$record->id]);
+                    TaxZoneRecord::updateAll(['default' => 0], 'id != ?', [$record->id]);
                 }
 
                 Db::commitStackedTransaction();
@@ -166,11 +161,20 @@ class TaxZones extends Component
     }
 
     /**
-     * @param int $id
+     * @param $id
+     *
+     * @return bool|false|int
      */
     public function deleteTaxZoneById($id)
     {
-        TaxZoneRecord::model()->deleteByPk($id);
+        $record = TaxZoneRecord::findOne($id);
+
+        if($record)
+        {
+            return $record->delete();
+        }
+
+        return false;
     }
 
     /**
@@ -184,9 +188,9 @@ class TaxZones extends Component
     {
         if (!isset($this->_countriesByTaxZoneId) || !array_key_exists($taxZoneId, $this->_countriesByTaxZoneId)) {
 
-            $results = TaxZoneCountryRecord::model()->with('country')->findAllByAttributes([
+            $results = TaxZoneCountryRecord::find()->with('country')->where([
                 'taxZoneId' => $taxZoneId
-            ]);
+            ])->all();
 
             $countries = [];
 
@@ -211,9 +215,9 @@ class TaxZones extends Component
     {
         if (!isset($this->_statesByTaxZoneId) || !array_key_exists($taxZoneId, $this->_statesByTaxZoneId)) {
 
-            $results = TaxZoneStateRecord::model()->with('state')->findAllByAttributes([
+            $results = TaxZoneStateRecord::find()->with('state')->where([
                 'taxZoneId' => $taxZoneId
-            ]);
+            ])->all();
 
             $states = [];
             foreach ($results as $result) {

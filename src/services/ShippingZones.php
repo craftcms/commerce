@@ -207,13 +207,13 @@ class ShippingZones extends Component
     {
         if (!isset($this->_statesByShippingZoneId) || !array_key_exists($shippingZoneId, $this->_statesByShippingZoneId)) {
 
-            $results = ShippingZoneStateRecord::model()->with('state')->findAllByAttributes([
+            $results = ShippingZoneStateRecord::find()->with('state')->where([
                 'shippingZoneId' => $shippingZoneId
-            ]);
+            ])->all();
 
             $states = [];
             foreach ($results as $result) {
-                $states[] = State::populateModel($result->state);
+                $states[] = new State($result->state);
             }
 
             $this->_statesByShippingZoneId[$shippingZoneId] = $states;

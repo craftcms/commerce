@@ -1,4 +1,5 @@
 <?php
+
 namespace craft\commerce\services;
 
 use craft\commerce\models\TaxRate;
@@ -18,16 +19,42 @@ use yii\base\Component;
 class TaxRates extends Component
 {
     /**
-     * @param \CDbCriteria|array $criteria
      *
      * @return TaxRate[]
      */
-    public function getAllTaxRates($criteria = [])
+    public function getAllTaxRates()
     {
-        $records = TaxRateRecord::model()->findAll($criteria);
+        $records = TaxRateRecord::find()->all();
 
         return TaxRate::populateModels($records);
     }
+
+    /**
+     *
+     * @return TaxRate[]
+     */
+    public function getAllTaxRatesWithCountries(): array
+    {
+        $records = TaxRateRecord::find()->with([
+            'taxZone',
+            'taxZone.countries',
+            'taxZone.states.country'
+        ])->all();
+
+        return TaxRate::populateModels($records);
+    }
+
+    /**
+     *
+     * @return TaxRate[]
+     */
+    public function getAllTaxRatesWithZoneAndCategories(): array
+    {
+        $records = TaxRateRecord::find()->with(['taxZone', 'taxCategory'])->all();
+
+        return TaxRate::populateModels($records);
+    }
+
 
     /**
      * @param int $id

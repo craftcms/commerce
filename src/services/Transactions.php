@@ -42,7 +42,7 @@ class Transactions extends Component
      */
     public function getTransactionByHash($hash)
     {
-        $result = TransactionRecord::model()->findByAttributes(['hash' => $hash]);
+        $result = TransactionRecord::find()->where(['hash' => $hash])->one();
 
         if ($result) {
             return Transaction::populateModel($result);
@@ -58,19 +58,9 @@ class Transactions extends Component
      */
     public function getAllTransactionsByOrderId($orderId)
     {
-        $records = TransactionRecord::model()->findAllByAttributes(['orderId' => $orderId]);
+        $records = TransactionRecord::find()->where(['orderId' => $orderId])->all();
 
         return Transaction::populateModels($records);
-    }
-
-    /**
-     * @param array|\CDbCriteria $criteria
-     *
-     * @return bool
-     */
-    public function transactionExists($criteria = [])
-    {
-        return TransactionRecord::model()->exists($criteria);
     }
 
     /**
@@ -182,10 +172,19 @@ class Transactions extends Component
 
     /**
      * @param Transaction $transaction
+     *
+     * @return false|int
      */
     public function deleteTransaction(Transaction $transaction)
     {
-        TransactionRecord::model()->deleteByPk($transaction->id);
+        $record = TransactionRecord::findOne($transaction->id);
+
+        if ($record)
+        {
+            return $record->delete();
+        }
+
+        return false;
     }
 
 }
