@@ -2,6 +2,14 @@ Commerce Changelog
 ==================
 
 ## Unreleased
+### Added
+- Added support for Worldpay's new `v1` API.
+
+### Fixed
+- Fixed a bug where `VariantModel:onSale()` could sometimes return an incorrect response due to rounding errors.
+- Fixed a PHP error that occurred when saving a product with an empty dimension input on servers running PHP 7.
+- Fixed a issue where orders were getting recalculated after receiving a completion response, when using the Sage Pay gateway.
+- Fixed a PHP error that occurred when a plugin prevented a purchasable from getting added to the cart.
 
 ## 1.2.1341 - 2017-05-02
 
