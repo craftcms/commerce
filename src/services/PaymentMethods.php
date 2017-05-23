@@ -24,7 +24,7 @@ class PaymentMethods extends Component
      */
     public function getAllFrontEndPaymentMethods(): array
     {
-        $records = PaymentMethodRecord::find()->where('isArchived=:xIsArchived,frontEndEnabled=:xFrontEndEnabled', [[':xFrontEndEnabled' => true, ':xIsArchived' => false])->orderBy('sortOrder')->all();
+        $records = PaymentMethodRecord::find()->where('isArchived=:xIsArchived,frontEndEnabled=:xFrontEndEnabled', [':xFrontEndEnabled' => true, ':xIsArchived' => false])->orderBy('sortOrder')->all();
 
         return PaymentMethod::populateModels($records);
     }

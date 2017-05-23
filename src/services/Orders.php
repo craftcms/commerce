@@ -350,7 +350,7 @@ class Orders extends Component
         $same = (bool)$totalPrice == $order->totalPrice;
 
         if (!$same) {
-            Craft::(Craft::t('commerce', 'commerce', 'Total of line items after adjustments does not equal total of adjustment amounts plus original sale prices for order #{orderNumber}', ['orderNumber' => $order->number]), LogLevel::Warning, true);
+            Craft::error(['Total of line items after adjustments does not equal total of adjustment amounts plus original sale prices for order #{orderNumber}', ['orderNumber' => $order->number]], __METHOD__);
         }
 
         $order->totalPrice = Currency::round(max(0, $order->totalPrice));
@@ -425,7 +425,7 @@ class Orders extends Component
                 }
             }
 
-            $adjusters = $adjusters + $additionalAdjusters;
+            $adjusters += $additionalAdjusters;
         }
 
         ksort($adjusters);
