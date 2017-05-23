@@ -6,6 +6,7 @@ use craft\commerce\helpers\Db;
 use craft\commerce\Plugin;
 use craft\commerce\records\Product as ProductRecord;
 use yii\base\Component;
+use Craft;
 
 /**
  * Product service.
@@ -146,7 +147,9 @@ class Products extends Component
         }
 
 
-        Db::beginStackedTransaction();
+        $db = Craft::$app->getDb();
+        $transaction = $db->beginTransaction();
+
         try {
 
             $record->defaultVariantId = $product->defaultVariantId = $defaultVariant->getPurchasableId();
@@ -200,13 +203,13 @@ class Products extends Component
                         Plugin::getInstance()->getVariants()->deleteVariantById($deleteId);
                     }
 
-                    Db::commitStackedTransaction();
+                    $transaction->commit();
                 }
             } else {
                 $success = false;
             }
         } catch (\Exception $e) {
-            Db::rollbackStackedTransaction();
+            $transaction->rollBack();
             throw $e;
         }
 
@@ -312,7 +315,7 @@ class Products extends Component
             }
         } catch (\Exception $e) {
             if ($transaction !== null) {
-                $transaction->rollback();
+                $transaction->rollBack();
             }
 
             throw $e;

@@ -413,18 +413,20 @@ class ProductsController extends BaseCpController
 
         $existingProduct = (bool)$product->id;
 
-        Db::beginStackedTransaction();
+        $db = Craft::$app->getDb();
+        $transaction = $db->beginTransaction();
 
         if (Plugin::getInstance()->getProducts()->saveProduct($product)) {
 
-            Db::commitStackedTransaction();
+            $transaction->commit();
 
             Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Product saved.'));
 
             $this->redirectToPostedUrl($product);
         }
 
-        Db::rollbackStackedTransaction();
+        $transaction->rollBack();
+
         // Since Product may have been ok to save and an ID assigned,
         // but child model validation failed and the transaction rolled back.
         // Since action failed, lets remove the ID that was no persisted.

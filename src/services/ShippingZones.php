@@ -115,7 +115,10 @@ class ShippingZones extends Component
 
         //saving
         if (!$model->hasErrors()) {
-            Db::beginStackedTransaction();
+
+            $db = Craft::$app->getDb();
+            $transaction = $db->beginTransaction();
+
             try {
                 // Save it!
                 $record->save(false);
@@ -143,9 +146,9 @@ class ShippingZones extends Component
                 }
                 Craft::$app->getDb()->createCommand()->batchInsert($table, $cols, $rows);
 
-                Db::commitStackedTransaction();
+                $transaction->commit();
             } catch (\Exception $e) {
-                Db::rollbackStackedTransaction();
+                $transaction->rollBack();
 
                 throw $e;
             }

@@ -5,6 +5,7 @@ use Commerce\Interfaces\Purchasable;
 use craft\commerce\helpers\Db;
 use craft\commerce\records\Purchasable as PurchasableRecord;
 use yii\base\Component;
+use Craft;
 
 /**
  * Purchasable service.
@@ -55,7 +56,9 @@ class Purchasables extends Component
             throw new Exception('Trying to save a purchasable element that is not a purchasable.');
         }
 
-        Db::beginStackedTransaction();
+        $db = Craft::$app->getDb();
+        $transaction = $db->beginTransaction();
+
         try {
             if ($success = Craft::$app->getElements()->saveElement($model)) {
                 $id = $model->getPurchasableId();
@@ -76,15 +79,15 @@ class Purchasables extends Component
 
                 if (!$success) {
                     $model->addErrors($purchasable->getErrors());
-                    Db::rollbackStackedTransaction();
+                    $transaction->rollBack();
 
                     return $success;
                 }
 
-                Db::commitStackedTransaction();
+                $transaction->commit();
             }
         } catch (\Exception $e) {
-            Db::rollbackStackedTransaction();
+            $transaction->rollBack();
             throw $e;
         }
 

@@ -11,7 +11,7 @@ use craft\commerce\records\DiscountProduct as DiscountProductRecord;
 use craft\commerce\records\DiscountProductType as DiscountProductTypeRecord;
 use craft\commerce\records\DiscountUserGroup as DiscountUserGroupRecord;
 use yii\base\Component;
-
+use Craft;
 
 /**
  * Discount service.
@@ -296,7 +296,9 @@ class Discounts extends Component
         $record->validate();
         $model->addErrors($record->getErrors());
 
-        Db::beginStackedTransaction();
+        $db = Craft::$app->getDb();
+        $transaction = $db->beginTransaction();
+
         try {
             if (!$model->hasErrors()) {
                 $record->save(false);
@@ -324,12 +326,12 @@ class Discounts extends Component
                     $relation->insert();
                 }
 
-                Db::commitStackedTransaction();
+                $transaction->commit();
 
                 return true;
             }
         } catch (\Exception $e) {
-            Db::rollbackStackedTransaction();
+            $transaction->rollBack();
             throw $e;
         }
 

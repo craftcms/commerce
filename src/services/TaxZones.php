@@ -1,6 +1,7 @@
 <?php
 namespace craft\commerce\services;
 
+use Craft;
 use craft\commerce\helpers\Db;
 use craft\commerce\models\Country;
 use craft\commerce\models\State;
@@ -114,7 +115,10 @@ class TaxZones extends Component
 
         //saving
         if (!$model->hasErrors()) {
-            Db::beginStackedTransaction();
+
+            $db = Craft::$app->getDb();
+            $transaction = $db->beginTransaction();
+
             try {
                 // Save it!
                 $record->save(false);
@@ -147,9 +151,9 @@ class TaxZones extends Component
                     TaxZoneRecord::updateAll(['default' => 0], 'id != ?', [$record->id]);
                 }
 
-                Db::commitStackedTransaction();
+                $transaction->commit();
             } catch (\Exception $e) {
-                Db::rollbackStackedTransaction();
+                $transaction->rollBack();
 
                 throw $e;
             }

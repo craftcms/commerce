@@ -320,7 +320,10 @@ class ProductTypes extends Component
         $productType->addErrors($productTypeRecord->getErrors());
 
         if (!$productType->hasErrors()) {
-            Db::beginStackedTransaction();
+
+            $db = Craft::$app->getDb();
+            $transaction = $db->beginTransaction();
+
             try {
 
                 if (!$isNewProductType) {
@@ -581,9 +584,9 @@ class ProductTypes extends Component
                     }
                 }
 
-                Db::commitStackedTransaction();
+                $transaction->commit();
             } catch (\Exception $e) {
-                Db::rollbackStackedTransaction();
+                $transaction->rollBack();
 
                 throw $e;
             }
@@ -605,7 +608,9 @@ class ProductTypes extends Component
      */
     public function deleteProductTypeById($id)
     {
-        Db::beginStackedTransaction();
+        $db = Craft::$app->getDb();
+        $transaction = $db->beginTransaction();
+
         try {
             $productType = $this->getProductTypeById($id);
 
@@ -629,12 +634,12 @@ class ProductTypes extends Component
             $affectedRows = $productTypeRecord->delete();
 
             if ($affectedRows) {
-                Db::commitStackedTransaction();
+                $transaction->commit();
             }
 
             return (bool)$affectedRows;
         } catch (\Exception $e) {
-            Db::rollbackStackedTransaction();
+            $transaction->rollBack();
 
             throw $e;
         }

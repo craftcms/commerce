@@ -44,7 +44,8 @@ class Cart extends Component
      */
     public function addToCart(Order $order, $purchasableId, $qty = 1, $note = '', $options = [], &$error = '')
     {
-        Db::beginStackedTransaction();
+        $db = Craft::$app->getDb();
+        $transaction = $db->beginTransaction();
 
         $isNewLineItem = false;
 
@@ -100,7 +101,7 @@ class Cart extends Component
 
                     Plugin::getInstance()->getOrders()->saveOrder($order);
 
-                    Db::commitStackedTransaction();
+                    $transaction->commit();
 
                     //raising event
                     $event = new Event($this, ['lineItem' => $lineItem, 'order' => $order,]);
@@ -110,11 +111,11 @@ class Cart extends Component
                 }
             }
         } catch (\Exception $e) {
-            Db::rollbackStackedTransaction();
+            $transaction->rollBack();
             throw $e;
         }
 
-        Db::rollbackStackedTransaction();
+        $transaction->rollBack();
 
         $errors = $lineItem->getAllErrors();
         $error = array_pop($errors);
@@ -406,7 +407,10 @@ class Cart extends Component
         if (!$event->performAction) {
             return false;
         } else {
-            Db::beginStackedTransaction();
+
+            $db = Craft::$app->getDb();
+            $transaction = $db->beginTransaction();
+
             try {
                 $lineItems = $cart->getLineItems();
                 foreach ($lineItems as $key => $item) {
@@ -428,7 +432,7 @@ class Cart extends Component
                 return false;
             }
 
-            Db::commitStackedTransaction();
+            $transaction->commit();
         }
 
         return true;
@@ -472,7 +476,9 @@ class Cart extends Component
      */
     public function clearCart(Order $cart)
     {
-        Db::beginStackedTransaction();
+        $db = Craft::$app->getDb();
+        $transaction = $db->beginTransaction();
+
         try {
             Plugin::getInstance()->getLineItems()->deleteAllLineItemsByOrderId($cart->id);
             Plugin::getInstance()->getOrders()->saveOrder($cart);
@@ -481,7 +487,7 @@ class Cart extends Component
             throw $e;
         }
 
-        Db::commitStackedTransaction();
+        $transaction->commit();
     }
 
     /**

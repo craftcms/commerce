@@ -5,6 +5,7 @@ use craft\commerce\helpers\Db;
 use craft\commerce\models\OrderSettings as OrderSettingsModel;
 use craft\commerce\records\OrderSettings as OrderSettingsRecord;
 use yii\base\Component;
+use Craft;
 
 /**
  * Order settings service.
@@ -98,7 +99,10 @@ class OrderSettings extends Component
         $orderSettings->addErrors($orderSettingsRecord->getErrors());
 
         if (!$orderSettings->hasErrors()) {
-            Db::beginStackedTransaction();
+
+            $db = Craft::$app->getDb();
+            $transaction = $db->beginTransaction();
+
             try {
                 if (!$isNewOrderSettings && $oldOrderSettings->fieldLayoutId) {
                     // Drop the old field layout
@@ -124,9 +128,9 @@ class OrderSettings extends Component
                 // Update service's cache
                 $this->_orderSettingsById[$orderSettings->id] = $orderSettings;
 
-                Db::commitStackedTransaction();
+                $transaction->commit();
             } catch (\Exception $e) {
-                Db::rollbackStackedTransaction();
+                $transaction->rollBack();
                 throw $e;
             }
 

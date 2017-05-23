@@ -9,6 +9,7 @@ use craft\commerce\models\ShippingMethod;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingMethod as ShippingMethodRecord;
 use yii\base\Component;
+use Craft;
 
 /**
  * Shipping method service.
@@ -267,7 +268,9 @@ class ShippingMethods extends Component
     public function delete($model)
     {
         // Delete all rules first.
-        Db::beginStackedTransaction();
+        $db = Craft::$app->getDb();
+        $transaction = $db->beginTransaction();
+
         try {
 
             $rules = Plugin::getInstance()->getShippingRules()->getAllShippingRulesByShippingMethodId($model->id);
@@ -278,17 +281,13 @@ class ShippingMethods extends Component
             $record = ShippingMethodRecord::findOne($model->id);
             $record->delete();
 
-            Db::commitStackedTransaction();
+            $transaction->commit();
 
             return true;
         } catch (\Exception $e) {
-            Db::rollbackStackedTransaction();
+            $transaction->rollBack();
 
             return false;
         }
-
-        Db::rollbackStackedTransaction();
-
-        return false;
     }
 }

@@ -461,63 +461,63 @@ class OrderQuery extends ElementQuery
 
 
         if ($this->number) {
-            $this->subQuery->addWhere(Db::parseParam('commerce_orders.number', $this->number));
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.number', $this->number));
         }
 
         if ($this->email) {
-            $this->subQuery->addWhere(Db::parseParam('commerce_orders.email', $this->email));
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.email', $this->email));
         }
 
         if ($this->isCompleted) {
-            $this->subQuery->addWhere(Db::parseParam('commerce_orders.isCompleted', $this->isCompleted));
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.isCompleted', $this->isCompleted));
         }
 
         if ($this->dateOrdered) {
-            $this->subQuery->addWhere(Db::parseDateParam('commerce_orders.dateOrdered', $this->dateOrdered));
+            $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.dateOrdered', $this->dateOrdered));
         }
 
         if ($this->updatedOn) {
-            $this->subQuery->addWhere(Db::parseDateParam('commerce_orders.updatedOn', $this->updatedOn));
+            $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.updatedOn', $this->updatedOn));
         }
 
         if ($this->expiryDate) {
-            $this->subQuery->addWhere(Db::parseDateParam('commerce_orders.expiryDate', $this->expiryDate));
+            $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.expiryDate', $this->expiryDate));
         }
 
         if ($this->updatedAfter) {
-            $this->subQuery->addWhere(Db::parseDateParam('commerce_orders.updatedAfter', $this->updatedAfter));
+            $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.updatedAfter', $this->updatedAfter));
         }
 
         if ($this->updatedBefore) {
-            $this->subQuery->addWhere(Db::parseDateParam('commerce_orders.updatedBefore', $this->updatedBefore));
+            $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.updatedBefore', $this->updatedBefore));
         }
 
         if ($this->orderStatus) {
-            $this->subQuery->addWhere(Db::parseParam('commerce_orders.orderStatus', $this->orderStatus));
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.orderStatus', $this->orderStatus));
         }
 
         if ($this->orderStatusId) {
-            $this->subQuery->addWhere(Db::parseParam('commerce_orders.orderStatusId', $this->orderStatusId));
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.orderStatusId', $this->orderStatusId));
         }
 
         if ($this->customer) {
-            $this->subQuery->addWhere(Db::parseParam('commerce_orders.customer', $this->customer));
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.customer', $this->customer));
         }
 
         if ($this->customerId) {
-            $this->subQuery->addWhere(Db::parseParam('commerce_orders.customerId', $this->customerId));
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.customerId', $this->customerId));
         }
 
         if ($this->paymentMethod) {
-            $this->subQuery->addWhere(Db::parseParam('commerce_orders.paymentMethod', $this->paymentMethod));
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.paymentMethod', $this->paymentMethod));
         }
 
         if ($this->paymentMethodId) {
-            $this->subQuery->addWhere(Db::parseParam('commerce_orders.paymentMethodId', $this->paymentMethodId));
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.paymentMethodId', $this->paymentMethodId));
         }
 
         if ($this->user) {
-            $this->subQuery->addWhere(Db::parseParam('commerce_orders.user', $this->user));
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.user', $this->user));
         }
 
         if ($this->isPaid) {

@@ -232,7 +232,8 @@ class Orders extends Component
         $orderRecord->validate();
         $order->addErrors($orderRecord->getErrors());
 
-        Db::beginStackedTransaction();
+        $db = Craft::$app->getDb();
+        $transaction = $db->beginTransaction();
 
         try {
             if (!$order->hasErrors() && $event->performAction) {
@@ -241,7 +242,7 @@ class Orders extends Component
                     $orderRecord->id = $order->id;
                     $orderRecord->save(false);
 
-                    Db::commitStackedTransaction();
+                    $transaction->commit();
 
                     //raising event
                     $event = new Event($this, [
@@ -263,11 +264,11 @@ class Orders extends Component
                 }
             }
         } catch (\Exception $e) {
-            Db::rollbackStackedTransaction();
+            $transaction->rollBack();
             throw $e;
         }
 
-        Db::rollbackStackedTransaction();
+        $transaction->rollBack();
 
         return false;
     }
@@ -540,7 +541,10 @@ class Orders extends Component
         Address $billingAddress,
         &$error = ''
     ) {
-        Db::beginStackedTransaction();
+
+        $db = Craft::$app->getDb();
+        $transaction = $db->beginTransaction();
+
         try {
             if (!$order->id) {
                 if (!$this->saveOrder($order)) {
@@ -583,16 +587,16 @@ class Orders extends Component
                 $order->billingAddressId = $billingAddress->id;
 
                 $this->saveOrder($order);
-                Db::commitStackedTransaction();
+                $transaction->commit();
 
                 return true;
             }
         } catch (\Exception $e) {
-            Db::rollbackStackedTransaction();
+            $transaction->rollBack();
             throw $e;
         }
 
-        Db::rollbackStackedTransaction();
+        $transaction->rollBack();
 
         return false;
     }

@@ -295,7 +295,8 @@ class Customers extends Component
      */
     public function consolidateOrdersToUser($username)
     {
-        Db::beginStackedTransaction();
+        $db = Craft::$app->getDb();
+        $transaction = $db->beginTransaction();
 
         try {
 
@@ -325,12 +326,12 @@ class Customers extends Component
                 }
             }
 
-            Db::commitStackedTransaction();
+            $transaction->commit();
 
             return true;
         } catch (\Exception $e) {
             Craft::error("Could not consolidate orders to username: ".$username.". Reason: ".$e->getMessage(),__METHOD__);
-            Db::rollbackStackedTransaction();
+            $transaction->rollBack();
         }
 
         return false;

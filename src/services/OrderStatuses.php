@@ -130,7 +130,10 @@ class OrderStatuses extends Component
 
         //saving
         if (!$model->hasErrors()) {
-            Db::beginStackedTransaction();
+
+            $db = Craft::$app->getDb();
+            $transaction = $db->beginTransaction();
+
             try {
                 //only one default status can be among statuses of one order type
                 if ($record->default) {
@@ -161,9 +164,9 @@ class OrderStatuses extends Component
                 // Now that we have a calendar ID, save it on the model
                 $model->id = $record->id;
 
-                Db::commitStackedTransaction();
+                $transaction->commit();
             } catch (\Exception $e) {
-                Db::rollbackStackedTransaction();
+                $transaction->rollBack();
                 throw $e;
             }
 

@@ -203,7 +203,9 @@ class LineItems extends Component
             return false;
         }
 
-        Db::beginStackedTransaction();
+        $db = Craft::$app->getDb();
+        $transaction = $db->beginTransaction();
+
         try {
             if ($event->performAction) {
 
@@ -214,13 +216,13 @@ class LineItems extends Component
                         $lineItem->id = $lineItemRecord->id;
                     }
 
-                    Db::commitStackedTransaction();
+                    $transaction->commit();
                 }
             } else {
                 $success = false;
             }
         } catch (\Exception $e) {
-            Db::rollbackStackedTransaction();
+            $transaction->rollBack();
             throw $e;
         }
 

@@ -11,7 +11,7 @@ use craft\commerce\records\SaleProduct as SaleProductRecord;
 use craft\commerce\records\SaleProductType as SaleProductTypeRecord;
 use craft\commerce\records\SaleUserGroup as SaleUserGroupRecord;
 use yii\base\Component;
-
+use Craft;
 
 /**
  * Sale service.
@@ -261,7 +261,9 @@ class Sales extends Component
         $record->validate();
         $model->addErrors($record->getErrors());
 
-        Db::beginStackedTransaction();
+        $db = Craft::$app->getDb();
+        $transaction = $db->beginTransaction();
+
         try {
             if (!$model->hasErrors()) {
                 $record->save(false);
@@ -298,16 +300,16 @@ class Sales extends Component
                     $relation->insert();
                 }
 
-                Db::commitStackedTransaction();
+                $transaction->commit();
 
                 return true;
             }
         } catch (\Exception $e) {
-            Db::rollbackStackedTransaction();
+            $transaction->rollBack();
             throw $e;
         }
 
-        Db::rollbackStackedTransaction();
+        $transaction->rollBack();
 
         return false;
     }

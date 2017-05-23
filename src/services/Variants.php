@@ -8,6 +8,7 @@ use craft\commerce\helpers\Db;
 use craft\commerce\Plugin;
 use craft\commerce\records\Variant as VariantRecord;
 use yii\base\Component;
+use Craft;
 
 /**
  * Variant service.
@@ -190,23 +191,25 @@ class Variants extends Component
         $record->validate();
         $model->addErrors($record->getErrors());
 
-        Db::beginStackedTransaction();
+        $db = Craft::$app->getDb();
+        $transaction = $db->beginTransaction();
+
         try {
             if (!$model->hasErrors()) {
                 if (Plugin::getInstance()->getPurchasables()->saveElement($model)) {
                     $record->id = $model->id;
                     $record->save(false);
-                    Db::commitStackedTransaction();
+                    $transaction->commit();
 
                     return true;
                 }
             }
         } catch (\Exception $e) {
-            Db::rollbackStackedTransaction();
+            $transaction->rollBack();
             throw $e;
         }
 
-        Db::rollbackStackedTransaction();
+        $transaction->rollBack();
 
         return false;
     }
