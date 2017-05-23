@@ -305,7 +305,11 @@ class Products extends Component
 
             if ($productIds) {
                 // Delete 'em
-                $success = Craft::$app->getElements()->deleteElementById($productIds);
+                foreach ($productIds as $id)
+                {
+                    Craft::$app->getElements()->deleteElementById($id);
+                }
+                $success = true;
             } else {
                 $success = false;
             }
@@ -326,11 +330,10 @@ class Products extends Component
 
                 // Delete all child variants.
                 $variants = $variantsByProductId[$product->id];
-                $ids = [];
+
                 foreach ($variants as $v) {
-                    $ids[] = $v->id;
+                    Craft::$app->getElements()->deleteElementById($v->id);
                 }
-                Craft::$app->getElements()->deleteElementById($ids);
 
                 // Fire an 'onDeleteProduct' event
                 $this->onDeleteProduct(new Event($this, [
