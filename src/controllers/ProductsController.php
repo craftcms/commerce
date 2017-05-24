@@ -378,14 +378,14 @@ class ProductsController extends BaseCpController
         $this->enforceProductPermissions($product);
 
         if (Plugin::getInstance()->getProducts()->deleteProduct($product)) {
-            if (Craft::$app->getRequest()->isAjax()) {
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
                 $this->asJson(['success' => true]);
             } else {
                 Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Product deleted.'));
                 $this->redirectToPostedUrl($product);
             }
         } else {
-            if (Craft::$app->getRequest()->isAjax()) {
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
                 $this->asJson(['success' => false]);
             } else {
                 Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t delete product.'));

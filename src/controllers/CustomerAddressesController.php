@@ -63,7 +63,7 @@ class CustomerAddressesController extends BaseFrontEndController
         if ($address->id) {
             if (!in_array($address->id, $addressIds)) {
                 $error = Craft::t('commerce', 'Not allowed to edit that address.');
-                if (Craft::$app->getRequest()->isAjax) {
+                if (Craft::$app->getRequest()->getAcceptsJson()) {
                     $this->asJson(['error' => $error]);
                 }
                 Craft::$app->getUser()->setFlash('error', $error);
@@ -81,12 +81,12 @@ class CustomerAddressesController extends BaseFrontEndController
                 Plugin::getInstance()->getOrders()->saveOrder($cart);
             }
 
-            if (Craft::$app->getRequest()->isAjax) {
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
                 $this->asJson(['success' => true]);
             }
             $this->redirectToPostedUrl();
         } else {
-            if (Craft::$app->getRequest()->isAjax) {
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
                 $this->asJson(['error' => $address->getAllErrors()]);
             }
             Craft::$app->getUrlManager()->setRouteParams([
@@ -128,7 +128,7 @@ class CustomerAddressesController extends BaseFrontEndController
 
                 Plugin::getInstance()->getOrders()->saveOrder($cart);
 
-                if (Craft::$app->getRequest()->isAjax) {
+                if (Craft::$app->getRequest()->getAcceptsJson()) {
                     $this->asJson(['success' => true]);
                 }
                 Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Address removed.'));
@@ -140,7 +140,7 @@ class CustomerAddressesController extends BaseFrontEndController
             $error = Craft::t('commerce', 'Could not delete address.');
         }
 
-        if (Craft::$app->getRequest()->isAjax) {
+        if (Craft::$app->getRequest()->getAcceptsJson()) {
             $this->asJson(['error' => $error]);
         }
         Craft::$app->getUser()->setFlash('error', $error);

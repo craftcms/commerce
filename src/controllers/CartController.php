@@ -47,7 +47,7 @@ class CartController extends BaseFrontEndController
 
         // Fail silently if its not their line item or it doesn't exist.
         if (!$lineItem || !$lineItem->id || ($cart->id != $lineItem->orderId)) {
-            if (Craft::$app->getRequest()->isAjax) {
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
                 $this->asJson(['success' => true, 'cart' => $this->cartArray($cart)]);
             }
             $this->redirectToPostedUrl();
@@ -66,12 +66,12 @@ class CartController extends BaseFrontEndController
 
         if (Plugin::getInstance()->getLineItems()->updateLineItem($cart, $lineItem, $error)) {
             Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Line item updated.'));
-            if (Craft::$app->getRequest()->isAjax) {
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
                 $this->asJson(['success' => true, 'cart' => $this->cartArray($cart)]);
             }
             $this->redirectToPostedUrl();
         } else {
-            if (Craft::$app->getRequest()->isAjax) {
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
                 $this->asErrorJson($error);
             } else {
                 if ($error) {
@@ -96,14 +96,14 @@ class CartController extends BaseFrontEndController
         $cart->setContentFromPost('fields');
 
         if (Plugin::getInstance()->getCart()->removeFromCart($cart, $lineItemId)) {
-            if (Craft::$app->getRequest()->isAjax) {
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
                 $this->asJson(['success' => true, 'cart' => $this->cartArray($cart)]);
             }
             Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Line item removed.'));
             $this->redirectToPostedUrl();
         } else {
             $message = Craft::t('commerce', 'Could not remove from line item.');
-            if (Craft::$app->getRequest()->isAjax) {
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
                 $this->asErrorJson($message);
             }
             Craft::$app->getSession()->setError($message);
@@ -122,7 +122,7 @@ class CartController extends BaseFrontEndController
         $cart->setContentFromPost('fields');
 
         Plugin::getInstance()->getCart()->clearCart($cart);
-        if (Craft::$app->getRequest()->isAjax) {
+        if (Craft::$app->getRequest()->getAcceptsJson()) {
             $this->asJson(['success' => true, 'cart' => $this->cartArray($cart)]);
         }
         Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Line items removed.'));
@@ -298,7 +298,7 @@ class CartController extends BaseFrontEndController
 
         if (empty($updateErrors)) {
             Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Cart updated.'));
-            if (Craft::$app->getRequest()->isAjax) {
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
                 $this->asJson(['success' => true, 'cart' => $this->cartArray($cart)]);
             }
             $this->redirectToPostedUrl();
@@ -306,7 +306,7 @@ class CartController extends BaseFrontEndController
             $error = Craft::t('commerce', 'Cart not completely updated.');
             $cart->addErrors($updateErrors);
 
-            if (Craft::$app->getRequest()->isAjax) {
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
                 $this->asJson(['error' => $error, 'cart' => $this->cartArray($cart)]);
             } else {
                 Craft::$app->getSession()->setError($error);

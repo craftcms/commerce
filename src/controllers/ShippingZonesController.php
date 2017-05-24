@@ -100,7 +100,7 @@ class ShippingZonesController extends BaseAdminController
 
         // Save it
         if (Plugin::getInstance()->getShippingZones()->saveShippingZone($shippingZone, $shippingZone->getCountryIds(), $shippingZone->getStateIds())) {
-            if (Craft::$app->getRequest()->isAjax()) {
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
                 $this->asJson([
                     'success' => true,
                     'id' => $shippingZone->id,
@@ -111,7 +111,7 @@ class ShippingZonesController extends BaseAdminController
                 $this->redirectToPostedUrl($shippingZone);
             }
         } else {
-            if (Craft::$app->getRequest()->isAjax()) {
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
                 $this->asJson([
                     'errors' => $shippingZone->getErrors()
                 ]);

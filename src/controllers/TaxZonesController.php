@@ -102,7 +102,7 @@ class TaxZonesController extends BaseAdminController
 
         // TODO: refactor to remove ids params which are not needed.
         if (Plugin::getInstance()->getTaxZones()->saveTaxZone($taxZone, $taxZone->getCountryIds(), $taxZone->getStateIds())) {
-            if (Craft::$app->getRequest()->isAjax()) {
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
                 $this->asJson([
                     'success' => true,
                     'id' => $taxZone->id,
@@ -113,7 +113,7 @@ class TaxZonesController extends BaseAdminController
                 $this->redirectToPostedUrl($taxZone);
             }
         } else {
-            if (Craft::$app->getRequest()->isAjax()) {
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
                 $this->asJson([
                     'errors' => $taxZone->getErrors()
                 ]);

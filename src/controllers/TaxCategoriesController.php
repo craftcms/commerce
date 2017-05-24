@@ -74,7 +74,7 @@ class TaxCategoriesController extends BaseAdminController
 
         // Save it
         if (Plugin::getInstance()->getTaxCategories()->saveTaxCategory($taxCategory)) {
-            if (Craft::$app->getRequest()->isAjax()) {
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
                 $this->asJson([
                     'success' => true,
                     'id' => $taxCategory->id,
@@ -85,7 +85,7 @@ class TaxCategoriesController extends BaseAdminController
                 $this->redirectToPostedUrl($taxCategory);
             }
         } else {
-            if (Craft::$app->getRequest()->isAjax()) {
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
                 $this->asJson([
                     'errors' => $taxCategory->getErrors()
                 ]);

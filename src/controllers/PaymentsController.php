@@ -32,7 +32,7 @@ class PaymentsController extends BaseFrontEndController
             $order = Plugin::getInstance()->getOrders()->getOrderByNumber($number);
             if (!$order) {
                 $error = Craft::t('commerce', 'Can not find an order to pay.');
-                if (Craft::$app->getRequest()->isAjax()) {
+                if (Craft::$app->getRequest()->getAcceptsJson()) {
                     $this->asErrorJson($error);
                 } else {
                     Craft::$app->getUser()->setFlash('error', $error);
@@ -59,7 +59,7 @@ class PaymentsController extends BaseFrontEndController
         if (Plugin::getInstance()->getSettings()->getSettings()->requireShippingAddressAtCheckout) {
             if (!$order->shippingAddressId) {
                 $error = Craft::t('commerce', 'Shipping address required.');
-                if (Craft::$app->getRequest()->isAjax()) {
+                if (Craft::$app->getRequest()->getAcceptsJson()) {
                     $this->asErrorJson($error);
                 } else {
                     Craft::$app->getUser()->setFlash('error', $error);
@@ -80,7 +80,7 @@ class PaymentsController extends BaseFrontEndController
             $currency = Craft::$app->getRequest()->getParam('paymentCurrency'); // empty string vs null (strict type checking)
             $error = '';
             if (!Plugin::getInstance()->getCart()->setPaymentCurrency($order, $currency, $error)) {
-                if (Craft::$app->getRequest()->isAjax()) {
+                if (Craft::$app->getRequest()->getAcceptsJson()) {
                     $this->asErrorJson($error);
                 } else {
                     $order->addError('paymentCurrency', $error);
@@ -96,7 +96,7 @@ class PaymentsController extends BaseFrontEndController
         if ($paymentMethodId && $order->paymentMethodId != $paymentMethodId) {
             $error = "";
             if (!Plugin::getInstance()->getCart()->setPaymentMethod($order, $paymentMethodId, $error)) {
-                if (Craft::$app->getRequest()->isAjax()) {
+                if (Craft::$app->getRequest()->getAcceptsJson()) {
                     $this->asErrorJson($error);
                 } else {
                     Craft::$app->getUser()->setFlash('error', $error);
@@ -110,7 +110,7 @@ class PaymentsController extends BaseFrontEndController
 
         if (!$paymentMethod) {
             $error = Craft::t("commerce", "There is no payment method selected for this order.");
-            if (Craft::$app->getRequest()->isAjax()) {
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
                 $this->asErrorJson($error);
             } else {
                 Craft::$app->getUser()->setFlash('error', $error);
@@ -131,7 +131,7 @@ class PaymentsController extends BaseFrontEndController
         // Check email address exists on order.
         if (!$order->email) {
             $customError = Craft::t("commerce", "No customer email address exists on this cart.");
-            if (Craft::$app->getRequest()->isAjax()) {
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
                 $this->asErrorJson($customError);
             } else {
                 Craft::$app->getUser()->setFlash('error', $customError);
@@ -172,7 +172,7 @@ class PaymentsController extends BaseFrontEndController
                 }
 
                 $customError = Craft::t('commerce', 'Something changed with the order before payment, please review your order and submit payment again.');
-                if (Craft::$app->getRequest()->isAjax()) {
+                if (Craft::$app->getRequest()->getAcceptsJson()) {
                     $this->asErrorJson($customError);
                 } else {
                     Craft::$app->getUser()->setFlash('error', $customError);
@@ -194,7 +194,7 @@ class PaymentsController extends BaseFrontEndController
 
 
         if ($success) {
-            if (Craft::$app->getRequest()->isAjax()) {
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
                 $response = ['success' => true];
                 if ($redirect) {
                     $response['redirect'] = $redirect;
@@ -212,7 +212,7 @@ class PaymentsController extends BaseFrontEndController
                 }
             }
         } else {
-            if (Craft::$app->getRequest()->isAjax()) {
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
                 $this->asJson(['error' => $customError, 'paymentForm' => $paymentForm->getErrors()]);
             } else {
                 Craft::$app->getSession()->setError($customError);

@@ -74,7 +74,7 @@ class ShippingCategoriesController extends BaseAdminController
 
         // Save it
         if (Plugin::getInstance()->getShippingCategories()->saveShippingCategory($shippingCategory)) {
-            if (Craft::$app->getRequest()->isAjax()) {
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
                 $this->asJson([
                     'success' => true,
                     'id' => $shippingCategory->id,
@@ -85,7 +85,7 @@ class ShippingCategoriesController extends BaseAdminController
                 $this->redirectToPostedUrl($shippingCategory);
             }
         } else {
-            if (Craft::$app->getRequest()->isAjax()) {
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
                 $this->asJson([
                     'errors' => $shippingCategory->getErrors()
                 ]);
