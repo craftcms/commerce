@@ -1,4 +1,5 @@
 <?php
+
 namespace craft\commerce\services;
 
 use Craft;
@@ -164,8 +165,7 @@ class PaymentCurrencies extends Component
     {
         $paymentCurrency = PaymentCurrencyRecord::findOne($id);
 
-        if ($paymentCurrency)
-        {
+        if ($paymentCurrency) {
             $paymentCurrency->delete();
         }
     }

@@ -1,4 +1,5 @@
 <?php
+
 namespace craft\commerce\models;
 
 use craft\behaviors\FieldLayoutBehavior;

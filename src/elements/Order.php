@@ -16,9 +16,9 @@ use craft\commerce\models\OrderSettings;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\models\PaymentMethod;
 use craft\commerce\models\Transaction;
+use craft\commerce\Plugin;
 use craft\elements\db\ElementQueryInterface;
 use craft\models\FieldLayout;
-use craft\commerce\Plugin;
 
 /**
  * Order or Cart model.

@@ -1,14 +1,14 @@
 <?php
+
 namespace craft\commerce\services;
 
+use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
-use craft\commerce\helpers\Db;
 use craft\commerce\Plugin;
 use craft\commerce\records\Variant as VariantRecord;
 use yii\base\Component;
-use Craft;
 
 /**
  * Variant service.

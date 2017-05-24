@@ -2,6 +2,7 @@
 
 namespace craft\commerce\variables;
 
+use Craft;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\elements\db\ProductQuery;
 use craft\commerce\elements\db\VariantQuery;
@@ -14,7 +15,6 @@ use craft\commerce\models\TaxCategory;
 use craft\commerce\models\TaxRate;
 use craft\commerce\models\TaxZone;
 use craft\commerce\Plugin;
-use Craft;
 use craft\helpers\ArrayHelper;
 
 /**

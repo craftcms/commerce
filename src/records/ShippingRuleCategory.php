@@ -1,4 +1,5 @@
 <?php
+
 namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;

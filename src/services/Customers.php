@@ -1,8 +1,8 @@
 <?php
+
 namespace craft\commerce\services;
 
 use Craft;
-use craft\commerce\helpers\Db;
 use craft\commerce\models\Address;
 use craft\commerce\models\Customer;
 use craft\commerce\Plugin;
@@ -257,8 +257,7 @@ class Customers extends Component
     {
         $customer = CustomerRecord::findOne($customer->id);
 
-        if ($customer)
-        {
+        if ($customer) {
             $customer->delete();
         }
     }
@@ -330,7 +329,7 @@ class Customers extends Component
 
             return true;
         } catch (\Exception $e) {
-            Craft::error("Could not consolidate orders to username: ".$username.". Reason: ".$e->getMessage(),__METHOD__);
+            Craft::error("Could not consolidate orders to username: ".$username.". Reason: ".$e->getMessage(), __METHOD__);
             $transaction->rollBack();
         }
 
@@ -465,7 +464,7 @@ class Customers extends Component
                 if (!$this->saveCustomer($customer)) {
                     $error = Craft::t('commerce', 'commerce', 'Could not sync user’s email to customers record. CustomerId:{customerId} UserId:{userId}',
                         ['customerId' => $customer->id, 'userId' => $user->id]);
-                    Craft::error($error,__METHOD__);
+                    Craft::error($error, __METHOD__);
                 };
             }
 

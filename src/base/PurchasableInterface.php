@@ -1,4 +1,5 @@
 <?php
+
 namespace craft\commerce\base;
 
 use craft\commerce\models\LineItem;

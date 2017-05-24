@@ -1,4 +1,5 @@
 <?php
+
 namespace craft\commerce\services;
 
 use Craft;
@@ -102,8 +103,7 @@ class Emails extends Component
     {
         $email = EmailRecord::findOne($id);
 
-        if ($email)
-        {
+        if ($email) {
             return $email->delete();
         }
     }

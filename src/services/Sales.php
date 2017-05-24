@@ -1,9 +1,10 @@
 <?php
+
 namespace craft\commerce\services;
 
+use Craft;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
-use craft\commerce\helpers\Db;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\commerce\records\Sale as SaleRecord;
@@ -11,7 +12,6 @@ use craft\commerce\records\SaleProduct as SaleProductRecord;
 use craft\commerce\records\SaleProductType as SaleProductTypeRecord;
 use craft\commerce\records\SaleUserGroup as SaleUserGroupRecord;
 use yii\base\Component;
-use Craft;
 
 /**
  * Sale service.
@@ -323,8 +323,7 @@ class Sales extends Component
     {
         $sale = SaleRecord::findOne($id);
 
-        if ($sale)
-        {
+        if ($sale) {
             return $sale->delete();
         }
     }

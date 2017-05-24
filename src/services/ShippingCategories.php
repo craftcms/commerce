@@ -1,4 +1,5 @@
 <?php
+
 namespace craft\commerce\services;
 
 use craft\commerce\models\ShippingCategory;
@@ -232,10 +233,8 @@ class ShippingCategories extends Component
 
         $record = ShippingCategoryRecord::findOne($id);
 
-        if($record)
-        {
+        if ($record) {
             $record->delete();
         }
-
     }
 }

@@ -1,12 +1,12 @@
 <?php
+
 namespace craft\commerce\services;
 
+use Craft;
 use craft\commerce\elements\Product;
-use craft\commerce\helpers\Db;
 use craft\commerce\Plugin;
 use craft\commerce\records\Product as ProductRecord;
 use yii\base\Component;
-use Craft;
 
 /**
  * Product service.
@@ -305,8 +305,7 @@ class Products extends Component
 
             if ($productIds) {
                 // Delete 'em
-                foreach ($productIds as $id)
-                {
+                foreach ($productIds as $id) {
                     Craft::$app->getElements()->deleteElementById($id);
                 }
                 $success = true;

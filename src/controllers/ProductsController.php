@@ -1,9 +1,9 @@
 <?php
+
 namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\elements\Product;
-use craft\commerce\helpers\Db;
 use craft\commerce\helpers\Product as ProductHelper;
 use craft\commerce\helpers\VariantMatrix;
 use craft\commerce\Plugin;

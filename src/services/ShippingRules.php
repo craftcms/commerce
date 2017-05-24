@@ -1,4 +1,5 @@
 <?php
+
 namespace craft\commerce\services;
 
 use craft\commerce\base\Model\ShippingRuleCategory;
@@ -27,7 +28,7 @@ class ShippingRules extends Component
      */
     public function getAllShippingRules()
     {
-        $results = ShippingRuleRecord::find()->with(['method', 'country', 'state'])->orderBy(['methodId','name'])->all();
+        $results = ShippingRuleRecord::find()->with(['method', 'country', 'state'])->orderBy(['methodId', 'name'])->all();
 
         return ShippingRule::populateModels($results);
     }
@@ -188,8 +189,7 @@ class ShippingRules extends Component
     {
         $record = ShippingRuleRecord::findOne($id);
 
-        if($record)
-        {
+        if ($record) {
             $record->delete();
         }
     }

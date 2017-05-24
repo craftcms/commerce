@@ -1,7 +1,9 @@
 <?php
+
 namespace craft\commerce\services;
 
-use craft\commerce\helpers\Db;
+
+use Craft;
 use craft\commerce\models\Country;
 use craft\commerce\models\ShippingZone;
 use craft\commerce\models\State;
@@ -11,7 +13,6 @@ use craft\commerce\records\ShippingZoneCountry as ShippingZoneCountryRecord;
 use craft\commerce\records\ShippingZoneState as ShippingZoneStateRecord;
 use craft\commerce\records\State as StateRecord;
 use yii\base\Component;
-use Craft;
 
 /**
  * Shipping zone service.
@@ -100,7 +101,7 @@ class ShippingZones extends Component
         //validating given ids
         if ($record->countryBased) {
 
-            $exist = CountryRecord::find()->where(['id'=>$countryIds])->exists();
+            $exist = CountryRecord::find()->where(['id' => $countryIds])->exists();
 
             if (!$exist) {
                 $model->addError('countries', 'Please select some countries');
@@ -166,8 +167,7 @@ class ShippingZones extends Component
     {
         $record = ShippingZoneRecord::findOne($id);
 
-        if($record)
-        {
+        if ($record) {
             $record->delete();
         }
     }

@@ -1,8 +1,8 @@
 <?php
+
 namespace craft\commerce\services;
 
 use Craft;
-use craft\commerce\helpers\Db;
 use craft\commerce\models\Country;
 use craft\commerce\models\State;
 use craft\commerce\models\TaxZone;
@@ -100,13 +100,13 @@ class TaxZones extends Component
 
         //validating given ids
         if ($record->countryBased) {
-            $exist = CountryRecord::find()->where(['id'=>$countryIds])->exists();
+            $exist = CountryRecord::find()->where(['id' => $countryIds])->exists();
 
             if (!$exist) {
                 $model->addError('countries', 'Please select some countries');
             }
         } else {
-            $exist = StateRecord::find()->where(['id'=>$stateIds])->exists();
+            $exist = StateRecord::find()->where(['id' => $stateIds])->exists();
 
             if (!$exist) {
                 $model->addError('states', 'Please select some states');
@@ -173,8 +173,7 @@ class TaxZones extends Component
     {
         $record = TaxZoneRecord::findOne($id);
 
-        if($record)
-        {
+        if ($record) {
             return $record->delete();
         }
 

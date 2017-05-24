@@ -1,4 +1,5 @@
 <?php
+
 namespace craft\commerce\models;
 
 use craft\behaviors\FieldLayoutBehavior;
@@ -164,8 +165,7 @@ class ProductType extends Model
             if ($this->id) {
                 $locales = Plugin::getInstance()->getProductTypes()->getProductTypeLocales($this->id);
                 $this->_locales = [];
-                foreach ($locales as $locale)
-                {
+                foreach ($locales as $locale) {
                     $this->_locales[$locale] = $locale;
                 }
             } else {

@@ -1,4 +1,5 @@
 <?php
+
 namespace craft\commerce\services;
 
 use craft\commerce\models\Settings as SettingsModel;

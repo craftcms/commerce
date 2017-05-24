@@ -1,4 +1,5 @@
 <?php
+
 namespace craft\commerce\gateway\models;
 
 /**

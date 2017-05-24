@@ -1,4 +1,5 @@
 <?php
+
 namespace craft\commerce\services;
 
 use craft\commerce\models\Country;
@@ -120,8 +121,7 @@ class Countries extends Component
     public function deleteCountryById($id)
     {
         $country = CountryRecord::findOne($id);
-        if ($country)
-        {
+        if ($country) {
             $country->delete();
         }
     }

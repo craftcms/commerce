@@ -1,9 +1,10 @@
 <?php
+
 namespace craft\commerce\controllers;
 
+use Craft;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use yii\web\HttpException;
-use Craft;
 
 /**
  * Class BaseCp
@@ -67,6 +68,5 @@ class BaseCpController extends BaseController
                 'No Address'
             ]
         );
-
     }
 }

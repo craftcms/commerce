@@ -1,11 +1,11 @@
 <?php
+
 namespace craft\commerce\services;
 
 use Commerce\Interfaces\Purchasable;
 use Craft;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
-use craft\commerce\helpers\Db;
 use craft\commerce\models\LineItem;
 use craft\commerce\records\LineItem as LineItemRecord;
 use yii\base\Component;
@@ -120,8 +120,7 @@ class LineItems extends Component
     {
         $lineItem = LineItemRecord::findOne($lineItem->id);
 
-        if ($lineItem)
-        {
+        if ($lineItem) {
             return $lineItem->delete();
         }
     }

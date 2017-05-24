@@ -1,4 +1,5 @@
 <?php
+
 namespace craft\commerce\controllers;
 
 use Craft;
@@ -257,7 +258,7 @@ class PaymentsController extends BaseFrontEndController
     {
         $id = Craft::$app->getRequest()->getParam('commerceTransactionHash');
 
-        Craft::info(json_encode($_REQUEST, JSON_PRETTY_PRINT),__METHOD__);
+        Craft::info(json_encode($_REQUEST, JSON_PRETTY_PRINT), __METHOD__);
 
         Plugin::getInstance()->getPayments()->acceptNotification($id);
     }

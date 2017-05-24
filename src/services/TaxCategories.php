@@ -1,4 +1,5 @@
 <?php
+
 namespace craft\commerce\services;
 
 use craft\commerce\models\TaxCategory;
@@ -232,9 +233,8 @@ class TaxCategories extends Component
 
         $record = TaxCategoryRecord::findOne($id);
 
-        if ($record)
-        {
-            return (bool) $record->delete();
+        if ($record) {
+            return (bool)$record->delete();
         }
     }
 }

@@ -2,15 +2,14 @@
 
 namespace craft\commerce\services;
 
+use Craft;
 use craft\commerce\elements\Order;
-use craft\commerce\helpers\Db;
 use craft\commerce\models\Email;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\records\Email as EmailRecord;
 use craft\commerce\records\OrderStatus as OrderStatusRecord;
 use craft\commerce\records\OrderStatusEmail as OrderStatusEmailRecord;
 use yii\base\Component;
-use Craft;
 
 /**
  * Order status service.
@@ -147,8 +146,7 @@ class OrderStatuses extends Component
                 if ($model->id) {
                     $records = OrderStatusEmailRecord::find()->where(['orderStatusId' => $model->id])->all();
 
-                    foreach ($records as $record)
-                    {
+                    foreach ($records as $record) {
                         $record->delete();
                     }
                 }
@@ -195,7 +193,7 @@ class OrderStatuses extends Component
 
         if (count($statuses) >= 2) {
 
-            $models = OrderStatusRecord::find()->where('id = :id',[':id' => $id])->all();
+            $models = OrderStatusRecord::find()->where('id = :id', [':id' => $id])->all();
             foreach ($models as $model) {
                 $model->delete();
             }

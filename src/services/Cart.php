@@ -1,9 +1,9 @@
 <?php
+
 namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\elements\Order;
-use craft\commerce\helpers\Db;
 use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
 use craft\db\Query;

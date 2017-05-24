@@ -1,11 +1,11 @@
 <?php
+
 namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\base\AdjusterInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\Currency;
-use craft\commerce\helpers\Db;
 use craft\commerce\models\Address;
 use craft\commerce\models\Customer;
 use craft\commerce\models\LineItem;
@@ -180,13 +180,13 @@ class Orders extends Component
             $lastShippingAddressId = $customer->lastUsedShippingAddressId;
 
             if (!$order->shippingAddressId && $lastShippingAddressId && $address = Plugin::getInstance()->getAddresses()->getAddressById($lastShippingAddressId)) {
-                    $order->shippingAddressId = $address->id;
+                $order->shippingAddressId = $address->id;
             }
 
             $lastBillingAddressId = $customer->lastUsedBillingAddressId;
 
             if (!$order->billingAddressId && $lastBillingAddressId && $address = Plugin::getInstance()->getAddresses()->getAddressById($lastBillingAddressId)) {
-                    $order->billingAddressId = $address->id;
+                $order->billingAddressId = $address->id;
             }
         }
 
@@ -381,12 +381,10 @@ class Orders extends Component
         $lineItems = $order->getLineItems();
         foreach ($lineItems as $key => $item) {
             if ($lineItem->id == $item->id) {
-                if ($lineItem->id == $item->id)
-                {
+                if ($lineItem->id == $item->id) {
                     $lineItem = LineItemRecord::findOne($lineItem->id);
 
-                    if ($lineItem && $lineItem->delete())
-                    {
+                    if ($lineItem && $lineItem->delete()) {
                         $success = true;
                         unset($lineItems[$key]);
                         $order->setLineItems($lineItems);

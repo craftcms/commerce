@@ -1,4 +1,5 @@
 <?php
+
 namespace craft\commerce\gateways;
 
 abstract class OffsiteGatewayAdapter extends BaseGatewayAdapter

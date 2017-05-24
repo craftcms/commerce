@@ -1,8 +1,9 @@
 <?php
+
 namespace craft\commerce\services;
 
+use Craft;
 use craft\commerce\elements\Variant;
-use craft\commerce\helpers\Db;
 use craft\commerce\models\Discount;
 use craft\commerce\models\LineItem;
 use craft\commerce\records\CustomerDiscountUse as CustomerDiscountUseRecord;
@@ -11,7 +12,6 @@ use craft\commerce\records\DiscountProduct as DiscountProductRecord;
 use craft\commerce\records\DiscountProductType as DiscountProductTypeRecord;
 use craft\commerce\records\DiscountUserGroup as DiscountUserGroupRecord;
 use yii\base\Component;
-use Craft;
 
 /**
  * Discount service.
@@ -347,8 +347,7 @@ class Discounts extends Component
     {
         $record = DiscountRecord::findOne($id);
 
-        if ($record)
-        {
+        if ($record) {
             $record->delete();
         }
     }

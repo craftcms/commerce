@@ -1,4 +1,5 @@
 <?php
+
 namespace craft\commerce\elements\db;
 
 use craft\db\Query;

@@ -1,11 +1,11 @@
 <?php
+
 namespace craft\commerce\services;
 
 use Commerce\Interfaces\Purchasable;
-use craft\commerce\helpers\Db;
+use Craft;
 use craft\commerce\records\Purchasable as PurchasableRecord;
 use yii\base\Component;
-use Craft;
 
 /**
  * Purchasable service.

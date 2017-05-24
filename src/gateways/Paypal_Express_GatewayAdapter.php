@@ -1,4 +1,5 @@
 <?php
+
 namespace craft\commerce\gateways;
 
 use Omnipay\PayPal\PayPalItemBag;

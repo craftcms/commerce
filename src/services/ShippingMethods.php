@@ -1,15 +1,15 @@
 <?php
+
 namespace craft\commerce\services;
 
+use Craft;
 use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\base\ShippingRuleInterface;
 use craft\commerce\elements\Order;
-use craft\commerce\helpers\Db;
 use craft\commerce\models\ShippingMethod;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingMethod as ShippingMethodRecord;
 use yii\base\Component;
-use Craft;
 
 /**
  * Shipping method service.

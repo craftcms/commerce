@@ -3,6 +3,7 @@
 namespace craft\commerce\elements\db;
 
 use craft\commerce\base\PurchasableInterface;
+use craft\commerce\elements\Order;
 use craft\commerce\models\Customer;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\models\PaymentMethod;
@@ -11,9 +12,8 @@ use craft\elements\db\ElementQuery;
 use craft\elements\User;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
-use craft\commerce\elements\Order;
-use yii\db\Connection;
 use DateTime;
+use yii\db\Connection;
 
 /**
  * OrderQuery represents a SELECT SQL statement for users in a way that is independent of DBMS.
@@ -550,7 +550,6 @@ class OrderQuery extends ElementQuery
 
             $this->subQuery->innerJoin('{{%commerce_lineitems}} lineitems', '[[lineitems.orderId]] = [[subquery.elementsId]]');
             $this->subQuery->andWhere(['in', '[[lineitems.purchasableId]]', $purchasableIds]);
-
         }
 
         return parent::beforePrepare();

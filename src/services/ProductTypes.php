@@ -4,7 +4,6 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\elements\Product;
-use craft\commerce\helpers\Db;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\ProductTypeLocale;
 use craft\commerce\models\ShippingCategory;

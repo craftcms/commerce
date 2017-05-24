@@ -1,4 +1,5 @@
 <?php
+
 namespace craft\commerce\elements;
 
 use Craft;

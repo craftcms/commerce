@@ -1,12 +1,13 @@
 <?php
+
 namespace craft\commerce\elements\actions;
 
 use Craft;
 use craft\base\ElementAction;
 use craft\commerce\elements\Order;
+use craft\commerce\Plugin;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\Json;
-use craft\commerce\Plugin;
 
 /**
  * Class Update Order Status

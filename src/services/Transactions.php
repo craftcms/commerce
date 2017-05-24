@@ -1,4 +1,5 @@
 <?php
+
 namespace craft\commerce\services;
 
 use craft\commerce\elements\Order;
@@ -179,8 +180,7 @@ class Transactions extends Component
     {
         $record = TransactionRecord::findOne($transaction->id);
 
-        if ($record)
-        {
+        if ($record) {
             return $record->delete();
         }
 

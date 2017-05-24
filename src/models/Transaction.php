@@ -1,4 +1,5 @@
 <?php
+
 namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
@@ -156,10 +157,10 @@ class Transaction extends Model
         }
 
         // check transaction hasn't already been captured
-        $exists =  TransactionRecord::find()->where(['type'=>':type','status'=>':status','orderId'=>':orderId'],[
-            ':type'=>TransactionRecord::TYPE_CAPTURE,
+        $exists = TransactionRecord::find()->where(['type' => ':type', 'status' => ':status', 'orderId' => ':orderId'], [
+            ':type' => TransactionRecord::TYPE_CAPTURE,
             ':status' => TransactionRecord::STATUS_SUCCESS,
-            ':orderId'=>$this->orderId
+            ':orderId' => $this->orderId
         ])->exists();
 
         return !$exists;
@@ -188,10 +189,10 @@ class Transaction extends Model
         }
 
         // check transaction hasn't already been refunded
-        $exists =  TransactionRecord::find()->where(['type'=>':type','status'=>':status','orderId'=>':orderId'],[
-            ':type'=>TransactionRecord::TYPE_REFUND,
+        $exists = TransactionRecord::find()->where(['type' => ':type', 'status' => ':status', 'orderId' => ':orderId'], [
+            ':type' => TransactionRecord::TYPE_REFUND,
             ':status' => TransactionRecord::STATUS_SUCCESS,
-            ':orderId'=>$this->orderId
+            ':orderId' => $this->orderId
         ])->exists();
 
         return !$exists;

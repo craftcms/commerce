@@ -1,11 +1,12 @@
 <?php
+
 namespace craft\commerce\services;
 
-use craft\commerce\helpers\Db;
+
+use Craft;
 use craft\commerce\models\OrderSettings as OrderSettingsModel;
 use craft\commerce\records\OrderSettings as OrderSettingsRecord;
 use yii\base\Component;
-use Craft;
 
 /**
  * Order settings service.
