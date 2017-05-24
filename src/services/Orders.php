@@ -101,17 +101,6 @@ class Orders extends Component
     }
 
     /**
-     * @param Order $order
-     *
-     * @return bool
-     * @throws \CDbException
-     */
-    public function deleteOrder($order): bool
-    {
-        return Craft::$app->getElements()->deleteElementById($order->id);
-    }
-
-    /**
      * Updates the orders totalPaid and datePaid date and completes order
      *
      * @param Order $order

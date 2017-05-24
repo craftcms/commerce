@@ -399,20 +399,22 @@ class OrdersController extends BaseCpController
                 ['id' => $orderId]));
         }
 
-        if (Plugin::getInstance()->getOrders()->deleteOrder($order)) {
-            if (Craft::$app->getRequest()->isAjax()) {
-                $this->asJson(['success' => true]);
-            } else {
-                Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Order deleted.'));
-                $this->redirectToPostedUrl($order);
-            }
-        } else {
-            if (Craft::$app->getRequest()->isAjax()) {
+        if (!Craft::$app->getElements()->deleteElementById($order->id)) {
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
                 $this->asJson(['success' => false]);
             } else {
                 Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t delete order.'));
                 Craft::$app->getUrlManager()->setRouteParams(['order' => $order]);
             }
+
+            return null;
+        }
+
+        if (Craft::$app->getRequest()->getAcceptsJson()) {
+            $this->asJson(['success' => true]);
+        } else {
+            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Order deleted.'));
+            $this->redirectToPostedUrl($order);
         }
     }
 }
