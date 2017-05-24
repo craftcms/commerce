@@ -4,7 +4,6 @@ namespace craft\commerce\helpers;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\helpers\Json;
-use yii\web\View;
 
 /**
  * Class VariantMatrix
@@ -57,19 +56,19 @@ class VariantMatrix
             '"'.$namespacedName.'"'.
             ');');
 
-        $viewService->registerTranslations(
-            'Actions',
-            'Add a variant',
-            'Add variant above',
-            'Are you sure you want to delete the selected variants?',
-            'Collapse',
-            'Default',
-            'Disable',
-            'Disabled',
-            'Enable',
-            'Expand',
-            'Set as the default variant'
-        );
+        $viewService->registerTranslations('commerce', [
+                'Actions',
+                'Add a variant',
+                'Add variant above',
+                'Are you sure you want to delete the selected variants?',
+                'Collapse',
+                'Default',
+                'Disable',
+                'Disabled',
+                'Enable',
+                'Expand',
+                'Set as the default variant'
+        ]);
 
         return $html;
     }
