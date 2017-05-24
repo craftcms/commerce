@@ -145,10 +145,10 @@ class Discounts extends Component
             return null;
         }
 
-        $result = DiscountRecord::find()->where(['code' => $code])->all();
+        $result = DiscountRecord::find()->where(['code' => $code, 'enabled' => true])->all();
 
         if ($result) {
-            return Discount::populateModel($result);
+            return new Discount($result);
         }
 
         return null;

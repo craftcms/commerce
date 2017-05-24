@@ -30,6 +30,7 @@ class Currency
     {
         if (!$currency) {
             $defaultPaymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrency();
+            /** @var \craft\commerce\models\Currency|null $currency */
             $currency = Plugin::getInstance()->getCurrencies()->getCurrencyByIso($defaultPaymentCurrency->iso);
         }
 

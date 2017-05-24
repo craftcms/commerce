@@ -31,16 +31,25 @@ class Discount implements AdjusterInterface
             return [];
         }
 
-        $discounts = Plugin::getInstance()->getDiscounts()->getAllDiscounts([
-            'condition' => '(code = :code OR code IS NULL) and enabled = :enabled',
-            'params' => [
-                'code' => $order->couponCode,
-                'enabled' => true
-            ],
-            'order' => 'sortOrder'
-        ]);
+        $discounts = Plugin::getInstance()->getDiscounts()->getAllDiscounts();
+
+        // Find discounts with no coupon or the coupon that matches the order.
+        $availableDiscounts = [];
+        foreach ($discounts as $discount)
+        {
+            if ($discount->code == null)
+            {
+                $availableDiscounts[] = $discount;
+            }
+
+            if ($discount->code == $order->couponCode)
+            {
+                $availableDiscounts[] = $discount;
+            }
+        }
+
         $adjustments = [];
-        foreach ($discounts as $discount) {
+        foreach ($availableDiscounts as $discount) {
             if ($adjustment = $this->getAdjustment($order, $lineItems, $discount)) {
                 $adjustments[] = $adjustment;
 
