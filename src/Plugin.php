@@ -11,10 +11,12 @@ use craft\commerce\web\twig\Extension;
 use craft\elements\User as UserElement;
 use craft\enums\LicenseKeyStatus;
 use craft\events\RegisterCpAlertsEvent;
+use craft\events\RegisterCpNavItemsEvent;
 use craft\events\RegisterRichTextLinkOptionsEvent;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\fields\RichText;
-use craft\helpers\Cp;
+use craft\web\twig\variables\Cp;
+use craft\helpers\Cp as CpHelper;
 use craft\helpers\UrlHelper;
 use craft\services\Sites;
 use craft\services\UserPermissions;
@@ -112,26 +114,38 @@ class Plugin extends \craft\base\Plugin
         }
 
         $navItems = [
-            'label' => Plugin::getInstance()->name,
+            'label' => Craft::t('commerce','Commerce'),
             'url' => Plugin::getInstance()->id,
             'iconSvg' => $iconSvg,
             'subnav' => []
         ];
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageOrders')) {
-            $navItem['subnav']['orders'] = ['label' => Craft::t('commerce', 'Orders'), 'url' => 'commerce/orders'];
+            $navItems['subnav']['orders'] = [
+                'label' => Craft::t('commerce', 'Orders'),
+                'url' => 'commerce/orders'
+            ];
         }
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageProducts')) {
-            $navItem['subnav']['products'] = ['label' => Craft::t('commerce', 'Products'), 'url' => 'commerce/products'];
+            $navItems['subnav']['products'] = [
+                'label' => Craft::t('commerce', 'Products'),
+                'url' => 'commerce/products'
+            ];
         }
 
         if (Craft::$app->getUser()->checkPermission('commerce-managePromotions')) {
-            $navItem['subnav']['promotions'] = ['label' => Craft::t('commerce', 'Promotions'), 'url' => 'commerce/promotions'];
+            $navItems['subnav']['promotions'] = [
+                'label' => Craft::t('commerce', 'Promotions'),
+                'url' => 'commerce/promotions'
+            ];
         }
 
         if (Craft::$app->user->identity->admin) {
-            $navItem['subnav']['settings'] = ['label' => Craft::t('commerce', 'Settings'), 'url' => 'commerce/settings'];
+            $navItems['subnav']['settings'] = [
+                'label' => Craft::t('commerce', 'Settings'),
+                'url' => 'commerce/settings'
+            ];
         }
 
         return $navItems;
@@ -233,7 +247,7 @@ class Plugin extends \craft\base\Plugin
      */
     private function _registerCpAlerts()
     {
-        Event::on(Cp::class, Cp::EVENT_REGISTER_ALERTS, function(RegisterCpAlertsEvent $event) {
+        Event::on(CpHelper::class, CpHelper::EVENT_REGISTER_ALERTS, function(RegisterCpAlertsEvent $event) {
 
             if (Craft::$app->getRequest()->getFullPath() != 'commerce/settings/registration') {
                 $licenseKeyStatus = Craft::$app->getPlugins()->getPluginLicenseKeyStatus('Commerce');
@@ -251,7 +265,7 @@ class Plugin extends \craft\base\Plugin
                 if (isset($message)) {
                     $message .= ' ';
 
-                    if (Craft::$app->getUser()->isAdmin()) {
+                    if (Craft::$app->getUser()->identity->admin()) {
                         $message .= '<a class="go" href="'.UrlHelper::cpUrl('commerce/settings/registration').'">'.Craft::t('commerce', 'Resolve').'</a>';
                     } else {
                         $message .= Craft::t('commerce', 'Please notify one of your site’s admins.');
