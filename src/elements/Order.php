@@ -833,7 +833,7 @@ class Order extends Element
             '*' => [
                 'key' => '*',
                 'label' => Craft::t('commerce', 'All Orders'),
-                'criteria' => ['completed' => true],
+                'criteria' => ['isCompleted' => true],
                 'defaultSort' => ['dateOrdered', 'desc']
             ]
         ];
@@ -861,14 +861,14 @@ class Order extends Element
         $sources[] = [
             'key' => 'carts:active',
             'label' => Craft::t('commerce', 'Active Carts'),
-            'criteria' => ['updatedAfter' => $edge, 'isCompleted' => 'not 1'],
+            'criteria' => ['updatedAfter' => $edge->getTimestamp(), 'isCompleted' => 'not 1'],
             'defaultSort' => ['orders.dateUpdated', 'asc']
         ];
 
         $sources[] = [
             'key' => 'carts:inactive',
             'label' => Craft::t('commerce', 'Inactive Carts'),
-            'criteria' => ['updatedBefore' => $edge, 'isCompleted' => 'not 1'],
+            'criteria' => ['updatedBefore' => $edge->getTimestamp(), 'isCompleted' => 'not 1'],
             'defaultSort' => ['orders.dateUpdated', 'desc']
         ];
 
@@ -882,7 +882,7 @@ class Order extends Element
     /**
      * @return array
      */
-    public function defineAvailableTableAttributes(): array
+    public static function defineTableAttributes(): array
     {
         $attributes = [
             'number' => ['label' => Craft::t('commerce', 'Number')],
@@ -925,7 +925,7 @@ class Order extends Element
     {
         $attributes = ['number'];
 
-        if (0 !== strpos($source, 'carts:', 6)) {
+        if (0 !== strpos($source, 'carts:')) {
             $attributes[] = 'orderStatus';
             $attributes[] = 'totalPrice';
             $attributes[] = 'dateOrdered';

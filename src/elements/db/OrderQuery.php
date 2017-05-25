@@ -477,7 +477,7 @@ class OrderQuery extends ElementQuery
         }
 
         if ($this->updatedOn) {
-            $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.updatedOn', $this->updatedOn));
+            $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.dateUpdated', $this->updatedOn));
         }
 
         if ($this->expiryDate) {
@@ -485,11 +485,11 @@ class OrderQuery extends ElementQuery
         }
 
         if ($this->updatedAfter) {
-            $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.updatedAfter', $this->updatedAfter));
+            $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.dateUpdated', $this->updatedAfter));
         }
 
         if ($this->updatedBefore) {
-            $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.updatedBefore', $this->updatedBefore));
+            $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.dateUpdated', $this->updatedBefore));
         }
 
         if ($this->orderStatus) {
