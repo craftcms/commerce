@@ -53,9 +53,9 @@ class Currency extends Model
     /**
      * @return string
      */
-    function __toString()
+    public function __toString(): string
     {
-        return $this->iso;
+        return (string) $this->iso;
     }
 
 }

@@ -76,7 +76,7 @@ class PaymentsController extends BaseFrontEndController
         $originalTotalAdjustments = count($order->getAdjustments());
 
         // Set guest email address onto guest customer and order.
-        if (!is_null(Craft::$app->getRequest()->getParam('paymentCurrency'))) {
+        if (null !== Craft::$app->getRequest()->getParam('paymentCurrency')) {
             $currency = Craft::$app->getRequest()->getParam('paymentCurrency'); // empty string vs null (strict type checking)
             $error = '';
             if (!Plugin::getInstance()->getCart()->setPaymentCurrency($order, $currency, $error)) {

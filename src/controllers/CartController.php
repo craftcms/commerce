@@ -57,7 +57,7 @@ class CartController extends BaseFrontEndController
         $lineItem->note = $note;
 
         // If the options param exists, set it
-        if (!is_null(Craft::$app->getRequest()->getParam('options'))) {
+        if (null !== Craft::$app->getRequest()->getParam('options')) {
             $options = Craft::$app->getRequest()->getParam('options', []);
             ksort($options);
             $lineItem->options = $options;
@@ -148,7 +148,7 @@ class CartController extends BaseFrontEndController
 
         $updateErrors = [];
 
-        if (!is_null(Craft::$app->getRequest()->getParam('purchasableId'))) {
+        if (null !== Craft::$app->getRequest()->getParam('purchasableId')) {
             $purchasableId = Craft::$app->getRequest()->getParam('purchasableId');
             $note = Craft::$app->getRequest()->getParam('note', "");
             $options = Craft::$app->getRequest()->getParam('options', []);
@@ -165,7 +165,7 @@ class CartController extends BaseFrontEndController
         }
 
         // Set Addresses
-        if (!is_null(Craft::$app->getRequest()->getParam('shippingAddressId')) && is_numeric(Craft::$app->getRequest()->getParam('shippingAddressId'))) {
+        if (null !== Craft::$app->getRequest()->getParam('shippingAddressId') && is_numeric(Craft::$app->getRequest()->getParam('shippingAddressId'))) {
             $error = '';
             if ($shippingAddressId = Craft::$app->getRequest()->getParam('shippingAddressId')) {
                 if ($shippingAddress = Plugin::getInstance()->getAddresses()->getAddressById($shippingAddressId)) {
@@ -201,7 +201,7 @@ class CartController extends BaseFrontEndController
                     $updateErrors['shippingAddressId'] = Craft::t('commerce', 'No shipping address found with that ID.');
                 }
             };
-        } elseif (!is_null(Craft::$app->getRequest()->getParam('shippingAddress'))) {
+        } elseif (null !== Craft::$app->getRequest()->getParam('shippingAddress')) {
             $shippingAddress = new Address();
             $shippingAddress->setAttributes(Craft::$app->getRequest()->getParam('shippingAddress'));
             if (!$sameAddress) {
@@ -233,7 +233,7 @@ class CartController extends BaseFrontEndController
 
         // Set guest email address onto guest customer and order.
         if (Craft::$app->getUser()->isGuest) {
-            if (!is_null(Craft::$app->getRequest()->getParam('email'))) {
+            if (null !== Craft::$app->getRequest()->getParam('email')) {
                 $error = '';
                 $email = Craft::$app->getRequest()->getParam('email'); // empty string vs null (strict type checking)
                 if (!Plugin::getInstance()->getCart()->setEmail($cart, $email, $error)) {
@@ -245,7 +245,7 @@ class CartController extends BaseFrontEndController
         }
 
         // Set guest email address onto guest customer and order.
-        if (!is_null(Craft::$app->getRequest()->getParam('paymentCurrency'))) {
+        if (null !== Craft::$app->getRequest()->getParam('paymentCurrency')) {
             $currency = Craft::$app->getRequest()->getParam('paymentCurrency'); // empty string vs null (strict type checking)
             $error = '';
             if (!Plugin::getInstance()->getCart()->setPaymentCurrency($cart, $currency, $error)) {
@@ -256,7 +256,7 @@ class CartController extends BaseFrontEndController
         }
 
         // Set Coupon on Cart.
-        if (!is_null(Craft::$app->getRequest()->getParam('couponCode'))) {
+        if (null !== Craft::$app->getRequest()->getParam('couponCode')) {
             $error = '';
             $couponCode = Craft::$app->getRequest()->getParam('couponCode');
             if (!Plugin::getInstance()->getCart()->applyCoupon($cart, $couponCode, $error)) {
@@ -267,7 +267,7 @@ class CartController extends BaseFrontEndController
         }
 
         // Set Payment Method on Cart.
-        if (!is_null(Craft::$app->getRequest()->getParam('paymentMethodId'))) {
+        if (null !== Craft::$app->getRequest()->getParam('paymentMethodId')) {
             $error = '';
             $paymentMethodId = Craft::$app->getRequest()->getParam('paymentMethodId');
             if (!Plugin::getInstance()->getCart()->setPaymentMethod($cart, $paymentMethodId, $error)) {
@@ -278,7 +278,7 @@ class CartController extends BaseFrontEndController
         }
 
         // Set Shipping Method on Cart.
-        if (!is_null(Craft::$app->getRequest()->getParam('shippingMethod'))) {
+        if (null !== Craft::$app->getRequest()->getParam('shippingMethod')) {
             $error = '';
             $shippingMethod = Craft::$app->getRequest()->getParam('shippingMethod');
             if (!Plugin::getInstance()->getCart()->setShippingMethod($cart, $shippingMethod, $error)) {
@@ -289,7 +289,7 @@ class CartController extends BaseFrontEndController
         }
 
         // If they had fields in the post data, but nothing else made the cart save, save the custom fields manually.
-        if (!is_null(Craft::$app->getRequest()->getParam('fields')) && !$cartSaved) {
+        if (null !== Craft::$app->getRequest()->getParam('fields') && !$cartSaved) {
             Plugin::getInstance()->getOrders()->saveOrder($cart);
         }
 

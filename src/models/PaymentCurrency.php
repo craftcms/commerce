@@ -55,15 +55,15 @@ class PaymentCurrency extends Model
     /**
      * @return string
      */
-    function __toString()
+    public function __toString(): string
     {
-        return $this->iso;
+        return (string) $this->iso;
     }
 
     /**
      * @inheritdoc
      */
-    function fields()
+    public function fields(): array
     {
         $fields = parent::fields();
         $fields['minorUnits'] = function($model) {

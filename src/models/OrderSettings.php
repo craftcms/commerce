@@ -50,10 +50,9 @@ class OrderSettings extends Model
     /**
      * @return null|string
      */
-    function __toString()
+    public function __toString(): string
     {
-
-        return $this->handle;
+        return (string) $this->handle;
     }
 
     /**

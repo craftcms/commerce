@@ -36,11 +36,11 @@ class Product
             $product->enabled = $data['enabled'];
         }
 
-        $product->postDate = (($postDate = $data['postDate']) ? \DateTime::createFromString($postDate, Craft::$app->getTimezone()) : $product->postDate);
+        $product->postDate = (($postDate = $data['postDate']) ? \DateTime::createFromString($postDate, Craft::$app->getTimeZone()) : $product->postDate);
         if (!$product->postDate) {
             $product->postDate = new \DateTime();
         }
-        $product->expiryDate = (($expiryDate = $data['expiryDate']) ? \DateTime::createFromString($expiryDate, Craft::$app->getTimezone()) : null);
+        $product->expiryDate = (($expiryDate = $data['expiryDate']) ? \DateTime::createFromString($expiryDate, Craft::$app->getTimeZone()) : null);
 
         $product->promotable = $data['promotable'];
         $product->freeShipping = $data['freeShipping'];

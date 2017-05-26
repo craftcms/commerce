@@ -43,7 +43,7 @@ class Install extends Migration
 
     public function safeUp()
     {
-        $this->driver = Craft::$app->getConfig()->getDB()->driver;
+        $this->driver = Craft::$app->getConfig()->getDb()->driver;
         $this->createTables();
         $this->createIndexes();
         $this->addForeignKeys();

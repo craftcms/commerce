@@ -7,6 +7,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
 use craft\db\Query;
+use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use yii\base\Component;
 use yii\base\Event;
@@ -50,11 +51,9 @@ class Cart extends Component
         $isNewLineItem = false;
 
         //saving current cart if it's new and empty
-        if (!$order->id) {
-            if (!Plugin::getInstance()->getOrders()->saveOrder($order)) {
-                Db::rollbackStackedTransaction();
-                throw new Exception(Craft::t('commerce', 'commerce', 'Error on creating empty cart'));
-            }
+        if (!$order->id && !Plugin::getInstance()->getOrders()->saveOrder($order)) {
+            Db::rollbackStackedTransaction();
+            throw new Exception(Craft::t('commerce', 'commerce', 'Error on creating empty cart'));
         }
 
         //filling item model

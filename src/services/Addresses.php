@@ -122,10 +122,8 @@ class Addresses extends Component
         $state = Plugin::getInstance()->getStates()->getStateById($addressRecord->stateId);
 
         // Check country’s stateRequired option
-        if ($country) {
-            if ($country->stateRequired && (!$state || ($state && $state->countryId !== $country->id))) {
+        if ($country && $country->stateRequired && (!$state || ($state && $state->countryId !== $country->id))) {
                 $addressModel->addError('stateId', Craft::t('commerce', 'commerce', 'commerce', 'Country requires a related state selected.'));
-            }
         }
 
         if ($validate) {

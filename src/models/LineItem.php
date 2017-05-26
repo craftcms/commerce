@@ -334,7 +334,7 @@ class LineItem extends Model
         ];
 
         // Add our purchasable data to the snapshot, save our sales.
-        $this->snapshot = array_merge($purchasable->getSnapShot(), $snapshot);
+        $this->snapshot = array_merge($purchasable->getSnapshot(), $snapshot);
 
         $purchasable->populateLineItem($this);
 
@@ -354,7 +354,7 @@ class LineItem extends Model
      */
     public function getOnSale()
     {
-        return is_null($this->salePrice) ? false : ($this->salePrice != $this->price);
+        return null === $this->salePrice ? false : ($this->salePrice != $this->price);
     }
 
     /**
