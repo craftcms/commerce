@@ -1,7 +1,8 @@
 Commerce Changelog
 ==================
 
-## Unreleased
+## 1.2.1342 - 2017-05-24
+
 ### Added
 - Added support for Worldpay's new `v1` API.
 
