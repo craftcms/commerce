@@ -203,9 +203,7 @@ class Tax implements AdjusterInterface
     private function validateVatNumber($businessVatId)
     {
         try {
-            $result = $this->getVatValidator()->checkNumber($businessVatId);
-
-            return $result;
+            return $this->getVatValidator()->checkNumber($businessVatId);
         } catch (\Exception $e) {
             Craft::error("Communication with VAT API failed: ".$e->getMessage(), __METHOD__);
 

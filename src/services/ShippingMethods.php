@@ -94,9 +94,7 @@ class ShippingMethods extends Component
     {
         $records = ShippingMethodRecord::findAll();
 
-        $methods = ShippingMethod::populateModels($records);
-
-        return $methods;
+        return ShippingMethod::populateModels($records);s̄;
     }
 
     /**

@@ -366,9 +366,7 @@ class Cart extends Component
      */
     private function _uniqueCartNumber(): string
     {
-        $cartNumber = md5(uniqid(mt_rand(), true));
-
-        return $cartNumber;
+        return md5(uniqid(mt_rand(), true));
     }
 
     /**

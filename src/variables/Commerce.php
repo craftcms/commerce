@@ -270,9 +270,7 @@ class Commerce
      */
     public function getDiscounts()
     {
-        $discounts = Plugin::getInstance()->getDiscounts()->getAllDiscounts();
-
-        return $discounts;
+        return Plugin::getInstance()->getDiscounts()->getAllDiscounts();
     }
 
     /**
@@ -282,9 +280,7 @@ class Commerce
      */
     public function getDiscountByCode($code)
     {
-        $discount = Plugin::getInstance()->getDiscounts()->getDiscountByCode($code);
-
-        return $discount;
+        return Plugin::getInstance()->getDiscounts()->getDiscountByCode($code);
     }
 
     /**
@@ -292,9 +288,7 @@ class Commerce
      */
     public function getSales()
     {
-        $sales = Plugin::getInstance()->getSales()->getAllSales();
-
-        return $sales;
+        return Plugin::getInstance()->getSales()->getAllSales();
     }
 
     /**
@@ -312,9 +306,7 @@ class Commerce
      */
     public function getCurrencies()
     {
-        $currencies = Plugin::getInstance()->getCurrencies()->getAllCurrencies();
-
-        return $currencies;
+        return Plugin::getInstance()->getCurrencies()->getAllCurrencies();
     }
 
     // Private Methods
