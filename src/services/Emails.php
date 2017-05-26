@@ -89,9 +89,9 @@ class Emails extends Component
             $model->id = $record->id;
 
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -255,25 +255,25 @@ class Emails extends Component
             $templatesService->setTemplateMode($oldTemplateMode);
 
             return;
-        } else {
-            try {
+        }
 
-                $body = $templatesService->render($templatePath, $renderVariables);
-                $newEmail->setHtmlBody($body);
-                $newEmail->setTextBody($body);
-            } catch (\Exception $e) {
-                $error = Craft::t('commerce', 'Email template parse error for email “{email}”. Order: “{order}”. Template error: “{message}”', [
-                    'email' => $email->name,
-                    'order' => $order->getShortNumber(),
-                    'message' => $e->getMessage()
-                ]);
-                Craft::error($error, __METHOD__);
+        try {
 
-                Craft::$app->language = $originalLanguage;
-                $templatesService->setTemplateMode($oldTemplateMode);
+            $body = $templatesService->render($templatePath, $renderVariables);
+            $newEmail->setHtmlBody($body);
+            $newEmail->setTextBody($body);
+        } catch (\Exception $e) {
+            $error = Craft::t('commerce', 'Email template parse error for email “{email}”. Order: “{order}”. Template error: “{message}”', [
+                'email' => $email->name,
+                'order' => $order->getShortNumber(),
+                'message' => $e->getMessage()
+            ]);
+            Craft::error($error, __METHOD__);
 
-                return;
-            }
+            Craft::$app->language = $originalLanguage;
+            $templatesService->setTemplateMode($oldTemplateMode);
+
+            return;
         }
 
         Craft::$app->getPlugins()->callFirst('commerce_modifyEmail', [&$newEmail, $order]);

@@ -120,9 +120,8 @@ class OrderHistories extends Component
             $model->dateCreated = $record->dateCreated;
 
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     /**

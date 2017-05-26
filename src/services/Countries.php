@@ -100,17 +100,17 @@ class Countries extends Component
         $record->validate();
         $model->addErrors($record->getErrors());
 
-        if (!$model->hasErrors()) {
-            // Save it!
-            $record->save(false);
-
-            // Now that we have a record ID, save it on the model
-            $model->id = $record->id;
-
-            return true;
-        } else {
+        if ($model->hasErrors()) {
             return false;
         }
+
+        // Save it!
+        $record->save(false);
+
+        // Now that we have a record ID, save it on the model
+        $model->id = $record->id;
+
+        return true;
     }
 
     /**

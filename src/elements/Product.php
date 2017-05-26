@@ -284,13 +284,13 @@ class Product extends Element
 
             if ($postDate <= $currentTime && (!$expiryDate || $expiryDate > $currentTime)) {
                 return static::LIVE;
-            } else {
-                if ($postDate > $currentTime) {
-                    return static::PENDING;
-                } else {
-                    return static::EXPIRED;
-                }
             }
+
+            if ($postDate > $currentTime) {
+                return static::PENDING;
+            }
+
+            return static::EXPIRED;
         }
 
         return $status;
@@ -599,18 +599,18 @@ class Product extends Element
             case 'defaultWeight': {
                 if ($productType->hasDimensions) {
                     return craft()->numberFormatter->formatDecimal($this->$attribute)." ".Plugin::getInstance()->getSettings()->getSettings()->weightUnits;
-                } else {
-                    return "";
                 }
+
+                return '';
             }
             case 'defaultLength':
             case 'defaultWidth':
             case 'defaultHeight': {
                 if ($productType->hasDimensions) {
                     return craft()->numberFormatter->formatDecimal($this->$attribute)." ".Plugin::getInstance()->getSettings()->getSettings()->dimensionUnits;
-                } else {
-                    return "";
                 }
+
+            return '';
             }
             case 'promotable':
             case 'freeShipping': {

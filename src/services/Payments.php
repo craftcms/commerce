@@ -427,11 +427,11 @@ class Payments extends Component
 
         if ($transaction->status == TransactionRecord::STATUS_SUCCESS) {
             return true;
-        } else {
-            $customError = $transaction->message;
-
-            return false;
         }
+
+        $customError = $transaction->message;
+        return false;
+
     }
 
     /**

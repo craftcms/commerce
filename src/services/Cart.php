@@ -165,9 +165,9 @@ class Cart extends Component
             Plugin::getInstance()->getOrders()->saveOrder($cart);
 
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -404,34 +404,33 @@ class Cart extends Component
 
         if (!$event->performAction) {
             return false;
-        } else {
-
-            $db = Craft::$app->getDb();
-            $transaction = $db->beginTransaction();
-
-            try {
-                $lineItems = $cart->getLineItems();
-                foreach ($lineItems as $key => $item) {
-                    if ($item->id == $lineItem->id) {
-                        unset($lineItems[$key]);
-                        $cart->setLineItems($lineItems);
-                    }
-                }
-                Plugin::getInstance()->getLineItems()->deleteLineItem($lineItem);
-                Plugin::getInstance()->getOrders()->saveOrder($cart);
-
-                //raising event
-                $event = new Event($this, ['lineItemId' => $lineItemId, 'order' => $cart]);
-                $this->onRemoveFromCart($event);
-            } catch (\Exception $e) {
-                Db::rollbackStackedTransaction();
-                Craft::error($e->getMessage(), 'commerce');
-
-                return false;
-            }
-
-            $transaction->commit();
         }
+
+        $db = Craft::$app->getDb();
+        $transaction = $db->beginTransaction();
+
+        try {
+            $lineItems = $cart->getLineItems();
+            foreach ($lineItems as $key => $item) {
+                if ($item->id == $lineItem->id) {
+                    unset($lineItems[$key]);
+                    $cart->setLineItems($lineItems);
+                }
+            }
+            Plugin::getInstance()->getLineItems()->deleteLineItem($lineItem);
+            Plugin::getInstance()->getOrders()->saveOrder($cart);
+
+            //raising event
+            $event = new Event($this, ['lineItemId' => $lineItemId, 'order' => $cart]);
+            $this->onRemoveFromCart($event);
+        } catch (\Exception $e) {
+            Db::rollbackStackedTransaction();
+            Craft::error($e->getMessage(), 'commerce');
+
+            return false;
+        }
+
+        $transaction->commit();
 
         return true;
     }

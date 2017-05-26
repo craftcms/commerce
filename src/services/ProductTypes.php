@@ -591,9 +591,9 @@ class ProductTypes extends Component
             }
 
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -652,13 +652,13 @@ class ProductTypes extends Component
     public function getProductTypeById($productTypeId)
     {
 
-        if (!$this->_fetchedAllProductTypes && (null === $this->_productTypesById) || !array_key_exists($productTypeId, $this->_productTypesById))) {
+        if (!$this->_fetchedAllProductTypes && ((null === $this->_productTypesById) || !array_key_exists($productTypeId, $this->_productTypesById))) {
             $result = $this->_createProductTypeQuery()
                 ->where('id = :id', [':id' => $productTypeId])
                 ->one();
 
             if ($result) {
-                $productType = ProductType::populateModel($result);
+                $productType = new ProductType($result);
             } else {
                 $productType = null;
             }

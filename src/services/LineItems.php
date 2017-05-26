@@ -103,12 +103,12 @@ class LineItems extends Component
             Plugin::getInstance()->getOrders()->saveOrder($order);
 
             return true;
-        } else {
-            $errors = $lineItem->getAllErrors();
-            $error = array_pop($errors);
-
-            return false;
         }
+
+        $errors = $lineItem->getAllErrors();
+        $error = array_pop($errors);
+
+        return false;
     }
 
     /**

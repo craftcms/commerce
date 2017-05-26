@@ -187,8 +187,8 @@ class Discount implements AdjusterInterface
             $adjustment->amount = $amount + ($shippingRemoved * -1);
 
             return $adjustment;
-        } else {
-            return false;
         }
+
+        return false;
     }
 }

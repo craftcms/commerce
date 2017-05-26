@@ -149,9 +149,9 @@ class Addresses extends Component
             $this->onSaveAddress($event);
 
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     public function onBeforeSaveAddress(Event $event)

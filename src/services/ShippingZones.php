@@ -155,9 +155,9 @@ class ShippingZones extends Component
             }
 
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**

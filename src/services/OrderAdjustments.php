@@ -84,9 +84,9 @@ class OrderAdjustments extends Component
             $model->id = $record->id;
 
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     // Private Methods

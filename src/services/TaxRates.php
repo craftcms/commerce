@@ -127,9 +127,9 @@ class TaxRates extends Component
             $model->id = $record->id;
 
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**

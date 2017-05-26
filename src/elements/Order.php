@@ -312,9 +312,9 @@ class Order extends Element
         // Still a cart, allow full editing.
         if (!$this->isCompleted) {
             return true;
-        } else {
-            return Craft::$app->getUser()->checkPermission('commerce-manageOrders');
         }
+
+        return Craft::$app->getUser()->checkPermission('commerce-manageOrders');
     }
 
     /**
@@ -950,51 +950,51 @@ class Order extends Element
             case 'orderStatus': {
                 if ($this->orderStatus) {
                     return $this->orderStatus->htmlLabel();
-                } else {
-                    return '<span class="status"></span>';
                 }
+
+                return '<span class="status"></span>';
             }
             case 'shippingFullName': {
                 if ($this->shippingAddress) {
                     return $this->shippingAddress->getFullName();
-                } else {
-                    return "";
                 }
+
+                return '';
             }
             case 'billingFullName': {
                 if ($this->billingAddress) {
                     return $this->billingAddress->getFullName();
-                } else {
-                    return "";
                 }
+
+                return '';
             }
             case 'shippingBusinessName': {
                 if ($this->shippingAddress) {
                     return $this->shippingAddress->businessName;
-                } else {
-                    return "";
                 }
+
+                return '';
             }
             case 'billingBusinessName': {
                 if ($this->billingAddress) {
                     return $this->billingAddress->businessName;
-                } else {
-                    return "";
                 }
+
+                return '';
             }
             case 'shippingMethodName': {
                 if ($this->shippingMethod) {
                     return $this->shippingMethod->getName();
-                } else {
-                    return "";
                 }
+
+                return '';
             }
             case 'paymentMethodName': {
                 if ($this->paymentMethod) {
                     return $this->paymentMethod->name;
-                } else {
-                    return "";
                 }
+
+                return '';
             }
             case 'totalPaid':
             case 'totalPrice':
@@ -1002,14 +1002,14 @@ class Order extends Element
             case 'totalDiscount': {
 
                 if ($this->$attribute == 0) {
-                    return "";
+                    return '';
                 }
 
                 if ($this->$attribute > 0) {
                     return craft()->numberFormatter->formatCurrency($this->$attribute, $this->currency);
-                } else {
-                    return craft()->numberFormatter->formatCurrency($this->$attribute * -1, $this->currency);
                 }
+
+                return craft()->numberFormatter->formatCurrency($this->$attribute * -1, $this->currency);
             }
             default: {
                 return parent::tableAttributeHtml($attribute);

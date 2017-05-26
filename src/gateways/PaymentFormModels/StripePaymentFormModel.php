@@ -27,8 +27,8 @@ class StripePaymentFormModel extends CreditCardPaymentFormModel
     {
         if (empty($this->token)) {
             return parent::rules();
-        } else {
-            return [];
         }
+
+        return [];
     }
 }

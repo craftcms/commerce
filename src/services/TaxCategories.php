@@ -214,9 +214,9 @@ class TaxCategories extends Component
             }
 
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**

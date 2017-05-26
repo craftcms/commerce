@@ -159,9 +159,9 @@ class TaxZones extends Component
             }
 
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
