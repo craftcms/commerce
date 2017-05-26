@@ -262,7 +262,7 @@ class Plugin extends \craft\base\Plugin
                     $message = Craft::t('commerce', 'Your Commerce license key is being used on another Craft install.');
                 }
 
-                if (isset($message)) {
+                if (null !== $message) {
                     $message .= ' ';
 
                     if (Craft::$app->getUser()->identity->admin()) {

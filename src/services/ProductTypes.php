@@ -80,7 +80,7 @@ class ProductTypes extends Component
      */
     public function getEditableProductTypeIds()
     {
-        if (!isset($this->_editableProductTypeIds)) {
+        if (null === $this->_editableProductTypeIds) {
             $this->_editableProductTypeIds = [];
 
             foreach ($this->getAllProductTypeIds() as $productTypeId) {
@@ -100,7 +100,7 @@ class ProductTypes extends Component
      */
     public function getAllProductTypeIds()
     {
-        if (!isset($this->_allProductTypeIds)) {
+        if (null === $this->_allProductTypeIds) {
             $this->_allProductTypeIds = [];
 
             foreach ($this->getAllProductTypes() as $productType) {
@@ -123,7 +123,7 @@ class ProductTypes extends Component
         if (!$this->_fetchedAllProductTypes) {
             $results = $this->_createProductTypeQuery()->all();
 
-            if (!isset($this->_productTypesById)) {
+            if (null === $this->_productTypesById) {
                 $this->_productTypesById = [];
             }
 
@@ -652,7 +652,7 @@ class ProductTypes extends Component
     public function getProductTypeById($productTypeId)
     {
 
-        if (!$this->_fetchedAllProductTypes && (!isset($this->_productTypesById) || !array_key_exists($productTypeId, $this->_productTypesById))) {
+        if (!$this->_fetchedAllProductTypes && (null === $this->_productTypesById) || !array_key_exists($productTypeId, $this->_productTypesById))) {
             $result = $this->_createProductTypeQuery()
                 ->where('id = :id', [':id' => $productTypeId])
                 ->one();

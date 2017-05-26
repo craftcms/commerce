@@ -42,7 +42,7 @@ class TaxCategories extends Component
     public function getTaxCategoryById($taxCategoryId)
     {
         if (!$this->_fetchedAllTaxCategories &&
-            (!isset($this->_taxCategoriesById) || !array_key_exists($taxCategoryId, $this->_taxCategoriesById))
+            (null === $this->_taxCategoriesById || !array_key_exists($taxCategoryId, $this->_taxCategoriesById))
         ) {
             $result = TaxCategoryRecord::findOne($taxCategoryId);
 
@@ -96,7 +96,7 @@ class TaxCategories extends Component
     public function getTaxCategoryByHandle($taxCategoryHandle)
     {
         if (!$this->_fetchedAllTaxCategories &&
-            (!isset($this->_taxCategoriesByHandle) || !array_key_exists($taxCategoryHandle, $this->_taxCategoriesByHandle))
+            (null === $this->_taxCategoriesByHandle || !array_key_exists($taxCategoryHandle, $this->_taxCategoriesByHandle))
         ) {
             $result = TaxCategoryRecord::find()->where([
                 'handle' => $taxCategoryHandle
@@ -209,7 +209,7 @@ class TaxCategories extends Component
             // Update Service cache
             $this->_memoizeTaxCategory($model);
 
-            if (isset($oldHandle) && $model->handle != $oldHandle) {
+            if (null !== $oldHandle && $model->handle != $oldHandle) {
                 unset($this->_taxCategoriesByHandle[$oldHandle]);
             }
 

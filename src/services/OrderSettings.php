@@ -32,7 +32,7 @@ class OrderSettings extends Component
      */
     public function getOrderSettingById($orderSettingsId)
     {
-        if (!isset($this->_orderSettingsById) || !array_key_exists($orderSettingsId, $this->_orderSettingsById)) {
+        if (null === $this->_orderSettingsById || !array_key_exists($orderSettingsId, $this->_orderSettingsById)) {
             $result = OrderSettingsRecord::findOne($orderSettingsId);
 
             if ($result) {

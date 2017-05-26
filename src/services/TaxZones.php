@@ -189,7 +189,7 @@ class TaxZones extends Component
      */
     public function getCountriesByTaxZoneId($taxZoneId)
     {
-        if (!isset($this->_countriesByTaxZoneId) || !array_key_exists($taxZoneId, $this->_countriesByTaxZoneId)) {
+        if (null === $this->_countriesByTaxZoneId || !array_key_exists($taxZoneId, $this->_countriesByTaxZoneId)) {
 
             $results = TaxZoneCountryRecord::find()->with('country')->where([
                 'taxZoneId' => $taxZoneId
@@ -216,7 +216,7 @@ class TaxZones extends Component
      */
     public function getStatesByTaxZoneId($taxZoneId)
     {
-        if (!isset($this->_statesByTaxZoneId) || !array_key_exists($taxZoneId, $this->_statesByTaxZoneId)) {
+        if (null === $this->_statesByTaxZoneId || !array_key_exists($taxZoneId, $this->_statesByTaxZoneId)) {
 
             $results = TaxZoneStateRecord::find()->with('state')->where([
                 'taxZoneId' => $taxZoneId

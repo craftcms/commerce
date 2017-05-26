@@ -42,7 +42,7 @@ class ShippingCategories extends Component
     public function getShippingCategoryById($shippingCategoryId)
     {
         if (!$this->_fetchedAllShippingCategories &&
-            (!isset($this->_shippingCategoriesById) || !array_key_exists($shippingCategoryId, $this->_shippingCategoriesById))
+            (null === $this->_shippingCategoriesById || !array_key_exists($shippingCategoryId, $this->_shippingCategoriesById))
         ) {
             $result = ShippingCategoryRecord::findOne($shippingCategoryId);
 
@@ -96,7 +96,7 @@ class ShippingCategories extends Component
     public function getShippingCategoryByHandle($shippingCategoryHandle)
     {
         if (!$this->_fetchedAllShippingCategories &&
-            (!isset($this->_shippingCategoriesByHandle) || !array_key_exists($shippingCategoryHandle, $this->_shippingCategoriesByHandle))
+            (null === $this->_shippingCategoriesByHandle || !array_key_exists($shippingCategoryHandle, $this->_shippingCategoriesByHandle))
         ) {
             $result = ShippingCategoryRecord::find()->where([
                 'handle' => $shippingCategoryHandle
@@ -209,7 +209,7 @@ class ShippingCategories extends Component
             // Update Service cache
             $this->_memoizeShippingCategory($model);
 
-            if (isset($oldHandle) && $model->handle != $oldHandle) {
+            if (null !== $oldHandle && $model->handle != $oldHandle) {
                 unset($this->_shippingCategoriesByHandle[$oldHandle]);
             }
 

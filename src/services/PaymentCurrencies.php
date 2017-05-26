@@ -44,7 +44,7 @@ class PaymentCurrencies extends Component
      */
     public function getAllPaymentCurrencies()
     {
-        if (!isset($this->_allCurrencies)) {
+        if (null === $this->_allCurrencies) {
             $schema = Craft::$app->getDb()->schema;
             $records = PaymentCurrencyRecord::find()->orderBy(
                 new Expression('('.$schema->quoteColumnName('primary').' = 1) desc, '.$schema->quoteColumnName('iso'))

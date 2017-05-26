@@ -181,7 +181,7 @@ class ShippingZones extends Component
      */
     public function getCountriesByShippingZoneId($shippingZoneId)
     {
-        if (!isset($this->_countriesByShippingZoneId) || !array_key_exists($shippingZoneId, $this->_countriesByShippingZoneId)) {
+        if (null === $this->_countriesByShippingZoneId || !array_key_exists($shippingZoneId, $this->_countriesByShippingZoneId)) {
 
             $results = ShippingZoneCountryRecord::find()->with('country')->where([
                 'shippingZoneId' => $shippingZoneId
@@ -208,7 +208,7 @@ class ShippingZones extends Component
      */
     public function getStatesByShippingZoneId($shippingZoneId)
     {
-        if (!isset($this->_statesByShippingZoneId) || !array_key_exists($shippingZoneId, $this->_statesByShippingZoneId)) {
+        if (null === $this->_statesByShippingZoneId || !array_key_exists($shippingZoneId, $this->_statesByShippingZoneId)) {
 
             $results = ShippingZoneStateRecord::find()->with('state')->where([
                 'shippingZoneId' => $shippingZoneId

@@ -161,7 +161,7 @@ class ProductType extends Model
      */
     public function getLocales()
     {
-        if (!isset($this->_locales)) {
+        if (null === $this->_locales) {
             if ($this->id) {
                 $locales = Plugin::getInstance()->getProductTypes()->getProductTypeLocales($this->id);
                 $this->_locales = [];

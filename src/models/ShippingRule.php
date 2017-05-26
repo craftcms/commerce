@@ -272,7 +272,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
      */
     public function getShippingRuleCategories()
     {
-        if (!isset($this->_shippingRuleCategories)) {
+        if (null === $this->_shippingRuleCategories) {
             $this->_shippingRuleCategories = Plugin::getInstance()->getShippingRules()->getShippingRuleCategoryByRuleId($this->id);
         }
 

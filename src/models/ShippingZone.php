@@ -85,7 +85,7 @@ class ShippingZone extends Model
      */
     public function getCountries()
     {
-        if (!isset($this->_countries)) {
+        if (null === $this->_countries) {
             $this->_countries = Plugin::getInstance()->getShippingZones()->getCountriesByShippingZoneId($this->id);;
         }
 

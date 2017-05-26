@@ -90,7 +90,7 @@ class PaymentCurrency extends Model
      */
     public function getAlphabeticCode()
     {
-        if (isset($this->_currency)) {
+        if (null !== $this->_currency) {
             return $this->_currency->alphabeticCode;
         }
     }
@@ -100,7 +100,7 @@ class PaymentCurrency extends Model
      */
     public function getNumericCode()
     {
-        if (isset($this->_currency)) {
+        if (null !== $this->_currency) {
             return $this->_currency->numericCode;
         }
     }
@@ -110,7 +110,7 @@ class PaymentCurrency extends Model
      */
     public function getEntity()
     {
-        if (isset($this->_currency)) {
+        if (null !== $this->_currency) {
             return $this->_currency->entity;
         }
     }
@@ -120,7 +120,7 @@ class PaymentCurrency extends Model
      */
     public function getMinorUnit()
     {
-        if (isset($this->_currency)) {
+        if (null !== $this->_currency) {
             return $this->_currency->minorUnit;
         }
     }
@@ -140,7 +140,7 @@ class PaymentCurrency extends Model
      */
     public function getCurrency()
     {
-        if (isset($this->_currency)) {
+        if (null !== $this->_currency) {
             return $this->_currency->currency;
         }
     }

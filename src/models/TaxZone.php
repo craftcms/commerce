@@ -96,7 +96,7 @@ class TaxZone extends Model
      */
     public function getCountries()
     {
-        if (!isset($this->_countries)) {
+        if (null === $this->_countries) {
             $this->_countries = Plugin::getInstance()->getTaxZones()->getCountriesByTaxZoneId($this->id);;
         }
 
@@ -135,7 +135,7 @@ class TaxZone extends Model
      */
     public function getStates()
     {
-        if (!isset($this->_states)) {
+        if (null === $this->_states) {
             $this->_states = Plugin::getInstance()->getTaxZones()->getStatesByTaxZoneId($this->id);
         }
 

@@ -51,7 +51,7 @@ class Sales extends Component
      */
     public function getAllSales()
     {
-        if (!isset($this->_allSales)) {
+        if (null === $this->_allSales) {
             $sales = Craft::$app->getDb()->createCommand()
                 ->select('sales.id,
                 sales.name,
@@ -141,7 +141,7 @@ class Sales extends Component
 
     private function _getAllActiveSales()
     {
-        if (!isset($this->_allActiveSales)) {
+        if (null === $this->_allActiveSales) {
             $sales = $this->getAllSales();
             $activeSales = [];
             foreach ($sales as $sale) {

@@ -27,7 +27,7 @@ class Gateways extends Component
      */
     public function getAllGateways()
     {
-        if (!isset($this->_gateways)) {
+        if (null === $this->_gateways) {
             $this->_gateways = $this->_getGateways();
         }
 

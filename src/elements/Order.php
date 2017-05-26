@@ -491,7 +491,7 @@ class Order extends Element
      */
     public function getLineItems()
     {
-        if (!isset($this->_lineItems)) {
+        if (null === $this->_lineItems) {
             $this->setLineItems(Plugin::getInstance()->getLineItems()->getAllLineItemsByOrderId($this->id));
         }
 
@@ -682,7 +682,7 @@ class Order extends Element
      */
     public function getShippingAddress()
     {
-        if (!isset($this->_shippingAddress)) {
+        if (null === $this->_shippingAddress) {
             $this->_shippingAddress = Plugin::getInstance()->getAddresses()->getAddressById($this->shippingAddressId);
         }
 
@@ -702,7 +702,7 @@ class Order extends Element
      */
     public function getBillingAddress()
     {
-        if (!isset($this->_billingAddress)) {
+        if (null === $this->_billingAddress) {
             $this->_billingAddress = Plugin::getInstance()->getAddresses()->getAddressById($this->billingAddressId);
         }
 

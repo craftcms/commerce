@@ -43,7 +43,7 @@ class PaymentsController extends BaseFrontEndController
         }
 
         // Get the cart if no order number was passed.
-        if (!isset($order) && !$number) {
+        if (null === $order && !$number) {
             $order = Plugin::getInstance()->getCart()->getCart();
         }
 

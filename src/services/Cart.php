@@ -299,7 +299,7 @@ class Cart extends Component
     public function getCart()
     {
 
-        if (!isset($this->_cart)) {
+        if (null === $this->_cart) {
             $number = $this->_getSessionCartNumber();
 
             if ($this->_cart = Plugin::getInstance()->getOrders()->getOrderByNumber($number)) {

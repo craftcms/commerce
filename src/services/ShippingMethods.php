@@ -69,7 +69,7 @@ class ShippingMethods extends Component
      */
     public function getAllShippingMethods()
     {
-        if (!isset($this->_shippingMethods)) {
+        if (null === $this->_shippingMethods) {
             $methods = $this->getAllCoreShippingMethods();
 
             $additionalMethods = Craft::$app->getPlugins()->call('commerce_registerShippingMethods');

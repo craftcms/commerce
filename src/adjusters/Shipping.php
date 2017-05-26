@@ -39,7 +39,7 @@ class Shipping implements AdjusterInterface
             }
         }
 
-        if (!isset($shippingMethod)) {
+        if (null === $shippingMethod) {
             return [];
         }
 

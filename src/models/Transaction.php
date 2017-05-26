@@ -203,7 +203,7 @@ class Transaction extends Model
      */
     public function getParent()
     {
-        if (!isset($this->_parentTransaction)) {
+        if (null === $this->_parentTransaction) {
             $this->_parentTransaction = Plugin::getInstance()->getTransactions()->getTransactionById($this->parentId);
         }
 
@@ -223,7 +223,7 @@ class Transaction extends Model
      */
     public function getPaymentMethod()
     {
-        if (!isset($this->_paymentMethod)) {
+        if (null === $this->_paymentMethod) {
             $this->_paymentMethod = Plugin::getInstance()->getPaymentMethods()->getPaymentMethodById($this->paymentMethodId);
         }
 

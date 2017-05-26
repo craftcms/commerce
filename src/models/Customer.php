@@ -73,7 +73,7 @@ class Customer extends Model
      */
     public function getUser()
     {
-        if (!isset($this->_user)) {
+        if (null === $this->_user) {
             $this->_user = Craft::$app->getUsers()->getUserById($this->userId);
         }
 
