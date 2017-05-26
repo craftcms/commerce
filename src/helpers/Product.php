@@ -44,9 +44,9 @@ class Product
 
         $product->promotable = $data['promotable'];
         $product->freeShipping = $data['freeShipping'];
-        $product->taxCategoryId = $data['taxCategoryId'] ? $data['taxCategoryId'] : $product->taxCategoryId;
-        $product->shippingCategoryId = $data['shippingCategoryId'] ? $data['shippingCategoryId'] : $product->shippingCategoryId;
-        $product->slug = $data['slug'] ? $data['slug'] : $product->slug;
+        $product->taxCategoryId = $data['taxCategoryId'] ?: $product->taxCategoryId;
+        $product->shippingCategoryId = $data['shippingCategoryId'] ?: $product->shippingCategoryId;
+        $product->slug = $data['slug'] ?: $product->slug;
     }
 
     /**

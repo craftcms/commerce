@@ -164,7 +164,7 @@ class Discounts extends Component
     public function getCurrentUserGroupIds($user = null)
     {
         $groupIds = [];
-        $currentUser = $user ? $user : Craft::$app->getUser()->getUser();
+        $currentUser = $user ?: Craft::$app->getUser()->getUser();
         if ($currentUser) {
             foreach ($currentUser->getGroups() as $group) {
                 $groupIds[] = $group->id;
@@ -286,7 +286,7 @@ class Discounts extends Component
             $record->$field = $model->$field;
         }
 
-        $record->sortOrder = $model->sortOrder ? $model->sortOrder : 999;
+        $record->sortOrder = $record->sortOrder ?: 999;
         $record->code = $model->code ?: null;
 
         $record->allGroups = $model->allGroups = empty($groups);

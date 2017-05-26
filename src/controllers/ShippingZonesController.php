@@ -79,8 +79,8 @@ class ShippingZonesController extends BaseAdminController
         $shippingZone->description = Craft::$app->getRequest()->getParam('description');
         $shippingZone->countryBased = Craft::$app->getRequest()->getParam('countryBased');
         $shippingZone->countryBased = Craft::$app->getRequest()->getParam('countryBased');
-        $countryIds = Craft::$app->getRequest()->getParam('countries') ? Craft::$app->getRequest()->getParam('countries') : [];
-        $stateIds = Craft::$app->getRequest()->getParam('states') ? Craft::$app->getRequest()->getParam('states') : [];
+        $countryIds = Craft::$app->getRequest()->getParam('countries') ?: [];
+        $stateIds = Craft::$app->getRequest()->getParam('states') ?: [];
 
         $countries = [];
         foreach ($countryIds as $id) {

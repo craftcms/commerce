@@ -112,7 +112,7 @@ class OrderStatuses extends Component
         $record->name = $model->name;
         $record->handle = $model->handle;
         $record->color = $model->color;
-        $record->sortOrder = $model->sortOrder ? $model->sortOrder : 999;
+        $record->sortOrder = $model->sortOrder ?: 999;
         $record->default = $model->default;
 
         $record->validate();

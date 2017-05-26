@@ -286,7 +286,7 @@ class ProductTypes extends Component
         $productTypeRecord->hasUrls = $productType->hasUrls;
         $productTypeRecord->hasVariants = $productType->hasVariants;
         $productTypeRecord->hasVariantTitleField = $productType->hasVariantTitleField;
-        $productTypeRecord->titleFormat = $productType->titleFormat ? $productType->titleFormat : "{product.title}";
+        $productTypeRecord->titleFormat = $productType->titleFormat ?: "{product.title}";
         $productTypeRecord->skuFormat = $productType->skuFormat;
         $productTypeRecord->descriptionFormat = $productType->descriptionFormat;
         $productTypeRecord->template = $productType->template;

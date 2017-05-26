@@ -81,8 +81,8 @@ class TaxZonesController extends BaseAdminController
         $taxZone->description = Craft::$app->getRequest()->getParam('description');
         $taxZone->countryBased = Craft::$app->getRequest()->getParam('countryBased');
         $taxZone->default = Craft::$app->getRequest()->getParam('default');
-        $countryIds = Craft::$app->getRequest()->getParam('countries') ? Craft::$app->getRequest()->getParam('countries') : [];
-        $stateIds = Craft::$app->getRequest()->getParam('states') ? Craft::$app->getRequest()->getParam('states') : [];
+        $countryIds = Craft::$app->getRequest()->getParam('countries') ?: [];
+        $stateIds = Craft::$app->getRequest()->getParam('states') ?: [];
 
         $countries = [];
         foreach ($countryIds as $id) {

@@ -144,7 +144,7 @@ class Emails extends Component
 
         if ($email->recipientType == EmailRecord::TYPE_CUSTOMER) {
             // use the order's language for template rendering the email fields and body.
-            $orderLanguage = $order->orderLocale ? $order->orderLocale : $originalLanguage;
+            $orderLanguage = $order->orderLocale ?: $originalLanguage;
             Craft::$app->language = $orderLanguage;
 
             if ($order->getCustomer()) {

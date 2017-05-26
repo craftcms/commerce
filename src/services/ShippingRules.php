@@ -111,7 +111,7 @@ class ShippingRules extends Component
             $record->$field = $model->$field;
         }
 
-        $record->shippingZoneId = $model->shippingZoneId ? $model->shippingZoneId : null;
+        $record->shippingZoneId = $model->shippingZoneId ?: null;
 
         if (empty($record->priority) && empty($model->priority)) {
             $count = ShippingRuleRecord::find()->where(['methodId' => $model->methodId])->count();
