@@ -67,6 +67,12 @@ class Commerce_DownloadsController extends Commerce_BaseFrontEndController
         $dompdf = new Dompdf($options);
 
         $dompdf->loadHtml($html);
+
+        // Set the paper size/orientation
+        $size = craft()->config->get('cartCookieDuration', 'pdfPaperSize');
+        $orientation = craft()->config->get('cartCookieDuration', 'pdfPaperOrientation');
+        $dompdf->set_paper($size, $orientation);
+
         $dompdf->render();
         $dompdf->stream($fileName . ".pdf");
 

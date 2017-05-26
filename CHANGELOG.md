@@ -1,6 +1,12 @@
 Commerce Changelog
 ==================
 
+## Unreleased
+
+### Added
+- Added the [`pdfPaperSize`](https://craftcommerce.com/docs/configuration#pdfpapersize) config setting.
+- Added the [`pdfPaperOrientation`](https://craftcommerce.com/docs/configuration#pdfpaperorientation) config setting.
+
 ## 1.2.1342 - 2017-05-24
 
 ### Added
