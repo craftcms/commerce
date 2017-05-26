@@ -69,8 +69,8 @@ class Commerce_DownloadsController extends Commerce_BaseFrontEndController
         $dompdf->loadHtml($html);
 
         // Set the paper size/orientation
-        $size = craft()->config->get('cartCookieDuration', 'pdfPaperSize');
-        $orientation = craft()->config->get('cartCookieDuration', 'pdfPaperOrientation');
+        $size = craft()->config->get('pdfPaperSize', 'commerce');
+        $orientation = craft()->config->get('pdfPaperOrientation', 'commerce');
         $dompdf->set_paper($size, $orientation);
 
         $dompdf->render();
