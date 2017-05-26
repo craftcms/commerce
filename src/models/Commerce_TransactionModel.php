@@ -51,6 +51,10 @@ class Commerce_TransactionModel extends BaseModel
      */
     private $_parentTransaction;
 
+    /*
+     * @var Commerce_OrderModel|null
+     */
+    private $_order;
 
     /**
      * @param null $attributes
@@ -151,7 +155,21 @@ class Commerce_TransactionModel extends BaseModel
      */
     public function getOrder()
     {
-        return craft()->commerce_orders->getOrderById($this->orderId);
+        if ($this->_order === null)
+        {
+            $this->_order = craft()->commerce_orders->getOrderById($this->orderId);
+        }
+
+        return $this->_order;
+    }
+
+    /**
+     * @param Commerce_OrderModel $order
+     */
+    public function setOrder(Commerce_OrderModel $order)
+    {
+        $this->_order = $order;
+        $this->orderId = $order->id;
     }
 
     /**

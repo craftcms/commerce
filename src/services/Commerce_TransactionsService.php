@@ -83,9 +83,9 @@ class Commerce_TransactionsService extends BaseApplicationComponent
         $paymentAmount = $order->outstandingBalance() * $paymentCurrency->rate;
 
         $transaction = new Commerce_TransactionModel;
+        $transaction->setOrder($order);
         $transaction->status = Commerce_TransactionRecord::STATUS_PENDING;
         $transaction->amount = $order->outstandingBalance();
-        $transaction->orderId = $order->id;
         $transaction->currency = $currency->iso;
         $transaction->paymentAmount = CommerceCurrencyHelper::round($paymentAmount, $paymentCurrency);
         $transaction->paymentCurrency = $paymentCurrency->iso;
