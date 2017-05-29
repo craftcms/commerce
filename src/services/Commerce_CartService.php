@@ -38,16 +38,16 @@ class Commerce_CartService extends BaseApplicationComponent
         $isNewLineItem = false;
 
         //saving current cart if it's new and empty
-        if (!$order->id)
+        if (!$order->id && !craft()->commerce_orders->saveOrder($order))
         {
-            if (!craft()->commerce_orders->saveOrder($order))
+            if ($transaction !== null)
             {
-                if ($transaction !== null)
-                {
-                    $transaction->rollback();
-                }
-                throw new Exception(Craft::t('Error on creating empty cart'));
+                $transaction->rollback();
             }
+
+            $error = Craft::t('Could not save the cart.');
+
+            return false;
         }
 
         //filling item model
@@ -232,7 +232,7 @@ class Commerce_CartService extends BaseApplicationComponent
      * @throws Exception
      * @throws \Exception
      */
-    public function setPaymentCurrency($order, $currency, $error)
+    public function setPaymentCurrency($order, $currency, &$error = '')
     {
         $currency = craft()->commerce_paymentCurrencies->getPaymentCurrencyByIso($currency);
 
@@ -264,7 +264,7 @@ class Commerce_CartService extends BaseApplicationComponent
      * @throws Exception
      * @throws \Exception
      */
-    public function setShippingMethod(Commerce_OrderModel $cart, $shippingMethod, &$error = "")
+    public function setShippingMethod(Commerce_OrderModel $cart, $shippingMethod, &$error = '')
     {
         $methods = craft()->commerce_shippingMethods->getAvailableShippingMethods($cart);
 
