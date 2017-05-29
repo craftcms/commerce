@@ -247,11 +247,9 @@ class Commerce_CartController extends Commerce_BaseFrontEndController
             $shippingAddress->setAttributes(craft()->request->getParam('shippingAddress'));
             if (!$sameAddress)
             {
-                if ($billingAddressId = craft()->request->getParam('billingAddressId'))
-                {
-                    $billingAddress = craft()->commerce_addresses->getAddressById($billingAddressId);
-                }
-                else
+                $billingAddressId = craft()->request->getParam('billingAddressId');
+                $billingAddress = craft()->commerce_addresses->getAddressById($billingAddressId);
+                if (!$billingAddress)   
                 {
                     $billingAddress = new Commerce_AddressModel();
                     $billingAddress->setAttributes(craft()->request->getParam('billingAddress'));
