@@ -26,6 +26,55 @@ use craft\commerce\base\Model;
  */
 class PaymentCurrency extends Model
 {
+    // Properties
+    // =========================================================================
+
+    /**
+     * @var int ID
+     */
+    public $id;
+
+    /**
+     * @var string ISO code
+     */
+    public $iso;
+
+    /**
+     * @var bool Is primary currency
+     */
+    public $primary;
+
+    /**
+     * @var float Exchange rate vs primary currency
+     */
+    public $rate;
+
+    /**
+     * @var string Currency alphabetic code
+     */
+    public $alphabeticCode;
+
+    /**
+     * @var string Currency
+     */
+    public $currency;
+
+    /**
+     * @var string Entity
+     */
+    public $entity;
+
+    /**
+     * @var int Number of digits after the decimal separator
+     */
+    public $minorUnit;
+
+    /**
+     * @var int Currency's ISO numeric code
+     */
+    public $numericCode;
+
+    // TODO incomplete property descriptions
     private $_currency;
 
     public function populateModel($values)
