@@ -2,7 +2,7 @@
 
 namespace craft\commerce\gateways;
 
-class PayPal_Pro_GatewayAdapter extends CreditCardGatewayAdapter
+class Paypal_Pro_GatewayAdapter extends CreditCardGatewayAdapter
 {
     public function handle()
     {

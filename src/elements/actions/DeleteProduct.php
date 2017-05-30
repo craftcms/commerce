@@ -61,6 +61,12 @@ class DeleteProduct extends ElementAction
      */
     public function performAction(ElementQueryInterface $query = null): bool
     {
+
+        if(!$query)
+        {
+          return false;
+        }
+
         try {
             /** @var Product $product */
             foreach ($query->all() as $product) {

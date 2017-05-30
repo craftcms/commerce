@@ -252,6 +252,8 @@ class Plugin extends \craft\base\Plugin
             if (Craft::$app->getRequest()->getFullPath() != 'commerce/settings/registration') {
                 $licenseKeyStatus = Craft::$app->getPlugins()->getPluginLicenseKeyStatus('Commerce');
 
+                $message = null;
+
                 if ($licenseKeyStatus == LicenseKeyStatus::Unknown) {
                     if (!Craft::$app->canTestEditions) {
                         $message = Craft::t('commerce', 'You haven’t entered your Commerce license key yet.');

@@ -4,7 +4,7 @@ namespace craft\commerce\gateways;
 
 use Omnipay\PayPal\PayPalItemBag;
 
-class PayPal_Express_GatewayAdapter extends OffsiteGatewayAdapter
+class Paypal_Express_GatewayAdapter extends OffsiteGatewayAdapter
 {
     public function handle()
     {

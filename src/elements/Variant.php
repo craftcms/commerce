@@ -283,9 +283,9 @@ class Variant extends Element
     /**
      * @return mixed
      */
-    public function __toString()
+    public function __toString(): string
     {
-        return $this->getContent()->title;
+        return (string) $this->getContent()->title;
     }
 
     /**
@@ -747,39 +747,6 @@ class Variant extends Element
     public function populateElementModel($row)
     {
         return new Variant($row);
-    }
-
-    /**
-     * @inheritDoc IElementType::getEagerLoadingMap()
-     *
-     * @param BaseElementModel[] $sourceElements
-     * @param string             $handle
-     *
-     * @return array|false
-     */
-    public function getEagerLoadingMap($sourceElements, $handle)
-    {
-        if ($handle == 'product') {
-            // Get the source element IDs
-            $sourceElementIds = [];
-
-            foreach ($sourceElements as $sourceElement) {
-                $sourceElementIds[] = $sourceElement->id;
-            }
-
-            $map = Craft::$app->getDb()->createCommand()
-                ->select('id as source, productId as target')
-                ->from('commerce_variants')
-                ->where(['in', 'id', $sourceElementIds])
-                ->queryAll();
-
-            return [
-                'elementType' => 'Commerce_Product',
-                'map' => $map
-            ];
-        }
-
-        return parent::getEagerLoadingMap($sourceElements, $handle);
     }
 
     /**
