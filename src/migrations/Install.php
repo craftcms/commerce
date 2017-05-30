@@ -6,8 +6,6 @@ use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
-use craft\commerce\fieldtypes\Customer;
-use craft\commerce\fieldtypes\Products;
 use craft\commerce\models\OrderSettings;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\models\PaymentCurrency;
@@ -21,11 +19,9 @@ use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\commerce\records\Country;
 use craft\commerce\records\State;
-use craft\commerce\widgets\Orders;
-use craft\commerce\widgets\Revenue;
 use craft\db\ActiveRecord;
 use craft\db\Migration;
-use craft\services\Config;
+use craft\helpers\MigrationHelper;
 
 /**
  * Installation Migration
@@ -37,61 +33,42 @@ class Install extends Migration
 {
 
     /**
-     * @var string|null The database driver to use
+     * @inheritdoc
      */
-    public $driver;
-
     public function safeUp()
     {
-        $this->driver = Craft::$app->getConfig()->getDb()->driver;
         $this->createTables();
         $this->createIndexes();
         $this->addForeignKeys();
-        $this->insertDefaultData();
 
-        // Fetch the old plugin row, if it was installed
-        $row = (new \craft\db\Query())
-            ->select(['id', 'settings'])
-            ->from(['{{%plugins}}'])
-            ->where(['handle' => 'commerce'])
-            ->one();
+        // TODO all the models need to be fixed.
+        //$this->insertDefaultData();
 
-        if ($row !== false) {
-            // The plugin was installed
-
-            // Update this one's settings to old values
-            $this->update('{{%plugins}}', [
-                'settings' => $row['settings']
-            ], ['handle' => 'commerce']);
-
-            // Delete the old row
-            $this->delete('{{%plugins}}', ['id' => $row['id']]);
-
-            $this->update('{{%elements}}', [
-                'type' => Order::class
-            ], ['type' => 'Commerce_Order']);
-
-            $this->update('{{%fields}}', [
-                'type' => Customer::class
-            ], ['type' => 'Commerce_Customer']);
-
-            $this->update('{{%fields}}', [
-                'type' => Products::class
-            ], ['type' => 'Commerce_Products']);
-
-            $this->update('{{%widgets}}', [
-                'type' => Orders::class
-            ], ['type' => 'Commerce_Orders']);
-
-            $this->update('{{%widgets}}', [
-                'type' => Revenue::class
-            ], ['type' => 'Commerce_Revenue']);
-
-        }
-
+        return true;
     }
 
-    public function createTables()
+    /**
+     * @inheritdoc
+     */
+    public function safeDown()
+    {
+        $this->dropForeignKeys();
+        $this->dropTables();
+
+        $this->delete('{{%elementindexsettings}}', ['type' => [Order::class, Product::class]]);
+
+        return true;
+    }
+
+    // Protected Methods
+    // =========================================================================
+
+    /**
+     * Creates the tables for Craft Commerce
+     *
+     * @return void
+     */
+    protected function createTables()
     {
         $this->createTable('{{%commerce_addresses}}', [
             'id' => $this->primaryKey(),
@@ -113,13 +90,13 @@ class Install extends Migration
             'stateName' => $this->string(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%commerce_countries}}', [
             'id' => $this->primaryKey(),
-            'name' => $this->string(),
-            'iso' => $this->string(),
+            'name' => $this->string()->notNull(),
+            'iso' => $this->string(2)->notNull(),
             'stateRequired' => $this->boolean(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
@@ -128,9 +105,9 @@ class Install extends Migration
 
         $this->createTable('{{%commerce_customer_discountuses}}', [
             'id' => $this->primaryKey(),
-            'discountId' => $this->integer(),
-            'customerId' => $this->integer(),
-            'uses' => $this->integer(),
+            'discountId' => $this->integer()->notNull(),
+            'customerId' => $this->integer()->notNull(),
+            'uses' => $this->integer()->notNull()->unsigned(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -139,67 +116,67 @@ class Install extends Migration
         $this->createTable('{{%commerce_customers}}', [
             'id' => $this->primaryKey(),
             'userId' => $this->integer(),
+            'email' => $this->string(),
             'lastUsedBillingAddressId' => $this->integer(),
             'lastUsedShippingAddressId' => $this->integer(),
-            'email' => $this->string(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%commerce_customers_addresses}}', [
             'id' => $this->primaryKey(),
-            'customerId' => $this->integer(),
-            'addressId' => $this->integer(),
+            'customerId' => $this->integer()->notNull(),
+            'addressId' => $this->integer()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%commerce_discount_products}}', [
             'id' => $this->primaryKey(),
-            'discountId' => $this->integer(),
-            'productId' => $this->integer(),
+            'discountId' => $this->integer()->notNull(),
+            'productId' => $this->integer()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%commerce_discount_producttypes}}', [
             'id' => $this->primaryKey(),
-            'discountId' => $this->integer(),
-            'productTypeId' => $this->integer(),
+            'discountId' => $this->integer()->notNull(),
+            'productTypeId' => $this->integer()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%commerce_discount_usergroups}}', [
             'id' => $this->primaryKey(),
-            'discountId' => $this->integer(),
-            'userGroupId' => $this->integer(),
+            'discountId' => $this->integer()->notNull(),
+            'userGroupId' => $this->integer()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%commerce_discounts}}', [
             'id' => $this->primaryKey(),
-            'name' => $this->string(),
-            'description' => $this->string(),
+            'name' => $this->string()->notNull(),
+            'description' => $this->text(),
             'code' => $this->string(),
-            'perUserLimit' => $this->integer(),
-            'perEmailLimit' => $this->integer(),
-            'totalUseLimit' => $this->integer(),
-            'totalUses' => $this->integer(),
+            'perUserLimit' => $this->integer()->notNull()->defaultValue(0)->unsigned(),
+            'perEmailLimit' => $this->integer()->notNull()->defaultValue(0)->unsigned(),
+            'totalUseLimit' => $this->integer()->notNull()->defaultValue(0)->unsigned(),
+            'totalUses' => $this->integer()->notNull()->defaultValue(0)->unsigned(),
             'dateFrom' => $this->dateTime(),
             'dateTo' => $this->dateTime(),
-            'purchaseTotal' => $this->integer(),
-            'purchaseQty' => $this->integer(),
-            'maxPurchaseQty' => $this->integer(),
-            'baseDiscount' => $this->string(),
-            'perItemDiscount' => $this->decimal(),
-            'percentDiscount' => $this->decimal(),
+            'purchaseTotal' => $this->integer()->notNull()->defaultValue(0),
+            'purchaseQty' => $this->integer()->notNull()->defaultValue(0),
+            'maxPurchaseQty' => $this->integer()->notNull()->defaultValue(0),
+            'baseDiscount' => $this->decimal(14, 4)->notNull()->defaultValue(0),
+            'perItemDiscount' => $this->decimal(14, 4)->notNull()->defaultValue(0),
+            'percentDiscount' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'excludeOnSale' => $this->boolean(),
             'freeShipping' => $this->boolean(),
             'allGroups' => $this->boolean(),
@@ -210,93 +187,93 @@ class Install extends Migration
             'sortOrder' => $this->integer(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%commerce_emails}}', [
             'id' => $this->primaryKey(),
-            'name' => $this->string(),
-            'subject' => $this->string(),
-            'recipientType' => $this->string(),
+            'name' => $this->string()->notNull(),
+            'subject' => $this->string()->notNull(),
+            'recipientType' => $this->enum('recipientType', ['customer', 'custom'])->defaultValue('custom'),
             'to' => $this->string(),
             'bcc' => $this->string(),
             'enabled' => $this->boolean(),
-            'templatePath' => $this->string(),
+            'templatePath' => $this->string()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%commerce_lineitems}}', [
             'id' => $this->primaryKey(),
-            'orderId' => $this->integer(),
+            'orderId' => $this->integer()->notNull(),
             'purchasableId' => $this->integer(),
-            'taxCategoryId' => $this->integer(),
-            'shippingCategoryId' => $this->integer(),
-            'options' => $this->string(),
-            'optionsSignature' => $this->string(),
-            'price' => $this->decimal(),
-            'saleAmount' => $this->decimal(),
-            'salePrice' => $this->decimal(),
-            'tax' => $this->decimal(),
-            'taxIncluded' => $this->boolean(),
-            'shippingCost' => $this->decimal(),
-            'discount' => $this->decimal(),
-            'weight' => $this->decimal(),
-            'height' => $this->decimal(),
-            'length' => $this->decimal(),
-            'width' => $this->decimal(),
-            'total' => $this->decimal(),
-            'qty' => $this->integer(),
-            'note' => $this->string(),
-            'snapshot' => $this->string(),
+            'options' => $this->text(),
+            'optionsSignature' => $this->string()->notNull(),
+            'price' => $this->decimal(14, 4)->notNull()->unsigned(),
+            'saleAmount' => $this->decimal(14, 4)->notNull()->defaultValue(0),
+            'salePrice' => $this->decimal(14, 4)->notNull()->defaultValue(0),
+            'tax' => $this->decimal(14, 4)->notNull()->defaultValue(0),
+            'taxIncluded' => $this->decimal(14, 4)->notNull()->defaultValue(0),
+            'shippingCost' => $this->decimal(14, 4)->notNull()->defaultValue(0)->unsigned(),
+            'discount' => $this->decimal(14, 4)->notNull()->defaultValue(0),
+            'weight' => $this->decimal(14, 4)->notNull()->defaultValue(0)->unsigned(),
+            'height' => $this->decimal(14, 4)->notNull()->defaultValue(0)->unsigned(),
+            'length' => $this->decimal(14, 4)->notNull()->defaultValue(0)->unsigned(),
+            'width' => $this->decimal(14, 4)->notNull()->defaultValue(0)->unsigned(),
+            'total' => $this->decimal(14, 4)->notNull()->defaultValue(0)->unsigned(),
+            'qty' => $this->integer()->notNull()->unsigned(),
+            'note' => $this->text(),
+            'snapshot' => $this->text()->notNull(),
+            'taxCategoryId' => $this->integer()->notNull(),
+            'shippingCategoryId' => $this->integer()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%commerce_orderadjustments}}', [
             'id' => $this->primaryKey(),
-            'orderId' => $this->integer(),
-            'type' => $this->string(),
+            'type' => $this->string()->notNull(),
             'name' => $this->string(),
             'description' => $this->string(),
-            'amount' => $this->decimal(),
+            'amount' => $this->decimal(14, 4)->notNull(),
             'included' => $this->boolean(),
-            'optionsJson' => $this->string(),
+            'optionsJson' => $this->text()->notNull(),
+            'orderId' => $this->integer()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%commerce_orderhistories}}', [
             'id' => $this->primaryKey(),
             'prevStatusId' => $this->integer(),
             'newStatusId' => $this->integer(),
-            'orderId' => $this->integer(),
-            'customerId' => $this->integer(),
-            'message' => $this->string(),
+            'orderId' => $this->integer()->notNull(),
+            'customerId' => $this->integer()->notNull(),
+            'message' => $this->text(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%commerce_orders}}', [
-            'id' => $this->primaryKey(),
             'billingAddressId' => $this->integer(),
             'shippingAddressId' => $this->integer(),
             'paymentMethodId' => $this->integer(),
             'customerId' => $this->integer(),
+            'id' => $this->integer()->notNull(),
             'orderStatusId' => $this->integer(),
-            'shippingMethod' => $this->string(),
-            'number' => $this->string(),
+            'number' => $this->string(32),
             'couponCode' => $this->string(),
-            'itemTotal' => $this->decimal(),
-            'baseDiscount' => $this->decimal(),
-            'baseShippingCost' => $this->decimal(),
-            'baseTax' => $this->decimal(),
-            'totalPrice' => $this->decimal(),
-            'totalPaid' => $this->decimal(),
+            'itemTotal' => $this->decimal(14, 4)->defaultValue(0),
+            'baseDiscount' => $this->decimal(14, 4)->defaultValue(0),
+            'baseShippingCost' => $this->decimal(14, 4)->defaultValue(0),
+            'baseTax' => $this->decimal(14, 4)->defaultValue(0),
+            'baseTaxIncluded' => $this->decimal(14, 4)->defaultValue(0),
+            'totalPrice' => $this->decimal(14, 4)->defaultValue(0),
+            'totalPaid' => $this->decimal(14, 4)->defaultValue(0),
             'email' => $this->string(),
             'isCompleted' => $this->boolean(),
             'dateOrdered' => $this->dateTime(),
@@ -304,408 +281,737 @@ class Install extends Migration
             'currency' => $this->string(),
             'paymentCurrency' => $this->string(),
             'lastIp' => $this->string(),
-            'orderLocale' => $this->string(),
+            'orderLocale' => $this->char(12),
             'message' => $this->string(),
             'returnUrl' => $this->string(),
             'cancelUrl' => $this->string(),
+            'shippingMethod' => $this->string(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
+            'PRIMARY KEY(id)',
         ]);
 
         $this->createTable('{{%commerce_ordersettings}}', [
             'id' => $this->primaryKey(),
             'fieldLayoutId' => $this->integer(),
-            'name' => $this->string(),
-            'handle' => $this->string(),
+            'name' => $this->string()->notNull(),
+            'handle' => $this->string()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%commerce_orderstatus_emails}}', [
             'id' => $this->primaryKey(),
-            'orderStatusId' => $this->integer(),
-            'emailId' => $this->integer(),
+            'orderStatusId' => $this->integer()->notNull(),
+            'emailId' => $this->integer()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%commerce_orderstatuses}}', [
             'id' => $this->primaryKey(),
-            'name' => $this->string(),
-            'handle' => $this->string(),
-            'color' => $this->string(),
+            'name' => $this->string()->notNull(),
+            'handle' => $this->string()->notNull(),
+            'color' => $this->enum('color', ['green', 'orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'])->notNull()->defaultValue('green'),
             'sortOrder' => $this->integer(),
             'default' => $this->boolean(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%commerce_paymentcurrencies}}', [
             'id' => $this->primaryKey(),
-            'integer' => $this->string(),
-            'iso' => $this->string(),
+            'iso' => $this->string(3)->notNull(),
             'primary' => $this->boolean(),
-            'rate' => $this->decimal(),
+            'rate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%commerce_paymentmethods}}', [
             'id' => $this->primaryKey(),
-            'class' => $this->string(),
-            'name' => $this->string(),
+            'class' => $this->string()->notNull(),
+            'name' => $this->string()->notNull(),
             'settings' => $this->text(),
-            'paymentType' => $this->string(),
+            'paymentType' => $this->enum('paymentType', ['authorize', 'purchase'])->notNull()->defaultValue('purchase'),
             'frontendEnabled' => $this->boolean(),
             'isArchived' => $this->boolean(),
             'dateArchived' => $this->dateTime(),
             'sortOrder' => $this->integer(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%commerce_products}}', [
-            'id' => $this->primaryKey(),
+            'id' => $this->integer()->notNull(),
             'typeId' => $this->integer(),
-            'taxCategoryId' => $this->integer(),
-            'shippingCategoryId' => $this->integer(),
-            'defaultVariantId' => $this->integer(),
+            'taxCategoryId' => $this->integer()->notNull(),
+            'shippingCategoryId' => $this->integer()->notNull(),
             'postDate' => $this->dateTime(),
             'expiryDate' => $this->dateTime(),
             'promotable' => $this->boolean(),
             'freeShipping' => $this->boolean(),
+            'defaultVariantId' => $this->integer(),
             'defaultSku' => $this->string(),
-            'defaultPrice' => $this->decimal(),
-            'defaultHeight' => $this->decimal(),
-            'defaultLength' => $this->decimal(),
-            'defaultWidth' => $this->decimal(),
-            'defaultWeight' => $this->decimal(),
+            'defaultPrice' => $this->decimal(14, 4),
+            'defaultHeight' => $this->decimal(14, 4),
+            'defaultLength' => $this->decimal(14, 4),
+            'defaultWidth' => $this->decimal(14, 4),
+            'defaultWeight' => $this->decimal(14, 4),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
+            'PRIMARY KEY(id)',
         ]);
 
         $this->createTable('{{%commerce_producttypes}}', [
             'id' => $this->primaryKey(),
-            'fieldLayoutId' => $this->string(),
-            'variantFieldLayoutId' => $this->string(),
-            'name' => $this->string(),
-            'handle' => $this->string(),
-            'hasUrls' => $this->string(),
-            'hasDimensions' => $this->string(),
-            'hasVariants' => $this->string(),
-            'hasVariantTitleField' => $this->string(),
-            'titleFormat' => $this->text(),
-            'skuFormat' => $this->text(),
-            'descriptionFormat' => $this->text(),
-            'template' => $this->text(),
+            'fieldLayoutId' => $this->integer(),
+            'variantFieldLayoutId' => $this->integer(),
+            'name' => $this->string()->notNull(),
+            'handle' => $this->string()->notNull(),
+            'hasUrls' => $this->boolean(),
+            'hasDimensions' => $this->boolean(),
+            'hasVariants' => $this->boolean(),
+            'hasVariantTitleField' => $this->boolean(),
+            'titleFormat' => $this->string()->notNull(),
+            'skuFormat' => $this->string(),
+            'descriptionFormat' => $this->string(),
+            'template' => $this->string(500),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%commerce_producttypes_i18n}}', [
             'id' => $this->primaryKey(),
-            'productTypeId' => $this->integer(),
-            'locale' => $this->string(),
+            'productTypeId' => $this->integer()->notNull(),
+            'siteId' => $this->integer()->notNull(),
             'urlFormat' => $this->text(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%commerce_producttypes_shippingcategories}}', [
             'id' => $this->primaryKey(),
-            'productTypeId' => $this->integer(),
-            'shippingCategoryId' => $this->integer(),
+            'productTypeId' => $this->integer()->notNull(),
+            'shippingCategoryId' => $this->integer()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%commerce_producttypes_taxcategories}}', [
             'id' => $this->primaryKey(),
-            'productTypeId' => $this->integer(),
-            'taxCategoryId' => $this->integer(),
+            'productTypeId' => $this->integer()->notNull(),
+            'taxCategoryId' => $this->integer()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%commerce_purchasables}}', [
-            'id' => $this->primaryKey(),
-            'sku' => $this->string(),
-            'price' => $this->decimal(),
+            'id' => $this->integer()->notNull(),
+            'sku' => $this->string()->notNull(),
+            'price' => $this->decimal(14, 4)->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
+            'PRIMARY KEY(id)',
         ]);
 
         $this->createTable('{{%commerce_sale_products}}', [
             'id' => $this->primaryKey(),
-            'saleId' => $this->integer(),
-            'productId' => $this->integer(),
+            'saleId' => $this->integer()->notNull(),
+            'productId' => $this->integer()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%commerce_sale_producttypes}}', [
             'id' => $this->primaryKey(),
-            'saleId' => $this->integer(),
-            'productTypeId' => $this->integer(),
+            'saleId' => $this->integer()->notNull(),
+            'productTypeId' => $this->integer()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
+
         $this->createTable('{{%commerce_sale_usergroups}}', [
             'id' => $this->primaryKey(),
-            'saleId' => $this->integer(),
-            'userGroupId' => $this->integer(),
+            'saleId' => $this->integer()->notNull(),
+            'userGroupId' => $this->integer()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%commerce_sales}}', [
             'id' => $this->primaryKey(),
-            'name' => $this->string(),
-            'description' => $this->string(),
+            'name' => $this->string()->notNull(),
+            'description' => $this->text(),
             'dateFrom' => $this->dateTime(),
             'dateTo' => $this->dateTime(),
-            'discountType' => $this->string(),
-            'discountAmount' => $this->decimal(),
+            'discountType' => $this->enum('discountType', ['percent', 'flat'])->notNull(),
+            'discountAmount' => $this->decimal(14, 4)->notNull(),
             'allGroups' => $this->boolean(),
             'allProducts' => $this->boolean(),
             'allProductTypes' => $this->boolean(),
             'enabled' => $this->boolean(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%commerce_shippingcategories}}', [
             'id' => $this->primaryKey(),
-            'name' => $this->string(),
-            'handle' => $this->string(),
+            'name' => $this->string()->notNull(),
+            'handle' => $this->string()->notNull(),
             'description' => $this->string(),
             'default' => $this->boolean(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%commerce_shippingmethods}}', [
             'id' => $this->primaryKey(),
-            'name' => $this->string(),
-            'handle' => $this->string(),
+            'name' => $this->string()->notNull(),
+            'handle' => $this->string()->notNull(),
             'enabled' => $this->boolean(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%commerce_shippingrule_categories}}', [
             'id' => $this->primaryKey(),
             'shippingRuleId' => $this->integer(),
             'shippingCategoryId' => $this->integer(),
-            'condition' => $this->string(),
-            'perItemRate' => $this->decimal(),
-            'weightRate' => $this->decimal(),
-            'percentageRate' => $this->decimal(),
+            'condition' => $this->enum('condition', ['allow', 'disallow', 'require'])->notNull(),
+            'perItemRate' => $this->decimal(14, 4),
+            'weightRate' => $this->decimal(14, 4),
+            'percentageRate' => $this->decimal(14, 4),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
+
         $this->createTable('{{%commerce_shippingrules}}', [
             'id' => $this->primaryKey(),
             'shippingZoneId' => $this->integer(),
-            'methodId' => $this->integer(),
-            'name' => $this->string(),
+            'name' => $this->string()->notNull(),
             'description' => $this->string(),
-            'priority' => $this->integer(),
+            'methodId' => $this->integer()->notNull(),
+            'priority' => $this->integer()->notNull()->defaultValue(0),
             'enabled' => $this->boolean(),
-            'minQty' => $this->integer(),
-            'maxQty' => $this->integer(),
-            'minTotal' => $this->decimal(),
-            'maxTotal' => $this->decimal(),
-            'minWeight' => $this->decimal(),
-            'maxWeight' => $this->decimal(),
-            'baseRate' => $this->decimal(),
-            'perItemRate' => $this->decimal(),
-            'weightRate' => $this->decimal(),
-            'percentageRate' => $this->decimal(),
-            'minRate' => $this->decimal(),
-            'maxRate' => $this->decimal(),
+            'minQty' => $this->integer()->notNull()->defaultValue(0),
+            'maxQty' => $this->integer()->notNull()->defaultValue(0),
+            'minTotal' => $this->decimal(14, 4)->notNull()->defaultValue(0),
+            'maxTotal' => $this->decimal(14, 4)->notNull()->defaultValue(0),
+            'minWeight' => $this->decimal(14, 4)->notNull()->defaultValue(0),
+            'maxWeight' => $this->decimal(14, 4)->notNull()->defaultValue(0),
+            'baseRate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
+            'perItemRate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
+            'weightRate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
+            'percentageRate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
+            'minRate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
+            'maxRate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%commerce_shippingzone_countries}}', [
             'id' => $this->primaryKey(),
-            'shippingZoneId' => $this->integer(),
-            'countryId' => $this->integer(),
+            'shippingZoneId' => $this->integer()->notNull(),
+            'countryId' => $this->integer()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
+
         $this->createTable('{{%commerce_shippingzone_states}}', [
             'id' => $this->primaryKey(),
-            'shippingZoneId' => $this->integer(),
-            'stateId' => $this->integer(),
+            'shippingZoneId' => $this->integer()->notNull(),
+            'stateId' => $this->integer()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%commerce_shippingzones}}', [
             'id' => $this->primaryKey(),
-            'name' => $this->string(),
+            'name' => $this->string()->notNull(),
             'description' => $this->string(),
             'countryBased' => $this->boolean(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%commerce_states}}', [
             'id' => $this->primaryKey(),
-            'countryId' => $this->integer(),
-            'name' => $this->string(),
+            'name' => $this->string()->notNull(),
             'abbreviation' => $this->string(),
+            'countryId' => $this->integer()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
+
         $this->createTable('{{%commerce_taxcategories}}', [
             'id' => $this->primaryKey(),
-            'name' => $this->string(),
-            'handle' => $this->string(),
+            'name' => $this->string()->notNull(),
+            'handle' => $this->string()->notNull(),
             'description' => $this->string(),
             'default' => $this->boolean(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%commerce_taxrates}}', [
             'id' => $this->primaryKey(),
-            'taxZoneId' => $this->integer(),
-            'taxCategoryId' => $this->integer(),
-            'name' => $this->string(),
-            'rate' => $this->decimal(),
+            'taxZoneId' => $this->integer()->notNull(),
+            'taxCategoryId' => $this->integer()->notNull(),
+            'name' => $this->string()->notNull(),
+            'rate' => $this->decimal(14, 4)->notNull(),
             'include' => $this->boolean(),
             'isVat' => $this->boolean(),
-            'taxable' => $this->boolean(),
+            'taxable' => $this->enum('taxable', ['price', 'shipping', 'price_shipping', 'order_total_shipping', 'order_total_price'])->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%commerce_taxzone_countries}}', [
             'id' => $this->primaryKey(),
-            'taxZoneId' => $this->integer(),
-            'countryId' => $this->integer(),
+            'taxZoneId' => $this->integer()->notNull(),
+            'countryId' => $this->integer()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%commerce_taxzone_states}}', [
             'id' => $this->primaryKey(),
-            'taxZoneId' => $this->integer(),
-            'stateId' => $this->integer(),
+            'taxZoneId' => $this->integer()->notNull(),
+            'stateId' => $this->integer()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%commerce_taxzones}}', [
             'id' => $this->primaryKey(),
-            'name' => $this->string(),
+            'name' => $this->string()->notNull(),
             'description' => $this->string(),
             'countryBased' => $this->boolean(),
             'default' => $this->boolean(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%commerce_transactions}}', [
             'id' => $this->primaryKey(),
-            'orderId' => $this->integer(),
             'parentId' => $this->integer(),
             'paymentMethodId' => $this->integer(),
             'userId' => $this->integer(),
-            'hash' => $this->string(),
-            'type' => $this->string(),
-            'amount' => $this->decimal(),
-            'paymentAmount' => $this->decimal(),
+            'hash' => $this->string(32),
+            'type' => $this->enum('type', ['authorize', 'capture', 'purchase', 'refund'])->notNull(),
+            'amount' => $this->decimal(14, 4),
+            'paymentAmount' => $this->decimal(14, 4),
             'currency' => $this->string(),
             'paymentCurrency' => $this->string(),
-            'paymentRate' => $this->decimal(),
-            'status' => $this->string(),
+            'paymentRate' => $this->decimal(14, 4),
+            'status' => $this->enum('status', ['pending', 'redirect', 'success', 'failed'])->notNull(),
             'reference' => $this->string(),
             'code' => $this->string(),
             'message' => $this->text(),
             'response' => $this->text(),
+            'orderId' => $this->integer()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%commerce_variants}}', [
-            'id' => $this->primaryKey(),
-            'productId' => $this->string(),
-            'sku' => $this->string(),
+            'productId' => $this->integer(),
+            'id' => $this->integer()->notNull(),
+            'sku' => $this->string()->notNull(),
             'isDefault' => $this->boolean(),
-            'price' => $this->decimal(),
+            'price' => $this->decimal(14, 4)->notNull(),
             'sortOrder' => $this->integer(),
-            'width' => $this->decimal(),
-            'height' => $this->decimal(),
-            'length' => $this->decimal(),
-            'weight' => $this->decimal(),
-            'stock' => $this->integer(),
+            'width' => $this->decimal(14, 4),
+            'height' => $this->decimal(14, 4),
+            'length' => $this->decimal(14, 4),
+            'weight' => $this->decimal(14, 4),
+            'stock' => $this->integer()->notNull()->defaultValue(0),
             'unlimitedStock' => $this->boolean(),
-            'minQty' => $this->boolean(),
-            'maxQty' => $this->boolean(),
+            'minQty' => $this->integer(),
+            'maxQty' => $this->integer(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
+            'PRIMARY KEY(id)',
         ]);
     }
 
-    public function createIndexes()
+    /**
+     * Drop the tables
+     *
+     * @return coid
+     */
+    protected function dropTables()
     {
+        $this->dropTable('{{%commerce_addresses}}');
+        $this->dropTable('{{%commerce_countries}}');
+        $this->dropTable('{{%commerce_customer_discountuses}}');
+        $this->dropTable('{{%commerce_customers}}');
+        $this->dropTable('{{%commerce_customers_addresses}}');
+        $this->dropTable('{{%commerce_discount_products}}');
+        $this->dropTable('{{%commerce_discount_producttypes}}');
+        $this->dropTable('{{%commerce_discount_usergroups}}');
+        $this->dropTable('{{%commerce_discounts}}');
+        $this->dropTable('{{%commerce_emails}}');
+        $this->dropTable('{{%commerce_lineitems}}');
+        $this->dropTable('{{%commerce_orderadjustments}}');
+        $this->dropTable('{{%commerce_orderhistories}}');
+        $this->dropTable('{{%commerce_orders}}');
+        $this->dropTable('{{%commerce_ordersettings}}');
+        $this->dropTable('{{%commerce_orderstatus_emails}}');
+        $this->dropTable('{{%commerce_orderstatuses}}');
+        $this->dropTable('{{%commerce_paymentcurrencies}}');
+        $this->dropTable('{{%commerce_paymentmethods}}');
+        $this->dropTable('{{%commerce_products}}');
+        $this->dropTable('{{%commerce_producttypes}}');
+        $this->dropTable('{{%commerce_producttypes_i18n}}');
+        $this->dropTable('{{%commerce_producttypes_shippingcategories}}');
+        $this->dropTable('{{%commerce_producttypes_taxcategories}}');
+        $this->dropTable('{{%commerce_purchasables}}');
+        $this->dropTable('{{%commerce_sale_products}}');
+        $this->dropTable('{{%commerce_sale_producttypes}}');
+        $this->dropTable('{{%commerce_sale_usergroups}}');
+        $this->dropTable('{{%commerce_sales}}');
+        $this->dropTable('{{%commerce_shippingcategories}}');
+        $this->dropTable('{{%commerce_shippingmethods}}');
+        $this->dropTable('{{%commerce_shippingrule_categories}}');
+        $this->dropTable('{{%commerce_shippingrules}}');
+        $this->dropTable('{{%commerce_shippingzone_countries}}');
+        $this->dropTable('{{%commerce_shippingzone_states}}');
+        $this->dropTable('{{%commerce_shippingzones}}');
+        $this->dropTable('{{%commerce_states}}');
+        $this->dropTable('{{%commerce_taxcategories}}');
+        $this->dropTable('{{%commerce_taxrates}}');
+        $this->dropTable('{{%commerce_taxzone_countries}}');
+        $this->dropTable('{{%commerce_taxzone_states}}');
+        $this->dropTable('{{%commerce_taxzones}}');
+        $this->dropTable('{{%commerce_transactions}}');
+        $this->dropTable('{{%commerce_variants}}');
+
     }
 
-    public function addForeignKeys()
+    /**
+     * Creates the indexes.
+     *
+     * @return void
+     */
+    protected function createIndexes()
     {
+        $this->createIndex($this->db->getIndexName('{{%commerce_addresses}}', 'countryId', false), '{{%commerce_addresses}}', 'countryId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_addresses}}', 'stateId', false), '{{%commerce_addresses}}', 'stateId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_countries}}', 'name', true), '{{%commerce_countries}}', 'name', true);
+        $this->createIndex($this->db->getIndexName('{{%commerce_countries}}', 'iso', true), '{{%commerce_countries}}', 'iso', true);
+        $this->createIndex($this->db->getIndexName('{{%commerce_customer_discountuses}}', 'customerId,discountId', true), '{{%commerce_customer_discountuses}}', 'customerId,discountId', true);
+        $this->createIndex($this->db->getIndexName('{{%commerce_customer_discountuses}}', 'discountId', false), '{{%commerce_customer_discountuses}}', 'discountId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_customers}}', 'userId', false), '{{%commerce_customers}}', 'userId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_customers_addresses}}', 'customerId,addressId', true), '{{%commerce_customers_addresses}}', 'customerId,addressId', true);
+        $this->createIndex($this->db->getIndexName('{{%commerce_customers_addresses}}', 'customerId', false), '{{%commerce_customers_addresses}}', 'customerId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_customers_addresses}}', 'addressId', false), '{{%commerce_customers_addresses}}', 'addressId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_discount_products}}', 'discountId,productId', true), '{{%commerce_discount_products}}', 'discountId,productId', true);
+        $this->createIndex($this->db->getIndexName('{{%commerce_discount_products}}', 'productId', false), '{{%commerce_discount_products}}', 'productId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_discount_producttypes}}', 'discountId,productTypeId', true), '{{%commerce_discount_producttypes}}', 'discountId,productTypeId', true);
+        $this->createIndex($this->db->getIndexName('{{%commerce_discount_producttypes}}', 'productTypeId', false), '{{%commerce_discount_producttypes}}', 'productTypeId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_discount_usergroups}}', 'discountId,userGroupId', true), '{{%commerce_discount_usergroups}}', 'discountId,userGroupId', true);
+        $this->createIndex($this->db->getIndexName('{{%commerce_discount_usergroups}}', 'userGroupId', false), '{{%commerce_discount_usergroups}}', 'userGroupId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_discounts}}', 'code', true), '{{%commerce_discounts}}', 'code', true);
+        $this->createIndex($this->db->getIndexName('{{%commerce_discounts}}', 'dateFrom', false), '{{%commerce_discounts}}', 'dateFrom', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_discounts}}', 'dateTo', false), '{{%commerce_discounts}}', 'dateTo', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_lineitems}}', 'orderId,purchasableId,optionsSignature', true), '{{%commerce_lineitems}}', 'orderId,purchasableId,optionsSignature', true);
+        $this->createIndex($this->db->getIndexName('{{%commerce_lineitems}}', 'purchasableId', false), '{{%commerce_lineitems}}', 'purchasableId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_lineitems}}', 'taxCategoryId', false), '{{%commerce_lineitems}}', 'taxCategoryId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_lineitems}}', 'shippingCategoryId', false), '{{%commerce_lineitems}}', 'shippingCategoryId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_orderadjustments}}', 'orderId', false), '{{%commerce_orderadjustments}}', 'orderId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_orderhistories}}', 'orderId', false), '{{%commerce_orderhistories}}', 'orderId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_orderhistories}}', 'prevStatusId', false), '{{%commerce_orderhistories}}', 'prevStatusId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_orderhistories}}', 'newStatusId', false), '{{%commerce_orderhistories}}', 'newStatusId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_orderhistories}}', 'customerId', false), '{{%commerce_orderhistories}}', 'customerId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_orders}}', 'number', false), '{{%commerce_orders}}', 'number', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_orders}}', 'billingAddressId', false), '{{%commerce_orders}}', 'billingAddressId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_orders}}', 'shippingAddressId', false), '{{%commerce_orders}}', 'shippingAddressId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_orders}}', 'paymentMethodId', false), '{{%commerce_orders}}', 'paymentMethodId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_orders}}', 'customerId', false), '{{%commerce_orders}}', 'customerId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_orders}}', 'orderStatusId', false), '{{%commerce_orders}}', 'orderStatusId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_ordersettings}}', 'handle', true), '{{%commerce_ordersettings}}', 'handle', true);
+        $this->createIndex($this->db->getIndexName('{{%commerce_ordersettings}}', 'fieldLayoutId', false), '{{%commerce_ordersettings}}', 'fieldLayoutId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_orderstatus_emails}}', 'orderStatusId', false), '{{%commerce_orderstatus_emails}}', 'orderStatusId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_orderstatus_emails}}', 'emailId', false), '{{%commerce_orderstatus_emails}}', 'emailId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_paymentcurrencies}}', 'iso', true), '{{%commerce_paymentcurrencies}}', 'iso', true);
+        $this->createIndex($this->db->getIndexName('{{%commerce_paymentmethods}}', 'name', true), '{{%commerce_paymentmethods}}', 'name', true);
+        $this->createIndex($this->db->getIndexName('{{%commerce_products}}', 'typeId', false), '{{%commerce_products}}', 'typeId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_products}}', 'postDate', false), '{{%commerce_products}}', 'postDate', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_products}}', 'expiryDate', false), '{{%commerce_products}}', 'expiryDate', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_products}}', 'taxCategoryId', false), '{{%commerce_products}}', 'taxCategoryId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_products}}', 'shippingCategoryId', false), '{{%commerce_products}}', 'shippingCategoryId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_producttypes}}', 'handle', true), '{{%commerce_producttypes}}', 'handle', true);
+        $this->createIndex($this->db->getIndexName('{{%commerce_producttypes}}', 'fieldLayoutId', false), '{{%commerce_producttypes}}', 'fieldLayoutId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_producttypes}}', 'variantFieldLayoutId', false), '{{%commerce_producttypes}}', 'variantFieldLayoutId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_producttypes_i18n}}', 'productTypeId,siteId', true), '{{%commerce_producttypes_i18n}}', 'productTypeId,siteId', true);
+        $this->createIndex($this->db->getIndexName('{{%commerce_producttypes_i18n}}', 'siteId', false), '{{%commerce_producttypes_i18n}}', 'siteId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_producttypes_shippingcategories}}', 'productTypeId,shippingCategoryId', true), '{{%commerce_producttypes_shippingcategories}}', 'productTypeId,shippingCategoryId', true);
+        $this->createIndex($this->db->getIndexName('{{%commerce_producttypes_shippingcategories}}', 'shippingCategoryId', false), '{{%commerce_producttypes_shippingcategories}}', 'shippingCategoryId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_producttypes_taxcategories}}', 'productTypeId,taxCategoryId', true), '{{%commerce_producttypes_taxcategories}}', 'productTypeId,taxCategoryId', true);
+        $this->createIndex($this->db->getIndexName('{{%commerce_producttypes_taxcategories}}', 'taxCategoryId', false), '{{%commerce_producttypes_taxcategories}}', 'taxCategoryId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_purchasables}}', 'sku', true), '{{%commerce_purchasables}}', 'sku', true);
+        $this->createIndex($this->db->getIndexName('{{%commerce_sale_products}}', 'saleId,productId', true), '{{%commerce_sale_products}}', 'saleId,productId', true);
+        $this->createIndex($this->db->getIndexName('{{%commerce_sale_products}}', 'productId', false), '{{%commerce_sale_products}}', 'productId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_sale_producttypes}}', 'saleId,productTypeId', true), '{{%commerce_sale_producttypes}}', 'saleId,productTypeId', true);
+        $this->createIndex($this->db->getIndexName('{{%commerce_sale_producttypes}}', 'productTypeId', false), '{{%commerce_sale_producttypes}}', 'productTypeId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_sale_usergroups}}', 'saleId,userGroupId', true), '{{%commerce_sale_usergroups}}', 'saleId,userGroupId', true);
+        $this->createIndex($this->db->getIndexName('{{%commerce_sale_usergroups}}', 'userGroupId', false), '{{%commerce_sale_usergroups}}', 'userGroupId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_shippingcategories}}', 'handle', true), '{{%commerce_shippingcategories}}', 'handle', true);
+        $this->createIndex($this->db->getIndexName('{{%commerce_shippingmethods}}', 'name', true), '{{%commerce_shippingmethods}}', 'name', true);
+        $this->createIndex($this->db->getIndexName('{{%commerce_shippingrule_categories}}', 'shippingRuleId', false), '{{%commerce_shippingrule_categories}}', 'shippingRuleId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_shippingrule_categories}}', 'shippingCategoryId', false), '{{%commerce_shippingrule_categories}}', 'shippingCategoryId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_shippingrules}}', 'name', false), '{{%commerce_shippingrules}}', 'name', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_shippingrules}}', 'methodId', false), '{{%commerce_shippingrules}}', 'methodId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_shippingrules}}', 'shippingZoneId', false), '{{%commerce_shippingrules}}', 'shippingZoneId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_shippingzone_countries}}', 'shippingZoneId,countryId', true), '{{%commerce_shippingzone_countries}}', 'shippingZoneId,countryId', true);
+        $this->createIndex($this->db->getIndexName('{{%commerce_shippingzone_countries}}', 'shippingZoneId', false), '{{%commerce_shippingzone_countries}}', 'shippingZoneId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_shippingzone_countries}}', 'countryId', false), '{{%commerce_shippingzone_countries}}', 'countryId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_shippingzone_states}}', 'shippingZoneId,stateId', true), '{{%commerce_shippingzone_states}}', 'shippingZoneId,stateId', true);
+        $this->createIndex($this->db->getIndexName('{{%commerce_shippingzone_states}}', 'shippingZoneId', false), '{{%commerce_shippingzone_states}}', 'shippingZoneId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_shippingzone_states}}', 'stateId', false), '{{%commerce_shippingzone_states}}', 'stateId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_shippingzones}}', 'name', true), '{{%commerce_shippingzones}}', 'name', true);
+        $this->createIndex($this->db->getIndexName('{{%commerce_states}}', 'name,countryId', true), '{{%commerce_states}}', 'name,countryId', true);
+        $this->createIndex($this->db->getIndexName('{{%commerce_states}}', 'countryId', false), '{{%commerce_states}}', 'countryId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_taxcategories}}', 'handle', true), '{{%commerce_taxcategories}}', 'handle', true);
+        $this->createIndex($this->db->getIndexName('{{%commerce_taxrates}}', 'taxZoneId', false), '{{%commerce_taxrates}}', 'taxZoneId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_taxrates}}', 'taxCategoryId', false), '{{%commerce_taxrates}}', 'taxCategoryId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_taxzone_countries}}', 'taxZoneId,countryId', true), '{{%commerce_taxzone_countries}}', 'taxZoneId,countryId', true);
+        $this->createIndex($this->db->getIndexName('{{%commerce_taxzone_countries}}', 'taxZoneId', false), '{{%commerce_taxzone_countries}}', 'taxZoneId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_taxzone_countries}}', 'countryId', false), '{{%commerce_taxzone_countries}}', 'countryId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_taxzone_states}}', 'taxZoneId,stateId', true), '{{%commerce_taxzone_states}}', 'taxZoneId,stateId', true);
+        $this->createIndex($this->db->getIndexName('{{%commerce_taxzone_states}}', 'taxZoneId', false), '{{%commerce_taxzone_states}}', 'taxZoneId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_taxzone_states}}', 'stateId', false), '{{%commerce_taxzone_states}}', 'stateId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_taxzones}}', 'name', true), '{{%commerce_taxzones}}', 'name', true);
+        $this->createIndex($this->db->getIndexName('{{%commerce_transactions}}', 'parentId', false), '{{%commerce_transactions}}', 'parentId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_transactions}}', 'paymentMethodId', false), '{{%commerce_transactions}}', 'paymentMethodId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_transactions}}', 'orderId', false), '{{%commerce_transactions}}', 'orderId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_transactions}}', 'userId', false), '{{%commerce_transactions}}', 'userId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_variants}}', 'sku', true), '{{%commerce_variants}}', 'sku', true);
+        $this->createIndex($this->db->getIndexName('{{%commerce_variants}}', 'productId', false), '{{%commerce_variants}}', 'productId', false);
     }
 
-    public function insertDefaultData()
+    /**
+     * Adds the foreign keys.
+     *
+     * @return void
+     */
+    protected function addForeignKeys()
     {
-        $this->defaultCountries();
-        $this->defaultStates();
-        $this->defaultCurrency();
-        $this->defaultShippingMethod();
-        $this->defaultTaxCategories();
-        $this->defaultShippingCategories();
-        $this->defaultOrderSettings();
-        $this->defaultProductTypes();
-        $this->defaultProducts();
-        $this->paymentMethods();
-        $this->defaultSettings();
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_addresses}}', 'countryId'), '{{%commerce_addresses}}', 'countryId', '{{%commerce_countries}}', 'id', 'SET NULL', null);
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_addresses}}', 'stateId'), '{{%commerce_addresses}}', 'stateId', '{{%commerce_states}}', 'id', 'SET NULL', null);
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_customer_discountuses}}', 'customerId'), '{{%commerce_customer_discountuses}}', 'customerId', '{{%commerce_customers}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_customer_discountuses}}', 'discountId'), '{{%commerce_customer_discountuses}}', 'discountId', '{{%commerce_discounts}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_customers}}', 'userId'), '{{%commerce_customers}}', 'userId', '{{%users}}', 'id', 'SET NULL', null);
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_customers_addresses}}', 'addressId'), '{{%commerce_customers_addresses}}', 'addressId', '{{%commerce_addresses}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_customers_addresses}}', 'customerId'), '{{%commerce_customers_addresses}}', 'customerId', '{{%commerce_customers}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_discount_products}}', 'discountId'), '{{%commerce_discount_products}}', 'discountId', '{{%commerce_discounts}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_discount_products}}', 'productId'), '{{%commerce_discount_products}}', 'productId', '{{%commerce_products}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_discount_producttypes}}', 'discountId'), '{{%commerce_discount_producttypes}}', 'discountId', '{{%commerce_discounts}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_discount_producttypes}}', 'productTypeId'), '{{%commerce_discount_producttypes}}', 'productTypeId', '{{%commerce_producttypes}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_discount_usergroups}}', 'discountId'), '{{%commerce_discount_usergroups}}', 'discountId', '{{%commerce_discounts}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_discount_usergroups}}', 'userGroupId'), '{{%commerce_discount_usergroups}}', 'userGroupId', '{{%usergroups}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_lineitems}}', 'orderId'), '{{%commerce_lineitems}}', 'orderId', '{{%commerce_orders}}', 'id', 'CASCADE', null);
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_lineitems}}', 'purchasableId'), '{{%commerce_lineitems}}', 'purchasableId', '{{%elements}}', 'id', 'SET NULL', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_lineitems}}', 'shippingCategoryId'), '{{%commerce_lineitems}}', 'shippingCategoryId', '{{%commerce_shippingcategories}}', 'id', null, 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_lineitems}}', 'taxCategoryId'), '{{%commerce_lineitems}}', 'taxCategoryId', '{{%commerce_taxcategories}}', 'id', null, 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_orderadjustments}}', 'orderId'), '{{%commerce_orderadjustments}}', 'orderId', '{{%commerce_orders}}', 'id', 'CASCADE', null);
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_orderhistories}}', 'customerId'), '{{%commerce_orderhistories}}', 'customerId', '{{%commerce_customers}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_orderhistories}}', 'newStatusId'), '{{%commerce_orderhistories}}', 'newStatusId', '{{%commerce_orderstatuses}}', 'id', null, 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_orderhistories}}', 'orderId'), '{{%commerce_orderhistories}}', 'orderId', '{{%commerce_orders}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_orderhistories}}', 'prevStatusId'), '{{%commerce_orderhistories}}', 'prevStatusId', '{{%commerce_orderstatuses}}', 'id', null, 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_orders}}', 'billingAddressId'), '{{%commerce_orders}}', 'billingAddressId', '{{%commerce_addresses}}', 'id', 'SET NULL', null);
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_orders}}', 'customerId'), '{{%commerce_orders}}', 'customerId', '{{%commerce_customers}}', 'id', 'SET NULL', null);
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_orders}}', 'id'), '{{%commerce_orders}}', 'id', '{{%elements}}', 'id', 'CASCADE', null);
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_orders}}', 'orderStatusId'), '{{%commerce_orders}}', 'orderStatusId', '{{%commerce_orderstatuses}}', 'id', null, 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_orders}}', 'paymentMethodId'), '{{%commerce_orders}}', 'paymentMethodId', '{{%commerce_paymentmethods}}', 'id', 'SET NULL', null);
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_orders}}', 'shippingAddressId'), '{{%commerce_orders}}', 'shippingAddressId', '{{%commerce_addresses}}', 'id', 'SET NULL', null);
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_ordersettings}}', 'fieldLayoutId'), '{{%commerce_ordersettings}}', 'fieldLayoutId', '{{%fieldlayouts}}', 'id', 'SET NULL', null);
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_orderstatus_emails}}', 'emailId'), '{{%commerce_orderstatus_emails}}', 'emailId', '{{%commerce_emails}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_orderstatus_emails}}', 'orderStatusId'), '{{%commerce_orderstatus_emails}}', 'orderStatusId', '{{%commerce_orderstatuses}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_products}}', 'id'), '{{%commerce_products}}', 'id', '{{%elements}}', 'id', 'CASCADE', null);
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_products}}', 'shippingCategoryId'), '{{%commerce_products}}', 'shippingCategoryId', '{{%commerce_shippingcategories}}', 'id', null, null);
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_products}}', 'taxCategoryId'), '{{%commerce_products}}', 'taxCategoryId', '{{%commerce_taxcategories}}', 'id', null, null);
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_products}}', 'typeId'), '{{%commerce_products}}', 'typeId', '{{%commerce_producttypes}}', 'id', 'CASCADE', null);
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_producttypes}}', 'fieldLayoutId'), '{{%commerce_producttypes}}', 'fieldLayoutId', '{{%fieldlayouts}}', 'id', 'SET NULL', null);
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_producttypes}}', 'variantFieldLayoutId'), '{{%commerce_producttypes}}', 'variantFieldLayoutId', '{{%fieldlayouts}}', 'id', 'SET NULL', null);
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_producttypes_i18n}}', 'siteId'), '{{%commerce_producttypes_i18n}}', 'siteId', '{{%sites}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_producttypes_i18n}}', 'productTypeId'), '{{%commerce_producttypes_i18n}}', 'productTypeId', '{{%commerce_producttypes}}', 'id', 'CASCADE', null);
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_producttypes_shippingcategories}}', 'shippingCategoryId'), '{{%commerce_producttypes_shippingcategories}}', 'shippingCategoryId', '{{%commerce_shippingcategories}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_producttypes_shippingcategories}}', 'productTypeId'), '{{%commerce_producttypes_shippingcategories}}', 'productTypeId', '{{%commerce_producttypes}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_producttypes_taxcategories}}', 'productTypeId'), '{{%commerce_producttypes_taxcategories}}', 'productTypeId', '{{%commerce_producttypes}}', 'id', 'CASCADE', null);
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_producttypes_taxcategories}}', 'taxCategoryId'), '{{%commerce_producttypes_taxcategories}}', 'taxCategoryId', '{{%commerce_taxcategories}}', 'id', 'CASCADE', null);
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_purchasables}}', 'id'), '{{%commerce_purchasables}}', 'id', '{{%elements}}', 'id', 'CASCADE', null);
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_sale_products}}', 'productId'), '{{%commerce_sale_products}}', 'productId', '{{%commerce_products}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_sale_products}}', 'saleId'), '{{%commerce_sale_products}}', 'saleId', '{{%commerce_sales}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_sale_producttypes}}', 'productTypeId'), '{{%commerce_sale_producttypes}}', 'productTypeId', '{{%commerce_producttypes}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_sale_producttypes}}', 'saleId'), '{{%commerce_sale_producttypes}}', 'saleId', '{{%commerce_sales}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_sale_usergroups}}', 'saleId'), '{{%commerce_sale_usergroups}}', 'saleId', '{{%commerce_sales}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_sale_usergroups}}', 'userGroupId'), '{{%commerce_sale_usergroups}}', 'userGroupId', '{{%usergroups}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_shippingrule_categories}}', 'shippingCategoryId'), '{{%commerce_shippingrule_categories}}', 'shippingCategoryId', '{{%commerce_shippingcategories}}', 'id', 'CASCADE', null);
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_shippingrule_categories}}', 'shippingRuleId'), '{{%commerce_shippingrule_categories}}', 'shippingRuleId', '{{%commerce_shippingrules}}', 'id', 'CASCADE', null);
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_shippingrules}}', 'methodId'), '{{%commerce_shippingrules}}', 'methodId', '{{%commerce_shippingmethods}}', 'id', null, null);
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_shippingrules}}', 'shippingZoneId'), '{{%commerce_shippingrules}}', 'shippingZoneId', '{{%commerce_shippingzones}}', 'id', 'SET NULL', null);
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_shippingzone_countries}}', 'countryId'), '{{%commerce_shippingzone_countries}}', 'countryId', '{{%commerce_countries}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_shippingzone_countries}}', 'shippingZoneId'), '{{%commerce_shippingzone_countries}}', 'shippingZoneId', '{{%commerce_shippingzones}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_shippingzone_states}}', 'shippingZoneId'), '{{%commerce_shippingzone_states}}', 'shippingZoneId', '{{%commerce_shippingzones}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_shippingzone_states}}', 'stateId'), '{{%commerce_shippingzone_states}}', 'stateId', '{{%commerce_states}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_states}}', 'countryId'), '{{%commerce_states}}', 'countryId', '{{%commerce_countries}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_taxrates}}', 'taxCategoryId'), '{{%commerce_taxrates}}', 'taxCategoryId', '{{%commerce_taxcategories}}', 'id', null, 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_taxrates}}', 'taxZoneId'), '{{%commerce_taxrates}}', 'taxZoneId', '{{%commerce_taxzones}}', 'id', null, 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_taxzone_countries}}', 'countryId'), '{{%commerce_taxzone_countries}}', 'countryId', '{{%commerce_countries}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_taxzone_countries}}', 'taxZoneId'), '{{%commerce_taxzone_countries}}', 'taxZoneId', '{{%commerce_taxzones}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_taxzone_states}}', 'stateId'), '{{%commerce_taxzone_states}}', 'stateId', '{{%commerce_states}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_taxzone_states}}', 'taxZoneId'), '{{%commerce_taxzone_states}}', 'taxZoneId', '{{%commerce_taxzones}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_transactions}}', 'orderId'), '{{%commerce_transactions}}', 'orderId', '{{%commerce_orders}}', 'id', 'CASCADE', null);
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_transactions}}', 'parentId'), '{{%commerce_transactions}}', 'parentId', '{{%commerce_transactions}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_transactions}}', 'paymentMethodId'), '{{%commerce_transactions}}', 'paymentMethodId', '{{%commerce_paymentmethods}}', 'id', null, 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_transactions}}', 'userId'), '{{%commerce_transactions}}', 'userId', '{{%users}}', 'id', 'SET NULL', null);
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_variants}}', 'id'), '{{%commerce_variants}}', 'id', '{{%elements}}', 'id', 'CASCADE', null);
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_variants}}', 'productId'), '{{%commerce_variants}}', 'productId', '{{%commerce_products}}', 'id', 'SET NULL', 'CASCADE');
+    }
+    
+    /**
+     * Adds the foreign keys.
+     *
+     * @return void
+     */
+    protected function dropForeignKeys()
+    {
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_addresses}}', ['countryId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_addresses}}', ['stateId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_customer_discountuses}}', ['customerId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_customer_discountuses}}', ['discountId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_customers}}', ['userId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_customers_addresses}}', ['addressId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_customers_addresses}}', ['customerId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_discount_products}}', ['discountId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_discount_products}}', ['productId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_discount_producttypes}}', ['discountId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_discount_producttypes}}', ['productTypeId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_discount_usergroups}}', ['discountId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_discount_usergroups}}', ['userGroupId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_lineitems}}', ['orderId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_lineitems}}', ['purchasableId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_lineitems}}', ['shippingCategoryId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_lineitems}}', ['taxCategoryId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_orderadjustments}}', ['orderId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_orderhistories}}', ['customerId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_orderhistories}}', ['newStatusId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_orderhistories}}', ['orderId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_orderhistories}}', ['prevStatusId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_orders}}', ['billingAddressId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_orders}}', ['customerId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_orders}}', ['id'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_orders}}', ['orderStatusId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_orders}}', ['paymentMethodId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_orders}}', ['shippingAddressId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_ordersettings}}', ['fieldLayoutId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_orderstatus_emails}}', ['emailId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_orderstatus_emails}}', ['orderStatusId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_products}}', ['id'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_products}}', ['shippingCategoryId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_products}}', ['taxCategoryId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_products}}', ['typeId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_producttypes}}', ['fieldLayoutId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_producttypes}}', ['variantFieldLayoutId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_producttypes_i18n}}', ['siteId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_producttypes_i18n}}', ['productTypeId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_producttypes_shippingcategories}}', ['shippingCategoryId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_producttypes_shippingcategories}}', ['productTypeId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_producttypes_taxcategories}}', ['productTypeId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_producttypes_taxcategories}}', ['taxCategoryId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_purchasables}}', ['id'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_sale_products}}', ['productId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_sale_products}}', ['saleId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_sale_producttypes}}', ['productTypeId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_sale_producttypes}}', ['saleId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_sale_usergroups}}', ['saleId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_sale_usergroups}}', ['userGroupId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_shippingrule_categories}}', ['shippingCategoryId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_shippingrule_categories}}', ['shippingRuleId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_shippingrules}}', ['methodId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_shippingrules}}', ['shippingZoneId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_shippingzone_countries}}', ['countryId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_shippingzone_countries}}', ['shippingZoneId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_shippingzone_states}}', ['shippingZoneId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_shippingzone_states}}', ['stateId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_states}}', ['countryId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_taxrates}}', ['taxCategoryId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_taxrates}}', ['taxZoneId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_taxzone_countries}}', ['countryId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_taxzone_countries}}', ['taxZoneId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_taxzone_states}}', ['stateId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_taxzone_states}}', ['taxZoneId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_transactions}}', ['orderId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_transactions}}', ['parentId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_transactions}}', ['paymentMethodId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_transactions}}', ['userId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_variants}}', ['id'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_variants}}', ['productId'], $this);
     }
 
-    public function defaultCountries()
+    /**
+     * Insert the default data.
+     *
+     * @return void
+     */
+    protected function insertDefaultData()
+    {
+        $this->_defaultCountries();
+        $this->_defaultStates();
+        $this->_defaultCurrency();
+        $this->_defaultShippingMethod();
+        $this->_defaultTaxCategories();
+        $this->_defaultShippingCategories();
+        $this->_defaultOrderSettings();
+        $this->_defaultProductTypes();
+        $this->_defaultProducts();
+        $this->_paymentMethods();
+        $this->_defaultSettings();
+    }
+
+    // Private Methods
+    // =========================================================================
+
+    /**
+     * Insert default countries data.
+     *
+     * @return void
+     */
+    private function _defaultCountries()
     {
         $countries = [
             ['AD', 'Andorra'],
@@ -959,17 +1265,15 @@ class Install extends Migration
             ['ZW', 'Zimbabwe'],
         ];
 
-        // Not doing a bulk insert in case someone wants to repopulate deleted countries will all missing
-        foreach ($countries as $country) {
-            $keyCols = [];
-            $columns = [];
-            $keyCols['iso'] = $country[0];
-            $columns['name'] = $country[1];
-            $this->insert('{{%commerce_countries}}', $keyCols, $columns);
-        }
+        $this->batchInsert('{{%commerce_countries}}', ['iso', 'name'], $countries);
     }
 
-    public function defaultStates()
+    /**
+     * Add default States.
+     *
+     * @return void
+     */
+    private function _defaultStates()
     {
         $states = [
             'AU' => [
@@ -1070,19 +1374,26 @@ class Install extends Migration
         $this->batchInsert($table, ['countryId', 'abbreviation', 'name'], $rows);
     }
 
-    public function defaultCurrency()
+    /**
+     * Make USD the default currency.
+     *
+     * @return void
+     */
+    private function _defaultCurrency()
     {
-        $method = new PaymentCurrency();
-        $method->iso = 'USD';
-        $method->rate = 1;
-        $method->primary = true;
-        $method->save();
+        $currency = new PaymentCurrency();
+        $currency->iso = 'USD';
+        $currency->rate = 1;
+        $currency->primary = true;
+        $currency->save();
     }
 
     /**
-     * Shipping Methods
+     * Add a shipping Method
+     *
+     * @return void
      */
-    private function defaultShippingMethod()
+    private function _defaultShippingMethod()
     {
         $method = new ShippingMethod();
         $method->name = 'Free Shipping';
@@ -1099,9 +1410,12 @@ class Install extends Migration
     }
 
     /**
+     * Add a default Tax category.
+     *
      * @throws Exception
+     * @return void
      */
-    private function defaultTaxCategories()
+    private function _defaultTaxCategories()
     {
         $category = new TaxCategory([
             'name' => 'General',
@@ -1113,9 +1427,12 @@ class Install extends Migration
     }
 
     /**
+     * Add a default shipping category.
+     *
      * @throws Exception
+     * @return void
      */
-    private function defaultShippingCategories()
+    private function _defaultShippingCategories()
     {
         $category = new ShippingCategory([
             'name' => 'General',
@@ -1127,9 +1444,12 @@ class Install extends Migration
     }
 
     /**
+     * Add the default order settings.
+     *
      * @throws \Exception
+     * @return void
      */
-    private function defaultOrderSettings()
+    private function _defaultOrderSettings()
     {
 
         $orderSettings = new OrderSettings();
@@ -1165,10 +1485,13 @@ class Install extends Migration
     }
 
     /**
+     * Set the default product types.
+     *
      * @throws Exception
      * @throws \Exception
+     * @return void
      */
-    private function defaultProductTypes()
+    private function _defaultProductTypes()
     {
         $productType = new ProductType();
         $productType->name = 'Clothing';
@@ -1202,11 +1525,14 @@ class Install extends Migration
     }
 
     /**
+     * Add some default products.
+     *
      * @throws Exception
      * @throws HttpException
      * @throws \Exception
+     * @return void
      */
-    private function defaultProducts()
+    private function _defaultProducts()
     {
         $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
 
@@ -1247,7 +1573,12 @@ class Install extends Migration
         }
     }
 
-    private function paymentMethods()
+    /**
+     * Add a payment method.
+     *
+     * @return void
+     */
+    private function _paymentMethods()
     {
         /** @var Dummy_GatewayAdapter $adapter */
         $adapter = Plugin::getInstance()->getGateways()->getAllGateways()['Dummy'];
@@ -1261,17 +1592,16 @@ class Install extends Migration
         Plugin::getInstance()->getPaymentMethods()->savePaymentMethod($model);
     }
 
-    private function defaultSettings()
+    /**
+     * Set default plugin settings.
+     *
+     * @return void
+     */
+    private function _defaultSettings()
     {
         $settings = new Settings();
         $settings->orderPdfPath = 'shop/_pdf/order';
         $settings->orderPdfFilenameFormat = 'Order-{number}';
         Plugin::getInstance()->getSettings()->saveSettings($settings);
     }
-
-    public function safeDown()
-    {
-        parent::safeDown();
-    }
-
 }

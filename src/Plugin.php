@@ -76,31 +76,6 @@ class Plugin extends \craft\base\Plugin
     }
 
     /**
-     * Cleanup before the plugin uninstalls
-     *
-     * @return bool
-     * @throws Exception
-     */
-    public function beforeUnInstall(): bool
-    {
-        $this->_dropAllTables();
-
-        Craft::$app->getDb()->createCommand()
-            ->delete(
-                '{{%elementindexsettings}}',
-                ['type' => Order::class])
-            ->execute();
-
-        Craft::$app->getDb()->createCommand()
-            ->delete(
-                '{{%elementindexsettings}}',
-                ['type' => Product::class])
-            ->execute();
-
-        return true;
-    }
-
-    /**
      * @inheritdoc
      */
     public function getCpNavItem()
@@ -250,6 +225,9 @@ class Plugin extends \craft\base\Plugin
         Event::on(CpHelper::class, CpHelper::EVENT_REGISTER_ALERTS, function(RegisterCpAlertsEvent $event) {
 
             if (Craft::$app->getRequest()->getFullPath() != 'commerce/settings/registration') {
+
+                $message = null;
+
                 $licenseKeyStatus = Craft::$app->getPlugins()->getPluginLicenseKeyStatus('Commerce');
 
                 $message = null;
@@ -277,21 +255,6 @@ class Plugin extends \craft\base\Plugin
                 }
             }
         });
-    }
-
-    private function _dropAllTables()
-    {
-        // TODO: Drop all Commerce Tables
-
-        // Drop all foreign keys first
-        // foreach ($records as $record) {
-           // $record->dropForeignKeys();
-        // }
-
-        // Then drop the tables
-        // foreach ($records as $record) {
-           // $record->dropTable();
-        // }
     }
 
     private function _registerFieldTypes()
