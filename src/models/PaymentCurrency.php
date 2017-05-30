@@ -3,6 +3,7 @@
 namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
+use craft\commerce\Plugin;
 
 /**
  * Currency model.
@@ -55,7 +56,7 @@ class PaymentCurrency extends Model
     public $alphabeticCode;
 
     /**
-     * @var string Currency
+     * @var string Currency code
      */
     public $currency;
 
@@ -74,16 +75,18 @@ class PaymentCurrency extends Model
      */
     public $numericCode;
 
-    // TODO incomplete property descriptions
+    /**
+     * @var Currency
+     */
     private $_currency;
 
     public function populateModel($values)
     {
-        if ($values instanceof \CModel) {
+        if ($values instanceof Model) {
             $values = $values->getAttributes();
         }
         /** @var PaymentCurrency $currency */
-        $currency = parent::populateModel($values);
+        $currency = new static($values);
 
         $iso = $values['iso'];
         if ($currencyModel = Plugin::getInstance()->getCurrencies()->getCurrencyByIso($iso)) {
@@ -203,18 +206,4 @@ class PaymentCurrency extends Model
     {
         $this->_currency = $currency;
     }
-
-    /**
-     * @return array
-     */
-    protected function defineAttributes()
-    {
-        return [
-            'id' => AttributeType::Number,
-            'iso' => AttributeType::String,
-            'primary' => AttributeType::Bool,
-            'rate' => AttributeType::Number
-        ];
-    }
-
 }

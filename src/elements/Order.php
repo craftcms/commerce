@@ -23,54 +23,62 @@ use craft\models\FieldLayout;
 /**
  * Order or Cart model.
  *
- * @property int                     $id
- * @property string                  $number
- * @property string                  $couponCode
- * @property float                   $itemTotal
- * @property float                   $totalPrice
- * @property float                   $totalPaid
- * @property float                   $baseDiscount
- * @property float                   $baseShippingCost
- * @property float                   $baseTax
- * @property string                  $email
- * @property bool                    $isCompleted
- * @property \DateTime               $dateOrdered
- * @property string                  $currency
- * @property string                  $paymentCurrency
- * @property \DateTime               $datePaid
- * @property string                  $lastIp
- * @property string                  $orderLocale
- * @property string                  $message
- * @property string                  $returnUrl
- * @property string                  $cancelUrl
+ * @property int                                               $id
+ * @property string                                            $number
+ * @property string                                            $couponCode
+ * @property float                                             $itemTotal
+ * @property float                                             $totalPrice
+ * @property float                                             $totalPaid
+ * @property float                                             $baseDiscount
+ * @property float                                             $baseShippingCost
+ * @property float                                             $baseTax
+ * @property string                                            $email
+ * @property bool                                              $isCompleted
+ * @property \DateTime                                         $dateOrdered
+ * @property string                                            $currency
+ * @property string                                            $paymentCurrency
+ * @property \DateTime                                         $datePaid
+ * @property string                                            $lastIp
+ * @property string                                            $orderLocale
+ * @property string                                            $message
+ * @property string                                            $returnUrl
+ * @property string                                            $cancelUrl
  *
- * @property int                     $billingAddressId
- * @property int                     $shippingAddressId
- * @property ShippingMethodInterface $shippingMethod
- * @property int                     $paymentMethodId
- * @property int                     $customerId
- * @property int                     $orderStatusId
+ * @property int                                               $billingAddressId
+ * @property int                                               $shippingAddressId
+ * @property ShippingMethodInterface                           $shippingMethod
+ * @property int                                               $paymentMethodId
+ * @property int                                               $customerId
+ * @property int                                               $orderStatusId
  *
- * @property int                     $totalQty
- * @property int                     $totalWeight
- * @property int                     $totalHeight
- * @property int                     $totalLength
- * @property int                     $totalWidth
- * @property int                     $totalTax
- * @property int                     $totalShippingCost
- * @property int                     $totalDiscount
- * @property string                  $pdfUrl
+ * @property int                                               $totalQty
+ * @property int                                               $totalWeight
+ * @property int                                               $totalHeight
+ * @property int                                               $totalLength
+ * @property int                                               $totalWidth
+ * @property int                                               $totalTax
+ * @property int                                               $totalShippingCost
+ * @property int                                               $totalDiscount
+ * @property string                                            $pdfUrl
  *
- * @property OrderSettings           $type
- * @property LineItem[]              $lineItems
- * @property Address                 $billingAddress
- * @property Customer                $customer
- * @property Address                 $shippingAddress
- * @property OrderAdjustment[]       $adjustments
- * @property PaymentMethod           $paymentMethod
- * @property Transaction[]           $transactions
- * @property OrderStatus             $orderStatus
- * @property OrderHistory[]          $histories
+ * @property OrderSettings                                     $type
+ * @property LineItem[]                                        $lineItems
+ * @property Address                                           $billingAddress
+ * @property Customer                                          $customer
+ * @property Address                                           $shippingAddress
+ * @property OrderAdjustment[]                                 $adjustments
+ * @property PaymentMethod                                     $paymentMethod
+ * @property Transaction[]                                     $transactions
+ * @property OrderStatus                                       $orderStatus
+ * @property null|string                                       $name
+ * @property string                                            $shortNumber
+ * @property null|string                                       $shippingMethodHandle
+ * @property null|\craft\commerce\base\ShippingMethodInterface $shippingMethodId
+ * @property float                                             $totalTaxIncluded
+ * @property float|int                                         $adjustmentSubtotal
+ * @property int                                               $totalSaleAmount
+ * @property int                                               $itemSubtotal
+ * @property OrderHistory[]                                    $histories
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -213,22 +221,22 @@ class Order extends Element
     public $customerId;
 
     /**
-     * @var
+     * @var Address
      */
     private $_shippingAddress;
 
     /**
-     * @var
+     * @var Address
      */
     private $_billingAddress;
 
     /**
-     * @var array
+     * @var LineItem[]
      */
     private $_lineItems;
 
     /**
-     * @var array
+     * @var OrderAdjustment[]
      */
     private $_orderAdjustments;
 
