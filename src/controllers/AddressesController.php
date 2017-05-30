@@ -19,7 +19,7 @@ use yii\web\HttpException;
  * @package   craft.plugins.commerce.controllers
  * @since     1.0
  */
-class AddressController extends BaseAdminController
+class AddressesController extends BaseAdminController
 {
 
     /**
