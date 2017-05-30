@@ -105,7 +105,7 @@ class PaymentMethod extends Model
 
         if ($paymentMethod->id) {
             // Are its settings being set from the config file?
-            $paymentMethodSettings = Plugin::getInstance()->getSettings()->getSettings()->paymentMethodSettings;
+            $paymentMethodSettings = Plugin::getInstance()->getSettings()->paymentMethodSettings;
 
             if (isset($paymentMethodSettings[$paymentMethod->id])) {
                 $paymentMethod->settings = array_merge($paymentMethod->settings, $paymentMethodSettings[$paymentMethod->id]);

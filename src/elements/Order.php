@@ -363,7 +363,7 @@ class Order extends Element
         $url = null;
 
         // Make sure the template exists
-        $template = Plugin::getInstance()->getSettings()->getSettings()->orderPdfPath;
+        $template = Plugin::getInstance()->getSettings()->orderPdfPath;
 
         if ($template) {
             // Set Craft to the site template mode

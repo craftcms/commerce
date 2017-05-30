@@ -251,16 +251,6 @@ trait Services
     }
 
     /**
-     * Returns the settings service
-     *
-     * @return Settings The settings service
-     */
-    public function getSettings()
-    {
-        return $this->get('settings');
-    }
-
-    /**
      * Returns the shippingMethods service
      *
      * @return ShippingMethods The shippingMethods service

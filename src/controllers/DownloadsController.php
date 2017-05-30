@@ -31,8 +31,8 @@ class DownloadsController extends BaseFrontEndController
 {
     public function actionPdf()
     {
-        $template = Plugin::getInstance()->getSettings()->getSettings()->orderPdfPath;
-        $filenameFormat = Plugin::getInstance()->getSettings()->getSettings()->orderPdfFilenameFormat;
+        $template = Plugin::getInstance()->getSettings()->orderPdfPath;
+        $filenameFormat = Plugin::getInstance()->getSettings()->orderPdfFilenameFormat;
 
         // Set Craft to the site template mode
         $viewService = Craft::$app->getView();

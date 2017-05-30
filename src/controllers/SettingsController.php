@@ -32,7 +32,7 @@ class SettingsController extends BaseAdminController
      */
     public function actionEdit()
     {
-        $settings = Plugin::getInstance()->getSettings()->getSettings();
+        $settings = Plugin::getInstance()->getSettings();
 
         $craftSettings = Craft::$app->getEmail()->getSettings();
         $settings->emailSenderAddressPlaceholder = (isset($craftSettings['emailAddress']) ? $craftSettings['emailAddress'] : '');
@@ -51,7 +51,7 @@ class SettingsController extends BaseAdminController
         $postData = Craft::$app->getRequest()->getParam('settings');
         $settings = new SettingsModel($postData);
 
-        if (!Plugin::getInstance()->getSettings()->getSettings()->saveSettings($settings)) {
+        if (!Plugin::getInstance()->getSettings()->saveSettings($settings)) {
             Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save settings.'));
             $this->renderTemplate('commerce/settings', ['settings' => $settings]);
         } else {

@@ -199,7 +199,7 @@ class Payments extends Component
     private function createItemBag(Order $order)
     {
 
-        if (!Plugin::getInstance()->getSettings()->getSettings()->sendCartInfoToGateways) {
+        if (!Plugin::getInstance()->getSettings()->sendCartInfoToGateways) {
             return null;
         }
 
@@ -376,7 +376,7 @@ class Payments extends Component
                         $redirect = $response->getRedirectUrl();
                     } else {
 
-                        $gatewayPostRedirectTemplate = Plugin::getInstance()->getSettings()->getSettings()->gatewayPostRedirectTemplate;
+                        $gatewayPostRedirectTemplate = Plugin::getInstance()->getSettings()->gatewayPostRedirectTemplate;
 
                         if (!empty($gatewayPostRedirectTemplate)) {
                             $variables = [];

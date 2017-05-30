@@ -494,7 +494,7 @@ class Cart extends Component
      */
     public function purgeIncompleteCarts()
     {
-        $doPurge = Plugin::getInstance()->getSettings()->getSettings()->purgeInactiveCarts;
+        $doPurge = Plugin::getInstance()->getSettings()->purgeInactiveCarts;
 
         if ($doPurge) {
             $cartIds = $this->getCartsIdsToPurge();
@@ -515,7 +515,7 @@ class Cart extends Component
      */
     private function getCartsIdsToPurge()
     {
-        $configInterval = Plugin::getInstance()->getSettings()->getSettings()->purgeInactiveCartsDuration;
+        $configInterval = Plugin::getInstance()->getSettings()->purgeInactiveCartsDuration;
         $edge = new \DateTime();
         $interval = new \DateInterval($configInterval);
         $interval->invert = 1;

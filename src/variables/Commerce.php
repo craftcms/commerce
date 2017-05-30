@@ -36,7 +36,7 @@ class Commerce
      */
     public function settings()
     {
-        return Plugin::getInstance()->getSettings()->getSettings();
+        return Plugin::getInstance()->getSettings();
     }
 
     /**

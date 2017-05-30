@@ -2,8 +2,8 @@
 namespace craft\commerce;
 
 use Craft;
-use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
+use craft\commerce\models\Settings;
 use craft\commerce\plugin\Routes;
 use craft\commerce\plugin\Services as CommerceServices;
 use craft\commerce\variables\Commerce;
@@ -11,11 +11,9 @@ use craft\commerce\web\twig\Extension;
 use craft\elements\User as UserElement;
 use craft\enums\LicenseKeyStatus;
 use craft\events\RegisterCpAlertsEvent;
-use craft\events\RegisterCpNavItemsEvent;
 use craft\events\RegisterRichTextLinkOptionsEvent;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\fields\RichText;
-use craft\web\twig\variables\Cp;
 use craft\helpers\Cp as CpHelper;
 use craft\helpers\UrlHelper;
 use craft\services\Sites;
@@ -124,6 +122,14 @@ class Plugin extends \craft\base\Plugin
         }
 
         return $navItems;
+    }
+
+    // Protected Methods
+    // =========================================================================
+
+    protected function createSettingsModel()
+    {
+        return new Settings();
     }
 
     // Private Methods
