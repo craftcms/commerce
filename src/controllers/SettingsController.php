@@ -5,6 +5,8 @@ namespace craft\commerce\controllers;
 ;
 
 use craft\commerce\models\Settings as SettingsModel;
+use craft\commerce\Plugin;
+use Craft;
 
 /**
  * Class Settings Controller
@@ -34,7 +36,7 @@ class SettingsController extends BaseAdminController
     {
         $settings = Plugin::getInstance()->getSettings();
 
-        $craftSettings = Craft::$app->getEmail()->getSettings();
+        $craftSettings = Craft::$app->getSystemSettings()->getEmailSettings();
         $settings->emailSenderAddressPlaceholder = (isset($craftSettings['emailAddress']) ? $craftSettings['emailAddress'] : '');
         $settings->emailSenderNamePlaceholder = (isset($craftSettings['senderName']) ? $craftSettings['senderName'] : '');
 

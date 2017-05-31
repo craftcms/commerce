@@ -3,6 +3,7 @@
 namespace craft\commerce\controllers;
 
 use craft\commerce\models\State;
+use Craft;
 
 /**
  * Class State Controller

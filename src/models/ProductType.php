@@ -266,9 +266,25 @@ class ProductType extends Model
 
 
     /**
+     * @return mixed
+     */
+    public function getProductFieldLayout()
+    {
+        return $this->getBehavior('productFieldLayout')->getFieldLayout();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getVariantFieldLayout()
+    {
+        return $this->getBehavior('variantFieldLayout')->getFieldLayout();
+    }
+
+    /**
      * @inheritdoc
      */
-    public function behaviors()
+    public function behaviors(): array
     {
         return [
             'productFieldLayout' => [

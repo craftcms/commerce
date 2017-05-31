@@ -27,7 +27,7 @@ class TaxCategories extends Component
     /**
      * @var
      */
-    private $_taxCategoriesById;
+    private $_taxCategoriesById = [];
 
     /**
      * @var
@@ -64,9 +64,9 @@ class TaxCategories extends Component
      *
      * @return TaxCategory
      */
-    private function _populateTaxCategory($values)
+    private function _populateTaxCategory($values): TaxCategory
     {
-        $taxCategory = TaxCategory::populateModel($values);
+        $taxCategory = new TaxCategory($values);
 
         if ($taxCategory->id) {
             $this->_memoizeTaxCategory($taxCategory);

@@ -3,13 +3,18 @@
 namespace craft\commerce\elements;
 
 use Craft;
+use craft\base\ElementInterface;
 use craft\commerce\base\Element;
 use craft\commerce\elements\db\ProductQuery;
 use craft\commerce\helpers\VariantMatrix;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
+use craft\db\Query;
+use craft\elements\db\ElementQueryInterface;
+use craft\helpers\ArrayHelper;
 use craft\helpers\UrlHelper;
+use craft\models\FieldLayout;
 use yii\base\InvalidConfigException;
 
 /**
@@ -67,7 +72,7 @@ class Product extends Element
      *
      * @return ProductQuery The newly created [[ProductQuery]] instance.
      */
-    public static function find(): ProductQuery
+    public static function find(): ElementQueryInterface
     {
         return new ProductQuery(static::class);
     }
@@ -201,14 +206,14 @@ class Product extends Element
     }
 
     /**
-     * @return FieldLayoutModel|null
+     * @return FieldLayout|null
      */
     public function getFieldLayout()
     {
         $productType = $this->getType();
 
         if ($productType) {
-            return $productType->asa('productFieldLayout')->getFieldLayout();
+            return $productType->getProductFieldLayout();
         }
 
         return null;
@@ -314,7 +319,7 @@ class Product extends Element
     /**
      * Does at least one variant have unlimited stock?
      */
-    public function getUnlimitedStock()
+    public function getUnlimitedStock(): bool
     {
         foreach ($this->getVariants() as $variant) {
             if ($variant->unlimitedStock) {
@@ -329,9 +334,9 @@ class Product extends Element
      * Sets some eager loaded elements on a given handle.
      *
      * @param string             $handle   The handle to load the elements with in the future
-     * @param BaseElementModel[] $elements The eager-loaded elements
+     * @param \craft\base\Element[] $elements The eager-loaded elements
      */
-    public function setEagerLoadedElements($handle, $elements)
+    public function setEagerLoadedElements(string $handle, array $elements)
     {
         if ($handle == 'variants') {
             $this->setVariants($elements);
@@ -339,6 +344,30 @@ class Product extends Element
             parent::setEagerLoadedElements($handle, $elements);
         }
     }
+
+
+    public static function eagerLoadingMap(array $sourceElements, string $handle)
+    {
+        if ($handle == 'variants') {
+
+            $sourceElementIds = ArrayHelper::getColumn($sourceElements, 'id');
+
+            $map = (new Query())
+                ->select('productId as source, id as target')
+                ->from(['{{%commerce_variants}}'])
+                ->where(['in', 'productId', $sourceElementIds])
+                ->orderBy('sortOrder asc')
+                ->all();
+
+            return [
+                'elementType' => Variant::class,
+                'map' => $map
+            ];
+        }
+
+        return parent::eagerLoadingMap($sourceElements, $handle);
+    }
+
 
     // Protected Methods
     // =============================================================================
@@ -383,7 +412,7 @@ class Product extends Element
      *
      * @return array
      */
-    public function getAvailableActions($source = null)
+    public function getAvailableActions($source = null): array
     {
         // Get the section(s) we need to check permissions on
         switch ($source) {
@@ -448,6 +477,11 @@ class Product extends Element
         }
 
         return $actions;
+    }
+
+    public static function refHandle()
+    {
+        return 'product';
     }
 
     /**

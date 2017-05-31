@@ -3,6 +3,7 @@
 namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
+use Craft;
 
 /**
  * Settings model.

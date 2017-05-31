@@ -5,7 +5,7 @@
     }
 
 
-    var elementTypeClass = 'Commerce_Product';
+    var elementTypeClass = '\\craft\\commerce\\elements\\Product';
 
     /**
      * Product index class

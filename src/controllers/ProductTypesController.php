@@ -3,6 +3,8 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\elements\Product;
+use craft\commerce\elements\Variant;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\ProductTypeLocale;
 use craft\commerce\Plugin;
@@ -97,13 +99,13 @@ class ProductTypesController extends BaseAdminController
 
         // Set the product type field layout
         $fieldLayout = Craft::$app->getFields()->assembleLayoutFromPost();
-        $fieldLayout->type = 'Commerce_Product';
-        $productType->asa('productFieldLayout')->setFieldLayout($fieldLayout);
+        $fieldLayout->type = Product::class;
+        $productType->getBehavior('productFieldLayout')->setFieldLayout($fieldLayout);
 
         // Set the variant field layout
         $variantFieldLayout = Craft::$app->getFields()->assembleLayoutFromPost('variant-layout');
-        $variantFieldLayout->type = 'Commerce_Variant';
-        $productType->asa('variantFieldLayout')->setFieldLayout($variantFieldLayout);
+        $variantFieldLayout->type = Variant::class;
+        $productType->getBehavior('variantFieldLayout')->setFieldLayout($variantFieldLayout);
 
         // Save it
         if (Plugin::getInstance()->getProductTypes()->saveProductType($productType)) {

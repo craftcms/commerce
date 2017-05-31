@@ -6,6 +6,7 @@ use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\helpers\ArrayHelper;
+use Craft;
 
 /**
  * Class Tax Rates Controller

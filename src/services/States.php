@@ -29,7 +29,7 @@ class States extends Component
         $result = StateRecord::findOne($id);
 
         if ($result) {
-            return State::populateModel($result);
+            return new State($result);
         }
 
         return null;
@@ -64,7 +64,7 @@ class States extends Component
             $cid2state += [$state->countryId => []];
 
             if (count($cid2state[$state->countryId]) == 0) {
-                $cid2state[$state->countryId][null] = "";
+                $cid2state[$state->countryId][null] = '';
             }
 
             $cid2state[$state->countryId][$state->id] = $state->name;
@@ -78,7 +78,7 @@ class States extends Component
      */
     public function getAllStates(): array
     {
-        $records = StateRecord::find()->with('country c')->alias('s')->orderBy('c.name, s.name')->all();
+        $records = StateRecord::find()->with('country')->alias('s')->orderBy('country.name, s.name')->all();
 
         return State::populateModels($records);
     }

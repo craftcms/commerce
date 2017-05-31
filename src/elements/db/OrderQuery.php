@@ -129,9 +129,30 @@ class OrderQuery extends ElementQuery
             $config['orderBy'] = 'commerce_orders.id';
         }
 
+        // Default completed status
+        if (!isset($config['isCompleted'])) {
+            $config['isCompleted'] = true;
+        }
+
         parent::__construct($elementType, $config);
     }
 
+    /**
+     * @inheritdoc
+     */
+    public function __set($name, $value)
+    {
+        switch ($name) {
+            case 'number':
+                $this->number($value);
+                break;
+            case 'email':
+                $this->email($value);
+                break;
+            default:
+                parent::__set($name, $value);
+        }
+    }
 
     /**
      * Sets the [[number]] property.
@@ -267,7 +288,11 @@ class OrderQuery extends ElementQuery
         if ($value instanceof OrderStatus) {
             $this->orderStatusId = $value->id;
         } else if ($value !== null) {
-            $this->orderStatusId = $value;
+            $this->orderStatusId = (new Query())
+                ->select(['id'])
+                ->from(['{{%commerce_orderstatuses}}'])
+                ->where(Db::parseParam('handle', $value))
+                ->column();
         } else {
             $this->orderStatusId = null;
         }

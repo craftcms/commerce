@@ -2,10 +2,16 @@
 
 namespace craft\commerce\elements\db;
 
+use craft\commerce\elements\Product;
+use craft\commerce\models\ProductType;
+use craft\commerce\Plugin;
 use craft\db\Query;
+use craft\db\QueryAbortedException;
 use craft\elements\db\ElementQuery;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
+use DateTime;
+use Craft;
 
 /**
  *
@@ -15,58 +21,76 @@ use craft\helpers\Db;
 class ProductQuery extends ElementQuery
 {
     /**
-     * @var bool Whether to only return entries that the user has permission to edit.
+     * @var bool Whether to only return products that the user has permission to edit.
      */
     public $editable = false;
 
     /**
-     * @var int|int[]|null The section ID(s) that the resulting entries must be in.
+     * @var ProductType The product type the resulting products must belong to.
      */
-    public $sectionId;
+    public $type;
 
     /**
-     * @var int|int[]|null The entry type ID(s) that the resulting entries must have.
+     * @var int|int[]|null The product type ID(s) that the resulting products must have.
      */
     public $typeId;
 
     /**
-     * @var int|int[]|null The user ID(s) that the resulting entries’ authors must have.
-     */
-    public $authorId;
-
-    /**
-     * @var int|int[]|null The user group ID(s) that the resulting entries’ authors must be in.
-     */
-    public $authorGroupId;
-
-    /**
-     * @var mixed The Post Date that the resulting entries must have.
+     * @var mixed The Post Date that the resulting products must have.
      */
     public $postDate;
 
+
     /**
-     * @var mixed The Expiry Date that the resulting entries must have.
+     * @var mixed The Post Date that the resulting products must have.
      */
     public $expiryDate;
 
+    /**
+     * @var mixed The Post Date that the resulting products must be after.
+     */
+    public $after;
 
-//'after' => AttributeType::Mixed,
-//'before' => AttributeType::Mixed,
-//'defaultPrice' => AttributeType::Mixed,
-//'editable' => AttributeType::Bool,
-//'expiryDate' => AttributeType::Mixed,
-//'order' => [AttributeType::String, 'default' => 'postDate desc'],
-//'postDate' => AttributeType::Mixed,
-//'status' => [AttributeType::String, 'default' => Product::LIVE],
-//'type' => AttributeType::Mixed,
-//'typeId' => AttributeType::Mixed,
-//'withVariant' => AttributeType::Mixed,
-//'hasVariant' => AttributeType::Mixed,
-//'hasSales' => AttributeType::Mixed,
-//'defaultHeight' => AttributeType::Mixed,
-//'defaultLength' => AttributeType::Mixed,
-//'defaultWidth' => AttributeType::Mixed,
-//'defaultWeight' => AttributeType::Mixed
+    /**
+     * @var mixed The Post Date that the resulting products must be before.
+     */
+    public $before;
+
+    /**
+     * @var float The default price the resulting products must have.
+     */
+    public $defaultPrice;
+
+    /**
+     * @var float The default height the resulting products must have.
+     */
+    public $defaultHeight;
+
+    /**
+     * @var float The default length the resulting products must have.
+     */
+    public $defaultLength;
+
+    /**
+     * @var float The default width the resulting products must have.
+     */
+    public $defaultWidth;
+
+    /**
+     * @var float The default weight the resulting products must have.
+     */
+    public $defaultWeight;
+
+    /**
+     * @var VariantQuery only return products that match the resulting variant query.
+     */
+    public $hasVariant;
+
+    /**
+     * @var bool The sale status the resulting products should have.
+     */
+    public $hasSales;
+
 
     // Public Methods
     // =========================================================================
@@ -90,14 +114,8 @@ class ProductQuery extends ElementQuery
     public function __set($name, $value)
     {
         switch ($name) {
-            case 'section':
-                $this->section($value);
-                break;
             case 'type':
                 $this->type($value);
-                break;
-            case 'authorGroup':
-                $this->authorGroup($value);
                 break;
             case 'before':
                 $this->before($value);
@@ -111,45 +129,20 @@ class ProductQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[sectionId]] property based on a given section(s)’s handle(s).
+     * Sets the [[typeId]] property based on a given product types(s)’s handle(s).
      *
-     * @param string|string[]|Section|null $value The property value
-     *
-     * @return static self reference
-     */
-    public function section($value)
-    {
-        if ($value instanceof Section) {
-            $this->structureId = ($value->structureId ?: false);
-            $this->sectionId = $value->id;
-        } else if ($value !== null) {
-            $this->sectionId = (new Query())
-                ->select(['id'])
-                ->from(['{{%sections}}'])
-                ->where(Db::parseParam('handle', $value))
-                ->column();
-        } else {
-            $this->sectionId = null;
-        }
-
-        return $this;
-    }
-
-    /**
-     * Sets the [[typeId]] property based on a given entry type(s)’s handle(s).
-     *
-     * @param string|string[]|EntryType|null $value The property value
+     * @param string|string[]|ProductType|null $value The property value
      *
      * @return static self reference
      */
     public function type($value)
     {
-        if ($value instanceof EntryType) {
+        if ($value instanceof ProductType) {
             $this->typeId = $value->id;
         } else if ($value !== null) {
             $this->typeId = (new Query())
                 ->select(['id'])
-                ->from(['{{%entrytypes}}'])
+                ->from(['{{%commerce_producttypes}}'])
                 ->where(Db::parseParam('handle', $value))
                 ->column();
         } else {
@@ -160,31 +153,7 @@ class ProductQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[authorGroupId]] property based on a given user group(s)’s handle(s).
-     *
-     * @param string|string[]|null $value The property value
-     *
-     * @return static self reference
-     */
-    public function authorGroup($value)
-    {
-        if ($value instanceof UserGroup) {
-            $this->authorGroupId = $value->id;
-        } else if ($value !== null) {
-            $this->authorGroupId = (new Query())
-                ->select(['id'])
-                ->from(['{{%usergroups}}'])
-                ->where(Db::parseParam('handle', $value))
-                ->column();
-        } else {
-            $this->authorGroupId = null;
-        }
-
-        return $this;
-    }
-
-    /**
-     * Sets the [[postDate]] property to only allow entries whose Post Date is before the given value.
+     * Sets the [[postDate]] property to only allow products whose Post Date is before the given value.
      *
      * @param DateTime|string $value The property value
      *
@@ -203,7 +172,7 @@ class ProductQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[postDate]] property to only allow entries whose Post Date is after the given value.
+     * Sets the [[postDate]] property to only allow products whose Post Date is after the given value.
      *
      * @param DateTime|string $value The property value
      *
@@ -236,20 +205,6 @@ class ProductQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[sectionId]] property.
-     *
-     * @param int|int[]|null $value The property value
-     *
-     * @return static self reference
-     */
-    public function sectionId($value)
-    {
-        $this->sectionId = $value;
-
-        return $this;
-    }
-
-    /**
      * Sets the [[typeId]] property.
      *
      * @param int|int[]|null $value The property value
@@ -259,34 +214,6 @@ class ProductQuery extends ElementQuery
     public function typeId($value)
     {
         $this->typeId = $value;
-
-        return $this;
-    }
-
-    /**
-     * Sets the [[authorId]] property.
-     *
-     * @param int|int[]|null $value The property value
-     *
-     * @return static self reference
-     */
-    public function authorId($value)
-    {
-        $this->authorId = $value;
-
-        return $this;
-    }
-
-    /**
-     * Sets the [[authorGroupId]] property.
-     *
-     * @param int|int[]|null $value The property value
-     *
-     * @return static self reference
-     */
-    public function authorGroupId($value)
-    {
-        $this->authorGroupId = $value;
 
         return $this;
     }
@@ -327,19 +254,29 @@ class ProductQuery extends ElementQuery
      */
     protected function beforePrepare(): bool
     {
-        // See if 'section', 'type', or 'authorGroup' were set to invalid handles
-        if ($this->sectionId === [] || $this->typeId === [] || $this->authorGroupId === []) {
+        // See if 'type' were set to invalid handles
+        if ($this->typeId === []) {
             return false;
         }
 
-        $this->joinElementTable('entries');
+        $this->joinElementTable('commerce_products');
 
         $this->query->select([
-            'entries.sectionId',
-            'entries.typeId',
-            'entries.authorId',
-            'entries.postDate',
-            'entries.expiryDate',
+            'products.id',
+            'products.typeId',
+            'products.promotable',
+            'products.freeShipping',
+            'products.postDate',
+            'products.expiryDate',
+            'products.defaultPrice',
+            'products.defaultVariantId',
+            'products.defaultSku',
+            'products.defaultWeight',
+            'products.defaultLength',
+            'products.defaultWidth',
+            'products.defaultHeight',
+            'products.taxCategoryId',
+            'products.shippingCategoryId'
         ]);
 
         if ($this->postDate) {
@@ -354,23 +291,32 @@ class ProductQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseParam('entries.typeId', $this->typeId));
         }
 
-        if (Craft::$app->getEdition() >= Craft::Client) {
-            if ($this->authorId) {
-                $this->subQuery->andWhere(Db::parseParam('entries.authorId', $this->authorId));
-            }
+        if ($this->defaultPrice) {
+            $this->subQuery->andWhere(Db::parseParam('products.defaultPrice', $this->defaultPrice));
+        }
 
-            if ($this->authorGroupId) {
-                $this->subQuery
-                    ->innerJoin('{{%usergroups_users}} usergroups_users', '[[usergroups_users.userId]] = [[entries.authorId]]')
-                    ->andWhere(Db::parseParam('usergroups_users.groupId', $this->authorGroupId));
-            }
+        if ($this->defaultHeight) {
+            $this->subQuery->andWhere(Db::parseParam('products.defaultHeight', $this->defaultHeight));
+        }
+
+        if ($this->defaultLength) {
+            $this->subQuery->andWhere(Db::parseParam('products.defaultLength', $this->defaultLength));
+        }
+
+        if ($this->defaultWidth) {
+            $this->subQuery->andWhere(Db::parseParam('products.defaultWidth', $this->defaultWidth));
+        }
+
+        if ($this->defaultWeight) {
+            $this->subQuery->andWhere(Db::parseParam('products.defaultWeight', $this->defaultWeight));
         }
 
         $this->_applyEditableParam();
-        $this->_applySectionIdParam();
         $this->_applyRefParam();
+        $this->_applyHasSalesParam();
 
-        if (!$this->orderBy && !$this->structureId && !$this->fixedOrder) {
+
+        if (!$this->orderBy) {
             $this->orderBy = 'postDate desc';
         }
 
@@ -397,79 +343,13 @@ class ProductQuery extends ElementQuery
 
         // Limit the query to only the sections the user has permission to edit
         $this->subQuery->andWhere([
-            'entries.sectionId' => Craft::$app->getSections()->getEditableSectionIds()
+            'products.typeId' => Plugin::getInstance()->getProductTypes()->getEditableProductTypeIds()
         ]);
-
-        // Enforce the editPeerEntries permissions for non-Single sections
-        foreach (Craft::$app->getSections()->getEditableSections() as $section) {
-            if ($section->type != Section::TYPE_SINGLE && !$user->can('editPeerEntries:'.$section->id)) {
-                $this->subQuery->andWhere([
-                    'or',
-                    ['not', ['entries.sectionId' => $section->id]],
-                    ['entries.authorId' => $user->id]
-                ]);
-            }
-        }
     }
-
-//    public function getElementQueryStatusCondition(DbCommand $query, $status)
-//    {
-//        $currentTimeDb = DateTimeHelper::currentTimeForDb();
-//
-//        switch ($status) {
-//            case Product::LIVE: {
-//                return [
-//                    'and',
-//                    'elements.enabled = 1',
-//                    'elements_i18n.enabled = 1',
-//                    "products.postDate <= '{$currentTimeDb}'",
-//                    ['or', 'products.expiryDate is null', "products.expiryDate > '{$currentTimeDb}'"]
-//                ];
-//            }
-//
-//            case Product::PENDING: {
-//                return [
-//                    'and',
-//                    'elements.enabled = 1',
-//                    'elements_i18n.enabled = 1',
-//                    "products.postDate > '{$currentTimeDb}'"
-//                ];
-//            }
-//
-//            case Product::EXPIRED: {
-//                return [
-//                    'and',
-//                    'elements.enabled = 1',
-//                    'elements_i18n.enabled = 1',
-//                    'products.expiryDate is not null',
-//                    "products.expiryDate <= '{$currentTimeDb}'"
-//                ];
-//            }
-//        }
-//    }
 
     // Private Methods
     // =========================================================================
 
-    /**
-     * Applies the 'sectionId' param to the query being prepared.
-     */
-    private function _applySectionIdParam()
-    {
-        if ($this->sectionId) {
-            // Should we set the structureId param?
-            if ($this->structureId === null && (!is_array($this->sectionId) || count($this->sectionId) === 1)) {
-                $structureId = (new Query())
-                    ->select(['structureId'])
-                    ->from(['{{%sections}}'])
-                    ->where(Db::parseParam('id', $this->sectionId))
-                    ->scalar();
-                $this->structureId = $structureId ? (int)$structureId : false;
-            }
-
-            $this->subQuery->andWhere(Db::parseParam('entries.sectionId', $this->sectionId));
-        }
-    }
 
     /**
      * Applies the 'ref' param to the query being prepared.
@@ -495,7 +375,7 @@ class ProductQuery extends ElementQuery
                 } else {
                     $condition[] = [
                         'and',
-                        Db::parseParam('sections.handle', $parts[0]),
+                        Db::parseParam('commerce_producttypes.handle', $parts[0]),
                         Db::parseParam('elements_i18n.slug', $parts[1])
                     ];
                     $joinSections = true;
@@ -506,7 +386,7 @@ class ProductQuery extends ElementQuery
         $this->subQuery->andWhere($condition);
 
         if ($joinSections) {
-            $this->subQuery->innerJoin('{{%sections}} sections', '[[sections.id]] = [[entries.sectionId]]');
+            $this->subQuery->innerJoin('{{%commerce_producttypes}} producttypes', '[[producttypes.id]] = [[products.typeId]]');
         }
     }
 
@@ -556,164 +436,32 @@ class ProductQuery extends ElementQuery
         }
     }
 
-//    public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
-//    {
-//        $query
-//            ->addSelect("products.id, products.typeId, products.promotable, products.freeShipping, products.postDate, products.expiryDate, products.defaultPrice, products.defaultVariantId, products.defaultSku, products.defaultWeight, products.defaultLength, products.defaultWidth, products.defaultHeight, products.taxCategoryId, products.shippingCategoryId")
-//            ->join('commerce_products products', 'products.id = elements.id')
-//            ->join('commerce_producttypes producttypes', 'producttypes.id = products.typeId');
-//
-//        if ($criteria->postDate) {
-//            $query->andWhere(DbHelper::parseDateParam('products.postDate', $criteria->postDate, $query->params));
-//        } else {
-//            if ($criteria->after) {
-//                $query->andWhere(DbHelper::parseDateParam('products.postDate', '>='.$criteria->after, $query->params));
-//            }
-//
-//            if ($criteria->before) {
-//                $query->andWhere(DbHelper::parseDateParam('products.postDate', '<'.$criteria->before, $query->params));
-//            }
-//        }
-//
-//        if ($criteria->expiryDate) {
-//            $query->andWhere(DbHelper::parseDateParam('products.expiryDate', $criteria->expiryDate, $query->params));
-//        }
-//
-//        if ($criteria->type) {
-//            if ($criteria->type instanceof ProductType) {
-//                $criteria->typeId = $criteria->type->id;
-//                $criteria->type = null;
-//            } else {
-//                $query->andWhere(DbHelper::parseParam('producttypes.handle', $criteria->type, $query->params));
-//            }
-//        }
-//
-//        if ($criteria->typeId) {
-//            $query->andWhere(DbHelper::parseParam('products.typeId', $criteria->typeId, $query->params));
-//        }
-//
-//        if ($criteria->defaultPrice) {
-//            $query->andWhere(DbHelper::parseParam('products.defaultPrice', $criteria->defaultPrice, $query->params));
-//        }
-//
-//        if ($criteria->defaultHeight) {
-//            $query->andWhere(DbHelper::parseParam('products.defaultHeight', $criteria->defaultHeight, $query->params));
-//        }
-//
-//        if ($criteria->defaultLength) {
-//            $query->andWhere(DbHelper::parseParam('products.defaultLength', $criteria->defaultLength, $query->params));
-//        }
-//
-//        if ($criteria->defaultWidth) {
-//            $query->andWhere(DbHelper::parseParam('products.defaultWidth', $criteria->defaultWidth, $query->params));
-//        }
-//
-//        if ($criteria->defaultWeight) {
-//            $query->andWhere(DbHelper::parseParam('products.defaultWeight', $criteria->defaultWeight, $query->params));
-//        }
-//
-//        if ($criteria->withVariant) {
-//            $criteria->hasVariant = $criteria->withVariant;
-//            craft()->deprecator->log('Commerce:withVariant_param', 'The withVariant product param has been deprecated. Use hasVariant instead.');
-//            $criteria->withVariant = null;
-//        }
-//
-//        if ($criteria->hasVariant) {
-//            if ($criteria->hasVariant instanceof ElementCriteriaModel) {
-//                $variantCriteria = $criteria->hasVariant;
-//            } else {
-//                $variantCriteria = Craft::$app->getElements()->getCriteria('Variant', $criteria->hasVariant);
-//            }
-//
-//            $variantCriteria->limit = null;
-//            $elementQuery = Craft::$app->getElements()->buildElementsQuery($variantCriteria);
-//            $productIds = null;
-//            if ($elementQuery) {
-//                $productIds = Craft::$app->getElements()->buildElementsQuery($variantCriteria)
-//                    ->selectDistinct('productId')
-//                    ->queryColumn();
-//            }
-//
-//            if (!$productIds) {
-//                return false;
-//            }
-//
-//            // Remove any blank product IDs (if any)
-//            $productIds = array_filter($productIds);
-//
-//            $query->andWhere(['in', 'products.id', $productIds]);
-//        }
-//
-//        if ($criteria->editable) {
-//            $user = Craft::$app->getUser()->getUser();
-//
-//            if (!$user) {
-//                return false;
-//            }
-//
-//            // Limit the query to only the sections the user has permission to edit
-//            $editableProductTypeIds = Plugin::getInstance()->getProductTypes()->getEditableProductTypeIds();
-//
-//            if (!$editableProductTypeIds) {
-//                return false;
-//            }
-//
-//            $query->andWhere(['in', 'products.typeId', $editableProductTypeIds]);
-//        }
-//
-//
-//        if ($criteria->hasSales !== null) {
-//            $productsCriteria = Craft::$app->getElements()->getCriteria('Product', $criteria);
-//            $productsCriteria->hasSales = null;
-//            $productsCriteria->limit = null;
-//            $products = $productsCriteria->find();
-//
-//            $productIds = [];
-//            foreach ($products as $product) {
-//                $sales = Plugin::getInstance()->getSales()->getSalesForProduct($product);
-//
-//                if ($criteria->hasSales === true && count($sales) > 0) {
-//                    $productIds[] = $product->id;
-//                }
-//
-//                if ($criteria->hasSales === false && count($sales) == 0) {
-//                    $productIds[] = $product->id;
-//                }
-//            }
-//
-//            // Remove any blank product IDs (if any)
-//            $productIds = array_filter($productIds);
-//
-//            $query->andWhere(['in', 'products.id', $productIds]);
-//        }
-//
-//        return true;
-//    }
+    private function _applyHasSalesParam()
+    {
+        if (null !== $this->hasSales) {
+            $productsQuery = Product::find();
+            $productsQuery->hasSales = null;
+            $productsQuery->limit = null;
+            /** @var Product[] $products */
+            $products = $productsQuery->all();
 
+            $productIds = [];
+            foreach ($products as $product) {
+                $sales = Plugin::getInstance()->getSales()->getSalesForProduct($product);
 
-//    public function getEagerLoadingMap($sourceElements, $handle)
-//    {
-//        if ($handle == 'variants') {
-//            // Get the source element IDs
-//            $sourceElementIds = [];
-//
-//            foreach ($sourceElements as $sourceElement) {
-//                $sourceElementIds[] = $sourceElement->id;
-//            }
-//
-//            $map = Craft::$app->getDb()->createCommand()
-//                ->select('productId as source, id as target')
-//                ->from('commerce_variants')
-//                ->where(['in', 'productId', $sourceElementIds])
-//                ->order('sortOrder asc')
-//                ->queryAll();
-//
-//            return [
-//                'elementType' => 'Variant',
-//                'map' => $map
-//            ];
-//        }
-//
-//        return parent::getEagerLoadingMap($sourceElements, $handle);
-//    }
+                if ($this->hasSales === true && count($sales) > 0) {
+                    $productIds[] = $product->id;
+                }
+
+                if ($this->hasSales === false && count($sales) == 0) {
+                    $productIds[] = $product->id;
+                }
+            }
+
+            // Remove any blank product IDs (if any)
+            $productIds = array_filter($productIds);
+
+            $this->subQuery->andWhere(['in', 'products.id', $productIds]);
+        }
+    }
 }

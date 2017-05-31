@@ -328,9 +328,9 @@ class ProductTypes extends Component
                 if (!$isNewProductType) {
                     // If we previously had variants but now don't, delete all non-default variants.
                     if ($oldProductType->hasVariants && !$productType->hasVariants) {
-                        $criteria = Craft::$app->getElements()->getCriteria('Commerce_Product');
+                        $criteria = Product::find();
                         $criteria->typeId = $productType->id;
-                        $products = $criteria->find();
+                        $products = $criteria->all();
                         /** @var Product $product */
                         foreach ($products as $key => $product) {
                             if ($product && $product->getContent()->id) {
@@ -362,7 +362,7 @@ class ProductTypes extends Component
                     Craft::$app->getFields()->deleteLayoutById($oldProductType->fieldLayoutId);
                 }
                 // Save the new one
-                $fieldLayout = $productType->asa('productFieldLayout')->getFieldLayout();
+                $fieldLayout = $productType->getProductFieldLayout();
                 Craft::$app->getFields()->saveLayout($fieldLayout);
                 $productType->fieldLayoutId = $fieldLayout->id;
                 $productTypeRecord->fieldLayoutId = $fieldLayout->id;
@@ -372,7 +372,7 @@ class ProductTypes extends Component
                     Craft::$app->getFields()->deleteLayoutById($oldProductType->variantFieldLayoutId);
                 }
                 // Save the new one
-                $variantFieldLayout = $productType->asa('variantFieldLayout')->getFieldLayout();
+                $variantFieldLayout = $productType->getVariantFieldLayout();
                 Craft::$app->getFields()->saveLayout($variantFieldLayout);
                 $productType->variantFieldLayoutId = $variantFieldLayout->id;
                 $productTypeRecord->variantFieldLayoutId = $variantFieldLayout->id;
@@ -451,9 +451,9 @@ class ProductTypes extends Component
                 //Refresh all titles for variants of same product type if titleFormat changed.
                 if ($productType->hasVariants && !$productType->hasVariantTitleField) {
                     if ($titleFormatChanged) {
-                        $criteria = Craft::$app->getElements()->getCriteria('Commerce_Product');
+                        $criteria = Product::find();
                         $criteria->typeId = $productType->id;
-                        $products = $criteria->find();
+                        $products = $criteria->all();
                         foreach ($products as $product) {
                             foreach ($product->getVariants() as $variant) {
                                 $title = Craft::$app->getView()->renderObjectTemplate($productType->titleFormat, $variant);
@@ -517,7 +517,7 @@ class ProductTypes extends Component
 
                 if (!$isNewProductType) {
                     // Get all of the product IDs in this group
-                    $criteria = Craft::$app->getElements()->getCriteria('Commerce_Product');
+                    $criteria = Product::find();
                     $criteria->typeId = $productType->id;
                     $criteria->status = null;
                     $criteria->limit = null;
@@ -543,9 +543,9 @@ class ProductTypes extends Component
                                 // Loop through each of the changed locales and update all of the products’ slugs and
                                 // URIs
                                 foreach ($changedLocaleIds as $localeId) {
-                                    $criteria = Craft::$app->getElements()->getCriteria('Commerce_Product');
+                                    $criteria = Product::find();
                                     $criteria->id = $productId;
-                                    $criteria->locale = $localeId;
+                                    $criteria->site = $localeId;
                                     $criteria->status = null;
                                     $updateProduct = $criteria->first();
 
@@ -613,20 +613,20 @@ class ProductTypes extends Component
         try {
             $productType = $this->getProductTypeById($id);
 
-            $criteria = Craft::$app->getElements()->getCriteria('Commerce_Product');
+            $criteria = Product::find();
             $criteria->typeId = $productType->id;
             $criteria->status = null;
             $criteria->limit = null;
-            $products = $criteria->find();
+            $products = $criteria->all();
 
             foreach ($products as $product) {
                 Plugin::getInstance()->getProducts()->deleteProduct($product);
             }
 
-            $fieldLayoutId = $productType->asa('productFieldLayout')->getFieldLayout()->id;
+            $fieldLayoutId = $productType->getProductFieldLayout()->id;
             Craft::$app->getFields()->deleteLayoutById($fieldLayoutId);
             if ($productType->hasVariants) {
-                Craft::$app->getFields()->deleteLayoutById($productType->asa('variantFieldLayout')->getFieldLayout()->id);
+                Craft::$app->getFields()->deleteLayoutById($productType->getVariantFieldLayout());
             }
 
             $productTypeRecord = ProductType::findOne($productType->id);

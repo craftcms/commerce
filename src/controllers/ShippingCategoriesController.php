@@ -3,6 +3,7 @@
 namespace craft\commerce\controllers;
 
 use craft\commerce\models\ShippingCategory;
+use Craft;
 
 /**
  * Class Shipping Categories Controller

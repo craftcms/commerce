@@ -28,7 +28,7 @@ class Products extends Component
      */
     public function getProductById($id, $localeId = null)
     {
-        return Craft::$app->getElements()->getElementById($id, 'Commerce_Product', $localeId);
+        return Craft::$app->getElements()->getElementById($id, Product::class, $localeId);
     }
 
 

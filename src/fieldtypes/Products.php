@@ -2,6 +2,7 @@
 namespace craft\commerce\fieldtypes;
 
 use craft\base\Field;
+use craft\commerce\elements\Product;
 
 /**
  * Class Product Field
@@ -23,7 +24,7 @@ class Products extends Field
      *
      * @var string $elementType
      */
-    protected $elementType = 'Commerce_Product';
+    protected $elementType = Product::class;
 
     /**
      * @inheritDoc IComponentType::getName()

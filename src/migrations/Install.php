@@ -2,39 +2,26 @@
 
 namespace craft\commerce\migrations;
 
+use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
-use craft\commerce\gateways\Dummy_GatewayAdapter;
+use craft\commerce\models\OrderSettings;
+use craft\commerce\models\OrderStatus;
+use craft\commerce\models\PaymentCurrency;
+use craft\commerce\models\PaymentMethod;
+use craft\commerce\models\ProductType;
+use craft\commerce\models\Settings;
+use craft\commerce\models\ShippingCategory;
+use craft\commerce\models\ShippingMethod;
+use craft\commerce\models\ShippingRule;
+use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
-use craft\commerce\records\OrderSettings;
-use craft\commerce\records\OrderStatus;
-use craft\commerce\records\PaymentCurrency;
-use craft\commerce\records\PaymentMethod;
-use craft\commerce\records\Product as ProductRecord;
-use craft\commerce\records\ProductType;
-use craft\commerce\records\ProductTypeLocale;
-use craft\commerce\records\Settings;
-use craft\commerce\records\ShippingCategory;
-use craft\commerce\records\ShippingMethod;
-use craft\commerce\records\ShippingRule;
-use craft\commerce\records\TaxCategory;
-use craft\commerce\records\Variant as VariantRecord;
-use craft\helpers\DateTimeHelper;
-use craft\helpers\StringHelper;
-use craft\records\Plugin as PluginRecord;
 use craft\commerce\records\Country;
 use craft\commerce\records\State;
 use craft\db\ActiveRecord;
 use craft\db\Migration;
-use craft\db\Query;
-use craft\helpers\ElementHelper;
-use craft\helpers\Json;
 use craft\helpers\MigrationHelper;
-use craft\records\Element;
-use craft\records\Element_SiteSettings;
-use craft\records\FieldLayout;
-use craft\records\Site;
 
 /**
  * Installation Migration
@@ -53,7 +40,9 @@ class Install extends Migration
         $this->createTables();
         $this->createIndexes();
         $this->addForeignKeys();
-        $this->insertDefaultData();
+
+        // TODO all the models need to be fixed.
+        //$this->insertDefaultData();
 
         return true;
     }
@@ -913,7 +902,7 @@ class Install extends Migration
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_variants}}', 'id'), '{{%commerce_variants}}', 'id', '{{%elements}}', 'id', 'CASCADE', null);
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_variants}}', 'productId'), '{{%commerce_variants}}', 'productId', '{{%commerce_products}}', 'id', 'SET NULL', 'CASCADE');
     }
-
+    
     /**
      * Adds the foreign keys.
      *
@@ -1381,7 +1370,8 @@ class Install extends Migration
             }
         }
 
-        $this->batchInsert(State::tableName(), ['countryId', 'abbreviation', 'name'], $rows);
+        $table = State::tableName();
+        $this->batchInsert($table, ['countryId', 'abbreviation', 'name'], $rows);
     }
 
     /**
@@ -1391,36 +1381,32 @@ class Install extends Migration
      */
     private function _defaultCurrency()
     {
-        $data = [
-            'iso' => 'USD',
-            'rate' => 1,
-            'primary' => true
-        ];
-        $this->insert(PaymentCurrency::tableName(), $data);
+        $currency = new PaymentCurrency();
+        $currency->iso = 'USD';
+        $currency->rate = 1;
+        $currency->primary = true;
+        $currency->save();
     }
 
     /**
-     * Add a default shipping method and rule.
+     * Add a shipping Method
      *
      * @return void
      */
     private function _defaultShippingMethod()
     {
-        $data = [
-            'name' => 'Free Shipping',
-            'handle' => 'freeShipping',
-            'enabled' => true
-        ];
-        $this->insert(ShippingMethod::tableName(), $data);
+        $method = new ShippingMethod();
+        $method->name = 'Free Shipping';
+        $method->handle = 'freeShipping';
+        $method->enabled = true;
+        $method->save();
 
-        $data = [
-            'id' => $this->db->getLastInsertID(),
-            'methodId' => $this->db->getLastInsertID(),
-            'description' => 'All Countries, free shipping.',
-            'name' => 'Free Everywhere',
-            'enabled' => true
-        ];
-        $this->insert(ShippingRule::tableName(), $data);
+        $rule = new ShippingRule();
+        $rule->methodId = $method->id;
+        $rule->description = "All Countries, free shipping.";
+        $rule->name = "Free Everywhere ";
+        $rule->enabled = true;
+        $rule->save();
     }
 
     /**
@@ -1431,12 +1417,13 @@ class Install extends Migration
      */
     private function _defaultTaxCategories()
     {
-        $data = [
+        $category = new TaxCategory([
             'name' => 'General',
             'handle' => 'general',
-            'default' => true
-        ];
-        $this->insert(TaxCategory::tableName(), $data);
+            'default' => 1,
+        ]);
+
+        Plugin::getInstance()->getTaxCategories()->saveTaxCategory($category);
     }
 
     /**
@@ -1447,12 +1434,13 @@ class Install extends Migration
      */
     private function _defaultShippingCategories()
     {
-        $data = [
+        $category = new ShippingCategory([
             'name' => 'General',
             'handle' => 'general',
-            'default' => true
-        ];
-        $this->insert(ShippingCategory::tableName(), $data);
+            'default' => 1,
+        ]);
+
+        Plugin::getInstance()->getShippingCategories()->saveShippingCategory($category);
     }
 
     /**
@@ -1463,15 +1451,17 @@ class Install extends Migration
      */
     private function _defaultOrderSettings()
     {
-        $this->insert(FieldLayout::tableName(), ['type' => Order::class]);
 
-        $data = [
-            'name' => 'Order',
-            'handle' => 'order',
-            'fieldLayoutId' => $this->db->getLastInsertID()
-        ];
-        $this->insert(OrderSettings::tableName(), $data);
+        $orderSettings = new OrderSettings();
+        $orderSettings->name = 'Order';
+        $orderSettings->handle = 'order';
 
+        // Set the field layout
+        $fieldLayout = Craft::$app->getFields()->assembleLayout([], []);
+        $fieldLayout->type = 'Commerce_Order';
+        $orderSettings->setFieldLayout($fieldLayout);
+
+        Plugin::getInstance()->getOrderSettings->saveOrderSetting($orderSettings);
 
         $data = [
             'name' => 'Processing',
@@ -1479,7 +1469,8 @@ class Install extends Migration
             'color' => 'green',
             'default' => true
         ];
-        $this->insert(OrderStatus::tableName(), $data);
+        $defaultStatus = new OrderStatus($data);
+        Plugin::getInstance()->getOrderStatuses()->saveOrderStatus($defaultStatus, []);
 
         $data = [
             'name' => 'Shipped',
@@ -1487,7 +1478,10 @@ class Install extends Migration
             'color' => 'blue',
             'default' => false
         ];
-        $this->insert(OrderStatus::tableName(), $data);
+
+        $status = new OrderStatus($data);
+
+        Plugin::getInstance()->getOrderStatuses()->saveOrderStatus($status, []);
     }
 
     /**
@@ -1499,38 +1493,34 @@ class Install extends Migration
      */
     private function _defaultProductTypes()
     {
-        $this->insert(FieldLayout::tableName(), ['type' => Product::class]);
-        $productFieldLayoutId = $this->db->getLastInsertID();
-        $this->insert(FieldLayout::tableName(), ['type' => Variant::class]);
-        $variantFieldLayoutId = $this->db->getLastInsertID();
+        $productType = new ProductType();
+        $productType->name = 'Clothing';
+        $productType->handle = 'clothing';
+        $productType->hasDimensions = true;
+        $productType->hasUrls = true;
+        $productType->hasVariants = false;
+        $productType->hasVariantTitleField = false;
+        $productType->titleFormat = "{product.title}";
+        $productType->template = 'shop/products/_product';
 
-        $data = [
-            'name' => 'Clothing',
-            'handle' => 'clothing',
-            'hasDimensions' => true,
-            'hasUrls' => true,
-            'hasVariants' => false,
-            'hasVariantTitleField' => false,
-            'titleFormat' => '{product.title}',
-            'template' => 'shop/products/_product',
-            'fieldLayoutId' => $productFieldLayoutId,
-            'variantFieldLayoutId' => $variantFieldLayoutId
-        ];
-        $this->insert(ProductType::tableName(), $data);
-        $productTypeId = $this->db->getLastInsertID();
+        $fieldLayout = FieldLayoutModel::populateModel(['type' => Product::class]);
+        Craft::$app->getFields()->saveLayout($fieldLayout);
+        $productType->asa('productFieldLayout')->setFieldLayout($fieldLayout);
 
-        $siteIds = (new Query())
-            ->select('id')
-            ->from(Site::tableName())
-            ->column();
+        $variantFieldLayout = FieldLayoutModel::populateModel(['type' => Variant]);
+        Craft::$app->getFields()->saveLayout($variantFieldLayout);
+        $productType->asa('variantFieldLayout')->setFieldLayout($variantFieldLayout);
 
-        foreach ($siteIds as $siteId) {
-            $data = [
-                'productTypeId' => $productTypeId,
-                'siteId' => $siteId,
+        Plugin::getInstance()->getProductTypes()->saveProductType($productType);
+
+        $productTypeLocales = Craft::$app->getI18n()->getSiteLocaleIds();
+
+        foreach ($productTypeLocales as $locale) {
+            Craft::$app->getDb()->createCommand()->insert('commerce_producttypes_i18n', [
+                'productTypeId' => $productType->id,
+                'locale' => $locale,
                 'urlFormat' => 'shop/products/{slug}'
-            ];
-            $this->insert(ProductTypeLocale::tableName(), $data);
+            ]);
         }
     }
 
@@ -1544,25 +1534,7 @@ class Install extends Migration
      */
     private function _defaultProducts()
     {
-        $productTypeId = (new Query())
-            ->select('id')
-            ->from(ProductType::tableName())
-            ->scalar();
-
-        $taxCategoryId = (new Query())
-            ->select('id')
-            ->from(TaxCategory::tableName())
-            ->scalar();
-
-        $shippingCategoryId = (new Query())
-            ->select('id')
-            ->from(ShippingCategory::tableName())
-            ->scalar();
-
-
-        if (!$productTypeId || !$taxCategoryId || !$shippingCategoryId) {
-            throw new \RuntimeException('Cannot create the default products.');
-        }
+        $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
 
         $products = [
             'A New Toga',
@@ -1574,90 +1546,30 @@ class Install extends Migration
         $count = 1;
 
         foreach ($products as $productName) {
-            // Create an element for product
-            $productElementData = [
-                'type' => Product::class,
-                'enabled' => 1,
-                'archived' => 0
-            ];
-            $this->insert(Element::tableName(), $productElementData);
-            $productId = $this->db->getLastInsertID();
-
-            // Create an element for variant
-            $variantElementData = [
-                'type' => Variant::class,
-                'enabled' => 1,
-                'archived' => 0
-            ];
-            $this->insert(Element::tableName(), $variantElementData);
-            $variantId = $this->db->getLastInsertID();
-
-            // Populate the i18n data for each site
-            $siteIds = (new Query())
-                ->select('id')
-                ->from(Site::tableName())
-                ->column();
-
-            foreach ($siteIds as $siteId) {
-                // Product content data
-                $productI18nData = [
-                    'elementId' => $productId,
-                    'siteId' => $siteId,
-                    'slug' => ElementHelper::createSlug($productName),
-                    'uri' => null,
-                    'enabled' => true
-                ];
-                $this->insert(Element_SiteSettings::tableName(), $productI18nData);
-
-                $contentData = [
-                    'elementId' => $productId,
-                    'siteId' => $siteId,
-                    'title' => StringHelper::toTitleCase($productName)
-                ];
-                $this->insert('{{%content}}', $contentData);
-
-                // Variant content data
-                $variantI18nData = [
-                    'elementId' => $variantId,
-                    'siteId' => $siteId,
-                    'slug' => ElementHelper::createSlug($productName),
-                    'uri' => null,
-                    'enabled' => true
-                ];
-                $this->insert(Element_SiteSettings::tableName(), $variantI18nData);
-
-                $contentData = [
-                    'elementId' => $variantId,
-                    'siteId' => $siteId,
-                    'title' => StringHelper::toTitleCase($productName)
-                ];
-                $this->insert('{{%content}}', $contentData);
-
-            }
-
-            // Prep data for variant and product
-            $variantData = [
-                'productId' => $productId,
-                'id' => $variantId,
+            /** @var Variant $variant */
+            $variant = new Variant([
                 'sku' => $productName,
-                'price' => 10 * $count++,
-                'unlimitedStock' => true,
-                'isDefault' => true
-            ];
+                'price' => (10 * $count++),
+                'unlimitedStock' => 1,
+                'isDefault' => 1,
+            ]);
 
-            $productData = [
-                'id' => $productId,
-                'typeId' => $productTypeId,
-                'postDate' => DateTimeHelper::currentTimeStamp(),
+            /** @var Product $product */
+            $product = new Product([
+                'typeId' => $productTypes[0]->id,
+                'enabled' => 1,
+                'postDate' => new DateTime(),
                 'expiryDate' => null,
-                'promotable' => true,
-                'taxCategoryId' => $taxCategoryId,
-                'shippingCategoryId' => $shippingCategoryId,
-            ];
+                'promotable' => 1,
+                'taxCategoryId' => 1,
+                'shippingCategoryId' => 1,
+            ]);
 
-            // Insert the actual product and variant
-            $this->insert(ProductRecord::tableName(), $productData);
-            $this->insert(VariantRecord::tableName(), $variantData);
+            $product->getContent()->title = $productName;
+            $variant->setProduct($product);
+            $product->setVariants([$variant]);
+
+            Plugin::getInstance()->getProducts()->saveProduct($product);
         }
     }
 
@@ -1668,13 +1580,16 @@ class Install extends Migration
      */
     private function _paymentMethods()
     {
-        $data = [
-            'class' => Dummy_GatewayAdapter::class,
-            'name' => 'Dummy',
-            'settings' => Json::encode([]),
-            'frontendEnabled' => true
-        ];
-        $this->insert(PaymentMethod::tableName(), $data);
+        /** @var Dummy_GatewayAdapter $adapter */
+        $adapter = Plugin::getInstance()->getGateways()->getAllGateways()['Dummy'];
+
+        $model = new PaymentMethod();
+        $model->class = $adapter->handle();
+        $model->name = $adapter->displayName();
+        $model->settings = $adapter->getGateway()->getDefaultParameters();
+        $model->frontendEnabled = true;
+
+        Plugin::getInstance()->getPaymentMethods()->savePaymentMethod($model);
     }
 
     /**
@@ -1684,12 +1599,9 @@ class Install extends Migration
      */
     private function _defaultSettings()
     {
-        $data = [
-            'settings' => Json::encode([
-                'orderPdfPath' => 'shop/_pdf/order',
-                'orderPdfFilenameFormat' => 'Order-{number}'
-            ])
-        ];
-        $this->update(PluginRecord::tableName(), $data, ['handle' => Plugin::getInstance()->handle]);
+        $settings = new Settings();
+        $settings->orderPdfPath = 'shop/_pdf/order';
+        $settings->orderPdfFilenameFormat = 'Order-{number}';
+        Plugin::getInstance()->getSettings()->saveSettings($settings);
     }
 }

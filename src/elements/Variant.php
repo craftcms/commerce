@@ -310,7 +310,7 @@ class Variant extends Element
     public function getFieldLayout()
     {
         if (($product = $this->getProduct()) !== null) {
-            return $product->getType()->asa('variantFieldLayout')->getFieldLayout();
+            return $product->getType()->getVariantFieldLayout();
         }
 
         return null;

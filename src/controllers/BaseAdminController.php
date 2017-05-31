@@ -2,8 +2,6 @@
 
 namespace craft\commerce\controllers;
 
-use Craft;
-
 /**
  * Class Base Admin Controller
  *
@@ -27,7 +25,7 @@ class BaseAdminController extends BaseController
     public function init()
     {
         // All system setting actions require an admin
-        Craft::$app->getUser()->requireAdmin();
+        $this->requireAdmin();
 
         parent::init();
     }
