@@ -11,6 +11,7 @@ use craft\commerce\records\Sale as SaleRecord;
 use craft\commerce\records\SaleProduct as SaleProductRecord;
 use craft\commerce\records\SaleProductType as SaleProductTypeRecord;
 use craft\commerce\records\SaleUserGroup as SaleUserGroupRecord;
+use craft\db\Query;
 use yii\base\Component;
 
 /**
@@ -52,8 +53,8 @@ class Sales extends Component
     public function getAllSales()
     {
         if (null === $this->_allSales) {
-            $sales = Craft::$app->getDb()->createCommand()
-                ->select('sales.id,
+            $sales = (new Query())->select(
+                'sales.id,
                 sales.name,
                 sales.description,
                 sales.dateFrom,
@@ -71,7 +72,7 @@ class Sales extends Component
                 ->leftJoin('commerce_sale_products sp', 'sp.saleId=sales.id')
                 ->leftJoin('commerce_sale_producttypes spt', 'spt.saleId=sales.id')
                 ->leftJoin('commerce_sale_usergroups sug', 'sug.saleId=sales.id')
-                ->queryAll();
+                ->all();
 
             $allSalesById = [];
             $products = [];

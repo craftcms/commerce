@@ -153,17 +153,17 @@ class Discount extends Model
     /**
      * @var \craft\commerce\models\ProductType[] Products
      */
-    private $_productTypes;
+    private $_productTypes = [];
 
     /**
      * @var \craft\models\UserGroup[]|null User Groups
      */
-    private $_userGroups;
+    private $_userGroups = [];
 
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         $rules = [
             [['name'], 'required'],

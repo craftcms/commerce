@@ -8,6 +8,7 @@ use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\models\LineItem;
 use craft\commerce\records\LineItem as LineItemRecord;
+use craft\db\Query;
 use yii\base\Component;
 
 /**
@@ -34,7 +35,7 @@ class LineItems extends Component
         if ($id) {
             $lineItems = $this->_createLineItemsQuery()
                 ->where('lineitems.orderId = :orderId', [':orderId' => $id])
-                ->queryAll();
+                ->all();
         }
 
         return LineItem::populateModels($lineItems);
@@ -43,15 +44,15 @@ class LineItems extends Component
     /**
      * Returns a DbCommand object prepped for retrieving sections.
      *
-     * @return DbCommand
+     * @return Query
      */
     private function _createLineItemsQuery()
     {
 
-        return Craft::$app->getDb()->createCommand()
+        return (new Query())
             ->select('lineitems.id, lineitems.orderId, lineitems.purchasableId, lineitems.options, lineitems.optionsSignature, lineitems.price, lineitems.saleAmount, lineitems.salePrice, lineitems.tax, lineitems.taxIncluded, lineitems.shippingCost, lineitems.discount, lineitems.weight, lineitems.height, lineitems.length, lineitems.width, lineitems.total, lineitems.qty, lineitems.note, lineitems.snapshot, lineitems.taxCategoryId, lineitems.shippingCategoryId')
             ->from('commerce_lineitems lineitems')
-            ->order('lineitems.id');
+            ->orderBy('lineitems.id');
     }
 
     /**
@@ -70,7 +71,7 @@ class LineItems extends Component
         $result = $this->_createLineItemsQuery()
             ->where('lineitems.orderId = :orderId AND lineitems.purchasableId = :purchasableId AND lineitems.optionsSignature = :optionsSignature',
                 [':orderId' => $orderId, ':purchasableId' => $purchasableId, ':optionsSignature' => $signature])
-            ->queryRow();
+            ->one();
 
         if ($result) {
             return new LineItem($result);
@@ -287,7 +288,7 @@ class LineItems extends Component
     {
         $result = $this->_createLineItemsQuery()
             ->where('lineitems.id = :id', [':id' => $id])
-            ->queryRow();
+            ->one();
 
         if ($result) {
             return new LineItem($result);

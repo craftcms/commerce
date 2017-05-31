@@ -2,6 +2,7 @@
 
 namespace craft\commerce\elements\db;
 
+use craft\db\Query;
 use craft\elements\db\ElementQuery;
 
 /**
@@ -31,11 +32,11 @@ class VariantQuery extends ElementQuery
                 $sourceElementIds[] = $sourceElement->id;
             }
 
-            $map = Craft::$app->getDb()->createCommand()
+            $map = (new Query())
                 ->select('id as source, productId as target')
                 ->from('commerce_variants')
                 ->where(['in', 'id', $sourceElementIds])
-                ->queryAll();
+                ->all();
 
             return [
                 'elementType' => Product::class,

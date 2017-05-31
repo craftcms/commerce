@@ -17,7 +17,7 @@ use craft\helpers\ArrayHelper;
  * @package   craft.plugins.commerce.controllers
  * @since     1.0
  */
-class SalesController extends BaseCpControllerController
+class SalesController extends BaseCpController
 {
 
     /**

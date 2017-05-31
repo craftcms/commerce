@@ -4,6 +4,7 @@ namespace craft\commerce\services;
 
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
+use craft\db\Query;
 use yii\base\Component;
 
 /**
@@ -27,7 +28,7 @@ class OrderAdjustments extends Component
     {
         $records = $this->_createOrderAdjustmentsQuery()
             ->where('oa.orderId = :orderId', [':orderId' => $orderId])
-            ->queryAll();
+            ->all();
 
         return OrderAdjustment::populateModels($records);
     }
@@ -35,14 +36,14 @@ class OrderAdjustments extends Component
     /**
      * Returns a DbCommand object prepped for retrieving order adjustments.
      *
-     * @return DbCommand
+     * @return Query
      */
     private function _createOrderAdjustmentsQuery()
     {
-        return Craft::$app->getDb()->createCommand()
+        return (new Query())
             ->select('oa.id, oa.type, oa.name, oa.included, oa.description, oa.amount, oa.optionsJson, oa.orderId')
             ->from('commerce_orderadjustments oa')
-            ->order('type');
+            ->orderBy('type');
     }
 
     /**

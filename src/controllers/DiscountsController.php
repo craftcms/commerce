@@ -90,7 +90,7 @@ class DiscountsController extends BaseCpController
             $productIds = $variables['discount']->getProductIds();
         }
         foreach ($productIds as $productId) {
-            $product = Plugin::getInstance()->getProducts()->getProductById($productId);
+            $product = Plugin::getInstance()->getProducts()->getProductById((int) $productId);
             if ($product) {
                 $products[] = $product;
             }
