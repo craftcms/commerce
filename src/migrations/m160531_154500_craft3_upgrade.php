@@ -24,35 +24,18 @@ class m160531_154500_craft3_upgrade extends Migration
     public function safeUp()
     {
         // Update all the Element references
-        $this->update('{{%elements}}', [
-            'type' => Order::class
-        ], ['type' => 'Commerce_Order']);
+        $this->update('{{%elements}}', ['type' => Order::class], ['type' => 'Commerce_Order']);
+        $this->update('{{%elements}}', ['type' => Product::class], ['type' => 'Commerce_Product']);
 
-        $this->update('{{%elements}}', [
-            'type' => Product::class
-        ], ['type' => 'Commerce_Product']);
-
-        $this->update('{{%elements}}', [
-            'type' => Variant::class
-        ], ['type' => 'Commerce_Variant']);
+        $this->update('{{%elements}}', ['type' => Variant::class], ['type' => 'Commerce_Variant']);
 
         // Fields
-        $this->update('{{%fields}}', [
-            'type' => Customer::class
-        ], ['type' => 'Commerce_Customer']);
+        $this->update('{{%fields}}', ['type' => Customer::class], ['type' => 'Commerce_Customer']);
+        $this->update('{{%fields}}', ['type' => Products::class], ['type' => 'Commerce_Products']);
 
-        $this->update('{{%fields}}', [
-            'type' => Products::class
-        ], ['type' => 'Commerce_Products']);
-
-        $this->update('{{%widgets}}', [
-            'type' => Orders::class
-        ], ['type' => 'Commerce_Orders']);
-
-        $this->update('{{%widgets}}', [
-            'type' => Revenue::class
-        ], ['type' => 'Commerce_Revenue']);
-
+        // Widgets
+        $this->update('{{%widgets}}', ['type' => Orders::class], ['type' => 'Commerce_Orders']);
+        $this->update('{{%widgets}}', ['type' => Revenue::class], ['type' => 'Commerce_Revenue']);
 
         // Before messing with columns, it's much safer to drop all the FKs and indexes
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_producttypes_i18n}}');
