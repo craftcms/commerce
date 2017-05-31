@@ -28,7 +28,7 @@ class ShippingMethod extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'commerce_shippingmethods';
+        return '{{%commerce_shippingmethods}}';
     }
 
 //    /**

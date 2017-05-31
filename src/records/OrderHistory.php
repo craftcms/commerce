@@ -35,7 +35,7 @@ class OrderHistory extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'commerce_orderhistories';
+        return '{{%commerce_orderhistories}}';
     }
 
 //    /**

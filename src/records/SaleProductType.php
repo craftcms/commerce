@@ -25,7 +25,7 @@ class SaleProductType extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'commerce_sale_producttypes';
+        return '{{%commerce_sale_producttypes}}';
     }
 
 //    /**

@@ -30,7 +30,7 @@ class OrderStatus extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'commerce_orderstatuses';
+        return '{{%commerce_orderstatuses}}';
     }
 
 //    /**

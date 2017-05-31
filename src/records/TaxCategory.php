@@ -27,7 +27,7 @@ class TaxCategory extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'commerce_taxcategories';
+        return '{{%commerce_taxcategories}}';
     }
 
 //    /**

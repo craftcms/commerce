@@ -29,7 +29,7 @@ class OrderSettings extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'commerce_ordersettings';
+        return '{{%commerce_ordersettings}}';
     }
 
 //    /**

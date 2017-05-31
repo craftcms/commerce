@@ -30,7 +30,7 @@ class State extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'commerce_states';
+        return '{{%commerce_states}}';
     }
 
     /**

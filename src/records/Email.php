@@ -33,7 +33,7 @@ class Email extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'commerce_emails';
+        return '{{%commerce_emails}}';
     }
 
 //    /**

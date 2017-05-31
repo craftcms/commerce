@@ -34,7 +34,7 @@ class ProductTypeLocale extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'commerce_producttypes_i18n';
+        return '{{%commerce_producttypes_i18n}}';
     }
 
 //    /**

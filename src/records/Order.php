@@ -59,7 +59,7 @@ class Order extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'commerce_orders';
+        return '{{%commerce_orders}}';
     }
 
 //    /**

@@ -41,7 +41,7 @@ class Sale extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'commerce_sales';
+        return '{{%commerce_sales}}';
     }
 
 //    /**

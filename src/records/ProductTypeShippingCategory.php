@@ -33,7 +33,7 @@ class ProductTypeShippingCategory extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'commerce_producttypes_shippingcategories';
+        return '{{%commerce_producttypes_shippingcategories}}';
     }
 
 //    /**

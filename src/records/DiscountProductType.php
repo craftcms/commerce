@@ -25,7 +25,7 @@ class DiscountProductType extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'commerce_discount_producttypes';
+        return '{{%commerce_discount_producttypes}}';
     }
 //
 //    /**

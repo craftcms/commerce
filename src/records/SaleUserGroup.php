@@ -25,7 +25,7 @@ class SaleUserGroup extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'commerce_sale_usergroups';
+        return '{{%commerce_sale_usergroups}}';
     }
 
 //    /**

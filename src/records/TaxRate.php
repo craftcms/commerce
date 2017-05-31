@@ -45,7 +45,7 @@ class TaxRate extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'commerce_taxrates';
+        return '{{%commerce_taxrates}}';
     }
 
 //    /**

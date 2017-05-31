@@ -27,7 +27,7 @@ class ShippingCategory extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'commerce_shippingcategories';
+        return '{{%commerce_shippingcategories}}';
     }
 
 //    /**

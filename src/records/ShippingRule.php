@@ -45,7 +45,7 @@ class ShippingRule extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'commerce_shippingrules';
+        return '{{%commerce_shippingrules}}';
     }
 
 //    /**

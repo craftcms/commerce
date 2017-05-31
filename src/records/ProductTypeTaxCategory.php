@@ -33,7 +33,7 @@ class ProductTypeTaxCategory extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'commerce_producttypes_taxcategories';
+        return '{{%commerce_producttypes_taxcategories}}';
     }
 //
 //    /**

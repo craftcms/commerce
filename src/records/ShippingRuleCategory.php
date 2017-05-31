@@ -35,7 +35,7 @@ class ShippingRuleCategory extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'commerce_shippingrule_categories';
+        return '{{%commerce_shippingrule_categories}}';
     }
 
 //    /**

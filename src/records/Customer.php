@@ -34,7 +34,7 @@ class Customer extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'commerce_customers';
+        return '{{%commerce_customers}}';
     }
 
     public function getAddresses()

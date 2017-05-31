@@ -28,7 +28,7 @@ class Purchasable extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'commerce_purchasables';
+        return '{{%commerce_purchasables}}';
     }
 
 //    /**

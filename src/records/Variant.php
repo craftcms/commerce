@@ -39,7 +39,7 @@ class Variant extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'commerce_variants';
+        return '{{%commerce_variants}}';
     }
 
 //    /**

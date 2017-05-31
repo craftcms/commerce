@@ -41,7 +41,7 @@ class Address extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'commerce_addresses';
+        return '{{%commerce_addresses}}';
     }
 
     /**

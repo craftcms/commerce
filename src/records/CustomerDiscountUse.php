@@ -27,7 +27,7 @@ class CustomerDiscountUse extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'commerce_customer_discountuses';
+        return '{{%commerce_customer_discountuses}}';
     }
 
 //    /**

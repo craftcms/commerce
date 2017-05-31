@@ -38,7 +38,7 @@ class ProductType extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'commerce_producttypes';
+        return '{{%commerce_producttypes}}';
     }
 
 //    /**

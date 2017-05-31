@@ -71,7 +71,7 @@ class Transaction extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'commerce_transactions';
+        return '{{%commerce_transactions}}';
     }
 
 //    /**

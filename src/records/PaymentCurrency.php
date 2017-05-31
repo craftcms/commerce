@@ -27,7 +27,7 @@ class PaymentCurrency extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'commerce_paymentcurrencies';
+        return '{{%commerce_paymentcurrencies}}';
     }
 
 //    /**

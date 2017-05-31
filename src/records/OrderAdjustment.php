@@ -33,7 +33,7 @@ class OrderAdjustment extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'commerce_orderadjustments';
+        return '{{%commerce_orderadjustments}}';
     }
 
 //    /**

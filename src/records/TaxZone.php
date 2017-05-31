@@ -31,7 +31,7 @@ class TaxZone extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'commerce_taxzones';
+        return '{{%commerce_taxzones}}';
     }
 
 //    /**
