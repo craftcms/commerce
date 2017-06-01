@@ -70,21 +70,6 @@ class OrderAdjustment extends Model
     public $orderId;
 
     /**
-     * @var mixed Date Created
-     */
-    public $dateCreated;
-
-    /**
-     * @var mixed Date Updated
-     */
-    public $dateUpdated;
-
-    /**
-     * @var string Unique ID
-     */
-    public $uid;
-
-    /**
      * @return \craft\commerce\elements\Order|null
      */
     public function getOrder()

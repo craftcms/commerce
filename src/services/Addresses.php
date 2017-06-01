@@ -36,7 +36,7 @@ class Addresses extends Component
         $result = AddressRecord::find()->where(['id' => $id])->one();
 
         if ($result) {
-            return new Address($result);
+            return $this->_createAddressGroupFromAddressRecord($result);
         }
 
         return null;
@@ -123,7 +123,7 @@ class Addresses extends Component
 
         // Check country’s stateRequired option
         if ($country && $country->stateRequired && (!$state || ($state && $state->countryId !== $country->id))) {
-                $addressModel->addError('stateId', Craft::t('commerce', 'commerce', 'commerce', 'Country requires a related state selected.'));
+            $addressModel->addError('stateId', Craft::t('commerce', 'commerce', 'commerce', 'Country requires a related state selected.'));
         }
 
         if ($validate) {
@@ -185,4 +185,40 @@ class Addresses extends Component
         return (bool)$address->delete();
     }
 
+    // Private Methods
+    // =========================================================================
+
+    /**
+     * Creates a Address with attributes from a AddressRecord.
+     *
+     * @param AddressRecord|null $addressRecord
+     *
+     * @return Address|null
+     */
+    private function _createAddressGroupFromAddressRecord(AddressRecord $addressRecord = null)
+    {
+        if (!$addressRecord) {
+            return null;
+        }
+
+        return new Address($addressRecord->toArray([
+            'id',
+            'attention',
+            'title',
+            'firstName',
+            'lastName',
+            'countryId',
+            'stateId',
+            'address1',
+            'address2',
+            'city',
+            'zipCode',
+            'phone',
+            'alternativePhone',
+            'businessName',
+            'businessTaxId',
+            'businessId',
+            'stateName'
+        ]));
+    }
 }

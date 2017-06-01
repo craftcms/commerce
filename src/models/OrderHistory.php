@@ -63,21 +63,6 @@ class OrderHistory extends Model
     public $customerId;
 
     /**
-     * @var \DateTime Date Created
-     */
-    public $dateCreated;
-
-    /**
-     * @var mixed Date Updated
-     */
-    public $dateUpdated;
-
-    /**
-     * @var string Unique ID
-     */
-    public $uid;
-
-    /**
      * @return \craft\commerce\elements\Order|null
      */
     public function getOrder()

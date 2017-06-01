@@ -51,21 +51,6 @@ class Currency extends Model
     public $numericCode;
 
     /**
-     * @var mixed Date Created
-     */
-    public $dateCreated;
-
-    /**
-     * @var mixed Date Updated
-     */
-    public $dateUpdated;
-
-    /**
-     * @var string Unique ID
-     */
-    public $uid;
-
-    /**
      * @return string
      */
     public function __toString(): string

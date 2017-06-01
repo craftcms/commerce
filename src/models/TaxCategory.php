@@ -43,21 +43,6 @@ class TaxCategory extends Model
     public $default;
 
     /**
-     * @var mixed Date Created
-     */
-    public $dateCreated;
-
-    /**
-     * @var mixed Date Updated
-     */
-    public $dateUpdated;
-
-    /**
-     * @var string Unique ID
-     */
-    public $uid;
-
-    /**
      * Returns the name of this tax category.
      *
      * @return string

@@ -110,21 +110,6 @@ class Transaction extends Model
     public $response;
 
     /**
-     * @var mixed Date Created
-     */
-    public $dateCreated;
-
-    /**
-     * @var mixed Date Updated
-     */
-    public $dateUpdated;
-
-    /**
-     * @var string Unique ID
-     */
-    public $uid;
-
-    /**
      * @var
      */
     private $_paymentMethod;

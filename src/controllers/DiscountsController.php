@@ -152,7 +152,7 @@ class DiscountsController extends BaseCpController
 
         // Format into a %
         $percentDiscountAmount = Craft::$app->getRequest()->getParam('percentDiscount');
-        $localeData = Craft::$app->getI18n()->getLocaleData();
+        $localeData = Craft::$app->getI18n()->localeData();
         $percentSign = $localeData->getNumberSymbol('percentSign');
         if (strpos($percentDiscountAmount, $percentSign) or floatval($percentDiscountAmount) >= 1) {
             $discount->percentDiscount = floatval($percentDiscountAmount) / -100;

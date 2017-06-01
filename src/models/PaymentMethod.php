@@ -74,21 +74,6 @@ class PaymentMethod extends Model
      */
     public $settings;
 
-    /**
-     * @var mixed Date Created
-     */
-    public $dateCreated;
-
-    /**
-     * @var mixed Date Updated
-     */
-    public $dateUpdated;
-
-    /**
-     * @var string Unique ID
-     */
-    public $uid;
-
     /** @var BaseGatewayAdapter */
     private $_gatewayAdapter;
 

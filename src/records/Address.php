@@ -8,24 +8,26 @@ use yii\db\ActiveQueryInterface;
 /**
  * Address record.
  *
- * @property int    $id
- * @property string $attention
- * @property string $title
- * @property string $firstName
- * @property string $lastName
- * @property string $address1
- * @property string $address2
- * @property string $city
- * @property string $zipCode
- * @property string $phone
- * @property string $alternativePhone
- * @property string $businessName
- * @property string $businessTaxId
- * @property string $businessId
- * @property string $stateName
- * @property int    $countryId
- * @property int    $stateId
- * @property int    $customerId
+ * @property int     $id
+ * @property string  $attention
+ * @property string  $title
+ * @property string  $firstName
+ * @property string  $lastName
+ * @property string  $address1
+ * @property string  $address2
+ * @property string  $city
+ * @property string  $zipCode
+ * @property string  $phone
+ * @property string  $alternativePhone
+ * @property string  $businessName
+ * @property string  $businessTaxId
+ * @property string  $businessId
+ * @property string  $stateName
+ * @property int     $countryId
+ * @property int     $stateId
+ * @property int     $customerId
+ * @property Country $country
+ * @property State   $state
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -39,7 +41,7 @@ class Address extends ActiveRecord
     /**
      * @return string
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return '{{%commerce_addresses}}';
     }
@@ -63,19 +65,4 @@ class Address extends ActiveRecord
     {
         return $this->hasOne(Country::class, ['id' => 'stateId']);
     }
-
-//    {
-//        return [
-//            'country' => [
-//                static::BELONGS_TO,
-//                'Country',
-//                'onDelete' => self::SET_NULL,
-//            ],
-//            'state' => [
-//                static::BELONGS_TO,
-//                'State',
-//                'onDelete' => self::SET_NULL
-//            ]
-//        ];
-//    }
 }
