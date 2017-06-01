@@ -3,6 +3,7 @@
 namespace craft\commerce\models;
 
 use craft\behaviors\FieldLayoutBehavior;
+use craft\behaviors\FieldLayoutTrait;
 use craft\commerce\base\Model;
 use craft\commerce\elements\Order;
 use craft\helpers\UrlHelper;
@@ -27,6 +28,8 @@ use craft\helpers\UrlHelper;
  */
 class OrderSettings extends Model
 {
+    use FieldLayoutTrait;
+
     /**
      * @var int ID
      */
@@ -48,6 +51,21 @@ class OrderSettings extends Model
     public $fieldLayoutId;
 
     /**
+     * @var mixed Date Created
+     */
+    public $dateCreated;
+
+    /**
+     * @var mixed Date Updated
+     */
+    public $dateUpdated;
+
+    /**
+     * @var string Unique ID
+     */
+    public $uid;
+
+    /**
      * @return null|string
      */
     public function __toString(): string
@@ -66,7 +84,7 @@ class OrderSettings extends Model
     /**
      * @return array
      */
-    public function behaviors()
+    public function behaviors(): array
     {
         $behaviors = parent::behaviors();
         $behaviors['fieldLayout'] = [

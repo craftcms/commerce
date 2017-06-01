@@ -146,6 +146,21 @@ class Discount extends Model
     public $sortOrder;
 
     /**
+     * @var mixed Date Created
+     */
+    public $dateCreated;
+
+    /**
+     * @var mixed Date Updated
+     */
+    public $dateUpdated;
+
+    /**
+     * @var string Unique ID
+     */
+    public $uid;
+
+    /**
      * @var \craft\commerce\elements\Product Products
      */
     private $_products;

@@ -115,6 +115,21 @@ class ShippingRule extends Model implements ShippingRuleInterface
     public $maxRate = 0;
 
     /**
+     * @var mixed Date Created
+     */
+    public $dateCreated;
+
+    /**
+     * @var mixed Date Updated
+     */
+    public $dateUpdated;
+
+    /**
+     * @var string Unique ID
+     */
+    public $uid;
+
+    /**
      * @var \craft\commerce\models\ShippingCategory[]
      */
     private $_shippingRuleCategories;

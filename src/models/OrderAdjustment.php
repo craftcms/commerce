@@ -70,6 +70,21 @@ class OrderAdjustment extends Model
     public $orderId;
 
     /**
+     * @var mixed Date Created
+     */
+    public $dateCreated;
+
+    /**
+     * @var mixed Date Updated
+     */
+    public $dateUpdated;
+
+    /**
+     * @var string Unique ID
+     */
+    public $uid;
+
+    /**
      * @return \craft\commerce\elements\Order|null
      */
     public function getOrder()
@@ -77,6 +92,9 @@ class OrderAdjustment extends Model
         return Plugin::getInstance()->getOrder()->getOrderById($this->orderId);
     }
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
@@ -84,12 +102,10 @@ class OrderAdjustment extends Model
         ];
     }
 
+    /**
+     * @return null
+     */
     public function init()
-    {
-        $this->_initDefaults();
-    }
-
-    private function _initDefaults()
     {
         $this->included = false;
         $this->optionsJson = [];

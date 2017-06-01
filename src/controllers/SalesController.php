@@ -3,6 +3,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\elements\Product;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
@@ -47,6 +48,8 @@ class SalesController extends BaseCpController
      */
     public function actionEdit(array $variables = [])
     {
+        $variables['productElementType'] = Product::class;
+
         if (empty($variables['sale'])) {
             if (!empty($variables['id'])) {
                 $id = $variables['id'];
@@ -87,7 +90,7 @@ class SalesController extends BaseCpController
             $productIds = $variables['sale']->getProductIds();
         }
         foreach ($productIds as $productId) {
-            $product = Plugin::getInstance()->getProducts()->getProductById($productId);
+            $product = Plugin::getInstance()->getProducts()->getProductById((int) $productId);
             if ($product) {
                 $products[] = $product;
             }

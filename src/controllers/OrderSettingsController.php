@@ -3,6 +3,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\elements\Order;
 use craft\commerce\models\OrderSettings as OrderSettingsModel;
 use craft\commerce\Plugin;
 use yii\base\Exception;
@@ -27,7 +28,7 @@ class OrderSettingsController extends BaseAdminController
      */
     public function actionEdit(array $variables = [])
     {
-        $variables['orderSettings'] = Plugin::getInstance()->getOrderSettings->getOrderSettingByHandle('order');
+        $variables['orderSettings'] = Plugin::getInstance()->getOrderSettings()->getOrderSettingByHandle('order');
 
         $variables['title'] = Craft::t('commerce', 'Order Settings');
 
@@ -52,7 +53,7 @@ class OrderSettingsController extends BaseAdminController
 
         // Set the field layout
         $fieldLayout = Craft::$app->getFields()->assembleLayoutFromPost();
-        $fieldLayout->type = 'Commerce_Order';
+        $fieldLayout->type = Order::class;
         $orderSettings->setFieldLayout($fieldLayout);
 
         // Save it

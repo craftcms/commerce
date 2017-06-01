@@ -52,11 +52,26 @@ class Customer extends Model
     public $lastUsedShippingAddressId;
 
     /**
+     * @var mixed Date Created
+     */
+    public $dateCreated;
+
+    /**
+     * @var mixed Date Updated
+     */
+    public $dateUpdated;
+
+    /**
+     * @var string Unique ID
+     */
+    public $uid;
+
+    /**
      * @var \craft\commerce\models\User $_user
      */
     private $_user;
 
-    /*
+    /**
      * Returns the email address of the customer as the string output.
      *
      * @return string

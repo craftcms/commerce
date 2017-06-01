@@ -3,6 +3,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\elements\Product;
 use craft\commerce\models\Discount;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
@@ -51,6 +52,8 @@ class DiscountsController extends BaseCpController
      */
     public function actionEdit(array $variables = [])
     {
+        $variables['productElementType'] = Product::class;
+
         if (empty($variables['discount'])) {
             if (!empty($variables['id'])) {
                 $id = $variables['id'];

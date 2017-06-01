@@ -44,6 +44,21 @@ class State extends Model
      */
     public $countryId;
 
+    /**
+     * @var mixed Date Created
+     */
+    public $dateCreated;
+
+    /**
+     * @var mixed Date Updated
+     */
+    public $dateUpdated;
+
+    /**
+     * @var string Unique ID
+     */
+    public $uid;
+
     public function rules()
     {
         return [

@@ -76,6 +76,21 @@ class PaymentCurrency extends Model
     public $numericCode;
 
     /**
+     * @var mixed Date Created
+     */
+    public $dateCreated;
+
+    /**
+     * @var mixed Date Updated
+     */
+    public $dateUpdated;
+
+    /**
+     * @var string Unique ID
+     */
+    public $uid;
+
+    /**
      * @var Currency
      */
     private $_currency;

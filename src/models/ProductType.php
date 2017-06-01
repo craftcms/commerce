@@ -3,6 +3,7 @@
 namespace craft\commerce\models;
 
 use craft\behaviors\FieldLayoutBehavior;
+use craft\behaviors\FieldLayoutTrait;
 use craft\commerce\base\Model;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
@@ -26,6 +27,7 @@ use craft\validators\HandleValidator;
  */
 class ProductType extends Model
 {
+    use FieldLayoutTrait;
 
     // Properties
     // =========================================================================
@@ -99,6 +101,21 @@ class ProductType extends Model
      * @var int Variant layout ID
      */
     public $variantFieldLayoutId;
+
+    /**
+     * @var mixed Date Created
+     */
+    public $dateCreated;
+
+    /**
+     * @var mixed Date Updated
+     */
+    public $dateUpdated;
+
+    /**
+     * @var string Unique ID
+     */
+    public $uid;
 
     /**
      * @var TaxCategory[]
@@ -228,14 +245,10 @@ class ProductType extends Model
     /**
      * @return TaxCategory[]
      */
-    public function getTaxCategories($asList = false)
+    public function getTaxCategories(): array
     {
         if (!$this->_taxCategories) {
             $this->_taxCategories = Plugin::getInstance()->getProductTypes()->getProductTypeTaxCategories($this->id, 'id');
-        }
-
-        if ($asList) {
-            return ArrayHelper::map($this->_taxCategories, 'id', 'name');
         }
 
         return $this->_taxCategories;

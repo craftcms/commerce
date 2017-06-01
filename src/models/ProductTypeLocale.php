@@ -44,6 +44,21 @@ class ProductTypeLocale extends Model
      */
     public $urlFormatIsRequired = true;
 
+    /**
+     * @var mixed Date Created
+     */
+    public $dateCreated;
+
+    /**
+     * @var mixed Date Updated
+     */
+    public $dateUpdated;
+
+    /**
+     * @var string Unique ID
+     */
+    public $uid;
+
     // Public Methods
     // =========================================================================
 

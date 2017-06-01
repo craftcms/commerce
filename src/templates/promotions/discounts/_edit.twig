@@ -197,7 +197,7 @@
             label: 'Products'|t,
             name: 'products',
             elements: products ? products : null,
-            elementType: craft.elements.getElementType('craft\\commerce\\elements\\Product'),
+            elementType: productElementType,
             limit: null,
             instructions: "Products for which this discount will be applicable to. Leave blank for all products"|t,
             errors: discount.getErrors('products'),

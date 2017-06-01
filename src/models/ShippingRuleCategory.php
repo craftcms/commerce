@@ -51,6 +51,21 @@ class ShippingRuleCategory extends Model
      */
     public $condition;
 
+    /**
+     * @var mixed Date Created
+     */
+    public $dateCreated;
+
+    /**
+     * @var mixed Date Updated
+     */
+    public $dateUpdated;
+
+    /**
+     * @var string Unique ID
+     */
+    public $uid;
+
     public function rules()
     {
         return [

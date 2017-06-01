@@ -58,7 +58,7 @@ class OrderSettings extends Component
      */
     public function getOrderSettingByHandle($handle)
     {
-        $result = OrderSettingsRecord::find()->where(['handle' => $handle])->all();
+        $result = OrderSettingsRecord::find()->where(['handle' => $handle])->one();
 
         if ($result) {
             $orderSetting = new OrderSettingsModel($result);

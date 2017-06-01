@@ -51,6 +51,21 @@ class ShippingZone extends Model
      */
     public $default = false;
 
+    /**
+     * @var mixed Date Created
+     */
+    public $dateCreated;
+
+    /**
+     * @var mixed Date Updated
+     */
+    public $dateUpdated;
+
+    /**
+     * @var string Unique ID
+     */
+    public $uid;
+
     /** @var \craft\commerce\models\Country[] $_countries */
     private $_countries;
 

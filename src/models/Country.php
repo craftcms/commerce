@@ -20,37 +20,37 @@ class Country extends Model
     // Properties
     // =========================================================================
 
-    /*
+    /**
      * @var int ID
      */
     public $id;
 
-    /*
+    /**
      * @var string Name
      */
     public $name;
 
-    /*
+    /**
      * @var string ISO code
      */
     public $iso;
 
-    /*
+    /**
      * @var bool State Required
      */
     public $stateRequired;
 
-    /*
+    /**
      * @var mixed Date Created
      */
     public $dateCreated;
 
-    /*
+    /**
      * @var mixed Date Updated
      */
     public $dateUpdated;
 
-    /*
+    /**
      * @var string Unique ID
      */
     public $uid;

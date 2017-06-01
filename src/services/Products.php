@@ -24,11 +24,14 @@ class Products extends Component
      * @param int $id
      * @param int $localeId
      *
-     * @return Product
+     * @return Product|null
      */
-    public function getProductById($id, $localeId = null)
+    public function getProductById(int $id, $localeId = null)
     {
-        return Craft::$app->getElements()->getElementById($id, Product::class, $localeId);
+        /** @var Product $product */
+        $product = Craft::$app->getElements()->getElementById($id, Product::class, $localeId);
+
+        return $product;
     }
 
 

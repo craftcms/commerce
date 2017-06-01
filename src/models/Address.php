@@ -25,95 +25,110 @@ class Address extends Model
     // Properties
     // =========================================================================
 
-    /*
+    /**
      * @var int Address ID
      */
     public $id;
 
-    /*
+    /**
      * @var string Attention
      */
     public $attention;
 
-    /*
+    /**
      * @var string Title
      */
     public $title;
 
-    /*
+    /**
      * @var string First Name
      */
     public $firstName;
 
-    /*
+    /**
      * @var string Last Name
      */
     public $lastName;
 
-    /*
+    /**
      * @var string Address Line 1
      */
     public $address1;
 
-    /*
+    /**
      * @var string Address Line 2
      */
     public $address2;
 
-    /*
+    /**
      * @var string City
      */
     public $city;
 
-    /*
+    /**
      * @var string Zip
      */
     public $zipCode;
 
-    /*
+    /**
      * @var string Phone
      */
     public $phone;
 
-    /*
+    /**
      * @var string Alternative Phone
      */
     public $alternativePhone;
 
-    /*
+    /**
      * @var string Business Name
      */
     public $businessName;
 
-    /*
+    /**
      * @var string Business Tax ID
      */
     public $businessTaxId;
 
-    /*
+    /**
      * @var string Business ID
      */
     public $businessId;
 
-    /*
+    /**
      * @var string State Name
      */
     public $stateName;
 
-    /*
+    /**
      * @var int Country ID
      */
     public $countryId;
 
-    /*
+    /**
      * @var int Country ID
      */
     public $stateId;
 
-    /*
+    /**
      * @var int|string Can be a State ID or State Name
      */
     private $_stateValue;
+
+    /**
+     * @var mixed Date Created
+     */
+    public $dateCreated;
+
+    /**
+     * @var mixed Date Updated
+     */
+    public $dateUpdated;
+
+    /**
+     * @var string Unique ID
+     */
+    public $uid;
 
     /**
      * @return string
