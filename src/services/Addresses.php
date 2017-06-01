@@ -32,11 +32,10 @@ class Addresses extends Component
      */
     public function getAddressById(int $id)
     {
-
         $result = AddressRecord::find()->where(['id' => $id])->one();
 
         if ($result) {
-            return $this->_createAddressGroupFromAddressRecord($result);
+            return $this->_createAddressFromAddressRecord($result);
         }
 
         return null;
@@ -195,7 +194,7 @@ class Addresses extends Component
      *
      * @return Address|null
      */
-    private function _createAddressGroupFromAddressRecord(AddressRecord $addressRecord = null)
+    private function _createAddressFromAddressRecord(AddressRecord $addressRecord = null)
     {
         if (!$addressRecord) {
             return null;
