@@ -1,5 +1,3 @@
-- Added the `registerRedactorPlugin` event to `craft\fields\RichText`,
-
 ### Changed
 - `craft\commerce\services\Addresses` now fires the following events: `beforeSaveAddress`, and `afterSaveAddress`.
 - `craft\commerce\services\Cart` now fires the following events: `beforeAddToCart`, `afterAddToCart`, `afterRemoveFromCart` and a cancelable `beforeRemoveFromCart` event.
