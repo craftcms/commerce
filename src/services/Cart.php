@@ -4,13 +4,13 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\elements\Order;
+use craft\commerce\events\CartEvent;
 use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use yii\base\Component;
-use yii\base\Event;
 use yii\base\Exception;
 use yii\validators\EmailValidator;
 
@@ -26,11 +26,42 @@ use yii\validators\EmailValidator;
  */
 class Cart extends Component
 {
+    // Constants
+    // =========================================================================
+
+    /**
+     * @event CartEvent The event that is raised before an item is added to cart
+     */
+    const EVENT_BEFORE_ADD_TO_CART = 'beforeAddToCart';
+
+    /**
+     * @event CartEvent The event that is raised after an item is added to cart
+     */
+    const EVENT_AFTER_ADD_TO_CART = 'afterAddToCart';
+
+    /**
+     * @event CartEvent The event that is raised before an item is removed from cart
+     *
+     * You may set [[CartEvent::isValid]] to `false` to prevent the item from being removed from the cart.
+     */
+    const EVENT_BEFORE_REMOVE_FROM_CART = 'beforeRemoveFromCart';
+
+    /**
+     * @event CartEvent The event that is raised after an item is removed from cart
+     */
+    const EVENT_AFTER_REMOVE_FROM_CART = 'afterRemoveFromCart';
+
+    // Properties
+    // =========================================================================
+
     /** @var string Session key for storing the cart number */
     protected $cookieCartId = 'commerce_cookie';
 
     /** @var Order */
     private $_cart;
+
+    // Public Methods
+    // =========================================================================
 
     /**
      * @param Order  $order
@@ -82,14 +113,11 @@ class Cart extends Component
         try {
             if (!$lineItem->hasErrors()) {
                 //raising event
-                $event = new Event($this, ['lineItem' => $lineItem, 'order' => $order,]);
-                $this->onBeforeAddToCart($event);
-
-                if (!$event->performAction) {
-                    Db::rollbackStackedTransaction();
-
-                    return false;
-                }
+                $event = new CartEvent([
+                    'lineItem' => $lineItem,
+                    'order' => $order
+                ]);
+                $this->trigger(self::EVENT_BEFORE_ADD_TO_CART, $event);
 
                 if (Plugin::getInstance()->getLineItems()->saveLineItem($lineItem)) {
                     if ($isNewLineItem) {
@@ -103,8 +131,11 @@ class Cart extends Component
                     $transaction->commit();
 
                     //raising event
-                    $event = new Event($this, ['lineItem' => $lineItem, 'order' => $order,]);
-                    $this->onAddToCart($event);
+                    $event = new CartEvent([
+                        'lineItem' => $lineItem,
+                        'order' => $order
+                    ]);
+                    $this->trigger(self::EVENT_AFTER_ADD_TO_CART, $event);
 
                     return true;
                 }
@@ -120,32 +151,6 @@ class Cart extends Component
         $error = array_pop($errors);
 
         return false;
-    }
-
-    public function onBeforeAddToCart(\CEvent $event)
-    {
-        $params = $event->params;
-        if (empty($params['order']) || !($params['order'] instanceof Order)) {
-            throw new Exception('onAddToCart event requires "order" param with OrderModel instance');
-        }
-
-        if (empty($params['lineItem']) || !($params['lineItem'] instanceof LineItem)) {
-            throw new Exception('onAddToCart event requires "lineItem" param with LineItemModel instance');
-        }
-        $this->raiseEvent('onBeforeAddToCart', $event);
-    }
-
-    public function onAddToCart(\CEvent $event)
-    {
-        $params = $event->params;
-        if (empty($params['order']) || !($params['order'] instanceof Order)) {
-            throw new Exception('onAddToCart event requires "order" param with OrderModel instance');
-        }
-
-        if (empty($params['lineItem']) || !($params['lineItem'] instanceof LineItem)) {
-            throw new Exception('onAddToCart event requires "lineItem" param with LineItemModel instance');
-        }
-        $this->raiseEvent('onAddToCart', $event);
     }
 
     /**
@@ -397,11 +402,13 @@ class Cart extends Component
             return false;
         }
 
-        //raising event
-        $event = new Event($this, ['lineItem' => $lineItem, 'order' => $cart]);
-        $this->onBeforeRemoveFromCart($event);
+        $event = new CartEvent([
+            'lineItem' => $lineItem,
+            'order' => $cart
+        ]);
+        $this->trigger(self::EVENT_BEFORE_REMOVE_FROM_CART, $event);
 
-        if (!$event->performAction) {
+        if (!$event->isValid) {
             return false;
         }
 
@@ -420,8 +427,11 @@ class Cart extends Component
             Plugin::getInstance()->getOrders()->saveOrder($cart);
 
             //raising event
-            $event = new Event($this, ['lineItemId' => $lineItemId, 'order' => $cart]);
-            $this->onRemoveFromCart($event);
+            $event = new CartEvent([
+                'lineItem' => $lineItem,
+                'order' => $cart
+            ]);
+            $this->trigger(self::EVENT_AFTER_REMOVE_FROM_CART, $event);
         } catch (\Exception $e) {
             Db::rollbackStackedTransaction();
             Craft::error($e->getMessage(), 'commerce');
@@ -432,35 +442,6 @@ class Cart extends Component
         $transaction->commit();
 
         return true;
-    }
-
-
-    public function onBeforeRemoveFromCart(\CEvent $event)
-    {
-        // TODO: Refactor for Craft 3
-        $params = $event->params;
-        if (empty($params['order']) || !($params['order'] instanceof Order)) {
-            throw new Exception('onBeforeRemoveFromCart event requires "order" param with OrderModel instance');
-        }
-
-        if (empty($params['lineItem']) || !($params['lineItem'] instanceof LineItem)) {
-            throw new Exception('onBeforeRemoveFromCart event requires "lineItem" param to be an LineItem');
-        }
-        $this->raiseEvent('onBeforeRemoveFromCart', $event);
-    }
-
-    public function onRemoveFromCart(\CEvent $event)
-    {
-        // TODO: Refactor for Craft 3
-        $params = $event->params;
-        if (empty($params['order']) || !($params['order'] instanceof Order)) {
-            throw new Exception('onRemoveFromCart event requires "order" param with OrderModel instance');
-        }
-
-        if (empty($params['lineItemId']) || !is_numeric($params['lineItemId'])) {
-            throw new Exception('onRemoveFromCart event requires "lineItemId" param');
-        }
-        $this->raiseEvent('onRemoveFromCart', $event);
     }
 
     /**

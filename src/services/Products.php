@@ -4,6 +4,7 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\elements\Product;
+use craft\commerce\events\ProductEvent;
 use craft\commerce\Plugin;
 use craft\commerce\records\Product as ProductRecord;
 use yii\base\Component;
@@ -20,6 +21,35 @@ use yii\base\Component;
  */
 class Products extends Component
 {
+    // Constants
+    // =========================================================================
+
+    /**
+     * @event ProductEvent The event that is raised before a product is saved.
+     */
+    const EVENT_BEFORE_SAVE_PRODUCT = 'beforeSaveProduct';
+
+    /**
+     * @event ProductEvent The event that is raised after a product is saved.
+     */
+    const EVENT_AFTER_SAVE_PRODUCT = 'afterSaveProduct';
+
+    /**
+     * @event ProductEvent This event is raised when a new product is created from a purchasable
+     *
+     * You may set [[ProductEvent::isValid]] to `false` to prevent the product from being deleted.
+     */
+    const EVENT_BEFORE_DELETE_PRODUCT = 'beforeDeleteProduct';
+
+    /**
+     * @event ProductEvent This event is raised when a new product is populated from a purchasable
+
+     */
+    const EVENT_AFTER_DELETE_PRODUCT = 'afterDeleteProduct';
+
+    // Public Methods
+    // =========================================================================
+
     /**
      * @param int $id
      * @param int $localeId
@@ -59,12 +89,11 @@ class Products extends Component
         }
 
         // Fire an 'onBeforeSaveProduct' event
-        $event = new Event($this, [
+        $event = new ProductEvent([
             'product' => $product,
             'isNewProduct' => $isNewProduct
         ]);
-
-        $this->onBeforeSaveProduct($event);
+        $this->trigger(self::EVENT_BEFORE_SAVE_PRODUCT, $event);
 
         $record->postDate = $product->postDate;
         $record->expiryDate = $product->expiryDate;
@@ -163,53 +192,47 @@ class Products extends Component
             $record->defaultWidth = $product->defaultWidth = $defaultVariant->width * 1;
             $record->defaultWeight = $product->defaultWeight = $defaultVariant->weight * 1;
 
-            if ($event->performAction) {
-
-                $success = Craft::$app->getElements()->saveElement($product);
-
-                if ($success) {
-                    // Now that we have an element ID, save it on the other stuff
-                    if ($isNewProduct) {
-                        $record->id = $product->id;
-                    }
-
-                    $record->save(false);
-
-                    $keepVariantIds = [];
-                    $oldVariantIds = Craft::$app->getDb()->createCommand()
-                        ->select('id')
-                        ->from('commerce_variants')
-                        ->where('productId = :productId', [':productId' => $product->id])
-                        ->queryColumn();
-
-                    foreach ($product->getVariants() as $variant) {
-                        if ($defaultVariant === $variant) {
-                            $variant->isDefault = true;
-                            $variant->enabled = true; // default must always be enabled.
-                        } else {
-                            $variant->isDefault = false;
-                        }
-                        $variant->setProduct($product);
-
-                        Plugin::getInstance()->getVariants()->saveVariant($variant);
-
-                        // Need to manually update the product's default variant ID now that we have a saved ID
-                        if ($product->defaultVariantId === null && $defaultVariant === $variant) {
-                            $product->defaultVariantId = $variant->id;
-                            Craft::$app->getDb()->createCommand()->update('commerce_products', ['defaultVariantId' => $variant->id], ['id' => $product->id]);
-                        }
-
-                        $keepVariantIds[] = $variant->id;
-                    }
-
-                    foreach (array_diff($oldVariantIds, $keepVariantIds) as $deleteId) {
-                        Plugin::getInstance()->getVariants()->deleteVariantById($deleteId);
-                    }
-
-                    $transaction->commit();
+            $success = Craft::$app->getElements()->saveElement($product);
+            if ($success) {
+                // Now that we have an element ID, save it on the other stuff
+                if ($isNewProduct) {
+                    $record->id = $product->id;
                 }
-            } else {
-                $success = false;
+
+                $record->save(false);
+
+                $keepVariantIds = [];
+                $oldVariantIds = Craft::$app->getDb()->createCommand()
+                    ->select('id')
+                    ->from('commerce_variants')
+                    ->where('productId = :productId', [':productId' => $product->id])
+                    ->queryColumn();
+
+                foreach ($product->getVariants() as $variant) {
+                    if ($defaultVariant === $variant) {
+                        $variant->isDefault = true;
+                        $variant->enabled = true; // default must always be enabled.
+                    } else {
+                        $variant->isDefault = false;
+                    }
+                    $variant->setProduct($product);
+
+                    Plugin::getInstance()->getVariants()->saveVariant($variant);
+
+                    // Need to manually update the product's default variant ID now that we have a saved ID
+                    if ($product->defaultVariantId === null && $defaultVariant === $variant) {
+                        $product->defaultVariantId = $variant->id;
+                        Craft::$app->getDb()->createCommand()->update('commerce_products', ['defaultVariantId' => $variant->id], ['id' => $product->id]);
+                    }
+
+                    $keepVariantIds[] = $variant->id;
+                }
+
+                foreach (array_diff($oldVariantIds, $keepVariantIds) as $deleteId) {
+                    Plugin::getInstance()->getVariants()->deleteVariantById($deleteId);
+                }
+
+                $transaction->commit();
             }
         } catch (\Exception $e) {
             $transaction->rollBack();
@@ -217,56 +240,16 @@ class Products extends Component
         }
 
         if ($success) {
-            // Fire an 'onSaveProduct' event
-            $this->onSaveProduct(new Event($this, [
+            // Fire an 'onBeforeSaveProduct' event
+            $event = new ProductEvent([
                 'product' => $product,
                 'isNewProduct' => $isNewProduct
-            ]));
+            ]);
+            $this->trigger(self::EVENT_AFTER_SAVE_PRODUCT, $event);
+
         }
 
         return $success;
-    }
-
-    /**
-     * This event is raised before a product is saved
-     *
-     * @param \CEvent $event
-     *
-     * @throws \CException
-     */
-    public function onBeforeSaveProduct(\CEvent $event)
-    {
-        $params = $event->params;
-        if (empty($params['product']) || !($params['product'] instanceof Product)) {
-            throw new Exception('onBeforeSaveProduct event requires "product" param with Product instance that is being saved.');
-        }
-
-        if (!isset($params['isNewProduct'])) {
-            throw new Exception('onBeforeSaveProduct event requires "isNewProduct" param with a boolean to determine if the product is new.');
-        }
-
-        $this->raiseEvent('onBeforeSaveProduct', $event);
-    }
-
-    /**
-     * This event is raised after a product has been successfully saved
-     *
-     * @param \CEvent $event
-     *
-     * @throws \CException
-     */
-    public function onSaveProduct(\CEvent $event)
-    {
-        $params = $event->params;
-        if (empty($params['product']) || !($params['product'] instanceof Product)) {
-            throw new Exception('onSaveProduct event requires "product" param with Product instance that is being saved.');
-        }
-
-        if (!isset($params['isNewProduct'])) {
-            throw new Exception('onSaveProduct event requires "isNewProduct" param with a boolean to determine if the product is new.');
-        }
-
-        $this->raiseEvent('onSaveProduct', $event);
     }
 
     /**
@@ -293,14 +276,13 @@ class Products extends Component
             $variantsByProductId = [];
 
             foreach ($products as $product) {
-                // Fire an 'onBeforeDeleteProduct' event
-                $event = new Event($this, [
-                    'product' => $product
+                // Fire an 'onBeforeSaveProduct' event
+                $event = new ProductEvent([
+                    'product' => $product,
                 ]);
+                $this->trigger(self::EVENT_BEFORE_DELETE_PRODUCT, $event);
 
-                $this->onBeforeDeleteProduct($event);
-
-                if ($event->performAction) {
+                if ($event->isValid) {
                     $productIds[] = $product->id;
                     $variantsByProductId[$product->id] = Plugin::getInstance()->getVariants()->getAllVariantsByProductId($product->id);
                 }
@@ -337,49 +319,16 @@ class Products extends Component
                     Craft::$app->getElements()->deleteElementById($v->id);
                 }
 
-                // Fire an 'onDeleteProduct' event
-                $this->onDeleteProduct(new Event($this, [
+                // Fire an 'onBeforeSaveProduct' event
+                $event = new ProductEvent([
                     'product' => $product
-                ]));
+                ]);
+                $this->trigger(self::EVENT_AFTER_DELETE_PRODUCT, $event);
             }
 
             return true;
         }
 
         return false;
-    }
-
-    /**
-     * This event is raised before a product is saved
-     *
-     * @param \CEvent $event
-     *
-     * @throws \CException
-     */
-    public function onBeforeDeleteProduct(\CEvent $event)
-    {
-        $params = $event->params;
-        if (empty($params['product']) || !($params['product'] instanceof Product)) {
-            throw new Exception('onBeforeDeleteProduct event requires "product" param with Product instance that is being deleted.');
-        }
-
-        $this->raiseEvent('onBeforeDeleteProduct', $event);
-    }
-
-    /**
-     * This event is raised after a product has been successfully saved
-     *
-     * @param \CEvent $event
-     *
-     * @throws \CException
-     */
-    public function onDeleteProduct(\CEvent $event)
-    {
-        $params = $event->params;
-        if (empty($params['product']) || !($params['product'] instanceof Product)) {
-            throw new Exception('onDeleteProduct event requires "product" param with Product instance that is being deleted.');
-        }
-
-        $this->raiseEvent('onDeleteProduct', $event);
     }
 }

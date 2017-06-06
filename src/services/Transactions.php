@@ -3,6 +3,7 @@
 namespace craft\commerce\services;
 
 use craft\commerce\elements\Order;
+use craft\commerce\events\TransactionEvent;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\Transaction;
 use craft\commerce\records\Transaction as TransactionRecord;
@@ -20,6 +21,15 @@ use yii\base\Component;
  */
 class Transactions extends Component
 {
+    // Constants
+    // =========================================================================
+    /**
+     * @event TransactionEvent The event that is triggered after a transaction has been saved.
+     */
+    const EVENT_AFTER_SAVE_TRANSACTION = 'afterSaveTransaction';
+
+    // Public Methods
+    // =========================================================================
     /**
      * @param int $id
      *
@@ -143,10 +153,11 @@ class Transactions extends Component
             $record->save(false);
             $model->id = $record->id;
 
-            $event = new Event($this, [
+            $event = new TransactionEvent([
                 'transaction' => $model
             ]);
-            $this->onSaveTransaction($event);
+
+            $this->trigger(self::EVENT_AFTER_SAVE_TRANSACTION, $event);
 
             return true;
         }

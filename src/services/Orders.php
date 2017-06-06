@@ -5,6 +5,7 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\base\AdjusterInterface;
 use craft\commerce\elements\Order;
+use craft\commerce\events\OrderEvent;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\Address;
 use craft\commerce\models\Customer;
@@ -17,7 +18,7 @@ use yii\base\Component;
 use yii\base\Exception;
 
 /**
- * Class $1
+ * Orders service.
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -29,15 +30,31 @@ use yii\base\Exception;
 class Orders extends Component
 {
 
-    /**
-     * @var
-     */
-    private $_lineItemsById;
+    // Constants
+    // =========================================================================
 
     /**
-     * @var
+     * @event OrderEvent The event that is raised before an order is saved.
      */
-    private $_adjustmentsById;
+    const EVENT_BEFORE_SAVE_ORDER = 'beforeSaveOrder';
+
+    /**
+     * @event OrderEvent The event that is raised after an order is saved.
+     */
+    const EVENT_AFTER_SAVE_ORDER = 'afterSaveOrder';
+
+    /**
+     * @event OrderEvent This event is raised when an order is completed
+     */
+    const EVENT_BEFORE_COMPLETE_ORDER = 'beforeCompleteOrder';
+
+    /**
+     * @event OrderEvent This event is raised after an order is completed
+     */
+    const EVENT_AFTER_COMPLETE_ORDER = 'afterCompleteOrder';
+
+    // Public Methods
+    // =========================================================================
 
     /**
      * @param int $id
@@ -187,10 +204,8 @@ class Orders extends Component
         $oldStatusId = $orderRecord->orderStatusId;
 
         //raising event
-        $event = new Event($this, [
-            'order' => $order
-        ]);
-        $this->onBeforeSaveOrder($event);
+        $event = new OrderEvent(['order' => $order]);
+        $this->trigger(self::EVENT_BEFORE_SAVE_ORDER, $event);
 
         $orderRecord->number = $order->number;
         $orderRecord->itemTotal = $order->itemTotal;
@@ -225,32 +240,25 @@ class Orders extends Component
         $transaction = $db->beginTransaction();
 
         try {
-            if (!$order->hasErrors() && $event->performAction) {
-                if (Craft::$app->getElements()->saveElement($order)) {
+            if (!$order->hasErrors() && Craft::$app->getElements()->saveElement($order)) {
+                $orderRecord->id = $order->id;
+                $orderRecord->save(false);
 
-                    $orderRecord->id = $order->id;
-                    $orderRecord->save(false);
+                $transaction->commit();
 
-                    $transaction->commit();
+                //raising event
+                $event = new OrderEvent(['order' => $order]);
+                $this->trigger(self::EVENT_AFTER_SAVE_ORDER, $event);
 
-                    //raising event
-                    $event = new Event($this, [
-                        'order' => $order
-                    ]);
-                    $this->onSaveOrder($event);
+                //creating order history record
+                $hasNewStatus = $orderRecord->id && $oldStatusId != $orderRecord->orderStatusId;
 
-                    //creating order history record
-                    if ($orderRecord->id && $oldStatusId != $orderRecord->orderStatusId) {
-                        if (!Plugin::getInstance()->getOrderHistories()->createOrderHistoryFromOrder($order,
-                            $oldStatusId)
-                        ) {
-                            Craft::log('Error saving order history after Order save.', __METHOD__);
-                            throw new Exception('Error saving order history');
-                        }
-                    }
-
-                    return true;
+                if ($hasNewStatus && !Plugin::getInstance()->getOrderHistories()->createOrderHistoryFromOrder($order, $oldStatusId)) {
+                    Craft::log('Error saving order history after Order save.', __METHOD__);
+                    throw new Exception('Error saving order history');
                 }
+
+                return true;
             }
         } catch (\Exception $e) {
             $transaction->rollBack();
@@ -424,26 +432,6 @@ class Orders extends Component
         return $adjusters;
     }
 
-
-    public function onBeforeSaveOrder(\CEvent $event)
-    {
-        $params = $event->params;
-        if (empty($params['order']) || !($params['order'] instanceof Order)) {
-            throw new Exception('onBeforeSaveOrder event requires "order" param with OrderModel instance');
-        }
-        $this->raiseEvent('onBeforeSaveOrder', $event);
-    }
-
-
-    public function onSaveOrder(\CEvent $event)
-    {
-        $params = $event->params;
-        if (empty($params['order']) || !($params['order'] instanceof Order)) {
-            throw new Exception('onSaveOrder event requires "order" param with OrderModel instance');
-        }
-        $this->raiseEvent('onSaveOrder', $event);
-    }
-
     /**
      * Completes an Order
      *
@@ -465,8 +453,8 @@ class Orders extends Component
         $order->orderStatusId = Plugin::getInstance()->getOrderStatuses()->getDefaultOrderStatusId();
 
         //raising event on order complete
-        $event = new Event($this, ['order' => $order]);
-        $this->onBeforeOrderComplete($event);
+        $event = new OrderEvent(['order' => $order]);
+        $this->trigger(self::EVENT_BEFORE_COMPLETE_ORDER, $event);
 
         if ($this->saveOrder($order)) {
             // Run order complete handlers directly.
@@ -475,8 +463,8 @@ class Orders extends Component
             Plugin::getInstance()->getCustomers()->orderCompleteHandler($order);
 
             //raising event on order complete
-            $event = new Event($this, ['order' => $order]);
-            $this->onOrderComplete($event);
+            $event = new OrderEvent(['order' => $order]);
+            $this->trigger(self::EVENT_AFTER_COMPLETE_ORDER, $event);
 
             return true;
         }
@@ -485,30 +473,6 @@ class Orders extends Component
             ['number' => $order->number, 'order' => json_encode($order->getAllErrors())]), LogLevel::Error, true);
 
         return false;
-    }
-
-    /**
-     * Event method
-     *
-     * @param \CEvent $event
-     *
-     * @throws \CException
-     */
-    public function onBeforeOrderComplete(\CEvent $event)
-    {
-        $this->raiseEvent('onBeforeOrderComplete', $event);
-    }
-
-    /**
-     * Event method
-     *
-     * @param \CEvent $event
-     *
-     * @throws \CException
-     */
-    public function onOrderComplete(\CEvent $event)
-    {
-        $this->raiseEvent('onOrderComplete', $event);
     }
 
     /**

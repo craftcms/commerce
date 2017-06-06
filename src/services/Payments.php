@@ -5,6 +5,8 @@ namespace craft\commerce\services;
 use Commerce\Gateways\PaymentFormModels\BasePaymentFormModel;
 use Craft;
 use craft\commerce\elements\Order;
+use craft\commerce\events\GatewayRequestSendEvent;
+use craft\commerce\events\TransactionEvent;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
@@ -29,6 +31,39 @@ use yii\base\Component;
  */
 class Payments extends Component
 {
+    // Constants
+    // =========================================================================
+
+    /**
+     * @event GatewayRequestSendEvent The event that is triggered before a gateway request is sent
+     *
+     * You may set [[GatewayRequestSendEvent::isValid]] to `false` to prevent the request from being sent.
+     */
+    const EVENT_BEFORE_GATEWAY_REQUEST_SEND = 'beforeGatewayRequestSend';
+
+    /**
+     * @event TransactionEvent The event that is triggered before a transaction is captured
+     */
+    const EVENT_BEFORE_CAPTURE_TRANSACTION = 'beforeCaptureTransaction';
+
+    /**
+     * @event TransactionEvent The event that is triggered after a transaction is captured
+     */
+    const EVENT_AFTER_CAPTURE_TRANSACTION = 'afterCaptureTransaction';
+
+    /**
+     * @event TransactionEvent The event that is triggered before a transaction is refunded
+     */
+    const EVENT_BEFORE_REFUND_TRANSACTION = 'beforeRefundTransaction';
+
+    /**
+     * @event TransactionEvent The event that is triggered after a transaction is refunded
+     */
+    const EVENT_AFTER_REFUND_TRANSACTION = 'afterRefundTransaction';
+
+    // Public Methods
+    // =========================================================================
+
     /**
      * @param Order                $order
      * @param BasePaymentFormModel $form
@@ -351,19 +386,18 @@ class Payments extends Component
     ) {
 
         //raising event
-        $event = new Event($this, [
+        $event = new GatewayRequestSendEvent([
             'type' => $transaction->type,
             'request' => $request,
             'transaction' => $transaction
         ]);
-        $this->onBeforeGatewayRequestSend($event);
 
-        if (!$event->performAction) {
+        $this->trigger(self::EVENT_BEFORE_GATEWAY_REQUEST_SEND, $event);
+
+        if (!$event->isValid) {
             $transaction->status = TransactionRecord::STATUS_FAILED;
             $this->saveTransaction($transaction);
-        }
-
-        if ($event->performAction) {
+        } else {
             try {
 
                 $response = $this->_sendRequest($request, $transaction);
@@ -435,35 +469,6 @@ class Payments extends Component
     }
 
     /**
-     * Event: before sending a payment request to the gateway
-     * Event params: type(string)
-     *               request(RequestInterface)
-     *               transaction(Transaction)
-     *
-     * @param \CEvent $event
-     *
-     * @throws \CException
-     */
-    public function onBeforeGatewayRequestSend(\CEvent $event)
-    {
-        $params = $event->params;
-
-        if (empty($params['type'])) {
-            throw new Exception('onBeforeGatewayRequestSend event requires "type" param');
-        }
-
-        if (empty($params['request']) || !($params['request'] instanceof RequestInterface)) {
-            throw new Exception('onBeforeGatewayRequestSend event requires "request" param as RequestInterface');
-        }
-
-        if (empty($params['transaction']) || !($params['transaction'] instanceof Transaction)) {
-            throw new Exception('onBeforeGatewayRequestSend event requires "transaction" param as a Transaction');
-        }
-
-        $this->raiseEvent('onBeforeGatewayRequestSend', $event);
-    }
-
-    /**
      * @param $request
      * @param $transaction
      *
@@ -522,35 +527,21 @@ class Payments extends Component
     public function captureTransaction(Transaction $transaction)
     {
         //raising event
-        $event = new Event($this, ['transaction' => $transaction,]);
-        $this->onBeforeCaptureTransaction($event);
+        $event = new TransactionEvent([
+            'transaction' => $transaction
+        ]);
+
+        $this->trigger(self::EVENT_BEFORE_CAPTURE_TRANSACTION, $event);
 
         $transaction = $this->processCaptureOrRefund($transaction, TransactionRecord::TYPE_CAPTURE);
 
         //raising event
-        $event = new Event($this, ['transaction' => $transaction,]);
-        $this->onCaptureTransaction($event);
+        $event = new TransactionEvent([
+            'transaction' => $transaction
+        ]);
+        $this->trigger(self::EVENT_AFTER_CAPTURE_TRANSACTION, $event);
 
         return $transaction;
-    }
-
-    /**
-     * Event: Before attempting to capture a transaction.
-     * Event params: transaction(Transaction)
-     *
-     * @param \CEvent $event
-     *
-     * @throws \CException
-     */
-    public function onBeforeCaptureTransaction(\CEvent $event)
-    {
-        $params = $event->params;
-
-        if (empty($params['transaction']) || !($params['transaction'] instanceof Transaction)) {
-            throw new Exception('onBeforeCaptureTransaction event requires "transaction" to be a Transaction');
-        }
-
-        $this->raiseEvent('onBeforeCaptureTransaction', $event);
     }
 
     /**
@@ -582,7 +573,7 @@ class Payments extends Component
         $child->currency = $parent->currency;
         $child->paymentCurrency = $parent->paymentCurrency;
         $child->paymentRate = $parent->paymentRate;
-        $this->saveTransaction($child);
+        $this->saveTFransaction($child);
 
         $gateway = $parent->paymentMethod->getGateway();
         $request = $gateway->$action($this->buildPaymentRequest($child));
@@ -594,24 +585,19 @@ class Payments extends Component
         try {
 
             //raising event
-            $event = new Event($this, [
+            $event = new GatewayRequestSendEvent([
                 'type' => $child->type,
                 'request' => $request,
                 'transaction' => $child
             ]);
-            $this->onBeforeGatewayRequestSend($event);
+            $this->trigger(self::EVENT_BEFORE_GATEWAY_REQUEST_SEND, $event);
 
-            // Don't send the request
-            if (!$event->performAction) {
+            // Check if perhaps we shouldn't send the request
+            if (!$event->isValid) {
                 $child->status = TransactionRecord::STATUS_FAILED;
                 $this->saveTransaction($child);
-            }
-
-            // Send the request!
-            if ($event->performAction) {
-
+            } else {
                 $response = $this->_sendRequest($request, $child);
-
                 $this->updateTransaction($child, $response);
             }
         } catch (\Exception $e) {
@@ -625,25 +611,6 @@ class Payments extends Component
     }
 
     /**
-     * Event: After attempting to capture a transaction
-     * Event params: transaction(Transaction)
-     *
-     * @param \CEvent $event
-     *
-     * @throws \CException
-     */
-    public function onCaptureTransaction(\CEvent $event)
-    {
-        $params = $event->params;
-
-        if (empty($params['transaction']) || !($params['transaction'] instanceof Transaction)) {
-            throw new Exception('onCaptureTransaction event requires "transaction" to be a Transaction');
-        }
-
-        $this->raiseEvent('onCaptureTransaction', $event);
-    }
-
-    /**
      * @param Transaction $transaction
      *
      * @return Transaction
@@ -651,54 +618,23 @@ class Payments extends Component
     public function refundTransaction(Transaction $transaction)
     {
         //raising event
-        $event = new Event($this, ['transaction' => $transaction,]);
-        $this->onBeforeRefundTransaction($event);
+        $event = new TransactionEvent([
+            'transaction' => $transaction
+        ]);
+
+        $this->trigger(self::EVENT_BEFORE_REFUND_TRANSACTION, $event);
 
         $transaction = $this->processCaptureOrRefund($transaction, TransactionRecord::TYPE_REFUND);
 
         //raising event
-        $event = new Event($this, ['transaction' => $transaction,]);
-        $this->onRefundTransaction($event);
+        //raising event
+        $event = new TransactionEvent([
+            'transaction' => $transaction
+        ]);
+
+        $this->trigger(self::EVENT_AFTER_REFUND_TRANSACTION, $event);
 
         return $transaction;
-    }
-
-    /**
-     * Event: Before attempting to refund a transaction.
-     * Event params: transaction(Transaction)
-     *
-     * @param \CEvent $event
-     *
-     * @throws \CException
-     */
-    public function onBeforeRefundTransaction(\CEvent $event)
-    {
-        $params = $event->params;
-
-        if (empty($params['transaction']) || !($params['transaction'] instanceof Transaction)) {
-            throw new Exception('onBeforeRefundTransaction event requires "transaction" to be a Transaction');
-        }
-
-        $this->raiseEvent('onBeforeRefundTransaction', $event);
-    }
-
-    /**
-     * Event: After attempting to refund a transaction
-     * Event params: transaction(Transaction)
-     *
-     * @param \CEvent $event
-     *
-     * @throws \CException
-     */
-    public function onRefundTransaction(\CEvent $event)
-    {
-        $params = $event->params;
-
-        if (empty($params['transaction']) || !($params['transaction'] instanceof Transaction)) {
-            throw new Exception('onRefundTransaction event requires "transaction" to be a Transaction');
-        }
-
-        $this->raiseEvent('onRefundTransaction', $event);
     }
 
     /**

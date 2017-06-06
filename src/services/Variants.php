@@ -6,6 +6,7 @@ use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
+use craft\commerce\events\PurchaseVariantEvent;
 use craft\commerce\Plugin;
 use craft\commerce\records\Variant as VariantRecord;
 use yii\base\Component;
@@ -22,6 +23,18 @@ use yii\base\Component;
  */
 class Variants extends Component
 {
+
+    // Constants
+    // =========================================================================
+
+    /**
+     * @event PurchaseVariantEvent The event is raised when an order has been completed, and the variant is considered to be ordered
+     */
+    const EVENT_PURCHASE_VARIANT = 'purchaseVariant';
+
+    // Public Methods
+    // =========================================================================
+
     /**
      * @param int    $variantId The variant’s ID.
      * @param string $localeId  The locale to fetch the variant in. Defaults to {@link WebApp::language `craft()->language`}.
@@ -311,28 +324,11 @@ class Variants extends Component
 
         foreach ($variants as $variant) {
             //raising event
-            $event = new Event($this, [
+            $event = new PurchaseVariantEvent([
                 'variant' => $variant
             ]);
-            $this->onOrderVariant($event);
+            $this->trigger(self::EVENT_PURCHASE_VARIANT, $event);
         }
-    }
-
-    /**
-     * This event is raise when an order has been completed, and the variant
-     * is considered ordered.
-     *
-     * @param \CEvent $event
-     *
-     * @throws \CException
-     */
-    public function onOrderVariant(\CEvent $event)
-    {
-        $params = $event->params;
-        if (empty($params['variant']) || !($params['variant'] instanceof Variant)) {
-            throw new Exception('onOrderVariant event requires "variant" param with VariantModel instance that was ordered.');
-        }
-        $this->raiseEvent('onOrderVariant', $event);
     }
 
 }

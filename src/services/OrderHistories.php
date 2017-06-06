@@ -4,6 +4,7 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\elements\Order;
+use craft\commerce\events\OrderStatusEvent;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\Plugin;
 use craft\commerce\records\OrderHistory as OrderHistoryRecord;
@@ -21,6 +22,17 @@ use yii\base\Component;
  */
 class OrderHistories extends Component
 {
+    // Constants
+    // =========================================================================
+
+    /**
+     * @event TransactionEvent The event that is triggered when order status is changed
+     */
+    const EVENT_ORDER_STATUS_CHANGE = 'orderStatusChange';
+
+    // Public Methods
+    // =========================================================================
+
     /**
      * @param int $id
      *
@@ -72,11 +84,11 @@ class OrderHistories extends Component
         Plugin::getInstance()->getOrderStatuses()->statusChangeHandler($order, $orderHistoryModel);
 
         //raising event on status change
-        $event = new Event($this, [
+        $event = new OrderStatusEvent([
             'orderHistory' => $orderHistoryModel,
             'order' => $order
         ]);
-        $this->onStatusChange($event);
+        $this->trigger(self::EVENT_ORDER_STATUS_CHANGE, $event);
 
         return true;
     }
@@ -122,29 +134,6 @@ class OrderHistories extends Component
             return true;
         }
         return false;
-    }
-
-    /**
-     * Event method
-     * Event params: order (Order), orderHistoryModel
-     * (OrderHistory)
-     *
-     * @param \CEvent $event
-     *
-     * @throws \CException
-     */
-    public function onStatusChange(\CEvent $event)
-    {
-        $params = $event->params;
-        if (empty($params['order']) || !($params['order'] instanceof Order)) {
-            throw new Exception('onStatusChange event requires "order" param with OrderModel instance');
-        }
-
-        if (empty($params['orderHistory']) || !($params['orderHistory'] instanceof OrderHistory)) {
-            throw new Exception('onStatusChange event requires "orderHistory" param with OrderHistoryModel instance');
-        }
-
-        $this->raiseEvent('onStatusChange', $event);
     }
 
     /**

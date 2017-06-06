@@ -6,6 +6,7 @@ use Commerce\Interfaces\Purchasable;
 use Craft;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
+use craft\commerce\events\LineItemEvent;
 use craft\commerce\models\LineItem;
 use craft\commerce\records\LineItem as LineItemRecord;
 use craft\db\Query;
@@ -23,6 +24,34 @@ use yii\base\Component;
  */
 class LineItems extends Component
 {
+    // Constants
+    // =========================================================================
+
+    /**
+     * @event LineItemEvent The event that is raised before a line item is saved.
+     */
+    const EVENT_BEFORE_SAVE_LINE_ITEM = 'beforeSaveLineItem';
+
+    /**
+     * @event LineItemEvent The event that is raised after a line item is saved.
+     */
+    const EVENT_AFTER_SAVE_LINE_ITEM = 'afterSaveLineItem';
+
+    /**
+     * @event LineItemEvent This event is raised when a new line item is created from a purchasable
+
+     */
+    const EVENT_CREATE_LINE_ITEM = 'createLineItem';
+
+    /**
+     * @event LineItemEvent This event is raised when a new line item is populated from a purchasable
+
+     */
+    const EVENT_POPULATE_LINE_ITEM = 'populateLineItem';
+
+    // Public Methods
+    // =========================================================================
+
     /**
      * @param int $id
      *
@@ -150,11 +179,11 @@ class LineItems extends Component
         $lineItem->total = $lineItem->getTotal();
 
         //raising event
-        $event = new Event($this, [
+        $event = new LineItemEvent([
             'lineItem' => $lineItem,
-            'isNewLineItem' => $isNewLineItem,
+            'isNew' => $isNewLineItem,
         ]);
-        $this->onBeforeSaveLineItem($event);
+        $this->trigger(self::EVENT_BEFORE_SAVE_LINE_ITEM, $event);
 
         $lineItemRecord->purchasableId = $lineItem->purchasableId;
         $lineItemRecord->orderId = $lineItem->orderId;
@@ -207,19 +236,14 @@ class LineItems extends Component
         $transaction = $db->beginTransaction();
 
         try {
-            if ($event->performAction) {
+            $success = $lineItemRecord->save(false);
 
-                $success = $lineItemRecord->save(false);
-
-                if ($success) {
-                    if ($isNewLineItem) {
-                        $lineItem->id = $lineItemRecord->id;
-                    }
-
-                    $transaction->commit();
+            if ($success) {
+                if ($isNewLineItem) {
+                    $lineItem->id = $lineItemRecord->id;
                 }
-            } else {
-                $success = false;
+
+                $transaction->commit();
             }
         } catch (\Exception $e) {
             $transaction->rollBack();
@@ -227,56 +251,15 @@ class LineItems extends Component
         }
 
         if ($success) {
-            // Fire an 'onSaveLineItem' event
-            $this->onSaveLineItem(new Event($this, [
+            //raising event
+            $event = new LineItemEvent([
                 'lineItem' => $lineItem,
-                'isNewLineItem' => $isNewLineItem,
-            ]));
+                'isNew' => $isNewLineItem,
+            ]);
+            $this->trigger(self::EVENT_AFTER_SAVE_LINE_ITEM, $event);
         }
 
         return $success;
-    }
-
-    /**
-     * This event is raised before a line item is saved
-     *
-     * @param \CEvent $event
-     *
-     * @throws \CException
-     */
-    public function onBeforeSaveLineItem(\CEvent $event)
-    {
-        $params = $event->params;
-        if (empty($params['lineItem']) || !($params['lineItem'] instanceof LineItem)) {
-            throw new Exception('onBeforeSaveLineItem event requires "lineItem" param with LineItem instance that is being saved.');
-        }
-
-        if (!isset($params['isNewLineItem'])) {
-            throw new Exception('onBeforeSaveLineItem event requires "isNewLineItem" param with a boolean to determine if the line item is new.');
-        }
-
-        $this->raiseEvent('onBeforeSaveLineItem', $event);
-    }
-
-    /**
-     * This event is raised after a line item has been successfully saved
-     *
-     * @param \CEvent $event
-     *
-     * @throws \CException
-     */
-    public function onSaveLineItem(\CEvent $event)
-    {
-        $params = $event->params;
-        if (empty($params['lineItem']) || !($params['lineItem'] instanceof LineItem)) {
-            throw new Exception('onSaveLineItem event requires "lineItem" param with LineItem instance that is being saved.');
-        }
-
-        if (!isset($params['isNewLineItem'])) {
-            throw new Exception('onSaveLineItem event requires "isNewLineItem" param with a boolean to determine if the line item is new.');
-        }
-
-        $this->raiseEvent('onSaveLineItem', $event);
     }
 
     /**
@@ -326,29 +309,12 @@ class LineItems extends Component
         }
 
         //raising event
-        $event = new Event($this, [
+        $event = new LineItemEvent([
             'lineItem' => $lineItem
         ]);
-        $this->onCreateLineItem($event);
+        $this->trigger(self::EVENT_CREATE_LINE_ITEM, $event);
 
         return $lineItem;
-    }
-
-    /**
-     * This event is raised when a new line item is created generated from a purchasable
-     *
-     * @param \CEvent $event
-     *
-     * @throws \CException
-     */
-    public function onCreateLineItem(\CEvent $event)
-    {
-        $params = $event->params;
-        if (empty($params['lineItem']) || !($params['lineItem'] instanceof LineItem)) {
-            throw new Exception('onCreateLineItem event requires "lineItem" param with LineItem instance that is being created.');
-        }
-
-        $this->raiseEvent('onCreateLineItem', $event);
     }
 
     /**
@@ -360,27 +326,4 @@ class LineItems extends Component
     {
         return LineItemRecord::deleteAll(['orderId' => $orderId]);
     }
-
-    /**
-     * This event is raised when a new line has been populated from a purchasable
-     *
-     * @param \CEvent $event
-     *
-     * @throws \CException
-     */
-    public function onPopulateLineItem(\CEvent $event)
-    {
-        $params = $event->params;
-        if (empty($params['lineItem']) || !($params['lineItem'] instanceof LineItem)) {
-            throw new Exception('onPopulateLineItem event requires "lineItem" param with LineItem instance that is being populated from the purchasable.');
-        }
-
-        if (empty($params['purchasable']) || !($params['purchasable'] instanceof Purchasable)) {
-            throw new Exception('onPopulateLineItem event requires "purchasable" param with a Purchasable.');
-        }
-
-        $this->raiseEvent('onPopulateLineItem', $event);
-    }
-
-
 }

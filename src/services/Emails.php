@@ -4,6 +4,7 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\elements\Order;
+use craft\commerce\events\MailEvent;
 use craft\commerce\models\Email;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\Plugin;
@@ -23,6 +24,24 @@ use yii\base\Component;
  */
 class Emails extends Component
 {
+    // Constants
+    // =========================================================================
+
+    /**
+     * @event MailEvent The event that is raised before an email is sent.
+     *
+     * You may set [[MailEvent::isValid]] to `false` to prevent the email from being sent.
+     */
+    const EVENT_BEFORE_SEND_MAIL = 'beforeSendEmail';
+
+    /**
+     * @event MailEvent The event that is raised after an email is sent
+     */
+    const EVENT_AFTER_SEND_MAIL = 'afterSendEmail';
+
+    // Public Methods
+    // =========================================================================
+
     /**
      * @param int $id
      *
@@ -280,15 +299,15 @@ class Emails extends Component
 
         try {
             //raising event
-            $event = new Event($this, [
+            $event = new MailEvent([
                 'craftEmail' => $newEmail,
                 'commerceEmail' => $email,
                 'order' => $order,
                 'orderHistory' => $orderHistory
             ]);
-            $this->onBeforeSendEmail($event);
+            $this->trigger(self::EVENT_BEFORE_SEND_MAIL, $event);
 
-            if ($event->performAction == false) {
+            if (!$event->isValid) {
                 $error = Craft::t('commerce', 'Email “{email}”, for order "{order}" was cancelled by plugin.', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber()
@@ -309,13 +328,13 @@ class Emails extends Component
                 Craft::error($error, __METHOD__);
             } else {
                 //raising event
-                $event = new Event($this, [
+                $event = new MailEvent([
                     'craftEmail' => $newEmail,
                     'commerceEmail' => $email,
                     'order' => $order,
                     'orderHistory' => $orderHistory
                 ]);
-                $this->onSendEmail($event);
+                $this->trigger(self::EVENT_AFTER_SEND_MAIL, $event);
             }
         } catch (\Exception $e) {
             $error = Craft::t('commerce', 'Email “{email}” could not be sent for order “{order}”. Error: {error}', [
@@ -330,73 +349,5 @@ class Emails extends Component
         // Restore original values
         Craft::$app->language = $originalLanguage;
         $templatesService->setTemplateMode($oldTemplateMode);
-    }
-
-    /**
-     * Event: before sending email
-     * Event params:    craftEmail(EmailModel)
-     *                  commerceEmail(Email)
-     *                  order(Order)
-     *                  orderHistory(OrderHistory)
-     *
-     * @param \CEvent $event
-     *
-     * @throws \CException
-     */
-    public function onBeforeSendEmail(\CEvent $event)
-    {
-        $params = $event->params;
-
-        if (empty($params['craftEmail']) || !($params['craftEmail'] instanceof EmailModel)) {
-            throw new Exception('onBeforeSendEmail event requires "craftEmail" param with EmailModel instance');
-        }
-
-        if (empty($params['commerceEmail']) || !($params['commerceEmail'] instanceof Email)) {
-            throw new Exception('onBeforeSendEmail event requires "commerceEmail" param with Email instance');
-        }
-
-        if (empty($params['order']) || !($params['order'] instanceof Order)) {
-            throw new Exception('onBeforeSendEmail event requires "order" param with Order instance');
-        }
-
-        if (empty($params['orderHistory']) || !($params['orderHistory'] instanceof OrderHistory)) {
-            throw new Exception('onBeforeSendEmail event requires "orderHistory" param with OrderHistory instance');
-        }
-
-        $this->raiseEvent('onBeforeSendEmail', $event);
-    }
-
-    /**
-     * Event: before sending email
-     * Event params:    craftEmail(EmailModel)
-     *                  commerceEmail(Email)
-     *                  order(Order)
-     *                  orderHistory(OrderHistory)
-     *
-     * @param \CEvent $event
-     *
-     * @throws \CException
-     */
-    public function onSendEmail(\CEvent $event)
-    {
-        $params = $event->params;
-
-        if (empty($params['craftEmail']) || !($params['craftEmail'] instanceof EmailModel)) {
-            throw new Exception('onSendEmail event requires "craftEmail" param with EmailModel instance');
-        }
-
-        if (empty($params['commerceEmail']) || !($params['commerceEmail'] instanceof Email)) {
-            throw new Exception('onSendEmail event requires "commerceEmail" param with Email instance');
-        }
-
-        if (empty($params['order']) || !($params['order'] instanceof Order)) {
-            throw new Exception('onSendEmail event requires "order" param with Order instance');
-        }
-
-        if (empty($params['orderHistory']) || !($params['orderHistory'] instanceof OrderHistory)) {
-            throw new Exception('onSendEmail event requires "orderHistory" param with OrderHistory instance');
-        }
-
-        $this->raiseEvent('onSendEmail', $event);
     }
 }

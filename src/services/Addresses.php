@@ -3,6 +3,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\events\AddressEvent;
 use craft\commerce\models\Address;
 use craft\commerce\models\Country;
 use craft\commerce\models\State;
@@ -25,6 +26,22 @@ use yii\base\Exception;
  */
 class Addresses extends Component
 {
+    // Constants
+    // =========================================================================
+
+    /**
+     * @event AddressEvent The event that is raised before an address is saved.
+     */
+    const EVENT_BEFORE_SAVE_ADDRESS = 'beforeSaveAddress';
+
+    /**
+     * @event AddressEvent The event that is raised after an address is saved.
+     */
+    const EVENT_AFTER_SAVE_ADDRESS = 'afterSaveAddress';
+
+    // Public Methods
+    // =========================================================================
+
     /**
      * @param int $id
      *
@@ -79,11 +96,11 @@ class Addresses extends Component
         }
 
         //raising event
-        $event = new Event($this, [
+        $event = new AddressEvent($this, [
             'address' => $addressModel,
             'isNewAddress' => $isNewAddress
         ]);
-        $this->onBeforeSaveAddress($event);
+        $this->trigger(self::EVENT_BEFORE_SAVE_ADDRESS, $event);
 
         $addressRecord->attention = $addressModel->attention;
         $addressRecord->title = $addressModel->title;
@@ -130,7 +147,7 @@ class Addresses extends Component
             $addressModel->addErrors($addressRecord->getErrors());
         }
 
-        if (!$addressModel->hasErrors() && $event->performAction) {
+        if (!$addressModel->hasErrors()) {
 
             $addressRecord->save(false);
 
@@ -140,33 +157,16 @@ class Addresses extends Component
             }
 
             //raising event
-            $event = new Event($this, [
-                'address' => $addressModel
+            $event = new AddressEvent($this, [
+                'address' => $addressModel,
+                'isNewAddress' => $isNewAddress
             ]);
-            $this->onSaveAddress($event);
+            $this->trigger(self::EVENT_AFTER_SAVE_ADDRESS, $event);
 
             return true;
         }
 
         return false;
-    }
-
-    public function onBeforeSaveAddress(Event $event)
-    {
-        $params = $event->params;
-        if (empty($params['address']) || !($params['address'] instanceof Address)) {
-            throw new Exception('onBeforeSaveAddress event requires "address" param with Commerce_AddressModel instance');
-        }
-        $this->raiseEvent('onBeforeSaveAddress', $event);
-    }
-
-    public function onSaveAddress(Event $event)
-    {
-        $params = $event->params;
-        if (empty($params['address']) || !($params['address'] instanceof Address)) {
-            throw new Exception('onSaveAddress event requires "address" param with Commerce_AddressModel instance');
-        }
-        $this->raiseEvent('onSaveAddress', $event);
     }
 
     /**

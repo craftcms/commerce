@@ -4,6 +4,7 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\elements\Variant;
+use craft\commerce\events\MatchLineItemEvent;
 use craft\commerce\models\Discount;
 use craft\commerce\models\LineItem;
 use craft\commerce\records\CustomerDiscountUse as CustomerDiscountUseRecord;
@@ -25,6 +26,19 @@ use yii\base\Component;
  */
 class Discounts extends Component
 {
+    // Constants
+    // =========================================================================
+
+    /**
+     * @event MatchLineItemEvent The event that is triggered when a line item is matched with a discount
+     *
+     * You may set [[MatchLineItemEvent::isValid]] to `false` to prevent the matched discount from apply.
+     */
+    const EVENT_BEFORE_MATCH_LINE_ITEM = 'beforeMatchLineItem';
+
+    // Public Methods
+    // =========================================================================
+
     /**
      *
      * @return Discount[]
@@ -228,36 +242,14 @@ class Discounts extends Component
 
 
         //raising event
-        $event = new Event($this, ['lineItem' => $lineItem, 'discount' => $discount]);
-        $this->onBeforeMatchLineItem($event);
+        $event = new MatchLineItemEvent([
+            'lineItem' => $lineItem,
+            'discount' => $discount
+        ]);
 
-        if (!$event->performAction) {
-            return false;
-        }
+        $this->trigger(self::EVENT_BEFORE_MATCH_LINE_ITEM, $event);
 
-        return true;
-    }
-
-    /**
-     * Before matching a lineitem
-     * Event params: address(Address)
-     *
-     * @param \CEvent $event
-     *
-     * @throws \CException
-     */
-    public function onBeforeMatchLineItem(\CEvent $event)
-    {
-        $params = $event->params;
-        if (empty($params['lineItem']) || !($params['lineItem'] instanceof LineItem)) {
-            throw new Exception('onBeforeMatchLineItem event requires "lineItem" param with LineItem instance');
-        }
-
-        if (empty($params['discount']) || !($params['discount'] instanceof LineItem)) {
-            throw new Exception('onBeforeMatchLineItem event requires "discount" param with Discount instance');
-        }
-
-        $this->raiseEvent('onBeforeMatchLineItem', $event);
+        return $event->isValid;
     }
 
     /**

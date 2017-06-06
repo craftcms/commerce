@@ -6,7 +6,9 @@ use craft\commerce\base\Element;
 use craft\commerce\base\Model;
 use craft\commerce\base\Purchasable;
 use craft\commerce\elements\Order;
+use craft\commerce\events\LineItemEvent;
 use craft\commerce\helpers\Currency;
+use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 
 /**
@@ -337,12 +339,13 @@ class LineItem extends Model
 
         $purchasable->populateLineItem($this);
 
-        //raising onPopulate event
-        $event = new Event($this, [
+        $event = new LineItemEvent($this, [
             'lineItem' => $this,
             'purchasable' => $this->purchasable
         ]);
-        Plugin::getInstance()->getLineItems()->onPopulateLineItem($event);
+
+        $lineItemsService = Plugin::getInstance()->getLineItems();
+        $lineItemsService->trigger($lineItemsService::EVENT_POPULATE_LINE_ITEM, $event);
 
         // Always make sure salePrice is equal to the price and saleAmount
         $this->salePrice = Currency::round($this->saleAmount + $this->price);
