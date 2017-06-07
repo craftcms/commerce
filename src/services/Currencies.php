@@ -39,11 +39,11 @@ class Currencies extends Component
     /**
      * @return Currency[]
      */
-    public function getAllCurrencies()
+    public function getAllCurrencies(): array
     {
         if (null === $this->_allCurrencies) {
             $this->_allCurrencies = [];
-            $data = require(__DIR__.'/../etc/currencies.php');
+            $data = require __DIR__.'/../etc/currencies.php';
             foreach ($data as $key => $currency) {
                 $this->_allCurrencies[$key] = new Currency($currency);
             }
