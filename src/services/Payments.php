@@ -314,7 +314,7 @@ class Payments extends Component
             'currency' => $transaction->paymentCurrency,
             'transactionId' => $transaction->id,
             'description' => Craft::t('commerce', 'commerce', 'Order').' #'.$transaction->orderId,
-            'clientIp' => Craft::$app->getRequest()->getIpAddress(),
+            'clientIp' => Craft::$app->getRequest()->userIP,
             'transactionReference' => $transaction->hash,
             'returnUrl' => UrlHelper::getActionUrl('commerce/payments/completePayment', ['commerceTransactionId' => $transaction->id, 'commerceTransactionHash' => $transaction->hash]),
             'cancelUrl' => UrlHelper::getSiteUrl($transaction->order->cancelUrl),

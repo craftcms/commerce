@@ -318,7 +318,7 @@ class Cart extends Component
                 $this->_cart->number = $number;
             }
 
-            $this->_cart->lastIp = Craft::$app->getRequest()->getIpAddress();
+            $this->_cart->lastIp = Craft::$app->getRequest()->userIP;
             $this->_cart->orderLocale = Craft::$app->language;
 
             // Right now, orders are all stored in the default currency
