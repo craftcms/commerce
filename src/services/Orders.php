@@ -323,7 +323,7 @@ class Orders extends Component
         foreach ($order->getAdjustments() as $adjustment) {
             $result = Plugin::getInstance()->getOrderAdjustments()->saveOrderAdjustment($adjustment);
             if (!$result) {
-                $errors = $adjustment->getAllErrors();
+                $errors = $adjustment->errors;
                 throw new Exception('Error saving order adjustment: '.implode(', ', $errors));
             }
         }
@@ -470,7 +470,7 @@ class Orders extends Component
         }
 
         CommercePlugin::log(Craft::t('commerce', 'commerce', 'Could not mark order {number} as complete. Order save failed during order completion with errors: {errors}',
-            ['number' => $order->number, 'order' => json_encode($order->getAllErrors())]), LogLevel::Error, true);
+            ['number' => $order->number, 'order' => json_encode($order->errors)]), LogLevel::Error, true);
 
         return false;
     }

@@ -135,7 +135,7 @@ class LineItems extends Component
             return true;
         }
 
-        $errors = $lineItem->getAllErrors();
+        $errors = $lineItem->errors;
         $error = array_pop($errors);
 
         return false;

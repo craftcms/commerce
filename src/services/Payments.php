@@ -149,7 +149,7 @@ class Payments extends Component
     private function saveTransaction($child)
     {
         if (!Plugin::getInstance()->getTransactions()->saveTransaction($child)) {
-            throw new Exception('Error saving transaction: '.implode(', ', $child->getAllErrors()));
+            throw new Exception('Error saving transaction: '.implode(', ', $child->errors));
         }
     }
 

@@ -5,6 +5,7 @@ namespace craft\commerce\services;
 use craft\commerce\models\Settings as SettingsModel;
 use craft\commerce\Plugin;
 use yii\base\Component;
+use Craft;
 
 /**
  * Settings service.
@@ -18,7 +19,7 @@ use yii\base\Component;
  */
 class Settings extends Component
 {
-    /** @var BasePlugin */
+    /** @var \craft\base\Plugin */
     private $_plugin;
 
     /**
@@ -44,7 +45,7 @@ class Settings extends Component
      *
      * @return SettingsModel
      */
-    public function getSettings()
+    public function getSettings(): SettingsModel
     {
         $data = $this->_plugin->getSettings();
 
@@ -58,16 +59,16 @@ class Settings extends Component
      *
      * @return bool
      */
-    public function saveSettings(SettingsModel $settings)
+    public function saveSettings(SettingsModel $settings): bool
     {
 
         if (!$settings->validate()) {
-            $errors = $settings->getAllErrors();
+            $errors = $settings->errors;
 
             return false;
         }
 
-        Craft::$app->getPlugins()->savePluginSettings($this->_plugin, $settings);
+        Craft::$app->getPlugins()->savePluginSettings($this->_plugin, $settings->toArray());
 
         return true;
     }

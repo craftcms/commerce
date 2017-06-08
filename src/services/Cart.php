@@ -147,7 +147,7 @@ class Cart extends Component
 
         $transaction->rollBack();
 
-        $errors = $lineItem->getAllErrors();
+        $errors = $lineItem->errors;
         $error = array_pop($errors);
 
         return false;

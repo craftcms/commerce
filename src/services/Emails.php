@@ -320,7 +320,7 @@ class Emails extends Component
 
             if (!Craft::$app->getMailer()->send($newEmail)) {
                 $error = Craft::t('commerce', 'Email “{email}” could not be sent for order “{order}”. Errors: {errors}', [
-                    'errors' => implode(", ", $email->getAllErrors()),
+                    'errors' => implode(", ", $email->errors),
                     'email' => $email->name,
                     'order' => $order->getShortNumber()
                 ]);
