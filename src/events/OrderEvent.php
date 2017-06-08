@@ -13,7 +13,7 @@ use craft\events\CancelableEvent;
 class OrderEvent extends CancelableEvent
 {
     /**
-     * @var Order The address model
+     * @var Order The order
      */
     public $order;
 
