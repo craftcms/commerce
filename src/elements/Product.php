@@ -411,37 +411,7 @@ class Product extends Element
     {
         return 'product';
     }
-
-    /**
-     * @param string|null $source
-     *
-     * @return array
-     */
-    public function getDefaultTableAttributes($source = null)
-    {
-        $attributes = [];
-
-        if ($source == '*') {
-            $attributes[] = 'type';
-        }
-
-        $attributes[] = 'postDate';
-        $attributes[] = 'expiryDate';
-        $attributes[] = 'defaultPrice';
-        $attributes[] = 'defaultSku';
-        $attributes[] = 'link';
-
-        return $attributes;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function defineSearchableAttributes(): array
-    {
-        return ['title', 'defaultSku'];
-    }
-
+    
     /**
      * @inheritdoc
      */
@@ -640,6 +610,7 @@ class Product extends Element
     }
 
     /**
+     * TODO Pretty sure this needs to die
      * @inheritdoc
      */
     protected function defineAttributes()
@@ -765,5 +736,33 @@ class Product extends Element
         }
 
         return $actions;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function defineDefaultTableAttributes($source): array
+    {
+        $attributes = [];
+
+        if ($source == '*') {
+            $attributes[] = 'type';
+        }
+
+        $attributes[] = 'postDate';
+        $attributes[] = 'expiryDate';
+        $attributes[] = 'defaultPrice';
+        $attributes[] = 'defaultSku';
+        $attributes[] = 'link';
+
+        return $attributes;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function defineSearchableAttributes(): array
+    {
+        return ['title', 'defaultSku'];
     }
 }
