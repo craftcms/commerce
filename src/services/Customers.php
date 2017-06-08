@@ -9,6 +9,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Customer as CustomerRecord;
 use craft\commerce\records\CustomerAddress as CustomerAddressRecord;
 use craft\elements\User;
+use craft\helpers\ArrayHelper;
 use yii\base\Component;
 use yii\base\Event;
 use yii\base\Exception;
@@ -32,15 +33,16 @@ class Customers extends Component
     private $_customer = null;
 
     /**
-     * @param \CDbCriteria|array $criteria
      *
      * @return Customer[]
      */
-    public function getAllCustomers($criteria = [])
+    public function getAllCustomers(): array
     {
-        $records = CustomerRecord::findAll($criteria);
+        $records = CustomerRecord::find()->all();
 
-        return Customer::populateModels($records);
+        return ArrayHelper::map($records, 'id', function($item) {
+            return $this->_createCustomerFromCustomerRecord($item);
+        });
     }
 
     /**
@@ -50,50 +52,35 @@ class Customers extends Component
      */
     public function getCustomerById($id)
     {
-        $result = $this->_createCustomersQuery()
-            ->where('customers.id = :xid', [':xid' => $id])
-            ->queryRow();
+        $result = CustomerRecord::findOne($id);
 
         if ($result) {
-            return new Customer($result);
+            return $this->_createCustomerFromCustomerRecord($result);
         }
 
         return null;
     }
 
     /**
-     * Returns a DbCommand object prepped for retrieving customers.
-     *
-     * @return DbCommand
-     */
-    private function _createCustomersQuery()
-    {
-        return Craft::$app->getDb()->createCommand()
-            ->select('customers.id, customers.userId, customers.email, customers.lastUsedBillingAddressId, customers.lastUsedShippingAddressId')
-            ->from('commerce_customers customers')
-            ->order('id');
-    }
-
-    /**
      * @return bool
      */
-    public function isCustomerSaved()
+    public function isCustomerSaved(): bool
     {
-        return !!$this->getCustomer()->id;
+        return (bool)$this->getCustomer()->id;
     }
 
     /**
+     * Must always return a customer
+     *
      * @return Customer
      */
-    public function getCustomer()
+    public function getCustomer(): Customer
     {
         if ($this->_customer === null) {
             $user = Craft::$app->getUser()->getUser();
 
             if ($user) {
-                $record = $this->_createCustomersQuery()
-                    ->where('customers.userId = :userId', [':userId' => $user->id])
-                    ->queryRow();
+                $record = CustomerRecord::findOne($user->id);
 
                 if ($record) {
                     Craft::$app->getSession()->set(self::SESSION_CUSTOMER, $record['id']);
@@ -101,9 +88,7 @@ class Customers extends Component
             } else {
                 $id = Craft::$app->getSession()->get(self::SESSION_CUSTOMER);
                 if ($id) {
-                    $record = $this->_createCustomersQuery()
-                        ->where('customers.id = :xid', [':xid' => $id])
-                        ->queryRow();
+                    $record = CustomerRecord::findOne($id);
 
                     // If there is a customer record but it is associated with a real user, don't use it when guest.
                     if ($record && $record['userId']) {
@@ -135,7 +120,7 @@ class Customers extends Component
      * @return bool
      * @throws Exception
      */
-    public function saveAddress(Address $address)
+    public function saveAddress(Address $address): bool
     {
         $customer = $this->getSavedCustomer();
         if (Plugin::getInstance()->getAddresses()->saveAddress($address)) {
@@ -143,7 +128,7 @@ class Customers extends Component
             $customerAddress = CustomerAddressRecord::find()->where([
                 'customerId' => $customer->id,
                 'addressId' => $address->id
-            ]);
+            ])->one();
 
             if (!$customerAddress) {
                 $customerAddress = new CustomerAddressRecord();
@@ -170,7 +155,7 @@ class Customers extends Component
             if ($this->saveCustomer($customer)) {
                 Craft::$app->getSession()->set(self::SESSION_CUSTOMER, $customer->id);
             } else {
-                $errors = implode(', ', $customer->getAllErrors());
+                $errors = implode(', ', $customer->errors);
                 throw new Exception('Error saving customer: '.$errors);
             }
         }
@@ -240,9 +225,7 @@ class Customers extends Component
      */
     public function getAllCustomersByEmail($email)
     {
-        $results = $this->_createCustomersQuery()
-            ->where('customers.email = :email', [':email' => $email])
-            ->queryAll();
+        $results = CustomerRecord::find()->where(['email' => $email])->all();
 
         return Customer::populateModels($results);
     }
@@ -343,9 +326,7 @@ class Customers extends Component
      */
     public function getCustomerByUserId($id)
     {
-        $result = $this->_createCustomersQuery()
-            ->where('customers.userId = :xid', [':xid' => $id])
-            ->queryRow();
+        $result = CustomerRecord::findOne($id);
 
         if ($result) {
             return new Customer($result);
@@ -475,5 +456,30 @@ class Customers extends Component
                 Plugin::getInstance()->getOrders()->saveOrder($order);
             }
         }
+    }
+
+    // Private Methods
+    // =========================================================================
+
+    /**
+     * Creates a Customer with attributes from a CustomerRecord.
+     *
+     * @param CustomerRecord|null $record
+     *
+     * @return Customer|null
+     */
+    private function _createCustomerFromCustomerRecord(CustomerRecord $record = null)
+    {
+        if (!$record) {
+            return null;
+        }
+
+        return new Customer($record->toArray([
+            'id',
+            'userId',
+            'lastUsedBillingAddressId',
+            'lastUsedShippingAddressId',
+            'email'
+        ]));
     }
 }
