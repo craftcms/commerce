@@ -46,7 +46,7 @@
     {% endif %}
 {% endblock %}
 
-{% includejs %}
+{% js %}
 window.currencies = $.map(JSON.parse('{{ craft.commerce.currencies|json_encode|raw }}'), function(el) { return el });
 window.currency = JSON.parse('{{ [currency.iso]|json_encode|raw }}');
 $(function () {
@@ -83,4 +83,4 @@ dropdownParent: 'body',
 maxItems: 1
 });
 });
-{% endincludejs %}
+{% endjs %}

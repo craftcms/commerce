@@ -45,7 +45,7 @@
 {% if taxCategory is not defined or not taxCategory.handle %}
     {% set nameId = 'name'|namespaceInputId|e('js') %}
     {% set handleId = 'handle'|namespaceInputId|e('js') %}
-    {% includejs %}
+    {% js %}
     new Craft.HandleGenerator('#{{ nameId }}', '#{{ handleId }}');
-    {% endincludejs %}
+    {% endjs %}
 {% endif %}

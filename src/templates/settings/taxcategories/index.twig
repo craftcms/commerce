@@ -49,10 +49,10 @@
     </div>
 {% endblock %}
 
-{% includejs %}
+{% js %}
 var adminTable = new Craft.AdminTable({
 tableSelector: '#taxcategories',
 deleteAction: 'commerce/taxCategories/delete',
 minObjects: 1
 });
-{% endincludejs %}
+{% endjs %}

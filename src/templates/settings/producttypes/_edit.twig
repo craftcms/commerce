@@ -267,7 +267,7 @@ variantFields:       { label: "Variant Fields"|t, url: '#variant-fields', class:
     </div>
 {% endblock %}
 
-{% includejs %}
+{% js %}
     {% if not productType.handle %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
 
     {% for locale in craft.i18n.getSiteLocales() %}
@@ -336,4 +336,4 @@ $taxCategories[0].selectize.addItem(window.defaultTaxCategory.id);
 });
 });
 
-{% endincludejs %}
+{% endjs %}

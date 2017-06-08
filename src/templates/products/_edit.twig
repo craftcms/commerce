@@ -192,9 +192,9 @@
     </div>
 
     {% if not product.slug %}
-        {% includejs %}
+        {% js %}
         window.slugGenerator = new Craft.SlugGenerator('#title', '#slug');
-        {% endincludejs %}
+        {% endjs %}
     {% endif %}
 
 {% endblock %}

@@ -65,7 +65,7 @@
 {% endblock %}
 
 
-{% includejs %}
+{% js %}
 var adminTable = new Craft.AdminTable({
 tableSelector: '#discounts',
 noObjectsSelector: '#no-discounts',
@@ -75,4 +75,4 @@ reorderAction: 'commerce/discounts/reorder',
 reorderSuccessMessage: Craft.t('Discounts reordered.'),
 reorderFailMessage:    Craft.t('Couldn’t reorder discounts.')
 });
-{% endincludejs %}
+{% endjs %}

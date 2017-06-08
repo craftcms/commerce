@@ -63,10 +63,10 @@
     </div>
 {% endblock %}
 
-{% includejs %}
+{% js %}
 var adminTable = new Craft.AdminTable({
 tableSelector: '#tax-zones',
 noObjectsSelector: '#no-tax-zones',
 deleteAction: 'commerce/taxZones/delete'
 });
-{% endincludejs %}
+{% endjs %}

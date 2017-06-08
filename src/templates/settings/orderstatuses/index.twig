@@ -60,7 +60,7 @@
 {% endblock %}
 
 
-{% includejs %}
+{% js %}
 new Craft.AdminTable({
 tableSelector: '#order-statuses',
 deleteAction: 'commerce/orderStatuses/delete',
@@ -70,4 +70,4 @@ reorderAction: 'commerce/orderStatuses/reorder',
 reorderSuccessMessage: Craft.t('Order statuses reordered.'),
 reorderFailMessage:    Craft.t('Couldn’t reorder statuses.')
 });
-{% endincludejs %}
+{% endjs %}

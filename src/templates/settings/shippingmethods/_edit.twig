@@ -121,7 +121,7 @@
     </div>
 {% endblock %}
 
-{% includejs %}
+{% js %}
 {% if not shippingMethod.id %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
 var adminTable = new Craft.AdminTable({
 tableSelector: '#shipping-rules',
@@ -135,4 +135,4 @@ confirmDeleteMessage:  Craft.t('Are you sure you want to delete “{name}”?'),
 deleteSuccessMessage:  Craft.t('“{name}” deleted.'),
 deleteFailMessage:     Craft.t('Couldn’t delete “{name}”.'),
 });
-{% endincludejs %}
+{% endjs %}

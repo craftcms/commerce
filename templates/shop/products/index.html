@@ -60,10 +60,10 @@
         </div>
     </div>
 {% endfor %}
-{% includejs %}
+{% js %}
     $( ".purchasableId" ).change(function(e) {
         $(".purchasableInfo").hide();
         $("#"+($(this).find(":selected").data('info'))).toggle();
     });
-{% endincludejs %}
+{% endjs %}
 {% endblock %}

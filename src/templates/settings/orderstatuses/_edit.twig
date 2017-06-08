@@ -101,7 +101,7 @@
     }) }}
 {% endblock %}
 
-{% includejs %}
+{% js %}
 {% if not orderStatus.handle %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
 $(function () {
 
@@ -121,4 +121,4 @@ plugins: ['remove_button'],
 dropdownParent: 'body'
 });
 });
-{% endincludejs %}
+{% endjs %}

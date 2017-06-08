@@ -27,7 +27,7 @@
             </div>
         </div>
 
-        {% includejs %}
+        {% js %}
 
         $("#payment-method-{{ paymentMethod.id }}-form form:first").on('submit',
         function (e)
@@ -90,7 +90,7 @@
         Garnish.shake($('.modal'));
         }
         });
-        {% endincludejs %}
+        {% endjs %}
 
     </form>
 </div>

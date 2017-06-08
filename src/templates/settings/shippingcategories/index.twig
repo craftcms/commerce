@@ -41,10 +41,10 @@
     </div>
 {% endblock %}
 
-{% includejs %}
+{% js %}
 var adminTable = new Craft.AdminTable({
 tableSelector: '#shippingcategories',
 deleteAction: 'commerce/shippingCategories/delete',
 minObjects: 1
 });
-{% endincludejs %}
+{% endjs %}

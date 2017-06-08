@@ -53,7 +53,7 @@
 {% endblock %}
 
 
-{% includejs %}
+{% js %}
 {#<script>#}
 
 var adminTable = new Craft.AdminTable({
@@ -65,4 +65,4 @@ deleteSuccessMessage:  Craft.t('“{name}” deleted.'),
 deleteFailMessage:     Craft.t('Couldn’t delete “{name}”.'),
 });
 {#</script>#}
-{% endincludejs %}
+{% endjs %}

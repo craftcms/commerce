@@ -70,7 +70,7 @@
 {% set statesId = 'states'|namespaceInputId|e('js') %}
 {% set countryBasedName = 'countryBased'|namespaceInputName|e('js') %}
 
-{% includejs %}
+{% js %}
 $('#{{ countriesId }}, #{{ statesId }}').selectize({
 plugins: ['remove_button'],
 dropdownParent: 'body'
@@ -94,4 +94,4 @@ $('#{{ statesId }}-field').show();
 });
 
 $('[name="{{ countryBasedName }}"]:checked').trigger('change');
-{% endincludejs %}
+{% endjs %}

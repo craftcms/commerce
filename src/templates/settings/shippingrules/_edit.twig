@@ -13,7 +13,7 @@
     {% from "_includes/forms" import selectField %}
     {{ selectField(selectParams) }}
 
-    {% includejs %}
+    {% js %}
     (function () {
     var $select = $('#{{ selectParams.id }}').selectize({
     dropdownParent: 'body'
@@ -128,7 +128,7 @@
     }
     });
     })();
-    {% endincludejs %}
+    {% endjs %}
 
 {% endmacro %}
 
@@ -458,7 +458,7 @@
 {% includejs "window.weightRatePricePlaceholder = new Craft.Commerce.CommerceShippingItemRatesValuesInput('input[name=\"weightRate\"]', '.categoryWeightRate');" %}
 {% includejs "window.percentagePricePlaceholder = new Craft.Commerce.CommerceShippingItemRatesValuesInput('input[name=\"percentageRate\"]', '.categoryPercentageRate');" %}
 
-{% includeJs %}
+{% js %}
 window.shippingCategories = $.map(JSON.parse('{{ craft.commerce.shippingCategories|json_encode|raw }}'), function(value, index) { return [value] });
 
 $("select[name^='ruleCategories']").change(function() {
@@ -472,4 +472,4 @@ $rateRow.addClass('hidden');
 $rateRow.removeClass('hidden');
 }
 });
-{% endincludejs %}
+{% endjs %}

@@ -47,7 +47,7 @@
 {% endblock %}
 
 
-{% includejs %}
+{% js %}
 var adminTable = new Craft.AdminTable({
 tableSelector: '#currencies',
 noObjectsSelector: '#no-currencies',
@@ -55,4 +55,4 @@ deleteAction: 'commerce/paymentCurrencies/delete',
 confirmDeleteMessage:  Craft.t('Warning, deleting this currency will stop all payments and refunds in this currency, are you sure you want to delete “{name}”?'),
 deleteFailMessage: '{{ "Can not delete “{name}” because it is in use."|t }}'
 });
-{% endincludejs %}
+{% endjs %}

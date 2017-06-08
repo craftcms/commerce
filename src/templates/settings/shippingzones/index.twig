@@ -53,10 +53,10 @@
     </div>
 {% endblock %}
 
-{% includejs %}
+{% js %}
 var adminTable = new Craft.AdminTable({
 tableSelector: '#shipping-zones',
 noObjectsSelector: '#no-shipping-zones',
 deleteAction: 'commerce/shippingZones/delete'
 });
-{% endincludejs %}
+{% endjs %}

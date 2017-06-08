@@ -115,6 +115,6 @@
 
 
 {% includejsresource 'commerce/js/CommerceRegistrationForm.js' %}
-{% includejs %}
+{% js %}
 window.regForm = new Craft.Commerce.RegistrationForm({{ hasLicenseKey ? 'true' : 'false' }});
-{% endincludejs %}
+{% endjs %}

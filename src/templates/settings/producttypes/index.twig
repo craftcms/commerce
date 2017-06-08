@@ -46,7 +46,7 @@
 {% endblock %}
 
 
-{% includejs %}
+{% js %}
 var adminTable = new Craft.AdminTable({
 tableSelector: '#producttypes',
 noObjectsSelector: '#noproducttypes',
@@ -54,4 +54,4 @@ newObjectBtnSelector: '#newproductTypecontainer',
 deleteAction: 'commerce/productTypes/deleteProductType',
 confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}” and all its products? Please make sure you have a backup of your database before performing this destructive action."|t }}'
 });
-{% endincludejs %}
+{% endjs %}

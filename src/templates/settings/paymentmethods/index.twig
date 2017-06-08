@@ -49,7 +49,7 @@
 {% endblock %}
 
 
-{% includejs %}
+{% js %}
 new Craft.AdminTable({
 tableSelector: '#payment-methods',
 deleteAction: 'commerce/paymentMethods/archive',
@@ -59,4 +59,4 @@ reorderAction: 'commerce/paymentMethods/reorder',
 reorderSuccessMessage: Craft.t('Payment methods reordered.'),
 reorderFailMessage:    Craft.t('Couldn’t reorder statuses..')
 });
-{% endincludejs %}
+{% endjs %}

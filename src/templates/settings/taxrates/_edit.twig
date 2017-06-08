@@ -13,7 +13,7 @@
     {% from "_includes/forms" import selectField %}
     {{ selectField(selectParams) }}
 
-    {% includejs %}
+    {% js %}
     (function() {
     var $select = $('#{{ selectParams.id }}').selectize({
     dropdownParent: 'body'
@@ -128,7 +128,7 @@
     }
     });
     })();
-    {% endincludejs %}
+    {% endjs %}
 
 {% endmacro %}
 
