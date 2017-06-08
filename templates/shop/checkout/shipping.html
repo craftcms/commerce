@@ -22,7 +22,7 @@
         <form method="POST">
             <input type="hidden" name="action" value="commerce/cart/updateCart">
             <input type="hidden" name="redirect" value="shop/checkout/payment">
-            {{ getCsrfInput() }}
+            {{ csrfInput() }}
 
             {% for handle, method in craft.commerce.availableShippingMethods %}
                 <div class="shipping-select">

@@ -24,7 +24,7 @@
                             <form method="POST">
                                 <input type="hidden" name="action" value="commerce/cart/removeLineItem"/>
                                 <input type="hidden" name="redirect" value="shop/cart"/>
-                                {{ getCsrfInput() }}
+                                {{ csrfInput() }}
                                 <input type="hidden" name="lineItemId" value="{{ item.id }}"/>
                                 <input type="submit" class="button link" value="Remove"/>
                             </form>
@@ -38,7 +38,7 @@
                                 <span {% if item.getError('qty') %}class="has-error"{% endif %}>
                                 <input  type="number" name="qty" min="1" value="{{ item.qty }}">
                                 </span>
-                                {{ getCsrfInput() }}
+                                {{ csrfInput() }}
                                 {% if item.options.giftWrapped is defined %}
                                 <select name="options[giftWrapped]">
                                     <option value="no" {% if item.options.giftWrapped == 'no' %}selected{% endif %}>No gift wrap.</option>
@@ -84,7 +84,7 @@
                         <form method="POST">
                             <input type="hidden" name="action" value="commerce/cart/removeAllLineItems"/>
                             <input type="hidden" name="redirect" value="shop/cart"/>
-                            {{ getCsrfInput() }}
+                            {{ csrfInput() }}
                             <input class="button link" type="submit" value="Empty the Cart"/>
                         </form>
 
@@ -93,7 +93,7 @@
                         <form method="POST">
                             <input type="hidden" name="action" value="commerce/cart/updateCart">
                             <input type="hidden" name="redirect" value="shop/cart">
-                            {{ getCsrfInput() }}
+                            {{ csrfInput() }}
                             <span class="{% if cart.getError('couponCode') %}has-error{% endif %}">
                             <input type="text" name="couponCode" width="11" class="{% if cart.getError('couponCode') %}has-error{% endif %}" value="{{ cart.couponCode }}" placeholder="{{ "Coupon Code"|t }}">
 							</span>

@@ -12,7 +12,7 @@
         <input type="hidden" name="action"
                value="commerce/settings/saveSettings">
         <input type="hidden" name="redirect" value="commerce/settings">
-        {{ getCsrfInput() }}
+        {{ csrfInput() }}
 
         {{ forms.textField({
             label: 'Status Email Address'|t,

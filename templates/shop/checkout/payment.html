@@ -23,7 +23,7 @@
 					<input type="hidden" name="action" value="commerce/cart/updateCart">
 					<input type="hidden" name="redirect"
 						   value="shop/checkout/payment">
-					{{ getCsrfInput() }}
+					{{ csrfInput() }}
 
 					<label for="paymentMethodId">Select a payment method:</label>
 					<select id="paymentMethodId" name="paymentMethodId"
@@ -51,7 +51,7 @@
 					<input type="hidden" name="action" value="commerce/payments/pay"/>
 					<input type="hidden" name="redirect" value="/shop/customer/order?number={number}"/>
 					<input type="hidden" name="cancelUrl" value="/shop/checkout/payment"/>
-					{{ getCsrfInput() }}
+					{{ csrfInput() }}
 
 					<div class="row">
 						<div class="twelve columns">

@@ -16,7 +16,7 @@
         <input type="hidden" name="paymentMethodId"
                value="{{ paymentMethod.id }}"/>
 
-        {{ getCsrfInput() }}
+        {{ csrfInput() }}
 
         {% include "commerce/_gateways/_paymentforms/_creditCardFields" %}
 

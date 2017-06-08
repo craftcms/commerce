@@ -44,7 +44,7 @@
     <input type="hidden" name="typeId" value="{{ productType.id }}">
     {% if craft.isLocalized() %}<input type="hidden" name="locale"
                                        value="{{ product.locale }}">{% endif %}
-    {{ getCsrfInput() }}
+    {{ csrfInput() }}
     {% if product.id %}<input type="hidden" name="productId"
                               value="{{ product.id }}">{% endif %}
 

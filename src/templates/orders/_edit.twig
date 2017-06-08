@@ -245,7 +245,7 @@
         <form id="order-actions" method="post" accept-charset="UTF-8">
             <input type="hidden" name="action" value="">
             <input type="hidden" name="redirect" value="">
-            {{ getCsrfInput() }}
+            {{ csrfInput() }}
             <div class="footer">
                 {% if pdfUrl %}
                     <div class="btngroup right">
@@ -275,7 +275,7 @@
             <input type="hidden" name="action"
                    value="commerce/orders/saveOrder">
             <input type="hidden" name="redirect" value="commerce/orders">
-            {{ getCsrfInput() }}
+            {{ csrfInput() }}
 
 
             {# Custom fields pane #}

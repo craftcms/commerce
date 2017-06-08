@@ -11,7 +11,7 @@
         <input type="hidden" name="action" value="commerce/order-settings/save">
         <input type="hidden" name="redirect" value="commerce/settings/general">
 
-        {{ getCsrfInput() }}
+        {{ csrfInput() }}
         {% if orderSettings.id %}<input type="hidden" name="orderSettingsId"
                                         value="{{ orderSettings.id }}">{% endif %}
 

@@ -10,7 +10,7 @@
     {% endif %}
 
     <form method="post">
-        {{ getCsrfInput() }}
+        {{ csrfInput() }}
         <input type="hidden" name="action" value="commerce/customerAddresses/save">
         {% if redirect %}
             <input type="hidden" name="redirect" value="{{ redirect }}">

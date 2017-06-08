@@ -11,7 +11,7 @@
         {% endif %}
         <input type="hidden" name="paymentMethodId"
                value="{{ paymentMethod.id }}"/>
-        {{ getCsrfInput() }}
+        {{ csrfInput() }}
 
         <div class="footer">
             <div class="buttons right">
