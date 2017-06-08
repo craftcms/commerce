@@ -610,72 +610,6 @@ class Product extends Element
     }
 
     /**
-     * TODO Pretty sure this needs to die
-     * @inheritdoc
-     */
-    protected function defineAttributes()
-    {
-        return array_merge(parent::defineAttributes(), [
-            'typeId' => AttributeType::Number,
-            'taxCategoryId' => AttributeType::Number,
-            'shippingCategoryId' => AttributeType::Number,
-            'promotable' => [AttributeType::Bool, 'default' => true],
-            'freeShipping' => AttributeType::Bool,
-            'postDate' => AttributeType::DateTime,
-            'expiryDate' => AttributeType::DateTime,
-
-            'defaultVariantId' => [AttributeType::Number],
-            'defaultSku' => [AttributeType::String, 'label' => 'SKU'],
-            'defaultPrice' => [AttributeType::Number, 'decimals' => 4],
-            'defaultHeight' => [AttributeType::Number, 'decimals' => 4],
-            'defaultLength' => [AttributeType::Number, 'decimals' => 4],
-            'defaultWidth' => [AttributeType::Number, 'decimals' => 4],
-            'defaultWeight' => [AttributeType::Number, 'decimals' => 4]
-        ]);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected static function defineTableAttributes(): array
-    {
-        return [
-            'title' => ['label' => Craft::t('commerce', 'Title')],
-            'type' => ['label' => Craft::t('commerce', 'Type')],
-            'slug' => ['label' => Craft::t('commerce', 'Slug')],
-            'uri' => ['label' => Craft::t('commerce', 'URI')],
-            'postDate' => ['label' => Craft::t('commerce', 'Post Date')],
-            'expiryDate' => ['label' => Craft::t('commerce', 'Expiry Date')],
-            'taxCategory' => ['label' => Craft::t('commerce', 'Tax Category')],
-            'shippingCategory' => ['label' => Craft::t('commerce', 'Shipping Category')],
-            'freeShipping' => ['label' => Craft::t('commerce', 'Free Shipping?')],
-            'promotable' => ['label' => Craft::t('commerce', 'Promotable?')],
-            'link' => ['label' => Craft::t('commerce', 'Link'), 'icon' => 'world'],
-            'dateCreated' => ['label' => Craft::t('commerce', 'Date Created')],
-            'dateUpdated' => ['label' => Craft::t('commerce', 'Date Updated')],
-            'defaultPrice' => ['label' => Craft::t('commerce', 'Price')],
-            'defaultSku' => ['label' => Craft::t('commerce', 'SKU')],
-            'defaultWeight' => ['label' => Craft::t('commerce', 'Weight')],
-            'defaultLength' => ['label' => Craft::t('commerce', 'Length')],
-            'defaultWidth' => ['label' => Craft::t('commerce', 'Width')],
-            'defaultHeight' => ['label' => Craft::t('commerce', 'Height')],
-        ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected static function defineSortOptions(): array
-    {
-        return [
-            'title' => Craft::t('commerce', 'Title'),
-            'postDate' => Craft::t('commerce', 'Post Date'),
-            'expiryDate' => Craft::t('commerce', 'Expiry Date'),
-            'defaultPrice' => Craft::t('commerce', 'Price')
-        ];
-    }
-
-    /**
      * @inheritdoc
      */
     protected static function defineActions($source = null): array
@@ -741,6 +675,34 @@ class Product extends Element
     /**
      * @inheritdoc
      */
+    protected static function defineTableAttributes(): array
+    {
+        return [
+            'title' => ['label' => Craft::t('commerce', 'Title')],
+            'type' => ['label' => Craft::t('commerce', 'Type')],
+            'slug' => ['label' => Craft::t('commerce', 'Slug')],
+            'uri' => ['label' => Craft::t('commerce', 'URI')],
+            'postDate' => ['label' => Craft::t('commerce', 'Post Date')],
+            'expiryDate' => ['label' => Craft::t('commerce', 'Expiry Date')],
+            'taxCategory' => ['label' => Craft::t('commerce', 'Tax Category')],
+            'shippingCategory' => ['label' => Craft::t('commerce', 'Shipping Category')],
+            'freeShipping' => ['label' => Craft::t('commerce', 'Free Shipping?')],
+            'promotable' => ['label' => Craft::t('commerce', 'Promotable?')],
+            'link' => ['label' => Craft::t('commerce', 'Link'), 'icon' => 'world'],
+            'dateCreated' => ['label' => Craft::t('commerce', 'Date Created')],
+            'dateUpdated' => ['label' => Craft::t('commerce', 'Date Updated')],
+            'defaultPrice' => ['label' => Craft::t('commerce', 'Price')],
+            'defaultSku' => ['label' => Craft::t('commerce', 'SKU')],
+            'defaultWeight' => ['label' => Craft::t('commerce', 'Weight')],
+            'defaultLength' => ['label' => Craft::t('commerce', 'Length')],
+            'defaultWidth' => ['label' => Craft::t('commerce', 'Width')],
+            'defaultHeight' => ['label' => Craft::t('commerce', 'Height')],
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
     protected static function defineDefaultTableAttributes($source): array
     {
         $attributes = [];
@@ -764,5 +726,18 @@ class Product extends Element
     protected static function defineSearchableAttributes(): array
     {
         return ['title', 'defaultSku'];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function defineSortOptions(): array
+    {
+        return [
+            'title' => Craft::t('commerce', 'Title'),
+            'postDate' => Craft::t('commerce', 'Post Date'),
+            'expiryDate' => Craft::t('commerce', 'Expiry Date'),
+            'defaultPrice' => Craft::t('commerce', 'Price')
+        ];
     }
 }
