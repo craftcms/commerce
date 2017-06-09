@@ -4,7 +4,8 @@ namespace Commerce\Gateways\Omnipay;
 use Commerce\Gateways\PaymentFormModels\StripePaymentFormModel;
 use Craft\AttributeType;
 use Craft\BaseModel;
-use Omnipay\Common\CreditCard;
+use Omnipay\Common\Message\AbstractRequest;
+use Omnipay\Stripe\Message\AuthorizeRequest;
 
 class Stripe_GatewayAdapter extends \Commerce\Gateways\CreditCardGatewayAdapter
 {
@@ -40,14 +41,36 @@ class Stripe_GatewayAdapter extends \Commerce\Gateways\CreditCardGatewayAdapter
 
 	}
 
-	public function defineAttributes()
-	{
-		// In addition to the standard gateway config, here is some custom config that is useful.
-		$attr = parent::defineAttributes();
-		$attr['publishableKey'] = [AttributeType::String];
-		$attr['publishableKey']['label'] = $this->generateAttributeLabel('publishableKey');
+    /**
+     * @return array
+     */
+    public function defineAttributes()
+    {
+        // In addition to the standard gateway config, here is some custom config that is useful.
+        $attr = parent::defineAttributes();
+        $attr['publishableKey'] = [AttributeType::String];
+        $attr['publishableKey']['label'] = $this->generateAttributeLabel('publishableKey');
 
-		return $attr;
-	}
+        $attr['includeReceiptEmailInRequests'] = [AttributeType::Bool];
+        $attr['includeReceiptEmailInRequests']['label'] = $this->generateAttributeLabel('includeReceiptEmailInRequests');
+        $this->_booleans[] = 'includeReceiptEmailInRequests';
 
+        return $attr;
+    }
+
+    /**
+     * @param AbstractRequest $request
+     * @param BaseModel $paymentForm
+     *
+     * @return void
+     */
+    public function populateRequest(AbstractRequest $request, BaseModel $paymentForm)
+    {
+        parent::populateRequest($request, $paymentForm);
+
+        /** @var AuthorizeRequest $request */
+        if ($this->includeReceiptEmailInRequests) {
+            $request->setReceiptEmail($request->getCard()->getEmail());
+        }
+    }
 }

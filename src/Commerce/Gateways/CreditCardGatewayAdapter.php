@@ -1,7 +1,6 @@
 <?php
 namespace Commerce\Gateways;
 
-use Commerce\Gateways;
 use Craft\BaseModel;
 use Omnipay\Common\CreditCard;
 use Omnipay\Common\Message\AbstractRequest as OmnipayRequest;
@@ -66,6 +65,8 @@ abstract class CreditCardGatewayAdapter extends BaseGatewayAdapter
 	 */
 	public function populateRequest(OmnipayRequest $request, BaseModel $paymentForm)
 	{
+	    parent::populateRequest($request, $paymentForm);
+
 		if ($paymentForm->token)
 		{
 			$request->setToken($paymentForm->token);

@@ -163,11 +163,11 @@ class Commerce_PaymentMethodModel extends BaseModel
      * @param $form
      *
      */
-    public function populateRequest($request,$form)
+    public function populateRequest($request, $form)
     {
         if ($gatewayAdapter = $this->getGatewayAdapter())
         {
-            $gatewayAdapter->populateRequest($request,$form);
+            $gatewayAdapter->populateRequest($request, $form);
         }
     }
 
