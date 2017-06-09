@@ -6,8 +6,8 @@ Commerce Changelog
 ### Added
 - Added the [`pdfPaperSize`](https://craftcommerce.com/docs/configuration#pdfpapersize) config setting.
 - Added the [`pdfPaperOrientation`](https://craftcommerce.com/docs/configuration#pdfpaperorientation) config setting.
-- Added a new setting to the Stripe Gateway to optionally include the [`receipt_email`](https://stripe.com/docs/api#create_charge-receipt_email) within request payment requests.
-- Added the [commerce_transactions.onCreateTransaction](https://craftcommerce.com/docs/events-reference#commerce_transactions.oncreatetransaction) event, which enables plugins to modify a newly created transaction model.
+- Added a new Stripe gateway setting that determines whether the [`receipt_email`](https://stripe.com/docs/api#create_charge-receipt_email) param should be sent in payment requests.
+- Added the [`commerce_transactions.onCreateTransaction`](https://craftcommerce.com/docs/events-reference#commerce_transactions.oncreatetransaction) event, which enables plugins to modify a newly-created transaction model.
 
 ### Changed
 - Updated the Buckeroo driver to 2.2.
