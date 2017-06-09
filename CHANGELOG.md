@@ -12,6 +12,7 @@ Commerce Changelog
 ### Changed
 - Updated the Buckeroo driver to 2.2.
 - Updated the Stripe driver to 2.4.5.
+- Enabled the Buckeroo Credit Card Gateway within the Buckeroo Omnipay driver.
 
 ## 1.2.1342 - 2017-05-24
 
