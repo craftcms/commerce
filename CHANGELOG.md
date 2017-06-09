@@ -6,6 +6,7 @@ Commerce Changelog
 ### Added
 - Added the [`pdfPaperSize`](https://craftcommerce.com/docs/configuration#pdfpapersize) config setting.
 - Added the [`pdfPaperOrientation`](https://craftcommerce.com/docs/configuration#pdfpaperorientation) config setting.
+- Added a new setting to the Stripe Gateway to optionally include the [`receipt_email`](https://stripe.com/docs/api#create_charge-receipt_email) within request payment requests.
 
 ## 1.2.1342 - 2017-05-24
 
