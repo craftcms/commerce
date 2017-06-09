@@ -23,7 +23,7 @@
     "require": {
         "omnipay/2checkout" :  "~2.1",
         "omnipay/authorizenet" :  "~2.4",
-        "omnipay/buckaroo" : "~2.0",
+        "omnipay/buckaroo" : "~2.2",
         "omnipay/cardsave" :  "~2.1",
         "omnipay/coinbase" : "~2.0",
         "omnipay/common" :  "~2.3",

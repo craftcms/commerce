@@ -68,6 +68,7 @@ class Commerce_GatewaysService extends BaseApplicationComponent
             '\Commerce\Gateways\Omnipay\AuthorizeNet_SIM_GatewayAdapter',
             '\Commerce\Gateways\Omnipay\Buckaroo_Ideal_GatewayAdapter',
             '\Commerce\Gateways\Omnipay\Buckaroo_PayPal_GatewayAdapter',
+            '\Commerce\Gateways\Omnipay\Buckaroo_CreditCard_GatewayAdapter',
             '\Commerce\Gateways\Omnipay\CardSave_GatewayAdapter',
             '\Commerce\Gateways\Omnipay\Coinbase_GatewayAdapter',
             '\Commerce\Gateways\Omnipay\Dummy_GatewayAdapter',

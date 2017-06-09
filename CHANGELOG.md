@@ -9,6 +9,10 @@ Commerce Changelog
 - Added a new setting to the Stripe Gateway to optionally include the [`receipt_email`](https://stripe.com/docs/api#create_charge-receipt_email) within request payment requests.
 - Added the [commerce_transactions.onCreateTransaction](https://craftcommerce.com/docs/events-reference#commerce_transactions.oncreatetransaction) event, which enables plugins to modify a newly created transaction model.
 
+### Changed
+- Updated the Buckeroo driver to 2.2.
+- Updated the Stripe driver to 2.4.5.
+
 ## 1.2.1342 - 2017-05-24
 
 ### Added
