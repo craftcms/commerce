@@ -305,14 +305,6 @@ class Order extends Element
     }
 
     /**
-     * @return array
-     */
-    public static function defineSearchableAttributes(): array
-    {
-        return ['number', 'email'];
-    }
-
-    /**
      * @return bool
      */
     public function isEditable()
@@ -795,159 +787,6 @@ class Order extends Element
     }
 
     /**
-     * @param null $source
-     *
-     * @return array
-     */
-    public function getAvailableActions($source = null): array
-    {
-        $actions = [];
-
-        if (Craft::$app->getUser()->checkPermission('commerce-manageOrders')) {
-            $deleteAction = Craft::$app->getElements()->getAction('Delete');
-            $deleteAction->setParams([
-                'confirmationMessage' => Craft::t('commerce', 'Are you sure you want to delete the selected orders?'),
-                'successMessage' => Craft::t('commerce', 'Orders deleted.'),
-            ]);
-            $actions[] = $deleteAction;
-
-            // Only allow mass updating order status when all selected are of the same status, and not carts.
-            $isStatus = strpos($source, 'orderStatus:');
-            if ($isStatus === 0) {
-                $updateOrderStatusAction = Craft::$app->getElements()->getAction('UpdateOrderStatus');
-                $actions[] = $updateOrderStatusAction;
-            }
-        }
-
-        // Allow plugins to add additional actions
-        // TODO Update to events for Commerce 2
-//        $allPluginActions = Craft::$app->getPlugins()->call('commerce_addOrderActions', [$source], true);
-//
-//        foreach ($allPluginActions as $pluginActions) {
-//            $actions = array_merge($actions, $pluginActions);
-//        }
-
-        return $actions;
-    }
-
-    /**
-     * @param string|null $context
-     *
-     * @return array
-     */
-    protected static function defineSources(string $context = null): array
-    {
-        $sources = [
-            '*' => [
-                'key' => '*',
-                'label' => Craft::t('commerce', 'All Orders'),
-                'criteria' => ['isCompleted' => true],
-                'defaultSort' => ['dateOrdered', 'desc']
-            ]
-        ];
-
-        $sources[] = ['heading' => Craft::t("commerce", "Order Status")];
-
-        foreach (Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses() as $orderStatus) {
-            $key = 'orderStatus:'.$orderStatus->handle;
-            $sources[] = [
-                'key' => $key,
-                'status' => $orderStatus->color,
-                'label' => $orderStatus->name,
-                'criteria' => ['orderStatus' => $orderStatus],
-                'defaultSort' => ['dateOrdered', 'desc']
-            ];
-        }
-
-        $sources[] = ['heading' => Craft::t("commerce", "Carts")];
-
-        $edge = new \DateTime();
-        $interval = new \DateInterval("PT1H");
-        $interval->invert = 1;
-        $edge->add($interval);
-
-        $sources[] = [
-            'key' => 'carts:active',
-            'label' => Craft::t('commerce', 'Active Carts'),
-            'criteria' => ['updatedAfter' => $edge->getTimestamp(), 'isCompleted' => 'not 1'],
-            'defaultSort' => ['orders.dateUpdated', 'asc']
-        ];
-
-        $sources[] = [
-            'key' => 'carts:inactive',
-            'label' => Craft::t('commerce', 'Inactive Carts'),
-            'criteria' => ['updatedBefore' => $edge->getTimestamp(), 'isCompleted' => 'not 1'],
-            'defaultSort' => ['orders.dateUpdated', 'desc']
-        ];
-
-        // Allow plugins to modify the sources
-        // TODO Make this an event for Commerce 2
-//        Craft::$app->getPlugins()->call('commerce_modifyOrderSources', [&$sources, $context]);
-
-        return $sources;
-    }
-
-    /**
-     * @return array
-     */
-    public static function defineTableAttributes(): array
-    {
-        $attributes = [
-            'number' => ['label' => Craft::t('commerce', 'Number')],
-            'id' => ['label' => Craft::t('commerce', 'ID')],
-            'orderStatus' => ['label' => Craft::t('commerce', 'Status')],
-            'totalPrice' => ['label' => Craft::t('commerce', 'Total')],
-            'totalPaid' => ['label' => Craft::t('commerce', 'Total Paid')],
-            'totalDiscount' => ['label' => Craft::t('commerce', 'Total Discount')],
-            'totalShippingCost' => ['label' => Craft::t('commerce', 'Total Shipping')],
-            'dateOrdered' => ['label' => Craft::t('commerce', 'Date Ordered')],
-            'datePaid' => ['label' => Craft::t('commerce', 'Date Paid')],
-            'dateCreated' => ['label' => Craft::t('commerce', 'Date Created')],
-            'dateUpdated' => ['label' => Craft::t('commerce', 'Date Updated')],
-            'email' => ['label' => Craft::t('commerce', 'Email')],
-            'shippingFullName' => ['label' => Craft::t('commerce', 'Shipping Full Name')],
-            'billingFullName' => ['label' => Craft::t('commerce', 'Billing Full Name')],
-            'shippingBusinessName' => ['label' => Craft::t('commerce', 'Shipping Business Name')],
-            'billingBusinessName' => ['label' => Craft::t('commerce', 'Billing Business Name')],
-            'shippingMethodName' => ['label' => Craft::t('commerce', 'Shipping Method')],
-            'paymentMethodName' => ['label' => Craft::t('commerce', 'Payment Method')]
-        ];
-
-        // Allow plugins to modify the attributes
-        // TODO switch to an event in Commerce 2
-        //$pluginAttributes = Craft::$app->getPlugins()->call('commerce_defineAdditionalOrderTableAttributes', [], true);
-
-//        foreach ($pluginAttributes as $thisPluginAttributes) {
-//            $attributes = array_merge($attributes, $thisPluginAttributes);
-//        }
-
-        return $attributes;
-    }
-
-    /**
-     * @param string|null $source
-     *
-     * @return array
-     */
-    public static function defineDefaultTableAttributes(string $source = null): array
-    {
-        $attributes = ['number'];
-
-        if (0 !== strpos($source, 'carts:')) {
-            $attributes[] = 'orderStatus';
-            $attributes[] = 'totalPrice';
-            $attributes[] = 'dateOrdered';
-            $attributes[] = 'totalPaid';
-            $attributes[] = 'datePaid';
-        } else {
-            $attributes[] = 'dateUpdated';
-            $attributes[] = 'totalPrice';
-        }
-
-        return $attributes;
-    }
-
-    /**
      * @param string $attribute
      *
      * @return mixed|string
@@ -1026,29 +865,6 @@ class Order extends Element
     }
 
     /**
-     * @return array
-     */
-    public function defineSortableAttributes(): array
-    {
-        $attributes = [
-            'number' => Craft::t('commerce', 'Number'),
-            'id' => Craft::t('commerce', 'ID'),
-            'orderStatusId' => Craft::t('commerce', 'Order Status'),
-            'totalPrice' => Craft::t('commerce', 'Total Payable'),
-            'totalPaid' => Craft::t('commerce', 'Total Paid'),
-            'dateOrdered' => Craft::t('commerce', 'Date Ordered'),
-            'orders.dateUpdated' => Craft::t('commerce', 'Date Updated'),
-            'datePaid' => Craft::t('commerce', 'Date Paid')
-        ];
-
-        // Allow plugins to modify the attributes
-        // TODO update to events for Commerce 2
-        //Craft::$app->getPlugins()->call('commerce_modifyOrderSortableAttributes', [&$attributes]);
-
-        return $attributes;
-    }
-
-    /**
      * Populate the Order.
      *
      * @param array $row
@@ -1060,4 +876,153 @@ class Order extends Element
         return new Order($row);
     }
 
+    /**
+     * @inheritdoc
+     */
+    protected static function defineSources(string $context = null): array
+    {
+        $sources = [
+            '*' => [
+                'key' => '*',
+                'label' => Craft::t('commerce', 'All Orders'),
+                'criteria' => ['isCompleted' => true],
+                'defaultSort' => ['dateOrdered', 'desc']
+            ]
+        ];
+
+        $sources[] = ['heading' => Craft::t("commerce", "Order Status")];
+
+        foreach (Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses() as $orderStatus) {
+            $key = 'orderStatus:'.$orderStatus->handle;
+            $sources[] = [
+                'key' => $key,
+                'status' => $orderStatus->color,
+                'label' => $orderStatus->name,
+                'criteria' => ['orderStatus' => $orderStatus],
+                'defaultSort' => ['dateOrdered', 'desc']
+            ];
+        }
+
+        $sources[] = ['heading' => Craft::t("commerce", "Carts")];
+
+        $edge = new \DateTime();
+        $interval = new \DateInterval("PT1H");
+        $interval->invert = 1;
+        $edge->add($interval);
+
+        $sources[] = [
+            'key' => 'carts:active',
+            'label' => Craft::t('commerce', 'Active Carts'),
+            'criteria' => ['updatedAfter' => $edge->getTimestamp(), 'isCompleted' => 'not 1'],
+            'defaultSort' => ['orders.dateUpdated', 'asc']
+        ];
+
+        $sources[] = [
+            'key' => 'carts:inactive',
+            'label' => Craft::t('commerce', 'Inactive Carts'),
+            'criteria' => ['updatedBefore' => $edge->getTimestamp(), 'isCompleted' => 'not 1'],
+            'defaultSort' => ['orders.dateUpdated', 'desc']
+        ];
+
+        return $sources;
+    }
+
+    /**
+     * @inheritdocs
+     */
+    protected static function defineActions($source = null): array
+    {
+        $actions = [];
+
+        if (Craft::$app->getUser()->checkPermission('commerce-manageOrders')) {
+            $deleteAction = Craft::$app->getElements()->getAction('Delete');
+            $deleteAction->setParams([
+                'confirmationMessage' => Craft::t('commerce', 'Are you sure you want to delete the selected orders?'),
+                'successMessage' => Craft::t('commerce', 'Orders deleted.'),
+            ]);
+            $actions[] = $deleteAction;
+
+            // Only allow mass updating order status when all selected are of the same status, and not carts.
+            $isStatus = strpos($source, 'orderStatus:');
+            if ($isStatus === 0) {
+                $updateOrderStatusAction = Craft::$app->getElements()->getAction('UpdateOrderStatus');
+                $actions[] = $updateOrderStatusAction;
+            }
+        }
+
+        return $actions;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function defineTableAttributes(): array
+    {
+        return [
+            'number' => ['label' => Craft::t('commerce', 'Number')],
+            'id' => ['label' => Craft::t('commerce', 'ID')],
+            'orderStatus' => ['label' => Craft::t('commerce', 'Status')],
+            'totalPrice' => ['label' => Craft::t('commerce', 'Total')],
+            'totalPaid' => ['label' => Craft::t('commerce', 'Total Paid')],
+            'totalDiscount' => ['label' => Craft::t('commerce', 'Total Discount')],
+            'totalShippingCost' => ['label' => Craft::t('commerce', 'Total Shipping')],
+            'dateOrdered' => ['label' => Craft::t('commerce', 'Date Ordered')],
+            'datePaid' => ['label' => Craft::t('commerce', 'Date Paid')],
+            'dateCreated' => ['label' => Craft::t('commerce', 'Date Created')],
+            'dateUpdated' => ['label' => Craft::t('commerce', 'Date Updated')],
+            'email' => ['label' => Craft::t('commerce', 'Email')],
+            'shippingFullName' => ['label' => Craft::t('commerce', 'Shipping Full Name')],
+            'billingFullName' => ['label' => Craft::t('commerce', 'Billing Full Name')],
+            'shippingBusinessName' => ['label' => Craft::t('commerce', 'Shipping Business Name')],
+            'billingBusinessName' => ['label' => Craft::t('commerce', 'Billing Business Name')],
+            'shippingMethodName' => ['label' => Craft::t('commerce', 'Shipping Method')],
+            'paymentMethodName' => ['label' => Craft::t('commerce', 'Payment Method')]
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function defineDefaultTableAttributes(string $source = null): array
+    {
+        $attributes = ['number'];
+
+        if (0 !== strpos($source, 'carts:')) {
+            $attributes[] = 'orderStatus';
+            $attributes[] = 'totalPrice';
+            $attributes[] = 'dateOrdered';
+            $attributes[] = 'totalPaid';
+            $attributes[] = 'datePaid';
+        } else {
+            $attributes[] = 'dateUpdated';
+            $attributes[] = 'totalPrice';
+        }
+
+        return $attributes;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function defineSearchableAttributes(): array
+    {
+        return ['number', 'email'];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function defineSortOptions(): array
+    {
+        return [
+            'number' => Craft::t('commerce', 'Number'),
+            'id' => Craft::t('commerce', 'ID'),
+            'orderStatusId' => Craft::t('commerce', 'Order Status'),
+            'totalPrice' => Craft::t('commerce', 'Total Payable'),
+            'totalPaid' => Craft::t('commerce', 'Total Paid'),
+            'dateOrdered' => Craft::t('commerce', 'Date Ordered'),
+            'orders.dateUpdated' => Craft::t('commerce', 'Date Updated'),
+            'datePaid' => Craft::t('commerce', 'Date Paid')
+        ];
+    }
 }
