@@ -98,6 +98,11 @@ class Commerce_TransactionsService extends BaseApplicationComponent
             $transaction->userId = $user->id;
         }
 
+        $event = new Event($this, [
+            'transaction' => $transaction
+        ]);
+        $this->onCreateTransaction($event);
+
         return $transaction;
     }
 
@@ -168,6 +173,25 @@ class Commerce_TransactionsService extends BaseApplicationComponent
     {
         Commerce_TransactionRecord::model()->deleteByPk($transaction->id);
     }
+
+
+    /**
+     * Event: When a new transactions is created for an order.
+     * Event params: transaction(Commerce_TransactionModel)
+     *
+     * @param \CEvent $event
+     *
+     * @throws \CException
+     */
+    public function onCreateTransaction(\CEvent $event)
+    {
+        $params = $event->params;
+        if (empty($params['transaction']) || !($params['transaction'] instanceof Commerce_TransactionModel)) {
+            throw new Exception('onCreateTransaction event requires "transaction" param with Commerce_TransactionModel instance');
+        }
+        $this->raiseEvent('onCreateTransaction', $event);
+    }
+
 
     /**
      * Event: After successfully saving a transaction
