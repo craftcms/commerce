@@ -407,201 +407,11 @@ class Product extends Element
         return true;
     }
 
-    /**
-     * @param null $source
-     *
-     * @return array
-     */
-    public function getAvailableActions($source = null): array
-    {
-        // Get the section(s) we need to check permissions on
-        switch ($source) {
-            case '*': {
-                $productTypes = Plugin::getInstance()->getProductTypes()->getEditableProductTypes();
-                break;
-            }
-            default: {
-                if (preg_match('/^productType:(\d+)$/', $source, $matches)) {
-                    $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($matches[1]);
-
-                    if ($productType) {
-                        $productTypes = [$productType];
-                    }
-                }
-            }
-        }
-
-        $actions = [];
-
-        if (!empty($productTypes)) {
-            $userSessionService = Craft::$app->getUser();
-            $canManage = false;
-
-            foreach ($productTypes as $productType) {
-                $canManage = $userSessionService->checkPermission('commerce-manageProductType:'.$productType->id);
-            }
-
-            if ($canManage) {
-                // Allow deletion
-                $deleteAction = Craft::$app->getElements()->getAction('DeleteProduct');
-                $deleteAction->setParams([
-                    'confirmationMessage' => Craft::t('commerce', 'Are you sure you want to delete the selected product and its variants?'),
-                    'successMessage' => Craft::t('commerce', 'Products and Variants deleted.'),
-                ]);
-                $actions[] = $deleteAction;
-
-                // Allow setting status
-                $setStatusAction = Craft::$app->getElements()->getAction('SetStatus');
-                $setStatusAction->onSetStatus = function(Event $event) {
-                    if ($event->params['status'] == BaseElementModel::ENABLED) {
-                        // Set a Post Date as well
-                        Craft::$app->getDb()->createCommand()->update('entries',
-                            ['postDate' => DateTimeHelper::currentTimeForDb()],
-                            ['and', ['in', 'id', $event->params['elementIds']], 'postDate is null']);
-                    }
-                };
-                $actions[] = $setStatusAction;
-            }
-
-            if ($userSessionService->checkPermission('commerce-managePromotions')) {
-                $actions[] = Craft::$app->getElements()->getAction('CreateSale');
-                $actions[] = Craft::$app->getElements()->getAction('CreateDiscount');
-            }
-        }
-
-        // Allow plugins to add additional actions
-        $allPluginActions = Craft::$app->getPlugins()->call('commerce_addProductActions', [$source], true);
-
-        foreach ($allPluginActions as $pluginActions) {
-            $actions = array_merge($actions, $pluginActions);
-        }
-
-        return $actions;
-    }
-
     public static function refHandle()
     {
         return 'product';
     }
-
-    /**
-     * @param null $context
-     *
-     * @return array
-     */
-    public function getSources($context = null)
-    {
-        if ($context == 'index') {
-            $productTypes = Plugin::getInstance()->getProductTypes()->getEditableProductTypes();
-            $editable = true;
-        } else {
-            $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
-            $editable = false;
-        }
-
-        $productTypeIds = [];
-
-        foreach ($productTypes as $productType) {
-            $productTypeIds[] = $productType->id;
-        }
-
-        $sources = [
-            '*' => [
-                'label' => Craft::t('commerce', 'All products'),
-                'criteria' => ['typeId' => $productTypeIds, 'editable' => $editable],
-                'defaultSort' => ['postDate', 'desc']
-            ]
-        ];
-
-        $sources[] = ['heading' => Craft::t('commerce', 'Product Types')];
-
-        foreach ($productTypes as $productType) {
-            $key = 'productType:'.$productType->id;
-            $canEditProducts = Craft::$app->getUser()->checkPermission('commerce-manageProductType:'.$productType->id);
-
-            $sources[$key] = [
-                'label' => $productType->name,
-                'data' => [
-                    'handle' => $productType->handle,
-                    'editable' => $canEditProducts
-                ],
-                'criteria' => ['typeId' => $productType->id, 'editable' => $editable]
-            ];
-        }
-
-        // Allow plugins to modify the sources
-        Craft::$app->getPlugins()->call('commerce_modifyProductSources', [&$sources, $context]);
-
-        return $sources;
-    }
-
-    /**
-     * @return array
-     */
-    public function defineAvailableTableAttributes()
-    {
-        $attributes = [
-            'title' => ['label' => Craft::t('commerce', 'Title')],
-            'type' => ['label' => Craft::t('commerce', 'Type')],
-            'slug' => ['label' => Craft::t('commerce', 'Slug')],
-            'uri' => ['label' => Craft::t('commerce', 'URI')],
-            'postDate' => ['label' => Craft::t('commerce', 'Post Date')],
-            'expiryDate' => ['label' => Craft::t('commerce', 'Expiry Date')],
-            'taxCategory' => ['label' => Craft::t('commerce', 'Tax Category')],
-            'shippingCategory' => ['label' => Craft::t('commerce', 'Shipping Category')],
-            'freeShipping' => ['label' => Craft::t('commerce', 'Free Shipping?')],
-            'promotable' => ['label' => Craft::t('commerce', 'Promotable?')],
-            'link' => ['label' => Craft::t('commerce', 'Link'), 'icon' => 'world'],
-            'dateCreated' => ['label' => Craft::t('commerce', 'Date Created')],
-            'dateUpdated' => ['label' => Craft::t('commerce', 'Date Updated')],
-            'defaultPrice' => ['label' => Craft::t('commerce', 'Price')],
-            'defaultSku' => ['label' => Craft::t('commerce', 'SKU')],
-            'defaultWeight' => ['label' => Craft::t('commerce', 'Weight')],
-            'defaultLength' => ['label' => Craft::t('commerce', 'Length')],
-            'defaultWidth' => ['label' => Craft::t('commerce', 'Width')],
-            'defaultHeight' => ['label' => Craft::t('commerce', 'Height')],
-        ];
-
-        // Allow plugins to modify the attributes
-        $pluginAttributes = Craft::$app->getPlugins()->call('commerce_defineAdditionalProductTableAttributes', [], true);
-
-        foreach ($pluginAttributes as $thisPluginAttributes) {
-            $attributes = array_merge($attributes, $thisPluginAttributes);
-        }
-
-        return $attributes;
-    }
-
-    /**
-     * @param string|null $source
-     *
-     * @return array
-     */
-    public function getDefaultTableAttributes($source = null)
-    {
-        $attributes = [];
-
-        if ($source == '*') {
-            $attributes[] = 'type';
-        }
-
-        $attributes[] = 'postDate';
-        $attributes[] = 'expiryDate';
-        $attributes[] = 'defaultPrice';
-        $attributes[] = 'defaultSku';
-        $attributes[] = 'link';
-
-        return $attributes;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function defineSearchableAttributes(): array
-    {
-        return ['title', 'defaultSku'];
-    }
-
+    
     /**
      * @inheritdoc
      */
@@ -655,26 +465,6 @@ class Product extends Element
                 return parent::tableAttributeHtml($attribute);
             }
         }
-    }
-
-    /**
-     * Sortable by
-     *
-     * @return array
-     */
-    public function defineSortableAttributes()
-    {
-        $attributes = [
-            'title' => Craft::t('commerce', 'Title'),
-            'postDate' => Craft::t('commerce', 'Post Date'),
-            'expiryDate' => Craft::t('commerce', 'Expiry Date'),
-            'defaultPrice' => Craft::t('commerce', 'Price')
-        ];
-
-        // Allow plugins to modify the attributes
-        Craft::$app->getPlugins()->call('commerce_modifyProductSortableAttributes', [&$attributes]);
-
-        return $attributes;
     }
 
     /**
@@ -774,7 +564,54 @@ class Product extends Element
     }
 
     /**
-     * @return array
+     * @inheritdoc
+     */
+    protected static function defineSources($context = null): array
+    {
+        if ($context == 'index') {
+            $productTypes = Plugin::getInstance()->getProductTypes()->getEditableProductTypes();
+            $editable = true;
+        } else {
+            $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
+            $editable = false;
+        }
+
+        $productTypeIds = [];
+
+        foreach ($productTypes as $productType) {
+            $productTypeIds[] = $productType->id;
+        }
+
+        $sources = [
+            '*' => [
+                'label' => Craft::t('commerce', 'All products'),
+                'criteria' => ['typeId' => $productTypeIds, 'editable' => $editable],
+                'defaultSort' => ['postDate', 'desc']
+            ]
+        ];
+
+        $sources[] = ['heading' => Craft::t('commerce', 'Product Types')];
+
+        foreach ($productTypes as $productType) {
+            $key = 'productType:'.$productType->id;
+            $canEditProducts = Craft::$app->getUser()->checkPermission('commerce-manageProductType:'.$productType->id);
+
+            $sources[$key] = [
+                'label' => $productType->name,
+                'data' => [
+                    'handle' => $productType->handle,
+                    'editable' => $canEditProducts
+                ],
+                'criteria' => ['typeId' => $productType->id, 'editable' => $editable]
+            ];
+        }
+
+        return $sources;
+    }
+
+    /**
+     * TODO Pretty sure this needs to die
+     * @inheritdoc
      */
     protected function defineAttributes()
     {
@@ -797,4 +634,135 @@ class Product extends Element
         ]);
     }
 
+    /**
+     * @inheritdoc
+     */
+    protected static function defineTableAttributes(): array
+    {
+        return [
+            'title' => ['label' => Craft::t('commerce', 'Title')],
+            'type' => ['label' => Craft::t('commerce', 'Type')],
+            'slug' => ['label' => Craft::t('commerce', 'Slug')],
+            'uri' => ['label' => Craft::t('commerce', 'URI')],
+            'postDate' => ['label' => Craft::t('commerce', 'Post Date')],
+            'expiryDate' => ['label' => Craft::t('commerce', 'Expiry Date')],
+            'taxCategory' => ['label' => Craft::t('commerce', 'Tax Category')],
+            'shippingCategory' => ['label' => Craft::t('commerce', 'Shipping Category')],
+            'freeShipping' => ['label' => Craft::t('commerce', 'Free Shipping?')],
+            'promotable' => ['label' => Craft::t('commerce', 'Promotable?')],
+            'link' => ['label' => Craft::t('commerce', 'Link'), 'icon' => 'world'],
+            'dateCreated' => ['label' => Craft::t('commerce', 'Date Created')],
+            'dateUpdated' => ['label' => Craft::t('commerce', 'Date Updated')],
+            'defaultPrice' => ['label' => Craft::t('commerce', 'Price')],
+            'defaultSku' => ['label' => Craft::t('commerce', 'SKU')],
+            'defaultWeight' => ['label' => Craft::t('commerce', 'Weight')],
+            'defaultLength' => ['label' => Craft::t('commerce', 'Length')],
+            'defaultWidth' => ['label' => Craft::t('commerce', 'Width')],
+            'defaultHeight' => ['label' => Craft::t('commerce', 'Height')],
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function defineSortOptions(): array
+    {
+        return [
+            'title' => Craft::t('commerce', 'Title'),
+            'postDate' => Craft::t('commerce', 'Post Date'),
+            'expiryDate' => Craft::t('commerce', 'Expiry Date'),
+            'defaultPrice' => Craft::t('commerce', 'Price')
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function defineActions($source = null): array
+    {
+        // Get the section(s) we need to check permissions on
+        switch ($source) {
+            case '*': {
+                $productTypes = Plugin::getInstance()->getProductTypes()->getEditableProductTypes();
+                break;
+            }
+            default: {
+                if (preg_match('/^productType:(\d+)$/', $source, $matches)) {
+                    $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($matches[1]);
+
+                    if ($productType) {
+                        $productTypes = [$productType];
+                    }
+                }
+            }
+        }
+
+        $actions = [];
+
+        if (!empty($productTypes)) {
+            $userSessionService = Craft::$app->getUser();
+            $canManage = false;
+
+            foreach ($productTypes as $productType) {
+                $canManage = $userSessionService->checkPermission('commerce-manageProductType:'.$productType->id);
+            }
+
+            if ($canManage) {
+                // Allow deletion
+                $deleteAction = Craft::$app->getElements()->getAction('DeleteProduct');
+                $deleteAction->setParams([
+                    'confirmationMessage' => Craft::t('commerce', 'Are you sure you want to delete the selected product and its variants?'),
+                    'successMessage' => Craft::t('commerce', 'Products and Variants deleted.'),
+                ]);
+                $actions[] = $deleteAction;
+
+                // Allow setting status
+                $setStatusAction = Craft::$app->getElements()->getAction('SetStatus');
+                $setStatusAction->onSetStatus = function(Event $event) {
+                    if ($event->params['status'] == BaseElementModel::ENABLED) {
+                        // Set a Post Date as well
+                        Craft::$app->getDb()->createCommand()->update('entries',
+                            ['postDate' => DateTimeHelper::currentTimeForDb()],
+                            ['and', ['in', 'id', $event->params['elementIds']], 'postDate is null']);
+                    }
+                };
+                $actions[] = $setStatusAction;
+            }
+
+            if ($userSessionService->checkPermission('commerce-managePromotions')) {
+                $actions[] = Craft::$app->getElements()->getAction('CreateSale');
+                $actions[] = Craft::$app->getElements()->getAction('CreateDiscount');
+            }
+        }
+
+        return $actions;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function defineDefaultTableAttributes($source): array
+    {
+        $attributes = [];
+
+        if ($source == '*') {
+            $attributes[] = 'type';
+        }
+
+        $attributes[] = 'postDate';
+        $attributes[] = 'expiryDate';
+        $attributes[] = 'defaultPrice';
+        $attributes[] = 'defaultSku';
+        $attributes[] = 'link';
+
+        return $attributes;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function defineSearchableAttributes(): array
+    {
+        return ['title', 'defaultSku'];
+    }
 }
