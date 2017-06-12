@@ -11,7 +11,7 @@ use craft\commerce\models\Transaction;
 use craft\events\CancelableEvent;
 use Omnipay\Common\Message\RequestInterface;
 
-class GatewayRequestSendEvent extends CancelableEvent
+class GatewayRequestEvent extends CancelableEvent
 {
     /**
      * @var string Transaction type

@@ -2,10 +2,10 @@
 
 namespace craft\commerce\services;
 
-use Commerce\Gateways\PaymentFormModels\BasePaymentFormModel;
+use craft\commerce\gateway\models\BasePaymentFormModel;
 use Craft;
 use craft\commerce\elements\Order;
-use craft\commerce\events\GatewayRequestSendEvent;
+use craft\commerce\events\GatewayRequestEvent;
 use craft\commerce\events\TransactionEvent;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\Transaction;
@@ -35,9 +35,9 @@ class Payments extends Component
     // =========================================================================
 
     /**
-     * @event GatewayRequestSendEvent The event that is triggered before a gateway request is sent
+     * @event GatewayRequestEvent The event that is triggered before a gateway request is sent
      *
-     * You may set [[GatewayRequestSendEvent::isValid]] to `false` to prevent the request from being sent.
+     * You may set [[GatewayRequestEvent::isValid]] to `false` to prevent the request from being sent.
      */
     const EVENT_BEFORE_GATEWAY_REQUEST_SEND = 'beforeGatewayRequestSend';
 
@@ -60,6 +60,21 @@ class Payments extends Component
      * @event TransactionEvent The event that is triggered after a transaction is refunded
      */
     const EVENT_AFTER_REFUND_TRANSACTION = 'afterRefundTransaction';
+
+    /**
+     * @event ItemBagEvent The event that is triggered after an item bag is created
+     */
+    const EVENT_AFTER_CREATE_ITEM_BAG = 'afterCreateItemBag';
+
+    /**
+     * @event BuildPaymentRequestEvent The event that is triggered after a payment request is being built
+     */
+    const EVENT_BUILD_PAYMENT_REQUEST = 'afterBuildPaymentRequest';
+
+    /**
+     * @event SendPaymentRequestEvent The event that is triggered right before a payment request is being sent
+     */
+    const EVENT_BEFORE_SEND_PAYMENT_REQUEST = 'beforeSendPaymentRequest';
 
     // Public Methods
     // =========================================================================
@@ -292,8 +307,12 @@ class Payments extends Component
             Craft::error('Item bag total price does not equal the orders totalPrice, some payment gateways will complain.', __METHOD__);
         }
 
-        Craft::$app->getPlugins()->call('commerce_modifyItemBag', [&$items, $order]);
-
+        $event = new ItemBagEvent([
+            'items' => $items,
+            'order' => $order
+        ]);;
+        $this->trigger(self::EVENT_AFTER_CREATE_ITEM_BAG, $event);
+        
         return $items;
     }
 
@@ -357,13 +376,12 @@ class Payments extends Component
             $request['items'] = $itemBag;
         }
 
-        $pluginRequest = Craft::$app->getPlugins()->callFirst('commerce_modifyPaymentRequest', [$request]);
+        $event = new BuildPaymentRequestEvent([
+            'params' => $request
+        ]);
+        $this->trigger(self::EVENT_BUILD_PAYMENT_REQUEST, $event);
 
-        if ($pluginRequest) {
-            $request = array_merge($request, $pluginRequest);
-        }
-
-        return $request;
+        return $event->params;
     }
 
     /**
@@ -386,7 +404,7 @@ class Payments extends Component
     ) {
 
         //raising event
-        $event = new GatewayRequestSendEvent([
+        $event = new GatewayRequestEvent([
             'type' => $transaction->type,
             'request' => $request,
             'transaction' => $transaction
@@ -478,19 +496,18 @@ class Payments extends Component
     {
         $data = $request->getData();
 
-        $modifiedData = Craft::$app->getPlugins()->callFirst('commerce_modifyGatewayRequestData', [$data, $transaction->type, $transaction], true);
-
+        $event = new SendPaymentRequestEvent([
+            'requestData' => $data
+        ]);
+        $this->trigger(self::EVENT_BEFORE_SEND_PAYMENT_REQUEST, $event);
+        
         // We can't merge the $data with $modifiedData since the $data is not always an array.
         // For example it could be a XML object, json, or anything else really.
-        if ($modifiedData !== null) {
-            $response = $request->sendData($modifiedData);
-
-            return $response;
+        if ($event->modifiedRequestData !== null) {
+            return $request->sendData($event->modifiedRequestData);
         }
 
-        $response = $request->send();
-
-        return $response;
+        return $request->send();
     }
 
     /**
@@ -585,7 +602,7 @@ class Payments extends Component
         try {
 
             //raising event
-            $event = new GatewayRequestSendEvent([
+            $event = new GatewayRequestEvent([
                 'type' => $child->type,
                 'request' => $request,
                 'transaction' => $child

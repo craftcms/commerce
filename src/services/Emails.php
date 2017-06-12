@@ -34,7 +34,7 @@ class Emails extends Component
      */
     const EVENT_BEFORE_SEND_MAIL = 'beforeSendEmail';
 
-    /**
+    /**4
      * @event MailEvent The event that is raised after an email is sent
      */
     const EVENT_AFTER_SEND_MAIL = 'afterSendEmail';
@@ -294,8 +294,6 @@ class Emails extends Component
 
             return;
         }
-
-        Craft::$app->getPlugins()->callFirst('commerce_modifyEmail', [&$newEmail, $order]);
 
         try {
             //raising event
