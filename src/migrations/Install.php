@@ -1648,7 +1648,7 @@ class Install extends Migration
             $productData = [
                 'id' => $productId,
                 'typeId' => $productTypeId,
-                'postDate' => DateTimeHelper::currentTimeStamp(),
+                'postDate' => DateTimeHelper::toIso8601(DateTimeHelper::currentTimeStamp()),
                 'expiryDate' => null,
                 'promotable' => true,
                 'taxCategoryId' => $taxCategoryId,
