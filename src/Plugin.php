@@ -49,6 +49,7 @@ class Plugin extends \craft\base\Plugin
     {
         parent::init();
 
+        Craft::$app->getView()->hook('commerce.prepareCpTemplate', [$this, 'getCpSubNav']);
         $this->_init();
     }
 
@@ -89,39 +90,49 @@ class Plugin extends \craft\base\Plugin
         $navItems = [
             'label' => Craft::t('commerce','Commerce'),
             'url' => Plugin::getInstance()->id,
-            'iconSvg' => $iconSvg,
-            'subnav' => []
+            'iconSvg' => $iconSvg
         ];
 
+        return $navItems;
+    }
+
+    /**
+     * Add the subnav to the control panel.
+     * 
+     * @param $context Twig context
+     *                      
+     * @return void
+     */
+    public function getCpSubNav(&$context) {
         if (Craft::$app->getUser()->checkPermission('commerce-manageOrders')) {
-            $navItems['subnav']['orders'] = [
+            $context['subnav']['orders'] = [
                 'label' => Craft::t('commerce', 'Orders'),
                 'url' => 'commerce/orders'
             ];
         }
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageProducts')) {
-            $navItems['subnav']['products'] = [
+            $context['subnav']['products'] = [
                 'label' => Craft::t('commerce', 'Products'),
                 'url' => 'commerce/products'
             ];
         }
 
         if (Craft::$app->getUser()->checkPermission('commerce-managePromotions')) {
-            $navItems['subnav']['promotions'] = [
+            $context['subnav']['promotions'] = [
                 'label' => Craft::t('commerce', 'Promotions'),
                 'url' => 'commerce/promotions'
             ];
         }
 
         if (Craft::$app->user->identity->admin) {
-            $navItems['subnav']['settings'] = [
+            $context['subnav']['settings'] = [
                 'label' => Craft::t('commerce', 'Settings'),
                 'url' => 'commerce/settings'
             ];
         }
 
-        return $navItems;
+        return;
     }
 
     // Protected Methods
