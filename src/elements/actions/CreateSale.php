@@ -56,6 +56,6 @@ class CreateSale extends ElementAction
 })();
 EOT;
 
-        Craft::$app->getView()->includeJs($js);
+        Craft::$app->getView()->registerJs($js);
     }
 }

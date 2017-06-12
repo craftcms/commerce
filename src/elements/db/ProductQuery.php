@@ -262,21 +262,21 @@ class ProductQuery extends ElementQuery
         $this->joinElementTable('commerce_products');
 
         $this->query->select([
-            'products.id',
-            'products.typeId',
-            'products.promotable',
-            'products.freeShipping',
-            'products.postDate',
-            'products.expiryDate',
-            'products.defaultPrice',
-            'products.defaultVariantId',
-            'products.defaultSku',
-            'products.defaultWeight',
-            'products.defaultLength',
-            'products.defaultWidth',
-            'products.defaultHeight',
-            'products.taxCategoryId',
-            'products.shippingCategoryId'
+            'commerce_products.id',
+            'commerce_products.typeId',
+            'commerce_products.promotable',
+            'commerce_products.freeShipping',
+            'commerce_products.postDate',
+            'commerce_products.expiryDate',
+            'commerce_products.defaultPrice',
+            'commerce_products.defaultVariantId',
+            'commerce_products.defaultSku',
+            'commerce_products.defaultWeight',
+            'commerce_products.defaultLength',
+            'commerce_products.defaultWidth',
+            'commerce_products.defaultHeight',
+            'commerce_products.taxCategoryId',
+            'commerce_products.shippingCategoryId'
         ]);
 
         if ($this->postDate) {
@@ -288,27 +288,27 @@ class ProductQuery extends ElementQuery
         }
 
         if ($this->typeId) {
-            $this->subQuery->andWhere(Db::parseParam('entries.typeId', $this->typeId));
+            $this->subQuery->andWhere(Db::parseParam('commerce_products.typeId', $this->typeId));
         }
 
         if ($this->defaultPrice) {
-            $this->subQuery->andWhere(Db::parseParam('products.defaultPrice', $this->defaultPrice));
+            $this->subQuery->andWhere(Db::parseParam('commerce_products.defaultPrice', $this->defaultPrice));
         }
 
         if ($this->defaultHeight) {
-            $this->subQuery->andWhere(Db::parseParam('products.defaultHeight', $this->defaultHeight));
+            $this->subQuery->andWhere(Db::parseParam('commerce_products.defaultHeight', $this->defaultHeight));
         }
 
         if ($this->defaultLength) {
-            $this->subQuery->andWhere(Db::parseParam('products.defaultLength', $this->defaultLength));
+            $this->subQuery->andWhere(Db::parseParam('commerce_products.defaultLength', $this->defaultLength));
         }
 
         if ($this->defaultWidth) {
-            $this->subQuery->andWhere(Db::parseParam('products.defaultWidth', $this->defaultWidth));
+            $this->subQuery->andWhere(Db::parseParam('commerce_products.defaultWidth', $this->defaultWidth));
         }
 
         if ($this->defaultWeight) {
-            $this->subQuery->andWhere(Db::parseParam('products.defaultWeight', $this->defaultWeight));
+            $this->subQuery->andWhere(Db::parseParam('commerce_products.defaultWeight', $this->defaultWeight));
         }
 
         $this->_applyEditableParam();
@@ -343,7 +343,7 @@ class ProductQuery extends ElementQuery
 
         // Limit the query to only the sections the user has permission to edit
         $this->subQuery->andWhere([
-            'products.typeId' => Plugin::getInstance()->getProductTypes()->getEditableProductTypeIds()
+            'commerce_products.typeId' => Plugin::getInstance()->getProductTypes()->getEditableProductTypeIds()
         ]);
     }
 
@@ -386,7 +386,7 @@ class ProductQuery extends ElementQuery
         $this->subQuery->andWhere($condition);
 
         if ($joinSections) {
-            $this->subQuery->innerJoin('{{%commerce_producttypes}} producttypes', '[[producttypes.id]] = [[products.typeId]]');
+            $this->subQuery->innerJoin('{{%commerce_producttypes}} commerce_producttypes', '[[producttypes.id]] = [[products.typeId]]');
         }
     }
 
@@ -461,7 +461,7 @@ class ProductQuery extends ElementQuery
             // Remove any blank product IDs (if any)
             $productIds = array_filter($productIds);
 
-            $this->subQuery->andWhere(['in', 'products.id', $productIds]);
+            $this->subQuery->andWhere(['in', 'commerce_products.id', $productIds]);
         }
     }
 }

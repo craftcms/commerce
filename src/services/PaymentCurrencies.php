@@ -5,6 +5,7 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\models\PaymentCurrency;
 use craft\commerce\records\PaymentCurrency as PaymentCurrencyRecord;
+use craft\db\Query;
 use yii\base\Component;
 use yii\db\Expression;
 
@@ -46,11 +47,16 @@ class PaymentCurrencies extends Component
     {
         if (null === $this->_allCurrencies) {
             $schema = Craft::$app->getDb()->schema;
-            $records = PaymentCurrencyRecord::find()->orderBy(
-                new Expression('('.$schema->quoteColumnName('primary').' = 1) desc, '.$schema->quoteColumnName('iso'))
-            );
-
-            $this->_allCurrencies = PaymentCurrency::populateModels($records);
+            $rows = (new Query())
+                ->select([
+                    'id',
+                    'iso',
+                    'primary',
+                    'rate'
+                ])->from('{{%commerce_paymentcurrencies}}')
+                ->orderBy(new Expression('('.$schema->quoteColumnName('primary').' = 1) desc, '.$schema->quoteColumnName('iso')))
+                ->all();
+            $this->_allCurrencies = PaymentCurrency::populateModels($rows);
         }
 
         return $this->_allCurrencies;
