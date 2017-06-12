@@ -159,6 +159,12 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
                 $amountPerItem = CommerceCurrencyHelper::round($discount->perItemDiscount * $item->qty);
                 $amountPercentage = CommerceCurrencyHelper::round($discount->percentDiscount * $item->getSubtotal());
 
+                $incrementalDiscounts = \Craft\craft()->config->get('makePercentageOffDiscountsIncremental', 'commerce');
+                if($incrementalDiscounts)
+                {
+                    $amountPercentage = CommerceCurrencyHelper::round($discount->percentDiscount * ($item->getSubtotal() + $item->discount));
+                }
+
                 $amount += $amountPerItem + $amountPercentage;
                 $item->discount += $amountPerItem + $amountPercentage;
 

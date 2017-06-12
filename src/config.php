@@ -12,4 +12,5 @@ return [
     'requireBillingAddressAtCheckout' => false,
     'pdfPaperSize' => 'letter',
     'pdfPaperOrientation' => 'portrait',
+    'makePercentageOffDiscountsIncremental' => false,
 ];

@@ -3,6 +3,8 @@ Commerce Changelog
 
 ## Unreleased
 
+### - Added the [`makePercentageOffDiscountsIncremental`](https://craftcommerce.com/docs/configuration) config setting.
+
 ## 1.2.1343 - 2017-06-09
 
 ### Added
