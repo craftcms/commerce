@@ -74,7 +74,7 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
 
 
         // Handle special coupon rules
-        if ($order->couponCode == $discount->code)
+        if (strcasecmp($order->couponCode, $discount->code) == 0)
         {
             // Since we will allow the coupon to be added to an anonymous cart with no email, we need to remove it
             // if a limit has been set.
@@ -85,15 +85,15 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
                 $usedCount = 0;
                 foreach ($previousOrders as $previousOrder)
                 {
-                    if ($previousOrder->couponCode == $discount->code)
+                    if (strcasecmp($previousOrder->couponCode, $discount->code) == 0)
                     {
-                        $usedCount = $usedCount + 1;
+                        $usedCount += 1;
                     }
                 }
 
                 if ($usedCount >= $discount->perEmailLimit)
                 {
-                    $order->couponCode = "";
+                    $order->couponCode = '';
 
                     return false;
                 }

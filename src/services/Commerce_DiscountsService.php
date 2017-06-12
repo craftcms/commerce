@@ -157,9 +157,9 @@ class Commerce_DiscountsService extends BaseApplicationComponent
                 $usedCount = 0;
                 foreach ($previousOrders as $order)
                 {
-                    if ($order->couponCode == $code)
+                    if (strcasecmp($order->couponCode, $code) == 0)
                     {
-                        $usedCount = $usedCount + 1;
+                        $usedCount += 1;
                     }
                 }
 

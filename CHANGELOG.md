@@ -5,6 +5,9 @@ Commerce Changelog
 
 ### - Added the [`makePercentageOffDiscountsIncremental`](https://craftcommerce.com/docs/configuration) config setting.
 
+### Fixed
+- Fixed a bug that allowed a discount with a 'per email address limit' condition to be used beyond it's limit if the coupon supplied was in a different case.
+
 ## 1.2.1343 - 2017-06-09
 
 ### Added
