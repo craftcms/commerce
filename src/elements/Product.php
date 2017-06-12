@@ -566,7 +566,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    protected static function defineSources($context = null): array
+    protected static function defineSources(string $context = null): array
     {
         if ($context == 'index') {
             $productTypes = Plugin::getInstance()->getProductTypes()->getEditableProductTypes();
@@ -612,7 +612,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    protected static function defineActions($source = null): array
+    protected static function defineActions(string $source = null): array
     {
         // Get the section(s) we need to check permissions on
         switch ($source) {
@@ -703,7 +703,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    protected static function defineDefaultTableAttributes($source): array
+    protected static function defineDefaultTableAttributes(string $source): array
     {
         $attributes = [];
 
