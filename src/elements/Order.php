@@ -5,6 +5,7 @@ namespace craft\commerce\elements;
 use Craft;
 use craft\commerce\base\Element;
 use craft\commerce\base\ShippingMethodInterface;
+use craft\commerce\elements\actions\UpdateOrderStatus;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\Address;
@@ -17,6 +18,7 @@ use craft\commerce\models\OrderStatus;
 use craft\commerce\models\PaymentMethod;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
+use craft\elements\actions\Delete;
 use craft\elements\db\ElementQueryInterface;
 use craft\models\FieldLayout;
 
@@ -930,22 +932,28 @@ class Order extends Element
     /**
      * @inheritdocs
      */
-    protected static function defineActions($source = null): array
+    protected static function defineActions(string $source = null): array
     {
         $actions = [];
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageOrders')) {
-            $deleteAction = Craft::$app->getElements()->getAction('Delete');
-            $deleteAction->setParams([
-                'confirmationMessage' => Craft::t('commerce', 'Are you sure you want to delete the selected orders?'),
-                'successMessage' => Craft::t('commerce', 'Orders deleted.'),
-            ]);
+            $elementService = Craft::$app->getElements();
+            $deleteAction = $elementService->createAction(
+                [
+                    'type' => Delete::class,
+                    'confirmationMessage' => Craft::t('commerce', 'Are you sure you want to delete the selected orders?'),
+                    'successMessage' => Craft::t('commerce', 'Orders deleted.'),
+                ]
+            );
             $actions[] = $deleteAction;
 
             // Only allow mass updating order status when all selected are of the same status, and not carts.
             $isStatus = strpos($source, 'orderStatus:');
+
             if ($isStatus === 0) {
-                $updateOrderStatusAction = Craft::$app->getElements()->getAction('UpdateOrderStatus');
+                $updateOrderStatusAction = $elementService->createAction([
+                    'type' => UpdateOrderStatus::class
+                ]);
                 $actions[] = $updateOrderStatusAction;
             }
         }

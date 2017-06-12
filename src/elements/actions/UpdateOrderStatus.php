@@ -83,8 +83,7 @@ class UpdateOrderStatus extends ElementAction
 })();
 EOT;
 
-        Craft::$app->getView()->includeJsResource('commerce/js/CommerceUpdateOrderStatusModal.js');
-        Craft::$app->getView()->includeJs($js);
+        Craft::$app->getView()->registerJs($js);
     }
 
     /**
