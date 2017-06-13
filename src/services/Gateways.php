@@ -3,6 +3,12 @@
 namespace craft\commerce\services;
 
 use Commerce\Gateways\BaseGatewayAdapter;
+use craft\commerce\gateways\Dummy_GatewayAdapter;
+use craft\commerce\gateways\Manual_GatewayAdapter;
+use craft\commerce\gateways\Paypal_Express_GatewayAdapter;
+use craft\commerce\gateways\Paypal_Pro_GatewayAdapter;
+use craft\commerce\gateways\Stripe_GatewayAdapter;
+use craft\events\RegisterComponentTypesEvent;
 use yii\base\Component;
 
 /**
@@ -17,6 +23,17 @@ use yii\base\Component;
  */
 class Gateways extends Component
 {
+    // Constants
+    // =========================================================================
+
+    /**
+     * @event RegisterComponentTypesEvent The event that is triggered when registering additional gateway adapters.
+     */
+    const EVENT_REGISTER_GATEWAY_ADAPTERS = 'registerGatewayAdapters';
+
+    // Properties
+    // =========================================================================
+
     /** @var BaseGatewayAdapter[] */
     private $_gateways;
 
@@ -65,20 +82,18 @@ class Gateways extends Component
     private function _getGatewayClasses()
     {
         $classes = [
-            \craft\commerce\gateways\Dummy_GatewayAdapter::class,
-            \craft\commerce\gateways\Manual_GatewayAdapter::class,
-            \craft\commerce\gateways\PayPal_Express_GatewayAdapter::class,
-            \craft\commerce\gateways\PayPal_Pro_GatewayAdapter::class,
-            \craft\commerce\gateways\Stripe_GatewayAdapter::class
+            Dummy_GatewayAdapter::class,
+            Manual_GatewayAdapter::class,
+            PayPal_Express_GatewayAdapter::class,
+            PayPal_Pro_GatewayAdapter::class,
+            Stripe_GatewayAdapter::class
         ];
 
-        // Let plugins register more gateway adapters classes
-        $allPluginClasses = Craft::$app->getPlugins()->call('commerce_registerGatewayAdapters', [], true);
+        $event = new RegisterComponentTypesEvent([
+            'types' => $classes
+        ]);
+        $this->trigger(self::EVENT_REGISTER_GATEWAY_ADAPTERS, $event);
 
-        foreach ($allPluginClasses as $pluginClasses) {
-            $classes = array_merge($classes, $pluginClasses);
-        }
-
-        return $classes;
+        return $event->types;
     }
 }

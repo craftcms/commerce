@@ -3,6 +3,9 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\adjusters\Discount;
+use craft\commerce\adjusters\Shipping;
+use craft\commerce\adjusters\Tax;
 use craft\commerce\base\AdjusterInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\events\OrderEvent;
@@ -52,6 +55,11 @@ class Orders extends Component
      * @event OrderEvent This event is raised after an order is completed
      */
     const EVENT_AFTER_COMPLETE_ORDER = 'afterCompleteOrder';
+
+    /**
+     * @event AdjusterEvent This event is raised when compiling the list of adjusters for an order
+     */
+    const EVENT_REGISTER_ORDER_ADJUSTERS = 'registerOrderAdjusters';
 
     // Public Methods
     // =========================================================================
@@ -314,7 +322,7 @@ class Orders extends Component
         Plugin::getInstance()->getOrderAdjustments()->deleteAllOrderAdjustmentsByOrderId($order->id);
 
         // collect new adjustments
-        foreach ($this->getAdjusters($order) as $adjuster) {
+        foreach ($this->getAdjusters() as $adjuster) {
             $adjustments = $adjuster->adjust($order, $lineItems);
             $order->setAdjustments(array_merge($order->getAdjustments(), $adjustments));
         }
@@ -394,42 +402,22 @@ class Orders extends Component
     }
 
     /**
-     * @param Order $order
-     *
      * @return AdjusterInterface[]
      */
-    private function getAdjusters($order = null)
+    private function getAdjusters()
     {
         $adjusters = [
-            200 => new \craft\commerce\adjusters\Shipping,
-            400 => new \craft\commerce\adjusters\Discount,
-            600 => new \craft\commerce\adjusters\Tax,
+            Shipping::class,
+            Discount::class,
+            Tax::class
         ];
 
-        // Additional adjuster can be returned by the plugins.
-        $additional = Craft::$app->getPlugins()->call('commerce_registerOrderAdjusters', [&$adjusters, $order]);
+        $event = new RegisterComponentTypesEvent([
+            'types' => $adjusters
+        ]);
+        $this->trigger(self::EVENT_REGISTER_ORDER_ADJUSTERS, $event);
 
-        $orderIndex = 800;
-        foreach ($additional as $additionalAdjusters) {
-            foreach ($additionalAdjusters as $key => $additionalAdjuster) {
-                $orderIndex += 1;
-
-                // Not expecting more than 100 adjusters per plugin.
-                if ($key < 100 || $key > 800) {
-                    $additionalAdjusters[$orderIndex] = $additionalAdjusters[$key];
-                    unset($additionalAdjusters[$key]);
-                }
-            }
-
-            $adjusters += $additionalAdjusters;
-        }
-
-        ksort($adjusters);
-
-        // Allow plugins to modify the adjusters
-        Craft::$app->getPlugins()->call('commerce_modifyOrderAdjusters', [&$adjusters, $order]);
-
-        return $adjusters;
+        return $event->types;
     }
 
     /**

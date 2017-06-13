@@ -60,7 +60,7 @@ class CreateDiscount extends ElementAction
 })();
 EOT;
 
-        Craft::$app->getView()->includeJs($js);
+        Craft::$app->getView()->registerJs($js);
     }
 
 }

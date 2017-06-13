@@ -23,10 +23,24 @@ use yii\base\Component;
  */
 class ShippingMethods extends Component
 {
+    // Constants
+    // =========================================================================
+
+    /**
+     * @event RegisterComponentTypesEvent The event that is triggered when registering additional shipping methods.
+     */
+    const EVENT_REGISTER_SHIPPING_METHODS = 'registerShippingMethods';
+
+    // Properties
+    // =========================================================================
+    
     /**
      * @var bool
      */
     private $_shippingMethods;
+
+    // Public Methods
+    // =========================================================================
 
     /**
      * @param int $id
@@ -69,52 +83,19 @@ class ShippingMethods extends Component
      */
     public function getAllShippingMethods()
     {
+        // TODO this will change when shupping methods are refactored.
         if (null === $this->_shippingMethods) {
-            $methods = $this->getAllCoreShippingMethods();
+            $shippingMethods = ShippingMethod::populateModels(ShippingMethodRecord::findAll());
 
-            $additionalMethods = Craft::$app->getPlugins()->call('commerce_registerShippingMethods');
+            $event = new RegisterComponentTypesEvent([
+                'types' => $shippingMethods
+            ]);
+            $this->trigger(self::EVENT_REGISTER_SHIPPING_METHODS, $event);
 
-            foreach ($additionalMethods as $additional) {
-                $methods = array_merge($methods, $additional);
-            }
-
-            $this->_shippingMethods = $methods;
+            $this->_shippingMethods = $event->types;
         }
 
         return $this->_shippingMethods;
-    }
-
-    /**
-     * Returns the Commerce managed shipping methods
-     *
-     *
-     * @return ShippingMethod[]
-     */
-    public function getAllCoreShippingMethods()
-    {
-        $records = ShippingMethodRecord::findAll();
-
-        return ShippingMethod::populateModels($records);s̄;
-    }
-
-    /**
-     * Returns the Commerce managed shipping methods
-     *
-     * @param array|\CDbCriteria $criteria
-     *
-     * @return ShippingMethod[]
-     */
-    public function getAllThirdPartyShippingMethods($criteria = [])
-    {
-        $methods = [];
-
-        $additionalMethods = Craft::$app->getPlugins()->call('commerce_registerShippingMethods');
-
-        foreach ($additionalMethods as $additional) {
-            $methods = array_merge($methods, $additional);
-        }
-
-        return $methods;
     }
 
     /**
@@ -150,48 +131,40 @@ class ShippingMethods extends Component
     {
         $availableMethods = [];
 
-        $methods = $this->getAllCoreShippingMethods();
-
-        $additionalMethods = Craft::$app->getPlugins()->call('commerce_registerShippingMethods', ['order' => $cart], true);
-
-        foreach ($additionalMethods as $additional) {
-            $methods = array_merge($methods, $additional);
-        }
+        $methods = $this->getAllShippingMethods();
 
         foreach ($methods as $method) {
-            if ($method->getIsEnabled()) {
-                if ($rule = $this->getMatchingShippingRule($cart, $method)) {
-                    $amount = $rule->getBaseRate();
+            if ($method->getIsEnabled() && $rule = $this->getMatchingShippingRule($cart, $method)) {
+                $amount = $rule->getBaseRate();
 
-                    foreach ($cart->lineItems as $item) {
-                        if ($item->purchasable && !$item->purchasable->hasFreeShipping()) {
-                            $percentageRate = $rule->getPercentageRate($item->shippingCategoryId);
-                            $perItemRate = $rule->getPerItemRate($item->shippingCategoryId);
-                            $weightRate = $rule->getWeightRate($item->shippingCategoryId);
+                foreach ($cart->lineItems as $item) {
+                    if ($item->purchasable && !$item->purchasable->hasFreeShipping()) {
+                        $percentageRate = $rule->getPercentageRate($item->shippingCategoryId);
+                        $perItemRate = $rule->getPerItemRate($item->shippingCategoryId);
+                        $weightRate = $rule->getWeightRate($item->shippingCategoryId);
 
-                            $percentageAmount = $item->getSubtotal() * $percentageRate;
-                            $perItemAmount = $item->qty * $perItemRate;
-                            $weightAmount = ($item->weight * $item->qty) * $weightRate;
+                        $percentageAmount = $item->getSubtotal() * $percentageRate;
+                        $perItemAmount = $item->qty * $perItemRate;
+                        $weightAmount = ($item->weight * $item->qty) * $weightRate;
 
-                            $amount += ($percentageAmount + $perItemAmount + $weightAmount);
-                        }
+                        $amount += ($percentageAmount + $perItemAmount + $weightAmount);
                     }
-
-                    $amount = max($amount, $rule->getMinRate() * 1);
-
-                    if ($rule->getMaxRate() * 1) {
-                        $amount = min($amount, $rule->getMaxRate() * 1);
-                    }
-
-                    $availableMethods[$method->getHandle()] = [
-                        'name' => $method->getName(),
-                        'description' => $rule->getDescription(),
-                        'amount' => $amount,
-                        'handle' => $method->getHandle(),
-                        'type' => $method->getType(),
-                        'method' => $method
-                    ];
                 }
+
+                $amount = max($amount, $rule->getMinRate() * 1);
+
+                if ($rule->getMaxRate() * 1) {
+                    $amount = min($amount, $rule->getMaxRate() * 1);
+                }
+
+                $availableMethods[$method->getHandle()] = [
+                    'name' => $method->getName(),
+                    'description' => $rule->getDescription(),
+                    'amount' => $amount,
+                    'handle' => $method->getHandle(),
+                    'type' => $method->getType(),
+                    'method' => $method
+                ];
             }
         }
 

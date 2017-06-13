@@ -3,9 +3,9 @@
 namespace craft\commerce\elements\actions;
 
 use Craft;
-use craft\base\ElementAction;
 use craft\commerce\elements\Product;
 use craft\commerce\Plugin;
+use craft\elements\actions\Delete;
 use craft\elements\db\ElementQueryInterface;
 use yii\base\Exception;
 
@@ -19,42 +19,11 @@ use yii\base\Exception;
  * @package   craft.plugins.commerce.elementactions
  * @since     1.0
  */
-class DeleteProduct extends ElementAction
+class DeleteProduct extends Delete
 {
-    // Public Properties
-    // ========================================================================
-
-    /**
-     * @var string
-     */
-    public $confirmationMessage;
 
     // Public Methods
     // =========================================================================
-
-    /**
-     * @inheritDoc
-     */
-    public static function isDestructive(): bool
-    {
-        return true;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getName()
-    {
-        return Craft::t('commerce', 'Delete…');
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getConfirmationMessage()
-    {
-        return $this->confirmationMessage;
-    }
 
     /**
      * @inheritDoc

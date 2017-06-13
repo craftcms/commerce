@@ -212,6 +212,15 @@ class OrderStatuses extends Component
     {
         $orderStatusRecords = OrderStatusRecord::find()->orderBy('sortOrder')->all();
 
+        $orderStatusRecords = array_map(function (OrderStatusRecord $element) { return $element->toArray([
+            'id',
+            'name',
+            'handle',
+            'color',
+            'sortOrder',
+            'default',
+        ]);}, $orderStatusRecords);
+
         return OrderStatus::populateModels($orderStatusRecords);
     }
 

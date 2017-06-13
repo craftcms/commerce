@@ -518,7 +518,13 @@ class OrderQuery extends ElementQuery
         }
 
         if ($this->orderStatus) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_orders.orderStatus', $this->orderStatus));
+            if ($this->orderStatus instanceof OrderStatus) {
+                $this->orderStatusId = $this->orderStatus->id;
+                $this->orderStatus = null;
+            } else if (is_int($this->orderStatus)) {
+                $this->orderStatusId = $this->orderStatus;
+                $this->orderStatus = null;
+            }
         }
 
         if ($this->orderStatusId) {

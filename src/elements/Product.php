@@ -3,46 +3,27 @@
 namespace craft\commerce\elements;
 
 use Craft;
-use craft\base\ElementInterface;
 use craft\commerce\base\Element;
+use craft\commerce\elements\actions\CreateDiscount;
+use craft\commerce\elements\actions\CreateSale;
+use craft\commerce\elements\actions\DeleteProduct;
 use craft\commerce\elements\db\ProductQuery;
 use craft\commerce\helpers\VariantMatrix;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\db\Query;
+use craft\elements\actions\SetStatus;
 use craft\elements\db\ElementQueryInterface;
+use craft\fields\Date;
 use craft\helpers\ArrayHelper;
+use craft\helpers\DateTimeHelper;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 use yii\base\InvalidConfigException;
 
 /**
  * Product model.
- *
- * @property int         $id
- * @property \DateTime   $postDate
- * @property \DateTime   $expiryDate
- * @property int         $typeId
- * @property int         $taxCategoryId
- * @property int         $shippingCategoryId
- * @property bool        $promotable
- * @property bool        $freeShipping
- * @property bool        $enabled
- *
- * @property int         defaultVariantId
- * @property string      defaultSku
- * @property float       defaultPrice
- * @property float       defaultHeight
- * @property float       defaultLength
- * @property float       defaultWidth
- * @property float       defaultWeight
- *
- * @property ProductType $type
- * @property TaxCategory $taxCategory
- * @property Variant[]   $variants
- *
- * @property string      $name
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -62,6 +43,106 @@ class Product extends Element
      * @var Variant[] This product’s variants
      */
     private $_variants;
+
+    /**
+     * @var int ID
+     */
+    public $id;
+
+    /**
+     * @var \DateTime Post date
+     */
+    public $postDate;
+
+    /**
+     * @var \DateTime Expiry date
+     */
+    public $expiryDate;
+
+    /**
+     * @var int Product type id
+     */
+    public $typeId;
+
+    /**
+     * @var int Tax category id
+     */
+    public $taxCategoryId;
+
+    /**
+     * @var int Shipping category id
+     */
+    public $shippingCategoryId;
+
+    /**
+     * @var bool Promotable
+     */
+    public $promotable;
+
+    /**
+     * @var bool Free shipping
+     */
+    public $freeShipping;
+
+    /**
+     * @var bool Enabled
+     */
+    public $enabled;
+
+    /**
+     * @var int defaultVariantId
+     */
+    public $defaultVariantId;
+
+    /**
+     * @var string Default SKU
+     */
+    public $defaultSku;
+
+    /**
+     * @var float Default price
+     */
+    public $defaultPrice;
+
+    /**
+     * @var float Default height
+     */
+    public $defaultHeight;
+
+    /**
+     * @var float Default length
+     */
+    public $defaultLength;
+
+    /**
+     * @var float Default width
+     */
+    public $defaultWidth;
+
+    /**
+     * @var float Default weight
+     */
+    public $defaultWeight;
+
+    /**
+     * @var ProductType Product type
+     */
+    public $type;
+
+    /**
+     * @var TaxCategory Tax category
+     */
+    public $taxCategory;
+
+    /**
+     * @var Variant[] Variants
+     */
+    public $variants;
+
+    /**
+     * @var string Name
+     */
+    public $name;
 
     // Public Methods
     // =============================================================================
@@ -282,9 +363,9 @@ class Product extends Element
     {
         $status = parent::getStatus();
 
-        if ($status == static::ENABLED && $this->postDate) {
+        if ($status === Element::STATUS_ENABLED && $this->postDate) {
             $currentTime = DateTimeHelper::currentTimeStamp();
-            $postDate = $this->postDate->getTimestamp();
+            $postDate = DateTimeHelper::toDateTime($this->postDate)->getTimestamp();
             $expiryDate = ($this->expiryDate ? $this->expiryDate->getTimestamp() : null);
 
             if ($postDate <= $currentTime && (!$expiryDate || $expiryDate > $currentTime)) {
@@ -411,7 +492,7 @@ class Product extends Element
     {
         return 'product';
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -422,27 +503,27 @@ class Product extends Element
 
         switch ($attribute) {
             case 'type': {
-                return ($productType ? Craft::t($productType->name) : '');
+                return ($productType ? Craft::t('site', $productType->name) : '');
             }
 
             case 'taxCategory': {
                 $taxCategory = $this->getTaxCategory();
 
-                return ($taxCategory ? Craft::t($taxCategory->name) : '');
+                return ($taxCategory ? Craft::t('site', $taxCategory->name) : '');
             }
             case 'shippingCategory': {
                 $shippingCategory = $this->getShippingCategory();
 
-                return ($shippingCategory ? Craft::t($shippingCategory->name) : '');
+                return ($shippingCategory ? Craft::t('site', $shippingCategory->name) : '');
             }
             case 'defaultPrice': {
                 $code = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
 
-                return craft()->numberFormatter->formatCurrency($this->$attribute, strtoupper($code));
+                return Craft::$app->getLocale()->getFormatter()->asCurrency($this->$attribute, strtoupper($code));
             }
             case 'defaultWeight': {
                 if ($productType->hasDimensions) {
-                    return craft()->numberFormatter->formatDecimal($this->$attribute)." ".Plugin::getInstance()->getSettings()->getSettings()->weightUnits;
+                    return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->getSettings()->weightUnits;
                 }
 
                 return '';
@@ -451,7 +532,7 @@ class Product extends Element
             case 'defaultWidth':
             case 'defaultHeight': {
                 if ($productType->hasDimensions) {
-                    return craft()->numberFormatter->formatDecimal($this->$attribute)." ".Plugin::getInstance()->getSettings()->getSettings()->dimensionUnits;
+                    return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->getSettings()->dimensionUnits;
                 }
 
             return '';
@@ -566,7 +647,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    protected static function defineSources($context = null): array
+    protected static function defineSources(string $context = null): array
     {
         if ($context == 'index') {
             $productTypes = Plugin::getInstance()->getProductTypes()->getEditableProductTypes();
@@ -583,9 +664,13 @@ class Product extends Element
         }
 
         $sources = [
-            '*' => [
+            [
+                'key' => '*',
                 'label' => Craft::t('commerce', 'All products'),
-                'criteria' => ['typeId' => $productTypeIds, 'editable' => $editable],
+                'criteria' => [
+                    'typeId' => $productTypeIds,
+                    'editable' => $editable
+                ],
                 'defaultSort' => ['postDate', 'desc']
             ]
         ];
@@ -597,6 +682,7 @@ class Product extends Element
             $canEditProducts = Craft::$app->getUser()->checkPermission('commerce-manageProductType:'.$productType->id);
 
             $sources[$key] = [
+                'key' => 'producttype:'.$productType->id,
                 'label' => $productType->name,
                 'data' => [
                     'handle' => $productType->handle,
@@ -612,7 +698,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    protected static function defineActions($source = null): array
+    protected static function defineActions(string $source = null): array
     {
         // Get the section(s) we need to check permissions on
         switch ($source) {
@@ -643,29 +729,18 @@ class Product extends Element
 
             if ($canManage) {
                 // Allow deletion
-                $deleteAction = Craft::$app->getElements()->getAction('DeleteProduct');
-                $deleteAction->setParams([
+                $deleteAction = Craft::$app->getElements()->createAction([
+                    'type' => DeleteProduct::class,
                     'confirmationMessage' => Craft::t('commerce', 'Are you sure you want to delete the selected product and its variants?'),
                     'successMessage' => Craft::t('commerce', 'Products and Variants deleted.'),
                 ]);
                 $actions[] = $deleteAction;
-
-                // Allow setting status
-                $setStatusAction = Craft::$app->getElements()->getAction('SetStatus');
-                $setStatusAction->onSetStatus = function(Event $event) {
-                    if ($event->params['status'] == BaseElementModel::ENABLED) {
-                        // Set a Post Date as well
-                        Craft::$app->getDb()->createCommand()->update('entries',
-                            ['postDate' => DateTimeHelper::currentTimeForDb()],
-                            ['and', ['in', 'id', $event->params['elementIds']], 'postDate is null']);
-                    }
-                };
-                $actions[] = $setStatusAction;
+                $actions[] = SetStatus::class;;
             }
 
             if ($userSessionService->checkPermission('commerce-managePromotions')) {
-                $actions[] = Craft::$app->getElements()->getAction('CreateSale');
-                $actions[] = Craft::$app->getElements()->getAction('CreateDiscount');
+                $actions[] = CreateSale::class;
+                $actions[] = CreateDiscount::class;
             }
         }
 
@@ -703,7 +778,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    protected static function defineDefaultTableAttributes($source): array
+    protected static function defineDefaultTableAttributes(string $source): array
     {
         $attributes = [];
 

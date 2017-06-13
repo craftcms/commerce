@@ -8,9 +8,10 @@
 namespace craft\commerce\events;
 
 use craft\commerce\elements\Order;
+use Omnipay\Common\ItemBag;
 use yii\base\Event;
 
-class OrderEvent extends Event
+class ItemBagEvent extends Event
 {
     /**
      * @var Order The order
@@ -18,7 +19,7 @@ class OrderEvent extends Event
     public $order;
 
     /**
-     * @var bool If this is a new order
+     * @var ItemBag The item bag
      */
-    public $isNew;
+    public $items;
 }

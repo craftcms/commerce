@@ -295,8 +295,6 @@ class Emails extends Component
             return;
         }
 
-        Craft::$app->getPlugins()->callFirst('commerce_modifyEmail', [&$newEmail, $order]);
-
         try {
             //raising event
             $event = new MailEvent([

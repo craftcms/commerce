@@ -7,18 +7,17 @@
 
 namespace craft\commerce\events;
 
-use craft\commerce\elements\Order;
 use yii\base\Event;
 
-class OrderEvent extends Event
+class SendPaymentRequestEvent extends Event
 {
     /**
-     * @var Order The order
+     * @var mixed Request data
      */
-    public $order;
+    public $requestData;
 
     /**
-     * @var bool If this is a new order
+     * @var mixed Modified request data
      */
-    public $isNew;
+    public $modifiedRequestData;
 }
