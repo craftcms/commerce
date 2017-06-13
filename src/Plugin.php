@@ -48,8 +48,6 @@ class Plugin extends \craft\base\Plugin
     public function init()
     {
         parent::init();
-
-        Craft::$app->getView()->hook('commerce.prepareCpTemplate', [$this, 'getCpSubNav']);
         $this->_init();
     }
 
@@ -93,46 +91,35 @@ class Plugin extends \craft\base\Plugin
             'iconSvg' => $iconSvg
         ];
 
-        return $navItems;
-    }
-
-    /**
-     * Add the subnav to the control panel.
-     * 
-     * @param $context Twig context
-     *                      
-     * @return void
-     */
-    public function getCpSubNav(&$context) {
         if (Craft::$app->getUser()->checkPermission('commerce-manageOrders')) {
-            $context['subnav']['orders'] = [
+            $navItems['subnav']['orders'] = [
                 'label' => Craft::t('commerce', 'Orders'),
                 'url' => 'commerce/orders'
             ];
         }
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageProducts')) {
-            $context['subnav']['products'] = [
+            $navItems['subnav']['products'] = [
                 'label' => Craft::t('commerce', 'Products'),
                 'url' => 'commerce/products'
             ];
         }
 
         if (Craft::$app->getUser()->checkPermission('commerce-managePromotions')) {
-            $context['subnav']['promotions'] = [
+            $navItems['subnav']['promotions'] = [
                 'label' => Craft::t('commerce', 'Promotions'),
                 'url' => 'commerce/promotions'
             ];
         }
 
         if (Craft::$app->user->identity->admin) {
-            $context['subnav']['settings'] = [
+            $navItems['subnav']['settings'] = [
                 'label' => Craft::t('commerce', 'Settings'),
                 'url' => 'commerce/settings'
             ];
         }
 
-        return;
+        return $navItems;
     }
 
     // Protected Methods
