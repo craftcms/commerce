@@ -10,8 +10,9 @@ use craft\commerce\models\State;
 use craft\commerce\Plugin;
 use craft\commerce\records\Address as AddressRecord;
 use craft\commerce\records\Customer;
+use craft\db\Query;
+use craft\helpers\ArrayHelper;
 use yii\base\Component;
-use yii\base\Event;
 use yii\base\Exception;
 
 /**
@@ -49,7 +50,7 @@ class Addresses extends Component
      */
     public function getAddressById(int $id)
     {
-        $result = AddressRecord::find()->where(['id' => $id])->one();
+        $result = AddressRecord::findOne($id);
 
         if ($result) {
             return $this->_createAddressFromAddressRecord($result);
@@ -63,13 +64,15 @@ class Addresses extends Component
      *
      * @return Address[]
      */
-    public function getAddressesByCustomerId(int $id)
+    public function getAddressesByCustomerId(int $id): array
     {
         /** @var Customer $record */
         $record = Customer::find()->with('addresses')->where(['id' => $id])->all();
-        $addresses = $record ? $record->addresses : [];
+        $addresses = $record ? $record->getAddresses() : [];
 
-        return Address::populateModels($addresses);
+        return ArrayHelper::map($addresses, 'id', function($item) {
+            return $this->_createAddressFromAddressRecord($item);
+        });
     }
 
     /**
@@ -190,17 +193,17 @@ class Addresses extends Component
     /**
      * Creates a Address with attributes from a AddressRecord.
      *
-     * @param AddressRecord|null $addressRecord
+     * @param AddressRecord|null $record
      *
      * @return Address|null
      */
-    private function _createAddressFromAddressRecord(AddressRecord $addressRecord = null)
+    private function _createAddressFromAddressRecord(AddressRecord $record = null)
     {
-        if (!$addressRecord) {
+        if (!$record) {
             return null;
         }
 
-        return new Address($addressRecord->toArray([
+        return new Address($record->toArray([
             'id',
             'attention',
             'title',

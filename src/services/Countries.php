@@ -30,7 +30,7 @@ class Countries extends Component
         $result = CountryRecord::findOne($id);
 
         if ($result) {
-            return new Country($result);
+            return $this->_createCountryFromCountryRecord($result);
         }
 
         return null;
@@ -46,7 +46,7 @@ class Countries extends Component
         $result = CountryRecord::find()->where($attr)->one();
 
         if ($result) {
-            return new Country($result);
+            return $this->_createCountryFromCountryRecord($result);
         }
 
         return null;
@@ -57,7 +57,7 @@ class Countries extends Component
      *
      * @return array [id => name]
      */
-    public function getAllCountriesListData()
+    public function getAllCountriesListData(): array
     {
         $countries = $this->getAllCountries();
 
@@ -71,7 +71,9 @@ class Countries extends Component
     {
         $records = CountryRecord::find()->orderBy('name')->all();
 
-        return Country::populateModels($records);
+        return ArrayHelper::map($records, 'id', function($record){
+           return $this->_createCountryFromCountryRecord($record);
+        });
     }
 
     /**
@@ -80,7 +82,7 @@ class Countries extends Component
      * @return bool
      * @throws Exception
      */
-    public function saveCountry(Country $model)
+    public function saveCountry(Country $model): bool
     {
         if ($model->id) {
             $record = CountryRecord::findOne($model->id);
@@ -114,9 +116,7 @@ class Countries extends Component
     }
 
     /**
-     * @param int $id
-     *
-     * @throws \CDbException
+     * @param $id
      */
     public function deleteCountryById($id)
     {
@@ -124,5 +124,29 @@ class Countries extends Component
         if ($country) {
             $country->delete();
         }
+    }
+
+    // Private Methods
+    // =========================================================================
+
+    /**
+     * Creates a Country with attributes from a CountryRecord.
+     *
+     * @param CountryRecord|null $record
+     *
+     * @return Country|null
+     */
+    private function _createCountryFromCountryRecord(CountryRecord $record = null)
+    {
+        if (!$record) {
+            return null;
+        }
+
+        return new Country($record->toArray([
+            'id',
+            'name',
+            'iso',
+            'stateRequired'
+        ]));
     }
 }

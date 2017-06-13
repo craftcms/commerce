@@ -12,6 +12,7 @@ use craft\commerce\records\Discount as DiscountRecord;
 use craft\commerce\records\DiscountProduct as DiscountProductRecord;
 use craft\commerce\records\DiscountProductType as DiscountProductTypeRecord;
 use craft\commerce\records\DiscountUserGroup as DiscountUserGroupRecord;
+use craft\helpers\ArrayHelper;
 use yii\base\Component;
 
 /**
@@ -45,10 +46,11 @@ class Discounts extends Component
      */
     public function getAllDiscounts()
     {
-        $records = DiscountRecord::find();
-        $records->orderBy('sortOrder');
+        $records = DiscountRecord::find()->orderBy('sortOrder')->all();
 
-        return Discount::populateModels($records->all());
+        return ArrayHelper::map($records, 'id', function($record){
+            return $this->_createDiscountFromDiscountRecord($record);
+        });
     }
 
     /**
@@ -430,4 +432,46 @@ class Discounts extends Component
         }
     }
 
+    // Private Methods
+    // =========================================================================
+
+    /**
+     * Creates a Discount with attributes from a DiscountRecord.
+     *
+     * @param DiscountRecord|null $record
+     *
+     * @return Discount|null
+     */
+    private function _createDiscountFromDiscountRecord(DiscountRecord $record = null)
+    {
+        if (!$record) {
+            return null;
+        }
+
+        return new Discount($record->toArray([
+            'name',
+            'description',
+            'code',
+            'perUserLimit',
+            'perEmailLimit',
+            'totalUseLimit',
+            'totalUses',
+            'dateFrom',
+            'dateTo',
+            'purchaseTotal',
+            'purchaseQty',
+            'maxPurchaseQty',
+            'baseDiscount',
+            'perItemDiscount',
+            'percentDiscount',
+            'excludeOnSale',
+            'freeShipping',
+            'allGroups',
+            'allProducts',
+            'allProductTypes',
+            'enabled',
+            'stopProcessing',
+            'sortOrder'
+        ]));
+    }
 }

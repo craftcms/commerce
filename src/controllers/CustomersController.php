@@ -23,7 +23,7 @@ class CustomersController extends BaseCpController
      */
     public function actionIndex()
     {
-        $customers = Plugin::getInstance()->getCustomers()->getAllCustomers(['with' => 'user']);
+        $customers = Plugin::getInstance()->getCustomers()->getAllCustomers();
         $this->renderTemplate('commerce/customers/index', compact('customers'));
     }
 

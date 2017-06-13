@@ -3,6 +3,8 @@
 namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;
+use craft\records\Element;
+use yii\db\ActiveQueryInterface;
 
 /**
  * Product record.
@@ -46,6 +48,16 @@ class Product extends ActiveRecord
         return '{{%commerce_products}}';
     }
 
+    /**
+     * Returns the product’s element.
+     *
+     * @return ActiveQueryInterface The relational query object.
+     */
+    public function getElement(): ActiveQueryInterface
+    {
+        return $this->hasOne(Element::class, ['id' => 'id']);
+    }
+
 //    /**
 //     * @return array
 //     */
@@ -81,38 +93,4 @@ class Product extends ActiveRecord
 //            ],
 //        ];
 //    }
-//
-//    /**
-//     * @return array
-//     */
-//    public function defineIndexes()
-//    {
-//        return [
-//            ['columns' => ['typeId']],
-//            ['columns' => ['postDate']],
-//            ['columns' => ['expiryDate']],
-//        ];
-//    }
-//
-//    /**
-//     * @return array
-//     */
-//    protected function defineAttributes()
-//    {
-//        return [
-//            'postDate' => AttributeType::DateTime,
-//            'expiryDate' => AttributeType::DateTime,
-//            'promotable' => AttributeType::Bool,
-//            'freeShipping' => AttributeType::Bool,
-//
-//            'defaultVariantId' => [AttributeType::Number, 'unsigned' => true],
-//            'defaultSku' => [AttributeType::String, 'label' => 'SKU'],
-//            'defaultPrice' => [AttributeType::Number, 'decimals' => 4],
-//            'defaultHeight' => [AttributeType::Number, 'decimals' => 4],
-//            'defaultLength' => [AttributeType::Number, 'decimals' => 4],
-//            'defaultWidth' => [AttributeType::Number, 'decimals' => 4],
-//            'defaultWeight' => [AttributeType::Number, 'decimals' => 4]
-//        ];
-//    }
-
 }

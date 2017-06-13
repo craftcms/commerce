@@ -9,6 +9,7 @@ use craft\commerce\models\Email;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
+use craft\helpers\ArrayHelper;
 use craft\mail\Message;
 use yii\base\Component;
 
@@ -62,22 +63,22 @@ class Emails extends Component
      *
      * @return Email[]
      */
-    public function getAllEmails()
+    public function getAllEmails(): array
     {
         $records = EmailRecord::find()->orderBy('name')->all();
 
-        return Email::populateModels($records);
+        return ArrayHelper::map($records, 'id', function($record){
+            return $this->_createEmailFromEmailRecord($record);
+        });
     }
 
     /**
      * @param Email $model
      *
      * @return bool
-     * @throws Exception
-     * @throws \CDbException
      * @throws \Exception
      */
-    public function saveEmail(Email $model)
+    public function saveEmail(Email $model): bool
     {
         if ($model->id) {
             $record = EmailRecord::findOne($model->id);
@@ -347,5 +348,30 @@ class Emails extends Component
         // Restore original values
         Craft::$app->language = $originalLanguage;
         $templatesService->setTemplateMode($oldTemplateMode);
+    }
+
+    // Private Methods
+    // =========================================================================
+
+    /**
+     * Creates a Email with attributes from a EmailRecord.
+     *
+     * @param EmailRecord|null $record
+     *
+     * @return Email|null
+     */
+    private function _createEmailFromEmailRecord(EmailRecord $record = null)
+    {
+        if (!$record) {
+            return null;
+        }
+
+        return new Customer($record->toArray([
+            'id',
+            'userId',
+            'lastUsedBillingAddressId',
+            'lastUsedShippingAddressId',
+            'email'
+        ]));
     }
 }

@@ -3,7 +3,7 @@
 namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;
-use craft\records\User;
+use yii\db\ActiveQueryInterface;
 
 /**
  * Customer record.
@@ -15,8 +15,8 @@ use craft\records\User;
  * @property int       $lastUsedShippingAddressId
  *
  * @property Address[] $addresses
+ * @property CustomerAddress[] $customerAddresses
  * @property Order[]   $orders
- * @property User      $user
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -32,53 +32,23 @@ class Customer extends ActiveRecord
      *
      * @return string
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return '{{%commerce_customers}}';
     }
 
-    public function getAddresses()
+    public function getAddresses(): ActiveQueryInterface
     {
-        return $this->hasMany(Address::class, ['customerId' => 'id']);
+        return $this->hasMany(Address::class, ['id' => 'addressId'])->via('customerAddresses');
     }
 
-//    /**
-//     * @return array
-//     */
-//    public function defineRelations()
-//    {
-//        return [
-//            'user' => [static::BELONGS_TO, 'User'],
-//            'customersaddresses' => [
-//                static::HAS_MANY,
-//                'CustomerAddress',
-//                'customerId'
-//            ],
-//            'addresses' => [
-//                static::HAS_MANY,
-//                'Address',
-//                ['addressId' => 'id'],
-//                'through' => 'customersaddresses'
-//            ],
-//            'orders' => [
-//                static::HAS_MANY,
-//                'Order',
-//                'customerId'
-//            ],
-//        ];
-//    }
-//
-//    /**
-//     * @inheritDoc BaseRecord::defineAttributes()
-//     *
-//     * @return array
-//     */
-//    protected function defineAttributes()
-//    {
-//        return [
-//            'email' => AttributeType::Email,
-//            'lastUsedBillingAddressId' => AttributeType::Number,
-//            'lastUsedShippingAddressId' => AttributeType::Number
-//        ];
-//    }
+    public function getCustomerAddresses(): ActiveQueryInterface
+    {
+        return $this->hasMany(CustomerAddress::class, ['customerId' => 'id']);
+    }
+
+    public function getOrders(): ActiveQueryInterface
+    {
+        return $this->hasMany(Order::class, ['id' => 'customerId']);
+    }
 }

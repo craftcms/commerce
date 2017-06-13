@@ -50,7 +50,7 @@ class Customers extends Component
      *
      * @return Customer|null
      */
-    public function getCustomerById($id)
+    public function getCustomerById(int $id)
     {
         $result = CustomerRecord::findOne($id);
 
@@ -227,7 +227,9 @@ class Customers extends Component
     {
         $results = CustomerRecord::find()->where(['email' => $email])->all();
 
-        return Customer::populateModels($results);
+        return ArrayHelper::map($results, 'id', function($record){
+            return $this->_createCustomerFromCustomerRecord($record);
+        });
     }
 
     /**

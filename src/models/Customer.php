@@ -108,7 +108,7 @@ class Customer extends Model
     public function getLastUsedBillingAddress()
     {
         if ($this->lastUsedBillingAddressId) {
-            $address = $this->getAddress($this->lastUsedBillingAddressId);
+            $address = Plugin::getInstance()->getAddresses()->getAddressById($this->lastUsedBillingAddressId);
             if ($address) {
                 return $address;
             }
@@ -117,24 +117,6 @@ class Customer extends Model
         return null;
     }
 
-    /**
-     * Gets a single address of a customer by id
-     *
-     * @param null $id
-     *
-     * @return mixed
-     */
-    public function getAddress($id = null)
-    {
-        $addresses = Plugin::getInstance()->getAddresses()->getAddressesByCustomerId($this->id);
-        foreach ($addresses as $address) {
-            if ($id == $address->id) {
-                return $address;
-            }
-        }
-
-        return null;
-    }
 
     /**
      * Returns the last used Shipping Address used by the customer if it exists.
@@ -144,7 +126,7 @@ class Customer extends Model
     public function getLastUsedShippingAddress()
     {
         if ($this->lastUsedShippingAddressId) {
-            $address = $this->getAddress($this->lastUsedShippingAddressId);
+            $address = Plugin::getInstance()->getAddresses()->getAddressById($this->lastUsedShippingAddressId);
             if ($address) {
                 return $address;
             }

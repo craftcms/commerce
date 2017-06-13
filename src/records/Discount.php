@@ -4,6 +4,7 @@ namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;
 use craft\records\UserGroup;
+use yii\db\ActiveQueryInterface;
 
 /**
  * Discount record.
@@ -54,149 +55,33 @@ class Discount extends ActiveRecord
         return '{{%commerce_discounts}}';
     }
 
+    public function getDiscountUserGroups(): ActiveQueryInterface
+    {
+        return $this->hasMany(DiscountUserGroup::class, ['discountId' => 'id']);
+    }
 
+    public function getDiscountProducts(): ActiveQueryInterface
+    {
+        return $this->hasMany(DiscountProduct::class, ['discountId' => 'id']);
+    }
 
-//    /**
-//     * @return array
-//     */
-//    public function defineRelations()
-//    {
-//        return [
-//            'groups' => [
-//                static::MANY_MANY,
-//                'UserGroup',
-//                'commerce_discount_usergroups(discountId, userGroupId)'
-//            ],
-//            'products' => [
-//                static::MANY_MANY,
-//                'Product',
-//                'commerce_discount_products(discountId, productId)'
-//            ],
-//            'productTypes' => [
-//                static::MANY_MANY,
-//                'ProductType',
-//                'commerce_discount_producttypes(discountId, productTypeId)'
-//            ],
-//        ];
-//    }
-//
-//    /**
-//     * @return array
-//     */
-//    public function defineIndexes()
-//    {
-//        return [
-//            ['columns' => ['code'], 'unique' => true],
-//            ['columns' => ['dateFrom']],
-//            ['columns' => ['dateTo']],
-//        ];
-//    }
-//
-//    /**
-//     * @return array
-//     */
-//    protected function defineAttributes()
-//    {
-//        return [
-//            'name' => [AttributeType::Name, 'required' => true],
-//            'description' => AttributeType::Mixed,
-//            'code' => AttributeType::String,
-//            'perUserLimit' => [
-//                AttributeType::Number,
-//                'required' => true,
-//                'min' => 0,
-//                'default' => 0
-//            ],
-//            'perEmailLimit' => [
-//                AttributeType::Number,
-//                'required' => true,
-//                'min' => 0,
-//                'default' => 0
-//            ],
-//            'totalUseLimit' => [
-//                AttributeType::Number,
-//                'required' => true,
-//                'min' => 0,
-//                'default' => 0
-//            ],
-//            'totalUses' => [
-//                AttributeType::Number,
-//                'required' => true,
-//                'min' => 0,
-//                'default' => 0
-//            ],
-//            'dateFrom' => AttributeType::DateTime,
-//            'dateTo' => AttributeType::DateTime,
-//            'purchaseTotal' => [
-//                AttributeType::Number,
-//                'required' => true,
-//                'default' => 0
-//            ],
-//            'purchaseQty' => [
-//                AttributeType::Number,
-//                'required' => true,
-//                'default' => 0
-//            ],
-//            'maxPurchaseQty' => [
-//                AttributeType::Number,
-//                'required' => true,
-//                'default' => 0
-//            ],
-//            'baseDiscount' => [
-//                AttributeType::Number,
-//                'decimals' => 4,
-//                'required' => true,
-//                'default' => 0
-//            ],
-//            'perItemDiscount' => [
-//                AttributeType::Number,
-//                'decimals' => 4,
-//                'required' => true,
-//                'default' => 0
-//            ],
-//            'percentDiscount' => [
-//                AttributeType::Number,
-//                'decimals' => 4,
-//                'required' => true,
-//                'default' => 0
-//            ],
-//            'excludeOnSale' => [
-//                AttributeType::Bool,
-//                'required' => true,
-//                'default' => 0
-//            ],
-//            'freeShipping' => [
-//                AttributeType::Bool,
-//                'required' => true,
-//                'default' => 0
-//            ],
-//            'allGroups' => [
-//                AttributeType::Bool,
-//                'required' => true,
-//                'default' => 0
-//            ],
-//            'allProducts' => [
-//                AttributeType::Bool,
-//                'required' => true,
-//                'default' => 0
-//            ],
-//            'allProductTypes' => [
-//                AttributeType::Bool,
-//                'required' => true,
-//                'default' => 0
-//            ],
-//            'enabled' => [
-//                AttributeType::Bool,
-//                'required' => true,
-//                'default' => 1
-//            ],
-//            'stopProcessing' => [
-//                AttributeType::Bool,
-//                'required' => true,
-//                'default' => false
-//            ],
-//            'sortOrder' => AttributeType::Number
-//        ];
-//    }
+    public function getDiscountProductTypes(): ActiveQueryInterface
+    {
+        return $this->hasMany(DiscountProductType::class, ['discountId' => 'id']);
+    }
 
+    public function getGroups(): ActiveQueryInterface
+    {
+        return $this->hasMany(UserGroup::class, ['id' => 'discountId'])->via('discountUserGroups');
+    }
+
+    public function getProducts(): ActiveQueryInterface
+    {
+        return $this->hasMany(Product::class, ['id' => 'discountId'])->via('discountProducts');
+    }
+
+    public function getProductTypes(): ActiveQueryInterface
+    {
+        return $this->hasMany(ProductType::class, ['id' => 'discountId'])->via('discountProductTypes');
+    }
 }

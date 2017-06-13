@@ -27,43 +27,4 @@ class CustomerAddress extends ActiveRecord
     {
         return "commerce_customers_addresses";
     }
-
-//    /**
-//     * @return array
-//     */
-//    public function defineIndexes()
-//    {
-//        return [
-//            ['columns' => ['customerId']],
-//            ['columns' => ['addressId']],
-//            ['columns' => ['customerId', 'addressId'], 'unique' => true],
-//        ];
-//    }
-
-
-//    /**
-//     * @inheritDoc BaseRecord::defineRelations()
-//     *
-//     * @return array
-//     */
-//    public function defineRelations()
-//    {
-//        return [
-//            'customer' => [
-//                static::BELONGS_TO,
-//                'Customer',
-//                'onDelete' => self::CASCADE,
-//                'onUpdate' => self::CASCADE,
-//                'required' => true
-//            ],
-//            'address' => [
-//                static::BELONGS_TO,
-//                'Address',
-//                'onDelete' => self::CASCADE,
-//                'onUpdate' => self::CASCADE,
-//                'required' => true
-//            ],
-//        ];
-//    }
-
 }

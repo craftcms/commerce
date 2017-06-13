@@ -8,10 +8,11 @@ use yii\db\ActiveQueryInterface;
 /**
  * Country record.
  *
- * @property int    $id
- * @property string $name
- * @property string $iso
- * @property bool   $stateRequired
+ * @property int     $id
+ * @property string  $name
+ * @property string  $iso
+ * @property bool    $stateRequired
+ * @property State[] $states
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -26,7 +27,7 @@ class Country extends ActiveRecord
     /**
      * @return string
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return '{{%commerce_countries}}';
     }
@@ -36,38 +37,8 @@ class Country extends ActiveRecord
      *
      * @return ActiveQueryInterface The relational query object.
      */
-    public function getStates()
+    public function getStates(): ActiveQueryInterface
     {
         return $this->hasMany(State::class, ['id', 'countryId']);
     }
-    /**
-     * @return array
-     */
-//    public function defineIndexes()
-//    {
-//        return [
-//            ['columns' => ['name'], 'unique' => true],
-//            ['columns' => ['iso'], 'unique' => true],
-//        ];
-//    }
-
-    /**
-     * @return array
-     */
-//    protected function defineAttributes()
-//    {
-//        return [
-//            'name' => [AttributeType::String, 'required' => true],
-//            'iso' => [
-//                AttributeType::String,
-//                'required' => true,
-//                'maxLength' => 2
-//            ],
-//            'stateRequired' => [
-//                AttributeType::Bool,
-//                'required' => true,
-//                'default' => 0
-//            ],
-//        ];
-//    }
 }

@@ -87,7 +87,7 @@ class CustomerAddressesController extends BaseFrontEndController
             $this->redirectToPostedUrl();
         } else {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
-                $this->asJson(['error' => $address->getAllErrors()]);
+                $this->asJson(['error' => $address->errors]);
             }
             Craft::$app->getUrlManager()->setRouteParams([
                 'address' => $address,
