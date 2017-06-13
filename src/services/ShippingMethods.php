@@ -83,7 +83,7 @@ class ShippingMethods extends Component
      */
     public function getAllShippingMethods()
     {
-        // TODO this will change when shupping methods are refactored.
+        // TODO this will change when shipping methods are refactored.
         if (null === $this->_shippingMethods) {
             $shippingMethods = ShippingMethod::populateModels(ShippingMethodRecord::findAll());
 
