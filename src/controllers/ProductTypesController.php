@@ -29,9 +29,22 @@ class ProductTypesController extends BaseAdminController
             compact('productTypes'));
     }
 
-    public function actionEditProductType(array $variables = [])
+    /**
+     * @param int|null         $productTypeId
+     * @param ProductType|null $productType
+     *
+     * @throws HttpException
+     */
+    public function actionEditProductType(int $productTypeId = null, ProductType $productType = null)
     {
-        if (!Craft::$app->getUser()->getUser()->can('manageCommerce')) {
+        $variables = [
+            'productTypeId' => $productTypeId,
+            'productType' => $productType,
+        ];
+
+        $currentUser = Craft::$app->getUser()->getIdentity();
+
+        if (!$currentUser->can('manageCommerce')) {
             throw new HttpException(403, Craft::t('commerce', 'This action is not allowed for the current user.'));
         }
 
@@ -62,7 +75,9 @@ class ProductTypesController extends BaseAdminController
 
     public function actionSaveProductType()
     {
-        if (!Craft::$app->getUser()->getUser()->can('manageCommerce')) {
+        $currentUser = Craft::$app->getUser()->getIdentity();
+
+        if (!$currentUser->can('manageCommerce')) {
             throw new HttpException(403, Craft::t('commerce', 'This action is not allowed for the current user.'));
         }
 

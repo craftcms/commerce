@@ -2,6 +2,7 @@
 
 namespace craft\commerce\services;
 
+use craft\commerce\adjusters\Shipping;
 use craft\commerce\models\ShippingCategory;
 use craft\commerce\records\ShippingCategory as ShippingCategoryRecord;
 use yii\base\Component;
@@ -136,10 +137,10 @@ class ShippingCategories extends Component
      *
      * @return ShippingCategory[]
      */
-    public function getAllShippingCategories($indexBy = null)
+    public function getAllShippingCategories($indexBy = null): array
     {
         if (!$this->_fetchedAllShippingCategories) {
-            $results = ShippingCategoryRecord::findAll();
+            $results = ShippingCategoryRecord::find()->all();
 
             foreach ($results as $result) {
                 $this->_populateShippingCategory($result);
@@ -171,7 +172,7 @@ class ShippingCategories extends Component
      * @throws \CDbException
      * @throws \Exception
      */
-    public function saveShippingCategory(ShippingCategory $model)
+    public function saveShippingCategory(ShippingCategory $model): bool
     {
         if ($model->id) {
             $record = ShippingCategoryRecord::findOne($model->id);

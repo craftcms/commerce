@@ -8,10 +8,12 @@ use craft\commerce\models\ProductType;
 use craft\commerce\models\ProductTypeSite;
 use craft\commerce\models\ShippingCategory;
 use craft\commerce\models\TaxCategory;
+use craft\commerce\Plugin;
 use craft\commerce\records\Product as ProductRecord;
 use craft\commerce\records\ProductType as ProductTypeRecord;
 use craft\commerce\records\ProductTypeSite as ProductTypeSiteRecord;
 use craft\db\Query;
+use craft\helpers\ArrayHelper;
 use craft\tasks\ResaveElements;
 use yii\base\Component;
 
@@ -118,17 +120,17 @@ class ProductTypes extends Component
      *
      * @return ProductType[]
      */
-    public function getAllProductTypes($indexBy = null)
+    public function getAllProductTypes($indexBy = null): array
     {
         if (!$this->_fetchedAllProductTypes) {
-            $results = $this->_createProductTypeQuery()->all();
+            $results = ProductTypeRecord::find()->all();
 
             if (null === $this->_productTypesById) {
                 $this->_productTypesById = [];
             }
 
             foreach ($results as $result) {
-                $productType = new ProductType($result);
+                $productType = $this->_createProductTypeFromProductTypeRecord($result);
                 $this->_productTypesById[$productType->id] = $productType;
             }
 
@@ -150,44 +152,18 @@ class ProductTypes extends Component
     }
 
     /**
-     * Returns a DbCommand object prepped for retrieving product types.
-     *
-     * @return Query
-     */
-    private function _createProductTypeQuery(): Query
-    {
-        return (new Query())
-            ->select([
-                'id',
-                'name',
-                'handle',
-                'hasUrls',
-                'hasDimensions',
-                'hasVariants',
-                'hasVariantTitleField',
-                'titleFormat',
-                'skuFormat',
-                'descriptionFormat',
-                'template',
-                'fieldLayoutId',
-                'variantFieldLayoutId',
-            ])
-            ->from(['{{%commerce_producttypes}}']);
-    }
-
-    /**
      * @param string $handle
      *
      * @return ProductType|null
      */
     public function getProductTypeByHandle($handle)
     {
-        $result = $this->_createProductTypeQuery()
+        $result = ProductTypeRecord::find()
             ->where('handle = :handle', [':handle' => $handle])
             ->one();
 
         if ($result) {
-            $productType = new ProductType($result);
+            $productType = $this->_createProductTypeFromProductTypeRecord($result);
             $this->_productTypesById[$productType->id] = $productType;
 
             return $productType;
@@ -212,20 +188,24 @@ class ProductTypes extends Component
 
     /**
      * @param      $productTypeId
-     * @param null $indexBy
      *
      * @return array
      */
-    public function getProductTypeShippingCategories($productTypeId, $indexBy = null)
+    public function getShippingCategoriesByProductId($productTypeId): array
     {
-        $productType = ProductTypeRecord::find()->with('shippingCategories')->where(['id' => $productTypeId])->all();
+        $productType = ProductTypeRecord::find()->with('shippingCategories')->where(['id' => $productTypeId])->one();
         if ($productType && $productType->shippingCategories) {
             $shippingCategories = $productType->shippingCategories;
         } else {
             $shippingCategories = [Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory()];
         }
 
-        return ShippingCategory::populateModels($shippingCategories, $indexBy);
+        return ArrayHelper::map($shippingCategories, 'id', function($record){
+            return new ShippingCategory($record->toArray([
+
+            ]));
+        });
+
     }
 
     /**
@@ -236,7 +216,7 @@ class ProductTypes extends Component
      */
     public function getProductTypeTaxCategories($productTypeId, $indexBy = null): array
     {
-        $productType = ProductTypeRecord::find()->where(['id' => $productTypeId])->one();
+        $productType = ProductTypeRecord::find()->with('taxCategories')->where(['id' => $productTypeId])->one();
 
         if ($productType && $productType->taxCategories) {
             $taxCategories = $productType->taxCategories;
@@ -268,7 +248,7 @@ class ProductTypes extends Component
             }
 
             /** @var ProductType[] $oldProductType */
-            $oldProductType = ProductType::populateModel($productTypeRecord);
+            $oldProductType = $this->_createProductTypeFromProductTypeRecord($productTypeRecord);
             $isNewProductType = false;
         } else {
             $productTypeRecord = new ProductTypeRecord();
@@ -654,12 +634,12 @@ class ProductTypes extends Component
     {
 
         if (!$this->_fetchedAllProductTypes && ((null === $this->_productTypesById) || !array_key_exists($productTypeId, $this->_productTypesById))) {
-            $result = $this->_createProductTypeQuery()
+            $result = ProductTypeRecord::find()
                 ->where('id = :id', [':id' => $productTypeId])
                 ->one();
 
             if ($result) {
-                $productType = new ProductType($result);
+                $productType = $this->_createProductTypeFromProductTypeRecord($result);
             } else {
                 $productType = null;
             }
@@ -731,5 +711,35 @@ class ProductTypes extends Component
         }
 
         return true;
+    }
+
+    /**
+     * Creates a ProductType with attributes from a ProductTypeRecord.
+     *
+     * @param ProductTypeRecord|null $record
+     *
+     * @return ProductType|null
+     */
+    private function _createProductTypeFromProductTypeRecord(ProductTypeRecord $record = null)
+    {
+        if (!$record) {
+            return null;
+        }
+
+        return new ProductType($record->toArray([
+            'id',
+            'fieldLayoutId',
+            'variantFieldLayoutId',
+            'name',
+            'handle',
+            'hasUrls',
+            'hasDimensions',
+            'hasVariants',
+            'hasVariantTitleField',
+            'titleFormat',
+            'skuFormat',
+            'descriptionFormat',
+            'template'
+        ]));
     }
 }

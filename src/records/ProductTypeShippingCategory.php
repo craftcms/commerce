@@ -3,12 +3,13 @@
 namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;
+use yii\db\ActiveQueryInterface;
 
 /**
  * Product type shipping category record.
  *
  * @property int              $productTypeId
- * @property int              $localeId
+ * @property int              $siteId
  * @property string           $urlFormat
  *
  * @property ShippingCategory $shippingCategory
@@ -31,45 +32,24 @@ class ProductTypeShippingCategory extends ActiveRecord
      *
      * @return string
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return '{{%commerce_producttypes_shippingcategories}}';
     }
 
-//    /**
-//     * @inheritDoc BaseRecord::defineRelations()
-//     *
-//     * @return array
-//     */
-//    public function defineRelations()
-//    {
-//        return [
-//            'productType' => [
-//                static::BELONGS_TO,
-//                'ProductType',
-//                'required' => true,
-//                'onDelete' => static::CASCADE,
-//                'onUpdate' => self::CASCADE,
-//            ],
-//            'shippingCategory' => [
-//                static::BELONGS_TO,
-//                'ShippingCategory',
-//                'required' => true,
-//                'onDelete' => static::CASCADE,
-//                'onUpdate' => self::CASCADE,
-//            ]
-//        ];
-//    }
-//
-//    /**
-//     * @inheritDoc BaseRecord::defineIndexes()
-//     *
-//     * @return array
-//     */
-//    public function defineIndexes()
-//    {
-//        return [
-//            ['columns' => ['productTypeId', 'shippingCategoryId'], 'unique' => true],
-//        ];
-//    }
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getProductType(): ActiveQueryInterface
+    {
+        return $this->hasOne(ProductType::class, ['id', 'productTypeId']);
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getShippingCategory(): ActiveQueryInterface
+    {
+        return $this->hasOne(ShippingCategory::class, ['id', 'shippingCategoryId']);
+    }
 }

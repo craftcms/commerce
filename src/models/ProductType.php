@@ -189,16 +189,13 @@ class ProductType extends Model
     }
 
     /**
-     * @return \craft\commerce\models\ShippingCategory[]
+     *
+     * @return ShippingCategory[]
      */
-    public function getShippingCategories($asList = false)
+    public function getShippingCategories(): array
     {
         if (!$this->_shippingCategories) {
-            $this->_shippingCategories = Plugin::getInstance()->getProductTypes()->getProductTypeShippingCategories($this->id, 'id');
-        }
-
-        if ($asList) {
-            return ArrayHelper::map($this->_shippingCategories, 'id', 'name');
+            $this->_shippingCategories = Plugin::getInstance()->getProductTypes()->getShippingCategoriesByProductId($this->id);
         }
 
         return $this->_shippingCategories;

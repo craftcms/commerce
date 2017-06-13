@@ -9,21 +9,27 @@ use yii\db\ActiveQueryInterface;
 /**
  * Product type record.
  *
- * @property int         $id
- * @property string      $name
- * @property string      $handle
- * @property bool        $hasUrls
- * @property bool        $hasDimensions
- * @property bool        $hasVariants
- * @property bool        $hasVariantTitleField
- * @property string      $template
- * @property string      $titleFormat
- * @property string      $skuFormat
- * @property string      $descriptionFormat
- * @property int         $fieldLayoutId
- * @property int         $variantFieldLayoutId
+ * @property int                          $id
+ * @property string                       $name
+ * @property string                       $handle
+ * @property bool                         $hasUrls
+ * @property bool                         $hasDimensions
+ * @property bool                         $hasVariants
+ * @property bool                         $hasVariantTitleField
+ * @property string                       $template
+ * @property string                       $titleFormat
+ * @property string                       $skuFormat
+ * @property string                       $descriptionFormat
+ * @property int                          $fieldLayoutId
+ * @property int                          $variantFieldLayoutId
  *
- * @property FieldLayout $fieldLayout
+ * @property \yii\db\ActiveQueryInterface $shippingCategories
+ * @property \yii\db\ActiveQueryInterface $taxCategories
+ * @property \yii\db\ActiveQueryInterface $productTypesTaxCategories
+ * @property \yii\db\ActiveQueryInterface $variantFieldLayout
+ * @property \yii\db\ActiveQueryInterface $productTypesShippingCategories
+ *
+ * @property FieldLayout                  $fieldLayout
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -44,34 +50,34 @@ class ProductType extends ActiveRecord
 
     public function getProductTypesShippingCategories(): ActiveQueryInterface
     {
-        return $this->hasMany(ProductTypeShippingCategory::class, ['productTypeId', 'id']);
+        return $this->hasMany(ProductTypeShippingCategory::class, ['productTypeId' => 'id']);
     }
 
     public function getShippingCategories(): ActiveQueryInterface
     {
-        return $this->hasMany(ShippingCategory::class, ['id', 'shippingCategoryId'])->via('productTypesShippingCategories');
+        return $this->hasMany(ShippingCategory::class, ['id' => 'shippingCategoryId'])
+            ->via('productTypesShippingCategories');
     }
 
     public function getProductTypesTaxCategories(): ActiveQueryInterface
     {
-        return $this->hasMany(ProductTypeTaxCategory::class, ['productTypeId', 'id']);
+        return $this->hasMany(ProductTypeTaxCategory::class, ['productTypeId' => 'id']);
     }
 
     public function getTaxCategories(): ActiveQueryInterface
     {
-
-
-        return $this->hasMany(TaxCategory::class, ['id', 'taxCategoryId'])->via('productTypesTaxCategories');
+        return $this->hasMany(TaxCategory::class, ['id' => 'taxCategoryId'])
+            ->via('productTypesTaxCategories');
     }
 
     public function getFieldLayout(): ActiveQueryInterface
     {
-        return $this->hasOne(FieldLayout::class, ['id', 'fieldLayoutId']);
+        return $this->hasOne(FieldLayout::class, ['id' => 'fieldLayoutId']);
     }
 
     public function getVariantFieldLayout(): ActiveQueryInterface
     {
-        return $this->hasOne(FieldLayout::class, ['id', 'variantFieldLayoutId']);
+        return $this->hasOne(FieldLayout::class, ['id' => 'variantFieldLayoutId']);
     }
 
 }

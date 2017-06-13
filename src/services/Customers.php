@@ -255,10 +255,11 @@ class Customers extends Component
     public function loginHandler(Event $event)
     {
         // Remove the customer from session.
-        $this->forgetCustomer();
-
-        $username = $event->params['username'];
-        $this->consolidateOrdersToUser($username);
+        // TODO: enable again
+        //$this->forgetCustomer();
+        // TODO: enable again
+        //$username = $event->params['username'];
+        //$this->consolidateOrdersToUser($username);
     }
 
     /**

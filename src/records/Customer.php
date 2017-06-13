@@ -37,16 +37,25 @@ class Customer extends ActiveRecord
         return '{{%commerce_customers}}';
     }
 
-    public function getAddresses(): ActiveQueryInterface
-    {
-        return $this->hasMany(Address::class, ['id' => 'addressId'])->via('customerAddresses');
-    }
-
+    /**
+     * @return ActiveQueryInterface
+     */
     public function getCustomerAddresses(): ActiveQueryInterface
     {
         return $this->hasMany(CustomerAddress::class, ['customerId' => 'id']);
     }
 
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getAddresses(): ActiveQueryInterface
+    {
+        return $this->hasMany(Address::class, ['id' => 'addressId'])->via('customerAddresses');
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
     public function getOrders(): ActiveQueryInterface
     {
         return $this->hasMany(Order::class, ['id' => 'customerId']);

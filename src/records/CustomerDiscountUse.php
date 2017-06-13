@@ -3,6 +3,7 @@
 namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;
+use yii\db\ActiveQueryInterface;
 
 /**
  * Customer discount record.
@@ -25,57 +26,24 @@ class CustomerDiscountUse extends ActiveRecord
     /**
      * @return string
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return '{{%commerce_customer_discountuses}}';
     }
 
-//    /**
-//     * @return array
-//     */
-//    public function defineIndexes()
-//    {
-//        return [
-//            ['columns' => ['customerId', 'discountId'], 'unique' => true],
-//        ];
-//    }
-//
-//    /**
-//     * @return array
-//     */
-//    public function defineRelations()
-//    {
-//        return [
-//            'discount' => [
-//                static::BELONGS_TO,
-//                'Discount',
-//                'onDelete' => self::CASCADE,
-//                'onUpdate' => self::CASCADE,
-//                'required' => true
-//            ],
-//            'customer' => [
-//                static::BELONGS_TO,
-//                'Customer',
-//                'onDelete' => self::CASCADE,
-//                'onUpdate' => self::CASCADE,
-//                'required' => true
-//            ],
-//        ];
-//    }
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getDiscount(): ActiveQueryInterface
+    {
+        return $this->hasOne(Discount::class, ['id', 'discountId']);
+    }
 
-//    /**
-//     * @return array
-//     */
-//    protected function defineAttributes()
-//    {
-//        return [
-//            'discountId' => [AttributeType::Number, 'required' => true],
-//            'customerId' => [AttributeType::Number, 'required' => true],
-//            'uses' => [
-//                AttributeType::Number,
-//                'required' => true,
-//                'min' => 1
-//            ],
-//        ];
-//    }
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getCustomer(): ActiveQueryInterface
+    {
+        return $this->hasOne(Customer::class, ['id', 'customerId']);
+    }
 }

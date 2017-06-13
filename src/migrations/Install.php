@@ -1532,6 +1532,8 @@ class Install extends Migration
             ];
             $this->insert(ProductTypeSite::tableName(), $data);
         }
+
+
     }
 
     /**

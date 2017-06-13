@@ -39,6 +39,6 @@ class Country extends ActiveRecord
      */
     public function getStates(): ActiveQueryInterface
     {
-        return $this->hasMany(State::class, ['id', 'countryId']);
+        return $this->hasMany(State::class, ['id' => 'countryId']);
     }
 }
