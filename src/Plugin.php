@@ -48,7 +48,18 @@ class Plugin extends \craft\base\Plugin
     public function init()
     {
         parent::init();
-        $this->_init();
+
+        $this->_setPluginComponents();
+        $this->_registerCpRoutes();
+        $this->_addTwigExtensions();
+        $this->_registerFieldTypes();
+        $this->_registerRichTextLinks();
+        $this->_registerPermissions();
+        $this->_registerSessionEventListeners();
+        $this->_registerCpAlerts();
+
+        // Fire an 'afterInit' event
+        $this->trigger(Plugin::EVENT_AFTER_INIT);
     }
 
     /**
@@ -132,24 +143,6 @@ class Plugin extends \craft\base\Plugin
 
     // Private Methods
     // =========================================================================
-
-    /**
-     * Initialize the plugin.
-     */
-    private function _init()
-    {
-        $this->_setPluginComponents();
-        $this->_registerCpRoutes();
-        $this->_addTwigExtensions();
-        $this->_registerFieldTypes();
-        $this->_registerRichTextLinks();
-        $this->_registerPermissions();
-        $this->_registerSessionEventListeners();
-        $this->_registerCpAlerts();
-
-        // Fire an 'afterInit' event
-        $this->trigger(Plugin::EVENT_AFTER_INIT);
-    }
 
     /**
      * Add the twig extension
