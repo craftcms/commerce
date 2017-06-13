@@ -3,16 +3,16 @@
 namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;
-use yii\db\ActiveQueryInterface;
+use craft\records\Site;
 
 /**
- * Product type tax category record.
+ * Product type locale record.
  *
  * @property int         $productTypeId
  * @property int         $localeId
  * @property string      $urlFormat
  *
- * @property TaxCategory $taxCategory
+ * @property Site        $site
  * @property ProductType $productType
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
@@ -22,7 +22,7 @@ use yii\db\ActiveQueryInterface;
  * @package   craft.plugins.commerce.records
  * @since     1.0
  */
-class ProductTypeTaxCategory extends ActiveRecord
+class ProductTypeSite extends ActiveRecord
 {
     // Public Methods
     // =========================================================================
@@ -34,16 +34,16 @@ class ProductTypeTaxCategory extends ActiveRecord
      */
     public static function tableName()
     {
-        return '{{%commerce_producttypes_taxcategories}}';
+        return '{{%commerce_producttypes_i18n}}';
     }
 
-    public function getProductType(): ActiveQueryInterface
+    public function getProductType()
     {
         return $this->hasOne(ProductType::class, ['id', 'productTypeId']);
     }
 
-    public function getTaxCategory(): ActiveQueryInterface
+    public function getSite()
     {
-        return $this->hasOne(TaxCategory::class, ['id', 'taxCategoryId']);
+        return $this->hasOne(Site::class, ['id', 'siteId']);
     }
 }

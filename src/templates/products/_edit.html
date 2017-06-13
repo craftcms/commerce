@@ -42,8 +42,8 @@
     <input type="hidden" name="action" value="commerce/products/saveProduct">
     <input type="hidden" name="redirect" value="commerce/products">
     <input type="hidden" name="typeId" value="{{ productType.id }}">
-    {% if craft.isLocalized() %}<input type="hidden" name="locale"
-                                       value="{{ product.locale }}">{% endif %}
+    {% if craft.app.getIsMultiSite() %}<input type="hidden" name="site"
+                                       value="{{ product.site }}">{% endif %}
     {{ csrfInput() }}
     {% if product.id %}<input type="hidden" name="productId"
                               value="{{ product.id }}">{% endif %}
@@ -58,7 +58,7 @@
                 {{ productFields.titleField(product) }}
 
                 <div>
-                    {% set allProductTab = productType.asa('productFieldLayout').getFieldLayout().getTabs() %}
+                    {% set allProductTab = productType.getProductFieldLayout().getTabs() %}
                     {% for tab in allProductTab %}
                         <div id="tab{{ loop.index }}" {% if not loop.first %} class="hidden" {% endif %}>
                             {% include "_includes/fields" with {
@@ -89,29 +89,29 @@
                 {% include "_includes/previewbtns" %}
             {% endif %}
 
-            {% if craft.isLocalized() %}
-                <ul id="locales" class="pane">
-                    {% for localeId in localeIds %}
-                        {% set localeName = craft.i18n.getLocaleById(localeId).name %}
-                        <li{% if localeId == product.locale %} class="sel"{% endif %}>
-                            {%- if localeId == product.locale -%}
-                                {{ localeName }}
-                                {{ forms.lightswitch({
-                                    name: 'localeEnabled',
-                                    on:   product.localeEnabled,
-                                    small: true
-                                }) }}
-                            {%- else -%}
-                                {% set localeUrl = url(
-                                'commerce/products/'~productType.handle~'/'~craft.request.getSegment(4)~'/'~localeId
-                                ) -%}
-                                <a href="{{ localeUrl }}">{{ localeName }}</a>
-                                <div class="status {{ localeId in enabledLocales ? 'enabled' : 'disabled' }}"></div>
-                            {%- endif -%}
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
+            {% if craft.app.getIsMultiSite() %}
+                    <ul id="sites" class="pane">
+                        {% for siteId in siteIds %}
+                            {% set site = craft.app.sites.getSiteById(siteId) %}
+                            <li{% if siteId == product.siteId %} class="sel"{% endif %}>
+                                {%- if siteId == product.siteId -%}
+                                    {{ site.name|t('site') }}
+                                    {{ forms.lightswitch({
+                                        name: 'enabledForSite',
+                                        on:   product.enabledForSite,
+                                        small: true,
+                                        disabled: isVersion
+                                    }) }}
+                                {%- else -%}
+                                    {% set siteEntryUrl = url('entries/'~productTypeHandle~'/'~craft.app.request.getSegment(4)~'/'~site.handle) -%}
+                                    <a href="{{ siteEntryUrl }}">{{ site.name|t('site') }}</a>
+                                    <div class="status {{ siteId in enabledSiteIds ? 'enabled' : 'disabled' }}"></div>
+                                {%- endif -%}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+
 
             <div class="pane meta">
                 {{ productFields.generalMetaFields(product) }}

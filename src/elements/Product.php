@@ -237,10 +237,10 @@ class Product extends Element
         $productType = $this->getType();
 
         if ($productType && $productType->hasUrls) {
-            $productTypeLocales = $productType->getLocales();
+            $productTypeSites = $productType->getSites();
 
-            if (isset($productTypeLocales[$this->locale])) {
-                return $productTypeLocales[$this->locale]->urlFormat;
+            if (isset($productTypeSites[$this->site])) {
+                return $productTypeSites[$this->site]->urlFormat;
             }
         }
     }
@@ -328,9 +328,9 @@ class Product extends Element
         if (empty($this->_variants)) {
             if ($this->id) {
                 if ($this->getType()->hasVariants) {
-                    $this->setVariants(Plugin::getInstance()->getVariants()->getAllVariantsByProductId($this->id, $this->locale));
+                    $this->setVariants(Plugin::getInstance()->getVariants()->getAllVariantsByProductId($this->id, $this->siteId));
                 } else {
-                    $variant = Plugin::getInstance()->getVariants()->getDefaultVariantByProductId($this->id, $this->locale);
+                    $variant = Plugin::getInstance()->getVariants()->getDefaultVariantByProductId($this->id, $this->siteId);
                     if ($variant) {
                         $this->setVariants([$variant]);
                     }
@@ -595,7 +595,7 @@ class Product extends Element
             ]);
         } else {
             /** @var Variant $variant */
-            $variant = reset($this->getVariants());
+            $variant = $this->getVariants();
             $namespace = $viewService->getNamespace();
             $newNamespace = 'variants['.($variant->id ?: 'new1').']';
             $viewService->setNamespace($newNamespace);

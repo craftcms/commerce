@@ -4,6 +4,7 @@ namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;
 use craft\records\FieldLayout;
+use yii\db\ActiveQueryInterface;
 
 /**
  * Product type record.
@@ -41,62 +42,36 @@ class ProductType extends ActiveRecord
         return '{{%commerce_producttypes}}';
     }
 
-//    /**
-//     * @return array
-//     */
-//    public function defineIndexes()
-//    {
-//        return [
-//            ['columns' => ['handle'], 'unique' => true],
-//        ];
-//    }
-//
-//    /**
-//     * @return array
-//     */
-//    public function defineRelations()
-//    {
-//        return [
-//            'shippingCategories' => [
-//                static::MANY_MANY,
-//                'ShippingCategory',
-//                'commerce_producttypes_shippingcategories(shippingCategoryId, productTypeId)'
-//            ],
-//            'taxCategories' => [
-//                static::MANY_MANY,
-//                'TaxCategory',
-//                'commerce_producttypes_taxcategories(taxCategoryId, productTypeId)'
-//            ],
-//            'fieldLayout' => [
-//                static::BELONGS_TO,
-//                'FieldLayout',
-//                'onDelete' => static::SET_NULL
-//            ],
-//            'variantFieldLayout' => [
-//                static::BELONGS_TO,
-//                'FieldLayout',
-//                'onDelete' => static::SET_NULL
-//            ],
-//        ];
-//    }
-//
-//    /**
-//     * @return array
-//     */
-//    protected function defineAttributes()
-//    {
-//        return [
-//            'name' => [AttributeType::Name, 'required' => true],
-//            'handle' => [AttributeType::Handle, 'required' => true],
-//            'hasUrls' => AttributeType::Bool,
-//            'hasDimensions' => AttributeType::Bool,
-//            'hasVariants' => AttributeType::Bool,
-//            'hasVariantTitleField' => [AttributeType::Bool, 'default' => 1],
-//            'titleFormat' => [AttributeType::String, 'required' => true],
-//            'skuFormat' => AttributeType::String,
-//            'descriptionFormat' => AttributeType::String,
-//            'template' => AttributeType::Template
-//        ];
-//    }
+    public function getProductTypesShippingCategories(): ActiveQueryInterface
+    {
+        return $this->hasMany(ProductTypeShippingCategory::class, ['productTypeId', 'id']);
+    }
+
+    public function getShippingCategories(): ActiveQueryInterface
+    {
+        return $this->hasMany(ShippingCategory::class, ['id', 'shippingCategoryId'])->via('productTypesShippingCategories');
+    }
+
+    public function getProductTypesTaxCategories(): ActiveQueryInterface
+    {
+        return $this->hasMany(ProductTypeTaxCategory::class, ['productTypeId', 'id']);
+    }
+
+    public function getTaxCategories(): ActiveQueryInterface
+    {
+
+
+        return $this->hasMany(TaxCategory::class, ['id', 'taxCategoryId'])->via('productTypesTaxCategories');
+    }
+
+    public function getFieldLayout(): ActiveQueryInterface
+    {
+        return $this->hasOne(FieldLayout::class, ['id', 'fieldLayoutId']);
+    }
+
+    public function getVariantFieldLayout(): ActiveQueryInterface
+    {
+        return $this->hasOne(FieldLayout::class, ['id', 'variantFieldLayoutId']);
+    }
 
 }

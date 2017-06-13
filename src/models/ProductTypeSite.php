@@ -14,7 +14,7 @@ use craft\commerce\base\Model;
  * @package   craft.plugins.commerce.models
  * @since     1.0
  */
-class ProductTypeLocale extends Model
+class ProductTypeSite extends Model
 {
     // Properties
     // =========================================================================
@@ -32,7 +32,7 @@ class ProductTypeLocale extends Model
     /**
      * @var string Locale
      */
-    public $locale;
+    public $site;
 
     /**
      * @var string URL Format

@@ -6,7 +6,7 @@ use Craft;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\models\ProductType;
-use craft\commerce\models\ProductTypeLocale;
+use craft\commerce\models\ProductTypeSite;
 use craft\commerce\Plugin;
 use yii\web\HttpException;
 
@@ -86,7 +86,7 @@ class ProductTypesController extends BaseAdminController
         $locales = [];
 
         foreach (Craft::$app->getI18n()->getSiteLocaleIds() as $localeId) {
-            $locales[$localeId] = new ProductTypeLocale([
+            $locales[$localeId] = new ProductTypeSite([
                 'locale' => $localeId,
                 'urlFormat' => Craft::$app->getRequest()->getParam('urlFormat.'.$localeId)
             ]);

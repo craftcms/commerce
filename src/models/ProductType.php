@@ -113,9 +113,9 @@ class ProductType extends Model
     private $_shippingCategories;
 
     /**
-     * @var LocaleModel[]
+     * @var SiteModel[]
      */
-    private $_locales;
+    private $_sites;
 
     /**
      * @return null|string
@@ -161,31 +161,31 @@ class ProductType extends Model
     /**
      * @return array
      */
-    public function getLocales()
+    public function getSites()
     {
-        if (null === $this->_locales) {
+        if (null === $this->_sites) {
             if ($this->id) {
-                $locales = Plugin::getInstance()->getProductTypes()->getProductTypeLocales($this->id);
-                $this->_locales = [];
-                foreach ($locales as $locale) {
-                    $this->_locales[$locale] = $locale;
+                $sites = Plugin::getInstance()->getProductTypes()->getProductTypeSites($this->id);
+                $this->_sites = [];
+                foreach ($sites as $site) {
+                    $this->_sites[$site] = $site;
                 }
             } else {
-                $this->_locales = [];
+                $this->_sites = [];
             }
         }
 
-        return $this->_locales;
+        return $this->_sites;
     }
 
     /**
-     * Sets the locales on the product type
+     * Sets the sites on the product type
      *
-     * @param $locales
+     * @param $sites
      */
-    public function setLocales($locales)
+    public function setSites($sites)
     {
-        $this->_locales = $locales;
+        $this->_sites = $sites;
     }
 
     /**

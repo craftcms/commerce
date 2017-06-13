@@ -37,38 +37,37 @@ class Variants extends Component
 
     /**
      * @param int    $variantId The variant’s ID.
-     * @param string $localeId  The locale to fetch the variant in. Defaults to {@link WebApp::language `craft()->language`}.
+     * @param string $siteId  The locale to fetch the variant in. Defaults to {@link WebApp::language `craft()->language`}.
      *
      * @return Variant
      */
-    public function getVariantById($variantId, $localeId = null)
+    public function getVariantById($variantId, $siteId = null)
     {
-        return Craft::$app->getElements()->getElementById($variantId, 'Commerce_Variant', $localeId);
+        return Craft::$app->getElements()->getElementById($variantId, 'Commerce_Variant', $siteId);
     }
 
     /**
      * Returns the first variant as returned by it's sortOrder.
      *
      * @param int         $variantId
-     * @param string|null $localeId
+     * @param string|null $siteId
      *
      * @return Variant
      */
-    public function getDefaultVariantByProductId($variantId, $localeId = null)
+    public function getDefaultVariantByProductId($variantId, $siteId = null): Variant
     {
-        return reset($this->getAllVariantsByProductId($variantId, $localeId));
+        return $this->getAllVariantsByProductId($variantId, $siteId)[0];
     }
 
     /**
      * @param int         $productId
-     * @param string|null $localeId
+     * @param string|null $siteId
      *
      * @return Variant[]
      */
-    public function getAllVariantsByProductId($productId, $localeId = null)
+    public function getAllVariantsByProductId($productId, $siteId = null): array
     {
-        $variants = Craft::$app->getElements()->getCriteria('Commerce_Variant', ['productId' => $productId, 'status' => null, 'limit' => null, 'locale' => $localeId])->find();
-
+        $variants = Variant::find()->productId($productId)->status(null)->limit(null)->siteId($siteId)->all();
         return $variants;
     }
 

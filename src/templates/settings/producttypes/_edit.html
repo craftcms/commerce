@@ -250,7 +250,7 @@ variantFields:       { label: "Variant Fields"|t, url: '#variant-fields', class:
     <div id="product-fields" class="hidden">
 
         {% include "_includes/fieldlayoutdesigner" with {
-        fieldLayout: productType.asa('productFieldLayout').getFieldLayout(),
+        fieldLayout: productType.getProductFieldLayout(),
         } only %}
 
     </div>
@@ -259,7 +259,7 @@ variantFields:       { label: "Variant Fields"|t, url: '#variant-fields', class:
 
         {% namespace "variant-layout" %}
         {% include "_includes/fieldlayoutdesigner" with {
-        fieldLayout: productType.asa('variantFieldLayout').getFieldLayout(),
+        fieldLayout: productType.getVariantFieldLayout(),
         customizableTabs: false
         } only %}
         {% endnamespace %}
@@ -276,64 +276,67 @@ variantFields:       { label: "Variant Fields"|t, url: '#variant-fields', class:
         {% endif %}
     {% endfor %}
 
-$('#hasVariants').on('change', function () {
-if ($(this).prop('checked')) {
-$('#tab-variantFields').removeClass('hidden');
-} else {
-$('#tab-variantFields').addClass('hidden');
-}
-});
+    $('#hasVariants').on('change', function() {
+        if ($(this).prop('checked')) {
+            $('#tab-variantFields').removeClass('hidden');
+        } else {
+            $('#tab-variantFields').addClass('hidden');
+        }
+    });
 
-window.productTypeShippingCategories = JSON.parse('{{ productType.shippingCategories|keys|json_encode|raw }}');
-window.shippingCategories = $.map(JSON.parse('{{ craft.commerce.shippingCategories|json_encode|raw }}'), function(value, index) { return [value] });
+    window.productTypeShippingCategories = JSON.parse('{{ productType.shippingCategories|keys|json_encode|raw }}');
+    window.shippingCategories = $.map(JSON.parse('{{ craft.commerce.shippingCategories|json_encode|raw }}'), function(value, index) {
+        return [value]
+    });
 
-$.each(window.shippingCategories, function (key, shippingCategory) {
-if (shippingCategory.default == 1) {
-window.defaultShippingCategory = shippingCategory;
-}
-});
+    $.each(window.shippingCategories, function(key, shippingCategory) {
+        if (shippingCategory.default == 1) {
+            window.defaultShippingCategory = shippingCategory;
+        }
+    });
 
-$(function () {
-var $shippingCategories = $('#shippingCategories').selectize({
-options: window.shippingCategories,
-items: window.productTypeShippingCategories,
-valueField: 'id',
-labelField: 'name',
-plugins: ['remove_button'],
-create: false,
-dropdownParent: 'body',
-onItemRemove: function () {
-if (!$shippingCategories[0].selectize.items.length) {
-$shippingCategories[0].selectize.addItem(window.defaultShippingCategory.id);
-}
-}
-});
-});
+    $(function() {
+        var $shippingCategories = $('#shippingCategories').selectize({
+            options: window.shippingCategories,
+            items: window.productTypeShippingCategories,
+            valueField: 'id',
+            labelField: 'name',
+            plugins: ['remove_button'],
+            create: false,
+            dropdownParent: 'body',
+            onItemRemove: function() {
+                if (!$shippingCategories[0].selectize.items.length) {
+                    $shippingCategories[0].selectize.addItem(window.defaultShippingCategory.id);
+                }
+            }
+        });
+    });
 
-window.productTypeTaxCategories = JSON.parse('{{ productType.taxCategories|keys|json_encode|raw }}');
-window.taxCategories = $.map(JSON.parse('{{ craft.commerce.taxCategories|json_encode|raw }}'), function(value, index) { return [value] });
+    window.productTypeTaxCategories = JSON.parse('{{ productType.taxCategories|keys|json_encode|raw }}');
+    window.taxCategories = $.map(JSON.parse('{{ craft.commerce.taxCategories|json_encode|raw }}'), function(value, index) {
+        return [value]
+    });
 
-$.each(window.taxCategories, function (key, taxCategory) {
-if (taxCategory.default == 1) {
-window.defaultTaxCategory = taxCategory;
-}
-});
+    $.each(window.taxCategories, function(key, taxCategory) {
+        if (taxCategory.default == 1) {
+            window.defaultTaxCategory = taxCategory;
+        }
+    });
 
-$(function () {
-var $taxCategories = $('#taxCategories').selectize({
-options: window.taxCategories,
-items: window.productTypeTaxCategories,
-valueField: 'id',
-labelField: 'name',
-plugins: ['remove_button'],
-create: false,
-dropdownParent: 'body',
-onItemRemove: function () {
-if (!$taxCategories[0].selectize.items.length) {
-$taxCategories[0].selectize.addItem(window.defaultTaxCategory.id);
-}
-}
-});
-});
-
+    $(function() {
+        var $taxCategories = $('#taxCategories').selectize({
+            options: window.taxCategories,
+            items: window.productTypeTaxCategories,
+            valueField: 'id',
+            labelField: 'name',
+            plugins: ['remove_button'],
+            create: false,
+            dropdownParent: 'body',
+            onItemRemove: function() {
+                if (!$taxCategories[0].selectize.items.length) {
+                    $taxCategories[0].selectize.addItem(window.defaultTaxCategory.id);
+                }
+            }
+        });
+    });
 {% endjs %}

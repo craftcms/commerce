@@ -9,7 +9,9 @@ use craft\commerce\helpers\VariantMatrix;
 use craft\commerce\Plugin;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
+use craft\web\Response;
 use yii\web\HttpException;
+use yii\web\NotFoundHttpException;
 
 /**
  * Class Products Controller
@@ -49,15 +51,23 @@ class ProductsController extends BaseCpController
         $this->renderTemplate('commerce/products/_index', $variables);
     }
 
-    /**
-     * Prepare screen to edit a product.
-     *
-     * @param array $variables
-     *
-     * @throws HttpException
-     */
-    public function actionEditProduct(array $variables = [])
+
+    public function actionEditProduct(string $productTypeHandle, int $productId = null, string $siteHandle = null, Product $product = null): Response
     {
+        $variables = [
+            'productTypeHandle' => $productTypeHandle,
+            'productId' => $productId,
+            'product' => $product
+        ];
+
+        if ($siteHandle !== null) {
+            $variables['site'] = Craft::$app->getSites()->getSiteByHandle($siteHandle);
+
+            if (!$variables['site']) {
+                throw new NotFoundHttpException('Invalid site handle: '.$siteHandle);
+            }
+        }
+
         $this->_prepProductVariables($variables);
 
         if (!empty($variables['product']->id)) {
@@ -78,12 +88,12 @@ class ProductsController extends BaseCpController
         if ($variables['product']->getType()->hasVariants) {
             $variables['variantMatrixHtml'] = VariantMatrix::getVariantMatrixHtml($variables['product']);
         } else {
-            Craft::$app->getView()->includeJs('Craft.Commerce.initUnlimitedStockCheckbox($("#meta-pane"));');
+            Craft::$app->getView()->registerJs('Craft.Commerce.initUnlimitedStockCheckbox($("#meta-pane"));');
         }
 
         // Enable Live Preview?
         if (!Craft::$app->getRequest()->isMobileBrowser(true) && Plugin::getInstance()->getProductTypes()->isProductTypeTemplateValid($variables['productType'])) {
-            Craft::$app->getView()->includeJs('Craft.LivePreview.init('.Json::encode([
+            Craft::$app->getView()->registerJs('Craft.LivePreview.init('.Json::encode([
                     'fields' => '#title-field, #fields > div > div > .field',
                     'extraFields' => '#meta-pane, #variants-pane',
                     'previewUrl' => $variables['product']->getUrl(),
@@ -91,7 +101,7 @@ class ProductsController extends BaseCpController
                     'previewParams' => [
                         'typeId' => $variables['productType']->id,
                         'productId' => $variables['product']->id,
-                        'locale' => $variables['product']->locale,
+                        'site' => $variables['product']->site,
                     ]
                 ]).');');
 
@@ -105,7 +115,7 @@ class ProductsController extends BaseCpController
                 } else {
                     $variables['shareUrl'] = UrlHelper::actionUrl('commerce/products/shareProduct', [
                         'productId' => $variables['product']->id,
-                        'locale' => $variables['product']->locale
+                        'site' => $variables['product']->site
                     ]);
                 }
             }
@@ -115,28 +125,53 @@ class ProductsController extends BaseCpController
 
         $variables['promotions']['sales'] = Plugin::getInstance()->getSales()->getSalesForProduct($variables['product']);
 
-        Craft::$app->getView()->includeCssResource('commerce/product.css');
+        Craft::$app->getView()->registerCssFile('commerce/product.css');
         $this->renderTemplate('commerce/products/_edit', $variables);
     }
 
     private function _prepProductVariables(&$variables)
     {
-        $variables['localeIds'] = Craft::$app->getI18n()->getEditableLocaleIds();
 
-        if (!$variables['localeIds']) {
-            throw new HttpException(403, Craft::t('commerce', 'Your account doesn’t have permission to edit any of this site’s locales.'));
+        if (!empty($variables['productTypeHandle'])) {
+            $variables['productType'] = Plugin::getInstance()->getProductTypes()->getProductTypeByHandle($variables['productTypeHandle']);
+        } else if (!empty($variables['productTypeId'])) {
+            $variables['productType'] = Plugin::getInstance()->getProductTypes()->getProductTypeById($variables['productTypeId']);
         }
 
-        if (empty($variables['localeId'])) {
-            $variables['localeId'] = Craft::$app->language;
+        if (empty($variables['productType'])) {
+            throw new NotFoundHttpException('Section not found');
+        }
 
-            if (!in_array($variables['localeId'], $variables['localeIds'])) {
-                $variables['localeId'] = $variables['localeIds'][0];
-            }
+        // Get the site
+        // ---------------------------------------------------------------------
+
+        if (Craft::$app->getIsMultiSite()) {
+            // Only use the sites that the user has access to
+            $sectionSiteIds = array_keys($variables['productType']->get());
+            $editableSiteIds = Craft::$app->getSites()->getEditableSiteIds();
+            $variables['siteIds'] = array_merge(array_intersect($sectionSiteIds, $editableSiteIds));
         } else {
-            // Make sure they were requesting a valid locale
-            if (!in_array($variables['localeId'], $variables['localeIds'])) {
-                throw new HttpException(404);
+            $variables['siteIds'] = [Craft::$app->getSites()->getPrimarySite()->id];
+        }
+
+        if (!$variables['siteIds']) {
+            throw new ForbiddenHttpException('User not permitted to edit content in any sites supported by this section');
+        }
+
+        if (empty($variables['site'])) {
+            $variables['site'] = Craft::$app->getSites()->currentSite;
+
+            if (!in_array($variables['site']->id, $variables['siteIds'], false)) {
+                $variables['site'] = Craft::$app->getSites()->getSiteById($variables['siteIds'][0]);
+            }
+
+            $site = $variables['site'];
+        } else {
+            // Make sure they were requesting a valid site
+            /** @var Site $site */
+            $site = $variables['site'];
+            if (!in_array($site->id, $variables['siteIds'], false)) {
+                throw new ForbiddenHttpException('User not permitted to edit content in this site');
             }
         }
 
@@ -151,7 +186,7 @@ class ProductsController extends BaseCpController
 
         if (empty($variables['product'])) {
             if (!empty($variables['productId'])) {
-                $variables['product'] = Plugin::getInstance()->getProducts()->getProductById($variables['productId'], $variables['localeId']);
+                $variables['product'] = Plugin::getInstance()->getProducts()->getProductById($variables['productId'], $variables['site']->id);
 
                 if (!$variables['product']) {
                     throw new HttpException(404);
@@ -164,20 +199,20 @@ class ProductsController extends BaseCpController
                 $shippingCategories = $variables['productType']->getShippingCategories();
                 $variables['product']->shippingCategoryId = key($shippingCategories);
                 $variables['product']->typeId = $variables['productType']->id;
-                if ($variables['localeId']) {
-                    $variables['product']->locale = $variables['localeId'];
+                if ($variables['siteId']) {
+                    $variables['product']->site = $variables['siteId'];
                 }
             }
         }
 
         if (!empty($variables['product']->id)) {
             $this->enforceProductPermissions($variables['product']);
-            $variables['enabledLocales'] = Craft::$app->getElements()->getEnabledLocalesForElement($variables['product']->id);
+            $variables['enabledSites'] = Craft::$app->getElements()->getEnabledSiteIdsForElement($variables['product']->id);
         } else {
-            $variables['enabledLocales'] = [];
+            $variables['enabledSites'] = [];
 
-            foreach (Craft::$app->getI18n()->getEditableLocaleIds() as $locale) {
-                $variables['enabledLocales'][] = $locale;
+            foreach (Craft::$app->getSites()->getEditableSiteIds() as $site) {
+                $variables['enabledSites'][] = $site;
             }
         }
     }
@@ -226,7 +261,7 @@ class ProductsController extends BaseCpController
             ];
         }
 
-        $variables['primaryVariant'] = reset($variables['product']->getVariants());
+        $variables['primaryVariant'] = $variables['product']->getVariants()[0];
     }
 
     /**
@@ -252,10 +287,10 @@ class ProductsController extends BaseCpController
     private function _setProductFromPost()
     {
         $productId = Craft::$app->getRequest()->getParam('productId');
-        $locale = Craft::$app->getRequest()->getParam('locale');
+        $site = Craft::$app->getRequest()->getParam('site');
 
         if ($productId) {
-            $product = Plugin::getInstance()->getProducts()->getProductById($productId, $locale);
+            $product = Plugin::getInstance()->getProducts()->getProductById($productId, $site);
 
             if (!$product) {
                 throw new Exception(Craft::t('commerce', 'No product with the ID “{id}”',
@@ -267,7 +302,7 @@ class ProductsController extends BaseCpController
 
         ProductHelper::populateProductModel($product, Craft::$app->getRequest()->getParams());
 
-        $product->localeEnabled = (bool)Craft::$app->getRequest()->getParam('localeEnabled', $product->localeEnabled);
+        $product->siteEnabled = (bool)Craft::$app->getRequest()->getParam('siteEnabled', $product->siteEnabled);
         $product->getContent()->title = Craft::$app->getRequest()->getParam('title', $product->title);
         $product->setContentFromPost('fields');
 
@@ -291,9 +326,9 @@ class ProductsController extends BaseCpController
             throw new HttpException(404);
         }
 
-        Craft::$app->language = $product->locale;
+        Craft::$app->language = $product->site;
 
-        // Have this product override any freshly queried products with the same ID/locale
+        // Have this product override any freshly queried products with the same ID/site
         Craft::$app->getElements()->setPlaceholderElement($product);
 
         Craft::$app->getView()->getTwig()->disableStrictVariables();
@@ -307,13 +342,13 @@ class ProductsController extends BaseCpController
      * Redirects the client to a URL for viewing a disabled product on the front end.
      *
      * @param mixed $productId
-     * @param mixed $locale
+     * @param mixed $site
      *
      * @throws HttpException
      */
-    public function actionShareProduct($productId, $locale = null)
+    public function actionShareProduct($productId, $site = null)
     {
-        $product = Plugin::getInstance()->getProducts()->getProductById($productId, $locale);
+        $product = Plugin::getInstance()->getProducts()->getProductById($productId, $site);
 
         if (!$product) {
             throw new HttpException(404);
@@ -329,7 +364,7 @@ class ProductsController extends BaseCpController
         // Create the token and redirect to the product URL with the token in place
         $token = Craft::$app->getTokens()->createToken([
             'action' => 'commerce/products/viewSharedProduct',
-            'params' => ['productId' => $productId, 'locale' => $product->locale]
+            'params' => ['productId' => $productId, 'site' => $product->site]
         ]);
 
         $url = UrlHelper::getUrlWithToken($product->getUrl(), $token);
@@ -340,16 +375,16 @@ class ProductsController extends BaseCpController
      * Shows an product/draft/version based on a token.
      *
      * @param mixed $productId
-     * @param mixed $locale
+     * @param mixed $site
      *
      * @throws HttpException
      * @return null
      */
-    public function actionViewSharedProduct($productId, $locale = null)
+    public function actionViewSharedProduct($productId, $site = null)
     {
         $this->requireToken();
 
-        $product = Plugin::getInstance()->getProducts()->getProductById($productId, $locale);
+        $product = Plugin::getInstance()->getProducts()->getProductById($productId, $site);
 
         if (!$product) {
             throw new HttpException(404);

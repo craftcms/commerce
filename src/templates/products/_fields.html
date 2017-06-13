@@ -3,7 +3,7 @@
 
     {{ forms.textField({
         label: "Title"|t,
-        locale: product.locale,
+        site: product.site,
         id: 'title',
         name: 'title',
         value: product.title,
@@ -22,7 +22,7 @@
 
     {{ forms.textField({
         label: "Slug"|t,
-        locale: product.locale,
+        site: product.site,
         id: 'slug',
         name: 'slug',
         value: product.slug,
@@ -51,13 +51,13 @@
 {% macro behavioralMetaFields(product) %}
     {%- import "_includes/forms" as forms -%}
 
-    {% if product.type.taxCategories|length > 1 %}
+    {% if product.getType().taxCategories|length > 1 %}
         {{ forms.selectField({
             label: 'Tax Category'|t,
             name: 'taxCategoryId',
             value: product.taxCategoryId,
             required: true,
-            options: product.type.getTaxCategories(true)
+            options: product.getType().getTaxCategories(true)
         }) }}
     {% else %}
         {{ forms.hidden({
@@ -66,13 +66,13 @@
         }) }}
     {% endif %}
 
-    {% if product.type.shippingCategories|length > 1 %}
+    {% if product.getType().shippingCategories|length > 1 %}
         {{ forms.selectField({
             label: 'Shipping Category'|t,
             name: 'shippingCategoryId',
             value: product.shippingCategoryId,
             required: true,
-            options: product.type.getShippingCategories(true)
+            options: product.getType().getShippingCategories(true)
         }) }}
     {% else %}
         {{ forms.hidden({
@@ -100,10 +100,10 @@
 {% macro generalVariantFields(variant) %}
     {%- import "_includes/forms" as forms -%}
 
-    {% if variant.product.type.hasVariantTitleField and variant.product.type.hasVariants %}
+    {% if variant.product.getType().hasVariantTitleField and variant.product.getType().hasVariants %}
         {{ forms.textField({
             label: "Title"|t,
-            locale: variant.locale,
+            site: variant.site,
             id: 'title',
             name: 'title',
             value: variant.title,

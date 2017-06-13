@@ -4,8 +4,10 @@ namespace craft\commerce\elements;
 
 use Craft;
 use craft\commerce\base\Element;
+use craft\commerce\elements\db\VariantQuery;
 use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
+use craft\elements\db\ElementQueryInterface;
 
 /**
  * Variant Model
@@ -209,16 +211,16 @@ class Variant extends Element
     /**
      * Sets the product associated with this variant.
      *
-     * @param \craft\commerce\elements\Product|null $product The product associated with this variant
+     * @param Product|null $product The product associated with this variant
      *
      * @return void
      */
-    public function setProduct(\craft\commerce\elements\Product $product = null)
+    public function setProduct(Product $product = null)
     {
         $this->_product = $product;
 
         if ($product !== null) {
-            $this->locale = $product->locale;
+            $this->siteId = $product->siteId;
 
             if ($product->id) {
                 $this->productId = $product->id;
@@ -457,6 +459,17 @@ class Variant extends Element
     }
 
     /**
+     * @inheritdoc
+     *
+     * @return VariantQuery The newly created [[VariantQuery]] instance.
+     */
+    public static function find(): ElementQueryInterface
+    {
+        return new VariantQuery(static::class);
+    }
+
+
+    /**
      * @param \craft\commerce\models\LineItem $lineItem
      *
      * @return null
@@ -664,60 +677,6 @@ class Variant extends Element
         ];
     }
 
-    /**
-     * @param DbCommand            $query
-     * @param ElementCriteriaModel $criteria
-     *
-     * @return void
-     */
-    public function modifyElementsQuery(DbCommand $query, ElementCriteriaModel $criteria)
-    {
-        // Clear out existing onPopulateElements handlers on the criteria
-        $criteria->detachEventHandler('onPopulateElements', [$this, 'setProductOnVariant']);
-
-        $query
-            ->addSelect("variants.id,variants.productId,variants.isDefault,variants.sku,variants.price,variants.sortOrder,variants.width,variants.height,variants.length,variants.weight,variants.stock,variants.unlimitedStock,variants.minQty,variants.maxQty")
-            ->join('commerce_variants variants', 'variants.id = elements.id');
-
-        if ($criteria->sku) {
-            $query->andWhere(DbHelper::parseParam('variants.sku', $criteria->sku, $query->params));
-        }
-
-        if ($criteria->product) {
-            if ($criteria->product instanceof Product) {
-                $query->andWhere(DbHelper::parseParam('variants.productId', $criteria->product->id, $query->params));
-                $criteria->attachEventHandler('onPopulateElements', [$this, 'setProductOnVariant']);
-            } else {
-                $query->andWhere(DbHelper::parseParam('variants.productId', $criteria->product, $query->params));
-            }
-        }
-
-        if ($criteria->productId) {
-            $query->andWhere(DbHelper::parseParam('variants.productId', $criteria->productId, $query->params));
-        }
-
-        if ($criteria->isDefault) {
-            $query->andWhere(DbHelper::parseParam('variants.isDefault', $criteria->isDefault, $query->params));
-        }
-
-        if ($criteria->default) {
-            $query->andWhere(DbHelper::parseParam('variants.isDefault', $criteria->default, $query->params));
-        }
-
-        if ($criteria->stock) {
-            $query->andWhere(DbHelper::parseParam('variants.stock', $criteria->stock, $query->params));
-        }
-
-        if (isset($criteria->hasStock) && $criteria->hasStock === true) {
-            $hasStockCondition = ['or', '(variants.stock > 0 AND variants.unlimitedStock != 1)', 'variants.unlimitedStock = 1'];
-            $query->andWhere($hasStockCondition);
-        }
-
-        if (isset($criteria->hasStock) && $criteria->hasStock === false) {
-            $hasStockCondition = ['and', 'variants.stock < 1', 'variants.unlimitedStock != 1'];
-            $query->andWhere($hasStockCondition);
-        }
-    }
 
     /**
      * Sets the product on the resulting variants.

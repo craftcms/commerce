@@ -5,12 +5,12 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\elements\Product;
 use craft\commerce\models\ProductType;
-use craft\commerce\models\ProductTypeLocale;
+use craft\commerce\models\ProductTypeSite;
 use craft\commerce\models\ShippingCategory;
 use craft\commerce\models\TaxCategory;
 use craft\commerce\records\Product as ProductRecord;
 use craft\commerce\records\ProductType as ProductTypeRecord;
-use craft\commerce\records\ProductTypeLocale as ProductTypeLocaleRecord;
+use craft\commerce\records\ProductTypeSite as ProductTypeSiteRecord;
 use craft\db\Query;
 use craft\tasks\ResaveElements;
 use yii\base\Component;
@@ -201,13 +201,13 @@ class ProductTypes extends Component
      *
      * @return array
      */
-    public function getProductTypeLocales($productTypeId)
+    public function getProductTypeSites($productTypeId): array
     {
-        $records = ProductTypeLocaleRecord::find()->where([
+        $records = ProductTypeSiteRecord::find()->where([
             'productTypeId' => $productTypeId
         ])->all();
 
-        return ProductTypeLocale::populateModels($records);
+        return ProductTypeSite::populateModels($records);
     }
 
     /**
@@ -234,9 +234,10 @@ class ProductTypes extends Component
      *
      * @return array
      */
-    public function getProductTypeTaxCategories($productTypeId, $indexBy = null)
+    public function getProductTypeTaxCategories($productTypeId, $indexBy = null): array
     {
-        $productType = ProductTypeRecord::find()->with('taxCategories')->where(['id' => $productTypeId])->all();
+        $productType = ProductTypeRecord::find()->where(['id' => $productTypeId])->one();
+
         if ($productType && $productType->taxCategories) {
             $taxCategories = $productType->taxCategories;
         } else {
@@ -255,7 +256,7 @@ class ProductTypes extends Component
      * @throws \CDbException
      * @throws \Exception
      */
-    public function saveProductType(ProductType $productType)
+    public function saveProductType(ProductType $productType): bool
     {
         $titleFormatChanged = false;
 
@@ -298,20 +299,20 @@ class ProductTypes extends Component
         }
 
         // Make sure that all of the URL formats are set properly
-        $productTypeLocales = $productType->getLocales();
+        $productTypeSites = $productType->getSites();
 
-        foreach ($productTypeLocales as $localeId => $productTypeLocale) {
+        foreach ($productTypeSites as $siteId => $productTypeSite) {
             if ($productType->hasUrls) {
                 $urlFormatAttributes = ['urlFormat'];
-                $productTypeLocale->urlFormatIsRequired = true;
+                $productTypeSite->urlFormatIsRequired = true;
 
                 foreach ($urlFormatAttributes as $attribute) {
-                    if (!$productTypeLocale->validate([$attribute])) {
-                        $productType->addError($attribute.'-'.$localeId, $productTypeLocale->getError($attribute));
+                    if (!$productTypeSite->validate([$attribute])) {
+                        $productType->addError($attribute.'-'.$siteId, $productTypeSite->getError($attribute));
                     }
                 }
             } else {
-                $productTypeLocale->urlFormat = null;
+                $productTypeSite->urlFormat = null;
             }
         }
 
@@ -446,7 +447,7 @@ class ProductTypes extends Component
                     }
                 }
 
-                $newLocaleData = [];
+                $newSiteData = [];
 
                 //Refresh all titles for variants of same product type if titleFormat changed.
                 if ($productType->hasVariants && !$productType->hasVariantTitleField) {
@@ -457,7 +458,7 @@ class ProductTypes extends Component
                         foreach ($products as $product) {
                             foreach ($product->getVariants() as $variant) {
                                 $title = Craft::$app->getView()->renderObjectTemplate($productType->titleFormat, $variant);
-                                // updates to the same title in all locales
+                                // updates to the same title in all sites
                                 Craft::$app->getDb()->createCommand()->update('content',
                                     ['title' => $title],
                                     ['elementId' => $variant->id]
@@ -468,49 +469,49 @@ class ProductTypes extends Component
                 }
 
                 if (!$isNewProductType) {
-                    // Get the old product type locales
-                    $oldLocaleRecords = ProductTypeLocaleRecord::find()->where([
+                    // Get the old product type sites
+                    $oldSiteRecords = ProductTypeSiteRecord::find()->where([
                         'productTypeId' => $productType->id
                     ])->all();
-                    $oldLocales = ProductTypeLocale::populateModels($oldLocaleRecords, 'locale');
+                    $oldSites = ProductTypeSite::populateModels($oldSiteRecords, 'site');
 
-                    $changedLocaleIds = [];
+                    $changedSiteIds = [];
                 }
 
-                foreach ($productTypeLocales as $localeId => $locale) {
+                foreach ($productTypeSites as $siteId => $site) {
                     // Was this already selected?
-                    if (!$isNewProductType && isset($oldLocales[$localeId])) {
-                        $oldLocale = $oldLocales[$localeId];
+                    if (!$isNewProductType && isset($oldSites[$siteId])) {
+                        $oldSite = $oldSites[$siteId];
 
                         // Has the URL format changed?
-                        if ($locale->urlFormat != $oldLocale->urlFormat) {
+                        if ($site->urlFormat != $oldSite->urlFormat) {
                             Craft::$app->getDb()->createCommand()->update('commerce_producttypes_i18n', [
-                                'urlFormat' => $locale->urlFormat
+                                'urlFormat' => $site->urlFormat
                             ], [
-                                'id' => $oldLocale->id
+                                'id' => $oldSite->id
                             ]);
 
-                            $changedLocaleIds[] = $localeId;
+                            $changedSiteIds[] = $siteId;
                         }
                     } else {
-                        $newLocaleData[] = [$productType->id, $localeId, $locale->urlFormat];
+                        $newSiteData[] = [$productType->id, $siteId, $site->urlFormat];
                     }
                 }
 
-                // Insert the new locales
+                // Insert the new sites
                 Craft::$app->getDb()->createCommand()->insertAll('commerce_producttypes_i18n',
-                    ['productTypeId', 'locale', 'urlFormat'],
-                    $newLocaleData
+                    ['productTypeId', 'site', 'urlFormat'],
+                    $newSiteData
                 );
 
                 if (!$isNewProductType) {
-                    // Drop any locales that are no longer being used, as well as the associated element
-                    // locale rows
+                    // Drop any sites that are no longer being used, as well as the associated element
+                    // site rows
 
-                    $droppedLocaleIds = array_diff(array_keys($oldLocales), array_keys($productTypeLocales));
+                    $droppedSiteIds = array_diff(array_keys($oldSites), array_keys($productTypeSites));
 
-                    if ($droppedLocaleIds) {
-                        Craft::$app->getDb()->createCommand()->delete('commerce_producttypes_i18n', ['in', 'locale', $droppedLocaleIds]);
+                    if ($droppedSiteIds) {
+                        Craft::$app->getDb()->createCommand()->delete('commerce_producttypes_i18n', ['in', 'site', $droppedSiteIds]);
                     }
                 }
 
@@ -524,32 +525,32 @@ class ProductTypes extends Component
                     $productIds = $criteria->ids();
 
                     // Should we be deleting
-                    if ($productIds && $droppedLocaleIds) {
-                        Craft::$app->getDb()->createCommand()->delete('elements_i18n', ['and', ['in', 'elementId', $productIds], ['in', 'locale', $droppedLocaleIds]]);
-                        Craft::$app->getDb()->createCommand()->delete('content', ['and', ['in', 'elementId', $productIds], ['in', 'locale', $droppedLocaleIds]]);
+                    if ($productIds && $droppedSiteIds) {
+                        Craft::$app->getDb()->createCommand()->delete('elements_i18n', ['and', ['in', 'elementId', $productIds], ['in', 'site', $droppedSiteIds]]);
+                        Craft::$app->getDb()->createCommand()->delete('content', ['and', ['in', 'elementId', $productIds], ['in', 'site', $droppedSiteIds]]);
                     }
-                    // Are there any locales left?
-                    if ($productTypeLocales) {
+                    // Are there any sites left?
+                    if ($productTypeSites) {
                         // Drop the old productType URIs if the product type no longer has URLs
                         if (!$productType->hasUrls && $oldProductType->hasUrls) {
                             Craft::$app->getDb()->createCommand()->update('elements_i18n',
                                 ['uri' => null],
                                 ['in', 'elementId', $productIds]
                             );
-                        } else if ($changedLocaleIds) {
+                        } else if ($changedSiteIds) {
                             foreach ($productIds as $productId) {
                                 Craft::$app->getConfig()->maxPowerCaptain();
 
-                                // Loop through each of the changed locales and update all of the products’ slugs and
+                                // Loop through each of the changed sites and update all of the products’ slugs and
                                 // URIs
-                                foreach ($changedLocaleIds as $localeId) {
+                                foreach ($changedSiteIds as $siteId) {
                                     $criteria = Product::find();
                                     $criteria->id = $productId;
-                                    $criteria->site = $localeId;
+                                    $criteria->site = $siteId;
                                     $criteria->status = null;
                                     $updateProduct = $criteria->first();
 
-                                    // @todo replace the getContent()->id check with 'strictLocale' param once it's added
+                                    // @todo replace the getContent()->id check with 'strictSite' param once it's added
                                     if ($updateProduct && $updateProduct->getContent()->id) {
                                         Craft::$app->getElements()->updateElementSlugAndUri($updateProduct, false, false);
                                     }
@@ -563,16 +564,16 @@ class ProductTypes extends Component
 
                     if (!$isNewProductType) {
 
-                        // Get the most-primary locale that this section was already enabled in
-                        $locales = array_values(Craft::$app->getI18n()->getSiteLocaleIds());
+                        // Get the most-primary site that this section was already enabled in
+                        $sites = array_values(Craft::$app->getI18n()->getSiteSiteIds());
 
-                        if ($locales) {
+                        if ($sites) {
                             Craft::$app->getTasks()->queueTask([
                                 'type' => ResaveElements::class,
                                 'description' => Craft::t('app', 'Resaving {productType} products', ['productType' => $productType->name]),
                                 'elementType' => Product::class,
                                 'criteria' => [
-                                    'siteId' => $locales[0],
+                                    'siteId' => $sites[0],
                                     'typeId' => $productType->id,
                                     'status' => null,
                                     'enabledForSite' => false,
@@ -686,7 +687,7 @@ class ProductTypes extends Component
             // Set Craft to the site template mode
             $templatesService = Craft::$app->getView();
             $oldTemplateMode = $templatesService->getTemplateMode();
-            $templatesService->setTemplateMode(TemplateMode::Site);
+            $templatesService->setTemplateMode($templatesService::TEMPLATE_MODE_SITE);
 
             // Does the template exist?
             $templateExists = $templatesService->doesTemplateExist($productType->template);
@@ -707,26 +708,26 @@ class ProductTypes extends Component
      *
      * @return bool
      */
-    public function addLocaleHandler(Event $event)
+    public function addSiteHandler(Event $event)
     {
         /** @var Order $order */
-        $localeId = $event->params['localeId'];
+        $siteId = $event->params['siteId'];
 
-        // Add this locale to each of the category groups
-        $productTypeLocales = Craft::$app->getDb()->createCommand()
+        // Add this site to each of the category groups
+        $productTypeSites = Craft::$app->getDb()->createCommand()
             ->select('productTypeId, urlFormat')
             ->from('commerce_producttypes_i18n')
-            ->where('locale = :locale', [':locale' => Craft::$app->getI18n()->getPrimarySiteLocaleId()])
+            ->where('site = :site', [':site' => Craft::$app->getI18n()->getPrimarySiteSiteId()])
             ->queryAll();
 
-        if ($productTypeLocales) {
-            $newProductTypeLocales = [];
+        if ($productTypeSites) {
+            $newProductTypeSites = [];
 
-            foreach ($productTypeLocales as $productTypeLocale) {
-                $newProductTypeLocales[] = [$productTypeLocale['productTypeId'], $localeId, $productTypeLocale['urlFormat']];
+            foreach ($productTypeSites as $productTypeSite) {
+                $newProductTypeSites[] = [$productTypeSite['productTypeId'], $siteId, $productTypeSite['urlFormat']];
             }
 
-            Craft::$app->getDb()->createCommand()->insertAll('commerce_producttypes_i18n', ['productTypeId', 'locale', 'urlFormat'], $newProductTypeLocales);
+            Craft::$app->getDb()->createCommand()->insertAll('commerce_producttypes_i18n', ['productTypeId', 'site', 'urlFormat'], $newProductTypeSites);
         }
 
         return true;

@@ -69,7 +69,7 @@ class Product
 
         foreach ($variantData as $key => $variant) {
             if ($productId && strncmp($key, 'new', 3) !== 0) {
-                $variantModel = Plugin::getInstance()->getVariants()->getVariantById($key, $product->locale);
+                $variantModel = Plugin::getInstance()->getVariants()->getVariantById($key, $product->siteId);
             } else {
                 $variantModel = new VariantModel();
             }

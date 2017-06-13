@@ -7,7 +7,7 @@ use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\fieldtypes\Customer;
 use craft\commerce\fieldtypes\Products;
-use craft\commerce\records\ProductTypeLocale;
+use craft\commerce\records\ProductTypeSite;
 use craft\commerce\widgets\Orders;
 use craft\commerce\widgets\Revenue;
 use craft\db\Migration;
@@ -42,8 +42,8 @@ class m160531_154500_craft3_upgrade extends Migration
         MigrationHelper::dropAllIndexesOnTable('{{%commerce_producttypes_i18n}}');
 
         // Drop the old locale FK column and rename the new siteId FK column
-        $this->dropColumn(ProductTypeLocale::tableName(), 'locale');
-        MigrationHelper::renameColumn(ProductTypeLocale::tableName(), 'locale__siteId', 'siteId', $this);
+        $this->dropColumn(ProductTypeSite::tableName(), 'locale');
+        MigrationHelper::renameColumn(ProductTypeSite::tableName(), 'locale__siteId', 'siteId', $this);
 
         // And then just recreate them.
         $this->createIndex($this->db->getIndexName('{{%commerce_producttypes_i18n}}', 'productTypeId,siteId', true), '{{%commerce_producttypes_i18n}}', 'productTypeId,siteId', true);

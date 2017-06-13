@@ -13,7 +13,7 @@ use craft\commerce\records\PaymentCurrency;
 use craft\commerce\records\PaymentMethod;
 use craft\commerce\records\Product as ProductRecord;
 use craft\commerce\records\ProductType;
-use craft\commerce\records\ProductTypeLocale;
+use craft\commerce\records\ProductTypeSite;
 use craft\commerce\records\Settings;
 use craft\commerce\records\ShippingCategory;
 use craft\commerce\records\ShippingMethod;
@@ -1530,7 +1530,7 @@ class Install extends Migration
                 'siteId' => $siteId,
                 'urlFormat' => 'shop/products/{slug}'
             ];
-            $this->insert(ProductTypeLocale::tableName(), $data);
+            $this->insert(ProductTypeSite::tableName(), $data);
         }
     }
 

@@ -13,12 +13,20 @@ trait Routes
 
             $event->rules['commerce'] = ['template' => 'commerce/index'];
 
+
+//            $event->rules['commerce/products/(?P<productTypeHandle>{handle})'] = 'commerce/products/product-index';
+//            $event->rules['commerce/products/(?P<productTypeHandle>{handle})/new/(?P<localeId>\w+)'] = 'commerce/products/edit-product';
+//            $event->rules['commerce/products/(?P<productTypeHandle>{handle})/new'] = 'commerce/products/edit-product';
+//            $event->rules['commerce/products/(?P<productTypeHandle>{handle})/(?P<productId>\d+)(?:-{slug})?/(?P<localeId>\w+)'] = 'commerce/products/edit-product';
+//            $event->rules['commerce/products/(?P<productTypeHandle>{handle})/(?P<productId>\d+)(?:-{slug})?'] = 'commerce/products/edit-product';
+//
+
             $event->rules['commerce/products'] = 'commerce/products/product-index';
-            $event->rules['commerce/products/(?P<productTypeHandle>{handle})'] = 'commerce/products/product-index';
-            $event->rules['commerce/products/(?P<productTypeHandle>{handle})/new/(?P<localeId>\w+)'] = 'commerce/products/edit-product';
-            $event->rules['commerce/products/(?P<productTypeHandle>{handle})/new'] = 'commerce/products/edit-product';
-            $event->rules['commerce/products/(?P<productTypeHandle>{handle})/(?P<productId>\d+)(?:-{slug})?/(?P<localeId>\w+)'] = 'commerce/products/edit-product';
-            $event->rules['commerce/products/(?P<productTypeHandle>{handle})/(?P<productId>\d+)(?:-{slug})?'] = 'commerce/products/edit-product';
+            $event->rules['commerce/products/<productTypeHandle:{handle}>'] = 'commerce/products/product-index';
+            $event->rules['commerce/products/<productTypeHandle:{handle}>/new'] = 'commerce/products/edit-product';
+            $event->rules['commerce/products/<productTypeHandle:{handle}>/new/<siteHandle:{handle}>'] = 'commerce/products/edit-product';
+            $event->rules['commerce/products/<productTypeHandle:{handle}>/<productId:\d+><slug:(?:-[^\/]*)?>'] = 'commerce/products/edit-product';
+            $event->rules['commerce/products/<productTypeHandle:{handle}>/<productId:\d+><slug:(?:-[^\/]*)?>/<siteHandle:{handle}>'] = 'commerce/products/edit-product';
 
             $event->rules['commerce/settings/producttypes'] = 'commerce/product-types/product-type-index';
             $event->rules['commerce/settings/producttypes/(?P<productTypeId>\d+)'] = 'commerce/product-types/edit-product-type';

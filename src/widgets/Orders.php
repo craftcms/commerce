@@ -5,6 +5,7 @@ namespace craft\commerce\widgets;
 use Craft;
 use craft\base\Widget;
 use craft\commerce\elements\Order;
+use craft\helpers\StringHelper;
 
 class Orders extends Widget
 {
@@ -108,12 +109,12 @@ class Orders extends Widget
     {
         $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
 
-        Craft::$app->getView()->includeJsResource('commerce/js/CommerceOrdersWidgetSettings.js');
+        Craft::$app->getView()->registerJsFile('commerce/js/CommerceOrdersWidgetSettings.js');
 
         $id = 'analytics-settings-'.StringHelper::randomString();
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);
 
-        Craft::$app->getView()->includeJs("new Craft.Commerce.OrdersWidgetSettings('".$namespaceId."');");
+        Craft::$app->getView()->registerJs("new Craft.Commerce.OrdersWidgetSettings('".$namespaceId."');");
 
         return Craft::$app->getView()->render('commerce/_components/widgets/Orders/settings', [
             'id' => $id,

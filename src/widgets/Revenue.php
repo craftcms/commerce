@@ -60,8 +60,8 @@ class Revenue extends Widget
             'dateRange' => $settings->dateRange
         ];
 
-        Craft::$app->getView()->includeCssResource('commerce/CommerceRevenueWidget.css');
-        Craft::$app->getView()->includeJsResource('commerce/js/CommerceRevenueWidget.js');
+        Craft::$app->getView()->registerCssFile('commerce/CommerceRevenueWidget.css');
+        Craft::$app->getView()->registerJsFile('commerce/js/CommerceRevenueWidget.js');
 
         $js = 'new Craft.Commerce.RevenueWidget('.$this->model->id.', '.JsonHelper::encode($options).');';
 
