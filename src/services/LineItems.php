@@ -2,15 +2,16 @@
 
 namespace craft\commerce\services;
 
-use Commerce\Interfaces\Purchasable;
 use Craft;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\events\LineItemEvent;
 use craft\commerce\models\LineItem;
+use craft\commerce\Plugin;
 use craft\commerce\records\LineItem as LineItemRecord;
 use craft\helpers\ArrayHelper;
 use yii\base\Component;
+use yii\base\Exception;
 
 /**
  * Line item service.
@@ -136,7 +137,7 @@ class LineItems extends Component
      * @return bool
      * @throws Exception
      */
-    public function updateLineItem(Order $order, LineItem $lineItem, &$error = '')
+    public function updateLineItem(Order $order, LineItem $lineItem, &$error = ''): bool
     {
         if (!$lineItem->purchasableId) {
             $this->deleteLineItem($lineItem);
@@ -178,7 +179,7 @@ class LineItems extends Component
      * @return bool
      * @throws \Exception
      */
-    public function saveLineItem(LineItem $lineItem)
+    public function saveLineItem(LineItem $lineItem): bool
     {
         $isNewLineItem = !$lineItem->id;
 
@@ -302,9 +303,8 @@ class LineItems extends Component
      * @param $qty
      *
      * @return LineItem
-     * @throws Exception
      */
-    public function createLineItem($purchasableId, $order, $options, $qty)
+    public function createLineItem($purchasableId, $order, $options, $qty): LineItem
     {
         $lineItem = new LineItem();
         $lineItem->purchasableId = $purchasableId;
@@ -317,7 +317,7 @@ class LineItems extends Component
         /** @var PurchasableInterface $purchasable */
         $purchasable = Craft::$app->getElements()->getElementById($purchasableId);
 
-        if ($purchasable && $purchasable instanceof Purchasable) {
+        if ($purchasable && $purchasable instanceof PurchasableInterface) {
             $lineItem->fillFromPurchasable($purchasable);
         } else {
             throw new Exception(Craft::t('commerce', 'commerce', 'Not a purchasable ID'));
@@ -335,10 +335,10 @@ class LineItems extends Component
     /**
      * @param int $orderId
      *
-     * @return int
+     * @return bool
      */
-    public function deleteAllLineItemsByOrderId($orderId)
+    public function deleteAllLineItemsByOrderId($orderId): bool
     {
-        return LineItemRecord::deleteAll(['orderId' => $orderId]);
+        return (bool) LineItemRecord::deleteAll(['orderId' => $orderId]);
     }
 }
