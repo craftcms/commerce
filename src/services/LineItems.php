@@ -9,7 +9,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\events\LineItemEvent;
 use craft\commerce\models\LineItem;
 use craft\commerce\records\LineItem as LineItemRecord;
-use craft\db\Query;
+use craft\helpers\ArrayHelper;
 use yii\base\Component;
 
 /**
@@ -39,13 +39,11 @@ class LineItems extends Component
 
     /**
      * @event LineItemEvent This event is raised when a new line item is created from a purchasable
-
      */
     const EVENT_CREATE_LINE_ITEM = 'createLineItem';
 
     /**
      * @event LineItemEvent This event is raised when a new line item is populated from a purchasable
-
      */
     const EVENT_POPULATE_LINE_ITEM = 'populateLineItem';
 
@@ -57,31 +55,50 @@ class LineItems extends Component
      *
      * @return LineItem[]
      */
-    public function getAllLineItemsByOrderId($id)
+    public function getAllLineItemsByOrderId($id): array
     {
         $lineItems = [];
 
         if ($id) {
-            $lineItems = $this->_createLineItemsQuery()
-                ->where('lineitems.orderId = :orderId', [':orderId' => $id])
-                ->all();
+            $lineItems = LineItemRecord::find()->where('orderId = :orderId', [':orderId' => $id])->all();
         }
 
-        return LineItem::populateModels($lineItems);
+        return ArrayHelper::map($lineItems, 'id', function($lineItem) {
+            return $this->_createLineItemFromLineItemRecord($lineItem);
+        });
     }
 
     /**
-     * Returns a DbCommand object prepped for retrieving sections.
+     * @param LineItemRecord $lineItemRecord
      *
-     * @return Query
+     * @return LineItem
      */
-    private function _createLineItemsQuery()
+    private function _createLineItemFromLineItemRecord($lineItemRecord): LineItem
     {
-
-        return (new Query())
-            ->select('lineitems.id, lineitems.orderId, lineitems.purchasableId, lineitems.options, lineitems.optionsSignature, lineitems.price, lineitems.saleAmount, lineitems.salePrice, lineitems.tax, lineitems.taxIncluded, lineitems.shippingCost, lineitems.discount, lineitems.weight, lineitems.height, lineitems.length, lineitems.width, lineitems.total, lineitems.qty, lineitems.note, lineitems.snapshot, lineitems.taxCategoryId, lineitems.shippingCategoryId')
-            ->from('commerce_lineitems lineitems')
-            ->orderBy('lineitems.id');
+        return new LineItem($lineItemRecord->toArray([
+            'id',
+            'options',
+            'optionsSignature',
+            'price',
+            'saleAmount',
+            'salePrice',
+            'tax',
+            'taxIncluded',
+            'shippingCost',
+            'discount',
+            'weight',
+            'length',
+            'height',
+            'width',
+            'total',
+            'qty',
+            'snapshot',
+            'note',
+            'purchasableId',
+            'orderId',
+            'taxCategoryId',
+            'shippingCategoryId'
+        ]));
     }
 
     /**
@@ -93,12 +110,12 @@ class LineItems extends Component
      *
      * @return LineItem|null
      */
-    public function getLineItemByOrderPurchasableOptions($orderId, $purchasableId, $options = [])
+    public function getLineItemByOrderPurchasableOptions($orderId, $purchasableId, array $options = [])
     {
         ksort($options);
         $signature = md5(json_encode($options));
-        $result = $this->_createLineItemsQuery()
-            ->where('lineitems.orderId = :orderId AND lineitems.purchasableId = :purchasableId AND lineitems.optionsSignature = :optionsSignature',
+        $result = LineItemRecord::find()
+            ->where('orderId = :orderId AND purchasableId = :purchasableId AND optionsSignature = :optionsSignature',
                 [':orderId' => $orderId, ':purchasableId' => $purchasableId, ':optionsSignature' => $signature])
             ->one();
 
@@ -269,9 +286,7 @@ class LineItems extends Component
      */
     public function getLineItemById($id)
     {
-        $result = $this->_createLineItemsQuery()
-            ->where('lineitems.id = :id', [':id' => $id])
-            ->one();
+        $result = LineItemRecord::findOne($id);
 
         if ($result) {
             return new LineItem($result);
