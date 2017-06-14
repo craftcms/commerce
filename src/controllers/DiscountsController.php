@@ -40,8 +40,7 @@ class DiscountsController extends BaseCpController
     public function actionIndex()
     {
         $discounts = Plugin::getInstance()->getDiscounts()->getAllDiscounts();
-        return $this->renderTemplate('commerce/promotions/discounts/index',
-            compact('discounts'));
+        return $this->renderTemplate('commerce/promotions/discounts/index', compact('discounts'));
     }
 
 
@@ -67,7 +66,7 @@ class DiscountsController extends BaseCpController
             }
         }
 
-        if ($variables['id']) {
+        if ($variables['discount']->id) {
             $variables['title'] = $variables['discount']->name;
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a Discount');
@@ -154,10 +153,10 @@ class DiscountsController extends BaseCpController
         $percentDiscountAmount = Craft::$app->getRequest()->getParam('percentDiscount');
         $localeData = Craft::$app->getI18n()->localeData();
         $percentSign = $localeData->getNumberSymbol('percentSign');
-        if (strpos($percentDiscountAmount, $percentSign) or floatval($percentDiscountAmount) >= 1) {
-            $discount->percentDiscount = floatval($percentDiscountAmount) / -100;
+        if (strpos($percentDiscountAmount, $percentSign) or (float) $percentDiscountAmount >= 1) {
+            $discount->percentDiscount = (float) $percentDiscountAmount / -100;
         } else {
-            $discount->percentDiscount = floatval($percentDiscountAmount) * -1;
+            $discount->percentDiscount = (float) $percentDiscountAmount * -1;
         }
 
         $products = Craft::$app->getRequest()->getParam('products', []);

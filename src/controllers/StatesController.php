@@ -2,8 +2,11 @@
 
 namespace craft\commerce\controllers;
 
-use craft\commerce\models\State;
 use Craft;
+use craft\commerce\models\State;
+use craft\commerce\Plugin;
+use yii\web\HttpException;
+use yii\web\Response;
 
 /**
  * Class State Controller
@@ -18,28 +21,30 @@ use Craft;
 class StatesController extends BaseAdminController
 {
     /**
-     * @throws HttpException
+     * @return Response
      */
-    public function actionIndex()
+    public function actionIndex(): Response
     {
         $states = Plugin::getInstance()->getStates()->getAllStates();
-        return $this->renderTemplate('commerce/settings/states/index',
-            compact('states'));
+        return $this->renderTemplate('commerce/settings/states/index', compact('states'));
     }
 
     /**
-     * Create/Edit State
+     * @param int|null   $id
+     * @param State|null $state
      *
-     * @param array $variables
-     *
+     * @return Response
      * @throws HttpException
      */
-    public function actionEdit(array $variables = [])
+    public function actionEdit(int $id = null, State $state = null): Response
     {
-        if (empty($variables['state'])) {
-            if (!empty($variables['id'])) {
-                $id = $variables['id'];
-                $variables['state'] = Plugin::getInstance()->getStates()->getStateById($id);
+        $variables = [
+            'id' => $id,
+            'state' => $state
+        ];
+        if (!$variables['state']) {
+            if ($variables['id']) {
+                $variables['state'] = Plugin::getInstance()->getStates()->getStateById($variables['id']);
 
                 if (!$variables['state']) {
                     throw new HttpException(404);
@@ -49,7 +54,7 @@ class StatesController extends BaseAdminController
             };
         }
 
-        if (!empty($variables['id'])) {
+        if ($variables['state']->id) {
             $variables['title'] = $variables['state']->name;
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new state');

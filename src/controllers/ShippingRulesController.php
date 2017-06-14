@@ -7,6 +7,8 @@ use craft\commerce\Plugin;
 use craft\commerce\records\ShippingRuleCategory;
 use craft\helpers\ArrayHelper;
 use Craft;
+use yii\web\Response;
+use yii\web\HttpException;
 
 /**
  * Class Shipping Rules Controller
@@ -21,46 +23,41 @@ use Craft;
 class ShippingRulesController extends BaseAdminController
 {
     /**
-     * @throws HttpException
+     * @return Response
      */
-    public function actionIndex()
+    public function actionIndex(): Response
     {
-        if (!Craft::$app->getUser()->getUser()->can('manageCommerce')) {
-            throw new HttpException(403, Craft::t('commerce', 'This action is not allowed for the current user.'));
-        }
-
         $methodsExist = Plugin::getInstance()->getShippingMethods()->ShippingMethodExists();
         $shippingRules = Plugin::getInstance()->getShippingRules()->getAllShippingRules();
         return $this->renderTemplate('commerce/settings/shippingrules/index', compact('shippingRules', 'methodsExist'));
     }
 
     /**
-     * Create/Edit Shipping Rule
+     * @param int|null          $methodId
+     * @param int|null          $ruleId
+     * @param ShippingRule|null $shippingRule
      *
-     * @param array $variables
-     *
+     * @return Response
      * @throws HttpException
      */
-    public function actionEdit(array $variables = [])
+    public function actionEdit(int $methodId = null, int $ruleId = null, ShippingRule $shippingRule = null): Response
     {
-        if (!Craft::$app->getUser()->getUser()->can('manageCommerce')) {
-            throw new HttpException(403, Craft::t('commerce', 'This action is not allowed for the current user.'));
-        }
 
-        if (empty($variables['methodId'])) {
-            throw new HttpException(404);
-        }
+        $variables = [
+            'methodId' => $methodId,
+            'ruleId' => $ruleId,
+            'shippingRule' => $shippingRule,
+        ];
 
         $variables['shippingMethod'] = Plugin::getInstance()->getShippingMethods()->getShippingMethodById($variables['methodId']);
 
-        if (empty($variables['shippingMethod'])) {
+        if (!$variables['shippingMethod']) {
             throw new HttpException(404);
         }
 
-        if (empty($variables['shippingRule'])) {
-            if (!empty($variables['ruleId'])) {
-                $id = $variables['ruleId'];
-                $variables['shippingRule'] = Plugin::getInstance()->getShippingRules()->getShippingRuleById($id);
+        if (!$variables['shippingRule']) {
+            if ($variables['ruleId']) {
+                $variables['shippingRule'] = Plugin::getInstance()->getShippingRules()->getShippingRuleById($variables['ruleId']);
 
                 if (!$variables['shippingRule']) {
                     throw new HttpException(404);
@@ -113,10 +110,6 @@ class ShippingRulesController extends BaseAdminController
      */
     public function actionSave()
     {
-        if (!Craft::$app->getUser()->getUser()->can('manageCommerce')) {
-            throw new HttpException(403, Craft::t('commerce', 'This action is not allowed for the current user.'));
-        }
-
         $this->requirePostRequest();
 
         $shippingRule = new ShippingRule();
@@ -131,7 +124,8 @@ class ShippingRulesController extends BaseAdminController
         }
 
         $ruleCategories = [];
-        foreach (Craft::$app->getRequest()->getParam('ruleCategories') as $key => $ruleCategory) {
+        $allRulesCategories  = Craft::$app->getRequest()->getParam('ruleCategories');
+        foreach ($allRulesCategories as $key => $ruleCategory) {
             $ruleCategories[$key] = new ShippingRuleCategory($ruleCategory);
             $ruleCategories[$key]->shippingCategoryId = $key;
         }

@@ -3,8 +3,11 @@
 namespace craft\commerce\controllers;
 
 use craft\commerce\models\ShippingZone;
+use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
 use Craft;
+use yii\web\HttpException;
+use yii\web\Response;
 
 /**
  * Class Shipping Zones Controller
@@ -24,23 +27,27 @@ class ShippingZonesController extends BaseAdminController
     public function actionIndex()
     {
         $shippingZones = Plugin::getInstance()->getShippingZones()->getAllShippingZones();
-        return $this->renderTemplate('commerce/settings/shippingzones/index',
-            compact('shippingZones'));
+        return $this->renderTemplate('commerce/settings/shippingzones/index', compact('shippingZones'));
     }
 
+
     /**
-     * Create/Edit ShippingZone
+     * @param int|null     $id
+     * @param ShippingZone $shippingZone
      *
-     * @param array $variables
-     *
+     * @return Response
      * @throws HttpException
      */
-    public function actionEdit(array $variables = [])
+    public function actionEdit(int $id = null, ShippingZone $shippingZone): Response
     {
-        if (empty($variables['shippingZone'])) {
-            if (!empty($variables['id'])) {
-                $id = $variables['id'];
-                $variables['shippingZone'] = Plugin::getInstance()->getShippingZones()->getShippingZoneById($id);
+        $variables = [
+            'id' => $id,
+            'shippingZones' => $shippingZone
+        ];
+
+        if (!$variables['shippingZone']) {
+            if ($variables['id']) {
+                $variables['shippingZone'] = Plugin::getInstance()->getShippingZones()->getShippingZoneById($variables['id']);
 
                 if (!$variables['shippingZone']) {
                     throw new HttpException(404);
@@ -50,7 +57,7 @@ class ShippingZonesController extends BaseAdminController
             };
         }
 
-        if (!empty($variables['id'])) {
+        if ($variables['shippingZone']->id) {
             $variables['title'] = $variables['shippingZone']->name;
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a shipping zone');

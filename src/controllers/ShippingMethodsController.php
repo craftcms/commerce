@@ -5,6 +5,8 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\models\ShippingMethod;
 use craft\commerce\Plugin;
+use yii\web\HttpException;
+use yii\web\Response;
 
 /**
  * Class Shipping Methods Controller
@@ -19,44 +21,47 @@ use craft\commerce\Plugin;
 class ShippingMethodsController extends BaseAdminController
 {
     /**
-     * @throws HttpException
+     * @return Response
      */
-    public function actionIndex()
+    public function actionIndex(): Response
     {
         $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAllShippingMethods();
         return $this->renderTemplate('commerce/settings/shippingmethods/index', compact('shippingMethods'));
     }
 
+
     /**
-     * Create/Edit Shipping Method
+     * @param int|null            $id
+     * @param ShippingMethod|null $shippingMethod
      *
-     * @param array $variables
-     *
+     * @return Response
      * @throws HttpException
      */
-    public function actionEdit(array $variables = [])
+    public function actionEdit(int $id = null, ShippingMethod $shippingMethod = null): Response
     {
+        $variables = [
+            'id' => $id,
+            'shippingMethod' => $shippingMethod
+        ];
+
         $variables['newMethod'] = false;
 
-        if (empty($variables['shippingMethod'])) {
-            if (!empty($variables['id'])) {
-                $id = $variables['id'];
-                $variables['shippingMethod'] = Plugin::getInstance()->getShippingMethods()->getShippingMethodById($id);
+        if (!$variables['shippingMethod']) {
+            if ($variables['id']) {
+                $variables['shippingMethod'] = Plugin::getInstance()->getShippingMethods()->getShippingMethodById($variables['id']);
 
                 if (!$variables['shippingMethod']) {
                     throw new HttpException(404);
                 }
             } else {
                 $variables['shippingMethod'] = new ShippingMethod();
-                $variables['newMethod'] = true;
             }
         }
 
-        if (!empty($variables['id'])) {
+        if ($variables['shippingMethod']->id) {
             $variables['title'] = $variables['shippingMethod']->name;
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new shipping method');
-            $variables['newMethod'] = true;
         }
 
         $shippingRules = Plugin::getInstance()->getShippingRules()->getAllShippingRulesByShippingMethodId($variables['shippingMethod']->id);

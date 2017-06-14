@@ -16,9 +16,8 @@
            value="commerce/settings/orderstatuses">
 
     {% if orderStatus.id %}
-        <input type="hidden" name="sortOrder"
-               value="{{ orderStatus.sortOrder }}">
-        <input type="hidden" name="orderStatusId" value="{{ orderStatus.id }}">
+        <input type="hidden" name="sortOrder" value="{{ orderStatus.sortOrder }}">
+        <input type="hidden" name="id" value="{{ orderStatus.id }}">
     {% endif %}
 
     {{ forms.textField({

@@ -6,6 +6,7 @@ use Craft;
 use craft\commerce\models\Email;
 use craft\commerce\Plugin;
 use yii\web\HttpException;
+use yii\web\Response;
 
 /**
  * Class Emails Controller
@@ -19,29 +20,34 @@ use yii\web\HttpException;
  */
 class EmailsController extends BaseAdminController
 {
+
     /**
-     * @throws HttpException
+     * @return Response
      */
-    public function actionIndex()
+    public function actionIndex(): Response
     {
         $emails = Plugin::getInstance()->getEmails()->getAllEmails();
-        return $this->renderTemplate('commerce/settings/emails/index',
-            compact('emails'));
+        return $this->renderTemplate('commerce/settings/emails/index', compact('emails'));
     }
 
     /**
-     * Create/Edit Email
+     * @param int|null   $id
+     * @param Email|null $email
      *
-     * @param array $variables
-     *
+     * @return Response
      * @throws HttpException
      */
-    public function actionEdit(array $variables = [])
+    public function actionEdit(int $id = null, Email $email = null): Response
     {
-        if (empty($variables['email'])) {
-            if (!empty($variables['id'])) {
-                $id = $variables['id'];
-                $variables['email'] = Plugin::getInstance()->getEmails()->getEmailById($id);
+        $variables = [
+            'email' => $email,
+            'id' => $id
+        ];
+
+        if (!$variables['email']) {
+            if ($variables['id']) {
+
+                $variables['email'] = Plugin::getInstance()->getEmails()->getEmailById($variables['id']);
 
                 if (!$variables['email']) {
                     throw new HttpException(404);
@@ -51,7 +57,7 @@ class EmailsController extends BaseAdminController
             }
         }
 
-        if (!empty($variables['id'])) {
+        if ($variables['email']->id) {
             $variables['title'] = $variables['email']->name;
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new email');

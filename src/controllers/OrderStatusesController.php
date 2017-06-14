@@ -8,6 +8,7 @@ use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use yii\web\HttpException;
+use yii\web\Response;
 
 /**
  * Class Order Status Controller
@@ -21,30 +22,36 @@ use yii\web\HttpException;
  */
 class OrderStatusesController extends BaseAdminController
 {
-    /**
-     * @param array $variables
-     *
-     * @throws HttpException
-     */
-    public function actionIndex(array $variables = [])
-    {
-        $variables['orderStatuses'] = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
 
-        return $this->renderTemplate('commerce/settings/orderstatuses/index', $variables);
+    /**
+     * @return Response
+     */
+    public function actionIndex(): Response
+    {
+        $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
+
+        return $this->renderTemplate('commerce/settings/orderstatuses/index', compact('orderStatuses'));
     }
 
-
     /**
-     * @param array $variables
+     * @param int|null         $id
+     * @param OrderStatus|null $orderStatus
      *
+     * @return Response
      * @throws HttpException
      */
-    public function actionEdit(array $variables = [])
+    public function actionEdit(int $id = null, OrderStatus $orderStatus = null): Response
     {
-        if (empty($variables['orderStatus'])) {
-            if (!empty($variables['id'])) {
+        $variables = [
+            'id' => $id,
+            'orderStatus' => $orderStatus
+        ];
+
+        if (!$variables['orderStatus']) {
+            if ($variables['id']) {
+
                 $variables['orderStatus'] = Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($variables['id']);
-                $variables['orderStatusId'] = $variables['orderStatus'];
+
                 if (!$variables['orderStatus']) {
                     throw new HttpException(404);
                 }
@@ -53,7 +60,7 @@ class OrderStatusesController extends BaseAdminController
             }
         }
 
-        if (!empty($variables['orderStatusId'])) {
+        if ($variables['orderStatus']->id) {
             $variables['title'] = $variables['orderStatus']->name;
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new order status');
@@ -62,8 +69,7 @@ class OrderStatusesController extends BaseAdminController
         $emails = Plugin::getInstance()->getEmails()->getAllEmails();
         $variables['emails'] = ArrayHelper::map($emails, 'id', 'name');
 
-        return $this->renderTemplate('commerce/settings/orderstatuses/_edit',
-            $variables);
+        return $this->renderTemplate('commerce/settings/orderstatuses/_edit', $variables);
     }
 
     /**

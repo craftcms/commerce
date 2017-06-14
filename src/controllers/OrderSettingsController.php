@@ -21,11 +21,8 @@ use yii\web\HttpException;
  */
 class OrderSettingsController extends BaseAdminController
 {
-    /**
-     * @param array $variables
-     *
-     * @throws HttpException
-     */
+
+
     public function actionEdit(array $variables = [])
     {
         $variables['orderSettings'] = Plugin::getInstance()->getOrderSettings()->getOrderSettingByHandle('order');

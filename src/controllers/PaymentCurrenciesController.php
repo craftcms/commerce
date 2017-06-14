@@ -6,6 +6,7 @@ use Craft;
 use craft\commerce\models\PaymentCurrency;
 use craft\commerce\Plugin;
 use yii\web\HttpException;
+use yii\web\Response;
 
 /**
  * Class Currencies Controller
@@ -19,28 +20,33 @@ use yii\web\HttpException;
  */
 class PaymentCurrenciesController extends BaseAdminController
 {
+
     /**
-     * @throws HttpException
+     * @return Response
      */
-    public function actionIndex()
+    public function actionIndex(): Response
     {
         $currencies = Plugin::getInstance()->getPaymentCurrencies()->getAllPaymentCurrencies();
         return $this->renderTemplate('commerce/settings/paymentcurrencies/index', compact('currencies'));
     }
 
     /**
-     * Create/Edit Currency
+     * @param int|null             $id
+     * @param PaymentCurrency|null $currency
      *
-     * @param array $variables
-     *
+     * @return Response
      * @throws HttpException
      */
-    public function actionEdit(array $variables = [])
+    public function actionEdit(int $id = null, PaymentCurrency $currency = null): Response
     {
-        if (empty($variables['currency'])) {
-            if (!empty($variables['id'])) {
-                $id = $variables['id'];
-                $variables['currency'] = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyById($id);
+        $variables = [
+            'id' => $id,
+            'currency' => $currency
+        ];
+
+        if (!$variables['currency']) {
+            if ($variables['id']) {
+                $variables['currency'] = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyById($variables['id']);
 
                 if (!$variables['currency']) {
                     throw new HttpException(404);
@@ -50,7 +56,7 @@ class PaymentCurrenciesController extends BaseAdminController
             }
         }
 
-        if (!empty($variables['id'])) {
+        if ($variables['currency']->id) {
             if ($variables['currency']->primary) {
                 $variables['title'] = $variables['currency']->currency.' ('.$variables['currency']->iso.')';
             } else {
