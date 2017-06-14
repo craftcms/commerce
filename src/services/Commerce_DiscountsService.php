@@ -253,18 +253,6 @@ class Commerce_DiscountsService extends BaseApplicationComponent
             }
         }
 
-        if (!$discount->allGroups)
-        {
-            $customer = $lineItem->getOrder()->getCustomer();
-            $user = $customer ? $customer->getUser() : null;
-            $userGroups = $this->getCurrentUserGroupIds($user);
-            if (!$user || !array_intersect($userGroups, $discount->getGroupIds()))
-            {
-                return false;
-            }
-        }
-
-
         //raising event
         $event = new Event($this, ['lineItem' => $lineItem, 'discount' => $discount]);
         $this->onBeforeMatchLineItem($event);

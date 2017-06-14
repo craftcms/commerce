@@ -113,13 +113,28 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
         $matchingQty = 0;
         $matchingTotal = 0;
         $matchingLineIds = [];
-        foreach ($lineItems as $item)
-        {
+        /** @var Commerce_LineItemModel $item */
+        foreach ($lineItems as $item) {
             if (\Craft\craft()->commerce_discounts->matchLineItem($item, $discount))
             {
-                $matchingLineIds[] = $item->id;
-                $matchingQty += $item->qty;
-                $matchingTotal += $item->getSubtotal();
+                if (!$discount->allGroups)
+                {
+                    $customer = $order->getCustomer();
+                    $user = $customer ? $customer->getUser() : null;
+                    $userGroups = \Craft\craft()->commerce_discounts->getCurrentUserGroupIds($user);
+                    if ($user && array_intersect($userGroups, $discount->getGroupIds()))
+                    {
+                        $matchingLineIds[] = $item->id;
+                        $matchingQty += $item->qty;
+                        $matchingTotal += $item->getSubtotal();
+                    }
+                }
+                else
+                {
+                    $matchingLineIds[] = $item->id;
+                    $matchingQty += $item->qty;
+                    $matchingTotal += $item->getSubtotal();
+                }
             }
         }
 
@@ -129,12 +144,9 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
         }
 
         // Have they entered a max qty?
-        if ($discount->maxPurchaseQty > 0)
+        if ($discount->maxPurchaseQty > 0 && $matchingQty > $discount->maxPurchaseQty)
         {
-            if ($matchingQty > $discount->maxPurchaseQty)
-            {
                 return false;
-            }
         }
 
         // Reject if they have not added enough matching items
