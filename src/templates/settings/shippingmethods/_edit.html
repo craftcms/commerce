@@ -12,24 +12,20 @@
     {% set tabs = {
     0: {'label':'Shipping Method'|t,'url':'#shipping-method-tab'}
     } %}
-    {% if not newMethod %}
+    {% if not shippingMethod.id %}
         {% set tabs = tabs|merge({1: {'label':'Rules'|t,'url':'#rules'}}) %}
     {% endif %}
 
 
 {% block saveButton %}
-    <input type="submit" class="btn submit"
-           value="{{ newMethod ? 'Save and set rules'|t :'Save'|t }}">
+    <input type="submit" class="btn submit" value="{{ shippingMethod.id ? 'Save and set rules'|t :'Save'|t }}">
 {% endblock %}
 
 {% block content %}
     <div id="shipping-method-tab">
-        <input type="hidden" name="action"
-               value="commerce/shippingMethods/save">
-        <input type="hidden" name="redirect"
-               value="commerce/settings/shippingmethods/{id}#rules">
-        {% if shippingMethod.id %}<input type="hidden" name="shippingMethodId"
-                                         value="{{ shippingMethod.id }}">{% endif %}
+        <input type="hidden" name="action" value="commerce/shippingMethods/save">
+        <input type="hidden" name="redirect" value="commerce/settings/shippingmethods/{id}#rules">
+        {% if shippingMethod.id %}<input type="hidden" name="shippingMethodId" value="{{ shippingMethod.id }}">{% endif %}
 
         {{ forms.textField({
             first: true,

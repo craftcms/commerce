@@ -58,7 +58,7 @@ class CountriesController extends BaseAdminController
             }
         }
 
-        if (!empty($variables['id'])) {
+        if ($variables['country']->id) {
             $variables['title'] = $variables['country']->name;
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new country');

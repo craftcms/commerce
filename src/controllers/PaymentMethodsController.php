@@ -9,6 +9,7 @@ use craft\db\Query;
 use craft\helpers\Db;
 use craft\helpers\Json;
 use yii\web\HttpException;
+use yii\web\Response;
 
 /**
  * Class Payment Method Controller
@@ -23,27 +24,31 @@ use yii\web\HttpException;
 class PaymentMethodsController extends BaseAdminController
 {
     /**
-     * @throws HttpException
+     * @return Response
      */
-    public function actionIndex()
+    public function actionIndex(): Response
     {
         $paymentMethods = Plugin::getInstance()->getPaymentMethods()->getAllPaymentMethods();
         return $this->renderTemplate('commerce/settings/paymentmethods/index', compact('paymentMethods'));
     }
 
     /**
-     * Create/Edit PaymentMethod
+     * @param int|null           $id
+     * @param PaymentMethod|null $paymentMethod
      *
-     * @param array $variables
-     *
+     * @return Response
      * @throws HttpException
      */
-    public function actionEdit(array $variables = [])
+    public function actionEdit(int $id = null, PaymentMethod $paymentMethod = null): Response
     {
-        if (empty($variables['paymentMethod'])) {
-            if (!empty($variables['id'])) {
-                $id = $variables['id'];
-                $variables['paymentMethod'] = Plugin::getInstance()->getPaymentMethods()->getPaymentMethodById($id);
+        $variables = [
+            'id' => $id,
+            'paymentMethod' => $paymentMethod
+        ];
+
+        if (!$variables['paymentMethod']) {
+            if ($variables['id']) {
+                $variables['paymentMethod'] = Plugin::getInstance()->getPaymentMethods()->getPaymentMethodById($variables['id']);
 
                 if (!$variables['paymentMethod']) {
                     throw new HttpException(404);

@@ -2,9 +2,11 @@
 
 namespace craft\commerce\controllers;
 
-use craft\commerce\models\ShippingCategory;
 use Craft;
+use craft\commerce\models\ShippingCategory;
 use craft\commerce\Plugin;
+use yii\web\HttpException;
+use yii\web\Response;
 
 /**
  * Class Shipping Categories Controller
@@ -19,27 +21,31 @@ use craft\commerce\Plugin;
 class ShippingCategoriesController extends BaseAdminController
 {
     /**
-     * @throws HttpException
+     * @return Response
      */
-    public function actionIndex()
+    public function actionIndex(): Response
     {
         $shippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategories();
         return $this->renderTemplate('commerce/settings/shippingcategories/index', compact('shippingCategories'));
     }
 
     /**
-     * Create/Edit Shipping Category
+     * @param int|null              $id
+     * @param ShippingCategory|null $shippingCategory
      *
-     * @param array $variables
-     *
+     * @return Response
      * @throws HttpException
      */
-    public function actionEdit(array $variables = [])
+    public function actionEdit(int $id = null, ShippingCategory $shippingCategory = null): Response
     {
-        if (empty($variables['shippingCategory'])) {
-            if (!empty($variables['id'])) {
-                $id = $variables['id'];
-                $variables['shippingCategory'] = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($id);
+        $variables = [
+            'id' => $id,
+            'shippingCategory' => $shippingCategory
+        ];
+
+        if (!$variables['shippingCategory']) {
+            if ($variables['id']) {
+                $variables['shippingCategory'] = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($variables['id']);
 
                 if (!$variables['shippingCategory']) {
                     throw new HttpException(404);
@@ -49,7 +55,7 @@ class ShippingCategoriesController extends BaseAdminController
             };
         }
 
-        if (!empty($variables['id'])) {
+        if ($variables['shippingCategory']->id) {
             $variables['title'] = $variables['shippingCategory']->name;
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new shipping category');

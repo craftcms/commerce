@@ -53,8 +53,7 @@ class CustomersController extends BaseCpController
             }
         }
 
-        $variables['title'] = Craft::t('commerce', 'Customer #{id}',
-            ['id' => $variables['id']]);
+        $variables['title'] = Craft::t('commerce', 'Customer #{id}', ['id' => $variables['id']]);
 
         return $this->renderTemplate('commerce/customers/_edit', $variables);
     }

@@ -6,6 +6,8 @@ use Craft;
 use craft\commerce\models\TaxZone;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
+use yii\web\HttpException;
+use yii\web\Response;
 
 /**
  * Class Tax Zone Controller
@@ -20,28 +22,31 @@ use craft\helpers\ArrayHelper;
 class TaxZonesController extends BaseAdminController
 {
     /**
-     * @throws HttpException
+     * @return Response
      */
-    public function actionIndex()
+    public function actionIndex(): Response
     {
         $taxZones = Plugin::getInstance()->getTaxZones()->getAllTaxZones();
-        return $this->renderTemplate('commerce/settings/taxzones/index',
-            compact('taxZones'));
+        return $this->renderTemplate('commerce/settings/taxzones/index', compact('taxZones'));
     }
 
     /**
-     * Create/Edit TaxZone
+     * @param int|null     $id
+     * @param TaxZone|null $taxZone
      *
-     * @param array $variables
-     *
+     * @return Response
      * @throws HttpException
      */
-    public function actionEdit(array $variables = [])
+    public function actionEdit(int $id = null, TaxZone $taxZone = null): Response
     {
-        if (empty($variables['taxZone'])) {
-            if (!empty($variables['id'])) {
-                $id = $variables['id'];
-                $variables['taxZone'] = Plugin::getInstance()->getTaxZones()->getTaxZoneById($id);
+        $variables = [
+            'id' => $id,
+            'taxZone' => $taxZone
+        ];
+
+        if (!$variables['taxZone']) {
+            if ($variables['id']) {
+                $variables['taxZone'] = Plugin::getInstance()->getTaxZones()->getTaxZoneById($variables['id']);
 
                 if (!$variables['taxZone']) {
                     throw new HttpException(404);
@@ -51,7 +56,7 @@ class TaxZonesController extends BaseAdminController
             };
         }
 
-        if (!empty($variables['id'])) {
+        if ($variables['taxZone']->id) {
             $variables['title'] = $variables['taxZone']->name;
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a tax zone');

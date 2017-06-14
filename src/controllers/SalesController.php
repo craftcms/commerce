@@ -7,6 +7,8 @@ use craft\commerce\elements\Product;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
+use yii\web\HttpException;
+use yii\web\Response;
 
 /**
  * Class Sales Controller
@@ -31,29 +33,33 @@ class SalesController extends BaseCpController
     }
 
     /**
-     * @throws HttpException
+     * @return Response
      */
-    public function actionIndex()
+    public function actionIndex(): Response
     {
         $sales = Plugin::getInstance()->getSales()->getAllSales();
         return $this->renderTemplate('commerce/promotions/sales/index', compact('sales'));
     }
 
     /**
-     * Create/Edit Sale
+     * @param int|null  $id
+     * @param Sale|null $sale
      *
-     * @param array $variables
-     *
+     * @return Response
      * @throws HttpException
      */
-    public function actionEdit(array $variables = [])
+    public function actionEdit(int $id = null, Sale $sale = null): Response
     {
+        $variables = [
+            'id' => $id,
+            'sale' => $sale
+        ];
+
         $variables['productElementType'] = Product::class;
 
-        if (empty($variables['sale'])) {
-            if (!empty($variables['id'])) {
-                $id = $variables['id'];
-                $variables['sale'] = Plugin::getInstance()->getSales()->getSaleById($id);
+        if (!$variables['sale']) {
+            if ($variables['id']) {
+                $variables['sale'] = Plugin::getInstance()->getSales()->getSaleById($variables['id']);
 
                 if (!$variables['sale']) {
                     throw new HttpException(404);
@@ -63,7 +69,7 @@ class SalesController extends BaseCpController
             }
         }
 
-        if (!empty($variables['id'])) {
+        if ($variables['sale']->id) {
             $variables['title'] = $variables['sale']->name;
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new sale');

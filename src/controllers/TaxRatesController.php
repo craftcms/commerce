@@ -7,6 +7,8 @@ use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\helpers\ArrayHelper;
 use Craft;
+use yii\web\HttpException;
+use yii\web\Response;
 
 /**
  * Class Tax Rates Controller
@@ -21,29 +23,31 @@ use Craft;
 class TaxRatesController extends BaseAdminController
 {
     /**
-     * @throws HttpException
+     * @return Response
      */
-    public function actionIndex()
+    public function actionIndex(): Response
     {
         $taxRates = Plugin::getInstance()->getTaxRates()->getAllTaxRatesWithZoneAndCategories();
-
-
         return $this->renderTemplate('commerce/settings/taxrates/index', compact('taxRates'));
     }
 
     /**
-     * Create/Edit TaxRate
+     * @param int|null     $id
+     * @param TaxRate|null $taxRate
      *
-     * @param array $variables
-     *
+     * @return Response
      * @throws HttpException
      */
-    public function actionEdit(array $variables = [])
+    public function actionEdit(int $id = null, TaxRate $taxRate = null): Response
     {
-        if (empty($variables['taxRate'])) {
-            if (!empty($variables['id'])) {
-                $id = $variables['id'];
-                $variables['taxRate'] = Plugin::getInstance()->getTaxRates()->getTaxRateById($id);
+        $variables = [
+            'id' => $id,
+            'taxRate' => $taxRate
+        ];
+
+        if (!$variables['taxRate']) {
+            if ($variables['id']) {
+                $variables['taxRate'] = Plugin::getInstance()->getTaxRates()->getTaxRateById($variables['id']);
 
                 if (!$variables['taxRate']) {
                     throw new HttpException(404);
@@ -53,7 +57,7 @@ class TaxRatesController extends BaseAdminController
             };
         }
 
-        if (!empty($variables['id'])) {
+        if ($variables['taxRate']->id) {
             $variables['title'] = $variables['taxRate']->name;
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new tax rate');

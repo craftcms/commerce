@@ -4,6 +4,9 @@ namespace craft\commerce\controllers;
 
 use craft\commerce\models\TaxCategory;
 use Craft;
+use craft\commerce\Plugin;
+use yii\web\HttpException;
+use yii\web\Response;
 
 /**
  * Class Tax Categories Controller
@@ -18,27 +21,31 @@ use Craft;
 class TaxCategoriesController extends BaseAdminController
 {
     /**
-     * @throws HttpException
+     * @return Response
      */
-    public function actionIndex()
+    public function actionIndex(): Response
     {
         $taxCategories = Plugin::getInstance()->getTaxCategories()->getAllTaxCategories();
         return $this->renderTemplate('commerce/settings/taxcategories/index', compact('taxCategories'));
     }
 
     /**
-     * Create/Edit Tax Category
+     * @param int|null         $id
+     * @param TaxCategory|null $taxCategory
      *
-     * @param array $variables
-     *
+     * @return Response
      * @throws HttpException
      */
-    public function actionEdit(array $variables = [])
+    public function actionEdit(int $id = null, TaxCategory $taxCategory = null): Response
     {
-        if (empty($variables['taxCategory'])) {
-            if (!empty($variables['id'])) {
-                $id = $variables['id'];
-                $variables['taxCategory'] = Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($id);
+        $variables = [
+            'id' => $id,
+            'taxCategory' => $taxCategory
+        ];
+
+        if (!$variables['taxCategory']) {
+            if ($variables['id']) {
+                $variables['taxCategory'] = Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($variables['id']);
 
                 if (!$variables['taxCategory']) {
                     throw new HttpException(404);
@@ -48,7 +55,7 @@ class TaxCategoriesController extends BaseAdminController
             };
         }
 
-        if (!empty($variables['id'])) {
+        if ($variables['taxCategory']->id) {
             $variables['title'] = $variables['taxCategory']->name;
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new tax category');
