@@ -13,12 +13,16 @@ use yii\base\Exception;
 /**
  * Payment method service.
  *
+ * @property array                                        $allPaymentMethods
+ * @property PaymentMethod[] $allFrontEndPaymentMethods
+ *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
  * @license   https://craftcommerce.com/license Craft Commerce License Agreement
  * @see       https://craftcommerce.com
  * @package   craft.plugins.commerce.services
  * @since     1.0
+ *
  */
 class PaymentMethods extends Component
 {
@@ -80,7 +84,7 @@ class PaymentMethods extends Component
      * @return bool
      * @throws Exception
      */
-    public function archivePaymentMethod($id)
+    public function archivePaymentMethod($id): bool
     {
         $paymentMethod = $this->getPaymentMethodById($id);
 
@@ -163,7 +167,7 @@ class PaymentMethods extends Component
      *
      * @return bool
      */
-    public function reorderPaymentMethods($ids)
+    public function reorderPaymentMethods($ids): bool
     {
         $paymentMethods = $this->getAllPaymentMethods();
 
@@ -176,7 +180,7 @@ class PaymentMethods extends Component
         }
 
         foreach ($ids as $sortOrder => $id) {
-            Craft::$app->getDb()->createCommand()->update('commerce_paymentmethods',
+            \Craft::$app->getDb()->createCommand()->update('commerce_paymentmethods',
                 ['sortOrder' => $sortOrder + 1], ['id' => $id]);
         }
 
