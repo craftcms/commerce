@@ -3,6 +3,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\elements\Order;
 use craft\commerce\models\Address;
 use craft\commerce\models\Customer;
 use craft\commerce\Plugin;

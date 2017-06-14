@@ -3,6 +3,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\elements\Order;
 use craft\commerce\elements\Variant;
 use craft\commerce\events\MatchLineItemEvent;
 use craft\commerce\models\Discount;

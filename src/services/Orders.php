@@ -16,7 +16,9 @@ use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
 use craft\commerce\records\LineItem as LineItemRecord;
 use craft\commerce\records\Order as OrderRecord;
+use craft\events\RegisterComponentTypesEvent;
 use craft\helpers\DateTimeHelper;
+use craft\helpers\Db;
 use yii\base\Component;
 use yii\base\Exception;
 
@@ -404,7 +406,7 @@ class Orders extends Component
     /**
      * @return AdjusterInterface[]
      */
-    private function getAdjusters()
+    private function getAdjusters(): array
     {
         $adjusters = [
             Shipping::class,
@@ -429,7 +431,7 @@ class Orders extends Component
      * @throws Exception
      * @throws \Exception
      */
-    public function completeOrder(Order $order)
+    public function completeOrder(Order $order): bool
     {
 
         if ($order->isCompleted) {
@@ -437,7 +439,7 @@ class Orders extends Component
         }
 
         $order->isCompleted = true;
-        $order->dateOrdered = DateTimeHelper::currentTimeForDb();
+        $order->dateOrdered = Db::prepareDateForDb(new \DateTime());
         $order->orderStatusId = Plugin::getInstance()->getOrderStatuses()->getDefaultOrderStatusId();
 
         //raising event on order complete
@@ -457,7 +459,7 @@ class Orders extends Component
             return true;
         }
 
-        CommercePlugin::log(Craft::t('commerce', 'commerce', 'Could not mark order {number} as complete. Order save failed during order completion with errors: {errors}',
+        Plugin::log(Craft::t('commerce', 'commerce', 'Could not mark order {number} as complete. Order save failed during order completion with errors: {errors}',
             ['number' => $order->number, 'order' => json_encode($order->errors)]), LogLevel::Error, true);
 
         return false;

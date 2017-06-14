@@ -78,29 +78,6 @@ class PaymentMethod extends Model
     private $_gatewayAdapter;
 
     /**
-     * Populates a new model instance with a given set of attributes.
-     *
-     * @param mixed $values
-     *
-     * @return BaseModel
-     */
-    public static function populateModel($values)
-    {
-        $paymentMethod = parent::populateModel($values);
-
-        if ($paymentMethod->id) {
-            // Are its settings being set from the config file?
-            $paymentMethodSettings = Plugin::getInstance()->getSettings()->paymentMethodSettings;
-
-            if (isset($paymentMethodSettings[$paymentMethod->id])) {
-                $paymentMethod->settings = array_merge($paymentMethod->settings, $paymentMethodSettings[$paymentMethod->id]);
-            }
-        }
-
-        return $paymentMethod;
-    }
-
-    /**
      * @inheritdoc
      */
     public function rule()

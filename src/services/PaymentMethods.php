@@ -3,8 +3,13 @@
 namespace craft\commerce\services;
 
 use craft\commerce\models\PaymentMethod;
+use craft\commerce\Plugin;
 use craft\commerce\records\PaymentMethod as PaymentMethodRecord;
+use craft\helpers\ArrayHelper;
+use craft\helpers\DateTimeHelper;
+use craft\helpers\Db;
 use yii\base\Component;
+use yii\base\Exception;
 
 /**
  * Payment method service.
@@ -27,19 +32,48 @@ class PaymentMethods extends Component
     {
         $records = PaymentMethodRecord::find()->where('isArchived=:xIsArchived,frontEndEnabled=:xFrontEndEnabled', [':xFrontEndEnabled' => true, ':xIsArchived' => false])->orderBy('sortOrder')->all();
 
-        return PaymentMethod::populateModels($records);
+        return ArrayHelper::map($records, 'id', function($record){
+            return $this->_createPaymentMethodFromPaymentMethodRecord($record);
+        });
     }
 
+
     /**
-     * @param array|\CDbCriteria $criteria
-     *
-     * @return PaymentMethod[]
+     * @return array
      */
-    public function getAllPaymentMethods($criteria = [])
+    public function getAllPaymentMethods(): array
     {
         $records = PaymentMethodRecord::find()->where('isArchived=:xIsArchived', [':xIsArchived' => false])->orderBy('sortOrder')->all();
 
-        return PaymentMethod::populateModels($records);
+        return ArrayHelper::map($records, 'id', function($record){
+           return $this->_createPaymentMethodFromPaymentMethodRecord($record);
+        });
+    }
+
+    private function _createPaymentMethodFromPaymentMethodRecord(PaymentMethodRecord $record): PaymentMethod
+    {
+        $paymentMethod = new PaymentMethod($record->toArray([
+            'id',
+            'class',
+            'name',
+            'paymentType',
+            'frontendEnabled',
+            'isArchived',
+            'dateArchived',
+            'settings',
+        ]));
+
+        // Allow settings to be overridden from config file
+        if ($paymentMethod->id) {
+            // Are its settings being set from the config file?
+            $paymentMethodSettings = Plugin::getInstance()->getSettings()->paymentMethodSettings;
+
+            if (isset($paymentMethodSettings[$paymentMethod->id])) {
+                $paymentMethod->settings = array_merge($paymentMethod->settings, $paymentMethodSettings[$paymentMethod->id]);
+            }
+        }
+
+        return $paymentMethod;
     }
 
     /**
@@ -53,7 +87,7 @@ class PaymentMethods extends Component
         $paymentMethod = $this->getPaymentMethodById($id);
 
         $paymentMethod->isArchived = true;
-        $paymentMethod->dateArchived = DateTimeHelper::currentTimeForDb();
+        $paymentMethod->dateArchived = Db::prepareDateForDb(new \DateTime());
 
         return $this->savePaymentMethod($paymentMethod);
     }
@@ -68,7 +102,7 @@ class PaymentMethods extends Component
         $result = PaymentMethodRecord::findOne($id);
 
         if ($result) {
-            return PaymentMethod::populateModel($result);
+            return $this->_createPaymentMethodFromPaymentMethodRecord($result);
         }
 
         return null;
@@ -80,13 +114,13 @@ class PaymentMethods extends Component
      * @return bool
      * @throws Exception
      */
-    public function savePaymentMethod(PaymentMethod $model)
+    public function savePaymentMethod(PaymentMethod $model): bool
     {
         if ($model->id) {
             $record = PaymentMethodRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Craft::t('commerce', 'commerce', 'No payment method exists with the ID “{id}”', ['id' => $model->id]));
+                throw new Exception(\Craft::t('commerce', 'commerce', 'No payment method exists with the ID “{id}”', ['id' => $model->id]));
             }
         } else {
             $record = new PaymentMethodRecord();

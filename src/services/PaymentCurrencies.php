@@ -4,13 +4,18 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\models\PaymentCurrency;
+use craft\commerce\Plugin;
 use craft\commerce\records\PaymentCurrency as PaymentCurrencyRecord;
-use craft\db\Query;
+use craft\helpers\ArrayHelper;
 use yii\base\Component;
-use yii\db\Expression;
+use yii\base\Exception;
 
 /**
  * Payment currency service.
+ *
+ * @property \craft\commerce\models\PaymentCurrency[]|array $allPaymentCurrencies
+ * @property \craft\commerce\models\PaymentCurrency|null    $primaryPaymentCurrency
+ * @property string                                         $primaryPaymentCurrencyIso
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -43,20 +48,24 @@ class PaymentCurrencies extends Component
     /**
      * @return PaymentCurrency[]
      */
-    public function getAllPaymentCurrencies()
+    public function getAllPaymentCurrencies(): array
     {
         if (null === $this->_allCurrencies) {
-            $schema = Craft::$app->getDb()->schema;
-            $rows = (new Query())
-                ->select([
+            $records = PaymentCurrencyRecord::find()->orderBy('[[primary = 1 desc, iso]]')->all();
+            $this->_allCurrencies = ArrayHelper::map($records, 'id', function($record) {
+                /** @var PaymentCurrencyRecord $record */
+                return new PaymentCurrency($record->toArray([
                     'id',
                     'iso',
                     'primary',
-                    'rate'
-                ])->from('{{%commerce_paymentcurrencies}}')
-                ->orderBy(new Expression('('.$schema->quoteColumnName('primary').' = 1) desc, '.$schema->quoteColumnName('iso')))
-                ->all();
-            $this->_allCurrencies = PaymentCurrency::populateModels($rows);
+                    'rate',
+                    'alphabeticCode',
+                    'currency',
+                    'entity',
+                    'minorUnit',
+                    'numericCode'
+                ]));
+            });
         }
 
         return $this->_allCurrencies;
@@ -83,7 +92,7 @@ class PaymentCurrencies extends Component
      *
      * @return string
      */
-    public function getPrimaryPaymentCurrencyIso()
+    public function getPrimaryPaymentCurrencyIso(): string
     {
         return $this->getPrimaryPaymentCurrency()->iso;
     }
@@ -91,7 +100,7 @@ class PaymentCurrencies extends Component
     /**
      * Returns the primary currency all prices are entered as.
      *
-     * @return PaymentCurrency
+     * @return PaymentCurrency|null
      */
     public function getPrimaryPaymentCurrency()
     {
@@ -110,7 +119,7 @@ class PaymentCurrencies extends Component
      *
      * @return float
      */
-    public function convert($amount, $currency)
+    public function convert($amount, $currency): float
     {
         $destinationCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($currency);
 
@@ -122,10 +131,8 @@ class PaymentCurrencies extends Component
      *
      * @return bool
      * @throws Exception
-     * @throws \CDbException
-     * @throws \Exception
      */
-    public function savePaymentCurrency(PaymentCurrency $model)
+    public function savePaymentCurrency(PaymentCurrency $model): bool
     {
         if ($model->id) {
             $record = PaymentCurrencyRecord::findOne($model->id);
@@ -163,16 +170,18 @@ class PaymentCurrencies extends Component
         return false;
     }
 
+
     /**
-     * @param int $id
+     * @param $id
      *
+     * @return bool
      */
-    public function deletePaymentCurrencyById($id)
+    public function deletePaymentCurrencyById($id): bool
     {
         $paymentCurrency = PaymentCurrencyRecord::findOne($id);
 
         if ($paymentCurrency) {
-            $paymentCurrency->delete();
+            return $paymentCurrency->delete();
         }
     }
 }

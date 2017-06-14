@@ -8,7 +8,9 @@ use craft\commerce\events\OrderStatusEvent;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\Plugin;
 use craft\commerce\records\OrderHistory as OrderHistoryRecord;
+use craft\helpers\ArrayHelper;
 use yii\base\Component;
+use yii\base\Exception;
 
 /**
  * Order history service.
@@ -54,11 +56,13 @@ class OrderHistories extends Component
      *
      * @return OrderHistory[]
      */
-    public function getAllOrderHistoriesByOrderId($id)
+    public function getAllOrderHistoriesByOrderId($id): array
     {
-        $results = OrderHistoryRecord::find()->where(['orderId' => $id])->orderBy('dateCreated')->all();
+        $records = OrderHistoryRecord::find()->where(['orderId' => $id])->orderBy('dateCreated')->all();
 
-        return OrderHistory::populateModels($results);
+        return ArrayHelper::map($records, 'id', function($record) {
+            return $this->_createOrderHistoryFromOrderHistoryRecord($record);
+        });
     }
 
     /**
@@ -68,7 +72,7 @@ class OrderHistories extends Component
      * @return bool
      * @throws Exception
      */
-    public function createOrderHistoryFromOrder(Order $order, $oldStatusId)
+    public function createOrderHistoryFromOrder(Order $order, int $oldStatusId): bool
     {
         $orderHistoryModel = new OrderHistory();
         $orderHistoryModel->orderId = $order->id;
@@ -98,10 +102,8 @@ class OrderHistories extends Component
      *
      * @return bool
      * @throws Exception
-     * @throws \CDbException
-     * @throws \Exception
      */
-    public function saveOrderHistory(OrderHistory $model)
+    public function saveOrderHistory(OrderHistory $model): bool
     {
         if ($model->id) {
             $record = OrderHistoryRecord::findOne($model->id);
@@ -148,5 +150,25 @@ class OrderHistories extends Component
         if ($orderHistory) {
             return $orderHistory->delete();
         }
+    }
+
+    // Private Methods
+    // =========================================================================
+
+    /**
+     * @param OrderHistoryRecord $record
+     *
+     * @return OrderHistory
+     */
+    private function _createOrderHistoryFromOrderHistoryRecord(OrderHistoryRecord $record): OrderHistory
+    {
+        return new OrderHistory($record->toArray([
+            'id',
+            'message',
+            'orderId',
+            'prevStatusId',
+            'newStatusId',
+            'customerId'
+        ]));
     }
 }

@@ -5,11 +5,15 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\models\Email;
+use craft\commerce\models\OrderHistory;
 use craft\commerce\models\OrderStatus;
+use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
 use craft\commerce\records\OrderStatus as OrderStatusRecord;
 use craft\commerce\records\OrderStatusEmail as OrderStatusEmailRecord;
+use craft\helpers\ArrayHelper;
 use yii\base\Component;
+use yii\base\Exception;
 
 /**
  * Order status service.
@@ -45,12 +49,23 @@ class OrderStatuses extends Component
      *
      * @return Email[]
      */
-    public function getAllEmailsByOrderStatusId($id)
+    public function getAllEmailsByOrderStatusId($id): array
     {
         $orderStatus = OrderStatusRecord::find()->with('emails')->where(['id' => $id])->one();
 
         if ($orderStatus) {
-            return Email::populateModels($orderStatus->emails);
+            return ArrayHelper::map($orderStatus->emails, 'id', function($record) {
+                /** @var EmailRecord $record */
+                return new Email($record->toArray([
+                    'id',
+                    'name',
+                    'subject',
+                    'recipientType',
+                    'to',
+                    'enabled',
+                    'templatePath',
+                ]));
+            });
         }
 
         return [];
@@ -212,16 +227,17 @@ class OrderStatuses extends Component
     {
         $orderStatusRecords = OrderStatusRecord::find()->orderBy('sortOrder')->all();
 
-        $orderStatusRecords = array_map(function (OrderStatusRecord $element) { return $element->toArray([
-            'id',
-            'name',
-            'handle',
-            'color',
-            'sortOrder',
-            'default',
-        ]);}, $orderStatusRecords);
-
-        return OrderStatus::populateModels($orderStatusRecords);
+        return ArrayHelper::map($orderStatusRecords, 'id', function($record) {
+            /** @var OrderStatusRecord $record */
+            return new OrderStatus($record->toArray([
+                'id',
+                'name',
+                'handle',
+                'color',
+                'sortOrder',
+                'default',
+            ]));
+        });
     }
 
     /**

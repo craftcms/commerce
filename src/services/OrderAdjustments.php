@@ -4,8 +4,9 @@ namespace craft\commerce\services;
 
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
-use craft\db\Query;
+use craft\helpers\ArrayHelper;
 use yii\base\Component;
+use yii\base\Exception;
 
 /**
  * Order adjustment service.
@@ -24,26 +25,15 @@ class OrderAdjustments extends Component
      *
      * @return OrderAdjustment[]
      */
-    public function getAllOrderAdjustmentsByOrderId($orderId)
+    public function getAllOrderAdjustmentsByOrderId($orderId): array
     {
-        $records = $this->_createOrderAdjustmentsQuery()
-            ->where('oa.orderId = :orderId', [':orderId' => $orderId])
+        $records = OrderAdjustmentRecord::find()
+            ->where('orderId = :orderId', [':orderId' => $orderId])
             ->all();
 
-        return OrderAdjustment::populateModels($records);
-    }
-
-    /**
-     * Returns a DbCommand object prepped for retrieving order adjustments.
-     *
-     * @return Query
-     */
-    private function _createOrderAdjustmentsQuery()
-    {
-        return (new Query())
-            ->select('oa.id, oa.type, oa.name, oa.included, oa.description, oa.amount, oa.optionsJson, oa.orderId')
-            ->from('commerce_orderadjustments oa')
-            ->orderBy('type');
+        return ArrayHelper::map($records, 'id', function($record) {
+            return $this->_createOrderAdjustmentFromOrderAdjustmentRecord($record);
+        });
     }
 
     /**
@@ -52,13 +42,13 @@ class OrderAdjustments extends Component
      * @return bool
      * @throws Exception
      */
-    public function saveOrderAdjustment(OrderAdjustment $model)
+    public function saveOrderAdjustment(OrderAdjustment $model): bool
     {
         if ($model->id) {
             $record = OrderAdjustmentRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Craft::t('commerce', 'commerce', 'No order Adjustment exists with the ID “{id}”',
+                throw new Exception(\Craft::t('commerce', 'commerce', 'No order Adjustment exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
         } else {
@@ -96,10 +86,29 @@ class OrderAdjustments extends Component
     /**
      * @param int $orderId
      *
-     * @return int
+     * @return bool
      */
-    public function deleteAllOrderAdjustmentsByOrderId($orderId)
+    public function deleteAllOrderAdjustmentsByOrderId($orderId): bool
     {
         return OrderAdjustmentRecord::deleteAll(['orderId' => $orderId]);
+    }
+
+    /**
+     * @param OrderAdjustmentRecord $record
+     *
+     * @return OrderAdjustment
+     */
+    private function _createOrderAdjustmentFromOrderAdjustmentRecord(OrderAdjustmentRecord $record): OrderAdjustment
+    {
+        return new OrderAdjustment($record->toArray([
+            'id',
+            'name',
+            'description',
+            'type',
+            'amount',
+            'included',
+            'optionsJson',
+            'orderId'
+        ]));
     }
 }
