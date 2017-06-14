@@ -85,7 +85,15 @@ class Commerce_OrdersController extends Commerce_BaseCpController
             else
             {
                 $paymentMethod = ArrayHelper::getFirstValue(craft()->commerce_paymentMethods->getAllPaymentMethods());
-                $variables['paymentForm'] = $paymentMethod->getPaymentFormModel();
+
+                if($paymentMethod)
+                {
+                    $variables['paymentForm'] = $paymentMethod->getPaymentFormModel();
+                }
+                else
+                {
+                    $variables['paymentForm'] = null;
+                }
             }
         }
         
