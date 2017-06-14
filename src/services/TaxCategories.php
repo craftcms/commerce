@@ -5,6 +5,7 @@ namespace craft\commerce\services;
 use craft\commerce\models\TaxCategory;
 use craft\commerce\records\TaxCategory as TaxCategoryRecord;
 use yii\base\Component;
+use yii\base\Exception;
 
 /**
  * Tax category service.
@@ -15,6 +16,8 @@ use yii\base\Component;
  * @see       https://craftcommerce.com
  * @package   craft.plugins.commerce.services
  * @since     1.0
+ *
+ * @property \craft\commerce\models\TaxCategory|null $defaultTaxCategory
  */
 class TaxCategories extends Component
 {
@@ -27,7 +30,7 @@ class TaxCategories extends Component
     /**
      * @var
      */
-    private $_taxCategoriesById = [];
+    private $_taxCategoriesById;
 
     /**
      * @var
@@ -47,7 +50,12 @@ class TaxCategories extends Component
             $result = TaxCategoryRecord::findOne($taxCategoryId);
 
             if ($result) {
-                $taxCategory = $this->_populateTaxCategory($result);
+                $taxCategory = $this->_createTaxCategoryFromTaxCategoryRecord($result);
+
+                if ($taxCategory->id) {
+                    $this->_memoizeTaxCategory($taxCategory);
+                }
+
             } else {
                 // Remember that this ID doesn't exist
                 $this->_taxCategoriesById[$taxCategoryId] = null;
@@ -58,25 +66,7 @@ class TaxCategories extends Component
     }
 
     /**
-     * Populates, memoizes, and returns a tax category model based on a given set of values or model/record.
-     *
-     * @param mixed $values
-     *
-     * @return TaxCategory
-     */
-    private function _populateTaxCategory($values): TaxCategory
-    {
-        $taxCategory = new TaxCategory($values);
-
-        if ($taxCategory->id) {
-            $this->_memoizeTaxCategory($taxCategory);
-        }
-
-        return $taxCategory;
-    }
-
-    /**
-     * Memoizes a tax category model by its ID and handle.
+     * Memoize a tax category model by its ID and handle.
      *
      * @param TaxCategory $taxCategory
      *
@@ -100,10 +90,15 @@ class TaxCategories extends Component
         ) {
             $result = TaxCategoryRecord::find()->where([
                 'handle' => $taxCategoryHandle
-            ])->one();
+            ])->all();
 
             if ($result) {
-                $taxCategory = $this->_populateTaxCategory($result);
+                $taxCategory = $this->_createTaxCategoryFromTaxCategoryRecord($result);
+
+                if ($taxCategory->id) {
+                    $this->_memoizeTaxCategory($taxCategory);
+                }
+
             } else {
                 // Remember that this handle doesn't exist
                 $this->_taxCategoriesByHandle[$taxCategoryHandle] = null;
@@ -114,7 +109,7 @@ class TaxCategories extends Component
     }
 
     /**
-     * Default tax category
+     * Id of default tax category
      *
      * @return TaxCategory|null
      */
@@ -136,13 +131,17 @@ class TaxCategories extends Component
      *
      * @return TaxCategory[]
      */
-    public function getAllTaxCategories($indexBy = null)
+    public function getAllTaxCategories($indexBy = null): array
     {
         if (!$this->_fetchedAllTaxCategories) {
             $results = TaxCategoryRecord::find()->all();
 
             foreach ($results as $result) {
-                $this->_populateTaxCategory($result);
+                $taxCategory = $this->_createTaxCategoryFromTaxCategoryRecord($result);
+
+                if ($taxCategory->id) {
+                    $this->_memoizeTaxCategory($taxCategory);
+                }
             }
 
             $this->_fetchedAllTaxCategories = true;
@@ -168,11 +167,12 @@ class TaxCategories extends Component
      *
      * @return bool
      * @throws Exception
-     * @throws \CDbException
      * @throws \Exception
      */
-    public function saveTaxCategory(TaxCategory $model)
+    public function saveTaxCategory(TaxCategory $model): bool
     {
+        $oldHandle = null;
+
         if ($model->id) {
             $record = TaxCategoryRecord::findOne($model->id);
 
@@ -203,7 +203,7 @@ class TaxCategories extends Component
 
             // If this was the default make all others not the default.
             if ($model->default) {
-                TaxCategoryRecord::updateAll(['default' => 0], 'id != ?', [$record->id]);
+                TaxCategoryRecord::updateAll(['default' => 0], ['id' => $record->id]);
             }
 
             // Update Service cache
@@ -234,7 +234,29 @@ class TaxCategories extends Component
         $record = TaxCategoryRecord::findOne($id);
 
         if ($record) {
-            return (bool)$record->delete();
+            $record->delete();
         }
+    }
+
+    /**
+     * Creates a TaxCategory with attributes from a TaxCategoryRecord.
+     *
+     * @param TaxCategoryRecord|null $record
+     *
+     * @return TaxCategory|null
+     */
+    private function _createTaxCategoryFromTaxCategoryRecord(TaxCategoryRecord $record = null)
+    {
+        if (!$record) {
+            return null;
+        }
+
+        return new TaxCategory($record->toArray([
+            'id',
+            'name',
+            'handle',
+            'description',
+            'default'
+        ]));
     }
 }

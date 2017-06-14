@@ -2,10 +2,10 @@
 
 namespace craft\commerce\services;
 
-use craft\commerce\adjusters\Shipping;
 use craft\commerce\models\ShippingCategory;
 use craft\commerce\records\ShippingCategory as ShippingCategoryRecord;
 use yii\base\Component;
+use yii\base\Exception;
 
 /**
  * Shipping category service.
@@ -48,7 +48,12 @@ class ShippingCategories extends Component
             $result = ShippingCategoryRecord::findOne($shippingCategoryId);
 
             if ($result) {
-                $shippingCategory = $this->_populateShippingCategory($result);
+                $shippingCategory = $this->_createShippingCategoryFromShippingCategoryRecord($result);
+
+                if ($shippingCategory->id) {
+                    $this->_memoizeShippingCategory($shippingCategory);
+                }
+
             } else {
                 // Remember that this ID doesn't exist
                 $this->_shippingCategoriesById[$shippingCategoryId] = null;
@@ -56,24 +61,6 @@ class ShippingCategories extends Component
         }
 
         return $this->_shippingCategoriesById[$shippingCategoryId];
-    }
-
-    /**
-     * Populates, memoize, and return a shipping category model based on a given set of values or model/record.
-     *
-     * @param mixed $values
-     *
-     * @return ShippingCategory
-     */
-    private function _populateShippingCategory($values)
-    {
-        $shippingCategory = new ShippingCategory($values);
-
-        if ($shippingCategory->id) {
-            $this->_memoizeShippingCategory($shippingCategory);
-        }
-
-        return $shippingCategory;
     }
 
     /**
@@ -104,7 +91,12 @@ class ShippingCategories extends Component
             ])->all();
 
             if ($result) {
-                $shippingCategory = $this->_populateShippingCategory($result);
+                $shippingCategory = $this->_createShippingCategoryFromShippingCategoryRecord($result);
+
+                if ($shippingCategory->id) {
+                    $this->_memoizeShippingCategory($shippingCategory);
+                }
+
             } else {
                 // Remember that this handle doesn't exist
                 $this->_shippingCategoriesByHandle[$shippingCategoryHandle] = null;
@@ -143,7 +135,11 @@ class ShippingCategories extends Component
             $results = ShippingCategoryRecord::find()->all();
 
             foreach ($results as $result) {
-                $this->_populateShippingCategory($result);
+                $shippingCategory = $this->_createShippingCategoryFromShippingCategoryRecord($result);
+
+                if ($shippingCategory->id) {
+                    $this->_memoizeShippingCategory($shippingCategory);
+                }
             }
 
             $this->_fetchedAllShippingCategories = true;
@@ -169,11 +165,12 @@ class ShippingCategories extends Component
      *
      * @return bool
      * @throws Exception
-     * @throws \CDbException
      * @throws \Exception
      */
     public function saveShippingCategory(ShippingCategory $model): bool
     {
+        $oldHandle = null;
+
         if ($model->id) {
             $record = ShippingCategoryRecord::findOne($model->id);
 
@@ -237,5 +234,27 @@ class ShippingCategories extends Component
         if ($record) {
             $record->delete();
         }
+    }
+
+    /**
+     * Creates a ShippingCategory with attributes from a ShippingCategoryRecord.
+     *
+     * @param ShippingCategoryRecord|null $record
+     *
+     * @return ShippingCategory|null
+     */
+    private function _createShippingCategoryFromShippingCategoryRecord(ShippingCategoryRecord $record = null)
+    {
+        if (!$record) {
+            return null;
+        }
+
+        return new ShippingCategory($record->toArray([
+            'id',
+            'name',
+            'handle',
+            'description',
+            'default'
+        ]));
     }
 }

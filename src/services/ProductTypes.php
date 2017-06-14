@@ -7,12 +7,12 @@ use craft\commerce\elements\Product;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\ProductTypeSite;
 use craft\commerce\models\ShippingCategory;
+use craft\commerce\records\ShippingCategory as ShippingCategoryRecord;
 use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\commerce\records\Product as ProductRecord;
 use craft\commerce\records\ProductType as ProductTypeRecord;
 use craft\commerce\records\ProductTypeSite as ProductTypeSiteRecord;
-use craft\db\Query;
 use craft\helpers\ArrayHelper;
 use craft\tasks\ResaveElements;
 use yii\base\Component;
@@ -200,9 +200,13 @@ class ProductTypes extends Component
             $shippingCategories = [Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory()];
         }
 
-        return ArrayHelper::map($shippingCategories, 'id', function($record){
+        return ArrayHelper::map($shippingCategories, 'id', function(ShippingCategoryRecord $record){
             return new ShippingCategory($record->toArray([
-
+                'id',
+                'name',
+                'handle',
+                'description',
+                'default'
             ]));
         });
 

@@ -4,6 +4,7 @@ namespace craft\commerce\controllers;
 
 use craft\commerce\models\ShippingCategory;
 use Craft;
+use craft\commerce\Plugin;
 
 /**
  * Class Shipping Categories Controller
