@@ -6,6 +6,7 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\models\OrderSettings as OrderSettingsModel;
 use craft\commerce\records\OrderSettings as OrderSettingsRecord;
+use craft\db\Query;
 use yii\base\Component;
 
 /**
@@ -28,12 +29,14 @@ class OrderSettings extends Component
     /**
      * @param int $orderSettingsId
      *
-     * @return \craft\commerce\models\OrderSettings|null
+     * @return OrderSettingsModel|null
      */
     public function getOrderSettingById($orderSettingsId)
     {
         if (null === $this->_orderSettingsById || !array_key_exists($orderSettingsId, $this->_orderSettingsById)) {
-            $result = OrderSettingsRecord::findOne($orderSettingsId);
+            $result = $this->_createOrderSettingsQuery()
+                ->where(['id' => $orderSettingsId])
+                ->one();
 
             if ($result) {
                 $orderSetting = new OrderSettingsModel($result);
@@ -58,7 +61,9 @@ class OrderSettings extends Component
      */
     public function getOrderSettingByHandle($handle)
     {
-        $result = OrderSettingsRecord::find()->where(['handle' => $handle])->one();
+        $result = $this->_createOrderSettingsQuery()
+            ->where(['handle' => $handle])
+            ->one();
 
         if ($result) {
             $orderSetting = new OrderSettingsModel($result);
@@ -81,16 +86,13 @@ class OrderSettings extends Component
     {
         if ($orderSettings->id) {
             $orderSettingsRecord = OrderSettingsRecord::findOne($orderSettings->id);
+
             if (!$orderSettingsRecord) {
                 throw new Exception(Craft::t('commerce', 'commerce', 'No order settings exists with the ID “{id}”',
                     ['id' => $orderSettings->id]));
             }
-
-            $oldOrderSettings = new OrderSettingsModel($orderSettingsRecord);
-            $isNewOrderSettings = false;
         } else {
             $orderSettingsRecord = new OrderSettingsRecord();
-            $isNewOrderSettings = true;
         }
 
         $orderSettingsRecord->name = $orderSettings->name;
@@ -105,10 +107,6 @@ class OrderSettings extends Component
             $transaction = $db->beginTransaction();
 
             try {
-                if (!$isNewOrderSettings && $oldOrderSettings->fieldLayoutId) {
-                    // Drop the old field layout
-                    Craft::$app->getFields()->deleteLayoutById($oldOrderSettings->fieldLayoutId);
-                }
 
                 // Save the new one
                 $fieldLayout = $orderSettings->getFieldLayout();
@@ -141,4 +139,22 @@ class OrderSettings extends Component
         return false;
     }
 
+    // Private methods
+    // =========================================================================
+    /**
+     * Returns a Query object prepped for retrieving order settings.
+     *
+     * @return Query
+     */
+    private function _createOrderSettingsQuery(): Query
+    {
+        return (new Query())
+            ->select([
+                'id',
+                'name',
+                'handle',
+                'fieldLayoutId',
+            ])
+            ->from(['{{%commerce_ordersettings}}']);
+    }
 }
