@@ -5,6 +5,7 @@ namespace craft\commerce\controllers;
 use craft\commerce\models\Settings as SettingsModel;
 use craft\commerce\Plugin;
 use Craft;
+use yii\web\Response;
 
 /**
  * Class Settings Controller
@@ -30,7 +31,7 @@ class SettingsController extends BaseAdminController
     /**
      * Commerce Settings Form
      */
-    public function actionEdit()
+    public function actionEdit(): Response
     {
         $settings = Plugin::getInstance()->getSettings();
 
@@ -38,8 +39,7 @@ class SettingsController extends BaseAdminController
         $settings->emailSenderAddressPlaceholder = (isset($craftSettings['emailAddress']) ? $craftSettings['emailAddress'] : '');
         $settings->emailSenderNamePlaceholder = (isset($craftSettings['senderName']) ? $craftSettings['senderName'] : '');
 
-        return $this->renderTemplate('commerce/settings/general',
-            ['settings' => $settings]);
+        return $this->renderTemplate('commerce/settings/general', ['settings' => $settings]);
     }
 
     /**
