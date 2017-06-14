@@ -3,6 +3,7 @@
 namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;
+use yii\db\ActiveQueryInterface;
 
 /**
  * Order status record.
@@ -33,35 +34,13 @@ class OrderStatus extends ActiveRecord
         return '{{%commerce_orderstatuses}}';
     }
 
-//    /**
-//     * @return array
-//     */
-//    public function defineRelations()
-//    {
-//        return [
-//            'emails' => [
-//                static::MANY_MANY,
-//                'Email',
-//                'commerce_orderstatus_emails(orderStatusId, emailId)'
-//            ],
-//        ];
-//    }
-//
-//    /**
-//     * @return array
-//     */
-//    protected function defineAttributes()
-//    {
-//        return [
-//            'name' => [AttributeType::String, 'required' => true],
-//            'handle' => [AttributeType::Handle, 'required' => true],
-//            'color' => [AttributeType::Enum, 'values' => ['green', 'orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'], 'required' => true, 'default' => 'green'],
-//            'sortOrder' => AttributeType::Number,
-//            'default' => [
-//                AttributeType::Bool,
-//                'default' => 0,
-//                'required' => true
-//            ],
-//        ];
-//    }
+    /**
+     * Returns the order status' emails.
+     *
+     * @return ActiveQueryInterface The relational query object.
+     */
+    public function getEmails(): ActiveQueryInterface
+    {
+        return $this->hasMany(OrderStatusEmail::class, ['orderStatusId' => 'id']);
+    }
 }

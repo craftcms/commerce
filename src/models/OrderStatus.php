@@ -3,6 +3,8 @@
 namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
+use craft\commerce\Plugin;
+use craft\helpers\UrlHelper;
 
 /**
  * Order status model.
@@ -88,7 +90,7 @@ class OrderStatus extends Model
      */
     public function getCpEditUrl()
     {
-        return UrlHelper::getCpUrl('commerce/settings/orderstatuses/'.$this->id);
+        return UrlHelper::cpUrl('commerce/settings/orderstatuses/'.$this->id);
     }
 
     /**
@@ -112,7 +114,7 @@ class OrderStatus extends Model
      */
     public function getEmails()
     {
-        return Plugin::getInstance()->getOrderStatuses()->getAllEmailsByOrderStatusId($this->id);
+        return Plugin::getInstance()->orderStatuses->getAllEmailsByOrderStatusId($this->id);
     }
 
     /**
