@@ -10,6 +10,7 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
 use yii\web\HttpException;
+use yii\web\Response;
 
 /**
  * Class Discounts Controller
@@ -39,25 +40,24 @@ class DiscountsController extends BaseCpController
     public function actionIndex()
     {
         $discounts = Plugin::getInstance()->getDiscounts()->getAllDiscounts();
-        $this->renderTemplate('commerce/promotions/discounts/index',
+        return $this->renderTemplate('commerce/promotions/discounts/index',
             compact('discounts'));
     }
 
-    /**
-     * Create/Edit Discount
-     *
-     * @param array $variables
-     *
-     * @throws HttpException
-     */
-    public function actionEdit(array $variables = [])
+
+    public function actionEdit(int $id = null, Discount $discount = null): Response
     {
+        $variables = [
+            'id' => $id,
+            'discount' => $discount,
+        ];
+
         $variables['productElementType'] = Product::class;
 
-        if (empty($variables['discount'])) {
-            if (!empty($variables['id'])) {
-                $id = $variables['id'];
-                $variables['discount'] = Plugin::getInstance()->getDiscounts()->getDiscountById($id);
+        if (!$variables['discount']) {
+            if ($variables['id']) {
+
+                $variables['discount'] = Plugin::getInstance()->getDiscounts()->getDiscountById($variables['id']);
 
                 if (!$variables['discount']) {
                     throw new HttpException(404);
@@ -67,7 +67,7 @@ class DiscountsController extends BaseCpController
             }
         }
 
-        if (!empty($variables['id'])) {
+        if ($variables['id']) {
             $variables['title'] = $variables['discount']->name;
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a Discount');
@@ -87,7 +87,7 @@ class DiscountsController extends BaseCpController
 
         $variables['products'] = null;
         $products = $productIds = [];
-        if (empty($variables['id'])) {
+        if (!$variables['id']) {
             $productIds = explode('|', Craft::$app->getRequest()->getParam('productIds'));
         } else {
             $productIds = $variables['discount']->getProductIds();
@@ -100,7 +100,7 @@ class DiscountsController extends BaseCpController
         }
         $variables['products'] = $products;
 
-        $this->renderTemplate('commerce/promotions/discounts/_edit', $variables);
+        return $this->renderTemplate('commerce/promotions/discounts/_edit', $variables);
     }
 
     /**

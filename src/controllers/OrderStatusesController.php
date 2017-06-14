@@ -30,7 +30,7 @@ class OrderStatusesController extends BaseAdminController
     {
         $variables['orderStatuses'] = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
 
-        $this->renderTemplate('commerce/settings/orderstatuses/index', $variables);
+        return $this->renderTemplate('commerce/settings/orderstatuses/index', $variables);
     }
 
 
@@ -62,7 +62,7 @@ class OrderStatusesController extends BaseAdminController
         $emails = Plugin::getInstance()->getEmails()->getAllEmails();
         $variables['emails'] = ArrayHelper::map($emails, 'id', 'name');
 
-        $this->renderTemplate('commerce/settings/orderstatuses/_edit',
+        return $this->renderTemplate('commerce/settings/orderstatuses/_edit',
             $variables);
     }
 

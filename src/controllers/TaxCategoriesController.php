@@ -23,7 +23,7 @@ class TaxCategoriesController extends BaseAdminController
     public function actionIndex()
     {
         $taxCategories = Plugin::getInstance()->getTaxCategories()->getAllTaxCategories();
-        $this->renderTemplate('commerce/settings/taxcategories/index', compact('taxCategories'));
+        return $this->renderTemplate('commerce/settings/taxcategories/index', compact('taxCategories'));
     }
 
     /**
@@ -54,7 +54,7 @@ class TaxCategoriesController extends BaseAdminController
             $variables['title'] = Craft::t('commerce', 'Create a new tax category');
         }
 
-        $this->renderTemplate('commerce/settings/taxcategories/_edit', $variables);
+        return $this->renderTemplate('commerce/settings/taxcategories/_edit', $variables);
     }
 
     /**

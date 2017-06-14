@@ -5,6 +5,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\models\Country;
 use craft\commerce\Plugin;
+use yii\web\Response;
 use yii\web\HttpException;
 
 /**
@@ -25,21 +26,27 @@ class CountriesController extends BaseAdminController
     public function actionIndex()
     {
         $countries = Plugin::getInstance()->getCountries()->getAllCountries();
-        $this->renderTemplate('commerce/settings/countries/index',
+        return $this->renderTemplate('commerce/settings/countries/index',
             compact('countries'));
     }
 
+
     /**
-     * Create/Edit Country
+     * @param int|null     $id
+     * @param Country|null $country
      *
-     * @param array $variables
-     *
+     * @return Response
      * @throws HttpException
      */
-    public function actionEdit(array $variables = [])
+    public function actionEdit(int $id = null, Country $country = null): Response
     {
-        if (empty($variables['country'])) {
-            if (!empty($variables['id'])) {
+        $variables = [
+            'id' => $id,
+            'country' => $country,
+        ];
+
+        if (!$variables['country']) {
+            if ($variables['id']) {
                 $id = $variables['id'];
                 $variables['country'] = Plugin::getInstance()->getCountries()->getCountryById($id);
 
@@ -57,7 +64,7 @@ class CountriesController extends BaseAdminController
             $variables['title'] = Craft::t('commerce', 'Create a new country');
         }
 
-        $this->renderTemplate('commerce/settings/countries/_edit', $variables);
+        return $this->renderTemplate('commerce/settings/countries/_edit', $variables);
     }
 
     /**

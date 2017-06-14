@@ -3,8 +3,10 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\models\Customer;
 use craft\commerce\Plugin;
 use yii\web\HttpException;
+use yii\web\Response;
 
 /**
  * Class Customers Controller
@@ -24,25 +26,27 @@ class CustomersController extends BaseCpController
     public function actionIndex()
     {
         $customers = Plugin::getInstance()->getCustomers()->getAllCustomers();
-        $this->renderTemplate('commerce/customers/index', compact('customers'));
+        return $this->renderTemplate('commerce/customers/index', compact('customers'));
     }
 
+
     /**
-     * Edit Customer
+     * @param int|null      $id
+     * @param Customer|null $customer
      *
-     * @param array $variables
-     *
+     * @return Response
      * @throws HttpException
      */
-    public function actionEdit(array $variables = [])
+    public function actionEdit(int $id = null, Customer $customer = null): Response
     {
-        if (empty($variables['customer'])) {
-            if (empty($variables['id'])) {
-                throw new HttpException(404);
-            }
+        $variables = [
+            'id' => $id,
+            'customer' => $customer,
+        ];
 
-            $id = $variables['id'];
-            $variables['customer'] = Plugin::getInstance()->getCustomers()->getCustomerById($id);
+        if (!$variables['customer']) {
+
+            $variables['customer'] = Plugin::getInstance()->getCustomers()->getCustomerById($variables['id']);
 
             if (!$variables['customer']) {
                 throw new HttpException(404);
@@ -52,7 +56,7 @@ class CustomersController extends BaseCpController
         $variables['title'] = Craft::t('commerce', 'Customer #{id}',
             ['id' => $variables['id']]);
 
-        $this->renderTemplate('commerce/customers/_edit', $variables);
+        return $this->renderTemplate('commerce/customers/_edit', $variables);
     }
 
     /**

@@ -24,7 +24,7 @@ class ShippingMethodsController extends BaseAdminController
     public function actionIndex()
     {
         $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAllShippingMethods();
-        $this->renderTemplate('commerce/settings/shippingmethods/index', compact('shippingMethods'));
+        return $this->renderTemplate('commerce/settings/shippingmethods/index', compact('shippingMethods'));
     }
 
     /**
@@ -63,7 +63,7 @@ class ShippingMethodsController extends BaseAdminController
 
         $variables['shippingRules'] = $shippingRules;
 
-        $this->renderTemplate('commerce/settings/shippingmethods/_edit', $variables);
+        return $this->renderTemplate('commerce/settings/shippingmethods/_edit', $variables);
     }
 
     /**

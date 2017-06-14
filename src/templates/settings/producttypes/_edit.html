@@ -19,11 +19,11 @@ variantFields:       { label: "Variant Fields"|t, url: '#variant-fields', class:
 {% import "_includes/forms" as forms %}
 
 {% block content %}
-    <input type="hidden" name="action"
-           value="commerce/productTypes/saveProductType">
+    <input type="hidden" name="action" value="commerce/productTypes/saveProductType">
     <input type="hidden" name="redirect" value="commerce/settings/producttypes">
-    {% if productType.id %}<input type="hidden" name="productTypeId"
-                                  value="{{ productType.id }}">{% endif %}
+    {% if productType.id %}
+    <input type="hidden" name="productTypeId" value="{{ productType.id }}">
+    {% endif %}
 
     <div id="product-type-settings">
         {{ forms.textField({

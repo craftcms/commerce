@@ -20,7 +20,7 @@ class RegistrationController extends BaseAdminController
     {
         $licenseKey = Craft::$app->getPlugins()->getPluginLicenseKey('Commerce');
 
-        $this->renderTemplate('commerce/settings/registration', [
+        return $this->renderTemplate('commerce/settings/registration', [
             'hasLicenseKey' => ($licenseKey !== null)
         ]);
     }

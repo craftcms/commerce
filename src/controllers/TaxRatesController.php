@@ -28,7 +28,7 @@ class TaxRatesController extends BaseAdminController
         $taxRates = Plugin::getInstance()->getTaxRates()->getAllTaxRatesWithZoneAndCategories();
 
 
-        $this->renderTemplate('commerce/settings/taxrates/index', compact('taxRates'));
+        return $this->renderTemplate('commerce/settings/taxrates/index', compact('taxRates'));
     }
 
     /**
@@ -99,7 +99,7 @@ class TaxRatesController extends BaseAdminController
 
         Craft::$app->getView()->setNamespace(null);
 
-        $this->renderTemplate('commerce/settings/taxrates/_edit', $variables);
+        return $this->renderTemplate('commerce/settings/taxrates/_edit', $variables);
     }
 
     /**

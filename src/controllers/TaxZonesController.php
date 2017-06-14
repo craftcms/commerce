@@ -25,7 +25,7 @@ class TaxZonesController extends BaseAdminController
     public function actionIndex()
     {
         $taxZones = Plugin::getInstance()->getTaxZones()->getAllTaxZones();
-        $this->renderTemplate('commerce/settings/taxzones/index',
+        return $this->renderTemplate('commerce/settings/taxzones/index',
             compact('taxZones'));
     }
 
@@ -63,7 +63,7 @@ class TaxZonesController extends BaseAdminController
         $variables['countries'] = ArrayHelper::map($countries, 'id', 'name');
         $variables['states'] = ArrayHelper::map($states, 'id', 'name');
 
-        $this->renderTemplate('commerce/settings/taxzones/_edit', $variables);
+        return $this->renderTemplate('commerce/settings/taxzones/_edit', $variables);
     }
 
     /**

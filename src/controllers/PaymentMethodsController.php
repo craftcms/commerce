@@ -28,7 +28,7 @@ class PaymentMethodsController extends BaseAdminController
     public function actionIndex()
     {
         $paymentMethods = Plugin::getInstance()->getPaymentMethods()->getAllPaymentMethods();
-        $this->renderTemplate('commerce/settings/paymentmethods/index', compact('paymentMethods'));
+        return $this->renderTemplate('commerce/settings/paymentmethods/index', compact('paymentMethods'));
     }
 
     /**
@@ -67,7 +67,7 @@ class PaymentMethodsController extends BaseAdminController
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new payment method');
         }
-        $this->renderTemplate('commerce/settings/paymentmethods/_edit', $variables);
+        return $this->renderTemplate('commerce/settings/paymentmethods/_edit', $variables);
     }
 
     /**

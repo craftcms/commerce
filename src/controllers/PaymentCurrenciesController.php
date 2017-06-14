@@ -25,7 +25,7 @@ class PaymentCurrenciesController extends BaseAdminController
     public function actionIndex()
     {
         $currencies = Plugin::getInstance()->getPaymentCurrencies()->getAllPaymentCurrencies();
-        $this->renderTemplate('commerce/settings/paymentcurrencies/index', compact('currencies'));
+        return $this->renderTemplate('commerce/settings/paymentcurrencies/index', compact('currencies'));
     }
 
     /**
@@ -63,7 +63,7 @@ class PaymentCurrenciesController extends BaseAdminController
         $variables['storeCurrency'] = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         $variables['currencies'] = array_keys(Plugin::getInstance()->getCurrencies()->getAllCurrencies());
 
-        $this->renderTemplate('commerce/settings/paymentcurrencies/_edit', $variables);
+        return $this->renderTemplate('commerce/settings/paymentcurrencies/_edit', $variables);
     }
 
     /**

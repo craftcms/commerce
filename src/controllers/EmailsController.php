@@ -25,7 +25,7 @@ class EmailsController extends BaseAdminController
     public function actionIndex()
     {
         $emails = Plugin::getInstance()->getEmails()->getAllEmails();
-        $this->renderTemplate('commerce/settings/emails/index',
+        return $this->renderTemplate('commerce/settings/emails/index',
             compact('emails'));
     }
 
@@ -57,7 +57,7 @@ class EmailsController extends BaseAdminController
             $variables['title'] = Craft::t('commerce', 'Create a new email');
         }
 
-        $this->renderTemplate('commerce/settings/emails/_edit', $variables);
+        return $this->renderTemplate('commerce/settings/emails/_edit', $variables);
     }
 
     /**

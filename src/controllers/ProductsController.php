@@ -48,7 +48,7 @@ class ProductsController extends BaseCpController
      */
     public function actionProductIndex(array $variables = [])
     {
-        $this->renderTemplate('commerce/products/_index', $variables);
+        return $this->renderTemplate('commerce/products/_index', $variables);
     }
 
 
@@ -126,7 +126,9 @@ class ProductsController extends BaseCpController
         $variables['promotions']['sales'] = Plugin::getInstance()->getSales()->getSalesForProduct($variables['product']);
 
         Craft::$app->getView()->registerCssFile('commerce/product.css');
-        $this->renderTemplate('commerce/products/_edit', $variables);
+        return $this->renderTemplate('commerce/products/_edit', $variables);
+
+
     }
 
     private function _prepProductVariables(&$variables)
@@ -333,7 +335,7 @@ class ProductsController extends BaseCpController
 
         Craft::$app->getView()->getTwig()->disableStrictVariables();
 
-        $this->renderTemplate($productType->template, [
+        return $this->renderTemplate($productType->template, [
             'product' => $product
         ]);
     }

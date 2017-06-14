@@ -36,7 +36,7 @@ class SalesController extends BaseCpController
     public function actionIndex()
     {
         $sales = Plugin::getInstance()->getSales()->getAllSales();
-        $this->renderTemplate('commerce/promotions/sales/index', compact('sales'));
+        return $this->renderTemplate('commerce/promotions/sales/index', compact('sales'));
     }
 
     /**
@@ -97,7 +97,7 @@ class SalesController extends BaseCpController
         }
         $variables['products'] = $products;
 
-        $this->renderTemplate('commerce/promotions/sales/_edit', $variables);
+        return $this->renderTemplate('commerce/promotions/sales/_edit', $variables);
     }
 
     /**

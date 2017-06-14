@@ -31,7 +31,7 @@ class ShippingRulesController extends BaseAdminController
 
         $methodsExist = Plugin::getInstance()->getShippingMethods()->ShippingMethodExists();
         $shippingRules = Plugin::getInstance()->getShippingRules()->getAllShippingRules();
-        $this->renderTemplate('commerce/settings/shippingrules/index', compact('shippingRules', 'methodsExist'));
+        return $this->renderTemplate('commerce/settings/shippingrules/index', compact('shippingRules', 'methodsExist'));
     }
 
     /**
@@ -105,7 +105,7 @@ class ShippingRulesController extends BaseAdminController
         $variables['categoryShippingOptions'][] = ['label' => Craft::t('commerce', 'Require'), 'value' => ShippingRuleCategory::CONDITION_REQUIRE];
 
 
-        $this->renderTemplate('commerce/settings/shippingrules/_edit', $variables);
+        return $this->renderTemplate('commerce/settings/shippingrules/_edit', $variables);
     }
 
     /**

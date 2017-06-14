@@ -5,6 +5,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\models\Address as AddressModel;
 use craft\commerce\Plugin;
+use yii\web\Response;
 use yii\web\HttpException;
 
 /** @noinspection */
@@ -31,22 +32,24 @@ class AddressesController extends BaseAdminController
         parent::init();
     }
 
+
     /**
-     * Edit Address
+     * @param int|null          $addressId
+     * @param AddressModel|null $address
      *
-     * @param array $variables
-     *
+     * @return Response
      * @throws HttpException
      */
-    public function actionEdit(array $variables = [])
+    public function actionEdit(int $addressId = null, AddressModel $address = null): Response
     {
-        if (empty($variables['address'])) {
-            if (empty($variables['addressId'])) {
-                throw new HttpException(404);
-            }
+        $variables = [
+            'addressId' => $addressId,
+            'address' => $address,
+        ];
 
-            $id = $variables['addressId'];
-            $variables['address'] = Plugin::getInstance()->getAddresses()->getAddressById($id);
+        if (!$variables['address']) {
+
+            $variables['address'] = Plugin::getInstance()->getAddresses()->getAddressById($variables['addressId']);
 
             if (!$variables['address']) {
                 throw new HttpException(404);
@@ -58,7 +61,7 @@ class AddressesController extends BaseAdminController
         $variables['countries'] = Plugin::getInstance()->getCountries()->getAllCountriesListData();
         $variables['states'] = Plugin::getInstance()->getStates()->getStatesGroupedByCountries();
 
-        $this->renderTemplate('commerce/addresses/_edit', $variables);
+        return $this->renderTemplate('commerce/addresses/_edit', $variables);
     }
 
     /**

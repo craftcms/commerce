@@ -32,7 +32,7 @@ class OrderSettingsController extends BaseAdminController
 
         $variables['title'] = Craft::t('commerce', 'Order Settings');
 
-        $this->renderTemplate('commerce/settings/ordersettings/_edit', $variables);
+        return $this->renderTemplate('commerce/settings/ordersettings/_edit', $variables);
     }
 
     /**

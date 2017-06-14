@@ -39,7 +39,7 @@ class OrdersController extends BaseCpController
         // Remove all incomplete carts older than a certain date in config.
         Plugin::getInstance()->getCart()->purgeIncompleteCarts();
 
-        $this->renderTemplate('commerce/orders/_index');
+        return $this->renderTemplate('commerce/orders/_index');
     }
 
     /**
@@ -89,7 +89,7 @@ class OrdersController extends BaseCpController
 
         $variables['orderStatusesJson'] = Json::encode(Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses());
 
-        $this->renderTemplate('commerce/orders/_edit', $variables);
+        return $this->renderTemplate('commerce/orders/_edit', $variables);
     }
 
     /**

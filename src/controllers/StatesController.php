@@ -23,7 +23,7 @@ class StatesController extends BaseAdminController
     public function actionIndex()
     {
         $states = Plugin::getInstance()->getStates()->getAllStates();
-        $this->renderTemplate('commerce/settings/states/index',
+        return $this->renderTemplate('commerce/settings/states/index',
             compact('states'));
     }
 
@@ -62,7 +62,7 @@ class StatesController extends BaseAdminController
         }
         $variables['countries'] = $countries;
 
-        $this->renderTemplate('commerce/settings/states/_edit', $variables);
+        return $this->renderTemplate('commerce/settings/states/_edit', $variables);
     }
 
     /**

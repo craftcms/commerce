@@ -40,7 +40,7 @@ class SettingsController extends BaseAdminController
         $settings->emailSenderAddressPlaceholder = (isset($craftSettings['emailAddress']) ? $craftSettings['emailAddress'] : '');
         $settings->emailSenderNamePlaceholder = (isset($craftSettings['senderName']) ? $craftSettings['senderName'] : '');
 
-        $this->renderTemplate('commerce/settings/general',
+        return $this->renderTemplate('commerce/settings/general',
             ['settings' => $settings]);
     }
 
@@ -55,7 +55,7 @@ class SettingsController extends BaseAdminController
 
         if (!Plugin::getInstance()->getSettings()->saveSettings($settings)) {
             Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save settings.'));
-            $this->renderTemplate('commerce/settings', ['settings' => $settings]);
+            return $this->renderTemplate('commerce/settings', ['settings' => $settings]);
         } else {
             Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Settings saved.'));
             $this->redirectToPostedUrl();

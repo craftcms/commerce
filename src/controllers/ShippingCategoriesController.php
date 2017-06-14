@@ -24,7 +24,7 @@ class ShippingCategoriesController extends BaseAdminController
     public function actionIndex()
     {
         $shippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategories();
-        $this->renderTemplate('commerce/settings/shippingcategories/index', compact('shippingCategories'));
+        return $this->renderTemplate('commerce/settings/shippingcategories/index', compact('shippingCategories'));
     }
 
     /**
@@ -55,7 +55,7 @@ class ShippingCategoriesController extends BaseAdminController
             $variables['title'] = Craft::t('commerce', 'Create a new shipping category');
         }
 
-        $this->renderTemplate('commerce/settings/shippingcategories/_edit', $variables);
+        return $this->renderTemplate('commerce/settings/shippingcategories/_edit', $variables);
     }
 
     /**

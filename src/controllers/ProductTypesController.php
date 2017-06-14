@@ -25,7 +25,7 @@ class ProductTypesController extends BaseAdminController
     public function actionProductTypeIndex()
     {
         $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
-        $this->renderTemplate('commerce/settings/producttypes/index',
+        return $this->renderTemplate('commerce/settings/producttypes/index',
             compact('productTypes'));
     }
 
@@ -70,7 +70,7 @@ class ProductTypesController extends BaseAdminController
             $variables['title'] = Craft::t('commerce', 'Create a Product Type');
         }
 
-        $this->renderTemplate('commerce/settings/producttypes/_edit', $variables);
+        return $this->renderTemplate('commerce/settings/producttypes/_edit', $variables);
     }
 
     public function actionSaveProductType()

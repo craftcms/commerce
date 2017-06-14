@@ -24,7 +24,7 @@ class ShippingZonesController extends BaseAdminController
     public function actionIndex()
     {
         $shippingZones = Plugin::getInstance()->getShippingZones()->getAllShippingZones();
-        $this->renderTemplate('commerce/settings/shippingzones/index',
+        return $this->renderTemplate('commerce/settings/shippingzones/index',
             compact('shippingZones'));
     }
 
@@ -62,7 +62,7 @@ class ShippingZonesController extends BaseAdminController
         $variables['countries'] = ArrayHelper::map($countries, 'id', 'name');
         $variables['states'] = ArrayHelper::map($states, 'id', 'name');
 
-        $this->renderTemplate('commerce/settings/shippingzones/_edit', $variables);
+        return $this->renderTemplate('commerce/settings/shippingzones/_edit', $variables);
     }
 
     /**
