@@ -10,8 +10,8 @@
 
     <form action="" method="post" accept-charset="UTF-8">
         <input type="hidden" name="action"
-               value="commerce/settings/saveSettings">
-        <input type="hidden" name="redirect" value="commerce/settings">
+               value="commerce/settings/save-settings">
+        {{ redirectInput('commerce/settings') }}
         {{ csrfInput() }}
 
         {{ forms.textField({
