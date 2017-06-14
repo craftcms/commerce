@@ -6,7 +6,6 @@ use craft\commerce\models\PaymentMethod;
 use craft\commerce\Plugin;
 use craft\commerce\records\PaymentMethod as PaymentMethodRecord;
 use craft\helpers\ArrayHelper;
-use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
 use yii\base\Component;
 use yii\base\Exception;
@@ -30,13 +29,12 @@ class PaymentMethods extends Component
      */
     public function getAllFrontEndPaymentMethods(): array
     {
-        $records = PaymentMethodRecord::find()->where('isArchived=:xIsArchived,frontEndEnabled=:xFrontEndEnabled', [':xFrontEndEnabled' => true, ':xIsArchived' => false])->orderBy('sortOrder')->all();
+        $records = PaymentMethodRecord::find()->where('isArchived = :xIsArchived, frontEndEnabled = :xFrontEndEnabled', [':xFrontEndEnabled' => true, ':xIsArchived' => false])->orderBy('sortOrder')->all();
 
-        return ArrayHelper::map($records, 'id', function($record){
+        return ArrayHelper::map($records, 'id', function($record) {
             return $this->_createPaymentMethodFromPaymentMethodRecord($record);
         });
     }
-
 
     /**
      * @return array
@@ -45,8 +43,8 @@ class PaymentMethods extends Component
     {
         $records = PaymentMethodRecord::find()->where('isArchived=:xIsArchived', [':xIsArchived' => false])->orderBy('sortOrder')->all();
 
-        return ArrayHelper::map($records, 'id', function($record){
-           return $this->_createPaymentMethodFromPaymentMethodRecord($record);
+        return ArrayHelper::map($records, 'id', function($record) {
+            return $this->_createPaymentMethodFromPaymentMethodRecord($record);
         });
     }
 
