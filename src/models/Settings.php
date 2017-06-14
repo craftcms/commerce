@@ -125,9 +125,9 @@ class Settings extends Model
     public function getWeightUnitsOptions()
     {
         return [
-            'g' => Craft::t('commerce', 'commerce', 'Grams (g)'),
-            'kg' => Craft::t('commerce', 'commerce', 'Kilograms (kg)'),
-            'lb' => Craft::t('commerce', 'commerce', 'Pounds (lb)')
+            'g' => Craft::t('commerce', 'Grams (g)'),
+            'kg' => Craft::t('commerce', 'Kilograms (kg)'),
+            'lb' => Craft::t('commerce', 'Pounds (lb)')
         ];
     }
 
@@ -137,11 +137,11 @@ class Settings extends Model
     public function getDimensionUnits()
     {
         return [
-            'mm' => Craft::t('commerce', 'commerce', 'Millimeters (mm)'),
-            'cm' => Craft::t('commerce', 'commerce', 'Centimeters (cm)'),
-            'm' => Craft::t('commerce', 'commerce', 'Meters (m)'),
-            'ft' => Craft::t('commerce', 'commerce', 'Feet (ft)'),
-            'in' => Craft::t('commerce', 'commerce', 'Inches (in)'),
+            'mm' => Craft::t('commerce', 'Millimeters (mm)'),
+            'cm' => Craft::t('commerce', 'Centimeters (cm)'),
+            'm' => Craft::t('commerce', 'Meters (m)'),
+            'ft' => Craft::t('commerce', 'Feet (ft)'),
+            'in' => Craft::t('commerce', 'Inches (in)'),
         ];
     }
 }
