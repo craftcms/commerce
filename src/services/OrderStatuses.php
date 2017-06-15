@@ -208,9 +208,9 @@ class OrderStatuses extends Component
 
         if (count($statuses) >= 2) {
 
-            $models = OrderStatusRecord::find()->where('id = :id', [':id' => $id])->all();
-            foreach ($models as $model) {
-                $model->delete();
+            $records = OrderStatusRecord::find()->where('id = :id', [':id' => $id])->all();
+            foreach ($records as $record) {
+                $record->delete();
             }
 
             return true;
@@ -251,7 +251,7 @@ class OrderStatuses extends Component
     public function statusChangeHandler($order, $orderHistory)
     {
         if ($order->orderStatusId) {
-            $status = Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($order->orderStatusId);
+            $status = $this->getOrderStatusById($order->orderStatusId);
             if ($status && count($status->emails)) {
                 foreach ($status->emails as $email) {
                     Plugin::getInstance()->getEmails()->sendEmail($email, $order, $orderHistory);
@@ -271,7 +271,14 @@ class OrderStatuses extends Component
         $result = OrderStatusRecord::findOne($id);
 
         if ($result) {
-            return new OrderStatus($result);
+            return new OrderStatus($result->toArray([
+                'id',
+                'name',
+                'handle',
+                'color',
+                'sortOrder',
+                'default',
+            ]));
         }
 
         return null;
@@ -285,8 +292,9 @@ class OrderStatuses extends Component
     public function reorderOrderStatuses($ids)
     {
         foreach ($ids as $sortOrder => $id) {
-            Craft::$app->getDb()->createCommand()->update('commerce_orderstatuses',
-                ['sortOrder' => $sortOrder + 1], ['id' => $id]);
+            Craft::$app->getDb()->createCommand()
+                ->update('commerce_orderstatuses', ['sortOrder' => $sortOrder + 1], ['id' => $id])
+                ->execute();
         }
 
         return true;

@@ -81,7 +81,7 @@ class OrderStatusesController extends BaseAdminController
     {
         $this->requirePostRequest();
 
-        $id = Craft::$app->getRequest()->getParam('orderStatusId');
+        $id = Craft::$app->getRequest()->getParam('id');
         $orderStatus = Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($id);
 
         if (!$orderStatus) {
@@ -135,8 +135,8 @@ class OrderStatusesController extends BaseAdminController
         $orderStatusId = Craft::$app->getRequest()->getRequiredParam('id');
 
         if (Plugin::getInstance()->getOrderStatuses()->deleteOrderStatusById($orderStatusId)) {
-            $this->asJson(['success' => true]);
-        };
+            return $this->asJson(['success' => true]);
+        }
     }
 
 }
