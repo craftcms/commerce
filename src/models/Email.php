@@ -53,6 +53,11 @@ class Email extends Model
     public $to;
 
     /**
+     * @var string BCC
+     */
+    public $bcc;
+
+    /**
      * @var bool Is Enabled
      */
     public $enabled;
