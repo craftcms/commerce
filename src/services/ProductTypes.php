@@ -194,13 +194,14 @@ class ProductTypes extends Component
     public function getShippingCategoriesByProductId($productTypeId): array
     {
         $productType = ProductTypeRecord::find()->with('shippingCategories')->where(['id' => $productTypeId])->one();
+
         if ($productType && $productType->shippingCategories) {
             $shippingCategories = $productType->shippingCategories;
         } else {
             $shippingCategories = [Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory()];
         }
 
-        return ArrayHelper::map($shippingCategories, 'id', function(ShippingCategoryRecord $record){
+        return ArrayHelper::map($shippingCategories, 'id', function($record){
             return new ShippingCategory($record->toArray([
                 'id',
                 'name',

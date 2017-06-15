@@ -19,8 +19,8 @@ variantFields:       { label: "Variant Fields"|t('commerce'), url: '#variant-fie
 {% import "_includes/forms" as forms %}
 
 {% block content %}
-    <input type="hidden" name="action" value="commerce/productTypes/saveProductType">
-    <input type="hidden" name="redirect" value="commerce/settings/producttypes">
+    <input type="hidden" name="action" value="commerce/product-types/save-product-type">
+    {{ redirectInput('commerce/settings/producttypes') }}
     {% if productType.id %}
     <input type="hidden" name="productTypeId" value="{{ productType.id }}">
     {% endif %}
@@ -174,7 +174,7 @@ variantFields:       { label: "Variant Fields"|t('commerce'), url: '#variant-fie
         {% endmacro %}
 
 
-        {% from _self import hasUrlsField, templateField, hasVariantsField, titleFormatField %}
+        {% from _self import hasUrlsField, templateField, hasVariantsField, titleFormatField, urlFormatText %}
 
         <hr>
         {{ hasVariantsField(productType) }}
@@ -216,7 +216,7 @@ variantFields:       { label: "Variant Fields"|t('commerce'), url: '#variant-fie
                                 {% endif %}
                                 <td class="topalign">
                                     {% set value = (productType.locales[locale.id] is defined ? productType.locales[locale.id].urlFormat : null) %}
-                                    {{ _self.urlFormatText(locale, productType, 'urlFormat', value) }}
+                                    {{ urlFormatText(locale, productType, 'urlFormat', value) }}
                                 </td>
                             </tr>
                         {% endfor %}
@@ -225,7 +225,7 @@ variantFields:       { label: "Variant Fields"|t('commerce'), url: '#variant-fie
                 {% else %}
                     {% set locale = craft.i18n.getPrimarySiteLocale() %}
                     {% set value = (productType.locales[locale.id] is defined ? productType.locales[locale.id].urlFormat : null) %}
-                    {{ _self.urlFormatText(locale, productType, 'urlFormat', value) }}
+                    {{ urlFormatText(locale, productType, 'urlFormat', value) }}
                 {% endif %}
             {% endset %}
 
