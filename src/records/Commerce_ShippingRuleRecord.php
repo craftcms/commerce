@@ -65,7 +65,7 @@ class Commerce_ShippingRuleRecord extends BaseRecord
     {
         $rules = parent::rules();
 
-        $rules[] = ['name', 'Craft\CompositeUniqueValidator', 'with' => 'methodId'];
+        $rules[] = ['name', 'Craft\CompositeUniqueValidator', 'with' => 'name,methodId'];
 
         return $rules;
     }
