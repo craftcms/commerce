@@ -2,28 +2,28 @@
 
 
 {% block content %}
-    <h2>{{ "Emails"|t }}</h2>
+    <h2>{{ "Emails"|t('commerce') }}</h2>
 
     <div id="no-emails"{% if emails|length %} class="hidden"{% endif %}>
-        <p>{{ "No emails exist yet."|t }}</p>
+        <p>{{ "No emails exist yet."|t('commerce') }}</p>
     </div>
 
     {% if emails|length %}
         <table id="emails" class="data fullwidth collapsible">
             <thead>
             <tr>
-                <th scope="col">{{ "Name"|t }}</th>
-                <th scope="col">{{ "Subject"|t }}</th>
-                <th scope="col">{{ "To"|t }}</th>
-                <th scope="col">{{ "Bcc"|t }}</th>
-                <th scope="col">{{ "Template Path"|t }}</th>
+                <th scope="col">{{ "Name"|t('commerce') }}</th>
+                <th scope="col">{{ "Subject"|t('commerce') }}</th>
+                <th scope="col">{{ "To"|t('commerce') }}</th>
+                <th scope="col">{{ "Bcc"|t('commerce') }}</th>
+                <th scope="col">{{ "Template Path"|t('commerce') }}</th>
                 <td class="thin"></td>
             </tr>
             </thead>
             <tbody>
             {% for email in emails %}
                 <tr data-id="{{ email.id }}" data-name="{{ email.name }}">
-                    <th scope="row" data-title="{{ 'Name'|t }}">
+                    <th scope="row" data-title="{{ 'Name'|t('commerce') }}">
                         {% if email.enabled %}
                             <span class="status green"></span>
                         {% else %}
@@ -31,16 +31,16 @@
                         {% endif %}
                         <a href="{{ url('commerce/settings/emails/'~email.id) }}">{{ email.name }}</a>
                     </th>
-                    <td data-title="{{ 'Subject'|t }}">{{ email.subject }}</td>
+                    <td data-title="{{ 'Subject'|t('commerce') }}">{{ email.subject }}</td>
                     {% if email.recipientType == 'custom' %}
-                        <td data-title="{{ 'To'|t }}">{{ email.to }}</td>
+                        <td data-title="{{ 'To'|t('commerce') }}">{{ email.to }}</td>
                     {% else %}
-                        <td data-title="{{ 'To'|t }}">{{ 'Customer' }}</td>
+                        <td data-title="{{ 'To'|t('commerce') }}">{{ 'Customer' }}</td>
                     {% endif %}
-                    <td data-title="{{ 'Bcc'|t }}">{{ email.bcc }}</td>
-                    <td data-title="{{ 'Template Path'|t }}">{{ email.templatePath }}</td>
+                    <td data-title="{{ 'Bcc'|t('commerce') }}">{{ email.bcc }}</td>
+                    <td data-title="{{ 'Template Path'|t('commerce') }}">{{ email.templatePath }}</td>
                     <td class="thin"><a class="delete icon"
-                                        title="{{ 'Delete'|t }}"
+                                        title="{{ 'Delete'|t('commerce') }}"
                                         role="button"></a></td>
                 </tr>
             {% endfor %}
@@ -51,7 +51,7 @@
 
     <div class="buttons">
         <a href="{{ url('commerce/settings/emails/new') }}"
-           class="btn submit add icon">{{ 'New email'|t }}</a>
+           class="btn submit add icon">{{ 'New email'|t('commerce') }}</a>
     </div>
 {% endblock %}
 

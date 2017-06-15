@@ -1,8 +1,8 @@
 {% extends "commerce/_layouts/settingscp" %}
 
 {% set crumbs = [
-{ label: 'Commerce ' ~ 'Settings'|t, url: url('commerce/settings') },
-{ label: 'Order Statuses'|t, url: url('commerce/settings/orderstatuses') }
+{ label: 'Commerce ' ~ 'Settings'|t('commerce'), url: url('commerce/settings') },
+{ label: 'Order Statuses'|t('commerce'), url: url('commerce/settings/orderstatuses') }
 ] %}
 
 {% set fullPageForm = true %}
@@ -19,9 +19,9 @@
     {% endif %}
 
     {{ forms.textField({
-        label: "Name"|t,
+        label: "Name"|t('commerce'),
         first: true,
-        instructions: "What this status will be called in the CP."|t,
+        instructions: "What this status will be called in the CP."|t('commerce'),
         id: 'name',
         name: 'name',
         value: orderStatus.name,
@@ -30,8 +30,8 @@
     }) }}
 
     {{ forms.textField({
-        label: "Handle"|t,
-        instructions: "How you’ll refer to this status in the templates."|t,
+        label: "Handle"|t('commerce'),
+        instructions: "How you’ll refer to this status in the templates."|t('commerce'),
         id: 'handle',
         class: 'code',
         name: 'handle',
@@ -65,21 +65,21 @@
         </div>
     {% endset %}
     {{ forms.field({
-        label: 'Color'|t,
+        label: 'Color'|t('commerce'),
         instructions: 'Choose a color to represent the order’s status'|t
     },colorField) }}
 
 
     {% if not emails|length %}
         {{ forms.field({
-            label: 'Status Emails'|t,
+            label: 'Status Emails'|t('commerce'),
             instructions: '<span class="error">'~'You currently have no emails configured to select for this status.'|t~'</span>',
             disabled: true
         }) }}
     {% else %}
         {{ forms.multiselectField({
-            label: 'Status Emails'|t,
-            instructions: 'Select the emails that will be sent when transitioning to this status.'|t,
+            label: 'Status Emails'|t('commerce'),
+            instructions: 'Select the emails that will be sent when transitioning to this status.'|t('commerce'),
             id: 'emails',
             name: 'emails',
             options: emails,
@@ -90,7 +90,7 @@
     {% endif %}
 
     {{ forms.checkboxField({
-        label: "New orders get this status by default"|t,
+        label: "New orders get this status by default"|t('commerce'),
         name: 'default',
         value: 1,
         checked: orderStatus.default,

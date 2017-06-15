@@ -1,8 +1,8 @@
 {% extends "commerce/_layouts/settingscp" %}
 
 {% set crumbs = [
-{ label: "Commerce Settings"|t, url: url('commerce/settings') },
-{ label: "Emails"|t, url: url('commerce/settings/emails') },
+{ label: "Commerce Settings"|t('commerce'), url: url('commerce/settings') },
+{ label: "Emails"|t('commerce'), url: url('commerce/settings/emails') },
 ] %}
 
 {% set fullPageForm = true %}
@@ -16,8 +16,8 @@
 
     {{ forms.textField({
         first: true,
-        label: "Name"|t,
-        instructions: "What this email will be called in the CP."|t,
+        label: "Name"|t('commerce'),
+        instructions: "What this email will be called in the CP."|t('commerce'),
         id: 'name',
         name: 'name',
         value: email.name,
@@ -28,7 +28,7 @@
     }) }}
 
     {{ forms.textField({
-        label: "Email Subject"|t,
+        label: "Email Subject"|t('commerce'),
         id: 'subject',
         name: 'subject',
         value: email.subject,
@@ -43,8 +43,8 @@
                     id: 'recipient-type',
                     name: 'recipientType',
                     options: [
-                    { label: "Send to the customer"|t, value: 'customer' },
-                    { label: "Send to custom recipients"|t, value: 'custom' }
+                    { label: "Send to the customer"|t('commerce'), value: 'customer' },
+                    { label: "Send to custom recipients"|t('commerce'), value: 'custom' }
                     ],
                     value: email.recipientType,
                     toggle: true,
@@ -65,13 +65,13 @@
 
     {{ forms.field({
         id: 'recipient-type',
-        label: 'Recipient'|t,
+        label: 'Recipient'|t('commerce'),
         errors: email.getErrors('to'),
         required: true,
     }, recipientInput) }}
 
     {{ forms.textField({
-        label: 'BCC’d Recipient'|t,
+        label: 'BCC’d Recipient'|t('commerce'),
         id: 'bcc',
         name: 'bcc',
         value: email.bcc,
@@ -79,8 +79,8 @@
     }) }}
 
     {{ forms.textField({
-        label: 'HTML Email Template Path'|t,
-        instructions: 'The template to be used for HTML emails.'|t,
+        label: 'HTML Email Template Path'|t('commerce'),
+        instructions: 'The template to be used for HTML emails.'|t('commerce'),
         id: 'templatePath',
         name: 'templatePath',
         value: email.templatePath,
@@ -89,7 +89,7 @@
     }) }}
 
     {{ forms.lightswitchField({
-        label: "Enabled?"|t,
+        label: "Enabled?"|t('commerce'),
         id: 'enabled',
         name: 'enabled',
         value: 1,

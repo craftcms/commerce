@@ -1,8 +1,8 @@
 {% extends "commerce/_layouts/settingscp" %}
 
 {% set crumbs = [
-{ label: "Commerce Settings"|t, url: url('commerce/settings') },
-{ label: "States"|t, url: url('commerce/settings/states') },
+{ label: "Commerce Settings"|t('commerce'), url: url('commerce/settings') },
+{ label: "States"|t('commerce'), url: url('commerce/settings/states') },
 ] %}
 
 {% set fullPageForm = true %}
@@ -17,8 +17,8 @@
 
     {{ forms.textField({
         first: true,
-        label: "Name"|t,
-        instructions: "What this state will be called in the CP."|t,
+        label: "Name"|t('commerce'),
+        instructions: "What this state will be called in the CP."|t('commerce'),
         id: 'name',
         name: 'name',
         value: state.name,
@@ -29,7 +29,7 @@
     }) }}
 
     {{ forms.textField({
-        label: "Abbreviation"|t,
+        label: "Abbreviation"|t('commerce'),
         id: 'abbreviation',
         name: 'abbreviation',
         value: state.abbreviation,
@@ -38,7 +38,7 @@
     }) }}
 
     {{ forms.selectField({
-        label: "Country"|t,
+        label: "Country"|t('commerce'),
         id: 'countryId',
         name: 'countryId',
         value: state.countryId,

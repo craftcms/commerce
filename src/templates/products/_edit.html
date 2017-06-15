@@ -4,8 +4,8 @@
 {% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commerceproducts commerceproductsedit" %}
 
 {% set crumbs = [
-{ label: "Products"|t, url: url('commerce/products') },
-{ label: productType.name|t, url: url('commerce/products/'~productType.handle) }
+{ label: "Products"|t('commerce'), url: url('commerce/products') },
+{ label: productType.name|t('commerce'), url: url('commerce/products/'~productType.handle) }
 ] %}
 
 {% set fullPageForm = true %}
@@ -17,19 +17,19 @@
 
 {% block saveButton %}
     <div class="btngroup">
-        <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
+        <input type="submit" class="btn submit" value="{{ 'Save'|t('commerce') }}">
         <div class="btn submit menubtn"></div>
         <div class="menu">
             <ul>
                 <li><a class="formsubmit"
                        data-redirect="{{ continueEditingUrl }}">
-                        {{ "Save and continue editing"|t }}
+                        {{ "Save and continue editing"|t('commerce') }}
                         {{ forms.optionShortcutLabel('S') }}
                     </a></li>
                 {% if product.id %}
                     <li><a class="formsubmit" data-param="productId"
                            data-value=""
-                           data-redirect="{{ continueEditingUrl }}">{{ "Save as a new product"|t }}</a>
+                           data-redirect="{{ continueEditingUrl }}">{{ "Save as a new product"|t('commerce') }}</a>
                     </li>
                 {% endif %}
             </ul>
@@ -74,7 +74,7 @@
                 <div id="variants-pane" class="pane">
                     {% include "_includes/tabs" with {
                     tabs: {
-                    variantsTab: { label: 'Variants'|t, url: '#variantsTab' }
+                    variantsTab: { label: 'Variants'|t('commerce'), url: '#variantsTab' }
                     }
                     } %}
 
@@ -130,9 +130,9 @@
                         <div class="right">
                             <input type="button"
                                    class="btn small formsubmit"
-                                   value="{{ 'Delete'|t }}"
+                                   value="{{ 'Delete'|t('commerce') }}"
                                    data-action="commerce/products/deleteProduct"
-                                   data-confirm="{{ 'Are you sure you want to delete this product?'|t }}"
+                                   data-confirm="{{ 'Are you sure you want to delete this product?'|t('commerce') }}"
                                    data-redirect="commerce/products">
                         </div>
                     {% endif %}
@@ -164,16 +164,16 @@
             {% if product.id %}
                 <div class="pane lightpane meta">
                     <div class="data">
-                        <h5 class="heading">{{ "Date Created"|t }}</h5>
+                        <h5 class="heading">{{ "Date Created"|t('commerce') }}</h5>
                         <div class="value">{{ product.dateCreated.localeDate() }} {{ product.dateCreated.localeTime() }}</div>
                     </div>
                     <div class="data">
-                        <h5 class="heading">{{ "Date Updated"|t }}</h5>
+                        <h5 class="heading">{{ "Date Updated"|t('commerce') }}</h5>
                         <div class="value">{{ product.dateUpdated.localeDate() }} {{ product.dateUpdated.localeTime() }}</div>
                     </div>
                     {% if promotions.sales|length %}
                         <div class="data">
-                            <h5 class="heading">{{ "Associated Sales"|t }}</h5>
+                            <h5 class="heading">{{ "Associated Sales"|t('commerce') }}</h5>
                             <div class="value">
                                 <ul class="commerce-sales">
                                     {% for promotion in promotions.sales %}

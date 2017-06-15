@@ -2,17 +2,17 @@
     {% set orders = customer.orders %}
 
     <div id="no-orders"{% if orders|length %} class="hidden"{% endif %}>
-        <p>{{ "No orders exist for this user yet."|t }}</p>
+        <p>{{ "No orders exist for this user yet."|t('commerce') }}</p>
     </div>
 
     {% if orders|length %}
         <table class="data fullwidth collapsible">
             <thead>
             <tr>
-                <th scope="col">{{ 'Order'|t }}</th>
-                <th scope="col">{{ 'Order Date'|t }}</th>
-                <th scope="col">{{ 'Total Paid'|t }}</th>
-                <th scope="col">{{ 'Status'|t }}</th>
+                <th scope="col">{{ 'Order'|t('commerce') }}</th>
+                <th scope="col">{{ 'Order Date'|t('commerce') }}</th>
+                <th scope="col">{{ 'Total Paid'|t('commerce') }}</th>
+                <th scope="col">{{ 'Status'|t('app') }}</th>
             </tr>
             </thead>
             <tbody>
@@ -30,17 +30,17 @@
 
     {% set addresses = customer.addresses %}
     <div id="no-addresses"{% if addresses|length %} class="hidden"{% endif %}>
-        <p>{{ "No addresses exist for this user yet."|t }}</p>
+        <p>{{ "No addresses exist for this user yet."|t('commerce') }}</p>
     </div>
     <br>
     {% if addresses|length %}
         <div class="address-heading-label">
-            <label>{{ "Addresses"|t }}</label>
+            <label>{{ "Addresses"|t('commerce') }}</label>
         </div>
         <div class="address-boxes">
             {% for address in addresses %}
                 <div id="Address" class="address-box hidden"
-                     data-title="{{ 'Address {number}'|t({ number: loop.index }) }}"
+                     data-title="{{ 'Address {number}'|t('commerce', { number: loop.index }) }}"
                      data-address='{%- if address and address.id -%}{{ address|json_encode_filtered }}{%- endif %}'>
                     <div class="address-box-content">
                         <div class="address-box-header"></div>

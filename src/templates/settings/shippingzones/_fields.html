@@ -2,8 +2,8 @@
 
 {{ forms.textField({
     first: true,
-    label: "Name"|t,
-    instructions: "What this shipping zone will be called in the CP."|t,
+    label: "Name"|t('commerce'),
+    instructions: "What this shipping zone will be called in the CP."|t('commerce'),
     id: 'name',
     name: 'name',
     value: shippingZone is defined ? shippingZone.name,
@@ -14,8 +14,8 @@
 }) }}
 
 {{ forms.textField({
-    label: "Description"|t,
-    instructions: "Describe this shipping zone."|t,
+    label: "Description"|t('commerce'),
+    instructions: "Describe this shipping zone."|t('commerce'),
     id: 'description',
     name: 'description',
     value: shippingZone is defined ? shippingZone.description,
@@ -23,18 +23,18 @@
 }) }}
 
 {{ forms.radioGroupField({
-    label: 'Type'|t,
+    label: 'Type'|t('commerce'),
     id: 'countryBased',
     name: 'countryBased',
-    options: {1 : 'Country-based'|t, 0 : 'State-based'|t},
+    options: {1 : 'Country-based'|t('commerce'), 0 : 'State-based'|t},
     value: shippingZone is defined ? shippingZone.countryBased,
     errors: shippingZone is defined ? shippingZone.getErrors('countryBased'),
     required: true,
 }) }}
 
 {{ forms.multiselectField({
-    label: 'Countries'|t,
-    instructions: 'Choose the countries that this zone applies to.'|t,
+    label: 'Countries'|t('commerce'),
+    instructions: 'Choose the countries that this zone applies to.'|t('commerce'),
     id: 'countries',
     name: 'countries',
     options: countries,
@@ -45,9 +45,9 @@
 }) }}
 
 {{ forms.multiselectField({
-    label: 'States'|t,
+    label: 'States'|t('commerce'),
     id: 'states',
-    instructions: 'Choose the states that this zone applies to.'|t,
+    instructions: 'Choose the states that this zone applies to.'|t('commerce'),
     name: 'states',
     options: states,
     values: shippingZone is defined ? shippingZone.getStateIds(),

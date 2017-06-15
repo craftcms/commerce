@@ -4,16 +4,16 @@
 
 
 {% block content %}
-    <h2>{{ "Order Statuses"|t }}</h2>
-    <p>{{ "Define the statuses that can be set on orders once they’ve been completed."|t }}</p>
+    <h2>{{ "Order Statuses"|t('commerce') }}</h2>
+    <p>{{ "Define the statuses that can be set on orders once they’ve been completed."|t('commerce') }}</p>
 
     <table id="order-statuses" class="data fullwidth collapsible">
         <thead>
         <tr>
-            <th scope="col">{{ "Name"|t }}</th>
-            <th scope="col">{{ "Handle"|t }}</th>
-            <th scope="col">{{ "Has Emails?"|t }}</th>
-            <th scope="col">{{ "Default Status?"|t }}</th>
+            <th scope="col">{{ "Name"|t('commerce') }}</th>
+            <th scope="col">{{ "Handle"|t('commerce') }}</th>
+            <th scope="col">{{ "Has Emails?"|t('commerce') }}</th>
+            <th scope="col">{{ "Default Status?"|t('commerce') }}</th>
             <td class="thin"></td>
             <td class="thin"></td>
         </tr>
@@ -22,27 +22,27 @@
         {% for orderStatus in orderStatuses %}
             <tr data-id="{{ orderStatus.id }}"
                 data-name="{{ orderStatus.handle }}">
-                <th scope="row" data-title="{{ 'Name'|t }}"><a
+                <th scope="row" data-title="{{ 'Name'|t('commerce') }}"><a
                             href="{{ orderStatus.getCpEditUrl() }}">{{ orderStatus.htmlLabel|raw }}</a>
                 </th>
-                <td data-title="{{ 'Handle'|t }}"
+                <td data-title="{{ 'Handle'|t('commerce') }}"
                     class="code">{{ orderStatus.handle }}</td>
-                <td data-title="{{ 'Emails'|t }}">
+                <td data-title="{{ 'Emails'|t('commerce') }}">
                     {% if orderStatus.emails | length %}
                         {{ orderStatus.emails | length }}
                     {% endif %}
                 </td>
                 <td>{% if orderStatus.default %}<span data-icon="check"
-                                                      title="{{ 'Yes'|t }}"></span>{% endif %}
+                                                      title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}
                 </td>
                 {% set orderExists = craft.commerce.orders.orderStatusId(orderStatus.id).first() %}
                 <td class="thin">
-                    <a class="move icon disabled" title="{{ 'Delete'|t }}"
+                    <a class="move icon disabled" title="{{ 'Delete'|t('commerce') }}"
                        role="button"></a>
                 </td>
                 {% if not orderExists | length %}
                     <td class="thin"><a class="delete icon"
-                                        title="{{ 'Delete'|t }}"
+                                        title="{{ 'Delete'|t('commerce') }}"
                                         role="button"></a></td>
                 {% else %}
                     <td class="thin"></td>
@@ -55,7 +55,7 @@
 
     <div class="buttons">
         <a href="{{ url('commerce/settings/orderstatuses/new') }}"
-           class="btn submit add icon">{{ 'New order status'|t }}</a>
+           class="btn submit add icon">{{ 'New order status'|t('commerce') }}</a>
     </div>
 {% endblock %}
 

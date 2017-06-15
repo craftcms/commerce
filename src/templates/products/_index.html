@@ -1,6 +1,6 @@
 {% extends "commerce/_layouts/elementindex" %}
 
-{% set title = "Products"|t %}
+{% set title = "Products"|t('commerce') %}
 {% set docTitle = title~' - '~'Commerce' %}
 {% set elementType = '\\craft\\commerce\\elements\\Product' %}
 {% set selectedTab = 'products' %}
@@ -9,8 +9,8 @@
 
 {% block content %}
     {% if not craft.commerce.getProductTypes()|length > 0 %}
-        <p class="error">{{ 'No product types exist yet.'|t }} <a class="go"
-                                                                  href="{{ url('commerce/settings/producttypes/new') }}">{{ 'Create one'|t }}</a>
+        <p class="error">{{ 'No product types exist yet.'|t('commerce') }} <a class="go"
+                                                                  href="{{ url('commerce/settings/producttypes/new') }}">{{ 'Create one'|t('commerce') }}</a>
         </p>
     {% else %}
         {{ parent() }}

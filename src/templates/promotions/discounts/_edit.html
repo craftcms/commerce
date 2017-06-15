@@ -3,8 +3,8 @@
 {% set selectedSubnavItem = "promotions" %}
 
 {% set crumbs = [
-{ label: "Promotions"|t, url: url('commerce/promotions') },
-{ label: "Discounts"|t, url: url('commerce/promotions/discounts') },
+{ label: "Promotions"|t('commerce'), url: url('commerce/promotions') },
+{ label: "Discounts"|t('commerce'), url: url('commerce/promotions/discounts') },
 ] %}
 
 {% set fullPageForm = true %}
@@ -29,10 +29,10 @@
 {% endif %}
 
 {% set tabs = {
-0: {'label':'Discount'|t,'url':'#discount','class':discountClasses},
-1: {'label':'Coupon'|t,'url':'#coupon','class':couponClasses},
-2: {'label':'Conditions'|t,'url':'#conditions','class':conditionsClasses},
-3: {'label':'Amounts'|t,'url':'#amounts'}
+0: {'label':'Discount'|t('commerce'),'url':'#discount','class':discountClasses},
+1: {'label':'Coupon'|t('commerce'),'url':'#coupon','class':couponClasses},
+2: {'label':'Conditions'|t('commerce'),'url':'#conditions','class':conditionsClasses},
+3: {'label':'Amounts'|t('commerce'),'url':'#amounts'}
 } %}
 
 
@@ -47,8 +47,8 @@
     <div id="discount">
         {{ forms.textField({
             first: true,
-            label: "Name"|t,
-            instructions: "What this discount will be called in the CP."|t,
+            label: "Name"|t('commerce'),
+            instructions: "What this discount will be called in the CP."|t('commerce'),
             id: 'name',
             name: 'name',
             value: discount.name,
@@ -58,8 +58,8 @@
         }) }}
 
         {{ forms.textField({
-            label: "Description"|t,
-            instructions: "Discount description."|t,
+            label: "Description"|t('commerce'),
+            instructions: "Discount description."|t('commerce'),
             id: 'description',
             name: 'description',
             value: discount.description,
@@ -67,7 +67,7 @@
         }) }}
 
         {{ forms.checkboxField({
-            label: "Enable this discount"|t,
+            label: "Enable this discount"|t('commerce'),
             id: 'enabled',
             name: 'enabled',
             value: 1,
@@ -76,7 +76,7 @@
         }) }}
 
         {{ forms.checkboxField({
-            label: "Don’t apply subsequent discounts if this discount is applied"|t,
+            label: "Don’t apply subsequent discounts if this discount is applied"|t('commerce'),
             id: 'stopProcessing',
             name: 'stopProcessing',
             value: 1,
@@ -89,8 +89,8 @@
     <div id="coupon" class="hidden">
 
         {{ forms.textField({
-            label: "Coupon Code"|t,
-            instructions: "A user will have to enter this code to activate this discount. A blank coupon code here will always match this discount."|t,
+            label: "Coupon Code"|t('commerce'),
+            instructions: "A user will have to enter this code to activate this discount. A blank coupon code here will always match this discount."|t('commerce'),
             id: 'code',
             name: 'code',
             value: discount.code,
@@ -100,8 +100,8 @@
         <div id="coupon-fields"
              class="{% if not discount.code|length %}hidden{% endif %}">
             {{ commerceForms.numberField({
-                label: "Per User Coupon Limit"|t,
-                instructions: "How many times one user is allowed to use this discount. Setting this requires a user to be logged in to use the discount. Setting this will not allow guests to use the discount. Set to zero for unlimited use by guests or users."|t,
+                label: "Per User Coupon Limit"|t('commerce'),
+                instructions: "How many times one user is allowed to use this discount. Setting this requires a user to be logged in to use the discount. Setting this will not allow guests to use the discount. Set to zero for unlimited use by guests or users."|t('commerce'),
                 id: 'perUserLimit',
                 name: 'perUserLimit',
                 value: discount.perUserLimit,
@@ -110,8 +110,8 @@
             }) }}
 
             {{ commerceForms.numberField({
-                label: "Per Email Address Coupon Limit"|t,
-                instructions: "How many times one email address is allowed to use this discount. This applies to all previous orders, whether guest or user. Set to zero for unlimited use by guests or users."|t,
+                label: "Per Email Address Coupon Limit"|t('commerce'),
+                instructions: "How many times one email address is allowed to use this discount. This applies to all previous orders, whether guest or user. Set to zero for unlimited use by guests or users."|t('commerce'),
                 id: 'perEmailLimit',
                 name: 'perEmailLimit',
                 value: discount.perEmailLimit,
@@ -120,8 +120,8 @@
             }) }}
 
             {{ commerceForms.numberField({
-                label: "Total Coupon Use Limit"|t,
-                instructions: "How many times this coupon can be used in total by guests or logged in users. Set zero for unlimited use."|t,
+                label: "Total Coupon Use Limit"|t('commerce'),
+                instructions: "How many times this coupon can be used in total by guests or logged in users. Set zero for unlimited use."|t('commerce'),
                 id: 'totalUseLimit',
                 name: 'totalUseLimit',
                 value: discount.totalUseLimit,
@@ -130,18 +130,18 @@
             }) }}
 
             {{ forms.field({
-                'label': 'Times Coupon Used'|t,
+                'label': 'Times Coupon Used'|t('commerce'),
                 'id': 'total-coupon-use-counter',
-                'instructions': "How many times this coupon has been used, if a total coupon usage limit has been set."|t,
+                'instructions': "How many times this coupon has been used, if a total coupon usage limit has been set."|t('commerce'),
             }, '<input disabled class="text disabled fullwidth" value="' ~ discount.totalUses ~ ' times">') }}
 
             {% if discount.id and discount.code|length %}
                 <div id="clear-coupon-history">
                     {{ forms.field({
-                        'label': 'Clear all coupon usage history for this discount'|t,
+                        'label': 'Clear all coupon usage history for this discount'|t('commerce'),
                         'id': 'clear-coupon',
-                        'instructions': "This will clear all “Per User Coupon Limit” and “Total Use Limit” counters. It will not clear any “Per Email Address Coupon Limit” counters."|t,
-                    }, '<div id="clear-coupon-btn" class="btn">' ~ "Clear counters"|t ~'</div><div id="clear-coupon-history-spinner" class="spinner hidden"></div>') }}
+                        'instructions': "This will clear all “Per User Coupon Limit” and “Total Use Limit” counters. It will not clear any “Per Email Address Coupon Limit” counters."|t('commerce'),
+                    }, '<div id="clear-coupon-btn" class="btn">' ~ "Clear counters"|t('commerce') ~'</div><div id="clear-coupon-history-spinner" class="spinner hidden"></div>') }}
                 </div>
             {% endif %}
 
@@ -151,8 +151,8 @@
     <div id="conditions" class="hidden">
 
         {{ forms.dateTimeField({
-            label: "Start Date"|t,
-            instructions: "Date from which the discount will be active. Leave blank for unlimited start date"|t,
+            label: "Start Date"|t('commerce'),
+            instructions: "Date from which the discount will be active. Leave blank for unlimited start date"|t('commerce'),
             id: 'dateFrom',
             name: 'dateFrom',
             value: discount.dateFrom,
@@ -160,8 +160,8 @@
         }) }}
 
         {{ forms.dateTimeField({
-            label: "End Date"|t,
-            instructions: "Date when the discount will be finished. Leave blank for unlimited end date"|t,
+            label: "End Date"|t('commerce'),
+            instructions: "Date when the discount will be finished. Leave blank for unlimited end date"|t('commerce'),
             id: 'dateTo',
             name: 'dateTo',
             value: discount.dateTo,
@@ -170,8 +170,8 @@
 
         {% if groups|length %}
             {{ forms.multiselectField({
-                label: 'User Groups'|t,
-                instructions: "Groups for which this discount will be applicable to. Leave blank for all groups"|t,
+                label: 'User Groups'|t('commerce'),
+                instructions: "Groups for which this discount will be applicable to. Leave blank for all groups"|t('commerce'),
                 id: 'groups',
                 name: 'groups',
                 options: groups,
@@ -182,8 +182,8 @@
         {% endif %}
 
         {{ forms.multiselectField({
-            label: 'Product Types'|t,
-            instructions: "Product types for which this discount will be applicable to. Leave blank for all product types"|t,
+            label: 'Product Types'|t('commerce'),
+            instructions: "Product types for which this discount will be applicable to. Leave blank for all product types"|t('commerce'),
             id: 'productTypes',
             name: 'productTypes',
             options: types,
@@ -194,18 +194,18 @@
 
         {{ forms.elementSelectField({
             id: 'products',
-            label: 'Products'|t,
+            label: 'Products'|t('commerce'),
             name: 'products',
             elements: products ? products : null,
             elementType: productElementType,
             limit: null,
-            instructions: "Products for which this discount will be applicable to. Leave blank for all products"|t,
+            instructions: "Products for which this discount will be applicable to. Leave blank for all products"|t('commerce'),
             errors: discount.getErrors('products'),
         }) }}
 
         {{ forms.textField({
-            label: "Purchase Total"|t,
-            instructions: "Restrict the discount to only those orders where the customer has purchased a minimum total value of matching items."|t,
+            label: "Purchase Total"|t('commerce'),
+            instructions: "Restrict the discount to only those orders where the customer has purchased a minimum total value of matching items."|t('commerce'),
             id: 'purchaseTotal',
             name: 'purchaseTotal',
             value: discount.purchaseTotal,
@@ -214,8 +214,8 @@
         }) }}
 
         {{ forms.textField({
-            label: "Minimum Purchase Quantity"|t,
-            instructions: "Minimum number of matching items that need to be ordered for this discount to apply."|t,
+            label: "Minimum Purchase Quantity"|t('commerce'),
+            instructions: "Minimum number of matching items that need to be ordered for this discount to apply."|t('commerce'),
             id: 'purchaseQty',
             name: 'purchaseQty',
             value: discount.purchaseQty,
@@ -224,8 +224,8 @@
         }) }}
 
         {{ forms.textField({
-            label: "Maximum Purchase Quantity"|t,
-            instructions: "Maximum number of matching items that can be ordered for this discount to apply. A zero value here will skip this condition."|t,
+            label: "Maximum Purchase Quantity"|t('commerce'),
+            instructions: "Maximum number of matching items that can be ordered for this discount to apply. A zero value here will skip this condition."|t('commerce'),
             id: 'maxPurchaseQty',
             name: 'maxPurchaseQty',
             value: discount.maxPurchaseQty,
@@ -234,7 +234,7 @@
         }) }}
 
         {{ forms.checkboxField({
-            label: "Exclude this discount for products that are already on sale"|t,
+            label: "Exclude this discount for products that are already on sale"|t('commerce'),
             id: 'excludeOnSale',
             name: 'excludeOnSale',
             value: 1,
@@ -246,8 +246,8 @@
     </div>
     <div id="amounts" class="hidden">
         {{ commerceForms.numberField({
-            label: "Base Discount"|t,
-            instructions: "The flat value which should discount the order’s total price. i.e “10” for $10 off."|t,
+            label: "Base Discount"|t('commerce'),
+            instructions: "The flat value which should discount the order’s total price. i.e “10” for $10 off."|t('commerce'),
             id: 'baseDiscount',
             name: 'baseDiscount',
             value: discount.baseDiscount != 0 ? discount.baseDiscount * -1 : 0,
@@ -257,8 +257,8 @@
         }) }}
 
         {{ commerceForms.numberField({
-            label: "Per Item Discount"|t,
-            instructions: "The flat value which should discount each item in the order. i.e “1” for $1 off."|t,
+            label: "Per Item Discount"|t('commerce'),
+            instructions: "The flat value which should discount each item in the order. i.e “1” for $1 off."|t('commerce'),
             id: 'perItemDiscount',
             name: 'perItemDiscount',
             value: discount.perItemDiscount != 0 ? discount.perItemDiscount * -1 : 0,
@@ -268,8 +268,8 @@
         }) }}
 
         {{ forms.textField({
-            label: "Percent Discount"|t,
-            instructions: "The percentile value which should discount each item in the cart. i.e. “4%” for 4% off"|t,
+            label: "Percent Discount"|t('commerce'),
+            instructions: "The percentile value which should discount each item in the cart. i.e. “4%” for 4% off"|t('commerce'),
             id: 'percentDiscount',
             name: 'percentDiscount',
             value: discount.percentDiscountAsPercent,
@@ -277,7 +277,7 @@
         }) }}
 
         {{ forms.checkboxField({
-            label: "Set shipping costs to zero for matching products"|t,
+            label: "Set shipping costs to zero for matching products"|t('commerce'),
             id: 'freeShipping',
             name: 'freeShipping',
             value: 1,

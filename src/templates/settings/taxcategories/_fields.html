@@ -2,8 +2,8 @@
 
 {{ forms.textField({
     first: true,
-    label: "Name"|t,
-    instructions: "What this tax category will be called in the CP."|t,
+    label: "Name"|t('app'),
+    instructions: "What this tax category will be called in the CP."|t('commerce'),
     id: 'name',
     name: 'name',
     value: taxCategory is defined ? taxCategory.name,
@@ -14,8 +14,8 @@
 }) }}
 
 {{ forms.textField({
-    label: "Handle"|t,
-    instructions: "How you’ll refer to this tax category in the templates."|t,
+    label: "Handle"|t('app'),
+    instructions: "How you’ll refer to this tax category in the templates."|t('commerce'),
     id: 'handle',
     class: 'code',
     name: 'handle',
@@ -25,7 +25,7 @@
 }) }}
 
 {{ forms.textField({
-    label: "Description"|t,
+    label: "Description"|t('app'),
     id: 'description',
     name: 'description',
     value: taxCategory is defined ? taxCategory.description,
@@ -33,7 +33,7 @@
 }) }}
 
 {{ forms.checkboxField({
-    label: "Use this tax category by default for new products"|t,
+    label: "Use this tax category by default for new products"|t('commerce'),
     id: 'default',
     name: 'default',
     value: 1,

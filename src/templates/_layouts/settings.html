@@ -1,29 +1,29 @@
 {% extends "commerce/_layouts/settingscp" %}
 
-{% set title = "Commerce Settings"|t %}
+{% set title = "Commerce Settings"|t('commerce') %}
 
 {% set navItems = {
-'registration': { title: "Registration"|t },
-'general': { title: "General Settings"|t },
-'orders-heading': { heading: "Orders"|t },
-'ordersettings': { title: "Order Fields"|t },
-'orderstatuses': { title: "Order Statuses"|t },
-'emails': { title: "Emails"|t },
-'paymentmethods': { title: "Payment Methods"|t },
-'paymentcurrencies': { title: "Payment Currencies"|t },
-'products-heading': { heading: "Products"|t },
-'producttypes': { title: "Product Types"|t },
-'regions-heading': { heading: "Regions"|t },
-'countries': { title: "Countries"|t },
-'states': { title: "States"|t },
-'taxes-heading': { heading: "Taxes"|t },
-'taxcategories': { title: "Tax Categories"|t },
-'taxzones': { title: "Tax Zones"|t },
-'taxrates': { title: "Tax Rates"|t },
-'shipping-heading': { heading: "Shipping"|t },
-'shippingcategories': { title: "Shipping Categories"|t },
-'shippingzones': { title: "Shipping Zones"|t },
-'shippingmethods': { title: "Shipping Methods"|t },
+'registration': { title: "Registration"|t('commerce') },
+'general': { title: "General Settings"|t('commerce') },
+'orders-heading': { heading: "Orders"|t('commerce') },
+'ordersettings': { title: "Order Fields"|t('commerce') },
+'orderstatuses': { title: "Order Statuses"|t('commerce') },
+'emails': { title: "Emails"|t('commerce') },
+'paymentmethods': { title: "Payment Methods"|t('commerce') },
+'paymentcurrencies': { title: "Payment Currencies"|t('commerce') },
+'products-heading': { heading: "Products"|t('commerce') },
+'producttypes': { title: "Product Types"|t('commerce') },
+'regions-heading': { heading: "Regions"|t('commerce') },
+'countries': { title: "Countries"|t('commerce') },
+'states': { title: "States"|t('commerce') },
+'taxes-heading': { heading: "Taxes"|t('commerce') },
+'taxcategories': { title: "Tax Categories"|t('commerce') },
+'taxzones': { title: "Tax Zones"|t('commerce') },
+'taxrates': { title: "Tax Rates"|t('commerce') },
+'shipping-heading': { heading: "Shipping"|t('commerce') },
+'shippingcategories': { title: "Shipping Categories"|t('commerce') },
+'shippingzones': { title: "Shipping Zones"|t('commerce') },
+'shippingmethods': { title: "Shipping Methods"|t('commerce') },
 } %}
 
 {% set selectedItem = craft.request.getSegment(3) %}

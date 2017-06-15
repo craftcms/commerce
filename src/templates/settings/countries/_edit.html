@@ -1,8 +1,8 @@
 {% extends "commerce/_layouts/settingscp" %}
 
 {% set crumbs = [
-{ label: "Commerce Settings"|t, url: url('commerce/settings') },
-{ label: "Countries"|t, url: url('commerce/settings/countries') },
+{ label: "Commerce Settings"|t('commerce'), url: url('commerce/settings') },
+{ label: "Countries"|t('commerce'), url: url('commerce/settings/countries') },
 ] %}
 
 {% set fullPageForm = true %}
@@ -16,8 +16,8 @@
 
     {{ forms.textField({
         first: true,
-        label: "Name"|t,
-        instructions: "What this country will be called in the CP."|t,
+        label: "Name"|t('commerce'),
+        instructions: "What this country will be called in the CP."|t('commerce'),
         id: 'name',
         name: 'name',
         value: country.name,
@@ -28,8 +28,8 @@
     }) }}
 
     {{ forms.textField({
-        label: "ISO"|t,
-        instructions: "The two-letter ISO country code."|t,
+        label: "ISO"|t('commerce'),
+        instructions: "The two-letter ISO country code."|t('commerce'),
         id: 'iso',
         name: 'iso',
         value: country.iso,
@@ -38,7 +38,7 @@
     }) }}
 
     {{ forms.checkboxField({
-        label: "Require a state to be selected when this country is chosen"|t,
+        label: "Require a state to be selected when this country is chosen"|t('commerce'),
         id: 'stateRequired',
         name: 'stateRequired',
         value: 1,

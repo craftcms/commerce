@@ -1,8 +1,8 @@
 {% extends "commerce/_layouts/settingscp" %}
 
 {% set crumbs = [
-{ label: "Commerce Settings"|t, url: url('commerce/settings') },
-{ label: "Currencies"|t, url: url('commerce/settings/paymentcurrencies') },
+{ label: "Commerce Settings"|t('commerce'), url: url('commerce/settings') },
+{ label: "Currencies"|t('commerce'), url: url('commerce/settings/paymentcurrencies') },
 ] %}
 
 {% set fullPageForm = true %}
@@ -17,9 +17,9 @@
                                value="{{ currency.id }}">{% endif %}
 
     {{ forms.selectField({
-        label: 'Currency Code'|t,
+        label: 'Currency Code'|t('commerce'),
         first: true,
-        instructions: 'Choose the currency’s ISO code.'|t,
+        instructions: 'Choose the currency’s ISO code.'|t('commerce'),
         id: 'iso',
         name: 'iso',
         value: currency.iso,
@@ -28,8 +28,8 @@
     }) }}
 
     {{ forms.textField({
-        label: "Conversion Rate"|t,
-        instructions: "The conversion rate that will be used when converting an amount to this currency. For example, if an item costs {amount1}, a conversion rate of {rate} would result in {amount2} in the alternate currency."|t({
+        label: "Conversion Rate"|t('commerce'),
+        instructions: "The conversion rate that will be used when converting an amount to this currency. For example, if an item costs {amount1}, a conversion rate of {rate} would result in {amount2} in the alternate currency."|t('commerce', {
             amount1: 10|currency(craft.commerce.getPrimaryPaymentCurrency().iso),
             rate: 1.5,
             amount2: 15
