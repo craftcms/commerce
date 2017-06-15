@@ -11,13 +11,13 @@
             <input type="hidden" class="status-input" name="orderStatusId"
                    value="{{ settings.orderStatusId }}"/>
 
-            <a class="btn menubtn"><span class="status"></span> {{ "All"|t('app') }}
+            <a class="btn menubtn"><span class="status"></span> {{ "All"|t('commerce') }}
             </a>
 
             <div class="menu">
                 <ul class="padded">
                     <li><a><span class="commerceStatusLabel"><span
-                                        class="status"></span> {{ "All"|t('app') }}</span></a>
+                                        class="status"></span> {{ "All"|t('commerce') }}</span></a>
                     </li>
 
                     {% for status in orderStatuses %}
@@ -32,7 +32,7 @@
     </div>
 
     {{ forms.textField({
-        label: "Limit"|t('app'),
+        label: "Limit"|t('commerce'),
         name: 'limit',
         value: settings.limit,
         size: 2,

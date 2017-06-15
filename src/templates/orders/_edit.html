@@ -47,7 +47,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <td><strong>{{ "Status"|t('app') }}</strong></td>
+                            <td><strong>{{ "Status"|t('commerce') }}</strong></td>
                             {% if order.orderStatus %}
                                 <td>
                                     <div id="order-status"
@@ -63,7 +63,7 @@
                                 <td><span class="status"></span></td>
                             {% endif %}
                         <tr>
-                            <td><strong>{{ "Total"|t('app') }}</strong></td>
+                            <td><strong>{{ "Total"|t('commerce') }}</strong></td>
                             <td>{{ order.totalPrice|currency(order.currency) }}</td>
                         </tr>
                         <tr>
@@ -71,7 +71,7 @@
                             <td>{{ order.totalPaid|currency(order.currency) }} {{ order.datePaid|date('D dS M Y') }}</td>
                         </tr>
                         <tr>
-                            <td><strong>{{ "IP Address"|t('app') }} </strong></td>
+                            <td><strong>{{ "IP Address"|t('commerce') }} </strong></td>
                             <td>{{ order.lastIp }}</td>
                         </tr>
                         <tr>
@@ -295,14 +295,14 @@
                 <div class="footer">
                     <div class="btngroup right submit first">
                         <input type="submit" class="btn submit"
-                               value="{{ 'Save'|t('app') }}">
+                               value="{{ 'Save'|t('commerce') }}">
 
                         <div class="btn submit menubtn"></div>
                         <div class="menu">
                             <ul>
                                 <li><a class="formsubmit"
                                        data-redirect="{{ order.cpEditUrl }}">
-                                        {{ "Save and continue editing"|t('app') }}
+                                        {{ "Save and continue editing"|t('commerce') }}
                                         {{ forms.optionShortcutLabel('S') }}
                                     </a>
                                 </li>
@@ -324,7 +324,7 @@
             <table class="data fullwidth">
                 <thead>
                 <tr>
-                    <th scope="col">{{ 'Status'|t('app') }}</th>
+                    <th scope="col">{{ 'Status'|t('commerce') }}</th>
                     <th scope="col">{{ 'Previous Status'|t('commerce') }}</th>
                     <th scope="col">{{ 'Customer'|t('commerce') }}</th>
                     <th scope="col">{{ 'Message'|t('commerce') }}</th>
@@ -336,7 +336,7 @@
                     <tr data-id="{{ orderHistory.id }}">
                         <td>
                             {% if orderHistory.newStatus %}
-                                <a href="{{ orderHistory.newStatus.cpEditUrl }}">{{ orderHistory.newStatus.htmlLabel()|raw }}</a> {% if loop.first %}({{ "Current"|t('app') }}){% endif %}
+                                <a href="{{ orderHistory.newStatus.cpEditUrl }}">{{ orderHistory.newStatus.htmlLabel()|raw }}</a> {% if loop.first %}({{ "Current"|t('commerce') }}){% endif %}
                             {% endif %}
                         </td>
                         <td>
