@@ -53,7 +53,7 @@ class Emails extends Component
         $result = EmailRecord::findOne($id);
 
         if ($result) {
-            return new Email($result);
+            return $this->_createEmailFromEmailRecord($result);
         }
 
         return null;
@@ -366,12 +366,15 @@ class Emails extends Component
             return null;
         }
 
-        return new Customer($record->toArray([
+        return new Email($record->toArray([
             'id',
-            'userId',
-            'lastUsedBillingAddressId',
-            'lastUsedShippingAddressId',
-            'email'
+            'name',
+            'subject',
+            'recipientType',
+            'to',
+            'bcc',
+            'enabled',
+            'templatePath'
         ]));
     }
 }

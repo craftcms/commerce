@@ -11,9 +11,8 @@
 
 {% block content %}
     <input type="hidden" name="action" value="commerce/emails/save">
-    <input type="hidden" name="redirect" value="commerce/settings/emails">
-    {% if email.id %}<input type="hidden" name="emailId"
-                            value="{{ email.id }}">{% endif %}
+    {{ redirectInput('commerce/settings/emails') }}
+    {% if email.id %}<input type="hidden" name="emailId" value="{{ email.id }}">{% endif %}
 
     {{ forms.textField({
         first: true,

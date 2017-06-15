@@ -36,19 +36,4 @@ class Email extends ActiveRecord
         return '{{%commerce_emails}}';
     }
 
-//    /**
-//     * @return array
-//     */
-//    protected function defineAttributes()
-//    {
-//        return [
-//            'name' => [AttributeType::String, 'required' => true],
-//            'subject' => [AttributeType::String, 'required' => true],
-//            'recipientType' => [AttributeType::Enum, 'values' => [self::TYPE_CUSTOMER, self::TYPE_CUSTOM], 'default' => self::TYPE_CUSTOM],
-//            'to' => AttributeType::String,
-//            'bcc' => AttributeType::String,
-//            'enabled' => [AttributeType::Bool, 'required' => true],
-//            'templatePath' => [AttributeType::String, 'required' => true],
-//        ];
-//    }
 }
