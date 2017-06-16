@@ -9,11 +9,11 @@
 {% endif %}
 
 {% for paramKey, paramValue in adapter.attributes %}
-    {% set paramLabel = adapter.generateAttributeLabel(paramKey)|replace('/\\bApi\\b/', 'API')|replace('/\\bId\\b/', 'ID')|replace('/\\bSub (?=[A-Z])/', 'Sub-')|t %}
+    {% set paramLabel = adapter.generateAttributeLabel(paramKey)|replace('/\\bApi\\b/', 'API')|replace('/\\bId\\b/', 'ID')|replace('/\\bSub (?=[A-Z])/', 'Sub-')|t('commerce') %}
     {% set inputName = 'settings['~paramKey~']' %}
     {% set errors = adapter.getErrors(paramKey) %}
     {% set overridden = (configSettings[paramKey] is defined) %}
-    {% set warning = overridden ? "This is being overridden in {file}."|t({file: 'craft/config/commerce.php'}) %}
+    {% set warning = overridden ? "This is being overridden in {file}."|t('commerce', {file: 'craft/config/commerce.php'}) %}
 
     {% if paramKey in adapter.booleans %}
         {{ forms.lightswitchField({

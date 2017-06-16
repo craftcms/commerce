@@ -9,7 +9,6 @@ use craft\commerce\records\PaymentCurrency as PaymentCurrencyRecord;
 use craft\helpers\ArrayHelper;
 use yii\base\Component;
 use yii\base\Exception;
-use yii\db\Expression;
 
 /**
  * Payment currency service.
@@ -52,10 +51,7 @@ class PaymentCurrencies extends Component
     public function getAllPaymentCurrencies(): array
     {
         if (null === $this->_allCurrencies) {
-            $orderBy = [];
-            $orderBy[] =  new Expression('`primary` = 1 desc');
-            $orderBy[] =  new Expression('iso desc');
-            $records = PaymentCurrencyRecord::find()->orderBy($orderBy)->all();
+            $records = PaymentCurrencyRecord::find()->orderBy(['[[primary]] = 1' => SORT_DESC, 'iso' => SORT_ASC])->all();
             $this->_allCurrencies = ArrayHelper::map($records, 'id', function($record) {
                 /** @var PaymentCurrencyRecord $record */
                 return new PaymentCurrency($record->toArray([

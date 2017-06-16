@@ -3,21 +3,21 @@
 
 
 {% block content %}
-    <h2>{{ "Discounts"|t }}</h2>
+    <h2>{{ "Discounts"|t('commerce') }}</h2>
 
     <div id="no-discounts"{% if discounts|length %} class="hidden"{% endif %}>
-        <p>{{ "No discounts exist yet."|t }}</p>
+        <p>{{ "No discounts exist yet."|t('commerce') }}</p>
     </div>
 
     {% if discounts|length %}
         <table id="discounts" class="data fullwidth collapsible">
             <thead>
             <tr>
-                <th scope="col">{{ "Name"|t }}</th>
-                <th scope="col">{{ "Code"|t }}</th>
-                <th scope="col">{{ "Duration"|t }}</th>
-                <th scope="col">{{ "Times Used"|t }}</th>
-                <th scope="col">{{ "Can Stop Processing?"|t }}</th>
+                <th scope="col">{{ "Name"|t('commerce') }}</th>
+                <th scope="col">{{ "Code"|t('commerce') }}</th>
+                <th scope="col">{{ "Duration"|t('commerce') }}</th>
+                <th scope="col">{{ "Times Used"|t('commerce') }}</th>
+                <th scope="col">{{ "Can Stop Processing?"|t('commerce') }}</th>
                 <td class="thin"></td>
                 <td class="thin"></td>
             </tr>
@@ -25,7 +25,7 @@
             <tbody>
             {% for discount in discounts %}
                 <tr data-id="{{ discount.id }}" data-name="{{ discount.name }}">
-                    <th scope="row" data-title="{{ 'Name'|t }}">
+                    <th scope="row" data-title="{{ 'Name'|t('commerce') }}">
                         {% if discount.enabled %}
                             <div class="status enabled"></div>
                         {% else %}
@@ -33,23 +33,23 @@
                         {% endif %}
                         <a href="{{ url('commerce/promotions/discounts/'~discount.id) }}">{{ discount.name }}</a>
                     </th>
-                    <td data-title="{{ 'Code'|t }}"
+                    <td data-title="{{ 'Code'|t('commerce') }}"
                         class="code">{{ discount.code }}</td>
-                    <td data-title="{{ 'Duration'|t }}">
+                    <td data-title="{{ 'Duration'|t('commerce') }}">
                         {{ (discount.dateFrom ? discount.dateFrom.localeDate() : '∞') }}
                         -
                         {{ (discount.dateTo ? discount.dateTo.localeDate() : '∞') }}
                     </td>
-                    <td data-title="{{ 'Times Coupon Used'|t }}">{{ discount.totalUses }}</td>
-                    <td data-title="{{ 'Can Stop Processing?'|t }}">{% if discount.stopProcessing %}
+                    <td data-title="{{ 'Times Coupon Used'|t('commerce') }}">{{ discount.totalUses }}</td>
+                    <td data-title="{{ 'Can Stop Processing?'|t('commerce') }}">{% if discount.stopProcessing %}
                             <span data-icon="check"
-                                  title="{{ 'Yes'|t }}"></span>{% endif %}</td>
+                                  title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}</td>
                     <td class="thin">
-                        <a class="move icon disabled" title="{{ 'Delete'|t }}"
+                        <a class="move icon disabled" title="{{ 'Delete'|t('commerce') }}"
                            role="button"></a>
                     </td>
                     <td class="thin"><a class="delete icon"
-                                        title="{{ 'Delete'|t }}"
+                                        title="{{ 'Delete'|t('commerce') }}"
                                         role="button"></a></td>
                 </tr>
             {% endfor %}
@@ -60,7 +60,7 @@
 
     <div class="buttons">
         <a href="{{ url('commerce/promotions/discounts/new') }}"
-           class="btn submit add icon">{{ 'New discount'|t }}</a>
+           class="btn submit add icon">{{ 'New discount'|t('commerce') }}</a>
     </div>
 {% endblock %}
 

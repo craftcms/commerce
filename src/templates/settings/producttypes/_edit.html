@@ -1,15 +1,15 @@
 {% extends "commerce/_layouts/settingscp" %}
-{% set title = productType.id ? productType.name : 'Create a new product type'|t %}
+{% set title = productType.id ? productType.name : 'Create a new product type'|t('commerce') %}
 
 {% set crumbs = [
-{ label: "Commerce Settings"|t, url: url('commerce/settings') },
-{ label: "Product Types"|t, url: url('commerce/settings/producttypes') },
+{ label: "Commerce Settings"|t('commerce'), url: url('commerce/settings') },
+{ label: "Product Types"|t('commerce'), url: url('commerce/settings/producttypes') },
 ] %}
 
 {% set tabs = {
-productTypeSettings: { label: "Settings"|t, url: '#product-type-settings' },
-productFields:       { label: "Product Fields"|t, url: '#product-fields' },
-variantFields:       { label: "Variant Fields"|t, url: '#variant-fields', class: (not productType.hasVariants ? 'hidden') }
+productTypeSettings: { label: "Settings"|t('commerce'), url: '#product-type-settings' },
+productFields:       { label: "Product Fields"|t('commerce'), url: '#product-fields' },
+variantFields:       { label: "Variant Fields"|t('commerce'), url: '#variant-fields', class: (not productType.hasVariants ? 'hidden') }
 } %}
 
 {% set fullPageForm = true %}
@@ -19,8 +19,8 @@ variantFields:       { label: "Variant Fields"|t, url: '#variant-fields', class:
 {% import "_includes/forms" as forms %}
 
 {% block content %}
-    <input type="hidden" name="action" value="commerce/productTypes/saveProductType">
-    <input type="hidden" name="redirect" value="commerce/settings/producttypes">
+    <input type="hidden" name="action" value="commerce/product-types/save-product-type">
+    {{ redirectInput('commerce/settings/producttypes') }}
     {% if productType.id %}
     <input type="hidden" name="productTypeId" value="{{ productType.id }}">
     {% endif %}
@@ -28,8 +28,8 @@ variantFields:       { label: "Variant Fields"|t, url: '#variant-fields', class:
     <div id="product-type-settings">
         {{ forms.textField({
             first: true,
-            label: "Name"|t,
-            instructions: "What this product type will be called in the CP."|t,
+            label: "Name"|t('commerce'),
+            instructions: "What this product type will be called in the CP."|t('commerce'),
             id: 'name',
             name: 'name',
             value: productType.name,
@@ -40,8 +40,8 @@ variantFields:       { label: "Variant Fields"|t, url: '#variant-fields', class:
         }) }}
 
         {{ forms.textField({
-            label: "Handle"|t,
-            instructions: "How you’ll refer to this product type in the templates."|t,
+            label: "Handle"|t('commerce'),
+            instructions: "How you’ll refer to this product type in the templates."|t('commerce'),
             id: 'handle',
             class: 'code',
             name: 'handle',
@@ -51,8 +51,8 @@ variantFields:       { label: "Variant Fields"|t, url: '#variant-fields', class:
         }) }}
 
         {{ forms.textField({
-            label: "Automatic SKU Format"|t,
-            instructions: "What the unique auto-generated SKUs should look like, when a SKU field is submitted without a value. You can include tags that output properties, such as {ex1} or {ex2}"|t({ ex1: '<code>{product.slug}</code>', ex2: '<code>{myVariantCustomField}</code>' }),
+            label: "Automatic SKU Format"|t('commerce'),
+            instructions: "What the unique auto-generated SKUs should look like, when a SKU field is submitted without a value. You can include tags that output properties, such as {ex1} or {ex2}"|t('commerce', { ex1: '<code>{product.slug}</code>', ex2: '<code>{myVariantCustomField}</code>' }),
             id: 'skuFormat',
             class: 'code ltr',
             name: 'skuFormat',
@@ -62,8 +62,8 @@ variantFields:       { label: "Variant Fields"|t, url: '#variant-fields', class:
 
 
         {{ forms.textField({
-            label: "Order Description Format"|t,
-            instructions: "How this product will be described on a line item in an order. You can include tags that output properties, such as {ex1} or {ex2}"|t({ ex1: '<code>{product.title}</code>', ex2: '<code>{myVariantCustomField}</code>' }),
+            label: "Order Description Format"|t('commerce'),
+            instructions: "How this product will be described on a line item in an order. You can include tags that output properties, such as {ex1} or {ex2}"|t('commerce', { ex1: '<code>{product.title}</code>', ex2: '<code>{myVariantCustomField}</code>' }),
             id: 'descriptionFormat',
             class: 'code ltr',
             name: 'descriptionFormat',
@@ -72,8 +72,8 @@ variantFields:       { label: "Variant Fields"|t, url: '#variant-fields', class:
         }) }}
 
         {{ forms.multiSelectField({
-            label: 'Available Tax Categories'|t,
-            instructions: 'Choose the tax categories products of this type can belong to. Minimum of one required.'|t,
+            label: 'Available Tax Categories'|t('commerce'),
+            instructions: 'Choose the tax categories products of this type can belong to. Minimum of one required.'|t('commerce'),
             id: 'taxCategories',
             name: 'taxCategories',
             required: true,
@@ -82,8 +82,8 @@ variantFields:       { label: "Variant Fields"|t, url: '#variant-fields', class:
         }) }}
 
         {{ forms.multiSelectField({
-            label: 'Available Shipping Categories'|t,
-            instructions: 'Choose the shipping categories products of this type can belong to. Minimum of one required.'|t,
+            label: 'Available Shipping Categories'|t('commerce'),
+            instructions: 'Choose the shipping categories products of this type can belong to. Minimum of one required.'|t('commerce'),
             id: 'shippingCategories',
             name: 'shippingCategories',
             required: true,
@@ -92,7 +92,7 @@ variantFields:       { label: "Variant Fields"|t, url: '#variant-fields', class:
         }) }}
 
         {{ forms.checkboxField({
-            label: "Show the Dimensions and Weight fields for products of this type"|t,
+            label: "Show the Dimensions and Weight fields for products of this type"|t('commerce'),
             id: 'hasDimensions',
             name: 'hasDimensions',
             checked: productType.hasDimensions,
@@ -110,7 +110,7 @@ variantFields:       { label: "Variant Fields"|t, url: '#variant-fields', class:
             {% endset %}
 
             {{ checkboxField({
-                label: "Products of this type have multiple variants"|t,
+                label: "Products of this type have multiple variants"|t('commerce'),
                 instructions: hasVariantsInstructions,
                 id: 'hasVariants',
                 name: 'hasVariants',
@@ -123,7 +123,7 @@ variantFields:       { label: "Variant Fields"|t, url: '#variant-fields', class:
             {% from "_includes/forms" import checkboxField %}
 
             {{ checkboxField({
-                label: "Products of this type have their own URLs"|t,
+                label: "Products of this type have their own URLs"|t('commerce'),
                 id: 'hasUrls',
                 name: 'hasUrls',
                 checked: productType.hasUrls,
@@ -136,8 +136,8 @@ variantFields:       { label: "Variant Fields"|t, url: '#variant-fields', class:
             {% from "_includes/forms" import textField %}
 
             {{ textField({
-                label: "Product Template"|t,
-                instructions: "The template to use when a product’s URL is requested."|t,
+                label: "Product Template"|t('commerce'),
+                instructions: "The template to use when a product’s URL is requested."|t('commerce'),
                 id: 'template',
                 class: 'ltr',
                 name: 'template',
@@ -152,7 +152,7 @@ variantFields:       { label: "Variant Fields"|t, url: '#variant-fields', class:
             <div id="variant-settings"{% if not productType.hasVariants %} class="hidden"{% endif %}>
 
                 {{ checkboxField({
-                    label: "Show the Title field for variants"|t,
+                    label: "Show the Title field for variants"|t('commerce'),
                     name: 'hasVariantTitleField',
                     reverseToggle: 'titleFormat-container',
                     checked: productType.hasVariantTitleField
@@ -160,8 +160,8 @@ variantFields:       { label: "Variant Fields"|t, url: '#variant-fields', class:
 
                 <div id="titleFormat-container"{% if productType.hasVariantTitleField %} class="hidden"{% endif %}>
                     {{ textField({
-                        label: "Variant Title Format"|t,
-                        instructions: "What the auto-generated variant titles should look like. You can include tags that output variant properties, such as {ex1} or {ex2}. All custom fields used must be set to required."|t({ ex1: '<code>{sku}</code>', ex2: '<code>{myVariantsCustomField}</code>' }),
+                        label: "Variant Title Format"|t('commerce'),
+                        instructions: "What the auto-generated variant titles should look like. You can include tags that output variant properties, such as {ex1} or {ex2}. All custom fields used must be set to required."|t('commerce', { ex1: '<code>{sku}</code>', ex2: '<code>{myVariantsCustomField}</code>' }),
                         id: 'titleFormat',
                         class: 'code ltr',
                         name: 'titleFormat',
@@ -174,7 +174,7 @@ variantFields:       { label: "Variant Fields"|t, url: '#variant-fields', class:
         {% endmacro %}
 
 
-        {% from _self import hasUrlsField, templateField, hasVariantsField, titleFormatField %}
+        {% from _self import hasUrlsField, templateField, hasVariantsField, titleFormatField, urlFormatText %}
 
         <hr>
         {{ hasVariantsField(productType) }}
@@ -216,7 +216,7 @@ variantFields:       { label: "Variant Fields"|t, url: '#variant-fields', class:
                                 {% endif %}
                                 <td class="topalign">
                                     {% set value = (productType.locales[locale.id] is defined ? productType.locales[locale.id].urlFormat : null) %}
-                                    {{ _self.urlFormatText(locale, productType, 'urlFormat', value) }}
+                                    {{ urlFormatText(locale, productType, 'urlFormat', value) }}
                                 </td>
                             </tr>
                         {% endfor %}
@@ -225,18 +225,18 @@ variantFields:       { label: "Variant Fields"|t, url: '#variant-fields', class:
                 {% else %}
                     {% set locale = craft.i18n.getPrimarySiteLocale() %}
                     {% set value = (productType.locales[locale.id] is defined ? productType.locales[locale.id].urlFormat : null) %}
-                    {{ _self.urlFormatText(locale, productType, 'urlFormat', value) }}
+                    {{ urlFormatText(locale, productType, 'urlFormat', value) }}
                 {% endif %}
             {% endset %}
 
             {{ forms.field({
-                label: "Product URL Format"|t,
-                instructions: "What the product URLs should look like. You can include tags that output product properties, such as {ex1} or {ex2}."|t({ ex1: '<code>{slug}</code>', ex2: '<code>{publishDate|date(\"Y\")}</code>' }),
+                label: "Product URL Format"|t('commerce'),
+                instructions: "What the product URLs should look like. You can include tags that output product properties, such as {ex1} or {ex2}."|t('commerce', { ex1: '<code>{slug}</code>', ex2: '<code>{publishDate|date(\"Y\")}</code>' }),
             }, urlFormatInput) }}
 
             {{ forms.textField({
-                label: "Product Template"|t,
-                instructions: "The template to use when a product’s URL is requested."|t,
+                label: "Product Template"|t('commerce'),
+                instructions: "The template to use when a product’s URL is requested."|t('commerce'),
                 id: 'template',
                 class: 'ltr',
                 name: 'template',

@@ -1,8 +1,8 @@
 {% extends "commerce/_layouts/settingscp" %}
 
 {% set crumbs = [
-{ label: "Commerce Settings"|t, url: url('commerce/settings') },
-{ label: "Payment Methods"|t, url: url('commerce/settings/paymentmethods') },
+{ label: "Commerce Settings"|t('commerce'), url: url('commerce/settings') },
+{ label: "Payment Methods"|t('commerce'), url: url('commerce/settings/paymentmethods') },
 ] %}
 
 {% set fullPageForm = true %}
@@ -16,7 +16,7 @@
            value="commerce/settings/paymentmethods">
 
     {{ forms.textField({
-        label: 'Name'|t,
+        label: 'Name'|t('commerce'),
         name: 'name',
         value : paymentMethod.name,
         required: true,
@@ -24,8 +24,8 @@
     }) }}
 
     {{ forms.selectField({
-        label: "Credit Card Payment Type"|t,
-        instructions: "If set to Authorize Only, you will need to manually capture payments before the funds will be transferred to your account. The Gateway needs to support the selected option."|t,
+        label: "Credit Card Payment Type"|t('commerce'),
+        instructions: "If set to Authorize Only, you will need to manually capture payments before the funds will be transferred to your account. The Gateway needs to support the selected option."|t('commerce'),
         id: 'paymentType',
         name: 'paymentType',
         value: paymentMethod.paymentType,
@@ -38,7 +38,7 @@
 
     {{ forms.selectField({
         first: true,
-        label: 'Gateway'|t,
+        label: 'Gateway'|t('commerce'),
         warning: (paymentMethod.class ? "Changing this value may affect your ability to refund existing transactions."|t),
         id: 'class',
         name: 'class',
@@ -61,7 +61,7 @@
     <hr>
 
     {{ forms.checkboxField({
-        label: "Enabled for customers to select during checkout?"|t,
+        label: "Enabled for customers to select during checkout?"|t('commerce'),
         name: 'frontendEnabled',
         checked: paymentMethod.frontendEnabled,
         errors: paymentMethod.getErrors('frontendEnabled'),

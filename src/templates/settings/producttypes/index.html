@@ -1,19 +1,19 @@
 {% extends "commerce/_layouts/settings" %}
 
 {% block content %}
-    <h2>{{ "Product Types"|t }}</h2>
+    <h2>{{ "Product Types"|t('commerce') }}</h2>
 
     <div id="no-product-types"{% if productTypes|length %} class="hidden"{% endif %}>
-        <p>{{ "No product types exist yet."|t }}</p>
+        <p>{{ "No product types exist yet."|t('commerce') }}</p>
     </div>
 
     {% if productTypes|length %}
         <table id="producttypes" class="data fullwidth collapsible">
             <thead>
             <tr>
-                <th scope="col">{{ "Name"|t }}</th>
-                <th scope="col">{{ "Handle"|t }}</th>
-                <th scope="col">{{ "Has Variants?"|t }}</th>
+                <th scope="col">{{ "Name"|t('commerce') }}</th>
+                <th scope="col">{{ "Handle"|t('commerce') }}</th>
+                <th scope="col">{{ "Has Variants?"|t('commerce') }}</th>
                 <td class="thin"></td>
             </tr>
             </thead>
@@ -21,16 +21,16 @@
             {% for productType in productTypes %}
                 <tr data-id="{{ productType.id }}"
                     data-name="{{ productType.name }}">
-                    <th scope="row" data-title="{{ 'Name'|t }}"><a
+                    <th scope="row" data-title="{{ 'Name'|t('commerce') }}"><a
                                 href="{{ url('commerce/settings/producttypes/'~productType.id) }}">{{ productType.name }}</a>
                     </th>
-                    <td data-title="{{ 'Handle'|t }}"
+                    <td data-title="{{ 'Handle'|t('commerce') }}"
                         class="code">{{ productType.handle }}</td>
-                    <td data-title="{{ 'Has Variants?'|t }}">{% if productType.hasVariants %}
+                    <td data-title="{{ 'Has Variants?'|t('commerce') }}">{% if productType.hasVariants %}
                             <span data-icon="check"
-                                  title="{{ 'Yes'|t }}"></span>{% endif %}</td>
+                                  title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}</td>
                     <td class="thin"><a class="delete icon"
-                                        title="{{ 'Delete'|t }}"
+                                        title="{{ 'Delete'|t('commerce') }}"
                                         role="button"></a></td>
                 </tr>
             {% endfor %}
@@ -41,7 +41,7 @@
 
     <div class="buttons">
         <a href="{{ url('commerce/settings/producttypes/new') }}"
-           class="btn submit add icon">{{ 'New product type'|t }}</a>
+           class="btn submit add icon">{{ 'New product type'|t('commerce') }}</a>
     </div>
 {% endblock %}
 
@@ -52,6 +52,6 @@ tableSelector: '#producttypes',
 noObjectsSelector: '#noproducttypes',
 newObjectBtnSelector: '#newproductTypecontainer',
 deleteAction: 'commerce/productTypes/deleteProductType',
-confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}” and all its products? Please make sure you have a backup of your database before performing this destructive action."|t }}'
+confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}” and all its products? Please make sure you have a backup of your database before performing this destructive action."|t('commerce') }}'
 });
 {% endjs %}

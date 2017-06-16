@@ -4,20 +4,20 @@
 
 
 {% block content %}
-    <h2>{{ "Shipping Zones"|t }}</h2>
+    <h2>{{ "Shipping Zones"|t('commerce') }}</h2>
 
     <div id="no-shipping-zones"{% if shippingZones|length %} class="hidden"{% endif %}>
-        <p>{{ "No shipping zones exist yet."|t }}</p>
+        <p>{{ "No shipping zones exist yet."|t('commerce') }}</p>
     </div>
 
     {% if shippingZones|length %}
         <table id="shipping-zones" class="data fullwidth collapsible">
             <thead>
             <tr>
-                <th scope="col">{{ 'Name'|t }}</th>
-                <th scope="col">{{ 'Description'|t }}</th>
-                <th scope="col">{{ 'Type'|t }}</th>
-                <th scope="col">{{ 'Countries/States'|t }}</th>
+                <th scope="col">{{ 'Name'|t('commerce') }}</th>
+                <th scope="col">{{ 'Description'|t('commerce') }}</th>
+                <th scope="col">{{ 'Type'|t('commerce') }}</th>
+                <th scope="col">{{ 'Countries/States'|t('commerce') }}</th>
                 <td class="thin"></td>
             </tr>
             </thead>
@@ -25,12 +25,12 @@
             {% for shippingZone in shippingZones %}
                 <tr data-id="{{ shippingZone.id }}"
                     data-name="{{ shippingZone.name }}">
-                    <td scope="row" data-title="{{ 'Name'|t }}"><a
+                    <td scope="row" data-title="{{ 'Name'|t('commerce') }}"><a
                                 href="{{ url('commerce/settings/shippingzones/'~shippingZone.id) }}">{{ shippingZone.name }}</a>
                     </td>
-                    <td data-title="{{ 'Description'|t }}">{{ shippingZone.description }}</td>
-                    <td data-title="{{ 'Type'|t }}">{{ shippingZone.countryBased ? 'Country-based'|t : 'State-based'|t }}</td>
-                    <td data-title="{{ 'Countries/States'|t }}">
+                    <td data-title="{{ 'Description'|t('commerce') }}">{{ shippingZone.description }}</td>
+                    <td data-title="{{ 'Type'|t('commerce') }}">{{ shippingZone.countryBased ? 'Country-based'|t('commerce') : 'State-based'|t('commerce') }}</td>
+                    <td data-title="{{ 'Countries/States'|t('commerce') }}">
                         {% if shippingZone.countryBased %}
                             {{ indexInlineList(shippingZone.getCountriesNames()) }}
                         {% else %}
@@ -38,7 +38,7 @@
                         {% endif %}
                     </td>
                     <td class="thin"><a class="delete icon"
-                                        title="{{ 'Delete'|t }}"
+                                        title="{{ 'Delete'|t('commerce') }}"
                                         role="button"></a></td>
                 </tr>
             {% endfor %}
@@ -49,7 +49,7 @@
 
     <div class="buttons">
         <a href="{{ url('commerce/settings/shippingzones/new') }}"
-           class="btn submit add icon">{{ 'New shipping zone'|t }}</a>
+           class="btn submit add icon">{{ 'New shipping zone'|t('commerce') }}</a>
     </div>
 {% endblock %}
 

@@ -1,8 +1,8 @@
 {% extends "commerce/_layouts/settingscp" %}
 
 {% set crumbs = [
-{ label: "Commerce Settings"|t, url: url('commerce/settings') },
-{ label: "Tax Rates"|t, url: url('commerce/settings/taxrates') },
+{ label: "Commerce Settings"|t('commerce'), url: url('commerce/settings') },
+{ label: "Tax Rates"|t('commerce'), url: url('commerce/settings/taxrates') },
 ] %}
 
 {% set fullPageForm = true %}
@@ -51,10 +51,10 @@
             '
             <div class="buttons right">' +
                 '
-                <div class="btn cancel-btn">{{ "Cancel"|t }}</div>
+                <div class="btn cancel-btn">{{ "Cancel"|t('commerce') }}</div>
                 ' +
                 '<input type="submit" class="btn submit"
-                        value="{{ 'Save'|t }}"/>' +
+                        value="{{ 'Save'|t('commerce') }}"/>' +
                 '
                 <div class="spinner hidden"/>
                 ' +
@@ -145,8 +145,8 @@
 
     {{ forms.textField({
         first: true,
-        label: "Name"|t,
-        instructions: "What this tax rate will be called in the CP."|t,
+        label: "Name"|t('commerce'),
+        instructions: "What this tax rate will be called in the CP."|t('commerce'),
         name: 'name',
         value: taxRate.name,
         errors: taxRate.getErrors('name'),
@@ -156,8 +156,8 @@
     }) }}
 
     {{ forms.selectField({
-        label: 'Taxable Subject'|t,
-        instructions: "What this tax rate should apply to."|t,
+        label: 'Taxable Subject'|t('commerce'),
+        instructions: "What this tax rate should apply to."|t('commerce'),
         id: 'taxable',
         name: 'taxable',
         options: taxables,
@@ -165,8 +165,8 @@
     }) }}
 
     {{ forms.textField({
-        label: "Rate"|t,
-        instructions: "Tax rates are a percentages, (i.e. if the tax rate is 5% then enter ‘5%’. You could also enter ‘10.5%’)."|t,
+        label: "Rate"|t('commerce'),
+        instructions: "Tax rates are a percentages, (i.e. if the tax rate is 5% then enter ‘5%’. You could also enter ‘10.5%’)."|t('commerce'),
         name: 'rate',
         value: taxRate.rateAsPercent,
         errors: taxRate.getErrors('rate'),
@@ -174,8 +174,8 @@
     }) }}
 
     {% set taxZoneSelectParams = {
-    label: "Tax Zone"|t,
-    instructions: "Select a tax zone."|t,
+    label: "Tax Zone"|t('commerce'),
+    instructions: "Select a tax zone."|t('commerce'),
     id: 'taxZoneId',
     name: 'taxZoneId',
     value: taxRate.taxZoneId,
@@ -187,8 +187,8 @@
 
     {{ lazyCreateSelect(
     taxZoneSelectParams,
-    'New tax zone'|t,
-    'Create a new tax zone'|t,
+    'New tax zone'|t('commerce'),
+    'Create a new tax zone'|t('commerce'),
     newTaxZoneFields,
     newTaxZoneJs,
     'commerce/taxZones/save',
@@ -196,8 +196,8 @@
     ) }}
 
     {% set taxCategorySelectParams = {
-    label: "Tax Category"|t,
-    instructions: "Select a tax category."|t,
+    label: "Tax Category"|t('commerce'),
+    instructions: "Select a tax category."|t('commerce'),
     id: 'taxCategoryId',
     name: 'taxCategoryId',
     value: taxRate.taxCategoryId,
@@ -209,8 +209,8 @@
 
     {{ lazyCreateSelect(
     taxCategorySelectParams,
-    'New tax category'|t,
-    'Create a new tax category'|t,
+    'New tax category'|t('commerce'),
+    'Create a new tax category'|t('commerce'),
     newTaxCategoryFields,
     newTaxCategoryJs,
     'commerce/taxCategories/save',
@@ -218,7 +218,7 @@
     ) }}
 
     {{ forms.checkboxField({
-        label: "This tax is already included in the entered prices of all products"|t,
+        label: "This tax is already included in the entered prices of all products"|t('commerce'),
         name: 'include',
         value: 1,
         checked: taxRate.include,
@@ -226,7 +226,7 @@
     }) }}
 
     {{ forms.checkboxField({
-        label: "Don’t apply this tax when the shipping address has a valid VAT ID"|t,
+        label: "Don’t apply this tax when the shipping address has a valid VAT ID"|t('commerce'),
         name: 'isVat',
         value: 1,
         checked: taxRate.isVat,
@@ -234,7 +234,7 @@
         toggle: '#isVat'
     }) }}
     <p id="isVat" {% if not taxRate.isVat %} class="hidden"{% endif %}>
-        {{ "This tax rate will not be applied if a valid businessTaxId is entered into the shipping address."|t }}
+        {{ "This tax rate will not be applied if a valid businessTaxId is entered into the shipping address."|t('commerce') }}
     </p>
 
 {% endblock %}

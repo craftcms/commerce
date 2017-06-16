@@ -1,17 +1,17 @@
 {% extends "commerce/_layouts/settings" %}
 
-{% set title = "Payment Methods"|t %}
+{% set title = "Payment Methods"|t('commerce') %}
 
 {% block content %}
-    <h2>{{ "Payment Methods"|t }}</h2>
+    <h2>{{ "Payment Methods"|t('commerce') }}</h2>
 
     <table id="payment-methods" class="data fullwidth collapsible">
         <thead>
         <tr>
-            <th class="thin">{{ "ID"|t }}</th>
-            <th>{{ "Name"|t }}</th>
-            <th>{{ "Gateway"|t }}</th>
-            <th>{{ "Customer Enabled?"|t }}</th>
+            <th class="thin">{{ "ID"|t('commerce') }}</th>
+            <th>{{ "Name"|t('commerce') }}</th>
+            <th>{{ "Gateway"|t('commerce') }}</th>
+            <th>{{ "Customer Enabled?"|t('commerce') }}</th>
             <td class="thin"></td>
             <td class="thin"></td>
         </tr>
@@ -21,20 +21,20 @@
             <tr data-id="{{ paymentMethod.id }}"
                 data-name="{{ paymentMethod.name }}">
                 <td class="thin" scope="row"
-                    data-title="{{ 'ID'|t }}">{{ paymentMethod.id }}</td>
-                <th scope="row" data-title="{{ 'Name'|t }}"><a
+                    data-title="{{ 'ID'|t('commerce') }}">{{ paymentMethod.id }}</td>
+                <th scope="row" data-title="{{ 'Name'|t('commerce') }}"><a
                             href="{{ paymentMethod.cpEditUrl }}">{{ paymentMethod.name }}</a>
                 </th>
-                <td data-title="{{ 'Gateway'|t }}">{% if paymentMethod.getGatewayAdapter() %}{{ paymentMethod.getGatewayAdapter().displayName() }}{% else %}
+                <td data-title="{{ 'Gateway'|t('commerce') }}">{% if paymentMethod.getGatewayAdapter() %}{{ paymentMethod.getGatewayAdapter().displayName() }}{% else %}
                         <span class="error">{{ paymentMethod.class }}</span>{% endif %}
                 </td>
-                <td data-title="{{ 'Customer Enabled?'|t }}">{% if paymentMethod.frontendEnabled %}
+                <td data-title="{{ 'Customer Enabled?'|t('commerce') }}">{% if paymentMethod.frontendEnabled %}
                         <span data-icon="check"
-                              title="{{ 'Yes'|t }}"></span>{% endif %}</td>
-                <td class="thin"><a class="move icon" title="{{ 'Delete'|t }}"
+                              title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}</td>
+                <td class="thin"><a class="move icon" title="{{ 'Delete'|t('commerce') }}"
                                     role="button"></a></td>
                 <td class="thin"><a class="delete icon"
-                                    title="{{ 'Archive'|t }}" role="button"></a>
+                                    title="{{ 'Archive'|t('commerce') }}" role="button"></a>
                 </td>
             </tr>
         {% endfor %}
@@ -44,7 +44,7 @@
 
     <div class="buttons">
         <a href="{{ url('commerce/settings/paymentmethods/new') }}"
-           class="btn submit add icon">{{ 'New payment method'|t }}</a>
+           class="btn submit add icon">{{ 'New payment method'|t('commerce') }}</a>
     </div>
 {% endblock %}
 

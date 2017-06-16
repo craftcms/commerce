@@ -53,7 +53,7 @@ class Email extends Model
     public $to;
 
     /**
-     * @var string BCC
+     * @var string Bcc
      */
     public $bcc;
 
@@ -66,23 +66,6 @@ class Email extends Model
      * @var string Template path
      */
     public $templatePath;
-
-    /**
-     * @inheritdoc
-     */
-    public function init()
-    {
-        $this->initDefaults();
-    }
-
-    /**
-     *
-     */
-    private function initDefaults()
-    {
-        $this->recipientType = EmailRecord::TYPE_CUSTOM;
-        $this->enabled = true;
-    }
 
     /**
      * @inheritdoc

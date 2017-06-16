@@ -3,11 +3,11 @@
         <table class="data fullwidth">
             <thead>
             <tr>
-                <th>{{ "Number"|t }}</th>
+                <th>{{ "Number"|t('commerce') }}</th>
                 {% if showStatuses %}
-                    <th>{{ "Status"|t }}</th>{% endif %}
-                <th>{{ "Total Paid"|t }}</th>
-                <th>{{ "Date Ordered"|t }}</th>
+                    <th>{{ "Status"|t('commerce') }}</th>{% endif %}
+                <th>{{ "Total Paid"|t('commerce') }}</th>
+                <th>{{ "Date Ordered"|t('commerce') }}</th>
             </tr>
             </thead>
             <tbody>
@@ -30,6 +30,6 @@
             </tbody>
         </table>
     {% else %}
-        <p>{{ "No orders."|t }}</p>
+        <p>{{ "No orders."|t('commerce') }}</p>
     {% endif %}
 </div>

@@ -2,16 +2,16 @@
 
 
 {% block content %}
-    <h2>{{ "Tax Categories"|t }}</h2>
+    <h2>{{ "Tax Categories"|t('commerce') }}</h2>
 
     <table id="taxcategories" class="data fullwidth collapsible">
         <thead>
         <tr>
-            <th scope="col">{{ "Name"|t }}</th>
-            <th scope="col">{{ "Handle"|t }}</th>
-            <th scope="col">{{ "Description"|t }}</th>
-            <th scope="col">{{ "Used By Tax Rates"|t }}</th>
-            <th scope="col">{{ "Default?"|t }}</th>
+            <th scope="col">{{ "Name"|t('commerce') }}</th>
+            <th scope="col">{{ "Handle"|t('commerce') }}</th>
+            <th scope="col">{{ "Description"|t('commerce') }}</th>
+            <th scope="col">{{ "Used By Tax Rates"|t('commerce') }}</th>
+            <th scope="col">{{ "Default?"|t('commerce') }}</th>
             <td class="thin"></td>
         </tr>
         </thead>
@@ -19,23 +19,23 @@
         {% for taxCategory in taxCategories %}
             <tr data-id="{{ taxCategory.id }}"
                 data-name="{{ taxCategory.name }}">
-                <th scope="row" data-title="{{ 'Name'|t }}"><a
+                <th scope="row" data-title="{{ 'Name'|t('commerce') }}"><a
                             href="{{ url('commerce/settings/taxcategories/'~taxCategory.id) }}">{{ taxCategory.name }}</a>
                 </th>
-                <td data-title="{{ 'Handle'|t }}"
+                <td data-title="{{ 'Handle'|t('commerce') }}"
                     class="code">{{ taxCategory.handle }}</td>
-                <td data-title="{{ 'Description'|t }}">{{ taxCategory.description }}</td>
-                <td data-title="{{ 'Used By Tax Rates'|t }}">
+                <td data-title="{{ 'Description'|t('commerce') }}">{{ taxCategory.description }}</td>
+                <td data-title="{{ 'Used By Tax Rates'|t('commerce') }}">
                     {% for rate in taxCategory.taxRates %}
                         <a href="{{ rate.getCpEditUrl }}">{{ rate.name }}</a>
                         <br>
                     {% endfor %}
                 </td>
-                <td data-title="{{ 'Default?'|t }}">{% if taxCategory.default %}
+                <td data-title="{{ 'Default?'|t('commerce') }}">{% if taxCategory.default %}
                         <span data-icon="check"
-                              title="{{ 'Yes'|t }}"></span>{% endif %}</td>
+                              title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}</td>
                 <td class="thin">{% if not taxCategory.taxRates|length %}<a
-                        class="delete icon" title="{{ 'Delete'|t }}"
+                        class="delete icon" title="{{ 'Delete'|t('commerce') }}"
                         role="button"></a>{% endif %}</td>
             </tr>
         {% endfor %}
@@ -45,7 +45,7 @@
 
     <div class="buttons">
         <a href="{{ url('commerce/settings/taxcategories/new') }}"
-           class="btn submit add icon">{{ 'New tax category'|t }}</a>
+           class="btn submit add icon">{{ 'New tax category'|t('commerce') }}</a>
     </div>
 {% endblock %}
 

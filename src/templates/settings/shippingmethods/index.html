@@ -1,19 +1,19 @@
 {% extends "commerce/_layouts/settings" %}
 
 {% block content %}
-    <h2>{{ "Shipping Methods"|t }}</h2>
+    <h2>{{ "Shipping Methods"|t('commerce') }}</h2>
 
     <div id="no-shipping-methods"{% if shippingMethods|length %} class="hidden"{% endif %}>
-        <p>{{ "No shipping methods exist yet."|t }}</p>
+        <p>{{ "No shipping methods exist yet."|t('commerce') }}</p>
     </div>
 
     {% if shippingMethods|length %}
         <table id="shipping-methods" class="data fullwidth collapsible">
             <thead>
             <tr>
-                <th scope="col">{{ 'Name'|t }}</th>
-                <th scope="col">{{ 'Handle'|t }}</th>
-                <th scope="col">{{ 'Type'|t }}</th>
+                <th scope="col">{{ 'Name'|t('commerce') }}</th>
+                <th scope="col">{{ 'Handle'|t('commerce') }}</th>
+                <th scope="col">{{ 'Type'|t('commerce') }}</th>
                 <th class="thin"></th>
             </tr>
             </thead>
@@ -21,7 +21,7 @@
             {% for shippingMethod in shippingMethods %}
                 {% set id = shippingMethod.getId() %}
                 <tr{% if id %} data-id="{{ id }}" data-name="{{ shippingMethod.getName() }}"{% endif %}>
-                    <th scope="row" data-title="{{ 'Name'|t }}">
+                    <th scope="row" data-title="{{ 'Name'|t('commerce') }}">
                         {%- spaceless %}
                             {% set url = shippingMethod.getCpEditUrl() %}
                             {% if url %}<a href="{{ url }}">{% endif %}
@@ -30,12 +30,12 @@
                             {% if url %}</a>{% endif %}
                         {% endspaceless -%}
                     </th>
-                    <td data-title="{{ 'Handle'|t }}"
+                    <td data-title="{{ 'Handle'|t('commerce') }}"
                         class="code">{{ shippingMethod.getHandle() }}</td>
-                    <td data-title="{{ 'Type'|t }}">{{ shippingMethod.getType() }}</td>
+                    <td data-title="{{ 'Type'|t('commerce') }}">{{ shippingMethod.getType() }}</td>
                     <td class="thin">
                         {%- if id -%}
-                            <a class="delete icon" title="{{ 'Delete'|t }}"
+                            <a class="delete icon" title="{{ 'Delete'|t('commerce') }}"
                                role="button"></a>
                         {%- endif -%}
                     </td>
@@ -48,7 +48,7 @@
 
     <div class="buttons">
         <a href="{{ url('commerce/settings/shippingmethods/new') }}"
-           class="btn submit add icon">{{ 'New shipping method'|t }}</a>
+           class="btn submit add icon">{{ 'New shipping method'|t('commerce') }}</a>
     </div>
 {% endblock %}
 

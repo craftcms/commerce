@@ -2,34 +2,34 @@
 
 
 {% block content %}
-    <h2>{{ "Countries"|t }}</h2>
+    <h2>{{ "Countries"|t('commerce') }}</h2>
 
     <div id="no-countries"{% if countries|length %} class="hidden"{% endif %}>
-        <p>{{ "No countries exist yet."|t }}</p>
+        <p>{{ "No countries exist yet."|t('commerce') }}</p>
     </div>
 
     {% if countries|length %}
         <table id="countries" class="data fullwidth collapsible">
             <thead>
             <tr>
-                <th scope="col">{{ 'Name'|t }}</th>
-                <th scope="col">{{ 'Country Code'|t }}</th>
-                <th scope="col">{{ 'State Required?'|t }}</th>
+                <th scope="col">{{ 'Name'|t('commerce') }}</th>
+                <th scope="col">{{ 'Country Code'|t('commerce') }}</th>
+                <th scope="col">{{ 'State Required?'|t('commerce') }}</th>
                 <td class="thin"></td>
             </tr>
             </thead>
             <tbody>
             {% for country in countries %}
                 <tr data-id="{{ country.id }}" data-name="{{ country.name }}">
-                    <th scope="row" data-title="{{ 'Name'|t }}"><a
+                    <th scope="row" data-title="{{ 'Name'|t('commerce') }}"><a
                                 href="{{ url('commerce/settings/countries/'~country.id) }}">{{ country.name }}</a>
                     </th>
-                    <td data-title="{{ 'ISO'|t }}">{{ country.iso }}</td>
-                    <td data-title="{{ 'State Required?'|t }}">{% if country.stateRequired %}
+                    <td data-title="{{ 'ISO'|t('commerce') }}">{{ country.iso }}</td>
+                    <td data-title="{{ 'State Required?'|t('commerce') }}">{% if country.stateRequired %}
                             <span data-icon="check"
-                                  title="{{ 'Yes'|t }}"></span>{% endif %}</td>
+                                  title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}</td>
                     <td class="thin"><a class="delete icon"
-                                        title="{{ 'Delete'|t }}"
+                                        title="{{ 'Delete'|t('commerce') }}"
                                         role="button"></a></td>
                 </tr>
             {% endfor %}
@@ -40,7 +40,7 @@
 
     <div class="buttons">
         <a href="{{ url('commerce/settings/countries/new') }}"
-           class="btn submit add icon">{{ 'New country'|t }}</a>
+           class="btn submit add icon">{{ 'New country'|t('commerce') }}</a>
     </div>
 {% endblock %}
 
@@ -51,6 +51,6 @@ tableSelector: '#countries',
 noObjectsSelector: '#no-countries',
 deleteAction: 'commerce/countries/delete',
 confirmDeleteMessage:  Craft.t('Warning, deleting this country will remove it from all addresses and zones, are you sure you want to delete “{name}”?'),
-deleteFailMessage: '{{ "Can not delete “{name}” because it is in use."|t }}'
+deleteFailMessage: '{{ "Can not delete “{name}” because it is in use."|t('commerce') }}'
 });
 {% endjs %}

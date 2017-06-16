@@ -8,7 +8,7 @@
             {{ forms.text({
                 name: 'firstName',
                 maxlength: 70,
-                placeholder: "First Name"|t,
+                placeholder: "First Name"|t('commerce'),
                 autocomplete: false,
                 class: 'card-holder-first-name'~(paymentForm.getErrors('firstName') ? ' error'),
                 value: paymentForm.firstName,
@@ -20,7 +20,7 @@
             {{ forms.text({
                 name: 'lastName',
                 maxlength: 70,
-                placeholder: "Last Name"|t,
+                placeholder: "Last Name"|t('commerce'),
                 autocomplete: false,
                 class: 'card-holder-last-name'~(paymentForm.getErrors('lastName') ? ' error'),
                 value: paymentForm.lastName,
@@ -47,7 +47,7 @@
             {{ forms.text({
                 name: 'number',
                 maxlength: 19,
-                placeholder: "Card Number"|t,
+                placeholder: "Card Number"|t('commerce'),
                 autocomplete: false,
                 class: 'card-number'~(paymentForm.getErrors('number') ? ' error'),
                 value: paymentForm.number
@@ -60,14 +60,14 @@
                 class: 'card-expiry'~(paymentForm.getErrors('month') or paymentForm.getErrors('year') ? ' error'),
                 type: 'tel',
                 name: 'expiry',
-                placeholder: "MM"|t~' / '~"YYYY"|t,
+                placeholder: "MM"|t('commerce')~' / '~"YYYY"|t('commerce'),
                 value: paymentForm.expiry
             }) }}
 
             {{ forms.text({
                 type: 'tel',
                 name: 'cvv',
-                placeholder: "CVV"|t,
+                placeholder: "CVV"|t('commerce'),
                 class: 'card-cvc'~(paymentForm.getErrors('cvv') ? ' error'),
                 value: paymentForm.cvv
             }) }}

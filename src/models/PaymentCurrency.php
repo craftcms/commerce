@@ -4,6 +4,7 @@ namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
+use craft\helpers\UrlHelper;
 
 /**
  * Currency model.
@@ -101,7 +102,7 @@ class PaymentCurrency extends Model
      */
     public function getCpEditUrl()
     {
-        return UrlHelper::getCpUrl('commerce/settings/paymentcurrencies/'.$this->id);
+        return UrlHelper::cpUrl('commerce/settings/paymentcurrencies/'.$this->id);
     }
 
     /**

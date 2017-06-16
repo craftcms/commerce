@@ -4,7 +4,7 @@
 {% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commerceorders commerceordersedit" %}
 
 {% set crumbs = [
-{    label: "Orders"|t, url: url('commerce/orders') }
+{    label: "Orders"|t('commerce'), url: url('commerce/orders') }
 ] %}
 
 {% import "_includes/forms" as forms %}
@@ -20,19 +20,19 @@
                 <div class="order-info-box">
                     <table class="fullwidth data borderless">
                         <tr>
-                            <td><strong>{{ "Reference"|t }}</strong></td>
+                            <td><strong>{{ "Reference"|t('commerce') }}</strong></td>
                             <td>
-                                <span title="{{ "Full Reference Number"|t }}: {{ order.number }}">{{ order.shortNumber }}</span>
+                                <span title="{{ "Full Reference Number"|t('commerce') }}: {{ order.number }}">{{ order.shortNumber }}</span>
                             </td>
                         </tr>
                         <tr>
-                            <td><strong>{{ "Customer"|t }}</strong></td>
+                            <td><strong>{{ "Customer"|t('commerce') }}</strong></td>
                             <td>{% if order.customer.user %}<a
-                                    href="{{ order.customer.user.cpEditUrl }}">{{ order.email }}</a>{% else %}{{ order.email }}&nbsp;({{ "Guest"|t }}) {% endif %}
+                                    href="{{ order.customer.user.cpEditUrl }}">{{ order.email }}</a>{% else %}{{ order.email }}&nbsp;({{ "Guest"|t('commerce') }}) {% endif %}
                             </td>
                         </tr>
                         <tr>
-                            <td><strong>{{ "Order Date"|t }}</strong></td>
+                            <td><strong>{{ "Order Date"|t('commerce') }}</strong></td>
                             <td>
                                 <div id="order-completion" class="hidden">
                                     {% if order.isCompleted %}
@@ -40,14 +40,14 @@
                                     {% else %}
                                         <div id="order-completionStatus">
                                             <a href="#"
-                                               class="updatecompletion btn small"> {{ "Mark as Complete"|t }}</a>
+                                               class="updatecompletion btn small"> {{ "Mark as Complete"|t('commerce') }}</a>
                                         </div>
                                     {% endif %}
                                 </div>
                             </td>
                         </tr>
                         <tr>
-                            <td><strong>{{ "Status"|t }}</strong></td>
+                            <td><strong>{{ "Status"|t('commerce') }}</strong></td>
                             {% if order.orderStatus %}
                                 <td>
                                     <div id="order-status"
@@ -56,38 +56,38 @@
                                                 href="#"
                                                 class="updatestatus btn small"
                                                 data-currentStatus="{{ order.orderStatus.attributes|json_encode() }}"
-                                                data-orderStatuses="{{ orderStatusesJson }}">{{ "Update Status"|t }}</a>
+                                                data-orderStatuses="{{ orderStatusesJson }}">{{ "Update Status"|t('commerce') }}</a>
                                     </div>
                                 </td>
                             {% else %}
                                 <td><span class="status"></span></td>
                             {% endif %}
                         <tr>
-                            <td><strong>{{ "Total"|t }}</strong></td>
+                            <td><strong>{{ "Total"|t('commerce') }}</strong></td>
                             <td>{{ order.totalPrice|currency(order.currency) }}</td>
                         </tr>
                         <tr>
-                            <td><strong>{{ "Paid"|t }} </strong></td>
+                            <td><strong>{{ "Paid"|t('commerce') }} </strong></td>
                             <td>{{ order.totalPaid|currency(order.currency) }} {{ order.datePaid|date('D dS M Y') }}</td>
                         </tr>
                         <tr>
-                            <td><strong>{{ "IP Address"|t }} </strong></td>
+                            <td><strong>{{ "IP Address"|t('commerce') }} </strong></td>
                             <td>{{ order.lastIp }}</td>
                         </tr>
                         <tr>
-                            <td><strong>{{ "Order Currency"|t }} </strong></td>
+                            <td><strong>{{ "Order Currency"|t('commerce') }} </strong></td>
                             <td>{{ order.currency }}</td>
                         </tr>
                         {% if order.currency != order.paymentCurrency %}
                             <tr>
-                                <td><strong>{{ "Payment Currency"|t }} </strong>
+                                <td><strong>{{ "Payment Currency"|t('commerce') }} </strong>
                                 </td>
                                 <td>{{ order.paymentCurrency }}</td>
                             </tr>
                         {% endif %}
                         {% if order.couponCode %}
                             <tr>
-                                <td><strong>{{ "Coupon"|t }} </strong></td>
+                                <td><strong>{{ "Coupon"|t('commerce') }} </strong></td>
                                 <td>{{ order.couponCode }}</td>
                             </tr>
                         {% endif %}
@@ -98,7 +98,7 @@
             <div class="address-boxes right">
                 {% set address = order.shippingAddress %}
                 <div id="shippingAddressBox" class="address-box hidden"
-                     data-title='{{ "Shipping Address"|t }}'
+                     data-title='{{ "Shipping Address"|t('commerce') }}'
                      data-address='{%- if address and address.id -%}{{ address|json_encode_filtered }}{%- endif %}'>
                     <div class="address-box-content">
                         <div class="address-box-header"></div>
@@ -108,7 +108,7 @@
 
                 {% set address = order.billingAddress %}
                 <div id="billingAddressBox" class="address-box hidden"
-                     data-title='{{ "Billing Address"|t }}'
+                     data-title='{{ "Billing Address"|t('commerce') }}'
                      data-address='{%- if address and address.id -%}{{ address|json_encode_filtered }}{%- endif %}'>
                     <div class="address-box-content">
                         <div class="address-box-header"></div>
@@ -124,11 +124,11 @@
                 <table id="" class="data fullwidth collapsible">
                     <thead>
                     <tr>
-                        <th scope="col">{{ 'Item'|t }}</th>
-                        <th scope="col">{{ 'Note'|t }}</span></th>
-                        <th scope="col">{{ 'Price'|t }}</span></th>
-                        <th scope="col">{{ 'Quantity'|t }}</th>
-                        <th scope="col">{{ 'Total'|t }}</th>
+                        <th scope="col">{{ 'Item'|t('commerce') }}</th>
+                        <th scope="col">{{ 'Note'|t('commerce') }}</span></th>
+                        <th scope="col">{{ 'Price'|t('commerce') }}</span></th>
+                        <th scope="col">{{ 'Quantity'|t('commerce') }}</th>
+                        <th scope="col">{{ 'Total'|t('commerce') }}</th>
                         <th scope="col"></th>
                         <th scope="col"></th>
                     </tr>
@@ -167,11 +167,11 @@
                                 <br>{{ lineItem.sku }}
                                 {% if lineItem.options|length %}
                                     <a class="fieldtoggle first last"
-                                       data-target="info-{{ lineItem.id }}">{{ "Options"|t }}</a>
+                                       data-target="info-{{ lineItem.id }}">{{ "Options"|t('commerce') }}</a>
                                     <span id="info-{{ lineItem.id }}"
                                           class="hidden">
 							{% for key, option in lineItem.options %}
-                                {{ key|t }}: {% if option is iterable %}
+                                {{ key|t('commerce') }}: {% if option is iterable %}
                                 <code>{{ option|json_encode|raw }}</code>{% else %}{{ option }}{% endif %}
                                 <br>
                             {% endfor %}
@@ -198,8 +198,8 @@
                     {% for adjustment in order.adjustments %}
                         <tr>
                             <td>
-                                <strong>{{ adjustment.type|title|t }} {{ "Adjustment"|t }}</strong><br>{{ adjustment.name|title }}
-                                <span class="info"><strong>{{ adjustment.type|title|t }} {{ "Adjustment"|t }}</strong><br> {{ adjustment.description }}</span>
+                                <strong>{{ adjustment.type|title|t('commerce') }} {{ "Adjustment"|t('commerce') }}</strong><br>{{ adjustment.name|title }}
+                                <span class="info"><strong>{{ adjustment.type|title|t('commerce') }} {{ "Adjustment"|t('commerce') }}</strong><br> {{ adjustment.description }}</span>
                             </td>
                             <td></td>
                             <td></td>
@@ -216,7 +216,7 @@
                         <td></td>
                         <td>
                             {% if order.isPaid and order.totalPrice > 0 %}
-                                <div class="paidLogo"><span>{{ 'PAID'|t }}</div>
+                                <div class="paidLogo"><span>{{ 'PAID'|t('commerce') }}</div>
                             {% endif %}
                         </td>
                         <td></td>
@@ -231,7 +231,7 @@
                         <td></td>
                         <td></td>
                         <td></td>
-                        <td><h2>{{ "Total Price"|t }}</h2></td>
+                        <td><h2>{{ "Total Price"|t('commerce') }}</h2></td>
                         <td>
                             <h2 class="right">{{ order.totalPrice|currency(order.currency) }}</h2>
                         </td>
@@ -250,14 +250,14 @@
                 {% if pdfUrl %}
                     <div class="btngroup right">
                         <a class="btn" href="{{ order.pdfUrl }}"
-                           target="_blank">{{ 'Download PDF'|t }}</a>
+                           target="_blank">{{ 'Download PDF'|t('commerce') }}</a>
                     </div>
                 {% endif %}
                 <div class="btngroup">
                     <input type="button" class="btn formsubmit"
-                           value="{{ 'Delete Order'|t }}"
+                           value="{{ 'Delete Order'|t('commerce') }}"
                            data-action="commerce/orders/deleteOrder"
-                           data-confirm="{{ 'Are you sure you want to delete this order? Please note, this does not refund the customer.'|t }}"
+                           data-confirm="{{ 'Are you sure you want to delete this order? Please note, this does not refund the customer.'|t('commerce') }}"
                            data-redirect="commerce/orders"
                            data-param="orderId"
                            data-value="{{ order.id }}">
@@ -295,14 +295,14 @@
                 <div class="footer">
                     <div class="btngroup right submit first">
                         <input type="submit" class="btn submit"
-                               value="{{ 'Save'|t }}">
+                               value="{{ 'Save'|t('commerce') }}">
 
                         <div class="btn submit menubtn"></div>
                         <div class="menu">
                             <ul>
                                 <li><a class="formsubmit"
                                        data-redirect="{{ order.cpEditUrl }}">
-                                        {{ "Save and continue editing"|t }}
+                                        {{ "Save and continue editing"|t('commerce') }}
                                         {{ forms.optionShortcutLabel('S') }}
                                     </a>
                                 </li>
@@ -319,16 +319,16 @@
 
     {% if order.histories|length %}
         <div class="pane">
-            <h3>{{ 'Order History'|t }}</h3>
+            <h3>{{ 'Order History'|t('commerce') }}</h3>
 
             <table class="data fullwidth">
                 <thead>
                 <tr>
-                    <th scope="col">{{ 'Status'|t }}</th>
-                    <th scope="col">{{ 'Previous Status'|t }}</th>
-                    <th scope="col">{{ 'Customer'|t }}</th>
-                    <th scope="col">{{ 'Message'|t }}</th>
-                    <th scope="col">{{ 'Date'|t }}</th>
+                    <th scope="col">{{ 'Status'|t('commerce') }}</th>
+                    <th scope="col">{{ 'Previous Status'|t('commerce') }}</th>
+                    <th scope="col">{{ 'Customer'|t('commerce') }}</th>
+                    <th scope="col">{{ 'Message'|t('commerce') }}</th>
+                    <th scope="col">{{ 'Date'|t('commerce') }}</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -336,7 +336,7 @@
                     <tr data-id="{{ orderHistory.id }}">
                         <td>
                             {% if orderHistory.newStatus %}
-                                <a href="{{ orderHistory.newStatus.cpEditUrl }}">{{ orderHistory.newStatus.htmlLabel()|raw }}</a> {% if loop.first %}({{ "Current"|t }}){% endif %}
+                                <a href="{{ orderHistory.newStatus.cpEditUrl }}">{{ orderHistory.newStatus.htmlLabel()|raw }}</a> {% if loop.first %}({{ "Current"|t('commerce') }}){% endif %}
                             {% endif %}
                         </td>
                         <td>
@@ -361,19 +361,19 @@
     {% endif %}
 
     <div class="pane">
-        <h3>{{ "Transactions"|t }}</h3>
+        <h3>{{ "Transactions"|t('commerce') }}</h3>
 
         {% if order.transactions|length %}
             <table class="data fullwidth">
                 <thead>
                 <tr>
-                    <th scope="col">{{ 'Type'|t }}</span></th>
-                    <th scope="col">{{ 'Status'|t }}</th>
-                    <th scope="col">{{ 'Amount'|t }}</th>
-                    <th scope="col">{{ 'Payment Amount'|t }}</th>
-                    <th scope="col">{{ 'Method'|t }}</th>
-                    <th scope="col">{{ 'Date'|t }}</th>
-                    <th scope="col">{{ 'Info'|t }}</th>
+                    <th scope="col">{{ 'Type'|t('commerce') }}</span></th>
+                    <th scope="col">{{ 'Status'|t('commerce') }}</th>
+                    <th scope="col">{{ 'Amount'|t('commerce') }}</th>
+                    <th scope="col">{{ 'Payment Amount'|t('commerce') }}</th>
+                    <th scope="col">{{ 'Method'|t('commerce') }}</th>
+                    <th scope="col">{{ 'Date'|t('commerce') }}</th>
+                    <th scope="col">{{ 'Info'|t('commerce') }}</th>
                     <th></th>
                 </tr>
                 </thead>
@@ -392,7 +392,7 @@
 
                     <tr class="infoRow" data-info="{{ info|json_encode }}">
                         <td>{{ transaction.type|title }}</td>
-                        <td class="transaction-status transaction-status-{{ transaction.status }}">{{ transaction.status|title|t }}</td>
+                        <td class="transaction-status transaction-status-{{ transaction.status }}">{{ transaction.status|title|t('commerce') }}</td>
                         <td>{{ transaction.amount|currency(transaction.currency) }}
                             <small class="light">({{ transaction.currency }})
                             </small>
@@ -411,20 +411,20 @@
                                 <form>
                                     <a class="small btn submit formsubmit"
                                        data-action="commerce/orders/transactionCapture"
-                                       data-confirm="{{ 'Are you sure you want to capture this transaction?'|t }}"
+                                       data-confirm="{{ 'Are you sure you want to capture this transaction?'|t('commerce') }}"
                                        data-redirect="{{ order.cpEditUrl }}"
                                        data-param="id"
-                                       data-value="{{ transaction.id }}">{{ 'Capture'|t }}</a>
+                                       data-value="{{ transaction.id }}">{{ 'Capture'|t('commerce') }}</a>
                                 </form>
                             {% endif %}
                             {% if transaction.canRefund() %}
                                 <form>
                                     <a class="small btn submit formsubmit"
                                        data-action="commerce/orders/transactionRefund"
-                                       data-confirm="{{ 'Are you sure you want to refund this transaction?'|t }}"
+                                       data-confirm="{{ 'Are you sure you want to refund this transaction?'|t('commerce') }}"
                                        data-redirect="{{ order.cpEditUrl }}"
                                        data-param="id"
-                                       data-value="{{ transaction.id }}">{{ 'Refund'|t }}</a>
+                                       data-value="{{ transaction.id }}">{{ 'Refund'|t('commerce') }}</a>
                                 </form>
                             {% endif %}
                         </td>
