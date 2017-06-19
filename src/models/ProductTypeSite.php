@@ -30,9 +30,9 @@ class ProductTypeSite extends Model
     public $productTypeId;
 
     /**
-     * @var string Locale
+     * @var int Site id
      */
-    public $site;
+    public $siteId;
 
     /**
      * @var string URL Format

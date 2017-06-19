@@ -112,7 +112,7 @@ class OrderSettings extends Component
                 $fieldLayout = $orderSettings->getFieldLayout();
                 Craft::$app->getFields()->saveLayout($fieldLayout);
 
-                // Update the calendar record/model with the new layout ID
+                // Update the Order record/model with the new layout ID
                 $orderSettings->fieldLayoutId = $fieldLayout->id;
                 $orderSettingsRecord->fieldLayoutId = $fieldLayout->id;
 

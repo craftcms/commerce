@@ -132,7 +132,7 @@ class ProductType extends Model
     {
         return [
             [['id', 'fieldLayoutId', 'variantLayoutId'], 'number', 'integerOnly' => true],
-            [['name', 'handle', 'titleFormat'], 'required'],
+            [['name', 'handle', 'titleFormat'], 'required' => true],
             [['name', 'handle'], 'string', 'max' => 255],
             [
                 ['handle'],
@@ -168,7 +168,7 @@ class ProductType extends Model
                 $sites = Plugin::getInstance()->getProductTypes()->getProductTypeSites($this->id);
                 $this->_sites = [];
                 foreach ($sites as $site) {
-                    $this->_sites[$site] = $site;
+                    $this->_sites[$site->id] = $site;
                 }
             } else {
                 $this->_sites = [];
@@ -206,7 +206,12 @@ class ProductType extends Model
      */
     public function setShippingCategories($shippingCategories)
     {
+        if (!is_array($shippingCategories)) {
+            return;
+        }
+
         $categories = [];
+
         foreach ($shippingCategories as $category) {
             if (is_numeric($category)) {
                 if ($category = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($category)) {
@@ -241,7 +246,12 @@ class ProductType extends Model
      */
     public function setTaxCategories($taxCategories)
     {
+        if (!is_array($taxCategories)) {
+            return;
+        }
+
         $categories = [];
+
         foreach ($taxCategories as $category) {
             if (is_numeric($category)) {
                 if ($category = Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($category)) {

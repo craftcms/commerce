@@ -188,15 +188,15 @@ variantFields:       { label: "Variant Fields"|t('commerce'), url: '#variant-fie
         <div id="url-settings"
              class="nested-fields{% if not productType.hasUrls %} hidden{% endif %}">
 
-            {% macro urlFormatText(locale, productType, name, value) %}
+            {% macro urlFormatText(site, productType, name, value) %}
                 {% from "_includes/forms" import text, errorList %}
-                {% set errors = productType.getErrors(name~'-'~locale.id) %}
+                {% set errors = productType.getErrors(name~'-'~site.id) %}
 
                 <div class="input{% if errors %} errors{% endif %}">
                     {{ text({
-                        id: name~'-'~locale.id,
+                        id: name~'-'~site.id,
                         class: 'code ltr',
-                        name: name~'['~locale.id~']',
+                        name: name~'['~site.id~']',
                         value: (value != '__home__' ? value : null),
                         errors: errors
                     }) }}
@@ -209,23 +209,21 @@ variantFields:       { label: "Variant Fields"|t('commerce'), url: '#variant-fie
                 {% if craft.isLocalized() %}
                     <table class="data fullwidth">
                         <tbody>
-                        {% for locale in craft.i18n.getSiteLocales() %}
+                        {% for site in craft.app.sites.getAllSites() %}
                             <tr>
-                                {% if craft.isLocalized() %}
-                                    <th class="thin nowrap">{{ locale.id }}</th>
-                                {% endif %}
+                                <th class="thin nowrap">{{ site.name }}</th>
                                 <td class="topalign">
-                                    {% set value = (productType.locales[locale.id] is defined ? productType.locales[locale.id].urlFormat : null) %}
-                                    {{ urlFormatText(locale, productType, 'urlFormat', value) }}
+                                    {% set value = (productType.sites[site.id] is defined ? productType.sites[site.id].urlFormat : null) %}
+                                    {{ urlFormatText(site, productType, 'urlFormat', value) }}
                                 </td>
                             </tr>
                         {% endfor %}
                         </tbody>
                     </table>
                 {% else %}
-                    {% set locale = craft.i18n.getPrimarySiteLocale() %}
-                    {% set value = (productType.locales[locale.id] is defined ? productType.locales[locale.id].urlFormat : null) %}
-                    {{ urlFormatText(locale, productType, 'urlFormat', value) }}
+                    {% set site = craft.app.sites.getPrimarySite() %}
+                    {% set value = (productType.sites[site.id] is defined ? productType.sites[site.id].urlFormat : null) %}
+                    {{ urlFormatText(site, productType, 'urlFormat', value) }}
                 {% endif %}
             {% endset %}
 
@@ -270,9 +268,9 @@ variantFields:       { label: "Variant Fields"|t('commerce'), url: '#variant-fie
 {% js %}
     {% if not productType.handle %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
 
-    {% for locale in craft.i18n.getSiteLocales() %}
-        {% if productType.locales[locale.id] is not defined or not productType.locales[locale.id].urlFormat %}
-            new Craft.EntryUrlFormatGenerator('#name', '#urlFormat-{{ locale.id }}', { suffix: '/{slug}' });
+    {% for site in craft.app.sites.getAllSites() %}
+        {% if productType.sites[site.id] is not defined or not productType.sites[site.id].urlFormat %}
+            new Craft.UriFormatGenerator('#name', '#urlFormat-{{ site.id }}', { suffix: '/{slug}' });
         {% endif %}
     {% endfor %}
 

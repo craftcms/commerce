@@ -98,16 +98,16 @@ class ProductTypesController extends BaseAdminController
         $productType->skuFormat = Craft::$app->getRequest()->getParam('skuFormat');
         $productType->descriptionFormat = Craft::$app->getRequest()->getParam('descriptionFormat');
 
-        $locales = [];
+        $sites = [];
 
-        foreach (Craft::$app->getI18n()->getSiteLocaleIds() as $localeId) {
-            $locales[$localeId] = new ProductTypeSite([
-                'locale' => $localeId,
-                'urlFormat' => Craft::$app->getRequest()->getParam('urlFormat.'.$localeId)
+        foreach (Craft::$app->getSites()->getAllSiteIds() as $siteId) {
+            $sites[$siteId] = new ProductTypeSite([
+                'siteId' => $siteId,
+                'urlFormat' => Craft::$app->getRequest()->getParam('urlFormat.'.$siteId)
             ]);
         }
 
-        $productType->setLocales($locales);
+        $productType->setSites($sites);
 
         $productType->setTaxCategories(Craft::$app->getRequest()->getParam('taxCategories'));
         $productType->setShippingCategories(Craft::$app->getRequest()->getParam('shippingCategories'));
@@ -145,6 +145,6 @@ class ProductTypesController extends BaseAdminController
         $productTypeId = Craft::$app->getRequest()->getRequiredParam('id');
 
         Plugin::getInstance()->getProductTypes()->deleteProductTypeById($productTypeId);
-        $this->asJson(['success' => true]);
+        return $this->asJson(['success' => true]);
     }
 }

@@ -205,7 +205,7 @@ class Plugin extends \craft\base\Plugin
      */
     private function _registerSessionEventListeners()
     {
-        Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getProductTypes(), 'addLocaleHandler']);
+        Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getProductTypes(), 'addSiteHandler']);
 
         if (!Craft::$app->getRequest()->getIsConsoleRequest()) {
             Event::on(UserElement::class, UserElement::EVENT_AFTER_SAVE, [$this->getCustomers(), 'saveUserHandler']);
