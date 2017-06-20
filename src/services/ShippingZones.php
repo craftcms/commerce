@@ -145,7 +145,7 @@ class ShippingZones extends Component
                     $cols = ['stateId', 'shippingZoneId'];
                     $table = ShippingZoneStateRecord::tableName();
                 }
-                Craft::$app->getDb()->createCommand()->batchInsert($table, $cols, $rows);
+                Craft::$app->getDb()->createCommand()->batchInsert($table, $cols, $rows)->execute();
 
                 $transaction->commit();
             } catch (\Exception $e) {

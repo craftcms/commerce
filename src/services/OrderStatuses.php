@@ -172,7 +172,7 @@ class OrderStatuses extends Component
                 }, $emailIds);
                 $cols = ['emailId', 'orderStatusId'];
                 $table = OrderStatusEmailRecord::tableName();
-                Craft::$app->getDb()->createCommand()->batchInsert($table, $cols, $rows);
+                Craft::$app->getDb()->createCommand()->batchInsert($table, $cols, $rows)->execute();
 
                 // Now that we have a calendar ID, save it on the model
                 $model->id = $record->id;

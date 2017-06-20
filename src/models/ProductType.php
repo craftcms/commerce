@@ -168,7 +168,7 @@ class ProductType extends Model
                 $sites = Plugin::getInstance()->getProductTypes()->getProductTypeSites($this->id);
                 $this->_sites = [];
                 foreach ($sites as $site) {
-                    $this->_sites[$site->id] = $site;
+                    $this->_sites[$site->siteId] = $site;
                 }
             } else {
                 $this->_sites = [];
