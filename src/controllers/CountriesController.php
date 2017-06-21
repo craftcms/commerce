@@ -106,9 +106,9 @@ class CountriesController extends BaseAdminController
 
         try {
             Plugin::getInstance()->getCountries()->deleteCountryById($id);
-            $this->asJson(['success' => true]);
+            return $this->asJson(['success' => true]);
         } catch (\Exception $e) {
-            $this->asErrorJson($e->getMessage());
+            return $this->asErrorJson($e->getMessage());
         }
     }
 
