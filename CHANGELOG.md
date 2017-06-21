@@ -8,10 +8,12 @@ Commerce Changelog
 - Added the [`makePercentageOffDiscountsIncremental`](https://craftcommerce.com/docs/configuration) config setting.
 - Added `itemSubtotal` to the cart’s json ajax response.
 
+
 ### Fixed
 - Fixed a bug that allowed a discount with a 'per email address limit' condition to be used beyond it's limit if the coupon supplied was in a different case.
 - Fixed a PHP error that occured when viewing a cart in the control panel with no payment methods created.
 - Fixed a bug where discounts that were based on a 'user group' condition were not being removed when the cart recalculated after a login/logout.
+- Fixed a bug where the `variant.salePrice` was only rounded when sales were applied.
 
 ## 1.2.1343 - 2017-06-09
 

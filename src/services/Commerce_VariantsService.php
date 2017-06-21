@@ -131,7 +131,7 @@ class Commerce_VariantsService extends BaseApplicationComponent
         foreach ($variants as $variant)
         {
             $variant->setSalesApplied([]);
-            $variant->setSalePrice($variant->price);
+            $variant->setSalePrice(CommerceCurrencyHelper::round($variant->price));
         }
 
         // Only bother calculating if the product is persisted and promotable.
