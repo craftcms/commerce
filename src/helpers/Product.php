@@ -5,6 +5,7 @@ use Craft;
 use craft\commerce\elements\Product as ProductModel;
 use craft\commerce\elements\Variant as VariantModel;
 use craft\commerce\Plugin;
+use craft\helpers\DateTimeHelper;
 use craft\helpers\Localization as LocalizationHelper;
 
 /**
@@ -36,11 +37,11 @@ class Product
             $product->enabled = $data['enabled'];
         }
 
-        $product->postDate = (($postDate = $data['postDate']) ? \DateTime::createFromString($postDate, Craft::$app->getTimeZone()) : $product->postDate);
+        $product->postDate = (($postDate = $data['postDate']) ? DateTimeHelper::toDateTime($postDate) : $product->postDate);
         if (!$product->postDate) {
             $product->postDate = new \DateTime();
         }
-        $product->expiryDate = (($expiryDate = $data['expiryDate']) ? \DateTime::createFromString($expiryDate, Craft::$app->getTimeZone()) : null);
+        $product->expiryDate = (($expiryDate = $data['expiryDate']) ? DateTimeHelper::toDateTime($expiryDate) : null);
 
         $product->promotable = $data['promotable'];
         $product->freeShipping = $data['freeShipping'];
@@ -91,11 +92,11 @@ class Product
             $variantModel->sortOrder = $count++;
 
             if (isset($variant['fields'])) {
-                $variantModel->setContentFromPost($variant['fields']);
+                $variantModel->setFieldValuesFromRequest('fields');
             }
 
             if (isset($variant['title'])) {
-                $variantModel->getContent()->title = $variant['title'];
+                $variantModel->title = $variant['title'] ?: $variant->title ;
             }
 
             $variants[] = $variantModel;

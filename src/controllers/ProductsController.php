@@ -9,7 +9,10 @@ use craft\commerce\helpers\VariantMatrix;
 use craft\commerce\Plugin;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
-use craft\web\Response;
+use craft\models\Site;
+use yii\base\Exception;
+use yii\web\ForbiddenHttpException;
+use yii\web\Response;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 
@@ -41,12 +44,7 @@ class ProductsController extends BaseCpController
     }
 
 
-    /**
-     * Index of products
-     *
-     * @param array
-     */
-    public function actionProductIndex(array $variables = [])
+    public function actionProductIndex(array $variables = []): Response
     {
         return $this->renderTemplate('commerce/products/_index', $variables);
     }
@@ -244,7 +242,7 @@ class ProductsController extends BaseCpController
     {
         $variables['tabs'] = [];
 
-        foreach ($variables['productType']->getFieldLayout()->getTabs() as $index => $tab) {
+        foreach ($variables['productType']->getProductFieldLayout()->getTabs() as $index => $tab) {
             // Do any of the fields on this tab have errors?
             $hasErrors = false;
             if ($variables['product']->hasErrors()) {
@@ -286,10 +284,11 @@ class ProductsController extends BaseCpController
      * @return Product
      * @throws Exception
      */
-    private function _setProductFromPost()
+    private function _setProductFromPost(): Product
     {
-        $productId = Craft::$app->getRequest()->getParam('productId');
-        $site = Craft::$app->getRequest()->getParam('site');
+        $request = Craft::$app->getRequest();
+        $productId = $request->getParam('productId');
+        $site = $request->getParam('site');
 
         if ($productId) {
             $product = Plugin::getInstance()->getProducts()->getProductById($productId, $site);
@@ -302,11 +301,21 @@ class ProductsController extends BaseCpController
             $product = new Product();
         }
 
-        ProductHelper::populateProductModel($product, Craft::$app->getRequest()->getParams());
+        $data['typeId'] = $request->getBodyParam('typeId');
+        $data['enabled'] = $request->getBodyParam('enabled');
+        $data['postDate'] = $request->getBodyParam('postDate');
+        $data['expiryDate'] = $request->getBodyParam('expiryDate');
+        $data['promotable'] = $request->getBodyParam('promotable');
+        $data['freeShipping'] = $request->getBodyParam('freeShipping');
+        $data['taxCategoryId'] = $request->getBodyParam('taxCategoryId');
+        $data['shippingCategoryId'] = $request->getBodyParam('shippingCategoryId');
+        $data['slug'] = $request->getBodyParam('slug');
 
-        $product->siteEnabled = (bool)Craft::$app->getRequest()->getParam('siteEnabled', $product->siteEnabled);
-        $product->getContent()->title = Craft::$app->getRequest()->getParam('title', $product->title);
-        $product->setContentFromPost('fields');
+        ProductHelper::populateProductModel($product, $data);
+
+        $product->enabledForSite = (bool)$request->getParam('enabledForSite', $product->enabledForSite);
+        $product->title = $request->getParam('title', $product->title);
+        $product->setFieldValuesFromRequest('fields');
 
         return $product;
     }
@@ -442,8 +451,9 @@ class ProductsController extends BaseCpController
     {
         $this->requirePostRequest();
 
+        $request = Craft::$app->getRequest();
         $product = $this->_setProductFromPost();
-        ProductHelper::populateProductVariantModels($product, Craft::$app->getRequest()->getParam('variants'));
+        ProductHelper::populateProductVariantModels($product, $request->getParam('variants'));
 
         $this->enforceProductPermissions($product);
 

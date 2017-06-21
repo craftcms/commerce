@@ -77,7 +77,7 @@ class CustomerAddressesController extends BaseFrontEndController
             // Refresh the cart, if this address was being used.
             $cart = Plugin::getInstance()->getCart()->getCart();
             if ($cart->shippingAddressId == $address->id) {
-                $cart->setContentFromPost('fields');
+                $cart->setFieldValuesFromRequest('fields');
                 Plugin::getInstance()->getOrders()->saveOrder($cart);
             }
 

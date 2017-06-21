@@ -125,7 +125,7 @@ class PaymentsController extends BaseFrontEndController
 
         // Allowed to update order's custom fields?
         if ($order->isActiveCart() || Craft::$app->getUser()->checkPermission('commerce-manageOrders')) {
-            $order->setContentFromPost('fields');
+            $order->setFieldValuesFromRequest('fields');
         }
 
         // Check email address exists on order.

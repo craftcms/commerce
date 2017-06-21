@@ -27,6 +27,7 @@ class Plugin extends \craft\base\Plugin
     // Public Properties
     // =========================================================================
 
+    public $schemaVersion = '2.0.3';
 
     // Traits
     // =========================================================================
@@ -86,7 +87,7 @@ class Plugin extends \craft\base\Plugin
     /**
      * @inheritdoc
      */
-    public function getCpNavItem()
+    public function getCpNavItem(): array
     {
         $iconPath = Plugin::getInstance()->getBasePath().DIRECTORY_SEPARATOR.'icon-mask.svg';
 

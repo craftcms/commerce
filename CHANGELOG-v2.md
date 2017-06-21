@@ -1,3 +1,7 @@
+
+### Added
+- Added 'Copy' Reference tag to Product actions.
+
 ### Event changes
 - `craft\commerce\services\Addresses` now fires the following events: `beforeSaveAddress`, and `afterSaveAddress`.
 - `craft\commerce\services\Cart` now fires the following events: `beforeAddToCart`, `afterAddToCart`, `afterRemoveFromCart` and a cancelable `beforeRemoveFromCart` event.

@@ -10,13 +10,14 @@ use craft\commerce\elements\Variant;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
 use craft\helpers\UrlHelper;
+use craft\models\FieldLayout;
 use craft\validators\HandleValidator;
 
 /**
  * Product type model.
  *
- * @method null setFieldLayout(FieldLayoutModel $fieldLayout)
- * @method FieldLayoutModel getFieldLayout()
+ * @method null setFieldLayout(FieldLayout $fieldLayout)
+ * @method FieldLayout getFieldLayout()
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -24,6 +25,12 @@ use craft\validators\HandleValidator;
  * @see       https://craftcommerce.com
  * @package   craft.plugins.commerce.models
  * @since     1.0
+ *
+ * @property string                                                $cpEditUrl
+ * @property string                                                $cpEditVariantUrl
+ * @property ProductTypeSite[]                                     $siteSettings
+ * @property mixed                                                 $variantFieldLayout
+ * @property mixed                                                 $productFieldLayout
  */
 class ProductType extends Model
 {
@@ -113,9 +120,9 @@ class ProductType extends Model
     private $_shippingCategories;
 
     /**
-     * @var SiteModel[]
+     * @var ProductTypeSite[]
      */
-    private $_sites;
+    private $_siteSettings;
 
     /**
      * @return null|string
@@ -128,24 +135,20 @@ class ProductType extends Model
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            [['id', 'fieldLayoutId', 'variantLayoutId'], 'number', 'integerOnly' => true],
-            [['name', 'handle', 'titleFormat'], 'required' => true],
+            [['id', 'fieldLayoutId', 'variantFieldLayoutId'], 'number', 'integerOnly' => true],
+            [['name', 'handle', 'titleFormat'], 'required'],
             [['name', 'handle'], 'string', 'max' => 255],
-            [
-                ['handle'],
-                HandleValidator::class,
-                'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title']
-            ],
+            [['handle'], HandleValidator::class, 'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title']],
         ];
     }
 
     /**
      * @return string
      */
-    public function getCpEditUrl()
+    public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/settings/producttypes/'.$this->id);
     }
@@ -153,39 +156,45 @@ class ProductType extends Model
     /**
      * @return string
      */
-    public function getCpEditVariantUrl()
+    public function getCpEditVariantUrl(): string
     {
         return UrlHelper::cpUrl('commerce/settings/producttypes/'.$this->id.'/variant');
     }
 
     /**
-     * @return array
+     * Returns the product types's site-specific settings.
+     *
+     * @return ProductTypeSite[]
      */
-    public function getSites()
+    public function getSiteSettings(): array
     {
-        if (null === $this->_sites) {
-            if ($this->id) {
-                $sites = Plugin::getInstance()->getProductTypes()->getProductTypeSites($this->id);
-                $this->_sites = [];
-                foreach ($sites as $site) {
-                    $this->_sites[$site->siteId] = $site;
-                }
-            } else {
-                $this->_sites = [];
-            }
+        if ($this->_siteSettings !== null) {
+            return $this->_siteSettings;
         }
 
-        return $this->_sites;
+        if (!$this->id) {
+            return [];
+        }
+
+        $this->setSiteSettings(ArrayHelper::index(Plugin::getInstance()->getProductTypes()->getProductTypeSites($this->id), 'siteId'));
+
+        return $this->_siteSettings;
     }
 
     /**
-     * Sets the sites on the product type
+     * Sets the product type's site-specific settings.
      *
-     * @param $sites
+     * @param ProductTypeSite[] $siteSettings
+     *
+     * @return void
      */
-    public function setSites($sites)
+    public function setSiteSettings(array $siteSettings)
     {
-        $this->_sites = $sites;
+        $this->_siteSettings = $siteSettings;
+
+        foreach ($this->_siteSettings as $settings) {
+            $settings->setProductType($this);
+        }
     }
 
     /**
@@ -206,12 +215,7 @@ class ProductType extends Model
      */
     public function setShippingCategories($shippingCategories)
     {
-        if (!is_array($shippingCategories)) {
-            return;
-        }
-
         $categories = [];
-
         foreach ($shippingCategories as $category) {
             if (is_numeric($category)) {
                 if ($category = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($category)) {
@@ -246,12 +250,7 @@ class ProductType extends Model
      */
     public function setTaxCategories($taxCategories)
     {
-        if (!is_array($taxCategories)) {
-            return;
-        }
-
         $categories = [];
-
         foreach ($taxCategories as $category) {
             if (is_numeric($category)) {
                 if ($category = Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($category)) {

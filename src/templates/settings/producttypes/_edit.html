@@ -119,18 +119,6 @@ variantFields:       { label: "Variant Fields"|t('commerce'), url: '#variant-fie
             }) }}
         {% endmacro %}
 
-        {% macro hasUrlsField(productType) %}
-            {% from "_includes/forms" import checkboxField %}
-
-            {{ checkboxField({
-                label: "Products of this type have their own URLs"|t('commerce'),
-                id: 'hasUrls',
-                name: 'hasUrls',
-                checked: productType.hasUrls,
-                toggle: 'url-settings'
-            }) }}
-        {% endmacro %}
-
 
         {% macro templateField(productType) %}
             {% from "_includes/forms" import textField %}
@@ -174,7 +162,7 @@ variantFields:       { label: "Variant Fields"|t('commerce'), url: '#variant-fie
         {% endmacro %}
 
 
-        {% from _self import hasUrlsField, templateField, hasVariantsField, titleFormatField, urlFormatText %}
+        {% from _self import hasVariantsField, titleFormatField, urlFormatText %}
 
         <hr>
         {{ hasVariantsField(productType) }}
@@ -182,66 +170,62 @@ variantFields:       { label: "Variant Fields"|t('commerce'), url: '#variant-fie
         {{ titleFormatField(productType) }}
         <hr>
 
-        {{ hasUrlsField(productType) }}
+        {% set siteRows = [] %}
+        {% set siteErrors = productType.getErrors('siteSettings') %}
+
+        {% for site in craft.app.sites.getAllSites() %}
+            {% set siteSettings = productType.siteSettings[site.id] ?? null %}
+            {% if siteSettings %}
+                {% for attribute, errors in siteSettings.getErrors() %}
+                    {% set siteErrors = siteErrors|merge(errors) %}
+                {% endfor %}
+            {% endif %}
+            {% set siteRows = siteRows|merge({
+                (site.handle): {
+                    heading: site.name|t('site'),
+                    urlFormat: {
+                        value: siteSettings.urlFormat ?? null,
+                        hasErrors: siteSettings.hasErrors('urlFormat') ?? false
+                    },
+                    template: {
+                        value: siteSettings.template ?? null,
+                        hasErrors: siteSettings.hasErrors('template') ?? false,
+                    }
+                }
+            }) %}
+        {% endfor %}
 
 
-        <div id="url-settings"
-             class="nested-fields{% if not productType.hasUrls %} hidden{% endif %}">
+        {{ forms.editableTableField({
+            label: "Site Settings"|t('app'),
+            instructions: "Configure the product types’s site-specific settings."|t('app'),
+            id: 'sites',
+            name: 'sites',
+            cols: {
+                heading: {
+                    type: 'heading',
+                    heading: "Site"|t('app'),
+                    class: 'thin'
+                },
+                urlFormat: {
+                    type: 'singleline',
+                    heading: "Category URI Format"|t('app'),
+                    info: "What category URIs should look like for the site."|t('app'),
+                    placeholder: "Leave blank if categories don’t have URLs"|t('app'),
+                    code: true
+                },
+                template: {
+                    type: 'singleline',
+                    heading: "Template"|t('app'),
+                    info: "Which template should be loaded when an entry’s URL is requested."|t('app'),
+                    code: true
+                },
+            },
+            rows: siteRows,
+            staticRows: true,
+            errors: siteErrors|unique
+        }) }}
 
-            {% macro urlFormatText(site, productType, name, value) %}
-                {% from "_includes/forms" import text, errorList %}
-                {% set errors = productType.getErrors(name~'-'~site.id) %}
-
-                <div class="input{% if errors %} errors{% endif %}">
-                    {{ text({
-                        id: name~'-'~site.id,
-                        class: 'code ltr',
-                        name: name~'['~site.id~']',
-                        value: (value != '__home__' ? value : null),
-                        errors: errors
-                    }) }}
-                </div>
-
-                {{ errorList(errors) }}
-            {% endmacro %}
-
-            {% set urlFormatInput %}
-                {% if craft.isLocalized() %}
-                    <table class="data fullwidth">
-                        <tbody>
-                        {% for site in craft.app.sites.getAllSites() %}
-                            <tr>
-                                <th class="thin nowrap">{{ site.name }}</th>
-                                <td class="topalign">
-                                    {% set value = (productType.sites[site.id] is defined ? productType.sites[site.id].urlFormat : null) %}
-                                    {{ urlFormatText(site, productType, 'urlFormat', value) }}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                {% else %}
-                    {% set site = craft.app.sites.getPrimarySite() %}
-                    {% set value = (productType.sites[site.id] is defined ? productType.sites[site.id].urlFormat : null) %}
-                    {{ urlFormatText(site, productType, 'urlFormat', value) }}
-                {% endif %}
-            {% endset %}
-
-            {{ forms.field({
-                label: "Product URL Format"|t('commerce'),
-                instructions: "What the product URLs should look like. You can include tags that output product properties, such as {ex1} or {ex2}."|t('commerce', { ex1: '<code>{slug}</code>', ex2: '<code>{publishDate|date(\"Y\")}</code>' }),
-            }, urlFormatInput) }}
-
-            {{ forms.textField({
-                label: "Product Template"|t('commerce'),
-                instructions: "The template to use when a product’s URL is requested."|t('commerce'),
-                id: 'template',
-                class: 'ltr',
-                name: 'template',
-                value: productType.template,
-                errors: productType.getErrors('template')
-            }) }}
-        </div>
 
     </div>
 
@@ -269,9 +253,8 @@ variantFields:       { label: "Variant Fields"|t('commerce'), url: '#variant-fie
     {% if not productType.handle %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
 
     {% for site in craft.app.sites.getAllSites() %}
-        {% if productType.sites[site.id] is not defined or not productType.sites[site.id].urlFormat %}
-            new Craft.UriFormatGenerator('#name', '#urlFormat-{{ site.id }}', { suffix: '/{slug}' });
-        {% endif %}
+        new Craft.UriFormatGenerator('#name', '#sites tr[data-id="{{ site.handle }}"] textarea[name$="[urlFormat]"]', { suffix: '/{slug}' });
+        new Craft.UriFormatGenerator('#name', '#sites tr[data-id="{{ site.handle }}"] textarea[name$="[template]"]', { suffix: '/_category' });
     {% endfor %}
 
     $('#hasVariants').on('change', function() {

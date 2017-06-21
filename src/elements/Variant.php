@@ -697,28 +697,4 @@ class Variant extends Element
             Plugin::getInstance()->getVariants()->setProductOnVariants($criteria->product, $variants);
         }
     }
-
-    /**
-     * @param array $row
-     *
-     * @return BaseModel
-     */
-    public function populateElementModel($row)
-    {
-        return new Variant($row);
-    }
-
-    /**
-     * @param BaseElementModel $element
-     * @param array            $params
-     *
-     * @return bool
-     * @throws HttpException
-     * @throws \Exception
-     */
-    public function saveElement(BaseElementModel $element, $params)
-    {
-        return Plugin::getInstance()->getVariants()->saveVariant($element);
-    }
-
 }

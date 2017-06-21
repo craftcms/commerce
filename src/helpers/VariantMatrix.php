@@ -1,9 +1,13 @@
 <?php
 namespace craft\commerce\helpers;
 
+use Craft;
+use craft\base\Field;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\helpers\Json;
+use craft\models\FieldLayout;
+use craft\records\FieldLayoutField;
 
 /**
  * Class VariantMatrix
@@ -34,7 +38,7 @@ class VariantMatrix
         $viewService = Craft::$app->getView();
         $id = $viewService->formatInputId($name);
 
-        $html = $viewService->render('commerce/products/_variant_matrix', [
+        $html = $viewService->renderTemplate('commerce/products/_variant_matrix', [
             'id' => $id,
             'name' => $name,
             'variants' => $product->getVariants()
@@ -47,9 +51,9 @@ class VariantMatrix
         // Get the field HTML
         list($fieldBodyHtml, $fieldFootHtml) = self::_getVariantFieldHtml($product, $namespacedName);
 
-        $viewService->includeJsResource('commerce/js/VariantMatrix.js');
+        $viewService->registerJsFile('commerce/js/VariantMatrix.js');
 
-        $viewService->includeJs('new Craft.Commerce.VariantMatrix('.
+        $viewService->registerJs('new Craft.Commerce.VariantMatrix('.
             '"'.$namespacedId.'", '.
             Json::encode($fieldBodyHtml).', '.
             Json::encode($fieldFootHtml).', '.
@@ -84,7 +88,7 @@ class VariantMatrix
      *
      * @return array
      */
-    private static function _getVariantFieldHtml($product, $name)
+    private static function _getVariantFieldHtml($product, $name): array
     {
         // Create a fake Variant model so the field types have a way to get at the owner element, if there is one
         $variant = new Variant();
@@ -93,18 +97,13 @@ class VariantMatrix
         $variantFields = $variant->getFieldLayout()->getFields();
 
         foreach ($variantFields as $fieldLayoutField) {
-            $fieldType = $fieldLayoutField->getField()->getFieldType();
-
-            if ($fieldType) {
-                $fieldType->element = $variant;
-                $fieldType->setIsFresh(true);
-            }
+            $fieldLayoutField->setIsFresh(true);
         }
 
         $templatesService = Craft::$app->getView();
         $templatesService->startJsBuffer();
 
-        $bodyHtml = $templatesService->render('commerce/products/_variant_matrix_fields', [
+        $bodyHtml = $templatesService->renderTemplate('commerce/products/_variant_matrix_fields', [
             'namespace' => $name.'[__VARIANT__]',
             'variant' => $variant
         ]);
@@ -112,12 +111,8 @@ class VariantMatrix
         $footHtml = $templatesService->clearJsBuffer();
 
         // Reset $_isFresh's
-        foreach ($variantFields as $fieldLayoutField) {
-            $fieldType = $fieldLayoutField->getField()->getFieldType();
-
-            if ($fieldType) {
-                $fieldType->setIsFresh(null);
-            }
+        foreach ($variantFields as $field) {
+            $field->setIsFresh(null);
         }
 
         return [$bodyHtml, $footHtml];

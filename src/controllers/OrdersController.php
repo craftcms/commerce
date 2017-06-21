@@ -379,7 +379,7 @@ class OrdersController extends BaseCpController
      */
     private function _setContentFromPost($order)
     {
-        $order->setContentFromPost('fields');
+        $order->setFieldValuesFromRequest('fields');
     }
 
     /**

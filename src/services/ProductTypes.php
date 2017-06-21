@@ -4,6 +4,7 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\elements\Product;
+use craft\commerce\events\ProductTypeEvent;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\ProductTypeSite;
 use craft\commerce\models\ShippingCategory;
@@ -13,11 +14,12 @@ use craft\commerce\records\Product as ProductRecord;
 use craft\commerce\records\ProductType as ProductTypeRecord;
 use craft\commerce\records\ProductTypeSite as ProductTypeSiteRecord;
 use craft\db\Query;
+use craft\errors\ProductTypeNotFoundException;
 use craft\events\SiteEvent;
 use craft\helpers\App;
 use craft\helpers\ArrayHelper;
-use craft\tasks\ResaveElements;
 use yii\base\Component;
+use yii\base\Exception;
 
 /**
  * Product type service.
@@ -31,6 +33,16 @@ use yii\base\Component;
  */
 class ProductTypes extends Component
 {
+
+    /**
+     * @event CategoryGroupEvent The event that is triggered before a category group is saved.
+     */
+    const EVENT_BEFORE_SAVE_PRODUCTTYPE = 'beforeSaveProductType';
+
+    /**
+     * @event ProductTypeEvent The event that is triggered after a product type is saved.
+     */
+    const EVENT_AFTER_SAVE_PRODUCTTYPE = 'afterSaveProductType';
 
     /**
      * @var bool
@@ -82,7 +94,7 @@ class ProductTypes extends Component
      *
      * @return array All the editable product types’ IDs.
      */
-    public function getEditableProductTypeIds()
+    public function getEditableProductTypeIds(): array
     {
         if (null === $this->_editableProductTypeIds) {
             $this->_editableProductTypeIds = [];
@@ -181,11 +193,9 @@ class ProductTypes extends Component
      */
     public function getProductTypeSites($productTypeId): array
     {
-        $records = ProductTypeSiteRecord::find()->where([
-            'productTypeId' => $productTypeId
-        ])->all();
+        $records = ProductTypeSiteRecord::find()->where(['productTypeId' => $productTypeId])->all();
 
-        return ArrayHelper::map($records, 'id', function ($record) {
+        return ArrayHelper::map($records, 'id', function($record) {
             return new ProductTypeSite($record->toArray([
                 'id',
                 'productTypeId',
@@ -210,7 +220,7 @@ class ProductTypes extends Component
             $shippingCategories = [Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory()];
         }
 
-        return ArrayHelper::map($shippingCategories, 'id', function($record){
+        return ArrayHelper::map($shippingCategories, 'id', function($record) {
             return new ShippingCategory($record->toArray([
                 'id',
                 'name',
@@ -219,7 +229,6 @@ class ProductTypes extends Component
                 'default'
             ]));
         });
-
     }
 
     /**
@@ -244,331 +253,326 @@ class ProductTypes extends Component
 
     /**
      * @param ProductType $productType
+     * @param bool        $runValidation
      *
      * @return bool
-     * @throws Exception
-     * @throws \CDbException
      * @throws \Exception
      */
-    public function saveProductType(ProductType $productType): bool
+    public function saveProductType(ProductType $productType, bool $runValidation = true): bool
     {
         $titleFormatChanged = false;
 
-        if ($productType->id) {
+        if ($runValidation && !$productType->validate()) {
+            Craft::info('Product type not saved due to validation error.', __METHOD__);
+
+            return false;
+        }
+
+        $isNewProductType = !$productType->id;
+
+        // Fire a 'beforeSaveProductType' event
+        $this->trigger(self::EVENT_BEFORE_SAVE_PRODUCTTYPE, new ProductTypeEvent([
+            'productType' => $productType,
+            'isNew' => $isNewProductType,
+        ]));
+
+        if (!$isNewProductType) {
             $productTypeRecord = ProductTypeRecord::findOne($productType->id);
+
             if (!$productTypeRecord) {
-                throw new Exception(Craft::t('commerce', 'commerce', 'No product type exists with the ID “{id}”',
-                    ['id' => $productType->id]));
+                throw new ProductTypeNotFoundException("No product type exists with the ID '{$productType->id}'");
             }
 
-            /** @var ProductType[] $oldProductType */
             $oldProductType = $this->_createProductTypeFromProductTypeRecord($productTypeRecord);
-            $isNewProductType = false;
         } else {
             $productTypeRecord = new ProductTypeRecord();
-            $isNewProductType = true;
         }
 
         // If the product type does not have variants, default the title format.
         if (!$isNewProductType && !$productType->hasVariants) {
             $productType->hasVariantTitleField = false;
-            $productType->titleFormat = "{product.title}";
+            $productType->titleFormat = '{product.title}';
         }
 
         $productTypeRecord->name = $productType->name;
         $productTypeRecord->handle = $productType->handle;
+
         $productTypeRecord->hasDimensions = $productType->hasDimensions;
-        $productTypeRecord->hasUrls = $productType->hasUrls;
         $productTypeRecord->hasVariants = $productType->hasVariants;
         $productTypeRecord->hasVariantTitleField = $productType->hasVariantTitleField;
-        $productTypeRecord->titleFormat = $productType->titleFormat ?: "{product.title}";
+        $productTypeRecord->titleFormat = $productType->titleFormat ?: '{product.title}';
         $productTypeRecord->skuFormat = $productType->skuFormat;
         $productTypeRecord->descriptionFormat = $productType->descriptionFormat;
-        $productTypeRecord->template = $productType->template;
 
-        if (!$isNewProductType && !$productType->hasVariantTitleField) {
-            if ($productTypeRecord->titleFormat != $oldProductType->titleFormat) {
-                $titleFormatChanged = true;
+
+        // Get the site settings
+        $allSiteSettings = $productType->getSiteSettings();
+
+        // Make sure they're all there
+        foreach (Craft::$app->getSites()->getAllSiteIds() as $siteId) {
+            if (!isset($allSiteSettings[$siteId])) {
+                throw new Exception('Tried to save a product type that is missing site settings');
             }
         }
 
-        // Make sure that all of the URL formats are set properly
-        $productTypeSites = $productType->getSites();
+        $db = Craft::$app->getDb();
+        $transaction = $db->beginTransaction();
 
-        foreach ($productTypeSites as $siteId => $productTypeSite) {
-            if ($productType->hasUrls) {
-                $urlFormatAttributes = ['urlFormat'];
-                $productTypeSite->urlFormatIsRequired = true;
+        try {
 
-                foreach ($urlFormatAttributes as $attribute) {
-                    if (!$productTypeSite->validate([$attribute])) {
-                        $productType->addError($attribute.'-'.$siteId, $productTypeSite->getError($attribute));
+            // Product Field Layout
+            $fieldLayout = $productType->getProductFieldLayout();
+            Craft::$app->getFields()->saveLayout($fieldLayout);
+            $productType->fieldLayoutId = $fieldLayout->id;
+            $productTypeRecord->fieldLayoutId = $fieldLayout->id;
+
+            // Variant Field Layout
+            $variantFieldLayout = $productType->getVariantFieldLayout();
+            Craft::$app->getFields()->saveLayout($variantFieldLayout);
+            $productType->variantFieldLayoutId = $variantFieldLayout->id;
+            $productTypeRecord->variantFieldLayoutId = $variantFieldLayout->id;
+
+            // Save the product type
+            $productTypeRecord->save(false);
+
+            // Now that we have a product type ID, save it on the model
+            if (!$productType->id) {
+                $productType->id = $productTypeRecord->id;
+            }
+
+            // Might as well update our cache of the product type while we have it.
+            $this->_productTypesById[$productType->id] = $productType;
+
+
+            if (!$isNewProductType && !$productType->hasVariantTitleField) {
+                if ($productTypeRecord->titleFormat != $oldProductType->titleFormat) {
+                    $titleFormatChanged = true;
+                }
+            }
+
+            //Refresh all titles for variants of same product type if titleFormat changed.
+            if ($productType->hasVariants && !$productType->hasVariantTitleField && $titleFormatChanged) {
+                $criteria = Product::find();
+                $criteria->typeId = $productType->id;
+                $products = $criteria->all();
+                foreach ($products as $product) {
+                    foreach ($product->getVariants() as $variant) {
+                        $title = Craft::$app->getView()->renderObjectTemplate($productType->titleFormat, $variant);
+                        // updates to the same title in all sites
+                        Craft::$app->getDb()->createCommand()->update('{{%content}}',
+                            ['title' => $title],
+                            ['elementId' => $variant->id]
+                        );
                     }
                 }
-            } else {
-                $productTypeSite->urlFormat = null;
             }
-        }
 
-        $productTypeRecord->validate();
-        $productType->addErrors($productTypeRecord->getErrors());
+            if (!$isNewProductType && $oldProductType->hasVariants && !$productType->hasVariants) {
+                $criteria = Product::find();
+                $criteria->typeId = $productType->id;
+                $products = $criteria->all();
+                /** @var Product $product */
+                foreach ($products as $key => $product) {
+                    if ($product && $product->getContent()->id) {
+                        $defaultVariant = null;
+                        // find out default variant
+                        foreach ($product->getVariants() as $variant) {
+                            if ($defaultVariant === null || $variant->isDefault) {
+                                $defaultVariant = $variant;
+                            }
+                        }
+                        // delete all non-default variants
+                        foreach ($product->getVariants() as $variant) {
+                            if ($defaultVariant !== $variant) {
+                                Plugin::getInstance()->getVariants()->deleteVariantById($variant->id);
+                            } else {
+                                // The default variant must always be enabled.
+                                $variant->enabled = true;
+                                Plugin::getInstance()->getVariants()->saveVariant($variant);
+                            }
+                        }
+                    }
+                }
+            }
 
-        if (!$productType->hasErrors()) {
-            $db = Craft::$app->getDb();
-            $transaction = $db->beginTransaction();
 
-            try {
+            // Have any of the product type categories changed?
+            if (!$isNewProductType) {
+                // Get all previous categories
+                $oldShippingCategories = $oldProductType->getShippingCategories();
+                $oldTaxCategories = $oldProductType->getTaxCategories();
+            }
 
-                if (!$isNewProductType) {
-                    // If we previously had variants but now don't, delete all non-default variants.
-                    if ($oldProductType->hasVariants && !$productType->hasVariants) {
-                        $criteria = Product::find();
-                        $criteria->typeId = $productType->id;
-                        $products = $criteria->all();
-                        /** @var Product $product */
-                        foreach ($products as $key => $product) {
-                            if ($product && $product->getContent()->id) {
-                                $defaultVariant = null;
-                                // find out default variant
-                                foreach ($product->getVariants() as $variant) {
-                                    if ($defaultVariant === null || $variant->isDefault) {
-                                        $defaultVariant = $variant;
-                                    }
-                                }
-                                // delete all non-default variants
-                                foreach ($product->getVariants() as $variant) {
-                                    if ($defaultVariant !== $variant) {
-                                        Plugin::getInstance()->getVariants()->deleteVariantById($variant->id);
-                                    } else {
-                                        // The default variant must always be enabled.
-                                        $variant->enabled = true;
-                                        Plugin::getInstance()->getVariants()->saveVariant($variant);
-                                    }
+            // Remove all existing categories
+            Craft::$app->getDb()->createCommand()->delete('{{%commerce_producttypes_shippingcategories}}', 'productTypeId = :xid', [':xid' => $productType->id]);
+            Craft::$app->getDb()->createCommand()->delete('{{%commerce_producttypes_taxcategories}}', 'productTypeId = :xid', [':xid' => $productType->id]);
+
+            // Add back the new categories
+            foreach ($productType->getShippingCategories() as $shippingCategory) {
+                $data = ['productTypeId' => $productType->id, 'shippingCategoryId' => $shippingCategory->id];
+                Craft::$app->getDb()->createCommand()->insert('{{%commerce_producttypes_shippingcategories}}', $data);
+            }
+
+            foreach ($productType->getTaxCategories() as $taxCategory) {
+                $data = ['productTypeId' => $productType->id, 'taxCategoryId' => $taxCategory->id];
+                Craft::$app->getDb()->createCommand()->insert('{{%commerce_producttypes_taxcategories}}', $data);
+            }
+
+            // Update all products that used the removed tax & shipping categories
+            if (!$isNewProductType) {
+                // Grab the new categories
+                $newShippingCategories = $productType->getShippingCategories();
+                $newTaxCategories = $productType->getTaxCategories();
+
+                // Were any categories removed?
+                $removedShippingCategoryIds = array_diff(array_keys($oldShippingCategories), array_keys($newShippingCategories));
+                $removedTaxCategoryIds = array_diff(array_keys($oldTaxCategories), array_keys($newTaxCategories));
+
+                // Update all products that used the removed product type shipping categories
+                if ($removedShippingCategoryIds) {
+                    $defaultShippingCategory = array_values($newShippingCategories)[0];
+                    if ($defaultShippingCategory) {
+                        $data = ['shippingCategoryId' => $defaultShippingCategory->id];
+                        ProductRecord::updateAll($data, [
+                            'shippingCategoryId' => $removedShippingCategoryIds,
+                            'typeId' => $productType->id
+                        ]);
+                    }
+                }
+
+                // Update all products that used the removed product type tax categories
+                if ($removedTaxCategoryIds) {
+                    $defaultTaxCategory = array_values($newTaxCategories)[0];
+                    if ($defaultTaxCategory) {
+                        $data = ['taxCategoryId' => $defaultTaxCategory->id];
+                        ProductRecord::updateAll($data, [
+                            'taxCategoryId' => $removedTaxCategoryIds,
+                            'typeId' => $productType->id
+                        ]);
+                    }
+                }
+            }
+
+
+            // Update the site settings
+            // -----------------------------------------------------------------
+
+            $sitesNowWithoutUrls = [];
+            $sitesWithNewUriFormats = [];
+
+            if (!$isNewProductType) {
+                // Get the old product type site settings
+                $allOldSiteSettingsRecords = ProductTypeSiteRecord::find()
+                    ->where(['productTypeId' => $productType->id])
+                    ->indexBy('siteId')
+                    ->all();
+            }
+
+            foreach ($allSiteSettings as $siteId => $siteSettings) {
+                // Was this already selected?
+                if (!$isNewProductType && isset($allOldSiteSettingsRecords[$siteId])) {
+                    $siteSettingsRecord = $allOldSiteSettingsRecords[$siteId];
+                } else {
+                    $siteSettingsRecord = new ProductTypeSiteRecord();
+                    $siteSettingsRecord->productTypeId = $productType->id;
+                    $siteSettingsRecord->siteId = $siteId;
+                }
+
+                $siteSettingsRecord->hasUrls = $siteSettings->hasUrls;
+                $siteSettingsRecord->urlFormat = $siteSettings->urlFormat;
+                $siteSettingsRecord->template = $siteSettings->template;
+
+                if (!$siteSettingsRecord->getIsNewRecord()) {
+                    // Did it used to have URLs, but not anymore?
+                    if ($siteSettingsRecord->isAttributeChanged('hasUrls', false) && !$siteSettings->hasUrls) {
+                        $sitesNowWithoutUrls[] = $siteId;
+                    }
+
+                    // Does it have URLs, and has its URI format changed?
+                    if ($siteSettings->hasUrls && $siteSettingsRecord->isAttributeChanged('urlFormat', false)) {
+                        $sitesWithNewUriFormats[] = $siteId;
+                    }
+                }
+
+                $siteSettingsRecord->save(false);
+
+                // Set the ID on the model
+                $siteSettings->id = $siteSettingsRecord->id;
+            }
+
+            if (!$isNewProductType) {
+                // Drop any site settings that are no longer being used, as well as the associated product/element
+                // site rows
+                $siteIds = array_keys($allSiteSettings);
+
+                /** @noinspection PhpUndefinedVariableInspection */
+                foreach ($allOldSiteSettingsRecords as $siteId => $siteSettingsRecord) {
+                    if (!in_array($siteId, $siteIds, false)) {
+                        $siteSettingsRecord->delete();
+                    }
+                }
+            }
+
+            // Finally, deal with the existing products...
+            // -----------------------------------------------------------------
+
+            if (!$isNewProductType) {
+                // Get all of the product IDs in this group
+                $productTypeIds = Product::find()
+                    ->typeId($productType->id)
+                    ->status(null)
+                    ->limit(null)
+                    ->ids();
+
+                // Are there any sites left?
+                if (!empty($allSiteSettings)) {
+                    // Drop the old product URIs for any site settings that don't have URLs
+                    if (!empty($sitesNowWithoutUrls)) {
+                        $db->createCommand()
+                            ->update(
+                                '{{%elements_i18n}}',
+                                ['uri' => null],
+                                [
+                                    'elementId' => $productTypeIds,
+                                    'siteId' => $sitesNowWithoutUrls,
+                                ])
+                            ->execute();
+                    } else if (!empty($sitesWithNewUriFormats)) {
+                        foreach ($productTypeIds as $productTypeId) {
+                            App::maxPowerCaptain();
+
+                            // Loop through each of the changed sites and update all of the products’ slugs and
+                            // URIs
+                            foreach ($sitesWithNewUriFormats as $siteId) {
+                                $product = Product::find()
+                                    ->id($productTypeId)
+                                    ->siteId($siteId)
+                                    ->status(null)
+                                    ->one();
+
+                                if ($product) {
+                                    Craft::$app->getElements()->updateElementSlugAndUri($product, false, false);
                                 }
                             }
                         }
                     }
                 }
-
-                // Save the new one
-                $fieldLayout = $productType->getProductFieldLayout();
-                Craft::$app->getFields()->saveLayout($fieldLayout);
-
-                $productType->fieldLayoutId = $fieldLayout->id;
-                $productTypeRecord->fieldLayoutId = $fieldLayout->id;
-
-                // Save the new one
-                $variantFieldLayout = $productType->getVariantFieldLayout();
-                Craft::$app->getFields()->saveLayout($variantFieldLayout);
-
-                $productType->variantFieldLayoutId = $variantFieldLayout->id;
-                $productTypeRecord->variantFieldLayoutId = $variantFieldLayout->id;
-
-                // Save it!
-                $productTypeRecord->save(false);
-
-                // Now that we have a product type ID, save it on the model
-                if (!$productType->id) {
-                    $productType->id = $productTypeRecord->id;
-                }
-
-                // Update the service level cache
-                $this->_productTypesById[$productType->id] = $productType;
-
-
-                // Have any of the product type categories changed?
-                if (!$isNewProductType) {
-                    // Get all previous categories
-                    $oldShippingCategories = $oldProductType->getShippingCategories();
-                    $oldTaxCategories = $oldProductType->getTaxCategories();
-                }
-
-                // Remove all existing categories
-                $db->createCommand()->delete('{{%commerce_producttypes_shippingcategories}}', 'productTypeId = :xid', [':xid' => $productType->id]);
-                $db->createCommand()->delete('{{%commerce_producttypes_taxcategories}}', 'productTypeId = :xid', [':xid' => $productType->id]);
-
-                // Add back the new categories
-                foreach ($productType->getShippingCategories() as $category) {
-                    $data = ['productTypeId' => $productType->id, 'shippingCategoryId' => $category->id];
-                    $db->createCommand()->insert('{{%commerce_producttypes_shippingcategories}}', $data);
-                }
-
-                foreach ($productType->getTaxCategories() as $category) {
-                    $data = ['productTypeId' => $productType->id, 'taxCategoryId' => $category->id];
-                    $db->createCommand()->insert('{{%commerce_producttypes_taxcategories}}', $data);
-                }
-
-                // Update all products that used the removed tax & shipping categories
-                if (!$isNewProductType) {
-                    // Grab the new categories
-                    $newShippingCategories = $productType->getShippingCategories();
-                    $newTaxCategories = $productType->getTaxCategories();
-
-                    // Were any categories removed?
-                    $removedShippingCategoryIds = array_diff(array_keys($oldShippingCategories), array_keys($newShippingCategories));
-                    $removedTaxCategoryIds = array_diff(array_keys($oldTaxCategories), array_keys($newTaxCategories));
-
-                    // Update all products that used the removed product type shipping categories
-                    if ($removedShippingCategoryIds) {
-                        $defaultShippingCategory = array_values($newShippingCategories)[0];
-                        if ($defaultShippingCategory) {
-                            $data = ['shippingCategoryId' => $defaultShippingCategory->id];
-                            ProductRecord::updateAll($data, [
-                                'shippingCategoryId' => $removedShippingCategoryIds,
-                                'typeId' => $productType->id
-                            ]);
-                        }
-                    }
-
-                    // Update all products that used the removed product type tax categories
-                    if ($removedTaxCategoryIds) {
-                        $defaultTaxCategory = array_values($newTaxCategories)[0];
-                        if ($defaultTaxCategory) {
-                            $data = ['taxCategoryId' => $defaultTaxCategory->id];
-                            ProductRecord::updateAll($data, [
-                                'taxCategoryId' => $removedTaxCategoryIds,
-                                'typeId' => $productType->id
-                            ]);
-                        }
-                    }
-                }
-
-                $newSiteData = [];
-
-                //Refresh all titles for variants of same product type if titleFormat changed.
-                if ($productType->hasVariants && !$productType->hasVariantTitleField) {
-                    if ($titleFormatChanged) {
-                        $criteria = Product::find();
-                        $criteria->typeId = $productType->id;
-                        $products = $criteria->all();
-                        foreach ($products as $product) {
-                            foreach ($product->getVariants() as $variant) {
-                                $title = Craft::$app->getView()->renderObjectTemplate($productType->titleFormat, $variant);
-                                // updates to the same title in all sites
-                                $db->createCommand()->update('content',
-                                    ['title' => $title],
-                                    ['elementId' => $variant->id]
-                                )->execute();
-                            }
-                        }
-                    }
-                }
-
-                if (!$isNewProductType) {
-                    $oldSites = [];
-                    $sites = $this->getProductTypeSites($productType->id);
-                    $changedSiteIds = [];
-
-                    // re-index by site id.
-                    foreach ($sites as $site) {
-                        $oldSites[$site->siteId] = $site;
-                    }
-                }
-
-                foreach ($productTypeSites as $site) {
-                    // Was this already selected?
-                    if (!$isNewProductType && isset($oldSites[$site->siteId])) {
-                        $oldSite = $oldSites[$site->siteId];
-
-                        // Has the URL format changed?
-                        if ($site->urlFormat != $oldSite->urlFormat) {
-                            $db->createCommand()->update('{{%commerce_producttypes_i18n}}', ['urlFormat' => $site->urlFormat], ['id' => $oldSite->id])->execute();
-
-                            $changedSiteIds[] = $site->siteId;
-                        }
-                    } else {
-                        $newSiteData[] = [$productType->id, $site->siteId, $site->urlFormat];
-                    }
-                }
-
-                // Insert the new sites
-                $db->createCommand()->batchInsert('{{%commerce_producttypes_i18n}}', ['productTypeId', 'siteId', 'urlFormat'], $newSiteData)->execute();
-
-                if (!$isNewProductType) {
-                    // Drop any sites that are no longer being used, as well as the associated element
-                    // site rows
-
-                    $droppedSiteIds = array_diff(array_keys($oldSites), array_keys($productTypeSites));
-
-                    if ($droppedSiteIds) {
-                        $db->createCommand()->delete('{{%commerce_producttypes_i18n}}', ['in', 'siteId', $droppedSiteIds]);
-                    }
-                }
-
-
-                if (!$isNewProductType) {
-                    // Get all of the product IDs in this group
-                    $criteria = Product::find();
-                    $criteria->typeId = $productType->id;
-                    $criteria->status = null;
-                    $criteria->limit = null;
-                    $productIds = $criteria->ids();
-
-                    // Should we be deleting
-                    if ($productIds && $droppedSiteIds) {
-                        $db->createCommand()->delete('{{%elements_i18n}}', ['and', ['in', 'elementId', $productIds], ['in', 'site', $droppedSiteIds]]);
-                        $db->createCommand()->delete('{{%content}}', ['and', ['in', 'elementId', $productIds], ['in', 'site', $droppedSiteIds]]);
-                    }
-                    // Are there any sites left?
-                    if ($productTypeSites) {
-                        // Drop the old productType URIs if the product type no longer has URLs
-                        if (!$productType->hasUrls && $oldProductType->hasUrls) {
-                            $db->createCommand()->update('{{%elements_i18n}}', ['uri' => null], ['in', 'elementId', $productIds])->execute();
-                        } else if ($changedSiteIds) {
-                            foreach ($productIds as $productId) {
-                                App::maxPowerCaptain();
-
-                                // Loop through each of the changed sites and update all of the products’ slugs and
-                                // URIs
-                                foreach ($changedSiteIds as $siteId) {
-                                    $criteria = Product::find();
-                                    $criteria->id = $productId;
-                                    $criteria->siteId = $siteId;
-                                    $criteria->status = null;
-                                    $updateProduct = $criteria->one();
-
-                                    // @todo replace the getContent()->id check with 'strictSite' param once it's added
-                                    if ($updateProduct && $updateProduct->id) {
-                                        Craft::$app->getElements()->updateElementSlugAndUri($updateProduct, false, false);
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    if (!$isNewProductType) {
-
-                        // Get the most-primary site that this section was already enabled in
-                        $site = Craft::$app->getSites()->getPrimarySite();
-
-                        if ($site) {
-                            Craft::$app->getTasks()->queueTask([
-                                'type' => ResaveElements::class,
-                                'description' => Craft::t('app', 'Resaving {productType} products', ['productType' => $productType->name]),
-                                'elementType' => Product::class,
-                                'criteria' => [
-                                    'siteId' => $site->id,
-                                    'typeId' => $productType->id,
-                                    'status' => null,
-                                    'enabledForSite' => false,
-                                    'limit' => null,
-                                ]
-                            ]);
-                        }
-                    }
-                }
-
-                $transaction->commit();
-            } catch (\Exception $e) {
-                $transaction->rollBack();
-
-                throw $e;
             }
 
-            return true;
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+
+            throw $e;
         }
 
-        return false;
+        // Fire an 'afterSaveGroup' event
+        $this->trigger(self::EVENT_AFTER_SAVE_PRODUCTTYPE, new ProductTypeEvent([
+            'productType' => $productType,
+            'isNew' => $isNewProductType,
+        ]));
+
+        return true;
     }
 
     /**
@@ -601,12 +605,11 @@ class ProductTypes extends Component
             $fieldLayoutId = $productType->getProductFieldLayout()->id;
             Craft::$app->getFields()->deleteLayoutById($fieldLayoutId);
             if ($productType->hasVariants) {
-                Craft::$app->getFields()->deleteLayoutById($productType->getVariantFieldLayout()->id);
+                Craft::$app->getFields()->deleteLayoutById($productType->getVariantFieldLayout());
             }
 
-            $affectedRows = $db->createCommand()
-                ->delete('{{%commerce_producttypes}}', ['id' => $productType->id])
-                ->execute();
+            $productTypeRecord = ProductType::findOne($productType->id);
+            $affectedRows = $productTypeRecord->delete();
 
             if ($affectedRows) {
                 $transaction->commit();
@@ -656,7 +659,7 @@ class ProductTypes extends Component
      *
      * @return bool
      */
-    public function isProductTypeTemplateValid(ProductType $productType)
+    public function isProductTypeTemplateValid(ProductType $productType): bool
     {
         if ($productType->hasUrls) {
             // Set Craft to the site template mode
@@ -678,31 +681,37 @@ class ProductTypes extends Component
         return false;
     }
 
-    /**
-     * @param SiteEvent $event
-     *
-     * @return bool
-     */
-    public function addSiteHandler(SiteEvent $event)
+
+    public function addSiteHandler(SiteEvent $event): bool
     {
-        /** @var Order $order */
-        $site = $event->site;
 
-        // Add this site to each of the category groups
-        $productTypeSites = (new Query())
-            ->select('productTypeId, urlFormat')
-            ->from('commerce_producttypes_i18n')
-            ->where('siteId = :site', [':site' => Craft::$app->getSites()->getPrimarySite()->id])
-            ->all();
+        if ($event->isNew) {
+            $allSiteSettings = (new Query())
+                ->select(['productTypeId', 'urlFormat', 'template', 'hasUrls'])
+                ->from(['{{%commerce_producttypes_i18n}}'])
+                ->where(['siteId' => Craft::$app->getSites()->getPrimarySite()->id])
+                ->all();
 
-        if ($productTypeSites) {
-            $newProductTypeSites = [];
+            if (!empty($allSiteSettings)) {
+                $newSiteSettings = [];
 
-            foreach ($productTypeSites as $productTypeSite) {
-                $newProductTypeSites[] = [$productTypeSite['productTypeId'], $site->id, $productTypeSite['urlFormat']];
+                foreach ($allSiteSettings as $siteSettings) {
+                    $newSiteSettings[] = [
+                        $siteSettings['productTypeId'],
+                        $event->site->id,
+                        $siteSettings['urlFormat'],
+                        $siteSettings['template'],
+                        $siteSettings['hasUrls']
+                    ];
+                }
+
+                Craft::$app->getDb()->createCommand()
+                    ->batchInsert(
+                        '{{%commerce_producttypes_i18n}}',
+                        ['productTypeId', 'siteId', 'urlFormat', 'template', 'hasUrls'],
+                        $newSiteSettings)
+                    ->execute();
             }
-
-            Craft::$app->getDb()->createCommand()->batchInsert('{{%commerce_producttypes_i18n}}', ['productTypeId', 'site', 'urlFormat'], $newProductTypeSites)->execute();
         }
 
         return true;

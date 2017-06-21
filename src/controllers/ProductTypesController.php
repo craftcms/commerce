@@ -81,6 +81,7 @@ class ProductTypesController extends BaseAdminController
             throw new HttpException(403, Craft::t('commerce', 'This action is not allowed for the current user.'));
         }
 
+        $request = Craft::$app->getRequest();
         $this->requirePostRequest();
 
         $productType = new ProductType();
@@ -90,24 +91,36 @@ class ProductTypesController extends BaseAdminController
         $productType->name = Craft::$app->getRequest()->getParam('name');
         $productType->handle = Craft::$app->getRequest()->getParam('handle');
         $productType->hasDimensions = Craft::$app->getRequest()->getParam('hasDimensions');
-        $productType->hasUrls = Craft::$app->getRequest()->getParam('hasUrls');
         $productType->hasVariants = Craft::$app->getRequest()->getParam('hasVariants');
         $productType->hasVariantTitleField = $productType->hasVariants ? Craft::$app->getRequest()->getParam('hasVariantTitleField') : false;
-        $productType->template = Craft::$app->getRequest()->getParam('template');
         $productType->titleFormat = Craft::$app->getRequest()->getParam('titleFormat');
         $productType->skuFormat = Craft::$app->getRequest()->getParam('skuFormat');
         $productType->descriptionFormat = Craft::$app->getRequest()->getParam('descriptionFormat');
 
-        $sites = [];
 
-        foreach (Craft::$app->getSites()->getAllSiteIds() as $siteId) {
-            $sites[$siteId] = new ProductTypeSite([
-                'siteId' => $siteId,
-                'urlFormat' => Craft::$app->getRequest()->getParam('urlFormat.'.$siteId)
-            ]);
+        // Site-specific settings
+        $allSiteSettings = [];
+
+        foreach (Craft::$app->getSites()->getAllSites() as $site) {
+            $postedSettings = $request->getBodyParam('sites.'.$site->handle);
+
+            $siteSettings = new ProductTypeSite();
+            $siteSettings->siteId = $site->id;
+            $siteSettings->hasUrls = !empty($postedSettings['urlFormat']);
+
+            if ($siteSettings->hasUrls) {
+                $siteSettings->urlFormat = $postedSettings['urlFormat'];
+                $siteSettings->template = $postedSettings['template'];
+            } else {
+                $siteSettings->urlFormat = null;
+                $siteSettings->template = null;
+            }
+
+            $allSiteSettings[$site->id] = $siteSettings;
         }
 
-        $productType->setSites($sites);
+        $productType->setSiteSettings($allSiteSettings);
+
 
         $productType->setTaxCategories(Craft::$app->getRequest()->getParam('taxCategories'));
         $productType->setShippingCategories(Craft::$app->getRequest()->getParam('shippingCategories'));
@@ -145,6 +158,6 @@ class ProductTypesController extends BaseAdminController
         $productTypeId = Craft::$app->getRequest()->getRequiredParam('id');
 
         Plugin::getInstance()->getProductTypes()->deleteProductTypeById($productTypeId);
-        return $this->asJson(['success' => true]);
+        $this->asJson(['success' => true]);
     }
 }

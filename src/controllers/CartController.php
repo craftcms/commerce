@@ -35,7 +35,7 @@ class CartController extends BaseFrontEndController
         $qty = Craft::$app->getRequest()->getParam('qty', 0);
         $note = Craft::$app->getRequest()->getParam('note');
 
-        $cart->setContentFromPost('fields');
+        $cart->setFieldValuesFromRequest('fields');
 
         $lineItem = null;
         foreach ($cart->getLineItems() as $item) {
@@ -93,7 +93,7 @@ class CartController extends BaseFrontEndController
         $lineItemId = Craft::$app->getRequest()->getParam('lineItemId');
         $cart = Plugin::getInstance()->getCart()->getCart();
 
-        $cart->setContentFromPost('fields');
+        $cart->setFieldValuesFromRequest('fields');
 
         if (Plugin::getInstance()->getCart()->removeFromCart($cart, $lineItemId)) {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
@@ -119,7 +119,7 @@ class CartController extends BaseFrontEndController
 
         $cart = Plugin::getInstance()->getCart()->getCart();
 
-        $cart->setContentFromPost('fields');
+        $cart->setFieldValuesFromRequest('fields');
 
         Plugin::getInstance()->getCart()->clearCart($cart);
         if (Craft::$app->getRequest()->getAcceptsJson()) {
@@ -140,7 +140,7 @@ class CartController extends BaseFrontEndController
 
         $cart = Plugin::getInstance()->getCart()->getCart();
 
-        $cart->setContentFromPost('fields');
+        $cart->setFieldValuesFromRequest('fields');
 
         $cartSaved = false;
 

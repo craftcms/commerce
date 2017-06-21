@@ -3,6 +3,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\base\ElementInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
@@ -39,11 +40,11 @@ class Variants extends Component
      * @param int    $variantId The variant’s ID.
      * @param string $siteId  The locale to fetch the variant in. Defaults to {@link WebApp::language `craft()->language`}.
      *
-     * @return Variant
+     * @return ElementInterface|null
      */
     public function getVariantById($variantId, $siteId = null)
     {
-        return Craft::$app->getElements()->getElementById($variantId, 'Commerce_Variant', $siteId);
+        return Craft::$app->getElements()->getElementById($variantId, Variant::class, $siteId);
     }
 
     /**
@@ -71,40 +72,13 @@ class Variants extends Component
         return $variants;
     }
 
-    /**
-     * @param int $productId
-     */
-    public function deleteAllVariantsByProductId($productId)
-    {
-        $variants = $this->getAllVariantsByProductId($productId);
-
-        foreach ($variants as $variant) {
-            $this->deleteVariant($variant);
-        }
-    }
-
-    /**
-     * @param $variant
-     */
-    public function deleteVariant($variant)
-    {
-        $this->deleteVariantById($variant->id);
-    }
-
-    /**
-     * @param int $id
-     */
-    public function deleteVariantById($id)
-    {
-        Craft::$app->getElements()->deleteElementById($id);
-    }
 
     /**
      * @param Variant $variant
      *
      * @return bool
      */
-    public function validateVariant(Variant $variant)
+    public function validateVariant(Variant $variant): bool
     {
         $variant->clearErrors();
 
@@ -115,7 +89,7 @@ class Variants extends Component
         $variant->addErrors($record->getErrors());
 
         if (!craft()->content->validateContent($variant)) {
-            $variant->addErrors($variant->getContent()->getErrors());
+            $variant->addErrors($variant->getC());
         }
 
         // If variant validation has not already found a clash check all purchasables
