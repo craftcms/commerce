@@ -2,8 +2,10 @@
 
 namespace craft\commerce\services;
 
+use Craft;
 use craft\commerce\models\Country;
 use craft\commerce\records\Country as CountryRecord;
+use craft\db\Query;
 use craft\helpers\ArrayHelper;
 use yii\base\Component;
 use yii\base\Exception;
@@ -21,35 +23,26 @@ use yii\base\Exception;
 class Countries extends Component
 {
     /**
+     * @var Country[]
+     */
+    private $_countriesById = [];
+
+    /**
      * @param int $id
      *
      * @return Country|null
      */
     public function getCountryById($id)
     {
-        $result = CountryRecord::findOne($id);
+        if (!isset($this->_countriesById[$id])) {
+            $row = $this->_createCountryQuery()
+                ->where(['id' => $id])
+                ->one();
 
-        if ($result) {
-            return $this->_createCountryFromCountryRecord($result);
+            $this->_countriesById[$id] = $row ? new Country($row) : null;
         }
 
-        return null;
-    }
-
-    /**
-     * @param array $attr
-     *
-     * @return Country|null
-     */
-    public function getCountryByAttributes(array $attr)
-    {
-        $result = CountryRecord::find()->where($attr)->one();
-
-        if ($result) {
-            return $this->_createCountryFromCountryRecord($result);
-        }
-
-        return null;
+        return $this->_countriesById[$id];
     }
 
     /**
@@ -69,11 +62,17 @@ class Countries extends Component
      */
     public function getAllCountries(): array
     {
-        $records = CountryRecord::find()->orderBy('name')->all();
+        $results = $this->_createCountryQuery()
+            ->all();
 
-        return ArrayHelper::map($records, 'id', function($record){
-           return $this->_createCountryFromCountryRecord($record);
-        });
+        $countries = [];
+
+        foreach ($results as $result) {
+            $country = new Country($result);
+            $countries[$country->id] = $country;
+        }
+
+        return $countries;
     }
 
     /**
@@ -120,33 +119,30 @@ class Countries extends Component
      */
     public function deleteCountryById($id)
     {
-        $country = CountryRecord::findOne($id);
-        if ($country) {
-            $country->delete();
-        }
+        // Nuke the asset volume.
+        Craft::$app->getDb()->createCommand()
+            ->delete('{{%commerce_countries}}', ['id' => $id])
+            ->execute();
     }
 
-    // Private Methods
+
+    // Private methods
     // =========================================================================
-
     /**
-     * Creates a Country with attributes from a CountryRecord.
+     * Returns a Query object prepped for retrieving Countries.
      *
-     * @param CountryRecord|null $record
-     *
-     * @return Country|null
-     */
-    private function _createCountryFromCountryRecord(CountryRecord $record = null)
+     * @return Query
+     */    private function _createCountryQuery(): Query
     {
-        if (!$record) {
-            return null;
-        }
 
-        return new Country($record->toArray([
-            'id',
-            'name',
-            'iso',
-            'stateRequired'
-        ]));
+        return (new Query())
+            ->select([
+                'countries.id',
+                'countries.name',
+                'countries.iso',
+                'countries.stateRequired'
+            ])
+            ->from(['{{%commerce_countries}} countries'])
+            ->orderBy(['name' => SORT_ASC]);
     }
 }

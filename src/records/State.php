@@ -34,16 +34,6 @@ class State extends ActiveRecord
     }
 
     /**
-     * @return array
-     */
-//    public function defineIndexes()
-//    {
-//        return [
-//            ['columns' => ['name', 'countryId'], 'unique' => true],
-//        ];
-//    }
-
-    /**
      * Returns the address's state
      *
      * @return ActiveQueryInterface The relational query object.
@@ -52,32 +42,4 @@ class State extends ActiveRecord
     {
         return $this->hasOne(Country::class, ['id' => 'countryId']);
     }
-
-//    /**
-//     * @return array
-//     */
-//    public function defineRelations()
-//    {
-//        return [
-//            'country' => [
-//                static::BELONGS_TO,
-//                'Country',
-//                'onDelete' => self::CASCADE,
-//                'onUpdate' => self::CASCADE,
-//                'required' => true
-//            ],
-//        ];
-//    }
-//
-//    /**
-//     * @return array
-//     */
-//    protected function defineAttributes()
-//    {
-//        return [
-//            'name' => [AttributeType::String, 'required' => true],
-//            'abbreviation' => AttributeType::String,
-//            'countryId' => [AttributeType::Number, 'required' => true],
-//        ];
-//    }
 }

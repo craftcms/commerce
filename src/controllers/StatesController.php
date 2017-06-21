@@ -110,7 +110,7 @@ class StatesController extends BaseAdminController
         $id = Craft::$app->getRequest()->getRequiredParam('id');
 
         Plugin::getInstance()->getStates()->deleteStateById($id);
-        $this->asJson(['success' => true]);
+        return $this->asJson(['success' => true]);
     }
 
 }

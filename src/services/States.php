@@ -2,9 +2,10 @@
 
 namespace craft\commerce\services;
 
+use Craft;
 use craft\commerce\models\State;
-use craft\commerce\Plugin;
 use craft\commerce\records\State as StateRecord;
+use craft\db\Query;
 use yii\base\Component;
 
 /**
@@ -19,6 +20,12 @@ use yii\base\Component;
  */
 class States extends Component
 {
+
+    /**
+     * @var State[]
+     */
+    private $_statesById = [];
+
     /**
      * @param int $id
      *
@@ -26,29 +33,15 @@ class States extends Component
      */
     public function getStateById($id)
     {
-        $result = StateRecord::findOne($id);
+        if (!isset($this->_statesById[$id])) {
+            $row = $this->_createStatesQuery()
+                ->where(['id' => $id])
+                ->one();
 
-        if ($result) {
-            return new State($result);
+            $this->_statesById[$id] = $row ? new State($row) : null;
         }
 
-        return null;
-    }
-
-    /**
-     * @param array $attr
-     *
-     * @return State|null
-     */
-    public function getStateByAttributes(array $attr)
-    {
-        $result = StateRecord::find()->where($attr)->all();
-
-        if ($result) {
-            return new State($result);
-        }
-
-        return null;
+        return $this->_statesById[$id];
     }
 
     /**
@@ -56,7 +49,7 @@ class States extends Component
      */
     public function getStatesGroupedByCountries()
     {
-        $states = Plugin::getInstance()->getStates()->getAllStates();
+        $states = $this->getAllStates();
         $cid2state = [];
 
         foreach ($states as $state) {
@@ -78,9 +71,12 @@ class States extends Component
      */
     public function getAllStates(): array
     {
-        $records = StateRecord::find()->with('country')->alias('s')->orderBy('country.name, s.name')->all();
+        $states = $this->_createStatesQuery()
+            ->innerJoin('{{%commerce_countries}} countries', '[[states.countryId]] = [[countries.id]]')
+            ->orderBy(['countries.name' => SORT_ASC, 'states.name' => SORT_ASC])
+            ->all();
 
-        return State::populateModels($records);
+        return State::populateModels($states);
     }
 
     /**
@@ -131,7 +127,29 @@ class States extends Component
      */
     public function deleteStateById($id)
     {
-        $State = StateRecord::findOne($id);
-        $State->delete();
+        // Nuke the asset volume.
+        Craft::$app->getDb()->createCommand()
+            ->delete('{{%commerce_states}}', ['id' => $id])
+            ->execute();
+    }
+
+    // Private methods
+    // =========================================================================
+    /**
+     * Returns a Query object prepped for retrieving States.
+     *
+     * @return Query
+     */
+    private function _createStatesQuery(): Query
+    {
+        return (new Query())
+            ->select([
+                'states.id',
+                'states.name',
+                'states.abbreviation',
+                'states.countryId'
+            ])
+            ->from(['{{%commerce_states}} states'])
+            ->orderBy(['name' => SORT_ASC]);
     }
 }

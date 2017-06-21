@@ -3,6 +3,7 @@
 namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
+use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
 
 /**

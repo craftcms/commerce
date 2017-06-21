@@ -24,3 +24,7 @@
 - To register new gateway adapters, use the `registerGatewayAdapters` event fired by `craft\commerce\services\Gateways`.
 - To register new shipping methods adapters, use the `registerShippingMethods` event fired by `craft\commerce\services\ShippingMethods`.
 - The `commerce_modifyOrderSources`, `commerce_getOrderTableAttributeHtml`, `commerce_getProductTableAttributeHtml`, `commerce_defineAdditionalOrderTableAttributes`, `commerce_defineAdditionalProductTableAttributes` hooks have been replaced by more generic Craft 3 hooks.
+
+### Removed
+- Removed `craft\commerce\services\Countries::getCountryByAttributes()`
+- Removed `craft\commerce\services\States::getStatesByAttributes()`
