@@ -200,7 +200,8 @@ class ProductTypes extends Component
                 'id',
                 'productTypeId',
                 'siteId',
-                'urlFormat'
+                'urlFormat',
+                'template'
             ]));
         });
     }
