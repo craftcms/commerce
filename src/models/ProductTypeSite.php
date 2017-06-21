@@ -34,10 +34,9 @@ class ProductTypeSite extends Model
     public $productTypeId;
 
     /**
-     * @var string Locale
+     * @var id Site ID
      */
     public $siteId;
-
 
     /**
      * @var bool Has Urls
