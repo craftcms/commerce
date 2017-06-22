@@ -14,12 +14,6 @@
             "Commerce\\": "commerce/Commerce"
         }
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/lukeholder/omnipay-worldpay"
-        }
-    ],
     "require": {
         "omnipay/2checkout" :  "~2.1",
         "omnipay/authorizenet" :  "~2.4",
@@ -46,7 +40,7 @@
         "omnipay/securepay" : "~2.1",
         "omnipay/stripe" :  "~2.4",
         "omnipay/targetpay" :  "~2.2",
-        "omnipay/worldpay" :  "*",
+        "omnipay/worldpay" :  "~2.2",
         "dompdf/dompdf" : "~0.8",
         "snowcap/vat-validation": "dev-master#21e7d996bd30dc680244d59d0fa18be3671e68ee",
         "php-units-of-measure/php-units-of-measure": "~2.1"
