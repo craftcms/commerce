@@ -3,8 +3,7 @@ Commerce Changelog
 
 ## Unreleased
 
-###
-
+### Added
 - Added the [`makePercentageOffDiscountsIncremental`](https://craftcommerce.com/docs/configuration) config setting.
 - Added `itemSubtotal` to the cart’s json ajax response.
 
