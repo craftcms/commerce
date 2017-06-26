@@ -10,11 +10,18 @@ Commerce Changelog
 
 
 ### Fixed
-- Fixed a bug that allowed a discount with a 'per email address limit' condition to be used beyond it's limit if the coupon supplied was in a different case.
+- Fixed a bug that allowed a discount with a 'per email address limit' condition to match the cart more that the limit, due to a bad case-sensitive check.
 - Fixed a PHP error that occured when viewing a cart in the control panel with no payment methods created.
 - Fixed a bug where discounts that were based on a 'user group' condition were not being removed when the cart recalculated after a login/logout.
-- Fixed a bug where the `variant.salePrice` was only rounded when sales were applied.
+- Fixed a bug where the `variant.salePrice` was only rounded when more than zero sales were applied to the variant.
 - Fixed a bug where special characters in Tax and Shipping Category names would break some dropdown selection form controls within the control panel.
+- Fixed a incorrect validation error that occured when saving two shipping rules with the same name.
+
+## Changed
+- Updated the Omnipay Stripe driver to 2.4.6.
+- Updated the Omnipay Payment Express driver to 2.2.1.
+- Updated the Omnipay MultiSafePay driver to 2.3.6.
+- Updated the Omnipay Worldpay driver to 2.2.1.
 
 ## 1.2.1343 - 2017-06-09
 
@@ -25,11 +32,8 @@ Commerce Changelog
 - Added the [`commerce_transactions.onCreateTransaction`](https://craftcommerce.com/docs/events-reference#commerce_transactions.oncreatetransaction) event, which enables plugins to modify a newly-created transaction model.
 
 ### Changed
-- Updated the Omnipay Buckeroo driver to 2.2.
-- Updated the Omnipay Stripe driver to 2.4.6.
-- Updated the Omnipay Payment Express driver to 2.2.1.
-- Updated the Omnipay MultiSafePay driver to 2.3.6.
-- Updated the Omnipay Worldpay driver to 2.2.1.
+- Updated the Buckeroo driver to 2.2.
+- Updated the Stripe driver to 2.4.5.
 - Enabled the Buckeroo Credit Card Gateway within the Buckeroo Omnipay driver.
 
 ## 1.2.1342 - 2017-05-24
