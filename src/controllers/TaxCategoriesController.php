@@ -119,9 +119,9 @@ class TaxCategoriesController extends BaseAdminController
         $id = Craft::$app->getRequest()->getRequiredParam('id');
 
         if (Plugin::getInstance()->getTaxCategories()->deleteTaxCategoryById($id)) {
-            $this->asJson(['success' => true]);
+            return $this->asJson(['success' => true]);
         } else {
-            $this->asErrorJson(Craft::t('commerce', 'Could not delete tax category'));
+            return $this->asErrorJson(Craft::t('commerce', 'Could not delete tax category'));
         }
     }
 
