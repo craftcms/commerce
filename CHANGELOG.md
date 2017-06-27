@@ -4,23 +4,22 @@ Commerce Changelog
 ## Unreleased
 
 ### Added
-- Added the [`makePercentageOffDiscountsIncremental`](https://craftcommerce.com/docs/configuration) config setting.
-- Added `itemSubtotal` to the cart’s json ajax response.
-
-
-### Fixed
-- Fixed a bug that allowed a discount with a 'per email address limit' condition to match the cart more that the limit, due to a bad case-sensitive check.
-- Fixed a PHP error that occured when viewing a cart in the control panel with no payment methods created.
-- Fixed a bug where discounts that were based on a 'user group' condition were not being removed when the cart recalculated after a login/logout.
-- Fixed a bug where the `variant.salePrice` was only rounded when more than zero sales were applied to the variant.
-- Fixed a bug where special characters in Tax and Shipping Category names would break some dropdown selection form controls within the control panel.
-- Fixed a incorrect validation error that occured when saving two shipping rules with the same name.
+- Percentage-based discounts now have the option to be applied to the item’s original price or its discounted price (if other discounts were already applied).
 
 ## Changed
+- Ajax requests to `commerce/cart/*` actions will now get a `itemSubtotal` key in the response JSON. 
 - Updated the Omnipay Stripe driver to 2.4.6.
 - Updated the Omnipay Payment Express driver to 2.2.1.
 - Updated the Omnipay MultiSafePay driver to 2.3.6.
 - Updated the Omnipay Worldpay driver to 2.2.1.
+
+### Fixed
+- Fixed a bug where email address limits on discounts were able to by circumvented if the customer changed the casing of their email address.
+- Fixed a PHP error that occurred when viewing a cart in the Control Panel if no payment methods had been created yet.
+- Fixed a bug where discounts based on user group were not being added/removed after the user logged in/out.
+- Fixed a bug where variants’ sale prices were only getting rounded when at least one sale was applied.
+- Fixed a bug where special characters in Tax and Shipping Category names could break some form inputs in the Control Panel.
+- Fixed a validation error that occurred when saving two shipping rules with the same name.
 
 ## 1.2.1343 - 2017-06-09
 
