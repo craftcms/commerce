@@ -111,7 +111,7 @@ class Tax implements AdjusterInterface
                 }
 
                 // We need to display the adjustment that removed the included tax
-                $adjustment->name = $taxRate->name." ".Craft::t('commerce', 'commerce', 'Removed');
+                $adjustment->name = $taxRate->name." ".Craft::t('commerce', 'Removed');
                 $adjustment->amount = $allRemovedTax;
                 $adjustment->optionsJson = array_merge(['lineItemsAffected' => $affectedLineIds], $adjustment->optionsJson);
 

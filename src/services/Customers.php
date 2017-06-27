@@ -178,7 +178,7 @@ class Customers extends Component
             $customerRecord = CustomerRecord::findOne($customer->id);
 
             if (!$customerRecord) {
-                throw new Exception(Craft::t('commerce', 'commerce', 'No customer exists with the ID “{id}”',
+                throw new Exception(Craft::t('commerce', 'No customer exists with the ID “{id}”',
                     ['id' => $customer->id]));
             }
         }
@@ -375,7 +375,7 @@ class Customers extends Component
             if (Plugin::getInstance()->getAddresses()->saveAddress($snapShotBillingAddress, false)) {
                 $order->billingAddressId = $snapShotBillingAddress->id;
             } else {
-                Craft::error(Craft::t('commerce', 'commerce', 'Unable to duplicate the billing address on order completion. Original billing address ID: {addressId}. Order ID: {orderId}',
+                Craft::error(Craft::t('commerce', 'Unable to duplicate the billing address on order completion. Original billing address ID: {addressId}. Order ID: {orderId}',
                     ['addressId' => $originalBillingAddressId, 'orderId' => $order->id]), __METHOD__);
             }
         }
@@ -387,7 +387,7 @@ class Customers extends Component
             if (Plugin::getInstance()->getAddresses()->saveAddress($snapShotShippingAddress, false)) {
                 $order->shippingAddressId = $snapShotShippingAddress->id;
             } else {
-                Craft::error(Craft::t('commerce', 'commerce', 'Unable to duplicate the shipping address on order completion. Original shipping address ID: {addressId}. Order ID: {orderId}',
+                Craft::error(Craft::t('commerce', 'Unable to duplicate the shipping address on order completion. Original shipping address ID: {addressId}. Order ID: {orderId}',
                     ['addressId' => $originalShippingAddressId, 'orderId' => $order->id]), __METHOD__);
             }
         }
@@ -447,7 +447,7 @@ class Customers extends Component
             if ($customer->email != $user->email) {
                 $customer->email = $user->email;
                 if (!$this->saveCustomer($customer)) {
-                    $error = Craft::t('commerce', 'commerce', 'Could not sync user’s email to customers record. CustomerId:{customerId} UserId:{userId}',
+                    $error = Craft::t('commerce', 'Could not sync user’s email to customers record. CustomerId:{customerId} UserId:{userId}',
                         ['customerId' => $customer->id, 'userId' => $user->id]);
                     Craft::error($error, __METHOD__);
                 };

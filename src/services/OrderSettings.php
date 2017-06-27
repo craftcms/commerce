@@ -88,7 +88,7 @@ class OrderSettings extends Component
             $orderSettingsRecord = OrderSettingsRecord::findOne($orderSettings->id);
 
             if (!$orderSettingsRecord) {
-                throw new Exception(Craft::t('commerce', 'commerce', 'No order settings exists with the ID “{id}”',
+                throw new Exception(Craft::t('commerce', 'No order settings exists with the ID “{id}”',
                     ['id' => $orderSettings->id]));
             }
         } else {

@@ -175,7 +175,7 @@ class ShippingCategories extends Component
             $record = ShippingCategoryRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Craft::t('commerce', 'commerce', 'No shipping category exists with the ID “{id}”',
+                throw new Exception(Craft::t('commerce', 'No shipping category exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
 

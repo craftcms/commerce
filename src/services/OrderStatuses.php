@@ -117,7 +117,7 @@ class OrderStatuses extends Component
         if ($model->id) {
             $record = OrderStatusRecord::findOne($model->id);
             if (!$record->id) {
-                throw new Exception(Craft::t('commerce', 'commerce', 'No order status exists with the ID “{id}”',
+                throw new Exception(Craft::t('commerce', 'No order status exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
         } else {

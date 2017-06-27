@@ -173,7 +173,7 @@ class Orders extends Component
             $orderRecord = OrderRecord::findOne($order->id);
 
             if (!$orderRecord) {
-                throw new Exception(Craft::t('commerce', 'commerce', 'No order exists with the ID “{id}”',
+                throw new Exception(Craft::t('commerce', 'No order exists with the ID “{id}”',
                     ['id' => $order->id]));
             }
         }
@@ -459,7 +459,7 @@ class Orders extends Component
             return true;
         }
 
-        Plugin::log(Craft::t('commerce', 'commerce', 'Could not mark order {number} as complete. Order save failed during order completion with errors: {errors}',
+        Plugin::log(Craft::t('commerce', 'Could not mark order {number} as complete. Order save failed during order completion with errors: {errors}',
             ['number' => $order->number, 'order' => json_encode($order->errors)]), LogLevel::Error, true);
 
         return false;
@@ -490,7 +490,7 @@ class Orders extends Component
             if (!$order->id) {
                 if (!$this->saveOrder($order)) {
                     Db::rollbackStackedTransaction();
-                    throw new Exception(Craft::t('commerce', 'commerce', 'Error on creating empty cart'));
+                    throw new Exception(Craft::t('commerce', 'Error on creating empty cart'));
                 }
             }
 
@@ -508,7 +508,7 @@ class Orders extends Component
             }
 
             if (!$ownAddress) {
-                $error = Craft::t('commerce', 'commerce', 'Can not choose an address ID that does not belong to the customer.');
+                $error = Craft::t('commerce', 'Can not choose an address ID that does not belong to the customer.');
             }
 
             $result1 = Plugin::getInstance()->getCustomers()->saveAddress($shippingAddress);

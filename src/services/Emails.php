@@ -84,7 +84,7 @@ class Emails extends Component
             $record = EmailRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Craft::t('commerce', 'commerce', 'No email exists with the ID “{id}”', ['id' => $model->id]));
+                throw new Exception(Craft::t('commerce', 'No email exists with the ID “{id}”', ['id' => $model->id]));
             }
         } else {
             $record = new EmailRecord();
@@ -214,7 +214,7 @@ class Emails extends Component
             }
             $newEmail->setBcc($bccEmails);
         } catch (\Exception $e) {
-            $error = Craft::t('commerce', 'commerce', 'Email template parse error for email “{email}” in “BCC:”. Order: “{order}”. Template error: “{message}”', [
+            $error = Craft::t('commerce', 'Email template parse error for email “{email}” in “BCC:”. Order: “{order}”. Template error: “{message}”', [
                 'email' => $email->name,
                 'order' => $order->getShortNumber(),
                 'message' => $e->getMessage()

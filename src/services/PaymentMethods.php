@@ -122,7 +122,7 @@ class PaymentMethods extends Component
             $record = PaymentMethodRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(\Craft::t('commerce', 'commerce', 'No payment method exists with the ID “{id}”', ['id' => $model->id]));
+                throw new Exception(\Craft::t('commerce', 'No payment method exists with the ID “{id}”', ['id' => $model->id]));
             }
         } else {
             $record = new PaymentMethodRecord();

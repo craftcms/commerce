@@ -49,7 +49,7 @@ class ShippingMethod extends Model implements ShippingMethodInterface
      */
     public function getType()
     {
-        return Craft::t('commerce', 'commerce', 'Custom');
+        return Craft::t('commerce', 'Custom');
     }
 
     /**

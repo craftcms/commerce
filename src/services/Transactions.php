@@ -116,7 +116,7 @@ class Transactions extends Component
             $record = TransactionRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Craft::t('commerce', 'commerce', 'No transaction exists with the ID “{id}”',
+                throw new Exception(Craft::t('commerce', 'No transaction exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
         } else {

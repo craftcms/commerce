@@ -2,7 +2,11 @@
 
 namespace craft\commerce\models;
 
+use Craft;
 use craft\commerce\base\Model;
+use craft\commerce\Plugin;
+use craft\helpers\UrlHelper;
+use craft\i18n\Locale;
 
 /**
  * Tax rate model.
@@ -75,7 +79,7 @@ class TaxRate extends Model
      */
     public function getCpEditUrl()
     {
-        return UrlHelper::getCpUrl('commerce/settings/taxrates/'.$this->id);
+        return UrlHelper::cpUrl('commerce/settings/taxrates/'.$this->id);
     }
 
     /**
@@ -83,8 +87,7 @@ class TaxRate extends Model
      */
     public function getRateAsPercent()
     {
-        $localeData = Craft::$app->getI18n()->getLocaleData();
-        $percentSign = $localeData->getNumberSymbol('percentSign');
+        $percentSign = Craft::$app->getLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
 
         return $this->rate * 100 ."".$percentSign;
     }

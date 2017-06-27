@@ -924,7 +924,7 @@ class Product extends Element
         $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($product->typeId);
 
         if (!$productType) {
-            throw new Exception(Craft::t('commerce', 'commerce', 'No product type exists with the ID “{id}”',
+            throw new Exception(Craft::t('commerce', 'No product type exists with the ID “{id}”',
                 ['id' => $product->typeId]));
         }
 
@@ -980,11 +980,11 @@ class Product extends Element
                 $variantsValid = false;
                 // If we have a title error but hide the title field, put the error onto the sku.
                 if ($variant->getFirstError('title') && !$productType->hasVariantTitleField && $productType->hasVariants) {
-                    $variant->addError('sku', Craft::t('commerce', 'commerce', 'Could not generate the variant title from product type’s title format.'));
+                    $variant->addError('sku', Craft::t('commerce', 'Could not generate the variant title from product type’s title format.'));
                 }
 
                 if ($variant->getFirstError('title') && !$productType->hasVariants) {
-                    $product->addError('title', Craft::t('commerce', 'commerce', 'Title cannot be blank.'));
+                    $product->addError('title', Craft::t('commerce', 'Title cannot be blank.'));
                 }
             }
         }

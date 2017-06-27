@@ -189,7 +189,7 @@ class LineItems extends Component
             $lineItemRecord = LineItemRecord::findOne($lineItem->id);
 
             if (!$lineItemRecord) {
-                throw new Exception(Craft::t('commerce', 'commerce', 'No line item exists with the ID “{id}”',
+                throw new Exception(Craft::t('commerce', 'No line item exists with the ID “{id}”',
                     ['id' => $lineItem->id]));
             }
         }
@@ -320,7 +320,7 @@ class LineItems extends Component
         if ($purchasable && $purchasable instanceof PurchasableInterface) {
             $lineItem->fillFromPurchasable($purchasable);
         } else {
-            throw new Exception(Craft::t('commerce', 'commerce', 'Not a purchasable ID'));
+            throw new Exception(Craft::t('commerce', 'Not a purchasable ID'));
         }
 
         //raising event

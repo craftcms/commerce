@@ -69,19 +69,19 @@ class Discounts extends Component
 
         $model = $this->getDiscountByCode($code);
         if (!$model) {
-            $error = Craft::t('commerce', 'commerce', 'Coupon not valid');
+            $error = Craft::t('commerce', 'Coupon not valid');
 
             return false;
         }
 
         if (!$model->enabled) {
-            $error = Craft::t('commerce', 'commerce', 'Discount is not available');
+            $error = Craft::t('commerce', 'Discount is not available');
 
             return false;
         }
 
         if ($model->totalUseLimit > 0 && $model->totalUses >= $model->totalUseLimit) {
-            $error = Craft::t('commerce', 'commerce', 'Discount use has reached it’s limit');
+            $error = Craft::t('commerce', 'Discount use has reached it’s limit');
 
             return false;
         }
@@ -90,7 +90,7 @@ class Discounts extends Component
         $from = $model->dateFrom;
         $to = $model->dateTo;
         if ($from && $from > $now || $to && $to < $now) {
-            $error = Craft::t('commerce', 'commerce', 'Discount is out of date');
+            $error = Craft::t('commerce', 'Discount is out of date');
 
             return false;
         }
@@ -100,7 +100,7 @@ class Discounts extends Component
             $user = $customer ? $customer->getUser() : null;
             $groupIds = $this->getCurrentUserGroupIds($user);
             if (!$user || !array_intersect($groupIds, $model->getGroupIds())) {
-                $error = Craft::t('commerce', 'commerce', 'Discount is not allowed for the customer');
+                $error = Craft::t('commerce', 'Discount is not allowed for the customer');
 
                 return false;
             }
@@ -110,14 +110,14 @@ class Discounts extends Component
         if ($customerId) {
             // The 'Per User Limit' can only be tracked against logged in users since guest customers are re-generated often
             if ($model->perUserLimit > 0 && !Craft::$app->getUser()->isLoggedIn()) {
-                $error = Craft::t('commerce', 'commerce', 'Discount is limited to use by logged in users only.');
+                $error = Craft::t('commerce', 'Discount is limited to use by logged in users only.');
 
                 return false;
             }
 
             $uses = CustomerDiscountUseRecord::find()->where(['customerId' => $customerId, 'discountId' => $model->id])->all();
             if ($uses && $uses->uses >= $model->perUserLimit) {
-                $error = Craft::t('commerce', 'commerce', 'You can not use this discount anymore');
+                $error = Craft::t('commerce', 'You can not use this discount anymore');
 
                 return false;
             }
@@ -138,7 +138,7 @@ class Discounts extends Component
                 }
 
                 if ($usedCount >= $model->perEmailLimit) {
-                    $error = Craft::t('commerce', 'commerce', 'This coupon limited to {limit} uses.', [
+                    $error = Craft::t('commerce', 'This coupon limited to {limit} uses.', [
                         'limit' => $model->perEmailLimit,
                     ]);
 
@@ -270,7 +270,7 @@ class Discounts extends Component
             $record = DiscountRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Craft::t('commerce', 'commerce', 'No discount exists with the ID “{id}”', ['id' => $model->id]));
+                throw new Exception(Craft::t('commerce', 'No discount exists with the ID “{id}”', ['id' => $model->id]));
             }
         } else {
             $record = new DiscountRecord();

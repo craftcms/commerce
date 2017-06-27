@@ -138,7 +138,7 @@ class PaymentCurrencies extends Component
             $record = PaymentCurrencyRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Craft::t('commerce', 'commerce', 'No currency exists with the ID “{id}”',
+                throw new Exception(Craft::t('commerce', 'No currency exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
         } else {

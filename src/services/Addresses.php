@@ -91,7 +91,7 @@ class Addresses extends Component
             $addressRecord = AddressRecord::findOne($addressModel->id);
 
             if (!$addressRecord) {
-                throw new Exception(Craft::t('commerce', 'commerce', 'No address exists with the ID “{id}”',
+                throw new Exception(Craft::t('commerce', 'No address exists with the ID “{id}”',
                     ['id' => $addressModel->id]));
             }
         } else {
@@ -142,7 +142,7 @@ class Addresses extends Component
 
         // Check country’s stateRequired option
         if ($country && $country->stateRequired && (!$state || ($state && $state->countryId !== $country->id))) {
-            $addressModel->addError('stateId', Craft::t('commerce', 'commerce', 'commerce', 'Country requires a related state selected.'));
+            $addressModel->addError('stateId', Craft::t('commerce', 'commerce', 'Country requires a related state selected.'));
         }
 
         if ($validate) {

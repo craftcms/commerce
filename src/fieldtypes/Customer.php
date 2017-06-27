@@ -26,7 +26,7 @@ class Customer extends Field
      */
     public function getName()
     {
-        return Craft::t('commerce', 'commerce', 'Commerce Customer Info');
+        return Craft::t('commerce', 'Commerce Customer Info');
     }
 
     /**

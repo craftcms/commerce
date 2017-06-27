@@ -79,7 +79,7 @@ class TaxZones extends Component
             $record = TaxZoneRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Craft::t('commerce', 'commerce', 'No tax zone exists with the ID “{id}”',
+                throw new Exception(Craft::t('commerce', 'No tax zone exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
         } else {

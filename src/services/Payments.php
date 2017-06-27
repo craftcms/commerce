@@ -266,7 +266,7 @@ class Payments extends Component
             if ($price != 0) {
                 $count++;
                 $purchasable = $item->getPurchasable();
-                $defaultDescription = Craft::t('commerce', 'commerce', 'Item ID')." ".$item->id;
+                $defaultDescription = Craft::t('commerce', 'Item ID')." ".$item->id;
                 $purchasableDescription = $purchasable ? $purchasable->getDescription() : $defaultDescription;
                 $description = isset($item->snapshot['description']) ? $item->snapshot['description'] : $purchasableDescription;
                 $description = empty($description) ? "Item ".$count : $description;
@@ -332,7 +332,7 @@ class Payments extends Component
             'amount' => $transaction->paymentAmount,
             'currency' => $transaction->paymentCurrency,
             'transactionId' => $transaction->id,
-            'description' => Craft::t('commerce', 'commerce', 'Order').' #'.$transaction->orderId,
+            'description' => Craft::t('commerce', 'Order').' #'.$transaction->orderId,
             'clientIp' => Craft::$app->getRequest()->userIP,
             'transactionReference' => $transaction->hash,
             'returnUrl' => UrlHelper::getActionUrl('commerce/payments/completePayment', ['commerceTransactionId' => $transaction->id, 'commerceTransactionHash' => $transaction->hash]),

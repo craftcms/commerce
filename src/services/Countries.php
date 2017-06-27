@@ -118,7 +118,7 @@ class Countries extends Component
             $record = CountryRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Craft::t('commerce', 'commerce', 'No country exists with the ID “{id}”',
+                throw new Exception(Craft::t('commerce', 'No country exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
         } else {

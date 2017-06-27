@@ -216,8 +216,8 @@ class PaymentMethod extends Model
     public function getPaymentTypeOptions()
     {
         return [
-            'authorize' => Craft::t('commerce', 'commerce', 'Authorize Only (Manually Capture)'),
-            'purchase' => Craft::t('commerce', 'commerce', 'Purchase (Authorize and Capture Immediately)'),
+            'authorize' => Craft::t('commerce', 'Authorize Only (Manually Capture)'),
+            'purchase' => Craft::t('commerce', 'Purchase (Authorize and Capture Immediately)'),
         ];
     }
 }

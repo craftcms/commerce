@@ -98,7 +98,7 @@ class Variants extends Component
 
             if ($existing) {
                 if ($existing->id != $variant->id) {
-                    $variant->addError('sku', Craft::t('commerce', 'commerce', 'SKU has already been taken by another purchasable.'));
+                    $variant->addError('sku', Craft::t('commerce', 'SKU has already been taken by another purchasable.'));
                 }
             }
         }

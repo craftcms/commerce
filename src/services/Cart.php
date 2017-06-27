@@ -84,7 +84,7 @@ class Cart extends Component
         //saving current cart if it's new and empty
         if (!$order->id && !Plugin::getInstance()->getOrders()->saveOrder($order)) {
             Db::rollbackStackedTransaction();
-            throw new Exception(Craft::t('commerce', 'commerce', 'Error on creating empty cart'));
+            throw new Exception(Craft::t('commerce', 'Error on creating empty cart'));
         }
 
         //filling item model
@@ -227,7 +227,7 @@ class Cart extends Component
             }
         }
 
-        $error = Craft::t('commerce', 'commerce', 'Shipping method not available');
+        $error = Craft::t('commerce', 'Shipping method not available');
 
         return false;
     }
@@ -247,7 +247,7 @@ class Cart extends Component
         $method = Plugin::getInstance()->getPaymentMethods()->getPaymentMethodById($paymentMethodId);
 
         if (!$method) {
-            $error = Craft::t('commerce', 'commerce', 'Payment method does not exist or is not allowed.');
+            $error = Craft::t('commerce', 'Payment method does not exist or is not allowed.');
 
             return false;
         }
@@ -271,7 +271,7 @@ class Cart extends Component
         $validator = new EmailValidator();
 
         if (empty($email) || !$validator->validate($email)) {
-            $error = Craft::t('commerce', 'commerce', 'Not a valid email address');
+            $error = Craft::t('commerce', 'Not a valid email address');
 
             return false;
         }

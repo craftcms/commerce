@@ -48,7 +48,7 @@ class OrderAdjustments extends Component
             $record = OrderAdjustmentRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(\Craft::t('commerce', 'commerce', 'No order Adjustment exists with the ID “{id}”',
+                throw new Exception(\Craft::t('commerce', 'No order Adjustment exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
         } else {

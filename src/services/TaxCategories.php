@@ -177,7 +177,7 @@ class TaxCategories extends Component
             $record = TaxCategoryRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Craft::t('commerce', 'commerce', 'No tax category exists with the ID “{id}”',
+                throw new Exception(Craft::t('commerce', 'No tax category exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
 

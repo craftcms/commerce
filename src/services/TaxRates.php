@@ -86,7 +86,7 @@ class TaxRates extends Component
             $record = TaxRateRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Craft::t('commerce', 'commerce', 'No tax rate exists with the ID “{id}”',
+                throw new Exception(Craft::t('commerce', 'No tax rate exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
         } else {

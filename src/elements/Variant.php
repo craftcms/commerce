@@ -417,7 +417,7 @@ class Variant extends Element
         }
 
         if ($lineItem->purchasable->getStatus() != Element::STATUS_ENABLED) {
-            $lineItem->addError('purchasableId', Craft::t('commerce', 'commerce', 'Not enabled for sale.'));
+            $lineItem->addError('purchasableId', Craft::t('commerce', 'Not enabled for sale.'));
         }
 
         $order = Plugin::getInstance()->getOrders()->getOrderById($lineItem->orderId);
@@ -440,18 +440,18 @@ class Variant extends Element
             }
 
             if (!$this->unlimitedStock && $qty[$lineItem->purchasableId] > $this->stock) {
-                $error = Craft::t('commerce', 'commerce', 'There are only {num} "{description}" items left in stock', ['num' => $this->stock, 'description' => $lineItem->purchasable->getDescription()]);
+                $error = Craft::t('commerce', 'There are only {num} "{description}" items left in stock', ['num' => $this->stock, 'description' => $lineItem->purchasable->getDescription()]);
                 $lineItem->addError('qty', $error);
             }
 
             if ($lineItem->qty < $this->minQty) {
-                $error = Craft::t('commerce', 'commerce', 'Minimum order quantity for this item is {num}', ['num' => $this->minQty]);
+                $error = Craft::t('commerce', 'Minimum order quantity for this item is {num}', ['num' => $this->minQty]);
                 $lineItem->addError('qty', $error);
             }
 
             if ($this->maxQty != 0) {
                 if ($lineItem->qty > $this->maxQty) {
-                    $error = Craft::t('commerce', 'commerce', 'Maximum order quantity for this item is {num}', ['num' => $this->maxQty]);
+                    $error = Craft::t('commerce', 'Maximum order quantity for this item is {num}', ['num' => $this->maxQty]);
                     $lineItem->addError('qty', $error);
                 }
             }

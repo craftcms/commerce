@@ -125,7 +125,7 @@ class States extends Component
             $record = StateRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Craft::t('commerce', 'commerce', 'No state exists with the ID “{id}”',
+                throw new Exception(Craft::t('commerce', 'No state exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
         } else {

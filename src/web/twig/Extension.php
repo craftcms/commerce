@@ -74,7 +74,7 @@ class Extension extends \Twig_Extension
         $currency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($currency);
 
         if (!$currency) {
-            throw new \Twig_Error(Craft::t('commerce', 'commerce', 'Not a valid currency code'));
+            throw new \Twig_Error(Craft::t('commerce', 'Not a valid currency code'));
         }
     }
 

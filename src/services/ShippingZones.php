@@ -83,7 +83,7 @@ class ShippingZones extends Component
             $record = ShippingZoneRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Craft::t('commerce', 'commerce', 'No shipping zone exists with the ID “{id}”',
+                throw new Exception(Craft::t('commerce', 'No shipping zone exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
         } else {
