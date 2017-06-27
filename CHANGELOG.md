@@ -3,11 +3,13 @@ Commerce Changelog
 
 ## Unreleased
 
+## 1.2.1345 - 2017-06-26
+
 ### Added
 - Percentage-based discounts now have the option to be applied to the item’s original price or its discounted price (if other discounts were already applied).
 
 ## Changed
-- Ajax requests to `commerce/cart/*` actions will now get a `itemSubtotal` key in the response JSON. 
+- Ajax requests to `commerce/cart/*` actions will now get a `itemSubtotal` key in the response JSON.
 - Updated the Omnipay Stripe driver to 2.4.6.
 - Updated the Omnipay Payment Express driver to 2.2.1.
 - Updated the Omnipay MultiSafePay driver to 2.3.6.
