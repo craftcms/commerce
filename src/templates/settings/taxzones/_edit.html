@@ -1,13 +1,11 @@
 {% extends "commerce/_layouts/settingscp" %}
 
 {% set crumbs = [
-{ label: "Commerce Settings"|t('commerce'), url: url('commerce/settings') },
-{ label: "Tax Zones"|t('commerce'), url: url('commerce/settings/taxzones') },
+    { label: "Commerce Settings"|t('commerce'), url: url('commerce/settings') },
+    { label: "Tax Zones"|t('commerce'), url: url('commerce/settings/taxzones') },
 ] %}
 
 {% set fullPageForm = true %}
-
-{% import "_includes/forms" as forms %}
 
 {% block content %}
     <input type="hidden" name="action" value="commerce/tax-zones/save">
