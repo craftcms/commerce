@@ -270,14 +270,38 @@
         errors: discount.getErrors('perItemDiscount'),
     }) }}
 
-    {{ forms.textField({
-        label: "Percent Discount"|t,
-        instructions: "The percentile value which should discount each item in the cart. i.e. “4%” for 4% off"|t,
-        id: 'percentDiscount',
-        name: 'percentDiscount',
-        value: discount.percentDiscountAsPercent,
-        errors: discount.getErrors('percentDiscount'),
-    }) }}
+        {% set pctDiscountInput %}
+            <table class="inputs">
+                <tr>
+                    <td>
+                        {{ forms.text({
+                            id: 'percentDiscount',
+                            name: 'percentDiscount',
+                            size: 10,
+                            value: discount.percentDiscountAsPercent,
+                        }) }}
+                    </td>
+                    <td>
+                        {{ forms.select({
+                            id: 'percentageOffSubject',
+                            name: 'percentageOffSubject',
+                            options: [
+                            {label: "off the discounted item price"|t, value: 'discounted'},
+                            {label: "off the original item price"|t, value: 'original'}
+                            ],
+                            value: discount.percentageOffSubject
+                        }) }}
+                    </td>
+                </tr>
+            </table>
+        {% endset %}
+
+        {{ forms.field({
+            label: "Percent Discount"|t,
+            instructions: "The percentile value which should discount each item in the cart. i.e. “4%” for 4% off"|t,
+            id: 'percentDiscount',
+            errors: discount.getErrors('percentDiscount'),
+        }, pctDiscountInput) }}
 
     {{ forms.checkboxField({
         label: "Set shipping costs to zero for matching products"|t,

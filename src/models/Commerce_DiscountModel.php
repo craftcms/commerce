@@ -23,6 +23,7 @@ use Commerce\Traits\Commerce_ModelRelationsTrait;
  * @property float $baseDiscount
  * @property float $perItemDiscount
  * @property float $percentDiscount
+ * @property string $percentageOffSubject
  * @property bool $excludeOnSale
  * @property bool $freeShipping
  * @property bool $allGroups
@@ -98,7 +99,7 @@ class Commerce_DiscountModel extends BaseModel
             return -$this->percentDiscount * 100 . "" . $percentSign;
         }
 
-        return "0" . $percentSign;
+        return '0' . $percentSign;
     }
 
     /**
@@ -149,6 +150,12 @@ class Commerce_DiscountModel extends BaseModel
                 'decimals' => 4,
                 'required' => true,
                 'default' => 0
+            ],
+            'percentageOffSubject'    => [
+                AttributeType::Enum,
+                'values'   => [Commerce_DiscountRecord::TYPE_ORIGINAL_SALEPRICE, Commerce_DiscountRecord::TYPE_DISCOUNTED_SALEPRICE],
+                'required' => true,
+                'default'  => Commerce_DiscountRecord::TYPE_DISCOUNTED_SALEPRICE
             ],
             'excludeOnSale' => [
                 AttributeType::Bool,

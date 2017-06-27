@@ -21,6 +21,7 @@ namespace Craft;
  * @property float $baseDiscount
  * @property float $perItemDiscount
  * @property float $percentDiscount
+ * @property string $percentageOffSubject
  * @property bool $excludeOnSale
  * @property bool $freeShipping
  * @property bool $allGroups
@@ -43,6 +44,9 @@ namespace Craft;
  */
 class Commerce_DiscountRecord extends BaseRecord
 {
+    const TYPE_ORIGINAL_SALEPRICE = 'original';
+    const TYPE_DISCOUNTED_SALEPRICE = 'discounted';
+
     /**
      * @return string
      */
@@ -154,6 +158,12 @@ class Commerce_DiscountRecord extends BaseRecord
                 'decimals' => 4,
                 'required' => true,
                 'default' => 0
+            ],
+            'percentageOffSubject'    => [
+                AttributeType::Enum,
+                'values'   => [Commerce_DiscountRecord::TYPE_ORIGINAL_SALEPRICE, Commerce_DiscountRecord::TYPE_DISCOUNTED_SALEPRICE],
+                'required' => true,
+                'default'  => Commerce_DiscountRecord::TYPE_DISCOUNTED_SALEPRICE
             ],
             'excludeOnSale' => [
                 AttributeType::Bool,

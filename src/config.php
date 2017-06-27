@@ -11,6 +11,5 @@ return [
     'requireShippingAddressAtCheckout' => false,
     'requireBillingAddressAtCheckout' => false,
     'pdfPaperSize' => 'letter',
-    'pdfPaperOrientation' => 'portrait',
-    'makePercentageOffDiscountsIncremental' => false,
+    'pdfPaperOrientation' => 'portrait'
 ];

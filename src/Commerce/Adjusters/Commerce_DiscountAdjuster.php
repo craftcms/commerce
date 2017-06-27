@@ -4,6 +4,7 @@ namespace Commerce\Adjusters;
 
 use Commerce\Helpers\CommerceCurrencyHelper;
 use Craft\Commerce_DiscountModel;
+use Craft\Commerce_DiscountRecord;
 use Craft\Commerce_LineItemModel;
 use Craft\Commerce_OrderAdjustmentModel;
 use Craft\Commerce_OrderModel;
@@ -169,12 +170,13 @@ class Commerce_DiscountAdjuster implements Commerce_AdjusterInterface
             if (in_array($item->id, $matchingLineIds))
             {
                 $amountPerItem = CommerceCurrencyHelper::round($discount->perItemDiscount * $item->qty);
-                $amountPercentage = CommerceCurrencyHelper::round($discount->percentDiscount * $item->getSubtotal());
 
-                $incrementalDiscounts = \Craft\craft()->config->get('makePercentageOffDiscountsIncremental', 'commerce');
-                if($incrementalDiscounts)
+                //Default is off discounted price
+                $amountPercentage = CommerceCurrencyHelper::round($discount->percentDiscount * ($item->getSubtotal() + $item->discount));
+
+                if($discount->percentageOffSubject == Commerce_DiscountRecord::TYPE_ORIGINAL_SALEPRICE)
                 {
-                    $amountPercentage = CommerceCurrencyHelper::round($discount->percentDiscount * ($item->getSubtotal() + $item->discount));
+                    $amountPercentage = CommerceCurrencyHelper::round($discount->percentDiscount * $item->getSubtotal());
                 }
 
                 $amount += $amountPerItem + $amountPercentage;
