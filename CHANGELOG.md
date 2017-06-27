@@ -14,7 +14,7 @@ Commerce Changelog
 - Updated the Omnipay Worldpay driver to 2.2.1.
 
 ### Fixed
-- Fixed a bug where email address limits on discounts were able to by circumvented if the customer changed the casing of their email address.
+- Fixed a bug where email address limits on discounts were able to by circumvented if the customer changed the casing of the coupon code.
 - Fixed a PHP error that occurred when viewing a cart in the Control Panel if no payment methods had been created yet.
 - Fixed a bug where discounts based on user group were not being added/removed after the user logged in/out.
 - Fixed a bug where variants’ sale prices were only getting rounded when at least one sale was applied.
