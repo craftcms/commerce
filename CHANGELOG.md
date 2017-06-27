@@ -4,8 +4,14 @@ Commerce Changelog
 ## Unreleased
 
 ### Added
-- Added the [`makePercentageOffDiscountsIncremental`](https://craftcommerce.com/docs/configuration) config setting.
-- Added `itemSubtotal` to the cart’s json ajax response.
+- Percentage-based discounts now have the option to be applied to the item’s original price or its discounted price (if other discounts were already applied).
+
+## Changed
+- Ajax requests to `commerce/cart/*` actions will now get a `itemSubtotal` key in the response JSON. 
+- Updated the Omnipay Stripe driver to 2.4.6.
+- Updated the Omnipay Payment Express driver to 2.2.1.
+- Updated the Omnipay MultiSafePay driver to 2.3.6.
+- Updated the Omnipay Worldpay driver to 2.2.1.
 
 ### Fixed
 - Fixed a bug where email address limits on discounts were able to by circumvented if the customer changed the casing of their email address.
@@ -14,12 +20,6 @@ Commerce Changelog
 - Fixed a bug where variants’ sale prices were only getting rounded when at least one sale was applied.
 - Fixed a bug where special characters in Tax and Shipping Category names could break some form inputs in the Control Panel.
 - Fixed a validation error that occurred when saving two shipping rules with the same name.
-
-## Changed
-- Updated the Omnipay Stripe driver to 2.4.6.
-- Updated the Omnipay Payment Express driver to 2.2.1.
-- Updated the Omnipay MultiSafePay driver to 2.3.6.
-- Updated the Omnipay Worldpay driver to 2.2.1.
 
 ## 1.2.1343 - 2017-06-09
 
