@@ -3,6 +3,7 @@
 namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
+use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
 
 /**
@@ -64,6 +65,7 @@ class TaxZone extends Model
      */
     public function getTaxRates()
     {
+        // TODO something tells me there's a better way.
         $allTaxRates = Plugin::getInstance()->getTaxRates()->getAllTaxRates();
         $taxRates = [];
         /** @var \craft\commerce\models\TaxRate $rate */
@@ -97,7 +99,7 @@ class TaxZone extends Model
     public function getCountries()
     {
         if (null === $this->_countries) {
-            $this->_countries = Plugin::getInstance()->getTaxZones()->getCountriesByTaxZoneId($this->id);;
+            $this->_countries = Plugin::getInstance()->getCountries()->getCountriesByTaxZoneId($this->id);
         }
 
         return $this->_countries;
@@ -136,7 +138,7 @@ class TaxZone extends Model
     public function getStates()
     {
         if (null === $this->_states) {
-            $this->_states = Plugin::getInstance()->getTaxZones()->getStatesByTaxZoneId($this->id);
+            $this->_states = Plugin::getInstance()->getStates()->getStatesByTaxZoneId($this->id);
         }
 
         return $this->_states;

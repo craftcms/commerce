@@ -28,6 +28,11 @@ class Countries extends Component
     private $_countriesById = [];
 
     /**
+     * @var Country[]
+     */
+    private $_countriesByTaxZoneId;
+
+    /**
      * @param int $id
      *
      * @return Country|null
@@ -73,6 +78,32 @@ class Countries extends Component
         }
 
         return $countries;
+    }
+
+    /**
+     * Returns all countries in a tax zone
+     *
+     * @param $taxZoneId
+     *
+     * @return array
+     */
+    public function getCountriesByTaxZoneId($taxZoneId)
+    {
+        if (null === $this->_countriesByTaxZoneId) {
+            $this->_countriesByTaxZoneId = [];
+            $results = $this->_createCountryQuery()
+                ->innerJoin('{{%commerce_taxzone_countries}} taxZoneCountries', '[[countries.id]] = [[taxZoneCountries.countryId]]')
+                ->all();
+            $countries = [];
+
+            foreach ($results as $result) {
+                $countries[] = new Country($result);
+            }
+
+            $this->_countriesByTaxZoneId[$taxZoneId] = $countries;
+        }
+
+        return $this->_countriesByTaxZoneId[$taxZoneId] ?? [];
     }
 
     /**

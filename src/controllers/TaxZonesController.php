@@ -142,7 +142,7 @@ class TaxZonesController extends BaseAdminController
         $id = Craft::$app->getRequest()->getRequiredParam('id');
 
         Plugin::getInstance()->getTaxZones()->deleteTaxZoneById($id);
-        $this->asJson(['success' => true]);
+        return $this->asJson(['success' => true]);
     }
 
 }

@@ -27,6 +27,11 @@ class States extends Component
     private $_statesById = [];
 
     /**
+     * @var State[]
+     */
+    private $_statesByTaxZoneId;
+
+    /**
      * @param int $id
      *
      * @return State|null
@@ -77,6 +82,33 @@ class States extends Component
             ->all();
 
         return State::populateModels($states);
+    }
+
+    /**
+     * Returns all states in a tax zone
+     *
+     * @param $taxZoneId
+     *
+     * @return array
+     */
+    public function getStatesByTaxZoneId($taxZoneId)
+    {
+        if (null === $this->_statesByTaxZoneId) {
+            $this->_statesByTaxZoneId = [];
+
+            $results = $this->_createStatesQuery()
+                ->innerJoin('{{%commerce_taxzone_states}} taxZoneStates', '[[states.id]] = [[taxZoneStates.stateId]]')
+                ->all();
+
+            $states = [];
+            foreach ($results as $result) {
+                $states[] = new State($result);
+            }
+
+            $this->_statesByTaxZoneId[$taxZoneId] = $states;
+        }
+
+        return $this->_statesByTaxZoneId[$taxZoneId] ?? [];
     }
 
     /**

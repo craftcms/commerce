@@ -11,6 +11,7 @@ use craft\commerce\records\State as StateRecord;
 use craft\commerce\records\TaxZone as TaxZoneRecord;
 use craft\commerce\records\TaxZoneCountry as TaxZoneCountryRecord;
 use craft\commerce\records\TaxZoneState as TaxZoneStateRecord;
+use craft\db\Query;
 use yii\base\Component;
 
 /**
@@ -36,20 +37,14 @@ class TaxZones extends Component
     private $_statesByTaxZoneId;
 
     /**
-     * @param bool $withRelations
-     *
      * @return TaxZone[]
      */
-    public function getAllTaxZones($withRelations = true)
+    public function getAllTaxZones()
     {
-        $with = $withRelations ? [
-            'countries',
-            'states',
-            'states.country'
-        ] : [];
-        $records = TaxZoneRecord::find()->with($with)->orderBy('name')->all();
 
-        return TaxZone::populateModels($records);
+        $rows = $this->_createTaxZonesQuery()->all();
+
+        return TaxZone::populateModels($rows);
     }
 
     /**
@@ -59,7 +54,9 @@ class TaxZones extends Component
      */
     public function getTaxZoneById($id)
     {
-        $result = TaxZoneRecord::findOne($id);
+        $result = $this->_createTaxZonesQuery()
+            ->where(['id' => $id])
+            ->one();
 
         if ($result) {
             return new TaxZone($result);
@@ -144,11 +141,11 @@ class TaxZones extends Component
                     $cols = ['stateId', 'taxZoneId'];
                     $table = TaxZoneStateRecord::tableName();
                 }
-                Craft::$app->getDb()->createCommand()->insertAll($table, $cols, $rows);
+                Craft::$app->getDb()->createCommand()->batchInsert($table, $cols, $rows)->execute();
 
                 //If this was the default make all others not the default.
                 if ($model->default) {
-                    TaxZoneRecord::updateAll(['default' => 0], 'id != ?', [$record->id]);
+                    TaxZoneRecord::updateAll(['default' => 0], 'id <> :thisId', [':thisId' => $record->id]);
                 }
 
                 $transaction->commit();
@@ -180,57 +177,24 @@ class TaxZones extends Component
         return false;
     }
 
+    // Private methods
+    // =========================================================================
     /**
-     * Returns all countries in a tax zone
+     * Returns a Query object prepped for retrieving order settings.
      *
-     * @param $taxZoneId
-     *
-     * @return array
+     * @return Query
      */
-    public function getCountriesByTaxZoneId($taxZoneId)
+    private function _createTaxZonesQuery(): Query
     {
-        if (null === $this->_countriesByTaxZoneId || !array_key_exists($taxZoneId, $this->_countriesByTaxZoneId)) {
-
-            $results = TaxZoneCountryRecord::find()->with('country')->where([
-                'taxZoneId' => $taxZoneId
-            ])->all();
-
-            $countries = [];
-
-            foreach ($results as $result) {
-                $countries[] = new Country($result->country);
-            }
-
-            $this->_countriesByTaxZoneId[$taxZoneId] = $countries;
-        }
-
-        return $this->_countriesByTaxZoneId[$taxZoneId];
+        return (new Query())
+            ->select([
+                'id',
+                'name',
+                'description',
+                'countryBased',
+                'default',
+            ])
+            ->orderBy('name')
+            ->from(['{{%commerce_taxzones}}']);
     }
-
-    /**
-     * Returns all states in a tax zone
-     *
-     * @param $taxZoneId
-     *
-     * @return array
-     */
-    public function getStatesByTaxZoneId($taxZoneId)
-    {
-        if (null === $this->_statesByTaxZoneId || !array_key_exists($taxZoneId, $this->_statesByTaxZoneId)) {
-
-            $results = TaxZoneStateRecord::find()->with('state')->where([
-                'taxZoneId' => $taxZoneId
-            ])->all();
-
-            $states = [];
-            foreach ($results as $result) {
-                $states[] = new State($result->state);
-            }
-
-            $this->_statesByTaxZoneId[$taxZoneId] = $states;
-        }
-
-        return $this->_statesByTaxZoneId[$taxZoneId];
-    }
-
 }
