@@ -27,7 +27,9 @@ class ShippingZonesController extends BaseAdminController
     public function actionIndex()
     {
         $shippingZones = Plugin::getInstance()->getShippingZones()->getAllShippingZones();
-        return $this->renderTemplate('commerce/settings/shippingzones/index', compact('shippingZones'));
+        return $this->renderTemplate('commerce/settings/shippingzones/index', [
+            'shippingZones' => $shippingZones
+        ]);
     }
 
 
@@ -38,11 +40,11 @@ class ShippingZonesController extends BaseAdminController
      * @return Response
      * @throws HttpException
      */
-    public function actionEdit(int $id = null, ShippingZone $shippingZone): Response
+    public function actionEdit(int $id = null, ShippingZone $shippingZone = null): Response
     {
         $variables = [
             'id' => $id,
-            'shippingZones' => $shippingZone
+            'shippingZone' => $shippingZone
         ];
 
         if (!$variables['shippingZone']) {
@@ -142,8 +144,11 @@ class ShippingZonesController extends BaseAdminController
 
         $id = Craft::$app->getRequest()->getRequiredParam('id');
 
-        Plugin::getInstance()->getShippingZones()->deleteShippingZoneById($id);
-        $this->asJson(['success' => true]);
+        if (Plugin::getInstance()->getShippingZones()->deleteShippingZoneById($id)) {
+            return $this->asJson(['success' => true]);
+        } else {
+            return $this->asErrorJson(Craft::t('commerce', 'Could not delete shipping zone'));
+        }
     }
 
 }

@@ -4,14 +4,13 @@ namespace craft\commerce\services;
 
 
 use Craft;
-use craft\commerce\models\Country;
 use craft\commerce\models\ShippingZone;
-use craft\commerce\models\State;
 use craft\commerce\records\Country as CountryRecord;
 use craft\commerce\records\ShippingZone as ShippingZoneRecord;
 use craft\commerce\records\ShippingZoneCountry as ShippingZoneCountryRecord;
 use craft\commerce\records\ShippingZoneState as ShippingZoneStateRecord;
 use craft\commerce\records\State as StateRecord;
+use craft\db\Query;
 use yii\base\Component;
 
 /**
@@ -26,31 +25,26 @@ use yii\base\Component;
  */
 class ShippingZones extends Component
 {
-    /*
-     * @var
+    /**
+     * @var ShippingZone[]
      */
-    private $_countriesByShippingZoneId;
-
-    /*
-     * @var
-     */
-    private $_statesByShippingZoneId;
+    private $_allShippingZones;
 
     /**
-     * @param bool $withRelations
-     *
      * @return ShippingZone[]
      */
-    public function getAllShippingZones($withRelations = true)
+    public function getAllShippingZones(): array
     {
-        $with = $withRelations ? [
-            'countries',
-            'states',
-            'states.country'
-        ] : [];
-        $records = ShippingZoneRecord::find()->with($with)->orderBy(['name'])->all();
+        if (null === $this->_allShippingZones) {
+            $this->_allShippingZones = [];
+            $rows = $this->_createShippingZonesQuery()->all();
 
-        return ShippingZone::populateModels($records);
+            foreach ($rows as $row) {
+                $this->_allShippingZones[$row['id']] = new ShippingZone($row);
+            }
+        }
+
+        return $this->_allShippingZones;
     }
 
     /**
@@ -60,15 +54,25 @@ class ShippingZones extends Component
      */
     public function getShippingZoneById($id)
     {
-        $result = ShippingZoneRecord::findOne($id);
+        if (is_array($this->_allShippingZones) && isset($this->_allShippingZones[$id])) {
+            return $this->_allShippingZones[$id];
+        }
 
-        if ($result) {
-            return ShippingZone::populateModel($result);
+        $row = $this->_createShippingZonesQuery()
+            ->where(['id' => $id])
+            ->one();
+
+        if ($row) {
+            if (null === $this->_allShippingZones) {
+                $this->_allShippingZones = [];
+            }
+
+            return $this->_allShippingZones[$id] = new ShippingZone($row);
         }
 
         return null;
     }
-
+    
     /**
      * @param ShippingZone $model
      * @param array        $countryIds
@@ -83,8 +87,7 @@ class ShippingZones extends Component
             $record = ShippingZoneRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Craft::t('commerce', 'No shipping zone exists with the ID “{id}”',
-                    ['id' => $model->id]));
+                throw new Exception(Craft::t('commerce', 'No shipping zone exists with the ID “{id}”', ['id' => $model->id]));
             }
         } else {
             $record = new ShippingZoneRecord();
@@ -162,67 +165,37 @@ class ShippingZones extends Component
 
     /**
      * @param int $id
+     *
+     * @return bool
      */
-    public function deleteShippingZoneById($id)
+    public function deleteShippingZoneById($id): bool
     {
         $record = ShippingZoneRecord::findOne($id);
 
         if ($record) {
-            $record->delete();
+            return (bool)$record->delete();
         }
+
+        return false;
     }
 
+    // Private methods
+    // =========================================================================
     /**
-     * Returns all countries in a shipping zone
+     * Returns a Query object prepped for retrieving shipping zones.
      *
-     * @param $shippingZoneId
-     *
-     * @return array
+     * @return Query
      */
-    public function getCountriesByShippingZoneId($shippingZoneId)
+    private function _createShippingZonesQuery(): Query
     {
-        if (null === $this->_countriesByShippingZoneId || !array_key_exists($shippingZoneId, $this->_countriesByShippingZoneId)) {
-
-            $results = ShippingZoneCountryRecord::find()->with('country')->where([
-                'shippingZoneId' => $shippingZoneId
-            ])->all();
-
-            $countries = [];
-
-            foreach ($results as $result) {
-                $countries[] = Country::populateModel($result->country);
-            }
-
-            $this->_countriesByShippingZoneId[$shippingZoneId] = $countries;
-        }
-
-        return $this->_countriesByShippingZoneId[$shippingZoneId];
+        return (new Query())
+            ->select([
+                'id',
+                'name',
+                'description',
+                'countryBased',
+            ])
+            ->orderBy('name')
+            ->from(['{{%commerce_shippingzones}}']);
     }
-
-    /**
-     * Returns all states in a shipping zone
-     *
-     * @param $shippingZoneId
-     *
-     * @return array
-     */
-    public function getStatesByShippingZoneId($shippingZoneId)
-    {
-        if (null === $this->_statesByShippingZoneId || !array_key_exists($shippingZoneId, $this->_statesByShippingZoneId)) {
-
-            $results = ShippingZoneStateRecord::find()->with('state')->where([
-                'shippingZoneId' => $shippingZoneId
-            ])->all();
-
-            $states = [];
-            foreach ($results as $result) {
-                $states[] = new State($result->state);
-            }
-
-            $this->_statesByShippingZoneId[$shippingZoneId] = $states;
-        }
-
-        return $this->_statesByShippingZoneId[$shippingZoneId];
-    }
-
 }

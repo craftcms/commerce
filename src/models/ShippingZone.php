@@ -3,6 +3,7 @@
 namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
+use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
 
 /**
@@ -51,10 +52,14 @@ class ShippingZone extends Model
      */
     public $default = false;
 
-    /** @var \craft\commerce\models\Country[] $_countries */
+    /**
+     * @var Country[]
+     */
     private $_countries;
 
-    /** @var \craft\commerce\models\Country[] $_states */
+    /**
+     * @var State[]
+     */
     private $_states;
 
     /**
@@ -86,7 +91,7 @@ class ShippingZone extends Model
     public function getCountries()
     {
         if (null === $this->_countries) {
-            $this->_countries = Plugin::getInstance()->getShippingZones()->getCountriesByShippingZoneId($this->id);;
+            $this->_countries = Plugin::getInstance()->getCountries()->getCountriesByShippingZoneId($this->id);
         }
 
         return $this->_countries;
@@ -125,7 +130,7 @@ class ShippingZone extends Model
     public function getStates()
     {
         if (!isset($this->_states)) {
-            $this->_states = Plugin::getInstance()->getShippingZones()->getStatesByShippingZoneId($this->id);;
+            $this->_states = Plugin::getInstance()->getStates()->getStatesByShippingZoneId($this->id);
         }
 
         return $this->_states;

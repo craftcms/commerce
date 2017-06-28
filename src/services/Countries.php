@@ -32,6 +32,11 @@ class Countries extends Component
      */
     private $_countriesByTaxZoneId = [];
 
+  /**
+     * @var Country[]
+     */
+    private $_countriesByShippingZoneId = [];
+
     /**
      * @param int $id
      *
@@ -112,6 +117,32 @@ class Countries extends Component
     }
 
     /**
+     * Returns all countries in a shipping zone
+     *
+     * @param $shippingZoneId
+     *
+     * @return array
+     */
+    public function getCountriesByShippingZoneId($shippingZoneId): array
+    {
+        if (!isset($this->_countriesByShippingZoneId[$shippingZoneId])) {
+            $results = $this->_createCountryQuery()
+                ->innerJoin('{{%commerce_shippingzone_countries}} shippingZoneCountries', '[[countries.id]] = [[shippingZoneCountries.countryId]]')
+                ->where(['shippingZoneCountries.shippingZoneId' => $shippingZoneId])
+                ->all();
+            $countries = [];
+
+            foreach ($results as $result) {
+                $countries[] = new Country($result);
+            }
+
+            $this->_countriesByShippingZoneId[$shippingZoneId] = $countries;
+        }
+
+        return $this->_countriesByShippingZoneId[$shippingZoneId] ?? [];
+    }
+
+    /**
      * @param Country $model
      *
      * @return bool
@@ -123,8 +154,7 @@ class Countries extends Component
             $record = CountryRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Craft::t('commerce', 'No country exists with the ID “{id}”',
-                    ['id' => $model->id]));
+                throw new Exception(Craft::t('commerce', 'No country exists with the ID “{id}”', ['id' => $model->id]));
             }
         } else {
             $record = new CountryRecord();

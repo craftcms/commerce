@@ -38,6 +38,11 @@ class States extends Component
     private $_statesByTaxZoneId = [];
 
     /**
+     * @var State[]
+     */
+    private $_statesByShippingZoneId = [];
+
+    /**
      * @param int $id
      *
      * @return State|null
@@ -127,6 +132,32 @@ class States extends Component
         }
 
         return $this->_statesByTaxZoneId[$taxZoneId] ?? [];
+    }
+    
+    /**
+     * Returns all states in a shipping zone
+     *
+     * @param $shippingZoneId
+     *
+     * @return array
+     */
+    public function getStatesByShippingZoneId($shippingZoneId): array
+    {
+        if (!isset($this->_statesByShippingZoneId[$shippingZoneId])) {
+            $results = $this->_createStatesQuery()
+                ->innerJoin('{{%commerce_shippingzone_states}} shippingZoneStates', '[[states.id]] = [[shippingZoneStates.stateId]]')
+                ->where(['shippingZoneStates.shippingZoneId' => $shippingZoneId])
+                ->all();
+
+            $states = [];
+            foreach ($results as $result) {
+                $states[] = new State($result);
+            }
+
+            $this->_statesByShippingZoneId[$shippingZoneId] = $states;
+        }
+
+        return $this->_statesByShippingZoneId[$shippingZoneId] ?? [];
     }
 
     /**
