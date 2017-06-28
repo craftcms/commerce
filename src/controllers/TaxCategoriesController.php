@@ -83,7 +83,7 @@ class TaxCategoriesController extends BaseAdminController
         // Save it
         if (Plugin::getInstance()->getTaxCategories()->saveTaxCategory($taxCategory)) {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
-                $this->asJson([
+                return $this->asJson([
                     'success' => true,
                     'id' => $taxCategory->id,
                     'name' => $taxCategory->name,
@@ -94,7 +94,7 @@ class TaxCategoriesController extends BaseAdminController
             }
         } else {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
-                $this->asJson([
+                return $this->asJson([
                     'errors' => $taxCategory->getErrors()
                 ]);
             } else {

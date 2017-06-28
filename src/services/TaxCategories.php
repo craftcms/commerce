@@ -4,6 +4,7 @@ namespace craft\commerce\services;
 
 use craft\commerce\models\TaxCategory;
 use craft\commerce\records\TaxCategory as TaxCategoryRecord;
+use craft\db\Query;
 use yii\base\Component;
 use yii\base\Exception;
 
@@ -21,21 +22,46 @@ use yii\base\Exception;
  */
 class TaxCategories extends Component
 {
-
     /**
      * @var bool
      */
     private $_fetchedAllTaxCategories = false;
 
     /**
-     * @var
+     * @var TaxCategory[]
      */
-    private $_taxCategoriesById;
+    private $_taxCategoriesById = [];
 
     /**
-     * @var
+     * @var TaxCategory[]
      */
-    private $_taxCategoriesByHandle;
+    private $_taxCategoriesByHandle = [];
+
+    /**
+     * @var TaxCategory
+     */
+    private $_defaultTaxCategory;
+
+    /**
+     * Returns all Tax Categories
+     *
+     * @return TaxCategory[]
+     */
+    public function getAllTaxCategories(): array
+    {
+        if (!$this->_fetchedAllTaxCategories) {
+            $results = $this->_createTaxCategoryQuery()->all();
+
+            foreach ($results as $result) {
+                $taxCategory = new TaxCategory($result);
+                $this->_memoizeTaxCategory($taxCategory);
+            }
+
+            $this->_fetchedAllTaxCategories = true;
+        }
+
+        return $this->_taxCategoriesById;
+    }
 
     /**
      * @param int $taxCategoryId
@@ -44,25 +70,22 @@ class TaxCategories extends Component
      */
     public function getTaxCategoryById($taxCategoryId)
     {
-        if (!$this->_fetchedAllTaxCategories &&
-            (null === $this->_taxCategoriesById || !array_key_exists($taxCategoryId, $this->_taxCategoriesById))
-        ) {
-            $result = TaxCategoryRecord::findOne($taxCategoryId);
-
-            if ($result) {
-                $taxCategory = $this->_createTaxCategoryFromTaxCategoryRecord($result);
-
-                if ($taxCategory->id) {
-                    $this->_memoizeTaxCategory($taxCategory);
-                }
-
-            } else {
-                // Remember that this ID doesn't exist
-                $this->_taxCategoriesById[$taxCategoryId] = null;
-            }
+        if ($this->_fetchedAllTaxCategories && isset($this->_taxCategoriesById[$taxCategoryId])) {
+            return $this->_taxCategoriesById[$taxCategoryId];
         }
 
-        return $this->_taxCategoriesById[$taxCategoryId];
+        $result = $this->_createTaxCategoryQuery()
+            ->where(['id' => $taxCategoryId])
+            ->one();
+
+        if ($result) {
+            $taxCategory = new TaxCategory($result);
+            $this->_memoizeTaxCategory($taxCategory);
+
+            return $this->_taxCategoriesById[$taxCategoryId];
+        }
+
+        return null;
     }
 
     /**
@@ -85,81 +108,44 @@ class TaxCategories extends Component
      */
     public function getTaxCategoryByHandle($taxCategoryHandle)
     {
-        if (!$this->_fetchedAllTaxCategories &&
-            (null === $this->_taxCategoriesByHandle || !array_key_exists($taxCategoryHandle, $this->_taxCategoriesByHandle))
-        ) {
-            $result = TaxCategoryRecord::find()->where([
-                'handle' => $taxCategoryHandle
-            ])->all();
-
-            if ($result) {
-                $taxCategory = $this->_createTaxCategoryFromTaxCategoryRecord($result);
-
-                if ($taxCategory->id) {
-                    $this->_memoizeTaxCategory($taxCategory);
-                }
-
-            } else {
-                // Remember that this handle doesn't exist
-                $this->_taxCategoriesByHandle[$taxCategoryHandle] = null;
-            }
+        if ($this->_fetchedAllTaxCategories && isset($this->_taxCategoriesByHandle[$taxCategoryHandle])) {
+            return $this->_taxCategoriesByHandle[$taxCategoryHandle];
         }
 
-        return $this->_taxCategoriesByHandle[$taxCategoryHandle];
-    }
+        $result = $this->_createTaxCategoryQuery()
+            ->where(['handle' => $taxCategoryHandle])
+            ->one();
 
-    /**
-     * Id of default tax category
-     *
-     * @return TaxCategory|null
-     */
-    public function getDefaultTaxCategory()
-    {
-        foreach ($this->getAllTaxCategories() as $taxCategory) {
-            if ($taxCategory->default) {
-                return $taxCategory;
-            }
+        if ($result) {
+            $taxCategory = new TaxCategory($result);
+            $this->_memoizeTaxCategory($taxCategory);
+
+            return $this->_taxCategoriesByHandle[$taxCategoryHandle];
         }
 
         return null;
     }
 
     /**
-     * Returns all Tax Categories
+     * Get the default tax category
      *
-     * @param string|null $indexBy
-     *
-     * @return TaxCategory[]
+     * @return TaxCategory|null
      */
-    public function getAllTaxCategories($indexBy = null): array
+    public function getDefaultTaxCategory()
     {
-        if (!$this->_fetchedAllTaxCategories) {
-            $results = TaxCategoryRecord::find()->all();
-
-            foreach ($results as $result) {
-                $taxCategory = $this->_createTaxCategoryFromTaxCategoryRecord($result);
-
-                if ($taxCategory->id) {
-                    $this->_memoizeTaxCategory($taxCategory);
-                }
+        if (null === $this->_defaultTaxCategory) {
+            $row = $this->_createTaxCategoryQuery()
+                ->where(['default' => 1])
+                ->one();
+            
+            if (!$row) {
+                return null;
             }
 
-            $this->_fetchedAllTaxCategories = true;
+            $this->_defaultTaxCategory = new TaxCategory($row);
         }
 
-        if ($indexBy == 'id') {
-            $taxCategories = array_filter($this->_taxCategoriesById);
-        } else if (!$indexBy) {
-            $taxCategories = array_values(array_filter($this->_taxCategoriesById));
-        } else {
-            $taxCategories = [];
-
-            foreach (array_filter($this->_taxCategoriesById) as $taxCategory) {
-                $taxCategories[$taxCategory->$indexBy] = $taxCategory;
-            }
-        }
-
-        return $taxCategories;
+        return $this->_defaultTaxCategory;
     }
 
     /**
@@ -224,41 +210,38 @@ class TaxCategories extends Component
      *
      * @return bool
      */
-    public function deleteTaxCategoryById($id)
+    public function deleteTaxCategoryById($id): bool
     {
         $all = $this->getAllTaxCategories();
-        if (count($all) == 1) {
+
+        if (count($all) === 1) {
             return false;
         }
 
         $record = TaxCategoryRecord::findOne($id);
 
         if ($record) {
-            return $record->delete();
+            return (bool)$record->delete();
         }
 
         return false;
     }
 
     /**
-     * Creates a TaxCategory with attributes from a TaxCategoryRecord.
+     * Returns a Query object prepped for retrieving tax categories.
      *
-     * @param TaxCategoryRecord|null $record
-     *
-     * @return TaxCategory|null
+     * @return Query
      */
-    private function _createTaxCategoryFromTaxCategoryRecord(TaxCategoryRecord $record = null)
+    private function _createTaxCategoryQuery(): Query
     {
-        if (!$record) {
-            return null;
-        }
-
-        return new TaxCategory($record->toArray([
-            'id',
-            'name',
-            'handle',
-            'description',
-            'default'
-        ]));
+        return (new Query())
+            ->select([
+                'id',
+                'name',
+                'handle',
+                'description',
+                'default'
+            ])
+            ->from(['{{%commerce_taxcategories}}']);
     }
 }

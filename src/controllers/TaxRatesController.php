@@ -7,6 +7,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\helpers\ArrayHelper;
 use Craft;
+use craft\i18n\Locale;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -27,8 +28,16 @@ class TaxRatesController extends BaseAdminController
      */
     public function actionIndex(): Response
     {
-        $taxRates = Plugin::getInstance()->getTaxRates()->getAllTaxRatesWithZoneAndCategories();
-        return $this->renderTemplate('commerce/settings/taxrates/index', compact('taxRates'));
+        $plugin = Plugin::getInstance();
+        $taxRates = $plugin->getTaxRates()->getAllTaxRates();
+
+        // Preload all zone and category data for listing.
+        $plugin->getTaxZones()->getAllTaxZones();
+        $plugin->getTaxCategories()->getAllTaxCategories();
+
+        return $this->renderTemplate('commerce/settings/taxrates/index', [
+            'taxRates' => $taxRates
+        ]);
     }
 
     /**
@@ -45,9 +54,11 @@ class TaxRatesController extends BaseAdminController
             'taxRate' => $taxRate
         ];
 
+        $plugin = Plugin::getInstance();
+
         if (!$variables['taxRate']) {
             if ($variables['id']) {
-                $variables['taxRate'] = Plugin::getInstance()->getTaxRates()->getTaxRateById($variables['id']);
+                $variables['taxRate'] = $plugin->getTaxRates()->getTaxRateById($variables['id']);
 
                 if (!$variables['taxRate']) {
                     throw new HttpException(404);
@@ -63,14 +74,16 @@ class TaxRatesController extends BaseAdminController
             $variables['title'] = Craft::t('commerce', 'Create a new tax rate');
         }
 
-        $taxZones = Plugin::getInstance()->getTaxZones()->getAllTaxZones(false);
+        $taxZones = $plugin->getTaxZones()->getAllTaxZones();
         $variables['taxZones'] = [];
+
         foreach ($taxZones as $model) {
             $variables['taxZones'][$model->id] = $model->name;
         }
 
-        $taxCategories = Plugin::getInstance()->getTaxCategories()->getAllTaxCategories();
+        $taxCategories = $plugin->getTaxCategories()->getAllTaxCategories();
         $variables['taxCategories'] = [];
+
         foreach ($taxCategories as $model) {
             $variables['taxCategories'][$model->id] = $model->name;
         }
@@ -82,26 +95,27 @@ class TaxRatesController extends BaseAdminController
         $variables['taxables'] = $taxable;
 
         // Get the HTML and JS for the new tax zone/category modals
-        Craft::$app->getView()->setNamespace('new');
+        $view = Craft::$app->getView();
+        $view->setNamespace('new');
 
-        Craft::$app->getView()->startJsBuffer();
-        $countries = Plugin::getInstance()->getCountries()->getAllCountries();
-        $states = Plugin::getInstance()->getStates()->getAllStates();
-        $variables['newTaxZoneFields'] = Craft::$app->getView()->namespaceInputs(
-            Craft::$app->getView()->render('commerce/settings/taxzones/_fields', [
+        $view->startJsBuffer();
+        $countries = $plugin->getCountries()->getAllCountries();
+        $states = $plugin->getStates()->getAllStates();
+        $variables['newTaxZoneFields'] = $view->namespaceInputs(
+            $view->renderTemplate('commerce/settings/taxzones/_fields', [
                 'countries' => ArrayHelper::map($countries, 'id', 'name'),
                 'states' => ArrayHelper::map($states, 'id', 'name'),
             ])
         );
-        $variables['newTaxZoneJs'] = Craft::$app->getView()->clearJsBuffer(false);
+        $variables['newTaxZoneJs'] = $view->clearJsBuffer(false);
 
-        Craft::$app->getView()->startJsBuffer();
-        $variables['newTaxCategoryFields'] = Craft::$app->getView()->namespaceInputs(
-            Craft::$app->getView()->render('commerce/settings/taxcategories/_fields')
+        $view->startJsBuffer();
+        $variables['newTaxCategoryFields'] = $view->namespaceInputs(
+            $view->renderTemplate('commerce/settings/taxcategories/_fields')
         );
-        $variables['newTaxCategoryJs'] = Craft::$app->getView()->clearJsBuffer(false);
+        $variables['newTaxCategoryJs'] = $view->clearJsBuffer(false);
 
-        Craft::$app->getView()->setNamespace(null);
+        $view->setNamespace(null);
 
         return $this->renderTemplate('commerce/settings/taxrates/_edit', $variables);
     }
@@ -124,13 +138,13 @@ class TaxRatesController extends BaseAdminController
         $taxRate->taxCategoryId = Craft::$app->getRequest()->getParam('taxCategoryId');
         $taxRate->taxZoneId = Craft::$app->getRequest()->getParam('taxZoneId');
 
-        $localeData = Craft::$app->getI18n()->getLocaleData();
-        $percentSign = $localeData->getNumberSymbol('percentSign');
+        $percentSign = Craft::$app->getLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
+
         $rate = Craft::$app->getRequest()->getParam('rate');
         if (strpos($rate, $percentSign) or $rate >= 1) {
-            $taxRate->rate = floatval($rate) / 100;
+            $taxRate->rate = (float)$rate / 100;
         } else {
-            $taxRate->rate = floatval($rate);
+            $taxRate->rate = (float)$rate;
         };
 
         // Save it

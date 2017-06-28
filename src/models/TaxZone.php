@@ -122,12 +122,13 @@ class TaxZone extends Model
      */
     public function getStateIds()
     {
-        $states = [];
+        $stateIds = [];
+        
         foreach ($this->getStates() as $state) {
-            $states[] = $state->id;
+            $stateIds[] = $state->id;
         }
 
-        return $states;
+        return $stateIds;
     }
 
     /**
@@ -163,12 +164,12 @@ class TaxZone extends Model
      */
     public function getCountriesNames()
     {
-        $countries = [];
+        $countryNames = [];
         foreach ($this->getCountries() as $country) {
-            $countries[] = $country->name;
+            $countryNames[] = $country->name;
         }
 
-        return $countries;
+        return $countryNames;
     }
 
     /**
@@ -178,11 +179,11 @@ class TaxZone extends Model
      */
     public function getStatesNames()
     {
-        $states = [];
+        $stateNames = [];
         foreach ($this->getStates() as $state) {
-            $states[] = $state->formatName();
+            $stateNames[] = $state->formatName();
         }
 
-        return $states;
+        return $stateNames;
     }
 }

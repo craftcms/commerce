@@ -65,6 +65,16 @@ class TaxRate extends Model
     public $taxZoneId;
 
     /**
+     * @var TaxCategory
+     */
+    private $_taxCategory;
+
+    /**
+     * @var TaxZone
+     */
+    private $_taxZone;
+
+    /**
      * @inheritdoc
      */
     public function rules()
@@ -97,7 +107,11 @@ class TaxRate extends Model
      */
     public function getTaxZone()
     {
-        return Plugin::getInstance()->getTaxZones()->getTaxZoneById($this->taxZoneId);
+        if (!$this->_taxZone) {
+            $this->_taxZone = Plugin::getInstance()->getTaxZones()->getTaxZoneById($this->taxZoneId);
+        }
+
+        return $this->_taxZone;
     }
 
     /**
@@ -105,6 +119,10 @@ class TaxRate extends Model
      */
     public function getTaxCategory()
     {
-        return Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($this->taxCategoryId);
+        if (!$this->_taxCategory) {
+            $this->_taxCategory = Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($this->taxCategoryId);
+        }
+
+        return $this->_taxCategory;
     }
 }

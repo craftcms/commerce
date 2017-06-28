@@ -2,8 +2,11 @@
 
 namespace craft\commerce\services;
 
+use Craft;
 use craft\commerce\models\TaxRate;
+use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
+use craft\db\Query;
 use yii\base\Component;
 
 /**
@@ -18,43 +21,25 @@ use yii\base\Component;
  */
 class TaxRates extends Component
 {
-    /**
-     *
-     * @return TaxRate[]
-     */
-    public function getAllTaxRates()
-    {
-        $records = TaxRateRecord::find()->all();
-
-        return TaxRate::populateModels($records);
-    }
+    private $_allTaxRates;
 
     /**
      *
      * @return TaxRate[]
      */
-    public function getAllTaxRatesWithCountries(): array
+    public function getAllTaxRates(): array
     {
-        $records = TaxRateRecord::find()->with([
-            'taxZone',
-            'taxZone.countries',
-            'taxZone.states.country'
-        ])->all();
+        if (null === $this->_allTaxRates) {
+            $this->_allTaxRates = [];
+            $rows = $this->_createTaxRatesQuery()->all();
 
-        return TaxRate::populateModels($records);
+            foreach ($rows as $row) {
+                $this->_allTaxRates[$row['id']] = new TaxRate($row);
+            }
+        }
+
+        return $this->_allTaxRates;
     }
-
-    /**
-     *
-     * @return TaxRate[]
-     */
-    public function getAllTaxRatesWithZoneAndCategories(): array
-    {
-        $records = TaxRateRecord::find()->with(['taxZone', 'taxCategory'])->all();
-
-        return TaxRate::populateModels($records);
-    }
-
 
     /**
      * @param int $id
@@ -63,10 +48,20 @@ class TaxRates extends Component
      */
     public function getTaxRateById($id)
     {
-        $result = TaxRateRecord::findOne($id);
+        if (is_array($this->_allTaxRates) && isset($this->_allTaxRates[$id])) {
+            return $this->_allTaxRates[$id];
+        }
 
-        if ($result) {
-            return new TaxRate($result);
+        $row = $this->_createTaxRatesQuery()
+            ->where(['id' => $id])
+            ->one();
+
+        if ($row) {
+            if (null === $this->_allTaxRates) {
+                $this->_allTaxRates = [];
+            }
+
+            return $this->_allTaxRates[$id] = new TaxRate($row);
         }
 
         return null;
@@ -80,7 +75,7 @@ class TaxRates extends Component
      * @throws \CDbException
      * @throws \Exception
      */
-    public function saveTaxRate(TaxRate $model)
+    public function saveTaxRate(TaxRate $model): bool
     {
         if ($model->id) {
             $record = TaxRateRecord::findOne($model->id);
@@ -103,16 +98,16 @@ class TaxRates extends Component
 
         $record->validate();
 
-        if ($record->taxZoneId && !$record->getError('taxZoneId')) {
+        if ($record->taxZoneId && empty($record->getErrors('taxZoneId'))) {
             $taxZone = Plugin::getInstance()->getTaxZones()->getTaxZoneById($record->taxZoneId);
 
             if (!$taxZone) {
-                throw new Exception(Craft::t('commerce', 'commerce', 'No tax zone exists with the ID “{id}”', ['id' => $record->taxZoneId]));
+                throw new Exception(Craft::t('commerce', 'No tax zone exists with the ID “{id}”', ['id' => $record->taxZoneId]));
             }
 
             if ($record->include && !$taxZone->default) {
                 $record->addError('taxZoneId',
-                    Craft::t('commerce', 'commerce', 'Included tax rates are only allowed for the default tax zone. Zone selected is not default.'));
+                    Craft::t('commerce', 'Included tax rates are only allowed for the default tax zone. Zone selected is not default.'));
             }
         }
 
@@ -135,11 +130,39 @@ class TaxRates extends Component
     /**
      * @param int $id
      *
-     * @throws \CDbException
+     * @return bool
      */
-    public function deleteTaxRateById($id)
+    public function deleteTaxRateById($id): bool
     {
-        $TaxRate = TaxRateRecord::findOne($id);
-        $TaxRate->delete();
+        $record = TaxRateRecord::findOne($id);
+
+        if ($record) {
+            return (bool)$record->delete();
+        }
+
+        return false;
+    }
+
+    // Private methods
+    // =========================================================================
+    /**
+     * Returns a Query object prepped for retrieving tax rates
+     *
+     * @return Query
+     */
+    private function _createTaxRatesQuery(): Query
+    {
+        return (new Query())
+            ->select([
+                'id',
+                'taxZoneId',
+                'taxCategoryId',
+                'name',
+                'rate',
+                'include',
+                'isVat',
+                'taxable',
+            ])
+            ->from(['{{%commerce_taxrates}}']);
     }
 }

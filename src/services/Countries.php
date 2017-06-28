@@ -30,7 +30,7 @@ class Countries extends Component
     /**
      * @var Country[]
      */
-    private $_countriesByTaxZoneId;
+    private $_countriesByTaxZoneId = [];
 
     /**
      * @param int $id
@@ -89,8 +89,7 @@ class Countries extends Component
      */
     public function getCountriesByTaxZoneId($taxZoneId)
     {
-        if (null === $this->_countriesByTaxZoneId) {
-            $this->_countriesByTaxZoneId = [];
+        if (!isset($this->_countriesByTaxZoneId[$taxZoneId])) {
             $results = $this->_createCountryQuery()
                 ->innerJoin('{{%commerce_taxzone_countries}} taxZoneCountries', '[[countries.id]] = [[taxZoneCountries.countryId]]')
                 ->all();

@@ -3,6 +3,7 @@
 namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
+use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
 
@@ -54,15 +55,16 @@ class TaxCategory extends Model
     }
 
     /**
-     * @return \craft\commerce\models\TaxRate[]
+     * @return TaxRate[]
      */
     public function getTaxRates()
     {
         $allTaxRates = Plugin::getInstance()->getTaxRates()->getAllTaxRates();
         $taxRates = [];
-        /** @var \craft\commerce\models\TaxRate $rate */
+
+        /** @var TaxRate $rate */
         foreach ($allTaxRates as $rate) {
-            if ($this->id == $rate->taxCategoryId) {
+            if ($this->id === $rate->taxCategoryId) {
                 $taxRates[] = $rate;
             }
         }

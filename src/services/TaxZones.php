@@ -26,25 +26,26 @@ use yii\base\Component;
  */
 class TaxZones extends Component
 {
-    /*
-     * @var
+    /**
+     * @var TaxZone[]
      */
-    private $_countriesByTaxZoneId;
-
-    /*
-     * @var
-     */
-    private $_statesByTaxZoneId;
+    private $_allTaxZones;
 
     /**
      * @return TaxZone[]
      */
-    public function getAllTaxZones()
+    public function getAllTaxZones(): array
     {
+        if (null === $this->_allTaxZones) {
+            $this->_allTaxZones = [];
+            $rows = $this->_createTaxZonesQuery()->all();
 
-        $rows = $this->_createTaxZonesQuery()->all();
+            foreach ($rows as $row) {
+                $this->_allTaxZones[$row['id']] = new TaxZone($row);
+            }
+        }
 
-        return TaxZone::populateModels($rows);
+        return $this->_allTaxZones;
     }
 
     /**
@@ -54,12 +55,20 @@ class TaxZones extends Component
      */
     public function getTaxZoneById($id)
     {
-        $result = $this->_createTaxZonesQuery()
+        if (is_array($this->_allTaxZones) && isset($this->_allTaxZones[$id])) {
+            return $this->_allTaxZones[$id];
+        }
+
+        $row = $this->_createTaxZonesQuery()
             ->where(['id' => $id])
             ->one();
 
-        if ($result) {
-            return new TaxZone($result);
+        if ($row) {
+            if (null === $this->_allTaxZones) {
+                $this->_allTaxZones = [];
+            }
+
+            return $this->_allTaxZones[$id] = new TaxZone($row);
         }
 
         return null;
@@ -73,7 +82,7 @@ class TaxZones extends Component
      * @return bool
      * @throws \Exception
      */
-    public function saveTaxZone(TaxZone $model, $countryIds, $stateIds)
+    public function saveTaxZone(TaxZone $model, $countryIds, $stateIds): bool
     {
         if ($model->id) {
             $record = TaxZoneRecord::findOne($model->id);
@@ -164,14 +173,14 @@ class TaxZones extends Component
     /**
      * @param $id
      *
-     * @return bool|false|int
+     * @return bool
      */
-    public function deleteTaxZoneById($id)
+    public function deleteTaxZoneById($id): bool
     {
         $record = TaxZoneRecord::findOne($id);
 
         if ($record) {
-            return $record->delete();
+            return (bool)$record->delete();
         }
 
         return false;
@@ -180,7 +189,7 @@ class TaxZones extends Component
     // Private methods
     // =========================================================================
     /**
-     * Returns a Query object prepped for retrieving order settings.
+     * Returns a Query object prepped for retrieving tax zones.
      *
      * @return Query
      */
