@@ -25,7 +25,7 @@ class Countries extends Component
     /**
      * @var Country[]
      */
-    private $_countriesById = [];
+    private $_countriesById;
 
     /**
      * @var Country[]
@@ -44,7 +44,11 @@ class Countries extends Component
                 ->where(['id' => $id])
                 ->one();
 
-            $this->_countriesById[$id] = $row ? new Country($row) : null;
+            if (!$row) {
+                return null;
+            }
+
+            $this->_countriesById[$id] = new Country($row);
         }
 
         return $this->_countriesById[$id];
@@ -67,17 +71,18 @@ class Countries extends Component
      */
     public function getAllCountries(): array
     {
-        $results = $this->_createCountryQuery()
-            ->all();
+        if (null === $this->_countriesById) {
+            $results = $this->_createCountryQuery()
+                ->all();
 
-        $countries = [];
+            foreach ($results as $row ) {
+                $country = new Country($row);
 
-        foreach ($results as $result) {
-            $country = new Country($result);
-            $countries[$country->id] = $country;
+                $this->_countriesById[$row['id']] = $country;
+            }
         }
 
-        return $countries;
+        return $this->_countriesById;
     }
 
     /**
@@ -87,11 +92,12 @@ class Countries extends Component
      *
      * @return array
      */
-    public function getCountriesByTaxZoneId($taxZoneId)
+    public function getCountriesByTaxZoneId($taxZoneId): array
     {
         if (!isset($this->_countriesByTaxZoneId[$taxZoneId])) {
             $results = $this->_createCountryQuery()
                 ->innerJoin('{{%commerce_taxzone_countries}} taxZoneCountries', '[[countries.id]] = [[taxZoneCountries.countryId]]')
+                ->where(['taxZoneCountries.taxZoneId' => $taxZoneId])
                 ->all();
             $countries = [];
 
@@ -145,14 +151,19 @@ class Countries extends Component
     }
 
     /**
-     * @param $id
+     * @param int $id
+     *
+     * @return bool
      */
-    public function deleteCountryById($id)
+    public function deleteCountryById($id): bool
     {
-        // Nuke the asset volume.
-        Craft::$app->getDb()->createCommand()
-            ->delete('{{%commerce_countries}}', ['id' => $id])
-            ->execute();
+        $record = CountryRecord::findOne($id);
+
+        if ($record) {
+            return (bool)$record->delete();
+        }
+
+        return false;
     }
 
 

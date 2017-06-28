@@ -7,6 +7,7 @@ use craft\commerce\models\State;
 use craft\commerce\records\State as StateRecord;
 use craft\db\Query;
 use yii\base\Component;
+use yii\base\Exception;
 
 /**
  * State service.
@@ -29,7 +30,12 @@ class States extends Component
     /**
      * @var State[]
      */
-    private $_statesByTaxZoneId;
+    private $_statesOrderedByName;
+
+    /**
+     * @var State[]
+     */
+    private $_statesByTaxZoneId = [];
 
     /**
      * @param int $id
@@ -43,7 +49,11 @@ class States extends Component
                 ->where(['id' => $id])
                 ->one();
 
-            $this->_statesById[$id] = $row ? new State($row) : null;
+            if (!$row) {
+                return null;
+            }
+
+            $this->_statesById[$id] = new State($row);
         }
 
         return $this->_statesById[$id];
@@ -52,16 +62,15 @@ class States extends Component
     /**
      * @return array [countryId => [stateId => stateName]]
      */
-    public function getStatesGroupedByCountries()
+    public function getStatesGroupedByCountries(): array
     {
         $states = $this->getAllStates();
         $cid2state = [];
 
         foreach ($states as $state) {
-
             $cid2state += [$state->countryId => []];
 
-            if (count($cid2state[$state->countryId]) == 0) {
+            if (!count($cid2state[$state->countryId])) {
                 $cid2state[$state->countryId][null] = '';
             }
 
@@ -76,12 +85,22 @@ class States extends Component
      */
     public function getAllStates(): array
     {
-        $states = $this->_createStatesQuery()
-            ->innerJoin('{{%commerce_countries}} countries', '[[states.countryId]] = [[countries.id]]')
-            ->orderBy(['countries.name' => SORT_ASC, 'states.name' => SORT_ASC])
-            ->all();
+        if (null === $this->_statesOrderedByName) {
+            $this->_statesOrderedByName = [];
+            $results = $this->_createStatesQuery()
+                ->innerJoin('{{%commerce_countries}} countries', '[[states.countryId]] = [[countries.id]]')
+                ->orderBy(['countries.name' => SORT_ASC, 'states.name' => SORT_ASC])
+                ->all();
 
-        return State::populateModels($states);
+            foreach ($results as $row ) {
+                $state = new State($row);
+
+                $this->_statesById[$row['id']] = $state;
+                $this->_statesOrderedByName[] = $state;
+            }
+        }
+
+        return $this->_statesOrderedByName;
     }
 
     /**
@@ -91,13 +110,12 @@ class States extends Component
      *
      * @return array
      */
-    public function getStatesByTaxZoneId($taxZoneId)
+    public function getStatesByTaxZoneId($taxZoneId): array
     {
-        if (null === $this->_statesByTaxZoneId) {
-            $this->_statesByTaxZoneId = [];
-
+        if (!isset($this->_statesByTaxZoneId[$taxZoneId])) {
             $results = $this->_createStatesQuery()
                 ->innerJoin('{{%commerce_taxzone_states}} taxZoneStates', '[[states.id]] = [[taxZoneStates.stateId]]')
+                ->where(['taxZoneStates.taxZoneId' => $taxZoneId])
                 ->all();
 
             $states = [];
@@ -119,7 +137,7 @@ class States extends Component
      * @throws \CDbException
      * @throws \Exception
      */
-    public function saveState(State $model)
+    public function saveState(State $model): bool
     {
         if ($model->id) {
             $record = StateRecord::findOne($model->id);
@@ -155,14 +173,17 @@ class States extends Component
     /**
      * @param int $id
      *
-     * @throws \CDbException
+     * @return bool
      */
-    public function deleteStateById($id)
+    public function deleteStateById($id): bool
     {
-        // Nuke the asset volume.
-        Craft::$app->getDb()->createCommand()
-            ->delete('{{%commerce_states}}', ['id' => $id])
-            ->execute();
+        $record = StateRecord::findOne($id);
+
+        if ($record) {
+            return (bool)$record->delete();
+        }
+
+        return false;
     }
 
     // Private methods
