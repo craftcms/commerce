@@ -119,9 +119,9 @@ class ShippingCategoriesController extends BaseAdminController
         $id = Craft::$app->getRequest()->getRequiredParam('id');
 
         if (Plugin::getInstance()->getShippingCategories()->deleteShippingCategoryById($id)) {
-            $this->asJson(['success' => true]);
+            return $this->asJson(['success' => true]);
         } else {
-            $this->asErrorJson(Craft::t('commerce', 'Could not delete shipping category'));
+            return $this->asErrorJson(Craft::t('commerce', 'Could not delete shipping category'));
         }
     }
 
