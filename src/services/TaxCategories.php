@@ -181,16 +181,16 @@ class TaxCategories extends Component
         $model->addErrors($record->getErrors());
 
         if (!$model->hasErrors()) {
+            // If this was the default make all others not the default.
+            if ($model->default) {
+                TaxCategoryRecord::updateAll(['default' => 0]);
+            }
+
             // Save it!
             $record->save(false);
 
             // Now that we have a record ID, save it on the model
             $model->id = $record->id;
-
-            // If this was the default make all others not the default.
-            if ($model->default) {
-                TaxCategoryRecord::updateAll(['default' => 0], ['id' => $record->id]);
-            }
 
             // Update Service cache
             $this->_memoizeTaxCategory($model);
