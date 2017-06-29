@@ -44,14 +44,12 @@ class ShippingMethods extends Component
     /**
      * @var ShippingMethod[]
      */
-    private $_shippingMethodsById;
+    private $_shippingMethodsById = [];
 
     /**
      * @var ShippingMethod[]
      */
-    private $_shippingMethodsByHandle;
-
-    // TODO by handle, memoize. Example services/TaxMethods, services/ShippingMethods.
+    private $_shippingMethodsByHandle = [];
 
     // Public Methods
     // =========================================================================
@@ -81,8 +79,7 @@ class ShippingMethods extends Component
             $results = $this->_createShippingMethodQuery()->all();
 
             foreach ($results as $result) {
-                $shippingMethod = new ShippingMethod($result);
-                $this->_memoizeShippingMethod($shippingMethod);
+                $this->_memoizeShippingMethod(new ShippingMethod($result));
             }
 
             $this->_fetchedAllShippingMethods = true;
@@ -98,22 +95,25 @@ class ShippingMethods extends Component
      */
     public function getShippingMethodByHandle(string $shippingMethodHandle)
     {
-        if ($this->_fetchedAllShippingMethods && isset($this->_shippingMethodsByHandle[$shippingMethodHandle])) {
+        if (isset($this->_shippingMethodsByHandle[$shippingMethodHandle])) {
             return $this->_shippingMethodsByHandle[$shippingMethodHandle];
+        }
+        
+        if ($this->_fetchedAllShippingMethods) {
+            return null;
         }
 
         $result = $this->_createShippingMethodQuery()
             ->where(['handle' => $shippingMethodHandle])
             ->one();
 
-        if ($result) {
-            $shippingMethod = new ShippingMethod($result);
-            $this->_memoizeShippingMethod($shippingMethod);
-
-            return $this->_shippingMethodsByHandle[$shippingMethodHandle];
+        if (!$result) {
+            return null;
         }
 
-        return null;
+        $this->_memoizeShippingMethod(new ShippingMethod($result));
+
+        return $this->_shippingMethodsByHandle[$shippingMethodHandle];
     }
 
     /**
@@ -123,23 +123,25 @@ class ShippingMethods extends Component
      */
     public function getShippingMethodById(int $shippingMethodId)
     {
-
-        if ($this->_fetchedAllShippingMethods && isset($this->_shippingMethodsById[$shippingMethodId])) {
+        if (isset($this->_shippingMethodsById[$shippingMethodId])) {
             return $this->_shippingMethodsById[$shippingMethodId];
+        }
+
+        if ($this->_fetchedAllShippingMethods) {
+            return null;
         }
 
         $result = $this->_createShippingMethodQuery()
             ->where(['id' => $shippingMethodId])
             ->one();
 
-        if ($result) {
-            $shippingMethod = new ShippingMethod($result);
-            $this->_memoizeShippingMethod($shippingMethod);
-
-            return $this->_shippingMethodsById[$shippingMethodId];
+        if (!$result) {
+            return null;
         }
 
-        return null;
+        $this->_memoizeShippingMethod(new ShippingMethod($result));
+
+        return $this->_shippingMethodsById[$shippingMethodId];
     }
 
     /**

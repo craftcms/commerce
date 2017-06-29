@@ -26,22 +26,28 @@ use yii\base\Component;
 class ShippingZones extends Component
 {
     /**
+     * @var bool
+     */
+    private $_fetchedAllShippingZones = false;
+
+    /**
      * @var ShippingZone[]
      */
-    private $_allShippingZones;
+    private $_allShippingZones = [];
 
     /**
      * @return ShippingZone[]
      */
     public function getAllShippingZones(): array
     {
-        if (null === $this->_allShippingZones) {
-            $this->_allShippingZones = [];
+        if (!$this->_fetchedAllShippingZones) {
             $rows = $this->_createShippingZonesQuery()->all();
 
             foreach ($rows as $row) {
                 $this->_allShippingZones[$row['id']] = new ShippingZone($row);
             }
+
+            $this->_fetchedAllShippingZones = true;
         }
 
         return $this->_allShippingZones;
@@ -54,23 +60,23 @@ class ShippingZones extends Component
      */
     public function getShippingZoneById($id)
     {
-        if (is_array($this->_allShippingZones) && isset($this->_allShippingZones[$id])) {
+        if (isset($this->_allShippingZones[$id])) {
             return $this->_allShippingZones[$id];
+        }
+
+        if ($this->_fetchedAllShippingZones) {
+            return null;
         }
 
         $row = $this->_createShippingZonesQuery()
             ->where(['id' => $id])
             ->one();
 
-        if ($row) {
-            if (null === $this->_allShippingZones) {
-                $this->_allShippingZones = [];
-            }
-
-            return $this->_allShippingZones[$id] = new ShippingZone($row);
+        if (!$row) {
+            return null;
         }
 
-        return null;
+        return $this->_allShippingZones[$id] = new ShippingZone($row);
     }
     
     /**

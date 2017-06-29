@@ -23,9 +23,14 @@ use yii\base\Exception;
 class Countries extends Component
 {
     /**
+     * @var bool
+     */
+    private $_fetchedAllCountries = false;
+
+    /**
      * @var Country[]
      */
-    private $_countriesById;
+    private $_countriesById = [];
 
     /**
      * @var Country[]
@@ -44,19 +49,23 @@ class Countries extends Component
      */
     public function getCountryById($id)
     {
-        if (!isset($this->_countriesById[$id])) {
-            $row = $this->_createCountryQuery()
-                ->where(['id' => $id])
-                ->one();
-
-            if (!$row) {
-                return null;
-            }
-
-            $this->_countriesById[$id] = new Country($row);
+        if (isset($this->_countriesById[$id])) {
+            return $this->_countriesById[$id];
         }
 
-        return $this->_countriesById[$id];
+        if ($this->_fetchedAllCountries) {
+            return null;
+        }
+
+        $row = $this->_createCountryQuery()
+            ->where(['id' => $id])
+            ->one();
+
+        if (!$row) {
+            return null;
+        }
+
+        return $this->_countriesById[$id] = new Country($row);
     }
 
     /**
@@ -76,14 +85,12 @@ class Countries extends Component
      */
     public function getAllCountries(): array
     {
-        if (null === $this->_countriesById) {
-            $results = $this->_createCountryQuery()
-                ->all();
+        if (!$this->_fetchedAllCountries) {
+            $this->_fetchedAllCountries = true;
+            $results = $this->_createCountryQuery()->all();
 
             foreach ($results as $row ) {
-                $country = new Country($row);
-
-                $this->_countriesById[$row['id']] = $country;
+                $this->_countriesById[$row['id']] = new Country($row);
             }
         }
 

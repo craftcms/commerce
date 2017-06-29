@@ -29,7 +29,7 @@ class ShippingCategories extends Component
     /**
      * @var ShippingCategory[]
      */
-    private $_shippingCategoriesById;
+    private $_shippingCategoriesById = [];
 
     /**
      * @var ShippingCategory[]
@@ -69,22 +69,25 @@ class ShippingCategories extends Component
      */
     public function getShippingCategoryById(int $shippingCategoryId)
     {
-        if ($this->_fetchedAllShippingCategories && isset($this->_shippingCategoriesById[$shippingCategoryId])) {
+        if (isset($this->_shippingCategoriesById[$shippingCategoryId])) {
             return $this->_shippingCategoriesById[$shippingCategoryId];
+        }
+
+        if ($this->_fetchedAllShippingCategories) {
+            return null;
         }
 
         $result = $this->_createShippingCategoryQuery()
             ->where(['id' => $shippingCategoryId])
             ->one();
 
-        if ($result) {
-            $shippingCategory = new ShippingCategory($result);
-            $this->_memoizeShippingCategory($shippingCategory);
-
-            return $this->_shippingCategoriesById[$shippingCategoryId];
+        if (!$result) {
+            return null;
         }
 
-        return null;
+        $this->_memoizeShippingCategory(new ShippingCategory($result));
+
+        return $this->_shippingCategoriesById[$shippingCategoryId];
     }
     
     /**
@@ -94,22 +97,25 @@ class ShippingCategories extends Component
      */
     public function getShippingCategoryByHandle(string $shippingCategoryHandle)
     {
-        if ($this->_fetchedAllShippingCategories && isset($this->_shippingCategoriesByHandle[$shippingCategoryHandle])) {
+        if (isset($this->_shippingCategoriesByHandle[$shippingCategoryHandle])) {
             return $this->_shippingCategoriesByHandle[$shippingCategoryHandle];
+        }
+
+        if ($this->_fetchedAllShippingCategories) {
+            return null;
         }
 
         $result = $this->_createShippingCategoryQuery()
             ->where(['handle' => $shippingCategoryHandle])
             ->one();
 
-        if ($result) {
-            $shippingCategory = new ShippingCategory($result);
-            $this->_memoizeShippingCategory($shippingCategory);
-
-            return $this->_shippingCategoriesByHandle[$shippingCategoryHandle];
+        if (!$result) {
+            return null;
         }
 
-        return null;
+        $this->_memoizeShippingCategory(new ShippingCategory($result));
+
+        return $this->_shippingCategoriesByHandle[$shippingCategoryHandle];
     }
 
     /**

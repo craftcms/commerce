@@ -27,6 +27,11 @@ use yii\base\Component;
 class TaxZones extends Component
 {
     /**
+     * @var bool
+     */
+    private $_fetchedAllTaxZones = false;
+
+    /**
      * @var TaxZone[]
      */
     private $_allTaxZones;
@@ -36,13 +41,15 @@ class TaxZones extends Component
      */
     public function getAllTaxZones(): array
     {
-        if (null === $this->_allTaxZones) {
+        if (!$this->_fetchedAllTaxZones) {
             $this->_allTaxZones = [];
             $rows = $this->_createTaxZonesQuery()->all();
 
             foreach ($rows as $row) {
                 $this->_allTaxZones[$row['id']] = new TaxZone($row);
             }
+            
+            $this->_fetchedAllTaxZones = true;
         }
 
         return $this->_allTaxZones;
@@ -55,23 +62,23 @@ class TaxZones extends Component
      */
     public function getTaxZoneById($id)
     {
-        if (is_array($this->_allTaxZones) && isset($this->_allTaxZones[$id])) {
+        if (isset($this->_allTaxZones[$id])) {
             return $this->_allTaxZones[$id];
+        }
+
+        if ($this->_fetchedAllTaxZones) {
+            return null;
         }
 
         $row = $this->_createTaxZonesQuery()
             ->where(['id' => $id])
             ->one();
 
-        if ($row) {
-            if (null === $this->_allTaxZones) {
-                $this->_allTaxZones = [];
-            }
-
-            return $this->_allTaxZones[$id] = new TaxZone($row);
+        if (!$row) {
+            return null;
         }
 
-        return null;
+        return $this->_allTaxZones[$id] = new TaxZone($row);
     }
 
     /**

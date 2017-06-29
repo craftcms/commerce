@@ -70,22 +70,25 @@ class TaxCategories extends Component
      */
     public function getTaxCategoryById($taxCategoryId)
     {
-        if ($this->_fetchedAllTaxCategories && isset($this->_taxCategoriesById[$taxCategoryId])) {
+        if (isset($this->_taxCategoriesById[$taxCategoryId])) {
             return $this->_taxCategoriesById[$taxCategoryId];
+        }
+
+        if ($this->_fetchedAllTaxCategories) {
+            return null;
         }
 
         $result = $this->_createTaxCategoryQuery()
             ->where(['id' => $taxCategoryId])
             ->one();
 
-        if ($result) {
-            $taxCategory = new TaxCategory($result);
-            $this->_memoizeTaxCategory($taxCategory);
-
-            return $this->_taxCategoriesById[$taxCategoryId];
+        if (!$result) {
+            return null;
         }
 
-        return null;
+        $this->_memoizeTaxCategory(new TaxCategory($result));
+
+        return $this->_taxCategoriesById[$taxCategoryId];
     }
 
     /**
@@ -108,22 +111,26 @@ class TaxCategories extends Component
      */
     public function getTaxCategoryByHandle($taxCategoryHandle)
     {
-        if ($this->_fetchedAllTaxCategories && isset($this->_taxCategoriesByHandle[$taxCategoryHandle])) {
+        if (isset($this->_taxCategoriesByHandle[$taxCategoryHandle])) {
             return $this->_taxCategoriesByHandle[$taxCategoryHandle];
+        }
+
+        if ($this->_fetchedAllTaxCategories) {
+            return null;
         }
 
         $result = $this->_createTaxCategoryQuery()
             ->where(['handle' => $taxCategoryHandle])
             ->one();
 
-        if ($result) {
-            $taxCategory = new TaxCategory($result);
-            $this->_memoizeTaxCategory($taxCategory);
-
-            return $this->_taxCategoriesByHandle[$taxCategoryHandle];
+        if (!$result) {
+            return null;
         }
 
-        return null;
+        $taxCategory = new TaxCategory($result);
+        $this->_memoizeTaxCategory($taxCategory);
+
+        return $this->_taxCategoriesByHandle[$taxCategoryHandle];
     }
 
     /**
@@ -137,7 +144,7 @@ class TaxCategories extends Component
             $row = $this->_createTaxCategoryQuery()
                 ->where(['default' => 1])
                 ->one();
-            
+
             if (!$row) {
                 return null;
             }

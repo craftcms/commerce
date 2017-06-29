@@ -21,6 +21,10 @@ use yii\base\Exception;
  */
 class States extends Component
 {
+    /**
+     * @var bool
+     */
+    private $_fetchedAllStates = false;
 
     /**
      * @var State[]
@@ -30,15 +34,15 @@ class States extends Component
     /**
      * @var State[]
      */
-    private $_statesOrderedByName;
+    private $_statesOrderedByName = [];
 
     /**
-     * @var State[]
+     * @var State[][]
      */
     private $_statesByTaxZoneId = [];
 
     /**
-     * @var State[]
+     * @var State[][]
      */
     private $_statesByShippingZoneId = [];
 
@@ -49,19 +53,23 @@ class States extends Component
      */
     public function getStateById($id)
     {
-        if (!isset($this->_statesById[$id])) {
-            $row = $this->_createStatesQuery()
-                ->where(['id' => $id])
-                ->one();
-
-            if (!$row) {
-                return null;
-            }
-
-            $this->_statesById[$id] = new State($row);
+        if (isset($this->_statesById[$id])) {
+            return $this->_statesById[$id];
         }
 
-        return $this->_statesById[$id];
+        if ($this->_fetchedAllStates) {
+            return null;
+        }
+
+        $row = $this->_createStatesQuery()
+            ->where(['id' => $id])
+            ->one();
+
+        if (!$row) {
+            return null;
+        }
+
+        return $this->_statesById[$id] = new State($row);
     }
 
     /**
@@ -90,8 +98,7 @@ class States extends Component
      */
     public function getAllStates(): array
     {
-        if (null === $this->_statesOrderedByName) {
-            $this->_statesOrderedByName = [];
+        if (!$this->_fetchedAllStates) {
             $results = $this->_createStatesQuery()
                 ->innerJoin('{{%commerce_countries}} countries', '[[states.countryId]] = [[countries.id]]')
                 ->orderBy(['countries.name' => SORT_ASC, 'states.name' => SORT_ASC])
@@ -99,10 +106,11 @@ class States extends Component
 
             foreach ($results as $row ) {
                 $state = new State($row);
-
                 $this->_statesById[$row['id']] = $state;
                 $this->_statesOrderedByName[] = $state;
             }
+
+            $this->_fetchedAllStates;
         }
 
         return $this->_statesOrderedByName;
@@ -113,7 +121,7 @@ class States extends Component
      *
      * @param $taxZoneId
      *
-     * @return array
+     * @return States[]
      */
     public function getStatesByTaxZoneId($taxZoneId): array
     {
@@ -124,6 +132,7 @@ class States extends Component
                 ->all();
 
             $states = [];
+
             foreach ($results as $result) {
                 $states[] = new State($result);
             }
@@ -139,7 +148,7 @@ class States extends Component
      *
      * @param $shippingZoneId
      *
-     * @return array
+     * @return States[]
      */
     public function getStatesByShippingZoneId($shippingZoneId): array
     {
@@ -150,6 +159,7 @@ class States extends Component
                 ->all();
 
             $states = [];
+
             foreach ($results as $result) {
                 $states[] = new State($result);
             }

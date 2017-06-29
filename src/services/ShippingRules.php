@@ -25,22 +25,27 @@ use yii\base\Component;
 class ShippingRules extends Component
 {
     /**
+     * @var bool
+     */
+    private $_fetchedAllShippingRules = false;
+
+    /**
      * @var ShippingRule[]
      */
-    private $_allShippingRules;
+    private $_allShippingRules = [];
 
     /**
      * @var ShippingRule[][]
      */
-    private $_shippingRulesByMethodId;
+    private $_shippingRulesByMethodId = [];
 
     /**
      * @return ShippingRule[]
      */
     public function getAllShippingRules(): array
     {
-        if (null === $this->_allShippingRules) {
-            $this->_allShippingRules = [];
+        if (!$this->_fetchedAllShippingRules) {
+            $this->_fetchedAllShippingRules = true;
             $rows = $this->_createShippingRulesQuery()->all();
 
             foreach ($rows as $row) {
@@ -62,12 +67,17 @@ class ShippingRules extends Component
             return $this->_shippingRulesByMethodId[$id];
         }
 
+        if ($this->_fetchedAllShippingRules) {
+            return null;
+        }
+
         $results = $this->_createShippingRulesQuery()
             ->where(['methodId' => $id])
             ->orderBy('priority')
             ->all();
 
         $rules = [];
+
         foreach ($results as $row) {
             $rule = new ShippingRule($row);
             $rules[] = $rule;
@@ -86,23 +96,23 @@ class ShippingRules extends Component
      */
     public function getShippingRuleById($id)
     {
-        if (is_array($this->_allShippingRules) && isset($this->_allShippingRules[$id])) {
+        if (isset($this->_allShippingRules[$id])) {
             return $this->_allShippingRules[$id];
+        }
+
+        if ($this->_fetchedAllShippingRules) {
+            return null;
         }
 
         $row = $this->_createShippingRulesQuery()
             ->where(['id' => $id])
             ->one();
 
-        if ($row) {
-            if (null === $this->_allShippingRules) {
-                $this->_allShippingRules = [];
-            }
-
-            return $this->_allShippingRules[$id] = new ShippingRule($row);
+        if (!$row) {
+            return null;
         }
 
-        return null;
+        return $this->_allShippingRules[$id] = new ShippingRule($row);
     }
 
     /**

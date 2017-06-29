@@ -21,7 +21,15 @@ use yii\base\Component;
  */
 class TaxRates extends Component
 {
-    private $_allTaxRates;
+    /**
+     * @var bool
+     */
+    private $_fetchedAllTaxRates = false;
+
+    /**
+     * @var TaxRate[]
+     */
+    private $_allTaxRates = [];
 
     /**
      *
@@ -29,13 +37,14 @@ class TaxRates extends Component
      */
     public function getAllTaxRates(): array
     {
-        if (null === $this->_allTaxRates) {
-            $this->_allTaxRates = [];
+        if (!$this->_fetchedAllTaxRates) {
             $rows = $this->_createTaxRatesQuery()->all();
 
             foreach ($rows as $row) {
                 $this->_allTaxRates[$row['id']] = new TaxRate($row);
             }
+            
+            $this->_fetchedAllTaxRates = true;
         }
 
         return $this->_allTaxRates;
@@ -48,23 +57,23 @@ class TaxRates extends Component
      */
     public function getTaxRateById($id)
     {
-        if (is_array($this->_allTaxRates) && isset($this->_allTaxRates[$id])) {
+        if (isset($this->_allTaxRates[$id])) {
             return $this->_allTaxRates[$id];
+        }
+
+        if ($this->_fetchedAllTaxRates) {
+            return null;
         }
 
         $row = $this->_createTaxRatesQuery()
             ->where(['id' => $id])
             ->one();
 
-        if ($row) {
-            if (null === $this->_allTaxRates) {
-                $this->_allTaxRates = [];
-            }
-
-            return $this->_allTaxRates[$id] = new TaxRate($row);
+        if (!$row) {
+            return null;
         }
 
-        return null;
+        return $this->_allTaxRates[$id] = new TaxRate($row);
     }
 
     /**
