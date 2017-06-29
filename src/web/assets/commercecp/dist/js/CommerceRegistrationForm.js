@@ -85,7 +85,7 @@
         },
 
         loadLicenseInfo: function(action) {
-            Craft.postActionRequest('commerce/registration/getLicenseInfo', $.proxy(function(response, textStatus) {
+            Craft.postActionRequest('commerce/registration/get-license-info', $.proxy(function(response, textStatus) {
                 if (textStatus == 'success') {
                     this.unloadLoadingUi();
                     this.setLicenseKey(response.licenseKey);
@@ -185,7 +185,7 @@
                 licenseKey: licenseKey
             };
 
-            Craft.postActionRequest('commerce/registration/updateLicenseKey', data, $.proxy(function(response, textStatus) {
+            Craft.postActionRequest('commerce/registration/update-license-key', data, $.proxy(function(response, textStatus) {
                 this.$updateLicenseSpinner.addClass('hidden');
                 if (textStatus == 'success') {
                     if (response.success) {

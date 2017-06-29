@@ -243,7 +243,7 @@ class Plugin extends \craft\base\Plugin
                 if (null !== $message) {
                     $message .= ' ';
 
-                    if (Craft::$app->getUser()->identity->admin()) {
+                    if (Craft::$app->getUser()->getIsAdmin()) {
                         $message .= '<a class="go" href="'.UrlHelper::cpUrl('commerce/settings/registration').'">'.Craft::t('commerce', 'Resolve').'</a>';
                     } else {
                         $message .= Craft::t('commerce', 'Please notify one of your site’s admins.');

@@ -3,6 +3,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 
 /**
  * Class Registration Controller
@@ -18,6 +19,8 @@ class RegistrationController extends BaseAdminController
 {
     public function actionEdit()
     {
+        Craft::$app->getView()->registerAssetBundle(CommerceCpAsset::class);
+
         $licenseKey = Craft::$app->getPlugins()->getPluginLicenseKey('Commerce');
 
         return $this->renderTemplate('commerce/settings/registration', [
@@ -32,7 +35,7 @@ class RegistrationController extends BaseAdminController
 
         Craft::$app->getEt()->ping();
 
-        $this->_sendSuccessResponse();
+        return $this->_sendSuccessResponse();
     }
 
     /**
@@ -40,7 +43,7 @@ class RegistrationController extends BaseAdminController
      */
     private function _sendSuccessResponse()
     {
-        $this->asJson([
+        return $this->asJson([
             'success' => true,
             'licenseKey' => Craft::$app->getPlugins()->getPluginLicenseKey('Commerce'),
             'licenseKeyStatus' => Craft::$app->getPlugins()->getPluginLicenseKeyStatus('Commerce'),
@@ -53,7 +56,7 @@ class RegistrationController extends BaseAdminController
         $this->requireAcceptsJson();
 
         $etResponse = Craft::$app->getEt()->unregisterPlugin('Commerce');
-        $this->_handleEtResponse($etResponse);
+        return $this->_handleEtResponse($etResponse);
     }
 
     /**
@@ -66,7 +69,7 @@ class RegistrationController extends BaseAdminController
     private function _handleEtResponse($etResponse)
     {
         if (!empty($etResponse->data['success'])) {
-            $this->_sendSuccessResponse();
+            return $this->_sendSuccessResponse();
         } else {
             if (!empty($etResponse->errors)) {
                 switch ($etResponse->errors[0]) {
@@ -83,7 +86,7 @@ class RegistrationController extends BaseAdminController
                 $error = Craft::t('commerce', 'An unknown error occurred.');
             }
 
-            $this->asErrorJson($error);
+            return $this->asErrorJson($error);
         }
     }
 
@@ -105,12 +108,12 @@ class RegistrationController extends BaseAdminController
 
             // Register it with Elliott
             $etResponse = Craft::$app->getEt()->registerPlugin('Commerce');
-            $this->_handleEtResponse($etResponse);
+            return $this->_handleEtResponse($etResponse);
         } else {
             // Just clear our record of the license key
             Craft::$app->getPlugins()->setPluginLicenseKey('Commerce', null);
             Craft::$app->getPlugins()->setPluginLicenseKeyStatus('Commerce', LicenseKeyStatus::Unknown);
-            $this->_sendSuccessResponse();
+            return $this->_sendSuccessResponse();
         }
     }
 
@@ -120,6 +123,6 @@ class RegistrationController extends BaseAdminController
         $this->requireAcceptsJson();
 
         $etResponse = Craft::$app->getEt()->transferPlugin('Commerce');
-        $this->_handleEtResponse($etResponse);
+        return $this->_handleEtResponse($etResponse);
     }
 }
