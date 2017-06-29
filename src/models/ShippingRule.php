@@ -4,6 +4,7 @@ namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
 use craft\commerce\base\ShippingRuleInterface;
+use craft\commerce\Plugin;
 use craft\commerce\records\ShippingRuleCategory;
 
 /**
@@ -103,6 +104,11 @@ class ShippingRule extends Model implements ShippingRuleInterface
      * @var float Percentage rate
      */
     public $percentageRate = 0;
+
+    /**
+     * @var float Weight rate
+     */
+    public $weightRate = 0;
 
     /**
      * @var float Minimum Rate
@@ -268,12 +274,12 @@ class ShippingRule extends Model implements ShippingRuleInterface
     }
 
     /**
-     * @return Model\ShippingRuleCategory[]
+     * @return ShippingRuleCategory[]
      */
     public function getShippingRuleCategories()
     {
         if (null === $this->_shippingRuleCategories) {
-            $this->_shippingRuleCategories = Plugin::getInstance()->getShippingRules()->getShippingRuleCategoryByRuleId($this->id);
+            $this->_shippingRuleCategories = Plugin::getInstance()->getShippingRuleCategories()->getShippingRuleCategoryByRuleId($this->id);
         }
 
         return $this->_shippingRuleCategories;

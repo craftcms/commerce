@@ -12,7 +12,7 @@
     {% set tabs = {
     0: {'label':'Shipping Method'|t('commerce'),'url':'#shipping-method-tab'}
     } %}
-    {% if not shippingMethod.id %}
+    {% if shippingMethod.id %}
         {% set tabs = tabs|merge({1: {'label':'Rules'|t('commerce'),'url':'#rules'}}) %}
     {% endif %}
 
@@ -23,8 +23,8 @@
 
 {% block content %}
     <div id="shipping-method-tab">
-        <input type="hidden" name="action" value="commerce/shippingMethods/save">
-        <input type="hidden" name="redirect" value="commerce/settings/shippingmethods/{id}#rules">
+        <input type="hidden" name="action" value="commerce/shipping-methods/save">
+        {{ redirectInput('commerce/settings/shippingmethods/{id}#rules') }}
         {% if shippingMethod.id %}<input type="hidden" name="shippingMethodId" value="{{ shippingMethod.id }}">{% endif %}
 
         {{ forms.textField({
@@ -122,9 +122,9 @@
 var adminTable = new Craft.AdminTable({
 tableSelector: '#shipping-rules',
 noObjectsSelector: '#no-shipping-rules',
-deleteAction: 'commerce/shippingRules/delete',
+deleteAction: 'commerce/shipping-rules/delete',
 sortable: true,
-reorderAction: 'commerce/shippingRules/reorder',
+reorderAction: 'commerce/shipping-rules/reorder',
 reorderSuccessMessage: Craft.t('Rules reordered.'),
 reorderFailMessage:    Craft.t('Couldn’t reorder rules..'),
 confirmDeleteMessage:  Craft.t('Are you sure you want to delete “{name}”?'),

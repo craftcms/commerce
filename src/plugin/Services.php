@@ -25,6 +25,7 @@ use craft\commerce\services\Sales;
 use craft\commerce\services\Settings;
 use craft\commerce\services\ShippingCategories;
 use craft\commerce\services\ShippingMethods;
+use craft\commerce\services\ShippingRuleCategories;
 use craft\commerce\services\ShippingRules;
 use craft\commerce\services\ShippingZones;
 use craft\commerce\services\States;
@@ -271,6 +272,16 @@ trait Services
     }
 
     /**
+     * Returns the shippingRules service
+     *
+     * @return ShippingRuleCategories The shippingRuleCategories service
+     */
+    public function getShippingRuleCategories()
+    {
+        return $this->get('shippingRuleCategories');
+    }
+
+    /**
      * Returns the shippingCategories service
      *
      * @return ShippingCategories The shippingCategories service
@@ -380,6 +391,7 @@ trait Services
             'settings' => Settings::class,
             'shippingMethods' => ShippingMethods::class,
             'shippingRules' => ShippingRules::class,
+            'shippingRuleCategories' => ShippingRuleCategories::class,
             'shippingCategories' => ShippingCategories::class,
             'shippingZones' => ShippingZones::class,
             'states' => States::class,

@@ -2,8 +2,10 @@
 
 namespace craft\commerce\models;
 
+use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\base\ShippingMethodInterface;
+use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
 
 /**
@@ -35,14 +37,9 @@ class ShippingMethod extends Model implements ShippingMethodInterface
     public $handle;
 
     /**
-     * @var bool Required
+     * @var bool Enabled
      */
-    public $required;
-
-    /**
-     * @var bool Default;
-     */
-    public $default;
+    public $enabled;
 
     /**
      * @return string

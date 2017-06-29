@@ -49,7 +49,8 @@ class ShippingRulesController extends BaseAdminController
             'shippingRule' => $shippingRule,
         ];
 
-        $variables['shippingMethod'] = Plugin::getInstance()->getShippingMethods()->getShippingMethodById($variables['methodId']);
+        $plugin = Plugin::getInstance();
+        $variables['shippingMethod'] = $plugin->getShippingMethods()->getShippingMethodById($variables['methodId']);
 
         if (!$variables['shippingMethod']) {
             throw new HttpException(404);
@@ -57,7 +58,7 @@ class ShippingRulesController extends BaseAdminController
 
         if (!$variables['shippingRule']) {
             if ($variables['ruleId']) {
-                $variables['shippingRule'] = Plugin::getInstance()->getShippingRules()->getShippingRuleById($variables['ruleId']);
+                $variables['shippingRule'] = $plugin->getShippingRules()->getShippingRuleById($variables['ruleId']);
 
                 if (!$variables['shippingRule']) {
                     throw new HttpException(404);
@@ -67,16 +68,16 @@ class ShippingRulesController extends BaseAdminController
             }
         }
 
-        $variables['countries'] = ['' => ''] + Plugin::getInstance()->getCountries()->getAllCountriesListData();
-        $variables['states'] = Plugin::getInstance()->getStates()->getStatesGroupedByCountries();
+        $variables['countries'] = ['' => ''] + $plugin->getCountries()->getAllCountriesListData();
+        $variables['states'] = $plugin->getStates()->getStatesGroupedByCountries();
 
         Craft::$app->getView()->setNamespace('new');
 
         Craft::$app->getView()->startJsBuffer();
-        $countries = Plugin::getInstance()->getCountries()->getAllCountries();
-        $states = Plugin::getInstance()->getStates()->getAllStates();
+        $countries = $plugin->getCountries()->getAllCountries();
+        $states = $plugin->getStates()->getAllStates();
         $variables['newShippingZoneFields'] = Craft::$app->getView()->namespaceInputs(
-            Craft::$app->getView()->render('commerce/settings/shippingzones/_fields', [
+            Craft::$app->getView()->renderTemplate('commerce/settings/shippingzones/_fields', [
                 'countries' => ArrayHelper::map($countries, 'id', 'name'),
                 'states' => ArrayHelper::map($states, 'id', 'name'),
             ])
@@ -89,7 +90,7 @@ class ShippingRulesController extends BaseAdminController
             $variables['title'] = Craft::t('commerce', 'Create a new shipping rule');
         }
 
-        $shippingZones = Plugin::getInstance()->getShippingZones()->getAllShippingZones(false);
+        $shippingZones = $plugin->getShippingZones()->getAllShippingZones();
         $variables['shippingZones'] = [];
         $variables['shippingZones'][] = "Anywhere";
         foreach ($shippingZones as $model) {
@@ -169,8 +170,11 @@ class ShippingRulesController extends BaseAdminController
 
         $id = Craft::$app->getRequest()->getRequiredParam('id');
 
-        Plugin::getInstance()->getShippingRules()->deleteShippingRuleById($id);
-        $this->asJson(['success' => true]);
+        if (Plugin::getInstance()->getShippingRules()->deleteShippingRuleById($id)) {
+            return $this->asJson(['success' => true]);
+        } else {
+            return $this->asErrorJson(Craft::t('commerce', 'Could not delete shipping rule'));
+        }
     }
 
 }

@@ -7,8 +7,10 @@ use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\base\ShippingRuleInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\models\ShippingMethod;
+use craft\commerce\models\ShippingRule;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingMethod as ShippingMethodRecord;
+use craft\db\Query;
 use yii\base\Component;
 
 /**
@@ -37,44 +39,22 @@ class ShippingMethods extends Component
     /**
      * @var bool
      */
-    private $_shippingMethods;
+    private $_fetchedAllShippingMethods = false;
+
+    /**
+     * @var ShippingMethod[]
+     */
+    private $_shippingMethodsById;
+
+    /**
+     * @var ShippingMethod[]
+     */
+    private $_shippingMethodsByHandle;
+
+    // TODO by handle, memoize. Example services/TaxMethods, services/ShippingMethods.
 
     // Public Methods
     // =========================================================================
-
-    /**
-     * @param int $id
-     *
-     * @return ShippingMethod|null
-     */
-    public function getShippingMethodById($id)
-    {
-        $result = ShippingMethodRecord::findOne($id);
-
-        if ($result) {
-            return new ShippingMethod($result);
-        }
-
-        return null;
-    }
-
-    /**
-     * @param string $handle
-     *
-     * @return ShippingMethodInterface|null
-     */
-    public function getShippingMethodByHandle($handle)
-    {
-        $methods = $this->getAllShippingMethods();
-
-        foreach ($methods as $method) {
-            if ($method->getHandle() == $handle) {
-                return $method;
-            }
-        }
-
-        return null;
-    }
 
     /**
      * Returns the Commerce managed and 3rd party shipping methods
@@ -83,27 +63,83 @@ class ShippingMethods extends Component
      */
     public function getAllShippingMethods()
     {
-        // TODO this will change when shipping methods are refactored.
-        if (null === $this->_shippingMethods) {
-            $shippingMethods = ShippingMethod::populateModels(ShippingMethodRecord::findAll());
+        // TODO this will happen when shipping methods are refactored. For now just make sure it runs at all on Craft 3.
 
-            $event = new RegisterComponentTypesEvent([
-                'types' => $shippingMethods
-            ]);
-            $this->trigger(self::EVENT_REGISTER_SHIPPING_METHODS, $event);
+//        if (null === $this->_shippingMethods) {
+//            $shippingMethods = ShippingMethod::populateModels(ShippingMethodRecord::findAll());
+//
+//            $event = new RegisterComponentTypesEvent([
+//                'types' => $shippingMethods
+//            ]);
+//            $this->trigger(self::EVENT_REGISTER_SHIPPING_METHODS, $event);
+//
+//            $this->_shippingMethods = $event->types;
+//        }
+//
+//        return $this->_shippingMethods;
+        if (!$this->_fetchedAllShippingMethods) {
+            $results = $this->_createShippingMethodQuery()->all();
 
-            $this->_shippingMethods = $event->types;
+            foreach ($results as $result) {
+                $shippingMethod = new ShippingMethod($result);
+                $this->_memoizeShippingMethod($shippingMethod);
+            }
+
+            $this->_fetchedAllShippingMethods = true;
         }
 
-        return $this->_shippingMethods;
+        return $this->_shippingMethodsById;
     }
 
     /**
-     * @return bool
+     * @param string $shippingMethodHandle
+     *
+     * @return ShippingMethod|null
      */
-    public function ShippingMethodExists()
+    public function getShippingMethodByHandle(string $shippingMethodHandle)
     {
-        return ShippingMethodRecord::find()->exists();
+        if ($this->_fetchedAllShippingMethods && isset($this->_shippingMethodsByHandle[$shippingMethodHandle])) {
+            return $this->_shippingMethodsByHandle[$shippingMethodHandle];
+        }
+
+        $result = $this->_createShippingMethodQuery()
+            ->where(['handle' => $shippingMethodHandle])
+            ->one();
+
+        if ($result) {
+            $shippingMethod = new ShippingMethod($result);
+            $this->_memoizeShippingMethod($shippingMethod);
+
+            return $this->_shippingMethodsByHandle[$shippingMethodHandle];
+        }
+
+        return null;
+    }
+
+    /**
+     * @param int $shippingMethodId
+     *
+     * @return ShippingMethod|null
+     */
+    public function getShippingMethodById(int $shippingMethodId)
+    {
+
+        if ($this->_fetchedAllShippingMethods && isset($this->_shippingMethodsById[$shippingMethodId])) {
+            return $this->_shippingMethodsById[$shippingMethodId];
+        }
+
+        $result = $this->_createShippingMethodQuery()
+            ->where(['id' => $shippingMethodId])
+            ->one();
+
+        if ($result) {
+            $shippingMethod = new ShippingMethod($result);
+            $this->_memoizeShippingMethod($shippingMethod);
+
+            return $this->_shippingMethodsById[$shippingMethodId];
+        }
+
+        return null;
     }
 
     /**
@@ -134,6 +170,9 @@ class ShippingMethods extends Component
         $methods = $this->getAllShippingMethods();
 
         foreach ($methods as $method) {
+            /**
+             * @var ShippingRule $rule
+             */
             if ($method->getIsEnabled() && $rule = $this->getMatchingShippingRule($cart, $method)) {
                 $amount = $rule->getBaseRate();
 
@@ -172,14 +211,12 @@ class ShippingMethods extends Component
     }
 
     /**
-     * @param Order                   $order
-     * @param ShippingMethodInterface $method
+     * @param Order          $order
+     * @param ShippingMethod $method
      *
-     * @return bool|ShippingMethod
+     * @return bool|ShippingRuleInterface
      */
-    public function getMatchingShippingRule(
-        Order $order,
-        ShippingMethod $method
+    public function getMatchingShippingRule(Order $order, ShippingMethod $method
     ) {
         foreach ($method->getShippingRules() as $rule) {
             /** @var ShippingRuleInterface $rule */
@@ -232,24 +269,23 @@ class ShippingMethods extends Component
 
 
     /**
-     * @param $model
+     * @param $shippingMethodId int
      *
      * @return bool
      */
-    public function delete($model)
+    public function deleteShippingMethodById($shippingMethodId):bool
     {
         // Delete all rules first.
         $db = Craft::$app->getDb();
         $transaction = $db->beginTransaction();
 
         try {
-
-            $rules = Plugin::getInstance()->getShippingRules()->getAllShippingRulesByShippingMethodId($model->id);
+            $rules = Plugin::getInstance()->getShippingRules()->getAllShippingRulesByShippingMethodId($shippingMethodId);
             foreach ($rules as $rule) {
                 Plugin::getInstance()->getShippingRules()->deleteShippingRuleById($rule->id);
             }
 
-            $record = ShippingMethodRecord::findOne($model->id);
+            $record = ShippingMethodRecord::findOne($shippingMethodId);
             $record->delete();
 
             $transaction->commit();
@@ -260,5 +296,38 @@ class ShippingMethods extends Component
 
             return false;
         }
+    }
+
+    // Private methods
+    // =========================================================================
+    
+    /**
+     * Memoize a shipping method model by its ID and handle.
+     *
+     * @param ShippingMethod $shippingMethod
+     *
+     * @return void
+     */
+    private function _memoizeShippingMethod(ShippingMethod $shippingMethod)
+    {
+        $this->_shippingMethodsById[$shippingMethod->id] = $shippingMethod;
+        $this->_shippingMethodsByHandle[$shippingMethod->handle] = $shippingMethod;
+    }
+    
+    /**
+     * Returns a Query object prepped for retrieving shipping methods.
+     *
+     * @return Query
+     */
+    private function _createShippingMethodQuery(): Query
+    {
+        return (new Query())
+            ->select([
+                'id',
+                'name',
+                'handle',
+                'enabled',
+            ])
+            ->from(['{{%commerce_shippingMethods}}']);
     }
 }

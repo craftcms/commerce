@@ -67,7 +67,7 @@ class ShippingCategories extends Component
      *
      * @return ShippingCategory|null
      */
-    public function getShippingCategoryById($shippingCategoryId)
+    public function getShippingCategoryById(int $shippingCategoryId)
     {
         if ($this->_fetchedAllShippingCategories && isset($this->_shippingCategoriesById[$shippingCategoryId])) {
             return $this->_shippingCategoriesById[$shippingCategoryId];
@@ -88,24 +88,11 @@ class ShippingCategories extends Component
     }
     
     /**
-     * Memoize a shipping category model by its ID and handle.
-     *
-     * @param ShippingCategory $shippingCategory
-     *
-     * @return void
-     */
-    private function _memoizeShippingCategory(ShippingCategory $shippingCategory)
-    {
-        $this->_shippingCategoriesById[$shippingCategory->id] = $shippingCategory;
-        $this->_shippingCategoriesByHandle[$shippingCategory->handle] = $shippingCategory;
-    }
-
-    /**
-     * @param int $shippingCategoryHandle
+     * @param string $shippingCategoryHandle
      *
      * @return ShippingCategory|null
      */
-    public function getShippingCategoryByHandle($shippingCategoryHandle)
+    public function getShippingCategoryByHandle(string $shippingCategoryHandle)
     {
         if ($this->_fetchedAllShippingCategories && isset($this->_shippingCategoriesByHandle[$shippingCategoryHandle])) {
             return $this->_shippingCategoriesByHandle[$shippingCategoryHandle];
@@ -223,6 +210,22 @@ class ShippingCategories extends Component
         }
 
         return false;
+    }
+
+    // Private methods
+    // =========================================================================
+
+    /**
+     * Memoize a shipping category model by its ID and handle.
+     *
+     * @param ShippingCategory $shippingCategory
+     *
+     * @return void
+     */
+    private function _memoizeShippingCategory(ShippingCategory $shippingCategory)
+    {
+        $this->_shippingCategoriesById[$shippingCategory->id] = $shippingCategory;
+        $this->_shippingCategoriesByHandle[$shippingCategory->handle] = $shippingCategory;
     }
 
     /**

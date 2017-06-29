@@ -106,16 +106,10 @@ class ShippingMethodsController extends BaseAdminController
 
         $id = Craft::$app->getRequest()->getRequiredParam('id');
 
-        $method = Plugin::getInstance()->getShippingMethods()->getShippingMethodById($id);
-
-        if ($method) {
-            if (Plugin::getInstance()->getShippingMethods()->delete($method)) {
-                $this->asJson(['success' => true]);
-            } else {
-                $this->asErrorJson(Craft::t('commerce', 'Cannot delete shipping method and it’s rules.'));
-            }
+        if (Plugin::getInstance()->getShippingMethods()->deleteShippingMethodById($id)) {
+            return $this->asJson(['success' => true]);
         } else {
-            $this->asErrorJson(Craft::t('commerce', 'Cannot find shipping method with ID “{id}”', ['id' => $id]));
+            return $this->asErrorJson(Craft::t('commerce', 'Could delete shipping method and it’s rules.'));
         }
     }
 

@@ -2,12 +2,14 @@
 
 namespace craft\commerce\services;
 
-use craft\commerce\base\Model\ShippingRuleCategory;
+use Craft;
+use craft\commerce\models\ShippingRuleCategory;
 use craft\commerce\models\ShippingCategory;
 use craft\commerce\models\ShippingRule;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingRule as ShippingRuleRecord;
 use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
+use craft\db\Query;
 use yii\base\Component;
 
 /**
@@ -23,16 +25,32 @@ use yii\base\Component;
 class ShippingRules extends Component
 {
     /**
-     *
+     * @var ShippingRule[]
+     */
+    private $_allShippingRules;
+
+    /**
+     * @var ShippingRule[][]
+     */
+    private $_shippingRulesByMethodId;
+
+    /**
      * @return ShippingRule[]
      */
-    public function getAllShippingRules()
+    public function getAllShippingRules(): array
     {
-        $results = ShippingRuleRecord::find()->with(['method', 'country', 'state'])->orderBy(['methodId', 'name'])->all();
+        if (null === $this->_allShippingRules) {
+            $this->_allShippingRules = [];
+            $rows = $this->_createShippingRulesQuery()->all();
 
-        return ShippingRule::populateModels($results);
+            foreach ($rows as $row) {
+                $this->_allShippingRules[$row['id']] = new ShippingRule($row);
+            }
+        }
+
+        return $this->_allShippingRules;
     }
-
+    
     /**
      * @param int $id
      *
@@ -40,9 +58,25 @@ class ShippingRules extends Component
      */
     public function getAllShippingRulesByShippingMethodId($id)
     {
-        $results = ShippingRuleRecord::find()->where(['methodId' => $id])->orderBy('priority')->all();
+        if (isset($this->_shippingRulesByMethodId[$id])) {
+            return $this->_shippingRulesByMethodId[$id];
+        }
 
-        return ShippingRule::populateModels($results);
+        $results = $this->_createShippingRulesQuery()
+            ->where(['methodId' => $id])
+            ->orderBy('priority')
+            ->all();
+
+        $rules = [];
+        foreach ($results as $row) {
+            $rule = new ShippingRule($row);
+            $rules[] = $rule;
+            $this->_allShippingRules[$row['id']] = $rule;
+        }
+
+        $this->_shippingRulesByMethodId[$id] = $rules;
+
+        return $rules;
     }
 
     /**
@@ -52,20 +86,23 @@ class ShippingRules extends Component
      */
     public function getShippingRuleById($id)
     {
-        $result = ShippingRuleRecord::findOne($id);
+        if (is_array($this->_allShippingRules) && isset($this->_allShippingRules[$id])) {
+            return $this->_allShippingRules[$id];
+        }
 
-        if ($result) {
-            return ShippingRule::populateModel($result);
+        $row = $this->_createShippingRulesQuery()
+            ->where(['id' => $id])
+            ->one();
+
+        if ($row) {
+            if (null === $this->_allShippingRules) {
+                $this->_allShippingRules = [];
+            }
+
+            return $this->_allShippingRules[$id] = new ShippingRule($row);
         }
 
         return null;
-    }
-
-    public function getShippingRuleCategoryByRuleId($id)
-    {
-        $result = ShippingRuleCategoryRecord::find()->where(['shippingRuleId' => $id])->all();
-
-        return ShippingRuleCategory::populateModels($result, 'shippingCategoryId');
     }
 
     /**
@@ -133,33 +170,30 @@ class ShippingRules extends Component
             // Now that we have a record ID, save it on the model
             $model->id = $record->id;
 
-            ShippingRuleCategoryRecord::deleteAll([
-                'shippingRuleId' => $model->id
-            ]);
+            ShippingRuleCategoryRecord::deleteAll(['shippingRuleId' => $model->id]);
 
             // Generate a rule category record for all categories regardless of data submitted
             foreach (Plugin::getInstance()->getShippingCategories()->getAllShippingCategories() as $shippingCategory) {
                 /** @var ShippingCategory $ruleCategory */
                 if (isset($model->getShippingRuleCategories()[$shippingCategory->id]) && $ruleCategory = $model->getShippingRuleCategories()[$shippingCategory->id]) {
-                    $data = [
-                        'shippingRuleId' => $model->id,
-                        'shippingCategoryId' => $shippingCategory->id,
-                        'condition' => $ruleCategory->condition,
-                        'perItemRate' => is_numeric($ruleCategory->perItemRate) ? $ruleCategory->perItemRate : null,
-                        'weightRate' => is_numeric($ruleCategory->weightRate) ? $ruleCategory->weightRate : null,
-                        'percentageRate' => is_numeric($ruleCategory->percentageRate) ? $ruleCategory->percentageRate : null
-                    ];
-                    Craft::$app->getDb()->createCommand()->insert('commerce_shippingrule_categories', $data);
+                    $ruleCategory = new ShippingRuleCategory([
+                            'shippingRuleId' => $model->id,
+                            'shippingCategoryId' => $shippingCategory->id,
+                            'condition' => $ruleCategory->condition,
+                            'perItemRate' => is_numeric($ruleCategory->perItemRate) ? $ruleCategory->perItemRate : null,
+                            'weightRate' => is_numeric($ruleCategory->weightRate) ? $ruleCategory->weightRate : null,
+                            'percentageRate' => is_numeric($ruleCategory->percentageRate) ? $ruleCategory->percentageRate : null
+                    ]);
                 } else {
-                    $data = [
+                    $ruleCategory = new ShippingRuleCategory([
                         'shippingRuleId' => $model->id,
                         'shippingCategoryId' => $shippingCategory->id,
                         'condition' => ShippingRuleCategoryRecord::CONDITION_ALLOW
-                    ];
-                    Craft::$app->getDb()->createCommand()->insert('commerce_shippingrule_categories', $data);
+                    ]);
                 }
-            }
 
+                Plugin::getInstance()->getShippingRuleCategories()->saveShippingRuleCategory($ruleCategory);
+            }
 
             return true;
         }
@@ -175,8 +209,7 @@ class ShippingRules extends Component
     public function reorderShippingRules($ids)
     {
         foreach ($ids as $sortOrder => $id) {
-            Craft::$app->getDb()->createCommand()->update('commerce_shippingrules',
-                ['priority' => $sortOrder + 1], ['id' => $id]);
+            Craft::$app->getDb()->createCommand()->update('commerce_shippingrules', ['priority' => $sortOrder + 1], ['id' => $id])->execute();
         }
 
         return true;
@@ -184,13 +217,52 @@ class ShippingRules extends Component
 
     /**
      * @param int $id
+     * 
+     * @return bool
      */
-    public function deleteShippingRuleById($id)
+    public function deleteShippingRuleById($id): bool
     {
         $record = ShippingRuleRecord::findOne($id);
 
         if ($record) {
-            $record->delete();
+            return (bool)$record->delete();
         }
+
+        return false;
+    }
+
+    // Private methods
+    // =========================================================================
+    /**
+     * Returns a Query object prepped for retrieving shipping rules.
+     *
+     * @return Query
+     */
+    private function _createShippingRulesQuery(): Query
+    {
+        return (new Query())
+            ->select([
+                'id',
+                'shippingZoneId',
+                'name',
+                'description',
+                'methodId',
+                'priority',
+                'enabled',
+                'minQty',
+                'maxQty',
+                'minTotal',
+                'maxTotal',
+                'minWeight',
+                'maxWeight',
+                'baseRate',
+                'perItemRate',
+                'weightRate',
+                'percentageRate',
+                'minRate',
+                'maxRate',
+            ])
+            ->orderBy('name')
+            ->from(['{{%commerce_shippingrules}}']);
     }
 }

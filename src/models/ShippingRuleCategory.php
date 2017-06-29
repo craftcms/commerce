@@ -1,10 +1,9 @@
 <?php
 
-namespace craft\commerce\base\Model;
+namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
-use craft\commerce\models\ShippingCategory;
-use craft\commerce\models\ShippingRule;
+use craft\commerce\Plugin;
 
 /**
  * Shipping rule model
@@ -21,6 +20,11 @@ use craft\commerce\models\ShippingRule;
  */
 class ShippingRuleCategory extends Model
 {
+    /**
+     * @var int Category id
+     */
+    public $id;
+
     /**
      * @var int Rule ID
      */
@@ -67,7 +71,7 @@ class ShippingRuleCategory extends Model
     }
 
     /**
-     * @return \craft\commerce\models\ShippingRule
+     * @return ShippingRule
      */
     public function getRule()
     {
@@ -75,7 +79,7 @@ class ShippingRuleCategory extends Model
     }
 
     /**
-     * @return \craft\commerce\models\ShippinCategory
+     * @return ShippingCategory
      */
     public function getCategory()
     {

@@ -144,12 +144,11 @@
     } %}
 
 {% block content %}
-    <input type="hidden" name="action" value="commerce/shippingRules/save">
-    <input type="hidden" name="redirect"
-           value="commerce/settings/shippingmethods/{{ methodId }}#rules">
+    <input type="hidden" name="action" value="commerce/shipping-rules/save">
+    {{ redirectInput('commerce/settings/shippingmethods/{methodId}#rules') }}
     <input type="hidden" name="methodId" value="{{ methodId }}">
-    {% if shippingRule.id %}<input type="hidden" name="id"
-                                   value="{{ shippingRule.id }}">{% endif %}
+
+    {% if shippingRule.id %}<input type="hidden" name="id"value="{{ shippingRule.id }}">{% endif %}
 
     <div id="rule-tab">
         {{ forms.textField({
@@ -453,7 +452,6 @@
     </div>
 {% endblock %}
 
-{% includeJsResource 'commerce/js/CommerceShippingItemRatesValuesInput.js' %}
 {% includejs "window.perItemPricePlaceholder = new Craft.Commerce.CommerceShippingItemRatesValuesInput('input[name=\"perItemRate\"]', '.categoryPerItemRate');" %}
 {% includejs "window.weightRatePricePlaceholder = new Craft.Commerce.CommerceShippingItemRatesValuesInput('input[name=\"weightRate\"]', '.categoryWeightRate');" %}
 {% includejs "window.percentagePricePlaceholder = new Craft.Commerce.CommerceShippingItemRatesValuesInput('input[name=\"percentageRate\"]', '.categoryPercentageRate');" %}
