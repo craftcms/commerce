@@ -27,6 +27,7 @@ class PaymentCurrenciesController extends BaseAdminController
     public function actionIndex(): Response
     {
         $currencies = Plugin::getInstance()->getPaymentCurrencies()->getAllPaymentCurrencies();
+
         return $this->renderTemplate('commerce/settings/paymentcurrencies/index', compact('currencies'));
     }
 

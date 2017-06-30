@@ -54,17 +54,17 @@ class PaymentCurrencies extends Component
             $records = PaymentCurrencyRecord::find()->orderBy(['[[primary]] = 1' => SORT_DESC, 'iso' => SORT_ASC])->all();
             $this->_allCurrencies = ArrayHelper::map($records, 'id', function($record) {
                 /** @var PaymentCurrencyRecord $record */
-                return new PaymentCurrency($record->toArray([
+                $paymentCurrency = new PaymentCurrency($record->toArray([
                     'id',
                     'iso',
                     'primary',
-                    'rate',
-                    'alphabeticCode',
-                    'currency',
-                    'entity',
-                    'minorUnit',
-                    'numericCode'
+                    'rate'
                 ]));
+
+                // TODO: Fix this with money/money package
+                $currency = Plugin::getInstance()->getCurrencies()->getCurrencyByIso($paymentCurrency->iso);
+                $paymentCurrency->setCurrency($currency);
+                return $paymentCurrency;
             });
         }
 

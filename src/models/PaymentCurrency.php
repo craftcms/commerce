@@ -81,28 +81,13 @@ class PaymentCurrency extends Model
      */
     private $_currency;
 
-    public function populateModel($values)
-    {
-        if ($values instanceof Model) {
-            $values = $values->getAttributes();
-        }
-        /** @var PaymentCurrency $currency */
-        $currency = new static($values);
-
-        $iso = $values['iso'];
-        if ($currencyModel = Plugin::getInstance()->getCurrencies()->getCurrencyByIso($iso)) {
-            $currency->setCurrency($currencyModel);
-        }
-
-        return $currency;
-    }
-
     /**
      * @return string
      */
     public function getCpEditUrl()
     {
-        return UrlHelper::cpUrl('commerce/settings/paymentcurrencies/'.$this->id);
+        $val = UrlHelper::cpUrl('commerce/settings/paymentcurrencies/'.$this->id);
+        return $val;
     }
 
     /**

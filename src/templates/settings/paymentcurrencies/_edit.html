@@ -10,11 +10,9 @@
 {% import "_includes/forms" as forms %}
 
 {% block content %}
-    <input type="hidden" name="action" value="commerce/paymentCurrencies/save">
-    <input type="hidden" name="redirect"
-           value="commerce/settings/paymentcurrencies">
-    {% if currency.id %}<input type="hidden" name="currencyId"
-                               value="{{ currency.id }}">{% endif %}
+    <input type="hidden" name="action" value="commerce/payment-currencies/save">
+    {{ redirectInput('commerce/settings/paymentcurrencies') }}
+    {% if currency.id %}<input type="hidden" name="currencyId" value="{{ currency.id }}">{% endif %}
 
     {{ forms.selectField({
         label: 'Currency Code'|t('commerce'),
@@ -47,40 +45,34 @@
 {% endblock %}
 
 {% js %}
-window.currencies = $.map(JSON.parse('{{ craft.commerce.currencies|json_encode|raw }}'), function(el) { return el });
-window.currency = JSON.parse('{{ [currency.iso]|json_encode|raw }}');
-$(function () {
-$('#iso').selectize({
-options: window.currencies,
-items : window.currency,
-render: {
-item: function(item, escape) {
-return '
-<div>' +
-    (item.currency ? '<span
-            class="currency">' + escape(item.currency) + '</span>' : '') +
-    (item.alphabeticCode ? ' (<span class="alphabeticCode">' + escape(item.alphabeticCode) + '</span>)'
-    : '') +
-    '
-</div>';
-},
-option: function(item, escape) {
-var label = item.currency || item.alphabeticCode;
-var caption = item.currency ? item.alphabeticCode : null;
-return '
-<div>' +
-    '<span class="label">' + escape(label) + '</span>' +
-    (caption ? ' (<span class="caption">' + escape(caption) + '</span>)' : '') +
-    '
-</div>';
-}
-},
-valueField: 'alphabeticCode',
-labelField: 'currency',
-sortField: 'currency',
-searchField: ['currency', 'iso'],
-dropdownParent: 'body',
-maxItems: 1
-});
-});
+    window.currencies = $.map(JSON.parse('{{ craft.commerce.currencies|json_encode|raw }}'), function(el) { return el });
+    window.currency = JSON.parse('{{ [currency.iso]|json_encode|raw }}');
+    $(function () {
+        $('#iso').selectize({
+            options: window.currencies,
+            items : window.currency,
+            render: {
+                item: function(item, escape) {
+                    return '<div>' +
+                        (item.currency ? '<span class="currency">' + escape(item.currency) + '</span>' : '') +
+                        (item.alphabeticCode ? ' (<span class="alphabeticCode">' + escape(item.alphabeticCode) + '</span>)' : '') +
+                        '</div>';
+                },
+                option: function(item, escape) {
+                    var label = item.currency || item.alphabeticCode;
+                    var caption = item.currency ? item.alphabeticCode : null;
+                    return '<div>' +
+                        '<span class="label">' + escape(label) + '</span>' +
+                        (caption ? ' (<span class="caption">' + escape(caption) + '</span>)' : '') +
+                        '</div>';
+                }
+            },
+            valueField: 'alphabeticCode',
+            labelField: 'currency',
+            sortField: 'currency',
+            searchField: ['currency', 'iso'],
+            dropdownParent: 'body',
+            maxItems: 1
+        });
+    });
 {% endjs %}
