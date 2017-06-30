@@ -236,15 +236,15 @@ class Commerce_PaymentsController extends Commerce_BaseFrontEndController
             }
         }
 
-        $redirect = "";
+        $redirect = '';
         $paymentForm->validate();
-        if (!$paymentForm->hasErrors())
+        if (!$paymentForm->hasErrors() && !$order->hasErrors())
         {
             $success = craft()->commerce_payments->processPayment($order, $paymentForm, $redirect, $customError);
         }
         else
         {
-            $customError = Craft::t('Payment information submitted is invalid.');
+            $customError = Craft::t('Invalid payment or order. Please review.');
             $success = false;
         }
 
