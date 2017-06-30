@@ -3,6 +3,10 @@ Commerce Changelog
 
 ## Unreleased
 
+### Fixed
+- Fixed a bug where the `commerce/payments/pay` action was still processing the payment even if the cart had errors placed on it by 3rd party plugins.
+
+
 ## 1.2.1345 - 2017-06-26
 
 ### Added
