@@ -600,7 +600,7 @@ class ProductTypes extends Component
             $products = $criteria->all();
 
             foreach ($products as $product) {
-                Plugin::getInstance()->getProducts()->deleteProduct($product);
+                Craft::$app->getElements()->deleteElement($product);
             }
 
             $fieldLayoutId = $productType->getProductFieldLayout()->id;

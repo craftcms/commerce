@@ -10,6 +10,7 @@ use craft\commerce\elements\actions\DeleteProduct;
 use craft\commerce\elements\db\ProductQuery;
 use craft\commerce\helpers\VariantMatrix;
 use craft\commerce\models\ProductType;
+use craft\commerce\models\ShippingCategory;
 use craft\commerce\records\Product as ProductRecord;
 use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
@@ -38,9 +39,9 @@ use yii\base\InvalidConfigException;
 class Product extends Element
 {
 
-    const LIVE = 'live';
-    const PENDING = 'pending';
-    const EXPIRED = 'expired';
+    const STATUS_LIVE = 'live';
+    const STATUS_PENDING = 'pending';
+    const STATUS_EXPIRED = 'expired';
 
     /**
      * @var Variant[] This product’s variants
@@ -186,6 +187,20 @@ class Product extends Element
     /**
      * @inheritdoc
      */
+    public function getIsEditable(): bool
+    {
+        if ($this->getType()) {
+            $id = $this->getType()->id;
+
+            return Craft::$app->getUser()->checkPermission('commerce-manageProductType:'.$id);
+        }
+
+        return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public static function isLocalized(): bool
     {
         return true;
@@ -200,21 +215,6 @@ class Product extends Element
     {
         return new ProductQuery(static::class);
     }
-
-    /**
-     * @return bool
-     */
-    public function isEditable()
-    {
-        if ($this->getType()) {
-            $id = $this->getType()->id;
-
-            return Craft::$app->getUser()->checkPermission('commerce-manageProductType:'.$id);
-        }
-
-        return false;
-    }
-
 
     /**
      * Gets the products product type.
@@ -258,9 +258,12 @@ class Product extends Element
         return array_merge($this->getAttributes(), $data);
     }
 
-
+    /**
+     * @return string|null
+     */
     public function getName()
     {
+
         return $this->title;
     }
 
@@ -274,7 +277,7 @@ class Product extends Element
         $siteId = $this->siteId ?: Craft::$app->getSites()->currentSite->id;
 
         if (isset($productType->siteSettings[$siteId]) && $productType->siteSettings[$siteId]->hasUrls) {
-            $productTypeSites = $productType->getSites();
+            $productTypeSites = $productType->getSiteSettings();
 
             if (isset($productTypeSites[$this->site])) {
                 return $productTypeSites[$this->site]->urlFormat;
@@ -347,7 +350,7 @@ class Product extends Element
     }
 
     /**
-     * @return FieldLayout|null
+     * @inheritdoc
      */
     public function getFieldLayout()
     {
@@ -365,7 +368,7 @@ class Product extends Element
      *
      * @return Variant
      */
-    public function getDefaultVariant()
+    public function getDefaultVariant(): Variant
     {
         $defaultVariant = null;
 
@@ -383,7 +386,7 @@ class Product extends Element
      *
      * @return Variant[]
      */
-    public function getVariants()
+    public function getVariants(): array
     {
         if (empty($this->_variants)) {
             if ($this->id) {
@@ -426,26 +429,26 @@ class Product extends Element
         if ($status === Element::STATUS_ENABLED && $this->postDate) {
             $currentTime = DateTimeHelper::currentTimeStamp();
             $postDate = DateTimeHelper::toDateTime($this->postDate)->getTimestamp();
-            $expiryDate = ($this->expiryDate ? $this->expiryDate->getTimestamp() : null);
+            $expiryDate = ($this->expiryDate ? DateTimeHelper::toDateTime($this->expiryDate)->getTimestamp() : null);
 
             if ($postDate <= $currentTime && (!$expiryDate || $expiryDate > $currentTime)) {
-                return static::LIVE;
+                return static::STATUS_LIVE;
             }
 
             if ($postDate > $currentTime) {
-                return static::PENDING;
+                return static::STATUS_PENDING;
             }
 
-            return static::EXPIRED;
+            return static::STATUS_EXPIRED;
         }
 
         return $status;
     }
 
     /**
-     * Gets the total amount of stock across all variants.
+     * @return int
      */
-    public function getTotalStock()
+    public function getTotalStock(): int
     {
         $stock = 0;
         foreach ($this->getVariants() as $variant) {
@@ -472,10 +475,7 @@ class Product extends Element
     }
 
     /**
-     * Sets some eager loaded elements on a given handle.
-     *
-     * @param string                $handle   The handle to load the elements with in the future
-     * @param \craft\base\Element[] $elements The eager-loaded elements
+     * @inheritdoc
      */
     public function setEagerLoadedElements(string $handle, array $elements)
     {
@@ -486,7 +486,9 @@ class Product extends Element
         }
     }
 
-
+    /**
+     * @inheritdoc
+     */
     public static function eagerLoadingMap(array $sourceElements, string $handle)
     {
         if ($handle == 'variants') {
@@ -512,7 +514,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function tableAttributeHtml(string $attribute): string
+    protected function tableAttributeHtml(string $attribute): string
     {
         /* @var $productType ProductType */
         $productType = $this->getType();
@@ -565,28 +567,16 @@ class Product extends Element
     }
 
     /**
-     * @inheritDoc IElementType::getStatuses()
-     *
-     * @return array|null
+     * @inheritdoc
      */
-    public function getStatuses()
+    public static function statuses(): array
     {
         return [
-            Product::LIVE => Craft::t('commerce', 'Live'),
-            Product::PENDING => Craft::t('commerce', 'Pending'),
-            Product::EXPIRED => Craft::t('commerce', 'Expired'),
-            Element::STATUS_DISABLED => Craft::t('commerce', 'Disabled')
+            self::STATUS_LIVE => Craft::t('commerce', 'Live'),
+            self::STATUS_PENDING => Craft::t('commerce', 'Pending'),
+            self::STATUS_EXPIRED => Craft::t('commerce', 'Expired'),
+            self::STATUS_DISABLED => Craft::t('commerce', 'Disabled')
         ];
-    }
-
-    /**
-     * @param array $row
-     *
-     * @return Element
-     */
-    public function populateElementModel($row)
-    {
-        return new Product($row);
     }
 
     /**
@@ -627,24 +617,6 @@ class Product extends Element
 
         return $html;
     }
-
-    /**
-     * @param BaseElementModel $element
-     * @param array            $params
-     *
-     * @return bool
-     * @throws Exception
-     * @throws \Exception
-     */
-    public function saveElement(BaseElementModel $element, $params)
-    {
-        CommerceProductHelper::populateProductModel($element, $params);
-        CommerceProductHelper::populateProductVariantModels($element, $params['variants']);
-
-        return Plugin::getInstance()->getProducts()->saveProduct($element);
-    }
-
-
 
     /**
      * @inheritdoc
@@ -823,20 +795,31 @@ class Product extends Element
         ];
     }
 
-
     /**
      * @inheritdoc
      */
     public function beforeSave(bool $isNew): bool
     {
+        $productValid = parent::beforeSave($isNew);
 
-        return parent::beforeSave($isNew);
+        // Validate Variants
+        $variantsValid = true;
+
+        foreach ($this->getVariants() as $variant) {
+            $variant->validate();
+            if ($variant->hasErrors())
+            {
+                $variantsValid = false;
+            }
+        }
+
+        return $productValid && $variantsValid;
     }
 
     /**
      * @inheritdoc
      */
-    public function afterSave(bool $isNew): bool
+    public function afterSave(bool $isNew)
     {
         if (!$isNew) {
             $record = ProductRecord::findOne($this->id);
@@ -847,7 +830,7 @@ class Product extends Element
 
         } else {
             $record = new ProductRecord();
-
+            $record->id = $this->id;
         }
 
         $record->postDate = $this->postDate;
@@ -867,7 +850,6 @@ class Product extends Element
 
         $record->save(false);
 
-        ///
         $keepVariantIds = [];
         $oldVariantIds = (new Query())
             ->select('id')
@@ -880,10 +862,12 @@ class Product extends Element
 
             if ($variant->isDefault) {
                 $this->defaultVariantId = $variant->id;
-                Craft::$app->getDb()->createCommand()->update('commerce_products', ['defaultVariantId' => $variant->id], ['id' => $product->id]);
+                Craft::$app->getDb()->createCommand()->update('commerce_products', ['defaultVariantId' => $variant->id], ['id' => $this->id]);
             }
 
             $keepVariantIds[] = $variant->id;
+
+            Craft::$app->getElements()->saveElement($variant);
         }
 
         foreach (array_diff($oldVariantIds, $keepVariantIds) as $deleteId) {
@@ -898,184 +882,51 @@ class Product extends Element
     {
         $rules = parent::rules();
 
-        $rules[] = [['sectionId', 'typeId', 'authorId', 'newParentId'], 'number', 'integerOnly' => true];
+        $rules[] = [['typeId', 'shippingCategoryId','taxCategoryId'], 'number', 'integerOnly' => true];
         $rules[] = [['postDate', 'expiryDate'], DateTimeValidator::class];
 
         return $rules;
     }
 
-    public function beforeValidate()
+    /**
+     * @inheritdoc
+     */
+    public function beforeValidate(): bool
     {
+        $taxCategoryIds = array_keys($this->getType()->getTaxCategories());
+        if (!in_array($this->taxCategoryId, $taxCategoryIds, false))
+        {
+            $this->taxCategoryId = $taxCategoryIds[0];
+        }
+
+        $shippingCategoryIds = array_keys($this->getType()->getShippingCategories());
+        if (!in_array($this->shippingCategoryId, $shippingCategoryIds, false))
+        {
+            $this->shippingCategoryId = $shippingCategoryIds[0];
+        }
+
+        $defaultVariant = null;
+
+        foreach ($this->getVariants() as $variant)
+        {
+            // Make the first variant (or the last one that isDefault) the default.
+            if ($defaultVariant === null || $variant->isDefault)
+            {
+                $defaultVariant = $variant;
+            }
+        }
+
         return parent::beforeValidate();
     }
 
-    /**
-     * @param Product $product
-     *
-     * @return bool
-     * @throws Exception
-     * @throws \Exception
-     */
-    public function saveProduct(Product $product)
+    public function afterDelete()
     {
-        $record->validate();
-        $product->addErrors($record->getErrors());
+        $variants = Plugin::getInstance()->getVariants()->getAllVariantsByProductId($this->id);
 
-        $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($product->typeId);
-
-        if (!$productType) {
-            throw new Exception(Craft::t('commerce', 'No product type exists with the ID “{id}”',
-                ['id' => $product->typeId]));
+        foreach ($variants as $variant) {
+            Craft::$app->getElements()->deleteElementById($variant->id);
         }
 
-        $taxCategoryIds = array_keys($productType->getTaxCategories());
-        if (!in_array($product->taxCategoryId, $taxCategoryIds)) {
-            $record->taxCategoryId = $product->taxCategoryId = $taxCategoryIds[0];
-        }
-
-        $shippingCategoryIds = array_keys($productType->getShippingCategories());
-        if (!in_array($product->shippingCategoryId, $shippingCategoryIds)) {
-            $record->shippingCategoryId = $product->shippingCategoryId = $shippingCategoryIds[0];
-        }
-
-        // Final prep of variants and validation
-        $variantsValid = true;
-        $defaultVariant = null;
-        foreach ($product->getVariants() as $variant) {
-
-            // Use the product type's titleFormat if the title field is not shown
-            if (!$productType->hasVariantTitleField && $productType->hasVariants) {
-                try {
-                    $variant->title = Craft::$app->getView()->renderObjectTemplate($productType->titleFormat, $variant);
-                } catch (\Exception $e) {
-                    $variant->title = "";
-                }
-            }
-
-            if (!$productType->hasVariants) {
-                // Since VariantModel::getTitle() returns the parent products title when the product has
-                // no variants, lets save the products title as the variant title anyway.
-                $variant->title = $product->getTitle();
-            }
-
-            // If we have a blank SKU, generate from product type's skuFormat
-            if (!$variant->sku) {
-                try {
-                    if (!$productType->hasVariants) {
-                        $variant->sku = Craft::$app->getView()->renderObjectTemplate($productType->skuFormat, $product);
-                    } else {
-                        $variant->sku = Craft::$app->getView()->renderObjectTemplate($productType->skuFormat, $variant);
-                    }
-                } catch (\Exception $e) {
-                    $variant->sku = "";
-                }
-            }
-
-            // Make the first variant (or the last one that says it isDefault) the default.
-            if ($defaultVariant === null || $variant->isDefault) {
-                $defaultVariant = $variant;
-            }
-
-            if (!Plugin::getInstance()->getVariants()->validateVariant($variant)) {
-                $variantsValid = false;
-                // If we have a title error but hide the title field, put the error onto the sku.
-                if ($variant->getFirstError('title') && !$productType->hasVariantTitleField && $productType->hasVariants) {
-                    $variant->addError('sku', Craft::t('commerce', 'Could not generate the variant title from product type’s title format.'));
-                }
-
-                if ($variant->getFirstError('title') && !$productType->hasVariants) {
-                    $product->addError('title', Craft::t('commerce', 'Title cannot be blank.'));
-                }
-            }
-        }
-
-        if ($product->hasErrors() || !$variantsValid) {
-            return false;
-        }
-
-
-
-
-
-    }
-
-    /**
-     * @param Product|Product[] $products
-     *
-     * @return bool
-     * @throws \CDbException
-     * @throws \Exception
-     */
-    public function deleteProduct($products)
-    {
-        if (!$products) {
-            return false;
-        }
-
-        $transaction = Craft::$app->getDb()->getCurrentTransaction() === null ? Craft::$app->getDb()->beginTransaction() : null;
-
-        try {
-            if (!is_array($products)) {
-                $products = [$products];
-            }
-
-            $productIds = [];
-            $variantsByProductId = [];
-
-            foreach ($products as $product) {
-                // Fire an 'onBeforeSaveProduct' event
-                $event = new ProductEvent([
-                    'product' => $product,
-                ]);
-                $this->trigger(self::EVENT_BEFORE_DELETE_PRODUCT, $event);
-
-                if ($event->isValid) {
-                    $productIds[] = $product->id;
-                    $variantsByProductId[$product->id] = Plugin::getInstance()->getVariants()->getAllVariantsByProductId($product->id);
-                }
-            }
-
-            if ($productIds) {
-                // Delete 'em
-                foreach ($productIds as $id) {
-                    Craft::$app->getElements()->deleteElementById($id);
-                }
-                $success = true;
-            } else {
-                $success = false;
-            }
-
-            if ($transaction !== null) {
-                $transaction->commit();
-            }
-        } catch (\Exception $e) {
-            if ($transaction !== null) {
-                $transaction->rollBack();
-            }
-
-            throw $e;
-        }
-
-        if ($success) {
-            foreach ($products as $product) {
-
-                // Delete all child variants.
-                $variants = $variantsByProductId[$product->id];
-
-                foreach ($variants as $v) {
-                    Craft::$app->getElements()->deleteElementById($v->id);
-                }
-
-                // Fire an 'onBeforeSaveProduct' event
-                $event = new ProductEvent([
-                    'product' => $product
-                ]);
-                $this->trigger(self::EVENT_AFTER_DELETE_PRODUCT, $event);
-            }
-
-            return true;
-        }
-
-        return false;
+        parent::afterDelete();
     }
 }

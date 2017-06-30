@@ -108,7 +108,7 @@ class ProductsController extends BaseCpController
             // Should we show the Share button too?
             if ($variables['product']->id) {
                 // If the product is enabled, use its main URL as its share URL.
-                if ($variables['product']->getStatus() == Product::LIVE) {
+                if ($variables['product']->getStatus() == Product::STATUS_LIVE) {
                     $variables['shareUrl'] = $variables['product']->getUrl();
                 } else {
                     $variables['shareUrl'] = UrlHelper::actionUrl('commerce/products/shareProduct', [
@@ -423,7 +423,7 @@ class ProductsController extends BaseCpController
 
         $this->enforceProductPermissions($product);
 
-        if (Plugin::getInstance()->getProducts()->deleteProduct($product)) {
+        if (Craft::$app->getElements()->deleteElement($product)) {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 $this->asJson(['success' => true]);
             } else {
@@ -458,33 +458,39 @@ class ProductsController extends BaseCpController
         $this->enforceProductPermissions($product);
 
 
-        $existingProduct = (bool)$product->id;
+        if (!Craft::$app->getElements()->saveElement($product)) {
 
-        $db = Craft::$app->getDb();
-        $transaction = $db->beginTransaction();
+            if ($request->getAcceptsJson()) {
+                return $this->asJson([
+                    'success' => false,
+                    'errors' => $product->getErrors(),
+                ]);
+            }
 
-        if (Plugin::getInstance()->getProducts()->saveProduct($product)) {
+            Craft::$app->getSession()->setError(Craft::t('app', 'Couldn’t save product.'));
 
-            $transaction->commit();
+            // Send the category back to the template
+            Craft::$app->getUrlManager()->setRouteParams([
+                'product' => $product
+            ]);
 
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Product saved.'));
-
-            $this->redirectToPostedUrl($product);
+            return null;
         }
 
-        $transaction->rollBack();
-
-        // Since Product may have been ok to save and an ID assigned,
-        // but child model validation failed and the transaction rolled back.
-        // Since action failed, lets remove the ID that was no persisted.
-        if (!$existingProduct) {
-            $product->id = null;
+        if ($request->getAcceptsJson()) {
+            return $this->asJson([
+                'success' => true,
+                'id' => $product->id,
+                'title' => $product->title,
+                'status' => $product->getStatus(),
+                'url' => $product->getUrl(),
+                'cpEditUrl' => $product->getCpEditUrl()
+            ]);
         }
 
+        Craft::$app->getSession()->setNotice(Craft::t('app', 'Product saved.'));
 
-        Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save product.'));
-        Craft::$app->getUrlManager()->setRouteParams([
-            'product' => $product
-        ]);
+        return $this->redirectToPostedUrl($product);
+
     }
 }

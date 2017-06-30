@@ -258,7 +258,7 @@
                            value="{{ 'Delete Order'|t('commerce') }}"
                            data-action="commerce/orders/deleteOrder"
                            data-confirm="{{ 'Are you sure you want to delete this order? Please note, this does not refund the customer.'|t('commerce') }}"
-                           data-redirect="commerce/orders"
+                           data-redirect=" {{ 'commerce/orders'|hash }}"
                            data-param="orderId"
                            data-value="{{ order.id }}">
                 </div>
@@ -274,7 +274,7 @@
               data-confirm-unload>
             <input type="hidden" name="action"
                    value="commerce/orders/saveOrder">
-            <input type="hidden" name="redirect" value="commerce/orders">
+            <input type="hidden" name="redirect" value=" {{ 'commerce/orders'|hash }}">
             {{ csrfInput() }}
 
 

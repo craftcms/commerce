@@ -7,7 +7,11 @@ use craft\commerce\base\Element;
 use craft\commerce\elements\db\VariantQuery;
 use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
+use craft\commerce\records\Variant as VariantRecord;
+use craft\db\Query;
 use craft\elements\db\ElementQueryInterface;
+use yii\base\Exception;
+use yii\base\InvalidConfigException;
 
 /**
  * Variant Model
@@ -42,7 +46,7 @@ class Variant extends Element
     public $isDefault;
 
     /**
-     * @var int $sku
+     * @var string $sku
      */
     public $sku;
 
@@ -116,11 +120,17 @@ class Variant extends Element
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         $rules = parent::rules();
 
-        $rules[] = [['sku'], 'string', 'required'];
+        $rules[] = [['sku'], 'string'];
+        $rules[] = [['sku','price'], 'required'];
+        
+        if (!$this->unlimitedStock)
+        {
+            $rules[] = [['stock'], 'required'];
+        }
 
         return $rules;
     }
@@ -142,6 +152,7 @@ class Variant extends Element
 
         return $fields;
     }
+
 
     /**
      * Getter provides opportunity to populate the salePrice if sales have not already been applied.
@@ -287,7 +298,7 @@ class Variant extends Element
      */
     public function __toString(): string
     {
-        return (string) $this->getContent()->title;
+        return (string)$this->getContent()->title;
     }
 
     /**
@@ -470,6 +481,34 @@ class Variant extends Element
 
 
     /**
+     * @inheritdoc
+     */
+    public static function eagerLoadingMap(array $sourceElements, string $handle): array
+    {
+        if ($handle == 'product') {
+            // Get the source element IDs
+            $sourceElementIds = [];
+
+            foreach ($sourceElements as $sourceElement) {
+                $sourceElementIds[] = $sourceElement->id;
+            }
+
+            $map = (new Query())
+                ->select('id as source, productId as target')
+                ->from('commerce_variants')
+                ->where(['in', 'id', $sourceElementIds])
+                ->all();
+
+            return [
+                'elementType' => Product::class,
+                'map' => $map
+            ];
+        }
+
+        return parent::eagerLoadingMap($sourceElements, $handle);
+    }
+
+    /**
      * @param \craft\commerce\models\LineItem $lineItem
      *
      * @return null
@@ -515,6 +554,49 @@ class Variant extends Element
     }
 
     /**
+     * @inheritdoc
+     */
+    public function afterSave(bool $isNew)
+    {
+        if (!$isNew) {
+            $record = VariantRecord::findOne($this->id);
+
+            if (!$record) {
+                throw new Exception('Invalid variant ID: '.$this->id);
+            }
+        } else {
+            $record = new VariantRecord();
+            $record->id = $this->id;
+        }
+
+        $record->productId = $this->productId;
+        $record->sku = $this->sku;
+        $record->price = $this->price;
+        $record->width = $this->width;
+        $record->height = $this->height;
+        $record->length = $this->length;
+        $record->weight = $this->weight;
+        $record->minQty = $this->minQty;
+        $record->maxQty = $this->maxQty;
+        $record->stock = $this->stock;
+        $record->isDefault = $this->isDefault;
+        $record->sortOrder = $this->sortOrder;
+        $record->unlimitedStock = $this->unlimitedStock;
+
+        if (!$this->getProduct()->getType()->hasDimensions) {
+            $record->width = $this->width = 0;
+            $record->height = $this->height = 0;
+            $record->length = $this->length = 0;
+            $record->weight = $this->weight = 0;
+        }
+
+        $record->save();
+
+        return parent::afterSave($isNew);
+    }
+
+
+    /**
      * Is this variant still available for purchase?
      *
      * @return bool
@@ -543,7 +625,7 @@ class Variant extends Element
         $status = parent::getStatus();
 
         $productStatus = $this->getProduct()->getStatus();
-        if ($productStatus != \craft\commerce\elements\Product::LIVE) {
+        if ($productStatus != \craft\commerce\elements\Product::STATUS_LIVE) {
             return Element::STATUS_DISABLED;
         }
 
@@ -632,6 +714,52 @@ class Variant extends Element
         ];
 
         return $sources;
+    }
+
+    public function beforeValidate()
+    {
+        $productType = $this->getProduct()->getType();
+        $product = $this->getProduct();
+
+        if ($productType === null) {
+            throw new InvalidConfigException('Variant is missing its product type ID');
+        }
+
+        if ($productType === null) {
+            throw new InvalidConfigException('Variant is missing its product ID');
+        }
+
+        // Use the product type's titleFormat if the title field is not shown
+        if (!$productType->hasVariantTitleField && $productType->hasVariants) {
+            try {
+                $this->title = Craft::$app->getView()->renderObjectTemplate($productType->titleFormat, $this);
+            } catch (\Exception $e) {
+                $this->title = '';
+            }
+        }
+
+        if (!$productType->hasVariants) {
+            // Since Variant::getTitle() returns the parent products title when the product has
+            // no variants, lets save the products title as the variant title anyway.
+            $this->title = $product->title;
+        }
+
+        // If we have a blank SKU, generate from product type's skuFormat
+        if (!$this->sku) {
+            try {
+                $this->sku = Craft::$app->getView()->renderObjectTemplate($productType->skuFormat, $this);
+            } catch (\Exception $e) {
+                Craft::error('Craft Commerce could not generate the supplied SKU format: '.$e->getMessage(), __METHOD__);
+                $this->sku = '';
+            }
+        }
+
+        if($this->unlimitedStock)
+        {
+            $this->stock = 0;
+        }
+
+        return parent::beforeValidate();
     }
 
     /**
