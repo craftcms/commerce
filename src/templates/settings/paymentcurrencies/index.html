@@ -24,7 +24,7 @@
                     data-name="{{ currency.currency }}">
                     <th scope="row" data-title="{{ 'Currency'|t('commerce') }}"><a
                                 href="{{ currency.cpEditUrl }}">
-                    {{ currency.primary ? "{name} (Primary)"|t('commerce', { name: currency.currency|t('commerce') }) : currency.currency|t('commerce') }}</td>
+                    {{ currency.primary ? "{name} (Primary)"|t('commerce', { name: currency.currency }) : currency.currency }}</td>
                     <td data-title="{{ 'Code'|t('commerce') }}">
                         <code>{{ currency.iso }}</code></td>
                     <td data-title="{{ 'Conversion Rate'|t('commerce') }}">{% if currency.primary %}
