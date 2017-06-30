@@ -145,6 +145,12 @@ class Commerce_CustomersService extends BaseApplicationComponent
         $customerRecord->lastUsedBillingAddressId = $customer->lastUsedBillingAddressId;
         $customerRecord->lastUsedShippingAddressId = $customer->lastUsedShippingAddressId;
 
+        // If the customer is attached to a user, always use the user's email address.
+        if($user = craft()->users->getUserById($customer->userId))
+        {
+            $customerRecord->email = $customer->email = $user->email;
+        }
+
         $customerRecord->validate();
         $customer->addErrors($customerRecord->getErrors());
 
