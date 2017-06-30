@@ -606,10 +606,10 @@ class ProductTypes extends Component
             $fieldLayoutId = $productType->getProductFieldLayout()->id;
             Craft::$app->getFields()->deleteLayoutById($fieldLayoutId);
             if ($productType->hasVariants) {
-                Craft::$app->getFields()->deleteLayoutById($productType->getVariantFieldLayout());
+                Craft::$app->getFields()->deleteLayoutById($productType->getVariantFieldLayout()->id);
             }
 
-            $productTypeRecord = ProductType::findOne($productType->id);
+            $productTypeRecord = ProductTypeRecord::findOne($productType->id);
             $affectedRows = $productTypeRecord->delete();
 
             if ($affectedRows) {

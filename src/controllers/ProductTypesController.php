@@ -158,6 +158,6 @@ class ProductTypesController extends BaseAdminController
         $productTypeId = Craft::$app->getRequest()->getRequiredParam('id');
 
         Plugin::getInstance()->getProductTypes()->deleteProductTypeById($productTypeId);
-        $this->asJson(['success' => true]);
+        return $this->asJson(['success' => true]);
     }
 }
