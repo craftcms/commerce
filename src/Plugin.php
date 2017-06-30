@@ -10,6 +10,7 @@ use craft\commerce\variables\Commerce;
 use craft\commerce\web\twig\Extension;
 use craft\elements\User as UserElement;
 use craft\enums\LicenseKeyStatus;
+use craft\events\DefineComponentsEvent;
 use craft\events\RegisterCpAlertsEvent;
 use craft\events\RegisterRichTextLinkOptionsEvent;
 use craft\events\RegisterUserPermissionsEvent;
@@ -18,6 +19,7 @@ use craft\helpers\Cp as CpHelper;
 use craft\helpers\UrlHelper;
 use craft\services\Sites;
 use craft\services\UserPermissions;
+use craft\web\twig\variables\CraftVariable;
 use yii\base\Event;
 use yii\base\Exception;
 use yii\web\User;
@@ -150,6 +152,10 @@ class Plugin extends \craft\base\Plugin
      */
     private function _addTwigExtensions()
     {
+        Event::on(CraftVariable::class, CraftVariable::EVENT_DEFINE_COMPONENTS, function (DefineComponentsEvent $event){
+                $event->components['commerce'] = Commerce::class;
+        });
+
         Craft::$app->view->twig->addExtension(new Extension);
     }
 
@@ -264,13 +270,5 @@ class Plugin extends \craft\base\Plugin
 //                $event->types[] = ManField::class;
 //            }
 //        );
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function defineTemplateComponent()
-    {
-        return Commerce::class;
     }
 }
