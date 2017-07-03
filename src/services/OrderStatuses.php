@@ -227,7 +227,7 @@ class OrderStatuses extends Component
     {
         $orderStatusRecords = OrderStatusRecord::find()->orderBy('sortOrder')->all();
 
-        return ArrayHelper::map($orderStatusRecords, 'id', function($record) {
+        $all = ArrayHelper::map($orderStatusRecords, 'id', function($record) {
             /** @var OrderStatusRecord $record */
             return new OrderStatus($record->toArray([
                 'id',
@@ -238,6 +238,8 @@ class OrderStatuses extends Component
                 'default',
             ]));
         });
+
+        return $all;
     }
 
     /**

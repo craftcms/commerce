@@ -45,7 +45,7 @@ class OrderStatus extends Model
     /**
      * @var string Color
      */
-    public $color;
+    public $color = 'green';
 
     /**
      * @var int Sort order
@@ -65,24 +65,6 @@ class OrderStatus extends Model
         return [
             [['name', 'handle', 'default'], 'required']
         ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function init()
-    {
-        $this->_initDefaults();
-
-        parent::init();
-    }
-
-    /**
-     * @return void
-     */
-    private function _initDefaults()
-    {
-        $this->color = 'green';
     }
 
     /**
