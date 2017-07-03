@@ -11,6 +11,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
 use craft\commerce\records\OrderStatus as OrderStatusRecord;
 use craft\commerce\records\OrderStatusEmail as OrderStatusEmailRecord;
+use craft\db\Query;
 use craft\helpers\ArrayHelper;
 use yii\base\Component;
 use yii\base\Exception;
@@ -29,46 +30,51 @@ class OrderStatuses extends Component
 {
 
     /**
+     * @var bool
+     */
+    private $_fetchedAllStatues = false;
+
+    /**
+     * @var OrderStatus[]
+     */
+    private $_orderStatusesById = [];
+
+    /**
+     * @var OrderStatus[]
+     */
+    private $_orderStatusesByHandle = [];
+
+    /**
+     * @var OrderStatus
+     */
+    private $_defaultOrderStatus;
+
+    /**
      * @param string $handle
      *
      * @return OrderStatus|null
      */
     public function getOrderStatusByHandle($handle)
     {
-        $result = OrderStatusRecord::find()->where(['handle' => $handle])->one();
-
-        if ($result) {
-            return new OrderStatus($result);
+        if (isset($this->_orderStatusesByHandle[$handle])) {
+            return $this->_orderStatusesByHandle[$handle];
         }
 
-        return null;
-    }
-
-    /**
-     * @param $id
-     *
-     * @return Email[]
-     */
-    public function getAllEmailsByOrderStatusId($id): array
-    {
-        $orderStatus = OrderStatusRecord::find()->with('emails')->where(['id' => $id])->one();
-
-        if ($orderStatus) {
-            return ArrayHelper::map($orderStatus->emails, 'id', function($record) {
-                /** @var EmailRecord $record */
-                return new Email($record->toArray([
-                    'id',
-                    'name',
-                    'subject',
-                    'recipientType',
-                    'to',
-                    'enabled',
-                    'templatePath',
-                ]));
-            });
+        if ($this->_fetchedAllStatues) {
+            return null;
         }
 
-        return [];
+        $result = $this->_createOrderStatusesQuery()
+            ->where(['handle' => $handle])
+            ->one();
+
+        if (!$result) {
+            return null;
+        }
+
+        $this->_memoizeOrderStatus(new OrderStatus($result));
+
+        return $this->_orderStatusesByHandle[$handle];
     }
 
     /**
@@ -94,13 +100,19 @@ class OrderStatuses extends Component
      */
     public function getDefaultOrderStatus()
     {
-        $result = OrderStatusRecord::find()->where(['default' => true])->one();
+        if (null === $this->_defaultOrderStatus) {
+            $row = $this->_createOrderStatusesQuery()
+                ->where(['default' => 1])
+                ->one();
 
-        if ($result) {
-            return new OrderStatus($result);
+            if (!$row) {
+                return null;
+            }
+
+            $this->_defaultOrderStatus = new OrderStatus($row);
         }
 
-        return null;
+        return $this->_defaultOrderStatus;
     }
 
     /**
@@ -108,11 +120,9 @@ class OrderStatuses extends Component
      * @param array       $emailIds
      *
      * @return bool
-     * @throws Exception
-     * @throws \CDbException
      * @throws \Exception
      */
-    public function saveOrderStatus(OrderStatus $model, array $emailIds)
+    public function saveOrderStatus(OrderStatus $model, array $emailIds): bool
     {
         if ($model->id) {
             $record = OrderStatusRecord::findOne($model->id);
@@ -190,54 +200,51 @@ class OrderStatuses extends Component
     }
 
     /**
+     * Delete an order status by id.
      * @param int
      *
      * @return bool
      */
-    public function deleteOrderStatusById($id)
+    public function deleteOrderStatusById($id): bool
     {
         $statuses = $this->getAllOrderStatuses();
 
-        $query = Order::find();
-        $query->orderStatusId($id);
-        $order = $query->one();
+        $existingOrder = Order::find()
+            ->orderStatusId($id)
+            ->one();
 
-        if ($order) {
+        // Not if it's still in use.
+        if ($existingOrder) {
             return false;
         }
 
         if (count($statuses) >= 2) {
+            $record = OrderStatusRecord::findOne($id);
 
-            $records = OrderStatusRecord::find()->where('id = :id', [':id' => $id])->all();
-            foreach ($records as $record) {
-                $record->delete();
-            }
-
-            return true;
+            return (bool)$record->delete();
         }
 
         return false;
     }
 
     /**
+     * Returns all Order Statuses
      *
      * @return OrderStatus[]
      */
     public function getAllOrderStatuses(): array
     {
-        $orderStatusRecords = OrderStatusRecord::find()->orderBy('sortOrder')->all();
+        if (!$this->_fetchedAllStatues) {
+            $results = $this->_createOrderStatusesQuery()->all();
 
-        return ArrayHelper::map($orderStatusRecords, 'id', function($record) {
-            /** @var OrderStatusRecord $record */
-            return new OrderStatus($record->toArray([
-                'id',
-                'name',
-                'handle',
-                'color',
-                'sortOrder',
-                'default',
-            ]));
-        });
+            foreach ($results as $row) {
+                $this->_memoizeOrderStatus(new OrderStatus($row));
+            }
+
+            $this->_fetchedAllStatues = true;
+        }
+
+        return $this->_orderStatusesById;
     }
 
     /**
@@ -268,20 +275,25 @@ class OrderStatuses extends Component
      */
     public function getOrderStatusById($id)
     {
-        $result = OrderStatusRecord::findOne($id);
-
-        if ($result) {
-            return new OrderStatus($result->toArray([
-                'id',
-                'name',
-                'handle',
-                'color',
-                'sortOrder',
-                'default',
-            ]));
+        if (isset($this->_orderStatusesById[$id])) {
+            return $this->_orderStatusesById[$id];
         }
 
-        return null;
+        if ($this->_fetchedAllStatues) {
+            return null;
+        }
+
+        $result = $this->_createOrderStatusesQuery()
+            ->where(['id' => $id])
+            ->one();
+
+        if (!$result) {
+             return null;
+        }
+
+        $this->_memoizeOrderStatus(new OrderStatus($result));
+
+        return $this->_orderStatusesById[$id];
     }
 
     /**
@@ -289,7 +301,7 @@ class OrderStatuses extends Component
      *
      * @return bool
      */
-    public function reorderOrderStatuses($ids)
+    public function reorderOrderStatuses(array $ids): bool
     {
         foreach ($ids as $sortOrder => $id) {
             Craft::$app->getDb()->createCommand()
@@ -298,5 +310,41 @@ class OrderStatuses extends Component
         }
 
         return true;
+    }
+
+    // Private methods
+    // =========================================================================
+
+    /**
+     * Memoize an order status  by its ID and handle.
+     *
+     * @param OrderStatus $orderStatus
+     *
+     * @return void
+     */
+    private function _memoizeOrderStatus(OrderStatus $orderStatus)
+    {
+        $this->_orderStatusesById[$orderStatus->id] = $orderStatus;
+        $this->_orderStatusesByHandle[$orderStatus->handle] = $orderStatus;
+    }
+
+    /**
+     * Returns a Query object prepped for retrieving order statuses
+     *
+     * @return Query
+     */
+    private function _createOrderStatusesQuery(): Query
+    {
+        return (new Query())
+            ->select([
+                'id',
+                'name',
+                'handle',
+                'color',
+                'sortOrder',
+                'default',
+            ])
+            ->orderBy('sortOrder')
+            ->from(['{{%commerce_orderstatuses}}']);
     }
 }

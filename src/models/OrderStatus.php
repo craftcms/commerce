@@ -114,7 +114,7 @@ class OrderStatus extends Model
      */
     public function getEmails()
     {
-        return Plugin::getInstance()->orderStatuses->getAllEmailsByOrderStatusId($this->id);
+        return Plugin::getInstance()->getEmails()->getAllEmailsByOrderStatusId($this->id);
     }
 
     /**

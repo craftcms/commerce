@@ -9,6 +9,7 @@ use craft\commerce\models\Email;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
+use craft\commerce\records\OrderStatus as OrderStatusRecord;
 use craft\helpers\ArrayHelper;
 use craft\mail\Message;
 use yii\base\Component;
@@ -348,6 +349,33 @@ class Emails extends Component
         // Restore original values
         Craft::$app->language = $originalLanguage;
         $templatesService->setTemplateMode($oldTemplateMode);
+    }
+
+    /**
+     * @param $id
+     *
+     * @return Email[]
+     */
+    public function getAllEmailsByOrderStatusId($id): array
+    {
+        $orderStatus = OrderStatusRecord::find()->with('emails')->where(['id' => $id])->one();
+
+        if ($orderStatus) {
+            return ArrayHelper::map($orderStatus->emails, 'id', function($record) {
+                /** @var EmailRecord $record */
+                return new Email($record->toArray([
+                    'id',
+                    'name',
+                    'subject',
+                    'recipientType',
+                    'to',
+                    'enabled',
+                    'templatePath',
+                ]));
+            });
+        }
+
+        return [];
     }
 
     // Private Methods
