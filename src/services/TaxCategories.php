@@ -53,8 +53,7 @@ class TaxCategories extends Component
             $results = $this->_createTaxCategoryQuery()->all();
 
             foreach ($results as $result) {
-                $taxCategory = new TaxCategory($result);
-                $this->_memoizeTaxCategory($taxCategory);
+                $this->_memoizeTaxCategory(new TaxCategory($result));
             }
 
             $this->_fetchedAllTaxCategories = true;
@@ -221,6 +220,7 @@ class TaxCategories extends Component
     {
         $all = $this->getAllTaxCategories();
 
+        // Not the last one.
         if (count($all) === 1) {
             return false;
         }
