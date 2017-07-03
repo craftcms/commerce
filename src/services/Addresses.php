@@ -142,7 +142,7 @@ class Addresses extends Component
 
         // Check country’s stateRequired option
         if ($country && $country->stateRequired && (!$state || ($state && $state->countryId !== $country->id))) {
-            $addressModel->addError('stateId', Craft::t('commerce', 'commerce', 'Country requires a related state selected.'));
+            $addressModel->addError('stateId', Craft::t('commerce', 'Country requires a related state selected.'));
         }
 
         if ($validate) {

@@ -39,7 +39,7 @@ class DeleteProduct extends Delete
         try {
             /** @var Product $product */
             foreach ($query->all() as $product) {
-                Plugin::getInstance()->getProducts()->deleteProduct($product);
+                Craft::$app->getElements()->deleteElement($product);
             }
         } catch (Exception $exception) {
             $this->setMessage($exception->getMessage());
