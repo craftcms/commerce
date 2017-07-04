@@ -63,7 +63,7 @@ class Extension extends \Twig_Extension
         }
 
         if ($format) {
-            $amount = craft()->numberFormatter->formatCurrency($amount, $currency, $stripZeros);
+            $amount = Craft::$app->getFormatter()->asCurrency($amount, $currency, [], [],$stripZeros);
         }
 
         return $amount;
