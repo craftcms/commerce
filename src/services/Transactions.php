@@ -2,10 +2,12 @@
 
 namespace craft\commerce\services;
 
+use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\events\TransactionEvent;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\Transaction;
+use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
 use yii\base\Component;
 
@@ -96,7 +98,7 @@ class Transactions extends Component
         $transaction->paymentRate = $paymentCurrency->rate;
         $transaction->paymentMethodId = $order->paymentMethodId;
 
-        $user = Craft::$app->getUser()->getUser();
+        $user = Craft::$app->getUser()->getIdentity();
         if ($user) {
             $transaction->userId = $user->id;
         }

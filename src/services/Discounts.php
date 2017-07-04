@@ -181,7 +181,7 @@ class Discounts extends Component
     public function getCurrentUserGroupIds($user = null)
     {
         $groupIds = [];
-        $currentUser = $user ?: Craft::$app->getUser()->getUser();
+        $currentUser = $user ?: Craft::$app->getUser()->getIdentity();
         if ($currentUser) {
             foreach ($currentUser->getGroups() as $group) {
                 $groupIds[] = $group->id;
