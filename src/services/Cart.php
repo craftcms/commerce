@@ -221,7 +221,7 @@ class Cart extends Component
 
         foreach ($methods as $method) {
             if ($method['handle'] == $shippingMethod) {
-                $cart->shippingMethod = $shippingMethod;
+                $cart->shippingMethodHandle = $shippingMethod;
 
                 return Plugin::getInstance()->getOrders()->saveOrder($cart);
             }

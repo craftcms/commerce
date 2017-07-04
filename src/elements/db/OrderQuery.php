@@ -393,10 +393,10 @@ class OrderQuery extends ElementQuery
     {
         if ($value instanceof User) {
             $customer = Plugin::getInstance()->getCustomers()->getCustomerByUserId($value->id);
-            $this->customerId = $customer->id;
+            $this->customerId = $customer->id ?? null;
         } else if ($value !== null) {
             $customer = Plugin::getInstance()->getCustomers()->getCustomerByUserId($value);
-            $this->customerId = $customer->id;
+            $this->customerId = $customer->id ?? null;
         } else {
             $this->customerId = null;
         }
@@ -478,7 +478,7 @@ class OrderQuery extends ElementQuery
             'commerce_orders.cancelUrl',
             'commerce_orders.billingAddressId',
             'commerce_orders.shippingAddressId',
-            'commerce_orders.shippingMethod',
+            'commerce_orders.shippingMethodHandle',
             'commerce_orders.paymentMethodId',
             'commerce_orders.customerId',
             'commerce_orders.dateUpdated'
@@ -579,7 +579,7 @@ class OrderQuery extends ElementQuery
             // Remove any blank purchasable IDs (if any)
             $purchasableIds = array_filter($purchasableIds);
 
-            $this->subQuery->innerJoin('{{%commerce_lineitems}} lineitems', '[[lineitems.orderId]] = [[subquery.elementsId]]');
+            $this->subQuery->innerJoin('{{%commerce_lineitems}} lineitems', '[[lineitems.orderId]] = [[commerce_orders.id]]');
             $this->subQuery->andWhere(['in', '[[lineitems.purchasableId]]', $purchasableIds]);
         }
 

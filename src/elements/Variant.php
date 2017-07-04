@@ -4,6 +4,7 @@ namespace craft\commerce\elements;
 
 use Craft;
 use craft\commerce\base\Element;
+use craft\commerce\base\Purchasable;
 use craft\commerce\elements\db\VariantQuery;
 use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
@@ -25,7 +26,7 @@ use yii\base\InvalidConfigException;
  * @package   craft.commerce
  * @since     2.0
  */
-class Variant extends Element
+class Variant extends Purchasable
 {
     // Properties
     // =========================================================================

@@ -33,7 +33,7 @@ class PaymentMethods extends Component
      */
     public function getAllFrontEndPaymentMethods(): array
     {
-        $records = PaymentMethodRecord::find()->where('isArchived = :xIsArchived, frontEndEnabled = :xFrontEndEnabled', [':xFrontEndEnabled' => true, ':xIsArchived' => false])->orderBy('sortOrder')->all();
+        $records = PaymentMethodRecord::find()->where(['isArchived' => false, 'frontEndEnabled' => true])->orderBy('sortOrder')->all();
 
         return ArrayHelper::map($records, 'id', function($record) {
             return $this->_createPaymentMethodFromPaymentMethodRecord($record);

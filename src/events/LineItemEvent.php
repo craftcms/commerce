@@ -26,5 +26,5 @@ class LineItemEvent extends Event
     /**
      * @var bool If this is a new line item.
      */
-    public $isNewLineItem;
+    public $isNew;
 }

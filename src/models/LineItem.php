@@ -2,6 +2,7 @@
 
 namespace craft\commerce\models;
 
+use Craft;
 use craft\commerce\base\Element;
 use craft\commerce\base\Model;
 use craft\commerce\base\Purchasable;
@@ -339,7 +340,7 @@ class LineItem extends Model
 
         $purchasable->populateLineItem($this);
 
-        $event = new LineItemEvent($this, [
+        $event = new LineItemEvent([
             'lineItem' => $this,
             'purchasable' => $this->purchasable
         ]);

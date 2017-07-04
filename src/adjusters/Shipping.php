@@ -31,6 +31,8 @@ class Shipping implements AdjusterInterface
     {
         $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($order);
 
+        $shippingMethod = null;
+
         /** @var ShippingMethod $method */
         foreach ($shippingMethods as $method) {
             if ($method['method']->getIsEnabled() == true && ($method['method']->getHandle() == $order->getShippingMethodHandle())) {
@@ -39,7 +41,7 @@ class Shipping implements AdjusterInterface
             }
         }
 
-        if (null === $shippingMethod) {
+        if (null == $shippingMethod) {
             return [];
         }
 

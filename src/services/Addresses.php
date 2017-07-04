@@ -48,7 +48,7 @@ class Addresses extends Component
      *
      * @return Address|null
      */
-    public function getAddressById(int $id)
+    public function getAddressById($id)
     {
         $result = AddressRecord::findOne($id);
 

@@ -107,7 +107,7 @@ class Customers extends Component
                 }
             }
 
-            $this->_customer = new Customer($record);
+            $this->_customer = $this->_createCustomerFromCustomerRecord($record);
         }
 
         return $this->_customer;
@@ -228,7 +228,7 @@ class Customers extends Component
     {
         $results = CustomerRecord::find()->where(['email' => $email])->all();
 
-        return ArrayHelper::map($results, 'id', function($record){
+        return ArrayHelper::map($results, 'id', function($record) {
             return $this->_createCustomerFromCustomerRecord($record);
         });
     }
@@ -330,10 +330,10 @@ class Customers extends Component
      */
     public function getCustomerByUserId($id)
     {
-        $result = CustomerRecord::findOne($id);
+        $result = CustomerRecord::find()->where(['userId' => $id])->one();
 
         if ($result) {
-            return new Customer($result);
+            return $this->_createCustomerFromCustomerRecord($result);
         }
 
         return null;
@@ -369,7 +369,25 @@ class Customers extends Component
 
         // Now duplicate the addresses on the order
         if ($order->billingAddress) {
-            $snapShotBillingAddress = new Address($order->billingAddress);
+            $snapShotBillingAddress = new Address($order->billingAddress->toArray([
+                'id',
+                'attention',
+                'title',
+                'firstName',
+                'lastName',
+                'countryId',
+                'stateId',
+                'address1',
+                'address2',
+                'city',
+                'zipCode',
+                'phone',
+                'alternativePhone',
+                'businessName',
+                'businessTaxId',
+                'businessId',
+                'stateName']
+            ));
             $originalBillingAddressId = $snapShotBillingAddress->id;
             $snapShotBillingAddress->id = null;
             if (Plugin::getInstance()->getAddresses()->saveAddress($snapShotBillingAddress, false)) {
@@ -381,7 +399,25 @@ class Customers extends Component
         }
 
         if ($order->shippingAddress) {
-            $snapShotShippingAddress = new Address($order->shippingAddress);
+            $snapShotShippingAddress = new Address($order->shippingAddress->toArray([
+                    'id',
+                    'attention',
+                    'title',
+                    'firstName',
+                    'lastName',
+                    'countryId',
+                    'stateId',
+                    'address1',
+                    'address2',
+                    'city',
+                    'zipCode',
+                    'phone',
+                    'alternativePhone',
+                    'businessName',
+                    'businessTaxId',
+                    'businessId',
+                    'stateName']
+            ));
             $originalShippingAddressId = $snapShotShippingAddress->id;
             $snapShotShippingAddress->id = null;
             if (Plugin::getInstance()->getAddresses()->saveAddress($snapShotShippingAddress, false)) {

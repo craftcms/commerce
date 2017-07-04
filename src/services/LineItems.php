@@ -184,7 +184,7 @@ class LineItems extends Component
         $isNewLineItem = !$lineItem->id;
 
         if (!$lineItem->id) {
-            $lineItemRecord = new LineItem();
+            $lineItemRecord = new LineItemRecord();
         } else {
             $lineItemRecord = LineItemRecord::findOne($lineItem->id);
 
@@ -317,7 +317,7 @@ class LineItems extends Component
         /** @var PurchasableInterface $purchasable */
         $purchasable = Craft::$app->getElements()->getElementById($purchasableId);
 
-        if ($purchasable && $purchasable instanceof PurchasableInterface) {
+        if ($purchasable && ($purchasable instanceof PurchasableInterface)) {
             $lineItem->fillFromPurchasable($purchasable);
         } else {
             throw new Exception(Craft::t('commerce', 'Not a purchasable ID'));
@@ -325,7 +325,9 @@ class LineItems extends Component
 
         //raising event
         $event = new LineItemEvent([
-            'lineItem' => $lineItem
+            'lineItem' => $lineItem,
+            'purchasable' => $purchasable,
+            'isNew' => true
         ]);
         $this->trigger(self::EVENT_CREATE_LINE_ITEM, $event);
 

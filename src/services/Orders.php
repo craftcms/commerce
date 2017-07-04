@@ -225,7 +225,7 @@ class Orders extends Component
         $orderRecord->datePaid = $order->datePaid;
         $orderRecord->billingAddressId = $order->billingAddressId;
         $orderRecord->shippingAddressId = $order->shippingAddressId;
-        $orderRecord->shippingMethod = $order->getShippingMethodHandle();
+        $orderRecord->shippingMethodHandle = $order->getShippingMethodHandle();
         $orderRecord->paymentMethodId = $order->paymentMethodId;
         $orderRecord->orderStatusId = $order->orderStatusId;
         $orderRecord->couponCode = $order->couponCode;
@@ -325,7 +325,7 @@ class Orders extends Component
 
         // collect new adjustments
         foreach ($this->getAdjusters() as $adjuster) {
-            $adjustments = $adjuster->adjust($order, $lineItems);
+            $adjustments = (new $adjuster)->adjust($order, $lineItems);
             $order->setAdjustments(array_merge($order->getAdjustments(), $adjustments));
         }
 
@@ -368,7 +368,7 @@ class Orders extends Component
         $availableMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($order);
         if ($order->getShippingMethodHandle()) {
             if (!isset($availableMethods[$order->getShippingMethodHandle()]) || empty($availableMethods)) {
-                $order->shippingMethod = null;
+                $order->shippingMethodHandle = null;
                 $this->calculateAdjustments($order);
 
                 return;

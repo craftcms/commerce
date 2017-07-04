@@ -21,7 +21,6 @@ use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\UrlHelper;
-use craft\models\FieldLayout;
 use craft\validators\DateTimeValidator;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -35,10 +34,10 @@ use yii\base\InvalidConfigException;
  * @see       https://craftcommerce.com
  * @package   craft.plugins.commerce.models
  * @since     1.0
+ *
  */
 class Product extends Element
 {
-
     const STATUS_LIVE = 'live';
     const STATUS_PENDING = 'pending';
     const STATUS_EXPIRED = 'expired';
@@ -137,11 +136,6 @@ class Product extends Element
      * @var TaxCategory Tax category
      */
     public $taxCategory;
-
-    /**
-     * @var Variant[] Variants
-     */
-    public $variants;
 
     /**
      * @var string Name
@@ -252,7 +246,7 @@ class Product extends Element
     public function getSnapshot()
     {
         $data = [
-            'title' => $this->getTitle()
+            'title' => $this->title
         ];
 
         return array_merge($this->getAttributes(), $data);
@@ -388,7 +382,7 @@ class Product extends Element
      */
     public function getVariants(): array
     {
-        if (empty($this->_variants)) {
+        if (null === $this->_variants) {
             if ($this->id) {
                 if ($this->getType()->hasVariants) {
                     $this->setVariants(Plugin::getInstance()->getVariants()->getAllVariantsByProductId($this->id, $this->siteId));
@@ -401,7 +395,7 @@ class Product extends Element
             }
 
             // Must have at least one
-            if (empty($this->_variants)) {
+            if (null === $this->_variants) {
                 $variant = new Variant();
                 $this->setVariants([$variant]);
             }

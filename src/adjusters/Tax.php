@@ -40,7 +40,7 @@ class Tax implements AdjusterInterface
         }
 
         $adjustments = [];
-        $taxRates = Plugin::getInstance()->getTaxRates()->getAllTaxRatesWithCountries();
+        $taxRates = Plugin::getInstance()->getTaxRates()->getAllTaxRates();
 
         /** @var TaxRate $rate */
         foreach ($taxRates as $rate) {

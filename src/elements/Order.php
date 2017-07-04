@@ -16,11 +16,15 @@ use craft\commerce\models\OrderHistory;
 use craft\commerce\models\OrderSettings;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\models\PaymentMethod;
+use craft\commerce\models\ShippingMethod;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\elements\actions\Delete;
 use craft\elements\db\ElementQueryInterface;
+use craft\helpers\Template;
+use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
+use craft\web\View;
 
 /**
  * Order or Cart model.
@@ -168,6 +172,11 @@ class Order extends Element
     public $paymentCurrency;
 
     /**
+     * @var int|null Payment Method ID
+     */
+    public $paymentMethodId;
+
+    /**
      * @var string Last IP
      */
     public $lastIp;
@@ -210,12 +219,7 @@ class Order extends Element
     /**
      * @var string Shipping Method Handle
      */
-    public $shippingMethod;
-
-    /**
-     * @var int Payment Method ID
-     */
-    public $paymentMethodId;
+    public $shippingMethodHandle;
 
     /**
      * @var int Customer ID
@@ -283,33 +287,9 @@ class Order extends Element
     }
 
     /**
-     * @inheritdoc
-     */
-    public static function hasTitles(): bool
-    {
-        return false;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function hasStatuses(): bool
-    {
-        return false;
-    }
-
-    /**
      * @return bool
      */
-    public static function isLocalized(): bool
-    {
-        return false;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isEditable()
+    public function isEditable(): bool
     {
         // Still a cart, allow full editing.
         if (!$this->isCompleted) {
@@ -339,9 +319,9 @@ class Order extends Element
      * @inheritdoc
      * @return string
      */
-    public function getLink()
+    public function getLink(): string
     {
-        return TemplateHelper::getRaw("<a href='".$this->getCpEditUrl()."'>".substr($this->number, 0, 7)."</a>");
+        return Template::raw("<a href='".$this->getCpEditUrl()."'>".substr($this->number, 0, 7)."</a>");
     }
 
     /**
@@ -350,7 +330,8 @@ class Order extends Element
      */
     public function getCpEditUrl()
     {
-        return UrlHelper::getCpUrl('commerce/orders/'.$this->id);
+
+        return UrlHelper::cpUrl('commerce/orders/'.$this->id);
     }
 
     /**
@@ -371,10 +352,10 @@ class Order extends Element
             // Set Craft to the site template mode
             $templatesService = Craft::$app->getView();
             $oldTemplateMode = $templatesService->getTemplateMode();
-            $templatesService->setTemplateMode(TemplateMode::Site);
+            $templatesService->setTemplateMode(View::TEMPLATE_MODE_SITE);
 
             if ($templatesService->doesTemplateExist($template)) {
-                $url = UrlHelper::getActionUrl("commerce/downloads/pdf?number={$this->number}".($option ? "&option={$option}" : null));
+                $url = UrlHelper::actionUrl("commerce/downloads/pdf?number={$this->number}".($option ? "&option={$option}" : null));
             }
 
             // Restore the original template mode
@@ -402,7 +383,7 @@ class Order extends Element
      *
      * @return bool
      */
-    public function isGuest()
+    public function isGuest(): bool
     {
         if ($this->getCustomer()) {
             return (bool)!$this->getCustomer()->userId;
@@ -424,7 +405,7 @@ class Order extends Element
     /**
      * @return bool
      */
-    public function isPaid()
+    public function isPaid(): bool
     {
         return (bool)$this->outstandingBalance() <= 0;
     }
@@ -446,7 +427,7 @@ class Order extends Element
     /**
      * @return bool
      */
-    public function isUnpaid()
+    public function isUnpaid(): bool
     {
         return (bool)$this->outstandingBalance() > 0;
     }
@@ -456,7 +437,7 @@ class Order extends Element
      *
      * @return bool
      */
-    public function isActiveCart()
+    public function isActiveCart(): bool
     {
         $cart = Plugin::getInstance()->getCart()->getCart();
 
@@ -468,7 +449,7 @@ class Order extends Element
      *
      * @return bool
      */
-    public function isEmpty()
+    public function isEmpty(): bool
     {
         return $this->getTotalQty() == 0;
     }
@@ -478,7 +459,7 @@ class Order extends Element
      *
      * @return int
      */
-    public function getTotalQty()
+    public function getTotalQty(): int
     {
         $qty = 0;
         foreach ($this->getLineItems() as $item) {
@@ -489,9 +470,9 @@ class Order extends Element
     }
 
     /**
-     * @return \craft\commerce\elements\LineItem[]
+     * @return LineItem[]
      */
-    public function getLineItems()
+    public function getLineItems(): array
     {
         if (null === $this->_lineItems) {
             $this->setLineItems(Plugin::getInstance()->getLineItems()->getAllLineItemsByOrderId($this->id));
@@ -501,9 +482,9 @@ class Order extends Element
     }
 
     /**
-     * @param \craft\commerce\elements\LineItem[] $lineItems
+     * @param LineItem[] $lineItems
      */
-    public function setLineItems($lineItems)
+    public function setLineItems(array $lineItems)
     {
         $this->_lineItems = $lineItems;
     }
@@ -561,7 +542,7 @@ class Order extends Element
     }
 
     /**
-     * @return int
+     * @return float
      */
     public function getTotalWeight()
     {
@@ -574,7 +555,7 @@ class Order extends Element
     }
 
     /**
-     * @return int
+     * @return float
      */
     public function getTotalLength()
     {
@@ -587,7 +568,7 @@ class Order extends Element
     }
 
     /**
-     * @return int
+     * @return float
      */
     public function getTotalWidth()
     {
@@ -602,7 +583,7 @@ class Order extends Element
     /**
      * Returns the total sale amount.
      *
-     * @return int
+     * @return float
      */
     public function getTotalSaleAmount()
     {
@@ -617,7 +598,7 @@ class Order extends Element
     /**
      * Returns the total of all line item's subtotals.
      *
-     * @return int
+     * @return float
      */
     public function getItemSubtotal()
     {
@@ -647,9 +628,9 @@ class Order extends Element
     }
 
     /**
-     * @return \craft\commerce\models\OrderAdjustment[]
+     * @return OrderAdjustment[]
      */
-    public function getAdjustments()
+    public function getAdjustments(): array
     {
         if (!$this->_orderAdjustments) {
             $this->_orderAdjustments = Plugin::getInstance()->getOrderAdjustments()->getAllOrderAdjustmentsByOrderId($this->id);
@@ -659,7 +640,7 @@ class Order extends Element
     }
 
     /**
-     * @return int
+     * @return float
      */
     public function getTotalHeight()
     {
@@ -672,15 +653,15 @@ class Order extends Element
     }
 
     /**
-     * @param \craft\commerce\models\OrderAdjustment[] $adjustments
+     * @param OrderAdjustment[] $adjustments
      */
-    public function setAdjustments($adjustments)
+    public function setAdjustments(array $adjustments)
     {
         $this->_orderAdjustments = $adjustments;
     }
 
     /**
-     * @return \craft\commerce\models\Address
+     * @return Address|null
      */
     public function getShippingAddress()
     {
@@ -692,15 +673,15 @@ class Order extends Element
     }
 
     /**
-     * @param \craft\commerce\models\Address $address
+     * @param Address $address
      */
-    public function setShippingAddress(\craft\commerce\models\Address $address)
+    public function setShippingAddress(Address $address)
     {
         $this->_shippingAddress = $address;
     }
 
     /**
-     * @return \craft\commerce\models\Address
+     * @return Address|null
      */
     public function getBillingAddress()
     {
@@ -713,15 +694,15 @@ class Order extends Element
 
     /**
      *
-     * @param \craft\commerce\models\Address $address
+     * @param Address $address
      */
-    public function setBillingAddress(\craft\commerce\models\Address $address)
+    public function setBillingAddress(Address $address)
     {
         $this->_billingAddress = $address;
     }
 
     /**
-     * @return ShippingMethodInterface|null
+     * @return int|null
      */
     public function getShippingMethodId()
     {
@@ -731,7 +712,7 @@ class Order extends Element
     }
 
     /**
-     * @return int|null
+     * @return ShippingMethod|null
      */
     public function getShippingMethod()
     {
@@ -743,7 +724,7 @@ class Order extends Element
      */
     public function getShippingMethodHandle()
     {
-        return $this->getAttribute('shippingMethod');
+        return $this->shippingMethodHandle;
     }
 
     /**
@@ -751,7 +732,7 @@ class Order extends Element
      */
     public function getPaymentMethod()
     {
-        return Plugin::getInstance()->getPaymentMethods()->getPaymentMethodById($this->getAttribute('paymentMethodId'));
+        return Plugin::getInstance()->getPaymentMethods()->getPaymentMethodById($this->paymentMethodId);
     }
 
     /**
@@ -762,18 +743,16 @@ class Order extends Element
         return Plugin::getInstance()->getOrderHistories()->getAllOrderHistoriesByOrderId($this->id);
     }
 
-    // Original Element Methods:
-
     /**
      * @return Transaction[]
      */
-    public function getTransactions()
+    public function getTransactions(): array
     {
         return Plugin::getInstance()->getTransactions()->getAllTransactionsByOrderId($this->id);
     }
 
     /**
-     * @return \craft\commerce\models\OrderStatus|null
+     * @return OrderStatus|null
      */
     public function getOrderStatus()
     {
@@ -793,7 +772,7 @@ class Order extends Element
      *
      * @return mixed|string
      */
-    public function tableAttributeHtml(string $attribute): string
+    public function getTableAttributeHtml(string $attribute): string
     {
         switch ($attribute) {
             case 'orderStatus': {
@@ -855,10 +834,10 @@ class Order extends Element
                 }
 
                 if ($this->$attribute > 0) {
-                    return craft()->numberFormatter->formatCurrency($this->$attribute, $this->currency);
+                    return Craft::$app->getFormatter()->asCurrency($this->$attribute, $this->currency);
                 }
 
-                return craft()->numberFormatter->formatCurrency($this->$attribute * -1, $this->currency);
+                return Craft::$app->getFormatter()->asCurrency($this->$attribute * -1, $this->currency);
             }
             default: {
                 return parent::tableAttributeHtml($attribute);
