@@ -41,6 +41,6 @@ class OrderStatus extends ActiveRecord
      */
     public function getEmails(): ActiveQueryInterface
     {
-        return $this->hasMany(OrderStatusEmail::class, ['orderStatusId' => 'id']);
+        return $this->hasMany(Email::class, ['id' => 'emailId'])->viaTable('{{%commerce_orderstatus_emails}}', ['orderStatusId' => 'id']);
     }
 }
