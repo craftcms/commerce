@@ -6,7 +6,7 @@ use Craft;
 use craft\commerce\models\PaymentCurrency;
 use craft\commerce\Plugin;
 use craft\commerce\records\PaymentCurrency as PaymentCurrencyRecord;
-use craft\helpers\ArrayHelper;
+use craft\db\Query;
 use yii\base\Component;
 use yii\base\Exception;
 
@@ -27,7 +27,15 @@ use yii\base\Exception;
 class PaymentCurrencies extends Component
 {
 
-    private $_allCurrencies;
+    /**
+     * @var PaymentCurrency[]
+     */
+    private $_allCurrenciesByIso;
+
+    /**
+     * @var PaymentCurrency[]
+     */
+    private $_allCurrenciesById;
 
     /**
      * @param int $id
@@ -36,10 +44,12 @@ class PaymentCurrencies extends Component
      */
     public function getPaymentCurrencyById($id)
     {
-        foreach ($this->getAllPaymentCurrencies() as $currency) {
-            if ($currency->id == $id) {
-                return $currency;
-            }
+        if ($this->_allCurrenciesById === null) {
+            $this->getAllPaymentCurrencies();
+        }
+
+        if (isset($this->_allCurrenciesById[$id])) {
+            return $this->_allCurrenciesById[$id];
         }
 
         return null;
@@ -50,25 +60,25 @@ class PaymentCurrencies extends Component
      */
     public function getAllPaymentCurrencies(): array
     {
-        if (null === $this->_allCurrencies) {
-            $records = PaymentCurrencyRecord::find()->orderBy(['[[primary]] = 1' => SORT_DESC, 'iso' => SORT_ASC])->all();
-            $this->_allCurrencies = ArrayHelper::map($records, 'id', function($record) {
-                /** @var PaymentCurrencyRecord $record */
-                $paymentCurrency = new PaymentCurrency($record->toArray([
-                    'id',
-                    'iso',
-                    'primary',
-                    'rate'
-                ]));
+        if (null === $this->_allCurrenciesByIso) {
+            $rows = $this->_createPaymentCurrencyQuery()
+                ->orderBy(['[[primary]] = 1' => SORT_DESC, 'iso' => SORT_ASC])
+                ->all();
+
+            $this->_allCurrenciesByIso = [];
+
+            foreach ($rows as $row) {
+                $paymentCurrency = new PaymentCurrency($row);
 
                 // TODO: Fix this with money/money package
                 $currency = Plugin::getInstance()->getCurrencies()->getCurrencyByIso($paymentCurrency->iso);
                 $paymentCurrency->setCurrency($currency);
-                return $paymentCurrency;
-            });
+
+                $this->_memoizePaymentCurrency($paymentCurrency);
+            }
         }
 
-        return $this->_allCurrencies;
+        return $this->_allCurrenciesById;
     }
 
     /**
@@ -78,12 +88,14 @@ class PaymentCurrencies extends Component
      */
     public function getPaymentCurrencyByIso($iso)
     {
-        foreach ($this->getAllPaymentCurrencies() as $currency) {
-            if ($currency->iso == $iso) {
-                return $currency;
-            }
+        if ($this->_allCurrenciesByIso === null) {
+            $this->getAllPaymentCurrencies();
         }
 
+        if (isset($this->_allCurrenciesByIso[$iso])) {
+            return $this->_allCurrenciesByIso[$iso];
+        }
+        
         return null;
     }
 
@@ -121,7 +133,7 @@ class PaymentCurrencies extends Component
      */
     public function convert($amount, $currency): float
     {
-        $destinationCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($currency);
+        $destinationCurrency = $this->getPaymentCurrencyByIso($currency);
 
         return $amount * $destinationCurrency->rate;
     }
@@ -183,5 +195,38 @@ class PaymentCurrencies extends Component
         if ($paymentCurrency) {
             return $paymentCurrency->delete();
         }
+
+        return false;
+    }
+
+    // Private Methods
+    // =========================================================================
+
+    /**
+     * Memoize a payment currency
+     *
+     * @param PaymentCurrency $paymentCurrency
+     */
+    private function _memoizePaymentCurrency(PaymentCurrency $paymentCurrency)
+    {
+        $this->_allCurrenciesByIso[$paymentCurrency->iso] = $paymentCurrency;
+        $this->_allCurrenciesById[$paymentCurrency->id] = $paymentCurrency;
+    }
+
+    /**
+     * Returns a Query object prepped for retrieving Emails
+     *
+     * @return Query
+     */
+    private function _createPaymentCurrencyQuery(): Query
+    {
+        return (new Query())
+            ->select([
+                'id',
+                'iso',
+                'primary',
+                'rate',
+            ])
+            ->from(['{{%commerce_paymentcurrencies}}']);
     }
 }

@@ -187,6 +187,7 @@ class ShippingZones extends Component
 
     // Private methods
     // =========================================================================
+
     /**
      * Returns a Query object prepped for retrieving shipping zones.
      *

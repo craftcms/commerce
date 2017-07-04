@@ -234,6 +234,9 @@ class TaxCategories extends Component
         return false;
     }
 
+    // Private methods
+    // =========================================================================
+
     /**
      * Returns a Query object prepped for retrieving tax categories.
      *

@@ -10,6 +10,7 @@ use craft\commerce\models\OrderHistory;
 use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
 use craft\commerce\records\OrderStatus as OrderStatusRecord;
+use craft\db\Query;
 use craft\helpers\ArrayHelper;
 use craft\mail\Message;
 use yii\base\Component;
@@ -51,13 +52,15 @@ class Emails extends Component
      */
     public function getEmailById($id)
     {
-        $result = EmailRecord::findOne($id);
+        $row = $this->_createEmailQuery()
+            ->where(['id' => $id])
+            ->one();
 
-        if ($result) {
-            return $this->_createEmailFromEmailRecord($result);
+        if (!$row) {
+            return null;
         }
 
-        return null;
+        return new Email($row);
     }
 
     /**
@@ -66,11 +69,9 @@ class Emails extends Component
      */
     public function getAllEmails(): array
     {
-        $records = EmailRecord::find()->orderBy('name')->all();
+        $rows = $this->_createEmailQuery()->all();
 
-        return ArrayHelper::map($records, 'id', function($record){
-            return $this->_createEmailFromEmailRecord($record);
-        });
+        return Email::populateModels($rows);
     }
 
     /**
@@ -118,15 +119,17 @@ class Emails extends Component
     /**
      * @param int $id
      *
-     * @throws \CDbException
+     * @return bool
      */
-    public function deleteEmailById($id)
+    public function deleteEmailById($id): bool
     {
         $email = EmailRecord::findOne($id);
 
         if ($email) {
             return $email->delete();
         }
+
+        return false;
     }
 
     /**
@@ -358,51 +361,37 @@ class Emails extends Component
      */
     public function getAllEmailsByOrderStatusId($id): array
     {
-        $orderStatus = OrderStatusRecord::find()->with('emails')->where(['id' => $id])->one();
+       $results = $this->_createEmailQuery()
+            ->innerJoin('{{%commerce_orderstatus_emails}} statusEmails', '[[emails.id]] = [[statusEmails.emailId]]')
+            ->innerJoin('{{%commerce_orderstatuses}} orderStatuses', '[[statusEmails.orderStatusId]] = [[orderStatuses.id]]')
+            ->where(['orderStatuses.id' => $id])
+            ->all();
 
-        if ($orderStatus) {
-            return ArrayHelper::map($orderStatus->emails, 'id', function($record) {
-                /** @var EmailRecord $record */
-                return new Email($record->toArray([
-                    'id',
-                    'name',
-                    'subject',
-                    'recipientType',
-                    'to',
-                    'enabled',
-                    'templatePath',
-                ]));
-            });
-        }
-
-        return [];
+       return Email::populateModels($results);
     }
 
     // Private Methods
     // =========================================================================
 
     /**
-     * Creates a Email with attributes from a EmailRecord.
+     * Returns a Query object prepped for retrieving Emails
      *
-     * @param EmailRecord|null $record
-     *
-     * @return Email|null
+     * @return Query
      */
-    private function _createEmailFromEmailRecord(EmailRecord $record = null)
+    private function _createEmailQuery(): Query
     {
-        if (!$record) {
-            return null;
-        }
-
-        return new Email($record->toArray([
-            'id',
-            'name',
-            'subject',
-            'recipientType',
-            'to',
-            'bcc',
-            'enabled',
-            'templatePath'
-        ]));
+        return (new Query())
+            ->select([
+                'emails.id',
+                'emails.name',
+                'emails.subject',
+                'emails.recipientType',
+                'emails.to',
+                'emails.bcc',
+                'emails.enabled',
+                'emails.templatePath'
+            ])
+            ->orderBy('name')
+            ->from(['{{%commerce_emails}} emails']);
     }
 }

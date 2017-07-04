@@ -188,7 +188,7 @@ class PaymentCurrency extends Model
      *
      * @param $currency
      */
-    public function setCurrency(\craft\commerce\models\Currency $currency)
+    public function setCurrency(Currency $currency)
     {
         $this->_currency = $currency;
     }
