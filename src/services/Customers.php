@@ -78,7 +78,7 @@ class Customers extends Component
     public function getCustomer(): Customer
     {
         if ($this->_customer === null) {
-            $user = Craft::$app->getUser()->getUser();
+            $user = Craft::$app->getUser()->getIdentity();
 
             if ($user) {
                 $record = CustomerRecord::findOne($user->id);
