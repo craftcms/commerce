@@ -180,7 +180,7 @@ class ProductTypes extends Component
 
         $this->_memoizeProductType(new ProductType($row));
 
-        return $this->_productTypesById[$handle];
+        return $this->_productTypesByHandle[$handle];
     }
 
     /**
