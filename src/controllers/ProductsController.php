@@ -79,7 +79,7 @@ class ProductsController extends BaseCpController
 
         // Set the "Continue Editing" URL
         $variables['continueEditingUrl'] = $variables['baseCpEditUrl'].
-            (Craft::$app->getIsMultiSite() && Craft::$app->getSites()->currentSite->id != $site->id ? '/'.$site->handle : '');
+            (Craft::$app->getIsMultiSite() && Craft::$app->getSites()->currentSite->id !== $variables['site']->id ? '/'.$variables['site']->handle : '');
 
         $this->_prepVariables($variables);
 
@@ -147,9 +147,7 @@ class ProductsController extends BaseCpController
 
         if (Craft::$app->getIsMultiSite()) {
             // Only use the sites that the user has access to
-            $sectionSiteIds = array_keys($variables['productType']->get());
-            $editableSiteIds = Craft::$app->getSites()->getEditableSiteIds();
-            $variables['siteIds'] = array_merge(array_intersect($sectionSiteIds, $editableSiteIds));
+            $variables['siteIds'] = Craft::$app->getSites()->getEditableSiteIds();
         } else {
             $variables['siteIds'] = [Craft::$app->getSites()->getPrimarySite()->id];
         }
@@ -207,12 +205,12 @@ class ProductsController extends BaseCpController
 
         if (!empty($variables['product']->id)) {
             $this->enforceProductPermissions($variables['product']);
-            $variables['enabledSites'] = Craft::$app->getElements()->getEnabledSiteIdsForElement($variables['product']->id);
+            $variables['enabledSiteIds'] = Craft::$app->getElements()->getEnabledSiteIdsForElement($variables['product']->id);
         } else {
-            $variables['enabledSites'] = [];
+            $variables['enabledSiteIds'] = [];
 
             foreach (Craft::$app->getSites()->getEditableSiteIds() as $site) {
-                $variables['enabledSites'][] = $site;
+                $variables['enabledSiteIds'][] = $site;
             }
         }
     }

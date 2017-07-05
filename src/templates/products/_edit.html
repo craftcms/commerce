@@ -40,13 +40,10 @@
 
 {% block main %}
     <input type="hidden" name="action" value="commerce/products/save-product">
-    <input type="hidden" name="redirect" value="{{ 'commerce/products'|hash }}">
     <input type="hidden" name="typeId" value="{{ productType.id }}">
-    {% if craft.app.getIsMultiSite() %}<input type="hidden" name="site"
-                                       value="{{ product.site }}">{% endif %}
+    {{ redirectInput('commerce/products') }}
     {{ csrfInput() }}
-    {% if product.id %}<input type="hidden" name="productId"
-                              value="{{ product.id }}">{% endif %}
+    {% if product.id %}<input type="hidden" name="productId" value="{{ product.id }}">{% endif %}
 
 
     <div class="grid first" data-max-cols="3">
@@ -90,27 +87,26 @@
             {% endif %}
 
             {% if craft.app.getIsMultiSite() %}
-                    <ul id="sites" class="pane">
-                        {% for siteId in siteIds %}
-                            {% set site = craft.app.sites.getSiteById(siteId) %}
-                            <li{% if siteId == product.siteId %} class="sel"{% endif %}>
-                                {%- if siteId == product.siteId -%}
-                                    {{ site.name|t('site') }}
-                                    {{ forms.lightswitch({
-                                        name: 'enabledForSite',
-                                        on:   product.enabledForSite,
-                                        small: true,
-                                        disabled: isVersion
-                                    }) }}
-                                {%- else -%}
-                                    {% set siteEntryUrl = url('entries/'~productTypeHandle~'/'~craft.app.request.getSegment(4)~'/'~site.handle) -%}
-                                    <a href="{{ siteEntryUrl }}">{{ site.name|t('site') }}</a>
-                                    <div class="status {{ siteId in enabledSiteIds ? 'enabled' : 'disabled' }}"></div>
-                                {%- endif -%}
-                            </li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
+                <ul id="sites" class="pane">
+                    {% for siteId in siteIds %}
+                        {% set site = craft.app.sites.getSiteById(siteId) %}
+                        <li{% if siteId == product.siteId %} class="sel"{% endif %}>
+                            {%- if siteId == product.siteId -%}
+                                {{ site.name|t('site') }}
+                                {{ forms.lightswitch({
+                                    name: 'enabledForSite',
+                                    on:   product.enabledForSite,
+                                    small: true
+                                }) }}
+                            {%- else -%}
+                                {% set siteEntryUrl = url('entries/'~productTypeHandle~'/'~craft.app.request.getSegment(4)~'/'~site.handle) -%}
+                                <a href="{{ siteEntryUrl }}">{{ site.name|t('site') }}</a>
+                                <div class="status {{ siteId in enabledSiteIds ? 'enabled' : 'disabled' }}"></div>
+                            {%- endif -%}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
 
 
             <div class="pane meta">
