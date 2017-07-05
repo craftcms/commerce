@@ -195,10 +195,10 @@ class ProductTypes extends Component
                 'id',
                 'productTypeId',
                 'siteId',
-                'urlFormat',
+                'uriFormat',
                 'template'
             ])
-            ->from('{{%commerce_producttypes_i18n}}')
+            ->from('{{%commerce_producttypes_sites}}')
             ->where(['productTypeId' => $productTypeId])
             ->all();
 
@@ -434,7 +434,7 @@ class ProductTypes extends Component
                 }
 
                 $siteSettingsRecord->hasUrls = $siteSettings->hasUrls;
-                $siteSettingsRecord->urlFormat = $siteSettings->urlFormat;
+                $siteSettingsRecord->uriFormat = $siteSettings->uriFormat;
                 $siteSettingsRecord->template = $siteSettings->template;
 
                 if (!$siteSettingsRecord->getIsNewRecord()) {
@@ -444,7 +444,7 @@ class ProductTypes extends Component
                     }
 
                     // Does it have URLs, and has its URI format changed?
-                    if ($siteSettings->hasUrls && $siteSettingsRecord->isAttributeChanged('urlFormat', false)) {
+                    if ($siteSettings->hasUrls && $siteSettingsRecord->isAttributeChanged('uriFormat', false)) {
                         $sitesWithNewUriFormats[] = $siteId;
                     }
                 }
@@ -485,7 +485,7 @@ class ProductTypes extends Component
                     if (!empty($sitesNowWithoutUrls)) {
                         $db->createCommand()
                             ->update(
-                                '{{%elements_i18n}}',
+                                '{{%elements_sites}}',
                                 ['uri' => null],
                                 [
                                     'elementId' => $productTypeIds,
@@ -641,8 +641,8 @@ class ProductTypes extends Component
 
         if ($event->isNew) {
             $allSiteSettings = (new Query())
-                ->select(['productTypeId', 'urlFormat', 'template', 'hasUrls'])
-                ->from(['{{%commerce_producttypes_i18n}}'])
+                ->select(['productTypeId', 'uriFormat', 'template', 'hasUrls'])
+                ->from(['{{%commerce_producttypes_sites}}'])
                 ->where(['siteId' => Craft::$app->getSites()->getPrimarySite()->id])
                 ->all();
 
@@ -653,7 +653,7 @@ class ProductTypes extends Component
                     $newSiteSettings[] = [
                         $siteSettings['productTypeId'],
                         $event->site->id,
-                        $siteSettings['urlFormat'],
+                        $siteSettings['uriFormat'],
                         $siteSettings['template'],
                         $siteSettings['hasUrls']
                     ];
@@ -661,8 +661,8 @@ class ProductTypes extends Component
 
                 Craft::$app->getDb()->createCommand()
                     ->batchInsert(
-                        '{{%commerce_producttypes_i18n}}',
-                        ['productTypeId', 'siteId', 'urlFormat', 'template', 'hasUrls'],
+                        '{{%commerce_producttypes_sites}}',
+                        ['productTypeId', 'siteId', 'uriFormat', 'template', 'hasUrls'],
                         $newSiteSettings)
                     ->execute();
             }

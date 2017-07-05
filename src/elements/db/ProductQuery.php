@@ -371,12 +371,12 @@ class ProductQuery extends ElementQuery
 
             if (!empty($parts)) {
                 if (count($parts) == 1) {
-                    $condition[] = Db::parseParam('elements_i18n.slug', $parts[0]);
+                    $condition[] = Db::parseParam('elements_sites.slug', $parts[0]);
                 } else {
                     $condition[] = [
                         'and',
                         Db::parseParam('commerce_producttypes.handle', $parts[0]),
-                        Db::parseParam('elements_i18n.slug', $parts[1])
+                        Db::parseParam('elements_sites.slug', $parts[1])
                     ];
                     $joinSections = true;
                 }
@@ -403,7 +403,7 @@ class ProductQuery extends ElementQuery
                     'and',
                     [
                         'elements.enabled' => '1',
-                        'elements_i18n.enabled' => '1'
+                        'elements_sites.enabled' => '1'
                     ],
                     ['<=', 'entries.postDate', $currentTimeDb],
                     [
@@ -417,7 +417,7 @@ class ProductQuery extends ElementQuery
                     'and',
                     [
                         'elements.enabled' => '1',
-                        'elements_i18n.enabled' => '1',
+                        'elements_sites.enabled' => '1',
                     ],
                     ['>', 'entries.postDate', $currentTimeDb]
                 ];
@@ -426,7 +426,7 @@ class ProductQuery extends ElementQuery
                     'and',
                     [
                         'elements.enabled' => '1',
-                        'elements_i18n.enabled' => '1'
+                        'elements_sites.enabled' => '1'
                     ],
                     ['not', ['entries.expiryDate' => null]],
                     ['<=', 'entries.expiryDate', $currentTimeDb]

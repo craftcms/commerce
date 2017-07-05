@@ -162,7 +162,7 @@ variantFields:       { label: "Variant Fields"|t('commerce'), url: '#variant-fie
         {% endmacro %}
 
 
-        {% from _self import hasVariantsField, titleFormatField, urlFormatText %}
+        {% from _self import hasVariantsField, titleFormatField, uriFormatText %}
 
         <hr>
         {{ hasVariantsField(productType) }}
@@ -183,9 +183,9 @@ variantFields:       { label: "Variant Fields"|t('commerce'), url: '#variant-fie
             {% set siteRows = siteRows|merge({
                 (site.handle): {
                     heading: site.name|t('site'),
-                    urlFormat: {
-                        value: siteSettings.urlFormat ?? null,
-                        hasErrors: siteSettings.hasErrors('urlFormat') ?? false
+                    uriFormat: {
+                        value: siteSettings.uriFormat ?? null,
+                        hasErrors: siteSettings.hasErrors('uriFormat') ?? false
                     },
                     template: {
                         value: siteSettings.template ?? null,
@@ -207,7 +207,7 @@ variantFields:       { label: "Variant Fields"|t('commerce'), url: '#variant-fie
                     heading: "Site"|t('app'),
                     class: 'thin'
                 },
-                urlFormat: {
+                uriFormat: {
                     type: 'singleline',
                     heading: "Category URI Format"|t('app'),
                     info: "What category URIs should look like for the site."|t('app'),
@@ -253,7 +253,7 @@ variantFields:       { label: "Variant Fields"|t('commerce'), url: '#variant-fie
     {% if not productType.handle %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
 
     {% for site in craft.app.sites.getAllSites() %}
-        new Craft.UriFormatGenerator('#name', '#sites tr[data-id="{{ site.handle }}"] textarea[name$="[urlFormat]"]', { suffix: '/{slug}' });
+        new Craft.UriFormatGenerator('#name', '#sites tr[data-id="{{ site.handle }}"] textarea[name$="[uriFormat]"]', { suffix: '/{slug}' });
         new Craft.UriFormatGenerator('#name', '#sites tr[data-id="{{ site.handle }}"] textarea[name$="[template]"]', { suffix: '/_category' });
     {% endfor %}
 

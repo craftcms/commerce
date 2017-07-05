@@ -400,11 +400,11 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
-        $this->createTable('{{%commerce_producttypes_i18n}}', [
+        $this->createTable('{{%commerce_producttypesuriFormat_istes}}', [
             'id' => $this->primaryKey(),
             'productTypeId' => $this->integer()->notNull(),
             'siteId' => $this->integer()->notNull(),
-            'urlFormat' => $this->text(),
+            'uriFormat' => $this->text(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -706,7 +706,7 @@ class Install extends Migration
         $this->dropTable('{{%commerce_paymentmethods}}');
         $this->dropTable('{{%commerce_products}}');
         $this->dropTable('{{%commerce_producttypes}}');
-        $this->dropTable('{{%commerce_producttypes_i18n}}');
+        $this->dropTable('{{%commerce_producttypesuriFormat_istes}}');
         $this->dropTable('{{%commerce_producttypes_shippingcategories}}');
         $this->dropTable('{{%commerce_producttypes_taxcategories}}');
         $this->dropTable('{{%commerce_purchasables}}');
@@ -787,8 +787,8 @@ class Install extends Migration
         $this->createIndex($this->db->getIndexName('{{%commerce_producttypes}}', 'handle', true), '{{%commerce_producttypes}}', 'handle', true);
         $this->createIndex($this->db->getIndexName('{{%commerce_producttypes}}', 'fieldLayoutId', false), '{{%commerce_producttypes}}', 'fieldLayoutId', false);
         $this->createIndex($this->db->getIndexName('{{%commerce_producttypes}}', 'variantFieldLayoutId', false), '{{%commerce_producttypes}}', 'variantFieldLayoutId', false);
-        $this->createIndex($this->db->getIndexName('{{%commerce_producttypes_i18n}}', 'productTypeId,siteId', true), '{{%commerce_producttypes_i18n}}', 'productTypeId,siteId', true);
-        $this->createIndex($this->db->getIndexName('{{%commerce_producttypes_i18n}}', 'siteId', false), '{{%commerce_producttypes_i18n}}', 'siteId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_producttypesuriFormat_istes}}', 'productTypeId,siteId', true), '{{%commerce_producttypes_sites}}', 'productTypeId,siteId', true);
+        $this->createIndex($this->db->getIndexName('{{%commerce_producttypes_sites}}', 'siteId', false), '{{%commerce_producttypes_sites}}', 'siteId', false);
         $this->createIndex($this->db->getIndexName('{{%commerce_producttypes_shippingcategories}}', 'productTypeId,shippingCategoryId', true), '{{%commerce_producttypes_shippingcategories}}', 'productTypeId,shippingCategoryId', true);
         $this->createIndex($this->db->getIndexName('{{%commerce_producttypes_shippingcategories}}', 'shippingCategoryId', false), '{{%commerce_producttypes_shippingcategories}}', 'shippingCategoryId', false);
         $this->createIndex($this->db->getIndexName('{{%commerce_producttypes_taxcategories}}', 'productTypeId,taxCategoryId', true), '{{%commerce_producttypes_taxcategories}}', 'productTypeId,taxCategoryId', true);
@@ -878,8 +878,8 @@ class Install extends Migration
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_products}}', 'typeId'), '{{%commerce_products}}', 'typeId', '{{%commerce_producttypes}}', 'id', 'CASCADE', null);
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_producttypes}}', 'fieldLayoutId'), '{{%commerce_producttypes}}', 'fieldLayoutId', '{{%fieldlayouts}}', 'id', 'SET NULL', null);
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_producttypes}}', 'variantFieldLayoutId'), '{{%commerce_producttypes}}', 'variantFieldLayoutId', '{{%fieldlayouts}}', 'id', 'SET NULL', null);
-        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_producttypes_i18n}}', 'siteId'), '{{%commerce_producttypes_i18n}}', 'siteId', '{{%sites}}', 'id', 'CASCADE', 'CASCADE');
-        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_producttypes_i18n}}', 'productTypeId'), '{{%commerce_producttypes_i18n}}', 'productTypeId', '{{%commerce_producttypes}}', 'id', 'CASCADE', null);
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_producttypes_sites}}', 'siteId'), '{{%commerce_producttypes_sites}}', 'siteId', '{{%sites}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_producttypes_sites}}', 'productTypeId'), '{{%commerce_producttypes_sites}}', 'productTypeId', '{{%commerce_producttypes}}', 'id', 'CASCADE', null);
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_producttypes_shippingcategories}}', 'shippingCategoryId'), '{{%commerce_producttypes_shippingcategories}}', 'shippingCategoryId', '{{%commerce_shippingcategories}}', 'id', 'CASCADE', 'CASCADE');
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_producttypes_shippingcategories}}', 'productTypeId'), '{{%commerce_producttypes_shippingcategories}}', 'productTypeId', '{{%commerce_producttypes}}', 'id', 'CASCADE', 'CASCADE');
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_producttypes_taxcategories}}', 'productTypeId'), '{{%commerce_producttypes_taxcategories}}', 'productTypeId', '{{%commerce_producttypes}}', 'id', 'CASCADE', null);
@@ -958,8 +958,8 @@ class Install extends Migration
         MigrationHelper::dropForeignKeyIfExists('{{%commerce_products}}', ['typeId'], $this);
         MigrationHelper::dropForeignKeyIfExists('{{%commerce_producttypes}}', ['fieldLayoutId'], $this);
         MigrationHelper::dropForeignKeyIfExists('{{%commerce_producttypes}}', ['variantFieldLayoutId'], $this);
-        MigrationHelper::dropForeignKeyIfExists('{{%commerce_producttypes_i18n}}', ['siteId'], $this);
-        MigrationHelper::dropForeignKeyIfExists('{{%commerce_producttypes_i18n}}', ['productTypeId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_producttypes_sites}}', ['siteId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_producttypes_sites}}', ['productTypeId'], $this);
         MigrationHelper::dropForeignKeyIfExists('{{%commerce_producttypes_shippingcategories}}', ['shippingCategoryId'], $this);
         MigrationHelper::dropForeignKeyIfExists('{{%commerce_producttypes_shippingcategories}}', ['productTypeId'], $this);
         MigrationHelper::dropForeignKeyIfExists('{{%commerce_producttypes_taxcategories}}', ['productTypeId'], $this);
@@ -1528,7 +1528,7 @@ class Install extends Migration
             $data = [
                 'productTypeId' => $productTypeId,
                 'siteId' => $siteId,
-                'urlFormat' => 'shop/products/{slug}'
+                'uriFormat' => 'shop/products/{slug}'
             ];
             $this->insert(ProductTypeSite::tableName(), $data);
         }

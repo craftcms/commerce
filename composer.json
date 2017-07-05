@@ -14,13 +14,13 @@
     "name": "Craft Commerce",
     "developer": "Pixel & Tonic",
     "version": "2.0.1-alpha.2",
-    "schemaVersion": "2.0.2",
+    "schemaVersion": "2.0.3",
     "developerUrl": "https://craftcommerce.com",
     "hasCpSection": true,
     "description": "An amazingly powerful and flexible e-commerce platform for Craft CMS."
   },
   "require": {
-    "craftcms/cms": "~3.0.0-beta.3",
+    "craftcms/cms": "~3.0.0-beta.19",
     "omnipay/common": "~2.3",
     "omnipay/dummy": "~2.1",
     "omnipay/manual": "~2.2",
