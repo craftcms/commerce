@@ -78,12 +78,9 @@ class Sales extends Component
             $products = [];
             $productTypes = [];
             $groups = [];
+
             foreach ($sales as $sale) {
                 $id = $sale['id'];
-                if (!isset($allSalesById[$id])) {
-                    $allSalesById[$id] = Sale::populateModel($sale);
-                }
-
                 if ($sale['productId']) {
                     $products[$id][] = $sale['productId'];
                 }
@@ -95,17 +92,66 @@ class Sales extends Component
                 if ($sale['userGroupId']) {
                     $groups[$id][] = $sale['userGroupId'];
                 }
+
+                unset($sale['productId'], $sale['userGroupId'], $sale['productTypeId']);
+
+                if (!isset($allSalesById[$id])) {
+                    $allSalesById[$id] = new Sale($sale);
+                }
             }
 
             foreach ($allSalesById as $id => $sale) {
-                $sale->productIds = isset($products[$id]) ? $products[$id] : [];
-                $sale->productTypeIds = isset($productTypes[$id]) ? $productTypes[$id] : [];
-                $sale->groupIds = isset($groups[$id]) ? $groups[$id] : [];
+                $sale->setProductIds($products[$id] ?? []);
+                $sale->setProductTypeIds($productTypes[$id] ?? []);
+                $sale->setUserGroupIds($groups[$id] ?? []);
             }
+
             $this->_allSales = array_values($allSalesById);
         }
 
         return $this->_allSales;
+    }
+
+    /**
+     * Populate a sale's relations.
+     *
+     * @param Sale $sale
+     *
+     * @return void
+     */
+    public function populateSaleRelations(Sale $sale) {
+        $rows = (new Query())->select(
+           'sp.productId,
+            spt.productTypeId,
+            sug.userGroupId')
+            ->from('commerce_sales sales')
+            ->leftJoin('commerce_sale_products sp', 'sp.saleId=sales.id')
+            ->leftJoin('commerce_sale_producttypes spt', 'spt.saleId=sales.id')
+            ->leftJoin('commerce_sale_usergroups sug', 'sug.saleId=sales.id')
+            ->where(['sales.id' => $sale->id])
+            ->all();
+
+        $productIds = [];
+        $productTypeIds = [];
+        $userGroupIds = [];
+
+        foreach ($rows as $row) {
+            if ($row['productId']) {
+                $productIds[] = $row['productId'];
+            }
+
+            if ($row['productTypeId']) {
+                $productTypeIds[] = $row['productTypeId'];
+            }
+
+            if ($row['userGroupId']) {
+                $userGroupIds[] = $row['userGroupId'];
+            }
+        }
+
+        $sale->setProductIds($productIds);
+        $sale->setProductTypeIds($productTypeIds);
+        $sale->setUserGroupIds($userGroupIds);
     }
 
     /**
@@ -224,12 +270,7 @@ class Sales extends Component
      * @return bool
      * @throws \Exception
      */
-    public function saveSale(
-        Sale $model,
-        array $groups,
-        array $productTypes,
-        array $products
-    ) {
+    public function saveSale(Sale $model, array $groups, array $productTypes, array $products) {
         if ($model->id) {
             $record = SaleRecord::findOne($model->id);
 
@@ -276,29 +317,23 @@ class Sales extends Component
 
                 foreach ($groups as $groupId) {
                     $relation = new SaleUserGroupRecord();
-                    $relation->attributes = [
-                        'userGroupId' => $groupId,
-                        'saleId' => $model->id
-                    ];
-                    $relation->insert();
+                    $relation->userGroupId = $groupId;
+                    $relation->saleId = $model->id;
+                    $relation->save();
                 }
 
                 foreach ($productTypes as $productTypeId) {
                     $relation = new SaleProductTypeRecord;
-                    $relation->attributes = [
-                        'productTypeId' => $productTypeId,
-                        'saleId' => $model->id
-                    ];
-                    $relation->insert();
+                    $relation->productTypeId = $productTypeId;
+                    $relation->saleId = $model->id;
+                    $relation->save();
                 }
 
                 foreach ($products as $productId) {
-                    $relation = new SaleProductRecord;
-                    $relation->attributes = [
-                        'productId' => $productId,
-                        'saleId' => $model->id
-                    ];
-                    $relation->insert();
+                    $relation = new SaleProductRecord();
+                    $relation->productId = $productId;
+                    $relation->saleId = $model->id;
+                    $relation->save();
                 }
 
                 $transaction->commit();

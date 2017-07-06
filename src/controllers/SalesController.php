@@ -7,6 +7,8 @@ use craft\commerce\elements\Product;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
+use craft\helpers\DateTimeHelper;
+use craft\i18n\Locale;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -132,20 +134,20 @@ class SalesController extends BaseCpController
             'dateTo'
         ];
         foreach ($dateFields as $field) {
-            $sale->$field = (($date = Craft::$app->getRequest()->getParam($field)) ? DateTime::createFromString($date, Craft::$app->getTimeZone()) : null);
+            $sale->$field = (($date = Craft::$app->getRequest()->getParam($field)) ? DateTimeHelper::toDateTime($date) : null);
         }
 
         $discountAmount = Craft::$app->getRequest()->getParam('discountAmount');
-        if ($sale->discountType == 'percent') {
-            $localeData = Craft::$app->getI18n()->getLocaleData();
-            $percentSign = $localeData->getNumberSymbol('percentSign');
-            if (strpos($discountAmount, $percentSign) or floatval($discountAmount) >= 1) {
-                $sale->discountAmount = floatval($discountAmount) / -100;
+        if ($sale->discountType === 'percent') {
+            $localeData = Craft::$app->getLocale();
+            $percentSign = $localeData->getNumberSymbol(Locale::SYMBOL_PERCENT);
+            if (strpos($discountAmount, $percentSign) or (float)$discountAmount >= 1) {
+                $sale->discountAmount = (float)$discountAmount / -100;
             } else {
-                $sale->discountAmount = floatval($discountAmount) * -1;
+                $sale->discountAmount = (float)$discountAmount * -1;
             };
         } else {
-            $sale->discountAmount = floatval($discountAmount) * -1;
+            $sale->discountAmount = (float)$discountAmount * -1;
         }
 
         $products = Craft::$app->getRequest()->getParam('products', []);
