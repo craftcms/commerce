@@ -895,14 +895,14 @@ class Order extends Element
             'key' => 'carts:active',
             'label' => Craft::t('commerce', 'Active Carts'),
             'criteria' => ['updatedAfter' => $edge->getTimestamp(), 'isCompleted' => 'not 1'],
-            'defaultSort' => ['orders.dateUpdated', 'asc']
+            'defaultSort' => ['commerce_orders.dateUpdated', 'asc']
         ];
 
         $sources[] = [
             'key' => 'carts:inactive',
             'label' => Craft::t('commerce', 'Inactive Carts'),
             'criteria' => ['updatedBefore' => $edge->getTimestamp(), 'isCompleted' => 'not 1'],
-            'defaultSort' => ['orders.dateUpdated', 'desc']
+            'defaultSort' => ['commerce_orders.dateUpdated', 'desc']
         ];
 
         return $sources;
@@ -1008,7 +1008,7 @@ class Order extends Element
             'totalPrice' => Craft::t('commerce', 'Total Payable'),
             'totalPaid' => Craft::t('commerce', 'Total Paid'),
             'dateOrdered' => Craft::t('commerce', 'Date Ordered'),
-            'orders.dateUpdated' => Craft::t('commerce', 'Date Updated'),
+            'commerce_orders.dateUpdated' => Craft::t('commerce', 'Date Updated'),
             'datePaid' => Craft::t('commerce', 'Date Paid')
         ];
     }
