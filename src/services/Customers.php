@@ -80,11 +80,12 @@ class Customers extends Component
         if ($this->_customer === null) {
             $user = Craft::$app->getUser()->getIdentity();
 
+            // Find user's customer or the current customer in the session.
             if ($user) {
-                $record = CustomerRecord::findOne($user->id);
+                $record = CustomerRecord::find()->where(['userId' => $user->id])->one();
 
                 if ($record) {
-                    Craft::$app->getSession()->set(self::SESSION_CUSTOMER, $record['id']);
+                    Craft::$app->getSession()->set(self::SESSION_CUSTOMER, $record->id);
                 }
             } else {
                 $id = Craft::$app->getSession()->get(self::SESSION_CUSTOMER);
@@ -99,11 +100,11 @@ class Customers extends Component
             }
 
             if (empty($record)) {
-                $record = [];
+                $record = new CustomerRecord();
 
                 if ($user) {
-                    $record['userId'] = $user->id;
-                    $record['email'] = $user->email;
+                    $record->userId = $user->id;
+                    $record->email = $user->email;
                 }
             }
 
@@ -370,23 +371,24 @@ class Customers extends Component
         // Now duplicate the addresses on the order
         if ($order->billingAddress) {
             $snapShotBillingAddress = new Address($order->billingAddress->toArray([
-                'id',
-                'attention',
-                'title',
-                'firstName',
-                'lastName',
-                'countryId',
-                'stateId',
-                'address1',
-                'address2',
-                'city',
-                'zipCode',
-                'phone',
-                'alternativePhone',
-                'businessName',
-                'businessTaxId',
-                'businessId',
-                'stateName']
+                    'id',
+                    'attention',
+                    'title',
+                    'firstName',
+                    'lastName',
+                    'countryId',
+                    'stateId',
+                    'address1',
+                    'address2',
+                    'city',
+                    'zipCode',
+                    'phone',
+                    'alternativePhone',
+                    'businessName',
+                    'businessTaxId',
+                    'businessId',
+                    'stateName'
+                ]
             ));
             $originalBillingAddressId = $snapShotBillingAddress->id;
             $snapShotBillingAddress->id = null;
@@ -416,7 +418,8 @@ class Customers extends Component
                     'businessName',
                     'businessTaxId',
                     'businessId',
-                    'stateName']
+                    'stateName'
+                ]
             ));
             $originalShippingAddressId = $snapShotShippingAddress->id;
             $snapShotShippingAddress->id = null;

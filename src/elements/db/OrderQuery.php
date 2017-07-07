@@ -129,11 +129,6 @@ class OrderQuery extends ElementQuery
             $config['orderBy'] = 'commerce_orders.id';
         }
 
-        // Default completed status
-        if (!isset($config['isCompleted'])) {
-            $config['isCompleted'] = true;
-        }
-
         parent::__construct($elementType, $config);
     }
 
