@@ -767,7 +767,7 @@ class Install extends Migration
         $this->createIndex($this->db->getIndexName('{{%commerce_orderhistories}}', 'prevStatusId', false), '{{%commerce_orderhistories}}', 'prevStatusId', false);
         $this->createIndex($this->db->getIndexName('{{%commerce_orderhistories}}', 'newStatusId', false), '{{%commerce_orderhistories}}', 'newStatusId', false);
         $this->createIndex($this->db->getIndexName('{{%commerce_orderhistories}}', 'customerId', false), '{{%commerce_orderhistories}}', 'customerId', false);
-        $this->createIndex($this->db->getIndexName('{{%commerce_orders}}', 'number', false), '{{%commerce_orders}}', 'number', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_orders}}', 'number', false), '{{%commerce_orders}}', 'number', true);
         $this->createIndex($this->db->getIndexName('{{%commerce_orders}}', 'billingAddressId', false), '{{%commerce_orders}}', 'billingAddressId', false);
         $this->createIndex($this->db->getIndexName('{{%commerce_orders}}', 'shippingAddressId', false), '{{%commerce_orders}}', 'shippingAddressId', false);
         $this->createIndex($this->db->getIndexName('{{%commerce_orders}}', 'paymentMethodId', false), '{{%commerce_orders}}', 'paymentMethodId', false);
