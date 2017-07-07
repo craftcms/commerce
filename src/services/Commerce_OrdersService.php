@@ -175,33 +175,6 @@ class Commerce_OrdersService extends BaseApplicationComponent
             $order->customerId = craft()->commerce_customers->getCustomerId();
         }
 
-        // Set default addresses if this is a new cart
-        if (!$order->isCompleted)
-        {
-            if ($customer = craft()->commerce_customers->getCustomerById($order->customerId))
-            {
-                $lastShippingAddressId = $customer->lastUsedShippingAddressId;
-
-                if (!$order->shippingAddressId && $lastShippingAddressId)
-                {
-                    if ($address = craft()->commerce_addresses->getAddressById($lastShippingAddressId))
-                    {
-                        $order->shippingAddressId = $address->id;
-                    }
-                }
-
-                $lastBillingAddressId = $customer->lastUsedBillingAddressId;
-
-                if (!$order->billingAddressId && $lastBillingAddressId)
-                {
-                    if ($address = craft()->commerce_addresses->getAddressById($lastBillingAddressId))
-                    {
-                        $order->billingAddressId = $address->id;
-                    }
-                }
-            }
-        }
-
         $order->email = craft()->commerce_customers->getCustomerById($order->customerId)->email;
 
         // Will not adjust a completed order, we don't want totals to change.

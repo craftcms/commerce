@@ -3,6 +3,9 @@ Commerce Changelog
 
 ## Unreleased
 
+### Added
+- Added the `autoSetLastUsedShippingAddressOnNewCarts` and `autoSetLastUsedBillingAddressOnNewCarts` config options, to allow the disabling of automatically setting the last used customer's addresses on new carts.
+
 ### Fixed
 - Fixed a bug where the `commerce/payments/pay` action was still processing the payment even if the cart had errors placed on it by 3rd party plugins.
 - Fixed a bug where `LineItemModel:onSale()` could sometimes return an incorrect response due to rounding errors.

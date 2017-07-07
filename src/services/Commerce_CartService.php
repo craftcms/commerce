@@ -411,6 +411,31 @@ class Commerce_CartService extends BaseApplicationComponent
                 $this->_cart->paymentCurrency = craft()->commerce_paymentCurrencies->getPrimaryPaymentCurrencyIso();
             }
 
+            if ($customer = craft()->commerce_customers->getCustomerById($this->_cart->customerId))
+            {
+
+                $setShippingAddress = craft()->config->get('autoSetLastUsedShippingAddressOnNewCarts', 'commerce');
+                $lastShippingAddressId = $customer->lastUsedShippingAddressId;
+
+                if (!$this->_cart->shippingAddressId && $lastShippingAddressId && $setShippingAddress)
+                {
+                    if ($address = craft()->commerce_addresses->getAddressById($lastShippingAddressId))
+                    {
+                        $this->_cart->shippingAddressId = $address->id;
+                    }
+                }
+
+                $setBillingAddress = craft()->config->get('autoSetLastUsedBillingAddressOnNewCarts', 'commerce');
+                $lastBillingAddressId = $customer->lastUsedBillingAddressId;
+                if (!$this->_cart->billingAddressId && $lastBillingAddressId && $setBillingAddress)
+                {
+                    if ($address = craft()->commerce_addresses->getAddressById($lastBillingAddressId))
+                    {
+                        $this->_cart->billingAddressId = $address->id;
+                    }
+                }
+            }
+
             // Update the cart if the customer has changed and recalculate the cart.
             $customer = craft()->commerce_customers->getCustomer();
             if (!$this->_cart->isEmpty() && $this->_cart->customerId != $customer->id)
