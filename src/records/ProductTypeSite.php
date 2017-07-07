@@ -10,7 +10,7 @@ use craft\records\Site;
  *
  * @property int         $productTypeId
  * @property int         $localeId
- * @property string      $urlFormat
+ * @property string      $uriFormat
  *
  * @property Site        $site
  * @property ProductType $productType
@@ -34,7 +34,7 @@ class ProductTypeSite extends ActiveRecord
      */
     public static function tableName()
     {
-        return '{{%commerce_producttypes_i18n}}';
+        return '{{%commerce_producttypes_sites}}';
     }
 
     public function getProductType()

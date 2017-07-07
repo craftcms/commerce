@@ -10,7 +10,7 @@ use yii\db\ActiveQueryInterface;
  *
  * @property int         $productTypeId
  * @property int         $localeId
- * @property string      $urlFormat
+ * @property string      $uriFormat
  *
  * @property TaxCategory $taxCategory
  * @property ProductType $productType

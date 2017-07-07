@@ -7,7 +7,7 @@ use craft\db\Migration;
 use craft\db\Query;
 
 /**
- * m160531_154500_craft3_upgrade migration.
+ * m170616_154500_productTypeSites_upgrade migration.
  */
 class m170616_154500_productTypeSites_upgrade extends Migration
 {

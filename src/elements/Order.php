@@ -29,62 +29,62 @@ use craft\web\View;
 /**
  * Order or Cart model.
  *
- * @property int                                               $id
- * @property string                                            $number
- * @property string                                            $couponCode
- * @property float                                             $itemTotal
- * @property float                                             $totalPrice
- * @property float                                             $totalPaid
- * @property float                                             $baseDiscount
- * @property float                                             $baseShippingCost
- * @property float                                             $baseTax
- * @property string                                            $email
- * @property bool                                              $isCompleted
- * @property \DateTime                                         $dateOrdered
- * @property string                                            $currency
- * @property string                                            $paymentCurrency
- * @property \DateTime                                         $datePaid
- * @property string                                            $lastIp
- * @property string                                            $orderLocale
- * @property string                                            $message
- * @property string                                            $returnUrl
- * @property string                                            $cancelUrl
+ * @property int                     $id
+ * @property string                  $number
+ * @property string                  $couponCode
+ * @property float                   $itemTotal
+ * @property float                   $totalPrice
+ * @property float                   $totalPaid
+ * @property float                   $baseDiscount
+ * @property float                   $baseShippingCost
+ * @property float                   $baseTax
+ * @property string                  $email
+ * @property bool                    $isCompleted
+ * @property \DateTime               $dateOrdered
+ * @property string                  $currency
+ * @property string                  $paymentCurrency
+ * @property \DateTime               $datePaid
+ * @property string                  $lastIp
+ * @property string                  $orderLocale
+ * @property string                  $message
+ * @property string                  $returnUrl
+ * @property string                  $cancelUrl
  *
- * @property int                                               $billingAddressId
- * @property int                                               $shippingAddressId
- * @property ShippingMethodInterface                           $shippingMethod
- * @property int                                               $paymentMethodId
- * @property int                                               $customerId
- * @property int                                               $orderStatusId
+ * @property int                     $billingAddressId
+ * @property int                     $shippingAddressId
+ * @property ShippingMethodInterface $shippingMethod
+ * @property int                     $paymentMethodId
+ * @property int                     $customerId
+ * @property int                     $orderStatusId
  *
- * @property int                                               $totalQty
- * @property int                                               $totalWeight
- * @property int                                               $totalHeight
- * @property int                                               $totalLength
- * @property int                                               $totalWidth
- * @property int                                               $totalTax
- * @property int                                               $totalShippingCost
- * @property int                                               $totalDiscount
- * @property string                                            $pdfUrl
+ * @property int                     $totalQty
+ * @property int                     $totalWeight
+ * @property int                     $totalHeight
+ * @property int                     $totalLength
+ * @property int                     $totalWidth
+ * @property int                     $totalTax
+ * @property int                     $totalShippingCost
+ * @property int                     $totalDiscount
+ * @property string                  $pdfUrl
  *
- * @property OrderSettings                                     $type
- * @property LineItem[]                                        $lineItems
- * @property Address                                           $billingAddress
- * @property Customer                                          $customer
- * @property Address                                           $shippingAddress
- * @property OrderAdjustment[]                                 $adjustments
- * @property PaymentMethod                                     $paymentMethod
- * @property Transaction[]                                     $transactions
- * @property OrderStatus                                       $orderStatus
- * @property null|string                                       $name
- * @property string                                            $shortNumber
- * @property null|string                                       $shippingMethodHandle
- * @property null|\craft\commerce\base\ShippingMethodInterface $shippingMethodId
- * @property float                                             $totalTaxIncluded
- * @property float|int                                         $adjustmentSubtotal
- * @property int                                               $totalSaleAmount
- * @property int                                               $itemSubtotal
- * @property OrderHistory[]                                    $histories
+ * @property OrderSettings           $type
+ * @property LineItem[]              $lineItems
+ * @property Address                 $billingAddress
+ * @property Customer                $customer
+ * @property Address                 $shippingAddress
+ * @property OrderAdjustment[]       $adjustments
+ * @property PaymentMethod           $paymentMethod
+ * @property Transaction[]           $transactions
+ * @property OrderStatus             $orderStatus
+ * @property null|string             $name
+ * @property string                  $shortNumber
+ * @property null|string             $shippingMethodHandle
+ * @property ShippingMethodInterface $shippingMethodId
+ * @property float                   $totalTaxIncluded
+ * @property float|int               $adjustmentSubtotal
+ * @property int                     $totalSaleAmount
+ * @property int                     $itemSubtotal
+ * @property OrderHistory[]          $histories
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -895,14 +895,14 @@ class Order extends Element
             'key' => 'carts:active',
             'label' => Craft::t('commerce', 'Active Carts'),
             'criteria' => ['updatedAfter' => $edge->getTimestamp(), 'isCompleted' => 'not 1'],
-            'defaultSort' => ['orders.dateUpdated', 'asc']
+            'defaultSort' => ['commerce_orders.dateUpdated', 'asc']
         ];
 
         $sources[] = [
             'key' => 'carts:inactive',
             'label' => Craft::t('commerce', 'Inactive Carts'),
             'criteria' => ['updatedBefore' => $edge->getTimestamp(), 'isCompleted' => 'not 1'],
-            'defaultSort' => ['orders.dateUpdated', 'desc']
+            'defaultSort' => ['commerce_orders.dateUpdated', 'desc']
         ];
 
         return $sources;
@@ -1008,7 +1008,7 @@ class Order extends Element
             'totalPrice' => Craft::t('commerce', 'Total Payable'),
             'totalPaid' => Craft::t('commerce', 'Total Paid'),
             'dateOrdered' => Craft::t('commerce', 'Date Ordered'),
-            'orders.dateUpdated' => Craft::t('commerce', 'Date Updated'),
+            'commerce_orders.dateUpdated' => Craft::t('commerce', 'Date Updated'),
             'datePaid' => Craft::t('commerce', 'Date Paid')
         ];
     }

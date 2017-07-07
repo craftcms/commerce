@@ -52,12 +52,17 @@
     {%- import "_includes/forms" as forms -%}
 
     {% if product.getType().taxCategories|length > 1 %}
+        {% set taxCategories = [] %}
+        {% for taxCategory in product.getType().taxCategories %}
+            {% set taxCategories = taxCategories|merge([{'value': taxCategory.id, 'label': taxCategory.name}]) %}
+        {% endfor %}
+
         {{ forms.selectField({
             label: 'Tax Category'|t('commerce'),
             name: 'taxCategoryId',
             value: product.taxCategoryId,
             required: true,
-            options: product.getType().getTaxCategories(true)
+            options: taxCategories
         }) }}
     {% else %}
         {{ forms.hidden({
@@ -67,12 +72,17 @@
     {% endif %}
 
     {% if product.getType().shippingCategories|length > 1 %}
+        {% set shippingCategories = [] %}
+        {% for shippingCategory in product.getType().shippingCategories %}
+            {% set shippingCategories = shippingCategories|merge([{'value': shippingCategory.id, 'label': shippingCategory.name}]) %}
+        {% endfor %}
+
         {{ forms.selectField({
             label: 'Shipping Category'|t('commerce'),
             name: 'shippingCategoryId',
             value: product.shippingCategoryId,
             required: true,
-            options: product.getType().getShippingCategories(true)
+            options: shippingCategories
         }) }}
     {% else %}
         {{ forms.hidden({

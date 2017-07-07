@@ -106,13 +106,13 @@ class ProductTypesController extends BaseAdminController
 
             $siteSettings = new ProductTypeSite();
             $siteSettings->siteId = $site->id;
-            $siteSettings->hasUrls = !empty($postedSettings['urlFormat']);
+            $siteSettings->hasUrls = !empty($postedSettings['uriFormat']);
 
             if ($siteSettings->hasUrls) {
-                $siteSettings->urlFormat = $postedSettings['urlFormat'];
+                $siteSettings->uriFormat = $postedSettings['uriFormat'];
                 $siteSettings->template = $postedSettings['template'];
             } else {
-                $siteSettings->urlFormat = null;
+                $siteSettings->uriFormat = null;
                 $siteSettings->template = null;
             }
 

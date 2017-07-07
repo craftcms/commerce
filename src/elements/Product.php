@@ -264,7 +264,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function getUrlFormat()
+    public function geturiFormat()
     {
         $productType = $this->getType();
 
@@ -274,7 +274,7 @@ class Product extends Element
             $productTypeSites = $productType->getSiteSettings();
 
             if (isset($productTypeSites[$this->site])) {
-                return $productTypeSites[$this->site]->urlFormat;
+                return $productTypeSites[$this->site]->uriFormat;
             }
         }
     }

@@ -50,15 +50,20 @@ class ProductTypes extends Component
     private $_fetchedAllProductTypes = false;
 
     /**
-     * @var
+     * @var ProductType[]
      */
     private $_productTypesById;
 
     /**
+     * @var ProductType[]
+     */
+    private $_productTypesByHandle;
+
+    /**
      * @var
      */
-
     private $_allProductTypeIds;
+
     /**
      * @var
      */
@@ -71,7 +76,7 @@ class ProductTypes extends Component
      *
      * @return ProductType[] All the editable product types.
      */
-    public function getEditableProductTypes($indexBy = null)
+    public function getEditableProductTypes($indexBy = null): array
     {
         $editableProductTypeIds = $this->getEditableProductTypeIds();
         $editableProductTypes = [];
@@ -98,8 +103,9 @@ class ProductTypes extends Component
     {
         if (null === $this->_editableProductTypeIds) {
             $this->_editableProductTypeIds = [];
+            $allProductTypeIds = $this->getAllProductTypeIds();
 
-            foreach ($this->getAllProductTypeIds() as $productTypeId) {
+            foreach ($allProductTypeIds as $productTypeId) {
                 if (Craft::$app->getUser()->checkPermission('commerce-manageProductType:'.$productTypeId)) {
                     $this->_editableProductTypeIds[] = $productTypeId;
                 }
@@ -114,12 +120,13 @@ class ProductTypes extends Component
      *
      * @return array All the product types’ IDs.
      */
-    public function getAllProductTypeIds()
+    public function getAllProductTypeIds(): array
     {
         if (null === $this->_allProductTypeIds) {
             $this->_allProductTypeIds = [];
+            $productTypes = $this->getAllProductTypes();
 
-            foreach ($this->getAllProductTypes() as $productType) {
+            foreach ($productTypes as $productType) {
                 $this->_allProductTypeIds[] = $productType->id;
             }
         }
@@ -130,39 +137,22 @@ class ProductTypes extends Component
     /**
      * Returns all Product Types
      *
-     * @param string|null $indexBy
-     *
      * @return ProductType[]
      */
-    public function getAllProductTypes($indexBy = null): array
+    public function getAllProductTypes(): array
     {
+        
         if (!$this->_fetchedAllProductTypes) {
-            $results = ProductTypeRecord::find()->all();
-
-            if (null === $this->_productTypesById) {
-                $this->_productTypesById = [];
-            }
+            $results = $this->_createProductTypeQuery()->all();
 
             foreach ($results as $result) {
-                $productType = $this->_createProductTypeFromProductTypeRecord($result);
-                $this->_productTypesById[$productType->id] = $productType;
+                $this->_memoizeProductType(new ProductType($result));
             }
 
             $this->_fetchedAllProductTypes = true;
         }
 
-        if ($indexBy == 'id') {
-            $productTypes = $this->_productTypesById;
-        } else if (!$indexBy) {
-            $productTypes = array_values($this->_productTypesById);
-        } else {
-            $productTypes = [];
-            foreach ($this->_productTypesById as $productType) {
-                $productTypes[$productType->$indexBy] = $productType;
-            }
-        }
-
-        return $productTypes;
+        return $this->_productTypesById;
     }
 
     /**
@@ -172,18 +162,25 @@ class ProductTypes extends Component
      */
     public function getProductTypeByHandle($handle)
     {
-        $result = ProductTypeRecord::find()
-            ->where('handle = :handle', [':handle' => $handle])
-            ->one();
-
-        if ($result) {
-            $productType = $this->_createProductTypeFromProductTypeRecord($result);
-            $this->_productTypesById[$productType->id] = $productType;
-
-            return $productType;
+        if (isset($this->_productTypesByHandle[$handle])) {
+            return $this->_productTypesByHandle[$handle];
         }
 
-        return null;
+        if ($this->_fetchedAllProductTypes) {
+            return null;
+        }
+
+        $row = $this->_createProductTypeQuery()
+            ->where(['handle' => $handle])
+            ->one();
+
+        if (!$row) {
+            return null;
+        }
+
+        $this->_memoizeProductType(new ProductType($row));
+
+        return $this->_productTypesByHandle[$handle];
     }
 
     /**
@@ -193,64 +190,20 @@ class ProductTypes extends Component
      */
     public function getProductTypeSites($productTypeId): array
     {
-        $records = ProductTypeSiteRecord::find()->where(['productTypeId' => $productTypeId])->all();
-
-        return ArrayHelper::map($records, 'id', function($record) {
-            return new ProductTypeSite($record->toArray([
+        $rows = (new Query())
+            ->select([
                 'id',
                 'productTypeId',
                 'siteId',
-                'urlFormat',
+                'uriFormat',
                 'template'
-            ]));
-        });
+            ])
+            ->from('{{%commerce_producttypes_sites}}')
+            ->where(['productTypeId' => $productTypeId])
+            ->all();
+
+        return ProductTypeSite::populateModels($rows);
     }
-
-    /**
-     * @param      $productTypeId
-     *
-     * @return array
-     */
-    public function getShippingCategoriesByProductId($productTypeId): array
-    {
-        $productType = ProductTypeRecord::find()->with('shippingCategories')->where(['id' => $productTypeId])->one();
-
-        if ($productType && $productType->shippingCategories) {
-            $shippingCategories = $productType->shippingCategories;
-        } else {
-            $shippingCategories = [Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory()];
-        }
-
-        return ArrayHelper::map($shippingCategories, 'id', function($record) {
-            return new ShippingCategory($record->toArray([
-                'id',
-                'name',
-                'handle',
-                'description',
-                'default'
-            ]));
-        });
-    }
-
-    /**
-     * @param      $productTypeId
-     * @param null $indexBy
-     *
-     * @return array
-     */
-    public function getProductTypeTaxCategories($productTypeId, $indexBy = null): array
-    {
-        $productType = ProductTypeRecord::find()->with('taxCategories')->where(['id' => $productTypeId])->one();
-
-        if ($productType && $productType->taxCategories) {
-            $taxCategories = $productType->taxCategories;
-        } else {
-            $taxCategories = [Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()];
-        }
-
-        return TaxCategory::populateModels($taxCategories, $indexBy);
-    }
-
 
     /**
      * @param ProductType $productType
@@ -284,7 +237,8 @@ class ProductTypes extends Component
                 throw new ProductTypeNotFoundException("No product type exists with the ID '{$productType->id}'");
             }
 
-            $oldProductType = $this->_createProductTypeFromProductTypeRecord($productTypeRecord);
+            $oldProductTypeRow = $this->_createProductTypeQuery()->where(['id' => $productType->id])->one();
+            $oldProductType = new ProductType($oldProductTypeRow);
         } else {
             $productTypeRecord = new ProductTypeRecord();
         }
@@ -405,18 +359,18 @@ class ProductTypes extends Component
             }
 
             // Remove all existing categories
-            Craft::$app->getDb()->createCommand()->delete('{{%commerce_producttypes_shippingcategories}}', 'productTypeId = :xid', [':xid' => $productType->id]);
-            Craft::$app->getDb()->createCommand()->delete('{{%commerce_producttypes_taxcategories}}', 'productTypeId = :xid', [':xid' => $productType->id]);
+            Craft::$app->getDb()->createCommand()->delete('{{%commerce_producttypes_shippingcategories}}', 'productTypeId = :xid', [':xid' => $productType->id])->execute();
+            Craft::$app->getDb()->createCommand()->delete('{{%commerce_producttypes_taxcategories}}', 'productTypeId = :xid', [':xid' => $productType->id])->execute();
 
             // Add back the new categories
             foreach ($productType->getShippingCategories() as $shippingCategory) {
                 $data = ['productTypeId' => $productType->id, 'shippingCategoryId' => $shippingCategory->id];
-                Craft::$app->getDb()->createCommand()->insert('{{%commerce_producttypes_shippingcategories}}', $data);
+                Craft::$app->getDb()->createCommand()->insert('{{%commerce_producttypes_shippingcategories}}', $data)->execute();
             }
 
             foreach ($productType->getTaxCategories() as $taxCategory) {
                 $data = ['productTypeId' => $productType->id, 'taxCategoryId' => $taxCategory->id];
-                Craft::$app->getDb()->createCommand()->insert('{{%commerce_producttypes_taxcategories}}', $data);
+                Craft::$app->getDb()->createCommand()->insert('{{%commerce_producttypes_taxcategories}}', $data)->execute();
             }
 
             // Update all products that used the removed tax & shipping categories
@@ -480,7 +434,7 @@ class ProductTypes extends Component
                 }
 
                 $siteSettingsRecord->hasUrls = $siteSettings->hasUrls;
-                $siteSettingsRecord->urlFormat = $siteSettings->urlFormat;
+                $siteSettingsRecord->uriFormat = $siteSettings->uriFormat;
                 $siteSettingsRecord->template = $siteSettings->template;
 
                 if (!$siteSettingsRecord->getIsNewRecord()) {
@@ -490,7 +444,7 @@ class ProductTypes extends Component
                     }
 
                     // Does it have URLs, and has its URI format changed?
-                    if ($siteSettings->hasUrls && $siteSettingsRecord->isAttributeChanged('urlFormat', false)) {
+                    if ($siteSettings->hasUrls && $siteSettingsRecord->isAttributeChanged('uriFormat', false)) {
                         $sitesWithNewUriFormats[] = $siteId;
                     }
                 }
@@ -531,7 +485,7 @@ class ProductTypes extends Component
                     if (!empty($sitesNowWithoutUrls)) {
                         $db->createCommand()
                             ->update(
-                                '{{%elements_i18n}}',
+                                '{{%elements_sites}}',
                                 ['uri' => null],
                                 [
                                     'elementId' => $productTypeIds,
@@ -582,10 +536,9 @@ class ProductTypes extends Component
      * @param $id
      *
      * @return bool
-     * @throws \CDbException
      * @throws \Exception
      */
-    public function deleteProductTypeById($id)
+    public function deleteProductTypeById($id): bool
     {
         $db = Craft::$app->getDb();
         $transaction = $db->beginTransaction();
@@ -632,23 +585,23 @@ class ProductTypes extends Component
     public function getProductTypeById($productTypeId)
     {
 
-        if (!$this->_fetchedAllProductTypes && ((null === $this->_productTypesById) || !array_key_exists($productTypeId, $this->_productTypesById))) {
-            $result = ProductTypeRecord::find()
-                ->where('id = :id', [':id' => $productTypeId])
-                ->one();
-
-            if ($result) {
-                $productType = $this->_createProductTypeFromProductTypeRecord($result);
-            } else {
-                $productType = null;
-            }
-
-            $this->_productTypesById[$productTypeId] = $productType;
+        if (isset($this->_productTypesById[$productTypeId])) {
+            return $this->_productTypesById[$productTypeId];
         }
 
-        if (!isset($this->_productTypesById[$productTypeId])) {
+        if ($this->_fetchedAllProductTypes) {
             return null;
         }
+
+        $row = $this->_createProductTypeQuery()
+            ->where(['id' => $productTypeId])
+            ->one();
+
+        if (!$row) {
+            return null;
+        }
+
+        $this->_memoizeProductType(new ProductType($row));
 
         return $this->_productTypesById[$productTypeId];
     }
@@ -688,8 +641,8 @@ class ProductTypes extends Component
 
         if ($event->isNew) {
             $allSiteSettings = (new Query())
-                ->select(['productTypeId', 'urlFormat', 'template', 'hasUrls'])
-                ->from(['{{%commerce_producttypes_i18n}}'])
+                ->select(['productTypeId', 'uriFormat', 'template', 'hasUrls'])
+                ->from(['{{%commerce_producttypes_sites}}'])
                 ->where(['siteId' => Craft::$app->getSites()->getPrimarySite()->id])
                 ->all();
 
@@ -700,7 +653,7 @@ class ProductTypes extends Component
                     $newSiteSettings[] = [
                         $siteSettings['productTypeId'],
                         $event->site->id,
-                        $siteSettings['urlFormat'],
+                        $siteSettings['uriFormat'],
                         $siteSettings['template'],
                         $siteSettings['hasUrls']
                     ];
@@ -708,8 +661,8 @@ class ProductTypes extends Component
 
                 Craft::$app->getDb()->createCommand()
                     ->batchInsert(
-                        '{{%commerce_producttypes_i18n}}',
-                        ['productTypeId', 'siteId', 'urlFormat', 'template', 'hasUrls'],
+                        '{{%commerce_producttypes_sites}}',
+                        ['productTypeId', 'siteId', 'uriFormat', 'template', 'hasUrls'],
                         $newSiteSettings)
                     ->execute();
             }
@@ -718,33 +671,41 @@ class ProductTypes extends Component
         return true;
     }
 
-    /**
-     * Creates a ProductType with attributes from a ProductTypeRecord.
-     *
-     * @param ProductTypeRecord|null $record
-     *
-     * @return ProductType|null
-     */
-    private function _createProductTypeFromProductTypeRecord(ProductTypeRecord $record = null)
-    {
-        if (!$record) {
-            return null;
-        }
+    // Private methods
+    // =========================================================================
 
-        return new ProductType($record->toArray([
-            'id',
-            'fieldLayoutId',
-            'variantFieldLayoutId',
-            'name',
-            'handle',
-            'hasUrls',
-            'hasDimensions',
-            'hasVariants',
-            'hasVariantTitleField',
-            'titleFormat',
-            'skuFormat',
-            'descriptionFormat',
-            'template'
-        ]));
+    /**
+     * Memoize a product type
+     *
+     * @param ProductType $productType
+     */
+    private function _memoizeProductType(ProductType $productType)
+    {
+        $this->_productTypesById[$productType->id] = $productType;
+        $this->_productTypesByHandle[$productType->handle] = $productType;
+    }
+
+    /**
+     * Returns a Query object prepped for retrieving tax categories.
+     *
+     * @return Query
+     */
+    private function _createProductTypeQuery(): Query
+    {
+        return (new Query())
+            ->select([
+                'id',
+                'fieldLayoutId',
+                'variantFieldLayoutId',
+                'name',
+                'handle',
+                'hasDimensions',
+                'hasVariants',
+                'hasVariantTitleField',
+                'titleFormat',
+                'skuFormat',
+                'descriptionFormat',
+            ])
+            ->from(['{{%commerce_producttypes}}']);
     }
 }

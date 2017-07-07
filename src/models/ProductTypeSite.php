@@ -46,7 +46,7 @@ class ProductTypeSite extends Model
     /**
      * @var string URL Format
      */
-    public $urlFormat;
+    public $uriFormat;
 
     /**
      * @var string Template Path
@@ -61,7 +61,7 @@ class ProductTypeSite extends Model
     /**
      * @var bool
      */
-    public $urlFormatIsRequired = true;
+    public $uriFormatIsRequired = true;
 
     // Public Methods
     // =========================================================================
@@ -111,8 +111,8 @@ class ProductTypeSite extends Model
     {
         $rules = parent::rules();
 
-        if ($this->urlFormatIsRequired) {
-            $rules[] = ['urlFormat', 'required'];
+        if ($this->uriFormatIsRequired) {
+            $rules[] = ['uriFormat', 'required'];
         }
 
         return $rules;

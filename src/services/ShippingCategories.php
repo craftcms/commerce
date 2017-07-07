@@ -218,6 +218,36 @@ class ShippingCategories extends Component
         return false;
     }
 
+    /**
+     * @param $productTypeId
+     *
+     * @return array
+     */
+    public function getShippingCategoriesByProductId($productTypeId): array
+    {
+
+        $rows = $this->_createShippingCategoryQuery()
+            ->innerJoin('{{%commerce_producttypes_shippingcategories}} productTypeShippingCategories', '[[shippingCategories.id]] = [[productTypeShippingCategories.shippingCategoryId]]')
+            ->innerJoin('{{%commerce_producttypes}} productTypes', '[[productTypeShippingCategories.productTypeId]] = [[productTypes.id]]')
+            ->where(['productTypes.id' => $productTypeId])
+            ->all();
+
+        if (empty($rows)) {
+            $category = $this->getDefaultShippingCategory();
+
+            if (!$category) {
+                return [];
+            }
+
+            $shippingCategory = $this->getDefaultShippingCategory();
+
+            return [$shippingCategory->id => $shippingCategory];
+        }
+
+        return ShippingCategory::populateModels($rows, 'id');
+    }
+
+
     // Private methods
     // =========================================================================
 
@@ -243,12 +273,12 @@ class ShippingCategories extends Component
     {
         return (new Query())
             ->select([
-                'id',
-                'name',
-                'handle',
-                'description',
-                'default'
+                'shippingCategories.id',
+                'shippingCategories.name',
+                'shippingCategories.handle',
+                'shippingCategories.description',
+                'shippingCategories.default'
             ])
-            ->from(['{{%commerce_shippingcategories}}']);
+            ->from(['{{%commerce_shippingcategories}} shippingCategories']);
     }
 }

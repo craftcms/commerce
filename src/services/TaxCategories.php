@@ -234,6 +234,34 @@ class TaxCategories extends Component
         return false;
     }
 
+    /**
+     * @param $productTypeId
+     *
+     * @return array
+     */
+    public function getTaxCategoriesByProductTypeId($productTypeId): array
+    {
+        $rows = $this->_createTaxCategoryQuery()
+            ->innerJoin('{{%commerce_producttypes_taxcategories}} productTypeTaxCategories', '[[taxCategories.id]] = [[productTypeTaxCategories.taxCategoryId]]')
+            ->innerJoin('{{%commerce_producttypes}} productTypes', '[[productTypeTaxCategories.productTypeId]] = [[productTypes.id]]')
+            ->where(['productTypes.id' => $productTypeId])
+            ->all();
+
+        if (empty($rows)) {
+            $category = $this->getDefaultTaxCategory();
+
+            if (!$category) {
+                return [];
+            }
+
+            $taxCategory = $this->getDefaultTaxCategory();
+
+            return [$taxCategory->id => $taxCategory];
+        }
+
+        return TaxCategory::populateModels($rows, 'id');
+    }
+
     // Private methods
     // =========================================================================
 
@@ -246,12 +274,12 @@ class TaxCategories extends Component
     {
         return (new Query())
             ->select([
-                'id',
-                'name',
-                'handle',
-                'description',
-                'default'
+                'taxCategories.id',
+                'taxCategories.name',
+                'taxCategories.handle',
+                'taxCategories.description',
+                'taxCategories.default'
             ])
-            ->from(['{{%commerce_taxcategories}}']);
+            ->from(['{{%commerce_taxcategories}} taxCategories']);
     }
 }

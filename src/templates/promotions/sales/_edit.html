@@ -32,9 +32,8 @@
 
 {% block content %}
     <input type="hidden" name="action" value="commerce/sales/save">
-    <input type="hidden" name="redirect" value="commerce/promotions/sales">
-    {% if sale.id %}<input type="hidden" name="id"
-                           value="{{ sale.id }}">{% endif %}
+    {{ redirectInput('commerce/promotions/sales') }}
+    {% if sale.id %}<input type="hidden" name="id" value="{{ sale.id }}">{% endif %}
 
     <div id="sale">
         {{ forms.textField({
@@ -159,9 +158,9 @@
 
 {% js %}
 $(function() {
-$('#groups, #productTypes').selectize({
-plugins: ['remove_button'],
-dropdownParent: 'body'
-});
+    $('#groups, #productTypes').selectize({
+        plugins: ['remove_button'],
+        dropdownParent: 'body'
+    });
 });
 {% endjs %}

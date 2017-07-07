@@ -2,8 +2,11 @@
 
 namespace craft\commerce\models;
 
+use Craft;
 use craft\commerce\base\Model;
+use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
+use craft\i18n\Locale;
 
 /**
  * Sale model.
@@ -26,21 +29,6 @@ class Sale extends Model
      * @var string Name
      */
     public $name;
-
-    /**
-     * @var int[] Product Ids
-     */
-    public $productIds = [];
-
-    /**
-     * @var int[] Product Type IDs
-     */
-    public $productTypeIds = [];
-
-    /**
-     * @var int[] Group IDs
-     */
-    public $groupIds = [];
 
     /**
      * @var string Description
@@ -88,6 +76,21 @@ class Sale extends Model
     public $enabled = true;
 
     /**
+     * @var int[] Product Ids
+     */
+    private $_productIds;
+
+    /**
+     * @var int[] Product Type IDs
+     */
+    private $_productTypeIds;
+
+    /**
+     * @var int[] Group IDs
+     */
+    private $_userGroupIds;
+
+    /**
      * @inheritdoc
      */
     public function rules()
@@ -119,8 +122,8 @@ class Sale extends Model
      */
     public function getDiscountAmountAsPercent()
     {
-        $localeData = Craft::$app->getI18n()->getLocaleData();
-        $percentSign = $localeData->getNumberSymbol('percentSign');
+        $localeData = Craft::$app->getLocale();
+        $percentSign = $localeData->getNumberSymbol(Locale::SYMBOL_PERCENT);
 
         if ($this->discountAmount != 0) {
             return -$this->discountAmount * 100 ."".$percentSign;
@@ -145,7 +148,7 @@ class Sale extends Model
      */
     public function calculateTakeoff($price)
     {
-        if ($this->discountType == 'flat') {
+        if ($this->discountType === 'flat') {
             $takeOff = $this->discountAmount;
         } else {
             $takeOff = $this->discountAmount * $price;
@@ -159,6 +162,80 @@ class Sale extends Model
      */
     public function getProductTypeIds(): array
     {
-        return $this->productIds;
+        if (!$this->_productTypeIds) {
+            $this->_loadRelations();
+        }
+
+        return $this->_productTypeIds;
+    }
+
+    /**
+     * @return array
+     */
+    public function getProductIds(): array
+    {
+        if (!$this->_productIds) {
+            $this->_loadRelations();
+        }
+
+        return $this->_productIds;
+    }
+
+    /**
+     * @return array
+     */
+    public function getUserGroupIds(): array
+    {
+        if (!$this->_userGroupIds) {
+            $this->_loadRelations();
+        }
+
+        return $this->_userGroupIds;
+    }
+
+    /**
+     * Set the related product type ids
+     *
+     * @param array $ids
+     *
+     * @return void
+     */
+    public function setProductTypeIds(array $ids)
+    {
+        $this->_productTypeIds = $ids;
+    }
+
+     /**
+     * Set the related product ids
+     *
+     * @param array $productIds
+     *
+     * @return void
+     */
+    public function setProductIds(array $productIds)
+    {
+        $this->_productIds = $productIds;
+    }
+
+     /**
+     * Set the related user group ids
+     *
+     * @param array $userGroupIds
+     *
+     * @return void
+     */
+    public function setUserGroupIds(array $userGroupIds)
+    {
+        $this->_userGroupIds = $userGroupIds;
+    }
+
+    /**
+     * Load the sale relations
+     *
+     * @return void
+     */
+    private function _loadRelations()
+    {
+        Plugin::getInstance()->getSales()->populateSaleRelations($this);
     }
 }

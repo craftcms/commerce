@@ -2,7 +2,6 @@
 
 namespace craft\commerce\base;
 
-use craft\base\Element;
 use craft\commerce\errors\NotImplementedException;
 use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
