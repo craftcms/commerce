@@ -3,7 +3,6 @@
 namespace craft\commerce\models;
 
 use craft\behaviors\FieldLayoutBehavior;
-use craft\behaviors\FieldLayoutTrait;
 use craft\commerce\base\Model;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
@@ -31,10 +30,12 @@ use craft\validators\HandleValidator;
  * @property ProductTypeSite[]                                     $siteSettings
  * @property mixed                                                 $variantFieldLayout
  * @property mixed                                                 $productFieldLayout
+ *
+ * @mixin FieldLayoutBehavior
+ *
  */
 class ProductType extends Model
 {
-    use FieldLayoutTrait;
 
     // Properties
     // =========================================================================

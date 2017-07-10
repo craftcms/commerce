@@ -3,7 +3,6 @@
 namespace craft\commerce\models;
 
 use craft\behaviors\FieldLayoutBehavior;
-use craft\behaviors\FieldLayoutTrait;
 use craft\commerce\base\Model;
 use craft\commerce\elements\Order;
 use craft\helpers\UrlHelper;
@@ -24,12 +23,11 @@ use craft\helpers\UrlHelper;
  * @license   https://craftcommerce.com/license Craft Commerce License Agreement
  * @see       https://craftcommerce.com
  * @package   craft.commerce
+ * @mixin FieldLayoutBehavior
  * @since     2.0
  */
 class OrderSettings extends Model
 {
-    use FieldLayoutTrait;
-
     /**
      * @var int ID
      */
