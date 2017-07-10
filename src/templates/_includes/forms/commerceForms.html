@@ -15,7 +15,7 @@
             {%- if settings.name is defined %} name="{{ settings.name }}"{% endif %}
             {%- if settings.value is defined %} value="{{ settings.value }}"{% endif %}
             {%- if settings.maxlength is defined and settings.maxlength %} maxlength="{{ settings.maxlength }}"{% endif %}
-            {%- if settings.autofocus is defined and settings.autofocus and not craft.request.isMobileBrowser(true) %} autofocus{% endif %}
+            {%- if settings.autofocus is defined and settings.autofocus and not craft.app.request.isMobileBrowser(true) %} autofocus{% endif %}
             {%- if settings.autocomplete is not defined or not settings.autocomplete %} autocomplete="off"{% endif %}
             {%- if settings.disabled is defined and settings.disabled %} disabled {% endif %}
             {%- if settings.readonly is defined and settings.readonly %} readonly {% endif %}

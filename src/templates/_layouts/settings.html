@@ -25,7 +25,7 @@
 'shippingmethods': { title: "Shipping Methods"|t('commerce') },
 } %}
 
-{% set selectedItem = craft.request.getSegment(3) %}
+{% set selectedItem = craft.app.request.getSegment(3) %}
 {% set docTitle = navItems[selectedItem].title~' - '~title %}
 
 

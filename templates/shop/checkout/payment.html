@@ -20,9 +20,8 @@
 			{% if craft.commerce.paymentMethods|length %}
 				<form method="POST" id="paymentMethod" class="form-inline">
 
-					<input type="hidden" name="action" value="commerce/cart/updateCart">
-					<input type="hidden" name="redirect"
-						   value="shop/checkout/payment">
+					<input type="hidden" name="action" value="commerce/cart/update-cart">
+                    {{ redirectInput('shop/checkout/payment') }}
 					{{ csrfInput() }}
 
 					<label for="paymentMethodId">Select a payment method:</label>
@@ -49,7 +48,7 @@
 			{% if cart.paymentMethodId %}
 				<form method="POST" class="form-horizontal" id="paymentForm">
 					<input type="hidden" name="action" value="commerce/payments/pay"/>
-					<input type="hidden" name="redirect" value="/shop/customer/order?number={number}"/>
+                    {{ redirectInput('/shop/customer/order?number='~number) }}
 					<input type="hidden" name="cancelUrl" value="/shop/checkout/payment"/>
 					{{ csrfInput() }}
 
@@ -267,9 +266,9 @@
 		</div>
 	</div>
 
-	{% js %}
+	{% includejs %}
 	$('#paymentMethodId , #paymentCurrency').change(function(){
 		$('form#paymentMethod').submit();
 	});
-	{% endjs %}
+	{% endincludejs %}
 {% endblock %}

@@ -144,7 +144,7 @@
 
 </div>
 
-    {% js %}
+    {% includejs %}
     var states = {{ craft.commerce.statesArray|json_encode|raw }};
 
     $('select.address-country').change(function ()
@@ -189,4 +189,4 @@
 
     $('select').addClass('form-control input-sm');
 
-    {% endjs %}
+    {% endincludejs %}

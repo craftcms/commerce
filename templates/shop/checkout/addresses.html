@@ -10,8 +10,8 @@
         <div class="twelve columns">
             <form method="post">
 
-                <input type="hidden" name="action" value="commerce/cart/updateCart">
-                <input type="hidden" name="redirect" value="shop/checkout/shipping"/>
+                <input type="hidden" name="action" value="commerce/cart/update-cart">
+                {{ redirectInput('shop/checkout/shipping') }}
 
                 {{ csrfInput() }}
 
@@ -50,7 +50,7 @@
         </div>
     </div>
 
-    {% js %}
+    {% includejs %}
     var $fieldsets = $('.address-fieldset');
 
     $fieldsets.each(function () {
@@ -82,6 +82,6 @@
     {% if cart.billingAddressId and cart.billingAddress.hasErrors() %}
         $("#sameAddress").click();
     {% endif %}
-    {% endjs %}
+    {% endincludejs %}
 
 {% endblock %}

@@ -1,6 +1,6 @@
 <nav>
 
-    {% set page = craft.request.getSegment(2) %}
+    {% set page = craft.app.request.getSegment(2) %}
 
     <a class="button {% if page == 'products' %}button-primary{% endif %}" href="{{ url('shop/products') }}">
         {{ "Products"|t }}

@@ -29,7 +29,7 @@ url: 'shop/checkout/payment'
                 {% for key, step in steps %}
 
                     {% set class = '' %}
-                    {% if craft.request.requestUri|slice(1) == step.url %}
+                    {% if craft.app.request.requestUri|slice(1) == step.url %}
                         {% set width = ((key + 1) * 100 / steps|length) - 20 %}
                         {% set class = "sel" %}
                         {% set currentStep = key %}

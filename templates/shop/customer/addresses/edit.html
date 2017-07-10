@@ -2,8 +2,8 @@
 
 {% block main %}
 
-    {% set addressId = craft.request.param('addressId') %}
-    {% set redirect = craft.request.param('redirect') %}
+    {% set addressId = craft.app.request.param('addressId') %}
+    {% set redirect = craft.app.request.param('redirect') %}
 
     {% if not address is defined and addressId %}
         {% set address = craft.commerce.customer.address(addressId) %}
@@ -13,9 +13,9 @@
         {{ csrfInput() }}
         <input type="hidden" name="action" value="commerce/customerAddresses/save">
         {% if redirect %}
-            <input type="hidden" name="redirect" value="{{ redirect }}">
+            {{ redirectInput(redirect) }}
         {% else %}
-            <input type="hidden" name="redirect" value="shop/customer/addresses">
+            {{ redirectInput('shop/customer/addresses') }}
         {% endif %}
 
         {% if addressId %}

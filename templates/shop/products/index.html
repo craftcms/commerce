@@ -8,10 +8,10 @@
         </div>
         <div class="ten columns">
             <h5>{% if product.url %}{{ product.link }}{% else %}{{ product.title }}{% endif %}</h5>
-            {% if product.variants|length %}
+            {% if product.getVariants()|length %}
                 <form method="POST">
-                    <input type="hidden" name="action" value="commerce/cart/updateCart">
-                    <input type="hidden" name="redirect" value="shop/cart">
+                    <input type="hidden" name="action" value="commerce/cart/update-cart">
+                    {{ redirectInput('shop/cart') }}
                     <input type="hidden" name="qty" value="1">
                     {{ csrfInput() }}
 
@@ -60,10 +60,10 @@
         </div>
     </div>
 {% endfor %}
-{% js %}
+{% includejs %}
     $( ".purchasableId" ).change(function(e) {
         $(".purchasableInfo").hide();
         $("#"+($(this).find(":selected").data('info'))).toggle();
     });
-{% endjs %}
+{% endincludejs %}
 {% endblock %}
