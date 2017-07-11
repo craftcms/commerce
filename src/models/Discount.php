@@ -4,6 +4,7 @@ namespace craft\commerce\models;
 
 use Craft;
 use craft\commerce\base\Model;
+use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
 
 /**
@@ -146,19 +147,19 @@ class Discount extends Model
     public $sortOrder;
 
     /**
-     * @var \craft\commerce\elements\Product Products
+     * @var int[] Product Ids
      */
-    private $_products;
+    private $_productIds;
 
     /**
-     * @var \craft\commerce\models\ProductType[] Products
+     * @var int[] Product Type IDs
      */
-    private $_productTypes = [];
+    private $_productTypeIds;
 
     /**
-     * @var \craft\models\UserGroup[]|null User Groups
+     * @var int[] Group IDs
      */
-    private $_userGroups = [];
+    private $_userGroupIds;
 
     /**
      * @inheritdoc
@@ -187,6 +188,18 @@ class Discount extends Model
     }
 
     /**
+     * @inheritdoc
+     */
+    public function datetimeAttributes(): array
+    {
+        $names = parent::datetimeAttributes();
+        $names[] = 'dateFrom';
+        $names[] = 'dateTo';
+
+        return $names;
+    }
+    
+    /**
      * @return string|false
      */
     public function getCpEditUrl()
@@ -195,85 +208,85 @@ class Discount extends Model
     }
 
     /**
-     * @return \craft\models\UserGroup[]|null
+     * @return array
      */
-    public function getGroups()
+    public function getProductTypeIds(): array
     {
-        Craft::$app->getDeprecator()->log('Discount::groups', 'The "getGroups()" method has been deprecated. Use "getUserGroups" instead.');
+        if (!$this->_productTypeIds) {
+            $this->_loadRelations();
+        }
 
-        return $this->getUserGroups();
-    }
-
-    /**
-     * @return \craft\models\UserGroup[]|null
-     */
-    public function getUserGroups()
-    {
-        return $this->_userGroups;
-    }
-
-    /**
-     * @param \craft\models\UserGroup[] $groups
-     */
-    public function setUserGroups($groups)
-    {
-        $this->_userGroups = $groups;
+        return $this->_productTypeIds;
     }
 
     /**
      * @return array
      */
-    public function getGroupIds()
+    public function getProductIds(): array
     {
-        return array_column($this->getUserGroups(), 'id');
+        if (!$this->_productIds) {
+            $this->_loadRelations();
+        }
+
+        return $this->_productIds;
     }
 
     /**
      * @return array
      */
-    public function getProductTypeIds()
+    public function getUserGroupIds(): array
     {
-        return array_column($this->getProductTypes(), 'id');
+        if (!$this->_userGroupIds) {
+            $this->_loadRelations();
+        }
+
+        return $this->_userGroupIds;
     }
 
     /**
-     * @return ProductType[]|null
+     * Set the related product type ids
+     *
+     * @param array $ids
+     *
+     * @return void
      */
-    public function getProductTypes()
+    public function setProductTypeIds(array $ids)
     {
-        return $this->_productTypes;
+        $this->_productTypeIds = $ids;
     }
 
     /**
-     * @param ProductType[] $productTypes
+     * Set the related product ids
+     *
+     * @param array $productIds
+     *
+     * @return void
      */
-    public function setProductTypes($productTypes)
+    public function setProductIds(array $productIds)
     {
-        $this->_productTypes = $productTypes;
+        $this->_productIds = $productIds;
     }
 
     /**
-     * @return array
+     * Set the related user group ids
+     *
+     * @param array $userGroupIds
+     *
+     * @return void
      */
-    public function getProductIds()
+    public function setUserGroupIds(array $userGroupIds)
     {
-        return array_column($this->getProducts(), 'id');
+        $this->_userGroupIds = $userGroupIds;
     }
 
     /**
-     * @return \craft\commerce\elements\Product[]|null
+     * Load the sale relations
+     *
+     * @return void
      */
-    public function getProducts()
+    private function _loadRelations()
     {
-        return $this->_products;
-    }
-
-    /**
-     * @param \craft\commerce\elements\Product[] $products
-     */
-    public function setProducts($products)
-    {
-        $this->_products = $products;
+        Plugin::getInstance()->getDiscounts()->populateDiscountRelations($this);
     }
 
     /**

@@ -11,6 +11,7 @@ use yii\db\ActiveQueryInterface;
  * @property int      $id
  * @property int      $discountId
  * @property int      $customerId
+ * @property int      $uses
  * @property Discount $discount
  * @property Customer $customer
  *

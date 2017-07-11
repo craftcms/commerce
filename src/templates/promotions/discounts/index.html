@@ -36,9 +36,9 @@
                     <td data-title="{{ 'Code'|t('commerce') }}"
                         class="code">{{ discount.code }}</td>
                     <td data-title="{{ 'Duration'|t('commerce') }}">
-                        {{ (discount.dateFrom ? discount.dateFrom.localeDate() : '∞') }}
+                        {{ (discount.dateFrom ? discount.dateFrom|datetime('short'): '∞') }}
                         -
-                        {{ (discount.dateTo ? discount.dateTo.localeDate() : '∞') }}
+                        {{ (discount.dateTo ? discount.dateTo|datetime('short') : '∞') }}
                     </td>
                     <td data-title="{{ 'Times Coupon Used'|t('commerce') }}">{{ discount.totalUses }}</td>
                     <td data-title="{{ 'Can Stop Processing?'|t('commerce') }}">{% if discount.stopProcessing %}

@@ -9,6 +9,7 @@ use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
+use craft\i18n\Locale;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -129,8 +130,9 @@ class DiscountsController extends BaseCpController
             'perEmailLimit',
             'totalUseLimit'
         ];
+        $request = Craft::$app->getRequest();
         foreach ($fields as $field) {
-            $discount->$field = Craft::$app->getRequest()->getParam($field);
+            $discount->$field = $request->getParam($field);
         }
 
         $discountAmountsFields = [
@@ -138,7 +140,7 @@ class DiscountsController extends BaseCpController
             'perItemDiscount'
         ];
         foreach ($discountAmountsFields as $field) {
-            $discount->$field = Craft::$app->getRequest()->getParam($field) * -1;
+            $discount->$field = $request->getParam($field) * -1;
         }
 
         $dateFields = [
@@ -146,30 +148,30 @@ class DiscountsController extends BaseCpController
             'dateTo'
         ];
         foreach ($dateFields as $field) {
-            $discount->$field = (($date = Craft::$app->getRequest()->getParam($field)) ? DateTimeHelper::toDateTime($date) : null);
+            $discount->$field = (($date = $request->getParam($field)) !== false ? (DateTimeHelper::toDateTime($date) ?: null) : $discount->$date);
         }
 
         // Format into a %
-        $percentDiscountAmount = Craft::$app->getRequest()->getParam('percentDiscount');
-        $localeData = Craft::$app->getI18n()->localeData();
-        $percentSign = $localeData->getNumberSymbol('percentSign');
+        $percentDiscountAmount = $request->getParam('percentDiscount');
+        $localeData = Craft::$app->getLocale();
+        $percentSign = $localeData->getNumberSymbol(Locale::SYMBOL_PERCENT);
         if (strpos($percentDiscountAmount, $percentSign) or (float) $percentDiscountAmount >= 1) {
             $discount->percentDiscount = (float) $percentDiscountAmount / -100;
         } else {
             $discount->percentDiscount = (float) $percentDiscountAmount * -1;
         }
 
-        $products = Craft::$app->getRequest()->getParam('products', []);
+        $products = $request->getParam('products', []);
         if (!$products) {
             $products = [];
         }
 
-        $productTypes = Craft::$app->getRequest()->getParam('productTypes', []);
+        $productTypes = $request->getParam('productTypes', []);
         if (!$productTypes) {
             $productTypes = [];
         }
 
-        $groups = Craft::$app->getRequest()->getParam('groups', []);
+        $groups = $request->getParam('groups', []);
         if (!$groups) {
             $groups = [];
         }
@@ -228,7 +230,7 @@ class DiscountsController extends BaseCpController
 
         $id = Craft::$app->getRequest()->getRequiredParam('id');
 
-        Plugin::getInstance()->getDiscounts()->clearCouponUsageHistory($id);
+        Plugin::getInstance()->getDiscounts()->clearCouponUsageHistoryById($id);
 
         $this->asJson(['success' => true]);
     }
