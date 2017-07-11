@@ -33,22 +33,18 @@ class Commerce_CartService extends BaseApplicationComponent
      */
     public function addToCart($order, $purchasableId, $qty = 1, $note = '', $options = [], &$error = '')
     {
-        $transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
 
         $isNewLineItem = false;
 
         //saving current cart if it's new and empty
         if (!$order->id && !craft()->commerce_orders->saveOrder($order))
         {
-            if ($transaction !== null)
-            {
-                $transaction->rollback();
-            }
-
             $error = Craft::t('Could not save the cart.');
 
             return false;
         }
+
+        $transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
 
         //filling item model
         $lineItem = craft()->commerce_lineItems->getLineItemByOrderPurchasableOptions($order->id, $purchasableId, $options);
