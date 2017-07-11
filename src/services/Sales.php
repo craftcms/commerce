@@ -26,9 +26,14 @@ use yii\base\Component;
  */
 class Sales extends Component
 {
-
+    /**
+     * @var Sale[]
+     */
     private $_allSales;
 
+    /**
+     * @var Sale[]
+     */
     private $_allActiveSales;
 
     /**
