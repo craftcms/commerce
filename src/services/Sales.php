@@ -111,7 +111,7 @@ class Sales extends Component
                 $sale->setUserGroupIds($groups[$id] ?? []);
             }
 
-            $this->_allSales = array_values($allSalesById);
+            $this->_allSales = $allSalesById;
         }
 
         return $this->_allSales;

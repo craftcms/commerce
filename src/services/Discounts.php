@@ -113,7 +113,7 @@ class Discounts extends Component
                 $discount->setUserGroupIds($groups[$id] ?? []);
             }
 
-            $this->_allDiscounts = array_values($allDiscountsById);
+            $this->_allDiscounts = $allDiscountsById;
         }
 
         return $this->_allDiscounts;

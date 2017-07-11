@@ -174,7 +174,7 @@ class Sale extends Model
      */
     public function getProductTypeIds(): array
     {
-        if (!$this->_productTypeIds) {
+        if (null === $this->_productTypeIds) {
             $this->_loadRelations();
         }
 
@@ -186,7 +186,7 @@ class Sale extends Model
      */
     public function getProductIds(): array
     {
-        if (!$this->_productIds) {
+        if (null === $this->_productIds) {
             $this->_loadRelations();
         }
 
@@ -198,7 +198,7 @@ class Sale extends Model
      */
     public function getUserGroupIds(): array
     {
-        if (!$this->_userGroupIds) {
+        if (null === $this->_userGroupIds) {
             $this->_loadRelations();
         }
 
