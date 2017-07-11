@@ -36,12 +36,12 @@ class Sale extends Model
     public $description;
 
     /**
-     * @var \DateTime Date From
+     * @var \DateTime|null Date From
      */
     public $dateFrom;
 
     /**
-     * @var \DateTime Date To
+     * @var \DateTime|null Date To
      */
     public $dateTo;
 
@@ -107,6 +107,18 @@ class Sale extends Model
             [['default', 'enabled'], 'boolean'],
             [['discountType', 'allGroups', 'allProducts', 'allProductTypes'], 'required'],
         ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function datetimeAttributes(): array
+    {
+        $names = parent::datetimeAttributes();
+        $names[] = 'dateFrom';
+        $names[] = 'dateTo';
+
+        return $names;
     }
 
     /**
