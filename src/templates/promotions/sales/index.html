@@ -31,9 +31,9 @@
                         <a href="{{ url('commerce/promotions/sales/'~sale.id) }}">{{ sale.name }}</a>
                     </th>
                     <td data-title="{{ 'Duration'|t('commerce') }}">
-                        {{ sale.dateFrom ? sale.dateFrom.localeDate() : '∞' }}
+                        {{ sale.dateFrom ? sale.dateFrom|datetime('short') : '∞' }}
                         -
-                        {{ sale.dateTo ? sale.dateTo.localeDate() : '∞' }}
+                        {{ sale.dateTo ? sale.dateTo|date('short') : '∞' }}
                     </td>
                     <td data-title="{{ 'Discount Amount'|t('commerce') }}">
                         {% if sale.discountType == 'percent' %}
