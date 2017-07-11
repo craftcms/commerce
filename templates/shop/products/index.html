@@ -1,7 +1,7 @@
 {% extends 'shop/_layouts/main' %}
 {% block main %}
 
-{% for product in craft.commerce.products.limit(5).find() %}
+{% for product in craft.commerce.products.limit(5).all() %}
     <div class="row product">
         <div class="two columns">
             {% include "shop/_images/product" with { class: 'u-max-full-width' } %}
@@ -37,7 +37,7 @@
                 </form>
 
                 {% if currentUser %}
-                {% set order = craft.commerce.orders.user(currentUser).hasPurchasables(product.defaultVariant).find() %}
+                {% set order = craft.commerce.orders.user(currentUser).hasPurchasables(product.defaultVariant).all() %}
                 {% if order|length %}
                     <strong>I already own this product: </strong> <a href="customer/order?orderNumber={{ order[0].number }}">Order #{{ order[0].shortNumber }}</a>
                 {% endif %}
@@ -60,10 +60,10 @@
         </div>
     </div>
 {% endfor %}
-{% includejs %}
+{% js %}
     $( ".purchasableId" ).change(function(e) {
         $(".purchasableInfo").hide();
         $("#"+($(this).find(":selected").data('info'))).toggle();
     });
-{% endincludejs %}
+{% endjs %}
 {% endblock %}
