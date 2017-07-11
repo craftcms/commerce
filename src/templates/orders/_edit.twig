@@ -152,14 +152,14 @@
 					<td>
 						{% if lineItem.purchasable %}
 							{% if lineItem.purchasable.cpEditUrl %}
-								<a href="{{ lineItem.purchasable.cpEditUrl }}">{{ lineItem.description }}</a>
+								<a class="purchasable-link" href="{{ lineItem.purchasable.cpEditUrl }}">{{ lineItem.description }}</a>
 							{% else %}
-								{{ lineItem.description }}
+								<span class="description">{{ lineItem.description }}</span>
 							{% endif %}
 						{% else %}
-							{{ lineItem.description }}
+							<span class="description">{{ lineItem.description }}</span>
 						{% endif %}
-						<br>{{ lineItem.sku }}
+						<br><span clas="sku">{{ lineItem.sku }}</span>
 						{% if lineItem.options|length %}
 						<a class="fieldtoggle first last" data-target="info-{{ lineItem.id}}">{{ "Options"|t }}</a>
 						<span id="info-{{ lineItem.id}}" class="hidden">
