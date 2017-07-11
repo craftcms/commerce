@@ -22,6 +22,7 @@ use yii\web\Response;
  * @package   craft.plugins.commerce.controllers
  * @since     1.0
  */
+// TODO getParam -> getBodyParam
 class SalesController extends BaseCpController
 {
 
@@ -125,8 +126,10 @@ class SalesController extends BaseCpController
             'discountType',
             'enabled'
         ];
+        $request = Craft::$app->getRequest();
+
         foreach ($fields as $field) {
-            $sale->$field = Craft::$app->getRequest()->getParam($field);
+            $sale->$field = $request->getParam($field);
         }
 
         $dateFields = [
@@ -134,10 +137,10 @@ class SalesController extends BaseCpController
             'dateTo'
         ];
         foreach ($dateFields as $field) {
-            $sale->$field = (($date = Craft::$app->getRequest()->getParam($field)) ? DateTimeHelper::toDateTime($date) : null);
+            $sale->$field = (($date = $request->getParam($field)) !== false ? (DateTimeHelper::toDateTime($date) ?: null) : $sale->$date);
         }
 
-        $discountAmount = Craft::$app->getRequest()->getParam('discountAmount');
+        $discountAmount = $request->getParam('discountAmount');
         if ($sale->discountType === 'percent') {
             $localeData = Craft::$app->getLocale();
             $percentSign = $localeData->getNumberSymbol(Locale::SYMBOL_PERCENT);
@@ -150,17 +153,17 @@ class SalesController extends BaseCpController
             $sale->discountAmount = (float)$discountAmount * -1;
         }
 
-        $products = Craft::$app->getRequest()->getParam('products', []);
+        $products = $request->getParam('products', []);
         if (!$products) {
             $products = [];
         }
 
-        $productTypes = Craft::$app->getRequest()->getParam('productTypes', []);
+        $productTypes = $request->getParam('productTypes', []);
         if (!$productTypes) {
             $productTypes = [];
         }
 
-        $groups = Craft::$app->getRequest()->getParam('groups', []);
+        $groups = $request->getParam('groups', []);
         if (!$groups) {
             $groups = [];
         }
