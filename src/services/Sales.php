@@ -241,7 +241,7 @@ class Sales extends Component
         if (!$sale->allGroups) {
             // User Group match
             $userGroups = Plugin::getInstance()->getDiscounts()->getCurrentUserGroupIds();
-            if (!$userGroups || !array_intersect($userGroups, $sale->getGroupIds())) {
+            if (!$userGroups || !array_intersect($userGroups, $sale->getUserGroupIds())) {
                 return false;
             }
         }
@@ -360,12 +360,14 @@ class Sales extends Component
      *
      * @return bool
      */
-    public function deleteSaleById($id)
+    public function deleteSaleById($id): bool
     {
         $sale = SaleRecord::findOne($id);
 
         if ($sale) {
             return $sale->delete();
         }
+        
+        return false;
     }
 }
