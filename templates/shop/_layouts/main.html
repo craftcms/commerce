@@ -33,8 +33,8 @@
 
 				{% include "shop/_includes/nav" %}
 
-				<div class="flash">{{ craft.session.getFlash('notice') }}</div>
-				<div class="flash">{{ craft.session.getFlash('error') }}</div>
+				<div class="flash">{{ craft.app.session.getFlash('notice') }}</div>
+				<div class="flash">{{ craft.app.session.getFlash('error') }}</div>
 
                 <div class="row">
                     <div class="twelve columns">
