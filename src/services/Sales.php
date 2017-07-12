@@ -158,7 +158,7 @@ class Sales extends Component
         $sale->setProductTypeIds($productTypeIds);
         $sale->setUserGroupIds($userGroupIds);
     }
-    
+
     /**
      * @param Product $product
      *
