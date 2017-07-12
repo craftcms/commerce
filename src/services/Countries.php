@@ -130,7 +130,7 @@ class Countries extends Component
             $this->_countriesByTaxZoneId[$taxZoneId] = $countries;
         }
 
-        return $this->_countriesByTaxZoneId[$taxZoneId] ?? [];
+        return $this->_countriesByTaxZoneId[$taxZoneId];
     }
 
     /**
@@ -156,7 +156,7 @@ class Countries extends Component
             $this->_countriesByShippingZoneId[$shippingZoneId] = $countries;
         }
 
-        return $this->_countriesByShippingZoneId[$shippingZoneId] ?? [];
+        return $this->_countriesByShippingZoneId[$shippingZoneId];
     }
 
     /**

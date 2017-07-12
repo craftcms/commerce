@@ -152,7 +152,7 @@ class States extends Component
             $this->_statesByTaxZoneId[$taxZoneId] = $states;
         }
 
-        return $this->_statesByTaxZoneId[$taxZoneId] ?? [];
+        return $this->_statesByTaxZoneId[$taxZoneId];
     }
     
     /**
@@ -179,7 +179,7 @@ class States extends Component
             $this->_statesByShippingZoneId[$shippingZoneId] = $states;
         }
 
-        return $this->_statesByShippingZoneId[$shippingZoneId] ?? [];
+        return $this->_statesByShippingZoneId[$shippingZoneId];
     }
 
     /**
