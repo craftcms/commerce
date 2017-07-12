@@ -200,7 +200,7 @@ class Sales extends Component
                 if ($sale->enabled) {
                     $from = $sale->dateFrom;
                     $to = $sale->dateTo;
-                    $now = new DateTime();
+                    $now = new \DateTime();
                     if ($from == null || $from < $now) {
                         if ($to == null || $to > $now) {
                             $activeSales[] = $sale;
