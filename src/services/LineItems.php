@@ -7,9 +7,9 @@ use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\events\LineItemEvent;
 use craft\commerce\models\LineItem;
-use craft\commerce\Plugin;
 use craft\commerce\records\LineItem as LineItemRecord;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Json;
 use yii\base\Component;
 use yii\base\Exception;
 
@@ -76,9 +76,8 @@ class LineItems extends Component
      */
     private function _createLineItemFromLineItemRecord($lineItemRecord): LineItem
     {
-        return new LineItem($lineItemRecord->toArray([
+        $lineItem = new LineItem($lineItemRecord->toArray([
             'id',
-            'options',
             'optionsSignature',
             'price',
             'saleAmount',
@@ -100,6 +99,10 @@ class LineItems extends Component
             'taxCategoryId',
             'shippingCategoryId'
         ]));
+
+        $lineItem->options = Json::decode($lineItemRecord->options);
+
+        return $lineItem;
     }
 
     /**
