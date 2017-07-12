@@ -42,7 +42,7 @@ class Discount implements AdjusterInterface
                 $availableDiscounts[] = $discount;
             }
 
-            if ($discount->code == $order->couponCode)
+            if ($order->couponCode && ($discount->code == $order->couponCode))
             {
                 $availableDiscounts[] = $discount;
             }
