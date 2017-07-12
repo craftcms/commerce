@@ -13,7 +13,6 @@ use craft\commerce\models\Address;
 use craft\commerce\models\Customer;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
-use craft\commerce\records\LineItem as LineItemRecord;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\models\OrderSettings;
 use craft\commerce\models\OrderStatus;
@@ -21,6 +20,7 @@ use craft\commerce\models\PaymentMethod;
 use craft\commerce\models\ShippingMethod;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
+use craft\commerce\records\LineItem as LineItemRecord;
 use craft\commerce\records\Order as OrderRecord;
 use craft\elements\actions\Delete;
 use craft\elements\db\ElementQueryInterface;
@@ -263,6 +263,9 @@ class Order extends Element
     private $_orderAdjustments;
 
 
+    /**
+     * @inheritdoc
+     */
     public function beforeValidate()
     {
         // Set default payment method
@@ -283,6 +286,10 @@ class Order extends Element
         return true;
     }
 
+    /**
+     * Updates the paid amounts on the order, and marks as complete if the order is paid.
+     *
+     */
     public function updateOrderPaidTotal()
     {
         $totalPaid = Plugin::getInstance()->getPayments()->getTotalPaidForOrder($this);
@@ -310,6 +317,11 @@ class Order extends Element
         }
     }
 
+    /**
+     * Completes an order
+     *
+     * @return bool
+     */
     public function markAsComplete(): bool
     {
 
@@ -338,23 +350,27 @@ class Order extends Element
             return true;
         }
 
-        Craft::error(Craft::t('commerce','Could not mark order {number} as complete. Order save failed during order completion with errors: {order}',
-            ['number' => $this->number, 'order' => json_encode($this->errors)]),__METHOD__);
+        Craft::error(Craft::t('commerce', 'Could not mark order {number} as complete. Order save failed during order completion with errors: {order}',
+            ['number' => $this->number, 'order' => json_encode($this->errors)]), __METHOD__);
 
         return false;
     }
 
+    /**
+     * Removes a specific line item from the order.
+     *
+     * @param $lineItem
+     *
+     * @return bool
+     */
     public function removeLineItem($lineItem): bool
     {
         $success = false;
         $lineItems = $this->getLineItems();
-        foreach ($lineItems as $key => $item)
-        {
-            if ($lineItem->id == $item->id)
-            {
+        foreach ($lineItems as $key => $item) {
+            if ($lineItem->id == $item->id) {
                 $lineItemRecord = LineItemRecord::findOne($lineItem->id);
-                if ($success = $lineItemRecord->delete())
-                {
+                if ($success = $lineItemRecord->delete()) {
                     unset($lineItems[$key]);
                     $this->setLineItems($lineItems);
                 }
@@ -364,6 +380,11 @@ class Order extends Element
         return $success;
     }
 
+    /**
+     * Regenerates all adjusters and update line item and order totals.
+     *
+     * @throws Exception
+     */
     public function recalculate()
     {
         // Don't recalc the totals of completed orders.
@@ -445,15 +466,6 @@ class Order extends Element
                 return;
             }
         }
-
-    }
-
-    /**
-     * @return float
-     */
-    public function getTotalPrice(): float
-    {
-        return Currency::round($this->itemTotal + $this->baseTax + $this->baseShippingCost + $this->baseDiscount);
     }
 
     /**
@@ -659,6 +671,14 @@ class Order extends Element
     public function isPaid(): bool
     {
         return (bool)$this->outstandingBalance() <= 0;
+    }
+
+    /**
+     * @return float
+     */
+    public function getTotalPrice(): float
+    {
+        return Currency::round($this->itemTotal + $this->baseTax + $this->baseShippingCost + $this->baseDiscount);
     }
 
     /**
