@@ -215,10 +215,6 @@ class Commerce_PaymentsService extends BaseApplicationComponent
             $billingAddress = $order->billingAddress;
             if ($billingAddress)
             {
-                // Set top level names to the billing names
-                $card->setFirstName($billingAddress->firstName);
-                $card->setLastName($billingAddress->lastName);
-
                 $card->setBillingFirstName($billingAddress->firstName);
                 $card->setBillingLastName($billingAddress->lastName);
                 $card->setBillingAddress1($billingAddress->address1);
