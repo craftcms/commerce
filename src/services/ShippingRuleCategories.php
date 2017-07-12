@@ -19,30 +19,48 @@ use yii\base\Component;
  */
 class ShippingRuleCategories extends Component
 {
+    // Properties
+    // =========================================================================
+
+    /**
+     * @var ShippingRuleCategory[][]
+     */
+    private $_shippingRuleCategoriesByRuleId = [];
+
+    // Public Methods
+    // =========================================================================
+
     /**
      * Return an array of shipping rules categories by a rule id.
      *
-     * @param $id
+     * @param int $ruleId The rule id.
      *
-     * @return ShippingRuleCategory[]
+     * @return ShippingRuleCategory[] An array of matched shipping rule categories.
      */
-    public function getShippingRuleCategoryByRuleId($id): array
+    public function getShippingRuleCategoriesByRuleId(int $ruleId): array
     {
-        $result = $this->_createShippingRuleCategoriesQuery()
-            ->where(['shippingRuleId' => $id])
-            ->all();
+        if (!isset($this->_shippingRuleCategoriesByRuleId[$ruleId])) {
+            $rows = $this->_createShippingRuleCategoriesQuery()
+                ->where(['shippingRuleId' => $ruleId])
+                ->all();
 
-        return ShippingRuleCategory::populateModels($result, 'shippingCategoryId');
+            $this->_shippingRuleCategoriesByRuleId[$ruleId] = [];
+            foreach ($rows as $row) {
+                $this->_shippingRuleCategoriesByRuleId[$ruleId][] = new ShippingRuleCategory($row);
+            }
+        }
+
+        return $this->_shippingRuleCategoriesByRuleId[$ruleId];
     }
 
     /**
      * Save a shipping rule category.
      *
-     * @param ShippingRuleCategory $model
+     * @param ShippingRuleCategory $model The shipping rule model.
      *
-     * @return bool
+     * @return bool Whether the save was successful.
      */
-    public function saveShippingRuleCategory(ShippingRuleCategory $model)
+    public function saveShippingRuleCategory(ShippingRuleCategory $model): bool
     {
 
         $record = new ShippingRuleCategoryRecord();
@@ -77,11 +95,13 @@ class ShippingRuleCategories extends Component
     }
 
     /**
-     * @param int $id
+     * Delete a shipping rule category by it's id.
+     *
+     * @param int $id The shipping rule category id.
      * 
-     * @return bool
+     * @return bool Whether the category was deleted successfully.
      */
-    public function deleteShippingRuleCategoryById($id): bool
+    public function deleteShippingRuleCategoryById(int $id): bool
     {
         $record = ShippingRuleCategoryRecord::findOne($id);
 
@@ -94,10 +114,11 @@ class ShippingRuleCategories extends Component
 
     // Private methods
     // =========================================================================
+
     /**
      * Returns a Query object prepped for retrieving shipping rule categories.
      *
-     * @return Query
+     * @return Query The query object.
      */
     private function _createShippingRuleCategoriesQuery(): Query
     {
