@@ -7,8 +7,6 @@ use craft\commerce\elements\Product;
 use craft\commerce\events\ProductTypeEvent;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\ProductTypeSite;
-use craft\commerce\models\ShippingCategory;
-use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\commerce\records\Product as ProductRecord;
 use craft\commerce\records\ProductType as ProductTypeRecord;
@@ -17,7 +15,6 @@ use craft\db\Query;
 use craft\errors\ProductTypeNotFoundException;
 use craft\events\SiteEvent;
 use craft\helpers\App;
-use craft\helpers\ArrayHelper;
 use yii\base\Component;
 use yii\base\Exception;
 
@@ -33,7 +30,9 @@ use yii\base\Exception;
  */
 class ProductTypes extends Component
 {
-
+    // Constants
+    // =========================================================================
+    
     /**
      * @event CategoryGroupEvent The event that is triggered before a category group is saved.
      */
@@ -43,6 +42,9 @@ class ProductTypes extends Component
      * @event ProductTypeEvent The event that is triggered after a product type is saved.
      */
     const EVENT_AFTER_SAVE_PRODUCTTYPE = 'afterSaveProductType';
+
+    // Properties
+    // =========================================================================
 
     /**
      * @var bool
@@ -60,21 +62,29 @@ class ProductTypes extends Component
     private $_productTypesByHandle;
 
     /**
-     * @var
+     * @var int[]
      */
     private $_allProductTypeIds;
 
     /**
-     * @var
+     * @var int[]
      */
     private $_editableProductTypeIds;
+
+    /**
+     * @var ProductTypeSite[][]
+     */
+    private $_siteSettingsByProductId = [];
+
+    // Public Methods
+    // =========================================================================
 
     /**
      * Returns all editable product types.
      *
      * @param string|null $indexBy
      *
-     * @return ProductType[] All the editable product types.
+     * @return ProductType[] An array of all the editable product types.
      */
     public function getEditableProductTypes($indexBy = null): array
     {
@@ -97,7 +107,7 @@ class ProductTypes extends Component
     /**
      * Returns all of the product type IDs that are editable by the current user.
      *
-     * @return array All the editable product types’ IDs.
+     * @return array An array of all the editable product types’ IDs.
      */
     public function getEditableProductTypeIds(): array
     {
@@ -118,7 +128,7 @@ class ProductTypes extends Component
     /**
      * Returns all of the product type IDs.
      *
-     * @return array All the product types’ IDs.
+     * @return array An array of all the product types’ IDs.
      */
     public function getAllProductTypeIds(): array
     {
@@ -135,9 +145,9 @@ class ProductTypes extends Component
     }
 
     /**
-     * Returns all Product Types
+     * Returns all product types.
      *
-     * @return ProductType[]
+     * @return ProductType[] An array of all product types.
      */
     public function getAllProductTypes(): array
     {
@@ -156,9 +166,11 @@ class ProductTypes extends Component
     }
 
     /**
-     * @param string $handle
+     * Get a product type by it's handle.
+     * 
+     * @param string $handle The product type's handle.
      *
-     * @return ProductType|null
+     * @return ProductType|null The product type or `null`.
      */
     public function getProductTypeByHandle($handle)
     {
@@ -184,33 +196,45 @@ class ProductTypes extends Component
     }
 
     /**
-     * @param      $productTypeId
+     * Get an array of product type site settings for a product type by it's id.
      *
-     * @return array
+     * @param int $productTypeId The product type id.
+     *
+     * @return array The product type settings.
      */
     public function getProductTypeSites($productTypeId): array
     {
-        $rows = (new Query())
-            ->select([
-                'id',
-                'productTypeId',
-                'siteId',
-                'uriFormat',
-                'template'
-            ])
-            ->from('{{%commerce_producttypes_sites}}')
-            ->where(['productTypeId' => $productTypeId])
-            ->all();
+        if (!isset($this->_siteSettingsByProductId[$productTypeId])) {
+            $rows = (new Query())
+                ->select([
+                    'id',
+                    'productTypeId',
+                    'siteId',
+                    'uriFormat',
+                    'template'
+                ])
+                ->from('{{%commerce_producttypes_sites}}')
+                ->where(['productTypeId' => $productTypeId])
+                ->all();
 
-        return ProductTypeSite::populateModels($rows);
+            $this->_siteSettingsByProductId[$productTypeId] = [];
+
+            foreach ($rows as $row) {
+                $this->_siteSettingsByProductId[$productTypeId][] = new ProductTypeSite($row);
+            }
+        }
+
+        return $this->_siteSettingsByProductId[$productTypeId];
     }
 
     /**
-     * @param ProductType $productType
-     * @param bool        $runValidation
+     * Save a product type.
+     * 
+     * @param ProductType $productType The product type model.
+     * @param bool        $runValidation If validation should be ran.
      *
-     * @return bool
-     * @throws \Exception
+     * @return bool Whether the product type was saved successfully.
+     * @throws \Throwable if reasons
      */
     public function saveProductType(ProductType $productType, bool $runValidation = true): bool
     {
@@ -515,7 +539,7 @@ class ProductTypes extends Component
             }
 
             $transaction->commit();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $transaction->rollBack();
 
             throw $e;
@@ -531,14 +555,14 @@ class ProductTypes extends Component
     }
 
     /**
-     * Deleted a
+     * Delete a product type by it's id.
      *
-     * @param $id
+     * @param int $id The product type's id.
      *
-     * @return bool
-     * @throws \Exception
+     * @return bool Whether the product type was deleted successfully.
+     * @throws \Throwable if reasons
      */
-    public function deleteProductTypeById($id): bool
+    public function deleteProductTypeById(int $id): bool
     {
         $db = Craft::$app->getDb();
         $transaction = $db->beginTransaction();
@@ -570,7 +594,7 @@ class ProductTypes extends Component
             }
 
             return (bool)$affectedRows;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $transaction->rollBack();
 
             throw $e;
@@ -578,11 +602,13 @@ class ProductTypes extends Component
     }
 
     /**
-     * @param int $productTypeId
+     * Get a product's type by id.
+     * 
+     * @param int $productTypeId The product type's id.
      *
-     * @return ProductType|null
+     * @return ProductType|null Either the product type or `null`.
      */
-    public function getProductTypeById($productTypeId)
+    public function getProductTypeById(int $productTypeId)
     {
 
         if (isset($this->_productTypesById[$productTypeId])) {
@@ -609,9 +635,9 @@ class ProductTypes extends Component
     /**
      * Returns whether a product type’s products have URLs, and if the template path is valid.
      *
-     * @param ProductType $productType
+     * @param ProductType $productType The product for which to validate the template.
      *
-     * @return bool
+     * @return bool Whether the template is valid.
      */
     public function isProductTypeTemplateValid(ProductType $productType): bool
     {
@@ -635,8 +661,14 @@ class ProductTypes extends Component
         return false;
     }
 
-
-    public function addSiteHandler(SiteEvent $event): bool
+    /**
+     * Add new product type setting rows when a Site is added to Craft.
+     * 
+     * @param SiteEvent $event The event that triggered this.
+     *                         
+     * @return void
+     */
+    public function addSiteHandler(SiteEvent $event)
     {
 
         if ($event->isNew) {
@@ -667,8 +699,6 @@ class ProductTypes extends Component
                     ->execute();
             }
         }
-
-        return true;
     }
 
     // Private methods
@@ -677,7 +707,7 @@ class ProductTypes extends Component
     /**
      * Memoize a product type
      *
-     * @param ProductType $productType
+     * @param ProductType $productType The product type to memoize.
      */
     private function _memoizeProductType(ProductType $productType)
     {
@@ -688,7 +718,7 @@ class ProductTypes extends Component
     /**
      * Returns a Query object prepped for retrieving tax categories.
      *
-     * @return Query
+     * @return Query The query object.
      */
     private function _createProductTypeQuery(): Query
     {
