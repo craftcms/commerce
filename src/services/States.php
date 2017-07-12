@@ -21,6 +21,9 @@ use yii\base\Exception;
  */
 class States extends Component
 {
+    // Properties
+    // =========================================================================
+
     /**
      * @var bool
      */
@@ -46,12 +49,17 @@ class States extends Component
      */
     private $_statesByShippingZoneId = [];
 
+    // Public Methods
+    // =========================================================================
+
     /**
-     * @param int $id
+     * Get a states by it's id.
+     * 
+     * @param int $id The state's id.
      *
-     * @return State|null
+     * @return State|null The matched state or null if not found.
      */
-    public function getStateById($id)
+    public function getStateById(int $id)
     {
         if (isset($this->_statesById[$id])) {
             return $this->_statesById[$id];
@@ -73,7 +81,9 @@ class States extends Component
     }
 
     /**
-     * @return array [countryId => [stateId => stateName]]
+     * Get all states grouped by countries.
+     *
+     * @return array 2D array of states indexed by their ids grouped by country ids.
      */
     public function getStatesGroupedByCountries(): array
     {
@@ -94,7 +104,9 @@ class States extends Component
     }
 
     /**
-     * @return State[]
+     * Get an array of all states.
+     *
+     * @return State[] An array of all states.
      */
     public function getAllStates(): array
     {
@@ -117,13 +129,13 @@ class States extends Component
     }
 
     /**
-     * Returns all states in a tax zone
+     * Returns all states in a tax zone.
      *
-     * @param $taxZoneId
+     * @param int $taxZoneId The tax zone id.
      *
-     * @return States[]
+     * @return State[] Array of states in the matched tax zone.
      */
-    public function getStatesByTaxZoneId($taxZoneId): array
+    public function getStatesByTaxZoneId(int $taxZoneId): array
     {
         if (!isset($this->_statesByTaxZoneId[$taxZoneId])) {
             $results = $this->_createStatesQuery()
@@ -144,11 +156,11 @@ class States extends Component
     }
     
     /**
-     * Returns all states in a shipping zone
+     * Returns all states in a shipping zone.
      *
-     * @param $shippingZoneId
+     * @param int $shippingZoneId Shipping zone id.
      *
-     * @return States[]
+     * @return State[] Array of states in the matched shipping zone.
      */
     public function getStatesByShippingZoneId($shippingZoneId): array
     {
@@ -171,12 +183,12 @@ class States extends Component
     }
 
     /**
-     * @param State $model
+     * Save a state.
      *
-     * @return bool
-     * @throws Exception
-     * @throws \CDbException
-     * @throws \Exception
+     * @param State $model The state to be saved.
+     *
+     * @return bool Whether the state was saved successfully.
+     * @throws Exception if the sate does not exist.
      */
     public function saveState(State $model): bool
     {
@@ -212,11 +224,13 @@ class States extends Component
     }
 
     /**
-     * @param int $id
+     * Delete a state by it's id.
+     * 
+     * @param int $id The id of the state.
      *
-     * @return bool
+     * @return bool Whether the state was deleted successfully.
      */
-    public function deleteStateById($id): bool
+    public function deleteStateById(int $id): bool
     {
         $record = StateRecord::findOne($id);
 
@@ -232,7 +246,7 @@ class States extends Component
     /**
      * Returns a Query object prepped for retrieving States.
      *
-     * @return Query
+     * @return Query The query object.
      */
     private function _createStatesQuery(): Query
     {
