@@ -124,7 +124,7 @@ class LineItems extends Component
             ->one();
 
         if ($result) {
-            return new LineItem($result);
+            return $this->_createLineItemFromLineItemRecord($result);
         }
 
         return null;

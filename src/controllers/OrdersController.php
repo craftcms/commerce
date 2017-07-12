@@ -296,7 +296,7 @@ class OrdersController extends BaseCpController
         }
 
         // Validate Address Id
-        $address = Plugin::getInstance()->getAddresses()->getAddressById($addressId);
+        $address = $addressId ? Plugin::getInstance()->getAddresses()->getAddressById($addressId) : null;
         if (!$address) {
             $this->asErrorJson(Craft::t('commerce', 'Bad address ID.'));
         }

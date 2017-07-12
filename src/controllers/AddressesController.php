@@ -49,7 +49,7 @@ class AddressesController extends BaseAdminController
 
         if (!$variables['address']) {
 
-            $variables['address'] = Plugin::getInstance()->getAddresses()->getAddressById($variables['addressId']);
+            $variables['address'] = $variables['addressId'] ? Plugin::getInstance()->getAddresses()->getAddressById($variables['addressId']) : null;
 
             if (!$variables['address']) {
                 throw new HttpException(404);
@@ -72,7 +72,8 @@ class AddressesController extends BaseAdminController
         $this->requirePostRequest();
 
         $id = Craft::$app->getRequest()->getRequiredParam('id');
-        $address = Plugin::getInstance()->getAddresses()->getAddressById($id);
+
+        $address = $id ? Plugin::getInstance()->getAddresses()->getAddressById($id) : null;
 
         if (!$address) {
             $address = new AddressModel();

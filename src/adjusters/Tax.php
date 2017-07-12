@@ -33,10 +33,11 @@ class Tax implements AdjusterInterface
      */
     public function adjust(Order &$order, array $lineItems = [])
     {
-        $address = Plugin::getInstance()->getAddresses()->getAddressById($order->shippingAddressId);
+
+        $address = $order->shippingAddressId ? Plugin::getInstance()->getAddresses()->getAddressById($order->shippingAddressId) : null;
 
         if (Plugin::getInstance()->getSettings()->useBillingAddressForTax) {
-            $address = Plugin::getInstance()->getAddresses()->getAddressById($order->billingAddressId);
+            $address = $order->billingAddressId ? Plugin::getInstance()->getAddresses()->getAddressById($order->billingAddressId) : null;
         }
 
         $adjustments = [];

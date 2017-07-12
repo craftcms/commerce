@@ -917,7 +917,7 @@ class Order extends Element
     public function getShippingAddress()
     {
         if (null === $this->_shippingAddress) {
-            $this->_shippingAddress = Plugin::getInstance()->getAddresses()->getAddressById($this->shippingAddressId);
+            $this->_shippingAddress = $this->shippingAddressId ? Plugin::getInstance()->getAddresses()->getAddressById($this->shippingAddressId) : null;
         }
 
         return $this->_shippingAddress;
@@ -937,7 +937,7 @@ class Order extends Element
     public function getBillingAddress()
     {
         if (null === $this->_billingAddress) {
-            $this->_billingAddress = Plugin::getInstance()->getAddresses()->getAddressById($this->billingAddressId);
+            $this->_billingAddress = $this->billingAddressId ? Plugin::getInstance()->getAddresses()->getAddressById($this->billingAddressId) : null;
         }
 
         return $this->_billingAddress;
