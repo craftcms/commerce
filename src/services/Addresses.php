@@ -86,7 +86,7 @@ class Addresses extends Component
         if (!isset($this->_addressesByCustomerId[$customerId])) {
             $rows = $this->_createAddressQuery()
                 ->innerJoin('{{%commerce_customers_addresses}} customerAddresses', '[[customerAddresses.addressId]] = [[addresses.id]]')
-                ->where(['customerAddresses' => $customerId])
+                ->where(['customerAddresses.customerId' => $customerId])
                 ->all();
 
             $this->_addressesByCustomerId[$customerId] = [];
@@ -230,23 +230,23 @@ class Addresses extends Component
     {
         return (new Query())
             ->select([
-                'id',
-                'attention',
-                'title',
-                'firstName',
-                'lastName',
-                'countryId',
-                'stateId',
-                'address1',
-                'address2',
-                'city',
-                'zipCode',
-                'phone',
-                'alternativePhone',
-                'businessName',
-                'businessTaxId',
-                'businessId',
-                'stateName'
+                'addresses.id',
+                'addresses.attention',
+                'addresses.title',
+                'addresses.firstName',
+                'addresses.lastName',
+                'addresses.countryId',
+                'addresses.stateId',
+                'addresses.address1',
+                'addresses.address2',
+                'addresses.city',
+                'addresses.zipCode',
+                'addresses.phone',
+                'addresses.alternativePhone',
+                'addresses.businessName',
+                'addresses.businessTaxId',
+                'addresses.businessId',
+                'addresses.stateName'
             ])
             ->from(['{{%commerce_addresses}} addresses']);
     }
