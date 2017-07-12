@@ -83,12 +83,14 @@ class Discount implements AdjusterInterface
 
         // Handle special coupon rules
         if (strcasecmp($order->couponCode, $discount->code) == 0)
+        {
             // Since we will allow the coupon to be added to an anonymous cart with no email, we need to remove it
             // if a limit has been set.
             if ($order->email && $discount->perEmailLimit) {
                 $previousOrders = Plugin::getInstance()->getOrders()->getOrdersByEmail($order->email);
 
                 $usedCount = 0;
+
                 foreach ($previousOrders as $previousOrder) {
                     if (strcasecmp($previousOrder->couponCode, $discount->code) == 0)
                         $usedCount += 1;
