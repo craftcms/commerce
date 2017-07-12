@@ -7,6 +7,7 @@ use craft\commerce\elements\Product;
 use craft\commerce\helpers\Product as ProductHelper;
 use craft\commerce\helpers\VariantMatrix;
 use craft\commerce\Plugin;
+use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use craft\models\Site;
@@ -301,8 +302,8 @@ class ProductsController extends BaseCpController
 
         $data['typeId'] = $request->getBodyParam('typeId');
         $data['enabled'] = $request->getBodyParam('enabled');
-        $data['postDate'] = $request->getBodyParam('postDate');
-        $data['expiryDate'] = $request->getBodyParam('expiryDate');
+        $data['postDate'] = (($date = $request->getParam('postDate')) !== false ? (DateTimeHelper::toDateTime($date) ?: null) : $data['postDate']);
+        $data['expiryDate'] = (($date = $request->getParam('expiryDate')) !== false ? (DateTimeHelper::toDateTime($date) ?: null) : $data['expiryDate']);
         $data['promotable'] = $request->getBodyParam('promotable');
         $data['freeShipping'] = $request->getBodyParam('freeShipping');
         $data['taxCategoryId'] = $request->getBodyParam('taxCategoryId');

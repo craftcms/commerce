@@ -160,21 +160,6 @@ class Sales extends Component
     }
 
     /**
-     * Getting all sales applicable for the current user and given product
-     *
-     * @param Product $product
-     *
-     * @return Sale[]
-     * @deprecated in 1.2. Use getSalesForProduct() instead.
-     */
-    public function getForProduct(Product $product)
-    {
-        Craft::$app->getDeprecator()->log('Commerce_SalesService::getForProduct()', 'Commerce_SalesService::getForProduct() has been deprecated. Use Commerce_SalesService::getSalesForProduct() instead.');
-
-        return $this->getSalesForProduct($product);
-    }
-
-    /**
      * @param Product $product
      *
      * @return Sale[]
@@ -200,7 +185,7 @@ class Sales extends Component
                 if ($sale->enabled) {
                     $from = $sale->dateFrom;
                     $to = $sale->dateTo;
-                    $now = new DateTime();
+                    $now = new \DateTime();
                     if ($from == null || $from < $now) {
                         if ($to == null || $to > $now) {
                             $activeSales[] = $sale;

@@ -54,10 +54,14 @@ class Cart extends Component
     // Properties
     // =========================================================================
 
-    /** @var string Session key for storing the cart number */
+    /**
+     * @var string Session key for storing the cart number
+     */
     protected $cookieCartId = 'commerce_cookie';
 
-    /** @var Order */
+    /**
+     * @var Order
+     */
     private $_cart;
 
     // Public Methods
@@ -146,7 +150,7 @@ class Cart extends Component
 
         $transaction->rollBack();
 
-        $errors = $lineItem->errors;
+        $errors = $lineItem->getFirstErrors();
         $error = array_pop($errors);
 
         return false;

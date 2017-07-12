@@ -885,6 +885,18 @@ class Product extends Element
     /**
      * @inheritdoc
      */
+    public function datetimeAttributes(): array
+    {
+        $names = parent::datetimeAttributes();
+        $names[] = 'postDate';
+        $names[] = 'expiryDate';
+
+        return $names;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function beforeValidate(): bool
     {
         $taxCategoryIds = array_keys($this->getType()->getTaxCategories());
