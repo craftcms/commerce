@@ -54,10 +54,14 @@ class Cart extends Component
     // Properties
     // =========================================================================
 
-    /** @var string Session key for storing the cart number */
+    /**
+     * @var string Session key for storing the cart number
+     */
     protected $cookieCartId = 'commerce_cookie';
 
-    /** @var Order */
+    /**
+     * @var Order
+     */
     private $_cart;
 
     // Public Methods
