@@ -126,7 +126,8 @@ class Discounts extends Component
      *
      * @return void
      */
-    public function populateDiscountRelations(Discount $discount) {
+    public function populateDiscountRelations(Discount $discount)
+    {
         $rows = (new Query())->select(
             'dp.productId,
             dpt.productTypeId,
@@ -246,7 +247,7 @@ class Discounts extends Component
 
                 $usedCount = 0;
                 foreach ($previousOrders as $order) {
-                    if (strcasecmp($order->couponCode, $code) == 0)
+                    if (strcasecmp($order->couponCode, $code) == 0) {
                         $usedCount += 1;
                     }
                 }
@@ -394,11 +395,11 @@ class Discounts extends Component
         }
 
         $fields = [
-            'id', 
-            'name', 
-            'description', 
-            'dateFrom', 
-            'dateTo', 
+            'id',
+            'name',
+            'description',
+            'dateFrom',
+            'dateTo',
             'enabled',
             'stopProcessing',
             'purchaseTotal',
@@ -543,7 +544,7 @@ class Discounts extends Component
         }
 
         if ($record->totalUseLimit) {
-           // Increment total uses.
+            // Increment total uses.
             Craft::$app->getDb()->createCommand()
                 ->update('{{%commerce_discounts}}', ['[[totalUses]]' => '[[totalUses]] + 1'], ['code' => $order->couponCode])
                 ->execute();

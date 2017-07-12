@@ -92,12 +92,12 @@ class Discount implements AdjusterInterface
                         $usedCount += 1;
                     }
                 }
-            }
 
-            if ($usedCount >= $discount->perEmailLimit) {
-                $order->couponCode = '';
+                if ($usedCount >= $discount->perEmailLimit) {
+                    $order->couponCode = '';
 
-                return false;
+                    return false;
+                }
             }
         }
 
