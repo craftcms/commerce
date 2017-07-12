@@ -35,15 +35,12 @@ class Discount implements AdjusterInterface
 
         // Find discounts with no coupon or the coupon that matches the order.
         $availableDiscounts = [];
-        foreach ($discounts as $discount)
-        {
-            if ($discount->code == null)
-            {
+        foreach ($discounts as $discount) {
+            if ($discount->code == null) {
                 $availableDiscounts[] = $discount;
             }
 
-            if ($order->couponCode && ($discount->code == $order->couponCode))
-            {
+            if ($order->couponCode && ($discount->code == $order->couponCode)) {
                 $availableDiscounts[] = $discount;
             }
         }
@@ -82,8 +79,7 @@ class Discount implements AdjusterInterface
 
 
         // Handle special coupon rules
-        if (strcasecmp($order->couponCode, $discount->code) == 0)
-        {
+        if (strcasecmp($order->couponCode, $discount->code) == 0) {
             // Since we will allow the coupon to be added to an anonymous cart with no email, we need to remove it
             // if a limit has been set.
             if ($order->email && $discount->perEmailLimit) {
@@ -92,16 +88,16 @@ class Discount implements AdjusterInterface
                 $usedCount = 0;
 
                 foreach ($previousOrders as $previousOrder) {
-                    if (strcasecmp($previousOrder->couponCode, $discount->code) == 0)
+                    if (strcasecmp($previousOrder->couponCode, $discount->code) == 0) {
                         $usedCount += 1;
                     }
                 }
+            }
 
-                if ($usedCount >= $discount->perEmailLimit) {
-                    $order->couponCode = '';
+            if ($usedCount >= $discount->perEmailLimit) {
+                $order->couponCode = '';
 
-                    return false;
-                }
+                return false;
             }
         }
 
