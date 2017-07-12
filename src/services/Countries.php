@@ -22,6 +22,9 @@ use yii\base\Exception;
  */
 class Countries extends Component
 {
+    // Properties
+    // =========================================================================
+
     /**
      * @var bool
      */
@@ -33,21 +36,26 @@ class Countries extends Component
     private $_countriesById = [];
 
     /**
-     * @var Country[]
+     * @var Country[][]
      */
     private $_countriesByTaxZoneId = [];
 
-  /**
-     * @var Country[]
+    /**
+     * @var Country[][]
      */
     private $_countriesByShippingZoneId = [];
 
+    // Public Methods
+    // =========================================================================
+
     /**
-     * @param int $id
+     * Get a country by it's id.
      *
-     * @return Country|null
+     * @param int $id The country id.
+     *
+     * @return Country|null The matched country or null if not found.
      */
-    public function getCountryById($id)
+    public function getCountryById(int $id)
     {
         if (isset($this->_countriesById[$id])) {
             return $this->_countriesById[$id];
@@ -69,9 +77,9 @@ class Countries extends Component
     }
 
     /**
-     * Simple list for using in forms
+     * Get all countries as an array of id => name.
      *
-     * @return array [id => name]
+     * @return Country[] Array of countries indexed by id.
      */
     public function getAllCountriesListData(): array
     {
@@ -81,7 +89,9 @@ class Countries extends Component
     }
 
     /**
-     * @return Country[]
+     * Get an array of all countries.
+     * 
+     * @return Country[] An array of all countries.
      */
     public function getAllCountries(): array
     {
@@ -98,13 +108,13 @@ class Countries extends Component
     }
 
     /**
-     * Returns all countries in a tax zone
+     * Returns all countries in a tax zone.
      *
-     * @param $taxZoneId
+     * @param int $taxZoneId Tax zone id.
      *
-     * @return array
+     * @return Country[] An array of countries in the matched tax zone.
      */
-    public function getCountriesByTaxZoneId($taxZoneId): array
+    public function getCountriesByTaxZoneId(int $taxZoneId): array
     {
         if (!isset($this->_countriesByTaxZoneId[$taxZoneId])) {
             $results = $this->_createCountryQuery()
@@ -124,13 +134,13 @@ class Countries extends Component
     }
 
     /**
-     * Returns all countries in a shipping zone
+     * Returns all countries in a shipping zone.
      *
-     * @param $shippingZoneId
+     * @param int $shippingZoneId Shipping zone id.
      *
-     * @return array
+     * @return Country[] An array of countries in the matched shipping zone.
      */
-    public function getCountriesByShippingZoneId($shippingZoneId): array
+    public function getCountriesByShippingZoneId(int $shippingZoneId): array
     {
         if (!isset($this->_countriesByShippingZoneId[$shippingZoneId])) {
             $results = $this->_createCountryQuery()
@@ -150,31 +160,33 @@ class Countries extends Component
     }
 
     /**
-     * @param Country $model
+     * Save a country.
      *
-     * @return bool
-     * @throws Exception
+     * @param Country $country The country to be saved.
+     *
+     * @return bool Whether the country was saved successfully.
+     * @throws Exception if the country does not exist.
      */
-    public function saveCountry(Country $model): bool
+    public function saveCountry(Country $country): bool
     {
-        if ($model->id) {
-            $record = CountryRecord::findOne($model->id);
+        if ($country->id) {
+            $record = CountryRecord::findOne($country->id);
 
             if (!$record) {
-                throw new Exception(Craft::t('commerce', 'No country exists with the ID “{id}”', ['id' => $model->id]));
+                throw new Exception(Craft::t('commerce', 'No country exists with the ID “{id}”', ['id' => $country->id]));
             }
         } else {
             $record = new CountryRecord();
         }
 
-        $record->name = $model->name;
-        $record->iso = strtoupper($model->iso);
-        $record->stateRequired = $model->stateRequired;
+        $record->name = $country->name;
+        $record->iso = strtoupper($country->iso);
+        $record->stateRequired = $country->stateRequired;
 
         $record->validate();
-        $model->addErrors($record->getErrors());
+        $country->addErrors($record->getErrors());
 
-        if ($model->hasErrors()) {
+        if ($country->hasErrors()) {
             return false;
         }
 
@@ -182,17 +194,19 @@ class Countries extends Component
         $record->save(false);
 
         // Now that we have a record ID, save it on the model
-        $model->id = $record->id;
+        $country->id = $record->id;
 
         return true;
     }
 
     /**
-     * @param int $id
+     * Delete a country by it's id.
      *
-     * @return bool
+     * @param int $id The id of the country.
+     *
+     * @return bool Whether the country was deleted successfully.
      */
-    public function deleteCountryById($id): bool
+    public function deleteCountryById(int $id): bool
     {
         $record = CountryRecord::findOne($id);
 
@@ -206,11 +220,13 @@ class Countries extends Component
 
     // Private methods
     // =========================================================================
+
     /**
      * Returns a Query object prepped for retrieving Countries.
      *
-     * @return Query
-     */    private function _createCountryQuery(): Query
+     * @return Query The query object.
+     */
+    private function _createCountryQuery(): Query
     {
 
         return (new Query())

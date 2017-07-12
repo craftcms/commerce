@@ -9,9 +9,7 @@ use craft\commerce\models\Country;
 use craft\commerce\models\State;
 use craft\commerce\Plugin;
 use craft\commerce\records\Address as AddressRecord;
-use craft\commerce\records\Customer;
 use craft\db\Query;
-use craft\helpers\ArrayHelper;
 use yii\base\Component;
 use yii\base\Exception;
 
@@ -40,47 +38,75 @@ class Addresses extends Component
      */
     const EVENT_AFTER_SAVE_ADDRESS = 'afterSaveAddress';
 
+    // Properties
+    // =========================================================================
+
+    /**
+     * @var Address[]
+     */
+    private $_addressesById = [];
+
+    /**
+     * @var Address[][]
+     */
+    private $_addressesByCustomerId = [];
+
     // Public Methods
     // =========================================================================
 
     /**
-     * @param int $id
+     * Return an address by it's id.
+     * 
+     * @param int $addressId The address id.
      *
-     * @return Address|null
+     * @return Address|null The matched address or null if not found.
      */
-    public function getAddressById($id)
+    public function getAddressById(int $addressId)
     {
-        $result = AddressRecord::findOne($id);
+        if (!isset($this->_addressesById[$addressId])) {
+            $row = $this->_createAddressQuery()
+                ->where(['id' => $addressId])
+                ->one();
 
-        if ($result) {
-            return $this->_createAddressFromAddressRecord($result);
+            $this->_addressesById[$addressId] = $row ? new Address($row) : null;
         }
 
-        return null;
+        return $this->_addressesById[$addressId];
     }
 
     /**
-     * @param int $id Customer ID
+     * Get an array of addresses by a customer id.
      *
-     * @return Address[]
+     * @param int $customerId Customer ID
+     *
+     * @return Address[] An array of matched addresses.
      */
-    public function getAddressesByCustomerId(int $id): array
+    public function getAddressesByCustomerId(int $customerId): array
     {
-        /** @var Customer $record */
-        $record = Customer::find()->with('addresses')->where(['id' => $id])->all();
-        $addresses = $record ? $record->getAddresses() : [];
+        if (!isset($this->_addressesByCustomerId[$customerId])) {
+            $rows = $this->_createAddressQuery()
+                ->innerJoin('{{%commerce_customers_addresses}} customerAddresses', '[[customerAddresses.addressId]] = [[addresses.id]]')
+                ->where(['customerAddresses' => $customerId])
+                ->all();
 
-        return ArrayHelper::map($addresses, 'id', function($item) {
-            return $this->_createAddressFromAddressRecord($item);
-        });
+            $this->_addressesByCustomerId[$customerId] = [];
+
+            foreach ($rows as $row) {
+                $this->_addressesByCustomerId[$customerId][] = new Address($row);
+            }
+        }
+
+        return $this->_addressesByCustomerId[$customerId];
     }
 
     /**
-     * @param Address $addressModel
+     * Save an address.
+     * 
+     * @param Address $addressModel The address to be saved.
      * @param bool    $validate should we validate this address before saving.
      *
-     * @return bool
-     * @throws Exception
+     * @return bool Whether the address was saved successfully.
+     * @throws Exception if an address does not exist.
      */
     public function saveAddress(Address $addressModel, bool $validate = true): bool
     {
@@ -120,8 +146,10 @@ class Addresses extends Component
         $addressRecord->businessId = $addressModel->businessId;
         $addressRecord->countryId = $addressModel->countryId;
 
+        $plugin = Plugin::getInstance();
+
         if (!empty($addressModel->stateValue)) {
-            if (Plugin::getInstance()->getStates()->getStateById($addressModel->stateValue)) {
+            if ($plugin->getStates()->getStateById($addressModel->stateValue)) {
                 $addressRecord->stateId = $addressModel->stateId = $addressModel->stateValue;
                 $addressRecord->stateName = null;
                 $addressModel->stateName = null;
@@ -136,9 +164,9 @@ class Addresses extends Component
         }
 
         /** @var Country $state */
-        $country = Plugin::getInstance()->getCountries()->getCountryById($addressRecord->countryId);
+        $country = $plugin->getCountries()->getCountryById($addressRecord->countryId);
         /** @var State $state */
-        $state = Plugin::getInstance()->getStates()->getStateById($addressRecord->stateId);
+        $state = $plugin->getStates()->getStateById($addressRecord->stateId);
 
         // Check country’s stateRequired option
         if ($country && $country->stateRequired && (!$state || ($state && $state->countryId !== $country->id))) {
@@ -173,13 +201,16 @@ class Addresses extends Component
     }
 
     /**
-     * @param $id
+     * Delete an address by it's id.
      *
-     * @return bool
+     * @param int $id The id.
+     *
+     * @return bool Whether the address was deleted successfully.
      */
     public function deleteAddressById(int $id): bool
     {
-        $address = AddressRecord::findOne(['id' => $id]);
+        $address = AddressRecord::findOne($id);
+
         if (!$address) {
             return false;
         }
@@ -191,36 +222,32 @@ class Addresses extends Component
     // =========================================================================
 
     /**
-     * Creates a Address with attributes from a AddressRecord.
+     * Returns a Query object prepped for retrieving addresses.
      *
-     * @param AddressRecord|null $record
-     *
-     * @return Address|null
+     * @return Query The query object.
      */
-    private function _createAddressFromAddressRecord(AddressRecord $record = null)
+    private function _createAddressQuery(): Query
     {
-        if (!$record) {
-            return null;
-        }
-
-        return new Address($record->toArray([
-            'id',
-            'attention',
-            'title',
-            'firstName',
-            'lastName',
-            'countryId',
-            'stateId',
-            'address1',
-            'address2',
-            'city',
-            'zipCode',
-            'phone',
-            'alternativePhone',
-            'businessName',
-            'businessTaxId',
-            'businessId',
-            'stateName'
-        ]));
+        return (new Query())
+            ->select([
+                'id',
+                'attention',
+                'title',
+                'firstName',
+                'lastName',
+                'countryId',
+                'stateId',
+                'address1',
+                'address2',
+                'city',
+                'zipCode',
+                'phone',
+                'alternativePhone',
+                'businessName',
+                'businessTaxId',
+                'businessId',
+                'stateName'
+            ])
+            ->from(['{{%commerce_addresses}} addresses']);
     }
 }
