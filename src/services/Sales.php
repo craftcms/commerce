@@ -158,22 +158,7 @@ class Sales extends Component
         $sale->setProductTypeIds($productTypeIds);
         $sale->setUserGroupIds($userGroupIds);
     }
-
-    /**
-     * Getting all sales applicable for the current user and given product
-     *
-     * @param Product $product
-     *
-     * @return Sale[]
-     * @deprecated in 1.2. Use getSalesForProduct() instead.
-     */
-    public function getForProduct(Product $product)
-    {
-        Craft::$app->getDeprecator()->log('Commerce_SalesService::getForProduct()', 'Commerce_SalesService::getForProduct() has been deprecated. Use Commerce_SalesService::getSalesForProduct() instead.');
-
-        return $this->getSalesForProduct($product);
-    }
-
+    
     /**
      * @param Product $product
      *
