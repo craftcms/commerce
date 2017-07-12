@@ -246,8 +246,8 @@ class Discounts extends Component
 
                 $usedCount = 0;
                 foreach ($previousOrders as $order) {
-                    if ($order->couponCode == $code) {
-                        $usedCount = $usedCount + 1;
+                    if (strcasecmp($order->couponCode, $code) == 0)
+                        $usedCount += 1;
                     }
                 }
 
