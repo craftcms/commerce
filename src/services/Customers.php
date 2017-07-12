@@ -309,7 +309,7 @@ class Customers extends Component
                 if ($order->isCompleted) {
                     $order->customerId = $toCustomer->id;
                     $order->email = $toCustomer->email;
-                    Plugin::getInstance()->getOrders()->saveOrder($order);
+                    Craft::$app->getElements()->saveElement($order);
                 }
             }
 
@@ -431,7 +431,7 @@ class Customers extends Component
             }
         }
 
-        Plugin::getInstance()->getOrders()->saveOrder($order);
+        Craft::$app->getElements()->saveElement($order);
     }
 
     /**
@@ -496,7 +496,7 @@ class Customers extends Component
 
             foreach ($orders as $order) {
                 $order->email = $user->email;
-                Plugin::getInstance()->getOrders()->saveOrder($order);
+                Craft::$app->getElements()->saveElement($order);
             }
         }
     }

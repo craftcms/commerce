@@ -30,7 +30,7 @@ use craft\db\ActiveRecord;
  *
  * @property int            $billingAddressId
  * @property int            $shippingAddressId
- * @property string         $shippingMethod
+ * @property string         $shippingMethodHandle
  * @property int            $paymentMethodId
  * @property int            $customerId
  * @property int            $orderStatusId

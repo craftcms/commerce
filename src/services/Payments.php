@@ -13,6 +13,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\db\Query;
 use craft\helpers\DateTimeHelper;
+use craft\helpers\UrlHelper;
 use Omnipay\Common\CreditCard;
 use Omnipay\Common\ItemBag;
 use Omnipay\Common\Message\RequestInterface;
@@ -102,7 +103,7 @@ class Payments extends Component
             }
 
             if (!$order->isCompleted) {
-                Plugin::getInstance()->getOrders()->completeOrder($order);
+                $order->markAsComplete();
             }
 
             return true;
@@ -146,7 +147,7 @@ class Payments extends Component
             $success = $this->sendPaymentRequest($order, $request, $transaction, $redirect, $customError);
 
             if ($success) {
-                Plugin::getInstance()->getOrders()->updateOrderPaidTotal($order);
+                $order->updateOrderPaidTotal();
             }
         } catch (\Exception $e) {
             $success = false;
@@ -597,7 +598,7 @@ class Payments extends Component
         $request->setTransactionReference($parent->reference);
 
         $order->returnUrl = $order->getCpEditUrl();
-        Plugin::getInstance()->getOrders()->saveOrder($order);
+        Craft::$app->getElements()->saveElement($order);
 
         try {
 
@@ -717,7 +718,7 @@ class Payments extends Component
         $success = $this->sendPaymentRequest($order, $request, $transaction, $redirect, $customError);
 
         if ($success && $transaction->status == TransactionRecord::STATUS_SUCCESS) {
-            Plugin::getInstance()->getOrders()->updateOrderPaidTotal($transaction->order);
+            $transaction->order->updateOrderPaidTotal();
         }
 
         // For gateways that call us directly and usually do not like redirects.
@@ -815,10 +816,10 @@ EOF;
         $this->saveTransaction($transaction);
 
         if ($transaction->status == TransactionRecord::STATUS_SUCCESS) {
-            Plugin::getInstance()->getOrders()->updateOrderPaidTotal($transaction->order);
+            $transaction->order->updateOrderPaidTotal();
         }
 
-        $url = UrlHelper::getActionUrl('commerce/payments/completePayment', [
+        $url = UrlHelper::actionUrl('commerce/payments/completePayment', [
             'commerceTransactionId' => $transaction->id,
             'commerceTransactionHash' => $transaction->hash
         ]);

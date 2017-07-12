@@ -7,11 +7,13 @@ use craft\commerce\base\Element;
 use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\elements\actions\UpdateOrderStatus;
 use craft\commerce\elements\db\OrderQuery;
+use craft\commerce\events\OrderEvent;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\Address;
 use craft\commerce\models\Customer;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
+use craft\commerce\records\LineItem as LineItemRecord;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\models\OrderSettings;
 use craft\commerce\models\OrderStatus;
@@ -19,12 +21,16 @@ use craft\commerce\models\PaymentMethod;
 use craft\commerce\models\ShippingMethod;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
+use craft\commerce\records\Order as OrderRecord;
 use craft\elements\actions\Delete;
 use craft\elements\db\ElementQueryInterface;
+use craft\helpers\DateTimeHelper;
+use craft\helpers\Db;
 use craft\helpers\Template;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 use craft\web\View;
+use yii\base\Exception;
 
 /**
  * Order or Cart model.
@@ -53,6 +59,7 @@ use craft\web\View;
  * @property int                     $billingAddressId
  * @property int                     $shippingAddressId
  * @property ShippingMethodInterface $shippingMethod
+ * @property string                  $shippingMethodHandle
  * @property int                     $paymentMethodId
  * @property int                     $customerId
  * @property int                     $orderStatusId
@@ -78,7 +85,6 @@ use craft\web\View;
  * @property OrderStatus             $orderStatus
  * @property null|string             $name
  * @property string                  $shortNumber
- * @property null|string             $shippingMethodHandle
  * @property ShippingMethodInterface $shippingMethodId
  * @property float                   $totalTaxIncluded
  * @property float|int               $adjustmentSubtotal
@@ -95,6 +101,16 @@ use craft\web\View;
  */
 class Order extends Element
 {
+
+    /**
+     * @event OrderEvent This event is raised when an order is completed
+     */
+    const EVENT_BEFORE_COMPLETE_ORDER = 'beforeCompleteOrder';
+
+    /**
+     * @event OrderEvent This event is raised after an order is completed
+     */
+    const EVENT_AFTER_COMPLETE_ORDER = 'afterCompleteOrder';
 
     /**
      * @var int ID
@@ -246,26 +262,261 @@ class Order extends Element
      */
     private $_orderAdjustments;
 
-    public function afterSave(bool $isNew)
+
+    public function beforeValidate()
     {
-        if ($isNew) {
-//            Craft::$app->db->createCommand()
-//                ->insert('{{%products}}', [
-//                    'id' => $this->id,
-//                    'price' => $this->price,
-//                    'currency' => $this->currency,
-//                ])
-//                ->execute();
-        } else {
-//            Craft::$app->db->createCommand()
-//                ->update('{{%products}}', [
-//                    'price' => $this->price,
-//                    'currency' => $this->currency,
-//                ], ['id' => $this->id])
-//                ->execute();
+        // Set default payment method
+        if (!$this->paymentMethodId) {
+            $methods = Plugin::getInstance()->getPaymentMethods()->getAllFrontEndPaymentMethods();
+            if (count($methods)) {
+                $this->paymentMethodId = $methods[0]->id;
+            }
         }
 
-        parent::afterSave($isNew);
+        // Get the customer ID from the session
+        if (!$this->customerId && !Craft::$app->request->isConsoleRequest) {
+            $this->customerId = Plugin::getInstance()->getCustomers()->getCustomerId();
+        }
+
+        $this->email = Plugin::getInstance()->getCustomers()->getCustomerById($this->customerId)->email;
+
+        return true;
+    }
+
+    public function updateOrderPaidTotal()
+    {
+        $totalPaid = Plugin::getInstance()->getPayments()->getTotalPaidForOrder($this);
+
+        $this->totalPaid = $totalPaid;
+
+        if ($this->isPaid()) {
+            if ($this->datePaid == null) {
+                $this->datePaid = DateTimeHelper::currentTimeStamp();
+            }
+        }
+
+        Craft::$app->getElements()->saveElement($this);
+
+        if (!$this->isCompleted) {
+            if ($this->isPaid()) {
+                $this->markAsComplete();
+            } else {
+                // maybe not paid in full, but authorized enough to complete order.
+                $totalAuthorized = Plugin::getInstance()->getPayments()->getTotalAuthorizedForOrder($this);
+                if ($totalAuthorized >= $this->totalPrice) {
+                    $this->markAsComplete();
+                }
+            }
+        }
+    }
+
+    public function markAsComplete(): bool
+    {
+
+        if ($this->isCompleted) {
+            return true;
+        }
+
+        $this->isCompleted = true;
+        $this->dateOrdered = Db::prepareDateForDb(new \DateTime());
+        $this->orderStatusId = Plugin::getInstance()->getOrderStatuses()->getDefaultOrderStatusId();
+
+        //raising event on order complete
+        $event = new OrderEvent(['order' => $this]);
+        $this->trigger(self::EVENT_BEFORE_COMPLETE_ORDER, $event);
+
+        if (!Craft::$app->getElements()->saveElement($this)) {
+            // Run order complete handlers directly.
+            Plugin::getInstance()->getDiscounts()->orderCompleteHandler($this);
+            Plugin::getInstance()->getVariants()->orderCompleteHandler($this);
+            Plugin::getInstance()->getCustomers()->orderCompleteHandler($this);
+
+            //raising event on order complete
+            $event = new OrderEvent(['order' => $this]);
+            $this->trigger(self::EVENT_AFTER_COMPLETE_ORDER, $event);
+
+            return true;
+        }
+
+        Craft::error(Craft::t('commerce','Could not mark order {number} as complete. Order save failed during order completion with errors: {order}',
+            ['number' => $this->number, 'order' => json_encode($this->errors)]),__METHOD__);
+
+        return false;
+    }
+
+    public function removeLineItem($lineItem): bool
+    {
+        $success = false;
+        $lineItems = $this->getLineItems();
+        foreach ($lineItems as $key => $item)
+        {
+            if ($lineItem->id == $item->id)
+            {
+                $lineItemRecord = LineItemRecord::findOne($lineItem->id);
+                if ($success = $lineItemRecord->delete())
+                {
+                    unset($lineItems[$key]);
+                    $this->setLineItems($lineItems);
+                }
+            }
+        }
+
+        return $success;
+    }
+
+    public function recalculate()
+    {
+        // Don't recalc the totals of completed orders.
+        if (!$this->id || $this->isCompleted) {
+            return;
+        }
+
+        //calculating adjustments
+        $lineItems = Plugin::getInstance()->getLineItems()->getAllLineItemsByOrderId($this->id);
+
+        $this->baseTax = 0;
+        $this->baseShippingCost = 0;
+        $this->baseDiscount = 0;
+        $this->itemTotal = 0;
+        foreach ($lineItems as $key => $item) {
+            if (!$item->refreshFromPurchasable()) {
+                $this->removeLineItem($item);
+                // We have changed the cart contents so recalculate the order.
+                $this->recalculate();
+
+                return;
+            }
+
+            $item->tax = 0;
+            $item->taxIncluded = 0;
+            $item->shippingCost = 0;
+            $item->discount = 0;
+            // Need to have an initial itemTotal for use by adjusters.
+            $this->itemTotal += $item->getTotal();
+        }
+
+        $this->setLineItems($lineItems);
+
+        // reset adjustments
+        $this->setAdjustments([]);
+        Plugin::getInstance()->getOrderAdjustments()->deleteAllOrderAdjustmentsByOrderId($this->id);
+
+        // collect new adjustments
+        foreach (PLugin::getInstance()->getOrderAdjustments()->getAdjusters() as $adjuster) {
+            $adjustments = (new $adjuster)->adjust($this, $lineItems);
+            $this->setAdjustments(array_merge($this->getAdjustments(), $adjustments));
+        }
+
+        // save new adjustment models
+        foreach ($this->getAdjustments() as $adjustment) {
+            $result = Plugin::getInstance()->getOrderAdjustments()->saveOrderAdjustment($adjustment);
+            if (!$result) {
+                $errors = $adjustment->errors;
+                throw new Exception('Error saving order adjustment: '.implode(', ', $errors));
+            }
+        }
+
+        $this->itemTotal = 0;
+        foreach ($lineItems as $item) {
+
+            // TODO: move to afterSave ?
+            Plugin::getInstance()->getLineItems()->saveLineItem($item);
+            //TODO: Get rid of fixed lineItem itemTotal, and move to getter.
+            $this->itemTotal += $item->total;
+        }
+
+        $itemSubtotal = $this->getItemSubtotal();
+        $adjustmentSubtotal = $this->getAdjustmentSubtotal();
+
+        $same = ($itemSubtotal + $adjustmentSubtotal) == $this->getTotalPrice();
+
+        if (!$same) {
+            Craft::error(['Total of line items after adjustments does not equal total of adjustment amounts plus original sale prices for order #{orderNumber}', ['orderNumber' => $this->number]], __METHOD__);
+        }
+
+        // Since shipping adjusters run on the original price, pre discount, let's recalculate
+        // if the currently selected shipping method is now not available.
+        $availableMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
+        if ($this->getShippingMethodHandle()) {
+            if (!isset($availableMethods[$this->getShippingMethodHandle()]) || empty($availableMethods)) {
+                $this->shippingMethodHandle = null;
+                $this->recalculate();
+
+                return;
+            }
+        }
+
+    }
+
+    /**
+     * @return float
+     */
+    public function getTotalPrice(): float
+    {
+        return Currency::round($this->itemTotal + $this->baseTax + $this->baseShippingCost + $this->baseDiscount);
+    }
+
+    /**
+     * @param bool $isNew
+     *
+     * @throws Exception
+     */
+    public function afterSave(bool $isNew)
+    {
+        // TODO: Move the recalculate to somewhere else. Saving should be saving only
+        // Right now orders always recalc when saved and not completed but that shouln't be the case.
+        $this->recalculate();
+
+        if (!$isNew) {
+            $orderRecord = OrderRecord::findOne($this->id);
+
+            if (!$orderRecord) {
+                throw new Exception('Invalid order ID: '.$this->id);
+            }
+        } else {
+            $orderRecord = new OrderRecord();
+            $orderRecord->id = $this->id;
+        }
+
+        $oldStatusId = $orderRecord->orderStatusId;
+
+        $orderRecord->number = $this->number;
+        $orderRecord->itemTotal = $this->itemTotal;
+        $orderRecord->email = $this->email;
+        $orderRecord->isCompleted = $this->isCompleted;
+        $orderRecord->dateOrdered = $this->dateOrdered;
+        $orderRecord->datePaid = $this->datePaid;
+        $orderRecord->billingAddressId = $this->billingAddressId;
+        $orderRecord->shippingAddressId = $this->shippingAddressId;
+        $orderRecord->shippingMethodHandle = $this->shippingMethodHandle;
+        $orderRecord->paymentMethodId = $this->paymentMethodId;
+        $orderRecord->orderStatusId = $this->orderStatusId;
+        $orderRecord->couponCode = $this->couponCode;
+        $orderRecord->baseDiscount = $this->baseDiscount;
+        $orderRecord->baseShippingCost = $this->baseShippingCost;
+        $orderRecord->baseTax = $this->baseTax;
+        $orderRecord->totalPrice = $this->getTotalPrice();
+        $orderRecord->totalPaid = $this->totalPaid;
+        $orderRecord->currency = $this->currency;
+        $orderRecord->lastIp = $this->lastIp;
+        $orderRecord->orderLocale = $this->orderLocale;
+        $orderRecord->paymentCurrency = $this->paymentCurrency;
+        $orderRecord->customerId = $this->customerId;
+        $orderRecord->returnUrl = $this->returnUrl;
+        $orderRecord->cancelUrl = $this->cancelUrl;
+        $orderRecord->message = $this->message;
+
+        $orderRecord->save(false);
+
+        //creating order history record
+        $hasNewStatus = $orderRecord->id && ($oldStatusId != $orderRecord->orderStatusId);
+
+        if ($hasNewStatus && !Plugin::getInstance()->getOrderHistories()->createOrderHistoryFromOrder($this, $oldStatusId)) {
+            Craft::error('Error saving order history after Order save.', __METHOD__);
+            throw new Exception('Error saving order history');
+        }
+
+        return parent::afterSave($isNew);
     }
 
     /**

@@ -141,14 +141,14 @@ class LineItems extends Component
     {
         if (!$lineItem->purchasableId) {
             $this->deleteLineItem($lineItem);
-            Plugin::getInstance()->getOrders()->saveOrder($order);
+            Craft::$app->getElements()->saveElement($order);
             $error = Craft::t("commerce", "Item no longer for sale. Removed from cart.");
 
             return false;
         }
 
         if ($this->saveLineItem($lineItem)) {
-            Plugin::getInstance()->getOrders()->saveOrder($order);
+            Craft::$app->getElements()->saveElement($order);
 
             return true;
         }

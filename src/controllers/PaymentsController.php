@@ -152,7 +152,7 @@ class PaymentsController extends BaseFrontEndController
 
         // Do one final save to confirm the price does not change out from under the customer.
         // This also confirms the products are available and discounts are current.
-        if (Plugin::getInstance()->getOrders()->saveOrder($order)) {
+        if (Craft::$app->getElements()->saveElement($order)) {
             $totalPriceChanged = $originalTotalPrice != $order->outstandingBalance();
             $totalQtyChanged = $originalTotalQty != $order->getTotalQty();
             $totalAdjustmentsChanged = $originalTotalAdjustments != count($order->getAdjustments());

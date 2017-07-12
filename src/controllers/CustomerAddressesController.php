@@ -78,7 +78,7 @@ class CustomerAddressesController extends BaseFrontEndController
             $cart = Plugin::getInstance()->getCart()->getCart();
             if ($cart->shippingAddressId == $address->id) {
                 $cart->setFieldValuesFromRequest('fields');
-                Plugin::getInstance()->getOrders()->saveOrder($cart);
+                Craft::$app->getElements()->saveElement($cart);
             }
 
             if (Craft::$app->getRequest()->getAcceptsJson()) {
@@ -126,7 +126,7 @@ class CustomerAddressesController extends BaseFrontEndController
                     $cart->billingAddressId = null;
                 }
 
-                Plugin::getInstance()->getOrders()->saveOrder($cart);
+                Craft::$app->getElements()->saveElement($cart);
 
                 if (Craft::$app->getRequest()->getAcceptsJson()) {
                     $this->asJson(['success' => true]);

@@ -2,8 +2,13 @@
 
 namespace craft\commerce\services;
 
+use craft\commerce\adjusters\Discount;
+use craft\commerce\adjusters\Shipping;
+use craft\commerce\adjusters\Tax;
+use craft\commerce\base\AdjusterInterface;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
+use craft\events\RegisterComponentTypesEvent;
 use craft\helpers\ArrayHelper;
 use yii\base\Component;
 use yii\base\Exception;
@@ -20,6 +25,32 @@ use yii\base\Exception;
  */
 class OrderAdjustments extends Component
 {
+
+    /**
+     * @event AdjusterEvent This event is raised when compiling the list of adjusters for an order
+     */
+    const EVENT_REGISTER_ORDER_ADJUSTERS = 'registerOrderAdjusters';
+
+
+    /**
+     * @return AdjusterInterface[]
+     */
+    public function getAdjusters(): array
+    {
+        $adjusters = [
+            Shipping::class,
+            Discount::class,
+            Tax::class
+        ];
+
+        $event = new RegisterComponentTypesEvent([
+            'types' => $adjusters
+        ]);
+        $this->trigger(self::EVENT_REGISTER_ORDER_ADJUSTERS, $event);
+
+        return $event->types;
+    }
+
     /**
      * @param int $orderId
      *

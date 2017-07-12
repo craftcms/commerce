@@ -365,7 +365,7 @@ class LineItem extends Model
      */
     public function getDescription()
     {
-        return $this->snapshot['description'];
+        return $this->purchasable->getDescription() ?? '';
     }
 
     /**
@@ -373,7 +373,7 @@ class LineItem extends Model
      */
     public function getSku()
     {
-        return $this->snapshot['sku'];
+        return $this->purchasable->getSku() ?? '';
     }
 
     /**

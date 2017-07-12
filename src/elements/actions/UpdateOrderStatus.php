@@ -97,7 +97,7 @@ EOT;
             /** @var Order $order */
             $order->orderStatusId = $this->orderStatusId;
             $order->message = $this->message;
-            Plugin::getInstance()->getOrders()->saveOrder($order);
+            Craft::$app->getElements()->saveElement($order);
         }
 
         return true;

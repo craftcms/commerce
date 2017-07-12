@@ -82,8 +82,7 @@ class Cart extends Component
         $isNewLineItem = false;
 
         //saving current cart if it's new and empty
-        if (!$order->id && !Plugin::getInstance()->getOrders()->saveOrder($order)) {
-            Db::rollbackStackedTransaction();
+        if (!$order->id && !Craft::$app->getElements()->saveElement($order)) {
             throw new Exception(Craft::t('commerce', 'Error on creating empty cart'));
         }
 
@@ -126,7 +125,7 @@ class Cart extends Component
                         $order->setLineItems($linesItems);
                     }
 
-                    Plugin::getInstance()->getOrders()->saveOrder($order);
+                    Craft::$app->getElements()->saveElement($order);
 
                     $transaction->commit();
 
@@ -166,7 +165,7 @@ class Cart extends Component
     {
         if (empty($code) || Plugin::getInstance()->getDiscounts()->matchCode($code, $cart->customerId, $error)) {
             $cart->couponCode = $code ?: null;
-            Plugin::getInstance()->getOrders()->saveOrder($cart);
+            Craft::$app->getElements()->saveElement($cart);
 
             return true;
         }
@@ -197,7 +196,7 @@ class Cart extends Component
 
         $order->paymentCurrency = $currency->iso;
 
-        if (!Plugin::getInstance()->getOrders()->saveOrder($order)) {
+        if (!Craft::$app->getElements()->saveElement($order)) {
             return false;
         };
 
@@ -223,7 +222,7 @@ class Cart extends Component
             if ($method['handle'] == $shippingMethod) {
                 $cart->shippingMethodHandle = $shippingMethod;
 
-                return Plugin::getInstance()->getOrders()->saveOrder($cart);
+                return Craft::$app->getElements()->saveElement($cart);
             }
         }
 
@@ -253,7 +252,7 @@ class Cart extends Component
         }
 
         $cart->paymentMethodId = $paymentMethodId;
-        Plugin::getInstance()->getOrders()->saveOrder($cart);
+        Craft::$app->getElements()->saveElement($cart);
 
         return true;
     }
@@ -284,7 +283,7 @@ class Cart extends Component
                 $customer->email = $email;
                 Plugin::getInstance()->getCustomers()->saveCustomer($customer);
                 $cart->email = $customer->email;
-                Plugin::getInstance()->getOrders()->saveOrder($cart);
+                Craft::$app->getElements()->saveElement($cart);
             }
         } catch (Exception $e) {
             $error = $e->getMessage();
@@ -343,7 +342,7 @@ class Cart extends Component
                 $this->_cart->email = $customer->email;
                 $this->_cart->billingAddressId = null;
                 $this->_cart->shippingAddressId = null;
-                Plugin::getInstance()->getOrders()->saveOrder($this->_cart);
+                Craft::$app->getElements()->saveElement($this->_cart);
             }
         }
 
@@ -424,7 +423,7 @@ class Cart extends Component
                 }
             }
             Plugin::getInstance()->getLineItems()->deleteLineItem($lineItem);
-            Plugin::getInstance()->getOrders()->saveOrder($cart);
+            Craft::$app->getElements()->saveElement($cart);
 
             //raising event
             $event = new CartEvent([
@@ -458,7 +457,7 @@ class Cart extends Component
 
         try {
             Plugin::getInstance()->getLineItems()->deleteAllLineItemsByOrderId($cart->id);
-            Plugin::getInstance()->getOrders()->saveOrder($cart);
+            Craft::$app->getElements()->saveElement($cart);
         } catch (\Exception $e) {
             Db::rollbackStackedTransaction();
             throw $e;

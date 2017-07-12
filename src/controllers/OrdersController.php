@@ -206,7 +206,7 @@ class OrdersController extends BaseCpController
             $message = $child->message ? ' ('.$child->message.')' : '';
 
             if ($child->status == TransactionRecord::STATUS_SUCCESS) {
-                Plugin::getInstance()->getOrders()->updateOrderPaidTotal($child->order);
+                $child->order->updateOrderPaidTotal();
                 Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Transaction captured successfully: {message}', [
                     'message' => $message
                 ]));
@@ -260,7 +260,7 @@ class OrdersController extends BaseCpController
         $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
 
         if ($order && !$order->isCompleted) {
-            if (Plugin::getInstance()->getOrders()->completeOrder($order)) {
+            if ($order->markAsComplete()) {
                 $date = new \DateTime($order->dateOrdered);
                 $this->asJson(['success' => true, 'dateOrdered' => $date]);
             }
@@ -303,7 +303,7 @@ class OrdersController extends BaseCpController
 
         $order->{$type.'Id'} = $address->id;
 
-        if (Plugin::getInstance()->getOrders()->saveOrder($order)) {
+        if (Craft::$app->getElements()->saveElement($order)) {
             $this->asJson(['success' => true]);
         }
 
@@ -330,7 +330,7 @@ class OrdersController extends BaseCpController
         $order->orderStatusId = $orderStatus->id;
         $order->message = $message;
 
-        if (Plugin::getInstance()->getOrders()->saveOrder($order)) {
+        if (Craft::$app->getElements()->saveElement($order)) {
             $this->asJson(['success' => true]);
         }
     }
@@ -348,7 +348,7 @@ class OrdersController extends BaseCpController
         $order = $this->_setOrderFromPost();
         $this->_setContentFromPost($order);
 
-        if (Plugin::getInstance()->getOrders()->saveOrder($order)) {
+        if (Craft::$app->getElements()->saveElement($order)) {
             $this->redirectToPostedUrl($order);
         }
 
