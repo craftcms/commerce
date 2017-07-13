@@ -505,11 +505,11 @@ class OrderQuery extends ElementQuery
         }
 
         if ($this->updatedAfter) {
-            $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.dateUpdated', $this->updatedAfter));
+            $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.dateUpdated', '>= '.$this->updatedAfter));
         }
 
         if ($this->updatedBefore) {
-            $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.dateUpdated', $this->updatedBefore));
+            $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.dateUpdated', '<= '.$this->updatedBefore));
         }
 
         if ($this->orderStatus) {
