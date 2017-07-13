@@ -8,6 +8,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\events\LineItemEvent;
 use craft\commerce\models\LineItem;
 use craft\commerce\records\LineItem as LineItemRecord;
+use craft\db\Query;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use yii\base\Component;
@@ -48,102 +49,81 @@ class LineItems extends Component
      */
     const EVENT_POPULATE_LINE_ITEM = 'populateLineItem';
 
+    // Properties
+    // =========================================================================
+
+    /**
+     * @var LineItem[][]
+     */
+    private $_lineItemsByOrderId = [];
+
     // Public Methods
     // =========================================================================
 
     /**
-     * @param int $id
+     * Get all line items by order id.
      *
-     * @return LineItem[]
+     * @param int $orderId The order id.
+     *
+     * @return LineItem[] An array of all the line items for the matched order.
      */
-    public function getAllLineItemsByOrderId($id): array
+    public function getAllLineItemsByOrderId(int $orderId): array
     {
-        $lineItems = [];
+        if (!isset($this->_lineItemsByOrderId[$orderId])) {
+            $results = $this->_createLineItemQuery()
+                ->where(['orderId' => $orderId])
+                ->all();
+            $lineItems = [];
 
-        if ($id) {
-            $lineItems = LineItemRecord::find()->where('orderId = :orderId', [':orderId' => $id])->all();
+            foreach ($results as $result) {
+                $result['options'] = Json::decodeIfJson($result['options']);
+                $lineItems[] = new LineItem($result);
+            }
+
+            $this->_lineItemsByOrderId[$orderId] = $lineItems;
         }
 
-        return ArrayHelper::map($lineItems, 'id', function($lineItem) {
-            return $this->_createLineItemFromLineItemRecord($lineItem);
-        });
+
+        return $this->_lineItemsByOrderId[$orderId];
     }
 
     /**
-     * @param LineItemRecord $lineItemRecord
+     * Find a line item by order id and purchasable id with optional options set for line item.
      *
-     * @return LineItem
+     * @param int   $orderId       The order id.
+     * @param int   $purchasableId The purchasable id.
+     * @param array $options       Optional option array.
+     *
+     * @return LineItem|null Line item or null if not found.
      */
-    private function _createLineItemFromLineItemRecord($lineItemRecord): LineItem
-    {
-        $lineItem = new LineItem($lineItemRecord->toArray([
-            'id',
-            'optionsSignature',
-            'price',
-            'saleAmount',
-            'salePrice',
-            'tax',
-            'taxIncluded',
-            'shippingCost',
-            'discount',
-            'weight',
-            'length',
-            'height',
-            'width',
-            'total',
-            'qty',
-            'snapshot',
-            'note',
-            'purchasableId',
-            'orderId',
-            'taxCategoryId',
-            'shippingCategoryId'
-        ]));
-
-        $lineItem->options = Json::decode($lineItemRecord->options);
-
-        return $lineItem;
-    }
-
-    /**
-     * Find line item by order and variant
-     *
-     * @param int   $orderId
-     * @param int   $purchasableId
-     * @param array $options
-     *
-     * @return LineItem|null
-     */
-    public function getLineItemByOrderPurchasableOptions($orderId, $purchasableId, array $options = [])
+    public function getLineItemByOrderPurchasableOptions(int $orderId, int $purchasableId, array $options = [])
     {
         ksort($options);
         $signature = md5(json_encode($options));
-        $result = LineItemRecord::find()
-            ->where('orderId = :orderId AND purchasableId = :purchasableId AND optionsSignature = :optionsSignature',
-                [':orderId' => $orderId, ':purchasableId' => $purchasableId, ':optionsSignature' => $signature])
+        $result = $this->_createLineItemQuery()
+            ->where([
+                'orderId' => $orderId,
+                'purchasableId' => $purchasableId,
+                'optionsSignature' => $signature
+                ])
             ->one();
 
-        if ($result) {
-            return $this->_createLineItemFromLineItemRecord($result);
-        }
-
-        return null;
+        return $result ? new LineItem($result) : null;
     }
 
     /**
-     * Update line item and recalculate order
+     * Update a line item for an order.
      *
-     * @param Order    $order
-     * @param LineItem $lineItem
-     * @param string   $error
+     * @param Order    $order    The order that is being updated.
+     * @param LineItem $lineItem The line item that is being updated.
+     * @param string   $error    This will be populated with an error message, if any.
      *
-     * @return bool
-     * @throws Exception
+     * @return bool Whether the update was successful.
      */
     public function updateLineItem(Order $order, LineItem $lineItem, &$error = ''): bool
     {
         if (!$lineItem->purchasableId) {
-            $this->deleteLineItem($lineItem);
+            $this->deleteLineItemById($lineItem->id);
             Craft::$app->getElements()->saveElement($order);
             $error = Craft::t("commerce", "Item no longer for sale. Removed from cart.");
 
@@ -156,31 +136,37 @@ class LineItems extends Component
             return true;
         }
 
-        $errors = $lineItem->errors;
+        $errors = $lineItem->getFirstErrors();
         $error = array_pop($errors);
 
         return false;
     }
 
     /**
-     * @param LineItem $lineItem
+     * Delete a line item by it's id.
+     * 
+     * @param int $lineItemId The id of the line item.
      *
-     * @return int
+     * @return bool Whether the line item was deleted successfully.
      */
-    public function deleteLineItem(LineItem $lineItem)
+    public function deleteLineItemById(int $lineItemId): bool
     {
-        $lineItem = LineItemRecord::findOne($lineItem->id);
+        $lineItem = LineItemRecord::findOne($lineItemId);
 
         if ($lineItem) {
-            return $lineItem->delete();
+            return (bool)$lineItem->delete();
         }
+        
+        return false;
     }
 
     /**
-     * @param LineItem $lineItem
+     * Save a line item.
+     *
+     * @param LineItem $lineItem The line item to save.
      *
      * @return bool
-     * @throws \Exception
+     * @throws \Throwable
      */
     public function saveLineItem(LineItem $lineItem): bool
     {
@@ -266,7 +252,7 @@ class LineItems extends Component
 
                 $transaction->commit();
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $transaction->rollBack();
             throw $e;
         }
@@ -284,30 +270,33 @@ class LineItems extends Component
     }
 
     /**
-     * @param int $id
+     * Get a line item by it's id.
      *
-     * @return LineItem|null
+     * @param int $id The id of the line item.
+     *
+     * @return LineItem|null Line item or null, if not found.
      */
     public function getLineItemById($id)
     {
-        $result = LineItemRecord::findOne($id);
+        $result = $this->_createLineItemQuery()
+            ->where(['id' => $id])
+            ->one();
 
-        if ($result) {
-            return new LineItem($result);
-        }
-
-        return null;
+        return $result ? new LineItem($result) : null;
     }
 
     /**
-     * @param $purchasableId
-     * @param $order
-     * @param $options
-     * @param $qty
+     * Create a line item in order by purchasable id, options and quantity.
+     *
+     * @param int $purchasableId
+     * @param Order $order
+     * @param array $options
+     * @param int $qty
      *
      * @return LineItem
+     * @throws Exception if purchasable is not found.
      */
-    public function createLineItem($purchasableId, $order, $options, $qty): LineItem
+    public function createLineItem(int $purchasableId, Order $order, array $options, int $qty): LineItem
     {
         $lineItem = new LineItem();
         $lineItem->purchasableId = $purchasableId;
@@ -338,12 +327,53 @@ class LineItems extends Component
     }
 
     /**
-     * @param int $orderId
+     * Delete all line items by order id.
+     * 
+     * @param int $orderId The order id.
      *
-     * @return bool
+     * @return bool Whether any line items were deleted.
      */
-    public function deleteAllLineItemsByOrderId($orderId): bool
+    public function deleteAllLineItemsByOrderId(int $orderId): bool
     {
         return (bool) LineItemRecord::deleteAll(['orderId' => $orderId]);
+    }
+
+    // Private methods
+    // =========================================================================
+
+    /**
+     * Returns a Query object prepped for retrieving line items.
+     *
+     * @return Query The query object.
+     */
+    private function _createLineItemQuery(): Query
+    {
+
+        return (new Query())
+            ->select([
+                'id',
+                'options',
+                'optionsSignature',
+                'price',
+                'saleAmount',
+                'salePrice',
+                'tax',
+                'taxIncluded',
+                'shippingCost',
+                'discount',
+                'weight',
+                'length',
+                'height',
+                'width',
+                'total',
+                'qty',
+                'snapshot',
+                'note',
+                'purchasableId',
+                'orderId',
+                'taxCategoryId',
+                'shippingCategoryId'
+            ])
+            ->from(['{{%commerce_lineitems}} lineItems']);
     }
 }

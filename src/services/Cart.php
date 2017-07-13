@@ -78,7 +78,7 @@ class Cart extends Component
      * @return bool
      * @throws \Exception
      */
-    public function addToCart(Order $order, $purchasableId, $qty = 1, $note = '', $options = [], &$error = '')
+    public function addToCart(Order $order, int $purchasableId, int $qty = 1, string $note = '', array $options = [], &$error = '')
     {
         $db = Craft::$app->getDb();
         $transaction = $db->beginTransaction();
@@ -91,7 +91,8 @@ class Cart extends Component
         }
 
         //filling item model
-        $lineItem = Plugin::getInstance()->getLineItems()->getLineItemByOrderPurchasableOptions($order->id, $purchasableId, $options);
+        $plugin = Plugin::getInstance();
+        $lineItem = $plugin->getLineItems()->getLineItemByOrderPurchasableOptions($order->id, $purchasableId, $options);
 
         if ($lineItem) {
             foreach ($order->getLineItems() as $item) {
@@ -101,7 +102,7 @@ class Cart extends Component
             }
             $lineItem->qty += $qty;
         } else {
-            $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($purchasableId, $order, $options, $qty);
+            $lineItem = $plugin->getLineItems()->createLineItem($purchasableId, $order, $options, $qty);
             $isNewLineItem = true;
         }
 
@@ -122,7 +123,7 @@ class Cart extends Component
                 ]);
                 $this->trigger(self::EVENT_BEFORE_ADD_TO_CART, $event);
 
-                if (Plugin::getInstance()->getLineItems()->saveLineItem($lineItem)) {
+                if ($plugin->getLineItems()->saveLineItem($lineItem)) {
                     if ($isNewLineItem) {
                         $linesItems = $order->getLineItems();
                         $linesItems[] = $lineItem;
@@ -299,7 +300,7 @@ class Cart extends Component
     }
 
     /**
-     * @return mixed
+     * @return Order
      * @throws Exception
      * @throws \Exception
      */
@@ -426,7 +427,7 @@ class Cart extends Component
                     $cart->setLineItems($lineItems);
                 }
             }
-            Plugin::getInstance()->getLineItems()->deleteLineItem($lineItem);
+            Plugin::getInstance()->getLineItems()->deleteLineItemById($lineItem->id);
             Craft::$app->getElements()->saveElement($cart);
 
             //raising event
