@@ -43,13 +43,18 @@ class OrdersController extends BaseCpController
     }
 
     /**
-     * @param array $variables
+     * @param int $orderId
      *
+     * @return \yii\web\Response
      * @throws HttpException
      */
-    public function actionEditOrder(array $variables = [])
+    public function actionEditOrder(int $orderId = null)
     {
-        $variables['orderSettings'] = Plugin::getInstance()->getOrderSettings->getOrderSettingByHandle('order');
+        $variables = [
+            'orderId' => $orderId
+        ];
+
+        $variables['orderSettings'] = Plugin::getInstance()->getOrderSettings()->getOrderSettingByHandle('order');
 
         if (!$variables['orderSettings']) {
             throw new HttpException(404, Craft::t('commerce', 'No order settings found.'));

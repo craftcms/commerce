@@ -59,16 +59,6 @@ class OrderQuery extends ElementQuery
     public $expiryDate;
 
     /**
-     * @var mixed Updated After Date that the resulting orders must have.
-     */
-    public $updatedAfter;
-
-    /**
-     * @var mixed The Updated Before Date that the resulting orders must have.
-     */
-    public $updatedBefore;
-
-    /**
      * @var OrderStatus|int The Order Status that the resulting orders must have.
      */
     public $orderStatus;
@@ -140,6 +130,12 @@ class OrderQuery extends ElementQuery
         switch ($name) {
             case 'number':
                 $this->number($value);
+                break;
+            case 'updatedAfter':
+                $this->updatedAfter($value);
+                break;
+            case 'updatedBefore':
+                $this->updatedBefore($value);
                 break;
             case 'email':
                 $this->email($value);
@@ -496,20 +492,12 @@ class OrderQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.dateOrdered', $this->dateOrdered));
         }
 
-        if ($this->updatedOn) {
-            $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.dateUpdated', $this->updatedOn));
-        }
-
         if ($this->expiryDate) {
             $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.expiryDate', $this->expiryDate));
         }
 
-        if ($this->updatedAfter) {
-            $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.dateUpdated', $this->updatedAfter));
-        }
-
-        if ($this->updatedBefore) {
-            $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.dateUpdated', $this->updatedBefore));
+        if ($this->dateUpdated) {
+            $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.dateUpdated', $this->dateUpdated));
         }
 
         if ($this->orderStatus) {

@@ -1165,14 +1165,14 @@ class Order extends Element
         $sources[] = [
             'key' => 'carts:active',
             'label' => Craft::t('commerce', 'Active Carts'),
-            'criteria' => ['updatedAfter' => $edge->getTimestamp(), 'isCompleted' => 'not 1'],
+            'criteria' => ['updatedAfter' => $edge, 'isCompleted' => 'not 1'],
             'defaultSort' => ['commerce_orders.dateUpdated', 'asc']
         ];
 
         $sources[] = [
             'key' => 'carts:inactive',
             'label' => Craft::t('commerce', 'Inactive Carts'),
-            'criteria' => ['updatedBefore' => $edge->getTimestamp(), 'isCompleted' => 'not 1'],
+            'criteria' => ['updatedBefore' => $edge, 'isCompleted' => 'not 1'],
             'defaultSort' => ['commerce_orders.dateUpdated', 'desc']
         ];
 
