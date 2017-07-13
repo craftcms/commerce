@@ -447,33 +447,24 @@
 
 {% endblock %}
 
-{% includeJsResource 'commerce/js/classes/TableRowAdditionalInfoIcon.js' %}
-{% includeJsResource 'commerce/js/CommerceUpdateOrderStatusModal.js' %}
-{% includeJsResource 'commerce/js/CommerceAddressBox.js' %}
-{% includeJsResource 'commerce/js/CommerceEditAddressModal.js' %}
-{% includeJsResource 'commerce/js/CommercePaymentModal.js' %}
-{% includeJsResource 'commerce/js/CommerceOrderEdit.js' %}
-
-
 {% js %}
+    window.countries = JSON.parse('{{ craft.commerce.countries|json_encode|raw }}');
+    window.states = JSON.parse('{{ craft.commerce.states|json_encode|raw }}');
 
-window.countries = JSON.parse('{{ craft.commerce.countries|json_encode|raw }}');
-window.states = JSON.parse('{{ craft.commerce.states|json_encode|raw }}');
+    $(document).ready(function () {
 
-$(document).ready(function () {
+        {% if paymentForm is defined %}
+            new Craft.Commerce.OrderEdit({
+                orderId: {{ orderId|e('js') }},
+                paymentForm: {
+                    errors: {{ paymentForm.errors|json_encode|raw}},
+                    attributes: {{ paymentForm.attributes|json_encode|raw }}
+                }
+            });
+        {% endif %}
 
-new Craft.Commerce.OrderEdit({
-orderId: {{ orderId|e('js') }},
-paymentForm: {
-errors: {{ paymentForm.errors|json_encode|raw }},
-attributes: {{ paymentForm.attributes|json_encode|raw }}
-}
-});
-
-$.each($('.tableRowInfo'), function () {
-new Craft.Commerce.TableRowAdditionalInfoIcon(this);
-});
-
-});
-
+        $.each($('.tableRowInfo'), function () {
+            new Craft.Commerce.TableRowAdditionalInfoIcon(this);
+        });
+    });
 {% endjs %}

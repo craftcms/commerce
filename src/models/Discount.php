@@ -252,7 +252,7 @@ class Discount extends Model
      */
     public function setProductTypeIds(array $ids)
     {
-        $this->_productTypeIds = $ids;
+        $this->_productTypeIds = array_unique($ids);
     }
 
     /**
@@ -264,7 +264,7 @@ class Discount extends Model
      */
     public function setProductIds(array $productIds)
     {
-        $this->_productIds = $productIds;
+        $this->_productIds = array_unique($productIds);
     }
 
     /**
@@ -276,7 +276,7 @@ class Discount extends Model
      */
     public function setUserGroupIds(array $userGroupIds)
     {
-        $this->_userGroupIds = $userGroupIds;
+        $this->_userGroupIds = array_unique($userGroupIds);
     }
 
     /**

@@ -6,6 +6,7 @@ use Craft;
 use craft\commerce\base\Element;
 use craft\commerce\base\Model;
 use craft\commerce\base\Purchasable;
+use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\events\LineItemEvent;
 use craft\commerce\helpers\Currency as CurrencyHelper;
@@ -191,7 +192,7 @@ class LineItem extends Model
     }
 
     /**
-     * @param \craft\commerce\elements\Order $order
+     * @param Order $order
      */
     public function setOrder(Order $order)
     {
@@ -314,9 +315,9 @@ class LineItem extends Model
     }
 
     /**
-     * @param Purchasable $purchasable
+     * @param PurchasableInterface $purchasable
      */
-    public function fillFromPurchasable(Purchasable $purchasable)
+    public function fillFromPurchasable(PurchasableInterface $purchasable)
     {
         $this->price = $purchasable->getPrice();
         $this->taxCategoryId = $purchasable->getTaxCategoryId();

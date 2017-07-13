@@ -93,11 +93,13 @@ class SalesController extends BaseCpController
 
         $variables['products'] = null;
         $products = $productIds = [];
+
         if (empty($variables['id'])) {
             $productIds = explode('|', Craft::$app->getRequest()->getParam('productIds'));
         } else {
             $productIds = $variables['sale']->getProductIds();
         }
+
         foreach ($productIds as $productId) {
             $product = Plugin::getInstance()->getProducts()->getProductById((int) $productId);
             if ($product) {
