@@ -706,7 +706,7 @@ class Install extends Migration
         $this->dropTable('{{%commerce_paymentmethods}}');
         $this->dropTable('{{%commerce_products}}');
         $this->dropTable('{{%commerce_producttypes}}');
-        $this->dropTable('{{%commerce_producttypesuriFormat_istes}}');
+        $this->dropTable('{{%commerce_producttypes_sites}}');
         $this->dropTable('{{%commerce_producttypes_shippingcategories}}');
         $this->dropTable('{{%commerce_producttypes_taxcategories}}');
         $this->dropTable('{{%commerce_purchasables}}');
@@ -787,7 +787,7 @@ class Install extends Migration
         $this->createIndex($this->db->getIndexName('{{%commerce_producttypes}}', 'handle', true), '{{%commerce_producttypes}}', 'handle', true);
         $this->createIndex($this->db->getIndexName('{{%commerce_producttypes}}', 'fieldLayoutId', false), '{{%commerce_producttypes}}', 'fieldLayoutId', false);
         $this->createIndex($this->db->getIndexName('{{%commerce_producttypes}}', 'variantFieldLayoutId', false), '{{%commerce_producttypes}}', 'variantFieldLayoutId', false);
-        $this->createIndex($this->db->getIndexName('{{%commerce_producttypesuriFormat_istes}}', 'productTypeId,siteId', true), '{{%commerce_producttypes_sites}}', 'productTypeId,siteId', true);
+        $this->createIndex($this->db->getIndexName('{{%commerce_producttypes_sites}}', 'productTypeId,siteId', true), '{{%commerce_producttypes_sites}}', 'productTypeId,siteId', true);
         $this->createIndex($this->db->getIndexName('{{%commerce_producttypes_sites}}', 'siteId', false), '{{%commerce_producttypes_sites}}', 'siteId', false);
         $this->createIndex($this->db->getIndexName('{{%commerce_producttypes_shippingcategories}}', 'productTypeId,shippingCategoryId', true), '{{%commerce_producttypes_shippingcategories}}', 'productTypeId,shippingCategoryId', true);
         $this->createIndex($this->db->getIndexName('{{%commerce_producttypes_shippingcategories}}', 'shippingCategoryId', false), '{{%commerce_producttypes_shippingcategories}}', 'shippingCategoryId', false);

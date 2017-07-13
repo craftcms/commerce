@@ -835,12 +835,12 @@ class Product extends Element
         $record->taxCategoryId = $this->taxCategoryId;
         $record->shippingCategoryId = $this->shippingCategoryId;
 
-        $record->defaultSku = $this->defaultSku;
-        $record->defaultPrice = $this->defaultPrice;
-        $record->defaultHeight = $this->defaultHeight;
-        $record->defaultLength = $this->defaultLength;
-        $record->defaultWidth = $this->defaultWidth;
-        $record->defaultWeight = $this->defaultWeight;
+        $record->defaultSku = $this->getDefaultVariant()->sku;
+        $record->defaultPrice = $this->getDefaultVariant()->price;
+        $record->defaultHeight = $this->getDefaultVariant()->height;
+        $record->defaultLength = $this->getDefaultVariant()->length;
+        $record->defaultWidth = $this->getDefaultVariant()->width;
+        $record->defaultWeight = $this->getDefaultVariant()->weight;
 
         $record->save(false);
 
