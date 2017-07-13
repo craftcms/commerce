@@ -400,7 +400,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
-        $this->createTable('{{%commerce_producttypesuriFormat_istes}}', [
+        $this->createTable('{{%commerce_producttypes_sites}}', [
             'id' => $this->primaryKey(),
             'productTypeId' => $this->integer()->notNull(),
             'siteId' => $this->integer()->notNull(),
