@@ -387,14 +387,12 @@ class Install extends Migration
             'variantFieldLayoutId' => $this->integer(),
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
-            'hasUrls' => $this->boolean(),
             'hasDimensions' => $this->boolean(),
             'hasVariants' => $this->boolean(),
             'hasVariantTitleField' => $this->boolean(),
             'titleFormat' => $this->string()->notNull(),
             'skuFormat' => $this->string(),
             'descriptionFormat' => $this->string(),
-            'template' => $this->string(500),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -405,6 +403,8 @@ class Install extends Migration
             'productTypeId' => $this->integer()->notNull(),
             'siteId' => $this->integer()->notNull(),
             'uriFormat' => $this->text(),
+            'template' => $this->string(500),
+            'hasUrls' => $this->boolean(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -1508,11 +1508,9 @@ class Install extends Migration
             'name' => 'Clothing',
             'handle' => 'clothing',
             'hasDimensions' => true,
-            'hasUrls' => true,
             'hasVariants' => false,
             'hasVariantTitleField' => false,
             'titleFormat' => '{product.title}',
-            'template' => 'shop/products/_product',
             'fieldLayoutId' => $productFieldLayoutId,
             'variantFieldLayoutId' => $variantFieldLayoutId
         ];
@@ -1528,7 +1526,9 @@ class Install extends Migration
             $data = [
                 'productTypeId' => $productTypeId,
                 'siteId' => $siteId,
-                'uriFormat' => 'shop/products/{slug}'
+                'uriFormat' => 'shop/products/{slug}',
+                'template' => 'shop/products/_product',
+                'hasUrls' => true
             ];
             $this->insert(ProductTypeSite::tableName(), $data);
         }

@@ -273,8 +273,8 @@ class Product extends Element
         if (isset($productType->siteSettings[$siteId]) && $productType->siteSettings[$siteId]->hasUrls) {
             $productTypeSites = $productType->getSiteSettings();
 
-            if (isset($productTypeSites[$this->site])) {
-                return $productTypeSites[$this->site]->uriFormat;
+            if (isset($productTypeSites[$this->siteId])) {
+                return $productTypeSites[$this->siteId]->uriFormat;
             }
         }
     }
