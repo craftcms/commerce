@@ -125,6 +125,7 @@ class Customers extends Component
     public function saveAddress(Address $address): bool
     {
         $customer = $this->getSavedCustomer();
+
         if (Plugin::getInstance()->getAddresses()->saveAddress($address)) {
 
             $customerAddress = CustomerAddressRecord::find()->where([
@@ -250,18 +251,14 @@ class Customers extends Component
     }
 
     /**
-     * @param Event $event
-     *
-     * @throws Exception
+     * @param UserEvent $event
      */
-    public function loginHandler(Event $event)
+    public function loginHandler(UserEvent $event)
     {
         // Remove the customer from session.
-        // TODO: enable again
-        //$this->forgetCustomer();
-        // TODO: enable again
-        //$username = $event->params['username'];
-        //$this->consolidateOrdersToUser($username);
+        $this->forgetCustomer();
+        $username = $event->identity->username;
+        $this->consolidateOrdersToUser($username);
     }
 
     /**
@@ -478,7 +475,7 @@ class Customers extends Component
      */
     public function saveUserHandler(Event $event)
     {
-        $user = $event->params['user'];
+        $user = $event->sender;
         $customer = $this->getCustomerByUserId($user->id);
 
         // Sync the users email with the customer record.
@@ -495,6 +492,7 @@ class Customers extends Component
             $orders = Plugin::getInstance()->getOrders()->getOrdersByCustomer($customer);
 
             foreach ($orders as $order) {
+
                 $order->email = $user->email;
                 Craft::$app->getElements()->saveElement($order);
             }

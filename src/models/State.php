@@ -73,7 +73,7 @@ class State extends Model
      */
     public function getCountry()
     {
-        return Plugin::getInstance()->getCountries()->getCountryById($this->countryId);
+        return $this->countryId ? Plugin::getInstance()->getCountries()->getCountryById($this->countryId) : null;
     }
 
     /**

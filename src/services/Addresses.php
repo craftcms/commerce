@@ -164,9 +164,9 @@ class Addresses extends Component
         }
 
         /** @var Country $state */
-        $country = $plugin->getCountries()->getCountryById($addressRecord->countryId);
+        $country = $addressRecord->countryId ? $plugin->getCountries()->getCountryById($addressRecord->countryId) : null;
         /** @var State $state */
-        $state = $plugin->getStates()->getStateById($addressRecord->stateId);
+        $state = $addressRecord->stateId ? $plugin->getStates()->getStateById($addressRecord->stateId) : null;
 
         // Check country’s stateRequired option
         if ($country && $country->stateRequired && (!$state || ($state && $state->countryId !== $country->id))) {

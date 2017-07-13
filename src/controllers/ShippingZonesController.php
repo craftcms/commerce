@@ -94,7 +94,8 @@ class ShippingZonesController extends BaseAdminController
 
         $countries = [];
         foreach ($countryIds as $id) {
-            if ($country = Plugin::getInstance()->getCountries()->getCountryById($id)) {
+            $country = $id ? Plugin::getInstance()->getCountries()->getCountryById($id) : null;
+            if ($country) {
                 $countries[] = $country;
             }
         }
@@ -102,7 +103,8 @@ class ShippingZonesController extends BaseAdminController
 
         $states = [];
         foreach ($stateIds as $id) {
-            if ($state = Plugin::getInstance()->getStates()->getStateById($id)) {
+            $state = $id ? Plugin::getInstance()->getStates()->getStateById($id) : null;
+            if ($state) {
                 $states[] = $state;
             }
         }

@@ -167,22 +167,6 @@ class Transactions extends Component
         return false;
     }
 
-    /**
-     * Event: After successfully saving a transaction
-     * Event params: transaction(Transaction)
-     *
-     * @param \CEvent $event
-     *
-     * @throws \CException
-     */
-    public function onSaveTransaction(\CEvent $event)
-    {
-        $params = $event->params;
-        if (empty($params['transaction']) || !($params['transaction'] instanceof Transaction)) {
-            throw new Exception('onSaveTransaction event requires "transaction" param with Transaction instance');
-        }
-        $this->raiseEvent('onSaveTransaction', $event);
-    }
 
     /**
      * @param Transaction $transaction

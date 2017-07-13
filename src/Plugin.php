@@ -8,7 +8,6 @@ use craft\commerce\plugin\Routes;
 use craft\commerce\plugin\Services as CommerceServices;
 use craft\commerce\variables\Commerce;
 use craft\commerce\web\twig\Extension;
-use craft\elements\User as UserElement;
 use craft\enums\LicenseKeyStatus;
 use craft\events\DefineComponentsEvent;
 use craft\events\RegisterCpAlertsEvent;
@@ -18,6 +17,7 @@ use craft\fields\RichText;
 use craft\helpers\Cp as CpHelper;
 use craft\helpers\UrlHelper;
 use craft\services\Sites;
+use craft\elements\User as UserElement;
 use craft\services\UserPermissions;
 use craft\web\twig\variables\CraftVariable;
 use yii\base\Event;
@@ -215,8 +215,7 @@ class Plugin extends \craft\base\Plugin
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getProductTypes(), 'addSiteHandler']);
 
         if (!Craft::$app->getRequest()->getIsConsoleRequest()) {
-            // TODO: Disabled while converting to Craft 3
-//            Event::on(UserElement::class, UserElement::EVENT_AFTER_SAVE, [$this->getCustomers(), 'saveUserHandler']);
+            Event::on(UserElement::class, UserElement::EVENT_AFTER_SAVE, [$this->getCustomers(), 'saveUserHandler']);
             Event::on(User::class, User::EVENT_AFTER_LOGIN, [$this->getCustomers(), 'loginHandler']);
             Event::on(User::class, User::EVENT_AFTER_LOGOUT, [$this->getCustomers(), 'logoutHandler']);
         }

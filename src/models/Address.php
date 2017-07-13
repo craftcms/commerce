@@ -173,7 +173,7 @@ class Address extends Model
      */
     public function getCountry()
     {
-        return Plugin::getInstance()->getCountries()->getCountryById($this->countryId);
+        return $this->countryId ? Plugin::getInstance()->getCountries()->getCountryById($this->countryId) : null;
     }
 
     /**
@@ -189,7 +189,7 @@ class Address extends Model
      */
     public function getState()
     {
-        return Plugin::getInstance()->getStates()->getStateById($this->stateId);
+        return $this->stateId ? Plugin::getInstance()->getStates()->getStateById($this->stateId) : null;
     }
 
     /**

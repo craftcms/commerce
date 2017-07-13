@@ -2,6 +2,7 @@
 
 namespace craft\commerce\services;
 
+use craft\commerce\events\BuildPaymentRequestEvent;
 use craft\commerce\gateway\models\BasePaymentFormModel;
 use Craft;
 use craft\commerce\elements\Order;

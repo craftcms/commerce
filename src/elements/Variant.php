@@ -788,42 +788,4 @@ class Variant extends Purchasable
     {
         return ['sku', 'price', 'width', 'height', 'length', 'weight', 'stock', 'unlimitedStock', 'minQty', 'maxQty'];
     }
-
-    /**
-     * @return array
-     */
-    public function defineCriteriaAttributes()
-    {
-        return [
-            'sku' => AttributeType::Mixed,
-            'product' => AttributeType::Mixed,
-            'productId' => AttributeType::Mixed,
-            'isDefault' => AttributeType::Mixed,
-            'default' => AttributeType::Mixed,
-            'stock' => AttributeType::Mixed,
-            'hasStock' => AttributeType::Mixed,
-            'order' => [AttributeType::String, 'default' => 'variants.sortOrder asc'],
-        ];
-    }
-
-
-    /**
-     * Sets the product on the resulting variants.
-     *
-     * @param Event $event
-     *
-     * @return void
-     */
-    public function setProductOnVariant(Event $event)
-    {
-        /** @var ElementCriteriaModel $criteria */
-        $criteria = $event->sender;
-
-        /** @var Variant[] $variants */
-        $variants = $event->params['elements'];
-
-        if ($criteria->product instanceof Product) {
-            Plugin::getInstance()->getVariants()->setProductOnVariants($criteria->product, $variants);
-        }
-    }
 }
