@@ -495,7 +495,7 @@ class OrderQuery extends ElementQuery
         if ($this->expiryDate) {
             $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.expiryDate', $this->expiryDate));
         }
-       }
+
         if ($this->dateUpdated) {
             $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.dateUpdated', $this->dateUpdated));
         }

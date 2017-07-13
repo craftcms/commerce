@@ -56,8 +56,6 @@ class OrdersController extends BaseCpController
             'orderSettings' => Plugin::getInstance()->getOrderSettings()->getOrderSettingByHandle('order')
         ];
 
-        $variables['orderSettings'] = Plugin::getInstance()->getOrderSettings()->getOrderSettingByHandle('order');
-
         if (!$variables['orderSettings']) {
             throw new HttpException(404, Craft::t('commerce', 'No order settings found.'));
         }
