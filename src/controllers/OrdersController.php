@@ -6,6 +6,7 @@ use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use yii\base\Exception;
 use yii\web\HttpException;
@@ -47,9 +48,12 @@ class OrdersController extends BaseCpController
      *
      * @throws HttpException
      */
-    public function actionEditOrder(array $variables = [])
+    public function actionEditOrder(int $orderId)
     {
-        $variables['orderSettings'] = Plugin::getInstance()->getOrderSettings->getOrderSettingByHandle('order');
+        $variables = [
+            'orderId' => $orderId,
+            'orderSettings' => Plugin::getInstance()->getOrderSettings()->getOrderSettingByHandle('order')
+        ];
 
         if (!$variables['orderSettings']) {
             throw new HttpException(404, Craft::t('commerce', 'No order settings found.'));
@@ -82,8 +86,11 @@ class OrdersController extends BaseCpController
             if ($paymentMethod && $paymentMethod->getGatewayAdapter()) {
                 $variables['paymentForm'] = $variables['order']->paymentMethod->getPaymentFormModel();
             } else {
-                $paymentMethod = Plugin::getInstance()->getPaymentMethods()->getAllPaymentMethods();
-                $variables['paymentForm'] = $paymentMethod->getPaymentFormModel();
+                $paymentMethod = ArrayHelper::firstValue(Plugin::getInstance()->getPaymentMethods()->getAllPaymentMethods());
+
+                if($paymentMethod) {
+                    $variables['paymentForm'] = $paymentMethod->getPaymentFormModel();
+                }
             }
         }
 
