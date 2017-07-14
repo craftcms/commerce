@@ -55,13 +55,13 @@
                 {% else %}
                     <p>No shipping address selected.</p>
                 {% endif %}
-                {% if currentUser %}<a class="edit" href="{{ url('shop/customer/addresses/edit') }}?addressId={{ cart.shippingAddressId }}&redirect={{ craft.app.request.path }}">Edit</a>{% endif %}
+                {% if currentUser %}<a class="edit" href="{{ url('shop/customer/addresses/edit') }}?addressId={{ cart.shippingAddressId }}&redirect={{ craft.app.request.pathInfo }}">Edit</a>{% endif %}
             </div>
             <div class="address-card">
                 <h5 class="label">Billing Address</h5>
                 {% if cart.billingAddress %}
                     {% include 'shop/_includes/addresses/address' with {'address': cart.billingAddress} %}
-                    {% if currentUser %}<a class="edit" href="{{ url('shop/customer/addresses/edit') }}?addressId={{ cart.billingAddressId }}&redirect={{ craft.app.request.path }}">Edit</a>{% endif %}
+                    {% if currentUser %}<a class="edit" href="{{ url('shop/customer/addresses/edit') }}?addressId={{ cart.billingAddressId }}&redirect={{ craft.app.request.pathInfo }}">Edit</a>{% endif %}
                 {% else %}
                     <p>No billing address selected.</p>
                 {% endif %}
