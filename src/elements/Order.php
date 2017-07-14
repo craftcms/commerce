@@ -148,11 +148,6 @@ class Order extends Element
     public $baseTax = 0;
 
     /**
-     * @var float Total Price
-     */
-    public $totalPrice = 0;
-
-    /**
      * @var float Total Paid
      */
     public $totalPaid = 0;
@@ -310,7 +305,7 @@ class Order extends Element
             } else {
                 // maybe not paid in full, but authorized enough to complete order.
                 $totalAuthorized = Plugin::getInstance()->getPayments()->getTotalAuthorizedForOrder($this);
-                if ($totalAuthorized >= $this->totalPrice) {
+                if ($totalAuthorized >= $this->getTotalPrice()) {
                     $this->markAsComplete();
                 }
             }
@@ -688,11 +683,7 @@ class Order extends Element
      */
     public function outstandingBalance()
     {
-
-        $totalPaid = Currency::round($this->totalPaid);
-        $totalPrice = Currency::round($this->totalPrice);
-
-        return $totalPrice - $totalPaid;
+        return $this->getTotalPrice() - Currency::round($this->totalPaid);
     }
 
     /**

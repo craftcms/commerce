@@ -453,7 +453,6 @@ class OrderQuery extends ElementQuery
             'commerce_orders.baseDiscount',
             'commerce_orders.baseTax',
             'commerce_orders.baseShippingCost',
-            'commerce_orders.totalPrice',
             'commerce_orders.totalPaid',
             'commerce_orders.orderStatusId',
             'commerce_orders.dateOrdered',
