@@ -204,10 +204,10 @@ class CartController extends BaseFrontEndController
                 } else {
                     $updateErrors['shippingAddressId'] = Craft::t('commerce', 'No shipping address found with that ID.');
                 }
-            };
+            }
         } elseif (null !== $request->getParam('shippingAddress')) {
             $shippingAddress = new Address();
-            $shippingAddress->setAttributes($request->getParam('shippingAddress'));
+            $shippingAddress->setAttributes($request->getParam('shippingAddress'), false);
             if (!$sameAddress) {
                 if ($billingAddressId = $request->getParam('billingAddressId')) {
                     $billingAddress = $plugin->getAddresses()->getAddressById($billingAddressId);
