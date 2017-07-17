@@ -61,7 +61,7 @@ abstract class OffsiteGatewayAdapter extends BaseGatewayAdapter
     }
 
     /**
-     * @param Request $card
+     * @param Request $request
      * @param BasePaymentFormModel $paymentForm
      *
      * @return void
