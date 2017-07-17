@@ -1674,7 +1674,8 @@ class Install extends Migration
             'class' => Dummy_GatewayAdapter::class,
             'name' => 'Dummy',
             'settings' => Json::encode([]),
-            'frontendEnabled' => true
+            'frontendEnabled' => true,
+            'isArchived' => false,
         ];
         $this->insert(PaymentMethod::tableName(), $data);
     }

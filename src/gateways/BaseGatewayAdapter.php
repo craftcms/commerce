@@ -4,7 +4,15 @@ namespace craft\commerce\gateways;
 
 use Craft;
 use craft\base\Model;
+use craft\commerce\errors\NotImplementedException;
+use craft\commerce\gateway\models\BasePaymentFormModel;
+use craft\commerce\gateway\models\CreditCardPaymentFormModel;
 use craft\commerce\models\PaymentMethod;
+use Omnipay\Common\AbstractGateway;
+use Omnipay\Common\CreditCard;
+use Omnipay\Common\GatewayFactory;
+use Omnipay\Common\ItemBag;
+use Omnipay\Manual\Message\Request;
 
 /**
  * Class BaseGatewayAdapter
@@ -13,13 +21,24 @@ use craft\commerce\models\PaymentMethod;
  */
 abstract class BaseGatewayAdapter extends Model implements GatewayAdapterInterface
 {
-    /** @var GatewayFactory */
+    /**
+     * @var GatewayFactory
+     */
     protected static $_factory;
-    /** @var AbstractGateway */
+
+    /**
+     * @var AbstractGateway
+     */
     protected $_gateway;
+
+
     protected $_selects = [];
+
     protected $_booleans = [];
-    /** @var PaymentMethod */
+
+    /**
+     * @var PaymentMethod
+     */
     private $_paymentMethod;
 
     /**
@@ -95,13 +114,11 @@ abstract class BaseGatewayAdapter extends Model implements GatewayAdapterInterfa
     }
 
     /**
-     * @param mixed $values
-     *
-     * @return void
+     * @inheritdoc
      */
-    public function setAttributes($values)
+    public function setAttributes($values, $safeOnly = true)
     {
-        parent::setAttributes($values);
+        parent::setAttributes($values, $safeOnly);
         if (is_array($values)) {
             $this->getGateway()->initialize($values);
         }
@@ -130,7 +147,7 @@ abstract class BaseGatewayAdapter extends Model implements GatewayAdapterInterfa
      */
     public function getSettingsHtml()
     {
-        return Craft::$app->getView()->render('commerce/_gateways/omnipay', [
+        return Craft::$app->getView()->renderTemplate('commerce/_gateways/omnipay', [
             'adapter' => $this,
         ]);
     }
@@ -211,14 +228,14 @@ abstract class BaseGatewayAdapter extends Model implements GatewayAdapterInterfa
 
     public function getPaymentFormHtml(array $params)
     {
-        return "";
+        return '';
     }
 
-    public function populateCard(CreditCard $card, BaseModel $paymentForm)
+    public function populateCard(CreditCard $card, CreditCardPaymentFormModel $paymentForm)
     {
     }
 
-    public function populateRequest(OmnipayRequest $request, BaseModel $paymentForm)
+    public function populateRequest(Request $request, BasePaymentFormModel $paymentForm)
     {
     }
 }

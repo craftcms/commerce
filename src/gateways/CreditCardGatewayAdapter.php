@@ -2,6 +2,12 @@
 
 namespace craft\commerce\gateways;
 
+use Craft;
+use craft\commerce\gateway\models\BasePaymentFormModel;
+use craft\commerce\gateway\models\CreditCardPaymentFormModel;
+use Omnipay\Common\CreditCard;
+use Omnipay\Manual\Message\Request;
+
 /**
  * Class CreditCardGatewayAdapter
  *
@@ -34,16 +40,16 @@ abstract class CreditCardGatewayAdapter extends BaseGatewayAdapter
 
         $params = array_merge($defaults, $params);
 
-        return \Craft\Craft::$app->getView()->render('commerce/_gateways/_paymentforms/creditcard', $params);
+        return Craft::$app->getView()->render('commerce/_gateways/_paymentforms/creditcard', $params);
     }
 
     /**
-     * @param CreditCard $card
-     * @param BaseModel  $paymentForm
+     * @param CreditCard                 $card
+     * @param CreditCardPaymentFormModel $paymentForm
      *
      * @return void
      */
-    public function populateCard(CreditCard $card, BaseModel $paymentForm)
+    public function populateCard(CreditCard $card, CreditCardPaymentFormModel $paymentForm)
     {
         $card->setFirstName($paymentForm->firstName);
         $card->setLastName($paymentForm->lastName);
@@ -54,12 +60,12 @@ abstract class CreditCardGatewayAdapter extends BaseGatewayAdapter
     }
 
     /**
-     * @param OmnipayRequest $request
-     * @param BaseModel      $paymentForm
+     * @param Request $request
+     * @param BasePaymentFormModel      $paymentForm
      *
      * @return void
      */
-    public function populateRequest(OmnipayRequest $request, BaseModel $paymentForm)
+    public function populateRequest(Request $request, BasePaymentFormModel $paymentForm)
     {
         if ($paymentForm->token) {
             $request->setToken($paymentForm->token);

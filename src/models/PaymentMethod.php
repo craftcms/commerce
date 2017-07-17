@@ -2,9 +2,10 @@
 
 namespace craft\commerce\models;
 
-use Commerce\Gateways\BaseGatewayAdapter;
-use Commerce\Interfaces\PaymentForm;
+use Craft;
 use craft\commerce\base\Model;
+use craft\commerce\gateway\models\BasePaymentFormModel;
+use craft\commerce\gateways\BaseGatewayAdapter;
 use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
 
@@ -52,7 +53,7 @@ class PaymentMethod extends Model
     /**
      * @var string Payment Type
      */
-    public $paymentType;
+    public $paymentType = 'purchase';
 
     /**
      * @var bool Enabled on the frontend
@@ -74,7 +75,9 @@ class PaymentMethod extends Model
      */
     public $settings;
 
-    /** @var BaseGatewayAdapter */
+    /**
+     * @var BaseGatewayAdapter
+     */
     private $_gatewayAdapter;
 
     /**
@@ -85,22 +88,6 @@ class PaymentMethod extends Model
         return [
             [['paymentType'], 'required']
         ];
-    }
-
-    /**
-     * Initialize
-     */
-    public function init()
-    {
-        $this->_initDefaults();
-    }
-
-    /**
-     * Initialize default values
-     */
-    private function _initDefaults()
-    {
-        $this->paymentType = 'purchase';
     }
 
     /**
@@ -177,7 +164,7 @@ class PaymentMethod extends Model
     /**
      * Payment Form HTML
      *
-     * @return PaymentForm
+     * @return BasePaymentFormModel
      */
     public function getPaymentFormModel()
     {

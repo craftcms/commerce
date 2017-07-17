@@ -2,6 +2,13 @@
 
 namespace craft\commerce\gateways;
 
+use Craft;
+use craft\commerce\gateway\models\BasePaymentFormModel;
+use craft\commerce\gateway\models\CreditCardPaymentFormModel;
+use craft\commerce\gateway\models\OffsitePaymentFormModel;
+use Omnipay\Common\CreditCard;
+use Omnipay\Manual\Message\Request;
+
 abstract class OffsiteGatewayAdapter extends BaseGatewayAdapter
 {
     /**
@@ -18,7 +25,7 @@ abstract class OffsiteGatewayAdapter extends BaseGatewayAdapter
     }
 
     /**
-     * @return \Commerce\Gateways\PaymentFormModels\BasePaymentFormModel
+     * @return OffsitePaymentFormModel
      */
     public function getPaymentFormModel()
     {
@@ -40,26 +47,26 @@ abstract class OffsiteGatewayAdapter extends BaseGatewayAdapter
 
         $params = array_merge($defaults, $params);
 
-        return \Craft\Craft::$app->getView()->render('commerce/_gateways/_paymentforms/offsite', $params);
+        return Craft::$app->getView()->render('commerce/_gateways/_paymentforms/offsite', $params);
     }
 
     /**
      * @param CreditCard $card
-     * @param BaseModel  $paymentForm
+     * @param CreditCardPaymentFormModel $paymentForm
      *
      * @return void
      */
-    public function populateCard(CreditCard $card, BaseModel $paymentForm)
+    public function populateCard(CreditCard $card, CreditCardPaymentFormModel $paymentForm)
     {
     }
 
     /**
-     * @param OmnipayRequest $card
-     * @param BaseModel      $paymentForm
+     * @param Request $card
+     * @param BasePaymentFormModel $paymentForm
      *
      * @return void
      */
-    public function populateRequest(OmnipayRequest $card, BaseModel $paymentForm)
+    public function populateRequest(Request $request, BasePaymentFormModel $paymentForm)
     {
     }
 }

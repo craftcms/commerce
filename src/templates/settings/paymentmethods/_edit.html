@@ -11,9 +11,8 @@
 
 {% block content %}
     <input type="hidden" name="id" value="{{ paymentMethod.id }}">
-    <input type="hidden" name="action" value="commerce/paymentMethods/save">
-    <input type="hidden" name="redirect"
-           value="commerce/settings/paymentmethods">
+    <input type="hidden" name="action" value="commerce/payment-methods/save">
+    {{ redirectInput('commerce/settings/paymentmethods') }}
 
     {{ forms.textField({
         label: 'Name'|t('commerce'),
@@ -70,15 +69,12 @@
 {% endblock %}
 
 {% js %}
-{#<script>#}
-$(function() {
-$('#class').change(function() {
-$('.gateway-settings').hide().find('select, input, textarea').prop('disabled', true);
-if($(this).val()) {
-$('#gateway-' + $(this).val()).show().find('select, input, textarea').prop('disabled', false);
-}
-}).change();
-
-});
-{#</script>#}
+    $(function() {
+        $('#class').change(function() {
+            $('.gateway-settings').hide().find('select, input, textarea').prop('disabled', true);
+            if($(this).val()) {
+                $('#gateway-' + $(this).val()).show().find('select, input, textarea').prop('disabled', false);
+            }
+        }).change();
+    });
 {% endjs %}

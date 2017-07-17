@@ -29,7 +29,9 @@ class PaymentMethodsController extends BaseAdminController
     public function actionIndex(): Response
     {
         $paymentMethods = Plugin::getInstance()->getPaymentMethods()->getAllPaymentMethods();
-        return $this->renderTemplate('commerce/settings/paymentmethods/index', compact('paymentMethods'));
+        return $this->renderTemplate('commerce/settings/paymentmethods/index', [
+            'paymentMethods' => $paymentMethods
+        ]);
     }
 
     /**
@@ -61,7 +63,7 @@ class PaymentMethodsController extends BaseAdminController
         $variables['gateways'] = Plugin::getInstance()->getGateways()->getAllGateways();
         $list = [];
         foreach ($variables['gateways'] as $gw) {
-            $list[$gw->handle()] = $gw->displayName();
+            $list[get_class($gw)] = $gw->displayName();
         }
         asort($list);
 
@@ -91,6 +93,11 @@ class PaymentMethodsController extends BaseAdminController
         $paymentMethod->class = Craft::$app->getRequest()->getRequiredParam('class');
         $paymentMethod->frontendEnabled = Craft::$app->getRequest()->getParam('frontendEnabled');
 
+        // For new payment method avoid NULL value.
+        if (!$paymentMethod->id)
+        {
+            $paymentMethod->isArchived = false;
+        }
 
         // Check if settings have been overridden in config.
         $configSettings = Plugin::getInstance()->getSettings()->paymentMethodSettings;
@@ -134,11 +141,11 @@ class PaymentMethodsController extends BaseAdminController
 
         $id = Craft::$app->getRequest()->getRequiredParam('id');
 
-        if (Plugin::getInstance()->getPaymentMethods()->archivePaymentMethod($id)) {
-            $this->asJson(['success' => true]);
+        if (Plugin::getInstance()->getPaymentMethods()->archivePaymentMethodById($id)) {
+            return $this->asJson(['success' => true]);
         };
 
-        $this->asErrorJson(Craft::t('commerce', 'Could not archive payment method'));
+        return $this->asErrorJson(Craft::t('commerce', 'Could not archive payment method'));
     }
 
     /**

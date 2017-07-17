@@ -2,19 +2,18 @@
 
 namespace craft\commerce\services;
 
+use Craft;
 use craft\commerce\models\PaymentMethod;
 use craft\commerce\Plugin;
 use craft\commerce\records\PaymentMethod as PaymentMethodRecord;
-use craft\helpers\ArrayHelper;
+use craft\db\Query;
 use craft\helpers\Db;
+use craft\helpers\Json;
 use yii\base\Component;
 use yii\base\Exception;
 
 /**
  * Payment method service.
- *
- * @property array                                        $allPaymentMethods
- * @property PaymentMethod[] $allFrontEndPaymentMethods
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -29,65 +28,64 @@ class PaymentMethods extends Component
     const FRONTEND_ENABLED = 'frontendEnabled';
 
     /**
-     * @return PaymentMethod[]
+     * Get all frontend enabled payment methods.
+     *
+     * @return PaymentMethod[] All payment methods that are enabled for frontend
      */
     public function getAllFrontEndPaymentMethods(): array
     {
-        $records = PaymentMethodRecord::find()->where(['isArchived' => false, 'frontEndEnabled' => true])->orderBy('sortOrder')->all();
+        $rows = $this->_createPaymentMethodsQuery()
+            ->where(Db::parseParam('isArchived', ':empty:'))
+            ->andWhere(Db::parseParam('frontEndEnabled', 'not :empty:'))
+            ->orderBy('sortOrder')
+            ->all();
 
-        return ArrayHelper::map($records, 'id', function($record) {
-            return $this->_createPaymentMethodFromPaymentMethodRecord($record);
-        });
+        $methods = [];
+        
+        foreach ($rows as $row) {
+            $row['settings'] = Json::decodeIfJson($row['settings']);
+            $paymentMethod = new PaymentMethod($row);
+            $this->_overridepaymentMethodSettings($paymentMethod);
+            $methods[] = $paymentMethod;
+        }
+
+        return $methods;
     }
 
     /**
-     * @return array
+     * Get all  payment methods.
+     *
+     * @return PaymentMethod[] All payment methods
      */
     public function getAllPaymentMethods(): array
     {
-        $records = PaymentMethodRecord::find()->where('isArchived=:xIsArchived', [':xIsArchived' => false])->orderBy('sortOrder')->all();
+        $rows = $this->_createPaymentMethodsQuery()
+            ->where(Db::parseParam('isArchived', ':empty:'))
+            ->orderBy('sortOrder')
+            ->all();
 
-        return ArrayHelper::map($records, 'id', function($record) {
-            return $this->_createPaymentMethodFromPaymentMethodRecord($record);
-        });
-    }
+        $methods = [];
 
-    private function _createPaymentMethodFromPaymentMethodRecord(PaymentMethodRecord $record): PaymentMethod
-    {
-        $paymentMethod = new PaymentMethod($record->toArray([
-            'id',
-            'class',
-            'name',
-            'paymentType',
-            'frontendEnabled',
-            'isArchived',
-            'dateArchived',
-            'settings',
-        ]));
-
-        // Allow settings to be overridden from config file
-        if ($paymentMethod->id) {
-            // Are its settings being set from the config file?
-            $paymentMethodSettings = Plugin::getInstance()->getSettings()->paymentMethodSettings;
-
-            if (isset($paymentMethodSettings[$paymentMethod->id])) {
-                $paymentMethod->settings = array_merge($paymentMethod->settings, $paymentMethodSettings[$paymentMethod->id]);
-            }
+        foreach ($rows as $row) {
+            $row['settings'] = Json::decodeIfJson($row['settings']);
+            $paymentMethod = new PaymentMethod($row);
+            $this->_overridepaymentMethodSettings($paymentMethod);
+            $methods[] = $paymentMethod;
         }
 
-        return $paymentMethod;
+        return $methods;
     }
 
     /**
-     * @param $id
+     * Archive a payment method by it's id.
      *
-     * @return bool
-     * @throws Exception
+     * @param int $id payment method id.
+     *
+     * @return bool Whether the archiving was successful or not
      */
-    public function archivePaymentMethod($id): bool
+    public function archivePaymentMethodById(int $id): bool
     {
         $paymentMethod = $this->getPaymentMethodById($id);
-
         $paymentMethod->isArchived = true;
         $paymentMethod->dateArchived = Db::prepareDateForDb(new \DateTime());
 
@@ -95,25 +93,34 @@ class PaymentMethods extends Component
     }
 
     /**
+     * Get a payment method by it's id.
+     *
      * @param int $id
      *
-     * @return PaymentMethod|null
+     * @return PaymentMethod|null The payment method or null if not found.
      */
-    public function getPaymentMethodById($id)
+    public function getPaymentMethodById(int $id)
     {
-        $result = PaymentMethodRecord::findOne($id);
+        $row = $this->_createPaymentMethodsQuery()
+            ->where(['id' => $id])
+            ->one();
 
-        if ($result) {
-            return $this->_createPaymentMethodFromPaymentMethodRecord($result);
+        if (!$row) {
+            return null;
         }
 
-        return null;
+        $paymentMethod = new PaymentMethod($row);
+        $this->_overridepaymentMethodSettings($paymentMethod);
+
+        return $paymentMethod;
     }
 
     /**
-     * @param PaymentMethod $model
+     * Save a payment method.
      *
-     * @return bool
+     * @param PaymentMethod $model The payment method to be saved.
+     *
+     * @return bool Whether the payment method was saved successfully or not.
      * @throws Exception
      */
     public function savePaymentMethod(PaymentMethod $model): bool
@@ -163,15 +170,18 @@ class PaymentMethods extends Component
     }
 
     /**
-     * @param $ids
+     * Reorder payment methods by ids.
      *
-     * @return bool
+     * @param array $ids Array of payment methods.
+     *
+     * @return bool Always true.
      */
-    public function reorderPaymentMethods($ids): bool
+    public function reorderPaymentMethods(array $ids): bool
     {
         $paymentMethods = $this->getAllPaymentMethods();
 
         $count = 999;
+
         // Append those not in the table an put them at 999+
         foreach ($paymentMethods as $paymentMethod) {
             if ($paymentMethod->isArchived) {
@@ -180,10 +190,49 @@ class PaymentMethods extends Component
         }
 
         foreach ($ids as $sortOrder => $id) {
-            \Craft::$app->getDb()->createCommand()->update('commerce_paymentmethods',
-                ['sortOrder' => $sortOrder + 1], ['id' => $id]);
+            Craft::$app->getDb()->createCommand()->update('commerce_paymentmethods', ['sortOrder' => $sortOrder + 1], ['id' => $id])->execute();
         }
 
         return true;
+    }
+
+    // Private methods
+    // =========================================================================
+
+    /**
+     * Returns a Query object prepped for retrieving payment methods,
+     *
+     * @return Query The query object.
+     */
+    private function _createPaymentMethodsQuery(): Query
+    {
+        return (new Query())
+            ->select([
+                'id',
+                'class',
+                'name',
+                'paymentType',
+                'frontendEnabled',
+                'isArchived',
+                'dateArchived',
+                'settings',
+            ])
+            ->from(['{{%commerce_paymentmethods}}']);
+    }
+
+    /**
+     * Override payment method settings form config file.
+     *
+     * @param PaymentMethod $paymentMethod The payment method.
+     */
+    private function _overridepaymentMethodSettings(PaymentMethod $paymentMethod)
+    {
+        if ($paymentMethod->id) {
+            $paymentMethodSettings = Plugin::getInstance()->getSettings()->paymentMethodSettings;
+
+            if (isset($paymentMethodSettings[$paymentMethod->id])) {
+                $paymentMethod->settings = array_merge($paymentMethod->settings, $paymentMethodSettings[$paymentMethod->id]);
+            }
+        }
     }
 }
