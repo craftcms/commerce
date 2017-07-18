@@ -12,6 +12,7 @@ Commerce Changelog
 - Fixed a bug where `LineItemModel:onSale()` could sometimes return an incorrect response due to rounding errors.
 - Fixed a PHP error that could occur if a purchasable invalidated a line item when adding to a new cart.
 - Fixed an issue where the billing address first and last name were overriding the credit card forms first and last name for some gateways.
+- Fixed a bug where adding to cart with different `options` params would pass stock validation.
 
 ### Changed
 - Updated the Migs omnipay driver to 2.2.2

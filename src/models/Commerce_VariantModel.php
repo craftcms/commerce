@@ -372,12 +372,21 @@ class Commerce_VariantModel extends BasePurchasable
                 {
                     $qty[$item->purchasableId] = 0;
                 }
+
+                // count new line items
+                if($lineItem->id === null)
+                {
+                    $qty[$item->purchasableId] += $lineItem->qty;
+                }
+
+                // count updated line items
                 if ($item->id == $lineItem->id)
                 {
                     $qty[$item->purchasableId] += $lineItem->qty;
                 }
                 else
                 {
+                    // count other line items with same purchasableId
                     $qty[$item->purchasableId] += $item->qty;
                 }
             }
