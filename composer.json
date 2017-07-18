@@ -38,7 +38,7 @@
         "omnipay/pin" :  "~2.2",
         "omnipay/sagepay" :  "dev-master#8c6d1fdd45001a6062dd989a9f7c5fb4e6d73c5e",
         "omnipay/securepay" : "~2.1",
-        "omnipay/stripe" :  "~2.4",
+        "omnipay/stripe" :  "dev-master#26a33414a75939af75064022112005d5e51fc9ea",
         "omnipay/targetpay" :  "~2.2",
         "omnipay/worldpay" :  "~2.2",
         "dompdf/dompdf" : "~0.8",
