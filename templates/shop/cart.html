@@ -14,8 +14,13 @@
                 </tr>
                 </thead>
                 <tbody>
+                {% set lineItemHasErrors = false %}
                 {% for item in cart.lineItems %}
-                    <tr>
+                    {% if item.hasErrors() %}
+                        {# if the line item has errors lets record it so we can hide totals later (since they wont make sense) #}
+                        {% set lineItemHasErrors = true %}
+                    {% endif %}
+                    <tr {% if item.hasErrors() %}style="background-color:rgba(255, 0, 0, .1);"{% endif %}>
                         <td>
                             <strong>{{ item.description }}</strong><br>
                             ({{ item.sku }})
@@ -49,6 +54,7 @@
                             </form>
                         </td>
                         <td class="text-right">
+                            {% if not lineItemHasErrors %}
                             {% if item.onSale %}
                                 <s>Price: {{ item.price|commerceCurrency(cart.currency) }}</s><br>
                                 Sale Off: {{ item.saleAmount|commerceCurrency(cart.currency) }}<br>
@@ -65,10 +71,12 @@
                             Taxes (Inc): {{ item.taxIncluded|commerceCurrency(cart.currency) }}<br>
                             Shipping: {{ item.shippingCost|commerceCurrency(cart.currency) }}<br>
                             Total: {{ item.total|commerceCurrency(cart.currency) }}<br>
+                            {% endif %}
                         </td>
                     </tr>
                 {% endfor %}
 
+                {% if not lineItemHasErrors %}
                 {% for adjustment in cart.adjustments %}
                     <tr>
                         <td>{{ adjustment.type }}
@@ -77,6 +85,7 @@
                         <td class="text-right">{{ adjustment.amount|commerceCurrency(cart.currency) }}</td>
                     </tr>
                 {% endfor %}
+                {% endif %}
 
                 <tr>
                     <td>
@@ -102,6 +111,7 @@
 
                     </td>
                     <td colspan="2" class="text-right">
+                        {% if not lineItemHasErrors %}
                         Item Sub Total: {{ cart.itemSubTotal|commerceCurrency(cart.currency) }}<br>
 
                         Item Total: {{ cart.itemTotal|commerceCurrency(cart.currency) }}<br>
@@ -117,13 +127,16 @@
                         Total Tax (inc): {{ cart.totalTaxIncluded|commerceCurrency(cart.currency) }}<br>
 
                         <h4>Total Price: {{ cart.totalPrice|commerceCurrency(cart.currency) }}</h4>
+                        {% endif %}
                     </td>
                 </tr>
 
                 </tbody>
             </table>
-
+            {% if not lineItemHasErrors %}
             <a class="button button-primary" href="{{ url('shop/checkout') }}">Checkout</a>
+            {% endif %}
+
             {% endif %}
 
             {% if not cart.lineItems|length %}
