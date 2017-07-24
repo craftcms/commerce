@@ -16,6 +16,7 @@ Commerce Changelog
 
 ### Changed
 - Updated the Migs omnipay driver to 2.2.2
+- Updated the Stripe omnipay driver to 2.4.7
 
 ## 1.2.1345 - 2017-06-26
 
