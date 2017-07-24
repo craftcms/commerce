@@ -4,7 +4,7 @@ Commerce Changelog
 ## Unreleased
 
 ### Added
-- Added the `autoSetLastUsedShippingAddressOnNewCarts` and `autoSetLastUsedBillingAddressOnNewCarts` config options, to allow the disabling of automatically setting the last used customer's addresses on new carts.
+- Added the `autoSetNewCartAddresses` config setting, which can be set to `false` to prevent Commerce from automatically assigning the last-used billing and shipping addresses on new carts.
 
 ### Fixed
 - Fixed an API authentication error when making payments using the Stripe gateway.
