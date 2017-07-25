@@ -248,7 +248,7 @@ class Cart extends Component
      */
     public function setPaymentMethod(Order $cart, $paymentMethodId, &$error = "")
     {
-        $method = Plugin::getInstance()->getPaymentMethods()->getPaymentMethodById($paymentMethodId);
+        $method = Plugin::getInstance()->getPaymentMethods()->getGatewayById($paymentMethodId);
 
         if (!$method) {
             $error = Craft::t('commerce', 'Payment method does not exist or is not allowed.');
@@ -256,7 +256,7 @@ class Cart extends Component
             return false;
         }
 
-        $cart->paymentMethodId = $paymentMethodId;
+        $cart->gatewayId = $paymentMethodId;
         Craft::$app->getElements()->saveElement($cart);
 
         return true;

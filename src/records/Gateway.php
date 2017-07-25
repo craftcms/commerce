@@ -6,10 +6,9 @@ use craft\commerce\Plugin;
 use craft\db\ActiveRecord;
 
 /**
- * Payment method record.
+ * Gateway record.
  *
  * @property int    $id
- * @property string $class
  * @property string $name
  * @property string $paymentType
  * @property array  $settings
@@ -25,7 +24,7 @@ use craft\db\ActiveRecord;
  * @package   craft.plugins.commerce.records
  * @since     1.0
  */
-class PaymentMethod extends ActiveRecord
+class Gateway extends ActiveRecord
 {
     /**
      * The name of the table not including the craft db prefix e.g craft_
@@ -34,7 +33,7 @@ class PaymentMethod extends ActiveRecord
      */
     public static function tableName()
     {
-        return '{{%commerce_paymentmethods}}';
+        return '{{%commerce_gateways}}';
     }
 
 //    /**
@@ -46,26 +45,6 @@ class PaymentMethod extends ActiveRecord
 //            ['columns' => ['name'], 'unique' => true],
 //        ];
 //    }
-
-    /**
-     * @return array
-     */
-    public function rules()
-    {
-        return array_merge(parent::rules(), [
-            ['class', 'in', 'range' => $this->gatewayNames()],
-        ]);
-    }
-
-    /**
-     * @return array
-     */
-    private function gatewayNames()
-    {
-        $gateways = Plugin::getInstance()->getGateways()->getAllGateways();
-
-        return array_keys($gateways);
-    }
 
 //    /**
 //     * @return array

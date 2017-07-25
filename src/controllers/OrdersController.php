@@ -82,12 +82,12 @@ class OrdersController extends BaseCpController
 
 
         if (empty($variables['paymentForm'])) {
-            $paymentMethod = $variables['order']->getPaymentMethod();
+            $paymentMethod = $variables['order']->getGateway();
 
             if ($paymentMethod && $paymentMethod->getGatewayAdapter()) {
-                $variables['paymentForm'] = $variables['order']->paymentMethod->getPaymentFormModel();
+                $variables['paymentForm'] = $variables['order']->gateway->getPaymentFormModel();
             } else {
-                $paymentMethod = ArrayHelper::firstValue(Plugin::getInstance()->getPaymentMethods()->getAllPaymentMethods());
+                $paymentMethod = ArrayHelper::firstValue(Plugin::getInstance()->getPaymentMethods()->getAllGateways());
 
                 if($paymentMethod) {
                     $variables['paymentForm'] = $paymentMethod->getPaymentFormModel();
@@ -142,7 +142,7 @@ class OrdersController extends BaseCpController
         $paymentFormData = Craft::$app->getRequest()->getParam('paymentForm');
 
         $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
-        $paymentMethods = Plugin::getInstance()->getPaymentMethods()->getAllPaymentMethods();
+        $paymentMethods = Plugin::getInstance()->getPaymentMethods()->getAllGateways();
 
         $formHtml = "";
         foreach ($paymentMethods as $key => $paymentMethod) {
@@ -159,8 +159,8 @@ class OrdersController extends BaseCpController
             }
 
             // Add the errors and data back to the current form model.
-            if ($paymentMethod->id == $order->paymentMethodId) {
-                $paymentFormModel = $order->paymentMethod->getPaymentFormModel();
+            if ($paymentMethod->id == $order->gatewayId) {
+                $paymentFormModel = $order->gateway->getPaymentFormModel();
 
                 if ($paymentFormData) {
                     // Re-add submitted data to payment form model

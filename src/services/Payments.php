@@ -111,9 +111,9 @@ class Payments extends Component
         }
 
         //choosing default action
-        $defaultAction = $order->paymentMethod->paymentType;
+        $defaultAction = $order->gateway->paymentType;
         $defaultAction = ($defaultAction === TransactionRecord::TYPE_PURCHASE) ? $defaultAction : TransactionRecord::TYPE_AUTHORIZE;
-        $gateway = $order->paymentMethod->getGateway();
+        $gateway = $order->gateway->getGateway();
 
         if ($defaultAction == TransactionRecord::TYPE_AUTHORIZE) {
             if (!$gateway->supportsAuthorize()) {
@@ -142,7 +142,7 @@ class Payments extends Component
 
         // Let the payment methods gateway adapter do anything else to the request
         // including populating the request with things other than the card data.
-        $order->paymentMethod->populateRequest($request, $form);
+        $order->gateway->populateRequest($request, $form);
 
         try {
             $success = $this->sendPaymentRequest($order, $request, $transaction, $redirect, $customError);
@@ -182,7 +182,7 @@ class Payments extends Component
     ) {
         $card = new CreditCard;
 
-        $order->paymentMethod->populateCard($card, $paymentForm);
+        $order->gateway->populateCard($card, $paymentForm);
 
         if ($order->billingAddressId) {
             $billingAddress = $order->billingAddress;
@@ -255,7 +255,7 @@ class Payments extends Component
             return null;
         }
 
-        $items = $order->getPaymentMethod()->getGatewayAdapter()->createItemBag();
+        $items = $order->getGateway()->getGatewayAdapter()->createItemBag();
 
         $priceCheck = 0;
 
@@ -585,7 +585,7 @@ class Payments extends Component
         $order = $parent->order;
         $child = Plugin::getInstance()->getTransactions()->createTransaction($order);
         $child->parentId = $parent->id;
-        $child->paymentMethodId = $parent->paymentMethodId;
+        $child->gatewayId = $parent->gatewayId;
         $child->type = $action;
         $child->amount = $parent->amount;
         $child->paymentAmount = $parent->paymentAmount;

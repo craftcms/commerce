@@ -5,16 +5,15 @@ namespace craft\commerce\migrations;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
-use craft\commerce\gateways\Dummy_GatewayAdapter;
+use craft\commerce\gateways\Dummy;
 use craft\commerce\Plugin;
 use craft\commerce\records\OrderSettings;
 use craft\commerce\records\OrderStatus;
 use craft\commerce\records\PaymentCurrency;
-use craft\commerce\records\PaymentMethod;
+use craft\commerce\records\Gateway;
 use craft\commerce\records\Product as ProductRecord;
 use craft\commerce\records\ProductType;
 use craft\commerce\records\ProductTypeSite;
-use craft\commerce\records\Settings;
 use craft\commerce\records\ShippingCategory;
 use craft\commerce\records\ShippingMethod;
 use craft\commerce\records\ShippingRule;
@@ -215,6 +214,21 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->createTable('{{%commerce_gateways}}', [
+            'id' => $this->primaryKey(),
+            'type' => $this->string()->notNull(),
+            'name' => $this->string()->notNull(),
+            'settings' => $this->text(),
+            'paymentType' => $this->enum('paymentType', ['authorize', 'purchase'])->notNull()->defaultValue('purchase'),
+            'frontendEnabled' => $this->boolean(),
+            'isArchived' => $this->boolean(),
+            'dateArchived' => $this->dateTime(),
+            'sortOrder' => $this->integer(),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
+
         $this->createTable('{{%commerce_lineitems}}', [
             'id' => $this->primaryKey(),
             'orderId' => $this->integer()->notNull(),
@@ -272,7 +286,7 @@ class Install extends Migration
         $this->createTable('{{%commerce_orders}}', [
             'billingAddressId' => $this->integer(),
             'shippingAddressId' => $this->integer(),
-            'paymentMethodId' => $this->integer(),
+            'gatewayId' => $this->integer(),
             'customerId' => $this->integer(),
             'id' => $this->integer()->notNull(),
             'orderStatusId' => $this->integer(),
@@ -339,21 +353,6 @@ class Install extends Migration
             'iso' => $this->string(3)->notNull(),
             'primary' => $this->boolean(),
             'rate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
-            'dateCreated' => $this->dateTime()->notNull(),
-            'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid(),
-        ]);
-
-        $this->createTable('{{%commerce_paymentmethods}}', [
-            'id' => $this->primaryKey(),
-            'class' => $this->string()->notNull(),
-            'name' => $this->string()->notNull(),
-            'settings' => $this->text(),
-            'paymentType' => $this->enum('paymentType', ['authorize', 'purchase'])->notNull()->defaultValue('purchase'),
-            'frontendEnabled' => $this->boolean(),
-            'isArchived' => $this->boolean(),
-            'dateArchived' => $this->dateTime(),
-            'sortOrder' => $this->integer(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -636,7 +635,7 @@ class Install extends Migration
         $this->createTable('{{%commerce_transactions}}', [
             'id' => $this->primaryKey(),
             'parentId' => $this->integer(),
-            'paymentMethodId' => $this->integer(),
+            'gatewayId' => $this->integer(),
             'userId' => $this->integer(),
             'hash' => $this->string(32),
             'type' => $this->enum('type', ['authorize', 'capture', 'purchase', 'refund'])->notNull(),
@@ -695,6 +694,7 @@ class Install extends Migration
         $this->dropTable('{{%commerce_discount_usergroups}}');
         $this->dropTable('{{%commerce_discounts}}');
         $this->dropTable('{{%commerce_emails}}');
+        $this->dropTable('{{%commerce_gateways}}');
         $this->dropTable('{{%commerce_lineitems}}');
         $this->dropTable('{{%commerce_orderadjustments}}');
         $this->dropTable('{{%commerce_orderhistories}}');
@@ -703,7 +703,6 @@ class Install extends Migration
         $this->dropTable('{{%commerce_orderstatus_emails}}');
         $this->dropTable('{{%commerce_orderstatuses}}');
         $this->dropTable('{{%commerce_paymentcurrencies}}');
-        $this->dropTable('{{%commerce_paymentmethods}}');
         $this->dropTable('{{%commerce_products}}');
         $this->dropTable('{{%commerce_producttypes}}');
         $this->dropTable('{{%commerce_producttypes_sites}}');
@@ -758,6 +757,7 @@ class Install extends Migration
         $this->createIndex($this->db->getIndexName('{{%commerce_discounts}}', 'code', true), '{{%commerce_discounts}}', 'code', true);
         $this->createIndex($this->db->getIndexName('{{%commerce_discounts}}', 'dateFrom', false), '{{%commerce_discounts}}', 'dateFrom', false);
         $this->createIndex($this->db->getIndexName('{{%commerce_discounts}}', 'dateTo', false), '{{%commerce_discounts}}', 'dateTo', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_gateways}}', 'name', true), '{{%commerce_gateways}}', 'name', true);
         $this->createIndex($this->db->getIndexName('{{%commerce_lineitems}}', 'orderId,purchasableId,optionsSignature', true), '{{%commerce_lineitems}}', 'orderId,purchasableId,optionsSignature', true);
         $this->createIndex($this->db->getIndexName('{{%commerce_lineitems}}', 'purchasableId', false), '{{%commerce_lineitems}}', 'purchasableId', false);
         $this->createIndex($this->db->getIndexName('{{%commerce_lineitems}}', 'taxCategoryId', false), '{{%commerce_lineitems}}', 'taxCategoryId', false);
@@ -770,7 +770,7 @@ class Install extends Migration
         $this->createIndex($this->db->getIndexName('{{%commerce_orders}}', 'number', false), '{{%commerce_orders}}', 'number', true);
         $this->createIndex($this->db->getIndexName('{{%commerce_orders}}', 'billingAddressId', false), '{{%commerce_orders}}', 'billingAddressId', false);
         $this->createIndex($this->db->getIndexName('{{%commerce_orders}}', 'shippingAddressId', false), '{{%commerce_orders}}', 'shippingAddressId', false);
-        $this->createIndex($this->db->getIndexName('{{%commerce_orders}}', 'paymentMethodId', false), '{{%commerce_orders}}', 'paymentMethodId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_orders}}', 'gatewayId', false), '{{%commerce_orders}}', 'gatewayId', false);
         $this->createIndex($this->db->getIndexName('{{%commerce_orders}}', 'customerId', false), '{{%commerce_orders}}', 'customerId', false);
         $this->createIndex($this->db->getIndexName('{{%commerce_orders}}', 'orderStatusId', false), '{{%commerce_orders}}', 'orderStatusId', false);
         $this->createIndex($this->db->getIndexName('{{%commerce_ordersettings}}', 'handle', true), '{{%commerce_ordersettings}}', 'handle', true);
@@ -778,7 +778,6 @@ class Install extends Migration
         $this->createIndex($this->db->getIndexName('{{%commerce_orderstatus_emails}}', 'orderStatusId', false), '{{%commerce_orderstatus_emails}}', 'orderStatusId', false);
         $this->createIndex($this->db->getIndexName('{{%commerce_orderstatus_emails}}', 'emailId', false), '{{%commerce_orderstatus_emails}}', 'emailId', false);
         $this->createIndex($this->db->getIndexName('{{%commerce_paymentcurrencies}}', 'iso', true), '{{%commerce_paymentcurrencies}}', 'iso', true);
-        $this->createIndex($this->db->getIndexName('{{%commerce_paymentmethods}}', 'name', true), '{{%commerce_paymentmethods}}', 'name', true);
         $this->createIndex($this->db->getIndexName('{{%commerce_products}}', 'typeId', false), '{{%commerce_products}}', 'typeId', false);
         $this->createIndex($this->db->getIndexName('{{%commerce_products}}', 'postDate', false), '{{%commerce_products}}', 'postDate', false);
         $this->createIndex($this->db->getIndexName('{{%commerce_products}}', 'expiryDate', false), '{{%commerce_products}}', 'expiryDate', false);
@@ -827,7 +826,7 @@ class Install extends Migration
         $this->createIndex($this->db->getIndexName('{{%commerce_taxzone_states}}', 'stateId', false), '{{%commerce_taxzone_states}}', 'stateId', false);
         $this->createIndex($this->db->getIndexName('{{%commerce_taxzones}}', 'name', true), '{{%commerce_taxzones}}', 'name', true);
         $this->createIndex($this->db->getIndexName('{{%commerce_transactions}}', 'parentId', false), '{{%commerce_transactions}}', 'parentId', false);
-        $this->createIndex($this->db->getIndexName('{{%commerce_transactions}}', 'paymentMethodId', false), '{{%commerce_transactions}}', 'paymentMethodId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_transactions}}', 'gatewayId', false), '{{%commerce_transactions}}', 'gatewayId', false);
         $this->createIndex($this->db->getIndexName('{{%commerce_transactions}}', 'orderId', false), '{{%commerce_transactions}}', 'orderId', false);
         $this->createIndex($this->db->getIndexName('{{%commerce_transactions}}', 'userId', false), '{{%commerce_transactions}}', 'userId', false);
         $this->createIndex($this->db->getIndexName('{{%commerce_variants}}', 'sku', true), '{{%commerce_variants}}', 'sku', true);
@@ -867,7 +866,7 @@ class Install extends Migration
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_orders}}', 'customerId'), '{{%commerce_orders}}', 'customerId', '{{%commerce_customers}}', 'id', 'SET NULL', null);
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_orders}}', 'id'), '{{%commerce_orders}}', 'id', '{{%elements}}', 'id', 'CASCADE', null);
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_orders}}', 'orderStatusId'), '{{%commerce_orders}}', 'orderStatusId', '{{%commerce_orderstatuses}}', 'id', null, 'CASCADE');
-        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_orders}}', 'paymentMethodId'), '{{%commerce_orders}}', 'paymentMethodId', '{{%commerce_paymentmethods}}', 'id', 'SET NULL', null);
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_orders}}', 'gatewayId'), '{{%commerce_orders}}', 'gatewayId', '{{%commerce_gateways}}', 'id', 'SET NULL', null);
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_orders}}', 'shippingAddressId'), '{{%commerce_orders}}', 'shippingAddressId', '{{%commerce_addresses}}', 'id', 'SET NULL', null);
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_ordersettings}}', 'fieldLayoutId'), '{{%commerce_ordersettings}}', 'fieldLayoutId', '{{%fieldlayouts}}', 'id', 'SET NULL', null);
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_orderstatus_emails}}', 'emailId'), '{{%commerce_orderstatus_emails}}', 'emailId', '{{%commerce_emails}}', 'id', 'CASCADE', 'CASCADE');
@@ -908,7 +907,7 @@ class Install extends Migration
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_taxzone_states}}', 'taxZoneId'), '{{%commerce_taxzone_states}}', 'taxZoneId', '{{%commerce_taxzones}}', 'id', 'CASCADE', 'CASCADE');
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_transactions}}', 'orderId'), '{{%commerce_transactions}}', 'orderId', '{{%commerce_orders}}', 'id', 'CASCADE', null);
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_transactions}}', 'parentId'), '{{%commerce_transactions}}', 'parentId', '{{%commerce_transactions}}', 'id', 'CASCADE', 'CASCADE');
-        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_transactions}}', 'paymentMethodId'), '{{%commerce_transactions}}', 'paymentMethodId', '{{%commerce_paymentmethods}}', 'id', null, 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_transactions}}', 'gatewayId'), '{{%commerce_transactions}}', 'gatewayId', '{{%commerce_gateways}}', 'id', null, 'CASCADE');
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_transactions}}', 'userId'), '{{%commerce_transactions}}', 'userId', '{{%users}}', 'id', 'SET NULL', null);
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_variants}}', 'id'), '{{%commerce_variants}}', 'id', '{{%elements}}', 'id', 'CASCADE', null);
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_variants}}', 'productId'), '{{%commerce_variants}}', 'productId', '{{%commerce_products}}', 'id', 'SET NULL', 'CASCADE');
@@ -947,7 +946,7 @@ class Install extends Migration
         MigrationHelper::dropForeignKeyIfExists('{{%commerce_orders}}', ['customerId'], $this);
         MigrationHelper::dropForeignKeyIfExists('{{%commerce_orders}}', ['id'], $this);
         MigrationHelper::dropForeignKeyIfExists('{{%commerce_orders}}', ['orderStatusId'], $this);
-        MigrationHelper::dropForeignKeyIfExists('{{%commerce_orders}}', ['paymentMethodId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_orders}}', ['gatewayId'], $this);
         MigrationHelper::dropForeignKeyIfExists('{{%commerce_orders}}', ['shippingAddressId'], $this);
         MigrationHelper::dropForeignKeyIfExists('{{%commerce_ordersettings}}', ['fieldLayoutId'], $this);
         MigrationHelper::dropForeignKeyIfExists('{{%commerce_orderstatus_emails}}', ['emailId'], $this);
@@ -988,7 +987,7 @@ class Install extends Migration
         MigrationHelper::dropForeignKeyIfExists('{{%commerce_taxzone_states}}', ['taxZoneId'], $this);
         MigrationHelper::dropForeignKeyIfExists('{{%commerce_transactions}}', ['orderId'], $this);
         MigrationHelper::dropForeignKeyIfExists('{{%commerce_transactions}}', ['parentId'], $this);
-        MigrationHelper::dropForeignKeyIfExists('{{%commerce_transactions}}', ['paymentMethodId'], $this);
+        MigrationHelper::dropForeignKeyIfExists('{{%commerce_transactions}}', ['gatewayId'], $this);
         MigrationHelper::dropForeignKeyIfExists('{{%commerce_transactions}}', ['userId'], $this);
         MigrationHelper::dropForeignKeyIfExists('{{%commerce_variants}}', ['id'], $this);
         MigrationHelper::dropForeignKeyIfExists('{{%commerce_variants}}', ['productId'], $this);
@@ -1010,7 +1009,7 @@ class Install extends Migration
         $this->_defaultOrderSettings();
         $this->_defaultProductTypes();
         $this->_defaultProducts();
-        $this->_paymentMethods();
+        $this->_defaultGateways();
         $this->_defaultSettings();
     }
 
@@ -1668,16 +1667,16 @@ class Install extends Migration
      *
      * @return void
      */
-    private function _paymentMethods()
+    private function _defaultGateways()
     {
         $data = [
-            'class' => Dummy_GatewayAdapter::class,
+            'type' => Dummy::class,
             'name' => 'Dummy',
             'settings' => Json::encode([]),
             'frontendEnabled' => true,
             'isArchived' => false,
         ];
-        $this->insert(PaymentMethod::tableName(), $data);
+        $this->insert(Gateway::tableName(), $data);
     }
 
     /**

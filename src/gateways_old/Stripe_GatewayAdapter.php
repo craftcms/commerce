@@ -7,6 +7,12 @@ use craft\commerce\gateway\models\StripePaymentFormModel;
 
 class Stripe_GatewayAdapter extends CreditCardGatewayAdapter
 {
+
+    /**
+     * @var string
+     */
+    public $publishableKey;
+
     public function handle()
     {
         return 'Stripe';
@@ -21,6 +27,11 @@ class Stripe_GatewayAdapter extends CreditCardGatewayAdapter
     {
         return true;
     }
+
+    /*public function attributes() {
+        $params = $this->getGateway()->getParameters();
+        return $attr;
+    }*/
 
     public function getPaymentFormHtml(array $params)
     {

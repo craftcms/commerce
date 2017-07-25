@@ -3,17 +3,20 @@
 namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
+use craft\commerce\elements\Order;
+use craft\commerce\gateways\BaseGateway;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
 use Omnipay\Common\Exception\OmnipayException;
+use OpenCloud\Common\Base;
 
 /**
  * Class Transaction
  *
- * @property \craft\commerce\models\Transaction   $parent
- * @property \craft\commerce\models\PaymentMethod $paymentMethod
- * @property \craft\commerce\elements\Order       $order
- * @property \craft\elements\User                 $user
+ * @property \craft\commerce\models\Transaction       $parent
+ * @property \craft\commerce\models\BasePaymentMethod $paymentMethod
+ * @property \craft\commerce\elements\Order           $order
+ * @property \craft\elements\User                     $user
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -50,9 +53,9 @@ class Transaction extends Model
     public $hash;
 
     /**
-     * @var int Payment method ID
+     * @var int Gateway ID
      */
-    public $paymentMethodId;
+    public $gatewayId;
 
     /**
      * @var string Currency
@@ -110,9 +113,9 @@ class Transaction extends Model
     public $response;
 
     /**
-     * @var
+     * @var BaseGateway
      */
-    private $_paymentMethod;
+    private $_gateway;
 
     /**
      * @var
@@ -206,7 +209,7 @@ class Transaction extends Model
     }
 
     /**
-     * @return \craft\commerce\elements\Order|null
+     * @return Order|null
      */
     public function getOrder()
     {
@@ -214,25 +217,25 @@ class Transaction extends Model
     }
 
     /**
-     * @return \craft\commerce\models\PaymentMethod|null
+     * @return BaseGateway|null
      */
-    public function getPaymentMethod()
+    public function getGateway()
     {
-        if (null === $this->_paymentMethod) {
-            $this->_paymentMethod = Plugin::getInstance()->getPaymentMethods()->getPaymentMethodById($this->paymentMethodId);
+        if (null === $this->_gateway) {
+            $this->_gateway = Plugin::getInstance()->getGateways()->getGatewayById($this->gatewayId);
         }
 
-        return $this->_paymentMethod;
+        return $this->_gateway;
     }
 
     /**
-     * @param \craft\commerce\models\PaymentMethod $paymentMethod
+     * @param BaseGateway $gateway
      *
      * @return void
      */
-    public function setPaymentMethod(PaymentMethod $paymentMethod)
+    public function setGateway(BaseGateway $gateway)
     {
-        $this->_paymentMethod = $paymentMethod;
+        $this->_gateway = $gateway;
     }
 
 }

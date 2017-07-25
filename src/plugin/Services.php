@@ -16,11 +16,9 @@ use craft\commerce\services\Orders;
 use craft\commerce\services\OrderSettings;
 use craft\commerce\services\OrderStatuses;
 use craft\commerce\services\PaymentCurrencies;
-use craft\commerce\services\PaymentMethods;
 use craft\commerce\services\Payments;
 use craft\commerce\services\Products;
 use craft\commerce\services\ProductTypes;
-use craft\commerce\services\Purchasables;
 use craft\commerce\services\Sales;
 use craft\commerce\services\Settings;
 use craft\commerce\services\ShippingCategories;
@@ -179,16 +177,6 @@ trait Services
     public function getOrderStatuses()
     {
         return $this->get('orderStatuses');
-    }
-
-    /**
-     * Returns the paymentMethods service
-     *
-     * @return PaymentMethods The paymentMethods service
-     */
-    public function getPaymentMethods()
-    {
-        return $this->get('paymentMethods');
     }
 
     /**
@@ -381,7 +369,7 @@ trait Services
             'orders' => Orders::class,
             'orderSettings' => OrderSettings::class,
             'orderStatuses' => OrderStatuses::class,
-            'paymentMethods' => PaymentMethods::class,
+            'paymentMethods' => Gateways::class,
             'paymentCurrencies' => PaymentCurrencies::class,
             'payments' => Payments::class,
             'products' => Products::class,

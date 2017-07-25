@@ -93,7 +93,7 @@ class PaymentsController extends BaseFrontEndController
 
         // Allow setting the payment method at time of submitting payment.
         $paymentMethodId = Craft::$app->getRequest()->getParam('paymentMethodId');
-        if ($paymentMethodId && $order->paymentMethodId != $paymentMethodId) {
+        if ($paymentMethodId && $order->gatewayId != $paymentMethodId) {
             $error = "";
             if (!Plugin::getInstance()->getCart()->setPaymentMethod($order, $paymentMethodId, $error)) {
                 if (Craft::$app->getRequest()->getAcceptsJson()) {
@@ -106,7 +106,7 @@ class PaymentsController extends BaseFrontEndController
             }
         }
 
-        $paymentMethod = $order->getPaymentMethod();
+        $paymentMethod = $order->getGateway();
 
         if (!$paymentMethod) {
             $error = Craft::t("commerce", "There is no payment method selected for this order.");

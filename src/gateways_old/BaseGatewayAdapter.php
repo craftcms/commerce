@@ -4,10 +4,11 @@ namespace craft\commerce\gateways;
 
 use Craft;
 use craft\base\Model;
+use craft\base\SavableComponent;
 use craft\commerce\errors\NotImplementedException;
 use craft\commerce\gateway\models\BasePaymentFormModel;
 use craft\commerce\gateway\models\CreditCardPaymentFormModel;
-use craft\commerce\models\PaymentMethod;
+use craft\commerce\models\BasePaymentMethod;
 use Omnipay\Common\AbstractGateway;
 use Omnipay\Common\CreditCard;
 use Omnipay\Common\GatewayFactory;
@@ -19,7 +20,7 @@ use Omnipay\Manual\Message\Request;
  *
  * @package Commerce\Gateways
  */
-abstract class BaseGatewayAdapter extends Model implements GatewayAdapterInterface
+abstract class BaseGatewayAdapter extends SavableComponent implements GatewayAdapterInterface
 {
     /**
      * @var GatewayFactory
@@ -37,7 +38,7 @@ abstract class BaseGatewayAdapter extends Model implements GatewayAdapterInterfa
     protected $_booleans = [];
 
     /**
-     * @var PaymentMethod
+     * @var BasePaymentMethod
      */
     private $_paymentMethod;
 
@@ -98,7 +99,7 @@ abstract class BaseGatewayAdapter extends Model implements GatewayAdapterInterfa
     }
 
     /**
-     * @return PaymentMethod|null
+     * @return BasePaymentMethod|null
      */
     public function getPaymentMethod()
     {
@@ -106,9 +107,9 @@ abstract class BaseGatewayAdapter extends Model implements GatewayAdapterInterfa
     }
 
     /**
-     * @param PaymentMethod $paymentMethod
+     * @param BasePaymentMethod $paymentMethod
      */
-    public function setPaymentMethod(PaymentMethod $paymentMethod)
+    public function setPaymentMethod(BasePaymentMethod $paymentMethod)
     {
         $this->_paymentMethod = $paymentMethod;
     }
@@ -132,14 +133,6 @@ abstract class BaseGatewayAdapter extends Model implements GatewayAdapterInterfa
     public function createItemBag()
     {
         return new ItemBag();
-    }
-
-    /**
-     * @return string
-     */
-    public function displayName()
-    {
-        return $this->getGateway()->getName();
     }
 
     /**

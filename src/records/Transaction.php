@@ -8,25 +8,25 @@ use craft\records\User;
 /**
  * Transaction record.
  *
- * @property int           $id
- * @property string        $hash
- * @property string        $type
- * @property float         $amount
- * @property string        $status
- * @property string        $reference
- * @property string        $message
- * @property string        $response
- * @property string        $code
+ * @property int         $id
+ * @property string      $hash
+ * @property string      $type
+ * @property float       $amount
+ * @property string      $status
+ * @property string      $reference
+ * @property string      $message
+ * @property string      $response
+ * @property string      $code
  *
- * @property int           $parentId
- * @property int           $userId
- * @property int           $paymentMethodId
- * @property int           $orderId
+ * @property int         $parentId
+ * @property int         $userId
+ * @property int         $gatewayId
+ * @property int         $orderId
  *
- * @property Transaction   $parent
- * @property PaymentMethod $paymentMethod
- * @property Order         $order
- * @property User          $user
+ * @property Transaction $parent
+ * @property Gateway     $gateway
+ * @property Order       $order
+ * @property User        $user
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -88,7 +88,7 @@ class Transaction extends ActiveRecord
 //            ],
 //            'paymentMethod' => [
 //                self::BELONGS_TO,
-//                'PaymentMethod',
+//                'Gateway',
 //                'onDelete' => self::RESTRICT,
 //                'onUpdate' => self::CASCADE
 //            ],

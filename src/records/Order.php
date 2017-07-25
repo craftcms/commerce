@@ -31,14 +31,14 @@ use craft\db\ActiveRecord;
  * @property int            $billingAddressId
  * @property int            $shippingAddressId
  * @property string         $shippingMethodHandle
- * @property int            $paymentMethodId
+ * @property int            $gatewayId
  * @property int            $customerId
  * @property int            $orderStatusId
  *
  * @property LineItem[]     $lineItems
  * @property Address        $billingAddress
  * @property Address        $shippingAddress
- * @property PaymentMethod  $paymentMethod
+ * @property Gateway        $paymentMethod
  * @property Transaction[]  $transactions
  * @property OrderStatus    $orderStatus
  * @property OrderHistory[] $histories
@@ -82,7 +82,7 @@ class Order extends ActiveRecord
 //            ],
 //            'paymentMethod' => [
 //                static::BELONGS_TO,
-//                'PaymentMethod'
+//                'Gateway'
 //            ],
 //            'customer' => [static::BELONGS_TO, 'Customer'],
 //            'transactions' => [

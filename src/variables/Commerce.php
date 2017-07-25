@@ -206,7 +206,7 @@ class Commerce
      */
     public function getPaymentMethods($asList = false)
     {
-        $methods = Plugin::getInstance()->getPaymentMethods()->getAllFrontEndPaymentMethods();
+        $methods = Plugin::getInstance()->getPaymentMethods()->getAllFrontEndGateways();
 
         if ($asList) {
             return ArrayHelper::map($methods, 'id', 'name');

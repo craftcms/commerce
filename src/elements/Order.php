@@ -8,6 +8,8 @@ use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\elements\actions\UpdateOrderStatus;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\events\OrderEvent;
+use craft\commerce\gateways\BaseGateway;
+use craft\commerce\gateways\GatewayInterface;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\Address;
 use craft\commerce\models\Customer;
@@ -16,7 +18,6 @@ use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\models\OrderSettings;
 use craft\commerce\models\OrderStatus;
-use craft\commerce\models\PaymentMethod;
 use craft\commerce\models\ShippingMethod;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
@@ -60,7 +61,7 @@ use yii\base\Exception;
  * @property int                     $shippingAddressId
  * @property ShippingMethodInterface $shippingMethod
  * @property string                  $shippingMethodHandle
- * @property int                     $paymentMethodId
+ * @property int                     $gatewayId
  * @property int                     $customerId
  * @property int                     $orderStatusId
  *
@@ -80,7 +81,7 @@ use yii\base\Exception;
  * @property Customer                $customer
  * @property Address                 $shippingAddress
  * @property OrderAdjustment[]       $adjustments
- * @property PaymentMethod           $paymentMethod
+ * @property BaseGateway             $gateway
  * @property Transaction[]           $transactions
  * @property OrderStatus             $orderStatus
  * @property null|string             $name
@@ -183,9 +184,9 @@ class Order extends Element
     public $paymentCurrency;
 
     /**
-     * @var int|null Payment Method ID
+     * @var int|null Gateway ID
      */
-    public $paymentMethodId;
+    public $gatewayId;
 
     /**
      * @var string Last IP
@@ -263,11 +264,11 @@ class Order extends Element
      */
     public function beforeValidate()
     {
-        // Set default payment method
-        if (!$this->paymentMethodId) {
-            $methods = Plugin::getInstance()->getPaymentMethods()->getAllFrontEndPaymentMethods();
-            if (count($methods)) {
-                $this->paymentMethodId = $methods[0]->id;
+        // Set default gateway
+        if (!$this->gatewayId) {
+            $gateways = Plugin::getInstance()->getGateways()->getAllFrontEndGateways();
+            if (count($gateways)) {
+                $this->gatewayId = $gateways[0]->id;
             }
         }
 
@@ -496,7 +497,7 @@ class Order extends Element
         $orderRecord->billingAddressId = $this->billingAddressId;
         $orderRecord->shippingAddressId = $this->shippingAddressId;
         $orderRecord->shippingMethodHandle = $this->shippingMethodHandle;
-        $orderRecord->paymentMethodId = $this->paymentMethodId;
+        $orderRecord->gatewayId = $this->gatewayId;
         $orderRecord->orderStatusId = $this->orderStatusId;
         $orderRecord->couponCode = $this->couponCode;
         $orderRecord->baseDiscount = $this->baseDiscount;
@@ -990,11 +991,11 @@ class Order extends Element
     }
 
     /**
-     * @return PaymentMethod|null
+     * @return GatewayInterface|null
      */
-    public function getPaymentMethod()
+    public function getGateway()
     {
-        return Plugin::getInstance()->getPaymentMethods()->getPaymentMethodById($this->paymentMethodId);
+        return Plugin::getInstance()->getGateways()->getGatewayById($this->gatewayId);
     }
 
     /**
@@ -1079,9 +1080,9 @@ class Order extends Element
 
                 return '';
             }
-            case 'paymentMethodName': {
-                if ($this->paymentMethod) {
-                    return $this->paymentMethod->name;
+            case 'gatewayName': {
+                if ($this->gateway) {
+                    return $this->gateway->name;
                 }
 
                 return '';
@@ -1225,7 +1226,7 @@ class Order extends Element
             'shippingBusinessName' => ['label' => Craft::t('commerce', 'Shipping Business Name')],
             'billingBusinessName' => ['label' => Craft::t('commerce', 'Billing Business Name')],
             'shippingMethodName' => ['label' => Craft::t('commerce', 'Shipping Method')],
-            'paymentMethodName' => ['label' => Craft::t('commerce', 'Payment Method')]
+            'gatewayName' => ['label' => Craft::t('commerce', 'Gateway')]
         ];
     }
 

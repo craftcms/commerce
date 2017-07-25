@@ -4,9 +4,9 @@ namespace craft\commerce\elements\db;
 
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
+use craft\commerce\gateways\BaseGateway;
 use craft\commerce\models\Customer;
 use craft\commerce\models\OrderStatus;
-use craft\commerce\models\PaymentMethod;
 use craft\commerce\Plugin;
 use craft\elements\db\ElementQuery;
 use craft\elements\User;
@@ -79,14 +79,14 @@ class OrderQuery extends ElementQuery
     public $customerId;
 
     /**
-     * @var PaymentMethod|string The payment method that the resulting orders must have.
+     * @var BaseGateway|string The gateway that the resulting orders must have.
      */
-    public $paymentMethod;
+    public $gateway;
 
     /**
-     * @var int The payment method ID that the resulting orders must have.
+     * @var int The gateway ID that the resulting orders must have.
      */
-    public $paymentMethodId;
+    public $gatewayId;
 
     /**
      * @var User The user that the resulting orders must belong to.
@@ -340,35 +340,35 @@ class OrderQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[paymentMethod]] property.
+     * Sets the [[gateway]] property.
      *
-     * @param PaymentMethod|int $value The property value
+     * @param BaseGateway|int $value The property value
      *
      * @return static self reference
      */
-    public function paymentMethod($value)
+    public function gateway($value)
     {
-        if ($value instanceof PaymentMethod) {
-            $this->paymentMethodId = $value->id;
+        if ($value instanceof BaseGateway) {
+            $this->gatewayId = $value->id;
         } else if ($value !== null) {
-            $this->paymentMethodId = $value;
+            $this->gatewayId = $value;
         } else {
-            $this->paymentMethodId = null;
+            $this->gatewayId = null;
         }
 
         return $this;
     }
 
     /**
-     * Sets the [[paymentMethodId]] property.
+     * Sets the [[gatewayId]] property.
      *
      * @param int $value The property value
      *
      * @return static self reference
      */
-    public function paymentMethodId(int $value)
+    public function gatewayId(int $value)
     {
-        $this->paymentMethodId = $value;
+        $this->gatewayId = $value;
 
         return $this;
     }
@@ -469,7 +469,7 @@ class OrderQuery extends ElementQuery
             'commerce_orders.billingAddressId',
             'commerce_orders.shippingAddressId',
             'commerce_orders.shippingMethodHandle',
-            'commerce_orders.paymentMethodId',
+            'commerce_orders.gatewayId',
             'commerce_orders.customerId',
             'commerce_orders.dateUpdated'
         ]);
@@ -521,12 +521,8 @@ class OrderQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseParam('commerce_orders.customerId', $this->customerId));
         }
 
-        if ($this->paymentMethod) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_orders.paymentMethod', $this->paymentMethod));
-        }
-
-        if ($this->paymentMethodId) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_orders.paymentMethodId', $this->paymentMethodId));
+        if ($this->gatewayId) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.gatewayId', $this->gatewayId));
         }
 
         if ($this->user) {

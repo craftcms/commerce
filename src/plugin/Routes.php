@@ -54,9 +54,9 @@ trait Routes
 
             $event->rules['commerce/settings/ordersettings'] = 'commerce/order-settings/edit';
 
-            $event->rules['commerce/settings/paymentmethods'] = 'commerce/payment-methods/index';
-            $event->rules['commerce/settings/paymentmethods/new'] = 'commerce/payment-methods/edit';
-            $event->rules['commerce/settings/paymentmethods/<id:\d+>'] = 'commerce/payment-methods/edit';
+            $event->rules['commerce/settings/gateways'] = 'commerce/gateways/index';
+            $event->rules['commerce/settings/gateways/new'] = 'commerce/gateways/edit';
+            $event->rules['commerce/settings/gateways/<id:\d+>'] = 'commerce/gateways/edit';
 
             $event->rules['commerce/settings/paymentcurrencies'] = 'commerce/payment-currencies/index';
             $event->rules['commerce/settings/paymentcurrencies/new'] = 'commerce/payment-currencies/edit';

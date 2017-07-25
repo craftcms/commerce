@@ -96,7 +96,7 @@ class Transactions extends Component
         $transaction->paymentAmount = Currency::round($paymentAmount, $paymentCurrency);
         $transaction->paymentCurrency = $paymentCurrency->iso;
         $transaction->paymentRate = $paymentCurrency->rate;
-        $transaction->paymentMethodId = $order->paymentMethodId;
+        $transaction->gatewayId = $order->gatewayId;
 
         $user = Craft::$app->getUser()->getIdentity();
         if ($user) {
