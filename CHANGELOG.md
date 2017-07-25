@@ -3,6 +3,8 @@ Commerce Changelog
 
 ## Unreleased
 
+## 1.2.1346 - 2017-07-24
+
 ### Added
 - Added the `autoSetNewCartAddresses` config setting, which can be set to `false` to prevent Commerce from automatically assigning the last-used billing and shipping addresses on new carts.
 
