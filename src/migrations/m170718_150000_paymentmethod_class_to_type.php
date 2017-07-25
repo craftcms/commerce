@@ -4,6 +4,7 @@ namespace craft\commerce\migrations;
 
 use craft\commerce\records\Gateway;
 use craft\db\Migration;
+use craft\helpers\MigrationHelper;
 
 /**
  * m170718_150000_paymentmethod_class_to_type
@@ -15,7 +16,7 @@ class m170718_150000_paymentmethod_class_to_type extends Migration
      */
     public function safeUp(): bool
     {
-        $this->renameColumn(Gateway::tableName(), 'class', 'type');
+        MigrationHelper::renameColumn(Gateway::tableName(), 'class', 'type', $this);
 
         return true;
     }

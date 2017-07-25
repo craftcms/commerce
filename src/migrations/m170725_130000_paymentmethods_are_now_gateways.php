@@ -17,13 +17,7 @@ class m170725_130000_paymentmethods_are_now_gateways extends Migration
      */
     public function safeUp(): bool
     {
-        MigrationHelper::dropForeignKeyIfExists('{{%commerce_orders}}', ['paymentMethodId'], $this);
-        MigrationHelper::dropForeignKeyIfExists('{{%commerce_transactions}}', ['paymentMethodId'], $this);
-        MigrationHelper::dropIndexIfExists('{{%commerce_orders}}', 'paymentMethodId', false, $this);
-        MigrationHelper::dropIndexIfExists('{{%commerce_transactions}}', 'paymentMethodId', false, $this);
-        MigrationHelper::dropIndexIfExists('{{%commerce_paymentmethods}}', 'name', true, $this);
-
-        $this->renameTable('{{%commerce_paymentmethods}}', '{{%commerce_gateways}}');
+        MigrationHelper::renameTable('{{%commerce_paymentmethods}}', '{{%commerce_gateways}}', $this);
         $this->addColumn('{{%commerce_gateways}}', 'handle', $this->string()->notNull());
 
         $rows = (new Query())
@@ -37,15 +31,8 @@ class m170725_130000_paymentmethods_are_now_gateways extends Migration
             $this->update('{{%commerce_gateways}}', ['handle' => $handle, 'type' => $type], [ 'id' => $row['id']]);
         }
 
-        $this->renameColumn('{{%commerce_orders}}', 'paymentMethodId', 'gatewayId');
-        $this->renameColumn('{{%commerce_transactions}}', 'paymentMethodId', 'gatewayId');
-
-        $this->createIndex($this->db->getIndexName('{{%commerce_gateways}}', 'name', true), '{{%commerce_gateways}}', 'name', true);
-        $this->createIndex($this->db->getIndexName('{{%commerce_gateways}}', 'handle', true), '{{%commerce_gateways}}', 'handle', true);
-        $this->createIndex($this->db->getIndexName('{{%commerce_orders}}', 'gatewayId', false), '{{%commerce_orders}}', 'gatewayId', false);
-        $this->createIndex($this->db->getIndexName('{{%commerce_transactions}}', 'gatewayId', false), '{{%commerce_transactions}}', 'gatewayId', false);
-        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_orders}}', 'gatewayId'), '{{%commerce_orders}}', 'gatewayId', '{{%commerce_gateways}}', 'id', 'SET NULL', null);
-        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_transactions}}', 'gatewayId'), '{{%commerce_transactions}}', 'gatewayId', '{{%commerce_gateways}}', 'id', null, 'CASCADE');
+        MigrationHelper::renameColumn('{{%commerce_orders}}', 'paymentMethodId', 'gatewayId', $this);
+        MigrationHelper::renameColumn('{{%commerce_transactions}}', 'paymentMethodId', 'gatewayId', $this);
 
         return true;
     }

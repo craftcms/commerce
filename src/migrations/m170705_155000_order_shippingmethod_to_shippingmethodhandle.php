@@ -4,6 +4,7 @@ namespace craft\commerce\migrations;
 
 use craft\commerce\records\Order;
 use craft\db\Migration;
+use craft\helpers\MigrationHelper;
 
 /**
  * m170705_155000_order_shippingmethod_to_shippingmethodhandle
@@ -15,7 +16,7 @@ class m170705_155000_order_shippingmethod_to_shippingmethodhandle extends Migrat
      */
     public function safeUp(): bool
     {
-        $this->renameColumn(Order::tableName(), 'shippingMethod', 'shippingMethodHandle');
+        MigrationHelper::renameColumn(Order::tableName(), 'shippingMethod', 'shippingMethodHandle', $this);
 
         return true;
     }
