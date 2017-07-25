@@ -218,6 +218,7 @@ class Install extends Migration
             'id' => $this->primaryKey(),
             'type' => $this->string()->notNull(),
             'name' => $this->string()->notNull(),
+            'handle' => $this->string()->notNull(),
             'settings' => $this->text(),
             'paymentType' => $this->enum('paymentType', ['authorize', 'purchase'])->notNull()->defaultValue('purchase'),
             'frontendEnabled' => $this->boolean(),
@@ -1633,6 +1634,7 @@ class Install extends Migration
         $data = [
             'type' => Dummy::class,
             'name' => 'Dummy',
+            'handle' => 'dummy',
             'settings' => Json::encode([]),
             'frontendEnabled' => true,
             'isArchived' => false,

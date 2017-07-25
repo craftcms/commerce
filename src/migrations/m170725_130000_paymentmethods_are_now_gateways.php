@@ -27,7 +27,7 @@ class m170725_130000_paymentmethods_are_now_gateways extends Migration
 
         foreach ($rows as $row) {
             $handle = StringHelper::toCamelCase(StringHelper::toAscii($row['name']));
-            $type = preg_replace('/\\\\paymentmethods\\\\/i', '\\\\gateways\\\\', $row['type']);
+            $type = 'craft\\commerce\\gateways\\'.$row['type'];
             $this->update('{{%commerce_gateways}}', ['handle' => $handle, 'type' => $type], [ 'id' => $row['id']]);
         }
 

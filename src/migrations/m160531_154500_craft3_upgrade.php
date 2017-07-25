@@ -42,8 +42,8 @@ class m160531_154500_craft3_upgrade extends Migration
         MigrationHelper::dropAllIndexesOnTable('{{%commerce_producttypes_i18n}}');
 
         // Drop the old locale FK column and rename the new siteId FK column
-        $this->dropColumn(ProductTypeSite::tableName(), 'locale');
-        MigrationHelper::renameColumn(ProductTypeSite::tableName(), 'locale__siteId', 'siteId', $this);
+        $this->dropColumn('{{%commerce_producttypes_i18n}}', 'locale');
+        MigrationHelper::renameColumn('{{%commerce_producttypes_i18n}}', 'locale__siteId', 'siteId', $this);
 
         // And then just recreate them.
         $this->createIndex($this->db->getIndexName('{{%commerce_producttypes_i18n}}', 'productTypeId,siteId', true), '{{%commerce_producttypes_i18n}}', 'productTypeId,siteId', true);

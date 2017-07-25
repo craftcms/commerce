@@ -17,8 +17,8 @@ class m170616_154500_productTypeSites_upgrade extends Migration
     public function safeUp(): bool
     {
 
-        $this->addColumn(ProductTypeSite::tableName(), 'template', $this->string(500));
-        $this->addColumn(ProductTypeSite::tableName(), 'hasUrls', $this->boolean());
+        $this->addColumn('{{%commerce_productTypes_i18n}}', 'template', $this->string(500));
+        $this->addColumn('{{%commerce_productTypes_i18n}}', 'hasUrls', $this->boolean());
 
         // Migrate hasUrls to be site specific
         $productTypes = (new Query())->select('id, hasUrls, template')->from('{{%commerce_productTypes}}')->all();
