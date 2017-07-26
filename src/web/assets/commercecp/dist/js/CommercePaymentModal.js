@@ -22,7 +22,7 @@ Craft.Commerce.PaymentModal = Garnish.Modal.extend(
                 paymentForm: settings.paymentForm
             };
 
-            Craft.postActionRequest('commerce/orders/getPaymentModal', data, $.proxy(function(response, textStatus) {
+            Craft.postActionRequest('commerce/orders/get-payment-modal', data, $.proxy(function(response, textStatus) {
                 this.$container.removeClass('loading');
 
                 if (textStatus == 'success') {
@@ -32,7 +32,7 @@ Craft.Commerce.PaymentModal = Garnish.Modal.extend(
                         Craft.appendFootHtml(response.footHtml);
 
                         var $buttons = $('.buttons', this.$container),
-                            $cancelBtn = $('<div class="btn">' + Craft.t('Cancel') + '</div>').prependTo($buttons);
+                            $cancelBtn = $('<div class="btn">' + Craft.t('app', 'Cancel') + '</div>').prependTo($buttons);
 
                         this.addListener($cancelBtn, 'click', 'cancelPayment');
 
@@ -42,7 +42,7 @@ Craft.Commerce.PaymentModal = Garnish.Modal.extend(
                             $('#payment-method-' + id + '-form').removeClass('hidden');
                             this.updateSizeAndPosition();
                             Craft.initUiElements(this.$container);
-                        }, this));
+                        }, this)).trigger('change');
 
                         this.updateSizeAndPosition();
 

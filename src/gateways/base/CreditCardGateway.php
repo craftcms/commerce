@@ -34,13 +34,13 @@ abstract class CreditCardGateway extends BaseGateway
     public function getPaymentFormHtml(array $params)
     {
         $defaults = [
-            'paymentMethod' => $this,
+            'gateway' => $this,
             'paymentForm' => $this->getPaymentFormModel()
         ];
 
         $params = array_merge($defaults, $params);
 
-        return Craft::$app->getView()->render('commerce/_components/gateways/common/creditCardPaymentForm', $params);
+        return Craft::$app->getView()->renderTemplate('commerce/_components/gateways/common/creditCardPaymentForm', $params);
     }
 
     /**

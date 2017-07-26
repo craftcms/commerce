@@ -1,18 +1,18 @@
 {% import "_includes/forms" as forms %}
 
 <div class="payment-forms">
-    {% set paymentFormOptions = [{ label: "Select a payment method"|t('commerce') }] %}
+    {% set paymentFormOptions = [{ label: "Select a gateway"|t('commerce') }] %}
 
-    {% for paymentMethod in paymentMethods %}
-        {% set paymentFormOptions = paymentFormOptions|merge([{ label: paymentMethod.name, value: paymentMethod.id }]) %}
+    {% for gateway in gateways %}
+        {% set paymentFormOptions = paymentFormOptions|merge([{ label: gateway.name, value: gateway.id }]) %}
     {% endfor %}
 
     {{ forms.selectField({
         id: 'payment-form-select',
         label: "Payment Method"|t('commerce'),
-        name: 'paymentMethodId',
+        name: 'gatewayId',
         options: paymentFormOptions,
-        value: order.paymentMethodId,
+        value: order.gatewayId,
     }) }}
 
     {{ paymentForms|raw }}

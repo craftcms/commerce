@@ -4,6 +4,7 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\elements\Order;
+use craft\commerce\gateways\base\BaseGateway;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\helpers\ArrayHelper;
@@ -51,9 +52,10 @@ class OrdersController extends BaseCpController
      */
     public function actionEditOrder(int $orderId)
     {
+        $plugin = Plugin::getInstance();
         $variables = [
             'orderId' => $orderId,
-            'orderSettings' => Plugin::getInstance()->getOrderSettings()->getOrderSettingByHandle('order')
+            'orderSettings' => $plugin->getOrderSettings()->getOrderSettingByHandle('order')
         ];
 
         if (!$variables['orderSettings']) {
@@ -62,7 +64,7 @@ class OrdersController extends BaseCpController
 
         if (empty($variables['order'])) {
             if (!empty($variables['orderId'])) {
-                $variables['order'] = Plugin::getInstance()->getOrders()->getOrderById($variables['orderId']);
+                $variables['order'] = $plugin->getOrders()->getOrderById($variables['orderId']);
 
                 if (!$variables['order']) {
                     throw new HttpException(404);
@@ -82,20 +84,21 @@ class OrdersController extends BaseCpController
 
 
         if (empty($variables['paymentForm'])) {
-            $paymentMethod = $variables['order']->getGateway();
+            /** @var BaseGateway $gateway */
+            $gateway = $variables['order']->getGateway();
 
-            if ($paymentMethod && $paymentMethod->getGatewayAdapter()) {
-                $variables['paymentForm'] = $variables['order']->gateway->getPaymentFormModel();
+            if ($gateway) {
+                $variables['paymentForm'] = $gateway->getPaymentFormModel();
             } else {
-                $paymentMethod = ArrayHelper::firstValue(Plugin::getInstance()->getPaymentMethods()->getAllGateways());
+                $gateway = ArrayHelper::firstValue($plugin->getGateways()->getAllGateways());
 
-                if($paymentMethod) {
-                    $variables['paymentForm'] = $paymentMethod->getPaymentFormModel();
+                if($gateway) {
+                    $variables['paymentForm'] = $gateway->getPaymentFormModel();
                 }
             }
         }
 
-        $variables['orderStatusesJson'] = Json::encode(Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses());
+        $variables['orderStatusesJson'] = Json::encode($plugin->getOrderStatuses()->getAllOrderStatuses());
 
         return $this->renderTemplate('commerce/orders/_edit', $variables);
     }
@@ -138,29 +141,27 @@ class OrdersController extends BaseCpController
         $this->requireAcceptsJson();
         $templatesService = Craft::$app->getView();
 
-        $orderId = Craft::$app->getRequest()->getParam('orderId');
-        $paymentFormData = Craft::$app->getRequest()->getParam('paymentForm');
+        $request = Craft::$app->getRequest();
+        $orderId = $request->getParam('orderId');
+        $paymentFormData = $request->getParam('paymentForm');
 
-        $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
-        $paymentMethods = Plugin::getInstance()->getPaymentMethods()->getAllGateways();
+        $plugin = Plugin::getInstance();
+        $order = $plugin->getOrders()->getOrderById($orderId);
+        $gateways = $plugin->getGateways()->getAllGateways();
 
         $formHtml = "";
-        foreach ($paymentMethods as $key => $paymentMethod) {
-            // If adapter is not accessible, don't use it.
-            if (!$paymentMethod->getGatewayAdapter()) {
-                unset($paymentMethods[$key]);
-                continue;
-            }
+        /** @var BaseGateway $gateway */
+        foreach ($gateways as $key => $gateway) {
 
             // If gateway adapter does no support backend cp payments.
-            if (!$paymentMethod->getGatewayAdapter()->cpPaymentsEnabled()) {
-                unset($paymentMethods[$key]);
+            if (!$gateway->cpPaymentsEnabled()) {
+                unset($gateways[$key]);
                 continue;
             }
 
             // Add the errors and data back to the current form model.
-            if ($paymentMethod->id == $order->gatewayId) {
-                $paymentFormModel = $order->gateway->getPaymentFormModel();
+            if ($gateway->id == $order->gatewayId) {
+                $paymentFormModel = $gateway->getPaymentFormModel();
 
                 if ($paymentFormData) {
                     // Re-add submitted data to payment form model
@@ -174,10 +175,10 @@ class OrdersController extends BaseCpController
                     }
                 }
             } else {
-                $paymentFormModel = $paymentMethod->getPaymentFormModel();
+                $paymentFormModel = $gateway->getPaymentFormModel();
             }
 
-            $paymentFormHtml = $paymentMethod->getPaymentFormHtml([
+            $paymentFormHtml = $gateway->getPaymentFormHtml([
                 'paymentForm' => $paymentFormModel,
                 'order' => $order
             ]);
@@ -185,17 +186,17 @@ class OrdersController extends BaseCpController
             $formHtml .= $paymentFormHtml;
         }
 
-        $modalHtml = Craft::$app->getView()->render('commerce/orders/_paymentmodal', [
-            'paymentMethods' => $paymentMethods,
+        $modalHtml = Craft::$app->getView()->renderTemplate('commerce/orders/_paymentmodal', [
+            'gateways' => $gateways,
             'order' => $order,
             'paymentForms' => $formHtml,
         ]);
 
-        $this->asJson([
+        return $this->asJson([
             'success' => true,
             'modalHtml' => $modalHtml,
             'headHtml' => $templatesService->getHeadHtml(),
-            'footHtml' => $templatesService->getFootHtml(),
+            'footHtml' => $templatesService->getBodyHtml(),
         ]);
     }
 

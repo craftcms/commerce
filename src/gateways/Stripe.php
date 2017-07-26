@@ -56,10 +56,7 @@ class Stripe extends CreditCardGateway
      */
     public function getSettingsHtml()
     {
-        return Craft::$app->getView()->renderTemplate('commerce/_components/gateways/Stripe/settings',
-            [
-                'gateway' => $this,
-            ]);
+        return Craft::$app->getView()->renderTemplate('commerce/_components/gateways/Stripe/settings', ['gateway' => $this]);
     }
 
     /**
@@ -68,7 +65,7 @@ class Stripe extends CreditCardGateway
     public function getPaymentFormHtml(array $params)
     {
         $defaults = [
-            'paymentMethod' => $this,
+            'gateway' => $this,
             'paymentForm' => $this->getPaymentFormModel()
         ];
 
@@ -76,7 +73,7 @@ class Stripe extends CreditCardGateway
 
         Craft::$app->getView()->registerJsFile('https://js.stripe.com/v2/');
 
-        return Craft::$app->getView()->render('commerce/_components/gateways/Stripe/paymentForm', $params);
+        return Craft::$app->getView()->renderTemplate('commerce/_components/gateways/Stripe/paymentForm', $params);
     }
 
     /**

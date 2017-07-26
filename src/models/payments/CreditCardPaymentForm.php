@@ -93,22 +93,22 @@ class CreditCardPaymentForm extends BasePaymentForm
             ['firstName, lastName, month, year, cvv, number', 'required'],
             [
                 'month',
-                'numerical',
+                'integer',
                 'integerOnly' => true,
                 'min' => 1,
                 'max' => 12
             ],
             [
                 'year',
-                'numerical',
+                'integer',
                 'integerOnly' => true,
                 'min' => date('Y'),
                 'max' => date('Y') + 12
             ],
-            ['cvv', 'numerical', 'integerOnly' => true],
-            ['cvv', 'length', 'min' => 3, 'max' => 4],
-            ['number', 'numerical', 'integerOnly' => true],
-            ['number', 'length', 'max' => 19],
+            ['cvv', 'integer', 'integerOnly' => true],
+            ['cvv', 'string', 'length' => [3, 4]],
+            ['number', 'integer', 'integerOnly' => true],
+            ['number', 'string', 'max' => 19],
             ['number', 'creditCardLuhn']
         ];
     }

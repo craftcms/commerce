@@ -111,11 +111,21 @@ abstract class BaseGateway extends SavableComponent implements GatewayInterface
     }
 
     /**
-     * Whether this payment method requires credit card details.
+     * Whether this gateway requires credit card details.
      *
      * @return bool
      */
     public function requiresCreditCard()
+    {
+        return true;
+    }
+
+    /**
+     * Whether this gateway allows pamyents in control panel.
+     *
+     * @return bool
+     */
+    public function cpPaymentsEnabled()
     {
         return true;
     }
