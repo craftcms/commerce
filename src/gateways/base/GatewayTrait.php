@@ -5,7 +5,7 @@
  * @license   https://craftcms.com/license
  */
 
-namespace craft\commerce\gateways;
+namespace craft\commerce\gateways\base;
 
 /**
  * GatewayTrait
@@ -24,7 +24,7 @@ trait GatewayTrait
     public $name;
 
     /**
-     * @var string|null Handle
+     * @var string Handle
      */
     public $handle;
 

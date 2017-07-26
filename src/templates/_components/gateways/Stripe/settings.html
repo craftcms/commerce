@@ -1,0 +1,21 @@
+{% from "_includes/forms" import textField %}
+
+{{ textField({
+    label: "API Key"|t('commerce'),
+    instructions: "Your Stripe API key."|t('commerce'),
+    id: 'apiKey',
+    class: 'ltr',
+    name: 'apiKey',
+    value: gateway.apiKey,
+    errors: gateway.getErrors('apiKey')
+}) }}
+
+{{ textField({
+    label: "Publishable API Key"|t('commerce'),
+    instructions: "Your publishable Stripe API key."|t('commerce'),
+    id: 'publishableKey',
+    class: 'ltr',
+    name: 'publishableKey',
+    value: gateway.publishableKey,
+    errors: gateway.getErrors('publishableKey')
+}) }}

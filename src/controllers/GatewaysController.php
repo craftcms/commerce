@@ -3,9 +3,9 @@
 namespace craft\commerce\controllers;
 
 use Craft;
-use craft\commerce\gateways\BaseGateway;
+use craft\commerce\gateways\base\BaseGateway;
 use craft\commerce\gateways\Dummy;
-use craft\commerce\gateways\GatewayInterface;
+use craft\commerce\gateways\base\GatewayInterface;
 use craft\commerce\Plugin;
 use craft\helpers\Json;
 use yii\web\HttpException;

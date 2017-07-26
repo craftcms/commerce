@@ -9,6 +9,8 @@ use craft\commerce\errors\NotImplementedException;
 use craft\commerce\gateway\models\BasePaymentFormModel;
 use craft\commerce\gateway\models\CreditCardPaymentFormModel;
 use craft\commerce\models\BasePaymentMethod;
+use craft\commerce\models\payments\BasePaymentForm;
+use craft\commerce\models\payments\CreditCardPaymentForm;
 use Omnipay\Common\AbstractGateway;
 use Omnipay\Common\CreditCard;
 use Omnipay\Common\GatewayFactory;
@@ -219,16 +221,16 @@ abstract class BaseGatewayAdapter extends SavableComponent implements GatewayAda
         throw new NotImplementedException();
     }
 
-    public function getPaymentFormHtml(array $params)
+    public function getPaymentFormHtml(array $params): string
     {
         return '';
     }
 
-    public function populateCard(CreditCard $card, CreditCardPaymentFormModel $paymentForm)
+    public function populateCard(CreditCard $card, CreditCardPaymentForm $paymentForm)
     {
     }
 
-    public function populateRequest(Request $request, BasePaymentFormModel $paymentForm)
+    public function populateRequest(Request $request, BasePaymentForm $paymentForm)
     {
     }
 }

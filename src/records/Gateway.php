@@ -10,6 +10,7 @@ use craft\db\ActiveRecord;
  *
  * @property int    $id
  * @property string $name
+ * @property string $handle
  * @property string $paymentType
  * @property array  $settings
  * @property string $type

@@ -5,15 +5,11 @@ namespace craft\commerce\gateways;;
 use Craft;
 use craft\base\MissingComponentInterface;
 use craft\base\MissingComponentTrait;
-use craft\base\SavableComponent;
-use craft\commerce\base\Model;
 use craft\commerce\gateway\models\BasePaymentFormModel;
-use craft\commerce\gateways\BaseGatewayAdapter;
-use craft\commerce\Plugin;
-use craft\helpers\UrlHelper;
+use craft\commerce\gateways\base\BaseGateway;
 
 /**
- * MissingGateway represents a payment method with an invalid class.
+ * MissingGateway represents a gateway with an invalid class.
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2017, Pixel & Tonic, Inc.

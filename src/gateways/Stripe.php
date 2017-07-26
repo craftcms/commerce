@@ -4,10 +4,11 @@ namespace craft\commerce\gateways;
 
 use Craft;
 use craft\commerce\gateways\base\CreditCardGateway;
-use Omnipay\Dummy\Gateway;
+use craft\commerce\models\payments\StripePaymentForm;
+use Omnipay\Stripe\Gateway;
 
 /**
- * Dummy represents a dummy gateway.
+ * MissingGateway represents a payment method with an invalid class.
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2017, Pixel & Tonic, Inc.
@@ -16,7 +17,7 @@ use Omnipay\Dummy\Gateway;
  * @package   craft.commerce
  * @since     2.0
  */
-class Dummy extends CreditCardGateway
+class Stripe extends CreditCardGateway
 {
     // Properties
     // =========================================================================
@@ -24,7 +25,12 @@ class Dummy extends CreditCardGateway
     /**
      * @var string
      */
-    public $dummyApiKey;
+    public $publishableKey;
+
+    /**
+     * @var string
+     */
+    public $apiKey;
 
     // Public Methods
     // =========================================================================
@@ -34,18 +40,7 @@ class Dummy extends CreditCardGateway
      */
     public static function displayName(): string
     {
-        return Craft::t('commerce', 'Dummy gateway');
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function rules()
-    {
-        $rules = parent::rules();
-        $rules[] = [['dummyApiKey'], 'required'];
-
-        return $rules;
+        return Craft::t('commerce', 'Stripe gateway');
     }
 
     /**
@@ -56,9 +51,12 @@ class Dummy extends CreditCardGateway
         return Gateway::class;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function getSettingsHtml()
     {
-        return Craft::$app->getView()->renderTemplate('commerce/_components/gateways/Dummy/settings',
+        return Craft::$app->getView()->renderTemplate('commerce/_components/gateways/Stripe/settings',
             [
                 'gateway' => $this,
             ]);
@@ -67,33 +65,26 @@ class Dummy extends CreditCardGateway
     /**
      * @inheritdoc
      */
-    public function purchase()
+    public function getPaymentFormHtml(array $params)
     {
-        return true;
+        $defaults = [
+            'paymentMethod' => $this,
+            'paymentForm' => $this->getPaymentFormModel()
+        ];
+
+        $params = array_merge($defaults, $params);
+
+        Craft::$app->getView()->registerJsFile('https://js.stripe.com/v2/');
+
+        return Craft::$app->getView()->render('commerce/_components/gateways/Stripe/paymentForm', $params);
     }
 
     /**
      * @inheritdoc
      */
-    public function authorize()
+    public function getPaymentFormModel()
     {
-        return true;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function refund()
-    {
-        return true;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function capture()
-    {
-        return true;
+        return new StripePaymentForm();
     }
 
     /**

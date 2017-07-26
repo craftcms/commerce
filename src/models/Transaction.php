@@ -4,11 +4,10 @@ namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
 use craft\commerce\elements\Order;
-use craft\commerce\gateways\BaseGateway;
+use craft\commerce\gateways\base\BaseGateway;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
 use Omnipay\Common\Exception\OmnipayException;
-use OpenCloud\Common\Base;
 
 /**
  * Class Transaction

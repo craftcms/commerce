@@ -17,9 +17,19 @@
     {{ forms.textField({
         label: 'Name'|t('commerce'),
         name: 'name',
+        id: 'name',
         value : gateway.name,
         required: true,
         errors: gateway.getErrors('name'),
+    }) }}
+
+    {{ forms.textField({
+        label: 'Handle'|t('commerce'),
+        name: 'handle',
+        id: 'handle',
+        value : gateway.handle,
+        required: true,
+        errors: gateway.getErrors('handle'),
     }) }}
 
     {{ forms.selectField({
@@ -85,3 +95,9 @@
         }).change();
     });
 {% endjs %}
+
+{% if gateway is not defined or not gateway.handle %}
+    {% js %}
+    new Craft.HandleGenerator('#name', '#handle');
+    {% endjs %}
+{% endif %}

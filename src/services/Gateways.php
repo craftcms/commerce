@@ -3,10 +3,11 @@
 namespace craft\commerce\services;
 
 use Craft;
-use craft\commerce\gateways\BaseGateway;
+use craft\commerce\gateways\base\BaseGateway;
 use craft\commerce\gateways\Dummy;
 use craft\commerce\gateways\MissingGateway;
-use craft\commerce\gateways\GatewayInterface;
+use craft\commerce\gateways\base\GatewayInterface;
+use craft\commerce\gateways\Stripe;
 use craft\commerce\Plugin;
 use craft\commerce\records\Gateway as GatewayRecord;
 use craft\db\Query;
@@ -50,6 +51,7 @@ class Gateways extends Component
     {
         $gatewayTypes = [
             Dummy::class,
+            Stripe::class,
             /*Manual_GatewayAdapter::class,
             PayPal_Express_GatewayAdapter::class,
             PayPal_Pro_GatewayAdapter::class,
@@ -171,6 +173,7 @@ class Gateways extends Component
 
         $record->settings = $gateway->settings;
         $record->name = $gateway->name;
+        $record->handle = $gateway->handle;
         $record->paymentType = $gateway->paymentType;
         $record->type = get_class($gateway);
         $record->frontendEnabled = $gateway->frontendEnabled;
@@ -282,6 +285,7 @@ class Gateways extends Component
                 'id',
                 'type',
                 'name',
+                'handle',
                 'paymentType',
                 'frontendEnabled',
                 'isArchived',

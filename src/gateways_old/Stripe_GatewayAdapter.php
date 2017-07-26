@@ -3,7 +3,7 @@
 namespace craft\commerce\gateways;
 
 use Craft;
-use craft\commerce\gateway\models\StripePaymentFormModel;
+use craft\commerce\gateway\models\StripePaymentForm;
 
 class Stripe_GatewayAdapter extends CreditCardGatewayAdapter
 {
@@ -20,7 +20,7 @@ class Stripe_GatewayAdapter extends CreditCardGatewayAdapter
 
     public function getPaymentFormModel()
     {
-        return new StripePaymentFormModel();
+        return new StripePaymentForm();
     }
 
     public function cpPaymentsEnabled()

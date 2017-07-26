@@ -1,6 +1,6 @@
 <?php
 
-namespace craft\commerce\gateways;
+namespace craft\commerce\gateways\base;
 
 use craft\base\SavableComponentInterface;
 

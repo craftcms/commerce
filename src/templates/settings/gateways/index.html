@@ -10,6 +10,7 @@
         <tr>
             <th class="thin">{{ "ID"|t('commerce') }}</th>
             <th>{{ "Name"|t('commerce') }}</th>
+            <th>{{ "Handle"|t('commerce') }}</th>
             <th>{{ "Type"|t('commerce') }}</th>
             <th>{{ "Customer Enabled?"|t('commerce') }}</th>
             <td class="thin"></td>
@@ -20,11 +21,9 @@
         {% for gateway in gateways %}
             <tr data-id="{{ gateway.id }}"
                 data-name="{{ gateway.name }}">
-                <td class="thin" scope="row"
-                    data-title="{{ 'ID'|t('commerce') }}">{{ gateway.id }}</td>
-                <th scope="row" data-title="{{ 'Name'|t('commerce') }}"><a
-                            href="{{ gateway.cpEditUrl }}">{{ gateway.name }}</a>
-                </th>
+                <td class="thin" scope="row" data-title="{{ 'ID'|t('commerce') }}">{{ gateway.id }}</td>
+                <th scope="row" data-title="{{ 'Name'|t('commerce') }}"><a href="{{ gateway.cpEditUrl }}">{{ gateway.name }}</a></th>
+                <td data-title="{{ 'Handle'|t('commerce') }}">{{ gateway.handle }}</td>
                 <td data-title="{{ 'Type'|t('commerce') }}">
                     {% if gateway is missing %}
                         <span class="error">{{ gateway.expectedType }}</span>
@@ -32,9 +31,9 @@
                         {{ gateway.displayName() }}
                     {% endif %}
                 </td>
-                <td data-title="{{ 'Customer Enabled?'|t('commerce') }}">{% if gateway.frontendEnabled %}
-                        <span data-icon="check"
-                              title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}</td>
+                <td data-title="{{ 'Customer Enabled?'|t('commerce') }}">
+                    {% if gateway.frontendEnabled %} <span data-icon="check" title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}
+                </td>
                 <td class="thin"><a class="move icon" title="{{ 'Delete'|t('commerce') }}"
                                     role="button"></a></td>
                 <td class="thin"><a class="delete icon"

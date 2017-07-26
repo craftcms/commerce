@@ -120,6 +120,11 @@ class Settings extends Model
     public $requireShippingAddressAtCheckout = false;
 
     /**
+     * @var array
+     */
+    public $gatewaySettings = [];
+
+    /**
      * @return array
      */
     public function getWeightUnitsOptions()

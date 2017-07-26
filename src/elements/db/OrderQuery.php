@@ -4,7 +4,7 @@ namespace craft\commerce\elements\db;
 
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
-use craft\commerce\gateways\BaseGateway;
+use craft\commerce\gateways\base\BaseGateway;
 use craft\commerce\models\Customer;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\Plugin;

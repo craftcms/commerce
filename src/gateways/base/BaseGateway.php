@@ -1,13 +1,16 @@
 <?php
 
-namespace craft\commerce\gateways;
+namespace craft\commerce\gateways\base;
 
 use Craft;
 use craft\base\SavableComponent;
-use craft\commerce\gateway\models\BasePaymentFormModel;
+use craft\commerce\models\payments\BasePaymentForm;
+use craft\commerce\models\payments\CreditCardPaymentForm;
 use craft\helpers\UrlHelper;
 use Omnipay\Common\AbstractGateway;
+use Omnipay\Common\CreditCard;
 use Omnipay\Common\GatewayInterface as OmnipayGatewayInterface;
+use Omnipay\Manual\Message\Request;
 use Omnipay\Omnipay;
 
 /**
@@ -24,8 +27,6 @@ use Omnipay\Omnipay;
  * @property bool               $isArchived
  * @property bool               $dateArchived
  *
- * @property BaseGatewayAdapter $gateway
- *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2017, Pixel & Tonic, Inc.
  * @license   https://craftcommerce.com/license Craft Commerce License Agreement
@@ -36,13 +37,6 @@ use Omnipay\Omnipay;
 abstract class BaseGateway extends SavableComponent implements GatewayInterface
 {
     use GatewayTrait;
-
-    /**
-     * Whether this payment method requires credit card details.
-     *
-     * @var bool
-     */
-    protected $_requiresCreditCard = true;
 
     /**
      * @var AbstractGateway
@@ -63,28 +57,30 @@ abstract class BaseGateway extends SavableComponent implements GatewayInterface
      *
      * @return string|null
      */
-    abstract public function getPaymentFormHtml($params);
+    abstract public function getPaymentFormHtml(array $params);
 
     /**
      * Payment Form HTML
      *
-     * @return BasePaymentFormModel|null
+     * @return BasePaymentForm|null
      */
     abstract public function getPaymentFormModel();
 
     /**
-     * @param $card
-     * @param $paymentForm
+     * @param CreditCard            $card
+     * @param CreditCardPaymentForm $paymentForm
      *
+     * @return void
      */
-    abstract public function populateCard($card, $paymentForm);
+    abstract public function populateCard(CreditCard $card, CreditCardPaymentForm $paymentForm);
 
     /**
-     * @param $request
-     * @param $form
+     * @param Request         $request
+     * @param BasePaymentForm $form
      *
+     * @return void
      */
-    abstract public function populateRequest($request, $form);
+    abstract public function populateRequest(Request $request, BasePaymentForm $form);
 
     /**
      * @inheritdoc
@@ -119,9 +115,9 @@ abstract class BaseGateway extends SavableComponent implements GatewayInterface
      *
      * @return bool
      */
-    public function requiresCard()
+    public function requiresCreditCard()
     {
-        return $this->_requiresCreditCard;
+        return true;
     }
 
     /**

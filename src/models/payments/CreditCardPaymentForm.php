@@ -1,8 +1,8 @@
 <?php
 
-namespace craft\commerce\gateway\models;
+namespace craft\commerce\models\payments;
 
-use Craft\AttributeType;
+use Craft;
 use Omnipay\Common\Helper as OmnipayHelper;
 
 /**
@@ -16,16 +16,63 @@ use Omnipay\Common\Helper as OmnipayHelper;
  * @package   craft.plugins.commerce.models
  * @since     1.1
  */
-class CreditCardPaymentFormModel extends BasePaymentFormModel
+class CreditCardPaymentForm extends BasePaymentForm
 {
-    public function populateModelFromPost($post)
+
+    // Properties
+    // =========================================================================
+
+    /**
+     * @var string First name
+     */
+    public $firstName;
+
+    /**
+     * @var string Last name
+     */
+    public $lastName;
+
+    /**
+     * @var int Card number
+     */
+    public $number;
+
+    /**
+     * @var int Expiry month
+     */
+    public $month;
+
+    /**
+     * @var int Expiry year
+     */
+    public $year;
+
+    /**
+     * @var int CVV number
+     */
+    public $cvv;
+
+    /**
+     * @var string Token
+     */
+    public $token;
+
+    /**
+     * @var string Expiry date
+     */
+    public $expiry;
+
+    /**
+     * @inheritdoc
+     */
+    public function setAttributes($values, $safeOnly = true)
     {
-        parent::populateModelFromPost($post);
+        parent::setAttributes($values, $safeOnly);
 
-        $this->number = preg_replace('/\D/', '', isset($post['number']) ? $post['number'] : '');
+        $this->number = preg_replace('/\D/', '', $values['number'] ?? '');
 
-        if (isset($post['expiry'])) {
-            $expiry = explode("/", $post['expiry']);
+        if (isset($values['expiry'])) {
+            $expiry = explode("/", $values['expiry']);
 
             if (isset($expiry[0])) {
                 $this->month = trim($expiry[0]);
@@ -38,7 +85,7 @@ class CreditCardPaymentFormModel extends BasePaymentFormModel
     }
 
     /**
-     * @return array
+     * @inheritdoc
      */
     public function rules()
     {
@@ -70,34 +117,10 @@ class CreditCardPaymentFormModel extends BasePaymentFormModel
      * @param $attribute
      * @param $params
      */
-    public function creditCardLuhn($attribute, $params)
+    public function  creditCardLuhn($attribute, $params)
     {
         if (!OmnipayHelper::validateLuhn($this->$attribute)) {
-            $this->addError($attribute, \Craft\Craft::t('Not a valid Credit Card Number'));
+            $this->addError($attribute, Craft::t('commerce', 'Not a valid Credit Card Number'));
         }
-    }
-
-    /**
-     * @return array
-     */
-    protected function defineAttributes()
-    {
-
-        $date = date_create();
-        date_modify($date, '+1 year');
-        $defaultExpiry = date_format($date, 'm/Y');
-        $defaultMonth = date_format($date, 'm');
-        $defaultYear = date_format($date, 'Y');
-
-        return [
-            'firstName' => AttributeType::String,
-            'lastName' => AttributeType::String,
-            'number' => AttributeType::Number,
-            'month' => [AttributeType::Number, 'default' => $defaultMonth],
-            'year' => [AttributeType::Number, 'default' => $defaultYear],
-            'cvv' => AttributeType::Number,
-            'token' => AttributeType::String,
-            'expiry' => [AttributeType::String, 'default' => $defaultExpiry],
-        ];
     }
 }

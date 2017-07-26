@@ -3,6 +3,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\gateways\base\BaseGateway;
 use craft\commerce\Plugin;
 use yii\base\Exception;
 use yii\web\HttpException;
@@ -106,6 +107,7 @@ class PaymentsController extends BaseFrontEndController
             }
         }
 
+        /** @var BaseGateway $paymentMethod */
         $paymentMethod = $order->getGateway();
 
         if (!$paymentMethod) {
@@ -121,7 +123,7 @@ class PaymentsController extends BaseFrontEndController
 
         // Get the payment method' gateway adapter's expected form model
         $paymentForm = $paymentMethod->getPaymentFormModel();
-        $paymentForm->populateModelFromPost(Craft::$app->getRequest()->getParam());
+        $paymentForm->setAttributes(Craft::$app->getRequest()->getBodyParams(), false);
 
         // Allowed to update order's custom fields?
         if ($order->isActiveCart() || Craft::$app->getUser()->checkPermission('commerce-manageOrders')) {
