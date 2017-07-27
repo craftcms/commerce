@@ -628,7 +628,7 @@ class Commerce_PaymentsService extends BaseApplicationComponent
         $transaction = $this->processCaptureOrRefund($transaction, Commerce_TransactionRecord::TYPE_CAPTURE);
 
         //raising event
-        $event = new Event($this, ['transaction' => $transaction,]);
+        $event = new Event($this, ['transaction' => $transaction]);
         $this->onCaptureTransaction($event);
 
         return $transaction;
