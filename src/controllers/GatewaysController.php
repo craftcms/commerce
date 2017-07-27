@@ -85,7 +85,6 @@ class GatewaysController extends BaseAdminController
             }
         }
 
-        //$variables['paymentMethod']->getGateway(); //init gateway settings || yeah but why?
         $variables['gatewayTypes'] = $allGatewayTypes;
         $variables['gatewayInstances'] = $gatewayInstances;
         $variables['gatewayOptions'] = $gatewayOptions;

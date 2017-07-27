@@ -52,10 +52,6 @@ class Gateways extends Component
         $gatewayTypes = [
             Dummy::class,
             Stripe::class,
-            /*Manual_GatewayAdapter::class,
-            PayPal_Express_GatewayAdapter::class,
-            PayPal_Pro_GatewayAdapter::class,
-            Stripe_GatewayAdapter::class*/
         ];
 
         $event = new RegisterComponentTypesEvent([
@@ -118,6 +114,7 @@ class Gateways extends Component
      */
     public function archiveGatewayById(int $id): bool
     {
+        /** @var BaseGateway $gateway */
         $gateway = $this->getGatewayById($id);
         $gateway->isArchived = true;
         $gateway->dateArchived = Db::prepareDateForDb(new \DateTime());
@@ -205,14 +202,15 @@ class Gateways extends Component
      */
     public function reorderGateways(array $ids): bool
     {
-        $paymentMethods = $this->getAllGateways();
+        /** @var BaseGateway[] $allGateways */
+        $allGateways = $this->getAllGateways();
 
         $count = 999;
 
         // Append those not in the table an put them at 999+
-        foreach ($paymentMethods as $paymentMethod) {
-            if ($paymentMethod->isArchived) {
-                $ids[$count++] = $paymentMethod->id;
+        foreach ($allGateways as $gateway) {
+            if ($gateway->isArchived) {
+                $ids[$count++] = $gateway->id;
             }
         }
 
