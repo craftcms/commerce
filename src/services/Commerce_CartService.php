@@ -407,28 +407,27 @@ class Commerce_CartService extends BaseApplicationComponent
                 $this->_cart->paymentCurrency = craft()->commerce_paymentCurrencies->getPrimaryPaymentCurrencyIso();
             }
 
-            if ($customer = craft()->commerce_customers->getCustomerById($this->_cart->customerId))
+            if (
+                $autoSetAddresses = craft()->config->get('autoSetNewCartAddresses', 'commerce') &&
+                $customer = craft()->commerce_customers->getCustomerById($this->_cart->customerId)
+            )
             {
-
-                $setShippingAddress = craft()->config->get('autoSetLastUsedShippingAddressOnNewCarts', 'commerce');
-                $lastShippingAddressId = $customer->lastUsedShippingAddressId;
-
-                if (!$this->_cart->shippingAddressId && $lastShippingAddressId && $setShippingAddress)
+                if (
+                    !$this->_cart->shippingAddressId &&
+                    ($lastShippingAddressId = $customer->lastUsedShippingAddressId) &&
+                    ($address = craft()->commerce_addresses->getAddressById($lastShippingAddressId))
+                )
                 {
-                    if ($address = craft()->commerce_addresses->getAddressById($lastShippingAddressId))
-                    {
-                        $this->_cart->shippingAddressId = $address->id;
-                    }
+                    $this->_cart->shippingAddressId = $address->id;
                 }
 
-                $setBillingAddress = craft()->config->get('autoSetLastUsedBillingAddressOnNewCarts', 'commerce');
-                $lastBillingAddressId = $customer->lastUsedBillingAddressId;
-                if (!$this->_cart->billingAddressId && $lastBillingAddressId && $setBillingAddress)
+                if (
+                    !$this->_cart->billingAddressId &&
+                    ($lastBillingAddressId = $customer->lastUsedBillingAddressId) &&
+                    ($address = craft()->commerce_addresses->getAddressById($lastBillingAddressId))
+                )
                 {
-                    if ($address = craft()->commerce_addresses->getAddressById($lastBillingAddressId))
-                    {
-                        $this->_cart->billingAddressId = $address->id;
-                    }
+                    $this->_cart->billingAddressId = $address->id;
                 }
             }
 
