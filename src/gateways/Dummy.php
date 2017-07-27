@@ -18,14 +18,6 @@ use Omnipay\Dummy\Gateway;
  */
 class Dummy extends CreditCardGateway
 {
-    // Properties
-    // =========================================================================
-
-    /**
-     * @var string
-     */
-    public $dummyApiKey;
-
     // Public Methods
     // =========================================================================
 
@@ -40,30 +32,11 @@ class Dummy extends CreditCardGateway
     /**
      * @inheritdoc
      */
-    public function rules()
-    {
-        $rules = parent::rules();
-        $rules[] = [['dummyApiKey'], 'required'];
-
-        return $rules;
-    }
-
-    /**
-     * @inheritdoc
-     */
     protected function getGatewayClassName()
     {
         return Gateway::class;
     }
-
-    public function getSettingsHtml()
-    {
-        return Craft::$app->getView()->renderTemplate('commerce/_components/gateways/Dummy/settings',
-            [
-                'gateway' => $this,
-            ]);
-    }
-
+    
     /**
      * @inheritdoc
      */
