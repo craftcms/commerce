@@ -1,11 +1,9 @@
 <?php
 
-namespace craft\commerce\gateways;;
+namespace craft\commerce\gateways;
 
-use Craft;
 use craft\base\MissingComponentInterface;
 use craft\base\MissingComponentTrait;
-use craft\commerce\gateway\models\BasePaymentFormModel;
 use craft\commerce\gateways\base\BaseGateway;
 
 /**
@@ -47,7 +45,7 @@ class MissingGateway extends BaseGateway implements MissingComponentInterface
     /**
      * @inheritdoc
      */
-    public function getPaymentFormHtml($params)
+    public function getPaymentFormHtml(array $params)
     {
         return null;
     }
@@ -63,7 +61,7 @@ class MissingGateway extends BaseGateway implements MissingComponentInterface
     /**
      * @inheritdoc
      */
-    public function populateCard($card, $paymentForm)
+    public function populateCard(\Omnipay\Common\CreditCard $card, \craft\commerce\models\payments\CreditCardPaymentForm $paymentForm)
     {
         return null;
     }
@@ -71,7 +69,7 @@ class MissingGateway extends BaseGateway implements MissingComponentInterface
     /**
      * @inheritdoc
      */
-    public function populateRequest($request, $form)
+    public function populateRequest(\Omnipay\Manual\Message\Request $request, \craft\commerce\models\payments\BasePaymentForm $form)
     {
         return null;
     }
