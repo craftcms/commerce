@@ -98,7 +98,6 @@ class Commerce_CustomersService extends BaseApplicationComponent
                 if ($user)
                 {
                     $record['userId'] = $user->id;
-                    $record['email'] = $user->email;
                 }
             }
 
@@ -140,16 +139,9 @@ class Commerce_CustomersService extends BaseApplicationComponent
             }
         }
 
-        $customerRecord->email = $customer->email;
         $customerRecord->userId = $customer->userId;
         $customerRecord->lastUsedBillingAddressId = $customer->lastUsedBillingAddressId;
         $customerRecord->lastUsedShippingAddressId = $customer->lastUsedShippingAddressId;
-
-        // If the customer is attached to a user, always use the user's email address.
-        if($user = craft()->users->getUserById($customer->userId))
-        {
-            $customerRecord->email = $customer->email = $user->email;
-        }
 
         $customerRecord->validate();
         $customer->addErrors($customerRecord->getErrors());
@@ -281,22 +273,6 @@ class Commerce_CustomersService extends BaseApplicationComponent
     }
 
     /**
-     * Gets all customers by email address.
-     *
-     * @param $email
-     *
-     * @return array
-     */
-    public function getAllCustomersByEmail($email)
-    {
-        $results = $this->_createCustomersQuery()
-            ->where('customers.email = :email', [':email' => $email])
-            ->queryAll();
-
-        return Commerce_CustomerModel::populateModels($results);
-    }
-
-    /**
      *
      * @param Commerce_CustomerModel $customer
      *
@@ -396,22 +372,11 @@ class Commerce_CustomersService extends BaseApplicationComponent
         // Sync the users email with the customer record.
         if ($customer)
         {
-            if ($customer->email != $user->email)
-            {
-                $customer->email = $user->email;
-                if (!$this->saveCustomer($customer))
-                {
-                    $error = Craft::t('Could not sync user’s email to customers record. CustomerId:{customerId} UserId:{userId}',
-                        ['customerId' => $customer->id, 'userId' => $user->id]);
-                    CommercePlugin::log($error);
-                };
-            }
-
             $orders = craft()->commerce_orders->getOrdersByCustomer($customer);
 
             foreach ($orders as $order)
             {
-                $order->email = $user->email;
+                // Email will be set to the users email since $order->getEmail() returns the users email.
                 craft()->commerce_orders->saveOrder($order);
             }
         }
@@ -435,15 +400,27 @@ class Commerce_CustomersService extends BaseApplicationComponent
             /** @var UserModel $user */
             $user = craft()->users->getUserByUsernameOrEmail($username);
 
+            if(!$user)
+            {
+                return false;
+            }
+
             $toCustomer = $this->getCustomerByUserId($user->id);
 
             // The user has no previous customer record, create one.
             if (!$toCustomer)
             {
                 $toCustomer = new Commerce_CustomerModel();
-                $toCustomer->email = $user->email;
-                $toCustomer->userId = $user->id;
-                $this->saveCustomer($toCustomer);
+                $toCustomer->setUser($user);
+                if (!$this->saveCustomer($toCustomer))
+                {
+                    return false;
+                }
+            }
+
+            if (!$toCustomer->email)
+            {
+                return false;
             }
 
             // Grab all the orders for the customer.
@@ -452,11 +429,12 @@ class Commerce_CustomersService extends BaseApplicationComponent
             // Assign each completed order to the users' customer and update the email.
             foreach ($orders as $order)
             {
-                // Only consolidate completed orders, not carts
-                if ($order->isCompleted)
+                $belongsToAnotherUser = (bool) ($order->getCustomer() && $order->getCustomer()->getUser());
+
+                // Only consolidate completed orders, not carts and orders that don't belong to another user.
+                if ($order->isCompleted && !$belongsToAnotherUser)
                 {
                     $order->customerId = $toCustomer->id;
-                    $order->email = $toCustomer->email;
                     craft()->commerce_orders->saveOrder($order);
                 }
             }
@@ -509,7 +487,7 @@ class Commerce_CustomersService extends BaseApplicationComponent
     private function _createCustomersQuery()
     {
         return craft()->db->createCommand()
-            ->select('customers.id, customers.userId, customers.email, customers.lastUsedBillingAddressId, customers.lastUsedShippingAddressId')
+            ->select('customers.id, customers.userId, customers.lastUsedBillingAddressId, customers.lastUsedShippingAddressId')
             ->from('commerce_customers customers')
             ->order('id');
     }

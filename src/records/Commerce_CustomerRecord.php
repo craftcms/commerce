@@ -67,7 +67,6 @@ class Commerce_CustomerRecord extends BaseRecord
     protected function defineAttributes()
     {
         return [
-            'email' => AttributeType::Email,
             'lastUsedBillingAddressId' => AttributeType::Number,
             'lastUsedShippingAddressId' => AttributeType::Number
         ];

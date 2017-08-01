@@ -96,6 +96,11 @@ class Commerce_OrderModel extends BaseElementModel
     private $_recalcuate = true;
 
     /**
+     * @var string $_email
+     */
+    private $_email;
+
+    /**
      * We need to have getters functions have maximum priority.
      * This was in the ModelRelationTrait so it needs to stay for backwards compatibility.
      * @param string $name
@@ -624,6 +629,39 @@ class Commerce_OrderModel extends BaseElementModel
     }
 
     /**
+     * @return string
+     */
+    public function getEmail()
+    {
+        if ($this->getCustomer() && $this->getCustomer()->getUser())
+        {
+            $this->setEmail($this->getCustomer()->getUser()->email);
+        }
+
+        return $this->_email;
+    }
+
+    /**
+     * @param $value
+     */
+    public function setEmail($value)
+    {
+        $this->_email = $value;
+    }
+
+    /**
+     * @param mixed $row
+     *
+     * @return Commerce_OrderModel
+     */
+    public static function populateModel($row)
+    {
+        $model = parent::populateModel($row);
+        $model->setEmail($row['email']);
+        return $model;
+    }
+
+    /**
      * @deprecated
      * @return bool
      */
@@ -697,7 +735,6 @@ class Commerce_OrderModel extends BaseElementModel
                 'decimals' => 4,
                 'default' => 0
             ],
-            'email' => AttributeType::String,
             'isCompleted' => AttributeType::Bool,
             'dateOrdered' => AttributeType::DateTime,
             'datePaid' => AttributeType::DateTime,

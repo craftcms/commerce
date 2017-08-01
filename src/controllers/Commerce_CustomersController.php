@@ -64,9 +64,6 @@ class Commerce_CustomersController extends Commerce_BaseCpController
             throw new HttpException(400, Craft::t('Cannot find customer.'));
         }
 
-        // Shared attributes
-        $customer->email = craft()->request->getPost('email');
-
         // Save it
         if (craft()->commerce_customers->saveCustomer($customer)) {
             craft()->userSession->setNotice(Craft::t('Customer saved.'));

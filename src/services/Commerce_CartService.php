@@ -326,18 +326,16 @@ class Commerce_CartService extends BaseApplicationComponent
             return false;
         }
 
+        if ($cart->getCustomer() && $cart->getCustomer()->getUser())
+        {
+            $error = Craft::t('Can not set email on cart as a logged in and registered user.');
+            return false;
+        }
+
         try
         {
-            // we need to force a persisted customer so get a customer id
-            $this->getCart()->customerId = craft()->commerce_customers->getCustomerId();
-            $customer = craft()->commerce_customers->getCustomer();
-            if (!$customer->userId)
-            {
-                $customer->email = $email;
-                craft()->commerce_customers->saveCustomer($customer);
-                $cart->email = $customer->email;
-                craft()->commerce_orders->saveOrder($cart);
-            }
+            $cart->setEmail($email);
+            craft()->commerce_orders->saveOrder($cart);
         }
         catch (Exception $e)
         {
@@ -433,7 +431,7 @@ class Commerce_CartService extends BaseApplicationComponent
 
             // Update the cart if the customer has changed and recalculate the cart.
             $customer = craft()->commerce_customers->getCustomer();
-            if (!$this->_cart->isEmpty() && $this->_cart->customerId != $customer->id)
+            if ($this->_cart->customerId != $customer->id)
             {
                 $this->_cart->customerId = $customer->id;
                 $this->_cart->email = $customer->email;
