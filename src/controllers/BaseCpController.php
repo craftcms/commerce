@@ -68,5 +68,7 @@ class BaseCpController extends BaseController
                 'No Address'
             ]
         );
+
+        return parent::init();
     }
 }
