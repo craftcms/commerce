@@ -79,7 +79,7 @@
         $('.address-fieldset.BillingAddress').toggleClass('hidden');
     });
 
-    {% if cart.billingAddressId and cart.billingAddress.hasErrors() %}
+    {% if (cart.billingAddressId and cart.billingAddress.hasErrors()) or (cart.billingAddressId != cart.shippingAddressId) %}
         $("#sameAddress").click();
     {% endif %}
     {% endincludejs %}
