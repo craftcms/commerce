@@ -246,7 +246,7 @@ class Customers extends Component
         $customer = CustomerRecord::findOne($customer->id);
 
         if ($customer) {
-            $customer->delete();
+            return $customer->delete();
         }
     }
 
