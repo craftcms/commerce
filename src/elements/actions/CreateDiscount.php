@@ -40,9 +40,7 @@ class CreateDiscount extends ElementAction
     }
 
     /**
-     * @inheritDoc IElementAction::getTriggerHtml()
-     *
-     * @return string|null
+     * @inheritDoc
      */
     public function getTriggerHtml()
     {
