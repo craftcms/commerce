@@ -3,6 +3,13 @@ Commerce Changelog
 
 ## Unreleased
 
+### Fixed
+- Fixed an issue in the example templates where the `same address` checkbox still being checked when different addresses where previously selected.
+
+### Changed
+- The order email address now always returns the user’s email address if the order was made as a registered user, even after the user changes their email address.
+
+
 ## 1.2.1346 - 2017-07-24
 
 ### Added
