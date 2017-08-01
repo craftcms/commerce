@@ -182,14 +182,12 @@ class Variants extends Component
         $transaction = $db->beginTransaction();
 
         try {
-            if (!$model->hasErrors()) {
-                if (Plugin::getInstance()->getPurchasables()->saveElement($model)) {
-                    $record->id = $model->id;
-                    $record->save(false);
-                    $transaction->commit();
+            if (!$model->hasErrors() && Plugin::getInstance()->getPurchasables()->saveElement($model)) {
+                $record->id = $model->id;
+                $record->save(false);
+                $transaction->commit();
 
-                    return true;
-                }
+                return true;
             }
         } catch (\Exception $e) {
             $transaction->rollBack();

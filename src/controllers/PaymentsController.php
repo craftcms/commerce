@@ -49,25 +49,21 @@ class PaymentsController extends BaseFrontEndController
         }
 
         // Are we paying anonymously?
-        if (!$order->isActiveCart() && !Craft::$app->getUser()->checkPermission('commerce-manageOrders')) {
-            if (Plugin::getInstance()->getSettings()->requireEmailForAnonymousPayments) {
-                if ($order->email !== Craft::$app->getRequest()->getParam('email')) {
-                    throw new HttpException(401, Craft::t("commerce", "Not authorized to make payments on this order."));
-                }
+        if (!$order->isActiveCart() && !Craft::$app->getUser()->checkPermission('commerce-manageOrders') && Plugin::getInstance()->getSettings()->requireEmailForAnonymousPayments) {
+            if ($order->email !== Craft::$app->getRequest()->getParam('email')) {
+                throw new HttpException(401, Craft::t("commerce", "Not authorized to make payments on this order."));
             }
         }
 
-        if (Plugin::getInstance()->getSettings()->requireShippingAddressAtCheckout) {
-            if (!$order->shippingAddressId) {
-                $error = Craft::t('commerce', 'Shipping address required.');
-                if (Craft::$app->getRequest()->getAcceptsJson()) {
-                    $this->asErrorJson($error);
-                } else {
-                    Craft::$app->getUser()->setFlash('error', $error);
-                }
-
-                return;
+        if (Plugin::getInstance()->getSettings()->requireShippingAddressAtCheckout && !$order->shippingAddressId) {
+            $error = Craft::t('commerce', 'Shipping address required.');
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
+                $this->asErrorJson($error);
+            } else {
+                Craft::$app->getUser()->setFlash('error', $error);
             }
+
+            return;
         }
 
         // These are used to compare if the order changed during it's final

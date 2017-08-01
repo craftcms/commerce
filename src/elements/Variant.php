@@ -461,11 +461,9 @@ class Variant extends Purchasable
                 $lineItem->addError('qty', $error);
             }
 
-            if ($this->maxQty != 0) {
-                if ($lineItem->qty > $this->maxQty) {
-                    $error = Craft::t('commerce', 'Maximum order quantity for this item is {num}', ['num' => $this->maxQty]);
-                    $lineItem->addError('qty', $error);
-                }
+            if ($this->maxQty != 0 && $lineItem->qty > $this->maxQty) {
+                $error = Craft::t('commerce', 'Maximum order quantity for this item is {num}', ['num' => $this->maxQty]);
+                $lineItem->addError('qty', $error);
             }
         }
     }

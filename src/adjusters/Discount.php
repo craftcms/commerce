@@ -126,10 +126,8 @@ class Discount implements AdjusterInterface
         }
 
         // Have they entered a max qty?
-        if ($discount->maxPurchaseQty > 0) {
-            if ($matchingQty > $discount->maxPurchaseQty) {
-                return false;
-            }
+        if ($discount->maxPurchaseQty > 0 && $matchingQty > $discount->maxPurchaseQty) {
+            return false;
         }
 
         // Reject if they have not added enough matching items

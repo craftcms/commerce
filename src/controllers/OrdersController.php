@@ -62,13 +62,11 @@ class OrdersController extends BaseCpController
             throw new HttpException(404, Craft::t('commerce', 'No order settings found.'));
         }
 
-        if (empty($variables['order'])) {
-            if (!empty($variables['orderId'])) {
-                $variables['order'] = $plugin->getOrders()->getOrderById($variables['orderId']);
+        if (empty($variables['order']) && !empty($variables['orderId'])) {
+            $variables['order'] = $plugin->getOrders()->getOrderById($variables['orderId']);
 
-                if (!$variables['order']) {
-                    throw new HttpException(404);
-                }
+            if (!$variables['order']) {
+                throw new HttpException(404);
             }
         }
 
@@ -268,11 +266,9 @@ class OrdersController extends BaseCpController
 
         $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
 
-        if ($order && !$order->isCompleted) {
-            if ($order->markAsComplete()) {
-                $date = new \DateTime($order->dateOrdered);
-                $this->asJson(['success' => true, 'dateOrdered' => $date]);
-            }
+        if ($order && !$order->isCompleted && $order->markAsComplete()) {
+            $date = new \DateTime($order->dateOrdered);
+            $this->asJson(['success' => true, 'dateOrdered' => $date]);
         }
 
         $this->asErrorJson(Craft::t("commerce", "Could not mark the order as completed."));

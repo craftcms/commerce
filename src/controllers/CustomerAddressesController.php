@@ -60,16 +60,14 @@ class CustomerAddressesController extends BaseFrontEndController
         $addressIds = Plugin::getInstance()->getCustomers()->getAddressIds($customerId);
 
         // if this is an existing address
-        if ($address->id) {
-            if (!in_array($address->id, $addressIds)) {
-                $error = Craft::t('commerce', 'Not allowed to edit that address.');
-                if (Craft::$app->getRequest()->getAcceptsJson()) {
-                    $this->asJson(['error' => $error]);
-                }
-                Craft::$app->getUser()->setFlash('error', $error);
-
-                return;
+        if ($address->id && !in_array($address->id, $addressIds)) {
+            $error = Craft::t('commerce', 'Not allowed to edit that address.');
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
+                $this->asJson(['error' => $error]);
             }
+            Craft::$app->getUser()->setFlash('error', $error);
+
+            return;
         }
 
         if (Plugin::getInstance()->getCustomers()->saveAddress($address)) {
