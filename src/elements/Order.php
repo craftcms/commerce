@@ -8,7 +8,7 @@ use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\elements\actions\UpdateOrderStatus;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\events\OrderEvent;
-use craft\commerce\gateways\base\BaseGateway;
+use craft\commerce\gateways\base\Gateway;
 use craft\commerce\gateways\base\GatewayInterface;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\Address;
@@ -81,7 +81,7 @@ use yii\base\Exception;
  * @property Customer                $customer
  * @property Address                 $shippingAddress
  * @property OrderAdjustment[]       $adjustments
- * @property BaseGateway             $gateway
+ * @property Gateway                 $gateway
  * @property Transaction[]           $transactions
  * @property OrderStatus             $orderStatus
  * @property null|string             $name

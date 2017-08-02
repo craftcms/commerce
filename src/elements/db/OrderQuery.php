@@ -4,7 +4,7 @@ namespace craft\commerce\elements\db;
 
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
-use craft\commerce\gateways\base\BaseGateway;
+use craft\commerce\gateways\base\Gateway;
 use craft\commerce\models\Customer;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\Plugin;
@@ -79,7 +79,7 @@ class OrderQuery extends ElementQuery
     public $customerId;
 
     /**
-     * @var BaseGateway|string The gateway that the resulting orders must have.
+     * @var Gateway|string The gateway that the resulting orders must have.
      */
     public $gateway;
 
@@ -342,13 +342,13 @@ class OrderQuery extends ElementQuery
     /**
      * Sets the [[gateway]] property.
      *
-     * @param BaseGateway|int $value The property value
+     * @param Gateway|int $value The property value
      *
      * @return static self reference
      */
     public function gateway($value)
     {
-        if ($value instanceof BaseGateway) {
+        if ($value instanceof Gateway) {
             $this->gatewayId = $value->id;
         } else if ($value !== null) {
             $this->gatewayId = $value;

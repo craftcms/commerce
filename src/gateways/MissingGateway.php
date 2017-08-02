@@ -4,7 +4,8 @@ namespace craft\commerce\gateways;
 
 use craft\base\MissingComponentInterface;
 use craft\base\MissingComponentTrait;
-use craft\commerce\gateways\base\BaseGateway;
+use craft\commerce\base\Gateway;
+use Omnipay\Common\AbstractGateway;
 
 /**
  * MissingGateway represents a gateway with an invalid class.
@@ -16,7 +17,7 @@ use craft\commerce\gateways\base\BaseGateway;
  * @package   craft.commerce
  * @since     2.0
  */
-class MissingGateway extends BaseGateway implements MissingComponentInterface
+class MissingGateway extends Gateway implements MissingComponentInterface
 {
     // Traits
     // =========================================================================
@@ -70,6 +71,11 @@ class MissingGateway extends BaseGateway implements MissingComponentInterface
      * @inheritdoc
      */
     public function populateRequest(\Omnipay\Manual\Message\Request $request, \craft\commerce\models\payments\BasePaymentForm $form)
+    {
+        return null;
+    }
+
+    protected function createGateway(): AbstractGateway
     {
         return null;
     }

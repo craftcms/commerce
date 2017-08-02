@@ -2,8 +2,7 @@
 
 {% set currentYear = date()|date_modify("+1 year").format('Y') %}
 
-<div id="gateway-{{ gateway.id }}-form"
-     class="gateway-form {% if order and order.gatewayId != gateway.id %}hidden{% endif %}"
+<div id="gateway-{{ gateway.id }}-form" class="gateway-form {% if order and order.gatewayId != gateway.id %}hidden{% endif %}"
      xmlns="http://www.w3.org/1999/html">
     <form method="POST" data-publishablekey="{{ gateway.publishableKey ?? '' }}">
         <input type="hidden" name="action" value="commerce/payments/pay"/>

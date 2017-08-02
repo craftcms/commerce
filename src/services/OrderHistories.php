@@ -8,7 +8,7 @@ use craft\commerce\events\OrderStatusEvent;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\Plugin;
 use craft\commerce\records\OrderHistory as OrderHistoryRecord;
-use craft\helpers\ArrayHelper;
+use craft\db\Query;
 use yii\base\Component;
 use yii\base\Exception;
 
@@ -42,7 +42,9 @@ class OrderHistories extends Component
      */
     public function getOrderHistoryById($id)
     {
-        $result = OrderHistoryRecord::findOne($id);
+        $result = $this->_createOrderHistoryQuery()
+            ->where(['id' => $id])
+            ->one();
 
         if ($result) {
             return new OrderHistory($result);
@@ -58,11 +60,18 @@ class OrderHistories extends Component
      */
     public function getAllOrderHistoriesByOrderId($id): array
     {
-        $records = OrderHistoryRecord::find()->where(['orderId' => $id])->orderBy('dateCreated')->all();
+        $rows = $this->_createOrderHistoryQuery()
+            ->where(['orderId' => $id])
+            ->orderBy('dateCreated')
+            ->all();
 
-        return ArrayHelper::map($records, 'id', function($record) {
-            return $this->_createOrderHistoryFromOrderHistoryRecord($record);
-        });
+        $histories = [];
+        
+        foreach ($rows as $row) {
+            $histories[] = new OrderHistory($row);
+        }
+
+        return $histories;
     }
 
     /**
@@ -72,7 +81,7 @@ class OrderHistories extends Component
      * @return bool
      * @throws Exception
      */
-    public function createOrderHistoryFromOrder(Order $order, int $oldStatusId): bool
+    public function createOrderHistoryFromOrder(Order $order, $oldStatusId): bool
     {
         $orderHistoryModel = new OrderHistory();
         $orderHistoryModel->orderId = $order->id;
@@ -141,34 +150,37 @@ class OrderHistories extends Component
     /**
      * @param $id
      *
-     * @return bool|int
+     * @return bool
      */
-    public function deleteOrderHistoryById($id)
+    public function deleteOrderHistoryById($id): bool
     {
         $orderHistory = OrderHistoryRecord::findOne($id);
 
         if ($orderHistory) {
-            return $orderHistory->delete();
+            return (bool) $orderHistory->delete();
         }
+
+        return false;
     }
 
-    // Private Methods
+    // Private methods
     // =========================================================================
-
     /**
-     * @param OrderHistoryRecord $record
+     * Returns a Query object prepped for retrieving Transactions.
      *
-     * @return OrderHistory
+     * @return Query The query object.
      */
-    private function _createOrderHistoryFromOrderHistoryRecord(OrderHistoryRecord $record): OrderHistory
+    private function _createOrderHistoryQuery(): Query
     {
-        return new OrderHistory($record->toArray([
-            'id',
-            'message',
-            'orderId',
-            'prevStatusId',
-            'newStatusId',
-            'customerId'
-        ]));
+        return (new Query())
+            ->select([
+                'id',
+                'message',
+                'orderId',
+                'prevStatusId',
+                'newStatusId',
+                'customerId'
+            ])
+            ->from(['{{%commerce_orderhistories}}']);
     }
 }

@@ -13,23 +13,23 @@
 			on method change.
 			#}
 
-			{% if not craft.commerce.paymentMethods|length %}
+			{% if not craft.commerce.gateways|length %}
 				<p>No payment methods available.</p>
 			{% endif %}
 
-			{% if craft.commerce.paymentMethods|length %}
-				<form method="POST" id="paymentMethod" class="form-inline">
+			{% if craft.commerce.gateways|length %}
+				<form method="POST" id="gateway" class="form-inline">
 
 					<input type="hidden" name="action" value="commerce/cart/update-cart">
                     {{ redirectInput('shop/checkout/payment') }}
 					{{ csrfInput() }}
 
-					<label for="paymentMethodId">Select a payment method:</label>
-					<select id="paymentMethodId" name="paymentMethodId"
+					<label for="gatewayId">Select a payment method:</label>
+					<select id="gatewayId" name="gatewayId"
 							class="form-control">
-						{% for id,name in craft.commerce.paymentMethods %}
+						{% for id,name in craft.commerce.gateways %}
 							<option value="{{ id }}"
-									{% if id == cart.paymentMethodId %}selected{% endif %}>{{ name }}</option>
+									{% if id == cart.gatewayId %}selected{% endif %}>{{ name }}</option>
 						{% endfor %}
 					</select>
 
@@ -45,10 +45,10 @@
 				</form>
 			{% endif %}
 
-			{% if cart.paymentMethodId %}
+			{% if cart.gatewayId %}
 				<form method="POST" class="form-horizontal" id="paymentForm">
 					<input type="hidden" name="action" value="commerce/payments/pay"/>
-                    {{ redirectInput('/shop/customer/order?number='~number) }}
+                    {{ redirectInput('/shop/customer/order?number='~cart.number) }}
 					<input type="hidden" name="cancelUrl" value="/shop/checkout/payment"/>
 					{{ csrfInput() }}
 
@@ -72,11 +72,11 @@
 						</div>
 					</div>
 
-					{% if cart.paymentMethod.class == 'Stripe' %}
+					{% if cart.gateway.displayName() == 'Stripe' %}
 						<script
 								src="//checkout.stripe.com/checkout.js"
 								class="stripe-button"
-								data-key="{{ cart.paymentMethod.settings.publishableKey ?? '' }}"
+								data-key="{{ cart.gateway.settings.publishableKey ?? '' }}"
 								data-name="Craft Commerce"
 								data-description="Purchase" {# This is not used for order description in stripe - see Craft Commerce general settings #}
 								data-email="{{ cart.email }}"
@@ -86,13 +86,13 @@
 						</script>
 					{% endif %}
 
-					{% if cart.paymentMethod.class == 'WorldPay_Json' %}
+					{% if cart.gateway.displayName() == 'WorldPay Json' %}
 					<script src="https://cdn.worldpay.com/v1/worldpay.js"></script>
 					<div id='paymentSection'></div>
 					<script type='text/javascript'>
                         window.onload = function() {
                             Worldpay.useTemplateForm({
-                                'clientKey':'{{ cart.paymentMethod.settings.clientKey ?? "" }}',
+                                'clientKey':'{{ cart.gateway.settings.clientKey ?? "" }}',
                                 'form':'paymentForm',
                                 'paymentSection':'paymentSection',
                                 'display':'inline',
@@ -113,9 +113,9 @@
 
 					{% endif %}
 
-					{% if (cart.paymentMethod.class != 'Stripe') and (cart.paymentMethod.class != 'WorldPay_Json') %}
+					{% if (cart.gateway.displayName()  != 'Stripe') and (cart.gateway.displayName()  != 'WorldPay Json') %}
 						<fieldset>
-							{% if cart.paymentMethod.requiresCard() %}
+							{% if cart.gateway.requiresCreditCard() %}
 								{% set currentYear = date()|date_modify("+1 year").format('Y') %}
 								{% set formValues = {
 								firstName: paymentForm is defined ? paymentForm.firstName : (cart.billingAddress ? cart.billingAddress.firstName : ''),
@@ -267,8 +267,8 @@
 	</div>
 
 	{% includejs %}
-	$('#paymentMethodId , #paymentCurrency').change(function(){
-		$('form#paymentMethod').submit();
+	$('#gatewayId , #paymentCurrency').change(function(){
+		$('form#gateway').submit();
 	});
 	{% endincludejs %}
 {% endblock %}

@@ -3,13 +3,21 @@
 namespace craft\commerce\variables;
 
 use Craft;
+use craft\commerce\base\Gateway;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\elements\db\ProductQuery;
 use craft\commerce\elements\db\VariantQuery;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
-use craft\commerce\fieldtypes\Customer;
+use craft\commerce\models\Currency;
+use craft\commerce\models\Customer;
+use craft\commerce\models\Discount;
+use craft\commerce\models\OrderStatus;
+use craft\commerce\models\PaymentCurrency;
+use craft\commerce\models\ProductType;
+use craft\commerce\models\Sale;
+use craft\commerce\models\ShippingMethod;
 use craft\commerce\models\ShippingZone;
 use craft\commerce\models\TaxCategory;
 use craft\commerce\models\TaxRate;
@@ -202,11 +210,11 @@ class Commerce
     /**
      * @param bool $asList Whether we should return the payment methods as a simple list suitable for a html select box
      *
-     * @return array|PaymentMethod[]
+     * @return array|Gateway[]
      */
-    public function getPaymentMethods($asList = false)
+    public function getGateways($asList = false)
     {
-        $methods = Plugin::getInstance()->getPaymentMethods()->getAllFrontEndGateways();
+        $methods = Plugin::getInstance()->getGateways()->getAllFrontEndGateways();
 
         if ($asList) {
             return ArrayHelper::map($methods, 'id', 'name');

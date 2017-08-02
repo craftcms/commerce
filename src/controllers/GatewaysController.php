@@ -3,7 +3,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
-use craft\commerce\gateways\base\BaseGateway;
+use craft\commerce\gateways\base\Gateway;
 use craft\commerce\gateways\Dummy;
 use craft\commerce\gateways\base\GatewayInterface;
 use craft\commerce\Plugin;
@@ -125,7 +125,7 @@ class GatewaysController extends BaseAdminController
             $config['isArchived'] = false;
         }
 
-        /** @var BaseGateway $gateway */
+        /** @var Gateway $gateway */
         $gateway = $gatewayService->createGateway($config);
 
         $session = Craft::$app->getSession();

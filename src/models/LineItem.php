@@ -297,6 +297,7 @@ class LineItem extends Model
      */
     public function getPurchasable()
     {
+        // todo shouldn't this ensure that purchasable interface is at least implented?
         if (!$this->_purchasable) {
             $this->_purchasable = Craft::$app->getElements()->getElementById($this->purchasableId);
         }
