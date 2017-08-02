@@ -129,11 +129,6 @@ class Order extends Element
     public $couponCode;
 
     /**
-     * @var float Item Total
-     */
-    public $itemTotal = 0;
-
-    /**
      * @var float Base Discount
      */
     public $baseDiscount = 0;
@@ -147,11 +142,6 @@ class Order extends Element
      * @var float Base Tax
      */
     public $baseTax = 0;
-
-    /**
-     * @var float Total Paid
-     */
-    public $totalPaid = 0;
 
     /**
      * @var string Email
@@ -288,10 +278,6 @@ class Order extends Element
      */
     public function updateOrderPaidTotal()
     {
-        $totalPaid = Plugin::getInstance()->getPayments()->getTotalPaidForOrder($this);
-
-        $this->totalPaid = $totalPaid;
-
         if ($this->isPaid()) {
             if ($this->datePaid == null) {
                 $this->datePaid = DateTimeHelper::currentTimeStamp();
@@ -388,14 +374,10 @@ class Order extends Element
             return;
         }
 
-        //calculating adjustments
-        $lineItems = Plugin::getInstance()->getLineItems()->getAllLineItemsByOrderId($this->id);
-
         $this->baseTax = 0;
         $this->baseShippingCost = 0;
         $this->baseDiscount = 0;
-        $this->itemTotal = 0;
-        foreach ($lineItems as $key => $item) {
+        foreach ($this->getLineItems() as $key => $item) {
             if (!$item->refreshFromPurchasable()) {
                 $this->removeLineItem($item);
                 // We have changed the cart contents so recalculate the order.
@@ -408,11 +390,7 @@ class Order extends Element
             $item->taxIncluded = 0;
             $item->shippingCost = 0;
             $item->discount = 0;
-            // Need to have an initial itemTotal for use by adjusters.
-            $this->itemTotal += $item->getTotal();
         }
-
-        $this->setLineItems($lineItems);
 
         // reset adjustments
         $this->setAdjustments([]);
@@ -420,7 +398,7 @@ class Order extends Element
 
         // collect new adjustments
         foreach (PLugin::getInstance()->getOrderAdjustments()->getAdjusters() as $adjuster) {
-            $adjustments = (new $adjuster)->adjust($this, $lineItems);
+            $adjustments = (new $adjuster)->adjust($this, $this->getLineItems());
             $this->setAdjustments(array_merge($this->getAdjustments(), $adjustments));
         }
 
@@ -433,13 +411,9 @@ class Order extends Element
             }
         }
 
-        $this->itemTotal = 0;
-        foreach ($lineItems as $item) {
-
+        foreach ($this->getLineItems() as $item) {
             // TODO: move to afterSave ?
             Plugin::getInstance()->getLineItems()->saveLineItem($item);
-            //TODO: Get rid of fixed lineItem itemTotal, and move to getter.
-            $this->itemTotal += $item->total;
         }
 
         $itemSubtotal = $this->getItemSubtotal();
@@ -462,6 +436,20 @@ class Order extends Element
                 return;
             }
         }
+    }
+
+    /**
+     * @return float
+     */
+    public function getItemTotal()
+    {
+        $total = 0;
+
+        foreach ($this->getLineItems() as $lineItem) {
+            $total += $lineItem->getTotal();
+        }
+
+        return $total;
     }
 
     /**
@@ -489,7 +477,7 @@ class Order extends Element
         $oldStatusId = $orderRecord->orderStatusId;
 
         $orderRecord->number = $this->number;
-        $orderRecord->itemTotal = $this->itemTotal;
+        $orderRecord->itemTotal = $this->getItemTotal();
         $orderRecord->email = $this->email;
         $orderRecord->isCompleted = $this->isCompleted;
         $orderRecord->dateOrdered = $this->dateOrdered;
@@ -504,7 +492,7 @@ class Order extends Element
         $orderRecord->baseShippingCost = $this->baseShippingCost;
         $orderRecord->baseTax = $this->baseTax;
         $orderRecord->totalPrice = $this->getTotalPrice();
-        $orderRecord->totalPaid = $this->totalPaid;
+        $orderRecord->totalPaid = $this->getTotalPaid();
         $orderRecord->currency = $this->currency;
         $orderRecord->lastIp = $this->lastIp;
         $orderRecord->orderLocale = $this->orderLocale;
@@ -674,7 +662,7 @@ class Order extends Element
      */
     public function getTotalPrice(): float
     {
-        return Currency::round($this->itemTotal + $this->baseTax + $this->baseShippingCost + $this->baseDiscount);
+        return Currency::round($this->getItemTotal() + $this->baseTax + $this->baseShippingCost + $this->baseDiscount);
     }
 
     /**
@@ -684,7 +672,12 @@ class Order extends Element
      */
     public function outstandingBalance()
     {
-        return $this->getTotalPrice() - Currency::round($this->totalPaid);
+        return $this->getTotalPrice() - $this->geTotalPaid();
+    }
+
+    public function getTotalPaid()
+    {
+        return Plugin::getInstance()->getPayments()->getTotalPaidForOrder($this);
     }
 
     /**

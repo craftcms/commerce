@@ -449,11 +449,9 @@ class OrderQuery extends ElementQuery
             'commerce_orders.id',
             'commerce_orders.number',
             'commerce_orders.couponCode',
-            'commerce_orders.itemTotal',
             'commerce_orders.baseDiscount',
             'commerce_orders.baseTax',
             'commerce_orders.baseShippingCost',
-            'commerce_orders.totalPaid',
             'commerce_orders.orderStatusId',
             'commerce_orders.dateOrdered',
             'commerce_orders.email',
@@ -473,7 +471,6 @@ class OrderQuery extends ElementQuery
             'commerce_orders.customerId',
             'commerce_orders.dateUpdated'
         ]);
-
 
         if ($this->number) {
             $this->subQuery->andWhere(Db::parseParam('commerce_orders.number', $this->number));
