@@ -21,7 +21,6 @@ use craft\db\ActiveRecord;
  */
 class PaymentCurrency extends ActiveRecord
 {
-
     /**
      * @return string
      */
@@ -30,35 +29,11 @@ class PaymentCurrency extends ActiveRecord
         return '{{%commerce_paymentcurrencies}}';
     }
 
-//    /**
-//     * @return array
-//     */
-//    public function defineIndexes()
-//    {
-//        return [
-//            ['columns' => ['iso'], 'unique' => true],
-//        ];
-//    }
-//
-//    /**
-//     * @return array
-//     */
-//    protected function defineAttributes()
-//    {
-//        return [
-//            'iso' => [
-//                AttributeType::String,
-//                'required' => true,
-//                'maxLength' => 3,
-//                'minLength' => 3
-//            ],
-//            'primary' => AttributeType::Bool,
-//            'rate' => [
-//                AttributeType::Number,
-//                'decimals' => 4,
-//                'default' => 0,
-//                'required' => true
-//            ],
-//        ];
-//    }
+    public function rules()
+    {
+        return [
+            [['iso'], 'unique']
+        ];
+    }
+
 }
