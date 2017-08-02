@@ -672,7 +672,7 @@ class Order extends Element
      */
     public function outstandingBalance()
     {
-        return $this->getTotalPrice() - $this->geTotalPaid();
+        return $this->getTotalPrice() - $this->getTotalPaid();
     }
 
     public function getTotalPaid()
