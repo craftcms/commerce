@@ -849,7 +849,7 @@ EOF;
             ])
             ->andWhere('type', [TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE])
             ->groupBy('orderId')
-            ->all();
+            ->one();
 
         if ($transaction) {
 
