@@ -4,6 +4,8 @@ namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
 use craft\commerce\elements\Order;
+use craft\commerce\Plugin;
+use DateTime;
 
 /**
  * Class Order History Class
@@ -63,11 +65,16 @@ class OrderHistory extends Model
     public $customerId;
 
     /**
+     * @var Datetime|null
+     */
+    public $dateCreated;
+
+    /**
      * @return \craft\commerce\elements\Order|null
      */
     public function getOrder()
     {
-        return Plugin::geInstance()->getOrders()->getOrderById($this->orderId);
+        return Plugin::getInstance()->getOrders()->getOrderById($this->orderId);
     }
 
     /**

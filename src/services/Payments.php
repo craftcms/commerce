@@ -3,12 +3,13 @@
 namespace craft\commerce\services;
 
 use craft\commerce\events\BuildPaymentRequestEvent;
-use craft\commerce\gateway\models\BasePaymentFormModel;
 use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\events\GatewayRequestEvent;
+use craft\commerce\events\SendPaymentRequestEvent;
 use craft\commerce\events\TransactionEvent;
-use craft\commerce\helpers\Currency;
+use craft\commerce\base\Gateway;
+use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
@@ -82,21 +83,16 @@ class Payments extends Component
     // =========================================================================
 
     /**
-     * @param Order                $order
-     * @param BasePaymentFormModel $form
-     * @param string|null          &$redirect
-     * @param string|null          &$customError
+     * @param Order           $order
+     * @param BasePaymentForm $form
+     * @param string|null     &$redirect
+     * @param string|null     &$customError
      *
      * @return bool
      * @throws Exception
      * @throws \Exception
      */
-    public function processPayment(
-        Order $order,
-        BasePaymentFormModel $form,
-        &$redirect = null,
-        &$customError = null
-    ) {
+    public function processPayment(Order $order, BasePaymentForm $form, &$redirect = null, &$customError = null) {
         // Order could have zero totalPrice and already considered 'paid'. Free orders complete immediately.
         if ($order->isPaid()) {
             if (!$order->datePaid) {
@@ -110,10 +106,12 @@ class Payments extends Component
             return true;
         }
 
+        /** @var Gateway $gateway */
+        $gateway = $order->getGateway();
+
         //choosing default action
-        $defaultAction = $order->gateway->paymentType;
-        $defaultAction = ($defaultAction === TransactionRecord::TYPE_PURCHASE) ? $defaultAction : TransactionRecord::TYPE_AUTHORIZE;
-        $gateway = $order->gateway->getGateway();
+        $defaultAction = $gateway->paymentType;
+        $defaultAction = ($defaultAction == TransactionRecord::TYPE_PURCHASE) ? $defaultAction : TransactionRecord::TYPE_AUTHORIZE;
 
         if ($defaultAction == TransactionRecord::TYPE_AUTHORIZE) {
             if (!$gateway->supportsAuthorize()) {
@@ -136,13 +134,13 @@ class Payments extends Component
 
         $card = $this->createCard($order, $form);
 
-        $itemBag = $this->createItemBag($order);
+        $itemBag = $gateway->createItemBag($order);
 
         $request = $gateway->$defaultAction($this->buildPaymentRequest($transaction, $card, $itemBag));
 
-        // Let the payment methods gateway adapter do anything else to the request
+        // Let the gateway do anything else to the request
         // including populating the request with things other than the card data.
-        $order->gateway->populateRequest($request, $form);
+        $gateway->populateRequest($request, $form);
 
         try {
             $success = $this->sendPaymentRequest($order, $request, $transaction, $redirect, $customError);
@@ -244,81 +242,6 @@ class Payments extends Component
     }
 
     /**
-     * @param Order $order
-     *
-     * @return null
-     */
-    private function createItemBag(Order $order)
-    {
-
-        if (!Plugin::getInstance()->getSettings()->sendCartInfoToGateways) {
-            return null;
-        }
-
-        $items = $order->getGateway()->getGatewayAdapter()->createItemBag();
-
-        $priceCheck = 0;
-
-        $count = -1;
-        /** @var LineItem $item */
-        foreach ($order->lineItems as $item) {
-            $price = Currency::round($item->salePrice);
-            // Can not accept zero amount items. See item (4) here:
-            // https://developer.paypal.com/docs/classic/express-checkout/integration-guide/ECCustomizing/#setting-order-details-on-the-paypal-review-page
-            if ($price != 0) {
-                $count++;
-                $purchasable = $item->getPurchasable();
-                $defaultDescription = Craft::t('commerce', 'Item ID')." ".$item->id;
-                $purchasableDescription = $purchasable ? $purchasable->getDescription() : $defaultDescription;
-                $description = isset($item->snapshot['description']) ? $item->snapshot['description'] : $purchasableDescription;
-                $description = empty($description) ? "Item ".$count : $description;
-                $items->add([
-                    'name' => $description,
-                    'description' => $description,
-                    'quantity' => $item->qty,
-                    'price' => $price,
-                ]);
-                $priceCheck = $priceCheck + ($item->qty * $item->salePrice);
-            }
-        }
-
-        $count = -1;
-        /** @var OrderAdjustment $adjustment */
-        foreach ($order->adjustments as $adjustment) {
-            $price = Currency::round($adjustment->amount);
-
-            // Do not include the 'included' adjustments, and do not send zero value items
-            // See item (4) https://developer.paypal.com/docs/classic/express-checkout/integration-guide/ECCustomizing/#setting-order-details-on-the-paypal-review-page
-            if (($adjustment->included == 0 || $adjustment->included == false) && $price != 0) {
-                $count++;
-                $items->add([
-                    'name' => empty($adjustment->name) ? $adjustment->type." ".$count : $adjustment->name,
-                    'description' => empty($adjustment->description) ? $adjustment->type." ".$count : $adjustment->description,
-                    'quantity' => 1,
-                    'price' => $price,
-                ]);
-                $priceCheck = $priceCheck + $adjustment->amount;
-            }
-        }
-
-        $priceCheck = Currency::round($priceCheck);
-        $totalPrice = Currency::round($order->totalPrice);
-        $same = (bool)($priceCheck == $totalPrice);
-
-        if (!$same) {
-            Craft::error('Item bag total price does not equal the orders totalPrice, some payment gateways will complain.', __METHOD__);
-        }
-
-        $event = new ItemBagEvent([
-            'items' => $items,
-            'order' => $order
-        ]);;
-        $this->trigger(self::EVENT_AFTER_CREATE_ITEM_BAG, $event);
-        
-        return $items;
-    }
-
-    /**
      * @param Transaction $transaction
      * @param CreditCard  $card
      * @param ItemBag     $itemBag
@@ -337,23 +260,23 @@ class Payments extends Component
             'description' => Craft::t('commerce', 'Order').' #'.$transaction->orderId,
             'clientIp' => Craft::$app->getRequest()->userIP,
             'transactionReference' => $transaction->hash,
-            'returnUrl' => UrlHelper::getActionUrl('commerce/payments/completePayment', ['commerceTransactionId' => $transaction->id, 'commerceTransactionHash' => $transaction->hash]),
-            'cancelUrl' => UrlHelper::getSiteUrl($transaction->order->cancelUrl),
+            'returnUrl' => UrlHelper::actionUrl('commerce/payments/completePayment', ['commerceTransactionId' => $transaction->id, 'commerceTransactionHash' => $transaction->hash]),
+            'cancelUrl' => UrlHelper::siteUrl($transaction->order->cancelUrl),
         ];
 
         // Each gateway adapter needs to know whether to use our acceptNotification handler because most omnipay gateways
         // implement the notification API differently. Hoping Omnipay v3 will improve this.
         // For now, the standard paymentComplete handler is the default unless the gateway has been tested with our acceptNotification handler.
         // TODO: move the handler logic into the gateway adapter itself if the Omnipay v2 interface cannot standardise.
-        if ($transaction->paymentMethod->getGatewayAdapter()->useNotifyUrl()) {
-            $request['notifyUrl'] = UrlHelper::getActionUrl('commerce/payments/acceptNotification', ['commerceTransactionId' => $transaction->id, 'commerceTransactionHash' => $transaction->hash]);
+        if ($transaction->getGateway()->useNotifyUrl()) {
+            $request['notifyUrl'] = UrlHelper::actionUrl('commerce/payments/acceptNotification', ['commerceTransactionId' => $transaction->id, 'commerceTransactionHash' => $transaction->hash]);
             unset($request['returnUrl']);
         } else {
             $request['notifyUrl'] = $request['returnUrl'];
         }
 
         // Do not use IPv6 loopback
-        if ($request['clientIp'] == "::1") {
+        if ($request['clientIp'] ===  '::1') {
             $request['clientIp'] = '127.0.0.1';
         }
 
@@ -397,13 +320,7 @@ class Payments extends Component
      *
      * @return bool
      */
-    private function sendPaymentRequest(
-        Order $order,
-        RequestInterface $request,
-        Transaction $transaction,
-        &$redirect = null,
-        &$customError = null
-    ) {
+    private function sendPaymentRequest(Order $order, RequestInterface $request, Transaction $transaction, &$redirect = null, &$customError = null) {
 
         //raising event
         $event = new GatewayRequestEvent([
@@ -426,7 +343,7 @@ class Payments extends Component
 
                 if ($response->isRedirect()) {
                     // redirect to off-site gateway
-                    if ($response->getRedirectMethod() == 'GET') {
+                    if ($response->getRedirectMethod() === 'GET') {
                         $redirect = $response->getRedirectUrl();
                     } else {
 
@@ -438,12 +355,9 @@ class Payments extends Component
 
                             // Gather all post hidden data inputs.
                             foreach ($response->getRedirectData() as $key => $value) {
-                                $hiddenFields .= sprintf(
-                                        '<input type="hidden" name="%1$s" value="%2$s" />',
-                                        htmlentities($key, ENT_QUOTES, 'UTF-8', false),
-                                        htmlentities($value, ENT_QUOTES, 'UTF-8', false)
-                                    )."\n";
+                                $hiddenFields .= sprintf('<input type="hidden" name="%1$s" value="%2$s" />', htmlentities($key, ENT_QUOTES, 'UTF-8', false), htmlentities($value, ENT_QUOTES, 'UTF-8', false) )."\n";
                             }
+
                             $variables['inputs'] = $hiddenFields;
 
                             // Set the action url to the responses redirect url
@@ -592,9 +506,9 @@ class Payments extends Component
         $child->currency = $parent->currency;
         $child->paymentCurrency = $parent->paymentCurrency;
         $child->paymentRate = $parent->paymentRate;
-        $this->saveTFransaction($child);
+        $this->saveTransaction($child);
 
-        $gateway = $parent->paymentMethod->getGateway();
+        $gateway = $parent->getGateway();
         $request = $gateway->$action($this->buildPaymentRequest($child));
         $request->setTransactionReference($parent->reference);
 
@@ -845,9 +759,9 @@ EOF;
             ->from(['{{%commerce_transactions}}'])
             ->where([
                 'orderId' => $order->id,
-                'status' => TransactionRecord::STATUS_SUCCESS
+                'status' => TransactionRecord::STATUS_SUCCESS,
+                'type' => [TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE]
             ])
-            ->andWhere('type', [TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE])
             ->groupBy('orderId')
             ->one();
 
@@ -873,11 +787,11 @@ EOF;
             ->from(['{{%commerce_transactions}}'])
             ->where([
                 'orderId' => $order->id,
-                'status' => TransactionRecord::STATUS_SUCCESS
+                'status' => TransactionRecord::STATUS_SUCCESS,
+                'type' => [TransactionRecord::TYPE_AUTHORIZE, TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE]
             ])
-            ->andWhere('type', [TransactionRecord::TYPE_AUTHORIZE, TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE])
             ->groupBy('orderId')
-            ->all();
+            ->one();
 
         if ($transaction) {
             return $transaction['total'];

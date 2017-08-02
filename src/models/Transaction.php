@@ -4,18 +4,20 @@ namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
 use craft\commerce\elements\Order;
-use craft\commerce\gateways\base\BaseGateway;
+use craft\commerce\base\Gateway;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
+use craft\web\User;
+use DateTime;
 use Omnipay\Common\Exception\OmnipayException;
 
 /**
  * Class Transaction
  *
- * @property \craft\commerce\models\Transaction       $parent
- * @property \craft\commerce\models\BasePaymentMethod $paymentMethod
- * @property \craft\commerce\elements\Order           $order
- * @property \craft\elements\User                     $user
+ * @property Transaction $parent
+ * @property Gateway     $gateway
+ * @property Order       $order
+ * @property User        $user
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -112,7 +114,17 @@ class Transaction extends Model
     public $response;
 
     /**
-     * @var BaseGateway
+     * @var DateTime|null The date that the transaction was created
+     */
+    public $dateCreated;
+
+    /**
+     * @var DateTime|null The date that the transaction was last updated
+     */
+    public $dateUpdated;
+
+    /**
+     * @var Gateway
      */
     private $_gateway;
 
@@ -136,63 +148,17 @@ class Transaction extends Model
     /**
      * @return bool
      */
-    public function canCapture()
+    public function canCapture(): bool
     {
-        // can only capture authorize payments
-        if ($this->type != TransactionRecord::TYPE_AUTHORIZE || $this->status != TransactionRecord::STATUS_SUCCESS) {
-            return false;
-        }
-
-        // check gateway supports capture
-        try {
-            $gateway = $this->paymentMethod->getGateway();
-            if (!$gateway || !$gateway->supportsCapture()) {
-                return false;
-            }
-        } catch (OmnipayException  $e) {
-            return false;
-        }
-
-        // check transaction hasn't already been captured
-        $exists = TransactionRecord::find()->where(['type' => ':type', 'status' => ':status', 'orderId' => ':orderId'], [
-            ':type' => TransactionRecord::TYPE_CAPTURE,
-            ':status' => TransactionRecord::STATUS_SUCCESS,
-            ':orderId' => $this->orderId
-        ])->exists();
-
-        return !$exists;
+        return Plugin::getInstance()->getTransactions()->canCaptureTransaction($this);
     }
 
     /**
      * @return bool
      */
-    public function canRefund()
+    public function canRefund(): bool
     {
-        // can only refund purchase or capture transactions
-        $noRefundTransactions = [TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE];
-        if (!in_array($this->type, $noRefundTransactions) || $this->status != TransactionRecord::STATUS_SUCCESS) {
-            return false;
-        }
-
-        // check gateway supports refund
-        try {
-            $gateway = $this->paymentMethod->getGateway();
-            $supportsRefund = $gateway->supportsRefund();
-            if (!$gateway || !$supportsRefund) {
-                return false;
-            }
-        } catch (OmnipayException $e) {
-            return false;
-        }
-
-        // check transaction hasn't already been refunded
-        $exists = TransactionRecord::find()->where(['type' => ':type', 'status' => ':status', 'orderId' => ':orderId'], [
-            ':type' => TransactionRecord::TYPE_REFUND,
-            ':status' => TransactionRecord::STATUS_SUCCESS,
-            ':orderId' => $this->orderId
-        ])->exists();
-
-        return !$exists;
+        return Plugin::getInstance()->getTransactions()->canRefundTransaction($this);
     }
 
     /**
@@ -212,11 +178,11 @@ class Transaction extends Model
      */
     public function getOrder()
     {
-        return Plugin::geInstance()->getOrders()->getOrderById($this->orderId);
+        return Plugin::getInstance()->getOrders()->getOrderById($this->orderId);
     }
 
     /**
-     * @return BaseGateway|null
+     * @return Gateway|null
      */
     public function getGateway()
     {
@@ -228,11 +194,11 @@ class Transaction extends Model
     }
 
     /**
-     * @param BaseGateway $gateway
+     * @param Gateway $gateway
      *
      * @return void
      */
-    public function setGateway(BaseGateway $gateway)
+    public function setGateway(Gateway $gateway)
     {
         $this->_gateway = $gateway;
     }

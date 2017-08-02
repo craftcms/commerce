@@ -1,12 +1,12 @@
 <?php
 
-namespace craft\commerce\gateways\base;
+namespace craft\commerce\base;
 
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\payments\CreditCardPaymentForm;
 use craft\commerce\models\payments\OffsitePaymentForm;
 use Omnipay\Common\CreditCard;
-use Omnipay\Manual\Message\Request;
+use Omnipay\Common\Message\AbstractRequest;
 
 /**
  * This is an abstract class to be used by offsite gateways
@@ -18,7 +18,7 @@ use Omnipay\Manual\Message\Request;
  * @package   craft.commerce
  * @since     2.0
  */
-abstract class OffsiteGateway extends BaseGateway
+abstract class OffsiteGateway extends Gateway
 {
     /**
      * @inheritdoc
@@ -46,7 +46,7 @@ abstract class OffsiteGateway extends BaseGateway
     /**
      * @inheritdoc
      */
-    public function populateRequest(Request $request, BasePaymentForm $paymentForm)
+    public function populateRequest(AbstractRequest $request, BasePaymentForm $paymentForm)
     {
     }
 }

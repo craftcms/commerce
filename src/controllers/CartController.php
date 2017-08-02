@@ -271,11 +271,11 @@ class CartController extends BaseFrontEndController
         }
 
         // Set Payment Method on Cart.
-        if (null !== $request->getParam('paymentMethodId')) {
+        if (null !== $request->getParam('gatewayId')) {
             $error = '';
-            $paymentMethodId = $request->getParam('paymentMethodId');
-            if (!$plugin->getCart()->setPaymentMethod($this->_cart, $paymentMethodId, $error)) {
-                $updateErrors['paymentMethodId'] = $error;
+            $gatewayId = $request->getParam('gatewayId');
+            if (!$plugin->getCart()->setGateway($this->_cart, $gatewayId, $error)) {
+                $updateErrors['gatewayId'] = $error;
             } else {
                 $cartSaved = true;
             }

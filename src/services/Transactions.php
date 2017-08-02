@@ -9,6 +9,7 @@ use craft\commerce\helpers\Currency;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
+use craft\db\Query;
 use yii\base\Component;
 
 /**
@@ -39,7 +40,9 @@ class Transactions extends Component
      */
     public function getTransactionById($id)
     {
-        $result = TransactionRecord::findOne($id);
+        $result = $this->_createTransactionQuery()
+            ->where(['id' => $id])
+            ->one();
 
         if ($result) {
             return new Transaction($result);
@@ -55,10 +58,12 @@ class Transactions extends Component
      */
     public function getTransactionByHash($hash)
     {
-        $result = TransactionRecord::find()->where(['hash' => $hash])->one();
+        $result = $this->_createTransactionQuery()
+            ->where(['hash' => $hash])
+            ->one();
 
         if ($result) {
-            return Transaction::populateModel($result);
+            return new Transaction($result);
         }
 
         return null;
@@ -69,11 +74,80 @@ class Transactions extends Component
      *
      * @return Transaction[]
      */
-    public function getAllTransactionsByOrderId($orderId)
+    public function getAllTransactionsByOrderId($orderId): array
     {
-        $records = TransactionRecord::find()->where(['orderId' => $orderId])->all();
+        $rows = $this->_createTransactionQuery()
+            ->where(['orderId' => $orderId])
+            ->all();
 
-        return Transaction::populateModels($records);
+        $transactions = [];
+
+        foreach ($rows as $row) {
+            $transactions[] = new Transaction($row);
+        }
+
+        return $transactions;
+    }
+
+    /**
+     * Returns true if a specific transaction can be refunded.
+     *
+     * @param Transaction $transaction
+     *
+     * @return bool
+     */
+    public function canRefundTransaction(Transaction $transaction): bool {
+
+        // Can refund only successful purchase or capture transactions
+        if (!in_array($transaction->type, [TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE]))
+        {
+            return false;
+        }
+
+        if ($transaction->status != TransactionRecord::STATUS_SUCCESS) {
+            return false;
+        }
+
+        $gateway = $transaction->getGateway();
+
+        if (!$gateway->supportsRefund()) {
+            return false;
+        }
+
+        // And only if we don't have a successful refund transaction for this order already
+        return !$this->_createTransactionQuery()
+            ->where(['type' => TransactionRecord::TYPE_REFUND,
+                'status' => TransactionRecord::STATUS_SUCCESS,
+                'orderId' => $transaction->orderId])
+            ->exists();
+    }
+
+    /**
+     * Returns true if a specific transaction can be refunded.
+     *
+     * @param Transaction $transaction
+     *
+     * @return bool
+     */
+    public function canCaptureTransaction(Transaction $transaction): bool {
+
+        // Can refund only successful authorize transactions
+        if ($transaction->type != TransactionRecord::TYPE_AUTHORIZE || $transaction->status != TransactionRecord::STATUS_SUCCESS) {
+            return false;
+        }
+
+        $gateway = $transaction->getGateway();
+
+        if (!$gateway->supportsCapture()) {
+            return false;
+        }
+
+        // And only if we don't have a successful refund transaction for this order already
+        return !$this->_createTransactionQuery()
+            ->where(['type' => TransactionRecord::TYPE_CAPTURE,
+                'status' => TransactionRecord::STATUS_SUCCESS,
+                'orderId' => $transaction->orderId])
+            ->exists();
     }
 
     /**
@@ -99,6 +173,7 @@ class Transactions extends Component
         $transaction->gatewayId = $order->gatewayId;
 
         $user = Craft::$app->getUser()->getIdentity();
+
         if ($user) {
             $transaction->userId = $user->id;
         }
@@ -129,7 +204,7 @@ class Transactions extends Component
             'id',
             'orderId',
             'hash',
-            'paymentMethodId',
+            'gatewayId',
             'type',
             'status',
             'amount',
@@ -171,17 +246,48 @@ class Transactions extends Component
     /**
      * @param Transaction $transaction
      *
-     * @return false|int
+     * @return bool
      */
-    public function deleteTransaction(Transaction $transaction)
+    public function deleteTransaction(Transaction $transaction): bool
     {
         $record = TransactionRecord::findOne($transaction->id);
 
         if ($record) {
-            return $record->delete();
+            return (bool) $record->delete();
         }
 
         return false;
     }
 
+    // Private methods
+    // =========================================================================
+    /**
+     * Returns a Query object prepped for retrieving Transactions.
+     *
+     * @return Query The query object.
+     */
+    private function _createTransactionQuery(): Query
+    {
+        return (new Query())
+            ->select([
+                'id',
+                'orderId',
+                'hash',
+                'gatewayId',
+                'type',
+                'status',
+                'amount',
+                'currency',
+                'paymentAmount',
+                'paymentCurrency',
+                'paymentRate',
+                'reference',
+                'message',
+                'code',
+                'response',
+                'userId',
+                'parentId'
+            ])
+            ->from(['{{%commerce_transactions}}']);
+    }
 }

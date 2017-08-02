@@ -3,8 +3,10 @@
 namespace craft\commerce\gateways;
 
 use Craft;
-use craft\commerce\gateways\base\CreditCardGateway;
+use craft\commerce\base\CreditCardGateway;
+use Omnipay\Common\AbstractGateway;
 use Omnipay\Dummy\Gateway;
+use Omnipay\Omnipay;
 
 /**
  * Dummy represents a dummy gateway.
@@ -29,51 +31,25 @@ class Dummy extends CreditCardGateway
         return Craft::t('commerce', 'Dummy gateway');
     }
 
+    // Protected Methods
+    // =========================================================================
+
+    /**
+     * @inheritdoc
+     */
+    protected function createGateway(): AbstractGateway
+    {
+        /** @var AbstractGateway $gateway */
+        $gateway = Omnipay::create($this->getGatewayClassName());
+
+        return $gateway;
+    }
+
     /**
      * @inheritdoc
      */
     protected function getGatewayClassName()
     {
-        return Gateway::class;
-    }
-    
-    /**
-     * @inheritdoc
-     */
-    public function purchase()
-    {
-        return true;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function authorize()
-    {
-        return true;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function refund()
-    {
-        return true;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function capture()
-    {
-        return true;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function supportsRefund()
-    {
-        return true;
+        return '\\'.Gateway::class;
     }
 }

@@ -3,10 +3,10 @@
 namespace craft\commerce\services;
 
 use Craft;
-use craft\commerce\gateways\base\BaseGateway;
+use craft\commerce\base\Gateway;
 use craft\commerce\gateways\Dummy;
 use craft\commerce\gateways\MissingGateway;
-use craft\commerce\gateways\base\GatewayInterface;
+use craft\commerce\base\GatewayInterface;
 use craft\commerce\gateways\Stripe;
 use craft\commerce\Plugin;
 use craft\commerce\records\Gateway as GatewayRecord;
@@ -114,7 +114,7 @@ class Gateways extends Component
      */
     public function archiveGatewayById(int $id): bool
     {
-        /** @var BaseGateway $gateway */
+        /** @var Gateway $gateway */
         $gateway = $this->getGatewayById($id);
         $gateway->isArchived = true;
         $gateway->dateArchived = Db::prepareDateForDb(new \DateTime());
@@ -145,13 +145,13 @@ class Gateways extends Component
     /**
      * Save a payment method.
      *
-     * @param BaseGateway $gateway       The gateway to be saved.
-     * @param bool        $runValidation Whether the gateway should be validated
+     * @param Gateway $gateway       The gateway to be saved.
+     * @param bool    $runValidation Whether the gateway should be validated
      *
      * @return bool Whether the gateway was saved successfully or not.
      * @throws Exception
      */
-    public function saveGateway(BaseGateway $gateway, bool $runValidation = true): bool
+    public function saveGateway(Gateway $gateway, bool $runValidation = true): bool
     {
         if ($gateway->id) {
             $record = GatewayRecord::findOne($gateway->id);
@@ -202,7 +202,7 @@ class Gateways extends Component
      */
     public function reorderGateways(array $ids): bool
     {
-        /** @var BaseGateway[] $allGateways */
+        /** @var Gateway[] $allGateways */
         $allGateways = $this->getAllGateways();
 
         $count = 999;
@@ -241,7 +241,7 @@ class Gateways extends Component
         }
 
         try {
-            /** @var BaseGateway $gateway */
+            /** @var Gateway $gateway */
             $gateway = ComponentHelper::createComponent($config, GatewayInterface::class);
         } catch (MissingComponentException $e) {
             $config['errorMessage'] = $e->getMessage();

@@ -3,10 +3,11 @@
 namespace craft\commerce\controllers;
 
 use Craft;
-use craft\commerce\gateways\base\BaseGateway;
+use craft\commerce\gateways\base\Gateway;
 use craft\commerce\Plugin;
 use yii\base\Exception;
 use yii\web\HttpException;
+use yii\web\Response;
 
 /**
  * Class Payments Controller
@@ -21,49 +22,61 @@ use yii\web\HttpException;
 class PaymentsController extends BaseFrontEndController
 {
     /**
+     * @return null|Response
      * @throws HttpException
      */
     public function actionPay()
     {
         $this->requirePostRequest();
 
+        $error = '';
         $customError = '';
+        $order = null;
 
-        if (($number = Craft::$app->getRequest()->getParam('orderNumber')) !== null) {
-            $order = Plugin::getInstance()->getOrders()->getOrderByNumber($number);
+        $plugin = Plugin::getInstance();
+        $request = Craft::$app->getRequest();
+        $session = Craft::$app->getSession();
+
+        if (($number = $request->getParam('orderNumber')) !== null) {
+            $order = $plugin->getOrders()->getOrderByNumber($number);
+
             if (!$order) {
                 $error = Craft::t('commerce', 'Can not find an order to pay.');
-                if (Craft::$app->getRequest()->getAcceptsJson()) {
-                    $this->asErrorJson($error);
-                } else {
-                    Craft::$app->getUser()->setFlash('error', $error);
+
+                if ($request->getAcceptsJson()) {
+                    return $this->asErrorJson($error);
                 }
 
-                return;
+                $session->setError($error);
+
+                return null;
             }
         }
 
         // Get the cart if no order number was passed.
-        if (null === $order && !$number) {
-            $order = Plugin::getInstance()->getCart()->getCart();
+        if (!$order) {
+            $order = $plugin->getCart()->getCart();
         }
 
         // Are we paying anonymously?
-        if (!$order->isActiveCart() && !Craft::$app->getUser()->checkPermission('commerce-manageOrders') && Plugin::getInstance()->getSettings()->requireEmailForAnonymousPayments) {
-            if ($order->email !== Craft::$app->getRequest()->getParam('email')) {
+        $user = Craft::$app->getUser();
+
+        if (!$order->isActiveCart() && !$user->checkPermission('commerce-manageOrders') && $plugin->getSettings()->requireEmailForAnonymousPayments) {
+            if ($order->email !== $request->getParam('email')) {
                 throw new HttpException(401, Craft::t("commerce", "Not authorized to make payments on this order."));
             }
         }
 
-        if (Plugin::getInstance()->getSettings()->requireShippingAddressAtCheckout && !$order->shippingAddressId) {
+        if ($plugin->getSettings()->requireShippingAddressAtCheckout && !$order->shippingAddressId) {
             $error = Craft::t('commerce', 'Shipping address required.');
-            if (Craft::$app->getRequest()->getAcceptsJson()) {
-                $this->asErrorJson($error);
-            } else {
-                Craft::$app->getUser()->setFlash('error', $error);
+
+            if ($request->getAcceptsJson()) {
+                return $this->asErrorJson($error);
             }
 
-            return;
+            $session->setError($error);
+
+            return null;
         }
 
         // These are used to compare if the order changed during it's final
@@ -73,79 +86,80 @@ class PaymentsController extends BaseFrontEndController
         $originalTotalAdjustments = count($order->getAdjustments());
 
         // Set guest email address onto guest customer and order.
-        if (null !== Craft::$app->getRequest()->getParam('paymentCurrency')) {
-            $currency = Craft::$app->getRequest()->getParam('paymentCurrency'); // empty string vs null (strict type checking)
-            $error = '';
-            if (!Plugin::getInstance()->getCart()->setPaymentCurrency($order, $currency, $error)) {
-                if (Craft::$app->getRequest()->getAcceptsJson()) {
-                    $this->asErrorJson($error);
-                } else {
-                    $order->addError('paymentCurrency', $error);
-                    Craft::$app->getUser()->setFlash('error', $error);
+        if (null !== $request->getParam('paymentCurrency')) {
+            $currency = $request->getParam('paymentCurrency'); // empty string vs null (strict type checking)
+
+            if (!$plugin->getCart()->setPaymentCurrency($order, $currency, $error)) {
+                if ($request->getAcceptsJson()) {
+                    return $this->asErrorJson($error);
                 }
 
-                return;
+                $order->addError('paymentCurrency', $error);
+                $session->setError($error);
+
+                return null;
             }
         }
 
         // Allow setting the payment method at time of submitting payment.
-        $paymentMethodId = Craft::$app->getRequest()->getParam('paymentMethodId');
-        if ($paymentMethodId && $order->gatewayId != $paymentMethodId) {
-            $error = "";
-            if (!Plugin::getInstance()->getCart()->setPaymentMethod($order, $paymentMethodId, $error)) {
-                if (Craft::$app->getRequest()->getAcceptsJson()) {
-                    $this->asErrorJson($error);
-                } else {
-                    Craft::$app->getUser()->setFlash('error', $error);
-                }
+        $gatewayId = $request->getParam('gatewayId');
 
-                return;
+        if ($gatewayId && $order->gatewayId != $gatewayId && !$plugin->getCart()->setGateway($order, $gatewayId, $error)) {
+            if ($request->getAcceptsJson()) {
+                return $this->asErrorJson($error);
             }
+
+            $session->setError($error);
+
+            return null;
         }
 
-        /** @var BaseGateway $paymentMethod */
-        $paymentMethod = $order->getGateway();
+        /** @var Gateway $gateway */
+        $gateway = $order->getGateway();
 
-        if (!$paymentMethod) {
-            $error = Craft::t("commerce", "There is no payment method selected for this order.");
-            if (Craft::$app->getRequest()->getAcceptsJson()) {
-                $this->asErrorJson($error);
-            } else {
-                Craft::$app->getUser()->setFlash('error', $error);
+        if (!$gateway) {
+            $error = Craft::t("commerce", "There is no gateway selected for this order.");
+
+            if ($request->getAcceptsJson()) {
+                return $this->asErrorJson($error);
             }
 
-            return;
+            $session->setError($error);
+
+            return null;
         }
 
         // Get the payment method' gateway adapter's expected form model
-        $paymentForm = $paymentMethod->getPaymentFormModel();
-        $paymentForm->setAttributes(Craft::$app->getRequest()->getBodyParams(), false);
+        $paymentForm = $gateway->getPaymentFormModel();
+        $paymentForm->setAttributes($request->getBodyParams(), false);
 
         // Allowed to update order's custom fields?
-        if ($order->isActiveCart() || Craft::$app->getUser()->checkPermission('commerce-manageOrders')) {
+        if ($order->isActiveCart() || $user->checkPermission('commerce-manageOrders')) {
             $order->setFieldValuesFromRequest('fields');
         }
 
         // Check email address exists on order.
         if (!$order->email) {
             $customError = Craft::t("commerce", "No customer email address exists on this cart.");
-            if (Craft::$app->getRequest()->getAcceptsJson()) {
-                $this->asErrorJson($customError);
-            } else {
-                Craft::$app->getUser()->setFlash('error', $customError);
-                Craft::$app->getUrlManager()->setRouteParams(compact('paymentForm'));
+
+            if ($request->getAcceptsJson()) {
+                return $this->asErrorJson($customError);
             }
 
-            return;
+            $session->setError($customError);
+            Craft::$app->getUrlManager()->setRouteParams(compact('paymentForm'));
+
+            return null;
         }
 
         // Save the return and cancel URLs to the order
-        $returnUrl = Craft::$app->getRequest()->getValidatedPost('redirect');
-        $cancelUrl = Craft::$app->getRequest()->getValidatedPost('cancelUrl');
+        $returnUrl = $request->getValidatedBodyParam('redirect');
+        $cancelUrl = $request->getValidatedBodyParam('cancelUrl');
 
         if ($returnUrl !== null || $cancelUrl !== null) {
-            $order->returnUrl = Craft::$app->getView()->renderObjectTemplate($returnUrl, $order);
-            $order->cancelUrl = Craft::$app->getView()->renderObjectTemplate($cancelUrl, $order);
+            $view = Craft::$app->getView();
+            $order->returnUrl = $view->renderObjectTemplate($returnUrl, $order);
+            $order->cancelUrl = $view->renderObjectTemplate($cancelUrl, $order);
         }
 
         // Do one final save to confirm the price does not change out from under the customer.
@@ -170,53 +184,57 @@ class PaymentsController extends BaseFrontEndController
                 }
 
                 $customError = Craft::t('commerce', 'Something changed with the order before payment, please review your order and submit payment again.');
-                if (Craft::$app->getRequest()->getAcceptsJson()) {
-                    $this->asErrorJson($customError);
-                } else {
-                    Craft::$app->getUser()->setFlash('error', $customError);
-                    Craft::$app->getUrlManager()->setRouteParams(compact('paymentForm'));
+
+                if ($request->getAcceptsJson()) {
+                    return $this->asErrorJson($customError);
                 }
 
-                return;
+                $session->setError($customError);
+                Craft::$app->getUrlManager()->setRouteParams(compact('paymentForm'));
+
+
+                return null;
             }
         }
 
-        $redirect = "";
+        $redirect = '';
         $paymentForm->validate();
+
         if (!$paymentForm->hasErrors()) {
-            $success = Plugin::getInstance()->getPayments()->processPayment($order, $paymentForm, $redirect, $customError);
+            $success = $plugin->getPayments()->processPayment($order, $paymentForm, $redirect, $customError);
         } else {
             $customError = Craft::t('commerce', 'Payment information submitted is invalid.');
             $success = false;
         }
 
-
         if ($success) {
-            if (Craft::$app->getRequest()->getAcceptsJson()) {
+            if ($request->getAcceptsJson()) {
                 $response = ['success' => true];
                 if ($redirect) {
                     $response['redirect'] = $redirect;
                 }
-                $this->asJson($response);
+                return $this->asJson($response);
+            }
+
+            if ($redirect) {
+                $this->redirect($redirect);
             } else {
-                if ($redirect) {
-                    $this->redirect($redirect);
+                if ($order->returnUrl) {
+                    $this->redirect($order->returnUrl);
                 } else {
-                    if ($order->returnUrl) {
-                        $this->redirect($order->returnUrl);
-                    } else {
-                        $this->redirectToPostedUrl($order);
-                    }
+                    $this->redirectToPostedUrl($order);
                 }
             }
         } else {
-            if (Craft::$app->getRequest()->getAcceptsJson()) {
-                $this->asJson(['error' => $customError, 'paymentForm' => $paymentForm->getErrors()]);
-            } else {
-                Craft::$app->getSession()->setError($customError);
-                Craft::$app->getUrlManager()->setRouteParams(compact('paymentForm'));
+            if ($request->getAcceptsJson()) {
+                return $this->asJson(['error' => $customError, 'paymentForm' => $paymentForm->getErrors()]);
             }
+
+            $session->setError($customError);
+            Craft::$app->getUrlManager()->setRouteParams(compact('paymentForm'));
         }
+
+        return $this->redirectToPostedUrl();
     }
 
     /**

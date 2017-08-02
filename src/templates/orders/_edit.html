@@ -410,7 +410,7 @@
                             {% if transaction.canCapture() %}
                                 <form>
                                     <a class="small btn submit formsubmit"
-                                       data-action="commerce/orders/transactionCapture"
+                                       data-action="commerce/orders/transaction-capture"
                                        data-confirm="{{ 'Are you sure you want to capture this transaction?'|t('commerce') }}"
                                        data-redirect="{{ order.cpEditUrl }}"
                                        data-param="id"
@@ -420,7 +420,7 @@
                             {% if transaction.canRefund() %}
                                 <form>
                                     <a class="small btn submit formsubmit"
-                                       data-action="commerce/orders/transactionRefund"
+                                       data-action="commerce/orders/transaction-refund"
                                        data-confirm="{{ 'Are you sure you want to refund this transaction?'|t('commerce') }}"
                                        data-redirect="{{ order.cpEditUrl }}"
                                        data-param="id"

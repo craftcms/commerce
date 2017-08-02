@@ -4,7 +4,7 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\elements\Order;
-use craft\commerce\gateways\base\BaseGateway;
+use craft\commerce\gateways\base\Gateway;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\helpers\ArrayHelper;
@@ -76,13 +76,11 @@ class OrdersController extends BaseCpController
             throw new HttpException(404);
         }
 
-        Craft::$app->getView()->registerCssFile('commerce/order.css');
-
         $this->prepVariables($variables);
 
 
         if (empty($variables['paymentForm'])) {
-            /** @var BaseGateway $gateway */
+            /** @var Gateway $gateway */
             $gateway = $variables['order']->getGateway();
 
             if ($gateway) {
@@ -148,7 +146,7 @@ class OrdersController extends BaseCpController
         $gateways = $plugin->getGateways()->getAllGateways();
 
         $formHtml = "";
-        /** @var BaseGateway $gateway */
+        /** @var Gateway $gateway */
         foreach ($gateways as $key => $gateway) {
 
             // If gateway adapter does no support backend cp payments.

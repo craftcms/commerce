@@ -8,7 +8,6 @@ use craft\commerce\events\CartEvent;
 use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
 use craft\db\Query;
-use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use yii\base\Component;
 use yii\base\Exception;
@@ -240,15 +239,15 @@ class Cart extends Component
      * Set shipping method to the current order
      *
      * @param Order  $cart
-     * @param int    $paymentMethodId
+     * @param int    $gatewayId
      * @param string $error
      *
      * @return bool
      * @throws \Exception
      */
-    public function setPaymentMethod(Order $cart, $paymentMethodId, &$error = "")
+    public function setGateway(Order $cart, $gatewayId, &$error = "")
     {
-        $method = Plugin::getInstance()->getPaymentMethods()->getGatewayById($paymentMethodId);
+        $method = Plugin::getInstance()->getGateways()->getGatewayById($gatewayId);
 
         if (!$method) {
             $error = Craft::t('commerce', 'Payment method does not exist or is not allowed.');
@@ -256,7 +255,7 @@ class Cart extends Component
             return false;
         }
 
-        $cart->gatewayId = $paymentMethodId;
+        $cart->gatewayId = $gatewayId;
         Craft::$app->getElements()->saveElement($cart);
 
         return true;
@@ -363,7 +362,8 @@ class Cart extends Component
         $cartNumber = $session[$this->cookieCartId];
 
         if (!$cartNumber) {
-            $cartNumber = $session->set($this->cookieCartId, $this->_uniqueCartNumber());
+            $cartNumber = $this->_uniqueCartNumber();
+            $session->set($this->cookieCartId, $cartNumber);
         }
 
         return $cartNumber;
@@ -437,7 +437,7 @@ class Cart extends Component
             ]);
             $this->trigger(self::EVENT_AFTER_REMOVE_FROM_CART, $event);
         } catch (\Exception $e) {
-            Db::rollbackStackedTransaction();
+            $transaction->rollBack();
             Craft::error($e->getMessage(), 'commerce');
 
             return false;
@@ -464,7 +464,7 @@ class Cart extends Component
             Plugin::getInstance()->getLineItems()->deleteAllLineItemsByOrderId($cart->id);
             Craft::$app->getElements()->saveElement($cart);
         } catch (\Exception $e) {
-            Db::rollbackStackedTransaction();
+            $transaction->rollBack();
             throw $e;
         }
 

@@ -5,7 +5,7 @@
  * @license   https://craftcms.com/license
  */
 
-namespace craft\commerce\gateways\base;
+namespace craft\commerce\base;
 
 /**
  * GatewayTrait
@@ -32,6 +32,11 @@ trait GatewayTrait
      * @var string Payment Type
      */
     public $paymentType = 'purchase';
+
+    /**
+     * @var bool Whether the gateway can send cart info to payment processor
+     */
+    public $canSendCartInfo = true;
 
     /**
      * @var bool Enabled on the frontend
