@@ -124,12 +124,13 @@ class Addresses extends Component
             $addressRecord = new AddressRecord();
         }
 
-        //raising event
-        $event = new AddressEvent($this, [
-            'address' => $addressModel,
-            'isNewAddress' => $isNewAddress
-        ]);
-        $this->trigger(self::EVENT_BEFORE_SAVE_ADDRESS, $event);
+        //Raise the beforeSaveAddress event
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_ADDRESS)) {
+            $this->trigger(self::EVENT_BEFORE_SAVE_ADDRESS, new AddressEvent($this, [
+                'address' => $addressModel,
+                'isNewAddress' => $isNewAddress
+            ]));
+        }
 
         $addressRecord->attention = $addressModel->attention;
         $addressRecord->title = $addressModel->title;
@@ -187,12 +188,13 @@ class Addresses extends Component
                 $addressModel->id = $addressRecord->id;
             }
 
-            //raising event
-            $event = new AddressEvent($this, [
-                'address' => $addressModel,
-                'isNewAddress' => $isNewAddress
-            ]);
-            $this->trigger(self::EVENT_AFTER_SAVE_ADDRESS, $event);
+            //Raise the afterSaveAddress event
+            if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_ADDRESS)) {
+                $this->trigger(self::EVENT_AFTER_SAVE_ADDRESS, new AddressEvent($this, [
+                    'address' => $addressModel,
+                    'isNewAddress' => $isNewAddress
+                ]));
+            }
 
             return true;
         }

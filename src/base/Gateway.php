@@ -11,6 +11,7 @@ use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\payments\CreditCardPaymentForm;
+use craft\commerce\Plugin;
 use craft\commerce\services\Payments;
 use craft\helpers\UrlHelper;
 use Omnipay\Common\AbstractGateway;
@@ -285,10 +286,15 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
             Craft::error('Item bag total price does not equal the orders totalPrice, some payment gateways will complain.', __METHOD__);
         }
 
-        ItemBagEvent::trigger(Payments::class, Payments::EVENT_AFTER_CREATE_ITEM_BAG, new ItemBagEvent([
-            'items' => $itemBag,
-            'order' => $order
-        ]));
+        // Raise the 'afterCreateItemBag' event
+        $payments = Plugin::getInstance()->getPayments();
+        if ($payments->hasEventHandlers($payments::EVENT_AFTER_CREATE_ITEM_BAG))
+        {
+            $payments->trigger($payments::EVENT_AFTER_CREATE_ITEM_BAG, new ItemBagEvent([
+                'items' => $itemBag,
+                'order' => $order
+            ]));
+        }
 
         return $itemBag;
     }

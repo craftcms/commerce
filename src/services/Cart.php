@@ -115,12 +115,14 @@ class Cart extends Component
 
         try {
             if (!$lineItem->hasErrors()) {
-                //raising event
-                $event = new CartEvent([
-                    'lineItem' => $lineItem,
-                    'order' => $order
-                ]);
-                $this->trigger(self::EVENT_BEFORE_ADD_TO_CART, $event);
+
+                // Raise the 'beforeAddToCart' event
+                if ($this->hasEventHandlers(self::EVENT_BEFORE_ADD_TO_CART)) {
+                    $this->trigger(self::EVENT_BEFORE_ADD_TO_CART, new CartEvent([
+                        'lineItem' => $lineItem,
+                        'order' => $order
+                    ]));
+                }
 
                 if ($plugin->getLineItems()->saveLineItem($lineItem)) {
                     if ($isNewLineItem) {
@@ -133,12 +135,14 @@ class Cart extends Component
 
                     $transaction->commit();
 
-                    //raising event
-                    $event = new CartEvent([
-                        'lineItem' => $lineItem,
-                        'order' => $order
-                    ]);
-                    $this->trigger(self::EVENT_AFTER_ADD_TO_CART, $event);
+                    // Raise the 'afterAddToCart' event
+                    if ($this->hasEventHandlers(self::EVENT_AFTER_ADD_TO_CART)) {
+                        $this->trigger(self::EVENT_AFTER_ADD_TO_CART, new CartEvent([
+                            'lineItem' => $lineItem,
+                            'order' => $order
+                        ]));
+                    }
+
 
                     return true;
                 }
@@ -413,6 +417,7 @@ class Cart extends Component
             return false;
         }
 
+        // Raise the 'beforeRemoveFromCart' event
         $event = new CartEvent([
             'lineItem' => $lineItem,
             'order' => $cart
@@ -437,12 +442,13 @@ class Cart extends Component
             Plugin::getInstance()->getLineItems()->deleteLineItemById($lineItem->id);
             Craft::$app->getElements()->saveElement($cart);
 
-            //raising event
-            $event = new CartEvent([
-                'lineItem' => $lineItem,
-                'order' => $cart
-            ]);
-            $this->trigger(self::EVENT_AFTER_REMOVE_FROM_CART, $event);
+            // Raise the 'afterRemoveFromCart' event
+            if ($this->hasEventHandlers(self::EVENT_AFTER_REMOVE_FROM_CART)) {
+                $this->trigger(self::EVENT_AFTER_REMOVE_FROM_CART, new CartEvent([
+                    'lineItem' => $lineItem,
+                    'order' => $cart
+                ]));
+            }
         } catch (\Exception $e) {
             $transaction->rollBack();
             Craft::error($e->getMessage(), 'commerce');

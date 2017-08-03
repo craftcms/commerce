@@ -304,6 +304,8 @@ class Payments extends Component
         $event = new BuildPaymentRequestEvent([
             'params' => $request
         ]);
+
+        // Raise 'buildPaymentRequest' event
         $this->trigger(self::EVENT_BUILD_PAYMENT_REQUEST, $event);
 
         return $event->params;
@@ -329,6 +331,7 @@ class Payments extends Component
             'transaction' => $transaction
         ]);
 
+        // Raise 'beforeGatewayRequestSend' event
         $this->trigger(self::EVENT_BEFORE_GATEWAY_REQUEST_SEND, $event);
 
         if (!$event->isValid) {
@@ -415,6 +418,8 @@ class Payments extends Component
         $event = new SendPaymentRequestEvent([
             'requestData' => $data
         ]);
+
+        // Raise 'beforeSendPaymentRequest' event
         $this->trigger(self::EVENT_BEFORE_SEND_PAYMENT_REQUEST, $event);
         
         // We can't merge the $data with $modifiedData since the $data is not always an array.
@@ -459,20 +464,21 @@ class Payments extends Component
      */
     public function captureTransaction(Transaction $transaction)
     {
-        //raising event
-        $event = new TransactionEvent([
-            'transaction' => $transaction
-        ]);
-
-        $this->trigger(self::EVENT_BEFORE_CAPTURE_TRANSACTION, $event);
+        // Raise 'beforeCaptureTransaction' event
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_CAPTURE_TRANSACTION)) {
+            $this->trigger(self::EVENT_BEFORE_CAPTURE_TRANSACTION, new TransactionEvent([
+                'transaction' => $transaction
+            ]));
+        }
 
         $transaction = $this->processCaptureOrRefund($transaction, TransactionRecord::TYPE_CAPTURE);
 
-        //raising event
-        $event = new TransactionEvent([
-            'transaction' => $transaction
-        ]);
-        $this->trigger(self::EVENT_AFTER_CAPTURE_TRANSACTION, $event);
+        // Raise 'afterCaptureTransaction' event
+        if ($this->hasEventHandlers(self::EVENT_AFTER_CAPTURE_TRANSACTION)) {
+            $this->trigger(self::EVENT_AFTER_CAPTURE_TRANSACTION, new TransactionEvent([
+                'transaction' => $transaction
+            ]));
+        }
 
         return $transaction;
     }
@@ -550,22 +556,21 @@ class Payments extends Component
      */
     public function refundTransaction(Transaction $transaction)
     {
-        //raising event
-        $event = new TransactionEvent([
-            'transaction' => $transaction
-        ]);
-
-        $this->trigger(self::EVENT_BEFORE_REFUND_TRANSACTION, $event);
+        // Raise 'beforeRefundTransaction' event
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_REFUND_TRANSACTION)) {
+            $this->trigger(self::EVENT_BEFORE_REFUND_TRANSACTION, new TransactionEvent([
+                'transaction' => $transaction
+            ]));
+        }
 
         $transaction = $this->processCaptureOrRefund($transaction, TransactionRecord::TYPE_REFUND);
 
-        //raising event
-        //raising event
-        $event = new TransactionEvent([
-            'transaction' => $transaction
-        ]);
-
-        $this->trigger(self::EVENT_AFTER_REFUND_TRANSACTION, $event);
+        /// Raise 'afterRefundTransaction' event
+        if ($this->hasEventHandlers(self::EVENT_AFTER_REFUND_TRANSACTION)) {
+            $this->trigger(self::EVENT_AFTER_REFUND_TRANSACTION, new TransactionEvent([
+                'transaction' => $transaction
+            ]));
+        }
 
         return $transaction;
     }

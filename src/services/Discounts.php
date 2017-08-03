@@ -362,7 +362,7 @@ class Discounts extends Component
         }
 
 
-        //raising event
+        // Raise the 'beforeMatchLineItem' event
         $event = new MatchLineItemEvent([
             'lineItem' => $lineItem,
             'discount' => $discount

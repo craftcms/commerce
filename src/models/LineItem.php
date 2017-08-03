@@ -342,13 +342,16 @@ class LineItem extends Model
 
         $purchasable->populateLineItem($this);
 
-        $event = new LineItemEvent([
-            'lineItem' => $this,
-            'purchasable' => $this->purchasable
-        ]);
 
         $lineItemsService = Plugin::getInstance()->getLineItems();
-        $lineItemsService->trigger($lineItemsService::EVENT_POPULATE_LINE_ITEM, $event);
+
+        // Raise the 'populateLineItem' event
+        if ($lineItemsService->hasEventHandlers($lineItemsService::EVENT_POPULATE_LINE_ITEM)) {
+            $lineItemsService->trigger($lineItemsService::EVENT_POPULATE_LINE_ITEM, new LineItemEvent([
+                'lineItem' => $this,
+                'purchasable' => $this->purchasable
+            ]));
+        }
 
         // Always make sure salePrice is equal to the price and saleAmount
         $this->salePrice = CurrencyHelper::round($this->saleAmount + $this->price);

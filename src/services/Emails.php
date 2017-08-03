@@ -328,14 +328,15 @@ class Emails extends Component
 
                 Craft::error($error, __METHOD__);
             } else {
-                //raising event
-                $event = new MailEvent([
-                    'craftEmail' => $newEmail,
-                    'commerceEmail' => $email,
-                    'order' => $order,
-                    'orderHistory' => $orderHistory
-                ]);
-                $this->trigger(self::EVENT_AFTER_SEND_MAIL, $event);
+                // Raise an 'afterSendEmail' event
+                if ($this->hasEventHandlers(self::EVENT_AFTER_SEND_MAIL)) {
+                    $this->trigger(self::EVENT_AFTER_SEND_MAIL, new MailEvent([
+                        'craftEmail' => $newEmail,
+                        'commerceEmail' => $email,
+                        'order' => $order,
+                        'orderHistory' => $orderHistory
+                    ]));
+                }
             }
         } catch (\Exception $e) {
             $error = Craft::t('commerce', 'Email “{email}” could not be sent for order “{order}”. Error: {error}', [

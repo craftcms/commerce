@@ -230,11 +230,12 @@ class Transactions extends Component
             $record->save(false);
             $model->id = $record->id;
 
-            $event = new TransactionEvent([
-                'transaction' => $model
-            ]);
-
-            $this->trigger(self::EVENT_AFTER_SAVE_TRANSACTION, $event);
+            // Raise 'afterSaveTransaction' event
+            if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_TRANSACTION)) {
+                $this->trigger(self::EVENT_AFTER_SAVE_TRANSACTION, new TransactionEvent([
+                    'transaction' => $model
+                ]));
+            }
 
             return true;
         }
