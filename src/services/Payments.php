@@ -366,7 +366,7 @@ class Payments extends Component
                             // Set Craft to the site template mode
                             $templatesService = Craft::$app->getView();
                             $oldTemplateMode = $templatesService->getTemplateMode();
-                            $templatesService->setTemplateMode(TemplateMode::Site);
+                            $templatesService->setTemplateMode($templatesService::TEMPLATE_MODE_SITE);
 
                             $template = $templatesService->render($gatewayPostRedirectTemplate, $variables);
 
