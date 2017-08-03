@@ -247,10 +247,17 @@ class Cart extends Component
      */
     public function setGateway(Order $cart, $gatewayId, &$error = "")
     {
+        if (!$gatewayId)
+        {
+            $error = Craft::t('commerce', 'Payment gateway does not exist or is not allowed.');
+
+            return false;
+        }
+
         $method = Plugin::getInstance()->getGateways()->getGatewayById($gatewayId);
 
         if (!$method) {
-            $error = Craft::t('commerce', 'Payment method does not exist or is not allowed.');
+            $error = Craft::t('commerce', 'Payment gateway does not exist or is not allowed.');
 
             return false;
         }

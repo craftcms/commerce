@@ -319,7 +319,7 @@ class Order extends Element
         $event = new OrderEvent(['order' => $this]);
         $this->trigger(self::EVENT_BEFORE_COMPLETE_ORDER, $event);
 
-        if (!Craft::$app->getElements()->saveElement($this)) {
+        if (Craft::$app->getElements()->saveElement($this)) {
             // Run order complete handlers directly.
             Plugin::getInstance()->getDiscounts()->orderCompleteHandler($this);
             Plugin::getInstance()->getVariants()->orderCompleteHandler($this);
@@ -988,7 +988,12 @@ class Order extends Element
      */
     public function getGateway()
     {
-        return Plugin::getInstance()->getGateways()->getGatewayById($this->gatewayId);
+        if ($this->gatewayId)
+        {
+            return Plugin::getInstance()->getGateways()->getGatewayById($this->gatewayId);
+        }
+
+        return null;
     }
 
     /**

@@ -186,7 +186,7 @@ class Transaction extends Model
      */
     public function getGateway()
     {
-        if (null === $this->_gateway) {
+        if (null === $this->_gateway && $this->gatewayId) {
             $this->_gateway = Plugin::getInstance()->getGateways()->getGatewayById($this->gatewayId);
         }
 

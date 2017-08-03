@@ -286,7 +286,7 @@ class Variants extends Component
             }
 
             $clearCacheOfElementIds = array_unique($clearCacheOfElementIds);
-            craft()->templateCache->deleteCachesByElementId($clearCacheOfElementIds);
+            Craft::$app->getTemplateCaches()->deleteCachesByElementId($clearCacheOfElementIds);
 
             if ($purchasable instanceof Variant) {
                 // make an array of each variant purchased
