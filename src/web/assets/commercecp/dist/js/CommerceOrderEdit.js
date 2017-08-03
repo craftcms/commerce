@@ -69,7 +69,7 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend(
         },
 
         _updateOrderAddress: function(name, address) {
-            Craft.postActionRequest('commerce/orders/updateOrderAddress', {
+            Craft.postActionRequest('commerce/orders/update-order-address', {
                 addressId: address.id,
                 addressType: name,
                 orderId: this.orderId
@@ -80,7 +80,7 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend(
             });
         },
         _markOrderCompleted: function() {
-            Craft.postActionRequest('commerce/orders/completeOrder', {orderId: this.orderId}, function(response) {
+            Craft.postActionRequest('commerce/orders/complete-order', {orderId: this.orderId}, function(response) {
                 if (response.success) {
                     //Reload for now, until we build a full order screen SPA
                     window.location.reload();
@@ -99,7 +99,7 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend(
             this.statusUpdateModal = new Craft.Commerce.UpdateOrderStatusModal(currentStatus, statuses, {
                 onSubmit: function(data) {
                     data.orderId = id;
-                    Craft.postActionRequest('commerce/orders/updateStatus', data, function(response) {
+                    Craft.postActionRequest('commerce/orders/update-status', data, function(response) {
                         if (response.success) {
                             self.$status.find('.updatestatus').data('currentstatus', self.statusUpdateModal.currentStatus);
 
