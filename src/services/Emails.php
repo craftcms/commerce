@@ -9,9 +9,7 @@ use craft\commerce\models\Email;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
-use craft\commerce\records\OrderStatus as OrderStatusRecord;
 use craft\db\Query;
-use craft\helpers\ArrayHelper;
 use craft\mail\Message;
 use yii\base\Component;
 
