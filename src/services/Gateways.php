@@ -50,8 +50,7 @@ class Gateways extends Component
     public function getAllGatewayTypes()
     {
         $gatewayTypes = [
-            Dummy::class,
-            Stripe::class,
+            Dummy::class
         ];
 
         $event = new RegisterComponentTypesEvent([
