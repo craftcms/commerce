@@ -9,9 +9,7 @@ use craft\commerce\models\Email;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
-use craft\commerce\records\OrderStatus as OrderStatusRecord;
 use craft\db\Query;
-use craft\helpers\ArrayHelper;
 use craft\mail\Message;
 use yii\base\Component;
 
@@ -149,7 +147,7 @@ class Emails extends Component
         // Set Craft to the site template mode
         $templatesService = Craft::$app->getView();
         $oldTemplateMode = $templatesService->getTemplateMode();
-        $templatesService->setTemplateMode(TemplateMode::Site);
+        $templatesService->setTemplateMode($templatesService::TEMPLATE_MODE_SITE);
 
         //sending emails
         $renderVariables = [
@@ -330,14 +328,15 @@ class Emails extends Component
 
                 Craft::error($error, __METHOD__);
             } else {
-                //raising event
-                $event = new MailEvent([
-                    'craftEmail' => $newEmail,
-                    'commerceEmail' => $email,
-                    'order' => $order,
-                    'orderHistory' => $orderHistory
-                ]);
-                $this->trigger(self::EVENT_AFTER_SEND_MAIL, $event);
+                // Raise an 'afterSendEmail' event
+                if ($this->hasEventHandlers(self::EVENT_AFTER_SEND_MAIL)) {
+                    $this->trigger(self::EVENT_AFTER_SEND_MAIL, new MailEvent([
+                        'craftEmail' => $newEmail,
+                        'commerceEmail' => $email,
+                        'order' => $order,
+                        'orderHistory' => $orderHistory
+                    ]));
+                }
             }
         } catch (\Exception $e) {
             $error = Craft::t('commerce', 'Email “{email}” could not be sent for order “{order}”. Error: {error}', [

@@ -185,12 +185,13 @@ class LineItems extends Component
 
         $lineItem->total = $lineItem->getTotal();
 
-        //raising event
-        $event = new LineItemEvent([
-            'lineItem' => $lineItem,
-            'isNew' => $isNewLineItem,
-        ]);
-        $this->trigger(self::EVENT_BEFORE_SAVE_LINE_ITEM, $event);
+        // Raise a 'beforeSaveLineItem' event
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_LINE_ITEM)) {
+            $this->trigger(self::EVENT_BEFORE_SAVE_LINE_ITEM, new LineItemEvent([
+                'lineItem' => $lineItem,
+                'isNew' => $isNewLineItem,
+            ]));
+        }
 
         $lineItemRecord->purchasableId = $lineItem->purchasableId;
         $lineItemRecord->orderId = $lineItem->orderId;
@@ -258,12 +259,13 @@ class LineItems extends Component
         }
 
         if ($success) {
-            //raising event
-            $event = new LineItemEvent([
-                'lineItem' => $lineItem,
-                'isNew' => $isNewLineItem,
-            ]);
-            $this->trigger(self::EVENT_AFTER_SAVE_LINE_ITEM, $event);
+            // Raise a 'afterSaveLineItem' event
+            if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_LINE_ITEM)) {
+                $this->trigger(self::EVENT_AFTER_SAVE_LINE_ITEM, new LineItemEvent([
+                    'lineItem' => $lineItem,
+                    'isNew' => $isNewLineItem,
+                ]));
+            }
         }
 
         return $success;
@@ -315,13 +317,14 @@ class LineItems extends Component
             throw new Exception(Craft::t('commerce', 'Not a purchasable ID'));
         }
 
-        //raising event
-        $event = new LineItemEvent([
-            'lineItem' => $lineItem,
-            'purchasable' => $purchasable,
-            'isNew' => true
-        ]);
-        $this->trigger(self::EVENT_CREATE_LINE_ITEM, $event);
+        // Raise a 'createLineItem' event
+        if ($this->hasEventHandlers(self::EVENT_CREATE_LINE_ITEM)) {
+            $this->trigger(self::EVENT_CREATE_LINE_ITEM, new LineItemEvent([
+                'lineItem' => $lineItem,
+                'purchasable' => $purchasable,
+                'isNew' => true,
+            ]));
+        }
 
         return $lineItem;
     }

@@ -96,12 +96,13 @@ class OrderHistories extends Component
 
         Plugin::getInstance()->getOrderStatuses()->statusChangeHandler($order, $orderHistoryModel);
 
-        //raising event on status change
-        $event = new OrderStatusEvent([
-            'orderHistory' => $orderHistoryModel,
-            'order' => $order
-        ]);
-        $this->trigger(self::EVENT_ORDER_STATUS_CHANGE, $event);
+        // Raising 'orderStatusChange' event
+        if ($this->hasEventHandlers(self::EVENT_ORDER_STATUS_CHANGE)) {
+            $this->trigger(self::EVENT_ORDER_STATUS_CHANGE, new OrderStatusEvent([
+                'orderHistory' => $orderHistoryModel,
+                'order' => $order
+            ]));
+        }
 
         return true;
     }

@@ -294,13 +294,14 @@ class Variants extends Component
             }
         }
 
-        foreach ($variants as $variant) {
-            //raising event
-            $event = new PurchaseVariantEvent([
-                'variant' => $variant
-            ]);
-            $this->trigger(self::EVENT_PURCHASE_VARIANT, $event);
+        if ($this->hasEventHandlers(self::EVENT_PURCHASE_VARIANT))
+        {
+            foreach ($variants as $variant) {
+                // Raise 'purchaseVariant' event
+                $this->trigger(self::EVENT_PURCHASE_VARIANT, new PurchaseVariantEvent([
+                    'variant' => $variant
+                ]));
+            }
         }
     }
-
 }

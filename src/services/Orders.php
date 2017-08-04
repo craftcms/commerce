@@ -35,19 +35,6 @@ use yii\base\Exception;
 class Orders extends Component
 {
 
-    // Constants
-    // =========================================================================
-
-    /**
-     * @event OrderEvent The event that is raised before an order is saved.
-     */
-    const EVENT_BEFORE_SAVE_ORDER = 'beforeSaveOrder';
-
-    /**
-     * @event OrderEvent The event that is raised after an order is saved.
-     */
-    const EVENT_AFTER_SAVE_ORDER = 'afterSaveOrder';
-
     // Public Methods
     // =========================================================================
 

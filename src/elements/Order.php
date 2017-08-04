@@ -315,9 +315,10 @@ class Order extends Element
         $this->dateOrdered = Db::prepareDateForDb(new \DateTime());
         $this->orderStatusId = Plugin::getInstance()->getOrderStatuses()->getDefaultOrderStatusId();
 
-        //raising event on order complete
-        $event = new OrderEvent(['order' => $this]);
-        $this->trigger(self::EVENT_BEFORE_COMPLETE_ORDER, $event);
+        // Raising the 'beforeCompleteOrder' event
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_COMPLETE_ORDER)) {
+            $this->trigger(self::EVENT_BEFORE_COMPLETE_ORDER, new OrderEvent(['order' => $this]));
+        }
 
         if (Craft::$app->getElements()->saveElement($this)) {
             // Run order complete handlers directly.
@@ -325,9 +326,10 @@ class Order extends Element
             Plugin::getInstance()->getVariants()->orderCompleteHandler($this);
             Plugin::getInstance()->getCustomers()->orderCompleteHandler($this);
 
-            //raising event on order complete
-            $event = new OrderEvent(['order' => $this]);
-            $this->trigger(self::EVENT_AFTER_COMPLETE_ORDER, $event);
+            // Raising the 'afterCompleteOrder' event
+            if ($this->hasEventHandlers(self::EVENT_AFTER_COMPLETE_ORDER)) {
+                $this->trigger(self::EVENT_AFTER_COMPLETE_ORDER, new OrderEvent(['order' => $this]));
+            }
 
             return true;
         }
