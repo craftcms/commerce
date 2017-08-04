@@ -4,6 +4,7 @@ namespace craft\commerce\base;
 
 use craft\base\SavableComponentInterface;
 use craft\commerce\elements\Order;
+use craft\commerce\models\payments\BasePaymentForm;
 use Omnipay\Common\Message\RequestInterface;
 
 /**
@@ -27,6 +28,16 @@ interface GatewayInterface extends SavableComponentInterface
      * @return mixed
      */
     public function createItemBag(Order $order);
+
+    /**
+     * Create a payment card based on Order and Payment form.
+     *
+     * @param Order           $order The order.
+     * @param BasePaymentForm $form The payment form.
+     *
+     * @return mixed
+     */
+    public function createCard(Order $order, BasePaymentForm $form);
 
     /**
      * Create a purchase request.

@@ -5,6 +5,7 @@ namespace craft\commerce\gateways;
 use Craft;
 use craft\commerce\base\CreditCardGatewayTrait;
 use craft\commerce\base\Gateway;
+use craft\commerce\elements\Order;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\payments\CreditCardPaymentForm;
 use Omnipay\Common\AbstractGateway;
@@ -40,8 +41,13 @@ class Dummy extends Gateway
 
     public function populateCard($card, CreditCardPaymentForm $paymentForm)
     {
-        // TODO: Implement populateCard() method.
     }
+
+    public function createCard(Order $order, BasePaymentForm $form)
+    {
+        // TODO: Implement createCard() method.
+    }
+
 
     public function populateRequest(AbstractRequest $request, BasePaymentForm $form)
     {

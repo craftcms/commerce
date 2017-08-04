@@ -3,7 +3,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
-use craft\commerce\gateways\base\Gateway;
+use craft\commerce\base\Gateway;
 use craft\commerce\Plugin;
 use yii\base\Exception;
 use yii\web\HttpException;
