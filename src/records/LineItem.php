@@ -3,37 +3,41 @@
 namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;
+use craft\records\Element;
+use yii\db\ActiveQueryInterface;
 
 /**
  * Line Item record.
  *
- * @property int         $id
- * @property float       $price
- * @property float       $saleAmount
- * @property float       $salePrice
- * @property float       $tax
- * @property float       $taxIncluded
- * @property float       $shippingCost
- * @property float       $discount
- * @property float       $weight
- * @property float       $height
- * @property float       $width
- * @property float       $length
- * @property float       $total
- * @property int         $qty
- * @property string      $note
- * @property string      $snapshot
+ * @property int                          $id
+ * @property float                        $price
+ * @property float                        $saleAmount
+ * @property float                        $salePrice
+ * @property float                        $tax
+ * @property float                        $taxIncluded
+ * @property float                        $shippingCost
+ * @property float                        $discount
+ * @property float                        $weight
+ * @property float                        $height
+ * @property float                        $width
+ * @property float                        $length
+ * @property float                        $total
+ * @property int                          $qty
+ * @property string                       $note
+ * @property string                       $snapshot
  *
- * @property int         $orderId
- * @property int         $purchasableId
- * @property mixed       $options
- * @property string      $optionsSignature
- * @property int         $taxCategoryId
- * @property int         $shippingCategoryId
+ * @property int                          $orderId
+ * @property int                          $purchasableId
+ * @property mixed                        $options
+ * @property string                       $optionsSignature
+ * @property int                          $taxCategoryId
+ * @property int                          $shippingCategoryId
  *
- * @property Order       $order
- * @property Variant     $variant
- * @property TaxCategory $taxCategory
+ * @property Order                        $order
+ * @property Variant                      $variant
+ * @property \yii\db\ActiveQueryInterface $purchasable
+ * @property \yii\db\ActiveQueryInterface $shippingCategory
+ * @property TaxCategory                  $taxCategory
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -47,151 +51,50 @@ class LineItem extends ActiveRecord
     /**
      * @return string
      */
-    public static function tableName()
+    public static function tableName(): string
     {
-        return "commerce_lineitems";
+        return '{{%commerce_lineitems}}';
     }
 
-//    /**
-//     * @return array
-//     */
-//    public function defineIndexes()
-//    {
-//        return [
-//            ['columns' => ['orderId', 'purchasableId', 'optionsSignature'], 'unique' => true],
-//        ];
-//    }
-//
-//    /**
-//     * @return array
-//     */
-//    public function defineRelations()
-//    {
-//        return [
-//            'order' => [
-//                static::BELONGS_TO,
-//                'Order',
-//                'required' => true,
-//                'onDelete' => static::CASCADE
-//            ],
-//            'purchasable' => [
-//                static::BELONGS_TO,
-//                'Element',
-//                'onUpdate' => self::CASCADE,
-//                'onDelete' => self::SET_NULL
-//            ],
-//            'taxCategory' => [
-//                static::BELONGS_TO,
-//                'TaxCategory',
-//                'onUpdate' => self::CASCADE,
-//                'onDelete' => self::RESTRICT,
-//                'required' => true
-//            ],
-//            'shippingCategory' => [
-//                static::BELONGS_TO,
-//                'ShippingCategory',
-//                'onUpdate' => self::CASCADE,
-//                'onDelete' => self::RESTRICT,
-//                'required' => true
-//            ],
-//        ];
-//    }
-//
-//    /**
-//     * @return array
-//     */
-//    protected function defineAttributes()
-//    {
-//        return [
-//            'options' => AttributeType::Mixed,
-//            'optionsSignature' => [AttributeType::String, 'required' => true],
-//            'price' => [
-//                AttributeType::Number,
-//                'min' => 0,
-//                'decimals' => 4,
-//                'required' => true
-//            ],
-//            'saleAmount' => [
-//                AttributeType::Number,
-//                'decimals' => 4,
-//                'required' => true,
-//                'default' => 0
-//            ],
-//            'salePrice' => [
-//                AttributeType::Number,
-//                'decimals' => 4,
-//                'required' => true,
-//                'default' => 0
-//            ],
-//            'tax' => [
-//                AttributeType::Number,
-//                'decimals' => 4,
-//                'required' => true,
-//                'default' => 0
-//            ],
-//            'taxIncluded' => [
-//                AttributeType::Number,
-//                'decimals' => 4,
-//                'required' => true,
-//                'default' => 0
-//            ],
-//            'shippingCost' => [
-//                AttributeType::Number,
-//                'min' => 0,
-//                'decimals' => 4,
-//                'required' => true,
-//                'default' => 0
-//            ],
-//            'discount' => [
-//                AttributeType::Number,
-//                'decimals' => 4,
-//                'required' => true,
-//                'default' => 0
-//            ],
-//            'weight' => [
-//                AttributeType::Number,
-//                'min' => 0,
-//                'decimals' => 4,
-//                'required' => true,
-//                'default' => 0
-//            ],
-//            'height' => [
-//                AttributeType::Number,
-//                'min' => 0,
-//                'decimals' => 4,
-//                'required' => true,
-//                'default' => 0
-//            ],
-//            'length' => [
-//                AttributeType::Number,
-//                'min' => 0,
-//                'decimals' => 4,
-//                'required' => true,
-//                'default' => 0
-//            ],
-//            'width' => [
-//                AttributeType::Number,
-//                'min' => 0,
-//                'decimals' => 4,
-//                'required' => true,
-//                'default' => 0
-//            ],
-//            'total' => [
-//                AttributeType::Number,
-//                'min' => 0,
-//                'decimals' => 4,
-//                'required' => true,
-//                'default' => 0
-//            ],
-//            'qty' => [
-//                AttributeType::Number,
-//                'min' => 0,
-//                'required' => true
-//            ],
-//            'note' => AttributeType::Mixed,
-//            'snapshot' => [AttributeType::Mixed, 'required' => true],
-//            'taxCategoryId' => [AttributeType::Number, 'required' => true],
-//            'shippingCategoryId' => [AttributeType::Number, 'required' => true],
-//        ];
-//    }
+    /**
+     * @inheritdoc
+     */
+    public function rules(): array
+    {
+        return [
+            [['orderId', 'purchasableId', 'optionsSignature'], 'unique', 'targetAttribute' => ['orderId', 'purchasableId', 'optionsSignature']]
+        ];
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getOrder(): ActiveQueryInterface
+    {
+        return $this->hasOne(Order::class, ['id' => 'orderId']);
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getPurchasable(): ActiveQueryInterface
+    {
+        return $this->hasOne(Element::class, ['id' => 'purchasableId']);
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getTaxCategory(): ActiveQueryInterface
+    {
+        return $this->hasOne(TaxCategory::class, ['id' => 'taxCategoryId']);
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getShippingCategory(): ActiveQueryInterface
+    {
+        return $this->hasOne(ShippingCategory::class, ['id' => 'shippingCategoryId']);
+    }
 }

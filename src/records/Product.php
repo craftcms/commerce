@@ -9,26 +9,29 @@ use yii\db\ActiveQueryInterface;
 /**
  * Product record.
  *
- * @property int         $id
- * @property int         $taxCategoryId
- * @property int         $shippingCategoryId
- * @property int         $typeId
- * @property \DateTime   $postDate
- * @property \DateTime   $expiryDate
- * @property bool        $promotable
- * @property bool        $freeShipping
+ * @property int                          $id
+ * @property int                          $taxCategoryId
+ * @property int                          $shippingCategoryId
+ * @property int                          $typeId
+ * @property \DateTime                    $postDate
+ * @property \DateTime                    $expiryDate
+ * @property bool                         $promotable
+ * @property bool                         $freeShipping
  *
- * @property int         defaultVariantId
- * @property string      defaultSku
- * @property float       defaultPrice
- * @property float       defaultHeight
- * @property float       defaultLength
- * @property float       defaultWidth
- * @property float       defaultWeight
+ * @property int                          defaultVariantId
+ * @property string                       defaultSku
+ * @property float                        defaultPrice
+ * @property float                        defaultHeight
+ * @property float                        defaultLength
+ * @property float                        defaultWidth
+ * @property float                        defaultWeight
  *
- * @property Variant     $implicit
- * @property Variant[]   $variants
- * @property TaxCategory $taxCategory
+ * @property Variant                      $implicit
+ * @property Variant[]                    $variants
+ * @property \yii\db\ActiveQueryInterface $element
+ * @property \yii\db\ActiveQueryInterface $type
+ * @property \yii\db\ActiveQueryInterface $shippingCategory
+ * @property TaxCategory                  $taxCategory
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -39,7 +42,6 @@ use yii\db\ActiveQueryInterface;
  */
 class Product extends ActiveRecord
 {
-
     /**
      * @return string
      */
@@ -49,48 +51,42 @@ class Product extends ActiveRecord
     }
 
     /**
-     * Returns the product’s element.
-     *
-     * @return ActiveQueryInterface The relational query object.
+     * @return ActiveQueryInterface
+     */
+    public function getVariants(): ActiveQueryInterface
+    {
+        return $this->hasMany(Variant::class, ['productId' => 'id']);
+    }
+
+    /**
+     * @return ActiveQueryInterface
      */
     public function getElement(): ActiveQueryInterface
     {
         return $this->hasOne(Element::class, ['id' => 'id']);
     }
 
-//    /**
-//     * @return array
-//     */
-//    public function defineRelations()
-//    {
-//        return [
-//            'element' => [
-//                static::BELONGS_TO,
-//                'Element',
-//                'id',
-//                'required' => true,
-//                'onDelete' => static::CASCADE
-//            ],
-//            'type' => [
-//                static::BELONGS_TO,
-//                'ProductType',
-//                'onDelete' => static::CASCADE
-//            ],
-//            'variants' => [
-//                static::HAS_MANY,
-//                'Variant',
-//                'productId'
-//            ],
-//            'taxCategory' => [
-//                static::BELONGS_TO,
-//                'TaxCategory',
-//                'required' => true
-//            ],
-//            'shippingCategory' => [
-//                static::BELONGS_TO,
-//                'ShippingCategory',
-//                'required' => true
-//            ],
-//        ];
-//    }
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getType(): ActiveQueryInterface
+    {
+        return $this->hasOne(ProductType::class, ['id' => 'productTypeId']);
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getShippingCategory(): ActiveQueryInterface
+    {
+        return $this->hasOne(ShippingCategory::class, ['id' => 'shippingCategoryId']);
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getTaxCategory(): ActiveQueryInterface
+    {
+        return $this->hasOne(TaxCategory::class, ['id' => 'taxCategoryId']);
+    }
 }

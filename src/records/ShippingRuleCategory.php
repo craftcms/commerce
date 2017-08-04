@@ -3,6 +3,7 @@
 namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;
+use yii\db\ActiveQueryInterface;
 
 /**
  * Shipping rule category record.
@@ -33,58 +34,24 @@ class ShippingRuleCategory extends ActiveRecord
     /**
      * @return string
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return '{{%commerce_shippingrule_categories}}';
     }
 
-//    /**
-//     * @return array
-//     */
-//    public function defineIndexes()
-//    {
-//        return [
-//            ['columns' => ['shippingRuleId']],
-//            ['columns' => ['shippingCategoryId']]
-//        ];
-//    }
-//
-//    /**
-//     * @return array
-//     */
-//    public function defineRelations()
-//    {
-//        return [
-//            'shippingRule' => [self::BELONGS_TO, 'ShippingRule', 'onDelete' => static::CASCADE],
-//            'shippingCategory' => [self::BELONGS_TO, 'ShippingCategory', 'onDelete' => static::CASCADE]
-//        ];
-//    }
-//
-//    /**
-//     * @return array
-//     */
-//    protected function defineAttributes()
-//    {
-//        return [
-//            'condition' => [AttributeType::Enum, 'values' => [static::CONDITION_ALLOW, static::CONDITION_DISALLOW, static::CONDITION_REQUIRE], 'required' => true],
-//            'perItemRate' => [
-//                AttributeType::Number,
-//                'required' => false,
-//                'decimals' => 4,
-//                'default' => null
-//            ],
-//            'weightRate' => [
-//                AttributeType::Number,
-//                'required' => false,
-//                'decimals' => 4,
-//                'default' => null
-//            ],
-//            'percentageRate' => [
-//                AttributeType::Number,
-//                'required' => false,
-//                'decimals' => 4,
-//                'default' => null
-//            ],
-//        ];
-//    }
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getShippingRule(): ActiveQueryInterface
+    {
+        return $this->hasOne(ShippingRule::class, ['id' => 'shippingRuleId']);
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getShippingCategory(): ActiveQueryInterface
+    {
+        return $this->hasOne(ShippingCategory::class, ['id' => 'shippingCategoryId']);
+    }
 }

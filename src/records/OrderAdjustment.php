@@ -3,6 +3,7 @@
 namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;
+use yii\db\ActiveQueryInterface;
 
 /**
  * Order adjustment record.
@@ -27,57 +28,19 @@ use craft\db\ActiveRecord;
  */
 class OrderAdjustment extends ActiveRecord
 {
-
     /**
      * @return string
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return '{{%commerce_orderadjustments}}';
     }
 
-//    /**
-//     * @return array
-//     */
-//    public function defineIndexes()
-//    {
-//        return [
-//            ['columns' => ['orderId']],
-//        ];
-//    }
-//
-//    /**
-//     * @return array
-//     */
-//    public function defineRelations()
-//    {
-//        return [
-//            'order' => [
-//                self::BELONGS_TO,
-//                'OrderRecord',
-//                'required' => true,
-//                'onDelete' => static::CASCADE
-//            ],
-//        ];
-//    }
-//
-//    /**
-//     * @return array
-//     */
-//    protected function defineAttributes()
-//    {
-//        return [
-//            'type' => [AttributeType::String, 'required' => true],
-//            'name' => [AttributeType::String],
-//            'description' => [AttributeType::String],
-//            'amount' => [
-//                AttributeType::Number,
-//                'required' => true,
-//                'decimals' => 4
-//            ],
-//            'included' => AttributeType::Bool,
-//            'optionsJson' => [AttributeType::Mixed, 'required' => true],
-//            'orderId' => [AttributeType::Number, 'required' => true],
-//        ];
-//    }
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getOrder(): ActiveQueryInterface
+    {
+        return $this->hasOne(Order::class, ['id' => 'orderId']);
+    }
 }

@@ -3,13 +3,16 @@
 namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;
+use yii\db\ActiveQueryInterface;
 
 /**
  * Discount product record.
  *
- * @property int $id
- * @property int $discountId
- * @property int $productId
+ * @property int                          $id
+ * @property int                          $discountId
+ * @property \yii\db\ActiveQueryInterface $discount
+ * @property \yii\db\ActiveQueryInterface $product
+ * @property int                          $productId
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -28,48 +31,30 @@ class DiscountProduct extends ActiveRecord
         return '{{%commerce_discount_products}}';
     }
 
-//    /**
-//     * @return array
-//     */
-//    public function defineIndexes()
-//    {
-//        return [
-//            ['columns' => ['discountId', 'productId'], 'unique' => true],
-//        ];
-//    }
-//
-//    /**
-//     * @return array
-//     */
-//    public function defineRelations()
-//    {
-//        return [
-//            'discount' => [
-//                static::BELONGS_TO,
-//                'Discount',
-//                'onDelete' => self::CASCADE,
-//                'onUpdate' => self::CASCADE,
-//                'required' => true
-//            ],
-//            'product' => [
-//                static::BELONGS_TO,
-//                'Product',
-//                'onDelete' => self::CASCADE,
-//                'onUpdate' => self::CASCADE,
-//                'required' => true
-//            ],
-//        ];
-//    }
-//
-//    /**
-//     * @return array
-//     */
-//    protected function defineAttributes()
-//    {
-//        return [
-//            'discountId' => [AttributeType::Number, 'required' => true],
-//            'productId' => [AttributeType::Number, 'required' => true],
-//        ];
-//    }
+    /**
+     * @inheritdoc
+     */
+    public function rules(): array
+    {
+        return [
+            [['discountId', 'productId'], 'unique', 'targetAttribute' => ['discountId', 'productId']]
+        ];
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getDiscount(): ActiveQueryInterface
+    {
+        return $this->hasOne(Discount::class, ['id' => 'discountId']);
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getProduct(): ActiveQueryInterface
+    {
+        return $this->hasOne(Product::class, ['id' => 'productId']);
+    }
 
 }

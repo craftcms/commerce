@@ -19,7 +19,6 @@ use craft\db\ActiveRecord;
  */
 class CustomerAddress extends ActiveRecord
 {
-
     /**
      * @return string
      */

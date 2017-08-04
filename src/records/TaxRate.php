@@ -3,6 +3,7 @@
 namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;
+use yii\db\ActiveQueryInterface;
 
 /**
  * Tax rate record.
@@ -28,7 +29,6 @@ use craft\db\ActiveRecord;
  */
 class TaxRate extends ActiveRecord
 {
-
     const TAXABLE_PRICE = 'price';
     const TAXABLE_SHIPPING = 'shipping';
     const TAXABLE_PRICE_SHIPPING = 'price_shipping';
@@ -43,72 +43,24 @@ class TaxRate extends ActiveRecord
     /**
      * @return string
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return '{{%commerce_taxrates}}';
     }
 
-//    /**
-//     * @return array
-//     */
-//    public function defineIndexes()
-//    {
-//        return [
-//            ['columns' => ['taxZoneId']],
-//            ['columns' => ['taxCategoryId']],
-//        ];
-//    }
-//
-//    /**
-//     * @return array
-//     */
-//    public function defineRelations()
-//    {
-//        return [
-//            'taxZone' => [
-//                static::BELONGS_TO,
-//                'TaxZone',
-//                'onDelete' => self::RESTRICT,
-//                'onUpdate' => self::CASCADE,
-//                'required' => true
-//            ],
-//            'taxCategory' => [
-//                static::BELONGS_TO,
-//                'TaxCategory',
-//                'onDelete' => self::RESTRICT,
-//                'onUpdate' => self::CASCADE,
-//                'required' => true
-//            ],
-//        ];
-//    }
-//
-//    /**
-//     * @return array
-//     */
-//    protected function defineAttributes()
-//    {
-//        return [
-//            'name' => [AttributeType::String, 'required' => true],
-//            'rate' => [
-//                AttributeType::Number,
-//                'required' => true,
-//                'decimals' => 4
-//            ],
-//            'include' => [
-//                AttributeType::Bool,
-//                'default' => 0,
-//                'required' => true
-//            ],
-//            'isVat' => [
-//                AttributeType::Bool,
-//                'default' => 0,
-//                'required' => true
-//            ],
-//            'taxable' => [
-//                AttributeType::Enum,
-//                'values' => $this->taxables,
-//                'required' => true
-//            ]
-//        ];
-//    }
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getTaxZone(): ActiveQueryInterface
+    {
+        return $this->hasOne(TaxZone::class, ['id' => 'taxZoneId']);
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getTaxCategory(): ActiveQueryInterface
+    {
+        return $this->hasOne(TaxCategory::class, ['id' => 'taxCategoryId']);
+    }
 }

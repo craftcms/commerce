@@ -4,6 +4,7 @@ namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;
 use craft\records\UserGroup;
+use yii\db\ActiveQueryInterface;
 
 /**
  * Sale record.
@@ -39,76 +40,32 @@ class Sale extends ActiveRecord
     /**
      * @return string
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return '{{%commerce_sales}}';
     }
 
-//    /**
-//     * @return array
-//     */
-//    public function defineRelations()
-//    {
-//        return [
-//            'groups' => [
-//                static::MANY_MANY,
-//                'UserGroup',
-//                'commerce_sale_usergroups(saleId, userGroupId)'
-//            ],
-//            'products' => [
-//                static::MANY_MANY,
-//                'Product',
-//                'commerce_sale_products(saleId, productId)'
-//            ],
-//            'productTypes' => [
-//                static::MANY_MANY,
-//                'ProductType',
-//                'commerce_sale_producttypes(saleId, productTypeId)'
-//            ],
-//        ];
-//    }
-//
-//    /**
-//     * @return array
-//     */
-//    protected function defineAttributes()
-//    {
-//        return [
-//            'name' => [AttributeType::Name, 'required' => true],
-//            'description' => AttributeType::Mixed,
-//            'dateFrom' => AttributeType::DateTime,
-//            'dateTo' => AttributeType::DateTime,
-//            'discountType' => [
-//                AttributeType::Enum,
-//                'values' => [self::TYPE_PERCENT, self::TYPE_FLAT],
-//                'required' => true
-//            ],
-//            'discountAmount' => [
-//                AttributeType::Number,
-//                'decimals' => 4,
-//                'required' => true
-//            ],
-//            'allGroups' => [
-//                AttributeType::Bool,
-//                'required' => true,
-//                'default' => 0
-//            ],
-//            'allProducts' => [
-//                AttributeType::Bool,
-//                'required' => true,
-//                'default' => 0
-//            ],
-//            'allProductTypes' => [
-//                AttributeType::Bool,
-//                'required' => true,
-//                'default' => 0
-//            ],
-//            'enabled' => [
-//                AttributeType::Bool,
-//                'required' => true,
-//                'default' => 1
-//            ],
-//        ];
-//    }
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getGroups(): ActiveQueryInterface
+    {
+        return $this->hasMany(UserGroup::class, ['id' => 'userGroupId'])->viaTable('{{%commerce_sale_usergroup}}', ['saleId' => 'id']);
+    }
 
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getProducts(): ActiveQueryInterface
+    {
+        return $this->hasMany(Product::class, ['id' => 'productId'])->viaTable('{{%commerce_sale_products}}', ['saleId' => 'id']);
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getProductTypes(): ActiveQueryInterface
+    {
+        return $this->hasMany(ProductType::class, ['id' => 'productTypeId'])->viaTable('{{%commerce_sale_productypes}}', ['saleId' => 'id']);
+    }
 }

@@ -3,12 +3,15 @@
 namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;
+use yii\db\ActiveQueryInterface;
 
 /**
  * Tax zone state record.
  *
- * @property int taxZoneId
- * @property int stateId
+ * @property int                          taxZoneId
+ * @property \yii\db\ActiveQueryInterface $state
+ * @property \yii\db\ActiveQueryInterface $taxZone
+ * @property int                          stateId
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -19,51 +22,37 @@ use craft\db\ActiveRecord;
  */
 class TaxZoneState extends ActiveRecord
 {
-
     /**
      * @return string
      */
-    public static function tableName()
+    public static function tableName(): string
     {
-        return "commerce_taxzone_states";
+        return '{{%commerce_taxzone_states}}';
     }
 
-//    /**
-//     * @return array
-//     */
-//    public function defineIndexes()
-//    {
-//        return [
-//            ['columns' => ['taxZoneId']],
-//            ['columns' => ['stateId']],
-//            ['columns' => ['taxZoneId', 'stateId'], 'unique' => true],
-//        ];
-//    }
-//
-//
-//    /**
-//     * @inheritDoc BaseRecord::defineRelations()
-//     *
-//     * @return array
-//     */
-//    public function defineRelations()
-//    {
-//        return [
-//            'taxZone' => [
-//                static::BELONGS_TO,
-//                'TaxZone',
-//                'onDelete' => self::CASCADE,
-//                'onUpdate' => self::CASCADE,
-//                'required' => true
-//            ],
-//            'state' => [
-//                static::BELONGS_TO,
-//                'State',
-//                'onDelete' => self::CASCADE,
-//                'onUpdate' => self::CASCADE,
-//                'required' => true
-//            ],
-//        ];
-//    }
+    /**
+     * @inheritdoc
+     */
+    public function rules(): array
+    {
+        return [
+            [['taxZoneId', 'stateId'], 'unique', 'targetAttribute' => ['taxZoneId', 'stateId']]
+        ];
+    }
 
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getTaxZone(): ActiveQueryInterface
+    {
+        return $this->hasOne(TaxZone::class, ['id' => 'taxZoneId']);
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getState(): ActiveQueryInterface
+    {
+        return $this->hasOne(State::class, ['id' => 'stateId']);
+    }
 }

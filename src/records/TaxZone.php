@@ -26,30 +26,27 @@ use yii\db\ActiveQueryInterface;
  */
 class TaxZone extends ActiveRecord
 {
-
     /**
      * @return string
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return '{{%commerce_taxzones}}';
     }
 
     /**
-     * Returns the zone's countries.
-     *
      * @return ActiveQueryInterface
      */
-    public function getCountries() {
+    public function getCountries(): ActiveQueryInterface
+    {
         return $this->hasMany(Country::class, ['id' => 'countryId'])->viaTable('{{%commerce_taxzone_countries}}', ['taxZoneId' => 'id']);
     }
 
     /**
-     * Returns the zone's states
-     *
      * @return ActiveQueryInterface
      */
-    public function getStates() {
+    public function getStates(): ActiveQueryInterface
+    {
         return $this->hasMany(State::class, ['id' => 'stateId'])->viaTable('{{%commerce_taxzone_states}}', ['taxZoneId' => 'id']);
     }
 }

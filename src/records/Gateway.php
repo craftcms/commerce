@@ -2,7 +2,6 @@
 
 namespace craft\commerce\records;
 
-use craft\commerce\Plugin;
 use craft\db\ActiveRecord;
 
 /**
@@ -28,48 +27,20 @@ use craft\db\ActiveRecord;
 class Gateway extends ActiveRecord
 {
     /**
-     * The name of the table not including the craft db prefix e.g craft_
-     *
      * @return string
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return '{{%commerce_gateways}}';
     }
 
-//    /**
-//     * @return array
-//     */
-//    public function defineIndexes()
-//    {
-//        return [
-//            ['columns' => ['name'], 'unique' => true],
-//        ];
-//    }
-
-//    /**
-//     * @return array
-//     */
-//    protected function defineAttributes()
-//    {
-//        return [
-//            'class' => [AttributeType::String, 'required' => true],
-//            'name' => [AttributeType::String, 'required' => true],
-//            'settings' => [AttributeType::Mixed],
-//            'paymentType' => [
-//                AttributeType::Enum,
-//                'values' => ['authorize', 'purchase'],
-//                'required' => true,
-//                'default' => 'purchase'
-//            ],
-//            'frontendEnabled' => [
-//                AttributeType::Bool,
-//                'required' => true,
-//                'default' => 0
-//            ],
-//            'isArchived' => [AttributeType::Bool, 'default' => false],
-//            'dateArchived' => [AttributeType::DateTime],
-//            'sortOrder' => [AttributeType::Number],
-//        ];
-//    }
+    /**
+     * @inheritdoc
+     */
+    public function rules(): array
+    {
+        return [
+            [['name'], 'unique', 'targetAttribute' => ['name']]
+        ];
+    }
 }

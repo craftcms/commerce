@@ -3,6 +3,7 @@
 namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;
+use yii\db\ActiveQueryInterface;
 
 /**
  * Order hsitory record.
@@ -33,56 +34,40 @@ class OrderHistory extends ActiveRecord
     /**
      * @return string
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return '{{%commerce_orderhistories}}';
     }
 
-//    /**
-//     * @return array
-//     */
-//    public function defineRelations()
-//    {
-//        return [
-//            'order' => [
-//                static::BELONGS_TO,
-//                'Order',
-//                'required' => true,
-//                'onDelete' => self::CASCADE,
-//                'onUpdate' => self::CASCADE
-//            ],
-//            'prevStatus' => [
-//                static::BELONGS_TO,
-//                'OrderStatus',
-//                'onDelete' => self::RESTRICT,
-//                'onUpdate' => self::CASCADE
-//            ],
-//            'newStatus' => [
-//                static::BELONGS_TO,
-//                'OrderStatus',
-//                'onDelete' => self::RESTRICT,
-//                'onUpdate' => self::CASCADE
-//            ],
-//            'customer' => [
-//                static::BELONGS_TO,
-//                'Customer',
-//                'required' => true,
-//                'onDelete' => self::CASCADE,
-//                'onUpdate' => self::CASCADE
-//            ],
-//        ];
-//    }
-//
-//    /**
-//     * @return array
-//     */
-//    protected function defineAttributes()
-//    {
-//        return [
-//            'orderId' => [AttributeType::Number, 'required' => true],
-//            'customerId' => [AttributeType::Number, 'required' => true],
-//            'message' => [AttributeType::Mixed],
-//        ];
-//    }
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getOrder(): ActiveQueryInterface
+    {
+        return $this->hasOne(Order::class, ['id' => 'orderId']);
+    }
 
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getPrevStatus(): ActiveQueryInterface
+    {
+        return $this->hasOne(OrderStatus::class, ['id' => 'prevStatusId']);
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getNewStatus(): ActiveQueryInterface
+    {
+        return $this->hasOne(OrderStatus::class, ['id' => 'newStatusId']);
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getCustomer(): ActiveQueryInterface
+    {
+        return $this->hasOne(Customer::class, ['id' => 'customerId']);
+    }
 }

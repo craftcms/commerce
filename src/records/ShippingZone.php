@@ -3,6 +3,7 @@
 namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;
+use yii\db\ActiveQueryInterface;
 
 /**
  * Shipping zone record.
@@ -25,57 +26,37 @@ use craft\db\ActiveRecord;
  */
 class ShippingZone extends ActiveRecord
 {
-
     /**
      * @return string
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return '{{%commerce_shippingzones}}';
     }
 
-//    /**
-//     * @return array
-//     */
-//    public function defineIndexes()
-//    {
-//        return [
-//            ['columns' => ['name'], 'unique' => true],
-//        ];
-//    }
-//
-//    /**
-//     * @return array
-//     */
-//    public function defineRelations()
-//    {
-//        return [
-//            'countries' => [
-//                static::MANY_MANY,
-//                'Country',
-//                'commerce_shippingzone_countries(countryId, shippingZoneId)'
-//            ],
-//            'states' => [
-//                static::MANY_MANY,
-//                'State',
-//                'commerce_shippingzone_states(stateId, shippingZoneId)'
-//            ],
-//        ];
-//    }
-//
-//    /**
-//     * @return array
-//     */
-//    protected function defineAttributes()
-//    {
-//        return [
-//            'name' => [AttributeType::String, 'required' => true],
-//            'description' => AttributeType::String,
-//            'countryBased' => [
-//                AttributeType::Bool,
-//                'required' => true,
-//                'default' => 1
-//            ]
-//        ];
-//    }
+    /**
+     * @inheritdoc
+     */
+    public function rules(): array
+    {
+        return [
+            [['name'], 'unique']
+        ];
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getCountries(): ActiveQueryInterface
+    {
+        return $this->hasMany(Country::class, ['id' => 'countryId'])->viaTable('{{%commerce_shippingzone_countries}}', ['shippingZoneId' => 'id']);
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getStates(): ActiveQueryInterface
+    {
+        return $this->hasMany(State::class, ['id' => 'stateId'])->viaTable('{{%commerce_shippingzone_states}}', ['shippingZoneId' => 'id']);
+    }
 }

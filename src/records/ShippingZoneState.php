@@ -3,12 +3,15 @@
 namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;
+use yii\db\ActiveQueryInterface;
 
 /**
  * Shipping zone state record.
  *
- * @property int taxZoneId
- * @property int stateId
+ * @property int                          taxZoneId
+ * @property \yii\db\ActiveQueryInterface $state
+ * @property \yii\db\ActiveQueryInterface $shippingZone
+ * @property int                          stateId
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -19,51 +22,37 @@ use craft\db\ActiveRecord;
  */
 class ShippingZoneState extends ActiveRecord
 {
-
     /**
      * @return string
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return "commerce_shippingzone_states";
     }
 
-//    /**
-//     * @return array
-//     */
-//    public function defineIndexes()
-//    {
-//        return [
-//            ['columns' => ['shippingZoneId']],
-//            ['columns' => ['stateId']],
-//            ['columns' => ['shippingZoneId', 'stateId'], 'unique' => true],
-//        ];
-//    }
-//
-//
-//    /**
-//     * @inheritDoc BaseRecord::defineRelations()
-//     *
-//     * @return array
-//     */
-//    public function defineRelations()
-//    {
-//        return [
-//            'shippingZone' => [
-//                static::BELONGS_TO,
-//                'ShippingZone',
-//                'onDelete' => self::CASCADE,
-//                'onUpdate' => self::CASCADE,
-//                'required' => true
-//            ],
-//            'state' => [
-//                static::BELONGS_TO,
-//                'State',
-//                'onDelete' => self::CASCADE,
-//                'onUpdate' => self::CASCADE,
-//                'required' => true
-//            ],
-//        ];
-//    }
+    /**
+     * @inheritdoc
+     */
+    public function rules(): array
+    {
+        return [
+            [['shippingZoneId', 'stateId'], 'unique', 'targetAttribute' => ['shippingZoneId', 'stateId']]
+        ];
+    }
 
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getShippingZone(): ActiveQueryInterface
+    {
+        return $this->hasOne(ShippingZone::class, ['id' => 'shippingZoneId']);
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getState(): ActiveQueryInterface
+    {
+        return $this->hasOne(State::class, ['id' => 'stateId']);
+    }
 }

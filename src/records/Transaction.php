@@ -4,6 +4,7 @@ namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;
 use craft\records\User;
+use yii\db\ActiveQueryInterface;
 
 /**
  * Transaction record.
@@ -46,8 +47,10 @@ class Transaction extends ActiveRecord
     const STATUS_REDIRECT = 'redirect';
     const STATUS_SUCCESS = 'success';
     const STATUS_FAILED = 'failed';
+
     /* @var int $total */
     public $total = 0;
+
     /* @var array $types */
     private $types = [
         self::TYPE_AUTHORIZE,
@@ -69,79 +72,40 @@ class Transaction extends ActiveRecord
     /**
      * @return string
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return '{{%commerce_transactions}}';
     }
 
-//    /**
-//     * @return array
-//     */
-//    public function defineRelations()
-//    {
-//        return [
-//            'parent' => [
-//                self::BELONGS_TO,
-//                'Transaction',
-//                'onDelete' => self::CASCADE,
-//                'onUpdate' => self::CASCADE
-//            ],
-//            'paymentMethod' => [
-//                self::BELONGS_TO,
-//                'Gateway',
-//                'onDelete' => self::RESTRICT,
-//                'onUpdate' => self::CASCADE
-//            ],
-//            'order' => [
-//                self::BELONGS_TO,
-//                'Order',
-//                'required' => true,
-//                'onDelete' => self::CASCADE
-//            ],
-//            'user' => [
-//                self::BELONGS_TO,
-//                'User',
-//                'onDelete' => self::SET_NULL
-//            ],
-//        ];
-//    }
-//
-//    /**
-//     * @return array
-//     */
-//    protected function defineAttributes()
-//    {
-//        return [
-//            'hash' => [AttributeType::String, 'maxLength' => 32],
-//            'type' => [
-//                AttributeType::Enum,
-//                'values' => $this->types,
-//                'required' => true
-//            ],
-//            'amount' => [
-//                AttributeType::Number,
-//                'decimals' => 4
-//            ],
-//            'paymentAmount' => [
-//                AttributeType::Number,
-//                'decimals' => 4
-//            ],
-//            'currency' => AttributeType::String,
-//            'paymentCurrency' => AttributeType::String,
-//            'paymentRate' => [
-//                AttributeType::Number,
-//                'decimals' => 4
-//            ],
-//            'status' => [
-//                AttributeType::Enum,
-//                'values' => $this->statuses,
-//                'required' => true
-//            ],
-//            'reference' => [AttributeType::String],
-//            'code' => [AttributeType::String],
-//            'message' => [AttributeType::Mixed],
-//            'response' => [AttributeType::Mixed],
-//            'orderId' => [AttributeType::Number, 'required' => true],
-//        ];
-//    }
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getParent(): ActiveQueryInterface
+    {
+        return $this->hasOne(Transaction::class, ['id' => 'parentId']);
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getGateway(): ActiveQueryInterface
+    {
+        return $this->hasOne(Gateway::class, ['id' => 'gatewayId']);
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getOrder(): ActiveQueryInterface
+    {
+        return $this->hasOne(Order::class, ['id' => 'orderId']);
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getUser(): ActiveQueryInterface
+    {
+        return $this->hasOne(User::class, ['id' => 'userId']);
+    }
 }

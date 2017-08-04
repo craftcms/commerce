@@ -3,12 +3,15 @@
 namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;
+use yii\db\ActiveQueryInterface;
 
 /**
  * Taz zone country
  *
- * @property int $shippingZoneId
- * @property int $countryId
+ * @property int                          $shippingZoneId
+ * @property \yii\db\ActiveQueryInterface $shippingZone
+ * @property \yii\db\ActiveQueryInterface $country
+ * @property int                          $countryId
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -19,51 +22,37 @@ use craft\db\ActiveRecord;
  */
 class ShippingZoneCountry extends ActiveRecord
 {
-
     /**
      * @return string
      */
-    public static function tableName()
+    public static function tableName(): string
     {
-        return "commerce_shippingzone_countries";
+        return '{{%commerce_shippingzone_countries}}';
     }
 
-//    /**
-//     * @return array
-//     */
-//    public function defineIndexes()
-//    {
-//        return [
-//            ['columns' => ['shippingZoneId']],
-//            ['columns' => ['countryId']],
-//            ['columns' => ['shippingZoneId', 'countryId'], 'unique' => true],
-//        ];
-//    }
+    /**
+     * @inheritdoc
+     */
+    public function rules(): array
+    {
+        return [
+            [['shippingZoneId', 'countryId'], 'unique', 'targetAttribute' => ['shippingZoneId', 'countryId']]
+        ];
+    }
 
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getShippingZone(): ActiveQueryInterface
+    {
+        return $this->hasOne(ShippingZone::class, ['id' => 'shippingZoneId']);
+    }
 
-//    /**
-//     * @inheritDoc BaseRecord::defineRelations()
-//     *
-//     * @return array
-//     */
-//    public function defineRelations()
-//    {
-//        return [
-//            'shippingZone' => [
-//                static::BELONGS_TO,
-//                'ShippingZone',
-//                'onDelete' => self::CASCADE,
-//                'onUpdate' => self::CASCADE,
-//                'required' => true
-//            ],
-//            'country' => [
-//                static::BELONGS_TO,
-//                'Country',
-//                'onDelete' => self::CASCADE,
-//                'onUpdate' => self::CASCADE,
-//                'required' => true
-//            ],
-//        ];
-//    }
-
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getCountry(): ActiveQueryInterface
+    {
+        return $this->hasOne(Country::class, ['id' => 'countryId']);
+    }
 }

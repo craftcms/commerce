@@ -8,15 +8,15 @@ use yii\db\ActiveQueryInterface;
 /**
  * Customer record.
  *
- * @property int       $id
- * @property string    $email
- * @property int       $userId
- * @property int       $lastUsedBillingAddressId
- * @property int       $lastUsedShippingAddressId
+ * @property int               $id
+ * @property string            $email
+ * @property int               $userId
+ * @property int               $lastUsedBillingAddressId
+ * @property int               $lastUsedShippingAddressId
  *
- * @property Address[] $addresses
+ * @property Address[]         $addresses
  * @property CustomerAddress[] $customerAddresses
- * @property Order[]   $orders
+ * @property Order[]           $orders
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -28,8 +28,6 @@ use yii\db\ActiveQueryInterface;
 class Customer extends ActiveRecord
 {
     /**
-     * Returns the name of the associated database table.
-     *
      * @return string
      */
     public static function tableName(): string

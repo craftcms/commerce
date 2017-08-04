@@ -3,13 +3,17 @@
 namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;
+use craft\records\UserGroup;
+use yii\db\ActiveQueryInterface;
 
 /**
  * Discount user record.
  *
- * @property int $id
- * @property int $discountId
- * @property int $userGroupId
+ * @property int                          $id
+ * @property int                          $discountId
+ * @property \yii\db\ActiveQueryInterface $productType
+ * @property \yii\db\ActiveQueryInterface $discount
+ * @property int                          $userGroupId
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -28,48 +32,30 @@ class DiscountUserGroup extends ActiveRecord
         return '{{%commerce_discount_usergroups}}';
     }
 
-//    /**
-//     * @return array
-//     */
-//    public function defineIndexes()
-//    {
-//        return [
-//            ['columns' => ['discountId', 'userGroupId'], 'unique' => true],
-//        ];
-//    }
-//
-//    /**
-//     * @return array
-//     */
-//    public function defineRelations()
-//    {
-//        return [
-//            'discount' => [
-//                static::BELONGS_TO,
-//                'Discount',
-//                'onDelete' => self::CASCADE,
-//                'onUpdate' => self::CASCADE,
-//                'required' => true
-//            ],
-//            'userGroup' => [
-//                static::BELONGS_TO,
-//                'UserGroup',
-//                'onDelete' => self::CASCADE,
-//                'onUpdate' => self::CASCADE,
-//                'required' => true
-//            ],
-//        ];
-//    }
-//
-//    /**
-//     * @return array
-//     */
-//    protected function defineAttributes()
-//    {
-//        return [
-//            'discountId' => [AttributeType::Number, 'required' => true],
-//            'userGroupId' => [AttributeType::Number, 'required' => true],
-//        ];
-//    }
+    /**
+     * @inheritdoc
+     */
+    public function rules(): array
+    {
+        return [
+            [['discountId', 'userGroupId'], 'unique', 'targetAttribute' => ['discountId', 'userGroupId']],
+        ];
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getDiscount(): ActiveQueryInterface
+    {
+        return $this->hasOne(Discount::class, ['id' => 'discountId']);
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getProductType(): ActiveQueryInterface
+    {
+        return $this->hasOne(UserGroup::class, ['id' => 'userGroupId']);
+    }
 
 }

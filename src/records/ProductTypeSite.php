@@ -24,15 +24,10 @@ use craft\records\Site;
  */
 class ProductTypeSite extends ActiveRecord
 {
-    // Public Methods
-    // =========================================================================
-
     /**
-     * @inheritDoc BaseRecord::getTableName()
-     *
      * @return string
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return '{{%commerce_producttypes_sites}}';
     }

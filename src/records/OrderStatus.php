@@ -29,15 +29,13 @@ class OrderStatus extends ActiveRecord
     /**
      * @return string
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return '{{%commerce_orderstatuses}}';
     }
 
     /**
-     * Returns the order status' emails.
-     *
-     * @return ActiveQueryInterface The relational query object.
+     * @return ActiveQueryInterface
      */
     public function getEmails(): ActiveQueryInterface
     {

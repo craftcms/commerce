@@ -24,12 +24,15 @@ class PaymentCurrency extends ActiveRecord
     /**
      * @return string
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return '{{%commerce_paymentcurrencies}}';
     }
 
-    public function rules()
+    /**
+     * @return array
+     */
+    public function rules(): array
     {
         return [
             [['iso'], 'unique']

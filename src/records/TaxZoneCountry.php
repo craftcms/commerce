@@ -3,12 +3,15 @@
 namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;
+use yii\db\ActiveQueryInterface;
 
 /**
  * Taz zone country
  *
- * @property int $taxZoneId
- * @property int $countryId
+ * @property int                          $taxZoneId
+ * @property \yii\db\ActiveQueryInterface $taxZone
+ * @property \yii\db\ActiveQueryInterface $country
+ * @property int                          $countryId
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -19,51 +22,37 @@ use craft\db\ActiveRecord;
  */
 class TaxZoneCountry extends ActiveRecord
 {
-
     /**
      * @return string
      */
-    public static function tableName()
+    public static function tableName(): string
     {
-        return "commerce_taxzone_countries";
+        return '{{%commerce_taxzone_countries}}';
     }
 
-//    /**
-//     * @return array
-//     */
-//    public function defineIndexes()
-//    {
-//        return [
-//            ['columns' => ['taxZoneId']],
-//            ['columns' => ['countryId']],
-//            ['columns' => ['taxZoneId', 'countryId'], 'unique' => true],
-//        ];
-//    }
-//
-//
-//    /**
-//     * @inheritDoc \craft\db\ActiveRecord::defineRelations()
-//     *
-//     * @return array
-//     */
-//    public function defineRelations()
-//    {
-//        return [
-//            'taxZone' => [
-//                static::BELONGS_TO,
-//                'TaxZone',
-//                'onDelete' => self::CASCADE,
-//                'onUpdate' => self::CASCADE,
-//                'required' => true
-//            ],
-//            'country' => [
-//                static::BELONGS_TO,
-//                'Country',
-//                'onDelete' => self::CASCADE,
-//                'onUpdate' => self::CASCADE,
-//                'required' => true
-//            ],
-//        ];
-//    }
+    /**
+     * @inheritdoc
+     */
+    public function rules(): array
+    {
+        return [
+            [['taxZoneId', 'countryId'], 'unique', 'targetAttribute' => ['taxZoneId', 'countryId']]
+        ];
+    }
 
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getTaxZone(): ActiveQueryInterface
+    {
+        return $this->hasOne(TaxZone::class, ['id' => 'taxZoneId']);
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getCountry(): ActiveQueryInterface
+    {
+        return $this->hasOne(Country::class, ['id' => 'countryId']);
+    }
 }

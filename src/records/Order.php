@@ -3,45 +3,51 @@
 namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;
+use craft\records\Element;
+use yii\db\ActiveQueryInterface;
 
 /**
  * Order or Cart record.
  *
- * @property int            $id
- * @property string         $number
- * @property string         $couponCode
- * @property float          $itemTotal
- * @property float          $totalPrice
- * @property float          $totalPaid
- * @property float          $baseDiscount
- * @property float          $baseShippingCost
- * @property float          $baseTax
- * @property string         $email
- * @property bool           $isCompleted
- * @property \DateTime      $dateOrdered
- * @property \DateTime      $datePaid
- * @property string         $currency
- * @property string         $paymentCurrency
- * @property string         $lastIp
- * @property string         $orderLocale
- * @property string         $message
- * @property string         $returnUrl
- * @property string         $cancelUrl
+ * @property int                          $id
+ * @property string                       $number
+ * @property string                       $couponCode
+ * @property float                        $itemTotal
+ * @property float                        $totalPrice
+ * @property float                        $totalPaid
+ * @property float                        $baseDiscount
+ * @property float                        $baseShippingCost
+ * @property float                        $baseTax
+ * @property string                       $email
+ * @property bool                         $isCompleted
+ * @property \DateTime                    $dateOrdered
+ * @property \DateTime                    $datePaid
+ * @property string                       $currency
+ * @property string                       $paymentCurrency
+ * @property string                       $lastIp
+ * @property string                       $orderLocale
+ * @property string                       $message
+ * @property string                       $returnUrl
+ * @property string                       $cancelUrl
  *
- * @property int            $billingAddressId
- * @property int            $shippingAddressId
- * @property string         $shippingMethodHandle
- * @property int            $gatewayId
- * @property int            $customerId
- * @property int            $orderStatusId
+ * @property int                          $billingAddressId
+ * @property int                          $shippingAddressId
+ * @property string                       $shippingMethodHandle
+ * @property int                          $gatewayId
+ * @property int                          $customerId
+ * @property int                          $orderStatusId
  *
- * @property LineItem[]     $lineItems
- * @property Address        $billingAddress
- * @property Address        $shippingAddress
- * @property Gateway        $paymentMethod
- * @property Transaction[]  $transactions
- * @property OrderStatus    $orderStatus
- * @property OrderHistory[] $histories
+ * @property LineItem[]                   $lineItems
+ * @property Address                      $billingAddress
+ * @property Address                      $shippingAddress
+ * @property Gateway                      $paymentMethod
+ * @property Transaction[]                $transactions
+ * @property OrderStatus                  $orderStatus
+ * @property \yii\db\ActiveQueryInterface $customer
+ * @property \yii\db\ActiveQueryInterface $element
+ * @property \yii\db\ActiveQueryInterface $gateway
+ * @property \yii\db\ActiveQueryInterface $discount
+ * @property OrderHistory[]               $histories
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -57,122 +63,88 @@ class Order extends ActiveRecord
      *
      * @return string
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return '{{%commerce_orders}}';
     }
 
-//    /**
-//     * @return array
-//     */
-//    public function defineRelations()
-//    {
-//        return [
-//            'lineItems' => [
-//                static::HAS_MANY,
-//                'LineItem',
-//                'orderId'
-//            ],
-//            'billingAddress' => [static::BELONGS_TO, 'Address'],
-//            'shippingAddress' => [static::BELONGS_TO, 'Address'],
-//            'discount' => [
-//                static::HAS_ONE,
-//                'Discount',
-//                ['couponCode' => 'code']
-//            ],
-//            'paymentMethod' => [
-//                static::BELONGS_TO,
-//                'Gateway'
-//            ],
-//            'customer' => [static::BELONGS_TO, 'Customer'],
-//            'transactions' => [
-//                static::HAS_MANY,
-//                'Transaction',
-//                'orderId'
-//            ],
-//            'element' => [
-//                static::BELONGS_TO,
-//                'Element',
-//                'id',
-//                'required' => true,
-//                'onDelete' => static::CASCADE
-//            ],
-//            'orderStatus' => [
-//                static::BELONGS_TO,
-//                'OrderStatus',
-//                'onDelete' => static::RESTRICT,
-//                'onUpdate' => self::CASCADE
-//            ],
-//            'histories' => [
-//                static::HAS_MANY,
-//                'OrderHistory',
-//                'orderId',
-//                'order' => 'dateCreated DESC'
-//            ],
-//        ];
-//    }
-//
-//    /**
-//     * @return array
-//     */
-//    public function defineIndexes()
-//    {
-//        return [
-//            ['columns' => ['number']],
-//        ];
-//    }
-//
-//    /**
-//     * @return array
-//     */
-//    protected function defineAttributes()
-//    {
-//        return [
-//            'number' => [AttributeType::String, 'length' => 32],
-//            'couponCode' => AttributeType::String,
-//            'itemTotal' => [
-//                AttributeType::Number,
-//                'decimals' => 4,
-//                'default' => 0
-//            ],
-//            'baseDiscount' => [
-//                AttributeType::Number,
-//                'decimals' => 4,
-//                'default' => 0
-//            ],
-//            'baseShippingCost' => [
-//                AttributeType::Number,
-//                'decimals' => 4,
-//                'default' => 0
-//            ],
-//            'baseTax' => [
-//                AttributeType::Number,
-//                'decimals' => 4,
-//                'default' => 0
-//            ],
-//            'totalPrice' => [
-//                AttributeType::Number,
-//                'decimals' => 4,
-//                'default' => 0
-//            ],
-//            'totalPaid' => [
-//                AttributeType::Number,
-//                'decimals' => 4,
-//                'default' => 0
-//            ],
-//            'email' => AttributeType::String,
-//            'isCompleted' => AttributeType::Bool,
-//            'dateOrdered' => AttributeType::DateTime,
-//            'datePaid' => AttributeType::DateTime,
-//            'currency' => AttributeType::String,
-//            'paymentCurrency' => AttributeType::String,
-//            'lastIp' => AttributeType::String,
-//            'orderLocale' => AttributeType::Locale,
-//            'message' => AttributeType::String,
-//            'returnUrl' => AttributeType::String,
-//            'cancelUrl' => AttributeType::String,
-//            'shippingMethod' => AttributeType::String
-//        ];
-//    }
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getLineItems(): ActiveQueryInterface
+    {
+        return $this->hasMany(LineItem::class, ['orderId' => 'id']);
+    }
 
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getTransactions(): ActiveQueryInterface
+    {
+        return $this->hasMany(Transaction::class, ['orderId' => 'id']);
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getHistories(): ActiveQueryInterface
+    {
+        return $this->hasMany(OrderHistory::class, ['orderId' => 'id']);
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getBillingAddress(): ActiveQueryInterface
+    {
+        return $this->hasOne(Address::class, ['id' => 'billingAddressId']);
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getShippingAddress(): ActiveQueryInterface
+    {
+        return $this->hasOne(Address::class, ['id' => 'shippingAddressId']);
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getDiscount(): ActiveQueryInterface
+    {
+        return $this->hasOne(Discount::class, ['code' => 'couponCode']);
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getGateway(): ActiveQueryInterface
+    {
+        return $this->hasOne(Gateway::class, ['id' => 'gatewayId']);
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getCustomer(): ActiveQueryInterface
+    {
+        return $this->hasOne(Customer::class, ['id' => 'customerId']);
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getElement(): ActiveQueryInterface
+    {
+        return $this->hasOne(Element::class, ['id' => 'id']);
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getOrderStatus(): ActiveQueryInterface
+    {
+        return $this->hasOne(OrderStatus::class, ['id' => 'orderStatusId']);
+    }
 }

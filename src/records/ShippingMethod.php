@@ -3,6 +3,7 @@
 namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;
+use yii\db\ActiveQueryInterface;
 
 /**
  * Shipping method record.
@@ -26,49 +27,26 @@ class ShippingMethod extends ActiveRecord
     /**
      * @return string
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return '{{%commerce_shippingmethods}}';
     }
 
-//    /**
-//     * @return array
-//     */
-//    public function defineIndexes()
-//    {
-//        return [
-//            ['columns' => ['name'], 'unique' => true],
-//        ];
-//    }
+    /**
+     * @inheritdoc
+     */
+    public function rules(): array
+    {
+        return [
+            [['name'], 'unique']
+        ];
+    }
 
-//    /**
-//     * @return array
-//     */
-//    public function defineRelations()
-//    {
-//        return [
-//            'rules' => [
-//                self::HAS_MANY,
-//                'ShippingRule',
-//                'methodId',
-//                'order' => 'rules.priority'
-//            ],
-//        ];
-//    }
-//
-//    /**
-//     * @return array
-//     */
-//    protected function defineAttributes()
-//    {
-//        return [
-//            'name' => [AttributeType::String, 'required' => true],
-//            'handle' => [AttributeType::Handle, 'required' => true],
-//            'enabled' => [
-//                AttributeType::Bool,
-//                'required' => true,
-//                'default' => 1
-//            ]
-//        ];
-//    }
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getRules(): ActiveQueryInterface
+    {
+        return $this->hasMany(ShippingRule::class, ['shippingMethodId' => 'id']);
+    }
 }

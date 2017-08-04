@@ -43,38 +43,56 @@ class ProductType extends ActiveRecord
     /**
      * @return string
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return '{{%commerce_producttypes}}';
     }
 
+    /**
+     * @return ActiveQueryInterface
+     */
     public function getProductTypesShippingCategories(): ActiveQueryInterface
     {
         return $this->hasMany(ProductTypeShippingCategory::class, ['productTypeId' => 'id']);
     }
 
+    /**
+     * @return ActiveQueryInterface
+     */
     public function getShippingCategories(): ActiveQueryInterface
     {
         return $this->hasMany(ShippingCategory::class, ['id' => 'shippingCategoryId'])
             ->via('productTypesShippingCategories');
     }
 
+    /**
+     * @return ActiveQueryInterface
+     */
     public function getProductTypesTaxCategories(): ActiveQueryInterface
     {
         return $this->hasMany(ProductTypeTaxCategory::class, ['productTypeId' => 'id']);
     }
 
+    /**
+     * @return ActiveQueryInterface
+     */
     public function getTaxCategories(): ActiveQueryInterface
     {
         return $this->hasMany(TaxCategory::class, ['id' => 'taxCategoryId'])
             ->via('productTypesTaxCategories');
     }
 
+    /**
+     * @return ActiveQueryInterface
+     */
     public function getFieldLayout(): ActiveQueryInterface
     {
         return $this->hasOne(FieldLayout::class, ['id' => 'fieldLayoutId']);
     }
 
+    /**
+     * @return ActiveQueryInterface
+     */
     public function getVariantFieldLayout(): ActiveQueryInterface
     {
         return $this->hasOne(FieldLayout::class, ['id' => 'variantFieldLayoutId']);

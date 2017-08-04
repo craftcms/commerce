@@ -3,26 +3,29 @@
 namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;
+use craft\records\Element;
+use yii\db\ActiveQueryInterface;
 
 /**
  * Variant record.
  *
- * @property int     $id
- * @property int     $productId
- * @property string  $sku
- * @property bool    $isDefault
- * @property float   $price
- * @property int     $sortOrder
- * @property float   $width
- * @property float   $height
- * @property float   $length
- * @property float   $weight
- * @property int     $stock
- * @property bool    $unlimitedStock
- * @property int     $minQty
- * @property int     $maxQty
+ * @property int                          $id
+ * @property int                          $productId
+ * @property string                       $sku
+ * @property bool                         $isDefault
+ * @property float                        $price
+ * @property int                          $sortOrder
+ * @property float                        $width
+ * @property float                        $height
+ * @property float                        $length
+ * @property float                        $weight
+ * @property int                          $stock
+ * @property bool                         $unlimitedStock
+ * @property int                          $minQty
+ * @property int                          $maxQty
  *
- * @property Product $product
+ * @property \yii\db\ActiveQueryInterface $element
+ * @property Product                      $product
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -33,79 +36,37 @@ use craft\db\ActiveRecord;
  */
 class Variant extends ActiveRecord
 {
-
     /**
      * @return string
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return '{{%commerce_variants}}';
     }
 
-//    /**
-//     * @return array
-//     */
-//    public function defineIndexes()
-//    {
-//        return [
-//            ['columns' => ['sku'], 'unique' => true],
-//        ];
-//    }
-//
-//    /**
-//     * @return array
-//     */
-//    public function defineRelations()
-//    {
-//        return [
-//            'product' => [
-//                self::BELONGS_TO,
-//                'Product',
-//                'onDelete' => self::SET_NULL,
-//                'onUpdate' => self::CASCADE
-//            ],
-//            'element' => [
-//                static::BELONGS_TO,
-//                'Element',
-//                'id',
-//                'required' => true,
-//                'onDelete' => static::CASCADE
-//            ]
-//        ];
-//    }
-//
-//    /**
-//     * @return array
-//     */
-//    protected function defineAttributes()
-//    {
-//        return [
-//            'sku' => [AttributeType::String, 'required' => true, 'label' => 'SKU'],
-//            'isDefault' => [AttributeType::Bool],
-//            'price' => [
-//                AttributeType::Number,
-//                'decimals' => 4,
-//                'required' => true
-//            ],
-//            'sortOrder' => AttributeType::Number,
-//            'width' => [AttributeType::Number, 'decimals' => 4],
-//            'height' => [AttributeType::Number, 'decimals' => 4],
-//            'length' => [AttributeType::Number, 'decimals' => 4],
-//            'weight' => [AttributeType::Number, 'decimals' => 4],
-//            'stock' => [
-//                AttributeType::Number,
-//                'unsigned' => true,
-//                'required' => true,
-//                'default' => 0
-//            ],
-//            'unlimitedStock' => [
-//                AttributeType::Bool,
-//                'default' => 0,
-//                'required' => true
-//            ],
-//            'minQty' => [AttributeType::Number, 'unsigned' => true],
-//            'maxQty' => [AttributeType::Number, 'unsigned' => true]
-//        ];
-//    }
+    /**
+     * @inheritdoc
+     */
+    public function rules(): array
+    {
+        return [
+            [['sku'], 'unique']
+        ];
+    }
 
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getProduct(): ActiveQueryInterface
+    {
+        return $this->hasOne(Product::class, ['id', 'productId']);
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getElement(): ActiveQueryInterface
+    {
+        return $this->hasOne(Element::class, ['id', 'id']);
+    }
 }

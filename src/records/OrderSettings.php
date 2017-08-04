@@ -4,6 +4,7 @@ namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;
 use craft\records\FieldLayout;
+use yii\db\ActiveQueryInterface;
 
 /**
  * Order settings record.
@@ -27,44 +28,26 @@ class OrderSettings extends ActiveRecord
     /**
      * @return string
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return '{{%commerce_ordersettings}}';
     }
 
-//    /**
-//     * @return array
-//     */
-//    public function defineIndexes()
-//    {
-//        return [
-//            ['columns' => ['handle'], 'unique' => true],
-//        ];
-//    }
-//
-//    /**
-//     * @return array
-//     */
-//    public function defineRelations()
-//    {
-//        return [
-//            'fieldLayout' => [
-//                static::BELONGS_TO,
-//                'FieldLayout',
-//                'onDelete' => static::SET_NULL
-//            ]
-//        ];
-//    }
-//
-//    /**
-//     * @return array
-//     */
-//    protected function defineAttributes()
-//    {
-//        return [
-//            'name' => [AttributeType::Name, 'required' => true],
-//            'handle' => [AttributeType::Handle, 'required' => true]
-//        ];
-//    }
+    /**
+     * @inheritdoc
+     */
+    public function rules(): array
+    {
+        return [
+            [['handle'], 'unique']
+        ];
+    }
 
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getFieldLayout(): ActiveQueryInterface
+    {
+        return $this->hasOne(FieldLayout::class, ['id' => 'fieldLayoutId']);
+    }
 }
