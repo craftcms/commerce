@@ -5,6 +5,7 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\events\TransactionEvent;
+use craft\commerce\gateways\MissingGateway;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;

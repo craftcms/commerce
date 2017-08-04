@@ -2,14 +2,12 @@
 
 namespace craft\commerce\models;
 
+use craft\commerce\base\Gateway;
 use craft\commerce\base\Model;
 use craft\commerce\elements\Order;
-use craft\commerce\base\Gateway;
 use craft\commerce\Plugin;
-use craft\commerce\records\Transaction as TransactionRecord;
 use craft\web\User;
 use DateTime;
-use Omnipay\Common\Exception\OmnipayException;
 
 /**
  * Class Transaction

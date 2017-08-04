@@ -402,7 +402,7 @@
                                 ({{ transaction.paymentCurrency }})
                             </small>
                         </td>
-                        <td>{{ transaction.gateway.name }}</td>
+                        <td>{{ transaction.gateway.name ?? 'Missing Gateway'|t }}</td>
                         <td>{{ transaction.dateUpdated|date }}</td>
                         <td><span class="tableRowInfo" data-icon="info"
                                   href="#"></span></td>
@@ -453,7 +453,7 @@
 
     $(document).ready(function () {
 
-        {% if paymentForm is defined %}
+        {% if paymentForm is defined and paymentForm %}
             new Craft.Commerce.OrderEdit({
                 orderId: {{ orderId|e('js') }},
                 paymentForm: {

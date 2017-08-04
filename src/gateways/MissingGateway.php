@@ -20,6 +20,9 @@ use Omnipay\Common\Message\AbstractRequest;
  * @see       https://craftcommerce.com
  * @package   craft.commerce
  * @since     2.0
+ *
+ * @property null $paymentFormModel
+ * @property null $gatewayClassName
  */
 class MissingGateway extends Gateway implements MissingComponentInterface
 {
@@ -79,10 +82,43 @@ class MissingGateway extends Gateway implements MissingComponentInterface
         return null;
     }
 
+    /**
+     * @inheritdoc
+     */
+    public function supportsAuthorize(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function supportsPurchase(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function supportsCapture(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function supportsRefund(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @return AbstractGateway
+     */
     protected function createGateway(): AbstractGateway
     {
         return null;
     }
-
-
 }
