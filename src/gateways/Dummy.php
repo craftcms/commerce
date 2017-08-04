@@ -3,9 +3,12 @@
 namespace craft\commerce\gateways;
 
 use Craft;
-use craft\commerce\base\CreditCardGateway;
+use craft\commerce\base\CreditCardGatewayTrait;
+use craft\commerce\base\Gateway;
+use craft\commerce\models\payments\BasePaymentForm;
+use craft\commerce\models\payments\CreditCardPaymentForm;
 use Omnipay\Common\AbstractGateway;
-use Omnipay\Dummy\Gateway;
+use Omnipay\Common\Message\AbstractRequest;
 use Omnipay\Omnipay;
 
 /**
@@ -18,10 +21,14 @@ use Omnipay\Omnipay;
  * @package   craft.commerce
  * @since     2.0
  */
-class Dummy extends CreditCardGateway
+class Dummy extends Gateway
 {
+    use CreditCardGatewayTrait;
+
     // Public Methods
     // =========================================================================
+
+    // TODO none of this is good now.
 
     /**
      * @inheritdoc
@@ -30,6 +37,23 @@ class Dummy extends CreditCardGateway
     {
         return Craft::t('commerce', 'Dummy gateway');
     }
+
+    public function populateCard($card, CreditCardPaymentForm $paymentForm)
+    {
+        // TODO: Implement populateCard() method.
+    }
+
+    public function populateRequest(AbstractRequest $request, BasePaymentForm $form)
+    {
+        // TODO: Implement populateRequest() method.
+    }
+
+    protected function gateway()
+    {
+        // TODO: Implement gateway() method.
+    }
+
+
 
     // Protected Methods
     // =========================================================================

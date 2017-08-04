@@ -24,7 +24,7 @@ interface GatewayInterface extends SavableComponentInterface
      *
      * @param Order $order
      *
-     * @return ItemBag|null
+     * @return mixed
      */
     public function createItemBag(Order $order);
 

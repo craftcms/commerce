@@ -6,6 +6,7 @@ use craft\commerce\events\BuildPaymentRequestEvent;
 use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\events\GatewayRequestEvent;
+use craft\commerce\events\ItemBagEvent;
 use craft\commerce\events\SendPaymentRequestEvent;
 use craft\commerce\events\TransactionEvent;
 use craft\commerce\base\Gateway;
@@ -17,7 +18,6 @@ use craft\db\Query;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\UrlHelper;
 use Omnipay\Common\CreditCard;
-use Omnipay\Common\ItemBag;
 use Omnipay\Common\Message\RequestInterface;
 use Omnipay\Common\Message\ResponseInterface;
 use yii\base\Component;
@@ -136,6 +136,15 @@ class Payments extends Component
 
         $itemBag = $gateway->createItemBag($order);
 
+        // Raise the 'afterCreateItemBag' event
+        if ($this->hasEventHandlers(self::EVENT_AFTER_CREATE_ITEM_BAG))
+        {
+            $this->trigger(self::EVENT_AFTER_CREATE_ITEM_BAG, new ItemBagEvent([
+                'items' => $itemBag,
+                'order' => $order
+            ]));
+        }
+
         $request = $gateway->$defaultAction($this->buildPaymentRequest($transaction, $card, $itemBag));
 
         // Let the gateway do anything else to the request
@@ -179,6 +188,8 @@ class Payments extends Component
         $paymentForm
     ) {
         $card = new CreditCard;
+
+        // TODO create card to be entirely handled by gateway class.
 
         $order->gateway->populateCard($card, $paymentForm);
 
@@ -244,14 +255,14 @@ class Payments extends Component
     /**
      * @param Transaction $transaction
      * @param CreditCard  $card
-     * @param ItemBag     $itemBag
+     * @param mixed       $itemBag
      *
      * @return array
      */
     private function buildPaymentRequest(
         Transaction $transaction,
         CreditCard $card = null,
-        ItemBag $itemBag = null
+        $itemBag = null
     ) {
         $request = [
             'amount' => $transaction->paymentAmount,

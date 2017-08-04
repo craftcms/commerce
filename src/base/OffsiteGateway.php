@@ -23,14 +23,6 @@ abstract class OffsiteGateway extends Gateway
     /**
      * @inheritdoc
      */
-    public function requiresCreditCard()
-    {
-        return false;
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function getPaymentFormModel()
     {
         return new OffsitePaymentForm();
@@ -39,7 +31,7 @@ abstract class OffsiteGateway extends Gateway
     /**
      * @inheritdoc
      */
-    public function populateCard(CreditCard $card, CreditCardPaymentForm $paymentForm)
+    public function populateCard($card, CreditCardPaymentForm $paymentForm)
     {
     }
 
