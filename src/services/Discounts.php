@@ -17,6 +17,7 @@ use craft\commerce\records\DiscountUserGroup as DiscountUserGroupRecord;
 use craft\db\Query;
 use DateTime;
 use yii\base\Component;
+use yii\base\Exception;
 
 /**
  * Discount service.
@@ -382,7 +383,7 @@ class Discounts extends Component
      * @return bool
      * @throws \Exception
      */
-    public function saveDiscount(Discount $model, array $groups, array $productTypes, array $products)
+    public function saveDiscount(Discount $model, array $groups, array $productTypes, array $products): bool
     {
         if ($model->id) {
             $record = DiscountRecord::findOne($model->id);
