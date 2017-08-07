@@ -46,6 +46,16 @@ class Sale extends ActiveRecord
     }
 
     /**
+     * @return array
+     */
+    public function rules(): array
+    {
+        return [
+            [['discountType'], 'required']
+        ];
+    }
+
+    /**
      * @return ActiveQueryInterface
      */
     public function getGroups(): ActiveQueryInterface
