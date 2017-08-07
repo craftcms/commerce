@@ -38,6 +38,14 @@ use craft\helpers\ArrayHelper;
 class Commerce
 {
     /**
+     * @return Plugin
+     */
+    public function getPlugin()
+    {
+        return Plugin::getInstance();
+    }
+
+    /**
      * Get Commerce settings
      *
      * @return mixed
