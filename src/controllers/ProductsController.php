@@ -45,9 +45,9 @@ class ProductsController extends BaseCpController
     }
 
 
-    public function actionProductIndex(array $variables = []): Response
+    public function actionProductIndex(): Response
     {
-        return $this->renderTemplate('commerce/products/_index', $variables);
+        return $this->renderTemplate('commerce/products/_index');
     }
 
 
