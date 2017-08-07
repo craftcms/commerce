@@ -3,7 +3,6 @@
 if (typeof Craft.Commerce === typeof undefined) {
     Craft.Commerce = {};
 }
-debugger;
 Craft.Commerce.ProductsIndex = Craft.BaseElementIndex.extend(
 {
     editableProductTypes: null,
@@ -197,4 +196,4 @@ Craft.Commerce.ProductsIndex = Craft.BaseElementIndex.extend(
     }
 });
 
-Craft.registerElementIndexClass('craft\\commerce\\elements\\Products', Craft.Commerce.ProductsIndex);
+Craft.registerElementIndexClass('craft\\commerce\\elements\\Product', Craft.Commerce.ProductsIndex);
