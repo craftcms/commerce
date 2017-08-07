@@ -112,11 +112,13 @@ class Plugin extends \craft\base\Plugin
             ];
         }
 
-        if (Craft::$app->getUser()->checkPermission('commerce-manageProducts')) {
-            $navItems['subnav']['products'] = [
-                'label' => Craft::t('commerce', 'Products'),
-                'url' => 'commerce/products'
-            ];
+        if (count($this->getProductTypes()->getEditableProductTypes()) > 0) {
+            if (Craft::$app->getUser()->checkPermission('commerce-manageProducts')) {
+                $navItems['subnav']['products'] = [
+                    'label' => Craft::t('commerce', 'Products'),
+                    'url' => 'commerce/products'
+                ];
+            }
         }
 
         if (Craft::$app->getUser()->checkPermission('commerce-managePromotions')) {

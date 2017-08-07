@@ -82,26 +82,22 @@ class ProductTypes extends Component
     /**
      * Returns all editable product types.
      *
-     * @param string|null $indexBy
      *
      * @return ProductType[] An array of all the editable product types.
      */
-    public function getEditableProductTypes($indexBy = null): array
+    public function getEditableProductTypes(): array
     {
         $editableProductTypeIds = $this->getEditableProductTypeIds();
         $editableProductTypes = [];
 
         foreach ($this->getAllProductTypes() as $productTypes) {
-            if (in_array($productTypes->id, $editableProductTypeIds)) {
-                if ($indexBy) {
-                    $editableProductTypes[$productTypes->$indexBy] = $productTypes;
-                } else {
-                    $editableProductTypes[] = $productTypes;
-                }
+            if (in_array($productTypes->id, $editableProductTypeIds, false)) {
+                $editableProductTypes[] = $productTypes;
             }
         }
 
         return $editableProductTypes;
+
     }
 
     /**
@@ -162,7 +158,7 @@ class ProductTypes extends Component
             $this->_fetchedAllProductTypes = true;
         }
 
-        return $this->_productTypesById;
+        return $this->_productTypesById ?: [];
     }
 
     /**
