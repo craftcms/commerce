@@ -5,14 +5,17 @@ namespace craft\commerce\base;
 use Craft;
 use craft\base\SavableComponent;
 use craft\commerce\elements\Order;
+use craft\commerce\events\GatewayRequestEvent;
+use craft\commerce\events\ItemBagEvent;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\payments\CreditCardPaymentForm;
+use craft\commerce\models\Transaction;
+use craft\errors\GatewayRequestCancelledException;
 use craft\helpers\UrlHelper;
-use Omnipay\Common\Message\AbstractRequest;
-use Omnipay\Common\Message\RequestInterface;
+use yii\base\NotSupportedException;
 
 /**
  * Class Payment Method Model
@@ -37,206 +40,61 @@ use Omnipay\Common\Message\RequestInterface;
  */
 abstract class Gateway extends SavableComponent implements GatewayInterface
 {
-    use GatewayTrait;
-
-    /**
-     * Return the gateway class name.
-     *
-     * @return string|null
-     */
-    abstract protected function getGatewayClassName();
-
-    /**
-     * Payment Form HTML
-     *
-     * @param array $params
-     *
-     * @return string|null
-     */
-    abstract public function getPaymentFormHtml(array $params);
-
-    /**
-     * Payment Form HTML
-     *
-     * @return BasePaymentForm|null
-     */
-    abstract public function getPaymentFormModel();
-
-    /**
-     * @param mixed                 $card
-     * @param CreditCardPaymentForm $paymentForm
-     *
-     * @return void
-     */
-    abstract public function populateCard($card, CreditCardPaymentForm $paymentForm);
-
-    /**
-     * @param AbstractRequest $request
-     * @param BasePaymentForm $form
-     *
-     * @return void
-     */
-    abstract public function populateRequest(AbstractRequest $request, BasePaymentForm $form);
-
-    /**
-     * @inheritdoc
-     */
-    public function rule()
-    {
-        return [
-            [['paymentType'], 'required']
-        ];
-    }
-
-    /**
-     * Returns the name of this payment method.
-     *
-     * @return string
-     */
-    public function __toString()
-    {
-        return (string)$this->name;
-    }
-
-    /**
-     * @return string
-     */
-    public function getCpEditUrl()
-    {
-        return UrlHelper::cpUrl('commerce/settings/gateways/'.$this->id);
-    }
-
-    /**
-     * Whether this gateway requires credit card details.
-     *
-     * @return bool
-     */
-    public function requiresCreditCard()
-    {
-        return false;
-    }
-
-    /**
-     * Whether this gateway allows pamyents in control panel.
-     *
-     * @return bool
-     */
-    public function cpPaymentsEnabled()
-    {
-        return true;
-    }
-
-    /**
-     * Return the payment type options.
-     * 
-     * @return array
-     */
-    public function getPaymentTypeOptions()
-    {
-        return [
-            'authorize' => Craft::t('commerce', 'Authorize Only (Manually Capture)'),
-            'purchase' => Craft::t('commerce', 'Purchase (Authorize and Capture Immediately)'),
-        ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function purchase(array $parameters): RequestInterface
-    {
-        return $this->gateway()->purchase($parameters);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function authorize(array $parameters): RequestInterface
-    {
-        return $this->gateway()->authorize($parameters);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function refund(array $parameters): RequestInterface
-    {
-        return $this->gateway()->refund($parameters);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function capture(array $parameters): RequestInterface
-    {
-        return $this->gateway()->capture($parameters);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function supportsPurchase(): bool
-    {
-        return $this->gateway()->supportsPurchase();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function supportsAuthorize(): bool
-    {
-        return $this->gateway()->supportsAuthorize();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function supportsRefund(): bool
-    {
-        return $this->gateway()->supportsRefund();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function supportsCapture(): bool
-    {
-        return $this->gateway()->supportsCapture();
-    }
-
-    /**
-     * I have no idea.
-     *
-     * @return bool
-     */
-    public function useNotifyUrl() {
-        return false;
-    }
-
-    // Protected Methods
+    // Constants
     // =========================================================================
 
     /**
-     * Creates and returns an Omnipay gateway instance based on the stored settings.
-     *
-     * @return mixed The actual gateway.
+     * @event ItemBagEvent The event that is triggered after an item bag is created
      */
-    abstract protected function createGateway();
+    const EVENT_AFTER_CREATE_ITEM_BAG = 'afterCreateItemBag';
 
     /**
-     * Returns the actual gateway.
+     * @event GatewayRequestEvent The event that is triggered before a gateway request is sent
      *
-     * @return mixed The actual gateway
+     * You may set [[GatewayRequestEvent::isValid]] to `false` to prevent the request from being sent.
      */
-    abstract protected function gateway();
+    const EVENT_BEFORE_GATEWAY_REQUEST_SEND = 'beforeGatewayRequestSend';
+
+    // Traits
+    // =========================================================================
+
+    use GatewayTrait;
+
+    // Protected methods
+    // =========================================================================
 
     /**
-     * @inheritdoc
+     * Create a gateway specific item bag for the order.
+     *
+     * @param Order $order The order.
+     *
+     * @return mixed
      */
-    public function createItemBag(Order $order)
+    protected function createItemBagForOrder(Order $order)
     {
-        return $this->generateItemList($order);
+        return $this->getItemListForOrder($order);
     }
 
+    /**
+     * Get the item bag for the order.
+     *
+     * @param Order $order
+     *
+     * @return mixed
+     */
+    protected function getItemBagForOrder(Order $order)
+    {
+        $itemBag = $this->createItemBagForOrder($order);
+
+        $event = new ItemBagEvent([
+            'items' => $itemBag,
+            'order' => $order
+        ]);
+        $this->trigger(self::EVENT_AFTER_CREATE_ITEM_BAG, $event);
+
+        return $event->items;
+    }
+    
     /**
      * Generate the item list for an Order.
      *
@@ -244,7 +102,7 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
      *
      * @return array
      */
-    protected function generateItemList(Order $order): array
+    protected function getItemListForOrder(Order $order): array
     {
         $items = [];
 
@@ -305,5 +163,200 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
         }
 
         return $items;
+    }
+
+    /**
+     * Prepare a request for execution by transaction and a populated payment form.
+     *
+     * @param Transaction     $transaction
+     * @param BasePaymentForm $form
+     *
+     * @return mixed
+     */
+    abstract protected function getRequest(Transaction $transaction, BasePaymentForm $form);
+
+    /**
+     * Perform a request and return the response.
+     *
+     * @param $request
+     * @param $transaction
+     *
+     * @return RequestResponseInterface
+     * @throws GatewayRequestCancelledException
+     */
+    protected function performRequest($request, $transaction)
+    {
+        //raising event
+        $event = new GatewayRequestEvent([
+            'type' => $transaction->type,
+            'request' => $request,
+            'transaction' => $transaction
+        ]);
+
+        // Raise 'beforeGatewayRequestSend' event
+        $this->trigger(self::EVENT_BEFORE_GATEWAY_REQUEST_SEND, $event);
+
+        if (!$event->isValid) {
+            throw new GatewayRequestCancelledException(Craft::t('commerce', 'The gateway request was cancelled!'));
+        }
+
+        $response = $this->sendRequest($request);
+
+        return $this->prepareResponse($response);
+    }
+
+    /**
+     * Prep request to be used as a purchase request.
+     *
+     * @param mixed $request
+     *
+     * @return mixed
+     */
+    abstract protected function preparePurchaseRequest($request);
+
+    /**
+     * Prep request to be used as an authorize request.
+     *
+     * @param mixed $request
+     *
+     * @return mixed
+     */
+    abstract protected function prepareAuthorizeRequest($request);
+
+    /**
+     * Prepare a gateway's response to fit the interface.
+     *
+     * @param mixed $response
+     *
+     * @return RequestResponseInterface
+     */
+    abstract protected function prepareResponse($response): RequestResponseInterface;
+
+    /**
+     * Send the request to gateway
+     *
+     * @param mixed $request
+     *
+     * @return mixed
+     */
+    abstract protected function sendRequest($request);
+
+    // Public methods
+    // =========================================================================
+
+    /**
+     * Returns the name of this payment method.
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return (string)$this->name;
+    }
+
+    public function refund(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface
+{
+    
+}
+    public function capture(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface
+    {
+
+    }
+
+    /**
+     * @inheritdocs
+     */
+    public function authorize(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface
+    {
+        if (!$this->supportsAuthorize()) {
+            throw new NotSupportedException(Craft::t('commerce', 'Authorizing is not supported by this gateway'));
+        }
+
+        $request = $this->getRequest($transaction, $form);
+        $authorizeRequest = $this->prepareAuthorizeRequest($request);
+
+        return $this->performRequest($authorizeRequest, $transaction);
+    }
+    
+    /**
+     * Whether this gateway allows pamyents in control panel.
+     *
+     * @return bool
+     */
+    public function cpPaymentsEnabled()
+    {
+        return true;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCpEditUrl()
+    {
+        return UrlHelper::cpUrl('commerce/settings/gateways/'.$this->id);
+    }
+
+    /**
+     * Payment Form HTML
+     *
+     * @param array $params
+     *
+     * @return string|null
+     */
+    abstract public function getPaymentFormHtml(array $params);
+
+    /**
+     * Payment Form HTML
+     *
+     * @return BasePaymentForm|null
+     */
+    abstract public function getPaymentFormModel();
+
+    /**
+     * Return the payment type options.
+     *
+     * @return array
+     */
+    public function getPaymentTypeOptions()
+    {
+        return [
+            'authorize' => Craft::t('commerce', 'Authorize Only (Manually Capture)'),
+            'purchase' => Craft::t('commerce', 'Purchase (Authorize and Capture Immediately)'),
+        ];
+    }
+
+    /**
+     * @inheritdocs
+     */
+    public function purchase(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface
+    {
+        if (!$this->supportsPurchase()) {
+            throw new NotSupportedException(Craft::t('commerce', 'Purchasing is not supported by this gateway'));
+        }
+        
+        $request = $this->getRequest($transaction, $form);
+        $purchaseRequest = $this->preparePurchaseRequest($request);
+
+        return $this->performRequest($purchaseRequest, $transaction);
+    }
+
+    
+    /**
+     * @inheritdoc
+     */
+    public function rule()
+    {
+        return [
+            [['paymentType'], 'required']
+        ];
+    }
+
+    /**
+     * I have no idea.
+     *
+     * @return bool
+     */
+    public function useNotifyUrl() {
+        return false;
     }
 }

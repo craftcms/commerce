@@ -19,7 +19,7 @@ class GatewayRequestEvent extends CancelableEvent
     public $type;
 
     /**
-     * @var RequestInterface The request
+     * @var mixed The request
      */
     public $request;
 

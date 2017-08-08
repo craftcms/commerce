@@ -4,13 +4,11 @@ namespace craft\commerce\gateways;
 
 use Craft;
 use craft\commerce\base\CreditCardGatewayTrait;
+use craft\commerce\base\DummyRequestResponse;
 use craft\commerce\base\Gateway;
-use craft\commerce\elements\Order;
+use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\models\payments\BasePaymentForm;
-use craft\commerce\models\payments\CreditCardPaymentForm;
-use Omnipay\Common\AbstractGateway;
-use Omnipay\Common\Message\AbstractRequest;
-use Omnipay\Omnipay;
+use craft\commerce\models\Transaction;
 
 /**
  * Dummy represents a dummy gateway.
@@ -29,8 +27,6 @@ class Dummy extends Gateway
     // Public Methods
     // =========================================================================
 
-    // TODO none of this is good now.
-
     /**
      * @inheritdoc
      */
@@ -39,47 +35,72 @@ class Dummy extends Gateway
         return Craft::t('commerce', 'Dummy gateway');
     }
 
-    public function populateCard($card, CreditCardPaymentForm $paymentForm)
-    {
-    }
-
-    public function createCard(Order $order, BasePaymentForm $form)
-    {
-        // TODO: Implement createCard() method.
-    }
-
-
-    public function populateRequest(AbstractRequest $request, BasePaymentForm $form)
-    {
-        // TODO: Implement populateRequest() method.
-    }
-
-    protected function gateway()
-    {
-        // TODO: Implement gateway() method.
-    }
-
-
-
-    // Protected Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */
-    protected function createGateway(): AbstractGateway
+    public function supportsPurchase(): bool
     {
-        /** @var AbstractGateway $gateway */
-        $gateway = Omnipay::create($this->getGatewayClassName());
-
-        return $gateway;
+        return true;
     }
 
     /**
      * @inheritdoc
      */
-    protected function getGatewayClassName()
+    public function supportsAuthorize(): bool
     {
-        return '\\'.Gateway::class;
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function supportsRefund(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function supportsCapture(): bool
+    {
+        return true;
+    }
+
+
+    /**
+     * @inheritdoc
+     */
+    protected function getRequest(Transaction $transaction, BasePaymentForm $form)
+    {
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function preparePurchaseRequest($request)
+    {
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function prepareAuthorizeRequest($request)
+    {
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function prepareResponse($response): RequestResponseInterface
+    {
+        return new DummyRequestResponse();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function sendRequest($request)
+    {
     }
 }

@@ -5,8 +5,10 @@ namespace craft\commerce\gateways;
 use craft\base\MissingComponentInterface;
 use craft\base\MissingComponentTrait;
 use craft\commerce\base\Gateway;
+use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\payments\CreditCardPaymentForm;
+use craft\commerce\models\Transaction;
 use Omnipay\Common\AbstractGateway;
 use Omnipay\Common\CreditCard;
 use Omnipay\Common\Message\AbstractRequest;
@@ -33,21 +35,39 @@ class MissingGateway extends Gateway implements MissingComponentInterface
 
     // Public Methods
     // =========================================================================
-
     /**
      * @inheritdoc
      */
-    protected function gateway(): AbstractGateway
+    protected function getRequest(Transaction $transaction, BasePaymentForm $form)
     {
-        return null;
     }
 
     /**
      * @inheritdoc
      */
-    protected function getGatewayClassName()
+    protected function preparePurchaseRequest($request)
     {
-        return null;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function prepareAuthorizeRequest($request)
+    {
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function prepareResponse($response): RequestResponseInterface
+    {
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function sendRequest($request)
+    {
     }
 
     /**
@@ -55,7 +75,6 @@ class MissingGateway extends Gateway implements MissingComponentInterface
      */
     public function getPaymentFormHtml(array $params)
     {
-        return null;
     }
 
     /**
@@ -63,23 +82,6 @@ class MissingGateway extends Gateway implements MissingComponentInterface
      */
     public function getPaymentFormModel()
     {
-        return null;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function populateCard(CreditCard $card, CreditCardPaymentForm $paymentForm)
-    {
-        return null;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function populateRequest(AbstractRequest $request, BasePaymentForm $form)
-    {
-        return null;
     }
 
     /**
@@ -112,13 +114,5 @@ class MissingGateway extends Gateway implements MissingComponentInterface
     public function supportsRefund(): bool
     {
         return false;
-    }
-
-    /**
-     * @return AbstractGateway
-     */
-    protected function createGateway(): AbstractGateway
-    {
-        return null;
     }
 }

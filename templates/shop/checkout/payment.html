@@ -115,7 +115,6 @@
 
 					{% if (cart.gateway.displayName()  != 'Stripe') and (cart.gateway.displayName()  != 'WorldPay Json') %}
 						<fieldset>
-							{% if cart.gateway.requiresCreditCard() %}
 								{% set currentYear = date()|date_modify("+1 year").format('Y') %}
 								{% set formValues = {
 								firstName: paymentForm is defined ? paymentForm.firstName : (cart.billingAddress ? cart.billingAddress.firstName : ''),
@@ -208,7 +207,6 @@
 
 								</div>
 
-							{% endif %}
 
 							<!-- Submit -->
 							<button class="button button-primary" type="submit">Pay {{ cart.totalPrice|commerceCurrency(cart.paymentCurrency,convert=true) }}

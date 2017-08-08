@@ -21,14 +21,6 @@ trait CreditCardGatewayTrait
     /**
      * @inheritdoc
      */
-    public function requiresCreditCard()
-    {
-        return true;
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function getPaymentFormModel()
     {
         return new CreditCardPaymentForm();

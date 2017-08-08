@@ -5,7 +5,7 @@ namespace craft\commerce\base;
 use craft\base\SavableComponentInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\models\payments\BasePaymentForm;
-use Omnipay\Common\Message\RequestInterface;
+use craft\commerce\models\Transaction;
 
 /**
  * GatewayInterface defines the common interface to be implemented by gateway classes.
@@ -21,59 +21,44 @@ interface GatewayInterface extends SavableComponentInterface
     // =========================================================================
 
     /**
-     * Create an item bag based on the order.
+     * Make a purchase request.
      *
-     * @param Order $order
+     * @param Transaction     $transaction Transaction that is the basis for the purchase
+     * @param BasePaymentForm $form        A form filled with payment info
      *
-     * @return mixed
+     * @return RequestResponseInterface
      */
-    public function createItemBag(Order $order);
+    public function purchase(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface;
 
     /**
-     * Create a payment card based on Order and Payment form.
+     * Make an authorize request.
      *
-     * @param Order           $order The order.
-     * @param BasePaymentForm $form The payment form.
+     * @param Transaction     $transaction Transaction that is the basis for the authorization
+     * @param BasePaymentForm $form        A form filled with payment info
      *
-     * @return mixed
+     * @return RequestResponseInterface
      */
-    public function createCard(Order $order, BasePaymentForm $form);
+    public function authorize(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface;
 
     /**
-     * Create a purchase request.
+     * Make an refund request.
      *
-     * @param array $parameters Request parameters
+     * @param Transaction     $transaction Transaction that is the basis for the refund
+     * @param BasePaymentForm $form        A form filled with payment info
      *
-     * @return RequestInterface
+     * @return RequestResponseInterface
      */
-    public function purchase(array $parameters): RequestInterface;
+    public function refund(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface;
 
     /**
-     * Create an authorize request.
+     * Make a capture request.
      *
-     * @param array $parameters Request parameters
+     * @param Transaction     $transaction Transaction that is the basis for the capture
+     * @param BasePaymentForm $form        A form filled with payment info
      *
-     * @return RequestInterface
+     * @return RequestResponseInterface
      */
-    public function authorize(array $parameters): RequestInterface;
-
-    /**
-     * Create a refund request.
-     *
-     * @param array $parameters Request parameters
-     *
-     * @return RequestInterface
-     */
-    public function refund(array $parameters): RequestInterface;
-
-    /**
-     * Create a capture request.
-     *
-     * @param array $parameters Request parameters
-     *
-     * @return RequestInterface
-     */
-    public function capture(array $parameters): RequestInterface;
+    public function capture(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface;
 
     /**
      * Return true if gateway supports purchase requests.

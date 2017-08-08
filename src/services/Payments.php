@@ -2,12 +2,10 @@
 
 namespace craft\commerce\services;
 
-use craft\commerce\events\BuildPaymentRequestEvent;
 use Craft;
+use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\events\GatewayRequestEvent;
-use craft\commerce\events\ItemBagEvent;
-use craft\commerce\events\SendPaymentRequestEvent;
 use craft\commerce\events\TransactionEvent;
 use craft\commerce\base\Gateway;
 use craft\commerce\models\payments\BasePaymentForm;
@@ -15,9 +13,9 @@ use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\db\Query;
+use craft\errors\GatewayRequestCancelledException;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\UrlHelper;
-use Omnipay\Common\CreditCard;
 use Omnipay\Common\Message\RequestInterface;
 use Omnipay\Common\Message\ResponseInterface;
 use yii\base\Component;
@@ -111,9 +109,9 @@ class Payments extends Component
 
         //choosing default action
         $defaultAction = $gateway->paymentType;
-        $defaultAction = ($defaultAction == TransactionRecord::TYPE_PURCHASE) ? $defaultAction : TransactionRecord::TYPE_AUTHORIZE;
+        $defaultAction = ($defaultAction === TransactionRecord::TYPE_PURCHASE) ? $defaultAction : TransactionRecord::TYPE_AUTHORIZE;
 
-        if ($defaultAction == TransactionRecord::TYPE_AUTHORIZE) {
+        if ($defaultAction === TransactionRecord::TYPE_AUTHORIZE) {
             if (!$gateway->supportsAuthorize()) {
                 $customError = Craft::t("commerce", "Gateway doesn’t support authorize");
 
@@ -132,33 +130,42 @@ class Payments extends Component
         $transaction->type = $defaultAction;
         $this->saveTransaction($transaction);
 
-        $card = $gateway->createCard($order, $form);
-        $itemBag = $gateway->createItemBag($order);
-
-        // Raise the 'afterCreateItemBag' event
-        if ($this->hasEventHandlers(self::EVENT_AFTER_CREATE_ITEM_BAG))
-        {
-            $this->trigger(self::EVENT_AFTER_CREATE_ITEM_BAG, new ItemBagEvent([
-                'items' => $itemBag,
-                'order' => $order
-            ]));
-        }
-
-        $request = $gateway->$defaultAction($this->buildPaymentRequest($transaction, $card, $itemBag));
-
-        // Let the gateway do anything else to the request
-        // including populating the request with things other than the card data.
-        $gateway->populateRequest($request, $form);
-
         try {
-            $success = $this->sendPaymentRequest($order, $request, $transaction, $redirect, $customError);
-
-            if ($success) {
-                $order->updateOrderPaidTotal();
+            /** @var RequestResponseInterface $response */
+            switch ($defaultAction) {
+                case TransactionRecord::TYPE_PURCHASE:
+                    $response = $gateway->purchase($transaction, $form);
+                    break;
+                case TransactionRecord::TYPE_AUTHORIZE:
+                    $response = $gateway->authorize($transaction, $form);
+                    break;
             }
+
+            $this->updateTransaction($transaction, $response);
+
+            if ($response->isRedirect()) {
+                return $this->_handleRedirect($response, $redirect);
+            }
+
+            if ($transaction->status !== TransactionRecord::STATUS_SUCCESS) {
+                $customError = $transaction->message;
+                return false;
+            }
+
+            $success = true;
+        } catch (GatewayRequestCancelledException $e) {
+            $transaction->status = TransactionRecord::STATUS_FAILED;
+            $this->saveTransaction($transaction);
+            $success = false;
         } catch (\Exception $e) {
+            $transaction->status = TransactionRecord::STATUS_FAILED;
+            $this->saveTransaction($transaction);
             $success = false;
             $customError = $e->getMessage();
+
+            if (!$e instanceof GatewayRequestCancelledException) {
+                Craft::error($e->getMessage());
+            }
         }
 
         return $success;
@@ -177,205 +184,14 @@ class Payments extends Component
     }
 
     /**
-     * @param Transaction $transaction
-     * @param CreditCard  $card
-     * @param mixed       $itemBag
-     *
-     * @return array
-     */
-    private function buildPaymentRequest(
-        Transaction $transaction,
-        CreditCard $card = null,
-        $itemBag = null
-    ) {
-        $request = [
-            'amount' => $transaction->paymentAmount,
-            'currency' => $transaction->paymentCurrency,
-            'transactionId' => $transaction->id,
-            'description' => Craft::t('commerce', 'Order').' #'.$transaction->orderId,
-            'clientIp' => Craft::$app->getRequest()->userIP,
-            'transactionReference' => $transaction->hash,
-            'returnUrl' => UrlHelper::actionUrl('commerce/payments/completePayment', ['commerceTransactionId' => $transaction->id, 'commerceTransactionHash' => $transaction->hash]),
-            'cancelUrl' => UrlHelper::siteUrl($transaction->order->cancelUrl),
-        ];
-
-        // Each gateway adapter needs to know whether to use our acceptNotification handler because most omnipay gateways
-        // implement the notification API differently. Hoping Omnipay v3 will improve this.
-        // For now, the standard paymentComplete handler is the default unless the gateway has been tested with our acceptNotification handler.
-        // TODO: move the handler logic into the gateway adapter itself if the Omnipay v2 interface cannot standardise.
-        if ($transaction->getGateway()->useNotifyUrl()) {
-            $request['notifyUrl'] = UrlHelper::actionUrl('commerce/payments/acceptNotification', ['commerceTransactionId' => $transaction->id, 'commerceTransactionHash' => $transaction->hash]);
-            unset($request['returnUrl']);
-        } else {
-            $request['notifyUrl'] = $request['returnUrl'];
-        }
-
-        // Do not use IPv6 loopback
-        if ($request['clientIp'] ===  '::1') {
-            $request['clientIp'] = '127.0.0.1';
-        }
-
-        // custom gateways may wish to access the order directly
-        $request['order'] = $transaction->order;
-        $request['orderId'] = $transaction->order->id;
-
-        // Stripe only params
-        $request['receiptEmail'] = $transaction->order->email;
-
-        // Paypal only params
-        $request['noShipping'] = 1;
-        $request['allowNote'] = 0;
-        $request['addressOverride'] = 1;
-        $request['buttonSource'] = 'ccommerce_SP';
-
-        if ($card) {
-            $request['card'] = $card;
-        }
-
-        if ($itemBag) {
-            $request['items'] = $itemBag;
-        }
-
-        $event = new BuildPaymentRequestEvent([
-            'params' => $request
-        ]);
-
-        // Raise 'buildPaymentRequest' event
-        $this->trigger(self::EVENT_BUILD_PAYMENT_REQUEST, $event);
-
-        return $event->params;
-    }
-
-    /**
-     * Send a payment request to the gateway, and redirect appropriately
-     *
-     * @param Order            $order
-     * @param RequestInterface $request
-     * @param Transaction      $transaction
-     * @param string|null      &$redirect
-     * @param string           &$customError
-     *
-     * @return bool
-     */
-    private function sendPaymentRequest(Order $order, RequestInterface $request, Transaction $transaction, &$redirect = null, &$customError = null) {
-
-        //raising event
-        $event = new GatewayRequestEvent([
-            'type' => $transaction->type,
-            'request' => $request,
-            'transaction' => $transaction
-        ]);
-
-        // Raise 'beforeGatewayRequestSend' event
-        $this->trigger(self::EVENT_BEFORE_GATEWAY_REQUEST_SEND, $event);
-
-        if (!$event->isValid) {
-            $transaction->status = TransactionRecord::STATUS_FAILED;
-            $this->saveTransaction($transaction);
-        } else {
-            try {
-
-                $response = $this->_sendRequest($request, $transaction);
-
-                $this->updateTransaction($transaction, $response);
-
-                if ($response->isRedirect()) {
-                    // redirect to off-site gateway
-                    if ($response->getRedirectMethod() === 'GET') {
-                        $redirect = $response->getRedirectUrl();
-                    } else {
-
-                        $gatewayPostRedirectTemplate = Plugin::getInstance()->getSettings()->gatewayPostRedirectTemplate;
-
-                        if (!empty($gatewayPostRedirectTemplate)) {
-                            $variables = [];
-                            $hiddenFields = '';
-
-                            // Gather all post hidden data inputs.
-                            foreach ($response->getRedirectData() as $key => $value) {
-                                $hiddenFields .= sprintf('<input type="hidden" name="%1$s" value="%2$s" />', htmlentities($key, ENT_QUOTES, 'UTF-8', false), htmlentities($value, ENT_QUOTES, 'UTF-8', false) )."\n";
-                            }
-
-                            $variables['inputs'] = $hiddenFields;
-
-                            // Set the action url to the responses redirect url
-                            $variables['actionUrl'] = $response->getRedirectUrl();
-
-                            // Set Craft to the site template mode
-                            $templatesService = Craft::$app->getView();
-                            $oldTemplateMode = $templatesService->getTemplateMode();
-                            $templatesService->setTemplateMode($templatesService::TEMPLATE_MODE_SITE);
-
-                            $template = $templatesService->render($gatewayPostRedirectTemplate, $variables);
-
-                            // Restore the original template mode
-                            $templatesService->setTemplateMode($oldTemplateMode);
-
-                            // Send the template back to the user.
-                            ob_start();
-                            echo $template;
-                            Craft::$app->end();
-                        }
-
-                        // If the developer did not provide a gatewayPostRedirectTemplate, use the built in Omnipay Post html form.
-                        $response->redirect();
-                    }
-
-                    return true;
-                }
-            } catch (\Exception $e) {
-                $transaction->status = TransactionRecord::STATUS_FAILED;
-                $transaction->message = $e->getMessage();
-                Craft::error("Omnipay Gateway Communication Error: ".$e->getMessage(), __METHOD__);
-                $this->saveTransaction($transaction);
-            }
-        }
-
-        if ($transaction->status == TransactionRecord::STATUS_SUCCESS) {
-            return true;
-        }
-
-        $customError = $transaction->message;
-        return false;
-
-    }
-
-    /**
-     * @param $request
-     * @param $transaction
-     *
-     * @return mixed
-     */
-    private function _sendRequest($request, $transaction)
-    {
-        $data = $request->getData();
-
-        $event = new SendPaymentRequestEvent([
-            'requestData' => $data
-        ]);
-
-        // Raise 'beforeSendPaymentRequest' event
-        $this->trigger(self::EVENT_BEFORE_SEND_PAYMENT_REQUEST, $event);
-        
-        // We can't merge the $data with $modifiedData since the $data is not always an array.
-        // For example it could be a XML object, json, or anything else really.
-        if ($event->modifiedRequestData !== null) {
-            return $request->sendData($event->modifiedRequestData);
-        }
-
-        return $request->send();
-    }
-
-    /**
+     * Updates a transaction.
+     * 
      * @param Transaction       $transaction
-     * @param ResponseInterface $response
-     *
-     * @throws Exception
+     * @param RequestResponseInterface $response
+     * 
+     * @return void
      */
-    private function updateTransaction(
-        Transaction $transaction,
-        ResponseInterface $response
-    ) {
+    private function updateTransaction(Transaction $transaction, RequestResponseInterface $response) {
         if ($response->isSuccessful()) {
             $transaction->status = TransactionRecord::STATUS_SUCCESS;
         } elseif ($response->isRedirect()) {
@@ -425,15 +241,8 @@ class Payments extends Component
      * @return Transaction
      * @throws Exception
      */
-    private function processCaptureOrRefund(
-        Transaction $parent,
-        $action
-    ) {
-        if (!in_array($action, [
-            TransactionRecord::TYPE_CAPTURE,
-            TransactionRecord::TYPE_REFUND
-        ])
-        ) {
+    private function processCaptureOrRefund(Transaction $parent, $action ) {
+        if (!in_array($action, [TransactionRecord::TYPE_CAPTURE, TransactionRecord::TYPE_REFUND], false)) {
             throw new Exception('Wrong action: '.$action);
         }
 
@@ -738,5 +547,55 @@ EOF;
         }
 
         return 0;
+    }
+
+    /**
+     * Handle a redirect.
+     *
+     * @param RequestResponseInterface $response
+     * @param string|null              $redirect
+     */
+    private function _handleRedirect(RequestResponseInterface $response, &$redirect = null)
+    {
+        // redirect to off-site gateway
+        if ($response->getRedirectMethod() === 'GET') {
+            $redirect = $response->getRedirectUrl();
+        } else {
+
+            $gatewayPostRedirectTemplate = Plugin::getInstance()->getSettings()->gatewayPostRedirectTemplate;
+
+            if (!empty($gatewayPostRedirectTemplate)) {
+                $variables = [];
+                $hiddenFields = '';
+
+                // Gather all post hidden data inputs.
+                foreach ($response->getRedirectData() as $key => $value) {
+                    $hiddenFields .= sprintf('<input type="hidden" name="%1$s" value="%2$s" />', htmlentities($key, ENT_QUOTES, 'UTF-8', false), htmlentities($value, ENT_QUOTES, 'UTF-8', false) )."\n";
+                }
+
+                $variables['inputs'] = $hiddenFields;
+
+                // Set the action url to the responses redirect url
+                $variables['actionUrl'] = $response->getRedirectUrl();
+
+                // Set Craft to the site template mode
+                $templatesService = Craft::$app->getView();
+                $oldTemplateMode = $templatesService->getTemplateMode();
+                $templatesService->setTemplateMode($templatesService::TEMPLATE_MODE_SITE);
+
+                $template = $templatesService->render($gatewayPostRedirectTemplate, $variables);
+
+                // Restore the original template mode
+                $templatesService->setTemplateMode($oldTemplateMode);
+
+                // Send the template back to the user.
+                ob_start();
+                echo $template;
+                Craft::$app->end();
+            }
+
+            // If the developer did not provide a gatewayPostRedirectTemplate, use the built in Omnipay Post html form.
+            $response->redirect();
+        }
     }
 }
