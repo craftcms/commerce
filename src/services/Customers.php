@@ -210,10 +210,14 @@ class Customers extends Component
      */
     public function getAddressIds($customerId)
     {
-        $addresses = Plugin::getInstance()->getAddresses()->getAddressesByCustomerId($customerId);
         $ids = [];
-        foreach ($addresses as $address) {
-            $ids[] = $address->id;
+
+        if ($customerId) {
+            $addresses = Plugin::getInstance()->getAddresses()->getAddressesByCustomerId($customerId);
+
+            foreach ($addresses as $address) {
+                $ids[] = $address->id;
+            }
         }
 
         return $ids;
