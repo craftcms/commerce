@@ -3,6 +3,10 @@ Commerce Changelog
 
 ## Unreleased
 
+### Added
+
+- Added a new template hook (`cp.commerce.product.edit.right-pane`) for the right pane of the edit product screen.
+
 ### Fixed
 - Fixed an issue in the example templates where the `same address` checkbox still being checked when different addresses where previously selected.
 
