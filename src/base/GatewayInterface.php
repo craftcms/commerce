@@ -23,7 +23,7 @@ interface GatewayInterface extends SavableComponentInterface
     /**
      * Make a purchase request.
      *
-     * @param Transaction     $transaction Transaction that is the basis for the purchase
+     * @param Transaction     $transaction The purchase transaction
      * @param BasePaymentForm $form        A form filled with payment info
      *
      * @return RequestResponseInterface
@@ -33,7 +33,7 @@ interface GatewayInterface extends SavableComponentInterface
     /**
      * Make an authorize request.
      *
-     * @param Transaction     $transaction Transaction that is the basis for the authorization
+     * @param Transaction     $transaction The authorize transaction
      * @param BasePaymentForm $form        A form filled with payment info
      *
      * @return RequestResponseInterface
@@ -43,22 +43,22 @@ interface GatewayInterface extends SavableComponentInterface
     /**
      * Make an refund request.
      *
-     * @param Transaction     $transaction Transaction that is the basis for the refund
-     * @param BasePaymentForm $form        A form filled with payment info
+     * @param Transaction     $transaction The refund transaction
+     * @param string          $reference   Reference for the transaction being refunded.
      *
      * @return RequestResponseInterface
      */
-    public function refund(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface;
+    public function refund(Transaction $transaction, string $reference): RequestResponseInterface;
 
     /**
      * Make a capture request.
      *
-     * @param Transaction     $transaction Transaction that is the basis for the capture
-     * @param BasePaymentForm $form        A form filled with payment info
+     * @param Transaction  $transaction The capture transaction
+     * @param string       $reference   Reference for the transaction being captured.
      *
      * @return RequestResponseInterface
      */
-    public function capture(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface;
+    public function capture(Transaction $transaction, string $reference): RequestResponseInterface;
 
     /**
      * Return true if gateway supports purchase requests.

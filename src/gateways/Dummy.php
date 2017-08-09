@@ -66,12 +66,25 @@ class Dummy extends Gateway
     {
         return true;
     }
-
+    
+    /**
+     * @inheritdoc
+     */
+    protected function getRequest(Transaction $transaction, BasePaymentForm $form = null)
+    {
+    }
 
     /**
      * @inheritdoc
      */
-    protected function getRequest(Transaction $transaction, BasePaymentForm $form)
+    protected function prepareCaptureRequest($request, string $reference)
+    {
+    }
+    
+    /**
+     * @inheritdoc
+     */
+    protected function prepareAuthorizeRequest($request)
     {
     }
 
@@ -85,7 +98,7 @@ class Dummy extends Gateway
     /**
      * @inheritdoc
      */
-    protected function prepareAuthorizeRequest($request)
+    protected function prepareRefundRequest($request, string $reference)
     {
     }
 

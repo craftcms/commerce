@@ -14,10 +14,9 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\db\Query;
 use craft\errors\GatewayRequestCancelledException;
+use craft\errors\TransactionException;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\UrlHelper;
-use Omnipay\Common\Message\RequestInterface;
-use Omnipay\Common\Message\ResponseInterface;
 use yii\base\Component;
 
 /**
@@ -128,7 +127,7 @@ class Payments extends Component
         //creating order, transaction and request
         $transaction = Plugin::getInstance()->getTransactions()->createTransaction($order);
         $transaction->type = $defaultAction;
-        $this->saveTransaction($transaction);
+        $this->_saveTransaction($transaction);
 
         try {
             /** @var RequestResponseInterface $response */
@@ -141,7 +140,7 @@ class Payments extends Component
                     break;
             }
 
-            $this->updateTransaction($transaction, $response);
+            $this->_updateTransaction($transaction, $response);
 
             if ($response->isRedirect()) {
                 return $this->_handleRedirect($response, $redirect);
@@ -152,61 +151,21 @@ class Payments extends Component
                 return false;
             }
 
+            $order->updateOrderPaidTotal();
             $success = true;
         } catch (GatewayRequestCancelledException $e) {
             $transaction->status = TransactionRecord::STATUS_FAILED;
-            $this->saveTransaction($transaction);
+            $this->_saveTransaction($transaction);
             $success = false;
         } catch (\Exception $e) {
             $transaction->status = TransactionRecord::STATUS_FAILED;
-            $this->saveTransaction($transaction);
+            $this->_saveTransaction($transaction);
             $success = false;
             $customError = $e->getMessage();
-
-            if (!$e instanceof GatewayRequestCancelledException) {
-                Craft::error($e->getMessage());
-            }
+            Craft::error($e->getMessage());
         }
 
         return $success;
-    }
-
-    /**
-     * @param Transaction $child
-     *
-     * @throws Exception
-     */
-    private function saveTransaction($child)
-    {
-        if (!Plugin::getInstance()->getTransactions()->saveTransaction($child)) {
-            throw new Exception('Error saving transaction: '.implode(', ', $child->errors));
-        }
-    }
-
-    /**
-     * Updates a transaction.
-     * 
-     * @param Transaction       $transaction
-     * @param RequestResponseInterface $response
-     * 
-     * @return void
-     */
-    private function updateTransaction(Transaction $transaction, RequestResponseInterface $response) {
-
-        if ($response->isSuccessful()) {
-            $transaction->status = TransactionRecord::STATUS_SUCCESS;
-        } elseif ($response->isRedirect()) {
-            $transaction->status = TransactionRecord::STATUS_REDIRECT;
-        } else {
-            $transaction->status = TransactionRecord::STATUS_FAILED;
-        }
-
-        $transaction->response = $response->getData();
-        $transaction->code = $response->getCode();
-        $transaction->reference = $response->getTransactionReference();
-        $transaction->message = $response->getMessage();
-
-        $this->saveTransaction($transaction);
     }
 
     /**
@@ -223,7 +182,7 @@ class Payments extends Component
             ]));
         }
 
-        $transaction = $this->processCaptureOrRefund($transaction, TransactionRecord::TYPE_CAPTURE);
+        $transaction = $this->_processCaptureOrRefund($transaction, TransactionRecord::TYPE_CAPTURE);
 
         // Raise 'afterCaptureTransaction' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_CAPTURE_TRANSACTION)) {
@@ -233,65 +192,6 @@ class Payments extends Component
         }
 
         return $transaction;
-    }
-
-    /**
-     * @param Transaction $parent
-     * @param string      $action
-     *
-     * @return Transaction
-     * @throws Exception
-     */
-    private function processCaptureOrRefund(Transaction $parent, $action ) {
-        if (!in_array($action, [TransactionRecord::TYPE_CAPTURE, TransactionRecord::TYPE_REFUND], false)) {
-            throw new Exception('Wrong action: '.$action);
-        }
-
-        $order = $parent->order;
-        $child = Plugin::getInstance()->getTransactions()->createTransaction($order);
-        $child->parentId = $parent->id;
-        $child->gatewayId = $parent->gatewayId;
-        $child->type = $action;
-        $child->amount = $parent->amount;
-        $child->paymentAmount = $parent->paymentAmount;
-        $child->currency = $parent->currency;
-        $child->paymentCurrency = $parent->paymentCurrency;
-        $child->paymentRate = $parent->paymentRate;
-        $this->saveTransaction($child);
-
-        $gateway = $parent->getGateway();
-        $request = $gateway->$action($this->buildPaymentRequest($child));
-        $request->setTransactionReference($parent->reference);
-
-        $order->returnUrl = $order->getCpEditUrl();
-        Craft::$app->getElements()->saveElement($order);
-
-        try {
-
-            //raising event
-            $event = new GatewayRequestEvent([
-                'type' => $child->type,
-                'request' => $request,
-                'transaction' => $child
-            ]);
-            $this->trigger(self::EVENT_BEFORE_GATEWAY_REQUEST_SEND, $event);
-
-            // Check if perhaps we shouldn't send the request
-            if (!$event->isValid) {
-                $child->status = TransactionRecord::STATUS_FAILED;
-                $this->saveTransaction($child);
-            } else {
-                $response = $this->_sendRequest($request, $child);
-                $this->updateTransaction($child, $response);
-            }
-        } catch (\Exception $e) {
-            $child->status = TransactionRecord::STATUS_FAILED;
-            $child->message = $e->getMessage();
-
-            $this->saveTransaction($child);
-        }
-
-        return $child;
     }
 
     /**
@@ -308,7 +208,7 @@ class Payments extends Component
             ]));
         }
 
-        $transaction = $this->processCaptureOrRefund($transaction, TransactionRecord::TYPE_REFUND);
+        $transaction = $this->_processCaptureOrRefund($transaction, TransactionRecord::TYPE_REFUND);
 
         /// Raise 'afterRefundTransaction' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_REFUND_TRANSACTION)) {
@@ -338,7 +238,6 @@ class Payments extends Component
         // ignore already processed transactions
         if ($transaction->status != TransactionRecord::STATUS_REDIRECT) {
             if ($transaction->status == TransactionRecord::STATUS_SUCCESS) {
-                $transaction->order->updateOrderPaidTotal();
                 return true;
             } else {
                 $customError = $transaction->message;
@@ -479,7 +378,7 @@ EOF;
         $transaction->code = $response->getCode();
         $transaction->reference = $request->getTransactionReference();
         $transaction->message = $request->getMessage();
-        $this->saveTransaction($transaction);
+        $this->_saveTransaction($transaction);
 
         if ($transaction->status == TransactionRecord::STATUS_SUCCESS) {
             $transaction->order->updateOrderPaidTotal();
@@ -497,13 +396,13 @@ EOF;
 
     /**
      *
-     * Gets the total transactions amount really paid (not authorized)
+     * Gets the total transactions amount really paid (not authorized).
      *
      * @param Order $order
      *
      * @return float
      */
-    public function getTotalPaidForOrder(Order $order)
+    public function getTotalPaidForOrder(Order $order): float
     {
         $transaction = (new Query())
             ->select('sum(amount) AS total, orderId')
@@ -525,13 +424,13 @@ EOF;
     }
 
     /**
-     * Gets the total transactions amount with authorized
+     * Gets the total transactions amount with authorized.
      *
      * @param Order $order
      *
      * @return float
      */
-    public function getTotalAuthorizedForOrder(Order $order)
+    public function getTotalAuthorizedForOrder(Order $order): float
     {
         $transaction = (new Query())
             ->select('sum(amount) AS total, orderId')
@@ -550,6 +449,9 @@ EOF;
 
         return 0;
     }
+
+    // Private Methods
+    // =========================================================================
 
     /**
      * Handle a redirect.
@@ -599,5 +501,99 @@ EOF;
             // If the developer did not provide a gatewayPostRedirectTemplate, use the built in Omnipay Post html form.
             $response->redirect();
         }
+    }
+
+    /**
+     * Process a capture or refund exception.
+     * 
+     * @param Transaction $parent
+     * @param string      $action
+     *
+     * @return Transaction
+     * @throws TransactionException
+     */
+    private function _processCaptureOrRefund(Transaction $parent, $action ) {
+        if (!in_array($action, [TransactionRecord::TYPE_CAPTURE, TransactionRecord::TYPE_REFUND], false)) {
+            throw new TransactionException('Tried to capture or refund with wrong action type: '.$action);
+        }
+
+        $order = $parent->order;
+        $child = Plugin::getInstance()->getTransactions()->createTransaction($order);
+        $child->parentId = $parent->id;
+        $child->gatewayId = $parent->gatewayId;
+        $child->type = $action;
+        $child->amount = $parent->amount;
+        $child->paymentAmount = $parent->paymentAmount;
+        $child->currency = $parent->currency;
+        $child->paymentCurrency = $parent->paymentCurrency;
+        $child->paymentRate = $parent->paymentRate;
+        $this->_saveTransaction($child);
+
+        $gateway = $parent->getGateway();
+
+        $order->returnUrl = $order->getCpEditUrl();
+        Craft::$app->getElements()->saveElement($order);
+
+        try {
+            /** @var RequestResponseInterface $response */
+            switch ($action) {
+                case TransactionRecord::TYPE_CAPTURE:
+                    $response = $gateway->capture($child, $parent->reference);
+                    break;
+                case TransactionRecord::TYPE_REFUND:
+                    $response = $gateway->refund($child, $parent->reference);
+                    break;
+            }
+
+            $this->_updateTransaction($child, $response);
+        } catch (GatewayRequestCancelledException $e) {
+            $child->status = TransactionRecord::STATUS_FAILED;
+            $this->_saveTransaction($child);
+        } catch (\Exception $e) {
+            $child->status = TransactionRecord::STATUS_FAILED;
+            $child->message = $e->getMessage();
+            $this->_saveTransaction($child);
+
+            Craft::error($e->getMessage());
+        }
+
+        return $child;
+    }
+
+    /**
+     * @param Transaction $child
+     *
+     * @throws TransactionException
+     */
+    private function _saveTransaction($child)
+    {
+        if (!Plugin::getInstance()->getTransactions()->saveTransaction($child)) {
+            throw new TransactionException('Error saving transaction: '.implode(', ', $child->errors));
+        }
+    }
+
+    /**
+     * Updates a transaction.
+     *
+     * @param Transaction       $transaction
+     * @param RequestResponseInterface $response
+     *
+     * @return void
+     */
+    private function _updateTransaction(Transaction $transaction, RequestResponseInterface $response) {
+        if ($response->isSuccessful()) {
+            $transaction->status = TransactionRecord::STATUS_SUCCESS;
+        } elseif ($response->isRedirect()) {
+            $transaction->status = TransactionRecord::STATUS_REDIRECT;
+        } else {
+            $transaction->status = TransactionRecord::STATUS_FAILED;
+        }
+
+        $transaction->response = $response->getData();
+        $transaction->code = $response->getCode();
+        $transaction->reference = $response->getTransactionReference();
+        $transaction->message = $response->getMessage();
+
+        $this->_saveTransaction($transaction);
     }
 }

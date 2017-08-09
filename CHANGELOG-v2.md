@@ -20,9 +20,9 @@
 - `craft\commerce\services\Variants` now fires the `purchaseVariant` event.
 
 ### Events that used to be hooks
-- Instead of the `commerce_modifyPaymentRequest` hook you should use the `beforeGatewayRequestSend` event fired by `craft\commerce\services\Payments`.
+- Instead of the `commerce_modifyPaymentRequest` hook you should use the `beforeGatewayRequestSend` event fired by `craft\commerce\base\Gateway`.
 - Instead of the `commerce_modifyGatewayRequestData` hook you should use the `beforeSendPaymentRequest` event fired by `craft\commerce\services\Payments`.
-- Instead of the `commerce_modifyItemBag` hook you should use the `afterCreateItemBag` event fired by `craft\commerce\services\Payments`.
+- Instead of the `commerce_modifyItemBag` hook you should use the `afterCreateItemBag` event fired by `craft\commerce\base\Gateway`.
 - Instead of the `commerce_modifyEmail` hook you should use the cancelable `beforeSendEmail` event fired by `craft\commerce\services\Emails`.
 - Instead of the `commerce_registerOrderAdjusters` hook you should use the `registerOrderAdjusters` event fired by `craft\commerce\services\OrderAdjustments`.
 - To register new gateway types, use the `registerGatewayTypes` event fired by `craft\commerce\services\Gateways`.

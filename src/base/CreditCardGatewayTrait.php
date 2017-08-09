@@ -8,6 +8,7 @@
 namespace craft\commerce\base;
 
 use Craft;
+use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\payments\CreditCardPaymentForm;
 
 /**
@@ -39,5 +40,15 @@ trait CreditCardGatewayTrait
         $params = array_merge($defaults, $params);
 
         return Craft::$app->getView()->renderTemplate('commerce/_components/gateways/common/creditCardPaymentForm', $params);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function populateRequest(array &$request, BasePaymentForm $paymentForm)
+    {
+        if ($paymentForm->hasProperty('token')) {
+            $request['token'] = $paymentForm->token;
+        }
     }
 }
