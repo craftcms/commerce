@@ -42,6 +42,14 @@ class MissingGateway extends Gateway implements MissingComponentInterface
     {
     }
 
+    protected function prepareCaptureRequest($request, string $reference)
+    {
+    }
+
+    protected function prepareRefundRequest($request, string $reference)
+    {
+    }
+
     /**
      * @inheritdoc
      */

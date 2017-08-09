@@ -534,6 +534,7 @@ EOF;
         Craft::$app->getElements()->saveElement($order);
 
         try {
+            /** @var RequestResponseInterface $response */
             switch ($action) {
                 case TransactionRecord::TYPE_CAPTURE:
                 {
