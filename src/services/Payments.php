@@ -537,15 +537,11 @@ EOF;
             /** @var RequestResponseInterface $response */
             switch ($action) {
                 case TransactionRecord::TYPE_CAPTURE:
-                {
                     $response = $gateway->capture($child, $parent->reference);
                     break;
-                }
                 case TransactionRecord::TYPE_REFUND:
-                {
                     $response = $gateway->refund($child, $parent->reference);
                     break;
-                }
             }
 
             $this->_updateTransaction($child, $response);
