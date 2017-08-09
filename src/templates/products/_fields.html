@@ -261,7 +261,7 @@
         id: 'weight',
         label: 'Weight'|t('commerce'),
         name: 'weight',
-        value: value: (variant.weight ? variant.weight|number : ''),
+        value: (variant.weight ? variant.weight|number : ''),
         placeholder: 'Enter weight'|t('commerce'),
         unit: craft.commerce.settings.weightUnits,
         errors: variant.getErrors('weight')
